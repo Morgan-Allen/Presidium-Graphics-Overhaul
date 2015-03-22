@@ -36,7 +36,7 @@ public class Qudu extends Fauna {
     "themselves from most predators.",
     FILE_DIR+"QuudPortrait.png",
     MS3DModel.loadFrom(
-      FILE_DIR, "Quud.ms3d", Species.class,
+      FILE_DIR, "Quud.ms3d", Qudu.class,
       XML_FILE, "Quud"
     ),
     Species.Type.BROWSER,

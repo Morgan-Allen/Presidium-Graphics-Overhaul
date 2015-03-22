@@ -45,7 +45,7 @@ public class Lictovore extends Fauna {
     "scented middens, rich in spyce, to mark the limits of their territory.",
     FILE_DIR+"MicovorePortrait.png",
     MS3DModel.loadFrom(
-      FILE_DIR, "Micovore.ms3d", Species.class,
+      FILE_DIR, "Micovore.ms3d", Lictovore.class,
       XML_FILE, "Micovore"
     ),
     Type.PREDATOR,

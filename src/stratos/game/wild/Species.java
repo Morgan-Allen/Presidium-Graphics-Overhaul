@@ -53,6 +53,15 @@ public abstract class Species extends Background {
     ARTILECT_SPECIES[] = { Drone.SPECIES, Tripod.SPECIES, Cranial.SPECIES }
   ;
   
+  final public static VenueProfile NEST_PROFILES[];
+  static {
+    final Species nesting[] = ANIMAL_SPECIES;
+    NEST_PROFILES = new VenueProfile[nesting.length];
+    for (int n = nesting.length ; n-- > 0;) {
+      NEST_PROFILES[n] = nesting[n].nestProfile();
+    }
+  }
+  
   
   /**  Fields and constructors.
     */

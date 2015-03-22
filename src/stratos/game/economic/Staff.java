@@ -322,16 +322,18 @@ public class Staff {
       
       //  Clear out the office for anyone dead-
       for (Actor a : workers) if (a.destroyed() || a.base() != base) {
-        setWorker(a, false);
+        a.mind.setWork(null);
+        workers.remove(a);
       }
       for (Actor a : residents) if (a.destroyed() || a.base() != base) {
-        setResident(a, false);
+        a.mind.setHome(null);
+        residents.remove(a);
       }
-      for (FindWork a : applications)
+      for (FindWork a : applications) {
         if (a.employer() != employs || a.actor().destroyed()) {
           setApplicant(a, false);
         }
-      
+      }
       //  If there's an unfilled opening, look for someone to fill it.
       //  TODO:  This should really be handled more from the Commerce class?
       if (employs.careers() == null) return;

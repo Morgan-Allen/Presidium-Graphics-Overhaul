@@ -199,16 +199,6 @@ public class Nest extends Venue {
   
   /**  Utility methods for Nest-establishment.
     */
-  final public static VenueProfile VENUE_PROFILES[];
-  static {
-    final Species nesting[] = Species.ANIMAL_SPECIES;
-    VENUE_PROFILES = new VenueProfile[nesting.length];
-    for (int n = nesting.length ; n-- > 0;) {
-      VENUE_PROFILES[n] = nesting[n].nestProfile();
-    }
-  }
-  
-  
   protected static VenueProfile constructProfile(
     int size, int high, int entryFace, final Species s, final ModelAsset model
   ) {

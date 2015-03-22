@@ -2,6 +2,7 @@
 
 
 package stratos.start;
+import static stratos.start.SaveUtils.SAVES_DIR;
 import stratos.game.common.Session;
 import stratos.game.common.Stage;
 import stratos.graphics.common.Rendering;
@@ -46,7 +47,7 @@ public class SaveUtils {
   
   public static boolean saveExists(String saveFile) {
     if (saveFile == null) return false;
-    final File file = new File(saveFile);
+    final File file = new File(SAVES_DIR+saveFile);
     if (! file.exists()) return false;
     else return true;
   }
@@ -122,11 +123,16 @@ public class SaveUtils {
   
   //  TODO:  This method should *definitely* only be called from a specific
   //  point in the overall play-loop sequence.  Fix that.
+  
+  //  NOTE:  The argument is assumed to be the name of the file *within* the
+  //         saves directory, not the entire system path.
   public static void loadGame(
     final String saveFile, final boolean fromMenu
   ) {
     PlayLoop.sessionStateWipe();
     I.say("Should be loading game from: "+saveFile);
+    final String fullPath = SAVES_DIR+saveFile;
+    
     final Playable loading = new Playable() {
       
       private boolean begun = false, done = false;
@@ -141,7 +147,7 @@ public class SaveUtils {
           public void run() {
             I.say("Beginning loading...");
             try {
-              final Session s = Session.loadSession(saveFile);
+              final Session s = Session.loadSession(fullPath);
               try { Thread.sleep(250); }
               catch (Exception e) {}
               loaded = s.scenario();

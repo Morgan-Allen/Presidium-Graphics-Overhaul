@@ -100,10 +100,10 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   protected void initScenario(String prefix) {
-    final String savePath = latestSave(prefix);
+    final String savePath = prefix == null ? null : latestSave(prefix);
     I.say("\nSave path is: "+savePath);
     
-    if (prefix != null && SaveUtils.saveExists(savePath)) {
+    if (SaveUtils.saveExists(savePath)) {
       I.say("\n\nLoading scenario from save file...");
       loadGame(savePath, false);
       return;
@@ -235,7 +235,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     this.base  = null;
     this.UI    = null;
     PlayLoop.sessionStateWipe();
-    initScenario(savesPrefix);
+    initScenario(null);
     PlayLoop.setupAndLoop(this);
   }
   

@@ -45,7 +45,7 @@ public class Setting {
     //  House Suhail-
     //    Enemies:  Rigel-Procyon and Fomalhaut, Hive Urym
     //    Allies:  Ophiuchus-Rana
-    //    Bonus to Native relations
+    //    Bonus to Native relations, penalty to Merchant relations
     setRelations(PLANET_ASRA_NOVI, false,
       Base.KEY_NATIVES  ,  0.4f ,
       Base.KEY_ARTILECTS, -0.75f,
@@ -60,7 +60,7 @@ public class Setting {
     //  House Rigel-Procyon-
     //    Enemies:  Altair and Fomalhaut, Calivor
     //    Allies:  Hive Urym
-    //    Bonus to Artilect relations, penalty to Commoner relations
+    //    Bonus to Artilect and Noble relations, penalty to Commoner relations
     setRelations(PLANET_PAREM_V, false,
       Base.KEY_NATIVES  ,  0.0f ,
       Base.KEY_ARTILECTS,  0.25f,
@@ -108,7 +108,7 @@ public class Setting {
     final Float val = (Float) BR.get(keyFor(other));
     return val != null ? val : 0;
   }
-
+  
   
   private static Object keyFor(Base base) {
     if (base.isNative()) return Base.KEY_NATIVES;

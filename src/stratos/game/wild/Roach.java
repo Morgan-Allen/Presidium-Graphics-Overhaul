@@ -6,25 +6,32 @@
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.actors.*;
+import stratos.graphics.solids.MS3DModel;
 import stratos.util.*;
 import stratos.user.*;
 import static stratos.game.actors.Qualities.*;
 
 
 
+//  Use variants- Roach, Giant Roach and Titan Roach.
+
+
 public class Roach extends Vermin {
   
   
-  final static Species SPECIES = new Species(
+  final public static Species SPECIES = new Species(
     Roach.class,
     "Roach",
     "Roaches are typically shy, retiring creatures, but have been known to "+
     "spread disease and steal rations.",
     null,
-    null,
+    MS3DModel.loadFrom(
+      FILE_DIR, "GiantRoach.ms3d", Roach.class,
+      XML_FILE, "GiantRoach"
+    ),
     Species.Type.VERMIN, 1.5f, 2.0f, 1.1f
   ) {
-    public Actor sampleFor(Base base) { return new Roach(base); }
+    public Actor sampleFor(Base base) { return init(new Roach(base)); }
   };
   
   
@@ -61,7 +68,20 @@ public class Roach extends Vermin {
   
   
   
+  /**  Rendering and interface methods-
+    */
+  protected float moveAnimStride() {
+    //  TODO:  Base this off the default duration for the 'move' animation!
+    return 2.5f;
+  }
 }
+
+
+
+
+
+
+
 
 
 

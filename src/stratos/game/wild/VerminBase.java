@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.wild;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.politic.*;
@@ -12,71 +13,76 @@ import stratos.util.*;
 
 
 
-public class ArtilectBase extends Base {
+public class VerminBase extends Base {
   
   
   private static boolean verbose = false;
   
   final static float
     MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
-    ONLINE_WAKE_TIME  = Stage.STANDARD_YEAR_LENGTH / 2,
     CHECK_INTERVAL    = Stage.STANDARD_HOUR_LENGTH * 2;
   
-  private float onlineLevel = 0;
   
   
-  
-  public ArtilectBase(Stage world) {
+  public VerminBase(Stage world) {
     super(world, true);
   }
   
   
-  public ArtilectBase(Session s) throws Exception {
+  public VerminBase(Session s) throws Exception {
     super(s);
-    this.onlineLevel = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveFloat(onlineLevel);
-  }
-  
-  
-  public void setOnlineLevel(float toLevel) {
-    this.onlineLevel = toLevel;
   }
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
+    
     //
-    //  As long as there's a technologically-advanced non-artilect base on the
-    //  map, increment the 'wakeup' level.
+    //  If the time has arrived, assemble a 'raid' where creatures arrive
+    //  through another base's service hatches.
+    
+    final PresenceMap hatches = world.presences.mapFor(ServiceHatch.class);
+    
+    //int totalHatches = hatches.population();
+    //  TODO:  Update more frequently as the hatch population increases.
+    //  TODO:  Vary infestation chance based on the area's squalor.
+    
     if (numUpdates % CHECK_INTERVAL == 0) {
-      boolean hasFoe = false;
-      for (Base base : world.bases()) if (! base.primal) {
-        if (world.presences.nearestMatch(base, null, -1) != null) {
-          hasFoe = true;
-        }
+      Target entryPoint = hatches.pickRandomAround(null, -1, null);
+      if (entryPoint == null) return;
+      final int numEntered = Rand.index(3) + 1;
+      final ServiceHatch hatch = (ServiceHatch) entryPoint;
+      
+      //  Okay.  Assemble a group of vermin and add them to the hatch as
+      //  immigrants.
+      
+      //  TODO:  VARY COMPOSITION MORE?
+      
+      I.say("Introducing "+numEntered+" vermin at "+hatch);
+      
+      for (int n = numEntered; n-- > 0;) {
+        Actor enters = Roach.SPECIES.sampleFor(this);
+        enters.enterWorldAt(hatch, world);
+        enters.goAboard(hatch, world);
+        enters.mind.setHome(hatch);
       }
-      final float inc = CHECK_INTERVAL * 1f / ONLINE_WAKE_TIME;
-      onlineLevel += inc * (hasFoe ? 1 : -1);
-      onlineLevel = Nums.clamp(onlineLevel, 0, 1);
     }
   }
   
   
   protected BaseTactics initTactics() {
     return new BaseTactics(this) {
-      
-      
+      /*
       protected float rateMission(Mission mission) {
         final float importance = mission.rateImportance(base);
         if (importance <= 0) return -1;
         return importance + onlineLevel;
       }
-      
       
       protected boolean shouldAllow(
         Actor actor, Mission mission,
@@ -87,13 +93,13 @@ public class ArtilectBase extends Base {
         return actorPower + partyPower <= powerLimit;
       }
       
-      
       protected boolean shouldLaunch(
         Mission mission, float partyChance, float partyPower, boolean timeUp
       ) {
         float powerLimit = MAX_MISSION_POWER * onlineLevel;
         return (partyPower > (powerLimit / 2)) || timeUp;
       }
+      //*/
     };
   }
 }

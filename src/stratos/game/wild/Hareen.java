@@ -39,7 +39,7 @@ public class Hareen extends Fauna {
     "in their skin also allow them to subsist partially on sunlight.",
     FILE_DIR+"VareenPortrait.png",
     MS3DModel.loadFrom(
-      FILE_DIR, "Vareen.ms3d", Species.class,
+      FILE_DIR, "Vareen.ms3d", Hareen.class,
       XML_FILE, "Vareen"
     ),
     Type.BROWSER,

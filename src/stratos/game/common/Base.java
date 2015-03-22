@@ -24,9 +24,11 @@ public class Base implements
     */
   final public static String
     KEY_ARTILECTS = "Artilects",
-    KEY_WILDLIFE  = "Wildlife" ,
     KEY_NATIVES   = "Natives"  ,
-    KEY_FREEHOLD  = "Freehold" ;
+    KEY_VERMIN    = "Vermin"   ,
+    KEY_WILDLIFE  = "Wildlife" ,
+    KEY_FREEHOLD  = "Freehold" ,
+    KEY_SETTLED   = "Settled"  ;
   
   
   final public Stage   world ;
@@ -85,8 +87,19 @@ public class Base implements
     if (base != null) return base;
     else base = new Base(world, true);
     
-    final VenueProfile canBuild[] = Nest.VENUE_PROFILES;
+    final VenueProfile canBuild[] = Species.NEST_PROFILES;
     return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN, canBuild);
+  }
+  
+  
+  public static VerminBase vermin(Stage world) {
+    VerminBase base = (VerminBase) namedBase(world, KEY_ARTILECTS);
+    if (base != null) return base;
+    else base = new VerminBase(world);
+    
+    final VenueProfile canBuild[] = new VenueProfile[0];
+    registerBase(base, world, KEY_VERMIN, Colour.LITE_GREY, canBuild);
+    return base;
   }
   
   

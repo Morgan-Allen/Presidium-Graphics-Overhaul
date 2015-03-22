@@ -24,6 +24,11 @@ public class SkinsPreview extends VisualDebug {
     PlayLoop.setupAndLoop(new SkinsPreview(), "stratos.graphics");
   }
   
+  final static String
+    ARTILECTS_PATH = "media/Actors/artilects/ArtilectModels.xml",
+    VERMIN_PATH    = "media/Actors/vermin/VerminModels.xml"     ,
+    FAUNA_PATH     = "media/Actors/fauna/FaunaModels.xml"       ;
+  
   
   final static Colour BACK_COLOUR = Colour.DARK_BLUE;
   final static PlaneFX.Model CENTRE_MARK_MODEL = new PlaneFX.Model(
@@ -39,7 +44,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = "media/Actors/artilects/ArtilectModels.xml";
+  private String currentPath = VERMIN_PATH;
   
   private XML currentXML;
   private SolidModel currentModel;

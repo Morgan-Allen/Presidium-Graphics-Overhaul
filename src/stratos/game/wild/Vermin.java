@@ -40,11 +40,15 @@ import stratos.util.*;
 //  TODO:  Should Vermin count as a type of Fauna?  With some extra behavioural
 //         changes?
 
-public class Vermin extends Actor {
+public abstract class Vermin extends Actor {
   
   
   /**  Data fields, constructors, and save/load methods-
     */
+  final static String
+    FILE_DIR = "media/Actors/vermin/",
+    XML_FILE = "VerminModels.xml";
+  
   final Species species;
   
   
@@ -52,6 +56,8 @@ public class Vermin extends Actor {
     super();
     this.species = s;
     assignBase(b);
+    initStats();
+    attachSprite(species.model.makeSprite());
   }
   
 
@@ -70,6 +76,9 @@ public class Vermin extends Actor {
   public Species species() {
     return species;
   }
+  
+  
+  protected abstract void initStats();
   
   
   
@@ -110,13 +119,18 @@ public class Vermin extends Actor {
     choice.add(new Retreat(this));
   }
   
-
+  
   protected void addChoices(Choice choice) {
     
     //  TODO:  3 ACTIVITIES- HIDING, FINDING HOMES/BIRTHING, AND STEALING.
     
     //  TODO:  ADAPT BROWSING FOR THIS PURPOSE?  Avrodils and Rem Leeches
     //  have different feeding techniques.
+    
+    I.say("\nCreating choices for "+this);
+    
+    choice.isVerbose = true;
+    choice.add(Exploring.nextWandering(this).addMotives(Plan.MOTIVE_LEISURE, 1));
     
     
     final Venue home = (Venue) mind.home();

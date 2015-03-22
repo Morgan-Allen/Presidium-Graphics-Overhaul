@@ -160,7 +160,7 @@ public class DebugSecurity extends Scenario {
     //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
     UI.selection.pushSelection(hunts);
     
-    wildlife.setup.setAvailableVenues(Nest.VENUE_PROFILES);
+    wildlife.setup.setAvailableVenues(Species.NEST_PROFILES);
     wildlife.setup.doFullPlacements();
   }
   

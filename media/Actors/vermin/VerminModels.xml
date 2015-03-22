@@ -6,20 +6,18 @@
   format="MS3D"
   type="JOINT"
   path="media/Actors/vermin/"
-  file="giant_roach_gorion.ms3d"
+  file="GiantRoach.ms3d"
   scale="0.06"
   bound="2"
   stride="0.6"
   height="1.2"
 >
-  <animations fps="25">
+  <animations rotate="0" fps="25">
     <animation name="stand"      start="0"  end="0"   duration="0.5" />
-    <animation name="idle"       start="0"  end="30"  duration="0.5" />
-    <animation name="walk_begin" start="30" end="37"  duration="0.5" />
-    <animation name="walk_cycle" start="37" end="56"  duration="0.5" />
-    <animation name="walk_stop"  start="56" end="57"  duration="0.5" />
-    <animation name="attack"     start="67" end="92"  duration="0.5" />
-    <animation name="die"        start="92" end="122" duration="0.5" />
+    <animation name="look"       start="0"  end="30"  duration="0.5" />
+    <animation name="move"       start="37" end="56"  duration="0.5" />
+    <animation name="strike"     start="67" end="92"  duration="0.5" />
+    <animation name="fall"       start="92" end="122" duration="0.5" />
   </animations>
 </model>
 

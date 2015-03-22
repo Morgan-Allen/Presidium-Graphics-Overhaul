@@ -31,7 +31,7 @@ public class ServiceHatch extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     ServiceHatch.class, "service_hatch", "Service Hatch",
-    1, 1, true, Bastion.PROFILE
+    1, 1, false, Bastion.PROFILE
   );
   
   
@@ -88,6 +88,11 @@ public class ServiceHatch extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     structure.assignOutputs(Item.withAmount(ATMO, 2));
     structure.setAmbienceVal(-2);
+  }
+  
+  
+  protected void updatePaving(boolean inWorld) {
+    base.transport.updatePerimeter(this, inWorld);
   }
   
   
