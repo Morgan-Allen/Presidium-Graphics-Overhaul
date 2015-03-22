@@ -21,11 +21,11 @@ public class Habitat {
     TERRAIN_PATH = "media/Terrain/";
   final public static CutoutModel
     DESERT_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
+      Habitat.class, TERRAIN_PATH+"old_flora_touchup.png",
       4, 4, 1.9f, 2
     ),
     FOREST_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
+      Habitat.class, TERRAIN_PATH+"old_flora_touchup.png",
       4, 4, 1.9f, 2
     ),
     WASTES_FLORA_MODELS[][] = CutoutModel.fromImageGrid(

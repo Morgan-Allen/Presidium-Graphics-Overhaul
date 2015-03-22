@@ -18,6 +18,8 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Consider merging this with forestry (or maybe merging forest-planting
 //  with farming, and forest-cutting/sampling with this.)
 
+//  TODO:  Adapt this to animals (see isBrowser() below.)
+
 public class Foraging extends Plan {
   
   
@@ -105,7 +107,8 @@ public class Foraging extends Plan {
   }
   
   
-  //  TODO:  Make this an internal type.
+  //  TODO:  Make this an internal type.  And allow animals to just consume
+  //  what they gather immediately.
   private boolean isBrowsing() {
     return actor.species().animal();
   }

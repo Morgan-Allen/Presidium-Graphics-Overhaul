@@ -151,6 +151,8 @@ public class DebugPlacing extends Scenario {
   
   private void configRoadsTest(Stage world, Base base, BaseUI UI) {
     
+    Flora.populateFlora(world);
+    
     final Venue hatch = new ServiceHatch(base);
     Placement.establishVenue(hatch, world.tileAt(4, 4), true, world);
     
@@ -161,7 +163,7 @@ public class DebugPlacing extends Scenario {
     
     //  TODO:  Problem- venue-staffing automatically removes any actors that
     //  belong to foreign bases.  You need some other way for the Roaches to
-    //  hide.
+    //  hide- or just exit the map?
     
     UI.selection.pushSelection(hatch);
     /*
