@@ -457,6 +457,11 @@ public class ActorHealth implements Qualities {
   }
   
   
+  public float healthLevel() {
+    return (maxHealth - (injury + fatigue)) / maxHealth;
+  }
+  
+  
   public float fatigueLimit() {
     return maxHealth - fatigue;
   }

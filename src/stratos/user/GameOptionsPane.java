@@ -144,7 +144,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   public static void appendLoadOptions(Text text, String prefix) {
     
     //  TODO:  List any associated Psi costs here, based on time-stamp.
-    final Series <String> saves = prefix == null ?
+    final String saves[] = prefix == null ?
       SaveUtils.latestSaves()     :
       SaveUtils.savedFiles(prefix);
     
@@ -155,7 +155,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       
       text.append("\n  ");
       text.append(new Link(titlePath) { public void whenClicked() {
-        SaveUtils.loadGame("saves/"+path, true);
+        SaveUtils.loadGame(path, true);
       }});
     }
   }

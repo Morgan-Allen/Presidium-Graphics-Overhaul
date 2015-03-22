@@ -13,6 +13,27 @@ import stratos.util.*;
 
 
 
+
+
+//  Let's try simplicity for now.  It's basically a kind of raid-behaviour-
+//  (do I need to write a mission for that, or can I build it into the AI?)
+
+//  ...Actually, a Recovery mission might not be such a bad idea.  Try to
+//  add that.  (Plus a Disguise/Spying mission!)
+
+
+//  *  If offworld, how do you model that specific to each base?
+//  (This is desirable for the sake of simplicity and balance-maintanance.)
+
+//  Okay.  So, a given base has 'neighbours' above, below, and on each
+//  side, along with the general surrounding territory.
+
+//  *  They have a certain chance to lodge at a suitable entry-point and
+//     start to reproduce, and to migrate 'offworld' or to another entry-
+//     point if things get crowded.  (So extermination can temporarily
+//     cull their numbers, and failing to exterminate won't mean you're
+//     overrun.)  Not too hard.
+
 public class VerminBase extends Base {
   
   
@@ -52,7 +73,10 @@ public class VerminBase extends Base {
     //  TODO:  Update more frequently as the hatch population increases.
     //  TODO:  Vary infestation chance based on the area's squalor.
     
-    if (numUpdates % CHECK_INTERVAL == 0) {
+    //  TODO:  Reduce spawn-chance based on local crowding.
+    boolean spawnMore = false;
+    
+    if (numUpdates % CHECK_INTERVAL == 0 && spawnMore) {
       Target entryPoint = hatches.pickRandomAround(null, -1, null);
       if (entryPoint == null) return;
       final int numEntered = Rand.index(3) + 1;

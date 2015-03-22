@@ -296,6 +296,8 @@ public class ActorDescription implements Qualities {
         l.append(Skill.skillDesc(level), Skill.skillTone(level));
       }
     }
+    l.append("\nCarried: ");
+    for (Item item : actor.gear.allItems()) l.append("\n  "+item);
     l.append("\n\n");
     l.append(actor.species().info, Colour.LITE_GREY);
     

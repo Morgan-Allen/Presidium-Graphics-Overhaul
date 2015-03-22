@@ -13,8 +13,7 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-//  Use variants- Roach, Giant Roach and Titan Roach.
-
+//  Use size variants- Roach, Giant Roach and Titan Roach.
 
 public class Roach extends Vermin {
   
@@ -29,7 +28,7 @@ public class Roach extends Vermin {
       FILE_DIR, "GiantRoach.ms3d", Roach.class,
       XML_FILE, "GiantRoach"
     ),
-    Species.Type.VERMIN, 1.5f, 2.0f, 1.1f
+    Species.Type.VERMIN, 0.8f, 2.0f, 1.1f
   ) {
     public Actor sampleFor(Base base) { return init(new Roach(base)); }
   };

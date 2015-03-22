@@ -131,6 +131,9 @@ public class Resting extends Plan {
     for (Traded s : menuFor(restPoint)) {
       sumFood += restPoint.inventory().amountOf(s);
     }
+    for (Traded s : menuFor(actor)) {
+      sumFood += actor.inventory().amountOf(s);
+    }
     if (sumFood > 1) sumFood = 1;
     urgency += hunger * sumFood * PARAMOUNT;
     
@@ -159,6 +162,11 @@ public class Resting extends Plan {
   }
   
   
+  private static boolean hasMenu(Owner place) {
+    return menuFor(place).size() > 0;
+  }
+  
+  
   private static Batch <Traded> menuFor(Owner place) {
     Batch <Traded> menu = new Batch <Traded> ();
     for (Traded type : ALL_FOOD_TYPES) {
@@ -172,7 +180,7 @@ public class Resting extends Plan {
     if (restPoint == null) return null;
     
     //  TODO:  Split dining off into a separate behaviour.
-    if (menuFor(restPoint).size() > 0) {
+    if (hasMenu(restPoint) || hasMenu(actor)) {
       if (actor.health.hungerLevel() > 0.1f) {
         final Action eats = new Action(
           actor, restPoint,
@@ -234,7 +242,7 @@ public class Resting extends Plan {
 
   
   public boolean actionEats(Actor actor, Owner place) {
-    return dineFrom(actor, place);
+    return dineFrom(actor, place) || dineFrom(actor, actor);
   }
   
   

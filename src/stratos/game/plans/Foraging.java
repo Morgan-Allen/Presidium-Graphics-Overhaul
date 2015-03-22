@@ -18,7 +18,6 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Consider merging this with forestry (or maybe merging forest-planting
 //  with farming, and forest-cutting/sampling with this.)
 
-
 public class Foraging extends Plan {
   
   
@@ -106,7 +105,14 @@ public class Foraging extends Plan {
   }
   
   
+  //  TODO:  Make this an internal type.
+  private boolean isBrowsing() {
+    return actor.species().animal();
+  }
+  
+  
   public float successChanceFor(Actor actor) {
+    if (isBrowsing()) return 1;
     float chance = 1;
     chance += actor.skills.chance(HARD_LABOUR, ROUTINE_DC );
     chance += actor.skills.chance(CULTIVATION, MODERATE_DC);
@@ -170,19 +176,26 @@ public class Foraging extends Plan {
   
   
   public boolean actionForage(Actor actor, Flora source) {
-    //if (true) return false;
-    
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     if (source == null || source.destroyed()) {
       this.source = null;
       return false;
     }
     
+    final boolean instinct = isBrowsing();
     float labour = 0, skill = 0;
-    if (actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1.0f)) labour++;
-    if (actor.skills.test(CULTIVATION, ROUTINE_DC, 1.0f)) skill++;
-    if (actor.skills.test(CULTIVATION, DIFFICULT_DC, 1.0f)) {
-      labour++;
-      skill++;
+    
+    if (instinct) {
+      labour = actor.health.healthLevel() * actor.health.baseBulk();
+      skill  = Rand.num() * labour;
+    }
+    else {
+      if (actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1.0f)) labour++;
+      if (actor.skills.test(CULTIVATION, ROUTINE_DC, 1.0f)) skill++;
+      if (actor.skills.test(CULTIVATION, DIFFICULT_DC, 1.0f)) {
+        labour++;
+        skill++;
+      }
     }
     Resting.dineFrom(actor, actor);
     
@@ -195,6 +208,13 @@ public class Foraging extends Plan {
     else {
       source.incGrowth(-0.1f / 2f, actor.world(), false);
     }
+    
+    if (report) I.reportVars("\nPerformed forage at "+source, "  ",
+      "Labour", labour,
+      "Skill" , skill ,
+      "Carbs" , actor.gear.amountOf(CARBS ),
+      "Greens", actor.gear.amountOf(GREENS)
+    );
     return false;
   }
   

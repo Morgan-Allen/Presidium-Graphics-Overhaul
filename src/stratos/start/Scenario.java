@@ -110,6 +110,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     }
     
     I.say("\n\nBeginning scenario setup from scratch...");
+    SaveUtils.deleteAllSavesWithPrefix(savesPrefix);
     loadProgress = 0;
     final Thread loadingThread = new Thread() {
       public void run() {

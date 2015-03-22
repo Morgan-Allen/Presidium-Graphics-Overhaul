@@ -76,7 +76,7 @@ public class Exploring extends Plan implements Qualities {
     final float range = actor.health.sightRange() * 2;
     Tile picked = Spacing.pickRandomTile(actor, range, actor.world());
     picked = Spacing.nearestOpenTile(picked, picked);
-    if (picked == null) return null;
+    if (picked == null) picked = actor.origin();
     
     final Exploring wander = new Exploring(
       actor, actor.base(), TYPE_WANDER, picked, range

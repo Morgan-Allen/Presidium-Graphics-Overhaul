@@ -121,55 +121,40 @@ public abstract class Vermin extends Actor {
   
   
   protected void addChoices(Choice choice) {
+    boolean report = I.talkAbout == this;
+    if (report) I.say("\nCreating choices for "+this);
     
-    //  TODO:  3 ACTIVITIES- HIDING, FINDING HOMES/BIRTHING, AND STEALING.
-    
-    //  TODO:  ADAPT BROWSING FOR THIS PURPOSE?  Avrodils and Rem Leeches
-    //  have different feeding techniques.
-    
-    I.say("\nCreating choices for "+this);
-    
-    choice.isVerbose = true;
+    choice.isVerbose = report;
+    //
+    //  Finding home activities-
     choice.add(Exploring.nextWandering(this).addMotives(Plan.MOTIVE_LEISURE, 1));
     
+    //  TODO:  Use vacated animal nests, ruins, or base-buildings.
     
-    final Venue home = (Venue) mind.home();
-    
-    final Batch <Venue> venues = new Batch <Venue> ();
-    world.presences.sampleFromMaps(this, world, 5, venues, Venue.class);
-    
-    for (Venue venue : venues) {
-      final Item toSteal = Looting.pickItemFrom(
-        venue, this, Economy.ALL_FOOD_TYPES
-      );
-      choice.add(new Looting(this, venue, toSteal, home));
+    //
+    //  Hiding activities-
+    if (senses.haven() != null) {
+      choice.add(new Resting(this, senses.haven()));
     }
     
-    //  Let's try simplicity for now.  It's basically a kind of raid-behaviour-
-    //  (do I need to write a mission for that, or can I build it into the AI?)
-    
-    //  ...Actually, a Recovery mission might not be such a bad idea.  Try to
-    //  add that.  (Plus a Disguise/Spying mission!)
-    
-    
-    //  *  If offworld, how do you model that specific to each base?
-    //  (This is desirable for the sake of simplicity and balance-maintanance.)
-    
-    //  Okay.  So, a given base has 'neighbours' above, below, and on each
-    //  side, along with the general surrounding territory.
-    
-    //  *  They have a certain chance to lodge at a suitable entry-point and
-    //     start to reproduce, and to migrate 'offworld' or to another entry-
-    //     point if things get crowded.  (So extermination can temporarily
-    //     cull their numbers, and failing to exterminate won't mean you're
-    //     overrun.)  Not too hard.
-  }
-  
-  
-  private Venue findHomePoint() {
-    //  TODO:  Only accept service hatches or vacated animal nests.  (Use the
-    //  animal behaviour?  Yeah.  You can add stealth to that.)
-    return null;
+
+    //  TODO:  ADAPT BROWSING FOR THIS PURPOSE?  Avrodils and Rem Leeches
+    //  have different feeding techniques.
+    //
+    //  Stealing activities-
+    final Venue home = (Venue) mind.home();
+    if (home != null) {
+      final Batch <Venue> venues = new Batch <Venue> ();
+      world.presences.sampleFromMaps(this, world, 5, venues, Venue.class);
+      
+      for (Venue venue : venues) {
+        final Item toSteal = Looting.pickItemFrom(
+          venue, this, Economy.ALL_FOOD_TYPES
+        );
+        choice.add(new Looting(this, venue, toSteal, home));
+      }
+    }
+    choice.add(new Foraging(this, home));
   }
   
   

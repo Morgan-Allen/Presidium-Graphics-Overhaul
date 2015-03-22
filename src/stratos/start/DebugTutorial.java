@@ -107,9 +107,6 @@ INTERFACE AND DEBUGGING
 *  Try tracking actors only when they wander outside your field of view (or
    start that way.)  And include tracking options in the UI.
 
-*  Delete all later saves if you restart a mission or revert to an earlier
-   saved-game.
-
 *  Read definitions from .xml and allow for later string translations.
 
 

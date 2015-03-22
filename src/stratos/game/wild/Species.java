@@ -150,8 +150,8 @@ public abstract class Species extends Background {
   public boolean vermin  () { return type == Type.VERMIN  ; }
   public boolean floral  () { return type == Type.FLORA   ; }
   
-  public boolean animal  () { return browser() || predator(); }
-  public boolean living  () { return sapient() || animal  (); }
+  public boolean animal  () { return browser() || predator() || vermin(); }
+  public boolean living  () { return sapient() || animal(); }
   
   public Item[] nutrients() { return nutrients; }
   public float metabolism() { return baseBulk * baseSpeed; }

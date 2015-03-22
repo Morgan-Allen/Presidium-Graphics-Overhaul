@@ -57,24 +57,9 @@ public class SaveUtils {
     while (latestSave(prefix) != null) prefix = prefix+PAD_NAME;
     return prefix;
   }
-
-  
-  public static List <String> savedFiles(String prefix) {
-    final List <String> allSaved = new List <String> ();
-    final File savesDir = new File(SAVES_DIR);
-    
-    for (File saved : savesDir.listFiles()) {
-      final String name = saved.getName();
-      if (! name.endsWith(EXT)) continue;
-      if (! name.startsWith(prefix)) continue;
-      allSaved.add(name);
-    }
-    
-    return allSaved;
-  }
   
   
-  public static List <String> latestSaves() {
+  public static String[] latestSaves() {
     final File savesDir = new File(SAVES_DIR);
     final Table <String, String> allPrefixes = new Table <String, String> ();
     final List <String> latest = new List <String> ();
@@ -87,11 +72,18 @@ public class SaveUtils {
       latest.add(latestSave(prefix));
       allPrefixes.put(prefix, prefix);
     }
-    return latest;
+    return latest.toArray(String.class);
   }
   
   
   public static String latestSave(String prefix) {
+    final String saves[] = savedFiles(prefix);
+    if (saves.length == 0) return null;
+    return saves[saves.length - 1];
+  }
+  
+  
+  public static String[] savedFiles(String prefix) {
     //
     //  We use the default alphabetical sorting here, as the only difference
     //  between saves of a given prefix should be the timestamp, and that'll be
@@ -101,9 +93,15 @@ public class SaveUtils {
         return a.compareTo(b);
       }
     };
-    for (String s : savedFiles(prefix)) sorting.add(s);
-    if (sorting.size() == 0) return null;
-    return sorting.greatest();
+    final File savesDir = new File(SAVES_DIR);
+    
+    for (File saved : savesDir.listFiles()) {
+      final String name = saved.getName();
+      if (! name.endsWith(EXT)) continue;
+      if (! name.startsWith(prefix)) continue;
+      sorting.add(name);
+    }
+    return sorting.toArray(String.class);
   }
   
   
@@ -120,6 +118,24 @@ public class SaveUtils {
   }
   
   
+  public static void deleteAllLaterSaves(String saveFile) {
+    final String prefix = prefixFor(saveFile);
+    boolean matchFound = false;
+    for (String fileName : savedFiles(prefix)) {
+      if (matchFound) new File(SAVES_DIR+fileName).delete();
+      if (fileName.equals(saveFile)) matchFound = true;
+    }
+  }
+  
+  
+  public static void deleteAllSavesWithPrefix(String prefix) {
+    if (prefix == null) return;
+    for (String fileName : savedFiles(prefix)) {
+      new File(SAVES_DIR+fileName).delete();
+    }
+  }
+  
+  
   
   //  TODO:  This method should *definitely* only be called from a specific
   //  point in the overall play-loop sequence.  Fix that.
@@ -130,8 +146,10 @@ public class SaveUtils {
     final String saveFile, final boolean fromMenu
   ) {
     PlayLoop.sessionStateWipe();
-    I.say("Should be loading game from: "+saveFile);
+    deleteAllLaterSaves(saveFile);
+    
     final String fullPath = SAVES_DIR+saveFile;
+    I.say("Should be loading game from: "+fullPath);
     
     final Playable loading = new Playable() {
       
