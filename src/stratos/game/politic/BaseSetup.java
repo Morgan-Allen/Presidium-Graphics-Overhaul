@@ -398,7 +398,7 @@ public class BaseSetup {
   public void establishRelationsAt(Venue v) {
     final Batch <Actor> among = new Batch <Actor> ();
     Visit.appendTo(among, v.staff.workers  ());
-    Visit.appendTo(among, v.staff.residents());
+    Visit.appendTo(among, v.staff.lodgers());
     
     final Stage world = base.world;
     final Series <Target> nearby = world.presences.sampleFromMap(
@@ -407,7 +407,7 @@ public class BaseSetup {
     for (Target t : nearby) if (t instanceof Venue) {
       final Venue n = (Venue) t;
       for (Actor a : n.staff.workers  ()) if (Rand.yes()) among.add(a);
-      for (Actor a : n.staff.residents()) if (Rand.yes()) among.add(a);
+      for (Actor a : n.staff.lodgers()) if (Rand.yes()) among.add(a);
       if (among.size() >= ActorRelations.MAX_RELATIONS) break;
     }
     establishRelations(among);

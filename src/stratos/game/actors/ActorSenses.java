@@ -312,7 +312,7 @@ public class ActorSenses implements Qualities {
         }
       }
       
-      emergency |= near.isDoing(Combat.class, null) || attackChance > 1;
+      emergency |= near.isDoing(Combat.class, null) || attackChance >= 1;
     }
     
     //

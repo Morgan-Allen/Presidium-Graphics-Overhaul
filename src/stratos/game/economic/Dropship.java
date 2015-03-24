@@ -204,7 +204,7 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     else if (background == Backgrounds.AS_RESIDENT) {
       if (! staff().isWorker(actor)) return 1;
-      return staff().residents().size() * 1f / MAX_CREW;
+      return staff().lodgers().size() * 1f / MAX_CREW;
     }
     else return 0;
   }

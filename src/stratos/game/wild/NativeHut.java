@@ -239,7 +239,7 @@ public class NativeHut extends Venue {
     */
   public Behaviour jobFor(Actor actor, boolean onShift) {
     final Choice choice = new Choice(actor);
-    final int numHome = staff.residents().size();
+    final int numHome = staff.lodgers().size();
     
     if (actor.vocation() == HUNTER) {
       final boolean needMeat = stocks.amountOf(PROTEIN) < numHome;

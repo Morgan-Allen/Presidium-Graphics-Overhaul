@@ -185,7 +185,7 @@ public abstract class Artilect extends Actor {
     //  (Cranial specialties.)
     if (isCranial && home instanceof Venue) {
       final Venue venue = (Venue) mind.home();
-      for (Actor other : venue.staff.residents()) {
+      for (Actor other : venue.staff.lodgers()) {
         choice.add(new SpawnArtilect(this, other, venue));
       }
       final Ruins ruins = (Ruins) world.presences.randomMatchNear(

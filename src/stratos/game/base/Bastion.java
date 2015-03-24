@@ -240,7 +240,7 @@ public class Bastion extends Venue {
       if (staff.isWorker(actor)) return 0;
       
       final int maxPop = 6 + (structure.upgradeLevel(NOBLE_QUARTERS) * 2);
-      return staff.residents().size() * 1f / maxPop;
+      return staff.lodgers().size() * 1f / maxPop;
     }
     else return super.crowdRating(actor, background);
   }
@@ -296,7 +296,7 @@ public class Bastion extends Venue {
     );
     //
     //  Demand provisions-
-    final int foodNeed = staff.residents().size() + 2;
+    final int foodNeed = staff.lodgers().size() + 2;
     stocks.forceDemand(CARBS   , foodNeed * 1.5f, Tier.CONSUMER);
     stocks.forceDemand(PROTEIN , foodNeed * 1.0f, Tier.CONSUMER);
     stocks.forceDemand(GREENS  , foodNeed * 1.0f, Tier.CONSUMER);

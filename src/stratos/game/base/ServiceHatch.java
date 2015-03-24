@@ -86,7 +86,10 @@ public class ServiceHatch extends Venue {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    structure.assignOutputs(Item.withAmount(ATMO, 2));
+    structure.assignOutputs(
+      Item.withAmount(ATMO , 2),
+      Item.withAmount(POWER, 1)
+    );
     structure.setAmbienceVal(-2);
   }
   

@@ -178,7 +178,7 @@ public class Nest extends Venue {
     final Nest nest = (Nest) home;
     if (nest.cachedIdealPop == -1) return 0;
     if (nest.cachedIdealPop ==  0) return 1;
-    return nest.staff.residents().size() * 1f / nest.cachedIdealPop;
+    return nest.staff.lodgers().size() * 1f / nest.cachedIdealPop;
   }
   
   
@@ -350,7 +350,7 @@ public class Nest extends Venue {
     
     final Description d = panel.detail(), l = panel.listing();
     float idealPop = cachedIdealPop;
-    int actualPop = staff.residents().size();
+    int actualPop = staff.lodgers().size();
     l.append("\n\n  Nesting: ("+actualPop+"/"+idealPop+")");
     return panel;
   }

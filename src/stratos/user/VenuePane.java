@@ -317,7 +317,7 @@ public class VenuePane extends SelectionPane {
     ((Text) d).cancelBullet();
     d.append("Residents: ");
     boolean anyLives = false;
-    for (Actor a : v.staff.residents()) {
+    for (Actor a : v.staff.lodgers()) {
       if (mentioned.includes(a)) continue;
       descActor(a, d, UI);
       anyLives = true;

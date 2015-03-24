@@ -307,7 +307,7 @@ public class StartupScenario extends Scenario {
     //  bastion, along with their inhabitants-
     for (Venue v : world.claims.venuesConflicting(bastion)) {
       v.exitWorld();
-      for (Actor a : v.staff.residents()) a.exitWorld();
+      for (Actor a : v.staff.lodgers()) a.exitWorld();
     }
     
     if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");
@@ -329,7 +329,7 @@ public class StartupScenario extends Scenario {
         a.mind.setHome(bastion);
       }
     }
-    base.setup.establishRelations(bastion.staff.residents());
+    base.setup.establishRelations(bastion.staff.lodgers());
     
     //  TODO:  Vary this based on starting House-
     bastion.stocks.bumpItem(Economy.CARBS    , 10);

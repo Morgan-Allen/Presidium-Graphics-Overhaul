@@ -31,7 +31,7 @@ public class Human extends Actor implements Qualities {
     mediaVerbose = false;
   
   final public static Species SPECIES = new Species(
-    Species.class,
+    Human.class,
     "Human",
     "Humans are the most common intelligent space-faring species in the "+
     "known systems of the local cluster.  According to homeworld records, "+

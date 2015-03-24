@@ -41,13 +41,12 @@ public class Staff {
   
   
   final Property employs;
+  final List <Actor>
+    workers = new List <Actor> (),
+    lodgers = new List <Actor> ();
   final List <FindWork>
     applications = new List <FindWork> ();
-  final List <Actor>
-    workers   = new List <Actor> (),
-    residents = new List <Actor> ();
-  private int
-    shiftType = -1;
+  private int shiftType = -1;
   
   
   
@@ -60,7 +59,7 @@ public class Staff {
     shiftType = s.loadInt();
     s.loadObjects(applications);
     s.loadObjects(workers);
-    s.loadObjects(residents);
+    s.loadObjects(lodgers);
   }
   
   
@@ -68,7 +67,7 @@ public class Staff {
     s.saveInt(shiftType);
     s.saveObjects(applications);
     s.saveObjects(workers);
-    s.saveObjects(residents);
+    s.saveObjects(lodgers);
   }
   
   
@@ -77,8 +76,8 @@ public class Staff {
   }
   
   
-  public List <Actor> residents() {
-    return residents;
+  public List <Actor> lodgers() {
+    return lodgers;
   }
   
   
@@ -88,12 +87,12 @@ public class Staff {
   
   
   public boolean unoccupied() {
-    return residents.size() == 0;
+    return lodgers.size() == 0;
   }
   
   
   public int population() {
-    return residents.size();
+    return lodgers.size();
   }
   
   
@@ -319,21 +318,22 @@ public class Staff {
   protected void updateStaff(int numUpdates) {
     if (numUpdates % REFRESH_INTERVAL == 0) {
       final Base base = employs.base();
-      
-      //  Clear out the office for anyone dead-
-      for (Actor a : workers) if (a.destroyed() || a.base() != base) {
-        a.mind.setWork(null);
+      //
+      //  Clear out the office for anyone dead or missing-
+      for (Actor a : workers) if (a.destroyed() || a.mind.work() != employs) {
+        if (a.mind.work() == employs) a.mind.setWork(null);
         workers.remove(a);
       }
-      for (Actor a : residents) if (a.destroyed() || a.base() != base) {
-        a.mind.setHome(null);
-        residents.remove(a);
+      for (Actor a : lodgers) if (a.destroyed() || a.mind.home() != employs) {
+        if (a.mind.home() == employs) a.mind.setHome(null);
+        lodgers.remove(a);
       }
       for (FindWork a : applications) {
         if (a.employer() != employs || a.actor().destroyed()) {
           setApplicant(a, false);
         }
       }
+      //
       //  If there's an unfilled opening, look for someone to fill it.
       //  TODO:  This should really be handled more from the Commerce class?
       if (employs.careers() == null) return;
@@ -369,7 +369,7 @@ public class Staff {
   
   protected void onDecommission() {
     for (Actor c : workers()) c.mind.setWork(null);
-    for (Actor c : residents()) c.mind.setHome(null);
+    for (Actor c : lodgers()) c.mind.setHome(null);
   }
   
   
@@ -383,8 +383,8 @@ public class Staff {
   
   
   public void setResident(Actor c, boolean is) {
-    if (is) residents.include(c);
-    else residents.remove(c);
+    if (is) lodgers.include(c);
+    else lodgers.remove(c);
   }
   
   
@@ -397,7 +397,7 @@ public class Staff {
   
   
   public int numResident(Species match) {
-    int num = 0; for (Actor c : residents) {
+    int num = 0; for (Actor c : lodgers) {
       if (c.species() == match) num++;
     }
     return num;

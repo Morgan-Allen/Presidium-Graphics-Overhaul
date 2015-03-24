@@ -245,7 +245,7 @@ public class PlanUtils {
       sumR += actor.relations.valueFor(a);
       sumW++;
     }
-    for (Actor a : at.staff.residents()) {
+    for (Actor a : at.staff.lodgers()) {
       sumR += actor.relations.valueFor(a);
       sumW++;
     }

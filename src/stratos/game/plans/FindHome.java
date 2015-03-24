@@ -144,7 +144,7 @@ public class FindHome extends Plan {
       rating -= actor.motives.greedPriority(credsPerDay);
     }
     
-    final Series <Actor> residents = newHome.staff().residents();
+    final Series <Actor> residents = newHome.staff().lodgers();
     if (residents.size() > 0) {
       float averageRelations = 0; for (Actor a : residents) {
         averageRelations += actor.relations.valueFor(a);
