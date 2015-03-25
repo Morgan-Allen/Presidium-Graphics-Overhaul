@@ -238,12 +238,14 @@ public class DebugSocial extends Scenario {
     //  see how they react to (A) eachother and (B) the nearby base.
     GameSettings.fogFree = true;
     final Base wild = Base.wildlife(world);
+    final Species species = Yamagur.SPECIES;
     
-    Actor fauna = Hareen.SPECIES.sampleFor(wild);
-    fauna.enterWorldAt(9, 9, world);
+    Venue nests = species.nestProfile().sampleVenue(wild);
+    Placement.establishVenue(nests, 9, 9, true, world);
     
-    Venue nests = Hareen.SPECIES.nestProfile().sampleVenue(wild);
-    Placement.establishVenue(nests, fauna.origin(), true, world);
+    Actor fauna = species.sampleFor(wild);
+    fauna.enterWorldAt(7, 7, world);
+    fauna.mind.setHome(nests);
     
     Actor meets = new Human(Backgrounds.VOLUNTEER, base);
     meets.enterWorldAt(12, 12, world);

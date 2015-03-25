@@ -48,9 +48,18 @@ public abstract class Species extends Background {
   /**  Lists and enumeration-
     */
   final public static Species
-    HUMANOID_SPECIES[] = { Human.SPECIES },
-    ANIMAL_SPECIES  [] = { Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES },
-    ARTILECT_SPECIES[] = { Drone.SPECIES, Tripod.SPECIES, Cranial.SPECIES }
+    HUMANOID_SPECIES[] = {
+      Human.SPECIES
+    },
+    ANIMAL_SPECIES[] = {
+      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES, Yamagur.SPECIES
+    },
+    VERMIN_SPECIES[] = {
+      Roach.SPECIES, Roachman.SPECIES
+    },
+    ARTILECT_SPECIES[] = {
+      Drone.SPECIES, Tripod.SPECIES, Cranial.SPECIES
+    }
   ;
   
   final public static VenueProfile NEST_PROFILES[];

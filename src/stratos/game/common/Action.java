@@ -424,8 +424,6 @@ public class Action implements Behaviour, AnimNames {
     */
   private float actionDuration() {
     float duration = 1;
-    if (quick()  ) duration /= 2;
-    if (careful()) duration *= 2;
     return duration;
   }
   

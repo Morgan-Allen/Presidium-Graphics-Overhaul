@@ -172,12 +172,11 @@ public class Combat extends Plan implements Qualities {
     if (technique != null) return technique;
     
     Action strike = null;
-    final DeviceType DT  = actor.gear.deviceType();
-    final boolean melee  = actor.gear.meleeWeapon();
-    final boolean razes  = struck instanceof Venue;
-    final float   danger = 1f - successChanceFor(actor);
+    final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
+    final boolean melee     = actor.gear.meleeWeapon();
+    final boolean razes     = struck instanceof Venue;
+    final float   danger    = 1f - successChanceFor(actor);
     
-    final String strikeAnim = DT == null ? Action.STRIKE : DT.animName;
     if (razes) {
       if (report) I.say("  Laying siege to: "+struck);
       strike = new Action(
@@ -200,6 +199,14 @@ public class Combat extends Plan implements Qualities {
     if (melee) configMeleeAction (strike, razes, danger, report);
     else       configRangedAction(strike, razes, danger, report);
     return strike;
+  }
+  
+  
+  private String strikeAnimFor(DeviceType DT) {
+    String anim = Action.STRIKE;
+    if (DT != null) anim = DT.animName;
+    if (anim == Action.STRIKE && Rand.yes()) anim = Action.STRIKE_BIG;
+    return anim;
   }
   
   

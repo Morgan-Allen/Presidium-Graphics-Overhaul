@@ -127,7 +127,8 @@ public abstract class Vermin extends Actor {
     choice.isVerbose = report;
     //
     //  Finding home activities-
-    choice.add(Exploring.nextWandering(this).addMotives(Plan.MOTIVE_LEISURE, 1));
+    final Exploring e = Exploring.nextWandering(this);
+    if (e != null) choice.add(e.addMotives(Plan.MOTIVE_LEISURE, 1));
     
     //  TODO:  Use vacated animal nests, ruins, or base-buildings.
     
@@ -136,7 +137,6 @@ public abstract class Vermin extends Actor {
     if (senses.haven() != null) {
       choice.add(new Resting(this, senses.haven()));
     }
-    
 
     //  TODO:  ADAPT BROWSING FOR THIS PURPOSE?  Avrodils and Rem Leeches
     //  have different feeding techniques.

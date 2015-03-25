@@ -19,6 +19,10 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Create pack-hunting behaviours, so they can tackle larger prey,
+//         like the Yamagur.
+
+
 public class Lictovore extends Fauna {
   
   

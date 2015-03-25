@@ -136,22 +136,16 @@
   stride="1.5"
   height="2.5"
 >
-  <animations fps="25">
-    <animation name="move start" start="0"   end="26"  duration="1" />
-    <animation name="move"       start="26"  end="66"  duration="1" />
-    <animation name="move_stop"  start="66"  end="87"  duration="1" />
-    
-    <animation name="move_fast_start" start="87"   end="102"  duration="1" />
-    <animation name="move_fast"       start="102"  end="127"  duration="1" />
-    <animation name="move_fast_stop"  start="127"  end="143"  duration="1" />
-    
+  <animations fps="25" rotate="180">
+    <animation name="move"        start="26"   end="66"   duration="1" />
+    <animation name="move_fast"   start="102"  end="127"  duration="1" />
     <animation name="strike"      start="143"  end="173"  duration="1" />
-    <animation name="strikeheavy" start="173"  end="227"  duration="1" />
+    <animation name="strike_big"  start="173"  end="227"  duration="1" />
     <animation name="graze"       start="227"  end="337"  duration="1" />
     <animation name="build"       start="337"  end="426"  duration="1" />
     <animation name="idle"        start="426"  end="476"  duration="1" />
     <animation name="look"        start="476"  end="597"  duration="1" />
-    <animation name="die"         start="597"  end="677"  duration="1" />
+    <animation name="fall"        start="597"  end="677"  duration="1" />
   </animations>
   
   <attachPoints>

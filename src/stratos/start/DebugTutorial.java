@@ -39,18 +39,19 @@ import stratos.util.*;
 
 ENEMIES AND ENVIRONMENT-
 
-  >>>>>>> DO THIS <<<<<<<
-*  Need to write vermin behaviour (see Vermin class.)
-   Allow hunting behaviours to apply to humans as well, if they're convenient.
+*  Allow hunting behaviours to apply to humans as well, if they're convenient.
 
 *  Extra concept art for new creatures/vermin:
      Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
 *  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
-   for use by animals.)  Then get rid of the custom-coding.
+   for use by animals.)  Then get rid of the custom-coding.  And polish up
+   vermin behaviours.
 
 *  There needs to be a super-fast system for testing pathability to different
    areas of the map.  (And maybe caching dangers en-route?)
+
+*  Offworld raids by enemy houses!
 
 
 BUILDING AND UPGRADES-

@@ -194,7 +194,7 @@ public abstract class Venue extends Structural implements
     if (base == null) I.complain("VENUES MUST HAVE A BASE ASSIGNED! "+this);
     
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
-      c.structure.beginSalvage();
+      if (c.base == this.base) c.structure.beginSalvage();
     }
     
     //  TODO:  Extend the above to non-venue fixtures as well (instead of the

@@ -35,24 +35,15 @@
   height="2.5"
 >
   <animations fps="25">
-    <animation name="move start" start="0"   end="11"  duration="1" />
-    <animation name="move"       start="11"  end="38"  duration="1" />
-    <animation name="move stop"  start="38"  end="50"  duration="1" />
-    
-    <animation name="move fast start"  start="50"  end="58"  duration="1" />
-    <animation name="move_fast"        start="58"  end="78"  duration="1" />
-    <animation name="move fast stop"   start="78"  end="91"  duration="1" />
-    
-    <animation name="move sneak start" start="91"   end="101"  duration="1" />
-    <animation name="move_sneak"       start="101"  end="139"  duration="1" />
-    <animation name="move sneak stop"  start="139"  end="151"  duration="1" />
-    
-    <animation name="strike"  start="151"  end="191"  duration="1" />
-    <animation name="feeding" start="191"  end="366"  duration="1" />
-    <animation name="idle"    start="366"  end="416"  duration="1" />
-    <animation name="groom"   start="416"  end="526"  duration="1" />
-    <animation name="look"    start="526"  end="701"  duration="1" />
-    <animation name="fall"    start="701"  end="741"  duration="1" />
+    <animation name="move"       start="11"   end="38"   duration="1" />
+    <animation name="move_fast"  start="58"   end="78"   duration="1" />
+    <animation name="move_sneak" start="101"  end="139"  duration="1" />
+    <animation name="strike"     start="151"  end="191"  duration="1" />
+    <animation name="feeding"    start="191"  end="366"  duration="1" />
+    <animation name="idle"       start="366"  end="416"  duration="1" />
+    <animation name="groom"      start="416"  end="526"  duration="1" />
+    <animation name="look"       start="526"  end="701"  duration="1" />
+    <animation name="fall"       start="701"  end="741"  duration="1" />
   </animations>
   
   <attachPoints>
