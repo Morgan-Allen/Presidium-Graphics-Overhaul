@@ -28,7 +28,8 @@ public class Roach extends Vermin {
       FILE_DIR, "GiantRoach.ms3d", Roach.class,
       XML_FILE, "GiantRoach"
     ),
-    Species.Type.VERMIN, 0.8f, 2.0f, 1.1f
+    Species.Type.VERMIN,
+    0.8f, 2.0f, 1.1f
   ) {
     public Actor sampleFor(Base base) { return init(new Roach(base)); }
   };
@@ -45,7 +46,7 @@ public class Roach extends Vermin {
       1,                 //lifespan
       species.baseBulk , //bulk bonus
       species.baseSight, //sight range
-      species.baseSpeed, //speed rate
+      species.speedMult, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
     gear.setBaseDamage(5);

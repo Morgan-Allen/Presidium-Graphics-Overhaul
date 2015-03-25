@@ -21,15 +21,15 @@ public class Roachman extends Vermin {
   final public static Species SPECIES = new Species(
     Roachman.class,
     "Roachman",
-    "Roachman are larger, bipedal cousins of their insectile brethren, "+
-    "rumoured to be the a product a tragic medical accident.  They have a "+
+    "Roachmen are larger, bipedal cousins of their insectile brethren, "+
+    "rumoured to be the a product a tragic medical accident.  They have an "+
     "odd fixation for shiny objects.",
     null,
     MS3DModel.loadFrom(
       FILE_DIR, "Roachman2.ms3d", Roachman.class,
       XML_FILE, "Roachman"
     ),
-    Species.Type.VERMIN, 1.5f, 2.0f, 1.8f
+    Species.Type.VERMIN, 1.5f, 1.5f, 1.8f
   ) {
     public Actor sampleFor(Base base) { return init(new Roachman(base)); }
   };
@@ -46,7 +46,7 @@ public class Roachman extends Vermin {
       1,                 //lifespan
       species.baseBulk , //bulk bonus
       species.baseSight, //sight range
-      species.baseSpeed, //speed rate
+      species.speedMult, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
     gear.setBaseDamage(8);

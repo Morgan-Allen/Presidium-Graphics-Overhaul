@@ -144,7 +144,7 @@ public abstract class Fauna extends Actor {
     if (species.browser () ) choice.add(nextBrowsing());
     if (species.predator() ) choice.add(nextHunting ());
     if (breedMetre >= 0.99f) choice.add(nextBreeding());
-    choice.add(nextResting     ());
+    choice.add(new Resting(this, senses.haven()));
     choice.add(nextMigration   ());
     choice.add(nextBuildingNest());
   }
@@ -215,33 +215,6 @@ public abstract class Fauna extends Actor {
     float bite = 0.1f * health.maxHealth() / 10;
     eaten.incGrowth(0 - bite, actor.world(), false);
     actor.health.takeCalories(bite * PLANT_CONVERSION, 1);
-    return true;
-  }
-  
-  
-  protected Behaviour nextResting() {
-    Target restPoint = this.origin();
-    final Nest nest = (Nest) this.mind.home();
-    if (nest != null && nest.inWorld() && nest.structure.intact()) {
-      restPoint = nest;
-    }
-    final Action rest = new Action(
-      this, restPoint,
-      this, "actionRest",
-      Action.FALL, "Resting"
-    );
-    final float fatigue = health.fatigueLevel();
-    
-    final float priority = Action.IDLE + (fatigue * Action.PARAMOUNT);
-    rest.setPriority(priority);
-    return rest;
-  }
-  
-  
-  public boolean actionRest(Fauna actor, Target point) {
-    if (actor.health.fatigue() >= 1) {
-      actor.health.setState(ActorHealth.STATE_RESTING);
-    }
     return true;
   }
   
@@ -411,4 +384,32 @@ public abstract class Fauna extends Actor {
 
 
 
+
+/*
+protected Behaviour nextResting() {
+  Target restPoint = this.origin();
+  final Nest nest = (Nest) this.mind.home();
+  if (nest != null && nest.inWorld() && nest.structure.intact()) {
+    restPoint = nest;
+  }
+  final Action rest = new Action(
+    this, restPoint,
+    this, "actionRest",
+    Action.FALL, "Resting"
+  );
+  final float fatigue = health.fatigueLevel();
+  
+  final float priority = Action.IDLE + (fatigue * Action.PARAMOUNT);
+  rest.setPriority(priority);
+  return rest;
+}
+
+
+public boolean actionRest(Fauna actor, Target point) {
+  if (actor.health.fatigue() >= 1) {
+    actor.health.setState(ActorHealth.STATE_RESTING);
+  }
+  return true;
+}
+//*/
 

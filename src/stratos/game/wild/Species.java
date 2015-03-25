@@ -52,7 +52,7 @@ public abstract class Species extends Background {
       Human.SPECIES
     },
     ANIMAL_SPECIES[] = {
-      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES, Yamagur.SPECIES
+      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES//, Yamagur.SPECIES
     },
     VERMIN_SPECIES[] = {
       Roach.SPECIES, Roachman.SPECIES
@@ -84,14 +84,14 @@ public abstract class Species extends Background {
   //  TODO:  Use a table filled with generic string keys, so that it's more
   //  self-descriptive.
   final public float
-    baseBulk, baseSpeed, baseSight;
+    baseBulk, speedMult, baseSight;
   
   
   public Species(
     Class baseClass,
     String name, String info, String portraitTex, ModelAsset model,
     Type type,
-    float bulk, float speed, float sight
+    float bulk, float speedMult, float sight
   ) {
     super(
       baseClass,
@@ -105,10 +105,10 @@ public abstract class Species extends Background {
     this.info  = info ;
     this.model = model;
     
-    this.type      = type ;
-    this.baseBulk  = bulk ;
-    this.baseSpeed = speed;
-    this.baseSight = sight;
+    this.type      = type     ;
+    this.baseBulk  = bulk     ;
+    this.speedMult = speedMult;
+    this.baseSight = sight    ;
     nutrients = new Item[0];
   }
   
@@ -126,7 +126,7 @@ public abstract class Species extends Background {
     
     this.type = type;
     this.baseBulk = 1;
-    this.baseSpeed = 0;
+    this.speedMult = 0;
     this.baseSight = 0;
     
     int amount = 0;
@@ -142,10 +142,6 @@ public abstract class Species extends Background {
   protected Actor init(Actor f) {
     f.health.setupHealth(Rand.num(), 0.9f, 0.1f);
     f.relations.setRelation(f.base(), 0.5f, 0);
-    
-    if (predator()) {
-      I.say("STARTING INJURY IS: "+f.health.injuryLevel());
-    }
     return f;
   }
   
@@ -154,16 +150,16 @@ public abstract class Species extends Background {
   
   public boolean browser () { return type == Type.BROWSER ; }
   public boolean predator() { return type == Type.PREDATOR; }
-  public boolean artilect() { return type == Type.ARTILECT; }
   public boolean sapient () { return type == Type.SAPIENT ; }
   public boolean vermin  () { return type == Type.VERMIN  ; }
+  public boolean artilect() { return type == Type.ARTILECT; }
   public boolean floral  () { return type == Type.FLORA   ; }
   
   public boolean animal  () { return browser() || predator() || vermin(); }
   public boolean living  () { return sapient() || animal(); }
   
   public Item[] nutrients() { return nutrients; }
-  public float metabolism() { return baseBulk * baseSpeed; }
+  public float metabolism() { return baseBulk * speedMult; }
   
   
   

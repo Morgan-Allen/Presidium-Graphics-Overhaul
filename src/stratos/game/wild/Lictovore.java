@@ -54,11 +54,11 @@ public class Lictovore extends Fauna {
     ),
     Type.PREDATOR,
     2.50f, //bulk
-    1.30f, //speed
+    0.75f, //speed
     1.50f  //sight
   ) {
     final VenueProfile PROFILE = Nest.constructProfile(
-      3, 2, Venue.FACING_EAST, this, MODEL_NEST_MICOVORE
+      3, 2, this, MODEL_NEST_MICOVORE
     );
     public Actor sampleFor(Base base) { return init(new Lictovore(base)); }
     public VenueProfile nestProfile() { return PROFILE; }
@@ -94,7 +94,7 @@ public class Lictovore extends Fauna {
       20,  //lifespan
       species.baseBulk ,//bulk bonus
       species.baseSight,//sight range
-      species.baseSpeed,//move speed,
+      species.speedMult,//move speed,
       ActorHealth.ANIMAL_METABOLISM
     );
     gear.setBaseDamage(15);
@@ -228,7 +228,8 @@ public class Lictovore extends Fauna {
     final Venue lair = (Venue) mind.home();
     float angle = Rand.num() * (float) Nums.PI * 2;
     final Vec3D p = lair.position(null);
-    final int range = Nest.forageRange(species);
+    final int range = Nest.forageRange(species) / 2;
+    
     final Tile tried = world.tileAt(
       p.x + (float) (Nums.cos(angle) * range),
       p.y + (float) (Nums.sin(angle) * range)

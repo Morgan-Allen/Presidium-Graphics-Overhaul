@@ -44,11 +44,11 @@ public class Hareen extends Fauna {
     ),
     Type.BROWSER,
     0.50f, //bulk
-    1.60f, //speed
+    2.60f, //speed
     1.00f  //sight
   ) {
     final VenueProfile PROFILE = Nest.constructProfile(
-      2, 2, Venue.FACING_EAST, this, MODEL_NEST_VAREEN
+      2, 2, this, MODEL_NEST_VAREEN
     );
     public Actor sampleFor(Base base) { return init(new Hareen(base)); }
     public VenueProfile nestProfile() { return PROFILE; }
@@ -90,7 +90,7 @@ public class Hareen extends Fauna {
       5,    //lifespan
       species.baseBulk , //bulk bonus
       species.baseSight, //sight range
-      species.baseSpeed, //speed rate
+      species.speedMult, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
     gear.setBaseDamage(4);

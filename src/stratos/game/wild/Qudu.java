@@ -45,7 +45,7 @@ public class Qudu extends Fauna {
     0.65f  //sight
   ) {
     final VenueProfile PROFILE = Nest.constructProfile(
-      2, 2, Venue.FACING_EAST, this, MODEL_NEST_QUUD
+      2, 2, this, MODEL_NEST_QUUD
     );
     public Actor sampleFor(Base base) { return init(new Qudu(base)); }
     public VenueProfile nestProfile() { return PROFILE; }
@@ -73,7 +73,7 @@ public class Qudu extends Fauna {
       1,    //lifespan
       species.baseBulk , //bulk bonus
       species.baseSight, //sight range
-      species.baseSpeed, //speed rate
+      species.speedMult, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
     gear.setBaseDamage(2);

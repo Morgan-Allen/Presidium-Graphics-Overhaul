@@ -53,6 +53,10 @@ ENEMIES AND ENVIRONMENT-
 
 *  Offworld raids by enemy houses!
 
+*  The Yamagur is sufficiently big and powerful that it can't really count as a
+   'prey' species (in fact, it tends to wind up pulverising any predators in
+   it's territory.)  It needs a tweak to the placement algorithm.
+
 
 BUILDING AND UPGRADES-
    

@@ -45,6 +45,8 @@ public abstract class Vermin extends Actor {
   
   /**  Data fields, constructors, and save/load methods-
     */
+  private static boolean verbose = false;
+  
   final static String
     FILE_DIR = "media/Actors/vermin/",
     XML_FILE = "VerminModels.xml";
@@ -121,7 +123,7 @@ public abstract class Vermin extends Actor {
   
   
   protected void addChoices(Choice choice) {
-    boolean report = I.talkAbout == this && false;
+    final boolean report = verbose && I.talkAbout == this;
     if (report) I.say("\nCreating choices for "+this);
     
     choice.isVerbose = report;

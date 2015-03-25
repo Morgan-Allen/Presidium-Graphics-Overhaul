@@ -98,10 +98,10 @@ public class DebugPlacing extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (false) configEcology  (world, base, UI);
+    if (true ) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
-    if (true ) configRoadsTest(world, base, UI);
+    if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
     if (false) configPlantTest(world, base, UI);
   }
@@ -110,13 +110,15 @@ public class DebugPlacing extends Scenario {
   private void configEcology(Stage world, Base base, BaseUI UI) {
     GameSettings.hireFree = false;
     Flora.populateFlora(world);
-    
-    Ruins.populateRuins(world, 1, Species.ARTILECT_SPECIES);
-    
     Nest.populateFauna(world, Species.ANIMAL_SPECIES);
     
     final Bastion b = new Bastion(base);
     base.setup.doPlacementsFor(b);
+    
+    for (Venue v : world.claims.venuesConflicting(b)) {
+      for (Actor a : v.staff.lodgers()) a.exitWorld();
+      v.exitWorld();
+    }
   }
   
   

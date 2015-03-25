@@ -27,14 +27,13 @@ public class Nest extends Venue {
     updateVerbose = false;
   
   final public static int
-    BROWSER_FORAGE_DIST  = Stage.SECTOR_SIZE / 2,
-    PREDATOR_FORAGE_DIST = Stage.SECTOR_SIZE * 2,
-    MAX_SEPARATION       = Stage.SECTOR_SIZE * 2,
-    SAMPLE_AREA          = Nums.square(BROWSER_FORAGE_DIST),
+    DEFAULT_FORAGE_DIST = Stage.SECTOR_SIZE / 2,
+    PREDATOR_SEPARATION = Stage.SECTOR_SIZE * 2,
+    MIN_SEPARATION      = 2,
     
     BROWSER_RATIO   = 12,
     PREDATOR_RATIO  = 4 ,
-    MAX_CROWDING    = 8 ,
+    
     DEFAULT_BREED_INTERVAL = Stage.STANDARD_DAY_LENGTH;
   
   
@@ -124,14 +123,16 @@ public class Nest extends Venue {
     //  Otherwise, either use local fertility for browsers, or the abundance of
     //  browsers themselves for predators.
     final Base base = Base.wildlife(world);
+    final float forageRange = forageRange(species);
+    
     float foodSupply = 0;
     if (species.browser()) {
       foodSupply = world.terrain().fertilitySample(world.tileAt(point));
-      foodSupply *= SAMPLE_AREA / BROWSER_RATIO;
+      foodSupply *= (forageRange * forageRange) / BROWSER_RATIO;
     }
     else {
       foodSupply = base.demands.supplyAround(
-        point, Species.KEY_BROWSER, PREDATOR_FORAGE_DIST
+        point, Species.KEY_BROWSER, forageRange
       );
       foodSupply /= PREDATOR_RATIO;
     }
@@ -192,7 +193,9 @@ public class Nest extends Venue {
   
   
   public static int forageRange(Species s) {
-    return s.predator() ? PREDATOR_FORAGE_DIST : BROWSER_FORAGE_DIST;
+    return s.predator() ?
+      PREDATOR_SEPARATION :
+      DEFAULT_FORAGE_DIST ;
   }
   
   
@@ -200,7 +203,7 @@ public class Nest extends Venue {
   /**  Utility methods for Nest-establishment.
     */
   protected static VenueProfile constructProfile(
-    int size, int high, int entryFace, final Species s, final ModelAsset model
+    int size, int high, final Species s, final ModelAsset model
   ) {
     return new VenueProfile(
       Nest.class, s.name+"_nest", s.name+" Nest",
@@ -275,8 +278,14 @@ public class Nest extends Venue {
     final float
       idealPop = idealPopulation(point, species, world),
       crowding = crowdingFor    (point, species, world),
-      mass     = species.metabolism();
-    return ((int) idealPop) * mass * (1 - crowding);
+      mass     = species.metabolism(),
+      rating   = ((int) idealPop) * mass * (1 - crowding);
+    
+    if (species == Yamagur.SPECIES || true) {
+      I.say("\nRating for "+this+" at "+point+" is "+rating);
+      I.say("  Ideal population: "+idealPop);
+    }
+    return rating;
   }
   
   
@@ -298,6 +307,17 @@ public class Nest extends Venue {
     if (other instanceof Nest) {
       final Nest near = (Nest) other;
       
+      if (this.species.type != near.species.type) {
+        return distance <= MIN_SEPARATION;
+      }
+      else {
+        final float minDist = Nums.max(
+          forageRange(this.species),
+          forageRange(near.species)
+        );
+        if (distance <= minDist) return true;
+      }
+      /*
       if (species.predator() || near.species.predator()) {
         final float minDist = species.predator() && near.species.predator() ?
           PREDATOR_FORAGE_DIST : 2
@@ -307,9 +327,10 @@ public class Nest extends Venue {
       else {
         if (distance < BROWSER_FORAGE_DIST) return true;
       }
+      //*/
       return false;
     }
-    else return distance <= PREDATOR_FORAGE_DIST;
+    else return distance <= PREDATOR_SEPARATION;
   }
   
   

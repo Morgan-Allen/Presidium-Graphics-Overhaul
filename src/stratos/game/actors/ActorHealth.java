@@ -85,8 +85,8 @@ public class ActorHealth implements Qualities {
   final Actor actor;
   
   private float
-    baseBulk  = DEFAULT_BULK,
-    baseSpeed = DEFAULT_SPEED,
+    baseBulk  = DEFAULT_BULK ,
+    speedMult = DEFAULT_SPEED,
     baseSight = DEFAULT_SIGHT;
   
   private float
@@ -107,10 +107,10 @@ public class ActorHealth implements Qualities {
   private float
     morale        = 0,
     concentration = 0;
-  //  TODO:  Action limit and need for sleep.
+  //  TODO:  Need for sleep.
   
   private int
-    state    = STATE_ACTIVE;
+    state = STATE_ACTIVE;
   private float
     ageMultiple = 1.0f;
   
@@ -127,7 +127,7 @@ public class ActorHealth implements Qualities {
   
   public void loadState(Session s) throws Exception {
     baseBulk  = s.loadFloat();
-    baseSpeed = s.loadFloat();
+    speedMult = s.loadFloat();
     baseSight = s.loadFloat();
     
     lifespan    = s.loadFloat();
@@ -151,7 +151,7 @@ public class ActorHealth implements Qualities {
   
   public void saveState(Session s) throws Exception {
     s.saveFloat(baseBulk );
-    s.saveFloat(baseSpeed);
+    s.saveFloat(speedMult);
     s.saveFloat(baseSight);
     
     s.saveFloat(lifespan   );
@@ -186,7 +186,7 @@ public class ActorHealth implements Qualities {
     this.lifespan = lifespan;
     this.baseBulk  = baseBulk  * DEFAULT_BULK ;
     this.baseSight = baseSight * DEFAULT_SIGHT;
-    this.baseSpeed = baseSpeed * DEFAULT_SPEED;
+    this.speedMult = baseSpeed * DEFAULT_SPEED;
     this.metabolism = metabolicType;
   }
   
@@ -287,8 +287,8 @@ public class ActorHealth implements Qualities {
   
   
   public float baseSpeed() {
-    float rate = baseSpeed * GameSettings.actorScale;
-    return rate * Nums.sqrt(ageMultiple);
+    float rate = speedMult* GameSettings.actorScale;
+    return rate * Nums.sqrt(ageMultiple * baseBulk);
   }
   
   
@@ -544,7 +544,7 @@ public class ActorHealth implements Qualities {
     
     //  Check for disease and hunger as well-
     if (organic()) {
-      calories -= (1f * maxHealth * baseSpeed) / STARVE_INTERVAL;
+      calories -= (1f * maxHealth * speedMult) / STARVE_INTERVAL;
       calories = Nums.clamp(calories, 0, maxCalories());
     }
     if (state <= STATE_RESTING && metabolism == HUMAN_METABOLISM) {
@@ -665,7 +665,7 @@ public class ActorHealth implements Qualities {
       injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
     }
     
-    fatigue += FATIGUE_GROW_PER_DAY * baseSpeed * maxHealth * FM / DL;
+    fatigue += FATIGUE_GROW_PER_DAY * speedMult * maxHealth * FM / DL;
     fatigue = Nums.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
     injury  = Nums.clamp(injury , 0, MAX_DECOMP  * maxHealth);
     //

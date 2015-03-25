@@ -41,11 +41,11 @@ public class Yamagur extends Fauna {
     ),
     Species.Type.BROWSER,
     5.00f, //bulk
-    1.75f, //speed
+    0.65f, //speed
     1.10f  //sight
   ) {
     final VenueProfile PROFILE = Nest.constructProfile(
-      3, 2, Venue.FACING_EAST, this, NEST_MODEL
+      3, 2, this, NEST_MODEL
     );
     public Actor sampleFor(Base base) { return init(new Yamagur(base)); }
     public VenueProfile nestProfile() { return PROFILE; }
@@ -73,7 +73,7 @@ public class Yamagur extends Fauna {
       25,    //lifespan
       species.baseBulk , //bulk bonus
       species.baseSight, //sight range
-      species.baseSpeed, //speed rate
+      species.speedMult, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
     gear.setBaseDamage(20);
