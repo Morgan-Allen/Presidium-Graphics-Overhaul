@@ -113,15 +113,6 @@ public class DebugSecurity extends Scenario {
       meets, raids, world
     ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
     
-    
-    //  Problem- even after successful theft, vermin have no means of
-    //  legitimate entry to the hatch itself!  They'd need a break-in behaviour
-    //  for their nesting-points as well.
-    
-    //  So, yeah.  Don't bother lodging.  Create a Nesting behaviour instead,
-    //  specifically for animals.
-    
-    //  TODO:  Make sure that stealth behaviours are working here!
     UI.selection.pushSelection(enemy);
   }
   

@@ -58,9 +58,9 @@ public class Pathing {
   
   /**  Updating current heading-
     */
-  private boolean inLocus(Boarding b) {
+  public boolean inLocus(Boarding b) {
     if (b == null) return false;
-    return Spacing.innerDistance(mobile, b) < 0.25f;
+    return Spacing.innerDistance(mobile, b) < 0.5f;
   }
   
   
@@ -77,6 +77,10 @@ public class Pathing {
   public Boarding nextStep() {
     if (stepIndex == -1 || path == null) return null;
     if (! path[stepIndex].inWorld()) return null;
+    
+    if (inLocus(path[stepIndex])) {
+      stepIndex = Nums.clamp(stepIndex + 1, path.length);
+    }
     return path[stepIndex];
   }
   
@@ -126,10 +130,10 @@ public class Pathing {
       stepIndex = -1;
       return;
     }
-    else if (inLocus(nextStep())) {
-      stepIndex = Nums.clamp(stepIndex + 1, path.length);
+    else nextStep();
+    if (extraVerbose && ! inLocus(path[stepIndex])) {
+      I.say("\nNot in locus of: "+path[stepIndex]);
     }
-    else if (report && extraVerbose) I.say("\nNot in locus of: "+nextStep());
   }
   
   

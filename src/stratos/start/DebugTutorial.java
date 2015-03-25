@@ -24,9 +24,14 @@ import stratos.util.*;
    Just don't railroad the player if they want to wander off and explore the
    game's mechanics themselves.
    
-*  (This map is too small to allow for multiple factions, really.  Try for 3
-   separate mini-tutorials for each of the game's main aspects.)
+*  This map is arguably too small to allow for multiple factions.  Still.
 //*/
+
+
+//  TODO:  SORT OUT FEEDBACK FROM TESTERS AND MAKE THOSE CHANGES
+//  *  Flora is a little too dense, especially when standalone.  It blocks the
+//  view.
+
 
 
 

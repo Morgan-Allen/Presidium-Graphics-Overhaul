@@ -11,6 +11,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
+import stratos.game.wild.Vermin;
 import static stratos.game.economic.Economy.*;
 
 
@@ -96,6 +97,12 @@ public class ServiceHatch extends Venue {
   
   protected void updatePaving(boolean inWorld) {
     base.transport.updatePerimeter(this, inWorld);
+  }
+  
+  
+  public boolean allowsEntry(Mobile m) {
+    if (m instanceof Vermin) return true;
+    else return false;
   }
   
   

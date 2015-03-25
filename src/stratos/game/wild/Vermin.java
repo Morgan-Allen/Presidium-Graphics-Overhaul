@@ -147,11 +147,14 @@ public abstract class Vermin extends Actor {
       final Batch <Venue> venues = new Batch <Venue> ();
       world.presences.sampleFromMaps(this, world, 5, venues, Venue.class);
       
-      for (Venue venue : venues) {
-        final Item toSteal = Looting.pickItemFrom(
+      for (Venue venue : venues) if (venue != home) {
+        Item toSteal = Looting.pickItemFrom(
           venue, this, Economy.ALL_FOOD_TYPES
         );
-        choice.add(new Looting(this, venue, toSteal, home));
+        if (toSteal == null) continue;
+        Looting l = new Looting(this, venue, Item.withAmount(toSteal, 1), home);
+        float hungerBonus = health.hungerLevel() * Plan.PARAMOUNT;
+        choice.add(l.addMotives(Plan.MOTIVE_EMERGENCY, hungerBonus));
       }
     }
     choice.add(new Foraging(this, home));

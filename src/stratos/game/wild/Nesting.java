@@ -4,17 +4,19 @@
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.plans.Dialogue;
+import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
 
 
 
-public class Nesting extends Plan {
+//  TODO:  Adapt this specifically for use by animals and vermin.
+
+public class Nesting extends Resting {
   
   
   public Nesting(Fauna actor, Nest nest) {
-    super(actor, nest, MOTIVE_JOB, MILD_HELP);
+    super(actor, nest);
   }
   
   
@@ -36,7 +38,7 @@ public class Nesting extends Plan {
   
   
   
-  
+  /*
   protected float getPriority() {
     return ROUTINE;
   }
@@ -49,7 +51,11 @@ public class Nesting extends Plan {
   
   public void describeBehaviour(Description d) {
   }
+  //*/
 }
+
+
+
 
 
 

@@ -30,7 +30,7 @@ public class Retreat extends Plan implements Qualities {
   
   private static boolean
     havenVerbose = false,
-    stepsVerbose = true ;
+    stepsVerbose = false;
   
   private float    maxPriority   = 0   ;
   private Boarding safePoint     = null;
@@ -248,7 +248,7 @@ public class Retreat extends Plan implements Qualities {
   protected float getPriority() {
     float priority = PlanUtils.retreatPriority(actor);
     if (actor.senses.isEmergency()) addMotives(MOTIVE_EMERGENCY);
-    else { clearMotives(); return priority; }
+    else clearMotives();
     maxPriority = Nums.max(maxPriority, priority);
     return maxPriority;
   }
