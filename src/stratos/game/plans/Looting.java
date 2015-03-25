@@ -39,6 +39,7 @@ public class Looting extends Plan {
   final Item taken;
   final Property dropOff;
   private int stage = STAGE_INIT;
+  private Tile access = null;
   
   
   public Looting(Actor actor, Owner subject, Item taken, Property dropOff) {
@@ -68,6 +69,7 @@ public class Looting extends Plan {
     taken   = Item.loadFrom(s);
     dropOff = (Property) s.loadObject();
     stage   = s.loadInt();
+    access  = (Tile) s.loadTarget();
   }
   
   
@@ -77,6 +79,7 @@ public class Looting extends Plan {
     Item.saveTo (s, taken);
     s.saveObject(dropOff );
     s.saveInt   (stage   );
+    s.saveTarget(access  );
   }
   
   
@@ -199,14 +202,26 @@ public class Looting extends Plan {
     }
     
     if (report) I.say("  Looting it is.");
+    
+    stage = STAGE_APPROACH;
+    if (mark instanceof Boarding && actor.aboard() != mark) {
+      final Action breakIn = new Action(
+        actor, mark,
+        this, "actionBreakIn",
+        Action.LOOK, "Breaking into "
+      );
+      breakIn.setMoveTarget(Spacing.nearestOpenTile(mark, actor));
+      return breakIn;
+    }
+    
     final Action loot = new Action(
       actor, mark,
       this, "actionLoot",
       Action.BUILD, "Looting "
     );
-    if (mark instanceof Boarding);
-    else loot.setMoveTarget(Spacing.nearestOpenTile(mark, actor));
-    stage = STAGE_APPROACH;
+    if (actor.aboard() != mark) {
+      loot.setMoveTarget(Spacing.nearestOpenTile(mark, actor));
+    }
     return loot;
   }
   
@@ -219,6 +234,9 @@ public class Looting extends Plan {
     final Base attacked = CombatUtils.baseAttacked(actor);
     if (attacked == null) return false;
     //  TODO:  Ignore other guild members?
+    
+    //  TODO:  This should be built into the danger-evaluation method in
+    //         ActorSenses!
     
     //  In essence, you flee if you're too close to a member of the base you're
     //  stealing from (and isn't the mark), or someone else has already made
@@ -248,6 +266,28 @@ public class Looting extends Plan {
   }
   
   
+  public boolean actionBreakIn(Actor actor, Boarding mark) {
+    final boolean instinct = actor.species().animal();
+    boolean success = true;
+    
+    if (instinct) {
+      success &= true;//Rand.yes();
+    }
+    else {
+      actor.skills.test(ASSEMBLY, ROUTINE_DC, 1);
+      success &= actor.skills.test(INSCRIPTION, SIMPLE_DC, 1);
+    }
+    if (success) {
+      this.access = actor.origin();
+      actor.assignAction(null);
+      actor.pathing.updateTarget(null);
+      actor.goAboard(mark, mark.world());
+      return true;
+    }
+    return false;
+  }
+  
+  
   public boolean actionLoot(Actor actor, Owner mark) {
     mark.inventory().transfer(taken, actor);
     if (
@@ -256,6 +296,11 @@ public class Looting extends Plan {
     ) {
       if (dropOff != null) stage = STAGE_DROP;
       else stage = STAGE_DONE;
+      if (access != null) {
+        actor.assignAction(null);
+        actor.pathing.updateTarget(null);
+        actor.goAboard(access, access.world);
+      }
     }
     return true;
   }

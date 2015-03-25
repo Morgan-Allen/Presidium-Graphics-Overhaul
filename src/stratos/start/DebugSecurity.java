@@ -58,7 +58,7 @@ public class DebugSecurity extends Scenario {
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    Flora.populateFlora(world);
+    ///Flora.populateFlora(world);
     return world;
   }
   
@@ -75,18 +75,54 @@ public class DebugSecurity extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
-    
+
+    if (true ) verminScenario  (world, base, UI);
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
-    if (false) animalScenario  (world, base, UI);
     if (false) raidingScenario (world, base, UI);
-    if (true ) combatScenario  (world, base, UI);
+    if (false) combatScenario  (world, base, UI);
   }
   
   
-  private void animalScenario(Stage world, Base base, BaseUI UI) {
-    //  TODO:  Introduce some animals near actors, and guage their respective
-    //  reactions.
+  private void verminScenario(Stage world, Base base, BaseUI UI) {
+    
+    base.commerce.assignHomeworld(Sectors.PLANET_AXIS_NOVENA);
+    final Venue hatch = new ServiceHatch(base);
+    Placement.establishVenue(hatch, world.tileAt(4, 4), true, world);
+    
+    final Base vermin = Base.vermin(world);
+    Actor roach = Roach.SPECIES.sampleFor(vermin);
+    roach.enterWorldAt(7, 7, world);
+    roach.mind.setHome(hatch);
+    Actor enemy = Roachman.SPECIES.sampleFor(vermin);
+    enemy.enterWorldAt(9, 7, world);
+    enemy.mind.setHome(hatch);
+    
+    Actor meets = new Human(Backgrounds.VOLUNTEER, base);
+    meets.enterWorldAt(19, 19, world);
+    
+    Venue raids = new StockExchange(base);
+    raids.stocks.bumpItem(Economy.CARBS, 20);
+    Placement.establishVenue(raids, world.tileAt(20, 20), true, world);
+    
+    enemy.mind.assignBehaviour(new Looting(
+      enemy, raids, Item.withAmount(Economy.CARBS, 5), hatch
+    ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
+    
+    meets.mind.assignBehaviour(Patrolling.aroundPerimeter(
+      meets, raids, world
+    ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
+    
+    
+    //  Problem- even after successful theft, vermin have no means of
+    //  legitimate entry to the hatch itself!  They'd need a break-in behaviour
+    //  for their nesting-points as well.
+    
+    //  So, yeah.  Don't bother lodging.  Create a Nesting behaviour instead,
+    //  specifically for animals.
+    
+    //  TODO:  Make sure that stealth behaviours are working here!
+    UI.selection.pushSelection(enemy);
   }
   
   

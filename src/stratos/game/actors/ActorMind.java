@@ -375,7 +375,7 @@ public abstract class ActorMind implements Qualities {
   
   
   public void cancelBehaviour(Behaviour b, String cause) {
-    final boolean report = I.talkAbout == actor && decisionVerbose;
+    final boolean report = I.talkAbout == actor && warnVerbose;
     if (! agenda.includes(b)) return;
     if (report) I.say("\nCANCELLING "+b+", CAUSE: "+cause);
     while (agenda.size() > 0) {

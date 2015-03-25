@@ -32,9 +32,9 @@ public class Retreat extends Plan implements Qualities {
     havenVerbose = false,
     stepsVerbose = true ;
   
-  
-  private float maxPriority = 0;
-  private Boarding safePoint = null;
+  private float    maxPriority   = 0   ;
+  private Boarding safePoint     = null;
+  private Target   lastHidePoint = null;
   
   
   public Retreat(Actor actor) {
@@ -50,15 +50,17 @@ public class Retreat extends Plan implements Qualities {
 
   public Retreat(Session s) throws Exception {
     super(s);
-    this.maxPriority = s.loadFloat();
-    this.safePoint = (Boarding) s.loadTarget();
+    this.maxPriority   = s.loadFloat();
+    this.safePoint     = (Boarding) s.loadTarget();
+    this.lastHidePoint = (Boarding) s.loadTarget();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveFloat(maxPriority);
-    s.saveTarget(safePoint);
+    s.saveFloat (maxPriority  );
+    s.saveTarget(safePoint    );
+    s.saveTarget(lastHidePoint);
   }
   
   
@@ -292,7 +294,6 @@ public class Retreat extends Plan implements Qualities {
   
   public boolean actionFlee(Actor actor, Target safePoint) {
     final boolean emergency = actor.senses.isEmergency();
-    //  TODO:  USE THE SIGHT-BREAKING CODE.
     
     if (! emergency) {
       final Resting rest = new Resting(actor, safePoint);
@@ -303,6 +304,8 @@ public class Retreat extends Plan implements Qualities {
       return true;
     }
     else {
+      if (lastHidePoint != safePoint) SenseUtils.breaksPursuit(actor);
+      lastHidePoint = safePoint;
       maxPriority *= DANGER_MEMORY_FADE;
       if (maxPriority < 0.5f) maxPriority = 0;
     }

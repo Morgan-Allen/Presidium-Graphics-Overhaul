@@ -39,10 +39,9 @@ public class VerminBase extends Base {
   
   private static boolean verbose = false;
   
-  final static float
-    MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
-    CHECK_INTERVAL    = Stage.STANDARD_HOUR_LENGTH * 2;
-  
+  final static int
+    SPAWN_PER_ENTRY_INTERVAL = Stage.STANDARD_DAY_LENGTH,
+    MAX_BIOMASS_PER_ENTRY    = 10;
   
   
   public VerminBase(Stage world) {
@@ -62,35 +61,39 @@ public class VerminBase extends Base {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    
+    //
+    //  We perform updates to check for vermin-entry more quickly as the number
+    //  of entry-points increases...
+    final PresenceMap hatches = world.presences.mapFor(ServiceHatch.class);
+    final int totalHatches = hatches.population();
+    if (totalHatches == 0) return;
+    final int interval = SPAWN_PER_ENTRY_INTERVAL / totalHatches;
     //
     //  If the time has arrived, assemble a 'raid' where creatures arrive
     //  through another base's service hatches.
-    
-    final PresenceMap hatches = world.presences.mapFor(ServiceHatch.class);
-    
-    //int totalHatches = hatches.population();
-    //  TODO:  Update more frequently as the hatch population increases.
-    //  TODO:  Vary infestation chance based on the area's squalor.
-    
-    //  TODO:  Reduce spawn-chance based on local crowding.
-    boolean spawnMore = false;
-    
-    if (numUpdates % CHECK_INTERVAL == 0 && spawnMore) {
+    if (numUpdates % interval == 0) {
       Target entryPoint = hatches.pickRandomAround(null, -1, null);
       if (entryPoint == null) return;
-      final int numEntered = Rand.index(3) + 1;
       final ServiceHatch hatch = (ServiceHatch) entryPoint;
-      
-      //  Okay.  Assemble a group of vermin and add them to the hatch as
-      //  immigrants.
-      
-      //  TODO:  VARY COMPOSITION MORE?
-      
-      I.say("Introducing "+numEntered+" vermin at "+hatch);
-      
+      //
+      //  Get the maximum and current vermin population in the area.
+      final float squalor = 5 - world.ecology().ambience.valueAt(hatch);
+      int maxPop = (int) (squalor * MAX_BIOMASS_PER_ENTRY / 10f);
+      maxPop = Nums.clamp(maxPop, MAX_BIOMASS_PER_ENTRY + 1);
+      float realPop = 0;
+      for (Actor a : hatch.staff.lodgers()) if (a.species().vermin()) {
+        realPop += a.species().metabolism();
+      }
+      final float crowding = realPop / maxPop;
+      final int numEntered = (int) (Rand.index(3) + 1 * (1 - crowding));
+      if (numEntered <= 0) return;
+      //
+      //  Then, if crowding allows, assemble a group of vermin and add them to
+      //  the hatch as immigrants.
       for (int n = numEntered; n-- > 0;) {
-        Actor enters = Roach.SPECIES.sampleFor(this);
+        Actor enters = Rand.num() < crowding ?
+          Roach   .SPECIES.sampleFor(this) :
+          Roachman.SPECIES.sampleFor(this) ;
         enters.enterWorldAt(hatch, world);
         enters.goAboard(hatch, world);
         enters.mind.setHome(hatch);

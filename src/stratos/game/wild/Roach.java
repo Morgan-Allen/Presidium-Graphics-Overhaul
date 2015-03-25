@@ -40,7 +40,7 @@ public class Roach extends Vermin {
   
   
   protected void initStats() {
-    traits.initAtts(6, 5, 2);
+    traits.initAtts(8, 10, 3);
     health.initStats(
       1,                 //lifespan
       species.baseBulk , //bulk bonus

@@ -22,9 +22,10 @@ public class Setting {
   private Setting() {
     //  TODO:  Finish these up, and create some dedicated classes for the
     //  purpose.
-    setRelations(Base.KEY_ARTILECTS, -1.0f, (Object[]) ALL_PLANETS);
-    setRelations(Base.KEY_NATIVES  ,  0.0f, (Object[]) ALL_PLANETS);
-    setRelations(Base.KEY_WILDLIFE ,  0.0f, (Object[]) ALL_PLANETS);
+    setRelations(Base.KEY_ARTILECTS, -1.0f, true, (Object[]) ALL_PLANETS);
+    setRelations(Base.KEY_VERMIN   , -0.5f, true, (Object[]) ALL_PLANETS);
+    setRelations(Base.KEY_NATIVES  ,  0.0f, true, (Object[]) ALL_PLANETS);
+    setRelations(Base.KEY_WILDLIFE ,  0.2f, true, (Object[]) ALL_PLANETS);
     
     //  House Altair-
     //    Enemies:  Rigel-Procyon and Taygeta, Hive Urym
@@ -92,9 +93,12 @@ public class Setting {
     }
   }
   
-  void setRelations(Object a, float value, Object... others) {
+  
+  void setRelations(
+    Object a, float value, boolean symmetric, Object... others
+  ) {
     for (Object k : others) {
-      setRelation(a, k, value, false);
+      setRelation(a, k, value, symmetric);
     }
   }
   
@@ -103,9 +107,13 @@ public class Setting {
   /**  Public queries/access methods-
     */
   public static float defaultRelations(Base base, Base other) {
-    final Table BR = SETTING.relations.get(keyFor(base));
+    
+    final Object BK = keyFor(base), OK = keyFor(other);
+    final Table BR = SETTING.relations.get(BK);
+    
+    
     if (BR == null) return 0;
-    final Float val = (Float) BR.get(keyFor(other));
+    final Float val = (Float) BR.get(OK);
     return val != null ? val : 0;
   }
   

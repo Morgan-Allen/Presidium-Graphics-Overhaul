@@ -214,8 +214,6 @@ public abstract class Mobile extends Element
   }
   
   
-  //  TODO:  There's a problem here, I think.
-  
   protected void updateAsMobile() {
     final boolean report = verbose && I.talkAbout == this;
     //  

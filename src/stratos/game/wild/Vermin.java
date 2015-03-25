@@ -121,7 +121,7 @@ public abstract class Vermin extends Actor {
   
   
   protected void addChoices(Choice choice) {
-    boolean report = I.talkAbout == this;
+    boolean report = I.talkAbout == this && false;
     if (report) I.say("\nCreating choices for "+this);
     
     choice.isVerbose = report;

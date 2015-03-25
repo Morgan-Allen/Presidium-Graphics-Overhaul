@@ -151,32 +151,12 @@ public class DebugPlacing extends Scenario {
   
   private void configRoadsTest(Stage world, Base base, BaseUI UI) {
     
-    Flora.populateFlora(world);
-    
-    final Venue hatch = new ServiceHatch(base);
-    Placement.establishVenue(hatch, world.tileAt(4, 4), true, world);
-    
-    final Base vermin = Base.vermin(world);
-    Actor roach = Roach.SPECIES.sampleFor(vermin);
-    roach.enterWorldAt(7, 7, world);
-    roach.mind.setHome(hatch);
-    
-    //  TODO:  Problem- venue-staffing automatically removes any actors that
-    //  belong to foreign bases.  You need some other way for the Roaches to
-    //  hide- or just exit the map?
-    
-    UI.selection.pushSelection(hatch);
-    /*
     final Venue pointA = new TrooperLodge(base);
     final Venue pointB = new TrooperLodge(base);
     Placement.establishVenue(pointA, 5, 5 , false, world);
     Placement.establishVenue(pointB, 5, 15, false, world);
     pointA.updateAsScheduled(0, false);
     pointB.updateAsScheduled(0, false);
-    
-    final Venue hatch = new ServiceHatch(base);
-    Placement.establishVenue(hatch, pointA, true, world);
-    Base.vermin(world);
     
     for (int n = 2; n-- > 0;) {
       final Human tech = new Human(Backgrounds.TECHNICIAN, base);
@@ -186,7 +166,6 @@ public class DebugPlacing extends Scenario {
       tech.mind.assignBehaviour(roadBuild);
       UI.selection.pushSelection(tech);
     }
-    //*/
   }
   
   
