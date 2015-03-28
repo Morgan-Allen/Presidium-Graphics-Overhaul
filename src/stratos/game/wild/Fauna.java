@@ -175,6 +175,8 @@ public abstract class Fauna extends Actor {
   }
   
   
+  //  TODO:  USE FORAGING FOR THIS
+  
   protected Behaviour nextBrowsing() {
     final float range = Nest.forageRange(species);
     Target centre = mind.home();
@@ -218,6 +220,8 @@ public abstract class Fauna extends Actor {
     return true;
   }
   
+  
+  //  TODO:  USE NESTING/FINDHOME FOR THIS
   
   protected Behaviour nextMigration() {
     final boolean report = verbose && I.talkAbout == this;
@@ -319,6 +323,9 @@ public abstract class Fauna extends Actor {
     return true;
   }
   
+  
+  
+  //  TODO:  CREATE SPECIAL PLAN FOR THIS AND SHARE WITH HUMANOIDS, ETC
   
   protected Behaviour nextBreeding() {
     if (mind.home() == null) return null;

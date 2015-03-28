@@ -2,16 +2,43 @@
 
 <topic name="Welcome!">
   <content>Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.</content>
-  <link name="Security Objective">Tell me about the Security Objective.</link>
-  <link name="Economic Objective">Tell me about the Economic Objective.</link>
+  <link name="Navigation">Continue</link>
 </topic>
 
-<topic name="Security Objective">
-  <content>Somewhere on this map, there is an ancient ruin, inhabited by artilect guardians who may come to threaten your settlement.  You will need to find this site and destroy it, by first exploring the map to find the site, and then declaring a strike mission.</content>
-  <link name="Welcome!">Go Back</link>
+
+<topic name="Navigation">
+  <content>First, you'll need to familiarise yourself with the controls.  Use the W, S, A and D keys to move forward, back, left and right, or click on an object of interest to move there directly.</content>
 </topic>
 
-<topic name="Economic Objective">
-  <content>In order for your settlement to provide a viable power base for later expansion, you will need to establish exports and gather tax from your citizens.  Try to get your citizens' average housing level up to pyon grade or better.</content>
-  <link name="Welcome!">Go Back</link>
+<topic name="Navigation Done">
+  <content>Well done!  You can also use the arrow keys, click on the ground, or click a position on the minimap in the top-left.
+
+If you ever get lost, messages (such as this one) can always be accessed from the Reminders listing on the left-hand side of the screen.</content>
+  <link name="The Bastion">Continue</link>
 </topic>
+
+
+<topic name="The Bastion">
+  <content>Your settlement starts out with a single main building:  The Bastion, which houses your family and personal servants, and serves as your seat of command for the settlement as a whole.  As such, you should strive to protect the Bastion at all costs.
+
+To do this, you will need to both identify any threats in the area, and take steps to establish defences.</content>
+  <link name="Exploring">How do I identify threats?</link>
+  <link name="Construction">How do I establish defences?</link>
+</topic>
+
+<topic name="Exploring">
+  <content>EXPLORING</content>
+</topic>
+
+<topic name="Construction">
+  <content>CONSTRUCTION</content>
+</topic>
+
+
+
+
+
+
+
+
+

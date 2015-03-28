@@ -20,7 +20,7 @@ public class ShipUtils {
   
   
   private static boolean
-    landVerbose = true ,
+    landVerbose = false,
     flyVerbose  = false,
     siteVerbose = false;
   

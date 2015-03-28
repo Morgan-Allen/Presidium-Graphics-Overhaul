@@ -22,8 +22,8 @@ public class Roachman extends Vermin {
     Roachman.class,
     "Roachman",
     "Roachmen are larger, bipedal cousins of their insectile brethren, "+
-    "rumoured to be the a product a tragic medical accident.  They have an "+
-    "odd fixation for shiny objects.",
+    "rumoured to be the biproduct of a tragic medical accident.  They have "+
+    "an odd fixation for shiny objects.",
     null,
     MS3DModel.loadFrom(
       FILE_DIR, "Roachman2.ms3d", Roachman.class,

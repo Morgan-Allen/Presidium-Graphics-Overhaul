@@ -82,14 +82,15 @@ public class StartupScenario extends Scenario {
   public static class Config {
     //  TODO:  Just pick House, Province, Options.  And a few perks.
     
-    //public Background demesneTaken;  //TODO:  Configure this!
-    public Background house;
+    public Background house ;
     public Background gender;
     public List <Trait> chosenTraits = new List <Trait> ();
     public List <Skill> chosenSkills = new List <Skill> ();
-    public List <Background> advisors = new List <Background> ();
-    public Table <Background, Integer> numCrew = new Table();
+    public List <Technique> chosenTechs = new List <Technique> ();
     
+    public List  <Background> advisors = new List  <Background> ();
+    public Tally <Background> crew     = new Tally <Background> ();
+    public Sector demesne;
     public int siteLevel, fundsLevel, titleLevel;
   }
   
@@ -106,14 +107,16 @@ public class StartupScenario extends Scenario {
   public StartupScenario(Session s) throws Exception {
     super(s);
     this.config = new Config();
-    config.house = (Background) s.loadObject();
+    config.house  = (Background) s.loadObject();
     config.gender = (Background) s.loadObject();
     s.loadObjects(config.chosenTraits);
     s.loadObjects(config.chosenSkills);
-    s.loadObjects(config.advisors);
+    s.loadObjects(config.chosenTechs );
+    s.loadObjects(config.advisors    );
     for (int i = s.loadInt(); i-- > 0;) {
-      config.numCrew.put((Background) s.loadObject(), s.loadInt());
+      config.crew.set((Background) s.loadObject(), s.loadInt());
     }
+    config.demesne    = (Sector) s.loadObject();
     config.siteLevel  = s.loadInt();
     config.fundsLevel = s.loadInt();
     config.titleLevel = s.loadInt();
@@ -122,17 +125,19 @@ public class StartupScenario extends Scenario {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(config.house);
-    s.saveObject(config.gender);
+    s.saveObject (config.house       );
+    s.saveObject (config.gender      );
     s.saveObjects(config.chosenTraits);
     s.saveObjects(config.chosenSkills);
-    s.saveObjects(config.advisors);
-    s.saveInt(config.numCrew.size());
-    for (Background b : config.numCrew.keySet()) {
+    s.saveObjects(config.chosenTechs );
+    s.saveObjects(config.advisors    );
+    s.saveInt(config.crew.size());
+    for (Background b : config.crew.keys()) {
       s.saveObject(b);
-      s.saveInt(config.numCrew.get(b));
+      s.saveInt((int) config.crew.valueFor(b));
     }
-    s.saveInt(config.siteLevel);
+    s.saveObject(config.demesne);
+    s.saveInt(config.siteLevel );
     s.saveInt(config.fundsLevel);
     s.saveInt(config.titleLevel);
   }
@@ -172,9 +177,8 @@ public class StartupScenario extends Scenario {
     Flora.populateFlora(world);
     
     //  TODO:  THIS NEEDS TO BE CONFIGURED EXTERNALLY!
-    world.offworld.assignLocalSector(
-      Sectors.SECTOR_ELYSIUM, Sectors.PLANET_DIAPSOR
-    );
+    if (config.demesne == null) config.demesne = Sectors.SECTOR_ELYSIUM;
+    world.offworld.assignLocalSector(config.demesne, Sectors.PLANET_DIAPSOR);
     return world;
   }
   
@@ -228,21 +232,40 @@ public class StartupScenario extends Scenario {
   /**  Private helper methods-
     */
   protected Human ruler(Base base) {
-    
+    //
+    //  Firstly, we determine the ruler's current rank in the feudal hierarchy
+    //  and their class of origin.
     final int station = config.titleLevel;
-    final float promoteChance = (25 - (station * 10)) / 100f;
     final Background vocation = Backgrounds.RULING_POSITIONS[station];
-    final Background birth;
-    if (Rand.num() < promoteChance) {
-      if (Rand.num() < promoteChance) birth = Backgrounds.BORN_FREE;
-      else birth = Backgrounds.BORN_GELDER;
-    }
-    else birth = Backgrounds.BORN_HIGH;
     
+    final float promoteChance = (25 - (station * 10)) / 100f;
+    Background birth = Backgrounds.BORN_HIGH;
+    
+    while (Rand.num() < promoteChance) {
+      int index = Visit.indexOf(birth, Backgrounds.RULER_CLASSES);
+      if (index <= 0) break;
+      else birth = Backgrounds.RULER_CLASSES[index - 1];
+    }
+    //
+    //  Then we generate the ruler themselves along with any modifications
+    //  chosen by the player.
     final Background house = config.house;
-    final Career rulerCareer = new Career(vocation, birth, house, config.gender);
+    final Career rulerCareer = new Career(
+      vocation, birth, house, config.gender
+    );
     final Human ruler = new Human(rulerCareer, base);
-    for (Skill s : house.skills()) ruler.traits.incLevel(s, 5);
+    for (Skill s : house.skills()) {
+      ruler.traits.incLevel(s, 5 + Rand.index(5) - 2);
+    }
+    for (Trait t : config.chosenTraits) {
+      ruler.traits.setLevel(t, t.maxVal * (Rand.num() + 1) / 1);
+    }
+    for (Skill s : config.chosenSkills) {
+      ruler.traits.incLevel(s, 10 + Rand.index(5) - 2);
+    }
+    for (Technique t : config.chosenTechs) {
+      ruler.skills.addTechnique(t);
+    }
     
     return ruler;
   }
@@ -257,7 +280,7 @@ public class StartupScenario extends Scenario {
       
       for (int i = numTries; i-- > 0;) {
         final Human candidate = new Human(b, base);
-        float rating = 0;//
+        float rating = 0;
         
         if (b == Backgrounds.FIRST_CONSORT) {
           rating += ruler.motives.attraction(candidate) * 1.0f;
@@ -278,8 +301,8 @@ public class StartupScenario extends Scenario {
     final List <Human> colonists = new List <Human> ();
     final Background house = config.house;
     
-    for (Background b : config.numCrew.keySet()) {
-      final int num = config.numCrew.get(b);
+    for (Background b : config.crew.keys()) {
+      final int num = (int) config.crew.valueFor(b);
       for (int n = num; n-- > 0;) {
         final Human c = new Human(b, base);
         for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
@@ -299,15 +322,14 @@ public class StartupScenario extends Scenario {
     final Bastion bastion = new Bastion(base);
     advisors.add(ruler);
     base.assignRuler(ruler);
-    
     base.setup.doPlacementsFor(bastion);
-    
     //
     //  We clear away any structures that might have conflicted with the
     //  bastion, along with their inhabitants-
     for (Venue v : world.claims.venuesConflicting(bastion)) {
-      v.exitWorld();
       for (Actor a : v.staff.lodgers()) a.exitWorld();
+      for (Actor a : v.staff.workers()) a.exitWorld();
+      v.exitWorld();
     }
     
     if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");

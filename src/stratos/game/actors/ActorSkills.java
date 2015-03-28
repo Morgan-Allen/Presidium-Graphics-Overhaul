@@ -63,20 +63,6 @@ public class ActorSkills {
   }
   
   
-  public Series <Technique> knownTechniques() {
-    return known;
-  }
-  
-  
-  public Series <Power> knownPowers() {
-    final Batch <Power> powers = new Batch <Power> ();
-    for (Technique t : known) if (t.type == Technique.TYPE_SOVEREIGN_POWER) {
-      powers.add((Power) t);
-    }
-    return powers;
-  }
-  
-  
   
   /**  Methods for performing actual skill tests against both static and active
     *  opposition-
@@ -181,8 +167,27 @@ public class ActorSkills {
   
   /**  Technique-handling methods:
     *  TODO:  Move some of the decision-handling methods for Techniques over to
-    *  here...
+    *  here?
     */
+  public Series <Technique> knownTechniques() {
+    return known;
+  }
+  
+  
+  public Series <Power> knownPowers() {
+    final Batch <Power> powers = new Batch <Power> ();
+    for (Technique t : known) if (t.type == Technique.TYPE_SOVEREIGN_POWER) {
+      powers.add((Power) t);
+    }
+    return powers;
+  }
+  
+  
+  public void addTechnique(Technique t) {
+    known.include(t);
+  }
+  
+  
   public Action pickIndependantAction(
     Target subject, Object trigger, Plan plan
   ) {

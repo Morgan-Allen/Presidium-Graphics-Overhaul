@@ -61,19 +61,20 @@ public class TutorialScenario extends StartupScenario {
     config.siteLevel  = SITE_WILDERNESS ;
     config.titleLevel = TITLE_KNIGHTED  ;
     config.fundsLevel = FUNDING_GENEROUS;
-    
-    config.numCrew.put(Backgrounds.TROOPER   , 2);
-    config.numCrew.put(Backgrounds.TECHNICIAN, 3);
-    config.numCrew.put(Backgrounds.AUDITOR   , 1);
-    
+
+    //  TODO:  ESTABLISH THESE LATER.
+    /*
+    config.crew.set(Backgrounds.TROOPER   , 2);
+    config.crew.set(Backgrounds.TECHNICIAN, 3);
+    config.crew.set(Backgrounds.AUDITOR   , 1);
     config.advisors.add(Backgrounds.FIRST_CONSORT);
+    //*/
     return config;
   }
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
-    
     if (showMessages()) registerAllTopics();
   }
   
@@ -83,6 +84,14 @@ public class TutorialScenario extends StartupScenario {
     List <Human> advisors, List <Human> colonists
   ) {
     bastion = super.establishBastion(world, base, ruler, advisors, colonists);
+    
+    //  TODO:  ESTABLISH THESE LATER.
+    /*
+    ruler.skills.addTechnique(Power.REMOTE_VIEWING);
+    ruler.skills.addTechnique(Power.SUSPENSION    );
+    ruler.skills.addTechnique(Power.FORCEFIELD    );
+    ruler.skills.addTechnique(Power.TELEKINESIS   );
+    //*/
     return bastion;
   }
   
@@ -111,95 +120,8 @@ public class TutorialScenario extends StartupScenario {
     */
   public void updateGameState() {
     super.updateGameState();
-    
-    if (showMessages()) {
-      pushMessage(EVENT_WELCOME, true);
-
-      int numObjectives = 0;
-      if (checkSecurityObjective()) {
-        pushMessage(EVENT_SECURITY_DONE, true);
-        numObjectives++;
-      }
-      
-      //  TODO:  RESTORE THIS
-      /*
-      if (checkContactObjective()) {
-        pushMessage(EVENT_CONTACT_DONE);
-        numObjectives++;
-      }
-      //*/
-      if (checkEconomicObjective()) {
-        pushMessage(EVENT_ECONOMY_DONE, true);
-        numObjectives++;
-      }
-      if (numObjectives >= 2) {
-        pushMessage(EVENT_CONGRATULATIONS, true);
-      }
-      //I.say("\nTotal objectives: "+numObjectives+"/"+3);
-    }
+    script.checkForFlags();
   }
-  
-  
-  private boolean checkSecurityObjective() {
-    final boolean report = objectiveVerbose;
-    int numRuins = 0, numRazed = 0;
-    
-    for (Ruins ruin : ruins) {
-      numRuins++;
-      if (ruin.destroyed()) numRazed++;
-    }
-    
-    if (report) {
-      I.say("\nChecking security objective:");
-      I.say("  "+numRazed+"/"+numRuins+" destroyed.");
-    }
-    return numRazed == numRuins;
-  }
-  
-  
-  private boolean checkContactObjective() {
-    final boolean report = objectiveVerbose;
-    int numHuts = 0, numRazed = 0, numConverts = 0;
-    
-    for (NativeHut hut : huts) {
-      numHuts++;
-      if (hut.destroyed()) numRazed++;
-      else if (hut.base() == base()) numConverts++;
-    }
-    
-    if (report) {
-      I.say("\nChecking contact objective:");
-      I.say("  "+numHuts+" huts in total.");
-      I.say("  "+numRazed+" razed, "+numConverts+" converted.");
-    }
-    return (numRazed + numConverts) == numHuts;
-  }
-  
-  
-  private boolean checkEconomicObjective() {
-    final boolean report = objectiveVerbose;
-    final int needLevel = HoldingUpgrades.LEVEL_PYON;
-    int numHoldings = 0, totalLevel = 0;
-    
-    final Tile t = world().tileAt(0, 0);
-    for (Object o : world().presences.matchesNear(Holding.class, t, -1)) {
-      final Holding h = (Holding) o;
-      if (h.base() != base()) continue;
-      numHoldings++;
-      totalLevel += h.upgradeLevel();
-    }
-    
-    final int avgLevel = numHoldings == 0 ? 0 : (totalLevel / numHoldings);
-    if (report) {
-      I.say("\nChecking economic objective:");
-      I.say("  "+numHoldings+" total holdings, total levels: "+totalLevel);
-      I.say("  Average level: "+avgLevel+"/"+needLevel);
-      I.say("  Current credits: "+base().finance.credits());
-    }
-    if (base().finance.credits() < 0 || numHoldings == 0) return false;
-    return avgLevel >= needLevel;
-  }
-  
   
   
   /**  Monitoring and updates-
@@ -220,35 +142,90 @@ public class TutorialScenario extends StartupScenario {
     }
     //*/
   }
-
-  
-  private void pushMessage(String eventKey, boolean urgent) {
-    final ReminderListing reminders = UI().reminders();
-    
-    if (! reminders.hasEntryFor(eventKey)) {
-      final DialoguePane message = script.messageFor(eventKey, UI());
-      if (message == null) return;
-      if (verbose || I.logEvents()) I.say("\nPUSHING NEW MESSAGE: "+eventKey);
-      UI().setInfoPanels(message, null);
-      reminders.addEntry(message, urgent);
-    }
-  }
-  
-  
-  /*
-  public DialoguePane messageFor(
-    String title, CommsPane comms, boolean useCache
-  ) {
-    return new TutorialScript(this).messageFor(title, comms, useCache);
-  }
-  //*/
 }
 
 
 
+/*
+if (showMessages()) {
+  pushMessage(EVENT_WELCOME, true);
+  int numObjectives = 0;
+  if (checkSecurityObjective()) {
+    pushMessage(EVENT_SECURITY_DONE, true);
+    numObjectives++;
+  }
+  if (checkEconomicObjective()) {
+    pushMessage(EVENT_ECONOMY_DONE, true);
+    numObjectives++;
+  }
+  if (numObjectives >= 2) {
+    pushMessage(EVENT_CONGRATULATIONS, true);
+  }
+  //I.say("\nTotal objectives: "+numObjectives+"/"+3);
+}
+//*/
+
+/*
+private boolean checkSecurityObjective() {
+  final boolean report = objectiveVerbose;
+  int numRuins = 0, numRazed = 0;
+  
+  for (Ruins ruin : ruins) {
+    numRuins++;
+    if (ruin.destroyed()) numRazed++;
+  }
+  
+  if (report) {
+    I.say("\nChecking security objective:");
+    I.say("  "+numRazed+"/"+numRuins+" destroyed.");
+  }
+  return numRazed == numRuins;
+}
 
 
+private boolean checkContactObjective() {
+  final boolean report = objectiveVerbose;
+  int numHuts = 0, numRazed = 0, numConverts = 0;
+  
+  for (NativeHut hut : huts) {
+    numHuts++;
+    if (hut.destroyed()) numRazed++;
+    else if (hut.base() == base()) numConverts++;
+  }
+  
+  if (report) {
+    I.say("\nChecking contact objective:");
+    I.say("  "+numHuts+" huts in total.");
+    I.say("  "+numRazed+" razed, "+numConverts+" converted.");
+  }
+  return (numRazed + numConverts) == numHuts;
+}
 
+
+private boolean checkEconomicObjective() {
+  final boolean report = objectiveVerbose;
+  final int needLevel = HoldingUpgrades.LEVEL_PYON;
+  int numHoldings = 0, totalLevel = 0;
+  
+  final Tile t = world().tileAt(0, 0);
+  for (Object o : world().presences.matchesNear(Holding.class, t, -1)) {
+    final Holding h = (Holding) o;
+    if (h.base() != base()) continue;
+    numHoldings++;
+    totalLevel += h.upgradeLevel();
+  }
+  
+  final int avgLevel = numHoldings == 0 ? 0 : (totalLevel / numHoldings);
+  if (report) {
+    I.say("\nChecking economic objective:");
+    I.say("  "+numHoldings+" total holdings, total levels: "+totalLevel);
+    I.say("  Average level: "+avgLevel+"/"+needLevel);
+    I.say("  Current credits: "+base().finance.credits());
+  }
+  if (base().finance.credits() < 0 || numHoldings == 0) return false;
+  return avgLevel >= needLevel;
+}
+//*/
 
 
 

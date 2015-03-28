@@ -60,6 +60,11 @@ public class DialoguePane extends SelectionPane implements UIConstants {
   }
   
   
+  public void assignContent(String initText, Series <Clickable> options) {
+    assignContent(initText, options.toArray(Clickable.class));
+  }
+  
+  
   protected void updateText(
     final BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {

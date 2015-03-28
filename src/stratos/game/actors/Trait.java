@@ -16,11 +16,11 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   
   final public static Index <Trait> TRAIT_INDEX = new Index <Trait> ();
   
-  final String name;
+  final public String name;
   final String descriptors[];
   
-  final int type;
-  final int minVal, maxVal;
+  final public int type;
+  final public int minVal, maxVal;
   final int descValues[];
   
   private Trait correlates[], opposite;

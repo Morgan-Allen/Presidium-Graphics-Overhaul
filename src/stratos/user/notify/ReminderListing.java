@@ -69,9 +69,14 @@ public class ReminderListing extends UIGroup {
   }
   
   
+  private Entry entryFor(Object refers) {
+    for (Entry e : entries) if (e.refers == refers) return e;
+    return null;
+  }
+  
+  
   private boolean hasEntry(Object refers) {
-    for (Entry e : entries) if (e.refers == refers) return true;
-    return false;
+    return entryFor(refers) != null;
   }
   
   
@@ -86,8 +91,6 @@ public class ReminderListing extends UIGroup {
     }
     if (refers == oldMessages) {
       entry = new CommsReminder(UI, oldMessages, forOldMessages());
-      final String label = oldMessages.size()+" other messages";
-      ((CommsReminder) entry).setLabel(label);
     }
     if (entry == null) {
       I.complain("\nNO SUPPORTED ENTRY FOR "+refers);
@@ -147,6 +150,8 @@ public class ReminderListing extends UIGroup {
       down += e.high + padding;
     }
     
+    checkMessageDismissed();
+    updateOldMessages();
     super.updateState();
   }
   
@@ -154,24 +159,33 @@ public class ReminderListing extends UIGroup {
   
   /**  Utility methods for message dialogues:
     */
-  public boolean hasEntryFor(String messageKey) {
-    for (DialoguePane message : newMessages) {
-      if (message.title.equals(messageKey)) return true;
-    }
-    for (DialoguePane message : oldMessages) {
-      if (message.title.equals(messageKey)) return true;
-    }
-    return false;
-  }
-  
-  
-  public void addEntry(DialoguePane message, boolean urgent) {
-    if (urgent) newMessages.include(message);
-    else        oldMessages.include(message);
-  }
+  private String lastViewedMessageKey = null;
   
   
   private DialoguePane forOldMessages() {
+    final DialoguePane pane = new DialoguePane(
+      UI, null, "Old Messages", "", null
+    );
+    return pane;
+  }
+  
+  
+  private void checkMessageDismissed() {
+    String keyNow  = onScreenMessageKey();
+    String lastKey = lastViewedMessageKey;
+    if (lastKey != null && ! lastKey.equals(keyNow)) {
+      I.say("\nRETIRING MESSAGE FOR : "+lastKey);
+      retireMessage(entryFor(lastKey));
+    }
+    lastViewedMessageKey = hasMessageEntry(keyNow) ? keyNow : null;
+  }
+  
+  
+  private void updateOldMessages() {
+    final CommsReminder entry = (CommsReminder) entryFor(oldMessages);
+    if (entry == null) return;
+    final String label = oldMessages.size()+" old messages";
+    entry.setLabel(label);
     
     final Batch <Clickable> links = new Batch <Clickable> ();
     for (final DialoguePane panel : oldMessages) {
@@ -187,11 +201,44 @@ public class ReminderListing extends UIGroup {
       };
       links.add(link);
     }
-    
-    final DialoguePane pane = new DialoguePane(
-      UI, null, "Old Messages", "", null, links
-    );
-    return pane;
+    entry.message.assignContent("", links);
+  }
+  
+  
+  public DialoguePane entryFor(String messageKey) {
+    for (DialoguePane message : newMessages) {
+      if (message.title.equals(messageKey)) return message;
+    }
+    for (DialoguePane message : oldMessages) {
+      if (message.title.equals(messageKey)) return message;
+    }
+    return null;
+  }
+  
+  
+  public String onScreenMessageKey() {
+    if (UI.currentPane() instanceof DialoguePane) {
+      final DialoguePane pane = (DialoguePane) UI.currentPane();
+      return pane.title;
+    }
+    return null;
+  }
+  
+  
+  public boolean hasMessageEntry(String messageKey) {
+    return entryFor(messageKey) != null;
+  }
+  
+  
+  public void addEntry(DialoguePane message, boolean urgent) {
+    if (urgent) newMessages.include(message);
+    else        oldMessages.include(message);
+  }
+  
+  
+  public void retireMessage(DialoguePane message) {
+    newMessages.remove (message);
+    oldMessages.include(message);
   }
 }
 

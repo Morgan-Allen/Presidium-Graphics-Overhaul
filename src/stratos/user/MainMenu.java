@@ -14,6 +14,9 @@ import java.io.*;
 
 
 
+//  TODO:  This needs a proper re-implementation using customised widgets.
+//         You also need to include landing-site and powers selection.
+
 public class MainMenu extends UIGroup {
   
   //
@@ -51,7 +54,6 @@ public class MainMenu extends UIGroup {
     Call.add("\n  New Game"       , this, "configForNew"     , text);
     Call.add("\n  Quick Tutorial" , this, "configQuickstart" , text);
     Call.add("\n  Continue Game"  , this, "configToContinue" , text);
-    //Call.add("\n  Change Settings", this, "configForSettings", text);
     Call.add("\n  Quit"           , this, "configToQuit"     , text);
   }
   
@@ -205,7 +207,7 @@ public class MainMenu extends UIGroup {
   
   
   private int numCrew(Background b) {
-    final Integer num = config.numCrew.get(b);
+    final Integer num = (int) config.crew.valueFor(b);
     return num == null ? 0 : num;
   }
   
@@ -289,7 +291,7 @@ public class MainMenu extends UIGroup {
     int amount = numCrew(b);
     if (inc < 0 && amount <= 0) return;
     if (inc > 0 && totalColonists >= MAX_COLONISTS) return;
-    config.numCrew.put(b, amount + inc);
+    config.crew.add(inc, b);
     configForLanding(null);
   }
   

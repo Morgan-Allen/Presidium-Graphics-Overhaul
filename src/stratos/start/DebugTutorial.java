@@ -10,53 +10,60 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-
-/*  TUTORIAL TODO LIST:
+/*
+TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 *  Use a linear sequence with much more detail on specific, simple steps.  You
    want to cover-
-     Building & Upgrades (space management.)
-     Recruitment & Missions (indirect control, motivation.)
-     Housing + Manufacture + Sales and Imports (having money.)
-   Emphasise the emotive component here- survival, comfort, discovery, honour.
-   Limit the structure types available?
+   * Basic Navigation and UI Features (access to game inputs and readouts.)
+   * Building & Upgrades (space management.)
+   * Recruitment & Missions (indirect control, motivation.)
+   * Inital objectives (security, basic housing, turning a profit.)
    
    Just don't railroad the player if they want to wander off and explore the
    game's mechanics themselves.
-   
-*  This map is arguably too small to allow for multiple factions.  Still.
+
+*  More feedback on needs and settlement demands.  (Notifications or an RCI
+   indicator of some sort are needed.)  You need feedback for-
+     *  Citizen needs   / no food source (imports or grown.)
+     *  Low funding     / no income source (exports or taxes.)
+     *  Citizen housing / no holdings built.
+     *  Specific goods  / no factory source built.
+     *  Citizen health  / no medical team (sickbay and archives.)
+     *  Danger          / no security force (walls and military.)
+   Emphasise the emotive component here?
+
+*  A minimap-indicator is needed for your current viewpoint.
+
+*  Ensure a small number of powers can be chosen for your ruler before the
+   scenario begins!
+
+*  Re-introduce secondary revenue from upgraded housing!
+
+*  Ensure that money-making is reliable and intuitive.  Clarify and simplify
+   the imports system and taxation.
+
+*  Allow click-and-drag for things like the arcology or plantations (or maybe
+   building-facings and housing blocs?)
+   You could also make use of right-click.
+   Drag buildings from the install-pane directly onto the ground!  That's what
+   he was talking about.
+
+*  Flora is a little too dense, especially when standalone.  It blocks the
+   view.  Also, try to polish it up- look more exotic.
+
+*  Icons could be clearer, at least in the early game.
+
+*  This map is arguably too small to allow for multiple factions.  Stick to the
+   ruins and economic buildup.
+
+*  Sort out a decent carbons-source and a use for water-resources.  That, and
+   spice flats!
 //*/
-
-
-//  TODO:  SORT OUT FEEDBACK FROM TESTERS AND MAKE THOSE CHANGES
-//  *  Flora is a little too dense, especially when standalone.  It blocks the
-//  view.
-
 
 
 
 /*  BIG TODO LIST:
-
-ENEMIES AND ENVIRONMENT-
-
-*  Allow hunting behaviours to apply to humans as well, if they're convenient.
-
-*  Extra concept art for new creatures/vermin:
-     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
-
-*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
-   for use by animals.)  Then get rid of the custom-coding.  And polish up
-   vermin behaviours.
-
-*  There needs to be a super-fast system for testing pathability to different
-   areas of the map.  (And maybe caching dangers en-route?)
-
-*  Offworld raids by enemy houses!
-
-*  The Yamagur is sufficiently big and powerful that it can't really count as a
-   'prey' species (in fact, it tends to wind up pulverising any predators in
-   it's territory.)  It needs a tweak to the placement algorithm.
-
 
 BUILDING AND UPGRADES-
    
@@ -89,6 +96,25 @@ BUILDING AND UPGRADES-
    change.  (Allow that for buildings in general?)
 
 
+CITIZEN BEHAVIOUR-
+
+  >>>>>>> DO THIS <<<<<<<
+*  Rework the migration system to that it's more gradual- colonists arrive from
+   the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
+   ashore' every day or two, but those can't respond to job-demand as such.
+
+  >>>>>>> DO THIS <<<<<<<
+*  Proper evaluation of mood and memory-events.
+
+*  General internal clean-up of plan routines.  (Look in PlanUtils.)
+    Consider having the actor's agenda contain *only* plans:   Actions and
+    Missions can be handled separately.
+
+*  Hide-and-seek needs to be more effective (for retreat, looting and combat.)
+
+*  Figure out entry-permissions for structures and guests, and/or sieges.
+
+
 CONTROL AND DIRECTION-
 
   >>>>>>> DO THIS <<<<<<<
@@ -106,6 +132,27 @@ CONTROL AND DIRECTION-
    independant casting independantly (with reduced skill rank.)
 
 
+ENEMIES AND ENVIRONMENT-
+
+*  Allow hunting behaviours to apply to humans as well, if they're convenient.
+
+*  Extra concept art for new creatures/vermin:
+     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+
+*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
+   for use by animals.)  Then get rid of the custom-coding.  And polish up
+   vermin behaviours.
+
+*  There needs to be a super-fast system for testing pathability to different
+   areas of the map.  (And maybe caching dangers en-route?)
+
+*  Offworld raids by enemy houses!
+
+*  The Yamagur is sufficiently big and powerful that it can't really count as a
+   'prey' species (in fact, it tends to wind up pulverising any predators in
+   it's territory.)  It needs a tweak to the placement algorithm.
+
+
 INTERFACE AND DEBUGGING
 
 *  Try to implement some global debugging-levels.
@@ -118,25 +165,6 @@ INTERFACE AND DEBUGGING
    start that way.)  And include tracking options in the UI.
 
 *  Read definitions from .xml and allow for later string translations.
-
-
-CITIZEN BEHAVIOUR-
-
-  >>>>>>> DO THIS <<<<<<<
-*  Rework the migration system to that it's more gradual- colonists arrive from
-   the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
-   ashore' every day or two, but those can't respond to job-demand as such.
-
-  >>>>>>> DO THIS <<<<<<<
-*  Proper evaluation of mood and memory-events.
-
-*  General internal clean-up of plan routines.  (Look in PlanUtils.)
-    Consider having the actor's agenda contain *only* plans:   Actions and
-    Missions can be handled separately.
-
-*  Hide-and-seek needs to be more effective (both retreat and combat.)
-
-*  Figure out entry-permissions for structures and guests, and/or sieges.
 //*/
 
 
