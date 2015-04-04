@@ -1,38 +1,67 @@
 
 
-<topic name="Welcome!">
+<topic name="Welcome!" event="true">
   <content>Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.</content>
   <link name="Navigation">Continue</link>
 </topic>
 
 
 <topic name="Navigation">
-  <content>First, you'll need to familiarise yourself with the controls.  Use the W, S, A and D keys to move forward, back, left and right, or click on an object of interest to move there directly.</content>
+  <content>First, you'll need to familiarise yourself with basic controls.  Use the W, S, A and D keys to move your viewpoint forward, back, left or right.
+
+(Note:  You can also use the arrow keys, click on the ground, or click a position on the minimap in the top-left.)</content>
 </topic>
 
-<topic name="Navigation Done">
-  <content>Well done!  You can also use the arrow keys, click on the ground, or click a position on the minimap in the top-left.
-
-If you ever get lost, messages (such as this one) can always be accessed from the Reminders listing on the left-hand side of the screen.</content>
+<topic name="Navigation Done" event="true">
+  <content>Well done!  If you ever get lost, messages (such as this one) can always be accessed from the Messages listing on the left-hand side of the screen.</content>
   <link name="The Bastion">Continue</link>
 </topic>
 
-
-<topic name="The Bastion">
+<topic name="The Bastion" event="true">
   <content>Your settlement starts out with a single main building:  The Bastion, which houses your family and personal servants, and serves as your seat of command for the settlement as a whole.  As such, you should strive to protect the Bastion at all costs.
 
-To do this, you will need to both identify any threats in the area, and take steps to establish defences.</content>
-  <link name="Exploring">How do I identify threats?</link>
-  <link name="Construction">How do I establish defences?</link>
+To do this, you will need to both identify any threats in the area, and take steps to establish defences, which is what we'll cover next.</content>
+  <link name="Build a Trooper Lodge">Continue</link>
 </topic>
 
-<topic name="Exploring">
-  <content>EXPLORING</content>
+
+
+<topic name="Build a Trooper Lodge" event="true">
+  <content>To hire troops and other personnel, you'll need to construct facilities to house them.
+
+Open the Installations tab in the top-right of the screen.  Select the Trooper Lodge, click build, and then place one next to your Bastion.</content>
 </topic>
 
-<topic name="Construction">
-  <content>CONSTRUCTION</content>
+<topic name="Trooper Lodge Built">
+  <content>Good work.  Normally, buildings will take a while to construct and fully staff, but for now we'll speed things up and provide some starting recruits.  If you like, you can click on the new building and take a look at the staff recruited.
+
+Your citizens cannot be directly controlled, but you can hire them to perform missions on your behalf.  Next, we'll engage some of your troops to explore the surrounds of your base.</content>
+  <link name="Declare a Recon Mission">Continue</link>
 </topic>
+
+
+<topic name="Declare a Recon Mission" event="true">
+  <content>Click on a darkened area of the map, and a small green icon should appear in the lower-centre of the screen.  Press this to declare a Recon Mission.</content>
+</topic>
+
+<topic name="Recon Mission Begun">
+  <content>Good work.  We'll assign some of your staff to the Recon Mission, but you can adjust the reward offered to attract more applicants.
+
+Your troopers should begin exploring the assigned area shortly.  In the meanwhile, let's take a look at getting a basic economy up and running.</content>
+  <link name="Finding Threats">Continue</link>
+</topic>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -23,7 +23,11 @@ public abstract class UINode {
     DRAGGED = 3;
   final public static float
     DEFAULT_FADE_TIME = 0.25f,
-    DEFAULT_FADE_INC = 1f / (DEFAULT_FADE_TIME * Rendering.FRAMES_PER_SECOND),
+    DEFAULT_FADE_INC  = 1f / (DEFAULT_FADE_TIME * Rendering.FRAMES_PER_SECOND),
+    SLOW_FADE_TIME    = 1.0f,
+    SLOW_FADE_INC     = 1f / (SLOW_FADE_TIME    * Rendering.FRAMES_PER_SECOND),
+    
+    DEFAULT_DRIFT_RATE = 60 * 1f / Rendering.FRAMES_PER_SECOND,
     
     DEFAULT_HOVER_ALPHA = 0.5f,
     DEFAULT_PRESS_ALPHA = 0.75f;

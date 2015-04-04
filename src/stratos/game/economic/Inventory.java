@@ -39,30 +39,6 @@ public class Inventory {
   }
   
   
-  //  TODO:  Consider moving this outside.  Or, make these properties of the
-  //  Inventory itself.
-  public static interface Owner extends Target, Session.Saveable {
-    
-    final static int
-      TIER_NATURAL = -2,
-      TIER_CARRIES = -1,
-      TIER_PRIVATE =  0,
-      TIER_PUBLIC  =  1,
-      TIER_UNIQUE  =  2;
-    
-    Base base();
-    Inventory inventory();
-    int owningTier();
-    
-    float priceFor(Traded service);
-    int spaceFor(Traded good);
-    void afterTransaction(Item item, float amount);
-    
-    //  TODO:  You might move chat displays to the afterTransaction method.
-    TalkFX chat();
-  }
-  
-  
   public void saveState(Session s) throws Exception {
     s.saveInt(itemTable.size());
     for (Item item : itemTable.values()) Item.saveTo(s, item);
@@ -364,9 +340,10 @@ public class Inventory {
   /**  Default supply-and-demand functions intended for override by certain
     *  subclasses.
     */
-  public float demandFor (Traded type) { return 0        ; }
-  public float shortageOf(Traded type) { return 0        ; }
-  public Tier  demandTier(Traded type) { return Tier.NONE; }
+  public float   demandFor (Traded type) { return 0    ; }
+  public float   shortageOf(Traded type) { return 0    ; }
+  public boolean producer  (Traded type) { return false; }
+  public boolean canDemand (Traded type) { return false; }
   
   
   public void setReservation(Delivery d, boolean is) {}

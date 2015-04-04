@@ -160,6 +160,13 @@ public class Exploring extends Plan implements Qualities {
   }
   
   
+  public float competence() {
+    if (actor == null) return 0;
+    if (PlanUtils.isArmed(actor)) return (super.competence() + 1f) / 2;
+    else return super.competence();
+  }
+  
+  
   
   /**  Behaviour implementation-
     */

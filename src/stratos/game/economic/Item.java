@@ -101,7 +101,7 @@ public class Item {
   }
   
   
-  public static interface Dropped extends Inventory.Owner, Selectable {
+  public static interface Dropped extends Owner, Selectable {
   }
   
   
@@ -151,7 +151,7 @@ public class Item {
   }
   
   
-  public float priceAt(Inventory.Owner venue) {
+  public float priceAt(Owner venue) {
     return venue.priceFor(type) * amount * PRICE_MULTS[(int) quality];
   }
   

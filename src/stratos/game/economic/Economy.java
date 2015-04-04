@@ -5,7 +5,7 @@
   */
 package stratos.game.economic;
 import stratos.game.actors.*;
-import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -34,25 +34,8 @@ public final class Economy {
     DEFAULT_IMPORT_MARGIN  = 0.5f,
     DEFAULT_EXPORT_MARGIN  = 0.5f,
     DEFAULT_SMUGGLE_MARGIN = 1.0f;
-  public static enum Tier {
-    NONE, ANY,
-    SHIPS_IN, IMPORTER, PRODUCER,
-    TRADER,
-    CONSUMER, EXPORTER, SHIPS_OUT
-  };
   final public static float
     ITEM_WEAR_DURATION = 100;
-  
-  final static String TIER_NAMES[] = {
-    "NONE", "ANY",
-    "SHIPS IN", "IMPORTER", "PRODUCER",
-    "TRADER",
-    "CONSUMER", "EXPORTER", "SHIPS_OUT"
-  };
-  public static String nameForTier(Tier tier) {
-    return TIER_NAMES[tier.ordinal()];
-  }
-  
 
   
   final static Table <Traded, Integer> CATEGORY_TABLE, CT;

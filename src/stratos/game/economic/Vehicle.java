@@ -19,7 +19,7 @@ import static stratos.game.actors.Qualities.*;
 
 
 public abstract class Vehicle extends Mobile implements
-  Boarding, Inventory.Owner, Property,
+  Boarding, Owner, Property,
   Selectable, Structure.Basis
 {
   
@@ -134,7 +134,7 @@ public abstract class Vehicle extends Mobile implements
   
 
   public int owningTier() {
-    return TIER_CARRIES;
+    return TIER_PRIVATE;
   }
   
   
@@ -247,7 +247,7 @@ public abstract class Vehicle extends Mobile implements
       //  TODO:  RESTORE THIS
       //if (origin().owner() instanceof Causeway) moveRate *= 1.5f;
       moveRate *= (pilotBonus + 1) / 2;
-      pathing.headTowards(step, moveRate, 25 * baseSpeed, true);
+      pathing.headTowards(step, moveRate, 5 * baseSpeed, true);
     }
     else world.schedule.scheduleNow(this);
   }

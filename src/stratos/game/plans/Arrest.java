@@ -2,13 +2,13 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.base.LawUtils.*;
 import static stratos.game.economic.Economy.*;
-import static stratos.game.politic.LawUtils.*;
 
 
 
@@ -184,6 +184,7 @@ public class Arrest extends Plan {
       NORMAL_DISTANCE_CHECK,
       report
     );
+    if (priority < ROUTINE && ! official) return 0;
     return priority;
   }
   
@@ -279,9 +280,10 @@ public class Arrest extends Plan {
   public boolean actionOrderSurrender(Actor actor, Actor other) {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nOrdering surrender of "+other);
-    
+    //
+    //  Firstly, we determine just how 'persuasive' the actor in question is,
+    //  and what degree of sentence they are entitled to impose.
     final boolean official = hasAuthority();
-    
     if (sentence == null) sentence = new Summons(
       other, actor, holding,
       official ? Summons.TYPE_CAPTIVE : Summons.TYPE_SULKING
@@ -289,15 +291,11 @@ public class Arrest extends Plan {
     final float commandBonus = DialogueUtils.talkResult(
       COMMAND, MODERATE_DC, actor, other
     ) * ROUTINE;
+    sentence.clearMotives();
     sentence.addMotives(Plan.MOTIVE_EMERGENCY, commandBonus);
-    
-    //  TODO:  The priority for the command needs to be at least paramount-
-    //  nobody wants to be locked up, no matter how 'idle' they are...
-    
     //
     //  Adjust the novelty of the other actor's relationship with you (to
     //  prevent repeats ad-infinitum.)
-    //  TODO:  Base this off relations with a concept, rather than the person.
     other.relations.incRelation(actor, 0, 0, -2f * Rand.num() / WARN_LIMIT);
     if (report) {
       final Behaviour current = other.mind.rootBehaviour();
@@ -306,17 +304,19 @@ public class Arrest extends Plan {
       I.say("  Destination:           "+holding);
       I.say("  Discussion novelty:    "+other.relations.noveltyFor(actor));
     }
-    
-    if (! other.mind.mustIgnore(sentence)) {
+    //
+    //  The command priority needs to be at least paramount- nobody likes being
+    //  locked up- and must outweigh whatever else the actor is doing.
+    if (commandBonus < PARAMOUNT || other.mind.mustIgnore(sentence)) {
+      if (report) I.say("  "+other+" has refused surrender!");
+      stage = official ? STAGE_CHASE : STAGE_DONE;
+      return false;
+    }
+    else {
       if (report) I.say("  "+other+" has surrendered!");
       other.mind.assignBehaviour(sentence);
       stage = official ? STAGE_ESCORT : STAGE_DONE;
       return true;
-    }
-    else {
-      if (report) I.say("  "+other+" has refused surrender!");
-      if (official) stage = STAGE_CHASE;
-      return false;
     }
   }
   

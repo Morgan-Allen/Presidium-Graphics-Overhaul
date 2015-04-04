@@ -22,15 +22,15 @@ public class Habitat {
   final public static CutoutModel
     DESERT_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
-      4, 4, 1.9f, 2
+      4, 4, 1.5f, 2
     ),
     FOREST_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
-      4, 4, 1.9f, 2
+      4, 4, 1.5f, 2
     ),
     WASTES_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"wastes_flora.png",
-      4, 4, 1.9f, 2
+      4, 4, 1.5f, 2
     ),
     TUNDRA_FLORA_MODELS[][] = null,
     PLANKTON_MODELS[][]     = null,

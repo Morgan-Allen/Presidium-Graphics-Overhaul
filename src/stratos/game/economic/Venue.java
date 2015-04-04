@@ -6,7 +6,6 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -18,7 +17,7 @@ import static stratos.game.economic.Economy.*;
 
 
 public abstract class Venue extends Structural implements
-  Boarding, Inventory.Owner, Property, Accountable
+  Boarding, Owner, Property, Accountable
 {
   
   /**  Field definitions, constants, constructors, and save/load methods.
@@ -33,6 +32,10 @@ public abstract class Venue extends Structural implements
     SHIFTS_BY_DAY      = 2,   //every second or third day off.
     SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
     SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
+  
+  public static enum Type {
+    TYPE_FIXTURE, TYPE_STANDARD, TYPE_UNIQUE
+  };
   
   final public static VenueProfile NO_REQUIREMENTS[] = new VenueProfile[0];
   
@@ -104,7 +107,7 @@ public abstract class Venue extends Structural implements
   
   
   public float priceFor(Traded service) {
-    return stocks.priceFor(service);
+    return service.basePrice();
   }
   
   
@@ -129,7 +132,7 @@ public abstract class Venue extends Structural implements
     if (! super.setPosition(x, y, world)) return false;
     
     final Tile o = origin();
-    if (profile.isFixture) {
+    if (profile.isFixture()) {
       entrance = null;
     }
     else {
@@ -155,7 +158,7 @@ public abstract class Venue extends Structural implements
         }
       }
     }
-    if (entrance == null && ! profile.isFixture) return false;
+    if (entrance == null && profile.isFixture()) return false;
     return true;
   }
   
@@ -185,7 +188,7 @@ public abstract class Venue extends Structural implements
     for (Tile t : Spacing.perimeter(footprint(), world)) {
       if (t == null || ! t.habitat().pathClear) return false;
     }
-    return Placement.perimeterFits(this, 2, world);
+    return Placement.perimeterFits(this, world);
   }
   
   
@@ -400,7 +403,7 @@ public abstract class Venue extends Structural implements
   
   
   public int owningTier() {
-    return TIER_PUBLIC;
+    return profile.owningTier;
   }
   
   

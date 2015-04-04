@@ -8,6 +8,7 @@
 package stratos.game.common;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.PathSearch;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.actors.Choice;

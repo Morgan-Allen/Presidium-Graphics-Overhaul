@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
+import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
 

@@ -2,8 +2,8 @@
 
 
 package stratos.user;
+import stratos.game.actors.Power;
 import stratos.game.common.*;
-import stratos.game.politic.Power;  //  TODO:  Not the best package?
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;

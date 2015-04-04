@@ -4,10 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
-import stratos.game.politic.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 
@@ -60,6 +60,21 @@ public class Smuggling extends Plan implements Offworld.Activity {
   
   public Plan copyFor(Actor other) {
     return null;
+  }
+  
+  
+  public static Smuggling bestSmugglingFor(
+    Venue depot, Dropship ship, Actor actor, int maxAmount
+  ) {
+    final Pick <Item> pick = new Pick <Item> ();
+    for (Item i : depot.stocks.allItems()) {
+      float rating = depot.base().commerce.exportPrice(i.type);
+      pick.compare(Item.withAmount(i, Nums.min(maxAmount, i.amount)), rating);
+    }
+    if (pick.empty()) return null;
+    
+    final Item toMove[] = new Item[] { pick.result() };
+    return new Smuggling(actor, depot, ship, toMove);
   }
   
   

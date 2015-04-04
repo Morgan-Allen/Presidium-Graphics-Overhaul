@@ -1,9 +1,9 @@
 
 
 package stratos.game.actors;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.*;
 import stratos.util.*;
 import stratos.game.wild.Species;
 import static stratos.game.actors.Qualities.*;

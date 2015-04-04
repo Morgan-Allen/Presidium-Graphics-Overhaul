@@ -5,9 +5,9 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.Mission;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.Mission;
 import stratos.util.*;
 
 
@@ -105,9 +105,17 @@ public class Combat extends Plan implements Qualities {
   }
   
   
+  public float competence() {
+    if (actor == null || ! PlanUtils.isArmed(actor)) return 0;
+    if (competence == -1) successChanceFor(actor);
+    return competence;
+  }
+  
+  
   public float successChanceFor(Actor actor) {
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
-    return PlanUtils.combatWinChance(actor, subject, teamSize);
+    this.competence = PlanUtils.combatWinChance(actor, subject, teamSize);
+    return competence;
   }
   
   

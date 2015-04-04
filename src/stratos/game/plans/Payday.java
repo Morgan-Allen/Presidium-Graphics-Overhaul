@@ -7,10 +7,10 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.BaseFinance;
+import stratos.game.base.Profile;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.politic.BaseFinance;
-import stratos.game.politic.Profile;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

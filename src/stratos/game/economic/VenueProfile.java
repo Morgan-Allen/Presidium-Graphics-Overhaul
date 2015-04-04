@@ -38,32 +38,38 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   final public Class <? extends Venue> baseClass;
   final public String name;
-  final public boolean isFixture;
+
+  final public int size, high;
+  final public Venue.Type type;
   
   final public VenueProfile required[];
-  final public int size, high;//, entryFace;
+  final public int owningTier;
   final public Conversion processed[];
+  
   final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
   
   private Batch <VenueProfile> allows = new Batch <VenueProfile> ();
+  private Batch <VenueProfile> denies = new Batch <VenueProfile> ();
   
   
   public VenueProfile(
     Class <? extends Venue> baseClass, String key, String name,
-    int size, int high, boolean isFixture,
-    VenueProfile required, Conversion... processed
+    int size, int high, Venue.Type type,
+    VenueProfile required, int owningTier, Conversion... processed
   ) {
     this(
       baseClass, key, name,
-      size, high, isFixture,
-      required == null ? null : new VenueProfile[] { required }, processed
+      size, high, type,
+      required == null ? null : new VenueProfile[] { required },
+      owningTier, processed
     );
   }
+  
 
   public VenueProfile(
     Class <? extends Venue> baseClass, String key, String name,
-    int size, int high, boolean isFixture,
-    VenueProfile required[], Conversion... processed
+    int size, int high, Venue.Type type,
+    VenueProfile required[], int owningTier, Conversion... processed
   ) {
 
     super(INDEX, key);
@@ -72,10 +78,11 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
     
     this.size = size;
     this.high = high;
-    this.isFixture = isFixture;
+    this.type = type;
     
-    this.required = required == null ? Venue.NO_REQUIREMENTS : required;
-    this.processed = processed;
+    this.required   = required == null ? Venue.NO_REQUIREMENTS : required;
+    this.owningTier = owningTier;
+    this.processed  = processed ;
     
     for (VenueProfile p : required) p.allows.include(this);
   }
@@ -83,6 +90,21 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   public Series <VenueProfile> allows() {
     return allows;
+  }
+  
+  
+  public boolean isFixture() {
+    return type == Venue.Type.TYPE_FIXTURE;
+  }
+  
+  
+  public boolean isStandard() {
+    return type == Venue.Type.TYPE_STANDARD;
+  }
+  
+  
+  public boolean isUnique() {
+    return type == Venue.Type.TYPE_UNIQUE;
   }
   
   

@@ -21,6 +21,7 @@ public class CommsReminder extends ReminderListing.Entry {
   
   final DialoguePane message;
   final BorderedLabel label;
+  private boolean doFlash = true;
   
   
   CommsReminder(
@@ -32,8 +33,17 @@ public class CommsReminder extends ReminderListing.Entry {
     final Button button = new Button(
       baseUI, COMM_IMAGE.asTexture(), message.title
     ) {
+      
       protected void whenClicked() {
         baseUI.setInfoPanels(message, null);
+      }
+      
+      protected void render(WidgetsPass pass) {
+        super.render(pass);
+        if (! doFlash) return;
+        float flashRate = (Rendering.activeTime() % 2) / 2;
+        flashRate *= (1 - flashRate) * 2;
+        super.renderTex(highlit, flashRate * absAlpha, pass);
       }
     };
     button.stretch = false;
@@ -52,7 +62,15 @@ public class CommsReminder extends ReminderListing.Entry {
   protected void setLabel(String message) {
     label.setMessage(message, false, 0);
   }
+  
+  
+  protected void setFlash(boolean doFlash) {
+    this.doFlash = doFlash;
+  }
 }
+
+
+
 
 
 

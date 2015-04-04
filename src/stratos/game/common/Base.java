@@ -5,9 +5,9 @@
   */
 package stratos.game.common;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
-import stratos.game.politic.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.user.*;
@@ -87,7 +87,7 @@ public class Base implements
     if (base != null) return base;
     else base = new Base(world, true);
     
-    final VenueProfile canBuild[] = Species.NEST_PROFILES;
+    final VenueProfile canBuild[] = new VenueProfile[0];
     return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN, canBuild);
   }
   

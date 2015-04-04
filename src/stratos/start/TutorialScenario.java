@@ -4,11 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.game.base.*;
 import stratos.game.economic.*;
-import stratos.game.politic.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.user.notify.*;

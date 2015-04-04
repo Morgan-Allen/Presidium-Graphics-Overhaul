@@ -44,7 +44,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = VERMIN_PATH;
+  private String currentPath = FAUNA_PATH;
   
   private XML currentXML;
   private SolidModel currentModel;

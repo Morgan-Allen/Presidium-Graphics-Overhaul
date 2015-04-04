@@ -5,16 +5,14 @@
  */
 
 package stratos.game.wild;
-import static stratos.game.economic.Economy.CARBS;
-import static stratos.game.economic.Economy.GREENS;
-import static stratos.game.economic.Economy.PROTEIN;
-import static stratos.game.economic.Economy.SPYCE_T;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Placement;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -37,7 +35,6 @@ import stratos.util.*;
    Lumen forest (changer) + Rhizome (glaive knight) + Manna tree (collective)
    Albedan ecology:  Carpets + Metastases + Amoeba Clade
 //*/
-
 
 public class Flora extends Element implements TileConstants {
   
@@ -127,16 +124,16 @@ public class Flora extends Element implements TileConstants {
    */
   public static void populateFlora(Stage world) {
     final boolean report = initVerbose;
+    if (report) I.say("\nPopulating world flora...");
     
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
       if (t.blocked()) continue;
       final float growChance = growChance(t);
-      if (report) I.say("\nGrow chance at "+t+" is "+growChance);
+      if (report) I.say("  Grow chance at "+t+" is "+growChance);
       
       if (growChance == -1 || Rand.num() > growChance) continue;
-      final int crowding = crowdingAt(t);
-      if (crowding >= 2) continue;
+      if (! canGrowAt(t)) continue;
       
       final Flora f = new Flora(t.habitat());
       f.enterWorldAt(t.x, t.y, world);
@@ -160,29 +157,15 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  private static int crowdingAt(Tile t) {
-    int numBlocked = 0;
-    for (Tile n : t.allAdjacent(Spacing.tempT8)) if (n != null) {
-      if (n.blocked()) numBlocked++;
-      if (n.reserved()) return 8;
-    }
-    return numBlocked;
-  }
-  
-  
   public static boolean canGrowAt(Tile t) {
     if (t.blocked() || t.inside().size() > 0) return false;
     final float growChance = growChance(t);
-    ///I.say(t+" grow chance: "+growChance);
     if (growChance == -1) return false;
-    final int crowding = crowdingAt(t);
-    ///I.say(t+" crowding: "+crowding);
-    if (crowding >= 2) return false;
-    return true;
+    return Placement.perimeterFits(t, Owner.TIER_NATURAL);
   }
   
   
-  public static Flora tryGrowthAt(Tile t) {
+  public static Flora tryGrowthAt(Tile t, boolean certain) {
     final float growChance = growChance(t);
     if (growChance == -1) return null;
     if (updatesVerbose) I.say("Grow chance: "+growChance);
@@ -197,9 +180,10 @@ public class Flora extends Element implements TileConstants {
     }
     
     if (! canGrowAt(t)) return null;
-    if (Rand.num() > growChance) return null;
-    if (Rand.num() > GROWTH_PER_UPDATE) return null;
-    
+    if (! certain) {
+      if (Rand.num() > growChance) return null;
+      if (Rand.num() > GROWTH_PER_UPDATE) return null;
+    }
     return newGrowthAt(t);
   }
   

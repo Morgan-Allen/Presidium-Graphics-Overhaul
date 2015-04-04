@@ -4,10 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.game.politic.*;
+import stratos.game.base.*;
 import stratos.start.Assets;
 import stratos.start.Scenario;
 import stratos.util.*;
+
 import java.io.*;
 import java.lang.reflect.*;
 

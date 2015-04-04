@@ -5,6 +5,7 @@
   */
 package stratos.game.wild;
 import stratos.game.actors.*;
+import stratos.game.base.BaseDemands;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
@@ -23,7 +24,7 @@ public class Nest extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean
-    ratingVerbose = true ,
+    ratingVerbose = false,
     updateVerbose = false;
   
   final public static int
@@ -207,7 +208,8 @@ public class Nest extends Venue {
   ) {
     return new VenueProfile(
       Nest.class, s.name+"_nest", s.name+" Nest",
-      size, high, false, Venue.NO_REQUIREMENTS
+      size, high, Venue.Type.TYPE_STANDARD,
+      Venue.NO_REQUIREMENTS, Owner.TIER_PRIVATE
     ) {
       public Venue sampleVenue(Base base) {
         return new Nest(this, base, s, model);
@@ -280,11 +282,6 @@ public class Nest extends Venue {
       crowding = crowdingFor    (point, species, world),
       mass     = species.metabolism(),
       rating   = ((int) idealPop) * mass * (1 - crowding);
-    
-    if (species == Yamagur.SPECIES || true) {
-      I.say("\nRating for "+this+" at "+point+" is "+rating);
-      I.say("  Ideal population: "+idealPop);
-    }
     return rating;
   }
   
@@ -337,14 +334,6 @@ public class Nest extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     final int INTERVAL = 10;
-    
-    if (species.predator()) {
-      final String keyB = Species.KEY_BROWSER;
-      I.say("\nGlobal food supply: "+base.demands.globalSupply(keyB));
-      float ls = base.demands.supplyAround(this, keyB, -1);
-      I.say("  Local supply: "+ls);
-    }
-    
     if (numUpdates % INTERVAL == 0 && ! instant) {
       cachedIdealPop = -1;
       cachedIdealPop = idealPopulation(this, species, world);

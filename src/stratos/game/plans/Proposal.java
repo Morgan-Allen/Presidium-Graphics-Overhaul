@@ -5,8 +5,8 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.politic.*;
 import stratos.user.BaseUI;
 import stratos.util.*;
 

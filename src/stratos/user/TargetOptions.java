@@ -1,11 +1,11 @@
 
 
 package stratos.user;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.PowersPane.PowerButton;
@@ -71,9 +71,8 @@ public class TargetOptions extends UIGroup implements UIConstants {
     final List <UINode> options = new List <UINode> ();
     
     if (
-      (subject instanceof Actor ||
-       subject instanceof Venue)
-      && (base.relations.relationWith(subject.base()) <= 0)
+      subject instanceof Actor ||
+      subject instanceof Venue
     ) {
       options.add(new OptionButton(
         BUI, Mission.STRIKE_ICON, "Destroy or capture subject",

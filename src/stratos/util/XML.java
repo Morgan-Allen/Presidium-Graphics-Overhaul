@@ -57,7 +57,7 @@ public class XML {
   public XML[] allChildrenMatching(String tag) {
     Stack <XML> matches = new Stack <XML> ();
     for (XML child : children)
-      if (child.tag.equals(tag)) matches.addFirst(child);
+      if (child.tag.equals(tag)) matches.addLast(child);
     return (matches.size() > 0) ?
       (XML[]) matches.toArray(XML.class) :
       new XML[0];

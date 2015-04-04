@@ -4,25 +4,17 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user.notify;
-import stratos.game.common.*;
-import stratos.game.politic.*;
-import stratos.graphics.common.*;
-import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.widgets.Text.Clickable;
+import stratos.game.base.*;
 import stratos.game.common.Session.Saveable;
 
 
 
 //  TODO:  This needs to list tutorial-messages as well as ongoing missions
 //         and other status-updates.
-
-//  TODO:  Animate positional changes for new/expired entries?
-
-//  TODO:  Make sure you list ALL previous messages, within a single dialogue-
-//         entry.  (e.g, N previous messages.  Same icon.)
 
 //  TODO:  These also need to save and load!
 
@@ -53,8 +45,7 @@ public class ReminderListing extends UIGroup {
     boolean urgent;
     
     final int high, wide;
-    float fadeVal;
-    Coord oldPos, newPos;
+    float fadeVal, down;
     
     
     protected Entry(BaseUI UI, Object refers, int wide, int high) {
@@ -64,7 +55,8 @@ public class ReminderListing extends UIGroup {
       this.wide   = wide  ;
       active  = true ;
       urgent  = false;
-      fadeVal = 0    ;
+      fadeVal =  0   ;
+      down    = -1   ;
     }
   }
   
@@ -112,11 +104,11 @@ public class ReminderListing extends UIGroup {
     for (final Mission mission : UI.played().tactics.allMissions()) {
       needShow.add(mission);
     }
-    for (DialoguePane o : newMessages) {
-      needShow.add(o);
-    }
     if (oldMessages.size() > 0) {
       needShow.add(oldMessages);
+    }
+    for (DialoguePane o : newMessages) {
+      needShow.add(o);
     }
     //
     //  Now, in essence, insert entries for anything not currently listed, and
@@ -134,19 +126,31 @@ public class ReminderListing extends UIGroup {
         entries.remove(e);
       }
     }
-    
+    //
+    //  Then iterate across all current entries and make sure their appearance
+    //  is in order-
     final int padding = 20;
     int down = 0;
     for (Entry e : entries) {
+      //
+      //  Adjust the entry's transparency-
       if (e.active) {
-        e.fadeVal = Nums.clamp(e.fadeVal + DEFAULT_FADE_INC, 0, 1);
+        e.fadeVal = Nums.clamp(e.fadeVal + SLOW_FADE_INC, 0, 1);
       }
       else {
-        e.fadeVal = Nums.clamp(e.fadeVal - DEFAULT_FADE_INC, 0, 1);
+        e.fadeVal = Nums.clamp(e.fadeVal - SLOW_FADE_INC, 0, 1);
       }
       e.relAlpha = e.fadeVal;
-      e.alignLeft(0   , e.wide);
-      e.alignTop (down, e.high);
+      //
+      //  Have it drift into the correct position-
+      final float gap = down - e.down;
+      float drift = Nums.min(DEFAULT_DRIFT_RATE, Nums.abs(gap));
+      if (gap == 0 || e.down == -1) e.down = down;
+      else e.down += (gap > 0 ? 1 : -1) * drift;
+      e.alignLeft(0           , e.wide);
+      e.alignTop ((int) e.down, e.high);
+      //
+      //  Increment for the next entry, and proceed.
       down += e.high + padding;
     }
     
@@ -174,8 +178,13 @@ public class ReminderListing extends UIGroup {
     String keyNow  = onScreenMessageKey();
     String lastKey = lastViewedMessageKey;
     if (lastKey != null && ! lastKey.equals(keyNow)) {
-      I.say("\nRETIRING MESSAGE FOR : "+lastKey);
-      retireMessage(entryFor(lastKey));
+      I.say("\nRETIRING MESSAGE FOR: "+lastKey);
+      retireMessage(messageEntryFor(lastKey));
+    }
+    if (keyNow != null) {
+      final DialoguePane  pane  = messageEntryFor(keyNow);
+      final CommsReminder entry = (CommsReminder) entryFor(pane);
+      if (entry != null) entry.setFlash(false);
     }
     lastViewedMessageKey = hasMessageEntry(keyNow) ? keyNow : null;
   }
@@ -186,6 +195,7 @@ public class ReminderListing extends UIGroup {
     if (entry == null) return;
     final String label = oldMessages.size()+" old messages";
     entry.setLabel(label);
+    entry.setFlash(false);
     
     final Batch <Clickable> links = new Batch <Clickable> ();
     for (final DialoguePane panel : oldMessages) {
@@ -205,7 +215,7 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  public DialoguePane entryFor(String messageKey) {
+  public DialoguePane messageEntryFor(String messageKey) {
     for (DialoguePane message : newMessages) {
       if (message.title.equals(messageKey)) return message;
     }
@@ -216,21 +226,18 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  public String onScreenMessageKey() {
-    if (UI.currentPane() instanceof DialoguePane) {
-      final DialoguePane pane = (DialoguePane) UI.currentPane();
-      return pane.title;
-    }
-    return null;
-  }
-  
-  
   public boolean hasMessageEntry(String messageKey) {
-    return entryFor(messageKey) != null;
+    return messageEntryFor(messageKey) != null;
   }
   
   
-  public void addEntry(DialoguePane message, boolean urgent) {
+  public String onScreenMessageKey() {
+    if (! (UI.currentPane() instanceof DialoguePane)) return null;
+    return ((DialoguePane) UI.currentPane()).title;
+  }
+  
+  
+  public void addMessageEntry(DialoguePane message, boolean urgent) {
     if (urgent) newMessages.include(message);
     else        oldMessages.include(message);
   }

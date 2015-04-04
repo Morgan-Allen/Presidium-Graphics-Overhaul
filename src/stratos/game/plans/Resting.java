@@ -4,11 +4,10 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.Pledge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
-import stratos.game.politic.Pledge;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
@@ -16,7 +15,6 @@ import static stratos.game.economic.Economy.*;
 
 
 public class Resting extends Plan {
-  
   
   
   /**  Static constants, field definitions, constructors and save/load methods-

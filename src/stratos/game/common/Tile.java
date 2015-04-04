@@ -159,6 +159,7 @@ public final class Tile implements
   
   
   public boolean canPave() {
+    if (! habitat.pathClear) return false;
     return onTop == null || onTop.base() == null;
   }
   
@@ -172,7 +173,7 @@ public final class Tile implements
   //  TODO:  Get rid of this.  Or at least, see if the claims-system can't
   //         serve the same function.
   public int owningTier() {
-    if (onTop == null) return Inventory.Owner.TIER_NATURAL;
+    if (onTop == null) return Owner.TIER_NATURAL;
     else return onTop.owningTier();
   }
   
@@ -248,7 +249,7 @@ public final class Tile implements
   
   
   public void clearUnlessOwned() {
-    if (owningTier() > Inventory.Owner.TIER_NATURAL) return;
+    if (owningTier() > Owner.TIER_NATURAL) return;
     if (onTop != null) onTop.setAsDestroyed();
   }
   

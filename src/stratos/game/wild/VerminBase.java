@@ -5,9 +5,9 @@
   */
 package stratos.game.wild;
 import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
 import stratos.util.*;
 
 

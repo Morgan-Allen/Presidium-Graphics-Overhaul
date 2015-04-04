@@ -84,10 +84,6 @@ public class Retreat extends Plan implements Qualities {
       atHaven  = actor.aboard() == oldHaven,
       mustMove = atHaven && actor.senses.isEmergency() && ! actor.indoors();
     
-    if (mustMove && I.talkAbout == actor) {
-      I.say("\nObtaining retreat point for "+actor);
-    }
-    
     final Pick <Boarding> pick = new Pick <Boarding> () {
       
       public void compare(Boarding next, float rating) {
@@ -121,19 +117,21 @@ public class Retreat extends Plan implements Qualities {
     pick.compare(actor.mind.home(), 10);
     pick.compare(actor.mind.work(), 5 );
     
-    final Presences presences = actor.world().presences;
-    final Target refuge = presences.nearestMatch(
-      Economy.SERVICE_REFUGE, actor, -1
-    );
-    final Target pref   = presences.nearestMatch(
-      prefClass             , actor, -1
-    );
-    final Target cover  = presences.nearestMatch(
-      Venue.class           , actor, -1
-    );
-    pick.compare((Boarding) refuge, emergency ? 5 : 10);
-    pick.compare((Boarding) pref  , 10                );
-    pick.compare((Boarding) cover , emergency ? 1 : 2 );
+    if (actor.species().sapient()) {
+      final Presences presences = actor.world().presences;
+      final Target refuge = presences.nearestMatch(
+        Economy.SERVICE_REFUGE, actor, -1
+      );
+      final Target pref   = presences.nearestMatch(
+        prefClass             , actor, -1
+      );
+      final Target cover  = presences.nearestMatch(
+        Venue.class           , actor, -1
+      );
+      pick.compare((Boarding) refuge, emergency ? 5 : 10);
+      pick.compare((Boarding) pref  , 10                );
+      pick.compare((Boarding) cover , emergency ? 1 : 2 );
+    }
     
     if (pick.result() != null) return pick.result();
     else return actor.aboard();

@@ -6,11 +6,11 @@
 
 
 package stratos.game.economic;
+import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.game.base.*;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.solids.*;
@@ -29,7 +29,7 @@ import static stratos.game.economic.Economy.*;
 //  attempting to 'correct' position after each update.  This class must treat
 //  all tiles as passable to compensate.
 
-public class Dropship extends Vehicle implements Inventory.Owner {
+public class Dropship extends Vehicle implements Owner {
   
   
   /**  Fields, constants, constructors and save/load methods-
@@ -139,15 +139,8 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     final boolean report = verbose && (
       I.talkAbout == actor || I.talkAbout == this
     );
-    if (report) {
-      I.say("\nGetting next dropship job for "+actor);
-      ///I.reportStackTrace();
-    }
-    
-    if (actor.isDoing(Delivery.class, null)) {
-      if (report) I.say("  Is doing delivery!  Won't interrupt...");
-      return;
-    }
+    if (report) I.say("\nGetting next dropship job for "+actor);
+    if (actor.isDoing(Delivery.class, null)) return;
     
     if (stage >= STAGE_BOARDING) {
       final Smuggling boarding = new Smuggling(actor, null, this, new Item[0]);
@@ -159,33 +152,17 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     }
     
     final Choice jobs = new Choice(actor);
-    final Traded lacks[] = cargo.shortageTypes();
-    final Traded goods[] = cargo.surplusTypes ();
     jobs.isVerbose = report;
     
     final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
+    final Traded goods[] = cargo.demanded();
+    
     jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 2, 10, depots));
-    jobs.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 2, 10, depots));
+    jobs.add(DeliveryUtils.bestBulkCollectionFor(this, goods, 2, 10, depots));
     if (! jobs.empty()) { choice.add(jobs.pickMostUrgent()); return; }
     
-    if (dropPoint instanceof Venue) {
-      final Venue hangar = (Venue) dropPoint;
-      final Traded t[] = hangar.services();
-      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (hangar, t, 1, 10, 2));
-      jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, t, 1, 10, 2));
-    }
-    else {
-      if (report) {
-        I.say("  Goods lacked:  "+lacks.length);
-        for (Traded t : lacks) I.say("    "+t);
-        I.say("  Goods surplus: "+goods.length);
-        for (Traded t : goods) I.say("    "+t);
-      }
-      jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
-      jobs.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 1, 10, 2));
-    }
     choice.add(jobs.pickMostUrgent());
   }
   
@@ -210,7 +187,14 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   }
   
   
-  public Traded[] services() { return ALL_MATERIALS; }
+  public Traded[] services() {
+    return ALL_MATERIALS;
+  }
+  
+  
+  public int owningTier() {
+    return TIER_SHIPPING;
+  }
   
   
   public int spaceFor(Traded good) {
@@ -219,13 +203,15 @@ public class Dropship extends Vehicle implements Inventory.Owner {
   
   
   public float priceFor(Traded service) {
-    //  TODO:  REDUCE PRICES CHARGED IF YOU'RE DOCKED AT AN AIRFIELD WITH
-    //  PROPER FUEL STOCKS.
-    
     final BaseCommerce c = base.commerce;
-    if (c.localSurplus(service) > 0) return c.exportPrice(service);
-    if (c.localShortage(service) > 0) return c.importPrice(service);
-    return service.basePrice();
+    final float dockMult = Airfield.isGoodDockSite(dropPoint) ?
+      1 : BaseCommerce.SMUGGLE_MARGIN
+    ;
+    if (cargo.canDemand(service)) {
+      if (cargo.producer(service)) return c.exportPrice(service) / dockMult;
+      else                         return c.importPrice(service) * dockMult;
+    }
+    return service.basePrice() / dockMult;
   }
   
   
@@ -423,6 +409,25 @@ public class Dropship extends Vehicle implements Inventory.Owner {
     return null;
   }
   
+
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+    final SelectionPane pane = super.configPanel(panel, UI);
+    final Description d = pane.listing();
+    
+    //  TODO:  List homeworld and time remaining to Liftoff!
+    
+    d.append("\n\nGoods sought: ");
+    for (Traded t : cargo.demanded()) {
+      if (cargo.producer(t) == false) continue;
+      final int amount = (int) cargo.demandFor(t);
+      d.append(t+" ("+amount+")");
+    }
+    
+    d.append("\n\nPort Of Origin: "+base.commerce.homeworld());
+    
+    return pane;
+  }
+  
   
   public String helpInfo() {
     return
@@ -440,6 +445,27 @@ public class Dropship extends Vehicle implements Inventory.Owner {
 }
 
 
+
+//  TODO:  Decide on this later
+
+/*
+if (dropPoint instanceof Venue) {
+  final Venue hangar = (Venue) dropPoint;
+  final Traded t[] = hangar.services();
+  jobs.add(DeliveryUtils.bestBulkDeliveryFrom (hangar, t, 1, 10, 2));
+  jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, t, 1, 10, 2));
+}
+else {
+  if (report) {
+    I.say("  Goods lacked:  "+lacks.length);
+    for (Traded t : lacks) I.say("    "+t);
+    I.say("  Goods surplus: "+goods.length);
+    for (Traded t : goods) I.say("    "+t);
+  }
+  jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
+  jobs.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 1, 10, 2));
+}
+//*/
 
 
 

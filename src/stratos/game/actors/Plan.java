@@ -52,7 +52,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   private int   motiveProperties = -1;
   private float motiveBonus      =  0;
-  private float harmFactor = 0, competence = 1;
+  protected float harmFactor = 0, competence = -1;
   private boolean begun;  //  TODO:  Have a general 'stage' counter?
   
   
@@ -405,6 +405,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   public void clearMotives() {
     this.motiveProperties = MOTIVE_NONE;
     this.motiveBonus      = 0;
+    this.begun            = false;
+    this.priorityEval = NULL_PRIORITY;
+    this.lastEvalTime = -1;
+    this.nextStep = null;
   }
   
   

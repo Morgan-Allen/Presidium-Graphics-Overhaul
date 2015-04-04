@@ -5,12 +5,12 @@
   */
 package stratos.start;
 import stratos.game.actors.*;
+import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
-import stratos.game.base.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;

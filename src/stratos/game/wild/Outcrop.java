@@ -3,12 +3,10 @@
 
 package stratos.game.wild;
 import stratos.game.common.*;
-import stratos.game.economic.Inventory;
-import stratos.game.maps.StageTerrain;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.*;
-import stratos.user.*;
 import stratos.util.*;
+import stratos.game.economic.Owner;
+import stratos.game.maps.StageTerrain;
 
 
 
@@ -150,7 +148,7 @@ public class Outcrop extends Fixture {
   
   
   public int owningTier() {
-    return Inventory.Owner.TIER_CARRIES;
+    return Owner.TIER_CARRIES;
   }
   
   

@@ -6,10 +6,9 @@
 
 package stratos.game.economic;
 import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.maps.*;
-import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
@@ -253,6 +252,7 @@ public class ShipUtils {
   
   public static boolean findLandingSite(final Dropship ship, final Base base) {
     final boolean report = siteVerbose && BaseUI.current().played() == base;
+    if (ship.landed()) return true;
     
     ship.assignBase(base);
     final Stage world = base.world;

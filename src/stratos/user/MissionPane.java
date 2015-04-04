@@ -2,14 +2,14 @@
 
 
 package stratos.user;
+import stratos.game.base.Mission;
 import stratos.game.common.*;
-import stratos.game.politic.Mission;
 import stratos.game.actors.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.common.*;
-import static stratos.game.politic.Mission.*;
+import static stratos.game.base.Mission.*;
 
 
 

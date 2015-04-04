@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
-import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
@@ -88,20 +88,24 @@ public class Farming extends Plan {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     
     if (report) {
-      I.say("\nGETTING NEXT FARMING STEP");
-      I.say("  Need for tending: "+nursery.needForTending());
-      I.say("  Sum of harvest:   "+sumHarvest());
+      I.say("\nGETTING NEXT FARMING STEP AT "+nursery.origin());
+      I.say("  Need for tending:  "+nursery.needForTending());
+      I.say("  Sum of harvest:    "+sumHarvest());
+      I.say("  Total encumbrance: "+actor.gear.encumbrance());
     }
     
     //  If you've harvested enough, bring it back to the depot-
     final Action returns = returnHarvestAction(5);
-    if (returns != null) return returns;
+    if (returns != null) {
+      if (report) I.say("  Returning harvest now...");
+      return returns;
+    }
     
     //  Find the next tile for seeding, tending or harvest.
     final boolean canPlant = nursery.needForTending() > 0 && canPlant();
     float minDist = Float.POSITIVE_INFINITY, dist;
-    Tile toPlant = null;
     
+    Tile toFarm = null;
     if (canPlant) for (Tile t : nursery.toPlant()) {
       if (! nursery.couldPlant(t)) continue;
       if (report) I.say("  Checking tile: "+t);
@@ -110,18 +114,18 @@ public class Farming extends Plan {
       if (c == null || c.needsTending()) {
         dist = Spacing.distance(actor, t);
         if (Spacing.edgeAdjacent(t, actor.origin())) dist /= 2;
-        if (dist < minDist) { toPlant = t; minDist = dist; }
+        if (dist < minDist) { toFarm = t; minDist = dist; }
       }
     }
     
     if (report) {
       I.say("  Tiles claimed: "+nursery.toPlant().length);
-      I.say("  TILE TO PLANT: "+toPlant);
+      I.say("  TILE TO PLANT: "+toFarm);
     }
     
     //  If you're out of raw seed, and there's any in the nursery, and there's
     //  planting to be done, pick up some seed.
-    if (toPlant != null && nextSeedNeeded() != null) {
+    if (toFarm != null && nextSeedNeeded() != null) {
       final Action pickup = new Action(
         actor, seedDepot,
         this, "actionCollectSeed",
@@ -130,8 +134,8 @@ public class Farming extends Plan {
       return pickup;
     }
     
-    if (toPlant != null) {
-      Crop picked = nursery.plantedAt(toPlant);
+    if (toFarm != null) {
+      Crop picked = nursery.plantedAt(toFarm);
       final String actionName, anim, desc;
       
       if (picked != null && picked.blighted()) {
@@ -146,8 +150,8 @@ public class Farming extends Plan {
       }
       else {
         if (picked == null || Rand.yes()) {
-          picked = new Crop(nursery, pickSpecies(toPlant, report));
-          picked.setPosition(toPlant.x, toPlant.y, toPlant.world);
+          picked = new Crop(nursery, pickSpecies(toFarm, report));
+          picked.setPosition(toFarm.x, toFarm.y, toFarm.world);
         }
         actionName = "actionPlant";
         anim = Action.BUILD;
@@ -159,7 +163,8 @@ public class Farming extends Plan {
         this, actionName,
         anim, desc
       );
-      plants.setMoveTarget(Spacing.nearestOpenTile(toPlant, actor));
+      final Tile open = Spacing.nearestOpenTile(toFarm, actor);
+      plants.setMoveTarget(open);
       return plants;
     }
     
@@ -221,9 +226,12 @@ public class Farming extends Plan {
   
   
   public boolean actionCollectSeed(Actor actor, Venue seedDepot) {
-    Item seed = nextSeedNeeded();
-    if (seed == null) return false;
-    actor.gear.addItem(seedDepot.stocks.bestSample(seed, 1));
+    actionReturnHarvest(actor, seedDepot);
+    while (true) {
+      final Item seed = nextSeedNeeded();
+      if (seed == null) break;
+      actor.gear.addItem(seedDepot.stocks.bestSample(seed, 1));
+    }
     return true;
   }
   
@@ -307,12 +315,11 @@ public class Farming extends Plan {
   
   
   public boolean actionReturnHarvest(Actor actor, Venue depot) {
-    actor.gear.transfer(CARBS, depot);
-    actor.gear.transfer(GREENS, depot);
+    actor.gear.transfer(CARBS  , depot);
+    actor.gear.transfer(GREENS , depot);
     actor.gear.transfer(PROTEIN, depot);
     for (Item seed : actor.gear.matches(SAMPLES)) {
-      actor.gear.transfer(seed, depot);
-      //actor.gear.removeItem(seed);
+      actor.gear.removeItem(seed);
     }
     return true;
   }

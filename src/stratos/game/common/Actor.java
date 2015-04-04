@@ -5,9 +5,9 @@
   */
 package stratos.game.common;
 import stratos.game.actors.*;
+import stratos.game.base.Mission;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
-import stratos.game.politic.Mission;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.user.*;
@@ -17,7 +17,7 @@ import stratos.game.wild.Species;
 
 
 public abstract class Actor extends Mobile implements
-  Inventory.Owner, Accountable, Selectable
+  Owner, Accountable, Selectable
 {
   
   
@@ -121,7 +121,7 @@ public abstract class Actor extends Mobile implements
   
   
   public int owningTier() {
-    return TIER_CARRIES;
+    return TIER_PRIVATE;
   }
   
   

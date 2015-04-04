@@ -4,13 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.maps;
-import com.badlogic.gdx.Input.Keys;
-
-import stratos.game.actors.Backgrounds;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Inventory.Owner;
-import stratos.graphics.widgets.KeyInput;
+import stratos.game.actors.Backgrounds;
 import stratos.util.*;
 
 
@@ -216,6 +212,20 @@ public class Placement implements TileConstants {
   }
   
   
+  public static boolean perimeterFits(Element e, Stage world) {
+    boolean report = verbose && e.owningTier() > Owner.TIER_PRIVATE;
+    if (report) {
+      I.say("\nCHECKING PERIMETER FOR "+I.tagHash(e));
+    }
+    return perimeterFits(e.area(tA), e.owningTier(), 2, world);
+  }
+  
+  
+  public static boolean perimeterFits(Tile t, int tier) {
+    return perimeterFits(t.area(tA), tier, 2, t.world);
+  }
+  
+  
   //  TODO:  Return a set of venues/fixtures/elements that conflict with the
   //  one being placed?
   
@@ -225,20 +235,15 @@ public class Placement implements TileConstants {
   //  lead to the existence of inaccessible 'pockets' of terrain- that would
   //  cause pathing problems.
   public static boolean perimeterFits(
-    Element element, int spaceNeed, Stage world
+    Box2D footprint, int tier, int spaceNeed, Stage world
   ) {
-    boolean report = verbose && element.owningTier() > Owner.TIER_PRIVATE;
-    if (report && spaceNeed > 1) {
-      I.say("\nCHECKING PERIMETER FOR "+I.tagHash(element));
-    }
+    boolean report = verbose && tier > Owner.TIER_PRIVATE;
     //
     //  We check recursively for pockets at a finer resolution:
     if (spaceNeed > 1) {
-      final boolean fits = perimeterFits(element, spaceNeed -1, world);
+      final boolean fits = perimeterFits(footprint, tier, spaceNeed -1, world);
       if (! fits) return false;
     }
-    final Box2D footprint = element.area(tA);
-    final int tier = element.owningTier();
     //
     //  If more than one tile of space is required, pull the footprint down by
     //  the appropriate amount (so that the clearance-check has space to
@@ -254,9 +259,11 @@ public class Placement implements TileConstants {
     //  In essence, we scan along the perimeter and note how often the tiles
     //  switch between being blocked and unblocked.
     final Tile perim[] = Spacing.perimeter(footprint, world);
-    final Tile o = element.origin();
     int inClear = -1, numGaps = 0;
-    if (report) I.say("  Checking tiles along perim, origin: "+o.x+"/"+o.y);
+    if (report) {
+      I.say("  Checking tiles along perim, area: "+footprint);
+      I.say("    ");
+    }
     for (Tile t : perim) {
       int clear = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
       if (report) I.add(" "+clear);
@@ -286,11 +293,15 @@ public class Placement implements TileConstants {
     Tile t, int space, int tier, boolean report
   ) {
     if (t == null) return false;
+    final float maxTier = Nums.min(tier, Owner.TIER_PRIVATE);
+    
+    if (space == 1) {
+      return t.owningTier() < maxTier;
+    }
+    
     for (int x = space; x-- > 0;) for (int y = space; y-- > 0;) {
       final Tile u = t.world.tileAt(x + t.x, y + t.y);
-      //
-      //  Don't allow infringement on any artificial structure:
-      if (u == null || u.owningTier() > Owner.TIER_NATURAL) {
+      if (u == null || u.owningTier() >= maxTier) {
         return false;
       }
     }

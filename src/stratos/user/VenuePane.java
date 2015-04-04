@@ -9,7 +9,6 @@ import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-import stratos.game.economic.Inventory.Owner;
 import static stratos.game.economic.Economy.*;
 
 
@@ -26,7 +25,6 @@ public class VenuePane extends SelectionPane {
     CAT_UPGRADES = "UPGRADE" ,
     CAT_STOCK    = "STOCK"   ,
     CAT_STAFFING = "STAFFING";
-    //CAT_VISITORS = "VISITS" ;
   
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private Upgrade lastCU = null;
@@ -101,39 +99,44 @@ public class VenuePane extends SelectionPane {
       final Traded t = types[i];
       if (t.form != FORM_MATERIAL) continue;
       
-      final Tier tier = v.stocks.demandTier(t);
+      final boolean
+        demands = v.stocks.demandFor(t) > 0,
+        exports = demands && v.stocks.producer(t);
+      
       final int level = (int) Nums.ceil(v.stocks.demandFor(t));
       d.append("\n  ");
       
-      if (tier == Tier.IMPORTER) d.append(new Description.Link("IMPORT") {
+      final float maxTrade = v.spaceFor(t), minTrade = Nums.min(5, maxTrade);
+      //
+      //  The options here are cyclic...
+      if (exports == true) d.append(new Description.Link("EXPORTS") {
         public void whenClicked() {
-          v.stocks.forceDemand(t, 0, Tier.EXPORTER);
-          if (I.logEvents()) I.say("\n"+t+" TIER AT "+v+" IS "+Tier.EXPORTER);
+          if (I.logEvents()) I.say("\n"+t+" IS BEING IMPORTED AT "+v);
+          v.stocks.forceDemand(t, minTrade, false);
         }
       }, Colour.GREEN);
       
-      if (tier == Tier.TRADER) d.append(new Description.Link("TRADE") {
+      else if (demands == true) d.append(new Description.Link("IMPORTS") {
         public void whenClicked() {
-          v.stocks.forceDemand(t, 0, Tier.IMPORTER);
-          if (I.logEvents()) I.say("\n"+t+" TIER AT "+v+" IS "+Tier.IMPORTER);
+          if (I.logEvents()) I.say("\n"+t+" IS NOT BEING TRADED AT "+v);
+          v.stocks.forceDemand(t, 0, false);
         }
       }, Colour.BLUE);
       
-      if (tier == Tier.EXPORTER) d.append(new Description.Link("EXPORT") {
+      else d.append(new Description.Link("NO TRADE") {
         public void whenClicked() {
-          v.stocks.forceDemand(t, 0, Tier.TRADER);
-          if (I.logEvents()) I.say("\n"+t+" TIER AT "+v+" IS "+Tier.TRADER);
+          if (I.logEvents()) I.say("\n"+t+" IS BEING EXPORTED AT "+v);
+          v.stocks.forceDemand(t, minTrade, true);
         }
       }, Colour.MAGENTA);
       
       final float amount = v.stocks.amountOf(t);
       d.append(" "+I.shorten(amount, 1)+"/");
       
-      final float maxTrade = v.spaceFor(t);
       d.append(new Description.Link(I.lengthen(level, 4, false)) {
         public void whenClicked() {
           final int newLevel = (level >= maxTrade) ? 0 : (level + 5);
-          v.stocks.forceDemand(t, newLevel, tier);
+          v.stocks.forceDemand(t, newLevel, exports);
           if (I.logEvents()) I.say("\n"+t+" LEVEL AT "+v+" IS "+newLevel);
         }
       });
@@ -150,11 +153,9 @@ public class VenuePane extends SelectionPane {
     d.append("\n  Integrity: ");
     d.append(v.structure().repair()+" / "+v.structure().maxIntegrity());
     
-    if (v instanceof Inventory.Owner) {
-      final Inventory i = ((Inventory.Owner) v).inventory();
-      d.append("\n  Credits: "+(int) i.credits());
-      d.append(" ("+(int) i.unTaxed()+" Untaxed)");
-    }
+    final Inventory i = v.inventory();
+    d.append("\n  Credits: "+(int) i.credits());
+    d.append(" ("+(int) i.unTaxed()+" Untaxed)");
     
     final float squalor = 0 - world.ecology().ambience.valueAt(v);
     if (squalor > 0) {

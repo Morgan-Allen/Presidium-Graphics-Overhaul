@@ -5,7 +5,6 @@
   */
 package stratos.game.actors;
 import stratos.game.common.Actor;
-import stratos.game.politic.Power;
 import stratos.util.*;
 
 

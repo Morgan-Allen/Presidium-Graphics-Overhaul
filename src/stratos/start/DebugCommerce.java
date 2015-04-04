@@ -5,45 +5,17 @@
   */
 package stratos.start;
 import stratos.game.actors.*;
-import stratos.game.common.*;
 import stratos.game.base.*;
+import stratos.game.civic.*;
+import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
 import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
-
-
-
-
-//  TODO:  I'm going to cut out the spyce economy entirely for the moment, as I
-//  don't have a clear idea of how to use it yet.  Maybe later.
-
-
-//  Each major ecologist building- the botanical station, the FRSD Plant,
-//  and the kommando lodge- can produce 1 type of spyce each.
-
-//  Spyce gets converted to special serums for use by your agents, pseers and
-//  nobility.  Each will demand a particular serum type, based on profession,
-//  but you can upgrade this through research at different venues.
-
-
-//  Carbons are produced at either the excavation site, OR the supply depot-
-//  which can render it down from carbs, ores, and the like.
-
-//  Carbons get converted into plastics at the fabricator, along with fuel-
-//  propellant at the airfield for both dropships and raptors.
-
-
-//  The Supply Depot does not sell to housing- it handles bulk transactions
-//  and maintenance work only.  Specialises mostly in raw materials.
-
-//  The Stock Exchange specialises mostly in finished goods, including some
-//  that get 'cooked' or patent-controlled by the stock vendors.
 
 
 
@@ -105,9 +77,9 @@ public class DebugCommerce extends Scenario {
     //  TODO:  Try giving the residents pots of money instead...
     //GameSettings.freeHousingLevel = 0;
     
+    if (true ) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (true ) shippingScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) farDeliveryScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
@@ -118,8 +90,10 @@ public class DebugCommerce extends Scenario {
     
     final Venue depot = new SupplyDepot(base);
     Placement.establishVenue(depot, 5, 5, true, world);
-    depot.stocks.forceDemand(CARBS, 5, Tier.EXPORTER);
-    depot.stocks.forceDemand(ORES , 5, Tier.IMPORTER);
+    depot.stocks.forceDemand(CARBS, 5, true );
+    depot.stocks.forceDemand(ORES , 5, false);
+    
+    depot.stocks.bumpItem(CARBS, 10);
     depot.updateAsScheduled(0, false);
     
     final Actor brought = new Human(Backgrounds.KOMMANDO, base);
@@ -128,7 +102,12 @@ public class DebugCommerce extends Scenario {
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);
     
-    UI.selection.pushSelection(base.commerce.allVessels().first());
+    UI.selection.pushSelection(depot);
+    
+    //  TODO:  Check to ensure that distribution from depots to facilities, and
+    //  shopping at the stock exchange, are working correctly!
+    
+    //UI.selection.pushSelection(base.commerce.allVessels().first());
   }
   
   
@@ -153,6 +132,9 @@ public class DebugCommerce extends Scenario {
     
     runnerMarket.stocks.bumpItem(Economy.DECOR, 20);
     runnerMarket.stocks.bumpItem(Economy.ANTIMASS, 20);
+    
+    //  TODO:  RESTORE THIS!
+    /*
     final Item moved[] = base.commerce.getBestCargo(
       runnerMarket.stocks, 5, false
     );
@@ -161,6 +143,7 @@ public class DebugCommerce extends Scenario {
     smuggle.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
     runner.mind.assignBehaviour(smuggle);
     runner.goAboard(world.tileAt(13, 13), world);
+    //*/
     
     //  TODO:  Now, all you have to work out is the selection of services and
     //  manufacture of contraband.
@@ -207,9 +190,9 @@ public class DebugCommerce extends Scenario {
     final Venue exchange = new StockExchange(base);
     Placement.establishVenue(exchange, 5 , 5 , true, world);
     base.setup.fillVacancies(exchange, true);
-    exchange.stocks.forceDemand(PARTS   , 40, Tier.TRADER);
-    exchange.stocks.forceDemand(PLASTICS, 25, Tier.TRADER);
-    exchange.stocks.forceDemand(CARBS   , 35, Tier.TRADER);
+    exchange.stocks.forceDemand(PARTS   , 40, false);
+    exchange.stocks.forceDemand(PLASTICS, 25, false);
+    exchange.stocks.forceDemand(CARBS   , 35, false);
     
     UI.selection.pushSelection(depot);
   }
@@ -226,7 +209,7 @@ public class DebugCommerce extends Scenario {
     Placement.establishVenue(foundry, 6, 6, true, world, guyA, guyB);
     
     depot.stocks.bumpItem(ORES, 10);
-    foundry.stocks.forceDemand(ORES, 3, Tier.CONSUMER);
+    foundry.stocks.forceDemand(ORES, 3, false);
     
     UI.selection.pushSelection(foundry);
     

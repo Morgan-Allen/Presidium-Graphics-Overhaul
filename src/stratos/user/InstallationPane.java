@@ -10,17 +10,15 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-//import stratos.graphics.terrain.*;
 import stratos.util.*;
-import stratos.game.economic.Inventory.Owner;
 
 import com.badlogic.gdx.Input.Keys;
+
 
 
 //  TODO:  Allow listing of current structures, and greyed-out options.
 //  TODO:  Allow a general summary of demand for structures of this type.
 //  TODO:  Expand a little on the category-selection system.
-
 
 public class InstallationPane extends SelectionPane {
   
@@ -182,6 +180,9 @@ public class InstallationPane extends SelectionPane {
       detailText.append("No structures available!");
     }
     else for (final Venue sample : sampled) {
+      //  TODO:  List in a vertical format here, along with the name of the
+      //  structure in question, plus build and info options.
+      
       if (helpFor == null) helpFor = sample.profile;
       
       final Composite otherIcon = sample.portrait(UI);
@@ -238,7 +239,7 @@ public class InstallationPane extends SelectionPane {
   //  TODO:  MOVE THIS OUT TO THE VENUEPROFILE OR BASESETUP CLASS!
   
   private String checkPrerequisites(Venue sample, Stage world) {
-    if (sample.owningTier() == Owner.TIER_UNIQUE) {
+    if (sample.profile.isUnique()) {
       if (listInstalled(sample.profile, world, false).size() > 0) {
         return "You cannot have more than one "+sample;
       }

@@ -4,7 +4,6 @@ package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-import stratos.game.economic.Inventory.Owner;
 import static stratos.game.economic.Economy.*;
 
 
@@ -74,7 +73,7 @@ public class DeliveryUtils {
       final Batch <Item> excess = new Batch <Item> ();
       for (Item i : origin.inventory().allItems()) {
         if (i.type.form != Economy.FORM_MATERIAL) continue;
-        if (origin.inventory().demandTier(i.type) != Tier.NONE) continue;
+        if (origin.inventory().canDemand(i.type)) continue;
         if (report) I.say("  Excess item: "+i);
         excess.add(i);
       }
@@ -122,7 +121,10 @@ public class DeliveryUtils {
     final boolean report = sampleVerbose && I.talkAbout == origin;
     final Stage world = origin.world();
     Tally <Owner> ratings = new Tally <Owner> ();
-    if (report) I.say("\nGetting bulk delivery for "+origin);
+    if (report) {
+      I.say("\nGetting bulk delivery for "+origin);
+      I.say("  Total destinations: "+destinations.size());
+    }
     
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
@@ -179,7 +181,10 @@ public class DeliveryUtils {
     final boolean report = sampleVerbose && I.talkAbout == destination;
     final Stage world = destination.world();
     Tally <Owner> ratings = new Tally <Owner> ();
-    if (report) I.say("\nGetting bulk collection for "+destination);
+    if (report) {
+      I.say("\nGetting bulk collection for "+destination);
+      I.say("  Total origins: "+origins.size());
+    }
     
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
@@ -228,7 +233,6 @@ public class DeliveryUtils {
   /**  Fills a bulk order of specified good types between the given origin and
     *  destination points.
     */
-  
   public static Delivery fillBulkOrder(
     Owner origin, Owner destination, Traded goods[],
     int baseUnit, int amountLimit
@@ -236,27 +240,46 @@ public class DeliveryUtils {
     final boolean report = rateVerbose && (
       I.talkAbout == destination || I.talkAbout == origin
     );
-    int goodAmounts[] = new int[goods.length];
-    int sumAmounts = 0;
+    //
+    //  I'm using an optimisation here for non-symmetric trades of single goods
+    //  (which are fairly common.)
+    if (goods.length == 1 && origin.owningTier() != destination.owningTier()) {
+      final Traded type = goods[0];
+      final float amount = Nums.min(
+        origin.inventory().amountOf(type),
+        destination.inventory().shortageOf(type)
+      );
+      if (amount <= 0) return null;
+      final Item toTake = Item.withAmount(type, amount);
+      final Delivery order = new Delivery(toTake, origin, destination);
+      return order.setWithPayment(destination, false);
+    }
     //
     //  In essence, we take the single most demanded good at each step, and
     //  increment the size of the order for that by the base unit, until we
     //  run out of either (A) space or (B) demand for any goods.
+    int goodAmounts[] = new int[goods.length];
+    boolean skip[] = new boolean[goods.length];
+    int sumAmounts = 0;
     while (true) {
       int   bestIndex  = -1;
       float bestRating =  0;
       //
       //  We can skip over any provisioned goods, as these are distributed over
-      //  the road network.
+      //  the road network, along with any goods that got a negative rating
+      //  before.
       for (int i = goods.length; i-- > 0;) {
-        if (goods[i].form == FORM_PROVISION) continue;
+        if (goods[i].form == FORM_PROVISION || skip[i]) continue;
         
         final int nextAmount = goodAmounts[i] + baseUnit;
         final float rating = rateTrading(
           origin, destination, goods[i], nextAmount
         );
         if (rating > bestRating) { bestRating = rating; bestIndex = i; }
+        else if (rating <= 0) skip[i] = true;
       }
+      //
+      //  Pick the most promising at each point and increment the order-
       if (bestIndex == -1) break;
       goodAmounts[bestIndex] += baseUnit;
       sumAmounts             += baseUnit;
@@ -264,8 +287,7 @@ public class DeliveryUtils {
     }
     if (sumAmounts == 0) return null;
     //
-    //  Then just convert to an set of items and set the correct payment
-    //  options-
+    //  Then just convert to a set of items and setup correct payment options:
     final Batch <Item> toTake = new Batch <Item> ();
     for (int i = goods.length; i-- > 0;) {
       final int amount = goodAmounts[i];
@@ -339,9 +361,6 @@ public class DeliveryUtils {
   /**  Rates the attractiveness of trading a particular good types between
     *  the given origin and destination venues-
     */
-  //  TODO:  In the case of personal purchases, you'll want to limit by
-  //  cash available.  TODO:  Also include bulk limits.
-  
   static float rateTrading(
     Owner orig, Owner dest, Traded good, int amount
   ) {
@@ -360,7 +379,7 @@ public class DeliveryUtils {
       report = rateVerbose && (I.talkAbout == orig || I.talkAbout == dest);
     }
     if (report) {
-      I.say("\nGetting trade rating for "+good+" between "+orig+" and "+dest);
+      I.say("\nGetting trade rating for "+good+" ("+orig+" -> "+dest+")");
     }
     final float baseFactor = orig.base().relations.relationWith(dest.base());
     if (baseFactor <= 0) {
@@ -384,38 +403,46 @@ public class DeliveryUtils {
       return -1;
     }
     
-    final Tier
-      OT = OS.demandTier(good),
-      DT = DS.demandTier(good);
+    final int
+      OT = OS.owner.owningTier(),
+      DT = DS.owner.owningTier();
+    final boolean
+      OP = OS.producer(good),
+      DP = DS.producer(good);
+    
     if (report) {
       I.say("  Checking tiers...");
-      I.say("  Origin: "+OT+" Destination: "+DT);
+      I.say("  Origin tier:      "+nameForTier(OT)+", Exporter: "+OP);
+      I.say("  Destination tier: "+nameForTier(DT)+", Exporter: "+DP);
     }
-    switch (OT) {
-      case SHIPS_OUT : case CONSUMER : case ANY : {
-        return -1;
-      }
-      case EXPORTER : if (DT != Tier.SHIPS_OUT) {
-        return -1;
-      }
-      case SHIPS_IN : if (DT == Tier.EXPORTER) {
-        return -1;
-      }
-      default : break;
-    }
-    switch (DT) {
-      case SHIPS_IN : case PRODUCER : case ANY : {
-        return -1;
-      }
-      case IMPORTER : if (OT != Tier.SHIPS_IN) {
-        return -1;
-      }
-      case SHIPS_OUT : if (OT == Tier.IMPORTER) {
-        return -1;
-      }
-      default : break;
-    }
+    //
+    //  Private consumers can only deal with facilities, not depots.  Trade
+    //  between those or owners of the same tier is only possible from producer
+    //  to consumer.
+    //
+    //  Conversely, deliveries between producers (or from consumer to consumer)
+    //  are only possible going from lower to higher tiers (or vice versa. e.g,
+    //  facilities deliver to depots deliver to ships for finished goods, and
+    //  ships deliver to depots deliver to facilities for raw materials.)
     
+    //  Private trades
+    if (DT < Owner.TIER_FACILITY) {
+      if (OT != Owner.TIER_FACILITY) return -1;
+      if (OP != true  || DP != false) return -1;
+    }
+    //  Same-tier trades
+    else if (OT == DT) {
+      if (OT == Owner.TIER_SHIPPING) return -1;
+      if (OP != true  || DP != false) return -1;
+    }
+    //  Downstream deliveries (from ships to depots to facilities)
+    else if (OT > DT) {
+      if (OP == true  || DP == true ) return -1;
+    }
+    //  Upstream delivieries (from facilities to ships to depots)
+    else if (OT < DT) {
+      if (OP == false || DP == false) return -1;
+    }
     final float
       OD = OS.demandFor(good),
       DD = DS.demandFor(good);
@@ -424,54 +451,47 @@ public class DeliveryUtils {
       return -1;
     }
     //
-    //  (We try to make sure the demands are reasonably in-proportion)-
-    if ((DD + 5 - DA) < (amount / 2f)) {
-      if (report) I.say("  Demands out of proportion.");
-      return -1;
-    }
-    //
-    //  Secondly, obtain an estimate of stocks before and after the exchange (
-    //  origin and destination tiers will only match for Tier.TRADER.)
-    final boolean isTrade = OT == DT;
+    //  Secondly, obtain an estimate of stocks before and after the exchange.
+    final boolean
+      isTrade    = OT == DT,
+      isConsumer = DP == false && DT < Owner.TIER_DEPOT;
     final float
       OFB = futureBalance(orig, good, report),
       DFB = futureBalance(dest, good, report);
+    float origAfter = 0, destAfter = 0;
+    origAfter = OA + (OFB - amount);
+    destAfter = DA + (DFB + amount);
     if (report) {
       I.say("  Trade unit is "+amount);
       I.say("  Origin      reserved: "+OFB);
       I.say("  Destination reserved: "+DFB);
-    }
-    float origAfter = 0, destAfter = 0;
-    origAfter = OA + (OFB - amount);
-    destAfter = DA + (DFB + amount);
-    if (origAfter <= 0) return -1;
-    if (destAfter > DD) return -1;
-    //
-    //  Then, assign ratings for relative shortages at the start/end points-
-    float origShort = 0, destShort = 0, rating = 0;
-    if (isTrade) { origAfter += amount / 2f; destAfter -= amount / 2f; }
-    if (OD > 0) origShort = 1 - (origAfter / OD);
-    if (DD > 0) destShort = 1 - (destAfter / DD);
-    //
-    //  In the case of an equal trade, rate based on those relative shortages:
-    if (isTrade) {
-      rating = destShort - origShort;
-    }
-    //
-    //  Otherwise, favour deliveries to local consumers.
-    else if (DT == Tier.CONSUMER) {
-      rating = 1 + destShort;
-    }
-    //
-    //  And failing that, deliver for export (the only remaining possibility)-
-    else {
-      rating = destShort / 2;
-    }
-    if (report) {
       I.say("  Origin      demand  : "+OD+" ("+nameForTier(OT)+")");
       I.say("  Destination demand  : "+DD+" ("+nameForTier(DT)+")");
       I.say("  Origin      after   : "+origAfter);
       I.say("  Destination after   : "+destAfter);
+    }
+    if (origAfter < 0 || destAfter > DD) return -1;
+    //
+    //  Then, assign ratings for relative shortages at the start/end points (in
+    //  the case of symmetric trades, based on projected stocks afterwards.)
+    float origShort = 0, destShort = 0, rating = 0;
+    if (! isTrade) { origAfter += amount; destAfter -= amount; }
+    if (OD > 0) origShort = 1 - (origAfter / OD);
+    if (DD > 0) destShort = 1 - (destAfter / DD);
+    //
+    //  In the case of an equal trade, rate based on those relative shortages.
+    //  Otherwise favour deliveries to local consumers or, finally, deliver for
+    //  export.
+    if (isTrade) {
+      rating = destShort - origShort;
+    }
+    else if (isConsumer) {
+      rating = 1 + destShort;
+    }
+    else {
+      rating = destShort / 2;
+    }
+    if (report) {
       I.say("  Origin      shortage: "+origShort);
       I.say("  Destination shortage: "+destShort);
       I.say("  Rating so far       : "+rating   );
@@ -479,15 +499,21 @@ public class DeliveryUtils {
     if (rating <= 0) return -1;
     //
     //  Then return an estimate of how much an exchange would equalise things,
-    //  along with penalties for distance and base relations:
+    //  along with penalties for distance, tier-gap and base relations:
     final int SS = Stage.SECTOR_SIZE;
     final float distFactor = SS / (SS + Spacing.distance(orig, dest));
+    final float tierFactor = Nums.max(1, Nums.abs(OT - DT));
     
     if (report) {
       I.say("  Final rating "+rating);
       I.say("  base/distance factors: "+baseFactor+"/"+distFactor);
     }
-    return rating * distFactor * baseFactor;
+    return rating * distFactor * baseFactor / tierFactor;
+  }
+  
+  
+  private static String nameForTier(int tier) {
+    return Owner.TIER_NAMES[tier - Owner.TIER_NATURAL]+" ("+tier+")";
   }
   
   

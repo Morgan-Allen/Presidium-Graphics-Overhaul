@@ -135,7 +135,7 @@ public class NativeHut extends Venue {
       
       allProfiles.add(new VenueProfile(
         NativeHut.class, "hall_"+tribeID, "Native Hut ("+tribeName+")",
-        2, 2, false, NO_REQUIREMENTS
+        2, 2, Venue.Type.TYPE_STANDARD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
         public Venue sampleVenue(Base base) {
           return newHall(tribeID, base);
@@ -143,7 +143,7 @@ public class NativeHut extends Venue {
       });
       allProfiles.add(new VenueProfile(
         NativeHut.class, "hut_"+tribeID, "Chief's Hall ("+tribeName+")",
-        3, 2, false, NO_REQUIREMENTS
+        3, 2, Venue.Type.TYPE_STANDARD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
         public Venue sampleVenue(Base base) {
           return newHut(tribeID, base);

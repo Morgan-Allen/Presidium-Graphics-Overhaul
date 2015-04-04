@@ -2,9 +2,9 @@
 
 
 package stratos.game.actors;
+import stratos.game.base.*;
 import stratos.game.common.Actor;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
 import stratos.util.*;
 
 

@@ -5,11 +5,10 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.civic.Suspensor;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-import stratos.game.base.Suspensor;
-import stratos.game.economic.Inventory.Owner;
 
 
 
@@ -155,8 +154,9 @@ public class Delivery extends Plan {
   }
   
   
-  public Delivery setWithPayment(Owner pays, boolean priceLimit) {
-    
+  public Delivery setWithPayment(
+    Owner pays, boolean priceLimit
+  ) {
     if (pays instanceof Actor) this.actor = (Actor) pays;
     if (! checkValidPayment(pays)) return null;
     
@@ -273,6 +273,7 @@ public class Delivery extends Plan {
     //
     //  Personal purchases get a few special modifiers-
     if (shops && stage <= STAGE_PICKUP) {
+      base = CASUAL;
       if (! manned(origin)) {
         if (report) I.say("  Origin is not manned!");
         modifier -= ROUTINE;
@@ -290,9 +291,10 @@ public class Delivery extends Plan {
       modifier -= actor.motives.greedPriority(price);
     }
     //
-    //  Otherwise, add a bonus for quantity-
+    //  Otherwise, add a bonus for quantity and value-
     if (! shops) {
-      for (Item i : items) modifier += IDLE * i.amount / 10f;
+      base = ROUTINE;
+      modifier += goodsPrice / 100f;
     }
     //
     //  Finally, since this plan involves a good deal of travel, we modify the
@@ -302,6 +304,7 @@ public class Delivery extends Plan {
       Plan.rangePenalty(actor.base(), actor , origin     ) +
       Plan.rangePenalty(actor.base(), origin, destination)
     ) / rangeDiv;
+    
     final float priority = priorityForActorWith(
       actor, destination,
       base, modifier - extraRangePenalty,
@@ -516,6 +519,13 @@ public class Delivery extends Plan {
     if (suspensor != null && suspensor.inWorld()) suspensor.exitWorld();
     transferGoods(driven == null ? actor : driven, destination);
     
+    /*
+    I.say("DROPPING OFF GOODS, SHOULD PAY: "+shouldPay+", PRICE: "+goodsPrice);
+    for (Item i : items) {
+      I.say("  "+i+" costs "+origin.priceFor(i.type));
+      I.say("  Commerce price: "+actor.base().commerce.importPrice(i.type));
+    }
+    //*/
     if (shouldPay != null) {
       shouldPay.inventory().transferCredits(goodsPrice, origin);
     }

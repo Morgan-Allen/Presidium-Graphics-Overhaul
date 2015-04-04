@@ -64,7 +64,8 @@ public class Ruins extends Venue {
     VENUE_PROFILES = new VenueProfile[1];
     VENUE_PROFILES[0] = new VenueProfile(
       Ruins.class, "ruins", "Ancient Ruins",
-      4, 2, false, NO_REQUIREMENTS
+      4, 2, Venue.Type.TYPE_STANDARD,
+      NO_REQUIREMENTS, Owner.TIER_FACILITY
     ) {
       public Venue sampleVenue(Base base) {
         final Venue sample = new Ruins(base);

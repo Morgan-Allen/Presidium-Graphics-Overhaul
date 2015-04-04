@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
+import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.politic.*;
 import stratos.util.*;
 import stratos.game.economic.Property;
 

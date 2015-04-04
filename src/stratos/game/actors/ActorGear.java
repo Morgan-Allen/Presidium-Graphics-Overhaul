@@ -123,7 +123,10 @@ public class ActorGear extends Inventory {
   
   public float encumbrance() {
     if (encumbrance != -1) return encumbrance;
-    float sum = 0; for (Item i : allItems()) sum += i.amount;
+    float sum = 0; for (Item i : allItems()) {
+      if (i.type.form != Economy.FORM_MATERIAL) continue;
+      sum += i.amount;
+    }
     sum /= actor.health.maxHealth() * (1 - actor.health.fatigueLevel());
     return encumbrance = sum * sum;
   }

@@ -4,6 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.widgets.*;
@@ -119,32 +121,66 @@ public class TutorialScript {
   
   
   
-  /**  Updated methods for progress-conditions.
+  
+  /**  Update methods for progress-conditions.
     */
   protected void checkForFlags() {
     UI = tutorial.UI();
     pushMessage(EVENT_WELCOME, true, true);
     
     checkMotion();
-    if (motionDone) pushMessage("Navigation Done", true, true);
+    if (motionDone && pushMessage("Navigation Done", true, true)) {
+    }
     
     if (isViewing("The Bastion")) {
+      tutorial.base().intelMap.liftFogAround(tutorial.bastion, 12);
       UI.tracking.lockOn(tutorial.bastion);
-      pushMessage("Exploring"   , true, false);
-      pushMessage("Construction", true, false);
+      pushMessage("Defences", true, false);
     }
+    
+    checkBuildBarracks();
+    if (barracksDone && pushMessage("Trooper Lodge Built", true, true)) {
+      barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
+      tutorial.base().setup.fillVacancies(barracksBuilt, true);
+      pushMessage("Finding Threats", true, false);
+    }
+    
+    checkExploreDone();
+    if (exploreDone && pushMessage("Recon Mission Begun", true, true)) {
+      reconSent.assignPriority(Mission.PRIORITY_ROUTINE);
+      for (Actor a : barracksBuilt.staff.workers()) {
+        a.mind.assignMission(reconSent);
+      }
+    }
+    //
+    //  Next:
+    //    *  Strike Missions and recruiting.
+    //    *  Build a stock exchange and engineer station.  Hiring and Upgrades.
+    //    *  Housing, trade revenue and taxation.
+    
+    //  I need to make the economy simple.  Blast.  So there's an advantage to
+    //  other stuff, but it's not essential.
+    
+    //
+    //  Secondary tutorial:
+    //    *  Security and Contact missions.
+    //    *  Other guilds and schools.
+    //    *  Offworld missions.
   }
   
   
-  private void pushMessage(String eventKey, boolean urgent, boolean viewNow) {
+  private boolean pushMessage(
+    String eventKey, boolean urgent, boolean viewNow
+  ) {
     final ReminderListing reminders = UI.reminders();
     if (! reminders.hasMessageEntry(eventKey)) {
       final DialoguePane message = messageFor(eventKey, UI);
-      if (message == null) return;
-      I.say("PUSHING NEW MESSAGE: "+eventKey);
+      if (message == null) return false;
       if (viewNow) UI.setInfoPanels(message, null);
-      reminders.addEntry(message, urgent);
+      reminders.addMessageEntry(message, urgent);
+      return true;
     }
+    return false;
   }
   
   
@@ -154,6 +190,8 @@ public class TutorialScript {
   
   
   
+  /**  Navigation-learnt check.
+    */
   private boolean motionDone = false;
   private Tile startAt = null;
   
@@ -167,6 +205,47 @@ public class TutorialScript {
     if (startAt == null) startAt = lookTile;
     if (Spacing.distance(lookTile, startAt) < 4) return false;
     return motionDone = true;
+  }
+  
+  
+  /**  Building-learnt check.
+    */
+  private boolean barracksDone = false;
+  private TrooperLodge barracksBuilt = null;
+  
+  protected boolean checkBuildBarracks() {
+    if (barracksDone) return true;
+    
+    TrooperLodge match = null;
+    for (Object o : tutorial.world().presences.matchesNear(
+      TrooperLodge.class, tutorial.bastion, -1
+    )) {
+      final TrooperLodge barracks = (TrooperLodge) o;
+      if (barracks.base() == tutorial.base()) { match = barracks; break; }
+    }
+    
+    if (match == null) return false;
+    barracksBuilt = match;
+    return barracksDone = true;
+  }
+  
+  
+  /**  Explore-learnt check.
+    */
+  private boolean exploreDone = false;
+  private ReconMission reconSent = null;
+  
+  protected boolean checkExploreDone() {
+    if (exploreDone) return true;
+    
+    ReconMission match = null;
+    for (Mission m : tutorial.base().tactics.allMissions()) {
+      if (m instanceof ReconMission) match = (ReconMission) m;
+    }
+    if (match == null) return false;
+    
+    reconSent = match;
+    return exploreDone = true;
   }
   
   

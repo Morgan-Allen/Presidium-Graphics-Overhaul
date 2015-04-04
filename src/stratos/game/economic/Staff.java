@@ -3,29 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.economic;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.economic.Inventory.Owner;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
 import stratos.game.wild.Species;
 import stratos.game.maps.*;
 import stratos.util.*;
 
-
-
-
-
-//
-//  An actor's willingness to apply for an opening should be based on the
-//  number of current applicants.  You don't want to overwhelm the player
-//  with choices.
-//
-//  You'd need to assess an actor's fitness for a given Vocation, in terms of
-//  both skills and personality.  (And they'd have to be given gear.)
 
 
 public class Staff {
@@ -289,10 +275,6 @@ public class Staff {
       0 - a.hiringFee(),
       BaseFinance.SOURCE_HIRING
     );
-    //
-    //  TODO:  Once you have incentives worked out, restore this-
-    //works.gear.incCredits(app.salary / 2);
-    //works.gear.taxDone();
     works.setVocation(a.position());
     works.mind.setWork(employs);
     //
@@ -335,29 +317,30 @@ public class Staff {
       }
       //
       //  If there's an unfilled opening, look for someone to fill it.
-      //  TODO:  This should really be handled more from the Commerce class?
       if (employs.careers() == null) return;
-      //
-      //  We automatically hire anyone who applies for non-freemen jobs, and
-      //  only vetting of candidates for public jobs:
+      
+      //  TODO:  ONLY REQUIRE SCREENING FOR SENIOR STAFF AND STAFF COMING FROM
+      //  DIFFERENT JOBS.
+      
       final boolean pP = employs.owningTier() == Owner.TIER_PRIVATE;
       for (FindWork a : applications) if (pP || ! a.position().isAgent()) {
         confirmApplication(a);
       }
       
       for (Background v : employs.careers()) {
-        final float crowding = employs.crowdRating(null, v);
-        if (crowding < 1) {
-          if (GameSettings.hireFree) {
-            final Actor citizen = v.sampleFor(base);
-            citizen.mind.setWork(employs);
-            final Boarding t = employs.canBoard()[0];
-            citizen.enterWorldAt(t, base.world);
-          }
-          else {
-            base.commerce.incDemand(v, numOpenings(v), REFRESH_INTERVAL);
-          }
+        final int openings = numOpenings(v);
+        if (openings == 0) continue;
+        
+        if (GameSettings.hireFree) {
+          final Actor citizen = v.sampleFor(base);
+          citizen.mind.setWork(employs);
+          final Boarding t = employs.canBoard()[0];
+          citizen.enterWorldAt(t, base.world);
         }
+        
+        else base.demands.impingeDemand(
+          v, numOpenings(v), REFRESH_INTERVAL, employs
+        );
       }
     }
   }

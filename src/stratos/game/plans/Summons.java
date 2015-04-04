@@ -1,14 +1,14 @@
 
 
 package stratos.game.plans;
+import stratos.game.base.*;
+import stratos.game.base.LawUtils.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.user.notify.DialoguePane;
 import stratos.util.*;
 import stratos.game.economic.*;
-import stratos.game.politic.LawUtils.*;
 import stratos.util.Description.Link;
 
 

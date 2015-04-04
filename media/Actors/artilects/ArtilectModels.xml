@@ -130,10 +130,12 @@
 	<animation name="carry"        start="83"  end="143"  duration="3" />
 	<animation name="look"        start="144"  end="204"  duration="4" />
 	<animation name="build"        start="205"  end="305"  duration="3" />
-	<animation name="BigPsy"        start="307"  end="378"  duration="2" />
+	<animation name="BigPsy"        start="307"  end="367"  duration="2" />
 	<animation name="QuickPsy1"        start="379"  end="413"  duration="1.2" />
 	<animation name="PhysicalAttack1"        start="414"  end="453"  duration="1.2" />
-	<animation name="Death"        start="454"  end="521"  duration="2" />
+	<animation name="PhysicalAttack2"        start="454"  end="537"  duration="1.2" />
+	<animation name="PhysicalAttack2 v2"        start="538"  end="584"  duration="1.2" />
+	<animation name="Death"        start="585"  end="652"  duration="2" />
   </animations>
   
 </model>

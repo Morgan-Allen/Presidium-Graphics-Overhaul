@@ -5,8 +5,8 @@
   */
 
 package stratos.user;
+import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.politic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.graphics.sfx.*;

@@ -1,6 +1,7 @@
 
 
 package stratos.game.maps;
+import stratos.game.base.BaseTransport;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.user.BaseUI;

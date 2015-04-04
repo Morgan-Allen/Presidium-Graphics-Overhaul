@@ -5,6 +5,7 @@
   */
 package stratos.user;
 import stratos.game.actors.*;
+import stratos.game.base.BaseTransport;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;

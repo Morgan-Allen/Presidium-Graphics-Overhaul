@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
+import stratos.game.base.BaseDemands;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
@@ -25,10 +26,9 @@ public class Stocks extends Inventory {
   
   static class Demand {
     Traded type;
-    Tier tierType = Tier.PRODUCER;
     private float demandAmount;
     private float demandBonus;
-    private float pricePaid;
+    private boolean producer;
     private boolean fixed;
   }
   
@@ -56,8 +56,7 @@ public class Stocks extends Inventory {
       d.type         = (Traded) s.loadObject();
       d.demandAmount = s.loadFloat();
       d.demandBonus  = s.loadFloat();
-      d.tierType     = (Tier) s.loadEnum(Tier.values());
-      d.pricePaid    = s.loadFloat();
+      d.producer     = s.loadBool ();
       d.fixed        = s.loadBool ();
       demands.put(d.type, d);
     }
@@ -74,8 +73,7 @@ public class Stocks extends Inventory {
       s.saveObject(d.type        );
       s.saveFloat (d.demandAmount);
       s.saveFloat (d.demandBonus );
-      s.saveEnum  (d.tierType    );
-      s.saveFloat (d.pricePaid   );
+      s.saveBool  (d.producer    );
       s.saveBool  (d.fixed       );
     }
   }
@@ -134,7 +132,9 @@ public class Stocks extends Inventory {
   
   public Traded[] demanded() {
     final Batch <Traded> batch = new Batch <Traded> ();
-    for (Demand d : demands.values()) batch.add(d.type);
+    for (Demand d : demands.values()) if (d.demandAmount > 0) {
+      batch.add(d.type);
+    }
     return batch.toArray(Traded.class);
   }
   
@@ -207,10 +207,15 @@ public class Stocks extends Inventory {
   }
   
   
-  public Tier demandTier(Traded type) {
+  public boolean producer(Traded type) {
     final Demand d = demands.get(type);
-    if (d == null) return Tier.PRODUCER;
-    return d.tierType;
+    if (d == null) return false;
+    return d.producer;
+  }
+  
+  
+  public boolean canDemand(Traded type) {
+    return demands.get(type) != null;
   }
   
   
@@ -236,13 +241,6 @@ public class Stocks extends Inventory {
   }
   
   
-  public float priceFor(Traded type) {
-    final Demand d = demands.get(type);
-    if (d == null) return type.basePrice();
-    return (d.pricePaid + type.basePrice()) / 2f;
-  }
-  
-  
   
   /**  Utility methods for setting and propagating various types of demand-
     */
@@ -251,7 +249,6 @@ public class Stocks extends Inventory {
     if (d != null) return d;
     Demand made = new Demand();
     made.type = t;
-    made.pricePaid = t.basePrice();
     demands.put(t, made);
     return made;
   }
@@ -267,25 +264,28 @@ public class Stocks extends Inventory {
   }
   
   
-  public void forceDemand(Traded type, float amount, Tier tier) {
+  public void forceDemand(
+    Traded type, float amount, boolean producer
+  ) {
     if (amount < 0) amount = 0;
     final Demand d = demandRecord(type);
-    d.demandAmount = amount;
-    d.fixed        = true  ;
-    if (tier != Tier.ANY) d.tierType = tier;
+    d.demandAmount = amount  ;
+    d.fixed        = true    ;
+    d.producer     = producer;
   }
   
   
   public void incDemand(
-    Traded type, float amount, Tier tier, int period
+    Traded type, float amount, int period, boolean producer
   ) {
     final Demand d = demandRecord(type);
     if (d.fixed) return;
-    if (tier != Tier.ANY) d.tierType = tier;
+    d.producer = producer;
     d.demandBonus += amount * period;
   }
   
   
+  /*
   public void setDefaultTier(Traded types[], Tier tier) {
     for (Traded type : types) {
       final Demand d = demandRecord(type);
@@ -296,6 +296,7 @@ public class Stocks extends Inventory {
       if (! fixed) d.tierType = tier;
     }
   }
+  //*/
   
   
   public void translateDemands(Conversion cons, int period) {
@@ -310,7 +311,7 @@ public class Stocks extends Inventory {
     for (Item raw : cons.raw) {
       final float needed = raw.amount * demand / cons.out.amount;
       if (report) I.say("  Need "+needed+" "+raw.type+" as raw materials");
-      incDemand(raw.type, needed, Tier.CONSUMER, period);
+      incDemand(raw.type, needed, period, false);
     }
   }
   
@@ -329,7 +330,7 @@ public class Stocks extends Inventory {
     
     final Traded services[] = basis.services();
     if (services != null) for (Traded t : services) {
-      if (demands.get(t) == null) incDemand(t, 0, Tier.PRODUCER, period);
+      if (demands.get(t) == null) incDemand(t, 0, period, true);
     }
     
     for (Manufacture m : specialOrders) {
@@ -341,30 +342,21 @@ public class Stocks extends Inventory {
     }
     
     for (Demand d : demands.values()) {
-      final Tier tier = d.tierType;
-      final Traded type = d.type;
-      final boolean trades = tier == Tier.TRADER, fixed = d.fixed;
-      final float amount = amountOf(type);
+      final Traded type   = d.type;
+      final float  amount = amountOf(type);
       
-      final boolean shouldGive = (
-        tier == Tier.PRODUCER || tier == Tier.IMPORTER || trades
-      );
-      final boolean shouldTake = (
-        tier == Tier.CONSUMER || tier == Tier.EXPORTER || trades
-      );
-      if (! fixed) d.demandAmount = d.demandBonus / period;
+      if (! d.fixed) d.demandAmount = d.demandBonus / period;
       d.demandBonus = 0;
       if (report) {
-        I.say("  Updating channel for "+d.type);
-        I.say("    Gives/takes:   "+shouldGive+"/"+shouldTake);
+        I.say("  Updating channel for "+d.type+", producer? "+d.producer);
       }
       
-      if (shouldGive) {
+      if (d.producer) {
         final float
           demandEst = BD.demandAround (basis, type, -1),
           shortage  = BD.localShortage(basis, type    );
         
-        if (! fixed) {
+        if (! d.fixed) {
           float minSupply = Nums.ceil(demandEst + shortage);
           d.demandAmount += Nums.min (minSupply, maxSupply);
         }
@@ -378,8 +370,8 @@ public class Stocks extends Inventory {
       }
       
       final boolean
-        gives = shouldGive && amount         > 0,
-        takes = shouldTake && d.demandAmount > 0;
+        gives =    d.producer  && amount         > 0,
+        takes = (! d.producer) && d.demandAmount > 0;
       if (takes) {
         if (report) I.say("    Impinging demand: "+d.demandAmount);
         BD.impingeDemand(type, d.demandAmount, period, basis);
@@ -408,8 +400,9 @@ public class Stocks extends Inventory {
     
     for (Demand d : demands.values()) {
       d.demandAmount = 0;
-      d.tierType = Tier.PRODUCER;
+      d.producer = false;
       presences.togglePresence(basis, at, false, d.type.demandKey);
+      presences.togglePresence(basis, at, false, d.type.supplyKey);
     }
   }
 }

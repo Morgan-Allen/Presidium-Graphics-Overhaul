@@ -312,7 +312,7 @@ public class ActorHealth implements Qualities {
     
     final float limit;
     if (injury < maxHealth) limit = maxHealth;
-    else if (terminal || conscious()) limit = maxHealth * MAX_INJURY;
+    else if (terminal || conscious()) limit = maxHealth * MAX_DECOMP;
     else limit = injury;
     
     if (organic()) {
@@ -579,18 +579,20 @@ public class ActorHealth implements Qualities {
       if (injury >= maxHealth * MAX_DECOMP) {
         if (report) I.say("  "+actor+" is decomposing...");
         state = STATE_DECOMP;
+        actor.setAsDestroyed();
+        return;
       }
     }
     else if (injury >= maxHealth * MAX_INJURY) {
-      if (report) I.say("  "+actor+" has died of injury.");
+      if (I.logEvents()) I.say("  "+actor+" has died of injury.");
       state = STATE_DYING;
     }
     else if (organic() && calories <= 0) {
-      if (report) I.say("  "+actor+" has died from starvation.");
+      if (I.logEvents()) I.say("  "+actor+" has died from starvation.");
       state = STATE_DYING;
     }
     else if (actor.traits.usedLevel(IMMUNE) < -5) {
-      if (report) I.say("  "+actor+" has died of disease.");
+      if (I.logEvents()) I.say("  "+actor+" has died of disease.");
       state = STATE_DYING;
     }
     else if (fatigue + (injury / 2) >= maxHealth) {
@@ -718,7 +720,7 @@ public class ActorHealth implements Qualities {
         lifeExtend++;
       }
       else {
-        if (report) I.say(actor+" has died of old age.");
+        if (I.logEvents()) I.say(actor+" has died of old age.");
         state = STATE_DYING;
       }
     }

@@ -63,6 +63,8 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 
 
+
+
 /*  BIG TODO LIST:
 
 BUILDING AND UPGRADES-
@@ -133,8 +135,6 @@ CONTROL AND DIRECTION-
 
 
 ENEMIES AND ENVIRONMENT-
-
-*  Allow hunting behaviours to apply to humans as well, if they're convenient.
 
 *  Extra concept art for new creatures/vermin:
      Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.

@@ -5,6 +5,7 @@
   */
 package stratos.game.wild;
 import stratos.game.actors.*;
+import stratos.game.base.Mission;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
@@ -13,7 +14,6 @@ import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.game.politic.Mission;
 
 
 

@@ -5,7 +5,6 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-import stratos.game.economic.Inventory.Owner;
 
 
 

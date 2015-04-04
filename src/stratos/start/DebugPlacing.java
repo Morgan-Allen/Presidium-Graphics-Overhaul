@@ -6,12 +6,12 @@
 
 package stratos.start;
 import stratos.game.actors.*;
-import stratos.game.common.*;
 import stratos.game.base.*;
+import stratos.game.civic.*;
+import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.game.politic.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -73,7 +73,7 @@ public class DebugPlacing extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
-      Habitat.OCEAN       , 1f,
+      //Habitat.OCEAN       , 1f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
@@ -110,6 +110,17 @@ public class DebugPlacing extends Scenario {
   private void configEcology(Stage world, Base base, BaseUI UI) {
     GameSettings.hireFree = false;
     Flora.populateFlora(world);
+    
+    I.say("\nCHECKING FOR TILE-ACCESS...");
+    for (Tile t : world.tilesIn(world.area(), false)) {
+      if (t.blocked()) continue;
+      boolean open = false;
+      for (Tile n : t.edgeAdjacent(null)) if (n != null && !n.blocked()) {
+        open = true;
+      }
+      if (! open) I.say("  TILE SURROUNDED: "+t);
+    }
+    
     Nest.populateFauna(world, Species.ANIMAL_SPECIES);
     
     final Bastion b = new Bastion(base);

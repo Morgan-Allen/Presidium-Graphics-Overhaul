@@ -6,10 +6,9 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.*;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.economic.Inventory.Owner;
-import stratos.game.politic.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

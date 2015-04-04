@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.maps;
+import stratos.game.base.BaseDemands;
 import stratos.game.common.*;
 import stratos.game.wild.*;
 import stratos.util.*;
@@ -60,7 +61,7 @@ public class Ecology {
   
   
   private void growthAt(Tile t) {
-    Flora.tryGrowthAt(t);
+    Flora.tryGrowthAt(t, false);
     final Element owner = t.onTop();
     if (owner != null) owner.onGrowth(t);
     ambience.updateAt(t);

@@ -1,13 +1,12 @@
 
 
 package stratos.game.plans;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.actors.*;
-import stratos.game.base.*;
 import stratos.util.*;
-import stratos.game.economic.Inventory.Owner;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
