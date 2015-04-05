@@ -1,6 +1,6 @@
 
 
-<topic name="Welcome!" event="true">
+<topic name="Welcome!" trigger="checkShowWelcome" urgent="true">
   <content>Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.</content>
   <link name="Navigation">Continue</link>
 </topic>
@@ -12,12 +12,12 @@
 (Note:  You can also use the arrow keys, click on the ground, or click a position on the minimap in the top-left.)</content>
 </topic>
 
-<topic name="Navigation Done" event="true">
+<topic name="Navigation Done" trigger="checkMotionDone" urgent="true">
   <content>Well done!  If you ever get lost, messages (such as this one) can always be accessed from the Messages listing on the left-hand side of the screen.</content>
   <link name="The Bastion">Continue</link>
 </topic>
 
-<topic name="The Bastion" event="true">
+<topic name="The Bastion">
   <content>Your settlement starts out with a single main building:  The Bastion, which houses your family and personal servants, and serves as your seat of command for the settlement as a whole.  As such, you should strive to protect the Bastion at all costs.
 
 To do this, you will need to both identify any threats in the area, and take steps to establish defences, which is what we'll cover next.</content>
@@ -26,13 +26,13 @@ To do this, you will need to both identify any threats in the area, and take ste
 
 
 
-<topic name="Build a Trooper Lodge" event="true">
+<topic name="Build a Trooper Lodge">
   <content>To hire troops and other personnel, you'll need to construct facilities to house them.
 
 Open the Installations tab in the top-right of the screen.  Select the Trooper Lodge, click build, and then place one next to your Bastion.</content>
 </topic>
 
-<topic name="Trooper Lodge Built">
+<topic name="Trooper Lodge Built" trigger="checkBuiltBarracks" urgent="true">
   <content>Good work.  Normally, buildings will take a while to construct and fully staff, but for now we'll speed things up and provide some starting recruits.  If you like, you can click on the new building and take a look at the staff recruited.
 
 Your citizens cannot be directly controlled, but you can hire them to perform missions on your behalf.  Next, we'll engage some of your troops to explore the surrounds of your base.</content>
@@ -40,26 +40,106 @@ Your citizens cannot be directly controlled, but you can hire them to perform mi
 </topic>
 
 
-<topic name="Declare a Recon Mission" event="true">
+<topic name="Declare a Recon Mission">
   <content>Click on a darkened area of the map, and a small green icon should appear in the lower-centre of the screen.  Press this to declare a Recon Mission.</content>
 </topic>
 
-<topic name="Recon Mission Begun">
+<topic name="Recon Mission Begun" trigger="checkExploreBegun" urgent="true">
   <content>Good work.  We'll assign some of your staff to the Recon Mission, but you can adjust the reward offered to attract more applicants.
 
 Your troopers should begin exploring the assigned area shortly.  In the meanwhile, let's take a look at getting a basic economy up and running.</content>
-  <link name="Finding Threats">Continue</link>
+  <link name="Economy Basics">Continue</link>
+</topic>
+
+
+
+<topic name="Economy Basics">
+<content>Go the the Installations panel again, and place a Supply Depot and Engineer Station close to your Bastion.</content>
+</topic>
+
+<topic name="Facilities Placed" trigger="checkFacilitiesPlaced" urgent="true">
+<content>Excellent.  The technicians at your Bastion should now begin constructing these facilities.  Once that's complete, we'll provide some initial staff and move on to setting imports and exports.</content>
+</topic>
+
+<topic name="Facilities Ready" trigger="checkFacilitiesReady" urgent="true">
+<content>Now that these facilities are fully built, you can select your Supply Depot, go to the Stocks pane and set it to import ores and export parts.  Your on-duty engineers should then begin processing imported ores into parts, which your supply corps will make available for sale.  This will provide you with a slow but steady cash flow.</content>
+</topic>
+
+<topic name="Trade Setup Done" trigger="checkTradeSetup" urgent="true">
+<content>That should do it.  It may take a little time for dropships to arrive and perform their transactions- typically once per day.
+
+Once the sale is complete, on-duty auditors from your Bastion will drop by to record and deposit your earnings.  In the meantime, let's take another look at base security.</content>
+  <link name="Security Basics">Continue</link>
 </topic>
 
 
 
 
+<topic name="Security Basics">
+<content>If they haven't done so already, local raiders are likely to begin harassing your settlement, potentially razing structures and harming citizens.
+
+A lone Drone is currently assaulting your Trooper Lodge.  Select the interloper and click on the small red icon below to declare a Strike Mission against that target.</content>
+</topic>
+
+<topic name="Hire More Soldiers" trigger="checkDroneDestroyed" urgent="true">
+<content>In order to beef up your security forces, a number of upgrades have been installed at your Trooper Lodge, increasing the barracks space and allowing better skill training.
+
+A number of veteran troopers have also applied to work at the facility, but you don't have space for all of them.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which to hire.  Fresh recruits should arrive within a day or so.</content>
+</topic>
+
+<topic name="Uncover The Ruins" trigger="checkDroneDestroyed" urgent="true">
+<content>That Drone came from an Ancient Ruins somewhere in the darkness of the unexplored regions of the map- and where there's one, others are likely to follow.  Conduct further Recon and Strike Missions to find the ruins and destroy it.
+
+Note:  To tip the odds in your favour, you may wish to hire additional troops.
+
+Note:  You may also wish to make your Missions 'screened' to help control the timing and composition of your assault teams.</content>
+</topic>
 
 
 
+<topic name="Basic Housing" trigger="checkRuinsDestroyed">
+<content>Now that local threats have been dealt with, it's time to focus on building a more prosperous settlement.
+
+Your citizens will need food and housing, so you may wish to establish Holdings where they can settle down.  This can be done from the Installations pane, but your citizens will also establish homes themselves if there's enough pent-up demand- generally 1 Holding for every 4 citizens.
+
+Your citizens can also upgrade their housing once they gain access to the right goods and services.  In addition to improving comfort and morale, this helps to generate tax revenue from sales and savings.  Simply click on a given Holding to see information on what it needs next.
+
+Try to have at least one Holding upgrade to a Pyon Shack.</content>
+</topic>
+
+
+<topic name="Structure Upgrades" trigger="checkRuinsDestroyed">
+<content>To improve the efficiency of goods manufacture and the range of services provided, your main buildings can each have a range of upgrades installed.  For example, your Engineer Station permits the Assembly Line upgrade to speed up parts manufacture.
+
+In addition to being sold for export, parts can be used to help upgrade housing.  Select the Engineer Station, go to the upgrades pane, and order an Assembly Line installed.  Your construction staff will attend to it shortly.
+
+Note:  You can also install upgrades to improve the quality of weapons and armour available to your soldiers.
+</content>
+</topic>
+
+
+<topic name="Food And Other Goods">
+<content>Your citizens won't starve immediately, but after several days their rations may start to run low.  Food- such as carbs, greens and protein- can be imported at the Supply Depot as you would any other good.  Plastics are also required for housing development, and can be imported in a similar way.
+
+However, to save on import costs, you may wish to build an Ecologist Station and Nursery to plant and harvest crops, and/or a Fabricator to manufacture plastics.  Your space is limited, however, so choose what to build wisely.</content>
+</topic>
+
+
+<topic name="Prosperity" trigger="checkHousingAndVenueUpgrade">
+<content>Now that you're familiar with upgrades to housing and other structures, along with the basics of trade and taxation, you'll need to establish a positive cash flow.
+
+Try to increase your current funds by at least 1000 credits.
+
+Tip:  You can always get an overview of current expenses and income, along with a summary of demand and prices for various goods, from the Finances pane in the top-right.</content>
+</topic>
 
 
 
+<topic name="Congratulations" trigger="checkPositiveCashFlow">
+<content>Congratulations!  You've covered the core essentials of playing Stratos, The Sci-Fi Settlement Sim.  While there's a wealth of other content to explore, from here on we'll leave you to your own devices.
+
+Please feel free to drop by the forums at presidium.game.net for other tips or to give feedback and commentary!  In the meantime, enjoy.</content>
+</topic>
 
 
 

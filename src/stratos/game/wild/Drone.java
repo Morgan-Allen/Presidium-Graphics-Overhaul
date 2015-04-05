@@ -21,7 +21,7 @@ public class Drone extends Artilect {
   
   /**  Construction and save/load methods-
     */
-  final static Species SPECIES = new Species(
+  final public static Species SPECIES = new Species(
     Drone.class,
     "Drone",
     "Defence Drones are simple, disposable automatons capable of limited "+

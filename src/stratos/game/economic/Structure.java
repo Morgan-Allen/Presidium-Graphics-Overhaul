@@ -509,6 +509,12 @@ public class Structure {
   }
   
   
+  public void addUpgrade(Upgrade upgrade) {
+    beginUpgrade(upgrade, false);
+    advanceUpgrade(1.0f);
+  }
+  
+  
   public float advanceUpgrade(float progress) {
     if (upgradeIndex == -1) upgradeIndex = nextUpgradeIndex();
     if (upgradeIndex == -1) return 0;

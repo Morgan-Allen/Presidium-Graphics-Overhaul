@@ -3,40 +3,6 @@
 
 
 
-Your settlement starts out with a single main building, the Bastion.  The Bastion houses your family and personal servants, and serves as your seat of command for the settlement as a whole.  As such, you should protect it all costs.
-
-To keep your bastion safe.  And knowledge is power.  In order to make sure your base is clear of threats, you will need to explore the surrounds.
-
-
-
-
-
-
-
-Good.  Here, you can see information on the building's Upgrades, Stocks, and Staff.  Upgrades allow you to customise a building and improve goods and services, while Stocks allow you to determine the amount of goods stocked or sold.
-
-We'll return to those later, but for now, click on Staff.
-
-
-
-Well done!  As you can see, the Bastion has a number of resident citizens.  These citizens cannot be directly controlled, but can be indirectly persuaded to perform missions on your behalf, as well as being hired at new buildings you construct.
-
-
-
-
-
-
-To place buildings, open the Installation tab in the top-right of the screen.  Click on a building type, press 'build', and then situate the new building where you want it to go.
-
-At the moment, your settlement could probably use a defence force to help keep it safe from nearby threats or visiting raiders.  Try placing a
-
-
-Well, not quite what I had in mind, but okay.
-
-
-
-
-
 
 
 
