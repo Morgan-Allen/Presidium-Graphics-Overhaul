@@ -356,13 +356,13 @@ public abstract class Venue extends Structural implements
       final int openings = numOpenings(background);
       if (openings <= 0) return 1;
       final int hired = staff.numHired(background);
-      return hired * 1f / openings;
+      return hired * 1f / (hired + openings);
     }
   }
   
   
   protected int numOpenings(Background b) {
-    return structure.upgradeBonus(b);
+    return structure.upgradeBonus(b) - staff.numHired(b);
   }
   
   

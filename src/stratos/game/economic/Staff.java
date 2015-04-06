@@ -250,18 +250,20 @@ public class Staff {
   }
   
   
+  public FindWork applicationMatching(FindWork app) {
+    for (FindWork a : applications) if (a.matchesPlan(app)) return a;
+    return null;
+  }
+  
+  
   public void setApplicant(FindWork app, boolean is) {
-    if (is && ! app.requiresApproval()) {
-      confirmApplication(app);
-      return;
-    }
-    if (is) {
-      for (FindWork a : applications) if (a.matchesPlan(app)) return;
+    final FindWork match = applicationMatching(app);
+    if (is && app.requiresApproval()) {
+      if (match != null) return;
       applications.add(app);
     }
-    else for (FindWork a : applications) if (a.matchesPlan(app)) {
-      applications.remove(a);
-    }
+    else if (is) confirmApplication(app);
+    else if (match != null) applications.remove(match);
   }
   
   
@@ -323,7 +325,7 @@ public class Staff {
       //  If there's an unfilled opening, look for someone to fill it.
       if (employs.careers() != null) for (Background v : employs.careers()) {
         final int openings = numOpenings(v);
-        if (openings == 0) continue;
+        if (openings <= 0) continue;
         
         if (GameSettings.hireFree) {
           final Actor citizen = v.sampleFor(base);
@@ -331,10 +333,9 @@ public class Staff {
           final Boarding t = employs.canBoard()[0];
           citizen.enterWorldAt(t, base.world);
         }
-        
-        else base.demands.impingeDemand(
-          v, numOpenings(v), REFRESH_INTERVAL, employs
-        );
+        else {
+          base.demands.impingeDemand(v, openings, REFRESH_INTERVAL, employs);
+        }
       }
     }
   }

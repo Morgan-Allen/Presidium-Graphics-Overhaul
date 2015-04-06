@@ -283,9 +283,9 @@ public class VenuePane extends SelectionPane {
       
       for (Background b : c) {
         final int
-          hired = v.staff.numHired   (b),
-          total = v.staff.numOpenings(b),
-          apps  = v.staff.numApplied (b);
+          hired = v.staff.numHired(b),
+          total = v.staff.numOpenings(b) + hired,
+          apps  = v.staff.numApplied(b);
         if (total == 0 && hired == 0) continue;
         
         ((Text) d).cancelBullet();

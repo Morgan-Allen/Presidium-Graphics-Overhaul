@@ -35,14 +35,16 @@ public class InstallationPane extends SelectionPane {
     "ecologist_category_button.png",
     "physician_category_button.png"
   );
-
+  
   final static ImageAsset
     BUILD_ICON = ImageAsset.fromImage(
       InstallationPane.class, "media/GUI/Panels/installations_tab.png"
     ),
+    /*
     FOOTPRINT_TEX = ImageAsset.fromImage(
       InstallationPane.class, "media/GUI/blank_back.png"
     ),
+    //*/
     BUILD_ICON_LIT = Button.CIRCLE_LIT;
   
   public static Button createButton(
@@ -307,15 +309,25 @@ public class InstallationPane extends SelectionPane {
     if (venue == null) return;
     else venue.assignBase(UI.played());
     
+    //  TODO:  HAVE THE INSTALLATION-MODE SPECIFIED BY THE PROFILE.
+    
+    final PlacingTask task = new PlacingTask(
+      UI, type, PlacingTask.Mode.MODE_POINT
+    );
+    UI.beginTask(task);
+    /*
     final InstallTask task = new InstallTask();
     task.tab  = this;
     task.UI   = UI;
     task.type = type;
     task.toInstall = venue;
     UI.beginTask(task);
+    //*/
   }
   
   
+  
+  /*
   class InstallTask implements UITask {
     
     InstallationPane tab;
@@ -434,6 +446,7 @@ public class InstallationPane extends SelectionPane {
       return "Installing "+toInstall;
     }
   }
+  //*/
 }
 
 

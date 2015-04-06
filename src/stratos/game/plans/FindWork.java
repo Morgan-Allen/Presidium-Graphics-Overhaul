@@ -80,6 +80,7 @@ public class FindWork extends Plan {
     if (position == null || employer == null) return false;
     else if (position.standing >= Backgrounds.CLASS_AGENT) return true;
     else if (actor.vocation() != position) return true;
+    else if (employer.staff().numOpenings(position) <= 0) return true;
     else return false;
   }
   
