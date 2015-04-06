@@ -18,10 +18,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 
 
-//  TODO:  Have the minimap refresh itself every second or so, and simply fade
-//  in the new version on top of the old?  Something like that.  If you wanted,
-//  you could do some kind of fancy burn-in or flicker transition-effect.
-
 //  TODO:  The disposal-checks are needed here due to possibility of render-
 //         loop interruption when a new game is loaded- fix that.
 
@@ -31,6 +27,7 @@ public class Minimap extends Assets.Loadable {
   private Texture mapImage;
   private Mesh mapMesh;
   private ShaderProgram shading;
+  private Box2D cameraBox = new Box2D();
   private boolean disposed = false;
   
   
@@ -57,6 +54,11 @@ public class Minimap extends Assets.Loadable {
       drawnTo, Pixmap.Format.RGBA8888, false, false
     ));
     drawnTo.dispose();
+  }
+  
+  
+  public void updateCameraBox(Box2D box, int screenX, int screenY) {
+    this.cameraBox = box;
   }
   
   
@@ -130,13 +132,32 @@ public class Minimap extends Assets.Loadable {
   /**  Rendering and interface methods-
     */
   public Coord getMapPosition(final Vector2 pos, Box2D bound, int mapSize) {
+    //  TODO:  try putting together a Matrix transform for this instead!
+    //
+    //  Returns the position on the physical map from a given screen point.
     final float
-      cX = (pos.x -  bound.xpos()) / bound.xdim(),
-      cY = ((bound.ypos() + (bound.ydim() * 0.5f)) - pos.y) / bound.ydim();
+      origX = bound.xpos(),
+      origY = bound.ypos() + (bound.ydim() * 0.5f),
+      cX = (pos.x - origX) / bound.xdim(),
+      cY = (origY - pos.y) / bound.ydim();
     return new Coord(
       (int) ((cX - cY) * mapSize),
       (int) ((cY + cX) * mapSize)
     );
+  }
+  
+  
+  public Coord getScreenPosition(int x, int y, int mapSize, Box2D bound) {
+    //
+    //  Returns the on-screen position of a given physical world-point.
+    float cX = x * 1f / mapSize, cY = y * 1f / mapSize;
+    float sX = 0, sY = 0.5f;
+    sX += (cY * 0.5f) + (cX * 0.5f);
+    sY += (cX * 0.5f) - (cY * 0.5f);
+    
+    sX = bound.xpos() + (sX * bound.xdim());
+    sY = bound.ypos() + (sY * bound.ydim());
+    return new Coord((int) sX, (int) sY);
   }
   
   
@@ -154,6 +175,10 @@ public class Minimap extends Assets.Loadable {
     shading.begin();
     shading.setUniformMatrix("u_ortho", screenMat);
     shading.setUniformi("u_texture", 0);
+    
+    final Box2D CB = cameraBox;
+    shading.setUniformf("u_box_lower_corner", CB.xpos(), CB.ypos());
+    shading.setUniformf("u_box_upper_corner", CB.xmax(), CB.ymax());
     
     if (fogApplied != null) {
       fogApplied.applyToMinimap(shading);

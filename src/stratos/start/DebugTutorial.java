@@ -13,16 +13,6 @@ import stratos.util.*;
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
-*  Use a linear sequence with much more detail on specific, simple steps.  You
-   want to cover-
-   * Basic Navigation and UI Features (access to game inputs and readouts.)
-   * Building & Upgrades (space management.)
-   * Recruitment & Missions (indirect control, motivation.)
-   * Inital objectives (security, basic housing, turning a profit.)
-   
-   Just don't railroad the player if they want to wander off and explore the
-   game's mechanics themselves.
-
 *  More feedback on needs and settlement demands.  (Notifications or an RCI
    indicator of some sort are needed.)  You need feedback for-
      *  Citizen needs   / no food source (imports or grown.)
@@ -33,15 +23,10 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
      *  Danger          / no security force (walls and military.)
    Emphasise the emotive component here?
 
-*  A minimap-indicator is needed for your current viewpoint.
-
 *  Ensure a small number of powers can be chosen for your ruler before the
    scenario begins!
 
 *  Re-introduce secondary revenue from upgraded housing!
-
-*  Ensure that money-making is reliable and intuitive.  Clarify and simplify
-   the imports system and taxation.
 
 *  Allow click-and-drag for things like the arcology or plantations (or maybe
    building-facings and housing blocs?)
@@ -49,13 +34,9 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
    Drag buildings from the install-pane directly onto the ground!  That's what
    he was talking about.
 
-*  Flora is a little too dense, especially when standalone.  It blocks the
-   view.  Also, try to polish it up- look more exotic.
+*  Try to polish up the Flora- have it look more exotic.
 
 *  Icons could be clearer, at least in the early game.
-
-*  This map is arguably too small to allow for multiple factions.  Stick to the
-   ruins and economic buildup.
 
 *  Sort out a decent carbons-source and a use for water-resources.  That, and
    spice flats!
@@ -73,10 +54,11 @@ BUILDING AND UPGRADES-
 *  There needs to be a more precise 'reservation' system to allow for zoning,
    entrances and not-in-the-world-yet situations.
 
+  >>>>>>> DO THIS <<<<<<<
+*  Fresh art for shield walls.  And give them out for free!
+
 *  Arcologies should have auto-placement.  In fact, I need an aesthetic option
    for the early game that's easy to include spatially.
-
-*  Fresh art for shield walls.  And give them out for free!
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange

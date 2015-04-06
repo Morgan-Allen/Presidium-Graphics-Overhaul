@@ -17,7 +17,7 @@
   <link name="The Bastion">Continue</link>
 </topic>
 
-<topic name="The Bastion">
+<topic name="The Bastion" onOpen="onMotionDone">
   <content>Your settlement starts out with a single main building:  The Bastion, which houses your family and personal servants, and serves as your seat of command for the settlement as a whole.  As such, you should strive to protect the Bastion at all costs.
 
 To do this, you will need to both identify any threats in the area, and take steps to establish defences, which is what we'll cover next.</content>
@@ -53,7 +53,7 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
 
 
 
-<topic name="Economy Basics">
+<topic name="Economy Basics" urgent="true">
 <content>Go the the Installations panel again, and place a Supply Depot and Engineer Station close to your Bastion.</content>
 </topic>
 
@@ -62,7 +62,9 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
 </topic>
 
 <topic name="Facilities Ready" trigger="checkFacilitiesReady" urgent="true">
-<content>Now that these facilities are fully built, you can select your Supply Depot, go to the Stocks pane and set it to import ores and export parts.  Your on-duty engineers should then begin processing imported ores into parts, which your supply corps will make available for sale.  This will provide you with a slow but steady cash flow.</content>
+<content>Now that these facilities are fully built, you can select your Supply Depot, open up the Stock tab and set it to import ores and export parts.
+
+Your on-duty engineers should then begin processing imported ores into parts, which your supply corps will make available for sale.  This will provide you with a slow but steady cash flow.</content>
 </topic>
 
 <topic name="Trade Setup Done" trigger="checkTradeSetup" urgent="true">
@@ -75,10 +77,18 @@ Once the sale is complete, on-duty auditors from your Bastion will drop by to re
 
 
 
-<topic name="Security Basics">
-<content>If they haven't done so already, local raiders are likely to begin harassing your settlement, potentially razing structures and harming citizens.
+<topic name="Security Basics" onOpen="onSecurityBasicsOpen">
+  <content>If they haven't done so already, local raiders are likely to begin harassing your settlement, potentially razing structures and harming citizens.
 
-A lone Drone is currently assaulting your Trooper Lodge.  Select the interloper and click on the small red icon below to declare a Strike Mission against that target.</content>
+When you're ready, we'll introduce a scouting Drone- a relatively weak robotic enemy, or artilect- to assault your Trooper Lodge.</content>
+  <link name="Base Under Attack!">Continue</link>
+</topic>
+
+<topic name="Base Under Attack!" onOpen="onBaseAttackOpen">
+<content>Here it comes!  Your patrolling troopers might polish it off themselves, but you can also select the interloper and click on the small red icon below to declare a Strike Mission against that target.
+
+Remember to offer a reward, or no-one will take up the challenge!
+</content>
 </topic>
 
 <topic name="Hire More Soldiers" trigger="checkDroneDestroyed" urgent="true">

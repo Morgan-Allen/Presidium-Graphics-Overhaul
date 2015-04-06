@@ -251,6 +251,10 @@ public class Staff {
   
   
   public void setApplicant(FindWork app, boolean is) {
+    if (is && ! app.requiresApproval()) {
+      confirmApplication(app);
+      return;
+    }
     if (is) {
       for (FindWork a : applications) if (a.matchesPlan(app)) return;
       applications.add(app);
@@ -317,17 +321,7 @@ public class Staff {
       }
       //
       //  If there's an unfilled opening, look for someone to fill it.
-      if (employs.careers() == null) return;
-      
-      //  TODO:  ONLY REQUIRE SCREENING FOR SENIOR STAFF AND STAFF COMING FROM
-      //  DIFFERENT JOBS.
-      
-      final boolean pP = employs.owningTier() == Owner.TIER_PRIVATE;
-      for (FindWork a : applications) if (pP || ! a.position().isAgent()) {
-        confirmApplication(a);
-      }
-      
-      for (Background v : employs.careers()) {
+      if (employs.careers() != null) for (Background v : employs.careers()) {
         final int openings = numOpenings(v);
         if (openings == 0) continue;
         

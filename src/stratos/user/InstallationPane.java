@@ -18,7 +18,8 @@ import com.badlogic.gdx.Input.Keys;
 
 //  TODO:  Allow listing of current structures, and greyed-out options.
 //  TODO:  Allow a general summary of demand for structures of this type.
-//  TODO:  Expand a little on the category-selection system.
+//  TODO:  Expand a little on the category-selection system?
+
 
 public class InstallationPane extends SelectionPane {
   
@@ -108,38 +109,56 @@ public class InstallationPane extends SelectionPane {
   
   /**  Interface presented-
     */
-  private VenueProfile helpFor;
+  private Venue helpFor;
   private Category category = null;
+  final private Button catButtons[];
   
   
   InstallationPane(BaseUI UI) {
-    super(UI, null, true, true);
+    super(UI, null, false, false, BAR_BUTTON_SIZE);
     if (! setupDone) setupTypes();
     
+    catButtons = new Button[NUM_GUILDS];
+    setupCategoryButtons();
+  }
+  
+  
+  private void setupCategoryButtons() {
     final UIGroup bar = new UIGroup(UI);
-    bar.alignToMatch(detailText);
     bar.attachTo(innerRegion);
+    bar.alignToFill();
     
     for (int i = 0; i < NUM_GUILDS; i++) {
-      final String
-        help    = INSTALL_CATEGORIES[i]+" Structures",
-        catName = INSTALL_CATEGORIES[i];
+      final String catName = INSTALL_CATEGORIES[i];
       
-      final Button button = new Button(UI, GUILD_IMAGE_ASSETS[i], help) {
+      final Button button = new Button(UI, GUILD_IMAGE_ASSETS[i], null) {
+        
         protected void whenClicked() {
           final BaseUI UI = BaseUI.current();
           UI.beginPanelFade();
           final Category match = categories.get(catName);
+          
           if (match != null && category == match) category = null;
           else { category = match; helpFor = null; }
+          
+          for (Button b : catButtons) {
+            if (b == this) b.toggled = category == match;
+            else b.toggled = false;
+          }
+        }
+        
+        protected String info() {
+          if (toggled) return "Filter Off";
+          else return "Filter "+catName+" Structures";
         }
       };
       button.stretch = true;
+      catButtons[i] = button;
+      
       final int
         barW = INFO_PANEL_WIDE - 50,
         wide = (int) (barW / INSTALL_CATEGORIES.length);
-      
-      button.alignBottom(10, BAR_BUTTON_SIZE - 10);
+      button.alignTop(0, BAR_BUTTON_SIZE - 10);
       button.alignLeft  ((wide * i), wide);
       button.attachTo(bar);
     }
@@ -164,59 +183,73 @@ public class InstallationPane extends SelectionPane {
   ) {
     String name = category == null ? "All" : category.name;
     headerText.setText(name+" Structures");
-    detailText .setText("");
-    listingText.setText("");
+    detailText.setText("");
     
+    final Stage world = UI.played().world;
     final Series <Venue> sampled = new List <Venue> ();
     for (Category cat : categories.values()) {
       if (category != null && cat != category) continue;
       for (Venue sample : cat.samples) {
-        if (checkPrerequisites(sample, UI.played().world) != null) continue;
+        if (checkPrerequisites(sample, world) != null) continue;
         else sampled.add(sample);
       }
     }
     
-    if (sampled.size() == 0) {
-      detailText.append("No structures available!");
-    }
-    else for (final Venue sample : sampled) {
-      //  TODO:  List in a vertical format here, along with the name of the
-      //  structure in question, plus build and info options.
-      
-      if (helpFor == null) helpFor = sample.profile;
-      
-      final Composite otherIcon = sample.portrait(UI);
-      if (otherIcon != null) listingText.insert(
-        otherIcon.texture(), 40, new Description.Link(sample.fullName()) {
-          public void whenClicked() {
-            helpFor = sample.profile;
-          }
-        }, false
-      );
-      listingText.append(" ");
-    }
+    final Text text = detailText;
     
     if (helpFor != null) {
-      final Venue sample = helpFor.sampleVenue(UI.played());
-      final Composite icon      = sample.portrait(UI);
-      final String    typeName  = sample.fullName()  ;
-      final String    typeDesc  = sample.helpInfo()  ;
-      final VenueProfile type   = sample.profile;
+      final Venue        sample   = helpFor            ;
+      final VenueProfile type     = sample.profile     ;
+      final Composite    icon     = sample.portrait(UI);
+      final String       typeName = type.name          ;
+      final String       typeDesc = sample.helpInfo()  ;
+      final int          cost     = sample.structure.buildCost();
       
-      assignPortrait(icon);
-      detailText.append(typeName+"  ");
-      detailText.append(new Description.Link("(BUILD)") {
-        public void whenClicked() { initInstallTask(UI, type); }
-      });
-      
-      detailText.append("\n\n");
-      detailText.append(typeDesc, Colour.LITE_GREY);
+      if (icon != null) text.insert(icon.texture(), 80, false);
+      text.append("\n\nFacility Name: "+typeName);
+      text.append("\nBuild cost: "+cost);
+      text.append("\n\n");
+      text.append(typeDesc, Colour.LITE_GREY);
+      text.append("\n");
       if (type.required.length > 0) {
-        detailText.appendList("\nRequires: ", (Object[]) type.required);
+        text.appendList("\nRequires: ", (Object[]) type.required);
       }
       if (type.allows().size() > 0) {
-        detailText.appendList("\nAllows: ", type.allows());
+        text.appendList("\nAllows: ", type.allows());
       }
+      
+      final Batch <Venue> built = listInstalled(type, world, true);
+      text.append("\n\nCurrently Built:");
+      if (built.size() == 0) text.append(" None");
+      else for (Venue v : built) {
+        text.append("\n  ");
+        text.append(v);
+      }
+      
+      text.append("\n\n");
+      text.append(new Description.Link("Back") {
+        public void whenClicked() { helpFor = null; }
+      });
+    }
+    else if (sampled.size() == 0) {
+      text.append("No structures available!");
+    }
+    else for (final Venue sample : sampled) {
+      final Composite    icon     = sample.portrait(UI);
+      final VenueProfile type     = sample.profile     ;
+      final String       typeName = type.name          ;
+      final int          cost     = sample.structure.buildCost();
+      
+      if (icon != null) text.insert(icon.texture(), 40, true);
+      else text.append("\n  ");
+      text.append(" "+typeName+" ("+cost+" credits)");
+      text.append("\n  ");
+      text.append(new Description.Link("(BUILD) ") {
+        public void whenClicked() { initInstallTask(UI, type); }
+      });
+      text.append(new Description.Link("(INFO) ") {
+        public void whenClicked() { helpFor = sample; }
+      });
     }
   }
   

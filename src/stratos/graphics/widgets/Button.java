@@ -36,7 +36,8 @@ public class Button extends Image {
     hoverLit = DEFAULT_HOVER_ALPHA,
     pressLit = DEFAULT_PRESS_ALPHA;
   public boolean
-    enabled = true;
+    enabled = true ,
+    toggled = false;
   
   
   public Button(HUD UI, ImageAsset norm, String infoS) {
@@ -131,6 +132,9 @@ public class Button extends Image {
     super.renderTex(texture, absAlpha, pass);
     if (! enabled) {
       super.renderTex(greyed, 1, pass);
+    }
+    else if (toggled) {
+      super.renderTex(highlit, 1, pass);
     }
     else if (amPressed() || amDragged() || amClicked()) {
       super.renderTex(highlit, pressLit * absAlpha, pass);

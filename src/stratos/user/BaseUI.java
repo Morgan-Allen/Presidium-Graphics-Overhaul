@@ -83,17 +83,17 @@ public class BaseUI extends HUD implements UIConstants {
   public void loadState(Session s) throws Exception {
     final Base played = (Base) s.loadObject();
     assignBaseSetup(played, null);
-    tracking  .loadState(s);
-    selection .loadState(s);
-    //commsPanel.loadState(s);
+    tracking .loadState(s);
+    selection.loadState(s);
+    reminders.loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObject(played);
-    tracking  .saveState(s);
-    selection .saveState(s);
-    //commsPanel.saveState(s);
+    tracking .saveState(s);
+    selection.saveState(s);
+    reminders.saveState(s);
   }
   
   

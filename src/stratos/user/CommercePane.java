@@ -26,7 +26,7 @@ public class CommercePane extends SelectionPane {
   
   
   public CommercePane(BaseUI UI) {
-    super(UI, null, false, false, CATEGORIES);
+    super(UI, null, false, false, 0, CATEGORIES);
   }
   
   

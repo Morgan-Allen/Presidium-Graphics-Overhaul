@@ -26,7 +26,7 @@ public class PowersPane extends SelectionPane {
   
   
   public PowersPane(BaseUI UI) {
-    super(UI, null, false, false);
+    super(UI, null, false, false, 0);
   }
   
   

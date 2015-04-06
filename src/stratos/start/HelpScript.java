@@ -20,18 +20,15 @@ import java.lang.reflect.*;
 
 
 
+//  TODO:  Allow inclusion of images in the messages.
+//  TODO:  Disable shipping until the player is ready.
+
+//  TODO:  Require messages be actively dismissed before going to the 'old
+//         messages' queue (and possibly before new messages can be presented?)
+//  TODO:  Include the various adaptive tips!
+//  TODO:  Have a general flags/triggers table to clarify saving/loading.
+
 /*
-
-*  Use a linear sequence with much more detail on specific, simple steps.  You
-   want to cover-
-   * Basic Navigation and UI Features (access to game inputs and readouts.)
-   * Building & Upgrades (space management.)
-   * Recruitment & Missions (indirect control, motivation.)
-   * Inital objectives (security, basic housing, turning a profit.)
-   
-   Just don't railroad the player if they want to wander off and explore the
-   game's mechanics themselves.
-
 *  More feedback on needs and settlement demands.  (Notifications or an RCI
    indicator of some sort are needed.)  You need feedback for-
      *  Citizen needs   / no food source (imports or grown.)
@@ -44,7 +41,7 @@ import java.lang.reflect.*;
 //*/
 
 
-public class TutorialScript {
+public class HelpScript {
   
   final static String
     SCRIPT_FILE = "media/Help/TutorialScript.xml";
@@ -54,25 +51,20 @@ public class TutorialScript {
   private class Topic {
     XML sourceNode;
     String title;
-    DialoguePane message;
+    MessagePane message;
     
-    boolean urgent  = false;
-    Method trigger  = null ;
-    boolean didPush = false;
+    boolean urgent    = false;
+    boolean triggered = false;
+    Method trigger  = null;
+    Method onOpen   = null;
   }
   
   final Table <String, Topic> allTopics = new Table <String, Topic> ();
   
   
-  protected TutorialScript(TutorialScenario tutorial) {
+  protected HelpScript(TutorialScenario tutorial) {
     this.tutorial = tutorial;
     final XML xml = XML.load(SCRIPT_FILE);
-
-    I.say("ALL METHODS ARE: ");
-    for (Method m : getClass().getDeclaredMethods()) {
-      I.say("  "+m);
-    }
-    
     
     for (XML topicNode : xml.allChildrenMatching("topic")) {
       final Topic topic = loadTopic(topicNode);
@@ -89,7 +81,7 @@ public class TutorialScript {
     topic.urgent     = topicNode.getBool("urgent");
     //
     //  Trigger-methods are used to decide when the topic in question should be
-    //  presented to the player, and don't always need to be included..
+    //  presented to the player, and don't always need to be included.
     final String triggerName = topicNode.value("trigger");
     if (triggerName == null) topic.trigger = null;
     else try { topic.trigger = getClass().getDeclaredMethod(triggerName); }
@@ -98,45 +90,96 @@ public class TutorialScript {
       topic.trigger = null;
     }
     //
+    //  On-open methods, as the name suggests, are called when a message is
+    //  first viewed (and not before.)
+    final String onOpenName = topicNode.value("onOpen");
+    if (onOpenName == null) topic.onOpen = null;
+    else try { topic.onOpen = getClass().getDeclaredMethod(onOpenName); }
+    catch (Exception e) {
+      I.say("\nWARNING:  No matching on-open method: "+onOpenName);
+      topic.onOpen = null;
+    }
+    //
     //  We construct the message-panes themselves on demand, since the BaseUI
     //  might not have been initiated yet (see below.)
     return topic;
   }
   
   
-  protected DialoguePane messageFor(String title, final BaseUI UI) {
+  protected void loadState(Session s) throws Exception {
+    for (int n = s.loadInt(); n-- > 0;) {
+      final String key = s.loadString();
+      final Topic topic = allTopics.get(key);
+      topic.triggered = s.loadBool();
+    }
+    this.loadAllFlags(s);
+  }
   
+  
+  protected void saveState(Session s) throws Exception {
+    s.saveInt(allTopics.size());
+    for (Topic t : allTopics.values()) {
+      s.saveString(t.title);
+      s.saveBool(t.triggered);
+    }
+    this.saveAllFlags(s);
+  }
+  
+  
+  protected MessagePane messageFor(String title) {
+    
     final Topic topic = allTopics.get(title);
     if (topic == null) return null;
     if (topic.message != null) return topic.message;
     
-    //
-    //  TODO:  ALLOW INCLUSION OF IMAGES/SCREENSHOTS WITHIN THE MESSAGE!
-    
     final String content = topic.sourceNode.child("content").content();
     final Batch <Clickable> links = new Batch <Clickable> ();
+
     
-    for (XML linkNode : topic.sourceNode.allChildrenMatching("link")) {
-      final String linkKey  = linkNode.value("name");
-      final String linkName = linkNode.content();
-      
-      links.add(new Clickable() {
+    //  I also want links to dismiss a message, and links to view all messages.
+    //  But... those need to be added to all message-panels.
+    
+    //  Well, not dialogue panels.  Which should probably be a different class
+    //  entirely?
+    
+    //  ...Yeah.  Dialogue panels need to be a different class.
+    
+    //  Also, image insertion!
+    
+    for (XML node : topic.sourceNode.children()) {
+      if (node.tag().equals("content")) {
         
-        public String fullName() {
-          return linkName;
+      }
+      if (node.tag().equals("image")) {
+        
+      }
+      if (node.tag().equals("link")) {
+        final String linkKey  = node.value("name");
+        final String linkName = node.content();
+        final Topic  linked   = allTopics.get(linkKey);
+        if (linked == null) {
+          I.say("\n  WARNING: NO TOPIC MATCHING "+linkKey);
         }
-        
-        public void whenClicked() {
-          final DialoguePane message = messageFor(linkKey, UI);
-          if (message != null) {
-            UI.setInfoPanels(message, null);
+        else links.add(new Description.Link(linkName) {
+          public void whenClicked() {
+            UI().reminders().retireMessage(topic.message);
+            pushTopicMessage(linked, true);
           }
-          else I.say("\nNO TOPIC MATCHING: "+linkKey);
-        }
-      });
+        });
+      }
     }
-    return topic.message = new DialoguePane(
-      UI, null, topic.title, content, null, links
+    
+    //  TODO:  I need a subclass of message-pane for this purpose.  One that
+    //  will show time and date.
+    links.add(new Description.Link("Dismiss") {
+      public void whenClicked() {
+        UI().reminders().retireMessage(topic.message);
+        UI().setInfoPanels(null, null);
+      }
+    });
+    
+    return topic.message = new MessagePane(
+      UI(), null, topic.title, content, null, tutorial, links
     );
   }
   
@@ -150,7 +193,7 @@ public class TutorialScript {
     //  goes wrong, which java would not otherwise allow.)
     final Topic topics[] = new Topic[allTopics.size()];
     for (Topic topic : allTopics.values().toArray(topics)) {
-      if (topic.trigger == null || topic.didPush) continue;
+      if (topic.trigger == null || topic.triggered) continue;
       
       boolean didTrigger = false;
       try {
@@ -162,52 +205,65 @@ public class TutorialScript {
         allTopics.remove(topic.title);
       }
       
-      if (didTrigger && pushMessage(topic.title, topic.urgent, true)) {
-        topic.didPush = true;
+      if (didTrigger) {
+        pushTopicMessage(topic, true);
       }
     }
   }
   
   
-  private boolean pushMessage(
-    String eventKey, boolean urgent, boolean viewNow
-  ) {
+  private void pushTopicMessage(Topic topic, boolean viewNow) {
     final ReminderListing reminders = UI().reminders();
-    if (! reminders.hasMessageEntry(eventKey)) {
-      final DialoguePane message = messageFor(eventKey, UI());
-      if (message == null) return false;
-      if (viewNow) UI().setInfoPanels(message, null);
-      reminders.addMessageEntry(message, urgent);
-      return true;
+    final MessagePane message = messageFor(topic.title);
+    if (message == null) return;
+    topic.triggered = true;
+    
+    if (! reminders.hasMessageEntry(topic.title)) {
+      reminders.addMessageEntry(message, topic.urgent);
+      
+      if (topic.onOpen != null) try { topic.onOpen.invoke(this); }
+      catch (Exception e) { I.report(e); }
     }
-    return false;
+    if (viewNow) UI().setInfoPanels(message, null);
   }
-  
-  
-  private boolean isViewing(String messageKey) {
-    return messageKey.equals(UI().reminders().onScreenMessageKey());
-  }
-  
   
   
   
   /**  Trigger-methods that determine when to display certain topics (specified
     *  in the XML.)
     */
-  private TrooperLodge barracksBuilt = null;
-  private EngineerStation foundryBuilt = null;
-  private SupplyDepot depotBuilt = null;
+  private TrooperLodge    barracksBuilt = null;
+  private EngineerStation foundryBuilt  = null;
+  private SupplyDepot     depotBuilt    = null;
   private float startingBalance = -1;
   
-  private Tile startAt = null;
-  private ReconMission reconSent = null;
-  private Drone droneAttacks = null;
+  private Tile         startAt      = null;
+  private ReconMission reconSent    = null;
+  private Drone        droneAttacks = null;
   
   
-  //  TODO:  You also need setup methods for the various stages.
+  protected void loadAllFlags(Session s) throws Exception {
+    barracksBuilt   = (TrooperLodge   ) s.loadObject();
+    foundryBuilt    = (EngineerStation) s.loadObject();
+    depotBuilt      = (SupplyDepot    ) s.loadObject();
+    startingBalance = s.loadFloat();
+    
+    startAt      = (Tile        ) s.loadObject();
+    reconSent    = (ReconMission) s.loadObject();
+    droneAttacks = (Drone       ) s.loadObject();
+  }
   
-  //  Create the assaulting drone once trade is complete.
-  //  Assign upgrades and job applicants once the drone is dead.
+  
+  protected void saveAllFlags(Session s) throws Exception {
+    s.saveObject(barracksBuilt  );
+    s.saveObject(foundryBuilt   );
+    s.saveObject(depotBuilt     );
+    s.saveFloat (startingBalance);
+    
+    s.saveObject(startAt     );
+    s.saveObject(reconSent   );
+    s.saveObject(droneAttacks);
+  }
   
   
   protected boolean checkShowWelcome() {
@@ -222,8 +278,6 @@ public class TutorialScript {
     
     if (startAt == null) startAt = lookTile;
     if (Spacing.distance(lookTile, startAt) < 4) return false;
-    
-    onMotionDone();
     return true;
   }
   
@@ -245,7 +299,9 @@ public class TutorialScript {
   
   protected void onBuiltBarracks() {
     barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
-    tutorial.base().setup.fillVacancies(barracksBuilt, true);
+    tutorial.base().setup.fillVacancies(barracksBuilt   , true);
+    tutorial.base().setup.fillVacancies(tutorial.bastion, true);
+    UI().tracking.lockOn(barracksBuilt);
   }
   
   
@@ -266,6 +322,7 @@ public class TutorialScript {
     reconSent.assignPriority(Mission.PRIORITY_ROUTINE);
     for (Actor a : barracksBuilt.staff.workers()) {
       a.mind.assignMission(reconSent);
+      break;
     }
   }
   
@@ -283,7 +340,6 @@ public class TutorialScript {
   protected void onFacilitiesPlaced() {
     depotBuilt  .structure.setState(Structure.STATE_INSTALL, 0.5f);
     foundryBuilt.structure.setState(Structure.STATE_INSTALL, 0.5f);
-    tutorial.base().setup.fillVacancies(tutorial.bastion, true);
     
     for (Actor a : tutorial.bastion.staff.workers()) {
       if (a.vocation() == Backgrounds.TECHNICIAN) {
@@ -318,12 +374,11 @@ public class TutorialScript {
     if (DS.demandFor(imp) == 0 || DS.producer(imp) == true ) return false;
     if (DS.demandFor(exp) == 0 || DS.producer(exp) == false) return false;
     
-    onTradeSetup();
     return true;
   }
   
   
-  protected void onTradeSetup() {
+  protected void onBaseAttackOpen() {
     final Base artilects = Base.artilects(world());
     droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
     
@@ -334,15 +389,17 @@ public class TutorialScript {
     final Combat assault = new Combat(droneAttacks, barracksBuilt);
     assault.addMotives(Plan.MOTIVE_EMERGENCY, 100);
     droneAttacks.mind.assignBehaviour(assault);
-    UI().tracking.lockOn(barracksBuilt);
+    UI().selection.pushSelection(droneAttacks);
     
     barracksBuilt.structure.addUpgrade(TrooperLodge.VOLUNTEER_STATION);
     barracksBuilt.structure.addUpgrade(TrooperLodge.MARKSMAN_TRAINING);
-    barracksBuilt.structure.addUpgrade(TrooperLodge.MARKSMAN_TRAINING);
     barracksBuilt.structure.addUpgrade(TrooperLodge.TROOPER_STATION  );
-    barracksBuilt.structure.addUpgrade(TrooperLodge.TROOPER_STATION  );
-    barracksBuilt.structure.addUpgrade(TrooperLodge.TROOPER_STATION  );
-    tutorial.base().setup.fillVacancies(barracksBuilt, false);
+    
+    final Base base = tutorial.base();
+    for (int n = 3; n-- > 0;) {
+      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
+      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
+    }
   }
   
   
@@ -354,9 +411,7 @@ public class TutorialScript {
   
   
   protected boolean checkRuinsDestroyed() {
-    for (Venue ruin : tutorial.ruins) {
-      if (ruin.structure.intact()) return false;
-    }
+    if (tutorial.ruins.structure.intact()) return false;
     return true;
   }
   
@@ -486,6 +541,14 @@ public class TutorialScript {
     //    *  Offworld missions.
     //*/
 
+
+
+
+/*
+private boolean isViewing(String messageKey) {
+  return messageKey.equals(UI().reminders().onScreenMessageKey());
+}
+//*/
 
 
 

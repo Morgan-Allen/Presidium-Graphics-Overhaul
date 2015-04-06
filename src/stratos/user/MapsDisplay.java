@@ -50,6 +50,8 @@ public class MapsDisplay extends UIGroup {
   final Minimap minimap;
   final int RGBA[][];
   
+  //private Image cameraBox;
+  
   
   public MapsDisplay(BaseUI UI, Stage world, Base base) {
     super(UI);
@@ -73,8 +75,8 @@ public class MapsDisplay extends UIGroup {
       modeButtons[n] = b;
     }
     
-    minimap = new Minimap();
-    RGBA = new int[world.size][world.size];
+    minimap   = new Minimap();
+    RGBA      = new int[world.size][world.size];
   }
   
   
@@ -122,23 +124,42 @@ public class MapsDisplay extends UIGroup {
       minimap.updateTexture(WS, RGBA);
     }
     lastTime = time;
-    
+
+    updateCameraBox();
     minimap.updateGeometry(bounds);
     minimap.renderWith(base.intelMap.fogOver());
     batch2d.begin();
+    
     super.render(batch2d);
+  }
+  
+  
+  private void updateCameraBox() {
+    final Vec3D p = UI.rendering.view.lookedAt;
+    final Tile t = world.tileAt(p.x, p.y);
+    Coord centre = minimap.getScreenPosition(t.x, t.y, world.size, bounds);
+    final float
+      tileWidthOnMap    = bounds.xdim() / world.size,
+      tileWidthOnScreen = UI.rendering.view.screenScale() * Nums.sqrt(2),
+      cameraAngle       = Nums.toRadians(Viewport.DEFAULT_ELEVATE),
+      screenRatio       = UI.ydim() * 1f / UI.xdim(),
+      boxWide           = tileWidthOnMap * UI.xdim() / tileWidthOnScreen,
+      boxHigh           = boxWide * screenRatio / Nums.sin(cameraAngle);
+    
+    minimap.updateCameraBox(new Box2D(
+      centre.x - (boxWide / 2),
+      centre.y - (boxHigh / 2),
+      boxWide, boxHigh
+    ), UI.xdim(), UI.ydim());
   }
   
   
   protected String info() {
     return mapTip;
   }
-
-
-
-
-
-
+  
+  
+  
   /**  Utility methods for getting appropriate tile-colours for various display
     *  modes...
     */

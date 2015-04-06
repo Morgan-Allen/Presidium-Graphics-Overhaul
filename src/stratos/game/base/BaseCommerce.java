@@ -244,6 +244,12 @@ public class BaseCommerce {
   }
   
   
+  public void addCandidate(Actor applies, Venue at, Background position) {
+    candidates.add(applies);
+    FindWork.assignAmbition(applies, position, at, 2.0f);
+  }
+  
+  
   
   /**  Assessing supply and demand associated with goods-
     */

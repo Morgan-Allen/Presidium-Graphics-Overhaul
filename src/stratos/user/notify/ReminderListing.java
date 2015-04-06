@@ -4,12 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user.notify;
+import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.graphics.widgets.Text.Clickable;
 import stratos.game.base.*;
-import stratos.game.common.Session.Saveable;
+import stratos.graphics.widgets.Text.Clickable;
 
 
 
@@ -24,14 +24,32 @@ public class ReminderListing extends UIGroup {
   
   final BaseUI UI;
   final List <Entry> entries = new List <Entry> ();
-  final List <DialoguePane>
-    oldMessages = new List <DialoguePane> (),
-    newMessages = new List <DialoguePane> ();
+  final List <MessagePane>
+    oldMessages = new List <MessagePane> (),
+    newMessages = new List <MessagePane> ();
   
   
   public ReminderListing(BaseUI UI) {
     super(UI);
     this.UI = UI;
+  }
+  
+  
+  public void loadState(Session s) throws Exception {
+    for (int n = s.loadInt(); n-- > 0;) {
+      oldMessages.add(MessagePane.loadMessage(s, UI));
+    }
+    for (int n = s.loadInt(); n-- > 0;) {
+      newMessages.add(MessagePane.loadMessage(s, UI));
+    }
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    s.saveInt(oldMessages.size());
+    for (MessagePane m : oldMessages) MessagePane.saveMessage(m, s);
+    s.saveInt(newMessages.size());
+    for (MessagePane m : newMessages) MessagePane.saveMessage(m, s);
   }
   
   
@@ -78,8 +96,8 @@ public class ReminderListing extends UIGroup {
     if (refers instanceof Mission) {
       entry = new MissionReminder(UI, (Mission) refers);
     }
-    if (refers instanceof DialoguePane) {
-      entry = new CommsReminder(UI, refers, (DialoguePane) refers);
+    if (refers instanceof MessagePane) {
+      entry = new CommsReminder(UI, refers, (MessagePane) refers);
     }
     if (refers == oldMessages) {
       entry = new CommsReminder(UI, oldMessages, forOldMessages());
@@ -107,7 +125,7 @@ public class ReminderListing extends UIGroup {
     if (oldMessages.size() > 0) {
       needShow.add(oldMessages);
     }
-    for (DialoguePane o : newMessages) {
+    for (MessagePane o : newMessages) {
       needShow.add(o);
     }
     //
@@ -154,7 +172,7 @@ public class ReminderListing extends UIGroup {
       down += e.high + padding;
     }
     
-    checkMessageDismissed();
+    checkMessageRead();
     updateOldMessages();
     super.updateState();
   }
@@ -163,30 +181,20 @@ public class ReminderListing extends UIGroup {
   
   /**  Utility methods for message dialogues:
     */
-  private String lastViewedMessageKey = null;
-  
-  
-  private DialoguePane forOldMessages() {
-    final DialoguePane pane = new DialoguePane(
-      UI, null, "Old Messages", "", null
+  private MessagePane forOldMessages() {
+    final MessagePane pane = new MessagePane(
+      UI, null, "Old Messages", "", null, null
     );
     return pane;
   }
   
   
-  private void checkMessageDismissed() {
-    String keyNow  = onScreenMessageKey();
-    String lastKey = lastViewedMessageKey;
-    if (lastKey != null && ! lastKey.equals(keyNow)) {
-      I.say("\nRETIRING MESSAGE FOR: "+lastKey);
-      retireMessage(messageEntryFor(lastKey));
-    }
-    if (keyNow != null) {
-      final DialoguePane  pane  = messageEntryFor(keyNow);
-      final CommsReminder entry = (CommsReminder) entryFor(pane);
-      if (entry != null) entry.setFlash(false);
-    }
-    lastViewedMessageKey = hasMessageEntry(keyNow) ? keyNow : null;
+  private void checkMessageRead() {
+    if (! (UI.currentPane() instanceof MessagePane)) return;
+    final MessagePane message = (MessagePane) UI.currentPane();
+    final CommsReminder entry = (CommsReminder) entryFor(message);
+    if (entry == null) return;
+    entry.setFlash(false);
   }
   
   
@@ -198,7 +206,7 @@ public class ReminderListing extends UIGroup {
     entry.setFlash(false);
     
     final Batch <Clickable> links = new Batch <Clickable> ();
-    for (final DialoguePane panel : oldMessages) {
+    for (final MessagePane panel : oldMessages) {
       final Clickable link = new Clickable() {
         
         public String fullName() {
@@ -215,11 +223,11 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  public DialoguePane messageEntryFor(String messageKey) {
-    for (DialoguePane message : newMessages) {
+  public MessagePane messageEntryFor(String messageKey) {
+    for (MessagePane message : newMessages) {
       if (message.title.equals(messageKey)) return message;
     }
-    for (DialoguePane message : oldMessages) {
+    for (MessagePane message : oldMessages) {
       if (message.title.equals(messageKey)) return message;
     }
     return null;
@@ -231,19 +239,16 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  public String onScreenMessageKey() {
-    if (! (UI.currentPane() instanceof DialoguePane)) return null;
-    return ((DialoguePane) UI.currentPane()).title;
-  }
-  
-  
-  public void addMessageEntry(DialoguePane message, boolean urgent) {
+  public void addMessageEntry(MessagePane message, boolean urgent) {
+    if (message.source == null) {
+      I.complain("\nMESSAGE "+message.title+" MUST HAVE SOURCE!");
+    }
     if (urgent) newMessages.include(message);
     else        oldMessages.include(message);
   }
   
   
-  public void retireMessage(DialoguePane message) {
+  public void retireMessage(MessagePane message) {
     newMessages.remove (message);
     oldMessages.include(message);
   }

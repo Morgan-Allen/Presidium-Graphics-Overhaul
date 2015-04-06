@@ -2,18 +2,18 @@
 
 package stratos.game.plans;
 import stratos.game.base.*;
-import stratos.game.base.LawUtils.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
-import stratos.user.*;
-import stratos.user.notify.DialoguePane;
-import stratos.util.*;
 import stratos.game.economic.*;
+import stratos.game.base.LawUtils.*;
+import stratos.user.*;
+import stratos.user.notify.*;
+import stratos.util.*;
 import stratos.util.Description.Link;
 
 
 
-public class Summons extends Plan {
+public class Summons extends Plan implements MessagePane.MessageSource {
   
   
   private static boolean
@@ -84,6 +84,12 @@ public class Summons extends Plan {
     this.timeStayed = time;
     this.stayUntil  = -1;
     this.sentence   = sentence;
+  }
+  
+  
+  public MessagePane messageFor(String title, BaseUI UI) {
+    //  TODO:  IMPLEMENT THIS!
+    return null;
   }
   
   
@@ -215,12 +221,12 @@ public class Summons extends Plan {
   }
   
   
-  private static boolean checkForDialogueEntry(Actor actor, Boarding stays) {
+  private boolean checkForDialogueEntry(Actor actor, Boarding stays) {
     final Base base = stays.base();
     final Mission match = base.matchingMission(actor, ContactMission.class);
     if (
       (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
-      stays == base.HQ() && ! DialoguePane.hasFocus(actor)
+      stays == base.HQ() && ! MessagePane.hasFocus(actor)
     ) {
       final BaseUI UI = BaseUI.current();
       configDialogueFor(UI, actor, true);
@@ -273,8 +279,9 @@ public class Summons extends Plan {
   
   
   
-  
-  public static DialoguePane configDialogueFor(
+  /**  Helper methods for dialogue-construction
+    */
+  private MessagePane configDialogueFor(
     final BaseUI UI, final Actor with, boolean pushNow
   ) {
     final Stack <Link> responses = new Stack();
@@ -315,9 +322,9 @@ public class Summons extends Plan {
       }
     });
     
-    final DialoguePane panel = new DialoguePane(
+    final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with,
-      "Yes, my liege?", with,
+      "Yes, my liege?", with, this,
       responses
     );
     if (pushNow) UI.setInfoPanels(panel, null);
@@ -325,7 +332,7 @@ public class Summons extends Plan {
   }
   
   
-  static void pushGiftDialogue(
+  private void pushGiftDialogue(
     final BaseUI UI, final Actor with, String lead
   ) {
     final Stack <Link> responses = new Stack <Link> ();
@@ -340,20 +347,20 @@ public class Summons extends Plan {
         }
     });
     
-    final DialoguePane panel = new DialoguePane(
+    final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with,
-      lead, with, responses
+      lead, with, this, responses
     );
     UI.setInfoPanels(panel, null);
   }
   
   
-  static void pushGiftResponse(
+  private void pushGiftResponse(
     final BaseUI UI, final Actor with, String lead
   ) {
-    final DialoguePane panel = new DialoguePane(
+    final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with,
-      lead, with,
+      lead, with, this,
       new Link("Very well, then...") {
         public void whenClicked() {
           configDialogueFor(UI, with, true);
@@ -364,7 +371,7 @@ public class Summons extends Plan {
   }
   
   
-  static void pushMissionDialogue(
+  private void pushMissionDialogue(
     final BaseUI UI, final Actor with, String lead
   ) {
     final Stack <Link> responses = new Stack <Link> ();
@@ -402,21 +409,20 @@ public class Summons extends Plan {
       }
     });
     
-    final DialoguePane panel = new DialoguePane(
+    final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with,
-      lead, with, responses
+      lead, with, this, responses
     );
     UI.setInfoPanels(panel, null);
   }
   
   
-  static void pushMissionResponse(
+  private void pushMissionResponse(
     final BaseUI UI, final Actor with, final Mission taken
   ) {
-    //final Actor ruler = UI.played().ruler();
-    final DialoguePane panel = new DialoguePane(
+    final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with,
-      "My pleasure, your grace.", with,
+      "My pleasure, your grace.", with, this,
       new Link("Very well, then...") {
         public void whenClicked() {
           UI.selection.pushSelection(taken);

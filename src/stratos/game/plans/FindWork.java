@@ -15,11 +15,6 @@ import static stratos.game.economic.Economy.*;
 
 
 
-
-//  TODO:  Just have immigrants arrive on a world looking for work, with the
-//  likelihood based on supply/demand, and let them fend for themselves on
-//  arrival?
-
 public class FindWork extends Plan {
   
   
@@ -78,6 +73,14 @@ public class FindWork extends Plan {
   
   public int hiringFee() {
     return hireFee;
+  }
+  
+  
+  public boolean requiresApproval() {
+    if (position == null || employer == null) return false;
+    else if (position.standing >= Backgrounds.CLASS_AGENT) return true;
+    else if (actor.vocation() != position) return true;
+    else return false;
   }
   
   

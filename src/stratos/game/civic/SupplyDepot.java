@@ -72,6 +72,8 @@ public class SupplyDepot extends Venue {
     sprite.attach(MODEL_CORE , 0.1f, -0.1f,  0    );
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
+    
+    for (Traded t : ALL_TRADE_TYPES) stocks.forceDemand(t, 0, false);
   }
   
   

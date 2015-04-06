@@ -114,21 +114,21 @@ public class VenuePane extends SelectionPane {
           if (I.logEvents()) I.say("\n"+t+" IS BEING IMPORTED AT "+v);
           v.stocks.forceDemand(t, minTrade, false);
         }
-      }, Colour.GREEN);
+      }, Colour.LITE_GREEN);
       
       else if (demands == true) d.append(new Description.Link("IMPORTS") {
         public void whenClicked() {
           if (I.logEvents()) I.say("\n"+t+" IS NOT BEING TRADED AT "+v);
           v.stocks.forceDemand(t, 0, false);
         }
-      }, Colour.BLUE);
+      }, Colour.LITE_RED  );
       
       else d.append(new Description.Link("NO TRADE") {
         public void whenClicked() {
           if (I.logEvents()) I.say("\n"+t+" IS BEING EXPORTED AT "+v);
           v.stocks.forceDemand(t, minTrade, true);
         }
-      }, Colour.MAGENTA);
+      }, Colour.LITE_BLUE );
       
       final float amount = v.stocks.amountOf(t);
       d.append(" "+I.shorten(amount, 1)+"/");

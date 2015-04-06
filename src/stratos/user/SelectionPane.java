@@ -53,7 +53,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
   }
   
   
-  
   final protected BaseUI UI;
   final protected Selectable selected;
   
@@ -78,26 +77,27 @@ public class SelectionPane extends UIGroup implements UIConstants {
     final Composite portrait,
     boolean hasListing, String... categories
   ) {
-    this(UI, selected, portrait != null, hasListing, categories);
+    this(UI, selected, portrait != null, hasListing, 0, categories);
     this.portrait = portrait;
   }
   
   
   public SelectionPane(
     final BaseUI UI, Selectable selected,
-    boolean hasPortrait, boolean hasListing,
+    boolean hasPortrait, boolean hasListing, int topPadding,
     String... categories
   ) {
     super(UI);
     this.UI = UI;
     this.alignVertical(0, PANEL_TABS_HIGH);
     this.alignRight   (0, INFO_PANEL_WIDE);
-    
-    int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
-    down += HEADER_HIGH;
+
     final int
+      TP = topPadding,
       TM = 40, BM = 40,  //top and bottom margins
       LM = 40, RM = 40;  //left and right margins
+    int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
+    down += HEADER_HIGH + TP;
     
     this.border = new Bordering(UI, BORDER_TEX);
     border.left   = LM;
@@ -114,8 +114,8 @@ public class SelectionPane extends UIGroup implements UIConstants {
     innerRegion.attachTo(border.inside);
     
     headerText = new Text(UI, BaseUI.INFO_FONT);
-    headerText.alignTop   (0, HEADER_HIGH);
-    headerText.alignAcross(0, 1          );
+    headerText.alignTop   (TP, HEADER_HIGH);
+    headerText.alignAcross(0 , 1          );
     headerText.scale = BIG_FONT_SIZE;
     headerText.attachTo(innerRegion);
     
@@ -127,8 +127,8 @@ public class SelectionPane extends UIGroup implements UIConstants {
           portrait.drawTo(batch2d, bounds, absAlpha);
         }
       };
-      portraitFrame.alignTop (HEADER_HIGH, PORTRAIT_SIZE);
-      portraitFrame.alignLeft(0          , PORTRAIT_SIZE);
+      portraitFrame.alignTop (HEADER_HIGH + TP, PORTRAIT_SIZE);
+      portraitFrame.alignLeft(0               , PORTRAIT_SIZE);
       portraitFrame.attachTo(innerRegion);
     }
     else {

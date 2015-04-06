@@ -172,7 +172,7 @@ public class SaveUtils {
               I.say("  Loaded scenario is: "+loaded);
               done = true;
             }
-            catch (Exception e) { I.report(e); }
+            catch (Exception e) { e.printStackTrace(); }
           }
         };
         loadThread.start();

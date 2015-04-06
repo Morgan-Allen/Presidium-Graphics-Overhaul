@@ -34,7 +34,7 @@ public class RosterPane extends SelectionPane {
   
   
   public RosterPane(BaseUI UI) {
-    super(UI, null, false, false, ALL_CATS);
+    super(UI, null, false, false, 0, ALL_CATS);
   }
   
   

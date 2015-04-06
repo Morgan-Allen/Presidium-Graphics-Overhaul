@@ -13,22 +13,20 @@ import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
-import static stratos.start.TutorialScript.*;
 
 
 
-
-public class TutorialScenario extends StartupScenario {
+public class TutorialScenario extends StartupScenario implements
+  MessagePane.MessageSource
+{
   
   private static boolean
     verbose          = false,
     objectiveVerbose = false;
   
   Bastion bastion;
-  Batch <Ruins> ruins;
-  Batch <NativeHut> huts;
-  
-  final TutorialScript script = new TutorialScript(this);
+  Ruins ruins;
+  private HelpScript script;
   
   
   public TutorialScenario(String prefix) {
@@ -38,15 +36,32 @@ public class TutorialScenario extends StartupScenario {
   
   public TutorialScenario(Session s) throws Exception {
     super(s);
-    s.loadObjects(ruins = new Batch <Ruins    > ());
-    s.loadObjects(huts  = new Batch <NativeHut> ());
+    bastion = (Bastion) s.loadObject();
+    ruins   = (Ruins  ) s.loadObject();
+    script().loadState(s);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObjects(ruins);
-    s.saveObjects(huts );
+    s.saveObject(bastion);
+    s.saveObject(ruins  );
+    script().saveState(s);
+  }
+  
+  
+  protected HelpScript script() {
+    //
+    //  NOTE:  We may have to initialise the script here, as save/load calls
+    //  for messages in the ReminderListing can be invoked before the class-
+    //  constructor has finished.
+    if (script == null) script = new HelpScript(this);
+    return script;
+  }
+  
+  
+  public MessagePane messageFor(String title, BaseUI UI) {
+    return script().messageFor(title);
   }
   
   
@@ -61,21 +76,12 @@ public class TutorialScenario extends StartupScenario {
     config.siteLevel  = SITE_WILDERNESS ;
     config.titleLevel = TITLE_KNIGHTED  ;
     config.fundsLevel = FUNDING_GENEROUS;
-
-    //  TODO:  ESTABLISH THESE LATER.
-    /*
-    config.crew.set(Backgrounds.TROOPER   , 2);
-    config.crew.set(Backgrounds.TECHNICIAN, 3);
-    config.crew.set(Backgrounds.AUDITOR   , 1);
-    config.advisors.add(Backgrounds.FIRST_CONSORT);
-    //*/
     return config;
   }
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
-    if (showMessages()) registerAllTopics();
   }
   
   
@@ -84,14 +90,6 @@ public class TutorialScenario extends StartupScenario {
     List <Human> advisors, List <Human> colonists
   ) {
     bastion = super.establishBastion(world, base, ruler, advisors, colonists);
-    
-    //  TODO:  ESTABLISH THESE LATER.
-    /*
-    ruler.skills.addTechnique(Power.REMOTE_VIEWING);
-    ruler.skills.addTechnique(Power.SUSPENSION    );
-    ruler.skills.addTechnique(Power.FORCEFIELD    );
-    ruler.skills.addTechnique(Power.TELEKINESIS   );
-    //*/
     return bastion;
   }
   
@@ -99,19 +97,9 @@ public class TutorialScenario extends StartupScenario {
   protected void establishLocals(Stage world) {
     
     final BaseSetup AS = Base.artilects(world).setup;
-    ruins = new Batch <Ruins> ();
     final VenueProfile RP[] = Ruins.VENUE_PROFILES;
-    Visit.appendTo(ruins, AS.doPlacementsFor(RP[0], 1));
+    ruins = (Ruins) AS.doPlacementsFor(RP[0], 1).first();
     AS.fillVacancies(ruins, true);
-    
-    final int tribeID = NativeHut.TRIBE_FOREST;
-    final BaseSetup NS = Base.natives(world, tribeID).setup;
-    huts = new Batch <NativeHut> ();
-    final VenueProfile NP[] = NativeHut.VENUE_PROFILES[tribeID];
-    Visit.appendTo(huts, NS.doPlacementsFor(NP[0], 2));
-    Visit.appendTo(huts, NS.doPlacementsFor(NP[1], 3));
-    NS.fillVacancies(huts, true);
-    for (NativeHut hut : huts) NS.establishRelationsAt(hut);
   }
   
   
@@ -120,69 +108,37 @@ public class TutorialScenario extends StartupScenario {
     */
   public void updateGameState() {
     super.updateGameState();
-    script.checkForFlags();
-  }
-  
-  
-  /**  Monitoring and updates-
-    */
-  protected boolean showMessages() { return true; }
-  
-  
-  //  Hang on.  Sunil specifically said he wanted to see all topics listed.  So
-  //  that is what I should do.  Have them available in a back-catalogue at
-  //  least.
-  private void registerAllTopics() {
-    /*
-    final CommsPane comms = UI().commsPanel();
-    for (String topicKey : ALL_TOPIC_TITLES) {
-      final DialoguePane panel = comms.messageWith(topicKey);
-      if (panel != null) continue;
-      comms.addMessage(this, topicKey, messageFor(topicKey, comms, false));
-    }
-    //*/
+    script().checkForFlags();
   }
 }
 
 
 
+
+//  TODO:  Save security and contact missions, plus handling natives, for an
+//  intermediate/advanced tutorial where you move on to another map.
+
+//  TODO:  Include psychic powers and one of the Schools (Shapers?) as well.
 /*
-if (showMessages()) {
-  pushMessage(EVENT_WELCOME, true);
-  int numObjectives = 0;
-  if (checkSecurityObjective()) {
-    pushMessage(EVENT_SECURITY_DONE, true);
-    numObjectives++;
-  }
-  if (checkEconomicObjective()) {
-    pushMessage(EVENT_ECONOMY_DONE, true);
-    numObjectives++;
-  }
-  if (numObjectives >= 2) {
-    pushMessage(EVENT_CONGRATULATIONS, true);
-  }
-  //I.say("\nTotal objectives: "+numObjectives+"/"+3);
-}
+ruler.skills.addTechnique(Power.REMOTE_VIEWING);
+ruler.skills.addTechnique(Power.SUSPENSION    );
+ruler.skills.addTechnique(Power.FORCEFIELD    );
+ruler.skills.addTechnique(Power.TELEKINESIS   );
 //*/
 
 /*
-private boolean checkSecurityObjective() {
-  final boolean report = objectiveVerbose;
-  int numRuins = 0, numRazed = 0;
-  
-  for (Ruins ruin : ruins) {
-    numRuins++;
-    if (ruin.destroyed()) numRazed++;
-  }
-  
-  if (report) {
-    I.say("\nChecking security objective:");
-    I.say("  "+numRazed+"/"+numRuins+" destroyed.");
-  }
-  return numRazed == numRuins;
-}
+final int tribeID = NativeHut.TRIBE_FOREST;
+final BaseSetup NS = Base.natives(world, tribeID).setup;
+huts = new Batch <NativeHut> ();
+final VenueProfile NP[] = NativeHut.VENUE_PROFILES[tribeID];
+Visit.appendTo(huts, NS.doPlacementsFor(NP[0], 2));
+Visit.appendTo(huts, NS.doPlacementsFor(NP[1], 3));
+NS.fillVacancies(huts, true);
+for (NativeHut hut : huts) NS.establishRelationsAt(hut);
+//*/
 
 
+/*
 private boolean checkContactObjective() {
   final boolean report = objectiveVerbose;
   int numHuts = 0, numRazed = 0, numConverts = 0;
@@ -199,31 +155,6 @@ private boolean checkContactObjective() {
     I.say("  "+numRazed+" razed, "+numConverts+" converted.");
   }
   return (numRazed + numConverts) == numHuts;
-}
-
-
-private boolean checkEconomicObjective() {
-  final boolean report = objectiveVerbose;
-  final int needLevel = HoldingUpgrades.LEVEL_PYON;
-  int numHoldings = 0, totalLevel = 0;
-  
-  final Tile t = world().tileAt(0, 0);
-  for (Object o : world().presences.matchesNear(Holding.class, t, -1)) {
-    final Holding h = (Holding) o;
-    if (h.base() != base()) continue;
-    numHoldings++;
-    totalLevel += h.upgradeLevel();
-  }
-  
-  final int avgLevel = numHoldings == 0 ? 0 : (totalLevel / numHoldings);
-  if (report) {
-    I.say("\nChecking economic objective:");
-    I.say("  "+numHoldings+" total holdings, total levels: "+totalLevel);
-    I.say("  Average level: "+avgLevel+"/"+needLevel);
-    I.say("  Current credits: "+base().finance.credits());
-  }
-  if (base().finance.credits() < 0 || numHoldings == 0) return false;
-  return avgLevel >= needLevel;
 }
 //*/
 

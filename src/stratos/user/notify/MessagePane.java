@@ -3,54 +3,77 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.widgets.Text.Clickable;
-import stratos.user.BaseUI;
-import stratos.user.SelectionPane;
-import stratos.user.UIConstants;
+import stratos.user.*;
 import stratos.util.*;
 
 
 
-public class DialoguePane extends SelectionPane implements UIConstants {
+public class MessagePane extends SelectionPane implements UIConstants {
   
   
   final String title;
   final Target focus;
+  final MessageSource source;
   
   private String initText;
   private Clickable options[];
   
   
   
-  public DialoguePane(
+  public MessagePane(
     BaseUI UI, Composite portrait,
     String title, String initText,
-    Target focus,
+    Target focus, MessageSource source,
     Series <? extends Clickable> options
   ) {
     this(
       UI, portrait, title, initText,
-      focus, options.toArray(Clickable.class)
+      focus, source, options.toArray(Clickable.class)
     );
   }
   
   
-  public DialoguePane(
+  public MessagePane(
     BaseUI UI, Composite portrait,
     String title, String initText,
-    Target focus,
+    Target focus, MessageSource source,
     Clickable... options
   ) {
     super(UI, null, portrait, false);
     this.title    = title   ;
     this.focus    = focus   ;
+    this.source   = source  ;
     this.initText = initText;
     this.options  = options ;
+  }
+  
+  
+  public static interface MessageSource extends Session.Saveable {
+    MessagePane messageFor(String title, BaseUI UI);
+  }
+  
+  
+  public static void saveMessage(
+    MessagePane message, Session s
+  ) throws Exception {
+    if (message.source == null) {
+      I.complain("\nNO SOURCE FOR MESSAGE: "+message.title);
+    }
+    s.saveObject(message.source);
+    s.saveString(message.title );
+  }
+  
+  
+  public static MessagePane loadMessage(
+    Session s, BaseUI UI
+  ) throws Exception {
+    final MessageSource source = (MessageSource) s.loadObject();
+    final String titleKey = s.loadString();
+    return source.messageFor(titleKey, UI);
   }
   
   
@@ -81,8 +104,8 @@ public class DialoguePane extends SelectionPane implements UIConstants {
   public static boolean hasFocus(Target subject) {
     final BaseUI UI = BaseUI.current();
     if (UI == null) return false;
-    if (UI.currentPane() instanceof DialoguePane) {
-      final DialoguePane panel = (DialoguePane) UI.currentPane();
+    if (UI.currentPane() instanceof MessagePane) {
+      final MessagePane panel = (MessagePane) UI.currentPane();
       return panel.focus == subject;
     }
     return false;

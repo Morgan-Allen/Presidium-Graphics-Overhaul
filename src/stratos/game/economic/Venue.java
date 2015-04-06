@@ -173,7 +173,7 @@ public abstract class Venue extends Structural implements
       if (t == null || t.reserved()) return false;
     }
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
-      if (c.owningTier() >= this.owningTier()) return false;
+      return false;
     }
     if (! checkPerimeter(world)) return false;
     final Tile e = mainEntrance();
@@ -195,10 +195,6 @@ public abstract class Venue extends Structural implements
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     if (base == null) I.complain("VENUES MUST HAVE A BASE ASSIGNED! "+this);
-    
-    for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
-      if (c.base == this.base) c.structure.beginSalvage();
-    }
     
     //  TODO:  Extend the above to non-venue fixtures as well (instead of the
     //  procedure below.)

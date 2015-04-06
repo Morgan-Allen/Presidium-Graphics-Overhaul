@@ -31,7 +31,7 @@ public abstract class Fauna extends Actor {
     MEAT_CONVERSION  = 8.0f,
     NEST_INTERVAL    = Stage.STANDARD_DAY_LENGTH;
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   
   final public Species species;

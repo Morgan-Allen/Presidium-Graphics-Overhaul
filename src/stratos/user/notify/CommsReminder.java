@@ -19,13 +19,13 @@ public class CommsReminder extends ReminderListing.Entry {
       CommsReminder.class, "media/GUI/Panels/comms_alert.png"
     );
   
-  final DialoguePane message;
+  final MessagePane message;
   final BorderedLabel label;
   private boolean doFlash = true;
   
   
   CommsReminder(
-    final BaseUI baseUI, Object refers, final DialoguePane message
+    final BaseUI baseUI, Object refers, final MessagePane message
   ) {
     super(baseUI, refers, 60, 40);
     this.message = message;
