@@ -172,11 +172,12 @@ public class MapsDisplay extends UIGroup {
   private int colourFor(Coord c) {
     final Tile t = world.tileAt(c.x, c.y);
     
-    final Colour baseTone = baseToneFor(t);
-    if (baseTone != null) return baseTone.withOpacity(1).getRGBA();
-    
     avg.set(terrainTone(t));
-    if      (mapMode == MODE_NORMAL       ) modeTone.set(avg);
+    if (mapMode == MODE_NORMAL) {
+      final Colour baseTone = baseToneFor(t);
+      if (baseTone != null) return baseTone.withOpacity(1).getRGBA();
+      else return avg.getRGBA();
+    }
     else if (mapMode == MODE_AMBIENCE_MAP ) modeTone.set(ambientTone  (t));
     else if (mapMode == MODE_FERTILITY_MAP) modeTone.set(fertilityTone(t));
     else if (mapMode == MODE_MINERALS_MAP ) modeTone.set(mineralsTone (t));
@@ -187,7 +188,7 @@ public class MapsDisplay extends UIGroup {
   
   private Colour baseToneFor(Tile t) {
     
-    if (t.onTop() instanceof Venue) {
+    if (t.onTop() instanceof Venue && t.pathType() >= Tile.PATH_HINDERS) {
       final Base b = ((Venue) t.onTop()).base();
       return b == null ? Colour.LITE_GREY : b.colour();
     }
@@ -230,11 +231,11 @@ public class MapsDisplay extends UIGroup {
       x = Nums.max(Nums.abs(a), Nums.abs(d));
     
     a = Nums.clamp((a + 10) / 20 , 0, 1); //ambience in blue
-    d = Nums.clamp( d / 10       , 0, 1);  //danger in red
-    s = Nums.clamp( s / 10       , 0, 1);  //safety in green
-    x = Nums.clamp((x + 0.5f) / 2, 0, 1);   //alpha
+    d = Nums.clamp( d / 10       , 0, 1); //danger in red
+    s = Nums.clamp( s / 10       , 0, 1); //safety in green
+    x = Nums.clamp((x + 0.5f) / 2, 0, 1); //alpha
     
-    return modeTone.set(d, s, a, x);
+    return modeTone.set(d, s, a, 1);
   }
   
   

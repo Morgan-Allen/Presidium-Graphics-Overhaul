@@ -115,37 +115,36 @@ public class DeliveryUtils {
     *  methods with shorter contracts follow below.
     */
   public static Delivery bestBulkDeliveryFrom(
-    Owner origin, Traded goods[], int baseUnit, int amountLimit,
-    Batch <? extends Owner> destinations, int numSamples
+    Owner orig, Traded goods[], int unit, int amountLimit,
+    Batch <? extends Owner> dests, int numSamples
   ) {
-    final boolean report = sampleVerbose && I.talkAbout == origin;
-    final Stage world = origin.world();
+    final boolean report = sampleVerbose && I.talkAbout == orig;
+    final Stage world = orig.world();
     Tally <Owner> ratings = new Tally <Owner> ();
     if (report) {
-      I.say("\nGetting bulk delivery for "+origin);
-      I.say("  Total destinations: "+destinations.size());
+      I.say("\nGetting bulk delivery for "+orig);
     }
     
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
-      if (destinations != null) sampled = destinations;
+      if (dests != null) sampled = dests;
       else {
         sampled = new Batch <Owner> ();
         world.presences.sampleFromMap(
-          origin, world, numSamples, sampled, good.demandKey
+          orig, world, numSamples, sampled, good.demandKey
         );
       }
       if (report) I.say("  Sample size for "+good+" is "+sampled.size());
       
-      final Owner bestDest = bestDestination(origin, sampled, good, baseUnit);
+      final Owner bestDest = bestDestination(orig, sampled, good, unit);
       if (bestDest == null) continue;
-      final float rating = rateTrading(origin, bestDest, good, baseUnit);
+      final float rating = rateTrading(orig, bestDest, good, unit, unit);
       ratings.add(rating, bestDest);
     }
     if (ratings.size() == 0) return null;
     
     final Owner destination = ratings.highestValued();
-    return fillBulkOrder(origin, destination, goods, baseUnit, amountLimit);
+    return fillBulkOrder(orig, destination, goods, unit, amountLimit);
   }
   
   
@@ -175,37 +174,36 @@ public class DeliveryUtils {
     *  with shorter contracts follow below.
     */
   public static Delivery bestBulkCollectionFor(
-    Owner destination, Traded goods[], int baseUnit, int amountLimit,
-    Batch <? extends Owner> origins, int numSamples
+    Owner dest, Traded goods[], int unit, int amountLimit,
+    Batch <? extends Owner> origs, int numSamples
   ) {
-    final boolean report = sampleVerbose && I.talkAbout == destination;
-    final Stage world = destination.world();
+    final boolean report = sampleVerbose && I.talkAbout == dest;
+    final Stage world = dest.world();
     Tally <Owner> ratings = new Tally <Owner> ();
     if (report) {
-      I.say("\nGetting bulk collection for "+destination);
-      I.say("  Total origins: "+origins.size());
+      I.say("\nGetting bulk collection for "+dest);
     }
     
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
-      if (origins != null) sampled = origins;
+      if (origs != null) sampled = origs;
       else {
         sampled = new Batch <Owner> ();
         world.presences.sampleFromMap(
-          destination, world, numSamples, sampled, good.supplyKey
+          dest, world, numSamples, sampled, good.supplyKey
         );
       }
       if (report) I.say("  Sample size for "+good+" is "+sampled.size());
       
-      final Owner bestOrig = bestOrigin(sampled, destination, good, baseUnit);
+      final Owner bestOrig = bestOrigin(sampled, dest, good, unit);
       if (bestOrig == null) continue;
-      final float rating = rateTrading(bestOrig, destination, good, baseUnit);
+      final float rating = rateTrading(bestOrig, dest, good, unit, unit);
       ratings.add(rating, bestOrig);
     }
     if (ratings.size() == 0) return null;
     
     final Owner origin = ratings.highestValued();
-    return fillBulkOrder(origin, destination, goods, baseUnit, amountLimit);
+    return fillBulkOrder(origin, dest, goods, unit, amountLimit);
   }
   
   
@@ -241,20 +239,6 @@ public class DeliveryUtils {
       I.talkAbout == destination || I.talkAbout == origin
     );
     //
-    //  I'm using an optimisation here for non-symmetric trades of single goods
-    //  (which are fairly common.)
-    if (goods.length == 1 && origin.owningTier() != destination.owningTier()) {
-      final Traded type = goods[0];
-      final float amount = Nums.min(
-        origin.inventory().amountOf(type),
-        destination.inventory().shortageOf(type)
-      );
-      if (amount <= 0) return null;
-      final Item toTake = Item.withAmount(type, amount);
-      final Delivery order = new Delivery(toTake, origin, destination);
-      return order.setWithPayment(destination, false);
-    }
-    //
     //  In essence, we take the single most demanded good at each step, and
     //  increment the size of the order for that by the base unit, until we
     //  run out of either (A) space or (B) demand for any goods.
@@ -273,7 +257,7 @@ public class DeliveryUtils {
         
         final int nextAmount = goodAmounts[i] + baseUnit;
         final float rating = rateTrading(
-          origin, destination, goods[i], nextAmount
+          origin, destination, goods[i], nextAmount, baseUnit
         );
         if (rating > bestRating) { bestRating = rating; bestIndex = i; }
         else if (rating <= 0) skip[i] = true;
@@ -303,7 +287,7 @@ public class DeliveryUtils {
   
   public static Owner bestOrigin(
     Batch <? extends Owner> origins, Owner destination,
-    Traded good, int amount
+    Traded good, int unit
   ) {
     if (origins.size() == 0) return null;
     if (destination.inventory().shortageOf(good) < 0) return null;
@@ -319,7 +303,7 @@ public class DeliveryUtils {
     for (Owner origin : origins) {
       if (origin.owningTier() == Owner.TIER_PRIVATE) continue;
       
-      final float rating = rateTrading(origin, destination, good, amount);
+      final float rating = rateTrading(origin, destination, good, unit, unit);
       if (rating > bestRating) { bestRating = rating; pick = origin; }
       if (report) I.say("  Rating for "+origin+" is "+rating);
     }
@@ -331,10 +315,10 @@ public class DeliveryUtils {
   
   public static Owner bestDestination(
     Owner origin, Batch <? extends Owner> destinations,
-    Traded good, int amount
+    Traded good, int unit
   ) {
     if (destinations.size() == 0) return null;
-    if (origin.inventory().amountOf(good) <= amount) return null;
+    if (origin.inventory().amountOf(good) <= unit) return null;
     
     final boolean report = rateVerbose && I.talkAbout == origin;
     if (report) {
@@ -347,7 +331,7 @@ public class DeliveryUtils {
     for (Owner destination : destinations) {
       if (destination.owningTier() == Owner.TIER_PRIVATE) continue;
       
-      final float rating = rateTrading(origin, destination, good, amount);
+      final float rating = rateTrading(origin, destination, good, unit, unit);
       if (rating > bestRating) { bestRating = rating; pick = destination; }
       if (report) I.say("  Rating for "+destination+" is "+rating);
     }
@@ -362,7 +346,7 @@ public class DeliveryUtils {
     *  the given origin and destination venues-
     */
   static float rateTrading(
-    Owner orig, Owner dest, Traded good, int amount
+    Owner orig, Owner dest, Traded good, int amount, int unit
   ) {
     if (orig == dest) return -1;
     //
@@ -415,34 +399,7 @@ public class DeliveryUtils {
       I.say("  Origin tier:      "+nameForTier(OT)+", Exporter: "+OP);
       I.say("  Destination tier: "+nameForTier(DT)+", Exporter: "+DP);
     }
-    //
-    //  Private consumers can only deal with facilities, not depots.  Trade
-    //  between those or owners of the same tier is only possible from producer
-    //  to consumer.
-    //
-    //  Conversely, deliveries between producers (or from consumer to consumer)
-    //  are only possible going from lower to higher tiers (or vice versa. e.g,
-    //  facilities deliver to depots deliver to ships for finished goods, and
-    //  ships deliver to depots deliver to facilities for raw materials.)
-    
-    //  Private trades
-    if (DT < Owner.TIER_FACILITY) {
-      if (OT != Owner.TIER_FACILITY) return -1;
-      if (OP != true  || DP != false) return -1;
-    }
-    //  Same-tier trades
-    else if (OT == DT) {
-      if (OT == Owner.TIER_SHIPPING) return -1;
-      if (OP != true  || DP != false) return -1;
-    }
-    //  Downstream deliveries (from ships to depots to facilities)
-    else if (OT > DT) {
-      if (OP == true  || DP == true ) return -1;
-    }
-    //  Upstream delivieries (from facilities to ships to depots)
-    else if (OT < DT) {
-      if (OP == false || DP == false) return -1;
-    }
+    if (! canTradeBetween(OT, OP, DT, DP, true)) return -1;
     final float
       OD = OS.demandFor(good),
       DD = DS.demandFor(good);
@@ -453,7 +410,7 @@ public class DeliveryUtils {
     //
     //  Secondly, obtain an estimate of stocks before and after the exchange.
     final boolean
-      isTrade    = OT == DT,
+      isTrade    = OT == DT && DP == OP,
       isConsumer = DP == false && DT < Owner.TIER_DEPOT;
     final float
       OFB = futureBalance(orig, good, report),
@@ -470,7 +427,7 @@ public class DeliveryUtils {
       I.say("  Origin      after   : "+origAfter);
       I.say("  Destination after   : "+destAfter);
     }
-    if (origAfter < 0 || destAfter > DD) return -1;
+    if (origAfter < 0 || destAfter >= (DD + unit)) return -1;
     //
     //  Then, assign ratings for relative shortages at the start/end points (in
     //  the case of symmetric trades, based on projected stocks afterwards.)
@@ -509,6 +466,32 @@ public class DeliveryUtils {
       I.say("  base/distance factors: "+baseFactor+"/"+distFactor);
     }
     return rating * distFactor * baseFactor / tierFactor;
+  }
+  
+  
+  public static boolean canTradeBetween(
+    int origTier, boolean origProduce,
+    int destTier, boolean destProduce,
+    boolean allowSameTier
+  ) {
+    //  Private trades (okay as long as the recipient is a consumer)
+    if (destTier < Owner.TIER_FACILITY) {
+      if (destProduce == true) return false;
+    }
+    //  Same-tier trades (illegal between trade vessels)
+    else if (origTier == destTier) {
+      if (origProduce == destProduce && ! allowSameTier) return false;
+      if (origTier == Owner.TIER_SHIPPING) return false;
+    }
+    //  Downstream deliveries (from ships to depots to facilities)
+    else if (origTier > destTier) {
+      if (origProduce == true  || destProduce == true ) return false;
+    }
+    //  Upstream delivieries (from facilities to ships to depots)
+    else if (origTier < destTier) {
+      if (origProduce == false || destProduce == false) return false;
+    }
+    return true;
   }
   
   

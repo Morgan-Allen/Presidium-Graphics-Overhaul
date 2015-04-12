@@ -43,7 +43,7 @@ public class FormerPlant extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     FormerPlant.class, "former_plant", "Former Plant",
-    3, 2, Venue.Type.TYPE_STANDARD,
+    3, 2, IS_NORMAL,
     EcologistStation.PROFILE, Owner.TIER_FACILITY
   );
   

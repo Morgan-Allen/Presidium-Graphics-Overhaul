@@ -41,6 +41,7 @@ public abstract class Fauna extends Actor {
   public Fauna(Species species, Base base) {
     if (species == null) I.complain("NULL SPECIES!");
     this.species = species;
+    mind.setVocation(species);
     initStats();
     attachSprite(species.model.makeSprite());
     assignBase(base);

@@ -42,6 +42,10 @@ public class Stocks extends Inventory {
   public Stocks(Property v) {
     super(v);
     this.basis = v;
+    final Traded services[] = v.services();
+    if (services != null) for (Traded t : services) {
+      incDemand(t, 0, 0, true);
+    }
   }
   
   
@@ -278,25 +282,22 @@ public class Stocks extends Inventory {
   public void incDemand(
     Traded type, float amount, int period, boolean producer
   ) {
+    //final boolean fresh = demands.get(type) == null;
+    //  TODO:  Give a warning if you change the produce/consume type of a non-
+    //         fresh demand at a standard facility.
     final Demand d = demandRecord(type);
     if (d.fixed) return;
+    
+    /*
+    if (d.producer != producer && type == CARBS) {
+      I.say(owner+" PRODUCES "+type+" "+producer);
+      I.reportStackTrace();
+    }
+    //*/
+    
     d.producer = producer;
     d.demandBonus += amount * period;
   }
-  
-  
-  /*
-  public void setDefaultTier(Traded types[], Tier tier) {
-    for (Traded type : types) {
-      final Demand d = demandRecord(type);
-      final boolean fixed =
-        d.tierType == Tier.TRADER   ||
-        d.tierType == Tier.IMPORTER ||
-        d.tierType == Tier.EXPORTER;
-      if (! fixed) d.tierType = tier;
-    }
-  }
-  //*/
   
   
   public void translateDemands(Conversion cons, int period) {
@@ -311,7 +312,7 @@ public class Stocks extends Inventory {
     for (Item raw : cons.raw) {
       final float needed = raw.amount * demand / cons.out.amount;
       if (report) I.say("  Need "+needed+" "+raw.type+" as raw materials");
-      incDemand(raw.type, needed, period, false);
+      incDemand(raw.type, needed, period, producer(raw.type));
     }
   }
   
@@ -328,11 +329,6 @@ public class Stocks extends Inventory {
     final Tile        at = basis.world().tileAt(basis);
     final int maxSupply  = basis.staff().workforce() * SUPPLY_PER_WORKER;
     
-    final Traded services[] = basis.services();
-    if (services != null) for (Traded t : services) {
-      if (demands.get(t) == null) incDemand(t, 0, period, true);
-    }
-    
     for (Manufacture m : specialOrders) {
       translateDemands(m.conversion, period);
     }
@@ -342,16 +338,22 @@ public class Stocks extends Inventory {
     }
     
     for (Demand d : demands.values()) {
-      final Traded type   = d.type;
-      final float  amount = amountOf(type);
-      
+      final Traded type = d.type;
+      final boolean available = DeliveryUtils.canTradeBetween(
+        owner.owningTier() , d.producer,
+        Owner.TIER_FACILITY, false     , false
+      );
+      final float amount = amountOf(type);
+      if (report) {
+        I.say("  Updating channel for "+d.type+" (producer "+d.producer+")");
+        I.say("    Current amount:    "+amount);
+        I.say("    Open for delivery: "+available);
+      }
+
       if (! d.fixed) d.demandAmount = d.demandBonus / period;
       d.demandBonus = 0;
-      if (report) {
-        I.say("  Updating channel for "+d.type+", producer? "+d.producer);
-      }
       
-      if (d.producer) {
+      if (available) {
         final float
           demandEst = BD.demandAround (basis, type, -1),
           shortage  = BD.localShortage(basis, type    );
@@ -362,18 +364,18 @@ public class Stocks extends Inventory {
         }
         final float supplyEst = (d.demandAmount + amount) / 2;
         if (report) {
-          I.say("    Local demand:     "+demandEst);
-          I.say("    Local shortage:   "+shortage );
-          I.say("    Impinging supply: "+supplyEst);
+          I.say("    Local demand:      "+demandEst);
+          I.say("    Local shortage:    "+shortage );
+          I.say("    Impinging supply:  "+supplyEst);
         }
         BD.impingeSupply(type, supplyEst, period, basis);
       }
       
       final boolean
-        gives =    d.producer  && amount         > 0,
-        takes = (! d.producer) && d.demandAmount > 0;
+        gives =    available  && amount         > 0,
+        takes = (! available) && d.demandAmount > 0;
       if (takes) {
-        if (report) I.say("    Impinging demand: "+d.demandAmount);
+        if (report) I.say("    Impinging demand:  "+d.demandAmount);
         BD.impingeDemand(type, d.demandAmount, period, basis);
       }
       BP.togglePresence(basis, at, gives, type.supplyKey);

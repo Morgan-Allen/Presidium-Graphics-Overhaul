@@ -40,7 +40,7 @@ public class JoinMission extends Plan {
     //  of invalid plans, since missions might not have steps available until
     //  approved-)
     if (report) {
-      I.say("\nEvaluating missions: "+actor+" ("+actor.vocation()+")");
+      I.say("\nEvaluating missions: "+actor+" ("+actor.mind.vocation()+")");
     }
     final Choice choice = new Choice(actor) {
       protected boolean checkPlanValid(Behaviour b) {

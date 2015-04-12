@@ -1,9 +1,12 @@
 
 
 package stratos.user;
+import com.badlogic.gdx.Input.Keys;
+
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.KeyInput;
 import stratos.util.*;
 
 
@@ -22,7 +25,7 @@ public class PlacingTask implements UITask {
   private Tile begins;
   private Tile endsAt;
   private boolean dragDone = false;
-  private Table <Tile, Venue> placeItems = new Table <Tile, Venue> ();
+  private Table <Integer, Venue> placeItems = new Table <Integer, Venue> ();
   
   
   PlacingTask(BaseUI UI, VenueProfile placeType, Mode mode) {
@@ -52,6 +55,8 @@ public class PlacingTask implements UITask {
       }
     }
     
+    if (KeyInput.wasTyped(Keys.ENTER)) tryPlacement = true;
+    
     if (begins != null && endsAt != null) {
       setupAreaClaim(tryPlacement);
     }
@@ -59,6 +64,13 @@ public class PlacingTask implements UITask {
   
   
   private void setupAreaClaim(boolean tryPlacement) {
+    final int per = 20;
+    final boolean report = ((int) (Rendering.activeTime() * per)) % per == 0;
+    if (report) {
+      I.say("\nGetting area claim...");
+      I.say("  Start/end points: "+begins+"/"+endsAt);
+    }
+    
     //
     //  Set up some initial variables-
     final int baseSize = placeType.size;
@@ -115,38 +127,64 @@ public class PlacingTask implements UITask {
   }
   
   
-  private Venue placingAt(Coord c) {
+  private Venue placingAt(Coord c, Box2D area, Batch <Coord> placePoints) {
     final Base base = UI.played();
-    final Tile t = base.world.tileAt(c.x, c.y);
-    Venue p = placeItems.get(t);
+    final Coord points[] = placePoints.toArray(Coord.class);
+    final int index = Visit.indexOf(c, points);
+    
+    Venue p = placeItems.get(index);
     if (p == null) {
-      final float hS = (placeType.size / 2) + 0.5f;
       p = placeType.sampleVenue(base);
-      p.setPosition(c.x - hS, c.y - hS, base.world);
-      placeItems.put(t, p);
+      placeItems.put(index, p);
     }
+    
+    final float hS = (placeType.size / 2) + 0.5f;
+    p.setupWith(base.world.tileAt(c.x - hS, c.y - hS), area, points);
     return p;
   }
   
   
   private boolean checkPlacingOkay(Box2D area, Batch <Coord> placePoints) {
-    //
-    //  TODO:  OBTAIN AN ACCOUNT FOR WHY PLACEMENT ISN'T POSSIBLE, AND DISPLAY
-    //         THAT.
+    final Account reasons = new Account();    
     boolean canPlace = true;
+    
     for (Coord c : placePoints) {
-      final Venue p = placingAt(c);
-      if (p == null || ! p.canPlace()) canPlace = false;
+      final Venue p = placingAt(c, area, placePoints);
+      if (p == null || ! p.canPlace(reasons)) { canPlace = false; break; }
     }
+    
+    final String
+      POINT_MESSAGE = "(Enter to place, Esc to cancel, E to change entrance)",
+      LINE_MESSAGE  = "(Drag to place line, Esc to cancel, Enter to place)"  ,
+      AREA_MESSAGE  = "(Drag to select area, Esc to cancel, Enter to place)" ,
+      FAIL_MESSAGE  = "(ILLEGAL PLACEMENT- REASON NOT LOGGED INTERNALLY)";
+    String message = null;
+    switch (placeMode) {
+      case MODE_POINT : message = POINT_MESSAGE; break;
+      case MODE_LINE  : message = LINE_MESSAGE ; break;
+      case MODE_AREA  : message = AREA_MESSAGE ; break;
+    }
+    
+    final String failMessage = reasons.failReasons().first();
+    if (! canPlace) message = failMessage == null ? FAIL_MESSAGE : failMessage;
+    BaseUI.setPopupMessage(message);
+    
     return canPlace;
   }
   
   
   private void performPlacement(Box2D area, Batch <Coord> placePoints) {
+    final Batch <Venue> placed = new Batch <Venue> ();
+    
     for (Coord c : placePoints) {
-      final Venue p = placingAt(c);
+      final Venue p = placingAt(c, area, placePoints);
       p.doPlacement();
+      placed.add(p);
     }
+    
+    final Venue PA[] = placed.toArray(Venue.class);
+    for (Venue p : PA) p.structure.assignGroup(PA);
+    
     UI.endCurrentTask();
   }
   
@@ -171,7 +209,7 @@ public class PlacingTask implements UITask {
     //  Base venue sprites off their current and projected neighbours!
     
     for (Coord c : placePoints) {
-      final Venue p = placingAt(c);
+      final Venue p = placingAt(c, area, placePoints);
       if (p != null && p.origin() != null) {
         p.previewPlacement(canPlace, UI.rendering);
       }

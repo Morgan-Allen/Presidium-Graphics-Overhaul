@@ -66,7 +66,7 @@ public class Edifice extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Edifice.class, "edifice", "Edifice",
-    3, 2, Venue.Type.TYPE_FIXTURE,
+    3, 2, IS_FIXTURE,
     Fabricator.PROFILE, Owner.TIER_FACILITY
   );
   

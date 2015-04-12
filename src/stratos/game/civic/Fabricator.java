@@ -46,8 +46,8 @@ public class Fabricator extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Fabricator.class, "fabricator", "Fabricator",
-    3, 2, Venue.Type.TYPE_STANDARD,
-    EngineerStation.PROFILE, Owner.TIER_FACILITY,
+    3, 2, IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
     LCHC_TO_PLASTICS, PLASTICS_TO_DECOR
   );
   

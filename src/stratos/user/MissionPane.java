@@ -209,7 +209,7 @@ public class MissionPane extends SelectionPane {
       final Composite portrait = a.portrait(UI);
       if (portrait != null) ((Text) d).insert(portrait.texture(), 40, true);
       d.append(a);
-      d.append(" ("+a.vocation()+")");
+      d.append(" ("+a.mind.vocation()+")");
 
       final boolean approved = mission.isApproved(a);
       if (canConfirm) {

@@ -324,6 +324,23 @@ public abstract class Mobile extends Element
   
   /**  Rendering and interface methods-
     */
+  private PlaneFX shadow = null;
+  
+  
+  protected PlaneFX createShadow(Sprite rendered) {
+    if (shadow == null) shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
+    
+    final float R2 = Nums.sqrt(2);
+    shadow.scale = radius() * rendered.scale * R2;
+    
+    final Vec3D p = shadow.position;
+    p.setTo(rendered.position);
+    p.z = world.terrain().trueHeight(p.x, p.y);
+    
+    return shadow;
+  }
+  
+  
   public boolean visibleTo(Base base) {
     if (indoors()) return false;
     return super.visibleTo(base);
@@ -359,7 +376,6 @@ public abstract class Mobile extends Element
   ) {
     final Sprite s = this.sprite();
     float scale = spriteScale();
-    if (this instanceof Actor) scale *= GameSettings.actorScale;
     s.scale = scale;
     s.position.setTo(position);
     s.rotation = rotation;
@@ -368,20 +384,6 @@ public abstract class Mobile extends Element
     //  Render your shadow, either on the ground or on top of occupants-
     final PlaneFX shadow = createShadow(s);
     if (shadow != null) shadow.readyFor(rendering);
-  }
-  
-  
-  protected PlaneFX createShadow(Sprite rendered) {
-    final PlaneFX shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
-    
-    final float R2 = Nums.sqrt(2);
-    shadow.scale = radius() * rendered.scale * R2;
-    
-    final Vec3D p = shadow.position;
-    p.setTo(rendered.position);
-    p.z = world.terrain().trueHeight(p.x, p.y);
-    
-    return shadow;
   }
   
   

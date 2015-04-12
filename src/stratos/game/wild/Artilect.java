@@ -41,6 +41,7 @@ public abstract class Artilect extends Actor {
   protected Artilect(Base base, Species s) {
     super();
     this.species = s;
+    mind.setVocation(s);
     assignBase(base);
   }
   

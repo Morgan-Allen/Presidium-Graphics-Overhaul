@@ -17,29 +17,6 @@ import stratos.util.*;
 //  have different feeding techniques.
 
 
-//  Let's try simplicity for now.  It's basically a kind of raid-behaviour-
-//  (do I need to write a mission for that, or can I build it into the AI?)
-
-//  ...Actually, a Recovery mission might not be such a bad idea.  Try to
-//  add that.  (Plus a Disguise/Spying mission!)
-
-
-//  *  If offworld, how do you model that specific to each base?
-//  (This is desirable for the sake of simplicity and balance-maintanance.)
-
-//  Okay.  So, a given base has 'neighbours' above, below, and on each
-//  side, along with the general surrounding territory.
-
-//  *  They have a certain chance to lodge temporarily at a suitable home
-//     and reproduce, or else to migrate offworld/to another lodge.
-//     Impossible to nail down.
-
-//  They'll consider this once per day by default (same as the spawn interval.)
-
-
-//  TODO:  Should Vermin count as a type of Fauna?  With some extra behavioural
-//         changes?
-
 public abstract class Vermin extends Actor {
   
   
@@ -57,6 +34,7 @@ public abstract class Vermin extends Actor {
   public Vermin(Species s, Base b) {
     super();
     this.species = s;
+    mind.setVocation(s);
     assignBase(b);
     initStats();
     attachSprite(species.model.makeSprite());

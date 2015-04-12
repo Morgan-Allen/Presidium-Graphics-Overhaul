@@ -50,7 +50,7 @@ public class Archives extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Archives.class, "archives", "Archives",
-    3, 2, Venue.Type.TYPE_STANDARD,
+    3, 2, IS_NORMAL,
     PhysicianStation.PROFILE, Owner.TIER_FACILITY, PARTS_TO_DATALINKS
   );
   

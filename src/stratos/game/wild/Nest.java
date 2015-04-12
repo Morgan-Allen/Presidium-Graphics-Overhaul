@@ -208,7 +208,7 @@ public class Nest extends Venue {
   ) {
     return new VenueProfile(
       Nest.class, s.name+"_nest", s.name+" Nest",
-      size, high, Venue.Type.TYPE_STANDARD,
+      size, high, IS_WILD,
       Venue.NO_REQUIREMENTS, Owner.TIER_PRIVATE
     ) {
       public Venue sampleVenue(Base base) {

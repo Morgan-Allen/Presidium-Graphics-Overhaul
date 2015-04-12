@@ -5,7 +5,7 @@ package stratos.game.civic;
 
 //  TODO:  Introduce this!
 
-public class HoloParlour {
+public class HoloPlaza {
   
 
   final static String MEDIA_NAMES[] = {
@@ -32,9 +32,7 @@ public class HoloParlour {
     "Battle Royale Magneto-Chess",
     "Team Terminator Tag Tournament"
   };
-  /*
-  final static String MEDITATE_NAMES[] = {
-    "Meditation"
-  };
-  //*/
+  
+  
+  
 }

@@ -37,22 +37,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
     PORTRAIT_SIZE  = 80 ;
   
   
-  final static Class INFO_CLASSES[] = {
-    Vehicle.class,
-    Actor.class,
-    Venue.class
-  };
-  private static Table <Class, Integer> DEFAULT_CATS = new Table();
-  
-  private static Class infoClass(Selectable s) {
-    if (s == null) return null;
-    for (Class c : INFO_CLASSES) {
-      if (c.isAssignableFrom(s.getClass())) return c;
-    }
-    return null;
-  }
-  
-  
   final protected BaseUI UI;
   final protected Selectable selected;
   
@@ -176,14 +160,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     
     this.selected = selected;
     this.categories = categories;
-    categoryID = 0;
-    
-    final Class IC = infoClass(selected);
-    if (IC != null && categories.length > 0) {
-      final Integer catID = DEFAULT_CATS.get(IC);
-      if (catID != null) categoryID = Nums.clamp(catID, categories.length);
-    }
-    else categoryID = 0;
+    categoryID = defaultCategory();
   }
   
   
@@ -200,6 +177,53 @@ public class SelectionPane extends UIGroup implements UIConstants {
   }
   
   
+  public Text header() {
+    return headerText;
+  }
+  
+  
+  public Text detail() {
+    return detailText;
+  }
+  
+  
+  public Text listing() {
+    return listingText;
+  }
+  
+  
+  
+  /**  Handling category-selection:
+    */
+  final static Class SELECT_TYPES[] = {
+    Venue.class,
+    Actor.class,
+    Vehicle.class,
+    Object.class
+  };
+  private static Table <Class, String> defaults = new Table();
+  
+  
+  private int defaultCategory() {
+    if (selected == null) return 0;
+    final String match = defaults.get(selectType());
+    if (match == null) return 0;
+    for (String s : categories) if (s.equals(match)) {
+      return Visit.indexOf(s, categories);
+    }
+    return 0;
+  }
+  
+  
+  private Class selectType() {
+    if (selected == null) return null;
+    for (Class c : SELECT_TYPES) {
+      if (selected.getClass().isAssignableFrom(c)) return c;
+    }
+    return null;
+  }
+  
+  
   public int categoryID() {
     return categoryID;
   }
@@ -210,28 +234,17 @@ public class SelectionPane extends UIGroup implements UIConstants {
     return categories[Nums.clamp(categoryID, categories.length)];
   }
   
-  
-  public Description detail() {
-    return detailText;
-  }
-  
-  
-  public Description listing() {
-    return listingText;
+
+  private void setCategory(int catID) {
+    UI.beginPanelFade();
+    this.categoryID = catID;
+    if (selected != null) defaults.put(selectType(), categories[catID]);
   }
   
   
   
   /**  Display and updates-
     */
-  private void setCategory(int catID) {
-    UI.beginPanelFade();
-    this.categoryID = catID;
-    final Class IC = infoClass(selected);
-    if (IC != null) DEFAULT_CATS.put(IC, catID);
-  }
-  
-  
   protected void updateState() {
     updateText(UI, headerText, detailText, listingText);
     if (selected != null) selected.configPanel(this, UI);

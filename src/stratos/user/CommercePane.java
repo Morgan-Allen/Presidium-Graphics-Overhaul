@@ -20,8 +20,8 @@ public class CommercePane extends SelectionPane {
     COMMERCE_ICON_LIT = Button.CIRCLE_LIT;
   
   final static String
-    CAT_BUDGET = "BUDGET REPORT",
-    CAT_DEMAND = "MARKETS",
+    CAT_BUDGET = "BUDGETING",
+    CAT_DEMAND = "SUPPLY & DEMAND",
     CATEGORIES[] = { CAT_BUDGET, CAT_DEMAND };
   
   

@@ -29,7 +29,7 @@ public class DebugGraphics {
     ),
     GM[][] = CutoutModel.fromImageGrid(
       DebugGraphics.class, "media/Buildings/artificer/all_molds.png",
-      4, 5, 1, 1
+      4, 5, 1, 1, true
     );
   final static MS3DModel
     MICOVORE_MODEL = MS3DModel.loadFrom(

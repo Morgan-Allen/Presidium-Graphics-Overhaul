@@ -128,7 +128,7 @@ public class Choice implements Qualities {
     }
     if (report) {
       String label = actor.getClass().getSimpleName();
-      if (actor.vocation() != null) label = actor.vocation().name;
+      if (actor.mind.vocation() != null) label = actor.mind.vocation().name;
       else if (actor.species() != null) label = actor.species().toString();
       I.say("\n"+actor+" ("+label+") is making a choice.");
       I.say("  Range of choice is "+plans.size()+", free? "+free);

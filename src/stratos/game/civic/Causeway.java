@@ -15,7 +15,7 @@ import stratos.util.*;
 //  TODO:  Maybe this needs to be placed spontaneously?
 
 
-public class Causeway extends Structural {
+public class Causeway extends Structural implements Placeable {
   
   
   final static String IMG_DIR = "media/Buildings/civilian/";
@@ -62,6 +62,16 @@ public class Causeway extends Structural {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+  }
+  
+  
+  public boolean canPlace(Account reasons) {
+    return canPlace();
+  }
+  
+  
+  public boolean setupWith(Tile position, Box2D area, Coord... others) {
+    return setPosition(position.x, position.y, position.world);
   }
   
   

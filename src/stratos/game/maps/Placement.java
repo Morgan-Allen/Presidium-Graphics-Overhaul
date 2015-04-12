@@ -11,7 +11,6 @@ import stratos.util.*;
 
 
 
-//
 //  TODO:  Try merging this with the TileSpread class, or the PlacementGrid
 //  class.  Placement2 can probably be got rid off completely.
 
@@ -106,7 +105,9 @@ public class Placement implements TileConstants {
       (int) limits.ydim()
     )) return false;
     
-    for (Structure.Basis f : fixtures) if (! f.canPlace()) return false;
+    for (Structure.Basis f : fixtures) {
+      if (! f.canPlace()) return false;
+    }
     return true;
   }
   
@@ -173,6 +174,38 @@ public class Placement implements TileConstants {
     }
     if (GameSettings.hireFree) v.base().setup.fillVacancies(v, intact);
     return v;
+  }
+  
+  
+  
+  /**  Utility methods for placement of sequential structures-
+    */
+  public static Object setupSegment(
+    Venue fixture, Tile position, Box2D area, Coord points[],
+    Object piecesX[], Object piecesY[]
+  ) {
+    final boolean across = area.xdim() >= area.ydim();
+    final Object pieces[] = across ? piecesX : piecesY;
+    if (pieces == null || pieces.length < 3) {
+      I.complain("PIECES MUST HAVE 3 ENTRIES!");
+    }
+    
+    Coord min = points[0], max = min;
+    for (Coord p : points) {
+      int c = across ? p.x : p.y;
+      if (c > (across ? max.x : max.y)) max = p;
+      if (c < (across ? min.x : min.y)) min = p;
+    }
+
+    final Box2D print = fixture.footprint();
+    final boolean
+      atMin = print.contains(min),
+      atMax = print.contains(max);
+
+    fixture.setFacing(across ? X_AXIS : Y_AXIS);
+    if (atMin) return pieces[0];
+    if (atMax) return pieces[2];
+    else       return pieces[1];
   }
   
   
@@ -293,19 +326,20 @@ public class Placement implements TileConstants {
     Tile t, int space, int tier, boolean report
   ) {
     if (t == null) return false;
-    final float maxTier = Nums.min(tier, Owner.TIER_PRIVATE);
+    final int maxTier = Nums.min(tier, Owner.TIER_PRIVATE);
     
-    if (space == 1) {
-      return t.owningTier() < maxTier;
-    }
-    
-    for (int x = space; x-- > 0;) for (int y = space; y-- > 0;) {
+    if (space == 1) return singleTileClear(t, maxTier);
+    else for (int x = space; x-- > 0;) for (int y = space; y-- > 0;) {
       final Tile u = t.world.tileAt(x + t.x, y + t.y);
-      if (u == null || u.owningTier() >= maxTier) {
-        return false;
-      }
+      if (u == null || ! singleTileClear(u, maxTier)) return false;
     }
     return true;
+  }
+  
+  
+  private static boolean singleTileClear(Tile t, int tier) {
+    if (! t.habitat().pathClear) return false;
+    return t.owningTier() < tier || t.pathType() < Tile.PATH_HINDERS;
   }
   
   
@@ -313,6 +347,10 @@ public class Placement implements TileConstants {
     return e != null && ! e.reserved();
   }
 }
+
+
+
+
 
 
 

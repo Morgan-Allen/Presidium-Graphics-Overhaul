@@ -19,27 +19,22 @@ import stratos.graphics.common.*;
 
 public class Structure {
   
+  
   /**  Defines an external interface so that, e.g, vehicles and buildings can
     *  both possess a structure:
     */
   public static interface Basis extends
     Session.Saveable, Target, Selectable, Accountable
   {
-    Base  base();
-    int   buildCost();
     Box2D footprint();
-
+    Structure structure();
     Index <Upgrade> allUpgrades();
+    
     void onCompletion();
     void onDestruction();
-    Structure structure();
-    
-    boolean setPosition(float x, float y, Stage world);
     boolean canPlace();
-    void previewPlacement(boolean canPlace, Rendering rendering);
     void doPlacement();
   }
-  
   
   
   /**  Fields, definitions and save/load methods-

@@ -28,6 +28,9 @@ import java.lang.reflect.*;
 //  TODO:  Include the various adaptive tips!
 //  TODO:  Have a general flags/triggers table to clarify saving/loading.
 
+
+//  TODO:  UNIFY TOPICS WITH REMINDER-ENTRIES AND/OR WITH MESSAGE-PANES
+
 /*
 *  More feedback on needs and settlement demands.  (Notifications or an RCI
    indicator of some sort are needed.)  You need feedback for-
@@ -46,7 +49,7 @@ public class HelpScript {
   final static String
     SCRIPT_FILE = "media/Help/TutorialScript.xml";
   
-  final TutorialScenario tutorial;
+  final TutorialScenario scenario;
   
   private class Topic {
     XML sourceNode;
@@ -63,7 +66,7 @@ public class HelpScript {
   
   
   protected HelpScript(TutorialScenario tutorial) {
-    this.tutorial = tutorial;
+    this.scenario = tutorial;
     final XML xml = XML.load(SCRIPT_FILE);
     
     for (XML topicNode : xml.allChildrenMatching("topic")) {
@@ -171,6 +174,9 @@ public class HelpScript {
     
     //  TODO:  I need a subclass of message-pane for this purpose.  One that
     //  will show time and date.
+    
+    //  TODO:  UNIFY TOPICS WITH MESSAGES.
+    
     links.add(new Description.Link("Dismiss") {
       public void whenClicked() {
         UI().reminders().retireMessage(topic.message);
@@ -178,9 +184,11 @@ public class HelpScript {
       }
     });
     
-    return topic.message = new MessagePane(
-      UI(), null, topic.title, content, null, tutorial, links
+    topic.message = new MessagePane(
+      UI(), null, topic.title, null, scenario
     );
+    topic.message.assignContent(content, links);
+    return topic.message;
   }
   
   
@@ -273,7 +281,7 @@ public class HelpScript {
   
   protected boolean checkMotionDone() {
     final Vec3D lookPoint = UI().rendering.view.lookedAt;
-    final Tile  lookTile  = tutorial.world().tileAt(lookPoint.x, lookPoint.y);
+    final Tile  lookTile  = scenario.world().tileAt(lookPoint.x, lookPoint.y);
     if (lookTile == null) return false;
     
     if (startAt == null) startAt = lookTile;
@@ -283,8 +291,8 @@ public class HelpScript {
   
   
   protected void onMotionDone() {
-    tutorial.base().intelMap.liftFogAround(tutorial.bastion, 12);
-    UI().tracking.lockOn(tutorial.bastion);
+    scenario.base().intelMap.liftFogAround(scenario.bastion, 12);
+    UI().tracking.lockOn(scenario.bastion);
   }
   
   
@@ -299,15 +307,15 @@ public class HelpScript {
   
   protected void onBuiltBarracks() {
     barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
-    tutorial.base().setup.fillVacancies(barracksBuilt   , true);
-    tutorial.base().setup.fillVacancies(tutorial.bastion, true);
+    scenario.base().setup.fillVacancies(barracksBuilt   , true);
+    scenario.base().setup.fillVacancies(scenario.bastion, true);
     UI().tracking.lockOn(barracksBuilt);
   }
   
   
   protected boolean checkExploreBegun() {
     ReconMission match = null;
-    for (Mission m : tutorial.base().tactics.allMissions()) {
+    for (Mission m : scenario.base().tactics.allMissions()) {
       if (m instanceof ReconMission) match = (ReconMission) m;
     }
     if (match == null) return false;
@@ -341,8 +349,8 @@ public class HelpScript {
     depotBuilt  .structure.setState(Structure.STATE_INSTALL, 0.5f);
     foundryBuilt.structure.setState(Structure.STATE_INSTALL, 0.5f);
     
-    for (Actor a : tutorial.bastion.staff.workers()) {
-      if (a.vocation() == Backgrounds.TECHNICIAN) {
+    for (Actor a : scenario.bastion.staff.workers()) {
+      if (a.mind.vocation() == Backgrounds.TECHNICIAN) {
         final Repairs build = new Repairs(a, depotBuilt);
         build.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
         a.mind.assignBehaviour(build);
@@ -362,8 +370,8 @@ public class HelpScript {
   
   
   protected void onFacilitiesReady() {
-    tutorial.base().setup.fillVacancies(depotBuilt  , true);
-    tutorial.base().setup.fillVacancies(foundryBuilt, true);
+    scenario.base().setup.fillVacancies(depotBuilt  , true);
+    scenario.base().setup.fillVacancies(foundryBuilt, true);
   }
   
   
@@ -395,7 +403,7 @@ public class HelpScript {
     barracksBuilt.structure.addUpgrade(TrooperLodge.MARKSMAN_TRAINING);
     barracksBuilt.structure.addUpgrade(TrooperLodge.TROOPER_STATION  );
     
-    final Base base = tutorial.base();
+    final Base base = scenario.base();
     for (int n = 3; n-- > 0;) {
       final Actor applies = Backgrounds.TROOPER.sampleFor(base);
       base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
@@ -411,7 +419,7 @@ public class HelpScript {
   
   
   protected boolean checkRuinsDestroyed() {
-    if (tutorial.ruins.structure.intact()) return false;
+    if (scenario.ruins.structure.intact()) return false;
     return true;
   }
   
@@ -433,7 +441,7 @@ public class HelpScript {
   
   protected boolean checkPositiveCashFlow() {
     if (startingBalance == -1) return false;
-    final float balance = tutorial.base().finance.credits();
+    final float balance = scenario.base().finance.credits();
     if (balance < startingBalance + 1000) return false;
     return true;
   }
@@ -443,11 +451,11 @@ public class HelpScript {
   /**  Other helper methods-
     */
   private Venue firstBaseVenue(Class venueClass) {
-    for (Object o : tutorial.world().presences.matchesNear(
+    for (Object o : scenario.world().presences.matchesNear(
       venueClass, null, -1
     )) {
       final Venue found = (Venue) o;
-      if (found.base() == tutorial.base()) return found;
+      if (found.base() == scenario.base()) return found;
     }
     return null;
   }
@@ -455,23 +463,23 @@ public class HelpScript {
   
   private Batch <Holding> allBaseHoldings() {
     final Batch <Holding> all = new Batch <Holding> ();
-    for (Object o : tutorial.world().presences.matchesNear(
+    for (Object o : scenario.world().presences.matchesNear(
       Holding.class, null, -1
     )) {
       final Holding h = (Holding) o;
-      if (h.base() == tutorial.base()) all.add(h);
+      if (h.base() == scenario.base()) all.add(h);
     }
     return all;
   }
   
   
   private Stage world() {
-    return tutorial.world();
+    return scenario.world();
   }
   
   
   private BaseUI UI() {
-    return tutorial.UI();
+    return scenario.UI();
   }
 }
 

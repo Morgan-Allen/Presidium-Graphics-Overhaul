@@ -64,7 +64,7 @@ public class DebugCommerce extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.withName(world, "Player Base", Colour.BLUE);
+    return Base.settlement(world, "Player Base", Colour.BLUE);
   }
   
   
@@ -234,10 +234,6 @@ public class DebugCommerce extends Scenario {
     //  and fabricator.
     final Venue depot = new SupplyDepot(base);
     Placement.establishVenue(depot, 5, 5, true, world);
-    depot.structure.beginUpgrade(SupplyDepot.HARDWARE_STORE, false);
-    depot.structure.advanceUpgrade(1);
-    depot.structure.beginUpgrade(SupplyDepot.RATIONS_VENDING, false);
-    depot.structure.advanceUpgrade(1);
     
     final Venue engineer = new EngineerStation(base);
     Placement.establishVenue(engineer, 5, 5, true, world);

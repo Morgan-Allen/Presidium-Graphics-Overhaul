@@ -16,8 +16,6 @@ import stratos.graphics.widgets.Text.Clickable;
 //  TODO:  This needs to list tutorial-messages as well as ongoing missions
 //         and other status-updates.
 
-//  TODO:  These also need to save and load!
-
 
 public class ReminderListing extends UIGroup {
   
@@ -91,7 +89,8 @@ public class ReminderListing extends UIGroup {
   
   
   private Entry addEntry(Object refers, int afterIndex) {
-    
+
+    final Base played = UI.played();
     Entry entry = null;
     if (refers instanceof Mission) {
       entry = new MissionReminder(UI, (Mission) refers);
@@ -101,6 +100,10 @@ public class ReminderListing extends UIGroup {
     }
     if (refers == oldMessages) {
       entry = new CommsReminder(UI, oldMessages, forOldMessages());
+    }
+    if (played.setup.needRating(refers) > 0) {
+      final MessagePane forNeed = played.setup.messageForNeed(refers, UI);
+      entry = new CommsReminder(UI, refers, forNeed);
     }
     if (entry == null) {
       I.complain("\nNO SUPPORTED ENTRY FOR "+refers);
@@ -119,7 +122,8 @@ public class ReminderListing extends UIGroup {
     //
     //  Include all currently ongoing missions and any special messages:
     List <Object> needShow = new List <Object> ();
-    for (final Mission mission : UI.played().tactics.allMissions()) {
+    final Base played = UI.played();
+    for (final Mission mission : played.tactics.allMissions()) {
       needShow.add(mission);
     }
     if (oldMessages.size() > 0) {
@@ -127,6 +131,9 @@ public class ReminderListing extends UIGroup {
     }
     for (MessagePane o : newMessages) {
       needShow.add(o);
+    }
+    for (Object need : played.setup.needSatisfaction()) {
+      needShow.add(need);
     }
     //
     //  Now, in essence, insert entries for anything not currently listed, and
@@ -183,18 +190,9 @@ public class ReminderListing extends UIGroup {
     */
   private MessagePane forOldMessages() {
     final MessagePane pane = new MessagePane(
-      UI, null, "Old Messages", "", null, null
+      UI, null, "Old Messages", null, null
     );
     return pane;
-  }
-  
-  
-  private void checkMessageRead() {
-    if (! (UI.currentPane() instanceof MessagePane)) return;
-    final MessagePane message = (MessagePane) UI.currentPane();
-    final CommsReminder entry = (CommsReminder) entryFor(message);
-    if (entry == null) return;
-    entry.setFlash(false);
   }
   
   
@@ -220,6 +218,15 @@ public class ReminderListing extends UIGroup {
       links.add(link);
     }
     entry.message.assignContent("", links);
+  }
+  
+  
+  private void checkMessageRead() {
+    if (! (UI.currentPane() instanceof MessagePane)) return;
+    final MessagePane message = (MessagePane) UI.currentPane();
+    final CommsReminder entry = (CommsReminder) entryFor(message);
+    if (entry == null) return;
+    entry.setFlash(false);
   }
   
   

@@ -2,7 +2,6 @@
 
 
 package stratos.start;
-import static stratos.start.SaveUtils.SAVES_DIR;
 import stratos.game.common.Session;
 import stratos.game.common.Stage;
 import stratos.graphics.common.Rendering;
@@ -10,6 +9,10 @@ import stratos.graphics.widgets.HUD;
 import stratos.util.*;
 
 import java.io.File;
+
+
+//  TODO:  Problem- Once the day-count gets higher than 10, alphabetic sorting
+//         no longer works correctly!
 
 
 
@@ -20,7 +23,10 @@ public class SaveUtils {
     SAVES_DIR    = "saves/",
     EXT          = ".rep" ,
     PAD_NAME     = "I"    ,
-    DIVIDER      = ": "   ;
+    DIVIDER      = ": "   ,
+    DAYS_SEP     = ", "   ,
+    DAY_LABEL    = "Day"  ,
+    HOURS_LABEL  = "Hours";
   
   
   public static String fullSavePath(String prefix, String suffix) {
@@ -83,14 +89,18 @@ public class SaveUtils {
   }
   
   
-  public static String[] savedFiles(String prefix) {
+  public static String[] savedFiles(final String prefix) {
     //
-    //  We use the default alphabetical sorting here, as the only difference
-    //  between saves of a given prefix should be the timestamp, and that'll be
-    //  picked up in the ASCII codes for hours, minutes, etc (see below.)
+    //  In essence, we filter out all numeric digits in the string and use that
+    //  to establish a sorting order in time.
     final Sorting <String> sorting = new Sorting <String> () {
       public int compare(String a, String b) {
-        return a.compareTo(b);
+        final int
+          timeA = getTimeDigits(a, prefix),
+          timeB = getTimeDigits(b, prefix);
+        if (timeA > timeB) return  1;
+        if (timeB > timeA) return -1;
+        return 0;
       }
     };
     final File savesDir = new File(SAVES_DIR);
@@ -105,15 +115,25 @@ public class SaveUtils {
   }
   
   
+  public static int getTimeDigits(String fileName, String prefix) {
+    final StringBuffer s = new StringBuffer();
+    for (char c : fileName.substring(prefix.length()).toCharArray()) {
+      if (c < '0' || c > '9') continue;
+      else s.append(c);
+    }
+    return Integer.parseInt(s.toString());
+  }
+  
+  
   public static String timeStamp(Stage world) {
     final float time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
     String
-      day    = "Day "+(int) time,
+      day    = DAY_LABEL+" "+(int) time,
       hour   = ""+(int)   (24 * (time % 1)),
       minute = ""+(int) (((24 * (time % 1)) % 1) * 60);
     while (hour  .length() < 2) hour   = "0"+hour  ;
     while (minute.length() < 2) minute = "0"+minute;
-    final String newStamp = DIVIDER+day+", "+hour+minute+" Hours";
+    final String newStamp = DIVIDER+day+", "+hour+minute+" "+HOURS_LABEL;
     return newStamp;
   }
   

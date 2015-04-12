@@ -57,9 +57,10 @@ public class Holding extends Venue {
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    Holding.class, "holding", "Holding",
-    2, 2, Venue.Type.TYPE_STANDARD,
-    Bastion.PROFILE, Owner.TIER_PRIVATE, PROVIDE_HOUSING
+    Holding.class, "holding", "Seal Tent",
+    2, 2, IS_NORMAL,
+    Bastion.PROFILE, Owner.TIER_PRIVATE,
+    PROVIDE_HOUSING
   );
   
   
@@ -177,13 +178,16 @@ public class Holding extends Venue {
     }
     super.updateAsScheduled(numUpdates, instant);
     
-    if (! structure.intact()) return;
+    if (instant || ! structure.intact()) return;
     consumeMaterials();
     updateDemands(upgradeLevel + 1);
     impingeSqualor();
 
     final int CHECK_TIME = 10;
-    if (numUpdates % CHECK_TIME == 0) checkForUpgrade(CHECK_TIME);
+    if (numUpdates % CHECK_TIME == 0) {
+      checkForUpgrade(CHECK_TIME);
+      addTaxBonus(CHECK_TIME);
+    }
     
     if (
       (targetLevel != upgradeLevel) &&
@@ -196,6 +200,13 @@ public class Holding extends Venue {
       attachModel(modelFor(this));
       setAsEstablished(false);
     }
+  }
+  
+  
+  private void addTaxBonus(int period) {
+    //  TODO:  MODIFY THIS BASED ON THE OVERALL WEALTH LEVEL OF YOUR SETTLEMENT.
+    float dayBonus = TAX_PER_DAY[upgradeLevel];
+    stocks.incCredits(dayBonus * period * 1f / Stage.STANDARD_DAY_LENGTH);
   }
   
   
@@ -417,11 +428,11 @@ public class Holding extends Venue {
     ),
     LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
       Holding.class, IMG_DIR+"lower_class_housing.png",
-      3, 3, 2, 2
+      3, 3, 2, 2, false
     ),
     MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
       Holding.class, IMG_DIR+"middle_class_housing.png",
-      3, 3, 2, 2
+      3, 3, 2, 2, false
     ),
     UPPER_CLASS_MODELS[][] = null;
   

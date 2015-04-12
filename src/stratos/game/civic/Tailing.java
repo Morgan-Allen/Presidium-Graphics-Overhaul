@@ -162,7 +162,7 @@ public class Tailing extends Element {
   final public static ModelAsset
     ALL_MOLD_MODELS[][] = CutoutModel.fromImageGrid(
       Tailing.class, IMG_DIR+"all_molds.png",
-      4, 5, 1, 1
+      4, 5, 1, 1, true
     ),
     ISOTOPE_TAILING_MODEL = CutoutModel.fromImage(
       Tailing.class, IMG_DIR+"slab.png", 1, 1

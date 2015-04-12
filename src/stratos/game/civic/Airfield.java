@@ -36,18 +36,10 @@ public class Airfield extends Venue {
     Airfield.class, "media/GUI/Buttons/airfield_button.gif"
   );
   
-  /*
-  final static Traded
-    ALL_TRADE_TYPES[] = ALL_MATERIALS,
-    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_TRADE_TYPES, new Traded[] { SERVICE_COMMERCE }
-    );
-  //*/
-  
   final static VenueProfile PROFILE = new VenueProfile(
     Airfield.class, "airfield", "Airfield",
-    6, 3, Venue.Type.TYPE_STANDARD,
-    new VenueProfile[] { StockExchange.PROFILE, TrooperLodge.PROFILE },
+    6, 3, IS_NORMAL,
+    new VenueProfile[] { SupplyDepot.PROFILE, Bastion.PROFILE },
     Owner.TIER_FACILITY
   );
   
@@ -59,7 +51,7 @@ public class Airfield extends Venue {
     super(PROFILE, base);
     structure.setupStats(
       250,  //integrity
-      5,    //armour
+      5  ,  //armour
       400,  //build cost
       Structure.NORMAL_MAX_UPGRADES,
       Structure.TYPE_VENUE
@@ -157,8 +149,8 @@ public class Airfield extends Venue {
   
   protected int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
-    if (b == WINGMAN  ) return nO + 1;
-    if (b == DECK_HAND) return nO + 1;
+    if (b == WINGMAN) return nO + 1;
+    //if (b == DECK_HAND) return nO + 1;
     return 0;
   }
   
@@ -167,7 +159,8 @@ public class Airfield extends Venue {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
-    if (actor.vocation() == DECK_HAND) {
+    /*
+    if (actor.mind.vocation() == DECK_HAND) {
       final Traded goods[] = services();
       final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
         this, goods, 1, 5, 5
@@ -178,6 +171,7 @@ public class Airfield extends Venue {
       );
       choice.add(c);
     }
+    //*/
     
     return choice.weightedPick();
   }

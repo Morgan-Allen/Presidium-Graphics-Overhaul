@@ -131,7 +131,7 @@ public class CutoutModel extends ModelAsset {
   
   public static CutoutModel[][] fromImageGrid(
     Class sourceClass, String fileName,
-    int gridX, int gridY, float size, float height
+    int gridX, int gridY, float size, float height, boolean splat
   ) {
     final CutoutModel grid[][] = new CutoutModel[gridX][gridY];
     final float stepX = 1f / gridX, stepY = 1f / gridY;
@@ -139,7 +139,7 @@ public class CutoutModel extends ModelAsset {
       final float gx = c.x * stepX, gy = c.y * stepY;
       final Box2D window = new Box2D().set(gx, gy, stepX, stepY);
       grid[c.x][gridY - (c.y + 1)] = new CutoutModel(
-        fileName, sourceClass, window, size, false
+        fileName, sourceClass, window, size, splat
       );
     }
     return grid;

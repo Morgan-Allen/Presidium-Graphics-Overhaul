@@ -9,7 +9,6 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-//import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 
@@ -204,7 +203,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     
     float urgency = shift == Venue.SECONDARY_SHIFT ? IDLE : ROUTINE;
     if (! hasNeeded()) urgency /= 2;
-    final float boost = IDLE * (demand - amount) / demand;
+    final float boost = CASUAL * (demand - amount) / demand;
     
     final float priority = priorityForActorWith(
       actor, venue,

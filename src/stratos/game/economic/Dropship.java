@@ -417,10 +417,12 @@ public class Dropship extends Vehicle implements Owner {
     //  TODO:  List homeworld and time remaining to Liftoff!
     
     d.append("\n\nGoods sought: ");
-    for (Traded t : cargo.demanded()) {
+    for (Traded t : ALL_MATERIALS) {
       if (cargo.producer(t) == false) continue;
-      final int amount = (int) cargo.demandFor(t);
-      d.append(t+" ("+amount+")");
+      final int
+        sought = (int) cargo.demandFor(t),
+        has    = (int) cargo.amountOf (t);
+      d.append("\n  "+t+" ("+has+"/"+sought+")");
     }
     
     d.append("\n\nPort Of Origin: "+base.commerce.homeworld());

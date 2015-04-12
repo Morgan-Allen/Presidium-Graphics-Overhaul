@@ -21,10 +21,8 @@ public class ServiceHatch extends Venue {
   
   /**  Data fields, constructors and save/load methods:
     */
-  private static boolean verbose = true;
-  
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    ServiceHatch.class, "media/Buildings/civilian/access_hatch_0.png", 1, 1
+    ServiceHatch.class, "media/Buildings/civilian/access_hatch_0.png", 2, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
@@ -32,7 +30,7 @@ public class ServiceHatch extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     ServiceHatch.class, "service_hatch", "Service Hatch",
-    1, 1, Venue.Type.TYPE_STANDARD,
+    2, 1, IS_NORMAL,
     Bastion.PROFILE, Owner.TIER_PRIVATE
   );
   
@@ -40,6 +38,13 @@ public class ServiceHatch extends Venue {
   
   public ServiceHatch(Base base) {
     super(PROFILE, base);
+    structure.setupStats(
+      40,  // integrity
+      8 ,  // armour
+      30,  // build cost
+      0 ,  // max. upgrades
+      Structure.TYPE_FIXTURE
+    );
     attachModel(MODEL);
   }
   

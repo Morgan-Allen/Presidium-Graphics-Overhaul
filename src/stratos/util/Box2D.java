@@ -252,6 +252,11 @@ public class Box2D {
   }
   
   
+  public boolean contains(Coord c) {
+    return contains(c.x, c.y);
+  }
+  
+  
   
   /**  Returns the euclidean distance of the given point from the boundaries of
     *  this box.

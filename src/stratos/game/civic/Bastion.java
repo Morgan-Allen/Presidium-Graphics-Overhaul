@@ -23,7 +23,6 @@ import static stratos.game.economic.Economy.*;
 public class Bastion extends Venue {
   
   
-  
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
@@ -39,7 +38,7 @@ public class Bastion extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Bastion.class, "bastion", "Bastion",
-    7, 4, Venue.Type.TYPE_UNIQUE,
+    7, 4, IS_UNIQUE,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
   private Box2D excludes, claims;
@@ -213,13 +212,13 @@ public class Bastion extends Venue {
   public int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
     if (b == Backgrounds.TROOPER) {
-      return nO + 2 + structure.upgradeLevel(SECURITY_MEASURES);
+      return nO + 1 + structure.upgradeLevel(SECURITY_MEASURES);
     }
     if (b == Backgrounds.TECHNICIAN) {
       return nO + 2 + structure.upgradeLevel(LOGISTIC_SUPPORT);
     }
     if (b == Backgrounds.AUDITOR) {
-      return nO + ((1 + structure.upgradeLevel(LOGISTIC_SUPPORT)) / 2);
+      return nO + 1 + ((1 + structure.upgradeLevel(LOGISTIC_SUPPORT)) / 2);
     }
     if (b == Backgrounds.STEWARD) {
       return nO + ((1 + structure.upgradeLevel(GUEST_QUARTERS)) / 2);
@@ -244,19 +243,20 @@ public class Bastion extends Venue {
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;
+    final boolean offShift = staff.shiftFor(actor) == Venue.SECONDARY_SHIFT;
     
     //  TODO:  Apply to all advisors!
     if (actor == base().ruler()) {
       return Supervision.stayForVIP(this, actor);
     }
-    final Background v = actor.vocation();
+    final Background v = actor.mind.vocation();
     if (v == Backgrounds.STEWARD || v == Backgrounds.FIRST_CONSORT) {
       return Supervision.stayForVIP(this, actor);
     }
     
     //
     //  Otherwise, return occupations for more regular staff-
-    if (! staff.onShift(actor)) return null;
+    if (! (onShift || offShift)) return null;
     if (v == Backgrounds.TROOPER || v == Backgrounds.WAR_MASTER) {
       return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
     }
@@ -287,8 +287,8 @@ public class Bastion extends Venue {
     powerLimit *= condition;
     lifeSLimit *= condition;
     structure.assignOutputs(
-      Item.withAmount(POWER       , powerLimit),
-      Item.withAmount(ATMO, lifeSLimit)
+      Item.withAmount(POWER, powerLimit),
+      Item.withAmount(ATMO , lifeSLimit)
     );
     //
     //  Demand provisions-

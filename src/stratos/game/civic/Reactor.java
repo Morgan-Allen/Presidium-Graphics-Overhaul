@@ -75,19 +75,19 @@ public class Reactor extends Venue {
   final public static Conversion
     METALS_TO_FUEL = new Conversion(
       Reactor.class, "metals_to_fuel",
-      5, ORES, TO, 1, TOPES,
+      1, ORES, TO, 1, TOPES,
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     TOPES_TO_ANTIMASS = new Conversion(
       Reactor.class, "fuel_to_antimass",
-      20, TOPES, TO, 1, ANTIMASS,
+      4, TOPES, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
     )
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
     Reactor.class, "reactor", "Reactor",
-    4, 2, Venue.Type.TYPE_STANDARD,
+    4, 2, IS_NORMAL,
     EngineerStation.PROFILE, Owner.TIER_FACILITY,
     METALS_TO_FUEL, TOPES_TO_ANTIMASS
   );

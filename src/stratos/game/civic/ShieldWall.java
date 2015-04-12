@@ -81,7 +81,7 @@ public class ShieldWall extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     ShieldWall.class, "shield_wall", "Shield Wall",
-    2, 2, Venue.Type.TYPE_FIXTURE,
+    2, 2, IS_LINEAR | IS_FIXTURE,
     TrooperLodge.PROFILE, Owner.TIER_FACILITY
   );
   

@@ -37,7 +37,7 @@ public class Smelter extends Venue {
     ),
     ALL_MOLD_MODELS[][] = CutoutModel.fromImageGrid(
       Smelter.class, IMG_DIR+"all_molds.png",
-      4, 5, 1, 1
+      4, 5, 1, 1, true
     ),
     SMOKE_STACK_MODEL = CutoutModel.fromImage(
       Smelter.class, IMG_DIR+"smoke_stack.png", 1, 1
@@ -58,7 +58,7 @@ public class Smelter extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Smelter.class, "smelter", "Smelter",
-    4, 2, Venue.Type.TYPE_FIXTURE,
+    4, 2, IS_NORMAL,
     ExcavationSite.PROFILE, Owner.TIER_FACILITY
   );
   

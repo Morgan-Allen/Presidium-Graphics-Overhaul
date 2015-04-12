@@ -33,7 +33,7 @@ public class EnforcerBloc extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     EnforcerBloc.class, "enforcer_bloc", "Enforcer Bloc",
-    3, 3, Venue.Type.TYPE_STANDARD,
+    3, 3, IS_NORMAL,
     Bastion.PROFILE, Owner.TIER_FACILITY
   );
   
@@ -85,12 +85,12 @@ public class EnforcerBloc extends Venue {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
-    if (actor.vocation() == Backgrounds.AUDITOR) {
+    if (actor.mind.vocation() == Backgrounds.AUDITOR) {
       choice.add(Audit.nextOfficialAudit(actor));
       choice.add(Sentencing.nextTrialFor(actor, this));
       choice.add(stocks.nextManufacture(actor, PLASTICS_TO_PRESSFEED));
     }
-    if (actor.vocation() == Backgrounds.ENFORCER) {
+    if (actor.mind.vocation() == Backgrounds.ENFORCER) {
       choice.add(Arrest.nextOfficialArrest(this, actor));
       choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
       //  TODO:  DISTRIBUTE PRESSFEED!

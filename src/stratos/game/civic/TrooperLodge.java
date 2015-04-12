@@ -30,7 +30,7 @@ public class TrooperLodge extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     TrooperLodge.class, "trooper_lodge", "Trooper Lodge",
-    4, 3, Venue.Type.TYPE_STANDARD,
+    4, 3, IS_NORMAL,
     Bastion.PROFILE, Owner.TIER_FACILITY
   );
   

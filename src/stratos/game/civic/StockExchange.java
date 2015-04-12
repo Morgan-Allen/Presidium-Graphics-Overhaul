@@ -51,7 +51,7 @@ public class StockExchange extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     StockExchange.class, "stock_exchange", "Stock Exchange",
-    4, 1, Venue.Type.TYPE_STANDARD,
+    4, 1, IS_NORMAL,
     SupplyDepot.PROFILE, Owner.TIER_FACILITY
   );
   
@@ -264,19 +264,19 @@ public class StockExchange extends Venue {
   
   
   protected void addServices(Choice choice, Actor actor) {
-    if (! (actor.mind.home() instanceof Holding)) return;
-    final Holding holding = (Holding) actor.mind.home();
-    
-    final Delivery d = DeliveryUtils.fillBulkOrder(
-      this, holding, holding.stocks.demanded(), 1, 5
-    );
-    if (d == null) return;
-    
-    //  TODO:  BASE THIS OFF A KEY UPGRADE!
-    final float advertBonus = 0.5f;
-    d.setWithPayment(actor, true);
-    d.addMotives(Plan.MOTIVE_LEISURE, Plan.CASUAL * advertBonus);
-    choice.add(d);
+    final Property home = actor.mind.home();
+    if (home instanceof Venue) {
+      final Delivery d = DeliveryUtils.fillBulkOrder(
+        this, home, ((Venue) home).stocks.demanded(), 1, 5
+      );
+      if (d != null) {
+        //  TODO:  BASE THIS OFF A KEY UPGRADE!
+        final float advertBonus = 0.5f;
+        d.setWithPayment(actor, true);
+        d.addMotives(Plan.MOTIVE_LEISURE, Plan.CASUAL * advertBonus);
+        choice.add(d.setWithPayment(actor, true));
+      }
+    }
   }
   
   

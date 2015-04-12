@@ -741,7 +741,9 @@ public interface Backgrounds {
         male_portrait = portraitFor("highborn_portrait.png" );
       public String nameFor(Actor actor) {
         final boolean male = actor.traits.male();
-        final Background rank = actor.base().ruler().vocation();
+        final Actor ruler = actor.base().ruler();
+        if (ruler == null) return male ? "Lord Consort" : "Lady Consort";
+        final Background rank = ruler.mind.vocation();
         if (rank == KNIGHTED) return male ? "Lord Consort" : "Lady Consort";
         if (rank == COUNT) return male ? "Count Consort" : "Countess Consort";
         if (rank == BARON) return male ? "Baron Consort" : "Baroness Consort";

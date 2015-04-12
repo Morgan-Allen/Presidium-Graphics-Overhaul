@@ -83,7 +83,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Cantina.class, "cantina", "Cantina",
-    3, 2, Venue.Type.TYPE_STANDARD,
+    3, 2, IS_NORMAL,
     StockExchange.PROFILE, Owner.TIER_FACILITY
   );
   
@@ -137,7 +137,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     */
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
-    if (actor.vocation() == Backgrounds.SOMA_CHEF) {
+    if (actor.mind.vocation() == Backgrounds.SOMA_CHEF) {
       final Traded needed[] = { SOMA, CARBS, PROTEIN };
       final Delivery d = DeliveryUtils.bestBulkCollectionFor(
         this, needed, 1, 5, 5
@@ -145,7 +145,7 @@ public class Cantina extends Venue implements Performance.Theatre {
       if (d != null) return d;
       return Supervision.oversight(this, actor);
     }
-    if (actor.vocation() == Backgrounds.PERFORMER) {
+    if (actor.mind.vocation() == Backgrounds.PERFORMER) {
       for (Actor a : Performance.audienceFor(this, Recreation.TYPE_EROTICS)) {
         final Performance p = new Performance(
           actor, this, Recreation.TYPE_EROTICS, a, LODGING_PRICE

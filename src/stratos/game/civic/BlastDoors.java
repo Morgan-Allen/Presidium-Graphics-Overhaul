@@ -32,7 +32,7 @@ public class BlastDoors extends ShieldWall implements TileConstants {
     */
   final static VenueProfile PROFILE = new VenueProfile(
     BlastDoors.class, "blast_doors", "Blast Doors",
-    4, 2, Venue.Type.TYPE_FIXTURE,
+    4, 2, IS_FIXTURE | IS_LINEAR,
     TrooperLodge.PROFILE, Owner.TIER_FACILITY
   );
   

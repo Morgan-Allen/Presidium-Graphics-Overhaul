@@ -170,21 +170,12 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  
-  /**  Vehicles are generally commissioned as an accompaniment to venues by
-    *  venues themselves, so these methods aren't much used.
-    */
-  public int buildCost() { return structure.buildCost(); }
-  public String objectCategory() { return UIConstants.TYPE_HIDDEN; }
-  
-  public void doPlacement() {}
-  public void previewPlacement(boolean canPlace, Rendering rendering) {}
+  public void doPlacement() {
+    enterWorld();
+  }
   
   
   
-  /**  TODO:  Include code here for assessing suitable landing sites?
-    */
-
   /**  Assigning jobs to crew members-
     */
   public void addTasks(Choice choice, Actor forActor, Background background) {
@@ -465,6 +456,11 @@ public abstract class Vehicle extends Mobile implements
 
   public String toString() {
     return fullName();
+  }
+  
+  
+  public String objectCategory() {
+    return UIConstants.TYPE_HIDDEN;
   }
   
   

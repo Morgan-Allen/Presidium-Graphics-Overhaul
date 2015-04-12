@@ -60,7 +60,7 @@ public class TutorialScenario extends StartupScenario implements
   }
   
   
-  public MessagePane messageFor(String title, BaseUI UI) {
+  public MessagePane configMessage(String title, BaseUI UI) {
     return script().messageFor(title);
   }
   

@@ -47,7 +47,7 @@ public class PhysicianStation extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     PhysicianStation.class, "physician_station", "Sickbay",
-    3, 2, Venue.Type.TYPE_STANDARD,
+    3, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY, REAGENTS_TO_MEDICINE
   );
   
@@ -147,7 +147,7 @@ public class PhysicianStation extends Venue {
       "treatments to the idiosyncracies of a given patient.",
       150,
       Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
-      EMERGENCY_AID, PhysicianStation.class, ALL_UPGRADES
+      MINDER_STATION, PhysicianStation.class, ALL_UPGRADES
     );
   
   

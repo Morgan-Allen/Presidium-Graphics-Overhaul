@@ -3,6 +3,7 @@
 
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.graphics.common.ImageAsset;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
 
@@ -24,6 +25,7 @@ public class Traded extends Index.Entry implements Session.Saveable {
   final public String name, description;
   
   final public String picPath;
+  final public ImageAsset icon;
   final public CutoutModel model;
   
   final public String supplyKey, demandKey;
@@ -47,7 +49,7 @@ public class Traded extends Index.Entry implements Session.Saveable {
     String name, String imgName,
     int form, int basePrice
   ) {
-    this(typeClass, name, null, form, basePrice, null);
+    this(typeClass, name, imgName, form, basePrice, null);
   }
   
   
@@ -66,12 +68,15 @@ public class Traded extends Index.Entry implements Session.Saveable {
     this.basePrice = basePrice / GameSettings.SPEND_DIVISOR;
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
+    
     if (new java.io.File(imagePath).exists()) {
       this.picPath = imagePath;
+      this.icon  = ImageAsset.fromImage(typeClass, imagePath);
       this.model = CutoutModel.fromImage(typeClass, imagePath, IS, IS);
     }
     else {
       this.picPath = DEFAULT_PIC_PATH;
+      this.icon  = ImageAsset.fromImage(typeClass, picPath);
       this.model = CutoutModel.fromImage(typeClass, picPath, IS, IS);
     }
     

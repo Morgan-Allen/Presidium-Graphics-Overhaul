@@ -32,10 +32,10 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     extraVerbose   = false,
-    migrateVerbose = verbose && true ,
-    tradeVerbose   = verbose && false;
+    migrateVerbose = verbose && false,
+    tradeVerbose   = verbose && true ;
   
   final public static float
     SUPPLY_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
@@ -174,7 +174,7 @@ public class BaseCommerce {
     final Background demanded[] = Background.INDEX.allEntries(Background.class);
     
     final Tally <Background> jobSupply = new Tally <Background> ();
-    for (Actor c : candidates) jobSupply.add(1, c.vocation());
+    for (Actor c : candidates) jobSupply.add(1, c.mind.vocation());
     
     if (report) I.say("\nChecking for new recruits (slice: "+TIME_SLICE+")");
     
@@ -214,9 +214,9 @@ public class BaseCommerce {
     for (ListEntry e = candidates; (e = e.nextEntry()) != candidates;) {
       final Human c = (Human) e.refers;
       
-      final Background a = c.vocation();
+      final Background a = c.mind.vocation();
       float quitChance = TIME_SLICE;
-      if (report) I.say("  Updating "+c+" ("+c.vocation()+")");
+      if (report) I.say("  Updating "+c+" ("+a+")");
       
       if (a != null) {
         final float
@@ -383,6 +383,8 @@ public class BaseCommerce {
   
   public void configCargo(Stocks forShipping, int fillLimit, boolean fillImp) {
     
+    if (fillImp) forShipping.removeAllItems();
+    
     final Batch <Item>
       imports = new Batch <Item> (),
       exports = new Batch <Item> ();
@@ -412,7 +414,7 @@ public class BaseCommerce {
     for (Item e : exports) {
       final int amount = Nums.round(e.amount * scaleExp, 2, false);
       if (amount <= 0) continue;
-      forShipping.forceDemand(e.type, amount, false);
+      forShipping.forceDemand(e.type, amount, true);
     }
   }
   

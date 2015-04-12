@@ -43,7 +43,7 @@ public class EcologistStation extends Venue {
     );
   final static VenueProfile PROFILE = new VenueProfile(
     EcologistStation.class, "ecologist_station", "Ecologist Station",
-    4, 3, Venue.Type.TYPE_STANDARD,
+    4, 3, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
   
@@ -161,22 +161,22 @@ public class EcologistStation extends Venue {
       if (n.base() != this.base()) continue;
       if (Plan.competition(Farming.class, n, actor) > 0) continue;
       
-      final float urgency = shortages + n.needForTending();
-      if (urgency > 0.5f || onShift) {
+      if (shortages > 0.5f || onShift) {
         final Farming farming = new Farming(actor, this, n);
+        farming.addMotives(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE * shortages);
         choice.add(farming);
       }
     }
     if (shortages > 0.5f) {
       final Foraging foraging = new Foraging(actor, this);
-      foraging.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT * shortages);
+      foraging.addMotives(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE * shortages);
       choice.add(foraging);
     }
     
-    if (actor.vocation() == ECOLOGIST && onShift) {
+    if (actor.mind.vocation() == ECOLOGIST && onShift) {
       addEcologistJobs(actor, onShift, choice);
     }
-    if (actor.vocation() == CULTIVATOR && onShift) {
+    if (actor.mind.vocation() == CULTIVATOR && onShift) {
       addCultivatorJobs(actor, onShift, choice);
     }
     return choice.weightedPick();
@@ -275,7 +275,7 @@ public class EcologistStation extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { GENE_SEED };
+    return new Traded[] { GENE_SEED, GREENS, PROTEIN, CARBS };
   }
   
   

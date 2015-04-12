@@ -24,9 +24,9 @@ public class HoldingExtra extends Fixture implements TileConstants {
   
   
   final static ModelAsset EXTRA_MODELS[][] = CutoutModel.fromImageGrid(
-      Holding.class, Holding.IMG_DIR+"housing_props.png",
-      3, 3, 1.03f, 1
-    );
+    Holding.class, Holding.IMG_DIR+"housing_props.png",
+    3, 3, 1.03f, 1, false
+  );
   private static boolean verbose = false;
   
   

@@ -53,7 +53,7 @@ public class SolarBank extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     SolarBank.class, "solar_bank", "Solar Bank",
-    2, 2, Venue.Type.TYPE_FIXTURE,
+    2, 2, IS_LINEAR | IS_FIXTURE,
     EcologistStation.PROFILE, Owner.TIER_FACILITY
   );
   
@@ -62,6 +62,7 @@ public class SolarBank extends Venue {
     super(PROFILE, base);
     this.type = TYPE_PLACING;
     structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE);
+    attachModel(TYPE_MODELS[1]);
   }
   
   
@@ -128,6 +129,7 @@ public class SolarBank extends Venue {
   //  TODO:  Unify this with the equivalent methods in the Arcology class (and
   //  maybe ShieldWall?)
   
+  /*
   final static int
     FACING_X_COORDS[] = { 0, 0,  2, 0,  4, 0,  6, 0 }, OFFS_X[] = {3, 0},
     FACING_Y_COORDS[] = { 0, 0,  0, 2,  0, 4,  0, 6 }, OFFS_Y[] = {0, 3},
@@ -181,6 +183,7 @@ public class SolarBank extends Venue {
     }
     return true;
   }
+  //*/
   
   
   protected boolean checkPerimeter(Stage world) {

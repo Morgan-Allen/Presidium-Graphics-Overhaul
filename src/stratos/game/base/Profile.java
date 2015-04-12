@@ -105,8 +105,10 @@ public class Profile {
     //  TODO:  This needs to be negotiated, or at least modified, based on
     //  reluctance to settle or personal dislike.  TODO:  Unify this with the
     //  FindWork / Career methods on the subject.
-    if (actor.vocation() == null || actor.mind.work() == null) return 0;
-    return actor.vocation().defaultSalary;
+    
+    final Background vocation = actor.mind.vocation();
+    if (vocation == null || actor.mind.work() == null) return 0;
+    return vocation.defaultSalary;
   }
   
   

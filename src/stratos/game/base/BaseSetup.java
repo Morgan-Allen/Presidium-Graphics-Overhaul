@@ -8,9 +8,10 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
-import stratos.game.wild.Nest;
+//import stratos.game.wild.Nest;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.user.notify.*;
 
 
 
@@ -214,10 +215,12 @@ public class BaseSetup {
   
   
   private void rankSectionPlacings(Venue samples[], boolean report) {
+    
     sitings.clear();
     if (report) {
       I.say("\nAttempting to gather section rankings...");
       I.say("  Time: "+base.world.currentTime());
+      I.say("  Total venue types: "+samples.length);
     }
     
     for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
@@ -423,7 +426,95 @@ public class BaseSetup {
       ", rating: "+best.rating
     );
   }
+  
+  
+  public Object[] needSatisfaction() {
+    final List <Object> needs = new List <Object> () {
+      protected float queuePriority(Object r) {
+        return needRating(r);
+      }
+    };
+    for (Traded t : Economy.ALL_MATERIALS) {
+      if (base.commerce.primaryShortage(t) > 0) needs.add(t);
+    }
+    for (Traded t : Economy.ALL_SERVICES) {
+      if (base.demands.globalShortage(t) > 0) needs.add(t);
+    }
+    while (needs.size() > 3) needs.removeLast();
+    return needs.toArray();
+  }
+  
+  
+  public float needRating(Object need) {
+    if (need instanceof Traded) {
+      return base.commerce.primaryShortage((Traded) need);
+    }
+    return base.demands.globalShortage(need);
+  }
+  
+  
+  public MessagePane messageForNeed(Object t, BaseUI UI) {
+    
+    final String titleKey = "Need "+t;
+    final MessagePane pane = new MessagePane(
+      UI, null, titleKey, null, null
+    );
+    
+    final Batch <VenueProfile> canMatch = new Batch <VenueProfile> ();
+    for (VenueProfile profile : canPlace) {
+      for (Conversion c : profile.processed) {
+        if (c.out.type == t) {
+          canMatch.include(profile);
+          continue;
+        }
+      }
+    }
+    
+    pane.header().setText("Shortage of "+t);
+    final Description d = pane.detail();
+    
+    for (VenueProfile match : canMatch) {
+      final Conversion s = match.producing(t);
+      
+      if (s.raw.length > 0) {
+        d.append("Consider building a "+match.name+", which converts ");
+        for (Item i : s.raw) d.append(i.type+" ");
+        d.append("to "+s.out.type+".");
+      }
+      else {
+        d.append("Consider building a "+match.name+", which provides "+t+".");
+      }
+      
+      final String category = InstallationPane.categoryFor(match);
+      if (category != null) d.append("\n  Category: "+category+" Structures");
+      
+      if (match.required.length > 0) for (VenueProfile req : match.required) {
+        if (base.listInstalled(req, true).size() > 0) continue;
+        d.append("\n  Requires: "+req.name);
+      }
+      d.append("\n\n");
+    }
+    
+    if (Visit.arrayIncludes(Economy.ALL_MATERIALS, t)) {
+      if (canMatch.size() > 0) {
+        d.append("Alternatively, you could import this good at a ");
+      }
+      else d.append("You could import this good at a ");
+      d.append("Supply Depot or an Airfield.");
+      d.append("\n\n");
+    }
+    
+    return pane;
+  }
 }
+
+
+
+
+
+
+
+
 
 
 

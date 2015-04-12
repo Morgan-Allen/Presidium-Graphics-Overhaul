@@ -186,7 +186,7 @@ public class HumanMind extends ActorMind implements Qualities {
     choice.add(new Retreat(actor));
     
     if (work != null) {
-      work.addTasks(choice, actor, actor.vocation());
+      work.addTasks(choice, actor, actor.mind.vocation());
       choice.add(new Payday(actor, work));
     }
     if (home != null) {

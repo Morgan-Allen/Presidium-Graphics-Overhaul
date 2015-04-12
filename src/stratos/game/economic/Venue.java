@@ -17,7 +17,7 @@ import static stratos.game.economic.Economy.*;
 
 
 public abstract class Venue extends Structural implements
-  Boarding, Owner, Property, Accountable
+  Boarding, Owner, Property, Placeable
 {
   
   /**  Field definitions, constants, constructors, and save/load methods.
@@ -33,9 +33,14 @@ public abstract class Venue extends Structural implements
     SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
     SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
   
-  public static enum Type {
-    TYPE_FIXTURE, TYPE_STANDARD, TYPE_UNIQUE
-  };
+  final public static int
+    //  These are OR'd together in the VenueProfile to state properties-
+    IS_NORMAL  = 0 ,
+    IS_FIXTURE = 1 ,
+    IS_LINEAR  = 2 ,
+    IS_ZONED   = 4 ,
+    IS_UNIQUE  = 8 ,
+    IS_WILD    = 16;
   
   final public static VenueProfile NO_REQUIREMENTS[] = new VenueProfile[0];
   
@@ -128,6 +133,12 @@ public abstract class Venue extends Structural implements
   
   /**  Structure.Basis and positioning-
     */
+  public boolean setupWith(Tile position, Box2D area, Coord... others) {
+    if (position == null) return false;
+    return setPosition(position.x, position.y, position.world);
+  }
+  
+  
   public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
     
@@ -158,36 +169,58 @@ public abstract class Venue extends Structural implements
         }
       }
     }
-    if (entrance == null && profile.isFixture()) return false;
+    if (! entranceOkay()) return false;
     return true;
   }
   
   
-  public boolean canPlace() {
-    if (origin() == null) return false;
+  public boolean canPlace(Account reasons) {
+    if (origin() == null) return reasons.asFailure("Over the edge!");
+    if (! entranceOkay()) return reasons.asFailure("No room for entrance");
     final Stage world = origin().world;
+    final boolean solid = pathType() >= Tile.PATH_HINDERS;
     //
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
     for (Tile t : world.tilesIn(footprint(), false)) {
-      if (t == null || t.reserved()) return false;
+      if (t == null) return reasons.asFailure("Over the edge!");
+      if (t.reserved()) {
+        if (reasons == Account.NONE) return false;
+        return reasons.asFailure("Area reserved by "+t.onTop());
+      }
+      if (t.isEntrance() && solid) {
+        if (reasons == Account.NONE) return false;
+        return reasons.asFailure("Is entrance for "+t.entranceFor());
+      }
     }
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
-      return false;
+      if (reasons == Account.NONE) return false;
+      return reasons.asFailure("Too close to "+c);
     }
-    if (! checkPerimeter(world)) return false;
+    if (solid && ! checkPerimeter(world)) {
+      return reasons.asFailure("Might obstruct pathing");
+    }
     final Tile e = mainEntrance();
-    if (e != null && e.reserved()) return false;
+    if (e != null && e.reserved()) {
+      return reasons.asFailure("Entrance blocked");
+    }
+    return reasons.asSuccess();
+  }
+  
+  
+  public boolean canPlace() {
+    return canPlace(Account.NONE);
+  }
+  
+  
+  protected boolean entranceOkay() {
+    if (profile.isFixture()) return true;
+    if (entrance == null || entrance.blocked()) return false;
     return true;
   }
   
   
-  //  TODO:  Get the set of structures that conflict with this instead, and
-  //  pass that to both the canPlace() and enterWorld() methods!
   protected boolean checkPerimeter(Stage world) {
-    for (Tile t : Spacing.perimeter(footprint(), world)) {
-      if (t == null || ! t.habitat().pathClear) return false;
-    }
     return Placement.perimeterFits(this, world);
   }
   
@@ -388,7 +421,7 @@ public abstract class Venue extends Structural implements
   
   //  TODO:  Make these abstract?
   public float ratePlacing(Target point, boolean exact) {
-    return 1;
+    return 0;
   }
   
   

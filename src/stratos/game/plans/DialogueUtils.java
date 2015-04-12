@@ -20,7 +20,7 @@ public class DialogueUtils implements Qualities {
     if (other.health.animal  ()) return XENOZOOLOGY;
     if (other.health.artilect()) return INSCRIPTION;
     if (other.health.human   ()) {
-      final int standing = other.vocation().standing;
+      final int standing = other.mind.vocation().standing;
       if (standing == Backgrounds.CLASS_STRATOI) return NOBLE_ETIQUETTE;
       if (standing == Backgrounds.CLASS_NATIVE ) return NATIVE_TABOO   ;
       return COMMON_CUSTOM;

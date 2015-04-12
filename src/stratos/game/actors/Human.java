@@ -68,6 +68,7 @@ public class Human extends Actor implements Qualities {
     this.career = career;
     assignBase(base);
     career.applyCareer(this, base);
+    mind.setVocation(career.vocation());
     initSpriteFor(this);
   }
   
@@ -87,8 +88,6 @@ public class Human extends Actor implements Qualities {
   
   
   protected ActorMind initMind() { return new HumanMind(this); }
-  
-  public Background vocation() { return career.vocation(); }
   
   public Career career() { return career; }
   
@@ -314,7 +313,7 @@ public class Human extends Actor implements Qualities {
     //
     //  TODO:  make this a general 3D scaling vector, and incorporate other
     //  physical traits.
-    return 1;
+    return 1 * GameSettings.peopleScale();
     /*
     final int stage = health.agingStage();
     final float scale = (float) Nums.pow(traits.relativeLevel(TALL) + 1, 0.1f);

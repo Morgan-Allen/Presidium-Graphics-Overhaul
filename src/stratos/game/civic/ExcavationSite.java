@@ -40,11 +40,22 @@ public class ExcavationSite extends Venue implements TileConstants {
     EXTRA_CLAIM_RANGE = 4,
     DIG_FACE_REFRESH  = Stage.STANDARD_DAY_LENGTH / 10,
     SMELTER_REFRESH   = 10;
+
+  final public static Conversion
+    LAND_TO_METALS = new Conversion(
+      ExcavationSite.class, "land_to_metals",
+      TO, 1, ORES
+    ),
+    LAND_TO_ISOTOPES = new Conversion(
+      ExcavationSite.class, "land_to_isotopes",
+      TO, 1, TOPES
+    );
   
   final static VenueProfile PROFILE = new VenueProfile(
     ExcavationSite.class, "excavation_site", "Excavation Site",
-    4, 1, Venue.Type.TYPE_STANDARD,
-    EngineerStation.PROFILE, Owner.TIER_FACILITY
+    4, 1, IS_NORMAL,
+    EngineerStation.PROFILE, Owner.TIER_FACILITY,
+    LAND_TO_METALS, LAND_TO_ISOTOPES
   );
   
   

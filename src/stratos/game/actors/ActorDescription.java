@@ -79,7 +79,7 @@ public class ActorDescription implements Qualities {
     }
     //
     //  Describe your job, place of work, and current residence:
-    final String VN = h.vocation().nameFor(h);
+    final String VN = h.mind.vocation().nameFor(h);
     d.append("\n  Vocation: "+VN);
     if (h.mind.work() != null) {
       d.append("\n  Employed at: ");
@@ -163,7 +163,7 @@ public class ActorDescription implements Qualities {
         return 0 - h.traits.traitLevel(skill);
       }
     };
-    final Background job = h.vocation();
+    final Background job = h.mind.vocation();
     for (Skill skill : job.skills()) sorting.add(skill);
     sorting.queueSort();
     for (Skill skill : sorting) descSkill(skill, d);

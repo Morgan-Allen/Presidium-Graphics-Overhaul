@@ -561,7 +561,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     }
     
     float value = actor.motives.greedPriority((int) rewardEval);
-    final int standing = actor.vocation().standing;
+    final int standing = actor.mind.vocation().standing;
     value *= standing * 1f / Backgrounds.CLASS_STRATOI;
     
     final Actor ruler = base.ruler();

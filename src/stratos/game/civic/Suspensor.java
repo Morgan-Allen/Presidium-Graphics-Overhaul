@@ -167,7 +167,7 @@ public class Suspensor extends Mobile implements Mount {
       }
       else {
         final Vec3D raise = new Vec3D(nextPosition);
-        raise.z += 0.15f * GameSettings.actorScale;
+        raise.z += 0.15f * GameSettings.peopleScale();
         passenger.setHeading(raise, nextRotation, false, world);
       }
     }
@@ -185,7 +185,7 @@ public class Suspensor extends Mobile implements Mount {
   
   
   protected float spriteScale() {
-    return super.spriteScale() * GameSettings.actorScale;
+    return super.spriteScale() * GameSettings.peopleScale();
   }
   
   

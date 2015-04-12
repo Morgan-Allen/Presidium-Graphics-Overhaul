@@ -35,7 +35,7 @@ public class KommandoLodge extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     KommandoLodge.class, "kommando_lodge", "Kommando Lodge",
-    4, 2, Venue.Type.TYPE_STANDARD,
+    4, 2, IS_NORMAL,
     EcologistStation.PROFILE, Owner.TIER_FACILITY
   );
   

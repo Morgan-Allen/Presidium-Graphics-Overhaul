@@ -107,11 +107,8 @@ public class Setting {
   /**  Public queries/access methods-
     */
   public static float defaultRelations(Base base, Base other) {
-    
     final Object BK = keyFor(base), OK = keyFor(other);
     final Table BR = SETTING.relations.get(BK);
-    
-    
     if (BR == null) return 0;
     final Float val = (Float) BR.get(OK);
     return val != null ? val : 0;

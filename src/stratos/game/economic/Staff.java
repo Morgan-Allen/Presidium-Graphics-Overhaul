@@ -8,7 +8,6 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
-import stratos.game.wild.Species;
 import stratos.game.maps.*;
 import stratos.util.*;
 
@@ -210,7 +209,7 @@ public class Staff {
   public int numPresent(Background match) {
     int num = 0;
     for (Mobile m : employs.inside()) if (m instanceof Actor) {
-      if (((Actor) m).vocation() == match) num++;
+      if (((Actor) m).mind.vocation() == match) num++;
     }
     return num;
   }
@@ -281,7 +280,7 @@ public class Staff {
       0 - a.hiringFee(),
       BaseFinance.SOURCE_HIRING
     );
-    works.setVocation(a.position());
+    works.mind.setVocation(a.position());
     works.mind.setWork(employs);
     //
     //  If there are no remaining openings for this background, cull any
@@ -368,15 +367,15 @@ public class Staff {
   
   public int numHired(Background match) {
     int num = 0; for (Actor c : workers) {
-      if (c.vocation() == match) num++;
+      if (c.mind.vocation() == match) num++;
     }
     return num;
   }
   
   
-  public int numResident(Species match) {
+  public int numResident(Background match) {
     int num = 0; for (Actor c : lodgers) {
-      if (c.species() == match) num++;
+      if (c.mind.vocation() == match) num++;
     }
     return num;
   }

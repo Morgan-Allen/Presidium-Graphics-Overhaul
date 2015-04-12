@@ -44,7 +44,8 @@ public class BuildingSprite extends Sprite {
       "media/SFX/blast_anim.gif", 5, 4, 25,
       (25 / 25f), 1.0f
     ),
-    //  TODO:  Get rid of these, or use separate image files
+    //  TODO:  try to find a way to derive these from the item-icons?
+    
     POWER_MODEL = new PlaneFX.Model(
       "power_model", BuildingSprite.class,
       "media/Items/power.png" , 0.25f, 0, 0, true, true

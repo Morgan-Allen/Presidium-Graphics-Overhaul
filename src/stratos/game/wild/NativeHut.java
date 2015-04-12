@@ -34,7 +34,8 @@ public class NativeHut extends Venue {
   final static String IMG_DIR = "media/Buildings/lairs and ruins/";
   final static ModelAsset
     HUT_MODELS[][] = CutoutModel.fromImageGrid(
-      NativeHut.class, IMG_DIR+"all_native_huts.png", 3, 3, 1, 1
+      NativeHut.class, IMG_DIR+"all_native_huts.png",
+      3, 3, 1, 1, false
     );
   
   final public static String TRIBE_NAMES[] = {
@@ -135,7 +136,7 @@ public class NativeHut extends Venue {
       
       allProfiles.add(new VenueProfile(
         NativeHut.class, "hall_"+tribeID, "Native Hut ("+tribeName+")",
-        2, 2, Venue.Type.TYPE_STANDARD, NO_REQUIREMENTS, Owner.TIER_FACILITY
+        2, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
         public Venue sampleVenue(Base base) {
           return newHall(tribeID, base);
@@ -143,7 +144,7 @@ public class NativeHut extends Venue {
       });
       allProfiles.add(new VenueProfile(
         NativeHut.class, "hut_"+tribeID, "Chief's Hall ("+tribeName+")",
-        3, 2, Venue.Type.TYPE_STANDARD, NO_REQUIREMENTS, Owner.TIER_FACILITY
+        3, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
         public Venue sampleVenue(Base base) {
           return newHut(tribeID, base);
@@ -241,7 +242,7 @@ public class NativeHut extends Venue {
     final Choice choice = new Choice(actor);
     final int numHome = staff.lodgers().size();
     
-    if (actor.vocation() == HUNTER) {
+    if (actor.mind.vocation() == HUNTER) {
       final boolean needMeat = stocks.amountOf(PROTEIN) < numHome;
       if (needMeat) for (Target t : actor.senses.awareOf()) {
         if (Hunting.validPrey(t, actor, true)) {
@@ -254,7 +255,7 @@ public class NativeHut extends Venue {
       }
     }
     
-    if (actor.vocation() == GATHERER) {
+    if (actor.mind.vocation() == GATHERER) {
       final float needFood = (numHome * 2.0f) - Nums.max(
         stocks.amountOf(CARBS ),
         stocks.amountOf(GREENS)

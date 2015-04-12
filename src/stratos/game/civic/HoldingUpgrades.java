@@ -57,10 +57,10 @@ public class HoldingUpgrades {
     NUM_LEVELS     = 5;
   final public static int
     OCCUPANCIES[] = { 4, 4, 4, 4, 4 },
-    TAX_LEVELS [] = { 0, 5, 10, 20, 35 },
     INTEGRITIES[] = { 15, 35, 80, 125, 200 },
     AMBIENCES  [] = { -2, -1, 0, 2, 4 },
-    BUILD_COSTS[] = { 25, 60, 135, 225, 350 };
+    BUILD_COSTS[] = { 25, 60, 135, 225, 350 },
+    TAX_PER_DAY[] = { 0, 5, 15, 35, 75 };
   final static float
     BIOMASS_SUPPORT = 5;
   
@@ -99,12 +99,12 @@ public class HoldingUpgrades {
     ),
     new Conversion(
       Holding.class, "Level 4",
-      2, PLASTICS, 2, PARTS, 1, POWER, 1, WATER,
+      2, PLASTICS, 2, PARTS, 1, POWER, 1, MEDICINE,
       MODERATE_DC, ASSEMBLY
     ),
     new Conversion(
       Holding.class, "Level 5",
-      2, PLASTICS, 3, PARTS, 2, POWER, 1, WATER, 1, DATALINKS,
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
       DIFFICULT_DC, ASSEMBLY
     ),
   };

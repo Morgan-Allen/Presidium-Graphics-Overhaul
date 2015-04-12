@@ -184,7 +184,7 @@ public class StartupScenario extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    final Base base = Base.withName(world, "Player Base", Colour.LITE_BLUE);
+    final Base base = Base.settlement(world, "Player Base", Colour.LITE_BLUE);
     
     int funding = -1, interest = -1;
     switch (config.fundsLevel) {
@@ -346,7 +346,7 @@ public class StartupScenario extends Scenario {
       a.assignBase(base);
       a.enterWorldAt(bastion, world);
       a.goAboard(bastion, world);
-      if (Visit.arrayIncludes(careers, a.vocation())) {
+      if (Visit.arrayIncludes(careers, a.mind.vocation())) {
         a.mind.setWork(bastion);
         a.mind.setHome(bastion);
       }

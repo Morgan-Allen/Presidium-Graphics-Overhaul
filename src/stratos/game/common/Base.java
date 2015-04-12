@@ -75,10 +75,12 @@ public class Base implements
   }
   
   
-  public static Base withName(Stage world, String title, Colour colour) {
+  public static Base settlement(Stage world, String title, Colour colour) {
     final Base base = namedBase(world, title);
     if (base != null) return base;
-    return registerBase(new Base(world, false), world, title, colour);
+
+    final VenueProfile canBuild[] = VenueProfile.allCivicProfiles();
+    return registerBase(new Base(world, false), world, title, colour, canBuild);
   }
   
   
@@ -370,10 +372,48 @@ public class Base implements
   
   
   
+  /**  Venue enumeration methods-
+    */
+  public Batch <Venue> listInstalled(
+    VenueProfile type, boolean intact
+  ) {
+    final Batch <Venue> installed = new Batch <Venue> ();
+    for (Object o : world.presences.matchesNear(type.baseClass, null, -1)) {
+      final Venue v = (Venue) o;
+      if (intact && ! v.structure.intact()) continue;
+      if (v.base() == this) installed.add(v);
+    }
+    return installed;
+  }
+  
+  
+  public boolean checkPrerequisites(VenueProfile profile, Account reasons) {
+    if (profile.isUnique()) {
+      if (listInstalled(profile, false).size() > 0) {
+        return reasons.asFailure("You cannot have more than one "+profile.name);
+      }
+    }
+    for (VenueProfile req : profile.required) {
+      if (listInstalled(req, true).size() <= 0) {
+        return reasons.asFailure("Requires "+req);
+      }
+    }
+    return reasons.asSuccess();
+  }
+  
+  
+  
+  /**  
+    */
   public String toString() {
     return title;
   }
 }
+
+
+
+
+
 
 
 

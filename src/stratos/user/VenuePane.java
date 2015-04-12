@@ -24,7 +24,8 @@ public class VenuePane extends SelectionPane {
   final public static String
     CAT_UPGRADES = "UPGRADE" ,
     CAT_STOCK    = "STOCK"   ,
-    CAT_STAFFING = "STAFFING";
+    CAT_STAFFING = "STAFFING",
+    DEFAULT_CATS[] = { CAT_UPGRADES, CAT_STOCK, CAT_STAFFING };
   
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private Upgrade lastCU = null;
@@ -37,12 +38,11 @@ public class VenuePane extends SelectionPane {
   
   
   public static SelectionPane configStandardPanel(
-    Venue venue, SelectionPane panel, BaseUI UI, boolean stocksOrders
+    Venue venue, SelectionPane panel, BaseUI UI,
+    boolean stocksOrders, String... cats
   ) {
-    final String categories[] = {
-      CAT_UPGRADES, CAT_STOCK, CAT_STAFFING//, CAT_VISITORS
-    };
-    if (panel == null) panel = new VenuePane(UI, venue, categories);
+    if (cats == null || cats.length == 0) cats = DEFAULT_CATS;
+    if (panel == null) panel = new VenuePane(UI, venue, cats);
     final VenuePane VD = (VenuePane) panel;
     
     final String category = panel.category();
@@ -55,7 +55,6 @@ public class VenuePane extends SelectionPane {
       else              VD.describeStocks     (l, UI);
     }
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
-    //if (category == CAT_VISITORS) VD.describeVisitors(l, UI);
     return panel;
   }
   
@@ -65,13 +64,10 @@ public class VenuePane extends SelectionPane {
     BaseUI UI, String statusMessage
   ) {
     if (panel == null) panel = new VenuePane(
-      UI, venue, CAT_STOCK, CAT_STAFFING
+      UI, venue
     );
     final VenuePane VD = (VenuePane) panel;
-    
-    final String category = panel.category();
     final Description d = panel.detail(), l = panel.listing();
-    
     VD.describeCondition(d, UI);
     
     if (statusMessage != null) {
@@ -79,8 +75,9 @@ public class VenuePane extends SelectionPane {
       d.append(statusMessage);
     }
     
-    if (category == CAT_STOCK   ) VD.describeStocks  (l, UI);
-    if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
+    VD.describeStocks(l, UI);
+    l.append("\n");
+    VD.describeStaffing(l, UI);
     return panel;
   }
 
@@ -104,7 +101,8 @@ public class VenuePane extends SelectionPane {
         exports = demands && v.stocks.producer(t);
       
       final int level = (int) Nums.ceil(v.stocks.demandFor(t));
-      d.append("\n  ");
+      ((Text) d).insert(t.icon.asTexture(), 20, true);
+      d.append("  ");
       
       final float maxTrade = v.spaceFor(t), minTrade = Nums.min(5, maxTrade);
       //
@@ -142,6 +140,8 @@ public class VenuePane extends SelectionPane {
       });
       d.append(" ");
       d.append(t);
+      final int price = (int) Nums.ceil(v.priceFor(t));
+      d.append(" ("+price+"c)");
     }
   }
   
@@ -191,16 +191,20 @@ public class VenuePane extends SelectionPane {
     //  Describe supply and demand for power, life support, etc:
     for (Traded t : Economy.ALL_PROVISIONS) {
       final float output = v.structure.outputOf(t);
-      if (output > 0) {
-        d.append("\n  "+t+" Output: "+I.shorten(output, 1));
-        empty = false;
-        continue;
-      }
       final float demand = v.stocks.demandFor(t);
-      if (demand <= 0) continue;
-      final float supply = v.stocks.amountOf(t);
-      d.append("\n  "+I.shorten(supply, 1)+"/"+I.shorten(demand, 1)+" "+t);
-      empty = false;
+      if (output <= 0 && demand <= 0) continue;
+      ((Text) d).insert(t.icon.asTexture(), 20, true);
+      d.append("  ");
+      
+      if (output > 0) {
+        d.append(t+" Output: "+I.shorten(output, 1));
+        empty = false;
+      }
+      else if (demand > 0) {
+        final float supply = v.stocks.amountOf(t);
+        d.append(I.shorten(supply, 1)+"/"+I.shorten(demand, 1)+" "+t);
+        empty = false;
+      }
     }
     //
     //  Then describe conventional items:
@@ -263,13 +267,15 @@ public class VenuePane extends SelectionPane {
     final float needed = v.stocks.demandFor(type);
     final float amount = v.stocks.amountOf(type);
     if (needed == 0 && amount == 0) return false;
-
-    final String nS = I.shorten(needed, 1);
-    d.append("\n  ");
+    
+    ((Text) d).insert(type.icon.asTexture(), 20, true);
+    d.append("  ");
     item.describeTo(d);
     
-    final int price = (int) Nums.ceil(v.priceFor(type));
-    d.append(" /"+nS+" (Price "+price+")");
+    final String nS = I.shorten(needed, 1);
+    d.append(" /"+nS);
+    if (v.stocks.producer(type)) d.append(" (producer)");
+    else d.append(" (consumer)");
     return true;
   }
   
@@ -305,7 +311,7 @@ public class VenuePane extends SelectionPane {
           });
         }
         
-        for (Actor a : v.staff.workers()) if (a.vocation() == b) {
+        for (Actor a : v.staff.workers()) if (a.mind.vocation() == b) {
           descActor(a, d, UI);
           d.append("\n  ");
           d.append(descDuty(a));
@@ -470,7 +476,7 @@ public class VenuePane extends SelectionPane {
     
     d.append(a);
     d.append(a.inWorld() ? " (" : " (Offworld ");
-    d.append(a.vocation().name+")");
+    d.append(a.mind.vocation().name+")");
     
     final Series <Trait>
       TD = ActorDescription.sortTraits(a.traits.personality(), a),

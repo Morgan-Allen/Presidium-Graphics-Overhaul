@@ -15,28 +15,40 @@ public class Coord {
   
   public Coord() {}
   
+  
   public Coord(Coord c) {
     this.x = c.x;
     this.y = c.y;
   }
+  
   
   public Coord(int x, int y) {
     this.x = x;
     this.y = y;
   }
   
+  
   public Coord(Coord c, int offX, int offY) {
     this.x = c.x + offX;
     this.y = c.y + offY;
   }
+  
   
   public void setTo(Coord c) {
     this.x = c.x;
     this.y = c.y;
   }
   
+  
   public boolean matches(Coord c) {
     return this.x == c.x && this.y == c.y;
+  }
+  
+  
+  public boolean equals(Object o) {
+    if (! (o instanceof Coord)) return false;
+    final Coord c = (Coord) o;
+    return c.x == x && c.y == y;
   }
   
   
@@ -44,6 +56,8 @@ public class Coord {
     return "["+x+", "+y+"]";
   }
 }
+
+
 
 
 

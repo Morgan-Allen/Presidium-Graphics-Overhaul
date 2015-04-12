@@ -79,7 +79,7 @@ public class FindWork extends Plan {
   public boolean requiresApproval() {
     if (position == null || employer == null) return false;
     else if (position.standing >= Backgrounds.CLASS_AGENT) return true;
-    else if (actor.vocation() != position) return true;
+    else if (actor.mind.vocation() != position) return true;
     else if (employer.staff().numOpenings(position) <= 0) return true;
     else return false;
   }
@@ -90,7 +90,7 @@ public class FindWork extends Plan {
     */
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (actor.vocation() == position && actor.mind.work() == employer) {
+    if (actor.mind.vocation() == position && actor.mind.work() == employer) {
       return -1;
     }
     if (position == null || employer == null) return -1;
@@ -247,7 +247,7 @@ public class FindWork extends Plan {
     
     final Property work = actor.mind.work();
     if (work != null) {
-      final FindWork app = new FindWork(actor, actor.vocation(), work);
+      final FindWork app = new FindWork(actor, actor.mind.vocation(), work);
       float rating = main.rateOpening(app.position, app.employer, report);
       pick.compare(app, rating * SWITCH_THRESHOLD);
     }
@@ -257,7 +257,7 @@ public class FindWork extends Plan {
       assignAmbition(actor, app.position, app.employer, pick.bestRating());
     }
     if (report) {
-      I.say("  Current job:    "+actor.vocation());
+      I.say("  Current job:    "+actor.mind.vocation());
       I.say("  Is offworld:    "+(! actor.inWorld()));
       I.say("  Most promising: "+main.position);
       I.say("  Venue:          "+main.employer);
@@ -270,7 +270,7 @@ public class FindWork extends Plan {
   private float rateOpening(Background position, Property at, boolean report) {
     final boolean isNew = ! at.staff().isWorker(actor);
     if (isNew && at.crowdRating(actor, position) >= 1) return -1;
-    if (position != actor.vocation() && ! actor.inWorld()) return -1;
+    if (position != actor.mind.vocation() && ! actor.inWorld()) return -1;
     
     if (report) I.say("\nRating opening for "+position);
     //
@@ -292,7 +292,7 @@ public class FindWork extends Plan {
     rating += greedFactor - 1;
     if (report) {
       I.say("  New salary: "+position.defaultSalary);
-      I.say("  Old salary: "+actor.vocation().defaultSalary);
+      I.say("  Old salary: "+actor.mind.vocation().defaultSalary);
       I.say("  Greed is:   "+greedFactor+" (Base "+baseGreed+")");
     }
     //  TODO:  Also impact through area living conditions (or factor that into

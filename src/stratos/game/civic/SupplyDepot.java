@@ -37,19 +37,13 @@ public class SupplyDepot extends Venue {
       CARBS, PROTEIN, REAGENTS, LCHC,
       ORES, TOPES, PARTS, PLASTICS
     },
-    ALL_EXPORT_TYPES[] = {
-      GREENS, SPYCE_N, SPYCE_T, SPYCE_H
-    },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_TRADE_TYPES, new Traded[] { SERVICE_COMMERCE }
-    ),
-    ALL_GOOD_TYPES[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_TRADE_TYPES, ALL_EXPORT_TYPES
+      ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
     );
   
   final static VenueProfile PROFILE = new VenueProfile(
     SupplyDepot.class, "supply_depot", "Supply Depot",
-    4, 2, Venue.Type.TYPE_STANDARD,
+    4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_DEPOT
   );
   
@@ -92,39 +86,6 @@ public class SupplyDepot extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
-
-  final public static Upgrade
-    LCHC_RENDERING  = new Upgrade(
-      "LCHC Rendering",
-      "Converts organic waste to "+LCHC.name+" along with a slight amount of "+
-      "power.",
-      200, Upgrade.THREE_LEVELS, null, 1,
-      null, SupplyDepot.class, ALL_UPGRADES
-    ),
-    HARDWARE_STORE  = new Upgrade(
-      "Hardware Store",
-      "Allows civilian purchases of parts and plastics, and increases storage "+
-      "space.",
-      150, Upgrade.THREE_LEVELS, null, 1,
-      null, SupplyDepot.class, ALL_UPGRADES
-    ),
-    RATIONS_VENDING = new Upgrade(
-      "Rations Vending",
-      "Allows civilian purchases of carbs and protein, and increases storage "+
-      "space.",
-      100, Upgrade.THREE_LEVELS, null, 1,
-      null, SupplyDepot.class, ALL_UPGRADES
-    ),
-    EXPORT_TRADE = new Upgrade(
-      "Export Trade",
-      "Prepares and fuels cargo convoys to visit distant settlements. "+
-      "<NOT IMPLEMENTED YET>",
-      250, Upgrade.THREE_LEVELS, null, 1,
-      LCHC_RENDERING, SupplyDepot.class, ALL_UPGRADES
-    );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
-  
   final public static Conversion
     WASTE_TO_LCHC = new Conversion(
       SupplyDepot.class, "waste_to_lchc",
@@ -137,7 +98,6 @@ public class SupplyDepot extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    int maxBarges = structure.upgradeLevel(EXPORT_TRADE);
     //  TODO:  You need to send those barges off to different settlements!
     //  TODO:  Take this over entirely from the Stock Exchange.
     
@@ -151,23 +111,12 @@ public class SupplyDepot extends Venue {
       b.structure.setState(Structure.STATE_INSTALL, 0);
       barges.add(b);
     }
-    
-    //stocks.setDefaultTier(ALL_TRADE_TYPES, Tier.TRADER);
-    //for (Traded t : ALL_EXPORT_TYPES) stocks.incDemand(t, 5, 1, true);
   }
   
   
   public int spaceFor(Traded t) {
-    if (t == CARBS || t == PROTEIN) {
-      return 10 + (structure.upgradeLevel(RATIONS_VENDING) * 5);
-    }
-    if (t == PARTS || t == PLASTICS) {
-      return 10 + (structure.upgradeLevel(HARDWARE_STORE ) * 5);
-    }
-    if (t == LCHC) {
-      return 10 + (structure.upgradeLevel(LCHC_RENDERING ) * 5);
-    }
-    return 10 + (structure.upgradeLevel(EXPORT_TRADE) * 5);
+    //  TODO:  Return a limit based on existing total good stocks!
+    return 20;
   }
   
   
@@ -178,18 +127,37 @@ public class SupplyDepot extends Venue {
   
   protected Behaviour jobFor(Actor actor, boolean onShift) {
     //
-    //  During your primary shift, either perform manufacture or supervise the
-    //  venue-
-    if (onShift) {
-      final Manufacture CM = stocks.nextManufacture(actor, WASTE_TO_LCHC);
-      if (CM != null) return CM.setBonusFrom(this, true, LCHC_RENDERING);
-      
-      return Supervision.oversight(this, actor);
-    }
+    //  During your secondary shift, consider supervising the venue-
+    final boolean offShift = staff.shiftFor(actor) == SECONDARY_SHIFT;
     final Choice choice = new Choice(actor);
+    if (onShift) {
+      choice.add(Supervision.oversight(this, actor));
+    }
+    //
+    //  During the primary shift, you can also perform repairs or localised
+    //  deliveries-
+    if (onShift || offShift) {
+      for (CargoBarge b : barges) {
+        if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
+        else if (b.abandoned()) choice.add(new Delivery(b, this));
+      }
+      choice.add(Repairs.getNextRepairFor(actor, true));
+      
+      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+        this, services(), 2, 10, 5
+      );
+      if (d != null && staff.assignedTo(d) < 1) choice.add(d);
+      
+      final Delivery c = DeliveryUtils.bestBulkCollectionFor(
+        this, services(), 2, 10, 5
+      );
+      if (c != null && staff.assignedTo(c) < 1) choice.add(c);
+      
+      return choice.weightedPick();
+    }
     //
     //  See if there's a bulk delivery to be made-
-    final Traded services[] = ALL_GOOD_TYPES;
+    final Traded services[] = ALL_MATERIALS;
     final CargoBarge cargoBarge = barges.first();
     if (bargeReady(cargoBarge)) {
       final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
@@ -213,51 +181,18 @@ public class SupplyDepot extends Venue {
       }
       if (! choice.empty()) return choice.pickMostUrgent();
     }
-    //
-    //  During the secondary shift, you can also perform repairs or localised
-    //  deliveries-
-    if (staff.shiftFor(actor) == SECONDARY_SHIFT) {
-      
-      for (CargoBarge b : barges) {
-        if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
-        else if (b.abandoned()) choice.add(new Delivery(b, this));
-      }
-      choice.add(Repairs.getNextRepairFor(actor, true));
-      
-      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-        this, services(), 2, 10, 5
-      );
-      if (d != null && staff.assignedTo(d) < 1) choice.add(d);
-      
-      final Delivery c = DeliveryUtils.bestBulkCollectionFor(
-        this, services(), 2, 10, 5
-      );
-      if (c != null && staff.assignedTo(c) < 1) choice.add(c);
-      
-      return choice.weightedPick();
-    }
     return null;
   }
   
   
   protected void addServices(Choice choice, Actor actor) {
-    if (! (actor.mind.home() instanceof Holding)) return;
-    
-    final Batch <Traded> toBuy = new Batch <Traded> ();
-    if (structure.hasUpgrade(RATIONS_VENDING)) {
-      toBuy.add(CARBS  );
-      toBuy.add(PROTEIN);
+    final Property home = actor.mind.home();
+    if (home instanceof Venue) {
+      final Delivery d = DeliveryUtils.fillBulkOrder(
+        this, home, ((Venue) home).stocks.demanded(), 1, 5
+      );
+      if (d != null) choice.add(d.setWithPayment(actor, true));
     }
-    if (structure.hasUpgrade(HARDWARE_STORE)) {
-      toBuy.add(PARTS   );
-      toBuy.add(PLASTICS);
-    }
-    if (toBuy.empty()) return;
-    
-    final Delivery d = DeliveryUtils.fillBulkOrder(
-      this, actor.mind.home(), toBuy.toArray(Traded.class), 1, 5
-    );
-    if (d != null) choice.add(d.setWithPayment(actor, true));
   }
   
   
@@ -319,7 +254,9 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, true);
+    return VenuePane.configStandardPanel(
+      this, panel, UI, true, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
+    );
   }
   
   
@@ -341,4 +278,38 @@ public class SupplyDepot extends Venue {
 }
 
 
+/*
+final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
+
+final public static Upgrade
+  LCHC_RENDERING  = new Upgrade(
+    "LCHC Rendering",
+    "Converts organic waste to "+LCHC.name+" along with a slight amount of "+
+    "power.",
+    200, Upgrade.THREE_LEVELS, null, 1,
+    null, SupplyDepot.class, ALL_UPGRADES
+  ),
+  HARDWARE_STORE  = new Upgrade(
+    "Hardware Store",
+    "Allows civilian purchases of parts and plastics, and increases storage "+
+    "space.",
+    150, Upgrade.THREE_LEVELS, null, 1,
+    null, SupplyDepot.class, ALL_UPGRADES
+  ),
+  RATIONS_VENDING = new Upgrade(
+    "Rations Vending",
+    "Allows civilian purchases of carbs and protein, and increases storage "+
+    "space.",
+    100, Upgrade.THREE_LEVELS, null, 1,
+    null, SupplyDepot.class, ALL_UPGRADES
+  ),
+  EXPORT_TRADE = new Upgrade(
+    "Export Trade",
+    "Prepares and fuels cargo convoys to visit distant settlements. "+
+    "<NOT IMPLEMENTED YET>",
+    250, Upgrade.THREE_LEVELS, null, 1,
+    LCHC_RENDERING, SupplyDepot.class, ALL_UPGRADES
+  );
+public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+//*/
 

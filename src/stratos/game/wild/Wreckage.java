@@ -18,7 +18,8 @@ public class Wreckage extends Fixture {
   final public static ModelAsset
     SLAG_MODELS[][] = CutoutModel.fromImageGrid(
       Wreckage.class,
-      "media/Buildings/lairs and ruins/all_wreckage.png", 3, 3, 1, 1
+      "media/Buildings/lairs and ruins/all_wreckage.png",
+      3, 3, 1, 1, false
     );
   
   final boolean permanent;

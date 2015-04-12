@@ -69,7 +69,7 @@ public class CultureLab extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     CultureLab.class, "culture_lab", "Culture Lab",
-    3, 2, Type.TYPE_STANDARD,
+    3, 2, IS_NORMAL,
     new VenueProfile[] { EngineerStation.PROFILE, PhysicianStation.PROFILE },
     Owner.TIER_FACILITY,
     WASTE_TO_CARBS, WASTE_TO_REAGENTS,
@@ -141,7 +141,7 @@ public class CultureLab extends Venue {
       "and biological processes needed to produce pharmaceuticals and tissue "+
       "samples.",
       100, Upgrade.THREE_LEVELS, Backgrounds.VATS_BREEDER, 1,
-      DRUG_SYNTHESIS, CultureLab.class, ALL_UPGRADES
+      null, CultureLab.class, ALL_UPGRADES
     )
   ;
   
@@ -155,10 +155,8 @@ public class CultureLab extends Venue {
     stocks.translateDemands(CARBS_TO_SOMA    , 1);
     stocks.translateDemands(WASTE_TO_REAGENTS, 1);
     
-    float needPower = 5;
-    if (! isManned()) needPower /= 2;
+    float needPower = 5 * (1 + (structure.numUpgrades() / 3f));
     stocks.forceDemand(POWER, needPower, false);
-    
     final int cycleBonus = structure.upgradeLevel(YEAST_DISPOSAL);
     float pollution = 5 - cycleBonus;
     //
@@ -173,6 +171,19 @@ public class CultureLab extends Venue {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
     //
+    //  Replicants need to be delivered to their Sickbays once ready, and other
+    //  basic goods also need to be transported.
+    for (Item match : stocks.matches(REPLICANTS)) {
+      if (match.amount < 1) continue;
+      final Actor a = (Actor) match.refers;
+      if (a.aboard() instanceof Venue) {
+        final Delivery d = new Delivery(match, this, (Venue) a.aboard());
+        d.addMotives(Plan.MOTIVE_EMERGENCY, Plan.URGENT);
+        choice.add(d.setWithPayment(this, false));
+      }
+    }
+    choice.add(DeliveryUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5));
+    //
     //  Foodstuffs-
     final Manufacture mS = stocks.nextManufacture(actor, WASTE_TO_CARBS);
     if (mS != null) {
@@ -183,7 +194,7 @@ public class CultureLab extends Venue {
       choice.add(mP.setBonusFrom(this, true, TISSUE_CULTURE));
     }
     //
-    //  And pharmaceuticals-
+    //  Pharmaceuticals-
     final Manufacture mA = stocks.nextManufacture(actor, CARBS_TO_SOMA);
     if (mA != null) {
       choice.add(mA.setBonusFrom(this, false, DRUG_SYNTHESIS));
@@ -192,29 +203,16 @@ public class CultureLab extends Venue {
     if (mM != null) {
       choice.add(mM.setBonusFrom(this, true, DRUG_SYNTHESIS));
     }
-    //
-    //  And spyce production-
     final Manufacture mN = stocks.nextManufacture(actor, PROTEIN_TO_SPYCE_T);
     if (mN != null) {
       choice.add(mN.setBonusFrom(this, true, SPYCE_CHEMISTRY));
     }
     //
-    //  Replicants need to be delivered to their Sickbays once ready.
-    for (Item match : stocks.matches(REPLICANTS)) {
-      if (match.amount < 1) continue;
-      final Actor a = (Actor) match.refers;
-      if (a.aboard() instanceof Venue) {
-        final Delivery d = new Delivery(match, this, (Venue) a.aboard());
-        d.addMotives(Plan.MOTIVE_EMERGENCY, Plan.URGENT);
-        choice.add(d.setWithPayment(this, false));
-      }
-    }
-    //
-    //  Otherwise, see to custom manufacturing of said replicants-
+    //  And custom manufacturing-
     for (Manufacture o : stocks.specialOrders()) {
       choice.add(o.setBonusFrom(this, true, TISSUE_CULTURE));
     }
-    return choice.weightedPick();
+    return choice.pickMostUrgent();
   }
   
   
@@ -226,7 +224,7 @@ public class CultureLab extends Venue {
 
   public Traded[] services() {
     return new Traded[] {
-      CARBS, PROTEIN, SOMA, REAGENTS, SPYCE_H, SPYCE_N
+      CARBS, PROTEIN, SOMA, REAGENTS, SPYCE_T
     };
   }
   
@@ -239,7 +237,7 @@ public class CultureLab extends Venue {
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
     if (v == Backgrounds.VATS_BREEDER) {
-      return nO + 1;//+ structure.upgradeLevel(VATS_BREEDER_STATION);
+      return nO + 3 + structure.upgradeLevel(VAT_BREEDER_STATION);
     }
     return 0;
   }

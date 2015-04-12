@@ -26,13 +26,14 @@ public abstract class ActorMind implements Qualities {
   
   
   final protected Actor actor;
+  protected Actor master;
   
   final List <Behaviour> agenda   = new List <Behaviour> ();
   final List <Behaviour> todoList = new List <Behaviour> ();
   
   protected Mission mission;
   protected Property home, work;
-  protected Actor master;
+  protected Background vocation;
   
   
   
@@ -42,28 +43,34 @@ public abstract class ActorMind implements Qualities {
   
   
   public void loadState(Session s) throws Exception {
-    s.loadObjects(agenda);
+    master = (Actor) s.loadObject();
+    
+    s.loadObjects(agenda  );
     s.loadObjects(todoList);
     
-    mission = (Mission) s.loadObject();
-    home = (Property) s.loadObject();
-    work = (Property) s.loadObject();
-    master = (Actor) s.loadObject();
+    mission  = (Mission   ) s.loadObject();
+    home     = (Property  ) s.loadObject();
+    work     = (Property  ) s.loadObject();
+    vocation = (Background) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObjects(agenda);
+    s.saveObject(master);
+    
+    s.saveObjects(agenda  );
     s.saveObjects(todoList);
     
-    s.saveObject(mission);
-    s.saveObject(home);
-    s.saveObject(work);
-    s.saveObject(master);
+    s.saveObject(mission );
+    s.saveObject(home    );
+    s.saveObject(work    );
+    s.saveObject(vocation);
   }
   
   
   public void onWorldExit() {
+    //  TODO:  DETACH ALL MEMORIES TO AVOID INDEFINITE REFERENCE-CHAINS FROM
+    //         DEAD OBJECTS!
   }
   
   
@@ -232,6 +239,37 @@ public abstract class ActorMind implements Qualities {
   
   /**  Setting home and work venues & applications, plus missions-
     */
+  public void assignMaster(Actor master) {
+    this.master = master;
+  }
+  
+  
+  public Actor master() {
+    return master;
+  }
+  
+  
+  public void assignMission(Mission mission) {
+    final Mission oldMission = this.mission;
+    if (mission == oldMission) return;
+    this.mission = mission;
+    
+    if (oldMission != null) {
+      final Behaviour oldStep = oldMission.nextStepFor(actor, false);
+      cancelBehaviour(oldStep, "Assigned new mission");
+      oldMission.setApplicant(actor, false);
+    }
+    if (mission != null) {
+      mission.setApplicant(actor, true);
+    }
+  }
+  
+  
+  public Mission mission() {
+    return mission;
+  }
+  
+  
   public void setWork(Property e) {
     if (work == e) return;
     if (work != null) work.staff().setWorker(actor, false);
@@ -259,36 +297,13 @@ public abstract class ActorMind implements Qualities {
   }
   
   
-  public void assignMission(Mission mission) {
-    //  TODO:  Add some safety checks here...
-    
-    final Mission oldMission = this.mission;
-    if (mission == oldMission) return;
-    this.mission = mission;
-    
-    if (oldMission != null) {
-      final Behaviour oldStep = oldMission.nextStepFor(actor, false);
-      cancelBehaviour(oldStep, "Assigned new mission");
-      oldMission.setApplicant(actor, false);
-    }
-    if (mission != null) {
-      mission.setApplicant(actor, true);
-    }
+  public void setVocation(Background vocation) {
+    this.vocation = vocation;
   }
   
   
-  public Mission mission() {
-    return mission;
-  }
-  
-  
-  public void assignMaster(Actor master) {
-    this.master = master;
-  }
-  
-  
-  public Actor master() {
-    return master;
+  public Background vocation() {
+    return vocation;
   }
   
   

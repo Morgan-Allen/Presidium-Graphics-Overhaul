@@ -125,7 +125,7 @@ public class RosterPane extends SelectionPane {
         for (Actor a : v.staff.workers()) {
           detailText.append("\n    ");
           detailText.append(a);
-          detailText.append(" ("+a.vocation()+")");
+          detailText.append(" ("+a.mind.vocation()+")");
         }
       }
     }

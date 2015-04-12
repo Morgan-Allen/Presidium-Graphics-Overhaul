@@ -75,7 +75,7 @@ public class DebugMissions extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.withName(world, "Player Base", Colour.BLUE);
+    return Base.settlement(world, "Player Base", Colour.BLUE);
   }
   
 

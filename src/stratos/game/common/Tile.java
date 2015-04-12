@@ -128,6 +128,11 @@ public final class Tile implements
   }
   
   
+  public Coord coords() {
+    return new Coord(x, y);
+  }
+  
+  
   
   /**  Setting path type and occupation-
     */
@@ -165,13 +170,10 @@ public final class Tile implements
   
   
   public boolean reserved() {
-    if (isEntrance()) return true;
-    return onTop != null && onTop.base() != null;
+    return onTop != null && onTop.owningTier() >= Owner.TIER_PRIVATE;
   }
   
   
-  //  TODO:  Get rid of this.  Or at least, see if the claims-system can't
-  //         serve the same function.
   public int owningTier() {
     if (onTop == null) return Owner.TIER_NATURAL;
     else return onTop.owningTier();
@@ -179,7 +181,7 @@ public final class Tile implements
   
   
   public boolean buildable() {
-    return habitat.pathClear && ! reserved();
+    return habitat().pathClear && ! reserved();
   }
   
   

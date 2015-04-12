@@ -84,6 +84,9 @@ public class Payday extends Plan {
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
     
+    final Property work = actor.mind.work();
+    if (work == null || ! work.staff().onShift(actor)) return -1;
+    
     final Profile p = pays.base().profiles.profileFor(actor);
     if (p.salary() == 0) return -1;
     

@@ -117,7 +117,7 @@ public class CutoutsPass {
       I.say("\nPerforming cutouts pass, total sprites: "+inPass.size());
     }
     
-    final Table <ModelAsset, Batch <CutoutSprite>> subPasses = new Table();
+    final Table <ModelAsset, List <CutoutSprite>> subPasses = new Table();
     final Batch <CutoutSprite> ghosts = new Batch <CutoutSprite> ();
     final Stack <ModelAsset> sequence = new Stack <ModelAsset> ();
     
@@ -126,16 +126,23 @@ public class CutoutsPass {
         ghosts.add(s);
         continue;
       }
-      Batch <CutoutSprite> batch = subPasses.get(s.model());
+      List <CutoutSprite> batch = subPasses.get(s.model());
       if (batch == null) {
-        subPasses.put(s.model(), batch = new Batch());
+        batch = new List <CutoutSprite> () {
+          protected float queuePriority(CutoutSprite r) {
+            return r.depth;
+          }
+        };
+        subPasses.put(s.model(), batch);
         sequence.add(s.model());
       }
+      s.depth = rendering.view.screenDepth(s.position);
       batch.add(s);
     }
     
     for (ModelAsset modelKey : sequence) {
-      final Batch <CutoutSprite> subPass = subPasses.get(modelKey);
+      final List <CutoutSprite> subPass = subPasses.get(modelKey);
+      subPass.queueSort();
       if (report) {
         I.say("  Rendering pass for "+modelKey);
         I.say("  Total sprites in pass: "+subPass.size());

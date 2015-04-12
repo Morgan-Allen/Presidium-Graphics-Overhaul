@@ -42,7 +42,7 @@ public class EngineerStation extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     EngineerStation.class, "engineer_station", "Engineer Station",
-    4, 2, Venue.Type.TYPE_STANDARD,
+    4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY, METALS_TO_PARTS
   );
   

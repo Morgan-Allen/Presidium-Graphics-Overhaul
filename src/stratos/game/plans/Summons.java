@@ -87,7 +87,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   }
   
   
-  public MessagePane messageFor(String title, BaseUI UI) {
+  public MessagePane configMessage(String title, BaseUI UI) {
     //  TODO:  IMPLEMENT THIS!
     return null;
   }
@@ -323,10 +323,8 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     });
     
     final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with,
-      "Yes, my liege?", with, this,
-      responses
-    );
+      UI, with.portrait(UI), "Audience with "+with, with, this
+    ).assignContent("Yes, my liege?", responses);
     if (pushNow) UI.setInfoPanels(panel, null);
     return panel;
   }
@@ -348,9 +346,8 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     });
     
     final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with,
-      lead, with, this, responses
-    );
+      UI, with.portrait(UI), "Audience with "+with, with, this
+    ).assignContent(lead, responses);
     UI.setInfoPanels(panel, null);
   }
   
@@ -359,14 +356,12 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final BaseUI UI, final Actor with, String lead
   ) {
     final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with,
-      lead, with, this,
-      new Link("Very well, then...") {
-        public void whenClicked() {
-          configDialogueFor(UI, with, true);
-        }
+      UI, with.portrait(UI), "Audience with "+with, with, this
+    ).assignContent(lead, new Link("Very well, then...") {
+      public void whenClicked() {
+        configDialogueFor(UI, with, true);
       }
-    );
+    });
     UI.setInfoPanels(panel, null);
   }
   
@@ -410,9 +405,8 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     });
     
     final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with,
-      lead, with, this, responses
-    );
+      UI, with.portrait(UI), "Audience with "+with, with, this
+    ).assignContent(lead, responses);
     UI.setInfoPanels(panel, null);
   }
   
@@ -422,7 +416,9 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   ) {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with,
-      "My pleasure, your grace.", with, this,
+      with, this
+    ).assignContent(
+      "My pleasure, your grace.",
       new Link("Very well, then...") {
         public void whenClicked() {
           UI.selection.pushSelection(taken);

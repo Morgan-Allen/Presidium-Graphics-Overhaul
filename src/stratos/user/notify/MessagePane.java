@@ -19,41 +19,24 @@ public class MessagePane extends SelectionPane implements UIConstants {
   final Target focus;
   final MessageSource source;
   
+  private boolean contentSet = false;
   private String initText;
   private Clickable options[];
   
   
-  
   public MessagePane(
     BaseUI UI, Composite portrait,
-    String title, String initText,
-    Target focus, MessageSource source,
-    Series <? extends Clickable> options
-  ) {
-    this(
-      UI, portrait, title, initText,
-      focus, source, options.toArray(Clickable.class)
-    );
-  }
-  
-  
-  public MessagePane(
-    BaseUI UI, Composite portrait,
-    String title, String initText,
-    Target focus, MessageSource source,
-    Clickable... options
+    String title, Target focus, MessageSource source
   ) {
     super(UI, null, portrait, false);
     this.title    = title   ;
     this.focus    = focus   ;
     this.source   = source  ;
-    this.initText = initText;
-    this.options  = options ;
   }
   
   
   public static interface MessageSource extends Session.Saveable {
-    MessagePane messageFor(String title, BaseUI UI);
+    MessagePane configMessage(String titleKey, BaseUI UI);
   }
   
   
@@ -73,34 +56,43 @@ public class MessagePane extends SelectionPane implements UIConstants {
   ) throws Exception {
     final MessageSource source = (MessageSource) s.loadObject();
     final String titleKey = s.loadString();
-    return source.messageFor(titleKey, UI);
+    return source.configMessage(titleKey, UI);
   }
   
   
-  public void assignContent(String initText, Clickable... options) {
-    this.initText = initText;
-    this.options = options;
+  public MessagePane assignContent(String initText, Clickable... options) {
+    this.contentSet = true    ;
+    this.initText   = initText;
+    this.options    = options ;
+    return this;
   }
   
   
-  public void assignContent(String initText, Series <Clickable> options) {
-    assignContent(initText, options.toArray(Clickable.class));
+  public MessagePane assignContent(
+    String initText, Series <? extends Clickable> links
+  ) {
+    return assignContent(initText, links.toArray(Clickable.class));
   }
   
   
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText, Text listingText
+    BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
-    headerText.setText(title);
-    detailText.setText(initText);
-    detailText.append("\n  ");
-    for (Clickable option : options) {
-      detailText.append("\n  ");
-      detailText.append(option);
+    if (contentSet) {
+      super.updateText(UI, headerText, detailText, listingText);
+      headerText.setText(title);
+      final Text d = detailText;
+      d.setText(initText);
+      d.append("\n  ");
+      for (Clickable option : options) {
+        d.append("\n  ");
+        d.append(option);
+      }
     }
+    else return;
   }
-  
-  
+
+
   public static boolean hasFocus(Target subject) {
     final BaseUI UI = BaseUI.current();
     if (UI == null) return false;

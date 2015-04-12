@@ -89,15 +89,12 @@ public abstract class Actor extends Mobile implements
   
   
   protected abstract ActorMind initMind();
+  public abstract Species species();
+  
   protected ActorSenses    initSenses   () { return new ActorSenses   (this); }
   protected ActorMotives   initMotives  () { return new ActorMotives  (this); }
   protected ActorRelations initRelations() { return new ActorRelations(this); }
   protected Pathing        initPathing  () { return new Pathing       (this); }
-  
-  
-  public float height() {
-    return 1.0f * GameSettings.actorScale;
-  }
   
   
   public boolean isMoving() {
@@ -106,10 +103,8 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  //  TODO:  Get rid of the setVocation method.  Belongs in the mind, I think.
-  public void setVocation(Background b) {}
-  public Background vocation() { return species(); }
-  public Species species() { return null; }
+  //public Background vocation() { return species(); }
+  //public Species species() { return null; }
   
   
   
@@ -212,7 +207,7 @@ public abstract class Actor extends Mobile implements
     if (! super.enterWorldAt(x, y, world)) return false;
     
     if (verbose || I.logEvents()) {
-      I.say("\n"+this+" ("+vocation()+") IS ENTERING WORLD AT "+x+"/"+y);
+      I.say("\n"+this+" ("+mind.vocation()+") ENTERING WORLD AT "+x+"/"+y);
     }
     return true;
   }
@@ -230,7 +225,7 @@ public abstract class Actor extends Mobile implements
   
   private void exitWorld(boolean normal) {
     if (verbose || I.logEvents()) {
-      I.say("\n"+this+" ("+vocation()+") IS EXITING WORLD FROM "+origin());
+      I.say("\n"+this+" ("+mind.vocation()+") EXITING WORLD FROM "+origin());
       I.say("  Last action:    "+actionTaken);
       I.say("  Going offworld? "+(! normal));
     }
@@ -465,14 +460,15 @@ public abstract class Actor extends Mobile implements
   
   
   public void renderFor(Rendering rendering, Base base) {
-    
     if (mount != null) {
       mount.configureSpriteFrom(this, actionTaken, sprite());
       if (! mount.actorVisible(this)) return;
     }
-    
-    renderHealthbars(rendering, base);
+    //
+    //  We render health-bars after the main sprite, as the label/healthbar are
+    //  anchored off the main sprite.
     super.renderFor(rendering, base);
+    renderHealthbars(rendering, base);
     //
     //  Finally, if you have anything to say, render the chat bubbles.
     if (chat.numPhrases() > 0) {
@@ -484,7 +480,6 @@ public abstract class Actor extends Mobile implements
   
   
   protected void renderHealthbars(Rendering rendering, Base base) {
-    
     label.matchTo(sprite());
     label.position.z -= radius() + 0.25f;
     label.phrase = fullName();
@@ -542,7 +537,7 @@ public abstract class Actor extends Mobile implements
   
   
   public String helpInfo() {
-    final Background b = vocation();
+    final Background b = mind.vocation();
     if (b != null) return b.info;
     final Species s = species();
     if (s != null) return s.info;

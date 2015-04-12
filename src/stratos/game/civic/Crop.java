@@ -30,7 +30,7 @@ public class Crop extends Element {
     ),
     CROP_MODELS[][] = CutoutModel.fromImageGrid(
       Nursery.class, IMG_DIR+"all_crops.png",
-      4, 4, 0.5f, 0.5f
+      4, 4, 0.5f, 0.5f, false
     ),
     GRUB_BOX_MODEL = CutoutModel.fromImage(
       Nursery.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f

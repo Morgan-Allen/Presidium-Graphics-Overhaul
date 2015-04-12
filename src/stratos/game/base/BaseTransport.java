@@ -153,28 +153,32 @@ public class BaseTransport {
     if (report) I.say("\nUpdating perimeter for "+v);
     
     if (! isMember) {
-      updatePerimeter(v, null, false);
+      updatePerimeter(v, null, false, false);
       return;
     }
-    
     final Batch <Tile> around = new Batch <Tile> ();
-    for (Tile t : Spacing.perimeter(v.footprint(), world)) {
-      if (t == null || ! t.canPave()) continue;
-      else around.add(t);
-    }
-    updatePerimeter(v, around, true);
+    for (Tile t : Spacing.perimeter(v.footprint(), world)) around.add(t);
+    updatePerimeter(v, around, true, true);
   }
   
 
   public void updatePerimeter(
-    Fixture v, Batch <Tile> around, boolean isMember
+    Fixture v, Batch <Tile> around, boolean isMember, boolean filter
   ) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (report) I.say("Updating perimeter for "+v+", member? "+isMember);
-    
+    //
+    //  If necessary, filter out any un-paveable tiles, and obtain the previous
+    //  route corresponding to this fixture's perimeter-
+    if (around != null && filter) {
+      final Batch <Tile> filtered = new Batch <Tile> ();
+      for (Tile t : around) if (t != null && t.canPave()) filtered.add(t);
+      around = filtered;
+    }
     final Tile o = v.origin();
     final Route key = new Route(o, o), match = allRoutes.get(key);
-    
+    //
+    //  
     if (isMember) {
       key.path = around.toArray(Tile.class);
       key.cost = -1;
@@ -190,7 +194,6 @@ public class BaseTransport {
     }
     else if (match != null) {
       if (report) I.say("Discarding perimeter for "+v);
-      //reportPath("Old route", match);
       map.flagForPaving(match.path, false);
       allRoutes.remove(key);
     }

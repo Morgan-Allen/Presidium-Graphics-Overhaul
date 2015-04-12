@@ -40,7 +40,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   final public String name;
 
   final public int size, high;
-  final public Venue.Type type;
+  final public int properties;
   
   final public VenueProfile required[];
   final public int owningTier;
@@ -54,12 +54,12 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   public VenueProfile(
     Class <? extends Venue> baseClass, String key, String name,
-    int size, int high, Venue.Type type,
+    int size, int high, int properties,
     VenueProfile required, int owningTier, Conversion... processed
   ) {
     this(
       baseClass, key, name,
-      size, high, type,
+      size, high, properties,
       required == null ? null : new VenueProfile[] { required },
       owningTier, processed
     );
@@ -68,7 +68,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
 
   public VenueProfile(
     Class <? extends Venue> baseClass, String key, String name,
-    int size, int high, Venue.Type type,
+    int size, int high, int properties,
     VenueProfile required[], int owningTier, Conversion... processed
   ) {
 
@@ -78,8 +78,8 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
     
     this.size = size;
     this.high = high;
-    this.type = type;
     
+    this.properties = properties;
     this.required   = required == null ? Venue.NO_REQUIREMENTS : required;
     this.owningTier = owningTier;
     this.processed  = processed ;
@@ -88,29 +88,6 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   }
   
   
-  public Series <VenueProfile> allows() {
-    return allows;
-  }
-  
-  
-  public boolean isFixture() {
-    return type == Venue.Type.TYPE_FIXTURE;
-  }
-  
-  
-  public boolean isStandard() {
-    return type == Venue.Type.TYPE_STANDARD;
-  }
-  
-  
-  public boolean isUnique() {
-    return type == Venue.Type.TYPE_UNIQUE;
-  }
-  
-  
-  
-  /**  Save and load functions for external reference.
-    */
   public static VenueProfile loadConstant(Session s) throws Exception {
     return INDEX.loadFromEntry(s.input());
   }
@@ -121,8 +98,70 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   }
   
   
+  
+  /**  Property queries-
+    */
+  public Series <VenueProfile> allows() {
+    return allows;
+  }
+  
+  
+  public boolean hasProperty(int property) {
+    return (properties & property) == property;
+  }
+  
+  
+  public boolean isFixture() {
+    return hasProperty(Venue.IS_FIXTURE);
+  }
+  
+  
+  public boolean isStandard() {
+    return properties == Venue.IS_NORMAL;
+  }
+  
+  
+  public boolean isUnique() {
+    return hasProperty(Venue.IS_UNIQUE);
+  }
+  
+  
+  public boolean isWild() {
+    return hasProperty(Venue.IS_WILD);
+  }
+  
+  
+  public Conversion producing(Object t) {
+    for (Conversion c : processed) if (c.out.type == t) return c;
+    return null;
+  }
+  
+  
+  public Batch <Conversion> consuming(Object t) {
+    final Batch <Conversion> matches = new Batch <Conversion> ();
+    for (Conversion c : processed) for (Item i : c.raw) {
+      if (i.type == t) matches.add(c);
+    }
+    return matches;
+  }
+  
+  
+  
+  /**  Save and load functions for external reference.
+    */
+  private static VenueProfile CIVIC_PROFILES[];
+  
+  
   public static VenueProfile[] allProfiles() {
     return INDEX.allEntries(VenueProfile.class);
+  }
+  
+  
+  public static VenueProfile[] allCivicProfiles() {
+    if (CIVIC_PROFILES != null) return CIVIC_PROFILES;
+    final Batch <VenueProfile> matches = new Batch <VenueProfile> ();
+    for (VenueProfile p : allProfiles()) if (! p.isWild()) matches.add(p);
+    return CIVIC_PROFILES = matches.toArray(VenueProfile.class);
   }
   
   

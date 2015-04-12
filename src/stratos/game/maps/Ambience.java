@@ -49,6 +49,15 @@ public class Ambience {
     RATE_MULT = 4.0f,
     MAX_LEVEL = 10.0f;
   
+  final public static int
+    AWFUL_SQUALOR  = -10,
+    HIGH_SQUALOR   = -6 ,
+    MILD_SQUALOR   = -2 ,
+    NO_AMBIENCE_FX =  0 ,
+    MILD_AMBIENCE  =  2 ,
+    HIGH_AMBIENCE  =  6 ,
+    GREAT_AMBIENCE =  10;
+  
   final Stage world;
   final MipMap mapValues;
   

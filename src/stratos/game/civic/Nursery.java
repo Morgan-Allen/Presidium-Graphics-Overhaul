@@ -49,12 +49,21 @@ public class Nursery extends Venue implements TileConstants {
     NURSERY_GREENS  = 0.5f,
     NURSERY_PROTEIN = 0.5f;
   
-  //  TODO:  You need to include some conversions here to allow for supply/
-  //         demand evaluation.
+  final public static Conversion
+    LAND_TO_CARBS = new Conversion(
+      Nursery.class, "land_to_carbs",
+      TO, 1, CARBS
+    ),
+    LAND_TO_GREENS = new Conversion(
+      Nursery.class, "land_to_greens",
+      TO, 1, GREENS
+    );
+  
   final static VenueProfile PROFILE = new VenueProfile(
     Nursery.class, "nursery", "Nursery",
-    2, 2, Venue.Type.TYPE_FIXTURE,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY
+    2, 2, IS_ZONED,
+    EcologistStation.PROFILE, Owner.TIER_FACILITY,
+    LAND_TO_CARBS, LAND_TO_GREENS
   );
   
   
@@ -98,10 +107,24 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Placement and supply-demand functions-
     */
-  public boolean setPosition(float x, float y, Stage world) {
-    final boolean okay = super.setPosition(x, y, world);
-    if (okay) areaClaimed.setTo(footprint()).expandBy((int) EXTRA_CLAIM_SIZE);
-    return okay;
+  public boolean setupWith(Tile position, Box2D area, Coord... others) {
+    if (! super.setupWith(position, area, others)) return false;
+    areaClaimed.setTo(footprint()).expandBy(2);
+    areaClaimed.include(area);
+    return true;
+  }
+  
+  
+  public boolean canPlace(Account reasons) {
+    if (! super.canPlace(reasons)) return false;
+    if (areaClaimed.maxSide() > Stage.SECTOR_SIZE) {
+      return reasons.asFailure("Area is too large!");
+    }
+    final Stage world = origin().world;
+    if (! Placement.perimeterFits(areaClaimed, owningTier(), 2, world)) {
+      return reasons.asFailure("Might obstruct pathing");
+    }
+    return true;
   }
   
   
@@ -134,7 +157,7 @@ public class Nursery extends Venue implements TileConstants {
   private void scanForCropTiles() {
     final boolean report = verbose && I.talkAbout == this;
     
-    final Box2D cropArea = new Box2D().setTo(areaClaimed).expandBy(-1);
+    final Box2D cropArea = new Box2D().setTo(areaClaimed);
     final Batch <Tile> grabbed = new Batch <Tile> ();
     if (report) I.say("\nCROP AREA: "+cropArea);
     
@@ -173,6 +196,18 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Establishing crop areas-
     */
+  public void enterWorld() {
+    super.enterWorld();
+    I.say("NURSERY COMES");
+  }
+  
+  
+  public void exitWorld() {
+    super.exitWorld();
+    I.say("NURSERY GONE");
+  }
+  
+  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
@@ -185,6 +220,17 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
+  protected void updatePaving(boolean inWorld) {
+    
+    final Batch <Tile> around = new Batch <Tile> ();
+    for (Tile t : Spacing.perimeter(areaClaimed, world)) around.add(t);
+    for (Tile t : Spacing.perimeter(footprint(), world)) around.add(t);
+    
+    base.transport.updatePerimeter(this, around, inWorld, true);
+    base.transport.updateJunction(this, mainEntrance(), inWorld);
+  }
+
+
   public Tile[] toPlant() {
     return toPlant;
   }

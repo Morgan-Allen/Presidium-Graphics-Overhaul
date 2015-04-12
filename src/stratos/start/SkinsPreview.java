@@ -1,18 +1,17 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.start;
-
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.solids.*;
+import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
-import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
-
 import java.io.*;
 
 
@@ -44,7 +43,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = FAUNA_PATH;
+  private String currentPath = ARTILECTS_PATH;
   
   private XML currentXML;
   private SolidModel currentModel;
@@ -63,7 +62,7 @@ public class SkinsPreview extends VisualDebug {
     UI = new HUD(PlayLoop.rendering());
     
     modelPathEntry = new Text(UI, BaseUI.INFO_FONT);
-    modelPathEntry.alignTop(0, 500);
+    modelPathEntry.alignVertical  (0, 0);
     modelPathEntry.alignHorizontal(0, 0);
     modelPathEntry.attachTo(UI);
     

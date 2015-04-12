@@ -87,7 +87,7 @@ public class RunnerLodge extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     RunnerLodge.class, "runner_lodge", "Runner Market",
-    4, 2, Venue.Type.TYPE_STANDARD,
+    4, 2, IS_NORMAL,
     StockExchange.PROFILE, Owner.TIER_FACILITY
   );
   

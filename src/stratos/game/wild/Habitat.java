@@ -22,15 +22,15 @@ public class Habitat {
   final public static CutoutModel
     DESERT_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
-      4, 4, 1.5f, 2
+      4, 4, 1.5f, 2, false
     ),
     FOREST_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
-      4, 4, 1.5f, 2
+      4, 4, 1.5f, 2, false
     ),
     WASTES_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"wastes_flora.png",
-      4, 4, 1.5f, 2
+      4, 4, 1.5f, 2, false
     ),
     TUNDRA_FLORA_MODELS[][] = null,
     PLANKTON_MODELS[][]     = null,
@@ -40,14 +40,14 @@ public class Habitat {
     //  Finally, mineral outcrop models-
     OUTCROP_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"all_deposits.png",
-      3, 3, 2.0f, 2
+      3, 3, 2.0f, 2, false
     ),
     DUNE_MODELS[]      = OUTCROP_MODELS[2],
     MINERAL_MODELS[]   = OUTCROP_MODELS[1],
     ROCK_LODE_MODELS[] = OUTCROP_MODELS[0],
     SPIRE_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"all_outcrops_old.png",
-      3, 3, 1.9f, 2
+      3, 3, 1.9f, 2, false
     );
   
   final private static String

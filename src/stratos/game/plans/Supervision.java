@@ -133,7 +133,7 @@ public class Supervision extends Plan {
     
     if (beginTime != -1 && elapsed > DEFAULT_EVAL_TIME) {
       final Choice choice = new Choice(actor);
-      venue.addTasks(choice, actor, actor.vocation());
+      venue.addTasks(choice, actor, actor.mind.vocation());
       final Behaviour nextJob = choice.pickMostUrgent();
       
       if (nextJob != null && ! nextJob.matchesPlan(this)) {

@@ -1,7 +1,7 @@
 
 
 
-package stratos.game.actors;
+package stratos.game.common;
 import stratos.game.common.*;
 
 
