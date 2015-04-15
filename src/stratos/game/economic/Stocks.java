@@ -279,6 +279,10 @@ public class Stocks extends Inventory {
   }
   
   
+  //  TODO:  You can probably get rid of this now.  It's not really used a
+  //         great deal any more- the demand increments are internalised from
+  //         the demand-map.
+  //*
   public void incDemand(
     Traded type, float amount, int period, boolean producer
   ) {
@@ -288,16 +292,10 @@ public class Stocks extends Inventory {
     final Demand d = demandRecord(type);
     if (d.fixed) return;
     
-    /*
-    if (d.producer != producer && type == CARBS) {
-      I.say(owner+" PRODUCES "+type+" "+producer);
-      I.reportStackTrace();
-    }
-    //*/
-    
     d.producer = producer;
     d.demandBonus += amount * period;
   }
+  //*/
   
   
   public void translateDemands(Conversion cons, int period) {

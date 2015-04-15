@@ -3,24 +3,27 @@
 
 
 <model
-  name="Quud"
+  name="Qudu"
   format="MS3D"
   type="JOINT"
   path="media/Actors/fauna/"
-  file="Quud.ms3d"
-  scale="0.1"
-  bound="1"
-  stride="0.2"
-  height="0.6"
+  file="Qudu.ms3d"
+  scale="0.35"
+  bound="2.5"
+  stride="1.5"
+  height="2.5"
 >
-  <animations>
-    <animation name="stand"      start="0"  end="0"  duration="0.5" />
-    <animation name="move"       start="3"  end="11" duration="2.0" />
-    <animation name="fall"       start="12" end="15" duration="3.0" />
-    <animation name="look"       start="0"  end="0"  duration="0.5" />
-    <animation name="strike"     start="3"  end="11" duration="2.0" />
-    <animation name="move_fast"  start="3"  end="11" duration="2.0" />
-    <animation name="move_sneak" start="3"  end="11" duration="2.0" />
+  <animations rotate="180">
+  <animation name="stand"      start="1"    end="1"    duration="1"   />
+	<animation name="move"       start="1"    end="32"   duration="1"   />
+	<animation name="move_fast"  start="34"   end="69"   duration="0.7" />
+	<animation name="move_carry" start="70"   end="102"  duration="1"   />
+	<animation name="build"      start="103"  end="228"  duration="2"   />
+	<animation name="reach_down" start="229"  end="354"  duration="3"   />
+	<animation name="stand"      start="355"  end="365"  duration="3"   />
+	<animation name="strike"     start="366"  end="416"  duration="1"   />
+	<animation name="strike_big" start="417"  end="462"  duration="1.2" />
+	<animation name="fall"       start="463"  end="523"  duration="2.5" />
   </animations>
 </model>
 
@@ -31,7 +34,7 @@
   type="JOINT"
   path="media/Actors/fauna/"
   file="Vareen.ms3d"
-  scale="0.03"
+  scale="0.02"
   bound="1.5"
   stride="2.0"
   height="1.0"
@@ -55,7 +58,7 @@
   type="JOINT"
   path="media/Actors/fauna/"
   file="Micovore.ms3d"
-  scale="0.08"
+  scale="0.06"
   bound="2.0"
   stride="0.6"
   height="1.5"

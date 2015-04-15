@@ -56,6 +56,8 @@ public class Staff {
   }
   
   
+  /**  Queries on workers and lodgers-
+    */
   public List <Actor> workers() {
     return workers;
   }
@@ -113,6 +115,29 @@ public class Staff {
     int count = 0;
     for (FindWork a : applications) if (a.position() == b) count++;
     return count;
+  }
+  
+  
+  public int numHired(Background match) {
+    int num = 0; for (Actor c : workers) {
+      if (c.mind.vocation() == match) num++;
+    }
+    return num;
+  }
+  
+  
+  public Batch <Actor> hiredAs(Background match) {
+    final Batch <Actor> matches = new Batch <Actor> ();
+    for (Actor c : workers) if (c.mind.vocation() == match) matches.add(c);
+    return matches;
+  }
+  
+  
+  public int numResident(Background match) {
+    int num = 0; for (Actor c : lodgers) {
+      if (c.mind.vocation() == match) num++;
+    }
+    return num;
   }
   
   
@@ -362,22 +387,6 @@ public class Staff {
   public void setResident(Actor c, boolean is) {
     if (is) lodgers.include(c);
     else lodgers.remove(c);
-  }
-  
-  
-  public int numHired(Background match) {
-    int num = 0; for (Actor c : workers) {
-      if (c.mind.vocation() == match) num++;
-    }
-    return num;
-  }
-  
-  
-  public int numResident(Background match) {
-    int num = 0; for (Actor c : lodgers) {
-      if (c.mind.vocation() == match) num++;
-    }
-    return num;
   }
 }
 

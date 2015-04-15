@@ -133,15 +133,20 @@ public class Ruins extends Venue {
     //
     //  We 'salt' this estimate in a semi-random but deterministic way by
     //  referring to terrain variation.
+    
+    //  TODO:  What is going on here?
+    
+    final int hired = staff.numHired(b);
     float spaceLevel = structure.repairLevel();
     spaceLevel *= 1 + world.terrain().varAt(origin());
     spaceLevel *= 1f / StageTerrain.TILE_VAR_LIMIT;
+    
     int space = 0;
     if (b == Cranial.SPECIES) space = 0;// (int) (spaceLevel * 1);
     if (b == Tripod .SPECIES) space = 1;// (int) (spaceLevel * 3);
     if (b == Drone  .SPECIES) space = 2;// (int) (spaceLevel * 5);
     if (report) I.say("  "+space+" openings for "+b+" at "+this);
-    return space;
+    return space - hired;
   }
   
   

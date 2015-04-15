@@ -104,6 +104,11 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
+  public int owningTier() {
+    return Owner.TIER_PRIVATE;
+  }
+  
+  
   
   /**  Placement and supply-demand functions-
     */
@@ -121,7 +126,7 @@ public class Nursery extends Venue implements TileConstants {
       return reasons.asFailure("Area is too large!");
     }
     final Stage world = origin().world;
-    if (! Placement.perimeterFits(areaClaimed, owningTier(), 2, world)) {
+    if (! Placement.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
       return reasons.asFailure("Might obstruct pathing");
     }
     return true;
@@ -142,15 +147,15 @@ public class Nursery extends Venue implements TileConstants {
     );
     if (station == null || station.base() != base) return -1;
     final float distance = Spacing.distance(point, station);
-    if (distance > Stage.SECTOR_SIZE) return -1;
     
     float demand = base.demands.globalShortage(Nursery.class);
     final Tile under = world.tileAt(point);
     float rating = 0;
-    rating += world.terrain().fertilitySample (under);
-    rating += world.terrain().insolationSample(under);
+    rating += world.terrain().fertilitySample(under);
     rating /= 1 + (distance / Stage.SECTOR_SIZE);
-    return rating * 10 * demand;
+    rating *= 10 * demand;
+    I.say("Nursery rating: "+rating);
+    return rating;
   }
   
   
@@ -227,7 +232,7 @@ public class Nursery extends Venue implements TileConstants {
     for (Tile t : Spacing.perimeter(footprint(), world)) around.add(t);
     
     base.transport.updatePerimeter(this, around, inWorld, true);
-    base.transport.updateJunction(this, mainEntrance(), inWorld);
+    //base.transport.updateJunction(this, mainEntrance(), inWorld);
   }
 
 

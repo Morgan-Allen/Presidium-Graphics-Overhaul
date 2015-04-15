@@ -18,6 +18,11 @@ import stratos.util.*;
 //  Sectors:   Migrations.  Relations.  Homeworld.
 
 
+//  TODO:  PROBLEM- Actors that have already been hired still appear as being
+//  available for hire here.
+
+
+
 public class RosterPane extends SelectionPane {
   
   
@@ -98,20 +103,24 @@ public class RosterPane extends SelectionPane {
     if (category() == CAT_APPLIES) {
       detailText.append("\nOffworld Applicants:");
       for (Actor a : listApplied(base)) {
-        
         final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
-        final Background sought = findWork.position();
-        VenuePane.descApplicant(a, sought, detailText, UI);
-        
-        d.append("\n  Applying at: ");
-        d.append(findWork.employer());
-        d.append("\n  ");
-        final String hireDesc = "Hire for "+findWork.hiringFee()+" credits";
-        d.append(new Description.Link(hireDesc) {
-          public void whenClicked() {
-            findWork.employer().staff().confirmApplication(findWork);
-          }
-        });
+        VenuePane.descApplicant(a, findWork, detailText, UI);
+
+        if (findWork.wasHired()) {
+          d.append("\n  Hired at: ");
+          d.append(findWork.employer());
+        }
+        else {
+          d.append("\n  Applying at: ");
+          d.append(findWork.employer());
+          d.append("\n  ");
+          final String hireDesc = "Hire for "+findWork.hiringFee()+" credits";
+          d.append(new Description.Link(hireDesc) {
+            public void whenClicked() {
+              findWork.employer().staff().confirmApplication(findWork);
+            }
+          });
+        }
       }
     }
     if (category() == CAT_CURRENT) {

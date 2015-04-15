@@ -20,8 +20,8 @@ public abstract class ActorMind implements Qualities {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    decisionVerbose = Choice.mindVerbose,
-    stepsVerbose    = Choice.mindVerbose && false,
+    decisionVerbose = false,
+    stepsVerbose    = false,
     warnVerbose     = true ;
   
   
@@ -350,7 +350,7 @@ public abstract class ActorMind implements Qualities {
   public void assignBehaviour(Behaviour behaviour) {
     if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.");
     final boolean report = I.talkAbout == actor && decisionVerbose;
-    
+
     if (report) {
       I.say("\nASSIGNING BEHAVIOUR "+behaviour);
       if (warnVerbose) I.reportStackTrace();

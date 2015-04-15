@@ -143,6 +143,12 @@ public class FindWork extends Plan {
   }
   
   
+  public boolean wasHired() {
+    if (position == null || employer == null) return false;
+    return actor.mind.vocation() == position && actor.mind.work() == employer;
+  }
+  
+  
   public boolean actionApplyTo(Actor client, Property best) {
     if (! canApply()) return false;
     confirmApplication();
@@ -304,6 +310,12 @@ public class FindWork extends Plan {
         MA      = (int) BaseCommerce.MAX_APPLICANTS;
       rating -= numApps / MA;
       if (report) I.say("  Total/max applicants: "+numApps+"/"+MA);
+    }
+    //
+    //  Also, give preference to the same vocation and/or the same venue.
+    if (position == actor.mind.vocation() || employer == actor.mind.work()) {
+      rating *= SWITCH_THRESHOLD;
+      if (report) I.say("  Is same as old position/employer");
     }
     if (report) I.say("  Final rating:         "+rating);
     return rating;

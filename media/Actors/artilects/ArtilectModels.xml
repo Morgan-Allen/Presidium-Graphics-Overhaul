@@ -7,7 +7,7 @@
   type="JOINT"
   path="media/Actors/artilects/"
   file="DefenceDrone.ms3d"
-  scale="0.02"
+  scale="0.015"
   bound="2.5"
   stride="1.5"
   height="2.5"
@@ -34,7 +34,7 @@
   type="JOINT"
   path="media/Actors/artilects/"
   file="ReconDrone.ms3d"
-  scale="0.02"
+  scale="0.015"
   bound="2.5"
   stride="1.5"
   height="2.5"
@@ -61,7 +61,7 @@
   type="JOINT"
   path="media/Actors/artilects/"
   file="BlastDrone.ms3d"
-  scale="0.02"
+  scale="0.015"
   bound="2.5"
   stride="1.5"
   height="2.5"
@@ -88,7 +88,7 @@
   type="JOINT"
   path="media/Actors/artilects/"
   file="Tripod.ms3d"
-  scale="0.075"
+  scale="0.055"
   bound="2.5"
   stride="1.5"
   height="2.5"
@@ -161,33 +161,6 @@
     <attachPoint function="fire" joint="core"/>
     <attachPoint function="target" joint="core"/>
   </attachPoints>
-</model>
-
-
-<model
-  name="Qudu"
-  format="MS3D"
-  type="JOINT"
-  path="media/Actors/artilects/"
-  file="Qudu.ms3d"
-  scale="1"
-  bound="2.5"
-  stride="1.5"
-  height="2.5"
->
-  <animations>
-    <animation name="stand"       start="1"  end="1"  duration="1"   />
-	<animation name="Move"       start="1"  end="32"  duration="1"   />
-	<animation name="MoveFast"       start="34"  end="69"  duration="0.7"   />
-	<animation name="MoveCarry"       start="70"  end="102"  duration="1"   />
-	<animation name="Building"       start="103"  end="228"  duration="2"   />
-	<animation name="Feeding"       start="229"  end="354"  duration="3"   />
-	<animation name="Idle"       start="355"  end="365"  duration="3"   />
-	<animation name="QuickStab"       start="366"  end="416"  duration="1"   />
-	<animation name="HeavyPunch"       start="417"  end="461"  duration="1"   />
-	<animation name="Death"       start="462"  end="522"  duration="2.5"   />
-  </animations>
- 
 </model>
 
 

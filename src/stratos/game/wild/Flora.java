@@ -158,9 +158,10 @@ public class Flora extends Element implements TileConstants {
   
   
   public static boolean canGrowAt(Tile t) {
-    if (t.blocked() || t.inside().size() > 0) return false;
-    final float growChance = growChance(t);
-    if (growChance == -1) return false;
+    //  TODO:  TRY TO STANDARDISE THIS WITH VENUES.
+    if (t.blocked() || t.isEntrance()) return false;
+    if (t.reserved() || t.inside().size() > 0) return false;
+    if (growChance(t) == -1) return false;
     return Placement.perimeterFits(t, Owner.TIER_NATURAL);
   }
   
@@ -168,6 +169,7 @@ public class Flora extends Element implements TileConstants {
   public static Flora tryGrowthAt(Tile t, boolean certain) {
     final float growChance = growChance(t);
     if (growChance == -1) return null;
+    
     if (updatesVerbose) I.say("Grow chance: "+growChance);
     
     if (t.onTop() instanceof Flora) {

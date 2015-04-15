@@ -137,15 +137,18 @@ public class Hunting extends Combat {
     SAMPLE_TRAITS[]  = { CURIOUS, ENERGETIC, NATURALIST };
   
   
-  public float priorityFor(Actor actor) {
+  protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (! validPrey(prey, actor, false)) return -1;
-    if (! PlanUtils.isArmed(actor)) return 0;
+    
+    if (prey.destroyed()) return -1;
+    final boolean start = ! hasBegun();
+    if (start && ! validPrey(prey, actor, false)) return -1;
+    if (! PlanUtils.isArmed(actor)) return -1;
     
     float urgency, harmLevel;
     final Trait baseTraits[];
     final float crowding = Nest.crowdingFor(prey);
-    final float hunger = actor.health.hungerLevel();
+    final float hunger = actor.health.hungerLevel() + (start ? 0 : 0.5f);
     
     if (type == TYPE_FEEDS) {
       urgency    = hunger * PARAMOUNT * (1 + Nums.min(crowding, hunger));
@@ -170,14 +173,15 @@ public class Hunting extends Combat {
       urgency, urgency / 2,
       harmLevel, MILD_COMPETITION, REAL_FAIL_RISK,
       RANGED_SKILLS, baseTraits, NORMAL_DISTANCE_CHECK,
-      report
+      false
     );
     
     if (report) {
       I.say("\nHunting type is: "+TYPE_DESC[type]);
+      I.say("  Just started:    "+start   +" ("+hashCode()+")");
       I.say("  Base urgency is: "+urgency );
       I.say("  Final priority:  "+priority);
-      I.say("  Hunger is:       "+hunger  );
+      I.say("  Hunger is:       "+hunger  +" ("+actor.health.hungerLevel()+")");
       I.say("  Crowding is:     "+crowding);
     }
     return priority;
@@ -209,9 +213,6 @@ public class Hunting extends Combat {
     if (type == TYPE_FEEDS) {
       if (! prey.inWorld()) return null;
       if (prey.health.conscious()) return super.getNextStep();
-      
-      final float full = ActorHealth.MAX_CALORIES * 0.99f;
-      if (actor.health.caloryLevel() >= full) return null;
       if (report) I.say("  Feeding.");
       final Action feed = new Action(
         actor, prey,

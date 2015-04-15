@@ -36,6 +36,10 @@ public class Audit extends Plan {
     STAGE_REPORT =  1,
     STAGE_DONE   =  2;
   
+  final static int
+    RATE_DIVISOR  = 25,
+    MAX_VISITS    = 5 ;
+  
   
   final Type type;
   final Venue reportAt;
@@ -43,6 +47,7 @@ public class Audit extends Plan {
   private int stage = STAGE_EVAL;
   private Property audited;
   public int checkBonus = 0;
+  private int numVisits = 0;
   private float
     expenses ,
     income   ,
@@ -68,6 +73,7 @@ public class Audit extends Plan {
     stage      = s.loadInt();
     audited    = (Venue) s.loadObject();
     checkBonus = s.loadInt();
+    numVisits  = s.loadInt();
     
     expenses   = s.loadFloat();
     income     = s.loadFloat();
@@ -86,6 +92,7 @@ public class Audit extends Plan {
     s.saveInt   (stage     );
     s.saveObject(audited   );
     s.saveInt   (checkBonus);
+    s.saveInt   (numVisits );
     
     s.saveFloat (expenses  );
     s.saveFloat (income    );
@@ -127,19 +134,26 @@ public class Audit extends Plan {
   }
   
   
-  public static float taxesDue(Actor actor) {
-    if (actor.base().primal) return 0;
+  public static boolean payIncomeTax(Actor actor, Venue home) {
+    if (actor.base().primal || actor.mind.vocation().defaultSalary == 0) {
+      return false;
+    }
     
-    //  TODO:  ALSO, YOU HAVE TO PAY MORE FOR A HOLDING!
+    float baseSumDue = Nums.min(actor.gear.credits(), actor.gear.unTaxed());
+    if (baseSumDue <= 0) return false;
     
-    //  TODO:  factor in social class in some way.
-    //  final int bracket = actor.vocation().standing;
-    final int percent = Backgrounds.DEFAULT_TAX_PERCENT;
+    final int standing     = actor.mind.vocation().standing;
+    final int percent      = Backgrounds.DEFAULT_TAX_PERCENTS[standing];
+    final int upgradeLevel = HoldingUpgrades.upgradeLevelOf(home);
+    final int homeTaxBonus = HoldingUpgrades.TAX_BONUS[upgradeLevel];
     
-    float afterSaving = actor.gear.credits();
-    if (afterSaving < 0) return 0;
-    afterSaving = Nums.min(afterSaving, actor.gear.unTaxed());
-    return afterSaving * percent / 100f;
+    float actorPays = baseSumDue * percent / 100f;
+    float taxesOut  = baseSumDue * (percent + homeTaxBonus) / 100f;
+    
+    actor.gear.incCredits(0 - actorPays);
+    home.stocks.incCredits(taxesOut);
+    actor.gear.taxDone();
+    return true;
   }
   
   
@@ -154,9 +168,6 @@ public class Audit extends Plan {
   }
   
   
-  
-  /**  Evaluating targets and priority-
-    */
   public static Audit nextAmateurAudit(Actor actor) {
     final Property work = actor.mind.work();
     if (! (work instanceof Venue)) return null;
@@ -165,7 +176,7 @@ public class Audit extends Plan {
   
   
   public static Audit nextOfficialAudit(Actor actor) {
-    final boolean report = true;// evalVerbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nFinding next venue to audit for "+actor);
     
     final Stage world = actor.world();
@@ -174,20 +185,24 @@ public class Audit extends Plan {
     world.presences.sampleFromMap(work, world, 10, batch, work.base());
     batch.add(work);
     
-    final Pick <Venue> pick = new Pick <Venue> ();
+    for (Target t : actor.senses.awareOf()) {
+      if (! (t instanceof Venue && t.base() == work.base())) continue;
+      batch.add((Venue) t);
+    }
+    
+    final Pick <Venue> pick = new Pick <Venue> (null, 0);
     for (Venue v : batch) {
+      if (Plan.competition(Audit.class, v, actor) > 0) continue;
       final float cash = v.inventory().unTaxed();
-      float rating = (Nums.abs(cash) + Nums.max(0, cash)) / 25;
-      rating -= Plan.rangePenalty(actor.base(), v, actor);
-      rating -= Plan.competition(Audit.class, v, actor);
-      if (rating > 0) pick.compare(v, rating);
+      float rating = (Nums.abs(cash) + Nums.max(0, cash)) / RATE_DIVISOR;
+      rating /= 1 + Plan.rangePenalty(actor.base(), v, actor);
+      pick.compare(v, rating);
       if (report) {
         I.say("  Rating for "+v+" is "+rating);
         I.say("    Current balance: "+v.inventory().credits());
         I.say("    Untaxed:         "+v.inventory().unTaxed());
       }
     }
-    
     if (pick.result() == null) return null;
     return new Audit(actor, pick.result(), work, Type.TYPE_OFFICIAL);
   }
@@ -209,6 +224,9 @@ public class Audit extends Plan {
   }
   
   
+  
+  /**  Evaluating targets and priority-
+    */
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     if (report) {
@@ -246,7 +264,7 @@ public class Audit extends Plan {
     if (stage == STAGE_EVAL) {
       if (
         audited == null && type == Type.TYPE_OFFICIAL &&
-        Rand.num() > (Nums.abs(totalSum) / 1000f)
+        numVisits < MAX_VISITS
       ) {
         final Audit next = nextOfficialAudit(actor);
         audited = next == null ? null : next.audited;
@@ -283,13 +301,15 @@ public class Audit extends Plan {
   
   
   public boolean actionAudit(Actor actor, Property audited) {
-    final float balance = this.performAudit();
+    performAudit();
+    numVisits++;
     
     if (type == Type.TYPE_AMATEUR) {
       actor.gear.incCredits(embezzled);
       stage = STAGE_DONE;
     }
     else {
+      final float balance = audited.inventory().credits();
       audited.inventory().incCredits(0 - balance);
       audited.inventory().taxDone();
       stage = (audited == reportAt) ? STAGE_REPORT : STAGE_EVAL;

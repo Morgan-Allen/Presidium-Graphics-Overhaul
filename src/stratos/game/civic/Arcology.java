@@ -17,6 +17,8 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  The art here needs revision.
+
 public class Arcology extends Venue {
   
   
@@ -26,7 +28,7 @@ public class Arcology extends Venue {
   final static ModelAsset
     BEDS_MODELS[][] = CutoutModel.fromImageGrid(
       Arcology.class, IMG_DIR+"all_arcology.png",
-      4, 4, 2, 1, false
+      4, 4, 2, 2, false
     ),
     
     MBW = BEDS_MODELS[0][0],
@@ -90,7 +92,7 @@ public class Arcology extends Venue {
   
   /**  Behaviour and economic functions-
     */
-  //  TODO:  Require seeding from an ecologist station for maximum growth!
+  //  TODO:  Require seeding by an ecologist for maximum growth!
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);

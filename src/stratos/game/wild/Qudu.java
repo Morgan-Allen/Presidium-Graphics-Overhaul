@@ -34,15 +34,15 @@ public class Qudu extends Fauna {
     "Qudu are placid, slow-moving, vegetarian browsers that rely on their "+
     "dense, leathery hides and intractable grip on the ground to protect "+
     "themselves from most predators.",
-    FILE_DIR+"QuudPortrait.png",
+    FILE_DIR+"QuduPortrait.png",
     MS3DModel.loadFrom(
-      FILE_DIR, "Quud.ms3d", Qudu.class,
-      XML_FILE, "Quud"
+      FILE_DIR, "Qudu.ms3d", Qudu.class,
+      XML_FILE, "Qudu"
     ),
     Species.Type.BROWSER,
-    1.25f, //bulk
-    0.40f, //speed
-    0.65f  //sight
+    1.50f, //bulk
+    0.50f, //speed
+    0.75f  //sight
   ) {
     final VenueProfile PROFILE = Nest.constructProfile(
       2, 2, this, MODEL_NEST_QUUD
@@ -68,7 +68,7 @@ public class Qudu extends Fauna {
   
   
   protected void initStats() {
-    traits.initAtts(5, 2, 1);
+    traits.initAtts(7, 3, 2);
     health.initStats(
       1,    //lifespan
       species.baseBulk , //bulk bonus
@@ -76,7 +76,7 @@ public class Qudu extends Fauna {
       species.speedMult, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
-    gear.setBaseDamage(2);
+    gear.setBaseDamage(8);
     gear.setBaseArmour(15);
     
     traits.setLevel(DEFENSIVE, -1);
@@ -97,6 +97,7 @@ public class Qudu extends Fauna {
   
   /**  Behaviour implementations.
     */
+  /*
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! isDoingAction("actionHunker", null)) gear.setBaseArmour(15);
@@ -147,6 +148,7 @@ public class Qudu extends Fauna {
     doing.gear.setBaseArmour(25);
     return true;
   }
+  //*/
   
   
 

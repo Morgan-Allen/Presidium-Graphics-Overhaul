@@ -276,9 +276,9 @@ public class ActorTraits implements Qualities {
   
   
   public boolean hasTrait(Trait type, String desc) {
-    int i = 0; for (String s : type.descriptors) {
+    int i = 0; for (String s : type.labels) {
       if (desc.equals(s)) {
-        final float value = type.descValues[i];
+        final float value = type.labelValues[i];
         if (value > 0) return traitLevel(type) >= value;
         else return traitLevel(type) <= value;
       }
@@ -331,9 +331,9 @@ public class ActorTraits implements Qualities {
   
   
   public void setLevel(Trait type, String desc) {
-    int i = 0; for (String s : type.descriptors) {
+    int i = 0; for (String s : type.labels) {
       if (desc.equals(s)) {
-        setLevel(type, type.descValues[i]);
+        setLevel(type, type.labelValues[i]);
         return;
       }
       else i++;

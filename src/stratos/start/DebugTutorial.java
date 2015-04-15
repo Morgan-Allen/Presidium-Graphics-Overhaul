@@ -10,6 +10,17 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+
+//  TODO:  Your citizens need to be more sensible about applying to the same
+//         damn position that they already have.
+
+//  TODO:  Some way to harvest meat from creatures you kill would be
+//         beneficial.
+
+//  TODO:  Animals need to be more consistent about retreating from danger (
+//         flight or fight.)
+
+
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
@@ -23,16 +34,8 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
      *  Danger          / no security force (walls and military.)
    Emphasise the emotive component here?
 
-*  Ensure a small number of powers can be chosen for your ruler before the
-   scenario begins!
-
-*  Re-introduce secondary revenue from upgraded housing!
-
-*  Allow click-and-drag for things like the arcology or plantations (or maybe
-   building-facings and housing blocs?)
-   You could also make use of right-click.
-   Drag buildings from the install-pane directly onto the ground!  That's what
-   he was talking about.
+*  Drag buildings from the install-pane directly onto the ground!  That's what
+   he was talking about.  You could also make use of right-click for something.
 
 *  Try to polish up the Flora- have it look more exotic.
 
@@ -54,11 +57,11 @@ BUILDING AND UPGRADES-
 *  There needs to be a more precise 'reservation' system to allow for zoning,
    entrances and not-in-the-world-yet situations.
 
+*  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
+   change.  (Allow that for buildings in general?)
+
   >>>>>>> DO THIS <<<<<<<
 *  Fresh art for shield walls.  And give them out for free!
-
-*  Arcologies should have auto-placement.  In fact, I need an aesthetic option
-   for the early game that's easy to include spatially.
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange
@@ -70,14 +73,12 @@ BUILDING AND UPGRADES-
      Cut out recruitment-extras for others.
 
 *  Use service hatches to initiate heavier paving and utility-transmission?
+   Arcologies might have auto-placement?
 
 *  Buildings need to have multiple levels.  (At least for the main/root-guild
    structures.)
 
 *  Fresh art and level-depictions for all structures.
-
-*  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
-   change.  (Allow that for buildings in general?)
 
 
 CITIZEN BEHAVIOUR-
@@ -118,13 +119,6 @@ CONTROL AND DIRECTION-
 
 ENEMIES AND ENVIRONMENT-
 
-*  Extra concept art for new creatures/vermin:
-     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
-
-*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
-   for use by animals.)  Then get rid of the custom-coding.  And polish up
-   vermin behaviours.
-
 *  There needs to be a super-fast system for testing pathability to different
    areas of the map.  (And maybe caching dangers en-route?)
 
@@ -133,6 +127,13 @@ ENEMIES AND ENVIRONMENT-
 *  The Yamagur is sufficiently big and powerful that it can't really count as a
    'prey' species (in fact, it tends to wind up pulverising any predators in
    it's territory.)  It needs a tweak to the placement algorithm.
+
+*  Extra concept art for new creatures/vermin:
+     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+
+*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
+   for use by animals.)  Then get rid of the custom-coding.  And polish up
+   vermin behaviours.
 
 
 INTERFACE AND DEBUGGING

@@ -16,7 +16,6 @@ public class Choice implements Qualities {
     */
   public static boolean
     verbose       = false,
-    mindVerbose   = false,
     verboseReject = false,
     verboseSwitch = false;
   

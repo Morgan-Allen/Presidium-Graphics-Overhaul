@@ -14,6 +14,9 @@ import stratos.util.*;
 
 //  NOTE:  I'm moving these methods here essentially for the sake of reducing
 //  clutter/space demands within the main Human or Actor classes.
+
+//  TODO- MAKE THIS ANOTHER INFO-PANE
+
 public class ActorDescription implements Qualities {
   
   

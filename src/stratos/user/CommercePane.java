@@ -21,7 +21,7 @@ public class CommercePane extends SelectionPane {
   
   final static String
     CAT_BUDGET = "BUDGETING",
-    CAT_DEMAND = "SUPPLY & DEMAND",
+    CAT_DEMAND = "MARKETS",
     CATEGORIES[] = { CAT_BUDGET, CAT_DEMAND };
   
   

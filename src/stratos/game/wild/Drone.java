@@ -76,7 +76,7 @@ public class Drone extends Artilect {
     
     traits.setLevel(CURIOUS, 1);
     
-    final ModelAsset model = DRONE_MODELS[Rand.index(3)];
+    final ModelAsset model = DRONE_MODELS[0];
     attachSprite(model.makeSprite());
     name = nameWithBase("Drone ");
   }

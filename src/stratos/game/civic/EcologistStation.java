@@ -104,8 +104,7 @@ public class EcologistStation extends Venue {
     ),
     CULTIVATOR_STATION = new Upgrade(
       "Cultivator Station",
-      "Hire additional cultivators to plant and reap harvests more "+
-      "quickly, maintain equipment, and bring land under cultivation.",
+      Backgrounds.CULTIVATOR.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.CULTIVATOR, 1,
       null, EcologistStation.class, ALL_UPGRADES
@@ -131,8 +130,7 @@ public class EcologistStation extends Venue {
     ),
     ECOLOGIST_STATION = new Upgrade(
       "Ecologist Station",
-      "Ecologists are highly-skilled students of plants, animals and gene "+
-      "modification, capable of adapting species to local climate conditions.",
+      Backgrounds.ECOLOGIST.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.ECOLOGIST,
       1,

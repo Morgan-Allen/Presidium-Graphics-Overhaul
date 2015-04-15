@@ -25,7 +25,6 @@ import java.lang.reflect.*;
 
 //  TODO:  Require messages be actively dismissed before going to the 'old
 //         messages' queue (and possibly before new messages can be presented?)
-//  TODO:  Include the various adaptive tips!
 //  TODO:  Have a general flags/triggers table to clarify saving/loading.
 
 
@@ -40,7 +39,6 @@ import java.lang.reflect.*;
      *  Specific goods  / no factory source built.
      *  Citizen health  / no medical team (sickbay and archives.)
      *  Danger          / no security force (walls and military.)
-   Emphasise the emotive component here?
 //*/
 
 

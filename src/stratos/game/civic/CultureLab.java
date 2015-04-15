@@ -43,7 +43,7 @@ public class CultureLab extends Venue {
     ),
     WASTE_TO_REAGENTS = new Conversion(
       CultureLab.class, "carbs_to_reagents",
-      TO, 1, REAGENTS,
+      TO, 1, CATALYST,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
     CARBS_TO_SOMA = new Conversion(
@@ -63,7 +63,7 @@ public class CultureLab extends Venue {
     ),
     PROTEIN_TO_SPYCE_T = new Conversion(
       CultureLab.class, "carbs_to_spyce_t",
-      20, PROTEIN, 5, REAGENTS, TO, 1, SPYCE_T,
+      20, PROTEIN, 5, CATALYST, TO, 1, SPYCE_T,
       DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
     );
   
@@ -224,7 +224,7 @@ public class CultureLab extends Venue {
 
   public Traded[] services() {
     return new Traded[] {
-      CARBS, PROTEIN, SOMA, REAGENTS, SPYCE_T
+      CARBS, PROTEIN, SOMA, CATALYST, SPYCE_T
     };
   }
   

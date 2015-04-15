@@ -35,10 +35,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     stepsVerbose    = false,
     priorityVerbose = false,
     extraVerbose    = false,
-    evalVerbose     = false,
+    utilsVerbose    = false,
     doesVerbose     = false;
   private static Class
-    verboseClass = Retreat.class;
+    verboseClass = null;
   
   final public Target subject;
   protected Actor actor;  //  TODO:  MAKE THIS FINAL
@@ -60,8 +60,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   protected Plan(
     Actor actor, Target subject, int motiveType, float harmFactor
   ) {
-    this.actor      = actor     ;
-    this.subject    = subject   ;
+    this.actor   = actor  ;
+    this.subject = subject;
     this.motiveProperties = motiveType;
     this.harmFactor = harmFactor;
     if (subject == null) I.complain("NULL PLAN SUBJECT");
@@ -236,7 +236,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public float priorityFor(Actor actor) {
-    final boolean report = priorityVerbose && I.talkAbout == actor && hasBegun() && (
+    final boolean report = priorityVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
     );
     if (hasMotives(MOTIVE_CANCELLED)) return -1;
@@ -250,17 +250,15 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
       priorityEval = getPriority();
       if (report) I.say("\nNew priority: "+priorityEval);
-      if (nextStep != null) {
-        begun        = true;
-        lastEvalTime = time;
-      }
+      begun        = true;
+      lastEvalTime = time;
     }
     return priorityEval;
   }
   
   
   public Behaviour nextStepFor(Actor actor) {
-    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun() && (
+    final boolean report = stepsVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
     );
     if (hasMotives(MOTIVE_CANCELLED)) return null;
@@ -270,7 +268,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     
     if (checkRefreshDue(actor, report && extraVerbose)) {
-      if (report) I.say("\nPlan step for "+this+" was: "+I.tagHash(lastStep));
+      if (report) I.say("  Plan step for "+this+" was: "+I.tagHash(lastStep));
       final float time = actor.world().currentTime();
       
       final Behaviour root = actor.mind.rootBehaviour();
@@ -278,7 +276,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       
       nextStep = getNextStep();
       if (lastStep != null && lastStep.matchesPlan(nextStep)) {
-        if (report) I.say("  NEXT STEP THE SAME AS OLD STEP: "+nextStep);
+        if (report) I.say("    NEXT STEP THE SAME AS OLD STEP: "+nextStep);
         nextStep = lastStep;
       }
       else if (nextStep != null) {
@@ -295,10 +293,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
         priorityEval = IDLE;
       }
       //*/
-      if (priorityEval != NULL_PRIORITY) {
-        begun        = true;
-        lastEvalTime = time;
-      }
+      begun        = true;
+      lastEvalTime = time;
     }
     return nextStep;
   }
@@ -679,7 +675,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public static float dangerPenalty(Target t, Actor actor) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = utilsVerbose && I.talkAbout == actor;
     
     final Tile at = actor.origin();
     float danger = actor.base().dangerMap.sampleAround(

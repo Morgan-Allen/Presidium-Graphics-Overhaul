@@ -132,6 +132,18 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   }
   
   
+  /**  Inserts the member at a given index-
+    */
+  final public ListEntry <T> insertAt(int index, T t) {
+    if (index < 1) return addFirst(t);
+    int d = 0;
+    for (ListEntry <T> l = this; (l = l.next) != this; d++) {
+      if (d == index - 1) return addAfter(l, t);
+    }
+    return addLast(t);
+  }
+  
+  
   
   /**  Removes the specified entry from the list.  (This method has no effect if
     *  the given entry does not belong to the list.)

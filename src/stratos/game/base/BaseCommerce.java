@@ -32,10 +32,10 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
-    tradeVerbose   = verbose && true ;
+    tradeVerbose   = verbose && false;
   
   final public static float
     SUPPLY_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
@@ -180,7 +180,7 @@ public class BaseCommerce {
     
     for (Background b : demanded) {
       final float
-        demand = base.demands.globalDemand(b),
+        demand = (base.demands.globalDemand(b) - 0.5f) * MAX_APPLICANTS,
         supply = jobSupply.valueFor(b);
       if (demand <= 0) continue;
       float applyChance = (demand - supply) * TIME_SLICE;
@@ -211,14 +211,17 @@ public class BaseCommerce {
     //  settlements.
     if (report) I.say("\nTotal candidates "+candidates.size());
     
-    for (ListEntry e = candidates; (e = e.nextEntry()) != candidates;) {
+    for (ListEntry <Actor> e = candidates; (e = e.nextEntry()) != candidates;) {
       final Human c = (Human) e.refers;
       
       final Background a = c.mind.vocation();
+      final FindWork b = FindWork.attemptFor(c, a, base);
       float quitChance = TIME_SLICE;
       if (report) I.say("  Updating "+c+" ("+a+")");
       
-      if (a != null) {
+      if      (c.inWorld ()) quitChance = 1;
+      else if (b.wasHired()) quitChance = 0;
+      else if (a != null) {
         final float
           supply = jobSupply.valueFor(a),
           demand = base.demands.globalDemand(a),
@@ -230,7 +233,6 @@ public class BaseCommerce {
         }
       }
       
-      final FindWork b = FindWork.attemptFor(c, a, base);
       if (a == null || b == null || Rand.num() < quitChance) {
         if (report) I.say("    Quitting...");
         candidates.removeEntry(e);

@@ -67,6 +67,10 @@ public class ServiceHatch extends Venue {
   
   
   public float ratePlacing(Target point, boolean exact) {
+    //  TODO:  These are far too damn ugly.  Work out a way to make them look
+    //  better.
+    if (true) return 0;
+    
     Stage world = point.world();
     final Object key = ServiceHatch.class;
     final float range = Stage.SECTOR_SIZE / 2, abutRange = 2 + 1;

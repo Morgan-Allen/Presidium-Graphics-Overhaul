@@ -47,10 +47,7 @@ public class BaseFinance {
   
   final Base base;
   float credits = 0, interest = 0;
-  
-  private float
-    lastUpdate      = -1,
-    lastWeekBalance =  0;
+  private float lastUpdate = -1;
   final Tally <String>
     weekOutlay  = new Tally <String> (),
     totalOutlay = new Tally <String> (),
@@ -176,7 +173,6 @@ public class BaseFinance {
     
     if (newWeek == oldWeek) return;
     lastUpdate = time;
-    lastWeekBalance = credits;
     weekIncome.clear();
     weekOutlay.clear();
   }

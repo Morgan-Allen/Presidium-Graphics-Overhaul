@@ -163,6 +163,13 @@ public class I {
   }
   
   
+  public static String list(Object array[]) {
+    final StringBuffer s = new StringBuffer();
+    for (Object o : array) s.append(o+", ");
+    return s.toString();
+  }
+  
+  
   
   /**  This one could use a little explanation.  Basically, the header gets
     *  printed first, the lineFeed gets stuck on the front of every subsequent

@@ -302,12 +302,15 @@ public class VenuePane extends SelectionPane {
           if (a.employer() != v || a.position() != b) continue;
           final Actor p = a.actor();
           mentioned.include(p);
-          descApplicant(p, a.position(), d, UI);
+          descApplicant(p, a, d, UI);
           
           d.append("\n  ");
           final String hireDesc = "Hire for "+a.hiringFee()+" credits";
           d.append(new Description.Link(hireDesc) {
             public void whenClicked() { v.staff.confirmApplication(a); }
+          });
+          d.append(new Description.Link(" Dismiss") {
+            public void whenClicked() { a.cancelApplication(); }
           });
         }
         
@@ -376,7 +379,7 @@ public class VenuePane extends SelectionPane {
       d.append("\n");
       d.append(lastCU.description, Colour.LITE_GREY);
       for (Upgrade u : lastCU.required) {
-        d.append("\n  Requires: "+u.name);
+        d.append("\n  Requires: "+u.baseName);
       }
       if (! v.structure.upgradePossible(lastCU)) {
         d.append("\n\n");
@@ -399,7 +402,9 @@ public class VenuePane extends SelectionPane {
         queued = v.structure.upgradeLevel(upgrade, Structure.STATE_INSTALL);
       if (level + queued == 0 && ! possible) continue;
       
-      d.append("\n"+upgrade.name+" x"+level+"  ("+cost+" Credits)");
+      final String name = upgrade.nameAt(v, -1, null);
+      d.append("\n"+name);
+      if (possible) d.append("  ("+cost+" Credits)");
       
       d.append("\n  ");
       final String desc = "INSTALL";
@@ -422,6 +427,14 @@ public class VenuePane extends SelectionPane {
       d.append("\n\nUpgrades in progress: ");
       for (String u : OA) d.append("\n  "+u);
       d.append("\n");
+      
+      if (v.structure.upgradeProgress() == 0) d.append(
+        "\nUpgrades will be installed once your engineering staff arrive "+
+        "on-site.", Colour.LITE_GREY
+      );
+      else d.append(
+        "\nUpgrades are currently being installed.", Colour.LITE_GREY
+      );
     }
   }
   
@@ -468,7 +481,7 @@ public class VenuePane extends SelectionPane {
     *  elsewhere...
     */
   public static void descApplicant(
-    Actor a, Background sought, Description d, BaseUI UI
+    Actor a, FindWork sought, Description d, BaseUI UI
   ) {
     final Composite comp = a.portrait(UI);
     if (comp != null) ((Text) d).insert(comp.texture(), 40, true);
@@ -477,6 +490,7 @@ public class VenuePane extends SelectionPane {
     d.append(a);
     d.append(a.inWorld() ? " (" : " (Offworld ");
     d.append(a.mind.vocation().name+")");
+    if (sought.wasHired()) return;
     
     final Series <Trait>
       TD = ActorDescription.sortTraits(a.traits.personality(), a),
@@ -484,7 +498,7 @@ public class VenuePane extends SelectionPane {
     
     int numS = 0;
     for (Trait s : SD) {
-      if (sought.skillLevel((Skill) s) <= 0) continue;
+      if (sought.position().skillLevel((Skill) s) <= 0) continue;
       if (++numS > 3) break;
       d.append("\n  "+s+" ("+((int) a.traits.traitLevel(s))+") ");
     }

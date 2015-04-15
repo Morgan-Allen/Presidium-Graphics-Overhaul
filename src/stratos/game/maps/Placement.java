@@ -7,6 +7,8 @@ package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.Backgrounds;
+import stratos.graphics.widgets.KeyInput;
+import stratos.user.PlacingTask;
 import stratos.util.*;
 
 
@@ -209,11 +211,54 @@ public class Placement implements TileConstants {
   }
   
   
+  public static Object setupMergingSegment(
+    Venue fixture, Tile position, Box2D area, Coord points[],
+    Object piecesX[], Object piecesY[], Object hub,
+    Class <? extends Venue> ofType
+  ) {
+    
+    final Stage world = position.world;
+    final int s = fixture.size, hS = s / 2;
+    boolean near[] = new boolean[8], adj;
+    int numN = 0;
+    
+    for (int t : T_ADJACENT) {
+      final Tile n = world.tileAt(
+        position.x + (T_X[t] * s),
+        position.y + (T_Y[t] * s)
+      );
+      if (n == null) continue; else adj = false;
+      final Element under = n.onTop();
+      if (
+        under != null && under.origin() == n &&
+        ofType.isAssignableFrom(under.getClass())
+      ) {
+        adj = true;
+      }
+      else for (Coord p : points) {
+        if (n.x + hS == p.x && n.y + hS == p.y) adj = true;
+      }
+      near[t] = adj;
+      if (adj) numN++;
+    }
+    
+    if (numN > 2) return hub;
+    if (near[E] & near[W]) return piecesX[1];
+    if (near[N] & near[S]) return piecesY[1];
+    if (numN == 2) return hub;
+    if (near[E]) return piecesX[0];
+    if (near[W]) return piecesX[2];
+    if (near[N]) return piecesY[0];
+    if (near[S]) return piecesY[2];
+    return hub;
+  }
+  
+  
   
   /**  Other utility methods intended to help ensure free and easy pathing-
     */
   private static Box2D tA = new Box2D();
-
+  
   
   public static int[] entranceCoords(int xdim, int ydim, float face) {
     if (face == Venue.FACING_NONE) return new int[] { 0, 0 };
@@ -250,17 +295,14 @@ public class Placement implements TileConstants {
     if (report) {
       I.say("\nCHECKING PERIMETER FOR "+I.tagHash(e));
     }
-    return perimeterFits(e.area(tA), e.owningTier(), 2, world);
+    return perimeterFits(e, e.area(tA), e.owningTier(), 2, world);
   }
   
   
   public static boolean perimeterFits(Tile t, int tier) {
-    return perimeterFits(t.area(tA), tier, 2, t.world);
+    return perimeterFits(t, t.area(tA), tier, 2, t.world);
   }
   
-  
-  //  TODO:  Return a set of venues/fixtures/elements that conflict with the
-  //  one being placed?
   
   //
   //  This method checks whether the placement of the given element in this
@@ -268,13 +310,14 @@ public class Placement implements TileConstants {
   //  lead to the existence of inaccessible 'pockets' of terrain- that would
   //  cause pathing problems.
   public static boolean perimeterFits(
-    Box2D footprint, int tier, int spaceNeed, Stage world
+    Target subject, Box2D footprint, int tier, int spaceNeed, Stage world
   ) {
-    boolean report = verbose && tier > Owner.TIER_PRIVATE;
+    final boolean report = verbose && PlacingTask.isBeingPlaced(subject);
     //
     //  We check recursively for pockets at a finer resolution:
     if (spaceNeed > 1) {
-      final boolean fits = perimeterFits(footprint, tier, spaceNeed -1, world);
+      final boolean fits;
+      fits = perimeterFits(subject, footprint, tier, spaceNeed -1, world);
       if (! fits) return false;
     }
     //
@@ -292,19 +335,15 @@ public class Placement implements TileConstants {
     //  In essence, we scan along the perimeter and note how often the tiles
     //  switch between being blocked and unblocked.
     final Tile perim[] = Spacing.perimeter(footprint, world);
-    int inClear = -1, numGaps = 0;
+    int inBlock = -1, numGaps = 0;
     if (report) {
       I.say("  Checking tiles along perim, area: "+footprint);
       I.say("    ");
     }
     for (Tile t : perim) {
-      int clear = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
-      if (report) I.add(" "+clear);
-      if (clear != inClear) { inClear = clear; if (clear == 0) numGaps++; }
-      //
-      //  Don't allow immediate infringement on any structure of a higher
-      //  tier type.
-      if (spaceNeed == 1 && t != null && t.owningTier() > tier) return false;
+      int block = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
+      if (report) I.add(" "+block);
+      if (block != inBlock) { inBlock = block; if (block == 0) numGaps++; }
     }
     //
     //  There's a potential fail case if a gap lies across the first and last
@@ -327,8 +366,9 @@ public class Placement implements TileConstants {
   ) {
     if (t == null) return false;
     final int maxTier = Nums.min(tier, Owner.TIER_PRIVATE);
-    
-    if (space == 1) return singleTileClear(t, maxTier);
+    if (space == 1) {
+      return singleTileClear(t, maxTier);
+    }
     else for (int x = space; x-- > 0;) for (int y = space; y-- > 0;) {
       final Tile u = t.world.tileAt(x + t.x, y + t.y);
       if (u == null || ! singleTileClear(u, maxTier)) return false;
@@ -344,10 +384,17 @@ public class Placement implements TileConstants {
   
   
   public static boolean isViableEntrance(Venue v, Tile e) {
-    return e != null && ! e.reserved();
+    //  TODO:  Unify this with singleTileClear()?
+    if (e == null || ! e.habitat().pathClear) return false;
+    if (e.onTop() == null) return true;
+    final int maxTier = Nums.min(v.owningTier(), Owner.TIER_PRIVATE);
+    final Element under = e.onTop();
+    return under == null || (
+      under.owningTier() < maxTier ||
+      under.pathType  () <= Tile.PATH_CLEAR
+    );
   }
 }
-
 
 
 

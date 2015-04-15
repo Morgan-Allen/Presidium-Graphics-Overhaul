@@ -8,7 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
-//import stratos.game.wild.Nest;
+import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.user.notify.*;
@@ -286,8 +286,10 @@ public class BaseSetup {
     Siting placing, Venue sample, boolean report
   ) {
     final Pick <Tile> sitePick = new Pick <Tile> ();
+    final Box2D tempA = new Box2D();
+    
     for (Tile t : world.tilesIn(placing.placed.area, false)) {
-      sample.setPosition(t.x, t.y, world);
+      sample.setupWith(t, t.area(tempA));
       if (! sample.canPlace()) continue;
       final float rating = sample.ratePlacing(t, true);
       sitePick.compare(t, rating);
@@ -435,12 +437,15 @@ public class BaseSetup {
       }
     };
     for (Traded t : Economy.ALL_MATERIALS) {
-      if (base.commerce.primaryShortage(t) > 0) needs.add(t);
+      if (base.commerce.primaryShortage(t) < 0.5f) continue;
+      if (base.commerce.primaryDemand  (t) < 5   ) continue;
+      needs.add(t);
     }
     for (Traded t : Economy.ALL_SERVICES) {
-      if (base.demands.globalShortage(t) > 0) needs.add(t);
+      if (base.demands.globalShortage(t) < 0.5f) continue;
+      if (base.demands.globalDemand  (t) < 5   ) continue;
+      needs.add(t);
     }
-    while (needs.size() > 3) needs.removeLast();
     return needs.toArray();
   }
   
@@ -473,6 +478,14 @@ public class BaseSetup {
     pane.header().setText("Shortage of "+t);
     final Description d = pane.detail();
     
+    if (t instanceof Traded) {
+      final String help = ((Traded) t).description;
+      d.append(t+": ", Colour.LITE_GREY);
+      if (help == null) d.append("(No description)", Colour.LITE_GREY);
+      else d.append(help, Colour.LITE_GREY);
+      d.append("\n\n");
+    }
+    
     for (VenueProfile match : canMatch) {
       final Conversion s = match.producing(t);
       
@@ -486,11 +499,13 @@ public class BaseSetup {
       }
       
       final String category = InstallationPane.categoryFor(match);
-      if (category != null) d.append("\n  Category: "+category+" Structures");
+      if (category != null) {
+        d.append("\n  Category: "+category+" Structures", Colour.LITE_GREY);
+      }
       
       if (match.required.length > 0) for (VenueProfile req : match.required) {
         if (base.listInstalled(req, true).size() > 0) continue;
-        d.append("\n  Requires: "+req.name);
+        d.append("\n  Requires: "+req.name, Colour.LITE_GREY);
       }
       d.append("\n\n");
     }
@@ -500,19 +515,15 @@ public class BaseSetup {
         d.append("Alternatively, you could import this good at a ");
       }
       else d.append("You could import this good at a ");
-      d.append("Supply Depot or an Airfield.");
+      d.append(
+        "Supply Depot or Airfield."
+      );
       d.append("\n\n");
     }
     
     return pane;
   }
 }
-
-
-
-
-
-
 
 
 

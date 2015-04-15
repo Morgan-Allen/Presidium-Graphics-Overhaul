@@ -50,7 +50,7 @@ public class Tripod extends Artilect {
       100, //lifespan
       5.0f,//bulk bonus
       1.0f,//sight range
-      0.8f,//move speed,
+      0.4f,//move speed,
       ActorHealth.ARTILECT_METABOLISM
     );
     health.setupHealth(0, Rand.avgNums(2), Rand.avgNums(2));
@@ -92,12 +92,6 @@ public class Tripod extends Artilect {
   public float height() {
     return 2.5f * super.height();
   }
-  
-  /*
-  protected float aboveGroundHeight() {
-    return 0;// -0.25f;// 0.02f;
-  }
-  //*/
   
   
   

@@ -6,14 +6,8 @@
 
 
 package stratos.game.maps;
-import stratos.game.common.Actor;
-import stratos.game.common.Mobile;
-import stratos.game.common.Spacing;
-import stratos.game.common.Stage;
-import stratos.game.common.Target;
-import stratos.game.common.Tile;
+import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.actors.*;
 import stratos.util.*;
 
 
@@ -57,7 +51,14 @@ public class PathSearch extends Search <Boarding> {
   
   protected Boarding boardPoint(Boarding aims) {
     while (true) {
-      if (aims instanceof Tile) break;
+      if (aims instanceof Tile) {
+        if (aims != destination && ((Tile) aims).blocked()) I.complain(
+          "\nPROBLEM WITH PATHING SEARCH: "+
+          "\n  Between "+this.init+" and "+this.destination+
+          "\n  "+aims+" IS A BLOCKED AIMING-POINT!"
+        );
+        break;
+      }
       Boarding entrance = null;
       if (aims instanceof Property) {
         entrance = ((Property) aims).mainEntrance();
@@ -95,28 +96,14 @@ public class PathSearch extends Search <Boarding> {
   
   
   public PathSearch doSearch() {
-    if (verbose) I.say(
-      "Searching for path between "+init+" and "+destination+
-      ", search limit: "+maxSearched
-    );
+    if (verbose) {
+      I.say("Searching for path between "+init+" and "+destination);
+      I.say("  Search limit: "+maxSearched+", aim point: "+aimPoint);
+    }
     super.doSearch();
     if (verbose) {
       if (success()) I.say("\n  Success!");
-      else {
-        I.say("\n  Failed.");
-        if (client != null) {
-
-          if (! Visit.arrayIncludes(destination.canBoard(), aimPoint)) {
-            I.say("NO EXIT!");
-          }
-          if (! Visit.arrayIncludes(aimPoint.canBoard(), destination)) {
-            I.say("NO ENTRY!");
-          }
-          
-          I.say("Origin      open? "+canEnter(init       ));
-          I.say("Destination open? "+canEnter(destination));
-        }
-      }
+      else I.say("\n  Failed.");
       I.say("  Closest approach: "+closest+", aimed for "+aimPoint);
       I.say("  Total searched: "+flagged.size()+"/"+maxSearched);
       I.say("");
@@ -127,23 +114,8 @@ public class PathSearch extends Search <Boarding> {
   
   protected void tryEntry(Boarding spot, Boarding prior, float cost) {
     final float spotDist = Spacing.distance(spot, aimPoint);
+    
     if (spot == aimPoint) {
-      if (verbose) {
-        I.say("\nMET AIM POINT: "+aimPoint);
-        final Boarding CB[] = aimPoint.canBoard();
-        final boolean couldEnter =
-          (aimPoint == destination) ||
-          Visit.arrayIncludes(CB, destination);
-        if (! couldEnter) {
-          I.say("  No entry!  Adjacent:");
-          if (CB == null) I.say("  Nothing!");
-          else for (Boarding b : CB) I.say("    "+b);
-        }
-        else {
-          final float DC = cost(aimPoint, destination);
-          I.say("  Could enter, cost: "+DC);
-        }
-      }
       closest = spot;
       closestDist = spotDist;
     }
@@ -179,24 +151,7 @@ public class PathSearch extends Search <Boarding> {
     float mods = 0;
     
     if (useDanger) {
-      //
-      //  TODO:  Stay out of the unfogged areas of hostile bases, and fogged
-      //  areas of your own.
-      
-      //  Avoid areas that you consider dangerous...
-      //  TODO:  This is leading to some moderately bonkers results.  Try and
-      //  improve it.
-      /*
-      final ActorSenses s = ((Actor) client).senses;
-      final float directionDanger = s.dangerFromDirection(prior);
-      mods += directionDanger * 10;
-      //*/
-      
-      //  TODO:  This is removed for the moment, until collision is worked out.
-      //  Restore later
-      //  If the area or tile has other actors in it, increase the perceived
-      //  cost.
-      //if (spot != client.aboard()) mods += spot.inside().size() * 10;
+      //  TODO:  Implement this
     }
     
     //  Finally, return a value based on pathing difficulties in the terrain-

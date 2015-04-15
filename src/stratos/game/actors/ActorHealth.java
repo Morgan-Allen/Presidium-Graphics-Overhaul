@@ -59,7 +59,6 @@ public class ActorHealth implements Qualities {
     DEFAULT_BULK     = 1.0f,
     DEFAULT_SPEED    = 1.0f,
     DEFAULT_SIGHT    = 8.0f,
-
     DEFAULT_HEALTH   = 10,
     MAX_CALORIES     = 1.5f,
     STARVE_INTERVAL  = Stage.STANDARD_DAY_LENGTH * 5,
@@ -250,8 +249,18 @@ public class ActorHealth implements Qualities {
   }
   
   
+  public void setCaloryLevel(float level) {
+    calories = maxHealth * Nums.clamp(level, 0, MAX_CALORIES);
+  }
+  
+  
   public void loseSustenance(float fraction) {
     calories -= fraction * maxHealth;
+  }
+  
+  
+  public float caloryLevel() {
+    return calories / maxHealth;
   }
   
   
@@ -267,8 +276,6 @@ public class ActorHealth implements Qualities {
   public String  agingDesc  () { return AGING_DESC[agingStage()]; }
   public float   ageMultiple() { return ageMultiple; }
   public float   lifespan   () { return lifespan; }
-  
-  public float caloryLevel() { return calories / maxHealth; }
   
   //  TODO:  These can be taken out now and replaced with equivalent methods in
   //         the Species class.

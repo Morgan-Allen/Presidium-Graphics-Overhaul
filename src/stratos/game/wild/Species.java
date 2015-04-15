@@ -141,6 +141,7 @@ public abstract class Species extends Background {
   
   protected Actor init(Actor f) {
     f.health.setupHealth(Rand.num(), 0.9f, 0.1f);
+    f.health.setCaloryLevel((1.5f + Rand.num()) / 2);
     f.relations.setRelation(f.base(), 0.5f, 0);
     return f;
   }

@@ -27,6 +27,7 @@ public class StartupScenario extends Scenario {
   final public static int
     MAX_SKILLS    = 3,
     MAX_TRAITS    = 2,
+    MAX_POWERS    = 3,
     MAX_ADVISORS  = 2,
     MAX_COLONISTS = 9,
     MAX_PERKS     = 3;
@@ -341,15 +342,10 @@ public class StartupScenario extends Scenario {
       a.goAboard(bastion, world);
     }
     
-    final Background careers[] = bastion.careers();
     for (Actor a : colonists) {
       a.assignBase(base);
       a.enterWorldAt(bastion, world);
       a.goAboard(bastion, world);
-      if (Visit.arrayIncludes(careers, a.mind.vocation())) {
-        a.mind.setWork(bastion);
-        a.mind.setHome(bastion);
-      }
     }
     base.setup.establishRelations(bastion.staff.lodgers());
     

@@ -132,7 +132,7 @@ public class Pathing {
       return;
     }
     else nextStep();
-    if (extraVerbose && ! inLocus(path[stepIndex])) {
+    if (path != null && extraVerbose && ! inLocus(path[stepIndex])) {
       I.say("\nNot in locus of: "+path[stepIndex]);
     }
   }
@@ -369,7 +369,7 @@ public class Pathing {
         mobile.onMotionBlock(blocked);
         return;
       }
-      return;
+      //return;
     }
     
     final Mobile m = mobile;

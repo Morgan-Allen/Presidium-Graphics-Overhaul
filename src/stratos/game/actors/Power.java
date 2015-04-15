@@ -667,7 +667,8 @@ public abstract class Power extends Technique implements Qualities {
         }
         else priorityMod = Plan.ROUTINE;
         priorityMod *= (0.5f + Rand.avgNums(2));
-        command.addMotives(Plan.MOTIVE_EMERGENCY, priorityMod);
+        command.clearMotives();
+        command.addMotives(Plan.MOTIVE_EMERGENCY, priorityMod + oldPriority);
         final float activePriority = command.priorityFor(affects);
         
         if (report) {
@@ -712,7 +713,26 @@ public abstract class Power extends Technique implements Qualities {
       }
     }
  ;
+ 
+ 
+ //
+ //  These are available for initial selection for free.
+ final public static Power BASIC_POWERS[] = {
+   REMOTE_VIEWING, VOICE_OF_COMMAND, SUSPENSION, TELEKINESIS
+ };
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

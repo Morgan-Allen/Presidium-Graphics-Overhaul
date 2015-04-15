@@ -75,7 +75,7 @@ public class DebugSecurity extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
-
+    
     if (true ) verminScenario  (world, base, UI);
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
@@ -162,33 +162,6 @@ public class DebugSecurity extends Scenario {
     final Arrest arrests = new Arrest(enforcer, runner);
     enforcer.mind.assignBehaviour(arrests);
     UI.selection.pushSelection(enforcer);
-  }
-  
-  
-  private void configHuntingScenario(Stage world, Base base, BaseUI UI) {
-    //GameSettings.fogFree = true;
-    GameSettings.buildFree = true;
-    //GameSettings.noBlood = true;
-    
-    final Actor hunts = new Human(Backgrounds.KOMMANDO, base);
-    final Venue station = new KommandoLodge(base);
-    Placement.establishVenue(
-      station, 6, 6, true, world,
-      new Human(Backgrounds.KOMMANDO, base),
-      new Human(Backgrounds.KOMMANDO, base),
-      hunts
-    );
-    
-    final Base wildlife = Base.wildlife(world);
-    final Actor prey = new Hareen(wildlife);
-    prey.enterWorldAt(world.tileAt(9, 9), world);
-    
-    //prey.health.takeFatigue(prey.health.maxHealth());
-    //hunts.mind.assignBehaviour(Hunting.asHarvest(hunts, prey, station));
-    UI.selection.pushSelection(hunts);
-    
-    wildlife.setup.setAvailableVenues(Species.NEST_PROFILES);
-    wildlife.setup.doFullPlacements();
   }
   
   

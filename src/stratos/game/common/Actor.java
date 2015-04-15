@@ -97,16 +97,6 @@ public abstract class Actor extends Mobile implements
   protected Pathing        initPathing  () { return new Pathing       (this); }
   
   
-  public boolean isMoving() {
-    if (actionTaken == null) return false;
-    return actionTaken.isMoving();
-  }
-  
-  
-  //public Background vocation() { return species(); }
-  //public Species species() { return null; }
-  
-  
   
   /**  Dealing with items, inventory and mounting-
     */
@@ -182,6 +172,12 @@ public abstract class Actor extends Mobile implements
   
   public Action currentAction() {
     return actionTaken;
+  }
+  
+  
+  public boolean isMoving() {
+    if (actionTaken == null) return false;
+    return actionTaken.isMoving();
   }
   
   

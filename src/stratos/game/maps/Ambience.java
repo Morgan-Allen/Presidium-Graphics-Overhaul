@@ -45,7 +45,7 @@ public class Ambience {
     "Absolute"
   };
   final static float
-    MIP_BLEND = 2.0f,
+    MIP_BLEND = 1.0f,
     RATE_MULT = 4.0f,
     MAX_LEVEL = 10.0f;
   
@@ -102,6 +102,21 @@ public class Ambience {
   /**  Queries and value updates-
     */
   public void updateAt(Tile tile) {
+    int value = exactValue(tile);
+    
+    /*
+    for (Mobile m : tile.inside()) if (m instanceof Actor) {
+      final Actor a = (Actor) m;
+      value -= 5 * a.health.stressPenalty();
+      final Item outfit = a.gear.outfitEquipped();
+      if (outfit != null) value += (outfit.quality - 1) / 2f;
+    }
+    //*/
+    mapValues.set((byte) value, tile.x, tile.y);
+  }
+  
+  
+  public int exactValue(Tile tile) {
     int value = 0;
     final Element owner = tile.onTop();
     
@@ -111,15 +126,7 @@ public class Ambience {
     if (owner instanceof Flora) {
       value = ((Flora) owner).growStage();
     }
-    
-    for (Mobile m : tile.inside()) if (m instanceof Actor) {
-      final Actor a = (Actor) m;
-      value -= 5 * a.health.stressPenalty();
-      final Item outfit = a.gear.outfitEquipped();
-      if (outfit != null) value += (outfit.quality - 1) / 2f;
-    }
-    
-    mapValues.set((byte) value, tile.x, tile.y);
+    return value;
   }
   
   

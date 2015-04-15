@@ -73,23 +73,25 @@ public class Studying extends Plan {
   
   /**  Evaluating targets and priority-
     */
-  final static Skill BASE_SKILLS[] = { ACCOUNTING, INSCRIPTION };
   final static Trait BASE_TRAITS[] = { CURIOUS, AMBITIOUS, SOLITARY };
-
+  
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if (! venue.isManned()) return 0;
+    if (report) {
+      I.say("\nStudy priority for "+actor+" ("+actor.mind.vocation()+")");
+      I.say("  "+venue+" manned? "+venue.isManned());
+    }
+    if (! (venue.staff.doesBelong(actor) || venue.isManned())) return 0;
     
     if (studied == null) studied = toStudy();
     if (studied == null) return 0;
-    float modifier = 0 - actor.motives.greedPriority(chargeCost);
+    float modifier = IDLE - actor.motives.greedPriority(chargeCost);
     
     return priorityForActorWith(
       actor, venue,
       CASUAL, modifier,
-      MILD_HELP, NO_COMPETITION,
-      MILD_FAIL_RISK, BASE_SKILLS,
-      BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
+      NO_HARM, NO_COMPETITION, MILD_FAIL_RISK,
+      NO_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );
   }

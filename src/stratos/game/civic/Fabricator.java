@@ -34,7 +34,7 @@ public class Fabricator extends Venue {
   final public static Conversion
     LCHC_TO_PLASTICS = new Conversion(
       Fabricator.class, "lchc_to_plastics",
-      1, LCHC, TO, 1, PLASTICS,
+      1, POLYMER, TO, 1, PLASTICS,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
     ),
     PLASTICS_TO_DECOR = new Conversion(
@@ -188,7 +188,7 @@ public class Fabricator extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { CARBS, LCHC, DECOR, PLASTICS };
+    return new Traded[] { CARBS, POLYMER, DECOR, PLASTICS };
   }
   
   

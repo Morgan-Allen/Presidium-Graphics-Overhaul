@@ -96,7 +96,7 @@ public class SolarBank extends Venue {
   
   protected void updatePaving(boolean inWorld) {
     final BaseTransport paving = base().transport;
-    
+    /*
     if (type == TYPE_HUB) {
       final Tile perim[] = Spacing.perimeter(footprint(), world);
       for (int n = 0; n < perim.length; n += 4) {
@@ -104,6 +104,7 @@ public class SolarBank extends Venue {
         if (t != null) paving.updateJunction(this, t, inWorld && ! t.blocked());
       }
     }
+    //*/
     paving.updatePerimeter(this, inWorld);
   }
   

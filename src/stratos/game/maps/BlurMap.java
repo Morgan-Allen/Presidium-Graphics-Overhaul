@@ -79,7 +79,7 @@ public class BlurMap {
   /**  External query functions-
     */
   public int globalValue() {
-    return (int) globalValue;
+    return Nums.round(globalValue, 1, true);
   }
   
   

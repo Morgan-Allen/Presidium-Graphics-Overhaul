@@ -60,7 +60,7 @@ public class HoldingUpgrades {
     INTEGRITIES[] = { 15, 35, 80, 125, 200 },
     AMBIENCES  [] = { -2, -1, 0, 2, 4 },
     BUILD_COSTS[] = { 25, 60, 135, 225, 350 },
-    TAX_PER_DAY[] = { 0, 5, 15, 35, 75 };
+    TAX_BONUS  [] = { 0, 5, 15, 35, 75 };
   final static float
     BIOMASS_SUPPORT = 5;
   
@@ -79,6 +79,7 @@ public class HoldingUpgrades {
     "Highborn Villa",
     "Forbidden Palace"
   };
+  
   
   /**  Building materials/furnishings-
     */
@@ -104,7 +105,7 @@ public class HoldingUpgrades {
     ),
     new Conversion(
       Holding.class, "Level 5",
-      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, TERMINALS,
       DIFFICULT_DC, ASSEMBLY
     ),
   };
@@ -116,6 +117,10 @@ public class HoldingUpgrades {
   }
   
   
+  public static int upgradeLevelOf(Venue home) {
+    if (home instanceof Holding) return ((Holding) home).upgradeLevel();
+    return 0;
+  }
   
   
   public static Upgrade upgradeFor(int upgradeLevel) {
@@ -139,6 +144,9 @@ public class HoldingUpgrades {
     for (Item needed : materials.raw) {
       if (holding.stocks.amountOf(needed) < needed.amount - 0.5f) {
         if (! verbose) return NOT_MET;
+        if (! canAfford(holding, needed.type)) return
+          "The lodgers for this holding are too poor to afford "+needed.type+
+          ", which holds back development";
         if (upgradeLevel > holding.upgradeLevel()) return
           "This holding needs more "+needed.type+" before further development "+
           "can proceed.";
@@ -148,6 +156,14 @@ public class HoldingUpgrades {
       }
     }
     return NEEDS_MET;
+  }
+  
+  
+  protected static boolean canAfford(Holding holding, Traded need) {
+    for (Actor a : holding.staff.lodgers()) {
+      if (a.gear.credits() < (need.basePrice() * 2)) return false;
+    }
+    return true;
   }
   
   

@@ -47,7 +47,7 @@ public class Reactor extends Venue {
     verbose = false;
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Reactor.class, "media/Buildings/artificer/reactor.png", 4.0f, 2
+    Reactor.class, "media/Buildings/artificer/reactor.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Reactor.class, "media/GUI/Buttons/reactor_button.gif"
@@ -87,7 +87,7 @@ public class Reactor extends Venue {
   
   final static VenueProfile PROFILE = new VenueProfile(
     Reactor.class, "reactor", "Reactor",
-    4, 2, IS_NORMAL,
+    3, 2, IS_NORMAL,
     EngineerStation.PROFILE, Owner.TIER_FACILITY,
     METALS_TO_FUEL, TOPES_TO_ANTIMASS
   );

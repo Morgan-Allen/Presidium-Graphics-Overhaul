@@ -73,11 +73,11 @@ public final class Economy {
       "Carbohydrate-based and oily foodstuffs"
     ),
     GREENS = new Traded(
-      BC, "Greens"   , "greens.gif"   , FORM_MATERIAL, 30,
+      BC, "Greens"   , "greens.gif"   , FORM_MATERIAL, 55,
       "Fresh vegetable and fibrous foodstuffs"
     ),
     PROTEIN = new Traded(
-      BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 55,
+      BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 25,
       "Game meat and cultured yeast foodstuffs"
     ),
     //  Rations
@@ -87,29 +87,29 @@ public final class Economy {
       BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40,
       "A mild recreational narcotic with minimal side-effects"
     ),
-    REAGENTS = new Traded(
-      BC, "Reagents" , "stimkit.gif"  , FORM_MATERIAL, 60,
+    CATALYST = new Traded(
+      BC, "Catalyst" , "catalyst.gif"  , FORM_MATERIAL, 60,
       "Common stimulants and metabolic tracers used in lab work"
     ),
     MEDICINE = new Traded(
-      BC, "Medicine" , "medicines.gif", FORM_MATERIAL, 120,
+      BC, "Medicine" , "medicine.gif", FORM_MATERIAL, 120,
       "Drugs and supplements tailored to treat common diseases"
     ),
-    ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, REAGENTS, MEDICINE),
+    ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, CATALYST, MEDICINE),
     
-    LCHC = new Traded(
-      BC, "LCHC"     , "carbons.gif"  , FORM_MATERIAL, 10,
+    POLYMER = new Traded(
+      BC, "Polymer"  , "carbons.gif"  , FORM_MATERIAL, 5,
       "Long-chain hydrocarbons, used in plastics production"
     ),
     ORES = new Traded(
-      BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 25,
+      BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 10,
       "Common metal ores, used in construction and industry"
     ),
     TOPES = new Traded(
-      BC, "Topes"    , "isotopes.gif" , FORM_MATERIAL, 55,
+      BC, "Topes"    , "isotopes.gif" , FORM_MATERIAL, 35,
       "Heavy isotopes, often toxic, used in nuclear synthesis"
     ),
-    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, LCHC, ORES, TOPES),
+    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, ORES, TOPES),
     
     PLASTICS = new Traded(
       BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25,
@@ -119,12 +119,15 @@ public final class Economy {
       BC, "Parts"    , "parts.gif"    , FORM_MATERIAL, 40,
       "Durable and heat-resistant, needed for heavy engineering"
     ),
-    //  Circuit Boards
-    DATALINKS = new Traded(
-      BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 125,
+    CIRCUITRY = new Traded(
+      BC, "Circuitry", "inscriptions.gif", FORM_MATERIAL, 80,
+      "Used to manufacture terminals and other advanced devices"
+    ),
+    TERMINALS = new Traded(
+      BC, "Terminals", "datalinks.gif", FORM_MATERIAL, 125,
       "Encrypted information relays suited to advanced study"
     ),
-    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, DATALINKS);
+    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, CIRCUITRY);
   
   final public static Traded
     ALL_MATERIALS [] = Traded.INDEX.soFar(Traded.class);

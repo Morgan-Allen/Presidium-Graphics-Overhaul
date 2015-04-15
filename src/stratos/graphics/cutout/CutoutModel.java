@@ -4,9 +4,8 @@ package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.start.Assets;
 import stratos.util.*;
-
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;  //TODO:  Dispose of
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 
 
@@ -52,9 +51,9 @@ public class CutoutModel extends ModelAsset {
   ) {
     super(fileName+""+window, modelClass);
     this.fileName = fileName;
-    this.window = window;
-    this.size = size;
-    this.splat = splat;
+    this.window   = window  ;
+    this.size     = size    ;
+    this.splat    = splat   ;
   }
   
   
@@ -68,7 +67,7 @@ public class CutoutModel extends ModelAsset {
     final Texture t = texture;
     final float relHeight =
       (t.getHeight() * window.ydim()) /
-      (t.getWidth() * window.xdim());
+      (t.getWidth () * window.xdim());
     setupDimensions(size, relHeight);
     setupVertices();
     

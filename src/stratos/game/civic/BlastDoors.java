@@ -63,9 +63,11 @@ public class BlastDoors extends ShieldWall implements TileConstants {
     */
   protected void updatePaving(boolean inWorld) {
     base().transport.updatePerimeter(this, inWorld);
+    /*
     for (Boarding b : canBoard()) if (b instanceof Tile) {
       base().transport.updateJunction(this, (Tile) b, inWorld);
     }
+    //*/
   }
   
   

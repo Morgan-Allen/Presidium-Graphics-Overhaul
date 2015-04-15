@@ -184,11 +184,7 @@ public class Holding extends Venue {
     impingeSqualor();
 
     final int CHECK_TIME = 10;
-    if (numUpdates % CHECK_TIME == 0) {
-      checkForUpgrade(CHECK_TIME);
-      addTaxBonus(CHECK_TIME);
-    }
-    
+    if (numUpdates % CHECK_TIME == 0) checkForUpgrade(CHECK_TIME);
     if (
       (targetLevel != upgradeLevel) &&
       (! structure.needsUpgrade()) &&
@@ -200,13 +196,6 @@ public class Holding extends Venue {
       attachModel(modelFor(this));
       setAsEstablished(false);
     }
-  }
-  
-  
-  private void addTaxBonus(int period) {
-    //  TODO:  MODIFY THIS BASED ON THE OVERALL WEALTH LEVEL OF YOUR SETTLEMENT.
-    float dayBonus = TAX_PER_DAY[upgradeLevel];
-    stocks.incCredits(dayBonus * period * 1f / Stage.STANDARD_DAY_LENGTH);
   }
   
   

@@ -13,10 +13,6 @@ import stratos.graphics.widgets.Text.Clickable;
 
 
 
-//  TODO:  This needs to list tutorial-messages as well as ongoing missions
-//         and other status-updates.
-
-
 public class ReminderListing extends UIGroup {
   
   
@@ -77,19 +73,29 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  private Entry entryFor(Object refers) {
+  private Entry entryThatRefers(Object refers) {
     for (Entry e : entries) if (e.refers == refers) return e;
     return null;
   }
   
   
-  private boolean hasEntry(Object refers) {
-    return entryFor(refers) != null;
+  private Entry entryWithMessage(MessagePane message) {
+    for (Entry e : entries) if (e instanceof CommsReminder) {
+      if (((CommsReminder) e).message == message) return e;
+    }
+    return null;
   }
   
   
-  private Entry addEntry(Object refers, int afterIndex) {
-
+  private boolean hasEntryRefers(Object refers) {
+    return entryThatRefers(refers) != null;
+  }
+  
+  
+  private Entry addEntry(Object refers, int atIndex) {
+    //
+    //  We first determine the kind of reminder-entry appropriate for the
+    //  object being referred to-
     final Base played = UI.played();
     Entry entry = null;
     if (refers instanceof Mission) {
@@ -101,18 +107,24 @@ public class ReminderListing extends UIGroup {
     if (refers == oldMessages) {
       entry = new CommsReminder(UI, oldMessages, forOldMessages());
     }
-    if (played.setup.needRating(refers) > 0) {
-      final MessagePane forNeed = played.setup.messageForNeed(refers, UI);
-      entry = new CommsReminder(UI, refers, forNeed);
+    if (refers == played.setup) {
+      entry = new CommsReminder(UI, refers, forNeedsSummary());
     }
     if (entry == null) {
       I.complain("\nNO SUPPORTED ENTRY FOR "+refers);
       return null;
     }
-    
-    final Entry after = entries.atIndex(afterIndex);
-    if (after == null) entries.addLast(entry);
-    else entries.addAfter(entries.match(after), entry);
+    //
+    //  Then we must insert the new entry at the right position in the list
+    //  (skipping over anything inactive.)
+    Entry before = null;
+    int index = 0;
+    for (Entry e : entries) if (e.active && (index++ == atIndex - 1)) {
+      before = e; break;
+    }
+    if      (atIndex == 0  ) entries.addFirst(entry);
+    else if (before == null) entries.addLast (entry);
+    else entries.addAfter(entries.match(before), entry);
     entry.attachTo(this);
     return entry;
   }
@@ -132,14 +144,15 @@ public class ReminderListing extends UIGroup {
     for (MessagePane o : newMessages) {
       needShow.add(o);
     }
-    for (Object need : played.setup.needSatisfaction()) {
-      needShow.add(need);
+    if (played.setup.needSatisfaction().length > 0) {
+      needShow.add(played.setup);
     }
     //
     //  Now, in essence, insert entries for anything not currently listed, and
     //  delete entries for anything listed that shouldn't be.
-    for (Object s : needShow) {
-      if (! hasEntry(s)) addEntry(s, entries.size() - 1);
+    int index = 0; for (Object s : needShow) {
+      if (! hasEntryRefers(s)) addEntry(s, index);
+      index++;
     }
     for (Entry e : entries) {
       if (e.active && ! needShow.includes(e.refers)) {
@@ -181,6 +194,7 @@ public class ReminderListing extends UIGroup {
     
     checkMessageRead();
     updateOldMessages();
+    updateNeedsSummary();
     super.updateState();
   }
   
@@ -196,8 +210,16 @@ public class ReminderListing extends UIGroup {
   }
   
   
+  private MessagePane forNeedsSummary() {
+    final MessagePane pane = new MessagePane(
+      UI, null, "Shortages!", null, null
+    );
+    return pane;
+  }
+  
+  
   private void updateOldMessages() {
-    final CommsReminder entry = (CommsReminder) entryFor(oldMessages);
+    final CommsReminder entry = (CommsReminder) entryThatRefers(oldMessages);
     if (entry == null) return;
     final String label = oldMessages.size()+" old messages";
     entry.setLabel(label);
@@ -221,10 +243,39 @@ public class ReminderListing extends UIGroup {
   }
   
   
+  private void updateNeedsSummary() {
+    final Base played = UI.played();
+    final CommsReminder entry = (CommsReminder) entryThatRefers(played.setup);
+    if (entry == null) return;
+    final MessagePane pane = entry.message;
+
+    pane.header().setText("Shortages!");
+    pane.detail().setText(
+      "Your base is short of the following goods or services.  Click on the "+
+      "links below for tips on how to fill the demand.\n"
+    );
+    final Description d = pane.detail();
+    
+    for (final Object o : played.setup.needSatisfaction()) {
+      d.append("\n  ");
+      d.append(new Description.Link(o.toString()) {
+        public void whenClicked() {
+          final MessagePane help = played.setup.messageForNeed(o, UI);
+          help.detail().append(new Description.Link("\n  Back") {
+            public void whenClicked() { UI.setInfoPanels(pane, null); }
+          });
+          UI.setInfoPanels(help, null);
+        }
+      });
+    }
+    
+  }
+  
+  
   private void checkMessageRead() {
     if (! (UI.currentPane() instanceof MessagePane)) return;
     final MessagePane message = (MessagePane) UI.currentPane();
-    final CommsReminder entry = (CommsReminder) entryFor(message);
+    final CommsReminder entry = (CommsReminder) entryWithMessage(message);
     if (entry == null) return;
     entry.setFlash(false);
   }

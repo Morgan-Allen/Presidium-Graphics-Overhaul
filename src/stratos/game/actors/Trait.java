@@ -17,35 +17,46 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   final public static Index <Trait> TRAIT_INDEX = new Index <Trait> ();
   
   final public String name;
-  final String descriptors[];
+  final public String description;
+  final String labels[];
   
   final public int type;
   final public int minVal, maxVal;
-  final int descValues[];
+  final int labelValues[];
   
   private Trait correlates[], opposite;
   private float weightings[];
   
   
+
+  protected Trait(
+    String name, int type, String... labels
+  ) {
+    this(name, "NO DESCRIPTION YET", type, labels);
+  }
   
-  protected Trait(String name, int type, String... descriptors) {
+  
+  protected Trait(
+    String name, String description, int type, String... labels
+  ) {
     super(TRAIT_INDEX, name);
     
     this.name = name;
+    this.description = description;
     this.type = type;
-    this.descriptors = descriptors;
-    this.descValues = new int[descriptors.length];
+    this.labels = labels;
+    this.labelValues = new int[labels.length];
     
     if (verboseInit) {
       I.say("\n  Initialising new trait: "+name);
     }
     
     int zeroIndex = 0, min = -1, max = 1, val;
-    for (String s : descriptors) { if (s == null) break; else zeroIndex++; }
-    for (int i = descriptors.length; i-- > 0;) {
-      val = descValues[i] = zeroIndex - i;
+    for (String s : labels) { if (s == null) break; else zeroIndex++; }
+    for (int i = labels.length; i-- > 0;) {
+      val = labelValues[i] = zeroIndex - i;
       
-      final String desc = descriptors[i];
+      final String desc = labels[i];
       if (verboseInit) {
         if (desc != null) I.say("  Value for "+desc+" is "+val);
         else I.say("  Empty value: "+val);
@@ -110,16 +121,16 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
       return descriptionFor(trait.opposite, 0 - level);
     }
     
-    if (trait.descriptors.length == 1) {
+    if (trait.labels.length == 1) {
       if (level == 0) return null;
-      return (level > 0 ? "" : "Not ") + trait.descriptors[0];
+      return (level > 0 ? "" : "Not ") + trait.labels[0];
     }
     
     String bestDesc = null;
     float minDiff = Float.POSITIVE_INFINITY;
     
-    int i = 0; for (String s : trait.descriptors) {
-      float value = trait.descValues[i];
+    int i = 0; for (String s : trait.labels) {
+      float value = trait.labelValues[i];
       if (value > 0) value /= trait.maxVal;
       if (value < 0) value /= 0 - trait.minVal;
       

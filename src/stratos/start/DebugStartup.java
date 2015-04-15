@@ -20,8 +20,8 @@ public class DebugStartup {
         loading = true;
         final HUD UI = new HUD(PlayLoop.rendering());
         final MainMenu mainMenu = new MainMenu(UI);
-        mainMenu.alignHorizontal(0.5f, 400, 0);
-        mainMenu.alignVertical  (50  , 50    );
+        mainMenu.alignHorizontal(100, 100);
+        mainMenu.alignVertical  (50 , 50 );
         mainMenu.attachTo(UI);
         this.UI = UI;
         loaded = true;

@@ -24,8 +24,8 @@ public class Commission extends Plan {
   /**  Data fields, construction and save/load methods-
     */
   private static boolean
-    verbose       = false,
-    actionVerbose = false;
+    evalVerbose  = true ,
+    stepsVerbose = true ;
   
   final static int EXPIRE_TIME = Stage.STANDARD_DAY_LENGTH * 2;
   
@@ -91,7 +91,7 @@ public class Commission extends Plan {
   public static void addCommissions(
     Actor actor, Venue makes, Choice choice, Traded... itemTypes
   ) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nChecking commissions for "+actor);
     
     final boolean hasCommission = actor.mind.hasToDo(Commission.class);
@@ -111,9 +111,9 @@ public class Commission extends Plan {
   ) {
     if (baseItem == null || ! makes.isManned()) return null;
 
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     final int baseQuality = (int) baseItem.quality;
-    final float baseAmount = baseItem.amount;
+    //final float baseAmount = baseItem.amount;
     
     int quality = Item.MAX_QUALITY + 1;
     Commission added = null;
@@ -131,7 +131,7 @@ public class Commission extends Plan {
     }
     
     if (report) {
-      I.say("\nRejected commission for "+baseItem);
+      I.say("\nConsidering commission for "+baseItem);
       I.say("  Owner cash:   "+actor.gear.credits());
       I.say("  New item:     "+upgrade);
       I.say("  Base price:   "+upgrade.defaultPrice());
@@ -146,7 +146,7 @@ public class Commission extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("Getting priority for commission of "+item);
     //
     //  See if we're still waiting on completion-
@@ -158,7 +158,7 @@ public class Commission extends Plan {
     //
     //  Include effects of pricing and quality-
     final float price = calcPrice();
-    float modifier = NO_MODIFIER + item.quality;
+    float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
     if (order == null) {
       if (price > actor.gear.credits()) {
         if (report) I.say("  Can't afford item.");
@@ -168,9 +168,9 @@ public class Commission extends Plan {
     }
     
     final float priority = priorityForActorWith(
-      actor, shop, CASUAL,
-      modifier, MILD_HELP,
-      MILD_COMPETITION, NO_FAIL_RISK,
+      actor, shop,
+      ROUTINE, modifier,
+      MILD_HELP, MILD_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
       report
     );
@@ -213,20 +213,12 @@ public class Commission extends Plan {
     */
   protected Behaviour getNextStep() {
     if (finished() || item.type.materials() == null) return null;
-    if (shop.isManned()) return null;
     
-    final boolean report = actionVerbose && I.talkAbout == actor;
+    final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next commission step for "+actor);
-    
-    if (order == null && shop.structure().intact()) {
-      if (report) I.say("  Placing order for "+item);
-      final Action placeOrder = new Action(
-        actor, shop,
-        this, "actionPlaceOrder",
-        Action.TALK_LONG, "Placing order for "
-      );
-      return placeOrder;
-    }
+
+    if (! shop.isManned()) return null;
+    if (! shop.structure.intact()) return null;
     
     if (expired()) {
       if (report) I.say("  Getting refund: "+(int) calcPrice()+" credits");
@@ -247,11 +239,23 @@ public class Commission extends Plan {
       );
       return pickup;
     }
+    
+    if (! shop.stocks.hasOrderFor(item)) {
+      if (report) I.say("  Placing order for "+item);
+      final Action placeOrder = new Action(
+        actor, shop,
+        this, "actionPlaceOrder",
+        Action.TALK_LONG, "Placing order for "
+      );
+      return placeOrder;
+    }
     return null;
   }
   
   
   public boolean actionPlaceOrder(Actor actor, Venue shop) {
+    if (shop.stocks.hasOrderFor(item)) return false;
+    
     order = new Manufacture(null, shop, item.type.materials(), item);
     order.commission = this;
     shop.stocks.addSpecialOrder(order);

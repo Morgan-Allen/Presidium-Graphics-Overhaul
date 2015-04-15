@@ -74,6 +74,7 @@ public class Structure {
     "N/A"
   };
   
+  //  TODO:  MERGE THESE WITH VENUE-PROPERTIES INSTEAD!
   final public static int
     TYPE_VENUE   = 0,
     TYPE_FIXTURE = 1,
@@ -626,7 +627,7 @@ public class Structure {
     for (int i = 0; i < upgrades.length; i++) {
       final Upgrade u = upgrades[i];
       if (u == null || upgradeStates[i] != STATE_INTACT) continue;
-      if (report) I.say("Upgrade is: "+u.name+", refers: "+u.refers);
+      if (report) I.say("Upgrade is: "+u.baseName+", refers: "+u.refers);
       if (u.refers == refers) bonus += u.bonus;
     }
     if (report) I.say("Bonus for "+refers+" is "+bonus);
@@ -720,7 +721,8 @@ public class Structure {
     for (int i = 0; i < upgrades.length; i++) {
       if (i == upgradeIndex) { desc.add(currentUpgradeDesc()); continue; }
       if (upgrades[i] == null || upgradeStates[i] == STATE_INTACT) continue;
-      desc.add(upgrades[i].name+" ("+UPGRADE_STATE_DESC[upgradeStates[i]]+")");
+      final String name = upgrades[i].nameAt(basis, i, upgrades);
+      desc.add(name+" ("+UPGRADE_STATE_DESC[upgradeStates[i]]+")");
     }
     return desc;
   }
@@ -729,7 +731,8 @@ public class Structure {
   public String currentUpgradeDesc() {
     if (upgradeIndex == -1) return null;
     final Upgrade u = upgrades[upgradeIndex];
-    return "Installing "+u.name+" ("+(int) (upgradeProgress * 100)+"%)";
+    final String name = u.nameAt(basis, upgradeIndex, upgrades);
+    return ""+name+" ("+(int) (upgradeProgress * 100)+"%)";
   }
 }
 

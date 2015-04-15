@@ -15,16 +15,9 @@ import java.io.*;
 
 
 //  TODO:  This needs a proper re-implementation using customised widgets.
-//         You also need to include landing-site and powers selection.
+//         You also need to include landing-site-selection.
 
 public class MainMenu extends UIGroup {
-  
-  //
-  //  Okay.  I need options for:
-  //    Starting a new game  (Ideally, with a basic char & world-gen system.)
-  //    Resuming an existing game
-  //    Modifying settings
-  //    Quitting
   
   final static int
     MODE_INIT            = 0,
@@ -34,7 +27,7 @@ public class MainMenu extends UIGroup {
     MODE_CONFIRM_QUIT    = 4;
   
   
-  final Text text;
+  final Text text, help;
   int mode = MODE_INIT;
   private StartupScenario.Config config;
   
@@ -42,10 +35,17 @@ public class MainMenu extends UIGroup {
   public MainMenu(HUD UI) {
     super(UI);
     text = new Text(UI, UIConstants.INFO_FONT);
-    text.alignToFill();
+    text.alignVertical(0, 0);
+    text.alignAcross(0, 0.5f);
     text.scale = 1.25f;
     text.attachTo(this);
     configMainText(null);
+    
+    help = new Text(UI, UIConstants.INFO_FONT);
+    help.alignVertical(0, 0);
+    help.alignAcross(0.5f, 1);
+    help.scale = 0.75f;
+    help.attachTo(this);
   }
   
   
@@ -59,31 +59,9 @@ public class MainMenu extends UIGroup {
   
   
   public void configForNew(Object args[]) {
-    I.say("  CONFIGURING NEW GAME");
-    
     if (this.config == null) this.config = new StartupScenario.Config();
     text.setText("");
-    text.append("\nRuler Settings:\n");
-    
-    text.append("\n  Gender:");
-    I.say("  GENDER IS: "+config.gender);
-    if (config.gender == null) {
-      config.gender = Rand.yes() ? BORN_MALE : BORN_FEMALE;
-    }
-    Call.add(
-      "\n    Male", (config.gender == BORN_MALE) ? Colour.CYAN : null,
-      this, "setGender", text, true
-    );
-    Call.add(
-      "\n    Female", (config.gender == BORN_FEMALE) ? Colour.CYAN : null,
-      this, "setGender", text, false
-    );
-    text.append("\n      ");
-    final Background g = config.gender;
-    for (Skill s : g.skills()) {
-      text.append(s.name+" +"+g.skillLevel(s)+" ", Colour.LITE_GREY);
-    }
-    
+    text.append("Ruler Settings:\n");
     //
     //  TODO:  Give an accompanying description of the House in question, using
     //  a preview image and side-text.
@@ -105,11 +83,13 @@ public class MainMenu extends UIGroup {
       final Colour c = config.house == s ? Colour.CYAN : null;
       Call.add("\n    "+s.houseName, c, this, "setHouse", text, s);
     }
+    /*
     for (Skill s : config.house.skills()) {
       text.append("\n      ("+s.name+" +5)", Colour.LITE_GREY);
     }
+    //*/
     
-    text.append("\n  Favoured skills: ");
+    text.append("\n  Starting Skills: ");
     text.append("("+config.chosenSkills.size()+"/"+MAX_SKILLS+")");
     for (Skill s : Backgrounds.KNIGHTED.skills()) {
       if (Backgrounds.KNIGHTED.skillLevel(s) <= 5) continue;
@@ -117,6 +97,17 @@ public class MainMenu extends UIGroup {
       Call.add("\n    "+s.name, c, this, "toggleSkill", text, s);
     }
     
+    
+    //  TODO:  REVISE THIS
+    text.append("\n  Starting Powers: ");
+    text.append("("+config.chosenTechs.size()+"/"+MAX_POWERS+")");
+    for (Power p : Power.BASIC_POWERS) {
+      final Colour c = config.chosenTechs.includes(p) ? Colour.CYAN : null;
+      Call.add("\n    "+p.name, c, this, "togglePower", text, p);
+    }
+    
+    
+    //  TODO:  Include male/female as a trait.
     text.append("\n  Favoured traits: ");
     text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")");
     for (Trait t : Backgrounds.KNIGHTED.traits()) {
@@ -126,32 +117,60 @@ public class MainMenu extends UIGroup {
       Call.add("\n    "+name, c, this, "toggleTrait", text, t);
     }
     
+    text.append("\n    ");
+    if (config.gender == null) config.gender = BORN_FEMALE;
+    Call.add(
+      "Male", (config.gender == BORN_MALE) ? Colour.CYAN : null,
+      this, "setGender", text, true
+    );
+    text.append(" | ");
+    Call.add(
+      "Female", (config.gender == BORN_FEMALE) ? Colour.CYAN : null,
+      this, "setGender", text, false
+    );
     //
     //  Only allow continuation once all sections are filled-
-    boolean canProceed = true;
-    if (config.chosenSkills.size() < MAX_SKILLS) canProceed = false;
-    if (config.chosenTraits.size() < MAX_TRAITS) canProceed = false;
-    if (canProceed) {
-      text.append("\n\n  (Sections complete)", Colour.LITE_GREY);
-      Call.add("\n    Expedition Settings", this, "configForLanding", text);
+    String complaint = null;
+    if      (config.chosenSkills.size() < MAX_SKILLS) {
+      complaint = "Please select "+MAX_SKILLS+" skills";
+    }
+    else if (config.chosenTraits.size() < MAX_TRAITS) {
+      complaint = "Please select "+MAX_TRAITS+" traits";
+    }
+    else if (config.chosenTechs.size() < MAX_POWERS) {
+      complaint = "Please select "+MAX_POWERS+" powers";
+    }
+    if (complaint == null) {
+      text.append("\n\n  Sections complete!");
+      Call.add("\n    Continue", this, "configForLanding", text, true);
     }
     else {
-      text.append("\n\n  (Please fill all sections)", Colour.LITE_GREY);
-      text.append("\n    Expedition Settings", Colour.LITE_GREY);
+      text.append("\n\n  "+complaint, Colour.LITE_GREY);
+      text.append("\n    Continue", Colour.LITE_GREY);
     }
-    Call.add("\n  Go Back", this, "configMainText", text);
+    Call.add("\n\n  Go Back", this, "configMainText", text);
   }
   
   
   public void setGender(Object args[]) {
     config.gender = ((Boolean) args[0]) ? BORN_MALE : BORN_FEMALE;
+    
+    help.setText("");
+    final Background g = config.gender;
+    for (Skill s : g.skills()) {
+      help.append("\n  "+s.name+" +"+g.skillLevel(s)+" ", Colour.LITE_GREY);
+    }
+    
     configForNew(null);
   }
   
   
   public void setHouse(Object args[]) {
     config.house = (Background) args[0];
-    I.say("  HOUSE IS NOW: "+config.house);
+    help.setText(config.house.info);
+    for (Skill s : config.house.skills()) {
+      help.append("\n    ("+s.name+" +5)", Colour.LITE_GREY);
+    }
     configForNew(null);
   }
   
@@ -166,6 +185,7 @@ public class MainMenu extends UIGroup {
       skills.addLast(s);
       if (skills.size() > MAX_SKILLS) skills.removeFirst();
     }
+    help.setText(s.description);
     configForNew(null);
   }
   
@@ -180,6 +200,22 @@ public class MainMenu extends UIGroup {
       traits.addLast(t);
       if (traits.size() > MAX_TRAITS) traits.removeFirst();
     }
+    help.setText(t.description);
+    configForNew(null);
+  }
+  
+  
+  public void togglePower(Object args[]) {
+    final Power p = (Power) args[0];
+    final List <Technique> powers = config.chosenTechs;
+    if (powers.includes(p)) {
+      powers.remove(p);
+    }
+    else {
+      powers.addLast(p);
+      if (powers.size() > MAX_POWERS) powers.removeFirst();
+    }
+    help.setText(p.helpInfo);
     configForNew(null);
   }
   
@@ -187,43 +223,11 @@ public class MainMenu extends UIGroup {
   
   /**  Second page of settings-
     */
-  private int perkSpent() {
-    return config.fundsLevel + config.siteLevel + config.titleLevel;
-  }
-  
-  
-  private void describePerk(int index, int level, String label, String desc[]) {
-    text.append("\n  "+label);
-    final int perkLeft = MAX_PERKS + level - perkSpent();
-    for (int i = 0; i < 3; i++) {
-      text.append("\n    ");
-      if (i <= perkLeft) {
-        final Colour c = level == i ? Colour.CYAN : null;
-        Call.add(desc[i], c, this, "setPerkLevel", text, index, i);
-      }
-      else text.append(desc[i], Colour.GREY);
-    }
-  }
-  
-  
-  private int numCrew(Background b) {
-    final Integer num = (int) config.crew.valueFor(b);
-    return num == null ? 0 : num;
-  }
-  
-  
-  public void setPerkLevel(Object args[]) {
-    final int index = (Integer) args[0], level = (Integer) args[1];
-    if (index == 0) config.siteLevel  = level;
-    if (index == 1) config.fundsLevel = level;
-    if (index == 2) config.titleLevel = level;
-    configForLanding(null);
-  }
-  
-  
   public void configForLanding(Object arg[]) {
+    if (arg != null && arg.length > 0) help.setText("");
+    
     text.setText("");
-    text.append("\nExpedition Settings:\n");
+    text.append("Expedition Settings:\n");
     
     describePerk(0, config.siteLevel, "Site Type"    , SITE_DESC   );
     describePerk(1, config.fundsLevel, "Funding Level", FUNDING_DESC);
@@ -245,27 +249,71 @@ public class MainMenu extends UIGroup {
       text.append(" "+b.name);
     }
     
-    text.append("\n  Accompanying Household:");
+    text.append("\n  Household Advisors:");
     text.append(" ("+config.advisors.size()+"/"+MAX_ADVISORS+")");
     for (Background b : ADVISOR_BACKGROUNDS) {
       final Colour c = config.advisors.includes(b) ? Colour.CYAN : null;
       Call.add("\n    "+b.name, c, this, "setAdvisor", text, b);
     }
     
-    boolean canBegin = true;
-    if (perkSpent() < MAX_PERKS) canBegin = false;
-    if (totalColonists < MAX_COLONISTS) canBegin = false;
-    if (config.advisors.size() < MAX_ADVISORS) canBegin = false;
+    String complaint = null;
     
-    if (canBegin) {
-      text.append("\n\n  (Sections complete)", Colour.LITE_GREY);
+    if (perkSpent() < MAX_PERKS) {
+      complaint = "Please select a higher site type, funding level or title.";
+    }
+    else if (totalColonists < MAX_COLONISTS) {
+      complaint = "Please select "+MAX_COLONISTS+" colonists.";
+    }
+    else if (config.advisors.size() < MAX_ADVISORS) {
+      complaint = "Please select "+MAX_ADVISORS+" advisors.";
+    }
+    
+    if (complaint == null) {
+      text.append("\n\n  Sections complete!");
       Call.add("\n    Begin Game", this, "beginNewGame", text);
     }
     else {
-      text.append("\n\n  (Please fill all sections)", Colour.LITE_GREY);
+      text.append("\n\n  "+complaint, Colour.LITE_GREY);
       text.append("\n    Begin Game", Colour.LITE_GREY);
     }
-    Call.add("\n  Go Back", this, "configForNew", text);
+    Call.add("\n\n  Go Back", this, "configForNew", text);
+  }
+  
+  
+  private int perkSpent() {
+    return config.fundsLevel + config.siteLevel + config.titleLevel;
+  }
+  
+  
+  private void describePerk(int index, int level, String label, String desc[]) {
+    text.append("\n  "+label);
+    final int perkLeft = MAX_PERKS + level - perkSpent();
+    for (int i = 0; i < 3; i++) {
+      text.append("\n    ");
+      if (i <= perkLeft) {
+        final Colour c = level == i ? Colour.CYAN : null;
+        Call.add(desc[i], c, this, "setPerkLevel", text, index, i);
+      }
+      else text.append(desc[i], Colour.GREY);
+    }
+  }
+  
+  
+  private String perkHelp(int index, int level) {
+    if (index == 0) return "More hospitable sites will have fewer enemies.";
+    if (index == 1) return "Starting funds will get you off to a good start.";
+    if (index == 2) return "A larger estate leaves more room for expansion.";
+    return "NO DESCRIPTION YET";
+  }
+  
+  
+  public void setPerkLevel(Object args[]) {
+    final int index = (Integer) args[0], level = (Integer) args[1];
+    if (index == 0) config.siteLevel  = level;
+    if (index == 1) config.fundsLevel = level;
+    if (index == 2) config.titleLevel = level;
+    help.setText(perkHelp(index, level));
+    configForLanding(null);
   }
   
   
@@ -277,7 +325,14 @@ public class MainMenu extends UIGroup {
     else if (config.advisors.size() < MAX_ADVISORS) {
       config.advisors.add(b);
     }
+    help.setText(b.info);
     configForLanding(null);
+  }
+  
+  
+  private int numCrew(Background b) {
+    final Integer num = (int) config.crew.valueFor(b);
+    return num == null ? 0 : num;
   }
   
   
@@ -292,6 +347,8 @@ public class MainMenu extends UIGroup {
     if (inc < 0 && amount <= 0) return;
     if (inc > 0 && totalColonists >= MAX_COLONISTS) return;
     config.crew.add(inc, b);
+    
+    help.setText(b.info);
     configForLanding(null);
   }
   

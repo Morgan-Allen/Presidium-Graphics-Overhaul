@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -102,6 +100,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
+  
   /**  Estimates, calculation and display of manufacturing rates, upgrade boni,
     *  etc.
     */
@@ -124,7 +123,10 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     }
     
     float upgradeBonus = 0;
-    for (Upgrade upgrade : upgrades) {
+    if (upgrades.length == 0) {
+      upgradeBonus = 0.5f;
+    }
+    else for (Upgrade upgrade : upgrades) {
       final float bonus = v.structure.upgradeLevel(upgrade);
       upgradeBonus += bonus / (upgrade.maxLevel * upgrades.length);
     }
@@ -156,7 +158,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     }
     
     boolean needsOkay = true;
-    if (v.stocks.relativeShortage(POWER) > 0) {
+    if (v.stocks.relativeShortage(POWER) >= 0.5f) {
       needsOkay = false;
       s.append(
         "Manufacturing will be slowed without enough "+POWER+"."

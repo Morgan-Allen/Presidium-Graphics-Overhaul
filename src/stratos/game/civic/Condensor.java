@@ -26,7 +26,7 @@ public class Condensor extends Venue {
   final static VenueProfile PROFILE = new VenueProfile(
     Condensor.class, "condensor", "Condensor",
     3, 2, IS_FIXTURE,
-    SolarBank.PROFILE, Owner.TIER_FACILITY
+    NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
   
   

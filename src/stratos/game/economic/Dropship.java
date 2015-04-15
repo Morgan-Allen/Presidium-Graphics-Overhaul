@@ -418,10 +418,10 @@ public class Dropship extends Vehicle implements Owner {
     
     d.append("\n\nGoods sought: ");
     for (Traded t : ALL_MATERIALS) {
-      if (cargo.producer(t) == false) continue;
       final int
         sought = (int) cargo.demandFor(t),
         has    = (int) cargo.amountOf (t);
+      if (sought == 0 || cargo.producer(t) == false) continue;
       d.append("\n  "+t+" ("+has+"/"+sought+")");
     }
     

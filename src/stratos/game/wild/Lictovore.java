@@ -40,13 +40,11 @@ public class Lictovore extends Fauna {
       "midden_c.png"
     );
   
-  final static Species SPECIES = new Species(
+  final public static Species SPECIES = new Species(
     Lictovore.class,
     "Lictovore",
-    "The Lictovore is an imposing bipedal obligate carnivore capable of "+
-    "substantial bursts of speed and tackling even the most stubborn prey. "+
-    "They defend established nest sites where they tend their young, using "+
-    "scented middens, rich in spyce, to mark the limits of their territory.",
+    "The Lictovore is an imposing carnivore capable of tackling stubborn "+
+    "prey.  They defend established territories marked with spyce middens.",
     FILE_DIR+"MicovorePortrait.png",
     MS3DModel.loadFrom(
       FILE_DIR, "Micovore.ms3d", Lictovore.class,
@@ -150,6 +148,9 @@ public class Lictovore extends Fauna {
       );
       choice.add(fighting);
     }
+    
+    //  TODO:  I'm removing fancier activities for the moment.
+    /*
     //
     //  Determine whether to regurgitate meat at home-
     choice.add(nextRegurgitation());
@@ -166,9 +167,10 @@ public class Lictovore extends Fauna {
       marking.setPriority(Action.CASUAL);
       choice.add(marking);
     }
+    //*/
   }
   
-  
+  /*
   private Action nextRegurgitation() {
     if (health.juvenile() || ! (mind.home() instanceof Venue)) return null;
     final Venue nest = (Venue) mind.home();
@@ -191,6 +193,7 @@ public class Lictovore extends Fauna {
   }
   
   
+  /*
   public boolean actionDepositFood(Fauna actor, Venue nest) {
     float energy = health.caloryLevel() - 0.5f;
     if (energy <= 0) return false;
@@ -210,6 +213,7 @@ public class Lictovore extends Fauna {
     actor.health.takeCalories(amountTaken * MEAT_CONVERSION, 1);
     return true;
   }
+  //*/
   
   
   private Fauna findCompetition() {
@@ -223,6 +227,7 @@ public class Lictovore extends Fauna {
   }
   
   
+  /*
   private Tile findTileToMark() {
     if (! (mind.home() instanceof Venue)) return null;
     final Venue lair = (Venue) mind.home();
@@ -253,6 +258,7 @@ public class Lictovore extends Fauna {
     midden.enterWorldAt(toMark.x, toMark.y, world);
     return true;
   }
+  //*/
 }
 
 

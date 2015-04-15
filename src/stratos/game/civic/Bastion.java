@@ -81,6 +81,7 @@ public class Bastion extends Venue {
       excludes = new Box2D(footprint()).expandBy(EXCLUDE_RADIUS);
     }
     if (other.footprint().overlaps(excludes)) {
+      if (other.pathType() <= Tile.PATH_CLEAR) return false;
       return true;
     }
     if (other.base() == base()) return false;

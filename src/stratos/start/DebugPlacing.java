@@ -72,7 +72,7 @@ public class DebugPlacing extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
-      //Habitat.OCEAN       , 1f,
+      Habitat.OCEAN       , 1f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
@@ -97,9 +97,9 @@ public class DebugPlacing extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (false) configEcology  (world, base, UI);
+    if (true ) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
-    if (true ) configTradeTest(world, base, UI);
+    if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
     if (false) configPlantTest(world, base, UI);
@@ -108,6 +108,12 @@ public class DebugPlacing extends Scenario {
   
   private void configEcology(Stage world, Base base, BaseUI UI) {
     GameSettings.hireFree = false;
+    
+    Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
+    
+    if (true) return;
+    
+    
     Flora.populateFlora(world);
     
     I.say("\nCHECKING FOR TILE-ACCESS...");

@@ -40,13 +40,13 @@ public class PhysicianStation extends Venue {
   final public static Conversion
     REAGENTS_TO_MEDICINE = new Conversion(
       PhysicianStation.class, "reagents_to_medicine",
-      1, REAGENTS, 1, GREENS, TO, 1, MEDICINE,
+      1, CATALYST, TO, 1, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     )
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
-    PhysicianStation.class, "physician_station", "Sickbay",
+    PhysicianStation.class, "physician_station", "Physician Station",
     3, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY, REAGENTS_TO_MEDICINE
   );
@@ -114,10 +114,8 @@ public class PhysicianStation extends Venue {
       null, PhysicianStation.class, ALL_UPGRADES
     ),
     MINDER_STATION = new Upgrade(
-      "Minder Station",
-      "Minders are essential to monitoring patients' condition and tending "+
-      "to diet and sanitary needs, but are only familiar with more common "+
-      "medications and standard emergency protocol.",
+      "Minder Ward",
+      Backgrounds.MINDER.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
       APOTHECARY, PhysicianStation.class, ALL_UPGRADES
@@ -141,10 +139,8 @@ public class PhysicianStation extends Venue {
       MINDER_STATION, PhysicianStation.class, ALL_UPGRADES
     ),
     PHYSICIAN_STATION = new Upgrade(
-      "Physician Station",
-      "Physicians undergo extensive education in every aspect of human "+
-      "metabolism and anatomy, are adept as surgeons, and can tailor their "+
-      "treatments to the idiosyncracies of a given patient.",
+      "Physician Ward",
+      Backgrounds.PHYSICIAN.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
       MINDER_STATION, PhysicianStation.class, ALL_UPGRADES
@@ -241,7 +237,7 @@ public class PhysicianStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { REAGENTS, MEDICINE };
+    return new Traded[] { CATALYST, MEDICINE };
   }
   
   
@@ -251,9 +247,11 @@ public class PhysicianStation extends Venue {
   
   
   public String helpInfo() {
-    return
-      "The Sickbay allows your citizens' injuries, diseases and trauma to be "+
-      "treated quickly and effectively.";
+    return Manufacture.statusMessageFor(
+      "Your Physicians allow your citizens' injuries, diseases and physical "+
+      "trauma to be treated quickly and effectively.",
+      this, REAGENTS_TO_MEDICINE, APOTHECARY
+    );
   }
   
   

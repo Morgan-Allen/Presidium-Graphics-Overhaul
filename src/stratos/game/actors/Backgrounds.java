@@ -54,10 +54,12 @@ public interface Backgrounds {
     MIN_DAILY_EXPENSE = 100 / PAY_INTERVAL;
   final public static int
     HIRE_COSTS[] = {
-      150, 250, 500, 1000 //Represents (PAY_INTERVAL) days' salary.
+      125, 250, 500, 1000 //Represents (PAY_INTERVAL) days' salary.
+    },
+    DEFAULT_TAX_PERCENTS[] = {
+      45, 55, 65, 75
     },
     DEFAULT_RELIEF           = 100 ,
-    DEFAULT_TAX_PERCENT      = 50  ,
     DEFAULT_EMBEZZLE_PERCENT = 30  ,
     DEFAULT_SURPLUS_PERCENT  = 10  ,
     DEFAULT_RULER_STIPEND    = 2000;
@@ -140,7 +142,9 @@ public interface Backgrounds {
     
     TECHNICIAN = new Background(
       Backgrounds.class,
-      "Technician", "",
+      "Technician",
+      "Technicians are trained to operate and perform routine maintenance on "+
+      "base machinery and aid in construction projects.",
       "artificer_skin.gif", "artificer_portrait.png",
       CLASS_VASSAL, GUILD_ARTIFICER,
       PRACTICED, ASSEMBLY, HARD_LABOUR, LEARNING, FIELD_THEORY, CHEMISTRY,
@@ -160,7 +164,10 @@ public interface Backgrounds {
     
     ARTIFICER = new Background(
       Backgrounds.class,
-      "Artificer", "", "artificer_skin.gif", "artificer_portrait.png",
+      "Artificer",
+      "Artificers are highly educated as physicists and engineers, and can "+
+      "tackle commissions reliant on dangerous or arcane technologies.",
+      "artificer_skin.gif", "artificer_portrait.png",
       CLASS_AGENT, GUILD_ARTIFICER,
       EXPERT, ASSEMBLY, PRACTICED, FIELD_THEORY, SHIELD_AND_ARMOUR,
       LEARNING, ANCIENT_LORE, CHEMISTRY,
@@ -175,7 +182,10 @@ public interface Backgrounds {
     
     MINDER = new Background(
       Backgrounds.class,
-      "Minder", "", "citizen_skin.gif", "pyon_portrait.png",
+      "Minder",
+      "Minders are essential to tending the wounded and seeing to aspects of "+
+      "diet and sanitary needs.",
+      "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, DOMESTICS, SUASION, LEARNING, ANATOMY, PHARMACY, COUNSEL,
       OFTEN, EMPATHIC, SOMETIMES, STUBBORN,
@@ -203,7 +213,11 @@ public interface Backgrounds {
     
     PHYSICIAN = new Background(
       Backgrounds.class,
-      "Physician", "", "physician_skin.gif", "physician_portrait.png",
+      "Physician",
+      "Physicians undergo extensive education in every aspect of human "+
+      "metabolism and anatomy, and can tailor their treatments to any "+
+      "patient's idiosyncracies.",
+      "physician_skin.gif", "physician_portrait.png",
       CLASS_AGENT, GUILD_PHYSICIAN,
       EXPERT, ANATOMY, PHARMACY,
       PRACTICED, GENE_CULTURE, PSYCHOANALYSIS, COUNSEL, SUASION,
@@ -218,7 +232,10 @@ public interface Backgrounds {
     
     CULTIVATOR = new Background(
       Backgrounds.class,
-      "Cultivator", "", "pyon_skin.gif", "pyon_portrait.png",
+      "Cultivator",
+      "Hire additional cultivators to plant and reap harvests more "+
+      "quickly, maintain equipment, and perform other agricultural chores.",
+      "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, CULTIVATION, HARD_LABOUR, LEARNING, DOMESTICS, ASSEMBLY,
       OFTEN, OUTGOING, SOMETIMES, NATURALIST, RARELY, AMBITIOUS,
@@ -237,7 +254,10 @@ public interface Backgrounds {
     
     ECOLOGIST = new Background(
       Backgrounds.class,
-      "Ecologist", "", "ecologist_skin.gif", "ecologist_portrait.png",
+      "Ecologist", 
+      "Ecologists are highly-skilled students of plants, animals and gene "+
+      "modification capable of adapting species to local climate conditions.",
+      "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_AGENT, GUILD_ECOLOGIST,
       EXPERT, CULTIVATION, PRACTICED, GENE_CULTURE, XENOZOOLOGY,
       PRACTICED, GEOPHYSICS, CHEMISTRY,
@@ -293,7 +313,10 @@ public interface Backgrounds {
     
     SUPPLY_CORPS = new Background(
       Backgrounds.class,
-      "Supply Corps", "", "pyon_skin.gif", "pyon_portrait.png",
+      "Supply Corps",
+      "Your Supply Corps are responsible for transport and deliveries within "+
+      "your settlement, particularly of raw materials and bulk goods.",
+      "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_MERCHANT,
       LEARNING, CHEMISTRY, PILOTING, ASSEMBLY, HARD_LABOUR,
       OFTEN, RELAXED, RARELY, AMBITIOUS,
@@ -444,7 +467,10 @@ public interface Backgrounds {
     
     FABRICATOR = new Background(
       Backgrounds.class,
-      "Fabricator", "", "citizen_skin.gif", "pyon_portrait.png",
+      "Fabricator",
+      "Fabricators manufacture plastics, pressfeed, decor and outfits for "+
+      "your citizens.",
+      "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_AESTHETE,
       PRACTICED, CHEMISTRY, HARD_LABOUR, LEARNING, GRAPHIC_DESIGN, HANDICRAFTS,
       SOMETIMES, STUBBORN, NERVOUS,
@@ -729,7 +755,7 @@ public interface Backgrounds {
     FIRST_CONSORT = new Background(
       Backgrounds.class,
       "First Consort",
-      "",
+      "NO DESCRIPTION YET",
       "highborn_female_skin.gif", "highborn_consort_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COMMAND, SUASION, LEARNING, EROTICS, MASQUERADE, DOMESTICS,
@@ -758,12 +784,16 @@ public interface Backgrounds {
       }
     },
     MINISTER_FOR_ACCOUNTS = new Background(
-      Backgrounds.class, "Minister for Accounts", "", "vendor_skin.gif", null,
+      Backgrounds.class, "Minister for Accounts",
+      "NO DESCRIPTION YET",
+      "vendor_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, ACCOUNTING, PRACTICED, SOCIAL_HISTORY, COUNSEL, SUASION
     ),
     WAR_MASTER = new Background(
-      Backgrounds.class, "War Master", "", "highborn_male_skin.gif", null,
+      Backgrounds.class, "War Master",
+      "NO DESCRIPTION YET",
+      "highborn_male_skin.gif", null,
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
       SURVEILLANCE, MARKSMANSHIP

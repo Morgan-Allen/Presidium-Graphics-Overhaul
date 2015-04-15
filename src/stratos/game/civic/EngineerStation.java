@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -37,6 +36,11 @@ public class EngineerStation extends Venue {
       EngineerStation.class, "metals_to_parts",
       1, ORES, TO, 2, PARTS,
       MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
+    ),
+    PARTS_TO_CIRCUITRY = new Conversion(
+      Archives.class, "parts_to_circuitry",
+      1, PARTS, TO, 2, CIRCUITRY,
+      MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY
     )
   ;
   
@@ -93,9 +97,7 @@ public class EngineerStation extends Venue {
     ),
     TECHNICIAN_STATION = new Upgrade(
       "Technician Station",
-      "Technicians are trained to operate and perform routine maintenance on "+
-      "common machinery, but lack the theoretical grounding needed for "+
-      "fundamental design or customisation.",
+      Backgrounds.TECHNICIAN.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.TECHNICIAN, 1,
       null, EngineerStation.class, ALL_UPGRADES
@@ -108,8 +110,8 @@ public class EngineerStation extends Venue {
       Upgrade.THREE_LEVELS, null, 2,
       MATTER_PRESS, EngineerStation.class, ALL_UPGRADES
     ),
-    ENERGY_CONTAINMENT = new Upgrade(
-      "Energy Containment",
+    FIELD_CONTAINMENT = new Upgrade(
+      "Field Containment",
       "Allows high-flux plasmas to be generated and controlled, permitting "+
       "refinements to heavy armours and most ranged weaponry.",
       300,
@@ -118,9 +120,7 @@ public class EngineerStation extends Venue {
     ),
     ARTIFICER_STATION = new Upgrade(
       "Artificer Station",
-      "Artificers are highly-skilled as physicists and engineers, and can "+
-      "tackle the most taxing commissions reliant on dangerous or arcane "+
-      "technologies.",
+      Backgrounds.ARTIFICER.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.ARTIFICER, 1,
       TECHNICIAN_STATION, EngineerStation.class, ALL_UPGRADES
@@ -129,7 +129,7 @@ public class EngineerStation extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { PARTS, SERVICE_ARMAMENT };
+    return new Traded[] { PARTS, CIRCUITRY, SERVICE_ARMAMENT };
   }
   
   
@@ -162,7 +162,6 @@ public class EngineerStation extends Venue {
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
-    //  Consider contributing toward local repairs-
     final Choice choice = new Choice(actor);
     
     //  Consider special commissions for weapons and armour-
@@ -173,12 +172,12 @@ public class EngineerStation extends Venue {
         final DeviceType DT = (DeviceType) made;
         Upgrade forType = MATTER_PRESS;
         if (DT.hasProperty(KINETIC)) forType = COMPOSITE_MATERIALS;
-        if (DT.hasProperty(ENERGY )) forType = ENERGY_CONTAINMENT   ;
+        if (DT.hasProperty(ENERGY )) forType = FIELD_CONTAINMENT  ;
         o.setBonusFrom(this, true, MATTER_PRESS, forType);
       }
       else if (made instanceof OutfitType) {
         o.setBonusFrom(this, true,
-          MATTER_PRESS, COMPOSITE_MATERIALS, ENERGY_CONTAINMENT
+          MATTER_PRESS, COMPOSITE_MATERIALS, FIELD_CONTAINMENT
         );
       }
       else o.setBonusFrom(this, true, MATTER_PRESS);
@@ -186,12 +185,17 @@ public class EngineerStation extends Venue {
       choice.add(o);
     }
     
-    //  Finally, consider the production of general bulk commodities-
+    //  Consider the production of general bulk commodities-
     final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS);
     if (mP != null) {
       choice.add(mP.setBonusFrom(this, false, ASSEMBLY_LINE));
     }
+    final Manufacture mI = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY);
+    if (mI != null) {
+      choice.add(mI.setBonusFrom(this, false, ASSEMBLY_LINE));
+    }
     
+    //  Finally, consider contributing toward local repairs-
     choice.add(Repairs.getNextRepairFor(actor, false));
     
     //  And return whatever suits the actor best-
@@ -221,7 +225,7 @@ public class EngineerStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { ORES, PARTS };
+    return new Traded[] { ORES, PARTS, CIRCUITRY };
   }
   
   

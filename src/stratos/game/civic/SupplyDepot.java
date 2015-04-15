@@ -34,7 +34,7 @@ public class SupplyDepot extends Venue {
   
   final static Traded
     ALL_TRADE_TYPES[] = {
-      CARBS, PROTEIN, REAGENTS, LCHC,
+      CARBS, PROTEIN, CATALYST, POLYMER,
       ORES, TOPES, PARTS, PLASTICS
     },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
@@ -89,7 +89,7 @@ public class SupplyDepot extends Venue {
   final public static Conversion
     WASTE_TO_LCHC = new Conversion(
       SupplyDepot.class, "waste_to_lchc",
-      TO, 1, LCHC,
+      TO, 1, POLYMER,
       SIMPLE_DC, CHEMISTRY
     );
   
@@ -212,7 +212,7 @@ public class SupplyDepot extends Venue {
     return ALL_SERVICES;
   }
   
-  
+  /*
   public void updatePaving(boolean inWorld) {
     super.updatePaving(inWorld);
     
@@ -230,6 +230,7 @@ public class SupplyDepot extends Venue {
     }
     else base.transport.updateJunction(this, at, null, false);
   }
+  //*/
   
   
   

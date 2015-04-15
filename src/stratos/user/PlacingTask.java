@@ -1,13 +1,15 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
-import com.badlogic.gdx.Input.Keys;
-
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.KeyInput;
 import stratos.util.*;
+import com.badlogic.gdx.Input.Keys;
 
 
 
@@ -64,8 +66,7 @@ public class PlacingTask implements UITask {
   
   
   private void setupAreaClaim(boolean tryPlacement) {
-    final int per = 20;
-    final boolean report = ((int) (Rendering.activeTime() * per)) % per == 0;
+    final boolean report = false;
     if (report) {
       I.say("\nGetting area claim...");
       I.say("  Start/end points: "+begins+"/"+endsAt);
@@ -150,7 +151,9 @@ public class PlacingTask implements UITask {
     
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
-      if (p == null || ! p.canPlace(reasons)) { canPlace = false; break; }
+      if (p == null) { canPlace = false; break; }
+      if (KeyInput.wasTyped('e')) p.setFacing(p.facing() + 1);
+      if (! p.canPlace(reasons)) { canPlace = false; break; }
     }
     
     final String
@@ -195,7 +198,7 @@ public class PlacingTask implements UITask {
   
   
   
-  /**  Rendering/preview methods-
+  /**  Rendering/preview and debug methods-
     */
   final static ImageAsset
     FOOTPRINT_TEX = ImageAsset.fromImage(
@@ -207,18 +210,21 @@ public class PlacingTask implements UITask {
   ) {
     //
     //  Base venue sprites off their current and projected neighbours!
+    final Batch <Object> under = new Batch <Object> ();
+    under.add(area);
     
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
       if (p != null && p.origin() != null) {
         p.previewPlacement(canPlace, UI.rendering);
+        if (p.mainEntrance() != null) under.add(p.mainEntrance());
       }
     }
     
     UI.selection.renderTileOverlay(
       UI.rendering, UI.played().world,
       canPlace ? Colour.SOFT_GREEN : Colour.SOFT_RED,
-      FOOTPRINT_TEX, "install_preview", false, area
+      FOOTPRINT_TEX, "install_preview", false, under.toArray()
     );
   }
   
@@ -227,6 +233,14 @@ public class PlacingTask implements UITask {
     return null;
   }
   
+  
+  public static boolean isBeingPlaced(Target e) {
+    final BaseUI UI = BaseUI.current();
+    if (UI == null || ! (UI.currentTask() instanceof PlacingTask)) return false;
+    final PlacingTask task = (PlacingTask) UI.currentTask();
+    for (Venue v : task.placeItems.values()) if (e == v) return true;
+    return false;
+  }
 }
 
 

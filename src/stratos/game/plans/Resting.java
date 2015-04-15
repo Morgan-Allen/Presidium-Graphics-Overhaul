@@ -205,26 +205,19 @@ public class Resting extends Plan {
   
   
   public boolean actionRest(Actor actor, Owner place) {
-    
-    //    TODO:  Reconsider these.
     //
-    //  Transfer any incidental groceries-
-    if (place == actor.mind.home()) for (Traded food : ALL_FOOD_TYPES) {
-      actor.gear.transfer(food, (Property) place);
-    }
-    //
-    //  If you're resting at home, deposit any taxes due-
+    //  If you're resting at home, deposit any taxes due and transfer any
+    //  incidental groceries-
     if (place == actor.mind.home() && place instanceof Venue) {
-      final float taxes = Audit.taxesDue(actor);
-      final Venue v = (Venue) place;
-      v.stocks.incCredits(taxes);
-      actor.gear.incCredits(0 - taxes);
-      actor.gear.taxDone();
+      for (Traded need : ((Venue) place).stocks.demanded()) {
+        actor.gear.transfer(need, place);
+      }
+      Audit.payIncomeTax(actor, (Venue) place);
     }
     //
     //  Otherwise, pay any initial fees required-
     else if (cost > 0) {
-      ((Venue) place).stocks.incCredits(cost);
+      place.inventory().incCredits(cost);
       actor.gear.incCredits(0 - cost);
       cost = 0;
     }
@@ -260,8 +253,6 @@ public class Resting extends Plan {
       }
       
       if (stores.inventory().amountOf(MEDICINE) > 0) {
-        final Item meds = Item.withAmount(MEDICINE, 0.1f / FTC);
-        stores.inventory().removeItem(meds);
         sumTypes++;
       }
       

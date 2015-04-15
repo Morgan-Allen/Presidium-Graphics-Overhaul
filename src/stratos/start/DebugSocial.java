@@ -76,9 +76,9 @@ public class DebugSocial extends Scenario {
     
     if (false) testCareers(base);
     if (false) configDialogueScenario(world, base, UI);
-    if (false) configArtilectScenario(world, base, UI);
+    if (true ) configArtilectScenario(world, base, UI);
     if (false) configContactScenario (world, base, UI);
-    if (true ) configWildScenario    (world, base, UI);
+    if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
   }
   
@@ -130,10 +130,10 @@ public class DebugSocial extends Scenario {
   
   
   private void configArtilectScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
-
-    final Base artilects = Base.artilects(world);
+    GameSettings.fogFree   = true;
+    GameSettings.buildFree = true;
     
+    final Base artilects = Base.artilects(world);
     final Ruins ruins = new Ruins(artilects);
     Placement.establishVenue(ruins, 20, 20, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
@@ -149,14 +149,13 @@ public class DebugSocial extends Scenario {
       null
     );
     final Human subject = new Human(career, base);
-    
-    I.say("Subject race is: "+Human.raceFor(subject));
-    I.say("Subject gender is: "+subject.traits.genderDescription());
-    
     subject.enterWorldAt(22, 29, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
     subject.health.setState(ActorHealth.STATE_DYING);
     UI.selection.pushSelection(subject);
+    
+    final Actor finds = ruins.staff.hiredAs(Tripod.SPECIES).first();
+    if (finds != null) finds.goAboard(world.tileAt(20, 25), world);
   }
   
   

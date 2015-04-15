@@ -141,33 +141,19 @@ public abstract class Venue extends Structural implements
   
   public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
-    
     final Tile o = origin();
     if (profile.isFixture()) {
+      //
+      //  Fixture-venues don't have entrances, so
       entrance = null;
     }
     else {
       //
-      //  If our current facing is viable, stick with that.
-      Tile e = entrance = null;
-      if (facing != FACING_INIT) {
-        final int off[] = Placement.entranceCoords(size, size, facing);
-        e = world.tileAt(o.x + off[0], o.y + off[1]);
-      }
-      if (Placement.isViableEntrance(this, e)) {
-        entrance = e;
-      }
-      //
-      //  Otherwise, find the next facing that allows proper access-
-      else for (int f : ALL_FACINGS) {
-        final int off[] = Placement.entranceCoords(size, size, f);
-        e = world.tileAt(o.x + off[0], o.y + off[1]);
-        if (Placement.isViableEntrance(this, e)) {
-          entrance = e;
-          facing   = f;
-          break;
-        }
-      }
+      //  If your current facing is viable, stick with that.
+      if (facing == FACING_INIT) facing = FACING_EAST;
+      final int off[] = Placement.entranceCoords(size, size, facing);
+      entrance = world.tileAt(o.x + off[0], o.y + off[1]);
+      if (! Placement.isViableEntrance(this, entrance)) entrance = null;
     }
     if (! entranceOkay()) return false;
     return true;
@@ -176,12 +162,14 @@ public abstract class Venue extends Structural implements
   
   public boolean canPlace(Account reasons) {
     if (origin() == null) return reasons.asFailure("Over the edge!");
-    if (! entranceOkay()) return reasons.asFailure("No room for entrance");
     final Stage world = origin().world;
     final boolean solid = pathType() >= Tile.PATH_HINDERS;
     //
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
+    if (! entranceOkay()) {
+      return reasons.asFailure("No room for entrance");
+    }
     for (Tile t : world.tilesIn(footprint(), false)) {
       if (t == null) return reasons.asFailure("Over the edge!");
       if (t.reserved()) {
@@ -200,10 +188,6 @@ public abstract class Venue extends Structural implements
     if (solid && ! checkPerimeter(world)) {
       return reasons.asFailure("Might obstruct pathing");
     }
-    final Tile e = mainEntrance();
-    if (e != null && e.reserved()) {
-      return reasons.asFailure("Entrance blocked");
-    }
     return reasons.asSuccess();
   }
   
@@ -215,7 +199,9 @@ public abstract class Venue extends Structural implements
   
   protected boolean entranceOkay() {
     if (profile.isFixture()) return true;
-    if (entrance == null || entrance.blocked()) return false;
+    if (entrance == null || ! Placement.isViableEntrance(this, entrance)) {
+      return false;
+    }
     return true;
   }
   
@@ -234,7 +220,7 @@ public abstract class Venue extends Structural implements
     for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
       final Element fringes = t.onTop();
       if (fringes == null || fringes.owningTier() > TIER_NATURAL) continue;
-      else fringes.exitWorld();
+      else fringes.setAsDestroyed();
     }
     
     world.presences.togglePresence(this, true);
@@ -286,7 +272,7 @@ public abstract class Venue extends Structural implements
   
   protected void updatePaving(boolean inWorld) {
     super.updatePaving(inWorld);
-    base.transport.updateJunction(this, mainEntrance(), inWorld);
+    //base.transport.updateJunction(this, mainEntrance(), inWorld);
   }
   
   
@@ -555,6 +541,7 @@ public abstract class Venue extends Structural implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
+    if (pathType() <= Tile.PATH_CLEAR) return;
     super.renderSelection(rendering, hovered);
   }
 }

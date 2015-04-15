@@ -65,7 +65,7 @@ public class Background extends Index.Entry implements Session.Saveable {
     super(INDEX, name);
     this.baseClass = baseClass;
     this.name = name;
-    this.info = info;
+    this.info = info == null ? "NO DESCRIPTION YET" : info;
     
     if (costumeTex == null) this.costume = null;
     else this.costume = costumeFor(costumeTex);

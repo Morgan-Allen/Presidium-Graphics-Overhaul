@@ -158,15 +158,20 @@ public class Combat extends Plan implements Qualities {
     }
     Target struck = subject;
     if (hasBegun()) struck = CombatUtils.bestTarget(actor, subject, true);
-    
+    //
+    //  If your prey has ducked indoors, consider tearing up the structure-
     //  TODO:  Look into potential 'siege' options for targets that you can't
     //  path to directly- i.e, when indoors, or going through walls.
-    //*
     if (struck == subject && subject instanceof Actor) {
-      final Actor foe = (Actor) struck;
-      if (! foe.aboard().allowsEntry(actor)) struck = foe.aboard();
+      final Boarding haven = ((Actor) struck).aboard();
+      if (! haven.allowsEntry(actor)) {
+        if (haven.base() == actor.base()) {
+          interrupt("Prey has found sanctuary!");
+          return null;
+        }
+        else struck = haven;
+      }
     }
-    //*/
     
     if (report) {
       I.say("  Main target: "+this.subject);
@@ -182,7 +187,7 @@ public class Combat extends Plan implements Qualities {
     Action strike = null;
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
     final boolean melee     = actor.gear.meleeWeapon();
-    final boolean razes     = struck instanceof Venue;
+    final boolean razes     = struck instanceof Structure.Basis;
     final float   danger    = 1f - successChanceFor(actor);
     
     if (razes) {
@@ -323,8 +328,8 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  public boolean actionSiege(Actor actor, Venue target) {
-    if (target.structure.destroyed()) return false;
+  public boolean actionSiege(Actor actor, Structure.Basis target) {
+    if (target.structure().destroyed()) return false;
     performSiege(actor, target);
     return true;
   }
@@ -404,7 +409,7 @@ public class Combat extends Plan implements Qualities {
   
   
   public static void performSiege(
-    Actor actor, Venue besieged
+    Actor actor, Structure.Basis besieged
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     
@@ -424,13 +429,13 @@ public class Combat extends Plan implements Qualities {
     }
     
     float damage = actor.gear.attackDamage() * Rand.avgNums(2) * 2;
-    final float armour = besieged.structure.armouring();
+    final float armour = besieged.structure().armouring();
     if (accurate) damage *= 1.5f;
     else damage *= 0.5f;
     
     float afterArmour = damage;
     afterArmour -= armour * Rand.avgNums(2);
-    if (Rand.num() < besieged.structure.repairLevel()) {
+    if (Rand.num() < besieged.structure().repairLevel()) {
       afterArmour *= 5f / (5 + armour);
     }
     
@@ -440,7 +445,7 @@ public class Combat extends Plan implements Qualities {
       I.say("  After armour: "+afterArmour);
     }
     
-    if (afterArmour > 0) besieged.structure.takeDamage(afterArmour);
+    if (afterArmour > 0) besieged.structure().takeDamage(afterArmour);
     CombatFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
   }
   

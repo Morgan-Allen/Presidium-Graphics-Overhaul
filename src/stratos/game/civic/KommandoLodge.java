@@ -32,11 +32,18 @@ public class KommandoLodge extends Venue {
   );
   
   final static int CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
+
+  final public static Conversion
+    LAND_TO_PROTEIN = new Conversion(
+      KommandoLodge.class, "land_to_protein",
+      TO, 1, PROTEIN
+    );
   
   final static VenueProfile PROFILE = new VenueProfile(
     KommandoLodge.class, "kommando_lodge", "Kommando Lodge",
     4, 2, IS_NORMAL,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY
+    EcologistStation.PROFILE, Owner.TIER_FACILITY,
+    LAND_TO_PROTEIN
   );
   
   private Venue fleshStill = null;

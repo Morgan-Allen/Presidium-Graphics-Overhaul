@@ -156,8 +156,11 @@ public abstract class Artilect extends Actor {
     }
     if (home != null && ! home.staff().onShift(this)) {
       final Resting rest = new Resting(this, mind.home());
+      rest.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
+      /*
       if (isDrone) rest.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
       else rest.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
+      //*/
       choice.add(rest);
     }
     //

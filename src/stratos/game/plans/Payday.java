@@ -144,7 +144,7 @@ public class Payday extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     final Profile p = venue.base().profiles.profileFor(actor);
     if (report) I.say("Getting paid at "+venue);
-
+    
     final float wages = p.paymentDue();
     if (report) I.say("Wages due "+wages);
     actor.gear.incCredits(wages);

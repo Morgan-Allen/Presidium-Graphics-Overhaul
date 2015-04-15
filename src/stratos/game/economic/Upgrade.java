@@ -44,11 +44,8 @@ public class Upgrade extends Index.Entry implements Backgrounds {
   
   
 
-  //*
-  final public String name;
+  final public String baseName;
   final public String description;
-  
-  String levelNames[];
   
   final public Type type;
   final public int buildCost;
@@ -69,7 +66,7 @@ public class Upgrade extends Index.Entry implements Backgrounds {
     Upgrade required, Class origin, Index index
   ) {
     super(index, name);
-    this.name        = name;
+    this.baseName    = name;
     this.description = desc;
     this.type        = Type.TECH_MODULE;
     this.buildCost   = buildCost;
@@ -92,8 +89,23 @@ public class Upgrade extends Index.Entry implements Backgrounds {
   }
   
   
+  public String nameAt(Structure.Basis b, int index, Upgrade queued[]) {
+    //  TODO:  THIS IS AN UGLY HACK SOLUTION WHICH YOU SHOULD REPLACE ASAP.
+    int level = -1;
+    if (index >= 0 && queued != null) {
+      while (index >= 0) { if (queued[index] == this) level++; index--; }
+    }
+    else {
+      level = b.structure().upgradeLevel(this, Structure.STATE_NONE);
+    }
+    if (level == 0) return baseName;
+    if (level == 1) return "Improved "+baseName;
+    else            return "Advanced "+baseName;
+  }
+  
+  
   public String toString() {
-    return name;// names[0];
+    return baseName;
   }
 }
 

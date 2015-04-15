@@ -13,6 +13,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
+import stratos.util.I;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
@@ -36,22 +37,22 @@ public class Archives extends Venue {
   
   final static float
     STUDY_FEE = Backgrounds.MIN_DAILY_EXPENSE;
-
+  
   //  TODO:  Decide on an appropriate set of upgrades here.
   
   
   final public static Conversion
-    PARTS_TO_DATALINKS = new Conversion(
-      Archives.class, "parts_to_datalinks",
-      1, PARTS, TO, 5, DATALINKS,
+    CIRCUITRY_TO_DATALINKS = new Conversion(
+      Archives.class, "circuitry_to_datalinks",
+      1, CIRCUITRY, TO, 2, TERMINALS,
       MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
     )
   ;
   
   final static VenueProfile PROFILE = new VenueProfile(
     Archives.class, "archives", "Archives",
-    3, 2, IS_NORMAL,
-    PhysicianStation.PROFILE, Owner.TIER_FACILITY, PARTS_TO_DATALINKS
+    4, 2, IS_NORMAL,
+    PhysicianStation.PROFILE, Owner.TIER_FACILITY, CIRCUITRY_TO_DATALINKS
   );
   
   
@@ -80,8 +81,6 @@ public class Archives extends Venue {
   
   /**  Upgrade and economy methods-
     */
-  
-  
   public Background[] careers() {
     return new Background[] { SAVANT };
   }
@@ -98,7 +97,13 @@ public class Archives extends Venue {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
-    choice.add(stocks.nextManufacture(actor, PARTS_TO_DATALINKS));
+    final Delivery d = DeliveryUtils.bestBulkCollectionFor(
+      this, new Traded[] { CIRCUITRY }, 1, 5, 5
+    );
+    if (d != null) return d;
+    
+    final Manufacture m = stocks.nextManufacture(actor, CIRCUITRY_TO_DATALINKS);
+    if (m != null) choice.add(m.setBonusFrom(this, false));
     
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
@@ -106,18 +111,27 @@ public class Archives extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { DATALINKS, SERVICE_ADMIN };
+    return new Traded[] { TERMINALS, SERVICE_ADMIN };
   }
   
   
   public void addServices(Choice choice, Actor actor) {
-    choice.add(new Studying(actor, this, STUDY_FEE));
+    Studying s = new Studying(actor, this, STUDY_FEE);
+    choice.add(s);
+    
+    final Owner home = actor.mind.home();
+    if (home != null) {
+      final Delivery shops = DeliveryUtils.fillBulkOrder(
+        this, home, new Traded[] { TERMINALS }, 1, 1
+      );
+      if (shops != null) choice.add(shops.setWithPayment(actor, true));
+    }
   }
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    stocks.translateDemands(PARTS_TO_DATALINKS, 1);
+    stocks.translateDemands(CIRCUITRY_TO_DATALINKS, 1);
     
     structure.setAmbienceVal(6);
     stocks.forceDemand(POWER, 3, false);
@@ -136,7 +150,7 @@ public class Archives extends Venue {
     return Manufacture.statusMessageFor(
       "The Archives facilitate research, administration and self-training by "+
       "your base personnel.",
-      this, PARTS_TO_DATALINKS
+      this, CIRCUITRY_TO_DATALINKS
     );
   }
   

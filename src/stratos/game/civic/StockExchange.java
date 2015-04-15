@@ -7,6 +7,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Ambience;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -92,7 +93,7 @@ public class StockExchange extends Venue {
     final int category = Economy.categoryFor(type);
     Upgrade upgrade = null;
     switch (category) {
-      case (CATEGORY_FOOD ) : upgrade = RATIONS_VENDING   ; break;
+      case (CATEGORY_FOOD ) : upgrade = RATIONS_VENDING ; break;
       case (CATEGORY_DRUG ) : upgrade = MEDICAL_EXCHANGE; break;
       case (CATEGORY_WARES) : upgrade = HARDWARE_STORE  ; break;
       case (CATEGORY_SPYCE) : upgrade = SPYCE_EMPORIUM  ; break;
@@ -283,12 +284,13 @@ public class StockExchange extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
+    structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
     
-    structure.setAmbienceVal(2.0f);
-    
+    final float range = Stage.SECTOR_SIZE / 2;
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);
-      stocks.incDemand(type, room / 2f, 1, false);
+      final float realDemand = base.demands.demandAround(this, type, range);
+      stocks.incDemand(type, Nums.min(realDemand, room), 1, false);
     }
   }
   
@@ -309,8 +311,8 @@ public class StockExchange extends Venue {
   //  TODO:  Try merging these lists into a single array?
   final static Traded DISPLAYED_GOODS[] = {
     CARBS   , PROTEIN , GREENS   ,
-    REAGENTS, SOMA    , MEDICINE ,
-    PARTS   , PLASTICS, DATALINKS,
+    CATALYST, SOMA    , MEDICINE ,
+    PARTS   , PLASTICS, TERMINALS,
     SPYCE_T , SPYCE_H , SPYCE_N  ,
   };
   //  TODO:  Include the full range of items:  Foods, Drugs, Wares, Spyce.
