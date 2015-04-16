@@ -234,8 +234,8 @@ public class VenuePane extends SelectionPane {
         return v.stocks.amountOf(a) < v.stocks.amountOf(b) ? 1 : -1;
       }
     };
-    for (Manufacture m : v.stocks.specialOrders()) {
-      sortedOrders.add(m.made());
+    for (Item ordered : v.stocks.specialOrders()) {
+      sortedOrders.add(ordered);
     }
     for (Item i : v.stocks.allItems()) {
       if (i.type.form == Economy.FORM_MATERIAL ) continue;

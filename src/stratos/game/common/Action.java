@@ -363,6 +363,7 @@ public class Action implements Behaviour, AnimNames {
     
     if (report) {
       I.say("");
+      I.say("  Updating motion for: "+this);
       I.say("  Action target is: "+actionTarget);
       I.say("  Distance        : "+actionDist  );
       I.say("  Move target is  : "+moveTarget  );
@@ -441,11 +442,16 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  protected void updateAction(boolean active) {
+  protected void updateAction(boolean active, Actor calls) {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) {
       I.say("\nUpdating action for: "+actor+"  Target: "+actionTarget);
       I.say("  Method is: "+methodName()+", basis "+basis.getClass());
+    }
+    if (calls != actor) {
+      calls.mind.cancelBehaviour(calls.mind.rootBehaviour(), "Action mixup!");
+      actor.assignAction(null);
+      return;
     }
     
     if (finished()) {
@@ -576,22 +582,3 @@ public class Action implements Behaviour, AnimNames {
 
 
 
-
-
-//  TODO:  MOVE STUFF LIKE THIS TO ANOTHER CLASS.
-
-//  ...There has got to be some way to simplify this junk.
-/*
-public static float moveLuck(Actor actor) {
-  //
-  //  This is employed during chases and stealth conflicts, so that the
-  //  outcome is less (obviously) deterministic.  However, it must be
-  //  constant at a given position and time.
-  final Tile o = actor.origin();
-  int var = o.world.terrain().varAt(o);
-  var += (o.x * o.world.size) + o.y;
-  var -= o.world.currentTime();
-  var ^= actor.hashCode();
-  return (1 + (float) Nums.sqrt(Nums.abs(var % 10) / 4.5f)) / 2;
-}
-//*/

@@ -160,7 +160,7 @@ public class Dialogue extends Plan implements Qualities {
       //return starts.stage == STAGE_INIT || starts.isActive();
     }
     
-    final Dialogue sample = dialogueFor(actor);
+    final Dialogue sample = dialogueFor(other);
     if (other.mind.mustIgnore(sample)) {
       if (report) I.say("  Other actor is too busy!");
       return false;

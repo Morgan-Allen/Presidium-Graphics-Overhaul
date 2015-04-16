@@ -14,6 +14,7 @@ import stratos.game.plans.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Backgrounds.*;
 import stratos.graphics.common.Colour;
 
 
@@ -76,10 +77,11 @@ public class DebugSocial extends Scenario {
     
     if (false) testCareers(base);
     if (false) configDialogueScenario(world, base, UI);
-    if (true ) configArtilectScenario(world, base, UI);
+    if (false) configArtilectScenario(world, base, UI);
     if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
+    if (true ) multiJobsScenario     (world, base, UI);
   }
   
   
@@ -233,8 +235,6 @@ public class DebugSocial extends Scenario {
   
   private void configWildScenario(Stage world, Base base, BaseUI UI) {
     
-    //  This is the last scenario to test.  Just introduce some animals, and
-    //  see how they react to (A) eachother and (B) the nearby base.
     GameSettings.fogFree = true;
     final Base wild = Base.wildlife(world);
     final Species species = Yamagur.SPECIES;
@@ -258,6 +258,32 @@ public class DebugSocial extends Scenario {
       meets
     );
     UI.selection.pushSelection(watch);
+  }
+  
+
+  private void multiJobsScenario(Stage world, Base base, BaseUI UI) {
+    
+    GameSettings.hireFree = false;
+    GameSettings.fogFree  = true ;
+    FindWork.rateVerbose  = true ;
+    Tile start = world.tileAt(20, 20);
+    
+    Bastion bastion = new Bastion(base);
+    Placement.establishVenue(bastion, start, true, world);
+    
+    Background jobs[] = { TROOPER, FABRICATOR, SUPPLY_CORPS };
+    Actor tracked = null;
+    for (Background b : jobs) {
+      Actor a = b.sampleFor(base);
+      a.enterWorldAt(bastion, world);
+      a.goAboard(bastion, world);
+      if (tracked == null) tracked = a;
+    }
+    
+    Placement.establishVenue(new TrooperLodge(base), start, true, world);
+    Placement.establishVenue(new Fabricator  (base), start, true, world);
+    Placement.establishVenue(new SupplyDepot (base), start, true, world);
+    UI.selection.pushSelection(tracked);
   }
   
   

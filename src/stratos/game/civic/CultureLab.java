@@ -178,8 +178,7 @@ public class CultureLab extends Venue {
       final Actor a = (Actor) match.refers;
       if (a.aboard() instanceof Venue) {
         final Delivery d = new Delivery(match, this, (Venue) a.aboard());
-        d.addMotives(Plan.MOTIVE_EMERGENCY, Plan.URGENT);
-        choice.add(d.setWithPayment(this, false));
+        choice.add(d.addMotives(Plan.MOTIVE_EMERGENCY, Plan.URGENT));
       }
     }
     choice.add(DeliveryUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5));
@@ -209,8 +208,9 @@ public class CultureLab extends Venue {
     }
     //
     //  And custom manufacturing-
-    for (Manufacture o : stocks.specialOrders()) {
-      choice.add(o.setBonusFrom(this, true, TISSUE_CULTURE));
+    for (Item ordered : stocks.specialOrders()) {
+      final Manufacture mO = new Manufacture(actor, this, ordered);
+      choice.add(mO.setBonusFrom(this, true, TISSUE_CULTURE));
     }
     return choice.pickMostUrgent();
   }

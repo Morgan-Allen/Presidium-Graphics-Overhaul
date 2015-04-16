@@ -35,13 +35,14 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     stepsVerbose    = false,
     priorityVerbose = false,
     extraVerbose    = false,
+    beginsVerbose   = false,
     utilsVerbose    = false,
     doesVerbose     = false;
   private static Class
     verboseClass = null;
   
   final public Target subject;
-  protected Actor actor;  //  TODO:  MAKE THIS FINAL
+  protected Actor actor;
   
   protected float
     lastEvalTime = -1,
@@ -60,11 +61,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   protected Plan(
     Actor actor, Target subject, int motiveType, float harmFactor
   ) {
+    if (subject == null) I.complain("NULL PLAN SUBJECT");
     this.actor   = actor  ;
     this.subject = subject;
     this.motiveProperties = motiveType;
     this.harmFactor = harmFactor;
-    if (subject == null) I.complain("NULL PLAN SUBJECT");
   }
   
   
@@ -168,13 +169,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       I.say("  Next step: "+nextStep);
     }
     
-    if (this.actor != actor) {
-      if (report) I.say("SWITCHING TO NEW ACTOR!");
-      clearEval(actor);
-      begun = false;
-      return true;
-    }
-    
     if (! valid()) {
       if (report) I.say("\nNEXT STEP IS NULL: NOT VALID");
       onceInvalid();
@@ -223,8 +217,17 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  protected void attemptToBind(Actor actor) {
+    final Actor oldActor = this.actor;
+    if (oldActor != null && oldActor != actor) I.complain(
+      "WRONG ACTOR INVOKING PLAN: "+this+", IS "+actor+", SHOULD BE "+oldActor
+    );
+    else this.actor = actor;
+  }
+  
+  
   protected void clearEval(Actor actor) {
-    this.actor   = actor;
+    attemptToBind(actor);
     priorityEval = NULL_PRIORITY;
     nextStep     = null;
   }
@@ -236,9 +239,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public float priorityFor(Actor actor) {
+    attemptToBind(actor);
     final boolean report = priorityVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
-    );
+    ) && (beginsVerbose || begun);
     if (hasMotives(MOTIVE_CANCELLED)) return -1;
     if (report && extraVerbose) {
       I.say("\nCurrent priority for "+this+" is: "+priorityEval);
@@ -258,9 +262,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public Behaviour nextStepFor(Actor actor) {
+    attemptToBind(actor);
     final boolean report = stepsVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
-    );
+    ) && (beginsVerbose || begun);
     if (hasMotives(MOTIVE_CANCELLED)) return null;
     
     if (report && extraVerbose) {
@@ -287,12 +292,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       //  We may have to set priority manually here, because sub-steps never
       //  have their priority queried outside- but this is needed to prevent
       //  being flagged as 'due for refresh'.
-      //*
       if (subStep && priorityEval == NULL_PRIORITY) {
         if (report) I.say("SETTING SUB-STEP AS IDLE! "+this);
         priorityEval = IDLE;
       }
-      //*/
       begun        = true;
       lastEvalTime = time;
     }

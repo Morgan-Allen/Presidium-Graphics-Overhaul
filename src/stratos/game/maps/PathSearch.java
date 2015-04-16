@@ -3,19 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
 
-
 public class PathSearch extends Search <Boarding> {
-  
-  
   
   /**  Field definitions and constructors-
     */
@@ -52,12 +48,16 @@ public class PathSearch extends Search <Boarding> {
   protected Boarding boardPoint(Boarding aims) {
     while (true) {
       if (aims instanceof Tile) {
-        if (aims != destination && ((Tile) aims).blocked()) I.complain(
-          "\nPROBLEM WITH PATHING SEARCH: "+
-          "\n  Between "+this.init+" and "+this.destination+
-          "\n  "+aims+" IS A BLOCKED AIMING-POINT!"
-        );
-        break;
+        if (aims != destination && ((Tile) aims).blocked()) {
+          I.say(
+            "\nPROBLEM WITH PATHING SEARCH: "+
+            "\n  Between "+this.init+" and "+this.destination+
+            "\n  "+aims+" IS A BLOCKED AIMING-POINT!"
+          );
+          BaseUI.current().tracking.lockOn(aims);
+          BaseUI.currentPlayed().intelMap.liftFogAround(aims, 5);
+          break;
+        }
       }
       Boarding entrance = null;
       if (aims instanceof Property) {
@@ -181,22 +181,6 @@ public class PathSearch extends Search <Boarding> {
   private static boolean blockedBy(final Boarding b, final Mobile mobile) {
     if (b.boardableType() == Boarding.BOARDABLE_TILE) {
       return b.pathType() == Tile.PATH_BLOCKS;
-      //  TODO:  RESTORE THIS LATER, once alternative transport modes are
-      //  worked out.
-      /*
-      if (b.pathType() != Tile.PATH_BLOCKS) return false;
-      if (mobile != null) {
-        final Tile t = (Tile) b;
-        final Element owns = t.owner();
-        if (owns != null) {
-          if (owns.height() <= mobile.position.z) return true;
-          return false;
-        }
-        if (t.habitat().isOcean() && ! mobile.motionWater()) return true;
-        return false;
-      }
-      return true;
-      //*/
     }
     else if (mobile != null) {
       final boolean

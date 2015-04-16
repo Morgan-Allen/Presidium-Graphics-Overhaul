@@ -35,7 +35,7 @@ public class Stocks extends Inventory {
   
   final Property basis;
   final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
-  final List <Manufacture> specialOrders = new List <Manufacture> ();
+  final List <Item> specialOrders = new List <Item> ();
   final List <Delivery> reservations = new List <Delivery> ();
   
   
@@ -51,8 +51,9 @@ public class Stocks extends Inventory {
   
   public void loadState(Session s) throws Exception {
     super.loadState(s);
-    s.loadObjects(specialOrders);
-    s.loadObjects(reservations );
+    
+    for (int n = s.loadInt(); n-- > 0;) specialOrders.add(Item.loadFrom(s));
+    s.loadObjects(reservations);
     
     int numD = s.loadInt();
     while (numD-- > 0) {
@@ -69,8 +70,10 @@ public class Stocks extends Inventory {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObjects(specialOrders);
-    s.saveObjects(reservations );
+    
+    s.saveInt(specialOrders.size());
+    for (Item i : specialOrders) Item.saveTo(s, i);
+    s.saveObjects(reservations);
     
     s.saveInt(demands.size());
     for (Demand d : demands.values()) {
@@ -121,14 +124,22 @@ public class Stocks extends Inventory {
   
   /**  Assigning and producing jobs-
     */
-  public void addSpecialOrder(Manufacture newOrder) {
-    specialOrders.add(newOrder);
+  public void addSpecialOrder(Item ordered) {
+    specialOrders.add(ordered);
   }
   
   
-  public boolean hasOrderFor(Item made) {
-    for (Manufacture m : specialOrders) {
-      if (m.made().matchKind(made)) return true;
+  public boolean deleteSpecialOrder(Item ordered) {
+    for (Item i : specialOrders) {
+      if (i.matchKind(ordered)) { specialOrders.remove(i); return true; }
+    }
+    return false;
+  }
+  
+  
+  public boolean hasOrderFor(Item ordered) {
+    for (Item i : specialOrders) {
+      if (i.matchKind(ordered)) return true;
     }
     return false;
   }
@@ -172,20 +183,19 @@ public class Stocks extends Inventory {
   }
   
   
-  //  TODO:  Get rid of this?  Or fold into 'special orders?'
   public Manufacture nextManufacture(Actor actor, Conversion c) {
     final float shortage = shortageOf(c.out.type);
     if (shortage <= 0) return null;
     
     final Manufacture m = new Manufacture(
       actor, basis, c,
-      Item.withAmount(c.out, shortage + 5)
+      Item.withAmount(c.out, shortage + 5), false
     );
     return m;
   }
   
   
-  public List <Manufacture> specialOrders() {
+  public Series <Item> specialOrders() {
     return specialOrders;
   }
   
@@ -327,8 +337,8 @@ public class Stocks extends Inventory {
     final Tile        at = basis.world().tileAt(basis);
     final int maxSupply  = basis.staff().workforce() * SUPPLY_PER_WORKER;
     
-    for (Manufacture m : specialOrders) {
-      translateDemands(m.conversion, period);
+    for (Item i : specialOrders) if (i.type.materials() != null) {
+      translateDemands(i.type.materials(), period);
     }
     
     for (Delivery d : reservations) {
@@ -383,8 +393,8 @@ public class Stocks extends Inventory {
   
   
   public void updateOrders() {
-    for (Manufacture m : specialOrders) {
-      if (m.commission == null || m.finished()) specialOrders.remove(m);
+    for (Item i : specialOrders) {
+      if (hasItem(i)) specialOrders.remove(i);
     }
   }
   

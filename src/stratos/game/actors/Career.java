@@ -352,20 +352,15 @@ public class Career implements Qualities {
       }
     }
     //
-    //  Finally, we also favour transition to more prestigious vocations.  (In
-    //  the case of actors already in the world, we skip this step, since we
-    //  can use the finance-evaluation methods in FindWork.)
-    if (
-      actor instanceof Human && (! actor.inWorld()) &&
-      position.standing != Backgrounds.NOT_A_CLASS
-    ) {
+    //  Finally, we also favour transition to more prestigious vocations.
+    int nextStanding = position.standing;
+    if (actor instanceof Human && nextStanding != Backgrounds.NOT_A_CLASS) {
       final Background prior = ((Human) actor).career().topBackground();
-      int nextStanding = position.standing;
       if (report) {
         I.say("  Prior standing: "+prior.standing);
         I.say("  Next standing:  "+nextStanding  );
       }
-      while (nextStanding < prior.standing) { rating /= 5; nextStanding++; }
+      while (nextStanding < prior.standing) { rating /= 2; nextStanding++; }
       while (nextStanding > prior.standing) { rating *= 2; nextStanding--; }
     }
     if (report) I.say("  Overall rating: "+rating);

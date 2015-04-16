@@ -274,6 +274,11 @@ public class Staff {
   }
   
   
+  public boolean hasApplication(FindWork app) {
+    return applicationMatching(app) != null;
+  }
+  
+  
   public FindWork applicationMatching(FindWork app) {
     for (FindWork a : applications) if (a.matchesPlan(app)) return a;
     return null;

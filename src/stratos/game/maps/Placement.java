@@ -335,12 +335,19 @@ public class Placement implements TileConstants {
     //  In essence, we scan along the perimeter and note how often the tiles
     //  switch between being blocked and unblocked.
     final Tile perim[] = Spacing.perimeter(footprint, world);
+    final boolean minor = tier < Owner.TIER_PRIVATE;
     int inBlock = -1, numGaps = 0;
     if (report) {
       I.say("  Checking tiles along perim, area: "+footprint);
       I.say("    ");
     }
     for (Tile t : perim) {
+      if (minor && t != null && t.owningTier() >= Owner.TIER_PRIVATE) {
+        //
+        //  We also forbid direct placement of natural items next to artificial
+        //  items-
+        return false;
+      }
       int block = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
       if (report) I.add(" "+block);
       if (block != inBlock) { inBlock = block; if (block == 0) numGaps++; }
@@ -383,6 +390,10 @@ public class Placement implements TileConstants {
   }
   
   
+  //  TODO:  You need a public boolean method to establish 'dominance' between
+  //  two different tiers for placement purposes.
+  
+  
   public static boolean isViableEntrance(Venue v, Tile e) {
     //  TODO:  Unify this with singleTileClear()?
     if (e == null || ! e.habitat().pathClear) return false;
@@ -395,6 +406,8 @@ public class Placement implements TileConstants {
     );
   }
 }
+
+
 
 
 

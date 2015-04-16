@@ -86,8 +86,8 @@ public interface Sectors extends Backgrounds {
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
       WASTES_BLOOD, NORMAL_GRAVITY,
-      Sector.MAKES, PARTS, ANTIMASS, TERMINALS,
-      Sector.NEEDS, DECOR, SERVICE_REPAIRS, REPLICANTS,
+      Sector.MAKES, PARTS, ANTIMASS, CIRCUITRY,
+      Sector.NEEDS, POLYMER, GREENS, REPLICANTS,
       BORN_DREGS, BORN_PYON,
       NOVICE, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,

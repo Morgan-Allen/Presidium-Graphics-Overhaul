@@ -32,13 +32,10 @@ public class Commission extends Plan {
   final Item item;
   final Venue shop;
   
-  private Manufacture order = null;
   private float price       = -1;
   private float orderDate   = -1;
   private boolean delivered = false;
   
-  
-  //  TODO:  Pass in the Conversion used for manufacture as well!
   
   private Commission(Actor actor, Item baseItem, Venue shop) {
     super(actor, shop, MOTIVE_PERSONAL, NO_HARM);
@@ -55,7 +52,6 @@ public class Commission extends Plan {
     super(s);
     item = Item.loadFrom(s);
     shop = (Venue) s.loadObject();
-    order = (Manufacture) s.loadObject();
     orderDate = s.loadFloat();
     delivered = s.loadBool();
   }
@@ -65,7 +61,6 @@ public class Commission extends Plan {
     super.saveState(s);
     Item.saveTo(s, item);
     s.saveObject(shop);
-    s.saveObject(order);
     s.saveFloat(orderDate);
     s.saveBool(delivered);
   }
@@ -151,7 +146,7 @@ public class Commission extends Plan {
     //
     //  See if we're still waiting on completion-
     final boolean done = shop.stocks.hasItem(item);
-    if (order != null && ! order.finished() && ! done) {
+    if (orderDate != -1 && ! done) {
       if (report) I.say("  Manufacture not complete.");
       return 0;
     }
@@ -159,7 +154,7 @@ public class Commission extends Plan {
     //  Include effects of pricing and quality-
     final float price = calcPrice();
     float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
-    if (order == null) {
+    if (orderDate == -1) {
       if (price > actor.gear.credits()) {
         if (report) I.say("  Can't afford item.");
         return 0;
@@ -199,7 +194,7 @@ public class Commission extends Plan {
     if (actor.world().currentTime() - orderDate > EXPIRE_TIME) {
       return true;
     }
-    return ! shop.stocks.specialOrders().includes(order);
+    return ! shop.stocks.hasOrderFor(item);
   }
   
   
@@ -255,10 +250,12 @@ public class Commission extends Plan {
   
   public boolean actionPlaceOrder(Actor actor, Venue shop) {
     if (shop.stocks.hasOrderFor(item)) return false;
-    
+    /*
+    final Manufacture order;
     order = new Manufacture(null, shop, item.type.materials(), item);
     order.commission = this;
-    shop.stocks.addSpecialOrder(order);
+    //*/
+    shop.stocks.addSpecialOrder(item);
     orderDate = shop.world().currentTime();
     
     final int price = (int) calcPrice();
@@ -280,7 +277,7 @@ public class Commission extends Plan {
     final int price = (int) calcPrice();
     shop .inventory().incCredits(0 - price);
     actor.inventory().incCredits(    price);
-    order.addMotives(Plan.MOTIVE_CANCELLED, 0);
+    shop.stocks.deleteSpecialOrder(item);
     delivered = true;
     return true;
   }

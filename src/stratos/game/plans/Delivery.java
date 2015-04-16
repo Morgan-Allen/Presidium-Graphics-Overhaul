@@ -157,7 +157,7 @@ public class Delivery extends Plan {
   public Delivery setWithPayment(
     Owner pays, boolean priceLimit
   ) {
-    if (pays instanceof Actor) this.actor = (Actor) pays;
+    if (pays instanceof Actor) attemptToBind((Actor) pays);
     if (! checkValidPayment(pays)) return null;
     
     if (priceLimit && pays != null) {

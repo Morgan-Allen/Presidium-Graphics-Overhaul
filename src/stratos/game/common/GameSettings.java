@@ -23,6 +23,7 @@ public class GameSettings {
     SMALL_HUMAN_SCALE = 0.55f,
     BIG_HUMAN_SCALE   = 0.80f;
   
+  //  Used to scale all prices up and down.
   final public static int
     SPEND_DIVISOR = 5;
   

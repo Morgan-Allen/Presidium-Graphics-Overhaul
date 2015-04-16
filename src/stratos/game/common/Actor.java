@@ -158,7 +158,7 @@ public abstract class Actor extends Mobile implements
     this.actionTaken = action;
     if (actionTaken != null) {
       actionTaken.toggleActive(true);
-      actionTaken.updateAction(false);
+      actionTaken.updateAction(false, this);
     }
   }
   
@@ -243,12 +243,13 @@ public abstract class Actor extends Mobile implements
     //  results to get back (particularly if several mobiles needed complex
     //  updates simultaneously.)  Instead, any updates to pathing or behaviour-
     //  evaluation get deferred to the time-sliced external scheduling system.
-    
     final boolean OK = health.conscious() && ! doingPhysFX();
     final Action action = actionTaken;
-    boolean needsBigUpdate = false;
     
-    if (action != null) action.updateAction(OK);
+    boolean needsBigUpdate = false;
+    if (report) I.say("\nUpdating actor as mobile, action: "+action);
+    
+    if (action != null) action.updateAction(OK, this);
     
     if (action == null || ! OK) pathing.updateTarget(null);
     else if (! pathing.checkPathingOkay()) {

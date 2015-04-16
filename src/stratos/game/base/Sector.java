@@ -46,7 +46,7 @@ public class Sector extends Background {
   
   
   final public String houseName;
-  final Traded goodsMade[], goodsNeeded[];
+  final public Traded goodsMade[], goodsNeeded[];
   final public Trait climate;
   final public int gravity;
   

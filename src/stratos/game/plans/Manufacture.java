@@ -34,7 +34,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   final public Property venue;
   final public Conversion conversion;
-  public Commission commission = null;
+  final public boolean commission;
   
   private float speedBonus = 1;
   private Item made, needed[];
@@ -43,13 +43,20 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public Manufacture(
-    Actor actor, Property venue, Conversion conversion, Item made
+    Actor actor, Property venue,
+    Conversion conversion, Item made, boolean commission
   ) {
     super(actor, venue, MOTIVE_JOB, NO_HARM);
     this.venue = venue;
     this.made = made == null ? conversion.out : made;
     this.conversion = conversion;
     this.needed = conversion.raw;
+    this.commission = commission;
+  }
+  
+  
+  public Manufacture(Actor actor, Property venue, Item made) {
+    this(actor, venue, made.type.materials(), made, true);
   }
   
   
@@ -61,7 +68,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     this.needed = conversion.raw;
     speedBonus = s.loadFloat();
     amountMade = s.loadFloat();
-    commission = (Commission) s.loadObject();
+    commission = s.loadBool();
   }
   
   
@@ -72,12 +79,12 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     Item.saveTo(s, made);
     s.saveFloat(speedBonus);
     s.saveFloat(amountMade);
-    s.saveObject(commission);
+    s.saveBool(commission);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Manufacture(other, venue, conversion, made);
+    return new Manufacture(other, venue, conversion, made, commission);
   }
   
   
@@ -190,7 +197,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     
     final int shift = venue.staff().shiftFor(actor);
     if (shift == Venue.OFF_DUTY) return 0;
-    if (commission != null && commission.finished()) {
+    if (commission && venue.inventory().hasItem(made)) {
       if (report) I.say("  Commission done!");
       return 0;
     }
@@ -273,18 +280,19 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     */
   public boolean finished() {
     if (super.finished()) return true;
-    if (selfCommission()) return false;
+    //if (selfCommission()) return false;
     return
       (amountMade >= 2) || (amountMade >= made.amount) ||
       venue.inventory().hasItem(made);
   }
   
-  
+  /*
   private boolean selfCommission() {
     return
       commission != null && commission.actor() == actor &&
       ! commission.finished();
   }
+  //*/
   
   
   public Behaviour getNextStep() {
@@ -294,7 +302,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     }
     
     if (venue.inventory().hasItem(made)) {
-      if (selfCommission()) return commission;
+      //if (selfCommission()) return commission;
       amountMade = made.amount;
       return null;
     }

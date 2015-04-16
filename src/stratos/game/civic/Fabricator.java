@@ -134,18 +134,19 @@ public class Fabricator extends Venue {
       choice.add(m);
     }
     
-    for (Manufacture o : stocks.specialOrders()) {
-      final Traded type = o.made().type;
+    for (Item ordered : stocks.specialOrders()) {
+      final Manufacture mO = new Manufacture(actor, this, ordered);
+      final Traded type = ordered.type;
       if (type == DECOR || type == FINERY) {
-        o.setBonusFrom(this, true, FINERY_FLOOR);
+        mO.setBonusFrom(this, true, FINERY_FLOOR);
       }
       else if (type == STEALTH_SUIT || type == SEALSUIT) {
-        o.setBonusFrom(this, true, CAMOUFLAGE_FLOOR);
+        mO.setBonusFrom(this, true, CAMOUFLAGE_FLOOR);
       }
       else {
-        o.setBonusFrom(this, false, POLYMER_LOOM);
+        mO.setBonusFrom(this, false, POLYMER_LOOM);
       }
-      choice.add(o);
+      choice.add(mO);
     }
     
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));

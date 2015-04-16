@@ -165,24 +165,25 @@ public class EngineerStation extends Venue {
     final Choice choice = new Choice(actor);
     
     //  Consider special commissions for weapons and armour-
-    for (Manufacture o : stocks.specialOrders()) {
-      final Traded made = o.made().type;
+    for (Item ordered : stocks.specialOrders()) {
+      final Traded made = ordered.type;
+      final Manufacture mO = new Manufacture(actor, this, ordered);
       
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
         Upgrade forType = MATTER_PRESS;
         if (DT.hasProperty(KINETIC)) forType = COMPOSITE_MATERIALS;
         if (DT.hasProperty(ENERGY )) forType = FIELD_CONTAINMENT  ;
-        o.setBonusFrom(this, true, MATTER_PRESS, forType);
+        mO.setBonusFrom(this, true, MATTER_PRESS, forType);
       }
       else if (made instanceof OutfitType) {
-        o.setBonusFrom(this, true,
+        mO.setBonusFrom(this, true,
           MATTER_PRESS, COMPOSITE_MATERIALS, FIELD_CONTAINMENT
         );
       }
-      else o.setBonusFrom(this, true, MATTER_PRESS);
+      else mO.setBonusFrom(this, true, MATTER_PRESS);
       
-      choice.add(o);
+      choice.add(mO);
     }
     
     //  Consider the production of general bulk commodities-

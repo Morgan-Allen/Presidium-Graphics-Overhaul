@@ -21,7 +21,7 @@ public class Pathing {
   /**  Field definitions, constructors, and save/load methods-
     */
   final public static int MAX_PATH_SCAN = 8;
-  private static boolean
+  public static boolean
     verbose      = false,
     moveVerbose  = false,
     pathVerbose  = false,
@@ -126,6 +126,7 @@ public class Pathing {
       if (report) {
         I.say("\nTARGET HAS CHANGED TO: "+trueTarget);
         I.say("  FROM: "+oldTarget);
+        I.reportStackTrace();
       }
       path = null;
       stepIndex = -1;
@@ -358,18 +359,21 @@ public class Pathing {
     //  distracting.
     if (true) {
       final boolean blockReport = I.talkAbout == mobile && verbose;
-      
-      //  If your current location is blocked, you need to escape to a free tile-
+      //
+      //  If your current location is blocked, you need to escape to a free
+      //  tile-
       if (PathSearch.blockedBy(mobile.aboard(), mobile)) {
         final Tile blocked = mobile.origin();
         final Tile free = Spacing.nearestOpenTile(blocked, mobile);
         if (free == null) I.complain("NO FREE TILE AVAILABLE!");
-        if (blockReport) I.say("Escaping to free tile: "+free);
+        if (blockReport) {
+          I.say("\nEscaping to free tile: "+free);
+          I.say("  Was aboard: "+mobile.aboard());
+        }
         mobile.setPosition(free.x, free.y, mobile.world());
         mobile.onMotionBlock(blocked);
         return;
       }
-      //return;
     }
     
     final Mobile m = mobile;

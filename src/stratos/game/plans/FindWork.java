@@ -18,8 +18,11 @@ import static stratos.game.economic.Economy.*;
 public class FindWork extends Plan {
   
   
-  private static boolean
-    verbose      = false,
+  public static boolean
+    rateVerbose  = false,
+    extraVerbose = false,
+    evalVerbose  = false,
+    stepsVerbose = false,
     offworldOnly = false;
   
   final static float
@@ -76,6 +79,22 @@ public class FindWork extends Plan {
   }
   
   
+  public boolean matchesPlan(Behaviour other) {
+    if (! super.matchesPlan(other)) return false;
+    final FindWork a = (FindWork) other;
+    return
+      a.actor    == actor    &&
+      a.position == position &&
+      a.employer == employer;
+  }
+  
+  
+  public boolean finished() {
+    return false;
+    //return wasHired();
+  }
+  
+  
   public boolean requiresApproval() {
     if (position == null || employer == null) return false;
     else if (position.standing >= Backgrounds.CLASS_AGENT) return true;
@@ -89,12 +108,9 @@ public class FindWork extends Plan {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
-    if (actor.mind.vocation() == position && actor.mind.work() == employer) {
-      return -1;
-    }
-    if (position == null || employer == null) return -1;
-    rating = rateOpening(position, employer, report);
+    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
+    if (position == null || employer == null || wasHired()) return -1;
+    rating = rateOpening(this, false, report);
     final float priority = Nums.clamp(ROUTINE * rating, 0, URGENT);
     if (report) {
       I.say("\nGetting priority for work application: "+actor);
@@ -109,12 +125,13 @@ public class FindWork extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next find-work step for "+actor);
-    
-    if (employer == actor.mind.work() || ! canApply()) {
-      if (report) I.say("  Cannot apply at: "+employer);
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (! canApply()) {
+      if (report) I.say("\nCannot apply at: "+employer);
       return null;
+    }
+    if (report) {
+      I.say("\nGetting next find-work step for "+actor);
     }
     
     if (report) I.say("  Applying at "+employer);
@@ -127,10 +144,16 @@ public class FindWork extends Plan {
   }
   
   
+  public boolean actionApplyTo(Actor client, Property best) {
+    confirmApplication();
+    return true;
+  }
+  
+  
   public boolean canOrDidApply() {
     if (canApply()) return true;
-    if (employer == null) return false;
-    return employer.staff().applications().includes(this);
+    if (employer == null || position == null) return false;
+    return employer.staff().hasApplication(this);
   }
   
   
@@ -139,7 +162,7 @@ public class FindWork extends Plan {
       position != null && employer != null &&
       employer.inWorld() && employer.structure().intact() &&
       employer.crowdRating(actor, position) < 1 &&
-      ! employer.staff().applications().includes(this);
+      ! employer.staff().hasApplication(this);
   }
   
   
@@ -149,31 +172,8 @@ public class FindWork extends Plan {
   }
   
   
-  public boolean actionApplyTo(Actor client, Property best) {
-    if (! canApply()) return false;
-    confirmApplication();
-    return true;
-  }
-  
-  
-  public boolean matchesPlan(Plan other) {
-    if (! super.matchesPlan(other)) return false;
-    final FindWork a = (FindWork) other;
-    return
-      a.actor    == actor    &&
-      a.position == position &&
-      a.employer == employer;
-  }
-  
-  
-  public boolean finished() {
-    return false;
-  }
-  
-  
   public void confirmApplication() {
-    if (! canApply()) return;
-    if (actor.mind.work() == employer) return;
+    if (wasHired() || ! canApply()) return;
     employer.staff().setApplicant(this, true);
   }
   
@@ -216,46 +216,47 @@ public class FindWork extends Plan {
   //  automatically, and never actually finishes.
   public static FindWork attemptFor(Actor actor, Property at) {
     if (at.careers() == null) return null;
-
-    final boolean report = verbose && (
+    //
+    //  First, determine the extent of debug output to provide-
+    final boolean report = rateVerbose && (
       I.talkAbout == actor || I.talkAbout == at
     ) && ! (actor.inWorld() && offworldOnly);
-    if (report) {
-      I.say("\n"+actor+" checking for career opportunities at "+at);
-    }
-    
+    final boolean repB = report && extraVerbose;
+    if (report) I.say("\n"+actor+" checking for career opportunities at "+at);
+    //  
+    //  Then we allow
+    final Pick <FindWork> pick = new Pick <FindWork> (null, 0) {
+      public void compare(FindWork f, float rating) {
+        super.compare(f, rating);
+        if (report) I.say("    Rating: "+rating+" for "+f.position);
+      }
+    };
     FindWork main = (FindWork) actor.matchFor(FindWork.class, false);
+    float rating = 0;
     if (main == null) {
       main = new FindWork(actor, null, null);
       actor.mind.assignToDo(main);
     }
+    final Background currentPos = actor.mind.vocation();
+    final Property   currentEmp = actor.mind.work    ();
+    final Background lastTryPos = main.position;
+    final Property   lastTryEmp = main.employer;
     
-    final Pick <FindWork> pick = new Pick <FindWork> (null, 0) {
-      public void compare(FindWork f, float rating) {
-        super.compare(f, rating);
-        if (report) I.say(
-          "  Rating: "+rating+" for "+f.position+" at "+I.tagHash(f.employer)
-        );
-      }
-    };
+    if (lastTryPos != null && lastTryEmp != null) {
+      rating = rateOpening(main, true, repB);
+      pick.compare(main, rating);
+    }
+    
+    if (currentPos != null && currentEmp != null) {
+      final FindWork app = new FindWork(actor, currentPos, currentEmp);
+      rating = rateOpening(app, false, repB);
+      pick.compare(app, rating);
+    }
     
     for (Background c : at.careers()) {
       final FindWork app = new FindWork(actor, c, at);
-      float rating = main.rateOpening(app.position, app.employer, report);
+      rating = rateOpening(app, false, repB);
       pick.compare(app, rating);
-    }
-    if (pick.empty()) return main;
-    
-    if (main.position != null && main.employer != null) {
-      float rating = main.rateOpening(main.position, main.employer, report);
-      pick.compare(main, rating * SWITCH_THRESHOLD);
-    }
-    
-    final Property work = actor.mind.work();
-    if (work != null) {
-      final FindWork app = new FindWork(actor, actor.mind.vocation(), work);
-      float rating = main.rateOpening(app.position, app.employer, report);
-      pick.compare(app, rating * SWITCH_THRESHOLD);
     }
     
     final FindWork app = pick.result();
@@ -263,17 +264,22 @@ public class FindWork extends Plan {
       assignAmbition(actor, app.position, app.employer, pick.bestRating());
     }
     if (report) {
-      I.say("  Current job:    "+actor.mind.vocation());
-      I.say("  Is offworld:    "+(! actor.inWorld()));
-      I.say("  Most promising: "+main.position);
-      I.say("  Venue:          "+main.employer);
-      I.say("  Rating:         "+main.rating  );
+      I.say("  Current job:  "+currentPos+" at "+currentEmp);
+      I.say("  Last applied: "+lastTryPos+" at "+lastTryEmp);
+      I.say("  Is offworld:  "+(! actor.inWorld()));
+      I.say("  Best job:     "+main.position+" at "+main.employer);
+      I.say("  Best rating:  "+main.rating);
     }
     return main;
   }
   
   
-  private float rateOpening(Background position, Property at, boolean report) {
+  private static float rateOpening(
+    FindWork app, boolean sameTried, boolean report
+  ) {
+    final Property   at       = app.employer;
+    final Background position = app.position;
+    final Actor      actor    = app.actor   ;
     final boolean isNew = ! at.staff().isWorker(actor);
     if (isNew && at.crowdRating(actor, position) >= 1) return -1;
     if (position != actor.mind.vocation() && ! actor.inWorld()) return -1;
@@ -303,21 +309,30 @@ public class FindWork extends Plan {
     }
     //  TODO:  Also impact through area living conditions (or factor that into
     //         hiring costs?)
-    final List <FindWork> allApps = at.staff().applications();
-    if (! allApps.includes(this)) {
-      final int
-        numApps = at.staff().applications().size(),
-        MA      = (int) BaseCommerce.MAX_APPLICANTS;
+    final int numApps = at.staff().numApplied(position);
+    if (! at.staff().hasApplication(app)) {
+      final int MA = (int) BaseCommerce.MAX_APPLICANTS;
       rating -= numApps / MA;
       if (report) I.say("  Total/max applicants: "+numApps+"/"+MA);
     }
     //
-    //  Also, give preference to the same vocation and/or the same venue.
-    if (position == actor.mind.vocation() || employer == actor.mind.work()) {
+    //  We favour applications that will be automatically approved.  Also, we
+    //  give preference to the same vocation and/or the same venue and/or the
+    //  same application (to maintain stability.)
+    //  TODO:  USE STUBBORNNESS-TRAIT HERE
+    if (position == actor.mind.vocation() || at == actor.mind.work()) {
       rating *= SWITCH_THRESHOLD;
-      if (report) I.say("  Is same as old position/employer");
+      if (report) I.say("  Is same as old position or employer");
     }
-    if (report) I.say("  Final rating:         "+rating);
+    if (sameTried) {
+      rating *= SWITCH_THRESHOLD;
+      if (report) I.say("  Is same as last application");
+    }
+    if (! app.requiresApproval()) {
+      rating *= SWITCH_THRESHOLD;
+      if (report) I.say("  Does not require approval");
+    }
+    if (report) I.say("  Final rating:         "+rating+"\n");
     return rating;
   }
   

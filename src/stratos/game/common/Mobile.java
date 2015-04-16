@@ -19,7 +19,7 @@ public abstract class Mobile extends Element
 {
   
   private static boolean
-    verbose = false;
+    verbose = Pathing.verbose;
   
   final public static PlaneFX.Model SHADOW_MODEL = new PlaneFX.Model(
     "ground_shadow_model", Mobile.class,
@@ -153,7 +153,6 @@ public abstract class Mobile extends Element
     final boolean report = verbose && I.talkAbout == this;
     if (report) {
       I.say("\nGoing aboard "+toBoard);
-      I.reportStackTrace();
     }
     
     if (aboard != null) aboard.setInside(this, false);
@@ -187,8 +186,6 @@ public abstract class Mobile extends Element
     
     if (aboard == null || ! aboard.area(null).contains(pos.x, pos.y)) {
       goAboard(newTile, world);
-      //if (aboard != null) aboard.setInside(this, false);
-      //(aboard = newTile).setInside(this, true);
     }
     if (instant) {
       this.position.setTo(pos);
@@ -226,6 +223,10 @@ public abstract class Mobile extends Element
     //
     //  We allow mobiles to 'jump' between dissimilar objects, or track the
     //  sudden motions of mobile boardables (i.e, vehicles)-
+    if (report) {
+      I.say("\nNext step is: "+step);
+      I.say("  Currently aboard: "+aboard);
+    }
     if (aboard instanceof Mobile && outOfBounds) {
       aboard.position(nextPosition);
     }

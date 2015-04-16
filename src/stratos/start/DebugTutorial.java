@@ -17,8 +17,9 @@ import stratos.util.*;
 //  TODO:  Some way to harvest meat from creatures you kill would be
 //         beneficial.
 
-//  TODO:  Animals need to be more consistent about retreating from danger (
-//         flight or fight.)
+//  TODO:  Better paving-layouts for nursery-plantations would be nice.
+
+//  TODO:  X AND Y COORDS ARE REVERSED ON THE MAP!  THAT'S REALLY CONFUSING!
 
 
 /*

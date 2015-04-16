@@ -102,36 +102,43 @@ public class CommercePane extends SelectionPane {
     d.append("DEMAND REPORT FOR "+base);
     boolean noLocal = true, noTrade = true;
     
-    d.append("\n\n  Local Goods: (supply/demand)");
+    d.append("\n\nLocal Goods: (supply/demand)");
     for (Traded t : Economy.ALL_MATERIALS) {
       final int
         demand = (int) BC.primaryDemand(t),
         supply = (int) BC.primarySupply(t);
       if (demand == 0 && supply == 0) continue;
       else noLocal = false;
-      d.append("\n    "+t+": "+supply+"/"+demand);
+      
+      ((Text) d).insert(t.icon.asTexture(), 15, true);
+      d.append(" "+t+": "+supply+"/"+demand);
     }
-    if (noLocal) d.append("\n    No local goods.");
-    
-    d.append("\n\n  Reserved For Trade: (import/export)");
+    if (noLocal) d.append("\n  No local goods.");
+
+    ((Text) d).cancelBullet();
+    d.append("\n\nReserved For Trade: (import/export)");
     for (Traded t : Economy.ALL_MATERIALS) {
       final int
         demand = (int) BC.importDemand(t),
         supply = (int) BC.exportSupply(t);
       if (demand == 0 && supply == 0) continue;
       else noTrade = false;
-      d.append("\n    "+t+": "+demand+"/"+supply);
+      
+      ((Text) d).insert(t.icon.asTexture(), 15, true);
+      d.append(" "+t+": "+demand+"/"+supply);
     }
-    if (noTrade) d.append("\n    No trade goods.");
+    if (noTrade) d.append("\n  No trade goods.");
     
-    d.append("\n\n  Offworld Prices (Buy | Sell | Base)");
+    ((Text) d).cancelBullet();
+    d.append("\n\nOffworld Prices (Buy | Sell | Base)");
     for (Traded t : Economy.ALL_MATERIALS) {
       final String
         priceImp = I.shorten(BC.importPrice(t), 1),
         priceExp = I.shorten(BC.exportPrice(t), 1),
         baseCost = I.shorten(t.basePrice()    , 1);
       
-      d.append("\n    "+t+" (");
+      ((Text) d).insert(t.icon.asTexture(), 15, true);
+      d.append(" "+t+" (");
       d.append(priceImp+"", Colour.LITE_RED  );
       d.append(" | ");
       d.append(priceExp+"", Colour.LITE_GREEN);
@@ -140,14 +147,28 @@ public class CommercePane extends SelectionPane {
       d.append(")");
     }
     
-    d.append("\n\n  Trading partners:");
+    ((Text) d).cancelBullet();
+    d.append("\n\nTrading partners:");
     for (Sector partner : BC.partners()) {
-      d.append("\n    ");
+      d.append("\n  ");
       d.append(partner);
+      d.append(" (Makes: ");
+      for (Traded t : partner.goodsMade) {
+        if (t.form != Economy.FORM_MATERIAL) continue;
+        ((Text) d).insert(t.icon.asTexture(), 15, false);
+      }
+      d.append(")");
+      d.append(" (Needs: ");
+      for (Traded t : partner.goodsNeeded) {
+        if (t.form != Economy.FORM_MATERIAL) continue;
+        ((Text) d).insert(t.icon.asTexture(), 15, false);
+      }
+      d.append(")");
     }
     if (BC.partners().size() == 0) d.append("\n    No partners.");
   }
 }
+
 
 
 

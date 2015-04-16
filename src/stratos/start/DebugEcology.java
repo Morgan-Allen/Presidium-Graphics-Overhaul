@@ -75,8 +75,9 @@ public class DebugEcology extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
-
-    if (true ) configHuntingScenario(world, base, UI);
+    
+    if (false) configHuntingScenario(world, base, UI);
+    if (true ) nestPlaceTest        (world, base, UI);
   }
   
   
@@ -97,6 +98,25 @@ public class DebugEcology extends Scenario {
   }
   
   
+  private void nestPlaceTest(Stage world, Base base, BaseUI UI) {
+    
+    final Outcrop o = new Outcrop(2, 2, Outcrop.TYPE_MESA);
+    o.setPosition(10, 10, world);
+    o.attachModel(Outcrop.modelFor(o, world));
+    o.enterWorld();
+    
+    final Base wildlife = Base.wildlife(world);
+    final Nest n = (Nest) Qudu.SPECIES.nestProfile().sampleVenue(wildlife);
+    n.setPosition(10, 8, world);
+    
+    I.say("Placement possible? "+n.canPlace());
+    
+    n.enterWorld();
+    n.structure.setState(Structure.STATE_INTACT, 1);
+    wildlife.setup.fillVacancies(n, true);
+  }
+  
+  
   public void updateGameState() {
     super.updateGameState();
   }
@@ -105,6 +125,12 @@ public class DebugEcology extends Scenario {
   protected void afterCreation() {
   }
 }
+
+
+
+
+
+
 
 
 

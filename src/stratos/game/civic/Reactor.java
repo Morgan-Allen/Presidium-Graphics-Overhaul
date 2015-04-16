@@ -190,9 +190,10 @@ public class Reactor extends Venue {
     m = stocks.nextManufacture(actor, TOPES_TO_ANTIMASS);
     if (m != null) choice.add(m.setBonusFrom(this, true, CYCLOTRON_CIRCUIT));
     
-    for (Manufacture o : stocks.specialOrders()) {
-      o.setBonusFrom(this, true, WASTE_PROCESSING);
-      choice.add(o);
+    for (Item ordered : stocks.specialOrders()) {
+      final Manufacture mO = new Manufacture(actor, this, ordered);
+      mO.setBonusFrom(this, true, WASTE_PROCESSING);
+      choice.add(mO);
     }
     //
     //  Failing that, just keep the place in order-

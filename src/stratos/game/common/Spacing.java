@@ -133,7 +133,7 @@ public final class Spacing implements TileConstants {
   ) {
     final Vec3D CP = client.position(pA);
     final Tile o = world.tileAt(CP.x, CP.y);
-    if (isOpenTile(o)) return o;
+    //if (isOpenTile(o)) return o;
     
     final Pick <Tile> pick = new Pick <Tile> ();
     int numTries = 0;

@@ -65,7 +65,7 @@ public class Outcrop extends Fixture {
   }
   
   
-  static ModelAsset modelFor(Outcrop outcrop, Stage world) {
+  public static ModelAsset modelFor(Outcrop outcrop, Stage world) {
     
     final int   mineral = mineralTypeFor(outcrop, world);
     final float rubble  = rubbleFor(outcrop, world);

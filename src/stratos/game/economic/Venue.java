@@ -219,7 +219,7 @@ public abstract class Venue extends Structural implements
     //  procedure below.)
     for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
       final Element fringes = t.onTop();
-      if (fringes == null || fringes.owningTier() > TIER_NATURAL) continue;
+      if (fringes == null || fringes.owningTier() >= TIER_PRIVATE) continue;
       else fringes.setAsDestroyed();
     }
     

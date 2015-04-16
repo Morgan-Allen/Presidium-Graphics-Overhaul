@@ -86,7 +86,7 @@ public class PlanUtils {
     
     homeDistance = homeDistanceFactor(actor, actor.origin());
     if (! isArmed(actor)) homeDistance = (homeDistance + 2) / 2;
-    if (actor.senses.isEmergency()) homeDistance *= 1.5f;
+    if (actor.senses.isEmergency()) homeDistance += 0.5f;
     
     escapeChance = Nums.clamp(1f - actor.health.fatigueLevel(), 0, 1);
     priority = incentive * homeDistance * escapeChance;
