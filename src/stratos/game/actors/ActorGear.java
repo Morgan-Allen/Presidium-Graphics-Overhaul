@@ -167,9 +167,9 @@ public class ActorGear extends Inventory {
     if (Float.isNaN(credits)) credits = 0;
     if (inc == 0) return;
     
-    final int oldC = (int) credits();
+    final int oldC = (int) allCredits();
     super.incCredits(inc);
-    final int newC = (int) credits();
+    final int newC = (int) allCredits();
     if (! actor.inWorld() || oldC == newC) return;
     
     String phrase = inc >= 0 ? "+" : "-";

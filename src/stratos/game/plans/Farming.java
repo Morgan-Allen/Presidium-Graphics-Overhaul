@@ -72,6 +72,10 @@ public class Farming extends Plan {
     
     final float min = returnHarvestAction(0) == null ? 0 :  ROUTINE;
     final float need = nursery.needForTending();
+    if (report) {
+      I.say("\nEvaluating farming priority for "+this);
+      I.say("  Need for tending: "+need);
+    }
     
     final float priority = priorityForActorWith(
       actor, nursery,

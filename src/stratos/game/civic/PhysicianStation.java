@@ -149,33 +149,49 @@ public class PhysicianStation extends Venue {
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;
-    
+    //
     //  If there are patients inside, make sure somebody's available.
     if (numPatients() == 0 && ! staff.onShift(actor)) return null;
     final Choice choice = new Choice(actor);
-    
-    //  Manufacture basic medicines for later use.
-    final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
-    if (mS != null) {
-      mS.setBonusFrom(this, false, APOTHECARY);
-      choice.add(mS);
-    }
-    
+    //
     //  If anyone is waiting for treatment, tend to them- including outside the
     //  building.
     final Batch <Target> around = new Batch <Target> ();
-    for (Target t : actor.senses.awareOf()) around.include(t);
-    for (Mobile m : this.inside()) around.include(m);
-    if (base.ruler() != null) around.include(base.ruler());
-    
-    for (Target m : around) if (m instanceof Actor) {
-      final FirstAid t = new FirstAid(actor, (Actor) m, this);
-      t.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
-      choice.add(t);
-      choice.add(Treatment.nextTreatment(actor, (Actor) m, this));
+    for (Mobile m : inside()) tryAdding(m, around);
+    //
+    //  The ruler and his household also get special treatment-
+    final Actor ruler = base.ruler();
+    if (ruler != null) {
+      tryAdding(ruler, around);
+      final Property home = ruler.mind.home();
+      if (home != null) for (Actor a : home.staff().lodgers()) {
+        tryAdding(a, around);
+      }
     }
-    
-    //  Otherwise, just tend the desk.
+    for (Target t : around) t.flagWith(null);
+    //
+    //  Then, compare the urgency of treatment for each compiled patient:
+    for (Target m : around) if (m instanceof Actor) {
+      final Actor patient = (Actor) m;
+      
+      final FirstAid aid = new FirstAid(actor, patient, this);
+      aid.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
+      choice.add(aid);
+      
+      final Treatment t = Treatment.nextTreatment(actor, patient, this);
+      if (t != null && (t.priorityFor(actor) >= Plan.URGENT || onShift)) {
+        choice.add(t);
+      }
+    }
+    //
+    //  Manufacture basic medicines for later use.
+    final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
+    if (mS != null && (choice.empty() || ! onShift)) {
+      mS.setBonusFrom(this, false, APOTHECARY);
+      choice.add(mS);
+    }
+    //
+    //  Otherwise, just tend the desk...
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.pickMostUrgent();
   }
@@ -183,6 +199,13 @@ public class PhysicianStation extends Venue {
   
   public void addServices(Choice choice, Actor forActor) {
     choice.add(SickLeave.nextLeaveFor(forActor, this, VISIT_COST));
+  }
+  
+  
+  private void tryAdding(Target patient, Batch <Target> around) {
+    if (patient.flaggedWith() != null) return;
+    around.add(patient);
+    patient.flagWith(around);
   }
   
   

@@ -65,17 +65,15 @@ public class Inventory {
       credits += inc;
     }
     else {
-      credits += inc;
-      if (credits < 0) {
-        taxed += credits;
+      final float charge = 0 - inc;
+      credits -= charge;
+      final float debt = 0 - credits;
+      if (debt > 0) {
+        taxed -= debt;
         credits = 0;
+        if (taxed < 0) { credits = taxed; taxed = 0; }
       }
     }
-    if (taxed < 0) {
-      credits += taxed;
-      taxed = 0;
-    }
-    //owner.afterTransaction();
   }
   
   
@@ -85,13 +83,18 @@ public class Inventory {
   }
   
   
-  public float credits() {
+  public float allCredits() {
     return credits + taxed;
   }
   
   
   public float unTaxed() {
     return credits;
+  }
+  
+  
+  public float taxedCredits() {
+    return taxed;
   }
   
   

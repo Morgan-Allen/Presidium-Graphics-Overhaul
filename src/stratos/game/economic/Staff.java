@@ -84,6 +84,13 @@ public class Staff {
   
   
   public int workforce() {
+    int count = 0;
+    for (Actor a : workers) if (a.inWorld()) count++;
+    return count;
+  }
+  
+  
+  public int workingOrOffworld() {
     return workers.size();
   }
   

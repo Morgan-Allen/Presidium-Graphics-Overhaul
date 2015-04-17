@@ -158,8 +158,8 @@ public class I {
   
   
   public static String shorten(String s, int maxLen) {
-    if (s == null || s.length() <= maxLen) return s;
-    return s.substring(0, maxLen)+"...";
+    if (s == null || s.length() <= maxLen || s.length() <= 3) return s;
+    return s.substring(0, maxLen - 3)+"...";
   }
   
   

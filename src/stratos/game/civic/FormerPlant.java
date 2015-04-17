@@ -295,7 +295,7 @@ public class FormerPlant extends Venue {
     if (report) I.say("  Yield/day with soil bonus: "+yield);
     stocks.bumpItem(SPYCE_H, yield * spiceBonus / SDL, 10);
     stocks.bumpItem(ORES   , yield * dustBonus  / SDL, 10);
-    stocks.bumpItem(TOPES  , yield * dustBonus  / SDL, 10);
+    stocks.bumpItem(ISOTOPES  , yield * dustBonus  / SDL, 10);
     
     //
     //  In either cause, modify pollution and climate effects-
@@ -351,7 +351,7 @@ public class FormerPlant extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { ORES, TOPES, SPYCE_H };
+    return new Traded[] { ORES, ISOTOPES, SPYCE_H };
   }
   
   

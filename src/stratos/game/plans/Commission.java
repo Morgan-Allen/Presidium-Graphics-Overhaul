@@ -32,8 +32,8 @@ public class Commission extends Plan {
   final Item item;
   final Venue shop;
   
-  private float price       = -1;
-  private float orderDate   = -1;
+  private float   price     = -1;
+  private float   orderDate = -1;
   private boolean delivered = false;
   
   
@@ -108,7 +108,6 @@ public class Commission extends Plan {
 
     final boolean report = evalVerbose && I.talkAbout == actor;
     final int baseQuality = (int) baseItem.quality;
-    //final float baseAmount = baseItem.amount;
     
     int quality = Item.MAX_QUALITY + 1;
     Commission added = null;
@@ -117,7 +116,7 @@ public class Commission extends Plan {
     while (--quality > 0) {
       upgrade = Item.withQuality(baseItem.type, quality);
       final float price = upgrade.priceAt(makes);
-      if (price >= actor.gear.credits()) continue;
+      if (price >= actor.gear.allCredits()) continue;
       if (quality <= baseQuality) continue;
       
       added = new Commission(actor, upgrade, makes);
@@ -127,7 +126,7 @@ public class Commission extends Plan {
     
     if (report) {
       I.say("\nConsidering commission for "+baseItem);
-      I.say("  Owner cash:   "+actor.gear.credits());
+      I.say("  Owner cash:   "+actor.gear.allCredits());
       I.say("  New item:     "+upgrade);
       I.say("  Base price:   "+upgrade.defaultPrice());
       I.say("  Vended price: "+upgrade.priceAt(makes));
@@ -155,7 +154,7 @@ public class Commission extends Plan {
     final float price = calcPrice();
     float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
     if (orderDate == -1) {
-      if (price > actor.gear.credits()) {
+      if (price > actor.gear.allCredits()) {
         if (report) I.say("  Can't afford item.");
         return 0;
       }
@@ -250,11 +249,7 @@ public class Commission extends Plan {
   
   public boolean actionPlaceOrder(Actor actor, Venue shop) {
     if (shop.stocks.hasOrderFor(item)) return false;
-    /*
-    final Manufacture order;
-    order = new Manufacture(null, shop, item.type.materials(), item);
-    order.commission = this;
-    //*/
+    
     shop.stocks.addSpecialOrder(item);
     orderDate = shop.world().currentTime();
     
@@ -287,13 +282,21 @@ public class Commission extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (super.needsSuffix(d, "Placing order for ")) {
-      item.describeTo(d);
+    if (shop.stocks.hasOrderFor(item) && ! shop.stocks.hasItem(item)) {
+      d.append("Collecting ");
+      item.describeFor(actor, d);
+      d.append(" at ");
+      d.append(shop);
+      return;
+    }
+    if (super.needsSuffix(d, "Ordering ")) {
+      item.describeFor(actor, d);
       d.append(" at ");
       d.append(shop);
     }
   }
 }
+
 
 
 

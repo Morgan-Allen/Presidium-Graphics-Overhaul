@@ -27,6 +27,9 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     MOTIVE_EMERGENCY = 8 ,
     MOTIVE_MISSION   = 16,
     MOTIVE_CANCELLED = 32;
+  final static String MOTIVE_NAMES[] = {
+    "Leisure", "Job", "Personal", "Emergency", "Mission", "Cancelled"
+  };
   
   final static float
     NULL_PRIORITY = -100;
@@ -65,7 +68,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     this.actor   = actor  ;
     this.subject = subject;
     this.motiveProperties = motiveType;
-    this.harmFactor = harmFactor;
+    this.harmFactor       = harmFactor;
   }
   
   
@@ -356,6 +359,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public static void reportPlanDetails(Behaviour b, Actor a) {
     if (b == null) { I.say("  IS NULL"); return; }
+    
     I.say("    Plan class:    "+b.getClass().getSimpleName());
     I.say("    Priority:      "+b.priorityFor(a));
     I.say("    Valid:         "+b.valid());
@@ -365,6 +369,15 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     I.say("    Target is:     "+b.subject());
     I.say("    Target exists? "+b.subject().inWorld());
     I.say("    Target intact? "+(! b.subject().destroyed()));
+    
+    if (b instanceof Plan) {
+      final Plan p = (Plan) b;
+      I.say("    Plan properties: "+p.motiveProperties);
+      for (int i = 0; i < MOTIVE_NAMES.length; i++) {
+        final int prop = 1 << i;
+        if (p.hasMotives(prop)) I.say("    "+MOTIVE_NAMES[i]+" ("+prop+")");
+      }
+    }
   }
   
   
@@ -412,7 +425,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean hasMotives(int props) {
-    return (this.motiveProperties ^ props) == props;
+    return (this.motiveProperties & props) == props;
   }
   
   

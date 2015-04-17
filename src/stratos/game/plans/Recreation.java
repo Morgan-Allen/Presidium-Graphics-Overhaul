@@ -102,7 +102,7 @@ public class Recreation extends Plan {
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     
-    if (cost > actor.gear.credits() / 2f) return -1;
+    if (cost > actor.gear.allCredits() / 2f) return -1;
     if (cost > 0 && ! venue.isManned()) return -1;
     
     final float need = 1f - actor.health.moraleLevel();

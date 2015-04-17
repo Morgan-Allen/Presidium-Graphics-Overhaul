@@ -84,13 +84,16 @@ public class SickLeave extends Plan {
     
     if (sickbay == null || sickness == null) return -1;
     if (Treatment.hasTreatment(sickness, actor, hasBegun())) return -1;
-    if (sickbay.crowdRating(actor, Backgrounds.AS_VISITOR) > 1) return -1;
+    if (sickbay.staff.workforce() == 0) return -1;
+    final float crowding = sickbay.crowdRating(actor, Backgrounds.AS_VISITOR);
     
-    final float urgency = Treatment.dangerRating(sickness, actor);
+    float urgency = Treatment.dangerRating(sickness, actor);
+    if (urgency < crowding) return -1;
+    if (urgency < 0.5f && ! sickbay.isManned()) return -1;
     float modifier = NO_MODIFIER;
     
     if (visitCost > 0) {
-      if (visitCost > actor.gear.credits()) return -1;
+      if (visitCost > actor.gear.allCredits()) return -1;
       modifier -= actor.motives.greedPriority(visitCost);
     }
     

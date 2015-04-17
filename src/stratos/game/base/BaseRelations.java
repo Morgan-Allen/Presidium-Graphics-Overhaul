@@ -171,7 +171,7 @@ public class BaseRelations {
       if (! (o instanceof Venue)) continue;
       final Venue v = (Venue) o;
       propertyValues += Audit.propertyValue(v);
-      creditCirculation += v.stocks.credits();
+      creditCirculation += v.stocks.allCredits();
       
       for (Actor resident : v.staff.lodgers()) {
         numResidents++;

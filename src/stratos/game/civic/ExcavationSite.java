@@ -48,7 +48,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     ),
     LAND_TO_ISOTOPES = new Conversion(
       ExcavationSite.class, "land_to_isotopes",
-      TO, 1, TOPES
+      TO, 1, ISOTOPES
     );
   
   final static VenueProfile PROFILE = new VenueProfile(
@@ -197,7 +197,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public Traded[] services() {
-    return new Traded[] { ORES, TOPES };
+    return new Traded[] { ORES, ISOTOPES };
   }
   
   
@@ -239,7 +239,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (mineral == ORES) {
       return (0 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
     }
-    if (mineral == TOPES) {
+    if (mineral == ISOTOPES) {
       return (0 + structure.upgradeLevel(FUEL_CORES_MINING)) * 2;
     }
     if (mineral == ARTIFACTS) {

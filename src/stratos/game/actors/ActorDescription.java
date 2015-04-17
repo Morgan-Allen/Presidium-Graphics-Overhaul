@@ -142,16 +142,20 @@ public class ActorDescription implements Qualities {
   private void describeGear(Description d, HUD UI) {
     //
     //  First, describe your finances:
-    d.append("Inventory: ");
-    final int credits = (int) h.gear.credits();
+    d.append("Credits: ");
+    final int credits = (int) h.gear.taxedCredits();
     if (credits > 0) {
-      d.append("\n  "+credits+" Credits");
+      d.append("  "+credits+" Savings");
       d.append(" ("+(int) h.gear.unTaxed()+" Untaxed)");
     }
     if (credits < 0) d.append("\n  "+(0 - credits)+" Credits in debt");
     //
     //  Then any other items carried:
-    for (Item item : h.gear.allItems()) d.append("\n  "+item);
+    final Batch <Item> carried = h.gear.allItems();
+    if (carried.size() > 0) {
+      d.append("\n\nCarried: ");
+      for (Item item : carried) d.append("\n  "+item);
+    }
   }
   
   

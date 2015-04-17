@@ -105,11 +105,11 @@ public final class Economy {
       BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 10,
       "Common metal ores, used in construction and industry"
     ),
-    TOPES = new Traded(
-      BC, "Topes"    , "isotopes.gif" , FORM_MATERIAL, 35,
-      "Heavy isotopes, often toxic, used in nuclear synthesis"
+    ISOTOPES = new Traded(
+      BC, "Isotopes" , "fuel rods.gif" , FORM_MATERIAL, 35,
+      "Heavy or radioactive elements used in nuclear synthesis"
     ),
-    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, ORES, TOPES),
+    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, ORES, ISOTOPES),
     
     PLASTICS = new Traded(
       BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25,
@@ -120,7 +120,7 @@ public final class Economy {
       "Durable and heat-resistant, needed for heavy engineering"
     ),
     CIRCUITRY = new Traded(
-      BC, "Circuitry", "inscriptions.gif", FORM_MATERIAL, 80,
+      BC, "Circuitry", "inscription.gif", FORM_MATERIAL, 80,
       "Used to manufacture terminals and other advanced devices"
     ),
     TERMINALS = new Traded(

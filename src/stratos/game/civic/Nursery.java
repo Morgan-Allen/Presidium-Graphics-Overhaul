@@ -154,7 +154,6 @@ public class Nursery extends Venue implements TileConstants {
     rating += world.terrain().fertilitySample(under);
     rating /= 1 + (distance / Stage.SECTOR_SIZE);
     rating *= 10 * demand;
-    I.say("Nursery rating: "+rating);
     return rating;
   }
   
@@ -178,15 +177,21 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public boolean couldPlant(Tile t) {
-    if (PavingMap.pavingReserved(t, true) || t.reserved()) return false;
-    return true;
+    if (t.onTop() instanceof Crop) return true;
+    else if (PavingMap.pavingReserved(t, true) || t.reserved()) return false;
+    else return true;
   }
   
   
   protected void checkCropStates() {
     final boolean report = verbose && I.talkAbout == this;
+    if (toPlant == null || toPlant.length == 0) {
+      if (report) I.say("\nNO CROPS TO CHECK");
+      needsTending = 0;
+      return;
+    }
     
-    if (report) I.say("CHECKING CROP STATES");
+    if (report) I.say("\nCHECKING CROP STATES");
     needsTending = 0;
     for (Tile t : toPlant) {
       final Crop c = plantedAt(t);

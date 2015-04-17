@@ -325,7 +325,7 @@ public class Human extends Actor implements Qualities {
   
   
   public String fullName() {
-    return career.fullName();
+    return I.shorten(career.fullName(), 27);
   }
   
   

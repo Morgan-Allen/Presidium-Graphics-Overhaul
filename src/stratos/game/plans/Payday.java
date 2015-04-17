@@ -44,6 +44,8 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Consider collecting pay at the nearest Admin facility, day or night?
+
 public class Payday extends Plan {
   
   
@@ -85,27 +87,33 @@ public class Payday extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     
     final Property work = actor.mind.work();
-    if (work == null || ! work.staff().onShift(actor)) return -1;
+    if (work == null || work.staff().shiftFor(actor) == Venue.OFF_DUTY) {
+      if (report) I.say("\nCannot collect pay- no employer or off-duty.");
+      return -1;
+    }
     
     final Profile p = pays.base().profiles.profileFor(actor);
     if (p.salary() == 0) return -1;
     
-    final float payGap = p.daysSincePayAssess(pays.world());
-    if (payGap < 2) {
-      if (report) I.say("\nPay gap is: "+payGap+" days");
-      return 0;
+    final float wagesDue = p.wagesDue();
+    final float payGap = p.daysSinceWageAssessed(pays.world());
+    if (payGap < 2 && wagesDue == 0) {
+      if (report) I.say("\nPay gap is: "+payGap+" days, no payment available");
+      return -1;
     }
-    float modifier = Nums.clamp(payGap, 0, 2) - 1.5f;
+    float impetus = actor.motives.greedPriority(wagesDue);
+    float modifier = (Nums.clamp(payGap, 0, 2) - 1) * CASUAL / 2f;
     modifier = NO_MODIFIER + (modifier * ROUTINE);
     
     final float priority = priorityForActorWith(
-      actor, pays, ROUTINE,
-      modifier, NO_HARM,
+      actor, pays,
+      impetus, modifier, NO_HARM,
       NO_COMPETITION, NO_FAIL_RISK,
       NO_SKILLS, NO_TRAITS, PARTIAL_DISTANCE_CHECK, report
     );
     if (report) {
-      I.say("  Payment due: "+p.paymentDue()+", pay gap: "+payGap+" days");
+      I.say("  Payment due: "+wagesDue+", pay gap: "+payGap+" days");
+      I.say("  Greed impetus:  "+impetus );
       I.say("  Final priority: "+priority);
     }
     return priority;
@@ -123,7 +131,7 @@ public class Payday extends Plan {
     //  TODO:  Consider making this an automatic crime?  Weight the priority,
     //  anyway...
     final Profile p = actor.base().profiles.profileFor(actor);
-    if (p.paymentDue() == 0) {
+    if (p.wagesDue() == 0) {
       if (report) I.say("  Doing amateur audit.");
       return Audit.nextAmateurAudit(actor);
     }
@@ -145,7 +153,7 @@ public class Payday extends Plan {
     final Profile p = venue.base().profiles.profileFor(actor);
     if (report) I.say("Getting paid at "+venue);
     
-    final float wages = p.paymentDue();
+    final float wages = p.wagesDue();
     if (report) I.say("Wages due "+wages);
     actor.gear.incCredits(wages);
     p.clearWages(venue.world());

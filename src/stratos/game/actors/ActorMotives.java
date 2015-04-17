@@ -201,7 +201,7 @@ public class ActorMotives {
     final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
     final Profile p = actor.base().profiles.profileFor(actor);
     
-    float baseUnit = actor.gear.credits();
+    float baseUnit = actor.gear.allCredits();
     baseUnit += ((100f / GameSettings.SPEND_DIVISOR) + p.salary()) / 2;
     baseUnit /= Backgrounds.NUM_DAYS_PAY;
     if (baseUnit <= 0) return Plan.PARAMOUNT;
@@ -217,7 +217,7 @@ public class ActorMotives {
     
     if (report) {
       I.say("\nEvaluating greed value of "+creditsPerDay+" credits.");
-      I.say("  Salary: "+p.salary()+", credits: "+actor.gear.credits());
+      I.say("  Salary: "+p.salary()+", credits: "+actor.gear.allCredits());
       I.say("  Pay interval: "+Backgrounds.NUM_DAYS_PAY+", greed: "+greed);
       I.say("  Base unit: "+baseUnit+", magnitude: "+mag);
       I.say("  Final level: "+level);

@@ -338,6 +338,8 @@ public class FindWork extends Plan {
   
   
   //  TODO:  Store this in the ActorMotives class instead.
+  //  TODO:  Include resigning a previous application as a step.
+  
   public static void assignAmbition(
     Actor actor, Background position, Property at, float rating
   ) {
@@ -345,9 +347,12 @@ public class FindWork extends Plan {
     if (finding == null) actor.mind.assignToDo(
       finding = new FindWork(actor, null, null)
     );
+    if (finding.employer != at || finding.position != position) {
+      finding.cancelApplication();
+    }
     finding.position = position;
-    finding.employer = at;
-    finding.rating = rating;
+    finding.employer = at      ;
+    finding.rating   = rating  ;
     finding.calcHiringFee();
   }
   

@@ -140,7 +140,6 @@ public class EcologistStation extends Venue {
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;
-    
     final Choice choice = new Choice(actor);
     //
     //  If you're really short on food, consider foraging in the surrounds or

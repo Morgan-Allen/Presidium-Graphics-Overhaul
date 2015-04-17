@@ -34,6 +34,15 @@ import static stratos.game.economic.Economy.*;
       Reactor.class, ALL_UPGRADES
     ),
     //*/
+/*
+//
+//  If possible, assist in recovery of psi points-
+final int PB = structure.upgradeLevel(QUALIA_WAVEFORM_INTERFACE);
+final Actor ruler = base().ruler();
+if (PB > 0 && ruler != null && ruler.aboard() instanceof Bastion) {
+  ruler.health.gainConcentration(PB / 100f);
+}
+//*/
 
 
 
@@ -75,12 +84,12 @@ public class Reactor extends Venue {
   final public static Conversion
     METALS_TO_FUEL = new Conversion(
       Reactor.class, "metals_to_fuel",
-      1, ORES, TO, 1, TOPES,
+      1, ORES, TO, 1, ISOTOPES,
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     TOPES_TO_ANTIMASS = new Conversion(
       Reactor.class, "fuel_to_antimass",
-      4, TOPES, TO, 1, ANTIMASS,
+      4, ISOTOPES, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
     )
   ;
@@ -238,31 +247,21 @@ public class Reactor extends Venue {
     if (! structure.intact()) return;
     
     //  Calculate output of power and consumption of fuel-
-    float fuelConsumed = 0.01f, powerOutput = 25;
+    float fuelConsumed = 1f / Stage.STANDARD_DAY_LENGTH, powerOutput = 25;
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
     powerOutput *= (2f + structure.upgradeLevel(FUSION_CONFINEMENT)) / 2;
     
-    final Item fuel = Item.withAmount(TOPES, fuelConsumed);
+    //  TODO:  Load fuel into the core gradually- (make a supervision task.)
+    final Item fuel = Item.withAmount(ISOTOPES, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
-    else powerOutput /= 5;
-    ///I.say("POWER OUTPUT: "+powerOutput);
+    else powerOutput /= 2;
     structure.assignOutputs(Item.withAmount(POWER, powerOutput));
     
     //  Update demand for raw materials-
-    stocks.forceDemand(TOPES, 5 + (powerOutput / 5f), false);
+    stocks.forceDemand(ISOTOPES, 5, false);
     if (structure.upgradeLevel(WASTE_PROCESSING) > 0) {
       stocks.translateDemands(METALS_TO_FUEL, 1);
     }
-    //  TODO:  RESERVE THIS FOR THE PSEER SCHOOL
-    /*
-    //
-    //  If possible, assist in recovery of psi points-
-    final int PB = structure.upgradeLevel(QUALIA_WAVEFORM_INTERFACE);
-    final Actor ruler = base().ruler();
-    if (PB > 0 && ruler != null && ruler.aboard() instanceof Bastion) {
-      ruler.health.gainConcentration(PB / 100f);
-    }
-    //*/
     //
     //  Output pollution-
     int pollution = 10;
@@ -432,6 +431,10 @@ public class Reactor extends Venue {
   
   
   public String helpInfo() {
+    if (inWorld() && ! stocks.hasEnough(ISOTOPES)) {
+      return
+        "Power output will be limited without additional "+ISOTOPES+".";
+    }
     return
       "The Reactor provides a copious supply of power to your settlement "+
       "and is essential to manufacturing atomics or antimass, but can "+

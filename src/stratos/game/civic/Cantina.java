@@ -231,7 +231,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     if (stocks.amountOf(SOMA) <= 0) return null;
     if (actor.traits.traitLevel(Conditions.SOMA_HAZE) > 0) return null;
     final float price = priceFor(SOMA) / 10f;
-    if ((price > actor.gear.credits() / 2) || ! isManned()) return null;
+    if ((price > actor.gear.allCredits() / 2) || ! isManned()) return null;
     
     final Action drops = new Action(
       actor, this,
@@ -249,7 +249,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   public boolean actionDropSoma(Actor actor, Venue venue) {
     final float price = venue.priceFor(SOMA) / 10f;
-    if (price > actor.gear.credits() / 2) return false;
+    if (price > actor.gear.allCredits() / 2) return false;
     venue.stocks.incCredits(price);
     actor.gear.incCredits(-price);
     stocks.removeItem(Item.withAmount(SOMA, 0.1f));
@@ -264,7 +264,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   private Action nextGambleFor(Actor actor) {
     if (isGambling(actor)) return null;
     final int price = (int) GAMBLE_PRICE;
-    if ((price > actor.gear.credits() / 2) || ! isManned()) return null;
+    if ((price > actor.gear.allCredits() / 2) || ! isManned()) return null;
     final Action gamble = new Action(
       actor, this,
       this, "actionGamble",

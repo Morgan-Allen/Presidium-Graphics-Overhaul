@@ -78,6 +78,13 @@ public class BaseProfiles {
   }
   
   
+  public float salaryPerDay(Actor actor) {
+    final Profile match = allProfiles.get(actor);
+    if (match == null) return 0;
+    return match.salary() / Backgrounds.NUM_DAYS_PAY;
+  }
+  
+  
   
   /**  General base-wide settings, such as legislation, import quotas, or tax
     *  rates:

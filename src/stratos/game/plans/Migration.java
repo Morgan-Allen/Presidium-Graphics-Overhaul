@@ -88,7 +88,7 @@ public class Migration extends Plan {
       interrupt(INTERRUPT_NO_PREREQ);
       return null;
     }
-    if (actor.gear.credits() < BOARD_PRICE) return null;
+    if (actor.gear.allCredits() < BOARD_PRICE) return null;
     if (initTime == -1) {
       final Action thinks = new Action(
         actor, actor.aboard(),
@@ -127,7 +127,7 @@ public class Migration extends Plan {
     actor.mind.setHome(null);
     if (actor.aboard() == leaves) return true;
     final int price = BOARD_PRICE;
-    if (actor.gear.credits() < price) return false;
+    if (actor.gear.allCredits() < price) return false;
     actor.gear.incCredits(0 - price);
     leaves.cargo.incCredits(price);
     actor.goAboard(leaves, actor.world());

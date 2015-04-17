@@ -11,13 +11,15 @@ import stratos.util.*;
 
 
 
-//  TODO:  Your citizens need to be more sensible about applying to the same
-//         damn position that they already have.
+
+//  TODO:  Better paving-layouts for nursery-plantations would be nice.
+
+//  TODO:  Refreshed art for solar banks, arcologies and shield walls.
+
+//  TODO:  Prevent over-cooperation in building-projects.
 
 //  TODO:  Some way to harvest meat from creatures you kill would be
 //         beneficial.
-
-//  TODO:  Better paving-layouts for nursery-plantations would be nice.
 
 //  TODO:  X AND Y COORDS ARE REVERSED ON THE MAP!  THAT'S REALLY CONFUSING!
 

@@ -108,29 +108,40 @@ public class Profile {
     
     final Background vocation = actor.mind.vocation();
     if (vocation == null || actor.mind.work() == null) return 0;
-    return vocation.defaultSalary;
+    //
+    //  The ruler and his household have direct access to the funds of the
+    //  state, so they get somewhat different treatment.
+    final Actor ruler = actor.base().ruler();
+    float mult = 1;
+    if (actor == ruler) {
+      mult = 0;
+    }
+    if (actor.mind.home() == ruler.mind.home()) {
+      mult = (1 - ruler.base().relations.communitySpirit());
+    }
+    return vocation.defaultSalary * mult;
   }
   
   
-  public float paymentDue() {
-    return paymentDue;
-  }
-  
-  
-  public void incPaymentDue(float inc) {
-    paymentDue += inc;
-  }
-  
-  
-  public float daysSincePayAssess(Stage world) {
+  public float daysSinceWageAssessed(Stage world) {
     final float interval = world.currentTime() - lastWageEval;
     return interval / Stage.STANDARD_DAY_LENGTH;
   }
   
   
+  public float wagesDue() {
+    return paymentDue;
+  }
+  
+  
+  public void incWagesDue(float inc, Stage world) {
+    paymentDue += inc;
+    lastWageEval = world.currentTime();
+  }
+  
+  
   public void clearWages(Stage world) {
     paymentDue = 0;
-    lastWageEval = world.currentTime();
   }
 }
 

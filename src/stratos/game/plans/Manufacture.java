@@ -270,7 +270,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public boolean valid() {
-    if (GameSettings.hardCore && ! hasNeeded()) return false;
+    if ((GameSettings.hardCore || commission) && ! hasNeeded()) return false;
     return super.valid();
   }
   

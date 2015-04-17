@@ -154,7 +154,7 @@ public class VenuePane extends SelectionPane {
     d.append(v.structure().repair()+" / "+v.structure().maxIntegrity());
     
     final Inventory i = v.inventory();
-    d.append("\n  Credits: "+(int) i.credits());
+    d.append("\n  Credits: "+(int) i.allCredits());
     d.append(" ("+(int) i.unTaxed()+" Untaxed)");
     
     final float squalor = 0 - world.ecology().ambience.valueAt(v);
@@ -243,6 +243,8 @@ public class VenuePane extends SelectionPane {
       if (sortedOrders.includes(i)) continue;
       sortedOrders.add(i);
     }
+    
+    ((Text) d).cancelBullet();
     if (sortedOrders.size() > 0) {
       empty = false;
       d.append("\n\nSpecial Orders:");
@@ -449,6 +451,8 @@ public class VenuePane extends SelectionPane {
       d.append(" ");
       d.append(link);
     }
+    
+    //  TODO:  INCLUDE A RE-LOCATE OPTION TOO!
   }
   
   

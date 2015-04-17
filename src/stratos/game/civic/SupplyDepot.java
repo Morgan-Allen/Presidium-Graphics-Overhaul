@@ -35,7 +35,7 @@ public class SupplyDepot extends Venue {
   final static Traded
     ALL_TRADE_TYPES[] = {
       CARBS, PROTEIN, CATALYST, POLYMER,
-      ORES, TOPES, PARTS, PLASTICS
+      ORES, ISOTOPES, PARTS, PLASTICS
     },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
@@ -211,26 +211,6 @@ public class SupplyDepot extends Venue {
   public Traded[] services() {
     return ALL_SERVICES;
   }
-  
-  /*
-  public void updatePaving(boolean inWorld) {
-    super.updatePaving(inWorld);
-    
-    final Tile at = mainEntrance();
-    if (inWorld) {
-      final Batch <Tile> e = new Batch <Tile> ();
-      final float range = Stage.SECTOR_SIZE * 2;
-      final Presences p = world.presences;
-      
-      for (Object o : p.matchesNear(SERVICE_COMMERCE, this, range)) {
-        final Venue v = (Venue) o;
-        e.add(v.mainEntrance());
-      }
-      base.transport.updateJunction(this, at, e, true);
-    }
-    else base.transport.updateJunction(this, at, null, false);
-  }
-  //*/
   
   
   

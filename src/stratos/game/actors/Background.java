@@ -167,7 +167,8 @@ public class Background extends Index.Entry implements Session.Saveable {
   protected ImageAsset costumeFor(String texName) {
     return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
   }
-
+  
+  
   protected ImageAsset portraitFor(String texName) {
     return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
   }

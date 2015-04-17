@@ -786,14 +786,14 @@ public interface Backgrounds {
     MINISTER_FOR_ACCOUNTS = new Background(
       Backgrounds.class, "Minister for Accounts",
       "NO DESCRIPTION YET",
-      "vendor_skin.gif", null,
+      "vendor_skin.gif", "vendor_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, ACCOUNTING, PRACTICED, SOCIAL_HISTORY, COUNSEL, SUASION
     ),
     WAR_MASTER = new Background(
       Backgrounds.class, "War Master",
       "NO DESCRIPTION YET",
-      "highborn_male_skin.gif", null,
+      "highborn_male_skin.gif", "militant_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
       SURVEILLANCE, MARKSMANSHIP

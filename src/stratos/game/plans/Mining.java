@@ -37,15 +37,16 @@ public class Mining extends Plan {
   final public static int
     MAX_SAMPLE_STORE = 50,
     DEFAULT_TILE_DIG_TIME = Stage.STANDARD_DAY_LENGTH / 3,
-    SLAG_RATIO = 10;
+    HARVEST_MULT = 5 ,
+    SLAG_RATIO   = 10;
   
   final public static Traded MINED_TYPES[] = {
-    SLAG, ORES, TOPES, ARTIFACTS
+    SLAG, ORES, ISOTOPES, ARTIFACTS
   };
   final static Table TYPE_MAP = Table.make(
     TYPE_RUBBLE  , SLAG     ,
     TYPE_METALS  , ORES     ,
-    TYPE_ISOTOPES, TOPES ,
+    TYPE_ISOTOPES, ISOTOPES ,
     TYPE_RUINS   , ARTIFACTS
   );
   
@@ -347,8 +348,8 @@ public class Mining extends Plan {
     
     if (report) I.say("\nMINERALS LEFT: "+left);
     final Item
-      mined = Item.withAmount(left.type, left.amount * success),
-      slag =  Item.withAmount(SLAG     , SLAG_RATIO  * success);
+      mined = Item.withAmount(left.type, left.amount * HARVEST_MULT * success),
+      slag =  Item.withAmount(SLAG     , left.amount * SLAG_RATIO   * success);
     actor.gear.addItem(mined);
     actor.gear.addItem(slag );
     

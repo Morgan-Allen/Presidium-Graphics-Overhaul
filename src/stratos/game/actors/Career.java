@@ -509,15 +509,18 @@ public class Career implements Qualities {
       }
       else actor.gear.addItem(Item.withAmount(gear, 1 + Rand.index(3)));
     }
-    
-    final float cash = (50 + Rand.index(100)) * BQ / 2f;
-    if (cash > 0) actor.gear.incCredits(cash);
-    else actor.gear.incCredits(Rand.index(5));
-    actor.gear.taxDone();
-    
     actor.gear.boostShields(actor.gear.maxShields(), true);
+    actor.gear.incPowerCells(ActorGear.MAX_POWER_CELLS);
+    
+    //  TODO:  BASE THIS OFF THE ACQUISITIVE-TRAIT
+    float cash = ((Rand.num() + 0.5f) * v.defaultSalary) + Rand.index(10);
+    actor.gear.incCredits(cash / (2 * GameSettings.SPEND_DIVISOR));
+    actor.gear.taxDone();
   }
 }
+
+
+
 
 
 

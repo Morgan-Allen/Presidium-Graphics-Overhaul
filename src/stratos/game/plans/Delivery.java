@@ -161,7 +161,7 @@ public class Delivery extends Plan {
     if (! checkValidPayment(pays)) return null;
     
     if (priceLimit && pays != null) {
-      final float maxPrice = pays.inventory().credits() / 2;
+      final float maxPrice = pays.inventory().allCredits() / 2;
       float price = -1;
       final Batch <Item> canAfford = new Batch <Item> ();
       
@@ -284,7 +284,7 @@ public class Delivery extends Plan {
         price += i.priceAt(origin);
         modifier += ActorMotives.rateDesire(i, null, actor);
       }
-      if (price > actor.gear.credits()) {
+      if (price > actor.gear.allCredits()) {
         if (report) I.say("  Insufficient funds!");
         return -1;
       }
@@ -560,7 +560,7 @@ public class Delivery extends Plan {
     
     d.append("Delivering ");
     for (Item i : items) {
-      i.describeTo(d);
+      i.describeFor(actor, d);
       if (i != Visit.last(items)) d.append(", ");
     }
     

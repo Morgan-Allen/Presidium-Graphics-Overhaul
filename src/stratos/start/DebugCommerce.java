@@ -77,11 +77,12 @@ public class DebugCommerce extends Scenario {
     //  TODO:  Try giving the residents pots of money instead...
     //GameSettings.freeHousingLevel = 0;
     
-    if (true ) shippingScenario(world, base, UI);
+    if (false) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
+    if (true ) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
-    if (false) farDeliveryScenario(world, base, UI);
+    if (false) haulingScenario (world, base, UI);
     if (false) shoppingScenario(world, base, UI);
   }
   
@@ -166,18 +167,19 @@ public class DebugCommerce extends Scenario {
     UI.selection.pushSelection(citizen);
     
     final Venue foundry = new EngineerStation(base);
-    Placement.establishVenue(
-      foundry, 6, 6, true, world,
-      new Human(Backgrounds.TECHNICIAN, base),
-      new Human(Backgrounds.TECHNICIAN, base),
-      new Human(Backgrounds.ARTIFICER , base)
-    );
-    foundry.stocks.bumpItem(Economy.ORES , 40);
-    foundry.stocks.bumpItem(Economy.PARTS, 20);
+    Placement.establishVenue(foundry, 6, 6, true, world);
+    base.setup.fillVacancies(foundry, true);
+    foundry.stocks.bumpItem(Economy.ORES , 10);
+    foundry.stocks.bumpItem(Economy.PARTS, 2 );
+    
+    final Venue reactor = new Reactor(base);
+    Placement.establishVenue(reactor, 3, 6, true, world);
+    base.setup.fillVacancies(reactor, true);
+    reactor.stocks.bumpItem(ISOTOPES, 10);
   }
   
   
-  private void farDeliveryScenario(Stage world, Base base, BaseUI UI) {
+  private void haulingScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.hireFree = true;
     
     final Venue depot    = new SupplyDepot  (base);

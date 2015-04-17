@@ -215,13 +215,19 @@ public class Item {
   /**  Rendering/interface functions-
     */
   public void describeTo(Description d) {
+    describeFor(null, d);
+  }
+  
+  
+  public void describeFor(Actor owns, Description d) {
     //
     //  First describe yourself:
     String s = ""+type;
     if (
       type.form == FORM_DEVICE ||
       type.form == FORM_OUTFIT ||
-      type.form == FORM_USABLE
+      type.form == FORM_USABLE ||
+      type.form == FORM_SPECIAL
     ) {
       s = descQuality()+" "+s;
     }
@@ -234,7 +240,7 @@ public class Item {
     if (refers instanceof Passive) {
       d.append(((Passive) refers).describePassiveItem(this));
     }
-    else if (refers != null) {
+    else if (refers != null && refers != owns) {
       d.append(" (");
       d.append(refers);
       d.append(")");
@@ -249,7 +255,7 @@ public class Item {
   
   public String toString() {
     final StringDescription SD = new StringDescription();
-    describeTo(SD);
+    describeFor(null, SD);
     return SD.toString();
   }
 }

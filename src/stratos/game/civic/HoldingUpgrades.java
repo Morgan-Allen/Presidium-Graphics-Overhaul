@@ -161,7 +161,7 @@ public class HoldingUpgrades {
   
   protected static boolean canAfford(Holding holding, Traded need) {
     for (Actor a : holding.staff.lodgers()) {
-      if (a.gear.credits() < (need.basePrice() * 2)) return false;
+      if (a.gear.allCredits() < (need.basePrice() * 2)) return false;
     }
     return true;
   }

@@ -101,7 +101,7 @@ public class RosterPane extends SelectionPane {
     final Description d = detailText;
     
     if (category() == CAT_APPLIES) {
-      detailText.append("\nOffworld Applicants:");
+      detailText.append("Offworld Applicants:");
       for (Actor a : listApplied(base)) {
         final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
         VenuePane.descApplicant(a, findWork, detailText, UI);
@@ -124,25 +124,33 @@ public class RosterPane extends SelectionPane {
       }
     }
     if (category() == CAT_CURRENT) {
-      detailText.append("\nCurrent roster:");
+      detailText.append("Current roster:");
+      float allSalaries = 0;
       
       for (Object m : base.world.presences.matchesNear(base, null, -1)) {
         final Venue v = (Venue) m;
-        if (v.staff.workforce() == 0) continue;
-        detailText.append("\n\n  ");
+        float venueSalaries = 0;
+        if (v.staff.workingOrOffworld() == 0) continue;
+        
+        detailText.append("\n\n");
         detailText.append(v);
         for (Actor a : v.staff.workers()) {
-          detailText.append("\n    ");
+          detailText.append("\n  ");
           detailText.append(a);
           detailText.append(" ("+a.mind.vocation()+")");
+          venueSalaries += base.profiles.salaryPerDay(a);
         }
+        
+        allSalaries += venueSalaries;
+        final String salaryLabel = I.shorten(venueSalaries, 1);
+        detailText.append("\n  Salaries per day: "+salaryLabel);
       }
+      
+      final String salaryLabel = I.shorten(allSalaries, 1);
+      detailText.append("\n\nTotal Salaries per day: "+salaryLabel);
     }
   }
 }
-
-
-
 
 
 
