@@ -34,7 +34,7 @@ public final class Spacing implements TileConstants {
     new Tile[12],
     new Tile[16],
     new Tile[20]
-  };
+  }, PERIM_NIL[] = new Tile[0];
   final static Element NEAR_ARRAYS[][] = {
     new Element[8 ],
     new Element[12],
@@ -71,9 +71,9 @@ public final class Spacing implements TileConstants {
       maxY = (int) (minY + area.ydim() + 1),
       wide = 1 + maxX - minX,
       high = 1 + maxY - minY;
-    ///if (wide < 3) I.say("WIDE IS: "+wide+", area: "+area);
     final Tile perim[];
-    if (wide == high && wide <= 6) perim = PERIM_ARRAYS[wide - 3];
+    if (wide < 3) return PERIM_NIL;
+    else if (wide == high && wide <= 6) perim = PERIM_ARRAYS[wide - 3];
     else perim = new Tile[(wide + high - 2) * 2];
     int tX, tY, pI = 0;
     for (tX = minX; tX++ < maxX;) perim[pI++] = world.tileAt(tX, minY);

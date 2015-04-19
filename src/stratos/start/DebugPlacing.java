@@ -97,12 +97,12 @@ public class DebugPlacing extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (true ) configEcology  (world, base, UI);
+    if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
-    if (false) configPlantTest(world, base, UI);
+    if (true ) configPlantTest(world, base, UI);
   }
   
   
@@ -110,9 +110,6 @@ public class DebugPlacing extends Scenario {
     GameSettings.hireFree = false;
     
     Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
-    
-    if (true) return;
-    
     
     Flora.populateFlora(world);
     
@@ -207,7 +204,7 @@ public class DebugPlacing extends Scenario {
     Placement.establishVenue(station, 8, 8, true, world);
     
     final Nursery site = new Nursery(base);
-    site.setPosition(8, 15, world);
+    site.setupWith(world.tileAt(8, 15), null);
     if (site.canPlace()) site.doPlacement();
   }
   

@@ -116,7 +116,7 @@ public class Profile {
     if (actor == ruler) {
       mult = 0;
     }
-    if (actor.mind.home() == ruler.mind.home()) {
+    if (ruler != null && actor.mind.home() == ruler.mind.home()) {
       mult = (1 - ruler.base().relations.communitySpirit());
     }
     return vocation.defaultSalary * mult;

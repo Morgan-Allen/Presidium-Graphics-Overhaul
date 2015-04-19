@@ -99,23 +99,19 @@ public class Combat extends Plan implements Qualities {
   
   protected float getPriority() {
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
+    
+    if (! PlanUtils.isArmed(actor)) setCompetence(0);
+    else setCompetence(successChanceFor(actor));
+    
     return PlanUtils.combatPriority(
       actor, subject, motiveBonus(), teamSize, true
     );
   }
   
   
-  public float competence() {
-    if (actor == null || ! PlanUtils.isArmed(actor)) return 0;
-    if (competence == -1) successChanceFor(actor);
-    return competence;
-  }
-  
-  
   public float successChanceFor(Actor actor) {
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
-    this.competence = PlanUtils.combatWinChance(actor, subject, teamSize);
-    return competence;
+    return PlanUtils.combatWinChance(actor, subject, teamSize);
   }
   
   

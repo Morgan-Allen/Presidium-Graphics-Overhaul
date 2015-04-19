@@ -159,6 +159,11 @@ public class Exploring extends Plan implements Qualities {
   }
   
   
+  public float successChanceFor(Actor actor) {
+    return successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
+  }
+  
+  
   public float competence() {
     if (actor == null) return 0;
     if (PlanUtils.isArmed(actor)) return (super.competence() + 1f) / 2;

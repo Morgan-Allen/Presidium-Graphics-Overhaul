@@ -168,13 +168,13 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     if (v.stocks.relativeShortage(POWER) >= 0.5f) {
       needsOkay = false;
       s.append(
-        "Manufacturing will be slowed without enough "+POWER+"."
+        "Production will be slowed without enough "+POWER+"."
       );
     }
     else for (Item r : c.raw) if (v.stocks.relativeShortage(r.type) >= 1) {
       needsOkay = false;
       s.append(
-        "Manufacturing will be slowed without enough "+r.type+"."
+        "Production would be faster with a supply of "+r.type+"."
       );
       break;
     }

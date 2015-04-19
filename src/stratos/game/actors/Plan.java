@@ -56,7 +56,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   private int   motiveProperties = -1;
   private float motiveBonus      =  0;
-  protected float harmFactor = 0, competence = -1;
+  private float harmFactor = 0, competence = -1;
   private boolean begun;  //  TODO:  Have a general 'stage' counter?
   
   
@@ -434,6 +434,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  
+  
+  
+  //  TODO:  Get rid of this.  Rely on the simpler, albeit more specialised,
+  //  eval-functions in the PlanUtils class.
+  
   final public static float
     
     NO_FAIL_RISK      = 0.0f,
@@ -505,7 +511,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     this.harmFactor    = subjectHarm ;
     //this.competeFactor = peersCompete;
-    final boolean mission = hasMotives(MOTIVE_MISSION);
+    //final boolean mission = hasMotives(MOTIVE_MISSION);
     float priority = PARAMOUNT, relation = 0;
     
     //  Firstly, we calculate the effect of internal and external motivations,
@@ -547,6 +553,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     //  Okay.  You want to have 10 in at *least* one relevant skill in order for
     //  the activity to be at full strength.
+    /*
     if (baseSkills != null && baseSkills.length > 0 && priority > 0) {
       if (report) I.say("  Getting skill effects...");
       float maxSkill = 0, avgSkill = 0;
@@ -567,6 +574,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
         I.say("  Estimated competence is:     "+competence);
       }
     }
+    //*/
     
     //  You also want to have at least one relevant trait in the *positive*
     //  range, in order for the activity to be at full strength.  Traits in the
@@ -599,10 +607,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       rangePenalty  = 0,
       dangerPenalty = 0;
     
+    this.competence = this.successChanceFor(actor);
+    
     if (failRisk > 0) {
-      final float chance = successChanceFor(actor);
-      if (report) I.say("  Success chance:              "+chance);
-      chancePenalty = (1 - chance) * failRisk * PARAMOUNT;
+      if (report) I.say("  Success chance:              "+competence);
+      chancePenalty = (1 - competence) * failRisk * PARAMOUNT;
     }
     
     if (distanceCheck != 0) {
@@ -633,6 +642,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   //  TODO:  Consider making this abstract?
   public float successChanceFor(Actor actor) { return 1; }
   
+  //  TODO:  This also needs to be automated.
+  protected void setCompetence(float c) {
+    this.competence = c;
+  }
+  
   //  TODO:  Pass in a conversion instead (or allow for that.)
   
   protected float successForActorWith(
@@ -658,6 +672,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   public float harmFactor() { return harmFactor; }
   public float competence() { return competence; }
   
+  public int motiveProperties() { return motiveProperties; }
   
   protected void onceInvalid() {}
   

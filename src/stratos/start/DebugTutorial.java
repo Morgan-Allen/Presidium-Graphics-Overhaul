@@ -14,14 +14,15 @@ import stratos.util.*;
 
 //  TODO:  Better paving-layouts for nursery-plantations would be nice.
 
-//  TODO:  Refreshed art for solar banks, arcologies and shield walls.
+//  TODO:  Refreshed art for shield walls.
+//  TODO:  Refreshed art for kommando lodge.
 
 //  TODO:  Prevent over-cooperation in building-projects.
 
-//  TODO:  Some way to harvest meat from creatures you kill would be
-//         beneficial.
+//  TODO:  Add drilling to the trooper lodge.
 
-//  TODO:  X AND Y COORDS ARE REVERSED ON THE MAP!  THAT'S REALLY CONFUSING!
+//  TODO:  Add flesh still as satellite structure for kommando lodge and make
+//         sure enhanced meat-extraction works.
 
 
 /*
@@ -152,6 +153,12 @@ INTERFACE AND DEBUGGING
 
 *  Read definitions from .xml and allow for later string translations.
 //*/
+
+
+//  TODO:  X AND Y COORDS ARE REVERSED ON THE MAP!  THAT'S REALLY CONFUSING!
+//  TODO:  Need-indicators for structures (water/power/etc. are sometimes lit-
+//         up and sometimes not, depending on selection & camera position.)
+
 
 
 

@@ -17,8 +17,6 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  The art here needs revision.
-
 public class Arcology extends Venue {
   
   
@@ -55,7 +53,6 @@ public class Arcology extends Venue {
   );
   
   
-  private int facing = UNUSED;
   private float plantsHealth = 0.5f;
   
   
@@ -81,6 +78,11 @@ public class Arcology extends Venue {
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
+    
+    //  TODO:  You need to insert a special widget here at every 4th space, and
+    //  cap correctly around that...
+    
+    
     final Object model = Placement.setupSegment(
       this, position, area, others, MODELS_X_AXIS, MODELS_Y_AXIS
     );
@@ -112,8 +114,8 @@ public class Arcology extends Venue {
       structure.setAmbienceVal(Ambience.NO_AMBIENCE_FX);
     }
   }
-
-
+  
+  
   public Background[] careers() {
     return null;
   }
@@ -133,15 +135,16 @@ public class Arcology extends Venue {
   
   
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    final String status = "Plant health: "+I.shorten(plantsHealth, 1);
+    final int gP = (int) (plantsHealth * 100);
+    final String status = "Plant growth: "+gP+"%";
     return VenuePane.configSimplePanel(this, panel, UI, status);
   }
   
   
   public String helpInfo() {
     return
-      "Arcology provides beauty and life support to your settlement, helping "+
-      "to improve ambience and minimise squalor.";
+      "Arcology provides both beauty and life support to your settlement, "+
+      "but require space and Water.";
   }
   
   
@@ -149,6 +152,8 @@ public class Arcology extends Venue {
     return UIConstants.TYPE_AESTHETIC;
   }
 }
+
+
 
 
 

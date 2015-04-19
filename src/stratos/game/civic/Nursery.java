@@ -77,12 +77,12 @@ public class Nursery extends Venue implements TileConstants {
     structure.setupStats(
       25,  //integrity
       5,  //armour
-      15,  //build cost
+      75,  //build cost
       0,  //max upgrades
       Structure.TYPE_FIXTURE
     );
     staff.setShiftType(SHIFTS_BY_DAY);
-    this.attachModel(NURSERY_MODEL);
+    attachModel(NURSERY_MODEL);
   }
   
   
@@ -115,7 +115,7 @@ public class Nursery extends Venue implements TileConstants {
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     areaClaimed.setTo(footprint()).expandBy(2);
-    areaClaimed.include(area);
+    if (area != null) areaClaimed.include(area);
     return true;
   }
   

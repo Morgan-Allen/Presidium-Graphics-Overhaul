@@ -20,7 +20,7 @@ public class Condensor extends Venue {
     Condensor.class, "media/Buildings/aesthete/PLAZA.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    Condensor.class, "media/GUI/Buttons/arcology_button.gif"
+    Condensor.class, "media/GUI/Buttons/condensor_button.gif"
   );
   
   final static VenueProfile PROFILE = new VenueProfile(
@@ -69,6 +69,7 @@ public class Condensor extends Venue {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
+    stocks.forceDemand(POWER, 4, false);
     structure.assignOutputs(
       Item.withAmount(ATMO , 10),
       Item.withAmount(WATER, 5 )
@@ -82,6 +83,11 @@ public class Condensor extends Venue {
     */
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "condensor");
+  }
+  
+  
+  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+    return VenuePane.configSimplePanel(this, panel, UI, null);
   }
   
   

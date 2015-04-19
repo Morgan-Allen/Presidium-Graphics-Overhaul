@@ -340,6 +340,9 @@ public class Stocks extends Inventory {
     for (Item i : specialOrders) if (i.type.materials() != null) {
       translateDemands(i.type.materials(), period);
     }
+    else if (hasItem(i)) {
+      deleteSpecialOrder(i);
+    }
     
     for (Delivery d : reservations) {
       if (! d.isActive()) setReservation(d, false);

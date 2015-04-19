@@ -263,6 +263,7 @@ public class Commission extends Plan {
   public boolean actionPickupItem(Actor actor, Venue shop) {
     shop.inventory().removeMatch(item);
     actor.inventory().addItem(item);
+    shop.stocks.deleteSpecialOrder(item);
     delivered = true;
     return true;
   }
