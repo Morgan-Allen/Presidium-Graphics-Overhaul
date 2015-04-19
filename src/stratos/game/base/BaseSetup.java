@@ -126,7 +126,7 @@ public class BaseSetup {
         final Venue v = p.sampleVenue(base);
         float x = section.absX + Rand.index(section.size);
         float y = section.absY + Rand.index(section.size);
-        v.setPosition(x, y, world);
+        v.setupWith(world.tileAt(x, y), null);
         if (! v.canPlace()) continue;
         final float rating = v.ratePlacing(world.tileAt(v), false);
         if (rating <= 0) continue;
@@ -304,7 +304,7 @@ public class BaseSetup {
       return false;
     }
     final Tile bestSite = sitePick.result();
-    sample.setPosition(bestSite.x, bestSite.y, world);
+    sample.setupWith(bestSite, null);
     sample.doPlacement();
     
     allPlaced.add(sample);

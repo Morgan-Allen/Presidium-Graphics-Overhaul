@@ -114,6 +114,10 @@ public class Nursery extends Venue implements TileConstants {
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
+    //
+    //  By default, we claim an area 2 tiles larger than the basic footprint,
+    //  but we can also have a larger area assigned (e.g, by a human player or
+    //  by an automated placement-search.)
     areaClaimed.setTo(footprint()).expandBy(2);
     if (area != null) areaClaimed.include(area);
     return true;
@@ -158,31 +162,6 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  private void scanForCropTiles() {
-    final boolean report = verbose && I.talkAbout == this;
-    
-    final Box2D cropArea = new Box2D().setTo(areaClaimed);
-    final Batch <Tile> grabbed = new Batch <Tile> ();
-    if (report) I.say("\nCROP AREA: "+cropArea);
-    
-    for (Tile t : world.tilesIn(cropArea, true)) {
-      if (! couldPlant(t)) continue;
-      grabbed.add(t);
-      if (report && plantedAt(t) == null) I.say("  ADDING TILE: "+t);
-    }
-    
-    //  TODO:  Grab contiguous areas and put 'covered' crops along one edge.
-    toPlant = grabbed.toArray(Tile.class);
-  }
-  
-  
-  public boolean couldPlant(Tile t) {
-    if (t.onTop() instanceof Crop) return true;
-    else if (PavingMap.pavingReserved(t, true) || t.reserved()) return false;
-    else return true;
-  }
-  
-  
   protected void checkCropStates() {
     final boolean report = verbose && I.talkAbout == this;
     if (toPlant == null || toPlant.length == 0) {
@@ -206,38 +185,89 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Establishing crop areas-
     */
-  public void enterWorld() {
-    super.enterWorld();
-    I.say("NURSERY COMES");
-  }
-  
-  
-  public void exitWorld() {
-    super.exitWorld();
-    I.say("NURSERY GONE");
-  }
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    
     structure.setAmbienceVal(2);
-    if (numUpdates % 10 == 0) {
-      scanForCropTiles();
-      checkCropStates();
-    }
+    if (toPlant.length == 0) scanForCropTiles();
+    if (numUpdates % 10 == 0) checkCropStates();
   }
   
   
   protected void updatePaving(boolean inWorld) {
+    final boolean report = verbose && I.talkAbout == this;
     
+    if (report) I.say("\nGETTING PERIMETER TILES FOR AREA: "+areaClaimed);
     final Batch <Tile> around = new Batch <Tile> ();
-    for (Tile t : Spacing.perimeter(areaClaimed, world)) around.add(t);
-    for (Tile t : Spacing.perimeter(footprint(), world)) around.add(t);
-    
+    for (Tile t : Spacing.perimeter(areaClaimed, world)) if (t != null) {
+      around.add(t);
+      if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
+    }
+    if (report) I.say("\nGETTING UNPLANTED TILES FOR AREA");
+    for (Tile t : world.tilesIn(areaClaimed, true)) {
+      if ((! couldPlant(t)) && (! footprint().contains(t.x, t.y))) {
+        around.add(t);
+        if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
+      }
+    }
     base.transport.updatePerimeter(this, around, inWorld, true);
     //base.transport.updateJunction(this, mainEntrance(), inWorld);
+  }
+  
+  
+  private void scanForCropTiles() {
+    final boolean report = verbose && I.talkAbout == this;
+    //
+    //  We then grab all plantable tiles in the area claimed and resize the
+    //  claim itself to fit neatly around those:
+    final Batch <Tile> grabbed = new Batch <Tile> ();
+    final Box2D cropped = new Box2D(footprint());
+    if (report) {
+      I.say("\nORIGINAL AREA CLAIMED: "+areaClaimed);
+      I.say("  FOOTPRINT:   "+footprint());
+      I.say("  ORIGIN TILE: "+origin());
+    }
+    
+    for (Tile t : world.tilesIn(areaClaimed, true)) {
+      if (couldPlant(t)) {
+        grabbed.add(t);
+        cropped.include(t.x, t.y, 0.5f);
+        if (report) I.say("  WILL PLANT AT: "+t);
+      }
+    }
+    areaClaimed.setTo(cropped);
+    toPlant = grabbed.toArray(Tile.class);
+    if (report) I.say("NEW CROPPED AREA: "+areaClaimed);
+  }
+  
+  
+  private int plantType(Tile t) {
+    if (! areaClaimed.contains(t.x, t.y)) return -1;
+    
+    final boolean across = areaClaimed.xdim() > areaClaimed.ydim();
+    final int s = Nums.round(t.world.size, 6, true);  //  Modulus offset.
+    final Tile o = origin();
+    
+    if (footprint().contains(t.x, t.y)) return -1;
+    if (across) {
+      if ((t.x + s - o.x) % 3 == 2) return -1;
+      if ((t.x + s - o.x) % 6 == 0) return  2;
+    }
+    else {
+      if ((t.y + s - o.y) % 3 == 2) return -1;
+      if ((t.y + s - o.y) % 6 == 0) return  2;
+    }
+    return 1;
+  }
+  
+  
+  public boolean couldPlant(Tile t) {
+    return plantType(t) > 0;
+  }
+  
+  
+  public boolean shouldCover(Tile t) {
+    return plantType(t) == 2;
   }
 
 

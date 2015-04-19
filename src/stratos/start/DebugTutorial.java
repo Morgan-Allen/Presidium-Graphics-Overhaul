@@ -12,8 +12,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Better paving-layouts for nursery-plantations would be nice.
-
 //  TODO:  Refreshed art for shield walls.
 //  TODO:  Refreshed art for kommando lodge.
 

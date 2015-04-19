@@ -212,8 +212,7 @@ public class Crop extends Element {
     this.species   = s;
     this.quality   = Nums.clamp(quality, 0, MAX_HEALTH);
     this.growStage = MIN_GROWTH;
-    this.covered   = (origin().x - parent.origin().x) % 4 == 0;
-    //  TODO:  Try to smarten up the system for determining coverage.
+    this.covered   = parent.shouldCover(origin());
     updateSprite();
   }
   
@@ -258,34 +257,6 @@ public class Crop extends Element {
     );
     updateSprite();
   }
-  
-  
-  //  I'm going to simplify this for the moment.
-  /*
-  private void checkBlight(float pollution) {
-    if (growStage <= MIN_GROWTH) { blighted = false; return; }
-    float blightChance = (pollution + MAX_HEALTH - quality) / MAX_HEALTH;
-    
-    //  The chance of contracting disease increases if near infected plants of
-    //  the same species, and decreases with access to a hive.
-    final Tile o = this.origin();
-    final Tile t = Spacing.pickRandomTile(this, 4, o.world);
-    final Crop c = cropAt(t);
-    if (c != null) {
-      if (c.species == this.species && c.blighted) blightChance += 1;
-      else if (isHive(c.species) && ! isHive(this.species)) blightChance -= 1;
-    }
-    
-    //  Better-established plants can fight off infection more easily, and if
-    //  infection-chance is low, spontaneous recovery can occur.
-    blightChance *= 2f / (2 + (growStage / MAX_GROWTH));
-    float recoverChance = (1f - blightChance) * Nursery.GROW_INCREMENT / 2;
-    blightChance *= Nursery.GROW_INCREMENT;
-    if (blighted && Rand.num() < recoverChance) blighted = false;
-    if (Rand.num() < blightChance && ! blighted) blighted = true;
-    if (growStage <= MIN_GROWTH) blighted = false;
-  }
-  //*/
   
   
   public Item yieldCrop() {
@@ -339,7 +310,9 @@ public class Crop extends Element {
     */
   protected void updateSprite() {
     if (covered) {
-      attachModel(COVERING_RIGHT);
+      final Box2D b = parent.areaClaimed();
+      if (b.xdim() > b.ydim()) attachModel(COVERING_RIGHT);
+      else                     attachModel(COVERING_LEFT );
       return;
     }
     final GroupSprite old = (GroupSprite) sprite();
@@ -357,21 +330,8 @@ public class Crop extends Element {
   
   public String toString() {
     return species.name;
-    /*
-    final int stage = (int) Nums.clamp(growStage, 0, MAX_GROWTH);
-    final String HD;
-    if (blighted) HD = " (Infested)";
-    else {
-      final int HL = Nums.clamp((int) quality, 5);
-      HD = " ("+HEALTH_NAMES[HL]+" health)";
-    }
-    return STAGE_NAMES[stage]+""+species.name+HD;
-    //*/
   }
 }
-
-
-
 
 
 

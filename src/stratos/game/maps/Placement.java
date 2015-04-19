@@ -326,6 +326,7 @@ public class Placement implements TileConstants {
     //  operate.)
     if (spaceNeed > 1) {
       final int shift = spaceNeed - 1;
+      footprint = new Box2D(footprint);
       footprint.incX   (-shift);
       footprint.incY   (-shift);
       footprint.incHigh( shift);

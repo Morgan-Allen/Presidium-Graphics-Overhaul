@@ -72,7 +72,7 @@ public class DebugPlacing extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
-      Habitat.OCEAN       , 1f,
+      //Habitat.OCEAN       , 1f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
@@ -200,6 +200,7 @@ public class DebugPlacing extends Scenario {
   
   
   private void configPlantTest(Stage world, Base base, BaseUI UI) {
+    
     final EcologistStation station = new EcologistStation(base);
     Placement.establishVenue(station, 8, 8, true, world);
     

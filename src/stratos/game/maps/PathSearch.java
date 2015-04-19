@@ -149,9 +149,12 @@ public class PathSearch extends Search <Boarding> {
     if (spot == null) return -1;
     if (spot == destination) return 0;
     float mods = 0;
-    
+
+    if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
+      mods += spot.inside().size() * 2;
+    }
     if (useDanger) {
-      //  TODO:  Implement this
+      //  TODO:  Implement this...
     }
     
     //  Finally, return a value based on pathing difficulties in the terrain-

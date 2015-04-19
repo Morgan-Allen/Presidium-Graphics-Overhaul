@@ -25,15 +25,15 @@ public class EnforcerBloc extends Venue {
   
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    EnforcerBloc.class, "media/Buildings/physician/enforcer_bloc.png", 3, 3
+    EnforcerBloc.class, "media/Buildings/military/enforcer_bloc.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    EnforcerBloc.class, "media/GUI/Buttons/audit_office_button.gif"
+    EnforcerBloc.class, "media/GUI/Buttons/enforcer_bloc_button.gif"
   );
   
   final static VenueProfile PROFILE = new VenueProfile(
     EnforcerBloc.class, "enforcer_bloc", "Enforcer Bloc",
-    3, 3, IS_NORMAL,
+    4, 2, IS_NORMAL,
     Bastion.PROFILE, Owner.TIER_FACILITY
   );
   
@@ -41,8 +41,11 @@ public class EnforcerBloc extends Venue {
   public EnforcerBloc(Base base) {
     super(PROFILE, base);
     structure.setupStats(
-      450, 2, 450,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
+      450,  //Integrity
+      6  ,  //Armour
+      450,  //Build cost
+      Structure.NORMAL_MAX_UPGRADES,
+      Structure.TYPE_VENUE
     );
     staff.setShiftType(SHIFTS_BY_DAY);
     this.attachSprite(MODEL.makeSprite());
