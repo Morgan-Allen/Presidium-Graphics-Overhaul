@@ -69,7 +69,7 @@ public class RoadsRepair extends Plan {
     if (GameSettings.paveFree) return -1;
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    if (Plan.competition(this, section, actor) > 0) {
+    if (PlanUtils.competition(this, section, actor) > 0) {
       if (report) I.say("\nToo much competition for paving!  Will quit.");
       return -1;
     }

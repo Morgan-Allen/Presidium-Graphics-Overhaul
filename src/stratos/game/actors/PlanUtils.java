@@ -255,8 +255,67 @@ public class PlanUtils {
   
   
   
+  /**  Job-priority method- should return a result between 0 and 10.
+    */
+  public static float jobPlanPriority(
+    Actor actor, Plan plan,
+    float urgency, float competence,
+    int helpLimit, Trait... enjoyTraits
+  ) {
+    final boolean report = reportOn(actor);
+    float incentive = 0, priority = 0, enjoyBonus = 0;
+    float dutyBonus = 0, helpBonus = 0, shift = 0;
+    final Property work = actor.mind.work();
+    
+    incentive += plan.motiveBonus();
+    incentive += enjoyBonus = traitAverage(actor, enjoyTraits) * 2.5f;
+    if (plan.isJob() && work != null) {
+      shift = work.staff().shiftFor(actor);
+      incentive += dutyBonus = actor.traits.relativeLevel(DUTIFUL) * 5;
+      if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
+      if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
+    }
+    if (incentive <= 0 || urgency <= 0) return -1;
+    
+    priority = incentive * ((urgency * competence) + 1) / 2;
+    priority -= (1 - competence) * 5;
+    
+    if (helpLimit > 0 && ! plan.hasBegun()) {
+      float help = competition(plan, plan.subject, actor);
+      if (help > helpLimit) return -1;
+      else priority += helpBonus = help * 2.5f / helpLimit;
+    }
+    else priority += 2.5f;
+
+    if (report && priority > 0) I.reportVars(
+      "\nJob priority for "+actor, "  ",
+      "Job is:    ", plan        ,
+      "Is job?    ", plan.isJob(),
+      "Urgency:   ", urgency     ,
+      "Competence:", competence  ,
+      "enjoyBonus ", enjoyBonus  ,
+      "dutyBonus  ", dutyBonus   ,
+      "helpBonus  ", helpBonus   ,
+      "Incentive: ", incentive   ,
+      "Priority:  ", priority
+    );
+    return Nums.clamp(priority, 0, 10);
+  }
+  
+  
+  
   /**  Social-related utility methods-
     */
+  public static float traitAverage(Actor actor, Trait... traits) {
+    if (traits == null || traits.length > 0) return 0;
+    float avg = 0;
+    for (Trait t : traits) {
+      avg += actor.traits.relativeLevel(t);
+    }
+    return avg / traits.length;
+  }
+  
+  
   public static float baseConscience(Actor actor, Target toward) {
     if (! actor.species().sapient()) return 0;
     float conscience = (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
@@ -280,6 +339,38 @@ public class PlanUtils {
     float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     if (positive) return curiosity * strangeness;
     else return Nums.clamp(strangeness - curiosity, 0, 1);
+  }
+  
+  
+  //  TODO:  Try to avoid external calls to this method...
+  
+  public static float competition(Class planClass, Target t, Actor actor) {
+    float competition = 0;
+    final Stage world = actor.world();
+    for (Behaviour b : world.activities.allTargeting(t)) {
+      if (b instanceof Plan) {
+        final Plan plan = (Plan) b;
+        if (plan.getClass() != planClass) continue;
+        if (plan.actor() == null || plan.actor() == actor) continue;
+        competition += plan.successChanceFor(plan.actor());
+      }
+    }
+    return competition;
+  }
+  
+  
+  public static float competition(Plan match, Target t, Actor actor) {
+    float competition = 0;
+    final Stage world = actor.world();
+    for (Behaviour b : world.activities.allTargeting(t)) {
+      if (b instanceof Plan) {
+        final Plan plan = (Plan) b;
+        if (plan.actor() == actor) continue;
+        if (! plan.matchesPlan(match)) continue;
+        competition += plan.successChanceFor(plan.actor());
+      }
+    }
+    return competition;
   }
   
   

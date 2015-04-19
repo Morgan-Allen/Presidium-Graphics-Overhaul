@@ -96,6 +96,12 @@ public class Fabricator extends Venue {
       "Allows production of stealth-based protection for guerilla agents.",
       350, Upgrade.THREE_LEVELS, null, 2,
       POLYMER_LOOM, Fabricator.class, ALL_UPGRADES
+    ),
+    FABRICATOR_STATION = new Upgrade(
+      "Fabricator Station",
+      Backgrounds.FABRICATOR.info,
+      200, Upgrade.THREE_LEVELS, null, 1,
+      null, Fabricator.class, ALL_UPGRADES
     )
     //  TODO:  Level 2 Upgrade.  And pressfeed?
   ;

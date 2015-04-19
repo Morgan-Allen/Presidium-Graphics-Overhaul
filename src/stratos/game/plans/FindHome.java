@@ -59,7 +59,7 @@ public class FindHome extends Plan {
       (1 - newHome.crowdRating(actor, Backgrounds.AS_RESIDENT)) *
       HoldingUpgrades.OCCUPANCIES[0]
     );
-    if (Plan.competition(this, newHome, actor) >= numO) return -1;
+    if (PlanUtils.competition(this, newHome, actor) >= numO) return -1;
     return ROUTINE;
   }
   

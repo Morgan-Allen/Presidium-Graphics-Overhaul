@@ -140,6 +140,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  public boolean isJob() {
+    return hasMotives(MOTIVE_JOB);
+  }
+  
+  
   public boolean isEmergency() {
     return hasMotives(MOTIVE_EMERGENCY);
   }
@@ -546,7 +551,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     //  We also inject the effects of competition/cooperation from peers.
     if (peersCompete != 0 && (peersCompete < 0 || ! hasBegun())) {
-      float competeSum = competition(this, subject, actor) * peersCompete;
+      float competeSum = PlanUtils.competition(this, subject, actor);
+      competeSum *= peersCompete;
       priority *= Nums.clamp(1 - competeSum, 0, 1.5f);
       if (report) I.say("  After competition effects:   "+priority);
     }
@@ -726,36 +732,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     return penalty;
   }
   //*/
-  
-  
-  public static float competition(Class planClass, Target t, Actor actor) {
-    float competition = 0;
-    final Stage world = actor.world();
-    for (Behaviour b : world.activities.allTargeting(t)) {
-      if (b instanceof Plan) {
-        final Plan plan = (Plan) b;
-        if (plan.getClass() != planClass) continue;
-        if (plan.actor() == null || plan.actor() == actor) continue;
-        competition += plan.successChanceFor(plan.actor());
-      }
-    }
-    return competition;
-  }
-  
-  
-  public static float competition(Plan match, Target t, Actor actor) {
-    float competition = 0;
-    final Stage world = actor.world();
-    for (Behaviour b : world.activities.allTargeting(t)) {
-      if (b instanceof Plan) {
-        final Plan plan = (Plan) b;
-        if (plan.actor() == actor) continue;
-        if (! plan.matchesPlan(match)) continue;
-        competition += plan.successChanceFor(plan.actor());
-      }
-    }
-    return competition;
-  }
   
   
   

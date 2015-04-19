@@ -77,7 +77,7 @@ public class FirstAid extends Treatment {
     final Actor carries = Suspensor.carrying(patient);
     if (carries != null && carries != actor) return -1;
     if (
-      Plan.competition(this, patient, actor) > 0 &&
+      PlanUtils.competition(this, patient, actor) > 0 &&
       ! patient.health.bleeding()
     ) {
       return -1;

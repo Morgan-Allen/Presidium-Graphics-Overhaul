@@ -79,7 +79,7 @@ public class StretcherDelivery extends Plan implements Qualities {
   
   protected Behaviour getNextStep() {
     final boolean report = verbose && I.talkAbout == actor;
-    if ((! hasBegun()) && Plan.competition(this, patient, actor) > 0) {
+    if ((! hasBegun()) && PlanUtils.competition(this, patient, actor) > 0) {
       return null;
     }
     if (patient.aboard() == destination) return null;

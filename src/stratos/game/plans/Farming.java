@@ -66,7 +66,7 @@ public class Farming extends Plan {
 
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if ((! hasBegun()) && Plan.competition(this, nursery, actor) > 0) {
+    if ((! hasBegun()) && PlanUtils.competition(this, nursery, actor) > 0) {
       return 0;
     }
     

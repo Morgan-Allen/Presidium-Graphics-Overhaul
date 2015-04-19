@@ -192,7 +192,7 @@ public class Audit extends Plan {
     
     final Pick <Venue> pick = new Pick <Venue> (null, 0);
     for (Venue v : batch) {
-      if (Plan.competition(Audit.class, v, actor) > 0) continue;
+      if (PlanUtils.competition(Audit.class, v, actor) > 0) continue;
       final float cash = v.inventory().unTaxed();
       float rating = (Nums.abs(cash) + Nums.max(0, cash)) / RATE_DIVISOR;
       rating /= 1 + Plan.rangePenalty(actor.base(), v, actor);

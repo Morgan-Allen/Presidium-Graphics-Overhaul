@@ -23,7 +23,7 @@ public class Dining extends Plan {
   
   
   private Dining(Actor cook, Venue served, int type) {
-    super(cook, served, MOTIVE_JOB, NO_HARM);
+    super(cook, served, MOTIVE_PERSONAL, NO_HARM);
     this.type = type;
   }
   

@@ -15,8 +15,6 @@ import stratos.util.*;
 //  TODO:  Refreshed art for shield walls.
 //  TODO:  Refreshed art for kommando lodge.
 
-//  TODO:  Prevent over-cooperation in building-projects.
-
 //  TODO:  Add drilling to the trooper lodge.
 
 //  TODO:  Add flesh still as satellite structure for kommando lodge and make
@@ -110,7 +108,7 @@ CONTROL AND DIRECTION-
 
   >>>>>>> DO THIS <<<<<<<
 *  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
-   mission at a time.)
+   mission, or in order to 'man the barricades'.)
 
 *  Psy abilities need to be persistent.
 

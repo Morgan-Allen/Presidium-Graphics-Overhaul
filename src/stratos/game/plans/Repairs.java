@@ -32,7 +32,8 @@ public class Repairs extends Plan {
   
   final public static float
     TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 5,
-    MIN_SERVICE_DAMAGE = 0.25f;
+    MIN_SERVICE_DAMAGE = 0.25f,
+    MAX_HELP_PER_25_HP = 0.5f;
   
   final Structure.Basis built;
   final Skill skillUsed;
@@ -132,14 +133,20 @@ public class Repairs extends Plan {
   /**  Target evaluation and prioritisation-
     */
   final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
-  //final static Skill BASE_SKILLS[] = { skillUsed, HARD_LABOUR };
-  
   
   protected float getPriority() {
-    final boolean report = I.talkAbout == actor && evalVerbose;
+    //final boolean report = I.talkAbout == actor && evalVerbose;
     
-    float urgency = needForRepair(built);
+    float urgency = needForRepair(built), helpLimit;
     if (urgency <= 0) return 0;
+    helpLimit = built.structure().maxIntegrity() * MAX_HELP_PER_25_HP / 25;
+    
+    return PlanUtils.jobPlanPriority(
+      actor, this,
+      urgency, successChanceFor(actor),
+      (int) helpLimit, BASE_TRAITS
+    );
+    /*
     float competition = MILD_COOPERATION;
     
     final float priority = priorityForActorWith(
@@ -158,6 +165,7 @@ public class Repairs extends Plan {
       I.say("  Final priority:    "+priority);
     }
     return priority;
+    //*/
   }
   
   
