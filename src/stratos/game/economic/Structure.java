@@ -5,6 +5,7 @@
   */
 package stratos.game.economic;
 import stratos.game.actors.*;
+import stratos.game.civic.ShieldWall;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
@@ -35,6 +36,18 @@ public class Structure {
     boolean canPlace();
     void doPlacement();
   }
+  
+  
+  /**  A couple of utility-uprades that might be used by any structure:
+    */
+  final static Index <Upgrade> UTIL_UPGRADES = new Index <Upgrade> ();
+  
+  final public static Upgrade 
+    FACING_CHANGE = new Upgrade(
+      "Facing Change", "",
+      0, Upgrade.SINGLE_LEVEL, null, 1,
+      null, Structure.class, UTIL_UPGRADES
+    );
   
   
   /**  Fields, definitions and save/load methods-

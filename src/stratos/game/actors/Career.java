@@ -128,6 +128,19 @@ public class Career implements Qualities {
     //  TODO:  Specify a few starter relationships here!  (And vary the base
     //  relation somewhat.)
     actor.relations.setRelation(base, 0.5f, 0);
+    float knowFauna   = actor.traits.traitLevel(XENOZOOLOGY );
+    float knowNatives = actor.traits.traitLevel(NATIVE_TABOO);
+    float knowRobots  = actor.traits.traitLevel(ANCIENT_LORE);
+    
+    //  TODO:  IMPLEMENT THIS FOR THE OTHER BASES- AND KEY THIS OFF A SETTING-
+    //         BASED CONSTANT RATHER THAN A BASE INSTANCE.
+    final Stage world = base.world;
+    if (knowFauna > 0) {
+      final float like = Nums.clamp(knowFauna / 10, 0, 1);
+      actor.relations.setRelation(Base.wildlife(world), like / 2, 1 - like);
+    }
+    
+    //actor.relations.setRelation(other, value, novelty);
     
     //  We top up basic attributes to match.
     actor.traits.initDNA(0);

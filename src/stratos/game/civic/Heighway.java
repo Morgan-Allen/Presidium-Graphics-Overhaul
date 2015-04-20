@@ -45,7 +45,7 @@ public class Heighway extends Venue {
   
   final public static VenueProfile PROFILE = new VenueProfile(
     Heighway.class, "heighway", "Heighway",
-    2, 0, IS_FIXTURE | IS_LINEAR,
+    2, 0, IS_FIXTURE | IS_LINEAR | IS_GRIDDED,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
   

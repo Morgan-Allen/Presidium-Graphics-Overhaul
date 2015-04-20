@@ -147,9 +147,9 @@ public class EnforcerBloc extends Venue {
   
   public String helpInfo() {
     return
-      "The Enforcer Bloc provides a dedicated police force for your base, "+
-      "specialising in interrogation and forensics as well as self defence "+
-      "and nonlethal force.";
+      "The Enforcer Bloc provides a civilian police force for your base, "+
+      "assisting administration and espionage as well as providing nonlethal "+
+      "force.";
   }
   
   

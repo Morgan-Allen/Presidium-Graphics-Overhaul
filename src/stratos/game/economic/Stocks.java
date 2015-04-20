@@ -234,7 +234,7 @@ public class Stocks extends Inventory {
   
   
   public boolean hasEnough(Traded type) {
-    return amountOf(type) < (demandFor(type) / 2);
+    return amountOf(type) > (demandFor(type) / 2);
   }
   
   
@@ -310,7 +310,7 @@ public class Stocks extends Inventory {
   
   public void translateDemands(Conversion cons, int period) {
     final boolean report = extraVerbose && I.talkAbout == basis;
-    final float demand = cons.out == null ? 1 : shortageOf(cons.out.type);
+    final float demand = cons.out == null ? 1 : demandFor(cons.out.type);
     if (report) {
       I.say("\nTranslating demand for "+cons+" at "+basis);
       I.say("  Base demand is: "+demand);

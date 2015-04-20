@@ -36,6 +36,10 @@ public class PlanUtils {
     float incentive = 0, winChance, inhibition, priority;
     float harmDone, dislike, wierdness, conscience;
     final boolean report = reportOn(actor);
+    if (report) {
+      I.say("...");
+    }
+    
     
     incentive += rewardBonus;
     incentive += dislike   = actor.relations.valueFor(subject)     * -5;
@@ -271,7 +275,8 @@ public class PlanUtils {
     incentive += enjoyBonus = traitAverage(actor, enjoyTraits) * 2.5f;
     if (plan.isJob() && work != null) {
       shift = work.staff().shiftFor(actor);
-      incentive += dutyBonus = actor.traits.relativeLevel(DUTIFUL) * 5;
+      dutyBonus = (1 + actor.traits.relativeLevel(DUTIFUL)) * 2.5f;
+      incentive += dutyBonus;
       if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
       if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
     }
@@ -310,9 +315,9 @@ public class PlanUtils {
     if (traits == null || traits.length > 0) return 0;
     float avg = 0;
     for (Trait t : traits) {
-      avg += actor.traits.relativeLevel(t);
+      avg += 1 + actor.traits.relativeLevel(t);
     }
-    return avg / traits.length;
+    return avg / traits.length * 2;
   }
   
   

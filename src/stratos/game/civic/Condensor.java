@@ -69,12 +69,18 @@ public class Condensor extends Venue {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    stocks.forceDemand(POWER, 4, false);
-    structure.assignOutputs(
-      Item.withAmount(ATMO , 10),
-      Item.withAmount(WATER, 5 )
-    );
-    structure.setAmbienceVal(5);
+    if (structure.intact()) {
+      stocks.forceDemand(POWER, 4, false);
+      structure.assignOutputs(
+        Item.withAmount(ATMO , 10),
+        Item.withAmount(WATER, 5 )
+      );
+      structure.setAmbienceVal(5);
+    }
+    else {
+      structure.assignOutputs();
+      structure.setAmbienceVal(0);
+    }
   }
   
   

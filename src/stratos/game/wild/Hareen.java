@@ -142,9 +142,9 @@ public class Hareen extends Fauna {
   protected Behaviour nextBrowsing() {
     final Choice c = new Choice(this);
     for (Target e : senses.awareOf()) {
-      if (Hunting.validPrey(e, this, false)) {
+      if (Hunting.validPrey(e, this)) {
         final Actor prey = (Actor) e;
-        if (prey.health.dying()) c.add(Hunting.asFeeding(this, prey));
+        if (! prey.health.alive()) c.add(Hunting.asFeeding(this, prey));
       }
     }
     final Behaviour p = c.pickMostUrgent();

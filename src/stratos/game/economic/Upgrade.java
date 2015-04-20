@@ -6,10 +6,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Allow upgrades to define how many levels they allow, and their
-//  precise type (level-upgrade, tech-upgrade, or policy-upgrade.)
-
-
 public class Upgrade extends Index.Entry implements Backgrounds {
   
   
@@ -31,19 +27,7 @@ public class Upgrade extends Index.Entry implements Backgrounds {
     TWO_LEVELS   = 2,
     THREE_LEVELS = 3;
   
-  //  TODO:  Implement this as soon as possible.
-  /*
   
-  final Type type;
-  final int maxLevel;
-  final Upgrade required[];
-  
-  final String names[], description;
-  
-  //*/
-  
-  
-
   final public String baseName;
   final public String description;
   
@@ -55,8 +39,6 @@ public class Upgrade extends Index.Entry implements Backgrounds {
   //  TODO:  ...either get rid of these, or make them more flexible.
   final public Object refers;
   final public int bonus;
-  
-  
   
   
   public Upgrade(

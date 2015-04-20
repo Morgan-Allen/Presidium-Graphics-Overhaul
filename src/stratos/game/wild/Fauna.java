@@ -21,6 +21,9 @@ public abstract class Fauna extends Actor {
   
   /**  Field definitions, constructors, and save/load functionality-
     */
+  private static boolean
+    verbose = false;
+  
   final static String
     FILE_DIR = "media/Actors/fauna/",
     LAIR_DIR = "media/Buildings/lairs and ruins/",
@@ -30,8 +33,6 @@ public abstract class Fauna extends Actor {
     PLANT_CONVERSION = 4.0f,
     MEAT_CONVERSION  = 8.0f,
     NEST_INTERVAL    = Stage.STANDARD_DAY_LENGTH;
-  private static boolean
-    verbose = false;
   
   
   final public Species species;
@@ -76,7 +77,7 @@ public abstract class Fauna extends Actor {
     
     if (numUpdates % 10 == 0 && health.alive()) {
       float crowding = Nest.crowdingFor(this);
-      if (crowding == 1) crowding += 0.1f;
+      if (crowding >= 1 || mind.home() == null) crowding = 1.1f;
       
       float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
       float breedInc = (1 - crowding) * 10 / Nest.DEFAULT_BREED_INTERVAL;
@@ -134,6 +135,11 @@ public abstract class Fauna extends Actor {
         }
         else return 0;
       }
+      //
+      //  We (unrealistically) assume that animals don't get curious.
+      public float noveltyFor(Object object) {
+        return 0;
+      }
     };
   }
   
@@ -167,7 +173,7 @@ public abstract class Fauna extends Actor {
   protected Behaviour nextHunting() {
     final Choice c = new Choice(this);
     for (Target e : senses.awareOf()) {
-      if (Hunting.validPrey(e, this, false)) {
+      if (Hunting.validPrey(e, this)) {
         final Actor prey = (Actor) e;
         c.add(Hunting.asFeeding(this, prey));
       }
@@ -235,13 +241,15 @@ public abstract class Fauna extends Actor {
     if (lastMigrateCheck == -1) lastMigrateCheck = world.currentTime();
     
     final float timeSinceCheck = world.currentTime() - lastMigrateCheck;
+    final boolean homeless = ! (home instanceof Nest);
     if (report) {
       I.say("\nChecking migration for "+this);
-      I.say("  Last check: "+timeSinceCheck+"/"+NEST_INTERVAL);
+      I.say("  Last check:  "+timeSinceCheck+"/"+NEST_INTERVAL);
+      I.say("  Crowding is: "+Nest.crowdingFor(this)+", homeless? "+homeless);
     }
     
-    if (timeSinceCheck > NEST_INTERVAL) {
-      final boolean crowded = home == null || Nest.crowdingFor(this) > 0.5f;
+    if (timeSinceCheck > NEST_INTERVAL || homeless) {
+      final boolean crowded = homeless || Nest.crowdingFor(this) > 0.5f;
       newNest = crowded ? Nest.findNestFor(this) : null;
       lastMigrateCheck = world.currentTime();
     }

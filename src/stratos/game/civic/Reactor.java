@@ -407,38 +407,25 @@ public class Reactor extends Venue {
   
   /**  Rendering and interface-
     */
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    panel = super.configPanel(panel, UI);
-    final Description d = panel.detail();
-    
-    if (true) {
-      final float risk = meltdownChance() + meltdown;
-      final int nR = RISK_DESC.length;
-      final String descR = RISK_DESC[Nums.clamp((int) (risk * nR), nR)];
-      d.append("\n\n  Meltdown risk: "+descR);
-      final int nC = CORE_DESC.length;
-      final String descC = CORE_DESC[Nums.clamp((int) (meltdown * nC), nC)];
-      d.append("\n  Core condition: "+descC);
-    }
-    
-    return panel;
-  }
-  
-  
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "reactor");
   }
   
   
   public String helpInfo() {
-    if (inWorld() && ! stocks.hasEnough(ISOTOPES)) {
-      return
-        "Power output will be limited without additional "+ISOTOPES+".";
+    String help =
+      "The Reactor provides copious power along with antimass production, "+
+      "but can become an explosive liability.";
+    
+    if (inWorld()) {
+      if (! stocks.hasEnough(ISOTOPES)) {
+        help = "Power output will be limited without additional "+ISOTOPES+".";
+      }
+      final int nC = CORE_DESC.length;
+      final String descC = CORE_DESC[Nums.clamp((int) (meltdown * nC), nC)];
+      help +="\n  Core condition: "+descC;
     }
-    return
-      "The Reactor provides a copious supply of power to your settlement "+
-      "and is essential to manufacturing atomics or antimass, but can "+
-      "also be a dangerous liability.";
+    return help;
   }
   
   
@@ -449,6 +436,16 @@ public class Reactor extends Venue {
 
 
 
-
+/*
+    if (true) {
+      final float risk = meltdownChance() + meltdown;
+      final int nR = RISK_DESC.length;
+      final String descR = RISK_DESC[Nums.clamp((int) (risk * nR), nR)];
+      d.append("\n\n  Meltdown risk: "+descR);
+      final int nC = CORE_DESC.length;
+      final String descC = CORE_DESC[Nums.clamp((int) (meltdown * nC), nC)];
+      d.append("\n  Core condition: "+descC);
+    }
+//*/
 
 

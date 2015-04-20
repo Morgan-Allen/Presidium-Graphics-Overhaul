@@ -21,6 +21,10 @@ public class Hunting extends Combat {
   
   /**  Fields, constructors, and save/load methods-
     */
+  private static boolean
+    stepsVerbose = false,
+    evalVerbose  = true ;
+  
   final public static int
     TYPE_FEEDS   = 0,
     TYPE_HARVEST = 1,
@@ -37,10 +41,6 @@ public class Hunting extends Combat {
     STAGE_SAMPLE_GENE   = 5,
     STAGE_RETURN_SAMPLE = 6,
     STAGE_COMPLETE      = 7;
-  
-  private static boolean
-    stepsVerbose = false,
-    evalVerbose  = false;
   
   
   final int type;
@@ -112,9 +112,7 @@ public class Hunting extends Combat {
   
   /**  Evaluating targets and priority-
     */
-  public static boolean validPrey(
-    Target prey, Actor hunts, boolean conserve
-    ) {
+  public static boolean validPrey(Target prey, Actor hunts) {
     if (! (prey instanceof Actor)) return false;
     
     final Actor a = (Actor) prey;
@@ -127,7 +125,9 @@ public class Hunting extends Combat {
     if (! a.species().browser()) {
       if (hunger < 0.5f) return false;
     }
-    if (conserve && (Nest.crowdingFor(a) < 1 - hunger)) return false;
+    
+    //final float crowding = a.health.alive() ? Nest.crowdingFor(a) : 1;
+    //if (conserve && (crowding < 1 - hunger)) return false;
     return true;
   }
   
@@ -142,12 +142,12 @@ public class Hunting extends Combat {
     
     if (prey.destroyed()) return -1;
     final boolean start = ! hasBegun();
-    if (start && ! validPrey(prey, actor, false)) return -1;
+    if (start && ! validPrey(prey, actor)) return -1;
     if (! PlanUtils.isArmed(actor)) return -1;
     
     float urgency, harmLevel;
     final Trait baseTraits[];
-    final float crowding = Nest.crowdingFor(prey);
+    final float crowding = prey.health.alive() ? Nest.crowdingFor(prey) : 1;
     final float hunger = actor.health.hungerLevel() + (start ? 0 : 0.5f);
     
     if (type == TYPE_FEEDS) {
@@ -156,7 +156,6 @@ public class Hunting extends Combat {
       baseTraits = Combat.BASE_TRAITS;
     }
     else if (type == TYPE_HARVEST) {
-      if (crowding < 1) return 0;
       urgency    = Nums.clamp(ROUTINE * crowding, CASUAL, URGENT);
       urgency   += hunger * ROUTINE;
       harmLevel  = REAL_HARM;

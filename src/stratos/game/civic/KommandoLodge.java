@@ -90,6 +90,14 @@ public class KommandoLodge extends Venue {
   }
   
   
+  public boolean preventsClaimBy(Venue other) {
+    if (other instanceof Nest) return false;
+    //  TODO:  Use this!
+    //if (other instanceof FleshStill) return false;
+    return super.preventsClaimBy(other);
+  }
+
+
   public float crowdRating(Actor actor, Background background) {
     if (background == Backgrounds.AS_RESIDENT) {
       if (! staff.isWorker(actor)) return 1;
@@ -192,15 +200,22 @@ public class KommandoLodge extends Venue {
     //  TODO:  Add mounting behaviours, massed raiding against specified
     //  enemies, and placing their skins as a warning.  (And possibly animal
     //  breeding for mounts?)  Hunting, certainly.
-    
-    for (Target t : actor.senses.awareOf()) {
-      //  TODO:  Weight the likelihood of this based on Favoured Enemies- and
-      //  try to get multiple participants!
-      
-      if (Hunting.validPrey(t, actor, true)) {
+
+    //  TODO:  Weight the likelihood of this based on Favoured Enemies- and
+    //  try to get multiple participants!
+    for (Target t : world.presences.sampleFromMap(
+      actor, world, 5, null, Mobile.class
+    )) {
+      if (Hunting.validPrey(t, actor)) {
         choice.add(Hunting.asHarvest(actor, (Actor) t, this, false));
       }
     }
+    for (Target t : actor.senses.awareOf()) {
+      if (Hunting.validPrey(t, actor)) {
+        choice.add(Hunting.asHarvest(actor, (Actor) t, this, false));
+      }
+    }
+    choice.isVerbose = true;
     
     
     final Behaviour pick = choice.weightedPick();
@@ -230,7 +245,7 @@ public class KommandoLodge extends Venue {
   
   
   public Traded[] services() {
-    return null; //new Service[] { WATER, PROTEIN, SPICE };
+    return new Traded[] { PROTEIN, SPYCE_T };
   }
   
   
@@ -238,6 +253,7 @@ public class KommandoLodge extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     stocks.forceDemand(CARBS, 5, false);
+    stocks.incDemand(PROTEIN, 5, 1, true);
     /*
     if (still == null || still.destroyed()) {
       final Tile o = Spacing.pickRandomTile(this, 4, world);

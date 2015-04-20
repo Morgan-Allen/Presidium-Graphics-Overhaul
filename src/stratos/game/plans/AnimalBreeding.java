@@ -18,9 +18,9 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  Make initial gene seed mandatory?
-//  TODO:  Allow 'taming' of these specimens- i.e, so they start with good
-//         relations toward their caretaker?
+//  TODO:  Make initial gene seed mandatory in 'hardCore' mode.
+//  TODO:  Allow 'taming' of these specimens, so that mutual hostilities are
+//         less likely.
 
 
 public class AnimalBreeding extends Plan {
@@ -300,6 +300,7 @@ public class AnimalBreeding extends Plan {
     final Item basis = station.stocks.matchFor(asSample);
     if (basis == null) return false;
     station.stocks.transfer(basis, actor);
+    station.stocks.addItem(asSeed);
     return true;
   }
   

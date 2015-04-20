@@ -162,6 +162,7 @@ public class Delivery extends Plan {
     
     if (priceLimit && pays != null) {
       final float maxPrice = pays.inventory().allCredits() / 2;
+      goodsPrice  =  0;
       float price = -1;
       final Batch <Item> canAfford = new Batch <Item> ();
       
@@ -193,6 +194,10 @@ public class Delivery extends Plan {
   }
   
   
+  //  TODO:  GET RID OF THIS AND MERGE INTO ABOVE METHOD.  IT'S ONLY CALLED
+  //  ONCE ANYWAY.
+  
+  //*
   private boolean hasItemsFrom(Owner carries) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (stage >= STAGE_RETURN) return true;
@@ -222,6 +227,7 @@ public class Delivery extends Plan {
     this.items = has.toArray(Item.class);
     return true;
   }
+  //*/
   
   
   public float pricePaid() {

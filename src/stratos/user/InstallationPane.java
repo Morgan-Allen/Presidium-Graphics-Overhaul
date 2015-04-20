@@ -246,31 +246,12 @@ public class InstallationPane extends SelectionPane {
       text.append(" "+typeName+" ("+cost+" credits)");
       text.append("\n  ");
       text.append(new Description.Link("(BUILD) ") {
-        public void whenClicked() { initInstallTask(UI, type); }
+        public void whenClicked() { UI.beginTask(new PlacingTask(UI, type)); }
       });
       text.append(new Description.Link("(INFO) ") {
         public void whenClicked() { helpFor = sample; }
       });
     }
-  }
-  
-  
-  private void initInstallTask(BaseUI UI, VenueProfile type) {
-    final Venue venue = type.sampleVenue(UI.played());
-    if (venue == null) return;
-    else venue.assignBase(UI.played());
-    
-    final PlacingTask.Mode mode;
-    if (type.hasProperty(Venue.IS_LINEAR)) {
-      mode = PlacingTask.Mode.MODE_LINE;
-    }
-    else if (type.hasProperty(Venue.IS_ZONED)) {
-      mode = PlacingTask.Mode.MODE_AREA;
-    }
-    else mode = PlacingTask.Mode.MODE_POINT;
-    
-    final PlacingTask task = new PlacingTask(UI, type, mode);
-    UI.beginTask(task);
   }
 }
 

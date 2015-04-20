@@ -40,7 +40,7 @@ public class PhysicianStation extends Venue {
   final public static Conversion
     REAGENTS_TO_MEDICINE = new Conversion(
       PhysicianStation.class, "reagents_to_medicine",
-      1, CATALYST, TO, 1, MEDICINE,
+      1, CATALYST, TO, 2, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     )
   ;

@@ -377,15 +377,16 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     for (Target t : enRoute) t.flagWith(null);
     
     final List<Target> patrolled = new List<Target>();
-    BlastDoors doors = null;
+    ShieldWall doors = null;
+    
     for (Target b : enRoute) {
       final ShieldWall s = (ShieldWall) b;
-      if (s.isTower())
-        patrolled.include(b);
+      final float dist = Spacing.distance(s, actor);
+      if (s.isTower()) patrolled.include(b);
       if (s.isGate()) {
-        if (doors == null
-            || (Spacing.distance(s, actor) < Spacing.distance(doors, actor)))
-          doors = (BlastDoors) s;
+        if (doors == null || (dist < Spacing.distance(doors, actor))) {
+          doors = s;
+        }
       }
     }
     if (doors == null) return null;

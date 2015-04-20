@@ -76,11 +76,18 @@ public class DebugSecurity extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    if (true ) verminScenario  (world, base, UI);
+    if (true ) wallsScenario   (world, base, UI);
+    if (false) verminScenario  (world, base, UI);
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
     if (false) raidingScenario (world, base, UI);
     if (false) combatScenario  (world, base, UI);
+  }
+  
+  
+  private void wallsScenario(Stage world, Base base, BaseUI UI) {
+    final Bastion bastion = new Bastion(base);
+    Placement.establishVenue(bastion, world.tileAt(20, 20), true, world);
   }
   
   

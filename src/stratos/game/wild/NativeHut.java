@@ -245,7 +245,7 @@ public class NativeHut extends Venue {
     if (actor.mind.vocation() == HUNTER) {
       final boolean needMeat = stocks.amountOf(PROTEIN) < numHome;
       if (needMeat) for (Target t : actor.senses.awareOf()) {
-        if (Hunting.validPrey(t, actor, true)) {
+        if (Hunting.validPrey(t, actor)) {
           final Hunting hunt = Hunting.asHarvest(actor, (Actor) t, this, false);
           choice.add(hunt.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL));
         }

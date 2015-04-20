@@ -34,7 +34,7 @@ public class Fabricator extends Venue {
   final public static Conversion
     LCHC_TO_PLASTICS = new Conversion(
       Fabricator.class, "lchc_to_plastics",
-      1, POLYMER, TO, 1, PLASTICS,
+      1, POLYMER, TO, 2, PLASTICS,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
     ),
     PLASTICS_TO_DECOR = new Conversion(
@@ -100,7 +100,7 @@ public class Fabricator extends Venue {
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
       Backgrounds.FABRICATOR.info,
-      200, Upgrade.THREE_LEVELS, null, 1,
+      200, Upgrade.THREE_LEVELS, Backgrounds.FABRICATOR, 1,
       null, Fabricator.class, ALL_UPGRADES
     )
     //  TODO:  Level 2 Upgrade.  And pressfeed?

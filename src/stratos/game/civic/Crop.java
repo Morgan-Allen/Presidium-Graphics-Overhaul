@@ -187,24 +187,41 @@ public class Crop extends Element {
   }
   
   
-  public static float habitatBonus(Tile t, Species s) {
+  public static float habitatBonus(Tile t, Species s, Item seed) {
     float bonus = 0.0f;
     
     //  First, apply appropriate modifier for microclimate-
     final float moisture = t.habitat().moisture() / 10f;
-    if (isDryland(s)) {
+    final boolean hive = isHive(s);
+    
+    if (hive) {
+      bonus = (1 + moisture) * 0.5f / Nursery.HIVE_DIVISOR;
+    }
+    else if (isDryland(s)) {
       bonus = Nursery.DRYLAND_MULT * (1 + moisture) / 2f;
     }
-    else bonus = moisture * Nursery.WETLAND_MULT;
+    else {
+      bonus = moisture * Nursery.WETLAND_MULT;
+    }
     
     //  Then, we determine bonus based on crop type-
-    if (isHive(s)) {
+    if (hive) {
       bonus += 0.5f / Nursery.HIVE_DIVISOR;
     }
     else if (isCereal(s)) {
       bonus *= Nursery.CEREAL_BONUS;
     }
-    return Nums.clamp(bonus, 0, MAX_HEALTH);
+    else {
+      bonus += 0;
+    }
+    
+    //  And if a seed is provided, that as well-
+    if (seed != null) {
+      if (hive) bonus += seed.quality / Nursery.HIVE_DIVISOR;
+      else bonus += seed.quality;
+      return bonus;
+    }
+    else return Nums.clamp(bonus, 0, MAX_HEALTH);
   }
   
   
@@ -229,7 +246,7 @@ public class Crop extends Element {
     float
       increment = Nursery.GROW_INCREMENT,
       health    = quality / MAX_HEALTH,
-      growBonus = habitatBonus(tile, species),
+      growBonus = habitatBonus(tile, species, null),
       pollution = 0 - world.ecology().ambience.valueAt(tile),
       waterNeed = parent.stocks.relativeShortage(WATER);
     

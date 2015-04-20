@@ -97,12 +97,12 @@ public class DebugPlacing extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (false) configEcology  (world, base, UI);
+    if (true ) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
-    if (true ) configPlantTest(world, base, UI);
+    if (false) configPlantTest(world, base, UI);
   }
   
   

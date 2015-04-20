@@ -176,7 +176,7 @@ public class Nest extends Venue {
   
   public static float crowdingFor(Actor fauna) {
     final Target home = fauna.mind.home();
-    if (! (home instanceof Nest)) return 1;
+    if (! (home instanceof Nest)) return 0.49f;
     final Nest nest = (Nest) home;
     if (nest.cachedIdealPop == -1) return 0;
     if (nest.cachedIdealPop ==  0) return 1;
@@ -250,7 +250,7 @@ public class Nest extends Venue {
     if (fauna.mind.home() instanceof Nest) {
       final Nest home = (Nest) fauna.mind.home();
       final float rating = 1 - Nest.crowdingFor(home, species, world);
-      pick.compare(home, rating * 1.5f);
+      pick.compare(home, rating * 1.1f);
     }
     //
     //  Then compare against any suitable nests nearby.
@@ -260,9 +260,10 @@ public class Nest extends Venue {
     //
     //  And finally, we consider the attraction of establishing an entirely new
     //  nest.
-    final Base wild    = Base.wildlife(world);
-    final Tile at      = Spacing.pickRandomTile(fauna, 8, world);
-    final Nest newNest = (Nest) fauna.species.nestProfile().sampleVenue(wild);
+    final Base  wild    = Base.wildlife(world);
+    final float range   = Nest.forageRange(species) * 2;
+    final Tile  at      = Spacing.pickRandomTile(fauna, range, world);
+    final Nest  newNest = (Nest) fauna.species.nestProfile().sampleVenue(wild);
     newNest.setPosition(at.x, at.y, world);
     if (newNest.canPlace()) {
       pick.compare(newNest, 1 - Nest.crowdingFor(at, species, world));
@@ -314,17 +315,6 @@ public class Nest extends Venue {
         );
         if (distance <= minDist) return true;
       }
-      /*
-      if (species.predator() || near.species.predator()) {
-        final float minDist = species.predator() && near.species.predator() ?
-          PREDATOR_FORAGE_DIST : 2
-        ;
-        if (distance < minDist) return true;
-      }
-      else {
-        if (distance < BROWSER_FORAGE_DIST) return true;
-      }
-      //*/
       return false;
     }
     else return distance <= PREDATOR_SEPARATION;

@@ -24,8 +24,8 @@ public class Commission extends Plan {
   /**  Data fields, construction and save/load methods-
     */
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   final static int EXPIRE_TIME = Stage.STANDARD_DAY_LENGTH * 2;
   

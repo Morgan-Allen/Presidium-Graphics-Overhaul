@@ -87,6 +87,11 @@ public class ActorRelations {
         I.say("    Cares?      "+cares  );
         I.say("    Impact:     "+impact );
       }
+      //
+      //  Regardless of like or dislike, we decrement the 'strangeness' of the
+      //  other's base:
+      incRelation(other.base(), 0, 0, -1f / OBSERVE_PERIOD);
+      
       if (impact == 0 || (impact <= 0.5f && ! hasRelation(other))) {
         if (report) I.say("  Meh.  Big deal.");
         continue;

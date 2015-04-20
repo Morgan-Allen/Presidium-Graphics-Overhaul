@@ -153,10 +153,8 @@ public class Farming extends Plan {
         desc = "Harvesting "+picked;
       }
       else {
-        if (picked == null || Rand.yes()) {
-          picked = new Crop(nursery, pickSpecies(toFarm, report));
-          picked.setPosition(toFarm.x, toFarm.y, toFarm.world);
-        }
+        picked = new Crop(nursery, pickSpecies(toFarm, report));
+        picked.setPosition(toFarm.x, toFarm.y, toFarm.world);
         actionName = "actionPlant";
         anim = Action.BUILD;
         desc = "Planting "+picked;
@@ -277,20 +275,23 @@ public class Farming extends Plan {
   
   
   private Species pickSpecies(Tile t, boolean report) {
+    
+    report |= true;
     final Pick <Species> pick = new Pick <Species> ();
     if (report) I.say("\nPicking crop species...");
     
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = actor.gear.matchFor(Item.asMatch(SAMPLES, s));
-      final float stocked = 50 + seedDepot.stocks.amountOf(Crop.yieldType(s));
+      float shortage = seedDepot.stocks.relativeShortage(Crop.yieldType(s));
       
-      float chance = 1;
-      chance *= Crop.habitatBonus(t, s) / stocked;
-      chance *= 1 + (seed == null ? 0 : seed.quality);
-      
-      if (report) I.say("  Chance for "+s+" is "+chance);
-      pick.compare(s, chance * Rand.avgNums(2));
+      final float chance = Crop.habitatBonus(t, s, seed) * (1 + shortage);
+      if (report) {
+        I.say("  Chance for "+s+" is "+chance);
+        if (seed != null) I.say("    Seed quality "+seed.quality);
+      }
+      pick.compare(s, chance * Rand.num());
     }
+    if (report) I.say("  Species picked: "+pick.result());
     return pick.result();
   }
   
@@ -311,8 +312,15 @@ public class Farming extends Plan {
   
   
   public boolean actionHarvest(Actor actor, Crop crop) {
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     final Item harvest = crop.yieldCrop();
     actor.gear.addItem(harvest);
+    
+    if (Rand.yes()) {
+      final Tile at = crop.origin();
+      crop = new Crop(nursery, pickSpecies(at, report));
+      crop.setPosition(at.x, at.y, at.world);
+    }
     actionPlant(actor, crop);
     return true;
   }

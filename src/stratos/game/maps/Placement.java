@@ -212,16 +212,18 @@ public class Placement implements TileConstants {
   
   
   public static Object setupMergingSegment(
-    Venue fixture, Tile position, Box2D area, Coord points[],
+    Venue fixture, Tile position, Box2D area, Coord otherPoints[],
     Object piecesX[], Object piecesY[], Object hub,
     Class <? extends Venue> ofType
   ) {
-    
     final Stage world = position.world;
     final int s = fixture.size, hS = s / 2;
     boolean near[] = new boolean[8], adj;
     int numN = 0;
-    
+    //
+    //  In essence, we compile an adjacency-record by checking in each
+    //  direction for either (A) an existing structure of the same type, or (B)
+    //  another structure *intended* for placement as part of the same batch.
     for (int t : T_ADJACENT) {
       final Tile n = world.tileAt(
         position.x + (T_X[t] * s),
@@ -235,13 +237,15 @@ public class Placement implements TileConstants {
       ) {
         adj = true;
       }
-      else for (Coord p : points) {
+      else for (Coord p : otherPoints) {
         if (n.x + hS == p.x && n.y + hS == p.y) adj = true;
       }
       near[t] = adj;
       if (adj) numN++;
     }
-    
+    //
+    //  Then we return either start, middle or end points for lines along the x
+    //  or y axis, or a hub for junctions, corners and isolates.
     if (numN > 2) return hub;
     if (near[E] & near[W]) return piecesX[1];
     if (near[N] & near[S]) return piecesY[1];

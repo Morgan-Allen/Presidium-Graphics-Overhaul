@@ -15,14 +15,15 @@ import com.badlogic.gdx.Input.Keys;
 
 public class PlacingTask implements UITask {
   
-  
-  public static enum Mode {
-    MODE_POINT, MODE_LINE, MODE_AREA
-  };
+  final static int
+    MODE_POINT = 0,
+    MODE_LINE  = 1,
+    MODE_AREA  = 2;
   
   final BaseUI UI;
   final VenueProfile placeType;
-  final Mode placeMode;
+  final int mode;
+  final boolean gridLock;
   
   private Tile begins;
   private Tile endsAt;
@@ -30,10 +31,14 @@ public class PlacingTask implements UITask {
   private Table <Integer, Venue> placeItems = new Table <Integer, Venue> ();
   
   
-  PlacingTask(BaseUI UI, VenueProfile placeType, Mode mode) {
+  PlacingTask(BaseUI UI, VenueProfile placeType) {
     this.UI = UI;
     this.placeType = placeType;
-    this.placeMode = mode;
+    
+    if      (placeType.hasProperty(Venue.IS_ZONED )) mode = MODE_AREA;
+    else if (placeType.hasProperty(Venue.IS_LINEAR)) mode = MODE_LINE;
+    else mode = MODE_POINT;
+    gridLock = placeType.hasProperty(Venue.IS_GRIDDED);
   }
   
   
@@ -41,8 +46,16 @@ public class PlacingTask implements UITask {
     Tile picked = UI.selection.pickedTile();
     boolean tryPlacement = false;
     
+    if (gridLock && picked != null) {
+      final int baseSize = placeType.size, hS = baseSize / 2;
+      picked = picked.world.tileAt(
+        Nums.round(picked.x, baseSize, false) + hS,
+        Nums.round(picked.y, baseSize, false) + hS
+      );
+    }
+    
     if (picked != null) {
-      if (placeMode == Mode.MODE_POINT) {
+      if (mode == MODE_POINT) {
         begins = endsAt = picked;
         if (UI.mouseDown()) tryPlacement = true;
       }
@@ -70,8 +83,8 @@ public class PlacingTask implements UITask {
     if (report) {
       I.say("\nGetting area claim...");
       I.say("  Start/end points: "+begins+"/"+endsAt);
+      I.say("  Place mode: "+mode);
     }
-    
     //
     //  Set up some initial variables-
     final int baseSize = placeType.size;
@@ -80,13 +93,13 @@ public class PlacingTask implements UITask {
     final Batch <Coord> placePoints = new Batch <Coord> ();
     //
     //  If there's only one point to consider, just add that.
-    if (placeMode == Mode.MODE_POINT || begins == endsAt) {
+    if (mode == MODE_POINT || begins == endsAt) {
       placePoints.add(new Coord(begins.x, begins.y));
     }
     //
     //  In the case of line-placement, we create a sequence of place-points
     //  along either the X or Y axis (whichever is stretched furthest.)
-    else if (placeMode == Mode.MODE_LINE) {
+    else if (mode == MODE_LINE) {
       int difX = endsAt.x - begins.x, difY = endsAt.y - begins.y;
       boolean lateral = Nums.abs(difX) > Nums.abs(difY);
       int sign  = (lateral ? difX : difY) > 0 ? 1 : -1;
@@ -103,7 +116,7 @@ public class PlacingTask implements UITask {
     //  In the case of an area-placement, just grab a rectangle from one corner
     //  to another (but no smaller than the venue size), and place the venue
     //  itself at the centre.
-    else if (placeMode == Mode.MODE_AREA) {
+    else if (mode == MODE_AREA) {
       area = new Box2D(begins.x - 0.5f, begins.y - 0.5f, 0, 0);
       area.include(endsAt.x, endsAt.y, 0.5f);
       if (area.xdim() < baseSize) area.xdim(baseSize);
@@ -162,7 +175,7 @@ public class PlacingTask implements UITask {
       AREA_MESSAGE  = "(Drag to select area, Esc to cancel, Enter to place)" ,
       FAIL_MESSAGE  = "(ILLEGAL PLACEMENT- REASON NOT LOGGED INTERNALLY)";
     String message = null;
-    switch (placeMode) {
+    switch (mode) {
       case MODE_POINT : message = POINT_MESSAGE; break;
       case MODE_LINE  : message = LINE_MESSAGE ; break;
       case MODE_AREA  : message = AREA_MESSAGE ; break;
@@ -171,7 +184,6 @@ public class PlacingTask implements UITask {
     final String failMessage = reasons.failReasons().first();
     if (! canPlace) message = failMessage == null ? FAIL_MESSAGE : failMessage;
     BaseUI.setPopupMessage(message);
-    
     return canPlace;
   }
   

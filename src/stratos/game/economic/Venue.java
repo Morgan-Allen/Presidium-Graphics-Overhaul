@@ -39,8 +39,9 @@ public abstract class Venue extends Structural implements
     IS_FIXTURE = 1 ,
     IS_LINEAR  = 2 ,
     IS_ZONED   = 4 ,
-    IS_UNIQUE  = 8 ,
-    IS_WILD    = 16;
+    IS_GRIDDED = 8 ,
+    IS_UNIQUE  = 16,
+    IS_WILD    = 32;
   
   final public static VenueProfile NO_REQUIREMENTS[] = new VenueProfile[0];
   

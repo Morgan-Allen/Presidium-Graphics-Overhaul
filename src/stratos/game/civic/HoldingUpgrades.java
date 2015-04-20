@@ -206,17 +206,12 @@ public class HoldingUpgrades {
   //  TODO:  Try to unify these more closely.
   protected static Batch <Item> rationNeeds(Holding holding, int upgradeLevel) {
     
-    //  TODO:  Get pricing-levels for the base as a whole, and use that to
-    //  adjust what's demanded?
-    final int typesNeeded = LEVEL_TYPES_NEEDED[upgradeLevel];
     final float foodNeed = holding.staff.lodgers().size() * 1.5f;
-    
     final Batch <Item> needed = new Batch <Item> ();
+    if (upgradeLevel == 0) return needed;
+    
     for (Traded type : FOOD_TYPES) {
-      if (needed.size() >= typesNeeded) break;
-      float access = rateAccessTo(type.supplyKey, holding, holding.base());
-      if (access <= 0) continue;
-      needed.add(Item.withAmount(type, foodNeed / typesNeeded));
+      needed.add(Item.withAmount(type, foodNeed));
     }
     
     return needed;
