@@ -247,7 +247,7 @@ public class Delivery extends Plan {
   
   
   private boolean manned(Owner o) {
-    if (o instanceof Property) return ((Property) o).isManned();
+    if (o instanceof Property) return ((Property) o).openFor(actor);
     return false;
   }
   

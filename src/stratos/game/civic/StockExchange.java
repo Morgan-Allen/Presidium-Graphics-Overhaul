@@ -350,7 +350,7 @@ public class StockExchange extends Venue {
 
 
   public String helpInfo() {
-    if (inWorld() && ! isManned()) {
+    if (inWorld() && staff.manning() == 0) {
       return
         "The Stock Exchange cannot provide goods to local homeowners unless "+
         "someone is there to man the stalls!";

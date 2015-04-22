@@ -36,10 +36,6 @@ public class PlanUtils {
     float incentive = 0, winChance, inhibition, priority;
     float harmDone, dislike, wierdness, conscience;
     final boolean report = reportOn(actor);
-    if (report) {
-      I.say("...");
-    }
-    
     
     incentive += rewardBonus;
     incentive += dislike   = actor.relations.valueFor(subject)     * -5;

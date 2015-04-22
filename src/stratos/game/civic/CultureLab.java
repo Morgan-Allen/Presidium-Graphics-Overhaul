@@ -161,8 +161,7 @@ public class CultureLab extends Venue {
     float pollution = 5 - cycleBonus;
     //
     //  TODO:  vary this based on current power and the number of ongoing
-    //  cultures instead.
-    if (! isManned()) pollution /= 2;
+    //  cultures...
     structure.setAmbienceVal(0 - pollution);
   }
   

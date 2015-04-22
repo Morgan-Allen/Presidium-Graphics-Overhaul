@@ -10,7 +10,6 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.game.base.BaseTransport;
 import static stratos.game.economic.Economy.*;
 
 
@@ -138,61 +137,3 @@ public class SolarBank extends Venue {
 
 
 
-//  TODO:  Unify this with the equivalent methods in the Arcology class (and
-//  maybe ShieldWall?)
-
-/*
-final static int
-  FACING_X_COORDS[] = { 0, 0,  2, 0,  4, 0,  6, 0 }, OFFS_X[] = {3, 0},
-  FACING_Y_COORDS[] = { 0, 0,  0, 2,  0, 4,  0, 6 }, OFFS_Y[] = {0, 3},
-  SIDE_LENGTH = 8;
-
-private SolarBank[] getBankPlacement(Tile point, Base base, int facing) {
-  if (point == null) return null;
-  final Stage world = point.world;
-  final List <SolarBank> newBank = new List <SolarBank> ();
-  final int coords[] = facing == X_AXIS ? FACING_X_COORDS : FACING_Y_COORDS;
-  final int offs[]   = facing == X_AXIS ? OFFS_X : OFFS_Y;
-  
-  for (int n = 0; n < coords.length;) {
-    final Tile under = world.tileAt(
-      point.x + coords[n++] - offs[0],
-      point.y + coords[n++] - offs[1]
-    );
-    if (under == null) return null;
-    final SolarBank s = new SolarBank(base);
-    s.type = TYPE_INIT;
-    s.setPosition(under.x, under.y, world);
-    //if (! s.canPlace()) return null;
-    newBank.add(s);
-  }
-  return newBank.toArray(SolarBank.class);
-}
-
-
-private boolean bankOkay(Venue bank[]) {
-  if (bank == null) return false;
-  for (Venue b : bank) if (! b.canPlace()) return false;
-  return true;
-}
-
-
-public boolean setPosition(float x, float y, Stage world) {
-  if (! super.setPosition(x, y, world)) return false;
-  if (type != TYPE_PLACING) return true;
-  
-  SolarBank group[] = null;
-  if (! bankOkay(group)) group = getBankPlacement(origin(), base, X_AXIS);
-  if (! bankOkay(group)) group = getBankPlacement(origin(), base, Y_AXIS);
-  if (group == null) return false;
-  structure.assignGroup(group);
-  
-  for (SolarBank bank : group) {
-    bank.structure.assignGroup(group);
-    if (bank == group[group.length / 2]) bank.type = TYPE_HUB;
-    else bank.type = TYPE_SOLAR_RIGHT;
-    bank.attachModel(TYPE_MODELS[bank.type]);
-  }
-  return true;
-}
-//*/

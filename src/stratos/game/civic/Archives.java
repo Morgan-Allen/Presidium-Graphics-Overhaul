@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -116,8 +115,9 @@ public class Archives extends Venue {
   
   
   public void addServices(Choice choice, Actor actor) {
-    Studying s = new Studying(actor, this, STUDY_FEE);
-    choice.add(s);
+    
+    //  TODO:  Allow upgrades in different skill areas?
+    choice.add(Training.asResearch(actor, this, STUDY_FEE));
     
     final Owner home = actor.mind.home();
     if (home != null) {

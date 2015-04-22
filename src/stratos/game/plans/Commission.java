@@ -104,7 +104,7 @@ public class Commission extends Plan {
   private static Commission nextCommission(
     Actor actor, Venue makes, Item baseItem
   ) {
-    if (baseItem == null || ! makes.isManned()) return null;
+    if (baseItem == null || ! makes.openFor(actor)) return null;
 
     final boolean report = evalVerbose && I.talkAbout == actor;
     final int baseQuality = (int) baseItem.quality;
@@ -211,7 +211,7 @@ public class Commission extends Plan {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next commission step for "+actor);
 
-    if (! shop.isManned()) return null;
+    if (! shop.openFor(actor)) return null;
     if (! shop.structure.intact()) return null;
     
     if (expired()) {

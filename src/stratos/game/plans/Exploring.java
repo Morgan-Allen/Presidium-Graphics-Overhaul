@@ -20,7 +20,8 @@ public class Exploring extends Plan implements Qualities {
   /**  Construction and save/load methods-
     */
   private static boolean
-    evalVerbose = false;
+    evalVerbose = false,
+    stepVerbose = false;
   
   final static int
     TYPE_WANDER  = 0,
@@ -32,7 +33,6 @@ public class Exploring extends Plan implements Qualities {
   
   private Tile    lookedAt ;
   private float   travelled;
-  //private boolean sample   ;
   
   
   private Exploring(
@@ -136,7 +136,7 @@ public class Exploring extends Plan implements Qualities {
     //  Make this less attractive as you get further from home/safety.
     float basePriority = CASUAL * Planet.dayValue(actor.world());
     final Target haven = actor.senses.haven();
-    float distFactor = (haven == null || type == TYPE_WANDER) ? 0 :
+    float distFactor = (haven == null) ? 0 :
       Plan.rangePenalty(actor.base(), haven, actor)
     ;
     if (type == TYPE_WANDER) basePriority = IDLE   ;
@@ -151,7 +151,7 @@ public class Exploring extends Plan implements Qualities {
       actor, lookedAt,
       basePriority, 0 - (distFactor + 0),
       NO_HARM, MILD_COMPETITION,
-      MILD_FAIL_RISK, BASE_SKILLS,
+      NO_FAIL_RISK, BASE_SKILLS,
       BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
       report
     );

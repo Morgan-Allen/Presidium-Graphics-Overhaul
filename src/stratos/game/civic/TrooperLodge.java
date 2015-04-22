@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -65,26 +68,27 @@ public class TrooperLodge extends Venue {
   final public static Upgrade
     MELEE_TRAINING = new Upgrade(
       "Melee Training",
-      "Prepares your soldiers for the rigours of close combat.",
+      "Drills your soldiers for the rigours of close combat and tight "+
+      "formations.",
       150, Upgrade.THREE_LEVELS, null, 3,
       null, TrooperLodge.class, ALL_UPGRADES
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
-      "Prepares your soldiers for ranged marksmanship.",
+      "Drills your soldiers to improve ranged marksmanship.",
       150, Upgrade.THREE_LEVELS, null, 3,
       null, TrooperLodge.class, ALL_UPGRADES
     ),
-    ENDURANCE_TRAINING = new Upgrade(
-      "Endurance Training",
-      "Prepares your soldiers for guerilla warfare and wilderness survival.",
+    FIELD_MEDICINE = new Upgrade(
+      "Field Medicine",
+      "Drills your soldiers in first aid techniques and use of combat stims.",
       200, Upgrade.THREE_LEVELS, null, 3,
       null, TrooperLodge.class, ALL_UPGRADES
     ),
-    PEACEKEEPER_TRAINING = new Upgrade(
-      "Peacekeeper Training",
-      "Prepares your soldiers to use minimal force, build local contacts,"+
-      "and ensure fair treatment of prisoners.",
+    FIELD_REPAIRS = new Upgrade(
+      "Field Repairs",
+      "Drills your soldiers in maintaining equipment and aiding in "+
+      "construction projects.",
       200, Upgrade.THREE_LEVELS, null, 3,
       null, TrooperLodge.class, ALL_UPGRADES
     ),
@@ -92,7 +96,7 @@ public class TrooperLodge extends Venue {
       "Volunteer Station",
       VOLUNTEER.info,
       200,
-      Upgrade.THREE_LEVELS, Backgrounds.VOLUNTEER, 2,
+      Upgrade.THREE_LEVELS, Backgrounds.VOLUNTEER, 1,
       null, TrooperLodge.class, ALL_UPGRADES
     ),
     TROOPER_STATION = new Upgrade(
@@ -102,6 +106,65 @@ public class TrooperLodge extends Venue {
       Upgrade.THREE_LEVELS, Backgrounds.TROOPER, 1,
       VOLUNTEER_STATION, TrooperLodge.class, ALL_UPGRADES
     );
+
+  final static Upgrade TRAIN_UPGRADES[] = {
+    MELEE_TRAINING,
+    MARKSMAN_TRAINING,
+    FIELD_MEDICINE,
+    FIELD_REPAIRS
+  };
+  final static Skill TRAIN_SKILLS[][] = {
+    { HAND_TO_HAND, FORMATION_COMBAT },
+    { MARKSMANSHIP, SURVEILLANCE },
+    { ANATOMY, PHARMACY },
+    { ASSEMBLY, HARD_LABOUR }
+  };
+  
+  
+  public Behaviour jobFor(Actor actor, boolean onShift) {
+    final Choice choice = new Choice(actor);
+    final boolean offShift = staff.shiftFor(actor) == SECONDARY_SHIFT;
+    //
+    //  We allow for drilling in various skills during a soldier's secondary
+    //  shift-
+    if (offShift) for (int i = 4; i-- > 0;) {
+      final Upgrade TU = TRAIN_UPGRADES[i];
+      final float trainLevel = structure.upgradeLevel(TU);
+      if (trainLevel == 0) continue;
+      final Skill TS[] = TRAIN_SKILLS[i];
+      final Training s = Training.asDrill(actor, this, TS, trainLevel * 5);
+      s.addMotives(Plan.MOTIVE_JOB, (trainLevel + 1) * Plan.CASUAL / 2);
+      choice.add(s);
+    }
+    //
+    //  If there are shield walls built nearby, we try to patrol along their
+    //  perimeter.
+    //  TODO:  Move this to the factory method
+    if (onShift) {
+      final ShieldWall wall = (ShieldWall) world.presences.randomMatchNear(
+        ShieldWall.class, this, Stage.SECTOR_SIZE
+      );
+      if (wall != null && wall.base() == base) {
+        final int compass = TileConstants.T_ADJACENT[Rand.index(4)];
+        final Patrolling sentry = Patrolling.sentryDuty(actor, wall, compass);
+        choice.add(sentry);
+      }
+      //
+      //  Otherwise, fall back on regular patrols.
+      //  TODO:  Try to patrol in groups?
+      else {
+        choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
+      }
+    }
+    return choice.weightedPick();
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+  }
+  
+  
   
   public Background[] careers() {
     return new Background[] { Backgrounds.VOLUNTEER, Backgrounds.TROOPER };
@@ -118,31 +181,6 @@ public class TrooperLodge extends Venue {
   
   public Traded[] services() {
     return new Traded[] {};
-  }
-  
-  
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
-    
-    //  TODO:  INCLUDE DRILLING!
-    
-    //  TODO:  Try to optimise this?
-    final ShieldWall wall = (ShieldWall) world.presences.randomMatchNear(
-      ShieldWall.class, this, Stage.SECTOR_SIZE
-    );
-    if (wall != null && wall.base() == base) {
-      final int compass = TileConstants.T_ADJACENT[Rand.index(4)];
-      final Patrolling sentry = Patrolling.sentryDuty(actor, wall, compass);
-      return sentry;
-    }
-    //
-    //  Otherwise, fall back on regular patrols.  (Try to do this in groups?)
-    return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
-  }
-  
-  
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
   }
   
   

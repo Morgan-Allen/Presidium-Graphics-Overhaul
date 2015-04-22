@@ -354,7 +354,8 @@ public abstract class Venue extends Structural implements
   
   /**  Recruiting staff and assigning manufacturing tasks-
     */
-  public boolean isManned() {
+  public boolean openFor(Actor actor) {
+    if (actor != null && staff.doesBelong(actor)) return true;
     for (Actor a : staff.workers) {
       if (a.health.conscious() && a.aboard() == this) return true;
     }
@@ -437,7 +438,8 @@ public abstract class Venue extends Structural implements
   
   
   protected boolean showLights() {
-    return isManned();
+    if (profile.isFixture()) return true;
+    return staff.visitors().size() > 0;
   }
   
   

@@ -10,16 +10,11 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//  TODO:  Refreshed art for kommando lodge.
-
-//  TODO:  Add drilling to the trooper lodge.
+//  TODO:  Make sure enhanced meat-extraction works for kommando lodge.  (And
+//         consider adding the survey redoubt as a satellite structure.)
 
 //  TODO:  There is definitely some kind of bug with farming.  It doesn't
 //         complete properly and often gets interrupted.
-//  TODO:  Animals should be migrating from their own nests when crowded.
-
-//  TODO:  Add flesh still as satellite structure for kommando lodge and make
-//         sure enhanced meat-extraction works!
 
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
@@ -59,8 +54,7 @@ BUILDING AND UPGRADES-
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
 
-  >>>>>>> DO THIS <<<<<<<
-*  Fresh art for shield walls.  And give them out for free!
+*  Polish up shield-wall art, and give them out for free initially.
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange
@@ -68,7 +62,6 @@ BUILDING AND UPGRADES-
      Runner Market
      Kommando Lodge
      Airfield
-     Trooper Lodge (drilling)
      Cut out recruitment-extras for others.
 
 *  Use service hatches to initiate heavier paving and utility-transmission?
@@ -76,8 +69,6 @@ BUILDING AND UPGRADES-
 
 *  Buildings need to have multiple levels.  (At least for the main/root-guild
    structures.)
-
-*  Fresh art and level-depictions for all structures.
 
 
 CITIZEN BEHAVIOUR-

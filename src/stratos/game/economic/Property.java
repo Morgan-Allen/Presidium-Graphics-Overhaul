@@ -30,7 +30,7 @@ public interface Property extends Structure.Basis, Owner, Boarding {
   Traded[] services();  //  TODO:  Use Conversions instead...
   
   Staff staff();
-  boolean isManned();
+  boolean openFor(Actor actor);
   Boarding mainEntrance();
 }
 

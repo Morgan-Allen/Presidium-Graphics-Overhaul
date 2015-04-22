@@ -358,7 +358,7 @@ public interface Backgrounds {
     
     VOLUNTEER = new Background(
       Backgrounds.class,
-      "Trooper (Volunteer)",
+      "Volunteer",
       "Dedicated in defence of their homes, a volunteer militia provides the "+
       "mainstay of your domestic forces.",
       "militant_skin.gif", "militant_portrait.png",
@@ -371,7 +371,7 @@ public interface Backgrounds {
     
     TROOPER = new Background(
       Backgrounds.class,
-      "Trooper (Veteran)",
+      "Trooper",
       "Seasoned professional soldiers, veterans provide the backbone of your "+
       "officer corps and command structure.",
       "militant_skin.gif", "militant_portrait.png",
@@ -385,7 +385,7 @@ public interface Backgrounds {
     //  TODO:  Draw up a different set of art assets for this guy.
     MECH_LEGION = new Background(
       Backgrounds.class,
-      "Trooper (Mech Legion)",
+      "Mech Legion",
       "",
       "militant_skin.gif", "militant_portrait.png",
       CLASS_AGENT, GUILD_MILITANT,
@@ -396,7 +396,7 @@ public interface Backgrounds {
     
     ENFORCER = new Background(
       Backgrounds.class,
-      "Enforcer (Street Division)",
+      "Enforcer",
       "",
       "enforcer_skin.gif", "enforcer_portrait.png",
       CLASS_AGENT, GUILD_MILITANT,
@@ -408,7 +408,7 @@ public interface Backgrounds {
     
     PSI_CORPS = new Background(
       Backgrounds.class,
-      "Enforcer (Psi Division)",
+      "Psy Corps",
       "",
       "enforcer_skin.gif", "enforcer_portrait.png",
       CLASS_AGENT, GUILD_MILITANT
@@ -417,7 +417,7 @@ public interface Backgrounds {
     
     ANALYST = new Background(
       Backgrounds.class,
-      "Enforcer (Analyst)",
+      "Analyst",
       "",
       "enforcer_skin.gif", "enforcer_portrait.png",
       CLASS_STRATOI, GUILD_MILITANT
@@ -426,7 +426,7 @@ public interface Backgrounds {
     
     DECK_HAND = new Background(
       Backgrounds.class,
-      "Air Corps (Deckhand)",
+      "Deckhand",
       "",
       "air_corps_skin.gif", "air_corps_portrait.png",
       CLASS_AGENT, GUILD_MILITANT,
@@ -437,7 +437,7 @@ public interface Backgrounds {
     
     WINGMAN = new Background(
       Backgrounds.class,
-      "Air Corps (Wingman)",
+      "Wingman",
       "",
       "air_corps_skin.gif", "air_corps_portrait.png",
       CLASS_AGENT, GUILD_MILITANT,
@@ -449,7 +449,7 @@ public interface Backgrounds {
     
     ACE = new Background(
       Backgrounds.class,
-      "Air Corps (Ace)",
+      "Ace",
       "",
       "air_corps_skin.gif", "air_corps_portrait.png",
       CLASS_STRATOI, GUILD_MILITANT

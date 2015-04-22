@@ -88,6 +88,8 @@ public class DebugSecurity extends Scenario {
   private void wallsScenario(Stage world, Base base, BaseUI UI) {
     final Bastion bastion = new Bastion(base);
     Placement.establishVenue(bastion, world.tileAt(20, 20), true, world);
+    
+    base.finance.incCredits(100000, BaseFinance.SOURCE_CHARITY);
   }
   
   

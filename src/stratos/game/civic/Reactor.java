@@ -284,7 +284,7 @@ public class Reactor extends Venue {
     if ((! structure.intact()) && meltdown == 0) return;
     float chance = meltdownChance() / Stage.STANDARD_DAY_LENGTH;
     chance += meltdown / 10f;
-    if (isManned()) chance /= 2;
+    if (staff.manning() > 0) chance /= 2;
     if (Rand.num() < chance) {
       final float melt = 0.1f * Rand.num();
       meltdown += melt;

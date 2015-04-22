@@ -1,9 +1,10 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.base.Pledge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.user.*;
@@ -15,18 +16,20 @@ import static stratos.game.economic.Economy.*;
 
 //  TODO:  Allow for learning of specific techniques.
 //  TODO:  Allow upgrades at the archives to improve efficiency.
-//  TODO:  Charge for the service?
 
-
-public class Studying extends Plan {
+public class Training extends Plan {
   
   
   /**  Data fields, setup and save/load functions-
     */
   private static boolean
-    evalVerbose  = false,
-    studyVerbose = false,
-    eventVerbose = false;
+    evalVerbose = false,
+    stepVerbose = false;
+  
+  final static int
+    TYPE_RESEARCH = 0,
+    TYPE_DRILL    = 1,
+    TYPE_TUTOR    = 2;
   
   final static float
     STAY_TIME   = Stage.STANDARD_HOUR_LENGTH,
@@ -34,22 +37,31 @@ public class Studying extends Plan {
     ACCOUNTS_DC = SIMPLE_DC ;
   
   final Venue venue;
+  final int type;
   
-  private float chargeCost;
+  private float skillLimit = -1;
+  private Skill available[] = null;
+  
+  private float chargeCost = 0;
   private float beginTime = -1;
   private Skill studied   = null;
   
   
-  public Studying(Actor actor, Venue studyAt, float chargeCost) {
-    super(actor, studyAt, MOTIVE_PERSONAL, NO_HARM);
-    this.venue = studyAt;
-    this.chargeCost = chargeCost;
+  protected Training(Actor actor, Venue venue, int type) {
+    super(actor, venue, MOTIVE_PERSONAL, NO_HARM);
+    this.venue = venue;
+    this.type  = type ;
   }
   
   
-  public Studying(Session s) throws Exception {
+  public Training(Session s) throws Exception {
     super(s);
     this.venue      = (Venue) s.loadObject();
+    this.type       = s.loadInt();
+    
+    this.skillLimit = s.loadFloat();
+    this.available  = (Skill[]) s.loadObjectArray(Skill.class);
+    
     this.chargeCost = s.loadFloat();
     this.beginTime  = s.loadFloat();
     this.studied    = (Skill) s.loadObject();
@@ -59,6 +71,11 @@ public class Studying extends Plan {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(venue     );
+    s.saveInt   (type      );
+    
+    s.saveFloat      (skillLimit);
+    s.saveObjectArray(available );
+    
     s.saveFloat (chargeCost);
     s.saveFloat (beginTime );
     s.saveObject(studied   );
@@ -66,32 +83,63 @@ public class Studying extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new Studying(other, venue, chargeCost);
+    final Training s = new Training(other, venue, type);
+    s.chargeCost = chargeCost;
+    s.skillLimit = skillLimit;
+    s.available  = available ;
+    return s;
+  }
+  
+  
+  
+  /**  Public factory methods-
+    */
+  public static Training asDrill(
+    Actor actor, Venue venue, Skill available[], float skillLimit
+  ) {
+    final Training drill = new Training(actor, venue, TYPE_DRILL);
+    drill.available  = available ;
+    drill.skillLimit = skillLimit;
+    return drill;
+  }
+  
+  
+  public static Training asResearch(
+    Actor actor, Venue venue, float cost
+  ) {
+    final Training study = new Training(actor, venue, TYPE_RESEARCH);
+    study.chargeCost = cost;
+    return study;
   }
   
   
   
   /**  Evaluating targets and priority-
     */
-  final static Trait BASE_TRAITS[] = { CURIOUS, AMBITIOUS, SOLITARY };
+  final static Trait
+    DRILL_TRAITS   [] = { ENERGETIC, DUTIFUL, IGNORANT },
+    RESEARCH_TRAITS[] = { CURIOUS, AMBITIOUS, SOLITARY };
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) {
       I.say("\nStudy priority for "+actor+" ("+actor.mind.vocation()+")");
-      I.say("  "+venue+" manned? "+venue.isManned());
+      I.say("  "+venue+" open? "+venue.openFor(actor));
     }
-    if (! (venue.staff.doesBelong(actor) || venue.isManned())) return 0;
-    
+    if (! venue.openFor(actor)) return -1;
     if (studied == null) studied = toStudy();
-    if (studied == null) return 0;
+    if (studied == null) return -1;
     float modifier = IDLE - actor.motives.greedPriority(chargeCost);
+    
+    Trait baseTraits[] = NO_TRAITS;
+    if (type == TYPE_DRILL   ) baseTraits = DRILL_TRAITS   ;
+    if (type == TYPE_RESEARCH) baseTraits = RESEARCH_TRAITS;
     
     return priorityForActorWith(
       actor, venue,
       CASUAL, modifier,
       NO_HARM, NO_COMPETITION, MILD_FAIL_RISK,
-      NO_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
+      NO_SKILLS, baseTraits, PARTIAL_DISTANCE_CHECK,
       report
     );
   }
@@ -109,25 +157,31 @@ public class Studying extends Plan {
   /**  Behaviour implementation-
     */
   private Skill toStudy() {
-    final boolean report = studyVerbose && I.talkAbout == actor;
-    final Pick <Skill> pick = new Pick <Skill> (null, 0);
-    
-    //  Include any skills that factor into the actor's long-term career plans-
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    //
+    //  We select whatever available skill is furthest from it's desired level.
+    final Pick <Skill> pick = new Pick <Skill> (null, 0) {
+      public void compare(Skill s, float maxLevel) {
+        final float rating = maxLevel - actor.traits.traitLevel(s);
+        super.compare(s, rating);
+      }
+    };
     final Background ambition = FindWork.ambitionOf(actor);
-    if (ambition != null) for (Skill s : ambition.skills()) {
-      if (s.form != FORM_COGNITIVE) continue;
-      final int knownLevel = (int) actor.traits.traitLevel(s);
-      final float gap = (ambition.skillLevel(s) * 1.5f) - knownLevel;
-      pick.compare(s, gap * Rand.num());
+    //
+    //  If a customised skill-selection has been specified, we select from that
+    //  range.
+    if (available != null) for (Skill s : available) {
+      final float bonus = ambition.skillLevel(s);
+      pick.compare(s, (skillLimit + bonus) / 2);
     }
-    
-    //  Inscription and accounting are always available-
-    final float
-      inscribeGap = INSCRIBE_DC - actor.traits.traitLevel(INSCRIPTION),
-      accountsGap = ACCOUNTS_DC - actor.traits.traitLevel(ACCOUNTING );
-    pick.compare(INSCRIPTION, inscribeGap * Rand.num());
-    pick.compare(ACCOUNTING , accountsGap * Rand.num());
-    
+    //
+    //  By default, training is otherwise limited to cognitive skills relevant
+    //  to the actor's vocation:
+    else for (Skill s : ambition.skills()) {
+      if (s.form != FORM_COGNITIVE) continue;
+      pick.compare(s, ambition.skillLevel(s) * 1.5f);
+    }
+    //
     //  File a report if called for, and return the end result-
     if (report) {
       I.say("\nGetting study regime for "+actor);
@@ -171,11 +225,14 @@ public class Studying extends Plan {
       actor.gear.incCredits(0 - chargeCost);
       chargeCost = 0;
     }
-
+    
     final int knownLevel = (int) actor.traits.traitLevel(studied);
     float practice = 1.0f;
-    if (actor.skills.test(ACCOUNTING , ACCOUNTS_DC, 1)) practice++;
-    if (actor.skills.test(INSCRIPTION, INSCRIBE_DC, 1)) practice++;
+    if (type == TYPE_RESEARCH) {
+      if (actor.skills.test(ACCOUNTING , ACCOUNTS_DC, 1)) practice++;
+      if (actor.skills.test(INSCRIPTION, INSCRIBE_DC, 1)) practice++;
+    }
+    else practice += 0.5f;
     
     actor.skills.practiceAgainst(knownLevel, practice, studied);
     return true;
@@ -183,7 +240,8 @@ public class Studying extends Plan {
   
   
   public void describeBehaviour(Description d) {
-    d.append("Studying ");
+    if (type == TYPE_RESEARCH) d.append("Researching ");
+    if (type == TYPE_DRILL   ) d.append("Drilling in ");
     d.append(studied);
     d.append(" at ");
     d.append(venue);

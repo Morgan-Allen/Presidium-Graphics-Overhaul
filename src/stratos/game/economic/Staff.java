@@ -95,6 +95,13 @@ public class Staff {
   }
   
   
+  public int manning() {
+    int count = 0;
+    for (Actor a : workers) if (a.aboard() == employs) count++;
+    return count;
+  }
+  
+  
   public boolean isResident(Mobile a) {
     if (a instanceof Actor && ((Actor) a).mind.home() == employs) return true;
     return false;

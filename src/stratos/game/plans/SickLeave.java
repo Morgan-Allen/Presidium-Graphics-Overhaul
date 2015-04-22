@@ -89,7 +89,7 @@ public class SickLeave extends Plan {
     
     float urgency = Treatment.dangerRating(sickness, actor);
     if (urgency < crowding) return -1;
-    if (urgency < 0.5f && ! sickbay.isManned()) return -1;
+    if (urgency < 0.5f && ! sickbay.openFor(actor)) return -1;
     float modifier = NO_MODIFIER;
     
     if (visitCost > 0) {
