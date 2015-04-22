@@ -311,19 +311,24 @@ public class ActorHealth implements Qualities {
     */
   public void takeInjury(float taken, boolean terminal) {
     final boolean report = verbose && I.talkAbout == actor;
+
+    final float
+      limitKO  = maxHealth * MAX_INJURY,
+      absLimit = maxHealth * MAX_DECOMP;
+    
     if (report) {
       I.say("\n"+actor+" has been injured.");
-      I.say("  Prior injury: "+injury+", taken: "+taken);
+      I.say("  Terminal damage? "+terminal);
+      I.say("  Prior injury: "+injury+", taken: "+taken+", max: "+maxHealth);
+      I.say("  KO at: "+limitKO+", decomp at: "+absLimit);
     }
     
     final float limit;
-    if (injury < maxHealth) limit = maxHealth;
-    else if (terminal || conscious()) limit = maxHealth * MAX_DECOMP;
+    if (injury < limitKO) limit = limitKO;
+    else if (terminal || ! conscious()) limit = absLimit;
     else limit = injury;
     
-    if (organic()) {
-      if ((Rand.num() * maxHealth / 2f) < taken) bleeds = true;
-    }
+    if (organic() && (Rand.num() * maxHealth / 2f) < taken) bleeds = true;
     injury = Nums.clamp(injury + taken, 0, limit + 1);
     checkStateChange();
     

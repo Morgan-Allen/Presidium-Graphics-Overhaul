@@ -16,12 +16,6 @@ public abstract class Technique extends Index.Entry
     TYPE_SKILL_USE_BASED    = 0,
     TYPE_INDEPENDANT_ACTION = 1,
     TYPE_SOVEREIGN_POWER    = 2;
-  /*
-  final public static int
-    SOURCE_SKILL  = 2,
-    SOURCE_ITEM   = 1,
-    SOURCE_SECRET = 0;
-  //*/
   final public static Object
     TRIGGER_ATTACK = new Object(),
     TRIGGER_DEFEND = new Object(),

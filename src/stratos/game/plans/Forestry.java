@@ -144,7 +144,7 @@ public class Forestry extends Plan {
     if (stage == STAGE_SAMPLING) {
       bonus = 1;
     }
-    if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
+    else if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       bonus += 0.5f - abundance;
     }
     else if (stage == STAGE_CUTTING) {

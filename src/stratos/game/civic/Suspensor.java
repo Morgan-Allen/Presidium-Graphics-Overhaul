@@ -5,7 +5,8 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.wild.Species;
+import stratos.game.plans.*;
+//import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.user.*;
@@ -115,13 +116,6 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
-  public static Actor carrying(Actor other) {
-    if (! (other.currentMount() instanceof Suspensor)) return null;
-    final Suspensor s = (Suspensor) other.currentMount();
-    return s.followed;
-  }
-  
-  
   protected void updateAsMobile() {
     final boolean report = true && (
       I.talkAbout == passenger || I.talkAbout == followed
@@ -186,6 +180,23 @@ public class Suspensor extends Mobile implements Mount {
   
   protected float spriteScale() {
     return super.spriteScale() * GameSettings.peopleScale();
+  }
+  
+  
+  /**  Utility methods for external use-
+    */
+  public static Actor carrying(Actor other) {
+    if (! (other.currentMount() instanceof Suspensor)) return null;
+    final Suspensor s = (Suspensor) other.currentMount();
+    return s.followed;
+  }
+  
+  
+  public static Plan deliveryTask(Actor actor, Actor carried, Target to) {
+    if (! (to instanceof Boarding)) return null;
+    final Actor carries = carrying(carried);
+    if (carries != null && carries != actor) return null;
+    else return new StretcherDelivery(actor, carried, (Boarding) to);
   }
   
   

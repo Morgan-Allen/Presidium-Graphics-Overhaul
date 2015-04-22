@@ -18,9 +18,11 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Adapt this to arbitrary species (including humans) and get rid of
+//  the intermediate 'culture' step...
+
+
 public class SeedTailoring extends Plan {
-  
-  
   
   /**  Data, fields, constructors, setup and save/load functions-
     */

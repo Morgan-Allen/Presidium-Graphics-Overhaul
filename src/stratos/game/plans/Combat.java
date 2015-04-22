@@ -161,7 +161,7 @@ public class Combat extends Plan implements Qualities {
     if (struck == subject && subject instanceof Actor) {
       final Boarding haven = ((Actor) struck).aboard();
       if (! haven.allowsEntry(actor)) {
-        if (haven.base() == actor.base()) {
+        if (haven.base() == actor.base() || object != OBJECT_DESTROY) {
           interrupt("Prey has found sanctuary!");
           return null;
         }

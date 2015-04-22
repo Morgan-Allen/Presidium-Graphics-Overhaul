@@ -263,10 +263,13 @@ public abstract class Venue extends Structural implements
       impingeSupply(false);
     }
     if (structure.intact()) {
-      final int needHome = staff.workingOrOffworld();
-      base.demands.impingeDemand(SERVICE_HOUSING, needHome, 1, this);
       stocks.updateOrders();
-      if (rare) stocks.updateDemands(10);
+      if (rare) {
+        stocks.updateDemands(10);
+        int needHome = 0;
+        for (Actor a : staff.workers()) if (a.mind.home() != this) needHome++;
+        base.demands.impingeDemand(SERVICE_HOUSING, needHome, 10, this);
+      }
     }
   }
   

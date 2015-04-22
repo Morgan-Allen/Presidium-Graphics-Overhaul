@@ -97,12 +97,12 @@ public class DebugPlacing extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (true ) configEcology  (world, base, UI);
+    if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
-    if (false) configPlantTest(world, base, UI);
+    if (true ) configPlantTest(world, base, UI);
   }
   
   
@@ -203,16 +203,32 @@ public class DebugPlacing extends Scenario {
     
     final EcologistStation station = new EcologistStation(base);
     Placement.establishVenue(station, 8, 8, true, world);
+    for (Species s : Crop.ALL_VARIETIES) {
+      final Item seed = Item.with(Economy.SAMPLES, s, 1, 4);
+      station.stocks.addItem(seed);
+    }
+    base.setup.fillVacancies(station, true);
     
     final Nursery site = new Nursery(base);
-    site.setupWith(world.tileAt(8, 15), null);
+    final Box2D area = new Box2D(13, 4, 10, 10);
+    site.setupWith(world.tileAt(18, 8), area);
     if (site.canPlace()) site.doPlacement();
+    
+    final Bastion bastion = new Bastion(base);
+    Placement.establishVenue(bastion, site, true, world);
+    base.setup.fillVacancies(bastion, true);
   }
   
   
   protected void afterCreation() {
   }
 }
+
+
+
+
+
+
 
 
 

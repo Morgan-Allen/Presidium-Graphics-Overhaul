@@ -327,9 +327,10 @@ public class Crop extends Element {
     */
   protected void updateSprite() {
     if (covered) {
-      final Box2D b = parent.areaClaimed();
-      if (b.xdim() > b.ydim()) attachModel(COVERING_RIGHT);
-      else                     attachModel(COVERING_LEFT );
+      final int f = parent.facing();
+      boolean across = f == Venue.FACING_NORTH || f == Venue.FACING_SOUTH;
+      if (across) attachModel(COVERING_RIGHT);
+      else        attachModel(COVERING_LEFT );
       return;
     }
     final GroupSprite old = (GroupSprite) sprite();

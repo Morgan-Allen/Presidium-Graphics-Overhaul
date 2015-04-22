@@ -84,6 +84,9 @@ public class PlanUtils {
     if (actor.senses.fearLevel() == 0) loseChance = 0;
     incentive += loseChance * 10;
     
+    //  TODO:  home distance should raise the threshold for retreat, rather
+    //  than reducing it's urgency?
+    
     homeDistance = homeDistanceFactor(actor, actor.origin());
     if (! isArmed(actor)) homeDistance = (homeDistance + 2) / 2;
     if (actor.senses.isEmergency()) homeDistance += 0.5f;

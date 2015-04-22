@@ -120,6 +120,9 @@ public class Nursery extends Venue implements TileConstants {
     //  by an automated placement-search.)
     areaClaimed.setTo(footprint()).expandBy(2);
     if (area != null) areaClaimed.include(area);
+    this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
+      FACING_SOUTH : FACING_EAST
+    ;
     return true;
   }
   
@@ -244,7 +247,7 @@ public class Nursery extends Venue implements TileConstants {
   private int plantType(Tile t) {
     if (! areaClaimed.contains(t.x, t.y)) return -1;
     
-    final boolean across = areaClaimed.xdim() > areaClaimed.ydim();
+    final boolean across = facing == FACING_NORTH || facing == FACING_SOUTH;
     final int s = Nums.round(t.world.size, 6, true);  //  Modulus offset.
     final Tile o = origin();
     

@@ -532,7 +532,7 @@ public class Action implements Behaviour, AnimNames {
       final Class <? extends Object> params[] = method.getParameterTypes();
       if (
         params.length != 2 ||
-        ! Actor.class.isAssignableFrom(params[0]) ||
+        ! Actor .class.isAssignableFrom(params[0]) ||
         ! Target.class.isAssignableFrom(params[1])
       ) I.complain("METHOD HAS BAD ARGUMENT SET!");
       method.setAccessible(true);

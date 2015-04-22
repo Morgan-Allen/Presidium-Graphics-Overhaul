@@ -20,6 +20,7 @@ import static stratos.game.economic.Economy.*;
 
 //  TODO:  Adapt this to animals (see isBrowser() below.)
 
+
 public class Foraging extends Plan {
   
   

@@ -10,11 +10,6 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//  TODO:  Make sure enhanced meat-extraction works for kommando lodge.  (And
-//         consider adding the survey redoubt as a satellite structure.)
-
-//  TODO:  There is definitely some kind of bug with farming.  It doesn't
-//         complete properly and often gets interrupted.
 
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
@@ -67,6 +62,9 @@ BUILDING AND UPGRADES-
 *  Use service hatches to initiate heavier paving and utility-transmission?
    Arcologies might have auto-placement?
 
+*  Flesh out the full set of behaviours for the major Schools (and the Kommando
+   lodge too.)
+
 *  Buildings need to have multiple levels.  (At least for the main/root-guild
    structures.)
 
@@ -88,6 +86,9 @@ CITIZEN BEHAVIOUR-
 *  Hide-and-seek needs to be more effective (for retreat, looting and combat.)
 
 *  Figure out entry-permissions for structures and guests, and/or sieges.
+
+*  There may be a bug with farming/forest-samping being interrupted, but I
+   can't seem to reproduce it.  Keep an eye out.
 
 
 CONTROL AND DIRECTION-
@@ -130,6 +131,8 @@ INTERFACE AND DEBUGGING
 
 *  Try to implement some global debugging-levels.
 
+*  X and Y coords are reversed on the map, which is sometimes confusing.
+
 *  Include Advisors(?) and more detail Finances/Economy pane.
 
 *  Include healthbars for psy-meter and target-descriptions?  Personal icon?
@@ -137,13 +140,11 @@ INTERFACE AND DEBUGGING
 *  Try tracking actors only when they wander outside your field of view (or
    start that way.)  And include tracking options in the UI.
 
+*  Need-indicators for structures (water/power/etc. are sometimes lit- up and
+   sometimes not, depending on selection & camera position.
+
 *  Read definitions from .xml and allow for later string translations.
 //*/
-
-
-//  TODO:  X AND Y COORDS ARE REVERSED ON THE MAP!  THAT'S REALLY CONFUSING!
-//  TODO:  Need-indicators for structures (water/power/etc. are sometimes lit-
-//         up and sometimes not, depending on selection & camera position.)
 
 
 

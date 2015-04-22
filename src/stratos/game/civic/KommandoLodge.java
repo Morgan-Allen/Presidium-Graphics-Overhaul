@@ -22,7 +22,8 @@ public class KommandoLodge extends Venue {
   
   /**  Data fields, constructors and save/load methods-
     */
-  private static boolean verbose = true;
+  private static boolean
+    verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     KommandoLodge.class, "media/Buildings/ecologist/kommando_lodge.png", 4, 2
@@ -46,8 +47,10 @@ public class KommandoLodge extends Venue {
     LAND_TO_PROTEIN
   );
   
+  
   private Venue fleshStill = null;
   private GroupSprite camouflaged;
+  
   
   
   public KommandoLodge(Base base) {
@@ -114,24 +117,6 @@ public class KommandoLodge extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    /*
-    THERMAL_CAMOUFLAGE = new Upgrade(
-      "Thermal Camouflage",
-      "Reduces the Surveillance Post's thermal signature and light output, "+
-      "making it harder for outsiders to detect.",
-      200,
-      null, 1, null,
-      KommandoLodge.class, ALL_UPGRADES
-    ),
-    SENSOR_PERIMETER = new Upgrade(
-      "Sensor Perimeter",
-      "Installs automatic sensors attuned to sound and motion, making it "+
-      "difficult for intruders to approach unannounced.",
-      100,
-      null, 1, THERMAL_CAMOUFLAGE,
-      KommandoLodge.class, ALL_UPGRADES
-    ),
-    //*/
     NATIVE_MISSION = new Upgrade(
       "Native Mission",
       "Improves recruitment from local tribal communities and raises the odds "+
@@ -140,43 +125,51 @@ public class KommandoLodge extends Venue {
       Upgrade.THREE_LEVELS, null, 1,
       null, KommandoLodge.class, ALL_UPGRADES
     ),
+    THERMAL_CAMOUFLAGE = new Upgrade(
+      "Thermal Camouflage",
+      "Reduces the Kommando Lodge's thermal signature and light output, "+
+      "making it harder for outsiders to detect.",
+      200, Upgrade.TWO_LEVELS, null, 1, null,
+      KommandoLodge.class, ALL_UPGRADES
+    ),
     MAW_TRAINING = new Upgrade(
       "Maw Training",
       "Trains your Kommandos to tame and ride Desert Maws, relatives of the "+
       "Lictovore selectively bred as war mounts.",
       300,
-      Upgrade.THREE_LEVELS, null, 1,
+      Upgrade.TWO_LEVELS, null, 1,
       null, KommandoLodge.class, ALL_UPGRADES
     ),
-    KOMMANDO_STATION = new Upgrade(
-      "Kommando Station",
-      KOMMANDO.info,
-      100,
-      Upgrade.THREE_LEVELS, Backgrounds.KOMMANDO, 1,
+    FLESH_STILL = new Upgrade(
+      "Flesh Still",
+      "Improves the effiency of spyce and protein extraction from rendered-"+
+      "down kills.",
+      150,
+      Upgrade.TWO_LEVELS, null, 1,
       null, KommandoLodge.class, ALL_UPGRADES
     ),
-    FAVOURED_ENEMY_VERMIN = new Upgrade(
+    VENDETTA_VERMIN = new Upgrade(
       "Vendetta: Vermin",
       "Trains your Kommandos to efficiently dispatch silicates, insectiles "+
       "and other dangerous, inedible pests.",
       100,
-      Upgrade.THREE_LEVELS, null, 1,
-      KOMMANDO_STATION, KommandoLodge.class, ALL_UPGRADES
+      Upgrade.SINGLE_LEVEL, null, 1,
+      null, KommandoLodge.class, ALL_UPGRADES
     ),
-    FAVOURED_ENEMY_HUMAN = new Upgrade(
+    VENDETTA_HUMAN = new Upgrade(
       "Vendetta: Humans",
       "Trains your Kommandos to efficiently dispatch human (or human-like) "+
       "adversaries.",
       200,
-      Upgrade.THREE_LEVELS, null, 1,
-      KOMMANDO_STATION, KommandoLodge.class, ALL_UPGRADES
+      Upgrade.SINGLE_LEVEL, null, 1,
+      null, KommandoLodge.class, ALL_UPGRADES
     ),
-    FAVOURED_ENEMY_ARTILECT = new Upgrade(
+    VENDETTA_ARTILECT = new Upgrade(
       "Vendetta: Artilects",
       "Trains your Kommandos to efficiently dispatch machines and cybrids.",
       150,
-      Upgrade.THREE_LEVELS, null, 1,
-      KOMMANDO_STATION, KommandoLodge.class, ALL_UPGRADES
+      Upgrade.SINGLE_LEVEL, null, 1,
+      null, KommandoLodge.class, ALL_UPGRADES
     );
   
   
@@ -184,6 +177,19 @@ public class KommandoLodge extends Venue {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
     final boolean report = verbose && I.talkAbout == actor;
+    
+    //  TODO:  Consider using 'joining' behaviours to actively recruit other
+    //         actors for a given purpose.  Then you can use that for hunting,
+    //         building, recreation, or what have you.
+    
+    //  TODO:  Include mounting behaviours, and placing skins nearby as a
+    //         warning to others.
+    
+    //  TODO:  Include Training behaviours that cover learning vendetta-based
+    //         techniques- as you would for a School!
+    
+    //  TODO:  Weight the likelihood of hunting based on vendettas, and add
+    //         special Techniques to deal extra damage.
     
     final Exploring e = Exploring.nextExploration(actor);
     if (e != null) {
@@ -197,12 +203,7 @@ public class KommandoLodge extends Venue {
       f.addMotives(Plan.MOTIVE_JOB, ((10 - food) / 10) * Plan.ROUTINE);
       choice.add(f);
     }
-    //  TODO:  Add mounting behaviours, massed raiding against specified
-    //  enemies, and placing their skins as a warning.  (And possibly animal
-    //  breeding for mounts?)  Hunting, certainly.
-
-    //  TODO:  Weight the likelihood of this based on Favoured Enemies- and
-    //  try to get multiple participants!
+    
     for (Target t : world.presences.sampleFromMap(
       actor, world, 5, null, Mobile.class
     )) {
@@ -215,7 +216,7 @@ public class KommandoLodge extends Venue {
         choice.add(Hunting.asHarvest(actor, (Actor) t, this, false));
       }
     }
-    choice.isVerbose = true;
+    choice.isVerbose = report;
     
     
     final Behaviour pick = choice.weightedPick();
@@ -225,17 +226,14 @@ public class KommandoLodge extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { KOMMANDO, NATIVE_AUXILIARY, SLAYER };
+    return new Background[] { KOMMANDO, NATIVE_AUXILIARY };
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
     if (v == Backgrounds.KOMMANDO) {
-      return nO + 3 + structure.upgradeLevel(KOMMANDO_STATION);
-    }
-    if (v == Backgrounds.SLAYER) {
-      return nO + (1 + structure.upgradeLevel(KOMMANDO_STATION)) / 2;
+      return nO + 3;
     }
     if (v == Backgrounds.NATIVE_AUXILIARY) {
       return nO + structure.upgradeLevel(NATIVE_MISSION);
@@ -253,7 +251,12 @@ public class KommandoLodge extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     stocks.forceDemand(CARBS, 5, false);
-    stocks.incDemand(PROTEIN, 5, 1, true);
+    stocks.incDemand(PROTEIN, 10, 1, true);
+    
+    //stocks.forceDemand(PROTEIN, 10, false);
+    //stocks.setAmount(PROTEIN, 15);
+    
+    //  TODO:  Use Survey Redoubt as home?
     /*
     if (still == null || still.destroyed()) {
       final Tile o = Spacing.pickRandomTile(this, 4, world);
