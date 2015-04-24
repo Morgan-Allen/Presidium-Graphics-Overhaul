@@ -268,7 +268,6 @@ public class ReminderListing extends UIGroup {
         }
       });
     }
-    
   }
   
   
@@ -278,6 +277,7 @@ public class ReminderListing extends UIGroup {
     final CommsReminder entry = (CommsReminder) entryWithMessage(message);
     if (entry == null) return;
     entry.setFlash(false);
+    message.source.messageWasOpened(message.title, UI);
   }
   
   

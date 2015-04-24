@@ -9,28 +9,34 @@ import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
+import stratos.game.plans.Combat;
+import stratos.game.plans.Repairs;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
 
 
+//TODO:  Allow inclusion of images in the messages.
+//TODO:  Disable shipping until the player is ready.
 
-public class TutorialScenario extends StartupScenario implements
-  MessagePane.MessageSource
-{
+
+public class TutorialScenario extends StartupScenario {
   
   private static boolean
     verbose          = false,
     objectiveVerbose = false;
   
+  final static String SCRIPT_XML_PATH = "media/Help/TutorialScript.xml";
+  
   Bastion bastion;
   Ruins ruins;
-  private HelpScript script;
+  final MessageScript script;
   
   
   public TutorialScenario(String prefix) {
     super(config(), prefix);
+    script = new MessageScript(this, SCRIPT_XML_PATH);
   }
   
   
@@ -38,7 +44,8 @@ public class TutorialScenario extends StartupScenario implements
     super(s);
     bastion = (Bastion) s.loadObject();
     ruins   = (Ruins  ) s.loadObject();
-    script().loadState(s);
+    this.loadAllFlags(s);
+    this.script = (MessageScript) s.loadObject();
   }
   
   
@@ -46,22 +53,8 @@ public class TutorialScenario extends StartupScenario implements
     super.saveState(s);
     s.saveObject(bastion);
     s.saveObject(ruins  );
-    script().saveState(s);
-  }
-  
-  
-  protected HelpScript script() {
-    //
-    //  NOTE:  We may have to initialise the script here, as save/load calls
-    //  for messages in the ReminderListing can be invoked before the class-
-    //  constructor has finished.
-    if (script == null) script = new HelpScript(this);
-    return script;
-  }
-  
-  
-  public MessagePane configMessage(String title, BaseUI UI) {
-    return script().messageFor(title);
+    this.saveAllFlags(s);
+    s.saveObject(script);
   }
   
   
@@ -108,9 +101,250 @@ public class TutorialScenario extends StartupScenario implements
     */
   public void updateGameState() {
     super.updateGameState();
-    script().checkForFlags();
+    script.checkForEvents();
+  }
+  
+  
+  private TrooperLodge    barracksBuilt = null;
+  private EngineerStation foundryBuilt  = null;
+  private SupplyDepot     depotBuilt    = null;
+  private float startingBalance = -1;
+  
+  private Tile         startAt      = null;
+  private ReconMission reconSent    = null;
+  private Drone        droneAttacks = null;
+  
+  
+  protected void loadAllFlags(Session s) throws Exception {
+    barracksBuilt   = (TrooperLodge   ) s.loadObject();
+    foundryBuilt    = (EngineerStation) s.loadObject();
+    depotBuilt      = (SupplyDepot    ) s.loadObject();
+    startingBalance = s.loadFloat();
+    
+    startAt      = (Tile        ) s.loadObject();
+    reconSent    = (ReconMission) s.loadObject();
+    droneAttacks = (Drone       ) s.loadObject();
+  }
+  
+  
+  protected void saveAllFlags(Session s) throws Exception {
+    s.saveObject(barracksBuilt  );
+    s.saveObject(foundryBuilt   );
+    s.saveObject(depotBuilt     );
+    s.saveFloat (startingBalance);
+    
+    s.saveObject(startAt     );
+    s.saveObject(reconSent   );
+    s.saveObject(droneAttacks);
+  }
+  
+  
+  protected boolean checkShowWelcome() {
+    return true;
+  }
+  
+  
+  protected boolean checkMotionDone() {
+    final Vec3D lookPoint = UI().rendering.view.lookedAt;
+    final Tile  lookTile  = world().tileAt(lookPoint.x, lookPoint.y);
+    if (lookTile == null) return false;
+    
+    if (startAt == null) startAt = lookTile;
+    if (Spacing.distance(lookTile, startAt) < 4) return false;
+    return true;
+  }
+  
+  
+  protected void onMotionDone() {
+    base().intelMap.liftFogAround(bastion, 12);
+    UI().tracking.lockOn(bastion);
+  }
+  
+  
+  protected boolean checkBuiltBarracks() {
+    barracksBuilt = (TrooperLodge) firstBaseVenue(TrooperLodge.class);
+    if (barracksBuilt == null) return false;
+    
+    onBuiltBarracks();
+    return true;
+  }
+  
+  
+  protected void onBuiltBarracks() {
+    barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
+    base().setup.fillVacancies(barracksBuilt, true);
+    base().setup.fillVacancies(bastion      , true);
+    UI().tracking.lockOn(barracksBuilt);
+  }
+  
+  
+  protected boolean checkExploreBegun() {
+    ReconMission match = null;
+    for (Mission m : base().tactics.allMissions()) {
+      if (m instanceof ReconMission) match = (ReconMission) m;
+    }
+    if (match == null) return false;
+    
+    reconSent = match;
+    onExploreBegun();
+    return true;
+  }
+  
+  
+  protected void onExploreBegun() {
+    reconSent.assignPriority(Mission.PRIORITY_ROUTINE);
+    for (Actor a : barracksBuilt.staff.workers()) {
+      a.mind.assignMission(reconSent);
+      break;
+    }
+  }
+  
+  
+  protected boolean checkFacilitiesPlaced() {
+    foundryBuilt = (EngineerStation) firstBaseVenue(EngineerStation.class);
+    depotBuilt = (SupplyDepot) firstBaseVenue(SupplyDepot.class);
+    if (foundryBuilt == null || depotBuilt == null) return false;
+    
+    onFacilitiesPlaced();
+    return true;
+  }
+  
+  
+  protected void onFacilitiesPlaced() {
+    depotBuilt  .structure.setState(Structure.STATE_INSTALL, 0.5f);
+    foundryBuilt.structure.setState(Structure.STATE_INSTALL, 0.5f);
+    
+    for (Actor a : bastion.staff.workers()) {
+      if (a.mind.vocation() == Backgrounds.TECHNICIAN) {
+        final Repairs build = new Repairs(a, depotBuilt);
+        build.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
+        a.mind.assignBehaviour(build);
+      }
+    }
+  }
+  
+  
+  protected boolean checkFacilitiesReady() {
+    if (depotBuilt == null || foundryBuilt == null) return false;
+    if (! depotBuilt.structure.intact()) return false;
+    if (! foundryBuilt.structure.intact()) return false;
+    
+    onFacilitiesReady();
+    return true;
+  }
+  
+  
+  protected void onFacilitiesReady() {
+    base().setup.fillVacancies(depotBuilt  , true);
+    base().setup.fillVacancies(foundryBuilt, true);
+  }
+  
+  
+  protected boolean checkTradeSetup() {
+    if (depotBuilt == null) return false;
+    final Stocks DS = depotBuilt.stocks;
+    final Traded imp = Economy.ORES, exp = Economy.PARTS;
+    if (DS.demandFor(imp) == 0 || DS.producer(imp) == true ) return false;
+    if (DS.demandFor(exp) == 0 || DS.producer(exp) == false) return false;
+    
+    return true;
+  }
+  
+  
+  protected void onSecurityBasicsOpen() {
+    
+  }
+  
+  
+  protected void onBaseAttackOpen() {
+    final Base artilects = Base.artilects(world());
+    droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
+    
+    Tile entry = Spacing.pickRandomTile(barracksBuilt, 6, world());
+    entry = Spacing.nearestOpenTile(entry, entry);
+    droneAttacks.enterWorldAt(entry, world());
+    
+    final Combat assault = new Combat(droneAttacks, barracksBuilt);
+    assault.addMotives(Plan.MOTIVE_EMERGENCY, 100);
+    droneAttacks.mind.assignBehaviour(assault);
+    UI().selection.pushSelection(droneAttacks);
+    
+    barracksBuilt.structure.addUpgrade(TrooperLodge.VOLUNTEER_STATION);
+    barracksBuilt.structure.addUpgrade(TrooperLodge.MARKSMAN_TRAINING);
+    barracksBuilt.structure.addUpgrade(TrooperLodge.TROOPER_STATION  );
+    
+    final Base base = base();
+    for (int n = 3; n-- > 0;) {
+      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
+      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
+    }
+  }
+  
+  
+  protected boolean checkDroneDestroyed() {
+    if (droneAttacks == null) return false;
+    if (droneAttacks.health.conscious()) return false;
+    return true;
+  }
+  
+  
+  protected boolean checkRuinsDestroyed() {
+    if (ruins.structure.intact()) return false;
+    return true;
+  }
+  
+  
+  protected boolean checkHousingAndVenueUpgrade() {
+    if (foundryBuilt == null) return false;
+    if (! foundryBuilt.structure.hasUpgrade(EngineerStation.ASSEMBLY_LINE)) {
+      return false;
+    }
+    
+    boolean anyHU = false;
+    for (Holding h : allBaseHoldings()) {
+      if (h.upgradeLevel() > 0) anyHU = true;
+    }
+    if (! anyHU) return false;
+    return true;
+  }
+  
+  
+  protected boolean checkPositiveCashFlow() {
+    if (startingBalance == -1) return false;
+    final float balance = base().finance.credits();
+    if (balance < startingBalance + 1000) return false;
+    return true;
+  }
+  
+  
+  
+  /**  Other helper methods-
+    */
+  private Venue firstBaseVenue(Class venueClass) {
+    for (Object o : world().presences.matchesNear(
+      venueClass, null, -1
+    )) {
+      final Venue found = (Venue) o;
+      if (found.base() == base()) return found;
+    }
+    return null;
+  }
+  
+  
+  private Batch <Holding> allBaseHoldings() {
+    final Batch <Holding> all = new Batch <Holding> ();
+    for (Object o : world().presences.matchesNear(
+      Holding.class, null, -1
+    )) {
+      final Holding h = (Holding) o;
+      if (h.base() == base()) all.add(h);
+    }
+    return all;
   }
 }
+
+
+
 
 
 

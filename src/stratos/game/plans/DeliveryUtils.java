@@ -14,7 +14,7 @@ public class DeliveryUtils {
   //  NOTE:  See the rateTrading method below for how these are used...
   private static boolean
     sampleVerbose = false,
-    rateVerbose   = true ,
+    rateVerbose   = false,
     dispVerbose   = false,
     rejectVerbose = false;
   

@@ -15,6 +15,8 @@ import stratos.util.*;
 public class MessagePane extends SelectionPane implements UIConstants {
   
   
+  /**  Data fields, setup and save/load methods-
+    */
   final String title;
   final Target focus;
   final MessageSource source;
@@ -37,6 +39,7 @@ public class MessagePane extends SelectionPane implements UIConstants {
   
   public static interface MessageSource extends Session.Saveable {
     MessagePane configMessage(String titleKey, BaseUI UI);
+    void messageWasOpened(String titleKey, BaseUI UI);
   }
   
   
@@ -75,6 +78,9 @@ public class MessagePane extends SelectionPane implements UIConstants {
   }
   
   
+  
+  /**  Update methods-
+    */
   protected void updateText(
     BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
@@ -103,6 +109,10 @@ public class MessagePane extends SelectionPane implements UIConstants {
     return false;
   }
 }
+
+
+
+
 
 
 

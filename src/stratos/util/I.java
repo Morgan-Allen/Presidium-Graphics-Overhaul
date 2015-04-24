@@ -7,8 +7,11 @@
 package stratos.util;
 import java.awt.*;
 import java.awt.image.*;
+
 import javax.swing.*;
+
 import java.io.*;
+import java.lang.reflect.Method;
 
 
 
@@ -225,6 +228,29 @@ public class I {
     }
     catch (Exception e) { return ""; }
     return b.toString();
+  }
+  
+  
+  
+  /**  Reflection shortcuts-
+    */
+  public static Method findMethod(
+    Class <? extends Object> baseClass, String name, Class <?>... params
+  ) {
+    //
+    //  Direct reflection access can either give us inherited methods or non-
+    //  public methods, but not both, so we have to dig down recursively when
+    //  looking out for matches.
+    Method match = null;
+    try { match = baseClass.getDeclaredMethod(name, params); }
+    catch (Exception e) {
+      if (baseClass == Object.class) return null;
+    }
+    if (match != null) {
+      match.setAccessible(true);
+      return match;
+    }
+    else return findMethod(baseClass.getSuperclass(), name);
   }
   
   

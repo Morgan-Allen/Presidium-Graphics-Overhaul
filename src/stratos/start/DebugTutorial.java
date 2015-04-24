@@ -87,7 +87,7 @@ CITIZEN BEHAVIOUR-
 
 *  Figure out entry-permissions for structures and guests, and/or sieges.
 
-*  There may be a bug with farming/forest-samping being interrupted, but I
+*  There may be a bug with farming/flora-sampling being interrupted, but I
    can't seem to reproduce it.  Keep an eye out.
 
 

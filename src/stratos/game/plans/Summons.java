@@ -93,6 +93,11 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   }
   
   
+  public void messageWasOpened(String titleKey, BaseUI UI) {
+    //  TODO:  ALSO THIS!
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
