@@ -18,7 +18,7 @@ public class Combat extends Plan implements Qualities {
   /**  Data fields, constructors and save/load methods-
     */
   protected static boolean
-    evalVerbose   = true ,
+    evalVerbose   = false,
     begunVerbose  = false,
     stepsVerbose  = false,
     damageVerbose = false;

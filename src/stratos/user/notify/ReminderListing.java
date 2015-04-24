@@ -21,6 +21,7 @@ public class ReminderListing extends UIGroup {
   final List <MessagePane>
     oldMessages = new List <MessagePane> (),
     newMessages = new List <MessagePane> ();
+  private MessagePane lastOpen = null;
   
   
   public ReminderListing(BaseUI UI) {
@@ -54,7 +55,6 @@ public class ReminderListing extends UIGroup {
     
     final Object refers;
     boolean active;
-    boolean urgent;
     
     final int high, wide;
     float fadeVal, down;
@@ -66,7 +66,6 @@ public class ReminderListing extends UIGroup {
       this.high   = high  ;
       this.wide   = wide  ;
       active  = true ;
-      urgent  = false;
       fadeVal =  0   ;
       down    = -1   ;
     }
@@ -80,8 +79,8 @@ public class ReminderListing extends UIGroup {
   
   
   private Entry entryWithMessage(MessagePane message) {
-    for (Entry e : entries) if (e instanceof CommsReminder) {
-      if (((CommsReminder) e).message == message) return e;
+    for (Entry e : entries) if (e instanceof MessageReminder) {
+      if (((MessageReminder) e).message == message) return e;
     }
     return null;
   }
@@ -102,13 +101,13 @@ public class ReminderListing extends UIGroup {
       entry = new MissionReminder(UI, (Mission) refers);
     }
     if (refers instanceof MessagePane) {
-      entry = new CommsReminder(UI, refers, (MessagePane) refers);
+      entry = new MessageReminder(UI, refers, (MessagePane) refers);
     }
     if (refers == oldMessages) {
-      entry = new CommsReminder(UI, oldMessages, forOldMessages());
+      entry = new MessageReminder(UI, oldMessages, forOldMessages());
     }
     if (refers == played.setup) {
-      entry = new CommsReminder(UI, refers, forNeedsSummary());
+      entry = new MessageReminder(UI, refers, forNeedsSummary());
     }
     if (entry == null) {
       I.complain("\nNO SUPPORTED ENTRY FOR "+refers);
@@ -192,7 +191,7 @@ public class ReminderListing extends UIGroup {
       down += e.high + padding;
     }
     
-    checkMessageRead();
+    checkMessageOpened();
     updateOldMessages();
     updateNeedsSummary();
     super.updateState();
@@ -218,12 +217,21 @@ public class ReminderListing extends UIGroup {
   }
   
   
+  private void checkMessageOpened() {
+    if (! (UI.currentPane() instanceof MessagePane)) return;
+    final MessagePane open = (MessagePane) UI.currentPane();
+    if (open == lastOpen) return;
+    lastOpen = open;
+    if (open.source != null) open.source.messageWasOpened(open.title, UI);
+  }
+  
+  
   private void updateOldMessages() {
-    final CommsReminder entry = (CommsReminder) entryThatRefers(oldMessages);
+    MessageReminder entry = (MessageReminder) entryThatRefers(oldMessages);
     if (entry == null) return;
     final String label = oldMessages.size()+" old messages";
     entry.setLabel(label);
-    entry.setFlash(false);
+    entry.setOpened(true);
     
     final Batch <Clickable> links = new Batch <Clickable> ();
     for (final MessagePane panel : oldMessages) {
@@ -245,7 +253,7 @@ public class ReminderListing extends UIGroup {
   
   private void updateNeedsSummary() {
     final Base played = UI.played();
-    final CommsReminder entry = (CommsReminder) entryThatRefers(played.setup);
+    MessageReminder entry = (MessageReminder) entryThatRefers(played.setup);
     if (entry == null) return;
     final MessagePane pane = entry.message;
 
@@ -268,16 +276,6 @@ public class ReminderListing extends UIGroup {
         }
       });
     }
-  }
-  
-  
-  private void checkMessageRead() {
-    if (! (UI.currentPane() instanceof MessagePane)) return;
-    final MessagePane message = (MessagePane) UI.currentPane();
-    final CommsReminder entry = (CommsReminder) entryWithMessage(message);
-    if (entry == null) return;
-    entry.setFlash(false);
-    message.source.messageWasOpened(message.title, UI);
   }
   
   
@@ -310,9 +308,35 @@ public class ReminderListing extends UIGroup {
     newMessages.remove (message);
     oldMessages.include(message);
   }
+  
+  
+  public void retireNewMessages() {
+    for (MessagePane m : newMessages) retireMessage(m);
+  }
 }
 
 
 
+
+
+
+
+
+
+
+/*
+private void checkMessageRead() {
+  if (! (UI.currentPane() instanceof MessagePane)) return;
+  
+  final MessagePane message = (MessagePane) UI.currentPane();
+  if (message.source != null && ! entry.opened()) {
+    message.source.messageWasOpened(message.title, UI);
+  }
+  
+  final MessageReminder entry = (MessageReminder) entryWithMessage(message);
+  if (entry == null) return;
+  entry.setOpened(true);
+}
+//*/
 
 

@@ -11,36 +11,39 @@ import stratos.util.*;
 
 
 
-public class CommsReminder extends ReminderListing.Entry {
+public class MessageReminder extends ReminderListing.Entry {
   
   
   final static ImageAsset
     COMM_IMAGE = ImageAsset.fromImage(
-      CommsReminder.class, "media/GUI/Panels/comms_alert.png"
+      MessageReminder.class, "media/GUI/Panels/comms_alert.png"
     );
   
   final MessagePane message;
   final BorderedLabel label;
-  private boolean doFlash = true;
+  private boolean opened = false;
   
   
-  CommsReminder(
+  MessageReminder(
     final BaseUI baseUI, Object refers, final MessagePane message
   ) {
     super(baseUI, refers, 60, 40);
     this.message = message;
     
+    final MessageReminder m = this;
+    
     final Button button = new Button(
       baseUI, COMM_IMAGE.asTexture(), message.title
     ) {
-      
       protected void whenClicked() {
         baseUI.setInfoPanels(message, null);
+        I.say(message.title+" WAS OPENED! "+m+", opened? "+opened);
+        opened = true;
       }
       
       protected void render(WidgetsPass pass) {
         super.render(pass);
-        if (! doFlash) return;
+        if (opened) return;
         float flashRate = (Rendering.activeTime() % 2) / 2;
         flashRate *= (1 - flashRate) * 2;
         super.renderTex(highlit, flashRate * absAlpha, pass);
@@ -64,8 +67,13 @@ public class CommsReminder extends ReminderListing.Entry {
   }
   
   
-  protected void setFlash(boolean doFlash) {
-    this.doFlash = doFlash;
+  protected void setOpened(boolean opened) {
+    this.opened = opened;
+  }
+  
+  
+  protected boolean opened() {
+    return opened;
   }
 }
 

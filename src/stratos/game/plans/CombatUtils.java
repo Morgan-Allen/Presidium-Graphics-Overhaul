@@ -152,7 +152,7 @@ public class CombatUtils {
     float bestValue = asThreat ?
       (PlanUtils.harmIntendedBy(primary, actor, true) * 1.5f) : 0
     ;
-    if (best != null) bestValue = Nums.max(bestValue, 0.5f);
+    if (best != null) bestValue = Nums.max(bestValue, 0.1f);
     
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, actor);

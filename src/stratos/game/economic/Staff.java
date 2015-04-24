@@ -351,16 +351,20 @@ public class Staff {
       final Base base = employs.base();
       //
       //  Clear out the office for anyone dead or missing-
-      for (Actor a : workers) if (a.destroyed() || a.mind.work() != employs) {
-        if (a.mind.work() == employs) a.mind.setWork(null);
-        workers.remove(a);
+      for (Actor a : workers) {
+        if (a.mind.work() != employs || ! a.health.alive()) {
+          if (a.mind.work() == employs) a.mind.setWork(null);
+          workers.remove(a);
+        }
       }
-      for (Actor a : lodgers) if (a.destroyed() || a.mind.home() != employs) {
-        if (a.mind.home() == employs) a.mind.setHome(null);
-        lodgers.remove(a);
+      for (Actor a : lodgers) {
+        if (a.mind.home() != employs || ! a.health.alive()) {
+          if (a.mind.home() == employs) a.mind.setHome(null);
+          lodgers.remove(a);
+        }
       }
       for (FindWork a : applications) {
-        if (a.employer() != employs || a.actor().destroyed()) {
+        if (a.employer() != employs || ! a.actor().health.alive()) {
           setApplicant(a, false);
         }
       }
@@ -403,7 +407,7 @@ public class Staff {
   }
   
   
-  public void setResident(Actor c, boolean is) {
+  public void setLodger(Actor c, boolean is) {
     if (is) lodgers.include(c);
     else lodgers.remove(c);
   }

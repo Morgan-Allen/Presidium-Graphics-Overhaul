@@ -119,7 +119,7 @@ public class MessageScript implements
     final Topic topic = allTopics.get(titleKey);
     if (topic == null) return;
     if (topic.onOpen != null) try { topic.onOpen.invoke(basis); }
-    catch (Exception e) { I.report(e); }
+    catch (Exception e) { e.printStackTrace(); }
   }
   
 
@@ -133,7 +133,6 @@ public class MessageScript implements
     final Topic topics[] = new Topic[allTopics.size()];
     for (Topic topic : allTopics.values().toArray(topics)) {
       if (topic.trigger == null || topic.triggered) continue;
-      
       boolean didTrigger = false;
       try {
         final Object triggerVal = topic.trigger.invoke(basis);
@@ -160,8 +159,8 @@ public class MessageScript implements
     else topic.triggered = true;
     
     final ReminderListing reminders = UI.reminders();
-    if (! reminders.hasMessageEntry(topic.titleKey)) {
-      reminders.addMessageEntry(message, topic.urgent);
+    if (topic.urgent && ! reminders.hasMessageEntry(topic.titleKey)) {
+      reminders.addMessageEntry(message, true);
     }
     if (viewNow) UI.setInfoPanels(message, null);
   }
@@ -189,11 +188,13 @@ public class MessageScript implements
         final String linkKey   = node.value("name");
         final String linkName  = node.content();
         final Topic  linkTopic = allTopics.get(linkKey);
+        
         if (linkTopic == null) {
           I.say("\n  WARNING: NO TOPIC MATCHING "+linkKey);
         }
         else links.add(new Description.Link(linkName) {
           public void whenClicked() {
+            UI.reminders().retireMessage(topic.asMessage);
             pushTopicMessage(linkTopic, true);
           }
         });

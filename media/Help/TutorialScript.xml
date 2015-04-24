@@ -54,7 +54,7 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
 
 
 <topic name="Economy Basics" urgent="true">
-<content>Go the the Installations panel again, and place a Supply Depot and Engineer Station close to your Bastion.</content>
+<content>Go the the Installations panel again, and place a Supply Depot (under Commerce structures) and Engineer Station (under Engineer structures) close to your Bastion.</content>
 </topic>
 
 <topic name="Facilities Placed" trigger="checkFacilitiesPlaced" urgent="true">
@@ -77,7 +77,7 @@ Once the sale is complete, on-duty auditors from your Bastion will drop by to re
 
 
 
-<topic name="Security Basics" onOpen="onSecurityBasicsOpen">
+<topic name="Security Basics" onOpen="onSecurityBasicsOpen" urgent="true">
   <content>If they haven't done so already, local raiders are likely to begin harassing your settlement, potentially razing structures and harming citizens.
 
 When you're ready, we'll introduce a scouting Drone- a relatively weak robotic enemy, or artilect- to assault your Trooper Lodge.</content>
@@ -91,7 +91,7 @@ Remember to offer a reward, or no-one will take up the challenge!
 </content>
 </topic>
 
-<topic name="Hire More Soldiers" trigger="checkDroneDestroyed" urgent="true">
+<topic name="Hire More Soldiers" trigger="checkDroneDestroyed" onOpen="onHireSoldiersOpen" urgent="true">
 <content>In order to beef up your security forces, a number of upgrades have been installed at your Trooper Lodge, increasing the barracks space and allowing better skill training.
 
 A number of veteran troopers have also applied to work at the facility, but you don't have space for all of them.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which to hire.  Fresh recruits should arrive within a day or so.</content>
@@ -107,7 +107,7 @@ Note:  You may also wish to make your Missions 'screened' to help control the ti
 
 
 
-<topic name="Basic Housing" trigger="checkRuinsDestroyed">
+<topic name="Basic Housing" trigger="checkRuinsDestroyed" urgent="true">
 <content>Now that local threats have been dealt with, it's time to focus on building a more prosperous settlement.
 
 Your citizens will need food and housing, so you may wish to establish Holdings where they can settle down.  This can be done from the Installations pane, but your citizens will also establish homes themselves if there's enough pent-up demand- generally 1 Holding for every 4 citizens.
@@ -118,7 +118,7 @@ Try to have at least one Holding upgrade to a Pyon Shack.</content>
 </topic>
 
 
-<topic name="Structure Upgrades" trigger="checkRuinsDestroyed">
+<topic name="Structure Upgrades" trigger="checkRuinsDestroyed" urgent="true">
 <content>To improve the efficiency of goods manufacture and the range of services provided, your main buildings can each have a range of upgrades installed.  For example, your Engineer Station permits the Assembly Line upgrade to speed up parts manufacture.
 
 In addition to being sold for export, parts can be used to help upgrade housing.  Select the Engineer Station, go to the upgrades pane, and order an Assembly Line installed.  Your construction staff will attend to it shortly.
@@ -128,7 +128,7 @@ Note:  You can also install upgrades to improve the quality of weapons and armou
 </topic>
 
 
-<topic name="Food And Other Goods">
+<topic name="Food And Other Goods" urgent="true">
 <content>Your citizens won't starve immediately, but after several days their rations may start to run low.  Food- such as carbs, greens and protein- can be imported at the Supply Depot as you would any other good.  Plastics are also required for housing development, and can be imported in a similar way.
 
 However, to save on import costs, you may wish to build an Ecologist Station and Nursery to plant and harvest crops, and/or a Fabricator to manufacture plastics.  Your space is limited, however, so choose what to build wisely.</content>

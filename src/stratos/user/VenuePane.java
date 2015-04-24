@@ -29,6 +29,7 @@ public class VenuePane extends SelectionPane {
   
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private Upgrade lastCU = null;
+  private Actor dismissing = null;
  
   
   protected VenuePane(BaseUI UI, Venue v, String... categories) {
@@ -287,6 +288,24 @@ public class VenuePane extends SelectionPane {
     final Background c[] = v.careers();
     Batch <Actor> mentioned = new Batch <Actor> ();
     
+    if (dismissing != null) {
+      d.append("\nAre you certain you want to dismiss ");
+      d.append(dismissing);
+      d.append("?\n  ");
+      d.append(new Description.Link("Confirm") {
+        public void whenClicked() {
+          final Actor works = dismissing;
+          if (! works.inWorld()) v.base().commerce.removeCandidate(works);
+          works.mind.setWork(null);
+          dismissing = null;
+        }
+      });
+      d.append(new Description.Link("  Cancel") {
+        public void whenClicked() { dismissing = null; }
+      });
+      return;
+    }
+    
     if (c != null && c.length > 0) {
       
       for (Background b : c) {
@@ -300,27 +319,18 @@ public class VenuePane extends SelectionPane {
         d.append(b.name+": ("+hired+"/"+total+")");
         if (apps > 0) d.append("\n  Total applied: "+apps);
         
-        for (final FindWork a : v.staff.applications()) {
-          if (a.employer() != v || a.position() != b) continue;
-          final Actor p = a.actor();
-          mentioned.include(p);
-          descApplicant(p, a, d, UI);
-          
-          d.append("\n  ");
-          final String hireDesc = "Hire for "+a.hiringFee()+" credits";
-          d.append(new Description.Link(hireDesc) {
-            public void whenClicked() { v.staff.confirmApplication(a); }
-          });
-          d.append(new Description.Link(" Dismiss") {
-            public void whenClicked() { a.cancelApplication(); }
-          });
+        for (FindWork a : v.staff.applications()) if (a.position() == b) {
+          mentioned.include(a.actor());
+          descApplicant(a.actor(), a, d, UI);
         }
-        
-        for (Actor a : v.staff.workers()) if (a.mind.vocation() == b) {
+        for (final Actor a : v.staff.workers()) if (a.mind.vocation() == b) {
           descActor(a, d, UI);
           d.append("\n  ");
           d.append(descDuty(a));
           mentioned.include(a);
+          d.append(new Description.Link("  Dismiss") {
+            public void whenClicked() { dismissing = a; }
+          });
         }
         d.append("\n");
       }
@@ -485,7 +495,7 @@ public class VenuePane extends SelectionPane {
     *  elsewhere...
     */
   public static void descApplicant(
-    Actor a, FindWork sought, Description d, BaseUI UI
+    Actor a, final FindWork sought, Description d, BaseUI UI
   ) {
     final Composite comp = a.portrait(UI);
     if (comp != null) ((Text) d).insert(comp.texture(), 40, true);
@@ -512,11 +522,19 @@ public class VenuePane extends SelectionPane {
       if (++numT > 3) break;
       d.append(t+" ");
     }
+    
+    d.append("\n  ");
+    final String hireDesc = "Hire for "+sought.hiringFee()+" credits";
+    d.append(new Description.Link(hireDesc) {
+      public void whenClicked() { sought.confirmApplication(); }
+    });
+    d.append(new Description.Link("  Dismiss") {
+      public void whenClicked() { sought.cancelApplication(); }
+    });
   }
   
   
   public static void descActor(Mobile m, Description d, BaseUI UI) {
-    
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
       if (p != null) ((Text) d).insert(p.delayedImage(UI), 40, true);

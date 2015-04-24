@@ -25,7 +25,7 @@ public abstract class Venue extends Structural implements
   final public static int
     PRIMARY_SHIFT      = 1,
     SECONDARY_SHIFT    = 2,
-    OFF_DUTY           = 3,
+    OFF_DUTY           = 0,
     
     SHIFTS_ALWAYS      = 0,
     SHIFTS_BY_HOURS    = 1,   //different 8-hour periods off.

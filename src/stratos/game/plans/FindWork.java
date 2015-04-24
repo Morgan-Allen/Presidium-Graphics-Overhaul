@@ -145,7 +145,7 @@ public class FindWork extends Plan {
   
   
   public boolean actionApplyTo(Actor client, Property best) {
-    confirmApplication();
+    enterApplication();
     return true;
   }
   
@@ -172,7 +172,7 @@ public class FindWork extends Plan {
   }
   
   
-  public void confirmApplication() {
+  public void enterApplication() {
     if (wasHired() || ! canApply()) return;
     employer.staff().setApplicant(this, true);
   }
@@ -181,6 +181,13 @@ public class FindWork extends Plan {
   public void cancelApplication() {
     if (employer == null || position == null) return;
     employer.staff().setApplicant(this, false);
+    if (! actor.inWorld()) employer.base().commerce.removeCandidate(actor);
+  }
+  
+  
+  public void confirmApplication() {
+    if (wasHired() || ! canApply()) return;
+    employer.staff().confirmApplication(this);
   }
   
   
@@ -340,7 +347,7 @@ public class FindWork extends Plan {
   //  TODO:  Store this in the ActorMotives class instead.
   //  TODO:  Include resigning a previous application as a step.
   
-  public static void assignAmbition(
+  public static FindWork assignAmbition(
     Actor actor, Background position, Property at, float rating
   ) {
     FindWork finding = (FindWork) actor.matchFor(FindWork.class, false);
@@ -354,6 +361,7 @@ public class FindWork extends Plan {
     finding.employer = at      ;
     finding.rating   = rating  ;
     finding.calcHiringFee();
+    return finding;
   }
   
   

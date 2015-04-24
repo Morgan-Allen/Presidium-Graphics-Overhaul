@@ -9,6 +9,7 @@ import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Placement;
 import stratos.game.plans.Combat;
 import stratos.game.plans.Repairs;
 import stratos.game.wild.*;
@@ -19,6 +20,9 @@ import stratos.util.*;
 
 //TODO:  Allow inclusion of images in the messages.
 //TODO:  Disable shipping until the player is ready.
+
+//TODO:  Re-starting does not appear to re-start the tutorial sequence.  Fix.
+//TODO:  Hide the shortages-pane until the tutorial is complete.
 
 
 public class TutorialScenario extends StartupScenario {
@@ -252,32 +256,26 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void onSecurityBasicsOpen() {
-    
+    UI().tracking.lockOn(barracksBuilt);
   }
   
   
   protected void onBaseAttackOpen() {
+
     final Base artilects = Base.artilects(world());
     droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
     
-    Tile entry = Spacing.pickRandomTile(barracksBuilt, 6, world());
+    Tile entry = Placement.findClearSpot(barracksBuilt, world(), 2);
+    
+    
     entry = Spacing.nearestOpenTile(entry, entry);
     droneAttacks.enterWorldAt(entry, world());
     
     final Combat assault = new Combat(droneAttacks, barracksBuilt);
     assault.addMotives(Plan.MOTIVE_EMERGENCY, 100);
     droneAttacks.mind.assignBehaviour(assault);
-    UI().selection.pushSelection(droneAttacks);
     
-    barracksBuilt.structure.addUpgrade(TrooperLodge.VOLUNTEER_STATION);
-    barracksBuilt.structure.addUpgrade(TrooperLodge.MARKSMAN_TRAINING);
-    barracksBuilt.structure.addUpgrade(TrooperLodge.TROOPER_STATION  );
-    
-    final Base base = base();
-    for (int n = 3; n-- > 0;) {
-      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
-      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
-    }
+    UI().tracking.lockOn(droneAttacks);
   }
   
   
@@ -285,6 +283,19 @@ public class TutorialScenario extends StartupScenario {
     if (droneAttacks == null) return false;
     if (droneAttacks.health.conscious()) return false;
     return true;
+  }
+  
+  
+  protected void onHireSoldiersOpen() {
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_STATION, 1);
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_STATION  , 1);
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
+    
+    final Base base = base();
+    while (base.commerce.numCandidates(Backgrounds.TROOPER) < 3) {
+      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
+      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
+    }
   }
   
   

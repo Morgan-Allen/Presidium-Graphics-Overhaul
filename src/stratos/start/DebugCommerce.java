@@ -16,6 +16,7 @@ import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Backgrounds.*;
 
 
 
@@ -77,10 +78,10 @@ public class DebugCommerce extends Scenario {
     //  TODO:  Try giving the residents pots of money instead...
     //GameSettings.freeHousingLevel = 0;
     
-    if (false) shippingScenario(world, base, UI);
+    if (true ) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (true ) purchaseScenario(world, base, UI);
+    if (false) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) haulingScenario (world, base, UI);
     if (false) shoppingScenario(world, base, UI);
@@ -96,19 +97,15 @@ public class DebugCommerce extends Scenario {
     
     depot.stocks.bumpItem(CARBS, 10);
     depot.updateAsScheduled(0, false);
+    base.commerce.addCandidate(SUPPLY_CORPS, depot);
     
-    final Actor brought = new Human(Backgrounds.KOMMANDO, base);
+    final Actor brought = new Human(KOMMANDO, base);
     world.offworld.addImmigrant(brought, world);  //  TODO:  SPECIFY BASE
     
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);
     
     UI.selection.pushSelection(depot);
-    
-    //  TODO:  Check to ensure that distribution from depots to facilities, and
-    //  shopping at the stock exchange, are working correctly!
-    
-    //UI.selection.pushSelection(base.commerce.allVessels().first());
   }
   
   

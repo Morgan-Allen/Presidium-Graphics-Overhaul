@@ -86,7 +86,9 @@ public class RosterPane extends SelectionPane {
     final Batch <Actor> applied = new Batch <Actor> ();
     for (Actor a : base.commerce.allCandidates()) {
       final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
-      if (findWork == null || ! findWork.canOrDidApply()) continue;
+      if (findWork == null || findWork.wasHired() || ! findWork.canApply()) {
+        continue;
+      }
       applied.add(a);
     }
     return applied;
@@ -105,22 +107,9 @@ public class RosterPane extends SelectionPane {
       for (Actor a : listApplied(base)) {
         final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
         VenuePane.descApplicant(a, findWork, detailText, UI);
-
-        if (findWork.wasHired()) {
-          d.append("\n  Hired at: ");
-          d.append(findWork.employer());
-        }
-        else {
-          d.append("\n  Applying at: ");
-          d.append(findWork.employer());
-          d.append("\n  ");
-          final String hireDesc = "Hire for "+findWork.hiringFee()+" credits";
-          d.append(new Description.Link(hireDesc) {
-            public void whenClicked() {
-              findWork.employer().staff().confirmApplication(findWork);
-            }
-          });
-        }
+        d.append("\n  Applying at: ");
+        d.append(findWork.employer());
+        d.append("\n  ");
       }
     }
     if (category() == CAT_CURRENT) {

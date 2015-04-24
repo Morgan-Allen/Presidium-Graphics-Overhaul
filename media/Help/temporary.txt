@@ -1,6 +1,7 @@
 
 
 
+Topics should have a 'completion' method that they can use to determine when to close (if they haven't been dismissed already.)
 
 
 

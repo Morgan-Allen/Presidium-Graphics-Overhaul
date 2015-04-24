@@ -518,6 +518,11 @@ public class Structure {
   }
   
   
+  public void setUpgradeLevel(Upgrade upgrade, int level) {
+    while (upgradeLevel(upgrade) < level) addUpgrade(upgrade);
+  }
+  
+  
   public void addUpgrade(Upgrade upgrade) {
     beginUpgrade(upgrade, false);
     advanceUpgrade(1.0f);

@@ -274,21 +274,20 @@ public abstract class ActorMind implements Qualities {
     if (work == e) return;
     if (work != null) work.staff().setWorker(actor, false);
     work = e;
-    if (work != null) work.staff().setWorker(actor, true);
+    if (work != null) work.staff().setWorker(actor, true );
+  }
+  
+  
+  public void setHome(Property h) {
+    if (home == h) return;
+    if (home != null) home.staff().setLodger(actor, false);
+    home = h;
+    if (home != null) home.staff().setLodger(actor, true );
   }
   
   
   public Property work() {
     return work;
-  }
-  
-  
-  public void setHome(Property home) {
-    final Property old = this.home;
-    if (old == home) return;
-    if (old != null) old.staff().setResident(actor, false);
-    this.home = home;
-    if (home != null) home.staff().setResident(actor, true);
   }
   
   

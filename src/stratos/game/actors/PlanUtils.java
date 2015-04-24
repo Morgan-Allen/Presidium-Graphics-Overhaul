@@ -20,7 +20,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose = false;
+    verbose = true ;
   
   private static boolean reportOn(Actor a) {
     return I.talkAbout == a && verbose;
@@ -90,6 +90,7 @@ public class PlanUtils {
     homeDistance = homeDistanceFactor(actor, actor.origin());
     if (! isArmed(actor)) homeDistance = (homeDistance + 2) / 2;
     if (actor.senses.isEmergency()) homeDistance += 0.5f;
+    incentive = Nums.max(incentive, homeDistance * 1);
     
     escapeChance = Nums.clamp(1f - actor.health.fatigueLevel(), 0, 1);
     priority = incentive * homeDistance * escapeChance;
@@ -268,20 +269,24 @@ public class PlanUtils {
     final boolean report = reportOn(actor);
     float incentive = 0, priority = 0, enjoyBonus = 0;
     float dutyBonus = 0, helpBonus = 0, shift = 0;
+    
     final Property work = actor.mind.work();
+    float liking = actor.relations.valueFor(plan.subject);
     
     incentive += plan.motiveBonus();
+    incentive += urgency * 5 * liking;
     incentive += enjoyBonus = traitAverage(actor, enjoyTraits) * 2.5f;
+    
     if (plan.isJob() && work != null) {
       shift = work.staff().shiftFor(actor);
-      dutyBonus = (1 + actor.traits.relativeLevel(DUTIFUL)) * 2.5f;
+      dutyBonus = (1 + actor.traits.relativeLevel(DUTIFUL)) * 1.25f;
       incentive += dutyBonus;
       if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
       if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
     }
     if (incentive <= 0 || urgency <= 0) return -1;
     
-    priority = incentive * ((urgency * competence) + 1) / 2;
+    priority = incentive * (competence + 1) / 2;
     priority -= (1 - competence) * 5;
     
     if (helpLimit > 0 && ! plan.hasBegun()) {
@@ -295,6 +300,8 @@ public class PlanUtils {
       "\nJob priority for "+actor, "  ",
       "Job is:    ", plan        ,
       "Is job?    ", plan.isJob(),
+      "On shift:  ", (int) shift ,
+      "Liking:    ", liking      ,
       "Urgency:   ", urgency     ,
       "Competence:", competence  ,
       "enjoyBonus ", enjoyBonus  ,

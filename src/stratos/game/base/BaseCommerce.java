@@ -38,8 +38,8 @@ public class BaseCommerce {
     tradeVerbose   = verbose && false;
   
   final public static float
-    SUPPLY_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
-    SUPPLY_DURATION = SUPPLY_INTERVAL / 2f,
+    SHIP_VISIT_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
+    SHIP_VISIT_DURATION = SHIP_VISIT_INTERVAL / 2f,
     
     APPLY_INTERVAL  = Stage.STANDARD_DAY_LENGTH / 2f,
     UPDATE_INTERVAL = 10,
@@ -140,12 +140,12 @@ public class BaseCommerce {
   }
   
   
-  public List <Sector> partners() {
+  public Series <Sector> partners() {
     return partners;
   }
   
   
-  public List <Actor> allCandidates() {
+  public Series <Actor> allCandidates() {
     return candidates;
   }
   
@@ -201,7 +201,7 @@ public class BaseCommerce {
         }
         else {
           if (report) I.say("  Applying at: "+a.position());
-          a.confirmApplication();
+          a.enterApplication();
         }
         applyChance--;
       }
@@ -240,7 +240,7 @@ public class BaseCommerce {
       }
       else if (b != null && b.position() != null) {
         if (report) I.say("    Applying at: "+b.employer());
-        b.confirmApplication();
+        b.enterApplication();
       }
     }
   }
@@ -248,7 +248,26 @@ public class BaseCommerce {
   
   public void addCandidate(Actor applies, Venue at, Background position) {
     candidates.add(applies);
-    FindWork.assignAmbition(applies, position, at, 2.0f);
+    FindWork finding = FindWork.assignAmbition(applies, position, at, 2.0f);
+    finding.enterApplication();
+  }
+  
+  
+  public void addCandidate(Background position, Venue at) {
+    final Actor applies = new Human(position, base);
+    addCandidate(applies, at, position);
+  }
+  
+  
+  public void removeCandidate(Actor applies) {
+    candidates.remove(applies);
+  }
+  
+  
+  public int numCandidates(Background position) {
+    int count = 0;
+    for (Actor a : candidates) if (a.mind.vocation() == position) count++;
+    return count;
   }
   
   
@@ -429,10 +448,10 @@ public class BaseCommerce {
   private void updateShipping(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     if (base.primal) return;
+    final boolean report = verbose && BaseUI.currentPlayed() == base;
     
-    final boolean report = verbose && BaseUI.current().played() == base;
-    final float time = base.world.currentTime();
-    final int shipStage = ship.flightStage();
+    final float time      = base.world.currentTime();
+    final int   shipStage = ship.flightStage();
     final boolean
       visitDue = (! ship.inWorld()) && time > visitTime,
       canLand  = ShipUtils.findLandingSite(ship, base);
@@ -442,12 +461,12 @@ public class BaseCommerce {
       final float sinceDescent = time - visitTime;
       final boolean allAboard = ShipUtils.allAboard(ship);
       
-      if (sinceDescent > SUPPLY_DURATION) {
+      if (sinceDescent > SHIP_VISIT_DURATION) {
         if (shipStage == Dropship.STAGE_LANDED) ship.beginBoarding();
         if (allAboard && shipStage == Dropship.STAGE_BOARDING) {
           ship.beginAscent();
           visitTime = base.world.currentTime();
-          visitTime += SUPPLY_INTERVAL * (0.5f + Rand.num());
+          visitTime += SHIP_VISIT_INTERVAL * (0.5f + Rand.num());
         }
       }
     }
@@ -464,6 +483,24 @@ public class BaseCommerce {
       for (Actor c : ship.crew()) ship.setInside(c, true);
       ship.beginDescent(base.world);
     }
+  }
+  
+  
+  public float arrivalETA(Actor hired) {
+    //  TODO:  CHECK THIS IS ACCURATE!
+    //
+    //  Find out what ship the actor is going to arrive on.  If arrival is
+    //  imminent, return the arrival time.
+    Dropship carries = this.ship;
+    final boolean aboard   = carries.inside().includes(hired);
+    final float   time     = base.world.currentTime();
+    final float   ETA      = visitTime - time;
+    final boolean visitDue = (! ship.inWorld()) && ETA <= 0;
+    if (aboard || visitDue || ETA > 0) return Nums.max(0, ETA);
+    //
+    //  Otherwise, take a guess at the next return date-
+    float returnTime = visitTime + SHIP_VISIT_DURATION + SHIP_VISIT_INTERVAL;
+    return returnTime - base.world.currentTime();
   }
   
 
@@ -499,7 +536,7 @@ public class BaseCommerce {
       if (report) I.say("  New ship required!");
       ship = new Dropship();
       ship.assignBase(base);
-      visitTime = base.world.currentTime() + (Rand.num() * SUPPLY_INTERVAL);
+      visitTime = base.world.currentTime() + (Rand.num() * SHIP_VISIT_INTERVAL);
     }
     if (forLanding) {
       final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);

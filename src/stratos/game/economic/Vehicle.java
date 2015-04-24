@@ -274,6 +274,7 @@ public abstract class Vehicle extends Mobile implements
     structure.updateStructure(numUpdates);
     if (! structure.intact()) return;
     cargo.updateOrders();
+    staff.updateStaff(numUpdates);
     if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
     
     //  TODO:  Allow vehicles to act as Mounts.

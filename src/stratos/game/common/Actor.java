@@ -549,7 +549,13 @@ public abstract class Actor extends Mobile implements
   
   public void describeStatus(Description d) {
     if (! health.conscious()) { d.append(health.stateDesc()); return; }
-    if (! inWorld()) { d.append("Offworld"); return; }
+    if (! inWorld()) {
+      d.append("Offworld");
+      float ETA = base.commerce.arrivalETA(this);
+      ETA /= Stage.STANDARD_HOUR_LENGTH;
+      d.append(" (ETA: "+((int) ETA)+" hours)");
+      return;
+    }
     
     final Behaviour rootB = mind.rootBehaviour();
     final Mission mission = mind.mission();

@@ -114,6 +114,30 @@ public class Placement implements TileConstants {
   }
   
   
+  public static Tile findClearSpot(
+    final Target near, final Stage world, final int margin
+  ) {
+    final Tile init = world.tileAt(near);
+    final float maxDist = near.radius() + 0.5f + (Stage.SECTOR_SIZE / 2);
+    
+    final TileSpread search = new TileSpread(init) {
+      
+      protected boolean canAccess(Tile t) {
+        if (Spacing.distance(t, init) > maxDist) return false;
+        return t.onTop() == near || ! t.blocked();
+      }
+      
+      protected boolean canPlaceAt(Tile t) {
+        final Tile c = world.tileAt(t.x - margin, t.y - margin);
+        return checkAreaClear(c, margin * 2, margin * 2);
+      }
+    };
+    search.doSearch();
+    if (search.success()) return search.bestFound();
+    else return null;
+  }
+  
+  
   public static boolean findClearanceFor(
     final Venue v, final Target near, final Stage world
   ) {
@@ -123,10 +147,12 @@ public class Placement implements TileConstants {
     if (init == null) return false;
     
     final TileSpread search = new TileSpread(init) {
+      
       protected boolean canAccess(Tile t) {
         if (Spacing.distance(t, near) > maxDist) return false;
         return ! t.blocked();
       }
+      
       protected boolean canPlaceAt(Tile t) {
         v.setPosition(t.x, t.y, world);
         return checkPlacement(v.structure.asGroup(), world);
