@@ -121,16 +121,21 @@ public class SaveUtils {
   }
   
   
-  public static String timeStamp(Stage world) {
-    final float time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
+  public static String timeSuffix(Stage world) {
+    return DIVIDER+timeStamp(world.currentTime());
+  }
+  
+  
+  public static String timeStamp(float time) {
+    if (time < 0) return null;
+    time /= Stage.STANDARD_DAY_LENGTH;
     String
       day    = DAY_LABEL+" "+(int) time,
       hour   = ""+(int)   (24 * (time % 1)),
       minute = ""+(int) (((24 * (time % 1)) % 1) * 60);
     while (hour  .length() < 2) hour   = "0"+hour  ;
     while (minute.length() < 2) minute = "0"+minute;
-    final String newStamp = DIVIDER+day+", "+hour+minute+" "+HOURS_LABEL;
-    return newStamp;
+    return day+", "+hour+minute+" "+HOURS_LABEL;
   }
   
   

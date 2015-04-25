@@ -17,7 +17,7 @@ import stratos.util.*;
 //TODO:  Sort out uncertainty over sources for polymer and catalyst.
 
 //TODO:  Disable shipping until the player is ready, and allow for multiple
-//       ships with an airfield.
+//       ships with multiple airfields.
 
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:

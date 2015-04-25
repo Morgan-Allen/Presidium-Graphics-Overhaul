@@ -207,7 +207,7 @@ public class MissionPane extends SelectionPane {
     for (final Actor a : applied) {
       d.append("\n  ");
       final Composite portrait = a.portrait(UI);
-      if (portrait != null) ((Text) d).insert(portrait.texture(), 40, true);
+      if (portrait != null) ((Text) d).insert(portrait.texture(), 40, 40, true);
       d.append(a);
       d.append(" ("+a.mind.vocation()+")");
 

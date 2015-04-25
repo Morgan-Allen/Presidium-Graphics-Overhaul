@@ -4,15 +4,15 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user.notify;
+import stratos.start.Assets;
 import stratos.user.*;
-import stratos.game.common.Session;
-import stratos.graphics.widgets.Text.Clickable;
+import stratos.game.common.*;
+import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
+
 import java.lang.reflect.*;
 
-
-
-//  TODO:  Show time and date as well?...
 
 
 public class MessageScript implements
@@ -56,6 +56,7 @@ public class MessageScript implements
       topic.sourceNode = topicNode;
       topic.titleKey   = topicNode.value("name");
       topic.urgent     = topicNode.getBool("urgent");
+      I.say("\nADDING BASE TOPIC: "+topic.titleKey);
       //
       //  Trigger-methods are used to decide when the topic in question should
       //  be presented to the player, and don't always need to be included.
@@ -64,7 +65,7 @@ public class MessageScript implements
       else {
         topic.trigger = I.findMethod(baseClass, triggerName);
         if (topic.trigger == null) {
-          I.say("\nWARNING:  No matching trigger method '"+triggerName+"()'");
+          I.say("  WARNING:  No matching trigger method '"+triggerName+"()'");
         }
       }
       //
@@ -75,11 +76,16 @@ public class MessageScript implements
       else {
         topic.onOpen = I.findMethod(baseClass, onOpenName);
         if (topic.onOpen == null) {
-          I.say("\nWARNING:  No matching on-open method '"+onOpenName+"()'");
+          I.say("  WARNING:  No matching on-open method '"+onOpenName+"()'");
         }
       }
       allTopics.put(topic.titleKey, topic);
-      I.say("\nADDED BASE TOPIC: "+topic.titleKey);
+      //
+      //  Finally, any embedded images will need to loaded on the render
+      //  thread, so we cache these for later reference:
+      for (XML imgNode : topicNode.allChildrenMatching("image")) {
+        ImageAsset.fromImage(basis.getClass(), imgNode.content());
+      }
     }
   }
   
@@ -171,7 +177,8 @@ public class MessageScript implements
     
     final ReminderListing reminders = UI.reminders();
     if (topic.urgent && ! reminders.hasMessageEntry(topic.titleKey)) {
-      reminders.addMessageEntry(message, true);
+      final float receiptTime = UI.played().world.currentTime();
+      reminders.addMessageEntry(message, true, receiptTime);
     }
     if (viewNow) UI.setInfoPanels(message, null);
   }
@@ -182,18 +189,21 @@ public class MessageScript implements
     if (topic == null) return null;
     if (topic.asMessage != null) return topic.asMessage;
     
-    
-    //  TODO:  Also, image insertion!
-    
-    final String content = topic.sourceNode.child("content").content();
-    final Batch <Clickable> links = new Batch <Clickable> ();
+    final MessagePane pane = topic.asMessage = new MessagePane(
+      UI, null, topic.titleKey, null, this
+    );
+    final Description d = pane.detail();
     
     for (XML node : topic.sourceNode.children()) {
       if (node.tag().equals("content")) {
-        
+        d.append("\n");
+        d.append(node.content());
       }
       if (node.tag().equals("image")) {
-        
+        final String path = node.content();
+        ImageAsset asset = ImageAsset.fromImage(basis.getClass(), path);
+        if (asset == null) continue;
+        ((Text) d).insert(asset.asTexture(), 240, 50, false);
       }
       if (node.tag().equals("link")) {
         final String linkKey   = node.value("name");
@@ -203,7 +213,7 @@ public class MessageScript implements
         if (linkTopic == null) {
           I.say("\n  WARNING: NO TOPIC MATCHING "+linkKey);
         }
-        else links.add(new Description.Link(linkName) {
+        else d.append(new Description.Link("\n  "+linkName) {
           public void whenClicked() {
             UI.reminders().retireMessage(topic.asMessage);
             pushTopicMessage(linkTopic, true);
@@ -212,15 +222,6 @@ public class MessageScript implements
       }
     }
     
-    links.add(new Description.Link("Dismiss") {
-      public void whenClicked() {
-        UI.reminders().retireMessage(topic.asMessage);
-        UI.setInfoPanels(null, null);
-      }
-    });
-    
-    topic.asMessage = new MessagePane(UI, null, topic.titleKey, null, this);
-    topic.asMessage.assignContent(content, links);
     return topic.asMessage;
   }
 }

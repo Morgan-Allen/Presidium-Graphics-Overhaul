@@ -250,11 +250,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
     //         in order to ensure that the old scenario has the chance to exit
     //         the loop (if applicable.)  You can get nasty bugs otherwise.
     if (nextOp == DO_SAVE_EXIT) {
-      saveGame(fullSavePath(savesPrefix, timeStamp(world)));
+      saveGame(fullSavePath(savesPrefix, timeSuffix(world)));
       return true;
     }
     if (nextOp == DO_SAVE) {
-      saveGame(fullSavePath(savesPrefix, timeStamp(world)));
+      saveGame(fullSavePath(savesPrefix, timeSuffix(world)));
     }
     if (nextOp == DO_RESTART) {
       resetScenario();

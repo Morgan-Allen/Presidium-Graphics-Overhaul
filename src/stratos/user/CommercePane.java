@@ -110,7 +110,7 @@ public class CommercePane extends SelectionPane {
       if (demand == 0 && supply == 0) continue;
       else noLocal = false;
       
-      ((Text) d).insert(t.icon.asTexture(), 15, true);
+      ((Text) d).insert(t.icon.asTexture(), 20, 20, true);
       d.append(" "+t+": "+supply+"/"+demand);
     }
     if (noLocal) d.append("\n  No local goods.");
@@ -124,7 +124,7 @@ public class CommercePane extends SelectionPane {
       if (demand == 0 && supply == 0) continue;
       else noTrade = false;
       
-      ((Text) d).insert(t.icon.asTexture(), 15, true);
+      ((Text) d).insert(t.icon.asTexture(), 20, 20, true);
       d.append(" "+t+": "+demand+"/"+supply);
     }
     if (noTrade) d.append("\n  No trade goods.");
@@ -137,7 +137,7 @@ public class CommercePane extends SelectionPane {
         priceExp = I.shorten(BC.exportPrice(t), 1),
         baseCost = I.shorten(t.basePrice()    , 1);
       
-      ((Text) d).insert(t.icon.asTexture(), 15, true);
+      ((Text) d).insert(t.icon.asTexture(), 20, 20, true);
       d.append(" "+t+" (");
       d.append(priceImp+"", Colour.LITE_RED  );
       d.append(" | ");
@@ -155,13 +155,13 @@ public class CommercePane extends SelectionPane {
       d.append(" (Makes: ");
       for (Traded t : partner.goodsMade) {
         if (t.form != Economy.FORM_MATERIAL) continue;
-        ((Text) d).insert(t.icon.asTexture(), 15, false);
+        ((Text) d).insert(t.icon.asTexture(), 20, 20, false);
       }
       d.append(")");
       d.append(" (Needs: ");
       for (Traded t : partner.goodsNeeded) {
         if (t.form != Economy.FORM_MATERIAL) continue;
-        ((Text) d).insert(t.icon.asTexture(), 15, false);
+        ((Text) d).insert(t.icon.asTexture(), 20, 20, false);
       }
       d.append(")");
     }

@@ -8,14 +8,13 @@ package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.start.PlayLoop;
 import stratos.util.*;
-
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.Vector2;
 
 
 
-/**  Not- images set their own dimensions to match that of their texture (times
-  *  scale.)  If you wish to disable this behaviour, set scale to zero.
+/**  Note- images set their own dimensions to match that of their texture (
+  *  times scale.)  If you wish to disable this behaviour, set scale to zero.
   */
 public class Image extends UINode {
   

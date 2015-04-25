@@ -102,7 +102,7 @@ public class VenuePane extends SelectionPane {
         exports = demands && v.stocks.producer(t);
       
       final int level = (int) Nums.ceil(v.stocks.demandFor(t));
-      ((Text) d).insert(t.icon.asTexture(), 20, true);
+      ((Text) d).insert(t.icon.asTexture(), 20, 20, true);
       d.append("  ");
       
       final float maxTrade = v.spaceFor(t), minTrade = Nums.min(5, maxTrade);
@@ -194,7 +194,7 @@ public class VenuePane extends SelectionPane {
       final float output = v.structure.outputOf(t);
       final float demand = v.stocks.demandFor(t);
       if (output <= 0 && demand <= 0) continue;
-      ((Text) d).insert(t.icon.asTexture(), 20, true);
+      ((Text) d).insert(t.icon.asTexture(), 20, 20, true);
       d.append("  ");
       
       if (output > 0) {
@@ -271,7 +271,7 @@ public class VenuePane extends SelectionPane {
     final float amount = v.stocks.amountOf(type);
     if (needed == 0 && amount == 0) return false;
     
-    ((Text) d).insert(type.icon.asTexture(), 20, true);
+    ((Text) d).insert(type.icon.asTexture(), 20, 20, true);
     d.append("  ");
     item.describeTo(d);
     
@@ -498,7 +498,7 @@ public class VenuePane extends SelectionPane {
     Actor a, final FindWork sought, Description d, BaseUI UI
   ) {
     final Composite comp = a.portrait(UI);
-    if (comp != null) ((Text) d).insert(comp.texture(), 40, true);
+    if (comp != null) ((Text) d).insert(comp.texture(), 40, 40, true);
     else d.append("\n");
     
     d.append(a);
@@ -537,7 +537,7 @@ public class VenuePane extends SelectionPane {
   public static void descActor(Mobile m, Description d, BaseUI UI) {
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
-      if (p != null) ((Text) d).insert(p.delayedImage(UI), 40, true);
+      if (p != null) ((Text) d).insert(p.delayedImage(UI), 40, 40, true);
       else d.append("\n");
     }
     else d.append("\n\n  ");

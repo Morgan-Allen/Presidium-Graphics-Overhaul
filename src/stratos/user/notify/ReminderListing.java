@@ -6,6 +6,7 @@
 package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
+import stratos.start.SaveUtils;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.base.*;
@@ -232,9 +233,19 @@ public class ReminderListing extends UIGroup {
     final String label = oldMessages.size()+" old messages";
     entry.setLabel(label);
     entry.setOpened(true);
-    
+    //
+    //  We sort messages in order of time-of-receipt:
+    final List <MessagePane> sorting = new List <MessagePane> () {
+      protected float queuePriority(MessagePane m) {
+        return 0 - m.receiptDate();
+      }
+    };
+    Visit.appendTo(sorting, oldMessages);
+    sorting.queueSort();
+    //
+    //  
     final Batch <Clickable> links = new Batch <Clickable> ();
-    for (final MessagePane panel : oldMessages) {
+    for (final MessagePane panel : sorting) {
       final Clickable link = new Clickable() {
         
         public String fullName() {
@@ -295,17 +306,22 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  public void addMessageEntry(MessagePane message, boolean urgent) {
+  public void addMessageEntry(
+    MessagePane message, boolean urgent, float receiptDate
+  ) {
     if (message.source == null) {
       I.complain("\nMESSAGE "+message.title+" MUST HAVE SOURCE!");
     }
+    message.assignReceiptDate(receiptDate);
     if (urgent) newMessages.include(message);
     else        oldMessages.include(message);
   }
   
   
   public void retireMessage(MessagePane message) {
-    newMessages.remove (message);
+    final ListEntry <MessagePane> match = newMessages.match(message);
+    if (match == null) return;
+    newMessages.removeEntry(match);
     oldMessages.include(message);
   }
   
@@ -314,29 +330,5 @@ public class ReminderListing extends UIGroup {
     for (MessagePane m : newMessages) retireMessage(m);
   }
 }
-
-
-
-
-
-
-
-
-
-
-/*
-private void checkMessageRead() {
-  if (! (UI.currentPane() instanceof MessagePane)) return;
-  
-  final MessagePane message = (MessagePane) UI.currentPane();
-  if (message.source != null && ! entry.opened()) {
-    message.source.messageWasOpened(message.title, UI);
-  }
-  
-  final MessageReminder entry = (MessageReminder) entryWithMessage(message);
-  if (entry == null) return;
-  entry.setOpened(true);
-}
-//*/
 
 

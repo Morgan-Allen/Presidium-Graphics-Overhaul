@@ -199,25 +199,33 @@ public class Text extends UINode implements Description {
     *  function as hyperlinks given the right reference object, or as bullets
     *  to indent other elements, or both.
     */
+  
+  //  TODO:  Consider making these static methods, so that arbitrary
+  //  Descriptions can be passed in (and simply ignored if they're not Texts.)
+  
+  
   public boolean insert(
-    Texture texGraphic, int maxSize, final Clickable link, boolean asBullet
+    Texture texGraphic, int wide, int high,
+    final Clickable link, boolean asBullet
   ) {
     final Button linked = new Button(UI, texGraphic, link.fullName());
     linked.setLinks(link);
-    return insert(linked, maxSize, asBullet);
+    return insert(linked, wide, high, asBullet);
   }
   
   
-  public boolean insert(Texture texGraphic, int maxSize, boolean asBullet) {
-    return insert(new Image(UI, texGraphic), maxSize, asBullet);
+  public boolean insert(
+    Texture texGraphic, int wide, int high, boolean asBullet
+  ) {
+    return insert(new Image(UI, texGraphic), wide, high, asBullet);
   }
   
   
-  public boolean insert(UINode graphic, int maxSize, boolean asBullet) {
+  public boolean insert(UINode graphic, int wide, int high, boolean asBullet) {
     if (graphic == null) return false;
     if (asBullet && allEntries.size() > 0) append("\n");
     
-    graphic.absBound.set(0, 0, maxSize, maxSize);
+    graphic.absBound.set(0, 0, wide, high);
     graphic.relBound.set(0, 0, 0, 0);
     graphic.updateRelativeParent();
     graphic.updateAbsoluteBounds();
@@ -236,7 +244,7 @@ public class Text extends UINode implements Description {
   
   
   public void cancelBullet() {
-    insert(ImageAsset.WHITE_TEX(), 0, true);
+    insert(ImageAsset.WHITE_TEX(), 0, 0, true);
   }
   
   

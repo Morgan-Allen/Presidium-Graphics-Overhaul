@@ -28,7 +28,7 @@ public class DebugUI extends VisualDebug {
     text.attachTo(UI);
     text.setText("");
     
-    text.insert(ImageAsset.WHITE_TEX(), 25, true);
+    text.insert(ImageAsset.WHITE_TEX(), 25, 25, true);
     text.append(
       "QUICK BROWN FOX JUMPED OVER LAZY DOG"+
       "\n\nLorum Ipsum Dolor etc. etc. etc.  Make up whatever you like, really."
@@ -36,10 +36,10 @@ public class DebugUI extends VisualDebug {
     for (int n = 40; n-- > 0;) text.append("\nTT");
     text.append("\nFinished!");
     
-    text.insert(ImageAsset.WHITE_TEX(), 40, true);
+    text.insert(ImageAsset.WHITE_TEX(), 40, 40, true);
     for (int n = 2; n-- > 0;) {
       text.append(" ");
-      text.insert(ImageAsset.WHITE_TEX(), 25, false);
+      text.insert(ImageAsset.WHITE_TEX(), 25, 25, false);
     }
     
     final Scrollbar bar = text.makeScrollBar(SelectionPane.SCROLL_TEX);

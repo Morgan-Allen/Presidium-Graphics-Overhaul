@@ -24,6 +24,7 @@ public class MessagePane extends SelectionPane implements UIConstants {
   private boolean contentSet = false;
   private String initText;
   private Clickable options[];
+  private float receiptDate = -1;
   
   
   public MessagePane(
@@ -78,6 +79,11 @@ public class MessagePane extends SelectionPane implements UIConstants {
   }
   
   
+  protected void assignReceiptDate(float time) {
+    this.receiptDate = time;
+  }
+  
+  
   
   /**  Update methods-
     */
@@ -96,6 +102,11 @@ public class MessagePane extends SelectionPane implements UIConstants {
       }
     }
     else return;
+  }
+  
+  
+  protected float receiptDate() {
+    return receiptDate;
   }
 
 

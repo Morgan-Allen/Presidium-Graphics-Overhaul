@@ -14,6 +14,7 @@ public class ImageAsset extends Assets.Loadable {
   
   
   private static Texture WHITE_TEX = null;
+  private static Object NO_FILE = new Object();
   
   public static Texture WHITE_TEX() {
     //  NOTE:  This method should not be called until the main LibGDX thread
@@ -41,15 +42,28 @@ public class ImageAsset extends Assets.Loadable {
   private Colour average;
   
   
-  private ImageAsset(String filePath, Class sourceClass) {
-    super("image_asset_"+filePath, sourceClass, false);
+  private ImageAsset(String keyPath, String filePath, Class sourceClass) {
+    super(keyPath, sourceClass, false);
     this.filePath = filePath;
-    if (! Assets.exists(filePath)) I.complain("NO SUCH FILE: "+filePath);
   }
   
   
   public static ImageAsset fromImage(Class sourceClass, String filePath) {
-    return new ImageAsset(filePath, sourceClass);
+    final String keyPath = "image_asset_"+filePath;
+    
+    final Object match = Assets.getResource(keyPath);
+    if (match == NO_FILE) return null;
+    if (match instanceof ImageAsset) return (ImageAsset) match;
+    
+    if (! Assets.exists(filePath)) {
+      I.say("WARNING- NO SUCH IMAGE FILE: "+filePath);
+      Assets.cacheResource(NO_FILE, keyPath);
+      return null;
+    }
+    
+    final ImageAsset asset = new ImageAsset(keyPath, filePath, sourceClass);
+    Assets.cacheResource(asset, keyPath);
+    return asset;
   }
   
   
@@ -58,7 +72,7 @@ public class ImageAsset extends Assets.Loadable {
   ) {
     final ImageAsset assets[] = new ImageAsset[files.length];
     for (int i = 0; i < files.length; i++) {
-      assets[i] = new ImageAsset(path+files[i], sourceClass);
+      assets[i] = fromImage(sourceClass, path+files[i]);
     }
     return assets;
   }
@@ -104,7 +118,7 @@ public class ImageAsset extends Assets.Loadable {
       
       float sumAlphas = 0;
       final int wide = pixels.getWidth(), high = pixels.getHeight();
-      for (Coord c : Visit.grid(0, 0, wide, high, 1)) {
+      for (Coord c : Visit.grid(0, 0, wide, high, 10)) {
         sample.setFromRGBA(pixels.getPixel(c.x, c.y));
         sumAlphas += sample.a;
         average.r += sample.r * sample.a;

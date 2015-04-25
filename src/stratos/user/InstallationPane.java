@@ -206,7 +206,7 @@ public class InstallationPane extends SelectionPane {
       final String       typeDesc = sample.helpInfo()  ;
       final int          cost     = sample.structure.buildCost();
       
-      if (icon != null) text.insert(icon.texture(), 80, false);
+      if (icon != null) text.insert(icon.texture(), 80, 80, false);
       text.append("\n\nFacility Name: "+typeName);
       text.append("\nBuild cost: "+cost);
       text.append("\n\n");
@@ -241,7 +241,7 @@ public class InstallationPane extends SelectionPane {
       final String       typeName = type.name          ;
       final int          cost     = sample.structure.buildCost();
       
-      if (icon != null) text.insert(icon.texture(), 40, true);
+      if (icon != null) text.insert(icon.texture(), 40, 40, true);
       else text.append("\n  ");
       text.append(" "+typeName+" ("+cost+" credits)");
       text.append("\n  ");
