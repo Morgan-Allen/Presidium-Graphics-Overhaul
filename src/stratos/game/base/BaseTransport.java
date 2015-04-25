@@ -13,8 +13,9 @@ import stratos.game.maps.*;
 import stratos.util.*;
 
 
-//  TODO:  Also check if these routes are fully-paved for distribution
-//  purposes.
+//  TODO:  Replace the paving methods with something simpler and more elegant.
+//         Don't even bother with path-finding.  Just check if there's a
+//         'square' route available and use that if possible.
 
 
 

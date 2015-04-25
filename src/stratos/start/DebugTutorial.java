@@ -11,13 +11,16 @@ import stratos.util.*;
 
 
 
-//TODO:  Allow inclusion of images in messages.
-//TODO:  Hide any shortage-messages until the tutorial is complete.
 
-//TODO:  Sort out uncertainty over sources for polymer and catalyst.
+//  TODO:  Disable shipping until the player is ready, and allow for multiple
+//         ships with multiple airfields.
 
-//TODO:  Disable shipping until the player is ready, and allow for multiple
-//       ships with multiple airfields.
+//  TODO:  Placing over ocean tiles should not be possible!
+
+//  TODO:  PLACE THE BASTION INLAND WITH SOME INITIAL FENCING.
+
+//  TODO:  Sort out uncertainty over sources for polymer.
+
 
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
@@ -39,8 +42,7 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 *  Icons could be clearer, at least in the early game.
 
-*  Sort out a decent carbons-source and a use for water-resources.  That, and
-   spice flats!
+*  ADD IMAGE-TIPS FOR THE TUTORIAL-MESSAGES.
 //*/
 
 

@@ -79,6 +79,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
+    base.setup.setControlLevel(BaseSetup.LEVEL_CUSTOM);
   }
   
   
@@ -341,6 +342,12 @@ public class TutorialScenario extends StartupScenario {
     if (balance < startingBalance + 1000) return false;
     return true;
   }
+  
+  
+  protected void onTutorialDone() {
+    base().setup.setControlLevel(BaseSetup.LEVEL_ADVISE);
+  }
+  
   
   
   

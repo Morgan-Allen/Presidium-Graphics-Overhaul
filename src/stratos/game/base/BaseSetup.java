@@ -36,9 +36,15 @@ public class BaseSetup {
     DEFAULT_VENUE_SAMPLES = 5,
     DEFAULT_CHAT_SAMPLES  = 5;
   
+  final public static int
+    LEVEL_AUTO   =  2,
+    LEVEL_ADVISE =  1,
+    LEVEL_CUSTOM =  0;
+  
   
   final Stage world;
   final Base  base ;
+  private int setupMode = LEVEL_ADVISE;
   //
   //  Data structures for conducting time-sliced placement of private venues:
   protected VenueProfile canPlace[];
@@ -110,6 +116,11 @@ public class BaseSetup {
   
   public void setAvailableVenues(VenueProfile... canPlace) {
     this.canPlace = canPlace;
+  }
+  
+  
+  public void setControlLevel(int mode) {
+    this.setupMode = mode;
   }
   
   
@@ -436,6 +447,8 @@ public class BaseSetup {
         return needRating(r);
       }
     };
+    if (setupMode == LEVEL_CUSTOM) return needs.toArray();
+    
     for (Traded t : Economy.ALL_PROVISIONS) {
       if (base.commerce.primaryShortage(t) < 0.5f) continue;
       if (base.commerce.primaryDemand  (t) < 5   ) continue;
@@ -456,75 +469,11 @@ public class BaseSetup {
   
   
   public float needRating(Object need) {
+    if (setupMode == LEVEL_CUSTOM) return 0;
     if (need instanceof Traded) {
       return base.commerce.primaryShortage((Traded) need);
     }
     return base.demands.globalShortage(need);
-  }
-  
-  
-  public MessagePane messageForNeed(Object t, BaseUI UI) {
-    
-    final String titleKey = "Need "+t;
-    final MessagePane pane = new MessagePane(
-      UI, null, titleKey, null, null
-    );
-    
-    final Batch <VenueProfile> canMatch = new Batch <VenueProfile> ();
-    for (VenueProfile profile : canPlace) {
-      for (Conversion c : profile.processed) {
-        if (c.out.type == t) {
-          canMatch.include(profile);
-          continue;
-        }
-      }
-    }
-    
-    pane.header().setText("Shortage of "+t);
-    final Description d = pane.detail();
-    
-    if (t instanceof Traded) {
-      final String help = ((Traded) t).description;
-      d.append(t+": ", Colour.LITE_GREY);
-      if (help == null) d.append("(No description)", Colour.LITE_GREY);
-      else d.append(help, Colour.LITE_GREY);
-      d.append("\n\n");
-    }
-    
-    for (VenueProfile match : canMatch) {
-      final Conversion s = match.producing(t);
-      
-      if (s.raw.length > 0) {
-        d.append("Consider building a "+match.name+", which converts ");
-        for (Item i : s.raw) d.append(i.type+" ");
-        d.append("to "+s.out.type+".");
-      }
-      else {
-        d.append("Consider building a "+match.name+", which provides "+t+".");
-      }
-      
-      final String category = InstallationPane.categoryFor(match);
-      if (category != null) {
-        d.append("\n  Category: "+category+" Structures", Colour.LITE_GREY);
-      }
-      
-      if (match.required.length > 0) for (VenueProfile req : match.required) {
-        if (base.listInstalled(req, true).size() > 0) continue;
-        d.append("\n  Requires: "+req.name, Colour.LITE_GREY);
-      }
-      d.append("\n\n");
-    }
-    
-    if (Visit.arrayIncludes(Economy.ALL_MATERIALS, t)) {
-      if (canMatch.size() > 0) {
-        d.append("Alternatively, you could import this good at a ");
-      }
-      else d.append("You could import this good at a ");
-      d.append("Supply Depot or Airfield.");
-      d.append("\n\n");
-    }
-    
-    return pane;
   }
 }
 

@@ -198,6 +198,26 @@ public class ReminderListing extends UIGroup {
     super.updateState();
   }
   
+
+  
+  /**  Utility methods for needs summaries-
+    */
+  private MessagePane forNeedsSummary() {
+    final MessagePane pane = new MessagePane(
+      UI, null, "Shortages!", null, null
+    );
+    return pane;
+  }
+  
+  
+  private void updateNeedsSummary() {
+    final Base played = UI.played();
+    MessageReminder entry = (MessageReminder) entryThatRefers(played.setup);
+    if (entry == null) return;
+    final MessagePane pane = entry.message;
+    BaseAdvice.configNeedsSummary(pane, played, UI);
+  }
+  
   
   
   /**  Utility methods for message dialogues:
@@ -205,14 +225,6 @@ public class ReminderListing extends UIGroup {
   private MessagePane forOldMessages() {
     final MessagePane pane = new MessagePane(
       UI, null, "Old Messages", null, null
-    );
-    return pane;
-  }
-  
-  
-  private MessagePane forNeedsSummary() {
-    final MessagePane pane = new MessagePane(
-      UI, null, "Shortages!", null, null
     );
     return pane;
   }
@@ -259,34 +271,6 @@ public class ReminderListing extends UIGroup {
       links.add(link);
     }
     entry.message.assignContent("", links);
-  }
-  
-  
-  private void updateNeedsSummary() {
-    final Base played = UI.played();
-    MessageReminder entry = (MessageReminder) entryThatRefers(played.setup);
-    if (entry == null) return;
-    final MessagePane pane = entry.message;
-
-    pane.header().setText("Shortages!");
-    pane.detail().setText(
-      "Your base is short of the following goods or services.  Click on the "+
-      "links below for tips on how to fill the demand.\n"
-    );
-    final Description d = pane.detail();
-    
-    for (final Object o : played.setup.needSatisfaction()) {
-      d.append("\n  ");
-      d.append(new Description.Link(o.toString()) {
-        public void whenClicked() {
-          final MessagePane help = played.setup.messageForNeed(o, UI);
-          help.detail().append(new Description.Link("\n  Back") {
-            public void whenClicked() { UI.setInfoPanels(pane, null); }
-          });
-          UI.setInfoPanels(help, null);
-        }
-      });
-    }
   }
   
   

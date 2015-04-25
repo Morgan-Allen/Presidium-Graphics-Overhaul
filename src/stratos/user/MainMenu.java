@@ -3,13 +3,13 @@
 package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import static stratos.game.actors.Backgrounds.*;
-import static stratos.start.StartupScenario.*;
+import stratos.game.common.GameSettings;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
-
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.start.StartupScenario.*;
 import java.io.*;
 
 
@@ -30,6 +30,7 @@ public class MainMenu extends UIGroup {
   final Text text, help;
   int mode = MODE_INIT;
   private StartupScenario.Config config;
+  private XML gameCredits = null;
   
   
   public MainMenu(HUD UI) {
@@ -39,22 +40,38 @@ public class MainMenu extends UIGroup {
     text.alignAcross(0, 0.5f);
     text.scale = 1.25f;
     text.attachTo(this);
-    configMainText(null);
     
     help = new Text(UI, UIConstants.INFO_FONT);
     help.alignVertical(0, 0);
     help.alignAcross(0.5f, 1);
     help.scale = 0.75f;
     help.attachTo(this);
+    
+    configMainText(null);
   }
   
   
   public void configMainText(Object args[]) {
     text.setText("");
+    help.setText("");
     Call.add("\n  New Game"       , this, "configForNew"     , text);
     Call.add("\n  Quick Tutorial" , this, "configQuickstart" , text);
     Call.add("\n  Continue Game"  , this, "configToContinue" , text);
+    Call.add("\n  Info & Credits" , this, "configInfo"       , text);
     Call.add("\n  Quit"           , this, "configToQuit"     , text);
+  }
+  
+  
+  public void configInfo(Object args[]) {
+    text.setText("");
+    Call.add("\n\nBack", this, "configMainText", text);
+    
+    if (gameCredits == null) gameCredits = XML.load(
+      "media/Help/GameCredits.xml"
+    ).matchChildValue("name", "Credits").child("content");
+    
+    help.setText("");
+    help.append(gameCredits.content(), Colour.LITE_GREY);
   }
   
   
@@ -83,11 +100,6 @@ public class MainMenu extends UIGroup {
       final Colour c = config.house == s ? Colour.CYAN : null;
       Call.add("\n    "+s.houseName, c, this, "setHouse", text, s);
     }
-    /*
-    for (Skill s : config.house.skills()) {
-      text.append("\n      ("+s.name+" +5)", Colour.LITE_GREY);
-    }
-    //*/
     
     text.append("\n  Starting Skills: ");
     text.append("("+config.chosenSkills.size()+"/"+MAX_SKILLS+")");
@@ -97,8 +109,6 @@ public class MainMenu extends UIGroup {
       Call.add("\n    "+s.name, c, this, "toggleSkill", text, s);
     }
     
-    
-    //  TODO:  REVISE THIS
     text.append("\n  Starting Powers: ");
     text.append("("+config.chosenTechs.size()+"/"+MAX_POWERS+")");
     for (Power p : Power.BASIC_POWERS) {
@@ -106,8 +116,6 @@ public class MainMenu extends UIGroup {
       Call.add("\n    "+p.name, c, this, "togglePower", text, p);
     }
     
-    
-    //  TODO:  Include male/female as a trait.
     text.append("\n  Favoured traits: ");
     text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")");
     for (Trait t : Backgrounds.KNIGHTED.traits()) {

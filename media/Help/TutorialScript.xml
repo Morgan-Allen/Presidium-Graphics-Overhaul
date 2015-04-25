@@ -146,7 +146,7 @@ Tip:  You can always get an overview of current expenses and income, along with 
 
 
 
-<topic name="Congratulations" trigger="checkPositiveCashFlow">
+<topic name="Congratulations" trigger="checkPositiveCashFlow" onOpen="onTutorialDone">
 <content>Congratulations!  You've covered the core essentials of playing Stratos, The Sci-Fi Settlement Sim.  While there's a wealth of other content to explore, from here on we'll leave you to your own devices.
 
 Please feel free to drop by the forums at presidium.game.net for other tips or to give feedback and commentary!  In the meantime, enjoy.</content>

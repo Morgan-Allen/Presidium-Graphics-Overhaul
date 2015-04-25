@@ -202,7 +202,7 @@ public class Text extends UINode implements Description {
   
   //  TODO:  Consider making these static methods, so that arbitrary
   //  Descriptions can be passed in (and simply ignored if they're not Texts.)
-  
+  //*
   
   public boolean insert(
     Texture texGraphic, int wide, int high,
@@ -246,6 +246,7 @@ public class Text extends UINode implements Description {
   public void cancelBullet() {
     insert(ImageAsset.WHITE_TEX(), 0, 0, true);
   }
+  //*/
   
   
   

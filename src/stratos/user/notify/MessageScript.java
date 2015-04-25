@@ -145,7 +145,7 @@ public class MessageScript implements
         didTrigger = Boolean.TRUE.equals(triggerVal);
       }
       catch (Exception e) {
-        I.report(e);
+        e.printStackTrace();
         allTopics.remove(topic.titleKey);
       }
       
