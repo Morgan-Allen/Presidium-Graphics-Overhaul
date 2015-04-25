@@ -1,14 +1,12 @@
 <project name="Stratos build" basedir="." default="build">
 
 	<property name="exename" value="stratos.exe" />
+    <property name="config" value="stratos.ini" />
 	<property file="local.properties" />
 	
 	
 	<target name="build">
 		<jar destfile="build/stratos.jar" basedir="bin">
-			<manifest>
-				<attribute name="Main-Class" value="stratos.start.DebugStartup"/>
-			</manifest>
 		</jar>
 		<copy todir="build">
 			<fileset dir="libs"/>
@@ -17,22 +15,7 @@
 			<fileset dir="media"/>
 		</copy>
 		<copy file="resource/${exename}" tofile="build/${exename}" overwrite="true"/>
+        <copy file="resource/${config}" tofile="build/${config}" overwrite="true"/>
 		<mkdir dir="build/saves"/>
-	</target>
-	
-
-	<!-- change ini/stuff for exe in resource folder -->
-	<!-- this is weird and probably will be changed -->
-	<target name="exe">
-		<copy file="${winrun4j.path}/WinRun4J.exe" tofile="resource/${exename}" overwrite="true"/>
-		<exec executable="${winrun4j.path}/RCEDIT.exe">
-			<arg value="/C"/>
-			<arg value="resource/${exename}"/>
-		</exec>
-		<exec executable="${winrun4j.path}/RCEDIT.exe">
-			<arg value="/N"/>
-			<arg value="resource/${exename}"/>
-			<arg value="resource/stratos.ini"/>
-		</exec>
 	</target>
 </project>
