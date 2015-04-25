@@ -199,37 +199,55 @@ public class Text extends UINode implements Description {
     *  function as hyperlinks given the right reference object, or as bullets
     *  to indent other elements, or both.
     */
-  
-  //  TODO:  Consider making these static methods, so that arbitrary
-  //  Descriptions can be passed in (and simply ignored if they're not Texts.)
-  //*
-  
-  public boolean insert(
+  public static boolean insert(
     Texture texGraphic, int wide, int high,
-    final Clickable link, boolean asBullet
+    final Clickable link, boolean asBullet, Description d
   ) {
+    if (texGraphic == null || ! (d instanceof Text)) return false;
+    final HUD UI = ((Text) d).UI;
     final Button linked = new Button(UI, texGraphic, link.fullName());
     linked.setLinks(link);
-    return insert(linked, wide, high, asBullet);
+    return insert(linked, wide, high, asBullet, d);
   }
   
   
-  public boolean insert(
-    Texture texGraphic, int wide, int high, boolean asBullet
+  public static boolean insert(
+    Texture texGraphic, int wide, int high, boolean asBullet, Description d
   ) {
-    return insert(new Image(UI, texGraphic), wide, high, asBullet);
+    if (texGraphic == null || ! (d instanceof Text)) return false;
+    final HUD UI = ((Text) d).UI;
+    return insert(new Image(UI, texGraphic), wide, high, asBullet, d);
   }
   
   
-  public boolean insert(UINode graphic, int wide, int high, boolean asBullet) {
+  public static boolean insert(
+    Texture texGraphic, int maxWide, boolean asBullet, Description d
+  ) {
+    if (texGraphic == null || ! (d instanceof Text)) return false;
+    int w = texGraphic.getWidth(), h = texGraphic.getHeight();
+    if (w > maxWide) {
+      final float scale = maxWide * 1f / w;
+      w *= scale;
+      h *= scale;
+    }
+    return insert(texGraphic, w, h, asBullet, d);
+  }
+  
+  
+  public static boolean insert(
+    UINode graphic, int wide, int high, boolean asBullet, Description d
+  ) {
     if (graphic == null) return false;
-    if (asBullet && allEntries.size() > 0) append("\n");
+    if (! (d instanceof Text)) return false;
+    
+    final Text text = (Text) d;
+    if (asBullet && text.allEntries.size() > 0) text.append("\n");
     
     graphic.absBound.set(0, 0, wide, high);
     graphic.relBound.set(0, 0, 0, 0);
     graphic.updateRelativeParent();
     graphic.updateAbsoluteBounds();
-    graphic.attachTo(this);
+    graphic.attachTo(text);
     
     final UIEntry entry = new UIEntry();
     entry.graphic = graphic;
@@ -237,16 +255,15 @@ public class Text extends UINode implements Description {
     entry.high = (int) graphic.ydim();
     entry.bullet = asBullet;
     
-    allEntries.add(entry);
-    needsFormat = true;
+    text.allEntries.add(entry);
+    text.needsFormat = true;
     return true;
   }
   
   
-  public void cancelBullet() {
-    insert(ImageAsset.WHITE_TEX(), 0, 0, true);
+  public static void cancelBullet(Description d) {
+    insert(ImageAsset.WHITE_TEX(), 0, 0, true, d);
   }
-  //*/
   
   
   

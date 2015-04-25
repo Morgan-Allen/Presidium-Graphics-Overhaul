@@ -2,7 +2,9 @@
 
 <topic name="Welcome!" trigger="checkShowWelcome" urgent="true">
   <image>media/Help/start_banner.png</image>
-  <content>Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.</content>
+  <content>
+Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.
+</content>
   <link name="Navigation">Continue</link>
 </topic>
 

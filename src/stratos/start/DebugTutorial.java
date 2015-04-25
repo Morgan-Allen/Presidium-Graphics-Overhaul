@@ -49,7 +49,7 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 /*  BIG TODO LIST:
 
-BUILDING AND UPGRADES-
+BUILDINGS AND ECONOMY-
    
   >>>>>>> DO THIS <<<<<<<
 *  There needs to be a more precise 'reservation' system to allow for zoning,
@@ -76,6 +76,9 @@ BUILDING AND UPGRADES-
 
 *  Buildings need to have multiple levels.  (At least for the main/root-guild
    structures.)
+
+*  Integrate spyce-sources and use it to boost Psy abilities (such as sovereign
+   spells.)
 
 
 CITIZEN BEHAVIOUR-

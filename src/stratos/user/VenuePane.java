@@ -102,7 +102,7 @@ public class VenuePane extends SelectionPane {
         exports = demands && v.stocks.producer(t);
       
       final int level = (int) Nums.ceil(v.stocks.demandFor(t));
-      ((Text) d).insert(t.icon.asTexture(), 20, 20, true);
+      Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append("  ");
       
       final float maxTrade = v.spaceFor(t), minTrade = Nums.min(5, maxTrade);
@@ -194,7 +194,7 @@ public class VenuePane extends SelectionPane {
       final float output = v.structure.outputOf(t);
       final float demand = v.stocks.demandFor(t);
       if (output <= 0 && demand <= 0) continue;
-      ((Text) d).insert(t.icon.asTexture(), 20, 20, true);
+      Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append("  ");
       
       if (output > 0) {
@@ -245,7 +245,7 @@ public class VenuePane extends SelectionPane {
       sortedOrders.add(i);
     }
     
-    ((Text) d).cancelBullet();
+    Text.cancelBullet(d);
     if (sortedOrders.size() > 0) {
       empty = false;
       d.append("\n\nSpecial Orders:");
@@ -271,7 +271,7 @@ public class VenuePane extends SelectionPane {
     final float amount = v.stocks.amountOf(type);
     if (needed == 0 && amount == 0) return false;
     
-    ((Text) d).insert(type.icon.asTexture(), 20, 20, true);
+    Text.insert(type.icon.asTexture(), 20, 20, true, d);
     d.append("  ");
     item.describeTo(d);
     
@@ -315,7 +315,7 @@ public class VenuePane extends SelectionPane {
           apps  = v.staff.numApplied(b);
         if (total == 0 && hired == 0) continue;
         
-        ((Text) d).cancelBullet();
+        Text.cancelBullet(d);
         d.append(b.name+": ("+hired+"/"+total+")");
         if (apps > 0) d.append("\n  Total applied: "+apps);
         
@@ -336,7 +336,7 @@ public class VenuePane extends SelectionPane {
       }
     }
     
-    ((Text) d).cancelBullet();
+    Text.cancelBullet(d);
     d.append("Residents: ");
     boolean anyLives = false;
     for (Actor a : v.staff.lodgers()) {
@@ -346,8 +346,8 @@ public class VenuePane extends SelectionPane {
     }
     if (! anyLives) d.append("None.");
     d.append("\n");
-
-    ((Text) d).cancelBullet();
+    
+    Text.cancelBullet(d);
     d.append("Visitors: ");
     boolean anyVisit = false;
     for (Mobile m : v.inside()) {
@@ -498,7 +498,7 @@ public class VenuePane extends SelectionPane {
     Actor a, final FindWork sought, Description d, BaseUI UI
   ) {
     final Composite comp = a.portrait(UI);
-    if (comp != null) ((Text) d).insert(comp.texture(), 40, 40, true);
+    if (comp != null) Text.insert(comp.texture(), 40, 40, true, d);
     else d.append("\n");
     
     d.append(a);
@@ -537,7 +537,7 @@ public class VenuePane extends SelectionPane {
   public static void descActor(Mobile m, Description d, BaseUI UI) {
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
-      if (p != null) ((Text) d).insert(p.delayedImage(UI), 40, 40, true);
+      if (p != null) Text.insert(p.delayedImage(UI), 40, 40, true, d);
       else d.append("\n");
     }
     else d.append("\n\n  ");

@@ -16,7 +16,7 @@ import java.lang.reflect.*;
 
 
 public class MessageScript implements
-  Session.Saveable, MessagePane.MessageSource
+  Session.Saveable, MessagePane.MessageSource, UIConstants
 {
   
   private class Topic {
@@ -192,27 +192,35 @@ public class MessageScript implements
     final MessagePane pane = topic.asMessage = new MessagePane(
       UI, null, topic.titleKey, null, this
     );
+    
     final Description d = pane.detail();
+    final int maxWide = INFO_PANEL_WIDE - (
+      (DEFAULT_MARGIN * 2) + SCROLLBAR_WIDE + DEFAULT_MARGIN
+    );
+    pane.header().setText(title);
     
     for (XML node : topic.sourceNode.children()) {
+      
       if (node.tag().equals("content")) {
         d.append("\n");
         d.append(node.content());
       }
+      
       if (node.tag().equals("image")) {
         final String path = node.content();
         ImageAsset asset = ImageAsset.fromImage(basis.getClass(), path);
         if (asset == null) continue;
-        ((Text) d).insert(asset.asTexture(), 240, 50, false);
+        Text.insert(asset.asTexture(), maxWide, false, d);
       }
+      
       if (node.tag().equals("link")) {
         final String linkKey   = node.value("name");
         final String linkName  = node.content();
         final Topic  linkTopic = allTopics.get(linkKey);
         
-        if (linkTopic == null) {
-          I.say("\n  WARNING: NO TOPIC MATCHING "+linkKey);
-        }
+        if (linkTopic == null) I.say(
+          "\n  WARNING: NO TOPIC MATCHING "+linkKey
+        );
         else d.append(new Description.Link("\n  "+linkName) {
           public void whenClicked() {
             UI.reminders().retireMessage(topic.asMessage);
