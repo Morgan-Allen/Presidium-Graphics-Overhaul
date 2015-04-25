@@ -91,7 +91,7 @@ public class EcologistStation extends Venue {
       100,
       Upgrade.THREE_LEVELS, CARBS,
       1,
-      null, EcologistStation.class, ALL_UPGRADES
+      null, EcologistStation.class
     ),
     BROADLEAF_LAB = new Upgrade(
       "Broadleaf Lab",
@@ -100,14 +100,14 @@ public class EcologistStation extends Venue {
       150,
       Upgrade.THREE_LEVELS, GREENS,
       1,
-      null, EcologistStation.class, ALL_UPGRADES
+      null, EcologistStation.class
     ),
     CULTIVATOR_STATION = new Upgrade(
       "Cultivator Station",
       Backgrounds.CULTIVATOR.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.CULTIVATOR, 1,
-      null, EcologistStation.class, ALL_UPGRADES
+      null, EcologistStation.class
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
@@ -116,7 +116,7 @@ public class EcologistStation extends Venue {
       100,
       Upgrade.THREE_LEVELS, null,
       1,
-      BROADLEAF_LAB, EcologistStation.class, ALL_UPGRADES
+      BROADLEAF_LAB, EcologistStation.class
     ),
     INSECTRY_LAB = new Upgrade(
       "Insectry Lab",
@@ -126,7 +126,7 @@ public class EcologistStation extends Venue {
       150,
       Upgrade.THREE_LEVELS, PROTEIN,
       1,
-      BROADLEAF_LAB, EcologistStation.class, ALL_UPGRADES
+      BROADLEAF_LAB, EcologistStation.class
     ),
     ECOLOGIST_STATION = new Upgrade(
       "Ecologist Station",
@@ -134,7 +134,7 @@ public class EcologistStation extends Venue {
       150,
       Upgrade.THREE_LEVELS, Backgrounds.ECOLOGIST,
       1,
-      TREE_FARMING, EcologistStation.class, ALL_UPGRADES
+      TREE_FARMING, EcologistStation.class
     );
   
   

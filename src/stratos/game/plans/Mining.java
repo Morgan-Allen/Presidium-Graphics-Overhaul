@@ -41,11 +41,11 @@ public class Mining extends Plan {
     SLAG_RATIO   = 10;
   
   final public static Traded MINED_TYPES[] = {
-    SLAG, ORES, ISOTOPES, ARTIFACTS
+    SLAG, METALS, ISOTOPES, ARTIFACTS
   };
   final static Table TYPE_MAP = Table.make(
     TYPE_RUBBLE  , SLAG     ,
-    TYPE_METALS  , ORES     ,
+    TYPE_METALS  , METALS     ,
     TYPE_ISOTOPES, ISOTOPES ,
     TYPE_RUINS   , ARTIFACTS
   );

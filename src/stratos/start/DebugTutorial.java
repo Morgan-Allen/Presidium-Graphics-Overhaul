@@ -11,6 +11,14 @@ import stratos.util.*;
 
 
 
+//TODO:  Allow inclusion of images in messages.
+//TODO:  Hide any shortage-messages until the tutorial is complete.
+
+//TODO:  Sort out uncertainty over sources for polymer and catalyst.
+
+//TODO:  Disable shipping until the player is ready, and allow for multiple
+//       ships with an airfield.
+
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
@@ -34,7 +42,6 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 *  Sort out a decent carbons-source and a use for water-resources.  That, and
    spice flats!
 //*/
-
 
 
 

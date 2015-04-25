@@ -101,7 +101,7 @@ public final class Economy {
       BC, "Polymer"  , "carbons.gif"  , FORM_MATERIAL, 5,
       "Long-chain hydrocarbons, used in plastics production"
     ),
-    ORES = new Traded(
+    METALS = new Traded(
       BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 10,
       "Common metal ores, used in construction and industry"
     ),
@@ -109,7 +109,7 @@ public final class Economy {
       BC, "Isotopes" , "fuel rods.gif" , FORM_MATERIAL, 35,
       "Heavy or radioactive elements used in nuclear synthesis"
     ),
-    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, ORES, ISOTOPES),
+    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, METALS, ISOTOPES),
     
     PLASTICS = new Traded(
       BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25,
@@ -123,16 +123,11 @@ public final class Economy {
       BC, "Circuitry", "inscription.gif", FORM_MATERIAL, 80,
       "Used to manufacture terminals and other advanced devices"
     ),
-    TERMINALS = new Traded(
-      BC, "Terminals", "datalinks.gif", FORM_MATERIAL, 125,
-      "Encrypted information relays suited to advanced study"
-    ),
     ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, CIRCUITRY);
   
   final public static Traded
     ALL_MATERIALS [] = Traded.INDEX.soFar(Traded.class);
   
-  //  TODO:  Move these up a bit?  The distinction isn't that clear anymore...
   final public static Traded
     SAMPLES = new Traded(
       BC, "Samples"    , null, FORM_SPECIAL, 0
@@ -149,11 +144,6 @@ public final class Economy {
       BC, "Spyce H", "spyce.gif"  , FORM_SPECIAL, 200,
       "Halebdynum, a spyce compound found as a dessicated salt"
     ),
-    SPYCE_N = new Traded(
-      BC, "Spyce N", "spyce.gif"  , FORM_SPECIAL, 200,
-      "Natrizoral, a spyce compound found in marine plant oils"
-    ),
-    ALL_SPYCE_TYPES[] = label(CATEGORY_SPYCE, SPYCE_T, SPYCE_H, SPYCE_N),
     
     ANTIMASS = new Traded(
       BC, "Antimass", "fuel_rods.gif" , FORM_SPECIAL, 85,
@@ -163,17 +153,17 @@ public final class Economy {
       BC, "Pressfeed", "pressfeed.gif", FORM_SPECIAL, 50,
       "Disposable propaganda used to raise morale"
     ),
+    DATALINKS = new Traded(
+      BC, "Datalinks", "datalinks.gif", FORM_SPECIAL, 125,
+      "Encrypted information relays suited to advanced study"
+    ),
     DECOR = new Traded(
       BC, "Decor"    , "decor.gif"    , FORM_SPECIAL, 250,
       "Interior decoration for the homes of the upper crust"
     ),
-    ALL_SECURED_TYPES[] = label(CATEGORY_SECURED, ANTIMASS, PRESSFEED, DECOR),
     
     ARTIFACTS = new Traded(
       BC, "Artifacts"  , null, FORM_SPECIAL, 0
-    ),
-    DECOR_ITEMS = new Traded(  //  TODO:  Remove
-      BC, "Decor Items", null, FORM_SPECIAL, 0
     ),
     
     TREATMENT = new Traded(

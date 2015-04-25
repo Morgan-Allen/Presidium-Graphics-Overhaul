@@ -8,7 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
-import stratos.graphics.common.Colour;
+import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.user.notify.*;
@@ -436,6 +436,11 @@ public class BaseSetup {
         return needRating(r);
       }
     };
+    for (Traded t : Economy.ALL_PROVISIONS) {
+      if (base.commerce.primaryShortage(t) < 0.5f) continue;
+      if (base.commerce.primaryDemand  (t) < 5   ) continue;
+      needs.add(t);
+    }
     for (Traded t : Economy.ALL_MATERIALS) {
       if (base.commerce.primaryShortage(t) < 0.5f) continue;
       if (base.commerce.primaryDemand  (t) < 5   ) continue;
@@ -515,9 +520,7 @@ public class BaseSetup {
         d.append("Alternatively, you could import this good at a ");
       }
       else d.append("You could import this good at a ");
-      d.append(
-        "Supply Depot or Airfield."
-      );
+      d.append("Supply Depot or Airfield.");
       d.append("\n\n");
     }
     

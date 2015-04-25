@@ -35,11 +35,22 @@ public class SolarBank extends Venue {
     SolarBank.class, "media/GUI/Buttons/solar_array_button.gif"
   );
   
+  final static Conversion
+    LAND_TO_POWER = new Conversion(
+      SolarBank.class, "land_to_power",
+      TO, 2, POWER
+    ),
+    LAND_TO_WATER = new Conversion(
+      SolarBank.class, "land_to_water",
+      TO, 1, WATER
+    );
+  
   
   final static VenueProfile PROFILE = new VenueProfile(
     SolarBank.class, "solar_bank", "Solar Bank",
     2, 2, IS_LINEAR | IS_FIXTURE,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY
+    EcologistStation.PROFILE, Owner.TIER_FACILITY,
+    LAND_TO_POWER, LAND_TO_WATER
   );
   
   

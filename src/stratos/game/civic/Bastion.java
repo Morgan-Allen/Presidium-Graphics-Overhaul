@@ -139,7 +139,7 @@ public class Bastion extends Venue {
       "aiding construction efforts and revenue flow.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class, ALL_UPGRADES
+      null, Bastion.class
     ),
     SECURITY_MEASURES = new Upgrade(
       "Security Measures",
@@ -147,7 +147,7 @@ public class Bastion extends Venue {
       "augments your Bastion's output of power and life support.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class, ALL_UPGRADES
+      null, Bastion.class
     ),
     NOBLE_QUARTERS = new Upgrade(
       "Noble Quarters",
@@ -155,7 +155,7 @@ public class Bastion extends Venue {
       "and honoured guests.",
       400,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class, ALL_UPGRADES
+      null, Bastion.class
     ),
     GUEST_QUARTERS = new Upgrade(
       "Guest Quarters",
@@ -163,7 +163,7 @@ public class Bastion extends Venue {
       "Stewards in your employ.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class, ALL_UPGRADES
+      null, Bastion.class
     ),
     BLAST_SHIELDS = new Upgrade(
       "Blast Shields",
@@ -171,7 +171,7 @@ public class Bastion extends Venue {
       "in the event of atomic attack.",
       450,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class, ALL_UPGRADES
+      null, Bastion.class
     ),
     SEAT_OF_POWER = new Upgrade(
       "Seat of Power",
@@ -179,7 +179,7 @@ public class Bastion extends Venue {
       "to function without sleep or rest.",
       500,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class, ALL_UPGRADES
+      null, Bastion.class
     );
   
   final static Condition SEAT_OF_POWER_EFFECT = new Condition(

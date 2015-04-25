@@ -84,13 +84,17 @@ public class Reactor extends Venue {
   final public static Conversion
     METALS_TO_FUEL = new Conversion(
       Reactor.class, "metals_to_fuel",
-      1, ORES, TO, 1, ISOTOPES,
+      1, METALS, TO, 1, ISOTOPES,
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
-    TOPES_TO_ANTIMASS = new Conversion(
-      Reactor.class, "fuel_to_antimass",
+    ISOTOPES_TO_ANTIMASS = new Conversion(
+      Reactor.class, "isotopes_to_antimass",
       4, ISOTOPES, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
+    ),
+    ISOTOPES_TO_POWER = new Conversion(
+      Reactor.class, "isotopes_to_power",
+      1, ISOTOPES, TO, 25, POWER
     )
   ;
   
@@ -98,7 +102,7 @@ public class Reactor extends Venue {
     Reactor.class, "reactor", "Reactor",
     3, 2, IS_NORMAL,
     EngineerStation.PROFILE, Owner.TIER_FACILITY,
-    METALS_TO_FUEL, TOPES_TO_ANTIMASS
+    METALS_TO_FUEL, ISOTOPES_TO_ANTIMASS, ISOTOPES_TO_POWER
   );
   
   
@@ -141,7 +145,7 @@ public class Reactor extends Venue {
       "pollution, and allows conversion of metal ores to fuel rods.",
       150,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Reactor.class, ALL_UPGRADES
+      null, Reactor.class
     ),
     FEEDBACK_MONITORS = new Upgrade(
       "Feedback Monitors",
@@ -150,7 +154,7 @@ public class Reactor extends Venue {
       "infiltration.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Reactor.class, ALL_UPGRADES
+      null, Reactor.class
     ),
     
     FUSION_CONFINEMENT = new Upgrade(
@@ -159,7 +163,7 @@ public class Reactor extends Venue {
       "severity of any meltdowns.",
       500,
       Upgrade.THREE_LEVELS, null, 1,
-      FEEDBACK_MONITORS, Reactor.class, ALL_UPGRADES
+      FEEDBACK_MONITORS, Reactor.class
     ),
     
     CYCLOTRON_CIRCUIT = new Upgrade(
@@ -167,7 +171,7 @@ public class Reactor extends Venue {
       "Facilitates conversion of fuel rods to antimass, a highly volatile "+
       "energy source essential to space travel and atomics production.",
       450, Upgrade.THREE_LEVELS, null, 1,
-      WASTE_PROCESSING, Reactor.class, ALL_UPGRADES
+      WASTE_PROCESSING, Reactor.class
     )
   ;
   
@@ -196,7 +200,7 @@ public class Reactor extends Venue {
     m = stocks.nextManufacture(actor, METALS_TO_FUEL);
     if (m != null) choice.add(m.setBonusFrom(this, true, WASTE_PROCESSING));
     
-    m = stocks.nextManufacture(actor, TOPES_TO_ANTIMASS);
+    m = stocks.nextManufacture(actor, ISOTOPES_TO_ANTIMASS);
     if (m != null) choice.add(m.setBonusFrom(this, true, CYCLOTRON_CIRCUIT));
     
     for (Item ordered : stocks.specialOrders()) {

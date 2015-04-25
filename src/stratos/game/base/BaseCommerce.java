@@ -486,8 +486,16 @@ public class BaseCommerce {
   }
   
   
+  
+  public Dropship carries(Actor aboard) {
+    //  TODO:  Adapt this method and the one below for multiple vessels.
+    Dropship carries = this.ship;
+    if (carries.inside().includes(aboard)) return carries;
+    return null;
+  }
+  
+  
   public float arrivalETA(Actor hired) {
-    //  TODO:  CHECK THIS IS ACCURATE!
     //
     //  Find out what ship the actor is going to arrive on.  If arrival is
     //  imminent, return the arrival time.

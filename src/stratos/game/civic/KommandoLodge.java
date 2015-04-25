@@ -123,14 +123,14 @@ public class KommandoLodge extends Venue {
       "of peaceful contact.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      null, KommandoLodge.class, ALL_UPGRADES
+      null, KommandoLodge.class
     ),
     THERMAL_CAMOUFLAGE = new Upgrade(
       "Thermal Camouflage",
       "Reduces the Kommando Lodge's thermal signature and light output, "+
       "making it harder for outsiders to detect.",
       200, Upgrade.TWO_LEVELS, null, 1, null,
-      KommandoLodge.class, ALL_UPGRADES
+      KommandoLodge.class
     ),
     MAW_TRAINING = new Upgrade(
       "Maw Training",
@@ -138,7 +138,7 @@ public class KommandoLodge extends Venue {
       "Lictovore selectively bred as war mounts.",
       300,
       Upgrade.TWO_LEVELS, null, 1,
-      null, KommandoLodge.class, ALL_UPGRADES
+      null, KommandoLodge.class
     ),
     FLESH_STILL = new Upgrade(
       "Flesh Still",
@@ -146,7 +146,7 @@ public class KommandoLodge extends Venue {
       "down kills.",
       150,
       Upgrade.TWO_LEVELS, null, 1,
-      null, KommandoLodge.class, ALL_UPGRADES
+      null, KommandoLodge.class
     ),
     VENDETTA_VERMIN = new Upgrade(
       "Vendetta: Vermin",
@@ -154,7 +154,7 @@ public class KommandoLodge extends Venue {
       "and other dangerous, inedible pests.",
       100,
       Upgrade.SINGLE_LEVEL, null, 1,
-      null, KommandoLodge.class, ALL_UPGRADES
+      null, KommandoLodge.class
     ),
     VENDETTA_HUMAN = new Upgrade(
       "Vendetta: Humans",
@@ -162,14 +162,14 @@ public class KommandoLodge extends Venue {
       "adversaries.",
       200,
       Upgrade.SINGLE_LEVEL, null, 1,
-      null, KommandoLodge.class, ALL_UPGRADES
+      null, KommandoLodge.class
     ),
     VENDETTA_ARTILECT = new Upgrade(
       "Vendetta: Artilects",
       "Trains your Kommandos to efficiently dispatch machines and cybrids.",
       150,
       Upgrade.SINGLE_LEVEL, null, 1,
-      null, KommandoLodge.class, ALL_UPGRADES
+      null, KommandoLodge.class
     );
   
   

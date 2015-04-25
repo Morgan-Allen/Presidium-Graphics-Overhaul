@@ -1,20 +1,19 @@
 
 
 package stratos.game.economic;
-import stratos.game.actors.Backgrounds;
+import stratos.game.common.*;
 import stratos.util.*;
 
 
+//
+//  Upgrades tend to either expand employment, give a bonus to production
+//  of a particular item type, or enhance a particular kind of service.
 
-public class Upgrade extends Index.Entry implements Backgrounds {
+public class Upgrade extends Index.Entry {
   
   
-  //
-  //  Upgrades tend to either expand employment, give a bonus to production
-  //  of a particular item type, or enhance a particular kind of service.
-  
+  final static Index <Upgrade> INDEX = new Index <Upgrade> ();
   private static Table <Class, Batch <Upgrade>> byVenue = new Table();
-  
   
   public static enum Type {
     VENUE_LEVEL,
@@ -36,7 +35,6 @@ public class Upgrade extends Index.Entry implements Backgrounds {
   final public Upgrade required[];
   final public int maxLevel;
   
-  //  TODO:  ...either get rid of these, or make them more flexible.
   final public Object refers;
   final public int bonus;
   
@@ -45,9 +43,9 @@ public class Upgrade extends Index.Entry implements Backgrounds {
     String name, String desc,
     int buildCost, int maxLevel,
     Object refers, int bonus,
-    Upgrade required, Class origin, Index index
+    Upgrade required, Class origin
   ) {
-    super(index, name);
+    super(INDEX, name+"_"+origin.getSimpleName());
     this.baseName    = name;
     this.description = desc;
     this.type        = Type.TECH_MODULE;
@@ -62,6 +60,16 @@ public class Upgrade extends Index.Entry implements Backgrounds {
     Batch <Upgrade> VU = byVenue.get(origin);
     if (VU == null) byVenue.put(origin, VU = new Batch());
     VU.add(this);
+  }
+  
+  
+  public static Upgrade loadFrom(Session s) throws Exception {
+    return INDEX.loadEntry(s.input());
+  }
+  
+  
+  public static void saveTo(Session s, Upgrade u) throws Exception {
+    INDEX.saveEntry(u, s.output());
   }
   
   

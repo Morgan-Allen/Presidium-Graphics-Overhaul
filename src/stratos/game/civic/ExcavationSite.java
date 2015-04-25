@@ -44,7 +44,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   final public static Conversion
     LAND_TO_METALS = new Conversion(
       ExcavationSite.class, "land_to_metals",
-      TO, 1, ORES
+      TO, 1, METALS
     ),
     LAND_TO_ISOTOPES = new Conversion(
       ExcavationSite.class, "land_to_isotopes",
@@ -139,7 +139,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "the likelihood of artilect release.",
       100,
       Upgrade.THREE_LEVELS, null, 1,
-      null, ExcavationSite.class, ALL_UPGRADES
+      null, ExcavationSite.class
     ),
     
     METAL_ORES_MINING = new Upgrade(
@@ -147,8 +147,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows veins of heavy metals to be detected and excavated more "+
       "reliably.",
       150,
-      Upgrade.THREE_LEVELS, ORES, 2,
-      null, ExcavationSite.class, ALL_UPGRADES
+      Upgrade.THREE_LEVELS, METALS, 2,
+      null, ExcavationSite.class
     ),
     
     FUEL_CORES_MINING = new Upgrade(
@@ -157,7 +157,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "more reliably.",
       200,
       Upgrade.THREE_LEVELS, ANTIMASS, 2,
-      null, ExcavationSite.class, ALL_UPGRADES
+      null, ExcavationSite.class
     ),
     
     EXCAVATOR_STATION = new Upgrade(
@@ -166,7 +166,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "deposits and bringing them to the surface.",
       50,
       Upgrade.THREE_LEVELS, Backgrounds.EXCAVATOR, 1,
-      null, ExcavationSite.class, ALL_UPGRADES
+      null, ExcavationSite.class
     ),
     
     ARTIFACT_ASSEMBLY = new Upgrade(
@@ -175,7 +175,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "and confidence.",
       150,
       Upgrade.THREE_LEVELS, null, 1,
-      EXCAVATOR_STATION, ExcavationSite.class, ALL_UPGRADES
+      EXCAVATOR_STATION, ExcavationSite.class
     ),
     
     MANTLE_DRILLING = new Upgrade(
@@ -185,7 +185,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "heavy pollution.",
       350,
       Upgrade.THREE_LEVELS, null, 1,
-      METAL_ORES_MINING, ExcavationSite.class, ALL_UPGRADES
+      METAL_ORES_MINING, ExcavationSite.class
     )
  ;
   
@@ -197,7 +197,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public Traded[] services() {
-    return new Traded[] { ORES, ISOTOPES };
+    return new Traded[] { METALS, ISOTOPES };
   }
   
   
@@ -236,7 +236,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public int extractionBonus(Traded mineral) {
-    if (mineral == ORES) {
+    if (mineral == METALS) {
       return (0 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
     }
     if (mineral == ISOTOPES) {

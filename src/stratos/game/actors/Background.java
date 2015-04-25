@@ -98,7 +98,7 @@ public class Background extends Index.Entry implements Session.Saveable {
   
   
   public static Background loadConstant(Session s) throws Exception {
-    return INDEX.loadFromEntry(s.input());
+    return INDEX.loadEntry(s.input());
   }
   
   

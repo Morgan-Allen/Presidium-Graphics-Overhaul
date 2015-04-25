@@ -25,23 +25,23 @@ public class HoldingUpgrades {
   final public static Upgrade
     TENT_LEVEL = new Upgrade(
       "Seal Tent", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.class, ALL_UPGRADES
+      null, Holding.class
     ),
     PYON_LEVEL = new Upgrade(
       "Pyon Shacks", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.class, ALL_UPGRADES
+      null, Holding.class
     ),
     FREEBORN_LEVEL = new Upgrade(
       "Freeborn Holding", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      PYON_LEVEL, Holding.class, ALL_UPGRADES
+      PYON_LEVEL, Holding.class
     ),
     CITIZEN_LEVEL = new Upgrade(
       "Citizen Apartment", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      FREEBORN_LEVEL, Holding.class, ALL_UPGRADES
+      FREEBORN_LEVEL, Holding.class
     ),
     GELDER_LEVEL = new Upgrade(
       "Gelder Manse", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      CITIZEN_LEVEL, Holding.class, ALL_UPGRADES
+      CITIZEN_LEVEL, Holding.class
     ),
     UPGRADE_ARRAY[] = Upgrade.upgradesFor(Holding.class);
   
@@ -105,7 +105,7 @@ public class HoldingUpgrades {
     ),
     new Conversion(
       Holding.class, "Level 5",
-      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, TERMINALS,
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
       DIFFICULT_DC, ASSEMBLY
     ),
   };

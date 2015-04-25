@@ -34,7 +34,7 @@ public class EngineerStation extends Venue {
   final public static Conversion
     METALS_TO_PARTS = new Conversion(
       EngineerStation.class, "metals_to_parts",
-      1, ORES, TO, 2, PARTS,
+      1, METALS, TO, 2, PARTS,
       MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
     ),
     PARTS_TO_CIRCUITRY = new Conversion(
@@ -85,7 +85,7 @@ public class EngineerStation extends Venue {
       "manufactured quickly and in greater abundance.",
       200,
       Upgrade.THREE_LEVELS, PARTS, 2,
-      null, EngineerStation.class, ALL_UPGRADES
+      null, EngineerStation.class
     ),
     MATTER_PRESS = new Upgrade(
       "Matter Press",
@@ -93,14 +93,14 @@ public class EngineerStation extends Venue {
       "thereby reducing waste and speeding production of custom parts.",
       150,
       Upgrade.THREE_LEVELS, PLASTICS, 1,
-      null, EngineerStation.class, ALL_UPGRADES
+      null, EngineerStation.class
     ),
     TECHNICIAN_STATION = new Upgrade(
       "Technician Station",
       Backgrounds.TECHNICIAN.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.TECHNICIAN, 1,
-      null, EngineerStation.class, ALL_UPGRADES
+      null, EngineerStation.class
     ),
     COMPOSITE_MATERIALS = new Upgrade(
       "Composite Materials",
@@ -108,7 +108,7 @@ public class EngineerStation extends Venue {
       "as most melee weaponry.",
       200,
       Upgrade.THREE_LEVELS, null, 2,
-      MATTER_PRESS, EngineerStation.class, ALL_UPGRADES
+      MATTER_PRESS, EngineerStation.class
     ),
     FIELD_CONTAINMENT = new Upgrade(
       "Field Containment",
@@ -116,14 +116,14 @@ public class EngineerStation extends Venue {
       "refinements to heavy armours and most ranged weaponry.",
       300,
       Upgrade.THREE_LEVELS, null, 2,
-      TECHNICIAN_STATION, EngineerStation.class, ALL_UPGRADES
+      TECHNICIAN_STATION, EngineerStation.class
     ),
     ARTIFICER_STATION = new Upgrade(
       "Artificer Station",
       Backgrounds.ARTIFICER.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.ARTIFICER, 1,
-      TECHNICIAN_STATION, EngineerStation.class, ALL_UPGRADES
+      TECHNICIAN_STATION, EngineerStation.class
     )
   ;
   
@@ -226,7 +226,7 @@ public class EngineerStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { ORES, PARTS, CIRCUITRY };
+    return new Traded[] { METALS, PARTS, CIRCUITRY };
   }
   
   

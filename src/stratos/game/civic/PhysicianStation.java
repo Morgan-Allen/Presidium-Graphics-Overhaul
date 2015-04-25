@@ -102,7 +102,7 @@ public class PhysicianStation extends Venue {
       "the spread of contagious disease and assist in birth control.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
-      null, PhysicianStation.class, ALL_UPGRADES
+      null, PhysicianStation.class
     ),
     EMERGENCY_AID = new Upgrade(
       "Emergency Aid",
@@ -111,14 +111,14 @@ public class PhysicianStation extends Venue {
       "local production of Stim Kits.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      null, PhysicianStation.class, ALL_UPGRADES
+      null, PhysicianStation.class
     ),
     MINDER_STATION = new Upgrade(
       "Minder Ward",
       Backgrounds.MINDER.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
-      APOTHECARY, PhysicianStation.class, ALL_UPGRADES
+      APOTHECARY, PhysicianStation.class
     ),
     NEURAL_SCANNING = new Upgrade(
       "Neural Scanning",
@@ -127,7 +127,7 @@ public class PhysicianStation extends Venue {
       "case of death.  Mandatory for key personnel.",
       350,
       Upgrade.THREE_LEVELS, null, 1,
-      EMERGENCY_AID, PhysicianStation.class, ALL_UPGRADES
+      EMERGENCY_AID, PhysicianStation.class
     ),
     INTENSIVE_CARE = new Upgrade(
       "Intensive Care",
@@ -136,14 +136,14 @@ public class PhysicianStation extends Venue {
       "grafting to cybernetic prosthesis and engram fusion.",
       400,
       Upgrade.THREE_LEVELS, null, 1,
-      MINDER_STATION, PhysicianStation.class, ALL_UPGRADES
+      MINDER_STATION, PhysicianStation.class
     ),
     PHYSICIAN_STATION = new Upgrade(
       "Physician Ward",
       Backgrounds.PHYSICIAN.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
-      MINDER_STATION, PhysicianStation.class, ALL_UPGRADES
+      MINDER_STATION, PhysicianStation.class
     );
   
   

@@ -71,7 +71,7 @@ public class Smelter extends Venue {
   public Smelter(Base base) {
     super(PROFILE, base);
     structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
-    this.assignTo(null, ORES);
+    this.assignTo(null, METALS);
   }
   
   

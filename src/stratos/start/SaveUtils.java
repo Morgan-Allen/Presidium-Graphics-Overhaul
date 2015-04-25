@@ -162,7 +162,6 @@ public class SaveUtils {
     final String saveFile, final boolean fromMenu
   ) {
     PlayLoop.sessionStateWipe();
-    deleteAllLaterSaves(saveFile);
     
     final String fullPath = SAVES_DIR+saveFile;
     I.say("Should be loading game from: "+fullPath);

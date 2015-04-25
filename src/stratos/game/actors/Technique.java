@@ -126,7 +126,7 @@ public abstract class Technique extends Index.Entry
   
   
   public static Technique loadConstant(Session s) throws Exception {
-    return INDEX.loadFromEntry(s.input());
+    return INDEX.loadEntry(s.input());
   }
   
   

@@ -46,7 +46,7 @@ public class Structure {
     FACING_CHANGE = new Upgrade(
       "Facing Change", "",
       0, Upgrade.SINGLE_LEVEL, null, 1,
-      null, Structure.class, UTIL_UPGRADES
+      null, Structure.class
     );
   
   
@@ -101,7 +101,6 @@ public class Structure {
     SMALL_MAX_UPGRADES  = 3,
     NORMAL_MAX_UPGRADES = 6,
     BIG_MAX_UPGRADES    = 12;
-    //MAX_OF_TYPE         = 3;
   final static float UPGRADE_HP_BONUSES[] = {
     0,
     0.15f, 0.25f, 0.35f,
@@ -157,15 +156,13 @@ public class Structure {
     integrity = s.loadFloat();
     burning   = s.loadBool() ;
     
-    Index <Upgrade> AU = basis.allUpgrades();
-    if (AU != null) {
+    if (maxUpgrades > 0) {
       upgradeProgress = s.loadFloat();
       upgradeIndex    = s.loadInt()  ;
       upgrades        = new Upgrade[maxUpgrades];
-      upgradeStates   = new int[maxUpgrades]    ;
-      
+      upgradeStates   = new int    [maxUpgrades];
       for (int i = 0; i < maxUpgrades; i++) {
-        upgrades[i] = AU.loadFromEntry(s.input());
+        upgrades[i] = Upgrade.loadFrom(s);
         upgradeStates[i] = s.loadInt();
       }
     }
@@ -190,12 +187,11 @@ public class Structure {
     s.saveFloat(integrity);
     s.saveBool (burning  );
     
-    Index <Upgrade> AU = basis.allUpgrades();
-    if (AU != null) {
+    if (maxUpgrades > 0) {
       s.saveFloat(upgradeProgress);
       s.saveInt(upgradeIndex);
       for (int i = 0; i < maxUpgrades; i++) {
-        AU.saveEntry(upgrades[i], s.output());
+        Upgrade.saveTo(s, upgrades[i]);
         s.saveInt(upgradeStates[i]);
       }
     }
@@ -218,8 +214,10 @@ public class Structure {
     this.structureType = type;
     
     this.maxUpgrades = maxUpgrades;
-    this.upgrades = new Upgrade[maxUpgrades];
-    this.upgradeStates = new int[maxUpgrades];
+    if (maxUpgrades > 0) {
+      this.upgrades      = new Upgrade[maxUpgrades];
+      this.upgradeStates = new int    [maxUpgrades];
+    }
   }
   
   

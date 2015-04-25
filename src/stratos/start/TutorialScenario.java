@@ -9,20 +9,14 @@ import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Placement;
-import stratos.game.plans.Combat;
-import stratos.game.plans.Repairs;
+import stratos.game.maps.*;
+import stratos.game.plans.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
 
 
-//TODO:  Allow inclusion of images in the messages.
-//TODO:  Disable shipping until the player is ready.
-
-//TODO:  Re-starting does not appear to re-start the tutorial sequence.  Fix.
-//TODO:  Hide the shortages-pane until the tutorial is complete.
 
 
 public class TutorialScenario extends StartupScenario {
@@ -74,6 +68,12 @@ public class TutorialScenario extends StartupScenario {
     config.titleLevel = TITLE_KNIGHTED  ;
     config.fundsLevel = FUNDING_GENEROUS;
     return config;
+  }
+  
+  
+  protected void initScenario(String prefix) {
+    clearAllFlags();
+    super.initScenario(prefix);
   }
   
   
@@ -140,6 +140,21 @@ public class TutorialScenario extends StartupScenario {
     s.saveObject(startAt     );
     s.saveObject(reconSent   );
     s.saveObject(droneAttacks);
+  }
+  
+  
+  protected void clearAllFlags() {
+    //  TODO:  The script should definitely have some generalised methods for
+    //  handling this...
+    
+    script.clearScript();
+    barracksBuilt = null;
+    foundryBuilt  = null;
+    depotBuilt    = null;
+    startingBalance = -1;
+    startAt = null;
+    reconSent = null;
+    droneAttacks = null;
   }
   
   
@@ -247,7 +262,7 @@ public class TutorialScenario extends StartupScenario {
   protected boolean checkTradeSetup() {
     if (depotBuilt == null) return false;
     final Stocks DS = depotBuilt.stocks;
-    final Traded imp = Economy.ORES, exp = Economy.PARTS;
+    final Traded imp = Economy.METALS, exp = Economy.PARTS;
     if (DS.demandFor(imp) == 0 || DS.producer(imp) == true ) return false;
     if (DS.demandFor(exp) == 0 || DS.producer(exp) == false) return false;
     

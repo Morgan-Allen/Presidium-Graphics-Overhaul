@@ -107,6 +107,9 @@ public class GameSettings {
   
   
   public static void assignOptionValue(Object value, String optionName) {
+    if (I.logEvents()) {
+      I.say("\nOPTION "+optionName+" ASSIGNED VALUE "+value);
+    }
     try {
       final Field field = GameSettings.class.getField(optionName);
       field.set(null, value);

@@ -74,7 +74,7 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   
   
   public static Conversion loadConstant(Session s) throws Exception {
-    return INDEX.loadFromEntry(s.input());
+    return INDEX.loadEntry(s.input());
   }
   
   

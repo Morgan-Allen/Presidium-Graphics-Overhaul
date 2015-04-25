@@ -294,7 +294,6 @@ public class Forestry extends Plan {
     
     final int growStage = cut.growStage();
     actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
-    if (Rand.num() < 0.1f * growStage) actor.gear.bumpItem(SPYCE_N, 1);
     
     stage = STAGE_RETURN;
     return true;
@@ -318,7 +317,6 @@ public class Forestry extends Plan {
     }
     actor.gear.transfer(GENE_SEED  , depot);
     actor.gear.transfer(GREENS     , depot);
-    actor.gear.transfer(SPYCE_N, depot);
     
     stage = STAGE_DONE;
     return true;

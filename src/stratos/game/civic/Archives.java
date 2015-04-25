@@ -43,7 +43,7 @@ public class Archives extends Venue {
   final public static Conversion
     CIRCUITRY_TO_DATALINKS = new Conversion(
       Archives.class, "circuitry_to_datalinks",
-      1, CIRCUITRY, TO, 2, TERMINALS,
+      1, CIRCUITRY, TO, 2, DATALINKS,
       MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
     )
   ;
@@ -110,7 +110,7 @@ public class Archives extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { TERMINALS, SERVICE_ADMIN };
+    return new Traded[] { DATALINKS, SERVICE_ADMIN };
   }
   
   
@@ -122,7 +122,7 @@ public class Archives extends Venue {
     final Owner home = actor.mind.home();
     if (home != null) {
       final Delivery shops = DeliveryUtils.fillBulkOrder(
-        this, home, new Traded[] { TERMINALS }, 1, 1
+        this, home, new Traded[] { DATALINKS }, 1, 1
       );
       if (shops != null) choice.add(shops.setWithPayment(actor, true));
     }

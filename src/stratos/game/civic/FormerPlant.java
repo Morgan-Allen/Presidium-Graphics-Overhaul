@@ -94,7 +94,7 @@ public class FormerPlant extends Venue {
       "pollution.",
       200,
       Upgrade.THREE_LEVELS, null, 1, 
-      null, FormerPlant.class, ALL_UPGRADES
+      null, FormerPlant.class
     ),
     
     EVAPORATION_CYCLING = new Upgrade(
@@ -103,7 +103,7 @@ public class FormerPlant extends Venue {
       "water output.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
-      null, FormerPlant.class, ALL_UPGRADES
+      null, FormerPlant.class
     ),
     
     DUST_PANNING = new Upgrade(
@@ -112,7 +112,7 @@ public class FormerPlant extends Venue {
       "automated crawlers to gather soil samples.",
       150,
       Upgrade.THREE_LEVELS, null, 1,
-      CARBONS_CYCLING, FormerPlant.class, ALL_UPGRADES
+      CARBONS_CYCLING, FormerPlant.class
     ),
     
     SPICE_REDUCTION = new Upgrade(
@@ -121,7 +121,7 @@ public class FormerPlant extends Venue {
       "the surrounding environment.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      EVAPORATION_CYCLING, FormerPlant.class, ALL_UPGRADES
+      EVAPORATION_CYCLING, FormerPlant.class
     );
   
   
@@ -294,7 +294,7 @@ public class FormerPlant extends Venue {
     yield *= 1 + soilBonus;
     if (report) I.say("  Yield/day with soil bonus: "+yield);
     stocks.bumpItem(SPYCE_H, yield * spiceBonus / SDL, 10);
-    stocks.bumpItem(ORES   , yield * dustBonus  / SDL, 10);
+    stocks.bumpItem(METALS   , yield * dustBonus  / SDL, 10);
     stocks.bumpItem(ISOTOPES  , yield * dustBonus  / SDL, 10);
     
     //
@@ -351,7 +351,7 @@ public class FormerPlant extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { ORES, ISOTOPES, SPYCE_H };
+    return new Traded[] { METALS, ISOTOPES, SPYCE_H };
   }
   
   

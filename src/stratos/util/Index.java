@@ -104,7 +104,7 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
   }
   
   
-  public T loadFromEntry(DataInputStream in) throws Exception {
+  public T loadEntry(DataInputStream in) throws Exception {
     assignIDs();
     final int ID = in.readInt();
     return ID == -1 ? null : (T) asArray[ID];

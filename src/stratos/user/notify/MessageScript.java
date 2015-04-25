@@ -115,11 +115,11 @@ public class MessageScript implements
   }
   
   
-  public void messageWasOpened(String titleKey, BaseUI UI) {
-    final Topic topic = allTopics.get(titleKey);
-    if (topic == null) return;
-    if (topic.onOpen != null) try { topic.onOpen.invoke(basis); }
-    catch (Exception e) { e.printStackTrace(); }
+  public void clearScript() {
+    for (Topic topic : allTopics.values()) {
+      topic.asMessage = null;
+      topic.triggered = false;
+    }
   }
   
 
@@ -150,6 +150,17 @@ public class MessageScript implements
   }
   
   
+  public void messageWasOpened(String titleKey, BaseUI UI) {
+    final Topic topic = allTopics.get(titleKey);
+    if (topic == null) return;
+    if (topic.onOpen != null) try { topic.onOpen.invoke(basis); }
+    catch (Exception e) { e.printStackTrace(); }
+  }
+  
+  
+  
+  /**  Pushing and constructing MessagePanes for topic-presentation:
+    */
   private void pushTopicMessage(Topic topic, boolean viewNow) {
 
     final BaseUI UI = BaseUI.current();

@@ -89,7 +89,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   
   public static VenueProfile loadConstant(Session s) throws Exception {
-    return INDEX.loadFromEntry(s.input());
+    return INDEX.loadEntry(s.input());
   }
   
   

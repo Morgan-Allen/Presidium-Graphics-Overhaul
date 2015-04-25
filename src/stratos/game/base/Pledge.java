@@ -122,7 +122,7 @@ public class Pledge implements Session.Saveable {
   
   public Pledge(Session s) throws Exception {
     s.cacheInstance(this);
-    this.type        = TYPE_INDEX.loadFromEntry(s.input());
+    this.type        = TYPE_INDEX.loadEntry(s.input());
     this.amount      = s.loadFloat ();
     this.refers      = s.loadObject();
     this.makes       = (Actor) s.loadObject();

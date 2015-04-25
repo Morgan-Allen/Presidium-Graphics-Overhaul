@@ -191,6 +191,12 @@ public class PlacingTask implements UITask {
   private void performPlacement(Box2D area, Batch <Coord> placePoints) {
     final Batch <Venue> placed = new Batch <Venue> ();
     
+    if (I.logEvents()) {
+      I.say("\nPLACING "+placeType.name+" IN AREA: "+area);
+      I.say("  Placement points are:");
+      for (Coord c : placePoints) I.say("    "+c);
+    }
+    
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
       p.doPlacement();

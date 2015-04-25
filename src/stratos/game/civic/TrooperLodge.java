@@ -71,40 +71,40 @@ public class TrooperLodge extends Venue {
       "Drills your soldiers for the rigours of close combat and tight "+
       "formations.",
       150, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class, ALL_UPGRADES
+      null, TrooperLodge.class
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
       "Drills your soldiers to improve ranged marksmanship.",
       150, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class, ALL_UPGRADES
+      null, TrooperLodge.class
     ),
     FIELD_MEDICINE = new Upgrade(
       "Field Medicine",
       "Drills your soldiers in first aid techniques and use of combat stims.",
       200, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class, ALL_UPGRADES
+      null, TrooperLodge.class
     ),
     FIELD_REPAIRS = new Upgrade(
       "Field Repairs",
       "Drills your soldiers in maintaining equipment and aiding in "+
       "construction projects.",
       200, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class, ALL_UPGRADES
+      null, TrooperLodge.class
     ),
     VOLUNTEER_STATION = new Upgrade(
       "Volunteer Station",
       VOLUNTEER.info,
       200,
       Upgrade.THREE_LEVELS, Backgrounds.VOLUNTEER, 1,
-      null, TrooperLodge.class, ALL_UPGRADES
+      null, TrooperLodge.class
     ),
     TROOPER_STATION = new Upgrade(
       "Trooper Station",
       TROOPER.info,
       450,
       Upgrade.THREE_LEVELS, Backgrounds.TROOPER, 1,
-      VOLUNTEER_STATION, TrooperLodge.class, ALL_UPGRADES
+      VOLUNTEER_STATION, TrooperLodge.class
     );
 
   final static Upgrade TRAIN_UPGRADES[] = {

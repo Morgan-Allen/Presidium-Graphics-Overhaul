@@ -43,9 +43,11 @@ public class StockExchange extends Venue {
   );
   
   final static Traded
-    ALL_STOCKED[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_FOOD_TYPES, ALL_DRUG_TYPES, ALL_WARES_TYPES, ALL_SPYCE_TYPES
-    ),
+    ALL_STOCKED[] = {
+      CARBS, PROTEIN, GREENS,
+      SOMA, MEDICINE,
+      PLASTICS, PARTS
+    },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
     );
@@ -96,7 +98,6 @@ public class StockExchange extends Venue {
       case (CATEGORY_FOOD ) : upgrade = RATIONS_VENDING ; break;
       case (CATEGORY_DRUG ) : upgrade = MEDICAL_EXCHANGE; break;
       case (CATEGORY_WARES) : upgrade = HARDWARE_STORE  ; break;
-      case (CATEGORY_SPYCE) : upgrade = SPYCE_EMPORIUM  ; break;
     }
     return upgrade == null ? -1 : (structure.upgradeLevel(upgrade) / 3f);
   }
@@ -160,77 +161,33 @@ public class StockExchange extends Venue {
       "Increases space available to carbs, greens and protein and augments "+
       "profits from their sale.",
       150, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class, ALL_UPGRADES
+      null, StockExchange.class
     ),
     
     //  TODO:  PERMIT BASIC REPAIRS/RECHARGE OF ARMOUR/DEVICES
     HARDWARE_STORE = new Upgrade(
       "Hardware Store",
-      "Increases space available to parts, plastics and datalinks, and "+
-      "augments profits from their sale.",
+      "Increases space available to parts and plastics, and augments profits "+
+      "from their sale.",
       150, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class, ALL_UPGRADES
+      null, StockExchange.class
     ),
     
     //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
     MEDICAL_EXCHANGE = new Upgrade(
       "Medical Exchange",
-      "Increases space available to reagents, soma and medicine, and augments"+
+      "Increases space available to soma and medicine, and augments"+
       "profits from their sale.",
       250, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class, ALL_UPGRADES
+      null, StockExchange.class
     ),
-    
-    VAULT_SECURITY = new Upgrade(
-      "Vault Security",
-      "Expands inventory space for all goods and provides a measure of "+
-      "security against theft.",
-      200, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class, ALL_UPGRADES
-    ),
-    
-    /*
-    INFORMATION_TRADE = new Upgrade(
-    ),
-    //*/
-    //  TODO:  Dispose of this for now.
-    //*
-    SPYCE_EMPORIUM = new Upgrade(
-      "Spyce Emporium",
-      "Permits trading in Natrizoral, Tinerazine, and Halebdynum- trace "+
-      "compounds vital to complex chemistry.",
-      300, Upgrade.THREE_LEVELS, null, 1,
-      RATIONS_VENDING, StockExchange.class, ALL_UPGRADES
-    ),
-    //*/
     
     VIRTUAL_CURRENCY = new Upgrade(
       "Virtual Currency",
       "Makes small periodic adjustments to revenue and outlays in response "+
       "to large-scale investment patterns, magnifying both profits and losses.",
       400, Upgrade.THREE_LEVELS, null, 1,
-      VAULT_SECURITY, StockExchange.class, ALL_UPGRADES
-    ),
-    
-    PATENT_RESURGIN = new Upgrade(
-      "Patent: Resurgin",
-      "",
-      350, Upgrade.THREE_LEVELS, null, 1,
-      MEDICAL_EXCHANGE, StockExchange.class, ALL_UPGRADES
-    ),
-    
-    PATENT_QI_ANSIBLE = new Upgrade(
-      "Patent: QI Ansible",
-      "",
-      550, Upgrade.THREE_LEVELS, null, 1,
-      VAULT_SECURITY, StockExchange.class, ALL_UPGRADES
-    ),
-    
-    PATENT_EGO_SERUM = new Upgrade(
-      "Patent: Ego Serum",
-      "",
-      750, Upgrade.THREE_LEVELS, null, 1,
-      SPYCE_EMPORIUM, StockExchange.class, ALL_UPGRADES
+      null, StockExchange.class
     );
   
   
@@ -292,6 +249,13 @@ public class StockExchange extends Venue {
       final float realDemand = base.demands.demandAround(this, type, range);
       stocks.incDemand(type, Nums.min(realDemand, room), 1, false);
     }
+    
+    //
+    //  In essence, we accumulate interest on any debts or losses accrued
+    //  before taxation kicks in!
+    float interest = structure.upgradeLevel(VIRTUAL_CURRENCY) * 50 / 3f;
+    interest /= 100 * Stage.STANDARD_DAY_LENGTH;
+    stocks.incCredits(stocks.allCredits() * interest);
   }
   
   
@@ -312,8 +276,7 @@ public class StockExchange extends Venue {
   final static Traded DISPLAYED_GOODS[] = {
     CARBS   , PROTEIN , GREENS   ,
     CATALYST, SOMA    , MEDICINE ,
-    PARTS   , PLASTICS, TERMINALS,
-    SPYCE_T , SPYCE_H , SPYCE_N  ,
+    PARTS   , PLASTICS, DATALINKS,
   };
   //  TODO:  Include the full range of items:  Foods, Drugs, Wares, Spyce.
   final static float GOOD_DISPLAY_OFFSETS[] = {

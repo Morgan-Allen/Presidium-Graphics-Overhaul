@@ -226,7 +226,7 @@ public class WidgetsPass {
   
   
   public void flush() {
-    if (idx == 0) return;
+    if (idx == 0 || lastTexture == null) return;
     int spritesInBatch = idx / 20;
     int count = spritesInBatch * 6;
     

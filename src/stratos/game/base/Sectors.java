@@ -75,7 +75,7 @@ public interface Sectors extends Backgrounds {
       "traditions and luxury exports.",
       DESERT_BLOOD, MILD_GRAVITY,
       Sector.MAKES, SOMA, PLASTICS, DECOR, SPYCE_T,
-      Sector.NEEDS, WATER, SERVICE_ENTERTAIN, TERMINALS,
+      Sector.NEEDS, WATER, SERVICE_ENTERTAIN, DATALINKS,
       BORN_FREE,
       NOVICE, CULTIVATION, CHEMISTRY,
       OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES
@@ -112,8 +112,8 @@ public interface Sectors extends Backgrounds {
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black market research.",
       TUNDRA_BLOOD, NOMINAL_GRAVITY,
-      Sector.MAKES, TERMINALS, MEDICINE, SERVICE_COMMERCE,
-      Sector.NEEDS, GREENS, ORES, ANTIMASS,
+      Sector.MAKES, DATALINKS, MEDICINE, SERVICE_COMMERCE,
+      Sector.NEEDS, GREENS, METALS, ANTIMASS,
       BORN_DREGS, BORN_GELDER,
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
       OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES

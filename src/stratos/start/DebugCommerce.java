@@ -93,7 +93,7 @@ public class DebugCommerce extends Scenario {
     final Venue depot = new SupplyDepot(base);
     Placement.establishVenue(depot, 5, 5, true, world);
     depot.stocks.forceDemand(CARBS, 5, true );
-    depot.stocks.forceDemand(ORES , 5, false);
+    depot.stocks.forceDemand(METALS , 5, false);
     
     depot.stocks.bumpItem(CARBS, 10);
     depot.updateAsScheduled(0, false);
@@ -166,7 +166,7 @@ public class DebugCommerce extends Scenario {
     final Venue foundry = new EngineerStation(base);
     Placement.establishVenue(foundry, 6, 6, true, world);
     base.setup.fillVacancies(foundry, true);
-    foundry.stocks.bumpItem(Economy.ORES , 10);
+    foundry.stocks.bumpItem(Economy.METALS , 10);
     foundry.stocks.bumpItem(Economy.PARTS, 2 );
     
     final Venue reactor = new Reactor(base);
@@ -207,14 +207,14 @@ public class DebugCommerce extends Scenario {
     Placement.establishVenue(depot, 11, 1, true, world);
     Placement.establishVenue(foundry, 6, 6, true, world, guyA, guyB);
     
-    depot.stocks.bumpItem(ORES, 10);
-    foundry.stocks.forceDemand(ORES, 3, false);
+    depot.stocks.bumpItem(METALS, 10);
+    foundry.stocks.forceDemand(METALS, 3, false);
     
     UI.selection.pushSelection(foundry);
     
     for (Actor guy : foundry.staff.workers()) {
       final Delivery d = DeliveryUtils.fillBulkOrder(
-        depot, foundry, new Traded[] {ORES}, 1, 10
+        depot, foundry, new Traded[] {METALS}, 1, 10
       );
       if (d == null) continue;
       d.setWithPayment(foundry, false);

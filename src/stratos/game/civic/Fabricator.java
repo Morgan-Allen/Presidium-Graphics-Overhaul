@@ -83,25 +83,25 @@ public class Fabricator extends Venue {
       "Polymer Loom",
       "Speeds the production of standard plastics and functional clothing.",
       250, Upgrade.THREE_LEVELS, CARBS, 1,
-      null, Fabricator.class, ALL_UPGRADES
+      null, Fabricator.class
     ),
     FINERY_FLOOR = new Upgrade(
       "Finery Production",
       "Allows production of fine garments and decor for the upper classes.",
       500, Upgrade.THREE_LEVELS, null, 1,
-      POLYMER_LOOM, Fabricator.class, ALL_UPGRADES
+      POLYMER_LOOM, Fabricator.class
     ),
     CAMOUFLAGE_FLOOR = new Upgrade(
       "Camouflage Production",
       "Allows production of stealth-based protection for guerilla agents.",
       350, Upgrade.THREE_LEVELS, null, 2,
-      POLYMER_LOOM, Fabricator.class, ALL_UPGRADES
+      POLYMER_LOOM, Fabricator.class
     ),
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
       Backgrounds.FABRICATOR.info,
       200, Upgrade.THREE_LEVELS, Backgrounds.FABRICATOR, 1,
-      null, Fabricator.class, ALL_UPGRADES
+      null, Fabricator.class
     )
     //  TODO:  Level 2 Upgrade.  And pressfeed?
   ;

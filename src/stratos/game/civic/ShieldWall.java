@@ -90,6 +90,14 @@ public class ShieldWall extends Venue {
   }
   
   
+  protected boolean checkPerimeter(Stage world) {
+    //
+    //  The purpose of a shield wall is to enclose areas completely, so checks
+    //  to *avoid* pathing-enclosure would be pointless:
+    return true;
+  }
+  
+  
   private Object faceModel(Tile position, Box2D area, Coord... others) {
     Object model = Placement.setupMergingSegment(
       this, position, area, others,

@@ -73,7 +73,7 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
 
   
   public static Trait loadConstant(Session s) throws Exception {
-    return TRAIT_INDEX.loadFromEntry(s.input());
+    return TRAIT_INDEX.loadEntry(s.input());
   }
   
   

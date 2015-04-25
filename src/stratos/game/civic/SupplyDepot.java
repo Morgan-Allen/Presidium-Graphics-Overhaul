@@ -35,7 +35,7 @@ public class SupplyDepot extends Venue {
   final static Traded
     ALL_TRADE_TYPES[] = {
       CARBS, PROTEIN, CATALYST, POLYMER,
-      ORES, ISOTOPES, PARTS, PLASTICS
+      METALS, ISOTOPES, PARTS, PLASTICS
     },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
