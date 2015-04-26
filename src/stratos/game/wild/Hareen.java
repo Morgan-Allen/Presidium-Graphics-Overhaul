@@ -47,11 +47,11 @@ public class Hareen extends Fauna {
     2.60f, //speed
     1.00f  //sight
   ) {
-    final VenueProfile PROFILE = Nest.constructProfile(
+    final Blueprint BLUEPRINT = Nest.constructBlueprint(
       2, 2, this, MODEL_NEST_VAREEN
     );
     public Actor sampleFor(Base base) { return init(new Hareen(base)); }
-    public VenueProfile nestProfile() { return PROFILE; }
+    public Blueprint nestBlueprint() { return BLUEPRINT; }
   };
   
   

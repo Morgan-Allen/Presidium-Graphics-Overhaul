@@ -339,7 +339,7 @@ public class StartupScenario extends Scenario {
     //
     //  Once that's done, we can draw a curtain wall:
     final Venue wall[] = Placement.placeAroundPerimeter(
-      ShieldWall.PROFILE, bastion.areaClaimed(), base, true
+      ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
     );
     for (Venue v : wall) ((ShieldWall) v).updateFacing(true);
     //
@@ -390,7 +390,7 @@ public class StartupScenario extends Scenario {
     }
     
     final Batch <Venue> ruins = Base.artilects(world).setup.doPlacementsFor(
-      Ruins.VENUE_PROFILES[0], maxRuins
+      Ruins.VENUE_BLUEPRINTS[0], maxRuins
     );
     Base.artilects(world).setup.fillVacancies(ruins, true);
     if (nesting != null) Nest.populateFauna(world, nesting);

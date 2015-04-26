@@ -56,10 +56,10 @@ public class Smelter extends Venue {
   
   final public static int SMELT_AMOUNT = 10;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Smelter.class, "smelter", "Smelter",
     4, 2, IS_NORMAL,
-    ExcavationSite.PROFILE, Owner.TIER_FACILITY
+    ExcavationSite.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   protected ExcavationSite parent;
@@ -69,7 +69,7 @@ public class Smelter extends Venue {
   
   
   public Smelter(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
     this.assignTo(null, METALS);
   }

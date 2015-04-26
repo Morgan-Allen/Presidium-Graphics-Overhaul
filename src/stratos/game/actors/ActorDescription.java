@@ -27,7 +27,7 @@ public class ActorDescription implements Qualities {
   final static String
     CAT_GEAR      = "GEAR"  ,
     CAT_SKILLS    = "SKILLS",
-    CAT_PROFILE   = "AGENDA",
+    CAT_AGENDA    = "AGENDA",
     CAT_RELATIONS = "PEERS" ;
   
   final Actor h;
@@ -45,7 +45,7 @@ public class ActorDescription implements Qualities {
     
     if (panel == null) panel = new SelectionPane(
       UI, human, human.portrait(UI), true,
-      CAT_GEAR, CAT_SKILLS, CAT_PROFILE, CAT_RELATIONS
+      CAT_GEAR, CAT_SKILLS, CAT_AGENDA, CAT_RELATIONS
     );
     final int categoryID = panel.categoryID();
     final Description d = panel.detail(), l = panel.listing();

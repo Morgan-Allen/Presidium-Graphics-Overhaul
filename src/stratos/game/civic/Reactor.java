@@ -98,10 +98,10 @@ public class Reactor extends Venue {
     )
   ;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Reactor.class, "reactor", "Reactor",
     3, 2, IS_NORMAL,
-    EngineerStation.PROFILE, Owner.TIER_FACILITY,
+    EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
     METALS_TO_FUEL, ISOTOPES_TO_ANTIMASS, ISOTOPES_TO_POWER
   );
   
@@ -110,7 +110,7 @@ public class Reactor extends Venue {
   
 
   public Reactor(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       300, 10, 300,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

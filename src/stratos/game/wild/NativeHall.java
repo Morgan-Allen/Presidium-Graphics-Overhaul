@@ -31,7 +31,7 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   
   
   protected NativeHall(int tribeID, Base base) {
-    super(VENUE_PROFILES[tribeID][1], TYPE_HALL, tribeID, base);
+    super(VENUE_BLUEPRINTS[tribeID][1], TYPE_HALL, tribeID, base);
   }
 
 

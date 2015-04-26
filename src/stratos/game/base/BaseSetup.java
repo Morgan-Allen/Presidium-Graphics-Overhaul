@@ -47,7 +47,7 @@ public class BaseSetup {
   private int setupMode = LEVEL_ADVISE;
   //
   //  Data structures for conducting time-sliced placement of private venues:
-  protected VenueProfile canPlace[];
+  protected Blueprint canPlace[];
   static class Siting {
     Venue        sample   ;
     StageSection placed   ;
@@ -70,7 +70,7 @@ public class BaseSetup {
   
   
   
-  public BaseSetup(Base base, Stage world, VenueProfile... canPlace) {
+  public BaseSetup(Base base, Stage world, Blueprint... canPlace) {
     this.base     = base    ;
     this.world    = world   ;
     this.canPlace = canPlace;
@@ -78,7 +78,7 @@ public class BaseSetup {
   
   
   public void loadState(Session s) throws Exception {
-    canPlace = (VenueProfile[]) s.loadObjectArray(VenueProfile.class);
+    canPlace = (Blueprint[]) s.loadObjectArray(Blueprint.class);
     
     final int numP = s.loadInt();
     for (int n = numP ; n-- > 0;) {
@@ -114,7 +114,7 @@ public class BaseSetup {
   }
   
   
-  public void setAvailableVenues(VenueProfile... canPlace) {
+  public void setAvailableVenues(Blueprint... canPlace) {
     this.canPlace = canPlace;
   }
   
@@ -129,12 +129,12 @@ public class BaseSetup {
     */
   //  TODO:  Try to unify this with the placement methods below...
   
-  public Batch <Venue> doFullPlacements(VenueProfile... types) {
+  public Batch <Venue> doFullPlacements(Blueprint... types) {
     final Batch <Venue> placed = new Batch <Venue> ();
     
     for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
-      for (VenueProfile p : types) {
-        final Venue v = p.sampleVenue(base);
+      for (Blueprint p : types) {
+        final Venue v = p.createVenue(base);
         float x = section.absX + Rand.index(section.size);
         float y = section.absY + Rand.index(section.size);
         v.setupWith(world.tileAt(x, y), null);
@@ -152,9 +152,9 @@ public class BaseSetup {
   
   //  TODO:  Permit hints as to preferred placement-location, and an argument
   //  for instant-placement.
-  public Batch <Venue> doPlacementsFor(VenueProfile type, int count) {
+  public Batch <Venue> doPlacementsFor(Blueprint type, int count) {
     final Venue toPlace[] = new Venue[count];
-    for (int n = count; n-- > 0;) toPlace[n] = type.sampleVenue(base);
+    for (int n = count; n-- > 0;) toPlace[n] = type.createVenue(base);
     return doPlacementsFor(toPlace);
   }
   
@@ -184,7 +184,7 @@ public class BaseSetup {
     //  If the set of placings has been exhausted, then it's time for a new
     //  cycle of evaluations.  Rank potential sites and reset the build-total.
     if (sitings.size() == 0) {
-      final Venue samples[] = VenueProfile.sampleVenues(
+      final Venue samples[] = Blueprint.sampleVenues(
         Owner.TIER_PRIVATE, canPlace
       );
       rankSectionPlacings(samples, report);

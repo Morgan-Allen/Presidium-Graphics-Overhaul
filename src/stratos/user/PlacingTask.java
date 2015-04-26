@@ -21,7 +21,7 @@ public class PlacingTask implements UITask {
     MODE_AREA  = 2;
   
   final BaseUI UI;
-  final VenueProfile placeType;
+  final Blueprint placeType;
   final int mode;
   final boolean gridLock;
   
@@ -31,7 +31,7 @@ public class PlacingTask implements UITask {
   private Table <Integer, Venue> placeItems = new Table <Integer, Venue> ();
   
   
-  PlacingTask(BaseUI UI, VenueProfile placeType) {
+  PlacingTask(BaseUI UI, Blueprint placeType) {
     this.UI = UI;
     this.placeType = placeType;
     
@@ -148,7 +148,7 @@ public class PlacingTask implements UITask {
     
     Venue p = placeItems.get(index);
     if (p == null) {
-      p = placeType.sampleVenue(base);
+      p = placeType.createVenue(base);
       placeItems.put(index, p);
     }
     

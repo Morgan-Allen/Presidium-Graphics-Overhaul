@@ -85,17 +85,17 @@ public class RunnerLodge extends Venue {
   final static int
     CLAIM_SIZE = 8;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     RunnerLodge.class, "runner_lodge", "Runner Market",
     4, 2, IS_NORMAL,
-    StockExchange.PROFILE, Owner.TIER_FACILITY
+    StockExchange.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   private int gangID = GANG_NONE;
   
   
   public RunnerLodge(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

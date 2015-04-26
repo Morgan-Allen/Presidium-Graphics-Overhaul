@@ -43,10 +43,10 @@ public abstract class Venue extends Structural implements
     IS_UNIQUE  = 16,
     IS_WILD    = 32;
   
-  final public static VenueProfile NO_REQUIREMENTS[] = new VenueProfile[0];
+  final public static Blueprint NO_REQUIREMENTS[] = new Blueprint[0];
   
   
-  final public VenueProfile profile;
+  final public Blueprint blueprint;
   final public Staff staff = new Staff(this);
   final public Stocks stocks = new Stocks(this);
   
@@ -57,17 +57,17 @@ public abstract class Venue extends Structural implements
   
   
   
-  protected Venue(VenueProfile profile, Base base) {
-    super(profile.size, profile.high, base);
-    this.base    = base   ;
-    this.profile = profile;
+  protected Venue(Blueprint blueprint, Base base) {
+    super(blueprint.size, blueprint.high, base);
+    this.base      = base     ;
+    this.blueprint = blueprint;
   }
   
   
   public Venue(Session s) throws Exception {
     super(s);
     
-    profile = (VenueProfile) s.loadObject();
+    blueprint = (Blueprint) s.loadObject();
     staff .loadState(s);
     stocks.loadState(s);
     
@@ -81,7 +81,7 @@ public abstract class Venue extends Structural implements
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     
-    s.saveObject(profile);
+    s.saveObject(blueprint);
     staff .saveState(s);
     stocks.saveState(s);
     
@@ -143,7 +143,7 @@ public abstract class Venue extends Structural implements
   public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
     final Tile o = origin();
-    if (profile.isFixture()) {
+    if (blueprint.isFixture()) {
       //
       //  Fixture-venues don't have entrances, so
       entrance = null;
@@ -203,7 +203,7 @@ public abstract class Venue extends Structural implements
   
   
   protected boolean entranceOkay() {
-    if (profile.isFixture()) return true;
+    if (blueprint.isFixture()) return true;
     if (entrance == null || ! Placement.isViableEntrance(this, entrance)) {
       return false;
     }
@@ -432,7 +432,7 @@ public abstract class Venue extends Structural implements
   
   
   public int owningTier() {
-    return profile.owningTier;
+    return blueprint.owningTier;
   }
   
   
@@ -445,12 +445,12 @@ public abstract class Venue extends Structural implements
   
   
   public String fullName() {
-    return profile.name;
+    return blueprint.name;
   }
   
   
   protected boolean showLights() {
-    if (profile.isFixture()) return true;
+    if (blueprint.isFixture()) return true;
     return staff.visitors().size() > 0;
   }
   
@@ -556,7 +556,7 @@ public abstract class Venue extends Structural implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
-    if (pathType() <= Tile.PATH_CLEAR || ! profile.isSingle()) return;
+    if (pathType() <= Tile.PATH_CLEAR || ! blueprint.isSingle()) return;
     super.renderSelection(rendering, hovered);
   }
 }

@@ -31,10 +31,10 @@ import java.lang.reflect.*;
 //  their own.
  
 
-public class VenueProfile extends Index.Entry implements Session.Saveable {
+public class Blueprint extends Index.Entry implements Session.Saveable {
   
   
-  final public static Index <VenueProfile> INDEX = new Index <VenueProfile> ();
+  final public static Index <Blueprint> INDEX = new Index <Blueprint> ();
   
   final public Class <? extends Venue> baseClass;
   final public String name;
@@ -42,34 +42,34 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   final public int size, high;
   final public int properties;
   
-  final public VenueProfile required[];
+  final public Blueprint required[];
   final public int owningTier;
   final public Conversion processed[];
   
   final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
   
-  private Batch <VenueProfile> allows = new Batch <VenueProfile> ();
-  private Batch <VenueProfile> denies = new Batch <VenueProfile> ();
+  private Batch <Blueprint> allows = new Batch <Blueprint> ();
+  private Batch <Blueprint> denies = new Batch <Blueprint> ();
   
   
-  public VenueProfile(
+  public Blueprint(
     Class <? extends Venue> baseClass, String key, String name,
     int size, int high, int properties,
-    VenueProfile required, int owningTier, Conversion... processed
+    Blueprint required, int owningTier, Conversion... processed
   ) {
     this(
       baseClass, key, name,
       size, high, properties,
-      required == null ? null : new VenueProfile[] { required },
+      required == null ? null : new Blueprint[] { required },
       owningTier, processed
     );
   }
   
 
-  public VenueProfile(
+  public Blueprint(
     Class <? extends Venue> baseClass, String key, String name,
     int size, int high, int properties,
-    VenueProfile required[], int owningTier, Conversion... processed
+    Blueprint required[], int owningTier, Conversion... processed
   ) {
 
     super(INDEX, key);
@@ -84,11 +84,11 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
     this.owningTier = owningTier;
     this.processed  = processed ;
     
-    for (VenueProfile p : required) p.allows.include(this);
+    for (Blueprint p : required) p.allows.include(this);
   }
   
   
-  public static VenueProfile loadConstant(Session s) throws Exception {
+  public static Blueprint loadConstant(Session s) throws Exception {
     return INDEX.loadEntry(s.input());
   }
   
@@ -101,7 +101,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   /**  Property queries-
     */
-  public Series <VenueProfile> allows() {
+  public Series <Blueprint> allows() {
     return allows;
   }
   
@@ -154,30 +154,30 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   
   /**  Save and load functions for external reference.
     */
-  private static VenueProfile CIVIC_PROFILES[];
+  private static Blueprint CIVIC_BP[];
   
   
-  public static VenueProfile[] allProfiles() {
-    return INDEX.allEntries(VenueProfile.class);
+  public static Blueprint[] allBlueprints() {
+    return INDEX.allEntries(Blueprint.class);
   }
   
   
-  public static VenueProfile[] allCivicProfiles() {
-    if (CIVIC_PROFILES != null) return CIVIC_PROFILES;
-    final Batch <VenueProfile> matches = new Batch <VenueProfile> ();
-    for (VenueProfile p : allProfiles()) if (! p.isWild()) matches.add(p);
-    return CIVIC_PROFILES = matches.toArray(VenueProfile.class);
+  public static Blueprint[] allCivicBlueprints() {
+    if (CIVIC_BP != null) return CIVIC_BP;
+    final Batch <Blueprint> matches = new Batch <Blueprint> ();
+    for (Blueprint p : allBlueprints()) if (! p.isWild()) matches.add(p);
+    return CIVIC_BP = matches.toArray(Blueprint.class);
   }
   
   
   public static Venue[] sampleVenues(
-    int owningTier, VenueProfile... canPlace
+    int owningTier, Blueprint... canPlace
   ) {
-    if (canPlace == null) canPlace = allProfiles();
+    if (canPlace == null) canPlace = allBlueprints();
     final Batch <Venue> typeBatch = new Batch <Venue> ();
     
-    for (VenueProfile profile : canPlace) {
-      final Venue sample = profile.sampleVenue(null);
+    for (Blueprint profile : canPlace) {
+      final Venue sample = profile.createVenue(null);
       if (sample == null || sample.owningTier() > owningTier) continue;
       typeBatch.add(sample);
     }
@@ -185,7 +185,7 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   }
   
   
-  public Venue sampleVenue(Base base) {
+  public Venue createVenue(Base base) {
     try {
       if (! Venue.class.isAssignableFrom(baseClass)) return null;
       final Constructor c = baseClass.getConstructor(Base.class);

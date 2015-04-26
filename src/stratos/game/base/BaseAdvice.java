@@ -46,8 +46,8 @@ public class BaseAdvice {
       UI, null, titleKey, null, null
     );
     
-    final Batch <VenueProfile> canMatch = new Batch <VenueProfile> ();
-    for (VenueProfile profile : base.setup.canPlace) {
+    final Batch <Blueprint> canMatch = new Batch <Blueprint> ();
+    for (Blueprint profile : base.setup.canPlace) {
       for (Conversion c : profile.processed) {
         if (c.out.type == t) {
           canMatch.include(profile);
@@ -67,7 +67,7 @@ public class BaseAdvice {
       d.append("\n\n");
     }
     
-    for (VenueProfile match : canMatch) {
+    for (Blueprint match : canMatch) {
       final Conversion s = match.producing(t);
       
       if (s.raw.length > 0) {
@@ -84,7 +84,7 @@ public class BaseAdvice {
         d.append("\n  Category: "+category+" Structures", Colour.LITE_GREY);
       }
       
-      if (match.required.length > 0) for (VenueProfile req : match.required) {
+      if (match.required.length > 0) for (Blueprint req : match.required) {
         if (base.listInstalled(req, true).size() > 0) continue;
         d.append("\n  Requires: "+req.name, Colour.LITE_GREY);
       }

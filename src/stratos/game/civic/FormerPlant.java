@@ -41,10 +41,10 @@ public class FormerPlant extends Venue {
     FormerPlant.class, "media/GUI/Buttons/air_processor_button.gif"
   );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     FormerPlant.class, "former_plant", "Former Plant",
     3, 2, IS_NORMAL,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
@@ -53,7 +53,7 @@ public class FormerPlant extends Venue {
   
   
   public FormerPlant(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       500, 15, 300,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE

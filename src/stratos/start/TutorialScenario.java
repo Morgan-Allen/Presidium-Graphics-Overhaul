@@ -95,7 +95,7 @@ public class TutorialScenario extends StartupScenario {
   protected void establishLocals(Stage world) {
     
     final BaseSetup AS = Base.artilects(world).setup;
-    final VenueProfile RP[] = Ruins.VENUE_PROFILES;
+    final Blueprint RP[] = Ruins.VENUE_BLUEPRINTS;
     ruins = (Ruins) AS.doPlacementsFor(RP[0], 1).first();
     AS.fillVacancies(ruins, true);
   }
@@ -397,7 +397,7 @@ ruler.skills.addTechnique(Power.TELEKINESIS   );
 final int tribeID = NativeHut.TRIBE_FOREST;
 final BaseSetup NS = Base.natives(world, tribeID).setup;
 huts = new Batch <NativeHut> ();
-final VenueProfile NP[] = NativeHut.VENUE_PROFILES[tribeID];
+final VenueProfile NP[] = NativeHut.VENUE_BLUEPRINTS[tribeID];
 Visit.appendTo(huts, NS.doPlacementsFor(NP[0], 2));
 Visit.appendTo(huts, NS.doPlacementsFor(NP[1], 3));
 NS.fillVacancies(huts, true);

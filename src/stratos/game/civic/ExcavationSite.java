@@ -51,10 +51,10 @@ public class ExcavationSite extends Venue implements TileConstants {
       TO, 1, ISOTOPES
     );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     ExcavationSite.class, "excavation_site", "Excavation Site",
     4, 1, IS_NORMAL,
-    EngineerStation.PROFILE, Owner.TIER_FACILITY,
+    EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_METALS, LAND_TO_ISOTOPES
   );
   
@@ -64,7 +64,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public ExcavationSite(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       200, 15, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE

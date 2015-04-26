@@ -44,7 +44,7 @@ public class Fabricator extends Venue {
     )
   ;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator", "Fabricator",
     3, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
@@ -53,7 +53,7 @@ public class Fabricator extends Venue {
   
   
   public Fabricator(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       125, 2, 200,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

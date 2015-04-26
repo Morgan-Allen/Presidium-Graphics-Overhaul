@@ -94,7 +94,7 @@ public class DebugSecurity extends Scenario {
     base.setup.doPlacementsFor(bastion);
     
     final Venue walls[] = Placement.placeAroundPerimeter(
-      ShieldWall.PROFILE, bastion.areaClaimed(), base, true
+      ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
     );
     for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
     

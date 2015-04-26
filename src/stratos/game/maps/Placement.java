@@ -302,7 +302,7 @@ public class Placement implements TileConstants {
   
   
   public static Venue[] placeAroundPerimeter(
-    VenueProfile type, Box2D around, Base base, boolean intact
+    Blueprint type, Box2D around, Base base, boolean intact
   ) {
     final Stage world = base.world;
     final int grid = type.size, hS = grid / 2;
@@ -341,7 +341,7 @@ public class Placement implements TileConstants {
       final Batch <Venue> group = new Batch <Venue> ();
       
       for (Coord c : points) {
-        final Venue s = type.sampleVenue(base);
+        final Venue s = type.createVenue(base);
         s.setPosition(c.x - hS, c.y - hS, world);
         s.setupWith(s.origin(), area, pointsA);
         if (s.canPlace()) group.add(s);

@@ -100,8 +100,8 @@ public class InstallationPane extends SelectionPane {
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
     
-    for (VenueProfile profile : VenueProfile.allProfiles()) {
-      final Venue sample = profile.sampleVenue(null);
+    for (Blueprint profile : Blueprint.allBlueprints()) {
+      final Venue sample = profile.createVenue(null);
       final String catName = sample.objectCategory();
       final Category category = categories.get(catName);
       
@@ -114,9 +114,9 @@ public class InstallationPane extends SelectionPane {
   }
   
   
-  public static String categoryFor(VenueProfile venueType) {
+  public static String categoryFor(Blueprint venueType) {
     for (Category c : categories.values()) {
-      for (Venue v : c.samples) if (v.profile == venueType) return c.name;
+      for (Venue v : c.samples) if (v.blueprint == venueType) return c.name;
     }
     return null;
   }
@@ -192,7 +192,7 @@ public class InstallationPane extends SelectionPane {
     for (Category cat : categories.values()) {
       if (category != null && cat != category) continue;
       for (Venue sample : cat.samples) {
-        if (! base.checkPrerequisites(sample.profile, Account.NONE)) continue;
+        if (! base.checkPrerequisites(sample.blueprint, Account.NONE)) continue;
         else sampled.add(sample);
       }
     }
@@ -201,7 +201,7 @@ public class InstallationPane extends SelectionPane {
     
     if (helpFor != null) {
       final Venue        sample   = helpFor            ;
-      final VenueProfile type     = sample.profile     ;
+      final Blueprint type     = sample.blueprint     ;
       final Composite    icon     = sample.portrait(UI);
       final String       typeName = type.name          ;
       final String       typeDesc = sample.helpInfo()  ;
@@ -238,7 +238,7 @@ public class InstallationPane extends SelectionPane {
     }
     else for (final Venue sample : sampled) {
       final Composite    icon     = sample.portrait(UI);
-      final VenueProfile type     = sample.profile     ;
+      final Blueprint type     = sample.blueprint     ;
       final String       typeName = type.name          ;
       final int          cost     = sample.structure.buildCost();
       

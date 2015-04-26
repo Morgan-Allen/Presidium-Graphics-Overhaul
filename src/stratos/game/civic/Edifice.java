@@ -64,17 +64,17 @@ public class Edifice extends Venue {
     STYLE_GEOMETRIC      = 1,
     STYLE_SURREALISTIC   = 2;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Edifice.class, "edifice", "Edifice",
     3, 2, IS_FIXTURE,
-    Fabricator.PROFILE, Owner.TIER_FACILITY
+    Fabricator.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   int eventCode = -1, styleCode = -1;
   
   
   public Edifice(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       500, 50, 800, 0, Structure.TYPE_FIXTURE
     );

@@ -41,7 +41,7 @@ public class SupplyDepot extends Venue {
       ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
     );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot", "Supply Depot",
     4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_DEPOT
@@ -51,7 +51,7 @@ public class SupplyDepot extends Venue {
   
   
   public SupplyDepot(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       100,  //integrity
       2  ,  //armour

@@ -15,7 +15,7 @@ public abstract class School extends Venue {
   
   
   
-  protected School(VenueProfile profile, Base base) {
+  protected School(Blueprint profile, Base base) {
     super(profile, base);
   }
   

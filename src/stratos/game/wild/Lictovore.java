@@ -55,11 +55,11 @@ public class Lictovore extends Fauna {
     0.75f, //speed
     1.50f  //sight
   ) {
-    final VenueProfile PROFILE = Nest.constructProfile(
+    final Blueprint BLUEPRINT = Nest.constructBlueprint(
       3, 2, this, MODEL_NEST_MICOVORE
     );
     public Actor sampleFor(Base base) { return init(new Lictovore(base)); }
-    public VenueProfile nestProfile() { return PROFILE; }
+    public Blueprint nestBlueprint() { return BLUEPRINT; }
   };
   
   

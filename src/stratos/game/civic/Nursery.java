@@ -59,10 +59,10 @@ public class Nursery extends Venue implements TileConstants {
       TO, 1, GREENS
     );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Nursery.class, "nursery", "Nursery",
     2, 2, IS_ZONED,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY,
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_CARBS, LAND_TO_GREENS
   );
   
@@ -73,7 +73,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Nursery(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       25,  //integrity
       5,  //armour

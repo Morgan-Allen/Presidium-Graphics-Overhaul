@@ -28,16 +28,16 @@ public class ServiceHatch extends Venue {
     ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
   );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     ServiceHatch.class, "service_hatch", "Service Hatch",
     2, 1, IS_NORMAL,
-    Bastion.PROFILE, Owner.TIER_PRIVATE
+    Bastion.BLUEPRINT, Owner.TIER_PRIVATE
   );
   
   
   
   public ServiceHatch(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       40,  // integrity
       8 ,  // armour

@@ -45,7 +45,7 @@ public class Nest extends Venue {
   /**  More typical construction and save/load methods-
     */
   protected Nest(
-    VenueProfile profile, Base base,
+    Blueprint profile, Base base,
     Species species, ModelAsset lairModel
   ) {
     super(profile, base);
@@ -203,15 +203,15 @@ public class Nest extends Venue {
   
   /**  Utility methods for Nest-establishment.
     */
-  protected static VenueProfile constructProfile(
+  protected static Blueprint constructBlueprint(
     int size, int high, final Species s, final ModelAsset model
   ) {
-    return new VenueProfile(
+    return new Blueprint(
       Nest.class, s.name+"_nest", s.name+" Nest",
       size, high, IS_WILD,
       Venue.NO_REQUIREMENTS, Owner.TIER_PRIVATE
     ) {
-      public Venue sampleVenue(Base base) {
+      public Venue createVenue(Base base) {
         return new Nest(this, base, s, model);
       }
     };
@@ -221,12 +221,12 @@ public class Nest extends Venue {
   private static void populate(Stage world, Species with[], Species.Type type) {
     final Base wildlife = Base.wildlife(world);
     
-    final Batch <VenueProfile> profiles = new Batch <VenueProfile> ();
+    final Batch <Blueprint> profiles = new Batch <Blueprint> ();
     for (Species s : with) if (s.type == type) {
-      profiles.add(s.nestProfile());
+      profiles.add(s.nestBlueprint());
     }
     final Batch <Venue> placed = wildlife.setup.doFullPlacements(
-      profiles.toArray(VenueProfile.class)
+      profiles.toArray(Blueprint.class)
     );
     wildlife.setup.fillVacancies(placed, true);
   }
@@ -263,7 +263,7 @@ public class Nest extends Venue {
     final Base  wild    = Base.wildlife(world);
     final float range   = Nest.forageRange(species) * 2;
     final Tile  at      = Spacing.pickRandomTile(fauna, range, world);
-    final Nest  newNest = (Nest) fauna.species.nestProfile().sampleVenue(wild);
+    final Nest  newNest = (Nest) fauna.species.nestBlueprint().createVenue(wild);
     newNest.setPosition(at.x, at.y, world);
     if (newNest.canPlace()) {
       pick.compare(newNest, 1 - Nest.crowdingFor(at, species, world));

@@ -56,10 +56,10 @@ public class Holding extends Venue {
     )
   ;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Holding.class, "holding", "Seal Tent",
     2, 2, IS_NORMAL,
-    Bastion.PROFILE, Owner.TIER_PRIVATE,
+    Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
     PROVIDE_HOUSING
   );
   
@@ -71,7 +71,7 @@ public class Holding extends Venue {
   
   
   public Holding(Base belongs) {
-    super(PROFILE, belongs);
+    super(BLUEPRINT, belongs);
     this.upgradeLevel = 0;
     this.varID = Rand.index(NUM_VARS);
     structure.setupStats(

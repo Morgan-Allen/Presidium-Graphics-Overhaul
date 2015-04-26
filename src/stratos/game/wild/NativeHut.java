@@ -78,7 +78,7 @@ public class NativeHut extends Venue {
   /**  Standard constructors and save/load functions-
     */
   protected NativeHut(
-    VenueProfile profile, int type, int tribeID, Base base
+    Blueprint profile, int type, int tribeID, Base base
   ) {
     super(profile, base);
     staff.setShiftType(SHIFTS_BY_DAY);
@@ -125,44 +125,44 @@ public class NativeHut extends Venue {
   
   /**  Specialised constructors for use during base setup-
     */
-  final public static VenueProfile VENUE_PROFILES[][];
+  final public static Blueprint VENUE_BLUEPRINTS[][];
   static {
-    final Batch <VenueProfile> allProfiles = new Batch <VenueProfile> ();
-    VENUE_PROFILES = new VenueProfile[NUM_TRIBES][];
+    final Batch <Blueprint> allProfiles = new Batch <Blueprint> ();
+    VENUE_BLUEPRINTS = new Blueprint[NUM_TRIBES][];
     
     for (int n = NUM_TRIBES; n-- > 0;) {
       final int tribeID = n;
       final String tribeName = TRIBE_NAMES[tribeID];
       
-      allProfiles.add(new VenueProfile(
+      allProfiles.add(new Blueprint(
         NativeHut.class, "hall_"+tribeID, "Native Hut ("+tribeName+")",
         2, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
-        public Venue sampleVenue(Base base) {
+        public Venue createVenue(Base base) {
           return newHall(tribeID, base);
         }
       });
-      allProfiles.add(new VenueProfile(
+      allProfiles.add(new Blueprint(
         NativeHut.class, "hut_"+tribeID, "Chief's Hall ("+tribeName+")",
         3, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
-        public Venue sampleVenue(Base base) {
+        public Venue createVenue(Base base) {
           return newHut(tribeID, base);
         }
       });
-      VENUE_PROFILES[tribeID] = allProfiles.toArray(VenueProfile.class);
+      VENUE_BLUEPRINTS[tribeID] = allProfiles.toArray(Blueprint.class);
       allProfiles.clear();
     }
   }
-  final public static VenueProfile
-    TRIBE_WASTES_PROFILES[] = VENUE_PROFILES[TRIBE_WASTES],
-    TRIBE_DESERT_PROFILES[] = VENUE_PROFILES[TRIBE_DESERT],
-    TRIBE_FOREST_PROFILES[] = VENUE_PROFILES[TRIBE_FOREST];
+  final public static Blueprint
+    TRIBE_WASTES_BLUEPRINTS[] = VENUE_BLUEPRINTS[TRIBE_WASTES],
+    TRIBE_DESERT_BLUEPRINTS[] = VENUE_BLUEPRINTS[TRIBE_DESERT],
+    TRIBE_FOREST_BLUEPRINTS[] = VENUE_BLUEPRINTS[TRIBE_FOREST];
   
   
   public static NativeHut newHut(int tribeID, Base base) {
     return new NativeHut(
-      VENUE_PROFILES[tribeID][0], TYPE_HUT, tribeID, base
+      VENUE_BLUEPRINTS[tribeID][0], TYPE_HUT, tribeID, base
     );
   }
   

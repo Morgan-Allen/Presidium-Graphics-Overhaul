@@ -48,15 +48,15 @@ public class Archives extends Venue {
     )
   ;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives", "Archives",
     3, 2, IS_NORMAL,
-    PhysicianStation.PROFILE, Owner.TIER_FACILITY, CIRCUITRY_TO_DATALINKS
+    PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY, CIRCUITRY_TO_DATALINKS
   );
   
   
   public Archives(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       250, 3, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

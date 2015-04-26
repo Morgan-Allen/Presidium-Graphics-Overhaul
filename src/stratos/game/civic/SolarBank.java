@@ -46,16 +46,16 @@ public class SolarBank extends Venue {
     );
   
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     SolarBank.class, "solar_bank", "Solar Bank",
     2, 2, IS_LINEAR | IS_FIXTURE,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY,
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_POWER, LAND_TO_WATER
   );
   
   
   public SolarBank(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE);
   }
   

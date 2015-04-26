@@ -46,10 +46,10 @@ public class ShieldWall extends Venue {
     TYPE_SEGMENT =  2,
     TYPE_GATE    =  3;
   
-  final public static VenueProfile PROFILE = new VenueProfile(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     ShieldWall.class, "shield_wall", "Shield Wall",
     2, 2, IS_LINEAR | IS_FIXTURE | IS_GRIDDED,
-    Bastion.PROFILE, Owner.TIER_FACILITY
+    Bastion.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
@@ -58,7 +58,7 @@ public class ShieldWall extends Venue {
   
   
   public ShieldWall(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       125, 15, 40,  //integrity, armour, and build cost
       Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE

@@ -239,7 +239,7 @@ public class DebugSocial extends Scenario {
     final Base wild = Base.wildlife(world);
     final Species species = Yamagur.SPECIES;
     
-    Venue nests = species.nestProfile().sampleVenue(wild);
+    Venue nests = species.nestBlueprint().createVenue(wild);
     Placement.establishVenue(nests, 9, 9, true, world);
     
     Actor fauna = species.sampleFor(wild);

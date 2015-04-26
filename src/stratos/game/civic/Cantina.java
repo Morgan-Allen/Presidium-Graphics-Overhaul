@@ -81,10 +81,10 @@ public class Cantina extends Venue implements Performance.Theatre {
     SOMA_MARGIN    = 1.5f,
     GAMBLE_MARGIN  = 0.2f;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Cantina.class, "cantina", "Cantina",
     3, 2, IS_NORMAL,
-    StockExchange.PROFILE, Owner.TIER_FACILITY
+    StockExchange.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
@@ -94,7 +94,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   
   public Cantina(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(150, 2, 200, 0, Structure.TYPE_VENUE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());

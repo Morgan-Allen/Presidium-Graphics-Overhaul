@@ -44,7 +44,7 @@ public class EngineerStation extends Venue {
     )
   ;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     EngineerStation.class, "engineer_station", "Engineer Station",
     4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY, METALS_TO_PARTS
@@ -52,7 +52,7 @@ public class EngineerStation extends Venue {
   
   
   public EngineerStation(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       200, 5, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

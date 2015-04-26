@@ -41,7 +41,7 @@ public class EcologistStation extends Venue {
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     EcologistStation.class, "ecologist_station", "Ecologist Station",
     4, 3, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
@@ -49,7 +49,7 @@ public class EcologistStation extends Venue {
   
   
   public EcologistStation(Base belongs) {
-    super(PROFILE, belongs);
+    super(BLUEPRINT, belongs);
     structure.setupStats(
       150, 3, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

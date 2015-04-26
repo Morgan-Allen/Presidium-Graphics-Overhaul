@@ -121,7 +121,7 @@ public class DebugEcology extends Scenario {
     o.enterWorld();
     
     final Base wildlife = Base.wildlife(world);
-    final Nest n = (Nest) Qudu.SPECIES.nestProfile().sampleVenue(wildlife);
+    final Nest n = (Nest) Qudu.SPECIES.nestBlueprint().createVenue(wildlife);
     n.setPosition(10, 8, world);
     
     I.say("Placement possible? "+n.canPlace());

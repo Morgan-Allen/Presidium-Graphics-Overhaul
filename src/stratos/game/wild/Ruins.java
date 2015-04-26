@@ -38,7 +38,7 @@ public class Ruins extends Venue {
   
   
   public Ruins(Base base) {
-    super(VENUE_PROFILES[0], base);
+    super(VENUE_BLUEPRINTS[0], base);
     structure.setupStats(500, 25, 0, 0, Structure.TYPE_ANCIENT);
     staff.setShiftType(SHIFTS_BY_24_HOUR);
     final int index = (NI++ + Rand.index(1)) % 3;
@@ -59,15 +59,15 @@ public class Ruins extends Venue {
   
   /**  Situation and claims-management-
     */
-  final public static VenueProfile VENUE_PROFILES[];
+  final public static Blueprint VENUE_BLUEPRINTS[];
   static {
-    VENUE_PROFILES = new VenueProfile[1];
-    VENUE_PROFILES[0] = new VenueProfile(
+    VENUE_BLUEPRINTS = new Blueprint[1];
+    VENUE_BLUEPRINTS[0] = new Blueprint(
       Ruins.class, "ruins", "Ancient Ruins",
       4, 2, IS_WILD,
       NO_REQUIREMENTS, Owner.TIER_FACILITY
     ) {
-      public Venue sampleVenue(Base base) {
+      public Venue createVenue(Base base) {
         final Venue sample = new Ruins(base);
         sample.structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));
         return sample;
@@ -160,7 +160,7 @@ public class Ruins extends Venue {
   ) {
     final Base artilects = Base.artilects(world);
     final Batch <Venue> placed = artilects.setup.doPlacementsFor(
-      Ruins.VENUE_PROFILES[0], numRuins
+      Ruins.VENUE_BLUEPRINTS[0], numRuins
     );
     artilects.setup.fillVacancies(placed, true);
   }

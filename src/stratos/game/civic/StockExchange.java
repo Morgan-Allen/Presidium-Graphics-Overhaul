@@ -52,17 +52,17 @@ public class StockExchange extends Venue {
       ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
     );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     StockExchange.class, "stock_exchange", "Stock Exchange",
     4, 1, IS_NORMAL,
-    SupplyDepot.PROFILE, Owner.TIER_FACILITY
+    SupplyDepot.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
   
   
   public StockExchange(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     staff.setShiftType(SHIFTS_BY_DAY);
     structure.setupStats(
       150, 3, 250,

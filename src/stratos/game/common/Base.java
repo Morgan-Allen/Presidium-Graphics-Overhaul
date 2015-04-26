@@ -64,7 +64,7 @@ public class Base implements
   
   private static Base registerBase(
     Base base, Stage world, String title, Colour colour,
-    VenueProfile... canBuild
+    Blueprint... canBuild
   ) {
     base.title = title;
     base.colour.set(colour);
@@ -79,7 +79,7 @@ public class Base implements
     final Base base = namedBase(world, title);
     if (base != null) return base;
 
-    final VenueProfile canBuild[] = VenueProfile.allCivicProfiles();
+    final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
     return registerBase(new Base(world, false), world, title, colour, canBuild);
   }
   
@@ -89,7 +89,7 @@ public class Base implements
     if (base != null) return base;
     else base = new Base(world, true);
     
-    final VenueProfile canBuild[] = new VenueProfile[0];
+    final Blueprint canBuild[] = new Blueprint[0];
     return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN, canBuild);
   }
   
@@ -99,7 +99,7 @@ public class Base implements
     if (base != null) return base;
     else base = new VerminBase(world);
     
-    final VenueProfile canBuild[] = new VenueProfile[0];
+    final Blueprint canBuild[] = new Blueprint[0];
     registerBase(base, world, KEY_VERMIN, Colour.LITE_GREY, canBuild);
     return base;
   }
@@ -110,7 +110,7 @@ public class Base implements
     if (base != null) return base;
     else base = new ArtilectBase(world);
     
-    final VenueProfile canBuild[] = new VenueProfile[0];
+    final Blueprint canBuild[] = new Blueprint[0];
     registerBase(base, world, KEY_ARTILECTS, Colour.LITE_RED, canBuild);
     return base;
   }
@@ -123,7 +123,7 @@ public class Base implements
     else base = new Base(world, true);
     
     base.isNative = true;
-    final VenueProfile canBuild[] = NativeHut.VENUE_PROFILES[tribeID];
+    final Blueprint canBuild[] = NativeHut.VENUE_BLUEPRINTS[tribeID];
     return registerBase(base, world, title, Colour.LITE_YELLOW, canBuild);
   }
   
@@ -375,7 +375,7 @@ public class Base implements
   /**  Venue enumeration methods-
     */
   public Batch <Venue> listInstalled(
-    VenueProfile type, boolean intact
+    Blueprint type, boolean intact
   ) {
     final Batch <Venue> installed = new Batch <Venue> ();
     for (Object o : world.presences.matchesNear(type.baseClass, null, -1)) {
@@ -387,13 +387,13 @@ public class Base implements
   }
   
   
-  public boolean checkPrerequisites(VenueProfile profile, Account reasons) {
+  public boolean checkPrerequisites(Blueprint profile, Account reasons) {
     if (profile.isUnique()) {
       if (listInstalled(profile, false).size() > 0) {
         return reasons.asFailure("You cannot have more than one "+profile.name);
       }
     }
-    for (VenueProfile req : profile.required) {
+    for (Blueprint req : profile.required) {
       if (listInstalled(req, true).size() <= 0) {
         return reasons.asFailure("Requires "+req);
       }

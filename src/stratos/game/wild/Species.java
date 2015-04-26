@@ -62,12 +62,12 @@ public abstract class Species extends Background {
     }
   ;
   
-  final public static VenueProfile NEST_PROFILES[];
+  final public static Blueprint NEST_BLUEPRINTS[];
   static {
     final Species nesting[] = ANIMAL_SPECIES;
-    NEST_PROFILES = new VenueProfile[nesting.length];
+    NEST_BLUEPRINTS = new Blueprint[nesting.length];
     for (int n = nesting.length ; n-- > 0;) {
-      NEST_PROFILES[n] = nesting[n].nestProfile();
+      NEST_BLUEPRINTS[n] = nesting[n].nestBlueprint();
     }
   }
   
@@ -147,7 +147,7 @@ public abstract class Species extends Background {
   }
   
   
-  public VenueProfile nestProfile() { return null; }
+  public Blueprint nestBlueprint() { return null; }
   
   public boolean browser () { return type == Type.BROWSER ; }
   public boolean predator() { return type == Type.PREDATOR; }

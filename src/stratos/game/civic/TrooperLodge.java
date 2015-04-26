@@ -31,15 +31,15 @@ public class TrooperLodge extends Venue {
     TrooperLodge.class, "media/GUI/Buttons/garrison_button.gif"
   );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     TrooperLodge.class, "trooper_lodge", "Trooper Lodge",
     4, 3, IS_NORMAL,
-    Bastion.PROFILE, Owner.TIER_FACILITY
+    Bastion.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
   public TrooperLodge(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       500, 20, 250,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE

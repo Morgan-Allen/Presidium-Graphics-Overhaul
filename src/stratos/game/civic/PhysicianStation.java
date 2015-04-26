@@ -45,7 +45,7 @@ public class PhysicianStation extends Venue {
     )
   ;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     PhysicianStation.class, "physician_station", "Physician Station",
     3, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY, REAGENTS_TO_MEDICINE
@@ -57,7 +57,7 @@ public class PhysicianStation extends Venue {
   
   
   public PhysicianStation(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       200, 2, 350,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

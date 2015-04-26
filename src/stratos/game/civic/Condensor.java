@@ -23,7 +23,7 @@ public class Condensor extends Venue {
     Condensor.class, "media/GUI/Buttons/condensor_button.gif"
   );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Condensor.class, "condensor", "Condensor",
     3, 2, IS_FIXTURE,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
@@ -32,7 +32,7 @@ public class Condensor extends Venue {
   
   
   public Condensor(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       85 ,  // integrity
       1  ,  // armour

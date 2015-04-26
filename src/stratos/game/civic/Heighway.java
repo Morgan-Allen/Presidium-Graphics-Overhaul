@@ -43,7 +43,7 @@ public class Heighway extends Venue {
       Heighway.class, "media/GUI/Buttons/mag_line_button.gif"
     );
   
-  final public static VenueProfile PROFILE = new VenueProfile(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     Heighway.class, "heighway", "Heighway",
     2, 0, IS_FIXTURE | IS_LINEAR | IS_GRIDDED,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
@@ -51,7 +51,7 @@ public class Heighway extends Venue {
   
   
   public Heighway(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       10,  //integrity
       25,  //armour

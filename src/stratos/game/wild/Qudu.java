@@ -44,11 +44,11 @@ public class Qudu extends Fauna {
     0.50f, //speed
     0.75f  //sight
   ) {
-    final VenueProfile PROFILE = Nest.constructProfile(
+    final Blueprint BLUEPRINT = Nest.constructBlueprint(
       2, 2, this, MODEL_NEST_QUUD
     );
     public Actor sampleFor(Base base) { return init(new Qudu(base)); }
-    public VenueProfile nestProfile() { return PROFILE; }
+    public Blueprint nestBlueprint() { return BLUEPRINT; }
   };
   
   

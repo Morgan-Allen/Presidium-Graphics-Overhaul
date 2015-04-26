@@ -36,10 +36,10 @@ public class Airfield extends Venue {
     Airfield.class, "media/GUI/Buttons/airfield_button.gif"
   );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Airfield.class, "airfield", "Airfield",
     6, 3, IS_NORMAL,
-    new VenueProfile[] { SupplyDepot.PROFILE, Bastion.PROFILE },
+    new Blueprint[] { SupplyDepot.BLUEPRINT, Bastion.BLUEPRINT },
     Owner.TIER_FACILITY
   );
   
@@ -48,7 +48,7 @@ public class Airfield extends Venue {
   
   
   public Airfield(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       250,  //integrity
       5  ,  //armour

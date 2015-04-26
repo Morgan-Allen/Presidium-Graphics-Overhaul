@@ -36,7 +36,7 @@ public class Bastion extends Venue {
     EXCLUDE_RADIUS = 2,
     CLAIM_RADIUS   = Stage.SECTOR_SIZE / 2;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Bastion.class, "bastion", "Bastion",
     7, 4, IS_UNIQUE,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
@@ -45,7 +45,7 @@ public class Bastion extends Venue {
   
   
   public Bastion(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       650, 15, 1000,
       Structure.BIG_MAX_UPGRADES, Structure.TYPE_FIXTURE

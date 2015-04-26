@@ -31,15 +31,15 @@ public class Fractal extends Venue {
   
   /**  Definition, setup and save/load methods:
     */
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Fractal.class, "fractal", "Fractal",
     2, 0, IS_FIXTURE | IS_LINEAR,
-    Fabricator.PROFILE, Owner.TIER_PRIVATE
+    Fabricator.BLUEPRINT, Owner.TIER_PRIVATE
   );
   
   
   public Fractal(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       40,  // integrity
       8 ,  // armour

@@ -17,7 +17,6 @@ import stratos.util.*;
 
 //  TODO:  Sort out uncertainty over sources for polymer.
 
-
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 

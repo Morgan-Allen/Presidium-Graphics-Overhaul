@@ -40,10 +40,10 @@ public class KommandoLodge extends Venue {
       TO, 1, PROTEIN
     );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     KommandoLodge.class, "kommando_lodge", "Kommando Lodge",
     4, 2, IS_NORMAL,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY,
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_PROTEIN
   );
   
@@ -54,7 +54,7 @@ public class KommandoLodge extends Venue {
   
   
   public KommandoLodge(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       150, 4, 150,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE

@@ -67,10 +67,10 @@ public class CultureLab extends Venue {
       DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
     );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     CultureLab.class, "culture_lab", "Culture Lab",
     3, 2, IS_NORMAL,
-    new VenueProfile[] { EngineerStation.PROFILE, PhysicianStation.PROFILE },
+    new Blueprint[] { EngineerStation.BLUEPRINT, PhysicianStation.BLUEPRINT },
     Owner.TIER_FACILITY,
     WASTE_TO_CARBS, WASTE_TO_REAGENTS,
     CARBS_TO_SOMA, CARBS_TO_PROTEIN,
@@ -79,7 +79,7 @@ public class CultureLab extends Venue {
   
   
   public CultureLab(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       400, 3, 450,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE

@@ -31,15 +31,15 @@ public class EnforcerBloc extends Venue {
     EnforcerBloc.class, "media/GUI/Buttons/enforcer_bloc_button.gif"
   );
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     EnforcerBloc.class, "enforcer_bloc", "Enforcer Bloc",
     4, 2, IS_NORMAL,
-    Bastion.PROFILE, Owner.TIER_FACILITY
+    Bastion.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
   public EnforcerBloc(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(
       450,  //Integrity
       6  ,  //Armour

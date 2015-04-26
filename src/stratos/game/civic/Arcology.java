@@ -46,10 +46,10 @@ public class Arcology extends Venue {
   final static int
     FULL_GROWTH_INTERVAL = Stage.STANDARD_DAY_LENGTH * 5;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final static Blueprint BLUEPRINT = new Blueprint(
     Arcology.class, "arcology", "Arcology",
     2, 2, IS_LINEAR | IS_FIXTURE,
-    EcologistStation.PROFILE, Owner.TIER_FACILITY
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
@@ -57,7 +57,7 @@ public class Arcology extends Venue {
   
   
   public Arcology(Base base) {
-    super(PROFILE, base);
+    super(BLUEPRINT, base);
     structure.setupStats(15, 1, 100, 0, Structure.TYPE_FIXTURE);
   }
   
