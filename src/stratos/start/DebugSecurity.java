@@ -50,6 +50,7 @@ public class DebugSecurity extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
+      Habitat.OCEAN       , 1f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
@@ -87,7 +88,15 @@ public class DebugSecurity extends Scenario {
   
   private void wallsScenario(Stage world, Base base, BaseUI UI) {
     final Bastion bastion = new Bastion(base);
-    Placement.establishVenue(bastion, world.tileAt(20, 20), true, world);
+    //
+    //  Now, find a good location for the Bastion, and establish some walls
+    //  around it...
+    base.setup.doPlacementsFor(bastion);
+    
+    final Venue walls[] = Placement.placeAroundPerimeter(
+      ShieldWall.PROFILE, bastion.areaClaimed(), base, true
+    );
+    for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
     
     base.finance.incCredits(100000, BaseFinance.SOURCE_CHARITY);
   }

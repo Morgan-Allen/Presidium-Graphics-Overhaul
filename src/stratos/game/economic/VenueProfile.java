@@ -116,6 +116,11 @@ public class VenueProfile extends Index.Entry implements Session.Saveable {
   }
   
   
+  public boolean isSingle() {
+    return ! (hasProperty(Venue.IS_LINEAR) || hasProperty(Venue.IS_ZONED));
+  }
+  
+  
   public boolean isStandard() {
     return properties == Venue.IS_NORMAL;
   }

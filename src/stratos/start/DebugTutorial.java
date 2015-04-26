@@ -15,10 +15,6 @@ import stratos.util.*;
 //  TODO:  Disable shipping until the player is ready, and allow for multiple
 //         ships with multiple airfields.
 
-//  TODO:  Placing over ocean tiles should not be possible!
-
-//  TODO:  PLACE THE BASTION INLAND WITH SOME INITIAL FENCING.
-
 //  TODO:  Sort out uncertainty over sources for polymer.
 
 
@@ -58,7 +54,7 @@ BUILDINGS AND ECONOMY-
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
 
-*  Polish up shield-wall art, and give them out for free initially.
+*  Polish up shield-wall art, including perimeter fence.
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange

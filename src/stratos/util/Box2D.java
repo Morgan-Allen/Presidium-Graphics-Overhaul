@@ -110,9 +110,11 @@ public class Box2D {
     xmax = pos + wide;
   }
   
+  
   public void incX(float inc) {
     xpos(xpos + inc);
   }
+  
   
   public void incWide(float inc) {
     xdim(xdim + inc);
@@ -125,9 +127,11 @@ public class Box2D {
     ymax = pos + high;
   }
   
+  
   public void incY(float inc) {
     ypos(ypos + inc);
   }
+  
   
   public void incHigh(float inc) {
     ydim(ydim + inc);

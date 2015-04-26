@@ -177,6 +177,10 @@ public abstract class Venue extends Structural implements
         if (reasons == Account.NONE) return false;
         return reasons.asFailure("Area reserved by "+t.onTop());
       }
+      if (! canBuildOn(t)) {
+        if (reasons == Account.NONE) return false;
+        return reasons.asFailure(t.habitat()+" is not buildable");
+      }
       if (t.isEntrance() && solid) {
         if (reasons == Account.NONE) return false;
         return reasons.asFailure("Is entrance for "+t.entranceFor());
@@ -204,6 +208,11 @@ public abstract class Venue extends Structural implements
       return false;
     }
     return true;
+  }
+  
+  
+  protected boolean canBuildOn(Tile t) {
+    return t.habitat().pathClear;
   }
   
   
@@ -547,7 +556,7 @@ public abstract class Venue extends Structural implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
-    if (pathType() <= Tile.PATH_CLEAR) return;
+    if (pathType() <= Tile.PATH_CLEAR || ! profile.isSingle()) return;
     super.renderSelection(rendering, hovered);
   }
 }

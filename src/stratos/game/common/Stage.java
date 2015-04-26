@@ -147,6 +147,17 @@ public class Stage {
   }
   
   
+  public Tile tileAtGrid(int x, int y, int unit) {
+    return tileAt(Nums.round(x, unit, false), Nums.round(y, unit, false));
+  }
+  
+  
+  public Tile tileAtGrid(Tile t, int unit) {
+    if (t == null) return null;
+    return tileAtGrid(t.x, t.y, unit);
+  }
+  
+  
   public Tile tileAt(int x, int y) {
     try { return tiles[x][y]; }
     catch (ArrayIndexOutOfBoundsException e) { return null; }

@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.maps;
+import stratos.game.civic.ShieldWall;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.Backgrounds;
@@ -79,14 +80,21 @@ public class Placement implements TileConstants {
   
   
   public static boolean checkAreaClear(
-    Tile origin, int sizeX, int sizeY//, int owningPriority
+    Tile origin, int sizeX, int sizeY
   ) {
+    //  TODO:  Use owningTier()?
     if (origin == null || sizeX <= 0 || sizeY <= 0) return false;
     for (Coord c : footprintFor(sizeX, sizeY)) {
       final Tile t = origin.world.tileAt(origin.x + c.x, origin.y + c.y);
-      if (t == null || t.reserved()) return false;
+      if (t == null || ! t.buildable()) return false;
     }
     return true;
+  }
+  
+  
+  public static boolean checkAreaClear(Box2D area, Stage world) {
+    final Tile origin = world.tileAt(area.xpos(), area.ypos());
+    return checkAreaClear(origin, (int) area.xdim(), (int) area.ydim());
   }
   
   
@@ -242,6 +250,14 @@ public class Placement implements TileConstants {
     Object piecesX[], Object piecesY[], Object hub,
     Class <? extends Venue> ofType
   ) {
+    final boolean report = verbose && PlacingTask.isBeingPlaced(fixture);
+    if (report) {
+      I.say("\nSetting up segment: "+fixture);
+      I.say("  Position:   "+position);
+      I.say("  Area:       "+area);
+      I.say("  New points: ");
+      for (Coord c : otherPoints) I.add(c+" ");
+    }
     final Stage world = position.world;
     final int s = fixture.size, hS = s / 2;
     boolean near[] = new boolean[8], adj;
@@ -267,6 +283,7 @@ public class Placement implements TileConstants {
         if (n.x + hS == p.x && n.y + hS == p.y) adj = true;
       }
       near[t] = adj;
+      if (report) I.say("  "+n+" ("+DIR_NAMES[t]+"): "+adj);
       if (adj) numN++;
     }
     //
@@ -281,6 +298,67 @@ public class Placement implements TileConstants {
     if (near[N]) return piecesY[0];
     if (near[S]) return piecesY[2];
     return hub;
+  }
+  
+  
+  public static Venue[] placeAroundPerimeter(
+    VenueProfile type, Box2D around, Base base, boolean intact
+  ) {
+    final Stage world = base.world;
+    final int grid = type.size, hS = grid / 2;
+    if (hS > 0) {
+      around = new Box2D(around);
+      around.incX(0 - hS);
+      around.incY(0 - hS);
+      around.incWide(hS);
+      around.incHigh(hS);
+    }
+    intact |= GameSettings.buildFree;
+    
+    final Tile perim[] = Spacing.perimeter(around, world);
+    final int side = perim.length / 4;
+    final Batch <Tile> scanned = new Batch <Tile> ();
+    final Batch <Venue> placed = new Batch <Venue> ();
+    
+    //  TODO:  Try to get rid of these 'hS'/half-size offsets, both here and in
+    //         the PlacingTask class?  It's a tad confusing.
+    
+    for (int dir = 4; dir-- > 0;) {
+      Batch <Coord> points = new Batch <Coord> ();
+      Box2D area = null;
+      
+      for (int i = side; i-- > 0;) {
+        final Tile p = world.tileAtGrid(perim[i + (dir * side)], grid);
+        if (p == null || p.flaggedWith() != null) continue;
+        if (area == null) area = new Box2D(p.x, p.y, 0, 0);
+        area.include(p.x, p.y, 0.5f);
+        points.add(new Coord(p.x + hS, p.y + hS));
+        p.flagWith(scanned);
+        scanned.add(p);
+      }
+      
+      final Coord pointsA[] = points.toArray(Coord.class);
+      final Batch <Venue> group = new Batch <Venue> ();
+      
+      for (Coord c : points) {
+        final Venue s = type.sampleVenue(base);
+        s.setPosition(c.x - hS, c.y - hS, world);
+        s.setupWith(s.origin(), area, pointsA);
+        if (s.canPlace()) group.add(s);
+      }
+      
+      final Venue groupA[] = group.toArray(Venue.class);
+      
+      for (Venue s : group) {
+        s.doPlacement();
+        if (intact) s.structure.setState(Structure.STATE_INTACT, 1);
+        s.structure.assignGroup(groupA);
+        placed.add(s);
+      }
+    }
+    
+    for (Tile t : scanned) t.flagWith(null);
+    return placed.toArray(Venue.class);
   }
   
   

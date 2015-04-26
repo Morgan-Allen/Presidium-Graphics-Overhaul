@@ -154,8 +154,8 @@ public class StartupScenario extends Scenario {
     
     switch (config.siteLevel) {
       case(0) : wastes = 3; desert  = 2; barrens = 4; water = 0; break;
-      case(1) : meadow = 4; barrens = 2; desert  = 2; water = 3; break;
-      case(2) : forest = 2; meadow  = 3; barrens = 2; water = 1; break;
+      case(1) : meadow = 4; barrens = 2; desert  = 2; water = 1; break;
+      case(2) : forest = 2; meadow  = 3; barrens = 2; water = 2; break;
     }
     
     //  TODO:  the terrain setup algorithm should not be directly interacting
@@ -171,7 +171,7 @@ public class StartupScenario extends Scenario {
       Habitat.CURSED_EARTH, wastes
     );
     final Stage world = new Stage(TG.generateTerrain());
-    TG.setupMinerals(world, 0, 0, 0);
+    TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();
     
@@ -320,10 +320,14 @@ public class StartupScenario extends Scenario {
     final Stage world, Base base,
     Human ruler, List <Human> advisors, List <Human> colonists
   ) {
+    //
+    //  First of all, we attempt to establish the Bastion itself and some
+    //  peripheral defences-
     final Bastion bastion = new Bastion(base);
     advisors.add(ruler);
     base.assignRuler(ruler);
     base.setup.doPlacementsFor(bastion);
+    if (! bastion.inWorld()) I.complain("BASTION COULD NOT ENTER WORLD!");
     //
     //  We clear away any structures that might have conflicted with the
     //  bastion, along with their inhabitants-
@@ -332,16 +336,20 @@ public class StartupScenario extends Scenario {
       for (Actor a : v.staff.workers()) a.exitWorld();
       v.exitWorld();
     }
-    
-    if (! bastion.inWorld()) I.complain("NO LANDING SITE FOUND!");
-    
+    //
+    //  Once that's done, we can draw a curtain wall:
+    final Venue wall[] = Placement.placeAroundPerimeter(
+      ShieldWall.PROFILE, bastion.areaClaimed(), base, true
+    );
+    for (Venue v : wall) ((ShieldWall) v).updateFacing(true);
+    //
+    //  Then introduce personnel-
     for (Actor a : advisors) {
       a.mind.setHome(bastion);
       a.mind.setWork(bastion);
       a.enterWorldAt(bastion, world);
       a.goAboard(bastion, world);
     }
-    
     for (Actor a : colonists) {
       a.assignBase(base);
       a.enterWorldAt(bastion, world);

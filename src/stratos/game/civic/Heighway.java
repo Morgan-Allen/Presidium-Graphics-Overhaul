@@ -102,6 +102,13 @@ public class Heighway extends Venue {
   }
   
   
+  protected boolean canBuildOn(Tile t) {
+    //  Heighways can be used to span deserts and bodies of water, so they can
+    //  be placed over anything.
+    return true;
+  }
+  
+  
   public int pathType() {
     return Tile.PATH_ROAD;
   }

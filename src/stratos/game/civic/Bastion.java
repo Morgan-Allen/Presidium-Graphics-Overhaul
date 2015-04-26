@@ -7,7 +7,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Placement;
+import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -103,8 +103,25 @@ public class Bastion extends Venue {
   
   public float ratePlacing(Target point, boolean exact) {
     
-    //  TODO:  This could probably be sophisticated a bit...
+    float rating = 5;
     
+    //
+    //  Okay- you want a spot as close to the centre of the map as possible,
+    //  but reasonably close to rich resources, and with enough space to
+    //  establish a shield wall.
+    
+    final Stage world = point.world();
+    final Tile at = world.tileAt(point);
+    
+    float relX = at.x * 1f / world.size, relY = at.y * 1f / world.size;
+    float midRating = relX * (1 - relX) * 4 * relY * (1 - relY) * 4;
+    rating *= midRating;
+    
+    if (Placement.checkAreaClear(areaClaimed(), world)) rating *= 2;
+    
+    return rating;
+    /*
+    //  TODO:  This could probably be sophisticated a bit...
     final Stage world = point.world();
     float rating = 5;
     if (inWorld()) return rating;
@@ -116,13 +133,7 @@ public class Bastion extends Venue {
     if (nearest == null) return rating;
     final int SS = Stage.SECTOR_SIZE;
     return rating * (SS + Spacing.distance(point, nearest)) / SS;
-  }
-  
-  
-  public boolean allowsEntry(Mobile m) {
-    if (super.allowsEntry(m)) return true;
-    if (Summons.summonedTo(m) == this) return true;
-    return false;
+    //*/
   }
   
   
@@ -207,7 +218,13 @@ public class Bastion extends Venue {
       }
     }
   };
-
+  
+  
+  public boolean allowsEntry(Mobile m) {
+    if (super.allowsEntry(m)) return true;
+    if (Summons.summonedTo(m) == this) return true;
+    return false;
+  }
   
   
   public int numOpenings(Background b) {

@@ -46,7 +46,7 @@ public class ShieldWall extends Venue {
     TYPE_SEGMENT =  2,
     TYPE_GATE    =  3;
   
-  final static VenueProfile PROFILE = new VenueProfile(
+  final public static VenueProfile PROFILE = new VenueProfile(
     ShieldWall.class, "shield_wall", "Shield Wall",
     2, 2, IS_LINEAR | IS_FIXTURE | IS_GRIDDED,
     Bastion.PROFILE, Owner.TIER_FACILITY
@@ -88,6 +88,10 @@ public class ShieldWall extends Venue {
     attachModel((ModelAsset) model);
     return true;
   }
+  
+  
+  //  TODO:  Allow placement on top of ocean tiles as long as at least one
+  //  land tile is available...
   
   
   protected boolean checkPerimeter(Stage world) {
@@ -142,13 +146,18 @@ public class ShieldWall extends Venue {
     
     final Upgrade FC = Structure.FACING_CHANGE;
     if (! (numUpdates % 10 == 0 || structure.hasUpgrade(FC))) return;
-    
-    final Object model = faceModel(origin(), null);
-    final int newType = typeIndexFrom(model);
+    updateFacing(false);
+  }
+  
+  
+  public boolean updateFacing(boolean instant) {
+    final Object  model   = faceModel(origin(), null);
+    final int     newType = typeIndexFrom(model);
+    final Upgrade FC      = Structure.FACING_CHANGE;
     boolean canChange = false;
     
     if (type != newType) {
-      if (GameSettings.buildFree || structure.hasUpgrade(FC)) {
+      if (GameSettings.buildFree || structure.hasUpgrade(FC) || instant) {
         canChange = true;
       }
       else {
@@ -160,7 +169,9 @@ public class ShieldWall extends Venue {
       this.type = newType;
       world.ephemera.addGhost(this, size, sprite(), 0.5f);
       attachModel((ModelAsset) model);
+      refreshAdjacent();
     }
+    return canChange;
   }
   
   
@@ -203,22 +214,24 @@ public class ShieldWall extends Venue {
   }
   
   
-  private void refreshAdjacentCache() {
+  private void refreshAdjacent() {
+    entrances = null;
     for (Boarding b : canBoard()) {
       if (b instanceof ShieldWall) ((ShieldWall) b).entrances = null;
+      if (b instanceof Tile      ) ((Tile      ) b).refreshAdjacent();
     }
   }
   
   
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    refreshAdjacentCache();
+    refreshAdjacent();
     return true;
   }
   
   
   public void exitWorld() {
-    refreshAdjacentCache();
+    refreshAdjacent();
     super.exitWorld();
   }
   
