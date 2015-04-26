@@ -387,13 +387,13 @@ public class Base implements
   }
   
   
-  public boolean checkPrerequisites(Blueprint profile, Account reasons) {
-    if (profile.isUnique()) {
-      if (listInstalled(profile, false).size() > 0) {
-        return reasons.asFailure("You cannot have more than one "+profile.name);
+  public boolean checkPrerequisites(Blueprint print, Account reasons) {
+    if (print.isUnique()) {
+      if (listInstalled(print, false).size() > 0) {
+        return reasons.asFailure("You cannot have more than one "+print.name);
       }
     }
-    for (Blueprint req : profile.required) {
+    for (Blueprint req : print.required) {
       if (listInstalled(req, true).size() <= 0) {
         return reasons.asFailure("Requires "+req);
       }

@@ -47,10 +47,10 @@ public class BaseAdvice {
     );
     
     final Batch <Blueprint> canMatch = new Batch <Blueprint> ();
-    for (Blueprint profile : base.setup.canPlace) {
-      for (Conversion c : profile.processed) {
+    for (Blueprint blueprint : base.setup.canPlace) {
+      for (Conversion c : blueprint.processed) {
         if (c.out.type == t) {
-          canMatch.include(profile);
+          canMatch.include(blueprint);
           continue;
         }
       }

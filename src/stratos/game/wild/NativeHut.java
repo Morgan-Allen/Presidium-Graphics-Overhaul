@@ -78,9 +78,9 @@ public class NativeHut extends Venue {
   /**  Standard constructors and save/load functions-
     */
   protected NativeHut(
-    Blueprint profile, int type, int tribeID, Base base
+    Blueprint blueprint, int type, int tribeID, Base base
   ) {
-    super(profile, base);
+    super(blueprint, base);
     staff.setShiftType(SHIFTS_BY_DAY);
     this.type = type;
     this.tribeID = tribeID;

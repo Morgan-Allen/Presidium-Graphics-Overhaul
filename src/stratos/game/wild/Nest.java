@@ -45,10 +45,10 @@ public class Nest extends Venue {
   /**  More typical construction and save/load methods-
     */
   protected Nest(
-    Blueprint profile, Base base,
+    Blueprint blueprint, Base base,
     Species species, ModelAsset lairModel
   ) {
-    super(profile, base);
+    super(blueprint, base);
     this.species = species;
     attachSprite(lairModel.makeSprite());
   }
@@ -221,12 +221,12 @@ public class Nest extends Venue {
   private static void populate(Stage world, Species with[], Species.Type type) {
     final Base wildlife = Base.wildlife(world);
     
-    final Batch <Blueprint> profiles = new Batch <Blueprint> ();
+    final Batch <Blueprint> blueprints = new Batch <Blueprint> ();
     for (Species s : with) if (s.type == type) {
-      profiles.add(s.nestBlueprint());
+      blueprints.add(s.nestBlueprint());
     }
     final Batch <Venue> placed = wildlife.setup.doFullPlacements(
-      profiles.toArray(Blueprint.class)
+      blueprints.toArray(Blueprint.class)
     );
     wildlife.setup.fillVacancies(placed, true);
   }

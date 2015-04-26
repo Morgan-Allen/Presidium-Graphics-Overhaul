@@ -176,8 +176,8 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
     if (canPlace == null) canPlace = allBlueprints();
     final Batch <Venue> typeBatch = new Batch <Venue> ();
     
-    for (Blueprint profile : canPlace) {
-      final Venue sample = profile.createVenue(null);
+    for (Blueprint blueprint : canPlace) {
+      final Venue sample = blueprint.createVenue(null);
       if (sample == null || sample.owningTier() > owningTier) continue;
       typeBatch.add(sample);
     }
@@ -195,8 +195,8 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
       I.say(
         "\n  WARNING: NO BASE CONSTRUCTOR FOR: "+baseClass.getName()+
         "\n  All Venues should implement a public constructor taking a Base "+
-        "\n  as the sole argument, or else their profile should override the "+
-        "\n  sampleVenue() method.  Thank you.\n"
+        "\n  as the sole argument, or else their blueprint should override "+
+        "\n  the createVenue() method.  Thank you.\n"
       );
       return null;
     }

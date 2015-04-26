@@ -100,8 +100,8 @@ public class InstallationPane extends SelectionPane {
     initCategory(TYPE_ECOLOGIST);
     initCategory(TYPE_PHYSICIAN);
     
-    for (Blueprint profile : Blueprint.allBlueprints()) {
-      final Venue sample = profile.createVenue(null);
+    for (Blueprint blueprint : Blueprint.allBlueprints()) {
+      final Venue sample = blueprint.createVenue(null);
       final String catName = sample.objectCategory();
       final Category category = categories.get(catName);
       
