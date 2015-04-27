@@ -187,9 +187,8 @@ public class VenuePane extends SelectionPane {
   
   protected void describeStocks(Description d, BaseUI UI) {
     d.append("Stocks and Provisions:");
-    boolean empty = true;
-    //
-    //  Describe supply and demand for power, life support, etc:
+    
+    //  TODO:  Just use stock-demands for both these things?
     for (Traded t : Economy.ALL_PROVISIONS) {
       final float output = v.structure.outputOf(t);
       final float demand = v.stocks.demandFor(t);
@@ -199,81 +198,42 @@ public class VenuePane extends SelectionPane {
       
       if (output > 0) {
         d.append(t+" Output: "+I.shorten(output, 1));
-        empty = false;
       }
       else if (demand > 0) {
         final float supply = v.stocks.amountOf(t);
         d.append(I.shorten(supply, 1)+"/"+I.shorten(demand, 1)+" "+t);
-        empty = false;
       }
     }
-    //
-    //  Then describe conventional items:
-    final Sorting <Item> sortedItems = new Sorting <Item> () {
-      public int compare(Item a, Item b) {
-        if (a.equals(b)) return 0;
-        if (a.type.basePrice() > b.type.basePrice()) return  1;
-        if (a.type.basePrice() < b.type.basePrice()) return -1;
-        if (a.quality > b.quality) return  1;
-        if (a.quality < b.quality) return -1;
-        return 0;
-      }
-    };
-    for (Item item : v.stocks.allItems()) {
-      sortedItems.add(item);
-    }
-    for (Traded type : v.stocks.demanded()) if (v.stocks.amountOf(type) == 0) {
-      sortedItems.add(Item.withAmount(type, 0));
-    }
-    if (sortedItems.size() > 0) empty = false;
-    for (Item item : sortedItems) describeStocks(item, d);
-    //
-    //  And finally, list any special orders:
-    final Sorting <Item> sortedOrders = new Sorting <Item> () {
-      public int compare(Item a, Item b) {
-        if (a.equals(b)) return 0;
-        return v.stocks.amountOf(a) < v.stocks.amountOf(b) ? 1 : -1;
-      }
-    };
-    for (Item ordered : v.stocks.specialOrders()) {
-      sortedOrders.add(ordered);
-    }
-    for (Item i : v.stocks.allItems()) {
-      if (i.type.form == Economy.FORM_MATERIAL ) continue;
-      if (i.type.form == Economy.FORM_PROVISION) continue;
-      if (sortedOrders.includes(i)) continue;
-      sortedOrders.add(i);
+    for (Traded type : ALL_MATERIALS) {
+      describeStocks(type, d);
     }
     
     Text.cancelBullet(d);
-    if (sortedOrders.size() > 0) {
-      empty = false;
-      d.append("\n\nSpecial Orders:");
-      for (Item i : sortedOrders) {
-        d.append("\n  ");
-        i.describeTo(d);
-        if (v.stocks.hasOrderFor(i)) {
-          final float progress = v.stocks.amountOf(i) / 1f;
-          d.append(" ("+((int) (progress * 100))+"%)");
-        }
-      }
+    d.append("\nOther Items:");
+    for (Item i : v.stocks.allItems()) if (! i.isCommon()) {
+      d.append("\n  ");
+      i.describeTo(d);
     }
     
-    if (empty) d.append("\n  No stocks or orders.");
+    Text.cancelBullet(d);
+    d.append("\nSpecial Orders:");
+    for (Item i : v.stocks.specialOrders()) {
+      d.append("\n  ");
+      i.describeTo(d);
+    }
+    //if (empty) d.append("\n  No stocks or orders.");
   }
   
   
-  protected boolean describeStocks(Item item, Description d) {
-    final Traded type = item.type;
-    if (type.form != Economy.FORM_MATERIAL) return false;
+  protected boolean describeStocks(Traded type, Description d) {
+    if (type.form != FORM_MATERIAL) return false;
     
     final float needed = v.stocks.demandFor(type);
     final float amount = v.stocks.amountOf(type);
     if (needed == 0 && amount == 0) return false;
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
-    d.append("  ");
-    item.describeTo(d);
+    d.append("  "+I.shorten(amount, 1)+" "+type.name);
     
     final String nS = I.shorten(needed, 1);
     d.append(" /"+nS);

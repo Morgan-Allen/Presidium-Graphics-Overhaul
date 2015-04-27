@@ -28,6 +28,9 @@ public class BaseAdvice {
       d.append(new Description.Link(o.toString()) {
         public void whenClicked() {
           final MessagePane help = BaseAdvice.messageForNeed(o, played, UI);
+          //
+          //  We include a 'back' link for returning to the main panel.
+          //  TODO:  MAKE THIS A BASIC FUNCTION OF INFO-PANES
           help.detail().append(new Description.Link("\n  Back") {
             public void whenClicked() { UI.setInfoPanels(pane, null); }
           });

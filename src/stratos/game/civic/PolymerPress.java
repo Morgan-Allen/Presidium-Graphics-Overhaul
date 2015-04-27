@@ -34,7 +34,7 @@ public class PolymerPress extends Venue implements TileConstants {
     NURSERY_MODEL = CutoutModel.fromImage(
       PolymerPress.class, IMG_DIR+"polymer_press.png", 3, 1
     );
-
+  
   final public static Conversion
     FLORA_TO_POLYMER = new Conversion(
       PolymerPress.class, "flora_to_polymer",
@@ -48,7 +48,8 @@ public class PolymerPress extends Venue implements TileConstants {
   final static Blueprint BLUEPRINT = new Blueprint(
     PolymerPress.class, "polymer_press", "Polymer Press",
     3, 1, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    FLORA_TO_POLYMER//, CARBS_TO_POLYMER
   );
   
   
@@ -81,12 +82,6 @@ public class PolymerPress extends Venue implements TileConstants {
     areaClaimed.saveTo(s.output());
     s.saveInt        (type        );
   }
-  
-  /*
-  public int owningTier() {
-    return Owner.TIER_FACILITY;
-  }
-  //*/
   
   
   

@@ -223,9 +223,9 @@ public class EcologistStation extends Venue {
     );
     choice.add(d);
     if (choice.empty()) {
-      //  In addition to forestry operations-
+      //  TODO:  Merge with Polymer Press jobs
+      
       choice.add(Forestry.nextPlanting(actor, this));
-      choice.add(Forestry.nextCutting (actor, this));
     }
   }
   

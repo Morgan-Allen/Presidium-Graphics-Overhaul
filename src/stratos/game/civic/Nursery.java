@@ -254,6 +254,11 @@ public class Nursery extends Venue implements TileConstants {
     final int s = Nums.round(t.world.size, 6, true);  //  Modulus offset.
     final Tile o = origin();
     
+    for (Tile n : t.allAdjacent(null)) {
+      if (n == null) return -1;
+      if (n.onTop() instanceof Venue && n.onTop() != this) return -1;
+    }
+    
     if (footprint().contains(t.x, t.y)) return -1;
     if (across) {
       if ((t.x + s - o.x) % 3 == 2) return -1;

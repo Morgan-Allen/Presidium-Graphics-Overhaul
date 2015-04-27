@@ -359,6 +359,7 @@ public class Stocks extends Inventory {
         I.say("  Updating channel for "+d.type+" (producer "+d.producer+")");
         I.say("    Current amount:    "+amount);
         I.say("    Open for delivery: "+available);
+        I.say("    Maximum supply:    "+maxSupply);
       }
 
       if (! d.fixed) d.demandAmount = d.demandBonus / period;
@@ -372,6 +373,7 @@ public class Stocks extends Inventory {
         if (! d.fixed) {
           float minSupply = Nums.ceil(demandEst + shortage);
           d.demandAmount += Nums.min (minSupply, maxSupply);
+          if (report) I.say("    Demand amount is:  "+d.demandAmount);
         }
         final float supplyEst = (d.demandAmount + amount) / 2;
         if (report) {

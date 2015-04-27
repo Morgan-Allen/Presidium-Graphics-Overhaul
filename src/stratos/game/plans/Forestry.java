@@ -361,7 +361,7 @@ public class Forestry extends Plan {
   }
   
   
-  public boolean actionReturnSample(Actor actor, Venue depot) {
+  public boolean actionStoreSamples(Actor actor, Venue depot) {
     if (stepsVerbose) I.say("RETURNING SAMPLES TO "+depot);
     
     for (Item seed : actor.gear.matches(seedMatch())) {

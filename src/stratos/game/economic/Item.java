@@ -166,6 +166,11 @@ public class Item {
   }
   
   
+  public boolean isCommon() {
+    return type.form == FORM_MATERIAL || type.form == FORM_PROVISION;
+  }
+  
+  
   
   /**  Matching/equality functions-
     */
