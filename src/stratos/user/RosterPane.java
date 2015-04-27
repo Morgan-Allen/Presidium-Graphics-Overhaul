@@ -81,12 +81,11 @@ public class RosterPane extends SelectionPane {
   }
   
   
-  
   private Batch <Actor> listApplied(Base base) {
     final Batch <Actor> applied = new Batch <Actor> ();
     for (Actor a : base.commerce.allCandidates()) {
-      final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
-      if (findWork == null || findWork.wasHired() || ! findWork.canApply()) {
+      final FindWork finds = (FindWork) a.matchFor(FindWork.class, false);
+      if (finds == null || finds.wasHired() || ! finds.canOrDidApply()) {
         continue;
       }
       applied.add(a);

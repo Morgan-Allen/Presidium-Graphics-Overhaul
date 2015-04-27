@@ -19,7 +19,7 @@ public class SolidSprite extends Sprite {
   
   
   final static float ANIM_INTRO_TIME = 0.2f;
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   
   final public SolidModel model;
@@ -279,7 +279,9 @@ public class SolidSprite extends Sprite {
       }
       else hideMask(np, true);
     }
-    if (! match) I.say("  WARNING:  No matching model part: "+partID);
+    if (verbose && ! match) {
+      I.say("  WARNING:  No matching model part: "+partID);
+    }
   }
   
   
@@ -291,7 +293,7 @@ public class SolidSprite extends Sprite {
         return;
       }
     }
-    I.say("  WARNING:  No matching model part: "+partID);
+    if (verbose) I.say("  WARNING:  No matching model part: "+partID);
   }
 }
 

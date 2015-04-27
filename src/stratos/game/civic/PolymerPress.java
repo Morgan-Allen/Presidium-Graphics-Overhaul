@@ -31,7 +31,7 @@ public class PolymerPress extends Venue implements TileConstants {
     PolymerPress.class, "media/GUI/Buttons/polymer_press_button.gif"
   );
   final static ModelAsset
-    NURSERY_MODEL = CutoutModel.fromImage(
+    MODEL = CutoutModel.fromImage(
       PolymerPress.class, IMG_DIR+"polymer_press.png", 3, 1
     );
   
@@ -66,7 +66,7 @@ public class PolymerPress extends Venue implements TileConstants {
       Structure.TYPE_FIXTURE
     );
     staff.setShiftType(SHIFTS_BY_DAY);
-    attachModel(NURSERY_MODEL);
+    attachModel(MODEL);
   }
   
   

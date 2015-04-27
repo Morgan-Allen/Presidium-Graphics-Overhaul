@@ -19,7 +19,6 @@ public class Label extends SFX {
   };
   
   final static Alphabet FONT = UIConstants.INFO_FONT;
-  //final static float FONT_SCALE = 1.0f;
   
   public String phrase = "";
   public float fontScale = 0.8f;

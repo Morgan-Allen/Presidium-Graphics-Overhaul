@@ -142,6 +142,7 @@ public class StartupScenario extends Scenario {
       s.saveObject(b);
       s.saveInt((int) config.crew.valueFor(b));
     }
+    s.saveInt(config.built.size());
     for (Blueprint b : config.built.keys()) {
       s.saveObject(b);
       s.saveFloat(config.built.valueFor(b));

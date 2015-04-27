@@ -4,10 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import static stratos.start.SaveUtils.deleteAllLaterSaves;
 import stratos.game.common.*;
 import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.HUD;
 import stratos.util.*;
+
 import java.io.File;
 
 
@@ -17,12 +19,12 @@ public class SaveUtils {
   
   final static String
     SAVES_DIR    = "saves/",
-    EXT          = ".rep" ,
-    PAD_NAME     = "I"    ,
-    DIVIDER      = ": "   ,
-    DAYS_SEP     = ", "   ,
-    DAY_LABEL    = "Day"  ,
-    HOURS_LABEL  = "Hours";
+    EXT          = ".rep"  ,
+    PAD_NAME     = "I"     ,
+    DIVIDER      = "- "    ,
+    DAYS_SEP     = ", "    ,
+    DAY_LABEL    = "Day"   ,
+    HOURS_LABEL  = "Hours" ;
   
   
   public static String fullSavePath(String prefix, String suffix) {
@@ -34,6 +36,7 @@ public class SaveUtils {
   
   
   public static String suffixFor(String fullPath) {
+    fullPath = inSavesFolder(fullPath);
     final int split = fullPath.indexOf(DIVIDER);
     int start = split + DIVIDER.length();
     int end = fullPath.length() - EXT.length();
@@ -42,6 +45,7 @@ public class SaveUtils {
   
   
   public static String prefixFor(String fullPath) {
+    fullPath = inSavesFolder(fullPath);
     final int split = fullPath.indexOf(DIVIDER);
     return fullPath.substring(0, split);
   }
@@ -49,9 +53,16 @@ public class SaveUtils {
   
   public static boolean saveExists(String saveFile) {
     if (saveFile == null) return false;
+    saveFile = inSavesFolder(saveFile);
     final File file = new File(SAVES_DIR+saveFile);
     if (! file.exists()) return false;
     else return true;
+  }
+  
+  
+  public static String inSavesFolder(String fullPath) {
+    if (! fullPath.startsWith(SAVES_DIR)) return fullPath;
+    return fullPath.substring(SAVES_DIR.length(), fullPath.length());
   }
   
   
@@ -140,9 +151,13 @@ public class SaveUtils {
   
   
   public static void deleteAllLaterSaves(String saveFile) {
+    saveFile = inSavesFolder(saveFile);
+    I.say("DELETING ALL SAVES AFTER "+saveFile);
+    
     final String prefix = prefixFor(saveFile);
     boolean matchFound = false;
     for (String fileName : savedFiles(prefix)) {
+      I.say("  CURRENT SAVE IS: "+fileName+", MATCH? "+matchFound);
       if (matchFound) new File(SAVES_DIR+fileName).delete();
       if (fileName.equals(saveFile)) matchFound = true;
     }
@@ -167,6 +182,7 @@ public class SaveUtils {
     final String saveFile, final boolean fromMenu
   ) {
     PlayLoop.sessionStateWipe();
+    deleteAllLaterSaves(saveFile);
     
     final String fullPath = SAVES_DIR+saveFile;
     I.say("Should be loading game from: "+fullPath);

@@ -184,7 +184,7 @@ public class PlanUtils {
   /**  Exploring priority- should range from 0 to 20.
     */
   public static float explorePriority(
-    Actor actor, Target surveyed, float rewardBonus
+    Actor actor, Target surveyed, float rewardBonus, float competence
   ) {
     float incentive = 0, novelty = 0, priority = 0, exploreChance = 0;
     
@@ -193,18 +193,19 @@ public class PlanUtils {
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
     
-    exploreChance = actor.health.baseSpeed();
+    exploreChance = actor.health.baseSpeed() * competence;
     exploreChance *= 2 / (1 + homeDistanceFactor(actor, surveyed));
     
     incentive = (novelty * 5) + rewardBonus;
     incentive *= 1 + actor.traits.relativeLevel(Qualities.CURIOUS);
     
-    priority = incentive * exploreChance;
-
+    priority = incentive * Nums.clamp(exploreChance, 0, 1);
+    
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
       "surveyed"      , surveyed     ,
       "reward bonus"  , rewardBonus  ,
+      "competence"    , competence   ,
       "incentive"     , incentive    ,
       "novelty"       , novelty      ,
       "explore chance", exploreChance,

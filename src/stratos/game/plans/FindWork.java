@@ -186,7 +186,7 @@ public class FindWork extends Plan {
   
   
   public void confirmApplication() {
-    if (wasHired() || ! canApply()) return;
+    if (wasHired() || ! canOrDidApply()) return;
     employer.staff().confirmApplication(this);
   }
   

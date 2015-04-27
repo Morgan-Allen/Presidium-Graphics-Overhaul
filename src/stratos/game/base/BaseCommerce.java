@@ -215,35 +215,30 @@ public class BaseCommerce {
     if (report) I.say("\nTotal candidates "+candidates.size());
     
     for (ListEntry <Actor> e = candidates; (e = e.nextEntry()) != candidates;) {
-      final Human c = (Human) e.refers;
-      
-      final Background a = c.mind.vocation();
-      final FindWork b = FindWork.attemptFor(c, a, base);
+      //
+      //  If there's a successful application, enter it.
+      final Actor      actor = e.refers;
+      final Background job   = actor.mind.vocation();
+      final FindWork   finds = FindWork.attemptFor(actor, job, base);
       float quitChance = TIME_SLICE;
-      if (report) I.say("  Updating "+c+" ("+a+")");
-      
-      if      (c.inWorld ()) quitChance = 1;
-      else if (b.wasHired()) quitChance = 0;
-      else if (a != null) {
+      if (finds == null || finds.wasHired()) {
+        quitChance = 1;
+      }
+      else {
         final float
-          supply = jobSupply.valueFor(a),
-          demand = base.demands.globalDemand(a),
+          supply = jobSupply.valueFor(job),
+          demand = base.demands.globalDemand(job),
           total  = supply + demand;
         if (total > 0) quitChance *= supply / total;
-        if (report) {
-          I.say("    Quit chance: "+quitChance);
-          I.say("    Supply/demand "+supply+" / "+demand);
-        }
+        finds.enterApplication();
+        if (report) I.say("  "+actor+" ("+job+") applying: "+finds.employer());
       }
-      
-      if (a == null || b == null || Rand.num() < quitChance) {
-        if (report) I.say("    Quitting...");
+      //
+      //  Otherwise, quit chance is based on relative abundance.
+      if (Rand.num() <= quitChance) {
+        if (finds != null) finds.cancelApplication();
         candidates.removeEntry(e);
-        if (b != null) b.cancelApplication();
-      }
-      else if (b != null && b.position() != null) {
-        if (report) I.say("    Applying at: "+b.employer());
-        b.enterApplication();
+        if (report) I.say("  "+actor+" ("+job+") quitting...");
       }
     }
   }

@@ -218,7 +218,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
     try {
       loadProgress = 0;
       lastSaveTime = world.currentTime();
-      SaveUtils.deleteAllLaterSaves(saveFile);
       Session.saveSession(world, this, saveFile);
       afterSaving();
       loadProgress = 1;
