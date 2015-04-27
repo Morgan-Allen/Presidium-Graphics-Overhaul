@@ -55,7 +55,7 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class RunnerLodge extends Venue {
+public class RunnerMarket extends Venue {
   
   
   /**  Setup and constructors-
@@ -65,7 +65,7 @@ public class RunnerLodge extends Venue {
     EcologistStation.class, "media/GUI/Buttons/runner_market_button.gif"
   );
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    RunnerLodge.class, IMG_DIR+"runner_market.png", 4, 3
+    RunnerMarket.class, IMG_DIR+"runner_market.png", 4, 3
   );
   
   final static int
@@ -86,7 +86,7 @@ public class RunnerLodge extends Venue {
     CLAIM_SIZE = 8;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    RunnerLodge.class, "runner_lodge", "Runner Market",
+    RunnerMarket.class, "runner_market", "Runner Market",
     4, 2, IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -94,7 +94,7 @@ public class RunnerLodge extends Venue {
   private int gangID = GANG_NONE;
   
   
-  public RunnerLodge(Base base) {
+  public RunnerMarket(Base base) {
     super(BLUEPRINT, base);
     structure.setupStats(
       150, 3, 250,
@@ -105,7 +105,7 @@ public class RunnerLodge extends Venue {
   }
   
   
-  public RunnerLodge(Session s) throws Exception {
+  public RunnerMarket(Session s) throws Exception {
     super(s);
     gangID = s.loadInt();
   }
@@ -124,27 +124,27 @@ public class RunnerLodge extends Venue {
   
   final static Traded
     NEURAL_IMPLANT = new Traded(
-      RunnerLodge.class, "Neural Implant", null, Economy.FORM_USABLE, 100,
+      RunnerMarket.class, "Neural Implant", null, Economy.FORM_USABLE, 100,
       "Neural implants boost cognitive ability and may allow hacking of "+
       "simple drones and cybrids."
     ),
     KINETIC_IMPLANT = new Traded(
-      RunnerLodge.class, "Kinetic Implant", null, Economy.FORM_USABLE, 120,
+      RunnerMarket.class, "Kinetic Implant", null, Economy.FORM_USABLE, 120,
       "Kinetic implants boost strength and dexterity, together with a degree "+
       "of natural armour."
     ),
     SIMSTIMS = new Traded(
-      RunnerLodge.class, "Simstims", null, Economy.FORM_SPECIAL, 45,
+      RunnerMarket.class, "Simstims", null, Economy.FORM_SPECIAL, 45,
       "Simstims provide voyeuristic virtual entertainment to the masses."
     ),
     
     FAST_TOXIN = new Traded(
-      RunnerLodge.class, "Fast Toxin", null, Economy.FORM_USABLE, 85,
+      RunnerMarket.class, "Fast Toxin", null, Economy.FORM_USABLE, 85,
       "A fast-acting poison suitable for application to melee or kinetic "+
       "weaponry."
     ),
     SLOW_BURN = new Traded(
-      RunnerLodge.class, "Slow Burn", null, Economy.FORM_USABLE, 55,
+      RunnerMarket.class, "Slow Burn", null, Economy.FORM_USABLE, 55,
       "An addictive narcotic that greatly accelerates reaction times and "+
       "perception."
     ),
@@ -156,21 +156,21 @@ public class RunnerLodge extends Venue {
     //  Yes.  Work that out.
     
     SNIPER_KIT = new Traded(
-      RunnerLodge.class, "Sniper Kit", null, Economy.FORM_USABLE, 90,
+      RunnerMarket.class, "Sniper Kit", null, Economy.FORM_USABLE, 90,
       "Allows ranged attacks at far greater distances, particularly if the "+
       "target is surprised."
     ),
     STICKY_BOMB = new Traded(
-      RunnerLodge.class, "Sticky Bomb", null, Economy.FORM_USABLE, 35,
+      RunnerMarket.class, "Sticky Bomb", null, Economy.FORM_USABLE, 35,
       "Deals heavy damage to vehicles and buildings, if attached at point-"+
       "blank range."
     ),
     NIGHT_OPTICS = new Traded(
-      RunnerLodge.class, "Night Optics", null, Economy.FORM_USABLE, 25,
+      RunnerMarket.class, "Night Optics", null, Economy.FORM_USABLE, 25,
       "Allows extended sight range in space or nocturnal conditions."
     ),
     GHOST_CAMO = new Traded(
-      RunnerLodge.class, "Ghost Camo", null, Economy.FORM_USABLE, 40,
+      RunnerMarket.class, "Ghost Camo", null, Economy.FORM_USABLE, 40,
       "Improves stealth and cover in daytime or outdoor environments."
     );
   
@@ -284,7 +284,7 @@ public class RunnerLodge extends Venue {
   
   
   public String objectCategory() {
-    return InstallationPane.TYPE_COMMERCE;
+    return UIConstants.TYPE_SECURITY;
   }
 }
 

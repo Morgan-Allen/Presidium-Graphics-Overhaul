@@ -21,8 +21,8 @@ public class ServiceHatch extends Venue {
   
   /**  Data fields, constructors and save/load methods:
     */
-  final public static ModelAsset MODEL = CutoutModel.fromImage(
-    ServiceHatch.class, "media/Buildings/civilian/access_hatch_0.png", 2, 1
+  final public static ModelAsset MODEL = CutoutModel.fromSplatImage(
+    ServiceHatch.class, "media/Buildings/civilian/access_hatch_2.png", 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
@@ -30,10 +30,9 @@ public class ServiceHatch extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     ServiceHatch.class, "service_hatch", "Service Hatch",
-    2, 1, IS_NORMAL,
+    2, 1, IS_FIXTURE,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE
   );
-  
   
   
   public ServiceHatch(Base base) {
@@ -56,6 +55,11 @@ public class ServiceHatch extends Venue {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+  }
+  
+  
+  public int pathType() {
+    return Tile.PATH_ROAD;
   }
   
   
@@ -127,7 +131,7 @@ public class ServiceHatch extends Venue {
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_HIDDEN;
+    return UIConstants.TYPE_ENGINEER;
   }
 }
 

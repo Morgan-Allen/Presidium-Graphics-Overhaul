@@ -90,7 +90,8 @@ public class Ecology {
   
   public float biomassRating(Tile t) {
     checkMapsInit();
-    return abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE) * 4;
+    float sample = abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE) * 4;
+    return sample / (Stage.SECTOR_AREA * 4);
   }
   
   
@@ -103,7 +104,7 @@ public class Ecology {
   public float forestRating(Tile t) {
     checkMapsInit();
     float fertility = world.terrain().fertilitySample(t);
-    float foresting = abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE);
+    float foresting = biomassRating(t) * 2f / Flora.MAX_GROWTH;
     if (fertility <= 0) return 1;
     return Nums.clamp(foresting / fertility, 0, 2);
   }

@@ -26,9 +26,6 @@ import java.lang.reflect.*;
   final public Background careers  [];
   final public Conversion services [];
   //*/
-
-//  TODO:  Get rid of entry-face and allow structures being placed to find
-//  their own.
  
 
 public class Blueprint extends Index.Entry implements Session.Saveable {

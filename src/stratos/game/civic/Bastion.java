@@ -118,6 +118,12 @@ public class Bastion extends Venue {
     rating *= midRating;
     
     if (Placement.checkAreaClear(areaClaimed(), world)) rating *= 2;
+    //
+    //  TODO:  You also want to be far away from hostile venues...
+    Venue nearest = (Venue) world.presences.nearestMatch(Venue.class, at, -1);
+    if (nearest != null) {
+      
+    }
     
     return rating;
     /*

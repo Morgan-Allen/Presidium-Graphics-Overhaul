@@ -35,7 +35,7 @@ public class EcologistStation extends Venue {
     */
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    EcologistStation.class, "media/GUI/Buttons/nursery_button.gif"
+    EcologistStation.class, "media/GUI/Buttons/ecologist_station_button.gif"
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(

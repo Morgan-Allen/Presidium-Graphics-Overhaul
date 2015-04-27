@@ -131,31 +131,10 @@ public class Exploring extends Plan implements Qualities {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    //
-    //  Make this less attractive as you get further from home/safety.
-    float basePriority = CASUAL * Planet.dayValue(actor.world());
-    final Target haven = actor.senses.haven();
-    float distFactor = (haven == null) ? 0 :
-      Plan.rangePenalty(actor.base(), haven, actor)
-    ;
-    if (type == TYPE_WANDER) basePriority = IDLE   ;
-    if (type == TYPE_SURVEY) basePriority += CASUAL;
-    
-    if (report) {
-      I.say("\nExtra parameters for "+this);
-      I.say("  Base priority:         "+basePriority);
-      I.say("  Haven distance factor: "+distFactor  );
-    }
-    final float priority = priorityForActorWith(
-      actor, lookedAt,
-      basePriority, 0 - (distFactor + 0),
-      NO_HARM, MILD_COMPETITION,
-      NO_FAIL_RISK, BASE_SKILLS,
-      BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
-      report
-    );
-    return priority;
+    float reward = motiveBonus();
+    if (type == TYPE_WANDER) reward += IDLE;
+    else reward += CASUAL * Planet.dayValue(actor.world());
+    return PlanUtils.explorePriority(actor, lookedAt, reward);
   }
   
   

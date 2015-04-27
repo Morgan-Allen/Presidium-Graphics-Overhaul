@@ -30,6 +30,9 @@ public class Nursery extends Venue implements TileConstants {
   protected static boolean verbose = false;
   
   final static String IMG_DIR = "media/Buildings/ecologist/";
+  final static ImageAsset ICON = ImageAsset.fromImage(
+    Nursery.class, "media/GUI/Buttons/nursery_button.gif"
+  );
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
       Nursery.class, IMG_DIR+"nursery.png", 2, 2
@@ -341,7 +344,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(EcologistStation.ICON, "plantation");
+    return Composite.withImage(ICON, "plantation");
   }
   
   

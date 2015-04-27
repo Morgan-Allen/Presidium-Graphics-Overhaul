@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.Placement;
+import stratos.game.plans.Patrolling;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -233,6 +234,16 @@ public class ShieldWall extends Venue {
   public void exitWorld() {
     refreshAdjacent();
     super.exitWorld();
+  }
+  
+  
+  public boolean allowsEntry(Mobile m) {
+    if (isGate()) return super.allowsEntry(m);
+    if (! (m instanceof Actor)) return false;
+    final Actor a = (Actor) m;
+    if (a.aboard() instanceof ShieldWall) return true;
+    if (a.planFocus(null, true) instanceof ShieldWall) return true;
+    return false;
   }
   
   

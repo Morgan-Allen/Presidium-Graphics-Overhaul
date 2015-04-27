@@ -185,6 +185,7 @@ public class EngineerStation extends Venue {
       
       choice.add(mO);
     }
+    if (! choice.empty()) return choice.pickMostUrgent();
     
     //  Consider the production of general bulk commodities-
     final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS);

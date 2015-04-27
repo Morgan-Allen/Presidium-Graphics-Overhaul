@@ -141,7 +141,7 @@ public class PathingCache {
     //*
     if (Spacing.distance(initB, destB) <= Stage.SECTOR_SIZE * 2) {
       if (reports) I.say(
-        "Using simple agenda-bounded pathing between "+initB+" "+destB
+        "\nUsing simple agenda-bounded pathing between "+initB+" "+destB
       );
       final PathSearch search = new PathSearch(initB, destB, true);
       search.assignClient(client);
@@ -151,14 +151,15 @@ public class PathingCache {
       if (path != null) return path;
     }
     final Place placesPath[] = placesBetween(initB, destB, client, reports);
-    
-    if (placesPath != null && placesPath.length < 3) {
+
+    if (placesPath != null && placesPath.length >= 3) {
       if (reports) I.say(
-        "Using full cordoned path-search between "+initB+" "+destB
+        "\nUsing partial cordoned path-search between "+initB+" "+destB
       );
       final PathSearch search = cordonedSearch(
-        initB, destB, placesPath[0].caching.section,
-        placesPath[placesPath.length - 1].caching.section
+        initB, destB,
+        placesPath[0].caching.section,
+        placesPath[2].caching.section
       );
       search.assignClient(client);
       search.verbose = reports;
@@ -166,9 +167,9 @@ public class PathingCache {
       path = search.fullPath(Boarding.class);
       if (path != null) return path;
     }
-    if (placesPath != null) {
+    if (placesPath != null && placesPath.length < 3) {
       if (reports) I.say(
-        "Using partial cordoned path-search between "+initB+" "+destB
+        "\nUsing full cordoned path-search between "+initB+" "+destB
       );
       final PathSearch search = fullPathSearch(
         initB, destB, placesPath, maxLength
@@ -181,7 +182,7 @@ public class PathingCache {
     }
     if (path == null) {
       if (reports) I.say(
-        "Resorting to agenda-bounded pathfinding between "+initB+" "+destB
+        "\nResorting to agenda-bounded pathfinding between "+initB+" "+destB
       );
       final PathSearch search = new PathSearch(initB, destB, true);
       search.assignClient(client);
@@ -534,7 +535,9 @@ public class PathingCache {
   private Place[] placesPath(
     final Place init, final Place dest, boolean reports
   ) {
-    if (printSearch) I.say("Searching from "+init.core+" to "+dest.core);
+    if (reports) {
+      I.say("\nSearching for place path between "+init.core+" and "+dest.core);
+    }
     
     final Search <Place> search = new Search <Place> (init, -1) {
       

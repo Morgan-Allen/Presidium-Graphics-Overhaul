@@ -24,7 +24,8 @@ public abstract class Actor extends Mobile implements
   /**  Field definitions, constructors and save/load functionality-
     */
   private static boolean
-    verbose = false;
+    verbose    = false,
+    bigVerbose = false;
   
   final public ActorHealth health = new ActorHealth(this);
   final public ActorTraits traits = new ActorTraits(this);
@@ -247,18 +248,18 @@ public abstract class Actor extends Mobile implements
     final Action action = actionTaken;
     
     boolean needsBigUpdate = false;
-    if (report) I.say("\nUpdating actor as mobile, action: "+action);
+    if (report) I.say("\nUpdating "+this+" as mobile, action: "+action);
     
     if (action != null) action.updateAction(OK, this);
     
     if (action == null || ! OK) pathing.updateTarget(null);
     else if (! pathing.checkPathingOkay()) {
-      if (report) I.say("\n"+this+" needs fresh pathing.");
+      if (report) I.say("  Needs fresh pathing!");
       needsBigUpdate = true;
     }
     
     if (action != null && ! Plan.canFollow(this, action)) {
-      if (report) I.say("\n"+this+" has completed action: "+action);
+      if (report) I.say("  Have completed action: "+action);
       assignAction(null);
       needsBigUpdate = true;
     }
@@ -268,6 +269,7 @@ public abstract class Actor extends Mobile implements
       aboard.position(nextPosition);
     }
     if (needsBigUpdate) {
+      if (report) I.say("  SCHEDULING BIG UPDATE");
       world.schedule.scheduleNow(this);
     }
   }
@@ -275,7 +277,7 @@ public abstract class Actor extends Mobile implements
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    final boolean report = I.talkAbout == this && verbose;
+    final boolean report = I.talkAbout == this && bigVerbose;
     //
     //  Check to see what our current condition is-
     final float time = world.currentTime() - lastUpdate;

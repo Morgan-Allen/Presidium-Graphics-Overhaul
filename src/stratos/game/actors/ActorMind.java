@@ -389,9 +389,12 @@ public abstract class ActorMind implements Qualities {
   
   
   public void cancelBehaviour(Behaviour b, String cause) {
-    final boolean report = I.talkAbout == actor && warnVerbose;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     if (! agenda.includes(b)) return;
-    if (report) I.say("\nCANCELLING "+b+", CAUSE: "+cause);
+    if (report) {
+      I.say("\nCANCELLING "+b+", CAUSE: "+cause);
+      if (warnVerbose) I.reportStackTrace();
+    }
     while (agenda.size() > 0) {
       final Behaviour popped = popBehaviour(null, cause);
       if (popped == b) break;

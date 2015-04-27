@@ -114,7 +114,7 @@ public class DebugCommerce extends Scenario {
     base.commerce.scheduleDrop(5);
     
     final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
-    final Venue runnerMarket = new RunnerLodge(base);
+    final Venue runnerMarket = new RunnerMarket(base);
     Placement.establishVenue(runnerMarket, 10,  5, true, world, runner);
     
     final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);

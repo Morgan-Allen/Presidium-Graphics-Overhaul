@@ -15,8 +15,6 @@ import stratos.util.*;
 //  TODO:  Disable shipping until the player is ready, and allow for multiple
 //         ships with multiple airfields.
 
-//  TODO:  Sort out uncertainty over sources for polymer.
-
 /*
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
@@ -93,9 +91,6 @@ CITIZEN BEHAVIOUR-
 *  Hide-and-seek needs to be more effective (for retreat, looting and combat.)
 
 *  Figure out entry-permissions for structures and guests, and/or sieges.
-
-*  There may be a bug with farming/flora-sampling being interrupted, but I
-   can't seem to reproduce it.  Keep an eye out.
 
 
 CONTROL AND DIRECTION-

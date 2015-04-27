@@ -196,7 +196,6 @@ public class Action implements Behaviour, AnimNames {
     final boolean report = verbose && I.talkAbout == actor;
     progress = -1;
     moveState = STATE_INIT;
-    //actor.mind.cancelBehaviour(this);
     actor.assignAction(null);
     if (report) {
       I.say("\nCancelling action: "+this);
@@ -206,6 +205,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   public boolean valid() {
+    if (progress >= contactTime()) return true;
     return
       actor.inWorld() && moveTarget.inWorld() &&
       ! actionTarget.destroyed();

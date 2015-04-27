@@ -3,27 +3,30 @@
 
 Topics should have a 'completion' method that they can use to determine when to close (if they haven't been dismissed already.)
 
+There's an 8-minute time delay, which is a significant problem for a quick tutorial.  You'll need to schedule faster arrival.  You also need to guarantee a better starting position for the artilects- somewhere far away.
+
+
+*  Building.
+*  Hiring & Migration.
+*  Upgrades.
+*  Housing & Relocation.
+*  Imports & Exports.
+*  Taxation & Enforcement.
+
+*  Recon    Missions & Samples.
+*  Strike   Missions & Bounties.
+*  Security Missions & Claims.
+*  Contact  Missions & Pledges.
+*  Psy Powers & Direct Leadership.
+*  Objectives.
+
+*  The ability to lead missions in person would allow the player to head off on a quick errand, return to the settlement later, and find time-consuming tasks completed.  That could potentially be very attractive.
 
 
 
 
 
-  
-  if (title.equals(TOPIC_NAVIGATION)) {
-    return comms.addMessage(
-      tutorial, TOPIC_NAVIGATION, null,
-      "To move your viewpoint, either click on a selectable object (such as "+
-      "a structure, person, or point of terrain,) or click on the minimap. "+
-      "You can also use the WASD keys.  Clicking also displays information "+
-      "about most objects.\n"+
-      "From left to right at the top of the screen, you can see the Game "+
-      "Options button, Finance report, Personnel tab, Construction tab, "+
-      "and the Communication tab (where you can find messages like this "+
-      "one.",
-      linkFor("Okay, that helps.", TOPIC_OBJECTIVES)
-    );
-  }
-  
+
   if (title.equals(TOPIC_SECURITY)) {
     return comms.addMessage(
       tutorial, TOPIC_SECURITY, null,

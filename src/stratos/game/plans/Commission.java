@@ -17,6 +17,10 @@ import static stratos.game.economic.Economy.*;
 //  Purchase rations, fuel cells, ammo or medkits.
 
 
+//  TODO:  Stocks should be storing a list of Commissions, and checking if
+//  those have expired...
+
+
 public class Commission extends Plan {
   
   
@@ -27,7 +31,9 @@ public class Commission extends Plan {
     evalVerbose  = false,
     stepsVerbose = false;
   
-  final static int EXPIRE_TIME = Stage.STANDARD_DAY_LENGTH * 2;
+  final static int
+    EXPIRE_TIME = Stage.STANDARD_DAY_LENGTH * 2,
+    MAX_ORDERS  = 4;
   
   final Item item;
   final Venue shop;
@@ -105,6 +111,7 @@ public class Commission extends Plan {
     Actor actor, Venue makes, Item baseItem
   ) {
     if (baseItem == null || ! makes.openFor(actor)) return null;
+    if (makes.stocks.specialOrders().size() >= MAX_ORDERS) return null;
 
     final boolean report = evalVerbose && I.talkAbout == actor;
     final int baseQuality = (int) baseItem.quality;
@@ -114,9 +121,12 @@ public class Commission extends Plan {
     Item upgrade = null;
     
     while (--quality > 0) {
+      //
+      //  TODO:  Unify this with the priority-eval methods below!
       upgrade = Item.withQuality(baseItem.type, quality);
       final float price = upgrade.priceAt(makes);
-      if (price >= actor.gear.allCredits()) continue;
+      final boolean done = makes.stocks.hasItem(upgrade);
+      if (price >= actor.gear.allCredits() && ! done) continue;
       if (quality <= baseQuality) continue;
       
       added = new Commission(actor, upgrade, makes);
@@ -153,14 +163,22 @@ public class Commission extends Plan {
     //  Include effects of pricing and quality-
     final float price = calcPrice();
     float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
-    if (orderDate == -1) {
-      if (price > actor.gear.allCredits()) {
-        if (report) I.say("  Can't afford item.");
-        return 0;
-      }
+    if (price > actor.gear.allCredits() && ! done) {
+      if (report) I.say("  Can't afford item.");
+      return 0;
+    }
+    //
+    //  If the item isn't finished yet, reduce eagerness to buy based on cost.
+    //  And if the order isn't placed yet, try to avoid venues that have a lot
+    //  of orders placed...
+    if (! done) {
       modifier -= actor.motives.greedPriority(price / ITEM_WEAR_DURATION);
     }
-    
+    if (orderDate == -1 && ! done) {
+      modifier -= shop.stocks.specialOrders().size() * ROUTINE / MAX_ORDERS;
+    }
+    //
+    //  Summarise and return.
     final float priority = priorityForActorWith(
       actor, shop,
       ROUTINE, modifier,
@@ -215,13 +233,9 @@ public class Commission extends Plan {
     if (! shop.structure.intact()) return null;
     
     if (expired()) {
-      if (report) I.say("  Getting refund: "+(int) calcPrice()+" credits");
-      final Action refund = new Action(
-        actor, shop,
-        this, "actionCollectRefund",
-        Action.TALK_LONG, "Getting refund for "
-      );
-      return refund;
+      if (report) I.say("  Commission has expired.");
+      delivered = true;
+      return null;
     }
     
     if (shop.stocks.hasItem(item)) {
@@ -252,10 +266,6 @@ public class Commission extends Plan {
     
     shop.stocks.addSpecialOrder(item);
     orderDate = shop.world().currentTime();
-    
-    final int price = (int) calcPrice();
-    shop .inventory().incCredits(    price);
-    actor.inventory().incCredits(0 - price);
     return true;
   }
   
@@ -264,16 +274,10 @@ public class Commission extends Plan {
     shop.inventory().removeMatch(item);
     actor.inventory().addItem(item);
     shop.stocks.deleteSpecialOrder(item);
-    delivered = true;
-    return true;
-  }
-  
-  
-  public boolean actionCollectRefund(Actor actor, Venue shop) {
+    
     final int price = (int) calcPrice();
-    shop .inventory().incCredits(0 - price);
-    actor.inventory().incCredits(    price);
-    shop.stocks.deleteSpecialOrder(item);
+    shop .inventory().incCredits(    price);
+    actor.inventory().incCredits(0 - price);
     delivered = true;
     return true;
   }

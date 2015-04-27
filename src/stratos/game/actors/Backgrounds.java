@@ -697,7 +697,8 @@ public interface Backgrounds {
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, LEARNING, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
       NOVICE, SUGGESTION, PREMONITION, PROJECTION,
-      SOMETIMES, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS
+      SOMETIMES, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS,
+      STEEL_DIRK, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -716,7 +717,8 @@ public interface Backgrounds {
       EXPERT, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, PRACTICED, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
       LEARNING, SUGGESTION, PREMONITION, PROJECTION,
-      OFTEN, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS
+      OFTEN, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS,
+      STEEL_DIRK, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -735,7 +737,8 @@ public interface Backgrounds {
       MASTER, HAND_TO_HAND, BATTLE_TACTICS, SHIELD_AND_ARMOUR, COMMAND,
       NOBLE_ETIQUETTE, EXPERT, ACCOUNTING, ANCIENT_LORE, COMMON_CUSTOM,
       PRACTICED, SUGGESTION, PREMONITION, PROJECTION,
-      ALWAYS, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS
+      ALWAYS, PSYONIC, OFTEN, TRADITIONAL, RARELY, NERVOUS,
+      STEEL_DIRK, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -760,7 +763,8 @@ public interface Backgrounds {
       CLASS_STRATOI, NOT_A_GUILD,
       PRACTICED, COMMAND, SUASION, LEARNING, EROTICS, MASQUERADE, DOMESTICS,
       RARELY, IMPASSIVE, STUBBORN, OFTEN, AMBITIOUS, ACQUISITIVE,
-      SOMETIMES, POSITIVE, ALWAYS, HANDSOME
+      SOMETIMES, POSITIVE, ALWAYS, HANDSOME,
+      FINERY, MODUS_LUTE
     ) {
       final ImageAsset
         male_skin     = costumeFor ("highborn_male_skin.gif"),
@@ -788,15 +792,17 @@ public interface Backgrounds {
       "NO DESCRIPTION YET",
       "vendor_skin.gif", "vendor_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
-      EXPERT, ACCOUNTING, PRACTICED, SOCIAL_HISTORY, COUNSEL, SUASION
+      EXPERT, ACCOUNTING, PRACTICED, SOCIAL_HISTORY, COUNSEL, SUASION,
+      FINERY
     ),
     WAR_MASTER = new Background(
       Backgrounds.class, "War Master",
       "NO DESCRIPTION YET",
-      "highborn_male_skin.gif", "militant_portrait.png",
+      "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
-      SURVEILLANCE, MARKSMANSHIP
+      SURVEILLANCE, MARKSMANSHIP,
+      STEEL_DIRK, BLASTER, BODY_ARMOUR
     ),
     
     

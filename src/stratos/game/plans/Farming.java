@@ -275,8 +275,6 @@ public class Farming extends Plan {
   
   
   private Species pickSpecies(Tile t, boolean report) {
-    
-    report |= true;
     final Pick <Species> pick = new Pick <Species> ();
     if (report) I.say("\nPicking crop species...");
     

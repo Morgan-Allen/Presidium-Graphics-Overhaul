@@ -126,7 +126,6 @@ public class Pathing {
       if (report) {
         I.say("\nTARGET HAS CHANGED TO: "+trueTarget);
         I.say("  FROM: "+oldTarget);
-        I.reportStackTrace();
       }
       path = null;
       stepIndex = -1;
@@ -186,6 +185,7 @@ public class Pathing {
         validPath = false;
       }
     }
+    if (report) I.say("  Path valid? "+validPath);
     return validPath;
   }
   

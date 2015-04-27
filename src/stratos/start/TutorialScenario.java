@@ -153,8 +153,8 @@ public class TutorialScenario extends StartupScenario {
     foundryBuilt  = null;
     depotBuilt    = null;
     startingBalance = -1;
-    startAt = null;
-    reconSent = null;
+    startAt      = null;
+    reconSent    = null;
     droneAttacks = null;
   }
   

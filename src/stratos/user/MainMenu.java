@@ -3,14 +3,15 @@
 package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.common.GameSettings;
+//import stratos.game.civic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.start.StartupScenario.*;
-import java.io.*;
+
+//import java.io.*;
 
 
 
@@ -263,6 +264,10 @@ public class MainMenu extends UIGroup {
       final Colour c = config.advisors.includes(b) ? Colour.CYAN : null;
       Call.add("\n    "+b.name, c, this, "setAdvisor", text, b);
     }
+    
+    //  TODO:  INTRODUCE CONFIGURATION FOR OTHER STRUCTURES
+    ///config.built.set(ShieldWall.BLUEPRINT, 1);
+    
     
     String complaint = null;
     

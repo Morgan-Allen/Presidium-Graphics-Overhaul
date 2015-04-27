@@ -295,12 +295,12 @@ public class KommandoLodge extends Venue {
   public String helpInfo() {
     return
       "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
-      "sufficient Kommandos to patrol your untamed hinterlands.";
+      "sufficient Kommandos to harvest prey and intimidate foes.";
   }
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_ECOLOGIST;
+    return UIConstants.TYPE_SECURITY;
   }
 }
 

@@ -20,9 +20,11 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose = true ;
+    verbose     = false,
+    failVerbose = true ;
   
-  private static boolean reportOn(Actor a) {
+  private static boolean reportOn(Actor a, float priority) {
+    if (priority <= 0 && ! failVerbose) return false;
     return I.talkAbout == a && verbose;
   }
   
@@ -35,7 +37,6 @@ public class PlanUtils {
   ) {
     float incentive = 0, winChance, inhibition, priority;
     float harmDone, dislike, wierdness, conscience;
-    final boolean report = reportOn(actor);
     
     incentive += rewardBonus;
     incentive += dislike   = actor.relations.valueFor(subject)     * -5;
@@ -52,7 +53,7 @@ public class PlanUtils {
     inhibition = Nums.max(0, conscience);
     priority   = incentive * winChance;
     
-    if (report) I.reportVars(
+    if (reportOn(actor, priority)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
       "subject  " , subject    ,
       "reward   " , rewardBonus,
@@ -78,7 +79,6 @@ public class PlanUtils {
   ) {
     float incentive = 0, loseChance, priority;
     float homeDistance, escapeChance;
-    final boolean report = reportOn(actor);
     
     loseChance = 1f - combatWinChance(actor, actor.origin(), 1);
     if (actor.senses.fearLevel() == 0) loseChance = 0;
@@ -95,7 +95,7 @@ public class PlanUtils {
     escapeChance = Nums.clamp(1f - actor.health.fatigueLevel(), 0, 1);
     priority = incentive * homeDistance * escapeChance;
     
-    if (report) I.reportVars(
+    if (reportOn(actor, priority)) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
       "incentive   ", incentive,
       "fear level  ", actor.senses.fearLevel(),
@@ -134,7 +134,7 @@ public class PlanUtils {
     
     priority = (chatIncentive + pleaIncentive + rewardBonus) * commChance;
 
-    if (reportOn(actor) && priority > 0) I.reportVars(
+    if (reportOn(actor, priority)) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
       "subject"      , subject,
       "reward"       , rewardBonus,
@@ -166,7 +166,7 @@ public class PlanUtils {
     incentive += rewardBonus;
     priority = incentive * supportChance;
     
-    if (reportOn(actor) && priority > 0) I.reportVars(
+    if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",
       "subject"      , subject,
       "reward"       , rewardBonus,
@@ -200,6 +200,17 @@ public class PlanUtils {
     incentive *= 1 + actor.traits.relativeLevel(Qualities.CURIOUS);
     
     priority = incentive * exploreChance;
+
+    if (reportOn(actor, priority)) I.reportVars(
+      "\nExplore priority for "+actor, "  ",
+      "surveyed"      , surveyed     ,
+      "reward bonus"  , rewardBonus  ,
+      "incentive"     , incentive    ,
+      "novelty"       , novelty      ,
+      "explore chance", exploreChance,
+      "priority"      , priority
+    );
+    
     return priority;
   }
   
@@ -210,7 +221,6 @@ public class PlanUtils {
   public static float ambitionPriority(
     Actor actor, Background position, Venue at, float quality
   ) {
-    final boolean report = reportOn(actor);
     float teamBonus = 0, crowding = 0, priority = 0;
     float locale = 0, ambience = 0, safety = 0, loyalty = 0;
     
@@ -226,7 +236,7 @@ public class PlanUtils {
     priority = 5 * (quality + teamBonus + locale) / 3;
     if (! at.staff.doesBelong(actor)) priority *= (1 - crowding);
     
-    if (report && priority > 0) I.reportVars(
+    if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",
       "position" , position,
       "at"       , at,
@@ -266,7 +276,6 @@ public class PlanUtils {
     float urgency, float competence,
     int helpLimit, Trait... enjoyTraits
   ) {
-    final boolean report = reportOn(actor);
     float incentive = 0, priority = 0, enjoyBonus = 0;
     float dutyBonus = 0, helpBonus = 0, shift = 0;
     
@@ -284,7 +293,10 @@ public class PlanUtils {
       if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
       if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
     }
-    if (incentive <= 0 || urgency <= 0) return -1;
+    if (incentive <= 0 || urgency <= 0) {
+      if (reportOn(actor, 0)) I.say("\nNo urgency for "+plan);
+      return -1;
+    }
     
     priority = incentive * (competence + 1) / 2;
     priority -= (1 - competence) * 5;
@@ -295,8 +307,8 @@ public class PlanUtils {
       else priority += helpBonus = help * 2.5f / helpLimit;
     }
     else priority += 2.5f;
-
-    if (report && priority > 0) I.reportVars(
+    
+    if (reportOn(actor, priority)) I.reportVars(
       "\nJob priority for "+actor, "  ",
       "Job is:    ", plan        ,
       "Is job?    ", plan.isJob(),

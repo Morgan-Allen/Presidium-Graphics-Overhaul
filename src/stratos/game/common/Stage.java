@@ -26,6 +26,7 @@ public class Stage {
     
     PATCH_RESOLUTION  = 8 ,
     SECTOR_SIZE       = 16,
+    SECTOR_AREA       = SECTOR_SIZE * SECTOR_SIZE,
     
     DAYS_PER_WEEK        = 6 ,
     DAYS_PER_YEAR        = 60,

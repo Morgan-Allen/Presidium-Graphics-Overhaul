@@ -88,6 +88,7 @@ public class DebugSecurity extends Scenario {
   
   private void wallsScenario(Stage world, Base base, BaseUI UI) {
     final Bastion bastion = new Bastion(base);
+    Flora.populateFlora(world);
     //
     //  Now, find a good location for the Bastion, and establish some walls
     //  around it...
@@ -156,7 +157,7 @@ public class DebugSecurity extends Scenario {
   
   private void arrestScenario(Stage world, Base base, BaseUI UI) {
     final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
-    final Venue runnerMarket = new RunnerLodge(base);
+    final Venue runnerMarket = new RunnerMarket(base);
     Placement.establishVenue(runnerMarket, 10,  5, true, world, runner);
     
     final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);

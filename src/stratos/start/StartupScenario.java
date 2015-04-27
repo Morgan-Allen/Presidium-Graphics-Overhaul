@@ -85,12 +85,13 @@ public class StartupScenario extends Scenario {
     
     public Background house ;
     public Background gender;
-    public List <Trait> chosenTraits = new List <Trait> ();
-    public List <Skill> chosenSkills = new List <Skill> ();
-    public List <Technique> chosenTechs = new List <Technique> ();
+    public List <Trait    > chosenTraits = new List <Trait    > ();
+    public List <Skill    > chosenSkills = new List <Skill    > ();
+    public List <Technique> chosenTechs  = new List <Technique> ();
     
     public List  <Background> advisors = new List  <Background> ();
     public Tally <Background> crew     = new Tally <Background> ();
+    public Tally <Blueprint > built    = new Tally <Blueprint > ();
     public Sector demesne;
     public int siteLevel, fundsLevel, titleLevel;
   }
@@ -113,9 +114,13 @@ public class StartupScenario extends Scenario {
     s.loadObjects(config.chosenTraits);
     s.loadObjects(config.chosenSkills);
     s.loadObjects(config.chosenTechs );
+    
     s.loadObjects(config.advisors    );
     for (int i = s.loadInt(); i-- > 0;) {
       config.crew.set((Background) s.loadObject(), s.loadInt());
+    }
+    for (int i = s.loadInt(); i-- > 0;) {
+      config.built.set((Blueprint) s.loadObject(), s.loadFloat());
     }
     config.demesne    = (Sector) s.loadObject();
     config.siteLevel  = s.loadInt();
@@ -136,6 +141,10 @@ public class StartupScenario extends Scenario {
     for (Background b : config.crew.keys()) {
       s.saveObject(b);
       s.saveInt((int) config.crew.valueFor(b));
+    }
+    for (Blueprint b : config.built.keys()) {
+      s.saveObject(b);
+      s.saveFloat(config.built.valueFor(b));
     }
     s.saveObject(config.demesne);
     s.saveInt(config.siteLevel );
@@ -338,10 +347,15 @@ public class StartupScenario extends Scenario {
     }
     //
     //  Once that's done, we can draw a curtain wall:
-    final Venue wall[] = Placement.placeAroundPerimeter(
-      ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
-    );
-    for (Venue v : wall) ((ShieldWall) v).updateFacing(true);
+    
+    //  TODO:  INTRODUCE ESTABLISHMENT FOR OTHER STRUCTURES.  ...But walls
+    //  should probably still go first?
+    if (config.built.valueFor(ShieldWall.BLUEPRINT) > 0) {
+      final Venue wall[] = Placement.placeAroundPerimeter(
+        ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
+      );
+      for (Venue v : wall) ((ShieldWall) v).updateFacing(true);
+    }
     //
     //  Then introduce personnel-
     for (Actor a : advisors) {

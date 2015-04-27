@@ -66,6 +66,9 @@ public class BaseCommerce {
   final List <Actor> candidates = new List <Actor> ();
   
   final List <Sector> partners = new List <Sector> ();
+  
+  //  TODO:  YOU ARE GOING TO NEED MULTIPLE SHIPS AT YOUR DISPOSAL, OR HIGHER
+  //         VISITING FREQUENCY.
   private Dropship ship;
   private float visitTime;
   

@@ -279,10 +279,10 @@ public final class Economy {
       EngineerStation.class, 1, PARTS, 10, ASSEMBLY
     ),
     
-    SHIV = new DeviceType(
+    STEEL_DIRK = new DeviceType(
       BC, "Shiv",
       "light blade", AnimNames.STRIKE,
-      5, MELEE | KINETIC, 5,
+      8, MELEE | KINETIC, 5,
       EngineerStation.class, 1, PARTS, 0, ASSEMBLY
     ),
     ZWEIHANDER = new DeviceType(

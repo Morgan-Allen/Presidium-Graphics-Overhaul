@@ -10,7 +10,8 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.PavingMap;
+import stratos.game.civic.*;
+import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -19,24 +20,30 @@ import static stratos.game.economic.Economy.*;
 
 
 public class Forestry extends Plan {
+
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   final public static int
     STAGE_INIT     = -1,
     STAGE_GET_SEED =  0,
     STAGE_PLANTING =  1,
     STAGE_SAMPLING =  2,
-    STAGE_CUTTING  =  3,
-    STAGE_RETURN   =  4,
-    STAGE_DONE     =  5;
-  private static boolean
-    evalVerbose  = false,
-    stepsVerbose = false;
+    STAGE_STORAGE  =  3,
+    STAGE_CUTTING  =  4,
+    STAGE_PROCESS  =  5,
+    STAGE_DONE     =  6;
+  
+  final static float
+    FLORA_PROCESS_TIME = Stage.STANDARD_HOUR_LENGTH,
+    GROW_STAGE_POLYMER = 5;
   
   
-  final Venue nursery;
+  final Venue depot;
   private int stage = STAGE_INIT;
-  private Tile toPlant = null;
-  private Flora toCut = null;
+  private Tile  toPlant = null;
+  private Flora toCut   = null;
   
   
   public static Forestry nextSampling(Actor actor, Venue nursery) {
@@ -62,13 +69,13 @@ public class Forestry extends Plan {
   
   private Forestry(Actor actor, Venue nursery) {
     super(actor, nursery, MOTIVE_JOB, NO_HARM);
-    this.nursery = nursery;
+    this.depot = nursery;
   }
   
   
   public Forestry(Session s) throws Exception {
     super(s);
-    this.nursery = (Venue) s.loadObject();
+    this.depot = (Venue) s.loadObject();
     this.stage = s.loadInt();
     toPlant = (Tile) s.loadTarget();
     toCut = (Flora) s.loadObject();
@@ -77,7 +84,7 @@ public class Forestry extends Plan {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(nursery);
+    s.saveObject(depot);
     s.saveInt(stage);
     s.saveTarget(toPlant);
     s.saveObject(toCut);
@@ -85,7 +92,7 @@ public class Forestry extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new Forestry(other, nursery);
+    return new Forestry(other, depot);
   }
 
   
@@ -95,16 +102,16 @@ public class Forestry extends Plan {
   public boolean configureFor(int stage) {
     
     if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
-      toPlant = findPlantTile(actor, nursery);
+      toPlant = findPlantTile(actor, depot);
       if (toPlant == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
-      if (nursery.stocks.amountOf(seedMatch()) > 0) {
+      if (depot.stocks.amountOf(seedMatch()) > 0) {
         this.stage = STAGE_GET_SEED;
       }
       else this.stage = STAGE_PLANTING;
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_CUTTING) {
-      toCut = findCutting(actor, nursery);
+      toCut = findCutting(actor, depot);
       if (toCut == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       this.stage = stage;
     }
@@ -115,10 +122,7 @@ public class Forestry extends Plan {
   
   private boolean configured() {
     if (stage != STAGE_INIT) return true;
-    final float abundance = actor.world().ecology().globalBiomass();
-    return configureFor(
-      Rand.num() < abundance ? STAGE_CUTTING : STAGE_GET_SEED
-    );
+    return false;
   }
   
   
@@ -138,34 +142,37 @@ public class Forestry extends Plan {
     
     //  As the abundance of flora increases, harvest becomes more attractive,
     //  and vice-versa for planting as abundance decreases.
-    final float abundance = actor.world().ecology().forestRating(at);
+    float abundance = actor.world().ecology().forestRating(at);
+    int growStage = -1;
     float bonus = 0;
+    if (toCut != null) {
+      growStage = toCut.growStage() + 1;
+      abundance *= growStage * 2f / Flora.MAX_GROWTH;
+    }
     
-    if (stage == STAGE_SAMPLING) {
-      bonus = 1;
+    if (stage == STAGE_SAMPLING || stage == STAGE_STORAGE) {
+      bonus = 0.5f;
     }
     else if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
-      bonus += 0.5f - abundance;
+      bonus = 1 - abundance;
     }
-    else if (stage == STAGE_CUTTING) {
-      bonus += abundance - 0.5f;
-    }
-    else if (stage == STAGE_RETURN) {
-      bonus = 0.5f;
+    else if (stage == STAGE_CUTTING || stage == STAGE_PROCESS) {
+      bonus = Nums.max(abundance - 0.5f, stage == STAGE_PROCESS ? 0.5f : 0);
+      bonus *= 1 + depot.stocks.relativeShortage(POLYMER);
     }
     
     //  Otherwise, it's generally a routine activity.
-    final float priority = priorityForActorWith(
-      actor, subject,
-      CASUAL * (1 + bonus), CASUAL * bonus,
-      NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, HEAVY_DISTANCE_CHECK,
-      report
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, bonus, 1, 3, BASE_TRAITS
     );
     if (report) {
       I.say("\nGetting forestry priority for "+actor);
-      I.say("  Is planting?          "+(toPlant != null));
+      I.say("  Stage is:     "+stage  );
+      I.say("  Planting at:  "+toPlant);
+      I.say("  Cutting:      "+toCut+" (stage "+growStage+")");
+      I.say("  Base urgency: "+bonus);
       I.say("  Vegetation abundance: "+abundance);
+      I.say("  Final priority:       "+priority);
     }
     return priority;
   }
@@ -174,12 +181,15 @@ public class Forestry extends Plan {
   public Behaviour getNextStep() {
     if (! configured()) return null;
     final boolean report = stepsVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next forestry step...");
+    if (report) {
+      I.say("\nGetting next forestry step...");
+      I.say("  CURRENT STAGE IS: "+stage+" ("+hashCode()+")");
+    }
     
     if (stage == STAGE_GET_SEED) {
       if (report) I.say("  Getting seed.");
       final Action collects = new Action(
-        actor, nursery,
+        actor, depot,
         this, "actionCollectSeed",
         Action.LOOK, "Collecting seed"
       );
@@ -204,17 +214,6 @@ public class Forestry extends Plan {
       return plants;
     }
     
-    if (stage == STAGE_CUTTING) {
-      if (report) I.say("  Going to perform cutting.");
-      final Action cuts = new Action(
-        actor, toCut,
-        this, "actionCutting",
-        Action.BUILD, "Cutting"
-      );
-      cuts.setMoveTarget(Spacing.nearestOpenTile(toCut.origin(), actor));
-      return cuts;
-    }
-    
     if (stage == STAGE_SAMPLING) {
       if (report) I.say("  Getting sample.");
       final Action sample = new Action(
@@ -226,12 +225,33 @@ public class Forestry extends Plan {
       return sample;
     }
     
-    if (stage == STAGE_RETURN) {
-      if (report) I.say("  Returning with cuttings.");
+    if (stage == STAGE_STORAGE) {
+      if (report) I.say("  Returning with samples.");
       final Action returns = new Action(
-        actor, nursery,
-        this, "actionReturnHarvest",
-        Action.REACH_DOWN, "Returning Harvest"
+        actor, depot,
+        this, "actionStoreSamples",
+        Action.REACH_DOWN, "Store Samples"
+      );
+      return returns;
+    }
+    
+    if (stage == STAGE_CUTTING) {
+      if (report) I.say("  Going to perform cutting.");
+      final Action cuts = new Action(
+        actor, toCut,
+        this, "actionCutting",
+        Action.BUILD, "Cutting"
+      );
+      cuts.setMoveTarget(Spacing.nearestOpenTile(toCut.origin(), actor));
+      return cuts;
+    }
+    
+    if (stage == STAGE_PROCESS) {
+      if (report) I.say("  Returning to process cuttings.");
+      final Action returns = new Action(
+        actor, depot,
+        this, "actionProcessHarvest",
+        Action.REACH_DOWN, "Processing Harvest"
       );
       return returns;
     }
@@ -262,9 +282,9 @@ public class Forestry extends Plan {
         I.say("  Occupied? "+(toPlant.inside().size() > 0));
         I.say("  Blocked? "+toPlant.blocked());
       }
-      toPlant = findPlantTile(actor, nursery);
+      toPlant = findPlantTile(actor, depot);
       if (report) I.say("  New tile: "+toPlant);
-      if (toPlant == null) stage = STAGE_RETURN;
+      if (toPlant == null) stage = STAGE_STORAGE;
       return false;
     }
     
@@ -289,27 +309,59 @@ public class Forestry extends Plan {
   
   
   public boolean actionCutting(Actor actor, Flora cut) {
-    if (! actor.skills.test(CULTIVATION, SIMPLE_DC, 1.0f)) return false;
+    if (! actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1.0f)) return false;
     cut.setAsDestroyed();
     
-    final int growStage = cut.growStage();
-    actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
+    //  TODO:  TRY TO USE A STRETCHER-DELIVERY FOR THIS!
+    final Item felled = Item.withReference(SAMPLES, cut);
+    actor.gear.addItem(felled);
     
-    stage = STAGE_RETURN;
+    stage = STAGE_PROCESS;
     return true;
+  }
+  
+  
+  public boolean actionProcessHarvest(Actor actor, Venue depot) {
+    actor.gear.transfer(SAMPLES, depot);
+    
+    float processRate = 1, bonus = 1;
+    bonus += actor.skills.test(CULTIVATION, SIMPLE_DC , 1) ? 1 : 0;
+    bonus += actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
+    bonus *= GROW_STAGE_POLYMER / (3 * FLORA_PROCESS_TIME);
+    boolean working = false;
+    
+    for (Item i : depot.stocks.matches(SAMPLES)) {
+      if (! (i.refers instanceof Flora)) continue;
+      final int growth = 1 + ((Flora) i.refers).growStage();
+      working = true;
+      
+      processRate /= FLORA_PROCESS_TIME * growth;
+      depot.stocks.removeItem(Item.withAmount(i, processRate));
+      depot.stocks.bumpItem(POLYMER, bonus);
+      break;
+    }
+    
+    if (! working) {
+      stage = STAGE_DONE;
+      return false;
+    }
+    else return true;
   }
   
   
   public boolean actionSampling(Actor actor, Flora cut) {
     if (! actor.skills.test(CULTIVATION, SIMPLE_DC, 1.0f)) return false;
     
+    final int growStage = cut.growStage();
+    actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
+    
     actor.gear.addItem(Item.withReference(GENE_SEED, cut));
-    stage = STAGE_RETURN;
+    stage = STAGE_STORAGE;
     return true;
   }
   
   
-  public boolean actionReturnHarvest(Actor actor, Venue depot) {
+  public boolean actionReturnSample(Actor actor, Venue depot) {
     if (stepsVerbose) I.say("RETURNING SAMPLES TO "+depot);
     
     for (Item seed : actor.gear.matches(seedMatch())) {
@@ -327,20 +379,26 @@ public class Forestry extends Plan {
     if (stage == STAGE_INIT) {
       d.append("Performing forestry");
     }
+    
     if (stage == STAGE_GET_SEED) {
       d.append("Getting timber seed");
     }
     if (stage == STAGE_PLANTING) {
       d.append("Planting timber");
     }
+    
     if (stage == STAGE_CUTTING) {
       d.append("Felling timber");
     }
+    if (stage == STAGE_PROCESS) {
+      d.append("Processing harvest");
+    }
+    
     if (stage == STAGE_SAMPLING) {
       d.append("Taking vegetation samples");
     }
-    if (stage == STAGE_RETURN) {
-      d.append("Returning harvest");
+    if (stage == STAGE_STORAGE) {
+      d.append("Returning samples");
     }
   }
   
@@ -348,24 +406,26 @@ public class Forestry extends Plan {
   
   /**  Utility methods for finding suitable plant/harvest targets-
     */
-  public static Tile findPlantTile(Actor actor, Venue nursery) {
+  public static Tile findPlantTile(Actor actor, Venue depot) {
+    final boolean report = evalVerbose && (
+      I.talkAbout == actor || I.talkAbout == depot
+    );
+    if (report) I.say("\nFinding tile to plant near "+depot);
+    
     Tile picked = null, tried;
     float bestRating = Float.NEGATIVE_INFINITY;
     
-    for (int n = 10; n-- > 0;) {
-      tried = Spacing.pickRandomTile(
-        actor, Stage.SECTOR_SIZE / 2, actor.world()
-      );
+    for (int n = 5; n-- > 0;) {
+      tried = Spacing.pickRandomTile(depot, Stage.SECTOR_SIZE, actor.world());
       tried = Spacing.nearestOpenTile(tried, actor);
       if (tried == null || ! Flora.canGrowAt(tried)) continue;
-      if (PavingMap.pavingReserved(tried, true)) continue;
-      if (actor.world().claims.venueClaims(tried.area(null))) continue;
-      if (Spacing.distance(tried, nursery) > Stage.SECTOR_SIZE) continue;
       
       float rating = tried.habitat().moisture() / 10f;
       rating -= Plan.rangePenalty(actor.base(), actor, tried);
       rating -= Plan.dangerPenalty(tried, actor);
-      rating -= actor.world().ecology().biomassRating(tried);
+      rating -= actor.world().ecology().forestRating(tried);
+      
+      if (report) I.say("  Rating for "+tried+" is "+rating);
       if (rating > bestRating) { bestRating = rating; picked = tried; }
     }
     

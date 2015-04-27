@@ -89,6 +89,14 @@ public class Flora extends Element implements TileConstants {
   
   final public static int
     MAX_GROWTH = 4;
+  
+  final static String STAGE_NAMES[] = {
+    "Seedling",
+    "Sapling" ,
+    "Mature"  ,
+    "Seasoned"
+  };
+  
   final public static float
     GROWTH_PER_UPDATE = 0.25f;  //  TODO:  THIS IS NOT BEING USED!  FIX!
   
@@ -250,7 +258,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public String toString() {
-    return "Flora";
+    return STAGE_NAMES[growStage()]+" Flora";
   }
 }
 

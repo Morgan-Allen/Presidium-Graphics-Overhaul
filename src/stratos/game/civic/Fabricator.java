@@ -126,19 +126,6 @@ public class Fabricator extends Venue {
     if (! onShift) return null;
     
     final Choice choice = new Choice(actor);
-    /*
-    final Manufacture c = stocks.nextManufacture(actor, CARBS_TO_LCHC);
-    if (c != null) {
-      c.setBonusFrom(this, true, POLYMER_LOOM);
-      choice.add(c);
-    }
-    //*/
-    
-    final Manufacture m = stocks.nextManufacture(actor, LCHC_TO_PLASTICS);
-    if (m != null) {
-      m.setBonusFrom(this, false, POLYMER_LOOM);
-      choice.add(m);
-    }
     
     for (Item ordered : stocks.specialOrders()) {
       final Manufacture mO = new Manufacture(actor, this, ordered);
@@ -154,6 +141,20 @@ public class Fabricator extends Venue {
       }
       choice.add(mO);
     }
+    if (! choice.empty()) return choice.pickMostUrgent();
+    
+    final Manufacture m = stocks.nextManufacture(actor, LCHC_TO_PLASTICS);
+    if (m != null) {
+      m.setBonusFrom(this, false, POLYMER_LOOM);
+      choice.add(m);
+    }
+    /*
+    final Manufacture c = stocks.nextManufacture(actor, CARBS_TO_LCHC);
+    if (c != null) {
+      c.setBonusFrom(this, true, POLYMER_LOOM);
+      choice.add(c);
+    }
+    //*/
     
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
