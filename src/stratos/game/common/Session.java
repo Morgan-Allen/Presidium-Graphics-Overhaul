@@ -39,7 +39,13 @@ public class Session {
   
   final static int
     CLASS_CAPACITY  = 200,
-    OBJECT_CAPACITY = 50000;
+    OBJECT_CAPACITY = 50000,
+    
+    OP_NONE      = -1,
+    OP_SAVE      =  0,
+    OP_SAVE_DONE =  1,
+    OP_LOAD      =  2,
+    OP_LOAD_DONE =  3;
   
   private Table             <Class <?> , Vars.Int>
     classCounts = new Table <Class <?> , Vars.Int> (CLASS_CAPACITY );
@@ -59,10 +65,10 @@ public class Session {
   private Scenario scenario;
   private Stage world = null;
   
-  private boolean saving;
+  private int operation = OP_NONE;
   private DataOutputStream out;
   private DataInputStream  in ;
-  private int bytesIn = 0, bytesOut = 0;
+  private int bytesIn = 0, bytesOut = 0, fileSize = 0;
   
   
   
@@ -75,9 +81,11 @@ public class Session {
     s.out = new DataOutputStream(new BufferedOutputStream(
       new FileOutputStream(saveFile))
     );
-    s.saving = true;
     Assets.clearReferenceIDs();
+    s.operation = OP_SAVE;
     s.world = world;
+    s.scenario = scenario;
+    
     s.saveInt(world.size);
     s.world.saveState(s);
     s.saveObject(scenario);
@@ -94,38 +102,66 @@ public class Session {
   }
   
   
-  public static Session loadSession(String saveFile) throws Exception {
+  public static Session loadSession(String saveFile, boolean loadNow) {
     final Session s = new Session();
-    s.in = new DataInputStream(new BufferedInputStream(
-      new FileInputStream(saveFile))
-    );
-    s.saving = false;
-    Assets.clearReferenceIDs();
-    s.world = new Stage(s.loadInt());
-    s.world.loadState(s);
-    s.scenario = (Scenario) s.loadObject();
-    GameSettings.loadSettings(s);
-    s.finish();
+    
+    final File asFile = new File(saveFile);
+    try { s.in = new DataInputStream(new BufferedInputStream(
+      new FileInputStream(asFile))
+    ); }
+    catch (Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+    
+    s.fileSize = (int) asFile.length();
+    s.operation = OP_LOAD;
+    
+    final Thread loadThread = new Thread() {
+      public void run() {
+        try {
+          Assets.clearReferenceIDs();
+          s.world = new Stage(s.loadInt());
+          s.world.loadState(s);
+          s.scenario = (Scenario) s.loadObject();
+          GameSettings.loadSettings(s);
+          s.finish();
+          Thread.sleep(250);
+        }
+        catch (Exception e) { e.printStackTrace(); }
+      }
+    };
+    if (loadNow) loadThread.run  ();
+    else         loadThread.start();
     return s;
   }
   
   
+  public float loadProgress() {
+    return ((float) bytesIn) / fileSize;
+  }
+  
+  
   public void finish() throws Exception {
-    ///I.say("FINISHING SESSION.");
     world = null;
-    saveIDs.clear();
+    saveIDs .clear();
     classIDs.clear();
-    loadIDs.clear();
+    loadIDs .clear();
     loadMethods.clear();
     if (out != null) {
       out.flush();
       out.close();
+      operation = OP_SAVE_DONE;
     }
     if (in != null) {
       in.close();
+      operation = OP_LOAD_DONE;
     }
   }
   
+  
+  public boolean savingDone () { return operation == OP_SAVE_DONE; }
+  public boolean loadingDone() { return operation == OP_LOAD_DONE; }
   
   private Session() {}
   public Stage world() { return world; }
@@ -488,9 +524,6 @@ public class Session {
     *  data, and permit direct access to the data input/output streams if
     *  required.
     */
-  public boolean saving() { return saving; }
-  
-  
   public DataOutputStream output() { return out; }
   public DataInputStream  input()  { return in; }
   

@@ -176,61 +176,52 @@ public class SaveUtils {
   //  TODO:  This method should *definitely* only be called from a specific
   //  point in the overall play-loop sequence.  Fix that.
   
-  //  NOTE:  The argument is assumed to be the name of the file *within* the
-  //         saves directory, not the entire system path.
   public static void loadGame(
     final String saveFile, final boolean fromMenu
   ) {
     PlayLoop.sessionStateWipe();
     deleteAllLaterSaves(saveFile);
     
-    final String fullPath = SAVES_DIR+saveFile;
+    final String fullPath = SAVES_DIR+inSavesFolder(saveFile);
     I.say("Should be loading game from: "+fullPath);
     
     final Playable loading = new Playable() {
       
       private boolean begun = false, done = false;
+      private Session session = null;
       private Scenario loaded = null;
 
       public HUD UI() { return null; }
       public void updateGameState() {}
       public void renderVisuals(Rendering rendering) {}
       
+      
       public void beginGameSetup() {
-        final Thread loadThread = new Thread() {
-          public void run() {
-            I.say("Beginning loading...");
-            try {
-              final Session s = Session.loadSession(fullPath);
-              try { Thread.sleep(250); }
-              catch (Exception e) {}
-              loaded = s.scenario();
-              I.say("  Loaded scenario is: "+loaded);
-              done = true;
-            }
-            catch (Exception e) { e.printStackTrace(); }
-          }
-        };
-        loadThread.start();
+        session = Session.loadSession(fullPath, false);
         begun = true;
       }
       
       
       public boolean shouldExitLoop() {
-        if (loaded == null) return false;
-        I.say("Loading complete...");
-        PlayLoop.setupAndLoop(loaded);
+        if (done) PlayLoop.setupAndLoop(loaded);
         return false;
       }
       
       
       public boolean isLoading() {
+        if (done) return false;
         return begun;
       }
       
+      
       public float loadProgress() {
-        //  TODO:  Implement some kind of progress readout here.
-        return done ? 1.0f : 0;//Session.loadProgress();
+        if (session == null) return 0;
+        if (done) return 1;
+        if (! session.loadingDone()) return session.loadProgress();
+        I.say("Loading complete...");
+        loaded = session.scenario();
+        done = true;
+        return 1;
       }
     };
     PlayLoop.setupAndLoop(loading);

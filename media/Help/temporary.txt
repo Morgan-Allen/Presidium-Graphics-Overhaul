@@ -1,7 +1,20 @@
 
 
 
-Topics should have a 'completion' method that they can use to determine when to close (if they haven't been dismissed already.)
+
+//  TODO:  Disable shipping until the player is ready, and allow for multiple
+//         ships with multiple airfields.
+
+*  I need the ability to disable shipping entirely until the player is ready.  (GameSettings?  For tips as well?)
+*  Minimum of one 'smuggler' ship per settlement.
+*  More frequent shipping if you have an airfield.  (N + 1, for each airfield.)
+*  Offworld journeys and behaviours.
+
+
+
+
+
+*  Enemies that come gitcha.  But are significantly weaker than an average agent.  Like vermin.
 
 There's an 8-minute time delay, which is a significant problem for a quick tutorial.  You'll need to schedule faster arrival.  You also need to guarantee a better starting position for the artilects- somewhere far away.
 

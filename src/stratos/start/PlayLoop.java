@@ -266,8 +266,8 @@ public final class PlayLoop {
     if (played != null && played.loadProgress() < 1) {
       if (verbose) {
         I.say("  Loading simulation: "+played);
-        I.say("  Is loading?       "+played.isLoading());
-        I.say("  Loading progress: "+played.loadProgress());
+        I.say("  Is loading?         "+played.isLoading());
+        I.say("  Loading progress:   "+played.loadProgress());
       }
       
       if (! played.isLoading()) {
