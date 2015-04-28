@@ -48,6 +48,8 @@ public class PlanetDisplay extends Assets.Loadable {
   private float hoverAlpha = 0, selectAlpha = 0;
   private Stitching labelling;
   
+  private boolean loaded = false, disposed = false;
+  
   
   
   
@@ -76,18 +78,26 @@ public class PlanetDisplay extends Assets.Loadable {
       VertexAttribute.TexCoords(0),
       VertexAttribute.BoneWeight(0)
     );
+    
+    loaded = true;
   }
   
   
   protected void disposeAsset() {
-    if (shading == null) return;
+    if (disposed) return;
     shading.dispose();
     labelling.dispose();
+    disposed = true;
   }
   
   
   public boolean isLoaded() {
-    return shading != null;
+    return loaded;
+  }
+  
+  
+  public boolean isDisposed() {
+    return disposed;
   }
   
   

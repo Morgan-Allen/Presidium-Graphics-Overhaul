@@ -84,7 +84,10 @@ public class MessageScript implements
       //  Finally, any embedded images will need to loaded on the render
       //  thread, so we cache these for later reference:
       for (XML imgNode : topicNode.allChildrenMatching("image")) {
-        ImageAsset.fromImage(basis.getClass(), imgNode.content());
+        final ImageAsset asset = ImageAsset.fromImage(
+          basis.getClass(), imgNode.content()
+        );
+        Assets.loadNow(asset);
       }
     }
   }

@@ -22,6 +22,7 @@ public class ReminderListing extends UIGroup {
   final List <MessagePane>
     oldMessages = new List <MessagePane> (),
     newMessages = new List <MessagePane> ();
+  
   private MessagePane lastOpen = null;
   
   

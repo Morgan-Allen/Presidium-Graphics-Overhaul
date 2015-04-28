@@ -27,6 +27,7 @@ public class TutorialScenario extends StartupScenario {
   
   final static String SCRIPT_XML_PATH = "media/Help/TutorialScript.xml";
   
+  
   Bastion bastion;
   Ruins ruins;
   final MessageScript script;

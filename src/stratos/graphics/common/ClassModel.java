@@ -10,6 +10,7 @@ public abstract class ClassModel extends ModelAsset {
     super(modelName, sourceClass);
   }
   public boolean isLoaded() { return true; }
+  public boolean isDisposed() { return true; }
   protected void loadAsset() {}
   protected void disposeAsset() {}
   

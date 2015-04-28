@@ -34,7 +34,7 @@ public class PlaneFX extends SFX {
     final float duration;
     
     private Texture texture;
-    private boolean loaded = false;
+    private boolean loaded = false, disposed = false;
     
     
     public Model(
@@ -105,10 +105,12 @@ public class PlaneFX extends SFX {
     
     protected void disposeAsset() {
       texture.dispose();
+      disposed = true;
     }
     
     
     public boolean isLoaded() { return loaded; }
+    public boolean isDisposed() { return disposed; }
     public Sprite makeSprite() { return new PlaneFX(this); }
   }
   

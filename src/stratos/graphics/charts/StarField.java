@@ -37,6 +37,7 @@ public class StarField extends Assets.Loadable {
   
   private Stitching compiled;
   private ShaderProgram shading;
+  private boolean loaded = false, disposed = false;
   
   
   
@@ -72,18 +73,26 @@ public class StarField extends Assets.Loadable {
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog());
     }
+    
+    loaded = true;
   }
   
   
   protected void disposeAsset() {
-    if (shading == null) return;
+    if (disposed) return;
     shading.dispose();
     compiled.dispose();
+    disposed = true;
   }
   
   
   public boolean isLoaded() {
-    return shading != null;
+    return loaded;
+  }
+  
+  
+  public boolean isDisposed() {
+    return disposed;
   }
   
   

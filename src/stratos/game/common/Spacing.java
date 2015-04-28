@@ -47,6 +47,7 @@ public final class Spacing implements TileConstants {
   ) {
     protected void loadAsset() {}
     public boolean isLoaded() { return true; }
+    public boolean isDisposed() { return false; }
     
     protected void disposeAsset() {
       Visit.wipe(tempT4);

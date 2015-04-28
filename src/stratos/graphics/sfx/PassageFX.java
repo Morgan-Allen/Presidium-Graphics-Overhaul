@@ -14,14 +14,12 @@ import stratos.util.*;
   *  underground or hidden passages.
   */
 public class PassageFX extends SFX implements TileConstants {
-
-  final static ModelAsset
-    PASSAGE_MODEL = new ModelAsset("passage_model", PassageFX.class) {
-      public boolean isLoaded() { return true; }
-      protected void loadAsset() {}
-      protected void disposeAsset() {}
-      public Sprite makeSprite() { return new PassageFX(); }
-    };
+  
+  final static ModelAsset PASSAGE_MODEL = new ClassModel(
+    "passage_fx_model", PassageFX.class
+  ) {
+    public Sprite makeSprite() { return new PassageFX(); }
+  };
   public ModelAsset model() { return PASSAGE_MODEL; }
   
   

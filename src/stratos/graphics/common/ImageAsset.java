@@ -35,7 +35,7 @@ public class ImageAsset extends Assets.Loadable {
   
   
   private String filePath;
-  private boolean loaded = false;
+  private boolean loaded = false, disposed = false;
   
   private Pixmap pixels;
   private Texture texture;
@@ -167,6 +167,12 @@ public class ImageAsset extends Assets.Loadable {
       pixels.dispose();
       texture.dispose();
     }
+    disposed = true;
+  }
+  
+  
+  public boolean isDisposed() {
+    return disposed;
   }
 }
 

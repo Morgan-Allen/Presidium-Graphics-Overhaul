@@ -200,12 +200,12 @@ public class InstallationPane extends SelectionPane {
     final Text text = detailText;
     
     if (helpFor != null) {
-      final Venue        sample   = helpFor            ;
-      final Blueprint type     = sample.blueprint     ;
-      final Composite    icon     = sample.portrait(UI);
-      final String       typeName = type.name          ;
-      final String       typeDesc = sample.helpInfo()  ;
-      final int          cost     = sample.structure.buildCost();
+      final Venue     sample   = helpFor            ;
+      final Blueprint type     = sample.blueprint   ;
+      final Composite icon     = sample.portrait(UI);
+      final String    typeName = type.name          ;
+      final String    typeDesc = sample.helpInfo()  ;
+      final int       cost     = sample.structure.buildCost();
       
       if (icon != null) Text.insert(icon.texture(), 80, 80, false, text);
       text.append("\n\nFacility Name: "+typeName);
@@ -237,10 +237,10 @@ public class InstallationPane extends SelectionPane {
       text.append("No structures available!");
     }
     else for (final Venue sample : sampled) {
-      final Composite    icon     = sample.portrait(UI);
-      final Blueprint type     = sample.blueprint     ;
-      final String       typeName = type.name          ;
-      final int          cost     = sample.structure.buildCost();
+      final Composite icon     = sample.portrait(UI);
+      final Blueprint type     = sample.blueprint   ;
+      final String    typeName = type.name          ;
+      final int       cost     = sample.structure.buildCost();
       
       if (icon != null) Text.insert(icon.texture(), 40, 40, true, text);
       else text.append("\n  ");

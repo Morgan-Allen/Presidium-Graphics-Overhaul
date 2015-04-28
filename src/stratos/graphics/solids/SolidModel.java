@@ -20,7 +20,7 @@ public abstract class SolidModel extends ModelAsset {
   private static boolean verbose = false;
   
   
-  protected boolean compiled = false;
+  protected boolean compiled = false, disposed = false;
   protected Model gdxModel;
   protected AnimControl animControl;
   
@@ -45,6 +45,12 @@ public abstract class SolidModel extends ModelAsset {
   
   protected void disposeAsset() {
     if (gdxModel != null) gdxModel.dispose();
+    disposed = true;
+  }
+  
+  
+  public boolean isDisposed() {
+    return disposed;
   }
   
   

@@ -53,7 +53,7 @@ public abstract class School extends Venue {
     //  Charity and thought-sync sessions for the Collective.
     //  Ship-construction and accompaniment for Navigators.
     //  Animal-taming and body-modification for Jil Baru.
-    //  Body-armour upgrades and device-assimilation for KOTSF.
+    //  Body-armour upgrades and nanite-industry for KOTSF.
     
     super.addServices(choice, forActor);
   }

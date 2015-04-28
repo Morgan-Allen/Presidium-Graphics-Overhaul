@@ -13,10 +13,8 @@ public class BuildingSprite extends Sprite {
   
   
   final private static Class <BuildingSprite> C = BuildingSprite.class;
-  final static ModelAsset BUILDING_MODEL = new ModelAsset("building_model", C) {
-    public boolean isLoaded() { return true; }
-    protected void loadAsset() {}
-    protected void disposeAsset() {}
+  
+  final static ModelAsset BUILDING_MODEL = new ClassModel("building_model", C) {
     public Sprite makeSprite() { return new BuildingSprite(); }
   };
   final public static float

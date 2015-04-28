@@ -8,7 +8,6 @@ import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
-
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 
@@ -34,6 +33,7 @@ public class Composite {
   ) {
     protected void loadAsset() {}
     public boolean isLoaded() { return true; }
+    public boolean isDisposed() { return false; }
     
     protected void disposeAsset() {
       I.say("DISPOSING OF COMPOSITES");

@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.zip.*;
 import java.net.*;
 import java.security.CodeSource;
+
 import stratos.util.*;
 
 
@@ -39,6 +40,7 @@ public class Assets {
     
     public abstract boolean isLoaded();
     protected abstract void loadAsset();
+    public abstract boolean isDisposed();
     protected abstract void disposeAsset();
   }
   
@@ -121,6 +123,7 @@ public class Assets {
       //  Otherwise, move on to loading any registered assets-
       else if (assetsToLoad.size() > 0 && PlayLoop.onRenderThread()) {
         final Loadable asset = assetsToLoad.first();
+        if (extraVerbose) I.say("  Begun loading of:  "+asset.assetID+"...");
         loadNow(asset);
       }
       
@@ -157,7 +160,7 @@ public class Assets {
   private static Table <Object, Object> regTable = new Table(1000);
   
   public static void registerForLoading(Loadable asset) {
-    if (regTable.get(asset) != null) return;
+    if (asset == null || regTable.get(asset) != null) return;
     if (extraVerbose) I.say("    Registering- "+asset.assetID);
     regTable.put(asset, asset);
     assetsToLoad.add(asset);
@@ -165,10 +168,26 @@ public class Assets {
   
   
   public static void loadNow(Loadable asset) {
-    if (extraVerbose) I.add("  Begun loading of:  "+asset.assetID+"...");
-    asset.loadAsset();
+    if (asset == null) return;
+    //
+    //  This appears to be the simplest solution to ensuring that assets being
+    //  loaded up on a separate thread don't wreck the place.
+    while ((! PlayLoop.onRenderThread()) && (! asset.isLoaded())) {
+      try {
+        if (extraVerbose) I.say("\n...Pausing to wait for assets-thread.");
+        Thread.sleep(250);
+      }
+      catch (Exception e) {}
+    }
+    if (extraVerbose) I.say("  Begun loading of:  "+asset.assetID+"...");
+    //
+    //  We have some safety-checks to ensure assets don't get loaded twice, but
+    //  to avoid the queue being blocked we remove them either way.
+    if (! asset.isLoaded()) {
+      asset.loadAsset();
+      assetsLoaded.add(asset);
+    }
     assetsToLoad.remove(asset);
-    assetsLoaded.add(asset);
     modelCache.put(asset.assetID, asset);
     if (extraVerbose) I.say(" ...OK.");
   }
@@ -176,7 +195,7 @@ public class Assets {
   
   public static void disposeOf(Loadable asset) {
     if (asset == null) return;
-    asset.disposeAsset();
+    if (! asset.isDisposed()) asset.disposeAsset();
     assetsToLoad.remove(asset);
     assetsLoaded.remove(asset);
     regTable.remove(asset);

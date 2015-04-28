@@ -26,7 +26,7 @@ public class ShotFX extends SFX {
     final boolean repeats, vivid;
     
     private Texture tex;
-    private boolean loaded = false;
+    private boolean loaded = false, disposed = false;
     
     public Model(
       String modelName, Class modelClass,
@@ -58,6 +58,12 @@ public class ShotFX extends SFX {
     
     protected void disposeAsset() {
       tex.dispose();
+      disposed = true;
+    }
+    
+    
+    public boolean isDisposed() {
+      return disposed;
     }
     
     

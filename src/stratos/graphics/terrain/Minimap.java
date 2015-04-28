@@ -128,6 +128,11 @@ public class Minimap extends Assets.Loadable {
   }
   
   
+  public boolean isDisposed() {
+    return disposed;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */

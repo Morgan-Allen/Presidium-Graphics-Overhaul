@@ -33,7 +33,7 @@ public class CutoutModel extends ModelAsset {
   private String fileName;
   private Box2D window;
   private float size;
-  private boolean loaded = false;
+  private boolean loaded = false, disposed = false;
   
   Texture texture;
   Texture lightSkin;
@@ -89,6 +89,12 @@ public class CutoutModel extends ModelAsset {
   protected void disposeAsset() {
     texture.dispose();
     if (lightSkin != null) lightSkin.dispose();
+    disposed = true;
+  }
+  
+  
+  public boolean isDisposed() {
+    return disposed;
   }
   
   
