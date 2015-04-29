@@ -32,7 +32,7 @@ public abstract class Mobile extends Element
     MOTION_FLYER = 2,
     MOTION_WATER = 3;
   final static int
-    MAX_PATH_SCAN = Stage.SECTOR_SIZE;
+    MAX_PATH_SCAN = Stage.ZONE_SIZE;
   
   protected float
     rotation    ,

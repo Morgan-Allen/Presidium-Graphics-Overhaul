@@ -52,7 +52,7 @@ public class BaseCommerce {
   
   
   final Base base;
-  Sector homeworld;
+  VerseLocation homeworld;
   
   final Tally <Traded>
     primaryDemand = new Tally <Traded> (),
@@ -65,7 +65,7 @@ public class BaseCommerce {
   
   final List <Actor> candidates = new List <Actor> ();
   
-  final List <Sector> partners = new List <Sector> ();
+  final List <VerseLocation> partners = new List <VerseLocation> ();
   
   //  TODO:  YOU ARE GOING TO NEED MULTIPLE SHIPS AT YOUR DISPOSAL, OR HIGHER
   //         VISITING FREQUENCY.
@@ -85,9 +85,9 @@ public class BaseCommerce {
   
   public void loadState(Session s) throws Exception {
     
-    homeworld = (Sector) s.loadObject();
+    homeworld = (VerseLocation) s.loadObject();
     for (int n = s.loadInt(); n-- > 0;) {
-      partners.add((Sector) s.loadObject());
+      partners.add((VerseLocation) s.loadObject());
     }
     
     for (Traded type : ALL_MATERIALS) {
@@ -109,7 +109,7 @@ public class BaseCommerce {
     
     s.saveObject(homeworld);
     s.saveInt(partners.size());
-    for (Sector p : partners) s.saveObject(p);
+    for (VerseLocation p : partners) s.saveObject(p);
     
     for (Traded type : ALL_MATERIALS) {
       s.saveFloat(primaryDemand.valueFor(type));
@@ -126,24 +126,24 @@ public class BaseCommerce {
   }
   
   
-  public void assignHomeworld(Sector s) {
+  public void assignHomeworld(VerseLocation s) {
     homeworld = s;
     togglePartner(s, true);
   }
   
   
-  public Sector homeworld() {
+  public VerseLocation homeworld() {
     return homeworld;
   }
   
   
-  public void togglePartner(Sector s, boolean is) {
+  public void togglePartner(VerseLocation s, boolean is) {
     if (is) partners.include(s);
     else    partners.remove (s);
   }
   
   
-  public Series <Sector> partners() {
+  public Series <VerseLocation> partners() {
     return partners;
   }
   
@@ -320,7 +320,7 @@ public class BaseCommerce {
         basePrice = type.basePrice(),
         importMul = 2, exportDiv = 2,
         avgDemand = 0, homeBonus = 0;
-      for (Sector partner : partners) {
+      for (VerseLocation partner : partners) {
         if (Visit.arrayIncludes(partner.goodsMade  , type)) {
           avgDemand--;
         }
@@ -473,7 +473,7 @@ public class BaseCommerce {
     if (visitDue && canLand) {
       if (report) I.say("\nSENDING DROPSHIP TO "+ship.landArea());
       
-      base.world.offworld.addPassengersTo(ship);
+      base.world.offworld.journeys.addPassengersTo(ship);
       configCargo(ship.cargo, Dropship.MAX_CAPACITY, true);
       refreshCrew(ship, Backgrounds.DEFAULT_SHIP_CREW);
       refreshShip(true);

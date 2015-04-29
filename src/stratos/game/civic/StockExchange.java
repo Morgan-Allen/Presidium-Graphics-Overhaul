@@ -243,7 +243,7 @@ public class StockExchange extends Venue {
     if (! structure.intact()) return;
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
     
-    final float range = Stage.SECTOR_SIZE / 2;
+    final float range = Stage.ZONE_SIZE / 2;
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);
       final float realDemand = base.demands.demandAround(this, type, range);

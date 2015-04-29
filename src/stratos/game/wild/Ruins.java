@@ -32,7 +32,7 @@ public class Ruins extends Venue {
   );
   
   final static int
-    MIN_RUINS_SPACING = (int) (Stage.SECTOR_SIZE * 0.75f);
+    MIN_RUINS_SPACING = (int) (Stage.ZONE_SIZE * 0.75f);
   
   private static int NI = (int) (Rand.unseededNum() * 3);
   
@@ -88,7 +88,7 @@ public class Ruins extends Venue {
   
   
   public float ratePlacing(Target point, boolean exact) {
-    final boolean report = placeVerbose && (point instanceof StageSection);
+    final boolean report = placeVerbose && (point instanceof StageRegion);
     if (report) {
       I.say("\nRating are for "+this);
       I.say("  SECTION IS: "+point);

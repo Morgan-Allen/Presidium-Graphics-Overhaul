@@ -121,7 +121,7 @@ public class Assets {
       }
       
       //  Otherwise, move on to loading any registered assets-
-      else if (assetsToLoad.size() > 0 && PlayLoop.onRenderThread()) {
+      else if (assetsToLoad.size() > 0 && PlayLoop.onMainThread()) {
         final Loadable asset = assetsToLoad.first();
         if (extraVerbose) I.say("  Begun loading of:  "+asset.assetID+"...");
         loadNow(asset);
@@ -171,8 +171,10 @@ public class Assets {
     if (asset == null) return;
     //
     //  This appears to be the simplest solution to ensuring that assets being
-    //  loaded up on a separate thread don't wreck the place.
-    while ((! PlayLoop.onRenderThread()) && (! asset.isLoaded())) {
+    //  loaded up on a separate thread don't wreck the place.  In essence, wait
+    //  until the main thread begins or give it a chance to catch up.
+    while ((! PlayLoop.onMainThread()) && (! asset.isLoaded())) {
+      if (! PlayLoop.mainThreadBegun()) return;
       try {
         if (extraVerbose) I.say("\n...Pausing to wait for assets-thread.");
         Thread.sleep(250);

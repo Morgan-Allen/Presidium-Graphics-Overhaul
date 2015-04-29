@@ -457,7 +457,7 @@ public class DeliveryUtils {
     //
     //  Then return an estimate of how much an exchange would equalise things,
     //  along with penalties for distance, tier-gap and base relations:
-    final int SS = Stage.SECTOR_SIZE;
+    final int SS = Stage.ZONE_SIZE;
     final float distFactor = SS / (SS + Spacing.distance(orig, dest));
     final float tierFactor = Nums.max(1, Nums.abs(OT - DT));
     

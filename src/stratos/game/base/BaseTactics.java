@@ -211,8 +211,8 @@ public class BaseTactics {
   protected void addNewMissions(Batch <Mission> toAssess) {
     final Batch <Venue> venues = this.getSampleVenues();
     for (Venue v : venues) {
-      toAssess.add(new StrikeMission  (base, v));
-      toAssess.add(new SecurityMission(base, v));
+      toAssess.add(new MissionStrike  (base, v));
+      toAssess.add(new MissionSecurity(base, v));
     }
   }
   
@@ -405,8 +405,8 @@ public class BaseTactics {
   }
   
   
-  protected Batch <StageSection> getSampleSections() {
-    final Batch <StageSection> sampled = new Batch <StageSection> ();
+  protected Batch <StageRegion> getSampleSections() {
+    final Batch <StageRegion> sampled = new Batch <StageRegion> ();
     return sampled;
   }
 }

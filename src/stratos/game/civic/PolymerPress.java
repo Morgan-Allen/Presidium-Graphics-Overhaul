@@ -104,7 +104,7 @@ public class PolymerPress extends Venue implements TileConstants {
   
   public boolean canPlace(Account reasons) {
     if (! super.canPlace(reasons)) return false;
-    if (areaClaimed.maxSide() > Stage.SECTOR_SIZE) {
+    if (areaClaimed.maxSide() > Stage.ZONE_SIZE) {
       return reasons.asFailure("Area is too large!");
     }
     final Stage world = origin().world;
@@ -150,7 +150,7 @@ public class PolymerPress extends Venue implements TileConstants {
     choice.add(d);
     
     Venue source = (EcologistStation) world.presences.nearestMatch(
-      EcologistStation.class, this, Stage.SECTOR_SIZE
+      EcologistStation.class, this, Stage.ZONE_SIZE
     );
     if (source == null) source = this;
     choice.add(Forestry.nextPlanting(actor, source));

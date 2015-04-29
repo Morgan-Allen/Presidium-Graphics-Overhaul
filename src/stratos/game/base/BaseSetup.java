@@ -50,7 +50,7 @@ public class BaseSetup {
   protected Blueprint canPlace[];
   static class Siting {
     Venue        sample   ;
-    StageSection placed   ;
+    StageRegion placed   ;
     Tile         exactTile;
     float        rating   ;
   }
@@ -84,7 +84,7 @@ public class BaseSetup {
     for (int n = numP ; n-- > 0;) {
       final Siting p = new Siting();
       p.sample    = (Venue       ) s.loadObject();
-      p.placed    = (StageSection) s.loadTarget();
+      p.placed    = (StageRegion) s.loadTarget();
       p.exactTile = (Tile        ) s.loadTarget();
       p.rating    =                s.loadFloat ();
       sitings.add(p);
@@ -132,7 +132,7 @@ public class BaseSetup {
   public Batch <Venue> doFullPlacements(Blueprint... types) {
     final Batch <Venue> placed = new Batch <Venue> ();
     
-    for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
+    for (StageRegion section : world.sections.sectionsUnder(world.area(), 0)) {
       for (Blueprint p : types) {
         final Venue v = p.createVenue(base);
         float x = section.absX + Rand.index(section.size);
@@ -234,7 +234,7 @@ public class BaseSetup {
       I.say("  Total venue types: "+samples.length);
     }
     
-    for (StageSection section : world.sections.sectionsUnder(world.area(), 0)) {
+    for (StageRegion section : world.sections.sectionsUnder(world.area(), 0)) {
       for (Venue sample : samples) {
         sample.assignBase(base);
         final Siting p = new Siting();
@@ -379,7 +379,7 @@ public class BaseSetup {
       }
       else {
         final Stage world = venue.base().world;
-        world.offworld.addImmigrant(worker, world);
+        world.offworld.journeys.addImmigrant(worker, world);
       }
     }
   }

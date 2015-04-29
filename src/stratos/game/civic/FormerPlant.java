@@ -167,7 +167,7 @@ public class FormerPlant extends Venue {
   
   
   protected Tile pickSample() {
-    final int range = Stage.SECTOR_SIZE * 2;
+    final int range = Stage.ZONE_SIZE * 2;
     Tile picked = null;
     float bestRating = 0;
     for (int n = 10; n-- > 0;) {
@@ -239,7 +239,7 @@ public class FormerPlant extends Venue {
     //  Sample the local terrain and see if you get an extraction bonus-
     final Vec3D p = this.position(null);
     final Box2D area = new Box2D().set(p.x, p.y, 0, 0);
-    area.expandBy(Stage.SECTOR_SIZE);
+    area.expandBy(Stage.ZONE_SIZE);
     area.cropBy(new Box2D().set(0, 0, world.size - 1, world.size - 1));
     float sumWater = 0, sumDesert = 0;
     //
@@ -304,7 +304,7 @@ public class FormerPlant extends Venue {
     //  pollution, while reducing global pollution (because it's messy and
     //  noisy, but good for the atmosphere.)  Not In My Backyard, IOW.
     structure.setAmbienceVal(-1 * yield);
-    final int mag = Stage.SECTOR_SIZE;
+    final int mag = Stage.ZONE_SIZE;
     world.ecology().pushClimate(Habitat.MEADOW, mag * mag * 5 * yield);
   }
   

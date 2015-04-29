@@ -355,7 +355,7 @@ public abstract class Power extends Technique implements Qualities {
       }
       
       public int costFor(Actor caster, Target selected) {
-        float dist = Spacing.distance(selected, caster) / Stage.SECTOR_SIZE;
+        float dist = Spacing.distance(selected, caster) / Stage.ZONE_SIZE;
         float cost = 5 * Nums.sqrt(dist);
         return (int) cost;
       }
@@ -459,7 +459,7 @@ public abstract class Power extends Technique implements Qualities {
             newDist = destination.position(null).distance(thrownTo);
           }
           float injury = distance / 5, dislike = 0;
-          dislike += (newDist - oldDist) / Stage.SECTOR_SIZE;
+          dislike += (newDist - oldDist) / Stage.ZONE_SIZE;
           dislike += injury / hurt.health.maxHealth();
           
           hurt.enterStateKO(Action.FALL);

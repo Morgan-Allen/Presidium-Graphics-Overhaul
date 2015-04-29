@@ -24,7 +24,7 @@ public class ProgressBar extends UINode {
   
   public ProgressBar(HUD UI, String fillImage, String backImage) {
     super(UI);
-    if (! PlayLoop.onRenderThread()) I.complain("ONLY DURING RENDER THREAD!");
+    if (! PlayLoop.onMainThread()) I.complain("ONLY DURING RENDER THREAD!");
     fillTex = ImageAsset.getTexture(fillImage);
     backTex = ImageAsset.getTexture(backImage);
     repeatWidth = fillTex.getWidth();

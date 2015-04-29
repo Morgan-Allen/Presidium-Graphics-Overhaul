@@ -23,7 +23,7 @@ import static stratos.game.actors.Qualities.*;
 //         inclined to join you (base off influence-levels on the map.)
 
 
-public class ContactMission extends Mission {
+public class MissionContact extends Mission {
   
   
   /**  Field definitions, constructors and save/load methods-
@@ -38,7 +38,7 @@ public class ContactMission extends Mission {
   private Batch <Actor> allTried = new Batch <Actor> ();
   
   
-  public ContactMission(Base base, Target subject) {
+  public MissionContact(Base base, Target subject) {
     super(
       base, subject, CONTACT_MODEL,
       "Making Contact with "+subject
@@ -48,7 +48,7 @@ public class ContactMission extends Mission {
   }
   
   
-  public ContactMission(Session s) throws Exception {
+  public MissionContact(Session s) throws Exception {
     super(s);
     offers    = (Pledge ) s.loadObject();
     sought    = (Pledge ) s.loadObject();

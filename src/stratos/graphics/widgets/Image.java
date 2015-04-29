@@ -26,7 +26,7 @@ public class Image extends UINode {
   
   public Image(HUD UI, String imagePath) {
     super(UI);
-    if (! PlayLoop.onRenderThread()) I.complain("ONLY ON RENDER THREAD!");
+    if (! PlayLoop.onMainThread()) I.complain("ONLY ON RENDER THREAD!");
     texture = ImageAsset.getTexture(imagePath);
   }
   

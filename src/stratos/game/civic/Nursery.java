@@ -132,7 +132,7 @@ public class Nursery extends Venue implements TileConstants {
   
   public boolean canPlace(Account reasons) {
     if (! super.canPlace(reasons)) return false;
-    if (areaClaimed.maxSide() > Stage.SECTOR_SIZE) {
+    if (areaClaimed.maxSide() > Stage.ZONE_SIZE) {
       return reasons.asFailure("Area is too large!");
     }
     final Stage world = origin().world;
@@ -162,7 +162,7 @@ public class Nursery extends Venue implements TileConstants {
     final Tile under = world.tileAt(point);
     float rating = 0;
     rating += world.terrain().fertilitySample(under);
-    rating /= 1 + (distance / Stage.SECTOR_SIZE);
+    rating /= 1 + (distance / Stage.ZONE_SIZE);
     rating *= 10 * demand;
     return rating;
   }

@@ -186,7 +186,7 @@ public class Career implements Qualities {
       
       pickHomeworld(actor, base);
       applyBackground(homeworld, actor);
-      applySystem((Sector) homeworld, actor);
+      applySystem((VerseLocation) homeworld, actor);
       
       pickVocation(actor, base);
       applyBackground(vocation, actor);
@@ -199,7 +199,7 @@ public class Career implements Qualities {
       
       pickHomeworld(actor, base);
       applyBackground(homeworld, actor);
-      applySystem((Sector) homeworld, actor);
+      applySystem((VerseLocation) homeworld, actor);
       
       pickBirthClass(actor, base);
       applyBackground(birth, actor);
@@ -232,16 +232,16 @@ public class Career implements Qualities {
       return;
     }
     else if (base.isNative()) {
-      homeworld = base.world.offworld.worldSector();
+      homeworld = base.world.offworld.localWorld();
     }
     else {
       //  TODO:  Include some weighting based off house relations!
       final Batch <Float> weights = new Batch <Float> ();
-      for (Background v : Sectors.ALL_PLANETS) {
+      for (Background v : Verse.ALL_PLANETS) {
         weights.add(ratePromotion(v, actor, verbose));
       }
       homeworld = (Background) Rand.pickFrom(
-        Sectors.ALL_PLANETS, weights.toArray()
+        Verse.ALL_PLANETS, weights.toArray()
       );
     }
   }
@@ -461,7 +461,7 @@ public class Career implements Qualities {
   
   //
   //  TODO:  Try incorporating these trait-FX into the rankings first.
-  private void applySystem(Sector world, Actor actor) {
+  private void applySystem(VerseLocation world, Actor actor) {
     //
     //  Assign skin texture (race) based on prevailing climate.  (Climate
     //  matching the parent homeworld is most likely, followed by races with

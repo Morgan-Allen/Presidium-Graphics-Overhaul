@@ -92,7 +92,7 @@ public class StartupScenario extends Scenario {
     public List  <Background> advisors = new List  <Background> ();
     public Tally <Background> crew     = new Tally <Background> ();
     public Tally <Blueprint > built    = new Tally <Blueprint > ();
-    public Sector demesne;
+    public VerseLocation demesne;
     public int siteLevel, fundsLevel, titleLevel;
   }
   
@@ -122,7 +122,7 @@ public class StartupScenario extends Scenario {
     for (int i = s.loadInt(); i-- > 0;) {
       config.built.set((Blueprint) s.loadObject(), s.loadFloat());
     }
-    config.demesne    = (Sector) s.loadObject();
+    config.demesne    = (VerseLocation) s.loadObject();
     config.siteLevel  = s.loadInt();
     config.fundsLevel = s.loadInt();
     config.titleLevel = s.loadInt();
@@ -188,8 +188,8 @@ public class StartupScenario extends Scenario {
     Flora.populateFlora(world);
     
     //  TODO:  THIS NEEDS TO BE CONFIGURED EXTERNALLY!
-    if (config.demesne == null) config.demesne = Sectors.SECTOR_ELYSIUM;
-    world.offworld.assignLocalSector(config.demesne, Sectors.PLANET_DIAPSOR);
+    if (config.demesne == null) config.demesne = Verse.SECTOR_ELYSIUM;
+    world.offworld.assignStageLocation(config.demesne);
     return world;
   }
   
@@ -205,7 +205,7 @@ public class StartupScenario extends Scenario {
     }
     base.finance.incCredits(funding, BaseFinance.SOURCE_CHARITY);
     base.finance.setInterestPaid(interest);
-    base.commerce.assignHomeworld((Sector) config.house);
+    base.commerce.assignHomeworld((VerseLocation) config.house);
     return base;
   }
   
@@ -397,11 +397,11 @@ public class StartupScenario extends Scenario {
       nesting = new Species[] { Qudu.SPECIES, Hareen.SPECIES };
     }
     if (config.siteLevel == SITE_WILDERNESS) {
-      maxRuins = world.size / (Stage.SECTOR_SIZE * 4);
+      maxRuins = world.size / (Stage.ZONE_SIZE * 4);
       nesting = Species.ANIMAL_SPECIES;
     }
     if (config.siteLevel == SITE_WASTELAND) {
-      maxRuins = world.size / (Stage.SECTOR_SIZE * 2);
+      maxRuins = world.size / (Stage.ZONE_SIZE * 2);
     }
     
     final Batch <Venue> ruins = Base.artilects(world).setup.doPlacementsFor(

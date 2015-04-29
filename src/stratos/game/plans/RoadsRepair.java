@@ -24,7 +24,7 @@ public class RoadsRepair extends Plan {
   final Base base;
   final PavingMap map;
   private Tile around;
-  private StageSection section;
+  private StageRegion section;
   
   
   public RoadsRepair(Actor actor, Tile t) {
@@ -41,7 +41,7 @@ public class RoadsRepair extends Plan {
     this.base    = (Base) s.loadObject();
     this.map     = base.transport.map;
     this.around  = (Tile) s.loadObject();
-    this.section = (StageSection) s.loadObject();
+    this.section = (StageRegion) s.loadObject();
   }
   
   

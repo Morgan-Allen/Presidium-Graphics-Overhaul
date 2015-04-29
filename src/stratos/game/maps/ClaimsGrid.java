@@ -76,7 +76,7 @@ public class ClaimsGrid {
   //  TODO:  Is there any way to make this more precise?  Based off the danger-
   //  map, say?
   public Base baseClaiming(Tile t) {
-    final StageSection s = world.sections.sectionAt(t.x, t.y);
+    final StageRegion s = world.sections.sectionAt(t.x, t.y);
     return baseClaims[s.x][s.y];
   }
   
@@ -92,7 +92,7 @@ public class ClaimsGrid {
   public Venue[] venuesClaiming(Box2D area) {
     final Batch <Venue> venues = new Batch <Venue> ();
     
-    for (StageSection s : world.sections.sectionsUnder(area, 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(area, 1)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (claims != null) for (Claim claim : claims) {
         if (! claim.area.overlaps(area)) continue;
@@ -131,7 +131,7 @@ public class ClaimsGrid {
       I.say("  Area checked: "+area);
     }
     
-    for (StageSection s : world.sections.sectionsUnder(area, 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(area, 1)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       
       if (claims != null) for (Claim claim : claims) {
@@ -192,7 +192,7 @@ public class ClaimsGrid {
     newClaim.owner = owner;
     if (owner != null) venueClaims.put(owner, newClaim);
     
-    for (StageSection s : world.sections.sectionsUnder(area, 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(area, 1)) {
       List <Claim> claims = areaClaims[s.x][s.y];
       if (claims == null) areaClaims[s.x][s.y] = claims = new List <Claim> ();
       claims.add(newClaim);
@@ -220,7 +220,7 @@ public class ClaimsGrid {
   
   
   private void removeClaim(Claim claim, boolean report) {
-    for (StageSection s : world.sections.sectionsUnder(claim.area, 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(claim.area, 1)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       claims.remove(claim);
       if (claims.size() == 0) areaClaims[s.x][s.y] = null;

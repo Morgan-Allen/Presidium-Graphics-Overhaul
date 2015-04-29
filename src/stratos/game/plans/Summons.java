@@ -228,7 +228,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   
   private boolean checkForDialogueEntry(Actor actor, Boarding stays) {
     final Base base = stays.base();
-    final Mission match = base.matchingMission(actor, ContactMission.class);
+    final Mission match = base.matchingMission(actor, MissionContact.class);
     if (
       (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
       stays == base.HQ() && ! MessagePane.hasFocus(actor)

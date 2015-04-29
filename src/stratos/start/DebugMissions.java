@@ -116,7 +116,7 @@ public class DebugMissions extends Scenario {
       actor.mind.setWork(hut);
     }
     
-    final Mission contact = new ContactMission(base, hut);
+    final Mission contact = new MissionContact(base, hut);
     contact.setMissionType(Mission.TYPE_SCREENED  );
     contact.assignPriority(Mission.PRIORITY_URGENT);
     
@@ -146,7 +146,7 @@ public class DebugMissions extends Scenario {
     combat.addMotives(Plan.MOTIVE_EMERGENCY, 100);
     robot.mind.assignBehaviour(combat);
     
-    final Mission security = new SecurityMission(base, vet);
+    final Mission security = new MissionSecurity(base, vet);
     security.setMissionType(Mission.TYPE_SCREENED  );
     security.assignPriority(Mission.PRIORITY_URGENT);
     
@@ -171,7 +171,7 @@ public class DebugMissions extends Scenario {
     final Ruins ruin = new Ruins(artilects);
     Placement.establishVenue(ruin, 12, 12, true, world);
     
-    final Mission strike = new StrikeMission(base, ruin);
+    final Mission strike = new MissionStrike(base, ruin);
     strike.setMissionType(Mission.TYPE_SCREENED  );
     strike.assignPriority(Mission.PRIORITY_URGENT);
     
@@ -192,7 +192,7 @@ public class DebugMissions extends Scenario {
   private void reconScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = false;
     
-    final Mission recon = new ReconMission(base, world.tileAt(20, 20));
+    final Mission recon = new MissionRecon(base, world.tileAt(20, 20));
     recon.setMissionType(Mission.TYPE_SCREENED);
     recon.assignPriority(Mission.PRIORITY_URGENT);
     

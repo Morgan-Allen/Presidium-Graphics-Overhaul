@@ -32,7 +32,7 @@ import java.lang.reflect.*;
   *  
   *  The Saveable interface is accessible from within the Session class.
   */
-public class Session {
+public final class Session {
   
   private static boolean
     verbose = false;
@@ -172,7 +172,8 @@ public class Session {
   /**  NOTE:  Classes that implement this interface must ALSO implement a
     *  public constructor taking a Session as it's sole argument, with a
     *  cacheInstance call made right away, OR, a static loadConstant method
-    *  taking the Session as it's argument.
+    *  taking the Session as it's argument.  In the former case, they must also
+    *  call cacheInstance() as soon as possible in the root constructor.
     */
   public static interface Saveable {
     void saveState(Session s) throws Exception;

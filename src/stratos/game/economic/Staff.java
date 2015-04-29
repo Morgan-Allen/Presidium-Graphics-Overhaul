@@ -338,7 +338,7 @@ public class Staff {
     //
     //  If the actor needs transport, arrange it-
     if (! works.inWorld()) {
-      world.offworld.addImmigrant(works, world);
+      world.offworld.journeys.addImmigrant(works, world);
     }
   }
   

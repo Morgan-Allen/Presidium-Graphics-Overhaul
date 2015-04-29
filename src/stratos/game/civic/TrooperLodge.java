@@ -142,7 +142,7 @@ public class TrooperLodge extends Venue {
     //  TODO:  Move this to the factory method
     if (onShift) {
       final ShieldWall wall = (ShieldWall) world.presences.randomMatchNear(
-        ShieldWall.class, this, Stage.SECTOR_SIZE
+        ShieldWall.class, this, Stage.ZONE_SIZE
       );
       if (wall != null && wall.base() == base) {
         final int compass = TileConstants.T_ADJACENT[Rand.index(4)];

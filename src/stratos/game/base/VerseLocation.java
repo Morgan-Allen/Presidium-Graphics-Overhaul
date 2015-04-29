@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -17,7 +16,7 @@ import stratos.util.*;
 //  given sector over time.  (This then becomes the Background, not the sector
 //  itself.)
 
-//  Sector contains constants such as name, gravity, orbital period, 
+//  Sector contains constants such as name, gravity, orbital period,
 //  relative distance from other Sectors, and default levels of moisture,
 //  minerals and insolation (which might be modified by terraforming.)
 
@@ -35,9 +34,11 @@ import stratos.util.*;
 //  (Also, houses & factions will have to be made into separate entities, so
 //  that their degree of ownership/influence can change over time.)
 
+//  TODO:  Include information about distances here, loaded from XML.
 
 
-public class Sector extends Background {
+
+public class VerseLocation extends Background {
 
   
   final public static Object
@@ -45,6 +46,7 @@ public class Sector extends Background {
     NEEDS = new Object();
   
   
+  final public VerseLocation belongs;
   final public String houseName;
   final public Traded goodsMade[], goodsNeeded[];
   final public Trait climate;
@@ -52,13 +54,11 @@ public class Sector extends Background {
   
   final Table <Background[], Float> circles = new Table();
   
-  //  TODO:  Include information about distances here, loaded from XML.
   
-  
-  public Sector(
+  public VerseLocation(
     Class baseClass,
     String name, String houseName, String description,
-    Trait climate, int gravity, Object... args
+    Trait climate, int gravity, VerseLocation belongs, Object... args
   ) {
     super(
       baseClass, name, description, null, null,
@@ -66,6 +66,7 @@ public class Sector extends Background {
     );
     this.houseName = houseName;
     
+    this.belongs = belongs;
     this.climate = climate;
     this.gravity = gravity;
     
@@ -101,8 +102,10 @@ public class Sector extends Background {
   }
   
   
-  public static Sector sectorNamed(String name) {
-    for (Sector s : Sectors.ALL_SECTORS) if (s.name.equals(name)) return s;
+  public static VerseLocation sectorNamed(String name) {
+    for (VerseLocation s : Verse.ALL_SECTORS) if (s.name.equals(name)) {
+      return s;
+    }
     return null;
   }
 }

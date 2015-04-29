@@ -86,18 +86,18 @@ public class MainMenu extends UIGroup {
     text.append("\n  House:");
     I.say("  HOUSE IS: "+config.house);
     
-    final Sector START_HOUSES[] = {
-      Sectors.PLANET_ASRA_NOVI,
-      Sectors.PLANET_AXIS_NOVENA,
-      Sectors.PLANET_HALIBAN,
-      Sectors.PLANET_PAREM_V
+    final VerseLocation START_HOUSES[] = {
+      Verse.PLANET_ASRA_NOVI,
+      Verse.PLANET_AXIS_NOVENA,
+      Verse.PLANET_HALIBAN,
+      Verse.PLANET_PAREM_V
     };
     if (config.house == null) {
-      config.house = (Sector) Rand.pickFrom(START_HOUSES);
+      config.house = (VerseLocation) Rand.pickFrom(START_HOUSES);
     }
     
     for (Background b : START_HOUSES) {
-      final Sector s = (Sector) b;
+      final VerseLocation s = (VerseLocation) b;
       final Colour c = config.house == s ? Colour.CYAN : null;
       Call.add("\n    "+s.houseName, c, this, "setHouse", text, s);
     }
@@ -373,7 +373,7 @@ public class MainMenu extends UIGroup {
   //  TODO:  Give the player a broad summary of the choices made (including the
   //  name of the ruler/subjects,) before committing to the landing choice.
   public void beginNewGame(Object args[]) {
-    final Sector sector = (Sector) config.house;
+    final VerseLocation sector = (VerseLocation) config.house;
     final String title = SaveUtils.uniqueVariant(sector.houseName);
     PlayLoop.setupAndLoop(new StartupScenario(config, title));
   }

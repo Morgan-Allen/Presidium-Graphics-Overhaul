@@ -77,7 +77,7 @@ public class ServiceHatch extends Venue {
     
     Stage world = point.world();
     final Object key = ServiceHatch.class;
-    final float range = Stage.SECTOR_SIZE / 2, abutRange = 2 + 1;
+    final float range = Stage.ZONE_SIZE / 2, abutRange = 2 + 1;
     
     if (exact) {
       Target near = null;

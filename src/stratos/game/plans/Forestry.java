@@ -416,7 +416,7 @@ public class Forestry extends Plan {
     float bestRating = Float.NEGATIVE_INFINITY;
     
     for (int n = 5; n-- > 0;) {
-      tried = Spacing.pickRandomTile(depot, Stage.SECTOR_SIZE, actor.world());
+      tried = Spacing.pickRandomTile(depot, Stage.ZONE_SIZE, actor.world());
       tried = Spacing.nearestOpenTile(tried, actor);
       if (tried == null || ! Flora.canGrowAt(tried)) continue;
       
@@ -439,10 +439,10 @@ public class Forestry extends Plan {
     
     Flora cuts = null;
     cuts = (Flora) p.randomMatchNear(
-      Flora.class, near, Stage.SECTOR_SIZE / 2
+      Flora.class, near, Stage.ZONE_SIZE / 2
     );
     if (cuts == null) cuts = (Flora) p.nearestMatch(
-      Flora.class, near, Stage.SECTOR_SIZE * 1.5f
+      Flora.class, near, Stage.ZONE_SIZE * 1.5f
     );
     if (cuts == null) return null;
     

@@ -70,10 +70,7 @@ public class DebugSocial extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    world.offworld.assignLocalSector(
-      Sectors.SECTOR_PAVONIS,
-      Sectors.PLANET_DIAPSOR
-    );
+    world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS);
     
     if (false) testCareers(base);
     if (false) configDialogueScenario(world, base, UI);
@@ -147,7 +144,7 @@ public class DebugSocial extends Scenario {
     final Career career = new Career(
       Backgrounds.COMPANION,
       Backgrounds.BORN_GELDER,
-      Sectors.PLANET_AXIS_NOVENA,
+      Verse.PLANET_AXIS_NOVENA,
       null
     );
     final Human subject = new Human(career, base);
@@ -191,7 +188,7 @@ public class DebugSocial extends Scenario {
     //
     //  Then configure a contact mission asking to secure audience with the
     //  natives.
-    final ContactMission peaceMission = new ContactMission(base, talks);
+    final MissionContact peaceMission = new MissionContact(base, talks);
     peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
     peaceMission.setMissionType(Mission.TYPE_SCREENED);
     final Item gift = Item.withAmount(Economy.PROTEIN, 5);
@@ -253,7 +250,7 @@ public class DebugSocial extends Scenario {
     watch.enterWorldAt(13, 13, world);
     
     Mission.quickSetup(
-      new StrikeMission(base, nests),
+      new MissionStrike(base, nests),
       Mission.PRIORITY_ROUTINE, Mission.TYPE_SCREENED,
       meets
     );

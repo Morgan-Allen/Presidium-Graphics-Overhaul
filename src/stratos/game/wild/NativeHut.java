@@ -67,8 +67,8 @@ public class NativeHut extends Venue {
     
     HUT_OCCUPANCY  = 2,
     HALL_OCCUPANCY = 4,
-    HALL_EXCLUSION = Stage.SECTOR_SIZE / 2,
-    RADIUS_CLAIMED = Stage.SECTOR_SIZE / 2;
+    HALL_EXCLUSION = Stage.ZONE_SIZE / 2,
+    RADIUS_CLAIMED = Stage.ZONE_SIZE / 2;
   
   
   private int type, tribeID;

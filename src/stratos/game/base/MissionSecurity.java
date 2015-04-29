@@ -14,7 +14,7 @@ import stratos.util.*;
 
 
 
-public class SecurityMission extends Mission implements Qualities {
+public class MissionSecurity extends Mission implements Qualities {
   
   
   /**  Field definitions, constants and save/load methods-
@@ -35,7 +35,7 @@ public class SecurityMission extends Mission implements Qualities {
   float inceptTime = -1;
   
   
-  public SecurityMission(Base base, Target subject) {
+  public MissionSecurity(Base base, Target subject) {
     super(
       base, subject, SECURITY_MODEL,
       "Securing "+subject
@@ -43,7 +43,7 @@ public class SecurityMission extends Mission implements Qualities {
   }
   
   
-  public SecurityMission(Session s) throws Exception {
+  public MissionSecurity(Session s) throws Exception {
     super(s);
     inceptTime = s.loadFloat();
   }

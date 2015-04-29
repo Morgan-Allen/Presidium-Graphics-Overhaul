@@ -300,7 +300,7 @@ public class Dropship extends Vehicle implements Owner {
   
   
   private void completeAscent() {
-    world.offworld.beginJourney(this, 5);//Offworld.TRAVEL_DURATION);
+    world.offworld.journeys.beginJourney(this, 5);//Offworld.TRAVEL_DURATION);
     exitWorld();
     stage = STAGE_AWAY;
     stageInceptTime = world.currentTime();

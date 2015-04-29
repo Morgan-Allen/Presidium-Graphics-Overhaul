@@ -100,7 +100,7 @@ public class DebugCommerce extends Scenario {
     base.commerce.addCandidate(SUPPLY_CORPS, depot);
     
     final Actor brought = new Human(KOMMANDO, base);
-    world.offworld.addImmigrant(brought, world);  //  TODO:  SPECIFY BASE
+    world.offworld.journeys.addImmigrant(brought, world);  //  TODO:  SPECIFY BASE
     
     base.commerce.updateCommerce(0);
     base.commerce.scheduleDrop(5);

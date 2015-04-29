@@ -276,7 +276,7 @@ public class HoldingUpgrades {
   
   /**  Venues access-
     */
-  final static float ACCESS_RANGE = Stage.SECTOR_SIZE * 1.414f;
+  final static float ACCESS_RANGE = Stage.ZONE_SIZE * 1.414f;
   
   
   protected static float rateAccessFrom(
@@ -385,7 +385,7 @@ public class HoldingUpgrades {
     
     final Tile t = holding.world().tileAt(holding);
     float safety = 0 - holding.base().dangerMap.sampleAround(
-      t.x, t.y, Stage.SECTOR_SIZE
+      t.x, t.y, Stage.ZONE_SIZE
     );
     if (holding.stocks.amountOf(PRESSFEED) > 0.5f) safety += 1.5f;
     if (safety < SAFETY_NEEDS[targetLevel]) return NV ? NOT_MET :

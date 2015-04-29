@@ -82,9 +82,14 @@ public final class PlayLoop {
     return played;
   }
   
-  public static boolean onRenderThread() {
+  public static boolean onMainThread() {
     return Thread.currentThread() == gdxThread;
   }
+  
+  public static boolean mainThreadBegun() {
+    return gdxThread != null;
+  }
+  
   
   
   

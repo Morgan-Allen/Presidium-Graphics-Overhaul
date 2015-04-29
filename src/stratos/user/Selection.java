@@ -153,7 +153,7 @@ public class Selection implements UIConstants {
     
     selected = s;
     I.talkAbout = selected;
-    if (! PlayLoop.onRenderThread()) return;
+    if (! PlayLoop.onMainThread()) return;
     
     I.say("Pushing selection: "+s);
     

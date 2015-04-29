@@ -149,7 +149,7 @@ public class CommercePane extends SelectionPane {
     
     Text.cancelBullet(d);
     d.append("\n\nTrading partners:");
-    for (Sector partner : BC.partners()) {
+    for (VerseLocation partner : BC.partners()) {
       d.append("\n  ");
       d.append(partner);
       d.append(" (Makes: ");

@@ -32,7 +32,7 @@ public class KommandoLodge extends Venue {
     KommandoLodge.class, "media/GUI/Buttons/kommando_lodge_button.gif"
   );
   
-  final static int CLAIM_RADIUS = Stage.SECTOR_SIZE / 2;
+  final static int CLAIM_RADIUS = Stage.ZONE_SIZE / 2;
 
   final public static Conversion
     LAND_TO_PROTEIN = new Conversion(

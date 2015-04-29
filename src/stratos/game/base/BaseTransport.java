@@ -24,7 +24,7 @@ public class BaseTransport {
   
   /**  Field definitions, constructor and save/load methods-
     */
-  final static int PATH_RANGE = Stage.SECTOR_SIZE / 2;
+  final static int PATH_RANGE = Stage.ZONE_SIZE / 2;
   private static boolean
     paveVerbose      = false,
     distroVerbose    = false,

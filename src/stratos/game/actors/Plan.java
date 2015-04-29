@@ -698,7 +698,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   //*
   public static float rangePenalty(Base base, Target from, Target to) {
     if (from == null || to == null) return 0;
-    final float SS   = Stage.SECTOR_SIZE;  //  TODO:  Modify by move speed!
+    final float SS   = Stage.ZONE_SIZE;  //  TODO:  Modify by move speed!
     final float dist = Spacing.distance(from, to) / SS;
     
     float baseMult = 2;
@@ -718,7 +718,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     final Tile at = actor.origin();
     float danger = actor.base().dangerMap.sampleAround(
-      at.x, at.y, Stage.SECTOR_SIZE
+      at.x, at.y, Stage.ZONE_SIZE
     );
     if (danger < 0) return 0;
     //danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS);

@@ -131,7 +131,7 @@ public class Holding extends Venue {
     
     if (exact) {
       final Tile at = (Tile) point;
-      final float range = Stage.SECTOR_SIZE;
+      final float range = Stage.ZONE_SIZE;
       Target near = null;
       
       near = at.world.presences.nearestMatch(base, at, range);

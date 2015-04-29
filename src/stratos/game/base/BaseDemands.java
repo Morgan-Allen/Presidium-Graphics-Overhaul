@@ -25,7 +25,7 @@ public class BaseDemands {
     reportKey = Economy.SERVICE_HOUSING;
   
   final static int
-    DEFAULT_PATCH_SIZE  = Stage.SECTOR_SIZE * 2,
+    DEFAULT_PATCH_SIZE  = Stage.ZONE_SIZE * 2,
     DEFAULT_TIME_PERIOD = Stage.STANDARD_DAY_LENGTH;
   
   final Stage world;

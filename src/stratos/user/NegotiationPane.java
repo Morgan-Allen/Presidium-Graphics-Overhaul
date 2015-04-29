@@ -14,11 +14,11 @@ import stratos.util.*;
 public class NegotiationPane extends MissionPane {
   
   
-  final ContactMission contact;
+  final MissionContact contact;
   final PledgeMenu offers, sought;
   
   
-  public NegotiationPane(BaseUI UI, ContactMission selected) {
+  public NegotiationPane(BaseUI UI, MissionContact selected) {
     super(UI, selected);
     this.contact = selected;
     

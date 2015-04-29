@@ -13,7 +13,7 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class Smuggling extends Plan implements Offworld.Activity {
+public class Smuggling extends Plan implements VerseJourneys.Activity {
   
   
   /**  Data fields, construction, and save/load methods:

@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -12,16 +11,16 @@ import stratos.util.*;
 
 
 
+//
 //  TODO:  Work this into a reference to all Sectors in the setting and their
 //         current state (rather than a single amalgam for everyone offworld.)
-
+//
 //  TODO:  It's even possible this data should be written to a separate file
 //         from the world itself, and loaded distinctly.
-
+//
 //  TODO:  You also need to specify which *base* the ship is returning to.
 
-
-public class Offworld {
+public class VerseJourneys {
   
   
   /**  Data fields, construction, and save/load methods-
@@ -42,9 +41,11 @@ public class Offworld {
     DEFAULT_WORLD = Sectors.PLANET_DIAPSOR;
   //*/
   
-  private Sector
+  /*
+  private VerseLocation
     localSector = null,
     worldSector = null;
+  //*/
   
   public static interface Activity extends Behaviour {
     //  TODO:  Pass along the sector/world/stage in question as arguments.
@@ -64,17 +65,19 @@ public class Offworld {
   
   //  TODO:  Use a table instead, to handle larger numbers?
   //  TODO:  Have journeys in and journeys out?
+  final Verse universe;
   final List <Journey> journeys = new List <Journey> ();
   final List <Mobile > away  = new List <Mobile > ();
   final List <Mobile > dueBack = new List <Mobile > ();
   private int updateCounter = 0;
   
   
+  protected VerseJourneys(Verse universe) {
+    this.universe = universe;
+  }
+  
+  
   public void loadState(Session s) throws Exception {
-    
-    localSector = (Sector) s.loadObject();
-    worldSector = (Sector) s.loadObject();
-    
     for (int n = s.loadInt(); n-- > 0;) {
       final Journey j = new Journey();
       j.vessel     = (Vehicle) s.loadObject();
@@ -89,10 +92,6 @@ public class Offworld {
   
   
   public void saveState(Session s) throws Exception {
-    
-    s.saveObject(localSector);
-    s.saveObject(worldSector);
-    
     s.saveInt(journeys.size());
     for (Journey j : journeys) {
       s.saveObject     (j.vessel    );
@@ -102,22 +101,6 @@ public class Offworld {
     s.saveObjects(away );
     s.saveObjects(dueBack);
     s.saveInt(updateCounter);
-  }
-  
-  
-  public void assignLocalSector(Sector local, Sector world) {
-    this.localSector = local;
-    this.worldSector = world;
-  }
-  
-  
-  public Sector localSector() {
-    return localSector;
-  }
-  
-  
-  public Sector worldSector() {
-    return worldSector;
   }
   
   
@@ -138,9 +121,9 @@ public class Offworld {
   
   public void updateOffworldFrom(Stage world) {
     final boolean report = updatesVerbose;
-    if (localSector == null || worldSector == null) {
+    if (universe.stageLocation() == null) {
       if (report) I.say(
-        "\nMUST HAVE LOCAL AND WORLD SECTORS SPECIFIED FOR OFFWORLD FUNCTIONS!"
+        "\nMUST HAVE STAGING SECTOR SPECIFIED FOR OFFWORLD FUNCTIONS!"
       );
       return;
     }

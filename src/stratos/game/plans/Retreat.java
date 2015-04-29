@@ -26,7 +26,7 @@ public class Retreat extends Plan implements Qualities {
     */
   final static float
     DANGER_MEMORY_FADE = 0.9f,  //TODO:  use a time-limit instead?
-    MIN_RETREAT_DIST = Stage.SECTOR_SIZE / 2;
+    MIN_RETREAT_DIST = Stage.ZONE_SIZE / 2;
   
   private static boolean
     havenVerbose = false,
@@ -78,8 +78,8 @@ public class Retreat extends Plan implements Qualities {
     final Target oldHaven = actor.senses.haven();
     final Stage world = actor.world();
     final float
-      runRange   = actor.health.sightRange() + Stage.SECTOR_SIZE,
-      sightHaven = Stage.SECTOR_SIZE / 2;
+      runRange   = actor.health.sightRange() + Stage.ZONE_SIZE,
+      sightHaven = Stage.ZONE_SIZE / 2;
     final boolean
       atHaven  = actor.aboard() == oldHaven,
       mustMove = atHaven && actor.senses.isEmergency() && ! actor.indoors();

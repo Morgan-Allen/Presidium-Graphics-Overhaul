@@ -28,8 +28,8 @@ public class Nest extends Venue {
     updateVerbose = false;
   
   final public static int
-    DEFAULT_FORAGE_DIST = Stage.SECTOR_SIZE / 2,
-    PREDATOR_SEPARATION = Stage.SECTOR_SIZE * 2,
+    DEFAULT_FORAGE_DIST = Stage.ZONE_SIZE / 2,
+    PREDATOR_SEPARATION = Stage.ZONE_SIZE * 2,
     MIN_SEPARATION      = 2,
     
     BROWSER_RATIO   = 12,

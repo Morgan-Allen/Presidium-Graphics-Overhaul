@@ -28,7 +28,7 @@ public class ShipUtils {
     */
   static boolean isBoarding(Mobile m, Dropship ship) {
     if (m.aboard() != ship) return false;
-    if (Offworld.activityFor(m) != null) return true;
+    if (VerseJourneys.activityFor(m) != null) return true;
     return false;
   }
   
@@ -319,7 +319,7 @@ public class ShipUtils {
     //
     //  Then, spread out to try and find a decent landing site-
     final Box2D area = ship.area(null);
-    final int maxDist = Stage.SECTOR_SIZE * 2;
+    final int maxDist = Stage.ZONE_SIZE * 2;
     final TileSpread spread = new TileSpread(init) {
       protected boolean canAccess(Tile t) {
         if (Spacing.distance(t, init) > maxDist) return false;

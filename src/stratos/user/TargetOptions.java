@@ -76,7 +76,7 @@ public class TargetOptions extends UIGroup implements UIConstants {
     ) {
       options.add(new OptionButton(
         BUI, Mission.STRIKE_ICON, "Destroy or capture subject",
-        new StrikeMission(base, subject)
+        new MissionStrike(base, subject)
       ));
     }
     if (
@@ -86,13 +86,13 @@ public class TargetOptions extends UIGroup implements UIConstants {
     ) {
       options.add(new OptionButton(
         BUI, Mission.SECURITY_ICON, "Secure or protect subject",
-        new SecurityMission(base, subject)
+        new MissionSecurity(base, subject)
       ));
     }
     if (
       Summons.canSummon(subject, base)
     ) {
-      final ContactMission contactMission = new ContactMission(base, subject);
+      final MissionContact contactMission = new MissionContact(base, subject);
       options.add(new OptionButton(
         BUI, Mission.CONTACT_ICON, "Contact or negotiate with subject",
         contactMission
@@ -113,7 +113,7 @@ public class TargetOptions extends UIGroup implements UIConstants {
     ) {
       options.add(new OptionButton(
         BUI, Mission.RECON_ICON, "Explore an area or follow subject",
-        new ReconMission(base, (Tile) subject)
+        new MissionRecon(base, (Tile) subject)
       ));
     }
     

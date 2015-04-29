@@ -193,7 +193,7 @@ public abstract class Artilect extends Actor {
         choice.add(new SpawnArtilect(this, other, venue));
       }
       final Ruins ruins = (Ruins) world.presences.randomMatchNear(
-        Ruins.class, this, Stage.SECTOR_SIZE
+        Ruins.class, this, Stage.ZONE_SIZE
       );
       choice.add(nextSpawning(this, ruins));
     }

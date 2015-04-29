@@ -27,9 +27,9 @@ public class PresenceMap implements Session.Saveable {
   final Node root;
   
   static class Node extends List {
-    final StageSection section;
+    final StageRegion section;
     int population = 0;
-    Node(StageSection s) { this.section = s; }
+    Node(StageRegion s) { this.section = s; }
   }
   
   
@@ -156,8 +156,8 @@ public class PresenceMap implements Session.Saveable {
       
       if (nodeKid == null) {
         if (is) {
-          StageSection worldKid = null;
-          for (StageSection k : n.section.kids) if (k.area.contains(x, y)) {
+          StageRegion worldKid = null;
+          for (StageRegion k : n.section.kids) if (k.area.contains(x, y)) {
             worldKid = k;
             break;
           }

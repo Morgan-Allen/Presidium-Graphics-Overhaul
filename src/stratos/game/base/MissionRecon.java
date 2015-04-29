@@ -13,16 +13,16 @@ import stratos.util.*;
 
 
 
-public class ReconMission extends Mission {
+public class MissionRecon extends Mission {
   
   
   
   /**  Field definitions, constructors and save/load methods-
     */
   final static float SETTING_AREAS[] = {
-    Stage.SECTOR_SIZE * (float) Nums.sqrt(0.25f),
-    Stage.SECTOR_SIZE * (float) Nums.sqrt(0.50f),
-    Stage.SECTOR_SIZE * (float) Nums.sqrt(0.75f),
+    Stage.ZONE_SIZE * (float) Nums.sqrt(0.25f),
+    Stage.ZONE_SIZE * (float) Nums.sqrt(0.50f),
+    Stage.ZONE_SIZE * (float) Nums.sqrt(0.75f),
   };
   
   //  TODO:  Give three/four more interesting options.
@@ -43,7 +43,7 @@ public class ReconMission extends Mission {
   
   
   
-  public ReconMission(Base base, Tile subject) {
+  public MissionRecon(Base base, Tile subject) {
     super(
       base, subject, RECON_MODEL,
       "Exploring "+subject.habitat().name+" at "+subject.x+" "+subject.y
@@ -51,7 +51,7 @@ public class ReconMission extends Mission {
   }
   
   
-  public ReconMission(Session s) throws Exception {
+  public MissionRecon(Session s) throws Exception {
     super(s);
     //inRange = (Tile[]) s.loadTargetArray(Tile.class);
     doneRecon = s.loadBool();

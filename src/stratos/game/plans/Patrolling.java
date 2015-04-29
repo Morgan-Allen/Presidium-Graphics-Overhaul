@@ -90,7 +90,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     
     float urgency, relDanger = 0;
     if (actor.base() != null) for (Target t : patrolled) {
-      relDanger += actor.base().dangerMap.sampleAround(t, Stage.SECTOR_SIZE);
+      relDanger += actor.base().dangerMap.sampleAround(t, Stage.ZONE_SIZE);
     }
     relDanger /= patrolled.size();
     urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
@@ -333,7 +333,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   ) {
     final Batch<Target> enRoute = new Batch<Target>();
 
-    final float maxDist = Stage.SECTOR_SIZE * 1.5f;
+    final float maxDist = Stage.ZONE_SIZE * 1.5f;
     final Vec3D p = start.position(null);
     Tile ideal = actor.world().tileAt(
       p.x + (T_X[initDir] * 2),
@@ -408,7 +408,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     //  Grab a random building nearby and patrol around it.
     final Stage world = actor.world();
     final Base base = origin.base();
-    final float range = Stage.SECTOR_SIZE / 2f;
+    final float range = Stage.ZONE_SIZE / 2f;
     final Venue pick = (Venue) world.presences.randomMatchNear(
       base, origin, range
     );

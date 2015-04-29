@@ -110,7 +110,7 @@ public class Mining extends Plan {
     if (report) I.say("\nGetting tiles beneath "+site);
     
     final Stage world = site.world();
-    final int range = site.digLimit(), SS = Stage.SECTOR_SIZE;
+    final int range = site.digLimit(), SS = Stage.ZONE_SIZE;
     final Box2D area = new Box2D().setTo(site.footprint());
 
     //
@@ -161,7 +161,7 @@ public class Mining extends Plan {
   
   
   private static float rateFace(ExcavationSite site, Tile face) {
-    final int SS = Stage.SECTOR_SIZE;
+    final int SS = Stage.ZONE_SIZE;
     
     final float dist = Spacing.distance(face, site);
     if (dist > site.digLimit() + (SS / 2)) return -1;

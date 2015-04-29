@@ -4,12 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
-import static stratos.start.SaveUtils.deleteAllLaterSaves;
 import stratos.game.common.*;
-import stratos.graphics.common.Rendering;
-import stratos.graphics.widgets.HUD;
 import stratos.util.*;
-
 import java.io.File;
 
 
@@ -191,9 +187,9 @@ public class SaveUtils {
       private Session session = null;
       private Scenario loaded = null;
 
-      public HUD UI() { return null; }
+      public stratos.graphics.widgets.HUD UI() { return null; }
       public void updateGameState() {}
-      public void renderVisuals(Rendering rendering) {}
+      public void renderVisuals(stratos.graphics.common.Rendering rendering) {}
       
       
       public void beginGameSetup() {

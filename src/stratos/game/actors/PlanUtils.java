@@ -430,11 +430,11 @@ public class PlanUtils {
 
     final Base otherBase = around.base(), ownBase = actor.base();
     float danger = ownBase.dangerMap.sampleAround(
-      around, Stage.SECTOR_SIZE
+      around, Stage.ZONE_SIZE
     );
     if (otherBase != null) {
       final float foeSafe = 0 - otherBase.dangerMap.sampleAround(
-        around, Stage.SECTOR_SIZE
+        around, Stage.ZONE_SIZE
       );
       danger = (danger + Nums.max(0, foeSafe)) / 2;
     }

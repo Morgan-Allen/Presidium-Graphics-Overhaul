@@ -1,11 +1,15 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.common;
 import stratos.util.*;
 
 
 
 
-public class StageSection implements Target, Session.Saveable {
+public class StageRegion implements Target, Session.Saveable {
   
   
   /**  Data fields, construction, and save/load methods-
@@ -15,13 +19,13 @@ public class StageSection implements Target, Session.Saveable {
   final public Box2D area   = new Box2D();
   final public int x, y, absX, absY, depth, size;
   
-  protected StageSection kids[], parent;
+  protected StageRegion kids[], parent;
   protected boolean updateBounds = true;
   
   private Object flagged = null;
   
   
-  StageSection(StageSections w, int x, int y, int d) {
+  StageRegion(StageSections w, int x, int y, int d) {
     this.world = w.world;
     this.x = x;
     this.y = y;
@@ -38,7 +42,7 @@ public class StageSection implements Target, Session.Saveable {
   }
   
   
-  public static StageSection loadConstant(Session s) throws Exception {
+  public static StageRegion loadConstant(Session s) throws Exception {
     return s.world().sections.sectionAt(s.loadInt(), s.loadInt());
   }
   

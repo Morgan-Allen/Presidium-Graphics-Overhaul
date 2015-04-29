@@ -156,13 +156,13 @@ public class CombatUtils {
     
     for (Target t : actor.senses.awareOf()) {
       final float distance = Spacing.distance(t, actor);
-      if (distance > Stage.SECTOR_SIZE) continue;
+      if (distance > Stage.ZONE_SIZE) continue;
       if (actor.senses.indoors(t)) continue;
       
       float value = PlanUtils.harmIntendedBy(t, actor, true);
       if (value <= 0) continue;
       if (melee) value /= 1 + distance;
-      else       value /= 1 + (distance / (Stage.SECTOR_SIZE / 2));
+      else       value /= 1 + (distance / (Stage.ZONE_SIZE / 2));
       
       if (report) {
         I.say("    Value for "+t+" is "+value);

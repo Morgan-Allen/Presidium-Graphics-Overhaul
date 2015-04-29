@@ -90,8 +90,8 @@ public class Ecology {
   
   public float biomassRating(Tile t) {
     checkMapsInit();
-    float sample = abundances.supplyAround(t, biomass, Stage.SECTOR_SIZE) * 4;
-    return sample / (Stage.SECTOR_AREA * 4);
+    float sample = abundances.supplyAround(t, biomass, Stage.ZONE_SIZE) * 4;
+    return sample / (Stage.ZONE_AREA * 4);
   }
   
   

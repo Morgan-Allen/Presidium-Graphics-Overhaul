@@ -156,7 +156,7 @@ public class PavingMap {
   
   //  TODO:  To boost efficiency further, you might consider caching results
   //  for this periodically?
-  public Tile nextTileToPave(final Target client, final StageSection limit) {
+  public Tile nextTileToPave(final Target client, final StageRegion limit) {
     this.refreshFlags();  //  Used strictly for debugging.
     final boolean report = searchVerbose && I.talkAbout == client;
     

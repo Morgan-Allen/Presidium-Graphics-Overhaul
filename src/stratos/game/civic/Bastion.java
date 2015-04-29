@@ -34,7 +34,7 @@ public class Bastion extends Venue {
   
   final static int
     EXCLUDE_RADIUS = 2,
-    CLAIM_RADIUS   = Stage.SECTOR_SIZE / 2;
+    CLAIM_RADIUS   = Stage.ZONE_SIZE / 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Bastion.class, "bastion", "Bastion",

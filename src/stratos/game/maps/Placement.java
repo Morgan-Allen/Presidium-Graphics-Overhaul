@@ -126,7 +126,7 @@ public class Placement implements TileConstants {
     final Target near, final Stage world, final int margin
   ) {
     final Tile init = world.tileAt(near);
-    final float maxDist = near.radius() + 0.5f + (Stage.SECTOR_SIZE / 2);
+    final float maxDist = near.radius() + 0.5f + (Stage.ZONE_SIZE / 2);
     
     final TileSpread search = new TileSpread(init) {
       
@@ -149,7 +149,7 @@ public class Placement implements TileConstants {
   public static boolean findClearanceFor(
     final Venue v, final Target near, final Stage world
   ) {
-    final float maxDist = Stage.SECTOR_SIZE / 2;
+    final float maxDist = Stage.ZONE_SIZE / 2;
     Tile init = world.tileAt(near);
     init = Spacing.nearestOpenTile(init, init);
     if (init == null) return false;

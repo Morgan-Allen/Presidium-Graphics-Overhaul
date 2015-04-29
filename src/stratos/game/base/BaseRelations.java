@@ -129,7 +129,7 @@ public class BaseRelations {
     final Relation r = baseRelations.get(other);
     
     if (r == null) {
-      final float initR = Setting.defaultRelations(base, other);
+      final float initR = base.world.offworld.defaultRelations(base, other);
       setRelation(other, initR, false);
       final Relation n = baseRelations.get(other);
       return n.value();

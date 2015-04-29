@@ -319,7 +319,7 @@ public class ActorSenses implements Qualities {
     //  Finally, we adjust our sense of danger/safety based on ambient danger
     //  levels for the region as a whole.
     final float ambientDanger = actor.base().dangerMap.sampleAround(
-      actor, Stage.SECTOR_SIZE
+      actor, Stage.ZONE_SIZE
     );
     if (sumFoes > 0 && ambientDanger > 0) {
       sumFoes += ambientDanger / powerLevel;

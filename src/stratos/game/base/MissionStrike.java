@@ -15,7 +15,7 @@ import stratos.util.*;
 
 
 
-public class StrikeMission extends Mission {
+public class MissionStrike extends Mission {
   
   
   /**  Field definitions, constants and save/load methods-
@@ -25,7 +25,7 @@ public class StrikeMission extends Mission {
     verbose     = false;
   
   
-  public StrikeMission(Base base, Target subject) {
+  public MissionStrike(Base base, Target subject) {
     super(
       base, subject, STRIKE_MODEL,
       "Striking at "+subject
@@ -33,7 +33,7 @@ public class StrikeMission extends Mission {
   }
   
   
-  public StrikeMission(Session s) throws Exception {
+  public MissionStrike(Session s) throws Exception {
     super(s);
   }
   

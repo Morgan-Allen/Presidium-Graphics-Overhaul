@@ -62,7 +62,7 @@ public class TutorialScenario extends StartupScenario {
     */
   private static Config config() {
     final Config config = new Config();
-    config.house = Sectors.PLANET_HALIBAN;
+    config.house = Verse.PLANET_HALIBAN;
     config.gender = null;
     
     config.siteLevel  = SITE_WILDERNESS ;
@@ -117,7 +117,7 @@ public class TutorialScenario extends StartupScenario {
   private float startingBalance = -1;
   
   private Tile         startAt      = null;
-  private ReconMission reconSent    = null;
+  private MissionRecon reconSent    = null;
   private Drone        droneAttacks = null;
   
   
@@ -128,7 +128,7 @@ public class TutorialScenario extends StartupScenario {
     startingBalance = s.loadFloat();
     
     startAt      = (Tile        ) s.loadObject();
-    reconSent    = (ReconMission) s.loadObject();
+    reconSent    = (MissionRecon) s.loadObject();
     droneAttacks = (Drone       ) s.loadObject();
   }
   
@@ -200,9 +200,9 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkExploreBegun() {
-    ReconMission match = null;
+    MissionRecon match = null;
     for (Mission m : base().tactics.allMissions()) {
-      if (m instanceof ReconMission) match = (ReconMission) m;
+      if (m instanceof MissionRecon) match = (MissionRecon) m;
     }
     if (match == null) return false;
     

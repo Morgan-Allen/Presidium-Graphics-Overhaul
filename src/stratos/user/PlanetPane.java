@@ -48,7 +48,7 @@ public class PlanetPane extends UIGroup implements UIConstants {
   final UIGroup displayArea;
   final Button left, right;
   
-  private Sector focus;
+  private VerseLocation focus;
   final SectorPanel infoPanel;
   
   
@@ -183,7 +183,7 @@ public class PlanetPane extends UIGroup implements UIConstants {
     */
   protected void updateState() {
     final DisplaySector DS = display.selectedAt(UI.mousePos());
-    final Sector hovered = DS == null ? null : Sector.sectorNamed(DS.label);
+    final VerseLocation hovered = DS == null ? null : VerseLocation.sectorNamed(DS.label);
     
     if (UI.mouseClicked()) {
       focus = hovered;

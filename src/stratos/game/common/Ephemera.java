@@ -18,7 +18,7 @@ public class Ephemera {
   final Stage world;
   
   private Colour fadeColour = null;
-  final Table <StageSection, List <Ghost>> ghosts = new Table(100);
+  final Table <StageRegion, List <Ghost>> ghosts = new Table(100);
   
   
   protected Ephemera(Stage world) {
@@ -91,7 +91,7 @@ public class Ephemera {
     
     final Vec3D p = s.position;
     if (e != null) e.position(p);
-    final StageSection section = world.sections.sectionAt((int) p.x, (int) p.y);
+    final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
     SG.add(ghost);
@@ -107,7 +107,7 @@ public class Ephemera {
   
   public Ghost matchGhost(Target e, ModelAsset m) {
     final Vec3D p = e.position(null);
-    final StageSection section = world.sections.sectionAt((int) p.x, (int) p.y);
+    final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     
     Ghost match = null;
@@ -130,7 +130,7 @@ public class Ephemera {
   
   
   private void trackElement(
-    Ghost ghost, StageSection oldSection, List <Ghost> SG, Base base
+    Ghost ghost, StageRegion oldSection, List <Ghost> SG, Base base
   ) {
     if (! (ghost.tracked instanceof Mobile)) return;
     
@@ -145,7 +145,7 @@ public class Ephemera {
       p.z += ghost.tracked.height() / 2f;
     }
     
-    final StageSection section = world.sections.sectionAt((int) p.x, (int) p.y);
+    final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
     if (section == oldSection) return;
     SG.remove(ghost);
     SG = ghosts.get(section);
@@ -158,7 +158,7 @@ public class Ephemera {
     final Batch <Ghost> results = new Batch <Ghost> ();
     final float timeNow = world.timeMidRender();
     
-    for (StageSection section : world.visibleSections(rendering)) {
+    for (StageRegion section : world.visibleSections(rendering)) {
       final List <Ghost> SG = ghosts.get(section);
       if (SG != null) for (Ghost ghost : SG) {
         final float
