@@ -197,29 +197,27 @@ public class KommandoLodge extends Venue {
       choice.add(e);
     }
     
-    final float food = stocks.amountOf(CARBS) + stocks.amountOf(GREENS);
-    if (food < 10) {
+    final float foodNeed = stocks.relativeShortage(CARBS);
+    if (foodNeed > 0) {
       final Foraging f = new Foraging(actor, this);
-      f.addMotives(Plan.MOTIVE_JOB, ((10 - food) / 10) * Plan.ROUTINE);
+      f.addMotives(Plan.MOTIVE_JOB, foodNeed * Plan.ROUTINE);
       choice.add(f);
     }
     
-    for (Target t : world.presences.sampleFromMap(
-      actor, world, 5, null, Mobile.class
-    )) {
-      if (Hunting.validPrey(t, actor)) {
-        choice.add(Hunting.asHarvest(actor, (Actor) t, this, false));
-      }
+    final float meatNeed = stocks.relativeShortage(PROTEIN);
+    final Batch <Target> prey = new Batch <Target> ();
+    world.presences.sampleFromMap(actor, world, 5, prey, Mobile.class);
+    for (Target t : actor.senses.awareOf()) prey.add(t);
+    
+    for (Target t : prey) if (Hunting.validPrey(t, actor)) {
+      final Hunting h = Hunting.asHarvest(actor, (Actor) t, this, false);
+      h.addMotives(Plan.MOTIVE_JOB, meatNeed * Plan.ROUTINE);
+      choice.add(h);
     }
-    for (Target t : actor.senses.awareOf()) {
-      if (Hunting.validPrey(t, actor)) {
-        choice.add(Hunting.asHarvest(actor, (Actor) t, this, false));
-      }
-    }
+    
     choice.isVerbose = report;
-    
-    
     final Behaviour pick = choice.weightedPick();
+    
     if (report) I.say("\n  Next survey station job: "+pick);
     return pick;
   }

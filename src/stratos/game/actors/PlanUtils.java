@@ -33,18 +33,18 @@ public class PlanUtils {
     */
   public static float combatPriority(
     Actor actor, Target subject,
-    float rewardBonus, int teamSize, boolean asRealTask
+    float rewardBonus, int teamSize, boolean asRealTask, float harm
   ) {
     float incentive = 0, winChance, inhibition, priority;
-    float harmDone, dislike, wierdness, conscience;
+    float harmTaken, dislike, wierdness, conscience;
     
     incentive += rewardBonus;
-    incentive += dislike   = actor.relations.valueFor(subject)     * -5;
-    incentive += harmDone  = harmIntendedBy(subject, actor, false) *  5;
+    incentive += dislike   = actor.relations.valueFor(subject) * -5 * harm;
+    incentive += harmTaken = harmIntendedBy(subject, actor, false) *  5;
     incentive += wierdness = baseCuriosity(actor, subject, false)  *  5;
     if (! asRealTask) return incentive;
     
-    conscience = 10 * baseConscience(actor, subject);
+    conscience = 10 * baseConscience(actor, subject) * harm;
     if      (incentive <= conscience   ) return -1     ;
     else if (! isArmed(actor)          ) incentive -= 5;
     else if (actor.senses.isEmergency()) incentive += 5;
@@ -57,7 +57,8 @@ public class PlanUtils {
       "\nCombat priority for "+actor, "  ",
       "subject  " , subject    ,
       "reward   " , rewardBonus,
-      "harmDone"  , harmDone   ,
+      "harm level", harm       ,
+      "harm taken", harmTaken  ,
       "dislike"   , dislike    ,
       "wierdness" , wierdness  ,
       "conscience", conscience ,
@@ -159,22 +160,24 @@ public class PlanUtils {
     Actor actor, Element subject, float rewardBonus,
     float supportChance, float subjectDanger
   ) {
-    float incentive = 0, liking = 0, priority = 0;
+    float incentive = 0, liking = 0, priority = 0, conscience;
     
+    conscience = baseConscience(actor, subject);
     liking = actor.relations.valueFor(subject);
-    incentive = (liking * 10) * subjectDanger * 2;
+    incentive = ((liking + conscience - 0.5f) * 10) * subjectDanger * 2;
     incentive += rewardBonus;
     priority = incentive * supportChance;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",
-      "subject"      , subject,
-      "reward"       , rewardBonus,
+      "subject"      , subject      ,
+      "reward"       , rewardBonus  ,
       "supportChance", supportChance,
       "subjectDanger", subjectDanger,
-      "liking"       , liking,
-      "incentive"    , incentive,
-      "priority"     , priority
+      "liking"       , liking       ,
+      "conscience"   , conscience   ,
+      "incentive"    , incentive    ,
+      "priority"     , priority     
     );
     return priority;
   }

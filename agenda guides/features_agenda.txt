@@ -5,8 +5,15 @@
 
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
+*  Animals should either be shying away from nearby humans or attacking them.
+   And humans should be remembering which animals were dangerous (use the
+   base-relations class.)
+
+*  Disable shipping until the player is ready, and allow for multiple ships
+   with multiple airfields.
+
 *  Topics should have a 'completion' method that they can use to determine when
-   to close (if they haven't been dismissed already.)
+   to close (if they haven't been dismissed.)
 
 *  More feedback on needs and settlement demands.  (Notifications or an RCI
    indicator of some sort are needed.)  You need feedback for-

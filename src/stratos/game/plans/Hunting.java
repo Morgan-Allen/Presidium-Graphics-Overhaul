@@ -18,13 +18,13 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class Hunting extends Combat {
+public class Hunting extends Plan {
   
   /**  Fields, constructors, and save/load methods-
     */
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = true ;
   
   final public static int
     TYPE_FEEDS   = 0,
@@ -47,8 +47,10 @@ public class Hunting extends Combat {
   final int type;
   final Actor prey;
   final Owner depot;
+  
   private int stage = STAGE_INIT;
   private float beginTime = -1;
+  private Combat downing = null;
   
   
   
@@ -75,12 +77,9 @@ public class Hunting extends Combat {
   
   
   private Hunting(Actor actor, Actor prey, int type, Owner depot) {
-    super(
-      actor, prey, STYLE_EITHER,
-      (type == TYPE_SAMPLE) ? OBJECT_SUBDUE : OBJECT_EITHER
-    );
-    this.prey = prey;
-    this.type = type;
+    super(actor, prey, MOTIVE_EMERGENCY, REAL_HARM);
+    this.prey  = prey ;
+    this.type  = type ;
     this.depot = depot;
   }
   
@@ -92,6 +91,7 @@ public class Hunting extends Combat {
     depot = (Owner) s.loadObject();
     stage = s.loadInt();
     beginTime = s.loadFloat();
+    downing = (Combat) s.loadObject();
   }
   
   
@@ -102,6 +102,7 @@ public class Hunting extends Combat {
     s.saveObject(depot);
     s.saveInt(stage);
     s.saveFloat(beginTime);
+    s.saveObject(downing);
   }
   
   
@@ -117,7 +118,7 @@ public class Hunting extends Combat {
     if (! (prey instanceof Actor)) return false;
     
     final Actor a = (Actor) prey;
-    if (a.indoors() || ! a.health.organic()) return false;
+    if (! a.health.organic()) return false;
     final float hunger = hunts.health.hungerLevel();
     
     if (a.species() == hunts.species()) {
@@ -127,62 +128,48 @@ public class Hunting extends Combat {
       if (hunger < 0.5f) return false;
     }
     
-    //final float crowding = a.health.alive() ? Nest.crowdingFor(a) : 1;
-    //if (conserve && (crowding < 1 - hunger)) return false;
     return true;
   }
   
   
-  final Trait
-    HARVEST_TRAITS[] = { CRUEL, FEARLESS, ENERGETIC },
-    SAMPLE_TRAITS[]  = { CURIOUS, ENERGETIC, NATURALIST };
+  final Trait SAMPLE_TRAITS[]  = { CURIOUS, ENERGETIC, NATURALIST };
   
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
-    if (prey.destroyed()) return -1;
-    final boolean start = ! hasBegun();
+    setCompetence(1);  //  Will adjust later- see below...
+    
+    if (prey.destroyed() || ! prey.inWorld()) return -1;
+    final boolean start = ! hasBegun(), alive = prey.health.alive();
     if (start && ! validPrey(prey, actor)) return -1;
-    if (! PlanUtils.isArmed(actor)) return -1;
+    if (alive && ! PlanUtils.isArmed(actor)) return -1;
     
-    float urgency, harmLevel;
-    final Trait baseTraits[];
+    float priority = 0, harmLevel = 1, hunger = -1, crowdRating = -1;
     
-    final float hunger = actor.health.hungerLevel() + (start ? 0 : 0.5f);
-    float crowdRating = 1;
-    if (prey.health.alive()) crowdRating = Nest.crowdingFor(prey);
-    crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, -1, 1);
-    
-    if (type == TYPE_FEEDS) {
-      urgency    = hunger * PARAMOUNT * (1 + Nums.min(crowdRating, hunger));
-      harmLevel  = REAL_HARM;
-      baseTraits = Combat.BASE_TRAITS;
-    }
-    else if (type == TYPE_HARVEST) {
-      urgency    = Nums.clamp(ROUTINE * crowdRating, CASUAL, URGENT);
-      urgency   += hunger * ROUTINE;
-      harmLevel  = REAL_HARM;
-      baseTraits = HARVEST_TRAITS;
+    if (type == TYPE_FEEDS || type == TYPE_HARVEST) {
+      hunger = actor.health.hungerLevel() + (start ? 0 : 0.25f);
+      crowdRating = alive ? Nest.crowdingFor(prey) : 1;
+      crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, -1, 1);
+      priority += (hunger + motiveBonus()) * crowdRating;
+      if (hunger > 0.5f) priority += PARAMOUNT * (hunger - 0.5f) * 2;
     }
     else {
-      urgency    = ROUTINE;
-      harmLevel  = NO_HARM;
-      baseTraits = SAMPLE_TRAITS;
+      priority += motiveBonus();
+      priority += ROUTINE * PlanUtils.traitAverage(actor, SAMPLE_TRAITS);
+      harmLevel = 0;
     }
-    
-    final float priority = priorityForActorWith(
-      actor, prey,
-      urgency, urgency / 2,
-      harmLevel, MILD_COMPETITION, REAL_FAIL_RISK,
-      RANGED_SKILLS, baseTraits, NORMAL_DISTANCE_CHECK,
-      false
-    );
-    
+    if (alive) {
+      priority = PlanUtils.combatPriority(
+        actor, prey, priority, 1, true, harmLevel
+      );
+      priority -= ROUTINE * actor.health.fatigueLevel();
+      setCompetence(successChanceFor(actor));
+    }
     if (report) {
       I.say("\nHunting type is: "+TYPE_DESC[type]);
       I.say("  Just started:    "+start   +" ("+hashCode()+")");
-      I.say("  Base urgency is: "+urgency );
+      I.say("  Base urgency is: "+priority);
       I.say("  Final priority:  "+priority);
       I.say("  Hunger is:       "+hunger  +" ("+actor.health.hungerLevel()+")");
       I.say("  Crowd-rating is: "+crowdRating);
@@ -206,25 +193,28 @@ public class Hunting extends Combat {
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) {
-      I.say("Getting next hunting step "+type+" "+actor+": "+prey);
-      I.say("  Begun? "+hasBegun()+" "+this.hashCode());
+      I.say("Getting next hunting step ("+type+") "+actor+" vs. "+prey);
     }
+    //  TODO:  See if this can be tidied up a bit...
     
     if (type == TYPE_FEEDS) {
-      if (! prey.inWorld()) return null;
-      if (prey.health.conscious()) return super.getNextStep();
-      if (report) I.say("  Feeding.");
-      final Action feed = new Action(
-        actor, prey,
-        this, "actionFeed",
-        Action.STRIKE, "Feeding"
-      );
-      return feed;
+      if (! CombatUtils.isDowned(prey, Combat.OBJECT_EITHER)) {
+        return downingStep(Combat.OBJECT_EITHER);
+      }
+      else {
+        if (report) I.say("  Feeding.");
+        final Action feed = new Action(
+          actor, prey,
+          this, "actionFeed",
+          Action.STRIKE, "Feeding"
+        );
+        return feed;
+      }
     }
     
     if (type == TYPE_HARVEST) {
-      if (! CombatUtils.isDowned(prey, object)) {
-        return super.getNextStep();
+      if (! CombatUtils.isDowned(prey, Combat.OBJECT_EITHER)) {
+        return downingStep(Combat.OBJECT_EITHER);
       }
       else if (prey.aboard() == depot) {
         if (report) I.say("  Harvesting");
@@ -242,7 +232,10 @@ public class Hunting extends Combat {
     
     if (type == TYPE_SAMPLE) {
       final Item sample = sample();
-      if (actor.gear.hasItem(sample)) {
+      if (depot.inventory().hasItem(sample)) {
+        return null;
+      }
+      else if (actor.gear.hasItem(sample)) {
         if (report) I.say("  Returning sample.");
         final Action returns = new Action(
           actor, depot,
@@ -251,8 +244,9 @@ public class Hunting extends Combat {
         );
         return returns;
       }
-      if (depot.inventory().hasItem(sample)) return null;
-      if (! CombatUtils.isDowned(prey, object)) return super.getNextStep();
+      else if (! CombatUtils.isDowned(prey, Combat.OBJECT_SUBDUE)) {
+        return downingStep(Combat.OBJECT_SUBDUE);
+      }
       else {
         if (report) I.say("  Sampling.");
         final Action samples = new Action(
@@ -268,18 +262,27 @@ public class Hunting extends Combat {
   }
   
   
+  private Combat downingStep(int object) {
+    if (downing == null) {
+      downing = new Combat(actor, prey, Combat.STYLE_EITHER, object);
+    }
+    downing.setMotivesFrom(this, 0);
+    return downing;
+  }
+  
+  
   public boolean actionFeed(Actor actor, Actor prey) {
     //
     //  Determine just how large a chunk you can take out of the prey-
     final float
-      before = prey.health.injuryLevel(),
+      before = prey.health.injury(),
       damage = actor.gear.attackDamage() * (Rand.num() + 0.5f) / 10;
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
     prey.health.takeInjury(damage, true);
-    float taken = prey.health.injuryLevel() - before;
-    taken *= prey.health.maxHealth();
+    float taken = prey.health.injury() - before;
+    taken /= ActorHealth.DECOMP_FRACTION;
     //
     //  Then dispose of it appropriately-
-    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
     actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1);
     return true;
   }
@@ -289,7 +292,7 @@ public class Hunting extends Combat {
     //
     //  Firstly, use a series of basic skill checks to see how effectively the
     //  carcass can be butchered:
-    float success = 1, mult = 1;
+    float success = 1, mult = 0.5f;
     if (actor.skills.test(XENOZOOLOGY, 10, 2)) success++;
     if (actor.skills.test(DOMESTICS  , 5 , 1)) success++;
     if (actor.skills.test(HARD_LABOUR, 5 , 1)) success++;
@@ -300,31 +303,34 @@ public class Hunting extends Combat {
     if (depot instanceof KommandoLodge) {
       final KommandoLodge still = (KommandoLodge) depot;
       float bonus = still.structure.upgradeLevel(KommandoLodge.FLESH_STILL);
-      mult += bonus / 2f;
+      mult += bonus / KommandoLodge.FLESH_STILL.maxLevel;
     }
     //
     //  Then we measure the physical damage done, and decrement prey health.
     final float
-      before = prey.health.injuryLevel(),
-      damage = success * 2;
+      before = prey.health.injury(),
+      damage = success * 2,
+      DF     = ActorHealth.DECOMP_FRACTION;
     if (prey.health.alive()) prey.health.setState(ActorHealth.STATE_DYING);
     prey.health.takeInjury(damage, true);
     //
     //  Based on the damage, we extract meat and spyce from the carcass-
     final float
-      taken = Nums.max(0, prey.health.injuryLevel() - before),
-      meat  = taken *  mult      * prey.health.maxHealth() / 2 ,
-      spyce = taken * (mult - 1) * prey.health.maxHealth() / 20;
-    if (taken <= 0) return false;
+      taken = Nums.max(0, prey.health.injury() - before) / DF,
+      meat  = taken *  mult      / 1,
+      spyce = taken * (mult - 1) / 5;
     //
     //  Store those in the depot, and return-
-    if (I.talkAbout == actor) {
-      I.say("Injury before/after: "+before+"/"+prey.health.injuryLevel());
-      I.say("Meat amount:  "+meat );
-      I.say("Spyce amount: "+spyce);
+    if (stepsVerbose && I.talkAbout == actor) {
+      I.say("\nHarvesting meat from "+prey);
+      I.say("  Maximum health: "+prey.health.maxHealth()+", "+DF);
+      I.say("  Injury before/after: "+before+"/"+prey.health.injury());
+      I.say("  Harvest mult: "+mult );
+      I.say("  Meat amount:  "+meat );
+      I.say("  Spyce amount: "+spyce);
     }
-    depot.inventory().bumpItem(PROTEIN, meat );
-    depot.inventory().bumpItem(SPYCE_T, spyce);
+    if (meat  > 0) depot.inventory().bumpItem(PROTEIN, meat );
+    if (spyce > 0) depot.inventory().bumpItem(SPYCE_T, spyce);
     return true;
   }
   

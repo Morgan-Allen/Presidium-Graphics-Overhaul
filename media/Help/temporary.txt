@@ -2,8 +2,6 @@
 
 
 
-//  TODO:  Disable shipping until the player is ready, and allow for multiple
-//         ships with multiple airfields.
 
 *  I need the ability to disable shipping entirely until the player is ready.  (GameSettings?  For tips as well?)
 *  Minimum of one 'smuggler' ship per settlement.

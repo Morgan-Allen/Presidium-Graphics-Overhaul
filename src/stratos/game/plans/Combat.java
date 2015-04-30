@@ -98,13 +98,19 @@ public class Combat extends Plan implements Qualities {
   
   
   protected float getPriority() {
+    
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
+    
+    float harmLevel = 1;
+    if (object == OBJECT_SUBDUE ) harmLevel = 0.5f;
+    if (object == OBJECT_DESTROY) harmLevel = 1.5f;
     
     if (! PlanUtils.isArmed(actor)) setCompetence(0);
     else setCompetence(successChanceFor(actor));
     
     return PlanUtils.combatPriority(
-      actor, subject, motiveBonus(), teamSize, true
+      actor, subject, motiveBonus(),
+      teamSize, true, harmLevel
     );
   }
   
@@ -159,13 +165,20 @@ public class Combat extends Plan implements Qualities {
     //  TODO:  Look into potential 'siege' options for targets that you can't
     //  path to directly- i.e, when indoors, or going through walls.
     if (struck == subject && subject instanceof Actor) {
+      
       final Boarding haven = ((Actor) struck).aboard();
-      if (! haven.allowsEntry(actor)) {
-        if (haven.base() == actor.base() || object != OBJECT_DESTROY) {
+      final boolean
+        hasRefuge  = ! haven.allowsEntry(actor),
+        shouldRaze = object == OBJECT_DESTROY || hasMotives(MOTIVE_MISSION);
+      
+      if (hasRefuge) {
+        if (shouldRaze && haven.base() != actor.base()) {
+          struck = haven;
+        }
+        else {
           interrupt("Prey has found sanctuary!");
           return null;
         }
-        else struck = haven;
       }
     }
     

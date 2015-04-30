@@ -291,20 +291,20 @@ public class ActorSenses implements Qualities {
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
-      float attackChance = PlanUtils.combatPriority(actor, near, 0, 0, false);
+      float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
       
-      if (attackChance > 0) {
-        attackChance = Nums.clamp((attackChance + 5) / 10, 0, 1);
+      if (attackRisk > 0) {
+        attackRisk = Nums.clamp((attackRisk + 5) / 10, 0, 1);
         final float power = CombatUtils.powerLevelRelative(near, actor);
-        sumFoes += power * attackChance;
+        sumFoes += power * attackRisk;
         if (report) {
           I.say("  Enemy nearby: "+near);
-          I.say("    Attack chance: "+attackChance+", power: "+power);
+          I.say("    Attack chance: "+attackRisk+", power: "+power);
         }
       }
       else {
         final float power = near.senses.powerLevel() / (1 + powerLevel);
-        final float helpChance = Nums.clamp(attackChance / -10, 0, 1);
+        final float helpChance = Nums.clamp(attackRisk / -10, 0, 1);
         sumAllies += power * helpChance;
         if (report) {
           I.say("  Ally nearby: "+near);
@@ -312,7 +312,7 @@ public class ActorSenses implements Qualities {
         }
       }
       
-      emergency |= near.isDoing(Combat.class, null) || attackChance >= 1;
+      emergency |= near.isDoing(Combat.class, null) || attackRisk >= 1;
     }
     
     //

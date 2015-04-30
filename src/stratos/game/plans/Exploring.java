@@ -134,6 +134,8 @@ public class Exploring extends Plan implements Qualities {
     float reward = motiveBonus();
     if (type == TYPE_WANDER) reward += IDLE;
     else reward += CASUAL * Planet.dayValue(actor.world());
+    
+    this.setCompetence(successChanceFor(actor));
     return PlanUtils.explorePriority(actor, lookedAt, reward, competence());
   }
   

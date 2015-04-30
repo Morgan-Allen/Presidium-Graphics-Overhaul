@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.civic.*;
 import stratos.game.common.*;
@@ -18,8 +20,8 @@ public class FirstAid extends Treatment {
   
   
   private static boolean
-    evalVerbose  = false,
-    stepsVerbose = false;
+    evalVerbose  = true ,
+    stepsVerbose = true ;
   
   
   public FirstAid(Actor actor, Actor patient) {
@@ -72,6 +74,9 @@ public class FirstAid extends Treatment {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
+    
+    setCompetence(0);  //  Will trump below...
+    
     if (patient.health.conscious() || ! patient.health.organic()) return 0;
     
     final Actor carries = Suspensor.carrying(patient);
@@ -87,27 +92,11 @@ public class FirstAid extends Treatment {
     if (severity <= 0) return 0;
     if (severity > 0.5f) addMotives(MOTIVE_EMERGENCY);
     
-    //  Try to avoid giving first aid in the middle of a firefight...
-    float modifier = 0;//actor.senses.isEmergency() ? -1 : 0;
-    final boolean ally = CombatUtils.isAllyOf(actor, patient);
-    if (ally) modifier += severity;
-    if (ally || ! PlanUtils.isArmed(patient)) {
-      modifier += severity * (1f + actor.traits.relativeLevel(ETHICAL)) / 2;
-    }
+    setCompetence(successChanceFor(actor));
     
-    final float priority = priorityForActorWith(
-      actor, patient,
-      ROUTINE, modifier * PARAMOUNT,
-      REAL_HELP, FULL_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    float priority = PlanUtils.supportPriority(
+      actor, patient, motiveBonus(), competence(), severity
     );
-    if (report) {
-      I.say("Considering first aid of "+patient);
-      I.say("  Is ally?:           "+ally);
-      I.say("  Severity of injury: "+severity());
-      I.say("  Priority is:        "+priority);
-    }
     return priority;
   }
   

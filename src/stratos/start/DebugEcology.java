@@ -70,7 +70,6 @@ public class DebugEcology extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
@@ -89,10 +88,20 @@ public class DebugEcology extends Scenario {
     base.setup.fillVacancies(lodge, true);
     lodge.stocks.forceDemand(Economy.PROTEIN, 20, false);
     
-    Nest.populateFauna(world, Qudu.SPECIES);
-    
     Actor tracks = lodge.staff.workers().last();
     UI.selection.pushSelection(tracks);
+    
+    final Base wildlife = Base.wildlife(world);
+    Nest.populateFauna(world, Qudu.SPECIES);
+    Actor prey = Qudu.SPECIES.sampleFor(wildlife);
+    prey.enterWorldAt(lodge, world);
+    prey.goAboard(lodge, world);
+    prey.health.setupHealth(0.5f, 1, 0);
+    prey.health.takeInjury(100, false);
+    
+    Hunting harvest = Hunting.asHarvest(tracks, prey, lodge, false);
+    harvest.addMotives(Plan.MOTIVE_JOB, 100);
+    tracks.mind.assignBehaviour(harvest);
   }
   
   
