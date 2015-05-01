@@ -41,9 +41,8 @@ public abstract class Mobile extends Element
     position = new Vec3D(),
     nextPosition = new Vec3D();
   
-  protected Boarding aboard;
-  private ListEntry <Mobile> entry = null;
-  
+  private ListEntry <Mobile> worldEntry;
+  protected Boarding aboard = null;
   final public Pathing pathing = initPathing();
   
   
@@ -99,12 +98,12 @@ public abstract class Mobile extends Element
   
   
   
-  /**  Called whenever the mobile enters/exits the world...
-   */
+  /**  Methods for handling world entry and exits- including any residence
+    *  offworld (see the Stage and VerseBase classes.)
+    */
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     goAboard(origin(), world);
-    //(aboard = origin()).setInside(this, true);
     world().schedule.scheduleForUpdates(this);
     world().toggleActive(this, true);
     return true;
@@ -134,9 +133,14 @@ public abstract class Mobile extends Element
   }
   
   
-  void setEntry(ListEntry <Mobile> e) { entry = e; }
-  ListEntry <Mobile> entry() { return entry; }
-  public float scheduledInterval() { return 1.0f; }
+  public void setWorldEntry(ListEntry <Mobile> e) {
+    worldEntry = e;
+  }
+  
+  
+  public ListEntry <Mobile> worldEntry() {
+    return worldEntry;
+  }
   
   
   
@@ -208,6 +212,11 @@ public abstract class Mobile extends Element
     return
       aboard != null &&
       aboard.boardableType() != Boarding.BOARDABLE_TILE;
+  }
+  
+
+  public float scheduledInterval() {
+    return 1.0f;
   }
   
   

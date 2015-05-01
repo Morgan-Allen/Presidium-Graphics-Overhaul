@@ -251,6 +251,25 @@ public final class Session {
   }
   
   
+  public void saveTally(Tally t) throws Exception {
+    saveInt(t.size());
+    for (Object o : t.keys()) {
+      saveObject((Saveable) o);
+      saveFloat(t.valueFor(o));
+    }
+  }
+  
+  
+  public Tally loadTally(Tally t) throws Exception {
+    for (int n = loadInt(); n-- > 0;) {
+      final Object o = loadObject();
+      final float val = loadFloat();
+      t.set(o, val);
+    }
+    return t;
+  }
+  
+  
   
   /**  Utility methods for handling enums and common table keys-
     */

@@ -25,7 +25,6 @@ public interface Boarding extends Target, Session.Saveable {
   
   Box2D area(Box2D put);
   Boarding[] canBoard();
-  //void refreshAdjacent();
   boolean isEntrance(Boarding b);
   
   int pathType();

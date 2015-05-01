@@ -75,9 +75,6 @@ public class DebugCommerce extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     
-    //  TODO:  Try giving the residents pots of money instead...
-    //GameSettings.freeHousingLevel = 0;
-    
     if (true ) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
@@ -90,28 +87,30 @@ public class DebugCommerce extends Scenario {
   
   private void shippingScenario(Stage world, Base base, BaseUI UI) {
     
+    base .commerce.assignHomeworld    (Verse.PLANET_ASRA_NOVI);
+    world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS  );
+    world.offworld.journeys.setupDefaultShipping(base);
+    
     final Venue depot = new SupplyDepot(base);
     Placement.establishVenue(depot, 5, 5, true, world);
-    depot.stocks.forceDemand(CARBS, 5, true );
-    depot.stocks.forceDemand(METALS , 5, false);
-    
+    depot.stocks.forceDemand(CARBS , 5, true );
+    depot.stocks.forceDemand(METALS, 5, false);
     depot.stocks.bumpItem(CARBS, 10);
     depot.updateAsScheduled(0, false);
     base.commerce.addCandidate(SUPPLY_CORPS, depot);
+    UI.selection.pushSelection(depot);
     
     final Actor brought = new Human(KOMMANDO, base);
-    world.offworld.journeys.addImmigrant(brought, world);  //  TODO:  SPECIFY BASE
+    world.offworld.journeys.addLocalImmigrant(brought, base);
     
     base.commerce.updateCommerce(0);
-    base.commerce.scheduleDrop(5);
-    
-    UI.selection.pushSelection(depot);
+    world.offworld.journeys.scheduleLocalDrop(base, 5);
   }
   
   
   private void runnersScenario(Stage world, Base base, BaseUI UI) {
     //world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
-    base.commerce.scheduleDrop(5);
+    world.offworld.journeys.scheduleLocalDrop(base, 5);
     
     final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
     final Venue runnerMarket = new RunnerMarket(base);
@@ -222,7 +221,7 @@ public class DebugCommerce extends Scenario {
       guy.setPosition(2, 2, world);
     }
     
-    base.commerce.scheduleDrop(20);
+    world.offworld.journeys.scheduleLocalDrop(base, 20);
   }
   
   

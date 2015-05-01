@@ -38,6 +38,13 @@ public class ListEntry <T> {
   }
   
   
+  /**  Returns the owning list-
+    */
+  public List <T> list() {
+    return list;
+  }
+  
+  
   /**  Deletes this entry from it's own list.
     */
   final public void delete() {

@@ -24,10 +24,24 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
   
   private Venue warehouse;
   private Vehicle vessel;
+  private VerseLocation origin;
   
   private boolean tripDone;
   private float profits;
   private Item[] moved;
+  
+  
+  //  TODO:  Replace public constructors with self-descriptive static factory
+  //         methods.
+  
+  public Smuggling(Actor actor, Vehicle vessel, Stage world, boolean going) {
+    super(actor, vessel, MOTIVE_JOB, NO_HARM);
+    this.warehouse = null;
+    this.vessel    = vessel;
+    this.moved     = new Item[0];
+    this.origin    = world.offworld.stageLocation();
+    this.tripDone  = ! going;
+  }
   
   
   public Smuggling(Actor actor, Venue warehouse, Vehicle vessel, Item moved[]) {
@@ -35,6 +49,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
     this.warehouse = warehouse;
     this.vessel    = vessel;
     this.moved     = moved;
+    this.origin    = actor.world().offworld.stageLocation();
   }
   
   
@@ -44,6 +59,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
     vessel    = (Vehicle) s.loadObject();
     tripDone  = s.loadBool ();
     profits   = s.loadFloat();
+    origin    = (VerseLocation) s.loadObject();
     moved     = Item.loadItemsFrom(s);
   }
   
@@ -54,6 +70,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
     s.saveObject(vessel   );
     s.saveBool  (tripDone );
     s.saveFloat (profits  );
+    s.saveObject(origin   );
     Item.saveItemsTo(s, moved);
   }
   
@@ -211,6 +228,11 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
   
   public boolean doneOffworld() {
     return tripDone;
+  }
+  
+  
+  public VerseLocation origin() {
+    return origin;
   }
   
 

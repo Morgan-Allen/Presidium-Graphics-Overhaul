@@ -13,6 +13,9 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Make this a part of the FindWork behaviour, and an offworld activity.
+
+
 public class Migration extends Plan {
   
   
@@ -99,7 +102,7 @@ public class Migration extends Plan {
     }
     if (ship == null || ! ship.inWorld()) {
       final Pick <Dropship> pick = new Pick <Dropship> ();
-      for (Dropship ship : actor.base().commerce.allVessels()) {
+      for (Dropship ship : actor.world().offworld.journeys.allVessels()) {
         pick.compare(ship, 0 - Spacing.distance(actor, ship));
       }
       ship = pick.result();

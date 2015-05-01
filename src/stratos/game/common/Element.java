@@ -43,8 +43,8 @@ public class Element implements
   
   public Element(Session s) throws Exception {
     s.cacheInstance(this);
-    world = s.loadBool() ? s.world() : null;
-    location = (Tile) s.loadTarget();
+    world      = s.loadBool() ? s.world() : null;
+    location   = (Tile) s.loadTarget();
     inceptTime = s.loadFloat();
     properties = s.loadInt();
     
@@ -53,10 +53,10 @@ public class Element implements
   
   
   public void saveState(Session s) throws Exception {
-    s.saveBool(world != null);
-    s.saveTarget(location);
-    s.saveFloat(inceptTime);
-    s.saveInt(properties);
+    s.saveBool  (world != null);
+    s.saveTarget(location     );
+    s.saveFloat (inceptTime   );
+    s.saveInt   (properties   );
     
     ModelAsset.saveSprite(sprite, s.output());
   }

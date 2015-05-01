@@ -379,7 +379,7 @@ public class BaseSetup {
       }
       else {
         final Stage world = venue.base().world;
-        world.offworld.journeys.addImmigrant(worker, world);
+        world.offworld.journeys.addLocalImmigrant(worker, base);
       }
     }
   }

@@ -243,7 +243,7 @@ public class Stage {
     
     schedule.advanceSchedule(currentTime);
     ecology.updateEcology();
-    offworld.updateVerse();
+    offworld.updateVerse(currentTime);
     
     for (Mobile m : mobiles) m.updateAsMobile();
   }
@@ -251,11 +251,11 @@ public class Stage {
   
   protected void toggleActive(Mobile m, boolean is) {
     if (is) {
-      m.setEntry(mobiles.addLast(m));
+      m.setWorldEntry(mobiles.addLast(m));
       presences.togglePresence(m, m.origin(), true );
     }
     else {
-      mobiles.removeEntry(m.entry());
+      mobiles.removeEntry(m.worldEntry());
       presences.togglePresence(m, m.origin(), false);
     }
   }

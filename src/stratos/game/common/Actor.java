@@ -5,7 +5,7 @@
   */
 package stratos.game.common;
 import stratos.game.actors.*;
-import stratos.game.base.Mission;
+import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
@@ -552,16 +552,17 @@ public abstract class Actor extends Mobile implements
   public void describeStatus(Description d) {
     if (! health.conscious()) { d.append(health.stateDesc()); return; }
     if (! inWorld()) {
-      final Object ship = base.commerce.carries(this);
-      if (ship == null) {
-        d.append("Offworld");
-        float ETA = base.commerce.arrivalETA(this);
-        ETA /= Stage.STANDARD_HOUR_LENGTH;
-        d.append(" (ETA: "+Nums.round(ETA, 1, true)+" hours)");
-      }
-      else {
+      final VerseJourneys journeys = base.world.offworld.journeys;
+      final Vehicle ship = journeys.carries(this);
+      if (ship != null && ship.inWorld()) {
         d.append("Aboard ");
         d.append(ship);
+      }
+      else {
+        d.append("Offworld");
+        float ETA = journeys.arrivalETA(this, BaseUI.currentPlayed());
+        ETA /= Stage.STANDARD_HOUR_LENGTH;
+        d.append(" (ETA: "+Nums.round(ETA, 1, true)+" hours)");
       }
       return;
     }

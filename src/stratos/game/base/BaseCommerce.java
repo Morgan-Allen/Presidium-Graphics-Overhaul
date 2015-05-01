@@ -38,8 +38,8 @@ public class BaseCommerce {
     tradeVerbose   = verbose && false;
   
   final public static float
-    SHIP_VISIT_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2f,
-    SHIP_VISIT_DURATION = SHIP_VISIT_INTERVAL / 2f,
+    SHIP_JOURNEY_TIME   = Stage.STANDARD_DAY_LENGTH / 2f,
+    SHIP_VISIT_DURATION = Stage.STANDARD_HOUR_LENGTH * 6,
     
     APPLY_INTERVAL  = Stage.STANDARD_DAY_LENGTH / 2f,
     UPDATE_INTERVAL = 10,
@@ -52,7 +52,8 @@ public class BaseCommerce {
   
   
   final Base base;
-  VerseLocation homeworld;
+  protected VerseLocation homeworld = Verse.DEFAULT_HOMEWORLD;
+  final List <VerseLocation> partners = new List <VerseLocation> ();
   
   final Tally <Traded>
     primaryDemand = new Tally <Traded> (),
@@ -64,13 +65,6 @@ public class BaseCommerce {
     exportPrices = new Table <Traded, Float> ();
   
   final List <Actor> candidates = new List <Actor> ();
-  
-  final List <VerseLocation> partners = new List <VerseLocation> ();
-  
-  //  TODO:  YOU ARE GOING TO NEED MULTIPLE SHIPS AT YOUR DISPOSAL, OR HIGHER
-  //         VISITING FREQUENCY.
-  private Dropship ship;
-  private float visitTime;
   
   
   
@@ -99,9 +93,6 @@ public class BaseCommerce {
       exportPrices.put (type, s.loadFloat());
     }
     s.loadObjects(candidates);
-    
-    ship = (Dropship) s.loadObject();
-    visitTime = s.loadFloat();
   }
   
   
@@ -120,9 +111,6 @@ public class BaseCommerce {
       s.saveFloat(exportPrices.get(type)      );
     }
     s.saveObjects(candidates);
-    
-    s.saveObject(ship);
-    s.saveFloat(visitTime);
   }
   
   
@@ -162,8 +150,6 @@ public class BaseCommerce {
     
     updateCandidates(numUpdates);
     summariseDemandAndPrices(base, numUpdates);
-    refreshShip(false);
-    updateShipping(numUpdates);
   }
   
   
@@ -435,132 +421,6 @@ public class BaseCommerce {
       if (amount <= 0) continue;
       forShipping.forceDemand(e.type, amount, true);
     }
-  }
-  
-  
-  
-  
-  
-  /**  Dealing with shipping and crew complements-
-    */
-  private void updateShipping(int numUpdates) {
-    if ((numUpdates % UPDATE_INTERVAL) != 0) return;
-    if (base.primal) return;
-    final boolean report = verbose && BaseUI.currentPlayed() == base;
-    
-    final float time      = base.world.currentTime();
-    final int   shipStage = ship.flightStage();
-    final boolean
-      visitDue = (! ship.inWorld()) && time > visitTime,
-      canLand  = ShipUtils.findLandingSite(ship, base);
-    //
-    //  If the ship has already landed, see if it's time to depart-
-    if (ship.landed()) {
-      final float sinceDescent = time - visitTime;
-      final boolean allAboard = ShipUtils.allAboard(ship);
-      
-      if (sinceDescent > SHIP_VISIT_DURATION) {
-        if (shipStage == Dropship.STAGE_LANDED) ship.beginBoarding();
-        if (allAboard && shipStage == Dropship.STAGE_BOARDING) {
-          ship.beginAscent();
-          visitTime = base.world.currentTime();
-          visitTime += SHIP_VISIT_INTERVAL * (0.5f + Rand.num());
-        }
-      }
-    }
-    //
-    //  If the ship is offworld, see if it's time to return-
-    if (visitDue && canLand) {
-      if (report) I.say("\nSENDING DROPSHIP TO "+ship.landArea());
-      
-      base.world.offworld.journeys.addPassengersTo(ship);
-      configCargo(ship.cargo, Dropship.MAX_CAPACITY, true);
-      refreshCrew(ship, Backgrounds.DEFAULT_SHIP_CREW);
-      refreshShip(true);
-      
-      for (Actor c : ship.crew()) ship.setInside(c, true);
-      ship.beginDescent(base.world);
-    }
-  }
-  
-  
-  
-  public Dropship carries(Actor aboard) {
-    //  TODO:  Adapt this method and the one below for multiple vessels.
-    Dropship carries = this.ship;
-    if (carries.inside().includes(aboard)) return carries;
-    return null;
-  }
-  
-  
-  public float arrivalETA(Actor hired) {
-    //
-    //  Find out what ship the actor is going to arrive on.  If arrival is
-    //  imminent, return the arrival time.
-    Dropship carries = this.ship;
-    final boolean aboard   = carries.inside().includes(hired);
-    final float   time     = base.world.currentTime();
-    final float   ETA      = visitTime - time;
-    final boolean visitDue = (! ship.inWorld()) && ETA <= 0;
-    if (aboard || visitDue || ETA > 0) return Nums.max(0, ETA);
-    //
-    //  Otherwise, take a guess at the next return date-
-    float returnTime = visitTime + SHIP_VISIT_DURATION + SHIP_VISIT_INTERVAL;
-    return returnTime - base.world.currentTime();
-  }
-  
-
-  private void refreshCrew(Dropship ship, Background... positions) {
-    //
-    //  This crew will need to be updated every now and then- in the sense of
-    //  changing the roster due to losses or career changes.
-    for (Background b : positions) {
-      if (ship.staff().numHired(b) < Visit.countInside(b, positions)) {
-        final Human staff = new Human(new Career(b), base);
-        staff.mind.setWork(ship);
-        staff.mind.setHome(ship);
-      }
-    }
-    //
-    //  Get rid of fatigue and hunger, modulate mood, et cetera- account for
-    //  the effects of time spent offworld.
-    for (Actor works : ship.crew()) {
-      final float MH = works.health.maxHealth();
-      works.health.liftFatigue (MH * Rand.num());
-      works.health.takeCalories(MH, 0.25f + Rand.num());
-      works.health.adjustMorale(Rand.num() / 2f);
-      works.mind.clearAgenda();
-    }
-  }
-  
-  
-  private void refreshShip(boolean forLanding) {
-    final boolean report = verbose && base == BaseUI.current().played();
-    if (report) I.say("\nREFRESHING SHIP: "+ship);
-    
-    if (ship == null || ship.destroyed()) {
-      if (report) I.say("  New ship required!");
-      ship = new Dropship();
-      ship.assignBase(base);
-      visitTime = base.world.currentTime() + (Rand.num() * SHIP_VISIT_INTERVAL);
-    }
-    if (forLanding) {
-      final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
-      ship.structure.setState(Structure.STATE_INTACT, repair);
-    }
-  }
-  
-  
-  public Batch <Dropship> allVessels() {
-    final Batch <Dropship> vessels = new Batch <Dropship> ();
-    if (ship != null) vessels.add(ship);
-    return vessels;
-  }
-  
-  
-  public void scheduleDrop(float delay) {
-    if (ship == null) refreshShip(true);
-    visitTime = base.world.currentTime() + delay;
   }
 }
 

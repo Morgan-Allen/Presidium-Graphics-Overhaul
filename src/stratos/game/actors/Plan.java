@@ -151,7 +151,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public void toggleActive(boolean is) {
-    if (actor == null) return;
+    if (actor == null || ! actor.inWorld()) return;
     actor.world().activities.registerFocus(this, is);
   }
   

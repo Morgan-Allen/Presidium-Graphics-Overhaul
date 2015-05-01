@@ -160,7 +160,7 @@ public class DebugPlacing extends Scenario {
     works.updateAsScheduled(0, false);
     
     base.commerce.updateCommerce(0);
-    base.commerce.scheduleDrop(5);
+    world.offworld.journeys.scheduleLocalDrop(base, 5);
   }
   
   

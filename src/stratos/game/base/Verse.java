@@ -197,7 +197,8 @@ public class Verse {
       PLANET_AXIS_NOVENA, PLANET_SOLIPSUS_VIER, PLANET_NORUSEI,
       PLANET_URYM_HIVE, PLANET_CALIVOR, PLANET_THE_WEIRWORLD,
       PLANET_DIAPSOR, PLANET_THE_HOMEWORLD
-    };
+    },
+    DEFAULT_HOMEWORLD = PLANET_ASRA_NOVI;
   
   
   //  TODO:  These should all, properly, be considered sub-sectors of Planet
@@ -221,7 +222,8 @@ public class Verse {
     
     ALL_DIAPSOR_SECTORS[] = {
       SECTOR_ELYSIUM, SECTOR_PAVONIS, SECTOR_TERRA
-    };
+    },
+    DEFAULT_START_LOCATION = SECTOR_TERRA;
   
   
   final public static VerseLocation
@@ -299,16 +301,18 @@ public class Verse {
   
   /**  Setup, data fields and save/load methods-
     */
-  final Stage stage;
-  private VerseLocation stageLocation;
+  final Stage world;
+  private VerseLocation stageLocation = DEFAULT_START_LOCATION;
   
   final public VerseJourneys journeys = new VerseJourneys(this);
-  final Table <Object, Table <Object, Float>> relations = new Table();
   final List <VerseBase> bases = new List <VerseBase> ();
+  
+  //  TODO:  THIS WILL HAVE TO BE SAVED AND LOADED TOO
+  final Table <Object, Table <Object, Float>> relations = new Table();
   
   
   public Verse(Stage stage) {
-    this.stage = stage;
+    this.world = stage;
     this.initPolitics();
   }
   
@@ -316,12 +320,14 @@ public class Verse {
   public void loadState(Session s) throws Exception {
     stageLocation = (VerseLocation) s.loadObject();
     journeys.loadState(s);
+    s.loadObjects(bases);
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObject(stageLocation);
     journeys.saveState(s);
+    s.saveObjects(bases);
   }
   
   
@@ -345,9 +351,9 @@ public class Verse {
   
   /**  Regular updates-
     */
-  public void updateVerse() {
-    journeys.updateOffworldFrom(stage);
-    //for (VerseBase base : bases) base.updateBase();
+  public void updateVerse(float currentTime) {
+    journeys.updateJourneys();
+    for (VerseBase base : bases) base.updateBase();
   }
   
   
@@ -389,6 +395,30 @@ public class Verse {
     for (Object k : others) {
       setRelation(a, k, value, symmetric);
     }
+  }
+  
+  
+  public static VerseBase baseForLocation(
+    VerseLocation location, Verse universe
+  ) {
+    if (location == null) return null;
+    for (VerseBase base : universe.bases) {
+      if (base.location == location) return base;
+    }
+    final VerseBase base = new VerseBase(universe, location);
+    universe.bases.add(base);
+    return base;
+  }
+  
+  
+  public static VerseLocation currentLocation(Mobile mobile, Verse universe) {
+    if (mobile.inWorld()) {
+      return universe.stageLocation();
+    }
+    for (VerseBase base : universe.bases) if (base.isResident(mobile)) {
+      return base.location;
+    }
+    return null;
   }
 }
 

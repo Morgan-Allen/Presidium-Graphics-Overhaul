@@ -143,7 +143,7 @@ public class Dropship extends Vehicle implements Owner {
     if (actor.isDoing(Delivery.class, null)) return;
     
     if (stage >= STAGE_BOARDING) {
-      final Smuggling boarding = new Smuggling(actor, null, this, new Item[0]);
+      final Smuggling boarding = new Smuggling(actor, this, world, true);
       if (staff.assignedTo(Delivery.class) == 0) {
         boarding.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
       }
@@ -300,7 +300,6 @@ public class Dropship extends Vehicle implements Owner {
   
   
   private void completeAscent() {
-    world.offworld.journeys.beginJourney(this, 5);//Offworld.TRAVEL_DURATION);
     exitWorld();
     stage = STAGE_AWAY;
     stageInceptTime = world.currentTime();

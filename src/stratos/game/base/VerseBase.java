@@ -5,20 +5,87 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.util.*;
+import stratos.game.base.VerseJourneys.Activity;
 
 
 
-public class VerseBase {
+public class VerseBase implements Session.Saveable {
   
   
-  VerseLocation location;
-  Tally <Object> presences = new Tally <Object> ();
-  List <Actor> resident = new List <Actor> ();
+  final Stage world;
+  final VerseLocation location;
+  final private List <Mobile> residents = new List <Mobile> ();
+  final private Tally <Object> presences = new Tally <Object> ();
+  
+  
+  protected VerseBase(Verse universe, VerseLocation location) {
+    this.world = universe.world;
+    this.location = location;
+  }
+  
+  
+  public VerseBase(Session s) throws Exception {
+    s.cacheInstance(this);
+    this.world = s.world();
+    this.location = (VerseLocation) s.loadObject();
+    s.loadTally(presences);
+    
+    for (int n = s.loadInt(); n-- > 0;) {
+      Mobile m = (Mobile) s.loadObject();
+      m.setWorldEntry(residents.addLast(m));
+    }
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    s.saveObject(location);
+    s.saveTally(presences);
+    
+    s.saveInt(residents.size());
+    for (Mobile m : residents) s.saveObject(m);
+  }
   
   
   
+  protected void updateBase() {
+    for (Mobile m : residents) {
+      final Activity a = VerseJourneys.activityFor(m);
+      if (a != null) a.whileOffworld();
+    }
+    
+    //
+    //  TODO:  Allow all residents a chance to apply for work elsewhere- use
+    //  that to replace candidate generation in BaseCommerce.
+  }
   
+  
+  protected void toggleResident(Mobile m, boolean is) {
+    final ListEntry <Mobile> e = m.worldEntry();
+    final boolean belongs = e != null && e.list() == residents;
+    
+    if (is) {
+      if (belongs) return;
+      m.setWorldEntry(residents.addLast(m));
+    }
+    else {
+      if (! belongs) return;
+      e.delete();
+      m.setWorldEntry(null);
+    }
+  }
+  
+  
+  protected Series <Mobile> residents() {
+    return residents;
+  }
+  
+  
+  protected boolean isResident(Mobile m) {
+    final ListEntry <Mobile> e = m.worldEntry();
+    return e != null && e.list() == residents;
+  }
 }
 
 
