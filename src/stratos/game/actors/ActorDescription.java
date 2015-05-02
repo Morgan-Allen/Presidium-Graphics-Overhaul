@@ -242,9 +242,18 @@ public class ActorDescription implements Qualities {
   
   
   private void describeRelations(Description d, HUD UI) {
+    
+    final List <Relation> sorting = new List <Relation> () {
+      protected float queuePriority(Relation r) {
+        if (! (r.subject instanceof Actor)) return 0 - (10 + r.value());
+        return 0 - r.value();
+      }
+    };
+    Visit.appendTo(sorting, h.relations.relations());
+    sorting.queueSort();
+    
     d.append("Relationships: ");
-    for (Relation r : h.relations.relations()) {
-      if (! (r.subject instanceof Actor)) continue;
+    for (Relation r : sorting) {
       d.append("\n  ");
       d.append(r.subject);
       if (showRelations) {

@@ -18,7 +18,6 @@ import stratos.util.*;
 
 
 
-
 public class DebugEcology extends Scenario {
   
   
@@ -83,6 +82,8 @@ public class DebugEcology extends Scenario {
   
   
   private void configReactionsTest(Stage world, Base base, BaseUI UI) {
+    
+    GameSettings.noBlood = true;
     
     final Base wildlife = Base.wildlife(world);
     final Actor fauna = Lictovore.SPECIES.sampleFor(wildlife);

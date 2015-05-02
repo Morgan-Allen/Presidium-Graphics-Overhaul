@@ -27,6 +27,7 @@ public class ActorRelations {
     NOVELTY_INTERVAL = Stage.STANDARD_DAY_LENGTH  * 2,
     FORGET_INTERVAL  = Stage.STANDARD_DAY_LENGTH  * 5,
     BASE_NUM_FRIENDS = 5 ,
+    GENERALISE_RATIO = 4 ,
     MAX_RELATIONS    = 10;
   
   final static int
@@ -87,11 +88,6 @@ public class ActorRelations {
         I.say("    Cares?      "+cares  );
         I.say("    Impact:     "+impact );
       }
-      //
-      //  Regardless of like or dislike, we decrement the 'strangeness' of the
-      //  other's base:
-      incRelation(other.base(), 0, 0, -1f / OBSERVE_PERIOD);
-      
       if (impact == 0 || (impact <= 0.5f && ! hasRelation(other))) {
         if (report) I.say("  Meh.  Big deal.");
         continue;
@@ -116,12 +112,11 @@ public class ActorRelations {
   
   
   public void updateValues(int numUpdates) {
-    updateFromObservations();
-    
-    if (numUpdates % UPDATE_PERIOD != 0) return;
     final boolean report = I.talkAbout == actor && verbose;
+    updateFromObservations();
+    if (numUpdates % UPDATE_PERIOD != 0) return;
     if (report) I.say("\nDecaying and culling relations for "+actor);
-    
+    //
     //  Firstly, sort relations in order of importance (based on the strength
     //  of the relationship, good or bad, and freshness in memory)-
     final List <Relation> sorting = new List <Relation> () {
@@ -131,7 +126,7 @@ public class ActorRelations {
     };
     for (Relation r : relations.values()) sorting.add(r);
     sorting.queueSort();
-    
+    //
     //  Then incrementally update each relation, and determine which are no
     //  longer important enough to remember (only personal relations are
     //  considered 'disposable' for this purpose:
@@ -146,9 +141,20 @@ public class ActorRelations {
         I.say("    ("+count+"/"+MAX_RELATIONS+", okay: "+okay+")");
         I.say("    Value/novelty: "+r.value()+"/"+r.novelty());
       }
-      if (personal && (excess || ! okay)) {
-        relations.remove(r.subject);
-        if (report) I.say("    EXPIRED");
+      if (personal) {
+        //
+        //  We generalise about the subject's base of origin based on relations
+        //  with known members.  And regardless of like or dislike, we
+        //  decrement the 'strangeness' of the other's base.
+        final float valueWeight = 1f / GENERALISE_RATIO;
+        final float novelWeight = UPDATE_PERIOD * -1f / NOVELTY_INTERVAL;
+        incRelation(r.subject.base(), r.value(), valueWeight, novelWeight);
+        //
+        //  And finally, discard if surplus to requirements.
+        if (excess || ! okay) {
+          relations.remove(r.subject);
+          if (report) I.say("    EXPIRED");
+        }
       }
     }
   }
@@ -229,7 +235,7 @@ public class ActorRelations {
   public void incRelation(
     Accountable other, float toLevel, float weight, float novelty
   ) {
-    final boolean report = I.talkAbout == actor && verbose;
+    final boolean report = I.talkAbout == actor && verbose && extraVerbose;
     if (report) {
       I.say("\nIncrementing relation with "+other);
       I.say("  To level: "+toLevel);

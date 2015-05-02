@@ -36,12 +36,9 @@ public class DialogueUtils implements Qualities {
   ) {
     if (noveltyInc < 0) noveltyInc = -1f / Dialogue.BORED_DURATION;
     final float w = 0.1f;  //  Weight- use a constant?
-    final float g = 4.0f;  //  Generalisation ratio.  (Should be constant?)
-    other.relations.incRelation(actor       , toLevel, w    , noveltyInc    );
-    other.relations.incRelation(actor.base(), toLevel, w / g, noveltyInc / g);
+    other.relations.incRelation(actor, toLevel, w, noveltyInc);
     if (symmetric) {
-      actor.relations.incRelation(other       , toLevel, w    , noveltyInc    );
-      actor.relations.incRelation(other.base(), toLevel, w / g, noveltyInc / g);
+      actor.relations.incRelation(other, toLevel, w, noveltyInc);
     }
   }
   
@@ -142,7 +139,7 @@ public class DialogueUtils implements Qualities {
     
     for (Relation r : actor.relations.relations()) {
       if (r.subject == other || r.subject == actor) continue;
-      if (! (r.subject instanceof Actor)) continue;
+      if (r.subject == other.base()) continue;
       final float
         otherR = other.relations.valueFor(r.subject),
         rating = (Nums.abs(otherR * r.value()) + 0.5f) * Rand.num();

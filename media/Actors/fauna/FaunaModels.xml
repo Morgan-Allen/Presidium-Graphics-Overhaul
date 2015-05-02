@@ -76,14 +76,15 @@
     <animation name="move_fast" start="137" end="163" duration="1" />
     <animation name="run stop"  start="163" end="177" duration="1" />
     
-    <animation name="build"  start="177" end="267" duration="1" />
-    <animation name="strike" start="317" end="370" duration="1" />
+    <animation name="build"      start="177" end="267" duration="1" />
+    <animation name="strike"     start="317" end="370" duration="1" />
+    <animation name="strike_big" start="592" end="625" duration="1" />
+    
     <animation name="look"   start="370" end="460" duration="1" />
     <animation name="fall"   start="460" end="510" duration="1" />
     <animation name="idle"   start="267" end="317" duration="1" />
     <animation name="idle2"  start="511" end="591" duration="1" />
     
-    <animation name="strike2" start="592" end="625" duration="1" />
     <animation name="die2"    start="626" end="698" duration="1" />
   </animations>
 </model>

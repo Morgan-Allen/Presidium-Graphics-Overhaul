@@ -5,9 +5,6 @@
 
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
-*  Humans should be remembering which animals were dangerous (using the
-   base-relations class.)
-
 *  More feedback on needs and settlement demands.  (Notifications or an RCI
    indicator of some sort are needed.)  You need feedback for-
      *  Citizen needs   / no food source (imports or grown.)
