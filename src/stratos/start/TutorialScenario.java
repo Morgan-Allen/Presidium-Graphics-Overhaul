@@ -80,6 +80,9 @@ public class TutorialScenario extends StartupScenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
+    
+    GameSettings.noAdvice = true;
+    GameSettings.noShips  = true;
     base.setup.setControlLevel(BaseSetup.LEVEL_CUSTOM);
   }
   
@@ -267,8 +270,13 @@ public class TutorialScenario extends StartupScenario {
     final Traded imp = Economy.METALS, exp = Economy.PARTS;
     if (DS.demandFor(imp) == 0 || DS.producer(imp) == true ) return false;
     if (DS.demandFor(exp) == 0 || DS.producer(exp) == false) return false;
-    
     return true;
+  }
+  
+  
+  protected void onTradeSetup() {
+    GameSettings.noShips = false;
+    world().offworld.journeys.scheduleLocalDrop(base(), 5);
   }
   
   
@@ -346,6 +354,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void onTutorialDone() {
+    GameSettings.noAdvice = false;
     base().setup.setControlLevel(BaseSetup.LEVEL_ADVISE);
   }
   

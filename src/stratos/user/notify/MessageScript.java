@@ -27,8 +27,10 @@ public class MessageScript implements
     
     boolean urgent    = false;
     boolean triggered = false;
-    Method trigger    = null ;
+    boolean completed = false;
+    Method triggers    = null ;
     Method onOpen     = null ;
+    Method completes  = null ;
   }
   
   
@@ -56,29 +58,11 @@ public class MessageScript implements
       topic.sourceNode = topicNode;
       topic.titleKey   = topicNode.value("name");
       topic.urgent     = topicNode.getBool("urgent");
+      topic.triggers   = extractMethod(topicNode, "triggers" , baseClass);
+      topic.onOpen     = extractMethod(topicNode, "onOpen"   , baseClass);
+      topic.completes  = extractMethod(topicNode, "completes", baseClass);
+
       I.say("\nADDING BASE TOPIC: "+topic.titleKey);
-      //
-      //  Trigger-methods are used to decide when the topic in question should
-      //  be presented to the player, and don't always need to be included.
-      final String triggerName = topicNode.value("trigger");
-      if (triggerName == null) topic.trigger = null;
-      else {
-        topic.trigger = I.findMethod(baseClass, triggerName);
-        if (topic.trigger == null) {
-          I.say("  WARNING:  No matching trigger method '"+triggerName+"()'");
-        }
-      }
-      //
-      //  On-open methods, as the name suggests, are called when a message is
-      //  first viewed (and not before.)
-      final String onOpenName = topicNode.value("onOpen");
-      if (onOpenName == null) topic.onOpen = null;
-      else {
-        topic.onOpen = I.findMethod(baseClass, onOpenName);
-        if (topic.onOpen == null) {
-          I.say("  WARNING:  No matching on-open method '"+onOpenName+"()'");
-        }
-      }
       allTopics.put(topic.titleKey, topic);
       //
       //  Finally, any embedded images will need to loaded on the render
@@ -93,6 +77,16 @@ public class MessageScript implements
   }
   
   
+  private Method extractMethod(XML node, String varName, Class baseClass) {
+    final String methodName = node.value(varName);
+    if (methodName == null) return null;
+    final Method method = I.findMethod(baseClass, methodName);
+    if (method != null) return method;
+    I.say("  WARNING:  No matching "+varName+" method '"+methodName+"()'");
+    return null;
+  }
+  
+  
   public MessageScript(Session s) throws Exception {
     s.cacheInstance(this);
     this.basis           = s.loadObject();
@@ -100,9 +94,10 @@ public class MessageScript implements
     this.loadScriptXML();
     
     for (int n = s.loadInt(); n-- > 0;) {
-      final String key = s.loadString();
+      final String key  = s.loadString();
       final Topic topic = allTopics.get(key);
-      topic.triggered = s.loadBool();
+      topic.triggered   = s.loadBool();
+      topic.completed   = s.loadBool();
     }
   }
   
@@ -115,6 +110,7 @@ public class MessageScript implements
     for (Topic t : allTopics.values()) {
       s.saveString(t.titleKey );
       s.saveBool  (t.triggered);
+      s.saveBool  (t.completed);
     }
   }
   
@@ -140,20 +136,35 @@ public class MessageScript implements
     //  (We use an array here to allow deletions mid-iteration if something
     //  goes wrong, which java would not otherwise allow.)
     final Topic topics[] = new Topic[allTopics.size()];
-    for (Topic topic : allTopics.values().toArray(topics)) {
-      if (topic.trigger == null || topic.triggered) continue;
-      boolean didTrigger = false;
-      try {
-        final Object triggerVal = topic.trigger.invoke(basis);
-        didTrigger = Boolean.TRUE.equals(triggerVal);
-      }
-      catch (Exception e) {
-        e.printStackTrace();
-        allTopics.remove(topic.titleKey);
+    allTopics.values().toArray(topics);
+    
+    for (Topic topic : topics) {
+      if (topic.completes != null && ! topic.completed) {
+        boolean didComplete = false; try {
+          final Object completeVal = topic.completes.invoke(basis);
+          didComplete = Boolean.TRUE.equals(completeVal);
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+          allTopics.remove(topic.titleKey);
+        }
+        if (didComplete) {
+          BaseUI.current().reminders().retireMessage(topic.asMessage);
+        }
       }
       
-      if (didTrigger) {
-        pushTopicMessage(topic, true);
+      if (topic.triggers != null && ! topic.triggered) {
+        boolean didTrigger = false; try {
+          final Object triggerVal = topic.triggers.invoke(basis);
+          didTrigger = Boolean.TRUE.equals(triggerVal);
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+          allTopics.remove(topic.titleKey);
+        }
+        if (didTrigger) {
+          pushTopicMessage(topic, true);
+        }
       }
     }
   }

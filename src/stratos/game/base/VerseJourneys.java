@@ -148,7 +148,7 @@ public class VerseJourneys {
   
   
   protected void updateJourneys(int numUpdates) {
-    //if ((numUpdates % UPDATE_INTERVAL) != 0) return;
+    if ((numUpdates % UPDATE_INTERVAL) != 0 || GameSettings.noShips) return;
     
     //  TODO:  THIS NEEDS TO BE PUT ON A SCHEDULE
     for (Journey j : journeys) {

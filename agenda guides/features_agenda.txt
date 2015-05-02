@@ -5,15 +5,8 @@
 
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
-*  Animals should either be shying away from nearby humans or attacking them.
-   And humans should be remembering which animals were dangerous (use the
+*  Humans should be remembering which animals were dangerous (using the
    base-relations class.)
-
-*  Disable shipping until the player is ready, and allow for multiple ships
-   with multiple airfields.
-
-*  Topics should have a 'completion' method that they can use to determine when
-   to close (if they haven't been dismissed.)
 
 *  More feedback on needs and settlement demands.  (Notifications or an RCI
    indicator of some sort are needed.)  You need feedback for-
@@ -34,6 +27,8 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 *  ADD IMAGE-TIPS FOR THE TUTORIAL-MESSAGES.
 
+*  Polish up shield-wall art, including perimeter fence.
+
 
 
 BUILDINGS AND ECONOMY-
@@ -44,8 +39,6 @@ BUILDINGS AND ECONOMY-
 
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
-
-*  Polish up shield-wall art, including perimeter fence.
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange

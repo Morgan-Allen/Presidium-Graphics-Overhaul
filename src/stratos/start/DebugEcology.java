@@ -77,7 +77,25 @@ public class DebugEcology extends Scenario {
     
     if (false) configHuntingScenario(world, base, UI);
     if (false) nestPlaceTest        (world, base, UI);
-    if (true ) configHarvestScenario(world, base, UI);
+    if (false) configHarvestScenario(world, base, UI);
+    if (true ) configReactionsTest  (world, base, UI);
+  }
+  
+  
+  private void configReactionsTest(Stage world, Base base, BaseUI UI) {
+    
+    final Base wildlife = Base.wildlife(world);
+    final Actor fauna = Lictovore.SPECIES.sampleFor(wildlife);
+    fauna.health.setupHealth(1, 1, 0);
+    fauna.enterWorldAt(6, 6, world);
+    
+    final Actor person = new Human(Backgrounds.ECOLOGIST, base);
+    person.enterWorldAt(8, 8, world);
+    
+    float novelty = fauna.relations.noveltyFor(person.base());
+    I.say("Base novelty is: "+novelty);
+    
+    UI.selection.pushSelection(fauna);
   }
   
   

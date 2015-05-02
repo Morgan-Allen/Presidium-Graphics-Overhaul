@@ -20,7 +20,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose     = false,
+    verbose     = true ,
     failVerbose = true ;
   
   private static boolean reportOn(Actor a, float priority) {
@@ -50,13 +50,14 @@ public class PlanUtils {
     else if (actor.senses.isEmergency()) incentive += 5;
     
     winChance  = combatWinChance(actor, subject, teamSize);
-    inhibition = Nums.max(0, conscience);
+    inhibition = Nums.max(10 * (1 - winChance), conscience);
     priority   = incentive * winChance;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
       "subject  " , subject    ,
       "reward   " , rewardBonus,
+      "emergency" , actor.senses.isEmergency(),
       "harm level", harm       ,
       "harm taken", harmTaken  ,
       "dislike"   , dislike    ,
@@ -84,9 +85,6 @@ public class PlanUtils {
     loseChance = 1f - combatWinChance(actor, actor.origin(), 1);
     if (actor.senses.fearLevel() == 0) loseChance = 0;
     incentive += loseChance * 10;
-    
-    //  TODO:  home distance should raise the threshold for retreat, rather
-    //  than reducing it's urgency?
     
     homeDistance = homeDistanceFactor(actor, actor.origin());
     if (! isArmed(actor)) homeDistance = (homeDistance + 2) / 2;
@@ -366,14 +364,13 @@ public class PlanUtils {
   public static float baseCuriosity(
     Actor actor, Target toward, boolean positive
   ) {
+    if (! actor.species().sapient()) return positive ? 0 : 1;
     float strangeness = actor.relations.noveltyFor(toward.base());
     float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     if (positive) return curiosity * strangeness;
-    else return Nums.clamp(strangeness - curiosity, 0, 1);
+    else return Nums.clamp(strangeness - curiosity * 2, 0, 1);
   }
   
-  
-  //  TODO:  Try to avoid external calls to this method...
   
   public static float competition(Class planClass, Target t, Actor actor) {
     float competition = 0;

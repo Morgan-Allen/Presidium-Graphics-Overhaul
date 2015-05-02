@@ -285,16 +285,17 @@ public class ActorSenses implements Qualities {
       for (Target t : awareOf) I.say("    "+t);
     }
     
-    float sumAllies = 1, sumFoes = 0;
+    float sumAllies = 1, sumFoes = 0, bravery;
     emergency  = actor.isDoing(Combat.class, null);
     powerLevel = CombatUtils.powerLevel(actor);
+    bravery    = (2 + actor.traits.relativeLevel(FEARLESS)) / 2;
     
     for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
       final Actor near = (Actor) t;
       float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
       
       if (attackRisk > 0) {
-        attackRisk = Nums.clamp((attackRisk + 5) / 10, 0, 1);
+        attackRisk = Nums.clamp((attackRisk + 5) / 10, 0, 2);
         final float power = CombatUtils.powerLevelRelative(near, actor);
         sumFoes += power * attackRisk;
         if (report) {
@@ -312,7 +313,7 @@ public class ActorSenses implements Qualities {
         }
       }
       
-      emergency |= near.isDoing(Combat.class, null) || attackRisk >= 1;
+      emergency |= near.isDoing(Combat.class, null) || attackRisk > bravery;
     }
     
     //
@@ -334,6 +335,7 @@ public class ActorSenses implements Qualities {
     if (report) {
       I.say("  Sum allies:     "+sumAllies    );
       I.say("  Sum foes:       "+sumFoes      );
+      I.say("  Bravery:        "+bravery      );
       I.say("  Personal power: "+powerLevel   );
       I.say("  Ambient danger: "+ambientDanger);
       I.say("  Fear level:     "+fearLevel    );

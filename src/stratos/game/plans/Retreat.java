@@ -291,9 +291,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
-    final boolean emergency = actor.senses.isEmergency();
-    
-    if (! emergency) {
+    if (actor.senses.fearLevel() <= 0) {
       final Resting rest = new Resting(actor, safePoint);
       rest.addMotives(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxPriority = 0;
@@ -306,11 +304,6 @@ public class Retreat extends Plan implements Qualities {
       lastHidePoint = safePoint;
       maxPriority *= DANGER_MEMORY_FADE;
       if (maxPriority < 0.5f) maxPriority = 0;
-    }
-    
-    if (stepsVerbose && I.talkAbout == actor) {
-      I.say("Max. danger: "+maxPriority);
-      I.say("Still in danger? "+emergency);
     }
     return true;
   }

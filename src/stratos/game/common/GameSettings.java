@@ -39,6 +39,8 @@ public class GameSettings {
     needsFree = false,
     noBlood   = false,
     noChat    = false,
+    noShips   = false,
+    noAdvice  = false,
     
     hardCore  = false;
   public static int

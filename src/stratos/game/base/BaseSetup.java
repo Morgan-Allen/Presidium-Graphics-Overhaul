@@ -447,7 +447,9 @@ public class BaseSetup {
         return needRating(r);
       }
     };
-    if (setupMode == LEVEL_CUSTOM) return needs.toArray();
+    if (setupMode == LEVEL_CUSTOM || GameSettings.noAdvice) {
+      return needs.toArray();
+    }
     
     for (Traded t : Economy.ALL_PROVISIONS) {
       if (base.commerce.primaryShortage(t) < 0.5f) continue;

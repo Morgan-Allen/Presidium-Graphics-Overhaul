@@ -119,7 +119,9 @@ public class Hareen extends Fauna {
     ) {
       idealHeight = target.position(null).z + (target.height() / 2f) - 0.5f;
     }
-    flyHeight = idealHeight;
+    
+    final float min = flyHeight - 0.1f, max = flyHeight + 0.1f;
+    flyHeight = Nums.clamp(Nums.max(0, idealHeight), min, max);
     
     super.updateAsMobile();
   }

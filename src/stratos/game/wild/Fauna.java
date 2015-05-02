@@ -138,22 +138,22 @@ public abstract class Fauna extends Actor {
       //
       //  We (unrealistically) assume that animals don't get curious.
       public float noveltyFor(Object object) {
-        return 0;
+        if (object instanceof Fauna) return 0;
+        else return 1;
       }
     };
   }
   
   
   protected void addChoices(Choice choice) {
-    for (Target t : senses.awareOf()) {
-      addReactions(t, choice);
-    }
+    for (Target t : senses.awareOf()) addReactions(t, choice);
     if (species.browser () ) choice.add(nextBrowsing());
     if (species.predator() ) choice.add(nextHunting ());
     if (breedMetre >= 0.99f) choice.add(nextBreeding());
     choice.add(new Resting(this, senses.haven()));
     choice.add(nextMigration   ());
     choice.add(nextBuildingNest());
+    choice.add(new Retreat(this));
   }
   
   
