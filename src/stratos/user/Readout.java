@@ -10,6 +10,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.start.SaveUtils;
 import stratos.util.*;
 
 
@@ -64,15 +65,8 @@ public class Readout extends UIGroup {
     
     //
     //  Then time and date-
-    final float
-      time = world.currentTime() / Stage.STANDARD_DAY_LENGTH;
-    final int
-      days  = (int) time,
-      hours = (int) ((time - days) * 24);
-    String hS = hours+"00";
-    while (hS.length() < 4) hS = "0"+hS;
-    String dS = "Day "+days+" "+hS+" Hours";
-    read.append(dS);
+    final String timeStamp = SaveUtils.timeStamp(world.currentTime());
+    read.append(timeStamp);
     
     //
     //  Finally, include the set of provisions and their supply/demand:

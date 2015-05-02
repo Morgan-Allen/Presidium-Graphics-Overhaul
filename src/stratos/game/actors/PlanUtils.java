@@ -278,10 +278,11 @@ public class PlanUtils {
   public static float jobPlanPriority(
     Actor actor, Plan plan,
     float urgency, float competence,
-    int helpLimit, Trait... enjoyTraits
+    int helpLimit, float riskLevel, Trait... enjoyTraits
   ) {
     float incentive = 0, priority = 0, enjoyBonus = 0;
     float dutyBonus = 0, helpBonus = 0, shift = 0;
+    float failPenalty = 0;
     
     final Property work = actor.mind.work();
     float liking = actor.relations.valueFor(plan.subject);
@@ -302,8 +303,8 @@ public class PlanUtils {
       return -1;
     }
     
-    priority = incentive * (competence + 1) / 2;
-    priority -= (1 - competence) * 5;
+    priority = incentive * competence;
+    priority -= failPenalty = (1 - competence) * 10 * riskLevel;
     
     if (helpLimit > 0 && ! plan.hasBegun()) {
       float help = competition(plan, plan.subject, actor);
@@ -314,17 +315,20 @@ public class PlanUtils {
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nJob priority for "+actor, "  ",
-      "Job is:    ", plan        ,
-      "Is job?    ", plan.isJob(),
-      "On shift:  ", (int) shift ,
-      "Liking:    ", liking      ,
-      "Urgency:   ", urgency     ,
-      "Competence:", competence  ,
-      "enjoyBonus ", enjoyBonus  ,
-      "dutyBonus  ", dutyBonus   ,
-      "helpBonus  ", helpBonus   ,
-      "Incentive: ", incentive   ,
-      "Priority:  ", priority
+      "Job is"     , plan        ,
+      "Is job?"    , plan.isJob(),
+      "On shift"   , (int) shift ,
+      "Liking"     , liking      ,
+      "Urgency"    , urgency     ,
+      "Competence" , competence  ,
+      "enjoyBonus" , enjoyBonus  ,
+      "dutyBonus"  , dutyBonus   ,
+      "failRisk"   , riskLevel   ,
+      "failPenalty", failPenalty ,
+      "helpLimit"  , helpLimit   ,
+      "helpBonus"  , helpBonus   ,
+      "Incentive"  , incentive   ,
+      "Priority"   , priority    
     );
     return Nums.clamp(priority, 0, 10);
   }

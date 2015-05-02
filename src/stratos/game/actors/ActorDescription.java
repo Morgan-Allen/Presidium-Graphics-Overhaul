@@ -175,34 +175,33 @@ public class ActorDescription implements Qualities {
     sorting.queueSort();
     for (Skill skill : sorting) descSkill(skill, d);
     
-    d.append("\n\nTechniques: ");
-    for (Technique p : h.skills.known) {
-      d.append("\n  "+p.name);
-    }
-    if (h.skills.known.size() == 0) d.append("\n  None known");
-    
-    d.append("\n\nOther: ");
+    d.append("\n\nOther Skills: ");
     sorting.clear();
     for (Skill skill : h.traits.skillSet()) {
       if (! job.skills().includes(skill)) sorting.add(skill);
     }
     sorting.queueSort();
     for (Skill skill : sorting) descSkill(skill, d);
+    
+    d.append("\n\nTechniques: ");
+    for (Technique p : h.skills.known) {
+      d.append("\n  "+p.name);
+    }
+    //if (h.skills.known.size() == 0) d.append("\n  None known");
   }
   
   
   private void descSkill(Skill skill, Description d) {
-    final int level = (int) (
-      h.traits.traitLevel(skill) +
-      h.traits.bonusFrom (skill.parent)
-    );
-    final int bonus = (int) h.traits.effectBonus(skill);
+    final int
+      baseLevel = (int) h.traits.traitLevel(skill),
+      rootBonus = (int) h.traits.bonusFrom (skill.parent),
+      bonus     = (int) h.traits.effectBonus(skill);
     d.append("\n  "+skill.name);
     
     Colour c = Colour.WHITE;
     if (bonus > 0) c = Colour.GREEN;
     if (bonus < 0) c = Colour.RED  ;
-    d.append(" "+(level + bonus), c);
+    d.append(" "+baseLevel+" ("+rootBonus+")", c);
     if (bonus != 0) d.append(" ("+bonus+")", c);
   }
   

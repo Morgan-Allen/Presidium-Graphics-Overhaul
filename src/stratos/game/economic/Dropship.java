@@ -285,6 +285,7 @@ public class Dropship extends Vehicle implements Owner {
   
   public void exitWorld() {
     if (landed()) beginAscent();
+    ShipUtils.completeTakeoff(world, this);
     super.exitWorld();
   }
   
@@ -303,7 +304,6 @@ public class Dropship extends Vehicle implements Owner {
     exitWorld();
     stage = STAGE_AWAY;
     stageInceptTime = world.currentTime();
-    aimPos.set(0, 0, NO_LANDING);
   }
   
   

@@ -3,26 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.civic.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
-
-
-
-
-//  TODO:  Use a smuggling behaviour here instead.  And move some of the ship
-//  functions to the ShipUtils class?
-
-//  TODO:  Allow multiple ships- based on the size of the settlement and
-//  limited by the number of airfields!  (You never get more than one
-//  otherwise.)
 
 
 
@@ -32,14 +21,15 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     extraVerbose   = false,
     migrateVerbose = verbose && false,
-    tradeVerbose   = verbose && false;
+    tradeVerbose   = verbose && true ;
   
   final public static float
     SHIP_JOURNEY_TIME   = Stage.STANDARD_DAY_LENGTH / 2f,
     SHIP_VISIT_DURATION = Stage.STANDARD_HOUR_LENGTH * 6,
+    SHIP_UPDATE_CHANCE  = 1f / 4,
     
     APPLY_INTERVAL  = Stage.STANDARD_DAY_LENGTH / 2f,
     UPDATE_INTERVAL = 10,
@@ -52,8 +42,11 @@ public class BaseCommerce {
   
   
   final Base base;
+  
   protected VerseLocation homeworld = Verse.DEFAULT_HOMEWORLD;
   final List <VerseLocation> partners = new List <VerseLocation> ();
+  protected int maxShipsPerDay = 0;
+  final List <Actor> candidates = new List <Actor> ();
   
   final Tally <Traded>
     primaryDemand = new Tally <Traded> (),
@@ -64,7 +57,6 @@ public class BaseCommerce {
     importPrices = new Table <Traded, Float> (),
     exportPrices = new Table <Traded, Float> ();
   
-  final List <Actor> candidates = new List <Actor> ();
   
   
   
@@ -80,9 +72,9 @@ public class BaseCommerce {
   public void loadState(Session s) throws Exception {
     
     homeworld = (VerseLocation) s.loadObject();
-    for (int n = s.loadInt(); n-- > 0;) {
-      partners.add((VerseLocation) s.loadObject());
-    }
+    s.loadObjects(partners);
+    maxShipsPerDay = s.loadInt();
+    s.loadObjects(candidates);
     
     for (Traded type : ALL_MATERIALS) {
       primaryDemand.set(type, s.loadFloat());
@@ -92,15 +84,15 @@ public class BaseCommerce {
       importPrices.put (type, s.loadFloat());
       exportPrices.put (type, s.loadFloat());
     }
-    s.loadObjects(candidates);
   }
   
   
   public void saveState(Session s) throws Exception {
     
     s.saveObject(homeworld);
-    s.saveInt(partners.size());
-    for (VerseLocation p : partners) s.saveObject(p);
+    s.saveObjects(partners);
+    s.saveInt(maxShipsPerDay);
+    s.saveObjects(candidates);
     
     for (Traded type : ALL_MATERIALS) {
       s.saveFloat(primaryDemand.valueFor(type));
@@ -110,7 +102,6 @@ public class BaseCommerce {
       s.saveFloat(importPrices.get(type)      );
       s.saveFloat(exportPrices.get(type)      );
     }
-    s.saveObjects(candidates);
   }
   
   
@@ -147,9 +138,11 @@ public class BaseCommerce {
   public void updateCommerce(int numUpdates) {
     final boolean report = verbose && BaseUI.current().played() == base;
     if (report && extraVerbose) I.say("\nUpdating commerce for base: "+base);
+    if (base.primal) return;
     
     updateCandidates(numUpdates);
-    summariseDemandAndPrices(base, numUpdates);
+    summariseDemandAndPrices(numUpdates);
+    updateActiveShipping(numUpdates);
   }
   
   
@@ -258,9 +251,9 @@ public class BaseCommerce {
   
   /**  Assessing supply and demand associated with goods-
     */
-  private void summariseDemandAndPrices(Base base, int numUpdates) {
+  private void summariseDemandAndPrices(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
-    final boolean report = tradeVerbose && base == BaseUI.current().played();
+    final boolean report = tradeVerbose && base == BaseUI.currentPlayed();
     if (report) I.say("\nSUMMARISING DEMAND FOR "+base);
     //
     //  Firstly, we summarise domestic supply and demand for all the major
@@ -383,6 +376,51 @@ public class BaseCommerce {
     final Float price = exportPrices.get(type);
     if (price == null) return type.basePrice() / 10f;
     return price;
+  }
+  
+  
+  
+  /**  And finally, utility methods for calibrating the volume of shipping to
+    *  or from this particular base:
+    */
+  private void updateActiveShipping(int numUpdates) {
+    if ((numUpdates % UPDATE_INTERVAL) != 0) return;
+    final boolean report = tradeVerbose && base == BaseUI.currentPlayed();
+    if (report) I.say("\nUPDATING ACTIVE SHIPPING FOR "+base);
+    
+    //  TODO:  At the moment, we're aggregating all supply and demand into a
+    //  single channel from the homeworld.  Once the planet-map is sorted out,
+    //  you should evaluate pricing for each world independantly... and how
+    //  many ships will come.
+    
+    int spaceLimit = 1;
+    for (Object t : base.world.presences.allMatches(Airfield.class)) {
+      final Airfield field = (Airfield) t;
+      if (field.base() != base) continue;
+      spaceLimit++;
+    }
+    spaceLimit = Nums.min(spaceLimit, homeworld.population + 1);
+    
+    //
+    //  At any rate, we simply adjust the number of current ships based on
+    //  the space allowance-
+    VerseJourneys travel = base.world.offworld.journeys;
+    VerseLocation locale = base.world.offworld.stageLocation();
+    
+    Dropship running[] = travel.shipsBetween(locale, homeworld, base, true);
+    Dropship last = (Dropship) Visit.last(running);
+    if (running.length < spaceLimit) {
+      travel.setupShipping(homeworld, locale, base, true);
+    }
+    if (running.length > spaceLimit && ! last.inWorld()) {
+      travel.retireShip(last);
+    }
+    
+    if (report) {
+      I.say("  Ships available: "+running.length);
+      I.say("  Ideal limit:     "+spaceLimit);
+    }
+    this.maxShipsPerDay = spaceLimit;
   }
   
   

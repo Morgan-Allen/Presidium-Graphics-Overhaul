@@ -135,26 +135,32 @@ public class Repairs extends Plan {
   final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
   
   protected float getPriority() {
-    //final boolean report = I.talkAbout == actor && evalVerbose;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
     float urgency = needForRepair(built), helpLimit;
     if (urgency <= 0) return 0;
     helpLimit = built.structure().maxIntegrity() * MAX_HELP_PER_25_HP / 25;
     
-    return PlanUtils.jobPlanPriority(
+    setCompetence(successChanceFor(actor));
+    final float priority = PlanUtils.jobPlanPriority(
       actor, this,
-      urgency, successChanceFor(actor),
-      (int) helpLimit, BASE_TRAITS
+      urgency, competence(), (int) helpLimit, MILD_HARM, BASE_TRAITS
     );
+    if (report) {
+      I.say("\nRepair priority was: "+priority);
+      I.say("  Skill level:  "+actor.traits.usedLevel(skillUsed  ));
+      I.say("  Labour level: "+actor.traits.usedLevel(HARD_LABOUR));
+    }
+    return priority;
   }
   
   
   public float successChanceFor(Actor actor) {
     float chance = 1;
     //  TODO:  Base this on the conversion associated with the structure type.
-    chance *= actor.skills.chance(HARD_LABOUR, 0);
-    chance *= actor.skills.chance(skillUsed   , 5);
-    return (chance + 1) / 2;
+    chance += actor.skills.chance(HARD_LABOUR, ROUTINE_DC );
+    chance += actor.skills.chance(skillUsed  , MODERATE_DC);
+    return chance / 3;
   }
   
   

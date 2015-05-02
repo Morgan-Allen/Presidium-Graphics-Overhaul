@@ -240,10 +240,10 @@ public class Stage {
     for (Base base : bases) {
       if (secChange) base.intelMap.updateFogValues();
     }
+    if (secChange) offworld.updateVerse(currentTime);
     
     schedule.advanceSchedule(currentTime);
     ecology.updateEcology();
-    offworld.updateVerse(currentTime);
     
     for (Mobile m : mobiles) m.updateAsMobile();
   }

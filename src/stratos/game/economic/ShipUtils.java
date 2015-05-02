@@ -21,7 +21,7 @@ public class ShipUtils {
   private static boolean
     landVerbose = false,
     flyVerbose  = false,
-    siteVerbose = false;
+    siteVerbose = true ;
   
   
   /**  Utility methods for handling takeoff and landing:
@@ -157,6 +157,13 @@ public class ShipUtils {
   }
   
   
+  public static void completeTakeoff(Stage world, Dropship ship) {
+    world.offworld.journeys.handleEmmigrants(ship);
+    ship.assignLandPoint(null, null);
+  }
+  
+  
+  
   /**  Dealing with motion during flight:
     */
   static void adjustFlight(
@@ -227,67 +234,61 @@ public class ShipUtils {
   
   /**  Finally, utility methods for finding a suitable landing point-
     */
+  //
   //  TODO:  Treat landing sites as a type of venue and generate them using
   //  the PlacementGrid-scanning methods.  (Like you need to do for holdings?)
   //
   //  TODO:  Alternatively, use DeliveryUtils to try rating placement sites?
-  //
+  
   static boolean checkLandingArea(Dropship ship, Stage world, Box2D area) {
     final Boarding dropPoint = ship.dropPoint();
-    if (dropPoint instanceof Venue) {
-      if (! dropPoint.inWorld()) return false;
+    
+    if (dropPoint instanceof Airfield) {
       final Airfield strip = (Airfield) dropPoint;
-      final Vec3D aimPos = strip.dockLocation(ship);
-      ship.assignLandPoint(aimPos, strip);
+      if (rateAirfield(strip, ship) <= 0) return false;
       return true;
     }
-    else for (Tile t : world.tilesIn(area, false)) {
-      if (t == null) return false;
-      if (t.onTop() == ship) continue;
-      if (PavingMap.pavingReserved(t, true) || ! t.buildable()) return false;
+    
+    if (area != null) {
+      if (Placement.checkAreaClear(area, world)) return true;
+      for (Tile t : world.tilesIn(area, false)) {
+        if (t == null) return false;
+        if (t.onTop() == ship) continue;
+        if (PavingMap.pavingReserved(t, true) || ! t.buildable()) return false;
+      }
+      return true;
     }
-    return true;
+    
+    return false;
   }
   
   
-  public static boolean findLandingSite(final Dropship ship, final Base base) {
-    final boolean report = siteVerbose && BaseUI.current().played() == base;
+  public static boolean findLandingSite(Dropship ship, boolean useCache) {
+    //
+    //  Basic variable setup and sanity checks-
+    final Base  base  = ship.base();
+    final Stage world = base.world ;
+    final boolean report = siteVerbose && BaseUI.currentPlayed() == base;
     if (ship.landed()) return true;
-    
-    ship.assignBase(base);
-    final Stage world = base.world;
     //
     //  If your current landing site is still valid, then keep it.
-    final Box2D landArea = ship.landArea();
-    if (landArea != null && checkLandingArea(ship, world, landArea)) {
+    if (useCache && checkLandingArea(ship, world, ship.landArea())) {
       if (report) {
-        I.say("\nCurrent landing site valid for "+ship+":");
-        I.say("  "+ship.landArea());
+        I.say("\nCurrent landing site valid for "+ship);
+        I.say("  Point: "+ship.dropPoint());
+        I.say("  Area:  "+ship.landArea ());
       }
       return true;
     }
     //
     //  If that fails, check to see if landing at a supply depot/launch hangar
     //  is possible:
-    final Pick <Airfield> pick = new Pick <Airfield> ();
-    
-    for (Object o : world.presences.matchesNear(Airfield.class, ship, -1)) {
-      final Airfield strip = (Airfield) o;
-      if (strip.docking() != null || ! strip.structure.intact()) continue;
-      float rating = 0;
-      for (Traded good : Economy.ALL_MATERIALS) {
-        rating += Nums.max(0, strip.stocks.shortageOf(good));
-        rating += Nums.max(0, strip.stocks.surplusOf (good));
-      }
-      rating /= 2 * ALL_MATERIALS.length;
-      pick.compare(strip, rating);
-    }
-    final Airfield strip = pick.result();
+    final Airfield strip = findAirfield(ship, world);
     if (strip != null) {
       final Vec3D aimPos = strip.dockLocation(ship);
       ship.assignLandPoint(aimPos, strip);
       strip.setToDock(ship);
-      I.say("Landing at depot: "+strip);
+      if (report) I.say("Landing at airfield: "+strip);
       return true;
     }
     //
@@ -297,18 +298,43 @@ public class ShipUtils {
     final Presences p = world.presences;
     Target nearest = null;
     nearest = p.randomMatchNear(SERVICE_COMMERCE, midTile, -1);
-    if (findLandingSite(ship, nearest, base)) return true;
+    if (findLandingArea(ship, nearest, base)) return true;
     nearest = p.randomMatchNear(base, midTile, -1);
-    if (findLandingSite(ship, nearest, base)) return true;
+    if (findLandingArea(ship, nearest, base)) return true;
     nearest = p.nearestMatch(base, midTile, -1);
-    if (findLandingSite(ship, nearest, base)) return true;
+    if (findLandingArea(ship, nearest, base)) return true;
     nearest = midTile;
-    if (findLandingSite(ship, nearest, base)) return true;
+    if (findLandingArea(ship, nearest, base)) return true;
     return false;
+  }
+  
+  
+  private static float rateAirfield(Airfield strip, Dropship ship) {
+    if ((! strip.inWorld()) || ! strip.structure.intact()) return -1;
+    if (strip.docking() != null && strip.docking() != ship) return -1;
+
+    //  TODO:  SEE IF YOU CAN USE THE DELIVERYUTILS CLASS FOR THIS?
+    float rating = 1;
+    for (Traded good : Economy.ALL_MATERIALS) {
+      rating += Nums.max(0, strip.stocks.shortageOf(good));
+      rating += Nums.max(0, strip.stocks.surplusOf (good));
+    }
+    rating /= 2 * ALL_MATERIALS.length;
+    return rating;
+  }
+  
+  
+  private static Airfield findAirfield(Dropship ship, Stage world) {
+    final Pick <Airfield> pick = new Pick <Airfield> (null, 0);
+    for (Object o : world.presences.matchesNear(Airfield.class, ship, -1)) {
+      final Airfield strip = (Airfield) o;
+      pick.compare(strip, rateAirfield(strip, ship));
+    }
+    return pick.result();
   }
 
   
-  private static boolean findLandingSite(
+  private static boolean findLandingArea(
     final Dropship ship, Target from, final Base base
   ) {
     if (from == null) return false;

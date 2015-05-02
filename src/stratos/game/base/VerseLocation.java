@@ -47,10 +47,12 @@ public class VerseLocation extends Background {
   
   
   final public VerseLocation belongs;
-  final public String houseName;
-  final public Traded goodsMade[], goodsNeeded[];
   final public Trait climate;
   final public int gravity;
+  
+  final public String houseName;
+  final public Traded goodsMade[], goodsNeeded[];
+  final public int population;
   
   final Table <Background[], Float> circles = new Table();
   
@@ -58,7 +60,8 @@ public class VerseLocation extends Background {
   public VerseLocation(
     Class baseClass,
     String name, String houseName, String description,
-    Trait climate, int gravity, VerseLocation belongs, Object... args
+    Trait climate, int gravity, VerseLocation belongs,
+    int population, Object... args
   ) {
     super(
       baseClass, name, description, null, null,
@@ -88,6 +91,7 @@ public class VerseLocation extends Background {
     
     goodsMade   = madeB.toArray(Traded.class);
     goodsNeeded = needB.toArray(Traded.class);
+    this.population = population;
   }
   
   

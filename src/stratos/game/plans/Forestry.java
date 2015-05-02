@@ -163,7 +163,7 @@ public class Forestry extends Plan {
     
     //  Otherwise, it's generally a routine activity.
     final float priority = PlanUtils.jobPlanPriority(
-      actor, this, bonus, 1, 3, BASE_TRAITS
+      actor, this, bonus, 1, 3, MILD_HARM, BASE_TRAITS
     );
     if (report) {
       I.say("\nGetting forestry priority for "+actor);

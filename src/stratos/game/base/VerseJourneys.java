@@ -25,7 +25,7 @@ public class VerseJourneys {
   /**  Data fields, construction, and save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     transitVerbose = false,
     updatesVerbose = false,
     extraVerbose   = false;
@@ -46,10 +46,11 @@ public class VerseJourneys {
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
       final Journey j = new Journey();
-      j.vessel      = (Vehicle) s.loadObject();
+      j.vessel      = (Dropship) s.loadObject();
       j.origin      = (VerseLocation) s.loadObject();
       j.destination = (VerseLocation) s.loadObject();
       j.arriveTime  = s.loadFloat();
+      j.returns     = s.loadBool();
       journeys.add(j);
     }
     updateCounter = s.loadInt();
@@ -59,10 +60,11 @@ public class VerseJourneys {
   public void saveState(Session s) throws Exception {
     s.saveInt(journeys.size());
     for (Journey j : journeys) {
-      s.saveObject     (j.vessel     );
-      s.saveObject     (j.origin     );
-      s.saveObject     (j.destination);
-      s.saveFloat      (j.arriveTime );
+      s.saveObject(j.vessel     );
+      s.saveObject(j.origin     );
+      s.saveObject(j.destination);
+      s.saveFloat (j.arriveTime );
+      s.saveBool  (j.returns    );
     }
     s.saveInt(updateCounter);
   }
@@ -93,7 +95,7 @@ public class VerseJourneys {
 
   
   static class Journey {
-    Vehicle vessel;
+    Dropship vessel;
     VerseLocation origin;
     VerseLocation destination;
     float arriveTime;
@@ -131,20 +133,29 @@ public class VerseJourneys {
   }
   
   
+  public boolean retireShip(Dropship ship) {
+    final Journey j = journeyFor(ship);
+    if (j == null) return false;
+    journeys.remove(j);
+    return true;
+  }
+  
+  
   protected Journey journeyFor(Dropship ship) {
     for (Journey j : journeys) if (j.vessel == ship) return j;
     return null;
   }
   
   
-  protected void updateJourneys() {
+  protected void updateJourneys(int numUpdates) {
     //if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     
     //  TODO:  THIS NEEDS TO BE PUT ON A SCHEDULE
     for (Journey j : journeys) {
-      
-      if (j.vessel instanceof Dropship) updateShipping((Dropship) j.vessel, j);
+      updateShipping(j.vessel, j);
     }
+    
+    ///if (numUpdates % 10 == 0) reportOffworldState("\n\nREGULAR CHECKUP");
   }
   
   
@@ -153,8 +164,8 @@ public class VerseJourneys {
     */
   public Batch <Dropship> allVessels() {
     final Batch <Dropship> vessels = new Batch <Dropship> ();
-    for (Journey j : journeys) if (j.vessel instanceof Dropship) {
-      vessels.add((Dropship) j.vessel);
+    for (Journey j : journeys) {
+      vessels.add(j.vessel);
     }
     return vessels;
   }
@@ -170,10 +181,9 @@ public class VerseJourneys {
     
     final boolean
       visitWorld = journey.destination == universe.stageLocation(),
-      arriving   = shipStage == STAGE_AWAY && time >= journey.arriveTime,
-      canLand    = ShipUtils.findLandingSite(ship, ship.base());
+      arriving   = shipStage == STAGE_AWAY && time >= journey.arriveTime;
     //
-    //  If the ship has already landed, see if it's time to depart-
+    //  If the ship has already landed in-world, see if it's time to depart-
     if (shipStage == STAGE_LANDED || shipStage == STAGE_BOARDING) {
       final float sinceDescent = time - journey.arriveTime;
       final boolean allAboard = ShipUtils.allAboard(ship);
@@ -187,6 +197,9 @@ public class VerseJourneys {
           journey.arriveTime += SHIP_JOURNEY_TIME * (0.5f + Rand.num());
           journey.destination = journey.origin;
           journey.origin = universe.stageLocation();
+
+          if (I.logEvents()) I.say("\n"+ship+" IS TAKING OFF!");
+          if (report) reportOffworldState("\n\n"+ship+" IS TAKING OFF");
         }
       }
     }
@@ -201,18 +214,27 @@ public class VerseJourneys {
       journey.destination = oldOrigin;
       cycleOffworldPassengers(ship, journey);
       if (! journey.returns) journeys.remove(journey);
+      
+      if (I.logEvents()) I.say("\n"+ship+" REACHED "+journey.origin);
+      if (report) reportOffworldState("\n\n"+ship+" REACHED "+journey.origin);
     }
     //
     //  And if the ship is coming back from offworld, see if it's time to
-    //  return-
-    if (arriving && visitWorld && canLand) {
-      if (report) I.say("\nSENDING DROPSHIP TO "+ship.landArea());
+    //  begin landing-
+    if (arriving && visitWorld && ShipUtils.findLandingSite(ship, true)) {
       
+      ShipUtils.findLandingSite(ship, false);
       commerce.configCargo(ship.cargo, Dropship.MAX_CAPACITY, true);
       refreshCrew(ship, true, Backgrounds.DEFAULT_SHIP_CREW);
       
-      for (Actor c : ship.crew()) ship.setInside(c, true);
       ship.beginDescent(world);
+      
+      if (I.logEvents()) {
+        I.say("\n"+ship+" IS LANDING");
+        I.say("  Area:  "+ship.landArea ());
+        I.say("  Point: "+ship.dropPoint());
+      }
+      if (report) reportOffworldState("\n\n"+ship+" IS LANDING");
     }
   }
   
@@ -220,6 +242,12 @@ public class VerseJourneys {
   private void refreshCrew(
     Dropship ship, boolean forLanding, Background... positions
   ) {
+    //
+    //  Update the ship's state of repairs while we're at this...
+    if (forLanding) {
+      final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
+      ship.structure.setState(Structure.STATE_INTACT, repair);
+    }
     //
     //  This crew will need to be updated every now and then- in the sense of
     //  changing the roster due to losses or career changes.
@@ -232,19 +260,14 @@ public class VerseJourneys {
     }
     //
     //  Get rid of fatigue and hunger, modulate mood, et cetera- account for
-    //  the effects of time spent offworld.
+    //  the effects of time spent offworld.  And make sure they're aboard!
     for (Actor works : ship.crew()) {
       final float MH = works.health.maxHealth();
       works.health.liftFatigue (MH * Rand.num());
       works.health.takeCalories(MH, 0.25f + Rand.num());
       works.health.adjustMorale(Rand.num() / 2f);
       works.mind.clearAgenda();
-    }
-    //
-    //  Update the ship's state of repairs while we're at it-
-    if (forLanding) {
-      final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
-      ship.structure.setState(Structure.STATE_INTACT, repair);
+      ship.setInside(works, true);
     }
   }
   
@@ -254,14 +277,14 @@ public class VerseJourneys {
     
     for (Mobile m : ship.inside()) {
       final Activity a = activityFor(m);
-      if (a != null) base.toggleResident(m, true);
+      if (a != null) base.toggleExpat(m, true);
     }
     ship.inside().clear();
     
-    if (journey.returns) for (Mobile m : base.residents()) {
+    if (journey.returns) for (Mobile m : base.expats()) {
       final Activity a = activityFor(m);
       if (a != null && a.doneOffworld() && a.origin() == journey.destination) {
-        base.toggleResident(m, false);
+        base.toggleExpat(m, false);
         ship.setInside(m, true);
       }
     }
@@ -296,13 +319,83 @@ public class VerseJourneys {
   
 
   public Dropship carries(Actor aboard) {
-    for (Journey j : journeys) if (j.vessel instanceof Dropship) {
-      if (j.vessel.inside().includes(aboard)) return (Dropship) j.vessel;
+    for (Journey j : journeys) {
+      if (j.vessel.inside().includes(aboard)) return j.vessel;
     }
     return null;
   }
   
   
+  public Dropship[] shipsBetween(
+    VerseLocation orig, VerseLocation dest, Base base, boolean eitherWay
+  ) {
+    //
+    //  We sort the incoming matches in order of arrival.
+    final float time = universe.world.currentTime();
+    final List <Journey> matches = new List <Journey> () {
+      protected float queuePriority(Journey j) {
+        return time - j.arriveTime;
+      }
+    };
+    for (Journey j : journeys) if (j.vessel.base() == base && (
+      (j.origin      == orig && j.destination == dest) ||
+      (j.destination == orig && j.origin      == dest && eitherWay)
+    )) {
+      matches.queueAdd(j);
+    }
+    //
+    //  And return in a more compact format-
+    final Dropship between[] = new Dropship[matches.size()];
+    int i = 0; for (Journey j : matches) between[i++] = j.vessel;
+    return between;
+  }
+  
+
+  public Dropship nextShipBetween(
+    VerseLocation orig, VerseLocation dest, Base base, boolean eitherWay
+  ) {
+    final Dropship between[] = shipsBetween(orig, dest, base, eitherWay);
+    if (between.length == 0) return null;
+    else return between[0];
+  }
+  
+  
+  public boolean addLocalImmigrant(Actor actor, Base base) {
+    final VerseLocation
+      local = base.world.offworld.stageLocation(),
+      home  = base.commerce.homeworld();
+    
+    if (local == null || home == null) { I.complain(
+      "\nBOTH LOCAL AND HOMEWORLD LOCATIONS MUST BE SET FOR IMMIGRATION!"+
+      "\n  (Homeworld: "+home+"  Locale: "+local+")"
+    ); return false; }
+    
+    final Stage world = base.world;
+    Dropship ship = null;
+    if (ship == null) ship = nextShipBetween(home, local, base, true);
+    if (ship != null) {
+      actor.mind.assignBehaviour(new Smuggling(actor, ship, world, false));
+      Verse.baseForLocation(home, universe).toggleExpat(actor, true);
+      return true;
+    }
+    
+    I.complain("\nNO SUITABLE SHIP FOUND BETWEEN "+home+" AND "+local+"!");
+    return false;
+  }
+  
+  
+  public void handleEmmigrants(Dropship ship) {
+    for (Mobile migrant : ship.inside()) {
+      final Activity a = activityFor(migrant);
+      if (migrant.inWorld()) migrant.exitToOffworld();
+      if (a != null) a.onWorldExit();
+    }
+  }
+  
+  
+  
+  /**  Interface and debug methods-
+    */
   public float arrivalETA(Actor hired, Base base) {
     //
     //  Basic sanity checks first.
@@ -321,67 +414,54 @@ public class VerseJourneys {
     //
     //  Otherwise, try to find the next dropship likely to visit the actor's
     //  current location, and make a reasonable guess about trip times.
-    final VerseLocation resides = Verse.currentLocation(hired, universe);
-    carries = nextShipBetween(resides, locale, base, true);
-    journey = journeyFor(carries);
-    if (carries == null) return -1;
-    final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
     //
     //  If it's currently heading out, it'll have to head back after picking up
     //  passengers- and if it's already heading in but doesn't have the actor
     //  aboard, a full return trip will be needed (in and out, twice as long.)
-    float returnTime = journey.arriveTime - time;
-    if (journey.destination == resides) returnTime += tripTime * 1;
-    else                                returnTime += tripTime * 2;
-    return returnTime;
+    final VerseLocation resides = Verse.currentLocation(hired, universe);
+    final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
+    carries = nextShipBetween(locale, resides, base, false);
+    journey = journeyFor(carries);
+    if (carries != null) {
+      return journey.arriveTime + tripTime - time;
+    }
+    carries = nextShipBetween(resides, locale, base, false);
+    journey = journeyFor(carries);
+    if (carries != null) {
+      return journey.arriveTime + (tripTime * 2) - time;
+    }
+    return -1;
   }
   
   
-  public Dropship nextShipBetween(
-    VerseLocation origin, VerseLocation destination,
-    Base base, boolean eitherWay
-  ) {
-    if (eitherWay) {
-      Dropship returns = nextShipBetween(destination, origin, base, false);
-      if (returns != null) return returns;
-    }
+  public void reportOffworldState(String prelude) {
+    float time = universe.world.currentTime();
     
-    final Pick <Journey> pick = new Pick <Journey> ();
-    final float time = base.world.currentTime();
-    
+    I.say(prelude);
     for (Journey j : journeys) {
-      if (j.vessel.base() != base || ! (j.vessel instanceof Dropship)) continue;
-      if (j.origin != origin || j.destination != destination) continue;
-      pick.compare(j, j.arriveTime - time);
-    }
-    if (pick.empty()) return null;
-    return (Dropship) pick.result().vessel;
-  }
-  
-  
-  public boolean addLocalImmigrant(Actor actor, Base base) {
-    final VerseLocation
-      local = base.world.offworld.stageLocation(),
-      home  = base.commerce.homeworld();
-    
-    if (local == null || home == null) { I.complain(
-      "\nBOTH LOCAL AND HOMEWORLD LOCATIONS MUST BE SET FOR IMMIGRATION!"+
-      "\n  (Homeworld: "+home+"  Locale: "+local+")"
-    ); return false; }
-    
-    final Stage world = base.world;
-    Dropship ship = null;
-    if (ship == null) ship = nextShipBetween(home , local, base, true);
-    if (ship != null) {
-      actor.mind.assignBehaviour(new Smuggling(actor, ship, world, false));
-      Verse.baseForLocation(home, universe).toggleResident(actor, true);
-      return true;
+      I.say("\n"+j.vessel+" is travelling between...");
+      I.say("  Origin:       "+j.origin);
+      I.say("  Destination:  "+j.destination);
+      I.say("  Arrival time: "+j.arriveTime+" (currently "+time+")");
+      I.say("  Passengers:");
+      for (Mobile m : j.vessel.inside()) {
+        I.say("    "+m);
+      }
     }
     
-    I.complain("\nNO SUITABLE SHIP FOUND BETWEEN "+home+" AND "+local+"!");
-    return false;
+    for (VerseBase base : universe.bases) {
+      I.say("\n"+base.location+" has the following residents:");
+      for (Mobile m : base.expats()) {
+        I.say("    "+m);
+      }
+    }
   }
 }
+
+
+
+
+
 
 
 

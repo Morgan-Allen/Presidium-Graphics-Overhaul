@@ -110,7 +110,7 @@ public abstract class Mobile extends Element
   }
   
 
-  public void exitOffworld() {
+  public void exitToOffworld() {
     exitWorld();
   }
   

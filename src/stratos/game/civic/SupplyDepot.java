@@ -130,9 +130,6 @@ public class SupplyDepot extends Venue {
     //  During your secondary shift, consider supervising the venue-
     final boolean offShift = staff.shiftFor(actor) == SECONDARY_SHIFT;
     final Choice choice = new Choice(actor);
-    if (onShift) {
-      choice.add(Supervision.oversight(this, actor));
-    }
     //
     //  During the primary shift, you can also perform repairs or localised
     //  deliveries-
@@ -154,6 +151,9 @@ public class SupplyDepot extends Venue {
       if (c != null && staff.assignedTo(c) < 1) choice.add(c);
       
       return choice.weightedPick();
+    }
+    if (onShift && choice.empty()) {
+      choice.add(Supervision.oversight(this, actor));
     }
     //
     //  See if there's a bulk delivery to be made-

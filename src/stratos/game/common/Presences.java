@@ -136,6 +136,11 @@ public class Presences {
   }
   
   
+  public Iterable allMatches(Object service) {
+    return matchesNear(service, null, -1);
+  }
+  
+  
   public Iterable matchesNear(Object service, Target client, float range) {
     final PresenceMap map = allMaps.get(service);
     if (map == null) return nullStack;

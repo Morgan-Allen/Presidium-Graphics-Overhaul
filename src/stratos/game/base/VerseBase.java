@@ -16,13 +16,16 @@ public class VerseBase implements Session.Saveable {
   
   final Stage world;
   final VerseLocation location;
-  final private List <Mobile> residents = new List <Mobile> ();
+  
   final private Tally <Object> presences = new Tally <Object> ();
+  final private List <Mobile> expats = new List <Mobile> ();
+  private float popLevel;
   
   
   protected VerseBase(Verse universe, VerseLocation location) {
-    this.world = universe.world;
+    this.world    = universe.world;
     this.location = location;
+    this.popLevel = location.population;
   }
   
   
@@ -34,8 +37,9 @@ public class VerseBase implements Session.Saveable {
     
     for (int n = s.loadInt(); n-- > 0;) {
       Mobile m = (Mobile) s.loadObject();
-      m.setWorldEntry(residents.addLast(m));
+      m.setWorldEntry(expats.addLast(m));
     }
+    popLevel = s.loadFloat();
   }
   
   
@@ -43,14 +47,15 @@ public class VerseBase implements Session.Saveable {
     s.saveObject(location);
     s.saveTally(presences);
     
-    s.saveInt(residents.size());
-    for (Mobile m : residents) s.saveObject(m);
+    s.saveInt(expats.size());
+    for (Mobile m : expats) s.saveObject(m);
+    s.saveFloat(popLevel);
   }
   
   
   
   protected void updateBase() {
-    for (Mobile m : residents) {
+    for (Mobile m : expats) {
       final Activity a = VerseJourneys.activityFor(m);
       if (a != null) a.whileOffworld();
     }
@@ -61,13 +66,13 @@ public class VerseBase implements Session.Saveable {
   }
   
   
-  protected void toggleResident(Mobile m, boolean is) {
+  protected void toggleExpat(Mobile m, boolean is) {
     final ListEntry <Mobile> e = m.worldEntry();
-    final boolean belongs = e != null && e.list() == residents;
+    final boolean belongs = e != null && e.list() == expats;
     
     if (is) {
       if (belongs) return;
-      m.setWorldEntry(residents.addLast(m));
+      m.setWorldEntry(expats.addLast(m));
     }
     else {
       if (! belongs) return;
@@ -77,14 +82,14 @@ public class VerseBase implements Session.Saveable {
   }
   
   
-  protected Series <Mobile> residents() {
-    return residents;
+  protected Series <Mobile> expats() {
+    return expats;
   }
   
   
   protected boolean isResident(Mobile m) {
     final ListEntry <Mobile> e = m.worldEntry();
-    return e != null && e.list() == residents;
+    return e != null && e.list() == expats;
   }
 }
 

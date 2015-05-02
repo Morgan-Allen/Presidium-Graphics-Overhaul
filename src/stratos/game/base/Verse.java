@@ -72,11 +72,17 @@ public class Verse {
   
 
   final public static int
-    INTENSE_GRAVITY = -2,
-    STRONG_GRAVITY  = -1,
-    NORMAL_GRAVITY  =  0,
-    MILD_GRAVITY    =  1,
-    NOMINAL_GRAVITY =  2;
+    INTENSE_GRAVITY   = -2,
+    STRONG_GRAVITY    = -1,
+    NORMAL_GRAVITY    =  0,
+    MILD_GRAVITY      =  1,
+    NOMINAL_GRAVITY   =  2,
+    
+    NO_POPULATION     =  0,
+    LIGHT_POPULATION  =  1,
+    MEDIUM_POPULATION =  2,
+    HIGH_POPULATION   =  3,
+    VAST_POPULATION   =  4;
   
   final public static VerseLocation
     //
@@ -88,7 +94,7 @@ public class Verse {
       "Asra Novi is a heavily-terraformed 'desert oasis' world noted for its "+
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
-      DESERT_BLOOD, MILD_GRAVITY, null,
+      DESERT_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, SOMA, PLASTICS, DECOR, SPYCE_T,
       VerseLocation.NEEDS, WATER, SERVICE_ENTERTAIN, DATALINKS,
       BORN_FREE,
@@ -100,7 +106,7 @@ public class Verse {
       "Parem V was one of the first-settled systems in the known quadrant, "+
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
-      WASTES_BLOOD, NORMAL_GRAVITY, null,
+      WASTES_BLOOD, NORMAL_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, PARTS, ANTIMASS, CIRCUITRY,
       VerseLocation.NEEDS, POLYMER, GREENS, REPLICANTS,
       BORN_DREGS, BORN_PYON,
@@ -113,7 +119,7 @@ public class Verse {
       "Noted for it's spartan regimen and stern justice, Haliban's early "+
       "defection to the Calivor Republic have earned it several foes- and a "+
       "crucial role in quadrant defence strategy.",
-      FOREST_BLOOD, STRONG_GRAVITY, null,
+      FOREST_BLOOD, STRONG_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, CARBS, GREENS, MEDICINE,
       VerseLocation.NEEDS, SERVICE_ARMAMENT, PARTS,
       BORN_GELDER, BORN_FREE,
@@ -126,7 +132,7 @@ public class Verse {
       "Aided by it's low gravity and thin atmosphere, Axis Novena became the "+
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black market technology.",
-      TUNDRA_BLOOD, NOMINAL_GRAVITY, null,
+      TUNDRA_BLOOD, MILD_GRAVITY, null, HIGH_POPULATION,
       VerseLocation.MAKES, DATALINKS, MEDICINE, SERVICE_COMMERCE,
       VerseLocation.NEEDS, GREENS, METALS, ANTIMASS,
       BORN_DREGS, BORN_GELDER,
@@ -140,7 +146,7 @@ public class Verse {
       "Notable for it's peculiar blend of pastoral tradition and caste "+
       "eugenics, Solipsus Vier is ruled by insular scientific elites fixated "+
       "on mental and physical purity.",
-      WASTES_BLOOD, NORMAL_GRAVITY, null,
+      WASTES_BLOOD, NORMAL_GRAVITY, null, MEDIUM_POPULATION,
       OFTEN, PHYSICIAN_CIRCLES, SOMETIMES, ECOLOGIST_CIRCLES, MILITARY_CIRCLES,
       RARELY, VENDOR_CIRCLES, NEVER, RUNNER_CIRCLES
     ),
@@ -149,7 +155,7 @@ public class Verse {
       "Once an idyllic tropical planet-resort, Norusei has enjoyed something "+
       "of a renaissance following the devastation of the Machine Wars, "+
       "boasting a rich tourist trade and export of celebrity cult-idols.",
-      FOREST_BLOOD, NORMAL_GRAVITY, null,
+      FOREST_BLOOD, NORMAL_GRAVITY, null, LIGHT_POPULATION,
       OFTEN, AESTHETE_CIRCLES, SOMETIMES, ECOLOGIST_CIRCLES,
       RARELY, ARTIFICER_CIRCLES, MILITARY_CIRCLES
     ),
@@ -159,65 +165,69 @@ public class Verse {
       "Chief factory-world of the Empire in its prime, today inescapable "+
       "poverty, desperate squalor and seething unrest render Urym Hive's "+
       "unnumbered billions governable in name only.",
-      WASTES_BLOOD, INTENSE_GRAVITY, null
+      WASTES_BLOOD, INTENSE_GRAVITY, null, VAST_POPULATION
     ),
     PLANET_CALIVOR = new VerseLocation(
       Verse.class, "Calivor", "House Regulus (Minor)",
       "Capital of the Republic whose meteoric rise to prominence saw a dozen "+
       "noble houses unseated in disgrace, to many Calivor remains a gleaming "+
       "beacon of opportunity.",
-      TUNDRA_BLOOD, NORMAL_GRAVITY, null
+      TUNDRA_BLOOD, NORMAL_GRAVITY, null, HIGH_POPULATION
     ),
-    PLANET_THE_WEIRWORLD = new VerseLocation(
-      Verse.class, "The Weirworld", "House Ophiuchus (Exiled)",
+    PLANET_WEIRWORLD = new VerseLocation(
+      Verse.class, "Weirworld", "House Ophiuchus (Exiled)",
       "Shrouded by dense nebulae and dark rumour, the Weirworld is reputedly "+
       "a hollow organic Sphere, host to fleets of Strain vessels which raid "+
       "or colonise the quadrant periphery.",
-      MUTATION, MILD_GRAVITY, null
+      MUTATION, NOMINAL_GRAVITY, null, MEDIUM_POPULATION
     ),
     
     PLANET_DIAPSOR = new VerseLocation(
       Verse.class, "Diapsor", "No House (Freehold)",
       "Rendered all but uninhabitable after the Machine Wars, Diapsor was "+
       "placed under Imperial Quarantine until recent population pressures, "+
-      "political change and ecological recovery permitted re-settlement.",
-      FOREST_BLOOD, NORMAL_GRAVITY, null
+      "political reforms and ecologic recovery permitted re-settlement.",
+      FOREST_BLOOD, NORMAL_GRAVITY, null, NO_POPULATION
     ),
+    PLANET_TERMAGANT = null,
+    PLANET_HIVE_IDO  = null,
+    PLANET_XIRIDU    = null,
     
     PLANET_THE_HOMEWORLD = new VerseLocation(
       Verse.class, "The Homeworld", "No House (Jovian Protectorate)",
       "Surrounded by an impenetrable Null Barrier erected by the xenos "+
       "Jovians, the Homeworld is rumoured to be the birthplace of humanity, "+
-      "transplanted by Jump Drives of unfathomable size.",
-      DESERT_BLOOD, MILD_GRAVITY, null
+      "transplanted by Jump Drives of colossal size.",
+      DESERT_BLOOD, MILD_GRAVITY, null, LIGHT_POPULATION
     ),
+    PLANET_ALBEDO_C97 = null,
+    PLANET_CETA_RHO   = null,
     
     ALL_PLANETS[] = {
       PLANET_ASRA_NOVI, PLANET_PAREM_V, PLANET_HALIBAN,
       PLANET_AXIS_NOVENA, PLANET_SOLIPSUS_VIER, PLANET_NORUSEI,
-      PLANET_URYM_HIVE, PLANET_CALIVOR, PLANET_THE_WEIRWORLD,
-      PLANET_DIAPSOR, PLANET_THE_HOMEWORLD
+      PLANET_URYM_HIVE, PLANET_CALIVOR, PLANET_WEIRWORLD,
+      PLANET_DIAPSOR,
+      PLANET_THE_HOMEWORLD
     },
     DEFAULT_HOMEWORLD = PLANET_ASRA_NOVI;
   
   
-  //  TODO:  These should all, properly, be considered sub-sectors of Planet
-  //         Diapsor.
   final public static VerseLocation
     SECTOR_ELYSIUM = new VerseLocation(
       Verse.class, "Elysium Sector", "No House (Freehold)",
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),
     SECTOR_PAVONIS = new VerseLocation(
       Verse.class, "Pavonis Sector", "No House (Freehold)",
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),
     SECTOR_TERRA = new VerseLocation(
       Verse.class, "Terra Sector", "No House (Freehold)",
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),
     
     ALL_DIAPSOR_SECTORS[] = {
@@ -351,8 +361,8 @@ public class Verse {
   
   /**  Regular updates-
     */
-  public void updateVerse(float currentTime) {
-    journeys.updateJourneys();
+  public void updateVerse(float time) {
+    journeys.updateJourneys((int) time);
     for (VerseBase base : bases) base.updateBase();
   }
   

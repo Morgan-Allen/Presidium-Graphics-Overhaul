@@ -210,7 +210,7 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void exitOffworld() {
+  public void exitToOffworld() {
     exitWorld(false);
   }
   
