@@ -238,7 +238,7 @@ public class Pledge implements Session.Saveable {
     
     Behaviour fulfillment(Pledge p, Pledge reward) {
       if (p.makes == p.makes.base().ruler()) {
-        final String source = BaseFinance.SOURCE_REWARDS;
+        final BaseFinance.Source source = BaseFinance.SOURCE_REWARDS;
         p.makes.base().finance.incCredits(0 - p.amount, source);
       }
       else {

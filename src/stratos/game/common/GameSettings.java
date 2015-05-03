@@ -33,10 +33,12 @@ public class GameSettings {
     buildFree = false,
     paveFree  = false,
     hireFree  = false,
+    cashFree  = false,
     psyFree   = false,
     fogFree   = false,
     pathFree  = false,
     needsFree = false,
+    
     noBlood   = false,
     noChat    = false,
     noShips   = false,

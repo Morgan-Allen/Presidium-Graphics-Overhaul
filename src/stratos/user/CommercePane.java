@@ -20,9 +20,12 @@ public class CommercePane extends SelectionPane {
     COMMERCE_ICON_LIT = Button.CIRCLE_LIT;
   
   final static String
-    CAT_BUDGET = "BUDGETING",
-    CAT_DEMAND = "MARKETS",
-    CATEGORIES[] = { CAT_BUDGET, CAT_DEMAND };
+    CAT_DEMAND   = "MARKETS",
+    CAT_BUDGET   = "BUDGETING",
+    CATEGORIES[] = { CAT_DEMAND, CAT_BUDGET };
+  
+  
+  private int periodShown = -1;
   
   
   public CommercePane(BaseUI UI) {
@@ -52,7 +55,6 @@ public class CommercePane extends SelectionPane {
     BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     super.updateText(UI, headerText, detailText, listingText);
-    //headerText.setText("Finance and Legislation");
     final Description d = detailText;
     if (category() == CAT_BUDGET) describeFinance(d);
     if (category() == CAT_DEMAND) describeDemands(d);
@@ -65,33 +67,53 @@ public class CommercePane extends SelectionPane {
     
     d.append("FINANCE REPORT FOR "+base);
     int sumTI = 0, sumWI = 0, sumTO = 0, sumWO = 0, sumTB = 0, sumWB = 0;
+    //
+    //  First of all, we let the user determine what day-period to inspect:
+    final Batch <Integer> periods = BF.periodIDs();
+    if (! BF.hasPeriodRecord(periodShown)) periodShown = periods.last();
+
+    final String showName = "Day "+periodShown;
+    d.append("\nShow period: ");
+    for (final int period : periods) d.append(
+      new Description.Link("\n  Day "+period+" ") {
+        public void whenClicked() { periodShown = period; }
+      },
+      (period == periodShown ? Colour.GREEN : Text.LINK_COLOUR)
+    );
+    //
+    //  Then we list all income sources:
+    d.append("\n\n  Income sources: ("+showName+"/total)");
     
-    d.append("\n\n  Income sources: (week/total)");
-    for (String key : BF.incomeSources()) {
+    for (BaseFinance.Source key : BaseFinance.ALL_SOURCES) {
       final int
-        week  = (int) BF.weekIncome (key),
-        total = (int) BF.totalIncome(key);
-      d.append("\n    "+key+": "+week+"/"+total);
-      sumWI += week ;
+        period = (int) BF.periodIncome(key, periodShown),
+        total  = (int) BF.totalIncome (key);
+      if (period == 0 && total == 0) continue;
+      d.append("\n    "+key+": "+period+"/"+total);
+      sumWI += period ;
       sumTI += total;
     }
     d.append("\n    Total income: "+sumWI+"/"+sumTI);
-    
-    d.append("\n\n  Outlay sources: (week/total)");
-    for (String key : BF.outlaySources()) {
+    //
+    //  And outlay sources-
+    d.append("\n\n  Outlay sources: ("+showName+"/total)");
+    for (BaseFinance.Source key : BaseFinance.ALL_SOURCES) {
       final int
-        week  = 0 - (int) BF.weekOutlay (key),
-        total = 0 - (int) BF.totalOutlay(key);
-      d.append("\n    "+key+": "+week+"/"+total);
-      sumWO += week ;
+        period = 0 - (int) BF.periodOutlay(key, periodShown),
+        total  = 0 - (int) BF.totalOutlay (key);
+      if (period == 0 && total == 0) continue;
+      d.append("\n    "+key+": "+period+"/"+total);
+      sumWO += period ;
       sumTO += total;
     }
     d.append("\n    Total outlays: "+sumWO+"/"+sumTO);
-    
+    //
+    //  And finally, total balance-
     sumTB = sumTI - sumTO;
     sumWB = sumWI - sumWO;
     d.append("\n\n  Balance: "+sumWB+"/"+sumTB);
     d.append("\n  Current credit: "+(int) BF.credits());
+    
   }
   
   

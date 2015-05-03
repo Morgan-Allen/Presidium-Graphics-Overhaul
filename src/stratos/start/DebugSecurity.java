@@ -99,7 +99,7 @@ public class DebugSecurity extends Scenario {
     );
     for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
     
-    base.finance.incCredits(100000, BaseFinance.SOURCE_CHARITY);
+    base.finance.setInitialFunding(100000, 0);
   }
   
   

@@ -69,7 +69,7 @@ public class DebugSocial extends Scenario {
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.setDefaults();
+    GameSettings.cashFree = true;
     world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS);
     
     if (false) testCareers(base);
@@ -79,12 +79,6 @@ public class DebugSocial extends Scenario {
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
     if (true ) multiJobsScenario     (world, base, UI);
-  }
-  
-  
-  public void updateGameState() {
-    super.updateGameState();
-    if (base().finance.credits() < 0) base().finance.incCredits(100, "CHARITY");
   }
   
   

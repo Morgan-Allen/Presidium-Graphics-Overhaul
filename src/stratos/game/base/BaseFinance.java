@@ -21,38 +21,61 @@ public class BaseFinance {
     verboseSummary = false;
   
   final static int
-    EVAL_PERIOD = Stage.STANDARD_WEEK_LENGTH;
+    EVAL_PERIOD   = Stage.STANDARD_DAY_LENGTH,
+    MAX_RECORDS   = Stage.DAYS_PER_WEEK,
+    TOTALS_PERIOD = -1,
+    INIT_PERIOD   =  0;
   
-  final public static String
+  
+  final private static Index <Source> SOURCES = new Index <Source> ();
+  
+  final public static class Source extends Index.Entry {
     
-    SOURCE_IMPORTS  = "Imports"     ,
-    SOURCE_EXPORTS  = "Exports"     ,
+    final public String name;
+    final private int index;
     
-    SOURCE_HIRING   = "Hiring"      ,
-    SOURCE_WAGES    = "Wages"       ,
-    SOURCE_TAXES    = "Taxation"    ,
+    private Source (int index, String name) {
+      super(SOURCES, ""+index);
+      this.name  = name ;
+      this.index = index;
+    }
     
-    SOURCE_CORRUPT  = "Embezzlement"     ,
-    SOURCE_BIZ_OUT  = "Business Expenses",
-    SOURCE_BIZ_IN   = "Business Income"  ,
+    public String toString() { return name; }
+  }
+  
+  final public static Source
+    SOURCE_IMPORTS  = new Source(0 , "Imports"          ),
+    SOURCE_EXPORTS  = new Source(1 , "Exports"          ),
+    SOURCE_BIZ_OUT  = new Source(2 , "Business Expenses"),
+    SOURCE_BIZ_IN   = new Source(3 , "Business Income"  ),
+    SOURCE_CORRUPT  = new Source(4 , "Corruption"       ),
+    SOURCE_REWARDS  = new Source(5 , "Rewards"          ),
     
-    SOURCE_INSTALL  = "Installation",
-    SOURCE_REPAIRS  = "Repairs"     ,
-    SOURCE_SALVAGE  = "Salvage"     ,
+    SOURCE_HIRING   = new Source(6 , "Hiring"           ),
+    SOURCE_WAGES    = new Source(7 , "Wages"            ),
+    SOURCE_TAXES    = new Source(8 , "Taxation"         ),
+    SOURCE_INSTALL  = new Source(9 , "Installation"     ),
+    SOURCE_REPAIRS  = new Source(10, "Repairs"          ),
+    SOURCE_SALVAGE  = new Source(11, "Salvage"          ),
     
-    SOURCE_REWARDS  = "Rewards"     ,
-    SOURCE_CHARITY  = "Largesse"    ,
-    SOURCE_INTEREST = "Interest"    ;
+    SOURCE_LENDING  = new Source(12, "Lending"          ),
+    SOURCE_INTEREST = new Source(13, "Interest"         ),
+    
+    ALL_SOURCES[] = SOURCES.allEntries(Source.class);
   
   
   final Base base;
   float credits = 0, interest = 0;
   private float lastUpdate = -1;
-  final Tally <String>
-    weekOutlay  = new Tally <String> (),
-    totalOutlay = new Tally <String> (),
-    weekIncome  = new Tally <String> (),
-    totalIncome = new Tally <String> ();
+  
+  static class CashRecord {
+    private int period;
+    final float income[] = new float[ALL_SOURCES.length];
+    final float outlay[] = new float[ALL_SOURCES.length];
+  }
+  
+  final List <CashRecord> records = new List <CashRecord> ();
+  private CashRecord recent, totals;
   
   
   public BaseFinance(Base base) {
@@ -61,41 +84,46 @@ public class BaseFinance {
   
   
   public void loadState(Session s) throws Exception {
-    credits  = s.loadFloat();
-    interest = s.loadFloat();
-    
+    credits    = s.loadFloat();
+    interest   = s.loadFloat();
     lastUpdate = s.loadFloat();
     
     for (int n = s.loadInt(); n-- > 0;) {
-      final String key = s.loadString();
-      weekIncome .set(key, s.loadFloat());
-      totalIncome.set(key, s.loadFloat());
+      final CashRecord record = new CashRecord();
+      record.period = s.loadInt();
+      s.loadFloatArray(record.income);
+      s.loadFloatArray(record.outlay);
+      records.add(record);
     }
-    for (int n = s.loadInt(); n-- > 0;) {
-      final String key = s.loadString();
-      weekOutlay .set(key, s.loadFloat());
-      totalOutlay.set(key, s.loadFloat());
-    }
+    totals = records.first();
+    recent = records.last ();
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveFloat(credits );
-    s.saveFloat(interest);
-    
+    s.saveFloat(credits   );
+    s.saveFloat(interest  );
     s.saveFloat(lastUpdate);
     
-    s.saveInt(weekIncome.size());
-    for (String key : weekIncome.keys()) {
-      s.saveString(key);
-      s.saveFloat(weekIncome .valueFor(key));
-      s.saveFloat(totalIncome.valueFor(key));
+    s.saveInt(records.size());
+    for (CashRecord record : records) {
+      s.saveInt(record.period);
+      s.saveFloatArray(record.income);
+      s.saveFloatArray(record.outlay);
     }
-    s.saveInt(weekOutlay.size());
-    for (String key : weekOutlay.keys()) {
-      s.saveString(key);
-      s.saveFloat(weekOutlay .valueFor(key));
-      s.saveFloat(totalOutlay.valueFor(key));
+  }
+  
+  
+  private void initRecords() {
+    if (records.size() == 0) {
+      
+      totals = new CashRecord();
+      totals.period = TOTALS_PERIOD;
+      records.addFirst(totals);
+      
+      recent = new CashRecord();
+      recent.period = INIT_PERIOD;
+      records.addLast(recent);
     }
   }
   
@@ -103,8 +131,9 @@ public class BaseFinance {
   
   /**  Basic queries and access-
     */
-  public void setInterestPaid(float paid) {
-    this.interest = paid;
+  public void setInitialFunding(int credits, float interest) {
+    this.credits  = credits ;
+    this.interest = interest;
   }
   
 
@@ -118,65 +147,113 @@ public class BaseFinance {
   }
   
   
-  public float totalOutlay(String key) {
-    return totalOutlay.valueFor(key);
+  public float totalOutlay(Source key) {
+    initRecords();
+    return totals.outlay[key.index];
   }
   
   
-  public float weekOutlay(String key) {
-    return weekOutlay.valueFor(key);
+  public float totalIncome(Source key) {
+    initRecords();
+    return totals.income[key.index];
   }
   
   
-  public float totalIncome(String key) {
-    return totalIncome.valueFor(key);
+  public float recentOutlay(Source key) {
+    initRecords();
+    return recent.outlay[key.index];
   }
   
   
-  public float weekIncome(String key) {
-    return weekIncome.valueFor(key);
+  public float recentIncome(Source key) {
+    initRecords();
+    return recent.income[key.index];
   }
   
   
-  public Iterable <String> outlaySources() {
-    return totalOutlay.keys();
+  public boolean hasPeriodRecord(int ID) {
+    return forPeriod(ID) != null;
   }
   
   
-  public Iterable <String> incomeSources() {
-    return totalIncome.keys();
+  private CashRecord forPeriod(int ID) {
+    initRecords();
+    for (CashRecord r : records) if (r.period != TOTALS_PERIOD) {
+      if (r.period == ID) return r;
+    }
+    return null;
+  }
+  
+  
+  public float periodOutlay(Source key, int ID) {
+    final CashRecord record = forPeriod(ID);
+    return record == null ? 0 : record.outlay[key.index];
+  }
+  
+  
+  public float periodIncome(Source key, int ID) {
+    final CashRecord record = forPeriod(ID);
+    return record == null ? 0 : record.income[key.index];
+  }
+  
+  
+  public Batch <Integer> periodIDs() {
+    final Batch <Integer> all = new Batch <Integer> ();
+    for (CashRecord record : records) if (record.period != TOTALS_PERIOD) {
+      all.add(record.period);
+    }
+    return all;
   }
   
   
   
   /**  Updates and modifications-
     */
-  public void incCredits(float inc, String source) {
+  public void incCredits(float inc, Source source) {
+    initRecords();
     credits += inc;
     if (inc >= 0) {
-      weekIncome .add(inc, source);
-      totalIncome.add(inc, source);
+      recent.income[source.index] += inc;
+      totals.income[source.index] += inc;
     }
     else {
-      weekOutlay .add(inc, source);
-      totalOutlay.add(inc, source);
+      recent.outlay[source.index] += inc;
+      totals.outlay[source.index] += inc;
     }
   }
   
   
   public void updateFinances(int interval) {
+    //
+    //  A few basic setup checks...
+    if (GameSettings.cashFree && credits < 1000) {
+      credits += 1000;
+    }
+    initRecords();
+    //
+    //  Check to see whether a new record-period has begun, and exit if not.
     final float time = base.world.currentTime();
     if (lastUpdate == -1) lastUpdate = time;
     final int
-      newWeek = (int) (time       / EVAL_PERIOD),
-      oldWeek = (int) (lastUpdate / EVAL_PERIOD);
-    
-    if (newWeek == oldWeek) return;
+      newPeriod = (int) (time       / EVAL_PERIOD),
+      oldPeriod = (int) (lastUpdate / EVAL_PERIOD);
+    if (newPeriod == oldPeriod) return;
+    //
+    //  If so, create a new cash record, and add it to the top of the stack.
+    final CashRecord newRecord = new CashRecord();
+    newRecord.period = newPeriod;
+    records.addLast(recent = newRecord);
     lastUpdate = time;
-    weekIncome.clear();
-    weekOutlay.clear();
+    //
+    //  If we've exceeded the maximum record size (bearing in mind the first is
+    //  always used for storing totals,) then delete the oldest kept.
+    if (records.size() > MAX_RECORDS + 1) {
+      final CashRecord oldest = records.atIndex(1);
+      records.remove(oldest);
+    }
   }
 }
+
 
 
 

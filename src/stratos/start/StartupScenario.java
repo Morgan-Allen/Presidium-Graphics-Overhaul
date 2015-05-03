@@ -203,8 +203,7 @@ public class StartupScenario extends Scenario {
       case(1) : funding = 10000; interest = 2; break;
       case(2) : funding = 12500; interest = 1; break;
     }
-    base.finance.incCredits(funding, BaseFinance.SOURCE_CHARITY);
-    base.finance.setInterestPaid(interest);
+    base.finance.setInitialFunding(funding, interest);
     base.commerce.assignHomeworld((VerseLocation) config.house);
     return base;
   }

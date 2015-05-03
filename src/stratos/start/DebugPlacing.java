@@ -47,14 +47,6 @@ public class DebugPlacing extends Scenario {
   }
   
   
-  public void updateGameState() {
-    super.updateGameState();
-    if (base().finance.credits() < 1000) {
-      base().finance.incCredits(1000, BaseFinance.SOURCE_CHARITY);
-    }
-  }
-  
-  
   public void renderVisuals(Rendering rendering) {
     super.renderVisuals(rendering);
     
@@ -96,6 +88,7 @@ public class DebugPlacing extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
+    GameSettings.cashFree  = true;
     
     if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);

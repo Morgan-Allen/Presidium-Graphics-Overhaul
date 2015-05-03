@@ -72,6 +72,7 @@ public class DebugConstruction extends Scenario {
     GameSettings.setDefaults();
     GameSettings.fogFree   = true;
     GameSettings.hireFree  = true;
+    GameSettings.cashFree  = true;
     
     if (true ) buildingScenario(world, base, UI);
   }
@@ -93,15 +94,6 @@ public class DebugConstruction extends Scenario {
     
     Venue built = new SupplyDepot(base);
     Placement.establishVenue(built, depot, false, world);
-  }
-  
-  
-  public void updateGameState() {
-    super.updateGameState();
-    
-    if (base().finance.credits() < 1000) {
-      base().finance.incCredits(500, BaseFinance.SOURCE_CHARITY);
-    }
   }
   
   

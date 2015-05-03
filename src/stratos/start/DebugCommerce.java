@@ -74,6 +74,7 @@ public class DebugCommerce extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
+    GameSettings.cashFree  = true;
     
     if (true ) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
@@ -270,15 +271,6 @@ public class DebugCommerce extends Scenario {
     }
 
     PlayLoop.setGameSpeed(1);
-  }
-  
-  
-  public void updateGameState() {
-    super.updateGameState();
-    
-    if (base().finance.credits() < 1000) {
-      base().finance.incCredits(500, BaseFinance.SOURCE_CHARITY);
-    }
   }
   
   

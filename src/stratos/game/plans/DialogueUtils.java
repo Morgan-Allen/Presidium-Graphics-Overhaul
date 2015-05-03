@@ -143,7 +143,7 @@ public class DialogueUtils implements Qualities {
       final float
         otherR = other.relations.valueFor(r.subject),
         rating = (Nums.abs(otherR * r.value()) + 0.5f) * Rand.num();
-      pick.compare((Actor) r.subject, rating);
+      pick.compare((Session.Saveable) r.subject, rating);
     }
     
     for (Skill s : other.traits.skillSet()) {
