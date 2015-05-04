@@ -7,6 +7,7 @@
 
 package stratos.game.common;
 import stratos.game.economic.*;
+import stratos.game.maps.IntelMap;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -339,9 +340,7 @@ public abstract class Mobile extends Element
   
   protected PlaneFX createShadow(Sprite rendered) {
     if (shadow == null) shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
-    
-    final float R2 = Nums.sqrt(2);
-    shadow.scale = radius() * rendered.scale * R2;
+    shadow.scale = radius() * rendered.scale * Nums.ROOT2;
     
     final Vec3D p = shadow.position;
     p.setTo(rendered.position);
@@ -358,7 +357,11 @@ public abstract class Mobile extends Element
   
   
   protected float fogFor(Base base) {
-    return base.intelMap.displayFog(position.x, position.y, this);
+    float baseFog = base.intelMap.displayFog(position.x, position.y, this);
+    final float offset = IntelMap.FOG_SEEN_MIN + 0.01f;
+    baseFog -= offset;
+    baseFog *= 1f / (1 - offset);
+    return baseFog;
   }
   
   

@@ -19,9 +19,6 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  Introduce sub-classes of the nursery specifically intended for
-//  aquaculture and forestry.
-
 public class Nursery extends Venue implements TileConstants {
   
   
@@ -63,7 +60,8 @@ public class Nursery extends Venue implements TileConstants {
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Nursery.class, "nursery", "Nursery",
+    Nursery.class, "nursery",
+    "Nursery", UIConstants.TYPE_ECOLOGIST,
     2, 2, IS_ZONED,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_CARBS, LAND_TO_GREENS
@@ -216,8 +214,7 @@ public class Nursery extends Venue implements TileConstants {
         if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
       }
     }
-    base.transport.updatePerimeter(this, around, inWorld, true);
-    //base.transport.updateJunction(this, mainEntrance(), inWorld);
+    base.transport.updatePerimeter(this, around, inWorld);
   }
   
   
@@ -360,11 +357,6 @@ public class Nursery extends Venue implements TileConstants {
   
   public String helpInfo() {
     return compileHealthReport();
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_ECOLOGIST;
   }
 }
 

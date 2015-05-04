@@ -45,7 +45,8 @@ public class EngineerStation extends Venue {
   ;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    EngineerStation.class, "engineer_station", "Engineer Station",
+    EngineerStation.class, "engineer_station",
+    "Engineer Station", UIConstants.TYPE_ENGINEER,
     4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY, METALS_TO_PARTS
   );
@@ -241,11 +242,6 @@ public class EngineerStation extends Venue {
       "Engineers manufacture parts, devices and armour for your citizens.",
       this, METALS_TO_PARTS, ASSEMBLY_LINE
     );
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_ENGINEER;
   }
 }
 

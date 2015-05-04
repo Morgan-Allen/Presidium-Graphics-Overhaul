@@ -65,7 +65,8 @@ public class Edifice extends Venue {
     STYLE_SURREALISTIC   = 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Edifice.class, "edifice", "Edifice",
+    Edifice.class, "edifice",
+    "Edifice", UIConstants.TYPE_AESTHETIC,
     3, 2, IS_FIXTURE,
     Fabricator.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -139,11 +140,6 @@ public class Edifice extends Venue {
     return
       "The Edifice commemorates significant events in the history of your "+
       "settlement beneath a frictionless composite facade.";
-  }
-  
-
-  public String objectCategory() {
-    return UIConstants.TYPE_AESTHETIC;
   }
 }
 

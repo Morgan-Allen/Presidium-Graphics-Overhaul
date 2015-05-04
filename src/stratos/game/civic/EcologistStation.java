@@ -42,7 +42,8 @@ public class EcologistStation extends Venue {
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
   final static Blueprint BLUEPRINT = new Blueprint(
-    EcologistStation.class, "ecologist_station", "Ecologist Station",
+    EcologistStation.class, "ecologist_station",
+    "Ecologist Station", UIConstants.TYPE_ECOLOGIST,
     4, 3, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
@@ -298,10 +299,5 @@ public class EcologistStation extends Venue {
     return
       "Ecologist Stations are responsible for agriculture and forestry, "+
       "helping to secure food supplies and advance terraforming efforts.";
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_ECOLOGIST;
   }
 }

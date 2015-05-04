@@ -42,7 +42,8 @@ public class FormerPlant extends Venue {
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    FormerPlant.class, "former_plant", "Former Plant",
+    FormerPlant.class, "former_plant",
+    "Former Plant", UIConstants.TYPE_ECOLOGIST,
     3, 2, IS_NORMAL,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -393,11 +394,6 @@ public class FormerPlant extends Venue {
       "Former Plants can modify the content of your planet's atmosphere, "+
       "helping to speed terraforming efforts and extract rare or heavy "+
       "elements as an economic biproduct.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_ECOLOGIST;
   }
   
   

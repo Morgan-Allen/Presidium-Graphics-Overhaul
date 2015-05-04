@@ -300,9 +300,7 @@ public class DeliveryUtils {
     
     Owner pick = null;
     float bestRating = 0;
-    for (Owner origin : origins) {
-      if (origin.owningTier() == Owner.TIER_PRIVATE) continue;
-      
+    for (Owner origin : origins) if (canTradeOpenly(origin)) {
       final float rating = rateTrading(origin, destination, good, unit, unit);
       if (rating > bestRating) { bestRating = rating; pick = origin; }
       if (report) I.say("  Rating for "+origin+" is "+rating);
@@ -328,9 +326,7 @@ public class DeliveryUtils {
     
     Owner pick = null;
     float bestRating = 0;
-    for (Owner destination : destinations) {
-      if (destination.owningTier() == Owner.TIER_PRIVATE) continue;
-      
+    for (Owner destination : destinations) if (canTradeOpenly(destination)) {
       final float rating = rateTrading(origin, destination, good, unit, unit);
       if (rating > bestRating) { bestRating = rating; pick = destination; }
       if (report) I.say("  Rating for "+destination+" is "+rating);
@@ -338,6 +334,15 @@ public class DeliveryUtils {
     
     if (report) I.say("  Final selection: "+pick);
     return pick;
+  }
+  
+  
+  static boolean canTradeOpenly(Owner owner) {
+    if (owner.owningTier() <= Owner.TIER_PRIVATE) return false;
+    if (owner instanceof Property) {
+      if (! ((Property) owner).structure().intact()) return false;
+    }
+    return true;
   }
   
   

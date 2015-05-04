@@ -195,25 +195,28 @@ public class HoldingUpgrades {
   
   /**  Rations/foodstuffs-
     */
-  final static Traded FOOD_TYPES[] = {
-    CARBS, PROTEIN, GREENS, MEDICINE
-  };
   final static int LEVEL_TYPES_NEEDED[] = {
     0, 1, 2, 2, 3
   };
   
   
-  //  TODO:  Try to unify these more closely.
   protected static Batch <Item> rationNeeds(Holding holding, int upgradeLevel) {
-    
-    final float foodNeed = holding.staff.lodgers().size() * 1.5f;
+    final float foodNeed = holding.staff.lodgers().size();
     final Batch <Item> needed = new Batch <Item> ();
     if (upgradeLevel == 0) return needed;
-    
-    for (Traded type : FOOD_TYPES) {
-      needed.add(Item.withAmount(type, foodNeed));
+    //
+    //  We scale total demand in proportion to current stocks, so that actors
+    //  make the most of currently available food types.  However, we increment
+    //  demand by 1 for all food types so that new samples can be obtained.
+    float currentSum = 0, stocked, demand;
+    for (Traded type : ALL_FOOD_TYPES) {
+      currentSum += holding.stocks.amountOf(type);
     }
-    
+    for (Traded type : ALL_FOOD_TYPES) {
+      stocked = holding.stocks.amountOf(type);
+      demand = currentSum == 0 ? 0 : (foodNeed * stocked / currentSum);
+      needed.add(Item.withAmount(type, demand + 1));
+    }
     return needed;
   }
   
@@ -228,11 +231,11 @@ public class HoldingUpgrades {
     //  a reasonable 'balance' of food types, in terms of no less than half an
     //  equal share of the total.
     float foodNeed = holding.staff.lodgers().size();
-    int numFoods = 0; for (Traded f : FOOD_TYPES) {
+    int numFoods = 0; for (Traded f : ALL_FOOD_TYPES) {
       if (holding.stocks.amountOf(f) > 0) numFoods++;
     }
     final float min = foodNeed / (2 * numFoods);
-    numFoods = 0; for (Traded f : FOOD_TYPES) {
+    numFoods = 0; for (Traded f : ALL_FOOD_TYPES) {
       if (holding.stocks.amountOf(f) > min) numFoods++;
     }
     //

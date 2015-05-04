@@ -52,7 +52,8 @@ public class ExcavationSite extends Venue implements TileConstants {
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    ExcavationSite.class, "excavation_site", "Excavation Site",
+    ExcavationSite.class, "excavation_site",
+    "Excavation Site", UIConstants.TYPE_ENGINEER,
     4, 1, IS_NORMAL,
     EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_METALS, LAND_TO_ISOTOPES
@@ -273,11 +274,6 @@ public class ExcavationSite extends Venue implements TileConstants {
     return
       "Excavation Sites expedite the extraction of mineral wealth and "+
       "buried artifacts from the terrain surrounding your settlement.";
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_ENGINEER;
   }
 }
 

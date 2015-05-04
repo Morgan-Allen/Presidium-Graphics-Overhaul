@@ -26,10 +26,9 @@ public class BaseTransport {
     */
   final static int PATH_RANGE = Stage.ZONE_SIZE / 2;
   private static boolean
-    paveVerbose      = false,
+    paveVerbose      = true ,
     distroVerbose    = false,
-    checkConsistency = false,
-    extraVerbose     = false;
+    checkConsistency = false;
   
   final Stage world;
   final public PavingMap map;
@@ -81,10 +80,12 @@ public class BaseTransport {
   }
   
   
+  
+  /**  Debugging methods:
+    */
   public void checkConsistency() {
     //
-    //  Note:  This method only works when you only have a single base in the
-    //         world...
+    //  NOTE:  This method only works with a single base in the world!
     if (! checkConsistency) return;
     
     final byte mask[][] = new byte[world.size][world.size];
@@ -126,10 +127,7 @@ public class BaseTransport {
     if (okay) I.say("No discrepancies in paving map found.");
   }
   
-  
-  
-  /**  Methods related to installation, updates and deletion of junctions-
-    */
+
   private void reportPath(String title, Route route) {
     I.add(""+title+": ");
     if (route == null || route.path == null) I.add("No path.");
@@ -144,60 +142,157 @@ public class BaseTransport {
   }
   
   
+  
+  /**  Methods related to installation, updates and deletion of junctions-
+    */
   public void updatePerimeter(Fixture v, boolean isMember) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (report) I.say("\nUpdating perimeter for "+v);
-    
-    if (! isMember) {
-      updatePerimeter(v, null, false, false);
-      return;
+    if (isMember) {
+      final Batch <Tile> around = new Batch <Tile> ();
+      for (Tile t : Spacing.perimeter(v.footprint(), world)) around.add(t);
+      updatePerimeter(v, around, true);
     }
-    final Batch <Tile> around = new Batch <Tile> ();
-    for (Tile t : Spacing.perimeter(v.footprint(), world)) around.add(t);
-    updatePerimeter(v, around, true, true);
+    else updatePerimeter(v, null, false);
   }
   
 
   public void updatePerimeter(
-    Fixture v, Batch <Tile> around, boolean isMember, boolean filter
+    Fixture v, Batch <Tile> around, boolean isMember
   ) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (report) I.say("Updating perimeter for "+v+", member? "+isMember);
     //
-    //  If necessary, filter out any un-paveable tiles, and obtain the previous
-    //  route corresponding to this fixture's perimeter-
-    if (around != null && filter) {
-      final Batch <Tile> filtered = new Batch <Tile> ();
-      for (Tile t : around) if (t != null && t.canPave()) filtered.add(t);
-      around = filtered;
-    }
+    //  Update the route in question, deleting the old one if no longer needed.
     final Tile o = v.origin();
-    final Route key = new Route(o, o), match = allRoutes.get(key);
-    //
-    //  
-    if (isMember) {
-      key.path = around.toArray(Tile.class);
-      key.cost = -1;
-      if (key.routeEquals(match) && map.refreshPaving(key.path)) return;
-      if (report) I.say("Installing perimeter for "+v);
-      
-      if (match != null) {
-        map.flagForPaving(match.path, false);
-        allRoutes.remove(match);
-      }
-      map.flagForPaving(key.path, true);
-      allRoutes.put(key, key);
+    final Route after = new Route(o, o), prior = allRoutes.get(after);
+    if (isMember && around != null) {
+      //
+      //  Take every tile and, if requested, filter out anything un-paveable:
+      after.path = around.toArray(Tile.class);
+      after.cost = -1;
+      updateRoute(prior, after);
     }
-    else if (match != null) {
-      if (report) I.say("Discarding perimeter for "+v);
-      map.flagForPaving(match.path, false);
-      allRoutes.remove(key);
+    else if (prior != null) deleteRoute(prior);
+  }
+  
+  
+  public void updateJunction(Venue v, Tile t, boolean isMember) {
+    //
+    //  Basic sanity checks and setup-
+    if (t == null) return;
+    final boolean report = paveVerbose && I.talkAbout == v;
+    final Batch <Tile> routedTo = new Batch <Tile> ();
+    final List <Route> fromTile = tileRoutes.get(t);
+    //
+    //  In essence, we visit every nearby venue and try to path toward either
+    //  their main entrance or their centre.
+    if (isMember) {
+      final Box2D area = new Box2D(v.areaClaimed()).expandBy(PATH_RANGE + 1);
+      if (report) I.say("\nUpdating junction for "+v+" ("+t+")");
+
+      for (Object o : t.world.presences.matchesNear(Venue.class, v, area)) {
+        final Venue n = (Venue) o;
+        if (n == v || n.base() != v.base()) continue;
+        Tile aims = n.mainEntrance();
+        if (n.blueprint.isFixture()) aims = world.tileAt(n);
+        else if (aims == null) continue;
+        if (report) I.say("  Will attempt routing toward "+n+" ("+aims+")");
+        
+        final Route
+          key   = new Route(t, aims),
+          prior = allRoutes.get(key),
+          after = getAxisPath(key, v, n);
+        
+        if (updateRoute(prior, after)) {
+          routedTo.add(aims);
+          if (report) reportPath("\n  Success!", after);
+        }
+      }
+    }
+    //
+    //  Any routes that have not been actively updated are assumed to be
+    //  redundant and will be discarded.
+    if (fromTile != null) for (Route r : fromTile) {
+      final Tile opposite = r.opposite(t);
+      if (! routedTo.includes(opposite)) deleteRoute(r);
     }
   }
   
   
+  private Route getAxisPath(Route route, Venue vA, Venue vB) {
+    //
+    //  We have to be a little picky about the route taken, or you can wind up
+    //  with ugly results:
+    final Route
+      alongX = getAxisPath(route, vA, vB, true ),
+      alongY = getAxisPath(route, vA, vB, false);
+    if (alongX == null || alongY == null) return null;
+    return alongY;
+  }
+  
+  
+  private Route getAxisPath(Route route, Venue vA, Venue vB, boolean xFirst) {
+    //
+    //  First, we determine the upper and lower limits to the path area-
+    final Tile a = route.start, b = route.end;
+    final int xd = a.x - b.x, yd = a.y - b.y;
+    Tile path[] = new Tile[Nums.abs(xd) + Nums.abs(yd) + 1];
+    int index = 0;
+    int minX = xd < 0 ? a.x : b.x, maxX = xd < 0 ? b.x : a.x;
+    int minY = yd < 0 ? a.y : b.y, maxY = yd < 0 ? b.y : a.y;
+    //
+    //  Then we either trace along the x-axis, then the y-axis, or vice versa:
+    if (xFirst) {
+      for (int x = minX; x < maxX; x++) {
+        path[index++] = world.tileAt(x, a.y);
+      }
+      for (int y = minY; y < maxY; y++) {
+        path[index++] = world.tileAt(b.x, y);
+      }
+    }
+    else {
+      for (int y = minY; y < maxY; y++) {
+        path[index++] = world.tileAt(a.x, y);
+      }
+      for (int x = minX; x < maxX; x++) {
+        path[index++] = world.tileAt(x, b.y);
+      }
+    }
+    path[index++] = route.end;
+    //
+    //  Any intermediate tiles that are occupied by something *other* than the
+    //  origin and destination venue flag the route as invalid.  Otherwise
+    //  return okay.
+    while (index-- > 0) {
+      final Tile under = path[index];
+      if (under.canPave()) continue;
+      else if (under.onTop() != vA && under.onTop() != vB) return null;
+      else path[index] = null;
+    }
+    route.path = path;
+    return route;
+  }
+  
+  
+  private boolean updateRoute(Route prior, Route after) {
+    if (after == null) { if (prior != null) deleteRoute(prior); return false; }
+    if (after.routeEquals(prior) && map.refreshPaving(after.path)) return true;
+    if (prior != null) deleteRoute(prior);
+    
+    final Batch <Tile> filtered = new Batch <Tile> ();
+    for (Tile t : after.path) if (t != null && t.canPave()) filtered.add(t);
+    after.path = filtered.toArray(Tile.class);
+    
+    map.flagForPaving(after.path, true);
+    allRoutes.put(after, after);
+    toggleRoute(after, after.start, true);
+    toggleRoute(after, after.end  , true);
+    return true;
+  }
+  
+  
   private void deleteRoute(Route route) {
-    if (route.cost < 0) return;
     map.flagForPaving(route.path, false);
     allRoutes.remove(route);
     toggleRoute(route, route.start, false);
@@ -207,12 +302,14 @@ public class BaseTransport {
   
   
   private void toggleRoute(Route route, Tile t, boolean is) {
+    if (t == null) return;
     List <Route> atTile = tileRoutes.get(t);
     if (atTile == null) tileRoutes.put(t, atTile = new List <Route> ());
     if (is) atTile.add(route);
     else atTile.remove(route);
     if (atTile.size() == 0) tileRoutes.remove(t);
   }
+  
   
   
   

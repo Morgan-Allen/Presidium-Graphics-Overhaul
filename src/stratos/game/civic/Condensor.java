@@ -24,9 +24,10 @@ public class Condensor extends Venue {
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Condensor.class, "condensor", "Condensor",
+    Condensor.class, "condensor",
+    "Condensor", UIConstants.TYPE_HIDDEN,
     3, 2, IS_FIXTURE,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
@@ -101,11 +102,6 @@ public class Condensor extends Venue {
     return
       "The Condensor provides water and life support to the surrounding "+
       "settlement.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_AESTHETIC;
   }
 }
 

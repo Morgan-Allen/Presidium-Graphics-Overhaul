@@ -425,6 +425,8 @@ public interface Backgrounds {
       //  TODO:  Fill in skills and abilities...
     ),
     
+    //  TODO:  COME BACK TO THESE LATER.
+    /*
     DECK_HAND = new Background(
       Backgrounds.class,
       "Deckhand",
@@ -456,11 +458,12 @@ public interface Backgrounds {
       CLASS_STRATOI, GUILD_MILITANT
       //  TODO:  Fill in extra skills.
     ),
+    //*/
     
     MILITARY_CIRCLES[] = {
       VOLUNTEER, TROOPER  , MECH_LEGION,
       ENFORCER , PSI_CORPS, ANALYST    ,
-      DECK_HAND, WINGMAN  , ACE        ,
+      ///DECK_HAND, WINGMAN  , ACE        ,
     }
  ;
   
@@ -540,21 +543,23 @@ public interface Backgrounds {
     //  leave your settlement, but can't.  Free Traders peddle small goods.
     VAGRANT = new Background(
       Backgrounds.class,
-      "Vagrant", "", "native_skin.gif", null,
+      "Vagrant", "", "pyon_skin.gif", null,
       CLASS_VASSAL, NOT_A_GUILD,
       LEARNING, STEALTH_AND_COVER, NOVICE, HANDICRAFTS,
       OFTEN, NERVOUS, ACQUISITIVE, RARELY, RELAXED
     ),
-    FREE_TRADER = new Background(
+    DECK_HAND = new Background(
       Backgrounds.class,
-      "Ship Trader", "", "pyon_skin.gif", "pyon_portrait.png",
-      CLASS_AGENT, NOT_A_GUILD,
+      "Deck Hand", "",
+      "air_corps_skin.gif", "air_corps_portrait.png",
+      CLASS_VASSAL, NOT_A_GUILD,
       PRACTICED, ASSEMBLY, HARD_LABOUR,
       LEARNING, FIELD_THEORY, SHIELD_AND_ARMOUR, MARKSMANSHIP, COMMON_CUSTOM
     ),
     SHIP_CAPTAIN = new Background(
       Backgrounds.class,
-      "Ship Captain", "", "pyon_skin.gif", "pyon_portrait.png",
+      "Ship Captain", "",
+      "air_corps_skin.gif", "air_corps_portrait.png",
       CLASS_AGENT, NOT_A_GUILD,
       EXPERT, PILOTING, MARKSMANSHIP, PRACTICED, COMMAND, SUASION,
       LEARNING, ASTROGATION, BATTLE_TACTICS, COMMON_CUSTOM,
@@ -626,10 +631,10 @@ public interface Backgrounds {
     ANONYMOUS = null,
     //  TODO:  Anonymous.
     
-    DEFAULT_SHIP_CREW[] = { SHIP_CAPTAIN, FREE_TRADER, FREE_TRADER },
+    DEFAULT_SHIP_CREW[] = { SHIP_CAPTAIN, DECK_HAND, DECK_HAND },
     
     RUNNER_CIRCLES[] = {
-      SHIP_CAPTAIN, FREE_TRADER,
+      SHIP_CAPTAIN, DECK_HAND,
       RUNNER_SILVERFISH, JACK_ARTIST,
       RUNNER_IV_PUNKS, STREET_COOK,
       RUNNER_HUDZENA, FACE_FIXER

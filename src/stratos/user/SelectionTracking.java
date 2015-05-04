@@ -200,7 +200,7 @@ public class SelectionTracking {
     Vec3D pos = (subject instanceof Element) ?
       ((Element) subject).viewPosition(null) :
       subject.position(null);
-    pos.z += (subject.height() / Nums.sqrt(2)) - 1;
+    pos.z += (subject.height() / Nums.ROOT2) - 1;
     return pos;
   }
   

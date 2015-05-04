@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -18,11 +20,11 @@ public class IntelMap {
     fogVerbose  = false,
     pickVerbose = false;
   
-  final static float
+  final public static float
     MIN_FOG        = 0,
     MAX_FOG        = 1.5f,
-    FOG_DECAY_TIME = Stage.STANDARD_DAY_LENGTH,
-    FOG_SEEN_MIN   = 0.5f;
+    FOG_DECAY_TIME = Stage.STANDARD_HOUR_LENGTH,
+    FOG_SEEN_MIN   = 0.2f;
   
   final Base base;
   

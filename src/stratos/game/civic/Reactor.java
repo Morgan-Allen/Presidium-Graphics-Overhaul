@@ -34,15 +34,6 @@ import static stratos.game.economic.Economy.*;
       Reactor.class, ALL_UPGRADES
     ),
     //*/
-/*
-//
-//  If possible, assist in recovery of psi points-
-final int PB = structure.upgradeLevel(QUALIA_WAVEFORM_INTERFACE);
-final Actor ruler = base().ruler();
-if (PB > 0 && ruler != null && ruler.aboard() instanceof Bastion) {
-  ruler.health.gainConcentration(PB / 100f);
-}
-//*/
 
 
 
@@ -99,7 +90,8 @@ public class Reactor extends Venue {
   ;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Reactor.class, "reactor", "Reactor",
+    Reactor.class, "reactor",
+    "Reactor", UIConstants.TYPE_ENGINEER,
     3, 2, IS_NORMAL,
     EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
     METALS_TO_FUEL, ISOTOPES_TO_ANTIMASS, ISOTOPES_TO_POWER
@@ -431,25 +423,6 @@ public class Reactor extends Venue {
     }
     return help;
   }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_ENGINEER;
-  }
 }
-
-
-
-/*
-    if (true) {
-      final float risk = meltdownChance() + meltdown;
-      final int nR = RISK_DESC.length;
-      final String descR = RISK_DESC[Nums.clamp((int) (risk * nR), nR)];
-      d.append("\n\n  Meltdown risk: "+descR);
-      final int nC = CORE_DESC.length;
-      final String descC = CORE_DESC[Nums.clamp((int) (meltdown * nC), nC)];
-      d.append("\n  Core condition: "+descC);
-    }
-//*/
 
 

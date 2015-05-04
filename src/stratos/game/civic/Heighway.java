@@ -44,9 +44,10 @@ public class Heighway extends Venue {
     );
   
   final public static Blueprint BLUEPRINT = new Blueprint(
-    Heighway.class, "heighway", "Heighway",
+    Heighway.class, "heighway",
+    "Heighway", UIConstants.TYPE_HIDDEN,
     2, 0, IS_FIXTURE | IS_LINEAR | IS_GRIDDED,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    EngineerStation.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   
@@ -141,11 +142,6 @@ public class Heighway extends Venue {
     return
       "Heighways facilitate long-range transport of goods and personnel, "+
       "along with water, power and life support.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_ENGINEER;
   }
 }
 

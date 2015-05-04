@@ -3,9 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
-
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -22,7 +19,7 @@ import static stratos.game.economic.Economy.*;
 public class Forestry extends Plan {
 
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true ,
     stepsVerbose = false;
   
   final public static int
@@ -133,7 +130,7 @@ public class Forestry extends Plan {
   
 
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     if (! configured()) return 0;
     
     final Target subject = toPlant == null ? toCut : toPlant;
@@ -144,35 +141,36 @@ public class Forestry extends Plan {
     //  and vice-versa for planting as abundance decreases.
     float abundance = actor.world().ecology().forestRating(at);
     int growStage = -1;
-    float bonus = 0;
+    float urgency = 0, shortage = 0;
     if (toCut != null) {
       growStage = toCut.growStage() + 1;
       abundance *= growStage * 2f / Flora.MAX_GROWTH;
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_STORAGE) {
-      bonus = 0.5f;
+      urgency = 0.5f;
     }
     else if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
-      bonus = 1 - abundance;
+      urgency = 1 - abundance;
     }
     else if (stage == STAGE_CUTTING || stage == STAGE_PROCESS) {
-      bonus = Nums.max(abundance - 0.5f, stage == STAGE_PROCESS ? 0.5f : 0);
-      bonus *= 1 + depot.stocks.relativeShortage(POLYMER);
+      shortage = Nums.max(0, depot.stocks.relativeShortage(POLYMER));
+      if (stage == STAGE_CUTTING) urgency = (abundance - 0.5f) * shortage * 2;
+      else urgency = 0.5f * (1 + shortage);
     }
     
-    //  Otherwise, it's generally a routine activity.
     final float priority = PlanUtils.jobPlanPriority(
-      actor, this, bonus, 1, 3, MILD_HARM, BASE_TRAITS
+      actor, this, urgency, 1, 3, MILD_HARM, BASE_TRAITS
     );
     if (report) {
       I.say("\nGetting forestry priority for "+actor);
       I.say("  Stage is:     "+stage  );
       I.say("  Planting at:  "+toPlant);
       I.say("  Cutting:      "+toCut+" (stage "+growStage+")");
-      I.say("  Base urgency: "+bonus);
+      I.say("  Base urgency: "+urgency);
+      I.say("  Polymer shortage:     "+shortage );
       I.say("  Vegetation abundance: "+abundance);
-      I.say("  Final priority:       "+priority);
+      I.say("  Final priority:       "+priority );
     }
     return priority;
   }

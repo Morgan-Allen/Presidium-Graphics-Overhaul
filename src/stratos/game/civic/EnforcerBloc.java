@@ -32,7 +32,8 @@ public class EnforcerBloc extends Venue {
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    EnforcerBloc.class, "enforcer_bloc", "Enforcer Bloc",
+    EnforcerBloc.class, "enforcer_bloc",
+    "Enforcer Bloc", UIConstants.TYPE_SECURITY,
     4, 2, IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -150,11 +151,6 @@ public class EnforcerBloc extends Venue {
       "The Enforcer Bloc provides a civilian police force for your base, "+
       "assisting administration and espionage as well as providing nonlethal "+
       "force.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_SECURITY;
   }
 }
 

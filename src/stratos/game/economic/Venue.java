@@ -285,7 +285,7 @@ public abstract class Venue extends Structural implements
   
   protected void updatePaving(boolean inWorld) {
     super.updatePaving(inWorld);
-    //base.transport.updateJunction(this, mainEntrance(), inWorld);
+    base.transport.updateJunction(this, mainEntrance(), inWorld);
   }
   
   
@@ -448,6 +448,11 @@ public abstract class Venue extends Structural implements
   
   public String fullName() {
     return blueprint.name;
+  }
+  
+  
+  public String objectCategory() {
+    return blueprint.category;
   }
   
   

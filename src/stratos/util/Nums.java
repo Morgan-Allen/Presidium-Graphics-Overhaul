@@ -13,7 +13,9 @@ import org.apache.commons.math3.util.FastMath;
   */
 public final class Nums {
   
-  final public static float PI = (float) FastMath.PI;
+  final public static float
+    PI    = (float) FastMath.PI     ,
+    ROOT2 = (float) FastMath.sqrt(2);
   
   private Nums() {}
   

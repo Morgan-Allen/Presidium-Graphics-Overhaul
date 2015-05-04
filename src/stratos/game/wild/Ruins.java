@@ -63,7 +63,8 @@ public class Ruins extends Venue {
   static {
     VENUE_BLUEPRINTS = new Blueprint[1];
     VENUE_BLUEPRINTS[0] = new Blueprint(
-      Ruins.class, "ruins", "Ancient Ruins",
+      Ruins.class, "ruins",
+      "Ancient Ruins", UIConstants.TYPE_HIDDEN,
       4, 2, IS_WILD,
       NO_REQUIREMENTS, Owner.TIER_FACILITY
     ) {
@@ -180,9 +181,6 @@ public class Ruins extends Venue {
       "by nuclear fire or blighted by biological warfare.  Strange and "+
       "dangerous beings often haunt such forsaken places.";
   }
-  
-  
-  public String objectCategory() { return UIConstants.TYPE_HIDDEN; }
   
   
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {

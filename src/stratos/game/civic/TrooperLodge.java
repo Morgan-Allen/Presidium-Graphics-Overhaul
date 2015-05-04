@@ -32,7 +32,8 @@ public class TrooperLodge extends Venue {
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    TrooperLodge.class, "trooper_lodge", "Trooper Lodge",
+    TrooperLodge.class, "trooper_lodge",
+    "Trooper Lodge", UIConstants.TYPE_SECURITY,
     4, 3, IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -197,12 +198,6 @@ public class TrooperLodge extends Venue {
       "The Trooper Lodge allows you to recruit the sturdy, disciplined and "+
       "heavily-equipped Trooper into the rank and file of your armed forces.";
   }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_SECURITY;
-  }
-  
   
   //  TODO:  Add this to the various missions instead?  So that you can include
   //  yourself, or agents of your household?

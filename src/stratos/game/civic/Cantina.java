@@ -82,7 +82,8 @@ public class Cantina extends Venue implements Performance.Theatre {
     GAMBLE_MARGIN  = 0.2f;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Cantina.class, "cantina", "Cantina",
+    Cantina.class, "cantina",
+    "Cantina", UIConstants.TYPE_COMMERCE,
     3, 2, IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -375,12 +376,7 @@ public class Cantina extends Venue implements Performance.Theatre {
       "A lively hub for social activities, your citizens can rest and relax "+
       "at the Cantina.  Unsavoury characters are known to drop by, however.";
   }
-  
-
-  public String objectCategory() {
-    return UIConstants.TYPE_COMMERCE;
-  }
-  
+}
   
   //  TODO:  Restore this
   /*
@@ -398,7 +394,6 @@ public class Cantina extends Venue implements Performance.Theatre {
     }
   }
   //*/
-}
 
 
 

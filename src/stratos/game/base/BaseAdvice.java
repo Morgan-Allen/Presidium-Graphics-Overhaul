@@ -1,6 +1,7 @@
 
 
 package stratos.game.base;
+import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
@@ -51,12 +52,8 @@ public class BaseAdvice {
     
     final Batch <Blueprint> canMatch = new Batch <Blueprint> ();
     for (Blueprint blueprint : base.setup.canPlace) {
-      for (Conversion c : blueprint.processed) {
-        if (c.out.type == t) {
-          canMatch.include(blueprint);
-          continue;
-        }
-      }
+      if (blueprint.category == UIConstants.TYPE_HIDDEN) continue;
+      if (blueprint.producing(t) != null) canMatch.include(blueprint);
     }
     
     pane.header().setText("Shortage of "+t);
@@ -95,14 +92,25 @@ public class BaseAdvice {
     }
     
     if (Visit.arrayIncludes(Economy.ALL_MATERIALS, t)) {
+      
       if (canMatch.size() > 0) {
         d.append("Alternatively, you could import this good at a ");
       }
       else d.append("You could import this good at a ");
-      d.append("Supply Depot or Airfield.");
+      
+      if (Visit.arrayIncludes(StockExchange.ALL_STOCKED, t)) {
+        d.append("Supply Depot or Stock Exchange");
+      }
+      else d.append("Supply Depot");
+      
       d.append("\n\n");
     }
     
     return pane;
   }
 }
+
+
+
+
+

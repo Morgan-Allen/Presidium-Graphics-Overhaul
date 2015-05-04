@@ -41,7 +41,8 @@ public class KommandoLodge extends Venue {
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    KommandoLodge.class, "kommando_lodge", "Kommando Lodge",
+    KommandoLodge.class, "kommando_lodge",
+    "Kommando Lodge", UIConstants.TYPE_SECURITY,
     4, 2, IS_NORMAL,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_PROTEIN
@@ -294,11 +295,6 @@ public class KommandoLodge extends Venue {
     return
       "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
       "sufficient Kommandos to harvest prey and intimidate foes.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_SECURITY;
   }
 }
 

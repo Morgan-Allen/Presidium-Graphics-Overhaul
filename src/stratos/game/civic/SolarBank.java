@@ -47,7 +47,8 @@ public class SolarBank extends Venue {
   
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    SolarBank.class, "solar_bank", "Solar Bank",
+    SolarBank.class, "solar_bank",
+    "Solar Bank", UIConstants.TYPE_ECOLOGIST,
     2, 2, IS_LINEAR | IS_FIXTURE,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_POWER, LAND_TO_WATER
@@ -138,11 +139,6 @@ public class SolarBank extends Venue {
     return
       "Solar Banks provide clean power and a small amount of water to your "+
       "settlement.";
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_ECOLOGIST;
   }
 }
 

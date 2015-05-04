@@ -20,10 +20,6 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  Consider getting rid of local deliveries here- it may be more of a
-//  nuisance than it's worth.
-
-
 //  Rations vending.  Repairs.  Medkits.
 //  Advertising (morale boost and added purchase-attraction)
 //  Security vault.  Currency exchange.
@@ -42,18 +38,9 @@ public class StockExchange extends Venue {
     StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
   );
   
-  final static Traded
-    ALL_STOCKED[] = {
-      CARBS, PROTEIN, GREENS,
-      SOMA, MEDICINE,
-      PLASTICS, PARTS
-    },
-    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
-    );
-  
   final static Blueprint BLUEPRINT = new Blueprint(
-    StockExchange.class, "stock_exchange", "Stock Exchange",
+    StockExchange.class, "stock_exchange",
+    "Stock Exchange", UIConstants.TYPE_COMMERCE,
     4, 1, IS_NORMAL,
     SupplyDepot.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -91,18 +78,6 @@ public class StockExchange extends Venue {
   
   /**  Supplementary setup methods-
     */
-  private float upgradeLevelFor(Traded type) {
-    final int category = Economy.categoryFor(type);
-    Upgrade upgrade = null;
-    switch (category) {
-      case (CATEGORY_FOOD ) : upgrade = RATIONS_VENDING ; break;
-      case (CATEGORY_DRUG ) : upgrade = MEDICAL_EXCHANGE; break;
-      case (CATEGORY_WARES) : upgrade = HARDWARE_STORE  ; break;
-    }
-    return upgrade == null ? -1 : (structure.upgradeLevel(upgrade) / 3f);
-  }
-  
-  
   public boolean adjustCatalogue(Traded good, float inc) {
     final int index = Visit.indexOf(good, ALL_STOCKED);
     if (index == -1) return false;
@@ -158,7 +133,7 @@ public class StockExchange extends Venue {
     //  TODO:  COOK UP RATIONS AS A 4TH FOOD TYPE
     RATIONS_VENDING = new Upgrade(
       "Rations Vending",
-      "Increases space available to carbs, greens and protein and augments "+
+      "Increases space available to carbs and protein and augments "+
       "profits from their sale.",
       150, Upgrade.THREE_LEVELS, null, 1,
       null, StockExchange.class
@@ -176,7 +151,7 @@ public class StockExchange extends Venue {
     //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
     MEDICAL_EXCHANGE = new Upgrade(
       "Medical Exchange",
-      "Increases space available to soma and medicine, and augments"+
+      "Increases space available to greens and medicine, and augments"+
       "profits from their sale.",
       250, Upgrade.THREE_LEVELS, null, 1,
       null, StockExchange.class
@@ -189,6 +164,24 @@ public class StockExchange extends Venue {
       400, Upgrade.THREE_LEVELS, null, 1,
       null, StockExchange.class
     );
+  
+  final public static Traded
+    ALL_STOCKED[] = {
+      CARBS, PROTEIN, GREENS,
+      MEDICINE, PLASTICS, PARTS
+    },
+    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
+      ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
+    );
+  
+  
+  private float upgradeLevelFor(Traded type) {
+    Upgrade upgrade = null;
+    if (type == CARBS  || type == PROTEIN ) upgrade = RATIONS_VENDING ;
+    if (type == GREENS || type == MEDICINE) upgrade = MEDICAL_EXCHANGE;
+    if (type == PARTS  || type == PLASTICS) upgrade = HARDWARE_STORE  ;
+    return upgrade == null ? -1 : (structure.upgradeLevel(upgrade) / 3f);
+  }
   
   
   public int numOpenings(Background p) {
@@ -205,8 +198,6 @@ public class StockExchange extends Venue {
     //  ...You basically don't want the stock vendor wandering too far, because
     //  the venue has to be manned in order for citizens to come shopping.  So
     //  stick with jobs that happen within the venue.
-    
-    //  TODO:  Consider patent-manufacture activities!
     if (PlanUtils.competition(Supervision.class, this, actor) > 0) {
       choice.add(DeliveryUtils.bestBulkDeliveryFrom(
         this, services(), 2, 10, 5
@@ -274,9 +265,8 @@ public class StockExchange extends Venue {
     */
   //  TODO:  Try merging these lists into a single array?
   final static Traded DISPLAYED_GOODS[] = {
-    CARBS   , PROTEIN , GREENS   ,
-    CATALYST, SOMA    , MEDICINE ,
-    PARTS   , PLASTICS, DATALINKS,
+    CARBS   , PROTEIN , GREENS  ,
+    MEDICINE, PARTS   , PLASTICS,
   };
   //  TODO:  Include the full range of items:  Foods, Drugs, Wares, Spyce.
   final static float GOOD_DISPLAY_OFFSETS[] = {
@@ -322,11 +312,6 @@ public class StockExchange extends Venue {
       "The Stock Exchange facilitates small-scale purchases within "+
       "residential neighbourhoods, and bulk transactions between local "+
       "merchants.";
-  }
-
-
-  public String objectCategory() {
-    return UIConstants.TYPE_COMMERCE;
   }
 }
 

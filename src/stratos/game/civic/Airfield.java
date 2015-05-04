@@ -37,7 +37,8 @@ public class Airfield extends Venue {
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Airfield.class, "airfield", "Airfield",
+    Airfield.class, "airfield",
+    "Airfield", UIConstants.TYPE_COMMERCE,
     6, 3, IS_NORMAL,
     new Blueprint[] { SupplyDepot.BLUEPRINT, Bastion.BLUEPRINT },
     Owner.TIER_FACILITY
@@ -130,9 +131,8 @@ public class Airfield extends Venue {
     if (! structure.intact()) return;
     if (docking != null && ! docking.inWorld()) docking = null;
     
-    //
-    //  TODO:  As long as you have power and LCHC, you can manufacture fuel for
-    //  dropships...
+    //  TODO:  As long as you have power and fuel rods, you can manufacture
+    //  fuel for dropships.
     stocks.forceDemand(POWER, 5, false);
   }
   
@@ -143,35 +143,37 @@ public class Airfield extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { WINGMAN, DECK_HAND };
+    return new Background[] { DECK_HAND, SHIP_CAPTAIN };
   }
   
   
   protected int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
-    if (b == WINGMAN) return nO + 1;
-    //if (b == DECK_HAND) return nO + 1;
+    if (b == DECK_HAND) return nO + 2;
     return 0;
   }
   
   
   protected Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
-    /*
-    if (actor.mind.vocation() == DECK_HAND) {
-      final Traded goods[] = services();
+    final boolean shouldHaul =
+      actor.mind.vocation() == DECK_HAND &&
+      docking               != null      &&
+      docking.flightStage() == Dropship.STAGE_LANDED;
+    if (shouldHaul) {
+      final Traded goods[] = docking.services();
       final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
-        this, goods, 1, 5, 5
+        docking, goods, 1, 5, 5
       );
       choice.add(d);
       final Delivery c = DeliveryUtils.bestBulkCollectionFor(
-        this, goods, 1, 5, 5
+        docking, goods, 1, 5, 5
       );
       choice.add(c);
     }
-    //*/
+    
+    //  TODO:  ADD SUPERVISION TASKS
     
     return choice.weightedPick();
   }
@@ -189,23 +191,8 @@ public class Airfield extends Venue {
   public String helpInfo() {
     return
       "The Airfield provides smaller dropships with a convenient site to "+
-      "land and refuel, facilitating offworld trade and migration as "+
-      "well as local air defence.";
+      "land and refuel, facilitating offworld trade and migration.";
   }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_COMMERCE;
-  }
-  
-  /*
-  final static String CAT_ORDERS = "ORDERS";
-  
-  
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, true);
-  }
-  //*/
 }
 
 

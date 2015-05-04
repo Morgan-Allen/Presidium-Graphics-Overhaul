@@ -49,7 +49,8 @@ public class Archives extends Venue {
   ;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Archives.class, "archives", "Archives",
+    Archives.class, "archives",
+    "Archives", UIConstants.TYPE_PHYSICIAN,
     3, 2, IS_NORMAL,
     PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY, CIRCUITRY_TO_DATALINKS
   );
@@ -152,11 +153,6 @@ public class Archives extends Venue {
       "your base personnel.",
       this, CIRCUITRY_TO_DATALINKS
     );
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_PHYSICIAN;
   }
 }
 

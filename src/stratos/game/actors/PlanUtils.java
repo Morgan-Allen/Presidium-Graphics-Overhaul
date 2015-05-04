@@ -6,6 +6,7 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Planet;
 import stratos.game.plans.*;
 import stratos.game.wild.*;
 import stratos.util.*;
@@ -66,7 +67,9 @@ public class PlanUtils {
       "inhibition", inhibition ,
       "incentive" , incentive  ,
       "winChance" , winChance  ,
-      "priority " , priority   
+      "priority " , priority   ,
+      "base novelty: ", actor.relations.noveltyFor(subject.base()),
+      "curiosity: "   , actor.traits.relativeLevel(CURIOUS)
     );
     if (priority < inhibition) return -1;
     return priority;
@@ -182,20 +185,23 @@ public class PlanUtils {
   
   
   
-  /**  Exploring priority- should range from 0 to 20.
+  /**  Exploring priority- should range from 0 to 15.
     */
   public static float explorePriority(
-    Actor actor, Target surveyed, float rewardBonus, float competence
+    Actor actor, Target surveyed,
+    float rewardBonus, boolean idle, float competence
   ) {
     float incentive = 0, novelty = 0, priority = 0, exploreChance = 0;
     
-    novelty = Nums.clamp(Nums.max(
+    if (idle) novelty = 0.2f;
+    else novelty = Nums.clamp(Nums.max(
       (1 - actor.base().intelMap.fogAt(surveyed)),
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
     
     exploreChance = actor.health.baseSpeed() * competence;
-    exploreChance *= 2 / (1 + homeDistanceFactor(actor, surveyed));
+    exploreChance *= 1 / (1 + homeDistanceFactor(actor, surveyed));
+    exploreChance *= Planet.dayValue(actor.world());
     
     incentive = (novelty * 5) + rewardBonus;
     incentive *= 1 + actor.traits.relativeLevel(Qualities.CURIOUS);
@@ -286,7 +292,7 @@ public class PlanUtils {
     float liking = actor.relations.valueFor(plan.subject);
     
     incentive += plan.motiveBonus();
-    incentive += urgency * 5 * liking;
+    incentive += urgency * 10 * liking;
     incentive += enjoyBonus = traitAverage(actor, enjoyTraits) * 2.5f;
     
     if (plan.isJob() && work != null) {
@@ -364,11 +370,10 @@ public class PlanUtils {
   public static float baseCuriosity(
     Actor actor, Target toward, boolean positive
   ) {
-    if (! actor.species().sapient()) return positive ? 0 : 1;
     float strangeness = actor.relations.noveltyFor(toward.base());
     float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     if (positive) return curiosity * strangeness;
-    else return Nums.clamp(strangeness - curiosity * 2, 0, 1);
+    else return Nums.clamp((strangeness - curiosity) * 2, 0, 1);
   }
   
   

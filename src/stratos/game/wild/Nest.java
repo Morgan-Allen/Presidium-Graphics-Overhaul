@@ -207,7 +207,8 @@ public class Nest extends Venue {
     int size, int high, final Species s, final ModelAsset model
   ) {
     return new Blueprint(
-      Nest.class, s.name+"_nest", s.name+" Nest",
+      Nest.class, s.name+"_nest",
+      s.name+" Nest", UIConstants.TYPE_HIDDEN,
       size, high, IS_WILD,
       Venue.NO_REQUIREMENTS, Owner.TIER_PRIVATE
     ) {
@@ -353,11 +354,6 @@ public class Nest extends Venue {
     int actualPop = staff.lodgers().size();
     l.append("\n\n  Nesting: ("+actualPop+"/"+idealPop+")");
     return panel;
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_HIDDEN;
   }
   
 

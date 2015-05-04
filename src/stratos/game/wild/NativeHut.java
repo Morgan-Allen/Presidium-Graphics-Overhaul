@@ -135,7 +135,8 @@ public class NativeHut extends Venue {
       final String tribeName = TRIBE_NAMES[tribeID];
       
       allProfiles.add(new Blueprint(
-        NativeHut.class, "hall_"+tribeID, "Native Hut ("+tribeName+")",
+        NativeHut.class, "hall_"+tribeID,
+        "Native Hut ("+tribeName+")", UIConstants.TYPE_HIDDEN,
         2, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
         public Venue createVenue(Base base) {
@@ -143,7 +144,8 @@ public class NativeHut extends Venue {
         }
       });
       allProfiles.add(new Blueprint(
-        NativeHut.class, "hut_"+tribeID, "Chief's Hall ("+tribeName+")",
+        NativeHut.class, "hut_"+tribeID,
+        "Chief's Hall ("+tribeName+")", UIConstants.TYPE_HIDDEN,
         3, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
       ) {
         public Venue createVenue(Base base) {
@@ -315,11 +317,6 @@ public class NativeHut extends Venue {
     return
       "Native Hutments are simple but robust shelters constructed by "+
       "indigenous primitives.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_HIDDEN;
   }
   
   

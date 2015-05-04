@@ -32,7 +32,8 @@ public class Fractal extends Venue {
   /**  Definition, setup and save/load methods:
     */
   final static Blueprint BLUEPRINT = new Blueprint(
-    Fractal.class, "fractal", "Fractal",
+    Fractal.class, "fractal",
+    "Fractal", UIConstants.TYPE_AESTHETIC,
     2, 0, IS_FIXTURE | IS_LINEAR,
     Fabricator.BLUEPRINT, Owner.TIER_PRIVATE
   );
@@ -101,11 +102,6 @@ public class Fractal extends Venue {
     return
       "Fractals are decorative paving structures composed of interlocking "+
       "geometric forms.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_AESTHETIC;
   }
 }
 

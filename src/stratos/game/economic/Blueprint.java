@@ -35,6 +35,7 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   
   final public Class <? extends Venue> baseClass;
   final public String name;
+  final public String category;
 
   final public int size, high;
   final public int properties;
@@ -50,13 +51,13 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   
   
   public Blueprint(
-    Class <? extends Venue> baseClass, String key, String name,
+    Class <? extends Venue> baseClass, String key,
+    String name, String category,
     int size, int high, int properties,
     Blueprint required, int owningTier, Conversion... processed
   ) {
     this(
-      baseClass, key, name,
-      size, high, properties,
+      baseClass, key, name, category, size, high, properties,
       required == null ? null : new Blueprint[] { required },
       owningTier, processed
     );
@@ -64,14 +65,16 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   
 
   public Blueprint(
-    Class <? extends Venue> baseClass, String key, String name,
+    Class <? extends Venue> baseClass, String key,
+    String name, String category,
     int size, int high, int properties,
     Blueprint required[], int owningTier, Conversion... processed
   ) {
 
     super(INDEX, key);
     this.baseClass = baseClass;
-    this.name = name;
+    this.name     = name;
+    this.category = category;
     
     this.size = size;
     this.high = high;

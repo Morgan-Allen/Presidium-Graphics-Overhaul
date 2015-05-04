@@ -57,7 +57,8 @@ public class Holding extends Venue {
   ;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Holding.class, "holding", "Seal Tent",
+    Holding.class, "holding",
+    "Seal Tent", UIConstants.TYPE_HIDDEN,
     2, 2, IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
     PROVIDE_HOUSING
@@ -440,11 +441,6 @@ public class Holding extends Venue {
     }
     if (level >= 5) return UPPER_CLASS_MODELS[VID][level - 5];
     return MIDDLE_CLASS_MODELS[VID][level - 2];
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_PHYSICIAN;
   }
   
   

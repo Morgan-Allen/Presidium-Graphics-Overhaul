@@ -86,7 +86,8 @@ public class RunnerMarket extends Venue {
     CLAIM_SIZE = 8;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    RunnerMarket.class, "runner_market", "Runner Market",
+    RunnerMarket.class, "runner_market",
+    "Runner Market", UIConstants.TYPE_SECURITY,
     4, 2, IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -280,11 +281,6 @@ public class RunnerMarket extends Venue {
       "Runner Markets can offer black market technology and other "+
       "clandestine services to settlements willing to overlook their "+
       "criminal connections.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_SECURITY;
   }
 }
 

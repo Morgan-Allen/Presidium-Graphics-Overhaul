@@ -3,15 +3,13 @@
 package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-//import stratos.game.civic.*;
+import stratos.game.civic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.start.StartupScenario.*;
-
-//import java.io.*;
 
 
 
@@ -266,7 +264,7 @@ public class MainMenu extends UIGroup {
     }
     
     //  TODO:  INTRODUCE CONFIGURATION FOR OTHER STRUCTURES
-    ///config.built.set(ShieldWall.BLUEPRINT, 1);
+    config.built.set(ShieldWall.BLUEPRINT, 1);
     
     
     String complaint = null;

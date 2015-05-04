@@ -265,7 +265,7 @@ public class Element implements
   
   public boolean visibleTo(Base base) {
     final float fog = base == null ? 1 : fogFor(base);
-    if (fog == 0 || sprite == null) return false;
+    if (fog <= 0 || sprite == null) return false;
     else sprite.fog = fog;
     return true;
   }

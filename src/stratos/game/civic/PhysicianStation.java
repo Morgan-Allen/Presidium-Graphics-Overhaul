@@ -46,7 +46,8 @@ public class PhysicianStation extends Venue {
   ;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    PhysicianStation.class, "physician_station", "Physician Station",
+    PhysicianStation.class, "physician_station",
+    "Physician Station", UIConstants.TYPE_PHYSICIAN,
     3, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY, REAGENTS_TO_MEDICINE
   );
@@ -275,11 +276,6 @@ public class PhysicianStation extends Venue {
       "trauma to be treated quickly and effectively.",
       this, REAGENTS_TO_MEDICINE, APOTHECARY
     );
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_PHYSICIAN;
   }
 }
 

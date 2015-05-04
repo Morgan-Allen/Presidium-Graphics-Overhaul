@@ -45,7 +45,8 @@ public class Fabricator extends Venue {
   ;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Fabricator.class, "fabricator", "Fabricator",
+    Fabricator.class, "fabricator",
+    "Fabricator", UIConstants.TYPE_ENGINEER,
     3, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     LCHC_TO_PLASTICS, PLASTICS_TO_DECOR
@@ -211,11 +212,6 @@ public class Fabricator extends Venue {
       "your citizens.",
       this, LCHC_TO_PLASTICS, POLYMER_LOOM
     );
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_ENGINEER;
   }
 }
 

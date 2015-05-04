@@ -47,7 +47,8 @@ public class Arcology extends Venue {
     FULL_GROWTH_INTERVAL = Stage.STANDARD_DAY_LENGTH * 5;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Arcology.class, "arcology", "Arcology",
+    Arcology.class, "arcology",
+    "Arcology", UIConstants.TYPE_AESTHETIC,
     2, 2, IS_LINEAR | IS_FIXTURE,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -145,11 +146,6 @@ public class Arcology extends Venue {
     return
       "Arcology provides both beauty and life support to your settlement, "+
       "but require space and Water.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_AESTHETIC;
   }
 }
 

@@ -37,7 +37,8 @@ public class Bastion extends Venue {
     CLAIM_RADIUS   = Stage.ZONE_SIZE / 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Bastion.class, "bastion", "Bastion",
+    Bastion.class, "bastion",
+    "Bastion", UIConstants.TYPE_SECURITY,
     7, 4, IS_UNIQUE,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
@@ -370,11 +371,6 @@ public class Bastion extends Venue {
       "The Bastion is your seat of command for the settlement as a "+
       "whole, houses your family, advisors and bodyguards, and provides "+
       "basic logistic support.";
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_SECURITY;
   }
 }
 

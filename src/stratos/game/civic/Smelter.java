@@ -57,7 +57,8 @@ public class Smelter extends Venue {
   final public static int SMELT_AMOUNT = 10;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    Smelter.class, "smelter", "Smelter",
+    Smelter.class, "smelter",
+    "Smelter", UIConstants.TYPE_HIDDEN,
     4, 2, IS_NORMAL,
     ExcavationSite.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -262,11 +263,6 @@ public class Smelter extends Venue {
     return
       output.name+" Smelters extract larger quantities of "+output.name+
       " from subterranean mineral deposits.";
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_HIDDEN;
   }
 }
 

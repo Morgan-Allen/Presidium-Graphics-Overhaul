@@ -355,6 +355,8 @@ public class StartupScenario extends Scenario {
         ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
       );
       for (Venue v : wall) ((ShieldWall) v).updateFacing(true);
+      final float fogBound = bastion.areaClaimed().maxSide() * Nums.ROOT2 / 2;
+      base.intelMap.liftFogAround(bastion, fogBound);
     }
     //
     //  Then introduce personnel-

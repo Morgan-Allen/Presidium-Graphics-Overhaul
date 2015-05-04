@@ -48,7 +48,8 @@ public class ShieldWall extends Venue {
     TYPE_GATE    =  3;
   
   final public static Blueprint BLUEPRINT = new Blueprint(
-    ShieldWall.class, "shield_wall", "Shield Wall",
+    ShieldWall.class, "shield_wall",
+    "Shield Wall", UIConstants.TYPE_SECURITY,
     2, 2, IS_LINEAR | IS_FIXTURE | IS_GRIDDED,
     Bastion.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -100,6 +101,12 @@ public class ShieldWall extends Venue {
     //  The purpose of a shield wall is to enclose areas completely, so checks
     //  to *avoid* pathing-enclosure would be pointless:
     return true;
+  }
+  
+  
+  protected void updatePaving(boolean inWorld) {
+    //
+    //  Also, asking for pavement on the other side might be a trifle risky...
   }
   
   
@@ -291,11 +298,6 @@ public class ShieldWall extends Venue {
   public String helpInfo() {
     return
       "Shield Walls are defensive emplacements that improve base security.";
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_SECURITY;
   }
 }
 

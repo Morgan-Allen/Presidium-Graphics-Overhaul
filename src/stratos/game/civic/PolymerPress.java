@@ -46,7 +46,8 @@ public class PolymerPress extends Venue implements TileConstants {
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    PolymerPress.class, "polymer_press", "Polymer Press",
+    PolymerPress.class, "polymer_press",
+    "Polymer Press", UIConstants.TYPE_HIDDEN,
     3, 1, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     FLORA_TO_POLYMER//, CARBS_TO_POLYMER
@@ -179,11 +180,6 @@ public class PolymerPress extends Venue implements TileConstants {
     return
       "The Polymer Press converts local Flora into long-chain hydrocarbons "+
       "for use in plastics production.";
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_ECOLOGIST;
   }
 }
 

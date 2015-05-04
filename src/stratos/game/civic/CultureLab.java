@@ -68,7 +68,8 @@ public class CultureLab extends Venue {
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    CultureLab.class, "culture_lab", "Culture Lab",
+    CultureLab.class, "culture_lab",
+    "Culture Lab", UIConstants.TYPE_PHYSICIAN,
     3, 2, IS_NORMAL,
     new Blueprint[] { EngineerStation.BLUEPRINT, PhysicianStation.BLUEPRINT },
     Owner.TIER_FACILITY,
@@ -256,11 +257,6 @@ public class CultureLab extends Venue {
       "tissues for medical purposes.",
       this, CARBS_TO_SOMA, DRUG_SYNTHESIS
     );
-  }
-  
-  
-  public String objectCategory() {
-    return InstallationPane.TYPE_PHYSICIAN;
   }
 }
 

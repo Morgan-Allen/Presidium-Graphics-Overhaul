@@ -29,7 +29,8 @@ public class ServiceHatch extends Venue {
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    ServiceHatch.class, "service_hatch", "Service Hatch",
+    ServiceHatch.class, "service_hatch",
+    "Service Hatch", UIConstants.TYPE_HIDDEN,
     2, 1, IS_FIXTURE,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE
   );
@@ -127,11 +128,6 @@ public class ServiceHatch extends Venue {
     return
       "Service Hatches are neccesary for maintenance of urban "+
       "infrastructure, but can allow entry to dangerous vermin.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_ENGINEER;
   }
 }
 

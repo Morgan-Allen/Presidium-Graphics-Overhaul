@@ -140,7 +140,7 @@ public class MapsDisplay extends UIGroup {
     Coord centre = minimap.getScreenPosition(t.x, t.y, world.size, bounds);
     final float
       tileWidthOnMap    = bounds.xdim() / world.size,
-      tileWidthOnScreen = UI.rendering.view.screenScale() * Nums.sqrt(2),
+      tileWidthOnScreen = UI.rendering.view.screenScale() * Nums.ROOT2,
       cameraAngle       = Nums.toRadians(Viewport.DEFAULT_ELEVATE),
       screenRatio       = UI.ydim() * 1f / UI.xdim(),
       boxWide           = tileWidthOnMap * UI.xdim() / tileWidthOnScreen,

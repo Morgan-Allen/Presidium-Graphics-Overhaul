@@ -138,7 +138,7 @@ public abstract class Fauna extends Actor {
       //
       //  We (unrealistically) assume that animals don't get curious.
       public float noveltyFor(Object object) {
-        if (object instanceof Fauna) return 0;
+        if (object instanceof Fauna || object == actor.base()) return 0;
         else return 1;
       }
     };
