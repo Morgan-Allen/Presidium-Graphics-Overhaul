@@ -57,6 +57,7 @@ public class ShieldWall extends Venue {
   
   
   private Boarding entrances[] = null;
+  private boolean hasFoundation = false;
   
   
   public ShieldWall(Base base) {
@@ -88,12 +89,22 @@ public class ShieldWall extends Venue {
     final Object model = faceModel(position, area, others);
     this.type = typeIndexFrom(model);
     attachModel((ModelAsset) model);
+    
+    hasFoundation = false;
+    for (Tile u : position.world.tilesIn(footprint(), true)) {
+      if (super.canBuildOn(u)) hasFoundation = true;
+    }
     return true;
   }
   
   
-  //  TODO:  Allow placement on top of ocean tiles as long as at least one
-  //  land tile is available...
+  protected boolean canBuildOn(Tile t) {
+    //
+    //  In order to ensure a good 'seal' against unpathable terrain areas (such
+    //  as oceans) we allow overlap on these areas as long as we have at least
+    //  one normal tile to stand on.
+    return hasFoundation;
+  }
   
   
   protected boolean checkPerimeter(Stage world) {

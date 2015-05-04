@@ -244,6 +244,14 @@ public class Habitat {
   public float minerals  () { return rockiness ; }
   public boolean isOcean() { return isOcean; }
   public boolean isWaste() { return isWaste; }
+  
+  
+  
+  /**  Rendering, interface and debug methods-
+    */
+  public String toString() {
+    return name;
+  }
 }
 
 
