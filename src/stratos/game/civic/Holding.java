@@ -355,7 +355,7 @@ public class Holding extends Venue {
       
       final Choice buying = new Choice(actor) {
         public boolean add(Behaviour b) {
-          if (b instanceof Delivery) {
+          if (b instanceof Bringing) {
             if (report) I.say("  Delivery is: "+b);
             return super.add(b);
           }

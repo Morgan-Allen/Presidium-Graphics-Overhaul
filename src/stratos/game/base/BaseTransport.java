@@ -188,7 +188,7 @@ public class BaseTransport {
     //  In essence, we visit every nearby venue and try to path toward either
     //  their main entrance or their centre.
     if (isMember) {
-      final Box2D area = new Box2D(v.areaClaimed()).expandBy(PATH_RANGE + 1);
+      final Box2D area = new Box2D(v.footprint()).expandBy(PATH_RANGE);
       if (report) I.say("\nUpdating junction for "+v+" ("+t+")");
 
       for (Object o : t.world.presences.matchesNear(Venue.class, v, area)) {

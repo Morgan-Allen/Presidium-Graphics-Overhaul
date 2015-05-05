@@ -140,7 +140,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     if (! onShift) return null;
     if (actor.mind.vocation() == Backgrounds.SOMA_CHEF) {
       final Traded needed[] = { SOMA, CARBS, PROTEIN };
-      final Delivery d = DeliveryUtils.bestBulkCollectionFor(
+      final Bringing d = BringUtils.bestBulkCollectionFor(
         this, needed, 1, 5, 5
       );
       if (d != null) return d;

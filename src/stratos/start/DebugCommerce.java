@@ -213,7 +213,7 @@ public class DebugCommerce extends Scenario {
     UI.selection.pushSelection(foundry);
     
     for (Actor guy : foundry.staff.workers()) {
-      final Delivery d = DeliveryUtils.fillBulkOrder(
+      final Bringing d = BringUtils.fillBulkOrder(
         depot, foundry, new Traded[] {METALS}, 1, 10
       );
       if (d == null) continue;

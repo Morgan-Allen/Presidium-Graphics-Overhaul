@@ -268,7 +268,7 @@ public class Pledge implements Session.Saveable {
         float amount = Nums.min(i.amount, 10);
         //  TODO:  The Gifting behaviour probably has this covered already.
         //         Try to use that.
-        Delivery d = new Delivery(Item.withAmount(i, amount), from, makesTo);
+        Bringing d = new Bringing(Item.withAmount(i, amount), from, makesTo);
         pledges.add(new Pledge(this, d, makes));
       }
       return pledges.toArray(Pledge.class);
@@ -276,13 +276,13 @@ public class Pledge implements Session.Saveable {
     
     
     String description(Pledge p) {
-      final Item gift = ((Delivery) p.refers).allDelivered()[0];
+      final Item gift = ((Bringing) p.refers).allDelivered()[0];
       return "Gift of "+gift;
     }
     
     
     float valueOf(Pledge p, Actor a) {
-      final Item gift = ((Delivery) p.refers).allDelivered()[0];
+      final Item gift = ((Bringing) p.refers).allDelivered()[0];
       return a.motives.rateDesire(gift, null, a);
     }
     
@@ -291,14 +291,14 @@ public class Pledge implements Session.Saveable {
       //  TODO:  If the subjects are adjacent, just hand over the gift!
       
       
-      return (Delivery) p.refers;
+      return (Bringing) p.refers;
     }
   };
   
   public static Pledge giftPledge(
     Item item, Owner depot, Actor from, Actor to
   ) {
-    final Delivery d = new Delivery(item, depot, to);
+    final Bringing d = new Bringing(item, depot, to);
     return new Pledge(TYPE_GIFT_ITEM, d, from);
   }
   

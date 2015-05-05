@@ -214,7 +214,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     final boolean report = verbose && I.talkAbout == actor;
     
     if (report) I.say("\nGETTING NEXT EXCAVATION TASK");
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+    final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
     

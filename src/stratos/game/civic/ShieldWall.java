@@ -7,8 +7,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Placement;
-import stratos.game.plans.Patrolling;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -29,7 +28,7 @@ public class ShieldWall extends Venue {
     WALL_MODELS[][] = CutoutModel.fromImageGrid(
       ShieldWall.class, IMG_DIR+"all_shield_walls.png", 4, 3, 2, 3, false
     ),
-    WM[][] = WALL_MODELS, MODEL_HUB = WM[3][0], MH = MODEL_HUB,
+    WM[][] = WALL_MODELS, MODEL_HUB = WM[0][0], MH = MODEL_HUB,
     CAPS_X_AXIS[] = { MH, WM[1][1], MH },
     CAPS_Y_AXIS[] = { MH, WM[1][2], MH },
     SEGMENTS_X[]  = { WM[0][1], WM[1][1], WM[2][1], WM[3][1] },

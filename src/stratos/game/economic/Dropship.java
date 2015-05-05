@@ -140,11 +140,11 @@ public class Dropship extends Vehicle implements Owner {
       I.talkAbout == actor || I.talkAbout == this
     );
     if (report) I.say("\nGetting next dropship job for "+actor);
-    if (actor.isDoing(Delivery.class, null)) return;
+    if (actor.isDoing(Bringing.class, null)) return;
     
     if (stage >= STAGE_BOARDING) {
       final Smuggling boarding = new Smuggling(actor, this, world, true);
-      if (staff.assignedTo(Delivery.class) == 0) {
+      if (staff.assignedTo(Bringing.class) == 0) {
         boarding.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
       }
       choice.add(boarding);
@@ -154,13 +154,13 @@ public class Dropship extends Vehicle implements Owner {
     final Choice jobs = new Choice(actor);
     jobs.isVerbose = report;
     
-    final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
+    final Batch <Venue> depots = BringUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
     final Traded goods[] = cargo.demanded();
     
-    jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 2, 10, depots));
-    jobs.add(DeliveryUtils.bestBulkCollectionFor(this, goods, 2, 10, depots));
+    jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, depots));
+    jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, depots));
     if (! jobs.empty()) { choice.add(jobs.pickMostUrgent()); return; }
     
     choice.add(jobs.pickMostUrgent());

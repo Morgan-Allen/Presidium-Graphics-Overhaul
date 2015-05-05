@@ -97,7 +97,7 @@ public class Archives extends Venue {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
-    final Delivery d = DeliveryUtils.bestBulkCollectionFor(
+    final Bringing d = BringUtils.bestBulkCollectionFor(
       this, new Traded[] { CIRCUITRY }, 1, 5, 5
     );
     if (d != null) return d;
@@ -122,7 +122,7 @@ public class Archives extends Venue {
     
     final Owner home = actor.mind.home();
     if (home != null) {
-      final Delivery shops = DeliveryUtils.fillBulkOrder(
+      final Bringing shops = BringUtils.fillBulkOrder(
         this, home, new Traded[] { DATALINKS }, 1, 1
       );
       if (shops != null) choice.add(shops.setWithPayment(actor, true));

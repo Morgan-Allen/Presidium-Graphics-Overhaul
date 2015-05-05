@@ -196,7 +196,7 @@ public class Suspensor extends Mobile implements Mount {
     if (! (to instanceof Boarding)) return null;
     final Actor carries = carrying(carried);
     if (carries != null && carries != actor) return null;
-    else return new StretcherDelivery(actor, carried, (Boarding) to);
+    else return new BringStretcher(actor, carried, (Boarding) to);
   }
   
   

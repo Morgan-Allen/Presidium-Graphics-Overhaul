@@ -13,7 +13,7 @@ import stratos.util.*;
 //  is available (e.g, for kidnappings.)
 
 
-public class StretcherDelivery extends Plan implements Qualities {
+public class BringStretcher extends Plan implements Qualities {
   
   
   private static boolean verbose = false;
@@ -23,7 +23,7 @@ public class StretcherDelivery extends Plan implements Qualities {
   private Suspensor suspensor;
   
   
-  public StretcherDelivery(
+  public BringStretcher(
     Actor actor, Actor patient, Boarding destination
   ) {
     super(actor, patient, MOTIVE_EMERGENCY, NO_HARM);
@@ -33,7 +33,7 @@ public class StretcherDelivery extends Plan implements Qualities {
   }
   
   
-  public StretcherDelivery(Session s) throws Exception {
+  public BringStretcher(Session s) throws Exception {
     super(s);
     this.patient = (Actor) s.loadObject();
     this.origin = (Boarding) s.loadTarget();

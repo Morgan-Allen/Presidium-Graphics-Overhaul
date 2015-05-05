@@ -16,7 +16,7 @@ import stratos.util.*;
 //  TODO:  Work out a more complete payment scheme later.
 
 
-public class Delivery extends Plan {
+public class Bringing extends Plan {
   
 
   
@@ -52,22 +52,22 @@ public class Delivery extends Plan {
   public boolean replace = false;  //  TODO:  Shouldn't be public!  Gah!
   
   
-  public Delivery(Traded s, Owner origin, Owner destination) {
+  public Bringing(Traded s, Owner origin, Owner destination) {
     this(origin.inventory().matches(s), origin, destination);
   }
   
   
-  public Delivery(Item item, Owner origin, Owner destination) {
+  public Bringing(Item item, Owner origin, Owner destination) {
     this(new Item[] { item }, origin, destination);
   }
   
   
-  public Delivery(Batch <Item> items, Owner orig, Owner dest) {
+  public Bringing(Batch <Item> items, Owner orig, Owner dest) {
     this(items.toArray(Item.class), orig, dest);
   }
   
   
-  public Delivery(Item items[], Owner origin, Owner destination) {
+  public Bringing(Item items[], Owner origin, Owner destination) {
     super(null, destination, MOTIVE_JOB, NO_HARM);
     this.origin = origin;
     this.destination = destination;
@@ -75,14 +75,14 @@ public class Delivery extends Plan {
   }
   
   
-  public Delivery(Vehicle vehicle, Owner destination) {
+  public Bringing(Vehicle vehicle, Owner destination) {
     this(new Item[0], vehicle, destination);
     this.driven = vehicle;
     this.stage = STAGE_RETURN;
   }
   
   
-  public Delivery(Session s) throws Exception {
+  public Bringing(Session s) throws Exception {
     super(s);
     
     items = new Item[s.loadInt()];
@@ -132,7 +132,7 @@ public class Delivery extends Plan {
   
   public boolean matchesPlan(Behaviour plan) {
     if (! super.matchesPlan(plan)) return false;
-    final Delivery d = (Delivery) plan;
+    final Bringing d = (Bringing) plan;
     if (d.origin != origin || d.destination != destination) return false;
     boolean overlap = false;
     for (Item i : items) for (Item dI : d.items) {
@@ -154,7 +154,7 @@ public class Delivery extends Plan {
   }
   
   
-  public Delivery setWithPayment(
+  public Bringing setWithPayment(
     Owner pays, boolean priceLimit
   ) {
     if (pays instanceof Actor) attemptToBind((Actor) pays);
@@ -564,7 +564,7 @@ public class Delivery extends Plan {
       return;
     }
     
-    d.append("Delivering ");
+    d.append("Bringing ");
     for (Item i : items) {
       i.describeFor(actor, d);
       if (i != Visit.last(items)) d.append(", ");

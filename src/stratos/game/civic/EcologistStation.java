@@ -219,7 +219,7 @@ public class EcologistStation extends Venue {
   protected void addCultivatorJobs(
     Actor actor, boolean onShift, Choice choice
   ) {
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+    final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 1, 5, 5
     );
     choice.add(d);

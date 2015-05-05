@@ -2,15 +2,20 @@
 
 
 
+Supply Depot:  Basic foodstuffs.  Building materials.  Recycling.  Distance travel.  use for fine control.
 
-*  I need the ability to disable shipping entirely until the player is ready.  (GameSettings?  For tips as well?)
-*  Minimum of one 'smuggler' ship per settlement.
-*  More frequent shipping if you have an airfield.  (N + 1, for each airfield.)
-*  Offworld journeys and behaviours.
+Stock Exchange:  Use for nice locations.
+  Rations             + carbs/greens/protein.
+  Stim Kits           + medicine/soma/catalyst.
+  Item repairs & Ammo + parts/plastics/circuitry.
+  Spyce emporium (for noble housing)
+  Advertising
+  Credits Exchange
 
 
 
 
+*  You need notifications for power/water/atmo and a lack of road connections.
 
 *  Enemies that come gitcha.  But are significantly weaker than an average agent.  Like vermin.
 

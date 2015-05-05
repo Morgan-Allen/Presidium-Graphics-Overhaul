@@ -247,7 +247,7 @@ public class Arrest extends Plan {
       else if (downed) {
         if (report) I.say("  Returning unconscious captive.");
         stage = STAGE_ESCORT;
-        return new StretcherDelivery(actor, other, actor.mind.work());
+        return new BringStretcher(actor, other, actor.mind.work());
       }
       else {
         if (report) I.say("  Escorting back to holding.");

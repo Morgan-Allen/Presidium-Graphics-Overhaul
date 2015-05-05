@@ -223,7 +223,7 @@ public class Gifting extends Plan implements Qualities {
     
     if (gift != null && getting == null && ! receives.gear.hasItem(gift)) {
       final Stage world = buys.world();
-      final Batch <Venue> origins = DeliveryUtils.nearbyVendors(
+      final Batch <Venue> origins = BringUtils.nearbyVendors(
         gift.type, buys, world
       );
       
@@ -231,7 +231,7 @@ public class Gifting extends Plan implements Qualities {
         I.say("\n  Potential vendors for "+gift+" are:");
         for (Object o : origins) I.say("    "+o);
       }
-      getting = DeliveryUtils.bestBulkCollectionFor(
+      getting = BringUtils.bestBulkCollectionFor(
         buys, new Traded[] {gift.type}, 1, 1, 5
       );
     }

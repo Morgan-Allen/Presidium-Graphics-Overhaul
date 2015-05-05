@@ -128,7 +128,7 @@ public class FirstAid extends Treatment {
       sickbay = findRefuge(actor);
     }
     if (sickbay != null && ! patient.indoors()) {
-      final StretcherDelivery d = new StretcherDelivery(
+      final BringStretcher d = new BringStretcher(
         actor, patient, sickbay
       );
       if (d.nextStepFor(actor) != null) {

@@ -177,11 +177,11 @@ public class CultureLab extends Venue {
       if (match.amount < 1) continue;
       final Actor a = (Actor) match.refers;
       if (a.aboard() instanceof Venue) {
-        final Delivery d = new Delivery(match, this, (Venue) a.aboard());
+        final Bringing d = new Bringing(match, this, (Venue) a.aboard());
         choice.add(d.addMotives(Plan.MOTIVE_EMERGENCY, Plan.URGENT));
       }
     }
-    choice.add(DeliveryUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5));
+    choice.add(BringUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5));
     //
     //  Foodstuffs-
     final Manufacture mS = stocks.nextManufacture(actor, WASTE_TO_CARBS);

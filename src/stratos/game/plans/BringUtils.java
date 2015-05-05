@@ -8,7 +8,7 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class DeliveryUtils {
+public class BringUtils {
   
   
   //  NOTE:  See the rateTrading method below for how these are used...
@@ -48,7 +48,7 @@ public class DeliveryUtils {
   
   /**  Utility methods for dealing with domestic orders-
     */
-  public static Delivery nextDisposalFor(Actor actor) {
+  public static Bringing nextDisposalFor(Actor actor) {
     final boolean report = dispVerbose && I.talkAbout == actor;
     //
     //  We allow the actor to dispose of any 'excess' items in their own
@@ -69,7 +69,7 @@ public class DeliveryUtils {
       //
       //  We include anything 'unnecesary' from the inventory in question- any
       //  kind of bulk commodity which isn't in demand- as up for disposal.
-      final Pick <Delivery> pick = new Pick <Delivery> ();
+      final Pick <Bringing> pick = new Pick <Bringing> ();
       final Batch <Item> excess = new Batch <Item> ();
       for (Item i : origin.inventory().allItems()) {
         if (i.type.form != Economy.FORM_MATERIAL) continue;
@@ -91,7 +91,7 @@ public class DeliveryUtils {
         if (sells && ! Visit.arrayIncludes(depot.services(), t)) continue;
         
         final Item moved = Item.withAmount(t, Nums.min(5, i.amount));
-        final Delivery d = new Delivery(moved, origin, depot);
+        final Bringing d = new Bringing(moved, origin, depot);
         d.setWithPayment(sells ? depot : null, false);
         
         if (report) {
@@ -102,7 +102,7 @@ public class DeliveryUtils {
       }
       //
       //  Return whatever option seems most profitable (if any)-
-      final Delivery disposal = pick.result();
+      final Bringing disposal = pick.result();
       if (report) I.say("Final choice: "+disposal);
       if (disposal != null) return disposal;
     }
@@ -114,7 +114,7 @@ public class DeliveryUtils {
     *  numSamples argument is only used if destinations is null.)  Helper
     *  methods with shorter contracts follow below.
     */
-  public static Delivery bestBulkDeliveryFrom(
+  public static Bringing bestBulkDeliveryFrom(
     Owner orig, Traded goods[], int unit, int amountLimit,
     Batch <? extends Owner> dests, int numSamples
   ) {
@@ -148,7 +148,7 @@ public class DeliveryUtils {
   }
   
   
-  public static Delivery bestBulkDeliveryFrom(
+  public static Bringing bestBulkDeliveryFrom(
     Owner origin, Traded goods[], int baseUnit, int amountLimit,
     Batch <? extends Owner> destinations
   ) {
@@ -158,7 +158,7 @@ public class DeliveryUtils {
   }
   
   
-  public static Delivery bestBulkDeliveryFrom(
+  public static Bringing bestBulkDeliveryFrom(
     Owner origin, Traded goods[], int baseUnit, int amountLimit,
     int numSamples
   ) {
@@ -173,7 +173,7 @@ public class DeliveryUtils {
     *  numSamples argument is only used if origins is null.)  Helper methods
     *  with shorter contracts follow below.
     */
-  public static Delivery bestBulkCollectionFor(
+  public static Bringing bestBulkCollectionFor(
     Owner dest, Traded goods[], int unit, int amountLimit,
     Batch <? extends Owner> origs, int numSamples
   ) {
@@ -207,7 +207,7 @@ public class DeliveryUtils {
   }
   
   
-  public static Delivery bestBulkCollectionFor(
+  public static Bringing bestBulkCollectionFor(
     Owner destination, Traded goods[], int baseUnit, int amountLimit,
     Batch <? extends Owner> origins
   ) {
@@ -217,7 +217,7 @@ public class DeliveryUtils {
   }
   
   
-  public static Delivery bestBulkCollectionFor(
+  public static Bringing bestBulkCollectionFor(
     Owner destination, Traded goods[], int baseUnit, int amountLimit,
     int numSamples
   ) {
@@ -231,7 +231,7 @@ public class DeliveryUtils {
   /**  Fills a bulk order of specified good types between the given origin and
     *  destination points.
     */
-  public static Delivery fillBulkOrder(
+  public static Bringing fillBulkOrder(
     Owner origin, Owner destination, Traded goods[],
     int baseUnit, int amountLimit
   ) {
@@ -280,7 +280,7 @@ public class DeliveryUtils {
     if (report) {
       I.say("\nFinal order batch is: "+toTake);
     }
-    final Delivery order = new Delivery(toTake, origin, destination);
+    final Bringing order = new Bringing(toTake, origin, destination);
     return order.setWithPayment(destination, false);
   }
   
@@ -508,12 +508,12 @@ public class DeliveryUtils {
   static float futureBalance(
     Owner e, Traded good, boolean report
   ) {
-    final Series <Delivery> reserved = e.inventory().reservations();
+    final Series <Bringing> reserved = e.inventory().reservations();
     if (reserved == null || reserved.size() == 0) return 0;
     if (report) I.say("  "+reserved.size()+" reservations at "+e);
     
     float balance = 0;
-    for (Delivery d : reserved) {
+    for (Bringing d : reserved) {
       if (! d.isActive()) continue;
       final Item itemMatch = d.delivered(good);
       if (itemMatch == null) continue;
@@ -524,11 +524,11 @@ public class DeliveryUtils {
         I.say("    Stage is:    "+d.stage());
       }
       
-      if (d.origin == e && d.stage() <= Delivery.STAGE_PICKUP) {
+      if (d.origin == e && d.stage() <= Bringing.STAGE_PICKUP) {
         balance += itemMatch.amount;
       }
       
-      if (d.destination == e && d.stage() < Delivery.STAGE_RETURN) {
+      if (d.destination == e && d.stage() < Bringing.STAGE_RETURN) {
         balance += itemMatch.amount;
       }
     }

@@ -26,7 +26,8 @@ public class SkinsPreview extends VisualDebug {
   final static String
     ARTILECTS_PATH = "media/Actors/artilects/ArtilectModels.xml",
     VERMIN_PATH    = "media/Actors/vermin/VerminModels.xml"     ,
-    FAUNA_PATH     = "media/Actors/fauna/FaunaModels.xml"       ;
+    FAUNA_PATH     = "media/Actors/fauna/FaunaModels.xml"       ,
+    HUMANS_PATH    = "media/Actors/human/HumanModels.xml"       ;
   
   
   final static Colour BACK_COLOUR = Colour.DARK_BLUE;
@@ -43,7 +44,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = ARTILECTS_PATH;
+  private String currentPath = HUMANS_PATH;
   
   private XML currentXML;
   private SolidModel currentModel;

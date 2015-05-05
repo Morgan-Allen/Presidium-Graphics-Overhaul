@@ -32,7 +32,7 @@ public class StockExchange extends Venue {
   /**  Data fields, constructors and save/load functionality-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 3.7f, 1
+    StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 4, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
@@ -42,7 +42,7 @@ public class StockExchange extends Venue {
     StockExchange.class, "stock_exchange",
     "Stock Exchange", UIConstants.TYPE_COMMERCE,
     4, 1, IS_NORMAL,
-    SupplyDepot.BLUEPRINT, Owner.TIER_FACILITY
+    NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -199,10 +199,10 @@ public class StockExchange extends Venue {
     //  the venue has to be manned in order for citizens to come shopping.  So
     //  stick with jobs that happen within the venue.
     if (PlanUtils.competition(Supervision.class, this, actor) > 0) {
-      choice.add(DeliveryUtils.bestBulkDeliveryFrom(
+      choice.add(BringUtils.bestBulkDeliveryFrom(
         this, services(), 2, 10, 5
       ));
-      choice.add(DeliveryUtils.bestBulkCollectionFor(
+      choice.add(BringUtils.bestBulkCollectionFor(
         this, services(), 2, 10, 5
       ));
     }
@@ -215,7 +215,7 @@ public class StockExchange extends Venue {
   protected void addServices(Choice choice, Actor actor) {
     final Property home = actor.mind.home();
     if (home instanceof Venue) {
-      final Delivery d = DeliveryUtils.fillBulkOrder(
+      final Bringing d = BringUtils.fillBulkOrder(
         this, home, ((Venue) home).stocks.demanded(), 1, 5
       );
       if (d != null) {
@@ -238,7 +238,7 @@ public class StockExchange extends Venue {
     for (Traded type : ALL_MATERIALS) {
       final int room = spaceFor(type);
       final float realDemand = base.demands.demandAround(this, type, range);
-      stocks.incDemand(type, Nums.min(realDemand, room), 1, false);
+      stocks.incDemand(type, Nums.min(realDemand + (room / 2), room), 1, false);
     }
     
     //
@@ -309,9 +309,8 @@ public class StockExchange extends Venue {
         "someone is there to man the stalls!";
     }
     else return
-      "The Stock Exchange facilitates small-scale purchases within "+
-      "residential neighbourhoods, and bulk transactions between local "+
-      "merchants.";
+      "The Stock Exchange generates additional revenue from the sale of "+
+      "goods to local homeowners and businesses.";
   }
 }
 

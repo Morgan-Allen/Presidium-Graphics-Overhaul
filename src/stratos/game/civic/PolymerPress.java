@@ -145,7 +145,7 @@ public class PolymerPress extends Venue implements TileConstants {
     if (staff.shiftFor(actor) == OFF_DUTY) return null;
     final Choice choice = new Choice(actor);
     
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+    final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 1, 5, 5
     );
     choice.add(d);

@@ -163,11 +163,11 @@ public class Airfield extends Venue {
       docking.flightStage() == Dropship.STAGE_LANDED;
     if (shouldHaul) {
       final Traded goods[] = docking.services();
-      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      final Bringing d = BringUtils.bestBulkDeliveryFrom(
         docking, goods, 1, 5, 5
       );
       choice.add(d);
-      final Delivery c = DeliveryUtils.bestBulkCollectionFor(
+      final Bringing c = BringUtils.bestBulkCollectionFor(
         docking, goods, 1, 5, 5
       );
       choice.add(c);

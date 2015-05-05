@@ -8,7 +8,7 @@ import stratos.game.common.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.sfx.*;
-import stratos.game.plans.Delivery;
+import stratos.game.plans.Bringing;
 import static stratos.game.economic.Economy.*;
 
 
@@ -349,8 +349,8 @@ public class Inventory {
   public boolean canDemand (Traded type) { return false; }
   
   
-  public void setReservation(Delivery d, boolean is) {}
-  public Series <Delivery> reservations() { return null; };
+  public void setReservation(Bringing d, boolean is) {}
+  public Series <Bringing> reservations() { return null; };
   
   
   /**  Returns whether this inventory has enough of the given item to satisfy

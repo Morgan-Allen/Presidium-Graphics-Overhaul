@@ -131,7 +131,7 @@ public class FormerPlant extends Venue {
     final Choice choice = new Choice(actor);
     //
     //  Consider upkeep, deliveries and supervision-
-    final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+    final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
     if (d != null) choice.add(d);

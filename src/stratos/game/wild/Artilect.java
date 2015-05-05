@@ -172,13 +172,13 @@ public abstract class Artilect extends Actor {
         if (t instanceof Human) {
           final Human other = (Human) t;
           if (other.health.conscious()) continue;
-          final Plan recovery = new StretcherDelivery(this, other, home);
+          final Plan recovery = new BringStretcher(this, other, home);
           choice.add(recovery.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL));
         }
         if (t instanceof Artilect) {
           final Artilect other = (Artilect) t;
           if (other.health.conscious()) continue;
-          final Plan recovery = new StretcherDelivery(this, other, home);
+          final Plan recovery = new BringStretcher(this, other, home);
           choice.add(recovery.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL));
         }
       }

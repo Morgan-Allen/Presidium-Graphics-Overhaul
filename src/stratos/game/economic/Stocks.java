@@ -36,7 +36,7 @@ public class Stocks extends Inventory {
   final Property basis;
   final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
   final List <Item> specialOrders = new List <Item> ();
-  final List <Delivery> reservations = new List <Delivery> ();
+  final List <Bringing> reservations = new List <Bringing> ();
   
   
   public Stocks(Property v) {
@@ -200,13 +200,13 @@ public class Stocks extends Inventory {
   }
   
 
-  public void setReservation(Delivery d, boolean is) {
+  public void setReservation(Bringing d, boolean is) {
     if (is) reservations.include(d);
     else    reservations.remove (d);
   }
   
   
-  public Series <Delivery> reservations() {
+  public Series <Bringing> reservations() {
     return reservations;
   }
   
@@ -344,13 +344,13 @@ public class Stocks extends Inventory {
       deleteSpecialOrder(i);
     }
     
-    for (Delivery d : reservations) {
+    for (Bringing d : reservations) {
       if (! d.isActive()) setReservation(d, false);
     }
     
     for (Demand d : demands.values()) {
       final Traded type = d.type;
-      final boolean available = DeliveryUtils.canTradeBetween(
+      final boolean available = BringUtils.canTradeBetween(
         owner.owningTier() , d.producer,
         Owner.TIER_FACILITY, false     , false
       );

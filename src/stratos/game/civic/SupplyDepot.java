@@ -137,16 +137,16 @@ public class SupplyDepot extends Venue {
     if (onShift || offShift) {
       for (CargoBarge b : barges) {
         if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
-        else if (b.abandoned()) choice.add(new Delivery(b, this));
+        else if (b.abandoned()) choice.add(new Bringing(b, this));
       }
       choice.add(Repairs.getNextRepairFor(actor, true));
       
-      final Delivery d = DeliveryUtils.bestBulkDeliveryFrom(
+      final Bringing d = BringUtils.bestBulkDeliveryFrom(
         this, services(), 2, 10, 5
       );
       if (d != null && staff.assignedTo(d) < 1) choice.add(d);
       
-      final Delivery c = DeliveryUtils.bestBulkCollectionFor(
+      final Bringing c = BringUtils.bestBulkCollectionFor(
         this, services(), 2, 10, 5
       );
       if (c != null && staff.assignedTo(c) < 1) choice.add(c);
@@ -161,10 +161,10 @@ public class SupplyDepot extends Venue {
     final Traded services[] = ALL_MATERIALS;
     final CargoBarge cargoBarge = barges.first();
     if (bargeReady(cargoBarge)) {
-      final Batch <Venue> depots = DeliveryUtils.nearbyDepots(
+      final Batch <Venue> depots = BringUtils.nearbyDepots(
         this, world, SERVICE_COMMERCE
       );
-      final Delivery bD = DeliveryUtils.bestBulkDeliveryFrom(
+      final Bringing bD = BringUtils.bestBulkDeliveryFrom(
         this, services, 5, 50, depots
       );
       if (bD != null && staff.assignedTo(bD) < 1) {
@@ -172,7 +172,7 @@ public class SupplyDepot extends Venue {
         bD.driven = cargoBarge;
         choice.add(bD);
       }
-      final Delivery bC = DeliveryUtils.bestBulkCollectionFor(
+      final Bringing bC = BringUtils.bestBulkCollectionFor(
         this, services, 5, 50, depots
       );
       if (bC != null && staff.assignedTo(bC) < 1) {
@@ -189,7 +189,7 @@ public class SupplyDepot extends Venue {
   protected void addServices(Choice choice, Actor actor) {
     final Property home = actor.mind.home();
     if (home instanceof Venue) {
-      final Delivery d = DeliveryUtils.fillBulkOrder(
+      final Bringing d = BringUtils.fillBulkOrder(
         this, home, ((Venue) home).stocks.demanded(), 1, 5
       );
       if (d != null) choice.add(d.setWithPayment(actor, true));
@@ -249,9 +249,11 @@ public class SupplyDepot extends Venue {
   
   public String helpInfo() {
     return
-      "The Supply Depot provides basic construction materials and rations "+
-      "storage suitable to the needs of frontier colonists or heavy industry.";
+      "The Supply Depot reserves goods for export to distant settlements, "+
+      "and allows for long-range imports.";
   }
 }
+
+
 
 
