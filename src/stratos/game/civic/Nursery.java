@@ -90,7 +90,6 @@ public class Nursery extends Venue implements TileConstants {
   public Nursery(Session s) throws Exception {
     super(s);
     areaClaimed.loadFrom(s.input());
-    type         = s.loadInt();
     toPlant      = (Tile[]) s.loadObjectArray(Tile.class);
     needsTending = s.loadFloat();
   }
@@ -99,7 +98,6 @@ public class Nursery extends Venue implements TileConstants {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     areaClaimed.saveTo(s.output());
-    s.saveInt        (type        );
     s.saveObjectArray(toPlant     );
     s.saveFloat      (needsTending);
   }

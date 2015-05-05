@@ -19,6 +19,8 @@ import static stratos.game.economic.Economy.*;
 
 
 //*
+//  TODO:  Adapt this to sand-panning instead?
+
 public class DustCrawler extends Vehicle {
   
   /**  Fields, constants, constructors and save/load methods-
@@ -71,6 +73,7 @@ public class DustCrawler extends Vehicle {
     //  TODO:  Restore once building/salvage of vehicles is complete-
     ///if (! structure.intact()) return;
     
+    /*
     base().intelMap.liftFogAround(this, 3.0f);
     
     final FormerPlant plant = (FormerPlant) hangar();
@@ -93,6 +96,7 @@ public class DustCrawler extends Vehicle {
       }
       toggleSoilDisplay();
     }
+    //*/
   }
   
   
@@ -102,13 +106,14 @@ public class DustCrawler extends Vehicle {
   
   
   protected void pathingAbort() {
-    ///I.say("PATHING ABORTED!");
     super.pathingAbort();
+    /*
     if (! pathing.checkPathingOkay()) {
       final FormerPlant plant = (FormerPlant) hangar();
       if (cargo.amountOf(SAMPLES) > 0) pathing.updateTarget(plant);
       else pathing.updateTarget(plant.pickSample());
     }
+    //*/
   }
   
   

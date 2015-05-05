@@ -244,9 +244,12 @@ public interface Backgrounds {
     
     FORMER_ENGINEER = new Background(
       Backgrounds.class,
-      "Former Engineer", "", "ecologist_skin.gif", "ecologist_portrait.png",
+      "Former Engineer",
+      "Former Engineers perform forestry and carbons-cycling to accelerate "+
+      "terraforming efforts and extract raw materials sustainably.",
+      "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_AGENT, GUILD_ECOLOGIST,
-      PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR,
+      PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR, CULTIVATION,
       LEARNING, GENE_CULTURE, SURVEILLANCE,
       RARELY, OUTGOING, OFTEN, POSITIVE,
       OVERALLS

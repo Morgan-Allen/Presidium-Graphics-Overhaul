@@ -27,7 +27,7 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 *  Icons could be clearer, at least in the early game.
 
-*  Introduce perimeter fence artwork.
+*  Finalise perimeter fence artwork.
 
 
 
