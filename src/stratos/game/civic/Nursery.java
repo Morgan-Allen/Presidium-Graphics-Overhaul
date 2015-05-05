@@ -190,7 +190,7 @@ public class Nursery extends Venue implements TileConstants {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    structure.setAmbienceVal(2);
+    structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
     if (toPlant.length == 0) scanForCropTiles();
     if (numUpdates % 10 == 0) checkCropStates();
   }

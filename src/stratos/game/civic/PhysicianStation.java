@@ -227,11 +227,11 @@ public class PhysicianStation extends Venue {
     if (! structure.intact()) return;
     
     final int numU = (1 + structure.numUpgrades()) / 2;
-    int medNeed = 2 + numU, powerNeed = 2 + numU;
+    int powerNeed = 2 + numU;
     //
     //  Sickbays consumes medicine and power based on current upgrade level,
     //  and have a mild positive effect on ambience-
-    stocks.incDemand(MEDICINE, medNeed, 1, true );
+    stocks.incDemand(MEDICINE, 5, 1, true);
     stocks.translateDemands(REAGENTS_TO_MEDICINE, 1);
     stocks.forceDemand(POWER, powerNeed, false);
     structure.setAmbienceVal(4 + numU);

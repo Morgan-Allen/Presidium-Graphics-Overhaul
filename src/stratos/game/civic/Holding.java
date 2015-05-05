@@ -58,7 +58,7 @@ public class Holding extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Holding.class, "holding",
-    "Seal Tent", UIConstants.TYPE_HIDDEN,
+    "Seal Tent", UIConstants.TYPE_PHYSICIAN,
     2, 2, IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
     PROVIDE_HOUSING

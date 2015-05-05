@@ -150,7 +150,7 @@ public class EngineerStation extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    stocks.incDemand(PARTS, 1, 1, true);
+    stocks.incDemand(PARTS, 5, 1, true);
     stocks.translateDemands(METALS_TO_PARTS, 1);
     
     float pollution = 5, powerNeed = 5;

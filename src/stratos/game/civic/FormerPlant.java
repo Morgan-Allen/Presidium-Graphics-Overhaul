@@ -127,8 +127,8 @@ public class FormerPlant extends Venue implements TileConstants {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    structure.setAmbienceVal(2);
-    stocks.incDemand(POLYMER, 1, 1, true);
+    structure.setAmbienceVal(Ambience.MILD_SQUALOR);
+    stocks.incDemand(POLYMER, 5, 1, true);
   }
   
   

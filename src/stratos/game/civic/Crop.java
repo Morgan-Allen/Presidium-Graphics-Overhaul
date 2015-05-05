@@ -343,6 +343,8 @@ public class Crop extends Element {
     GS.attach(model, -0.25f,  0.25f, 0);
     GS.attach(model,  0.25f,  0.25f, 0);
     attachSprite(GS);
+    
+    if (old != null) world.ephemera.addGhost(this, 1, old, 2.0f);
   }
   
   
