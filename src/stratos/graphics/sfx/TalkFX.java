@@ -120,6 +120,7 @@ public class TalkFX extends SFX {
   
   public void addPhrase(String phrase, int bubbleType) {
     final Bubble b = new Bubble();
+    if (phrase == null) I.complain("\nCANNOT ADD NULL STRING AS PHRASE!");
     b.phrase  = phrase;
     b.type    = bubbleType;
     b.addTime = Rendering.activeTime();

@@ -290,10 +290,11 @@ public class ActorSenses implements Qualities {
     powerLevel = CombatUtils.powerLevel(actor);
     bravery    = (2 + actor.traits.relativeLevel(FEARLESS)) / 2;
     
-    for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
+    for (Target t : awareOf) if (t instanceof Actor) {
       final Actor near = (Actor) t;
-      float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
+      if (near == actor || ! near.health.alive()) continue;
       
+      float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
       if (attackRisk > 0) {
         attackRisk = Nums.clamp((attackRisk + 5) / 10, 0, 2);
         final float power = CombatUtils.powerLevelRelative(near, actor);

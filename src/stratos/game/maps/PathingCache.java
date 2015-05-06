@@ -138,8 +138,7 @@ public class PathingCache {
     Mobile client, boolean reports
   ) {
     Boarding path[] = null;
-    //*
-    if (Spacing.distance(initB, destB) <= Stage.ZONE_SIZE * 2) {
+    if (Spacing.distance(initB, destB) <= Stage.ZONE_SIZE) {
       if (reports) I.say(
         "\nUsing simple agenda-bounded pathing between "+initB+" "+destB
       );
@@ -151,15 +150,13 @@ public class PathingCache {
       if (path != null) return path;
     }
     final Place placesPath[] = placesBetween(initB, destB, client, reports);
-
+    
     if (placesPath != null && placesPath.length >= 3) {
       if (reports) I.say(
         "\nUsing partial cordoned path-search between "+initB+" "+destB
       );
-      final PathSearch search = cordonedSearch(
-        initB, destB,
-        placesPath[0].caching.section,
-        placesPath[2].caching.section
+      final PathSearch search = fullPathSearch(
+        initB, placesPath[2].core, placesPath, maxLength
       );
       search.assignClient(client);
       search.verbose = reports;

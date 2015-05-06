@@ -33,6 +33,8 @@ public class Label extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
+    if (phrase == null) return;
+    
     final Vec3D flatPoint = new Vec3D(position);
     pass.rendering.view.translateToScreen(flatPoint);
     final float width = phraseWidth(phrase, FONT, fontScale);

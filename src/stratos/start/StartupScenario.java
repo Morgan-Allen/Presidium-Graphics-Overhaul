@@ -210,6 +210,10 @@ public class StartupScenario extends Scenario {
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
+    
+    //  NOTE:  Temporary measure until I sort out auto-paving.  Again.
+    GameSettings.paveFree = true;
+    
     //
     //  Determine relevant attributes for the ruler-
     final Human ruler = ruler(base);

@@ -285,7 +285,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   public int motionType(Actor actor) {
-    if (actor.senses.isEmergency()) return Action.MOTION_FAST;
+    if (priorityFor(actor) > ROUTINE) return Action.MOTION_FAST;
     return super.motionType(actor);
   }
   
