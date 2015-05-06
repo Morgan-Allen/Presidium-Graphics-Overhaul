@@ -235,7 +235,7 @@ public class Audit extends Plan {
     
     float credits = Nums.abs(totalSum);
     if (audited != null) credits += Nums.abs(audited.inventory().unTaxed());
-    float modifier = Nums.clamp(credits / 100, -ROUTINE, ROUTINE);
+    float modifier = Nums.clamp(credits / RATE_DIVISOR, -CASUAL, PARAMOUNT);
     
     if (type == Type.TYPE_EXTORTION) {
       if (credits <= 0) return 0;
@@ -274,7 +274,10 @@ public class Audit extends Plan {
     }
     
     if (stage == STAGE_AUDIT) {
-      if (report) I.say("  Will perform audit.");
+      if (report) {
+        I.say("  Will perform audit.");
+        I.say("  Current credits: "+audited.inventory().allCredits());
+      }
       final Action audit = new Action(
         actor, audited,
         this, "actionAudit",

@@ -167,13 +167,13 @@ public class BaseTransport {
     final Tile o = v.origin();
     final Route after = new Route(o, o), prior = allRoutes.get(after);
     if (isMember && around != null) {
-      //
-      //  Take every tile and, if requested, filter out anything un-paveable:
+      //  TODO:  FILTER TILES TO ENSURE PAVEABILITY
+      
       after.path = around.toArray(Tile.class);
       after.cost = -1;
       updateRoute(prior, after);
     }
-    else if (prior != null) deleteRoute(prior);
+    else if (prior != null) disownRoute(prior);
   }
   
   
@@ -182,7 +182,6 @@ public class BaseTransport {
     //  Basic sanity checks and setup-
     if (t == null) return;
     final boolean report = paveVerbose && I.talkAbout == v;
-    final Batch <Tile> routedTo = new Batch <Tile> ();
     final List <Route> fromTile = tileRoutes.get(t);
     //
     //  In essence, we visit every nearby venue and try to path toward either
@@ -190,7 +189,7 @@ public class BaseTransport {
     if (isMember) {
       final Box2D area = new Box2D(v.footprint()).expandBy(PATH_RANGE);
       if (report) I.say("\nUpdating junction for "+v+" ("+t+")");
-
+      
       for (Object o : t.world.presences.matchesNear(Venue.class, v, area)) {
         final Venue n = (Venue) o;
         if (n == v || n.base() != v.base()) continue;
@@ -205,17 +204,18 @@ public class BaseTransport {
           after = getAxisPath(key, v, n);
         
         if (updateRoute(prior, after)) {
-          routedTo.add(aims);
           if (report) reportPath("\n  Success!", after);
         }
       }
     }
     //
-    //  Any routes that have not been actively updated are assumed to be
-    //  redundant and will be discarded.
+    //  Any routes that have not been actively routed to are assumed to be
+    //  redundant.
     if (fromTile != null) for (Route r : fromTile) {
-      final Tile opposite = r.opposite(t);
-      if (! routedTo.includes(opposite)) deleteRoute(r);
+      if (! checkRouteValid(r)) {
+        disownRoute(r);
+        if (report) reportPath("\n  Discarding old route", r);
+      }
     }
   }
   
@@ -264,35 +264,44 @@ public class BaseTransport {
     //  Any intermediate tiles that are occupied by something *other* than the
     //  origin and destination venue flag the route as invalid.  Otherwise
     //  return okay.
+    final Batch <Tile> filtered = new Batch <Tile> ();
     while (index-- > 0) {
       final Tile under = path[index];
-      if (under.canPave()) continue;
+      if (under.canPave()) filtered.add(under);
       else if (under.onTop() != vA && under.onTop() != vB) return null;
-      else path[index] = null;
     }
-    route.path = path;
+    route.path = filtered.toArray(Tile.class);
     return route;
   }
   
   
   private boolean updateRoute(Route prior, Route after) {
-    if (after == null) { if (prior != null) deleteRoute(prior); return false; }
+    if (after == null) return false;
     if (after.routeEquals(prior) && map.refreshPaving(after.path)) return true;
-    if (prior != null) deleteRoute(prior);
-    
-    final Batch <Tile> filtered = new Batch <Tile> ();
-    for (Tile t : after.path) if (t != null && t.canPave()) filtered.add(t);
-    after.path = filtered.toArray(Tile.class);
+    if (prior != null) disownRoute(prior);
     
     map.flagForPaving(after.path, true);
     allRoutes.put(after, after);
     toggleRoute(after, after.start, true);
     toggleRoute(after, after.end  , true);
+    after.refCount++;
     return true;
   }
   
   
-  private void deleteRoute(Route route) {
+  private boolean checkRouteValid(Route r) {
+    return checkEndpoint(r.start) && checkEndpoint(r.end);
+  }
+  
+  
+  private boolean checkEndpoint(Tile t) {
+    return t.isEntrance() || t.onTop() instanceof Venue;
+  }
+  
+  
+  private void disownRoute(Route route) {
+    route.refCount--;
+    if (route.refCount > 0) return;
     map.flagForPaving(route.path, false);
     allRoutes.remove(route);
     toggleRoute(route, route.start, false);

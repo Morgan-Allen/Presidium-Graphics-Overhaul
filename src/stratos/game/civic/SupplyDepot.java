@@ -217,21 +217,19 @@ public class SupplyDepot extends Venue {
   
   /**  Rendering and interface methods-
     */
-  protected float[] goodDisplayOffsets() {
-    return new float[] { 0.0f, 3.0f };
-  }
-  
-  
   protected Traded[] goodsToShow() {
-    //  TODO:  Have different colours of crate for each category.
-    return new Traded[] { SAMPLES };
+    return ALL_TRADE_TYPES;
   }
   
   
-  protected float goodDisplayAmount(Traded good) {
-    float amount = 0;
-    for (Item i : stocks.allItems()) amount += i.amount;
-    return amount;
+  final static float OFFSETS[] = {
+    0, 2,  0, 3,  1, 2,  1, 3,
+    0, 2.5f,  0, 3.5f,  1, 2.5f,  1, 3.5f,
+  };
+  
+  
+  protected float[] goodDisplayOffsets() {
+    return OFFSETS;
   }
   
 

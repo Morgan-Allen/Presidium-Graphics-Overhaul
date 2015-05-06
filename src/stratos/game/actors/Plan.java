@@ -364,30 +364,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public static void reportPlanDetails(Behaviour b, Actor a) {
-    if (b == null) { I.say("  IS NULL"); return; }
-    
-    I.say("    Plan class:    "+b.getClass().getSimpleName());
-    I.say("    Priority:      "+b.priorityFor(a));
-    I.say("    Valid:         "+b.valid());
-    I.say("    Finished:      "+b.finished());
-    I.say("    Next step:     "+b.nextStepFor(a));
-    I.say("    Persists?      "+b.persistent());
-    I.say("    Target is:     "+b.subject());
-    I.say("    Target exists? "+b.subject().inWorld());
-    I.say("    Target intact? "+(! b.subject().destroyed()));
-    
-    if (b instanceof Plan) {
-      final Plan p = (Plan) b;
-      I.say("    Plan properties: "+p.motiveProperties);
-      for (int i = 0; i < MOTIVE_NAMES.length; i++) {
-        final int prop = 1 << i;
-        if (p.hasMotives(prop)) I.say("    "+MOTIVE_NAMES[i]+" ("+prop+")");
-      }
-    }
-  }
-  
-  
   
   /**  Assorted utility evaluation methods-
     */
@@ -737,7 +713,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   
-  /**  Rendering and interface methods-
+  /**  Rendering, interface and debug methods-
     */
   public String toString() {
     final StringDescription desc = new StringDescription();
@@ -779,7 +755,38 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   public static String priorityDescription(float priority) {
     final int maxIndex = PRIORITY_DESCRIPTIONS.length;
     final float index = (priority / PARAMOUNT) * (maxIndex - 1);
-    return PRIORITY_DESCRIPTIONS[Nums.clamp((int) index, maxIndex)];
+    
+    String desc = "";
+    if (priority > 0) {
+      desc+=I.shorten(priority, 1);
+      desc+=": "+PRIORITY_DESCRIPTIONS[Nums.clamp((int) index, maxIndex)];
+    }
+    else desc+="No Priority";
+    return desc;
+  }
+  
+  
+  public static void reportPlanDetails(Behaviour b, Actor a) {
+    if (b == null) { I.say("  IS NULL"); return; }
+    
+    I.say("    Plan class:    "+b.getClass().getSimpleName());
+    I.say("    Priority:      "+b.priorityFor(a));
+    I.say("    Valid:         "+b.valid());
+    I.say("    Finished:      "+b.finished());
+    I.say("    Next step:     "+b.nextStepFor(a));
+    I.say("    Persists?      "+b.persistent());
+    I.say("    Target is:     "+b.subject());
+    I.say("    Target exists? "+b.subject().inWorld());
+    I.say("    Target intact? "+(! b.subject().destroyed()));
+    
+    if (b instanceof Plan) {
+      final Plan p = (Plan) b;
+      I.say("    Plan properties: "+p.motiveProperties);
+      for (int i = 0; i < MOTIVE_NAMES.length; i++) {
+        final int prop = 1 << i;
+        if (p.hasMotives(prop)) I.say("    "+MOTIVE_NAMES[i]+" ("+prop+")");
+      }
+    }
   }
 }
 

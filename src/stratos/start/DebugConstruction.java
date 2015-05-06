@@ -73,7 +73,6 @@ public class DebugConstruction extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.hireFree  = true;
     GameSettings.cashFree  = true;
-    
     if (true ) buildingScenario(world, base, UI);
   }
   

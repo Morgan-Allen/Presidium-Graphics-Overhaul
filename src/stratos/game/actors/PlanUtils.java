@@ -191,7 +191,8 @@ public class PlanUtils {
     Actor actor, Target surveyed,
     float rewardBonus, boolean idle, float competence
   ) {
-    float incentive = 0, novelty = 0, priority = 0, exploreChance = 0;
+    float incentive = 0, novelty = 0, priority = 0;
+    float danger = 0, exploreChance = 0, homeDist = 0;
     
     if (idle) novelty = 0.2f;
     else novelty = Nums.clamp(Nums.max(
@@ -199,14 +200,17 @@ public class PlanUtils {
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
     
+    danger   = 1f - PlanUtils.combatWinChance(actor, surveyed, 1);
+    homeDist = homeDistanceFactor(actor, surveyed);
+    
     exploreChance = actor.health.baseSpeed() * competence;
-    exploreChance *= 1 / (1 + homeDistanceFactor(actor, surveyed));
     exploreChance *= Planet.dayValue(actor.world());
     
     incentive = (novelty * 5) + rewardBonus;
     incentive *= 1 + actor.traits.relativeLevel(Qualities.CURIOUS);
     
     priority = incentive * Nums.clamp(exploreChance, 0, 1);
+    priority -= (danger * 10) + (homeDist * 2.5f);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
@@ -215,7 +219,9 @@ public class PlanUtils {
       "competence"    , competence   ,
       "incentive"     , incentive    ,
       "novelty"       , novelty      ,
+      "home distance" , homeDist     ,
       "explore chance", exploreChance,
+      "ambient danger", danger       ,
       "priority"      , priority
     );
     
@@ -420,6 +426,10 @@ public class PlanUtils {
   public static float homeDistanceFactor(Actor actor, Target around) {
     final Stage world = actor.world();
     float baseMult = 1;
+    
+    if (actor.mind.home() != null) {
+      baseMult += Spacing.distance(around, actor.mind.home) / Stage.ZONE_SIZE;
+    }
     
     final Tile at   = world.tileAt(around);
     final Base owns = world.claims.baseClaiming(at);

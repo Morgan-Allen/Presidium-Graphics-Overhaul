@@ -204,7 +204,7 @@ public class BuildingSprite extends Sprite {
   
   
   public void updateItemDisplay(
-    CutoutModel itemModel, float amount, float xoff, float yoff
+    CutoutModel itemModel, float amount, float xoff, float yoff, float zoff
   ) {
     ItemStack match = null;
     
@@ -222,7 +222,7 @@ public class BuildingSprite extends Sprite {
     }
     if (match == null) {
       match = new ItemStack(itemModel);
-      allStacks.attach(match, xoff, yoff, 0);
+      allStacks.attach(match, xoff, yoff, zoff);
     }
     match.updateAmount((int) amount);
   }

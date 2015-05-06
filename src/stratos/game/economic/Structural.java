@@ -95,14 +95,12 @@ public abstract class Structural extends Fixture implements
 
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    //world.presences.togglePresence(this, true);
     world.schedule.scheduleForUpdates(this);
     return true;
   }
   
   
   public void exitWorld() {
-    //world.presences.togglePresence(this, false);
     if (base != null) updatePaving(false);
     world.schedule.unschedule(this);
     super.exitWorld();

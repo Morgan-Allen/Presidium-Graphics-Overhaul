@@ -544,10 +544,8 @@ public abstract class Venue extends Structural implements
       final float y = offsets[index--], x = offsets[index--];
       if (y >= size || size <= -x) continue;
       buildSprite.updateItemDisplay(
-        s.model,
-        hide ? 0 : goodDisplayAmount(s),
-        initX + x,
-        initY - y
+        s.model, hide ? 0 : goodDisplayAmount(s),
+        initX + x, initY - y, 0
       );
     }
   }

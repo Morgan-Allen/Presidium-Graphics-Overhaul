@@ -18,23 +18,26 @@ public class Route {
   
   public Tile path[] = null;
   public float cost = 0;
+  public int refCount = 0;
   
   
   public static void saveRoute(Route r, Session s) throws Exception {
-    s.saveTarget(r.start);
-    s.saveTarget(r.end);
-    s.saveInt(r.hash);
-    s.saveTargetArray(r.path);
-    s.saveFloat(r.cost);
+    s.saveTarget     (r.start   );
+    s.saveTarget     (r.end     );
+    s.saveInt        (r.hash    );
+    s.saveTargetArray(r.path    );
+    s.saveFloat      (r.cost    );
+    s.saveInt        (r.refCount);
   }
 
   
   private Route(Session s) throws Exception {
-    start = (Tile) s.loadTarget();
-    end = (Tile) s.loadTarget();
-    hash = s.loadInt();
-    path = (Tile[]) s.loadTargetArray(Tile.class);
-    cost = s.loadFloat();
+    start    = (Tile) s.loadTarget();
+    end      = (Tile) s.loadTarget();
+    hash     = s.loadInt();
+    path     = (Tile[]) s.loadTargetArray(Tile.class);
+    cost     = s.loadFloat();
+    refCount = s.loadInt();
   }
   
   

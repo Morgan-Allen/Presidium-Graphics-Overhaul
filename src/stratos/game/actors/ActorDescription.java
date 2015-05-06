@@ -77,8 +77,9 @@ public class ActorDescription implements Qualities {
       else if (h.health.asleep()) {
         priority = Resting.sleepPriority(h);
       }
-      d.append("  (Priority "+I.shorten(priority, 1)+" ");
-      d.append(": "+Plan.priorityDescription(priority)+")");
+      if (priority > 0) {
+        d.append(" ("+Plan.priorityDescription(priority)+")");
+      }
     }
     //
     //  Describe your job, place of work, and current residence:
