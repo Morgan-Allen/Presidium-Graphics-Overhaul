@@ -284,13 +284,17 @@ public class FindWork extends Plan {
   private static float rateOpening(
     FindWork app, boolean sameTried, boolean report
   ) {
+    //
+    //  Basic variable setup and sanity checks first-
     final Property   at       = app.employer;
     final Background position = app.position;
     final Actor      actor    = app.actor   ;
+    
+    //  TODO:  UNIFY THESE CHECKS WITH THE canApply()/canOrDidApply() METHODS.
+    if (at.destroyed() || ! at.structure().intact()) return -1;
     final boolean isNew = ! at.staff().isWorker(actor);
     if (isNew && at.crowdRating(actor, position) >= 1) return -1;
     if (position != actor.mind.vocation() && ! actor.inWorld()) return -1;
-    
     if (report) I.say("\nRating opening for "+position);
     //
     //  

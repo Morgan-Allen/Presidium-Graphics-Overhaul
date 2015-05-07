@@ -151,14 +151,14 @@ public class BaseTransport {
     if (isMember) {
       final Batch <Tile> around = new Batch <Tile> ();
       for (Tile t : Spacing.perimeter(v.footprint(), world)) around.add(t);
-      updatePerimeter(v, around, true);
+      updatePerimeter(v, true, around);
     }
-    else updatePerimeter(v, null, false);
+    else updatePerimeter(v, false, null);
   }
   
 
   public void updatePerimeter(
-    Fixture v, Batch <Tile> around, boolean isMember
+    Fixture v, boolean isMember, Batch <Tile> around
   ) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (report) I.say("Updating perimeter for "+v+", member? "+isMember);
@@ -167,11 +167,12 @@ public class BaseTransport {
     final Tile o = v.origin();
     final Route after = new Route(o, o), prior = allRoutes.get(after);
     if (isMember && around != null) {
-      //  TODO:  FILTER TILES TO ENSURE PAVEABILITY
-      
-      after.path = around.toArray(Tile.class);
+      final Batch <Tile> filtered = new Batch <Tile> ();
+      for (Tile t : around) if (t != null && t.canPave()) filtered.add(t);
+      after.path = filtered.toArray(Tile.class);
       after.cost = -1;
       updateRoute(prior, after);
+      if (report) reportPath("\n  Perimeter is: ", after);
     }
     else if (prior != null) disownRoute(prior);
   }
@@ -279,7 +280,6 @@ public class BaseTransport {
     if (after == null) return false;
     if (after.routeEquals(prior) && map.refreshPaving(after.path)) return true;
     if (prior != null) disownRoute(prior);
-    
     map.flagForPaving(after.path, true);
     allRoutes.put(after, after);
     toggleRoute(after, after.start, true);

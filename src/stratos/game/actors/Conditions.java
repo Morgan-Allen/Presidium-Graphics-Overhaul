@@ -189,14 +189,11 @@ public final class Conditions {
     SPONTANEOUS_DISEASE[] = {
       ILLNESS, CANCER, HIREX_PARASITE
     },
-    TREATABLE_CONDITIONS[] = {
+    ALL_CONDITIONS[] = {
       POISONING, ILLNESS, SPICE_ADDICTION,
       CANCER, RAGE_INFECTION, HIREX_PARASITE,
       ALBEDAN_STRAIN, SILVERQUICK, MOEBIUS_PLAGUE
     };
-  final public static Trait
-    CONDITIONS[] = Trait.TRAIT_INDEX.soFar(Trait.class);
-  
 }
 
 

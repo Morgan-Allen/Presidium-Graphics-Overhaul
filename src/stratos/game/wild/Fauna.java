@@ -136,10 +136,10 @@ public abstract class Fauna extends Actor {
         else return 0;
       }
       //
-      //  We (unrealistically) assume that animals don't get curious.
+      //  We (unrealistically) assume that animals never learn.
       public float noveltyFor(Object object) {
         if (object instanceof Fauna || object == actor.base()) return 0;
-        else return 1;
+        else return MAX_NOVELTY;
       }
     };
   }

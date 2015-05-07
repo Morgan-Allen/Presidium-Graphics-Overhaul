@@ -52,6 +52,10 @@ public class PavingMap {
   public void flagForPaving(Tile t, boolean is) {
     final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
     if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
+    
+    if (is && ! t.canPave()) {
+      I.complain("CANNOT PAVE AT "+t+" ("+t.onTop()+")");
+    }
     refreshPaving(t);
   }
   
@@ -62,24 +66,26 @@ public class PavingMap {
   }
   
   
-  public boolean isFlagged(Tile t) {
-    return flagMap.getBaseValue(t.x, t.y) != 0;
+  public void refreshPaving(Tile t) {
+    final boolean flag = needsPaving(t);
+    final byte c = roadCounter[t.x][t.y];
+    if (flag && GameSettings.paveFree) {
+      setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
+    }
+    flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
   
   
   public boolean refreshPaving(Tile tiles[]) {
-    for (Tile t : tiles) if (! t.reserved()) refreshPaving(t);
+    for (Tile t : tiles) {
+      if (! t.reserved()) refreshPaving(t);
+    }
     return true;
   }
   
   
-  public void refreshPaving(Tile t) {
-    final boolean flag = needsPaving(t);
-    if (flag && GameSettings.paveFree) {
-      final byte c = roadCounter[t.x][t.y];
-      setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
-    }
-    flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
+  public boolean isFlagged(Tile t) {
+    return flagMap.getBaseValue(t.x, t.y) != 0;
   }
   
   

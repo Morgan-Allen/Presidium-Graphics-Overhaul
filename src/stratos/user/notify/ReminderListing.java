@@ -145,7 +145,7 @@ public class ReminderListing extends UIGroup {
     for (MessagePane o : newMessages) {
       needShow.add(o);
     }
-    if (played.setup.needSatisfaction().length > 0) {
+    if (played.advice.venueGoodNeeds().length > 0) {
       needShow.add(played.setup);
     }
     //
@@ -216,7 +216,7 @@ public class ReminderListing extends UIGroup {
     MessageReminder entry = (MessageReminder) entryThatRefers(played.setup);
     if (entry == null) return;
     final MessagePane pane = entry.message;
-    BaseAdvice.configNeedsSummary(pane, played, UI);
+    played.advice.configNeedsSummary(pane, UI);
   }
   
   

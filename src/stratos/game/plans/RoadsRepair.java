@@ -18,7 +18,7 @@ public class RoadsRepair extends Plan {
   /**  Data fields, setup and save/load methods-
     */
   private static boolean
-    stepsVerbose = false,
+    stepsVerbose = true ,
     evalVerbose  = false;
   
   final Base base;
@@ -170,6 +170,16 @@ public class RoadsRepair extends Plan {
   
   
   public boolean actionPave(Actor actor, Tile t) {
+    final boolean report = stepsVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nPaving tile: "+t);
+      I.say("  Actor at:   "+actor.origin());
+      I.say("  Is paved?   "+(t.pathType() == Tile.PATH_ROAD));
+      I.say("  On top:     "+t.onTop());
+      I.say("  Can pave?   "+t.canPave());
+      I.say("  Habitat ok? "+t.habitat().pathClear);
+    }
+    
     final int paved = setPavingAround(t, true);
     if (paved == 0) return false;
     //  TODO:  Deduct credits (or materials?)

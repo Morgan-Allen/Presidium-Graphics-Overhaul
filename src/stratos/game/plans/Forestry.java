@@ -19,7 +19,7 @@ import static stratos.game.economic.Economy.*;
 public class Forestry extends Plan {
 
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     stepsVerbose = false;
   
   final public static int
@@ -130,13 +130,14 @@ public class Forestry extends Plan {
   
 
   protected float getPriority() {
+    //
+    //  Basic variable setup and sanity checks-
     final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     if (! configured()) return 0;
-    
     final Target subject = toPlant == null ? toCut : toPlant;
-    final Tile at = toPlant == null ? toCut.origin() : toPlant;
     if (subject == null) return 0;
-    
+    final Tile at = toPlant == null ? toCut.origin() : toPlant;
+    //
     //  As the abundance of flora increases, harvest becomes more attractive,
     //  and vice-versa for planting as abundance decreases.
     float abundance = actor.world().ecology().forestRating(at);
@@ -155,7 +156,7 @@ public class Forestry extends Plan {
     }
     else if (stage == STAGE_CUTTING || stage == STAGE_PROCESS) {
       shortage = Nums.max(0, depot.stocks.relativeShortage(POLYMER));
-      if (stage == STAGE_CUTTING) urgency = (abundance - 0.5f) * shortage * 2;
+      if (stage == STAGE_CUTTING) urgency = abundance + shortage - 1;
       else urgency = 0.5f * (1 + shortage);
     }
     

@@ -146,20 +146,19 @@ public class FormerPlant extends Venue implements TileConstants {
   
   protected Behaviour jobFor(Actor actor, boolean onShift) {
     if (staff.shiftFor(actor) == OFF_DUTY) return null;
-    final Choice choice = new Choice(actor);
     
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 1, 5, 5
     );
-    choice.add(d);
+    if (d != null) return d;
+    final Choice choice = new Choice(actor);
     
     Venue source = (EcologistStation) world.presences.nearestMatch(
       EcologistStation.class, this, Stage.ZONE_SIZE
     );
     if (source == null) source = this;
     choice.add(Forestry.nextPlanting(actor, source));
-    
-    choice.add(Forestry.nextCutting (actor, this));
+    choice.add(Forestry.nextCutting (actor, this  ));
     return choice.weightedPick();
   }
   

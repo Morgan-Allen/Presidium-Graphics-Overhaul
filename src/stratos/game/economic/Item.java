@@ -234,7 +234,7 @@ public class Item {
       type.form == FORM_USABLE ||
       type.form == FORM_SPECIAL
     ) {
-      s = descQuality()+" "+s;
+      s = (I.shorten(amount, 1))+" "+descQuality()+" "+s;
     }
     else if (refers == null && amount != ANY) {
       s = (I.shorten(amount, 1))+" "+s;

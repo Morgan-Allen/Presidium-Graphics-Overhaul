@@ -59,9 +59,10 @@ public class BringUtils {
     //  them- so we just fall back on whatever the actor can see.
     final Batch <Property> depots = new Batch <Property> ();
     for (Target t : actor.senses.awareOf()) if (t instanceof Property) {
-      depots.add((Property) t);
+      final Property depot = (Property) t;
+      if (openForTrade(depot, actor)) depots.add(depot);
     }
-    for (Owner origin : origins) if (origin != null) {
+    for (Owner origin : origins) if (openForTrade(origin, actor)) {
       if (report) {
         I.say("\nGetting next item disposal: "+actor);
         I.say("Origin is: "+origin);
@@ -87,8 +88,8 @@ public class BringUtils {
         final Traded t = i.type;
         final boolean sells = ! Visit.arrayIncludes(origins, depot);
         
-        if ((! sells) && depot.inventory().demandFor(t) <= 0) continue;
-        if (sells && ! Visit.arrayIncludes(depot.services(), t)) continue;
+        if ((! sells) && depot.inventory().demandFor(t) <= 0       ) continue;
+        if (   sells  && ! Visit.arrayIncludes(depot.services(), t)) continue;
         
         final Item moved = Item.withAmount(t, Nums.min(5, i.amount));
         final Bringing d = new Bringing(moved, origin, depot);
@@ -286,24 +287,24 @@ public class BringUtils {
   
   
   public static Owner bestOrigin(
-    Batch <? extends Owner> origins, Owner destination,
+    Batch <? extends Owner> origs, Owner dest,
     Traded good, int unit
   ) {
-    if (origins.size() == 0) return null;
-    if (destination.inventory().shortageOf(good) < 0) return null;
+    if (origs.size() == 0) return null;
+    if (dest.inventory().shortageOf(good) < 0) return null;
     
-    final boolean report = rateVerbose && I.talkAbout == destination;
+    final boolean report = rateVerbose && I.talkAbout == dest;
     if (report) {
-      I.say("\nFinding best origin of "+good+" for "+destination);
-      I.say("  ("+origins.size()+" available)");
+      I.say("\nFinding best origin of "+good+" for "+dest);
+      I.say("  ("+origs.size()+" available)");
     }
     
     Owner pick = null;
     float bestRating = 0;
-    for (Owner origin : origins) if (canTradeOpenly(origin)) {
-      final float rating = rateTrading(origin, destination, good, unit, unit);
-      if (rating > bestRating) { bestRating = rating; pick = origin; }
-      if (report) I.say("  Rating for "+origin+" is "+rating);
+    for (Owner orig : origs) if (openForTrade(orig, null)) {
+      final float rating = rateTrading(orig, dest, good, unit, unit);
+      if (rating > bestRating) { bestRating = rating; pick = orig; }
+      if (report) I.say("  Rating for "+orig+" is "+rating);
     }
     
     if (report) I.say("  Final selection: "+pick);
@@ -312,24 +313,23 @@ public class BringUtils {
   
   
   public static Owner bestDestination(
-    Owner origin, Batch <? extends Owner> destinations,
-    Traded good, int unit
+    Owner orig, Batch <? extends Owner> dests, Traded good, int unit
   ) {
-    if (destinations.size() == 0) return null;
-    if (origin.inventory().amountOf(good) <= unit) return null;
+    if (dests.size() == 0) return null;
+    if (orig.inventory().amountOf(good) <= unit) return null;
     
-    final boolean report = rateVerbose && I.talkAbout == origin;
+    final boolean report = rateVerbose && I.talkAbout == orig;
     if (report) {
-      I.say("\nFinding best destination for "+good+" from "+origin);
-      I.say("  ("+destinations.size()+" available)");
+      I.say("\nFinding best destination for "+good+" from "+orig);
+      I.say("  ("+dests.size()+" available)");
     }
     
     Owner pick = null;
     float bestRating = 0;
-    for (Owner destination : destinations) if (canTradeOpenly(destination)) {
-      final float rating = rateTrading(origin, destination, good, unit, unit);
-      if (rating > bestRating) { bestRating = rating; pick = destination; }
-      if (report) I.say("  Rating for "+destination+" is "+rating);
+    for (Owner dest : dests) if (openForTrade(dest, null)) {
+      final float rating = rateTrading(orig, dest, good, unit, unit);
+      if (rating > bestRating) { bestRating = rating; pick = dest; }
+      if (report) I.say("  Rating for "+dest+" is "+rating);
     }
     
     if (report) I.say("  Final selection: "+pick);
@@ -337,10 +337,17 @@ public class BringUtils {
   }
   
   
-  static boolean canTradeOpenly(Owner owner) {
-    if (owner.owningTier() <= Owner.TIER_PRIVATE) return false;
+  static boolean openForTrade(Owner owner, Actor with) {
+    if (owner == null) {
+      return false;
+    }
     if (owner instanceof Property) {
-      if (! ((Property) owner).structure().intact()) return false;
+      final Property depot = (Property) owner;
+      if (with != null) return depot.openFor(with);
+      if (! depot.structure().intact()) return false;
+    }
+    if (owner.owningTier() <= Owner.TIER_PRIVATE) {
+      return false;
     }
     return true;
   }

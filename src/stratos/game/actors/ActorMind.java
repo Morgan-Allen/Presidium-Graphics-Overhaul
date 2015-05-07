@@ -85,7 +85,7 @@ public abstract class ActorMind implements Qualities {
       I.say("\nHome is: "+home);
       if (home != null) I.say("  Intact? "+(! home.destroyed()));
       I.say("\nWork is: "+work);
-      if (home != null) I.say("  Intact? "+(! work.destroyed()));
+      if (work != null) I.say("  Intact? "+(! work.destroyed()));
     }
     //
     //  Remove any expired behaviour-sources:

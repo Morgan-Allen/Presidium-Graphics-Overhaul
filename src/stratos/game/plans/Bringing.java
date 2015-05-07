@@ -478,6 +478,7 @@ public class Bringing extends Plan {
     //  Perform the actual transfer of goods and, if making a personal trade,
     //  make the payment required:
     transferGoods(origin, driven == null ? actor : driven);
+    if (shouldPay != null) origin.inventory().incCredits(goodsPrice);
     stage = STAGE_DROPOFF;
     return true;
   }
@@ -524,17 +525,7 @@ public class Bringing extends Plan {
     
     if (suspensor != null && suspensor.inWorld()) suspensor.exitWorld();
     transferGoods(driven == null ? actor : driven, destination);
-    
-    /*
-    I.say("DROPPING OFF GOODS, SHOULD PAY: "+shouldPay+", PRICE: "+goodsPrice);
-    for (Item i : items) {
-      I.say("  "+i+" costs "+origin.priceFor(i.type));
-      I.say("  Commerce price: "+actor.base().commerce.importPrice(i.type));
-    }
-    //*/
-    if (shouldPay != null) {
-      shouldPay.inventory().transferCredits(goodsPrice, origin);
-    }
+    if (shouldPay != null) shouldPay.inventory().incCredits(0 - goodsPrice);
     
     if (driven != null) stage = STAGE_RETURN;
     else stage = STAGE_DONE;

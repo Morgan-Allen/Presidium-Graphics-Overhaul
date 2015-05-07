@@ -13,8 +13,6 @@ import static stratos.game.economic.Economy.*;
 
 
 //  TODO:  Merge this with your work on sector-states.
-//  TODO:  Merge this with the Offworld class!
-
 
 //  TODO:  Most (or all) of this info should be loaded from an XML file.
 /*
@@ -96,7 +94,7 @@ public class Verse {
       "traditions and luxury exports.",
       DESERT_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, SOMA, PLASTICS, DECOR, SPYCE_T,
-      VerseLocation.NEEDS, WATER, SERVICE_ENTERTAIN, DATALINKS,
+      VerseLocation.NEEDS, WATER, CIRCUITRY, POLYMER,
       BORN_FREE,
       NOVICE, CULTIVATION, CHEMISTRY,
       OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES
@@ -108,7 +106,7 @@ public class Verse {
       "cults and revered arcane relics.",
       WASTES_BLOOD, NORMAL_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, PARTS, ANTIMASS, CIRCUITRY,
-      VerseLocation.NEEDS, POLYMER, GREENS, REPLICANTS,
+      VerseLocation.NEEDS, ISOTOPES, PROTEIN,
       BORN_DREGS, BORN_PYON,
       NOVICE, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,
@@ -121,7 +119,7 @@ public class Verse {
       "crucial role in quadrant defence strategy.",
       FOREST_BLOOD, STRONG_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, CARBS, GREENS, MEDICINE,
-      VerseLocation.NEEDS, SERVICE_ARMAMENT, PARTS,
+      VerseLocation.NEEDS, SERVICE_ARMAMENT, PARTS, CATALYST,
       BORN_GELDER, BORN_FREE,
       NOVICE, MARKSMANSHIP, ANATOMY,
       OFTEN, MILITARY_CIRCLES, SOMETIMES, PHYSICIAN_CIRCLES,
@@ -133,7 +131,7 @@ public class Verse {
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black market technology.",
       TUNDRA_BLOOD, MILD_GRAVITY, null, HIGH_POPULATION,
-      VerseLocation.MAKES, DATALINKS, MEDICINE, SERVICE_COMMERCE,
+      VerseLocation.MAKES, CIRCUITRY, MEDICINE, SERVICE_COMMERCE,
       VerseLocation.NEEDS, GREENS, METALS, ANTIMASS,
       BORN_DREGS, BORN_GELDER,
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,

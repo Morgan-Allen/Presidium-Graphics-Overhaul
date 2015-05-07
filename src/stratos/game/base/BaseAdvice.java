@@ -1,6 +1,7 @@
 
 
 package stratos.game.base;
+import stratos.game.actors.*;
 import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -10,12 +11,117 @@ import stratos.user.notify.*;
 import stratos.util.*;
 
 
+//  TODO:  There probably need to be some dedicated UI classes for this.
+//         Return multiple panes for different kinds of shortage.
+
 public class BaseAdvice {
+
+  
+  final public static int
+    LEVEL_TOTAL   =  2,
+    LEVEL_ADVISOR =  1,
+    LEVEL_NONE    =  0;
+  
+  final Base base;
+  private int controlLevel = LEVEL_ADVISOR;
+  
+  
+  public BaseAdvice(Base base) {
+    this.base = base;
+  }
+  
+  
+  public void loadState(Session s) throws Exception {
+    this.controlLevel = s.loadInt();
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    s.saveInt(controlLevel);
+  }
   
   
   
-  public static MessagePane configNeedsSummary(
-    final MessagePane pane, final Base played, final BaseUI UI
+  /**  Basic access and modifier methods-
+    */
+  public void setControlLevel(int level) {
+    this.controlLevel = level;
+  }
+  
+  
+  
+  /**  Methods for handling shortages of certain other goods and services,
+    *  based on citizen desires-
+    */
+  private void summariseCitizenNeeds() {
+    
+    float numHungry = 0, numSick = 0, numLackPsych = 0;
+    
+    for (Profile p : base.profiles.allProfiles.values()) {
+      final Actor citizen = p.actor;
+      numHungry += citizen.health.hungerLevel();
+      numHungry += citizen.health.nutritionLevel() - 1;
+      
+      for (Condition c : Conditions.ALL_CONDITIONS) {
+        numSick += citizen.traits.traitLevel(c);
+      }
+      
+      //  TODO:  Integrate this later...
+      if (p.daysSincePsychEval(base.world) > Stage.DAYS_PER_WEEK) {
+        numLackPsych += 1;
+      }
+    }
+    
+    
+  }
+  
+  
+  
+  
+  
+  
+  /**  Methods for handling shortages of different types of good:
+    */
+  public Object[] venueGoodNeeds() {
+    final List <Object> needs = new List <Object> () {
+      protected float queuePriority(Object r) { return needRating(r); }
+    };
+    if (controlLevel == LEVEL_NONE || GameSettings.noAdvice) {
+      return needs.toArray();
+    }
+    
+    for (Traded t : Economy.ALL_PROVISIONS) {
+      if (base.commerce.primaryShortage(t) < 0.5f) continue;
+      if (base.commerce.primaryDemand  (t) < 5   ) continue;
+      needs.add(t);
+    }
+    for (Traded t : Economy.ALL_MATERIALS) {
+      if (base.commerce.primaryShortage(t) < 0.5f) continue;
+      if (base.commerce.primaryDemand  (t) < 5   ) continue;
+      needs.add(t);
+    }
+    for (Traded t : Economy.ALL_SERVICES) {
+      if (base.demands.globalShortage(t) < 0.5f) continue;
+      if (base.demands.globalDemand  (t) < 5   ) continue;
+      needs.add(t);
+    }
+    return needs.toArray();
+  }
+  
+  
+  public float needRating(Object need) {
+    if (controlLevel == LEVEL_NONE || GameSettings.noAdvice) {
+      return 0;
+    }
+    if (need instanceof Traded) {
+      return base.commerce.primaryShortage((Traded) need);
+    }
+    return base.demands.globalShortage(need);
+  }
+  
+  
+  public MessagePane configNeedsSummary(
+    final MessagePane pane, final BaseUI UI
   ) {
     pane.header().setText("Shortages!");
     pane.detail().setText(
@@ -24,11 +130,11 @@ public class BaseAdvice {
     );
     final Description d = pane.detail();
     
-    for (final Object o : played.setup.needSatisfaction()) {
+    for (final Object o : venueGoodNeeds()) {
       d.append("\n  ");
       d.append(new Description.Link(o.toString()) {
         public void whenClicked() {
-          final MessagePane help = BaseAdvice.messageForNeed(o, played, UI);
+          final MessagePane help = messageForNeed(o, UI);
           //
           //  We include a 'back' link for returning to the main panel.
           //  TODO:  MAKE THIS A BASIC FUNCTION OF INFO-PANES
@@ -43,7 +149,7 @@ public class BaseAdvice {
   }
   
   
-  public static MessagePane messageForNeed(Object t, Base base, BaseUI UI) {
+  public MessagePane messageForNeed(Object t, BaseUI UI) {
     
     final String titleKey = "Need "+t;
     final MessagePane pane = new MessagePane(
@@ -109,6 +215,10 @@ public class BaseAdvice {
     return pane;
   }
 }
+
+
+
+
 
 
 

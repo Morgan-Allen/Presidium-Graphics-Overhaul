@@ -73,8 +73,7 @@ public class ActorRelations {
     for (Target t : actor.senses.awareOf()) if (t instanceof Actor) {
       final Actor  other   = (Actor) t;
       final Target affects = other.planFocus(null, true);
-      if (affects == null || other.isDoing(Dialogue.class, affects)) continue;
-      
+      //
       //  TODO:  Have 'spite' factor into this- e.g, so that helping an enemy
       //  counts as harm?
       final float
@@ -88,7 +87,10 @@ public class ActorRelations {
         I.say("    Cares?      "+cares  );
         I.say("    Impact:     "+impact );
       }
+      //
+      //  We gradually decrease the weirdness of inoffensive subjects.
       if (impact == 0 || (impact <= 0.5f && ! hasRelation(other))) {
+        incRelation(other.base(), 0, 0, -0.5f / OBSERVE_PERIOD);
         if (report) I.say("  Meh.  Big deal.");
         continue;
       }
@@ -97,7 +99,9 @@ public class ActorRelations {
         increment = 0 - harm * cares,
         beforeVal = valueFor(other),
         surprise  = Nums.clamp(Nums.abs(increment - beforeVal), 0, 1);
-      
+      //
+      //  Otherwise, we modify our relationship with an individual based on
+      //  observation of their recent behaviour:
       incRelation(other, increment, weight, surprise * weight);
       if (report) {
         I.say("\n  Actions speak louder...");
@@ -112,6 +116,9 @@ public class ActorRelations {
   
   
   public void updateValues(int numUpdates) {
+    //
+    //  For the moment, I'm disabling these for animals, artilects, etc.
+    if (! actor.species().sapient()) return;
     final boolean report = I.talkAbout == actor && verbose;
     updateFromObservations();
     if (numUpdates % UPDATE_PERIOD != 0) return;

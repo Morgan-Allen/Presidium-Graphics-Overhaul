@@ -394,6 +394,11 @@ public class ActorHealth implements Qualities {
   }
   
   
+  public float nutritionLevel() {
+    return nutrition;
+  }
+  
+  
   public float injuryLevel() {
     return injury / (maxHealth * MAX_INJURY);
   }
@@ -518,7 +523,7 @@ public class ActorHealth implements Qualities {
     if (! organic()) return stressCache = 0;
     
     float disease = 0;
-    for (Trait t : TREATABLE_CONDITIONS) {
+    for (Trait t : ALL_CONDITIONS) {
       disease += ((Condition) t).virulence * actor.traits.traitLevel(t) / 100f;
     }
     

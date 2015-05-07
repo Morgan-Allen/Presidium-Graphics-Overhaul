@@ -29,6 +29,11 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 *  Finalise perimeter fence artwork.
 
+*  There is still a strange bug in auto-paving that can cause actors to try and
+   pave tiled underneath venues.  (Also, they don't always delete correctly.)
+   Find out why...
+
+*  Nobody seems to visit the Cantina!  Boo!
 
 
 BUILDINGS AND ECONOMY-
@@ -66,10 +71,14 @@ BUILDINGS AND ECONOMY-
 
 CITIZEN BEHAVIOUR-
 
+*  Actors should be doing more to dispose of bodies.  Burial or recyling.
+
   >>>>>>> DO THIS <<<<<<<
 *  Rework the migration system to that it's more gradual- colonists arrive from
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
    ashore' every day or two, but those can't respond to job-demand as such.
+
+*  Citizens need to migrate offworld if unhappy/unemployed enough.
 
   >>>>>>> DO THIS <<<<<<<
 *  Proper evaluation of mood and memory-events.
@@ -80,7 +89,9 @@ CITIZEN BEHAVIOUR-
 
 *  Hide-and-seek needs to be more effective (for retreat, looting and combat.)
 
-*  Figure out entry-permissions for structures and guests, and/or sieges.
+*  Figure out entry-permissions for structures and guests, and/or sieges.  (It's
+   also possible for long-range pathing to go kaput when it requires going
+   through structures that don't permit it, like shield walls for animals.)
 
 
 CONTROL AND DIRECTION-

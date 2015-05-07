@@ -102,7 +102,7 @@ public class Staff {
   }
   
   
-  public boolean isResident(Mobile a) {
+  public boolean isLodger(Mobile a) {
     if (a instanceof Actor && ((Actor) a).mind.home() == employs) return true;
     return false;
   }
@@ -114,8 +114,10 @@ public class Staff {
   }
   
   
-  public boolean doesBelong(Mobile a) {
-    return isResident(a) || isWorker(a);
+  public static boolean doesBelong(Mobile a, Target to) {
+    if (! (to instanceof Property)) return false;
+    final Property p = (Property) to;
+    return p.staff().isWorker(a) || p.staff().isLodger(a);
   }
   
   

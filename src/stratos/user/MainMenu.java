@@ -174,9 +174,20 @@ public class MainMenu extends UIGroup {
   
   public void setHouse(Object args[]) {
     config.house = (Background) args[0];
+    final VerseLocation location = (VerseLocation) config.house;
+    final Colour lite = Colour.LITE_GREY;
+    
     help.setText(config.house.info);
+    
+    help.append("\n\nEconomy: ");
+    help.append("\n  Needs: "+I.list(location.goodsNeeded), lite);
+    //for (Object t : location.goodsNeeded) help.append(t+" ", lite);
+    help.append("\n  Makes: "+I.list(location.goodsMade  ), lite);
+    //for (Object t : location.goodsMade  ) help.append(t+" ", lite);
+    
+    help.append("\n\nBonus Skills:");
     for (Skill s : config.house.skills()) {
-      help.append("\n    ("+s.name+" +5)", Colour.LITE_GREY);
+      help.append("\n    ("+s.name+" +5)", lite);
     }
     configForNew(null);
   }

@@ -79,8 +79,10 @@ public class VerseLocation extends Background {
     for (Object arg : args) {
       if (arg == MAKES || arg == NEEDS) tag = arg;
       if (arg instanceof Traded) {
-        if (tag == MAKES) madeB.add((Traded) arg);
-        if (tag == NEEDS) needB.add((Traded) arg);
+        final Traded t = (Traded) arg;
+        if (t.form != Economy.FORM_MATERIAL) continue;
+        if (tag == MAKES) madeB.add(t);
+        if (tag == NEEDS) needB.add(t);
       }
       if (arg instanceof Float) rating = (Float) arg;
       if (arg instanceof Background[]) {

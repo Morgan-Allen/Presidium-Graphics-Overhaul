@@ -141,33 +141,34 @@ public class EcologistStation extends Venue {
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! structure.intact()) return null;
+    final boolean offShift = staff.shiftFor(actor) == OFF_DUTY;
+    if (offShift) return null;
     final Choice choice = new Choice(actor);
     //
     //  If you're really short on food, consider foraging in the surrounds or
     //  farming 24/7.
     final float shortages = (
-      stocks.relativeShortage(CARBS  ) +
-      stocks.relativeShortage(GREENS ) +
-      stocks.relativeShortage(PROTEIN)
-    ) / 3f;
+      stocks.relativeShortage(CARBS ) +
+      stocks.relativeShortage(GREENS)
+    ) / 2f;
     //
     //  First of all, find a suitable nursery to tend:
     for (Target t : world.presences.sampleFromMap(
       this, world, 5, null, Nursery.class
     )) {
-      final Nursery n = (Nursery) t;
-      if (n.base() != this.base()) continue;
-      if (PlanUtils.competition(Farming.class, n, actor) > 0) continue;
+      final Nursery at = (Nursery) t;
+      if (at.base() != this.base()) continue;
+      if (PlanUtils.competition(Farming.class, at, actor) > 0) continue;
       
       if (shortages > 0.5f || onShift) {
-        final Farming farming = new Farming(actor, this, n);
-        farming.addMotives(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE * shortages);
+        final Farming farming = new Farming(actor, this, at);
+        farming.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
         choice.add(farming);
       }
     }
     if (shortages > 0.5f) {
       final Foraging foraging = new Foraging(actor, this);
-      foraging.addMotives(Plan.MOTIVE_EMERGENCY, Plan.ROUTINE * shortages);
+      foraging.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
       choice.add(foraging);
     }
     

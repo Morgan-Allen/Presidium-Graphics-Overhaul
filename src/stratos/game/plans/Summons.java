@@ -116,12 +116,15 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   
   protected Behaviour getNextStep() {
     if (! stays.structure().intact()) return null;
-    
     final float time = stays.world().currentTime();
-    if (stayUntil != -1 && time > stayUntil) return null;
     
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next summons step for "+actor);
+    if (report) {
+      I.say("\nGetting next summons step for "+actor);
+      I.say("  Staying until "+stayUntil+", time: "+time);
+    }
+    
+    if (stayUntil != -1 && time > stayUntil) return null;
     
     //  TODO:  Allow the captor to specify your destination.
     

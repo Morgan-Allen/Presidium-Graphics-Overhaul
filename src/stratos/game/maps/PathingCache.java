@@ -82,7 +82,28 @@ public class PathingCache {
     */
   //
   //  TODO:  Unify this with the location() method in MobileMotion.
-  private Tile tilePosition(Boarding b, Mobile client) {
+  //*
+  private Tile tilePosition(Target t, Mobile client) {
+    while (t instanceof Mobile) {
+      t = ((Mobile) t).aboard();
+    }
+    if (t instanceof Boarding) {
+      final Boarding b = (Boarding) t;
+      if (client != null && ! b.allowsEntry(client)) return null;
+
+      if (b instanceof Tile) {
+        final Tile u = (Tile) b;
+        return u.blocked() ? null : u;
+      }
+      if (b instanceof Venue) {
+        return ((Venue) b).mainEntrance();
+      }
+      for (Boarding c : b.canBoard()) {
+        if (c instanceof Tile) return (Tile) c;
+      }
+    }
+    return null;
+    /*
     if (b == null) return null;
     if (client == null || b.allowsEntry(client)) {
       if (b instanceof Venue) return ((Venue) b).mainEntrance();
@@ -91,18 +112,16 @@ public class PathingCache {
         return t.blocked() ? null : t;
       }
       if (b instanceof Boarding) {
-        for (Boarding e : ((Boarding) b).canBoard()) {
-          if (e instanceof Tile) return (Tile) e;
-        }
-        return null;
       }
     }
     return Spacing.nearestOpenTile(b, b);
+    //*/
   }
+  //*/
   
   
   private Place[] placesBetween(
-    Boarding initB, Boarding destB, Mobile client, boolean reports
+    Target initB, Target destB, Mobile client, boolean reports
   ) {
     final Tile
       initT = tilePosition(initB, client),
@@ -582,6 +601,20 @@ public class PathingCache {
     if (! search.success()) return null;
     return search.fullPath(Place.class);
   }
+  
+  
+  
+  /**  Finally, some utility methods for rapid checking of pathability betwee
+    *  two points.
+    *  TODO:  YOU WILL HAVE TO CACHE THIS KIND OF INFORMATION
+    */
+  public boolean hasPathBetween(
+    Target a, Target b, Mobile client, boolean reports
+  ) {
+    final Place placesPath[] = placesBetween(a, b, client, reports);
+    return placesPath != null;
+  }
+  
 }
 
 
@@ -594,6 +627,9 @@ public class PathingCache {
 //  TODO:  Next, ideally, you'll want to build up a recursive tree-structure
 //  out of Regions so that the viability of pathing attempts can be determined
 //  as quickly as possible (when querying nearby venues, etc.)
+
+
+
 
 
 

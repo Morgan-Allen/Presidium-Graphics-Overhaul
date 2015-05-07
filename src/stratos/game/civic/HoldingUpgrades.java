@@ -79,6 +79,21 @@ public class HoldingUpgrades {
     "Highborn Villa",
     "Forbidden Palace"
   };
+  final static String LEVEL_SUFFIX[] = {
+    
+    "Towers",
+    "Slums",
+    "Tent",
+    
+    "Shacks",
+    "Holding",
+    "Apartment",
+    "Manse",
+    
+    "Estate",
+    "Villa",
+    "Palace"
+  };
   
   
   /**  Building materials/furnishings-
@@ -144,9 +159,12 @@ public class HoldingUpgrades {
     for (Item needed : materials.raw) {
       if (holding.stocks.amountOf(needed) < needed.amount - 0.5f) {
         if (! verbose) return NOT_MET;
-        if (! canAfford(holding, needed.type)) return
-          "The lodgers for this holding are too poor to afford "+needed.type+
-          ", which holds back development";
+        if (! canAfford(holding, needed.type, true )) return
+          "No lodgers at this holding have the savings to afford "+needed.type+
+          ", which holds back development.";
+        if (! canAfford(holding, needed.type, false)) return
+          "Some lodgers at this holding are too poor to afford "+needed.type+
+          ", which holds back development.";
         if (upgradeLevel > holding.upgradeLevel()) return
           "This holding needs more "+needed.type+" before further development "+
           "can proceed.";
@@ -159,11 +177,15 @@ public class HoldingUpgrades {
   }
   
   
-  protected static boolean canAfford(Holding holding, Traded need) {
+  protected static boolean canAfford(
+    Holding holding, Traded need, boolean any
+  ) {
     for (Actor a : holding.staff.lodgers()) {
-      if (a.gear.allCredits() < (need.basePrice() * 2)) return false;
+      boolean affords = a.gear.allCredits() > (need.basePrice() * 2);
+      if (affords && any) return true;
+      if ((! affords) && (! any)) return false;
     }
-    return true;
+    return ! any;
   }
   
   

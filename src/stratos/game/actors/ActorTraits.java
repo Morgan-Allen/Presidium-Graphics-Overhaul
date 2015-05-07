@@ -390,7 +390,7 @@ public class ActorTraits implements Qualities {
   
   
   public Batch <Condition> conditions() {
-    return (Batch) getMatches(null, Conditions.CONDITIONS);
+    return (Batch) getMatches(null, Conditions.ALL_CONDITIONS);
   }
   
   /*

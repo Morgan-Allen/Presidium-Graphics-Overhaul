@@ -212,7 +212,7 @@ public class Nursery extends Venue implements TileConstants {
         if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
       }
     }
-    base.transport.updatePerimeter(this, around, inWorld);
+    base.transport.updatePerimeter(this, inWorld, around);
   }
   
   
@@ -268,7 +268,9 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public boolean couldPlant(Tile t) {
-    return plantType(t) > 0;
+    if (! t.habitat().pathClear) return false;
+    if (t.onTop() instanceof Crop || ! t.reserved()) return plantType(t) > 0;
+    return false;
   }
   
   

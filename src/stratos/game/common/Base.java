@@ -32,7 +32,7 @@ public class Base implements
   
   
   final public Stage   world ;
-  final public boolean primal;
+  final public boolean primal;  //  TODO:  use type-  below
   
   final public BaseSetup     setup    ;
   final public BaseDemands   demands  ;
@@ -46,11 +46,13 @@ public class Base implements
   
   private Actor ruler;
   private Venue commandPost;
-  private boolean isNative;
+  private boolean isNative;  //  TODO:  Replace with 'type'/faction variable!
+  
   final public BaseRelations relations = initRelations();
   final public BaseTactics   tactics   = initTactics  ();
+  final public BaseAdvice    advice    = initAdvice   ();
   
-  private String title  = "Player Base";
+  private String title  = "Player Base";  //  TODO:  ASSIGN TO FACTIONS
   private Colour colour = new Colour();
   
   
@@ -181,8 +183,11 @@ public class Base implements
 
     ruler       = (Actor) s.loadObject();
     commandPost = (Venue) s.loadObject();
+    isNative    = s.loadBool();
+    
     relations.loadState(s);
     tactics  .loadState(s);
+    advice   .loadState(s);
     
     title = s.loadString();
     colour.loadFrom(s.input());
@@ -203,8 +208,11 @@ public class Base implements
     
     s.saveObject(ruler      );
     s.saveObject(commandPost);
+    s.saveBool  (isNative   );
+    
     relations.saveState(s);
     tactics  .saveState(s);
+    advice   .saveState(s);
     
     s.saveString(title);
     colour.saveTo(s.output());
@@ -223,6 +231,7 @@ public class Base implements
   
   protected BaseTactics   initTactics  () { return new BaseTactics  (this); }
   protected BaseRelations initRelations() { return new BaseRelations(this); }
+  protected BaseAdvice    initAdvice   () { return new BaseAdvice   (this); }
   
   
   

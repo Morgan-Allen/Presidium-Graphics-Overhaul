@@ -191,8 +191,12 @@ public class Resting extends Plan {
     }
     //
     //  If you're tired, put your feet up.
-    if (actor.health.fatigueLevel() > 0.5f) currentMode = MODE_SLEEP;
-    else if (relaxTime > (Rand.num() + 1) * RELAX_TIME) return null;
+    if (actor.health.fatigueLevel() > Planet.dayValue(actor.world())) {
+      currentMode = MODE_SLEEP;
+    }
+    else if (relaxTime > (Rand.num() + 1) * RELAX_TIME) {
+      return null;
+    }
     else currentMode = MODE_LODGE;
     final Action relax = new Action(
       actor, restPoint,

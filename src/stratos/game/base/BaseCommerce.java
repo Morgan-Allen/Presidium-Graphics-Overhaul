@@ -283,8 +283,8 @@ public class BaseCommerce {
         }
         
         if (tier <= Owner.TIER_FACILITY) {
-          primarySupply.add(Nums.min(amount, demand), type);
-          primaryDemand.add(demand, type);
+          if (producer) primarySupply.add(amount, type);
+          else primaryDemand.add(demand, type);
         }
         if (tier >= Owner.TIER_DEPOT) {
           if (producer) exportSupply.add(amount, type);

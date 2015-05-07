@@ -369,7 +369,8 @@ public abstract class Venue extends Structural implements
   /**  Recruiting staff and assigning manufacturing tasks-
     */
   public boolean openFor(Actor actor) {
-    if (actor != null && staff.doesBelong(actor)) return true;
+    if (! structure.intact()) return false;
+    if (actor != null && Staff.doesBelong(actor, this)) return true;
     for (Actor a : staff.workers) {
       if (a.health.conscious() && a.aboard() == this) return true;
     }
@@ -383,7 +384,7 @@ public abstract class Venue extends Structural implements
     }
     else if (background == Backgrounds.AS_VISITOR) {
       float crowding = 0;
-      for (Mobile m : inside()) if (! staff.doesBelong(m)) crowding++;
+      for (Mobile m : inside()) if (! Staff.doesBelong(m, this)) crowding++;
       crowding /= ((size * 2) + 1);
       return crowding;
     }
@@ -441,13 +442,61 @@ public abstract class Venue extends Structural implements
   
   /**  Interface methods-
     */
+  /*
+  final static String NAME_SUFFIXES[] = {
+    "Alpha",
+    "Beta",
+    "Gamma",
+    "Delta",
+    "Epsilon",
+    "Zeta",
+    "Eta",
+    "Theta",
+    "Iota",
+    "Kappa",
+    "Lambda",
+    "Mu",
+    "Nu",
+    "Xi",
+    "Omicron",
+    "Pi",
+    "Rho",
+    "Sigma",
+    "Tau",
+    "Upsilon",
+    "Phi",
+    "Chi",
+    "Psy",
+    "Omega"
+  };
+  //*/
+  
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(this, panel, UI, false);
   }
   
+  private int numeral = -2;
   
   public String fullName() {
-    return blueprint.name;
+    if (blueprint.isFixture()) return blueprint.name;
+    if (blueprint.isUnique ()) return "The "+blueprint.name;
+    
+    //
+    //  TODO:  ASSIGN THIS ID WHEN THE VENUE IS INITIALISED.
+    //final int maxNum = NAME_SUFFIXES.length;
+    if (numeral == -2) {
+      numeral = base.listInstalled(blueprint, false).indexOf(this);
+    }
+    if (numeral < 0) return blueprint.name;
+    String suffix = ""+(numeral + 1);
+    /*
+    if (numeral >= maxNum) {
+      suffix+=""+(numeral / maxNum);
+      numeral = numeral % maxNum;
+    }
+    suffix+=NAME_SUFFIXES[numeral];
+    //*/
+    return blueprint.name+" "+suffix;
   }
   
   

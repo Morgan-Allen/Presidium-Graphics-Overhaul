@@ -83,7 +83,7 @@ public class TutorialScenario extends StartupScenario {
     
     GameSettings.noAdvice = true;
     GameSettings.noShips  = true;
-    base.setup.setControlLevel(BaseSetup.LEVEL_CUSTOM);
+    base.advice.setControlLevel(BaseAdvice.LEVEL_NONE);
   }
   
   
@@ -355,7 +355,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected void onTutorialDone() {
     GameSettings.noAdvice = false;
-    base().setup.setControlLevel(BaseSetup.LEVEL_ADVISE);
+    base().advice.setControlLevel(BaseAdvice.LEVEL_ADVISOR);
   }
   
   

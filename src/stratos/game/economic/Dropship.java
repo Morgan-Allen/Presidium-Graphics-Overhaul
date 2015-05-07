@@ -148,6 +148,7 @@ public class Dropship extends Vehicle implements Owner {
         boarding.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
       }
       choice.add(boarding);
+      if (report) I.say("  Time to start boarding!");
       return;
     }
     

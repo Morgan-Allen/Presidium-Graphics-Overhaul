@@ -197,7 +197,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public boolean openFor(Actor actor) {
-    return staff.doesBelong(actor);
+    return Staff.doesBelong(actor, this);
   }
   
   

@@ -24,7 +24,7 @@ public class Hunting extends Plan {
     */
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = true ;
+    stepsVerbose = false;
   
   final public static int
     TYPE_FEEDS   = 0,

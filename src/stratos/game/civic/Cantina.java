@@ -85,7 +85,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     Cantina.class, "cantina",
     "Cantina", UIConstants.TYPE_COMMERCE,
     3, 2, IS_NORMAL,
-    StockExchange.BLUEPRINT, Owner.TIER_FACILITY
+    SupplyDepot.BLUEPRINT, Owner.TIER_FACILITY
   );
   
   

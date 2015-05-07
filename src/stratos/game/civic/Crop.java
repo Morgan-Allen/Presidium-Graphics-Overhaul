@@ -238,7 +238,10 @@ public class Crop extends Element {
     //
     //  Crops disappear once their parent nursery is salvaged or destroyed, and
     //  can't grow if they're not seeded.
-    if (parent == null || ! parent.inWorld()) { setAsDestroyed(); return; }
+    if (parent == null || ! (parent.inWorld() && parent.couldPlant(tile))) {
+      setAsDestroyed();
+      return;
+    }
     if (growStage == NOT_PLANTED || species == null) return;
     
     final boolean report = Nursery.verbose && I.talkAbout == parent;
@@ -334,7 +337,8 @@ public class Crop extends Element {
       return;
     }
     final GroupSprite old = (GroupSprite) sprite();
-    final ModelAsset model = speciesModel(species, (int) growStage);
+    final int stage = Nums.round(growStage, 1, true);
+    final ModelAsset model = speciesModel(species, stage);
     if (old != null && old.atIndex(0).model() == model) return;
     
     final GroupSprite GS = new GroupSprite();

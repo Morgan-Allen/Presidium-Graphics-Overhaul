@@ -39,10 +39,10 @@ public class PlanUtils {
     float incentive = 0, winChance, inhibition, priority;
     float harmTaken, dislike, wierdness, conscience;
     
-    incentive += rewardBonus;
     incentive += dislike   = actor.relations.valueFor(subject) * -5 * harm;
     incentive += harmTaken = harmIntendedBy(subject, actor, false) *  5;
-    incentive += wierdness = baseCuriosity(actor, subject, false)  *  5;
+    incentive += wierdness = baseCuriosity(actor, subject, false) * 5;
+    incentive += rewardBonus;
     if (! asRealTask) return incentive;
     
     conscience = 10 * baseConscience(actor, subject) * harm;
@@ -67,9 +67,7 @@ public class PlanUtils {
       "inhibition", inhibition ,
       "incentive" , incentive  ,
       "winChance" , winChance  ,
-      "priority " , priority   ,
-      "base novelty: ", actor.relations.noveltyFor(subject.base()),
-      "curiosity: "   , actor.traits.relativeLevel(CURIOUS)
+      "priority " , priority   
     );
     if (priority < inhibition) return -1;
     return priority;
@@ -196,7 +194,7 @@ public class PlanUtils {
     
     if (idle) novelty = 0.2f;
     else novelty = Nums.clamp(Nums.max(
-      (1 - actor.base().intelMap.fogAt(surveyed)),
+      (actor.base().intelMap.fogAt(surveyed) == 0 ? 0.5f : 0.25f),
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
     
@@ -248,7 +246,7 @@ public class PlanUtils {
     teamBonus = occupantRelations(actor, at) * (1 + crowding);
     
     priority = 5 * (quality + teamBonus + locale) / 3;
-    if (! at.staff.doesBelong(actor)) priority *= (1 - crowding);
+    if (! Staff.doesBelong(actor, at)) priority *= (1 - crowding);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",
@@ -308,6 +306,13 @@ public class PlanUtils {
       if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
       if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
     }
+    if (helpLimit > 0) {
+      float help = competition(plan, plan.subject, actor);
+      if (help > helpLimit && ! plan.hasBegun()) return -1;
+      helpBonus = Nums.min(priority * 0.5f, help * 2.5f / helpLimit);
+      incentive += helpBonus;
+    }
+    
     if (incentive <= 0 || urgency <= 0) {
       if (reportOn(actor, 0)) I.say("\nNo urgency for "+plan);
       return -1;
@@ -316,12 +321,6 @@ public class PlanUtils {
     priority = incentive * competence;
     priority -= failPenalty = (1 - competence) * 10 * riskLevel;
     
-    if (helpLimit > 0 && ! plan.hasBegun()) {
-      float help = competition(plan, plan.subject, actor);
-      if (help > helpLimit) return -1;
-      else priority += helpBonus = help * 2.5f / helpLimit;
-    }
-    else priority += 2.5f;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nJob priority for "+actor, "  ",
@@ -379,7 +378,7 @@ public class PlanUtils {
     float strangeness = actor.relations.noveltyFor(toward.base());
     float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     if (positive) return curiosity * strangeness;
-    else return Nums.clamp((strangeness - curiosity) * 2, 0, 1);
+    else return Nums.clamp(strangeness - curiosity, 0, 1);
   }
   
   

@@ -445,6 +445,13 @@ public class Holding extends Venue {
   
   
   public String fullName() {
+    while (staff.lodgers().size() > 0) {
+      Actor owns = staff.lodgers().first();
+      if (owns.fullName() == null) break;
+      final String prefix = (String) Visit.last(owns.fullName().split(" "));
+      if (prefix == null) break;
+      return prefix+" "+LEVEL_SUFFIX[upgradeLevel + 2];
+    }
     return LEVEL_NAMES[upgradeLevel + 2];
   }
   

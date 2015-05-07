@@ -256,7 +256,7 @@ public class Bastion extends Venue {
   
   public float crowdRating(Actor actor, Background background) {
     if (background == Backgrounds.AS_RESIDENT) {
-      if (! staff.doesBelong(actor)) return 1;
+      if (! Staff.doesBelong(actor, this)) return 1;
       if (staff.isWorker(actor)) return 0;
       
       final int maxPop = 6 + (structure.upgradeLevel(NOBLE_QUARTERS) * 2);

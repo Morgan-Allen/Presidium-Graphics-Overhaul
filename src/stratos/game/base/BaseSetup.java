@@ -36,15 +36,9 @@ public class BaseSetup {
     DEFAULT_VENUE_SAMPLES = 5,
     DEFAULT_CHAT_SAMPLES  = 5;
   
-  final public static int
-    LEVEL_AUTO   =  2,
-    LEVEL_ADVISE =  1,
-    LEVEL_CUSTOM =  0;
-  
   
   final Stage world;
   final Base  base ;
-  private int setupMode = LEVEL_ADVISE;
   //
   //  Data structures for conducting time-sliced placement of private venues:
   protected Blueprint canPlace[];
@@ -116,11 +110,6 @@ public class BaseSetup {
   
   public void setAvailableVenues(Blueprint... canPlace) {
     this.canPlace = canPlace;
-  }
-  
-  
-  public void setControlLevel(int mode) {
-    this.setupMode = mode;
   }
   
   
@@ -440,43 +429,6 @@ public class BaseSetup {
     );
   }
   
-  
-  public Object[] needSatisfaction() {
-    final List <Object> needs = new List <Object> () {
-      protected float queuePriority(Object r) {
-        return needRating(r);
-      }
-    };
-    if (setupMode == LEVEL_CUSTOM || GameSettings.noAdvice) {
-      return needs.toArray();
-    }
-    
-    for (Traded t : Economy.ALL_PROVISIONS) {
-      if (base.commerce.primaryShortage(t) < 0.5f) continue;
-      if (base.commerce.primaryDemand  (t) < 5   ) continue;
-      needs.add(t);
-    }
-    for (Traded t : Economy.ALL_MATERIALS) {
-      if (base.commerce.primaryShortage(t) < 0.5f) continue;
-      if (base.commerce.primaryDemand  (t) < 5   ) continue;
-      needs.add(t);
-    }
-    for (Traded t : Economy.ALL_SERVICES) {
-      if (base.demands.globalShortage(t) < 0.5f) continue;
-      if (base.demands.globalDemand  (t) < 5   ) continue;
-      needs.add(t);
-    }
-    return needs.toArray();
-  }
-  
-  
-  public float needRating(Object need) {
-    if (setupMode == LEVEL_CUSTOM) return 0;
-    if (need instanceof Traded) {
-      return base.commerce.primaryShortage((Traded) need);
-    }
-    return base.demands.globalShortage(need);
-  }
 }
 
 

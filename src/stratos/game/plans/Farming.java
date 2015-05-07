@@ -65,7 +65,7 @@ public class Farming extends Plan {
   
 
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     if ((! hasBegun()) && PlanUtils.competition(this, nursery, actor) > 0) {
       return 0;
     }
@@ -75,14 +75,11 @@ public class Farming extends Plan {
     if (report) {
       I.say("\nEvaluating farming priority for "+this);
       I.say("  Need for tending: "+need);
+      I.say("  Motive bonus:     "+motiveBonus());
     }
     
-    final float priority = priorityForActorWith(
-      actor, nursery,
-      ROUTINE, (need - 0.5f) * ROUTINE, MILD_HELP,
-      MILD_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
-      report
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, need, 1, 0, 0, BASE_TRAITS
     );
     return Nums.max(min, priority);
   }
@@ -184,6 +181,8 @@ public class Farming extends Plan {
   
   
   private Action returnHarvestAction(int amountNeeded) {
+    if (! hasBegun()) return null;
+    
     final boolean hasSample = actor.gear.amountOf(SAMPLES) > 0;
     final float sumHarvest = sumHarvest();
     

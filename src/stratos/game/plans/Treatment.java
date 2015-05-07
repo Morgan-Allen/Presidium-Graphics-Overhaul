@@ -79,7 +79,7 @@ public class Treatment extends Plan implements Item.Passive {
     //
     //  By default, we pick the most severe conditions first.
     final Pick <Condition> pick = new Pick <Condition> (null, 0);
-    for (Condition c : Conditions.TREATABLE_CONDITIONS) {
+    for (Condition c : Conditions.ALL_CONDITIONS) {
       pick.compare(c, dangerRating(c, patient));
     }
     if (pick.empty()) return null;

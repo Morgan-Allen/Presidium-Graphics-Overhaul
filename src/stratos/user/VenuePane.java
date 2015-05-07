@@ -311,7 +311,7 @@ public class VenuePane extends SelectionPane {
     d.append("Visitors: ");
     boolean anyVisit = false;
     for (Mobile m : v.inside()) {
-      if (v.staff.doesBelong(m)) continue;
+      if (Staff.doesBelong(m, v)) continue;
       descActor(m, d, UI);
       anyVisit = true;
     }

@@ -194,7 +194,7 @@ public class IntelMap {
   //  it's available.
   
   public static Tile getUnexplored(
-    Base base, Object client,
+    Base base, Target client,
     Target centre, float distanceUnit, final float maxDist
   ) {
     if (GameSettings.fogFree || base.primal) return null;
@@ -278,7 +278,23 @@ public class IntelMap {
         }
       }
     }
-    return picked;
+    //
+    //  Finally, we check to ensure that the path selected is, in fact,
+    //  possible to path toward:
+    if (picked == null) return null;
+    if (client instanceof Mobile) {
+      if (world.pathingCache.hasPathBetween(
+        client, picked, (Mobile) client, report
+      )) return picked;
+      else return null;
+    }
+    else return picked;
   }
 }
+
+
+
+
+
+
 
