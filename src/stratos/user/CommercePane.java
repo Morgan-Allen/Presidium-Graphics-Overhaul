@@ -20,8 +20,8 @@ public class CommercePane extends SelectionPane {
     COMMERCE_ICON_LIT = Button.CIRCLE_LIT;
   
   final static String
-    CAT_DEMAND   = "MARKETS",
-    CAT_BUDGET   = "BUDGETING",
+    CAT_DEMAND   = "[MARKETS]",
+    CAT_BUDGET   = "[BUDGETS]",
     CATEGORIES[] = { CAT_DEMAND, CAT_BUDGET };
   
   
@@ -36,7 +36,7 @@ public class CommercePane extends SelectionPane {
   static Button createButton(final BaseUI baseUI) {
     final CommercePane pane = new CommercePane(baseUI);
     final Button button = new Button(
-      baseUI, COMMERCE_ICON, COMMERCE_ICON_LIT, "Finance and Legislation"
+      baseUI, COMMERCE_ICON, COMMERCE_ICON_LIT, "Finance"
     ) {
       protected void whenClicked() {
         if (baseUI.currentPane() == pane) {

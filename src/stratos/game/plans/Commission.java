@@ -172,7 +172,8 @@ public class Commission extends Plan {
     //  And if the order isn't placed yet, try to avoid venues that have a lot
     //  of orders placed...
     if (! done) {
-      modifier -= actor.motives.greedPriority(price / ITEM_WEAR_DURATION);
+      final float dailyPrice = price / GameSettings.ITEM_WEAR_DAYS;
+      modifier -= actor.motives.greedPriority(dailyPrice);
     }
     if (orderDate == -1 && ! done) {
       modifier -= shop.stocks.specialOrders().size() * ROUTINE / MAX_ORDERS;

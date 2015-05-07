@@ -27,7 +27,7 @@ public class BaseCommerce {
     tradeVerbose   = verbose && false;
   
   final public static float
-    SHIP_JOURNEY_TIME   = Stage.STANDARD_DAY_LENGTH / 2f,
+    SHIP_JOURNEY_TIME   = Stage.STANDARD_DAY_LENGTH / 4f,
     SHIP_VISIT_DURATION = Stage.STANDARD_HOUR_LENGTH * 6,
     SHIP_UPDATE_CHANCE  = 1f / 4,
     

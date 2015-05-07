@@ -14,13 +14,15 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Consider merging this with Resting.
+
 public class Recreation extends Plan {
   
   
   /**  Data fields, construction and save/load methods-
     */
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     stepsVerbose = false;
   
   
@@ -100,40 +102,40 @@ public class Recreation extends Plan {
   /**  Finding and evaluating targets-
     */
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nEvaluating recreation priority for "+actor);
+    }
     
     if (cost > actor.gear.allCredits() / 2f) return -1;
     if (cost > 0 && ! venue.openFor(actor)) return -1;
     
-    final float need = 1f - actor.health.moraleLevel();
-    float modifier = NO_MODIFIER;
-    modifier += CASUAL * rateComfort(venue, actor, this) / 10;
-    modifier *= need;
-    modifier -= actor.motives.greedPriority((int) cost);
-    if (modifier <= 0) return -1;
+    final float
+      needFun = 1f - actor.health.moraleLevel(),
+      comfort = rateComfort(venue, actor, this),
+      cashPen = actor.motives.greedPriority(cost),
+      indulge = actor.traits.relativeLevel(INDULGENT) * CASUAL / 2;
     
-    final float priority = priorityForActorWith(
-      actor, venue,
-      CASUAL * (1 + need) / 2, modifier,
-      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
-      NO_SKILLS, ENJOYMENT_TRAITS[type], NORMAL_DISTANCE_CHECK,
-      report
+    float priority = CASUAL + (needFun * (comfort + 1)) + indulge - cashPen;
+    if (report) I.reportVars(
+      "\nRecreation priority", "  ",
+      "needFun", needFun,
+      "comfort", comfort,
+      "indulge", indulge,
+      "cost"   , cost   ,
+      "cashPen", cashPen
     );
-    if (report) {
-      I.say("  Comfort level:  "+rateComfort(venue, actor, this));
-      I.say("  Need for fun:   "+need);
-      I.say("  Final priority: "+priority);
-    }
     return priority;
   }
   
   
   public static float rateComfort(Venue at, Actor actor, Recreation r) {
     float performValue = Performance.performValueFor(at, r) / 10f;
-    if (performValue < 0) return -1;
+    if (performValue < 0) performValue = 0;
+    //
     //  TODO:  Average with ambienceVal for a Venue's structure?
     float ambience = actor.world().ecology().ambience.valueAt(at) / 2f;
-    return performValue + ambience;
+    return (performValue + ambience) / 2;
   }
   
   
@@ -155,6 +157,9 @@ public class Recreation extends Plan {
     final boolean report = stepsVerbose && (
       I.talkAbout == actor || I.talkAbout == venue
     );
+    if (report) {
+      I.say("\n"+actor+" relaxing at "+venue);
+    }
     //
     //  Make any neccesary initial payment-
     float comfort = rateComfort(venue, actor, this);
@@ -171,7 +176,6 @@ public class Recreation extends Plan {
     comfort *= enjoyBonus;
     
     if (report) {
-      I.say("\n"+actor+" relaxing at "+venue);
       I.say("  Comfort level: "+comfort);
       I.say("  Morale level:  "+actor.health.moraleLevel());
     }

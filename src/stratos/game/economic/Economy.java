@@ -6,13 +6,12 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.civic.*;
+import stratos.game.common.Stage;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
 
-
-//  TODO:  ...Organics.  That's the name for carbons.
 
 public final class Economy {
   
@@ -34,9 +33,7 @@ public final class Economy {
     DEFAULT_IMPORT_MARGIN  = 0.5f,
     DEFAULT_EXPORT_MARGIN  = 0.5f,
     DEFAULT_SMUGGLE_MARGIN = 1.0f;
-  final public static float
-    ITEM_WEAR_DURATION = 100;
-
+  
   
   final static Table <Traded, Integer> CATEGORY_TABLE, CT;
   static { CATEGORY_TABLE = CT = new Table <Traded, Integer> (); }
@@ -102,12 +99,12 @@ public final class Economy {
       "Long-chain hydrocarbons, used in plastics production"
     ),
     METALS = new Traded(
-      BC, "Ores"     , "ores.gif"     , FORM_MATERIAL, 10,
+      BC, "Metals"   , "ores.gif"     , FORM_MATERIAL, 10,
       "Common metal ores, used in construction and industry"
     ),
     ISOTOPES = new Traded(
       BC, "Isotopes" , "fuel rods.gif" , FORM_MATERIAL, 35,
-      "Heavy or radioactive elements used in nuclear synthesis"
+      "Heavy or unstable elements used in nuclear synthesis"
     ),
     ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, METALS, ISOTOPES),
     
@@ -151,11 +148,11 @@ public final class Economy {
     ),
     PRESSFEED = new Traded(
       BC, "Pressfeed", "pressfeed.gif", FORM_SPECIAL, 50,
-      "Disposable propaganda used to raise morale"
+      "Disposable propaganda used to raise morale and sway opinion"
     ),
     DATALINKS = new Traded(
       BC, "Datalinks", "datalinks.gif", FORM_SPECIAL, 125,
-      "Encrypted information relays suited to advanced study"
+      "Encrypted terminals used to store and carry information"
     ),
     DECOR = new Traded(
       BC, "Decor"    , "decor.gif"    , FORM_SPECIAL, 250,

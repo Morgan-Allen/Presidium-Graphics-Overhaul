@@ -49,7 +49,7 @@ public interface Backgrounds {
     NOT_A_GUILD     = -1;
   
   final public static float
-    NUM_DAYS_PAY      = 20 * GameSettings.SPEND_DIVISOR,
+    NUM_DAYS_PAY      = 20 / GameSettings.SPENDING_MULT,
     PAY_INTERVAL      = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_PAY,
     MIN_DAILY_EXPENSE = 100 / PAY_INTERVAL;
   final public static int
@@ -248,7 +248,7 @@ public interface Backgrounds {
       "Former Engineers perform forestry and carbons-cycling to accelerate "+
       "terraforming efforts and extract raw materials sustainably.",
       "ecologist_skin.gif", "ecologist_portrait.png",
-      CLASS_AGENT, GUILD_ECOLOGIST,
+      CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR, CULTIVATION,
       LEARNING, GENE_CULTURE, SURVEILLANCE,
       RARELY, OUTGOING, OFTEN, POSITIVE,

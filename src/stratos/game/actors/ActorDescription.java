@@ -77,7 +77,7 @@ public class ActorDescription implements Qualities {
       else if (h.health.asleep()) {
         priority = Resting.sleepPriority(h);
       }
-      if (priority > 0) {
+      if (priority > 0 || true) {
         d.append(" ("+Plan.priorityDescription(priority)+")");
       }
     }
@@ -97,12 +97,8 @@ public class ActorDescription implements Qualities {
     else d.append("\n  Resident at: No residence");
     //
     //  Describe your core items of gear:
-    d.append("\n\nEquipment and Condition:");
-    
+    d.append("\n\nCondition:");
     final int
-      MS = (int) h.gear.maxShields  (),
-      SC = (int) h.gear.shieldCharge(),
-      PC = (int) h.gear.powerCells  (),
       IL = (int) h.health.injury    (),
       FL = (int) h.health.fatigue   (),
       MH = (int) h.health.maxHealth ();
@@ -110,28 +106,17 @@ public class ActorDescription implements Qualities {
     d.append("\n  Health: "+(MH - IL)+"/"+MH);
     if (FL > 0) d.append(" (Fatigue "+FL+")");
     
-    final Item device = h.gear.deviceEquipped();
-    
-    if (device != null) {
-      d.append("\n  "+device+" ("+((int) h.gear.attackDamage())+")");
-      if (PC > 0) d.append(" (Power "+PC+")");
-    }
-    
-    final Item outfit = h.gear.outfitEquipped();
-    final boolean showShields = MS > 0 || SC > 0;
-    if (outfit != null) {
-      d.append("\n  "+outfit+" ("+((int) h.gear.armourRating())+")");
-    }
-    else if (showShields) d.append("\n  No outfit");
-    if (showShields) d.append(" (Shields "+SC+"/"+MS+")");
-    
+    final int
+      hunger = (int) (h.health.hungerLevel() * 100),
+      morale = (int) (h.health.moraleLevel() * 100);
+    d.append("\n  Morale: "+morale+"%");
+    if (hunger > 0) d.append(" (Hunger "+hunger+"%)");
     //
-    //  Describe any special status FX:
+    //  And describe any special status FX:
     final Batch <String   > healthDesc = new Batch <String> ();
-    final Batch <Condition> conditions = h.traits.conditions();
-    for (Condition c : conditions) healthDesc.add(h.traits.description(c));
-    healthDesc.add(h.health.hungerDesc());
-    healthDesc.add(h.health.moraleDesc());
+    for (Condition c : Conditions.ALL_CONDITIONS) {
+      if (h.traits.traitLevel(c) > 0) healthDesc.add(h.traits.description(c));
+    }
     d.append("\n  ");
     for (String s : healthDesc) if (s != null) {
       d.append(s);
@@ -142,14 +127,24 @@ public class ActorDescription implements Qualities {
   
   private void describeGear(Description d, HUD UI) {
     //
-    //  First, describe your finances:
-    d.append("Credits: ");
-    final int credits = (int) h.gear.taxedCredits();
-    if (credits > 0) {
-      d.append("  "+credits+" Savings");
-      d.append(" ("+(int) h.gear.unTaxed()+" Untaxed)");
+    //  First, describe major pieces of equipment:
+    d.append("Outfit & Equipment: ");
+    final int
+      MS = (int) h.gear.maxShields  (),
+      SC = (int) h.gear.shieldCharge(),
+      PC = (int) h.gear.powerCells  ();
+    final Item device = h.gear.deviceEquipped();
+    if (device != null) {
+      d.append("\n  "+device+" ("+((int) h.gear.attackDamage())+")");
+      if (PC > 0) d.append(" (Power "+PC+")");
     }
-    if (credits < 0) d.append("\n  "+(0 - credits)+" Credits in debt");
+    final Item outfit = h.gear.outfitEquipped();
+    final boolean showShields = MS > 0 || SC > 0;
+    if (outfit != null) {
+      d.append("\n  "+outfit+" ("+((int) h.gear.armourRating())+")");
+    }
+    else if (showShields) d.append("\n  No outfit");
+    if (showShields) d.append(" (Shields "+SC+"/"+MS+")");
     //
     //  Then any other items carried:
     final Batch <Item> carried = h.gear.allItems();
@@ -157,6 +152,14 @@ public class ActorDescription implements Qualities {
       d.append("\n\nCarried: ");
       for (Item item : carried) d.append("\n  "+item);
     }
+    //
+    //  Then describe your finances:
+    final int credits = (int) h.gear.allCredits();
+    if (credits > 0) {
+      d.append("\n  "+(int) h.gear.taxedCredits()+" Credits Saved");
+      d.append(  " ("+(int) h.gear.unTaxed     ()+" Untaxed)"     );
+    }
+    if (credits < 0) d.append("\n  "+(0 - credits)+" Credits in debt");
   }
   
   

@@ -19,13 +19,20 @@ public class GameSettings {
     */
   //  TODO:  It's possible that these should be base or scenario-specific,
   //  rather than global?
+  
+  
+  //
+  //  
   final public static float
     SMALL_HUMAN_SCALE = 0.55f,
-    BIG_HUMAN_SCALE   = 0.80f;
+    BIG_HUMAN_SCALE   = 0.75f;
   
-  //  Used to scale all prices up and down.
-  final public static int
-    SPEND_DIVISOR = 5;
+  //
+  //  I'm including a number of vital economic constants here, since they have
+  //  a pretty significant impact on gameplay.
+  final public static float
+    SPENDING_MULT  = 0.4f,
+    ITEM_WEAR_DAYS = 30  ;
   
   //  Gameplay effects-
   public static boolean

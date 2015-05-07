@@ -202,7 +202,7 @@ public class ActorMotives {
     final Profile p = actor.base().profiles.profileFor(actor);
     
     float baseUnit = actor.gear.allCredits();
-    baseUnit += ((100f / GameSettings.SPEND_DIVISOR) + p.salary()) / 2;
+    baseUnit += ((100f * GameSettings.SPENDING_MULT) + p.salary()) / 2;
     baseUnit /= Backgrounds.NUM_DAYS_PAY;
     if (baseUnit <= 0) return Plan.PARAMOUNT;
     

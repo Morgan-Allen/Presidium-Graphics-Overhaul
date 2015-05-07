@@ -267,10 +267,9 @@ public class Holding extends Venue {
   
   
   private void consumeMaterials() {
-    
+    //
     //  Decrement stocks and update demands-
-    float wear = Structure.WEAR_PER_DAY;
-    wear /= Stage.STANDARD_DAY_LENGTH * structure.maxIntegrity();
+    float wear = 1f / (GameSettings.ITEM_WEAR_DAYS * Stage.STANDARD_DAY_LENGTH);
     final int maxPop = OCCUPANCIES[upgradeLevel];
     float count = 0;
     for (Actor r : staff.lodgers()) if (r.aboard() == this) count++;

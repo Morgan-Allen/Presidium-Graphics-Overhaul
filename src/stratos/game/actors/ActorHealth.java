@@ -66,8 +66,8 @@ public class ActorHealth implements Qualities {
     MAX_INJURY       =  1.5f,
     MAX_DECOMP       =  2.5f,
     MAX_FATIGUE      =  1.0f,
-    MAX_MORALE       =  0.5f,
-    MIN_MORALE       = -1.5f,
+    MAX_MORALE       =  1.5f,
+    MIN_MORALE       = -0.5f,
     REVIVE_THRESHOLD =  0.5f,
     DECOMP_FRACTION  = (MAX_DECOMP - MAX_INJURY) / 1.0f,
     RUN_FATIGUE_MULT = 10.0f,
@@ -692,7 +692,7 @@ public class ActorHealth implements Qualities {
     //  current stress levels.
     final float
       stress        = stressPenalty(),
-      defaultMorale = actor.traits.traitLevel(POSITIVE) / 10f,
+      defaultMorale = actor.traits.relativeLevel(POSITIVE) / 10f,
       moraleInc     = MORALE_DECAY_PER_DAY * MM / DL;
     morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc);
     morale -= stress / DL;

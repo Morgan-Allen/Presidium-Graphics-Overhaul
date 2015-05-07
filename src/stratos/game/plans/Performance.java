@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -11,8 +13,6 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
-
-//  TODO:  Assign the various song-IDs to the venue, not the behaviour!
 
 public class Performance extends Recreation {
   
@@ -107,7 +107,7 @@ public class Performance extends Recreation {
     
     for (Mobile m : venue.inside()) if (m instanceof Actor) {
       final Performance match = (Performance) ((Actor) m).matchFor(this);
-      if (match == null) continue;
+      if (match == null || match.finished()) continue;
       lead = match;
       actID = lead.actID;
       performValue = lead.performValue + Rand.range(-2, 2);
@@ -190,7 +190,7 @@ public class Performance extends Recreation {
     */
   final static Trait BASE_TRAITS[] = { OUTGOING, CREATIVE };
   
-  public float priorityFor(Actor actor) {
+  public float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
     if (expired()) {
       if (report) {

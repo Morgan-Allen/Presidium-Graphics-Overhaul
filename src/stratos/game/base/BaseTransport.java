@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -26,7 +24,7 @@ public class BaseTransport {
     */
   final static int PATH_RANGE = Stage.ZONE_SIZE / 2;
   private static boolean
-    paveVerbose      = true ,
+    paveVerbose      = false,
     distroVerbose    = false,
     checkConsistency = false;
   

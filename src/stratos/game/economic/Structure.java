@@ -60,7 +60,7 @@ public class Structure {
     DEFAULT_AMBIENCE   = 0;
   final public static float
     BURN_PER_SECOND = 1.0f,
-    WEAR_PER_DAY    = 0.5f,
+    //WEAR_PER_DAY    = 0.5f,
     REGEN_PER_DAY   = 0.2f;
   final public static String
     DAMAGE_KEY = "damaged";
@@ -280,7 +280,8 @@ public class Structure {
       (numUpdates % 10 == 0) &&
       takesWear() && (integrity > 0)
     ) {
-      float wear = WEAR_PER_DAY * 10f / Stage.STANDARD_DAY_LENGTH;
+      float wear = 10f / Stage.STANDARD_DAY_LENGTH;
+      wear *= baseIntegrity / GameSettings.ITEM_WEAR_DAYS;
       if (structureType == TYPE_FIXTURE) wear /= 2;
       if (structureType == TYPE_CRAFTED) wear *= 2;
       if (Rand.num() > armouring / (armouring + DEFAULT_ARMOUR)) {

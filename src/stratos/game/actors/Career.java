@@ -527,7 +527,7 @@ public class Career implements Qualities {
     
     //  TODO:  BASE THIS OFF THE ACQUISITIVE-TRAIT
     float cash = ((Rand.num() + 0.5f) * v.defaultSalary) + Rand.index(10);
-    actor.gear.incCredits(cash / (2 * GameSettings.SPEND_DIVISOR));
+    actor.gear.incCredits(cash * GameSettings.SPENDING_MULT / 2);
     actor.gear.taxDone();
   }
 }

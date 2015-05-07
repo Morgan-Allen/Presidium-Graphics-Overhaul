@@ -166,6 +166,7 @@ public class HumanMind extends ActorMind implements Qualities {
   private void addConstantResponses(Choice choice) {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting constant responses.");
+    choice.isVerbose = report;
     
     //  TODO:  You need to respond to more distant actors/venues/items here?
     for (Target e : actor.senses.awareOf()) {
@@ -186,10 +187,12 @@ public class HumanMind extends ActorMind implements Qualities {
     choice.add(new Retreat(actor));
     
     if (work != null) {
+      if (report) I.say("  Work is "+work);
       work.addTasks(choice, actor, actor.mind.vocation());
       choice.add(new Payday(actor, work));
     }
     if (home != null) {
+      if (report) I.say("  Home is "+home);
       if (home != null) home.addTasks(choice, actor, Backgrounds.AS_RESIDENT);
       choice.add(new Resting(actor, home));
     }

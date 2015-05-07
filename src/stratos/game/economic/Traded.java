@@ -65,7 +65,7 @@ public class Traded extends Index.Entry implements Session.Saveable {
     this.name = name;
     this.description = description;
     
-    this.basePrice = basePrice / GameSettings.SPEND_DIVISOR;
+    this.basePrice = basePrice * GameSettings.SPENDING_MULT;
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
     

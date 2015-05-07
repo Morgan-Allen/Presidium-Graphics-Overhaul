@@ -124,7 +124,6 @@ public class Dropship extends Vehicle implements Owner {
   }
   
   
-  //public int owningType() { return Element.VENUE_OWNS; }
   public int pathType() { return Tile.PATH_BLOCKS; }
   public float height() { return 1.5f; }
   public float radius() { return 1.5f; }

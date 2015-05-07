@@ -160,6 +160,9 @@ public class Bringing extends Plan {
     if (pays instanceof Actor) attemptToBind((Actor) pays);
     if (! checkValidPayment(pays)) return null;
     
+    final Owner setsPrice = (origin.owningTier() > destination.owningTier()) ?
+      origin : destination
+    ;
     if (priceLimit && pays != null) {
       final float maxPrice = pays.inventory().allCredits() / 2;
       goodsPrice  =  0;
@@ -168,7 +171,7 @@ public class Bringing extends Plan {
       
       itemsLoop: for (Item i : items) {
         while (true) {
-          price = i.priceAt(origin);
+          price = i.priceAt(setsPrice);
           if (goodsPrice + price > maxPrice) {
             if (i.amount <= 1) break itemsLoop;
             i = Item.withAmount(i, i.amount - 1);
@@ -466,6 +469,10 @@ public class Bringing extends Plan {
     if (stage != STAGE_PICKUP) return false;
     if (driven != null && ! drivingDone(origin)) return false;
     
+    if (I.talkAbout == actor) {
+      I.say("Picking up!");
+    }
+    
     //  TODO:  Return the suspensor to it's point of origin.  (Not a lot of
     //         extra effort now.)
     if (goodsBulk > 5 && driven == null) {
@@ -478,7 +485,8 @@ public class Bringing extends Plan {
     //  Perform the actual transfer of goods and, if making a personal trade,
     //  make the payment required:
     transferGoods(origin, driven == null ? actor : driven);
-    if (shouldPay != null) origin.inventory().incCredits(goodsPrice);
+    if (shouldPay != null ) origin.inventory().incCredits(goodsPrice);
+    if (shouldPay == actor) actor.gear.incCredits(0 - goodsPrice);
     stage = STAGE_DROPOFF;
     return true;
   }
@@ -525,7 +533,9 @@ public class Bringing extends Plan {
     
     if (suspensor != null && suspensor.inWorld()) suspensor.exitWorld();
     transferGoods(driven == null ? actor : driven, destination);
-    if (shouldPay != null) shouldPay.inventory().incCredits(0 - goodsPrice);
+    
+    final float cost = 0 - goodsPrice;
+    if (shouldPay == destination) shouldPay.inventory().incCredits(cost);
     
     if (driven != null) stage = STAGE_RETURN;
     else stage = STAGE_DONE;
