@@ -54,7 +54,7 @@ public class VerseLocation extends Background {
   final public Traded goodsMade[], goodsNeeded[];
   final public int population;
   
-  final Table <Background[], Float> circles = new Table();
+  final Table <Background, Float> circles = new Table();
   
   
   public VerseLocation(
@@ -86,8 +86,7 @@ public class VerseLocation extends Background {
       }
       if (arg instanceof Float) rating = (Float) arg;
       if (arg instanceof Background[]) {
-        final Background circle[] = (Background[]) arg;
-        circles.put(circle, rating);
+        for (Background b : (Background[]) arg) circles.put(b, rating);
       }
     }
     
@@ -97,14 +96,16 @@ public class VerseLocation extends Background {
   }
   
   
-  public Background[][] circles() {
-    final Background[][] result = new Background[circles.size()][];
+  public Background[] circles() {
+    final Background[] result = new Background[circles.size()];
     return circles.values().toArray(result);
   }
   
   
-  public float weightFor(Background[] circle) {
-    return circles.get(circle);
+  public float weightFor(Background circle) {
+    final Float weight = circles.get(circle);
+    if (weight == null) return 0;
+    return weight;
   }
   
   
@@ -115,5 +116,11 @@ public class VerseLocation extends Background {
     return null;
   }
 }
+
+
+
+
+
+
 
 

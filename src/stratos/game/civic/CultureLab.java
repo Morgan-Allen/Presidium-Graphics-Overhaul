@@ -168,8 +168,8 @@ public class CultureLab extends Venue {
   
   
   public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
     final Choice choice = new Choice(actor);
+    final boolean noShift = staff.shiftFor(actor) == OFF_DUTY;
     //
     //  Replicants need to be delivered to their Sickbays once ready, and other
     //  basic goods also need to be transported.
@@ -182,6 +182,7 @@ public class CultureLab extends Venue {
       }
     }
     choice.add(BringUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5));
+    if (! noShift) return choice.pickMostUrgent();
     //
     //  Foodstuffs-
     final Manufacture mS = stocks.nextManufacture(actor, WASTE_TO_CARBS);

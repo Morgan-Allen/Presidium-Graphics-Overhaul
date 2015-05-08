@@ -349,6 +349,7 @@ public class ShipUtils {
     final TileSpread spread = new TileSpread(init) {
       protected boolean canAccess(Tile t) {
         if (Spacing.distance(t, init) > maxDist) return false;
+        if (PavingMap.pavingReserved(t, false)) return false;
         return ! t.blocked();
       }
       protected boolean canPlaceAt(Tile t) {

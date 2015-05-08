@@ -78,7 +78,7 @@ public class PavingMap {
   
   public boolean refreshPaving(Tile tiles[]) {
     for (Tile t : tiles) {
-      if (! t.reserved()) refreshPaving(t);
+      refreshPaving(t);
     }
     return true;
   }

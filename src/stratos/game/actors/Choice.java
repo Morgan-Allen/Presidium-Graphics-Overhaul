@@ -17,7 +17,7 @@ public class Choice implements Qualities {
   public static boolean
     verbose       = false,
     verboseReject = false,
-    verboseSwitch = true ;
+    verboseSwitch = false;
   
   final Actor actor;
   final Batch <Behaviour> plans = new Batch <Behaviour> ();

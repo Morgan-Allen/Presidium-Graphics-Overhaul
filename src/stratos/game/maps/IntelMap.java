@@ -245,6 +245,7 @@ public class IntelMap {
       //  If we've narrowed the area down to a single tile, just return that.
       if (best.xdim() < 2) {
         picked = world.tileAt(best.xpos() + 0.5f, best.ypos() + 0.5f);
+        if (picked.blocked()) continue;
         break;
       }
       //
@@ -282,7 +283,10 @@ public class IntelMap {
     //  Finally, we check to ensure that the path selected is, in fact,
     //  possible to path toward:
     if (picked == null) return null;
-    if (client instanceof Mobile) {
+    
+    //  TODO:  This needs to be made much more efficient, so that probing can
+    //  be performing within the agenda-search itself.
+    if (false && client instanceof Mobile) {
       if (world.pathingCache.hasPathBetween(
         client, picked, (Mobile) client, report
       )) return picked;

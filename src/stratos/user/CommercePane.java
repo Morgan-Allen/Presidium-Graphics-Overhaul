@@ -122,34 +122,6 @@ public class CommercePane extends SelectionPane {
     final BaseCommerce BC = base.commerce;
     
     d.append("DEMAND REPORT FOR "+base);
-    boolean noLocal = true, noTrade = true;
-    
-    d.append("\n\nLocal Goods: (supply/demand)");
-    for (Traded t : Economy.ALL_MATERIALS) {
-      final int
-        demand = (int) BC.primaryDemand(t),
-        supply = (int) BC.primarySupply(t);
-      if (demand == 0 && supply == 0) continue;
-      else noLocal = false;
-      
-      Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+": "+supply+"/"+demand);
-    }
-    if (noLocal) d.append("\n  No local goods.");
-
-    Text.cancelBullet(d);
-    d.append("\n\nReserved For Trade: (import/export)");
-    for (Traded t : Economy.ALL_MATERIALS) {
-      final int
-        demand = (int) BC.importDemand(t),
-        supply = (int) BC.exportSupply(t);
-      if (demand == 0 && supply == 0) continue;
-      else noTrade = false;
-      
-      Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+": "+demand+"/"+supply);
-    }
-    if (noTrade) d.append("\n  No trade goods.");
     
     Text.cancelBullet(d);
     d.append("\n\nOffworld Prices (Buy | Sell | Base)");
@@ -188,6 +160,36 @@ public class CommercePane extends SelectionPane {
       d.append(")");
     }
     if (BC.partners().size() == 0) d.append("\n    No partners.");
+
+    boolean noLocal = true, noTrade = true;
+
+    Text.cancelBullet(d);
+    d.append("\n\nLocal Goods: (supply/demand)");
+    for (Traded t : Economy.ALL_MATERIALS) {
+      final int
+        demand = (int) BC.primaryDemand(t),
+        supply = (int) BC.primarySupply(t);
+      if (demand == 0 && supply == 0) continue;
+      else noLocal = false;
+      
+      Text.insert(t.icon.asTexture(), 20, 20, true, d);
+      d.append(" "+t+": "+supply+"/"+demand);
+    }
+    if (noLocal) d.append("\n  No local goods.");
+    
+    Text.cancelBullet(d);
+    d.append("\n\nReserved For Trade: (import/export)");
+    for (Traded t : Economy.ALL_MATERIALS) {
+      final int
+        demand = (int) BC.importDemand(t),
+        supply = (int) BC.exportSupply(t);
+      if (demand == 0 && supply == 0) continue;
+      else noTrade = false;
+      
+      Text.insert(t.icon.asTexture(), 20, 20, true, d);
+      d.append(" "+t+": "+demand+"/"+supply);
+    }
+    if (noTrade) d.append("\n  No trade goods.");
   }
 }
 

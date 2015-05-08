@@ -29,12 +29,6 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 *  Finalise perimeter fence artwork.
 
-*  There is still a strange bug in auto-paving that can cause actors to try and
-   pave tiled underneath venues.  (Also, they don't always delete correctly.)
-   Find out why...
-
-*  Nobody seems to visit the Cantina!  Boo!
-
 
 BUILDINGS AND ECONOMY-
    

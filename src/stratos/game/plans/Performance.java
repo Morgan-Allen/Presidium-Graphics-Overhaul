@@ -153,7 +153,8 @@ public class Performance extends Recreation {
   public static float performValueFor(Venue venue, Recreation r) {
     float value = 0, count = 0;
     for (Performance p : performancesMatching(venue, r)) {
-      value += p.performValue;
+      if (p.client == r.actor()) value += p.performValue * 5;
+      else value += p.performValue;
       count++;
     }
     if (count == 0) return -1;

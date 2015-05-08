@@ -5,7 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.base.BaseCommerce;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.user.*;
@@ -384,29 +384,37 @@ public class FindWork extends Plan {
     
     //  TODO:  Allow the player to set wages in a similar manner to setting
     //  goods' import/export levels.
-    guildFees += position.defaultSalary;
+    guildFees += position.defaultSalary / 2;
     if (guildFees == 0) return 0;
     
-    if (actor.inWorld()) {
+    final Stage world = employer.world();
+    final VerseLocation at = Verse.currentLocation(actor, world.offworld);
+    if (actor.inWorld() || at == null) {
       guildFees = 0;
     }
     else {
-      //  TODO:  ...This could be much higher, depending on origin point.
-      transport += 100;
+      //
+      //  We modify the cost of hiring based on the abundance of such workers
+      //  at the source-
+      final float weight = at.weightFor(position);
+      guildFees *= (2 - weight) / 2;
+      //
+      //  TODO:  Base this off travel times.
+      if (at == employer.base().commerce.homeworld()) transport += 50;
+      else transport += 100;
     }
-    if (employer instanceof Venue) {
-      final Venue venue = (Venue) employer;
-      if (venue.staff.numHired(position) == 0) {
-        guildFees /= 2;
-        transport /= 2;
-      }
-    }
-    
+    //
     //  TODO:  Set up incentive to join the settlement, based on settlement
     //  ratings and legislation.
-    
+    guildFees = Nums.round(guildFees, 25, true);
     return this.hireFee = guildFees + transport + incentive;
   }
   
 }
+
+
+
+
+
+
 

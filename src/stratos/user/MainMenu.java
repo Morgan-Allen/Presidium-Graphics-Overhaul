@@ -181,13 +181,11 @@ public class MainMenu extends UIGroup {
     
     help.append("\n\nEconomy: ");
     help.append("\n  Needs: "+I.list(location.goodsNeeded), lite);
-    //for (Object t : location.goodsNeeded) help.append(t+" ", lite);
     help.append("\n  Makes: "+I.list(location.goodsMade  ), lite);
-    //for (Object t : location.goodsMade  ) help.append(t+" ", lite);
     
     help.append("\n\nBonus Skills:");
     for (Skill s : config.house.skills()) {
-      help.append("\n    ("+s.name+" +5)", lite);
+      help.append("\n  ("+s.name+" +5)", lite);
     }
     configForNew(null);
   }

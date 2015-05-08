@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.economic;
 import stratos.game.base.*;
 import stratos.game.civic.*;
@@ -12,7 +10,7 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.PlaneFX;
+import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -444,31 +442,5 @@ public class Dropship extends Vehicle implements Owner {
     else super.describeStatus(d);
   }
 }
-
-
-
-//  TODO:  Decide on this later
-
-/*
-if (dropPoint instanceof Venue) {
-  final Venue hangar = (Venue) dropPoint;
-  final Traded t[] = hangar.services();
-  jobs.add(DeliveryUtils.bestBulkDeliveryFrom (hangar, t, 1, 10, 2));
-  jobs.add(DeliveryUtils.bestBulkCollectionFor(hangar, t, 1, 10, 2));
-}
-else {
-  if (report) {
-    I.say("  Goods lacked:  "+lacks.length);
-    for (Traded t : lacks) I.say("    "+t);
-    I.say("  Goods surplus: "+goods.length);
-    for (Traded t : goods) I.say("    "+t);
-  }
-  jobs.add(DeliveryUtils.bestBulkDeliveryFrom (this, goods, 1, 10, 2));
-  jobs.add(DeliveryUtils.bestBulkCollectionFor(this, lacks, 1, 10, 2));
-}
-//*/
-
-
-
 
 

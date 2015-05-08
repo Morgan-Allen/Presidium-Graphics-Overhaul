@@ -604,7 +604,7 @@ public class PathingCache {
   
   
   
-  /**  Finally, some utility methods for rapid checking of pathability betwee
+  /**  Finally, some utility methods for rapid checking of pathability between
     *  two points.
     *  TODO:  YOU WILL HAVE TO CACHE THIS KIND OF INFORMATION
     */

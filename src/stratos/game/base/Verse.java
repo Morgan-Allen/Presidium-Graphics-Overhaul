@@ -5,6 +5,7 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
+import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.actors.Qualities.*;
@@ -129,7 +130,7 @@ public class Verse {
       Verse.class, "Axis Novena", "House Taygeta",
       "Aided by it's low gravity and thin atmosphere, Axis Novena became the "+
       "centre of a large shipping industry and trade network- along with "+
-      "rampant smuggling and black market technology.",
+      "rampant smuggling and black-market tech research.",
       TUNDRA_BLOOD, MILD_GRAVITY, null, HIGH_POPULATION,
       VerseLocation.MAKES, CIRCUITRY, MEDICINE, SERVICE_COMMERCE,
       VerseLocation.NEEDS, GREENS, METALS, ANTIMASS,
@@ -425,6 +426,9 @@ public class Verse {
     }
     for (VerseBase base : universe.bases) if (base.isResident(mobile)) {
       return base.location;
+    }
+    if (mobile instanceof Human) {
+      return (VerseLocation) ((Human) mobile).career().homeworld();
     }
     return null;
   }

@@ -22,8 +22,10 @@ public class BorderedLabel extends UIGroup implements UIConstants {
   
   final Bordering bordering;
   final public Text text;
+  
   private boolean doFade = false;
-  private float fadeLevel = 0;
+  private String oldMessage = null;
+  private float fadeIn = 0, fadeOut = 0;
   
   
   public BorderedLabel(BaseUI UI) {
@@ -45,7 +47,12 @@ public class BorderedLabel extends UIGroup implements UIConstants {
   public void setMessage(String message, boolean doFade, float across) {
     text.setText(message);
     this.doFade = doFade;
-    this.fadeLevel = 1;
+    this.fadeOut = 1;
+    
+    if (oldMessage == null || ! oldMessage.equals(message)) {
+      oldMessage = message;
+      this.fadeIn = doFade ? 0 : 1;
+    }
     
     text.setToPreferredSize(UI.xdim());
     final int pw = (int) text.preferredSize().xdim();
@@ -63,12 +70,13 @@ public class BorderedLabel extends UIGroup implements UIConstants {
   
   protected void updateState() {
     bordering.alignToMatch(text, 10, 2);
-    text     .relAlpha = fadeLevel;
-    bordering.relAlpha = fadeLevel;
+    text     .relAlpha = Nums.min(fadeOut, fadeIn);
+    bordering.relAlpha = Nums.min(fadeOut, fadeIn);
     
     if (doFade) {
-      fadeLevel = Nums.clamp(fadeLevel - DEFAULT_FADE_INC, 0, 1);
-      if (fadeLevel == 0) text.setText("");
+      fadeOut = Nums.clamp(fadeOut - DEFAULT_FADE_INC, 0, 1);
+      fadeIn  = Nums.clamp(fadeIn  + DEFAULT_FADE_INC, 0, 1);
+      if (fadeOut == 0) text.setText("");
     }
     super.updateState();
   }

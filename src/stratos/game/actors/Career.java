@@ -132,13 +132,22 @@ public class Career implements Qualities {
     float knowNatives = actor.traits.traitLevel(NATIVE_TABOO);
     float knowRobots  = actor.traits.traitLevel(ANCIENT_LORE);
     
-    //  TODO:  IMPLEMENT THIS FOR THE OTHER BASES- AND KEY THIS OFF A SETTING-
-    //         BASED CONSTANT RATHER THAN A BASE INSTANCE.
-    final Stage world = base.world;
-    if (knowFauna > 0) {
-      final float like = Nums.clamp(knowFauna / 10, 0, 1);
-      actor.relations.setRelation(Base.wildlife(world), like / 2, 1 - like);
+    //  TODO:  KEY THIS OFF A SETTING-BASED FACTION RATHER THAN A LOCAL BASE.
+    for (Base b : base.world.bases()) {
+      if (b.isNative()) {
+        final float like = Nums.clamp(knowNatives / 10, 0, 1);
+        actor.relations.setRelation(b, like / 2, 1 - like);
+      }
+      if (b == Base.wildlife(base.world)) {
+        final float like = Nums.clamp(knowFauna   / 10, 0, 1);
+        actor.relations.setRelation(b, like / 2, 1 - like);
+      }
+      if (b == Base.artilects(base.world)) {
+        final float like = Nums.clamp(knowRobots  / 10, 0, 1);
+        actor.relations.setRelation(b, like / 2, 1 - like);
+      }
     }
+    
     
     //actor.relations.setRelation(other, value, novelty);
     
@@ -255,16 +264,18 @@ public class Career implements Qualities {
         pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num());
       }
     }
-    else for (Background circle[] : base.commerce.homeworld().circles()) {
-      final float weight = base.commerce.homeworld().weightFor(circle);
-      for (Background b : circle) {
+    else {
+      for (Background b : base.commerce.homeworld().circles()) {
+        final float weight = base.commerce.homeworld().weightFor(b);
+        if (weight <= 0) continue;
         pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num() * weight);
       }
       for (int n = NUM_RANDOM_CAREER_SAMPLES; n-- > 0;) {
         final Background b = (Background) Rand.pickFrom(
           Backgrounds.ALL_STANDARD_CIRCLES
         );
-        pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num() / 2);
+        final float weight = (1 + base.commerce.homeworld().weightFor(b)) / 2;
+        pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num() * weight);
       }
     }
     this.vocation = pick.result();
@@ -275,9 +286,13 @@ public class Career implements Qualities {
     if (verbose) I.say("\nApplying vocation: "+v);
     
     for (Skill s : v.baseSkills.keySet()) {
-      final int level = v.baseSkills.get(s);
-      actor.traits.raiseLevel(s, level + (Rand.num() * 10) - 5);
-      if (s.parent != null) actor.traits.raiseLevel(s.parent, level / 2);
+      final float
+        pastLevel = actor.traits.traitLevel(s),
+        baseLevel = v.baseSkills.get(s) + (Rand.num() * 5) - 2.5f,
+        bonus     = Nums.min(baseLevel, pastLevel) / 2,
+        newLevel  = Nums.max(baseLevel, pastLevel) + bonus;
+      actor.traits.setLevel(s, newLevel);
+      if (s.parent != null) actor.traits.setLevel(s.parent, newLevel / 2);
     }
     
     for (Trait t : v.traitChances.keySet()) {

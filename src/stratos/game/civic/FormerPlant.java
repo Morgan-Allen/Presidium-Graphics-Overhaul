@@ -151,6 +151,7 @@ public class FormerPlant extends Venue implements TileConstants {
       this, services(), 1, 5, 5
     );
     if (d != null) return d;
+    else if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
     Venue source = (EcologistStation) world.presences.nearestMatch(

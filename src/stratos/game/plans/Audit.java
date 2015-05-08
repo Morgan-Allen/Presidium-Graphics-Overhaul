@@ -179,8 +179,10 @@ public class Audit extends Plan {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nFinding next venue to audit for "+actor);
     
-    final Stage world = actor.world();
     final Venue work = (Venue) actor.mind.work();
+    if (work == null) return null;
+    
+    final Stage world = actor.world();
     final Batch <Venue> batch = new Batch <Venue> ();
     world.presences.sampleFromMap(work, world, 10, batch, work.base());
     batch.add(work);

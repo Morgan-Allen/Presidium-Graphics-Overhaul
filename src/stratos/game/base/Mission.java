@@ -436,7 +436,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final boolean report = (
       verbose && BaseUI.currentPlayed() == base
     ) || I.logEvents();
-    if (report) I.say("\nMISSION COMPLETE: "+this);
+    if (report) {
+      I.say("\nMISSION COMPLETE: "+this);
+    }
     //
     //  Unregister yourself from the base's list of ongoing operations-
     base.tactics.removeMission(this);
@@ -520,7 +522,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   protected float basePriority(Actor actor) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor;// && evalVerbose;
     if (report) {
       I.say("\nEvaluating priority for "+this);
       I.say("  Mission type:  "+missionType);
@@ -543,7 +545,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  offer for completing the task, together with a multiplier based on
     //  mission type- the more control you have, the more you must pay your
     //  candidates.
-    rewardEval =  REWARD_AMOUNTS[priority];
+    rewardEval =  REWARD_AMOUNTS   [priority   ];
     rewardEval *= REWARD_TYPE_MULTS[missionType];
     //
     //  We assume a worst-case scenario for division of the reward, just to
@@ -559,32 +561,34 @@ public abstract class Mission implements Session.Saveable, Selectable {
     else {
       rewardEval /= Nums.max(partySize, 1);
     }
-    
-    float value = actor.motives.greedPriority((int) rewardEval);
-    final int standing = actor.mind.vocation().standing;
-    value *= standing * 1f / Backgrounds.CLASS_STRATOI;
-    
-    final Actor ruler = base.ruler();
-    if (ruler != null) {
-      value += Plan.ROUTINE * actor.relations.valueFor(ruler);
-    }
+    float
+      greedVal = actor.motives.greedPriority((int) rewardEval),
+      standing = actor.mind.vocation().standing,
+      loyalAdd = standing * Plan.PARAMOUNT * 1f / Backgrounds.CLASS_STRATOI,
+      loyalVal = actor.relations.valueFor(base.ruler()) * loyalAdd,
+      offerVal = 0,
+      totalVal = Nums.max(greedVal, loyalVal);
     //
     //  If the actor has been pledged a special reward, add the value of that
     //  pledge.
     if (role != null && role.specialReward != null) {
-      final float specialVal = role.specialReward.valueFor(actor);
-      if (report) I.say("  Value for pledged reward: "+specialVal);
-      value += specialVal;
+      totalVal += offerVal = role.specialReward.valueFor(actor);
     }
     if (report) {
       I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
       I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);
       I.say("  Party capacity:    "+partySize+"/"+limit);
       I.say("  Evaluated reward:  "+rewardEval);
-      I.say("  Social standing:   "+standing);
-      I.say("  Priority value:    "+value);
+      float pay = actor.mind.vocation().defaultSalary;
+      pay /= Backgrounds.NUM_DAYS_PAY;
+      I.say("  Salary per day:    "+pay);
+      I.say("  Greed value:       "+greedVal);
+      I.say("  Pledge value:      "+offerVal);
+      I.say("  Social standing    "+standing);
+      I.say("  Loyalty value:     "+loyalVal);
+      I.say("  Priority value:    "+totalVal);
     }
-    return value;
+    return totalVal;
   }
   
   

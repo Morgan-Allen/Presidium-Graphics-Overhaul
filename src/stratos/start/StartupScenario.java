@@ -283,42 +283,50 @@ public class StartupScenario extends Scenario {
   
   protected List <Human> advisors(Base base, Actor ruler) {
     final List <Human> advisors = new List <Human> ();
-    final int numTries = 5;
+    final Background homeworld = config.house;
+    
     for (Background b : config.advisors) {
-      Human picked = null;
-      float bestRating = Float.NEGATIVE_INFINITY;
-      
-      for (int i = numTries; i-- > 0;) {
-        final Human candidate = new Human(b, base);
+      final Pick <Human> pick = new Pick <Human> ();
+      //
+      //  We make several attempts to find the 'best' candidate possible for
+      //  the job.
+      for (int i = 5; i-- > 0;) {
+        final Career c = new Career(b, null, homeworld, null);
+        final Human candidate = new Human(c, base);
         float rating = 0;
-        
+        //
+        //  ...Which in the case of marriage, involves attraction.
         if (b == Backgrounds.FIRST_CONSORT) {
           rating += ruler.motives.attraction(candidate) * 1.0f;
           rating += candidate.motives.attraction(ruler) * 0.5f;
+          rating += Career.ratePromotion(b, candidate, false) ;
         }
         else rating += Career.ratePromotion(b, candidate, false);
-        
-        if (rating > bestRating) { picked = candidate; bestRating = rating; }
+        pick.compare(candidate, rating);
       }
-      if (picked != null) advisors.add(picked);
+      if (pick.empty()) continue;
+      //
+      //  Once that's determined, we further increment their skills based on
+      //  those the ruler finds valuable:
+      final Human advisor = pick.result();
+      for (Skill s : config.chosenSkills) {
+        if (advisor.traits.traitLevel(s) > 0) advisor.traits.incLevel(s, 5);
+      }
+      advisors.add(advisor);
     }
-    
     return advisors;
   }
   
   
   protected List <Human> colonists(Base base) {
     final List <Human> colonists = new List <Human> ();
-    final Background house = config.house;
+    final Background homeworld = config.house;
     
     for (Background b : config.crew.keys()) {
       final int num = (int) config.crew.valueFor(b);
       for (int n = num; n-- > 0;) {
-        final Human c = new Human(b, base);
-        for (Skill s : house.skills()) if (c.traits.traitLevel(s) > 0) {
-          c.traits.incLevel(s, 5);
-        }
-        colonists.add(c);
+        final Career c = new Career(b, null, homeworld, null);
+        colonists.add(new Human(c, base));
       }
     }
     return colonists;

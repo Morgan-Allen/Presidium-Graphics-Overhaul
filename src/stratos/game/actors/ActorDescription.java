@@ -146,14 +146,10 @@ public class ActorDescription implements Qualities {
     else if (showShields) d.append("\n  No outfit");
     if (showShields) d.append(" (Shields "+SC+"/"+MS+")");
     //
-    //  Then any other items carried:
+    //  Then any other items carried, including current credits:
+    d.append("\n\nCarried: ");
     final Batch <Item> carried = h.gear.allItems();
-    if (carried.size() > 0) {
-      d.append("\n\nCarried: ");
-      for (Item item : carried) d.append("\n  "+item);
-    }
-    //
-    //  Then describe your finances:
+    for (Item item : carried) d.append("\n  "+item);
     final int credits = (int) h.gear.allCredits();
     if (credits > 0) {
       d.append("\n  "+(int) h.gear.taxedCredits()+" Credits Saved");

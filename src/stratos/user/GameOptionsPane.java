@@ -78,8 +78,15 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
         if (KeyInput.wasTyped(Keys.ESCAPE) && baseUI.currentTask() == null) {
           whenClicked();
         }
-        if (KeyInput.wasTyped('f')) {
+        if (KeyInput.wasTyped('f') || KeyInput.wasTyped('F')) {
           PlayLoop.setPaused(! PlayLoop.paused());
+        }
+        if (
+          baseUI.currentPane() != pane &&
+          baseUI.currentTask() == null &&
+          PlayLoop.paused()
+        ) {
+          BaseUI.setPopupMessage("Game Paused- Hit F to unpause");
         }
       }
     };

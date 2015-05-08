@@ -5,9 +5,7 @@ import stratos.game.common.*;
 import stratos.util.*;
 
 
-//
-//  TODO:  Generalise this to arbitrary destinations, including offworld or
-//  between sectors?
+//  TODO:  Generalise this to more than just paving tiles?
 
 
 public class Route {

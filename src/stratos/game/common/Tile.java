@@ -165,7 +165,7 @@ public final class Tile implements
   
   public boolean canPave() {
     if (! habitat().pathClear) return false;
-    return onTop == null || onTop.base() == null;
+    return onTop == null || onTop.owningTier() < Owner.TIER_PRIVATE;
   }
   
   
@@ -235,8 +235,7 @@ public final class Tile implements
     }
     
     this.onTop = e;
-    
-    if (this.onTop != null) {
+    if (! canPave()) {
       PavingMap.setPaveLevel(this, StageTerrain.ROAD_NONE, false);
     }
     

@@ -73,7 +73,9 @@ public class DebugConstruction extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.hireFree  = true;
     GameSettings.cashFree  = true;
-    if (true ) buildingScenario(world, base, UI);
+    
+    if (false) buildingScenario(world, base, UI);
+    if (true ) pavingScenario  (world, base, UI);
   }
   
   
@@ -96,9 +98,17 @@ public class DebugConstruction extends Scenario {
   }
   
   
+  private void pavingScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.buildFree = true;
+  }
+  
+  
   protected void afterCreation() {
   }
 }
+
+
+
 
 
 

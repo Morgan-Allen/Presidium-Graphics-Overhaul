@@ -8,14 +8,11 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
-//  TODO:  Replace the paving methods with something simpler and more elegant.
-//         Don't even bother with path-finding.  Just check if there's a
-//         'square' route available and use that if possible.
-
-
+//  TODO:  Use a single one of these for the entire world.
 
 public class BaseTransport {
   
@@ -85,41 +82,38 @@ public class BaseTransport {
     //
     //  NOTE:  This method only works with a single base in the world!
     if (! checkConsistency) return;
+    I.say("\nChecking consistency for paving map...");
     
     final byte mask[][] = new byte[world.size][world.size];
     boolean okay = true;
     
     for (Route route : allRoutes.keySet()) {
-      for (Tile t : route.path) mask[t.x][t.y]++;
-      if (route.start == route.end) continue;
-      //
-      //  Check if non-perimeter routes are sane:
-      Tile first = route.path[0], last = route.path[route.path.length - 1];
-      final boolean
-        noFirst = tileRoutes.get(first) == null,
-        noLast  = tileRoutes.get(last ) == null;
-      
-      if (noFirst || noLast) {
-        if (noFirst) I.say("NO FIRST JUNCTION");
-        if (noLast ) I.say("NO LAST JUNCTION" );
-        this.reportPath("  on path: ", route);
+      boolean routeOkay = true;
+      for (Tile t : route.path) {
+        mask[t.x][t.y]++;
+        if (! t.canPave()) {
+          I.say("  Should not pave at "+t+"!");
+          routeOkay = false;
+          okay = false;
+        }
       }
+      final boolean
+        noStart = ! checkEndpoint(route.start),
+        noEnd   = ! checkEndpoint(route.end  );
+      if (noStart || noEnd) {
+        if (noStart) I.say("  START POINT INVALID");
+        if (noEnd  ) I.say("  END   POINT INVALID");
+        routeOkay = false;
+      }
+      if (! routeOkay) this.reportPath("\n  Unsuitable route", route);
     }
     
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
       final int pM = mask[c.x][c.y], tM = map.roadCounter(t);
-      final boolean iR = PavingMap.isRoad(t);
-      final boolean flagged = map.isFlagged(t);
-      
       if (pM != tM) {
-        I.say("Discrepancy at: "+c+", "+pM+" =/= "+tM);
+        I.say("  Discrepancy at: "+c+", "+pM+" =/= "+tM);
         okay = false;
-      }
-      if (iR != tM > 0 && ! flagged) {
-        I.say("Unflagged discrepancy at "+c+", is road: "+iR+" "+tM);
-        map.refreshPaving(t);
-        I.say("  Flagged now? "+map.isFlagged(t));
       }
     }
     if (okay) I.say("No discrepancies in paving map found.");
@@ -128,14 +122,20 @@ public class BaseTransport {
 
   private void reportPath(String title, Route route) {
     I.add(""+title+": ");
-    if (route == null || route.path == null) I.add("No path.");
-    else {
-      I.add("Route length: "+route.path.length+"\n  ");
-      int i = 0; for (Tile t : route.path) {
-        I.add(t.x+"|"+t.y+" ");
-        if (((++i % 10) == 0) && (i < route.path.length)) I.add("\n  ");
-      }
+    if (route == null || route.path == null) { I.add("No path.\n"); return; }
+    
+    Target atBeg = route.start.entranceFor().first();
+    if (atBeg == null) atBeg = route.start.onTop();
+    Target atEnd = route.end.entranceFor().first();
+    if (atEnd == null) atEnd = route.end.onTop();
+    
+    I.add("Route length: "+route.path.length+"\n  ");
+    int i = 0; for (Tile t : route.path) {
+      I.add(t.x+"|"+t.y+" ");
+      if (((++i % 10) == 0) && (i < route.path.length)) I.add("\n  ");
     }
+    I.add("\n  Starts: "+atBeg+"  Ends: "+atEnd);
+    
     I.add("\n");
   }
   
@@ -195,7 +195,7 @@ public class BaseTransport {
         Tile aims = n.mainEntrance();
         if (n.blueprint.isFixture()) aims = world.tileAt(n);
         else if (aims == null) continue;
-        if (report) I.say("  Will attempt routing toward "+n+" ("+aims+")");
+        if (report) I.say("  Will try route to "+n+" ("+aims+")");
         
         final Route
           key   = new Route(t, aims),
@@ -211,7 +211,7 @@ public class BaseTransport {
     //  Any routes that have not been actively routed to are assumed to be
     //  redundant.
     if (fromTile != null) for (Route r : fromTile) {
-      if (! checkRouteValid(r)) {
+      if ((! isMember) || (! checkRouteValid(r))) {
         disownRoute(r);
         if (report) reportPath("\n  Discarding old route", r);
       }
@@ -270,6 +270,7 @@ public class BaseTransport {
       else if (under.onTop() != vA && under.onTop() != vB) return null;
     }
     route.path = filtered.toArray(Tile.class);
+    route.cost = route.path.length;
     return route;
   }
   
@@ -288,6 +289,7 @@ public class BaseTransport {
   
   
   private boolean checkRouteValid(Route r) {
+    for (Tile t : r.path) if (! t.canPave()) return false;
     return checkEndpoint(r.start) && checkEndpoint(r.end);
   }
   
@@ -463,11 +465,13 @@ public class BaseTransport {
   
   
   public void distributeProvisions(Base base) {
+    if (base == BaseUI.currentPlayed()) checkConsistency();
+    
     final boolean report = distroVerbose;
     if (report) I.say("\n\nDistributing provisions for base: "+base);
     final Batch <Batch <Venue>> allReached = new Batch();
     final Traded provided[] = Economy.ALL_PROVISIONS;
-
+    
     allSupply = new float[provided.length];
     allDemand = new float[provided.length];
     
@@ -489,87 +493,9 @@ public class BaseTransport {
 
 
 
+//  TODO:  There might still be some use for this.  See later.
 
 /*
-public void updateJunction(Venue v, Tile t, boolean isMember) {
-  final boolean report = paveVerbose && I.talkAbout == v;
-  if (t == null) {
-    if (report) I.say("CANNOT SUPPLY NULL TILE AS JUNCTION");
-    return;
-  }
-  
-  if (isMember) {
-    final Batch <Tile> routesTo = new Batch <Tile> ();
-    final Box2D area = new Box2D(v.areaClaimed()).expandBy(PATH_RANGE + 1);
-    
-    if (report) I.say("\nUpdating road junction: "+t+", Area: "+area);
-    //
-    //  First, we visit all registered junctions nearby, and include those
-    //  for subsequent routing to-
-    for (Target o : junctions.visitNear(null, -1, area)) {
-      final Tile jT = (Tile) o;
-      if (o == t || jT.flaggedWith() != null) continue;
-      jT.flagWith(routesTo);
-      routesTo.add(jT);
-    }
-    //
-    //  We also include all nearby base venues with entrances registered as
-    //  junctions.  (Any results are flagged to avoid duplicated work.)
-    for (Object o : t.world.presences.matchesNear(Venue.class, v, area)) {
-      final Venue n = (Venue) o;
-      if (n == v || n.base() != v.base()) continue;
-      final Tile jT = n.mainEntrance();
-      if (jT == null || jT == t || jT.flaggedWith() != null) continue;
-      if (! junctions.hasMember(jT, jT)) continue;
-      jT.flagWith(routesTo);
-      routesTo.add(jT);
-    }
-    //
-    //  (NOTE:  We perform the un-flag op in a separate pass to avoid any
-    //  interference with pathing-searches.)
-    for (Tile jT : routesTo) jT.flagWith(null);
-    updateJunction(v, t, routesTo, true);
-  }
-  else updateJunction(v, t, null, false);
-}
-
-
-public void updateJunction(
-  Fixture v, Tile t, Batch <Tile> routesTo, boolean isMember
-) {
-  final boolean report = paveVerbose && I.talkAbout == v;
-  final List <Route> oldRoutes = tileRoutes.get(t);
-  final Batch <Route> toDelete = new Batch <Route> ();
-  junctions.toggleMember(t, t, isMember);
-  
-  if (isMember) {
-    //
-    //  Any old routes that lack termini are assumed to be obsolete, and must
-    //  be deleted-
-    if (oldRoutes != null) for (Route r : oldRoutes) {
-      if (! checkRouteEfficiency(r, v)) toDelete.add(r);
-    }
-    //
-    //  Otherwise, establish routes to all the nearby junctions compiled.
-    for (Tile jT : routesTo) {
-      if (! checkRouteEfficiency(new Route(t, jT), v)) continue;
-      if (report) I.say("  Routing to: "+jT+" ("+jT.entranceFor()+")");
-      routeBetween(t, jT, report);
-    }
-  }
-  //
-  //  All routes are flagged as obsolete if the fixture is no longer a
-  //  map-member.  Either way, any obsolete routes are finally deleted.
-  else if (oldRoutes != null) {
-    if (report) I.say("\nDeleting old routes for: "+v);
-    Visit.appendTo(toDelete, oldRoutes);
-  }
-  for (Route r : toDelete) {
-    if (report) I.say("  Discarding unused route: "+r);
-    deleteRoute(r);
-  }
-}
-
 
 private boolean checkRouteEfficiency(final Route r, Fixture f) {
   final boolean report = I.talkAbout == f && paveVerbose && extraVerbose;
@@ -653,43 +579,6 @@ private boolean checkRouteEfficiency(final Route r, Fixture f) {
     I.say("  Best route?  "+bestRoute);
   }
   return bestRoute;
-}
-
-
-private boolean routeBetween(Tile a, Tile b, boolean report) {
-  if (a == b || a == null || b == null) return false;
-  //
-  //  Firstly, determine the correct current route.
-  final Route route = new Route(a, b);
-  final RoadSearch search = new RoadSearch(route.start, route.end);
-  search.doSearch();
-  route.path = search.fullPath(Tile.class);
-  route.cost = search.totalCost();
-  //
-  //  If the new route differs from the old, delete it, and install the new
-  //  version.  Otherwise return.
-  final Route oldRoute = allRoutes.get(route);
-  if (route.routeEquals(oldRoute) && map.refreshPaving(route.path)) {
-    return false;
-  }
-  if (report) {
-    I.say("Route between "+a+" and "+b+" has changed!");
-    this.reportPath("Old route", oldRoute);
-    this.reportPath("New route", route   );
-  }
-  //
-  //  If the route needs an update, clear the tiles and store the data:
-  if (oldRoute != null) deleteRoute(oldRoute);
-  if (search.success()) {
-    allRoutes.put(route, route);
-    toggleRoute(route, route.start, true);
-    toggleRoute(route, route.end  , true);
-    map.flagForPaving(route.path, true);
-  }
-  else if (report) {
-    I.say("Could not find route between "+a+" and "+b+"!");
-  }
-  return true;
 }
 //*/
 

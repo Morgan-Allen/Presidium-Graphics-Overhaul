@@ -21,7 +21,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose     = false,
+    verbose     = true ,
     failVerbose = true ;
   
   private static boolean reportOn(Actor a, float priority) {
@@ -190,7 +190,7 @@ public class PlanUtils {
     float rewardBonus, boolean idle, float competence
   ) {
     float incentive = 0, novelty = 0, priority = 0;
-    float danger = 0, exploreChance = 0, homeDist = 0;
+    float danger = 0, daylight = 0, exploreChance = 0, homeDist = 0;
     
     if (idle) novelty = 0.2f;
     else novelty = Nums.clamp(Nums.max(
@@ -198,17 +198,18 @@ public class PlanUtils {
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
     
+    daylight = Planet.dayValue(actor.world());
     danger   = 1f - PlanUtils.combatWinChance(actor, surveyed, 1);
     homeDist = homeDistanceFactor(actor, surveyed);
     
     exploreChance = actor.health.baseSpeed() * competence;
-    exploreChance *= Planet.dayValue(actor.world());
+    exploreChance *= (daylight + 1) / 2;
     
-    incentive = (novelty * 5) + rewardBonus;
+    incentive = ((novelty * 5) / (1 + homeDist)) + rewardBonus;
     incentive *= 1 + actor.traits.relativeLevel(Qualities.CURIOUS);
     
     priority = incentive * Nums.clamp(exploreChance, 0, 1);
-    priority -= (danger * 10) + (homeDist * 2.5f);
+    priority -= (danger * 10) + ((1 - daylight) * 2.5f);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
@@ -220,6 +221,7 @@ public class PlanUtils {
       "home distance" , homeDist     ,
       "explore chance", exploreChance,
       "ambient danger", danger       ,
+      "daylight"      , daylight     ,
       "priority"      , priority
     );
     
@@ -303,6 +305,8 @@ public class PlanUtils {
       shift = work.staff().shiftFor(actor);
       dutyBonus = (1 + actor.traits.relativeLevel(DUTIFUL)) * 1.25f;
       incentive += dutyBonus;
+      
+      //  TODO:  Use a scaling effect here instead?
       if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
       if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
     }
