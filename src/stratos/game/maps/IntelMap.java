@@ -286,7 +286,7 @@ public class IntelMap {
     
     //  TODO:  This needs to be made much more efficient, so that probing can
     //  be performing within the agenda-search itself.
-    if (false && client instanceof Mobile) {
+    if (maxDist <= 0 && client instanceof Mobile) {
       if (world.pathingCache.hasPathBetween(
         client, picked, (Mobile) client, report
       )) return picked;

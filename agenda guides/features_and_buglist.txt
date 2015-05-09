@@ -12,13 +12,9 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
 
 BUILDINGS AND ECONOMY-
-   
-  >>>>>>> DO THIS <<<<<<<
-*  There needs to be a more precise 'reservation' system to allow for zoning,
-   entrances and not-in-the-world-yet situations.
 
-*  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
-   change.  (Allow that for buildings in general?)
+*  Use service hatches to initiate heavier paving and utility-transmission?
+   Arcologies might have auto-placement?
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange
@@ -27,9 +23,13 @@ BUILDINGS AND ECONOMY-
      Kommando Lodge
      Airfield
      Cut out recruitment-extras for others.
+  
+  >>>>>>> DO THIS <<<<<<<
+*  There needs to be a more precise 'reservation' system to allow for zoning,
+   entrances and not-in-the-world-yet situations.
 
-*  Use service hatches to initiate heavier paving and utility-transmission?
-   Arcologies might have auto-placement?
+*  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
+   change.  (Allow that for buildings in general?)
 
 *  Flesh out the full set of behaviours for the major Schools (and the Kommando
    lodge too.)
@@ -47,12 +47,15 @@ CITIZEN BEHAVIOUR-
 
 *  Actors should be doing more to dispose of bodies.  Burial or recyling.
 
+*  Citizens need to migrate offworld if unhappy/unemployed enough.
+
+*  There needs to be a super-fast system for testing pathability to different
+   areas of the map.  (And maybe caching dangers en-route?)
+
   >>>>>>> DO THIS <<<<<<<
 *  Rework the migration system to that it's more gradual- colonists arrive from
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
    ashore' every day or two, but those can't respond to job-demand as such.
-
-*  Citizens need to migrate offworld if unhappy/unemployed enough.
 
   >>>>>>> DO THIS <<<<<<<
 *  Proper evaluation of mood and memory-events.
@@ -88,9 +91,6 @@ CONTROL AND DIRECTION-
 ENEMIES AND ENVIRONMENT-
 
 *  Try to polish up the Flora- have it look more exotic.
-
-*  There needs to be a super-fast system for testing pathability to different
-   areas of the map.  (And maybe caching dangers en-route?)
 
 *  Offworld raids by enemy houses!
 

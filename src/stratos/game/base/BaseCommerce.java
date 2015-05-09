@@ -21,10 +21,10 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
-    extraVerbose   = false,
+    verbose        = true ,
+    extraVerbose   = true ,
     migrateVerbose = verbose && false,
-    tradeVerbose   = verbose && false;
+    tradeVerbose   = verbose && true ;
   
   final public static float
     SHIP_JOURNEY_TIME   = Stage.STANDARD_DAY_LENGTH / 4f,
@@ -282,13 +282,13 @@ public class BaseCommerce {
         if (report && extraVerbose) {
           I.say("  "+venue+" "+type+" (tier: "+tier+")");
           I.say("    Amount:   "+amount+"/"+demand);
-          I.say("    Surplus:  "+surplus );
-          I.say("    Shortage: "+shortage);
+          if (surplus  > 0) I.say("    Surplus:  "+surplus );
+          if (shortage > 0) I.say("    Shortage: "+shortage);
         }
         
-        if (tier <= Owner.TIER_FACILITY) {
-          if (producer) primarySupply.add(amount, type);
-          else primaryDemand.add(demand, type);
+        if (tier <= Owner.TIER_FACILITY && ! producer) {
+          primarySupply.add(amount, type);
+          primaryDemand.add(demand, type);
         }
         if (tier >= Owner.TIER_DEPOT) {
           if (producer) exportSupply.add(amount, type);
