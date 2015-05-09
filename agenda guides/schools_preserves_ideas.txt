@@ -1,0 +1,51 @@
+
+
+
+         |    Body      |     Mind
+Internal | Metabolism   | Premonition
+External | Transduction | Suggestion
+Pseer:     no particular bonus
+Xenopath:  Blind Eye + Disintegrate (tran), bonus to External/Body
+Palatine:  Kinesthesia + Kin Memory (prem), bonus to Internal/Mind
+
+Kommando Lodge.        Pseer School.
+  Survey Redoubt         * prem:  Foresight   + Remote Viewing
+  * Vendetta: Tribal     * meta:  Suspension  + Melee Augment
+  * Vendetta: Vermin     * tran:  Telekinesis + Forcefield
+  * Vendetta: Robots     * sugg:  Command     + Possession
+  * Maw Riding           >  Faster Building & Shield/Plasma Boost
+  > Heim Krieg           Force Pylon & Seat of Power Uplink
+
+Logician School.       Jil Baru School (aka Shapers).
+  Archives               Manna Tree
+  * Nonlethal Combat     * Adaptive Skin
+  * Boost Cognition      * Venom Strike
+  * Truth Speaker        * Pheremone Haze
+  * Psy Protection       * Warp Genes
+  > Extra Foresight      > Summon Beasts
+
+Tek Priestess School.  OCR Knight School (aka Orch Cyber Rep).
+  Atomic Pile            OCR Spring
+  * Command Uplink       * Instant Armour
+  * Stasis Field         * Arc Cannons
+  * Create Cybrid        * Devour Metals
+  * Neural Backup        * Archon Phase
+  > Banishment           > Zero Point
+
+Navigator School.      Collective School.
+  Sky Bridge             Oracle Node
+  * Short TP             * Gaia Effect
+  * Cloaking Field       * Sense Thoughts
+  * Time Phase           * Psy Healing
+  * Graviton Field       * Mind Meld
+  > Wormhole Gate        > Nexus Avatar
+
+
+Changeling Arbor       Jovian Habitat         Krech Ghetto
+  Linking Pool           Null Barrier           *  Weaver Skills
+  * Mimesis              Manifold Station       *  Clonal
+  * Enhanced Senses      * Cyborg               *  Warrior Phase
+  * Slow Metabolism      * Invulnerable         *  Queen Phase
+
+
+

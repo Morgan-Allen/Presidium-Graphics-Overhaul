@@ -368,10 +368,12 @@ public class BaseTactics {
     //  might as well update for all bases at once!
     
     float est = 0;
+    //  TODO:  Use base-profiles instead.
+    
     for (Mobile m : base.world.allMobiles()) {
       if (m.base() != base || ! (m instanceof Actor)) continue;
       final Actor a = (Actor) m;
-      if (! a.destroyed()) est += a.senses.powerLevel();
+      if (a.health.alive()) est += a.senses.powerLevel();
     }
     //  TODO:  Get ratings for various skill-types relevant to each mission- or
     //  perform some kind of monte-carlo sampling to determine success-odds.

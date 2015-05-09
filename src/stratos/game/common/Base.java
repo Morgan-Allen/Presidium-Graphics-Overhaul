@@ -270,6 +270,8 @@ public class Base implements
     commerce.updateCommerce(numUpdates);
     transport.distributeProvisions(this);
     dangerMap.update();
+    
+    advice.updateAdvice(numUpdates);
     tactics.updateTactics(numUpdates);
     
     final int interval = Stage.STANDARD_DAY_LENGTH / 3;

@@ -1,31 +1,60 @@
 
 
+<topic name="No Food!">
+  <content>A number of your citizens have no food at home.  Consider importing or harvesting some of the following.
 
-<topic name="Shortages">
-  <content></content>
-</topic>
-
-
-<topic name="Low Income">
-  <content></content>
-</topic>
-
-
-<topic name="Poor Security">
-  <content></content>
+Tip:  Click on housing to see a status message on its current needs.  Click on citizens to check their hunger and other health conditions.</content>
 </topic>
 
 
 <topic name="Hunger">
-  <content></content>
+  <content>A number of citizens are getting quite hungry!  Consider importing or harvesting some of the following.
+
+Tip:  Click on housing to see a status message on its current needs.  Click on citizens to check their hunger and other health conditions.</content>
 </topic>
 
 
-<topic name="Homelessness">
-  <content></content>
+<topic name="Discontent">
+  <content>A number of your citizens are feeling morose and unhappy.  Consider building some recreational facilities, such as the Cantina or Pleasure Dome, or aesthetic structures to improve ambience.</content>
 </topic>
 
 
-<topic name="Poor Health">
-  <content></content>
+<topic name="Sickness">
+  <content>A number of your citizens are suffering from disease.  Consider building a Physician Station to treat their illnesses.</content>
 </topic>
+
+
+<topic name="No Technicians!">
+  <content>You have no Technicians in your employ, which is likely to slow down construction considerably.  Perhaps you could hire some at the Bastion or an Engineer Station?</content>
+</topic>
+
+<topic name="No Auditors!">
+  <content>You have no Auditors in your employ, who normally assess your business expenses and gather tax revenue.  This may lead to lost or misfiled earnings.  Hire at least one at the Bastion or an Enforcer Bloc.</content>
+</topic>
+
+
+<topic name="No Exports!">
+  <content>You have no goods reserved for export at a Supply Depot or other trade facilities, which may make it difficult to turn a profit.  Offworld trade is a good way to earn starting funds.
+
+Tip:  Consult the Markets tab under Finances to take a look at prices for buying and selling different goods.</content>
+</topic>
+
+
+<topic name="Poor Security">
+  <content>Your base seems to have very few personnel capable of self-defence, which may be a problem in hostile territories.  Consider recruiting some troops at an Enforcer Bloc, Trooper Lodge, or other security structures.</content>
+</topic>
+
+
+<topic name="Shortages">
+  <content>Your base facilities have noticeable shortages of the following goods.  While not essential to operations, their efficiency could be improved.</content>
+</topic>
+
+
+
+
+
+
+
+
+
+

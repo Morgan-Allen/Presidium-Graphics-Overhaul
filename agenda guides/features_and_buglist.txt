@@ -5,29 +5,10 @@
 
 TESTER FEEDBACK AND TUTORIAL TODO LIST:
 
-*  Try to update the shortage-notifications to reflect the various stages of
-   delivery.
-
-*  More feedback on needs and settlement demands.  (Notifications or an RCI
-   indicator of some sort are needed.)  You need feedback for-
-     *  Citizen needs   / no food source (imports or grown.)
-     *  Low funding     / no income source (exports or taxes.)
-     *  Citizen housing / no holdings built.
-     *  Specific goods  / no factory source built.
-     *  Citizen health  / no medical team (sickbay and archives.)
-     *  Danger          / no security force (walls and military.)
-   Emphasise the emotive component here?
-
 *  ADD IMAGE-TIPS FOR THE TUTORIAL-MESSAGES.
 
-*  Drag buildings from the install-pane directly onto the ground!  That's what
-   he was talking about.  You could also make use of right-click for something.
-
-*  Try to polish up the Flora- have it look more exotic.
-
-*  Icons could be clearer, at least in the early game.
-
-*  Finalise perimeter fence artwork.
+*  You need to properly explain click-and-drag for zoned/linear structures.
+   (Either that, or use default areas.)
 
 
 BUILDINGS AND ECONOMY-
@@ -59,8 +40,7 @@ BUILDINGS AND ECONOMY-
 *  Integrate spyce-sources and use it to boost Psy abilities (such as sovereign
    spells.)
 
-*  There are occasional inconsistencies in the paving network (routes being
-   valid on turn, then invalid the next.)  Rare, but keep an eye out.
+*  Finalise perimeter fence artwork.
 
 
 CITIZEN BEHAVIOUR-
@@ -107,6 +87,8 @@ CONTROL AND DIRECTION-
 
 ENEMIES AND ENVIRONMENT-
 
+*  Try to polish up the Flora- have it look more exotic.
+
 *  There needs to be a super-fast system for testing pathability to different
    areas of the map.  (And maybe caching dangers en-route?)
 
@@ -126,6 +108,13 @@ ENEMIES AND ENVIRONMENT-
 
 INTERFACE AND DEBUGGING
 
+*  Icons could be clearer, at least in the early game.
+
+*  You might need extra tips for no-archives, walls, low funding, homelessness
+   and other situations.  Add those in later.
+
+*  Merge BaseCommerce with either the Verse class and/or the BaseAdvice class.
+
 *  Try to implement some global debugging-levels.
 
 *  X and Y coords are reversed on the map, which is sometimes confusing.
@@ -143,5 +132,6 @@ INTERFACE AND DEBUGGING
 
 *  Read definitions from .xml and allow for later string translations.
 
+*  Try to use right-click for something?  Add an option for it at least.
 
 

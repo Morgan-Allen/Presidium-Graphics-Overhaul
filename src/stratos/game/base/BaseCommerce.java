@@ -251,6 +251,8 @@ public class BaseCommerce {
   
   /**  Assessing supply and demand associated with goods-
     */
+  //  TODO:  Consider moving this to the BaseAdvice class.
+  
   private void summariseDemandAndPrices(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     final boolean report = tradeVerbose && base == BaseUI.currentPlayed();
@@ -268,6 +270,8 @@ public class BaseCommerce {
 
       for (Traded type : venue.stocks.demanded()) {
         final int tier = venue.owningTier();
+        if (tier <= Owner.TIER_PRIVATE) continue;
+        
         final boolean producer = venue.stocks.producer(type);
         final float
           amount   = venue.stocks.amountOf  (type),

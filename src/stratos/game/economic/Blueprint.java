@@ -142,12 +142,11 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   }
   
   
-  public Batch <Conversion> consuming(Object t) {
-    final Batch <Conversion> matches = new Batch <Conversion> ();
-    for (Conversion c : processed) for (Item i : c.raw) {
-      if (i.type == t) matches.add(c);
+  public Conversion consuming(Object t) {
+    for (Conversion c : processed) {
+      for (Item i : c.raw) if (i.type == t) return c;
     }
-    return matches;
+    return null;
   }
   
   

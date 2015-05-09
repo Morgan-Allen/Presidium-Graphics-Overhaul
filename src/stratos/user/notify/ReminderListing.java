@@ -108,8 +108,11 @@ public class ReminderListing extends UIGroup {
     if (refers == oldMessages) {
       entry = new MessageReminder(UI, oldMessages, forOldMessages());
     }
-    if (refers == played.setup) {
-      entry = new MessageReminder(UI, refers, forNeedsSummary());
+    if (refers instanceof BaseAdvice.Topic) {
+      final MessagePane advicePane = played.advice.configAdvicePanel(
+        null, refers, UI
+      );
+      entry = new MessageReminder(UI, refers, advicePane);
     }
     if (entry == null) {
       I.complain("\nNO SUPPORTED ENTRY FOR "+refers);
@@ -145,8 +148,8 @@ public class ReminderListing extends UIGroup {
     for (MessagePane o : newMessages) {
       needShow.add(o);
     }
-    if (played.advice.venueGoodNeeds().length > 0) {
-      needShow.add(played.setup);
+    for (Object o : played.advice.adviceTopics()) {
+      needShow.add(o);
     }
     //
     //  Now, in essence, insert entries for anything not currently listed, and
@@ -195,7 +198,7 @@ public class ReminderListing extends UIGroup {
     
     checkMessageOpened();
     updateOldMessages();
-    updateNeedsSummary();
+    updateAdvicePanes();
     super.updateState();
   }
   
@@ -203,22 +206,13 @@ public class ReminderListing extends UIGroup {
   
   /**  Utility methods for needs summaries-
     */
-  private MessagePane forNeedsSummary() {
-    final MessagePane pane = new MessagePane(
-      UI, null, "Shortages!", null, null
-    );
-    return pane;
+  private void updateAdvicePanes() {
+    for (Entry e : entries) if (e.refers instanceof BaseAdvice.Topic) {
+      final MessagePane pane = ((MessageReminder) e).message;
+      if (UI.currentPane() != pane) continue;
+      UI.played().advice.configAdvicePanel(pane, e.refers, UI);
+    }
   }
-  
-  
-  private void updateNeedsSummary() {
-    final Base played = UI.played();
-    MessageReminder entry = (MessageReminder) entryThatRefers(played.setup);
-    if (entry == null) return;
-    final MessagePane pane = entry.message;
-    played.advice.configNeedsSummary(pane, UI);
-  }
-  
   
   
   /**  Utility methods for message dialogues:
