@@ -1,0 +1,34 @@
+<project name="Stratos Build OSX" basedir=".." default="build">
+	
+	<property name="appname"   value="stratos.app" />
+    <property name="output"    value="../Stratos_Build_OSX" />
+    <property name="insideApp" value="${output}/${appname}/Contents" />
+    <property name="outZip"    value="../Stratos_Build_OSX.zip" />
+	<property file="local.properties" />
+	
+	<target name="build">
+
+		<copy todir="${output}/media">
+			<fileset dir="media"/>
+		</copy>
+		
+		<mkdir dir="${output}/saves"/>
+		
+		<copy todir="${output}/${appname}">
+			<fileset dir="resource/${appname}"/>
+		</copy>
+		
+		<copy todir="${insideApp}/Resources/Java/">
+			<fileset dir="libs"/>
+		</copy>
+		<jar destfile="${insideApp}/Resources/Java/stratos.jar" basedir="bin">
+		</jar>
+		
+		<exec executable="/bin/sh" os="Mac OS X">
+		    <arg value="-c"/>
+		    <arg value="chmod +x ${insideApp}/MacOS/JavaApplicationStub"/>
+		</exec>
+		
+		<zip destfile="${outZip}" basedir="${output}" />
+	</target>
+</project>

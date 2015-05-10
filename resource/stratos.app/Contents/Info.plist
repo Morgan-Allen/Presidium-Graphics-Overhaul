@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleName</key>
+	<string>Stratos</string>
+	<key>CFBundleIdentifier</key>
+	<string>org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader</string>
+	<key>CFBundleVersion</key>
+	<string>100.0</string>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<string>true</string>
+	<key>CFBundleExecutable</key>
+	<string>JavaApplicationStub</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleIconFile</key>
+	<string>game_icon.icns</string>
+	<key>Java</key>
+	<dict>
+		<key>VMOptions</key>
+		<array>
+			<string>-XX:+AggressiveOpts</string>
+			<string>-XX:MaxGCPauseMillis=5</string>
+		</array>
+		<key>MainClass</key>
+		<string>stratos.start.DebugStartup</string>
+		<key>JVMVersion</key>
+		<string>1.6+</string>
+		<key>ClassPath</key>
+		<array>
+			<string>$JAVAROOT/commons-math3-3.2.jar</string>
+			<string>$JAVAROOT/gdx-backend-lwjgl-natives.jar</string>
+			<string>$JAVAROOT/gdx-backend-lwjgl.jar</string>
+			<string>$JAVAROOT/gdx-natives.jar</string>
+			<string>$JAVAROOT/gdx.jar</string>
+			<string>$JAVAROOT/stratos.jar</string>
+		</array>
+		<key>Properties</key>
+		<dict>
+			<key>apple.laf.useScreenMenuBar</key>
+			<string>true</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

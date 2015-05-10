@@ -1,0 +1,28 @@
+<project name="Stratos Build Windows" basedir=".." default="build">
+	
+	<property name="exename" value="stratos.exe" />
+    <property name="config"  value="stratos.ini" />
+    <property name="output"  value="../Stratos_Build_Windows" />
+    <property name="outZip"  value="../Stratos_Build_Windows.zip" />
+	<property file="local.properties" />
+	
+	<target name="build">
+		
+		<copy todir="${output}/media">
+			<fileset dir="media"/>
+		</copy>
+		
+		<mkdir dir="${output}/saves"/>
+		
+		<copy file="resource/${exename}" tofile="${output}/${exename}" overwrite="true"/>
+        <copy file="resource/${config}"  tofile="${output}/${config}"  overwrite="true"/>
+    	
+    	<copy todir="${output}">
+    		<fileset dir="libs"/>
+   		</copy>
+    	<jar destfile="${output}/stratos.jar" basedir="bin">
+    	</jar>
+		
+		<zip destfile="${outZip}" basedir="${output}" />
+	</target>
+</project>
