@@ -56,7 +56,7 @@ public final class PlayLoop {
   
   private static long lastFrame, lastUpdate;
   private static float frameTime;
-  private static long numStateUpdates = 0;
+  private static long numStateUpdates = 0, numFrameUpdates = 0;
   private static float gameSpeed = 1.0f;
   
   private static boolean
@@ -135,10 +135,11 @@ public final class PlayLoop {
     PlayLoop.initPackage = initPackage;
     PlayLoop.initClasses = initClasses;
     
-    PlayLoop.loopChanged = true;
-    PlayLoop.played = scenario;
+    PlayLoop.loopChanged     = true;
+    PlayLoop.played          = scenario;
     PlayLoop.numStateUpdates = 0;
-    PlayLoop.gameSpeed = 1.0f;
+    PlayLoop.numFrameUpdates = 0;
+    PlayLoop.gameSpeed       = 1.0f;
     
     if (verbose) {
       I.say("ASSIGNED NEW PLAYABLE: "+scenario);
@@ -309,6 +310,7 @@ public final class PlayLoop {
       rendering.renderUI(UI);
       KeyInput.updateInputs();
       lastFrame = time;
+      numFrameUpdates++;
     }
     
     //  Now we essentially 'pretend' that updates were occurring once every
@@ -351,6 +353,16 @@ public final class PlayLoop {
     */
   public static float frameTime() {
     return frameTime;
+  }
+  
+  
+  public static long frameUpdates() {
+    return numFrameUpdates;
+  }
+  
+  
+  public static boolean isFrameIncrement(int unit) {
+    return (numFrameUpdates % unit) == 0;
   }
   
   

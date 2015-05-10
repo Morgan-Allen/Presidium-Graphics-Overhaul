@@ -76,8 +76,10 @@ public class SaveUtils {
     for (File saved : savesDir.listFiles()) {
       final String name = saved.getName();
       if (! name.endsWith(EXT)) continue;
+      
       final String prefix = prefixFor(name);
       if (allPrefixes.get(prefix) != null) continue;
+      
       latest.add(latestSave(prefix));
       allPrefixes.put(prefix, prefix);
     }
@@ -92,7 +94,8 @@ public class SaveUtils {
   }
   
   
-  public static String[] savedFiles(final String prefix) {
+  public static String[] savedFiles(String basePrefix) {
+    final String prefix = basePrefix+DIVIDER;
     //
     //  In essence, we filter out all numeric digits in the string and use that
     //  to establish a sorting order in time.

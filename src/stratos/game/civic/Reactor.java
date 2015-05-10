@@ -407,6 +407,11 @@ public class Reactor extends Venue {
     return Composite.withImage(ICON, "reactor");
   }
   
+
+  protected Traded[] goodsToShow() {
+    return new Traded[] { ISOTOPES };
+  }
+  
   
   public String helpInfo() {
     String help =

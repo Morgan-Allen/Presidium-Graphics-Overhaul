@@ -264,15 +264,41 @@ public class Base implements
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
+    final boolean report = false;
+    
+    if (report) I.say("\nUpdating "+this);
+    long initTime, timeAfter;
+    initTime = System.currentTimeMillis();
     
     setup.updatePlacements();
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after placements: "+timeAfter);
+
     demands.updateAllMaps(1);
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after demands: "+timeAfter);
+    
     commerce.updateCommerce(numUpdates);
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after commerce: "+timeAfter);
+    
+    //  TODO:  THIS CAN, ON RARE OCCASIONS, BE HIGHLY INEFFICIENT FOR SOME
+    //  REASON.  Everything else seems fine?
     transport.distributeProvisions(this);
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after transport: "+timeAfter);
+    
     dangerMap.update();
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after danger: "+timeAfter);
     
     advice.updateAdvice(numUpdates);
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after advice: "+timeAfter);
+    
     tactics.updateTactics(numUpdates);
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after tactics: "+timeAfter);
     
     final int interval = Stage.STANDARD_DAY_LENGTH / 3;
     if (numUpdates % interval == 0) {

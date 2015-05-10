@@ -21,6 +21,9 @@ public class Stage {
   
   /**  Common fields, default constructors, and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final public static int
     UPDATES_PER_SECOND = PlayLoop.UPDATES_PER_SECOND,
     
@@ -38,8 +41,6 @@ public class Stage {
     
     GROWTH_INTERVAL   = STANDARD_DAY_LENGTH / 2,
     DEFAULT_INIT_TIME = STANDARD_DAY_LENGTH / 3;
-  
-  private static boolean verbose = false;
   
   
   final public int size;
@@ -241,10 +242,8 @@ public class Stage {
       if (secChange) base.intelMap.updateFogValues();
     }
     if (secChange) offworld.updateVerse(currentTime);
-    
-    schedule.advanceSchedule(currentTime);
     ecology.updateEcology();
-    
+    schedule.advanceSchedule(currentTime);
     for (Mobile m : mobiles) m.updateAsMobile();
   }
   
@@ -382,6 +381,10 @@ public class Stage {
     for (Visible visible : allVisible) {
       visible.renderFor(rendering, base);
     }
+    if (verbose) {
+      I.say("  Total sections visible: "+visibleSections.size());
+      I.say("  Total elements visible: "+allVisible     .size());
+    }
     //
     //  Ephemera are rendered last, to accommodate transparency effects-
     allVisible.clear();
@@ -393,6 +396,9 @@ public class Stage {
       visible.renderFor(rendering, base);
     }
     ephemera.applyScreenFade(rendering);
+    if (verbose) {
+      I.say("  Total ephemera visible: "+allVisible     .size());
+    }
   }
   
   

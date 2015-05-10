@@ -257,7 +257,7 @@ public abstract class Actor extends Mobile implements
       needsBigUpdate = true;
     }
     
-    if (action != null && ! Plan.canFollow(this, action)) {
+    if (action != null && ! Plan.canFollow(this, action, false)) {
       if (report) I.say("  Have completed action: "+action);
       assignAction(null);
       needsBigUpdate = true;
@@ -275,7 +275,6 @@ public abstract class Actor extends Mobile implements
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
     final boolean report = I.talkAbout == this && basicVerbose;
     //
     //  Check to see what our current condition is-
@@ -297,7 +296,6 @@ public abstract class Actor extends Mobile implements
         relations.updateValues(numUpdates);
         motives  .updateValues(numUpdates);
       }
-      
       if (report) I.say("  Updated senses, AI, relations and motives.");
       final Action nextAction = mind.getNextAction();
       if (checkSleep) Resting.checkForWaking(this);

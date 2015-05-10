@@ -348,9 +348,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public static boolean canFollow(Actor a, Behaviour b) {
+  public static boolean canFollow(Actor a, Behaviour b, boolean checkPriority) {
     if (b == null || ! b.valid()) return false;
-    if (b.finished() || b.nextStepFor(a) == null || b.priorityFor(a) <= 0) {
+    if (b.finished() || b.nextStepFor(a) == null) {
+      return false;
+    }
+    if (checkPriority && b.priorityFor(a) <= 0) {
       return false;
     }
     return true;

@@ -21,10 +21,10 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
-    extraVerbose   = true ,
+    verbose        = false,
+    extraVerbose   = false,
     migrateVerbose = verbose && false,
-    tradeVerbose   = verbose && true ;
+    tradeVerbose   = verbose && false;
   
   final public static float
     SHIP_JOURNEY_TIME   = Stage.STANDARD_DAY_LENGTH / 4f,
@@ -315,7 +315,7 @@ public class BaseCommerce {
       //
       //  Goods that are in demand offworld are more expensive to import but
       //  more profitable to export, and vice versa for goods in abundance.
-      //  Small settlements dependant on their homeworld also get price
+      //  Small settlements dependent on their homeworld also get price
       //  subsidies.
       if (partners.empty()) {
         importMul += 1;

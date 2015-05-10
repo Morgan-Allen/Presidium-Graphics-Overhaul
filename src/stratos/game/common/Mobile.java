@@ -325,14 +325,6 @@ public abstract class Mobile extends Element
   public boolean motionWater() { return motionType() == MOTION_WATER; }
   
   
-  
-  /**  Regular updates-
-    */
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-  }
-  
-  
-  
   /**  Rendering and interface methods-
     */
   private PlaneFX shadow = null;

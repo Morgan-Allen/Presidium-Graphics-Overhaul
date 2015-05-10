@@ -153,7 +153,8 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   
   
   public static void appendLoadOptions(Text text, String prefix) {
-    
+    //final boolean report = prefix == null || PlayLoop.isFrameIncrement(100);
+    //
     //  TODO:  List any associated Psi costs here, based on time-stamp.
     final String saves[] = prefix == null ?
       SaveUtils.latestSaves()     :
@@ -171,6 +172,8 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     }
   }
 }
+
+
 
 
 

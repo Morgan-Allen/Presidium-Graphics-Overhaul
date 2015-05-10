@@ -98,9 +98,9 @@ public class Structure {
   
   final public static int
     NO_UPGRADES         = 0,
-    SMALL_MAX_UPGRADES  = 3,
+    SMALL_MAX_UPGRADES  = 4,
     NORMAL_MAX_UPGRADES = 6,
-    BIG_MAX_UPGRADES    = 12;
+    BIG_MAX_UPGRADES    = 8;
   final static float UPGRADE_HP_BONUSES[] = {
     0,
     0.15f, 0.25f, 0.35f,

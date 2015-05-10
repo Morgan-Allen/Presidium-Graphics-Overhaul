@@ -65,7 +65,7 @@ public class FormerPlant extends Venue implements TileConstants {
       25,  //integrity
       5,  //armour
       75,  //build cost
-      0,  //max upgrades
+      Structure.SMALL_MAX_UPGRADES,  //max upgrades
       Structure.TYPE_FIXTURE
     );
     staff.setShiftType(SHIFTS_BY_DAY);
@@ -124,6 +124,33 @@ public class FormerPlant extends Venue implements TileConstants {
   
   /**  Economic functions-
     */
+  //  TODO:  Integrate these upgrades to improve efficiency here.
+  /*
+  final public static Upgrade
+    
+    AIR_PROCESSING = new Upgrade(
+      "Carbons Cycling",
+      "Improves output of life support, speeds terraforming and reduces "+
+      "pollution.",
+      200,
+      Upgrade.THREE_LEVELS, null, 1, 
+      null, FormerPlant.class
+    ),
+    RESINS_PRESS = null,
+    
+    BIOMASS_REACTOR = null,
+    
+    SPICE_REDUCTION = new Upgrade(
+      "Spice Reduction",
+      "Employs microbial culture to capture minute quantities of spice from "+
+      "the surrounding environment.",
+      300,
+      Upgrade.THREE_LEVELS, null, 1,
+      BIOMASS_REACTOR, FormerPlant.class
+    );
+  //*/
+  
+  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;

@@ -33,7 +33,10 @@ public class Repairs extends Plan {
   final public static float
     TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 5,
     MIN_SERVICE_DAMAGE = 0.25f,
-    MAX_HELP_PER_25_HP = 0.5f;
+    MAX_HELP_PER_25_HP = 0.5f ,
+    BUILDS_COST_MULT   = 1.0f ,
+    SALVAGE_COST_MULT  = 0.5f ,
+    REPAIR_COST_MULT   = 0.25f;
   
   final Structure.Basis built;
   final Skill skillUsed;
@@ -266,7 +269,7 @@ public class Repairs extends Plan {
       success *= actor.skills.test(skillUsed, 5, 1) ? 1 : 0.5f;
       final float amount = 0 - structure.repairBy(0 - success);
       if (! free) {
-        final float cost = amount * structure.buildCost() * 0.5f;
+        final float cost = amount * structure.buildCost() * SALVAGE_COST_MULT;
         base.finance.incCredits(cost, BaseFinance.SOURCE_REPAIRS);
       }
       if (report) I.say("Salvage sucess: "+success);
@@ -280,7 +283,7 @@ public class Repairs extends Plan {
       final float amount = structure.repairBy(success);
       if (! free) {
         float cost = amount * structure.buildCost();
-        cost *= -1 * (intact ? 0.5f : 1);
+        cost *= -1 * (intact ? REPAIR_COST_MULT : BUILDS_COST_MULT);
         base.finance.incCredits(cost, BaseFinance.SOURCE_REPAIRS);
       }
     }

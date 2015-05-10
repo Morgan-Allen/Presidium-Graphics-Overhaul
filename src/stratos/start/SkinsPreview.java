@@ -23,12 +23,7 @@ public class SkinsPreview extends VisualDebug {
     PlayLoop.setupAndLoop(new SkinsPreview(), "stratos.graphics");
   }
   
-  final static String
-    ARTILECTS_PATH = "media/Actors/artilects/ArtilectModels.xml",
-    VERMIN_PATH    = "media/Actors/vermin/VerminModels.xml"     ,
-    FAUNA_PATH     = "media/Actors/fauna/FaunaModels.xml"       ,
-    HUMANS_PATH    = "media/Actors/human/HumanModels.xml"       ;
-  
+  final static String SETTINGS_PATH = "media/Tools/preview_settings.xml";
   
   final static Colour BACK_COLOUR = Colour.DARK_BLUE;
   final static PlaneFX.Model CENTRE_MARK_MODEL = new PlaneFX.Model(
@@ -44,7 +39,7 @@ public class SkinsPreview extends VisualDebug {
   private HUD UI;
   private Text modelPathEntry;
   private String lastValidPath = "";
-  private String currentPath = HUMANS_PATH;
+  private String currentPath = null;
   
   private XML currentXML;
   private SolidModel currentModel;
@@ -61,6 +56,11 @@ public class SkinsPreview extends VisualDebug {
   
   protected void loadVisuals() {
     UI = new HUD(PlayLoop.rendering());
+    
+    final XML settings = XML.load(SETTINGS_PATH).child("settings");
+    String filePath = settings.value("defaultPath");
+    String fileName = settings.value("defaultFile");
+    this.currentPath = filePath+fileName;
     
     modelPathEntry = new Text(UI, BaseUI.INFO_FONT);
     modelPathEntry.alignVertical  (0, 0);
@@ -254,6 +254,7 @@ public class SkinsPreview extends VisualDebug {
       I.say("ERROR LOADING "+path+file);
       I.report(e);
       currentPath = "";
+      newModel = null;
     }
     //
     //  If the file loads successfully, then dispose of the old model and

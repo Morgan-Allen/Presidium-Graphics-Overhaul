@@ -270,7 +270,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
+    
     structure.updateStructure(numUpdates);
     if (! structure.intact()) return;
     cargo.updateOrders();

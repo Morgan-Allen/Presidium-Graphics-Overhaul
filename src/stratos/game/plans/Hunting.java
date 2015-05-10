@@ -266,7 +266,8 @@ public class Hunting extends Plan {
     if (downing == null) {
       downing = new Combat(actor, prey, Combat.STYLE_EITHER, object);
     }
-    downing.setMotivesFrom(this, 0);
+    downing.setMotivesFrom(this, PARAMOUNT);
+    if (! Plan.canFollow(actor, downing, true)) return null;
     return downing;
   }
   

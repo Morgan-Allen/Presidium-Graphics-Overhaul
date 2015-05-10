@@ -46,11 +46,14 @@ public class CultureLab extends Venue {
       TO, 1, CATALYST,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
+    //  TODO:  Move this to the Physician Station.
+    //*
     CARBS_TO_SOMA = new Conversion(
       CultureLab.class, "waste_to_soma",
       2, CARBS, TO, 1, SOMA,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
+    //*/
     CARBS_TO_PROTEIN = new Conversion(
       CultureLab.class, "carbs_to_protein",
       2, CARBS, TO, 1, PROTEIN,
@@ -61,6 +64,7 @@ public class CultureLab extends Venue {
       5, PROTEIN, TO, 1, REPLICANTS,
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
+    //  TODO:  And get rid of this- spyces should be hard to get.
     PROTEIN_TO_SPYCE_T = new Conversion(
       CultureLab.class, "carbs_to_spyce_t",
       20, PROTEIN, 5, CATALYST, TO, 1, SPYCE_T,

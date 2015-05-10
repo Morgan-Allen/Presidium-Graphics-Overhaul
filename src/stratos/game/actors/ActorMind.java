@@ -174,7 +174,7 @@ public abstract class ActorMind implements Qualities {
         I.say("\nGETTING NEXT ACTION FOR "+actor);
         I.say("  Current root behaviour: "+I.tagHash(root));
       }
-      if (! Plan.canFollow(actor, root)) {
+      if (! Plan.canFollow(actor, root, true)) {
         if (Plan.canPersist(root)) todoList.add(root);
         root = nextBehaviour();
         if (report) {
@@ -185,7 +185,7 @@ public abstract class ActorMind implements Qualities {
       //
       //  Then, delete all existing entries from the agenda.
       for (Behaviour b : agenda) popBehaviour(b, cause);
-      if (! Plan.canFollow(actor, root)) {
+      if (! Plan.canFollow(actor, root, true)) {
         if (warnVerbose) I.say(actor+"  CANNOT FOLLOW PLAN: "+root);
         return null;
       }
@@ -197,7 +197,7 @@ public abstract class ActorMind implements Qualities {
       while (loop-- > 0) {
         pushBehaviour(next, cause);
         next = next.nextStepFor(actor);
-        final boolean valid = Plan.canFollow(actor, next);
+        final boolean valid = Plan.canFollow(actor, next, true);
         if (report) {
           I.say("  Next step: "+next+", valid? "+valid);
           if (! valid) Plan.reportPlanDetails(next, actor);

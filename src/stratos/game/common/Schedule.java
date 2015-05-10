@@ -27,7 +27,7 @@ public class Schedule {
   private static boolean
     verbose       = false,
     updateVerbose = false,
-    verboseDelays = verbose && true;
+    delaysOnly    = true ;
   
   private long initTime = -1, maxInterval = -1;
   private boolean lastUpdateOkay = true;
@@ -135,7 +135,9 @@ public class Schedule {
       I.reportStackTrace();
       return;
     }
-    if (verbose) I.say("...Scheduling for instant update: "+updates);
+    if (verbose && ! delaysOnly) {
+      I.say("...Scheduling for instant update: "+updates);
+    }
     final Event event = events.refValue(ref);
     event.time = currentTime;
     event.lastUpdateCount = -1; //  flag to pass 'instant' argument (below.)
@@ -169,11 +171,6 @@ public class Schedule {
     
     Updates longestUpdate = null;
     long longestTime = 0;
-    
-    if (verbose) I.say(
-      "\nUPDATING SCHEDULE, MS SINCE LAST UPDATE: "+(initTime - oldInit)+
-      "\nCurrent time: "+currentTime+"\n"
-    );
     
     while (true) {
       if (timeUp()) {
@@ -227,8 +224,16 @@ public class Schedule {
     
     this.lastUpdateOkay = finishedOK;
     final long taken = System.currentTimeMillis() - initTime;
-    if (verbose) {
-      if (taken >= maxInterval * 2) {
+    final boolean tooLong = taken >= maxInterval;
+    
+    if (verbose && (tooLong || ! delaysOnly)) {
+      I.say("\nUPDATING SCHEDULE");
+      I.say("  Milliseconds since last update: "+(initTime - oldInit));
+      I.say("  Current time: "+currentTime);
+      I.say("  Maximum time allowance: "+maxInterval);
+      I.say("");
+      
+      if (tooLong) {
         I.say("___PATHOLOGICALLY DELAYED___");
       }
       if (finishedOK) {

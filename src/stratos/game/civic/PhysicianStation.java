@@ -40,7 +40,7 @@ public class PhysicianStation extends Venue {
   final public static Conversion
     REAGENTS_TO_MEDICINE = new Conversion(
       PhysicianStation.class, "reagents_to_medicine",
-      1, CATALYST, TO, 2, MEDICINE,
+      1, CATALYST, 1, GREENS, TO, 2, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
     )
   ;
@@ -257,11 +257,10 @@ public class PhysicianStation extends Venue {
   
   
   
-  
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { CATALYST, MEDICINE };
+    return new Traded[] { GREENS, CATALYST, MEDICINE };
   }
   
   
