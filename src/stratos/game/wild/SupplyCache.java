@@ -49,14 +49,18 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   
   /**  Satisfying the Owner interface-
     */
-  public Inventory inventory()              { return stored; }
-  public float     priceFor(Traded service) { return 0     ; }
-  public int       spaceFor(Traded good)    { return 10    ; }
-  public TalkFX    chat() { return chat; }
+  public Inventory inventory() { return stored; }
+  public int spaceFor(Traded good) { return 10; }
+  public TalkFX chat() { return chat; }
   
   
   public int owningTier() {
     return TIER_CARRIES;
+  }
+  
+
+  public float priceFor(Traded service, boolean sold) {
+    return 0;
   }
   
   

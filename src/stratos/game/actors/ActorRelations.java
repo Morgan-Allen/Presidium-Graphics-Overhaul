@@ -64,7 +64,7 @@ public class ActorRelations {
   /**  Update and decay methods-
     */
   //  TODO:  With the 'surprise' factor implemented here, you might not need
-  //  the range-damping mechanisms within the Relation class itself.
+  //  the range-damping mechanisms within the Relation class itself?
   
   protected void updateFromObservations() {
     final boolean report = extraVerbose && I.talkAbout == actor;

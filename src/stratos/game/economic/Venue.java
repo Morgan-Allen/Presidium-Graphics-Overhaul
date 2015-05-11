@@ -54,6 +54,7 @@ public abstract class Venue extends Structural implements
   private List <Mobile> inside = new List <Mobile> ();
   
   final public TalkFX chat = new TalkFX();
+  private int nameID = -2;
   
   
   
@@ -75,6 +76,7 @@ public abstract class Venue extends Structural implements
     s.loadObjects(inside);
     
     buildSprite = (BuildingSprite) sprite();
+    nameID = s.loadInt();
   }
   
   
@@ -87,6 +89,8 @@ public abstract class Venue extends Structural implements
     
     s.saveTarget(entrance);
     s.saveObjects(inside);
+    
+    s.saveInt(nameID);
   }
   
   
@@ -112,7 +116,7 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public float priceFor(Traded service) {
+  public float priceFor(Traded service, boolean sold) {
     return service.basePrice();
   }
   
@@ -123,11 +127,6 @@ public abstract class Venue extends Structural implements
   
   
   public void afterTransaction(Item item, float amount) {
-  }
-  
-  
-  public TalkFX chat() {
-    return chat;
   }
   
   
@@ -442,60 +441,19 @@ public abstract class Venue extends Structural implements
   
   /**  Interface methods-
     */
-  /*
-  final static String NAME_SUFFIXES[] = {
-    "Alpha",
-    "Beta",
-    "Gamma",
-    "Delta",
-    "Epsilon",
-    "Zeta",
-    "Eta",
-    "Theta",
-    "Iota",
-    "Kappa",
-    "Lambda",
-    "Mu",
-    "Nu",
-    "Xi",
-    "Omicron",
-    "Pi",
-    "Rho",
-    "Sigma",
-    "Tau",
-    "Upsilon",
-    "Phi",
-    "Chi",
-    "Psy",
-    "Omega"
-  };
-  //*/
-  
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(this, panel, UI, false);
   }
-  
-  private int numeral = -2;
   
   public String fullName() {
     if (blueprint.isFixture()) return blueprint.name;
     if (blueprint.isUnique ()) return "The "+blueprint.name;
     
-    //
-    //  TODO:  ASSIGN THIS ID WHEN THE VENUE IS INITIALISED.
-    //final int maxNum = NAME_SUFFIXES.length;
-    if (numeral == -2) {
-      numeral = base.listInstalled(blueprint, false).indexOf(this);
+    if (nameID == -2) {
+      nameID = base.nextVenueID(getClass());
     }
-    if (numeral < 0) return blueprint.name;
-    String suffix = ""+(numeral + 1);
-    /*
-    if (numeral >= maxNum) {
-      suffix+=""+(numeral / maxNum);
-      numeral = numeral % maxNum;
-    }
-    suffix+=NAME_SUFFIXES[numeral];
-    //*/
+    if (nameID < 0) return blueprint.name;
+    String suffix = ""+nameID;
     return blueprint.name+" "+suffix;
   }
   
@@ -597,6 +555,11 @@ public abstract class Venue extends Structural implements
         initX + x, initY - y, 0
       );
     }
+  }
+  
+  
+  public TalkFX chat() {
+    return chat;
   }
   
   

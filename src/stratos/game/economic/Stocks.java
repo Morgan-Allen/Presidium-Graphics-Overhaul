@@ -361,7 +361,7 @@ public class Stocks extends Inventory {
         I.say("    Open for delivery: "+available);
         I.say("    Maximum supply:    "+maxSupply);
       }
-
+      
       if (! d.fixed) d.demandAmount = d.demandBonus / period;
       d.demandBonus = 0;
       

@@ -36,9 +36,11 @@ public class BaseCommerce {
     TIME_SLICE      = UPDATE_INTERVAL / APPLY_INTERVAL,
     MAX_APPLICANTS  = 3,
     
-    SMUGGLE_MARGIN  = 1.25f,
-    BASE_EXPORT_DIV = 1.50f,
-    BASE_IMPORT_MUL = 1.75f;
+    BASE_SALE_MARGIN = 1.25f,
+    NO_DOCK_MARGIN   = 1.25f,
+    BASE_EXPORT_DIV  = 1.50f,
+    BASE_IMPORT_MUL  = 1.75f,
+    SMUGGLE_MARGIN   = 2.00f;
   
   
   final Base base;

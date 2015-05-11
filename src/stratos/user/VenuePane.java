@@ -141,7 +141,7 @@ public class VenuePane extends SelectionPane {
       });
       d.append(" ");
       d.append(t);
-      final int price = (int) Nums.ceil(v.priceFor(t));
+      final int price = Nums.round(v.priceFor(t, exports), 1, true);
       d.append(" ("+price+"c)");
     }
   }

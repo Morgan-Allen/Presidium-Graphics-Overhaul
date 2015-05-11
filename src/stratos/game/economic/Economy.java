@@ -28,11 +28,6 @@ public final class Economy {
     FORM_OUTFIT    = 5,
     FORM_USABLE    = 6,
     FORM_SPECIAL   = 7;
-  final public static float
-    DEFAULT_SALES_MARGIN   = 0.2f,
-    DEFAULT_IMPORT_MARGIN  = 0.5f,
-    DEFAULT_EXPORT_MARGIN  = 0.5f,
-    DEFAULT_SMUGGLE_MARGIN = 1.0f;
   
   
   final static Table <Traded, Integer> CATEGORY_TABLE, CT;

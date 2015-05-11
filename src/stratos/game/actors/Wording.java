@@ -171,6 +171,34 @@ public class Wording implements Qualities {
 
 
 
+/*
+final static String NAME_SUFFIXES[] = {
+  "Alpha",
+  "Beta",
+  "Gamma",
+  "Delta",
+  "Epsilon",
+  "Zeta",
+  "Eta",
+  "Theta",
+  "Iota",
+  "Kappa",
+  "Lambda",
+  "Mu",
+  "Nu",
+  "Xi",
+  "Omicron",
+  "Pi",
+  "Rho",
+  "Sigma",
+  "Tau",
+  "Upsilon",
+  "Phi",
+  "Chi",
+  "Psy",
+  "Omega"
+};
+//*/
 
 
 

@@ -93,7 +93,7 @@ public class BringUtils {
         
         final Item moved = Item.withAmount(t, Nums.min(5, i.amount));
         final Bringing d = new Bringing(moved, origin, depot);
-        d.setWithPayment(sells ? depot : null, false);
+        d.setWithPayment(sells ? depot : null);
         
         if (report) {
           I.say("  Candidate depot: "+depot+" ("+i.type+")");
@@ -282,7 +282,7 @@ public class BringUtils {
       I.say("\nFinal order batch is: "+toTake);
     }
     final Bringing order = new Bringing(toTake, origin, destination);
-    return order.setWithPayment(destination, false);
+    return order.setWithPayment(destination);
   }
   
   
@@ -291,7 +291,7 @@ public class BringUtils {
     Traded good, int unit
   ) {
     if (origs.size() == 0) return null;
-    if (dest.inventory().shortageOf(good) < 0) return null;
+    if (dest.inventory().shortageOf(good) <= 0) return null;
     
     final boolean report = rateVerbose && I.talkAbout == dest;
     if (report) {
@@ -316,7 +316,7 @@ public class BringUtils {
     Owner orig, Batch <? extends Owner> dests, Traded good, int unit
   ) {
     if (dests.size() == 0) return null;
-    if (orig.inventory().amountOf(good) <= unit) return null;
+    if (orig.inventory().amountOf(good) < unit) return null;
     
     final boolean report = rateVerbose && I.talkAbout == orig;
     if (report) {

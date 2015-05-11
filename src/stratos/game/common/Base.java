@@ -54,6 +54,7 @@ public class Base implements
   
   private String title  = "Player Base";  //  TODO:  ASSIGN TO FACTIONS
   private Colour colour = new Colour();
+  private Tally <Class> venueIDTallies = new Tally <Class> ();
   
   
   private static Base namedBase(Stage world, String title) {
@@ -191,6 +192,9 @@ public class Base implements
     
     title = s.loadString();
     colour.loadFrom(s.input());
+    for (int i = s.loadInt(); i-- > 0;) {
+      venueIDTallies.set(s.loadClass(), s.loadFloat());
+    }
   }
   
   
@@ -216,16 +220,10 @@ public class Base implements
     
     s.saveString(title);
     colour.saveTo(s.output());
-  }
-  
-  
-  public Colour colour() {
-    return colour;
-  }
-  
-  
-  public String title() {
-    return title;
+    
+    final Tally <Class> t = venueIDTallies;
+    s.saveInt(t.size());
+    for (Class c : t.keys()) { s.saveClass(c); s.saveFloat(t.valueFor(c)); }
   }
   
   
@@ -442,10 +440,26 @@ public class Base implements
   
   
   
-  /**  
+  /**  Rendering and interface methods-
     */
   public String toString() {
     return title;
+  }
+  
+  
+  public Colour colour() {
+    return colour;
+  }
+  
+  
+  public String title() {
+    return title;
+  }
+  
+  
+  public int nextVenueID(Class venueClass) {
+    venueIDTallies.add(1, venueClass);
+    return (int) venueIDTallies.valueFor(venueClass);
   }
 }
 

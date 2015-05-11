@@ -10,11 +10,15 @@ TESTER FEEDBACK AND TUTORIAL TODO LIST:
 *  You need to properly explain click-and-drag for zoned/linear structures.
    (Either that, or use default areas.)
 
+*  Make the economy, by default, automatic.  Allow citizens to buy from
+   whatever venue makes a good and for offworld vessels to do the same. The
+   different economic structures are optional extras that boost efficiency,
+   but they're not essential in order for things to work.
+
 
 BUILDINGS AND ECONOMY-
 
 *  Use service hatches to initiate heavier paving and utility-transmission?
-   Arcologies might have auto-placement?
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange

@@ -282,7 +282,11 @@ public class Dropship extends Vehicle implements Owner {
   
   
   public void exitWorld() {
-    if (landed()) beginAscent();
+    if (landed()) {
+      I.say("\n"+this+" EXITING WORLD UNDER ABNORMAL CIRCUMSTANCES");
+      I.reportStackTrace();
+      beginAscent();
+    }
     ShipUtils.completeTakeoff(world, this);
     super.exitWorld();
   }

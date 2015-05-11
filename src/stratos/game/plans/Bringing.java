@@ -11,11 +11,10 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
+//  TODO:  There must be some way to automatically inject these standardised
+//  save/load methods...
 
 //  TODO:  Unify this with Smuggling?  Same basic ideas involved.
-//  TODO:  Work out a more complete payment scheme later.
-
-
 public class Bringing extends Plan {
   
 
@@ -145,92 +144,86 @@ public class Bringing extends Plan {
   
   /**  Initial culling methods to allow for budget and inventory limits-
     */
-  private boolean checkValidPayment(Owner pays) {
-    if (pays != null && pays != actor && pays != destination) {
-      I.complain("PAYING AGENT MUST BE EITHER ACTOR OR DESTINATION!");
-      return false;
+  public Bringing setWithPayment(Owner pays) {
+    //
+    //  Basic variable bindings and sanity checks first-
+    if (pays instanceof Actor) {
+      attemptToBind((Actor) pays);
     }
-    return true;
-  }
-  
-  
-  public Bringing setWithPayment(
-    Owner pays, boolean priceLimit
-  ) {
-    if (pays instanceof Actor) attemptToBind((Actor) pays);
-    if (! checkValidPayment(pays)) return null;
+    final boolean report = evalVerbose && (
+      I.talkAbout == actor || I.talkAbout == pays
+    );
+    if (report) I.say("\nChecking for items at "+origin);
     
+    if (stage >= STAGE_RETURN) {
+      if (report) I.say("  Delivery complete.  Will return.");
+      return this;
+    }
+    if (items == null || items.length == 0) {
+      if (report) I.say("  No items present!");
+      return null;
+    }
+    if (pays != null && pays != actor && pays != destination) {
+      I.complain("  PAYING AGENT MUST BE EITHER ACTOR OR DESTINATION!");
+      return null;
+    }
+    //
+    //  Then, we determine who sets the price, who carries the goods, limits
+    //  on total price paid, and reset our price/bulk counters.
     final Owner setsPrice = (origin.owningTier() > destination.owningTier()) ?
       origin : destination
     ;
-    if (priceLimit && pays != null) {
-      final float maxPrice = pays.inventory().allCredits() / 2;
-      goodsPrice  =  0;
-      float price = -1;
-      final Batch <Item> canAfford = new Batch <Item> ();
-      
-      itemsLoop: for (Item i : items) {
-        while (true) {
-          price = i.priceAt(setsPrice);
-          if (goodsPrice + price > maxPrice) {
-            if (i.amount <= 1) break itemsLoop;
-            i = Item.withAmount(i, i.amount - 1);
-          }
-          else break;
-        }
-        goodsPrice += price;
-        canAfford.add(i);
-      }
-      if (canAfford.size() == 0) return null;
-      
-      this.shouldPay = pays;
-      items = canAfford.toArray(Item.class);
-      hasItemsFrom(origin);
-      return this;
+    Owner carries = null;
+    if (stage == STAGE_DROPOFF) carries = driven == null ? actor : driven;
+    if (stage <= STAGE_PICKUP ) carries = origin;
+    final boolean
+      mustPay    = pays != null,
+      priceLimit = pays == actor && stage <= STAGE_PICKUP,
+      sellerSets = setsPrice == origin;
+    if (report) {
+      I.say("  Must pay?       "+mustPay);
+      I.say("  Limit by price? "+priceLimit);
+      I.say("  Prices set by:  "+setsPrice+" (seller: "+sellerSets+")");
+      I.say("  Should carry:   "+carries);
     }
     
-    else {
-      hasItemsFrom(origin);
-      this.shouldPay = pays;
-      return this;
-    }
-  }
-  
-  
-  //  TODO:  GET RID OF THIS AND MERGE INTO ABOVE METHOD.  IT'S ONLY CALLED
-  //  ONCE ANYWAY.
-  
-  //*
-  private boolean hasItemsFrom(Owner carries) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (stage >= STAGE_RETURN) return true;
-    
-    if (report) I.say("\nChecking for items at "+carries);
-    if (items == null || items.length == 0) {
-      if (report) I.say("  No items present!");
-      return false;
-    }
-    
-    final Batch <Item> has = new Batch <Item> ();
-    goodsPrice = goodsBulk = 0;
-    for (Item i : items) {
+    final float maxPrice = mustPay ? (pays.inventory().allCredits() / 2) : -1;
+    goodsPrice  =  0;
+    goodsBulk   =  0;
+    float itemPrice = -1;
+    final Batch <Item> canBring = new Batch <Item> ();
+    //
+    //  Finally, we then iterate across every desired item, and ensure they are
+    //  both affordable and physically present.
+    itemsLoop: for (Item i : items) {
       final float amount = Nums.min(i.amount, carries.inventory().amountOf(i));
       if (amount <= 0) continue;
-      has.add(i = Item.withAmount(i, amount));
-      goodsPrice += i.priceAt(origin);
-      goodsBulk  += i.amount;
+      if (amount < i.amount) i = Item.withAmount(i, amount);
+      
+      while (true) {
+        itemPrice = i.priceAt(setsPrice, sellerSets);
+        if (priceLimit && (goodsPrice + itemPrice > maxPrice)) {
+          if (i.amount <= 1) break itemsLoop;
+          i = Item.withAmount(i, i.amount - 1);
+        }
+        else break;
+      }
+      goodsPrice += itemPrice;
+      goodsBulk  += i.amount ;
+      canBring.add(i);
       if (report) I.say("  Price after "+i+" is "+goodsPrice);
     }
-    if (has.size() == 0) {
-      if (report) I.say("  None present!");
-      return false;
+    //
+    //  If nothing could be obtained, we return a null result- otherwise,
+    //  compile and continue...
+    if (canBring.size() == 0) {
+      if (report) I.say("  No goods obtainable.");
+      return null;
     }
-    
-    if (report) I.say("  Total price: "+goodsPrice);
-    this.items = has.toArray(Item.class);
-    return true;
+    this.shouldPay = pays;
+    items = canBring.toArray(Item.class);
+    return this;
   }
-  //*/
   
   
   public float pricePaid() {
@@ -275,8 +268,8 @@ public class Bringing extends Plan {
     //  Determine basic priorities and delivery type:
     final boolean shops = shouldPay == actor;
     float base = ROUTINE, modifier = NO_MODIFIER;
-    if (! checkValidPayment(shouldPay)) {
-      if (report) I.say("  Cannot find valid payment!");
+    if (setWithPayment(shouldPay) == null) {
+      if (report) I.say("  Delivery not longer possible!");
       return -1;
     }
     //
@@ -287,17 +280,10 @@ public class Bringing extends Plan {
         if (report) I.say("  Origin is not manned!");
         modifier -= ROUTINE;
       }
-      
-      int price = 0;
       for (Item i : items) {
-        price += i.priceAt(origin);
         modifier += ActorMotives.rateDesire(i, null, actor);
       }
-      if (price > actor.gear.allCredits()) {
-        if (report) I.say("  Insufficient funds!");
-        return -1;
-      }
-      modifier -= actor.motives.greedPriority(price);
+      modifier -= actor.motives.greedPriority(goodsPrice);
     }
     //
     //  Otherwise, add a bonus for quantity and value-
@@ -351,18 +337,7 @@ public class Bringing extends Plan {
       I.say("  Plan ID:     "+hashCode() );
     }
     //
-    //  First of all, make sure that you still have the items you need to
-    //  perform the delivery- otherwise, either quit or return a refund.
-    Owner carries = null;
-    if (stage <= STAGE_PICKUP ) carries = origin;
-    if (stage == STAGE_DROPOFF) carries = driven == null ? actor : driven;
-    
-    if (carries != null && ! hasItemsFrom(carries)) {
-      if (report) I.say("  Items not available!");
-      return null;
-    }
-    //
-    //  Initially, we may need to pick up a delivery vehicle or neccesary funds
+    //  Initially, we may need to pick up a delivery vehicle or necessary funds
     //  for payment.  (Vehicles also need to be returned afterward.)
     if (stage == STAGE_INIT) stage = STAGE_PICKUP;
     

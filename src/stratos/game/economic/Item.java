@@ -151,8 +151,8 @@ public class Item {
   }
   
   
-  public float priceAt(Owner venue) {
-    return venue.priceFor(type) * amount * PRICE_MULTS[(int) quality];
+  public float priceAt(Owner venue, boolean sold) {
+    return venue.priceFor(type, sold) * amount * PRICE_MULTS[(int) quality];
   }
   
   

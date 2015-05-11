@@ -124,7 +124,7 @@ public class Commission extends Plan {
       //
       //  TODO:  Unify this with the priority-eval methods below!
       upgrade = Item.withQuality(baseItem.type, quality);
-      final float price = upgrade.priceAt(makes);
+      final float price = calcPrice(upgrade, makes);
       final boolean done = makes.stocks.hasItem(upgrade);
       if (price >= actor.gear.allCredits() && ! done) continue;
       if (quality <= baseQuality) continue;
@@ -139,10 +139,18 @@ public class Commission extends Plan {
       I.say("  Owner cash:   "+actor.gear.allCredits());
       I.say("  New item:     "+upgrade);
       I.say("  Base price:   "+upgrade.defaultPrice());
-      I.say("  Vended price: "+upgrade.priceAt(makes));
+      I.say("  Vended price: "+calcPrice(upgrade, makes));
       if (added == null) I.say("  Can't afford replacement!");
     }
     return added;
+  }
+  
+  
+  private static float calcPrice(Item item, Venue shop) {
+    float price = item.priceAt(shop, true);
+    final Conversion m = item.type.materials();
+    if (m != null) for (Item i : m.raw) price += i.priceAt(shop, true);
+    return price;
   }
   
   
@@ -161,7 +169,7 @@ public class Commission extends Plan {
     }
     //
     //  Include effects of pricing and quality-
-    final float price = calcPrice();
+    if (price == -1) price = calcPrice(item, shop);
     float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
     if (price > actor.gear.allCredits() && ! done) {
       if (report) I.say("  Can't afford item.");
@@ -193,17 +201,6 @@ public class Commission extends Plan {
       I.say("  Final priority:   "+priority);
     }
     return Nums.clamp(priority, 0, ROUTINE);
-  }
-  
-  
-  private float calcPrice() {
-    if (price != -1) return price;
-    
-    price = item.priceAt(shop);
-    final Conversion m = item.type.materials();
-    if (m != null) for (Item i : m.raw) price += i.priceAt(shop);
-    
-    return price;
   }
   
   
@@ -276,7 +273,6 @@ public class Commission extends Plan {
     actor.inventory().addItem(item);
     shop.stocks.deleteSpecialOrder(item);
     
-    final int price = (int) calcPrice();
     shop .inventory().incCredits(    price);
     actor.inventory().incCredits(0 - price);
     delivered = true;

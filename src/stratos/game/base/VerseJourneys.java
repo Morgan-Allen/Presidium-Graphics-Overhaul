@@ -25,7 +25,7 @@ public class VerseJourneys {
   /**  Data fields, construction, and save/load methods-
     */
   private static boolean
-    verbose        = true ,
+    verbose        = false,
     transitVerbose = false,
     updatesVerbose = false,
     extraVerbose   = false;
@@ -195,10 +195,19 @@ public class VerseJourneys {
       retireShip(ship);
       return;
     }
+    final float timeGap = time - journey.arriveTime;
+    if (timeGap > SHIP_JOURNEY_TIME) {
+      if (I.logEvents()) {
+        I.say("\nShip journey took too long: "+ship);
+        I.say("  Arrive time:  "+journey.arriveTime);
+        I.say("  Current time: "+time);
+        I.say("  Time gap:     "+timeGap+"/"+SHIP_JOURNEY_TIME);
+      }
+      journey.arriveTime = time;
+    }
     //
     //  If the ship has already landed in-world, see if it's time to depart-
     if (shipStage == STAGE_LANDED || shipStage == STAGE_BOARDING) {
-      
       final float sinceDescent = time - journey.arriveTime;
       final boolean allAboard = ShipUtils.allAboard(ship);
       

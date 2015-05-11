@@ -110,8 +110,9 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public float priceFor(Traded service) {
-    return service.basePrice() * 2;
+  public float priceFor(Traded service, boolean sold) {
+    if (sold) return service.basePrice() * 1.5f;
+    else      return service.basePrice() / 1.5f;
   }
   
   

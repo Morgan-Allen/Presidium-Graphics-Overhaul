@@ -2,6 +2,7 @@
 
 
 package stratos.game.civic;
+import stratos.game.base.BaseCommerce;
 import stratos.game.base.Pledge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -216,7 +217,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   public float priceFor(Traded good) {
     if (good == SOMA) return SOMA.basePrice() * SOMA_MARGIN;
-    return good.basePrice() * DEFAULT_SMUGGLE_MARGIN;
+    return good.basePrice() * BaseCommerce.SMUGGLE_MARGIN;
   }
   
   
@@ -249,7 +250,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   
   public boolean actionDropSoma(Actor actor, Venue venue) {
-    final float price = venue.priceFor(SOMA) / 10f;
+    final float price = venue.priceFor(SOMA, true) / 10f;
     if (price > actor.gear.allCredits() / 2) return false;
     venue.stocks.incCredits(price);
     actor.gear.incCredits(-price);

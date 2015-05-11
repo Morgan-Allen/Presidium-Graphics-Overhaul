@@ -138,7 +138,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public float priceFor(Traded service) {
+  public float priceFor(Traded service, boolean sold) {
     return service.basePrice();
   }
   

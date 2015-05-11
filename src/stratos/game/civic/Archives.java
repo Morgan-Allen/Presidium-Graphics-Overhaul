@@ -125,7 +125,7 @@ public class Archives extends Venue {
       final Bringing shops = BringUtils.fillBulkOrder(
         this, home, new Traded[] { DATALINKS }, 1, 1
       );
-      if (shops != null) choice.add(shops.setWithPayment(actor, true));
+      if (shops != null) choice.add(shops.setWithPayment(actor));
     }
   }
   

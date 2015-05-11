@@ -210,21 +210,14 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       return 0;
     }
     
-    float urgency = shift == Venue.SECONDARY_SHIFT ? IDLE : ROUTINE;
-    if (! hasNeeded()) urgency /= 2;
-    final float boost = CASUAL * (demand - amount) / demand;
+    final float urgency = (1 + ((demand - amount) / demand)) / 2;
+    setCompetence(successChanceFor(actor));
     
-    final float priority = priorityForActorWith(
-      actor, venue,
-      urgency, boost,
-      NO_HARM, NO_COMPETITION,
-      MILD_FAIL_RISK, conversion.skills,
-      BASE_TRAITS, NO_DISTANCE_CHECK,
-      report
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, urgency, competence(), 2, MILD_FAIL_RISK, BASE_TRAITS
     );
-    
     if (report) {
-      I.say("\n  Basic urgency: "+urgency+", boost: "+boost);
+      I.say("\n  Basic urgency: "+urgency);
       I.say("  Amount/Demand: "+amount+"/"+demand);
       I.say("  Speed bonus:   "+speedBonus);
       
@@ -247,17 +240,6 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
-  private boolean hasNeeded() {
-    //
-    //  TODO:  Average the shortage of each needed item, so that penalties are
-    //  less stringent for output that demands multiple inputs?
-    for (Item need : needed) {
-      if (! venue.inventory().hasItem(need)) return false;
-    }
-    return true;
-  }
-  
-  
   public float successChanceFor(Actor actor) {
     final Conversion c = conversion;
     float chance = 1.0f;
@@ -266,6 +248,17 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     }
     chance = (chance + 1) / 2f;
     return chance;
+  }
+  
+  
+  private boolean hasNeeded() {
+    //
+    //  TODO:  Average the shortage of each needed item, so that penalties are
+    //  less stringent for output that demands multiple inputs?
+    for (Item need : needed) {
+      if (! venue.inventory().hasItem(need)) return false;
+    }
+    return true;
   }
   
   

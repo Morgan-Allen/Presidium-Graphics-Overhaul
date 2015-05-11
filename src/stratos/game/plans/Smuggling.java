@@ -9,7 +9,6 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
 
 
 
@@ -214,7 +213,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
     
     if (report) I.say("\nSelling goods offworld:");
     for (Item i : moved) {
-      final float price = i.defaultPrice() * (1f + DEFAULT_SMUGGLE_MARGIN);
+      final float price = i.defaultPrice() * BaseCommerce.SMUGGLE_MARGIN;
       if (report) I.say("  "+price+" credits for "+i);
       profits += price;
       actor.gear.removeItem(i);

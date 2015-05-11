@@ -7,7 +7,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Ambience;
+import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -16,6 +16,7 @@ import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.base.BaseCommerce.*;
 import static stratos.game.economic.Economy.*;
 
 
@@ -42,7 +43,7 @@ public class StockExchange extends Venue {
     StockExchange.class, "stock_exchange",
     "Stock Exchange", UIConstants.TYPE_COMMERCE,
     4, 1, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    NO_REQUIREMENTS, Owner.TIER_DEPOT
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -97,28 +98,37 @@ public class StockExchange extends Venue {
   
   public void afterTransaction(Item item, float amount) {
     super.afterTransaction(item, amount);
-    final float level = catalogueLevel(item.type);
-    if (level <= 0 || amount >= 0) return;
     
-    adjustCatalogue(item.type, 0 - Nums.abs(amount));
-    final float basePrice    = super.priceFor(item.type);
-    final float upgradeLevel = upgradeLevelFor(item.type);
-    stocks.incCredits(basePrice * DEFAULT_SALES_MARGIN * upgradeLevel);
+    if (amount >= 0) {
+      stocks.incCredits(super.priceFor(item.type, false) / 2);
+      return;
+    }
+    final float
+      basePrice    = super.priceFor(item.type, true),
+      upgradeLevel = upgradeLevelFor(item.type),
+      cashBonus    = basePrice * BASE_SALE_MARGIN * (upgradeLevel + 1),
+      catalogued   = catalogueLevel(item.type);
+    
+    final float
+      paidOn    = Nums.min(catalogued, 0 - amount),
+      remainder = (0 - amount) - paidOn;
+    adjustCatalogue(item.type, paidOn);
+    stocks.incCredits(cashBonus * paidOn);
+    stocks.incCredits(cashBonus * remainder / 2);
   }
   
   
-  public float priceFor(Traded service) {
-    final float basePrice    = super.priceFor(service);
-    final float upgradeLevel = upgradeLevelFor(service);
-    return basePrice * (1f - (DEFAULT_SALES_MARGIN * upgradeLevel / 2f));
+  public float priceFor(Traded good, boolean sold) {
+    if (sold) return super.priceFor(good, sold) / 2;
+    else return super.priceFor(good, sold);
   }
   
   
   public int spaceFor(Traded good) {
-    //  TODO:  Include bonuses for structure-level-upgrades, and bulk storage.
     final float upgradeLevel = upgradeLevelFor(good);
-    if (upgradeLevel <= 0) return 0;
-    return 10 + (int) (upgradeLevel * 15);
+    if (upgradeLevel == -1) return 0 ;
+    if (upgradeLevel ==  0) return 10;
+    return (int) ((upgradeLevel + 1) * 15);
   }
   
   
@@ -163,6 +173,14 @@ public class StockExchange extends Venue {
       "to large-scale investment patterns, magnifying both profits and losses.",
       400, Upgrade.THREE_LEVELS, null, 1,
       null, StockExchange.class
+    ),
+    
+    ADVERTISEMENT = new Upgrade(
+      "Advertisement",
+      "Increases the likelihood of shoppers' visits and enhances morale when "+
+      "doing so.",
+      300, Upgrade.THREE_LEVELS, null, 1,
+      null, StockExchange.class
     );
   
   final public static Traded
@@ -194,7 +212,7 @@ public class StockExchange extends Venue {
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
-    
+    //
     //  ...You basically don't want the stock vendor wandering too far, because
     //  the venue has to be manned in order for citizens to come shopping.  So
     //  stick with jobs that happen within the venue.
@@ -206,7 +224,9 @@ public class StockExchange extends Venue {
         this, services(), 2, 10, 5
       ));
     }
-    
+    //
+    //  TODO:  Have the Supervision class delegate the precise behaviour you
+    //  conduct back to the venue.
     choice.add(Supervision.inventory(this, actor));
     return choice.weightedPick();
   }
@@ -219,11 +239,10 @@ public class StockExchange extends Venue {
         this, home, ((Venue) home).stocks.demanded(), 1, 5
       );
       if (d != null) {
-        //  TODO:  BASE THIS OFF A KEY UPGRADE!
-        final float advertBonus = 0.5f;
-        d.setWithPayment(actor, true);
-        d.addMotives(Plan.MOTIVE_LEISURE, Plan.CASUAL * advertBonus);
-        choice.add(d.setWithPayment(actor, true));
+        final float advertBonus = structure.upgradeLevel(ADVERTISEMENT) / 3f;
+        d.setWithPayment(actor);
+        d.addMotives(Plan.MOTIVE_LEISURE, Plan.ROUTINE * advertBonus);
+        choice.add(d);
       }
     }
   }
@@ -234,13 +253,35 @@ public class StockExchange extends Venue {
     if (! structure.intact()) return;
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
     
-    final float range = Stage.ZONE_SIZE / 2;
+    I.say("\nUpdating stock exchange...");
+    final float range = Stage.ZONE_SIZE;
     for (Traded type : ALL_MATERIALS) {
-      final int room = spaceFor(type);
-      final float realDemand = base.demands.demandAround(this, type, range);
-      stocks.incDemand(type, Nums.min(realDemand + (room / 2), room), 1, false);
+      final int typeSpace = spaceFor(type);
+      if (typeSpace == 0) continue;
+      //
+      //  We base our desired stock levels partly off installed upgrades, and
+      //  partly off local supply/demand levels.
+      
+      //
+      //  TODO:
+      //  ...The only way to fairly distribute demand is to take the global sum,
+      //  and divide that among all producers in proportion to their sampling
+      //  of local demand.
+      
+      //  You can't do it based off local sampling alone.
+      
+      final float
+        realDemand = base.demands.demandAround(this, type, range),
+        realSupply = base.demands.supplyAround(this, type, range),
+        shortage   = (realDemand / (realSupply + realDemand)) - 0.5f,
+        idealStock = Nums.max(realDemand, realSupply);
+      final boolean exports = shortage < 0;
+      stocks.incDemand(type, Nums.min(typeSpace, idealStock), 1, exports);
+      
+      I.say("\nReal supply/demand for "+type+": "+realSupply+"/"+realDemand);
+      I.say("  Space available:       "+typeSpace);
+      I.say("  Ideal stock is:        "+idealStock);
     }
-    
     //
     //  In essence, we accumulate interest on any debts or losses accrued
     //  before taxation kicks in!

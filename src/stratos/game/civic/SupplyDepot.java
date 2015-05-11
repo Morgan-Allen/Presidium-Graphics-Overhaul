@@ -45,7 +45,7 @@ public class SupplyDepot extends Venue {
     SupplyDepot.class, "supply_depot",
     "Supply Depot", UIConstants.TYPE_COMMERCE,
     4, 2, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_DEPOT
+    StockExchange.BLUEPRINT, Owner.TIER_DEPOT
   );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();
@@ -192,7 +192,7 @@ public class SupplyDepot extends Venue {
       final Bringing d = BringUtils.fillBulkOrder(
         this, home, ((Venue) home).stocks.demanded(), 1, 5
       );
-      if (d != null) choice.add(d.setWithPayment(actor, true));
+      if (d != null) choice.add(d.setWithPayment(actor));
     }
   }
   

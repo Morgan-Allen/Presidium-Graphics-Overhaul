@@ -217,7 +217,7 @@ public class DebugCommerce extends Scenario {
         depot, foundry, new Traded[] {METALS}, 1, 10
       );
       if (d == null) continue;
-      d.setWithPayment(foundry, false);
+      d.setWithPayment(foundry);
       guy.mind.assignBehaviour(d);
       guy.setPosition(2, 2, world);
     }

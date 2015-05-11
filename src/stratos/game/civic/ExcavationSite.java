@@ -161,6 +161,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       null, ExcavationSite.class
     ),
     
+    //  TODO:  Get rid of these two
+    //*
     EXCAVATOR_STATION = new Upgrade(
       "Excavator Station",
       "Excavators are responsible for seeking out subterranean mineral "+
@@ -178,6 +180,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       Upgrade.THREE_LEVELS, null, 1,
       EXCAVATOR_STATION, ExcavationSite.class
     ),
+    //*/
     
     MANTLE_DRILLING = new Upgrade(
       "Mantle Drilling",
@@ -217,14 +220,14 @@ public class ExcavationSite extends Venue implements TileConstants {
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
-    
     if (d != null) return d;
     final Choice choice = new Choice(actor);
     
-    if (corridor != null) {
-      int numTaken = 0;
-      for (Tile t : corridor) if (world.terrain().mineralsAt(t) == 0) numTaken++;
-      if (report) I.say("  Faces processed: "+numTaken+"/"+corridor.length);
+    if (report && corridor != null) {
+      int numTaken = 0; for (Tile t : corridor) {
+        if (world.terrain().mineralsAt(t) == 0) numTaken++;
+      }
+      I.say("  Faces processed: "+numTaken+"/"+corridor.length);
     }
     
     final Tile face = Mining.nextMineFace(this, corridor);
