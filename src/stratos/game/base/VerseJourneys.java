@@ -25,7 +25,7 @@ public class VerseJourneys {
   /**  Data fields, construction, and save/load methods-
     */
   private static boolean
-    verbose        = false,
+    verbose        = true ,
     transitVerbose = false,
     updatesVerbose = false,
     extraVerbose   = false;
@@ -172,19 +172,33 @@ public class VerseJourneys {
   
 
   private void updateShipping(Dropship ship, Journey journey) {
+    //
+    //  Basic variable setup-
     final boolean report = verbose && BaseUI.currentPlayed() == ship.base();
-    
     final Stage world     = universe.world;
     final float time      = world.currentTime();
     final int   shipStage = ship.flightStage();
     final BaseCommerce commerce = ship.base().commerce;
-    
     final boolean
       visitWorld = journey.destination == universe.stageLocation(),
       arriving   = shipStage == STAGE_AWAY && time >= journey.arriveTime;
+    if (report) {
+      reportJourneyState(journey, "\nUpdating shipping for "+ship);
+    }
+    //
+    //  Sanity checks for can't-happen events-
+    if (shipStage != STAGE_AWAY && ! ship.inWorld()) {
+      if (I.logEvents()) {
+        I.say("\nABNORMAL STATE FOR SHIP "+ship);
+        I.say("  Stage is: "+shipStage+", not in world");
+      }
+      retireShip(ship);
+      return;
+    }
     //
     //  If the ship has already landed in-world, see if it's time to depart-
     if (shipStage == STAGE_LANDED || shipStage == STAGE_BOARDING) {
+      
       final float sinceDescent = time - journey.arriveTime;
       final boolean allAboard = ShipUtils.allAboard(ship);
       
@@ -434,21 +448,28 @@ public class VerseJourneys {
   }
   
   
+  public void reportJourneyState(Journey journey, String prelude) {
+    final Dropship ship = journey.vessel;
+    final float time = universe.world.currentTime();
+    I.say(prelude);
+    I.say("  Current time:   "+time+" (arrives at "+journey.arriveTime+")");
+    I.say("  Current stage:  "+ship.flightStage()+" in world: "+ship.inWorld());
+    I.say("  Origin:         "+journey.origin);
+    I.say("  Destination:    "+journey.destination);
+    I.say("  Structure okay: "+ship.structure().intact());
+    I.say("  Should arrive?  "+(time >= journey.arriveTime));
+    I.say("  Passengers:");
+    for (Mobile m : ship.inside()) {
+      I.say("    "+m);
+    }
+  }
+  
+  
   public void reportOffworldState(String prelude) {
-    float time = universe.world.currentTime();
-    
     I.say(prelude);
     for (Journey j : journeys) {
-      I.say("\n"+j.vessel+" is travelling between...");
-      I.say("  Origin:       "+j.origin);
-      I.say("  Destination:  "+j.destination);
-      I.say("  Arrival time: "+j.arriveTime+" (currently "+time+")");
-      I.say("  Passengers:");
-      for (Mobile m : j.vessel.inside()) {
-        I.say("    "+m);
-      }
+      reportJourneyState(j, "\n"+j.vessel+" is travelling between...");
     }
-    
     for (VerseBase base : universe.bases) {
       I.say("\n"+base.location+" has the following residents:");
       for (Mobile m : base.expats()) {

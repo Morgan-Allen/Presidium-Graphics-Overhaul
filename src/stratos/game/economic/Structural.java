@@ -211,13 +211,12 @@ public abstract class Structural extends Fixture implements
     healthbar.position.z += height() + 0.1f;
     healthbar.readyFor(rendering);
     
-    if (base() == null) healthbar.colour = Colour.LITE_GREY;
-    else healthbar.colour = base().colour();
+    healthbar.colour = base().colour();
     healthbar.alarm = alarm;
     
     final Label label = new Label();
     label.matchTo(buildSprite);
-    label.position.z += height() - 0.25f;
+    label.position.z += height() + 0.25f;
     label.phrase = this.fullName();
     label.readyFor(rendering);
     label.fontScale = 1.0f;

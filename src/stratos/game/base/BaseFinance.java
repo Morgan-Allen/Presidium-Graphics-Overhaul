@@ -223,7 +223,7 @@ public class BaseFinance {
   }
   
   
-  public void updateFinances(int interval) {
+  public void updateFinances() {
     //
     //  A few basic setup checks...
     if (GameSettings.cashFree && credits < 1000) {

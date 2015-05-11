@@ -95,15 +95,15 @@ public final class Economy {
     ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, CATALYST, MEDICINE),
     
     POLYMER = new Traded(
-      BC, "Polymer"  , "polymer.gif"  , FORM_MATERIAL, 5,
+      BC, "Polymer"  , "polymer.gif"   , FORM_MATERIAL, 5,
       "Long-chain hydrocarbons, used in plastics production"
     ),
     METALS = new Traded(
-      BC, "Metals"   , "metals.gif"   , FORM_MATERIAL, 10,
+      BC, "Metals"   , "metals.gif"    , FORM_MATERIAL, 10,
       "Common metal ores, used in construction and industry"
     ),
     ISOTOPES = new Traded(
-      BC, "Isotopes" , "isotopes.gif" , FORM_MATERIAL, 35,
+      BC, "Fuel Rods" , "fuel_rods.gif", FORM_MATERIAL, 35,
       "Heavy or unstable elements used in nuclear synthesis"
     ),
     ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, METALS, ISOTOPES),

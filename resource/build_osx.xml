@@ -7,7 +7,7 @@
 	<property file="local.properties" />
 	
 	<target name="build">
-
+		
 		<copy todir="${output}/media">
 			<fileset dir="media"/>
 		</copy>

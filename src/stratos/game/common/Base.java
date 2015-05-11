@@ -299,12 +299,14 @@ public class Base implements
     tactics.updateTactics(numUpdates);
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after tactics: "+timeAfter);
+
+    finance.updateFinances();
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after finance: "+timeAfter);
     
-    final int interval = Stage.STANDARD_DAY_LENGTH / 3;
-    if (numUpdates % interval == 0) {
-      relations.updateRelations();
-      finance.updateFinances(interval);
-    }
+    relations.updateRelations(numUpdates);
+    timeAfter = System.currentTimeMillis() - initTime;
+    if (report) I.say("  Time after relations: "+timeAfter);
   }
   
   

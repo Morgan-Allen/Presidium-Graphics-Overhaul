@@ -26,6 +26,7 @@ import stratos.util.*;
 public class BaseRelations {
   
   
+  final static int UPDATE_INTERVAL = Stage.STANDARD_DAY_LENGTH / 3;
   
   private static boolean
     verbose = true;
@@ -155,11 +156,12 @@ public class BaseRelations {
   
   /**  Performing regular updates-
     */
-  public void updateRelations() {
+  public void updateRelations(int numUpdates) {
+    //  TODO:  MERGE THIS WITH THE BASE-ADVICE CLASS!
+    
+    if (numUpdates % UPDATE_INTERVAL != 0) return;
     
     //I.say("\nUPDATING BASE RELATIONS");
-    
-    final Tile t = base.world.tileAt(0, 0);
     int numResidents  = 0;
     averageMood       = 0.5f;
     propertyValues    = 0;
@@ -167,8 +169,7 @@ public class BaseRelations {
     
     //  Compute overall credits in circulation, so that adjustments to money
     //  supply can be made by your auditors.
-    for (Object o : base.world.presences.matchesNear(this, t, -1)) {
-      if (! (o instanceof Venue)) continue;
+    for (Object o : base.world.presences.allMatches(this)) {
       final Venue v = (Venue) o;
       propertyValues += Audit.propertyValue(v);
       creditCirculation += v.stocks.allCredits();

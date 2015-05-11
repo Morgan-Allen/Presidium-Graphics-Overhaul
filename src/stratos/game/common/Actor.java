@@ -477,8 +477,14 @@ public abstract class Actor extends Mobile implements
   
   
   protected void renderHealthbars(Rendering rendering, Base base) {
+    final boolean focused = BaseUI.isSelectedOrHovered(this);
+    final boolean alarm =
+      health.alive() && (base == base() || focused) &&
+      (health.bleeding() || health.healthLevel() < 0.25f);
+    if ((! focused) && (! alarm)) return;
+    
     label.matchTo(sprite());
-    label.position.z -= radius() + 0.25f;
+    label.position.z += height() + 0.25f;
     label.phrase = fullName();
     label.readyFor(rendering);
 
@@ -488,7 +494,7 @@ public abstract class Actor extends Mobile implements
     healthbar.level = (1 - health.injuryLevel());
     healthbar.colour = base().colour();
     healthbar.size = 35;
-    healthbar.position.z -= radius();
+    healthbar.position.z += height() + 0.1f;
     healthbar.readyFor(rendering);
   }
   
