@@ -161,7 +161,7 @@ public class Recreation extends Plan {
       I.say("\n"+actor+" relaxing at "+venue);
     }
     //
-    //  Make any neccesary initial payment-
+    //  Make any necessary initial payment-
     float comfort = rateComfort(venue, actor, this);
     if (cost > 0 && comfort > 0) {
       venue.stocks.incCredits(cost);
@@ -169,10 +169,17 @@ public class Recreation extends Plan {
       cost = 0;
     }
     
-    final float interval = 1f / ENJOY_TIME;
     if (actor.traits.traitLevel(Conditions.SOMA_HAZE) > 0) {
-      comfort++;
+      comfort += 0.5f;
     }
+    if (Resting.dineFrom(actor, venue)) {
+      comfort += 0.5f;
+    }
+    final Actor chats = (Actor) Rand.pickFrom(venue.staff.visitors());
+    if (chats != null) {
+      comfort += DialogueUtils.tryChat(actor, chats);
+    }
+    
     comfort *= enjoyBonus;
     
     if (report) {
@@ -181,8 +188,8 @@ public class Recreation extends Plan {
     }
     //
     //  TODO:  Have morale converge to a particular level based on surroundings,
-    //  rather than gaining a continual increase!
-    comfort *= interval;
+    //  rather than gaining a continual increase...
+    comfort *= 1f / ENJOY_TIME;
     actor.health.adjustMorale(comfort);
     return true;
   }

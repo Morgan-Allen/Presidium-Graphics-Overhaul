@@ -29,24 +29,15 @@ public class ServiceHatch extends Venue {
   final static String
     IMG_DIR = "media/Buildings/civilian/";
   final static CutoutModel
-    HATCH_MODEL = CutoutModel.fromSplatImage(
-      ServiceHatch.class, "media/Buildings/civilian/access_hatch_2.png", 2
+    ALL_MODELS[] = CutoutModel.fromImages(
+      ServiceHatch.class, IMG_DIR, 2, 0, true,
+      "access_hatch_2.png",
+      "causeway_x_axis.png",
+      "causeway_y_axis.png"
     ),
-    //  TODO:  Read these in from a single image-map for efficiency.
-    LINE_MODELS[] = CutoutModel.fromImages(
-      ServiceHatch.class, IMG_DIR, 2, 0.25f, true,
-      "causeway_cap_west.png" ,
-      "causeway_x_axis.png"   ,
-      "causeway_cap_east.png" ,
-      "causeway_cap_south.png",
-      "causeway_y_axis.png"   ,
-      "causeway_cap_north.png",
-      "causeway_hub.png"
-    ),
-    NM[] = LINE_MODELS,
-    HUB_MODEL = HATCH_MODEL,
-    MODELS_X_AXIS[] = { NM[0], NM[1], NM[2] },
-    MODELS_Y_AXIS[] = { NM[3], NM[4], NM[5] };
+    NM[] = ALL_MODELS, HUB_MODEL = NM[0],
+    MODELS_X_AXIS[] = { NM[0], NM[1], NM[0] },
+    MODELS_Y_AXIS[] = { NM[0], NM[2], NM[0] };
   
   final public static ImageAsset
     LINE_ICON = ImageAsset.fromImage(

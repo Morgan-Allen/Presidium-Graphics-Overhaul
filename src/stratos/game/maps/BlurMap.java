@@ -5,6 +5,7 @@
   */
 package stratos.game.maps;
 import stratos.game.common.Session;
+import stratos.game.economic.Economy;
 import stratos.util.*;
 
 
@@ -14,17 +15,24 @@ public class BlurMap {
   
   /**  Data fields, construction and save/load methods-
     */
-  final protected int trueSize, patchSize, gridSize;
+  private boolean verbose = false;
+  private Object verboseKey = null;
+  
+  final protected int trueSize, patchSize, gridSize, timePeriod;
   final float patchValues[][];
-  private float globalValue;
+  private float globalValue =  0;
+  private float samplerSums = -1;
   
   final public Object parent, key;
   
   
-  public BlurMap(int size, int patchSize, Object parent, Object key) {
+  public BlurMap(
+    int size, int patchSize, int timePeriod, Object parent, Object key
+  ) {
     this.trueSize    = size;
     this.patchSize   = patchSize;
     this.gridSize    = trueSize / patchSize;
+    this.timePeriod  = timePeriod;
     this.patchValues = new float[gridSize][gridSize];
     
     this.parent = parent;
@@ -37,6 +45,7 @@ public class BlurMap {
       patchValues[c.x][c.y] = s.loadFloat();
     }
     globalValue = s.loadFloat();
+    samplerSums = s.loadFloat();
   }
   
   
@@ -45,15 +54,17 @@ public class BlurMap {
       s.saveFloat(patchValues[c.x][c.y]);
     }
     s.saveFloat(globalValue);
+    s.saveFloat(samplerSums);
   }
   
   
   
   /**  Updates and modifications-
     */
-  public void updateAllValues(float decay) {
-    final boolean report = false;
-    if (report) I.say("\nReporting value for "+key);
+  public void updateAllValues(int period) {
+    final boolean report = verbose && key == verboseKey;
+    final float decay = period * 1f / timePeriod;
+    if (report) I.say("\nReporting blur-values for "+key);
     
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       final float value = patchValues[c.x][c.y], DV = 0 - value * decay;
@@ -64,6 +75,10 @@ public class BlurMap {
     final float DV = 0 - globalValue * decay;
     if (report) I.say("  Global value: "+globalValue+", decay: "+DV);
     globalValue += DV;
+    
+    final float DS = 0 - samplerSums * decay;
+    if (report) I.say("  Sampler sums: "+samplerSums+", decay: "+DS);
+    samplerSums += DS;
   }
   
   
@@ -83,8 +98,16 @@ public class BlurMap {
   }
   
   
-  public float sampleValue(float x, float y) {
-    return Nums.sampleMap(trueSize, patchValues, x, y);
+  public float sampleAsFraction(float x, float y, int period) {
+    final float sample = Nums.sampleMap(trueSize, patchValues, x, y);
+    if (period <= 0 || sample <= 0) return sample;
+    samplerSums += period * sample / timePeriod;
+    return globalValue * sample / Nums.max(sample, samplerSums);
+  }
+  
+  
+  public float sumSampling() {
+    return samplerSums;
   }
   
   

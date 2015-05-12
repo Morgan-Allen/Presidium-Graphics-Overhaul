@@ -1,9 +1,14 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
+
+import stratos.game.civic.*;
 import static stratos.game.economic.Economy.*;
 
 
@@ -17,7 +22,6 @@ public class BringUtils {
     rateVerbose   = false,
     dispVerbose   = false,
     rejectVerbose = false;
-  
   private static Traded verboseGoodType = null;
   private static Class  verboseDestType = null;
   private static Class  verboseOrigType = null;
@@ -246,9 +250,7 @@ public class BringUtils {
     Owner origin, Owner destination, Traded goods[],
     int baseUnit, int amountLimit
   ) {
-    final boolean report = rateVerbose && (
-      I.talkAbout == destination || I.talkAbout == origin
-    );
+    final boolean report = reportRating(origin, destination, null);
     //
     //  In essence, we take the single most demanded good at each step, and
     //  increment the size of the order for that by the base unit, until we
@@ -303,7 +305,7 @@ public class BringUtils {
     if (origs.size() == 0) return null;
     if (dest.inventory().shortageOf(good) <= 0) return null;
     
-    final boolean report = rateVerbose && I.talkAbout == dest;
+    final boolean report = reportRating(null, dest, good);
     if (report) {
       I.say("\nFinding best origin of "+good+" for "+dest);
       I.say("  ("+origs.size()+" available)");
@@ -328,7 +330,7 @@ public class BringUtils {
     if (dests.size() == 0) return null;
     if (orig.inventory().amountOf(good) < unit) return null;
     
-    final boolean report = rateVerbose && I.talkAbout == orig;
+    final boolean report = reportRating(orig, null, good);
     if (report) {
       I.say("\nFinding best destination for "+good+" from "+orig);
       I.say("  ("+dests.size()+" available)");
@@ -364,6 +366,36 @@ public class BringUtils {
   
   
   
+  /**  Some utility printout methods-
+    */
+  private static String nameForTier(int tier) {
+    return Owner.TIER_NAMES[tier - Owner.TIER_TERRAIN]+" ("+tier+")";
+  }
+  
+  
+  private static boolean reportRating(Owner orig, Owner dest, Traded good) {
+    if (! rateVerbose) return false;
+    //
+    //  Supply and demand can quickly get very hairy, so to help in tracking it
+    //  we have some moderately elaborate reporting criteria.
+    boolean report = (
+      (orig != null && I.talkAbout == orig) ||
+      (dest != null && I.talkAbout == dest)
+    );
+    if (verboseGoodType != null && good != null) {
+      report &= verboseGoodType == good;
+    }
+    if (verboseOrigType != null && orig != null) {
+      report &= verboseOrigType == orig.getClass();
+    }
+    if (verboseDestType != null && dest != null) {
+      report &= verboseDestType == dest.getClass();
+    }
+    return report;
+  }
+  
+  
+  
   /**  Rates the attractiveness of trading a particular good types between
     *  the given origin and destination venues-
     */
@@ -371,19 +403,7 @@ public class BringUtils {
     Owner orig, Owner dest, Traded good, int amount, int unit
   ) {
     if (orig == dest) return -1;
-    //
-    //  Supply and demand can quickly get very hairy, so to help in tracking it
-    //  we have some moderately elaborate reporting criteria.
-    final boolean report;
-    if (verboseGoodType != null) {
-      report =
-        (verboseGoodType == good) &&
-        (verboseDestType == null || dest.getClass() == verboseDestType) &&
-        (verboseOrigType == null || orig.getClass() == verboseOrigType);
-    }
-    else {
-      report = rateVerbose && (I.talkAbout == orig || I.talkAbout == dest);
-    }
+    final boolean report = reportRating(orig, dest, good);
     if (report) {
       I.say("\nGetting trade rating for "+good+" ("+orig+" -> "+dest+")");
     }
@@ -421,7 +441,7 @@ public class BringUtils {
       I.say("  Origin tier:      "+nameForTier(OT)+", Exporter: "+OP);
       I.say("  Destination tier: "+nameForTier(DT)+", Exporter: "+DP);
     }
-    if (! canTradeBetween(OT, OP, DT, DP, true)) return -1;
+    if (! canTradeBetween(OT, OP, DT, DP)) return -1;
     final float
       OD = OS.demandFor(good),
       DD = DS.demandFor(good);
@@ -480,30 +500,32 @@ public class BringUtils {
     //  Then return an estimate of how much an exchange would equalise things,
     //  along with penalties for distance, tier-gap and base relations:
     final int SS = Stage.ZONE_SIZE;
-    final float distFactor = SS / (SS + Spacing.distance(orig, dest));
-    final float tierFactor = Nums.max(1, Nums.abs(OT - DT));
-    
+    final float
+      distFactor  = SS / (SS + Spacing.distance(orig, dest)),
+      tierFactor  = Nums.max(1, Nums.abs(OT - DT)),
+      priceDiff   = dest.priceFor(good, false) - orig.priceFor(good, true),
+      priceFactor = Nums.clamp(1 + (priceDiff / good.basePrice()), 0.5f, 2);
     if (report) {
       I.say("  Final rating "+rating);
-      I.say("  base/distance factors: "+baseFactor+"/"+distFactor);
+      I.say("  base/distance factors: "+baseFactor +"/"+distFactor);
+      I.say("  price/tier factors:    "+priceFactor+"/"+tierFactor);
     }
-    return rating * distFactor * baseFactor / tierFactor;
+    return rating * distFactor * baseFactor * priceFactor / tierFactor;
   }
   
   
   public static boolean canTradeBetween(
     int origTier, boolean origProduce,
-    int destTier, boolean destProduce,
-    boolean allowSameTier
+    int destTier, boolean destProduce
   ) {
     //  Private trades (okay as long as the recipient is a consumer)
-    if (destTier < Owner.TIER_FACILITY) {
+    if (destTier <= Owner.TIER_PRIVATE) {
       if (destProduce == true) return false;
     }
-    //  Same-tier trades (illegal between trade vessels)
+    //  Same-tier trades (illegal between trade vessels or same demands)
     else if (origTier == destTier) {
-      if (origProduce == destProduce && ! allowSameTier) return false;
       if (origTier == Owner.TIER_SHIPPING) return false;
+      if (origProduce == destProduce) return false;
     }
     //  Downstream deliveries (from ships to depots to facilities)
     else if (origTier > destTier) {
@@ -514,11 +536,6 @@ public class BringUtils {
       if (origProduce == false || destProduce == false) return false;
     }
     return true;
-  }
-  
-  
-  private static String nameForTier(int tier) {
-    return Owner.TIER_NAMES[tier - Owner.TIER_NATURAL]+" ("+tier+")";
   }
   
   

@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.graphics.sfx.TalkFX;
@@ -10,12 +12,13 @@ import stratos.graphics.sfx.TalkFX;
 public interface Owner extends Target, Session.Saveable {
   
   final static int
-    TIER_NATURAL  = -2,
-    TIER_CARRIES  = -1,
+    TIER_TERRAIN  = -2,
+    TIER_OBJECT   = -1,
     TIER_PRIVATE  =  0,
     TIER_FACILITY =  1,
-    TIER_DEPOT    =  2,
-    TIER_SHIPPING =  3;
+    TIER_TRADER   =  2,
+    TIER_DEPOT    =  3,
+    TIER_SHIPPING =  4;
   
   Base base();
   Inventory inventory();

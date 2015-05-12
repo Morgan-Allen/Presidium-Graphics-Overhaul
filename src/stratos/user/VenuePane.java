@@ -40,7 +40,7 @@ public class VenuePane extends SelectionPane {
   
   public static SelectionPane configStandardPanel(
     Venue venue, SelectionPane panel, BaseUI UI,
-    boolean stocksOrders, String... cats
+    Traded setStock[], String... cats
   ) {
     if (cats == null || cats.length == 0) cats = DEFAULT_CATS;
     if (panel == null) panel = new VenuePane(UI, venue, cats);
@@ -51,9 +51,11 @@ public class VenuePane extends SelectionPane {
     
     VD.describeCondition(d, UI);
     if (category == CAT_UPGRADES) VD.describeUpgrades(l, UI);
-    if (category == CAT_STOCK   ) {
-      if (stocksOrders) VD.describeStockOrders(l, UI);
-      else              VD.describeStocks     (l, UI);
+    if (category == CAT_STOCK) {
+      if (setStock != null && setStock.length > 0) {
+        VD.describeStockOrders(l, setStock, UI);
+      }
+      else VD.describeStocks(l, UI);
     }
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
     return panel;
@@ -84,8 +86,7 @@ public class VenuePane extends SelectionPane {
 
   
   
-  private void describeStockOrders(Description d, BaseUI UI) {
-    final Traded types[] = v.services();
+  private void describeStockOrders(Description d, Traded types[], BaseUI UI) {
     d.append("Orders:");
     
     if (! v.structure.intact()) {
@@ -151,8 +152,10 @@ public class VenuePane extends SelectionPane {
   private void describeCondition(Description d, BaseUI UI) {
     final Stage world = v.world();
     d.append("Condition and Repair:");
+    
+    final int repair = Nums.round(v.structure.repair(), 1, true);
     d.append("\n  Integrity: ");
-    d.append(v.structure().repair()+" / "+v.structure().maxIntegrity());
+    d.append(repair+" / "+v.structure().maxIntegrity());
     
     final Inventory i = v.inventory();
     d.append("\n  Credits: "+(int) i.allCredits());

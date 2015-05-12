@@ -55,7 +55,7 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   
   
   public int owningTier() {
-    return TIER_CARRIES;
+    return TIER_OBJECT;
   }
   
 

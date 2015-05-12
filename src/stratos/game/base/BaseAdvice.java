@@ -31,29 +31,38 @@ public class BaseAdvice {
     LEVEL_TOTAL   =  2,
     LEVEL_ADVISOR =  1,
     LEVEL_NONE    =  0;
+  final static int
+    WARNING_SLOW  = Stage.STANDARD_DAY_LENGTH,
+    WARNING_FAST  = Stage.STANDARD_HOUR_LENGTH,
+    NO_WARN_DELAY = 0;
   
   public static enum Topic {
-    HUNGER_WARNING  ("No Food!"),
-    HUNGER_SEVERE   ("Hunger"),
-    SICKNESS_WARNING("No Doctors"),
-    SICKNESS_SEVERE ("Sickness"),
-    MORALE_WARNING  ("No Entertainment"),
-    MORALE_SEVERE   ("Discontent"),
-    DANGER_WARNING  ("Poor Security"),
-    DANGER_SEVERE   (""),
-    EXPENSE_WARNING ("No Exports!"),
-    EXPENSE_SEVERE  (""),
-    NEEDS_WARNING   ("Shortages"),
-    NEEDS_SEVERE    (""),
+    HUNGER_WARNING  ("No Food!"        , WARNING_SLOW ),
+    HUNGER_SEVERE   ("Hunger"          , WARNING_FAST ),
+    SICKNESS_WARNING("No Doctors"      , WARNING_SLOW ),
+    SICKNESS_SEVERE ("Sickness"        , WARNING_FAST ),
+    MORALE_WARNING  ("No Entertainment", WARNING_SLOW ),
+    MORALE_SEVERE   ("Discontent"      , WARNING_FAST ),
+    DANGER_WARNING  ("Poor Security"   , WARNING_SLOW ),
+    DANGER_SEVERE   (""                , WARNING_FAST ),
+    EXPENSE_WARNING ("No Exports!"     , WARNING_SLOW ),
+    EXPENSE_SEVERE  (""                , WARNING_FAST ),
+    NEEDS_WARNING   ("Shortages"       , WARNING_SLOW ),
+    NEEDS_SEVERE    (""                , WARNING_FAST ),
     
-    NEED_BUILDERS   ("No Technicians!"),
-    NEED_ADMIN      ("No Auditors!"),
+    NEED_BUILDERS   ("No Technicians!" , WARNING_FAST ),
+    NEED_ADMIN      ("No Auditors!"    , WARNING_FAST ),
     
-    BASE_ATTACK     (""),
-    CASUALTIES      ("");
+    BASE_ATTACK     (""                , NO_WARN_DELAY),
+    CASUALTIES      (""                , NO_WARN_DELAY);
     
     final String label;
-    Topic(String label) { this.label = label; }
+    final int warnDelay;
+    
+    Topic(String label, int warnDelay) {
+      this.label = label;
+      this.warnDelay = warnDelay;
+    }
   };
   final static XML textXML = XML.load("media/Help/GameHelp.xml");
   
@@ -73,6 +82,8 @@ public class BaseAdvice {
     needsAdmin ;
   private Batch <Traded> shortages = new Batch <Traded> ();
   
+  private Table <Topic, Float> topicDates = new Table <Topic, Float> ();
+  
   
   
   
@@ -83,11 +94,19 @@ public class BaseAdvice {
   
   public void loadState(Session s) throws Exception {
     this.controlLevel = s.loadInt();
+    for (Topic t : Topic.values()) {
+      final float date = s.loadFloat();
+      if (date >= 0) topicDates.put(t, date);
+    }
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveInt(controlLevel);
+    for (Topic t : Topic.values()) {
+      final Float date = topicDates.get(t);
+      s.saveFloat(date == null ? -1 : date);
+    }
   }
   
   
@@ -181,8 +200,10 @@ public class BaseAdvice {
   }
   
   
-  public Batch <Topic> adviceTopics() {
-    final Batch <Topic> topics = new Batch <Topic> ();
+  public Series <Topic> adviceTopics() {
+    //
+    //  We first compile a list of everything one might complain about.
+    final List <Topic> topics = new List <Topic> ();
     
     if (numNoFood > 0.5f   ) topics.add(Topic.HUNGER_WARNING );
     if (numHungry > 0.5f   ) topics.add(Topic.HUNGER_SEVERE  );
@@ -195,7 +216,18 @@ public class BaseAdvice {
     if (needSafety         ) topics.add(Topic.DANGER_WARNING );
     
     if (! shortages.empty()) topics.add(Topic.NEEDS_WARNING  );
-    
+    //
+    //  We screen out any warnings that haven't been present longer than the
+    //  warning-delay associated.
+    for (Topic t : topicDates.keySet()) {
+      if (! topics.includes(t)) topicDates.remove(t);
+    }
+    final float newDate = base.world.currentTime();
+    for (Topic t : topics) {
+      Float date = topicDates.get(t);
+      if (date == null) topicDates.put(t, date = newDate);
+      if (newDate - date < t.warnDelay) topics.remove(t);
+    }
     return topics;
   }
   

@@ -60,7 +60,6 @@ public class Structure {
     DEFAULT_AMBIENCE   = 0;
   final public static float
     BURN_PER_SECOND = 1.0f,
-    //WEAR_PER_DAY    = 0.5f,
     REGEN_PER_DAY   = 0.2f;
   final public static String
     DAMAGE_KEY = "damaged";
@@ -284,6 +283,7 @@ public class Structure {
       wear *= baseIntegrity / GameSettings.ITEM_WEAR_DAYS;
       if (structureType == TYPE_FIXTURE) wear /= 2;
       if (structureType == TYPE_CRAFTED) wear *= 2;
+      if (report) I.say("  Wear level: "+wear);
       if (Rand.num() > armouring / (armouring + DEFAULT_ARMOUR)) {
         takeDamage(wear * Rand.num() * 2);
       }
@@ -314,7 +314,7 @@ public class Structure {
   public boolean destroyed()  { return state == STATE_RAZED ; }
   public int     buildState() { return state; }
   
-  public int     repair()      { return (int) integrity; }
+  public float   repair()      { return integrity; }
   public float   repairLevel() { return integrity / maxIntegrity(); }
   public boolean burning()     { return burning; }
   
@@ -420,6 +420,7 @@ public class Structure {
     final int max = maxIntegrity();
     integrity += inc;
     if (integrity < 0) {
+      if (I.logEvents()) I.say("\n"+basis+" WAS DESTROYED, DAMAGE: "+inc);
       state = STATE_RAZED;
       ((Element) basis).setAsDestroyed();
       integrity = 0;

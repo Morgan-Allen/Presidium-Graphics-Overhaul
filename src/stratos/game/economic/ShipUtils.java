@@ -75,7 +75,7 @@ public class ShipUtils {
       site.expandBy(-1);
       final Batch <Mobile> under = new Batch <Mobile> ();
       for (Tile t : Spacing.perimeter(site, world)) {
-        if (t.onTop() != null && t.owningTier() <= Owner.TIER_NATURAL) {
+        if (t.onTop() != null && t.owningTier() <= Owner.TIER_TERRAIN) {
           t.onTop().setAsDestroyed();
         }
       }

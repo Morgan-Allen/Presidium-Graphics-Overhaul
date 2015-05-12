@@ -127,6 +127,8 @@ public class Bringing extends Plan {
   
   
   public int stage() { return stage; }
+  public float totalPrice() { return goodsPrice; }
+  public float totalBulk() { return goodsBulk; }
   
   
   public boolean matchesPlan(Behaviour plan) {

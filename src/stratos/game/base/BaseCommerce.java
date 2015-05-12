@@ -269,11 +269,14 @@ public class BaseCommerce {
     
     for (Object o : base.world.presences.matchesNear(base, null, -1)) {
       final Venue venue = (Venue) o;
-
+      if (venue.blueprint.isFixture()) continue;
+      final int tier = venue.owningTier();
+      if (tier <= Owner.TIER_PRIVATE) continue;
+      
+      final boolean trader = Visit.arrayIncludes(
+        venue.services(), SERVICE_COMMERCE
+      );
       for (Traded type : venue.stocks.demanded()) {
-        final int tier = venue.owningTier();
-        if (tier <= Owner.TIER_PRIVATE) continue;
-        
         final boolean producer = venue.stocks.producer(type);
         final float
           amount   = venue.stocks.amountOf  (type),
@@ -283,16 +286,17 @@ public class BaseCommerce {
         
         if (report && extraVerbose) {
           I.say("  "+venue+" "+type+" (tier: "+tier+")");
-          I.say("    Amount:   "+amount+"/"+demand);
+          I.say("    Is trader: "+trader);
+          I.say("    Amount:    "+amount+"/"+demand);
           if (surplus  > 0) I.say("    Surplus:  "+surplus );
           if (shortage > 0) I.say("    Shortage: "+shortage);
         }
         
-        if (tier <= Owner.TIER_FACILITY && ! producer) {
+        if ((! trader) && (! producer)) {
           primarySupply.add(amount, type);
           primaryDemand.add(demand, type);
         }
-        if (tier >= Owner.TIER_DEPOT) {
+        if (trader) {
           if (producer) exportSupply.add(amount, type);
           else importDemand.add(demand - amount, type);
         }

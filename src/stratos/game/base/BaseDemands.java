@@ -4,12 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.base;
+import static stratos.game.economic.Economy.PLASTICS;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.util.*;
-
 import stratos.user.BaseUI;
+
 import java.util.Map.Entry;
 
 
@@ -97,7 +98,7 @@ public class BaseDemands {
       return null;
     }
     
-    table.put(key, map = new BlurMap(size, patchSize, table, key));
+    table.put(key, map = new BlurMap(size, patchSize, timePeriod, table, key));
     return map;
   }
   
@@ -117,27 +118,26 @@ public class BaseDemands {
     */
   public void updateAllMaps(int period) {
     final boolean report = verbose && BaseUI.currentPlayed() == base;
-    final float decay = period * 1f / timePeriod;
     if (report) {
       I.say("\nUPDATING BASE DEMANDS FOR "+I.tagHash(base));
-      I.say("  Decay rate: "+decay);
     }
     
     for (BlurMap map : supply.values()) {
-      map.updateAllValues(decay);
+      map.updateAllValues(period);
       if (report) {
         I.say("  Global supply for "+map.key+" is: "+map.globalValue());
       }
     }
     for (BlurMap map : demand.values()) {
-      map.updateAllValues(decay);
+      map.updateAllValues(period);
       if (report) {
         I.say("  Global demand for "+map.key+" is: "+map.globalValue());
       }
     }
     
     if (report) for (Object o : supply.keySet()) {
-      I.say("  Relative shortage for "+o+" is "+relativeGlobalShortage(o));
+      final float shortage = globalShortage(o, true);
+      I.say("  Relative shortage for "+o+" is "+shortage);
     }
   }
   
@@ -195,29 +195,9 @@ public class BaseDemands {
   
   /**  Global and localised supply-and-demand queries-
     */
-  public float globalShortage(Object key) {
-    final float GD = globalDemand(key), GS = globalSupply(key);
-    return GD - GS;
+  public float globalDemand(Object key) {
+    return mapForDemand(key).globalValue();
   }
-  
-  
-  public float relativeGlobalShortage(Object key) {
-    final float GD = globalDemand(key), GS = globalSupply(key);
-    if (GD <= 0) return 0;
-    return 1 - (GS / GD);
-  }
-  
-  
-  public float localShortage(Target point, Object key) {
-    final float
-      DA = demandAround(point, key, -1),
-      SA = supplyAround(point, key, -1),
-      GS = relativeGlobalShortage(key);
-    if (GS <= 0) return 0;
-    return GS * (DA - SA);
-  }
-  
-  //  TODO:  Implement relativeLocalShortage...?
   
   
   public float globalSupply(Object key) {
@@ -225,39 +205,50 @@ public class BaseDemands {
   }
   
   
-  public float globalDemand(Object key) {
-    return mapForDemand(key).globalValue();
+  public float globalShortage(Object key, boolean relative) {
+    final float GD = globalDemand(key), GS = globalSupply(key);
+    if (relative) {
+      if (GD <= 0) return 0;
+      return 1 - (GS / GD);
+    }
+    else {
+      return GD - GS;
+    }
+  }
+  
+  
+  public float demandFractionFor(Target point, Object key, int period) {
+    final BlurMap map = mapForDemand(key);
+    point.position(temp);
+    return map.sampleAsFraction(temp.x, temp.y, period);
+  }
+  
+  
+  public float supplyFractionFor(Target point, Object key, int period) {
+    final BlurMap map = mapForSupply(key);
+    point.position(temp);
+    return map.sampleAsFraction(temp.x, temp.y, period);
   }
   
   
   public float supplyAround(Target point, Object key, float radius) {
-    return sampleMapFrom(supply, key, point, radius);
-  }
-  
-  
-  public float demandAround(Target point, Object key, float radius) {
-    return sampleMapFrom(demand, key, point, radius);
-  }
-  
-  
-  private float sampleMapFrom(
-    Table <Object, BlurMap> table, Object key, Target point, float radius
-  ) {
-    final BlurMap map = mapForKeyFrom(table, key);
+    final BlurMap map = mapForSupply(key);
     point.position(temp);
-    float value = map.sampleValue(temp.x, temp.y);
+    float value = map.sampleAsFraction(temp.x, temp.y, -1);
     if (radius > 0) value *= (radius * radius * 4) / (patchSize * patchSize);
     return value;
   }
+  
+  
+  public float demandSampling(Object key) {
+    return mapForDemand(key).sumSampling();
+  }
+  
+  
+  public float supplySampling(Object key) {
+    return mapForSupply(key).sumSampling();
+  }
 }
-
-
-
-
-
-
-
-
 
 
 

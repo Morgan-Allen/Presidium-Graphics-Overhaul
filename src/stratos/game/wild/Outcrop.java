@@ -148,7 +148,7 @@ public class Outcrop extends Fixture {
   
   
   public int owningTier() {
-    return Owner.TIER_CARRIES;
+    return Owner.TIER_OBJECT;
   }
   
   

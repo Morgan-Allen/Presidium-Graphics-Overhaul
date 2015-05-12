@@ -119,7 +119,7 @@ public class Holding extends Venue {
   
   public float ratePlacing(Target point, boolean exact) {
     final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
-    float baseDemand = base.demands.globalShortage(SERVICE_HOUSING);
+    float baseDemand = base.demands.globalShortage(SERVICE_HOUSING, false);
     final Base claims = point.world().claims.baseClaiming(point);
     
     if (report) {
@@ -449,7 +449,7 @@ public class Holding extends Venue {
       if (owns.fullName() == null) break;
       final String prefix = (String) Visit.last(owns.fullName().split(" "));
       if (prefix == null) break;
-      return prefix+" "+LEVEL_SUFFIX[upgradeLevel + 2];
+      return prefix+"'s "+LEVEL_SUFFIX[upgradeLevel + 2];
     }
     return LEVEL_NAMES[upgradeLevel + 2];
   }

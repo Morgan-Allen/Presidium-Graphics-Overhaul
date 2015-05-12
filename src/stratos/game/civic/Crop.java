@@ -113,7 +113,7 @@ public class Crop extends Element {
     if (parent != null && parent.structure.intact() && parent.inWorld()) {
       return Owner.TIER_PRIVATE;
     }
-    return Owner.TIER_NATURAL;
+    return Owner.TIER_TERRAIN;
   }
   
   

@@ -172,7 +172,7 @@ public class Element implements
   
   
   public int owningTier() {
-    return Owner.TIER_NATURAL;
+    return Owner.TIER_TERRAIN;
   }
   
   

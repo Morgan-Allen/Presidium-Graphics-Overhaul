@@ -66,10 +66,10 @@ public class HoldingUpgrades {
   final static String LEVEL_NAMES[] = {
     
     "Dreg Towers",
-    "Scavenger Slums",
+    "Scavenger Slum",
     "Seal Tent",
     
-    "Pyon Shacks",
+    "Pyon Shack",
     "Freeborn Holding",
     "Citizen Apartment",
     "Gelder Manse",
@@ -80,11 +80,11 @@ public class HoldingUpgrades {
   };
   final static String LEVEL_SUFFIX[] = {
     
-    "Towers",
-    "Slums",
+    "Tower",
+    "Slum",
     "Tent",
     
-    "Shacks",
+    "Shack",
     "Holding",
     "Apartment",
     "Manse",

@@ -175,7 +175,7 @@ public final class Tile implements
   
   
   public int owningTier() {
-    if (onTop == null) return Owner.TIER_NATURAL;
+    if (onTop == null) return Owner.TIER_TERRAIN;
     else return onTop.owningTier();
   }
   
@@ -250,7 +250,7 @@ public final class Tile implements
   
   
   public void clearUnlessOwned() {
-    if (owningTier() > Owner.TIER_NATURAL) return;
+    if (owningTier() > Owner.TIER_TERRAIN) return;
     if (onTop != null) onTop.setAsDestroyed();
   }
   

@@ -245,7 +245,7 @@ public abstract class Vehicle extends Mobile implements
       moveRate *= (pilotBonus + 1) / 2;
       pathing.headTowards(step, moveRate, 5 * baseSpeed, true);
     }
-    else world.schedule.scheduleNow(this);
+    ///else world.schedule.scheduleNow(this);
   }
   
   

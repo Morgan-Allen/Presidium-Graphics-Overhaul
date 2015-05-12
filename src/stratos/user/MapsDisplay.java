@@ -243,28 +243,28 @@ public class MapsDisplay extends UIGroup {
   //         out context-sensitive tooltips.
   
   //private BlurMap browserMap;
-  private Base wild;
+  //private Base wild;
   
   private Colour fertilityTone(Tile t) {
     //  TODO:  Include radiation, et cetera.
     
-    //*
+    /*
     String keyB = Species.Type.BROWSER.name();
     String keyP = Species.Type.PREDATOR.name();
     if (wild == null) {
       wild = Base.wildlife(BaseUI.current().world());
     }
     //*/
-    
+    /*
     float f = world.terrain().fertilitySample(t);
     float b = Nums.clamp(wild.demands.supplyAround(t, keyB, -1) / 4, 0, 1);
     float p = Nums.clamp(wild.demands.supplyAround(t, keyP, -1) / 4, 0, 1);
     return modeTone.set(p, f, b, 1);
-    
-    /*
+    //*/
+    //*
     final float
-      f = world.terrain().fertilitySample(t),
-      s = safeRange(0 - world.ecology().ambience.valueAt(t) / 5);
+      f = world.terrain().fertilitySample(t);
+      //s = safeRange(0 - world.ecology().ambience.valueAt(t) / 5);
     return modeTone.set(0, f, 0, 1);//Nums.max(f, s));
     //*/
   }

@@ -32,6 +32,9 @@ public class StockExchange extends Venue {
   
   /**  Data fields, constructors and save/load functionality-
     */
+  private static boolean
+    verbose = false;
+  
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 4, 1
   );
@@ -43,7 +46,7 @@ public class StockExchange extends Venue {
     StockExchange.class, "stock_exchange",
     "Stock Exchange", UIConstants.TYPE_COMMERCE,
     4, 1, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_DEPOT
+    NO_REQUIREMENTS, Owner.TIER_TRADER
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -53,8 +56,7 @@ public class StockExchange extends Venue {
     super(BLUEPRINT, base);
     staff.setShiftType(SHIFTS_BY_DAY);
     structure.setupStats(
-      150, 3, 250,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
+      150, 3, 250, Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
     );
     attachSprite(MODEL.makeSprite());
   }
@@ -251,36 +253,33 @@ public class StockExchange extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
+    
+    final boolean report = verbose && I.talkAbout == this;
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
     
-    I.say("\nUpdating stock exchange...");
-    final float range = Stage.ZONE_SIZE;
+    if (report) I.say("\nUpdating stock exchange...");
     for (Traded type : ALL_MATERIALS) {
       final int typeSpace = spaceFor(type);
       if (typeSpace == 0) continue;
       //
       //  We base our desired stock levels partly off installed upgrades, and
       //  partly off local supply/demand levels.
-      
-      //
-      //  TODO:
-      //  ...The only way to fairly distribute demand is to take the global sum,
-      //  and divide that among all producers in proportion to their sampling
-      //  of local demand.
-      
-      //  You can't do it based off local sampling alone.
-      
       final float
-        realDemand = base.demands.demandAround(this, type, range),
-        realSupply = base.demands.supplyAround(this, type, range),
+        realDemand = base.demands.demandFractionFor(this, type, 1) * 2,
+        realSupply = base.demands.supplyFractionFor(this, type, 1) * 2,
         shortage   = (realDemand / (realSupply + realDemand)) - 0.5f,
-        idealStock = Nums.max(realDemand, realSupply);
+        idealStock = (realDemand + realSupply + typeSpace) / 3;
       final boolean exports = shortage < 0;
       stocks.incDemand(type, Nums.min(typeSpace, idealStock), 1, exports);
-      
-      I.say("\nReal supply/demand for "+type+": "+realSupply+"/"+realDemand);
-      I.say("  Space available:       "+typeSpace);
-      I.say("  Ideal stock is:        "+idealStock);
+      if (report) {
+        I.say("\nReal supply/demand for "+type+": "+realSupply+"/"+realDemand);
+        I.say("  Global supply:   "+base.demands.globalSupply(type));
+        I.say("  Global demand:   "+base.demands.globalDemand(type));
+        I.say("  Supply sampling: "+base.demands.supplySampling(type));
+        I.say("  Demand sampling: "+base.demands.demandSampling(type));
+        I.say("  Space available: "+typeSpace);
+        I.say("  Ideal stock is:  "+idealStock);
+      }
     }
     //
     //  In essence, we accumulate interest on any debts or losses accrued
@@ -329,6 +328,7 @@ public class StockExchange extends Venue {
     return DISPLAYED_GOODS;
   }
   
+  /*
   //
   //  TODO:  You have to show items in the back as well, behind a sprite
   //  overlay for the facade of the structure.
@@ -336,13 +336,14 @@ public class StockExchange extends Venue {
     final float CL = catalogueLevel(good);
     return Nums.min(super.goodDisplayAmount(good), 25 * CL);
   }
+  //*/
   
   
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(ICON, "stock_exchange");
   }
-
-
+  
+  
   public String helpInfo() {
     if (inWorld() && staff.manning() == 0) {
       return
@@ -350,8 +351,8 @@ public class StockExchange extends Venue {
         "someone is there to man the stalls!";
     }
     else return
-      "The Stock Exchange generates additional revenue from the sale of "+
-      "goods to local homeowners and businesses.";
+      "The Stock Exchange generates higher profits from the sale of finished "+
+      "goods to local homes and businesses.";
   }
 }
 

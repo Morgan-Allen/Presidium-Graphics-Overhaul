@@ -116,8 +116,8 @@ public abstract class Venue extends Structural implements
   }
   
   
-  public float priceFor(Traded service, boolean sold) {
-    return service.basePrice();
+  public float priceFor(Traded good, boolean sold) {
+    return good.basePrice();
   }
   
   
@@ -442,8 +442,9 @@ public abstract class Venue extends Structural implements
   /**  Interface methods-
     */
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, false);
+    return VenuePane.configStandardPanel(this, panel, UI, null);
   }
+  
   
   public String fullName() {
     if (blueprint.isFixture()) return blueprint.name;

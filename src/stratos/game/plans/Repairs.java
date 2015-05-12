@@ -82,9 +82,14 @@ public class Repairs extends Plan {
   public static float needForRepair(Structure.Basis built) {
     final Structure structure = built.structure();
     if (! structure.takesWear()) return 0;
+    
+    final float wear = 1 - structure.repairLevel(), min = MIN_SERVICE_DAMAGE;
+    
     float needRepair;
     if (! structure.intact()) needRepair = 1.0f;
-    else needRepair = (1 - structure.repairLevel()) * 1.5f;
+    else if (wear < min) needRepair = wear * 0.5f / min;
+    else needRepair = 0.5f + ((wear - min) / (1 - min));
+    
     if (structure.burning()) needRepair += 1.0f;
     if (structure.needsUpgrade()) needRepair = Nums.max(needRepair, 1);
     return needRepair;
@@ -138,7 +143,9 @@ public class Repairs extends Plan {
   final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
   
   protected float getPriority() {
-    final boolean report = I.talkAbout == actor && evalVerbose;
+    final boolean report = evalVerbose && (
+      I.talkAbout == actor || I.talkAbout == built
+    );
     
     float urgency = needForRepair(built), helpLimit;
     if (urgency <= 0) return 0;
@@ -151,8 +158,12 @@ public class Repairs extends Plan {
     );
     if (report) {
       I.say("\nRepair priority was: "+priority);
-      I.say("  Skill level:  "+actor.traits.usedLevel(skillUsed  ));
-      I.say("  Labour level: "+actor.traits.usedLevel(HARD_LABOUR));
+      I.say("  Repair level: "+built.structure().repairLevel());
+      I.say("  Urgency:      "+urgency  );
+      I.say("  Help limit:   "+helpLimit);
+      //I.say("  Skill level:  "+actor.traits.usedLevel(skillUsed  ));
+      //I.say("  Labour level: "+actor.traits.usedLevel(HARD_LABOUR));
+      I.say("  Competence    "+competence());
     }
     return priority;
   }

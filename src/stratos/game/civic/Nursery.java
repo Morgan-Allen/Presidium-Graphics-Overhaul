@@ -154,7 +154,7 @@ public class Nursery extends Venue implements TileConstants {
     if (station == null || station.base() != base) return -1;
     final float distance = Spacing.distance(point, station);
     
-    float demand = base.demands.globalShortage(Nursery.class);
+    float demand = base.demands.globalShortage(Nursery.class, false);
     final Tile under = world.tileAt(point);
     float rating = 0;
     rating += world.terrain().fertilitySample(under);

@@ -10,7 +10,6 @@ import stratos.util.*;
 
 //  TODO:  Use Sector Size for grid resolution, and enhance pathfinding with
 //         enemy fog-of-war?
-
 public class DangerMap extends BlurMap {
   
   
@@ -23,7 +22,10 @@ public class DangerMap extends BlurMap {
   
   
   public DangerMap(Stage world, Base base) {
-    super(world.size, world.sections.resolution, null, "Danger");
+    super(
+      world.size, world.sections.resolution,
+      Stage.STANDARD_DAY_LENGTH, null, "Danger"
+    );
     this.world = world;
     this.base  = base;
   }
@@ -43,17 +45,13 @@ public class DangerMap extends BlurMap {
   /**  Methods for regularly updating, adjusting and querying danger values-
     */
   public void update() {
-    super.updateAllValues(1f / Stage.STANDARD_DAY_LENGTH);
-    
+    super.updateAllValues(1);
     if (verbose) {
       I.say("\nDanger map updated for "+base.title()+" ("+base.hashCode()+")");
       final int o = patchSize / 2;
       for (Coord c : Visit.grid(o, o, world.size, world.size, patchSize)) {
         final float value = patchValue(c.x, c.y);
-        if (value > 0) {
-          I.say("  Positive at "+c.x+" "+c.y+":    "+value);
-          I.say("    (Sample is: "+sampleValue(c.x, c.y)+")");
-        }
+        if (value > 0) I.say("  Positive at "+c.x+" "+c.y+":    "+value);
       }
     }
   }
@@ -66,7 +64,7 @@ public class DangerMap extends BlurMap {
   
   
   public float sampleAround(float x, float y, float radius) {
-    float value = sampleValue(x, y);
+    float value = sampleAsFraction(x, y, -1);
     if (radius > 0) value *= (radius * radius) / (patchSize * patchSize);
     return value;
   }

@@ -40,7 +40,7 @@ public class Airfield extends Venue {
     Airfield.class, "airfield",
     "Airfield", UIConstants.TYPE_COMMERCE,
     6, 3, IS_NORMAL,
-    new Blueprint[] { SupplyDepot.BLUEPRINT, Bastion.BLUEPRINT },
+    new Blueprint[] { StockExchange.BLUEPRINT, Bastion.BLUEPRINT },
     Owner.TIER_FACILITY
   );
   

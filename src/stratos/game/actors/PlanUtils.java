@@ -321,9 +321,13 @@ public class PlanUtils {
       if (reportOn(actor, 0)) I.say("\nNo urgency for "+plan);
       return -1;
     }
-    
+    //
+    //  NOTE:  We scale the fail penalty with the urgency as this tends to
+    //         be the best indication of how important screw-ups are as well
+    //         as success.  (Otherwise you see actors abandoning nearly-done
+    //         jobs.)
     priority = incentive * competence;
-    priority -= failPenalty = (1 - competence) * 10 * riskLevel;
+    priority -= failPenalty = (1 - competence) * 10 * riskLevel * urgency;
     
     
     if (reportOn(actor, priority)) I.reportVars(

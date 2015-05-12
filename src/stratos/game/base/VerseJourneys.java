@@ -196,7 +196,7 @@ public class VerseJourneys {
       return;
     }
     final float timeGap = time - journey.arriveTime;
-    if (timeGap > SHIP_JOURNEY_TIME) {
+    if (timeGap > SHIP_JOURNEY_TIME && ! visitWorld) {
       if (I.logEvents()) {
         I.say("\nShip journey took too long: "+ship);
         I.say("  Arrive time:  "+journey.arriveTime);

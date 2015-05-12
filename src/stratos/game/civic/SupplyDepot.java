@@ -33,6 +33,11 @@ public class SupplyDepot extends Venue {
   );
   
   final static Traded
+    ALL_TRADE_TYPES[] = {
+      CARBS, PROTEIN, POLYMER, METALS,
+      PLASTICS, PARTS, GREENS, MEDICINE,
+      SOMA, CATALYST, FUEL_RODS, CIRCUITRY
+    },
     DEFAULT_TRADE_TYPES[] = {
       CARBS, PROTEIN, GREENS, MEDICINE,
       POLYMER, METALS, PLASTICS, PARTS
@@ -117,6 +122,14 @@ public class SupplyDepot extends Venue {
   }
   
   
+  public float priceFor(Traded good, boolean sold) {
+    final boolean exports = stocks.producer(good);
+    if (   exports  &&    sold ) return base.commerce.exportPrice(good);
+    if ((! exports) && (! sold)) return base.commerce.importPrice(good);
+    return super.priceFor(good, sold);
+  }
+  
+  
   public int spaceFor(Traded t) {
     //  TODO:  Return a limit based on existing total good stocks!
     return 20;
@@ -169,22 +182,27 @@ public class SupplyDepot extends Venue {
       final Bringing bD = BringUtils.bestBulkDeliveryFrom(
         this, services, 5, 50, depots
       );
-      if (bD != null && staff.assignedTo(bD) < 1) {
-        bD.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
-        bD.driven = cargoBarge;
-        choice.add(bD);
-      }
+      if (checkCargoJobOkay(bD, cargoBarge)) choice.add(bD);
       final Bringing bC = BringUtils.bestBulkCollectionFor(
         this, services, 5, 50, depots
       );
-      if (bC != null && staff.assignedTo(bC) < 1) {
-        bC.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
-        bC.driven = cargoBarge;
-        choice.add(bC);
-      }
+      if (checkCargoJobOkay(bC, cargoBarge)) choice.add(bC);
       if (! choice.empty()) return choice.pickMostUrgent();
     }
     return null;
+  }
+  
+  
+  private boolean checkCargoJobOkay(Bringing job, CargoBarge driven) {
+    if (job == null || driven.pilot() != null) return false;
+    if (job.totalBulk() < 10) return false;
+    
+    final float dist = Spacing.distance(job.origin, job.destination);
+    if (dist < Stage.ZONE_SIZE) return false;
+    
+    job.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
+    job.driven = driven;
+    return true;
   }
   
   
@@ -226,7 +244,8 @@ public class SupplyDepot extends Venue {
 
   public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(
-      this, panel, UI, true, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
+      this, panel, UI,
+      ALL_TRADE_TYPES, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
     );
   }
   
@@ -238,8 +257,8 @@ public class SupplyDepot extends Venue {
   
   public String helpInfo() {
     return
-      "The Supply Depot reserves goods for export to distant settlements, "+
-      "and allows for long-range imports.";
+      "The Supply Depot allows for fine control over imports or exports to "+
+      "distant settlements.";
   }
 }
 
