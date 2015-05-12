@@ -96,7 +96,7 @@ public class Payday extends Plan {
     if (p.salary() == 0) return -1;
     
     final float wagesDue = p.wagesDue();
-    final float payGap = p.daysSinceWageAssessed(pays.world());
+    final float payGap = p.daysSinceWageAssessed();
     if (payGap < 2 && wagesDue == 0) {
       if (report) I.say("\nPay gap is: "+payGap+" days, no payment available");
       return -1;
@@ -156,7 +156,7 @@ public class Payday extends Plan {
     final float wages = p.wagesDue();
     if (report) I.say("Wages due "+wages);
     actor.gear.incCredits(wages);
-    p.clearWages(venue.world());
+    p.clearWages();
     return true;
   }
   

@@ -59,7 +59,7 @@ public interface Backgrounds {
     DEFAULT_TAX_PERCENTS[] = {
       45, 55, 65, 75
     },
-    DEFAULT_RELIEF           = 100 ,
+    HOUSE_LEVEL_TAX_BONUS[]  = { 0, 25, 50, 75, 100 },
     DEFAULT_EMBEZZLE_PERCENT = 30  ,
     DEFAULT_SURPLUS_PERCENT  = 10  ,
     DEFAULT_RULER_STIPEND    = 2000;

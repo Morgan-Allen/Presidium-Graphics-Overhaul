@@ -114,6 +114,8 @@ public class Audit extends Plan {
   //  TODO:  Your minister for finance (or analyst) could do this as well, once
   //  reports arrive back at the bastion.  Of course, they can also be bribed...
   
+  //  TODO:  Only make this crime catch-able through another auditor's checks-
+  //         (which is what makes a high accounting skill valuable.)
   public static boolean checkForEmbezzlement(
     Behaviour doing, Actor audits, boolean casual
   ) {
@@ -145,14 +147,17 @@ public class Audit extends Plan {
     final int standing     = actor.mind.vocation().standing;
     final int percent      = Backgrounds.DEFAULT_TAX_PERCENTS[standing];
     final int upgradeLevel = HoldingUpgrades.upgradeLevelOf(home);
-    final int homeTaxBonus = HoldingUpgrades.TAX_BONUS[upgradeLevel];
+    final int homeTaxBonus = Backgrounds.HOUSE_LEVEL_TAX_BONUS[upgradeLevel];
     
-    float actorPays = baseSumDue * percent / 100f;
-    float taxesOut  = baseSumDue * (percent + homeTaxBonus) / 100f;
+    final Profile p = actor.base().profiles.profileFor(actor);
+    final float daysTax    = p.daysSinceSinceTaxAssessed();
+    final float actorPays  = baseSumDue * percent / 100f;
+    final float taxBonus   = homeTaxBonus * daysTax / Backgrounds.NUM_DAYS_PAY;
     
     actor.gear.incCredits(0 - actorPays);
-    home.stocks.incCredits(taxesOut);
+    home.stocks.incCredits(actorPays + taxBonus);
     actor.gear.taxDone();
+    p.clearTax();
     return true;
   }
   
@@ -359,7 +364,7 @@ public class Audit extends Plan {
       profiles[i] = p;
       final float
         salary      = p.salary(),
-        payInterval = p.daysSinceWageAssessed(world),
+        payInterval = p.daysSinceWageAssessed(),
         wages       = salary * payInterval / Backgrounds.NUM_DAYS_PAY;
       
       if (report) {
@@ -368,7 +373,7 @@ public class Audit extends Plan {
         I.add("  Wages already due: "+p.wagesDue());
       }
       salaries[i++] = salary;
-      p.incWagesDue(wages, world);
+      p.incWagesDue(wages);
       sumWages    += wages ;
       sumSalaries += salary;
     }
@@ -387,7 +392,7 @@ public class Audit extends Plan {
       float split = salaries[i++] * balance / sumSalaries;
       split *= Backgrounds.DEFAULT_SURPLUS_PERCENT / 100f;
       if (report) I.say("  "+p.actor+" getting profit bonus: "+split);
-      p.incWagesDue(split, world);
+      p.incWagesDue(split);
       balance -= split;
     }
     //

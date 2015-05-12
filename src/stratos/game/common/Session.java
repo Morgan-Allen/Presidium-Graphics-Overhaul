@@ -285,6 +285,21 @@ public final class Session {
   }
   
   
+  public void saveEnums(Series enums) throws Exception {
+    if (enums == null) {saveInt(-1); return; }
+    saveInt(enums.size());
+    for (Object o : enums) saveEnum((Enum) o);
+  }
+  
+  
+  public Series loadEnums(Series enums, Enum from[]) throws Exception {
+    final int numE = loadInt();
+    if (numE == -1) return null;
+    for (int i = numE; i-- > 0;) enums.add(loadEnum(from));
+    return enums;
+  }
+  
+  
   public void saveKey(Object key) throws Exception {
     if (key instanceof Class) {
       saveInt(0);

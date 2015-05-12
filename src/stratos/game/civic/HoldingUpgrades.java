@@ -59,8 +59,7 @@ public class HoldingUpgrades {
     OCCUPANCIES[] = { 4, 4, 4, 4, 4 },
     INTEGRITIES[] = { 15, 35, 80, 125, 200 },
     AMBIENCES  [] = { -2, -1, 0, 2, 4 },
-    BUILD_COSTS[] = { 25, 60, 135, 225, 350 },
-    TAX_BONUS  [] = { 0, 5, 15, 35, 75 };
+    BUILD_COSTS[] = { 25, 60, 135, 225, 350 };
   final static float
     BIOMASS_SUPPORT = 5;
   

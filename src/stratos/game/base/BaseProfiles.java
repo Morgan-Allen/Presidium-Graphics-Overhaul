@@ -27,7 +27,7 @@ public class BaseProfiles {
   
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
-      final Profile p = Profile.loadProfile(s);
+      final Profile p = Profile.loadProfile(s, this);
       allProfiles.put(p.actor, p);
     }
     for (int n = s.loadInt(); n-- > 0;) {

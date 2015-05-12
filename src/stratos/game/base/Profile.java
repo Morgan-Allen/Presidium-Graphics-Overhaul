@@ -18,33 +18,32 @@ public class Profile {
   
   /**  Data fields, constructors and save/load methods-
     */
+  final BaseProfiles profiles;
   final public Actor actor;
+  
   float paymentDue    =  0;
   float lastWageEval  = -1;
-  
+  float lastTaxEval   = -1;
   float lastPsychEval = -1;
   Summons sentence;
-  List <Crime> offences = new List <Crime> ();
+  List <Crime> offences = null;
   
   
   
   public Profile(Actor actor, BaseProfiles bP) {
+    this.profiles = bP;
     this.actor = actor;
-    
-    //  TODO:  Don't set this here.
-    if (bP != null) lastWageEval = bP.base.world.currentTime();
   }
   
   
-  public static Profile loadProfile(Session s) throws Exception {
-    final Profile p = new Profile((Actor) s.loadObject(), null);
+  public static Profile loadProfile(Session s, BaseProfiles bP) throws Exception {
+    final Profile p = new Profile((Actor) s.loadObject(), bP);
     p.paymentDue    = s.loadFloat();
     p.lastWageEval  = s.loadFloat();
+    p.lastTaxEval   = s.loadFloat();
     p.lastPsychEval = s.loadFloat();
     p.sentence      = (Summons) s.loadObject();
-    for (int n = s.loadInt(); n-- > 0;) {
-      p.offences.add((Crime) s.loadEnum(Crime.values()));
-    }
+    p.offences      = (List) s.loadEnums(p.offences, Crime.values());
     return p;
   }
   
@@ -53,10 +52,10 @@ public class Profile {
     s.saveObject(p.actor        );
     s.saveFloat (p.paymentDue   );
     s.saveFloat (p.lastWageEval );
+    s.saveFloat (p.lastTaxEval  );
     s.saveFloat (p.lastPsychEval);
     s.saveObject(p.sentence     );
-    s.saveInt(p.offences.size());
-    for (Crime c : p.offences) s.saveEnum(c);
+    s.saveEnums (p.offences     );
   }
   
   
@@ -78,12 +77,14 @@ public class Profile {
   
   
   public void recordOffence(Crime crime) {
+    if (offences == null) offences = new List();
     offences.add(crime);
   }
   
   
   public void clearRecord() {
     offences.clear();
+    offences = null;
   }
   
   
@@ -105,26 +106,40 @@ public class Profile {
     //  TODO:  This needs to be negotiated, or at least modified, based on
     //  reluctance to settle or personal dislike.  TODO:  Unify this with the
     //  FindWork / Career methods on the subject.
-    
     final Background vocation = actor.mind.vocation();
     if (vocation == null || actor.mind.work() == null) return 0;
     //
-    //  The ruler and his household have direct access to the funds of the
+    //  The ruler and his/her household have direct access to the funds of the
     //  state, so they get somewhat different treatment.
     final Actor ruler = actor.base().ruler();
     float mult = 1;
     if (actor == ruler) {
       mult = 0;
     }
-    if (ruler != null && actor.mind.home() == ruler.mind.home()) {
+    else if (ruler != null && actor.mind.home() == ruler.mind.home()) {
       mult = (1 - ruler.base().relations.communitySpirit());
     }
     return vocation.defaultSalary * mult;
   }
   
   
-  public float daysSinceWageAssessed(Stage world) {
-    final float interval = world.currentTime() - lastWageEval;
+  private float worldTime() {
+    return profiles.base.world.currentTime();
+  }
+  
+  
+  public float daysSinceWageAssessed() {
+    if (salary() <= 0) return 0;
+    if (lastWageEval == -1) lastWageEval = worldTime();
+    final float interval = worldTime() - lastWageEval;
+    return interval / Stage.STANDARD_DAY_LENGTH;
+  }
+  
+  
+  public float daysSinceSinceTaxAssessed() {
+    if (salary() <= 0) return 0;
+    if (lastTaxEval == -1) lastTaxEval = worldTime();
+    final float interval = worldTime() - lastTaxEval;
     return interval / Stage.STANDARD_DAY_LENGTH;
   }
   
@@ -134,14 +149,19 @@ public class Profile {
   }
   
   
-  public void incWagesDue(float inc, Stage world) {
+  public void incWagesDue(float inc) {
     paymentDue += inc;
-    lastWageEval = world.currentTime();
+    lastWageEval = worldTime();
   }
   
   
-  public void clearWages(Stage world) {
+  public void clearWages() {
     paymentDue = 0;
+  }
+  
+  
+  public void clearTax() {
+    lastTaxEval = worldTime();
   }
 }
 

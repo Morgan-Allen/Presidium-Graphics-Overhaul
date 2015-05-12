@@ -326,6 +326,7 @@ public class Staff {
       0 - a.hiringFee(),
       BaseFinance.SOURCE_HIRING
     );
+    base.profiles.profileFor(works);
     works.mind.setVocation(a.position());
     works.mind.setWork(employs);
     //
