@@ -75,17 +75,17 @@ public class Reactor extends Venue {
   final public static Conversion
     METALS_TO_FUEL = new Conversion(
       Reactor.class, "metals_to_fuel",
-      1, METALS, TO, 1, ISOTOPES,
+      1, METALS, TO, 1, FUEL_RODS,
       MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
     ),
     ISOTOPES_TO_ANTIMASS = new Conversion(
       Reactor.class, "isotopes_to_antimass",
-      4, ISOTOPES, TO, 1, ANTIMASS,
+      4, FUEL_RODS, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
     ),
     ISOTOPES_TO_POWER = new Conversion(
       Reactor.class, "isotopes_to_power",
-      1, ISOTOPES, TO, 25, POWER
+      1, FUEL_RODS, TO, 25, POWER
     )
   ;
   
@@ -248,13 +248,13 @@ public class Reactor extends Venue {
     powerOutput *= (2f + structure.upgradeLevel(FUSION_CONFINEMENT)) / 2;
     
     //  TODO:  Load fuel into the core gradually- (make a supervision task.)
-    final Item fuel = Item.withAmount(ISOTOPES, fuelConsumed);
+    final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 2;
     structure.assignOutputs(Item.withAmount(POWER, powerOutput));
     
     //  Update demand for raw materials-
-    stocks.forceDemand(ISOTOPES, 5, false);
+    stocks.forceDemand(FUEL_RODS, 5, false);
     if (structure.upgradeLevel(WASTE_PROCESSING) > 0) {
       stocks.translateDemands(METALS_TO_FUEL, 1);
     }
@@ -409,7 +409,7 @@ public class Reactor extends Venue {
   
 
   protected Traded[] goodsToShow() {
-    return new Traded[] { ISOTOPES };
+    return new Traded[] { FUEL_RODS };
   }
   
   
@@ -419,8 +419,8 @@ public class Reactor extends Venue {
       "but can become an explosive liability.";
     
     if (inWorld()) {
-      if (! stocks.hasEnough(ISOTOPES)) {
-        help = "Power output will be limited without additional "+ISOTOPES+".";
+      if (! stocks.hasEnough(FUEL_RODS)) {
+        help = "Power output will be limited without additional "+FUEL_RODS+".";
       }
       final int nC = CORE_DESC.length;
       final String descC = CORE_DESC[Nums.clamp((int) (meltdown * nC), nC)];

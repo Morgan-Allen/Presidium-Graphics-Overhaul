@@ -283,6 +283,11 @@ public class EcologistStation extends Venue {
   }
   
   
+  public void addServices(Choice choice, Actor client) {
+    choice.add(BringUtils.nextHomePurchase(client, this));
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */

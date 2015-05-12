@@ -207,20 +207,20 @@ public class EngineerStation extends Venue {
   }
   
   
-  public void addServices(Choice choice, Actor forActor) {
+  public void addServices(Choice choice, Actor client) {
     //  TODO:  Disallow commisions for certain gear if you don't have the
     //         right upgrades.
-    
-    final DeviceType DT = forActor.gear.deviceType();
-    final OutfitType OT = forActor.gear.outfitType();
+    final DeviceType DT = client.gear.deviceType();
+    final OutfitType OT = client.gear.outfitType();
     final Class ownType = this.getClass();
     
     if (DT != null && DT.materials().facility == ownType) {
-      Commission.addCommissions(forActor, this, choice, DT);
+      Commission.addCommissions(client, this, choice, DT);
     }
     if (OT != null && OT.materials().facility == ownType) {
-      Commission.addCommissions(forActor, this, choice, OT);
+      Commission.addCommissions(client, this, choice, OT);
     }
+    choice.add(BringUtils.nextHomePurchase(client, this));
   }
   
 

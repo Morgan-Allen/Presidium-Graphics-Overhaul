@@ -48,7 +48,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     ),
     LAND_TO_ISOTOPES = new Conversion(
       ExcavationSite.class, "land_to_isotopes",
-      TO, 1, ISOTOPES
+      TO, 1, FUEL_RODS
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -201,7 +201,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public Traded[] services() {
-    return new Traded[] { METALS, ISOTOPES };
+    return new Traded[] { METALS, FUEL_RODS };
   }
   
   
@@ -243,7 +243,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (mineral == METALS) {
       return (0 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
     }
-    if (mineral == ISOTOPES) {
+    if (mineral == FUEL_RODS) {
       return (0 + structure.upgradeLevel(FUEL_CORES_MINING)) * 2;
     }
     if (mineral == ARTIFACTS) {

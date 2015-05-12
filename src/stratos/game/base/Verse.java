@@ -107,7 +107,7 @@ public class Verse {
       "cults and revered arcane relics.",
       WASTES_BLOOD, NORMAL_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, PARTS, ANTIMASS, CIRCUITRY,
-      VerseLocation.NEEDS, ISOTOPES, PROTEIN,
+      VerseLocation.NEEDS, FUEL_RODS, PROTEIN,
       BORN_DREGS, BORN_PYON,
       NOVICE, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,

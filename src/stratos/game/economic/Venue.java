@@ -414,14 +414,14 @@ public abstract class Venue extends Structural implements
       choice.add(jobFor(actor, onShift));
     }
   }
-  
-  
-  protected void addServices(Choice choice, Actor forActor) {}
+
+  //  TODO:  Make these abstract?
+  //
+  //  By default, these do nothing.
+  protected void addServices(Choice choice, Actor client) {}
   protected Behaviour jobFor(Actor actor, boolean onShift) { return null; }
   
   
-  
-  //  TODO:  Make these abstract?
   public float ratePlacing(Target point, boolean exact) {
     return 0;
   }

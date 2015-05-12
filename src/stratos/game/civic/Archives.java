@@ -115,18 +115,11 @@ public class Archives extends Venue {
   }
   
   
-  public void addServices(Choice choice, Actor actor) {
+  public void addServices(Choice choice, Actor client) {
     
-    //  TODO:  Allow upgrades in different skill areas?
-    choice.add(Training.asResearch(actor, this, STUDY_FEE));
-    
-    final Owner home = actor.mind.home();
-    if (home != null) {
-      final Bringing shops = BringUtils.fillBulkOrder(
-        this, home, new Traded[] { DATALINKS }, 1, 1
-      );
-      if (shops != null) choice.add(shops.setWithPayment(actor));
-    }
+    //  TODO:  Allow upgrades in different skill areas
+    choice.add(Training.asResearch(client, this, STUDY_FEE));
+    choice.add(BringUtils.nextHomePurchase(client, this));
   }
   
   

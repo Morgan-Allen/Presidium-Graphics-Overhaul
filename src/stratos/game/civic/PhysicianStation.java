@@ -198,8 +198,9 @@ public class PhysicianStation extends Venue {
   }
   
   
-  public void addServices(Choice choice, Actor forActor) {
-    choice.add(SickLeave.nextLeaveFor(forActor, this, VISIT_COST));
+  public void addServices(Choice choice, Actor client) {
+    choice.add(SickLeave.nextLeaveFor(client, this, VISIT_COST));
+    choice.add(BringUtils.nextHomePurchase(client, this));
   }
   
   

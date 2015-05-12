@@ -97,11 +97,11 @@ public final class Economy {
       BC, "Metals"   , "metals.gif"    , FORM_MATERIAL, 10,
       "Common metal ores, used in construction and industry"
     ),
-    ISOTOPES = new Traded(
+    FUEL_RODS = new Traded(
       BC, "Fuel Rods" , "fuel_rods.gif", FORM_MATERIAL, 35,
       "Heavy or unstable elements used in nuclear synthesis"
     ),
-    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, METALS, ISOTOPES),
+    ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, METALS, FUEL_RODS),
     
     PLASTICS = new Traded(
       BC, "Plastics" , "plastics.gif" , FORM_MATERIAL, 25,

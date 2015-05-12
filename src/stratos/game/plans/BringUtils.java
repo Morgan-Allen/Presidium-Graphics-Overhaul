@@ -111,6 +111,16 @@ public class BringUtils {
   }
   
   
+  public static Bringing nextHomePurchase(Actor actor, Venue from) {
+    if (! (actor.mind.home() instanceof Venue)) return null;
+    final Venue home = (Venue) actor.mind.home();
+    final Bringing d = fillBulkOrder(from, home, home.stocks.demanded(), 1, 5);
+    if (d == null) return null;
+    else return d.setWithPayment(actor);
+  }
+  
+  
+  
   /**  Returns the best bulk delivery from the given origin point.  (Note: the
     *  numSamples argument is only used if destinations is null.)  Helper
     *  methods with shorter contracts follow below.

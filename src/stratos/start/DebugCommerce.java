@@ -172,7 +172,7 @@ public class DebugCommerce extends Scenario {
     final Venue reactor = new Reactor(base);
     Placement.establishVenue(reactor, 3, 6, true, world);
     base.setup.fillVacancies(reactor, true);
-    reactor.stocks.bumpItem(ISOTOPES, 10);
+    reactor.stocks.bumpItem(FUEL_RODS, 10);
   }
   
   

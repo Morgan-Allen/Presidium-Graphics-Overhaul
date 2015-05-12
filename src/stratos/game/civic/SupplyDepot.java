@@ -33,9 +33,12 @@ public class SupplyDepot extends Venue {
   );
   
   final static Traded
-    ALL_TRADE_TYPES[] = {
-      CARBS, PROTEIN, CATALYST, POLYMER,
-      METALS, ISOTOPES, PARTS, PLASTICS
+    DEFAULT_TRADE_TYPES[] = {
+      CARBS, PROTEIN, GREENS, MEDICINE,
+      POLYMER, METALS, PLASTICS, PARTS
+    },
+    DEFAULT_IMPORT_TYPES[] = {
+      CARBS, PROTEIN, POLYMER, METALS
     },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
@@ -68,7 +71,8 @@ public class SupplyDepot extends Venue {
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
     
-    for (Traded t : ALL_TRADE_TYPES) stocks.forceDemand(t, 0, false);
+    for (Traded t : DEFAULT_TRADE_TYPES ) stocks.forceDemand(t, 10, true );
+    for (Traded t : DEFAULT_IMPORT_TYPES) stocks.forceDemand(t, 5 , false);
   }
   
   
@@ -100,8 +104,6 @@ public class SupplyDepot extends Venue {
     if (! structure.intact()) return;
     
     //  TODO:  You need to send those barges off to different settlements!
-    //  TODO:  Take this over entirely from the Stock Exchange.
-    
     for (CargoBarge b : barges) if (b.destroyed()) barges.remove(b);
     if (barges.size() == 0) {
       final CargoBarge b = new CargoBarge();
@@ -186,17 +188,6 @@ public class SupplyDepot extends Venue {
   }
   
   
-  protected void addServices(Choice choice, Actor actor) {
-    final Property home = actor.mind.home();
-    if (home instanceof Venue) {
-      final Bringing d = BringUtils.fillBulkOrder(
-        this, home, ((Venue) home).stocks.demanded(), 1, 5
-      );
-      if (d != null) choice.add(d.setWithPayment(actor));
-    }
-  }
-  
-  
   public Background[] careers() {
     return new Background[] { Backgrounds.SUPPLY_CORPS };
   }
@@ -218,7 +209,7 @@ public class SupplyDepot extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return ALL_TRADE_TYPES;
+    return DEFAULT_TRADE_TYPES;
   }
   
   
