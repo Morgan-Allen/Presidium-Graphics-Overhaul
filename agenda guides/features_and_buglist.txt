@@ -1,16 +1,74 @@
 
 
 
+BETTER UI INFO/HELP SYSTEM
 
+*  More help on how to get goods for export.  Include a general help-system
+  somewhere- from the markets pane, say.  Try to combine 'markets' and
+  'budgets' into a single panel (that, or give them two buttons.)
+*  Say when the next ship is arriving somewhere- under either the personnel or
+   markets pane (or both.)
+*  Fix bug with scrolling between different panes.
 
-TESTER FEEDBACK AND TUTORIAL TODO LIST:
+*  Update help info for all the upgrades!
 
-*  ADD IMAGE-TIPS FOR THE TUTORIAL-MESSAGES.
+*  Consider making within-settlement deliveries cost-free?
+*  Allow rations-production to satisfy need to eat.
+
+*  Add illustrations to tutorial messages.  (The tutorial in general needs to
+   be debugged.)
 
 *  You need to properly explain click-and-drag for zoned/linear structures.
    (Either that, or use default areas.)
 
+*  Try to include the ability to 'ping' areas of the screen for attention, and
+   include that as part of the tutorial process.
+
+
+CLEANING UP THE ECONOMY:
+
+*  A number of structures need bigger footprints, which will require some art
+   changes.  Look into that.
+
+*  Try merging the solar bank with the nursery- or the latter with eco station
+*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
+   the excavation site, former plant, kommando lodge & eco station- take up
+   big plots.
+   
+*  Estimate output for nurseries, excavations, former plants, solar banks.
+
+*  List total earnings for specific buildings.  Breakdown expenses more finely.
+   Restore shortage listing for homelessness.
+
+*  Unavailable structures should be greyed out in the listings.
+*  Consider restricting access to some of these structures based on house-
+   philosophy or lack of expertise.
+   House Procyon- has culture lab, lacks eco station.
+   House Altair-  has archives, lacks stock exchange.
+   House Taygeta- has runner lodge, lacks enforcer bloc.
+   House Suhail-  has kommando lodge, lacks reactor.
+
+*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
+
+
+TACTICAL AND OUTDOORS
+
 *  Flora is occasionally appearing in paved areas.  Stop that now.
+
+*  Exploring needs a note that it doesn't work at night.
+
+*  Get vermin into the game again!
+*  Nocturnal trait.  "They mostly come at night.  Mostly."
+
+*  Try to ensure more concerted mission-behaviours- form up on a single leader
+   if possible (alive, high-ranked, first in group.)
+
+*  Ensure raiders will attempt to besiege intervening walls!
+*  More vigorous attacks after a few days from artilects, etc.
+*  Notifications for casualties and base attacks.
+
+*  There is very noticeable slowdown on large maps every 2 seconds or so.
+   Profile and FIND OUT WHY.
 
 
 

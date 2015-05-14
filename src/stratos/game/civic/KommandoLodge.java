@@ -43,7 +43,7 @@ public class KommandoLodge extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     KommandoLodge.class, "kommando_lodge",
     "Kommando Lodge", UIConstants.TYPE_SECURITY,
-    4, 2, IS_NORMAL,
+    5, 2, IS_NORMAL,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     LAND_TO_PROTEIN
   );
@@ -57,7 +57,7 @@ public class KommandoLodge extends Venue {
   public KommandoLodge(Base base) {
     super(BLUEPRINT, base);
     structure.setupStats(
-      150, 4, 150,
+      150, 4, 550,
       Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
     );
     staff.setShiftType(SHIFTS_BY_HOURS);

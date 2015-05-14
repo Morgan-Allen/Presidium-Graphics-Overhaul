@@ -51,7 +51,7 @@ public class Archives extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives",
     "Archives", UIConstants.TYPE_PHYSICIAN,
-    3, 2, IS_NORMAL,
+    4, 2, IS_NORMAL,
     PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY, CIRCUITRY_TO_DATALINKS
   );
   

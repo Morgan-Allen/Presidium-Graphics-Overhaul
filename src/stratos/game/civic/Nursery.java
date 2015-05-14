@@ -207,7 +207,7 @@ public class Nursery extends Venue implements TileConstants {
     }
     if (report) I.say("\nGETTING UNPLANTED TILES FOR AREA");
     for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if ((! couldPlant(t)) && (! footprint().contains(t.x, t.y))) {
+      if (! couldPlant(t)) {
         around.add(t);
         if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
       }
@@ -250,8 +250,8 @@ public class Nursery extends Venue implements TileConstants {
     final Tile o = origin();
     
     for (Tile n : t.allAdjacent(null)) {
-      if (n == null) return -1;
-      if (n.onTop() instanceof Venue && n.onTop() != this) return -1;
+      if (n == null || (n.onTop() instanceof Crop)) continue;
+      if (n.pathType() >= Tile.PATH_HINDERS && n.reserved()) return -1;
     }
     
     if (footprint().contains(t.x, t.y)) return -1;

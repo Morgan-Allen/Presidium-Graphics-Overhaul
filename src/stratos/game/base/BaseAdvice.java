@@ -219,9 +219,13 @@ public class BaseAdvice {
     //
     //  We screen out any warnings that haven't been present longer than the
     //  warning-delay associated.
+    final Batch <Topic> outDated = new Batch <Topic> ();
     for (Topic t : topicDates.keySet()) {
-      if (! topics.includes(t)) topicDates.remove(t);
+      if (! topics.includes(t)) outDated.add(t);
     }
+    for (Topic t : outDated) topicDates.remove(t);
+    //
+    //  And record the dates of first appearance for any new problems-
     final float newDate = base.world.currentTime();
     for (Topic t : topics) {
       Float date = topicDates.get(t);

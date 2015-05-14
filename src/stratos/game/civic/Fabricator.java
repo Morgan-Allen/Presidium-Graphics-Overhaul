@@ -27,6 +27,11 @@ public class Fabricator extends Venue {
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 3, 2
   );
+
+  final public static ModelAsset MODEL2 = CutoutModel.fromImage(
+    Fabricator.class, "media/Buildings/aesthete/fabricator.png", 3, 2
+  );
+  
   final static ImageAsset ICON = ImageAsset.fromImage(
     Fabricator.class, "media/GUI/Buttons/fabricator_button.gif"
   );
@@ -47,7 +52,7 @@ public class Fabricator extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
     "Fabricator", UIConstants.TYPE_ENGINEER,
-    3, 2, IS_NORMAL,
+    4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     LCHC_TO_PLASTICS, PLASTICS_TO_DECOR
   );

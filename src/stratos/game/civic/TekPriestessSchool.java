@@ -16,29 +16,29 @@ import stratos.util.Rand;
 
 
 
-public class LogicianSchool extends Venue {
+public class TekPriestessSchool extends Venue {
   
 
   private static boolean
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    LogicianSchool.class,
-    "media/Buildings/schools and preserves/logician_school.png", 5, 2
+    TekPriestessSchool.class,
+    "media/Buildings/schools and preserves/initiate_school.png", 5, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    LogicianSchool.class, "media/GUI/Buttons/hospice_button.gif"
+    TekPriestessSchool.class, "media/GUI/Buttons/hospice_button.gif"
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    LogicianSchool.class, "logician_school",
-    "Logician School", UIConstants.TYPE_HIDDEN,
+    TekPriestessSchool.class, "tek_priestess_school",
+    "Tek Priestess School", UIConstants.TYPE_HIDDEN,
     5, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
   
   
-  public LogicianSchool(Base base) {
+  public TekPriestessSchool(Base base) {
     super(BLUEPRINT, base);
     structure.setupStats(
       200, 4, 650,
@@ -49,7 +49,7 @@ public class LogicianSchool extends Venue {
   }
   
   
-  public LogicianSchool(Session s) throws Exception {
+  public TekPriestessSchool(Session s) throws Exception {
     super(s);
   }
   
@@ -75,12 +75,12 @@ public class LogicianSchool extends Venue {
   /**  Rendering and interface methods-
     */
   public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "logician_school");
+    return Composite.withImage(ICON, "tek_priestess_school");
   }
   
   
   public String helpInfo() {
-    return "Logician School";
+    return "Tek Priestess School";
   }
   
 }

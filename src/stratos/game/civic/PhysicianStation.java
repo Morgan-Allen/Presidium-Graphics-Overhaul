@@ -89,55 +89,48 @@ public class PhysicianStation extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   
-  //  TODO:
-  //  Apothecary.       Eugenics Lab.           Intensive Care.
-  //  Stimulants.       Hypnotics & Sedatives.  Minder Training.
-  //  Neural Scanning.  Cold Storage.           Reconstruction.
-  //  
-  //  Level 2 Upgrade.  Level 3 Upgrade.
-  
   final public static Upgrade
-    APOTHECARY = new Upgrade(
-      "Apothecary",
-      "A selection of therapeutic drugs and immune modulators help to curb "+
-      "the spread of contagious disease and assist in birth control.",
+    MEDICAL_LAB = new Upgrade(
+      "Medical Lab",
+      "Speeds the production of medicines and benefits the treatment and "+
+      "diagnosis of most disease.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
       null, PhysicianStation.class
     ),
-    EMERGENCY_AID = new Upgrade(
-      "Emergency Aid",
+    INTENSIVE_CARE = new Upgrade(
+      "Intensive Care",
       "Surgical tools, anaesthetics and plasma reserves ensure that serious "+
-      "(but non-fatal) injuries can be dealt with quickly, and speeds the "+
-      "local production of Stim Kits.",
+      "injuries can be dealt with quickly.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
       null, PhysicianStation.class
     ),
+    GENE_THERAPIES = new Upgrade(
+      "Gene Therapies",
+      "Allows for screening of genetic illness and birth defects, helping to "+
+      "ensure a vigorous next generation.",
+      350,
+      Upgrade.THREE_LEVELS, null, 1,
+      MEDICAL_LAB, PhysicianStation.class
+    ),
+    CRYONICS_WARD = new Upgrade(
+      "Cryonics Ward",
+      "Allows a chance for the critically injured or clinically dead to make "+
+      "an eventual comeback.",
+      400,
+      Upgrade.THREE_LEVELS, null, 1,
+      INTENSIVE_CARE, PhysicianStation.class
+    ),
+    
+    //  TODO:  Add Combat Stims and Truth Serum.
+    
     MINDER_STATION = new Upgrade(
       "Minder Ward",
       Backgrounds.MINDER.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
-      APOTHECARY, PhysicianStation.class
-    ),
-    NEURAL_SCANNING = new Upgrade(
-      "Neural Scanning",
-      "Permits neural scans and basic psych evaluation, aiding in detection "+
-      "of mental disturbance or subversion, and permitting engram backups in "+
-      "case of death.  Mandatory for key personnel.",
-      350,
-      Upgrade.THREE_LEVELS, null, 1,
-      EMERGENCY_AID, PhysicianStation.class
-    ),
-    INTENSIVE_CARE = new Upgrade(
-      "Intensive Care",
-      "Intensive care allows a chance for patients on death's door to make a "+
-      "gradual comeback, covering everything from life support and tissue "+
-      "grafting to cybernetic prosthesis and engram fusion.",
-      400,
-      Upgrade.THREE_LEVELS, null, 1,
-      MINDER_STATION, PhysicianStation.class
+      MEDICAL_LAB, PhysicianStation.class
     ),
     PHYSICIAN_STATION = new Upgrade(
       "Physician Ward",
@@ -188,7 +181,7 @@ public class PhysicianStation extends Venue {
     //  Manufacture basic medicines for later use.
     final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
     if (mS != null && (choice.empty() || ! onShift)) {
-      mS.setBonusFrom(this, false, APOTHECARY);
+      mS.setBonusFrom(this, false, MEDICAL_LAB);
       choice.add(mS);
     }
     //
@@ -274,7 +267,7 @@ public class PhysicianStation extends Venue {
     return Manufacture.statusMessageFor(
       "Your Physicians allow your citizens' injuries, diseases and physical "+
       "trauma to be treated quickly and effectively.",
-      this, REAGENTS_TO_MEDICINE, APOTHECARY
+      this, REAGENTS_TO_MEDICINE, MEDICAL_LAB
     );
   }
 }

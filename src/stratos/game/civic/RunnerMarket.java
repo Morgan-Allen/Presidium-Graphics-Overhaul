@@ -88,7 +88,7 @@ public class RunnerMarket extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     RunnerMarket.class, "runner_market",
     "Runner Market", UIConstants.TYPE_SECURITY,
-    4, 2, IS_NORMAL,
+    5, 2, IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_FACILITY
   );
   

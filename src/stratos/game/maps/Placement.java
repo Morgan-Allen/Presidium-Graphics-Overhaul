@@ -260,30 +260,36 @@ public class Placement implements TileConstants {
     }
     final Stage world = position.world;
     final int s = fixture.size, hS = s / 2;
-    boolean near[] = new boolean[8], adj;
+    boolean near[] = new boolean[8], adj, allMatch;
     int numN = 0;
     //
     //  In essence, we compile an adjacency-record by checking in each
     //  direction for either (A) an existing structure of the same type, or (B)
     //  another structure *intended* for placement as part of the same batch.
-    for (int t : T_ADJACENT) {
-      final Tile n = world.tileAt(
-        position.x + (T_X[t] * s),
-        position.y + (T_Y[t] * s)
-      );
-      if (n == null) continue; else adj = false;
-      final Element under = n.onTop();
-      if (
-        under != null && under.origin() == n &&
-        ofType.isAssignableFrom(under.getClass())
-      ) {
+    for (int dir : T_ADJACENT) {
+      final int
+        dX = position.x + (T_X[dir] * s),
+        dY = position.y + (T_Y[dir] * s);
+      
+      adj = false;
+      allMatch = true;
+      
+      for (int x = s; x-- > 0;) for (int y = s; y-- > 0;) {
+        final Tile n = world.tileAt(dX + x, dY + y);
+        final Element under = n == null ? null : n.onTop();
+        if (under == null || ! ofType.isAssignableFrom(under.getClass())) {
+          allMatch = false;
+        }
+      }
+      if (allMatch) {
         adj = true;
       }
       else for (Coord p : otherPoints) {
-        if (n.x + hS == p.x && n.y + hS == p.y) adj = true;
+        if (dX + hS == p.x && dY + hS == p.y) adj = true;
       }
-      near[t] = adj;
-      if (report) I.say("  "+n+" ("+DIR_NAMES[t]+"): "+adj);
+      
+      near[dir] = adj;
+      if (report) I.say("  "+dX+"|"+dY+" ("+DIR_NAMES[dir]+"): "+adj);
       if (adj) numN++;
     }
     //

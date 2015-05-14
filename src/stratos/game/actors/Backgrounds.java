@@ -51,10 +51,11 @@ public interface Backgrounds {
   final public static float
     NUM_DAYS_PAY      = 20 / GameSettings.SPENDING_MULT,
     PAY_INTERVAL      = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_PAY,
-    MIN_DAILY_EXPENSE = 100 / PAY_INTERVAL;
+    MIN_DAILY_EXPENSE = 100 / NUM_DAYS_PAY,
+    BIG_DAILY_EXPENSE = 400 / NUM_DAYS_PAY;
   final public static int
     HIRE_COSTS[] = {
-      125, 250, 500, 1000 //Represents (PAY_INTERVAL) days' salary.
+      125, 250, 500, 1000 //Represents (NUM_DAYS_PAY) salary.
     },
     DEFAULT_TAX_PERCENTS[] = {
       45, 55, 65, 75

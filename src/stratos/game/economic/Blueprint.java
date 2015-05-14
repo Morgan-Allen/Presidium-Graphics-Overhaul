@@ -117,7 +117,7 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   
   
   public boolean isSingle() {
-    return ! (hasProperty(Venue.IS_LINEAR) || hasProperty(Venue.IS_ZONED));
+    return ! (hasProperty(Venue.IS_LINEAR));// || hasProperty(Venue.IS_ZONED));
   }
   
   

@@ -21,11 +21,13 @@ public interface TileConstants {
     SW = 5,
     W  = 6,
     NW = 7,
-    T_X[]        = {  1,  1,  0, -1, -1, -1,  0,  1  },
-    T_Y[]        = {  0,  1,  1,  1,  0, -1, -1, -1  },
-    T_INDEX[]    = {  N, NE,  E, SE,  S, SW,  W, NW  },
-    T_ADJACENT[] = {  N,      E,      S,      W      },
-    T_DIAGONAL[] = {     NE,     SE,     SW,     NW  },
+    CENTRE = 8,
+    T_X[]         = {  1,  1,  0, -1, -1, -1,  0,  1,  0  },
+    T_Y[]         = {  0,  1,  1,  1,  0, -1, -1, -1,  0  },
+    T_INDEX[]     = {  N, NE,  E, SE,  S, SW,  W, NW  },
+    T_ADJACENT[]  = {  N,      E,      S,      W      },
+    T_DIAGONAL[]  = {     NE,     SE,     SW,     NW  },
+    T_ON_CENTRE[] = {  N, NE,  E, SE,  S, SW,  W, NW,  CENTRE  },
     //
     //  Used to indicate the direction of facing for linear installations-
     X_AXIS =  0,
@@ -35,7 +37,8 @@ public interface TileConstants {
   
   final public static String DIR_NAMES[] = {
     "North", "Northeast", "East", "Southeast",
-    "South", "Southwest", "West", "Northwest"
+    "South", "Southwest", "West", "Northwest",
+    "Centre"
   };
   
 }

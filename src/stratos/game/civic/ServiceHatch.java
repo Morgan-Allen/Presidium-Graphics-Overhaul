@@ -29,15 +29,23 @@ public class ServiceHatch extends Venue {
   final static String
     IMG_DIR = "media/Buildings/civilian/";
   final static CutoutModel
+    ALL_MODELS[][] = CutoutModel.fromImageGrid(
+      ServiceHatch.class,
+      IMG_DIR+"all_big_roads.png", 2, 2,
+      2, 0, true
+    ),
+    /*
     ALL_MODELS[] = CutoutModel.fromImages(
       ServiceHatch.class, IMG_DIR, 2, 0, true,
       "access_hatch_2.png",
       "causeway_x_axis.png",
       "causeway_y_axis.png"
     ),
-    NM[] = ALL_MODELS, HUB_MODEL = NM[0],
-    MODELS_X_AXIS[] = { NM[0], NM[1], NM[0] },
-    MODELS_Y_AXIS[] = { NM[0], NM[2], NM[0] };
+    //*/
+    //NM[] = ALL_MODELS[0][0],
+    NM[][] = ALL_MODELS, HUB_MODEL = NM[0][0],
+    MODELS_X_AXIS[] = { HUB_MODEL, NM[0][1], HUB_MODEL },
+    MODELS_Y_AXIS[] = { HUB_MODEL, NM[1][1], HUB_MODEL };
   
   final public static ImageAsset
     LINE_ICON = ImageAsset.fromImage(
@@ -61,7 +69,7 @@ public class ServiceHatch extends Venue {
       10,  //integrity
       25,  //armour
       20,  //build cost
-      0,   //max upogrades
+      Structure.SMALL_MAX_UPGRADES,
       Structure.TYPE_FIXTURE
     );
   }
@@ -83,12 +91,28 @@ public class ServiceHatch extends Venue {
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     
-    final Object model = Placement.setupMergingSegment(
+    final Object model = faceModel(position, area, others);
+    attachModel((ModelAsset) model);
+    return true;
+  }
+  
+  
+  private Object faceModel(Tile position, Box2D area, Coord... others) {
+    Object model = Placement.setupMergingSegment(
       this, position, area, others,
       MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, ServiceHatch.class
     );
-    attachModel((ModelAsset) model);
-    return true;
+    /*
+    if (model == MODELS_X_AXIS[1]) {
+      final int step = (position.y / 2) % 4;
+      if (step == 0) model = HUB_MODEL;
+    }
+    if (model == MODELS_Y_AXIS[1]) {
+      final int step = (position.x / 2) % 4;
+      if (step == 0) model = HUB_MODEL;
+    }
+    //*/
+    return model;
   }
   
   
@@ -96,14 +120,30 @@ public class ServiceHatch extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (numUpdates % 10 != 0) return;
     
-    final Object model = Placement.setupMergingSegment(
-      this, origin(), footprint(), new Coord[0],
-      MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, ServiceHatch.class
-    );
+    final Object oldModel = buildSprite.baseSprite().model();
+    
+    final Object model = faceModel(origin(), null);
+    final Upgrade FC = Structure.FACING_CHANGE;
+    boolean canChange = false;
+    if (model != oldModel) {
+      if (GameSettings.buildFree || structure.hasUpgrade(FC)) {
+        canChange = true;
+      }
+      else {
+        structure.beginUpgrade(FC, true);
+      }
+    }
+    if (canChange) {
+      structure.resignUpgrade(FC, true);
+      world.ephemera.addGhost(this, size, sprite(), 0.5f);
+      attachModel((ModelAsset) model);
+    }
+    /*
     //  TODO:  Salvage and rebuild?  See how the shield-wall does it.
     if (model != buildSprite.baseSprite().model()) {
       attachModel((ModelAsset) model);
     }
+    //*/
     
     if (model == HUB_MODEL) {
       structure.assignOutputs(
@@ -123,9 +163,8 @@ public class ServiceHatch extends Venue {
   }
   
   
-  protected void updatePaving(boolean inWorld) {
-    base.transport.updatePerimeter(this, inWorld);
-  }
+  //protected void updatePaving(boolean inWorld) {
+  //}
   
   
   public boolean allowsEntry(Mobile m) {
@@ -154,6 +193,15 @@ public class ServiceHatch extends Venue {
     */
   public Composite portrait(BaseUI UI) {
     return Composite.withImage(HATCH_ICON, "service_hatch");
+  }
+  
+  
+  public String fullName() {
+    if (inWorld()) {
+      final Object model = buildSprite.baseSprite().model();
+      if (model != HUB_MODEL) return "Heighway";
+    }
+    return super.fullName();
   }
   
   

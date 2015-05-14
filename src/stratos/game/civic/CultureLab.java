@@ -74,7 +74,7 @@ public class CultureLab extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     CultureLab.class, "culture_lab",
     "Culture Lab", UIConstants.TYPE_PHYSICIAN,
-    3, 2, IS_NORMAL,
+    4, 2, IS_NORMAL,
     new Blueprint[] { EngineerStation.BLUEPRINT, PhysicianStation.BLUEPRINT },
     Owner.TIER_FACILITY,
     WASTE_TO_CARBS, WASTE_TO_REAGENTS,
@@ -186,7 +186,7 @@ public class CultureLab extends Venue {
       }
     }
     choice.add(BringUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5));
-    if (! noShift) return choice.pickMostUrgent();
+    if ((! noShift) && ! choice.empty()) return choice.pickMostUrgent();
     //
     //  Foodstuffs-
     final Manufacture mS = stocks.nextManufacture(actor, WASTE_TO_CARBS);

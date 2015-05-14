@@ -33,7 +33,7 @@ public class Bastion extends Venue {
   );
   
   final static int
-    EXCLUDE_RADIUS = 2,
+    //EXCLUDE_RADIUS = 2,
     CLAIM_RADIUS   = Stage.ZONE_SIZE / 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -78,6 +78,7 @@ public class Bastion extends Venue {
   
   
   public boolean preventsClaimBy(Venue other) {
+    /*
     if (excludes == null || ! inWorld()) {
       excludes = new Box2D(footprint()).expandBy(EXCLUDE_RADIUS);
     }
@@ -85,6 +86,7 @@ public class Bastion extends Venue {
       if (other.pathType() <= Tile.PATH_CLEAR) return false;
       return true;
     }
+    //*/
     if (other.base() == base()) return false;
     else return super.preventsClaimBy(other);
   }

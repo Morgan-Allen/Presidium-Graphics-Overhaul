@@ -283,8 +283,16 @@ public abstract class Venue extends Structural implements
   
   
   protected void updatePaving(boolean inWorld) {
-    super.updatePaving(inWorld);
-    base.transport.updateJunction(this, mainEntrance(), inWorld);
+    if (pathType() <= Tile.PATH_CLEAR) {
+      byte road = inWorld ? StageTerrain.ROAD_LIGHT : StageTerrain.ROAD_NONE;
+      for (Tile t : world.tilesIn(footprint(), false)) {
+        world.terrain().setRoadType(t, road);
+      }
+    }
+    else {
+      super.updatePaving(inWorld);
+      base.transport.updateJunction(this, mainEntrance(), inWorld);
+    }
   }
   
   
@@ -450,7 +458,7 @@ public abstract class Venue extends Structural implements
     if (blueprint.isFixture()) return blueprint.name;
     if (blueprint.isUnique ()) return "The "+blueprint.name;
     
-    if (nameID == -2) {
+    if (nameID == -2 && inWorld()) {
       nameID = base.nextVenueID(getClass());
     }
     if (nameID < 0) return blueprint.name;

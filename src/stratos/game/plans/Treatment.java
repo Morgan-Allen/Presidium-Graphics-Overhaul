@@ -158,26 +158,11 @@ public class Treatment extends Plan implements Item.Passive {
     return priority;
   }
   
-  /*
-  protected float typeModifier() {
-    float modifier = NO_MODIFIER;
-    //  TODO:  You need a generalised method for this?
-    if (patient.base() != actor.base()) {
-      modifier -= (1 - actor.relations.valueFor(patient.base())) * ROUTINE;
-    }
-    //  TODO:  Dat's racist!
-    if (patient.species() != actor.species()) {
-      modifier -= ROUTINE;
-    }
-    return modifier / 2;
-  }
-  //*/
-  
   
   public float successChanceFor(Actor actor) {
     final float
       severity = severity(),
-      bonus    = getVenueBonus(false, PhysicianStation.APOTHECARY);
+      bonus    = getVenueBonus(false, PhysicianStation.MEDICAL_LAB);
     float chance = 1;
     chance += actor.skills.chance(PHARMACY    , (severity * 10) - bonus);
     chance += actor.skills.chance(GENE_CULTURE, 5 - bonus              );
@@ -237,7 +222,7 @@ public class Treatment extends Plan implements Item.Passive {
     final float
       inc   = 1f / STANDARD_TREAT_TIME,
       DC    = severity() * 10,
-      bonus = getVenueBonus(true, PhysicianStation.APOTHECARY);
+      bonus = getVenueBonus(true, PhysicianStation.MEDICAL_LAB);
     
     float check = Rand.yes() ? -1 : 1;
     if (actor.skills.test(PHARMACY    , DC - bonus, 5f)) check++;

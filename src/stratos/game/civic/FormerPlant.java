@@ -34,7 +34,7 @@ public class FormerPlant extends Venue implements TileConstants {
   );
   final static ModelAsset
     MODEL = CutoutModel.fromImage(
-      FormerPlant.class, IMG_DIR+"former_plant.png", 3, 1
+      FormerPlant.class, IMG_DIR+"former_plant.png", 3, 2
     );
   
   final public static Conversion
@@ -50,7 +50,7 @@ public class FormerPlant extends Venue implements TileConstants {
   final static Blueprint BLUEPRINT = new Blueprint(
     FormerPlant.class, "former_plant",
     "Former Plant", UIConstants.TYPE_ECOLOGIST,
-    3, 1, IS_NORMAL,
+    4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     FLORA_TO_POLYMER//, CARBS_TO_POLYMER
   );
@@ -90,11 +90,7 @@ public class FormerPlant extends Venue implements TileConstants {
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
-    //
-    //  By default, we claim an area 2 tiles larger than the basic footprint,
-    //  but we can also have a larger area assigned (e.g, by a human player or
-    //  by an automated placement-search.)
-    areaClaimed.setTo(footprint()).expandBy(2);
+    areaClaimed.setTo(footprint()).expandBy(0);
     if (area != null) areaClaimed.include(area);
     this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
       FACING_SOUTH : FACING_EAST
@@ -189,6 +185,11 @@ public class FormerPlant extends Venue implements TileConstants {
     choice.add(Forestry.nextCutting (actor, this  ));
     return choice.weightedPick();
   }
+  
+  
+  protected void updatePaving(boolean inWorld) {
+  }
+  
   
   public Traded[] services() { return new Traded[] { POLYMER }; }
   

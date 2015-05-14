@@ -45,7 +45,7 @@ public class StockExchange extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     StockExchange.class, "stock_exchange",
     "Stock Exchange", UIConstants.TYPE_COMMERCE,
-    4, 1, IS_NORMAL,
+    5, 1, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_TRADER
   );
   
@@ -128,9 +128,9 @@ public class StockExchange extends Venue {
   
   public int spaceFor(Traded good) {
     final float upgradeLevel = upgradeLevelFor(good);
-    if (upgradeLevel == -1) return 0 ;
-    if (upgradeLevel ==  0) return 10;
-    return (int) ((upgradeLevel + 1) * 15);
+    if (upgradeLevel == -1) return 0;
+    if (upgradeLevel ==  0) return 0;
+    return 5 + (int) (upgradeLevel * 15);
   }
   
   
@@ -163,7 +163,7 @@ public class StockExchange extends Venue {
     //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
     MEDICAL_EXCHANGE = new Upgrade(
       "Medical Exchange",
-      "Increases space available to greens and medicine, and augments"+
+      "Increases space available to greens and medicine, and augments "+
       "profits from their sale.",
       250, Upgrade.THREE_LEVELS, null, 1,
       null, StockExchange.class
@@ -172,7 +172,7 @@ public class StockExchange extends Venue {
     VIRTUAL_CURRENCY = new Upgrade(
       "Virtual Currency",
       "Makes small periodic adjustments to revenue and outlays in response "+
-      "to large-scale investment patterns, magnifying both profits and losses.",
+      "to large-scale investment patterns, magnifying both profit and loss.",
       400, Upgrade.THREE_LEVELS, null, 1,
       null, StockExchange.class
     ),

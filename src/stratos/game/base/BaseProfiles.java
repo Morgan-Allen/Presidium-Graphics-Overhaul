@@ -73,7 +73,7 @@ public class BaseProfiles {
   
   public List <Crime> crimesBy(Actor actor) {
     final Profile match = allProfiles.get(actor);
-    if (match == null) return NO_CRIMES;
+    if (match == null || match.offences == null) return NO_CRIMES;
     return match.offences;
   }
   

@@ -47,7 +47,7 @@ public class Reactor extends Venue {
     verbose = false;
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Reactor.class, "media/Buildings/artificer/reactor.png", 3, 2
+    Reactor.class, "media/Buildings/artificer/reactor.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Reactor.class, "media/GUI/Buttons/reactor_button.gif"
@@ -92,7 +92,7 @@ public class Reactor extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     Reactor.class, "reactor",
     "Reactor", UIConstants.TYPE_ENGINEER,
-    3, 2, IS_NORMAL,
+    4, 2, IS_NORMAL,
     EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
     METALS_TO_FUEL, ISOTOPES_TO_ANTIMASS, ISOTOPES_TO_POWER
   );
