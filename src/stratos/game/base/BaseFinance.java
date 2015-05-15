@@ -10,10 +10,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Consider building up finance reports that go back week after week
-//  for up to a year.
-
-
 public class BaseFinance {
   
   
@@ -54,12 +50,16 @@ public class BaseFinance {
     SOURCE_HIRING   = new Source(6 , "Hiring"           ),
     SOURCE_WAGES    = new Source(7 , "Wages"            ),
     SOURCE_TAXES    = new Source(8 , "Taxation"         ),
+    
     SOURCE_INSTALL  = new Source(9 , "Installation"     ),
     SOURCE_REPAIRS  = new Source(10, "Repairs"          ),
     SOURCE_SALVAGE  = new Source(11, "Salvage"          ),
     
     SOURCE_LENDING  = new Source(12, "Lending"          ),
     SOURCE_INTEREST = new Source(13, "Interest"         ),
+    
+    //  TODO:  MOVE THIS UP!
+    SOURCE_UPGRADE  = new Source(14, "Upgrades"         ),
     
     ALL_SOURCES[] = SOURCES.allEntries(Source.class);
   
@@ -70,8 +70,8 @@ public class BaseFinance {
   
   static class CashRecord {
     private int period;
-    final float income[] = new float[ALL_SOURCES.length];
-    final float outlay[] = new float[ALL_SOURCES.length];
+    float income[] = new float[ALL_SOURCES.length];
+    float outlay[] = new float[ALL_SOURCES.length];
   }
   
   final List <CashRecord> records = new List <CashRecord> ();
@@ -108,6 +108,14 @@ public class BaseFinance {
     s.saveInt(records.size());
     for (CashRecord record : records) {
       s.saveInt(record.period);
+      /*
+      final float[] oldInc = record.income, oldOut = record.outlay;
+      record.income = new float[15];
+      record.outlay = new float[15];
+      System.arraycopy(oldInc, 0, record.income, 0, 14);
+      System.arraycopy(oldOut, 0, record.outlay, 0, 14);
+      //*/
+      
       s.saveFloatArray(record.income);
       s.saveFloatArray(record.outlay);
     }

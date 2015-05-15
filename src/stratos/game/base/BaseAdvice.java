@@ -205,6 +205,7 @@ public class BaseAdvice {
     //
     //  We first compile a list of everything one might complain about.
     final List <Topic> topics = new List <Topic> ();
+    if (GameSettings.noAdvice || controlLevel == LEVEL_NONE) return topics;
     
     if (numNoFood > 0.5f   ) topics.add(Topic.HUNGER_WARNING );
     if (numHungry > 0.5f   ) topics.add(Topic.HUNGER_SEVERE  );

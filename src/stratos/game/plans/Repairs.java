@@ -3,12 +3,12 @@
 
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.base.BaseFinance;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.PavingMap;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.base.BaseFinance.*;
 
 
 
@@ -273,6 +273,7 @@ public class Repairs extends Plan {
     
     float success = actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     success *= 25f / TIME_PER_25_HP;
+    float cost = 0;
     
     //  TODO:  Base assembly DC (or other skills) on a Conversion for the
     //  structure.  Require construction materials for full efficiency.
@@ -280,11 +281,9 @@ public class Repairs extends Plan {
       success *= actor.skills.test(skillUsed, 5, 1) ? 1 : 0.5f;
       final float amount = 0 - structure.repairBy(0 - success);
       if (! free) {
-        final float cost = amount * structure.buildCost() * SALVAGE_COST_MULT;
-        base.finance.incCredits(cost, BaseFinance.SOURCE_REPAIRS);
+        cost = amount * structure.buildCost() * SALVAGE_COST_MULT;
+        base.finance.incCredits(cost, SOURCE_SALVAGE);
       }
-      if (report) I.say("Salvage sucess: "+success);
-      if (report) I.say("Repair level: "+structure.repairLevel());
     }
     
     else {
@@ -293,10 +292,19 @@ public class Repairs extends Plan {
       final boolean intact = structure.intact();
       final float amount = structure.repairBy(success);
       if (! free) {
-        float cost = amount * structure.buildCost();
+        cost = amount * structure.buildCost();
         cost *= -1 * (intact ? REPAIR_COST_MULT : BUILDS_COST_MULT);
-        base.finance.incCredits(cost, BaseFinance.SOURCE_REPAIRS);
+        base.finance.incCredits(cost, intact ? SOURCE_REPAIRS : SOURCE_INSTALL);
       }
+    }
+    
+    if (report) {
+      I.say("Repairing structure: "+built);
+      I.say("  Repair type:     "+REPAIR_DESC[repairType]);
+      I.say("  Repair success:  "+success);
+      I.say("  Repair level:    "+structure.repairLevel());
+      I.say("  Full build cost: "+built.structure().buildCost());
+      I.say("  Repair cost:     "+(0 - cost));
     }
     return true;
   }
@@ -313,7 +321,7 @@ public class Repairs extends Plan {
     success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
     final float amount = structure.advanceUpgrade(success * 1f / 100);
     final float cost = amount * upgrade.buildCost;
-    built.base().finance.incCredits((0 - cost), BaseFinance.SOURCE_REPAIRS);
+    built.base().finance.incCredits((0 - cost), SOURCE_REPAIRS);
     return true;
   }
   

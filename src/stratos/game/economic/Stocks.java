@@ -214,6 +214,13 @@ public class Stocks extends Inventory {
   
   /**  Public accessor methods-
     */
+  public float demandFor(Traded type, boolean asConsumer) {
+    final Demand d = demands.get(type);
+    if (d == null || d.producer == asConsumer) return 0;
+    return d.demandAmount;
+  }
+  
+  
   public float demandFor(Traded type) {
     final Demand d = demands.get(type);
     if (d == null) return 0;

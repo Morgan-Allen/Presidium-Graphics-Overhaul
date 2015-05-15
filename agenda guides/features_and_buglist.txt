@@ -2,21 +2,39 @@
 
 BETTER UI INFO/HELP SYSTEM
 
-*  More help on how to get goods for export.  Include a general help-system
-  somewhere- from the markets pane, say.  Try to combine 'markets' and
-  'budgets' into a single panel (that, or give them two buttons.)
+*  The tutorial should start with razing the ruins.  A static target is easier
+   to get to grips with.  Then you would find and destroy another.
+   1-  reveal the ruin.  (Close by.)  Invite to destroy.
+   2-  wait until a strike mission is placed and a reward is added.
+   3-  wait until the ruins are razed.
+   
+   4-  introduce an interloper from the other ruins.  Wait until it's destroyed
+   or forced to flee.
+   5-  instruct to explore and find a second ruins.  Mention that rewards need
+   to be offered for recon missions too.  (And that a sickbay might be helpful.)
+
+
 *  Say when the next ship is arriving somewhere- under either the personnel or
    markets pane (or both.)
+
+*  Give a warning for when there's no space for ships to land!
+
+*  Breakdown 'repair' costs into different headings for upgrades and building.
+
 *  Fix bug with scrolling between different panes.
 
 *  Add illustrations to tutorial messages.  (The tutorial in general needs to
    be debugged.)
 
-*  You need to properly explain click-and-drag for zoned/linear structures.
-   (Either that, or use default areas.)
-
 *  Try to include the ability to 'ping' areas of the screen for attention, and
    include that as part of the tutorial process.
+
+*  More help on how to get goods for export.  Include a general help-system
+  somewhere- from the markets pane, say.  Try to combine 'markets' and
+  'budgets' into a single panel (that, or give them two buttons.)
+
+*  You need to properly explain click-and-drag for zoned/linear structures.
+   (Either that, or use default areas.)
 
 
 CLEANING UP THE ECONOMY:

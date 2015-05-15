@@ -53,7 +53,7 @@ public class SupplyDepot extends Venue {
     SupplyDepot.class, "supply_depot",
     "Supply Depot", UIConstants.TYPE_COMMERCE,
     4, 2, IS_NORMAL,
-    StockExchange.BLUEPRINT, Owner.TIER_DEPOT
+    NO_REQUIREMENTS, Owner.TIER_DEPOT
   );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();

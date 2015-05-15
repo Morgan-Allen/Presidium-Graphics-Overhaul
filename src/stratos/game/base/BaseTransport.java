@@ -356,7 +356,7 @@ public class BaseTransport {
   
   private Batch <Venue> venuesReached(Structural init, Base base) {
     if (init.flaggedWith() != null) return null;
-    final boolean report = distroVerbose;
+    final boolean report = distroVerbose && base == BaseUI.currentPlayed();
     if (report) I.say("\nDetermining provision access from "+init);
     
     final Batch <Venue> reached = new Batch <Venue> ();
@@ -412,27 +412,28 @@ public class BaseTransport {
     //
     //  First, tabulate total supply and demand within the area-
     final boolean report = distroVerbose;
+    Venue lastRep = null;
     if (report) I.say("\nDistributing provisions through paving network-");
     
     provSupply = new float[provided.length];
     provDemand = new float[provided.length];
     
     for (Venue s : reached) {
-      if (report) I.say("  Have reached: "+s);
-      
       for (int i = provided.length; i-- > 0;) {
         final Traded type = provided[i];
-        
         final float in = s.structure.outputOf(type);
+        final float out = s.stocks.demandFor(type, true);
+        if (report && (in > 0 || out > 0) && lastRep != s) {
+          I.say("  Have reached: "+s);
+          lastRep = s;
+        }
         if (in > 0) {
           provSupply[i] += in;
           if (report) I.say("    "+type+" supply: "+in);
         }
-        
-        final float out = s.stocks.demandFor(type);
         if (out > 0) {
-          if (report) I.say("    "+type+" demand: "+out);
           provDemand[i] += out;
+          if (report) I.say("    "+type+" demand: "+out);
         }
       }
     }

@@ -163,6 +163,9 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
+  
+  /**  Initial introduction-
+    */
   protected boolean checkShowWelcome() {
     return true;
   }
@@ -185,11 +188,12 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
+  
+  /**  First round of security topics-
+    */
   protected boolean checkBuiltBarracks() {
     barracksBuilt = (TrooperLodge) firstBaseVenue(TrooperLodge.class);
     if (barracksBuilt == null) return false;
-    
-    onBuiltBarracks();
     return true;
   }
   
@@ -224,23 +228,26 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
+  
+  /**  First round of economic topics-
+    */
   protected boolean checkFacilitiesPlaced() {
     foundryBuilt = (EngineerStation) firstBaseVenue(EngineerStation.class);
     depotBuilt = (SupplyDepot) firstBaseVenue(SupplyDepot.class);
     if (foundryBuilt == null || depotBuilt == null) return false;
-    
-    onFacilitiesPlaced();
     return true;
   }
   
   
   protected void onFacilitiesPlaced() {
-    depotBuilt  .structure.setState(Structure.STATE_INSTALL, 0.5f);
-    foundryBuilt.structure.setState(Structure.STATE_INSTALL, 0.5f);
+    bastion.structure.setUpgradeLevel(Bastion.LOGISTIC_SUPPORT, 2);
+    base().setup.fillVacancies(bastion, true);
     
+    int num = 0;
     for (Actor a : bastion.staff.workers()) {
       if (a.mind.vocation() == Backgrounds.TECHNICIAN) {
-        final Repairs build = new Repairs(a, depotBuilt);
+        Venue built = (num++ % 2 == 0) ? depotBuilt : foundryBuilt;
+        final Repairs build = new Repairs(a, built);
         build.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
         a.mind.assignBehaviour(build);
       }
@@ -252,8 +259,6 @@ public class TutorialScenario extends StartupScenario {
     if (depotBuilt == null || foundryBuilt == null) return false;
     if (! depotBuilt.structure.intact()) return false;
     if (! foundryBuilt.structure.intact()) return false;
-    
-    onFacilitiesReady();
     return true;
   }
   
@@ -264,22 +269,37 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
+  protected boolean checkUpgradesReady() {
+    final Upgrade ups = EngineerStation.ASSEMBLY_LINE;
+    if (foundryBuilt.structure.upgradeLevel(ups, Structure.STATE_NONE) < 3) {
+      return false;
+    }
+    return true;
+  }
+  
+  
   protected boolean checkTradeSetup() {
     if (depotBuilt == null) return false;
     final Stocks DS = depotBuilt.stocks;
     final Traded imp = Economy.METALS, exp = Economy.PARTS;
-    if (DS.demandFor(imp) == 0 || DS.producer(imp) == true ) return false;
-    if (DS.demandFor(exp) == 0 || DS.producer(exp) == false) return false;
+    if (DS.demandFor(imp) < 10 || DS.producer(imp) == true ) return false;
+    if (DS.demandFor(exp) < 20 || DS.producer(exp) == false) return false;
     return true;
   }
   
   
   protected void onTradeSetup() {
+    depotBuilt.stocks.bumpItem(Economy.PARTS, 10);
     GameSettings.noShips = false;
+    base().commerce.updateCommerce(0);
     world().offworld.journeys.scheduleLocalDrop(base(), 5);
   }
   
   
+  
+  
+  /**  Second round of Security topics-
+    */
   protected void onSecurityBasicsOpen() {
     UI().tracking.lockOn(barracksBuilt);
   }
@@ -291,7 +311,6 @@ public class TutorialScenario extends StartupScenario {
     droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
     
     Tile entry = Placement.findClearSpot(barracksBuilt, world(), 2);
-    
     
     entry = Spacing.nearestOpenTile(entry, entry);
     droneAttacks.enterWorldAt(entry, world());

@@ -30,14 +30,11 @@ public class MessageReminder extends ReminderListing.Entry {
     super(baseUI, refers, 60, 40);
     this.message = message;
     
-    final MessageReminder m = this;
-    
     final Button button = new Button(
       baseUI, COMM_IMAGE.asTexture(), message.title
     ) {
       protected void whenClicked() {
         baseUI.setInfoPanels(message, null);
-        I.say(message.title+" WAS OPENED! "+m+", opened? "+opened);
         opened = true;
       }
       

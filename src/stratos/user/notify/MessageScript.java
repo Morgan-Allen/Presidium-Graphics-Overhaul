@@ -28,7 +28,7 @@ public class MessageScript implements
     boolean urgent    = false;
     boolean triggered = false;
     boolean completed = false;
-    Method triggers    = null ;
+    Method triggers   = null ;
     Method onOpen     = null ;
     Method completes  = null ;
   }
@@ -149,6 +149,8 @@ public class MessageScript implements
           allTopics.remove(topic.titleKey);
         }
         if (didComplete) {
+          topic.completed = true;
+          if (I.logEvents()) I.say("\nTopic completed: "+topic.titleKey);
           BaseUI.current().reminders().retireMessage(topic.asMessage);
         }
       }
@@ -163,6 +165,8 @@ public class MessageScript implements
           allTopics.remove(topic.titleKey);
         }
         if (didTrigger) {
+          topic.triggered = true;
+          if (I.logEvents()) I.say("\nTopic triggered: "+topic.titleKey);
           pushTopicMessage(topic, true);
         }
       }
@@ -173,6 +177,8 @@ public class MessageScript implements
   public void messageWasOpened(String titleKey, BaseUI UI) {
     final Topic topic = allTopics.get(titleKey);
     if (topic == null) return;
+    if (I.logEvents()) I.say("\nTopic opened: "+topic.titleKey);
+    
     if (topic.onOpen != null) try { topic.onOpen.invoke(basis); }
     catch (Exception e) { e.printStackTrace(); }
   }

@@ -96,8 +96,8 @@ public class EngineerStation extends Venue {
       Upgrade.TWO_LEVELS, Backgrounds.TECHNICIAN, 1,
       null, EngineerStation.class
     ),
-    COMPOSITE_ALLOYS = new Upgrade(
-      "Composite Alloys",
+    COMPOSITE_ARMOUR = new Upgrade(
+      "Composite Armour",
       "Improves the production of heavy armours along with most melee "+
       "weapons and industrial tools.",
       200,
@@ -176,7 +176,7 @@ public class EngineerStation extends Venue {
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
         Upgrade forType = PROGRAM_TERMINAL;
-        if (DT.hasProperty(KINETIC)) forType = COMPOSITE_ALLOYS;
+        if (DT.hasProperty(KINETIC)) forType = COMPOSITE_ARMOUR;
         if (DT.hasProperty(ENERGY )) forType = PLASMA_WEAPONS;
         mO.setBonusFrom(this, true, forType);
       }
@@ -184,10 +184,10 @@ public class EngineerStation extends Venue {
         final OutfitType OT = (OutfitType) made;
         if (OT.shieldBonus > OT.defence) {
           //  TODO:  Add a bonus here from T-Null Arm-band.
-          mO.setBonusFrom(this, true, COMPOSITE_ALLOYS);
+          mO.setBonusFrom(this, true, COMPOSITE_ARMOUR);
         }
         else {
-          mO.setBonusFrom(this, true, COMPOSITE_ALLOYS);
+          mO.setBonusFrom(this, true, COMPOSITE_ARMOUR);
         }
       }
       else mO.setBonusFrom(this, true, PROGRAM_TERMINAL);
