@@ -136,24 +136,24 @@ public class ExcavationSite extends Venue implements TileConstants {
   final public static Upgrade
     SAFETY_PROTOCOL = new Upgrade(
       "Safety Protocol",
-      "Increases effective dig range while limiting pollution and reducing "+
-      "the likelihood of artilect release.",
+      "Increases effective dig range while limiting pollution and improving "+
+      "the chance to recover artifacts.",
       100,
       Upgrade.THREE_LEVELS, null, 1,
       null, ExcavationSite.class
     ),
     
-    METAL_ORES_MINING = new Upgrade(
-      "Metal Ores Mining",
-      "Allows veins of heavy metals to be detected and excavated more "+
+    METALS_SMELTING = new Upgrade(
+      "Metals Smelting",
+      "Allows veins of heavy metals to be sought out and processed more "+
       "reliably.",
       150,
       Upgrade.THREE_LEVELS, METALS, 2,
       null, ExcavationSite.class
     ),
     
-    FUEL_CORES_MINING = new Upgrade(
-      "Fuel Cores Mining",
+    FUEL_RODS_SMELTING = new Upgrade(
+      "Fuel Rods Smelting",
       "Allows deposits of radiactive isotopes to be sought out and extracted "+
       "more reliably.",
       200,
@@ -161,35 +161,13 @@ public class ExcavationSite extends Venue implements TileConstants {
       null, ExcavationSite.class
     ),
     
-    //  TODO:  Get rid of these two
-    //*
-    EXCAVATOR_STATION = new Upgrade(
-      "Excavator Station",
-      "Excavators are responsible for seeking out subterranean mineral "+
-      "deposits and bringing them to the surface.",
-      50,
-      Upgrade.THREE_LEVELS, Backgrounds.EXCAVATOR, 1,
-      null, ExcavationSite.class
-    ),
-    
-    ARTIFACT_ASSEMBLY = new Upgrade(
-      "Artifact Assembly",
-      "Allows fragmentary artifacts to be reconstructed with greater skill "+
-      "and confidence.",
-      150,
-      Upgrade.THREE_LEVELS, null, 1,
-      EXCAVATOR_STATION, ExcavationSite.class
-    ),
-    //*/
-    
     MANTLE_DRILLING = new Upgrade(
       "Mantle Drilling",
-      "Enables deep sub-surface boring to bring up an indefinite supply of "+
-      "metals and isotopes from the planet's molten core, at the cost of "+
-      "heavy pollution.",
+      "Enables deep sub-surface boring to sustain an indefinite production of "+
+      METALS+" and "+FUEL_RODS+" at the cost of heavy pollution.",
       350,
       Upgrade.THREE_LEVELS, null, 1,
-      METAL_ORES_MINING, ExcavationSite.class
+      null, ExcavationSite.class
     )
  ;
   
@@ -241,13 +219,13 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   public int extractionBonus(Traded mineral) {
     if (mineral == METALS) {
-      return (0 + structure.upgradeLevel(METAL_ORES_MINING)) * 2;
+      return (0 + structure.upgradeLevel(METALS_SMELTING)) * 2;
     }
     if (mineral == FUEL_RODS) {
-      return (0 + structure.upgradeLevel(FUEL_CORES_MINING)) * 2;
+      return (0 + structure.upgradeLevel(FUEL_RODS_SMELTING)) * 2;
     }
     if (mineral == ARTIFACTS) {
-      return (0 + structure.upgradeLevel(ARTIFACT_ASSEMBLY)) * 2;
+      return (0 + structure.upgradeLevel(SAFETY_PROTOCOL)) * 2;
     }
     return -1;
   }

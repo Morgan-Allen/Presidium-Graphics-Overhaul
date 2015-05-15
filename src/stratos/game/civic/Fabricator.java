@@ -19,6 +19,10 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  I'm going to consider getting rid of this entirely, and just using
+//  the engineer station for all industrial conversions.
+
+
 public class Fabricator extends Venue {
   
   
@@ -37,7 +41,7 @@ public class Fabricator extends Venue {
   );
   
   final public static Conversion
-    LCHC_TO_PLASTICS = new Conversion(
+    POLYMER_TO_PLASTICS = new Conversion(
       Fabricator.class, "lchc_to_plastics",
       1, POLYMER, TO, 2, PLASTICS,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
@@ -54,7 +58,7 @@ public class Fabricator extends Venue {
     "Fabricator", UIConstants.TYPE_ENGINEER,
     4, 2, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
-    LCHC_TO_PLASTICS, PLASTICS_TO_DECOR
+    POLYMER_TO_PLASTICS, PLASTICS_TO_DECOR
   );
   
   
@@ -87,7 +91,7 @@ public class Fabricator extends Venue {
   final public static Upgrade
     POLYMER_LOOM = new Upgrade(
       "Polymer Loom",
-      "Speeds the production of standard plastics and functional clothing.",
+      "Speeds the production of standard "+PLASTICS+" and everyday clothing.",
       250, Upgrade.THREE_LEVELS, CARBS, 1,
       null, Fabricator.class
     ),
@@ -105,7 +109,7 @@ public class Fabricator extends Venue {
     ),
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
-      Backgrounds.FABRICATOR.info,
+      FABRICATOR.info,
       200, Upgrade.THREE_LEVELS, Backgrounds.FABRICATOR, 1,
       null, Fabricator.class
     )
@@ -124,7 +128,7 @@ public class Fabricator extends Venue {
     final float powerNeed = 2 + (structure.numUpgrades() / 2f);
     stocks.forceDemand(POWER, powerNeed, false);
     stocks.incDemand(PLASTICS, 5, 1, true);
-    stocks.translateDemands(LCHC_TO_PLASTICS, 1);
+    stocks.translateDemands(POLYMER_TO_PLASTICS, 1);
   }
   
   
@@ -149,18 +153,11 @@ public class Fabricator extends Venue {
     }
     if (! choice.empty()) return choice.pickMostUrgent();
     
-    final Manufacture m = stocks.nextManufacture(actor, LCHC_TO_PLASTICS);
+    final Manufacture m = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
     if (m != null) {
       m.setBonusFrom(this, false, POLYMER_LOOM);
       choice.add(m);
     }
-    /*
-    final Manufacture c = stocks.nextManufacture(actor, CARBS_TO_LCHC);
-    if (c != null) {
-      c.setBonusFrom(this, true, POLYMER_LOOM);
-      choice.add(c);
-    }
-    //*/
     
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
@@ -169,7 +166,7 @@ public class Fabricator extends Venue {
   
   public int numOpenings(Background v) {
     int nO = super.numOpenings(v);
-    if (v == Backgrounds.FABRICATOR) return nO + 2;
+    if (v == FABRICATOR) return nO + 2;
     return 0;
   }
   
@@ -180,7 +177,7 @@ public class Fabricator extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.FABRICATOR };
+    return new Background[] { FABRICATOR };
   }
   
   
@@ -215,7 +212,7 @@ public class Fabricator extends Venue {
     return Manufacture.statusMessageFor(
       "Fabricators manufacture plastics, pressfeed, decor and outfits for "+
       "your citizens.",
-      this, LCHC_TO_PLASTICS, POLYMER_LOOM
+      this, POLYMER_TO_PLASTICS, POLYMER_LOOM
     );
   }
 }

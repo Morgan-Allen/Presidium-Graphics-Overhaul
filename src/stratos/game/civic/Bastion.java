@@ -155,16 +155,16 @@ public class Bastion extends Venue {
   final public static Upgrade
     LOGISTIC_SUPPORT = new Upgrade(
       "Logistic Support",
-      "Provides more openings for your Reservists and Auditors, thereby "+
-      "aiding construction efforts and revenue flow.",
+      "Provides more openings for your "+TECHNICIAN+"s and "+AUDITOR+"s, "+
+      "thereby aiding construction efforts and revenue flow.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
       null, Bastion.class
     ),
     SECURITY_MEASURES = new Upgrade(
       "Security Measures",
-      "Increases patrols of Veterans in and around your settlement and "+
-      "augments your Bastion's output of power and life support.",
+      "Increases patrols of "+TROOPER+"s in and around your settlement and "+
+      "augments your Bastion's output of "+POWER+" and "+ATMO+".",
       300,
       Upgrade.THREE_LEVELS, null, 1,
       null, Bastion.class
@@ -180,7 +180,7 @@ public class Bastion extends Venue {
     GUEST_QUARTERS = new Upgrade(
       "Guest Quarters",
       "Makes more space for prisoners and hostages, and creates openings for "+
-      "Stewards in your employ.",
+      ""+STEWARD+"s in your employ.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
       null, Bastion.class
@@ -238,16 +238,16 @@ public class Bastion extends Venue {
   
   public int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
-    if (b == Backgrounds.TROOPER) {
+    if (b == TROOPER) {
       return nO + 1 + structure.upgradeLevel(SECURITY_MEASURES);
     }
-    if (b == Backgrounds.TECHNICIAN) {
+    if (b == TECHNICIAN) {
       return nO + 2 + structure.upgradeLevel(LOGISTIC_SUPPORT);
     }
-    if (b == Backgrounds.AUDITOR) {
+    if (b == AUDITOR) {
       return nO + 1 + ((1 + structure.upgradeLevel(LOGISTIC_SUPPORT)) / 2);
     }
-    if (b == Backgrounds.STEWARD) {
+    if (b == STEWARD) {
       return nO + ((1 + structure.upgradeLevel(GUEST_QUARTERS)) / 2);
     }
     //

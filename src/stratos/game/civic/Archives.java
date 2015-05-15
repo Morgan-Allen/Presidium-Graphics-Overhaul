@@ -142,8 +142,8 @@ public class Archives extends Venue {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Archives facilitate research, administration and self-training by "+
-      "your base personnel.",
+      "The Archives provide "+DATALINKS+" and facilitate research and "+
+      "administration by base personnel.",
       this, CIRCUITRY_TO_DATALINKS
     );
   }

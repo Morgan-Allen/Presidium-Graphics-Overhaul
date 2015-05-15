@@ -84,20 +84,19 @@ public class EcologistStation extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    CEREAL_LAB = new Upgrade(
-      "Cereal Lab",
-      "Improves cereal yields.  Cereals yield more calories than other crop "+
-      "species, but lack the full range of nutrients required in a healthy "+
-      "diet.",
+    CEREALS = new Upgrade(
+      "Cereals",
+      "Improves cereal yields, which provide "+CARBS+".  Cereals yield more "+
+      "calories than other crops, but lack the nutrients for a complete diet.",
       100,
       Upgrade.THREE_LEVELS, CARBS,
       1,
       null, EcologistStation.class
     ),
-    BROADLEAF_LAB = new Upgrade(
-      "Broadleaf Lab",
-      "Improves broadleaf yields.  Broadleaves provide a wider range of "+
-      "nutrients, and are valued as luxury exports, but their yield is small.",
+    BROADLEAVES = new Upgrade(
+      "Broadleaves",
+      "Improves broadleaf yields, which provide "+GREENS+".  These are "+
+      "valued as luxury exports, but their yield in calories is limited.",
       150,
       Upgrade.THREE_LEVELS, GREENS,
       1,
@@ -113,21 +112,20 @@ public class EcologistStation extends Venue {
     TREE_FARMING = new Upgrade(
       "Tree Farming",
       "Forestry programs assist in terraforming efforts and climate "+
-      "moderation, as well as providing carbons for plastic production.",
+      "moderation, as well as permitting "+POLYMER+" production.",
       100,
       Upgrade.THREE_LEVELS, null,
       1,
-      BROADLEAF_LAB, EcologistStation.class
+      BROADLEAVES, EcologistStation.class
     ),
-    INSECTRY_LAB = new Upgrade(
-      "Insectry Lab",
-      "Many plantations cultivate colonies of social insects or other "+
-      "invertebrates, both as a source of protein and pollination, pest "+
-      "control, or recycling services.",
+    SYMBIOTICS = new Upgrade(
+      "Symbiotics",
+      "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
+      "assists in animal breeding programs.",
       150,
       Upgrade.THREE_LEVELS, PROTEIN,
       1,
-      BROADLEAF_LAB, EcologistStation.class
+      BROADLEAVES, EcologistStation.class
     ),
     ECOLOGIST_STATION = new Upgrade(
       "Ecologist Station",

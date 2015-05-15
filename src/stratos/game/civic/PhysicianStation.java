@@ -92,14 +92,14 @@ public class PhysicianStation extends Venue {
   final public static Upgrade
     MEDICAL_LAB = new Upgrade(
       "Medical Lab",
-      "Speeds the production of medicines and benefits the treatment and "+
+      "Speeds the production of "+MEDICINE+" and benefits the treatment and "+
       "diagnosis of most disease.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
       null, PhysicianStation.class
     ),
-    INTENSIVE_CARE = new Upgrade(
-      "Intensive Care",
+    EMERGENCY_ROOM = new Upgrade(
+      "Emergency Room",
       "Surgical tools, anaesthetics and plasma reserves ensure that serious "+
       "injuries can be dealt with quickly.",
       300,
@@ -109,7 +109,7 @@ public class PhysicianStation extends Venue {
     GENE_THERAPIES = new Upgrade(
       "Gene Therapies",
       "Allows for screening of genetic illness and birth defects, helping to "+
-      "ensure a vigorous next generation.",
+      "correct diseases and nip mutation in the bud.",
       350,
       Upgrade.THREE_LEVELS, null, 1,
       MEDICAL_LAB, PhysicianStation.class
@@ -120,7 +120,7 @@ public class PhysicianStation extends Venue {
       "an eventual comeback.",
       400,
       Upgrade.THREE_LEVELS, null, 1,
-      INTENSIVE_CARE, PhysicianStation.class
+      EMERGENCY_ROOM, PhysicianStation.class
     ),
     
     //  TODO:  Add Combat Stims and Truth Serum.
@@ -265,8 +265,8 @@ public class PhysicianStation extends Venue {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "Your Physicians allow your citizens' injuries, diseases and physical "+
-      "trauma to be treated quickly and effectively.",
+      "The Physician Station allows your citizens' injuries or diseases to be "+
+      "treated quickly and effectively.",
       this, REAGENTS_TO_MEDICINE, MEDICAL_LAB
     );
   }

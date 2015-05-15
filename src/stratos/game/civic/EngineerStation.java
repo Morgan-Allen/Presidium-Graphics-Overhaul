@@ -82,50 +82,52 @@ public class EngineerStation extends Venue {
   final public static Upgrade
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
-      "Allows standardised parts and miniaturised circuitry to be "+
-      "manufactured quickly and in greater abundance.",
+      "Allows standardised "+PARTS+" to be manufactured quickly, but "+
+      "slightly increases pollution.",
       200,
       Upgrade.THREE_LEVELS, PARTS, 2,
       null, EngineerStation.class
     ),
-    MATTER_PRESS = new Upgrade(
-      "Matter Press",
-      "Allows raw materials to be recycled and sculpted to fit new purposes, "+
-      "thereby reducing waste and speeding production of custom parts.",
-      150,
-      Upgrade.THREE_LEVELS, PLASTICS, 1,
-      null, EngineerStation.class
-    ),
+    MOLDING_PRESS = null,  //  TODO:  INCLUDE THIS
     TECHNICIAN_STATION = new Upgrade(
       "Technician Station",
       Backgrounds.TECHNICIAN.info,
       50,
-      Upgrade.THREE_LEVELS, Backgrounds.TECHNICIAN, 1,
+      Upgrade.TWO_LEVELS, Backgrounds.TECHNICIAN, 1,
       null, EngineerStation.class
     ),
-    COMPOSITE_MATERIALS = new Upgrade(
-      "Composite Materials",
-      "Enhances the production of lightweight and flexible armours, as well "+
-      "as most melee weaponry.",
+    COMPOSITE_ALLOYS = new Upgrade(
+      "Composite Alloys",
+      "Improves the production of heavy armours along with most melee "+
+      "weapons and industrial tools.",
       200,
       Upgrade.THREE_LEVELS, null, 2,
-      MATTER_PRESS, EngineerStation.class
+      null, EngineerStation.class
     ),
-    FIELD_CONTAINMENT = new Upgrade(
-      "Field Containment",
-      "Allows high-flux plasmas to be generated and controlled, permitting "+
-      "refinements to heavy armours and most ranged weaponry.",
+    PLASMA_WEAPONS = new Upgrade(
+      "Plasma Weapons",
+      "Allows high-flux energy pulses to be generated and controlled, "+
+      "allowing upgrades to most ranged armaments.",
       300,
       Upgrade.THREE_LEVELS, null, 2,
-      TECHNICIAN_STATION, EngineerStation.class
+      null, EngineerStation.class
     ),
+    T_NULL_ARMBAND = null, //  TODO:  INCLUDE THIS
     ARTIFICER_STATION = new Upgrade(
       "Artificer Station",
       Backgrounds.ARTIFICER.info,
       150,
-      Upgrade.THREE_LEVELS, Backgrounds.ARTIFICER, 1,
+      Upgrade.SINGLE_LEVEL, Backgrounds.ARTIFICER, 1,
       TECHNICIAN_STATION, EngineerStation.class
-    )
+    ),
+    PROGRAM_TERMINAL = new Upgrade(
+      "Program Terminal",
+      "Allows for the precise yet highly customised assembly of "+CIRCUITRY+" "+
+      "and other personal commissions.",
+      150,
+      Upgrade.THREE_LEVELS, PLASTICS, 1,
+      new Upgrade[] { ASSEMBLY_LINE, ARTIFICER_STATION }, EngineerStation.class
+    );
   ;
   
   
@@ -155,7 +157,8 @@ public class EngineerStation extends Venue {
     
     float pollution = 5, powerNeed = 5;
     powerNeed *= (3 + structure.numUpgrades()) / 3;
-    pollution *= 2f / (2 + structure.upgradeLevel(MATTER_PRESS));
+    pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
+    pollution *= (5f + structure.upgradeLevel(ASSEMBLY_LINE)) / 5;
     stocks.forceDemand(POWER, powerNeed, false);
     structure.setAmbienceVal(0 - pollution);
   }
@@ -172,17 +175,22 @@ public class EngineerStation extends Venue {
       
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
-        Upgrade forType = MATTER_PRESS;
-        if (DT.hasProperty(KINETIC)) forType = COMPOSITE_MATERIALS;
-        if (DT.hasProperty(ENERGY )) forType = FIELD_CONTAINMENT  ;
-        mO.setBonusFrom(this, true, MATTER_PRESS, forType);
+        Upgrade forType = PROGRAM_TERMINAL;
+        if (DT.hasProperty(KINETIC)) forType = COMPOSITE_ALLOYS;
+        if (DT.hasProperty(ENERGY )) forType = PLASMA_WEAPONS;
+        mO.setBonusFrom(this, true, forType);
       }
       else if (made instanceof OutfitType) {
-        mO.setBonusFrom(this, true,
-          MATTER_PRESS, COMPOSITE_MATERIALS, FIELD_CONTAINMENT
-        );
+        final OutfitType OT = (OutfitType) made;
+        if (OT.shieldBonus > OT.defence) {
+          //  TODO:  Add a bonus here from T-Null Arm-band.
+          mO.setBonusFrom(this, true, COMPOSITE_ALLOYS);
+        }
+        else {
+          mO.setBonusFrom(this, true, COMPOSITE_ALLOYS);
+        }
       }
-      else mO.setBonusFrom(this, true, MATTER_PRESS);
+      else mO.setBonusFrom(this, true, PROGRAM_TERMINAL);
       
       choice.add(mO);
     }
@@ -195,7 +203,7 @@ public class EngineerStation extends Venue {
     }
     final Manufacture mI = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY);
     if (mI != null) {
-      choice.add(mI.setBonusFrom(this, false, ASSEMBLY_LINE));
+      choice.add(mI.setBonusFrom(this, false, ASSEMBLY_LINE, PROGRAM_TERMINAL));
     }
     
     //  Finally, consider contributing toward local repairs-

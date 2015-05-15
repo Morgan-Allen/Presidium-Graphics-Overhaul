@@ -41,19 +41,17 @@ public class CultureLab extends Venue {
       TO, 1, CARBS,
       SIMPLE_DC, CHEMISTRY
     ),
-    WASTE_TO_REAGENTS = new Conversion(
+    WASTE_TO_CATALYST = new Conversion(
       CultureLab.class, "carbs_to_reagents",
       TO, 1, CATALYST,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
     ),
-    //  TODO:  Move this to the Physician Station.
-    //*
-    CARBS_TO_SOMA = new Conversion(
+    //  TODO:  Move this to the Physician Station?
+    WASTE_TO_SOMA = new Conversion(
       CultureLab.class, "waste_to_soma",
-      2, CARBS, TO, 1, SOMA,
+      TO, 1, SOMA,
       ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
-    //*/
     CARBS_TO_PROTEIN = new Conversion(
       CultureLab.class, "carbs_to_protein",
       2, CARBS, TO, 1, PROTEIN,
@@ -63,12 +61,6 @@ public class CultureLab extends Venue {
       CultureLab.class, "protein_to_replicants",
       5, PROTEIN, TO, 1, REPLICANTS,
       MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    ),
-    //  TODO:  And get rid of this- spyces should be hard to get.
-    PROTEIN_TO_SPYCE_T = new Conversion(
-      CultureLab.class, "carbs_to_spyce_t",
-      20, PROTEIN, 5, CATALYST, TO, 1, SPYCE_T,
-      DIFFICULT_DC, PHARMACY, DIFFICULT_DC, CHEMISTRY
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -77,9 +69,9 @@ public class CultureLab extends Venue {
     4, 2, IS_NORMAL,
     new Blueprint[] { EngineerStation.BLUEPRINT, PhysicianStation.BLUEPRINT },
     Owner.TIER_FACILITY,
-    WASTE_TO_CARBS, WASTE_TO_REAGENTS,
-    CARBS_TO_SOMA, CARBS_TO_PROTEIN,
-    PROTEIN_TO_REPLICANTS, PROTEIN_TO_SPYCE_T
+    WASTE_TO_CARBS, WASTE_TO_CATALYST,
+    WASTE_TO_SOMA, CARBS_TO_PROTEIN,
+    PROTEIN_TO_REPLICANTS
   );
   
   
@@ -110,41 +102,31 @@ public class CultureLab extends Venue {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    YEAST_DISPOSAL = new Upgrade(
-      "Yeast Disposal",
-      "Employs gene-tailored microbes to recycle waste emissions and produce "+
-      "basic carbs.",
+    CARBS_CULTURE = new Upgrade(
+      "Carbs Culture",
+      "Employs gene-tailored yeast strains to provide "+CARBS+", cycle waste "+
+      "products and output "+ATMO+".",
       200, Upgrade.THREE_LEVELS, null, 1,
       null, CultureLab.class
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
-      "permitting manufacture of soma and reagents.",
+      "permitting manufacture of "+SOMA+" and "+CATALYST+".",
       250, Upgrade.THREE_LEVELS, null, 1,
       null, CultureLab.class
     ),
     TISSUE_CULTURE = new Upgrade(
       "Tissue Culture",
-      "Allows production of protein for consumption and replicant organs for "+
-      "use in medical emergencies.",
+      "Allows production of "+PROTEIN+" for consumption and "+REPLICANTS+" "+
+      "for use in medical emergencies.",
       400, Upgrade.THREE_LEVELS, null, 1,
-      YEAST_DISPOSAL, CultureLab.class
+      CARBS_CULTURE, CultureLab.class
     ),
-    SPYCE_CHEMISTRY = new Upgrade(
-      "Spyce Chemistry",
-      "Allows minute quantities of Tinerazine to be synthesised from simpler "+
-      "compounds, based on protein production.",
-      500, Upgrade.THREE_LEVELS, null, 1,
-      DRUG_SYNTHESIS, CultureLab.class
-    ),
-    
     //  TODO:  Just have a general structure-upgrade here-
     VAT_BREEDER_STATION = new Upgrade(
       "Vat Breeder Station",
-      "Vat Breeders supervise the cultivation and harvesting of the chemical "+
-      "and biological processes needed to produce pharmaceuticals and tissue "+
-      "samples.",
+      VATS_BREEDER.info,
       100, Upgrade.THREE_LEVELS, Backgrounds.VATS_BREEDER, 1,
       null, CultureLab.class
     )
@@ -157,17 +139,15 @@ public class CultureLab extends Venue {
     
     stocks.translateDemands(WASTE_TO_CARBS   , 1);
     stocks.translateDemands(CARBS_TO_PROTEIN , 1);
-    stocks.translateDemands(CARBS_TO_SOMA    , 1);
-    stocks.translateDemands(WASTE_TO_REAGENTS, 1);
+    stocks.translateDemands(WASTE_TO_SOMA    , 1);
+    stocks.translateDemands(WASTE_TO_CATALYST, 1);
     
-    float needPower = 5 * (1 + (structure.numUpgrades() / 3f));
+    final float needPower = 5 * (1 + (structure.numUpgrades() / 3f));
+    final int cycleBonus = structure.upgradeLevel(CARBS_CULTURE);
+    final float pollution = 5 - cycleBonus;
     stocks.forceDemand(POWER, needPower, false);
-    final int cycleBonus = structure.upgradeLevel(YEAST_DISPOSAL);
-    float pollution = 5 - cycleBonus;
-    //
-    //  TODO:  vary this based on current power and the number of ongoing
-    //  cultures...
     structure.setAmbienceVal(0 - pollution);
+    structure.assignOutputs(Item.withAmount(ATMO, cycleBonus * 2));
   }
   
   
@@ -191,7 +171,7 @@ public class CultureLab extends Venue {
     //  Foodstuffs-
     final Manufacture mS = stocks.nextManufacture(actor, WASTE_TO_CARBS);
     if (mS != null) {
-      choice.add(mS.setBonusFrom(this, true, YEAST_DISPOSAL));
+      choice.add(mS.setBonusFrom(this, true, CARBS_CULTURE));
     }
     final Manufacture mP = stocks.nextManufacture(actor, CARBS_TO_PROTEIN);
     if (mP != null) {
@@ -199,17 +179,13 @@ public class CultureLab extends Venue {
     }
     //
     //  Pharmaceuticals-
-    final Manufacture mA = stocks.nextManufacture(actor, CARBS_TO_SOMA);
+    final Manufacture mA = stocks.nextManufacture(actor, WASTE_TO_SOMA);
     if (mA != null) {
       choice.add(mA.setBonusFrom(this, false, DRUG_SYNTHESIS));
     }
-    final Manufacture mM = stocks.nextManufacture(actor, WASTE_TO_REAGENTS);
+    final Manufacture mM = stocks.nextManufacture(actor, WASTE_TO_CATALYST);
     if (mM != null) {
       choice.add(mM.setBonusFrom(this, true, DRUG_SYNTHESIS));
-    }
-    final Manufacture mN = stocks.nextManufacture(actor, PROTEIN_TO_SPYCE_T);
-    if (mN != null) {
-      choice.add(mN.setBonusFrom(this, true, SPYCE_CHEMISTRY));
     }
     //
     //  And custom manufacturing-
@@ -235,7 +211,7 @@ public class CultureLab extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.VATS_BREEDER };
+    return new Background[] { VATS_BREEDER };
   }
   
   
@@ -258,9 +234,9 @@ public class CultureLab extends Venue {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Culture Lab manufactures soma, basic foodstuffs and even cloned "+
-      "tissues for medical purposes.",
-      this, CARBS_TO_SOMA, DRUG_SYNTHESIS
+      "The Culture Lab manufactures "+SOMA+", "+CATALYST+", basic foodstuffs "+
+      "and even cloned tissues for medical purposes.",
+      this, WASTE_TO_SOMA, DRUG_SYNTHESIS
     );
   }
 }

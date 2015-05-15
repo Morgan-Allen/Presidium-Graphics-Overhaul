@@ -195,7 +195,10 @@ public interface Backgrounds {
     
     VATS_BREEDER = new Background(
       Backgrounds.class,
-      "Vats Breeder", "", "citizen_skin.gif", "pyon_portrait.png",
+      "Vats Breeder",
+      "Vat Breeders supervise the cultivation and harvesting involved in "+
+      "biochemical industries.",
+      "citizen_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, GENE_CULTURE, PHARMACY, CHEMISTRY,
       RARELY, INDULGENT, RELAXED,

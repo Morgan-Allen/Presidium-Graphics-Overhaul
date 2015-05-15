@@ -43,7 +43,7 @@ public class Upgrade extends Index.Entry {
     String name, String desc,
     int buildCost, int maxLevel,
     Object refers, int bonus,
-    Upgrade required, Class origin
+    Object required, Class origin
   ) {
     super(INDEX, name+"_"+origin.getSimpleName());
     this.baseName    = name;
@@ -52,10 +52,20 @@ public class Upgrade extends Index.Entry {
     this.buildCost   = buildCost;
     this.refers      = refers;
     this.bonus       = bonus;
-    this.required    = required == null ?
-      new Upgrade[0] : new Upgrade[] {required}
-    ;
     this.maxLevel    = maxLevel;
+    
+    if (required instanceof Upgrade) {
+      this.required = new Upgrade[] { (Upgrade) required };
+    }
+    else if (required instanceof Upgrade[]) {
+      this.required = (Upgrade[]) required;
+    }
+    else {
+      if (required != null) I.say(
+        "\nWARNING: "+required+" is not an upgrade or upgrade array!"
+      );
+      this.required = new Upgrade[0];
+    }
     
     Batch <Upgrade> VU = byVenue.get(origin);
     if (VU == null) byVenue.put(origin, VU = new Batch());

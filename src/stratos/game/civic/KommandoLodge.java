@@ -116,7 +116,8 @@ public class KommandoLodge extends Venue {
     */
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
   );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
+  //  TODO:  IMPLEMENT THESE PROPERLY WITH THE OTHER SCHOOLS!
+  //public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     NATIVE_MISSION = new Upgrade(
       "Native Mission",

@@ -65,6 +65,22 @@ public abstract class School extends Venue {
 
 
 
+    //  TODO:  Move this to the Pseer School.
+    /*
+    //
+    //  TODO:  Consider replacing this a boost to Shields generation?  Make
+    //  Fusion confinement dependant on that?
+    QUALIA_WAVEFORM_INTERFACE = new Upgrade(
+      "Qualia Waveform Interface",
+      "Allows reactor output to contribute slightly towards regeneration of "+
+      "psi points and range of psyon abilities.",
+      250,
+      null, 1, FEEDBACK_MONITORS,
+      Reactor.class, ALL_UPGRADES
+    ),
+    //*/
+
+
 
 
 

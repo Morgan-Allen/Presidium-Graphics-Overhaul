@@ -55,6 +55,11 @@ import static stratos.game.economic.Economy.*;
 
 
 
+
+//  TODO:  I'm going to disable this for the moment, until I get the tutorial
+//         sorted.
+
+
 public class RunnerMarket extends Venue {
   
   
@@ -87,7 +92,7 @@ public class RunnerMarket extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     RunnerMarket.class, "runner_market",
-    "Runner Market", UIConstants.TYPE_SECURITY,
+    "Runner Market", UIConstants.TYPE_HIDDEN,
     5, 2, IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_FACILITY
   );

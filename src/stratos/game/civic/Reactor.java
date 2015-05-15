@@ -5,7 +5,6 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
@@ -18,22 +17,6 @@ import static stratos.game.actors.Conditions.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
-
-
-    //  TODO:  Move this to the Pseer School!
-    /*
-    //
-    //  TODO:  Consider replacing this a boost to Shields generation?  Make
-    //  Fusion confinement dependant on that?
-    QUALIA_WAVEFORM_INTERFACE = new Upgrade(
-      "Qualia Waveform Interface",
-      "Allows reactor output to contribute slightly towards regeneration of "+
-      "psi points and range of psyon abilities.",
-      250,
-      null, 1, FEEDBACK_MONITORS,
-      Reactor.class, ALL_UPGRADES
-    ),
-    //*/
 
 
 
@@ -133,35 +116,32 @@ public class Reactor extends Venue {
   final public static Upgrade
     WASTE_PROCESSING = new Upgrade(
       "Waste Processing",
-      "Reduces the rate at which fuel rods are consumed, ameliorates "+
-      "pollution, and allows conversion of metal ores to fuel rods.",
+      "Reduces the rate at which "+FUEL_RODS+" are consumed, ameliorates "+
+      "pollution, and allows conversion of "+METALS+" to "+FUEL_RODS+".",
       150,
       Upgrade.THREE_LEVELS, null, 1,
       null, Reactor.class
     ),
-    FEEDBACK_MONITORS = new Upgrade(
-      "Feedback Monitors",
+    REACTIVE_CONTAINMENT = new Upgrade(
+      "Reactive Containment",
       "Reduces the likelihood of meltdown occuring when the reactor is "+
-      "damaged or under-supervised, and reduces the likelihood of sabotage or "+
-      "infiltration.",
+      "damaged or under-supervised, and the risk of sabotage or infiltration.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
       null, Reactor.class
     ),
-    
-    FUSION_CONFINEMENT = new Upgrade(
-      "Fusion Confinement",
-      "Increases power output while limiting pollution and decreasing the "+
+    COLD_FUSION = new Upgrade(
+      "Cold Fusion",
+      "Increases "+POWER+" output while limiting pollution and decreasing the "+
       "severity of any meltdowns.",
       500,
       Upgrade.THREE_LEVELS, null, 1,
-      FEEDBACK_MONITORS, Reactor.class
+      REACTIVE_CONTAINMENT, Reactor.class
     ),
-    
-    CYCLOTRON_CIRCUIT = new Upgrade(
-      "Cyclotron Circuit",
-      "Facilitates conversion of fuel rods to antimass, a highly volatile "+
-      "energy source essential to space travel and atomics production.",
+    PARTICLE_CIRCUIT = new Upgrade(
+      "Particle Circuit",
+      "Facilitates conversion of "+FUEL_RODS+" to "+ANTIMASS+", a volatile "+
+      "energy source essential to space travel and atomics stockpiles.",
       450, Upgrade.THREE_LEVELS, null, 1,
       WASTE_PROCESSING, Reactor.class
     )
@@ -193,7 +173,7 @@ public class Reactor extends Venue {
     if (m != null) choice.add(m.setBonusFrom(this, true, WASTE_PROCESSING));
     
     m = stocks.nextManufacture(actor, ISOTOPES_TO_ANTIMASS);
-    if (m != null) choice.add(m.setBonusFrom(this, true, CYCLOTRON_CIRCUIT));
+    if (m != null) choice.add(m.setBonusFrom(this, true, PARTICLE_CIRCUIT));
     
     for (Item ordered : stocks.specialOrders()) {
       final Manufacture mO = new Manufacture(actor, this, ordered);
@@ -210,7 +190,7 @@ public class Reactor extends Venue {
   
   public boolean actionCheckMeltdown(Actor actor, Reactor reactor) {
     float diagnoseDC = 5 + ((1 - meltdown) * 20);
-    final int FB = structure.upgradeLevel(FEEDBACK_MONITORS);
+    final int FB = structure.upgradeLevel(REACTIVE_CONTAINMENT);
     diagnoseDC -= FB * 5;
     
     boolean success = true;
@@ -233,7 +213,7 @@ public class Reactor extends Venue {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.CORE_TECHNICIAN) return nO + 3;
+    if (v == CORE_TECHNICIAN) return nO + 2;
     return 0;
   }
   
@@ -246,7 +226,7 @@ public class Reactor extends Venue {
     //  Calculate output of power and consumption of fuel-
     float fuelConsumed = 1f / Stage.STANDARD_DAY_LENGTH, powerOutput = 25;
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
-    powerOutput *= (2f + structure.upgradeLevel(FUSION_CONFINEMENT)) / 2;
+    powerOutput *= (2f + structure.upgradeLevel(COLD_FUSION)) / 2;
     
     //  TODO:  Load fuel into the core gradually- (make a supervision task.)
     final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
@@ -263,7 +243,7 @@ public class Reactor extends Venue {
     //  Output pollution-
     int pollution = 10;
     pollution -= structure.upgradeLevel(WASTE_PROCESSING) * 2;
-    pollution -= structure.upgradeLevel(FUSION_CONFINEMENT);
+    pollution -= structure.upgradeLevel(COLD_FUSION);
     structure.setAmbienceVal(0 - pollution);
   }
   
@@ -272,7 +252,7 @@ public class Reactor extends Venue {
     float chance = 1.5f - structure.repairLevel();
     chance *= 1 + (stocks.demandFor(POWER) / 20f);
     if (stocks.amountOf(ANTIMASS) == 0) chance /= 5;
-    chance /= (1f + structure.upgradeLevel(FEEDBACK_MONITORS));
+    chance /= (1f + structure.upgradeLevel(REACTIVE_CONTAINMENT));
     return chance;
   }
   
@@ -301,7 +281,7 @@ public class Reactor extends Venue {
   
   
   protected void performMeltdown() {
-    final int safety = 1 + structure.upgradeLevel(FUSION_CONFINEMENT);
+    final int safety = 1 + structure.upgradeLevel(COLD_FUSION);
     //
     //  Pollute the surroundings but cut back the meltdown somewhat-
     float radiationVal = (125 / safety) - 25;
@@ -416,7 +396,7 @@ public class Reactor extends Venue {
   
   public String helpInfo() {
     String help =
-      "The Reactor provides copious power along with antimass production, "+
+      "The Reactor provides copious power along with "+ANTIMASS+" production, "+
       "but can become an explosive liability.";
     
     if (inWorld()) {

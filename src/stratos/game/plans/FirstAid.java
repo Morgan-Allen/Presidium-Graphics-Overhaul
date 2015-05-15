@@ -162,7 +162,7 @@ public class FirstAid extends Treatment {
     final float
       inc   = 1f / STANDARD_TREAT_TIME,
       DC    = severity() * 5,
-      bonus = getVenueBonus(true, PhysicianStation.INTENSIVE_CARE);
+      bonus = getVenueBonus(true, PhysicianStation.EMERGENCY_ROOM);
     
     float check = Rand.yes() ? -1 : 1;
     if (actor.skills.test(ANATOMY , DC - bonus, 10)) check++;

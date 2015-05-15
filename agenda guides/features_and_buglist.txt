@@ -2,8 +2,6 @@
 
 BETTER UI INFO/HELP SYSTEM
 
-*  Update help info for all the upgrades!
-
 *  More help on how to get goods for export.  Include a general help-system
   somewhere- from the markets pane, say.  Try to combine 'markets' and
   'budgets' into a single panel (that, or give them two buttons.)
