@@ -91,7 +91,7 @@ public class PavingMap {
   
   public static void setPaveLevel(Tile t, byte level, boolean clear) {
     if (level > ROAD_NONE && ! t.canPave()) return;
-    if (clear && level > ROAD_NONE && t.onTop() != null) {
+    if (clear && level > ROAD_NONE && t.onTop() != null && ! t.pathClear()) {
       t.onTop().setAsDestroyed();
     }
     t.world.terrain().setRoadType(t, level);

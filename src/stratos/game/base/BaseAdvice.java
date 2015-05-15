@@ -25,12 +25,12 @@ import static stratos.game.actors.Backgrounds.*;
 
 
 public class BaseAdvice {
-
+  
   
   final public static int
-    LEVEL_TOTAL   =  2,
-    LEVEL_ADVISOR =  1,
-    LEVEL_NONE    =  0;
+    LEVEL_TOTAL   = 2,
+    LEVEL_ADVISOR = 1,
+    LEVEL_NONE    = 0;
   final static int
     WARNING_SLOW  = Stage.STANDARD_DAY_LENGTH,
     WARNING_FAST  = Stage.STANDARD_HOUR_LENGTH,
@@ -81,6 +81,7 @@ public class BaseAdvice {
     needsTechs ,
     needsAdmin ;
   private Batch <Traded> shortages = new Batch <Traded> ();
+  private Table <Traded, Batch <Blueprint>> demanding = new Table();
   
   private Table <Topic, Float> topicDates = new Table <Topic, Float> ();
   

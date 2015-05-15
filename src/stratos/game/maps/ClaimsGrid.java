@@ -75,9 +75,14 @@ public class ClaimsGrid {
     */
   //  TODO:  Is there any way to make this more precise?  Based off the danger-
   //  map, say?
-  public Base baseClaiming(Tile t) {
-    final StageRegion s = world.sections.sectionAt(t.x, t.y);
+  public Base baseClaiming(int tX, int tY) {
+    final StageRegion s = world.sections.sectionAt(tX, tY);
     return baseClaims[s.x][s.y];
+  }
+  
+  
+  public Base baseClaiming(Tile t) {
+    return baseClaiming(t.x, t.y);
   }
   
   

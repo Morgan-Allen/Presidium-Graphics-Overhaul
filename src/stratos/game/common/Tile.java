@@ -11,6 +11,7 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.wild.Habitat;
+import static stratos.game.maps.StageTerrain.*;
 
 
 
@@ -141,6 +142,11 @@ public final class Tile implements
   }
   
   
+  public boolean pathClear() {
+    return pathType() <= PATH_CLEAR;
+  }
+  
+  
   public int pathType() {
     if (onTop != null) return onTop.pathType();
     if (world.terrain().isRoad(this)) return PATH_ROAD;
@@ -237,9 +243,12 @@ public final class Tile implements
       I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.onTop);
     }
     
+    final boolean wasPaved = pathType() == PATH_ROAD;
     this.onTop = e;
-    if (! canPave()) {
-      PavingMap.setPaveLevel(this, StageTerrain.ROAD_NONE, false);
+    final boolean newPaved = pathType() == PATH_ROAD;
+    if (wasPaved != newPaved) {
+      final byte roadLevel = newPaved ? ROAD_LIGHT : ROAD_NONE;
+      PavingMap.setPaveLevel(this, roadLevel, false);
     }
     
     if (verbose) {

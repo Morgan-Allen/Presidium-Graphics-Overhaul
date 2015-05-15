@@ -34,15 +34,6 @@ public class ServiceHatch extends Venue {
       IMG_DIR+"all_big_roads.png", 2, 2,
       2, 0, true
     ),
-    /*
-    ALL_MODELS[] = CutoutModel.fromImages(
-      ServiceHatch.class, IMG_DIR, 2, 0, true,
-      "access_hatch_2.png",
-      "causeway_x_axis.png",
-      "causeway_y_axis.png"
-    ),
-    //*/
-    //NM[] = ALL_MODELS[0][0],
     NM[][] = ALL_MODELS, HUB_MODEL = NM[0][0],
     MODELS_X_AXIS[] = { HUB_MODEL, NM[0][1], HUB_MODEL },
     MODELS_Y_AXIS[] = { HUB_MODEL, NM[1][1], HUB_MODEL };
@@ -55,12 +46,14 @@ public class ServiceHatch extends Venue {
       ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
     );
   
+  
   final public static Blueprint BLUEPRINT = new Blueprint(
     ServiceHatch.class, "service_hatch",
     "Service Hatch", UIConstants.TYPE_ENGINEER,
     2, 0, IS_FIXTURE | IS_LINEAR,
-    Bastion.BLUEPRINT, Owner.TIER_FACILITY
+    Bastion.BLUEPRINT, Owner.TIER_PRIVATE
   );
+  
   
   
   public ServiceHatch(Base base) {
@@ -82,6 +75,43 @@ public class ServiceHatch extends Venue {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+  }
+  
+  
+  
+  /**  Situation and auto-placement:
+    */
+  final static int
+    EXCLUDE_RADIUS = Stage.ZONE_SIZE / 2,
+    MIN_ADJACENCY  = 2,
+    BASE_ADJACENCY = 4;
+  
+  public float ratePlacing(Target point, boolean exact) {
+    final Stage world = point.world();
+    
+    //  TODO:  Base this off demand for power & atmo distribution!
+    //  e.g, base.demands.demandAround(point, Economy.POWER), etc...
+    float need = 2;
+    //
+    //  We don't want hatches too close to other hatches, and they should be
+    //  'hugging' some nearby walls...
+    //  TODO:  Build that into the non-exact estimates too.
+    if (exact) {
+      final Object nearHatch = world.presences.nearestMatch(
+        ServiceHatch.class, point, EXCLUDE_RADIUS
+      );
+      if (nearHatch != null) return -1;
+      
+      int tilesAdj = 0;
+      for (Tile t : Spacing.perimeter(footprint(), world)) {
+        if (t == null || t.onTop() == null) continue;
+        if (t.onTop().base() == base) tilesAdj++;
+      }
+      return need * (tilesAdj - MIN_ADJACENCY) / BASE_ADJACENCY;
+    }
+    else {
+      return need;
+    }
   }
   
   
@@ -119,9 +149,9 @@ public class ServiceHatch extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (numUpdates % 10 != 0) return;
-    
+    //
+    //  Check to see if facing needs to be changed-
     final Object oldModel = buildSprite.baseSprite().model();
-    
     final Object model = faceModel(origin(), null);
     final Upgrade FC = Structure.FACING_CHANGE;
     boolean canChange = false;
@@ -138,13 +168,8 @@ public class ServiceHatch extends Venue {
       world.ephemera.addGhost(this, size, sprite(), 0.5f);
       attachModel((ModelAsset) model);
     }
-    /*
-    //  TODO:  Salvage and rebuild?  See how the shield-wall does it.
-    if (model != buildSprite.baseSprite().model()) {
-      attachModel((ModelAsset) model);
-    }
-    //*/
-    
+    //
+    //  And assign life-support and other tangible effects-
     if (model == HUB_MODEL) {
       structure.assignOutputs(
         Item.withAmount(ATMO , 2),

@@ -166,9 +166,8 @@ public class Flora extends Element implements TileConstants {
   
   
   public static boolean canGrowAt(Tile t) {
-    //  TODO:  TRY TO STANDARDISE THIS WITH VENUES.
-    if (t.blocked() || t.isEntrance()) return false;
-    if (t.reserved() || t.inside().size() > 0) return false;
+    if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
+    if (t.isEntrance() || t.inside().size() > 0) return false;
     if (growChance(t) == -1) return false;
     return Placement.perimeterFits(t, Owner.TIER_TERRAIN);
   }

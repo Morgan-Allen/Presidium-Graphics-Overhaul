@@ -1,7 +1,8 @@
 
 
-
 BETTER UI INFO/HELP SYSTEM
+
+*  Update help info for all the upgrades!
 
 *  More help on how to get goods for export.  Include a general help-system
   somewhere- from the markets pane, say.  Try to combine 'markets' and
@@ -9,11 +10,6 @@ BETTER UI INFO/HELP SYSTEM
 *  Say when the next ship is arriving somewhere- under either the personnel or
    markets pane (or both.)
 *  Fix bug with scrolling between different panes.
-
-*  Update help info for all the upgrades!
-
-*  Consider making within-settlement deliveries cost-free?
-*  Allow rations-production to satisfy need to eat.
 
 *  Add illustrations to tutorial messages.  (The tutorial in general needs to
    be debugged.)
@@ -50,10 +46,12 @@ CLEANING UP THE ECONOMY:
 
 *  Allow the former plant to digest carbs, and try to restore dust-crawlers.
 
+*  Consider making within-settlement deliveries cost-free?
+
+*  Allow rations-production to satisfy need to eat.
+
 
 TACTICAL AND OUTDOORS
-
-*  Flora is occasionally appearing in paved areas.  Stop that now.
 
 *  Exploring needs a note that it doesn't work at night.
 

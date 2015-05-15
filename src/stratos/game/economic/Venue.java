@@ -283,6 +283,7 @@ public abstract class Venue extends Structural implements
   
   
   protected void updatePaving(boolean inWorld) {
+    super.updatePaving(inWorld);
     if (pathType() <= Tile.PATH_CLEAR) {
       byte road = inWorld ? StageTerrain.ROAD_LIGHT : StageTerrain.ROAD_NONE;
       for (Tile t : world.tilesIn(footprint(), false)) {
@@ -290,7 +291,6 @@ public abstract class Venue extends Structural implements
       }
     }
     else {
-      super.updatePaving(inWorld);
       base.transport.updateJunction(this, mainEntrance(), inWorld);
     }
   }

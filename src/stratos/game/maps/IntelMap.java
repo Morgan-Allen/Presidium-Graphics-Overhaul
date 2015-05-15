@@ -112,9 +112,10 @@ public class IntelMap {
       
       //  Fog values decay steadily over time, but those that have been
       //  thoroughly explored never decay below a minimum value.
-      float val = fogVals[c.x][c.y];
+      float val = fogVals[c.x][c.y], decay = 1f / FOG_DECAY_TIME;
       final boolean seen = val >= FOG_SEEN_MIN;
-      val -= 1f / FOG_DECAY_TIME;
+      if (world.claims.baseClaiming(c.x, c.y) == base) decay /= 2;
+      val -= decay;
       val = Nums.clamp(val, seen ? FOG_SEEN_MIN : MIN_FOG, MAX_FOG);
       fogVals[c.x][c.y] = val;
       
