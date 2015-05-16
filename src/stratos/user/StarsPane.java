@@ -99,7 +99,7 @@ public class StarsPane extends UIGroup implements UIConstants {
     border.attachTo(leftSide);
     
     left = new Button(
-      UI,
+      UI, null,
       LEFT_BUTTON_IMG.asTexture(),
       Button.CIRCLE_LIT.asTexture(),
       "Rotate left"
@@ -111,7 +111,7 @@ public class StarsPane extends UIGroup implements UIConstants {
     left.attachTo(leftSide);
     
     right = new Button(
-      UI,
+      UI, null,
       RIGHT_BUTTON_IMG.asTexture(),
       Button.CIRCLE_LIT.asTexture(),
       "Rotate right"

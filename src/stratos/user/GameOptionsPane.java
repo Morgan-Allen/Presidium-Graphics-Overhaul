@@ -59,7 +59,8 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     final GameOptionsPane pane = new GameOptionsPane(baseUI, played);
     
     final Button button = new Button(
-      baseUI, OPTIONS_ICON_TEX, OPTIONS_ICON_LIT, "Game Options"
+      baseUI, OPTIONS_BUTTON_ID,
+      OPTIONS_ICON_TEX, OPTIONS_ICON_LIT, "Game Options"
     ) {
       
       protected void whenClicked() {

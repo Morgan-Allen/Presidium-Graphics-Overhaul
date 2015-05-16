@@ -45,13 +45,14 @@ public class BaseAdvice {
     MORALE_SEVERE   ("Discontent"      , WARNING_FAST ),
     DANGER_WARNING  ("Poor Security"   , WARNING_SLOW ),
     DANGER_SEVERE   (""                , WARNING_FAST ),
-    EXPENSE_WARNING ("No Exports!"     , WARNING_SLOW ),
+    EXPORTS_WARNING ("No Exports!"     , WARNING_SLOW ),
     EXPENSE_SEVERE  (""                , WARNING_FAST ),
     NEEDS_WARNING   ("Shortages"       , WARNING_SLOW ),
     NEEDS_SEVERE    (""                , WARNING_FAST ),
     
     NEED_BUILDERS   ("No Technicians!" , WARNING_FAST ),
     NEED_ADMIN      ("No Auditors!"    , WARNING_FAST ),
+    NEED_LANDING    ("No Landing Site!", WARNING_FAST ),
     
     BASE_ATTACK     (""                , NO_WARN_DELAY),
     CASUALTIES      (""                , NO_WARN_DELAY);
@@ -77,6 +78,7 @@ public class BaseAdvice {
     numSecret = 0;
   private boolean
     needExports,
+    needLanding,
     needSafety ,
     needsTechs ,
     needsAdmin ;
@@ -136,7 +138,15 @@ public class BaseAdvice {
   
   private void summariseEconomyNeeds() {
     needExports = false;
+    needLanding = false;
     shortages.clear();
+    
+    final Verse universe = base.world.offworld;
+    final VerseLocation locale = universe.stageLocation();
+    for (Dropship ship : universe.journeys.allVessels()) {
+      if (! universe.journeys.dueToArrive(ship, locale)) continue;
+      if (ship.dropPoint() == null) needLanding = true;
+    }
     
     if (base.commerce.exportSupply.size() == 0) {
       needExports = true;
@@ -214,8 +224,10 @@ public class BaseAdvice {
     
     if (needsTechs         ) topics.add(Topic.NEED_BUILDERS  );
     if (needsAdmin         ) topics.add(Topic.NEED_ADMIN     );
-    if (needExports        ) topics.add(Topic.EXPENSE_WARNING);
     if (needSafety         ) topics.add(Topic.DANGER_WARNING );
+    
+    if (needExports        ) topics.add(Topic.EXPORTS_WARNING);
+    if (needLanding        ) topics.add(Topic.NEED_LANDING   );
     
     if (! shortages.empty()) topics.add(Topic.NEEDS_WARNING  );
     //
@@ -258,8 +270,10 @@ public class BaseAdvice {
     
     if (topic == Topic.NEED_BUILDERS  ) assignXML(pane, about);
     if (topic == Topic.NEED_ADMIN     ) assignXML(pane, about);
-    if (topic == Topic.EXPENSE_WARNING) assignXML(pane, about);
     if (topic == Topic.DANGER_WARNING ) assignXML(pane, about);
+
+    if (topic == Topic.EXPORTS_WARNING) assignXML(pane, about);
+    if (topic == Topic.NEED_LANDING   ) assignXML(pane, about);
     
     if (topic == Topic.NEEDS_WARNING  ) configNeedsSummary(
       pane, UI, about, shortages.toArray(Traded.class)

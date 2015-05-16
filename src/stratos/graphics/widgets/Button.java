@@ -28,10 +28,13 @@ public class Button extends Image {
     16, new Color(0.5f, 0.5f, 0.5f, 0.5f)
   );
   
+  
+  final String widgetID;
   protected Texture   highlit;
   protected Texture   greyed ;
   protected String    info   ;
   protected Clickable links  ;
+  
   public float
     hoverLit = DEFAULT_HOVER_ALPHA,
     pressLit = DEFAULT_PRESS_ALPHA;
@@ -40,30 +43,36 @@ public class Button extends Image {
     toggled = false;
   
   
-  public Button(HUD UI, ImageAsset norm, String infoS) {
-    this(
-      UI, norm.asTexture(),
-      DEFAULT_LIT.asTexture(),
-      infoS
-    );
+  
+  public Button(
+    HUD UI, String widgetID, ImageAsset norm, String infoS
+  ) {
+    this(UI, widgetID, norm.asTexture(), DEFAULT_LIT.asTexture(), infoS);
   }
   
 
-  public Button(HUD UI, ImageAsset norm, ImageAsset lit, String infoS) {
-    this(UI, norm.asTexture(), lit.asTexture(), infoS);
-  }
-  
-
-  public Button(HUD UI, Texture norm, String infoS) {
-    this(UI, norm, DEFAULT_LIT.asTexture(), infoS);
+  public Button(
+    HUD UI, String widgetID, ImageAsset norm, ImageAsset lit, String infoS
+  ) {
+    this(UI, widgetID, norm.asTexture(), lit.asTexture(), infoS);
   }
   
   
-  public Button(HUD UI, Texture norm, Texture lit, String infoS) {
+  public Button(
+    HUD UI, String widgetID, Texture norm, String infoS
+  ) {
+    this(UI, widgetID, norm, DEFAULT_LIT.asTexture(), infoS);
+  }
+  
+  
+  public Button(
+    HUD UI, String widgetID, Texture norm, Texture lit, String infoS
+  ) {
     super(UI, norm);
-    info    = infoS;
-    highlit = lit;
-    greyed  = DEFAULT_GREYED;
+    this.widgetID = widgetID;
+    this.info     = infoS;
+    this.highlit  = lit;
+    this.greyed   = DEFAULT_GREYED;
   }
   
   
@@ -89,6 +98,11 @@ public class Button extends Image {
   }
   
   
+  protected String widgetID() {
+    return widgetID;
+  }
+  
+  
   protected String disableInfo() {
     return "(Unavailable)";
   }
@@ -98,6 +112,12 @@ public class Button extends Image {
     if (! (other instanceof Button)) return false;
     final Button b = (Button) other;
     return this.toString().equals(b.toString());
+  }
+  
+  
+  public int hashCode() {
+    if (links != null || info != null) return toString().hashCode();
+    else return super.hashCode();
   }
   
   

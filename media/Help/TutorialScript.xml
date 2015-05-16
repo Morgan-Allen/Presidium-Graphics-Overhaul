@@ -25,6 +25,7 @@
 <topic
   name     = "Navigation Done"
   triggers = "checkMotionDone"
+  onOpen   = "onMotionDone"
   urgent   = "true"
 >
   <content>Well done!  If you ever get lost, messages (such as this one) can always be accessed from the Messages listing on the left-hand side of the screen.</content>
@@ -34,21 +35,22 @@
 
 <topic
   name   = "The Bastion"
-  onOpen = "onMotionDone"
+  onOpen = "onBastionTopicOpen"
 >
   <content>Your settlement starts out with a single main building:  The Bastion, which houses your family and personal servants, and serves as your seat of command for the settlement as a whole.  As such, you should strive to protect the Bastion at all costs.
 
 To do this, you will need to both identify any threats in the area, and take steps to establish defences, which is what we'll cover next.</content>
-  <link name="Build a Trooper Lodge">Continue</link>
+  <link name="Place a Trooper Lodge">Continue</link>
 </topic>
 
 
 
 
 <topic
-  name      = "Build a Trooper Lodge"
+  name      = "Place a Trooper Lodge"
   urgent    = "true"
-  completes = "checkBuiltBarracks"
+  onOpen    = "onPlaceBarracksRequest"
+  completes = "checkBarracksPlaced"
 >
   <content>To hire troops and other personnel, you'll need to construct facilities to house them.
 
@@ -57,9 +59,10 @@ Open the Installations tab in the top-right of the screen.  Select the Trooper L
 
 
 <topic
-  name     = "Trooper Lodge Built"
+  name     = "Trooper Lodge Placed"
   urgent   = "true"
-  triggers = "checkBuiltBarracks"
+  triggers = "checkBarracksPlaced"
+  onOpen   = "onBarracksPlaced"
 >
   <content>Good work.  Normally, buildings will take a while to construct and fully staff, but for now we'll speed things up and provide some starting recruits.  If you like, you can click on the new building and take a look at the staff recruited.
 
@@ -79,8 +82,9 @@ Your citizens cannot be directly controlled, but you can hire them to perform mi
 
 <topic
   name     = "Recon Mission Begun"
-  urgent   = "true
+  urgent   = "true"
   triggers = "checkExploreBegun"
+  onOpen   = "onExploreBegun"
 >
   <content>Good work.  We'll assign some of your staff to the Recon Mission, but you can adjust the reward offered to attract more applicants.
 
@@ -107,13 +111,13 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
   onOpen   = "onFacilitiesPlaced"
 >
   <content>Excellent.  The technicians at your Bastion should now begin constructing these facilities.  Once that's complete, we'll provide some initial staff and move on to getting some cash flow going.</content>
-  <link name="Install Upgrades">Continue</link>
 </topic>
 
 
 <topic
   name      = "Install Upgrades"
   urgent    = "true"
+  triggers  = "checkFacilitiesReady"
   onOpen    = "onFacilitiesReady"
   completes = "checkUpgradesReady"
 >

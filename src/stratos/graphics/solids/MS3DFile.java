@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.*;
 
 
 
-@SuppressWarnings("unused")
 public class MS3DFile {
   
   private static boolean verbose = false;

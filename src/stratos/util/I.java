@@ -269,6 +269,8 @@ public class I {
   
   private static class Presentation extends JFrame {
     
+    final static long serialVersionUID = 0;
+    
     private Object data;
     private int mode;
     private float min, max;

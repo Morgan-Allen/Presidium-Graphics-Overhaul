@@ -13,21 +13,22 @@ BETTER UI INFO/HELP SYSTEM
    5-  instruct to explore and find a second ruins.  Mention that rewards need
    to be offered for recon missions too.  (And that a sickbay might be helpful.)
 
-
-*  Say when the next ship is arriving somewhere- under either the personnel or
-   markets pane (or both.)
-
-*  Give a warning for when there's no space for ships to land!
-
-*  Breakdown 'repair' costs into different headings for upgrades and building.
-
-*  Fix bug with scrolling between different panes.
+*  Instant-shipping doesn't seem to be working after trade setup.
 
 *  Add illustrations to tutorial messages.  (The tutorial in general needs to
    be debugged.)
 
-*  Try to include the ability to 'ping' areas of the screen for attention, and
-   include that as part of the tutorial process.
+
+
+*  Say when the next ship is arriving somewhere- under either the personnel or
+   markets pane (or both.)
+
+*  You need to test the various advice-warnings, including 'lack of space' for
+   ships.
+
+*  Breakdown 'repair' costs into different headings for upgrades and building.
+
+*  Fix bug with scrolling between different panes.
 
 *  More help on how to get goods for export.  Include a general help-system
   somewhere- from the markets pane, say.  Try to combine 'markets' and

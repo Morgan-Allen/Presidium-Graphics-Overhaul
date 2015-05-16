@@ -50,7 +50,7 @@ public class RosterPane extends SelectionPane {
     final BorderedLabel appsLabel = new BorderedLabel(baseUI);
     
     final Button button = new Button(
-      baseUI, ROSTER_ICON, ROSTER_ICON_LIT, "Base Roster"
+      baseUI, ROSTER_BUTTON_ID, ROSTER_ICON, ROSTER_ICON_LIT, "Base Roster"
     ) {
       protected void whenClicked() {
         if (baseUI.currentPane() == pane) {

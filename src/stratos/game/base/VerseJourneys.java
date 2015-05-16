@@ -141,6 +141,18 @@ public class VerseJourneys {
   }
   
   
+  public VerseLocation originFor(Dropship ship) {
+    final Journey j = journeyFor(ship);
+    return (j == null) ? null : j.origin;
+  }
+  
+  
+  public VerseLocation destinationFor(Dropship ship) {
+    final Journey j = journeyFor(ship);
+    return (j == null) ? null : j.destination;
+  }
+  
+  
   protected Journey journeyFor(Dropship ship) {
     for (Journey j : journeys) if (j.vessel == ship) return j;
     return null;
@@ -170,6 +182,14 @@ public class VerseJourneys {
     return vessels;
   }
   
+  
+  public boolean dueToArrive(Dropship ship, VerseLocation destination) {
+    final Journey j = journeyFor(ship);
+    if (j == null || j.destination != destination) return false;
+    final float time = universe.world.currentTime();
+    return ship.flightStage() == STAGE_AWAY && time >= j.arriveTime;
+  }
+  
 
   private void updateShipping(Dropship ship, Journey journey) {
     //
@@ -196,7 +216,7 @@ public class VerseJourneys {
       return;
     }
     final float timeGap = time - journey.arriveTime;
-    if (timeGap > SHIP_JOURNEY_TIME && ! visitWorld) {
+    if (timeGap > (SHIP_JOURNEY_TIME * 2) && ! visitWorld) {
       if (I.logEvents()) {
         I.say("\nShip journey took too long: "+ship);
         I.say("  Arrive time:  "+journey.arriveTime);
@@ -204,6 +224,7 @@ public class VerseJourneys {
         I.say("  Time gap:     "+timeGap+"/"+SHIP_JOURNEY_TIME);
       }
       journey.arriveTime = time;
+      return;
     }
     //
     //  If the ship has already landed in-world, see if it's time to depart-

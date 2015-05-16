@@ -205,7 +205,7 @@ public class Text extends UINode implements Description {
   ) {
     if (texGraphic == null || ! (d instanceof Text)) return false;
     final HUD UI = ((Text) d).UI;
-    final Button linked = new Button(UI, texGraphic, link.fullName());
+    final Button linked = new Button(UI, null, texGraphic, link.fullName());
     linked.setLinks(link);
     return insert(linked, wide, high, asBullet, d);
   }

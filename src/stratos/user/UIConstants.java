@@ -14,7 +14,17 @@ public interface UIConstants {
   
   final public static String
     BUTTONS_PATH = "media/GUI/Buttons/",
-    TABS_PATH    = "media/GUI/Tabs/";
+    TABS_PATH    = "media/GUI/Tabs/",
+    
+    COMMERCE_BUTTON_ID = "commerce_pane_button",
+    ROSTER_BUTTON_ID   = "roster_pane_button"  ,
+    INSTALL_BUTTON_ID  = "install_pane_button" ,
+    OPTIONS_BUTTON_ID  = "game_options_button" ,
+    
+    STRIKE_BUTTON_ID   = "strike_mission_button"  ,
+    RECON_BUTTON_ID    = "recon_mission_button"   ,
+    SECURITY_BUTTON_ID = "security_mission_button",
+    CONTACT_BUTTON_ID  = "contact_mission_button" ;
   
   final public static Alphabet INFO_FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"

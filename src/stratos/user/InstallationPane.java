@@ -50,7 +50,9 @@ public class InstallationPane extends SelectionPane {
     final BaseUI baseUI
   ) {
     final InstallationPane pane = new InstallationPane(baseUI);
-    return new Button(baseUI, BUILD_ICON, BUILD_ICON_LIT, "Installations") {
+    return new Button(
+      baseUI, INSTALL_BUTTON_ID, BUILD_ICON, BUILD_ICON_LIT, "Installations"
+    ) {
       protected void whenClicked() {
         if (baseUI.currentPane() == pane) {
           baseUI.setInfoPanels(null, null);
@@ -142,7 +144,9 @@ public class InstallationPane extends SelectionPane {
     for (int i = 0; i < NUM_GUILDS; i++) {
       final String catName = INSTALL_CATEGORIES[i];
       
-      final Button button = new Button(UI, GUILD_IMAGE_ASSETS[i], null) {
+      final Button button = new Button(
+        UI, catName, GUILD_IMAGE_ASSETS[i], null
+      ) {
         
         protected void whenClicked() {
           final BaseUI UI = BaseUI.current();

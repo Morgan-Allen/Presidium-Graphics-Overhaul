@@ -183,6 +183,11 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void onMotionDone() {
+    ScreenPing.addPingFor("Navigation Done", 1);
+  }
+  
+  
+  protected void onBastionTopicOpen() {
     base().intelMap.liftFogAround(bastion, 12);
     UI().tracking.lockOn(bastion);
   }
@@ -191,14 +196,19 @@ public class TutorialScenario extends StartupScenario {
   
   /**  First round of security topics-
     */
-  protected boolean checkBuiltBarracks() {
+  protected void onPlaceBarracksRequest() {
+    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID, 4);
+  }
+  
+  
+  protected boolean checkBarracksPlaced() {
     barracksBuilt = (TrooperLodge) firstBaseVenue(TrooperLodge.class);
     if (barracksBuilt == null) return false;
     return true;
   }
   
   
-  protected void onBuiltBarracks() {
+  protected void onBarracksPlaced() {
     barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
     base().setup.fillVacancies(barracksBuilt, true);
     base().setup.fillVacancies(bastion      , true);
@@ -209,12 +219,10 @@ public class TutorialScenario extends StartupScenario {
   protected boolean checkExploreBegun() {
     MissionRecon match = null;
     for (Mission m : base().tactics.allMissions()) {
-      if (m instanceof MissionRecon) match = (MissionRecon) m;
+      if (m instanceof MissionRecon) { match = (MissionRecon) m; break; }
     }
     if (match == null) return false;
-    
     reconSent = match;
-    onExploreBegun();
     return true;
   }
   
@@ -233,7 +241,7 @@ public class TutorialScenario extends StartupScenario {
     */
   protected boolean checkFacilitiesPlaced() {
     foundryBuilt = (EngineerStation) firstBaseVenue(EngineerStation.class);
-    depotBuilt = (SupplyDepot) firstBaseVenue(SupplyDepot.class);
+    depotBuilt   = (SupplyDepot    ) firstBaseVenue(SupplyDepot    .class);
     if (foundryBuilt == null || depotBuilt == null) return false;
     return true;
   }
@@ -270,6 +278,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkUpgradesReady() {
+    if (foundryBuilt == null) return false;
     final Upgrade ups = EngineerStation.ASSEMBLY_LINE;
     if (foundryBuilt.structure.upgradeLevel(ups, Structure.STATE_NONE) < 3) {
       return false;

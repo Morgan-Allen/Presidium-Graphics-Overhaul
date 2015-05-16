@@ -136,24 +136,10 @@ public class MessageScript implements
     //  (We use an array here to allow deletions mid-iteration if something
     //  goes wrong, which java would not otherwise allow.)
     final Topic topics[] = new Topic[allTopics.size()];
+    final ReminderListing reminds = BaseUI.current().reminders();
     allTopics.values().toArray(topics);
     
     for (Topic topic : topics) {
-      if (topic.completes != null && ! topic.completed) {
-        boolean didComplete = false; try {
-          final Object completeVal = topic.completes.invoke(basis);
-          didComplete = Boolean.TRUE.equals(completeVal);
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-          allTopics.remove(topic.titleKey);
-        }
-        if (didComplete) {
-          topic.completed = true;
-          if (I.logEvents()) I.say("\nTopic completed: "+topic.titleKey);
-          BaseUI.current().reminders().retireMessage(topic.asMessage);
-        }
-      }
       
       if (topic.triggers != null && ! topic.triggered) {
         boolean didTrigger = false; try {
@@ -168,6 +154,22 @@ public class MessageScript implements
           topic.triggered = true;
           if (I.logEvents()) I.say("\nTopic triggered: "+topic.titleKey);
           pushTopicMessage(topic, true);
+        }
+      }
+      
+      if (topic.completes != null && ! topic.completed) {
+        boolean didComplete = false; try {
+          final Object completeVal = topic.completes.invoke(basis);
+          didComplete = Boolean.TRUE.equals(completeVal);
+        }
+        catch (Exception e) {
+          e.printStackTrace();
+          allTopics.remove(topic.titleKey);
+        }
+        if (didComplete) {
+          topic.completed = true;
+          if (I.logEvents()) I.say("\nTopic completed: "+topic.titleKey);
+          reminds.retireMessage(topic.asMessage);
         }
       }
     }

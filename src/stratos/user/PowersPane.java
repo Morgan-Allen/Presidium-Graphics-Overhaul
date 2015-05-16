@@ -66,7 +66,7 @@ public class PowersPane extends SelectionPane {
     
     public PowerButton(BaseUI UI, Power p, Target focus, UINode parent) {
       super(
-        UI, p.icon, CIRCLE_LIT,
+        UI, p.name, p.icon, CIRCLE_LIT,
         p.name.toUpperCase()+"\n  "+p.helpInfo
       );
       this.power  = p;

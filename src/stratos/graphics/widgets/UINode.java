@@ -81,6 +81,7 @@ public abstract class UINode {
     */
   protected abstract void render(WidgetsPass pass);
   protected String info() { return null; }
+  protected String widgetID() { return null; }
   
   
   
@@ -131,7 +132,7 @@ public abstract class UINode {
     absBound.setX(marginLeft, 0 - (marginLeft + marginRight));
   }
   
-  public void alignHorizontal(float relative, int width, int offset) {
+  public void alignHorizontal(float relative, float width, float offset) {
     relBound.setX(relative, 0);
     absBound.setX(offset - (width / 2f), width);
   }
@@ -162,7 +163,7 @@ public abstract class UINode {
     absBound.setY(marginBottom, 0 - (marginBottom + marginTop));
   }
   
-  public void alignVertical(float relative, int height, int offset) {
+  public void alignVertical(float relative, float height, float offset) {
     relBound.setY(relative, 0);
     absBound.setY(offset - (height / 2f), height);
   }

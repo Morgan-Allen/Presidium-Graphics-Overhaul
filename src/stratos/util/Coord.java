@@ -52,6 +52,11 @@ public class Coord {
   }
   
   
+  public int hashCode() {
+    return (x * 13) + (y % 13);
+  }
+  
+  
   public String toString() {
     return "["+x+", "+y+"]";
   }

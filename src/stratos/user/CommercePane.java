@@ -36,7 +36,7 @@ public class CommercePane extends SelectionPane {
   static Button createButton(final BaseUI baseUI) {
     final CommercePane pane = new CommercePane(baseUI);
     final Button button = new Button(
-      baseUI, COMMERCE_ICON, COMMERCE_ICON_LIT, "Finance"
+      baseUI, COMMERCE_BUTTON_ID, COMMERCE_ICON, COMMERCE_ICON_LIT, "Finance"
     ) {
       protected void whenClicked() {
         if (baseUI.currentPane() == pane) {

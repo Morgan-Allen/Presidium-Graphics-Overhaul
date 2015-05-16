@@ -16,7 +16,7 @@ public class MessageReminder extends ReminderListing.Entry {
   
   final static ImageAsset
     COMM_IMAGE = ImageAsset.fromImage(
-      MessageReminder.class, "media/GUI/Panels/comms_alert.png"
+      MessageReminder.class, "media/GUI/Front/comms_alert.png"
     );
   
   final MessagePane message;
@@ -31,7 +31,7 @@ public class MessageReminder extends ReminderListing.Entry {
     this.message = message;
     
     final Button button = new Button(
-      baseUI, COMM_IMAGE.asTexture(), message.title
+      baseUI, message.title, COMM_IMAGE.asTexture(), message.title
     ) {
       protected void whenClicked() {
         baseUI.setInfoPanels(message, null);

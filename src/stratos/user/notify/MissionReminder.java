@@ -21,10 +21,11 @@ public class MissionReminder extends ReminderListing.Entry {
   MissionReminder(final BaseUI BUI, final Mission m) {
     super(BUI, m, 40, 40);
     this.m = m;
-
+    
     final Composite portrait = m.portrait(BUI);
     final Button button = new Button(
-      BUI, portrait.texture(), Button.CIRCLE_LIT.asTexture(), m.fullName()
+      BUI, m.fullName(),
+      portrait.texture(), Button.CIRCLE_LIT.asTexture(), m.fullName()
     ) {
       protected void whenClicked() {
         BUI.selection.pushSelection(m);
