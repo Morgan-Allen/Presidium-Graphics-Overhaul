@@ -265,7 +265,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected boolean checkFacilitiesReady() {
     if (depotBuilt == null || foundryBuilt == null) return false;
-    if (! depotBuilt.structure.intact()) return false;
+    if (! depotBuilt  .structure.intact()) return false;
     if (! foundryBuilt.structure.intact()) return false;
     return true;
   }
@@ -298,10 +298,11 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void onTradeSetup() {
+    I.say("SCHEDULING DROP NOW...");
     depotBuilt.stocks.bumpItem(Economy.PARTS, 10);
     GameSettings.noShips = false;
-    base().commerce.updateCommerce(0);
     world().offworld.journeys.scheduleLocalDrop(base(), 5);
+    base().commerce.updateCommerce(0);
   }
   
   

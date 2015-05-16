@@ -105,10 +105,11 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
 
 
 <topic
-  name     = "Facilities Placed"
-  urgent   = "true"
-  triggers = "checkFacilitiesPlaced"
-  onOpen   = "onFacilitiesPlaced"
+  name      = "Facilities Placed"
+  urgent    = "true"
+  triggers  = "checkFacilitiesPlaced"
+  onOpen    = "onFacilitiesPlaced"
+  completes = "checkFacilitiesReady"
 >
   <content>Excellent.  The technicians at your Bastion should now begin constructing these facilities.  Once that's complete, we'll provide some initial staff and move on to getting some cash flow going.</content>
 </topic>
@@ -123,9 +124,7 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
 >
   <content>To improve the efficiency of goods manufacture and the range of services provided, many of your buildings can have a range of upgrades installed.  For example, your Engineer Station permits the Assembly Line upgrade to speed up parts manufacture.
 
-Select the Engineer Station, open the Upgrades pane, and queue Assembly Line three times.  Your construction staff will attend to it shortly.
-
-In addition to being sold for export, parts can be used to help upgrade housing.  (You can also install upgrades to let your troops buy better weapons and armour, but we'll get to that later.)</content>
+Select the Engineer Station, open the Upgrades pane, and queue Assembly Line three times.  Your construction staff will attend to it shortly.</content>
 </topic>
 
 
@@ -135,7 +134,9 @@ In addition to being sold for export, parts can be used to help upgrade housing.
   triggers  = "checkUpgradesReady"
   completes = "checkTradeSetup"
 >
-  <content>You can also modify the trade settings at your Supply Depot.  Select the Supply Depot, open the Stocks pane, and increase your imports of Metals to 10 and exports of Parts to 20.</content>
+  <content>You can also modify the trade settings at your Supply Depot.  Select the Supply Depot, open the Stocks pane, and increase your imports of Metals to 10 and exports of Parts to 20.
+
+In addition to being sold for export, parts can be used to help upgrade housing.  (You can also install upgrades to let your troops buy better weapons and armour, but we'll get to that later.)</content>
 </topic>
 
 

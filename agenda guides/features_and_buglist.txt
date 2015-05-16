@@ -11,9 +11,13 @@ BETTER UI INFO/HELP SYSTEM
    4-  introduce an interloper from the other ruins.  Wait until it's destroyed
    or forced to flee.
    5-  instruct to explore and find a second ruins.  Mention that rewards need
-   to be offered for recon missions too.  (And that a sickbay might be helpful.)
+   to be offered for recon missions too.  (And that a sickbay might be used.)
 
-*  Instant-shipping doesn't seem to be working after trade setup.
+*  Don't add staff to the bastion until construction needs to begin.
+
+*  Completion of the initial recon-mission (if still selected) can cause the
+   message-pane to be dismissed (see returnSelectionAfterward() in the Mission
+   class.)  Try to fix that.
 
 *  Add illustrations to tutorial messages.  (The tutorial in general needs to
    be debugged.)
@@ -84,6 +88,8 @@ TACTICAL AND OUTDOORS
 
 *  There is very noticeable slowdown on large maps every 2 seconds or so.
    Profile and FIND OUT WHY.
+   TODO:  Consider using jHiccup for this:
+   http://www.azulsystems.com/javaperformancetuning/chart-java-jitter-with-jhiccup
 
 
 

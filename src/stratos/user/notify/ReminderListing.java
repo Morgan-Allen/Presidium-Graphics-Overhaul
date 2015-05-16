@@ -39,6 +39,8 @@ public class ReminderListing extends UIGroup {
     for (int n = s.loadInt(); n-- > 0;) {
       newMessages.add(MessagePane.loadMessage(s, UI));
     }
+    ///for (MessagePane m : oldMessages) I.say("Old message: "+m.title);
+    ///for (MessagePane m : newMessages) I.say("New message: "+m.title);
   }
   
   
@@ -76,14 +78,6 @@ public class ReminderListing extends UIGroup {
   
   private Entry entryThatRefers(Object refers) {
     for (Entry e : entries) if (e.refers == refers) return e;
-    return null;
-  }
-  
-  
-  private Entry entryWithMessage(MessagePane message) {
-    for (Entry e : entries) if (e instanceof MessageReminder) {
-      if (((MessageReminder) e).message == message) return e;
-    }
     return null;
   }
   
