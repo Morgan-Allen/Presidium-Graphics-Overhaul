@@ -430,7 +430,7 @@ public class BaseTransport {
         }
         
         final float out = s.stocks.demandFor(type);
-        if (out > 0) {
+        if (out > 0 && ! s.stocks.producer(type)) {
           if (report) I.say("    "+type+" demand: "+out);
           provDemand[i] += out;
         }
