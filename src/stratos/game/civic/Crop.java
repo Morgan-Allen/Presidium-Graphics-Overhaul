@@ -139,7 +139,7 @@ public class Crop extends Element {
     },
     null,
     null,
-    new Object[] { TIMBER, GREENS, null },
+    new Object[] { WILD_FLORA, GREENS, null },
   };
   
   
@@ -245,20 +245,34 @@ public class Crop extends Element {
     if (growStage == NOT_PLANTED || species == null) return;
     
     final boolean report = Nursery.verbose && I.talkAbout == parent;
+    final float
+      dailyGrowth = dailyGrowthEstimate(tile, report),
+      health      = quality / MAX_HEALTH,
+      increment   = dailyGrowth * MAX_GROWTH * Nursery.GROW_INCREMENT;
+    
+    if (Rand.num() < increment * (1 - health)) blighted = true;
+    growStage = Nums.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
+    //
+    //  Update biomass and possibly sprite state-
+    world.ecology().impingeBiomass(
+      origin(), growStage() / 2f, Stage.GROWTH_INTERVAL
+    );
+    updateSprite();
+  }
+  
+  
+  private float dailyGrowthEstimate(Tile tile, boolean report) {
+    if (blighted) return -1f / Nursery.NUM_DAYS_MATURE;
+    
     final Stage world = parent.world();
     float
-      increment = Nursery.GROW_INCREMENT,
+      increment = 1f / Nursery.NUM_DAYS_MATURE,
       health    = quality / MAX_HEALTH,
       growBonus = habitatBonus(tile, species, null),
       pollution = 0 - world.ecology().ambience.valueAt(tile),
       waterNeed = parent.stocks.relativeShortage(WATER);
     
-    if (Rand.num() < increment * (1 - health)) blighted = true;
-    increment *= growBonus * MAX_GROWTH * (1 + health) / 2;
-    if (pollution > 0) increment *= (2 - pollution) / 2;
-    if (waterNeed > 0) increment *= (2 - waterNeed) / 2;
-    
-    if (report) I.reportVars("\nUpdating crop growth", "  ",
+    if (report) I.reportVars("\nEstimating crop growth", "  ",
       "Increment" , increment,
       "Health"    , health   ,
       "Grow bonus", growBonus,
@@ -268,14 +282,17 @@ public class Crop extends Element {
       "Blighted?" , blighted 
     );
     
-    if (blighted) increment = -1f / Nursery.GROW_INCREMENT;
-    growStage = Nums.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
-    //
-    //  Update biomass and possibly sprite state-
-    world.ecology().impingeBiomass(
-      origin(), growStage() / 2f, Stage.GROWTH_INTERVAL
-    );
-    updateSprite();
+    increment *= growBonus * (1 + health) / 2;
+    if (pollution > 0) increment *= (2 - pollution) / 2;
+    if (waterNeed > 0) increment *= (2 - waterNeed) / 2;
+    
+    return increment;
+  }
+  
+  
+  public float dailyYieldEstimate(Tile tile) {
+    final float fullAmount = 1;
+    return dailyGrowthEstimate(tile, false) * fullAmount;
   }
   
   

@@ -41,12 +41,15 @@ public class EcologistStation extends Venue {
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
+  
+  
   final static Blueprint BLUEPRINT = new Blueprint(
     EcologistStation.class, "ecologist_station",
     "Ecologist Station", UIConstants.TYPE_ECOLOGIST,
     4, 3, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY
   );
+  
   
   
   public EcologistStation(Base belongs) {
@@ -84,29 +87,27 @@ public class EcologistStation extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    CEREALS = new Upgrade(
-      "Cereals",
+    CEREAL_CULTURE = new Upgrade(
+      "Cereal Culture",
       "Improves cereal yields, which provide "+CARBS+".  Cereals yield more "+
       "calories than other crops, but lack the nutrients for a complete diet.",
       100,
-      Upgrade.THREE_LEVELS, CARBS,
-      1,
+      Upgrade.THREE_LEVELS, CARBS, 1,
       null, EcologistStation.class
     ),
-    BROADLEAVES = new Upgrade(
-      "Broadleaves",
+    FLORAL_CULTURE = new Upgrade(
+      "Floral Culture",
       "Improves broadleaf yields, which provide "+GREENS+".  These are "+
       "valued as luxury exports, but their yield in calories is limited.",
       150,
-      Upgrade.THREE_LEVELS, GREENS,
-      1,
+      Upgrade.THREE_LEVELS, GREENS, 1,
       null, EcologistStation.class
     ),
     CULTIVATOR_STATION = new Upgrade(
       "Cultivator Station",
-      Backgrounds.CULTIVATOR.info,
+      CULTIVATOR.info,
       50,
-      Upgrade.THREE_LEVELS, Backgrounds.CULTIVATOR, 1,
+      Upgrade.THREE_LEVELS, CULTIVATOR, 1,
       null, EcologistStation.class
     ),
     TREE_FARMING = new Upgrade(
@@ -114,25 +115,22 @@ public class EcologistStation extends Venue {
       "Forestry programs assist in terraforming efforts and climate "+
       "moderation, as well as permitting "+POLYMER+" production.",
       100,
-      Upgrade.THREE_LEVELS, null,
-      1,
-      BROADLEAVES, EcologistStation.class
+      Upgrade.THREE_LEVELS, Flora.class, 1,
+      FLORAL_CULTURE, EcologistStation.class
     ),
     SYMBIOTICS = new Upgrade(
       "Symbiotics",
       "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
       "assists in animal breeding programs.",
       150,
-      Upgrade.THREE_LEVELS, PROTEIN,
-      1,
-      BROADLEAVES, EcologistStation.class
+      Upgrade.THREE_LEVELS, PROTEIN, 1,
+      FLORAL_CULTURE, EcologistStation.class
     ),
     ECOLOGIST_STATION = new Upgrade(
       "Ecologist Station",
-      Backgrounds.ECOLOGIST.info,
+      ECOLOGIST.info,
       150,
-      Upgrade.THREE_LEVELS, Backgrounds.ECOLOGIST,
-      1,
+      Upgrade.THREE_LEVELS, ECOLOGIST, 1,
       TREE_FARMING, EcologistStation.class
     );
   
@@ -185,9 +183,10 @@ public class EcologistStation extends Venue {
   ) {
     //
     //  Consider collecting gene samples-
-    final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
-    if (needsSeed) {
-      choice.add(Forestry.nextSampling(actor, this));
+    final float needSamples = SeedTailoring.needForSamples(this);
+    if (needSamples > 0) {
+      I.say("NEED FOR SAMPLES IS "+needSamples);
+      choice.add(Forestry.nextSampling(actor, this, needSamples));
     }
     for (Target e : actor.senses.awareOf()) if (e instanceof Fauna) {
       final Fauna f = (Fauna) e;
@@ -223,8 +222,7 @@ public class EcologistStation extends Venue {
     );
     choice.add(d);
     if (choice.empty()) {
-      //  TODO:  Merge with Polymer Press jobs
-      
+      //  TODO:  Merge with Former Plant jobs?
       choice.add(Forestry.nextPlanting(actor, this));
     }
   }
@@ -236,12 +234,14 @@ public class EcologistStation extends Venue {
     //
     //  Increment demand for gene seed, and decay current stocks-
     stocks.incDemand(GENE_SEED, 5, 1, false);
-    final float decay = 0.1f / Stage.STANDARD_DAY_LENGTH;
+    final float decay = 1f / (
+      Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
+    );
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));
     }
-    for (Item seed : stocks.matches(SAMPLES)) {
-      stocks.removeItem(Item.withAmount(seed, decay));
+    for (Item sample : stocks.matches(SAMPLES)) {
+      stocks.removeItem(Item.withAmount(sample, decay));
     }
     //
     //  Demand supplies, if breeding is going on-

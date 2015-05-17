@@ -16,6 +16,8 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Try merging this with Farming (or extending it.)
+
 public class Forestry extends Plan {
 
   private static boolean
@@ -43,9 +45,12 @@ public class Forestry extends Plan {
   private Flora toCut   = null;
   
   
-  public static Forestry nextSampling(Actor actor, Venue nursery) {
+  public static Forestry nextSampling(
+    Actor actor, Venue nursery, float urgency
+  ) {
     final Forestry f = new Forestry(actor, nursery);
     f.configureFor(STAGE_SAMPLING);
+    f.addMotives(Plan.MOTIVE_JOB, urgency * ROUTINE);
     return f;
   }
   
@@ -123,6 +128,18 @@ public class Forestry extends Plan {
   }
   
   
+  private Item seedMatch() {
+    final Item match = Item.withReference(GENE_SEED, Flora.WILD_FLORA);
+    return Item.withAmount(match, 0.1f);
+  }
+  
+  
+  private Item sampleMatch() {
+    final Item match = Item.withReference(SAMPLES, Flora.WILD_FLORA);
+    return Item.withAmount(match, 1);
+  }
+  
+  
   //  TODO:  Vary these for the different activity types (sample, harvest or
   //         planting.)
   final static Skill BASE_SKILLS[] = { CULTIVATION, HARD_LABOUR };
@@ -149,7 +166,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_STORAGE) {
-      urgency = 0.5f;
+      urgency = 0.2f;
     }
     else if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       urgency = 1 - abundance;
@@ -258,11 +275,6 @@ public class Forestry extends Plan {
   }
   
   
-  private Item seedMatch() {
-    return Item.withAmount(Item.withReference(GENE_SEED, Flora.TIMBER), 0.1f);
-  }
-  
-  
   public boolean actionCollectSeed(Actor actor, Venue depot) {
     final Item match = seedMatch();
     depot.stocks.transfer(match, actor);
@@ -354,7 +366,7 @@ public class Forestry extends Plan {
     final int growStage = cut.growStage();
     actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
     
-    actor.gear.addItem(Item.withReference(GENE_SEED, cut));
+    actor.gear.addItem(sampleMatch());
     stage = STAGE_STORAGE;
     return true;
   }
@@ -363,9 +375,7 @@ public class Forestry extends Plan {
   public boolean actionStoreSamples(Actor actor, Venue depot) {
     if (stepsVerbose) I.say("RETURNING SAMPLES TO "+depot);
     
-    for (Item seed : actor.gear.matches(seedMatch())) {
-      actor.gear.transfer(seed, depot);
-    }
+    actor.gear.transfer(SAMPLES    , depot);
     actor.gear.transfer(GENE_SEED  , depot);
     actor.gear.transfer(GREENS     , depot);
     
@@ -374,6 +384,9 @@ public class Forestry extends Plan {
   }
   
   
+  
+  /**  Rendering and interface methods-
+    */
   public void describeBehaviour(Description d) {
     if (stage == STAGE_INIT) {
       d.append("Performing forestry");

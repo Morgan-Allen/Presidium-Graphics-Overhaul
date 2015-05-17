@@ -80,11 +80,12 @@ public class Flora extends Element implements TileConstants {
     GORG_APHID  = new Species(
       Flora.class, "Gorg Aphid" , Type.FLORA, 1, SPYCE_T
     ) {},
+    
     PIONEERS    = new Species(
       Flora.class, "Pioneers"   , Type.FLORA
     ) {},
-    TIMBER      = new Species(
-      Flora.class, "Timber"     , Type.FLORA
+    WILD_FLORA  = new Species(
+      Flora.class, "Wild Flora" , Type.FLORA
     ) {};
   
   final public static int

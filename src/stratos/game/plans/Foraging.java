@@ -235,7 +235,7 @@ public class Foraging extends Plan {
   public boolean actionReturnHarvest(Actor actor, Venue depot) {
     actor.gear.transfer(GREENS, depot);
     actor.gear.transfer(CARBS, depot);
-    actor.gear.transfer(Item.withReference(SAMPLES, Flora.TIMBER), depot);
+    actor.gear.transfer(Item.withReference(SAMPLES, Flora.WILD_FLORA), depot);
     done = true;
     return true;
   }

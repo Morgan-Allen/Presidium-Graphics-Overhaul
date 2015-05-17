@@ -103,7 +103,9 @@ public class Farming extends Plan {
     }
     
     //  Find the next tile for seeding, tending or harvest.
-    final boolean canPlant = nursery.needForTending() > 0 && canPlant();
+    final boolean
+      canPlant = nursery.needForTending() > 0 &&
+      pickSpecies(null, report) != null;
     float minDist = Float.POSITIVE_INFINITY, dist;
     
     Tile toFarm = null;
@@ -174,8 +176,8 @@ public class Farming extends Plan {
   
   private float sumHarvest() {
     return 
-      actor.gear.amountOf(CARBS) +
-      actor.gear.amountOf(GREENS) +
+      actor.gear.amountOf(CARBS  ) +
+      actor.gear.amountOf(GREENS ) +
       actor.gear.amountOf(PROTEIN);
   }
   
@@ -183,10 +185,10 @@ public class Farming extends Plan {
   private Action returnHarvestAction(int amountNeeded) {
     if (! hasBegun()) return null;
     
-    final boolean hasSample = actor.gear.amountOf(SAMPLES) > 0;
+    final boolean hasSeed = actor.gear.amountOf(GENE_SEED) > 0;
     final float sumHarvest = sumHarvest();
     
-    if (hasSample && sumHarvest == 0 && amountNeeded == 0) {
+    if (hasSeed && sumHarvest == 0 && amountNeeded == 0) {
       final Action returnSeed = new Action(
         actor, seedDepot,
         this, "actionReturnHarvest",
@@ -209,20 +211,12 @@ public class Farming extends Plan {
   
   private Item nextSeedNeeded() {
     for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = Item.asMatch(SAMPLES, s);
+      final Item seed = Item.asMatch(GENE_SEED, s);
       if (seedDepot.stocks.amountOf(seed) == 0) continue;
       if (actor.gear.amountOf(seed) > 0) continue;
       return seed;
     }
     return null;
-  }
-  
-  
-  private boolean canPlant() {
-    if (! GameSettings.hardCore) return true;
-    return
-      seedDepot.stocks.amountOf(SAMPLES) > 0 ||
-      actor.gear.amountOf(SAMPLES) > 0;
   }
   
   
@@ -249,7 +243,7 @@ public class Farming extends Plan {
     
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(
-      Item.asMatch(SAMPLES, crop.species()), 0.1f
+      Item.asMatch(GENE_SEED, crop.species()), 0.1f
     );
     float plantDC = ROUTINE_DC;
     float health;
@@ -274,17 +268,24 @@ public class Farming extends Plan {
   
   
   private Species pickSpecies(Tile t, boolean report) {
-    final Pick <Species> pick = new Pick <Species> ();
     if (report) I.say("\nPicking crop species...");
     
+    final Pick <Species> pick = new Pick <Species> ();
     for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = actor.gear.matchFor(Item.asMatch(SAMPLES, s));
+      final Item
+        match   = Item.asMatch(GENE_SEED, s),
+        carried = actor.gear.matchFor(match),
+        atDepot = seedDepot.stocks.matchFor(match),
+        seed    = carried == null ? atDepot : carried;
+      if (seed == null) continue;
+      
       float shortage = seedDepot.stocks.relativeShortage(Crop.yieldType(s));
+      if (t == null) { pick.compare(s, shortage * seed.quality); continue; }
       
       final float chance = Crop.habitatBonus(t, s, seed) * (1 + shortage);
       if (report) {
         I.say("  Chance for "+s+" is "+chance);
-        if (seed != null) I.say("    Seed quality "+seed.quality);
+        I.say("    Seed source: "+seed);
       }
       pick.compare(s, chance * Rand.num());
     }
@@ -294,15 +295,11 @@ public class Farming extends Plan {
   
   
   public boolean actionDisinfest(Actor actor, Crop crop) {
-    final Item seed = actor.gear.bestSample(
-      Item.asMatch(SAMPLES, crop.species()), 0.1f
-    );
-    int success = seed != null ? 2 : 0;
+    int success = 1;
     if (actor.skills.test(CULTIVATION, MODERATE_DC, 1)) success++;
     if (actor.skills.test(HARD_LABOUR, ROUTINE_DC , 1)) success++;
     if (Rand.index(5) <= success) {
       crop.disinfest();
-      if (seed != null) actor.gear.removeItem(seed);
     }
     return true;
   }
@@ -327,7 +324,7 @@ public class Farming extends Plan {
     actor.gear.transfer(CARBS  , depot);
     actor.gear.transfer(GREENS , depot);
     actor.gear.transfer(PROTEIN, depot);
-    for (Item seed : actor.gear.matches(SAMPLES)) {
+    for (Item seed : actor.gear.matches(GENE_SEED)) {
       actor.gear.removeItem(seed);
     }
     return true;

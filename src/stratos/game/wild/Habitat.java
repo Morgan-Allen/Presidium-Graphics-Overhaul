@@ -144,21 +144,21 @@ public class Habitat {
       "Mesa",
       "",
       "mesa_ground.gif", NO_FLORA,
-      -1, true, FERTILITY, 1, INSOLATION, 5, MINERALS, 7,
+      -1, true, FERTILITY, 0, INSOLATION, 5, MINERALS, 7,
       IS_WASTE
     ),
     CURSED_EARTH = new Habitat(
       "Cursed Earth",
       "",
       "black_wastes_ground_old.png", NO_FLORA,// WASTES_FLORA_MODELS,
-      -1, true, FERTILITY, 3, INSOLATION, 3, MINERALS, 5,
+      -1, true, FERTILITY, 2, INSOLATION, 3, MINERALS, 5,
       IS_WASTE
     ),
     STRIP_MINING = new Habitat(
       "Strip Mining",
       "",
       "strip_mining_ground.png", NO_FLORA,//WASTES_FLORA_MODELS,
-      -1, true, FERTILITY, 5, INSOLATION, 7, MINERALS, 0,
+      -1, true, FERTILITY, 0, INSOLATION, 7, MINERALS, 0,
       IS_WASTE
     ),
     //

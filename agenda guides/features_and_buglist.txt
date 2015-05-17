@@ -2,18 +2,6 @@
 
 BETTER UI INFO/HELP SYSTEM
 
-
-*  The tutorial should start with razing the ruins.  A static target is easier
-   to get to grips with.  Then you would find and destroy another.
-   1-  reveal the ruin.  (Close by.)  Invite to destroy.
-   2-  wait until a strike mission is placed and a reward is added.
-   3-  wait until the ruins are razed.
-   
-   4-  introduce an interloper from the other ruins.  Wait until it's destroyed
-   or forced to flee.
-   5-  instruct to explore and find a second ruins.  Mention that rewards need
-   to be offered for recon missions too.  (And that a sickbay might be used.)
-
 *  Don't add staff to the bastion until construction needs to begin.
 
 *  If a message-pane was open before saving, ensure it stays open afterward (

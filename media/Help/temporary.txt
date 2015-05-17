@@ -33,8 +33,16 @@ a better starting position for the artilects- somewhere far away.
 
 TUTORIAL CHANGES
   
-  Once trade setup is complete, reveal the one nearby.  Invite it's destruction,
-  and make sure the player has learned how to set rewards.
+  The economic objective.  Explain about supply/demand/prices, and how contact
+  missions can secure trade partners at an advantageous price.  (Including
+  offworld.)
+  
+  Note that the player is short of funds, and explain how they can use an
+  excavation site to obtain more goods for export and reduce expenses.
+  
+  Mention that a sickbay might be useful, both to help troops recuperate and to
+  export medicines.  A stock exchange might be useful too.
+  
   
   Have a raider assault the closest structure to the other ruins.  Zoom to it
   immediately, and make sure it's dead or fled before moving on.
@@ -48,12 +56,11 @@ TUTORIAL CHANGES
   explore and strike.
   
   
-  The economic objective.  Explain about supply/demand/prices, and how contact
-  missions can secure trade partners at an advantageous price.  (Including
-  offworld.)
-  
-  Note that the player is short of funds, and explain how they can use an
-  excavation site to obtain more goods for export and reduce expenses.
+  Ask the player to place some housing, and make sure it upgrades at least
+  once.  A positive cash flow and a housing upgrade concludes the tutorial on
+  a hopeful note.
+
+
 
 
 

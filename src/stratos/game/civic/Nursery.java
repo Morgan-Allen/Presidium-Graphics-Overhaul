@@ -36,18 +36,15 @@ public class Nursery extends Venue implements TileConstants {
     );
   
   final public static float
-    MATURE_DURATION  = Stage.STANDARD_DAY_LENGTH * 5,
+    NUM_DAYS_MATURE  = 5,
+    MATURE_DURATION  = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
     GROW_INCREMENT   = Stage.GROWTH_INTERVAL / MATURE_DURATION,
     EXTRA_CLAIM_SIZE = 4,
     
     CEREAL_BONUS = 2.00f,
     HIVE_DIVISOR = 4.00f,
     DRYLAND_MULT = 0.75f,
-    WETLAND_MULT = 1.25f,
-    
-    NURSERY_CARBS   = 1,
-    NURSERY_GREENS  = 0.5f,
-    NURSERY_PROTEIN = 0.5f;
+    WETLAND_MULT = 1.25f;
   
   final public static Conversion
     LAND_TO_CARBS = new Conversion(
@@ -305,28 +302,53 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Rendering and interface methods-
     */
+  final static String
+    DEFAULT_INFO = 
+      "Nurseries secure a high-quality food source from plant crops, but need "+
+      "space, hard labour and fertile soils.",
+    POOR_SOILS_INFO =
+      "The poor soils around this Nursery will hamper growth and yield a "+
+      "stingy harvest.",
+    WAITING_ON_SEED_INFO =
+      "The land around this Nursery will have to be seeded by your "+
+      ""+Backgrounds.CULTIVATOR+"s.",
+    POOR_HEALTH_INFO =
+      "The crops around this Nursery are sickly.  Try to improve seed stock "+
+      "at the "+EcologistStation.BLUEPRINT.name+".",
+    AWAITING_GROWTH_INFO =
+      "The crops around this Nursery have yet to mature.  Allow them a few "+
+      "days to bear fruit.";
+  
   private String compileHealthReport() {
     final StringBuffer s = new StringBuffer();
-    s.append(
-      "Plantations of cropland secure a high-quality food source, but need "+
-      "space and constant attention."
-    );
-    if (inWorld() && structure.intact()) {
-      float health = 0, growth = 0, numC = 0;
-      for (Tile t : toPlant) {
-        final Crop c = plantedAt(t);
-        if (c == null) continue;
-        numC++;
-        health += c.health();
-        growth += c.growStage();
-      }
-      if (numC > 0) {
-        final int PH = (int) (health * 100 / numC);
-        final int PG = (int) (growth * 100 / (numC * Crop.MAX_GROWTH));
-        s.append("\n  Crop growth: "+PG+"%");
-        s.append("\n  Crop health: "+PH+"%");
-      }
+    
+    final int numTiles = toPlant.length;
+    float
+      health = 0, growth = 0, fertility = 0,
+      numPlant = 0, numCarbs = 0, numGreens = 0;
+    
+    for (Tile t : toPlant) {
+      final Crop c = plantedAt(t);
+      fertility += t.habitat().moisture();
+      if (c == null) continue;
+      
+      final float perDay = c.dailyYieldEstimate(t);
+      final Traded type = Crop.yieldType(c.species());
+      numPlant++;
+      health    += c.health();
+      growth    += c.growStage();
+      if (type == CARBS ) numCarbs  += perDay;
+      if (type == GREENS) numGreens += perDay;
     }
+    
+    if      (fertility < (numTiles * 0.5f)) s.append(POOR_SOILS_INFO     );
+    else if (numPlant == 0                ) s.append(WAITING_ON_SEED_INFO);
+    else if (health    < (numPlant * 0.5f)) s.append(POOR_HEALTH_INFO    );
+    else if (growth    < (numPlant * 0.5f)) s.append(AWAITING_GROWTH_INFO);
+    else s.append(DEFAULT_INFO);
+    
+    s.append("\n  Estimated "+CARBS +" per day: "+I.shorten(numCarbs , 1));
+    s.append("\n  Estimated "+GREENS+" per day: "+I.shorten(numGreens, 1));
     return s.toString();
   }
   
@@ -356,7 +378,8 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public String helpInfo() {
-    return compileHealthReport();
+    if (inWorld() && structure.intact()) return compileHealthReport();
+    else return DEFAULT_INFO;
   }
 }
 
