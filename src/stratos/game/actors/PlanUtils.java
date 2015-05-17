@@ -37,10 +37,10 @@ public class PlanUtils {
     float rewardBonus, int teamSize, boolean asRealTask, float harm
   ) {
     float incentive = 0, winChance, inhibition, priority;
-    float harmTaken, dislike, wierdness, conscience;
+    float harmDone, dislike, wierdness, conscience;
     
     incentive += dislike   = actor.relations.valueFor(subject) * -5 * harm;
-    incentive += harmTaken = harmIntendedBy(subject, actor, false) *  5;
+    incentive += harmDone = harmIntendedBy(subject, actor, false) *  5;
     incentive += wierdness = baseCuriosity(actor, subject, false) * 5;
     incentive += rewardBonus;
     if (! asRealTask) return incentive;
@@ -52,7 +52,8 @@ public class PlanUtils {
     
     winChance  = combatWinChance(actor, subject, teamSize);
     inhibition = Nums.max(10 * (1 - winChance), conscience);
-    priority   = incentive * winChance;
+    if (incentive < inhibition) return -1;
+    priority   = incentive * (1 + winChance) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
@@ -60,7 +61,7 @@ public class PlanUtils {
       "reward   " , rewardBonus,
       "emergency" , actor.senses.isEmergency(),
       "harm level", harm       ,
-      "harm taken", harmTaken  ,
+      "harm done ", harmDone   ,
       "dislike"   , dislike    ,
       "wierdness" , wierdness  ,
       "conscience", conscience ,
@@ -69,7 +70,6 @@ public class PlanUtils {
       "winChance" , winChance  ,
       "priority " , priority   
     );
-    if (priority < inhibition) return -1;
     return priority;
   }
   
@@ -88,11 +88,11 @@ public class PlanUtils {
     incentive += loseChance * 10;
     
     homeDistance = homeDistanceFactor(actor, actor.origin());
-    if (! isArmed(actor)) homeDistance = (homeDistance + 2) / 2;
-    if (actor.senses.isEmergency()) homeDistance += 0.5f;
-    incentive = Nums.max(incentive, homeDistance * 1);
+    if (! isArmed(actor)) homeDistance += 0.5f;
+    if (actor.senses.isEmergency()) homeDistance *= 1.5f;
+    incentive = Nums.max(incentive, homeDistance);
     
-    escapeChance = Nums.clamp(1f - actor.health.fatigueLevel(), 0, 1);
+    escapeChance = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
     priority = incentive * homeDistance * escapeChance;
     
     if (reportOn(actor, priority)) I.reportVars(
@@ -432,16 +432,16 @@ public class PlanUtils {
   
   public static float homeDistanceFactor(Actor actor, Target around) {
     final Stage world = actor.world();
-    float baseMult = 1;
     
-    if (actor.mind.home() != null) {
-      baseMult += Spacing.distance(around, actor.mind.home) / Stage.ZONE_SIZE;
-    }
+    if (actor.mind.home() == null) return 0;
+    float baseMult = Spacing.distance(around, actor.mind.home);
+    baseMult = Nums.max((baseMult / Stage.ZONE_SIZE) - 0.5f, 0);
     
     final Tile at   = world.tileAt(around);
     final Base owns = world.claims.baseClaiming(at);
-    if (owns != null) baseMult -= owns.relations.relationWith(actor.base());
-    
+    if (owns != null) {
+      baseMult *= (2 - owns.relations.relationWith(actor.base())) / 2;
+    }
     return Nums.clamp(baseMult, 0, 2);
   }
   

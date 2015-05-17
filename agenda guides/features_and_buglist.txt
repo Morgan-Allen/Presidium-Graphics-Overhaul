@@ -2,6 +2,7 @@
 
 BETTER UI INFO/HELP SYSTEM
 
+
 *  The tutorial should start with razing the ruins.  A static target is easier
    to get to grips with.  Then you would find and destroy another.
    1-  reveal the ruin.  (Close by.)  Invite to destroy.
@@ -15,28 +16,31 @@ BETTER UI INFO/HELP SYSTEM
 
 *  Don't add staff to the bastion until construction needs to begin.
 
+*  If a message-pane was open before saving, ensure it stays open afterward (
+   both within a session and after loading.)
+
 *  Completion of the initial recon-mission (if still selected) can cause the
    message-pane to be dismissed (see returnSelectionAfterward() in the Mission
    class.)  Try to fix that.
 
-*  Add illustrations to tutorial messages.  (The tutorial in general needs to
-   be debugged.)
+*  I don't think I need illustrations anymore, as long as the ping-system works
+   okay.  Consider having the message-pane move around the screen, though, so
+   the player can see what they're doing on other panes with a message open?
 
 
+*  Fix bug with scrolling between different panes.
+
+*  Build in a hyperlink help system for upgrades, good-types, venue-types and
+   backgrounds.  (You'll need an automatic back-button for this.)
+
+*  Try to combine 'markets' and 'budgets' into a single panel (that, or give
+   them two buttons.)
 
 *  Say when the next ship is arriving somewhere- under either the personnel or
    markets pane (or both.)
 
 *  You need to test the various advice-warnings, including 'lack of space' for
    ships.
-
-*  Breakdown 'repair' costs into different headings for upgrades and building.
-
-*  Fix bug with scrolling between different panes.
-
-*  More help on how to get goods for export.  Include a general help-system
-  somewhere- from the markets pane, say.  Try to combine 'markets' and
-  'budgets' into a single panel (that, or give them two buttons.)
 
 *  You need to properly explain click-and-drag for zoned/linear structures.
    (Either that, or use default areas.)
@@ -75,6 +79,8 @@ CLEANING UP THE ECONOMY:
 TACTICAL AND OUTDOORS
 
 *  Exploring needs a note that it doesn't work at night.
+
+*  Don't list applicants for a public mission if priority is zero?
 
 *  Get vermin into the game again!
 *  Nocturnal trait.  "They mostly come at night.  Mostly."

@@ -21,23 +21,37 @@ public class ScreenPing extends UIGroup {
     RINGS_IMG = ImageAsset.fromImage(
       ScreenPing.class, "media/GUI/Front/ping_rings.png"
     );
+  final static String
+    PING_ID_PREFIX = "ping_for_";
+  final static float
+    DEFAULT_SIZE = 40,
+    DEFAULT_LIFE =  1,
+    DEFAULT_OFFX = 0.33f,
+    DEFAULT_OFFY = 0.33f;
   
   
   private Image centre, rings;
   private String widgetID;
   private float baseSize, timeActive = 0, lifespan;
+  
 
+  public static boolean addPingFor(String widgetID) {
+    return addPingFor(
+      widgetID, DEFAULT_LIFE, DEFAULT_SIZE, DEFAULT_OFFX, DEFAULT_OFFY
+    );
+  }
   
   
-  public static boolean addPingFor(String widgetID, float lifespan) {
-    
+  public static boolean addPingFor(
+    String widgetID, float lifespan, float baseSize, float offX, float offY
+  ) {
     final BaseUI UI = BaseUI.current();
     if (UI == null) return false;
     
     final UINode widget = UI.activeWidgetWithID(widgetID);
     if (widget == null) return false;
     
-    final String pingID = "ping_for_"+widgetID;
+    final String pingID = PING_ID_PREFIX+widgetID;
     final UINode matches = UI.activeWidgetWithID(pingID);
     if (matches != null) return false;
     
@@ -52,14 +66,11 @@ public class ScreenPing extends UIGroup {
     ping.centre.attachTo(ping);
     ping.rings .attachTo(ping);
     
-    ping.baseSize = Nums.max(widget.xdim(), widget.ydim()) / 2;
+    ping.baseSize = baseSize;
     ping.absBound.setTo(widget.trueBounds());
-    ping.absBound.incX(widget.xdim() / 3);
-    ping.absBound.incY(widget.ydim() / 3);
+    ping.absBound.incX(widget.xdim() * offX);
+    ping.absBound.incY(widget.ydim() * offY);
     ping.attachTo(UI);
-    
-    I.say("ADDING NEW PING: "+pingID+", position: "+ping.absBound);
-    I.reportStackTrace();
     
     return true;
   }

@@ -271,8 +271,8 @@ public final class Economy {
       EngineerStation.class, 1, PARTS, 10, ASSEMBLY
     ),
     
-    STEEL_DIRK = new DeviceType(
-      BC, "Shiv",
+    SIDE_SABRE = new DeviceType(
+      BC, "Side Sabre",
       "light blade", AnimNames.STRIKE,
       8, MELEE | KINETIC, 5,
       EngineerStation.class, 1, PARTS, 0, ASSEMBLY

@@ -263,19 +263,24 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  public MessagePane messageEntryFor(String messageKey) {
-    for (MessagePane message : newMessages) {
+  public MessagePane messageEntryFor(String messageKey, boolean urgent) {
+    if (urgent) for (MessagePane message : newMessages) {
       if (message.title.equals(messageKey)) return message;
     }
-    for (MessagePane message : oldMessages) {
+    else for (MessagePane message : oldMessages) {
       if (message.title.equals(messageKey)) return message;
     }
     return null;
   }
   
   
-  public boolean hasMessageEntry(String messageKey) {
-    return messageEntryFor(messageKey) != null;
+  public boolean hasMessageEntry(String key, boolean urgent) {
+    return messageEntryFor(key, urgent) != null;
+  }
+  
+  
+  public boolean hasMessageEntry(String key) {
+    return hasMessageEntry(key, false) || hasMessageEntry(key, true);
   }
   
   

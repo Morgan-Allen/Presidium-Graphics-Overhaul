@@ -28,9 +28,20 @@ public class TutorialScenario extends StartupScenario {
   final static String SCRIPT_XML_PATH = "media/Help/TutorialScript.xml";
   
   
-  Bastion bastion;
-  Ruins ruins;
   final MessageScript script;
+  
+  private Bastion bastion = null;
+  private Ruins ruinsNear = null, ruinsFar = null;
+  
+  private TrooperLodge    barracksBuilt = null;
+  private EngineerStation foundryBuilt  = null;
+  private SupplyDepot     depotBuilt    = null;
+  private float startingBalance = -1;
+  
+  private Tile          startAt      = null;
+  private MissionRecon  reconSent    = null;
+  private MissionStrike strikeSent   = null;
+  private Drone         droneAttacks = null;
   
   
   public TutorialScenario(String prefix) {
@@ -41,19 +52,59 @@ public class TutorialScenario extends StartupScenario {
   
   public TutorialScenario(Session s) throws Exception {
     super(s);
-    bastion = (Bastion) s.loadObject();
-    ruins   = (Ruins  ) s.loadObject();
-    this.loadAllFlags(s);
+    
+    bastion   = (Bastion) s.loadObject();
+    ruinsNear = (Ruins  ) s.loadObject();
+    ruinsFar  = (Ruins  ) s.loadObject();
+    
+    barracksBuilt   = (TrooperLodge   ) s.loadObject();
+    foundryBuilt    = (EngineerStation) s.loadObject();
+    depotBuilt      = (SupplyDepot    ) s.loadObject();
+    startingBalance = s.loadFloat();
+    
+    startAt      = (Tile        ) s.loadObject();
+    reconSent    = (MissionRecon) s.loadObject();
+    droneAttacks = (Drone       ) s.loadObject();
+    
     this.script = (MessageScript) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(bastion);
-    s.saveObject(ruins  );
-    this.saveAllFlags(s);
+    
+    s.saveObject(bastion  );
+    s.saveObject(ruinsNear);
+    s.saveObject(ruinsFar );
+
+    s.saveObject(barracksBuilt  );
+    s.saveObject(foundryBuilt   );
+    s.saveObject(depotBuilt     );
+    s.saveFloat (startingBalance);
+    
+    s.saveObject(startAt     );
+    s.saveObject(reconSent   );
+    s.saveObject(droneAttacks);
     s.saveObject(script);
+  }
+  
+  
+  protected void clearAllFlags() {
+    //
+    //  TODO:  Should a script have some generalised methods for handling this?
+    
+    script.clearScript();
+    
+    bastion       = null;
+    
+    barracksBuilt = null;
+    foundryBuilt  = null;
+    depotBuilt    = null;
+    startingBalance = -1;
+    
+    startAt      = null;
+    reconSent    = null;
+    droneAttacks = null;
   }
   
   
@@ -65,9 +116,9 @@ public class TutorialScenario extends StartupScenario {
     config.house = Verse.PLANET_HALIBAN;
     config.gender = null;
     
-    config.siteLevel  = SITE_WILDERNESS ;
-    config.titleLevel = TITLE_KNIGHTED  ;
-    config.fundsLevel = FUNDING_GENEROUS;
+    config.siteLevel  = SITE_WILDERNESS;
+    config.titleLevel = TITLE_COUNT    ;
+    config.fundsLevel = FUNDING_MINIMAL;
     return config;
   }
   
@@ -97,69 +148,42 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void establishLocals(Stage world) {
+    //
+    //  I need two ruins here.  One close to the bastion, for demo purposes,
+    //  and one far away, as an objective.  (The closer ruins are 'softened up'
+    //  a bit as well.)
+    final Base artilects = Base.artilects(world);
+    final Blueprint RB = Ruins.VENUE_BLUEPRINTS[0];
+    ruinsNear = (Ruins) RB.createVenue(artilects);
+    ruinsFar  = (Ruins) RB.createVenue(artilects);
+    ruinsNear.structure.setupStats(200, 5, 0, 0, Structure.TYPE_ANCIENT);
+    //
+    //  TODO:  I'm going to have to create custom Siting objects for the
+    //  various blueprints, and to allow for customised placement-passes like
+    //  this one...
+    final List <StageRegion> regions = new List <StageRegion> () {
+      protected float queuePriority(StageRegion r) {
+        return Spacing.distance(r, bastion);
+      }
+    };
+    for (StageRegion s : world.sections.sectionsUnder(world.area(), 0)) {
+      regions.add(s);
+    }
+    regions.queueSort();
     
-    final BaseSetup AS = Base.artilects(world).setup;
-    final Blueprint RP[] = Ruins.VENUE_BLUEPRINTS;
-    ruins = (Ruins) AS.doPlacementsFor(RP[0], 1).first();
-    AS.fillVacancies(ruins, true);
+    for (StageRegion s : regions) {
+      if (Placement.establishVenue(ruinsNear, s, true, world) != null) break;
+    }
+    for (ListEntry l = regions; (l = l.lastEntry()) != regions;) {
+      final StageRegion s = (StageRegion) l.refers;
+      if (Placement.establishVenue(ruinsFar, s, true, world) != null) break;
+    }
   }
   
   
-  
-  /**  Checking objectives and message display-
-    */
   public void updateGameState() {
     super.updateGameState();
     script.checkForEvents();
-  }
-  
-  
-  private TrooperLodge    barracksBuilt = null;
-  private EngineerStation foundryBuilt  = null;
-  private SupplyDepot     depotBuilt    = null;
-  private float startingBalance = -1;
-  
-  private Tile         startAt      = null;
-  private MissionRecon reconSent    = null;
-  private Drone        droneAttacks = null;
-  
-  
-  protected void loadAllFlags(Session s) throws Exception {
-    barracksBuilt   = (TrooperLodge   ) s.loadObject();
-    foundryBuilt    = (EngineerStation) s.loadObject();
-    depotBuilt      = (SupplyDepot    ) s.loadObject();
-    startingBalance = s.loadFloat();
-    
-    startAt      = (Tile        ) s.loadObject();
-    reconSent    = (MissionRecon) s.loadObject();
-    droneAttacks = (Drone       ) s.loadObject();
-  }
-  
-  
-  protected void saveAllFlags(Session s) throws Exception {
-    s.saveObject(barracksBuilt  );
-    s.saveObject(foundryBuilt   );
-    s.saveObject(depotBuilt     );
-    s.saveFloat (startingBalance);
-    
-    s.saveObject(startAt     );
-    s.saveObject(reconSent   );
-    s.saveObject(droneAttacks);
-  }
-  
-  
-  protected void clearAllFlags() {
-    //  TODO:  The script should definitely have some generalised methods for
-    //  handling this...
-    
-    script.clearScript();
-    barracksBuilt = null;
-    foundryBuilt  = null;
-    depotBuilt    = null;
-    startingBalance = -1;
-    startAt      = null;
-    reconSent    = null;
-    droneAttacks = null;
   }
   
   
@@ -182,12 +206,13 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
-  protected void onMotionDone() {
-    ScreenPing.addPingFor("Navigation Done", 1);
+  protected void whenMotionDone() {
+    ScreenPing.addPingFor("Navigation Done");
   }
   
   
-  protected void onBastionTopicOpen() {
+  protected void whenBastionTopicOpen() {
+    ///I.say("Bastion topic open!");
     base().intelMap.liftFogAround(bastion, 12);
     UI().tracking.lockOn(bastion);
   }
@@ -196,8 +221,8 @@ public class TutorialScenario extends StartupScenario {
   
   /**  First round of security topics-
     */
-  protected void onPlaceBarracksRequest() {
-    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID, 4);
+  protected void whenPlaceBarracksRequestOpen() {
+    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
   }
   
   
@@ -216,13 +241,15 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
+  protected void whenExploreRequestOpen() {
+    ScreenPing.addPingFor(UIConstants.RECON_BUTTON_ID);
+  }
+  
+  
   protected boolean checkExploreBegun() {
-    MissionRecon match = null;
-    for (Mission m : base().tactics.allMissions()) {
-      if (m instanceof MissionRecon) { match = (MissionRecon) m; break; }
-    }
+    final Mission match = firstBaseMission(MissionRecon.class);
     if (match == null) return false;
-    reconSent = match;
+    reconSent = (MissionRecon) match;
     return true;
   }
   
@@ -244,6 +271,17 @@ public class TutorialScenario extends StartupScenario {
     depotBuilt   = (SupplyDepot    ) firstBaseVenue(SupplyDepot    .class);
     if (foundryBuilt == null || depotBuilt == null) return false;
     return true;
+  }
+  
+  
+  protected void whenPlaceFacilitiesRequestOpen() {
+    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
+    if (foundryBuilt == null) {
+      ScreenPing.addPingFor(UIConstants.TYPE_ENGINEER);
+    }
+    if (depotBuilt   == null) {
+      ScreenPing.addPingFor(UIConstants.TYPE_COMMERCE);
+    }
   }
   
   
@@ -298,7 +336,6 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void onTradeSetup() {
-    I.say("SCHEDULING DROP NOW...");
     depotBuilt.stocks.bumpItem(Economy.PARTS, 10);
     GameSettings.noShips = false;
     world().offworld.journeys.scheduleLocalDrop(base(), 5);
@@ -310,6 +347,79 @@ public class TutorialScenario extends StartupScenario {
   
   /**  Second round of Security topics-
     */
+  protected void whenNearRuinsTopicOpen() {
+    base().intelMap.liftFogAround(ruinsNear, 12);
+    UI().tracking.lockOn(ruinsNear);
+    ScreenPing.addPingFor(UIConstants.STRIKE_BUTTON_ID);
+  }
+  
+  
+  protected boolean checkAttackMissionSetup() {
+    if (strikeSent == null) {
+      final Mission match = firstBaseMission(MissionStrike.class);
+      if (match == null) return false;
+      else strikeSent = (MissionStrike) match;
+    }
+    if (strikeSent.assignedPriority() < Mission.PRIORITY_ROUTINE) return false;
+    if (strikeSent.applicants().empty()) return false;
+    return true;
+  }
+  
+  
+  protected void onAttackMissionSetup() {
+    for (int n = 2; n-- > 0;) {
+      Actor drone = Drone.SPECIES.sampleFor(ruinsNear.base());
+      drone.enterWorldAt(ruinsNear, world());
+      drone.goAboard(ruinsNear, world());
+      drone.mind.setHome(ruinsNear);
+      if (n == 0) UI().tracking.lockOn(drone);
+    }
+  }
+  
+  
+  protected boolean checkNearRuinsDestroyed() {
+    if (ruinsNear == null || ! ruinsNear.inWorld()) return true;
+    return ruinsNear.destroyed();
+  }
+  
+  
+  
+  
+  /**  Other helper methods-
+    */
+  private Venue firstBaseVenue(Class venueClass) {
+    for (Object o : world().presences.matchesNear(
+      venueClass, null, -1
+    )) {
+      final Venue found = (Venue) o;
+      if (found.base() == base()) return found;
+    }
+    return null;
+  }
+  
+  
+  private Mission firstBaseMission(Class missionClass) {
+    for (Mission m : base().tactics.allMissions()) {
+      if (m.getClass() == missionClass) return m;
+    }
+    return null;
+  }
+  
+  
+  private Batch <Holding> allBaseHoldings() {
+    final Batch <Holding> all = new Batch <Holding> ();
+    for (Object o : world().presences.matchesNear(
+      Holding.class, null, -1
+    )) {
+      final Holding h = (Holding) o;
+      if (h.base() == base()) all.add(h);
+    }
+    return all;
+  }
+}
+
+
+  /*
   protected void onSecurityBasicsOpen() {
     UI().tracking.lockOn(barracksBuilt);
   }
@@ -354,7 +464,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkRuinsDestroyed() {
-    if (ruins.structure.intact()) return false;
+    if (ruinsFar != null && ruinsFar.structure.intact()) return false;
     return true;
   }
   
@@ -386,36 +496,7 @@ public class TutorialScenario extends StartupScenario {
     GameSettings.noAdvice = false;
     base().advice.setControlLevel(BaseAdvice.LEVEL_ADVISOR);
   }
-  
-  
-  
-  
-  /**  Other helper methods-
-    */
-  private Venue firstBaseVenue(Class venueClass) {
-    for (Object o : world().presences.matchesNear(
-      venueClass, null, -1
-    )) {
-      final Venue found = (Venue) o;
-      if (found.base() == base()) return found;
-    }
-    return null;
-  }
-  
-  
-  private Batch <Holding> allBaseHoldings() {
-    final Batch <Holding> all = new Batch <Holding> ();
-    for (Object o : world().presences.matchesNear(
-      Holding.class, null, -1
-    )) {
-      final Holding h = (Holding) o;
-      if (h.base() == base()) all.add(h);
-    }
-    return all;
-  }
-}
-
-
+  //*/
 
 
 

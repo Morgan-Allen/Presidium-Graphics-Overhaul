@@ -28,7 +28,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = true ;
   
   final int type;
   final Element guarded;
@@ -137,14 +137,10 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final float range = actor.health.sightRange() + 1;
     choice.isVerbose = report;
     
-    for (Action a : world.activities.actionMatches(guarded)) {
-      final Actor t = a.actor();
-      if (PlanUtils.harmIntendedBy(t, actor, true) <= 0) continue;
-      final float dist = Spacing.distance(t, guarded) / range;
-      final float bonus = Plan.ROUTINE * (1 - dist);
-      choice.add(new Combat(actor, (Element) t).setMotivesFrom(this, bonus));
+    final Target target = CombatUtils.bestTarget(actor, guarded, false);
+    if (target != null && Spacing.distance(target, guarded) < range) {
+      choice.add(new Combat(actor, (Element) target).setMotivesFrom(this, 0));
     }
-    
     if (guarded instanceof Actor) {
       choice.add(new FirstAid(actor, (Actor) guarded).setMotivesFrom(this, 0));
     }

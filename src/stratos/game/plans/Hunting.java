@@ -159,7 +159,7 @@ public class Hunting extends Plan {
       priority += ROUTINE * PlanUtils.traitAverage(actor, SAMPLE_TRAITS);
       harmLevel = 0;
     }
-    if (alive) {
+    if (alive && priority > 0) {
       priority = PlanUtils.combatPriority(
         actor, prey, priority, 1, true, harmLevel
       );

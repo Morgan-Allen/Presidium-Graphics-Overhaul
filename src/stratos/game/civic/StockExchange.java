@@ -129,7 +129,7 @@ public class StockExchange extends Venue {
   public int spaceFor(Traded good) {
     final float upgradeLevel = upgradeLevelFor(good);
     if (upgradeLevel == -1) return 0;
-    if (upgradeLevel ==  0) return 0;
+    if (upgradeLevel ==  0) return 5;
     return 5 + (int) (upgradeLevel * 15);
   }
   
@@ -268,7 +268,8 @@ public class StockExchange extends Venue {
         realDemand = base.demands.demandFractionFor(this, type, 1) * 2,
         realSupply = base.demands.supplyFractionFor(this, type, 1) * 2,
         shortage   = (realDemand / (realSupply + realDemand)) - 0.5f,
-        idealStock = (realDemand + realSupply + typeSpace) / 3;
+        stockBonus = 1 + upgradeLevelFor(type),
+        idealStock = Nums.max(realDemand, realSupply) * stockBonus;
       final boolean exports = shortage < 0;
       stocks.incDemand(type, Nums.min(typeSpace, idealStock), 1, exports);
       if (report) {

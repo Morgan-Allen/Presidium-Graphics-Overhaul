@@ -710,7 +710,7 @@ public interface Backgrounds {
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
       SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
-      STEEL_DIRK, BELT_AND_BRACER
+      SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -729,7 +729,7 @@ public interface Backgrounds {
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
       SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
-      STEEL_DIRK, BELT_AND_BRACER
+      SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -748,7 +748,7 @@ public interface Backgrounds {
       PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
       SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
-      STEEL_DIRK, BELT_AND_BRACER
+      SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -812,7 +812,7 @@ public interface Backgrounds {
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
       SURVEILLANCE, MARKSMANSHIP,
-      STEEL_DIRK, BLASTER, BODY_ARMOUR
+      SIDE_SABRE, BLASTER, BODY_ARMOUR
     ),
     
     

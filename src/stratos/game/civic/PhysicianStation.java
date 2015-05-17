@@ -98,6 +98,10 @@ public class PhysicianStation extends Venue {
       Upgrade.THREE_LEVELS, null, 1,
       null, PhysicianStation.class
     ),
+    
+    //  Soma and truth serums.  (hypnotic medications)
+    HM_DISPENSARY = null,
+    
     EMERGENCY_ROOM = new Upgrade(
       "Emergency Room",
       "Surgical tools, anaesthetics and plasma reserves ensure that serious "+
@@ -114,16 +118,17 @@ public class PhysicianStation extends Venue {
       Upgrade.THREE_LEVELS, null, 1,
       MEDICAL_LAB, PhysicianStation.class
     ),
-    CRYONICS_WARD = new Upgrade(
-      "Cryonics Ward",
-      "Allows a chance for the critically injured or clinically dead to make "+
-      "an eventual comeback.",
+    CRYONICS_PROGRAM = new Upgrade(
+      "Cryonics Program",
+      "Frozen organs and suspended animation allow the clinically dead to "+
+      "make a potential comeback.",
       400,
       Upgrade.THREE_LEVELS, null, 1,
       EMERGENCY_ROOM, PhysicianStation.class
     ),
     
-    //  TODO:  Add Combat Stims and Truth Serum.
+    //  Combat stims plus extra chance of revival as enraged
+    COMBAT_STIMS = null,
     
     MINDER_STATION = new Upgrade(
       "Minder Ward",

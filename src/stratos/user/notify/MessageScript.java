@@ -28,9 +28,11 @@ public class MessageScript implements
     boolean urgent    = false;
     boolean triggered = false;
     boolean completed = false;
+    
     Method triggers   = null ;
-    Method onOpen     = null ;
+    Method whenOpen   = null ;
     Method completes  = null ;
+    Method onFinish   = null ;
   }
   
   
@@ -56,12 +58,13 @@ public class MessageScript implements
       //  other type information-
       final Topic topic = new Topic();
       topic.sourceNode = topicNode;
-      topic.titleKey   = topicNode.value("name");
+      topic.titleKey   = topicNode.value  ("name"  );
       topic.urgent     = topicNode.getBool("urgent");
       topic.triggers   = extractMethod(topicNode, "triggers" , baseClass);
-      topic.onOpen     = extractMethod(topicNode, "onOpen"   , baseClass);
+      topic.whenOpen   = extractMethod(topicNode, "whenOpen" , baseClass);
       topic.completes  = extractMethod(topicNode, "completes", baseClass);
-
+      topic.onFinish   = extractMethod(topicNode, "onFinish" , baseClass);
+      
       I.say("\nADDING BASE TOPIC: "+topic.titleKey);
       allTopics.put(topic.titleKey, topic);
       //
@@ -136,53 +139,59 @@ public class MessageScript implements
     //  (We use an array here to allow deletions mid-iteration if something
     //  goes wrong, which java would not otherwise allow.)
     final Topic topics[] = new Topic[allTopics.size()];
-    final ReminderListing reminds = BaseUI.current().reminders();
     allTopics.values().toArray(topics);
+    final BaseUI UI = BaseUI.current();
     
     for (Topic topic : topics) {
-      
+      //
+      //  First, we check to see if any topics have been triggered.
       if (topic.triggers != null && ! topic.triggered) {
-        boolean didTrigger = false; try {
-          final Object triggerVal = topic.triggers.invoke(basis);
-          didTrigger = Boolean.TRUE.equals(triggerVal);
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-          allTopics.remove(topic.titleKey);
-        }
-        if (didTrigger) {
-          topic.triggered = true;
+        if (tryCallMethod(topic.triggers, topic)) {
           if (I.logEvents()) I.say("\nTopic triggered: "+topic.titleKey);
+          
+          topic.triggered = true;
           pushTopicMessage(topic, true);
         }
       }
-      
-      if (topic.completes != null && ! topic.completed) {
-        boolean didComplete = false; try {
-          final Object completeVal = topic.completes.invoke(basis);
-          didComplete = Boolean.TRUE.equals(completeVal);
-        }
-        catch (Exception e) {
-          e.printStackTrace();
-          allTopics.remove(topic.titleKey);
-        }
-        if (didComplete) {
-          topic.completed = true;
+      //
+      //  Any urgent or on-screen topics will trigger their whenOpen method.
+      if (
+        UI.reminders().hasMessageEntry(topic.titleKey, true) ||
+        (topic.asMessage != null && UI.currentPane() == topic.asMessage)
+      ) {
+        tryCallMethod(topic.whenOpen, topic);
+      }
+      //
+      //  Then, see if any methods are up for completion.  If they *have* been
+      //  completed, call their onFinish method.
+      if (topic.triggered && topic.completes != null && ! topic.completed) {
+        if (tryCallMethod(topic.completes, topic)) {
           if (I.logEvents()) I.say("\nTopic completed: "+topic.titleKey);
-          reminds.retireMessage(topic.asMessage);
+          
+          topic.completed = true;
+          UI.reminders().retireMessage(topic.asMessage);
+          tryCallMethod(topic.onFinish, topic);
         }
       }
     }
   }
   
   
+  private boolean tryCallMethod(Method m, Topic t) {
+    try {
+      final Object completeVal = (m == null) ? false : m.invoke(basis);
+      return Boolean.TRUE.equals(completeVal);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      allTopics.remove(t.titleKey);
+      return false;
+    }
+  }
+  
+  
   public void messageWasOpened(String titleKey, BaseUI UI) {
-    final Topic topic = allTopics.get(titleKey);
-    if (topic == null) return;
-    if (I.logEvents()) I.say("\nTopic opened: "+topic.titleKey);
-    
-    if (topic.onOpen != null) try { topic.onOpen.invoke(basis); }
-    catch (Exception e) { e.printStackTrace(); }
+    if (I.logEvents()) I.say("\nTopic opened: "+titleKey);
   }
   
   
@@ -190,7 +199,6 @@ public class MessageScript implements
   /**  Pushing and constructing MessagePanes for topic-presentation:
     */
   private void pushTopicMessage(Topic topic, boolean viewNow) {
-
     final BaseUI UI = BaseUI.current();
     final MessagePane message = messageFor(topic.titleKey, UI);
     

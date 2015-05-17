@@ -1,25 +1,14 @@
 
 
 
-
-Supply Depot:  Basic foodstuffs.  Building materials.  Recycling.  Distance travel.  use for fine control.
-
-Stock Exchange:  Use for nice locations.
-  Rations             + carbs/greens/protein.
-  Stim Kits           + medicine/soma/catalyst.
-  Item repairs & Ammo + parts/plastics/circuitry.
-  Spyce emporium (for noble housing)
-  Advertising
-  Credits Exchange
-
-
-
-
 *  You need notifications for power/water/atmo and a lack of road connections.
 
-*  Enemies that come gitcha.  But are significantly weaker than an average agent.  Like vermin.
+*  Enemies that come gitcha.  But are significantly weaker than an average
+   agent.  Like vermin.
 
-There's an 8-minute time delay, which is a significant problem for a quick tutorial.  You'll need to schedule faster arrival.  You also need to guarantee a better starting position for the artilects- somewhere far away.
+There's an 8-minute time delay, which is a significant problem for a quick
+tutorial.  You'll need to schedule faster arrival.  You also need to guarantee
+a better starting position for the artilects- somewhere far away.
 
 
 *  Building.
@@ -36,193 +25,146 @@ There's an 8-minute time delay, which is a significant problem for a quick tutor
 *  Psy Powers & Direct Leadership.
 *  Objectives.
 
-*  The ability to lead missions in person would allow the player to head off on a quick errand, return to the settlement later, and find time-consuming tasks completed.  That could potentially be very attractive.
+*  The ability to lead missions in person would allow the player to head off on
+   a quick errand, return to the settlement later, and find time-consuming tasks
+   completed.  That could potentially be very attractive.
+
+
+
+TUTORIAL CHANGES
+  
+  Once trade setup is complete, reveal the one nearby.  Invite it's destruction,
+  and make sure the player has learned how to set rewards.
+  
+  Have a raider assault the closest structure to the other ruins.  Zoom to it
+  immediately, and make sure it's dead or fled before moving on.
+  
+  Walk the player through setting a security mission on that structure to
+  provide some defence- and using a screened mission to limit applicants.
+  
+  Walk the player through hiring extra staff.
+  
+  Then set the objective of conquering the next ruins.  They'll need to both
+  explore and strike.
+  
+  
+  The economic objective.  Explain about supply/demand/prices, and how contact
+  missions can secure trade partners at an advantageous price.  (Including
+  offworld.)
+  
+  Note that the player is short of funds, and explain how they can use an
+  excavation site to obtain more goods for export and reduce expenses.
+
+
+
+
+
+  Reintroduce these when you can.
+
+
+<topic
+  name   = "Security Basics"
+  urgent = "true"
+  onOpen = "onSecurityBasicsOpen"
+>
+  <content>If they haven't done so already, local raiders are likely to begin harassing your settlement, potentially razing structures and harming citizens.
+
+When you're ready, we'll introduce a scouting Drone- a relatively weak robotic enemy, or artilect- to assault your Trooper Lodge.</content>
+  <link name="Base Under Attack!">Continue</link>
+</topic>
+
+
+<topic
+  name      = "Base Under Attack!"
+  urgent    = "true"
+  onOpen    = "onBaseAttackOpen"
+  completes = "checkDroneDestroyed"
+>
+  <content>Here it comes!  Your patrolling troopers might polish it off themselves, but you can also select the interloper and click on the small red icon below to declare a Strike Mission against that target.
+
+Remember to offer a reward, or no-one will take up the challenge!</content>
+</topic>
+
+
+<topic
+  name     = "Hire More Soldiers"
+  urgent   = "true"
+  triggers = "checkDroneDestroyed"
+  onOpen   = "onHireSoldiersOpen"
+>
+  <content>In order to beef up your security forces, a number of upgrades have been installed at your Trooper Lodge, increasing the barracks space and allowing better skill training.
+
+A number of veteran troopers have also applied to work at the facility, but you don't have space for all of them.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which to hire.  Fresh recruits should arrive within a day or so.</content>
+</topic>
+
+
+<topic
+  name     = "Uncover The Ruins"
+  urgent   = "true"
+  triggers = "checkDroneDestroyed"
+  complete = "checkRuinsDestroyed"
+>
+  <content>That Drone came from an Ancient Ruins somewhere in the darkness of the unexplored regions of the map- and where there's one, others are likely to follow.  Conduct further Recon and Strike Missions to find the ruins and destroy it.
+
+Note:  To tip the odds in your favour, you may wish to hire additional troops.
+
+Note:  You may also wish to make your Missions 'screened' to help control the timing and composition of your assault teams.</content>
+</topic>
+
+
+
+
+<topic
+  name     = "Prosperity"
+  triggers = "checkHousingAndVenueUpgrade"
+>
+  <content>Now that you're familiar with upgrades to housing and other structures, along with the basics of trade and taxation, you'll need to establish a positive cash flow.
+
+Try to increase your current funds by at least 500 credits.
+
+Tip:  You can always get an overview of current expenses and income, along with a summary of demand and prices for various goods, from the Finances pane in the top-right.</content>
+</topic>
+
+
+<topic
+  name     = "Basic Housing"
+  urgent   = "true"
+  triggers = "checkRuinsDestroyed"
+>
+  <content>Now that local threats have been dealt with, it's time to focus on building a more prosperous settlement.
+
+Your citizens will need food and housing, so you may wish to establish Holdings where they can settle down.  This can be done from the Installations pane, but your citizens will also establish homes themselves if there's enough pent-up demand- generally 1 Holding for every 4 citizens.
+
+Your citizens can also upgrade their housing once they gain access to the right goods and services.  In addition to improving comfort and morale, this helps to generate tax revenue from sales and savings.  Simply click on a given Holding to see information on what it needs next.
+
+Try to have at least one Holding upgrade to a Pyon Shack.</content>
+</topic>
+
+
+<topic
+  name   = "Food And Other Goods"
+  urgent = "true"
+>
+  <content>Your citizens won't starve immediately, but after several days their rations may start to run low.  Food- such as carbs, greens and protein- can be imported at the Supply Depot as you would any other good.  Plastics are also required for housing development, and can be imported in a similar way.
+
+However, to save on import costs, you may wish to build an Ecologist Station and Nursery to plant and harvest crops, and/or a Fabricator to manufacture plastics.  Your space is limited, however, so choose what to build wisely.</content>
+</topic>
+
+
+<topic
+  name     = "Congratulations"
+  triggers = "checkPositiveCashFlow"
+  onOpen   = "onTutorialDone"
+>
+  <content>Congratulations!  You've covered the core essentials of playing Stratos, The Sci-Fi Settlement Sim.  While there's a wealth of other content to explore, from here on we'll leave you to your own devices.
+
+Please feel free to drop by the forums at presidium.game.net for other tips or to give feedback and commentary!  In the meantime, enjoy.</content>
+</topic>
 
 
 
 
 
 
-  if (title.equals(TOPIC_SECURITY)) {
-    return comms.addMessage(
-      tutorial, TOPIC_SECURITY, null,
-      "Somewhere on this map, there is an ancient ruin, inhabited by "+
-      "artilect guardians who may come to threaten your settlement.  You "+
-      "will need to find this site and destroy it, by first exploring the "+
-      "map to find the site, and then declaring a strike mission.",
-      linkFor("How do I deal with enemies?"          , TOPIC_EXPLAIN_EXPAND),
-      linkFor("How do I protect my subjects?"        , TOPIC_EXPLAIN_DEFEND),
-      //linkFor("Tell me about the contact objective." , TOPIC_CONTACT       ),
-      linkFor("Tell me about the economic objective.", TOPIC_ECONOMY       )
-    );
-  }
-  
-  if (title.equals(TOPIC_EXPLAIN_EXPAND)) {
-    return comms.addMessage(
-      tutorial, TOPIC_EXPLAIN_EXPAND, null,
-      "To deal with threats to your base, you will need to find them first. "+
-      "Click on a piece of hidden terrain, then on the green icon, to begin "+
-      "a Reconnaissance mission.  Leave it public for now, and increase the "+
-      "payment to attract applicants.\n"+
-      "Once you find a threat, select it, and then click on the red icon to "+
-      "begin a Strike mission.  (You may wish to build a Trooper Lodge or "+
-      "two, just to get numbers on your side.)  With luck, your soldiers "+
-      "will polish off the interlopers in short order.",
-      linkFor("How do I protect my subjects?"     , TOPIC_EXPLAIN_DEFEND),
-      linkFor("Go back to the security objective.", TOPIC_SECURITY      )
-    );
-  }
-  
-  if (title.equals(TOPIC_EXPLAIN_DEFEND)) {
-    return comms.addMessage(
-      tutorial, TOPIC_EXPLAIN_DEFEND, null,
-      "If you fear attacks on vulnerable portions of your settlement, you "+
-      "can also declare temporary Security missions (the orange icon) for "+
-      "up to 48 hours on selected persons or structures.  In the case of "+
-      "buildings, repairs will be carried out by qualified applicants, "+
-      "while unconscious citizens in dangerous areas can be recovered and "+
-      "treated using the same method.",
-      linkFor("How do I deal with enemies?"       , TOPIC_EXPLAIN_EXPAND),
-      linkFor("Go back to the security objective.", TOPIC_SECURITY      )
-    );
-  }
-  
-  /*
-  if (title.equals(TOPIC_CONTACT)) {
-    return comms.addMessage(
-      tutorial, TOPIC_CONTACT, null,
-      "Somewhere on this map, there is a camp of native tribal humans, who "+
-      "may present either a threat or an asset, depending on how they are "+
-      "handled.  Either declare a contact mission to bring them within the "+
-      "fold of your settlement, or drive them out with a strike team.",
-      linkFor("How do I make first contact?"         , TOPIC_EXPLAIN_CONTACT),
-      linkFor("What are the outcomes of contact?"    , TOPIC_EXPLAIN_DIPLO  ),
-      linkFor("Tell me about the security objective.", TOPIC_SECURITY       ),
-      linkFor("Tell me about the economic objective.", TOPIC_ECONOMY        )
-    );
-  }
-  
-  if (title.equals(TOPIC_EXPLAIN_CONTACT)) {
-    return comms.addMessage(
-      tutorial, TOPIC_EXPLAIN_CONTACT, null,
-      "Once you have explored the environs of your base and located the "+
-      "native camp, you have a couple of options for handling them.  Here "+
-      "we cover the diplomatic option- selecting the camp and declaring a "+
-      "Contact mission (click the blue icon.)\n"+
-      "Before you determine the payment offered, you may wish to change the "+
-      "mission type from public to 'screened' or 'covert'- diplomacy is a "+
-      "delicate matter, and you may want some finer control over who "+
-      "applies for the job.",
-      linkFor("What are the outcomes of contact?", TOPIC_EXPLAIN_DIPLO),
-      linkFor("Go back to the contact objective.", TOPIC_CONTACT      )
-    );
-  }
-  
-  if (title.equals(TOPIC_EXPLAIN_DIPLO)) {
-    return comms.addMessage(
-      tutorial, TOPIC_EXPLAIN_DIPLO, null,
-      "Contact objectives can be changed, to either 'demand submission', "+
-      "'request audience' or 'offer friendship'.  The first option will "+
-      "simply intimidate the native(s) into joining your base, which is "+
-      "the surest method in the short term but risks later defection and "+
-      "malcontent.  The second will request their presence at the Bastion, "+
-      "where they can be interviewed, and the third merely offers gifts and "+
-      "good will.  Given time, sufficiently respected natives might join "+
-      "your base spontaneously.\n"+
-      "Any of your own subjects may be summoned for interview at will, so "+
-      "they can be recruited for secret missions, or just asked for advice "+
-      "and opinions.",
-      linkFor("How do I make first contact?"     , TOPIC_EXPLAIN_CONTACT),
-      linkFor("Go back to the contact objective.", TOPIC_CONTACT        )
-    );
-  }
-  //*/
-  /*
-  if (title.equals(TOPIC_ECONOMY)) {
-    return comms.addMessage(
-      tutorial, TOPIC_ECONOMY, null,
-      "In order for your settlement to provide a viable power base for "+
-      "later expansion, you will need to establish exports and gather tax "+
-      "from your citizens.  Try to get your citizens' average housing level "+
-      "up to pyon grade or better.",
-      linkFor("How do I get money and supplies?"     , TOPIC_EXPLAIN_SUPPLY),
-      linkFor("How do I improve my housing?"         , TOPIC_EXPLAIN_INDUST),
-      linkFor("Tell me about the security objective.", TOPIC_SECURITY      )
-      //linkFor("Tell me about the contact objective." , TOPIC_CONTACT       )
-    );
-  }
-  
-  if (title.equals(TOPIC_EXPLAIN_SUPPLY)) {
-    return comms.addMessage(
-      tutorial, TOPIC_EXPLAIN_SUPPLY, null,
-      "To secure a solid early cash flow, a fair strategy is to build a "+
-      "Supply Depot, followed by either a Nursery (on fertile terrain) or "+
-      "an Excavation Site (on rocky areas.)  The Supply Depot will allow "+
-      "you to reserve goods for export offworld, and perhaps import a few "+
-      "necessities.\n"+
-      "The other structures, meanwhile, take advantage of local resources "+
-      "to produce food and minerals for sale or local consumption.",
-      linkFor("How do I improve my housing?"      , TOPIC_EXPLAIN_INDUST),
-      linkFor("Go back to the economic objective.", TOPIC_ECONOMY       )
-    );
-  }
-  
-  if (title.equals(TOPIC_EXPLAIN_INDUST)) {
-    return comms.addMessage(
-      tutorial, TOPIC_EXPLAIN_INDUST, null,
-      "In order to improve your housing- and export finished goods- you may "+
-      "wish to place an Engineer Station or Fabricator to take metal ore "+
-      "or carbons and process them into parts and plastics, along with "+
-      "weapons or outfits for your citizens.  A skilled worker with enough "+
-      "raw materials can make perhaps 5 units per day, but you may wish to "+
-      "install upgrades (like Assembly Line or Polymer Loom) to speed the "+
-      "process.\n"+
-      "Holdings should display the goods and services they require to "+
-      "upgrade in their status description, and will do so after being "+
-      "satisfied for a day or so.",
-      linkFor("How do I get money and supplies?"  , TOPIC_EXPLAIN_SUPPLY),
-      linkFor("Go back to the economic objective.", TOPIC_ECONOMY       )
-    );
-  }
-  
-  //  Mention artificer and fabricator.  Upgrades to increase production.
-  //  Mention supply depot and botanical station, for trade and food.
-  
-  if (title.equals(EVENT_SECURITY_DONE)) {
-    return comms.addMessage(
-      tutorial, EVENT_SECURITY_DONE, null,
-      "Congratulations!  Each of the ruins has now been destroyed."
-    );
-  }
-  
-  /*
-  if (title.equals(EVENT_CONTACT_DONE)) {
-    return comms.addMessage(
-      tutorial, EVENT_CONTACT_DONE, null,
-      "Congratulations!  The native camps no longer pose a threat to your "+
-      "base."
-    );
-  }
-  //*/
-  
-  /*
-  if (title.equals(EVENT_ECONOMY_DONE)) {
-    return comms.addMessage(
-      tutorial, EVENT_ECONOMY_DONE, null,
-      "Congratulations!  Your future economic prospects are bright."
-    );
-  }
-  
-  if (title.equals(EVENT_CONGRATULATIONS)) {
-    return comms.addMessage(
-      tutorial, EVENT_CONGRATULATIONS, null,
-      "This tutorial is now complete.  Feel free to explore the mechanics "+
-      "of construction and mission-settings some more, but when you are "+
-      "ready, select 'Complete Tutorial' to advance to a new mission.\n\n"+
-      "Complete Tutorial <UNDER CONSTRUCTION!>"
-    );
-  }
-  
-  return null;
-}
-//*/
+
+
