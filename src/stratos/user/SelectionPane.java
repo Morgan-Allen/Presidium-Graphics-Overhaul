@@ -17,6 +17,9 @@ import stratos.util.*;
 //  TODO:  Adapt to work in an abbreviated horizontal format?  (More of a long-
 //         term project.)
 
+//  TODO:  Create proper, separately-instanced sub-panes for the different
+//         categories...
+
 
 public class SelectionPane extends UIGroup implements UIConstants {
   
@@ -53,6 +56,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
   private Composite portrait     ;
   
   final   String categories[];
+  final   float  catScrolls[];
   private int    categoryID  ;
   
 
@@ -161,6 +165,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     this.selected = selected;
     this.categories = categories;
     categoryID = defaultCategory();
+    this.catScrolls = new float[categories == null ? 0 :categories.length];
   }
   
   
@@ -237,7 +242,11 @@ public class SelectionPane extends UIGroup implements UIConstants {
 
   private void setCategory(int catID) {
     UI.beginPanelFade();
+    
+    catScrolls[categoryID] = 1 - scrollbar.scrollPos();
     this.categoryID = catID;
+    scrollbar.setScrollPos(1 - catScrolls[categoryID]);
+    
     if (selected != null) defaults.put(selectType(), categories[catID]);
   }
   

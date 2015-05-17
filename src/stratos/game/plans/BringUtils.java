@@ -10,6 +10,7 @@ import stratos.util.*;
 
 import stratos.game.civic.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Owner.*;
 
 
 
@@ -518,13 +519,22 @@ public class BringUtils {
     int origTier, boolean origProduce,
     int destTier, boolean destProduce
   ) {
+    //
+    //  Trade exchanges are always okay with lower-tier owners as long as they
+    //  produce/consume appropriately.
+    if (destTier == TIER_TRADER && origTier < TIER_TRADER) {
+      return origProduce;
+    }
+    if (origTier == TIER_TRADER && destTier < TIER_TRADER) {
+      return ! destProduce;
+    }
     //  Private trades (okay as long as the recipient is a consumer)
-    if (destTier <= Owner.TIER_PRIVATE) {
+    if (destTier <= TIER_PRIVATE) {
       if (destProduce == true) return false;
     }
     //  Same-tier trades (illegal between trade vessels or same demands)
     else if (origTier == destTier) {
-      if (origTier == Owner.TIER_SHIPPING) return false;
+      if (origTier == TIER_SHIPPING) return false;
       if (origProduce == destProduce) return false;
     }
     //  Downstream deliveries (from ships to depots to facilities)

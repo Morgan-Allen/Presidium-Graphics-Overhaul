@@ -36,10 +36,10 @@ public class Nursery extends Venue implements TileConstants {
     );
   
   final public static float
-    NUM_DAYS_MATURE  = 5,
-    MATURE_DURATION  = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
-    GROW_INCREMENT   = Stage.GROWTH_INTERVAL / MATURE_DURATION,
-    EXTRA_CLAIM_SIZE = 4,
+    NUM_DAYS_MATURE    = 5,
+    MATURE_DURATION    = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
+    GROW_TIMES_PER_DAY = Stage.STANDARD_DAY_LENGTH / Stage.GROWTH_INTERVAL,
+    EXTRA_CLAIM_SIZE   = 4,
     
     CEREAL_BONUS = 2.00f,
     HIVE_DIVISOR = 4.00f,
@@ -347,8 +347,12 @@ public class Nursery extends Venue implements TileConstants {
     else if (growth    < (numPlant * 0.5f)) s.append(AWAITING_GROWTH_INFO);
     else s.append(DEFAULT_INFO);
     
-    s.append("\n  Estimated "+CARBS +" per day: "+I.shorten(numCarbs , 1));
-    s.append("\n  Estimated "+GREENS+" per day: "+I.shorten(numGreens, 1));
+    if (numCarbs  > 0) {
+      s.append("\n  Estimated "+CARBS +" per day: "+I.shorten(numCarbs , 1));
+    }
+    if (numGreens > 0) {
+      s.append("\n  Estimated "+GREENS+" per day: "+I.shorten(numGreens, 1));
+    }
     return s.toString();
   }
   

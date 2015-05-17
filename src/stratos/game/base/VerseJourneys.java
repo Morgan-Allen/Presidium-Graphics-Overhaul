@@ -362,9 +362,10 @@ public class VerseJourneys {
   }
   
 
-  public Dropship carries(Actor aboard) {
+  public Dropship carries(Mobile mobile) {
     for (Journey j : journeys) {
-      if (j.vessel.inside().includes(aboard)) return j.vessel;
+      if (j.vessel == mobile) return j.vessel;
+      if (j.vessel.inside().includes(mobile)) return j.vessel;
     }
     return null;
   }
@@ -440,15 +441,15 @@ public class VerseJourneys {
   
   /**  Interface and debug methods-
     */
-  public float arrivalETA(Actor hired, Base base) {
+  public float arrivalETA(Mobile mobile, Base base) {
     //
     //  Basic sanity checks first.
-    if (hired.inWorld()) return 0;
+    if (mobile.inWorld()) return 0;
     final float time = universe.world.currentTime();
     final VerseLocation locale = universe.stageLocation();
     //
     //  If the actor is currently aboard a dropship, return it's arrival date.
-    Dropship carries = carries(hired);
+    Dropship carries = carries(mobile);
     Journey  journey = journeyFor(carries);
     if (carries != null && journey.destination == locale) {
       final float ETA = journey.arriveTime - time;
@@ -462,7 +463,7 @@ public class VerseJourneys {
     //  If it's currently heading out, it'll have to head back after picking up
     //  passengers- and if it's already heading in but doesn't have the actor
     //  aboard, a full return trip will be needed (in and out, twice as long.)
-    final VerseLocation resides = Verse.currentLocation(hired, universe);
+    final VerseLocation resides = Verse.currentLocation(mobile, universe);
     final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
     carries = nextShipBetween(locale, resides, base, false);
     journey = journeyFor(carries);

@@ -248,7 +248,7 @@ public class Crop extends Element {
     final float
       dailyGrowth = dailyGrowthEstimate(tile, report),
       health      = quality / MAX_HEALTH,
-      increment   = dailyGrowth * MAX_GROWTH * Nursery.GROW_INCREMENT;
+      increment   = dailyGrowth * MAX_GROWTH / Nursery.GROW_TIMES_PER_DAY;
     
     if (Rand.num() < increment * (1 - health)) blighted = true;
     growStage = Nums.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);

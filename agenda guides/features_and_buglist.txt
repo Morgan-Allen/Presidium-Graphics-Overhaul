@@ -16,35 +16,27 @@ BETTER UI INFO/HELP SYSTEM
    the player can see what they're doing on other panes with a message open?
 
 
-*  Fix bug with scrolling between different panes.
-
 *  Build in a hyperlink help system for upgrades, good-types, venue-types and
    backgrounds.  (You'll need an automatic back-button for this.)
 
-*  Try to combine 'markets' and 'budgets' into a single panel (that, or give
-   them two buttons.)
-
-*  Say when the next ship is arriving somewhere- under either the personnel or
-   markets pane (or both.)
-
-*  You need to test the various advice-warnings, including 'lack of space' for
-   ships.
-
-*  You need to properly explain click-and-drag for zoned/linear structures.
-   (Either that, or use default areas.)
+*  Re-introduce the Planets/Sectors pane, and build the markets-report into
+   that for each world.  Then finance can stay on it's own.  (Add little
+   portraits for each world in the partners-listing too.  Use current art!)
 
 
 CLEANING UP THE ECONOMY:
 
-*  A number of structures need bigger footprints, which will require some art
-   changes.  Look into that.
-
 *  Try merging the solar bank with the nursery- or the latter with eco station
+
+*  Use the Fabricator exclusively to make luxury outfits and public decoration
+   for fancy houses and the nobility.  Common plastics get made at the engineer,
+   along with common outfits (or possibly at the stock exchange.)
+
 *  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
    the excavation site, former plant, kommando lodge & eco station- take up
    big plots.
    
-*  Estimate output for nurseries, excavations, former plants, solar banks.
+*  Estimate output for excavation sites and former plants.
 
 *  List total earnings for specific buildings.  Breakdown expenses more finely.
    Restore shortage listing for homelessness.
@@ -59,9 +51,10 @@ CLEANING UP THE ECONOMY:
 
 *  Allow the former plant to digest carbs, and try to restore dust-crawlers.
 
-*  Consider making within-settlement deliveries cost-free?
-
 *  Allow rations-production to satisfy need to eat.
+
+*  A number of structures need bigger footprints, which will require some art
+   changes.  Look into that.
 
 
 TACTICAL AND OUTDOORS

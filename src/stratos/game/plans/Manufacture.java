@@ -204,13 +204,16 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     
     final float
       amount   = venue.inventory().amountOf (made     ) - 1,
-      demand   = venue.inventory().demandFor(made.type) + 1;
+      demand   = venue.inventory().demandFor(made.type) + 1,
+      shortage = (demand - amount) / demand;
     if (demand < amount) {
       if (report) I.say("  Insufficient demand: "+demand+"/"+amount);
       return 0;
     }
     
-    final float urgency = (1 + ((demand - amount) / demand)) / 2;
+    final float urgency = commission ?
+      ((3 + amount  ) / 2) :
+      ((1 + shortage) / 2) ;
     setCompetence(successChanceFor(actor));
     
     final float priority = PlanUtils.jobPlanPriority(

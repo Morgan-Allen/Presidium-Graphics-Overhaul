@@ -232,7 +232,7 @@ public class Verse {
     ALL_DIAPSOR_SECTORS[] = {
       SECTOR_ELYSIUM, SECTOR_PAVONIS, SECTOR_TERRA
     },
-    DEFAULT_START_LOCATION = SECTOR_TERRA;
+    DEFAULT_START_LOCATION = SECTOR_ELYSIUM;
   
   
   final public static VerseLocation

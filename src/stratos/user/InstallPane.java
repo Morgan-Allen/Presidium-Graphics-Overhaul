@@ -12,10 +12,8 @@ import stratos.util.*;
 
 
 
-//  TODO:  Allow listing of current structures, and greyed-out options.
 //  TODO:  Allow a general summary of demand for structures of this type.
 //  TODO:  Expand a little on the category-selection system?
-
 
 public class InstallPane extends SelectionPane {
   
@@ -239,7 +237,7 @@ public class InstallPane extends SelectionPane {
         public void whenClicked() { helpFor = null; }
       });
     }
-    else if (sampled.size() == 0 && disabled.size() == 0) {
+    else if (sampled.empty() && disabled.empty()) {
       text.append("No structures available!");
     }
     else {

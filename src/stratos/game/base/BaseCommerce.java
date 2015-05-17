@@ -400,7 +400,7 @@ public class BaseCommerce {
     
     //  TODO:  At the moment, we're aggregating all supply and demand into a
     //  single channel from the homeworld.  Once the planet-map is sorted out,
-    //  you should evaluate pricing for each world independantly... and how
+    //  you should evaluate pricing for each world independently... and how
     //  many ships will come.
     
     int spaceLimit = 1;
@@ -409,6 +409,7 @@ public class BaseCommerce {
       if (field.base() != base) continue;
       spaceLimit++;
     }
+    togglePartner(homeworld, true);
     spaceLimit = Nums.min(spaceLimit, homeworld.population + 1);
     
     //

@@ -363,17 +363,21 @@ public class Stocks extends Inventory {
     //  how to register the venue for trade within the world...
     for (Demand d : demands.values()) {
       final Traded type = d.type;
-      final boolean canSell = BringUtils.canTradeBetween(
-        owner.owningTier() , d.producer,
-        Owner.TIER_FACILITY, false
-      );
       final float amount = amountOf(type);
+      final boolean
+        canSell = BringUtils.canTradeBetween(
+          owner.owningTier() , d.producer, Owner.TIER_FACILITY, false
+        ),
+        canBuy  = BringUtils.canTradeBetween(
+          owner.owningTier() , d.producer, Owner.TIER_FACILITY, true
+        );
       final boolean canMake = canSell  && ! trades;
       if (report) {
         I.say("  Updating channel for "+d.type+" (producer "+d.producer+")");
-        I.say("    Current amount:    "+amount);
-        I.say("    Open for sale:     "+canSell);
-        I.say("    Primary source:    "+canMake);
+        I.say("    Current amount:    "+amount   );
+        I.say("    Open for sale:     "+canSell  );
+        I.say("    Open to buy:       "+canBuy   );
+        I.say("    Primary source:    "+canMake  );
         I.say("    Maximum supply:    "+maxSupply);
       }
       if (! d.fixed) d.demandAmount = d.demandBonus / period;
@@ -400,8 +404,8 @@ public class Stocks extends Inventory {
       //  themselves as available for deliveries- but traders will not modify
       //  overall supply/demand levels themselves.
       final boolean
-        gives  =    canSell  && amount         > 0,
-        takes  = (! canSell) && d.demandAmount > 0,
+        gives  = canSell && amount         > 0,
+        takes  = canBuy  && d.demandAmount > 0,
         canUse = takes && ! trades;
       BP.togglePresence(basis, at, gives, type.supplyKey);
       BP.togglePresence(basis, at, takes, type.demandKey);

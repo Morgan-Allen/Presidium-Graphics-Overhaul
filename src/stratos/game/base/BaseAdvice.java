@@ -386,8 +386,7 @@ public class BaseAdvice {
         d.append("Supply Depot or Stock Exchange");
       }
       else d.append("Supply Depot");
-      
-      d.append("\n\n");
+      d.append(".\n\n");
     }
     
     return pane;

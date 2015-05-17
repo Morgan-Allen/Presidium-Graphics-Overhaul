@@ -221,10 +221,12 @@ public class EcologistStation extends Venue {
       this, services(), 1, 5, 5
     );
     choice.add(d);
-    if (choice.empty()) {
-      //  TODO:  Merge with Former Plant jobs?
-      choice.add(Forestry.nextPlanting(actor, this));
-    }
+    if (! choice.empty()) return;
+    //  TODO:  Merge with Former Plant jobs?
+    choice.add(Forestry.nextPlanting(actor, this));
+    //
+    //  Or, finally, fall back on supervising the venue...
+    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
   }
   
   

@@ -211,20 +211,25 @@ public class VenuePane extends SelectionPane {
       describeStocks(type, d);
     }
     
-    Text.cancelBullet(d);
-    d.append("\nOther Items:");
-    for (Item i : v.stocks.allItems()) if (! i.isCommon()) {
-      d.append("\n  ");
-      i.describeTo(d);
+    final Batch <Item> special = new Batch();
+    for (Item i : v.stocks.allItems()) if (! i.isCommon()) special.add(i);
+    if (! special.empty()) {
+      Text.cancelBullet(d);
+      d.append("\nOther Items:");
+      for (Item i : special) {
+        d.append("\n  ");
+        i.describeTo(d);
+      }
     }
     
-    Text.cancelBullet(d);
-    d.append("\nSpecial Orders:");
-    for (Item i : v.stocks.specialOrders()) {
-      d.append("\n  ");
-      i.describeTo(d);
+    if (v.stocks.specialOrders().size() > 0) {
+      Text.cancelBullet(d);
+      d.append("\nSpecial Orders:");
+      for (Item i : v.stocks.specialOrders()) {
+        d.append("\n  ");
+        i.describeTo(d);
+      }
     }
-    //if (empty) d.append("\n  No stocks or orders.");
   }
   
   

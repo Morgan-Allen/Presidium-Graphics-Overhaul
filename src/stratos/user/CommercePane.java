@@ -119,6 +119,8 @@ public class CommercePane extends SelectionPane {
   
   protected void describeDemands(Description d) {
     final Base base = UI.played();
+    final Verse universe = base.world.offworld;
+    final VerseLocation locale = universe.stageLocation();
     final BaseCommerce BC = base.commerce;
     
     d.append("DEMAND REPORT FOR "+base);
@@ -142,10 +144,23 @@ public class CommercePane extends SelectionPane {
     }
     
     Text.cancelBullet(d);
-    d.append("\n\nTrading partners:");
+    
     for (VerseLocation partner : BC.partners()) {
-      d.append("\n  ");
+      d.append("\n\n");
       d.append(partner);
+      if (partner == BC.homeworld()) d.append("  (Homeworld)");
+      else d.append(" (Trading Partner)");
+      
+      final Dropship nextShip = universe.journeys.nextShipBetween(
+        partner, locale, base, true
+      );
+      if (nextShip != null) {
+        float ETA = universe.journeys.arrivalETA(nextShip, base);
+        ETA /= Stage.STANDARD_HOUR_LENGTH;
+        d.append("\n  Dropship ETA: "+Nums.round(ETA, 1, true)+" hours");
+      }
+      
+      d.append("\n ");
       d.append(" (Makes: ");
       for (Traded t : partner.goodsMade) {
         if (t.form != Economy.FORM_MATERIAL) continue;
@@ -159,7 +174,7 @@ public class CommercePane extends SelectionPane {
       }
       d.append(")");
     }
-    if (BC.partners().size() == 0) d.append("\n    No partners.");
+    if (BC.partners().size() == 0) d.append("\n\nNo Trade Partners.");
 
     boolean noLocal = true, noTrade = true;
 

@@ -53,13 +53,11 @@ public class BaseFinance {
     
     SOURCE_INSTALL  = new Source(9 , "Installation"     ),
     SOURCE_REPAIRS  = new Source(10, "Repairs"          ),
-    SOURCE_SALVAGE  = new Source(11, "Salvage"          ),
+    SOURCE_UPGRADE  = new Source(11, "Upgrades"         ),
+    SOURCE_SALVAGE  = new Source(12, "Salvage"          ),
     
-    SOURCE_LENDING  = new Source(12, "Lending"          ),
-    SOURCE_INTEREST = new Source(13, "Interest"         ),
-    
-    //  TODO:  MOVE THIS UP!
-    SOURCE_UPGRADE  = new Source(14, "Upgrades"         ),
+    SOURCE_LENDING  = new Source(13, "Lending"          ),
+    SOURCE_INTEREST = new Source(14, "Interest"         ),
     
     ALL_SOURCES[] = SOURCES.allEntries(Source.class);
   
