@@ -262,7 +262,7 @@ public class Text extends UINode implements Description {
   
   
   public static void cancelBullet(Description d) {
-    insert(ImageAsset.WHITE_TEX(), 0, 0, true, d);
+    insert(Image.SOLID_WHITE.asTexture(), 0, 0, true, d);
   }
   
   

@@ -161,38 +161,38 @@ public abstract class Venue extends Structural implements
   
   
   public boolean canPlace(Account reasons) {
-    if (origin() == null) return reasons.asFailure("Over the edge!");
+    if (origin() == null) return reasons.setFailure("Over the edge!");
     final Stage world = origin().world;
     final boolean solid = pathType() >= Tile.PATH_HINDERS;
     //
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
     if (! entranceOkay()) {
-      return reasons.asFailure("No room for entrance");
+      return reasons.setFailure("No room for entrance");
     }
     for (Tile t : world.tilesIn(footprint(), false)) {
-      if (t == null) return reasons.asFailure("Over the edge!");
+      if (t == null) return reasons.setFailure("Over the edge!");
       if (t.reserved()) {
         if (reasons == Account.NONE) return false;
-        return reasons.asFailure("Area reserved by "+t.onTop());
+        return reasons.setFailure("Area reserved by "+t.onTop());
       }
       if (! canBuildOn(t)) {
         if (reasons == Account.NONE) return false;
-        return reasons.asFailure(t.habitat()+" is not buildable");
+        return reasons.setFailure(t.habitat()+" is not buildable");
       }
       if (t.isEntrance() && solid) {
         if (reasons == Account.NONE) return false;
-        return reasons.asFailure("Is entrance for "+t.entranceFor());
+        return reasons.setFailure("Is entrance for "+t.entranceFor());
       }
     }
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
       if (reasons == Account.NONE) return false;
-      return reasons.asFailure("Too close to "+c);
+      return reasons.setFailure("Too close to "+c);
     }
     if (solid && ! checkPerimeter(world)) {
-      return reasons.asFailure("Might obstruct pathing");
+      return reasons.setFailure("Might obstruct pathing");
     }
-    return reasons.asSuccess();
+    return reasons.setSuccess();
   }
   
   
@@ -582,7 +582,7 @@ public abstract class Venue extends Structural implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
-    if (pathType() <= Tile.PATH_CLEAR || ! blueprint.isSingle()) return;
+    if (pathType() <= Tile.PATH_CLEAR || blueprint.isGrouped()) return;
     super.renderSelection(rendering, hovered);
   }
 }

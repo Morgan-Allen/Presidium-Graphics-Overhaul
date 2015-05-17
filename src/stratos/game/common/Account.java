@@ -17,19 +17,19 @@ public class Account {
   Batch <String> failReasons = new Batch <String> ();
   
   
-  public boolean asSuccess() {
+  public boolean setSuccess() {
     isOkay = true;
     return true;
   }
   
   
-  public boolean asFailure(String reason) {
+  public boolean setFailure(String reason) {
     failReasons.add(reason);
     return false;
   }
   
   
-  public boolean success() {
+  public boolean wasSuccess() {
     return isOkay;
   }
   
@@ -43,8 +43,8 @@ public class Account {
   /**  
     */
   final public static Account NONE = new Account() {
-    public boolean asSuccess() { return true; }
-    public boolean asFailure(String reason) { return false; }
+    public boolean setSuccess() { return true; }
+    public boolean setFailure(String reason) { return false; }
   };
 }
 

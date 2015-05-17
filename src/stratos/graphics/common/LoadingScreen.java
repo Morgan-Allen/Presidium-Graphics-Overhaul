@@ -25,6 +25,7 @@ public class LoadingScreen {
     if (HUD != null) return HUD;
     
     HUD = new HUD(rendering);
+    
     final Image blankImage = new Image(HUD, BLANK_IMG_PATH);
     blankImage.alignToFill();
     blankImage.stretch = true;

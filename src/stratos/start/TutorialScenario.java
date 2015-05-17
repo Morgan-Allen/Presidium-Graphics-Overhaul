@@ -212,7 +212,6 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void whenBastionTopicOpen() {
-    ///I.say("Bastion topic open!");
     base().intelMap.liftFogAround(bastion, 12);
     UI().tracking.lockOn(bastion);
   }

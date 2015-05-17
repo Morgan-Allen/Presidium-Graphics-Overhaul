@@ -102,11 +102,11 @@ public class FormerPlant extends Venue implements TileConstants {
   public boolean canPlace(Account reasons) {
     if (! super.canPlace(reasons)) return false;
     if (areaClaimed.maxSide() > Stage.ZONE_SIZE) {
-      return reasons.asFailure("Area is too large!");
+      return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
     if (! Placement.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
-      return reasons.asFailure("Might obstruct pathing");
+      return reasons.setFailure("Might obstruct pathing");
     }
     return true;
   }

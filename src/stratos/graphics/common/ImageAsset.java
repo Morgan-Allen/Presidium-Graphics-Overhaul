@@ -13,26 +13,8 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 public class ImageAsset extends Assets.Loadable {
   
   
-  private static Texture WHITE_TEX = null;
+  //private static Texture WHITE_TEX = null;
   private static Object NO_FILE = new Object();
-  
-  public static Texture WHITE_TEX() {
-    //  NOTE:  This method should not be called until the main LibGDX thread
-    //  has called create() on the application listener.
-    if (WHITE_TEX != null) return WHITE_TEX;
-    return WHITE_TEX = withColor(4, Color.WHITE);
-  }
-  
-  public static Texture withColor(int size, Color c) {
-    final Texture tex = new Texture(size, size, Pixmap.Format.RGBA8888);
-    final Pixmap draw = new Pixmap (size, size, Pixmap.Format.RGBA8888);
-    draw.setColor(c);
-    draw.fillRectangle(0, 0, size, size);
-    tex.draw(draw, 0, 0);
-    return tex;
-  }
-  
-  
   
   private String filePath;
   private boolean loaded = false, disposed = false;
@@ -79,18 +61,21 @@ public class ImageAsset extends Assets.Loadable {
   
   
   public Pixmap asPixels() {
+    if (! loaded) Assets.loadNow(this);
     if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return pixels;
   }
   
   
   public Texture asTexture() {
+    if (! loaded) Assets.loadNow(this);
     if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return texture;
   }
   
   
   public Colour average() {
+    if (! loaded) Assets.loadNow(this);
     if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return average;
   }
@@ -99,20 +84,36 @@ public class ImageAsset extends Assets.Loadable {
   
   /**  Actual loading-
     */
-  private static Table <Texture, Pixmap> pixMaps = new Table();
-  private static Table <Texture, Colour> averages = new Table();
+  final static String
+    TEX_PREFIX = "texture_for_",
+    PIX_PREFIX = "pixels_for_" ,
+    AVG_PREFIX = "average_for_";
+  
   
   protected void loadAsset() {
-    final Texture cached = (Texture) Assets.getResource(filePath);
+    Texture texture = (Texture) Assets.getResource(TEX_PREFIX+filePath);
+    Pixmap pixels   = (Pixmap ) Assets.getResource(PIX_PREFIX+filePath);
+    Colour average  = (Colour ) Assets.getResource(AVG_PREFIX+filePath);
+    loadAsset(texture, pixels, average);
+  }
+  
+  
+  protected void loadAsset(
+    Texture withTexture, Pixmap withPixels, Colour withAverage
+  ) {
     
-    if (cached != null) {
-      this.texture = cached;
-      this.pixels = pixMaps.get(texture);
-      this.average = averages.get(texture);
+    if (withPixels != null) {
+      this.pixels = withPixels;
+    }
+    else {
+      pixels = new Pixmap(Gdx.files.internal(filePath));
+      Assets.cacheResource(pixels, PIX_PREFIX+filePath);
     }
     
-    if (average == null) {
-      pixels = new Pixmap(Gdx.files.internal(filePath));
+    if (withAverage != null) {
+      this.average = withAverage;
+    }
+    else {
       average = new Colour();
       Colour sample = new Colour();
       
@@ -131,25 +132,28 @@ public class ImageAsset extends Assets.Loadable {
       average.b /= sumAlphas;
       average.a = 1;
       average.set(average);
-      
-      if (texture == null) {
-        texture = new Texture(pixels);
-        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        Assets.cacheResource(texture, filePath);
-      }
-      averages.put(texture, average);
-      pixMaps.put(texture, pixels);
+      Assets.cacheResource(average, AVG_PREFIX+filePath);
     }
+    
+    if (withTexture != null) {
+      this.texture = withTexture;
+    }
+    else {
+      texture = new Texture(pixels);
+      texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+      Assets.cacheResource(texture, TEX_PREFIX+filePath);
+    }
+    
     loaded = true;
   }
   
   
-  public static Texture getTexture(String name) {
-    Texture cached = (Texture) Assets.getResource(name);
+  public static Texture getTexture(String fileName) {
+    Texture cached = (Texture) Assets.getResource(TEX_PREFIX+fileName);
     if (cached != null) return cached;
-    cached = new Texture(Gdx.files.internal(name));
+    cached = new Texture(Gdx.files.internal(fileName));
     cached.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-    Assets.cacheResource(cached, name);
+    Assets.cacheResource(cached, TEX_PREFIX+fileName);
     return cached;
   }
   
@@ -160,11 +164,19 @@ public class ImageAsset extends Assets.Loadable {
   
   
   protected void disposeAsset() {
-    final Pixmap pixels = pixMaps.get(texture);
+    Texture texture = (Texture) Assets.getResource(TEX_PREFIX+filePath);
+    Pixmap pixels   = (Pixmap ) Assets.getResource(PIX_PREFIX+filePath);
+    Colour average  = (Colour ) Assets.getResource(AVG_PREFIX+filePath);
+    
     if (pixels != null) {
-      pixMaps.remove(texture);
-      averages.remove(texture);
+      Assets.clearCachedResource(PIX_PREFIX+filePath);
       pixels.dispose();
+    }
+    if (average != null) {
+      Assets.clearCachedResource(AVG_PREFIX+filePath);
+    }
+    if (texture != null) {
+      Assets.clearCachedResource(TEX_PREFIX+filePath);
       texture.dispose();
     }
     disposed = true;
@@ -174,8 +186,26 @@ public class ImageAsset extends Assets.Loadable {
   public boolean isDisposed() {
     return disposed;
   }
+  
+  
+  
+  /**  Utility method for creating static constants-
+    */
+  public static ImageAsset withColor(final int size, Colour c, Class source) {
+    final Color gdxColor = new Color(c.r, c.g, c.b, c.a);
+    final ImageAsset asset = new ImageAsset("IMAGE_ASSET_", c+"", source) {
+      protected void loadAsset() {
+        final Texture tex = new Texture(size, size, Pixmap.Format.RGBA8888);
+        final Pixmap draw = new Pixmap (size, size, Pixmap.Format.RGBA8888);
+        draw.setColor(gdxColor);
+        draw.fillRectangle(0, 0, size, size);
+        tex.draw(draw, 0, 0);
+        loadAsset(tex, draw, null);
+      }
+    };
+    return asset;
+  }
 }
-
 
 
 

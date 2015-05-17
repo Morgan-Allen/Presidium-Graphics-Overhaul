@@ -411,6 +411,8 @@ public class Base implements
   
   /**  Venue enumeration methods-
     */
+  //  TODO:  Move these to the Blueprint class...
+  
   public Batch <Venue> listInstalled(
     Blueprint type, boolean intact
   ) {
@@ -424,18 +426,20 @@ public class Base implements
   }
   
   
-  public boolean checkPrerequisites(Blueprint print, Account reasons) {
+  public boolean checkPrerequisites(
+    Blueprint print, Account reasons
+  ) {
     if (print.isUnique()) {
       if (listInstalled(print, false).size() > 0) {
-        return reasons.asFailure("You cannot have more than one "+print.name);
+        return reasons.setFailure("You cannot have more than one "+print.name);
       }
     }
     for (Blueprint req : print.required) {
       if (listInstalled(req, true).size() <= 0) {
-        return reasons.asFailure("Requires "+req);
+        return reasons.setFailure("Requires "+req);
       }
     }
-    return reasons.asSuccess();
+    return reasons.setSuccess();
   }
   
   

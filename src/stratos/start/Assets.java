@@ -189,9 +189,12 @@ public class Assets {
       asset.loadAsset();
       assetsLoaded.add(asset);
     }
-    assetsToLoad.remove(asset);
-    modelCache.put(asset.assetID, asset);
-    if (extraVerbose) I.say(" ...OK.");
+    if (asset.isLoaded()) {
+      assetsToLoad.remove(asset);
+      modelCache.put(asset.assetID, asset);
+      if (extraVerbose) I.say(" ...OK.");
+    }
+    else if (extraVerbose) I.say("  ...Still no joy.");
   }
   
   

@@ -24,14 +24,10 @@ public class Button extends Image {
     CIRCLE_LIT  = ImageAsset.fromImage(
       Button.class, "media/GUI/icon_lit_circle.png"
     );
-  final static Texture DEFAULT_GREYED = ImageAsset.withColor(
-    16, new Color(0.5f, 0.5f, 0.5f, 0.5f)
-  );
   
   
   final String widgetID;
   protected Texture   highlit;
-  protected Texture   greyed ;
   protected String    info   ;
   protected Clickable links  ;
   
@@ -39,7 +35,6 @@ public class Button extends Image {
     hoverLit = DEFAULT_HOVER_ALPHA,
     pressLit = DEFAULT_PRESS_ALPHA;
   public boolean
-    enabled = true ,
     toggled = false;
   
   
@@ -72,7 +67,6 @@ public class Button extends Image {
     this.widgetID = widgetID;
     this.info     = infoS;
     this.highlit  = lit;
-    this.greyed   = DEFAULT_GREYED;
   }
   
   
@@ -84,11 +78,6 @@ public class Button extends Image {
   
   public void setHighlight(Texture h) {
     this.highlit = h;
-  }
-  
-  
-  public void setGreyedTex(Texture g) {
-    this.greyed = g;
   }
   
   
@@ -150,10 +139,8 @@ public class Button extends Image {
   
   protected void render(WidgetsPass pass) {
     super.renderTex(texture, absAlpha, pass);
-    if (! enabled) {
-      super.renderTex(greyed, 1, pass);
-    }
-    else if (toggled) {
+    if (! enabled) return;
+    if (toggled) {
       super.renderTex(highlit, 1, pass);
     }
     else if (amPressed() || amDragged() || amClicked()) {

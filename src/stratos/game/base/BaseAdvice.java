@@ -363,7 +363,7 @@ public class BaseAdvice {
         d.append("Consider building a "+match.name+", which provides "+t+".");
       }
       
-      final String category = InstallationPane.categoryFor(match);
+      final String category = InstallPane.categoryFor(match);
       if (category != null) {
         d.append("\n  Category: "+category+" Structures", Colour.LITE_GREY);
       }

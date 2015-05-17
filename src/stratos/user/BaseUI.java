@@ -199,7 +199,7 @@ public class BaseUI extends HUD implements UIConstants {
     reminders.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
     reminders.attachTo(this);
     
-    this.buildButton = InstallationPane.createButton(this);
+    this.buildButton = InstallPane.createButton(this);
     buildButton.stretch = false;
     buildButton.alignTop(0, PTH);
     buildButton.alignRight((PTS * 0) + HTS, PTS);

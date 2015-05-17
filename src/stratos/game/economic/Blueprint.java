@@ -116,8 +116,8 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   }
   
   
-  public boolean isSingle() {
-    return ! (hasProperty(Venue.IS_LINEAR));// || hasProperty(Venue.IS_ZONED));
+  public boolean isGrouped() {
+    return hasProperty(Venue.IS_LINEAR);
   }
   
   
@@ -205,6 +205,11 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
       return null;
     }
   }
+  
+  
+  
+  /**  External utility methods-
+    */
   
   
   

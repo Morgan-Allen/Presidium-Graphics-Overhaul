@@ -94,7 +94,7 @@ public class Fading {
     final Colour c = rendering.foreColour;
     if (c != null) {
       pass.draw(
-        ImageAsset.WHITE_TEX(), c,
+        Image.SOLID_WHITE.asTexture(), c,
         0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
         0, 0, 1, 1
       );

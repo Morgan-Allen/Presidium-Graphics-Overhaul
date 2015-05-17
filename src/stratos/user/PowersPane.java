@@ -73,7 +73,7 @@ public class PowersPane extends SelectionPane {
       this.focus  = focus;
       this.UI     = UI;
       this.parent = parent;
-      this.setGreyedTex(BUTTON_GREYED.asTexture());
+      this.setDisabledOverlay(BUTTON_GREYED);
       
       if (focus == null) I.complain("NO SUBJECT!");
     }

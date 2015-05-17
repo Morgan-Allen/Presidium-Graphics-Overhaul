@@ -3,16 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.user;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-
-import com.badlogic.gdx.Input.Keys;
 
 
 
@@ -21,7 +17,7 @@ import com.badlogic.gdx.Input.Keys;
 //  TODO:  Expand a little on the category-selection system?
 
 
-public class InstallationPane extends SelectionPane {
+public class InstallPane extends SelectionPane {
   
   
   /**  Initial background setup-
@@ -38,7 +34,7 @@ public class InstallationPane extends SelectionPane {
   
   final static ImageAsset
     BUILD_ICON = ImageAsset.fromImage(
-      InstallationPane.class, "media/GUI/Panels/installations_tab.png"
+      InstallPane.class, "media/GUI/Panels/installations_tab.png"
     ),
     BUILD_ICON_LIT = Button.CIRCLE_LIT;
   
@@ -49,7 +45,7 @@ public class InstallationPane extends SelectionPane {
   public static Button createButton(
     final BaseUI baseUI
   ) {
-    final InstallationPane pane = new InstallationPane(baseUI);
+    final InstallPane pane = new InstallPane(baseUI);
     return new Button(
       baseUI, INSTALL_BUTTON_ID, BUILD_ICON, BUILD_ICON_LIT, "Installations"
     ) {
@@ -70,7 +66,7 @@ public class InstallationPane extends SelectionPane {
   final private Button catButtons[];
   
   
-  InstallationPane(BaseUI UI) {
+  InstallPane(BaseUI UI) {
     super(UI, null, false, false, BAR_BUTTON_SIZE);
     if (! setupDone) setupTypes();
     
@@ -191,13 +187,17 @@ public class InstallationPane extends SelectionPane {
     detailText.setText("");
     
     final Base base = UI.played();
-    final Series <Venue> sampled = new List <Venue> ();
+    final Series <Venue> sampled = new List(), disabled = new List();
     
     for (Category cat : categories.values()) {
       if (category != null && cat != category) continue;
       for (Venue sample : cat.samples) {
-        if (! base.checkPrerequisites(sample.blueprint, Account.NONE)) continue;
-        else sampled.add(sample);
+        final Account reasons = new Account();
+        base.checkPrerequisites(sample.blueprint, reasons);
+        //
+        //  TODO:  Have a more nuanced evaluation for skipping disabled venues.
+        if (reasons.wasSuccess()) sampled.add(sample);
+        else if (! sample.blueprint.isUnique()) disabled.add(sample);
       }
     }
     
@@ -224,12 +224,14 @@ public class InstallationPane extends SelectionPane {
         text.appendList("\nAllows: ", type.allows());
       }
       
-      final Batch <Venue> built = base.listInstalled(type, false);
-      text.append("\n\nCurrently Built:");
-      if (built.size() == 0) text.append(" None");
-      else for (Venue v : built) {
-        text.append("\n  ");
-        text.append(v);
+      if (! type.isGrouped()) {
+        final Batch <Venue> built = base.listInstalled(type, false);
+        text.append("\n\nCurrently Built:");
+        if (built.size() == 0) text.append(" None");
+        else for (Venue v : built) {
+          text.append("\n  ");
+          text.append(v);
+        }
       }
       
       text.append("\n\n");
@@ -237,26 +239,48 @@ public class InstallationPane extends SelectionPane {
         public void whenClicked() { helpFor = null; }
       });
     }
-    else if (sampled.size() == 0) {
+    else if (sampled.size() == 0 && disabled.size() == 0) {
       text.append("No structures available!");
     }
-    else for (final Venue sample : sampled) {
-      final Composite icon     = sample.portrait(UI);
-      final Blueprint type     = sample.blueprint   ;
-      final String    typeName = type.name          ;
-      final int       cost     = sample.structure.buildCost();
-      
-      if (icon != null) Text.insert(icon.texture(), 40, 40, true, text);
-      else text.append("\n  ");
-      text.append(" "+typeName+" ("+cost+" credits)");
-      text.append("\n  ");
-      text.append(new Description.Link("(BUILD) ") {
-        public void whenClicked() { UI.beginTask(new PlacingTask(UI, type)); }
-      });
-      text.append(new Description.Link("(INFO) ") {
-        public void whenClicked() { helpFor = sample; }
-      });
+    else {
+      for (final Venue sample : sampled) {
+        describeVenueOptions(sample, text, true , base);
+      }
+      for (final Venue sample : disabled) {
+        describeVenueOptions(sample, text, false, base);
+      }
     }
+  }
+  
+  
+  private void describeVenueOptions(
+    final Venue sample, Text text, boolean enabled, Base base
+  ) {
+    final Composite icon     = sample.portrait(UI);
+    final Blueprint type     = sample.blueprint   ;
+    final String    typeName = type.name          ;
+    final int       cost     = sample.structure.buildCost();
+    
+    final Colour greyed = enabled ? Colour.WHITE : Colour.GREY;
+    
+    if (icon != null) {
+      final Image iconImage = icon.delayedImage(UI);
+      iconImage.setDisabledOverlay(Image.TRANSLUCENT_BLACK);
+      iconImage.enabled = enabled;
+      Text.insert(iconImage, 40, 40, true, text);
+    }
+    else text.append("\n  ");
+    text.append(" "+typeName+" ("+cost+" credits)", greyed);
+    text.append("\n  ");
+    
+    if (enabled) text.append(new Description.Link("(BUILD) ") {
+      public void whenClicked() { UI.beginTask(new PlacingTask(UI, type)); }
+    });
+    else text.append("(BUILD) ", greyed);
+    
+    text.append(new Description.Link("(INFO) ") {
+      public void whenClicked() { helpFor = sample; }
+    });
   }
 }
 
