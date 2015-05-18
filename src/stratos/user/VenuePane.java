@@ -13,10 +13,7 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  NOTE:  I'm moving these methods here essentially for the sake of reducing
-//  clutter/space demands within the main Venue class.
-
-//  TODO:  At this point, you might as well write some custom widgets.
+//  TODO:  At this point, you might as well write some custom widgets here...
 
 public class VenuePane extends SelectionPane {
   
@@ -188,31 +185,23 @@ public class VenuePane extends SelectionPane {
   }
   
   
+  
+  /**  Listing demands, inventory and special items-
+    */
+  final static Traded ITEM_LIST_ORDER[] = (Traded[]) Visit.compose(
+    Traded.class, ALL_PROVISIONS, ALL_MATERIALS, ALL_SPECIAL_ITEMS
+  );
+  
   protected void describeStocks(Description d, BaseUI UI) {
     d.append("Stocks and Provisions:");
     
-    //  TODO:  Just use stock-demands for both these things?
-    for (Traded t : Economy.ALL_PROVISIONS) {
-      final float output = v.structure.outputOf(t);
-      final float demand = v.stocks.demandFor(t);
-      if (output <= 0 && demand <= 0) continue;
-      Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append("  ");
-      
-      if (output > 0) {
-        d.append(t+" Output: "+I.shorten(output, 1));
-      }
-      else if (demand > 0) {
-        final float supply = v.stocks.amountOf(t);
-        d.append(I.shorten(supply, 1)+"/"+I.shorten(demand, 1)+" "+t);
-      }
-    }
-    for (Traded type : ALL_MATERIALS) {
-      describeStocks(type, d);
+    final Traded[] demands = v.stocks.demanded();
+    final Batch <Item> special = new Batch();
+    for (Traded t : ITEM_LIST_ORDER) {
+      if (Visit.arrayIncludes(demands, t)) describeStocks(t, d);
+      else for (Item i : v.stocks.matches(t)) special.add(i);
     }
     
-    final Batch <Item> special = new Batch();
-    for (Item i : v.stocks.allItems()) if (! i.isCommon()) special.add(i);
     if (! special.empty()) {
       Text.cancelBullet(d);
       d.append("\nOther Items:");
@@ -221,7 +210,6 @@ public class VenuePane extends SelectionPane {
         i.describeTo(d);
       }
     }
-    
     if (v.stocks.specialOrders().size() > 0) {
       Text.cancelBullet(d);
       d.append("\nSpecial Orders:");
@@ -234,24 +222,30 @@ public class VenuePane extends SelectionPane {
   
   
   protected boolean describeStocks(Traded type, Description d) {
-    if (type.form != FORM_MATERIAL) return false;
-    
     final float needed = v.stocks.demandFor(type);
-    final float amount = v.stocks.amountOf(type);
+    final float amount = v.stocks.amountOf (type);
     if (needed == 0 && amount == 0) return false;
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
     d.append("  "+I.shorten(amount, 1)+" "+type.name);
     
-    final String nS = I.shorten(needed, 1);
-    d.append(" /"+nS);
-    if (v.stocks.producer(type)) d.append(" (producer)");
-    else d.append(" (consumer)");
+    if (type.form == FORM_PROVISION && needed == amount) {
+      if (v.stocks.producer(type)) d.append(" Output");
+      else d.append(" Used");
+    }
+    else {
+      final String nS = I.shorten(needed, 1);
+      d.append(" /"+nS);
+      if (v.stocks.producer(type)) d.append(" (producer)");
+      else d.append(" (consumer)");
+    }
     return true;
   }
   
   
   
+  /**  Describing personnel, visitors and residents-
+    */
   private void describeStaffing(Description d, BaseUI UI) {
     final Background c[] = v.careers();
     Batch <Actor> mentioned = new Batch <Actor> ();

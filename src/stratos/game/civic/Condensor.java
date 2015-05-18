@@ -17,7 +17,7 @@ public class Condensor extends Venue {
   
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Condensor.class, "media/Buildings/aesthete/PLAZA.png", 3, 2
+    Condensor.class, "media/Buildings/aesthete/condensor.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Condensor.class, "media/GUI/Buttons/condensor_button.gif"
@@ -25,7 +25,7 @@ public class Condensor extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Condensor.class, "condensor",
-    "Condensor", UIConstants.TYPE_HIDDEN,
+    "Condensor", UIConstants.TYPE_AESTHETIC,
     3, 2, IS_FIXTURE,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY
   );
@@ -72,14 +72,12 @@ public class Condensor extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (structure.intact()) {
       stocks.forceDemand(POWER, 4, false);
-      structure.assignOutputs(
-        Item.withAmount(ATMO , 10),
-        Item.withAmount(WATER, 5 )
-      );
+      stocks.forceDemand(ATMO, 10, true );
+      stocks.forceDemand(WATER, 5, true );
       structure.setAmbienceVal(5);
     }
     else {
-      structure.assignOutputs();
+      stocks.clearDemands();
       structure.setAmbienceVal(0);
     }
   }

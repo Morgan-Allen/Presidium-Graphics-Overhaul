@@ -76,16 +76,10 @@ public class SolarBank extends Venue {
     */
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    if (! structure.intact()) {
-      structure.assignOutputs();
-      return;
-    }
-    
+    if (! structure.intact()) { stocks.clearDemands(); return; }
     final float sun = world.terrain().insolationSample(origin());
-    structure.assignOutputs(
-      Item.withAmount(POWER, sun * 4),
-      Item.withAmount(WATER, (0.5f + 1 - sun) / 2)
-    );
+    stocks.forceDemand(POWER, sun * 4, true);
+    stocks.forceDemand(WATER, (0.5f + 1 - sun) / 2, true);
   }
   
   

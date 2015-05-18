@@ -128,7 +128,7 @@ public class Fabricator extends Venue {
     final float powerNeed = 2 + (structure.numUpgrades() / 2f);
     stocks.forceDemand(POWER, powerNeed, false);
     stocks.incDemand(PLASTICS, 5, 1, true);
-    stocks.translateDemands(POLYMER_TO_PLASTICS, 1);
+    stocks.translateRawDemands(POLYMER_TO_PLASTICS, 1);
   }
   
   

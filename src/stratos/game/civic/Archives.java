@@ -12,7 +12,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
-import stratos.util.I;
+import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
@@ -95,13 +95,17 @@ public class Archives extends Venue {
   
   protected Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
-    final Choice choice = new Choice(actor);
     
+    final float needCirc = stocks.relativeShortage(CIRCUITRY);
     final Bringing d = BringUtils.bestBulkCollectionFor(
       this, new Traded[] { CIRCUITRY }, 1, 5, 5
     );
-    if (d != null) return d;
+    if (d != null) {
+      d.addMotives(Plan.MOTIVE_JOB, needCirc * Plan.ROUTINE);
+      return d;
+    }
     
+    final Choice choice = new Choice(actor);
     final Manufacture m = stocks.nextManufacture(actor, CIRCUITRY_TO_DATALINKS);
     if (m != null) choice.add(m.setBonusFrom(this, false));
     
@@ -116,16 +120,16 @@ public class Archives extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    
-    //  TODO:  Allow upgrades in different skill areas
+    //
+    //  TODO:  Allow upgrades for different skill areas!
     choice.add(Training.asResearch(client, this, STUDY_FEE));
-    choice.add(BringUtils.nextHomePurchase(client, this));
+    choice.add(BringUtils.nextHomePurchase(client, this, DATALINKS));
   }
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    stocks.translateDemands(CIRCUITRY_TO_DATALINKS, 1);
+    stocks.translateRawDemands(CIRCUITRY_TO_DATALINKS, 1);
     
     structure.setAmbienceVal(6);
     stocks.forceDemand(POWER, 3, false);

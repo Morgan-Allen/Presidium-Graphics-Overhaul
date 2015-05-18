@@ -116,12 +116,14 @@ public class BringUtils {
   }
   
   
-  public static Bringing nextHomePurchase(Actor actor, Venue from) {
+  public static Bringing nextHomePurchase(
+    Actor actor, Venue from, Traded... goods
+  ) {
     if (! (actor.mind.home() instanceof Venue)) return null;
     final Venue home = (Venue) actor.mind.home();
-    final Bringing d = fillBulkOrder(from, home, home.stocks.demanded(), 1, 5);
-    if (d == null) return null;
-    else return d.setWithPayment(actor);
+    if (goods == null || goods.length == 0) goods = home.stocks.demanded();
+    final Bringing d = fillBulkOrder(from, home, goods, 1, 5);
+    return (d == null) ? null : d.setWithPayment(actor);
   }
   
   

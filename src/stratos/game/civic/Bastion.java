@@ -310,10 +310,8 @@ public class Bastion extends Venue {
     int powerLimit = 20 + (SB * 10), lifeSLimit = 10 + (SB * 5);
     powerLimit *= condition;
     lifeSLimit *= condition;
-    structure.assignOutputs(
-      Item.withAmount(POWER, powerLimit),
-      Item.withAmount(ATMO , lifeSLimit)
-    );
+    stocks.forceDemand(POWER, powerLimit, true);
+    stocks.forceDemand(ATMO , lifeSLimit, true);
     //
     //  Demand provisions-
     final int foodNeed = staff.lodgers().size() + 2;

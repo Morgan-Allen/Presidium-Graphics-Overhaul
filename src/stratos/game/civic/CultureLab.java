@@ -137,17 +137,17 @@ public class CultureLab extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    stocks.translateDemands(WASTE_TO_CARBS   , 1);
-    stocks.translateDemands(CARBS_TO_PROTEIN , 1);
-    stocks.translateDemands(WASTE_TO_SOMA    , 1);
-    stocks.translateDemands(WASTE_TO_CATALYST, 1);
+    stocks.translateRawDemands(WASTE_TO_CARBS   , 1);
+    stocks.translateRawDemands(CARBS_TO_PROTEIN , 1);
+    stocks.translateRawDemands(WASTE_TO_SOMA    , 1);
+    stocks.translateRawDemands(WASTE_TO_CATALYST, 1);
     
     final float needPower = 5 * (1 + (structure.numUpgrades() / 3f));
     final int cycleBonus = structure.upgradeLevel(CARBS_CULTURE);
     final float pollution = 5 - cycleBonus;
     stocks.forceDemand(POWER, needPower, false);
     structure.setAmbienceVal(0 - pollution);
-    structure.assignOutputs(Item.withAmount(ATMO, cycleBonus * 2));
+    stocks.forceDemand(ATMO, cycleBonus * 2, true);
   }
   
   

@@ -153,7 +153,7 @@ public class EngineerStation extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     stocks.incDemand(PARTS, 5, 1, true);
-    stocks.translateDemands(METALS_TO_PARTS, 1);
+    stocks.translateRawDemands(METALS_TO_PARTS, 1);
     
     float pollution = 5, powerNeed = 5;
     powerNeed *= (3 + structure.numUpgrades()) / 3;
@@ -210,7 +210,6 @@ public class EngineerStation extends Venue {
     choice.add(Repairs.getNextRepairFor(actor, false));
     
     //  And return whatever suits the actor best-
-    choice.isVerbose = I.talkAbout == this;
     return choice.weightedPick();
   }
   

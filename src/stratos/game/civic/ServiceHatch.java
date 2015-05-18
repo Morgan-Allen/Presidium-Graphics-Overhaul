@@ -171,10 +171,8 @@ public class ServiceHatch extends Venue {
     //
     //  And assign life-support and other tangible effects-
     if (model == HUB_MODEL) {
-      structure.assignOutputs(
-        Item.withAmount(ATMO , 2),
-        Item.withAmount(POWER, 2)
-      );
+      stocks.forceDemand(ATMO , 2, true);
+      stocks.forceDemand(POWER, 2, true);
       structure.setAmbienceVal(-2);
       //  TODO:  Introduce the vermin-check here!
     }

@@ -20,7 +20,7 @@ public class Bringing extends Plan {
 
   
   private static boolean
-    evalVerbose  = false,
+    evalVerbose  = true ,
     stepsVerbose = false;
   
   //  TODO:  Use these.
@@ -269,7 +269,7 @@ public class Bringing extends Plan {
     //
     //  Determine basic priorities and delivery type:
     final boolean shops = shouldPay == actor;
-    float base = ROUTINE, modifier = NO_MODIFIER;
+    float base = ROUTINE, modifier = NO_MODIFIER, greedMinus = 0;
     if (setWithPayment(shouldPay) == null) {
       if (report) I.say("  Delivery not longer possible!");
       return -1;
@@ -285,7 +285,8 @@ public class Bringing extends Plan {
       for (Item i : items) {
         modifier += ActorMotives.rateDesire(i, null, actor);
       }
-      modifier -= actor.motives.greedPriority(goodsPrice);
+      float pricePerDay = goodsPrice / GameSettings.ITEM_WEAR_DAYS;
+      greedMinus = actor.motives.greedPriority(pricePerDay);
     }
     //
     //  Otherwise, add a bonus for quantity and value-
@@ -293,6 +294,7 @@ public class Bringing extends Plan {
       base = ROUTINE;
       modifier += goodsPrice / 100f;
     }
+
     //
     //  Finally, since this plan involves a good deal of travel, we modify the
     //  usual distance evaluation.  Otherwise, proceed as normal.
@@ -302,17 +304,16 @@ public class Bringing extends Plan {
       Plan.rangePenalty(actor.base(), origin, destination)
     ) / rangeDiv;
     
-    final float priority = priorityForActorWith(
-      actor, destination,
-      base, modifier - extraRangePenalty,
-      NO_HARM, FULL_COMPETITION, NO_FAIL_RISK,
-      NO_SKILLS, NO_TRAITS, NORMAL_DISTANCE_CHECK / rangeDiv,
-      report
+    //  TODO:  Move this out to PlanUtils, I think?
+    
+    float priority = base + modifier - (extraRangePenalty + greedMinus);
+    if (report) I.reportVars("", "  ",
+      "Shopping?"     , shops,
+      "Base/modifier:", base+"/"+modifier,
+      "Range penalty:", extraRangePenalty,
+      "Greed penalty:", greedMinus,
+      "Priority"      , priority
     );
-    if (report) {
-      I.say("  Shopping? "+shops);
-      I.say("  Base/modifier: "+base+"/"+modifier);
-    }
     return priority;
   }
   

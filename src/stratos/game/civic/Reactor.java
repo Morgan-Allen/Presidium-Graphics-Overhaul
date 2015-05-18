@@ -232,12 +232,12 @@ public class Reactor extends Venue {
     final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 2;
-    structure.assignOutputs(Item.withAmount(POWER, powerOutput));
+    stocks.forceDemand(POWER, powerOutput, true);
     
     //  Update demand for raw materials-
     stocks.forceDemand(FUEL_RODS, 5, false);
     if (structure.upgradeLevel(WASTE_PROCESSING) > 0) {
-      stocks.translateDemands(METALS_TO_FUEL, 1);
+      stocks.translateRawDemands(METALS_TO_FUEL, 1);
     }
     //
     //  Output pollution-

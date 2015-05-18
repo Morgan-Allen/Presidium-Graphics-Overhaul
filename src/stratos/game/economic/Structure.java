@@ -116,7 +116,7 @@ public class Structure {
   private int structureType = TYPE_VENUE       ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
   private int maxUpgrades   = NO_UPGRADES      ;
-  private Item materials[], outputs[];
+  private Item materials[];
   private int
     buildCost     = DEFAULT_BUILD_COST,
     armouring     = DEFAULT_ARMOUR    ,
@@ -167,7 +167,6 @@ public class Structure {
     }
     
     materials = Item.loadItemsFrom(s);
-    outputs   = Item.loadItemsFrom(s);
   }
   
   
@@ -196,7 +195,6 @@ public class Structure {
     }
     
     Item.saveItemsTo(s, materials);
-    Item.saveItemsTo(s, outputs  );
   }
   
   
@@ -241,11 +239,6 @@ public class Structure {
   
   public void assignMaterials(Item... materials) {
     this.materials = materials;
-  }
-  
-  
-  public void assignOutputs(Item... outputs) {
-    this.outputs = outputs;
   }
   
   
@@ -336,13 +329,6 @@ public class Structure {
   
   public boolean isFixture() {
     return structureType == TYPE_FIXTURE;
-  }
-  
-  
-  public float outputOf(Traded outType) {
-    if (outputs == null) return 0;
-    for (Item i : outputs) if (i.type == outType) return i.amount;
-    return 0;
   }
   
   

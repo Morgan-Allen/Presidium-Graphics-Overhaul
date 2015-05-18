@@ -315,7 +315,7 @@ public class Stocks extends Inventory {
   //*/
   
   
-  public void translateDemands(Conversion cons, int period) {
+  public void translateRawDemands(Conversion cons, int period) {
     final boolean report = extraVerbose && I.talkAbout == basis;
     final float demand = cons.out == null ? 1 : demandFor(cons.out.type);
     if (report) {
@@ -347,10 +347,10 @@ public class Stocks extends Inventory {
     if (report) {
       I.say("\nUpdating stock demands for "+basis);
       I.say("  Base period: "+period);
+      I.say("  Is trader:   "+trades);
     }
-    
     for (Item i : specialOrders) if (i.type.materials() != null) {
-      translateDemands(i.type.materials(), period);
+      translateRawDemands(i.type.materials(), period);
     }
     else if (hasItem(i)) {
       deleteSpecialOrder(i);
@@ -362,59 +362,64 @@ public class Stocks extends Inventory {
     //  Then we iterate across all goods in demand at this venue, and determine
     //  how to register the venue for trade within the world...
     for (Demand d : demands.values()) {
-      final Traded type = d.type;
-      final float amount = amountOf(type);
+      final Traded type   = d.type;
+      final float  amount = amountOf(type);
       final boolean
-        canSell = BringUtils.canTradeBetween(
-          owner.owningTier() , d.producer, Owner.TIER_FACILITY, false
+        wantsSell = BringUtils.canTradeBetween(
+          owner.owningTier() , d.producer,
+          Owner.TIER_FACILITY, false
         ),
-        canBuy  = BringUtils.canTradeBetween(
-          owner.owningTier() , d.producer, Owner.TIER_FACILITY, true
+        wantsBuy  = BringUtils.canTradeBetween(
+          Owner.TIER_FACILITY, true,
+          owner.owningTier() , d.producer
         );
-      final boolean canMake = canSell  && ! trades;
+      //
+      //  Firstly, we update the internal demand record based on the accrued
+      //  bonus registered between updates.
+      if (! d.fixed) d.demandAmount = d.demandBonus / period;
+      d.demandBonus = 0;
       if (report) {
         I.say("  Updating channel for "+d.type+" (producer "+d.producer+")");
         I.say("    Current amount:    "+amount   );
-        I.say("    Open for sale:     "+canSell  );
-        I.say("    Open to buy:       "+canBuy   );
-        I.say("    Primary source:    "+canMake  );
+        I.say("    Open for sale:     "+wantsSell);
+        I.say("    Open to buy:       "+wantsBuy );
         I.say("    Maximum supply:    "+maxSupply);
       }
-      if (! d.fixed) d.demandAmount = d.demandBonus / period;
-      d.demandBonus = 0;
       //
       //  Primary producers of a good will attempt to sample the settlement's
       //  general demand to establish their ideal stock levels, and signal
       //  their own presence as suppliers.
-      if (canMake) {
+      if (wantsSell && ! trades) {
         final float shouldSupply = d.fixed ? 0 : BD.demandFractionFor(
           basis, type, period
         );
-        d.demandAmount += Nums.min(shouldSupply, maxSupply);
+        d.demandAmount = Nums.min(shouldSupply + d.demandAmount, maxSupply);
         final float supplyEst = (d.demandAmount + amount) / 2;
         if (report) {
-          I.say("    Demand amount is:  "+d.demandAmount);
-          I.say("    Should supply:     "+shouldSupply  );
-          I.say("    Impinging supply:  "+supplyEst     );
+          I.say("    Should supply:     "+shouldSupply);
+          I.say("    Impinging supply:  "+supplyEst   );
         }
         BD.impingeSupply(type, supplyEst, period, basis);
+      }
+      //
+      //  Primary consumers of a good will signal their presence as such within
+      //  the settlement.
+      if (wantsBuy && ! trades) {
+        if (report) I.say("    Impinging demand:  "+d.demandAmount);
+        BD.impingeDemand(type, d.demandAmount, period, basis);
       }
       //
       //  All producers & consumers- including trade venues- will flag
       //  themselves as available for deliveries- but traders will not modify
       //  overall supply/demand levels themselves.
       final boolean
-        gives  = canSell && amount         > 0,
-        takes  = canBuy  && d.demandAmount > 0,
-        canUse = takes && ! trades;
-      BP.togglePresence(basis, at, gives, type.supplyKey);
-      BP.togglePresence(basis, at, takes, type.demandKey);
-      //
-      //  Primary consumers of a good will signal their presence as such within
-      //  the settlement.
-      if (canUse) {
-        if (report) I.say("    Impinging demand:  "+d.demandAmount);
-        BD.impingeDemand(type, d.demandAmount, period, basis);
+        doesSell = wantsSell && amount         > 0,
+        doesBuy  = wantsBuy  && d.demandAmount > 0;
+      BP.togglePresence(basis, at, doesSell, type.supplyKey);
+      BP.togglePresence(basis, at, doesBuy , type.demandKey);
+      if (report) {
+        I.say("    Demand amount is:  "+d.demandAmount);
+        I.say("    Gives/takes:       "+doesSell+"/"+doesBuy);
       }
     }
   }
