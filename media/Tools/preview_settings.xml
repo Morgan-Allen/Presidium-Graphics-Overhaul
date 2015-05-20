@@ -2,5 +2,26 @@
 
 <settings
   defaultPath="media/Actors/human/"
-  defaultFile="robetest.ms3d"
+  defaultFile="test.xml"
 />
+
+
+<humanCostume
+  path    ="media/Actors/human/"
+  basePart="MaterialGroup.0"
+>
+  
+  <basicSkins>
+    <skin name="tundra_blood.gif"/>
+    <skin name="forest_blood.gif"/>
+    <skin name="desert_blood.gif"/>
+    <skin name="wastes_blood.gif"/>
+  </basicSkins>
+  
+  <costumeSkins>
+    <skin name="aesthete_male_skin.gif"/>
+    <skin name="militant_skin.gif"/>
+    <skin name="runner_skin.gif"/>
+  </costumeSkins>
+  
+</humanCostume>

@@ -160,6 +160,13 @@ public abstract class SolidModel extends ModelAsset {
   }
   
   
+  public String materialID(String partName) {
+    final NodePart match = partWithName(partName);
+    if (match == null) return null;
+    return match.material.id;
+  }
+  
+  
   public Mesh meshForPart(int index) {
     return allParts[index].meshPart.mesh;
   }
