@@ -218,6 +218,7 @@ public class BaseFinance {
   public void incCredits(float inc, Source source) {
     initRecords();
     credits += inc;
+    if (source == null) return;
     if (inc >= 0) {
       recent.income[source.index] += inc;
       totals.income[source.index] += inc;

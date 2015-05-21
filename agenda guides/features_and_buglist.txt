@@ -1,5 +1,6 @@
 
 
+
 BETTER UI INFO/HELP SYSTEM
 
 *  Don't add staff to the bastion until construction needs to begin.
@@ -7,17 +8,12 @@ BETTER UI INFO/HELP SYSTEM
 *  If a message-pane was open before saving, ensure it stays open afterward (
    both within a session and after loading.)
 
-*  Completion of the initial recon-mission (if still selected) can cause the
-   message-pane to be dismissed (see returnSelectionAfterward() in the Mission
-   class.)  Try to fix that.
+*  Build in a hyperlink help system for upgrades, good-types, venue-types and
+   backgrounds.  (You'll need an automatic back-button for this.)
 
 *  I don't think I need illustrations anymore, as long as the ping-system works
    okay.  Consider having the message-pane move around the screen, though, so
    the player can see what they're doing on other panes with a message open?
-
-
-*  Build in a hyperlink help system for upgrades, good-types, venue-types and
-   backgrounds.  (You'll need an automatic back-button for this.)
 
 *  Re-introduce the Planets/Sectors pane, and build the markets-report into
    that for each world.  Then finance can stay on it's own.  (Add little
@@ -201,5 +197,16 @@ INTERFACE AND DEBUGGING
 *  Read definitions from .xml and allow for later string translations.
 
 *  Try to use right-click for something?  Add an option for it at least.
+
+
+ART AND MEDIA PRODUCTION
+
+*  Attempt using blender again.
+   http://waldobronchart.github.io/ShortcutMapper/#Blender
+   Emulate numeric pad in User Preferences/Input and by checking Emulate Numpad
+
+
+
+
 
 

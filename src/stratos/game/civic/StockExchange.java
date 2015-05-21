@@ -26,7 +26,6 @@ import static stratos.game.economic.Economy.*;
 //  Security vault.  Currency exchange.
 
 
-
 public class StockExchange extends Venue {
   
   
@@ -42,7 +41,7 @@ public class StockExchange extends Venue {
     StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
   );
   
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     StockExchange.class, "stock_exchange",
     "Stock Exchange", UIConstants.TYPE_COMMERCE,
     5, 1, IS_NORMAL,

@@ -78,7 +78,7 @@ public class JoinMission extends Plan {
       choice.add(step);
       steps.add(step);
       missions.add(mission);
-
+      
       if (report) {
         I.say("\n  Mission is: "+mission);
         I.say("  apply point:  "+mission.applyPointFor(actor));

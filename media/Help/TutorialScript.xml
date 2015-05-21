@@ -128,7 +128,7 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
 
 To improve their production of goods and range of services, many buildings can have upgrades installed.
 
-Select the Engineer Station, open the Upgrades pane, and queue Assembly Line three times.  Your construction staff will attend to it shortly, speeding up Parts manufacture.</content>
+Select the Engineer Station, open the Upgrades pane, and queue Assembly Line three times.  Your construction staff will attend to it shortly, speeding up Parts manufacture.  These can then be sold for a profit.</content>
 </topic>
 
 
@@ -177,7 +177,7 @@ Select the Ancient Ruin and declare a Strike Mission (the small red icon underne
   name      = "Strike Mission Begun"
   urgent    = "true"
   triggers  = "checkAttackMissionSetup"
-  completes = "checkNearRuinsDestroyed"
+  completes = "checkNearRuinsDronesDestroyed"
 >
   <content>Now that you have some applicants for the Strike Mission, they should polish off the ruins in short order.  Take care, however- some of the inhabitants will defend themselves!</content>
 </topic>
@@ -186,7 +186,8 @@ Select the Ancient Ruin and declare a Strike Mission (the small red icon underne
 <topic
   name      = "Drones Destroyed"
   urgent    = "true"
-  triggers  = "checkNearDronesDestroyed"
+  triggers  = "checkNearRuinsDronesDestroyed"
+  completes = "checkNearRuinsDestroyed"
 >
   <content>Now that any local resistance has been dealt with, the ruins should fall in short order.</content>
 </topic>
@@ -197,7 +198,45 @@ Select the Ancient Ruin and declare a Strike Mission (the small red icon underne
   urgent    = "true"
   triggers  = "checkNearRuinsDestroyed"
 >
-  <content></content>
+  <content>Excellent!  Now that the ruins are destroyed, let's return to base.</content>
+  <link name="Hiring Basics">Continue</link>
+</topic>
+
+
+<topic
+  name      = "Hiring Basics"
+  urgent    = "true"
+  whenOpen  = "whenHiringBasicsTopicOpen"
+  completes = "checkHiringDone"
+>
+  <content>A number of veterans Troopers have applied to work at your Trooper Lodge, but you don't have space for all of them.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which to hire.</content>
+</topic>
+
+
+<topic
+  name      = "Troops Hired"
+  urgent    = "true"
+  triggers = "checkHiringDone"
+>
+  <content>That's it.  Fresh recruits will arrive aboard visiting Dropships, along with trade goods.  But they might not arrive for a while.  If you like, you can open the facility's Staffing tab to get an ETA.
+
+While we're waiting, let's take a fresh look at our cash flow.</content>
+  <link name="Profits and Loss">Continue</link>
+</topic>
+
+
+
+
+
+<topic
+  name      = "Profits and Loss"
+  urgent    = "true"
+  whenOpen  = "whenBudgetsTopicOpen"
+>
+  <content>If you open the Finance pane (first button in the top-right), and click on the Budgets tab, you can take a look at your profits and losses for each day.
+
+At the moment, your funds are likely to be running low.</content>
+  <link name="">Continue</link>
 </topic>
 
 

@@ -10,16 +10,16 @@ import stratos.util.*;
 
 
 
-public class CommercePane extends SelectionPane {
+public class BudgetsPane extends SelectionPane {
   
   
   final static ImageAsset
-    COMMERCE_ICON = ImageAsset.fromImage(
-      CommercePane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
+    BUDGETS_ICON = ImageAsset.fromImage(
+      BudgetsPane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
     ),
-    COMMERCE_ICON_LIT = Button.CIRCLE_LIT;
+    BUDGETS_ICON_LIT = Button.CIRCLE_LIT;
   
-  final static String
+  final public static String
     CAT_DEMAND   = "[MARKETS]",
     CAT_BUDGET   = "[BUDGETS]",
     CATEGORIES[] = { CAT_DEMAND, CAT_BUDGET };
@@ -28,15 +28,15 @@ public class CommercePane extends SelectionPane {
   private int periodShown = -1;
   
   
-  public CommercePane(BaseUI UI) {
+  public BudgetsPane(BaseUI UI) {
     super(UI, null, false, false, 0, CATEGORIES);
   }
   
   
   static Button createButton(final BaseUI baseUI) {
-    final CommercePane pane = new CommercePane(baseUI);
+    final BudgetsPane pane = new BudgetsPane(baseUI);
     final Button button = new Button(
-      baseUI, COMMERCE_BUTTON_ID, COMMERCE_ICON, COMMERCE_ICON_LIT, "Finance"
+      baseUI, BUDGETS_BUTTON_ID, BUDGETS_ICON, BUDGETS_ICON_LIT, "Finance"
     ) {
       protected void whenClicked() {
         if (baseUI.currentPane() == pane) {

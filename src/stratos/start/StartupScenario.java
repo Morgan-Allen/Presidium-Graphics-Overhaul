@@ -381,18 +381,12 @@ public class StartupScenario extends Scenario {
       a.goAboard(bastion, world);
     }
     base.setup.establishRelations(bastion.staff.lodgers());
-    
-    //  TODO:  Vary this based on starting House-
-    bastion.stocks.bumpItem(Economy.CARBS    , 10);
-    bastion.stocks.bumpItem(Economy.PROTEIN  , 10);
-    bastion.stocks.bumpItem(Economy.GREENS   , 10);
-    bastion.stocks.bumpItem(Economy.SOMA     , 10);
-    bastion.stocks.bumpItem(Economy.PARTS    , 20);
-    bastion.stocks.bumpItem(Economy.PLASTICS , 10);
-    //bastion.stocks.bumpItem(Economy.GENE_SEED, 15);
-    //bastion.stocks.bumpItem(Economy.MEDICINE , 5 );
-    //bastion.stocks.bumpItem(Economy.STIM_KITS, 10);
-    //Placement.establishRelations(advisors, colonists);
+    //
+    //  TODO:  Vary this based on starting House
+    bastion.updateAsScheduled(0, false);
+    for (Item i : bastion.stocks.shortages()) {
+      bastion.stocks.addItem(i);
+    }
     return bastion;
   }
   

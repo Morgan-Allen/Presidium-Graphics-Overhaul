@@ -532,7 +532,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  Missions created as TYPE_BASE_AI exist to allow evaluation by base-
     //  command prior to actual execution.
     final boolean baseAI = missionType == TYPE_BASE_AI;
-    final int partySize = rolesApproved(), limit = PARTY_LIMITS[priority];
+    final int
+      partySize = rolesApproved(),
+      applySize = applicants().size(),
+      limit     = PARTY_LIMITS[priority];
     final Role role = roleFor(actor);
     float rewardEval;
     if (baseAI) {
@@ -552,7 +555,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  ensure that applications remain stable.  Then weight by appeal to the
     //  actor's basic motives, and return:
     if (role == null || ! role.approved) {
-      if (partySize >= limit) {
+      if ((partySize >= limit) || (applySize > limit + partySize)) {
         if (report) I.say("  No room for application! "+partySize+"/"+limit);
         return -1;
       }
@@ -785,7 +788,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   private void returnSelectionAfterward() {
-    if (BaseUI.isSelected(this) && (subject instanceof Selectable)) {
+    if (BaseUI.paneOpenFor(this) && (subject instanceof Selectable)) {
       BaseUI.current().selection.pushSelection((Selectable) subject);
     }
   }

@@ -41,16 +41,10 @@ public class CultureLab extends Venue {
       TO, 1, CARBS,
       SIMPLE_DC, CHEMISTRY
     ),
-    WASTE_TO_CATALYST = new Conversion(
-      CultureLab.class, "carbs_to_reagents",
-      TO, 1, CATALYST,
+    WASTE_TO_REAGENTS = new Conversion(
+      CultureLab.class, "waste_to_reagents",
+      TO, 1, REAGENTS,
       ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
-    ),
-    //  TODO:  Move this to the Physician Station?
-    WASTE_TO_SOMA = new Conversion(
-      CultureLab.class, "waste_to_soma",
-      TO, 1, SOMA,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     ),
     CARBS_TO_PROTEIN = new Conversion(
       CultureLab.class, "carbs_to_protein",
@@ -69,9 +63,8 @@ public class CultureLab extends Venue {
     4, 2, IS_NORMAL,
     new Blueprint[] { EngineerStation.BLUEPRINT, PhysicianStation.BLUEPRINT },
     Owner.TIER_FACILITY,
-    WASTE_TO_CARBS, WASTE_TO_CATALYST,
-    WASTE_TO_SOMA, CARBS_TO_PROTEIN,
-    PROTEIN_TO_REPLICANTS
+    WASTE_TO_CARBS, WASTE_TO_REAGENTS,
+    CARBS_TO_PROTEIN, PROTEIN_TO_REPLICANTS
   );
   
   
@@ -112,7 +105,7 @@ public class CultureLab extends Venue {
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
-      "permitting manufacture of "+SOMA+" and "+CATALYST+".",
+      "permitting manufacture of "+REAGENTS+".",
       250, Upgrade.THREE_LEVELS, null, 1,
       null, CultureLab.class
     ),
@@ -139,8 +132,7 @@ public class CultureLab extends Venue {
     
     stocks.translateRawDemands(WASTE_TO_CARBS   , 1);
     stocks.translateRawDemands(CARBS_TO_PROTEIN , 1);
-    stocks.translateRawDemands(WASTE_TO_SOMA    , 1);
-    stocks.translateRawDemands(WASTE_TO_CATALYST, 1);
+    stocks.translateRawDemands(WASTE_TO_REAGENTS, 1);
     
     final float needPower = 5 * (1 + (structure.numUpgrades() / 3f));
     final int cycleBonus = structure.upgradeLevel(CARBS_CULTURE);
@@ -179,11 +171,7 @@ public class CultureLab extends Venue {
     }
     //
     //  Pharmaceuticals-
-    final Manufacture mA = stocks.nextManufacture(actor, WASTE_TO_SOMA);
-    if (mA != null) {
-      choice.add(mA.setBonusFrom(this, false, DRUG_SYNTHESIS));
-    }
-    final Manufacture mM = stocks.nextManufacture(actor, WASTE_TO_CATALYST);
+    final Manufacture mM = stocks.nextManufacture(actor, WASTE_TO_REAGENTS);
     if (mM != null) {
       choice.add(mM.setBonusFrom(this, true, DRUG_SYNTHESIS));
     }
@@ -204,9 +192,7 @@ public class CultureLab extends Venue {
 
 
   public Traded[] services() {
-    return new Traded[] {
-      CARBS, PROTEIN, SOMA, CATALYST, SPYCE_T
-    };
+    return new Traded[] { CARBS, PROTEIN, SOMA, REAGENTS };
   }
   
   
@@ -234,9 +220,9 @@ public class CultureLab extends Venue {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Culture Lab manufactures "+SOMA+", "+CATALYST+", basic foodstuffs "+
+      "The Culture Lab manufactures "+REAGENTS+", basic foodstuffs "+
       "and even cloned tissues for medical purposes.",
-      this, WASTE_TO_SOMA, DRUG_SYNTHESIS
+      this, WASTE_TO_CARBS, CARBS_CULTURE
     );
   }
 }

@@ -528,9 +528,9 @@ public class ActorHealth implements Qualities {
     }
     
     float sum = 0;
-    sum += injuryLevel();
+    sum += injuryLevel ();
     sum += fatigueLevel();
-    sum += hungerLevel();
+    sum += hungerLevel ();
     
     sum -= (bleeds ? 0 : 0.25f) - disease;
     sum -= Nums.clamp(moraleLevel(), -0.5f, 0.5f);

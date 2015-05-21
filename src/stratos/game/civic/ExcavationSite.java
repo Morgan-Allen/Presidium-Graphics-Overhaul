@@ -51,7 +51,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       TO, 1, FUEL_RODS
     );
   
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     ExcavationSite.class, "excavation_site",
     "Excavation Site", UIConstants.TYPE_ENGINEER,
     4, 1, IS_NORMAL,
@@ -137,7 +137,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     SAFETY_PROTOCOL = new Upgrade(
       "Safety Protocol",
       "Increases effective dig range while limiting pollution and improving "+
-      "the chance to recover artifacts.",
+      "the chance to recover "+CURIO+"s.",
       100,
       Upgrade.THREE_LEVELS, null, 1,
       null, ExcavationSite.class
@@ -145,7 +145,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     
     METALS_SMELTING = new Upgrade(
       "Metals Smelting",
-      "Allows veins of heavy metals to be sought out and processed more "+
+      "Allows veins of heavy metal ores to be sought out and processed more "+
       "reliably.",
       150,
       Upgrade.THREE_LEVELS, METALS, 2,
@@ -224,7 +224,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (mineral == FUEL_RODS) {
       return (0 + structure.upgradeLevel(FUEL_RODS_SMELTING)) * 2;
     }
-    if (mineral == ARTIFACTS) {
+    if (mineral == CURIO) {
       return (0 + structure.upgradeLevel(SAFETY_PROTOCOL)) * 2;
     }
     return -1;

@@ -1,4 +1,4 @@
-  /**  
+/**  
   *  Written by Morgan Allen.
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
@@ -63,40 +63,40 @@ public final class Economy {
       "Carbohydrate-based and oily foodstuffs"
     ),
     GREENS = new Traded(
-      BC, "Greens"   , "greens.gif"   , FORM_MATERIAL, 55,
+      BC, "Greens"   , "greens.gif"   , FORM_MATERIAL, 40,
       "Fresh vegetable and fibrous foodstuffs"
     ),
     PROTEIN = new Traded(
-      BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 25,
+      BC, "Protein"  , "protein.gif"  , FORM_MATERIAL, 20,
       "Game meat and cultured yeast foodstuffs"
     ),
     //  Rations
     ALL_FOOD_TYPES[] = label(CATEGORY_FOOD, CARBS, GREENS, PROTEIN),
-    
+
+    REAGENTS = new Traded(
+      BC, "Reagents" , "reagents.gif" , FORM_MATERIAL, 40,
+      "Chemical ingredients and metabolic tracers used in lab work"
+    ),
     SOMA = new Traded(
-      BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 40,
+      BC, "Soma"     , "soma.gif"     , FORM_MATERIAL, 60,
       "A mild recreational narcotic with minimal side-effects"
     ),
-    CATALYST = new Traded(
-      BC, "Catalyst" , "catalyst.gif"  , FORM_MATERIAL, 60,
-      "Common stimulants and metabolic tracers used in lab work"
-    ),
     MEDICINE = new Traded(
-      BC, "Medicine" , "medicine.gif", FORM_MATERIAL, 120,
+      BC, "Medicine" , "medicine.gif" , FORM_MATERIAL, 120,
       "Drugs and supplements tailored to treat common diseases"
     ),
-    ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, CATALYST, MEDICINE),
+    ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, REAGENTS, MEDICINE),
     
     POLYMER = new Traded(
-      BC, "Polymer"  , "polymer.gif"   , FORM_MATERIAL, 5,
+      BC, "Polymer"  , "polymer.gif"   , FORM_MATERIAL, 8,
       "Long-chain hydrocarbons, used in plastics production"
     ),
     METALS = new Traded(
-      BC, "Metals"   , "metals.gif"    , FORM_MATERIAL, 10,
+      BC, "Metals"   , "metals.gif"    , FORM_MATERIAL, 12,
       "Common metal ores, used in construction and industry"
     ),
     FUEL_RODS = new Traded(
-      BC, "Fuel Rods" , "fuel_rods.gif", FORM_MATERIAL, 35,
+      BC, "Fuel Rods" , "fuel_rods.gif", FORM_MATERIAL, 30,
       "Heavy or unstable elements used in nuclear synthesis"
     ),
     ALL_MINERAL_TYPES[] = label(CATEGORY_MINERAL, POLYMER, METALS, FUEL_RODS),
@@ -115,45 +115,26 @@ public final class Economy {
     ),
     ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, CIRCUITRY);
   
+  
   final public static Traded
     ALL_MATERIALS [] = Traded.INDEX.soFar(Traded.class);
   
   final public static Traded
-    SAMPLES = new Traded(
-      BC, "Samples"    , null, FORM_SPECIAL, 0
-    ),
     SLAG = new Traded(
-      BC, "Slag"       , null, FORM_SPECIAL, 0
+      BC, "Slag"    ,
+      "Waste products from mining operations.",
+      FORM_SPECIAL, 0
     ),
-    
-    SPYCE_T = new Traded(
-      BC, "Spyce T", "spyce.gif"  , FORM_SPECIAL, 200,
-      "Tinerazine, a spyce compound found in animal galls"
+    SAMPLES = new Traded(
+      BC, "Samples" , null, FORM_SPECIAL, 0
     ),
-    SPYCE_H = new Traded(
-      BC, "Spyce H", "spyce.gif"  , FORM_SPECIAL, 200,
-      "Halebdynum, a spyce compound found as a dessicated salt"
+    CURIO = new Traded(
+      BC, "Curio"   , null, FORM_SPECIAL, 0
     ),
-    
-    ANTIMASS = new Traded(
-      BC, "Antimass", "fuel_rods.gif" , FORM_SPECIAL, 85,
-      "A potent energy source needed for atomics and space travel"
-    ),
-    PRESSFEED = new Traded(
-      BC, "Pressfeed", "pressfeed.gif", FORM_SPECIAL, 50,
-      "Disposable propaganda used to raise morale and sway opinion"
-    ),
-    DATALINKS = new Traded(
-      BC, "Datalinks", "datalinks.gif", FORM_SPECIAL, 125,
-      "Encrypted terminals used to store and carry information"
-    ),
-    DECOR = new Traded(
-      BC, "Decor"    , "decor.gif"    , FORM_SPECIAL, 250,
-      "Interior decoration for the homes of the upper crust"
-    ),
-    
-    ARTIFACTS = new Traded(
-      BC, "Artifacts"  , null, FORM_SPECIAL, 0
+    DRI_SPYCE = new Traded(
+      BC, "Dri Spyce", "spyce.gif"  , FORM_SPECIAL, 200,
+      "Halebdynum, or Dri Spyce, an exotic baryonic compound known to "+
+      "heighten psyonic abilities."
     ),
     
     TREATMENT = new Traded(
@@ -162,11 +143,33 @@ public final class Economy {
     GENE_SEED = new Traded(
       BC, "Gene Seed"  , null, FORM_SPECIAL, 0
     ),
-    PSYCH_SCAN = new Traded(
-      BC, "Psych Scan" , null, FORM_SPECIAL, 0
-    ),
     REPLICANTS = new Traded(
       BC, "Replicants" , null, FORM_SPECIAL, 0
+    ),
+    
+    BLU_SPYCE = new Traded(
+      BC, "Blu Spyce", "spyce.gif"  , FORM_SPECIAL, 200,
+      "Natrizoral, or Blu Spyce, a refined form of spyce that confers "+
+      "particular benefits to transduction and metabolism."
+    ),
+    
+    //  TODO:  Replace directly with Atomics.  Ships have their own on-board
+    //  reactors.
+    ANTIMASS = new Traded(
+      BC, "Antimass", "fuel_rods.gif" , FORM_SPECIAL, 1000,
+      "A concentrated energy source needed for atomics and space travel"
+    ),
+    PRESSFEED = new Traded(
+      BC, "Pressfeed", "pressfeed.gif", FORM_SPECIAL, 50,
+      "Disposable propaganda used to raise morale and sway the masses"
+    ),
+    DATALINKS = new Traded(
+      BC, "Datalinks", "datalinks.gif", FORM_SPECIAL, 125,
+      "Encrypted terminals used to store and carry sensitive information"
+    ),
+    DECOR = new Traded(
+      BC, "Decor"    , "decor.gif"    , FORM_SPECIAL, 250,
+      "Interior decoration for the homes of the upper crust"
     );
   final public static Traded
     ALL_SPECIAL_ITEMS[] = Traded.INDEX.soFar(Traded.class);
@@ -181,15 +184,14 @@ public final class Economy {
     ),
     WATER = new Traded(
       BC, "Water", "water.png" , FORM_PROVISION, 20
-    ),
-    COMMS = new Traded(
-      BC, "Comms", "admin.png" , FORM_PROVISION, 15
     );
   final public static Traded
     ALL_PROVISIONS[] = Traded.INDEX.soFar(Traded.class);
   
   
   final public static Traded
+    //  TODO:  Also, Transport.
+    
     SERVICE_ENTERTAIN  = new Traded(
       BC, "Entertainment", null, FORM_SERVICE, 0
     ),
@@ -272,19 +274,19 @@ public final class Economy {
     SIDE_SABRE = new DeviceType(
       BC, "Side Sabre",
       "light blade", AnimNames.STRIKE,
-      8, MELEE | KINETIC, 5,
-      EngineerStation.class, 1, PARTS, 0, ASSEMBLY
+      8, MELEE | KINETIC, 10,
+      EngineerStation.class, 1, PARTS, 5, ASSEMBLY
     ),
     ZWEIHANDER = new DeviceType(
       BC, "Zweihander",
       "heavy blade", AnimNames.STRIKE_BIG,
-      15, MELEE | KINETIC, 25,
-      EngineerStation.class, 1, PARTS, 5, ASSEMBLY
+      18, MELEE | KINETIC, 35,
+      EngineerStation.class, 1, PARTS, 10, ASSEMBLY
     ),
     ARC_SABRE = new DeviceType(
       BC, "Arc Sabre",
       "sabre", AnimNames.STRIKE,
-      25, MELEE | ENERGY, 100,
+      24, MELEE | ENERGY, 100,
       EngineerStation.class, 3, PARTS, 15, ASSEMBLY
     ),
     

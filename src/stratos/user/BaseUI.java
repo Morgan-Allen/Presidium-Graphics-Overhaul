@@ -118,6 +118,15 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
+  public static boolean paneOpenFor(Object o) {
+    final BaseUI UI = current();
+    if (UI == null || ! (UI.currentPane() instanceof SelectionPane)) {
+      return false;
+    }
+    return ((SelectionPane) UI.currentPane()).selected == o;
+  }
+  
+  
   public static boolean isSelected(Object o) {
     final BaseUI UI = current();
     return UI != null & UI.selection.selected() == o;
@@ -211,7 +220,7 @@ public class BaseUI extends HUD implements UIConstants {
     rosterButton.alignRight((PTS * 1) + HTS, PTS);
     rosterButton.attachTo(this);
     
-    this.edictsButton = CommercePane.createButton(this);
+    this.edictsButton = BudgetsPane.createButton(this);
     edictsButton.stretch = false;
     edictsButton.alignTop(0, PTH);
     edictsButton.alignRight((PTS * 2) + HTS, PTS);

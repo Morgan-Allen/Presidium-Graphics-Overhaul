@@ -129,9 +129,9 @@ public class FindHome extends Plan {
     if (oldHome != newHome && crowdingAt(newHome, actor) >= 1) return -1;
     
     float rating = 0;
-    if (oldHome == null   ) rating += ROUTINE;
+    if (oldHome == null   ) rating += PARAMOUNT;
     if (newHome == oldHome) rating += DEFAULT_SWITCH_THRESHOLD;
-    if (newHome == actor.mind.work()) return rating + PARAMOUNT;
+    if (newHome == actor.mind.work()) return rating + ROUTINE;
     
     if (newHome instanceof Holding) {
       final float UL = ((Holding) newHome).upgradeLevel();
@@ -166,21 +166,31 @@ public class FindHome extends Plan {
   
   
   private static boolean shouldSwitchTo(Actor client, Property newHome) {
-    final boolean report = verbose && I.talkAbout == client;
+    boolean report = verbose && I.talkAbout == client;
+    
+    report &= (newHome instanceof Holding);
+    report &= (newHome.staff().lodgers().empty());
+    if (report) {
+      I.say("\nEVALUATING HOME");
+    }
+    
+    
     
     final Property oldHome = client.mind.home();
     final float
       oldRating = rateHolding(client, oldHome),
       newRating = rateHolding(client, newHome);
     
-    if (newRating <= 0) return false;
+    if (newRating <= 0) {
+      if (report) I.say("\nHome rating for "+newHome+" was "+newRating);
+      return false;
+    }
     final Property best = newRating > oldRating ? newHome : oldHome;
     
-    //final Pick <Property> pick = new Pick <Property> (0);
-    //pick.compare(oldHome, rateHolding(client, oldHome));
-    //pick.compare(newHome, rateHolding(client, newHome));
-    //final Property best = pick.result();
-    if (best == null || best == oldHome) return false;
+    if (best == null || best == oldHome) {
+      if (report) I.say("\nNew/old home: "+newHome+"/"+oldHome);
+      return false;
+    }
     
     if (report) {
       I.say("\nLooking for best home for "+client);

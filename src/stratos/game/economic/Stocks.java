@@ -111,10 +111,12 @@ public class Stocks extends Inventory {
     if (Float.isNaN(inc)) I.complain("INC IS NOT-A-NUMBER!");
     if (Float.isNaN(credits)) credits = 0;
     if (inc == 0) return;
+    
     final int oldC = (int) allCredits();
     super.incCredits(inc);
     final int newC = (int) allCredits();
     if (! basis.inWorld() || oldC == newC) return;
+    
     String phrase = inc >= 0 ? "+" : "-";
     phrase+=" "+(int) Nums.abs(inc)+" credits";
     basis.chat().addPhrase(phrase);

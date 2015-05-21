@@ -44,7 +44,7 @@ public class EngineerStation extends Venue {
     )
   ;
   
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     EngineerStation.class, "engineer_station",
     "Engineer Station", UIConstants.TYPE_ENGINEER,
     4, 2, IS_NORMAL,

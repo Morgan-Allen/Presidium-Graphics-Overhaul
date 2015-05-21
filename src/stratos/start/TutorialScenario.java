@@ -33,15 +33,19 @@ public class TutorialScenario extends StartupScenario {
   private Bastion bastion = null;
   private Ruins ruinsNear = null, ruinsFar = null;
   
-  private TrooperLodge    barracksBuilt = null;
-  private EngineerStation foundryBuilt  = null;
-  private SupplyDepot     depotBuilt    = null;
-  private float startingBalance = -1;
+  private TrooperLodge     barracksBuilt = null;
+  private EngineerStation  foundryBuilt  = null;
+  private SupplyDepot      depotBuilt    = null;
+  private EcologistStation botanistBuilt = null;
+  private boolean          topUpFunds    = true;
+  private float            creditsStart  = -1  ;
   
-  private Tile          startAt      = null;
-  private MissionRecon  reconSent    = null;
-  private MissionStrike strikeSent   = null;
-  private Drone         droneAttacks = null;
+  private Tile            startAt      = null;
+  private MissionRecon    reconSent    = null;
+  private MissionStrike   strikeSent   = null;
+  private MissionSecurity secureSent   = null;
+  private Venue           ruinsTarget  = null;
+  private Drone           droneAttacks = null;
   
   
   public TutorialScenario(String prefix) {
@@ -57,14 +61,19 @@ public class TutorialScenario extends StartupScenario {
     ruinsNear = (Ruins  ) s.loadObject();
     ruinsFar  = (Ruins  ) s.loadObject();
     
-    barracksBuilt   = (TrooperLodge   ) s.loadObject();
-    foundryBuilt    = (EngineerStation) s.loadObject();
-    depotBuilt      = (SupplyDepot    ) s.loadObject();
-    startingBalance = s.loadFloat();
+    barracksBuilt = (TrooperLodge    ) s.loadObject();
+    foundryBuilt  = (EngineerStation ) s.loadObject();
+    depotBuilt    = (SupplyDepot     ) s.loadObject();
+    botanistBuilt = (EcologistStation) s.loadObject();
+    topUpFunds    = s.loadBool ();
+    creditsStart  = s.loadFloat();
     
-    startAt      = (Tile        ) s.loadObject();
-    reconSent    = (MissionRecon) s.loadObject();
-    droneAttacks = (Drone       ) s.loadObject();
+    startAt      = (Tile           ) s.loadObject();
+    reconSent    = (MissionRecon   ) s.loadObject();
+    strikeSent   = (MissionStrike  ) s.loadObject();
+    secureSent   = (MissionSecurity) s.loadObject();
+    ruinsTarget  = (Venue          ) s.loadObject();
+    droneAttacks = (Drone          ) s.loadObject();
     
     this.script = (MessageScript) s.loadObject();
   }
@@ -77,14 +86,20 @@ public class TutorialScenario extends StartupScenario {
     s.saveObject(ruinsNear);
     s.saveObject(ruinsFar );
 
-    s.saveObject(barracksBuilt  );
-    s.saveObject(foundryBuilt   );
-    s.saveObject(depotBuilt     );
-    s.saveFloat (startingBalance);
+    s.saveObject(barracksBuilt);
+    s.saveObject(foundryBuilt );
+    s.saveObject(depotBuilt   );
+    s.saveObject(botanistBuilt);
+    s.saveBool  (topUpFunds   );
+    s.saveFloat (creditsStart );
     
     s.saveObject(startAt     );
     s.saveObject(reconSent   );
+    s.saveObject(strikeSent  );
+    s.saveObject(secureSent  );
+    s.saveObject(ruinsTarget );
     s.saveObject(droneAttacks);
+    
     s.saveObject(script);
   }
   
@@ -96,14 +111,21 @@ public class TutorialScenario extends StartupScenario {
     script.clearScript();
     
     bastion       = null;
+    ruinsNear     = null;
+    ruinsFar      = null;
     
     barracksBuilt = null;
     foundryBuilt  = null;
     depotBuilt    = null;
-    startingBalance = -1;
+    botanistBuilt = null;
+    topUpFunds    = true;
+    creditsStart  = -1  ;
     
     startAt      = null;
     reconSent    = null;
+    strikeSent   = null;
+    secureSent   = null;
+    ruinsTarget  = null;
     droneAttacks = null;
   }
   
@@ -135,6 +157,8 @@ public class TutorialScenario extends StartupScenario {
     GameSettings.noAdvice = true;
     GameSettings.noShips  = true;
     base.advice.setControlLevel(BaseAdvice.LEVEL_NONE);
+    
+    base.finance.setInitialFunding(2500, 0);
   }
   
   
@@ -184,6 +208,11 @@ public class TutorialScenario extends StartupScenario {
   public void updateGameState() {
     super.updateGameState();
     script.checkForEvents();
+    
+    final float balance = base().finance.credits();
+    if (topUpFunds && balance < 1000) {
+      base().finance.incCredits(1000 - balance, null);
+    }
   }
   
   
@@ -297,6 +326,8 @@ public class TutorialScenario extends StartupScenario {
         a.mind.assignBehaviour(build);
       }
     }
+    
+    depotBuilt.stocks.clearDemands();
   }
   
   
@@ -344,7 +375,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   
-  /**  Second round of Security topics-
+  /**  Second round of security topics-
     */
   protected void whenNearRuinsTopicOpen() {
     base().intelMap.liftFogAround(ruinsNear, 12);
@@ -369,16 +400,136 @@ public class TutorialScenario extends StartupScenario {
     for (int n = 2; n-- > 0;) {
       Actor drone = Drone.SPECIES.sampleFor(ruinsNear.base());
       drone.enterWorldAt(ruinsNear, world());
-      drone.goAboard(ruinsNear, world());
+      drone.goAboard    (ruinsNear, world());
       drone.mind.setHome(ruinsNear);
       if (n == 0) UI().tracking.lockOn(drone);
     }
   }
   
   
+  protected boolean checkNearRuinsDronesDestroyed() {
+    if (checkNearRuinsDestroyed()) return true;
+    if (ruinsNear == null) return false;
+    boolean anyDrones = false;
+    for (Actor a : ruinsNear.staff.lodgers()) {
+      if (a.health.alive()) return false;
+      else anyDrones = true;
+    }
+    return anyDrones;
+  }
+  
+  
   protected boolean checkNearRuinsDestroyed() {
     if (ruinsNear == null || ! ruinsNear.inWorld()) return true;
     return ruinsNear.destroyed();
+  }
+  
+  
+  
+  protected void whenHiringBasicsTopicOpen() {
+    if (barracksBuilt == null || ! barracksBuilt.structure.intact()) return;
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_STATION, 1);
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_STATION  , 1);
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
+    
+    final Base base = base();
+    while (base.commerce.numCandidates(Backgrounds.TROOPER) < 3) {
+      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
+      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
+    }
+    
+    UI().tracking.lockOn(barracksBuilt);
+    ScreenPing.addPingFor(UIConstants.ROSTER_BUTTON_ID);
+  }
+  
+  
+  protected boolean checkHiringDone() {
+    if (barracksBuilt == null) return false;
+    return barracksBuilt.staff.numHired(Backgrounds.TROOPER) >= 2;
+  }
+  
+  
+  
+  /**  Second round of economic topics-
+    */
+  protected void whenBudgetsTopicOpen() {
+    ScreenPing.addPingFor(UIConstants.BUDGETS_BUTTON_ID);
+  }
+  
+  
+  protected boolean checkBudgetsPaneOpened() {
+    if (! (UI().currentPane() instanceof BudgetsPane)) return false;
+    final BudgetsPane pane = (BudgetsPane) UI().currentPane();
+    if (pane.category() != BudgetsPane.CAT_BUDGET) return false;
+    return true;
+  }
+  
+  
+  protected boolean checkExtraStructuresBuilt() {
+    if (base().listInstalled(EngineerStation.BLUEPRINT, true).size() < 2) {
+      return false;
+    }
+    if (base().listInstalled(ExcavationSite.BLUEPRINT, true).size() < 1) {
+      return false;
+    }
+    if (base().listInstalled(StockExchange.BLUEPRINT, true).size() < 1) {
+      return false;
+    }
+    if (base().listInstalled(Holding.BLUEPRINT, true).size() < 1) {
+      return false;
+    }
+    return true;
+  }
+  
+  
+  protected void onExtraStructuresBuilt() {
+    
+    final Pick <Venue> closest = new Pick <Venue> ();
+    for (Object o : world().presences.allMatches(base())) {
+      final Venue v = (Venue) o;
+      closest.compare(v, 0 - Spacing.distance(v, ruinsFar));
+    }
+    
+    this.ruinsTarget = closest.result();
+    
+    final Base artilects = Base.artilects(world());
+    final MissionStrike strike = new MissionStrike(artilects, ruinsTarget);
+    
+    artilects.setup.fillVacancies(ruinsFar, true);
+    
+    droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
+    final Tile entry = Spacing.bestMidpoint(ruinsTarget, ruinsFar);
+    
+    if (entry != null) {
+      droneAttacks.enterWorldAt(entry, world());
+      Mission.quickSetup(
+        strike, Mission.PRIORITY_ROUTINE, Mission.TYPE_BASE_AI, droneAttacks
+      );
+    }
+  }
+  
+  
+  protected boolean checkFarRuinsDestroyed() {
+    if (ruinsFar == null) return true;
+    if (! ruinsFar.destroyed()) return false;
+    for (Actor a : ruinsFar.staff.lodgers()) if (! a.destroyed()) return false;
+    return true;
+  }
+  
+  
+  protected boolean checkEconomyComplete() {
+    if (true) return false;
+    
+    //  Forget the supply depot.  The stock exchange is the simplest way to
+    //  handle this.
+    
+    //
+    //  Check you have positive cash flow.
+    //
+    //  Check you have a food source.
+    //
+    //  Check you have at least one piece of housing upgraded.
+    return true;
   }
   
   
@@ -416,6 +567,8 @@ public class TutorialScenario extends StartupScenario {
     return all;
   }
 }
+
+
 
 
   /*

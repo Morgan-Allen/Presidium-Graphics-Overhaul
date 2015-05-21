@@ -99,6 +99,7 @@ public class MessageScript implements
     for (int n = s.loadInt(); n-- > 0;) {
       final String key  = s.loadString();
       final Topic topic = allTopics.get(key);
+      if (topic == null) { s.loadBool(); s.loadBool(); continue; }
       topic.triggered   = s.loadBool();
       topic.completed   = s.loadBool();
     }
@@ -125,8 +126,9 @@ public class MessageScript implements
   
   public void clearScript() {
     for (Topic topic : allTopics.values()) {
-      topic.asMessage = null;
+      topic.asMessage = null ;
       topic.triggered = false;
+      topic.completed = false;
     }
   }
   
@@ -253,7 +255,9 @@ public class MessageScript implements
         );
         else d.append(new Description.Link("\n  "+linkName) {
           public void whenClicked() {
-            UI.reminders().retireMessage(topic.asMessage);
+            if (topic.completes == null) {
+              UI.reminders().retireMessage(topic.asMessage);
+            }
             pushTopicMessage(linkTopic, true);
           }
         });

@@ -12,6 +12,8 @@ import stratos.game.maps.*;
 import stratos.util.*;
 
 
+//  TODO:  Don't refer to the Shield Wall explicitly?  Use a public interface?
+
 
 public class Patrolling extends Plan implements TileConstants, Qualities {
   
@@ -414,40 +416,15 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       p.addMotives(Plan.MOTIVE_JOB, priority);
       return p;
     }
-    
-    //  TODO:  Restore sentry duty along shield walls!
-    
-    /*
-    final Venue
-      init = (Venue) world.presences.randomMatchNear(base, origin, range),
-      dest = (Venue) world.presences.randomMatchNear(base, origin, range);
-    
-    if (init instanceof ShieldWall || dest instanceof ShieldWall) {
-      Target pick, other;
-      if (Rand.yes()) { pick = init; other = dest; }
-      else            { pick = dest; other = init; }
-      if (! (pick instanceof ShieldWall)) pick = other;
-      final Patrolling s = Patrolling.sentryDuty(
-        actor, (ShieldWall) pick, Rand.index(8)
-      );
-      if (s != null) {
-        s.setMotive(Plan.MOTIVE_DUTY, priority);
-        return s;
-      }
-    }
-    
-    if (init != null && dest != null) {
-      final Patrolling p = (init == dest) ?
-        Patrolling.aroundPerimeter(actor, init, world) :
-        Patrolling.streetPatrol(actor, init, dest, world);
-      if (p != null) {
-        p.setMotive(Plan.MOTIVE_DUTY, priority);
-        return p;
-      }
-    }
-    //*/
-    
     return null;
+  }
+  
+  
+  public static ShieldWall turretIsAboard(Target t) {
+    if (! (t instanceof Mobile)) return null;
+    final Boarding aboard = ((Mobile) t).aboard();
+    if (aboard instanceof ShieldWall) return (ShieldWall) aboard;
+    else return null;
   }
   
   

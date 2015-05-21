@@ -78,7 +78,7 @@ public class Flora extends Element implements TileConstants {
     ) {},
     
     GORG_APHID  = new Species(
-      Flora.class, "Gorg Aphid" , Type.FLORA, 1, SPYCE_T
+      Flora.class, "Gorg Aphid" , Type.FLORA, 1, DRI_SPYCE
     ) {},
     
     PIONEERS    = new Species(

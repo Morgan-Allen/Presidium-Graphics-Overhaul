@@ -40,8 +40,13 @@ public class PhysicianStation extends Venue {
   final public static Conversion
     REAGENTS_TO_MEDICINE = new Conversion(
       PhysicianStation.class, "reagents_to_medicine",
-      1, CATALYST, 1, GREENS, TO, 2, MEDICINE,
+      1, REAGENTS, 1, GREENS, TO, 2, MEDICINE,
       MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+    ),
+    REAGENTS_TO_SOMA = new Conversion(
+      CultureLab.class, "waste_to_soma",
+      1, REAGENTS, TO, 3, SOMA,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     )
   ;
   
@@ -49,11 +54,11 @@ public class PhysicianStation extends Venue {
     PhysicianStation.class, "physician_station",
     "Physician Station", UIConstants.TYPE_PHYSICIAN,
     3, 2, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY, REAGENTS_TO_MEDICINE
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    REAGENTS_TO_MEDICINE, REAGENTS_TO_SOMA
   );
   
   
-  final List <Plan> neuralScans = new List <Plan> ();  //TODO:  Use this?
   final List <Manufacture> cloneOrders = new List <Manufacture> ();
   
   
@@ -70,14 +75,12 @@ public class PhysicianStation extends Venue {
   
   public PhysicianStation(Session s) throws Exception {
     super(s);
-    s.loadObjects(neuralScans);
     s.loadObjects(cloneOrders);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObjects(neuralScans);
     s.saveObjects(cloneOrders);
   }
   
@@ -99,7 +102,7 @@ public class PhysicianStation extends Venue {
       null, PhysicianStation.class
     ),
     
-    //  Soma and truth serums.  (hypnotic medications)
+    //  Soma and truth serums (for interrogation- hypnotic meds.)
     HM_DISPENSARY = null,
     
     EMERGENCY_ROOM = new Upgrade(
@@ -230,8 +233,9 @@ public class PhysicianStation extends Venue {
     //
     //  Sickbays consumes medicine and power based on current upgrade level,
     //  and have a mild positive effect on ambience-
-    stocks.incDemand(MEDICINE, 5, 1, true);
+    stocks.incDemand(MEDICINE, 2 + numU, 1, true);
     stocks.translateRawDemands(REAGENTS_TO_MEDICINE, 1);
+    stocks.translateRawDemands(REAGENTS_TO_SOMA    , 1);
     stocks.forceDemand(POWER, powerNeed, false);
     structure.setAmbienceVal(4 + numU);
   }
@@ -259,7 +263,7 @@ public class PhysicianStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { GREENS, CATALYST, MEDICINE };
+    return new Traded[] { GREENS, REAGENTS, MEDICINE };
   }
   
   

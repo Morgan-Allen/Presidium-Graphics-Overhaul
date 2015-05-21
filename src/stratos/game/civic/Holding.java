@@ -56,7 +56,7 @@ public class Holding extends Venue {
     )
   ;
   
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     Holding.class, "holding",
     "Seal Tent", UIConstants.TYPE_PHYSICIAN,
     3, 2, IS_NORMAL,

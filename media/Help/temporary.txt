@@ -33,140 +33,148 @@ a better starting position for the artilects- somewhere far away.
 
 TUTORIAL CHANGES
   
-  The economic objective.  Explain about supply/demand/prices, and how contact
-  missions can secure trade partners at an advantageous price.  (Including
-  offworld.)
+  Make sure they know how to read their budget.  Check that the right pane is
+  open for the right amount of time.
   
-  Note that the player is short of funds, and explain how they can use an
-  excavation site to obtain more goods for export and reduce expenses.
+  Then ask them to install a excavation site, stock exchange, one or two seal
+  tents, and a second engineer station.
   
-  Mention that a sickbay might be useful, both to help troops recuperate and to
-  export medicines.  A stock exchange might be useful too.
-  
-  
-  Have a raider assault the closest structure to the other ruins.  Zoom to it
-  immediately, and make sure it's dead or fled before moving on.
-  
-  Walk the player through setting a security mission on that structure to
-  provide some defence- and using a screened mission to limit applicants.
-  
-  Walk the player through hiring extra staff.
-  
-  Then set the objective of conquering the next ruins.  They'll need to both
-  explore and strike.
+  Once they're built, make the appropriate adjustments to imports/exports and
+  add a few upgrades.  Once there's a positive cash flow, turn off the life-
+  support.  They'll have to sink or swim from there.
   
   
-  Ask the player to place some housing, and make sure it upgrades at least
-  once.  A positive cash flow and a housing upgrade concludes the tutorial on
-  a hopeful note.
+  Introduce a raider against the nearest structure from the far ruins.  Have it
+  driven off, then instruct the player in putting up a screened security
+  mission.
+  
+  Instruct the player to build a second trooper lodge and a sickbay.  Install a
+  few upgrades too.  In the meantime, they need to start exploring the surrounds
+  and find the second ruins.
+  
+  With that done, and with the new recruits gained, it's time to finish the job.
+  Declare a screened strike mission and destroy them.
+  
+  
+  Use a contact mission to help recruit some natives to help!  They'll know the
+  map, and can reveal the ruins' exact location.  (Plus they can trade stuff
+  too.)
+  
+  
+  Have them check the budget-pane again.
+  
+  By this point, the player should have positive cash flow and at least one
+  housing upgrade, to conclude the tutorial on a hopeful note.
 
 
 
 
-
-
-
-  Reintroduce these when you can.
 
 
 <topic
-  name   = "Security Basics"
-  urgent = "true"
-  onOpen = "onSecurityBasicsOpen"
->
-  <content>If they haven't done so already, local raiders are likely to begin harassing your settlement, potentially razing structures and harming citizens.
-
-When you're ready, we'll introduce a scouting Drone- a relatively weak robotic enemy, or artilect- to assault your Trooper Lodge.</content>
-  <link name="Base Under Attack!">Continue</link>
-</topic>
-
-
-<topic
-  name      = "Base Under Attack!"
+  name      = "Profits and Loss"
   urgent    = "true"
-  onOpen    = "onBaseAttackOpen"
-  completes = "checkDroneDestroyed"
 >
-  <content>Here it comes!  Your patrolling troopers might polish it off themselves, but you can also select the interloper and click on the small red icon below to declare a Strike Mission against that target.
+  <content>Open your Finances pane (first icon on the top-right), and take a look at your Budgets tab.  This should show a summary of your income and expenses for each day since your arrival.
 
-Remember to offer a reward, or no-one will take up the challenge!</content>
+At this point, you may be running low on funds.  When you're ready, we'll cover some approaches for fixing that.</content>
+<link name="Balancing the Books">Very well.  Proceed.</link>
 </topic>
 
 
 <topic
-  name     = "Hire More Soldiers"
-  urgent   = "true"
-  triggers = "checkDroneDestroyed"
-  onOpen   = "onHireSoldiersOpen"
+  name      = "Balancing the Books"
+  urgent    = "true"
+  completes = "checkBalancePositive"
 >
-  <content>In order to beef up your security forces, a number of upgrades have been installed at your Trooper Lodge, increasing the barracks space and allowing better skill training.
+  <content>There are a number of different ways to establish a strong cash flow, but the best approach depends on your preferences, objectives and local resources.
 
-A number of veteran troopers have also applied to work at the facility, but you don't have space for all of them.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which to hire.  Fresh recruits should arrive within a day or so.</content>
+The topics below will explain the basics for three different approaches.
+</content>
+<link name="Heavy Metal">I favour heavy industry.</link>
+<link name="Flower Power">I like trees and stuff.</link>
+<link name="Shopping Spree">I prefer the comforts of home.</link>
 </topic>
 
 
 <topic
-  name     = "Uncover The Ruins"
-  urgent   = "true"
-  triggers = "checkDroneDestroyed"
-  complete = "checkRuinsDestroyed"
+  name      = "Heavy Metal"
+  urgent    = "false"
 >
-  <content>That Drone came from an Ancient Ruins somewhere in the darkness of the unexplored regions of the map- and where there's one, others are likely to follow.  Conduct further Recon and Strike Missions to find the ruins and destroy it.
+  <content>If you start out near barren, rocky terrain, Excavation Sites can mine metals and smelt fuel rods, either for export directly or further processing at your Engineer Stations (into parts for sale) and Reactors (into power for local use).
 
-Note:  To tip the odds in your favour, you may wish to hire additional troops.
+With the right upgrades, your troops can also buy better weapons and armour from your engineers.
 
-Note:  You may also wish to make your Missions 'screened' to help control the timing and composition of your assault teams.</content>
-</topic>
-
-
-
-
-<topic
-  name     = "Prosperity"
-  triggers = "checkHousingAndVenueUpgrade"
->
-  <content>Now that you're familiar with upgrades to housing and other structures, along with the basics of trade and taxation, you'll need to establish a positive cash flow.
-
-Try to increase your current funds by at least 500 credits.
-
-Tip:  You can always get an overview of current expenses and income, along with a summary of demand and prices for various goods, from the Finances pane in the top-right.</content>
+Be aware, however- heavy industry pollutes, and most citizens prefer not to live nearby...
+</content>
+<link name="Build More Industry">Sounds good to me!</link>
+<link name="Flower Power">I like trees and stuff.</link>
+<link name="Shopping Spree">I prefer the comforts of home.</link>
 </topic>
 
 
 <topic
-  name     = "Basic Housing"
-  urgent   = "true"
-  triggers = "checkRuinsDestroyed"
+  name      = "Flower Power"
+  urgent    = "false"
 >
-  <content>Now that local threats have been dealt with, it's time to focus on building a more prosperous settlement.
+  <content>If you have green fingers, you might try establishing an Ecologist Station near fertile, grassy terrain.  This will let you build Nurseries to plant and harvest crops.  (Click-and-drag to cover larger areas.)
 
-Your citizens will need food and housing, so you may wish to establish Holdings where they can settle down.  This can be done from the Installations pane, but your citizens will also establish homes themselves if there's enough pent-up demand- generally 1 Holding for every 4 citizens.
+Crops are a staple food source, but greens in particular are also a valuable export commodity.  Solar Banks provide power, and Arcologies can beautify your colony.
 
-Your citizens can also upgrade their housing once they gain access to the right goods and services.  In addition to improving comfort and morale, this helps to generate tax revenue from sales and savings.  Simply click on a given Holding to see information on what it needs next.
-
-Try to have at least one Holding upgrade to a Pyon Shack.</content>
+Ecologist structures take a lot of space, though, which limits your population...
+</content>
+<link name="Construct Green Facilities">Sounds good to me!</link>
+<link name="Heavy Metal">I favour heavy industry.</link>
+<link name="Shopping Spree">I prefer the comforts of home.</link>
 </topic>
 
 
 <topic
-  name   = "Food And Other Goods"
-  urgent = "true"
+  name      = "Shopping Spree"
+  urgent    = "false"
 >
-  <content>Your citizens won't starve immediately, but after several days their rations may start to run low.  Food- such as carbs, greens and protein- can be imported at the Supply Depot as you would any other good.  Plastics are also required for housing development, and can be imported in a similar way.
+  <content>Your citizens will eventually want somewhere to call home- food in their bellies, and a roof over their heads.  And providing for that can be lucrative.
 
-However, to save on import costs, you may wish to build an Ecologist Station and Nursery to plant and harvest crops, and/or a Fabricator to manufacture plastics.  Your space is limited, however, so choose what to build wisely.</content>
+You can place Seal Tents to designate particular areas as homesteads, while a Stock Exchange will buy and sell goods cheaply to homeowners.  Over time, as goods and services become available, housing will evolve and pay higher taxes.
+
+Housing and merchant structures make nothing by themselves however- they can only boost revenue from other sources.
+</content>
+<link name="Improve Housing">Sounds good to me!</link>
+<link name="Heavy Metal">I favour heavy industry.</link>
+<link name="Flower Power">I like trees and stuff.</link>
 </topic>
+
 
 
 <topic
-  name     = "Congratulations"
-  triggers = "checkPositiveCashFlow"
-  onOpen   = "onTutorialDone"
+  name      = "Build More Industry"
+  urgent    = "true"
 >
-  <content>Congratulations!  You've covered the core essentials of playing Stratos, The Sci-Fi Settlement Sim.  While there's a wealth of other content to explore, from here on we'll leave you to your own devices.
+  <content>Place an Excavation Site somewhere reasonably close by, and ideally in the middle of barren, rocky terrain (surface outcrops indicate the presence of underground minerals, which you can also check on the minimap.)
 
-Please feel free to drop by the forums at presidium.game.net for other tips or to give feedback and commentary!  In the meantime, enjoy.</content>
+Once you have a local surplus, remember that you can export metals at your Supply Depot.  (You might also want to install some upgrades to boost production.)
+
+You already have an Engineer Station to produce parts, but there's nothing to stop you building more!</content>
 </topic>
+
+<topic
+  name      = "Construct Green Facilities"
+  urgent    = "true"
+>
+  <content></content>
+</topic>
+
+<topic
+  name      = "Improve Housing"
+  urgent    = "true"
+>
+  <content>Alright then.  Open the Commerce tab (under Installations), and place a Stock Exchange and one or two Seal Tents near your Bastion.  Once construction is complete, you should see citizens moving in quickly.</content>
+</topic>
+
+
+
+
+
 
 
 

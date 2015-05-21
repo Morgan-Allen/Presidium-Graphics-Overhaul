@@ -243,7 +243,7 @@ public class KommandoLodge extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { PROTEIN, SPYCE_T };
+    return new Traded[] { PROTEIN, DRI_SPYCE };
   }
   
   

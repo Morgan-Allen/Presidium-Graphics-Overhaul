@@ -84,6 +84,7 @@ public class PlanUtils {
     float homeDistance, escapeChance;
     
     loseChance = 1f - combatWinChance(actor, actor.origin(), 1);
+    loseChance += actor.health.injuryLevel();
     if (actor.senses.fearLevel() == 0) loseChance = 0;
     incentive += loseChance * 10;
     
