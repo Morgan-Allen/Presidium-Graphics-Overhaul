@@ -3,27 +3,14 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.maps;
-import stratos.game.common.Mobile;
-import stratos.game.common.Spacing;
-import stratos.game.common.Stage;
-import stratos.game.common.StageRegion;
-import stratos.game.common.Target;
-import stratos.game.common.Tile;
+import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.util.*;
 
 
 
-//  TODO:  All of this needs to be saved & loaded, or you'll get major slowdown
-//  after loading from a saved game.
-
-
 public class PathingCache {
-  
   
   
   /**  Constituent class and constant definitions-
@@ -48,6 +35,8 @@ public class PathingCache {
     Place nearCache[];
     Object flagged;
     boolean isDead = false;
+    
+    public String toString() { return caching.section.toString(); }
   }
   
   private class Caching {
@@ -80,61 +69,21 @@ public class PathingCache {
     *  arbitrary destinations on the map- and a few other utility methods for
     *  diagnosis of bugs...
     */
-  //
-  //  TODO:  Unify this with the location() method in MobileMotion.
-  //*
-  private Tile tilePosition(Target t, Mobile client) {
-    while (t instanceof Mobile) {
-      t = ((Mobile) t).aboard();
-    }
-    if (t instanceof Boarding) {
-      final Boarding b = (Boarding) t;
-      if (client != null && ! b.allowsEntry(client)) return null;
-
-      if (b instanceof Tile) {
-        final Tile u = (Tile) b;
-        return u.blocked() ? null : u;
-      }
-      if (b instanceof Venue) {
-        return ((Venue) b).mainEntrance();
-      }
-      for (Boarding c : b.canBoard()) {
-        if (c instanceof Tile) return (Tile) c;
-      }
-    }
-    return null;
-    /*
-    if (b == null) return null;
-    if (client == null || b.allowsEntry(client)) {
-      if (b instanceof Venue) return ((Venue) b).mainEntrance();
-      if (b instanceof Tile) {
-        final Tile t = (Tile) b;
-        return t.blocked() ? null : t;
-      }
-      if (b instanceof Boarding) {
-      }
-    }
-    return Spacing.nearestOpenTile(b, b);
-    //*/
-  }
-  //*/
-  
-  
   private Place[] placesBetween(
     Target initB, Target destB, Mobile client, boolean reports
   ) {
     final Tile
-      initT = tilePosition(initB, client),
-      destT = tilePosition(destB, client);
+      initT = PathSearch.approachTile(initB, client),
+      destT = PathSearch.approachTile(destB, client);
     if (initT == null || destT == null) {
-      if (reports) I.say("Initial place-tiles invalid!");
+      if (reports) I.say("Initial place-tiles invalid: "+initT+"/"+destT);
       return null;
     }
     final Place
       initP = placeFor(initT),
       destP = placeFor(destT);
     if (initP == null || destP == null) {
-      if (reports) I.say("Initial places invalid!");
+      if (reports) I.say("Initial places invalid: "+initP+"/"+destP);
       return null;
     }
     final Place placesPath[] = placesPath(initP, destP, reports);
@@ -150,16 +99,15 @@ public class PathingCache {
   }
   
   
-  //
-  //  TODO:  Move this to the mobile pathing class?
   public Boarding[] getLocalPath(
     Boarding initB, Boarding destB, int maxLength,
     Mobile client, boolean reports
   ) {
     Boarding path[] = null;
+    
     if (Spacing.distance(initB, destB) <= Stage.ZONE_SIZE) {
       if (reports) I.say(
-        "\nUsing simple agenda-bounded pathing between "+initB+" "+destB
+        "\nUsing simple agenda-bounded search between "+initB+" and "+destB
       );
       final PathSearch search = new PathSearch(initB, destB, true);
       search.assignClient(client);
@@ -172,7 +120,7 @@ public class PathingCache {
     
     if (placesPath != null && placesPath.length >= 3) {
       if (reports) I.say(
-        "\nUsing partial cordoned path-search between "+initB+" "+destB
+        "\nUsing partial cordoned search between "+initB+" and "+destB
       );
       final PathSearch search = fullPathSearch(
         initB, placesPath[2].core, placesPath, maxLength
@@ -185,7 +133,7 @@ public class PathingCache {
     }
     if (placesPath != null && placesPath.length < 3) {
       if (reports) I.say(
-        "\nUsing full cordoned path-search between "+initB+" "+destB
+        "\nUsing full cordoned search between "+initB+" and "+destB
       );
       final PathSearch search = fullPathSearch(
         initB, destB, placesPath, maxLength
@@ -198,7 +146,7 @@ public class PathingCache {
     }
     if (path == null) {
       if (reports) I.say(
-        "\nResorting to agenda-bounded pathfinding between "+initB+" "+destB
+        "\nResorting to agenda-bounded search between "+initB+" and "+destB
       );
       final PathSearch search = new PathSearch(initB, destB, true);
       search.assignClient(client);
@@ -430,7 +378,7 @@ public class PathingCache {
     //
     //  TODO:  Put this in a dedicated class lower down, or possibly even move
     //  to the PathingSearch class itself?
-    final Tile initT = tilePosition(initB, null);
+    final Tile initT = PathSearch.approachTile(initB, null);
     
     final PathSearch search = new PathSearch(initB, destB, false) {
       

@@ -24,7 +24,7 @@ public abstract class Actor extends Mobile implements
   /**  Field definitions, constructors and save/load functionality-
     */
   private static boolean
-    verbose    = false,
+    verbose      = false,
     basicVerbose = false;
   
   final public ActorHealth health = new ActorHealth(this);
@@ -152,6 +152,7 @@ public abstract class Actor extends Mobile implements
     if (report) {
       I.say("\nASSIGNING ACTION: "+I.tagHash(action));
       I.say("  Previous action: "+I.tagHash(actionTaken));
+      I.reportStackTrace();
       if (actionTaken != null) I.say("  Finished? "+actionTaken.finished());
     }
     

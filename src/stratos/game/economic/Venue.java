@@ -144,8 +144,9 @@ public abstract class Venue extends Structural implements
     final Tile o = origin();
     if (blueprint.isFixture()) {
       //
-      //  Fixture-venues don't have entrances, so
-      entrance = null;
+      //  Fixture-venues don't normally have entrances, but we make an
+      //  exception for tiling-venues.
+      entrance = (pathType() <= Tile.PATH_CLEAR) ? origin() : null;
     }
     else {
       //
