@@ -32,9 +32,9 @@ public class MessagePane extends SelectionPane implements UIConstants {
     String title, Target focus, MessageSource source
   ) {
     super(UI, null, portrait, false);
-    this.title    = title   ;
-    this.focus    = focus   ;
-    this.source   = source  ;
+    this.title  = title ;
+    this.focus  = focus ;
+    this.source = source;
   }
   
   

@@ -3,17 +3,29 @@
 
 BETTER UI INFO/HELP SYSTEM
 
+*  I don't think old messages are being properly sorted by date.  Check that
+   again.  (Might be after loading?)
+
+*  Citizens are still far too eager to explore in distant/unknown/unsafe areas.
+
 *  Don't add staff to the bastion until construction needs to begin.
 
-*  If a message-pane was open before saving, ensure it stays open afterward (
-   both within a session and after loading.)
+*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
+   The slowdown must be in those path-routines.
+
+*  If an assailant is targeting a venue with no entrance, there doesn't seem
+   to be any way for the pathing system to work it out.  (And targeting the
+   nearest external tile won't help either, if you start on the wrong side.)
+
 
 *  Build in a hyperlink help system for upgrades, good-types, venue-types and
    backgrounds.  (You'll need an automatic back-button for this.)
 
-*  I don't think I need illustrations anymore, as long as the ping-system works
-   okay.  Consider having the message-pane move around the screen, though, so
-   the player can see what they're doing on other panes with a message open?
+*  Move the message-panes to the centre-top of the screen, so they can be
+   visible along with the usual selection-panes.
+
+*  If a message-pane was open before saving, ensure it stays open afterward (
+   both within a session and after loading.)
 
 *  Re-introduce the Planets/Sectors pane, and build the markets-report into
    that for each world.  Then finance can stay on it's own.  (Add little

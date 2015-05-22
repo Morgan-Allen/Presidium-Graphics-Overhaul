@@ -522,7 +522,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   protected float basePriority(Actor actor) {
-    final boolean report = I.talkAbout == actor;// && evalVerbose;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     if (report) {
       I.say("\nEvaluating priority for "+this);
       I.say("  Mission type:  "+missionType);

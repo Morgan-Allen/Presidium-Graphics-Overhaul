@@ -138,7 +138,7 @@ public class TutorialScenario extends StartupScenario {
     config.house = Verse.PLANET_HALIBAN;
     config.gender = null;
     
-    config.siteLevel  = SITE_WILDERNESS;
+    config.siteLevel  = SITE_WASTELAND ;
     config.titleLevel = TITLE_COUNT    ;
     config.fundsLevel = FUNDING_MINIMAL;
     return config;
@@ -465,49 +465,97 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
-  protected boolean checkExtraStructuresBuilt() {
-    if (base().listInstalled(EngineerStation.BLUEPRINT, true).size() < 2) {
+  protected void whenExpandingIndustryTopicOpen() {
+    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
+    ScreenPing.addPingFor(UIConstants.TYPE_ENGINEER);
+  }
+  
+  
+  protected boolean checkExtraIndustryPlaced() {
+    if (base().listInstalled(EngineerStation.BLUEPRINT, false).size() < 2) {
       return false;
     }
-    if (base().listInstalled(ExcavationSite.BLUEPRINT, true).size() < 1) {
-      return false;
-    }
-    if (base().listInstalled(StockExchange.BLUEPRINT, true).size() < 1) {
-      return false;
-    }
-    if (base().listInstalled(Holding.BLUEPRINT, true).size() < 1) {
+    if (base().listInstalled(ExcavationSite .BLUEPRINT, false).size() < 1) {
       return false;
     }
     return true;
   }
   
   
-  protected void onExtraStructuresBuilt() {
-    
-    final Pick <Venue> closest = new Pick <Venue> ();
-    for (Object o : world().presences.allMatches(base())) {
-      final Venue v = (Venue) o;
-      closest.compare(v, 0 - Spacing.distance(v, ruinsFar));
-    }
-    
-    this.ruinsTarget = closest.result();
-    
-    final Base artilects = Base.artilects(world());
-    final MissionStrike strike = new MissionStrike(artilects, ruinsTarget);
-    
-    artilects.setup.fillVacancies(ruinsFar, true);
-    
-    droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
-    final Tile entry = Spacing.bestMidpoint(ruinsTarget, ruinsFar);
-    
-    if (entry != null) {
-      droneAttacks.enterWorldAt(entry, world());
-      Mission.quickSetup(
-        strike, Mission.PRIORITY_ROUTINE, Mission.TYPE_BASE_AI, droneAttacks
-      );
-    }
+  protected void whenPersonalHousingTopicOpen() {
+    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
+    ScreenPing.addPingFor(UIConstants.TYPE_PHYSICIAN);
   }
   
+  
+  protected boolean checkHousingPlaced() {
+    if (base().listInstalled(Holding.BLUEPRINT, false).size() < 2) {
+      return false;
+    }
+    return true;
+  }
+  
+  
+  protected void whenStockExchangeTopicOpen() {
+    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
+    ScreenPing.addPingFor(UIConstants.TYPE_PHYSICIAN);
+  }
+  
+  
+  protected boolean checkStockExchangePlaced() {
+    if (base().listInstalled(StockExchange.BLUEPRINT, false).size() < 1) {
+      return false;
+    }
+    return true;
+  }
+  
+  
+  
+  /**  Third round of security topics-
+    */
+  protected void whenBaseAttackTopicOpen() {
+    if (droneAttacks == null) {
+      final Pick <Venue> closest = new Pick <Venue> ();
+      for (Object o : world().presences.allMatches(base())) {
+        final Venue v = (Venue) o;
+        closest.compare(v, 0 - Spacing.distance(v, ruinsFar));
+      }
+      
+      this.ruinsTarget = closest.result();
+      
+      final Base artilects = Base.artilects(world());
+      final MissionStrike strike = new MissionStrike(artilects, ruinsTarget);
+      
+      artilects.setup.fillVacancies(ruinsFar, true);
+      
+      droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
+      final Tile entry = Spacing.bestMidpoint(ruinsTarget, ruinsFar);
+      
+      if (entry != null) {
+        droneAttacks.enterWorldAt(entry, world());
+        Mission.quickSetup(
+          strike, Mission.PRIORITY_ROUTINE, Mission.TYPE_BASE_AI, droneAttacks
+        );
+      }
+    }
+    
+    UI().tracking.lockOn(droneAttacks);
+    base().intelMap.liftFogAround(droneAttacks, 9);
+  }
+  
+  protected boolean checkDroneAssaultDestroyed() {
+    if (droneAttacks == null) return false;
+    return ! droneAttacks.health.alive();
+  }
+  
+  protected boolean checkFarRuinsFound() {
+    if (ruinsFar == null) return false;
+    return base().intelMap.fogAt(ruinsFar) > 0.5f;
+  }
+  
+  protected void whenFarRuinsFound() {
+    UI().tracking.lockOn(ruinsFar);
+  }
   
   protected boolean checkFarRuinsDestroyed() {
     if (ruinsFar == null) return true;
@@ -516,22 +564,32 @@ public class TutorialScenario extends StartupScenario {
     return true;
   }
   
-  
-  protected boolean checkEconomyComplete() {
-    if (true) return false;
-    
-    //  Forget the supply depot.  The stock exchange is the simplest way to
-    //  handle this.
-    
-    //
-    //  Check you have positive cash flow.
-    //
-    //  Check you have a food source.
-    //
-    //  Check you have at least one piece of housing upgraded.
-    return true;
+  protected void onFarRuinsDestroyed() {
+    this.topUpFunds = false;
   }
   
+  
+  //  TODO:  Forget the supply depot?  The stock exchange is the simplest way to
+  //  handle this...
+  
+  /**  Third round of economic topics-
+    */
+  protected boolean checkPositiveCashFlow() {
+    return base().finance.recentBalance() > 0;
+  }
+  
+  protected boolean haveHoldingUpgrade() {
+    for (Venue v : base().listInstalled(Holding.BLUEPRINT, true)) {
+      if (((Holding) v).upgradeLevel() > 0) return true;
+    }
+    return false;
+  }
+  
+  protected boolean checkTutorialComplete() {
+    if (! checkPositiveCashFlow()) return false;
+    if (! haveHoldingUpgrade   ()) return false;
+    return true;
+  }
   
   
   

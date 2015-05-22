@@ -70,6 +70,7 @@ public class BaseFinance {
     private int period;
     float income[] = new float[ALL_SOURCES.length];
     float outlay[] = new float[ALL_SOURCES.length];
+    int balanceCents = 0;  //100x actual balance, (int for precision.)
   }
   
   final List <CashRecord> records = new List <CashRecord> ();
@@ -91,6 +92,7 @@ public class BaseFinance {
       record.period = s.loadInt();
       s.loadFloatArray(record.income);
       s.loadFloatArray(record.outlay);
+      record.balanceCents = s.loadInt();
       records.add(record);
     }
     totals = records.first();
@@ -106,16 +108,9 @@ public class BaseFinance {
     s.saveInt(records.size());
     for (CashRecord record : records) {
       s.saveInt(record.period);
-      /*
-      final float[] oldInc = record.income, oldOut = record.outlay;
-      record.income = new float[15];
-      record.outlay = new float[15];
-      System.arraycopy(oldInc, 0, record.income, 0, 14);
-      System.arraycopy(oldOut, 0, record.outlay, 0, 14);
-      //*/
-      
       s.saveFloatArray(record.income);
       s.saveFloatArray(record.outlay);
+      s.saveInt(record.balanceCents);
     }
   }
   
@@ -177,6 +172,25 @@ public class BaseFinance {
   }
   
   
+  public float recentBalance() {
+    initRecords();
+    return periodBalance(recent.period);
+  }
+  
+  
+  public float totalBalance() {
+    initRecords();
+    return totals.balanceCents / 100f;
+  }
+  
+  
+  public float periodBalance(int ID) {
+    final CashRecord record = forPeriod(ID);
+    if (record == null) return 0;
+    return record.balanceCents / 100f;
+  }
+  
+  
   public boolean hasPeriodRecord(int ID) {
     return forPeriod(ID) != null;
   }
@@ -219,6 +233,10 @@ public class BaseFinance {
     initRecords();
     credits += inc;
     if (source == null) return;
+    final int cents = (int) (inc * 100);
+    recent.balanceCents += cents;
+    totals.balanceCents += cents;
+    
     if (inc >= 0) {
       recent.income[source.index] += inc;
       totals.income[source.index] += inc;

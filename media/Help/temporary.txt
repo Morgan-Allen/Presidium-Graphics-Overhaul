@@ -33,35 +33,16 @@ a better starting position for the artilects- somewhere far away.
 
 TUTORIAL CHANGES
   
-  Make sure they know how to read their budget.  Check that the right pane is
-  open for the right amount of time.
-  
-  Then ask them to install a excavation site, stock exchange, one or two seal
-  tents, and a second engineer station.
-  
-  Once they're built, make the appropriate adjustments to imports/exports and
-  add a few upgrades.  Once there's a positive cash flow, turn off the life-
-  support.  They'll have to sink or swim from there.
-  
+  Once the economic structures a built, wait for them to install one or two upgrades.  Then let them proceed, when comfortable, to dealing with enemies.
   
   Introduce a raider against the nearest structure from the far ruins.  Have it
   driven off, then instruct the player in putting up a screened security
   mission.
   
-  Instruct the player to build a second trooper lodge and a sickbay.  Install a
-  few upgrades too.  In the meantime, they need to start exploring the surrounds
-  and find the second ruins.
+  Introduce a bunch of Kommandos belonging to a different base.  See if you can enlist their aid to find the artilects.  You'll have to use a Contact mission.
   
   With that done, and with the new recruits gained, it's time to finish the job.
   Declare a screened strike mission and destroy them.
-  
-  
-  Use a contact mission to help recruit some natives to help!  They'll know the
-  map, and can reveal the ruins' exact location.  (Plus they can trade stuff
-  too.)
-  
-  
-  Have them check the budget-pane again.
   
   By this point, the player should have positive cash flow and at least one
   housing upgrade, to conclude the tutorial on a hopeful note.

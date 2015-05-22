@@ -232,12 +232,111 @@ While we're waiting, let's take a fresh look at our cash flow.</content>
   name      = "Profits and Loss"
   urgent    = "true"
   whenOpen  = "whenBudgetsTopicOpen"
+  completes = "checkBudgetsPaneOpened"
 >
-  <content>If you open the Finance pane (first button in the top-right), and click on the Budgets tab, you can take a look at your profits and losses for each day.
-
-At the moment, your funds are likely to be running low.</content>
-  <link name="">Continue</link>
+  <content>At the moment, your funds are likely to be running low.  We'll explore some methods of fixing that, but first you should open the Finance pane (first button in the top-right), and click on the Budgets tab.  Then you can take a look at your profits and losses for each day.</content>
 </topic>
+
+<topic
+  name      = "Expanding Industry"
+  urgent    = "true"
+  triggers  = "checkBudgetsPaneOpened"
+  whenOpen  = "whenExpandingIndustryTopicOpen"
+  completes = "checkExtraIndustryPlaced"
+>
+  <content>...Not too encouraging.
+
+There are many ways to earn credits, but on a map like this, with large areas of barren rock and irradiated wasteland, heavy industry can turn a fast profit.  Place a second Engineer Station near your first, and an Excavation Site somewhere close to both.
+
+Mining is most efficient near outcrops of surface rock, so keep an eye out for those, or check the minerals overlay on the minimap.</content>
+</topic>
+
+<topic
+  name      = "Personal Housing"
+  urgent    = "true"
+  triggers  = "checkExtraIndustryPlaced"
+  whenOpen  = "whenPersonalHousingTopicOpen"
+  completes = "checkHousingPlaced"
+>
+  <content>While those are building, you may also want to start thinking about giving your citizens a few amenities, such as private housing.  Your colonists will claim lots by themselves given time and space, but you can anticipate that by placing a Seal Tent or two in convenient locations.</content>
+</topic>
+
+<topic
+  name      = "Build a Stock Exchange"
+  urgent    = "true"
+  triggers  = "checkHousingPlaced"
+  whenOpen  = "whenStockExchangeTopicOpen"
+  completes = "checkStockExchangePlaced"
+>
+  <content>Finally, your citizens will eventually want food.  For now, the simplest solution is to build a Stock Exchange nearby- this will import carbs and protein, along with other goods, and sell it to local homesteaders at a profit.</content>
+</topic>
+
+<topic
+  name      = "Time and Money"
+  urgent    = "true"
+  triggers  = "checkStockExchangePlaced"
+>
+  <content>Housing yields tax income, and will upgrade itself as more goods and services become available.  The Stock Exchange also boosts profits from trade.
+
+Between imports and hiring, it might take a few days for your industry and trade venues to start turning a profit, however.  Check on your citizens from time to time- particularly the Auditors at your Bastion- along with your Finances pane, to see where the money is going.
+
+In the meantime, when and if you're ready, we'll turn our attentions back to external enemies.</content>
+  <link name="Base Under Attack!">Continue</link>
+</topic>
+
+
+
+
+<topic
+  name      = "Base Under Attack!"
+  urgent    = "true"
+  whenOpen  = "whenBaseAttackTopicOpen"
+  completes = "checkDroneAssaultDestroyed"
+>
+  <content>You asked for it!  Here come two enemy Drones to raze your colony.  Flag them with a Strike Mission ASAP and watch your Troopers handle it.  Don't forget to up the reward.</content>
+</topic>
+
+<topic
+  name      = "Find The Distant Ruins"
+  urgent    = "true"
+  triggers  = "checkDroneAssaultDestroyed"
+  completes = "checkFarRuinsFound"
+>
+  <content>Those creatures- known as Artilects- are still a threat, however.  You will need to use Recon Missions to explore the surrounding terrain until you find the Ancient Ruins that spawned the Drones.
+
+(Tip:  Try searching in the same quadrant they came from.)</content>
+</topic>
+
+<topic
+  name      = "Ruins Discovered"
+  urgent    = "true"
+  triggers  = "checkFarRuinsFound"
+  whenOpen  = "whenFarRuinsFound"
+  completes = "checkFarRuinsDestroyed"
+  onFinish  = "onFarRuinsDestroyed"
+>
+  <content>The Ruins have been found.  Now destroy them.</content>
+</topic>
+
+<topic
+  name      = "Ruins Destroyed"
+  urgent    = "true"
+  triggers  = "checkFarRuinsDestroyed"
+>
+  <content>There is one more thing, however.</content>
+</topic>
+
+
+
+<topic
+  name      = "Tutorial Complete"
+  urgent    = "true"
+  triggers  = "checkTutorialComplete"
+>
+  <content>Congratulations.</content>
+</topic>
+
+
 
 
 
