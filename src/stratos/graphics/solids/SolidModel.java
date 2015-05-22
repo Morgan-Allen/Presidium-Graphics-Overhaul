@@ -43,14 +43,15 @@ public abstract class SolidModel extends ModelAsset {
   }
   
   
-  protected void disposeAsset() {
-    if (gdxModel != null) gdxModel.dispose();
-    disposed = true;
+  protected State loadAsset() {
+    return state = State.LOADED;
   }
   
   
-  public boolean isDisposed() {
-    return disposed;
+  protected State disposeAsset() {
+    if (gdxModel != null) gdxModel.dispose();
+    gdxModel = null;
+    return state = State.DISPOSED;
   }
   
   

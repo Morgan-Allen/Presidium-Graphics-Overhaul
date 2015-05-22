@@ -33,7 +33,6 @@ public class CutoutModel extends ModelAsset {
   private String fileName;
   private Box2D window;
   private float size;
-  private boolean loaded = false, disposed = false;
   
   Texture texture;
   Texture lightSkin;
@@ -57,7 +56,7 @@ public class CutoutModel extends ModelAsset {
   }
   
   
-  protected void loadAsset() {
+  protected State loadAsset() {
     texture = ImageAsset.getTexture(fileName);
     region = new TextureRegion(
       texture,
@@ -77,29 +76,21 @@ public class CutoutModel extends ModelAsset {
       lightSkin = ImageAsset.getTexture(litName);
     }
     
-    loaded = true;
+    return state = State.LOADED;
   }
   
   
-  public boolean isLoaded() {
-    return loaded;
-  }
-  
-  
-  protected void disposeAsset() {
+  protected State disposeAsset() {
     texture.dispose();
     if (lightSkin != null) lightSkin.dispose();
-    disposed = true;
-  }
-  
-  
-  public boolean isDisposed() {
-    return disposed;
+    return state = State.DISPOSED;
   }
   
   
   public Sprite makeSprite() {
-    if (! loaded) I.complain("CANNOT CREATE SPRITE UNTIL LOADED: "+fileName);
+    if (! stateLoaded()) {
+      I.complain("CANNOT CREATE SPRITE UNTIL LOADED: "+fileName);
+    }
     return new CutoutSprite(this);
   }
   

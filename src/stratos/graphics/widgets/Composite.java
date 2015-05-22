@@ -32,17 +32,17 @@ public class Composite {
   final static Assets.Loadable DISPOSAL = new Assets.Loadable(
     "COMPOSITE_DISPOSAL", Composite.class, true
   ) {
-    protected void loadAsset() {}
-    public boolean isLoaded() { return true; }
-    public boolean isDisposed() { return false; }
+    protected State loadAsset() { return State.LOADED; }
+    public boolean stateLoaded() { return true; }
     
-    protected void disposeAsset() {
+    protected State disposeAsset() {
       I.say("DISPOSING OF COMPOSITES");
       for (Composite c : recent) c.dispose();
       recent.clear();
       recentTable.clear();
       
       Assets.registerForLoading(this);
+      return state = State.LOADED;
     }
   };
   

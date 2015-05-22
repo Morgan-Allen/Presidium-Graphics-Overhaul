@@ -60,6 +60,7 @@ public class SkinsPreview extends VisualDebug {
   private String     baseSkin    ;
   private String     costumeSkin ;
   
+  private boolean showAsHuman;
   private String humanSkinPath, basePartName;
   private Batch <String> humanSkins, humanCostumes;
   
@@ -84,15 +85,21 @@ public class SkinsPreview extends VisualDebug {
     this.currentPath = filePath+fileName;
     //
     //  Load in some defaults for human skins-
+    this.showAsHuman   = settings.getBool("showAsHuman");
     this.humanSkinPath = costumes.value("path"    );
     this.basePartName  = costumes.value("basePart");
     this.humanSkins = new Batch <String> ();
+    
     for (XML kid : costumes.child("basicSkins").allChildrenMatching("skin")) {
-      humanSkins.add(kid.value("name"));
+      final String name = kid.value("name"), path = humanSkinPath+name;
+      if (Assets.exists(path)) humanSkins.add(name);
+      else I.say("\n  Warning, no such skin file: '"+path+"'");
     }
     this.humanCostumes = new Batch <String> ();
     for (XML kid : costumes.child("costumeSkins").allChildrenMatching("skin")) {
-      humanCostumes.add(kid.value("name"));
+      final String name = kid.value("name"), path = humanSkinPath+name;
+      if (Assets.exists(path)) humanCostumes.add(name);
+      else I.say("\n  Warning, no such skin file: '"+path+"'");
     }
     //
     //  Attach some basic UI items-
@@ -238,10 +245,22 @@ public class SkinsPreview extends VisualDebug {
       }
     }
     //
+    //  If parts-hiding hasn't been set up already, then by default we hide
+    //  anything except the base-group.
+    final String parts[] = currentModel.partNames();
+    if (partsHide == null && basePartName != null) {
+      partsHide = new boolean[parts.length];
+      if (showAsHuman) for (int i = parts.length; i-- > 0;) {
+        partsHide[i] = ! parts[i].equals(basePartName);
+      }
+    }
+    //
     //  List the various model-view options-
     t.append("\n\n");
     for (final String option : OPTION_NAMES) {
       final int index = Visit.indexOf(option, OPTION_NAMES);
+      if (index == OPTION_COSTS && ! showAsHuman) continue;
+      
       t.append(new Description.Link(option) {
         public void whenClicked() { optionType = index; }
       }, (index == optionType) ? Colour.GREEN : Text.LINK_COLOUR);
@@ -266,9 +285,8 @@ public class SkinsPreview extends VisualDebug {
     }
     else if (optionType == OPTION_COSTS) {
       t.append("\n\nModel parts:");
-      final String parts[] = currentModel.partNames();
-      if (partsHide == null) partsHide = new boolean[parts.length];
-      
+      //
+      //  Display toggles for parts shown/hidden:
       for (final String part : parts) {
         final int index = Visit.indexOf(part, parts);
         final boolean hide = partsHide[index];
@@ -282,6 +300,8 @@ public class SkinsPreview extends VisualDebug {
         final String skinName = currentModel.materialID(part);
         t.append("  ("+skinName+": "+(isBase ? "Base" : "Costume")+")");
       }
+      //
+      //  And display the array of options for base and costume skins-
       t.append("\n\nBase skins:");
       for (final String skin : humanSkins) {
         t.append("\n  ");

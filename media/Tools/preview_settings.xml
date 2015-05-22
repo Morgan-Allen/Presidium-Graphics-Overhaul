@@ -1,14 +1,15 @@
 
 
 <settings
-  defaultPath="media/Actors/human/"
-  defaultFile="test.xml"
+  defaultPath ="media/Actors/tests/"
+  defaultFile ="test.xml"
+  showAsHuman ="true"
 />
 
 
 <humanCostume
   path    ="media/Actors/human/"
-  basePart="MaterialGroup.0"
+  basePart="MaterialGroup.2"
 >
   
   <basicSkins>

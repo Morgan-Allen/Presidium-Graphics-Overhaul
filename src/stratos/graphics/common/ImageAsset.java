@@ -13,15 +13,12 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 public class ImageAsset extends Assets.Loadable {
   
   
-  //private static Texture WHITE_TEX = null;
   private static Object NO_FILE = new Object();
   
-  private String filePath;
-  private boolean loaded = false, disposed = false;
-  
-  private Pixmap pixels;
-  private Texture texture;
-  private Colour average;
+  private String  filePath;
+  private Pixmap  pixels  ;
+  private Texture texture ;
+  private Colour  average ;
   
   
   private ImageAsset(String keyPath, String filePath, Class sourceClass) {
@@ -61,22 +58,22 @@ public class ImageAsset extends Assets.Loadable {
   
   
   public Pixmap asPixels() {
-    if (! loaded) Assets.loadNow(this);
-    if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
+    if (! stateLoaded()) Assets.loadNow(this);
+    if (! stateLoaded()) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return pixels;
   }
   
   
   public Texture asTexture() {
-    if (! loaded) Assets.loadNow(this);
-    if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
+    if (! stateLoaded()) Assets.loadNow(this);
+    if (! stateLoaded()) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return texture;
   }
   
   
   public Colour average() {
-    if (! loaded) Assets.loadNow(this);
-    if (! loaded) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
+    if (! stateLoaded()) Assets.loadNow(this);
+    if (! stateLoaded()) I.complain("IMAGE ASSET HAS NOT LOADED!- "+filePath);
     return average;
   }
   
@@ -90,15 +87,15 @@ public class ImageAsset extends Assets.Loadable {
     AVG_PREFIX = "average_for_";
   
   
-  protected void loadAsset() {
+  protected State loadAsset() {
     Texture texture = (Texture) Assets.getResource(TEX_PREFIX+filePath);
     Pixmap pixels   = (Pixmap ) Assets.getResource(PIX_PREFIX+filePath);
     Colour average  = (Colour ) Assets.getResource(AVG_PREFIX+filePath);
-    loadAsset(texture, pixels, average);
+    return loadAsset(texture, pixels, average);
   }
   
   
-  protected void loadAsset(
+  protected State loadAsset(
     Texture withTexture, Pixmap withPixels, Colour withAverage
   ) {
     
@@ -144,7 +141,7 @@ public class ImageAsset extends Assets.Loadable {
       Assets.cacheResource(texture, TEX_PREFIX+filePath);
     }
     
-    loaded = true;
+    return state = State.LOADED;
   }
   
   
@@ -158,12 +155,7 @@ public class ImageAsset extends Assets.Loadable {
   }
   
   
-  public boolean isLoaded() {
-    return loaded;
-  }
-  
-  
-  protected void disposeAsset() {
+  protected State disposeAsset() {
     Texture texture = (Texture) Assets.getResource(TEX_PREFIX+filePath);
     Pixmap pixels   = (Pixmap ) Assets.getResource(PIX_PREFIX+filePath);
     Colour average  = (Colour ) Assets.getResource(AVG_PREFIX+filePath);
@@ -179,12 +171,7 @@ public class ImageAsset extends Assets.Loadable {
       Assets.clearCachedResource(TEX_PREFIX+filePath);
       texture.dispose();
     }
-    disposed = true;
-  }
-  
-  
-  public boolean isDisposed() {
-    return disposed;
+    return state = State.DISPOSED;
   }
   
   
@@ -194,13 +181,13 @@ public class ImageAsset extends Assets.Loadable {
   public static ImageAsset withColor(final int size, Colour c, Class source) {
     final Color gdxColor = new Color(c.r, c.g, c.b, c.a);
     final ImageAsset asset = new ImageAsset("IMAGE_ASSET_", c+"", source) {
-      protected void loadAsset() {
+      protected State loadAsset() {
         final Texture tex = new Texture(size, size, Pixmap.Format.RGBA8888);
         final Pixmap draw = new Pixmap (size, size, Pixmap.Format.RGBA8888);
         draw.setColor(gdxColor);
         draw.fillRectangle(0, 0, size, size);
         tex.draw(draw, 0, 0);
-        loadAsset(tex, draw, null);
+        return loadAsset(tex, draw, null);
       }
     };
     return asset;

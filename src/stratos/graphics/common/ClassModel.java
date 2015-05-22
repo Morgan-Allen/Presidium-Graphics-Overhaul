@@ -9,9 +9,10 @@ public abstract class ClassModel extends ModelAsset {
   public ClassModel(String modelName, Class sourceClass) {
     super(modelName, sourceClass);
   }
-  public boolean isLoaded() { return true; }
-  public boolean isDisposed() { return true; }
-  protected void loadAsset() {}
-  protected void disposeAsset() {}
   
+  public boolean stateLoaded  () { return true; }
+  public boolean stateDisposed() { return true; }
+  
+  protected State loadAsset   () { return State.LOADED  ; }
+  protected State disposeAsset() { return State.DISPOSED; }
 }

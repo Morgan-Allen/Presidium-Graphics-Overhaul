@@ -59,9 +59,11 @@ public class PlanetPane extends UIGroup implements UIConstants {
     this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
     
     display = new PlanetDisplay() {
-      protected void loadAsset() {
+      protected State loadAsset() {
         super.loadAsset();
+        if (! stateLoaded()) return State.ERROR;
         loadPlanet(LOAD_PATH, LOAD_FILE);
+        return State.LOADED;
       }
     };
     

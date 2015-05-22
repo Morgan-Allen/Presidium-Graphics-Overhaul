@@ -20,10 +20,15 @@ public class Assets {
   
   
   public static abstract class Loadable {
-
+    
+    protected static enum State {
+      INIT, LOADED, DISPOSED, ERROR
+    }
+    
     final String assetID;
     final Class sourceClass;
     final boolean disposeWithSession;
+    protected State state = State.INIT;
     
     
     protected Loadable(
@@ -37,11 +42,12 @@ public class Assets {
     
     public String assetID() { return assetID; }
     public Class sourceClass() { return sourceClass; }
+
+    protected abstract State loadAsset();
+    protected abstract State disposeAsset();
     
-    public abstract boolean isLoaded();
-    protected abstract void loadAsset();
-    public abstract boolean isDisposed();
-    protected abstract void disposeAsset();
+    public boolean stateLoaded  () { return state == State.LOADED  ; }
+    public boolean stateDisposed() { return state == State.DISPOSED; }
   }
   
   
@@ -173,7 +179,7 @@ public class Assets {
     //  This appears to be the simplest solution to ensuring that assets being
     //  loaded up on a separate thread don't wreck the place.  In essence, wait
     //  until the main thread begins or give it a chance to catch up.
-    while ((! PlayLoop.onMainThread()) && (! asset.isLoaded())) {
+    while ((! PlayLoop.onMainThread()) && (! asset.stateLoaded())) {
       if (! PlayLoop.mainThreadBegun()) return;
       try {
         if (extraVerbose) I.say("\n...Pausing to wait for assets-thread.");
@@ -185,11 +191,11 @@ public class Assets {
     //
     //  We have some safety-checks to ensure assets don't get loaded twice, but
     //  to avoid the queue being blocked we remove them either way.
-    if (! asset.isLoaded()) {
+    if (! asset.stateLoaded()) {
       asset.loadAsset();
       assetsLoaded.add(asset);
     }
-    if (asset.isLoaded()) {
+    if (asset.stateLoaded()) {
       assetsToLoad.remove(asset);
       modelCache.put(asset.assetID, asset);
       if (extraVerbose) I.say(" ...OK.");
@@ -200,7 +206,7 @@ public class Assets {
   
   public static void disposeOf(Loadable asset) {
     if (asset == null) return;
-    if (! asset.isDisposed()) asset.disposeAsset();
+    if (! asset.stateDisposed()) asset.disposeAsset();
     assetsToLoad.remove(asset);
     assetsLoaded.remove(asset);
     regTable.remove(asset);

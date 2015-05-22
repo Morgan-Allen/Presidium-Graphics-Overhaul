@@ -34,7 +34,6 @@ public class PlaneFX extends SFX {
     final float duration;
     
     private Texture texture;
-    private boolean loaded = false, disposed = false;
     
     
     public Model(
@@ -84,9 +83,8 @@ public class PlaneFX extends SFX {
     }
     
     
-    protected void loadAsset() {
+    protected State loadAsset() {
       texture = ImageAsset.getTexture(imageName);
-      loaded = true;
       
       float
         w = texture.getWidth(),
@@ -100,17 +98,17 @@ public class PlaneFX extends SFX {
         m = Nums.max(w, h);
         bounds.set(0, 0, w / m, h / m);
       }
+      
+      return state = State.LOADED;
     }
     
     
-    protected void disposeAsset() {
+    protected State disposeAsset() {
       texture.dispose();
-      disposed = true;
+      return state = State.DISPOSED;
     }
     
     
-    public boolean isLoaded() { return loaded; }
-    public boolean isDisposed() { return disposed; }
     public Sprite makeSprite() { return new PlaneFX(this); }
   }
   

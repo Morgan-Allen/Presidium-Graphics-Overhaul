@@ -56,9 +56,8 @@ public class MS3DModel extends SolidModel {
     return new MS3DModel(path, fileName, sourceClass, xmlFile, xmlName);
   }
   
-
-  protected void loadAsset() {
-    
+  
+  protected State loadAsset() {
     try {
       final FileHandle fileHandle = Gdx.files.internal(filePath);
       final DataInput0 input = new DataInput0(fileHandle.read(), true);
@@ -74,7 +73,7 @@ public class MS3DModel extends SolidModel {
     }
     catch (Exception e) {
       I.report(e);
-      return;
+      return state = State.ERROR;
     }
     
     data = new ModelData();
@@ -84,17 +83,12 @@ public class MS3DModel extends SolidModel {
     
     super.compileModel(new Model(data));
     if (config != null) loadAttachPoints(config.child("attachPoints"));
-    loaded = true;
+    return super.loadAsset();
   }
   
   
-  public boolean isLoaded() {
-    return loaded;
-  }
-  
-  
-  protected void disposeAsset() {
-    super.disposeAsset();
+  protected State disposeAsset() {
+    return super.disposeAsset();
   }
   
 
