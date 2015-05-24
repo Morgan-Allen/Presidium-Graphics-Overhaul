@@ -1,4 +1,8 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.start;
 import java.io.*;
 import java.util.zip.*;
@@ -28,7 +32,10 @@ public class Assets {
     final String assetID;
     final Class sourceClass;
     final boolean disposeWithSession;
+    
     protected State state = State.INIT;
+    private Table <String, String> fileStamps = new Table();
+    private long refreshTime = -1;
     
     
     protected Loadable(
@@ -48,6 +55,11 @@ public class Assets {
     
     public boolean stateLoaded  () { return state == State.LOADED  ; }
     public boolean stateDisposed() { return state == State.DISPOSED; }
+    
+    protected void setKeyFile(String filePath) {
+      final String stamp = fileStampFor(filePath);
+      if (stamp != null) fileStamps.put(filePath, stamp);
+    }
   }
   
   
@@ -304,7 +316,7 @@ public class Assets {
   
 
   
-  /**  Caches the given resource.
+  /**  Methods related to asset-caching and checking for refresh-
     */
   public static void cacheResource(Object res, String key) {
     resCache.put(key, res);
@@ -324,6 +336,50 @@ public class Assets {
   public static boolean exists(String fileName) {
     final File file = new File(fileName);
     return file.exists();
+  }
+  
+  
+  public static String fileStampFor(String fileName) {
+    final File asset = new File(fileName);
+    if (! asset.exists()) return null;
+    final String stamp = ""+asset.lastModified();
+    return stamp;
+  }
+  
+  
+  public static boolean checkForRefresh(Loadable asset, int delayMillis) {
+    //
+    //  First, we check to see if a refresh is required at all.  If not, just
+    //  return a negative.  (-1 is used to flag no refresh scheduled.)
+    //  We have to allow a small delay here for files to complete being written
+    //  after their time-stamp has been modified.
+    if (asset.refreshTime == -1) {
+      boolean noChange = true;
+      for (String fileName : asset.fileStamps.keySet()) {
+        final String
+          oldStamp = asset.fileStamps.get(fileName),
+          newStamp = fileStampFor(fileName);
+        if (! oldStamp.equals(newStamp)) noChange = false;
+      }
+      if (noChange) return false;
+    }
+    final long time = System.currentTimeMillis();
+    if (asset.refreshTime == -1) asset.refreshTime = time + delayMillis;
+    if (asset.refreshTime > time) return false;
+    //
+    //  Once that's done, we set the asset's time-stamps to their present
+    //  values, and clear any cached file-versions we might have...
+    final String keyFiles[] = asset.fileStamps.keySet().toArray(new String[0]);
+    for (String fileName : keyFiles) {
+      clearCachedResource(fileName);
+      asset.fileStamps.put(fileName, fileStampFor(fileName));
+    }
+    //
+    //  Then refresh the dependent asset itself, and return:
+    disposeOf(asset);
+    loadNow  (asset);
+    asset.refreshTime = -1;
+    return true;
   }
   
   

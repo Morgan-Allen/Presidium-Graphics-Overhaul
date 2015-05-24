@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.MS3DFile.*;
@@ -44,8 +46,8 @@ public class MS3DModel extends SolidModel {
     filePath = path+fileName;
     xmlPath = path+xmlFile;
     this.xmlName = xmlName;
-    this.associateFile(filePath);
-    this.associateFile(xmlPath );
+    this.setKeyFile(filePath);
+    this.setKeyFile(xmlPath );
   }
   
   
@@ -115,7 +117,7 @@ public class MS3DModel extends SolidModel {
         }
         if (verbose) I.say(""+mat.texture);
         tex.fileName = baseDir.child(mat.texture).path();
-        this.associateFile(tex.fileName);
+        this.setKeyFile(tex.fileName);
         // + "/" +
         // mat.texture;
         tex.id = mat.texture;

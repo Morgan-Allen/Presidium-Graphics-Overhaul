@@ -175,16 +175,18 @@ public class Habitat {
   final public static Habitat
     ALL_HABITATS[] = (Habitat[]) allHabs.toArray(Habitat.class);
   final public static ImageAsset
-    BASE_TEXTURES[] = new ImageAsset[ALL_HABITATS.length],
+    //BASE_TEXTURES[] = new ImageAsset[ALL_HABITATS.length],
     ROAD_TEXTURE = ImageAsset.fromImage(
       Habitat.class, TERRAIN_PATH+"road_map_new.png"
     ),
     SQUALOR_TEXTURE = ImageAsset.fromImage(
       Habitat.class, TERRAIN_PATH+"black_wastes_ground.png"
     );
+  /*
   static {
     for (Habitat h : ALL_HABITATS) BASE_TEXTURES[h.ID] = h.baseTex;
   }
+  //*/
   
   
   

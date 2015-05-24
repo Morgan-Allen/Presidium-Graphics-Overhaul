@@ -67,9 +67,6 @@ public class SkinsPreview extends VisualDebug {
   private boolean showOrigin = true;
   private PlaneFX centerMark = null;
   
-  private Table <String, String> assetStamps = new Table <String, String> ();
-  private boolean willReload = false, reloadNow = false;
-  
   
   
   protected void loadVisuals() {
@@ -385,7 +382,6 @@ public class SkinsPreview extends VisualDebug {
       Assets.disposeOf(currentModel);
       currentModel = newModel;
       partsHide = null;
-      assetStamps.clear();
       sprites.clear();
       sprites.add(currentModel.makeSprite());
       return true;
@@ -395,43 +391,10 @@ public class SkinsPreview extends VisualDebug {
   
   
   private void checkAssetsChange() {
-    if (currentModel == null) return;
-    boolean shouldReload = false;
-    
-    if (! willReload) for (String s : currentModel.importantFiles()) {
-      final File asset = new File(s);
-      if (! asset.exists()) continue;
-      final String stamp = ""+asset.lastModified();
-      final String oldVal = assetStamps.get(s);
-      
-      if (oldVal != null && ! oldVal.equals(stamp)) {
-        I.say("\nAsset was changed! "+s);
-        Assets.clearCachedResource(s);
-        shouldReload = true;
-      }
-      assetStamps.put(s, stamp);
-    }
-    
-    if (shouldReload) {
-      willReload = true;
-      //  We insert a short time-delay here, so that the file has time to
-      //  finish being written to disc.
-      new Thread() {
-        public void run() {
-          try { Thread.sleep(500); }
-          catch (Exception e) {}
-          reloadNow = true;
-        }
-      }.start();
-    }
-    
-    if (reloadNow) {
-      Assets.disposeOf(currentModel);
-      Assets.loadNow(currentModel);
+    if (currentModel != null && Assets.checkForRefresh(currentModel, 500)) {
+      partsHide = null;
       sprites.clear();
       sprites.add(currentModel.makeSprite());
-      willReload = false;
-      reloadNow  = false;
     }
   }
 }

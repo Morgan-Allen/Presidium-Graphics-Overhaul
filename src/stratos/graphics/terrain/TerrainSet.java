@@ -3,7 +3,9 @@
 
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
@@ -21,8 +23,8 @@ public class TerrainSet {
   final int chunkSize, chunkGrid;
   final byte layerIndices[][], varsIndices[][];
   
-  TerrainChunk chunks[][][];
-  LayerType layers[];
+  final TerrainChunk chunks[][][];
+  final public LayerType layers[];
   
   
   
@@ -61,11 +63,11 @@ public class TerrainSet {
         if (chunk.fadeOut != null) chunk.fadeOut.dispose();
       }
     }
-    for (LayerType layer : layers) layer.dispose();
   }
   
   
   public void refreshAllMeshes() {
+    
     for (Coord c : Visit.grid(0, 0, chunkGrid, chunkGrid, 1)) {
       for (LayerType layer : layers) {
         final TerrainChunk oldChunk = chunks[c.x][c.y][layer.layerID];
@@ -81,6 +83,10 @@ public class TerrainSet {
         chunk.fadeOut = oldChunk;
         chunk.fadeIncept = Rendering.activeTime();
       }
+    }
+    
+    for (LayerType layer : layers) for (ImageAsset image : layer.layerFrames) {
+      Assets.checkForRefresh(image, 500);
     }
   }
   

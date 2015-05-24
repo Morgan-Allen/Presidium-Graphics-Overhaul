@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.common;
 import stratos.start.Assets;
 import stratos.util.*;
@@ -41,6 +44,7 @@ public class ImageAsset extends Assets.Loadable {
     }
     
     final ImageAsset asset = new ImageAsset(keyPath, filePath, sourceClass);
+    asset.setKeyFile(filePath);
     Assets.cacheResource(asset, keyPath);
     return asset;
   }

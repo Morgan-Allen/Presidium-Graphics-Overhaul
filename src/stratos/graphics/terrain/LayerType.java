@@ -1,49 +1,33 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
 import stratos.util.*;
-import com.badlogic.gdx.graphics.Texture;
 
 
 
 public abstract class LayerType implements TileConstants {
   
+  
   /**  Data, constants, constructors, setup and cleanup-
     */
-  final Texture textures[];
-  final int layerID;
-  final boolean innerFringe;
+  final public ImageAsset layerFrames[];
+  final public int layerID;
+  final public boolean innerFringe;
   final private static boolean near[] = new boolean[8];
   
   
   public LayerType(ImageAsset image, boolean innerFringe, int layerID) {
-    this.innerFringe = innerFringe;
-    this.layerID = layerID;
-    this.textures = new Texture[] { image.asTexture() };
+    this(new ImageAsset[] { image }, innerFringe, layerID);
   }
   
-  
-  public LayerType(ImageAsset tex[], boolean innerFringe, int layerID) {
+  public LayerType(ImageAsset images[], boolean innerFringe, int layerID) {
+    this.layerFrames = images     ;
     this.innerFringe = innerFringe;
-    this.layerID = layerID;
-    this.textures = new Texture[tex.length];
-    for (int i = tex.length; i-- > 0;) {
-      this.textures[i] = tex[i].asTexture();
-    }
-  }
-  
-  
-  public LayerType(String texName, boolean innerFringe, int layerID) {
-    this.innerFringe = innerFringe;
-    this.layerID = layerID;
-    this.textures = new Texture[] { ImageAsset.getTexture(texName) };
-  }
-  
-  
-  //  TODO:  This might not actually be needed, if image assets are disposed of
-  //  automatically...
-  protected void dispose() {
-    for (Texture t : textures) t.dispose();
+    this.layerID     = layerID    ;
   }
   
   

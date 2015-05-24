@@ -50,8 +50,8 @@ public class DebugSocial extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
-      Habitat.ESTUARY     , 2f,
-      Habitat.MEADOW      , 3f,
+      Habitat.STRIP_MINING, 2f,
+      Habitat.CURSED_EARTH, 3f,
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );

@@ -122,13 +122,13 @@ public class TerrainPass {
     
     //  In the case of animated textures, we have to determine the current and
     //  next texture frames to fade between-
-    final Texture tex[] = layer.textures;
+    final ImageAsset tex[] = layer.layerFrames;
     final float time = (Rendering.activeTime() % 1) * tex.length;
     final int index = (int) time, animIndex = (index + 1) % tex.length;
     
     for (int i : new int[] { index, animIndex }) {
       final float opacity = (i == index) ? 1 : (time % 1);
-      tex[i].bind(0);
+      tex[i].asTexture().bind(0);
       
       for (TerrainChunk chunk : chunks) {
         if (chunk.layer.layerID != layer.layerID) I.complain("WRONG LAYER!");

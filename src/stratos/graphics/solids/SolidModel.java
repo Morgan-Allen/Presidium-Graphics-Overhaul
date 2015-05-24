@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -29,12 +31,8 @@ public abstract class SolidModel extends ModelAsset {
   protected Material allMaterials[];
   protected float    rotateOffset;
   
-  private ObjectMap <Object, Integer>
-    indices = new ObjectMap <Object, Integer> ();
-  private String
-    partNames[];
-  private Batch <String>
-    importantFilePaths = new Batch <String> ();
+  private ObjectMap <Object, Integer> indices = new ObjectMap();
+  private String partNames[];
   
   
   
@@ -58,16 +56,6 @@ public abstract class SolidModel extends ModelAsset {
   public Sprite makeSprite() {
     if (gdxModel == null) I.complain("MODEL MUST BE COMPILED FIRST!");
     return new SolidSprite(this);
-  }
-  
-  
-  protected void associateFile(String filePath) {
-    importantFilePaths.add(filePath);
-  }
-  
-  
-  public String[] importantFiles() {
-    return importantFilePaths.toArray(String.class);
   }
   
   

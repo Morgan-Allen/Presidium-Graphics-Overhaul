@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 
@@ -434,3 +435,14 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     meshSet.renderWithin(area, rendering);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
