@@ -62,28 +62,19 @@ public class RoadsRepair extends Plan {
   /**  Target evaluation and prioritisation-
     */
   final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
-  final static Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
   
   
   protected float getPriority() {
     if (GameSettings.paveFree) return -1;
-    final boolean report = evalVerbose && I.talkAbout == actor;
     
-    if (PlanUtils.competition(this, section, actor) > 0) {
-      if (report) I.say("\nToo much competition for paving!  Will quit.");
-      return -1;
-    }
-    return priorityForActorWith(
-      actor, around,
-      CASUAL, NO_MODIFIER,
-      NO_HARM, NO_COMPETITION, MILD_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    setCompetence(successChanceFor(actor));
+    return PlanUtils.jobPlanPriority(
+      actor, this, 1, competence(), 0, MILD_FAIL_RISK, BASE_TRAITS
     );
   }
   
   
-  //  TODO:  Merge this with the Repair class for simplicity?
+  //  TODO:  Merge this with the Repair class for simplicity..?
   public float successChanceFor(Actor actor) {
     float chance = 1;
     chance *= actor.skills.chance(HARD_LABOUR, 0);

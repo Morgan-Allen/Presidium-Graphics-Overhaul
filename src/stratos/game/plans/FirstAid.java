@@ -18,10 +18,9 @@ import static stratos.game.economic.Economy.*;
 public class FirstAid extends Treatment {
   
   
-  
   private static boolean
-    evalVerbose  = true ,
-    stepsVerbose = true ;
+    evalVerbose  = false,
+    stepsVerbose = false;
   
   
   public FirstAid(Actor actor, Actor patient) {
@@ -58,7 +57,7 @@ public class FirstAid extends Treatment {
   
   
   protected float severity() {
-    if (! patient.health.alive()) return 0.25f;
+    if (! patient.health.alive()) return 0.5f;
     float severity = patient.health.injuryLevel() * ActorHealth.MAX_INJURY;
     if (patient.health.bleeding()) severity += 0.5f;
     return severity;
@@ -76,8 +75,12 @@ public class FirstAid extends Treatment {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     setCompetence(0);  //  Will trump below...
-    
     if (patient.health.conscious() || ! patient.health.organic()) return 0;
+    
+    if (report) {
+      I.say("\nGetting first aid priority for: "+patient);
+      I.reportStackTrace();
+    }
     
     final Actor carries = Suspensor.carrying(patient);
     if (carries != null && carries != actor) return -1;
@@ -90,19 +93,21 @@ public class FirstAid extends Treatment {
     
     final float severity = severity();
     if (severity <= 0) return 0;
-    if (severity > 0.5f) addMotives(MOTIVE_EMERGENCY);
+    if (severity > 0.5f || ! patient.indoors()) addMotives(MOTIVE_EMERGENCY);
     
     setCompetence(successChanceFor(actor));
     
     float priority = PlanUtils.supportPriority(
       actor, patient, motiveBonus(), competence(), severity
     );
+    if (report) I.say("  Final priority: "+priority);
     return priority;
   }
   
   
   public float successChanceFor(Actor actor) {
-    return successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
+    if (! patient.health.alive()) return 1;
+    return PlanUtils.successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
   }
   
   

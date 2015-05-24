@@ -7,6 +7,7 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.user.VenuePane;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 
@@ -177,6 +178,15 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
         "Production would be faster with a supply of "+r.type+"."
       );
       break;
+    }
+    if (needsOkay && v.stocks.specialOrders().size() > 0) {
+      needsOkay = false;
+      s.append(
+        "\nYour workers are busy with special orders.  Check the "+
+        VenuePane.CAT_STOCK+" pane for details."
+      );
+      s.append("\n  "+numWorking+" active workers");
+      return s.toString();
     }
     if (needsOkay) s.append(normal);
     s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));

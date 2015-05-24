@@ -205,14 +205,18 @@ public class Performance extends Recreation {
       return 0;
     }
     
-    final float priority = priorityForActorWith(
-      actor, venue,
-      CASUAL, NO_MODIFIER,
-      MILD_HELP, MILD_COOPERATION, NO_FAIL_RISK,
-      PERFORM_SKILLS[type], BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    setCompetence(successChanceFor(actor));
+    return PlanUtils.jobPlanPriority(
+      actor, this, 0.5f, competence(), -1, 0, BASE_TRAITS
     );
-    return priority;
+  }
+  
+  
+  public float successChanceFor(Actor actor) {
+    final Skill skills[] = PERFORM_SKILLS[type];
+    float chance = 1;
+    for (Skill s : skills) chance += actor.skills.chance(s, MODERATE_DC);
+    return chance / (1 + skills.length);
   }
   
   

@@ -25,10 +25,10 @@ public class TrooperLodge extends Venue {
   /**  Fields, constants, and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    TrooperLodge.class, "media/Buildings/military/house_garrison.png", 4.25f, 3
+    TrooperLodge.class, "media/Buildings/military/trooper_lodge.png", 4.25f, 3
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    TrooperLodge.class, "media/GUI/Buttons/garrison_button.gif"
+    TrooperLodge.class, "media/GUI/Buttons/trooper_lodge_button.gif"
   );
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -175,7 +175,7 @@ public class TrooperLodge extends Venue {
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
     if (v == Backgrounds.VOLUNTEER) return num + 2;
-    if (v == Backgrounds.TROOPER  ) return num + 1;
+    if (v == Backgrounds.TROOPER  ) return num + 2;
     return 0;
   }
   

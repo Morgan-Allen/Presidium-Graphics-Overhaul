@@ -128,7 +128,7 @@ public class StockExchange extends Venue {
   public int spaceFor(Traded good) {
     final float upgradeLevel = upgradeLevelFor(good);
     if (upgradeLevel == -1) return 0;
-    if (upgradeLevel ==  0) return 5;
+    if (upgradeLevel ==  0) return 0;
     return 5 + (int) (upgradeLevel * 15);
   }
   

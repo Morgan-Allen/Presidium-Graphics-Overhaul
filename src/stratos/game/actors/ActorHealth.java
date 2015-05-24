@@ -70,7 +70,7 @@ public class ActorHealth implements Qualities {
     MIN_MORALE       = -0.5f,
     REVIVE_THRESHOLD =  0.5f,
     DECOMP_FRACTION  = (MAX_DECOMP - MAX_INJURY) / 1.0f,
-    RUN_FATIGUE_MULT = 10.0f,
+    RUN_FATIGUE_MULT =  4.0f,
     BLEED_OUT_TIME   = Stage.STANDARD_HOUR_LENGTH * 2,
     DECOMPOSE_TIME   = Stage.STANDARD_DAY_LENGTH  * 2,
     

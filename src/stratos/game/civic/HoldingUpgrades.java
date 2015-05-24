@@ -330,13 +330,13 @@ public class HoldingUpgrades {
     final boolean NV = ! verbose;
     float rating = 1, r;
     
-    if (targetLevel >= LEVEL_PYON) {
+    if (targetLevel >= LEVEL_FREEBORN) {
       r = Nums.max(
         rateAccessTo(Bastion.class         , point, base),
         rateAccessTo(PhysicianStation.class, point, base)
       );
       if (r <= 0) return NV ? NOT_MET :
-        "Your pyons will need access to a Bastion or Sickbay to provide "+
+        "Your freeborn will need access to a Bastion or Sickbay to provide "+
         "life support or health services before they will feel safe enough "+
         "to settle down.";
       rating *= r;

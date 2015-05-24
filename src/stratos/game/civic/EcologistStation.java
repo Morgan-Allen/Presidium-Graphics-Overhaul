@@ -144,8 +144,8 @@ public class EcologistStation extends Venue {
     //  If you're really short on food, consider foraging in the surrounds or
     //  farming 24/7.
     final float shortages = (
-      stocks.relativeShortage(CARBS ) +
-      stocks.relativeShortage(GREENS)
+      base.commerce.primaryShortage(CARBS ) +
+      base.commerce.primaryShortage(GREENS)
     ) / 2f;
     //
     //  First of all, find a suitable nursery to tend:
@@ -168,10 +168,10 @@ public class EcologistStation extends Venue {
       choice.add(foraging);
     }
     
-    if (actor.mind.vocation() == ECOLOGIST && onShift) {
+    if (actor.mind.vocation() == ECOLOGIST && ! offShift) {
       addEcologistJobs(actor, onShift, choice);
     }
-    if (actor.mind.vocation() == CULTIVATOR && onShift) {
+    if (actor.mind.vocation() == CULTIVATOR && ! offShift) {
       addCultivatorJobs(actor, onShift, choice);
     }
     return choice.weightedPick();
@@ -185,7 +185,6 @@ public class EcologistStation extends Venue {
     //  Consider collecting gene samples-
     final float needSamples = SeedTailoring.needForSamples(this);
     if (needSamples > 0) {
-      I.say("NEED FOR SAMPLES IS "+needSamples);
       choice.add(Forestry.nextSampling(actor, this, needSamples));
     }
     for (Target e : actor.senses.awareOf()) if (e instanceof Fauna) {
@@ -197,13 +196,14 @@ public class EcologistStation extends Venue {
     //
     //  Tailor seed varieties and consider breeding animals-
     for (Species s : Crop.ALL_VARIETIES) {
-      final SeedTailoring t = new SeedTailoring(actor, this, s);
-      if (staff.assignedTo(t) > 0) continue;
-      choice.add(t);
+      final Item seed = Item.withReference(GENE_SEED, s);
+      if (stocks.amountOf(seed) >= 1) continue;
+      choice.add(new SeedTailoring(actor, this, s));
     }
     if (stocks.amountOf(CARBS) > 1 && stocks.amountOf(PROTEIN) > 0.5f) {
       choice.add(AnimalBreeding.nextBreeding(actor, this));
     }
+    if (! choice.empty()) return;
     //
     //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
@@ -222,6 +222,12 @@ public class EcologistStation extends Venue {
     );
     choice.add(d);
     if (! choice.empty()) return;
+    //
+    //  Consider collecting gene samples-
+    final float needSamples = SeedTailoring.needForSamples(this);
+    if (needSamples > 0) {
+      choice.add(Forestry.nextSampling(actor, this, needSamples));
+    }
     //  TODO:  Merge with Former Plant jobs?
     choice.add(Forestry.nextPlanting(actor, this));
     //

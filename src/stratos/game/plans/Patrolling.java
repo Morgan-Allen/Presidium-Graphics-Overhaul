@@ -5,6 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.Mission;
 import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -81,38 +82,42 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   /**  Obtaining and evaluating patrols targets-
     */
   final static Trait BASE_TRAITS[] = { FEARLESS, IGNORANT, SOLITARY };
-  final static Skill BASE_SKILLS[] = { SURVEILLANCE, FORENSICS };
-  
-  //  TODO:  Include bonus from first aid or assembly skills, depending on the
-  //  target?
 
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    //final boolean report = evalVerbose && I.talkAbout == actor;
     if (onPoint == null || patrolled.size() == 0) return 0;
     
     float urgency, relDanger = 0;
     if (actor.base() != null) for (Target t : patrolled) {
       relDanger += actor.base().dangerMap.sampleAround(t, Stage.ZONE_SIZE);
     }
-    relDanger /= patrolled.size();
-    urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
+    urgency = Nums.clamp(relDanger / patrolled.size(), 0, 1);
     
     float modifier = 0 - actor.senses.fearLevel();
     if (actor.senses.isEmergency()) addMotives(MOTIVE_EMERGENCY);
     
-    final float priority = priorityForActorWith(
-      actor, guarded,
-      urgency, modifier,
-      MILD_HELP, NO_COMPETITION, REAL_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    if (! PlanUtils.isArmed(actor)) setCompetence(0);
+    else setCompetence(successChanceFor(actor));
+    
+    //  TODO:  Include bonus from first aid or assembly skills, depending on the
+    //  target and damage done.
+    
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, urgency + modifier, competence(),
+      -1, Plan.REAL_FAIL_RISK, BASE_TRAITS
     );
-    if (report) {
-      I.say("\nExtra patrolling factors:");
-      I.say("  Relative danger: "+relDanger);
-      I.say("  Base urgency:    "+urgency);
-    }
     return priority;
+  }
+  
+  
+  public float successChanceFor(Actor actor) {
+    
+    //  TODO:  Include bonus from first aid or assembly skills, depending on the
+    //  target and damage done.
+    
+    int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
+    final Tile under = actor.world().tileAt(guarded);
+    return PlanUtils.combatWinChance(actor, under, teamSize);
   }
   
   
@@ -147,7 +152,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       choice.add(new FirstAid(actor, (Actor) guarded).setMotivesFrom(this, 0));
     }
     if (guarded instanceof Venue) {
-      choice.add(new Repairs(actor, (Venue) guarded).setMotivesFrom(this, 0));
+      choice.add(new Repairs (actor, (Venue) guarded).setMotivesFrom(this, 0));
     }
     final Behaviour picked = choice.pickMostUrgent();
     if (Choice.wouldSwitch(actor, old, picked, true, report)) {

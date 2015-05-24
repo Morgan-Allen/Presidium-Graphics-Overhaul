@@ -4,6 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.base;
+import static stratos.game.base.Mission.TYPE_COVERT;
+import static stratos.game.base.Mission.TYPE_PUBLIC;
+import static stratos.game.base.Mission.TYPE_SCREENED;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -167,11 +170,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public Target selectionLocksOn() {
-    return subject;
-  }
-  
-  
   public static void quickSetup(
     Mission mission, int priority, int type, Actor... toAssign
   ) {
@@ -202,6 +200,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
       beginMission();
     }
     else if (shouldEnd()) endMission(true);
+    //
+    //  Remove any applicants that have abandoned the mission-
+    for (Role role : roles) if (role.approved) {
+      final Actor a = role.applicant;
+      if (! a.health.conscious()) a.mind.assignMission(null);
+    }
     //
     //  By default, we also terminate any missions that have been completely
     //  abandoned-
@@ -360,17 +364,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public Target applyPointFor(Actor actor) {
-    if (missionType == TYPE_BASE_AI) return actor;
-    if (missionType == TYPE_PUBLIC ) return actor;
-    
-    //  TODO:  BE STRICTER ABOUT THIS
-    if (base.HQ() == null) return actor;
-    
-    return base.HQ();
-  }
-  
-  
   //  NOTE:  This method should be called within the ActorMind.assignMission
   //  method, and not independantly.
   public void setApplicant(Actor actor, boolean is) {
@@ -431,7 +424,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void endMission(boolean withReward) {
+    //
+    //  Unregister yourself from the base's list of ongoing operations-
+    base.tactics.removeMission(this);
     if (done) return;
+    done = true;
     
     final boolean report = (
       verbose && BaseUI.currentPlayed() == base
@@ -439,10 +436,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (report) {
       I.say("\nMISSION COMPLETE: "+this);
     }
-    //
-    //  Unregister yourself from the base's list of ongoing operations-
-    base.tactics.removeMission(this);
-    done = true;
     //
     //  Determine the reward, and dispense among any agents engaged-
     final float reward;
@@ -471,18 +464,47 @@ public abstract class Mission implements Session.Saveable, Selectable {
     */
   public Behaviour nextStepFor(Actor actor, boolean create) {
     if (begun) updateMission();
-    if (done) return null;
+    if (done || priority <= 0) return null;
     
     final Role role = roleFor(actor);
-    if (role == null) return create ? createStepFor(actor) : null;
-    final Behaviour cached = role.cached;
-    if (
-      cached == null || cached.finished() ||
-      cached.nextStepFor(actor) == null
-    ) {
-      return role.cached = create ? createStepFor(actor) : null;
+    final Action waiting = nextWaitAction(actor, role);
+    if (waiting != null) return waiting;
+    
+    if (role == null || ! Plan.canFollow(actor, role.cached, true)) {
+      if (! create) return null;
+      final Behaviour step = createStepFor(actor);
+      if (role == null) return step;
+      role.cached = step;
     }
-    return cached;
+    return role.cached;
+  }
+  
+  
+  private Action nextWaitAction(Actor actor, Role role) {
+    if (role == null || ! role.approved) return null;
+    if (actor.senses.isEmergency()) return null;
+    
+    for (Actor a : approved()) {
+      if (a == actor || a.planFocus(null, true) != subject) continue;
+      
+      final float dist = Spacing.distance(a, actor);
+      if (dist < Stage.ZONE_SIZE * 2.5f && dist > Stage.ZONE_SIZE / 2) {
+        final Action waits = new Action(
+          actor, a,
+          this, "actionWait",
+          Action.TALK, "Waiting for "+a
+        );
+        waits.setPriority  (Action.URGENT);
+        waits.setProperties(Action.RANGED | Action.QUICK);
+        return waits;
+      }
+    }
+    return null;
+  }
+  
+  
+  public boolean actionWait(Actor actor, Actor other) {
+    return true;
   }
   
   
@@ -523,6 +545,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   protected float basePriority(Actor actor) {
     final boolean report = I.talkAbout == actor && evalVerbose;
+    if (! visibleTo(actor.base())) return -1;
+    
     if (report) {
       I.say("\nEvaluating priority for "+this);
       I.say("  Mission type:  "+missionType);
@@ -714,12 +738,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public Target selectionLocksOn() {
+    if (visibleTo(BaseUI.currentPlayed())) return subject;
+    else return null;
+  }
+  
+  
   public void whenClicked() {
     BaseUI.current().selection.pushSelection(this);
   }
   
-  
-  //  TODO:  Pass a renderFlagAt() method instead...
   
   public Sprite flagSprite() {
     return flagSprite;
@@ -753,6 +781,18 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public String helpInfo() {
+    if (! applicants().empty()) return description;
+    if (! visibleTo(BaseUI.currentPlayed())) return
+      "The target's current location is unknown.  This mission cannot proceed "+
+      "until they are found.";
+    if (missionType == TYPE_PUBLIC  ) return
+      "This is a public contract, open to all comers.";
+    if (missionType == TYPE_SCREENED) return
+      "This is a screened mission.  Applicants will be subject to your "+
+      "approval before they can embark.";
+    if (missionType == TYPE_COVERT  ) return
+      "This is a covert mission.  No agents or citizens will apply "+
+      "unless recruited by interview.";
     return description;
   }
   
@@ -763,6 +803,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
+    if (! visibleTo(BaseUI.currentPlayed())) return;
+    
     if (subject instanceof Selectable) {
       ((Selectable) subject).renderSelection(rendering, hovered);
       return;
@@ -777,18 +819,22 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public boolean visibleTo(Base player) {
-    if (player == base) return true;
-    if (! allVisible) {
+    if (player != base && ! allVisible) {
       if (missionType == TYPE_COVERT ) return false;
       if (missionType == TYPE_BASE_AI) return false;
     }
-    if (player.intelMap.fogAt(subject) <= 0) return false;
+    if (subject instanceof Element) {
+      if (! ((Element) subject).visibleTo(player)) return false;
+    }
     return true;
   }
   
   
   private void returnSelectionAfterward() {
-    if (BaseUI.paneOpenFor(this) && (subject instanceof Selectable)) {
+    if (
+      BaseUI.paneOpenFor(this) && visibleTo(BaseUI.currentPlayed()) &&
+      (subject instanceof Selectable)
+    ) {
       BaseUI.current().selection.pushSelection((Selectable) subject);
     }
   }

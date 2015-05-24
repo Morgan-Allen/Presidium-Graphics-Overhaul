@@ -132,6 +132,24 @@ public class MessageScript implements
     }
   }
   
+  
+  public boolean topicIsOpen(String titleKey) {
+    final Topic match = allTopics.get(titleKey);
+    return match != null && match.triggered && ! match.completed;
+  }
+  
+  
+  public boolean topicTriggered(String titleKey) {
+    final Topic match = allTopics.get(titleKey);
+    return match != null && match.triggered;
+  }
+  
+  
+  public boolean topicCompleted(String titleKey) {
+    final Topic match = allTopics.get(titleKey);
+    return match != null && match.completed;
+  }
+  
 
 
   /**  Regular updates to check for script-events:
@@ -149,9 +167,6 @@ public class MessageScript implements
       //  First, we check to see if any topics have been triggered.
       if (topic.triggers != null && ! topic.triggered) {
         if (tryCallMethod(topic.triggers, topic)) {
-          if (I.logEvents()) I.say("\nTopic triggered: "+topic.titleKey);
-          
-          topic.triggered = true;
           pushTopicMessage(topic, true);
         }
       }
@@ -206,6 +221,7 @@ public class MessageScript implements
     
     if (message == null) return;
     else topic.triggered = true;
+    if (I.logEvents()) I.say("\nTopic triggered: "+topic.titleKey);
     
     final ReminderListing reminders = UI.reminders();
     if (topic.urgent && ! reminders.hasMessageEntry(topic.titleKey)) {
@@ -255,7 +271,9 @@ public class MessageScript implements
         );
         else d.append(new Description.Link("\n  "+linkName) {
           public void whenClicked() {
-            if (topic.completes == null) {
+            if (topic.completes == null && ! topic.completed) {
+              if (I.logEvents()) I.say("\nTopic closed: "+topic.titleKey);
+              topic.completed = true;
               UI.reminders().retireMessage(topic.asMessage);
             }
             pushTopicMessage(linkTopic, true);

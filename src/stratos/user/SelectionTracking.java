@@ -66,9 +66,7 @@ public class SelectionTracking {
   
   
   public void lockOn(Target target) {
-    if (
-      target == null
-    ) {
+    if (target == null) {
       lockTarget = null;
     }
     else {

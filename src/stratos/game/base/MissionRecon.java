@@ -120,6 +120,14 @@ public class MissionRecon extends Mission {
     d.append(tile);
   }
   
+
+  public String helpInfo() {
+    if (applicants().empty() && Planet.dayValue(base.world) < 0.33f) return
+      "Colonists are usually reluctant to explore at night.  You may have to "+
+      "wait until morning for applicants.";
+    return super.helpInfo();
+  }
+  
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     BaseUI.current().selection.renderPlane(

@@ -198,7 +198,7 @@ public class VenuePane extends SelectionPane {
     final Traded[] demands = v.stocks.demanded();
     final Batch <Item> special = new Batch();
     for (Traded t : ITEM_LIST_ORDER) {
-      if (Visit.arrayIncludes(demands, t)) describeStocks(t, d);
+      if (Visit.arrayIncludes(demands, t) && t.common()) describeStocks(t, d);
       else for (Item i : v.stocks.matches(t)) special.add(i);
     }
     

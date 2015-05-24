@@ -191,18 +191,7 @@ public class Dialogue extends Plan implements Qualities {
   
   protected float getPriority() {
     final boolean report = shouldReportEval();
-    //final boolean report = I.talkAbout == actor && this instanceof Proposal;
-    /*
-    if (I.talkAbout == actor && this instanceof Proposal) {
-      I.say("PROPOSAL BEING EVALUATED");
-      I.reportStackTrace();
-    }
-    //*/
-    
-    if (report) {
-      I.say("\nChecking for dialogue between "+actor+" and "+other);
-      I.say("  Range penalty: "+Plan.rangePenalty(actor.base(), actor, other));
-    }
+    if (report) I.say("\nChecking for dialogue between "+actor+" and "+other);
     
     if (GameSettings.noChat) return -1;
     if (! other.health.human()) return -1;
@@ -214,40 +203,10 @@ public class Dialogue extends Plan implements Qualities {
       return -1;
     }
     
-    final float
-      solitude    = actor.motives.solitude(),
-      curiosity   = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
-      novelty     = actor.relations.noveltyFor(other);
-    final boolean
-      freshFace   = ! actor.relations.hasRelation(other);
-    
-    if (report) {
-      I.say("  Type is:      "+type     );
-      I.say("  Stage:        "+stage    );
-      I.say("  Solitude:     "+solitude );
-      I.say("  Curiosity:    "+curiosity);
-      I.say("  Novelty:      "+novelty  );
-      I.say("  Base novelty: "+actor.relations.noveltyFor(other.base()));
-      I.say("  Stage/begun:  "+stage+"/"+hasBegun());
-    }
-    
-    //
-    //  I'm simplifying this for now, prior to a more general cleanup of plan-
-    //  priorities.  TODO:  Revisit...
-    float bonus = Nums.clamp(curiosity * novelty, 0, 1);
-    if (freshFace) bonus += solitude;
-    
-    final float distCheck = type == TYPE_CASUAL ?
-      HEAVY_DISTANCE_CHECK : NORMAL_DISTANCE_CHECK
-    ;
-    final float priority = priorityForActorWith(
-      actor, other,
-      (bonus + 1) * IDLE / 2, bonus * IDLE,
-      MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, distCheck,
-      report
+    final float priority = PlanUtils.dialoguePriority(
+      actor, other, motiveBonus()
     );
-    return Nums.clamp(priority, 0, URGENT);
+    return priority;
   }
   
   
@@ -425,4 +384,43 @@ public class Dialogue extends Plan implements Qualities {
 
 
 
+    /*
+    final float
+      solitude    = actor.motives.solitude(),
+      curiosity   = (1 + actor.traits.relativeLevel(CURIOUS)) / 2f,
+      novelty     = actor.relations.noveltyFor(other);
+    final boolean
+      freshFace   = ! actor.relations.hasRelation(other);
+    
+    if (report) {
+      I.say("  Type is:      "+type     );
+      I.say("  Stage:        "+stage    );
+      I.say("  Solitude:     "+solitude );
+      I.say("  Curiosity:    "+curiosity);
+      I.say("  Novelty:      "+novelty  );
+      I.say("  Base novelty: "+actor.relations.noveltyFor(other.base()));
+      I.say("  Stage/begun:  "+stage+"/"+hasBegun());
+    }
+    
+    //
+    //  I'm simplifying this for now, prior to a more general cleanup of plan-
+    //  priorities.  TODO:  Revisit...
+    float bonus = Nums.clamp(curiosity * novelty, 0, 1);
+    if (freshFace) bonus += solitude;
+    
+    final float distCheck = type == TYPE_CASUAL ?
+      HEAVY_DISTANCE_CHECK : NORMAL_DISTANCE_CHECK
+    ;
+    //*/
+
+    /*
+    final float priority = priorityForActorWith(
+      actor, other,
+      (bonus + 1) * IDLE / 2, bonus * IDLE,
+      MILD_HELP, NO_COMPETITION, NO_FAIL_RISK,
+      BASE_SKILLS, BASE_TRAITS, distCheck,
+      report
+    );
+    return Nums.clamp(priority, 0, URGENT);
+    //*/
 

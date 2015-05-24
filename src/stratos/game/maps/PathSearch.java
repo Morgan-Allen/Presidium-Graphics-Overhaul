@@ -129,6 +129,7 @@ public class PathSearch extends Search <Boarding> {
   public PathSearch doSearch() {
     this.aimPoint    = approachTile(destination, client);
     this.closestDist = Spacing.distance(init, destination);
+    if (aimPoint == null) aimPoint = destination;
     if (limit) this.maxSearched = searchLimit(init, destination, aimPoint);
     
     if (verbose) {

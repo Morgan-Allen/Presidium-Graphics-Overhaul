@@ -85,7 +85,6 @@ public class Looting extends Plan {
   
   /**  Behaviour implementation-
     */
-  final static Skill BASE_SKILLS[] = { STEALTH_AND_COVER, INSCRIPTION };
   final static Trait BASE_TRAITS[] = { DISHONEST, ACQUISITIVE };
   
   
@@ -116,15 +115,14 @@ public class Looting extends Plan {
     
     if (mark.base() == actor.base()) {
       harm = MILD_HARM;
-      urge *= (1.5f - Planet.dayValue(actor.world()));  //  TODO:  USE SUCCESS-CHANCE INSTEAD
+      //  TODO:  USE SUCCESS-CHANCE INSTEAD
+      urge *= (1.5f - Planet.dayValue(actor.world()));
       if (isPrivate) urge -= 0.5f;
     }
     
-    final float priority = priorityForActorWith(
-      actor, mark,
-      CASUAL * urge, CASUAL * (urge - 0.5f),
-      harm, FULL_COMPETITION, REAL_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK, report
+    setCompetence(successChanceFor(actor));
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, urge, competence(), 1, REAL_FAIL_RISK, BASE_TRAITS
     );
     if (report) {
       I.say("\n  Got theft priority for "+actor);

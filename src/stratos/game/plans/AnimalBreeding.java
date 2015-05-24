@@ -155,25 +155,21 @@ public class AnimalBreeding extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
     
     final boolean active =
       actor.gear.hasItem(asSample) ||
       station.staff().onShift(actor);
+    if (! active) return 0;
     
-    final float priority = priorityForActorWith(
-      actor, station, active ? ROUTINE : 0,
-      NO_MODIFIER, NO_HARM,
-      NO_COMPETITION, MILD_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, 1, competence(), -1, MILD_FAIL_RISK, BASE_TRAITS
     );
     return priority;
   }
   
   
   public float successChanceFor(Actor actor) {
-    return successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
+    return PlanUtils.successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
   }
   
   

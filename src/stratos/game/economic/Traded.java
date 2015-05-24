@@ -2,6 +2,8 @@
 
 
 package stratos.game.economic;
+import static stratos.game.economic.Economy.FORM_MATERIAL;
+import static stratos.game.economic.Economy.FORM_PROVISION;
 import stratos.game.common.*;
 import stratos.graphics.common.ImageAsset;
 import stratos.graphics.cutout.*;
@@ -104,8 +106,17 @@ public class Traded extends Index.Entry implements Session.Saveable {
   }
   
   
-  public Conversion materials() { return materials; }
-  public float basePrice() { return basePrice; }
+  public Conversion materials() {
+    return materials;
+  }
+  
+  public float basePrice() {
+    return basePrice;
+  }
+  
+  public boolean common() {
+    return form == FORM_MATERIAL || form == FORM_PROVISION;
+  }
   
   
   

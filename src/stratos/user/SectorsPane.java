@@ -15,7 +15,7 @@ import com.badlogic.gdx.graphics.*;
 
 
 
-public class PlanetPane extends UIGroup implements UIConstants {
+public class SectorsPane extends UIGroup implements UIConstants {
   
   
   final static String
@@ -24,25 +24,49 @@ public class PlanetPane extends UIGroup implements UIConstants {
   
   final static ImageAsset
     PLANET_ICON     = ImageAsset.fromImage(
-      PlanetPane.class, "media/GUI/Panels/planet_tab.png"
+      SectorsPane.class, "media/GUI/Panels/planet_tab.png"
     ),
     PLANET_ICON_LIT = Button.CIRCLE_LIT;
   
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      PlanetPane.class , LOAD_PATH+"button_left.png"
+      SectorsPane.class , LOAD_PATH+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      PlanetPane.class, LOAD_PATH+"button_right.png"
+      SectorsPane.class, LOAD_PATH+"button_right.png"
     ),
     BACKING_TEX      = ImageAsset.fromImage(
       StarsPane.class, LOAD_PATH+"stars_backing.png"
     ),
     BORDER_TEX       = ImageAsset.fromImage(
-      PlanetPane.class, LOAD_PATH+"planet_frame.png"
+      SectorsPane.class, LOAD_PATH+"planet_frame.png"
     );
   
   
+  /**  Interface presented-
+    */
+  public static Button createButton(
+    final BaseUI baseUI
+  ) {
+    final SectorsPane pane = new SectorsPane(baseUI);
+    return new Button(
+      baseUI, SECTORS_BUTTON_ID, PLANET_ICON, PLANET_ICON_LIT, "Sectors"
+    ) {
+      protected void whenClicked() {
+        if (baseUI.currentPane() == pane) {
+          baseUI.setInfoPanels(null, null);
+        }
+        else {
+          baseUI.setInfoPanels(pane, null);
+        }
+      }
+    };
+  }
+  
+  
+  
+  /**  Data fields and construction-
+    */
   final PlanetDisplay display;
   final Image backdrop, border;
   final UIGroup displayArea;
@@ -52,7 +76,7 @@ public class PlanetPane extends UIGroup implements UIConstants {
   final SectorPanel infoPanel;
   
   
-  public PlanetPane(HUD UI) {
+  public SectorsPane(HUD UI) {
     super(UI);
     
     this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
@@ -139,10 +163,10 @@ public class PlanetPane extends UIGroup implements UIConstants {
       keysNode    = xml.child("sectorKeys");
     
     final MS3DModel globeModel = MS3DModel.loadFrom(
-      path, modelNode.value("name"), PlanetPane.class, null, null
+      path, modelNode.value("name"), SectorsPane.class, null, null
     );
     final ImageAsset sectorKeys = ImageAsset.fromImage(
-      PlanetPane.class, path + keysNode.value("name")
+      SectorsPane.class, path + keysNode.value("name")
     );
     Assets.loadNow(globeModel);
     Assets.loadNow(sectorKeys);

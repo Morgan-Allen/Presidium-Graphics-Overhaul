@@ -286,7 +286,7 @@ public class ActorSenses implements Qualities {
     }
     
     float sumAllies = 1, sumFoes = 0, bravery;
-    emergency  = actor.isDoing(Combat.class, null);
+    emergency  = false;
     powerLevel = CombatUtils.powerLevel(actor);
     bravery    = (2 + actor.traits.relativeLevel(FEARLESS)) / 2;
     
@@ -384,113 +384,4 @@ public class ActorSenses implements Qualities {
 }
 
 
-
-    
-    /*
-    //  Firstly, we iterate over every visible target, determine their degree
-    //  of hostility, and sum for all allies and enemies nearby.  (We also
-    //  split the counts up by quadrant, to allow for directional decisions
-    //  about where to retreat.)
-    float sumAllies = 1, sumFoes = 0, neophilia = 0;
-    final Base attacked = CombatUtils.baseAttacked(actor);
-    for (int n = NUM_DIRS; n-- > 0;) fearByDirection[n] = 0;
-    
-    emergency  = actor.isDoing(Combat.class, null);
-    powerLevel = CombatUtils.powerLevel(actor);
-    neophilia  = (1 + actor.traits.relativeLevel(CURIOUS )) / 2;
-    
-    for (Target t : awareOf) if ((t instanceof Actor) && (t != actor)) {
-      final Actor near = (Actor) t;
-      //
-      //  By default, strangers are considered at least a little scary.
-      final float   strangeness = actor.relations.noveltyFor(near.base());
-      final boolean active      = near.health.conscious();
-      
-      //  TODO:  Unify this with the hostility-evaluation used in the Combat-
-      //         priority method in PlanUtils?  Look into CombatLoseChance in
-      //         particular.
-      
-      final float   hostility   = Nums.max(
-        PlanUtils.harmIntendedBy(near, actor, true),
-        (0 - actor.relations.valueFor(near)) +
-        Nums.clamp((strangeness - neophilia), 0, 0.5f)
-      );
-      float avoidance = 0;
-      if (near.isDoing(Combat.class, null) ) emergency = true;
-      //
-      //  Anything armed and dangerous flags as an 'emergency', but only those
-      //  attacking a friend (or self) count as enemies-
-      if (hostility > 0 && PlanUtils.isArmed(near)) {
-        final float power = CombatUtils.powerLevelRelative(near, actor);
-        final float foeRating = power * Nums.clamp(0.5f + hostility, 0, 1);
-        sumFoes   += foeRating;
-        avoidance  = foeRating;
-        //
-        //  And here's where the strangeness comes in-
-        if ((strangeness * power) > neophilia && active) {
-          emergency = true;
-        }
-        if (report) {
-          I.say("  Enemy nearby: "+near+", hostility: "+hostility);
-          I.say("                power: "+power+", strangeness: "+strangeness);
-        }
-      }
-      else {
-        final float power = near.senses.powerLevel();
-        final float friendRating = Nums.clamp(0.5f - hostility, 0, 1);
-        sumAllies += power * friendRating / (1 + powerLevel);
-        if (report) {
-          I.say("  Ally nearby: "+near+", bond: "+friendRating);
-          I.say("               power: "+power);
-        }
-      }
-      //
-      //  If you're doing something harmful to a member of a given base, then
-      //  anyone from that base is considered a potential fear-source (at least
-      //  for pathing and cover-taking purposes.  Naturally, this also applies
-      //  to any real enemies detected.)  So we record the quadrant this threat
-      //  lies in, with a partial bonus to either side:
-      if (near.base() == attacked) {
-        if (report) I.say("  Belongs to base attacked...");
-        avoidance = Nums.max(avoidance, 1);
-      }
-      if (avoidance > 0) {
-        int quadrant = Spacing.compassDirection(actor.origin(), near.origin());
-        int left  = ((quadrant /= 2) + 1      ) % NUM_DIRS;
-        int right = (quadrant + (NUM_DIRS - 1)) % NUM_DIRS;
-        fearByDirection[quadrant] += avoidance    ;
-        fearByDirection[left    ] += avoidance / 2;
-        fearByDirection[right   ] += avoidance / 2;
-      }
-    }
-    
-    //  Finally, we adjust our sense of danger/safety based on ambient danger
-    //  levels for the region as a whole.
-    final float ambientDanger = actor.base().dangerMap.sampleAround(
-      actor, Stage.SECTOR_SIZE
-    );
-    if (sumFoes > 0 && ambientDanger > 0) {
-      sumFoes += ambientDanger / powerLevel;
-    }
-    if (sumAllies > 0 && ambientDanger < 0) {
-      sumAllies += 0 - ambientDanger / powerLevel;
-    }
-    fearLevel = sumFoes / (sumFoes + sumAllies);
-    safePoint = Retreat.nearestHaven(actor, null, emergency);
-    
-    if (report) {
-      I.say("  Sum allies:     "+sumAllies    );
-      I.say("  Sum foes:       "+sumFoes      );
-      I.say("  Personal power: "+powerLevel   );
-      I.say("  Ambient danger: "+ambientDanger);
-      I.say("  Neophilia:      "+neophilia    );
-      I.say("  Fear level:     "+fearLevel    );
-      I.say("  Safe point:     "+safePoint    );
-      I.say("  Emergency:      "+emergency    );
-      I.say("Danger by direction:");
-      for (int n : TileConstants.T_ADJACENT) {
-        I.say("  "+TileConstants.DIR_NAMES[n]+": "+dangerFromDirection(n));
-      }
-    }
-    //*/
 

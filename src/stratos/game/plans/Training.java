@@ -135,13 +135,14 @@ public class Training extends Plan {
     if (type == TYPE_DRILL   ) baseTraits = DRILL_TRAITS   ;
     if (type == TYPE_RESEARCH) baseTraits = RESEARCH_TRAITS;
     
-    return priorityForActorWith(
-      actor, venue,
-      CASUAL, modifier,
-      NO_HARM, NO_COMPETITION, MILD_FAIL_RISK,
-      NO_SKILLS, baseTraits, PARTIAL_DISTANCE_CHECK,
-      report
+    setCompetence(successChanceFor(actor));
+    
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this,
+      0.5f + (modifier / ROUTINE), competence(),
+      -1, MILD_FAIL_RISK, baseTraits
     );
+    return priority;
   }
   
   

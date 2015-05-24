@@ -41,15 +41,16 @@ public class BaseUI extends HUD implements UIConstants {
   
   //private CommsPane commsPanel;
   private ReminderListing reminders;
-  //private PlanetPanel planetPanel;
+  //private PlanetPane planetPane;
   //private StarsPanel  starsPanel ;  //Just use the homeworld.
 
   private Button optionsButton;
-  private Button commsButton;  //  TODO:  GET RID OF THIS
+  //private Button commsButton;  //  TODO:  GET RID OF THIS
   
-  private Button buildButton;
-  private UINode rosterButton;
-  private Button edictsButton;
+  private Button installButton;
+  private UINode rosterButton ;
+  private Button budgetButton ;
+  private Button sectorsButton;
   
   
   private UIGroup panelArea, infoArea;
@@ -194,7 +195,7 @@ public class BaseUI extends HUD implements UIConstants {
     
     final int
       PTS = PANEL_TAB_SIZE,
-      HTS = DEFAULT_MARGIN + (PTS / 2),
+      HTS = DEFAULT_MARGIN,// + (PTS / 2),
       PTH = PANEL_TABS_HIGH;
     
     this.optionsButton = GameOptionsPane.createButton(this, scenario);
@@ -208,11 +209,11 @@ public class BaseUI extends HUD implements UIConstants {
     reminders.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
     reminders.attachTo(this);
     
-    this.buildButton = InstallPane.createButton(this);
-    buildButton.stretch = false;
-    buildButton.alignTop(0, PTH);
-    buildButton.alignRight((PTS * 0) + HTS, PTS);
-    buildButton.attachTo(this);
+    this.installButton = InstallPane.createButton(this);
+    installButton.stretch = false;
+    installButton.alignTop(0, PTH);
+    installButton.alignRight((PTS * 0) + HTS, PTS);
+    installButton.attachTo(this);
     
     this.rosterButton = RosterPane.createButton(this);
     rosterButton.stretch = false;
@@ -220,29 +221,17 @@ public class BaseUI extends HUD implements UIConstants {
     rosterButton.alignRight((PTS * 1) + HTS, PTS);
     rosterButton.attachTo(this);
     
-    this.edictsButton = BudgetsPane.createButton(this);
-    edictsButton.stretch = false;
-    edictsButton.alignTop(0, PTH);
-    edictsButton.alignRight((PTS * 2) + HTS, PTS);
-    edictsButton.attachTo(this);
+    this.budgetButton = BudgetsPane.createButton(this);
+    budgetButton.stretch = false;
+    budgetButton.alignTop(0, PTH);
+    budgetButton.alignRight((PTS * 2) + HTS, PTS);
+    budgetButton.attachTo(this);
     
-    /*
-    this.planetPanel = new PlanetPanel(this);
-    this.planetButton = new Button(
-      this,
-      PlanetPanel.PLANET_ICON.asTexture(),
-      PlanetPanel.PLANET_ICON_LIT.asTexture(),
-      "planet sectors"
-    ) {
-      protected void whenClicked() {
-        setInfoPanels(planetPanel, null);
-      }
-    };
-    planetButton.stretch = false;
-    planetButton.alignTop(0, PTS);
-    planetButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
-    planetButton.attachTo(this);
-    //*/
+    this.sectorsButton = SectorsPane.createButton(this);
+    sectorsButton.stretch = false;
+    sectorsButton.alignTop(0, PTH);
+    sectorsButton.alignRight((PTS * 3) + HTS, PTS);
+    sectorsButton.attachTo(this);
   }
   
   

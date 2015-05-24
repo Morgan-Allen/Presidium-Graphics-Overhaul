@@ -45,7 +45,8 @@ public class TutorialScenario extends StartupScenario {
   private MissionStrike   strikeSent   = null;
   private MissionSecurity secureSent   = null;
   private Venue           ruinsTarget  = null;
-  private Drone           droneAttacks = null;
+  private Batch <Drone>   dronesAttack = new Batch();
+  //private Drone           droneAttacks = null;
   
   
   public TutorialScenario(String prefix) {
@@ -73,7 +74,7 @@ public class TutorialScenario extends StartupScenario {
     strikeSent   = (MissionStrike  ) s.loadObject();
     secureSent   = (MissionSecurity) s.loadObject();
     ruinsTarget  = (Venue          ) s.loadObject();
-    droneAttacks = (Drone          ) s.loadObject();
+    s.loadObjects(dronesAttack);
     
     this.script = (MessageScript) s.loadObject();
   }
@@ -93,12 +94,12 @@ public class TutorialScenario extends StartupScenario {
     s.saveBool  (topUpFunds   );
     s.saveFloat (creditsStart );
     
-    s.saveObject(startAt     );
-    s.saveObject(reconSent   );
-    s.saveObject(strikeSent  );
-    s.saveObject(secureSent  );
-    s.saveObject(ruinsTarget );
-    s.saveObject(droneAttacks);
+    s.saveObject (startAt     );
+    s.saveObject (reconSent   );
+    s.saveObject (strikeSent  );
+    s.saveObject (secureSent  );
+    s.saveObject (ruinsTarget );
+    s.saveObjects(dronesAttack);
     
     s.saveObject(script);
   }
@@ -126,7 +127,7 @@ public class TutorialScenario extends StartupScenario {
     strikeSent   = null;
     secureSent   = null;
     ruinsTarget  = null;
-    droneAttacks = null;
+    dronesAttack.clear();
   }
   
   
@@ -167,6 +168,7 @@ public class TutorialScenario extends StartupScenario {
     List <Human> advisors, List <Human> colonists
   ) {
     bastion = super.establishBastion(world, base, ruler, advisors, colonists);
+    for (Actor a : bastion.staff.workers()) if (a != ruler) a.exitWorld();
     return bastion;
   }
   
@@ -251,6 +253,7 @@ public class TutorialScenario extends StartupScenario {
     */
   protected void whenPlaceBarracksRequestOpen() {
     ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
+    ScreenPing.addPingFor(UIConstants.TYPE_SECURITY);
   }
   
   
@@ -445,7 +448,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected boolean checkHiringDone() {
     if (barracksBuilt == null) return false;
-    return barracksBuilt.staff.numHired(Backgrounds.TROOPER) >= 2;
+    return barracksBuilt.staff.numHired(Backgrounds.TROOPER) >= 3;
   }
   
   
@@ -458,6 +461,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkBudgetsPaneOpened() {
+    if (! script.topicTriggered("Profits and Loss")) return false;
     if (! (UI().currentPane() instanceof BudgetsPane)) return false;
     final BudgetsPane pane = (BudgetsPane) UI().currentPane();
     if (pane.category() != BudgetsPane.CAT_BUDGET) return false;
@@ -498,7 +502,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected void whenStockExchangeTopicOpen() {
     ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
-    ScreenPing.addPingFor(UIConstants.TYPE_PHYSICIAN);
+    ScreenPing.addPingFor(UIConstants.TYPE_COMMERCE);
   }
   
   
@@ -510,42 +514,48 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
+  protected boolean checkVacanciesFilled() {
+    return false;
+  }
+  
+  
   
   /**  Third round of security topics-
     */
   protected void whenBaseAttackTopicOpen() {
-    if (droneAttacks == null) {
+    if (dronesAttack.empty()) {
+      
       final Pick <Venue> closest = new Pick <Venue> ();
       for (Object o : world().presences.allMatches(base())) {
         final Venue v = (Venue) o;
         closest.compare(v, 0 - Spacing.distance(v, ruinsFar));
       }
-      
       this.ruinsTarget = closest.result();
       
       final Base artilects = Base.artilects(world());
-      final MissionStrike strike = new MissionStrike(artilects, ruinsTarget);
-      
       artilects.setup.fillVacancies(ruinsFar, true);
-      
-      droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
       final Tile entry = Spacing.bestMidpoint(ruinsTarget, ruinsFar);
       
-      if (entry != null) {
-        droneAttacks.enterWorldAt(entry, world());
-        Mission.quickSetup(
-          strike, Mission.PRIORITY_ROUTINE, Mission.TYPE_BASE_AI, droneAttacks
-        );
+      if (entry != null) while (dronesAttack.size() < 2) {
+        final Drone attacks = (Drone) Drone.SPECIES.sampleFor(artilects);
+        attacks.enterWorldAt(entry, world());
+        final Combat strike = new Combat(attacks, ruinsTarget);
+        strike.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
+        attacks.mind.assignBehaviour(strike);
+        dronesAttack.add(attacks);
       }
     }
     
-    UI().tracking.lockOn(droneAttacks);
-    base().intelMap.liftFogAround(droneAttacks, 9);
+    UI().tracking.lockOn(dronesAttack.first());
+    base().intelMap.liftFogAround(dronesAttack.first(), 9);
   }
   
   protected boolean checkDroneAssaultDestroyed() {
-    if (droneAttacks == null) return false;
-    return ! droneAttacks.health.alive();
+    if (dronesAttack.size() == 0) return false;
+    for (Drone drone : dronesAttack) {
+      if (drone.health.alive()) return false;
+    }
+    return true;
   }
   
   protected boolean checkFarRuinsFound() {
@@ -553,7 +563,7 @@ public class TutorialScenario extends StartupScenario {
     return base().intelMap.fogAt(ruinsFar) > 0.5f;
   }
   
-  protected void whenFarRuinsFound() {
+  protected void onFarRuinsFound() {
     UI().tracking.lockOn(ruinsFar);
   }
   
@@ -569,8 +579,6 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
-  //  TODO:  Forget the supply depot?  The stock exchange is the simplest way to
-  //  handle this...
   
   /**  Third round of economic topics-
     */

@@ -452,9 +452,20 @@ public abstract class Actor extends Mobile implements
   public void renderAt(
     Vec3D position, float rotation, Rendering rendering
   ) {
+    //
+    //  We render health-bars after the main sprite, as the label/healthbar are
+    //  anchored off the main sprite.
     final Sprite s = sprite();
     if (actionTaken != null) actionTaken.configSprite(s, rendering);
     super.renderAt(position, rotation, rendering);
+    //
+    //  Finally, if you have anything to say, render the chat bubbles.
+    renderHealthbars(rendering, base);
+    if (chat.numPhrases() > 0) {
+      chat.position.setTo(sprite().position);
+      chat.position.z += height();
+      chat.readyFor(rendering);
+    }
   }
   
   
@@ -463,18 +474,7 @@ public abstract class Actor extends Mobile implements
       mount.configureSpriteFrom(this, actionTaken, sprite());
       if (! mount.actorVisible(this)) return;
     }
-    //
-    //  We render health-bars after the main sprite, as the label/healthbar are
-    //  anchored off the main sprite.
     super.renderFor(rendering, base);
-    renderHealthbars(rendering, base);
-    //
-    //  Finally, if you have anything to say, render the chat bubbles.
-    if (chat.numPhrases() > 0) {
-      chat.position.setTo(sprite().position);
-      chat.position.z += height();
-      chat.readyFor(rendering);
-    }
   }
   
   

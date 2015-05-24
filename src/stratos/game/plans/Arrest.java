@@ -176,13 +176,8 @@ public class Arrest extends Plan {
     else                            bonus = ROUTINE  ;
     
     //  TODO:  Include command/suasion as key skills?
-    final float priority = priorityForActorWith(
-      actor, other,
-      urge * PARAMOUNT, bonus,
-      MILD_HARM, NO_COMPETITION, MILD_FAIL_RISK,
-      melee ? Combat.MELEE_SKILLS : Combat.RANGED_SKILLS, BASE_TRAITS,
-      NORMAL_DISTANCE_CHECK,
-      report
+    final float priority = PlanUtils.combatPriority(
+      actor, other, (urge * PARAMOUNT) + bonus, 1, true, MILD_HARM
     );
     if (priority < ROUTINE && ! official) return 0;
     return priority;

@@ -50,8 +50,9 @@ public class MessagePane extends SelectionPane implements UIConstants {
     if (message.source == null) {
       I.complain("\nNO SOURCE FOR MESSAGE: "+message.title);
     }
-    s.saveObject(message.source);
-    s.saveString(message.title );
+    s.saveObject(message.source     );
+    s.saveString(message.title      );
+    s.saveFloat (message.receiptDate);
   }
   
   
@@ -60,7 +61,10 @@ public class MessagePane extends SelectionPane implements UIConstants {
   ) throws Exception {
     final MessageSource source = (MessageSource) s.loadObject();
     final String titleKey = s.loadString();
-    return source.configMessage(titleKey, UI);
+    final float  receipt  = s.loadFloat ();
+    final MessagePane pane = source.configMessage(titleKey, UI);
+    pane.receiptDate = receipt;
+    return pane;
   }
   
   

@@ -214,8 +214,8 @@ Select the Ancient Ruin and declare a Strike Mission (the small red icon underne
 
 
 <topic
-  name      = "Troops Hired"
-  urgent    = "true"
+  name     = "Troops Hired"
+  urgent   = "true"
   triggers = "checkHiringDone"
 >
   <content>That's it.  Fresh recruits will arrive aboard visiting Dropships, along with trade goods.  But they might not arrive for a while.  If you like, you can open the facility's Staffing tab to get an ETA.
@@ -280,7 +280,7 @@ Mining is most efficient near outcrops of surface rock, so keep an eye out for t
 
 Between imports and hiring, it might take a few days for your industry and trade venues to start turning a profit, however.  Check on your citizens from time to time- particularly the Auditors at your Bastion- along with your Finances pane, to see where the money is going.
 
-In the meantime, when and if you're ready, we'll turn our attentions back to external enemies.</content>
+You might want to wait a few minutes until your settlement is in order.  When you're ready, we'll turn our attentions back to handling external enemies.</content>
   <link name="Base Under Attack!">Continue</link>
 </topic>
 
@@ -301,6 +301,7 @@ In the meantime, when and if you're ready, we'll turn our attentions back to ext
   urgent    = "true"
   triggers  = "checkDroneAssaultDestroyed"
   completes = "checkFarRuinsFound"
+  onFinish  = "onFarRuinsFound"
 >
   <content>Those creatures- known as Artilects- are still a threat, however.  You will need to use Recon Missions to explore the surrounding terrain until you find the Ancient Ruins that spawned the Drones.
 
@@ -311,11 +312,12 @@ In the meantime, when and if you're ready, we'll turn our attentions back to ext
   name      = "Ruins Discovered"
   urgent    = "true"
   triggers  = "checkFarRuinsFound"
-  whenOpen  = "whenFarRuinsFound"
   completes = "checkFarRuinsDestroyed"
   onFinish  = "onFarRuinsDestroyed"
 >
-  <content>The Ruins have been found.  Now destroy them.</content>
+  <content>The Ruins have been found.  Now destroy them.
+
+This may be a tough fight.  Consider building an extra Trooper Lodge or installing some upgrades at the first to hire more troops or improve their training.</content>
 </topic>
 
 <topic
@@ -323,9 +325,9 @@ In the meantime, when and if you're ready, we'll turn our attentions back to ext
   urgent    = "true"
   triggers  = "checkFarRuinsDestroyed"
 >
-  <content>There is one more thing, however.</content>
+  <content>From this point on, you're on your own.  The only thing left to do is ensure your settlement has turned a profit, and you can be certain it's future is secure.</content>
+  <link name="Finishing Up">Continue</link>
 </topic>
-
 
 
 <topic

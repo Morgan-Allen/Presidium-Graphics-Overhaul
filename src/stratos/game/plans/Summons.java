@@ -247,7 +247,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   public static void cancelSummons(Actor subject) {
     final Summons summons = (Summons) subject.matchFor(Summons.class, false);
     if (summons == null) return;
-    I.say("CANCELLING SUMMONS!");
+    if (I.logEvents()) I.say("CANCELLING SUMMONS FOR "+subject);
     summons.interrupt(INTERRUPT_CANCEL);
     
     final BaseUI UI = BaseUI.current();

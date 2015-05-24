@@ -203,21 +203,30 @@ public class Mining extends Plan {
   
   /**  Priority evaluation-
     */
-  final static Skill BASE_SKILLS[] = { GEOPHYSICS, HARD_LABOUR };
   final static Trait BASE_TRAITS[] = { ENERGETIC, URBANE };
   
-  
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
     
-    final float priority = priorityForActorWith(
-      actor, site, ROUTINE,
-      NO_MODIFIER, NO_HARM,
-      MILD_COOPERATION, MILD_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    float urgency = 0, sumW = 0;
+    for (Traded t : MINED_TYPES) {
+      final float weight = 1 + site.structure.upgradeBonus(t);
+      urgency += site.stocks.relativeShortage(t) * weight;
+      sumW += weight;
+    }
+    urgency /= sumW;
+
+    setCompetence(successChanceFor(actor));
+    return PlanUtils.jobPlanPriority(
+      actor, this, urgency, competence(), -1, REAL_FAIL_RISK, BASE_TRAITS
     );
-    return priority;
+  }
+  
+  
+  public float successChanceFor(Actor actor) {
+    float chance = 1;
+    chance += actor.skills.chance(GEOPHYSICS , SIMPLE_DC  );
+    chance += actor.skills.chance(HARD_LABOUR, MODERATE_DC);
+    return chance / 3;
   }
   
   

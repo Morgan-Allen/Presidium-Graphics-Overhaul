@@ -161,7 +161,8 @@ public class ActorMotives {
     if (receives.mind.home() instanceof Venue) {
       final Venue home = (Venue) receives.mind.home();
       final float need = home.stocks.relativeShortage(item.type);
-      if (need > 0) rating += need * 5;
+      final float amount = home.stocks.demandFor(item.type);
+      if (need > 0) rating += need * 5 * (item.amount / amount);
     }
     
     if (item.type == receives.gear.deviceType()) {

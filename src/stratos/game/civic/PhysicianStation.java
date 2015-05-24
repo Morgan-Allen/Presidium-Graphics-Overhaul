@@ -35,7 +35,7 @@ public class PhysicianStation extends Venue {
   );
   
   final static float
-    VISIT_COST = Backgrounds.MIN_DAILY_EXPENSE / 2;
+    VISIT_COST = Backgrounds.MIN_DAILY_EXPENSE * 2;
   
   final public static Conversion
     REAGENTS_TO_MEDICINE = new Conversion(

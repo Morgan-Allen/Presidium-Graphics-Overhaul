@@ -120,11 +120,13 @@ public class Pathing {
     final boolean report = verbose && I.talkAbout == mobile;
     if (report && extraVerbose) I.say("\nUpdating path target: "+moveTarget);
     
-    if (moveTarget != null && ! PathSearch.canApproach(moveTarget, mobile)) {
-      I.complain("\nPATHING BY "+mobile+" CANNOT ACCESS "+moveTarget);
-    }
-    
     final Target oldTarget = trueTarget;
+    
+    final boolean paths = moveTarget != null && moveTarget != mobile.aboard();
+    if (paths && ! PathSearch.canApproach(moveTarget, mobile)) {
+      I.say("\nWARNING:  "+mobile+" CANNOT ACCESS: "+moveTarget);
+      moveTarget = null;
+    }
     this.trueTarget = moveTarget;
     if (trueTarget != oldTarget) {
       if (report) {

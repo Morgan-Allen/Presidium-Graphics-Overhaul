@@ -93,25 +93,12 @@ public class Foraging extends Plan {
       modifier += PARAMOUNT * (hunger - 0.5f) * 2;
     }
     
-    final float priority = priorityForActorWith(
-      actor, source,
-      hunger * PARAMOUNT, modifier,
-      NO_HARM, FULL_COMPETITION, MILD_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    setCompetence(successChanceFor(actor));
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, modifier / PARAMOUNT, competence(),
+      -1, MILD_FAIL_RISK, BASE_TRAITS
     );
-    if (report) {
-      I.say("  Hunger level was: "+hunger);
-      I.say("  Final priority: "+priority);
-    }
     return priority;
-  }
-  
-  
-  //  TODO:  Make this an internal type.  And allow animals to just consume
-  //  what they gather immediately.
-  private boolean isBrowsing() {
-    return actor.species().animal();
   }
   
   
@@ -121,6 +108,13 @@ public class Foraging extends Plan {
     chance += actor.skills.chance(HARD_LABOUR, ROUTINE_DC );
     chance += actor.skills.chance(CULTIVATION, MODERATE_DC);
     return chance / 3;
+  }
+  
+  
+  //  TODO:  Make this an internal type.  And allow animals to just consume
+  //  what they gather immediately.
+  private boolean isBrowsing() {
+    return actor.species().animal();
   }
   
   

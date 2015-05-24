@@ -139,7 +139,7 @@ public class Exploring extends Plan implements Qualities {
   
   
   public float successChanceFor(Actor actor) {
-    return successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
+    return PlanUtils.successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
   }
   
   

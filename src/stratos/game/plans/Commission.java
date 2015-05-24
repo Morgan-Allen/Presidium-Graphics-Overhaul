@@ -188,12 +188,8 @@ public class Commission extends Plan {
     }
     //
     //  Summarise and return.
-    final float priority = priorityForActorWith(
-      actor, shop,
-      ROUTINE, modifier,
-      MILD_HELP, MILD_COMPETITION, NO_FAIL_RISK,
-      NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, modifier / ROUTINE, 1, -1, 0, BASE_TRAITS
     );
     if (report) {
       I.say("  Price value:      "+price   );

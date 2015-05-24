@@ -3,29 +3,32 @@
 
 BETTER UI INFO/HELP SYSTEM
 
-*  I don't think old messages are being properly sorted by date.  Check that
-   again.  (Might be after loading?)
-
-*  Citizens are still far too eager to explore in distant/unknown/unsafe areas.
-
-*  Don't add staff to the bastion until construction needs to begin.
-
-*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
-   The slowdown must be in those path-routines.
-
-*  If an assailant is targeting a venue with no entrance, there doesn't seem
-   to be any way for the pathing system to work it out.  (And targeting the
-   nearest external tile won't help either, if you start on the wrong side.)
-
-
 *  Build in a hyperlink help system for upgrades, good-types, venue-types and
    backgrounds.  (You'll need an automatic back-button for this.)
+*  Old messages should have a back-button!
 
-*  Move the message-panes to the centre-top of the screen, so they can be
-   visible along with the usual selection-panes.
 
 *  If a message-pane was open before saving, ensure it stays open afterward (
    both within a session and after loading.)
+*  Move the message-panes to the centre-top of the screen, so they can be
+   visible along with the usual selection-panes.
+*  Try adding pings for individual structure-types when directing to build, and
+   vary the size a little?
+
+*  Consider adding a step for extra hires/upgrades before the second round of
+   attacks?  You will need that for the stock exchange anyway.
+*  In fact, just use the stock exchange, and install some upgrades there.  It's
+   a good deal simpler.
+
+*  And I think I still need to explain security missions.
+
+
+*  Citizens are still far too eager to explore in distant/unknown/unsafe areas.
+
+*  Citizens are too eager to embark on tasks in distant areas in general.
+   (BringUtils needs to ignore sources that are too far away- that's for bulk
+   transport only.)
+
 
 *  Re-introduce the Planets/Sectors pane, and build the markets-report into
    that for each world.  Then finance can stay on it's own.  (Add little
@@ -33,6 +36,8 @@ BETTER UI INFO/HELP SYSTEM
 
 
 CLEANING UP THE ECONOMY:
+
+*  Merge the Supply Depot with the Airfield, function-wise.
 
 *  Try merging the solar bank with the nursery- or the latter with eco station
 
@@ -49,7 +54,6 @@ CLEANING UP THE ECONOMY:
 *  List total earnings for specific buildings.  Breakdown expenses more finely.
    Restore shortage listing for homelessness.
 
-*  Unavailable structures should be greyed out in the listings.
 *  Consider restricting access to some of these structures based on house-
    philosophy or lack of expertise.
    House Procyon- has culture lab, lacks eco station.
@@ -67,24 +71,22 @@ CLEANING UP THE ECONOMY:
 
 TACTICAL AND OUTDOORS
 
-*  Exploring needs a note that it doesn't work at night.
-
-*  Don't list applicants for a public mission if priority is zero?
-
 *  Get vermin into the game again!
 *  Nocturnal trait.  "They mostly come at night.  Mostly."
-
-*  Try to ensure more concerted mission-behaviours- form up on a single leader
-   if possible (alive, high-ranked, first in group.)
 
 *  Ensure raiders will attempt to besiege intervening walls!
 *  More vigorous attacks after a few days from artilects, etc.
 *  Notifications for casualties and base attacks.
 
+
+*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
+   The slowdown must be in those path-routines.
+
 *  There is very noticeable slowdown on large maps every 2 seconds or so.
    Profile and FIND OUT WHY.
    TODO:  Consider using jHiccup for this:
-   http://www.azulsystems.com/javaperformancetuning/chart-java-jitter-with-jhiccup
+   http://www.azulsystems.com/javaperformancetuning/
+   chart-java-jitter-with-jhiccup
 
 
 
@@ -123,8 +125,6 @@ CITIZEN BEHAVIOUR-
 
 *  Actors should be doing more to dispose of bodies.  Burial or recyling.
 
-*  Citizens need to migrate offworld if unhappy/unemployed enough.
-
 *  There needs to be a super-fast system for testing pathability to different
    areas of the map.  (And maybe caching dangers en-route?)
 
@@ -133,12 +133,13 @@ CITIZEN BEHAVIOUR-
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
    ashore' every day or two, but those can't respond to job-demand as such.
 
+*  Citizens need to migrate offworld if unhappy/unemployed enough.
+
   >>>>>>> DO THIS <<<<<<<
 *  Proper evaluation of mood and memory-events.
 
-*  General internal clean-up of plan routines.  (Look in PlanUtils.)
-    Consider having the actor's agenda contain *only* plans:   Actions and
-    Missions can be handled separately.
+*  Consider having the actor's agenda contain *only* plans:   Actions and
+   Missions can be handled separately.  (And unify the priority/step evals.)
 
 *  Hide-and-seek needs to be more effective (for retreat, looting and combat.)
 
@@ -211,7 +212,10 @@ INTERFACE AND DEBUGGING
 *  Try to use right-click for something?  Add an option for it at least.
 
 
-ART AND MEDIA PRODUCTION
+ART, GRAPHICS AND MEDIA PRODUCTION
+
+*  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
+   that.
 
 *  Attempt using blender again.
    http://waldobronchart.github.io/ShortcutMapper/#Blender

@@ -20,7 +20,7 @@ public class Bringing extends Plan {
 
   
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     stepsVerbose = false;
   
   //  TODO:  Use these.
@@ -276,17 +276,22 @@ public class Bringing extends Plan {
     }
     //
     //  Personal purchases get a few special modifiers-
-    if (shops && stage <= STAGE_PICKUP) {
+    if (shops) {
       base = CASUAL;
-      if (! manned(origin)) {
-        if (report) I.say("  Origin is not manned!");
-        modifier -= ROUTINE;
-      }
       for (Item i : items) {
         modifier += ActorMotives.rateDesire(i, null, actor);
       }
-      float pricePerDay = goodsPrice / GameSettings.ITEM_WEAR_DAYS;
-      greedMinus = actor.motives.greedPriority(pricePerDay);
+      modifier = Nums.clamp(modifier, 0, PARAMOUNT);
+      
+      final boolean needsBuy = stage <= STAGE_PICKUP;
+      if (needsBuy && ! manned(origin)) {
+        if (report) I.say("  Origin is not manned!");
+        modifier -= ROUTINE;
+      }
+      if (needsBuy) {
+        float pricePerDay = goodsPrice / GameSettings.ITEM_WEAR_DAYS;
+        greedMinus = actor.motives.greedPriority(pricePerDay);
+      }
     }
     //
     //  Otherwise, add a bonus for quantity and value-
