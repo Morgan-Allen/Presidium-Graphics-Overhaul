@@ -3,7 +3,9 @@
 package stratos.graphics.solids;
 import java.io.*;
 import java.util.*;
+
 import stratos.util.*;
+
 import com.badlogic.gdx.math.*;
 
 
@@ -39,9 +41,9 @@ public class MS3DFile {
     parseGroups(in);
     parseMaterials(in);
     parseJoints(in);
-    
-    // ignoring rest of the file
-    // all weights are 1 in my test model anyway
+    //if(in.available() > 4) {
+    parseSubVersions(in);
+    //}
 
     inverse();
   }
@@ -50,6 +52,16 @@ public class MS3DFile {
   public static class MS3DVertex {
     public float[] vertex;
     public byte boneid;
+    
+    // bone0 = boneid , weights[0]
+    // bone1 = boneIds[0] , weights[1]
+    // bone2 = boneIds[1] , weights[2]
+    // bone3 = boneIds[2] , 100 - weights[0] - weights[1] - weights[2]
+    // this format is stupid...
+    
+    public byte[] boneIds;
+    public byte[] weights;
+    public int extra;
   }
   
   
@@ -264,6 +276,38 @@ public class MS3DFile {
       root.inverse.idt();
       root.invRot.idt();
     }
+  }
+  
+  
+  private void skipComments(DataInput0 in) throws IOException {
+    int nNumComments = in.readInt();
+    
+    for(int i=0; i<nNumComments; i++) {
+      int index = in.readInt();
+      int len = in.readInt();
+      in.skip(len);
+    }
+  }
+
+  private void parseSubVersions(DataInput0 in) throws IOException {
+    int subv1 = in.readInt(); // ignore
+    
+    skipComments(in); // skip group comments
+    skipComments(in); // skip material comments
+    skipComments(in); // skip joint comments
+    skipComments(in); // skip model comments
+    
+    int subv2 = in.readInt();
+    
+    for(int i=0; i<vertices.length; i++) {
+      in.read(vertices[i].boneIds = new byte[3]);
+      in.read(vertices[i].weights = new byte[3]);
+      if(subv2 > 1)
+        vertices[i].extra = in.readInt();
+      if(subv2 > 2)
+    	  in.readInt(); // another extra, ignore
+    }
+    // f... the rest
   }
 
   /**

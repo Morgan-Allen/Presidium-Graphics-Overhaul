@@ -158,10 +158,12 @@ public class MS3DModel extends SolidModel {
     attrs.add(VertexAttribute.Normal());
     attrs.add(VertexAttribute.TexCoords(0));
     attrs.add(VertexAttribute.BoneWeight(0));
+    attrs.add(VertexAttribute.BoneWeight(1));
+    attrs.add(VertexAttribute.BoneWeight(2));
 
     mesh.attributes = attrs.toArray();
 
-    final int n = 10;
+    final int n = 14;
     float[] verts = new float[ms3d.triangles.length * 3 * n];
 
     int p = 0;
@@ -182,8 +184,16 @@ public class MS3DModel extends SolidModel {
           verts[p * n + 6] = lol.u[j];
           verts[p * n + 7] = lol.v[j];
           
+          // there are actually 4 bone weights, but we use only 3
+          
           verts[p * n + 8] = vert.boneid;
-          verts[p * n + 9] = 1;
+          verts[p * n + 9] = vert.weights[0] / 100f;
+          
+          verts[p * n + 10] = vert.boneIds[0];
+          verts[p * n + 11] = vert.weights[1] / 100f;
+          
+          verts[p * n + 12] = vert.boneIds[1];
+          verts[p * n + 13] = vert.weights[2] / 100f;
           
           lol.indices[j] = (short) p;
           p++;

@@ -111,6 +111,8 @@ public class SaveUtils {
     };
     final File savesDir = new File(SAVES_DIR);
     
+    savesDir.mkdirs();
+    
     for (File saved : savesDir.listFiles()) {
       final String name = saved.getName();
       if (! name.endsWith(EXT)) continue;
