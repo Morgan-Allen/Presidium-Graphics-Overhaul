@@ -18,8 +18,8 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Consider merging this with forestry (or maybe merging forest-planting
 //  with farming, and forest-cutting/sampling with this.)
 
-//  TODO:  Adapt this to animals (see isBrowser() below.)
-
+//  TODO:  Merge Foraging, Forestry and Farming into a single plan (or closely
+//  related set of plans.)
 
 public class Foraging extends Plan {
   
@@ -35,7 +35,7 @@ public class Foraging extends Plan {
   
   
   public Foraging(Actor actor, Venue store) {
-    super(actor, actor, MOTIVE_JOB, NO_HARM);
+    super(actor, actor, MOTIVE_PERSONAL, NO_HARM);
     if (store == null && actor.mind.home() instanceof Venue) {
       this.store = (Venue) actor.mind.home();
     }
@@ -72,7 +72,7 @@ public class Foraging extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     final boolean useHunger = store == null || store == actor.mind.home();
     
     if (storeShortage() <= 0) {
@@ -96,7 +96,7 @@ public class Foraging extends Plan {
     setCompetence(successChanceFor(actor));
     final float priority = PlanUtils.jobPlanPriority(
       actor, this, modifier / PARAMOUNT, competence(),
-      -1, MILD_FAIL_RISK, BASE_TRAITS
+      -1, REAL_FAIL_RISK, BASE_TRAITS
     );
     return priority;
   }
@@ -198,6 +198,9 @@ public class Foraging extends Plan {
     Resting.dineFrom(actor, actor);
     
     if (labour > 0 && skill > 0) {
+      //  TODO:  Have flora come into fruiting condition when mature, and only
+      //  allow human foraging then.
+      
       actor.gear.bumpItem(CARBS , labour         * 0.1f);
       actor.gear.bumpItem(GREENS, skill * labour * 0.1f);
       source.incGrowth(-0.1f * (skill + labour), actor.world(), false);
@@ -205,6 +208,7 @@ public class Foraging extends Plan {
     }
     else {
       source.incGrowth(-0.1f / 2f, actor.world(), false);
+      actor.traits.incLevel(Conditions.POISONING, 0.1f);
     }
     
     if (report) I.reportVars("\nPerformed forage at "+source, "  ",

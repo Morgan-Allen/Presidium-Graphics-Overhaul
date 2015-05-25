@@ -100,7 +100,8 @@ public class SelectionTracking {
       final Tile          under   = world.tileAt(nextPos.x, nextPos.y);
       final SelectionPane pane    = under.configPanel(null, UI);
       final TargetOptions options = under.configInfo (null, UI);
-      UI.setInfoPanels(pane, options);
+      UI.setInfoPanel  (pane   );
+      UI.setOptionsList(options);
     }
     //
     //  Then clean up after.

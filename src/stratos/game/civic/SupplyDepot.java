@@ -23,10 +23,10 @@ public class SupplyDepot extends Venue {
   /**  Other data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL_UNDER = CutoutModel.fromSplatImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4.0f
+    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 3.5f
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 3, 2
+    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 2.75f, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
@@ -52,7 +52,7 @@ public class SupplyDepot extends Venue {
   final static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
     "Supply Depot", UIConstants.TYPE_COMMERCE,
-    4, 2, IS_NORMAL,
+    3, 1, IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_DEPOT
   );
   

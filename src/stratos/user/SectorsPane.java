@@ -48,19 +48,10 @@ public class SectorsPane extends UIGroup implements UIConstants {
   public static Button createButton(
     final BaseUI baseUI
   ) {
-    final SectorsPane pane = new SectorsPane(baseUI);
-    return new Button(
-      baseUI, SECTORS_BUTTON_ID, PLANET_ICON, PLANET_ICON_LIT, "Sectors"
-    ) {
-      protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
-        }
-        else {
-          baseUI.setInfoPanels(pane, null);
-        }
-      }
-    };
+    return new SelectionPane.PaneButton(
+      new SectorsPane(baseUI), baseUI,
+      SECTORS_BUTTON_ID, PLANET_ICON, PLANET_ICON_LIT, "Sectors"
+    );
   }
   
   

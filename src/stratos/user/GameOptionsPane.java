@@ -65,11 +65,11 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       
       protected void whenClicked() {
         if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
+          baseUI.clearInfoPanel();
           PlayLoop.setPaused(false);
         }
         else {
-          baseUI.setInfoPanels(pane, null);
+          baseUI.setInfoPanel(pane);
           PlayLoop.setPaused(true);
         }
       }
@@ -98,6 +98,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   protected void updateState() {
     super.updateState();
     text.setText("");
+    final BaseUI baseUI = (BaseUI) UI;
     
     text.append("\nScenario Options:");
     
@@ -113,7 +114,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       I.say("SAVING GAME...");
       PlayLoop.setPaused(false);
       played.scheduleSave();
-      ((BaseUI) UI).setInfoPanels(null, null);
+      baseUI.clearInfoPanel();
     }});
     
     text.append("\n  ");

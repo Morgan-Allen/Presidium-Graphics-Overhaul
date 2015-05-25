@@ -32,6 +32,18 @@ public class SelectionPane extends UIGroup implements UIConstants {
     ),
     SCROLL_TEX = ImageAsset.fromImage(
       SelectionPane.class, "media/GUI/scroll_grab.gif"
+    ),
+    WIDGET_BACK = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_back.png"
+    ),
+    WIDGET_BACK_LIT = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_back_lit.png"
+    ),
+    WIDGET_CLOSE = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_close.png"
+    ),
+    WIDGET_CLOSE_LIT = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_close_lit.png"
     );
   final public static int
     MARGIN_SIZE    = 10 ,
@@ -42,6 +54,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
   
   final protected BaseUI UI;
   final protected Selectable selected;
+  private SelectionPane previous;
   
   final Bordering border;
   final UIGroup
@@ -59,26 +72,40 @@ public class SelectionPane extends UIGroup implements UIConstants {
   final   float  catScrolls[];
   private int    categoryID  ;
   
+  private Button backButton;
+  private Button closeButton;
+  
 
   public SelectionPane(
-    final BaseUI UI, Selectable selected,
-    final Composite portrait,
+    BaseUI UI, Selectable selected, Composite portrait,
     boolean hasListing, String... categories
   ) {
-    this(UI, selected, portrait != null, hasListing, 0, categories);
+    this(UI, selected, null, portrait != null, hasListing, 0, categories);
     this.portrait = portrait;
   }
   
   
   public SelectionPane(
-    final BaseUI UI, Selectable selected,
+    final BaseUI UI, SelectionPane previous, Composite portrait
+  ) {
+    this(UI, null, previous, portrait != null, false, 0);
+    this.portrait = portrait;
+  }
+  
+  
+  public SelectionPane(
+    final BaseUI baseUI,
+    Selectable selected, SelectionPane previous,
     boolean hasPortrait, boolean hasListing, int topPadding,
     String... categories
   ) {
-    super(UI);
-    this.UI = UI;
+    super(baseUI);
+    this.UI = baseUI;
     this.alignVertical(0, PANEL_TABS_HIGH);
     this.alignRight   (0, INFO_PANEL_WIDE);
+    
+    this.selected = selected;
+    this.previous = previous;
 
     final int
       TP = topPadding,
@@ -87,7 +114,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
     down += HEADER_HIGH + TP;
     
-    this.border = new Bordering(UI, BORDER_TEX);
+    this.border = new Bordering(baseUI, BORDER_TEX);
     border.left   = LM;
     border.right  = RM;
     border.bottom = BM;
@@ -96,20 +123,19 @@ public class SelectionPane extends UIGroup implements UIConstants {
     border.alignDown  (0, 1);
     border.attachTo(this);
     
-    this.innerRegion = new UIGroup(UI);
+    this.innerRegion = new UIGroup(baseUI);
     innerRegion.alignHorizontal(-15, -15);
     innerRegion.alignVertical  (-15, -15);
     innerRegion.attachTo(border.inside);
     
-    headerText = new Text(UI, BaseUI.INFO_FONT);
+    headerText = new Text(baseUI, BaseUI.INFO_FONT);
     headerText.alignTop   (TP, HEADER_HIGH);
     headerText.alignAcross(0 , 1          );
     headerText.scale = BIG_FONT_SIZE;
     headerText.attachTo(innerRegion);
     
-    
     if (hasPortrait) {
-      portraitFrame = new UINode(UI) {
+      portraitFrame = new UINode(baseUI) {
         protected void render(WidgetsPass batch2d) {
           if (portrait == null) return;
           portrait.drawTo(batch2d, bounds, absAlpha);
@@ -124,8 +150,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       this.portraitFrame = null;
     }
     
-    
-    detailText = new Text(UI, BaseUI.INFO_FONT) {
+    detailText = new Text(baseUI, BaseUI.INFO_FONT) {
       protected void whenLinkClicked(Clickable link) {
         super.whenLinkClicked(link);
         ((BaseUI) UI).beginPanelFade();
@@ -138,7 +163,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       detailText.alignHorizontal(0, 0);
       detailText.alignTop(down, CORE_INFO_HIGH);
       
-      listingText = new Text(UI, BaseUI.INFO_FONT) {
+      listingText = new Text(baseUI, BaseUI.INFO_FONT) {
         protected void whenLinkClicked(Clickable link) {
           super.whenLinkClicked(link);
           ((BaseUI) UI).beginPanelFade();
@@ -162,23 +187,36 @@ public class SelectionPane extends UIGroup implements UIConstants {
     scrollbar.alignRight(0 - SCROLLBAR_WIDE, SCROLLBAR_WIDE);
     scrollbar.attachTo(innerRegion);
     
-    this.selected = selected;
+    final SelectionPane pane = this;
     this.categories = categories;
     categoryID = defaultCategory();
     this.catScrolls = new float[categories == null ? 0 :categories.length];
-  }
-  
-  
-  public void assignPortrait(Composite portrait) {
-    this.portrait = portrait;
-  }
-  
-  
-  protected Vec2D screenTrackPosition() {
-    Vec2D middle = UI.trueBounds().centre();
-    middle.x -= INFO_PANEL_WIDE / 2;
-    //middle.y -= INFO_PANEL_HIGH / 2;
-    return middle;
+    
+    this.backButton = new Button(
+      baseUI, "back", WIDGET_BACK, WIDGET_BACK_LIT, "Back"
+    ) {
+      protected void whenClicked() {
+        baseUI.setInfoPanel(pane.previous);
+      }
+    };
+    backButton.alignTop  (6 , 18);
+    backButton.alignRight(32, 48);
+    backButton.attachTo(this);
+    
+    this.closeButton = new Button(
+      baseUI, "close", WIDGET_CLOSE, WIDGET_CLOSE_LIT, "Close"
+    ) {
+      protected void whenClicked() {
+        if (pane.selected == baseUI.selection.selected()) {
+          baseUI.clearOptionsList();
+          baseUI.selection.pushSelection(null);
+        }
+        baseUI.clearInfoPanel();
+      }
+    };
+    closeButton.alignTop  (0, 30);
+    closeButton.alignRight(0, 30);
+    closeButton.attachTo(this);
   }
   
   
@@ -194,6 +232,40 @@ public class SelectionPane extends UIGroup implements UIConstants {
   
   public Text listing() {
     return listingText;
+  }
+  
+  
+  
+  /**  Utility methods for creating sub-panes and categories:
+    */
+  protected static class PaneButton extends Button {
+    
+    final BaseUI baseUI;
+    final UIGroup pane;
+    
+    protected PaneButton(
+      UIGroup pane, BaseUI baseUI,
+      String widgetID, ImageAsset icon, ImageAsset iconLit, String helpInfo
+    ) {
+      super(baseUI, widgetID, icon, iconLit, helpInfo);
+      this.baseUI = baseUI;
+      this.pane   = pane  ;
+    }
+
+    protected void whenClicked() {
+      if (baseUI.currentPane() == pane) {
+        baseUI.clearInfoPanel();
+      }
+      else {
+        baseUI.setInfoPanel(pane);
+        baseUI.clearOptionsList();
+      }
+    }
+  }
+  
+  
+  public void setPrevious(SelectionPane before) {
+    this.previous = before;
   }
   
   
@@ -256,7 +328,13 @@ public class SelectionPane extends UIGroup implements UIConstants {
     */
   protected void updateState() {
     updateText(UI, headerText, detailText, listingText);
+    this.backButton.hidden = previous == null;
+    
     if (selected != null) selected.configPanel(this, UI);
+    //
+    //  TODO:  If there's a parent for this pane, you could insert the option
+    //  for a back-button here.
+    
     super.updateState();
   }
   
@@ -285,8 +363,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
     if (listingText != null) listingText.setText("");
   }
 }
-
-
 
 
 

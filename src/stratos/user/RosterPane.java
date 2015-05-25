@@ -39,30 +39,22 @@ public class RosterPane extends SelectionPane {
   
   
   public RosterPane(BaseUI UI) {
-    super(UI, null, false, false, 0, ALL_CATS);
+    super(UI, null, null, false, false, 0, ALL_CATS);
   }
   
   
   static UINode createButton(final BaseUI baseUI) {
     
-    final RosterPane pane = new RosterPane(baseUI);
+    final RosterPane rosterPane = new RosterPane(baseUI);
     final UIGroup tab = new UIGroup(baseUI);
     final BorderedLabel appsLabel = new BorderedLabel(baseUI);
     
-    final Button button = new Button(
-      baseUI, ROSTER_BUTTON_ID, ROSTER_ICON, ROSTER_ICON_LIT, "Base Roster"
+    final Button button = new PaneButton(
+      rosterPane, baseUI,
+      ROSTER_BUTTON_ID, ROSTER_ICON, ROSTER_ICON_LIT, "Base Roster"
     ) {
-      protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
-        }
-        else {
-          baseUI.setInfoPanels(pane, null);
-        }
-      }
-      
       protected void updateState() {
-        int numApps = pane.listApplied(baseUI.played()).size();
+        int numApps = rosterPane.listApplied(baseUI.played()).size();
         String message = ""+numApps;
         appsLabel.setMessage(message, false, 0);
         appsLabel.hidden = numApps == 0;

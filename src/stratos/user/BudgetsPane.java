@@ -29,25 +29,15 @@ public class BudgetsPane extends SelectionPane {
   
   
   public BudgetsPane(BaseUI UI) {
-    super(UI, null, false, false, 0, CATEGORIES);
+    super(UI, null, null, false, false, 0, CATEGORIES);
   }
   
   
   static Button createButton(final BaseUI baseUI) {
-    final BudgetsPane pane = new BudgetsPane(baseUI);
-    final Button button = new Button(
-      baseUI, BUDGETS_BUTTON_ID, BUDGETS_ICON, BUDGETS_ICON_LIT, "Finance"
-    ) {
-      protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
-        }
-        else {
-          baseUI.setInfoPanels(pane, null);
-        }
-      }
-    };
-    return button;
+    return new PaneButton(
+      new BudgetsPane(baseUI), baseUI,
+      BUDGETS_BUTTON_ID, BUDGETS_ICON, BUDGETS_ICON_LIT, "Finance"
+    );
   }
   
   

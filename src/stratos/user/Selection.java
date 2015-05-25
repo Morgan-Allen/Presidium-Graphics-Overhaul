@@ -161,7 +161,10 @@ public class Selection implements UIConstants {
     
     final SelectionPane panel = s.configPanel(null, UI);
     final TargetOptions info  = s.configInfo(null, UI);
-    if (panel != null || info != null) UI.setInfoPanels(panel, info);
+    if (panel != null || info != null) {
+      UI.setInfoPanel  (panel);
+      UI.setOptionsList(info );
+    }
   }
   
   

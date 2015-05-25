@@ -153,7 +153,7 @@ public class CombatUtils {
     final float harm = Plan.REAL_HARM;
     Target best = asThreat ? primary : null;
     float bestValue = asThreat ?
-      PlanUtils.combatPriority(actor, primary, 0, 1, false, harm) : 0
+      PlanUtils.combatPriority(actor, primary, 0, 1, true, harm) : 0
     ;
     if (best != null) bestValue = Nums.max(bestValue, 0.1f);
     
@@ -162,7 +162,7 @@ public class CombatUtils {
       if (distance > Stage.ZONE_SIZE) continue;
       if (actor.senses.indoors(t)) continue;
       
-      float value = PlanUtils.combatPriority(actor, t, 0, 1, false, harm);
+      float value = PlanUtils.combatPriority(actor, t, 0, 1, true, harm);
       if (value <= 0) continue;
       if (melee) value /= 1 + distance;
       else       value /= 1 + (distance / (Stage.ZONE_SIZE / 2));

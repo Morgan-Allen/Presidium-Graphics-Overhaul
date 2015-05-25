@@ -25,7 +25,7 @@ public class VenuePane extends SelectionPane {
     DEFAULT_CATS[] = { CAT_UPGRADES, CAT_STOCK, CAT_STAFFING };
   
   final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
-  private Upgrade lastCU = null;
+  //private Upgrade lastCU = null;
   private Actor dismissing = null;
  
   
@@ -331,7 +331,7 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  private void describeUpgrades(Description d, BaseUI UI) {
+  private void describeUpgrades(Description d, final BaseUI UI) {
     if (! v.structure().intact()) {
       d.append("Upgrades unavailable while under construction.");
       return;
@@ -348,24 +348,9 @@ public class VenuePane extends SelectionPane {
     }
     
     final Colour grey = Colour.LITE_GREY;
+    final SelectionPane venuePane = this;
     
-    if (lastCU != null) {
-      d.append("\n");
-      d.append(lastCU.description, Colour.LITE_GREY);
-      for (Upgrade u : lastCU.required) {
-        d.append("\n  Requires: "+u.baseName);
-      }
-      if (! v.structure.upgradePossible(lastCU)) {
-        d.append("\n\n");
-        d.append(v.structure.upgradeError(lastCU));
-      }
-      d.append("\n\n");
-      d.append(new Description.Link("BACK") {
-        public void whenClicked() { lastCU = null; }
-      });
-    }
-    
-    else for (final Upgrade upgrade : UA) {
+    for (final Upgrade upgrade : UA) {
       final int cost = upgrade.buildCost;
       final boolean possible =
         v.structure.upgradePossible(upgrade) &&
@@ -392,7 +377,17 @@ public class VenuePane extends SelectionPane {
       
       d.append("  ");
       d.append(new Description.Link("INFO") {
-        public void whenClicked() { lastCU = upgrade; }
+        public void whenClicked() {
+          final SelectionPane help = new SelectionPane(UI, venuePane, null) {
+            protected void updateText(
+              BaseUI UI, Text headerText, Text detailText, Text listingText
+            ) {
+              super.updateText(UI, headerText, detailText, listingText);
+              configUpgradeHelp(this, detailText, upgrade);
+            }
+          };
+          UI.setInfoPanel(help);
+        }
       });
     }
     
@@ -409,6 +404,22 @@ public class VenuePane extends SelectionPane {
       else d.append(
         "\nUpgrades are currently being installed.", Colour.LITE_GREY
       );
+    }
+  }
+  
+  
+  //  TODO:  Move this to the Upgrade class...
+  private void configUpgradeHelp(
+    SelectionPane help, Description d, Upgrade upgrade
+  ) {
+    d.append("\n");
+    d.append(upgrade.description, Colour.LITE_GREY);
+    for (Upgrade u : upgrade.required) {
+      d.append("\n  Requires: "+u.baseName);
+    }
+    if (! v.structure.upgradePossible(upgrade)) {
+      d.append("\n\n");
+      d.append(v.structure.upgradeError(upgrade));
     }
   }
   

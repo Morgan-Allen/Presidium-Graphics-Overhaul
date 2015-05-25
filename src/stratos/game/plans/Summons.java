@@ -333,7 +333,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with, with, this
     ).assignContent("Yes, my liege?", responses);
-    if (pushNow) UI.setInfoPanels(panel, null);
+    if (pushNow) UI.setInfoPanel(panel);
     return panel;
   }
   
@@ -356,7 +356,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with, with, this
     ).assignContent(lead, responses);
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPanel(panel);
   }
   
   
@@ -370,7 +370,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
         configDialogueFor(UI, with, true);
       }
     });
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPanel(panel);
   }
   
   
@@ -415,7 +415,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with, with, this
     ).assignContent(lead, responses);
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPanel(panel);
   }
   
   
@@ -435,7 +435,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
         }
       }
     );
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPanel(panel);
   }
 }
 

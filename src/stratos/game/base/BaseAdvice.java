@@ -300,26 +300,19 @@ public class BaseAdvice {
       d.append("\n  ");
       d.append(new Description.Link(o.toString()) {
         public void whenClicked() {
-          final MessagePane help = messageForNeed(o, UI);
-          //
-          //  We include a 'back' link for returning to the main panel.
-          //  TODO:  MAKE THIS A BASIC FUNCTION OF INFO-PANES
-          help.detail().append(new Description.Link("\n  Back") {
-            public void whenClicked() { UI.setInfoPanels(pane, null); }
-          });
-          UI.setInfoPanels(help, null);
+          final MessagePane help = messageForNeed(o, UI, pane);
+          UI.setInfoPanel(help);
         }
       });
     }
   }
   
   
-  private MessagePane messageForNeed(Traded t, BaseUI UI) {
+  private MessagePane messageForNeed(Traded t, BaseUI UI, MessagePane before) {
     
     final String titleKey = "Need "+t;
-    final MessagePane pane = new MessagePane(
-      UI, null, titleKey, null, null
-    );
+    final MessagePane pane = new MessagePane(UI, null, titleKey, null, null);
+    pane.setPrevious(before);
     
     pane.header().setText("Shortage of "+t);
     

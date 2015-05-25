@@ -228,7 +228,7 @@ public class MessageScript implements
       final float receiptTime = UI.played().world.currentTime();
       reminders.addMessageEntry(message, true, receiptTime);
     }
-    if (viewNow) UI.setInfoPanels(message, null);
+    if (viewNow) UI.setInfoPanel(message);
   }
   
   

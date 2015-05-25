@@ -40,22 +40,11 @@ public class InstallPane extends SelectionPane {
   
   /**  Interface presented-
     */
-  public static Button createButton(
-    final BaseUI baseUI
-  ) {
-    final InstallPane pane = new InstallPane(baseUI);
-    return new Button(
-      baseUI, INSTALL_BUTTON_ID, BUILD_ICON, BUILD_ICON_LIT, "Installations"
-    ) {
-      protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
-        }
-        else {
-          baseUI.setInfoPanels(pane, null);
-        }
-      }
-    };
+  static Button createButton(final BaseUI baseUI) {
+    return new PaneButton(
+      new InstallPane(baseUI), baseUI,
+      INSTALL_BUTTON_ID, BUILD_ICON, BUILD_ICON_LIT, "Installations"
+    );
   }
   
   
@@ -65,7 +54,7 @@ public class InstallPane extends SelectionPane {
   
   
   InstallPane(BaseUI UI) {
-    super(UI, null, false, false, BAR_BUTTON_SIZE);
+    super(UI, null, null, false, false, BAR_BUTTON_SIZE);
     if (! setupDone) setupTypes();
     
     catButtons = new Button[NUM_GUILDS];

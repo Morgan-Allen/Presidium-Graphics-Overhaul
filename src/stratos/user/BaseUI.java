@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-//import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -39,13 +38,8 @@ public class BaseUI extends HUD implements UIConstants {
   private MapsDisplay mapsPanel;
   private Readout readout;
   
-  //private CommsPane commsPanel;
   private ReminderListing reminders;
-  //private PlanetPane planetPane;
-  //private StarsPanel  starsPanel ;  //Just use the homeworld.
-
   private Button optionsButton;
-  //private Button commsButton;  //  TODO:  GET RID OF THIS
   
   private Button installButton;
   private UINode rosterButton ;
@@ -340,6 +334,33 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Updating the central information panel and target options-
     */
+  public void setInfoPanel(UIGroup panel) {
+    if (panel != currentPanel) {
+      beginPanelFade();
+      newPanel = panel;
+    }
+  }
+  
+  
+  public void clearInfoPanel() {
+    setInfoPanel(null);
+  }
+  
+  
+  public void setOptionsList(TargetOptions options) {
+    if (options != currentInfo) {
+      if (currentInfo != null) currentInfo.active = false;
+      newInfo = options;
+    }
+  }
+  
+  
+  public void clearOptionsList() {
+    setOptionsList(null);
+  }
+  
+  
+  /*
   public void setInfoPanels(
     UIGroup panel, TargetOptions options
   ) {
@@ -352,21 +373,17 @@ public class BaseUI extends HUD implements UIConstants {
       newInfo = options;
     }
   }
-  
-  
-  public void setPanelsInstant(
-    UIGroup panel, TargetOptions options
-  ) {
-    currentPanel = null; newPanel = panel  ;
-    currentInfo  = null; newInfo  = options;
-    capturePanel = false;
-  }
+  //*/
   
   
   public void beginPanelFade() {
     capturePanel = true;
   }
 }
+
+
+
+
 
 
 

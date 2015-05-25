@@ -231,6 +231,7 @@ public class ReminderListing extends UIGroup {
   private void updateOldMessages() {
     MessageReminder entry = (MessageReminder) entryThatRefers(oldMessages);
     if (entry == null) return;
+    final MessagePane oldPane = entry.message;
     final String label = oldMessages.size()+" old messages";
     entry.setLabel(label);
     entry.setOpened(true);
@@ -254,12 +255,13 @@ public class ReminderListing extends UIGroup {
         }
         
         public void whenClicked() {
-          UI.setInfoPanels(panel, null);
+          panel.setPrevious(oldPane);
+          UI.setInfoPanel(panel);
         }
       };
       links.add(link);
     }
-    entry.message.assignContent("", links);
+    oldPane.assignContent("", links);
   }
   
   

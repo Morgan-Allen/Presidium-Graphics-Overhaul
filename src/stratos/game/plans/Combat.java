@@ -174,6 +174,7 @@ public class Combat extends Plan implements Qualities {
         }
       }
     }
+    if (struck == null) struck = subject;
     
     if (report) {
       I.say("  Main target: "+this.subject);

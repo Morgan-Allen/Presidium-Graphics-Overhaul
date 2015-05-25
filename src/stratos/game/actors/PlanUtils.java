@@ -140,7 +140,7 @@ public class PlanUtils {
     priority = (chatIncentive + pleaIncentive + rewardBonus) * commChance;
 
     if (reportOn(actor, priority)) I.reportVars(
-      "\nRetreat priority for "+actor, "  ",
+      "\nDialogue priority for "+actor, "  ",
       "subject"      , subject,
       "reward"       , rewardBonus,
       "liking"       , liking,
@@ -194,8 +194,8 @@ public class PlanUtils {
     Actor actor, Target surveyed,
     float rewardBonus, boolean idle, float competence
   ) {
-    float incentive = 0, novelty = 0, priority = 0;
-    float danger = 0, daylight = 0, exploreChance = 0, homeDist = 0;
+    float incentive = 0, novelty = 0, priority = 0, enjoys = 0;
+    float daylight = 0, exploreChance = 0, homeDist = 0;
     
     if (idle) novelty = 0.2f;
     else novelty = Nums.clamp(Nums.max(
@@ -203,29 +203,29 @@ public class PlanUtils {
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
     
+    incentive = novelty * 10;
+    incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
+    incentive += rewardBonus;
+
     daylight = Planet.dayValue(actor.world());
-    danger   = 1f - PlanUtils.combatWinChance(actor, surveyed, 1);
-    homeDist = homeDistanceFactor(actor, surveyed);
-    
     exploreChance = actor.health.baseSpeed() * competence;
     exploreChance *= (daylight + 1) / 2;
     
-    incentive = ((novelty * 5) / (1 + homeDist)) + rewardBonus;
-    incentive *= 1 + actor.traits.relativeLevel(Qualities.CURIOUS);
+    homeDist = homeDistanceFactor(actor, surveyed);
     
     priority = incentive * Nums.clamp(exploreChance, 0, 1);
-    priority -= (danger * 10) + ((1 - daylight) * 2.5f);
+    priority -= (homeDist * 5) + ((1 - daylight) * 2.5f);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
       "surveyed"      , surveyed     ,
       "reward bonus"  , rewardBonus  ,
       "competence"    , competence   ,
+      "enjoy rating"  , enjoys       ,
       "incentive"     , incentive    ,
       "novelty"       , novelty      ,
       "home distance" , homeDist     ,
       "explore chance", exploreChance,
-      "ambient danger", danger       ,
       "daylight"      , daylight     ,
       "priority"      , priority
     );
@@ -256,7 +256,7 @@ public class PlanUtils {
     if (! Staff.doesBelong(actor, at)) priority *= (1 - crowding);
     
     if (reportOn(actor, priority)) I.reportVars(
-      "\nSupport priority for "+actor, "  ",
+      "\nAmbition priority for "+actor, "  ",
       "position" , position,
       "at"       , at,
       "quality"  , quality,
@@ -303,9 +303,9 @@ public class PlanUtils {
     float liking = actor.relations.valueFor(plan.subject);
     if (urgency > 0 && plan.hasBegun()) urgency = Nums.max(urgency, 0.5f);
     
-    incentive += plan.motiveBonus();
     incentive += urgency * 10 * liking;
-    incentive += enjoyBonus = traitAverage(actor, enjoyTraits) * 2.5f;
+    incentive *= (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2;
+    incentive += plan.motiveBonus();
     
     if (plan.isJob() && work != null) {
       shift = work.staff().shiftFor(actor);
@@ -362,12 +362,12 @@ public class PlanUtils {
   /**  Social-related utility methods-
     */
   public static float traitAverage(Actor actor, Trait... traits) {
-    if (traits == null || traits.length > 0) return 0;
+    if (traits == null || traits.length == 0) return 0;
     float avg = 0;
     for (Trait t : traits) {
       avg += 1 + actor.traits.relativeLevel(t);
     }
-    return avg / traits.length * 2;
+    return avg / (traits.length * 2);
   }
   
   
