@@ -14,20 +14,26 @@ public abstract class LayerType implements TileConstants {
   
   /**  Data, constants, constructors, setup and cleanup-
     */
-  final public ImageAsset layerFrames[];
+  final public String layerName;
   final public int layerID;
+  final public ImageAsset layerFrames[];
   final public boolean innerFringe;
   final private static boolean near[] = new boolean[8];
   
   
-  public LayerType(ImageAsset image, boolean innerFringe, int layerID) {
-    this(new ImageAsset[] { image }, innerFringe, layerID);
+  public LayerType(
+    ImageAsset image, boolean innerFringe, int layerID, String name
+  ) {
+    this(new ImageAsset[] { image }, innerFringe, layerID, name);
   }
   
-  public LayerType(ImageAsset images[], boolean innerFringe, int layerID) {
+  public LayerType(
+    ImageAsset images[], boolean innerFringe, int layerID, String name
+  ) {
     this.layerFrames = images     ;
     this.innerFringe = innerFringe;
     this.layerID     = layerID    ;
+    this.layerName   = name       ;
   }
   
   

@@ -170,6 +170,7 @@ public class ImageAsset extends Assets.Loadable {
     }
     if (average != null) {
       Assets.clearCachedResource(AVG_PREFIX+filePath);
+      average = null;
     }
     if (texture != null) {
       Assets.clearCachedResource(TEX_PREFIX+filePath);

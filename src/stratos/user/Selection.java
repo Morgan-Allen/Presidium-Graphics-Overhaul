@@ -245,7 +245,7 @@ public class Selection implements UIConstants {
         }
       }
       
-      final LayerType layer = new LayerType(tex, false, -1) {
+      final LayerType layer = new LayerType(tex, false, -1, "overlay") {
         
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           final Tile t = world.tileAt(tx, ty);
@@ -320,7 +320,7 @@ public class Selection implements UIConstants {
         xp = area.xpos(), yp = area.ypos(),
         xd = area.ydim(), yd = area.ydim();
       
-      final LayerType layer = new LayerType(texture, true, -1) {
+      final LayerType layer = new LayerType(texture, true, -1, "plane") {
         
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           return true;

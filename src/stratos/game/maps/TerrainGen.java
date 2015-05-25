@@ -73,7 +73,9 @@ public class TerrainGen implements TileConstants {
   public StageTerrain generateTerrain() {
     setupSectors();
     setupTileHabitats();
-    final StageTerrain t = new StageTerrain(habitats, typeIndex, varsIndex, heightMap);
+    final StageTerrain t = new StageTerrain(
+      habitats, typeIndex, varsIndex, heightMap
+    );
     return t;
   }
   
@@ -216,31 +218,26 @@ public class TerrainGen implements TileConstants {
       
       Habitat under = habitats[Nums.clamp((int) sum, habitats.length)];
       
-      if (! under.isOcean()) {
+      if (! under.pathClear) {
+        typeIndex[c.x][c.y] = (byte) under.ID;
+      }
+      else {
         float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
         sum += detail * detail * 2;
         under = habitats[Nums.clamp((int) sum, habitats.length)];
         typeIndex[c.x][c.y] = (byte) under.ID;
-        
-        if (under == Habitat.ESTUARY && Rand.index(4) == 0) {
-          typeIndex[c.x][c.y] = (byte) Habitat.MEADOW.ID;
-        }
-        if (under == Habitat.CURSED_EARTH) {
-          boolean paint = (detail * detail) > 0.25f;
-          if (paint) { if (Rand.index(4) == 0) paint = false; }
-          else if (Rand.index(10) == 0) paint = true;
-          if (paint) typeIndex[c.x][c.y] = (byte) Habitat.STRIP_MINING.ID;
-        }
+      }
+      if (under.isSpeckle() && Rand.index(4) == 0) {
+        typeIndex[c.x][c.y] = (byte) (under.ID + 1);
       }
     }
     //
-    //  Finally, pain the interiors of any ocean tiles-
-    //paintEdge(Habitat.STRIP_MINING.ID, Habitat.CURSED_EARTH.ID);
+    //  Finally, paint the interiors of any ocean tiles-
+    //paintEdge(Habitat.CURSED_EARTH.ID, Habitat.SHORELINE.ID);
     paintEdge(Habitat.OCEAN.ID, Habitat.SHORELINE.ID);
     paintEdge(Habitat.OCEAN.ID, Habitat.SHALLOWS .ID);
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       final byte type = typeIndex[c.x][c.y];
-      //if (! Habitat.ALL_HABITATS[type].isOcean) continue;
       if (type >= Habitat.SHALLOWS.ID) continue;
       float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
       detail *= detail * 1.5f;
@@ -459,6 +456,7 @@ public class TerrainGen implements TileConstants {
     for (int size = maxSize; size >= minSize; size--) {
       final Outcrop o = new Outcrop(size, 1, type);
       o.setPosition(t.x, t.y, t.world);
+      if (o.mineralType() == -1) return null;
       if (Placement.perimeterFits(o, t.world) && o.canPlace()) {
         o.enterWorld();
         return o;
