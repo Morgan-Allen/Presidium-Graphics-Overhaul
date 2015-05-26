@@ -168,21 +168,21 @@ public class MS3DModel extends SolidModel {
 
     int p = 0;
     {
-      for (MS3DTriangle lol : ms3d.triangles) {
+      for (MS3DTriangle tri : ms3d.triangles) {
 
         for (int j = 0; j < 3; j++) {
-          MS3DVertex vert = ms3d.vertices[lol.indices[j]];
+          MS3DVertex vert = ms3d.vertices[tri.indices[j]];
           
           verts[p * n + 0] = vert.vertex[0];
           verts[p * n + 1] = vert.vertex[1];
           verts[p * n + 2] = vert.vertex[2];
           
-          verts[p * n + 3] = lol.normals[j][0];
-          verts[p * n + 4] = lol.normals[j][1];
-          verts[p * n + 5] = lol.normals[j][2];
+          verts[p * n + 3] = tri.normals[j][0];
+          verts[p * n + 4] = tri.normals[j][1];
+          verts[p * n + 5] = tri.normals[j][2];
           
-          verts[p * n + 6] = lol.u[j];
-          verts[p * n + 7] = lol.v[j];
+          verts[p * n + 6] = tri.u[j];
+          verts[p * n + 7] = tri.v[j];
           
           // there are actually 4 bone weights, but we use only 3
           
@@ -195,7 +195,7 @@ public class MS3DModel extends SolidModel {
           verts[p * n + 12] = vert.boneIds[1];
           verts[p * n + 13] = vert.weights[2] / 100f;
           
-          lol.indices[j] = (short) p;
+          tri.indices[j] = (short) p;
           p++;
         }
       }

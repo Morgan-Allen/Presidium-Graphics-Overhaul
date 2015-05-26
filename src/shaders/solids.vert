@@ -10,6 +10,8 @@ attribute vec3 a_normal;
 attribute float a_color;
 attribute vec2 a_texCoord0;
 attribute vec2 a_boneWeight0;
+attribute vec2 a_boneWeight1;
+attribute vec2 a_boneWeight2;
 
 uniform int u_numBones;
 uniform mat4 u_bones[maxBones];
@@ -33,6 +35,8 @@ void main() {
   if (u_numBones > 0) {
     mat4 boneTrans = mat4(0.0);
     boneTrans += (a_boneWeight0.y) * u_bones[int(a_boneWeight0.x)];
+    boneTrans += (a_boneWeight1.y) * u_bones[int(a_boneWeight1.x)];
+    boneTrans += (a_boneWeight2.y) * u_bones[int(a_boneWeight2.x)];
     transform = transform * boneTrans;
   }
 	
