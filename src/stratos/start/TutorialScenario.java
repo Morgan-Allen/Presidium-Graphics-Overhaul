@@ -319,6 +319,9 @@ public class TutorialScenario extends StartupScenario {
   protected void onFacilitiesPlaced() {
     bastion.structure.setUpgradeLevel(Bastion.LOGISTIC_SUPPORT, 2);
     base().setup.fillVacancies(bastion, true);
+    for (Actor a : bastion.staff.workers()) if (! a.inWorld()) {
+      a.enterWorldAt(bastion, world());
+    }
     
     int num = 0;
     for (Actor a : bastion.staff.workers()) {
@@ -403,7 +406,6 @@ public class TutorialScenario extends StartupScenario {
     for (int n = 2; n-- > 0;) {
       Actor drone = Drone.SPECIES.sampleFor(ruinsNear.base());
       drone.enterWorldAt(ruinsNear, world());
-      drone.goAboard    (ruinsNear, world());
       drone.mind.setHome(ruinsNear);
       if (n == 0) UI().tracking.lockOn(drone);
     }
@@ -462,8 +464,8 @@ public class TutorialScenario extends StartupScenario {
   
   protected boolean checkBudgetsPaneOpened() {
     if (! script.topicTriggered("Profits and Loss")) return false;
-    if (! (UI().currentPane() instanceof BudgetsPane)) return false;
-    final BudgetsPane pane = (BudgetsPane) UI().currentPane();
+    if (! (UI().currentInfoPane() instanceof BudgetsPane)) return false;
+    final BudgetsPane pane = (BudgetsPane) UI().currentInfoPane();
     if (pane.category() != BudgetsPane.CAT_BUDGET) return false;
     return true;
   }

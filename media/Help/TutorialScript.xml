@@ -1,9 +1,10 @@
 
 
 <topic
-  name     = "Welcome!"
-  triggers = "checkShowWelcome"
-  urgent   = "true"
+  name      = "Welcome!"
+  triggers  = "checkShowWelcome"
+  urgent    = "true"
+  completes = "checkMotionDone"
 >
   <image>media/Help/start_banner.png</image>
   <content>Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.</content>
@@ -246,7 +247,7 @@ While we're waiting, let's take a fresh look at our cash flow.</content>
 >
   <content>...Not too encouraging.
 
-There are many ways to earn credits, but on a map like this, with large areas of barren rock and irradiated wasteland, heavy industry can turn a fast profit.  Place a second Engineer Station near your first, and an Excavation Site somewhere close to both.
+There are many ways to earn credits, but on a map like this, with large areas of barren rock and irradiated wasteland, heavy industry turns a faster profit.  Place a second Engineer Station near your first, and an Excavation Site somewhere close to both.
 
 Mining is most efficient near outcrops of surface rock, so keep an eye out for those, or check the minerals overlay on the minimap.</content>
 </topic>
@@ -278,9 +279,7 @@ Mining is most efficient near outcrops of surface rock, so keep an eye out for t
 >
   <content>Housing yields tax income, and will upgrade itself as more goods and services become available.  The Stock Exchange also boosts profits from trade.
 
-Between imports and hiring, it might take a few days for your industry and trade venues to start turning a profit, however.  Check on your citizens from time to time- particularly the Auditors at your Bastion- along with your Finances pane, to see where the money is going.
-
-You might want to wait a few minutes until your settlement is in order.  When you're ready, we'll turn our attentions back to handling external enemies.</content>
+Between imports and hiring, it might take a few days for your industry and trade venues to start turning a profit, however.  You can wait if you wish, or- if you're ready- we'll turn our attentions back to handling external enemies.</content>
   <link name="Base Under Attack!">Continue</link>
 </topic>
 
@@ -325,7 +324,7 @@ This may be a tough fight.  Consider building an extra Trooper Lodge or installi
   urgent    = "true"
   triggers  = "checkFarRuinsDestroyed"
 >
-  <content>From this point on, you're on your own.  The only thing left to do is ensure your settlement has turned a profit, and you can be certain it's future is secure.</content>
+  <content>From this point on, you're on your own.  The only thing left to do is ensure your settlement has turned a profit, and you can be confident it's future is secure.</content>
   <link name="Finishing Up">Continue</link>
 </topic>
 

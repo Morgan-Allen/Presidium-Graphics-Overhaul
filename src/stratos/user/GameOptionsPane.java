@@ -29,7 +29,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     OPTIONS_ICON_LIT = Button.CIRCLE_LIT,
     
     BORDER_TEX = ImageAsset.fromImage(
-      GameOptionsPane.class, "media/GUI/Panel.png"
+      GameOptionsPane.class, "media/GUI/Front/Panel.png"
     );
   
 
@@ -64,7 +64,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     ) {
       
       protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
+        if (baseUI.currentInfoPane() == pane) {
           baseUI.clearInfoPane();
           PlayLoop.setPaused(false);
         }
@@ -83,7 +83,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
           PlayLoop.setPaused(! PlayLoop.paused());
         }
         if (
-          baseUI.currentPane() != pane &&
+          baseUI.currentInfoPane() != pane &&
           baseUI.currentTask() == null &&
           PlayLoop.paused()
         ) {

@@ -86,8 +86,8 @@ public class Selection implements UIConstants {
   boolean updateSelection(Stage world, Viewport port, UIGroup infoPanel) {
     if (
       selected != null &&
-      UI.currentPane() == null &&
-      UI.currentInfo() == null
+      UI.currentInfoPane() == null &&
+      UI.currentOptions() == null
     ) {
       pushSelection(selected);
     }

@@ -234,7 +234,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final Mission match = base.matchingMission(actor, MissionContact.class);
     if (
       (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
-      stays == base.HQ() && ! MessagePane.hasFocus(actor)
+      stays == base.HQ() && ! BaseUI.hasMessageFocus(actor)
     ) {
       final BaseUI UI = BaseUI.current();
       configDialogueFor(UI, actor, true);

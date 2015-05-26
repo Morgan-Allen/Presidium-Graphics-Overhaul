@@ -9,17 +9,24 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.widgets.Text.Clickable;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.user.SelectionPane.*;
 
 
+//  TODO:  Consider having this and SelectionPane extend a common ancestor, if
+//  only for the frame-widgets and other UI constants?
 
-public class MessagePane extends SelectionPane implements UIConstants {
+public class MessagePane extends UIGroup implements UIConstants {
   
   
   /**  Data fields, setup and save/load methods-
     */
-  final String title;
-  final Target focus;
+  final public String title;
+  final public Target focus;
   final MessageSource source;
+  
+  final Bordering border;
+  final Text header, detail;
+  final Button closeButton;
   
   private boolean contentSet = false;
   private String initText;
@@ -28,43 +35,56 @@ public class MessagePane extends SelectionPane implements UIConstants {
   
   
   public MessagePane(
-    BaseUI UI, Composite portrait,
+    final BaseUI baseUI, Composite portrait,
     String title, Target focus, MessageSource source
   ) {
-    super(UI, null, portrait, false);
+    super(baseUI);
     this.title  = title ;
     this.focus  = focus ;
     this.source = source;
+    
+    //  TODO:  Constrain this better?
+    this.alignAcross(0, 1);
+    this.alignDown  (0, 1);
+    
+    //  TODO:  Try to find some constants for these...
+    this.border = new Bordering(baseUI, BORDER_TEX);
+    border.left   = 20;
+    border.right  = 20;
+    border.bottom = 20;
+    border.top    = 20;
+    border.alignAcross(0, 1);
+    border.alignDown  (0, 1);
+    border.attachTo(this);
+    
+    this.header = new Text(baseUI, INFO_FONT);
+    header.alignTop   (0, HEADER_HIGH);
+    header.alignAcross(0, 1          );
+    header.scale = BIG_FONT_SIZE;
+    header.attachTo(border.inside);
+    
+    this.detail = new Text(baseUI, INFO_FONT);
+    detail.alignVertical(0, HEADER_HIGH);
+    detail.alignAcross  (0, 1          );
+    detail.scale = SMALL_FONT_SIZE;
+    detail.attachTo(border.inside);
+    
+    this.closeButton = new Button(
+      baseUI, "close", WIDGET_CLOSE, WIDGET_CLOSE_LIT, "Close"
+    ) {
+      protected void whenClicked() {
+        baseUI.clearMessagePane();
+      }
+    };
+    closeButton.alignTop  (0, 30);
+    closeButton.alignRight(0, 30);
+    closeButton.attachTo(this);
   }
   
   
   public static interface MessageSource extends Session.Saveable {
     MessagePane configMessage(String titleKey, BaseUI UI);
     void messageWasOpened(String titleKey, BaseUI UI);
-  }
-  
-  
-  public static void saveMessage(
-    MessagePane message, Session s
-  ) throws Exception {
-    if (message.source == null) {
-      I.complain("\nNO SOURCE FOR MESSAGE: "+message.title);
-    }
-    s.saveObject(message.source     );
-    s.saveString(message.title      );
-    s.saveFloat (message.receiptDate);
-  }
-  
-  
-  public static MessagePane loadMessage(
-    Session s, BaseUI UI
-  ) throws Exception {
-    final MessageSource source = (MessageSource) s.loadObject();
-    final String titleKey = s.loadString();
-    final float  receipt  = s.loadFloat ();
-    final MessagePane pane = source.configMessage(titleKey, UI);
-    pane.receiptDate = receipt;
-    return pane;
   }
   
   
@@ -88,6 +108,26 @@ public class MessagePane extends SelectionPane implements UIConstants {
   }
   
   
+  public float receipt() {
+    return receiptDate;
+  }
+  
+  
+  public Text header() {
+    return header;
+  }
+  
+  
+  public Text detail() {
+    return detail;
+  }
+  
+  
+  public String toString() {
+    return title;
+  }
+  
+  
   
   /**  Update methods-
     */
@@ -95,7 +135,6 @@ public class MessagePane extends SelectionPane implements UIConstants {
     BaseUI UI, Text headerText, Text detailText, Text listingText
   ) {
     if (contentSet) {
-      super.updateText(UI, headerText, detailText, listingText);
       headerText.setText(title);
       final Text d = detailText;
       d.setText(initText);
@@ -111,17 +150,6 @@ public class MessagePane extends SelectionPane implements UIConstants {
   
   protected float receiptDate() {
     return receiptDate;
-  }
-
-
-  public static boolean hasFocus(Target subject) {
-    final BaseUI UI = BaseUI.current();
-    if (UI == null) return false;
-    if (UI.currentPane() instanceof MessagePane) {
-      final MessagePane panel = (MessagePane) UI.currentPane();
-      return panel.focus == subject;
-    }
-    return false;
   }
 }
 

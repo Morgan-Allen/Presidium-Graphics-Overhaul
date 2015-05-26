@@ -174,7 +174,7 @@ public class MessageScript implements
       //  Any urgent or on-screen topics will trigger their whenOpen method.
       if (
         UI.reminders().hasMessageEntry(topic.titleKey, true) ||
-        (topic.asMessage != null && UI.currentPane() == topic.asMessage)
+        (topic.asMessage != null && UI.currentMessage() == topic.asMessage)
       ) {
         tryCallMethod(topic.whenOpen, topic);
       }

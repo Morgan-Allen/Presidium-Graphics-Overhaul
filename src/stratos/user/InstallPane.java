@@ -121,7 +121,7 @@ public class InstallPane extends SelectionPane {
   
   private void setupCategoryButtons() {
     final UIGroup bar = new UIGroup(UI);
-    bar.attachTo(innerRegion);
+    bar.attachTo(border.inside);
     bar.alignToFill();
     
     for (int i = 0; i < NUM_GUILDS; i++) {

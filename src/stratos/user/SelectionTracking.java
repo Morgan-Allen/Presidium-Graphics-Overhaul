@@ -112,8 +112,8 @@ public class SelectionTracking {
   
   
   protected Selectable paneSelection() {
-    if (! (UI.currentPane() instanceof SelectionPane)) return null;
-    return ((SelectionPane) UI.currentPane()).selected;
+    if (! (UI.currentInfoPane() instanceof SelectionPane)) return null;
+    return ((SelectionPane) UI.currentInfoPane()).selected;
   }
   
   

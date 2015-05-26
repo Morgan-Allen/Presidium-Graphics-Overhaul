@@ -74,6 +74,9 @@ public interface UIConstants {
   final public static float
     BIG_FONT_SIZE   = 1.0f ,
     SMALL_FONT_SIZE = 0.75f;
+  final public static int
+    MARGIN_SIZE    = 10 ,
+    HEADER_HIGH    = 35 ;
   
   final public static int
     
@@ -88,7 +91,7 @@ public interface UIConstants {
     PANEL_TABS_HIGH =  65,
     
     MESSAGE_PANE_WIDE = 500,
-    MESSAGE_PANE_HIGH = 250,
+    MESSAGE_PANE_HIGH = 200,
     
     INFO_PANEL_WIDE = 280,
     SCROLLBAR_WIDE  =  20,

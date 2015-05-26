@@ -28,7 +28,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     */
   final public static ImageAsset
     BORDER_TEX = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Panel.png"
+      SelectionPane.class, "media/GUI/Front/Panel.png"
     ),
     SCROLL_TEX = ImageAsset.fromImage(
       SelectionPane.class, "media/GUI/scroll_grab.gif"
@@ -46,8 +46,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
       SelectionPane.class, "media/GUI/Front/widget_close_lit.png"
     );
   final public static int
-    MARGIN_SIZE    = 10 ,
-    HEADER_HIGH    = 35 ,
     CORE_INFO_HIGH = 160,
     PORTRAIT_SIZE  = 80 ;
   
@@ -57,8 +55,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
   private SelectionPane previous;
   
   final Bordering border;
-  final UIGroup
-    innerRegion;
   final Text
     headerText ,
     detailText ,
@@ -106,33 +102,25 @@ public class SelectionPane extends UIGroup implements UIConstants {
     
     this.selected = selected;
     this.previous = previous;
-
-    final int
-      TP = topPadding,
-      TM = 40, BM = 40,  //top and bottom margins
-      LM = 40, RM = 40;  //left and right margins
+    
+    final int TP = topPadding;
     int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
     down += HEADER_HIGH + TP;
     
     this.border = new Bordering(baseUI, BORDER_TEX);
-    border.left   = LM;
-    border.right  = RM;
-    border.bottom = BM;
-    border.top    = TM;
+    border.left   = 20;
+    border.right  = 20;
+    border.bottom = 20;
+    border.top    = 20;
     border.alignAcross(0, 1);
     border.alignDown  (0, 1);
     border.attachTo(this);
-    
-    this.innerRegion = new UIGroup(baseUI);
-    innerRegion.alignHorizontal(-15, -15);
-    innerRegion.alignVertical  (-15, -15);
-    innerRegion.attachTo(border.inside);
     
     headerText = new Text(baseUI, BaseUI.INFO_FONT);
     headerText.alignTop   (TP, HEADER_HIGH);
     headerText.alignAcross(0 , 1          );
     headerText.scale = BIG_FONT_SIZE;
-    headerText.attachTo(innerRegion);
+    headerText.attachTo(border.inside);
     
     if (hasPortrait) {
       portraitFrame = new UINode(baseUI) {
@@ -143,7 +131,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       };
       portraitFrame.alignTop (HEADER_HIGH + TP, PORTRAIT_SIZE);
       portraitFrame.alignLeft(0               , PORTRAIT_SIZE);
-      portraitFrame.attachTo(innerRegion);
+      portraitFrame.attachTo(border.inside);
     }
     else {
       this.portrait      = null;
@@ -157,7 +145,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       }
     };
     detailText.scale = SMALL_FONT_SIZE;
-    detailText.attachTo(innerRegion);
+    detailText.attachTo(border.inside);
     
     if (hasListing) {
       detailText.alignHorizontal(0, 0);
@@ -172,7 +160,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       listingText.alignVertical  (0, CORE_INFO_HIGH + down);
       listingText.alignHorizontal(0, 0                    );
       listingText.scale = SMALL_FONT_SIZE;
-      listingText.attachTo(innerRegion);
+      listingText.attachTo(border.inside);
       scrollbar = listingText.makeScrollBar(SCROLL_TEX);
       scrollbar.alignToMatch(listingText);
     }
@@ -185,7 +173,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     }
     
     scrollbar.alignRight(0 - SCROLLBAR_WIDE, SCROLLBAR_WIDE);
-    scrollbar.attachTo(innerRegion);
+    scrollbar.attachTo(border.inside);
     
     final SelectionPane pane = this;
     this.categories = categories;
@@ -253,7 +241,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     }
 
     protected void whenClicked() {
-      if (baseUI.currentPane() == pane) {
+      if (baseUI.currentInfoPane() == pane) {
         baseUI.clearInfoPane();
       }
       else {

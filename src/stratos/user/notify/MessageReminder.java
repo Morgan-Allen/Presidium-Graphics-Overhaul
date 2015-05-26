@@ -11,66 +11,31 @@ import stratos.util.*;
 
 
 
-public class MessageReminder extends ReminderListing.Entry {
+public class MessageReminder extends LabelledReminder {
   
   
   final static ImageAsset
     COMM_IMAGE = ImageAsset.fromImage(
       MessageReminder.class, "media/GUI/Front/comms_alert.png"
-    );
+    ),
+    COMM_IMAGE_LIT = Button.DEFAULT_LIT;
   
   final MessagePane message;
-  final BorderedLabel label;
-  private boolean opened = false;
   
   
-  MessageReminder(
-    final BaseUI baseUI, Object refers, final MessagePane message
-  ) {
-    super(baseUI, refers, 60, 40);
+  MessageReminder(BaseUI UI, Object refers, final MessagePane message) {
+    super(
+      UI, refers, message.title,
+      COMM_IMAGE, COMM_IMAGE_LIT, message.title
+    );
     this.message = message;
-    
-    final Button button = new Button(
-      baseUI, message.title, COMM_IMAGE.asTexture(), message.title
-    ) {
-      protected void whenClicked() {
-        baseUI.setMessagePane(message);
-        opened = true;
-      }
-      
-      protected void render(WidgetsPass pass) {
-        super.render(pass);
-        if (opened) return;
-        float flashRate = (Rendering.activeTime() % 2) / 2;
-        flashRate *= (1 - flashRate) * 2;
-        super.renderTex(highlit, flashRate * absAlpha, pass);
-      }
-    };
-    button.stretch = false;
-    button.alignToFill();
-    button.attachTo(this);
-    
-    label = new BorderedLabel(baseUI);
-    label.alignLeft(0, 0);
-    label.alignBottom(-DEFAULT_MARGIN, 0);
-    label.text.scale = SMALL_FONT_SIZE;
-    label.setMessage(message.title, false, 0);
-    label.attachTo(this);
+    setUrgent(true);
   }
   
   
-  protected void setLabel(String message) {
-    label.setMessage(message, false, 0);
-  }
-  
-  
-  protected void setOpened(boolean opened) {
-    this.opened = opened;
-  }
-  
-  
-  protected boolean opened() {
-    return opened;
+  protected void whenButtonClicked() {
+    UI.setMessagePane(message);
+    setUrgent(false);
   }
 }
 

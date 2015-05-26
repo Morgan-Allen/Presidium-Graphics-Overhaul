@@ -10,6 +10,7 @@ import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.user.notify.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
 
@@ -90,13 +91,11 @@ public class BaseUI extends HUD implements UIConstants {
   public Stage world() { return world ; }
   
   public ReminderListing reminders() { return reminders; }
-  //public CommsPane commsPanel() { return commsPanel; }
   
   
   public static BaseUI current() {
     final HUD UI = PlayLoop.currentUI();
     if (UI instanceof BaseUI) return (BaseUI) UI;
-    //else I.complain("NO BASE UI IN PLACE!");
     return null;
   }
   
@@ -104,15 +103,6 @@ public class BaseUI extends HUD implements UIConstants {
   public static Base currentPlayed() {
     final BaseUI UI = current();
     return UI == null ? null : UI.played();
-  }
-  
-  
-  public static boolean paneOpenFor(Object o) {
-    final BaseUI UI = current();
-    if (UI == null || ! (UI.currentPane() instanceof SelectionPane)) {
-      return false;
-    }
-    return ((SelectionPane) UI.currentPane()).selected == o;
   }
   
   
@@ -154,11 +144,10 @@ public class BaseUI extends HUD implements UIConstants {
     readout.alignTop(0, READOUT_HIGH);
     readout.attachTo(this);
     
-    //  TODO:  Constrain this better.
-    this.infoArea = new UIGroup(this);
-    infoArea.alignVertical  (0, 0);
-    infoArea.alignHorizontal(0, 0);
-    infoArea.attachTo(this);
+    this.messageArea = new UIGroup(this);
+    messageArea.alignHorizontal(0.5f, MESSAGE_PANE_WIDE, 0);
+    messageArea.alignTop(READOUT_HIGH, MESSAGE_PANE_HIGH);
+    messageArea.attachTo(this);
 
     //  TODO:  Constrain this better.
     this.optionsArea = new UIGroup(this);
@@ -166,10 +155,11 @@ public class BaseUI extends HUD implements UIConstants {
     optionsArea.alignHorizontal(0, 0);
     optionsArea.attachTo(this);
     
-    this.messageArea = new UIGroup(this);
-    messageArea.alignHorizontal(0.5f, MESSAGE_PANE_WIDE, 0);
-    messageArea.alignTop(0, MESSAGE_PANE_HIGH);
-    messageArea.attachTo(this);
+    //  TODO:  Constrain this better.
+    this.infoArea = new UIGroup(this);
+    infoArea.alignVertical  (0, 0);
+    infoArea.alignHorizontal(0, 0);
+    infoArea.attachTo(this);
     
     this.popup = new BorderedLabel(this);
     popup.alignHorizontal(0.5f, 0, 0);
@@ -265,7 +255,7 @@ public class BaseUI extends HUD implements UIConstants {
   public static boolean isOpen(UIGroup panel) {
     final HUD hud = PlayLoop.currentUI();
     if (! (hud instanceof BaseUI)) return false;
-    return ((BaseUI) hud).currentPane() == panel;
+    return ((BaseUI) hud).currentInfoPane() == panel;
   }
   
   
@@ -318,7 +308,8 @@ public class BaseUI extends HUD implements UIConstants {
     
     //  TODO:  ALLOW FOR FADE-IN/FADE-OUT HERE AS WELL
     if (currentMessage != newMessage) {
-      if (newMessage != null) newMessage.attachTo(messageArea);
+      if (currentMessage != null) currentMessage.detach();
+      if (newMessage     != null) newMessage.attachTo(messageArea);
       currentMessage = newMessage;
     }
     
@@ -369,12 +360,12 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  public UIGroup currentPane() {
+  public UIGroup currentInfoPane() {
     return newInfo;
   }
   
   
-  public SelectionOptions currentInfo() {
+  public SelectionOptions currentOptions() {
     return newOptions;
   }
   
@@ -384,9 +375,25 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  //  TODO:  get rid of this once render-to-texture is working.
+  //  TODO:  get rid of this once render-to-texture is working...
   public void beginPanelFade() {
     capturePanel = true;
+  }
+  
+  
+  public static boolean paneOpenFor(Object o) {
+    final BaseUI UI = current();
+    if (UI == null || ! (UI.currentInfoPane() instanceof SelectionPane)) {
+      return false;
+    }
+    return ((SelectionPane) UI.currentInfoPane()).selected == o;
+  }
+  
+  
+  public static boolean hasMessageFocus(Target subject) {
+    final BaseUI UI = BaseUI.current();
+    if (UI == null || UI.currentMessage() == null) return false;
+    return UI.currentMessage().focus == subject;
   }
 }
 
