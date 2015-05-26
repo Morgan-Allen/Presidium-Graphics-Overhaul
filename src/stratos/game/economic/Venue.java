@@ -450,7 +450,7 @@ public abstract class Venue extends Structural implements
   
   /**  Interface methods-
     */
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(this, panel, UI, null);
   }
   

@@ -386,7 +386,7 @@ public class VenuePane extends SelectionPane {
               configUpgradeHelp(this, detailText, upgrade);
             }
           };
-          UI.setInfoPanel(help);
+          UI.setInfoPane(help);
         }
       });
     }

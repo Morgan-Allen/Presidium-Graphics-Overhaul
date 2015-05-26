@@ -130,7 +130,7 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   }
   
 
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();
@@ -145,8 +145,8 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   }
   
   
-  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
-    if (info == null) info = new TargetOptions(UI, this);
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+    if (info == null) info = new SelectionOptions(UI, this);
     return info;
   }
 

@@ -15,7 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 
 
 
-public class TargetOptions extends UIGroup implements UIConstants {
+public class SelectionOptions extends UIGroup implements UIConstants {
   
   
   final static int
@@ -28,7 +28,7 @@ public class TargetOptions extends UIGroup implements UIConstants {
   protected boolean active = true;
   
   
-  public TargetOptions(BaseUI UI, Target subject) {
+  public SelectionOptions(BaseUI UI, Target subject) {
     super(UI);
     this.BUI = UI;
     this.subject = subject;

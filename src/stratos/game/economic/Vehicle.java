@@ -397,7 +397,7 @@ public abstract class Vehicle extends Mobile implements
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     if (panel == null) panel = new SelectionPane(
       UI, this, portrait(UI), true
     );
@@ -420,8 +420,8 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
-    if (info == null) info = new TargetOptions(UI, this);
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+    if (info == null) info = new SelectionOptions(UI, this);
     return info;
   }
   

@@ -716,12 +716,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
     return null;
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     if (panel == null) panel = new MissionPane(UI, this);
     final MissionPane MP = (MissionPane) panel;
     

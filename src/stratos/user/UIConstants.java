@@ -87,11 +87,19 @@ public interface UIConstants {
     PANEL_TAB_SIZE  =  65,
     PANEL_TABS_HIGH =  65,
     
+    MESSAGE_PANE_WIDE = 500,
+    MESSAGE_PANE_HIGH = 250,
+    
     INFO_PANEL_WIDE = 280,
     SCROLLBAR_WIDE  =  20,
     DEFAULT_MARGIN  =  10,
     MIN_WIDGET_SIZE =  20;
 }
+
+
+
+
+
 
 
 

@@ -301,7 +301,7 @@ public class BaseAdvice {
       d.append(new Description.Link(o.toString()) {
         public void whenClicked() {
           final MessagePane help = messageForNeed(o, UI, pane);
-          UI.setInfoPanel(help);
+          UI.setMessagePane(help);
         }
       });
     }
@@ -312,7 +312,6 @@ public class BaseAdvice {
     
     final String titleKey = "Need "+t;
     final MessagePane pane = new MessagePane(UI, null, titleKey, null, null);
-    pane.setPrevious(before);
     
     pane.header().setText("Shortage of "+t);
     

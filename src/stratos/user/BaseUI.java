@@ -10,19 +10,12 @@ import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.user.notify.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.Input.Keys;
 
 
 
-
-//  TODO:  The area dedicated to the current info-panel must be made more
-//         flexible, to accomodate the stars & planet-charts.
-
 public class BaseUI extends HUD implements UIConstants {
-  
-  
   
   /**  Core field definitions, constructors, and save/load methods-
     */
@@ -47,12 +40,13 @@ public class BaseUI extends HUD implements UIConstants {
   private Button sectorsButton;
   
   
-  private UIGroup panelArea, infoArea;
+  private UIGroup infoArea, optionsArea, messageArea;
   private BorderedLabel popup;
   private Quickbar quickbar;
   
-  private UIGroup currentPanel, newPanel;
-  private TargetOptions currentInfo, newInfo;
+  private UIGroup currentInfo, newInfo;  //  TODO:  Insist on selection-panes?
+  private SelectionOptions currentOptions, newOptions;
+  private MessagePane currentMessage, newMessage;
   private boolean capturePanel = false;
   
   
@@ -160,23 +154,30 @@ public class BaseUI extends HUD implements UIConstants {
     readout.alignTop(0, READOUT_HIGH);
     readout.attachTo(this);
     
-    this.panelArea = new UIGroup(this);
-    panelArea.alignVertical  (0, 0);
-    panelArea.alignHorizontal(0, 0);
-    panelArea.attachTo(this);
-    
+    //  TODO:  Constrain this better.
     this.infoArea = new UIGroup(this);
     infoArea.alignVertical  (0, 0);
     infoArea.alignHorizontal(0, 0);
     infoArea.attachTo(this);
+
+    //  TODO:  Constrain this better.
+    this.optionsArea = new UIGroup(this);
+    optionsArea.alignVertical  (0, 0);
+    optionsArea.alignHorizontal(0, 0);
+    optionsArea.attachTo(this);
+    
+    this.messageArea = new UIGroup(this);
+    messageArea.alignHorizontal(0.5f, MESSAGE_PANE_WIDE, 0);
+    messageArea.alignTop(0, MESSAGE_PANE_HIGH);
+    messageArea.attachTo(this);
     
     this.popup = new BorderedLabel(this);
     popup.alignHorizontal(0.5f, 0, 0);
     popup.alignBottom(QUICKBAR_HIGH, 0);
     popup.attachTo(this);
     
-    currentPanel = newPanel = null;
-    currentInfo  = newInfo  = null;
+    currentInfo = newInfo = null;
+    currentOptions  = newOptions  = null;
     
     this.quickbar = new Quickbar(this);
     quickbar.alignAcross(0, 1);
@@ -243,16 +244,6 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  public UIGroup currentPane() {
-    return newPanel;
-  }
-  
-  
-  public TargetOptions currentInfo() {
-    return newInfo;
-  }
-  
-  
   public void beginTask(UITask task) {
     currentTask = task;
     if (I.logEvents()) I.say("\nBEGAN UI TASK: "+task);
@@ -283,7 +274,7 @@ public class BaseUI extends HUD implements UIConstants {
     */
   public void updateInput() {
     super.updateInput();
-    selection.updateSelection(world, rendering.view, panelArea);
+    selection.updateSelection(world, rendering.view, infoArea);
   }
   
   
@@ -304,25 +295,31 @@ public class BaseUI extends HUD implements UIConstants {
     
     //  TODO:  This doesn't look terribly smooth if you inspect it closely-
     //  either use simple alpha-fadeouts or start rendering-to-texture instead.
-    if (capturePanel && currentPanel != null) {
-      final Box2D b = new Box2D().setTo(currentPanel.trueBounds());
+    if (capturePanel && currentInfo != null) {
+      final Box2D b = new Box2D().setTo(currentInfo.trueBounds());
       rendering.fading.applyFadeWithin(b, "panel_fade");
       capturePanel = false;
     }
-    if (currentPanel != newPanel) {
-      if (currentPanel != null) currentPanel.detach();
-      if (newPanel     != null) newPanel.attachTo(panelArea);
-      currentPanel = newPanel;
+    if (currentInfo != newInfo) {
+      if (currentInfo != null) currentInfo.detach();
+      if (newInfo     != null) newInfo.attachTo(infoArea);
+      currentInfo = newInfo;
     }
     
     //  Only attach the new information panel once the old one is done fading
     //  out.  TODO:  Use a similar trick above...
     if (
-      (currentInfo != newInfo) &&
-      (currentInfo == null || ! currentInfo.attached())
+      (currentOptions != newOptions) &&
+      (currentOptions == null || ! currentOptions.attached())
     ) {
-      if (newInfo != null) newInfo.attachTo(infoArea);
-      currentInfo = newInfo;
+      if (newOptions != null) newOptions.attachTo(optionsArea);
+      currentOptions = newOptions;
+    }
+    
+    //  TODO:  ALLOW FOR FADE-IN/FADE-OUT HERE AS WELL
+    if (currentMessage != newMessage) {
+      if (newMessage != null) newMessage.attachTo(messageArea);
+      currentMessage = newMessage;
     }
     
     if (KeyInput.wasTyped(Keys.ESCAPE) && currentTask != null) {
@@ -334,24 +331,31 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Updating the central information panel and target options-
     */
-  public void setInfoPanel(UIGroup panel) {
-    if (panel != currentPanel) {
+  public void setInfoPane(UIGroup info) {
+    if (info != currentInfo) {
       beginPanelFade();
-      newPanel = panel;
+      newInfo = info;
     }
   }
   
   
-  public void clearInfoPanel() {
-    setInfoPanel(null);
+  public void setOptionsList(SelectionOptions options) {
+    if (options != currentOptions) {
+      if (currentOptions != null) currentOptions.active = false;
+      newOptions = options;
+    }
   }
   
   
-  public void setOptionsList(TargetOptions options) {
-    if (options != currentInfo) {
-      if (currentInfo != null) currentInfo.active = false;
-      newInfo = options;
+  public void setMessagePane(MessagePane message) {
+    if (message != currentMessage) {
+      newMessage = message;
     }
+  }
+  
+  
+  public void clearInfoPane() {
+    setInfoPane(null);
   }
   
   
@@ -360,22 +364,27 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  /*
-  public void setInfoPanels(
-    UIGroup panel, TargetOptions options
-  ) {
-    if (panel   != currentPanel) {
-      beginPanelFade();
-      newPanel = panel;
-    }
-    if (options != currentInfo ) {
-      if (currentInfo != null) currentInfo.active = false;
-      newInfo = options;
-    }
+  public void clearMessagePane() {
+    setMessagePane(null);
   }
-  //*/
   
   
+  public UIGroup currentPane() {
+    return newInfo;
+  }
+  
+  
+  public SelectionOptions currentInfo() {
+    return newOptions;
+  }
+  
+  
+  public MessagePane currentMessage() {
+    return newMessage;
+  }
+  
+  
+  //  TODO:  get rid of this once render-to-texture is working.
   public void beginPanelFade() {
     capturePanel = true;
   }

@@ -3,9 +3,6 @@
 
 BETTER UI INFO/HELP SYSTEM
 
-*  Build in a hyperlink help system for upgrades, good-types, venue-types and
-   backgrounds.
-
 *  Move the message-panes to the centre-top of the screen, so they can be
    visible along with the usual selection-panes.
 *  If a message-pane was open before saving, ensure it stays open afterward (
@@ -13,6 +10,8 @@ BETTER UI INFO/HELP SYSTEM
 
 *  Old messages and events will have to stay a regular-sized pane.
 
+*  Build in a hyperlink help system for upgrades, good-types, venue-types and
+   backgrounds.
 
 *  Try adding pings for individual structure-types when directing to build, and
    vary the size a little?

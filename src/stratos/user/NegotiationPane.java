@@ -41,7 +41,7 @@ public class NegotiationPane extends MissionPane {
     
     if (contact.isSummons()) {
       d.append(subject);
-      d.append(" is being summoned to the ");
+      d.append(" is being summoned to ");
       d.append(ruler.aboard());
       d.append(".");
       return this;

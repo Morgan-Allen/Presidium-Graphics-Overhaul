@@ -202,7 +202,7 @@ public class FormerPlant extends Venue implements TileConstants {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
   

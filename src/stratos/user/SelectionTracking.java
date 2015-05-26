@@ -98,9 +98,9 @@ public class SelectionTracking {
     //  to dismiss it and focus on whatever comes in view instead.
     if (lockTarget != null && lockTarget == paneSelection()) {
       final Tile          under   = world.tileAt(nextPos.x, nextPos.y);
-      final SelectionPane pane    = under.configPanel(null, UI);
-      final TargetOptions options = under.configInfo (null, UI);
-      UI.setInfoPanel  (pane   );
+      final SelectionPane pane    = under.configSelectPane(null, UI);
+      final SelectionOptions options = under.configSelectOptions (null, UI);
+      UI.setInfoPane  (pane   );
       UI.setOptionsList(options);
     }
     //

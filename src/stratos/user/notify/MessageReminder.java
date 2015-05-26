@@ -34,7 +34,7 @@ public class MessageReminder extends ReminderListing.Entry {
       baseUI, message.title, COMM_IMAGE.asTexture(), message.title
     ) {
       protected void whenClicked() {
-        baseUI.setInfoPanel(message);
+        baseUI.setMessagePane(message);
         opened = true;
       }
       

@@ -135,7 +135,7 @@ public class Arcology extends Venue {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final int gP = (int) (plantsHealth * 100);
     final String status = "Plant growth: "+gP+"%";
     return VenuePane.configSimplePanel(this, panel, UI, status);

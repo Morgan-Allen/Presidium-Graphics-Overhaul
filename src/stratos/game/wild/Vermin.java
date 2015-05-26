@@ -154,7 +154,7 @@ public abstract class Vermin extends Actor {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return ActorDescription.configSimplePanel(this, panel, UI);
   }
 }

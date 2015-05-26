@@ -159,11 +159,11 @@ public class Selection implements UIConstants {
     if (locks != null && locks.inWorld()) UI.tracking.lockOn(locks);
     else UI.tracking.lockOn(null);
     
-    final SelectionPane panel = s.configPanel(null, UI);
-    final TargetOptions info  = s.configInfo(null, UI);
-    if (panel != null || info != null) {
-      UI.setInfoPanel  (panel);
-      UI.setOptionsList(info );
+    final SelectionPane pane    = s.configSelectPane   (null, UI);
+    final SelectionOptions options = s.configSelectOptions(null, UI);
+    if (pane != null || options != null) {
+      UI.setInfoPane   (pane   );
+      UI.setOptionsList(options);
     }
   }
   

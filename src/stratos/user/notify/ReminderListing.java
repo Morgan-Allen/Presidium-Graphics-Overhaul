@@ -256,7 +256,7 @@ public class ReminderListing extends UIGroup {
         
         public void whenClicked() {
           panel.setPrevious(oldPane);
-          UI.setInfoPanel(panel);
+          UI.setMessagePane(panel);
         }
       };
       links.add(link);

@@ -196,7 +196,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       baseUI, "back", WIDGET_BACK, WIDGET_BACK_LIT, "Back"
     ) {
       protected void whenClicked() {
-        baseUI.setInfoPanel(pane.previous);
+        baseUI.setInfoPane(pane.previous);
       }
     };
     backButton.alignTop  (6 , 18);
@@ -211,7 +211,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
           baseUI.clearOptionsList();
           baseUI.selection.pushSelection(null);
         }
-        baseUI.clearInfoPanel();
+        baseUI.clearInfoPane();
       }
     };
     closeButton.alignTop  (0, 30);
@@ -254,10 +254,10 @@ public class SelectionPane extends UIGroup implements UIConstants {
 
     protected void whenClicked() {
       if (baseUI.currentPane() == pane) {
-        baseUI.clearInfoPanel();
+        baseUI.clearInfoPane();
       }
       else {
-        baseUI.setInfoPanel(pane);
+        baseUI.setInfoPane(pane);
         baseUI.clearOptionsList();
       }
     }
@@ -330,7 +330,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     updateText(UI, headerText, detailText, listingText);
     this.backButton.hidden = previous == null;
     
-    if (selected != null) selected.configPanel(this, UI);
+    if (selected != null) selected.configSelectPane(this, UI);
     //
     //  TODO:  If there's a parent for this pane, you could insert the option
     //  for a back-button here.

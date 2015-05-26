@@ -332,7 +332,7 @@ public class Human extends Actor implements Qualities {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return ActorDescription.configPanel(this, panel, UI);
   }
 }
