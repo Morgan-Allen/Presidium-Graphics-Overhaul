@@ -126,9 +126,8 @@ public class SpawnArtilect extends Plan implements Qualities {
     if (repairs != actor) {
       
       if (! repairs.inWorld()) {
-        repairs.enterWorldAt(location, actor.world());
-        repairs.goAboard(location, actor.world());
         repairs.mind.setHome(location);
+        repairs.enterWorldAt(location, actor.world());
         
         repairs.health.setupHealth(0, 0.5f, 1);
         repairs.health.setInjuryLevel(1 - (INIT_HEALTH * success));

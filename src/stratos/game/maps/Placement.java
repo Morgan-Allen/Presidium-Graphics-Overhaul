@@ -201,7 +201,6 @@ public class Placement implements TileConstants {
       if (! a.inWorld()) {
         a.assignBase(v.base());
         a.enterWorldAt(v, world);
-        a.goAboard(v, world);
       }
       a.mind.setWork(v);
       if (v.crowdRating(a, Backgrounds.AS_RESIDENT) < 1) {

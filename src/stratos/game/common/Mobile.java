@@ -112,6 +112,21 @@ public abstract class Mobile extends Element
   }
   
 
+  public boolean enterWorldAt(Target t, Stage world) {
+    final Vec3D p = t.position(null);
+    if (! setPosition(p.x, p.y, world)) return false;
+    if (t instanceof Boarding) {
+      final Boarding b = (Boarding) t;
+      if (b.allowsEntry(this)) {
+        super.enterWorld();
+        goAboard(b, world);
+        return true;
+      }
+    }
+    return super.enterWorldAt(t, world);
+  }
+  
+
   public void exitToOffworld() {
     exitWorld();
   }

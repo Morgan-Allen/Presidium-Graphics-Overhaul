@@ -373,7 +373,6 @@ public class StartupScenario extends Scenario {
       a.mind.setHome(bastion);
       a.mind.setWork(bastion);
       a.enterWorldAt(bastion, world);
-      a.goAboard(bastion, world);
     }
     for (Actor a : colonists) {
       a.assignBase(base);

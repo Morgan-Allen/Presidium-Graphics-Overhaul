@@ -39,7 +39,6 @@ public class ShipUtils {
     for (Mobile m : ship.inside()) {
       if (landing && ! m.inWorld()) {
         m.enterWorldAt(ship, world);
-        m.goAboard(ship, world);
       }
       if ((! landing) && ! isBoarding(m, ship)) {
         m.goAboard(ship.dropPoint(), world);

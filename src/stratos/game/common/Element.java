@@ -85,6 +85,24 @@ public class Element implements
   }
   
   
+  public void enterWorld() {
+    if (location == null) I.complain("Position never set!");
+    enterWorldAt(location.x, location.y, location.world);
+  }
+  
+  
+  public boolean enterWorldAt(Target t, Stage world) {
+    final Vec3D p = t.position(null);
+    if (! setPosition(p.x, p.y, world)) return false;
+    if (location.blocked()) {
+      final Tile entry = Spacing.nearestOpenTile(location, location);
+      if (entry != null) setPosition(entry.x, entry.y, world);
+    }
+    enterWorld();
+    return true;
+  }
+  
+  
   public void setAsDestroyed() {
     if (! inWorld()) {
       I.say(this+" never entered world...");
@@ -112,24 +130,6 @@ public class Element implements
     this.location = world.tileAt(x, y);
     if (location == null) return false;
     else return true;
-  }
-  
-  
-  public void enterWorld() {
-    if (location == null) I.complain("Position never set!");
-    enterWorldAt(location.x, location.y, location.world);
-  }
-  
-  
-  public boolean enterWorldAt(Target t, Stage world) {
-    final Vec3D p = t.position(null);
-    if (! setPosition(p.x, p.y, world)) return false;
-    if (location.blocked()) {
-      final Tile entry = Spacing.nearestOpenTile(location, location);
-      if (entry != null) setPosition(entry.x, entry.y, world);
-    }
-    enterWorld();
-    return true;
   }
   
   

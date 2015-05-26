@@ -113,7 +113,6 @@ public class SupplyDepot extends Venue {
     if (barges.size() == 0) {
       final CargoBarge b = new CargoBarge();
       b.enterWorldAt(this, world);
-      b.goAboard(this, world);
       b.setHangar(this);
       b.assignBase(base);
       b.structure.setState(Structure.STATE_INSTALL, 0);

@@ -114,7 +114,6 @@ public class DebugEcology extends Scenario {
     Nest.populateFauna(world, Qudu.SPECIES);
     Actor prey = Qudu.SPECIES.sampleFor(wildlife);
     prey.enterWorldAt(lodge, world);
-    prey.goAboard(lodge, world);
     prey.health.setupHealth(0.5f, 1, 0);
     prey.health.takeInjury(100, false);
     

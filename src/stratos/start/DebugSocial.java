@@ -270,7 +270,6 @@ public class DebugSocial extends Scenario {
     for (Background b : jobs) {
       Actor a = b.sampleFor(base);
       a.enterWorldAt(bastion, world);
-      a.goAboard(bastion, world);
       if (tracked == null) tracked = a;
     }
     

@@ -380,8 +380,7 @@ public class Staff {
         if (GameSettings.hireFree) {
           final Actor citizen = v.sampleFor(base);
           citizen.mind.setWork(employs);
-          final Boarding t = employs.canBoard()[0];
-          citizen.enterWorldAt(t, base.world);
+          citizen.enterWorldAt(employs, base.world);
         }
         else {
           base.demands.impingeDemand(v, openings, REFRESH_INTERVAL, employs);

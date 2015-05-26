@@ -111,9 +111,9 @@ public class DebugMissions extends Scenario {
     
     for (int i = 3; i-- > 0;) {
       final Actor actor = new Human(Backgrounds.GATHERER, natives);
-      actor.enterWorldAt(hut.mainEntrance(), world);
       actor.mind.setHome(hut);
       actor.mind.setWork(hut);
+      actor.enterWorldAt(hut, world);
     }
     
     final Mission contact = new MissionContact(base, hut);

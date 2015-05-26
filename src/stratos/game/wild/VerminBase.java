@@ -95,7 +95,6 @@ public class VerminBase extends Base {
           Roach   .SPECIES.sampleFor(this) :
           Roachman.SPECIES.sampleFor(this) ;
         enters.enterWorldAt(hatch, world);
-        enters.goAboard(hatch, world);
         enters.mind.setHome(hatch);
       }
     }
