@@ -290,13 +290,18 @@ public class MS3DFile {
   }
 
   private void parseSubVersions(DataInput0 in) throws IOException {
+    
+    if(in.available() < 4)
+      return;
     int subv1 = in.readInt(); // ignore
     
     skipComments(in); // skip group comments
     skipComments(in); // skip material comments
     skipComments(in); // skip joint comments
     skipComments(in); // skip model comments
-    
+
+    if(in.available() < 4)
+      return;
     int subv2 = in.readInt();
     
     for(int i=0; i<vertices.length; i++) {
