@@ -289,11 +289,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
   }
   
   
-  public int categoryID() {
-    return categoryID;
-  }
-  
-  
   public String category() {
     if (categories.length == 0) return null;
     return categories[Nums.clamp(categoryID, categories.length)];

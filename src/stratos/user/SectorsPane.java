@@ -69,6 +69,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
   
   public SectorsPane(HUD UI) {
     super(UI);
+    setWidgetID(SECTORS_PANE_ID);
     
     this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
     this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);

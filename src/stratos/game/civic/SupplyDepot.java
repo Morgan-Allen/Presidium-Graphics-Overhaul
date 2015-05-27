@@ -49,7 +49,7 @@ public class SupplyDepot extends Venue {
       ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
     );
   
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
     "Supply Depot", UIConstants.TYPE_COMMERCE,
     3, 1, IS_NORMAL,

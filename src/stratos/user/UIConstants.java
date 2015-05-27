@@ -16,12 +16,17 @@ public interface UIConstants {
     BUTTONS_PATH = "media/GUI/Buttons/",
     TABS_PATH    = "media/GUI/Tabs/",
     
-    SECTORS_BUTTON_ID  = "sectors_pane_button",
-    BUDGETS_BUTTON_ID  = "budgets_pane_button",
-    ROSTER_BUTTON_ID   = "roster_pane_button" ,
-    INSTALL_BUTTON_ID  = "install_pane_button",
+    SECTORS_BUTTON_ID  = "sectors_button",
+    SECTORS_PANE_ID    = "sectors_pane"  ,
+    BUDGETS_BUTTON_ID  = "budgets_button",
+    BUDGETS_PANE_ID    = "budgets_pane"  ,
+    ROSTER_BUTTON_ID   = "roster_button" ,
+    ROSTER_PANE_ID     = "roster_pane"   ,
+    INSTALL_BUTTON_ID  = "install_button",
+    INSTALL_PANE_ID    = "install_pane"  ,
     
     OPTIONS_BUTTON_ID  = "game_options_button",
+    OPTIONS_PANE_ID    = "game_options_pane"  ,
     
     STRIKE_BUTTON_ID   = "strike_mission_button"  ,
     RECON_BUTTON_ID    = "recon_mission_button"   ,

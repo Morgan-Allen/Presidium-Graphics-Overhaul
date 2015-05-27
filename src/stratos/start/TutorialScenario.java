@@ -15,6 +15,7 @@ import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
+import static stratos.user.UIConstants.*;
 
 
 
@@ -252,8 +253,7 @@ public class TutorialScenario extends StartupScenario {
   /**  First round of security topics-
     */
   protected void whenPlaceBarracksRequestOpen() {
-    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
-    ScreenPing.addPingFor(UIConstants.TYPE_SECURITY);
+    addPingsLeadingTo(TrooperLodge.BLUEPRINT);
   }
   
   
@@ -306,13 +306,8 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void whenPlaceFacilitiesRequestOpen() {
-    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
-    if (foundryBuilt == null) {
-      ScreenPing.addPingFor(UIConstants.TYPE_ENGINEER);
-    }
-    if (depotBuilt   == null) {
-      ScreenPing.addPingFor(UIConstants.TYPE_COMMERCE);
-    }
+    if (foundryBuilt == null) addPingsLeadingTo(EngineerStation.BLUEPRINT);
+    if (depotBuilt   == null) addPingsLeadingTo(SupplyDepot    .BLUEPRINT);
   }
   
   
@@ -472,8 +467,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void whenExpandingIndustryTopicOpen() {
-    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
-    ScreenPing.addPingFor(UIConstants.TYPE_ENGINEER);
+    addPingsLeadingTo(EngineerStation.BLUEPRINT);
   }
   
   
@@ -489,8 +483,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void whenPersonalHousingTopicOpen() {
-    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
-    ScreenPing.addPingFor(UIConstants.TYPE_PHYSICIAN);
+    addPingsLeadingTo(Holding.BLUEPRINT);
   }
   
   
@@ -503,8 +496,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void whenStockExchangeTopicOpen() {
-    ScreenPing.addPingFor(UIConstants.INSTALL_BUTTON_ID);
-    ScreenPing.addPingFor(UIConstants.TYPE_COMMERCE);
+    addPingsLeadingTo(StockExchange.BLUEPRINT);
   }
   
   
@@ -605,6 +597,19 @@ public class TutorialScenario extends StartupScenario {
   
   /**  Other helper methods-
     */
+  private void addPingsLeadingTo(Blueprint blueprint) {
+    if (! ScreenPing.checkWidgetActive(INSTALL_PANE_ID)) {
+      ScreenPing.addPingFor(INSTALL_BUTTON_ID);
+    }
+    else if (! ScreenPing.checkCategoryActive(blueprint.category)) {
+      ScreenPing.addPingFor(blueprint.category);
+    }
+    else {
+      ScreenPing.addPingFor(blueprint.keyID);
+    }
+  }
+  
+  
   private Venue firstBaseVenue(Class venueClass) {
     for (Object o : world().presences.matchesNear(
       venueClass, null, -1
@@ -636,87 +641,6 @@ public class TutorialScenario extends StartupScenario {
   }
 }
 
-
-
-
-  /*
-  protected void onSecurityBasicsOpen() {
-    UI().tracking.lockOn(barracksBuilt);
-  }
-  
-  
-  protected void onBaseAttackOpen() {
-
-    final Base artilects = Base.artilects(world());
-    droneAttacks = (Drone) Drone.SPECIES.sampleFor(artilects);
-    
-    Tile entry = Placement.findClearSpot(barracksBuilt, world(), 2);
-    
-    entry = Spacing.nearestOpenTile(entry, entry);
-    droneAttacks.enterWorldAt(entry, world());
-    
-    final Combat assault = new Combat(droneAttacks, barracksBuilt);
-    assault.addMotives(Plan.MOTIVE_EMERGENCY, 100);
-    droneAttacks.mind.assignBehaviour(assault);
-    
-    UI().tracking.lockOn(droneAttacks);
-  }
-  
-  
-  protected boolean checkDroneDestroyed() {
-    if (droneAttacks == null) return false;
-    if (droneAttacks.health.conscious()) return false;
-    return true;
-  }
-  
-  
-  protected void onHireSoldiersOpen() {
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_STATION, 1);
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_STATION  , 1);
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
-    
-    final Base base = base();
-    while (base.commerce.numCandidates(Backgrounds.TROOPER) < 3) {
-      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
-      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
-    }
-  }
-  
-  
-  protected boolean checkRuinsDestroyed() {
-    if (ruinsFar != null && ruinsFar.structure.intact()) return false;
-    return true;
-  }
-  
-  
-  protected boolean checkHousingAndVenueUpgrade() {
-    if (foundryBuilt == null) return false;
-    if (! foundryBuilt.structure.hasUpgrade(EngineerStation.ASSEMBLY_LINE)) {
-      return false;
-    }
-    
-    boolean anyHU = false;
-    for (Holding h : allBaseHoldings()) {
-      if (h.upgradeLevel() > 0) anyHU = true;
-    }
-    if (! anyHU) return false;
-    return true;
-  }
-  
-  
-  protected boolean checkPositiveCashFlow() {
-    if (startingBalance == -1) return false;
-    final float balance = base().finance.credits();
-    if (balance < startingBalance + 1000) return false;
-    return true;
-  }
-  
-  
-  protected void onTutorialDone() {
-    GameSettings.noAdvice = false;
-    base().advice.setControlLevel(BaseAdvice.LEVEL_ADVISOR);
-  }
-  //*/
 
 
 

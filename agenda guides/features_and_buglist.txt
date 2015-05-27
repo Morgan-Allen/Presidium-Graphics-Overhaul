@@ -5,9 +5,6 @@ BETTER UI INFO/HELP SYSTEM
 
 *  Build in a hyperlink help system for upgrades, good-types, venue-types and
    backgrounds.
-
-*  Try adding pings for individual structure-types when directing to build, and
-   vary the size a little?
 *  Consider adding a step for extra hires/upgrades before the second round of
    attacks?  You will need that for the stock exchange anyway.
 *  In fact, just use the stock exchange, and install some upgrades there.  It's

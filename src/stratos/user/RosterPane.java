@@ -40,6 +40,7 @@ public class RosterPane extends SelectionPane {
   
   public RosterPane(BaseUI UI) {
     super(UI, null, null, false, false, 0, ALL_CATS);
+    setWidgetID(ROSTER_PANE_ID);
   }
   
   

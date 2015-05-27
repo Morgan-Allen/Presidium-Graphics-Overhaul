@@ -510,7 +510,8 @@ public class VenuePane extends SelectionPane {
   public static void descActor(Mobile m, Description d, BaseUI UI) {
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
-      if (p != null) Text.insert(p.delayedImage(UI), 40, 40, true, d);
+      final String ID = ""+m.hashCode();
+      if (p != null) Text.insert(p.delayedImage(UI, ID), 40, 40, true, d);
       else d.append("\n");
     }
     else d.append("\n\n  ");

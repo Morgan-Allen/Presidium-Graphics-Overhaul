@@ -26,7 +26,6 @@ public class Button extends Image {
     );
   
   
-  final String widgetID;
   protected Texture   highlit;
   protected String    info   ;
   protected Clickable links  ;
@@ -64,7 +63,7 @@ public class Button extends Image {
     HUD UI, String widgetID, Texture norm, Texture lit, String infoS
   ) {
     super(UI, norm);
-    this.widgetID = widgetID;
+    setWidgetID(widgetID);
     this.info     = infoS;
     this.highlit  = lit;
   }
@@ -84,11 +83,6 @@ public class Button extends Image {
   protected String info() {
     if (! enabled) return info+"\n"+disableInfo();
     return info;
-  }
-  
-  
-  protected String widgetID() {
-    return widgetID;
   }
   
   

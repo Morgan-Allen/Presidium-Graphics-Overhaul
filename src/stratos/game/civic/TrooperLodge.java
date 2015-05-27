@@ -31,7 +31,7 @@ public class TrooperLodge extends Venue {
     TrooperLodge.class, "media/GUI/Buttons/trooper_lodge_button.gif"
   );
   
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     TrooperLodge.class, "trooper_lodge",
     "Trooper Lodge", UIConstants.TYPE_SECURITY,
     4, 3, IS_NORMAL,

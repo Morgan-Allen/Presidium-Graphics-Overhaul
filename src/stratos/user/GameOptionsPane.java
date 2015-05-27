@@ -40,6 +40,8 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   
   private GameOptionsPane(BaseUI UI, Scenario played) {
     super(UI);
+    setWidgetID(OPTIONS_PANE_ID);
+    
     this.played = played;
     this.text = new Text(UI, INFO_FONT);
     this.bordering = new Bordering(UI, BORDER_TEX);

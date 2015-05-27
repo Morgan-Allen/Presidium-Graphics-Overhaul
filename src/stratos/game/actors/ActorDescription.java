@@ -47,16 +47,16 @@ public class ActorDescription implements Qualities {
       UI, human, human.portrait(UI), true,
       CAT_GEAR, CAT_SKILLS, CAT_AGENDA, CAT_RELATIONS
     );
-    final int categoryID = panel.categoryID();
+    final String category = panel.category();
     final Description d = panel.detail(), l = panel.listing();
     
     final ActorDescription HD = new ActorDescription(human);
     HD.describeStatus(d, UI);
     
-    if (categoryID == 0) HD.describeGear     (l, UI);
-    if (categoryID == 1) HD.describeSkills   (l, UI);
-    if (categoryID == 2) HD.describeAgenda   (l, UI);
-    if (categoryID == 3) HD.describeRelations(l, UI);
+    if (category == CAT_GEAR     ) HD.describeGear     (l, UI);
+    if (category == CAT_SKILLS   ) HD.describeSkills   (l, UI);
+    if (category == CAT_AGENDA   ) HD.describeAgenda   (l, UI);
+    if (category == CAT_RELATIONS) HD.describeRelations(l, UI);
     return panel;
   }
   

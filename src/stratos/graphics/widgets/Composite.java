@@ -159,13 +159,14 @@ public class Composite {
   }
   
   
-  public Image delayedImage(HUD UI) {
+  public Image delayedImage(HUD UI, final String widgetID) {
     final Image image = new Image(UI, Image.SOLID_WHITE) {
       protected void render(WidgetsPass pass) {
         this.texture = texture();
         super.render(pass);
       }
     };
+    image.setWidgetID(widgetID);
     return image;
   }
   

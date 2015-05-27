@@ -34,7 +34,7 @@ public class ScreenPing extends UIGroup {
   private String widgetID;
   private float baseSize, timeActive = 0, lifespan;
   
-
+  
   public static boolean addPingFor(String widgetID) {
     return addPingFor(
       widgetID, DEFAULT_LIFE, DEFAULT_SIZE, DEFAULT_OFFX, DEFAULT_OFFY
@@ -105,10 +105,25 @@ public class ScreenPing extends UIGroup {
     super.updateState();
   }
   
+  
+  
+  /**  A few associated utility methods-
+    */
+  public static boolean checkWidgetActive(String widgetID) {
+    final BaseUI UI = BaseUI.current();
+    if (UI == null) return false;
+    return UI.activeWidgetWithID(widgetID) != null;
+  }
+  
+  
+  public static boolean checkCategoryActive(String categoryID) {
+    final BaseUI UI = BaseUI.current();
+    if (UI == null) return false;
+    if (! (UI.currentInfoPane() instanceof SelectionPane)) return false;
+    final SelectionPane pane = (SelectionPane) UI.currentInfoPane();
+    return categoryID.equals(pane.category());
+  }
 }
-
-
-
 
 
 

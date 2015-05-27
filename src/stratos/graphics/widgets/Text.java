@@ -6,6 +6,7 @@
   */
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
+import stratos.start.PlayLoop;
 import stratos.util.*;
 import stratos.graphics.widgets.Alphabet.Letter;
 
@@ -21,7 +22,7 @@ import com.badlogic.gdx.utils.*;
   *  entries.
   *  NOTE:  Scaling does not apply to any inserted images.
   */
-public class Text extends UINode implements Description {
+public class Text extends UIGroup implements Description {
   
   
   private static boolean verbose = false;
@@ -69,11 +70,9 @@ public class Text extends UINode implements Description {
   }
   
   
-  
   final protected Alphabet alphabet;
   public float scale = 1.0f;
-  protected List <Box2D  > allEntries = new List <Box2D  > ();
-  protected List <UIEntry> allNodes   = new List <UIEntry> ();
+  protected List <Box2D> allEntries = new List();
   private boolean needsFormat = false;
   
   private Scrollbar scrollbar;
@@ -176,6 +175,7 @@ public class Text extends UINode implements Description {
   
   public void setText(String s) {
     allEntries.clear();
+    for (UINode kid : kids()) kid.detach();
     append(s, null, null);
     needsFormat = true;
   }
@@ -277,14 +277,6 @@ public class Text extends UINode implements Description {
       final float down = 1 - scrollbar.scrollPos();
       scrolled.ypos(0 - (fullSize.ydim() - ydim()) * down);
     }
-    
-    allNodes.clear();
-    for (Box2D entry : allEntries) if (entry instanceof UIEntry) {
-      final UIEntry node = (UIEntry) entry;
-      allNodes.add(node);
-      node.graphic.updateState();
-      node.graphic.relAlpha = this.absAlpha;
-    }
   }
   
   
@@ -298,18 +290,13 @@ public class Text extends UINode implements Description {
     }
     if (needsFormat && (allEntries.size() > 0)) format(xdim());
     
-    for (UIEntry node : allNodes) {
+    for (Box2D entry : allEntries) if (entry instanceof UIEntry) {
+      final UIEntry node = (UIEntry) entry;
       final Box2D b = node.graphic.absBound;
       b.xpos(node.xpos() - scrolled.xpos());
       b.ypos(node.ypos() - scrolled.ypos());
       node.graphic.updateRelativeParent();
     }
-  }
-  
-  
-  protected void updateAbsoluteBounds() {
-    super.updateAbsoluteBounds();
-    for (UIEntry node : allNodes) node.graphic.updateAbsoluteBounds();
   }
   
   
@@ -319,18 +306,15 @@ public class Text extends UINode implements Description {
     final Clickable link = getTextSelection(UI.mousePos(), scrolled);
     if (link != null && UI.mouseClicked()) whenLinkClicked(link);
     
-    for (UIEntry node : allNodes) {
-      final UINode match = node.graphic.selectionAt(mousePos);
-      if (match != null) return match;
-    }
-    return super.selectionAt(mousePos);
+    final UINode match = super.selectionAt(mousePos);
+    return match == null ? this : match;
   }
   
   
   protected void render(WidgetsPass pass) {
     if (allEntries.size() == 0) return;
     final Object link = getTextSelection(UI.mousePos(), scrolled);
-    
+    //
     //  Then we begin the rendering pass.  In order to accomodate scissor
     //  culling, we flush the pipeline of existing elements before and after,
     //  and set the bounds to fit.
@@ -341,9 +325,7 @@ public class Text extends UINode implements Description {
     for (Box2D entry : allEntries) if (entry instanceof TextEntry) {
       renderText(scrolled, (TextEntry) entry, link, pass);
     }
-    for (UIEntry entry : allNodes) if (entry.intersects(scrolled)) {
-      entry.graphic.render(pass);
-    }
+    super.render(pass);
     
     pass.flush();
     Gdx.gl.glDisable(GL11.GL_SCISSOR_TEST);
@@ -351,7 +333,7 @@ public class Text extends UINode implements Description {
   
   
   public String toString() {
-    return "Info Pane";
+    return "Text: "+getText();
   }
   
   

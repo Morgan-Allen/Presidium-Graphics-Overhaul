@@ -34,8 +34,9 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   final public static Index <Blueprint> INDEX = new Index <Blueprint> ();
   
   final public Class <? extends Venue> baseClass;
-  final public String name;
+  final public String keyID;
   final public String category;
+  final public String name;
 
   final public int size, high;
   final public int properties;
@@ -73,8 +74,9 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
 
     super(INDEX, key);
     this.baseClass = baseClass;
-    this.name     = name;
-    this.category = category;
+    this.keyID     = key;
+    this.category  = category;
+    this.name      = name;
     
     this.size = size;
     this.high = high;

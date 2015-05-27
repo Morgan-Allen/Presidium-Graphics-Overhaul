@@ -15,6 +15,7 @@ import stratos.util.*;
 //  TODO:  Allow a general summary of demand for structures of this type.
 //  TODO:  Expand a little on the category-selection system?
 
+
 public class InstallPane extends SelectionPane {
   
   
@@ -55,8 +56,9 @@ public class InstallPane extends SelectionPane {
   
   InstallPane(BaseUI UI) {
     super(UI, null, null, false, false, BAR_BUTTON_SIZE);
-    if (! setupDone) setupTypes();
+    setWidgetID(INSTALL_PANE_ID);
     
+    if (! setupDone) setupTypes();
     catButtons = new Button[NUM_GUILDS];
     setupCategoryButtons();
   }
@@ -109,7 +111,7 @@ public class InstallPane extends SelectionPane {
   
   private static void initCategory(String typeID) {
     final Category category = new Category();
-    category.name = typeID;
+    category.name  = typeID;
     categories.put(typeID, category);
   }
   
@@ -159,6 +161,11 @@ public class InstallPane extends SelectionPane {
       button.alignLeft  ((wide * i), wide);
       button.attachTo(bar);
     }
+  }
+  
+  
+  public String category() {
+    return category == null ? null : category.name;
   }
   
   
@@ -247,11 +254,10 @@ public class InstallPane extends SelectionPane {
     final Blueprint type     = sample.blueprint   ;
     final String    typeName = type.name          ;
     final int       cost     = sample.structure.buildCost();
-    
-    final Colour greyed = enabled ? Colour.WHITE : Colour.GREY;
+    final Colour    greyed   = enabled ? Colour.WHITE : Colour.GREY;
     
     if (icon != null) {
-      final Image iconImage = icon.delayedImage(UI);
+      final Image iconImage = icon.delayedImage(UI, type.keyID);
       iconImage.setDisabledOverlay(Image.TRANSLUCENT_BLACK);
       iconImage.enabled = enabled;
       Text.insert(iconImage, 40, 40, true, text);
