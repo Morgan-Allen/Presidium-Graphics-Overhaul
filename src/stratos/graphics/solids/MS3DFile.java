@@ -12,7 +12,7 @@ import com.badlogic.gdx.math.*;
 
 public class MS3DFile {
   
-  private static boolean verbose = false;
+  private static boolean verbose = true;
   
   public static final int MAX_VERTICES = 65535;
   public static final int MAX_TRIANGLES = 65535;
@@ -291,8 +291,10 @@ public class MS3DFile {
 
   private void parseSubVersions(DataInput0 in) throws IOException {
     
-    if(in.available() < 4)
+    if(in.available() < 4) {
+      if(verbose) I.say("Model doesn't have weights");
       return;
+    }
     int subv1 = in.readInt(); // ignore
     
     skipComments(in); // skip group comments
@@ -300,18 +302,25 @@ public class MS3DFile {
     skipComments(in); // skip joint comments
     skipComments(in); // skip model comments
 
-    if(in.available() < 4)
+    if(in.available() < 4) {
+      if(verbose) I.say("Model doesn't have weights");
       return;
+    }
+    
     int subv2 = in.readInt();
+    
+    int extraw = 0;
     
     for(int i=0; i<vertices.length; i++) {
       in.read(vertices[i].boneIds = new byte[3]);
       in.read(vertices[i].weights = new byte[3]);
+      if(verbose && vertices[i].weights[1] > 0) extraw++;
       if(subv2 > 1)
         vertices[i].extra = in.readInt();
       if(subv2 > 2)
     	  in.readInt(); // another extra, ignore
     }
+    if(verbose) I.say("Loaded " + extraw + " extra weights");
     // f... the rest
   }
 
