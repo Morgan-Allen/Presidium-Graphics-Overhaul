@@ -118,8 +118,6 @@ public class MS3DModel extends SolidModel {
         if (verbose) I.say(""+mat.texture);
         tex.fileName = baseDir.child(mat.texture).path();
         this.setKeyFile(tex.fileName);
-        // + "/" +
-        // mat.texture;
         tex.id = mat.texture;
         tex.usage = ModelTexture.USAGE_DIFFUSE;
         m.textures = new Array <ModelTexture> ();
@@ -127,16 +125,12 @@ public class MS3DModel extends SolidModel {
       }
       data.materials.add(m);
     }
-
+    
     ModelMaterial mat = new ModelMaterial();
     mat.ambient = new Color(0.8f, 0.8f, 0.8f, 1f);
     mat.diffuse = new Color(0.8f, 0.8f, 0.8f, 1f);
     mat.id = "default";
     data.materials.add(mat);
-    /*
-    if (data.materials.size == 0) {
-    }
-    //*/
   }
   
   

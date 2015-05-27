@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 public abstract class SolidModel extends ModelAsset {
   
   
-  private static boolean verbose = false;
+  private static boolean verbose = true ;
   
   
   protected boolean compiled = false, disposed = false;
@@ -105,7 +105,7 @@ public abstract class SolidModel extends ModelAsset {
     for (NodePart p : node.parts) {
       partB.add(p);
       matsB.include(p.material);
-      if (verbose) I.say("  Part is: "+p.meshPart.id);
+      if (verbose) I.say("  Part is:     "+p.meshPart.id);
       if (verbose) I.say("  Material is: "+p.material.id);
     }
     for (Node n : node.children) compileFrom(n, nodeB, partB, matsB);

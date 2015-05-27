@@ -31,8 +31,8 @@ vec4 mixOverlays();
 
 
 void main() {
-	vec4 color = mixOverlays() * u_texColor;
-	
+  vec4 color = mixOverlays() * u_texColor;
+  
   vec3 lightVal = u_ambientLight.rgb;
   float dotVal = dot(-u_lightDirection, v_normal);
   
@@ -43,7 +43,7 @@ void main() {
   else lightVal += u_diffuseLight.rgb * dotVal;
   
   color.rgb *= lightVal;
-	
+  
   gl_FragColor = color;
   if (gl_FragColor.a <= 0.001) discard;
 }

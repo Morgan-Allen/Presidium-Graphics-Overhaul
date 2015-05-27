@@ -26,10 +26,10 @@ varying vec3 v_normal;
 
 
 void main() {
-	v_texCoords0 = a_texCoord0;
-	v_position = a_position;
-	
-	vec4 pos = vec4(v_position, 1.0);
+  v_texCoords0 = a_texCoord0;
+  v_position = a_position;
+  
+  vec4 pos = vec4(v_position, 1.0);
   mat4 transform = u_worldTrans;
   
   if (u_numBones > 0) {
@@ -39,10 +39,10 @@ void main() {
     boneTrans += (a_boneWeight2.y) * u_bones[int(a_boneWeight2.x)];
     transform = transform * boneTrans;
   }
-	
+  
   v_normal = normalize((transform * vec4(a_normal, 0.0)).xyz);
-	pos = transform * pos;
-	gl_Position = u_camera * pos;
+  pos = transform * pos;
+  gl_Position = u_camera * pos;
 }
 
 

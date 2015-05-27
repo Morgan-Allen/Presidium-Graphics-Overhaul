@@ -25,6 +25,9 @@ public class SkinsPreview extends VisualDebug {
     PlayLoop.setupAndLoop(new SkinsPreview(), "stratos.graphics");
   }
   
+  private static boolean
+    verbose = true;
+  
   final static Colour BACK_COLOUR = Colour.DARK_BLUE;
   final static PlaneFX.Model CENTRE_MARK_MODEL = new PlaneFX.Model(
     "centre_mark_model", SkinsPreview.class,
@@ -154,7 +157,6 @@ public class SkinsPreview extends VisualDebug {
     for (String part : parts) {
       final boolean isBase = part.equals(basePartName);
       
-      
       if (isBase && base != null && costume != null) {
         solid.setOverlaySkins(part, base, costume);
       }
@@ -197,9 +199,11 @@ public class SkinsPreview extends VisualDebug {
   
   
   private void updateModel() {
+    boolean report = verbose && PlayLoop.isFrameIncrement(60);
     //
     //  First of all, see if a valid file has been specified with this path-
     final File match = new File(currentPath);
+    if (report) I.say("\nCurrent file path: "+currentPath);
     if (currentPath.equals(lastValidPath) || ! match.exists()) return;
     
     if (currentPath.endsWith(".ms3d")) {
@@ -242,16 +246,6 @@ public class SkinsPreview extends VisualDebug {
       }
     }
     //
-    //  If parts-hiding hasn't been set up already, then by default we hide
-    //  anything except the base-group.
-    final String parts[] = currentModel.partNames();
-    if (partsHide == null && basePartName != null) {
-      partsHide = new boolean[parts.length];
-      if (showAsHuman) for (int i = parts.length; i-- > 0;) {
-        partsHide[i] = ! parts[i].equals(basePartName);
-      }
-    }
-    //
     //  List the various model-view options-
     t.append("\n\n");
     for (final String option : OPTION_NAMES) {
@@ -281,6 +275,16 @@ public class SkinsPreview extends VisualDebug {
       }
     }
     else if (optionType == OPTION_COSTS) {
+      //
+      //  If parts-hiding hasn't been set up already, then by default we hide
+      //  anything except the base-group.
+      final String parts[] = currentModel.partNames();
+      if (partsHide == null && basePartName != null) {
+        partsHide = new boolean[parts.length];
+        if (showAsHuman) for (int i = parts.length; i-- > 0;) {
+          partsHide[i] = ! parts[i].equals(basePartName);
+        }
+      }
       t.append("\n\nModel parts:");
       //
       //  Display toggles for parts shown/hidden:

@@ -2,8 +2,8 @@
 
 <settings
   defaultPath ="media/Actors/tests/"
-  defaultFile ="test.xml"
-  showAsHuman ="true"
+  defaultFile ="single_weights_test.ms3d"
+  showAsHuman ="false"
 />
 
 
