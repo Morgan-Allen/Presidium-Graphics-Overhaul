@@ -185,15 +185,20 @@ public class MS3DModel extends SolidModel {
           verts[p * n + 7] = tri.v[j];
           
           // there are actually 4 bone weights, but we use only 3
-          
+
           verts[p * n + 8] = vert.boneid;
-          verts[p * n + 9] = vert.weights[0] / 100f;
-          
-          verts[p * n + 10] = vert.boneIds[0];
-          verts[p * n + 11] = vert.weights[1] / 100f;
-          
-          verts[p * n + 12] = vert.boneIds[1];
-          verts[p * n + 13] = vert.weights[2] / 100f;
+          if(vert.boneIds == null || vert.boneIds[0] == -1) {
+            verts[p * n + 9] = 1f;
+          }
+          else {
+            verts[p * n + 9] = vert.weights[0] / 100f;
+            
+            verts[p * n + 10] = vert.boneIds[0];
+            verts[p * n + 11] = vert.weights[1] / 100f;
+            
+            verts[p * n + 12] = vert.boneIds[1];
+            verts[p * n + 13] = vert.weights[2] / 100f;
+          }            
           
           tri.indices[j] = (short) p;
           p++;
