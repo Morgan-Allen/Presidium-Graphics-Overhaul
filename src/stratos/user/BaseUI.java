@@ -375,9 +375,9 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  //  TODO:  get rid of this once render-to-texture is working...
-  public void beginPanelFade() {
-    capturePanel = true;
+  public SelectionPane currentSelectionPane() {
+    if (newInfo instanceof SelectionPane) return (SelectionPane) newInfo;
+    return null;
   }
   
   
@@ -394,6 +394,12 @@ public class BaseUI extends HUD implements UIConstants {
     final BaseUI UI = BaseUI.current();
     if (UI == null || UI.currentMessage() == null) return false;
     return UI.currentMessage().focus == subject;
+  }
+  
+  
+  //  TODO:  get rid of this once render-to-texture is working...
+  public void beginPanelFade() {
+    capturePanel = true;
   }
 }
 

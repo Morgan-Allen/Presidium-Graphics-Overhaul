@@ -40,18 +40,7 @@ public class DebugTutorial extends TutorialScenario {
   
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = false;
-    
     super.configureScenario(world, base, UI);
-    UI.selection.pushSelection(base.ruler());
-    
-    I.say("\nLISTING BASE RELATIONS:");
-    for (Base b : world().bases()) {
-      I.say("  Relations for "+b+" with...");
-      for (Base o : world().bases()) if (o != b) {
-        I.say("    "+o+": "+b.relations.relationWith(o));
-      }
-    }
   }
   
   

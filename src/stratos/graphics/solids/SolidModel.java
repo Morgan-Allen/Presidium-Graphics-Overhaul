@@ -19,8 +19,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 public abstract class SolidModel extends ModelAsset {
   
   
-  private static boolean verbose = true ;
-  
+  private static boolean verbose = false;
   
   protected boolean compiled = false, disposed = false;
   protected Model gdxModel;

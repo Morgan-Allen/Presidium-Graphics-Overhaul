@@ -47,7 +47,6 @@ public class TutorialScenario extends StartupScenario {
   private MissionSecurity secureSent   = null;
   private Venue           ruinsTarget  = null;
   private Batch <Drone>   dronesAttack = new Batch();
-  //private Drone           droneAttacks = null;
   
   
   public TutorialScenario(String prefix) {
@@ -604,7 +603,7 @@ public class TutorialScenario extends StartupScenario {
     else if (! ScreenPing.checkCategoryActive(blueprint.category)) {
       ScreenPing.addPingFor(blueprint.category);
     }
-    else {
+    else if (! PlacingTask.isBeingPlaced(blueprint)) {
       ScreenPing.addPingFor(blueprint.keyID);
     }
   }
