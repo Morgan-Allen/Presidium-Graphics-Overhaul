@@ -3,13 +3,17 @@
 package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.util.*;
+import stratos.user.*;
+import stratos.user.notify.*;
+import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 
 
 //
 //  Upgrades tend to either expand employment, give a bonus to production
 //  of a particular item type, or enhance a particular kind of service.
 
-public class Upgrade extends Index.Entry {
+public class Upgrade extends Constant {
   
   
   final static Index <Upgrade> INDEX = new Index <Upgrade> ();
@@ -32,11 +36,12 @@ public class Upgrade extends Index.Entry {
   
   final public Type type;
   final public int buildCost;
-  final public Upgrade required[];
   final public int maxLevel;
   
+  final public Upgrade required[];
   final public Object refers;
   final public int bonus;
+  private Batch <Upgrade> leadsTo = new Batch <Upgrade> ();
   
   
   public Upgrade(
@@ -45,7 +50,8 @@ public class Upgrade extends Index.Entry {
     Object refers, int bonus,
     Object required, Class origin
   ) {
-    super(INDEX, name+"_"+origin.getSimpleName());
+    super(INDEX, name+"_"+origin.getSimpleName(), name);
+    
     this.baseName    = name;
     this.description = desc;
     this.type        = Type.TECH_MODULE;
@@ -66,6 +72,7 @@ public class Upgrade extends Index.Entry {
       );
       this.required = new Upgrade[0];
     }
+    for (Upgrade u : this.required) u.leadsTo.add(this);
     
     Batch <Upgrade> VU = byVenue.get(origin);
     if (VU == null) byVenue.put(origin, VU = new Batch());
@@ -89,6 +96,9 @@ public class Upgrade extends Index.Entry {
   }
   
   
+  
+  /**  Rendering and interface methods-
+    */
   public String nameAt(Structure.Basis b, int index, Upgrade queued[]) {
     //  TODO:  THIS IS AN UGLY HACK SOLUTION WHICH YOU SHOULD REPLACE ASAP.
     int level = -1;
@@ -104,10 +114,28 @@ public class Upgrade extends Index.Entry {
   }
   
   
-  public String toString() {
-    return baseName;
+  public void describeHelp(Description d, Selectable prior) {
+    d.append("\n");
+    substituteReferences(description, d);
+    
+    for (Upgrade u : required) {
+      d.append("\n  Requires: ");
+      d.append(u);
+    }
+    for (Upgrade u : leadsTo) {
+      d.append("\n  Leads to: ");
+      d.append(u);
+    }
+    
+    if (prior instanceof Venue) {
+      final String error = ((Venue) prior).structure().upgradeError(this);
+      if (error != null) d.append("\n\n"+error);
+    }
   }
 }
+
+
+
 
 
 

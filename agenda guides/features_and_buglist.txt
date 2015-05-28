@@ -3,8 +3,12 @@
 
 BETTER UI INFO/HELP SYSTEM
 
+
 *  Build in a hyperlink help system for upgrades, good-types, venue-types and
    backgrounds.
+
+*  Estimate output for excavation sites and former plants.
+
 *  Consider adding a step for extra hires/upgrades before the second round of
    attacks?  You will need that for the stock exchange anyway.
 *  In fact, just use the stock exchange, and install some upgrades there.  It's
@@ -21,6 +25,10 @@ BETTER UI INFO/HELP SYSTEM
    that for each world.  Then finance can stay on it's own.  (Add little
    portraits for each world in the partners-listing too.  Use current art!)
 
+*  If a mission is selected and then completes while looking at a different
+   panel, the selection-circle can persist.  (That might need a change to the
+   selection-system?)
+
 
 CLEANING UP THE ECONOMY:
 
@@ -35,8 +43,6 @@ CLEANING UP THE ECONOMY:
 *  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
    the excavation site, former plant, kommando lodge & eco station- take up
    big plots.
-   
-*  Estimate output for excavation sites and former plants.
 
 *  List total earnings for specific buildings.  Breakdown expenses more finely.
    Restore shortage listing for homelessness.
@@ -134,6 +140,8 @@ CITIZEN BEHAVIOUR-
    also possible for long-range pathing to go kaput when it requires going
    through structures that don't permit it, like shield walls for animals.)
 
+*  Vehicles need to be salvaged along with their parent structures.
+
 
 CONTROL AND DIRECTION-
 
@@ -203,6 +211,9 @@ ART, GRAPHICS AND MEDIA PRODUCTION
 
 *  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
    that.
+
+*  Ensure that .ms3d models loaded without skins show a default material.  (At
+   the moment they don't.)
 
 *  Attempt using blender again.
    http://waldobronchart.github.io/ShortcutMapper/#Blender

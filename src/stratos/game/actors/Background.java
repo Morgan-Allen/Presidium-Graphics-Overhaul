@@ -9,6 +9,7 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
@@ -21,7 +22,7 @@ Trooper        Logician
 Ecologist      Tek Priest/ess
 Runner         Navigator
 Pseer          Jil Baru
-               Glaive Archon
+               Knight FUSR
 Jovian         Collective
 Changeling     
 Krech          Kommando
@@ -38,8 +39,9 @@ Engineer       Dreg
 
 
 
-public class Background extends Index.Entry implements Session.Saveable {
-  
+public class Background extends Index.Entry implements
+  Session.Saveable, Text.Clickable
+{
   
   final public static Index <Background> INDEX = new Index <Background> ();
   
@@ -191,6 +193,15 @@ public class Background extends Index.Entry implements Session.Saveable {
   
   public ImageAsset portraitFor(Actor actor) {
     return portrait;
+  }
+  
+  
+  public String fullName() {
+    return null;
+  }
+  
+  
+  public void whenClicked() {
   }
 }
 

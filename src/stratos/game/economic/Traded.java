@@ -2,11 +2,12 @@
 
 
 package stratos.game.economic;
-import static stratos.game.economic.Economy.FORM_MATERIAL;
-import static stratos.game.economic.Economy.FORM_PROVISION;
 import stratos.game.common.*;
-import stratos.graphics.common.ImageAsset;
+import static stratos.game.economic.Economy.*;
+import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.user.Selectable;
+import stratos.user.notify.*;
 import stratos.util.*;
 
 
@@ -14,7 +15,7 @@ import stratos.util.*;
 /**  Used to represent the types of goods and services that venues can provide
   *  or produce.
   */
-public class Traded extends Index.Entry implements Session.Saveable {
+public class Traded extends Constant implements Session.Saveable {
   
   
   final static String
@@ -61,7 +62,7 @@ public class Traded extends Index.Entry implements Session.Saveable {
     int form, int basePrice,
     String description
   ) {
-    super(INDEX, name);
+    super(INDEX, name, name);
     
     this.form = form;
     this.name = name;
@@ -110,9 +111,11 @@ public class Traded extends Index.Entry implements Session.Saveable {
     return materials;
   }
   
+  
   public float basePrice() {
     return basePrice;
   }
+  
   
   public boolean common() {
     return form == FORM_MATERIAL || form == FORM_PROVISION;
@@ -120,7 +123,11 @@ public class Traded extends Index.Entry implements Session.Saveable {
   
   
   
-  public String toString() { return name; }
+  /**  Rendering and interface methods-
+    */
+  protected void describeHelp(Description d, Selectable prior) {
+    d.append(description);
+  }
 }
 
 

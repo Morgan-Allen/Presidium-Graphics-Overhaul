@@ -51,7 +51,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
   
   
   final protected BaseUI UI;
-  final protected Selectable selected;
+  final public Selectable selected;
   private SelectionPane previous;
   
   final Bordering border;

@@ -24,8 +24,7 @@ public class VenuePane extends SelectionPane {
     CAT_STAFFING = "STAFFING",
     DEFAULT_CATS[] = { CAT_UPGRADES, CAT_STOCK, CAT_STAFFING };
   
-  final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
-  //private Upgrade lastCU = null;
+  final public Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private Actor dismissing = null;
  
   
@@ -376,19 +375,7 @@ public class VenuePane extends SelectionPane {
       else d.append(desc, grey);
       
       d.append("  ");
-      d.append(new Description.Link("INFO") {
-        public void whenClicked() {
-          final SelectionPane help = new SelectionPane(UI, venuePane, null) {
-            protected void updateText(
-              BaseUI UI, Text headerText, Text detailText, Text listingText
-            ) {
-              super.updateText(UI, headerText, detailText, listingText);
-              configUpgradeHelp(this, detailText, upgrade);
-            }
-          };
-          UI.setInfoPane(help);
-        }
-      });
+      d.append("INFO", upgrade);
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();
@@ -404,22 +391,6 @@ public class VenuePane extends SelectionPane {
       else d.append(
         "\nUpgrades are currently being installed.", Colour.LITE_GREY
       );
-    }
-  }
-  
-  
-  //  TODO:  Move this to the Upgrade class...
-  private void configUpgradeHelp(
-    SelectionPane help, Description d, Upgrade upgrade
-  ) {
-    d.append("\n");
-    d.append(upgrade.description, Colour.LITE_GREY);
-    for (Upgrade u : upgrade.required) {
-      d.append("\n  Requires: "+u.baseName);
-    }
-    if (! v.structure.upgradePossible(upgrade)) {
-      d.append("\n\n");
-      d.append(v.structure.upgradeError(upgrade));
     }
   }
   
