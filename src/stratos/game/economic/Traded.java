@@ -128,7 +128,7 @@ public class Traded extends Constant implements Session.Saveable {
   
   /**  Rendering and interface methods-
     */
-  protected void describeHelp(Description d, Selectable prior) {
+  public void describeHelp(Description d, Selectable prior) {
     d.append(description);
     final Base base = BaseUI.currentPlayed();
     if (base == null) return;

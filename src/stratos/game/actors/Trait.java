@@ -143,7 +143,8 @@ public class Trait extends Constant implements Qualities {
   }
   
   
-  protected void describeHelp(Description d, Selectable prior) {
+  public void describeHelp(Description d, Selectable prior) {
+    d.append(description);
   }
 }
 

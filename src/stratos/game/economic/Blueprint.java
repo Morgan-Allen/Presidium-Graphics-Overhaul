@@ -249,7 +249,7 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   /**  Interface and debugging-
     */
-  protected void describeHelp(Description d, Selectable prior) {
+  public void describeHelp(Description d, Selectable prior) {
     final Base base = BaseUI.currentPlayed();
     
     if (icon != null) {
@@ -306,7 +306,6 @@ public class Blueprint extends Constant implements Session.Saveable {
       d.append(u);
     }
     
-    
     if (! isGrouped()) {
       final Batch <Venue> built = base.listInstalled(this, false);
       d.append("\n\nCurrently Built:");
@@ -316,8 +315,6 @@ public class Blueprint extends Constant implements Session.Saveable {
       }
       else d.append(" None");
     }
-
-    //  TODO:  Include backgrounds too?  (Or is that covered under upgrades?)
   }
 }
 

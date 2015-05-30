@@ -191,8 +191,7 @@ public class Background extends Constant {
   }
   
   
-  protected void describeHelp(Description d, Selectable prior) {
-    
+  public void describeHelp(Description d, Selectable prior) {
     substituteReferences(info, d);
     
     d.append("\n");

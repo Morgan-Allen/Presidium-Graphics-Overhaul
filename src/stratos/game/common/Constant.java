@@ -25,7 +25,7 @@ public abstract class Constant extends Index.Entry implements
   }
   
   
-  protected abstract void describeHelp(Description d, Selectable prior);
+  public abstract void describeHelp(Description d, Selectable prior);
   
   
 

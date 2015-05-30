@@ -77,9 +77,9 @@ public class EngineerStation extends Venue {
     MOLDING_PRESS = null,  //  TODO:  INCLUDE THIS
     TECHNICIAN_STATION = new Upgrade(
       "Technician Station",
-      Backgrounds.TECHNICIAN.info,
+      TECHNICIAN.info,
       50,
-      Upgrade.TWO_LEVELS, Backgrounds.TECHNICIAN, 1,
+      Upgrade.TWO_LEVELS, TECHNICIAN, 1,
       null, BLUEPRINT
     ),
     ALLOY_COMPOSITES = new Upgrade(
@@ -101,9 +101,9 @@ public class EngineerStation extends Venue {
     T_NULL_ARMBAND = null, //  TODO:  INCLUDE THIS
     ARTIFICER_STATION = new Upgrade(
       "Artificer Station",
-      Backgrounds.ARTIFICER.info,
+      ARTIFICER.info,
       150,
-      Upgrade.SINGLE_LEVEL, Backgrounds.ARTIFICER, 1,
+      Upgrade.SINGLE_LEVEL, ARTIFICER, 1,
       TECHNICIAN_STATION, BLUEPRINT
     ),
     MICRO_ASSEMBLY = new Upgrade(

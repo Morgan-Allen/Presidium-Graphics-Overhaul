@@ -187,8 +187,8 @@ public class SelectionPane extends UIGroup implements UIConstants {
         baseUI.setInfoPane(pane.previous);
       }
     };
-    backButton.alignTop  ( 3, 18);
-    backButton.alignRight(32, 48);
+    backButton.alignTop  ( 0, 24);
+    backButton.alignRight(28, 48);
     backButton.attachTo(this);
     
     this.closeButton = new Button(

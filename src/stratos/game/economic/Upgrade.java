@@ -2,6 +2,7 @@
 
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.game.actors.*;
 import stratos.util.*;
 import stratos.user.*;
 import stratos.user.notify.*;
@@ -125,23 +126,25 @@ public class Upgrade extends Constant {
   
   
   public void describeHelp(Description d, Selectable prior) {
-    d.append("\n");
-    substituteReferences(description, d);
-    d.append("\n");
-    
-    if (origin != null) {
-      d.append("\n  Installed at: ");
-      d.append(origin);
+    if (refers instanceof Background) {
+      ((Background) refers).describeHelp(d, prior);
+      d.append("\n");
+    }
+    else {
+      d.append("\n");
+      substituteReferences(description, d);
+      d.append("\n");
+      
+      if (origin != null) {
+        d.append("\n  Installed at: ");
+        d.append(origin);
+      }
     }
     
-    for (Upgrade u : required) {
-      d.append("\n  Requires: ");
-      d.append(u);
-    }
-    for (Upgrade u : leadsTo) {
-      d.append("\n  Leads to: ");
-      d.append(u);
-    }
+    if (required.length > 0) d.append("\nRequires:");
+    for (Upgrade u : required) { d.append("\n  "); d.append(u); }
+    if (leadsTo.size() > 0) d.append("\nLeads to:");
+    for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
     
     if (prior instanceof Venue) {
       final String error = ((Venue) prior).structure().upgradeError(this);
