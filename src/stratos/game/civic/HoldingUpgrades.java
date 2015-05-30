@@ -97,32 +97,6 @@ public class HoldingUpgrades {
   
   /**  Building materials/furnishings-
     */
-  final static Conversion MATERIALS[] = {
-    new Conversion(
-      Holding.class, "Level 1",
-      TRIVIAL_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 2",
-      1, PLASTICS,
-      SIMPLE_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 3",
-      2, PLASTICS, 1, PARTS, 1, POWER,
-      ROUTINE_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 4",
-      2, PLASTICS, 2, PARTS, 1, POWER, 1, MEDICINE,
-      MODERATE_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 5",
-      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
-      DIFFICULT_DC, ASSEMBLY
-    ),
-  };
   
   
   private static boolean checks(int targetLevel, int upgradeLevel) {
@@ -146,7 +120,7 @@ public class HoldingUpgrades {
   
   
   public static Conversion materials(int upgradeLevel) {
-    return MATERIALS[Nums.clamp(upgradeLevel, NUM_LEVELS)];
+    return Holding.MATERIALS[Nums.clamp(upgradeLevel, NUM_LEVELS)];
   }
   
   

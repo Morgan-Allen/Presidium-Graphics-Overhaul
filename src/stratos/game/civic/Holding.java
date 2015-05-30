@@ -13,6 +13,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.civic.HoldingUpgrades.*;
 
@@ -74,23 +75,49 @@ public class Holding extends Venue {
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
   
+  final public static Blueprint BLUEPRINT = new Blueprint(
+    Holding.class, "housing",
+    "Housing", UIConstants.TYPE_PHYSICIAN, ICONS[0],
+    "Housing provides comfort, sanitation and other domestic benefits to "+
+    "your subjects.",
+    3, 2, Structure.IS_NORMAL,
+    Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
+    INTEGRITIES[0], 5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES
+  );
+  
   final static Conversion
     PROVIDE_HOUSING = new Conversion(
-      Holding.class, "provide_housing",
+      BLUEPRINT, "provide_housing",
       TO, 4, SERVICE_HOUSING
     )
   ;
   
-  final public static Blueprint BLUEPRINT = new Blueprint(
-    Holding.class, "holding",
-    "Seal Tent", UIConstants.TYPE_PHYSICIAN, ICONS[0],
-    "Holdings provide comfort, sanitation and other domestic benefits to "+
-    "your subjects.",
-    3, 2, Structure.IS_NORMAL,
-    Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
-    INTEGRITIES[0], 5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES,
-    PROVIDE_HOUSING
-  );
+  final static Conversion MATERIALS[] = {
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_1",
+      TRIVIAL_DC, ASSEMBLY
+    ).attachName("Level 1"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_2",
+      1, PLASTICS,
+      SIMPLE_DC, ASSEMBLY
+    ).attachName("Level 2"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_3",
+      2, PLASTICS, 1, PARTS, 1, POWER,
+      ROUTINE_DC, ASSEMBLY
+    ).attachName("Level 3"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_4",
+      2, PLASTICS, 2, PARTS, 1, POWER, 1, MEDICINE,
+      MODERATE_DC, ASSEMBLY
+    ).attachName("Level 4"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_5",
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
+      DIFFICULT_DC, ASSEMBLY
+    ).attachName("Level 5"),
+  };
   
   
   private int upgradeLevel, targetLevel, varID;

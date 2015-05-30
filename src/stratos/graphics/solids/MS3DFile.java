@@ -3,7 +3,6 @@
 package stratos.graphics.solids;
 import java.io.*;
 import java.util.*;
-
 import stratos.util.*;
 
 import com.badlogic.gdx.math.*;
@@ -12,7 +11,7 @@ import com.badlogic.gdx.math.*;
 
 public class MS3DFile {
   
-  private static boolean verbose = true;
+  private static boolean verbose = false;
   
   public static final int MAX_VERTICES = 65535;
   public static final int MAX_TRIANGLES = 65535;

@@ -352,7 +352,7 @@ public class Combat extends Plan implements Qualities {
       showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
     //  TODO:  Move weapon/armour properties to dedicated subclasses.
-    final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
+    final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN);
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
     final float bypass = Nums.clamp(0 - penalty, 0, 5);

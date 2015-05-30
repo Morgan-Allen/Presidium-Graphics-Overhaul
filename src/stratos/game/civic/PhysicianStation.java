@@ -10,7 +10,6 @@ import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -37,19 +36,6 @@ public class PhysicianStation extends Venue {
   final static float
     VISIT_COST = Backgrounds.MIN_DAILY_EXPENSE * 2;
   
-  final public static Conversion
-    REAGENTS_TO_MEDICINE = new Conversion(
-      PhysicianStation.class, "reagents_to_medicine",
-      1, REAGENTS, 1, GREENS, TO, 2, MEDICINE,
-      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
-    ),
-    REAGENTS_TO_SOMA = new Conversion(
-      CultureLab.class, "waste_to_soma",
-      1, REAGENTS, TO, 3, SOMA,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    )
-  ;
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     PhysicianStation.class, "physician_station",
     "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
@@ -57,8 +43,7 @@ public class PhysicianStation extends Venue {
     "treated quickly and effectively.",
     3, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
-    200, 2, 350, Structure.NORMAL_MAX_UPGRADES,
-    REAGENTS_TO_MEDICINE, REAGENTS_TO_SOMA
+    200, 2, 350, Structure.NORMAL_MAX_UPGRADES
   );
   
   
@@ -134,17 +119,29 @@ public class PhysicianStation extends Venue {
     
     MINDER_STATION = new Upgrade(
       "Minder Ward",
-      Backgrounds.MINDER.info,
+      MINDER.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
       MEDICAL_LAB, BLUEPRINT
     ),
     PHYSICIAN_STATION = new Upgrade(
       "Physician Ward",
-      Backgrounds.PHYSICIAN.info,
+      PHYSICIAN.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
       MINDER_STATION, BLUEPRINT
+    );
+  
+  final public static Conversion
+    REAGENTS_TO_MEDICINE = new Conversion(
+      BLUEPRINT, "reagents_to_medicine",
+      1, REAGENTS, 1, GREENS, TO, 2, MEDICINE,
+      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+    ),
+    REAGENTS_TO_SOMA = new Conversion(
+      BLUEPRINT, "waste_to_soma",
+      1, REAGENTS, TO, 3, SOMA,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     );
   
   
@@ -241,14 +238,14 @@ public class PhysicianStation extends Venue {
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.MINDER, Backgrounds.PHYSICIAN };
+    return new Background[] { MINDER, PHYSICIAN };
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.MINDER   ) return nO + 2;
-    if (v == Backgrounds.PHYSICIAN) return nO + 1;
+    if (v == MINDER   ) return nO + 2;
+    if (v == PHYSICIAN) return nO + 1;
     return 0;
   }
   

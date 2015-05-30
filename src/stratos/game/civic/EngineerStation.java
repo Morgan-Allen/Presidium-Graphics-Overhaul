@@ -31,19 +31,6 @@ public class EngineerStation extends Venue {
     EngineerStation.class, "media/Buildings/artificer/artificer.png", 4, 2
   );
   
-  final public static Conversion
-    METALS_TO_PARTS = new Conversion(
-      EngineerStation.class, "metals_to_parts",
-      1, METALS, TO, 2, PARTS,
-      MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
-    ),
-    PARTS_TO_CIRCUITRY = new Conversion(
-      Archives.class, "parts_to_circuitry",
-      1, PARTS, TO, 2, CIRCUITRY,
-      MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY
-    )
-  ;
-  
   final public static Blueprint BLUEPRINT = new Blueprint(
     EngineerStation.class, "engineer_station",
     "Engineer Station", UIConstants.TYPE_ENGINEER, ICON,
@@ -51,8 +38,7 @@ public class EngineerStation extends Venue {
     "armour for your citizens.",
     4, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
-    200, 5, 350, Structure.NORMAL_MAX_UPGRADES,
-    METALS_TO_PARTS, PARTS_TO_CIRCUITRY
+    200, 5, 350, Structure.NORMAL_MAX_UPGRADES
   );
   
   
@@ -128,7 +114,18 @@ public class EngineerStation extends Venue {
       Upgrade.THREE_LEVELS, PLASTICS, 1,
       new Upgrade[] { ASSEMBLY_LINE, ARTIFICER_STATION }, BLUEPRINT
     );
-  ;
+  
+  final public static Conversion
+    METALS_TO_PARTS = new Conversion(
+      BLUEPRINT, "metals_to_parts",
+      1, METALS, TO, 2, PARTS,
+      MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
+    ),
+    PARTS_TO_CIRCUITRY = new Conversion(
+      BLUEPRINT, "parts_to_circuitry",
+      1, PARTS, TO, 2, CIRCUITRY,
+      MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY
+    );
   
   
   public Traded[] services() {
@@ -176,8 +173,8 @@ public class EngineerStation extends Venue {
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
         Upgrade forType = MICRO_ASSEMBLY;
-        if (DT.hasProperty(KINETIC)) forType = ALLOY_COMPOSITES;
-        if (DT.hasProperty(ENERGY )) forType = PLASMA_WEAPONS;
+        if (DT.hasProperty(Devices.KINETIC)) forType = ALLOY_COMPOSITES;
+        if (DT.hasProperty(Devices.ENERGY )) forType = PLASMA_WEAPONS;
         mO.setBonusFrom(this, true, forType);
       }
       else if (made instanceof OutfitType) {
@@ -219,12 +216,11 @@ public class EngineerStation extends Venue {
     //         right upgrades.
     final DeviceType DT = client.gear.deviceType();
     final OutfitType OT = client.gear.outfitType();
-    final Class ownType = this.getClass();
     
-    if (DT != null && DT.materials().facility == ownType) {
+    if (DT != null && DT.materials().producesAt(this)) {
       Commission.addCommissions(client, this, choice, DT);
     }
-    if (OT != null && OT.materials().facility == ownType) {
+    if (OT != null && OT.materials().producesAt(this)) {
       Commission.addCommissions(client, this, choice, OT);
     }
     choice.add(BringUtils.nextHomePurchase(client, this));

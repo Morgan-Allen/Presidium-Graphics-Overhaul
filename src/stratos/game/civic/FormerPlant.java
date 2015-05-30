@@ -37,16 +37,6 @@ public class FormerPlant extends Venue implements TileConstants {
       FormerPlant.class, IMG_DIR+"former_plant.png", 3, 2
     );
   
-  final public static Conversion
-    FLORA_TO_POLYMER = new Conversion(
-      FormerPlant.class, "flora_to_polymer",
-      TO, 1, POLYMER
-    ),
-    CARBS_TO_POLYMER = new Conversion(
-      Nursery.class, "carbs_to_polymer",
-      1, CARBS, TO, 1, POLYMER
-    );
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     FormerPlant.class, "former_plant",
     "Former Plant", UIConstants.TYPE_ECOLOGIST, ICON,
@@ -57,9 +47,18 @@ public class FormerPlant extends Venue implements TileConstants {
     25,  //integrity
     5,  //armour
     75,  //build cost
-    Structure.SMALL_MAX_UPGRADES,
-    FLORA_TO_POLYMER//, CARBS_TO_POLYMER
+    Structure.SMALL_MAX_UPGRADES
   );
+  
+  final public static Conversion
+    FLORA_TO_POLYMER = new Conversion(
+      BLUEPRINT, "flora_to_polymer",
+      TO, 1, POLYMER
+    ),
+    CARBS_TO_POLYMER = new Conversion(
+      BLUEPRINT, "carbs_to_polymer",
+      1, CARBS, TO, 1, POLYMER
+    );
   
   final static float
     MIN_CLAIM_SIZE = 4;

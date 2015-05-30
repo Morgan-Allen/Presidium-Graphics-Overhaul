@@ -49,7 +49,7 @@ public class DeviceType extends Traded {
     Class baseClass, String name,
     String groupName, String animName,
     float baseDamage, int properties, int basePrice,
-    Class facility, Object... conversionArgs
+    Class <? extends Venue> facility, Object... conversionArgs
   ) {
     super(baseClass, Economy.FORM_DEVICE, name, basePrice, null);
     

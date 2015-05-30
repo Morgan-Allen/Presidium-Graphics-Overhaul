@@ -209,11 +209,11 @@ ART, GRAPHICS AND MEDIA PRODUCTION
 *  Ensure that .ms3d models loaded without skins show a default material.  (At
    the moment they don't.)
 
+*  .ms3d model loading is extremely slow for some reason.
+
 *  Attempt using blender again.
    http://waldobronchart.github.io/ShortcutMapper/#Blender
    Emulate numeric pad in User Preferences/Input and by checking Emulate Numpad
-
-
 
 
 

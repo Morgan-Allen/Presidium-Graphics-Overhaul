@@ -142,10 +142,6 @@ public class Traded extends Constant implements Session.Saveable {
       else if (b.consuming(this) != null) canUse .include(b);
     }
     
-    //if (canUse.size() > 0) {
-      //d.append("\n\nThis commodity is used at:");
-    //}
-    
     d.append("\n");
     for (Blueprint b : canUse) {
       final Conversion c = b.consuming(this);

@@ -40,16 +40,6 @@ public class ExcavationSite extends Venue implements TileConstants {
     EXTRA_CLAIM_RANGE = 4,
     DIG_FACE_REFRESH  = Stage.STANDARD_DAY_LENGTH / 10,
     SMELTER_REFRESH   = 10;
-
-  final public static Conversion
-    LAND_TO_METALS = new Conversion(
-      ExcavationSite.class, "land_to_metals",
-      TO, 1, METALS
-    ),
-    LAND_TO_ISOTOPES = new Conversion(
-      ExcavationSite.class, "land_to_isotopes",
-      TO, 1, FUEL_RODS
-    );
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ExcavationSite.class, "excavation_site",
@@ -58,9 +48,18 @@ public class ExcavationSite extends Venue implements TileConstants {
     "from surrounding terrain.",
     4, 1, Structure.IS_NORMAL,
     EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
-    200, 15, 350, Structure.NORMAL_MAX_UPGRADES,
-    LAND_TO_METALS, LAND_TO_ISOTOPES
+    200, 15, 350, Structure.NORMAL_MAX_UPGRADES
   );
+
+  final public static Conversion
+    LAND_TO_METALS = new Conversion(
+      BLUEPRINT, "land_to_metals",
+      TO, 1, METALS
+    ),
+    LAND_TO_ISOTOPES = new Conversion(
+      BLUEPRINT, "land_to_isotopes",
+      TO, 1, FUEL_RODS
+    );
   
   
   private static boolean verbose = false;

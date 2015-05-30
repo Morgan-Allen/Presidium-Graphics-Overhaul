@@ -55,23 +55,6 @@ public class Reactor extends Venue {
   };
   
   
-  final public static Conversion
-    METALS_TO_FUEL = new Conversion(
-      Reactor.class, "metals_to_fuel",
-      1, METALS, TO, 1, FUEL_RODS,
-      MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
-    ),
-    ISOTOPES_TO_ANTIMASS = new Conversion(
-      Reactor.class, "isotopes_to_antimass",
-      4, FUEL_RODS, TO, 1, ANTIMASS,
-      MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
-    ),
-    ISOTOPES_TO_POWER = new Conversion(
-      Reactor.class, "isotopes_to_power",
-      1, FUEL_RODS, TO, 25, POWER
-    )
-  ;
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     Reactor.class, "reactor",
     "Reactor", UIConstants.TYPE_ENGINEER, ICON,
@@ -79,9 +62,24 @@ public class Reactor extends Venue {
     "but can become an explosive liability.",
     4, 2, Structure.IS_NORMAL,
     EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
-    300, 10, 300, Structure.NORMAL_MAX_UPGRADES,
-    METALS_TO_FUEL, ISOTOPES_TO_ANTIMASS, ISOTOPES_TO_POWER
+    300, 10, 300, Structure.NORMAL_MAX_UPGRADES
   );
+  
+  final public static Conversion
+    METALS_TO_FUEL = new Conversion(
+      BLUEPRINT, "metals_to_fuel",
+      1, METALS, TO, 1, FUEL_RODS,
+      MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
+    ),
+    ISOTOPES_TO_ANTIMASS = new Conversion(
+      BLUEPRINT, "isotopes_to_antimass",
+      4, FUEL_RODS, TO, 1, ANTIMASS,
+      MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
+    ),
+    ISOTOPES_TO_POWER = new Conversion(
+      BLUEPRINT, "isotopes_to_power",
+      1, FUEL_RODS, TO, 25, POWER
+    );
   
   
   private float meltdown = 0.0f;
@@ -389,11 +387,9 @@ public class Reactor extends Venue {
   
   
   public String helpInfo() {
-    String help =
-      "The Reactor provides copious power along with "+ANTIMASS+" production, "+
-      "but can become an explosive liability.";
+    String help = BLUEPRINT.description;
     
-    if (inWorld()) {
+    if (inWorld() && structure.intact()) {
       if (! stocks.hasEnough(FUEL_RODS)) {
         help = "Power output will be limited without additional "+FUEL_RODS+".";
       }

@@ -35,32 +35,28 @@ public class Nursery extends Venue implements TileConstants {
       Nursery.class, IMG_DIR+"nursery.png", 2, 2
     );
   
-  final public static Conversion
-    LAND_TO_CARBS = new Conversion(
-      Nursery.class, "land_to_carbs",
-      TO, 1, CARBS
-    ),
-    LAND_TO_GREENS = new Conversion(
-      Nursery.class, "land_to_greens",
-      TO, 1, GREENS
-    );
-  
-  
-  final static String DEFAULT_INFO = 
-    "Nurseries secure a high-quality food source from plant crops, but need "+
-    "space, hard labour and fertile soils.";
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     Nursery.class, "nursery",
-    "Nursery", UIConstants.TYPE_ECOLOGIST, ICON, DEFAULT_INFO,
+    "Nursery", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Nurseries secure a high-quality food source from plant crops, but need "+
+    "space, hard labour and fertile soils.",
     2, 2, Structure.IS_ZONED,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     25,  //integrity
     5,  //armour
     75,  //build cost
-    Structure.NO_UPGRADES,
-    LAND_TO_CARBS, LAND_TO_GREENS
+    Structure.NO_UPGRADES
   );
+  
+  final public static Conversion
+    LAND_TO_CARBS = new Conversion(
+      BLUEPRINT, "land_to_carbs",
+      TO, 1, CARBS
+    ),
+    LAND_TO_GREENS = new Conversion(
+      BLUEPRINT, "land_to_greens",
+      TO, 1, GREENS
+    );
   
   
   private Box2D areaClaimed = new Box2D();
@@ -333,7 +329,7 @@ public class Nursery extends Venue implements TileConstants {
     else if (numPlant == 0                ) s.append(WAITING_ON_SEED_INFO);
     else if (health    < (numPlant * 0.5f)) s.append(POOR_HEALTH_INFO    );
     else if (growth    < (numPlant * 0.5f)) s.append(AWAITING_GROWTH_INFO);
-    else s.append(DEFAULT_INFO);
+    else s.append(BLUEPRINT.description);
     
     if (numCarbs  > 0) {
       s.append("\n  Estimated "+CARBS +" per day: "+I.shorten(numCarbs , 1));

@@ -33,12 +33,6 @@ public class KommandoLodge extends Venue {
   );
   
   final static int CLAIM_RADIUS = Stage.ZONE_SIZE / 2;
-
-  final public static Conversion
-    LAND_TO_PROTEIN = new Conversion(
-      KommandoLodge.class, "land_to_protein",
-      TO, 1, PROTEIN
-    );
   
   final static Blueprint BLUEPRINT = new Blueprint(
     KommandoLodge.class, "kommando_lodge",
@@ -47,8 +41,7 @@ public class KommandoLodge extends Venue {
     "sufficient Kommandos to harvest prey and intimidate foes.",
     5, 2, Structure.IS_NORMAL,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
-    150, 4, 550, Structure.NORMAL_MAX_UPGRADES,
-    LAND_TO_PROTEIN
+    150, 4, 550, Structure.NORMAL_MAX_UPGRADES
   );
   
   
@@ -171,6 +164,12 @@ public class KommandoLodge extends Venue {
       150,
       Upgrade.SINGLE_LEVEL, null, 1,
       null, BLUEPRINT
+    );
+  
+  final public static Conversion
+    LAND_TO_PROTEIN = new Conversion(
+      BLUEPRINT, "land_to_protein",
+      TO, 1, PROTEIN
     );
   
   

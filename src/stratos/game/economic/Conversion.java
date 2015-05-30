@@ -17,14 +17,41 @@ public class Conversion extends Index.Entry implements Session.Saveable {
     */
   final public static Index <Conversion> INDEX = new Index <Conversion> ();
   
-  final public Class <? extends Venue> facility;
   final public Item raw[], out;
   final public Skill skills[];
   final public float skillDCs[];
   
-
+  //
+  //  NOTE:  We have to use this indirect loading system to avoid certain types
+  //  of reference loop during class-initialisation, which can trigger a crash.
+  private Class facilityClass;
+  private Blueprint facility;
+  private String specialName;
+  
+  
   public Conversion(
-    Class <? extends Venue> facility,
+    Blueprint facility,
+    String customID,
+    Object... args
+  ) {
+    this(facility, null, customID, args);
+    if (facility == null) I.say("\nWARNING: NULL FACILITY FOR "+customID);
+  }
+  
+  
+  protected Conversion(
+    Class <? extends Venue> facilityClass,
+    String customID,
+    Object... args
+  ) {
+    this(null, facilityClass, customID, args);
+    if (facilityClass == null) I.say("\nWARNING: NULL FACILITY FOR "+customID);
+  }
+  
+  
+  private Conversion(
+    Blueprint facility,
+    Class <? extends Venue> facilityClass,
     String customID,
     Object... args
   ) {
@@ -68,8 +95,10 @@ public class Conversion extends Index.Entry implements Session.Saveable {
     skills = (Skill[]) skillB.toArray(Skill.class);
     skillDCs = Visit.fromFloats(skillN.toArray());
     //
-    //  And compute an ID for save/load purposes-
-    this.facility = facility;
+    //  And register with the parent facility (if possible)-
+    this.facility      = facility;
+    this.facilityClass = facilityClass;
+    if (facility != null) facility.addProduction(this);
   }
   
   
@@ -80,6 +109,24 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   
   public void saveState(Session s) throws Exception {
     INDEX.saveEntry(this, s.output());
+  }
+  
+  
+  public boolean producesAt(Venue venue) {
+    if (facility == venue.blueprint) return true;
+    if (facilityClass == venue.getClass()) return true;
+    return false;
+  }
+  
+  
+  public Conversion attachName(String name) {
+    this.specialName = name;
+    return this;
+  }
+  
+  
+  public String specialName() {
+    return specialName;
   }
   
   

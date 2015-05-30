@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.user.*;
@@ -15,8 +14,7 @@ import java.lang.reflect.*;
 
 
 /*
-  //  TODO:  Finish moving attributes in here.
-  
+  //  TODO:  Finish moving attributes in here...
   final public Traded materials[];
   final public Conversion services[];
   
@@ -25,7 +23,6 @@ import java.lang.reflect.*;
   
   //  TODO:  Allow reading from XML?  (Possibly model too...?)
 //*/
-
 
 public class Blueprint extends Constant implements Session.Saveable {
   
@@ -50,10 +47,9 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   final public Blueprint required[];
   final public int owningTier;
-  final public Conversion processed[];
   
-  final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
-  
+  private Batch <Conversion> producing = new Batch();
+  private Batch <Conversion> consuming = new Batch();
   private Batch <Blueprint> allows = new Batch <Blueprint> ();
   private Batch <Blueprint> denies = new Batch <Blueprint> ();
   
@@ -63,16 +59,14 @@ public class Blueprint extends Constant implements Session.Saveable {
     String name, String category, ImageAsset icon, String description,
     int size, int high, int properties,
     Blueprint required, int owningTier,
-    int integrity, int armour, int buildCost, int maxUpgrades,
-    Conversion... processed
+    int integrity, int armour, int buildCost, int maxUpgrades
   ) {
     this(
       baseClass, key,
       name, category, icon, description,
       size, high,
       properties, required == null ? null : new Blueprint[] { required },
-      owningTier, integrity, armour, buildCost, maxUpgrades,
-      processed
+      owningTier, integrity, armour, buildCost, maxUpgrades
     );
   }
   
@@ -82,8 +76,7 @@ public class Blueprint extends Constant implements Session.Saveable {
     String name, String category, ImageAsset icon, String description,
     int size, int high, int properties,
     Blueprint required[], int owningTier,
-    int integrity, int armour, int buildCost, int maxUpgrades,
-    Conversion... processed
+    int integrity, int armour, int buildCost, int maxUpgrades
   ) {
     super(INDEX, key, name);
     this.baseClass = baseClass;
@@ -105,7 +98,6 @@ public class Blueprint extends Constant implements Session.Saveable {
     
     this.required   = required == null ? Venue.NO_REQUIREMENTS : required;
     this.owningTier = owningTier;
-    this.processed  = processed ;
     
     for (Blueprint p : required) p.allows.include(this);
   }
@@ -164,17 +156,36 @@ public class Blueprint extends Constant implements Session.Saveable {
   }
   
   
+  
+  /**  Conversion queries and registration-
+    */
   public Conversion producing(Object t) {
-    for (Conversion c : processed) if (c.out.type == t) return c;
+    for (Conversion c : producing) {
+      if (c.out != null && c.out.type == t) return c;
+    }
     return null;
   }
   
   
   public Conversion consuming(Object t) {
-    for (Conversion c : processed) {
+    for (Conversion c : producing) {
+      for (Item i : c.raw) if (i.type == t) return c;
+    }
+    for (Conversion c : consuming) {
       for (Item i : c.raw) if (i.type == t) return c;
     }
     return null;
+  }
+  
+  
+  public Series <Conversion> production() {
+    return producing;
+  }
+  
+  
+  public void addProduction(Conversion p) {
+    if (p.out != null) producing.include(p);
+    else if (p.raw.length > 0) consuming.include(p);
   }
   
   
@@ -236,11 +247,6 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   
   
-  /**  External utility methods-
-    */
-  
-  
-  
   /**  Interface and debugging-
     */
   protected void describeHelp(Description d, Selectable prior) {
@@ -268,9 +274,21 @@ public class Blueprint extends Constant implements Session.Saveable {
       d.append(all);
     }
     
-    if (processed.length > 0) d.append("\n\nAllows Production:");
-    for (Conversion c : processed) {
+    if (consuming.size() > 0) d.append("\n\nConsumption:");
+    for (Conversion c : consuming) {
       d.append("\n  ");
+      final String name = c.specialName();
+      if (name != null) d.append(name+" ");
+      d.append("Needs ");
+      for (Item i : c.raw) { d.append(i.type); d.append(" "); }
+    }
+    
+    if (producing.size() > 0) d.append("\n\nProduction:");
+    for (Conversion c : producing) {
+      d.append("\n  ");
+      final String name = c.specialName();
+      if (name != null) d.append(name+" ");
+      
       if (c.raw.length > 0) {
         for (Item i : c.raw) { d.append(i.type); d.append(" "); }
         d.append("to ");

@@ -88,7 +88,7 @@ public class Foraging extends Plan {
       if (! sourceValid()) return 0;
     }
     
-    float modifier = NONE;
+    float modifier = NO_PRIORITY;
     if (hunger > 0.5f && useHunger) {
       modifier += PARAMOUNT * (hunger - 0.5f) * 2;
     }

@@ -40,14 +40,6 @@ public class Archives extends Venue {
   //  TODO:  Decide on an appropriate set of upgrades here.
   
   
-  final public static Conversion
-    CIRCUITRY_TO_DATALINKS = new Conversion(
-      Archives.class, "circuitry_to_datalinks",
-      1, CIRCUITRY, TO, 2, DATALINKS,
-      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
-    )
-  ;
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives",
     "Archives", UIConstants.TYPE_PHYSICIAN, ICON,
@@ -55,9 +47,15 @@ public class Archives extends Venue {
     "administration by base personnel.",
     4, 2, Structure.IS_NORMAL,
     PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY,
-    250, 3, 350, Structure.NORMAL_MAX_UPGRADES,
-    CIRCUITRY_TO_DATALINKS
+    250, 3, 350, Structure.NORMAL_MAX_UPGRADES
   );
+  
+  final public static Conversion
+    CIRCUITRY_TO_DATALINKS = new Conversion(
+      BLUEPRINT, "circuitry_to_datalinks",
+      1, CIRCUITRY, TO, 2, DATALINKS,
+      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
+    );
   
   
   public Archives(Base base) {

@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -12,7 +10,6 @@ import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -22,7 +19,6 @@ import static stratos.game.economic.Economy.*;
 
 
 public class CultureLab extends Venue {
-
   
   
   /**  Fields, constructors, and save/load methods-
@@ -35,28 +31,6 @@ public class CultureLab extends Venue {
   );
   
   
-  final public static Conversion
-    WASTE_TO_CARBS = new Conversion(
-      CultureLab.class, "waste_to_carbs",
-      TO, 1, CARBS,
-      SIMPLE_DC, CHEMISTRY
-    ),
-    WASTE_TO_REAGENTS = new Conversion(
-      CultureLab.class, "waste_to_reagents",
-      TO, 1, REAGENTS,
-      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
-    ),
-    CARBS_TO_PROTEIN = new Conversion(
-      CultureLab.class, "carbs_to_protein",
-      2, CARBS, TO, 1, PROTEIN,
-      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
-    ),
-    PROTEIN_TO_REPLICANTS = new Conversion(
-      CultureLab.class, "protein_to_replicants",
-      5, PROTEIN, TO, 1, REPLICANTS,
-      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    );
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     CultureLab.class, "culture_lab",
     "Culture Lab", UIConstants.TYPE_PHYSICIAN, ICON,
@@ -65,10 +39,30 @@ public class CultureLab extends Venue {
     4, 2, Structure.IS_NORMAL,
     new Blueprint[] { EngineerStation.BLUEPRINT, PhysicianStation.BLUEPRINT },
     Owner.TIER_FACILITY,
-    400, 3, 450, Structure.NORMAL_MAX_UPGRADES,
-    WASTE_TO_CARBS, WASTE_TO_REAGENTS,
-    CARBS_TO_PROTEIN, PROTEIN_TO_REPLICANTS
+    400, 3, 450, Structure.NORMAL_MAX_UPGRADES
   );
+  
+  final public static Conversion
+    WASTE_TO_CARBS = new Conversion(
+      BLUEPRINT, "waste_to_carbs",
+      TO, 1, CARBS,
+      SIMPLE_DC, CHEMISTRY
+    ),
+    WASTE_TO_REAGENTS = new Conversion(
+      BLUEPRINT, "waste_to_reagents",
+      TO, 1, REAGENTS,
+      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
+    ),
+    CARBS_TO_PROTEIN = new Conversion(
+      BLUEPRINT, "carbs_to_protein",
+      2, CARBS, TO, 1, PROTEIN,
+      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
+    ),
+    PROTEIN_TO_REPLICANTS = new Conversion(
+      BLUEPRINT, "protein_to_replicants",
+      5, PROTEIN, TO, 1, REPLICANTS,
+      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
+    );
   
   
   public CultureLab(Base base) {

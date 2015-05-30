@@ -35,17 +35,6 @@ public class SolarBank extends Venue {
     SolarBank.class, "media/GUI/Buttons/solar_array_button.gif"
   );
   
-  final static Conversion
-    LAND_TO_POWER = new Conversion(
-      SolarBank.class, "land_to_power",
-      TO, 2, POWER
-    ),
-    LAND_TO_WATER = new Conversion(
-      SolarBank.class, "land_to_water",
-      TO, 1, WATER
-    );
-  
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     SolarBank.class, "solar_bank",
     "Solar Bank", UIConstants.TYPE_ECOLOGIST, ICON,
@@ -53,9 +42,18 @@ public class SolarBank extends Venue {
     "settlement.",
     2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
-    10, 5, 40, Structure.NO_UPGRADES,
-    LAND_TO_POWER, LAND_TO_WATER
+    10, 5, 40, Structure.NO_UPGRADES
   );
+  
+  final static Conversion
+    LAND_TO_POWER = new Conversion(
+      BLUEPRINT, "land_to_power",
+      TO, 2, POWER
+    ),
+    LAND_TO_WATER = new Conversion(
+      BLUEPRINT, "land_to_water",
+      TO, 1, WATER
+    );
   
   
   public SolarBank(Base base) {

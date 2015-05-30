@@ -78,7 +78,7 @@ public class EnforcerBloc extends Venue {
   
   final public static Conversion
     PLASTICS_TO_PRESSFEED = new Conversion(
-      EnforcerBloc.class, "plastics_to_pressfeed",
+      BLUEPRINT, "plastics_to_pressfeed",
       1, PLASTICS, TO, 10, PRESSFEED,
       SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
     )

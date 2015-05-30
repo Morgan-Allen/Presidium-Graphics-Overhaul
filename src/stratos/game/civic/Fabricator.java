@@ -16,6 +16,7 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Outfits.*;
 
 
 
@@ -40,28 +41,14 @@ public class Fabricator extends Venue {
     Fabricator.class, "media/GUI/Buttons/fabricator_button.gif"
   );
   
-  final public static Conversion
-    POLYMER_TO_PLASTICS = new Conversion(
-      Fabricator.class, "lchc_to_plastics",
-      1, POLYMER, TO, 2, PLASTICS,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
-    ),
-    PLASTICS_TO_DECOR = new Conversion(
-      Fabricator.class, "plastics_to_decor",
-      2, PLASTICS, TO, 1, DECOR,
-      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
-    )
-  ;
-  
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
     "Fabricator", UIConstants.TYPE_ENGINEER, ICON,
     "Fabricators manufacture "+PLASTICS+", pressfeed, decor and outfits for "+
     "your citizens.",
     4, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
-    125, 2, 200, Structure.NORMAL_MAX_UPGRADES,
-    POLYMER_TO_PLASTICS, PLASTICS_TO_DECOR
+    125, 2, 200, Structure.NORMAL_MAX_UPGRADES
   );
   
   
@@ -109,11 +96,23 @@ public class Fabricator extends Venue {
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
       FABRICATOR.info,
-      200, Upgrade.THREE_LEVELS, Backgrounds.FABRICATOR, 1,
+      200, Upgrade.THREE_LEVELS, FABRICATOR, 1,
       null, BLUEPRINT
-    )
+    );
     //  TODO:  Level 2 Upgrade.  And pressfeed?
-  ;
+  
+  
+  final public static Conversion
+    POLYMER_TO_PLASTICS = new Conversion(
+      BLUEPRINT, "lchc_to_plastics",
+      1, POLYMER, TO, 2, PLASTICS,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
+    ),
+    PLASTICS_TO_DECOR = new Conversion(
+      BLUEPRINT, "plastics_to_decor",
+      2, PLASTICS, TO, 1, DECOR,
+      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
+    );
   
   
   
@@ -185,9 +184,7 @@ public class Fabricator extends Venue {
     //  needed upgrades.
     
     final OutfitType OT = client.gear.outfitType();
-    final Class ownType = this.getClass();
-    
-    if (OT != null && OT.materials().facility == ownType) {
+    if (OT != null && OT.materials().producesAt(this)) {
       Commission.addCommissions(client, this, choice, OT);
     }
     choice.add(BringUtils.nextHomePurchase(client, this));
