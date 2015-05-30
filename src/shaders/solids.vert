@@ -19,9 +19,14 @@ uniform mat4 u_bones[maxBones];
 uniform mat4 u_worldTrans;
 uniform mat4 u_camera;
 
+uniform vec4 u_ambientLight;
+uniform vec4 u_diffuseLight;
+uniform vec3 u_lightDirection;
+
 varying vec2 v_texCoords0;
 varying vec3 v_position;
 varying vec3 v_normal;
+varying vec3 v_lightDiffuse;
 
 
 
@@ -39,8 +44,23 @@ void main() {
     boneTrans += (a_boneWeight2.y) * u_bones[int(a_boneWeight2.x)];
     transform = transform * boneTrans;
   }
-  
   v_normal = normalize((transform * vec4(a_normal, 0.0)).xyz);
+  
+  {
+    float NdotL = dot(v_normal, u_lightDirection);
+
+    // standard directional ligh
+    //vec3 value = u_diffuseLight.rgb * clamp(NdotL, 0.0, 1.0);
+
+    // more ambient-ish
+    vec3 value = u_diffuseLight.rgb * (NdotL * 0.5 + 0.5);
+
+    vec3 ambient = u_ambientLight.rgb;
+    ambient = vec3(0.6, 0.6, 0.6); // temporary
+
+    v_lightDiffuse = ambient + value;
+  }
+  
   pos = transform * pos;
   gl_Position = u_camera * pos;
 }
