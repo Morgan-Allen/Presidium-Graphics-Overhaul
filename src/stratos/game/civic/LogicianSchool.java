@@ -32,18 +32,16 @@ public class LogicianSchool extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     LogicianSchool.class, "logician_school",
-    "Logician School", UIConstants.TYPE_HIDDEN,
-    5, 2, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    "Logician School", UIConstants.TYPE_HIDDEN, ICON,
+    "<Logician School Description>",
+    5, 2, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    200, 4, 650, Structure.BIG_MAX_UPGRADES
   );
   
   
   public LogicianSchool(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      200, 4, 650,
-      Structure.BIG_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -69,20 +67,6 @@ public class LogicianSchool extends Venue {
   public Traded[] services() {
     return null;
   }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "logician_school");
-  }
-  
-  
-  public String helpInfo() {
-    return "Logician School";
-  }
-  
 }
 
 

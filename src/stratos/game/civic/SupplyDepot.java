@@ -51,9 +51,15 @@ public class SupplyDepot extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
-    "Supply Depot", UIConstants.TYPE_COMMERCE,
-    3, 1, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_DEPOT
+    "Supply Depot", UIConstants.TYPE_COMMERCE, ICON,
+    "The Supply Depot allows for fine control over imports or exports to "+
+    "distant settlements.",
+    3, 1, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_DEPOT,
+    100,  //integrity
+    2  ,  //armour
+    200,  //build cost
+    Structure.NORMAL_MAX_UPGRADES
   );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();
@@ -61,13 +67,6 @@ public class SupplyDepot extends Venue {
   
   public SupplyDepot(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      100,  //integrity
-      2  ,  //armour
-      200,  //build cost
-      Structure.NORMAL_MAX_UPGRADES,
-      Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_HOURS);
     
     final GroupSprite sprite = new GroupSprite();
@@ -112,9 +111,9 @@ public class SupplyDepot extends Venue {
     for (CargoBarge b : barges) if (b.destroyed()) barges.remove(b);
     if (barges.size() == 0) {
       final CargoBarge b = new CargoBarge();
-      b.enterWorldAt(this, world);
       b.setHangar(this);
       b.assignBase(base);
+      b.enterWorldAt(this, world);
       b.structure.setState(Structure.STATE_INSTALL, 0);
       barges.add(b);
     }
@@ -246,18 +245,6 @@ public class SupplyDepot extends Venue {
       this, panel, UI,
       ALL_TRADE_TYPES, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
     );
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "FRSD");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Supply Depot allows for fine control over imports or exports to "+
-      "distant settlements.";
   }
 }
 

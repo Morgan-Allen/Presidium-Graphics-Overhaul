@@ -38,10 +38,16 @@ public class Airfield extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Airfield.class, "airfield",
-    "Airfield", UIConstants.TYPE_COMMERCE,
-    6, 3, IS_NORMAL,
+    "Airfield", UIConstants.TYPE_COMMERCE, ICON,
+    "The Airfield provides smaller dropships with a convenient site to "+
+    "land and refuel, facilitating offworld trade and migration.",
+    6, 3, Structure.IS_NORMAL,
     new Blueprint[] { StockExchange.BLUEPRINT, Bastion.BLUEPRINT },
-    Owner.TIER_FACILITY
+    Owner.TIER_FACILITY,
+    250,  //integrity
+    5  ,  //armour
+    400,  //build cost
+    Structure.NORMAL_MAX_UPGRADES
   );
   
   private float fuelLevels;
@@ -50,13 +56,6 @@ public class Airfield extends Venue {
   
   public Airfield(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      250,  //integrity
-      5  ,  //armour
-      400,  //build cost
-      Structure.NORMAL_MAX_UPGRADES,
-      Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_HOURS);
     
     final GroupSprite sprite = new GroupSprite();
@@ -176,22 +175,6 @@ public class Airfield extends Venue {
     //  TODO:  ADD SUPERVISION TASKS
     
     return choice.weightedPick();
-  }
-  
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "airfield");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Airfield provides smaller dropships with a convenient site to "+
-      "land and refuel, facilitating offworld trade and migration.";
   }
 }
 

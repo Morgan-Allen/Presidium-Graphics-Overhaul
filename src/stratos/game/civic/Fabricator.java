@@ -55,19 +55,18 @@ public class Fabricator extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
-    "Fabricator", UIConstants.TYPE_ENGINEER,
-    4, 2, IS_NORMAL,
+    "Fabricator", UIConstants.TYPE_ENGINEER, ICON,
+    "Fabricators manufacture "+PLASTICS+", pressfeed, decor and outfits for "+
+    "your citizens.",
+    4, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    125, 2, 200, Structure.NORMAL_MAX_UPGRADES,
     POLYMER_TO_PLASTICS, PLASTICS_TO_DECOR
   );
   
   
   public Fabricator(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      125, 2, 200,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -93,25 +92,25 @@ public class Fabricator extends Venue {
       "Polymer Loom",
       "Speeds the production of standard "+PLASTICS+" and everyday clothing.",
       250, Upgrade.THREE_LEVELS, CARBS, 1,
-      null, Fabricator.class
+      null, BLUEPRINT
     ),
     FINERY_FLOOR = new Upgrade(
       "Finery Production",
       "Allows production of fine garments and decor for the upper classes.",
       500, Upgrade.THREE_LEVELS, null, 1,
-      POLYMER_LOOM, Fabricator.class
+      POLYMER_LOOM, BLUEPRINT
     ),
     CAMOUFLAGE_FLOOR = new Upgrade(
       "Camouflage Production",
       "Allows production of stealth-based protection for guerilla agents.",
       350, Upgrade.THREE_LEVELS, null, 2,
-      POLYMER_LOOM, Fabricator.class
+      POLYMER_LOOM, BLUEPRINT
     ),
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
       FABRICATOR.info,
       200, Upgrade.THREE_LEVELS, Backgrounds.FABRICATOR, 1,
-      null, Fabricator.class
+      null, BLUEPRINT
     )
     //  TODO:  Level 2 Upgrade.  And pressfeed?
   ;
@@ -199,20 +198,13 @@ public class Fabricator extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { CARBS, POLYMER, DECOR, PLASTICS };
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "fabricator");
+    return new Traded[] { POLYMER, DECOR, PLASTICS };
   }
   
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "Fabricators manufacture plastics, pressfeed, decor and outfits for "+
-      "your citizens.",
-      this, POLYMER_TO_PLASTICS, POLYMER_LOOM
+      super.helpInfo(),  this, POLYMER_TO_PLASTICS, POLYMER_LOOM
     );
   }
 }

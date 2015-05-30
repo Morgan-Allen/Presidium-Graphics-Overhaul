@@ -202,8 +202,9 @@ public final class Session {
   public static void checkSaveable(String className) {
     try {
       final Class <?> loadClass = Class.forName(className);
-      if (loadClass.isInterface()) return;
+      final int mods = loadClass.getModifiers();
       if (! Saveable.class.isAssignableFrom(loadClass)) return;
+      if (loadClass.isInterface() || Modifier.isAbstract(mods)) return;
       final Object loadMethod = loadMethodFor(loadClass);
       
       if (loadMethod == null) I.complain(

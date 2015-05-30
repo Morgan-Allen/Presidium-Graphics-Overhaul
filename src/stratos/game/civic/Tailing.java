@@ -122,7 +122,7 @@ public class Tailing extends Element {
     */
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    world.terrain().setHabitat(origin(), Habitat.STRIP_MINING);
+    world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
     
     for (Tile t : origin().allAdjacent(null)) {
       if (t != null) t.clearUnlessOwned();

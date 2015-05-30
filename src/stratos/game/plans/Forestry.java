@@ -34,7 +34,7 @@ public class Forestry extends Plan {
     STAGE_PROCESS  =  5,
     STAGE_DONE     =  6;
   
-  final static float
+  final public static float
     FLORA_PROCESS_TIME = Stage.STANDARD_HOUR_LENGTH,
     GROW_STAGE_POLYMER = 5;
   
@@ -102,9 +102,10 @@ public class Forestry extends Plan {
   /**  Behaviour implementation-
     */
   public boolean configureFor(int stage) {
+    final Box2D limit = depot.areaClaimed();
     
     if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
-      toPlant = findPlantTile(actor, depot);
+      toPlant = findPlantTile(actor, depot, limit);
       if (toPlant == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       if (depot.stocks.amountOf(seedMatch()) > 0) {
         this.stage = STAGE_GET_SEED;
@@ -113,7 +114,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_CUTTING) {
-      toCut = findCutting(actor, depot);
+      toCut = findCutting(actor, depot, limit);
       if (toCut == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       this.stage = stage;
     }
@@ -293,7 +294,7 @@ public class Forestry extends Plan {
         I.say("  Occupied? "+(toPlant.inside().size() > 0));
         I.say("  Blocked? "+toPlant.blocked());
       }
-      toPlant = findPlantTile(actor, depot);
+      toPlant = findPlantTile(actor, depot, depot.areaClaimed());
       if (report) I.say("  New tile: "+toPlant);
       if (toPlant == null) stage = STAGE_STORAGE;
       return false;
@@ -418,7 +419,7 @@ public class Forestry extends Plan {
   
   /**  Utility methods for finding suitable plant/harvest targets-
     */
-  public static Tile findPlantTile(Actor actor, Venue depot) {
+  public static Tile findPlantTile(Actor actor, Venue depot, Box2D limit) {
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == depot
     );
@@ -431,6 +432,7 @@ public class Forestry extends Plan {
       tried = Spacing.pickRandomTile(depot, Stage.ZONE_SIZE, actor.world());
       tried = Spacing.nearestOpenTile(tried, actor);
       if (tried == null || ! Flora.canGrowAt(tried)) continue;
+      if (limit != null && ! limit.contains(tried.x, tried.y)) continue;
       
       float rating = tried.habitat().moisture() / 10f;
       rating -= Plan.rangePenalty(actor.base(), actor, tried);
@@ -445,17 +447,13 @@ public class Forestry extends Plan {
   }
   
   
-  public static Flora findCutting(Actor actor, Target from) {
+  public static Flora findCutting(Actor actor, Target from, Box2D limit) {
     final Target near = from == null ? actor : from;
     final Presences p = actor.world().presences;
     
     Flora cuts = null;
-    cuts = (Flora) p.randomMatchNear(
-      Flora.class, near, Stage.ZONE_SIZE / 2
-    );
-    if (cuts == null) cuts = (Flora) p.nearestMatch(
-      Flora.class, near, Stage.ZONE_SIZE * 1.5f
-    );
+    cuts = (Flora) p.randomMatchNear(Flora.class, near, limit);
+    if (cuts == null) cuts = (Flora) p.nearestMatch(Flora.class, near, limit);
     if (cuts == null) return null;
     
     if (! cuts.inWorld()) {

@@ -42,9 +42,12 @@ public class KommandoLodge extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     KommandoLodge.class, "kommando_lodge",
-    "Kommando Lodge", UIConstants.TYPE_SECURITY,
-    5, 2, IS_NORMAL,
+    "Kommando Lodge", UIConstants.TYPE_SECURITY, ICON,
+    "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
+    "sufficient Kommandos to harvest prey and intimidate foes.",
+    5, 2, Structure.IS_NORMAL,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
+    150, 4, 550, Structure.NORMAL_MAX_UPGRADES,
     LAND_TO_PROTEIN
   );
   
@@ -56,10 +59,6 @@ public class KommandoLodge extends Venue {
   
   public KommandoLodge(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      150, 4, 550,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
-    );
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
     
@@ -125,14 +124,14 @@ public class KommandoLodge extends Venue {
       "of peaceful contact.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      null, KommandoLodge.class
+      null, BLUEPRINT
     ),
     THERMAL_CAMOUFLAGE = new Upgrade(
       "Thermal Camouflage",
       "Reduces the Kommando Lodge's thermal signature and light output, "+
       "making it harder for outsiders to detect.",
-      200, Upgrade.TWO_LEVELS, null, 1, null,
-      KommandoLodge.class
+      200, Upgrade.TWO_LEVELS, null, 1,
+      null, BLUEPRINT
     ),
     MAW_TRAINING = new Upgrade(
       "Maw Training",
@@ -140,7 +139,7 @@ public class KommandoLodge extends Venue {
       "Lictovore selectively bred as war mounts.",
       300,
       Upgrade.TWO_LEVELS, null, 1,
-      null, KommandoLodge.class
+      null, BLUEPRINT
     ),
     FLESH_STILL = new Upgrade(
       "Flesh Still",
@@ -148,7 +147,7 @@ public class KommandoLodge extends Venue {
       "down kills.",
       150,
       Upgrade.TWO_LEVELS, null, 1,
-      null, KommandoLodge.class
+      null, BLUEPRINT
     ),
     VENDETTA_VERMIN = new Upgrade(
       "Vendetta: Vermin",
@@ -156,7 +155,7 @@ public class KommandoLodge extends Venue {
       "and other dangerous, inedible pests.",
       100,
       Upgrade.SINGLE_LEVEL, null, 1,
-      null, KommandoLodge.class
+      null, BLUEPRINT
     ),
     VENDETTA_HUMAN = new Upgrade(
       "Vendetta: Humans",
@@ -164,14 +163,14 @@ public class KommandoLodge extends Venue {
       "adversaries.",
       200,
       Upgrade.SINGLE_LEVEL, null, 1,
-      null, KommandoLodge.class
+      null, BLUEPRINT
     ),
     VENDETTA_ARTILECT = new Upgrade(
       "Vendetta: Artilects",
       "Trains your Kommandos to efficiently dispatch machines and cybrids.",
       150,
       Upgrade.SINGLE_LEVEL, null, 1,
-      null, KommandoLodge.class
+      null, BLUEPRINT
     );
   
   
@@ -284,18 +283,6 @@ public class KommandoLodge extends Venue {
       camouflaged.fog = this.fogFor(base);
       camouflaged.readyFor(rendering);
     }
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "survey_station");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
-      "sufficient Kommandos to harvest prey and intimidate foes.";
   }
 }
 

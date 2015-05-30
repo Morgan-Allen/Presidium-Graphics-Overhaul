@@ -113,6 +113,11 @@ public class BaseSetup {
   }
   
   
+  public Blueprint[] available() {
+    return canPlace;
+  }
+  
+  
   
   /**  Time-sliced automation of building-placement methods-
     */

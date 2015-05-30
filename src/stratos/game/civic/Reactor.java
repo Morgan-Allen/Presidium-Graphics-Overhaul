@@ -74,9 +74,12 @@ public class Reactor extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Reactor.class, "reactor",
-    "Reactor", UIConstants.TYPE_ENGINEER,
-    4, 2, IS_NORMAL,
+    "Reactor", UIConstants.TYPE_ENGINEER, ICON,
+    "The Reactor provides copious "+POWER+" along with "+ANTIMASS+" output, "+
+    "but can become an explosive liability.",
+    4, 2, Structure.IS_NORMAL,
     EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
+    300, 10, 300, Structure.NORMAL_MAX_UPGRADES,
     METALS_TO_FUEL, ISOTOPES_TO_ANTIMASS, ISOTOPES_TO_POWER
   );
   
@@ -86,10 +89,6 @@ public class Reactor extends Venue {
 
   public Reactor(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      300, 10, 300,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
   }
@@ -120,7 +119,7 @@ public class Reactor extends Venue {
       "pollution, and allows conversion of "+METALS+" to "+FUEL_RODS+".",
       150,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Reactor.class
+      null, BLUEPRINT
     ),
     REACTIVE_CONTAINMENT = new Upgrade(
       "Reactive Containment",
@@ -128,7 +127,7 @@ public class Reactor extends Venue {
       "damaged or under-supervised, and the risk of sabotage or infiltration.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Reactor.class
+      null, BLUEPRINT
     ),
     COLD_FUSION = new Upgrade(
       "Cold Fusion",
@@ -136,14 +135,14 @@ public class Reactor extends Venue {
       "severity of any meltdowns.",
       500,
       Upgrade.THREE_LEVELS, null, 1,
-      REACTIVE_CONTAINMENT, Reactor.class
+      REACTIVE_CONTAINMENT, BLUEPRINT
     ),
     PARTICLE_CIRCUIT = new Upgrade(
       "Particle Circuit",
       "Facilitates conversion of "+FUEL_RODS+" to "+ANTIMASS+", a volatile "+
       "energy source essential to space travel and atomics stockpiles.",
       450, Upgrade.THREE_LEVELS, null, 1,
-      WASTE_PROCESSING, Reactor.class
+      WASTE_PROCESSING, BLUEPRINT
     )
   ;
   
@@ -384,11 +383,6 @@ public class Reactor extends Venue {
   
   /**  Rendering and interface-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "reactor");
-  }
-  
-
   protected Traded[] goodsToShow() {
     return new Traded[] { FUEL_RODS };
   }

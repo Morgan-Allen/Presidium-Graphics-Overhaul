@@ -128,7 +128,9 @@ public class BudgetsPane extends SelectionPane {
         baseCost = I.shorten(t.basePrice()    , 1);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+" (");
+      d.append(" ");
+      d.append(t);
+      d.append(" (");
       d.append(priceImp+"", Colour.LITE_RED  );
       d.append(" | ");
       d.append(priceExp+"", Colour.LITE_GREEN);
@@ -182,9 +184,11 @@ public class BudgetsPane extends SelectionPane {
       else noLocal = false;
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+": "+supply+"/"+demand);
+      d.append(" ");
+      d.append(t);
+      d.append(" ("+supply+"/"+demand+")");
     }
-    if (noLocal) d.append("\n  No local goods.");
+    if (noLocal) d.append("\n  (No local goods)");
     
     Text.cancelBullet(d);
     d.append("\n\nReserved For Trade: (import/export)");
@@ -196,9 +200,11 @@ public class BudgetsPane extends SelectionPane {
       else noTrade = false;
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+": "+demand+"/"+supply);
+      d.append(" ");
+      d.append(t);
+      d.append(" ("+supply+"/"+demand+")");
     }
-    if (noTrade) d.append("\n  No trade goods.");
+    if (noTrade) d.append("\n  (No trade goods)");
   }
 }
 

@@ -7,9 +7,9 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-public abstract class Constant extends Index.Entry implements Text.Clickable {
-  
-  
+public abstract class Constant extends Index.Entry implements
+  Text.Clickable, Session.Saveable
+{
   private static boolean verbose = false;
   
   final static Table <String, Object> allConstants = new Table();
@@ -36,11 +36,14 @@ public abstract class Constant extends Index.Entry implements Text.Clickable {
   
   
   private boolean validAsString(String asString) {
+    if (asString == null) I.complain(
+      "\nA HELP-ITEM'S toString() VALUE MUST NOT BE NULL: "+name
+    );
     //
     //  This is needed for reference-substitution within help-systems, so we
     //  just ensure that subclasses don't override toString() with something
     //  illegible-
-    if (asString.startsWith(OPEN_CAP) && asString.endsWith(SHUT_CAP)) {
+    else if (asString.startsWith(OPEN_CAP) && asString.endsWith(SHUT_CAP)) {
       return true;
     }
     else I.complain(
@@ -77,6 +80,7 @@ public abstract class Constant extends Index.Entry implements Text.Clickable {
         BaseUI UI, Text headerText, Text detailText, Text listingText
       ) {
         super.updateText(UI, headerText, detailText, listingText);
+        headerText.setText(fullName());
         describeHelp(detailText, prior);
       }
     };
@@ -97,7 +101,7 @@ public abstract class Constant extends Index.Entry implements Text.Clickable {
       final char c = chars[i];
       final boolean ends = ++i == chars.length;
       
-      if ((c == OPEN_CHAR && ! inItem) || ends) {
+      if (c == OPEN_CHAR && ! inItem) {
         d.append(scanned);
         scanned = null;
         inItem = true;
@@ -112,6 +116,7 @@ public abstract class Constant extends Index.Entry implements Text.Clickable {
       }
       else {
         scanned.append(c);
+        if (ends) d.append(scanned);
       }
     }
   }

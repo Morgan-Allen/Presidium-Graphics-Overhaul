@@ -6,40 +6,47 @@
 
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.user.*;
 import stratos.util.*;
+import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 
 import java.lang.reflect.*;
 
 
-
-//  TODO:  Later, you'll want to try and migrate as many relevant attributes
-//  over to this class as possible:
-  /*
-  final public int facilityType;
-  //  TODO:  Also, icon, possibly model and any construction dependancies-
-  //  you need to be able to filter this, for both the player and base AI.
+/*
+  //  TODO:  Finish moving attributes in here.
   
-  final public int
-    size, maxIntegrity, armouring, ambience;
+  final public Traded materials[];
+  final public Conversion services[];
   
-  final public Traded  materials[];
-  final public Background careers  [];
-  final public Conversion services [];
-  //*/
- 
+  final public Background careers[];
+  final public int shiftType;
+  
+  //  TODO:  Allow reading from XML?  (Possibly model too...?)
+//*/
 
-public class Blueprint extends Index.Entry implements Session.Saveable {
+
+public class Blueprint extends Constant implements Session.Saveable {
   
   
   final public static Index <Blueprint> INDEX = new Index <Blueprint> ();
   
   final public Class <? extends Venue> baseClass;
   final public String keyID;
-  final public String category;
+  
   final public String name;
+  final public ImageAsset icon;
+  final public String category;
+  final public String description;
 
   final public int size, high;
-  final public int properties;
+  final public int
+    properties ,
+    integrity  ,
+    armour     ,
+    buildCost  ,
+    maxUpgrades;
   
   final public Blueprint required[];
   final public int owningTier;
@@ -53,35 +60,49 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   
   public Blueprint(
     Class <? extends Venue> baseClass, String key,
-    String name, String category,
+    String name, String category, ImageAsset icon, String description,
     int size, int high, int properties,
-    Blueprint required, int owningTier, Conversion... processed
+    Blueprint required, int owningTier,
+    int integrity, int armour, int buildCost, int maxUpgrades,
+    Conversion... processed
   ) {
     this(
-      baseClass, key, name, category, size, high, properties,
-      required == null ? null : new Blueprint[] { required },
-      owningTier, processed
+      baseClass, key,
+      name, category, icon, description,
+      size, high,
+      properties, required == null ? null : new Blueprint[] { required },
+      owningTier, integrity, armour, buildCost, maxUpgrades,
+      processed
     );
   }
   
 
   public Blueprint(
     Class <? extends Venue> baseClass, String key,
-    String name, String category,
+    String name, String category, ImageAsset icon, String description,
     int size, int high, int properties,
-    Blueprint required[], int owningTier, Conversion... processed
+    Blueprint required[], int owningTier,
+    int integrity, int armour, int buildCost, int maxUpgrades,
+    Conversion... processed
   ) {
-
-    super(INDEX, key);
+    super(INDEX, key, name);
     this.baseClass = baseClass;
     this.keyID     = key;
-    this.category  = category;
-    this.name      = name;
+    
+    this.name        = name;
+    this.category    = category;
+    this.icon        = icon;
+    this.description = description;
     
     this.size = size;
     this.high = high;
     
-    this.properties = properties;
+    this.properties  = properties ;
+    this.integrity   = integrity  ;
+    this.armour      = armour     ;
+    this.buildCost   = buildCost  ;
+    this.maxUpgrades = maxUpgrades;
+    
     this.required   = required == null ? Venue.NO_REQUIREMENTS : required;
     this.owningTier = owningTier;
     this.processed  = processed ;
@@ -108,33 +129,38 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   }
   
   
+  public static boolean hasProperty(Structure s, int property) {
+    return (s.properties() & property) == property;
+  }
+  
+  
   public boolean hasProperty(int property) {
     return (properties & property) == property;
   }
   
   
   public boolean isFixture() {
-    return hasProperty(Venue.IS_FIXTURE);
+    return hasProperty(Structure.IS_FIXTURE);
   }
   
   
   public boolean isGrouped() {
-    return hasProperty(Venue.IS_LINEAR);
+    return hasProperty(Structure.IS_LINEAR);
   }
   
   
   public boolean isStandard() {
-    return properties == Venue.IS_NORMAL;
+    return properties == Structure.IS_NORMAL;
   }
   
   
   public boolean isUnique() {
-    return hasProperty(Venue.IS_UNIQUE);
+    return hasProperty(Structure.IS_UNIQUE);
   }
   
   
   public boolean isWild() {
-    return hasProperty(Venue.IS_WILD);
+    return hasProperty(Structure.IS_WILD);
   }
   
   
@@ -217,11 +243,65 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   
   /**  Interface and debugging-
     */
-  public String toString() {
-    return name;
+  protected void describeHelp(Description d, Selectable prior) {
+    final Base base = BaseUI.currentPlayed();
+    
+    if (icon != null) {
+      Text.insert(icon.asTexture(), 80, 80, false, d);
+      d.append("\n\n");
+    }
+    substituteReferences(description, d);
+    
+    d.append("\n");
+    if (category != null) {
+      d.append("\nCategory: "+category+" Structures");
+    }
+    final int cost = buildCost;
+    d.append("\nBuild cost: "+cost);
+    
+    for (Blueprint req : required) {
+      d.append("\n  Requires: ");
+      d.append(req);
+    }
+    for (Blueprint all : allows) {
+      d.append("\n  Allows: ");
+      d.append(all);
+    }
+    
+    if (processed.length > 0) d.append("\n\nAllows Production:");
+    for (Conversion c : processed) {
+      d.append("\n  ");
+      if (c.raw.length > 0) {
+        for (Item i : c.raw) { d.append(i.type); d.append(" "); }
+        d.append("to ");
+        d.append(c.out.type);
+      }
+      else {
+        d.append(c.out.type);
+      }
+    }
+    
+    final Upgrade upgrades[] = Upgrade.upgradesFor(this);
+    if (upgrades.length > 0) d.append("\n\nUpgrades:");
+    for (Upgrade u : upgrades) {
+      d.append("\n  ");
+      d.append(u);
+    }
+    
+    
+    if (! isGrouped()) {
+      final Batch <Venue> built = base.listInstalled(this, false);
+      d.append("\n\nCurrently Built:");
+      if (built.size() > 0) for (Venue v : built) {
+        d.append("\n  ");
+        d.append(v);
+      }
+      else d.append(" None");
+    }
+
+    //  TODO:  Include backgrounds too?  (Or is that covered under upgrades?)
   }
 }
-
 
 
 

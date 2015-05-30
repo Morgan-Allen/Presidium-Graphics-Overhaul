@@ -49,7 +49,6 @@ public class InstallPane extends SelectionPane {
   }
   
   
-  private Venue helpFor;
   private Category category = null;
   final private Button catButtons[];
   
@@ -138,7 +137,6 @@ public class InstallPane extends SelectionPane {
           UI.beginPanelFade();
           final Category match = categories.get(catName);
           category = match;
-          helpFor = null;
           
           for (Button b : catButtons) {
             if (b == this) b.toggled = true;
@@ -197,43 +195,7 @@ public class InstallPane extends SelectionPane {
     
     final Text text = detailText;
     
-    if (helpFor != null) {
-      final Venue     sample   = helpFor            ;
-      final Blueprint type     = sample.blueprint   ;
-      final Composite icon     = sample.portrait(UI);
-      final String    typeName = type.name          ;
-      final String    typeDesc = sample.helpInfo()  ;
-      final int       cost     = sample.structure.buildCost();
-      
-      if (icon != null) Text.insert(icon.texture(), 80, 80, false, text);
-      text.append("\n\nFacility Name: "+typeName);
-      text.append("\nBuild cost: "+cost);
-      text.append("\n\n");
-      text.append(typeDesc, Colour.LITE_GREY);
-      text.append("\n");
-      if (type.required.length > 0) {
-        text.appendList("\nRequires: ", (Object[]) type.required);
-      }
-      if (type.allows().size() > 0) {
-        text.appendList("\nAllows: ", type.allows());
-      }
-      
-      if (! type.isGrouped()) {
-        final Batch <Venue> built = base.listInstalled(type, false);
-        text.append("\n\nCurrently Built:");
-        if (built.size() == 0) text.append(" None");
-        else for (Venue v : built) {
-          text.append("\n  ");
-          text.append(v);
-        }
-      }
-      
-      text.append("\n\n");
-      text.append(new Description.Link("Back") {
-        public void whenClicked() { helpFor = null; }
-      });
-    }
-    else if (sampled.empty() && disabled.empty()) {
+    if (sampled.empty() && disabled.empty()) {
       text.append("No structures available!");
     }
     else {
@@ -270,10 +232,7 @@ public class InstallPane extends SelectionPane {
       public void whenClicked() { UI.beginTask(new PlacingTask(UI, type)); }
     });
     else text.append("(BUILD) ", greyed);
-    
-    text.append(new Description.Link("(INFO) ") {
-      public void whenClicked() { helpFor = sample; }
-    });
+    text.append("(INFO) ", sample.blueprint);
   }
 }
 

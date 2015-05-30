@@ -367,8 +367,8 @@ public interface Backgrounds {
     VOLUNTEER = new Background(
       Backgrounds.class,
       "Volunteer",
-      "Dedicated in defence of their homes, a volunteer militia provides the "+
-      "mainstay of your domestic forces.",
+      "Dedicated in defence of their homes, a volunteer militia makes up the "+
+      "bulk of your domestic forces.",
       "militant_skin.gif", "militant_portrait.png",
       CLASS_VASSAL, GUILD_MILITANT,
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
@@ -380,7 +380,7 @@ public interface Backgrounds {
     TROOPER = new Background(
       Backgrounds.class,
       "Trooper",
-      "Seasoned professional soldiers, veterans provide the backbone of your "+
+      "Seasoned professional soldiers, Troopers provide the backbone of your "+
       "officer corps and command structure.",
       "militant_skin.gif", "militant_portrait.png",
       CLASS_AGENT, GUILD_MILITANT,

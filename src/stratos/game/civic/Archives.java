@@ -50,20 +50,19 @@ public class Archives extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives",
-    "Archives", UIConstants.TYPE_PHYSICIAN,
-    4, 2, IS_NORMAL,
-    PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY, CIRCUITRY_TO_DATALINKS
+    "Archives", UIConstants.TYPE_PHYSICIAN, ICON,
+    "The Archives provide "+DATALINKS+" and facilitate research and "+
+    "administration by base personnel.",
+    4, 2, Structure.IS_NORMAL,
+    PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY,
+    250, 3, 350, Structure.NORMAL_MAX_UPGRADES,
+    CIRCUITRY_TO_DATALINKS
   );
   
   
   public Archives(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      250, 3, 350,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
-    
     attachSprite(MODEL.makeSprite());
   }
   
@@ -139,16 +138,9 @@ public class Archives extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "archives");
-  }
-  
-  
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Archives provide "+DATALINKS+" and facilitate research and "+
-      "administration by base personnel.",
-      this, CIRCUITRY_TO_DATALINKS
+      super.helpInfo(), this, CIRCUITRY_TO_DATALINKS
     );
   }
 }

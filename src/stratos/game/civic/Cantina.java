@@ -84,9 +84,12 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Cantina.class, "cantina",
-    "Cantina", UIConstants.TYPE_COMMERCE,
-    3, 2, IS_NORMAL,
-    StockExchange.BLUEPRINT, Owner.TIER_FACILITY
+    "Cantina", UIConstants.TYPE_COMMERCE, ICON,
+    "A lively hub for social activities, your citizens can rest and relax "+
+    "at the Cantina.  Unsavoury characters are known to drop by, however.",
+    3, 2, Structure.IS_NORMAL,
+    StockExchange.BLUEPRINT, Owner.TIER_FACILITY,
+    150, 2, 200, Structure.NO_UPGRADES
   );
   
   
@@ -97,7 +100,6 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   public Cantina(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(150, 2, 200, 0, Structure.TYPE_VENUE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -361,21 +363,9 @@ public class Cantina extends Venue implements Performance.Theatre {
   }
   
   
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "cantina");
-  }
-  
-  
   public String fullName() {
     if (nameID == -1) return "Cantina";
     return VENUE_NAMES[nameID];
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "A lively hub for social activities, your citizens can rest and relax "+
-      "at the Cantina.  Unsavoury characters are known to drop by, however.";
   }
 }
   

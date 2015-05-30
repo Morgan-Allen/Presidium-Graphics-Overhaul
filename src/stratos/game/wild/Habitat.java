@@ -140,6 +140,12 @@ public class Habitat {
     //
     //  Waste habitats, which have special rules governing their introduction,
     //  related to extreme inhospitability, pollution or volcanism-
+    WHITE_MESA = new Habitat(
+      "White Mesa",
+      "",
+      "mesa_ground.gif", NO_FLORA,
+      0, true, FERTILITY, 0, INSOLATION, 5, MINERALS, 5
+    ),
     CURSED_EARTH = new Habitat(
       "Cursed Earth",
       "",
@@ -147,29 +153,23 @@ public class Habitat {
       -1, true, FERTILITY, 2, INSOLATION, 3, MINERALS, 7,
       IS_WASTE
     ),
-    STRIP_MINING = new Habitat(
-      "Strip Mining",
-      "",
-      new String[] {
-        "strip_mining.1.png",
-        "strip_mining.2.png",
-        "strip_mining.3.png"
-      }, NO_FLORA,
-      -1, false, FERTILITY, 0, INSOLATION, 6, MINERALS, 2,
-      IS_WASTE, IS_SPECKLE
-    ),
     BLACK_MESA = new Habitat(
       "Black Mesa",
       "",
       "black_mesa.png", NO_FLORA,
       -1, false, FERTILITY, 0, INSOLATION, 9, MINERALS, 6,
-      IS_WASTE
+      IS_WASTE, IS_SPECKLE
     ),
-    MESA = new Habitat(
-      "Mesa",
+    TOXIC_RUNOFF = new Habitat(
+      "Toxic Runoff",
       "",
-      "mesa_ground.gif", NO_FLORA,
-      0, true, FERTILITY, 0, INSOLATION, 5, MINERALS, 5
+      new String[] {
+        "toxic_runoff.0.png",
+        "toxic_runoff.1.png",
+        "toxic_runoff.2.png"
+      }, NO_FLORA,
+      -1, false, FERTILITY, 0, INSOLATION, 6, MINERALS, 2,
+      IS_WASTE//, IS_SPECKLE
     ),
     //
     //  This is the gradient of habitats going from least to most insolation-

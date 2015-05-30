@@ -33,21 +33,20 @@ public class Fractal extends Venue {
     */
   final static Blueprint BLUEPRINT = new Blueprint(
     Fractal.class, "fractal",
-    "Fractal", UIConstants.TYPE_AESTHETIC,
-    2, 0, IS_FIXTURE | IS_LINEAR,
-    Fabricator.BLUEPRINT, Owner.TIER_PRIVATE
+    "Fractal", UIConstants.TYPE_AESTHETIC, ICON,
+    "Fractals are decorative paving structures composed of interlocking "+
+    "geometric forms.",
+    2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
+    Fabricator.BLUEPRINT, Owner.TIER_PRIVATE,
+    40,  // integrity
+    8 ,  // armour
+    30,  // build cost
+    Structure.NO_UPGRADES
   );
   
   
   public Fractal(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      40,  // integrity
-      8 ,  // armour
-      30,  // build cost
-      0 ,  // max. upgrades
-      Structure.TYPE_FIXTURE
-    );
   }
   
   
@@ -87,21 +86,6 @@ public class Fractal extends Venue {
     );
     attachModel((ModelAsset) model);
     return true;
-  }
-  
-  
-  
-  /**  Rendering and interface methods:
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "fractal_icon");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Fractals are decorative paving structures composed of interlocking "+
-      "geometric forms.";
   }
 }
 

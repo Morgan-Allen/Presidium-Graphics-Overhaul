@@ -38,6 +38,31 @@ public class Holding extends Venue {
   private static boolean
     verbose     = false,
     rateVerbose = false;
+
+  final static String
+    IMG_DIR = "media/Buildings/civilian/";
+  
+  final static ImageAsset ICONS[] = ImageAsset.fromImages(
+    Holding.class, "media/GUI/Buttons/",
+    "housing0_button.gif",
+    "housing1_button.gif",
+    "housing2_button.gif",
+    "housing3_button.gif",
+    "housing4_button.gif"
+  );
+  final public static ModelAsset
+    SEAL_TENT_MODEL = CutoutModel.fromImage(
+      Holding.class, IMG_DIR+"field_tent.png", 2, 2
+    ),
+    LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
+      Holding.class, IMG_DIR+"lower_class_housing.png",
+      3, 3, 2, 2, false
+    ),
+    MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
+      Holding.class, IMG_DIR+"middle_class_housing.png",
+      3, 3, 2, 2, false
+    ),
+    UPPER_CLASS_MODELS[][] = null;
   
   final public static int
     MAX_SIZE   = 2,
@@ -58,9 +83,12 @@ public class Holding extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Holding.class, "holding",
-    "Seal Tent", UIConstants.TYPE_PHYSICIAN,
-    3, 2, IS_NORMAL,
+    "Seal Tent", UIConstants.TYPE_PHYSICIAN, ICONS[0],
+    "Holdings provide comfort, sanitation and other domestic benefits to "+
+    "your subjects.",
+    3, 2, Structure.IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
+    INTEGRITIES[0], 5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES,
     PROVIDE_HOUSING
   );
   
@@ -75,10 +103,6 @@ public class Holding extends Venue {
     super(BLUEPRINT, belongs);
     this.upgradeLevel = 0;
     this.varID = Rand.index(NUM_VARS);
-    structure.setupStats(
-      INTEGRITIES[0], 5, BUILD_COSTS[0],
-      Structure.BIG_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     attachSprite(modelFor(this).makeSprite());
   }
   
@@ -400,32 +424,6 @@ public class Holding extends Venue {
   
   /**  Rendering and interface methods-
     */
-  final static String
-    IMG_DIR = "media/Buildings/civilian/";
-  
-  final static ImageAsset ICONS[] = ImageAsset.fromImages(
-    Holding.class, "media/GUI/Buttons/",
-    "housing0_button.gif",
-    "housing1_button.gif",
-    "housing2_button.gif",
-    "housing3_button.gif",
-    "housing4_button.gif"
-  );
-  final public static ModelAsset
-    SEAL_TENT_MODEL = CutoutModel.fromImage(
-      Holding.class, IMG_DIR+"field_tent.png", 2, 2
-    ),
-    LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      Holding.class, IMG_DIR+"lower_class_housing.png",
-      3, 3, 2, 2, false
-    ),
-    MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      Holding.class, IMG_DIR+"middle_class_housing.png",
-      3, 3, 2, 2, false
-    ),
-    UPPER_CLASS_MODELS[][] = null;
-  
-  
   public void exitWorld() {
     super.exitWorld();
     HoldingExtra.removeExtras(this, extras);
@@ -473,9 +471,7 @@ public class Holding extends Venue {
       if (uS != null) return uS;
       if (tS != null) return tS;
     }
-    return
-      "Holdings provide comfort, sanitation and other domestic benefits to "+
-      "your subjects.";
+    return super.helpInfo();
   }
   
   

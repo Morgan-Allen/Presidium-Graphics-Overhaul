@@ -10,6 +10,7 @@ import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
+import stratos.graphics.widgets.Composite;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
@@ -33,16 +34,6 @@ public abstract class Venue extends Structural implements
     SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
     SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
   
-  final public static int
-    //  These are OR'd together in the VenueProfile to state properties-
-    IS_NORMAL  = 0 ,
-    IS_FIXTURE = 1 ,
-    IS_LINEAR  = 2 ,
-    IS_ZONED   = 4 ,
-    IS_GRIDDED = 8 ,
-    IS_UNIQUE  = 16,
-    IS_WILD    = 32;
-  
   final public static Blueprint NO_REQUIREMENTS[] = new Blueprint[0];
   
   
@@ -60,6 +51,7 @@ public abstract class Venue extends Structural implements
   
   protected Venue(Blueprint blueprint, Base base) {
     super(blueprint.size, blueprint.high, base);
+    structure.setupStats(blueprint);
     this.base      = base     ;
     this.blueprint = blueprint;
   }
@@ -465,6 +457,17 @@ public abstract class Venue extends Structural implements
     if (nameID < 0) return blueprint.name;
     String suffix = ""+nameID;
     return blueprint.name+" "+suffix;
+  }
+  
+
+  public String helpInfo() {
+    return blueprint.description;
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    if (blueprint.icon == null) return null;
+    return Composite.withImage(blueprint.icon, blueprint.keyID);
   }
   
   

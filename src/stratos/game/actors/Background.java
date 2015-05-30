@@ -10,6 +10,8 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.user.BaseUI;
+import stratos.user.Selectable;
 import stratos.util.*;
 
 
@@ -39,9 +41,7 @@ Engineer       Dreg
 
 
 
-public class Background extends Index.Entry implements
-  Session.Saveable, Text.Clickable
-{
+public class Background extends Constant {
   
   final public static Index <Background> INDEX = new Index <Background> ();
   
@@ -64,7 +64,7 @@ public class Background extends Index.Entry implements
     String name, String info, String costumeTex, String portraitTex,
     int standing, int guild, Object... args
   ) {
-    super(INDEX, name);
+    super(INDEX, name, name);
     this.baseClass = baseClass;
     this.name = name;
     this.info = info == null ? "NO DESCRIPTION YET" : info;
@@ -176,11 +176,6 @@ public class Background extends Index.Entry implements
   }
   
   
-  public String toString() {
-    return name;
-  }
-  
-  
   public String nameFor(Actor actor) {
     return name;
   }
@@ -196,14 +191,54 @@ public class Background extends Index.Entry implements
   }
   
   
-  public String fullName() {
-    return null;
-  }
-  
-  
-  public void whenClicked() {
+  protected void describeHelp(Description d, Selectable prior) {
+    
+    substituteReferences(info, d);
+    
+    d.append("\n");
+    final Batch <Blueprint> hiredAt = new Batch();
+    final Base base = BaseUI.currentPlayed();
+    for (Blueprint b : base.setup.available()) {
+      for (Upgrade u : Upgrade.upgradesFor(b)) {
+        if (u.refers == this) hiredAt.include(b);
+      }
+    }
+    for (Blueprint b : hiredAt) {
+      d.append("\nHired At: ");
+      d.append(b);
+    }
+    
+    d.append("\n");
+    d.append("\nStarting Skills:");
+    final List <Skill> byLevel = new List <Skill> () {
+      protected float queuePriority(Skill r) {
+        return baseSkills.get(r);
+      }
+    };
+    for (Skill s : baseSkills.keySet()) byLevel.queueAdd(s);
+    for (Skill s : byLevel) {
+      final int level = baseSkills.get(s);
+      d.append("\n  ");
+      d.append(s);
+      d.append(" ("+(level - 3)+")");
+    }
+    
+    d.append("\n");
+    d.append("\nTypical Traits: ");
+    
+    for (Trait t : traitChances.keySet()) {
+      final float chance = traitChances.get(t);
+      final String desc = Trait.descriptionFor(t, chance);
+      d.append("\n  ");
+      d.append(desc, t);
+      d.append(" ("+Nums.abs(chance)+")");
+    }
   }
 }
+
+
+
+
 
 
 

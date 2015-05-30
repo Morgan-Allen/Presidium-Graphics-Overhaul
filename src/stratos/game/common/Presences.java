@@ -156,9 +156,22 @@ public class Presences {
   }
   
   
+  public Target nearestMatch(Object service, Target client, Box2D limit) {
+    for (Object o : matchesNear(service, client, limit)) return (Target) o;
+    return null;
+  }
+  
+  
   public Target nearestMatch(Object service, Target client, float range) {
     for (Object o : matchesNear(service, client, range)) return (Target) o;
     return null;
+  }
+  
+  
+  public Target randomMatchNear(Object service, Target client, Box2D limit) {
+    final PresenceMap map = allMaps.get(service);
+    if (map == null) return null;
+    return map.pickRandomAround(client, -1, limit);
   }
   
   
