@@ -470,6 +470,11 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
+  public Constant infoSubject() {
+    return null;
+  }
+  
+  
   public void whenClicked() {
     BaseUI.current().selection.pushSelection(this);
   }

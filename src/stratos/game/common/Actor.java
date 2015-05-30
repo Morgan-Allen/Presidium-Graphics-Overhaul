@@ -555,6 +555,12 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  public Constant infoSubject() {
+    if (mind.vocation() != null) return mind.vocation();
+    else return species();
+  }
+  
+  
   public void describeStatus(Description d) {
     if (! health.conscious()) { d.append(health.stateDesc()); return; }
     if (! inWorld()) {

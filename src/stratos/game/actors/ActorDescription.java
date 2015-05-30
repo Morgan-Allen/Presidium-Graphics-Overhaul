@@ -63,8 +63,23 @@ public class ActorDescription implements Qualities {
   
   private void describeStatus(Description d, HUD UI) {
     //
-    //  Describe the actor's current behaviour first.
-    d.append("Status:\n  "); h.describeStatus(d);
+    //  Describe your job, place of work, and current residence-
+    final Background job = h.mind.vocation();
+    if (job != null) {
+      d.append("\nVocation: "+job.nameFor(h));
+    }
+    if (h.mind.work() != null) {
+      d.append("\nEmployed at: ");
+      d.append(h.mind.work());
+    }
+    if (h.mind.home() != null) {
+      d.append("\nResident at: ");
+      d.append(h.mind.home());
+    }
+    //
+    //  Then describe the actor's current behaviour-
+    d.append("\nStatus: ");
+    h.describeStatus(d);
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;
@@ -82,24 +97,7 @@ public class ActorDescription implements Qualities {
       }
     }
     //
-    //  Describe your job, place of work, and current residence:
-    final Background job = h.mind.vocation();
-    if (job != null) {
-      d.append("\n  Vocation: ");
-      d.append(job.nameFor(h), job);
-    }
-    if (h.mind.work() != null) {
-      d.append("\n  Employed at: ");
-      d.append(h.mind.work());
-    }
-    else d.append("\n  Employment at: No employment");
-    if (h.mind.home() != null) {
-      d.append("\n  Resident at: ");
-      d.append(h.mind.home());
-    }
-    else d.append("\n  Resident at: No residence");
-    //
-    //  Describe your core items of gear:
+    //  Then describe your physical condition-
     d.append("\n\nCondition:");
     final int
       IL = (int) h.health.injury    (),
@@ -115,7 +113,7 @@ public class ActorDescription implements Qualities {
     d.append("\n  Morale: "+morale+"%");
     if (hunger > 0) d.append(" (Hunger "+hunger+"%)");
     //
-    //  And describe any special status FX:
+    //  And describe any special status FX-
     final Batch <String   > healthDesc = new Batch <String> ();
     for (Condition c : Conditions.ALL_CONDITIONS) {
       if (h.traits.traitLevel(c) > 0) healthDesc.add(h.traits.description(c));
@@ -125,6 +123,8 @@ public class ActorDescription implements Qualities {
       d.append(s);
       d.append(" ");
     }
+    if (h.mind.work() == null) d.append("Unemployed ");
+    if (h.mind.home() == null) d.append("Homeless "  );
   }
   
   

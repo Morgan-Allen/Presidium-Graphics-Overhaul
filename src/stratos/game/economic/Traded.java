@@ -1,16 +1,14 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.economic;
 import stratos.game.common.*;
 import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.user.BaseUI;
-import stratos.user.InstallPane;
-import stratos.user.Selectable;
-import stratos.user.UIConstants;
-import stratos.user.notify.*;
+import stratos.user.*;
 import stratos.util.*;
 
 

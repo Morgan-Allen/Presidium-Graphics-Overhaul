@@ -266,9 +266,10 @@ public class Resting extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
+    String desc = restPoint == actor.mind.home() ? "Resting" : "Sheltering";
     if (restPoint == actor || restPoint == null) {
       if (currentMode == MODE_DINE) d.append("Dining");
-      else d.append("Resting");
+      else d.append(desc);
       return;
     }
     if (currentMode == MODE_DINE) {
@@ -276,7 +277,7 @@ public class Resting extends Plan {
       d.append(restPoint);
     }
     else {
-      d.append("Resting at ");
+      d.append(desc+" at ");
       d.append(restPoint);
     }
   }

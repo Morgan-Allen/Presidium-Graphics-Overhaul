@@ -44,6 +44,12 @@ public class SelectionPane extends UIGroup implements UIConstants {
     ),
     WIDGET_CLOSE_LIT = ImageAsset.fromImage(
       SelectionPane.class, "media/GUI/Front/widget_close_lit.png"
+    ),
+    WIDGET_INFO = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_info.png"
+    ),
+    WIDGET_INFO_LIT = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_info_lit.png"
     );
   final public static int
     CORE_INFO_HIGH = 160,
@@ -69,6 +75,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
   private int    categoryID  ;
   
   private Button backButton;
+  private Button infoButton;
   private Button closeButton;
   
 
@@ -205,6 +212,18 @@ public class SelectionPane extends UIGroup implements UIConstants {
     closeButton.alignTop  (-3, 30);
     closeButton.alignRight( 0, 30);
     closeButton.attachTo(this);
+    
+    this.infoButton = new Button(
+      baseUI, "info", WIDGET_INFO, WIDGET_INFO_LIT, "Info"
+    ) {
+      protected void whenClicked() {
+        final Constant type = pane.selected.infoSubject();
+        type.whenClicked();
+      }
+    };
+    infoButton.alignTop  (27, 30);
+    infoButton.alignRight( 0, 30);
+    infoButton.attachTo(this);
   }
   
   
@@ -313,11 +332,13 @@ public class SelectionPane extends UIGroup implements UIConstants {
     updateText(UI, headerText, detailText, listingText);
     this.backButton.hidden = previous == null;
     
-    if (selected != null) selected.configSelectPane(this, UI);
-    //
-    //  TODO:  If there's a parent for this pane, you could insert the option
-    //  for a back-button here.
-    
+    if (selected != null) {
+      selected.configSelectPane(this, UI);
+      this.infoButton.hidden = selected.infoSubject() == null;
+    }
+    else {
+      this.infoButton.hidden = true;
+    }
     super.updateState();
   }
   

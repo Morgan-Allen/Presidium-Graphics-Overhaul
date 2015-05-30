@@ -409,6 +409,12 @@ public final class Tile implements
   }
   
   
+  public Constant infoSubject() {
+    //  TODO:  Add info here!!!
+    return null;
+  }
+  
+  
   public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
     if (info == null) info = new SelectionOptions(UI, this);
     return info;

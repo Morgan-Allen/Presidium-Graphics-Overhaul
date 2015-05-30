@@ -802,6 +802,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public Constant infoSubject() {
+    //  TODO:  Add some basic info here!
+    return null;
+  }
+  
+  
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (! visibleTo(BaseUI.currentPlayed())) return;
     

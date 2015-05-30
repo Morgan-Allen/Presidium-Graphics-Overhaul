@@ -476,6 +476,11 @@ public abstract class Venue extends Structural implements
   }
   
   
+  public Constant infoSubject() {
+    return blueprint;
+  }
+  
+  
   protected boolean showLights() {
     if (blueprint.isFixture()) return true;
     return staff.visitors().size() > 0;

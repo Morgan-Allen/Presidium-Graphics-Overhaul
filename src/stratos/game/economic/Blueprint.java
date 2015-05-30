@@ -265,15 +265,6 @@ public class Blueprint extends Constant implements Session.Saveable {
     final int cost = buildCost;
     d.append("\nBuild cost: "+cost);
     
-    for (Blueprint req : required) {
-      d.append("\n  Requires: ");
-      d.append(req);
-    }
-    for (Blueprint all : allows) {
-      d.append("\n  Allows: ");
-      d.append(all);
-    }
-    
     if (consuming.size() > 0) d.append("\n\nConsumption:");
     for (Conversion c : consuming) {
       d.append("\n  ");
@@ -304,6 +295,19 @@ public class Blueprint extends Constant implements Session.Saveable {
     for (Upgrade u : upgrades) {
       d.append("\n  ");
       d.append(u);
+    }
+
+    if (required.length > 0) d.append("\n\nRequires:");
+    for (Blueprint req : required) {
+      if (req == required[0]) d.append(" ");
+      else d.append(", ");
+      d.append(req);
+    }
+    if (allows.size() > 0) d.append("\n\nAllows:");
+    for (Blueprint all : allows) {
+      if (all == allows.first()) d.append(" ");
+      else d.append(", ");
+      d.append(all);
     }
     
     if (! isGrouped()) {

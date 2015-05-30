@@ -117,6 +117,11 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   public String objectCategory() {
     return UIConstants.TYPE_TERRAIN;
   }
+  
+  
+  public Constant infoSubject() {
+    return null;
+  }
 
 
   public Composite portrait(BaseUI UI) {

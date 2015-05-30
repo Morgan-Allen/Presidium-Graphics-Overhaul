@@ -17,6 +17,7 @@ public interface Selectable extends Text.Clickable, Session.Saveable {
   Composite portrait(BaseUI UI);
   String helpInfo();
   String objectCategory();
+  Constant infoSubject();
   
   SelectionPane    configSelectPane   (SelectionPane    pane, BaseUI UI);
   SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI);
