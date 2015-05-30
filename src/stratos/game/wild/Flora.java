@@ -88,9 +88,6 @@ public class Flora extends Element implements TileConstants {
       Flora.class, "Wild Flora" , Type.FLORA
     ) {};
   
-  final public static int
-    MAX_GROWTH = 4;
-  
   final static String STAGE_NAMES[] = {
     "Seedling",
     "Sapling" ,
@@ -98,11 +95,14 @@ public class Flora extends Element implements TileConstants {
     "Seasoned"
   };
   
+  final public static int
+    MAX_GROWTH = 4;
+  
   final public static float
-    GROWTH_PER_UPDATE  = 0.25f,
     NUM_DAYS_MATURE    = 5,
     MATURE_DURATION    = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
     GROW_TIMES_PER_DAY = Stage.STANDARD_DAY_LENGTH / Stage.GROWTH_INTERVAL,
+    GROWTH_PER_UPDATE  = MATURE_DURATION / (MAX_GROWTH * GROW_TIMES_PER_DAY),
     
     CEREAL_BONUS = 2.00f,
     HIVE_DIVISOR = 4.00f,

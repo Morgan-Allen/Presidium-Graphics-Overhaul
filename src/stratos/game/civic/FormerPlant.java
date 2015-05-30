@@ -128,7 +128,7 @@ public class FormerPlant extends Venue implements TileConstants {
       sumTrees += t.habitat().moisture();
     }
     sumP = sumTrees * Forestry.GROW_STAGE_POLYMER / 2f;
-    sumP /= Flora.MATURE_DURATION;
+    sumP *= Flora.MAX_GROWTH / Flora.MATURE_DURATION;
     return new Item[] { Item.withAmount(POLYMER, sumP) };
   }
   
