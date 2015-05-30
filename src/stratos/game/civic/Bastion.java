@@ -32,25 +32,25 @@ public class Bastion extends Venue {
     Bastion.class, "media/GUI/Buttons/bastion_button.gif"
   );
   
-  final static int
-    //EXCLUDE_RADIUS = 2,
-    CLAIM_RADIUS   = Stage.ZONE_SIZE / 2;
+  final static int CLAIM_RADIUS = Stage.ZONE_SIZE / 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Bastion.class, "bastion",
-    "Bastion", UIConstants.TYPE_SECURITY,
-    7, 4, IS_UNIQUE,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    "Bastion", UIConstants.TYPE_SECURITY, ICON,
+    "The Bastion is your seat of command for the settlement as a "+
+    "whole, houses your family, advisors and bodyguards, and provides "+
+    "basic logistic support.",
+    7, 4, Structure.IS_UNIQUE,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    650, 15, 1000, Structure.BIG_MAX_UPGRADES
   );
-  private Box2D excludes, claims;
+  
+  
+  private Box2D claims;
   
   
   public Bastion(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      650, 15, 1000,
-      Structure.BIG_MAX_UPGRADES, Structure.TYPE_FIXTURE
-    );
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
   }
@@ -159,7 +159,7 @@ public class Bastion extends Venue {
       "thereby aiding construction efforts and revenue flow.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class
+      null, BLUEPRINT
     ),
     SECURITY_MEASURES = new Upgrade(
       "Security Measures",
@@ -167,7 +167,7 @@ public class Bastion extends Venue {
       "augments your Bastion's output of "+POWER+" and "+ATMO+".",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class
+      null, BLUEPRINT
     ),
     NOBLE_QUARTERS = new Upgrade(
       "Noble Quarters",
@@ -175,7 +175,7 @@ public class Bastion extends Venue {
       "and honoured guests.",
       400,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class
+      null, BLUEPRINT
     ),
     GUEST_QUARTERS = new Upgrade(
       "Guest Quarters",
@@ -183,7 +183,7 @@ public class Bastion extends Venue {
       ""+STEWARD+"s in your employ.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class
+      null, BLUEPRINT
     ),
     BLAST_SHIELDS = new Upgrade(
       "Blast Shields",
@@ -191,7 +191,7 @@ public class Bastion extends Venue {
       "in the event of atomic attack.",
       450,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class
+      null, BLUEPRINT
     ),
     SEAT_OF_POWER = new Upgrade(
       "Seat of Power",
@@ -199,7 +199,7 @@ public class Bastion extends Venue {
       "to function without sleep or rest.",
       500,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Bastion.class
+      null, BLUEPRINT
     );
   
   final static Condition SEAT_OF_POWER_EFFECT = new Condition(
@@ -355,22 +355,6 @@ public class Bastion extends Venue {
       SERVICE_ADMIN, SERVICE_REFUGE, SERVICE_SECURITY,
       POWER, ATMO
     };
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "bastion");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Bastion is your seat of command for the settlement as a "+
-      "whole, houses your family, advisors and bodyguards, and provides "+
-      "basic logistic support.";
   }
 }
 

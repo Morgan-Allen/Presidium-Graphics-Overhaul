@@ -6,7 +6,10 @@ import stratos.game.common.*;
 import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.user.BaseUI;
+import stratos.user.InstallPane;
 import stratos.user.Selectable;
+import stratos.user.UIConstants;
 import stratos.user.notify.*;
 import stratos.util.*;
 
@@ -127,8 +130,47 @@ public class Traded extends Constant implements Session.Saveable {
     */
   protected void describeHelp(Description d, Selectable prior) {
     d.append(description);
+    final Base base = BaseUI.currentPlayed();
+    if (base == null) return;
+
+    final Batch <Blueprint>
+      canMake = new Batch <Blueprint> (),
+      canUse  = new Batch <Blueprint> ();
+    for (Blueprint b : base.setup.available()) {
+      if (b.category == UIConstants.TYPE_HIDDEN) continue;
+      else if (b.producing(this) != null) canMake.include(b);
+      else if (b.consuming(this) != null) canUse .include(b);
+    }
+    
+    //if (canUse.size() > 0) {
+      //d.append("\n\nThis commodity is used at:");
+    //}
+    
+    d.append("\n");
+    for (Blueprint b : canUse) {
+      final Conversion c = b.consuming(this);
+      d.append("\nUsed by ");
+      d.append(b);
+      if (c.out != null) { d.append(" to make "); d.append(c.out.type); }
+    }
+    
+    for (Blueprint b : canMake) {
+      final Conversion c = b.producing(this);
+      if (c.raw.length == 0) {
+        d.append("\nMade at ");
+        d.append(b);
+      }
+      else {
+        d.append("\nMade from ");
+        for (Item i : c.raw) { d.append(i.type); d.append(" "); }
+        d.append("at ");
+        d.append(b);
+      }
+    }
   }
 }
+
+
 
 
 

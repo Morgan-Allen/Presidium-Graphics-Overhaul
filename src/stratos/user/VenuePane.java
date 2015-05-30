@@ -340,32 +340,33 @@ public class VenuePane extends SelectionPane {
     //  they haven't started just yet.
     //  TODO:  Also- don't allow upgrades until the structure is finished
     //  building!  (Conversely, DO allow hiring before then.)
-    final Upgrade UA[] = Upgrade.upgradesFor(v.getClass());
+    final Upgrade UA[] = Upgrade.upgradesFor(v.blueprint);
     if (UA == null || UA.length == 0) {
       d.append("No upgrades available.");
       return;
     }
-    
     final Colour grey = Colour.LITE_GREY;
-    final SelectionPane venuePane = this;
+    
+    int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades();
+    if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
     
     for (final Upgrade upgrade : UA) {
+      final String name = upgrade.nameAt(v, -1, null);
       final int cost = upgrade.buildCost;
       final boolean possible =
         v.structure.upgradePossible(upgrade) &&
-        cost <= v.base().finance.credits()
-      ;
+        cost <= v.base().finance.credits();
       final int
         level  = v.structure.upgradeLevel(upgrade, Structure.STATE_INTACT ),
         queued = v.structure.upgradeLevel(upgrade, Structure.STATE_INSTALL);
-      if (level + queued == 0 && ! possible) continue;
-      
-      final String name = upgrade.nameAt(v, -1, null);
-      d.append("\n"+name);
-      if (possible) d.append("  ("+cost+" Credits)");
+      if ((! possible) && (level + queued == 0)) continue;
       
       d.append("\n  ");
-      final String desc = "INSTALL";
+      if (possible) d.append(name, upgrade);
+      else d.append(name, grey);
+      
+      d.append("\n  ");
+      String desc = "INSTALL";
       if (possible) d.append(new Description.Link(desc) {
         public void whenClicked() {
           v.structure.beginUpgrade(upgrade, false);
@@ -374,8 +375,8 @@ public class VenuePane extends SelectionPane {
       });
       else d.append(desc, grey);
       
-      d.append("  ");
-      d.append("INFO", upgrade);
+      d.append(" ("+(level + queued)+"/"+upgrade.maxLevel+")");
+      if (possible) d.append(" ("+cost+" Credits) ");
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();
@@ -396,8 +397,7 @@ public class VenuePane extends SelectionPane {
   
   
   private void describeOrders(Description d) {
-    d.append("\n");
-    d.append("\nOrders:");
+    d.append("\n  Orders:");
     
     final Batch <Description.Link> orders = new Batch();
     addOrdersTo(orders);

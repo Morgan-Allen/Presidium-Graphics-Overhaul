@@ -25,25 +25,25 @@ public class HoldingUpgrades {
   final public static Upgrade
     TENT_LEVEL = new Upgrade(
       "Seal Tent", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.class
+      null, Holding.BLUEPRINT
     ),
     PYON_LEVEL = new Upgrade(
       "Pyon Shacks", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.class
+      null, Holding.BLUEPRINT
     ),
     FREEBORN_LEVEL = new Upgrade(
       "Freeborn Holding", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      PYON_LEVEL, Holding.class
+      PYON_LEVEL, Holding.BLUEPRINT
     ),
     CITIZEN_LEVEL = new Upgrade(
       "Citizen Apartment", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      FREEBORN_LEVEL, Holding.class
+      FREEBORN_LEVEL, Holding.BLUEPRINT
     ),
     GELDER_LEVEL = new Upgrade(
       "Gelder Manse", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      CITIZEN_LEVEL, Holding.class
+      CITIZEN_LEVEL, Holding.BLUEPRINT
     ),
-    UPGRADE_ARRAY[] = Upgrade.upgradesFor(Holding.class);
+    UPGRADE_ARRAY[] = Upgrade.upgradesFor(Holding.BLUEPRINT);
   
   final static Object
     NEEDS_MET = "OKAY",

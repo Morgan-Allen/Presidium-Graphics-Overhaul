@@ -99,7 +99,15 @@ public class Flora extends Element implements TileConstants {
   };
   
   final public static float
-    GROWTH_PER_UPDATE = 0.25f;  //  TODO:  THIS IS NOT BEING USED!  FIX!
+    GROWTH_PER_UPDATE  = 0.25f,
+    NUM_DAYS_MATURE    = 5,
+    MATURE_DURATION    = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
+    GROW_TIMES_PER_DAY = Stage.STANDARD_DAY_LENGTH / Stage.GROWTH_INTERVAL,
+    
+    CEREAL_BONUS = 2.00f,
+    HIVE_DIVISOR = 4.00f,
+    DRYLAND_MULT = 0.75f,
+    WETLAND_MULT = 1.25f;
   
   
   final Habitat habitat;

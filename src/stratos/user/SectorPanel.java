@@ -21,8 +21,7 @@ public class SectorPanel extends UIGroup {
     super(UI);
     
     this.border = new Bordering(UI, SelectionPane.BORDER_TEX);
-    border.setInsets(20, 20, 30, 30);
-    border.setUV(0.2f, 0.2f, 0.3f, 0.3f);
+    border.setInsets(10, 10, 10, 10);
     border.alignAcross(0, 1);
     border.alignDown  (0, 1);
     border.attachTo(this);

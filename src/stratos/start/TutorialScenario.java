@@ -182,7 +182,7 @@ public class TutorialScenario extends StartupScenario {
     final Blueprint RB = Ruins.VENUE_BLUEPRINTS[0];
     ruinsNear = (Ruins) RB.createVenue(artilects);
     ruinsFar  = (Ruins) RB.createVenue(artilects);
-    ruinsNear.structure.setupStats(200, 5, 0, 0, Structure.TYPE_ANCIENT);
+    ruinsNear.structure.setupStats(200, 5, 0, 0, RB.properties);
     //
     //  TODO:  I'm going to have to create custom Siting objects for the
     //  various blueprints, and to allow for customised placement-passes like

@@ -35,10 +35,10 @@ public class PlacingTask implements UITask {
     this.UI = UI;
     this.placeType = placeType;
     
-    if      (placeType.hasProperty(Venue.IS_ZONED )) mode = MODE_AREA;
-    else if (placeType.hasProperty(Venue.IS_LINEAR)) mode = MODE_LINE;
+    if      (placeType.hasProperty(Structure.IS_ZONED )) mode = MODE_AREA;
+    else if (placeType.hasProperty(Structure.IS_LINEAR)) mode = MODE_LINE;
     else mode = MODE_POINT;
-    gridLock = placeType.hasProperty(Venue.IS_GRIDDED);
+    gridLock = placeType.hasProperty(Structure.IS_GRIDDED);
   }
   
   

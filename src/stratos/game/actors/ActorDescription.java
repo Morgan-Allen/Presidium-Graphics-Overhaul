@@ -83,8 +83,11 @@ public class ActorDescription implements Qualities {
     }
     //
     //  Describe your job, place of work, and current residence:
-    final String VN = h.mind.vocation().nameFor(h);
-    d.append("\n  Vocation: "+VN);
+    final Background job = h.mind.vocation();
+    if (job != null) {
+      d.append("\n  Vocation: ");
+      d.append(job.nameFor(h), job);
+    }
     if (h.mind.work() != null) {
       d.append("\n  Employed at: ");
       d.append(h.mind.work());

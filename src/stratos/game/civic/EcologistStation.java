@@ -45,19 +45,18 @@ public class EcologistStation extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     EcologistStation.class, "ecologist_station",
-    "Ecologist Station", UIConstants.TYPE_ECOLOGIST,
-    4, 3, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    "Ecologist Station", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Ecologist Stations are responsible for agriculture and forestry, "+
+    "helping to secure food supplies and advance terraforming efforts.",
+    4, 3, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    150, 3, 250, Structure.NORMAL_MAX_UPGRADES
   );
   
   
   
   public EcologistStation(Base belongs) {
     super(BLUEPRINT, belongs);
-    structure.setupStats(
-      150, 3, 250,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(STATION_MODEL.makeSprite());
   }
@@ -93,7 +92,7 @@ public class EcologistStation extends Venue {
       "calories than other crops, but lack the nutrients for a complete diet.",
       100,
       Upgrade.THREE_LEVELS, CARBS, 1,
-      null, EcologistStation.class
+      null, BLUEPRINT
     ),
     FLORAL_CULTURE = new Upgrade(
       "Floral Culture",
@@ -101,14 +100,14 @@ public class EcologistStation extends Venue {
       "valued as luxury exports, but their yield in calories is limited.",
       150,
       Upgrade.THREE_LEVELS, GREENS, 1,
-      null, EcologistStation.class
+      null, BLUEPRINT
     ),
     CULTIVATOR_STATION = new Upgrade(
       "Cultivator Station",
       CULTIVATOR.info,
       50,
       Upgrade.THREE_LEVELS, CULTIVATOR, 1,
-      null, EcologistStation.class
+      null, BLUEPRINT
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
@@ -116,7 +115,7 @@ public class EcologistStation extends Venue {
       "moderation, as well as permitting "+POLYMER+" production.",
       100,
       Upgrade.THREE_LEVELS, Flora.class, 1,
-      FLORAL_CULTURE, EcologistStation.class
+      FLORAL_CULTURE, BLUEPRINT
     ),
     SYMBIOTICS = new Upgrade(
       "Symbiotics",
@@ -124,14 +123,14 @@ public class EcologistStation extends Venue {
       "assists in animal breeding programs.",
       150,
       Upgrade.THREE_LEVELS, PROTEIN, 1,
-      FLORAL_CULTURE, EcologistStation.class
+      FLORAL_CULTURE, BLUEPRINT
     ),
     ECOLOGIST_STATION = new Upgrade(
       "Ecologist Station",
       ECOLOGIST.info,
       150,
       Upgrade.THREE_LEVELS, ECOLOGIST, 1,
-      TREE_FARMING, EcologistStation.class
+      TREE_FARMING, BLUEPRINT
     );
   
   
@@ -291,25 +290,5 @@ public class EcologistStation extends Venue {
   
   public void addServices(Choice choice, Actor client) {
     choice.add(BringUtils.nextHomePurchase(client, this));
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  protected Traded[] goodsToShow() {
-    return null;
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "botanical_station");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Ecologist Stations are responsible for agriculture and forestry, "+
-      "helping to secure food supplies and advance terraforming efforts.";
   }
 }

@@ -46,18 +46,18 @@ public class EngineerStation extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     EngineerStation.class, "engineer_station",
-    "Engineer Station", UIConstants.TYPE_ENGINEER,
-    4, 2, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY, METALS_TO_PARTS
+    "Engineer Station", UIConstants.TYPE_ENGINEER, ICON,
+    "The Engineer Station manufactures "+PARTS+", "+CIRCUITRY+", devices and "+
+    "armour for your citizens.",
+    4, 2, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    200, 5, 350, Structure.NORMAL_MAX_UPGRADES,
+    METALS_TO_PARTS, PARTS_TO_CIRCUITRY
   );
   
   
   public EngineerStation(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      200, 5, 350,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     this.attachSprite(MODEL.makeSprite());
   }
@@ -86,7 +86,7 @@ public class EngineerStation extends Venue {
       "slightly increases pollution.",
       200,
       Upgrade.THREE_LEVELS, PARTS, 2,
-      null, EngineerStation.class
+      null, BLUEPRINT
     ),
     MOLDING_PRESS = null,  //  TODO:  INCLUDE THIS
     TECHNICIAN_STATION = new Upgrade(
@@ -94,15 +94,15 @@ public class EngineerStation extends Venue {
       Backgrounds.TECHNICIAN.info,
       50,
       Upgrade.TWO_LEVELS, Backgrounds.TECHNICIAN, 1,
-      null, EngineerStation.class
+      null, BLUEPRINT
     ),
-    COMPOSITE_ARMOUR = new Upgrade(
-      "Composite Armour",
+    ALLOY_COMPOSITES = new Upgrade(
+      "Alloy Composites",
       "Improves the production of heavy armours along with most melee "+
       "weapons and industrial tools.",
       200,
       Upgrade.THREE_LEVELS, null, 2,
-      null, EngineerStation.class
+      null, BLUEPRINT
     ),
     PLASMA_WEAPONS = new Upgrade(
       "Plasma Weapons",
@@ -110,7 +110,7 @@ public class EngineerStation extends Venue {
       "allowing upgrades to most ranged armaments.",
       300,
       Upgrade.THREE_LEVELS, null, 2,
-      null, EngineerStation.class
+      null, BLUEPRINT
     ),
     T_NULL_ARMBAND = null, //  TODO:  INCLUDE THIS
     ARTIFICER_STATION = new Upgrade(
@@ -118,15 +118,15 @@ public class EngineerStation extends Venue {
       Backgrounds.ARTIFICER.info,
       150,
       Upgrade.SINGLE_LEVEL, Backgrounds.ARTIFICER, 1,
-      TECHNICIAN_STATION, EngineerStation.class
+      TECHNICIAN_STATION, BLUEPRINT
     ),
-    PROGRAM_TERMINAL = new Upgrade(
-      "Program Terminal",
+    MICRO_ASSEMBLY = new Upgrade(
+      "Micro Assembly",
       "Allows for the precise yet highly customised assembly of "+CIRCUITRY+" "+
       "and other personal commissions.",
       150,
       Upgrade.THREE_LEVELS, PLASTICS, 1,
-      new Upgrade[] { ASSEMBLY_LINE, ARTIFICER_STATION }, EngineerStation.class
+      new Upgrade[] { ASSEMBLY_LINE, ARTIFICER_STATION }, BLUEPRINT
     );
   ;
   
@@ -175,8 +175,8 @@ public class EngineerStation extends Venue {
       
       if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
-        Upgrade forType = PROGRAM_TERMINAL;
-        if (DT.hasProperty(KINETIC)) forType = COMPOSITE_ARMOUR;
+        Upgrade forType = MICRO_ASSEMBLY;
+        if (DT.hasProperty(KINETIC)) forType = ALLOY_COMPOSITES;
         if (DT.hasProperty(ENERGY )) forType = PLASMA_WEAPONS;
         mO.setBonusFrom(this, true, forType);
       }
@@ -184,13 +184,13 @@ public class EngineerStation extends Venue {
         final OutfitType OT = (OutfitType) made;
         if (OT.shieldBonus > OT.defence) {
           //  TODO:  Add a bonus here from T-Null Arm-band.
-          mO.setBonusFrom(this, true, COMPOSITE_ARMOUR);
+          mO.setBonusFrom(this, true, ALLOY_COMPOSITES);
         }
         else {
-          mO.setBonusFrom(this, true, COMPOSITE_ARMOUR);
+          mO.setBonusFrom(this, true, ALLOY_COMPOSITES);
         }
       }
-      else mO.setBonusFrom(this, true, PROGRAM_TERMINAL);
+      else mO.setBonusFrom(this, true, MICRO_ASSEMBLY);
       
       choice.add(mO);
     }
@@ -203,7 +203,7 @@ public class EngineerStation extends Venue {
     }
     final Manufacture mI = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY);
     if (mI != null) {
-      choice.add(mI.setBonusFrom(this, false, ASSEMBLY_LINE, PROGRAM_TERMINAL));
+      choice.add(mI.setBonusFrom(this, false, ASSEMBLY_LINE, MICRO_ASSEMBLY));
     }
     
     //  Finally, consider contributing toward local repairs-
@@ -239,15 +239,9 @@ public class EngineerStation extends Venue {
   }
   
   
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "foundry");
-  }
-  
-  
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "Engineers manufacture parts, devices and armour for your citizens.",
-      this, METALS_TO_PARTS, ASSEMBLY_LINE
+      super.helpInfo(), this, METALS_TO_PARTS, ASSEMBLY_LINE
     );
   }
 }

@@ -48,16 +48,18 @@ public class SolarBank extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     SolarBank.class, "solar_bank",
-    "Solar Bank", UIConstants.TYPE_ECOLOGIST,
-    2, 2, IS_LINEAR | IS_FIXTURE,
+    "Solar Bank", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Solar Banks provide clean power and a small amount of water to your "+
+    "settlement.",
+    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
+    10, 5, 40, Structure.NO_UPGRADES,
     LAND_TO_POWER, LAND_TO_WATER
   );
   
   
   public SolarBank(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE);
   }
   
   
@@ -118,21 +120,9 @@ public class SolarBank extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "solar_bank");
-  }
-  
-  
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final String status = null;
     return VenuePane.configSimplePanel(this, panel, UI, status);
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Solar Banks provide clean power and a small amount of water to your "+
-      "settlement.";
   }
 }
 

@@ -59,10 +59,13 @@ public class CultureLab extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     CultureLab.class, "culture_lab",
-    "Culture Lab", UIConstants.TYPE_PHYSICIAN,
-    4, 2, IS_NORMAL,
+    "Culture Lab", UIConstants.TYPE_PHYSICIAN, ICON,
+    "The Culture Lab manufactures "+REAGENTS+", basic foodstuffs "+
+    "and even cloned tissues for medical purposes.",
+    4, 2, Structure.IS_NORMAL,
     new Blueprint[] { EngineerStation.BLUEPRINT, PhysicianStation.BLUEPRINT },
     Owner.TIER_FACILITY,
+    400, 3, 450, Structure.NORMAL_MAX_UPGRADES,
     WASTE_TO_CARBS, WASTE_TO_REAGENTS,
     CARBS_TO_PROTEIN, PROTEIN_TO_REPLICANTS
   );
@@ -70,10 +73,6 @@ public class CultureLab extends Venue {
   
   public CultureLab(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      400, 3, 450,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     this.attachSprite(MODEL.makeSprite());
   }
@@ -100,28 +99,28 @@ public class CultureLab extends Venue {
       "Employs gene-tailored yeast strains to provide "+CARBS+", cycle waste "+
       "products and output "+ATMO+".",
       200, Upgrade.THREE_LEVELS, null, 1,
-      null, CultureLab.class
+      null, BLUEPRINT
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
       "permitting manufacture of "+REAGENTS+".",
       250, Upgrade.THREE_LEVELS, null, 1,
-      null, CultureLab.class
+      null, BLUEPRINT
     ),
     TISSUE_CULTURE = new Upgrade(
       "Tissue Culture",
       "Allows production of "+PROTEIN+" for consumption and "+REPLICANTS+" "+
       "for use in medical emergencies.",
       400, Upgrade.THREE_LEVELS, null, 1,
-      CARBS_CULTURE, CultureLab.class
+      CARBS_CULTURE, BLUEPRINT
     ),
     //  TODO:  Just have a general structure-upgrade here-
     VAT_BREEDER_STATION = new Upgrade(
       "Vat Breeder Station",
       VATS_BREEDER.info,
       100, Upgrade.THREE_LEVELS, Backgrounds.VATS_BREEDER, 1,
-      null, CultureLab.class
+      null, BLUEPRINT
     )
   ;
   
@@ -213,16 +212,9 @@ public class CultureLab extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "culture_vats");
-  }
-  
-  
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Culture Lab manufactures "+REAGENTS+", basic foodstuffs "+
-      "and even cloned tissues for medical purposes.",
-      this, WASTE_TO_CARBS, CARBS_CULTURE
+      super.helpInfo(), this, WASTE_TO_CARBS, CARBS_CULTURE
     );
   }
 }

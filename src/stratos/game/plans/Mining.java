@@ -36,7 +36,7 @@ public class Mining extends Plan {
     STAGE_DONE   =  3;
   final public static int
     MAX_SAMPLE_STORE = 50,
-    DEFAULT_TILE_DIG_TIME = Stage.STANDARD_DAY_LENGTH / 3,
+    DEFAULT_TILE_DIG_TIME = Stage.STANDARD_SHIFT_LENGTH,
     HARVEST_MULT = 5 ,
     SLAG_RATIO   = 10;
   
@@ -167,7 +167,7 @@ public class Mining extends Plan {
     if (dist > site.digLimit() + (SS / 2)) return -1;
     
     final Item left = mineralsAt(face);
-    float rating = left == null ? 0.1f : (1 + site.extractionBonus(left.type));
+    float rating = left == null ? 0.1f : site.extractMultiple(left.type);
     rating *= SS / (SS + dist);
     return rating;
   }
@@ -348,11 +348,11 @@ public class Mining extends Plan {
     final Item left = mineralsAt(face);
     if (left == null) { stage = STAGE_DUMP; return false; }
     
-    final float bonus = site.extractionBonus(left.type);
+    final float rate = site.extractMultiple(left.type);
     float success = 1;
     success += actor.skills.test(GEOPHYSICS , 5 , 1) ? 1 : 0;
     success *= actor.skills.test(HARD_LABOUR, 15, 1) ? 2 : 1;
-    success = (success + bonus) / 5f;
+    success *= rate;
     success /= DEFAULT_TILE_DIG_TIME;
     
     if (report) I.say("\nMINERALS LEFT: "+left);
@@ -363,8 +363,9 @@ public class Mining extends Plan {
     actor.gear.addItem(slag );
     
     if (report) {
-      I.say("  Dig success was: "+success+", bonus: "+bonus);
-      I.say("  Ore extracted:   "+mined);
+      I.say("  Dig success was: "+success);
+      I.say("  Extraction rate: "+rate   );
+      I.say("  Ore extracted:   "+mined  );
     }
     
     if (Rand.num() < success) {

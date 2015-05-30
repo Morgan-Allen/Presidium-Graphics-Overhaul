@@ -195,21 +195,21 @@ public class Crop extends Element {
     final boolean hive = isHive(s);
     
     if (hive) {
-      bonus = (1 + moisture) * 0.5f / Nursery.HIVE_DIVISOR;
+      bonus = (1 + moisture) * 0.5f / HIVE_DIVISOR;
     }
     else if (isDryland(s)) {
-      bonus = Nursery.DRYLAND_MULT * (1 + moisture) / 2f;
+      bonus = DRYLAND_MULT * (1 + moisture) / 2f;
     }
     else {
-      bonus = moisture * Nursery.WETLAND_MULT;
+      bonus = moisture * WETLAND_MULT;
     }
     
     //  Then, we determine bonus based on crop type-
     if (hive) {
-      bonus += 0.5f / Nursery.HIVE_DIVISOR;
+      bonus += 0.5f / HIVE_DIVISOR;
     }
     else if (isCereal(s)) {
-      bonus *= Nursery.CEREAL_BONUS;
+      bonus *= CEREAL_BONUS;
     }
     else {
       bonus += 0;
@@ -217,7 +217,7 @@ public class Crop extends Element {
     
     //  And if a seed is provided, that as well-
     if (seed != null) {
-      if (hive) bonus += seed.quality / Nursery.HIVE_DIVISOR;
+      if (hive) bonus += seed.quality / HIVE_DIVISOR;
       else bonus += seed.quality;
       return bonus;
     }
@@ -248,7 +248,7 @@ public class Crop extends Element {
     final float
       dailyGrowth = dailyGrowthEstimate(tile, report),
       health      = quality / MAX_HEALTH,
-      increment   = dailyGrowth * MAX_GROWTH / Nursery.GROW_TIMES_PER_DAY;
+      increment   = dailyGrowth * MAX_GROWTH / GROW_TIMES_PER_DAY;
     
     if (Rand.num() < increment * (1 - health)) blighted = true;
     growStage = Nums.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
@@ -262,11 +262,11 @@ public class Crop extends Element {
   
   
   private float dailyGrowthEstimate(Tile tile, boolean report) {
-    if (blighted) return -1f / Nursery.NUM_DAYS_MATURE;
+    if (blighted) return -1f / NUM_DAYS_MATURE;
     
     final Stage world = parent.world();
     float
-      increment = 1f / Nursery.NUM_DAYS_MATURE,
+      increment = 1f / NUM_DAYS_MATURE,
       health    = quality / MAX_HEALTH,
       growBonus = habitatBonus(tile, species, null),
       pollution = 0 - world.ecology().ambience.valueAt(tile),

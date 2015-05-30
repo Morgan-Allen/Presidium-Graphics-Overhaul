@@ -54,7 +54,6 @@ public class Skill extends Trait {
   
   
   
-  final public String name;
   final public int form;
   final public Skill parent;
   
@@ -66,14 +65,8 @@ public class Skill extends Trait {
   
   Skill(String name, String description, int form, Skill parent) {
     super(name, description, SKILL, descLevelsFor(name));
-    this.name = name;
     this.form = form;
     this.parent = parent;
-  }
-  
-
-  public String toString() {
-    return name;
   }
 }
 

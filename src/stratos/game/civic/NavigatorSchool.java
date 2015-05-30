@@ -32,18 +32,16 @@ public class NavigatorSchool extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     NavigatorSchool.class, "navigator_school",
-    "Navigator School", UIConstants.TYPE_HIDDEN,
-    5, 2, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    "Navigator School", UIConstants.TYPE_HIDDEN, ICON,
+    "<Navigator School Description>",
+    5, 2, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    200, 4, 650, Structure.BIG_MAX_UPGRADES
   );
   
   
   public NavigatorSchool(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      200, 4, 650,
-      Structure.BIG_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -68,19 +66,6 @@ public class NavigatorSchool extends Venue {
   
   public Traded[] services() {
     return null;
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "navigator_school");
-  }
-  
-  
-  public String helpInfo() {
-    return "Navigator School";
   }
 }
 

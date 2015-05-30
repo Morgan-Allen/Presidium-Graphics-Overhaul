@@ -43,9 +43,12 @@ public class StockExchange extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     StockExchange.class, "stock_exchange",
-    "Stock Exchange", UIConstants.TYPE_COMMERCE,
-    5, 1, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_TRADER
+    "Stock Exchange", UIConstants.TYPE_COMMERCE, ICON,
+    "The Stock Exchange generates higher profits from the sale of finished "+
+    "goods to local homes and businesses.",
+    5, 1, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_TRADER,
+    150, 3, 250, Structure.NORMAL_MAX_UPGRADES
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -54,9 +57,6 @@ public class StockExchange extends Venue {
   public StockExchange(Base base) {
     super(BLUEPRINT, base);
     staff.setShiftType(SHIFTS_BY_DAY);
-    structure.setupStats(
-      150, 3, 250, Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     attachSprite(MODEL.makeSprite());
   }
   
@@ -147,7 +147,7 @@ public class StockExchange extends Venue {
       "Increases space available to carbs and protein and augments "+
       "profits from their sale.",
       150, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class
+      null, BLUEPRINT
     ),
     
     //  TODO:  PERMIT BASIC REPAIRS/RECHARGE OF ARMOUR/DEVICES
@@ -156,7 +156,7 @@ public class StockExchange extends Venue {
       "Increases space available to parts and plastics, and augments profits "+
       "from their sale.",
       150, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class
+      null, BLUEPRINT
     ),
     
     //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
@@ -165,7 +165,7 @@ public class StockExchange extends Venue {
       "Increases space available to greens and medicine, and augments "+
       "profits from their sale.",
       250, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class
+      null, BLUEPRINT
     ),
     
     VIRTUAL_CURRENCY = new Upgrade(
@@ -173,7 +173,7 @@ public class StockExchange extends Venue {
       "Makes small periodic adjustments to revenue and outlays in response "+
       "to large-scale investment patterns, magnifying both profit and loss.",
       400, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class
+      null, BLUEPRINT
     ),
     
     ADVERTISEMENT = new Upgrade(
@@ -181,7 +181,7 @@ public class StockExchange extends Venue {
       "Increases the likelihood of shoppers' visits and enhances morale when "+
       "doing so.",
       300, Upgrade.THREE_LEVELS, null, 1,
-      null, StockExchange.class
+      null, BLUEPRINT
     );
   
   final public static Traded
@@ -328,21 +328,6 @@ public class StockExchange extends Venue {
     return DISPLAYED_GOODS;
   }
   
-  /*
-  //
-  //  TODO:  You have to show items in the back as well, behind a sprite
-  //  overlay for the facade of the structure.
-  protected float goodDisplayAmount(Traded good) {
-    final float CL = catalogueLevel(good);
-    return Nums.min(super.goodDisplayAmount(good), 25 * CL);
-  }
-  //*/
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "stock_exchange");
-  }
-  
   
   public String helpInfo() {
     if (inWorld() && staff.manning() == 0) {
@@ -350,9 +335,7 @@ public class StockExchange extends Venue {
         "The Stock Exchange cannot provide goods to local homeowners unless "+
         "someone is there to man the stalls!";
     }
-    else return
-      "The Stock Exchange generates higher profits from the sale of finished "+
-      "goods to local homes and businesses.";
+    else return super.helpInfo();
   }
 }
 

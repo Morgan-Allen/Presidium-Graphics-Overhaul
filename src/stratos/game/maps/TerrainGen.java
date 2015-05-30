@@ -427,7 +427,7 @@ public class TerrainGen implements TileConstants {
           if (o != null) for (Tile t : world.tilesIn(o.footprint(), false)) {
             if (t.habitat() == Habitat.SHORELINE) continue;
             if (Rand.index(4) > 0) worldTerrain.setHabitat(t, Habitat.BARRENS);
-            else worldTerrain.setHabitat(t, Habitat.MESA);
+            else worldTerrain.setHabitat(t, Habitat.WHITE_MESA);
           }
         }
         

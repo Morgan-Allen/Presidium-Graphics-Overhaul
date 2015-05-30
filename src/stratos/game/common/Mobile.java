@@ -111,7 +111,7 @@ public abstract class Mobile extends Element
     return true;
   }
   
-
+  
   public boolean enterWorldAt(Target t, Stage world) {
     final Vec3D p = t.position(null);
     if (! setPosition(p.x, p.y, world)) return false;

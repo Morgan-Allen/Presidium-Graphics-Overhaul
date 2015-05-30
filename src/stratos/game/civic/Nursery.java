@@ -35,17 +35,6 @@ public class Nursery extends Venue implements TileConstants {
       Nursery.class, IMG_DIR+"nursery.png", 2, 2
     );
   
-  final public static float
-    NUM_DAYS_MATURE    = 5,
-    MATURE_DURATION    = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
-    GROW_TIMES_PER_DAY = Stage.STANDARD_DAY_LENGTH / Stage.GROWTH_INTERVAL,
-    EXTRA_CLAIM_SIZE   = 4,
-    
-    CEREAL_BONUS = 2.00f,
-    HIVE_DIVISOR = 4.00f,
-    DRYLAND_MULT = 0.75f,
-    WETLAND_MULT = 1.25f;
-  
   final public static Conversion
     LAND_TO_CARBS = new Conversion(
       Nursery.class, "land_to_carbs",
@@ -56,11 +45,20 @@ public class Nursery extends Venue implements TileConstants {
       TO, 1, GREENS
     );
   
+  
+  final static String DEFAULT_INFO = 
+    "Nurseries secure a high-quality food source from plant crops, but need "+
+    "space, hard labour and fertile soils.";
+  
   final static Blueprint BLUEPRINT = new Blueprint(
     Nursery.class, "nursery",
-    "Nursery", UIConstants.TYPE_ECOLOGIST,
-    2, 2, IS_ZONED,
+    "Nursery", UIConstants.TYPE_ECOLOGIST, ICON, DEFAULT_INFO,
+    2, 2, Structure.IS_ZONED,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
+    25,  //integrity
+    5,  //armour
+    75,  //build cost
+    Structure.NO_UPGRADES,
     LAND_TO_CARBS, LAND_TO_GREENS
   );
   
@@ -72,13 +70,6 @@ public class Nursery extends Venue implements TileConstants {
   
   public Nursery(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      25,  //integrity
-      5,  //armour
-      75,  //build cost
-      0,  //max upgrades
-      Structure.TYPE_FIXTURE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(NURSERY_MODEL);
   }
@@ -303,9 +294,6 @@ public class Nursery extends Venue implements TileConstants {
   /**  Rendering and interface methods-
     */
   final static String
-    DEFAULT_INFO = 
-      "Nurseries secure a high-quality food source from plant crops, but need "+
-      "space, hard labour and fertile soils.",
     POOR_SOILS_INFO =
       "The poor soils around this Nursery will hamper growth and yield a "+
       "stingy harvest.",
@@ -314,12 +302,12 @@ public class Nursery extends Venue implements TileConstants {
       ""+Backgrounds.CULTIVATOR+"s.",
     POOR_HEALTH_INFO =
       "The crops around this Nursery are sickly.  Try to improve seed stock "+
-      "at the "+EcologistStation.BLUEPRINT.name+".",
+      "at the "+EcologistStation.BLUEPRINT+".",
     AWAITING_GROWTH_INFO =
       "The crops around this Nursery have yet to mature.  Allow them a few "+
       "days to bear fruit.";
   
-  private String compileHealthReport() {
+  private String compileOutputReport() {
     final StringBuffer s = new StringBuffer();
     
     final int numTiles = toPlant.length;
@@ -371,19 +359,14 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "plantation");
-  }
-  
-  
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
   
   
   public String helpInfo() {
-    if (inWorld() && structure.intact()) return compileHealthReport();
-    else return DEFAULT_INFO;
+    if (inWorld() && structure.intact()) return compileOutputReport();
+    else return super.helpInfo();
   }
 }
 

@@ -52,9 +52,12 @@ public class PhysicianStation extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     PhysicianStation.class, "physician_station",
-    "Physician Station", UIConstants.TYPE_PHYSICIAN,
-    3, 2, IS_NORMAL,
+    "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
+    "The Physician Station allows your citizens' injuries or diseases to be "+
+    "treated quickly and effectively.",
+    3, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    200, 2, 350, Structure.NORMAL_MAX_UPGRADES,
     REAGENTS_TO_MEDICINE, REAGENTS_TO_SOMA
   );
   
@@ -64,10 +67,6 @@ public class PhysicianStation extends Venue {
   
   public PhysicianStation(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      200, 2, 350,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -99,7 +98,7 @@ public class PhysicianStation extends Venue {
       "diagnosis of most disease.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
-      null, PhysicianStation.class
+      null, BLUEPRINT
     ),
     
     //  Soma and truth serums (for interrogation- hypnotic meds.)
@@ -111,7 +110,7 @@ public class PhysicianStation extends Venue {
       "injuries can be dealt with quickly.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      null, PhysicianStation.class
+      null, BLUEPRINT
     ),
     GENE_THERAPIES = new Upgrade(
       "Gene Therapies",
@@ -119,7 +118,7 @@ public class PhysicianStation extends Venue {
       "correct diseases and nip mutation in the bud.",
       350,
       Upgrade.THREE_LEVELS, null, 1,
-      MEDICAL_LAB, PhysicianStation.class
+      MEDICAL_LAB, BLUEPRINT
     ),
     CRYONICS_PROGRAM = new Upgrade(
       "Cryonics Program",
@@ -127,7 +126,7 @@ public class PhysicianStation extends Venue {
       "make a potential comeback.",
       400,
       Upgrade.THREE_LEVELS, null, 1,
-      EMERGENCY_ROOM, PhysicianStation.class
+      EMERGENCY_ROOM, BLUEPRINT
     ),
     
     //  Combat stims plus extra chance of revival as enraged
@@ -138,14 +137,14 @@ public class PhysicianStation extends Venue {
       Backgrounds.MINDER.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
-      MEDICAL_LAB, PhysicianStation.class
+      MEDICAL_LAB, BLUEPRINT
     ),
     PHYSICIAN_STATION = new Upgrade(
       "Physician Ward",
       Backgrounds.PHYSICIAN.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
-      MINDER_STATION, PhysicianStation.class
+      MINDER_STATION, BLUEPRINT
     );
   
   
@@ -267,16 +266,9 @@ public class PhysicianStation extends Venue {
   }
   
   
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "sickbay");
-  }
-  
-  
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Physician Station allows your citizens' injuries or diseases to be "+
-      "treated quickly and effectively.",
-      this, REAGENTS_TO_MEDICINE, MEDICAL_LAB
+      super.helpInfo(), this, REAGENTS_TO_MEDICINE, MEDICAL_LAB
     );
   }
 }
