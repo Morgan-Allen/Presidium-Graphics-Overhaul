@@ -2,13 +2,13 @@
 
 <settings
   defaultPath ="media/Actors/tests/"
-  defaultFile ="multi_weights_test.ms3d"
-  showAsHuman ="false"
+  defaultFile ="test.xml"
+  showAsHuman ="true"
 />
 
 
 <humanCostume
-  path    ="media/Actors/human/"
+  path    ="media/Actors/tests/textures/"
   basePart="MaterialGroup.2"
 >
   
@@ -20,9 +20,22 @@
   </basicSkins>
   
   <costumeSkins>
-    <skin name="aesthete_male_skin.gif"/>
-    <skin name="militant_skin.gif"/>
-    <skin name="runner_skin.gif"/>
+	<skin name="aesthete_female_skin.gif"/>
+	<skin name="aesthete_male_skin.gif"/>
+	<skin name="air_corps_skin.gif"/>
+	<skin name="artificer_skin.gif"/>
+	<skin name="citizen_skin.gif"/>
+	<skin name="ecologist_skin.gif"/>
+	<skin name="enforcer_skin.gif"/>
+	<skin name="highborn_female_skin.gif"/>
+	<skin name="highborn_male_skin.gif"/>
+	<skin name="kommando_skin.gif"/>
+	<skin name="militant_skin.gif"/>
+	<skin name="native_skin.gif"/>
+	<skin name="physician_skin.gif"/>
+	<skin name="pyon_skin.gif"/>
+	<skin name="runner_skin.gif"/>
+	<skin name="vendor_skin.gif"/>
   </costumeSkins>
   
 </humanCostume>

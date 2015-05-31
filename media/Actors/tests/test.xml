@@ -27,29 +27,35 @@
     <animation name="strike_big" start="70" end="74" duration="1.5" />
     <animation name="move_fast"  start="75" end="83" duration="0.7" />
     <animation name="move_sneak" start="85" end="93" duration="0.7" />
+	<animation name="CarryOn" 		 start="94" end="114" duration="1" />
+	<animation name="Sneaking" 		 start="115" end="135" duration="1.5" />
+	<animation name="TalkingWarning" 		 start="136" end="161" duration="2.5" />
+	<animation name="Firenew" 		 start="162" end="187" duration="1.5" />
+	<animation name="FireHeavy" 		 start="188" end="210" duration="1.5" />
   </animations>
   
   <attachPoints>
-    <attachPoint function="fire"      joint="Right Wrist"/>
+    <attachPoint function="fire"      joint="Hand.r"/>
     <attachPoint function="carryBack" joint="Chest"      />
     <attachPoint function="target"    joint="Neck"       />
   </attachPoints>
 </model>
 
-
 <model
-  name="Test"
+  name="Avrodil"
   format="MS3D"
   type="JOINT"
   path="media/Actors/human/"
-  file="test.ms3d"
+  file="Avrodil.ms3d"
   scale="1"
   bound="1.5"
   stride="0.6"
   height="1.0"
 >
 <animations rotate="90">
-    <animation name="test"      start="0"  end="10"  duration="1" />
+	<animation name="still"      start="11"  end="11"  duration="1" />
+    <animation name="walk"      start="1"  end="10"  duration="3" />
+	<animation name="idle"      start="11"  end="20"  duration="3" />
  </animations>
 
 </model>
