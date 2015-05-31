@@ -263,6 +263,7 @@ public class Repairs extends Plan {
   
   public boolean actionBuild(Actor actor, Structure.Basis built) {
     final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
+    RoadsRepair.updatePavingAround(actor.origin(), built.base());
     
     //  TODO:  Double the rate of repair again if you have proper tools and
     //  materials.

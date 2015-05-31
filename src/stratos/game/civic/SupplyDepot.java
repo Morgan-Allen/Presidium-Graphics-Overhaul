@@ -95,15 +95,6 @@ public class SupplyDepot extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
-  //  TODO:  Move this elsewhere, I think.
-  final public static Conversion
-    WASTE_TO_LCHC = new Conversion(
-      BLUEPRINT, "waste_to_lchc",
-      TO, 1, POLYMER,
-      SIMPLE_DC, CHEMISTRY
-    );
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;

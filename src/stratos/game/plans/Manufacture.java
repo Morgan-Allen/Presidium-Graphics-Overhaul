@@ -182,8 +182,8 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     if (needsOkay && v.stocks.specialOrders().size() > 0) {
       needsOkay = false;
       s.append(
-        "\nYour workers are busy with special orders.  Check the "+
-        VenuePane.CAT_STOCK+" pane for details."
+        "\nYour workers are busy with special orders."+
+        "\n  Next order: "+v.stocks.specialOrders().first()
       );
       s.append("\n  "+numWorking+" active workers");
       return s.toString();

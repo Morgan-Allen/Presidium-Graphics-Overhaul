@@ -2,7 +2,7 @@
 
 <settings
   defaultPath ="media/Actors/tests/"
-  defaultFile ="single_weights_test.ms3d"
+  defaultFile ="multi_weights_test.ms3d"
   showAsHuman ="false"
 />
 

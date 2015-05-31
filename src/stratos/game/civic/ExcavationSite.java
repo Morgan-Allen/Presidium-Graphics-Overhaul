@@ -60,6 +60,15 @@ public class ExcavationSite extends Venue implements TileConstants {
       BLUEPRINT, "land_to_isotopes",
       TO, 1, FUEL_RODS
     );
+  /*
+  //  TODO:  Move this elsewhere, I think.
+  final public static Conversion
+    WASTE_TO_LCHC = new Conversion(
+      BLUEPRINT, "waste_to_lchc",
+      TO, 1, POLYMER,
+      SIMPLE_DC, CHEMISTRY
+    );
+  //*/
   
   
   private static boolean verbose = false;
@@ -194,8 +203,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       350,
       Upgrade.THREE_LEVELS, null, 1,
       null, BLUEPRINT
-    )
- ;
+    );
   
   
   

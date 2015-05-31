@@ -147,8 +147,11 @@ public class Upgrade extends Constant {
     for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
     
     if (prior instanceof Venue) {
-      final String error = ((Venue) prior).structure().upgradeError(this);
-      if (error != null) d.append("\n\n  Cannot Install: "+error);
+      final Venue at = (Venue) prior;
+      if (! at.structure().upgradePossible(this)) {
+        final String error = at.structure().upgradeError(this);
+        d.append("\n\n  Cannot Install: "+error);
+      }
     }
   }
 }

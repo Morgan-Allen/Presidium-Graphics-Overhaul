@@ -253,22 +253,30 @@ public class Retreat extends Plan implements Qualities {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor;
     final boolean urgent = actor.senses.isEmergency();
+    if (report) {
+      I.say("\nFleeing to "+safePoint+", urgent? "+urgent);
+    }
     
     if (
       safePoint == null || actor.aboard() == safePoint ||
-      safePoint.pathType() == Tile.PATH_BLOCKS
+      ! safePoint.allowsEntry(actor)
     ) {
       safePoint = actor.senses.haven();
+      if (report) I.say("  Current haven: "+safePoint);
     }
     if (safePoint == null) {
       interrupt(INTERRUPT_NO_PREREQ);
       return null;
     }
     
-    final Target home = actor.mind.home();
+    final Property home = actor.mind.home();
     final boolean goHome = (! urgent) && home != null;
+    if (goHome) {
+      safePoint = home;
+      if (report) I.say("  Will go home: "+safePoint);
+    }
     
     final Action flees = new Action(
       actor, goHome ? home : safePoint,
@@ -277,15 +285,12 @@ public class Retreat extends Plan implements Qualities {
     );
     flees.setProperties(Action.NO_LOOP);
     
-    if (report) {
-      I.say("\nFleeing to "+safePoint+", urgent? "+urgent);
-    }
     return flees;
   }
   
   
   public int motionType(Actor actor) {
-    if (priorityFor(actor) > ROUTINE) return Action.MOTION_FAST;
+    if (actor.senses.isEmergency()) return Action.MOTION_FAST;
     return super.motionType(actor);
   }
   

@@ -390,7 +390,7 @@ public class TutorialScenario extends StartupScenario {
       if (match == null) return false;
       else strikeSent = (MissionStrike) match;
     }
-    if (strikeSent.assignedPriority() < Mission.PRIORITY_ROUTINE) return false;
+    if (strikeSent.assignedPriority() < Mission.PRIORITY_NOMINAL) return false;
     if (strikeSent.applicants().empty()) return false;
     return true;
   }
@@ -466,15 +466,20 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void whenExpandingIndustryTopicOpen() {
-    addPingsLeadingTo(EngineerStation.BLUEPRINT);
+    if (! hasInstalled(2, EngineerStation.BLUEPRINT, false)) {
+      addPingsLeadingTo(EngineerStation.BLUEPRINT);
+    }
+    if (! hasInstalled(1, ExcavationSite.BLUEPRINT, false)) {
+      addPingsLeadingTo(ExcavationSite .BLUEPRINT);
+    }
   }
   
   
   protected boolean checkExtraIndustryPlaced() {
-    if (base().listInstalled(EngineerStation.BLUEPRINT, false).size() < 2) {
+    if (! hasInstalled(2, EngineerStation.BLUEPRINT, false)) {
       return false;
     }
-    if (base().listInstalled(ExcavationSite .BLUEPRINT, false).size() < 1) {
+    if (! hasInstalled(1, ExcavationSite.BLUEPRINT, false)) {
       return false;
     }
     return true;
@@ -507,8 +512,11 @@ public class TutorialScenario extends StartupScenario {
   }
   
   
-  protected boolean checkVacanciesFilled() {
-    return false;
+  protected void onStockExchangePlaced() {
+    this.topUpFunds = false;
+    base().finance.setInitialFunding(3000, 0);
+    world().offworld.journeys.scheduleLocalDrop(base(), 5);
+    base().commerce.updateCommerce(0);
   }
   
   
@@ -537,9 +545,10 @@ public class TutorialScenario extends StartupScenario {
         attacks.mind.assignBehaviour(strike);
         dronesAttack.add(attacks);
       }
+      
+      UI().tracking.lockOn(dronesAttack.first());
     }
     
-    UI().tracking.lockOn(dronesAttack.first());
     base().intelMap.liftFogAround(dronesAttack.first(), 9);
   }
   
@@ -553,7 +562,8 @@ public class TutorialScenario extends StartupScenario {
   
   protected boolean checkFarRuinsFound() {
     if (ruinsFar == null) return false;
-    return base().intelMap.fogAt(ruinsFar) > 0.5f;
+    return ruinsFar.visibleTo(base());
+    //return base().intelMap.fogAt(ruinsFar) > 0;
   }
   
   protected void onFarRuinsFound() {
@@ -568,7 +578,6 @@ public class TutorialScenario extends StartupScenario {
   }
   
   protected void onFarRuinsDestroyed() {
-    this.topUpFunds = false;
   }
   
   
@@ -587,8 +596,9 @@ public class TutorialScenario extends StartupScenario {
   }
   
   protected boolean checkTutorialComplete() {
-    if (! checkPositiveCashFlow()) return false;
-    if (! haveHoldingUpgrade   ()) return false;
+    if (! checkFarRuinsDestroyed()) return false;
+    if (! checkPositiveCashFlow ()) return false;
+    if (! haveHoldingUpgrade    ()) return false;
     return true;
   }
   
@@ -606,6 +616,11 @@ public class TutorialScenario extends StartupScenario {
     else if (! PlacingTask.isBeingPlaced(blueprint)) {
       ScreenPing.addPingFor(blueprint.keyID);
     }
+  }
+  
+  
+  private boolean hasInstalled(int minBuilt, Blueprint type, boolean intact) {
+    return base().listInstalled(type, intact).size() >= minBuilt;
   }
   
   

@@ -129,7 +129,7 @@ Your troopers should begin exploring the assigned area shortly.  In the meanwhil
 
 To improve their production of goods and range of services, many buildings can have upgrades installed.
 
-Select the Engineer Station, open the Upgrades pane, and queue Assembly Line three times.  Your construction staff will attend to it shortly, speeding up Parts manufacture.  These can then be sold for a profit.</content>
+Select the Engineer Station, open the Upgrade pane, and queue Assembly Line three times.  Your construction staff will attend to it shortly, speeding up Parts manufacture.  These can then be sold for a profit.</content>
 </topic>
 
 
@@ -210,7 +210,7 @@ Select the Ancient Ruin and declare a Strike Mission (the small red icon underne
   whenOpen  = "whenHiringBasicsTopicOpen"
   completes = "checkHiringDone"
 >
-  <content>A number of veterans Troopers have applied to work at your Trooper Lodge, but you don't have space for all of them.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which to hire.</content>
+  <content>A number of veterans Troopers have applied to work at your Trooper Lodge, but you only have space for one.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which candidate to hire.</content>
 </topic>
 
 

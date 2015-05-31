@@ -22,9 +22,9 @@ public class VenuePane extends SelectionPane {
   
   
   final public static String
-    CAT_UPGRADES = "UPGRADE" ,
-    CAT_STOCK    = "STOCK"   ,
-    CAT_STAFFING = "STAFFING",
+    CAT_UPGRADES = "UPGRADE",
+    CAT_STOCK    = "STOCK"  ,
+    CAT_STAFFING = "STAFF"  ,
     DEFAULT_CATS[] = { CAT_UPGRADES, CAT_STOCK, CAT_STAFFING };
   
   final public Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
