@@ -2,7 +2,7 @@
 
 
 package stratos.user;
-import stratos.game.base.Mission;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.user.*;
@@ -11,6 +11,10 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.common.*;
 import static stratos.game.base.Mission.*;
 
+
+
+//  TODO:  I'm taking out the variations in objective for the moment- I'll
+//  probably add extra buttons at the target-options level for that.  Do that.
 
 
 public class MissionPane extends SelectionPane {
@@ -34,7 +38,6 @@ public class MissionPane extends SelectionPane {
     //  first-
     final Description d = detail(), l = listing();
     final List <Actor> applied = mission.applicants();
-    final boolean emptyList = applied.size() == 0;
     final boolean canChange = ! mission.hasBegun();
     //
     //  Then, we fill up the left-hand pane with broad mission parameters and
@@ -44,10 +47,11 @@ public class MissionPane extends SelectionPane {
     //
     //  And lastly, we fill up the right-hand pane with the list of
     //  applications, and options to confirm or deny them:
-    if (emptyList) {
-      l.append("Applications: None");
+    l.append(mission.helpInfo());
+    if (applied.size() > 0) {
+      l.append("\n\n");
+      listApplicants(mission, applied, canChange, UI, l);
     }
-    else listApplicants(mission, applied, canChange, UI, l);
     return this;
   }
   
@@ -71,11 +75,11 @@ public class MissionPane extends SelectionPane {
           confirmAbort = false;
         }
       });
-      
     }
     else {
       d.append("\nOrders:");
       //  TODO:  CONSIDER REQUIRING CONFIRMATION EVEN FOR PUBLIC MISSIONS?
+      
       final boolean begun = mission.hasBegun(), canBegin =
         mission.rolesApproved() > 0 && canChange && type != TYPE_PUBLIC
       ;
@@ -91,21 +95,6 @@ public class MissionPane extends SelectionPane {
           else mission.endMission(false);
         }
       });
-      
-      if (type == TYPE_PUBLIC  ) d.append(
-        "\n\nThis is a public contract, open to all comers.",
-        Colour.LITE_GREY
-      );
-      if (type == TYPE_SCREENED) d.append(
-        "\n\nThis is a screened mission.  Applicants will be subject to your "+
-        "approval before they can embark.",
-        Colour.LITE_GREY
-      );
-      if (type == TYPE_COVERT  ) d.append(
-        "\n\nThis is a covert mission.  No agents or citizens will apply "+
-        "unless recruited by interview.",
-        Colour.LITE_GREY
-      );
     }
   }
   
@@ -120,7 +109,6 @@ public class MissionPane extends SelectionPane {
   
   
   public SelectionPane configScreenedPanel() {
-    final Description d = detail(), l = listing();
     return this;
   }
   
@@ -133,11 +121,12 @@ public class MissionPane extends SelectionPane {
     final Base declares = mission.base();
     //
     //  Firstly, declare the mission's patron and current status:
-    d.append("Declared by ");
-    if (declares.ruler() == null) d.append(declares);
-    else d.append(declares.ruler());
+    d.append("Declared by "+declares);
+    d.append("\n  Subject: ");
+    if (mission.visibleTo(mission.base())) d.append(mission.subject());
+    else d.append(""+mission.subject(), Colour.GREY);
     
-    d.append("\nStatus:  ");
+    d.append("\n  Status:  ");
     if (mission.hasBegun()) d.append("In Progress");
     else d.append("Recruiting");
     //
@@ -146,7 +135,7 @@ public class MissionPane extends SelectionPane {
     final String typeDesc = type == TYPE_BASE_AI ? "BASE AI" :
       TYPE_DESC[type]
     ;
-    d.append("\nMission Type:  ");
+    d.append("\n  Mission Type:  ");
     if (canChange) d.append(new Description.Link(typeDesc) {
       public void whenClicked() {
         mission.setMissionType((type + 1) % LIMIT_TYPE);
@@ -157,7 +146,7 @@ public class MissionPane extends SelectionPane {
     //  Then describe the mission's priority and/or payment.  (We allow payment
     //  increases for public missions at any time, but otherwise only before
     //  being confirmed.)
-    d.append("\nReward offered:  ");
+    d.append("\n  Reward offered:  ");
     final int priority = mission.assignedPriority();
     String payDesc = (priority == 0 || type == TYPE_BASE_AI) ?  "None" :
       REWARD_AMOUNTS[priority]+" credits"
@@ -173,29 +162,6 @@ public class MissionPane extends SelectionPane {
       }
     });
     else d.append(payDesc, FIXED);
-    //
-    //  And finally, describe the mission objective-
-    describeObjective(d, canChange);
-  }
-  
-  
-  protected void describeObjective(Description d, boolean canChange) {
-    final String allDesc[] = mission.objectiveDescriptions();
-    if (allDesc == null || allDesc.length == 0) return;
-    canChange &= allDesc.length > 1;
-    
-    final int object = mission.objective();
-    final Colour FIXED = Colour.LITE_GREY;
-    final String objectDesc = mission.describeObjective(object);
-    
-    d.append("\nObjective:  ");
-    if (canChange) d.append(new Description.Link(objectDesc) {
-      public void whenClicked() {
-        mission.setObjective((object + 1) % allDesc.length);
-      }
-    });
-    else d.append(objectDesc, FIXED);
-    d.append(mission.subject());
   }
   
   
@@ -222,6 +188,9 @@ public class MissionPane extends SelectionPane {
         });
       }
       else d.append(approved ? "  (approved)" : "");
+      
+      d.append("\n");
+      a.describeStatus(d);
     }
   }
 }

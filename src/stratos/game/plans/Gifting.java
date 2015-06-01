@@ -92,18 +92,7 @@ public class Gifting extends Plan implements Qualities {
       modifier += (novelty + rating) * ROUTINE;
     }
     
-    final float priority = priorityForActorWith(
-      actor, receives, CASUAL,
-      modifier, MILD_HELP,
-      NO_COMPETITION, NO_FAIL_RISK,
-      NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
-    );
-    if (report) {
-      I.say("  Novelty/gift-rating: "+novelty+"/"+rating);
-      I.say("  Final priority: "+priority);
-    }
-    return priority;
+    return PlanUtils.dialoguePriority(actor, receives, modifier);
   }
   
   

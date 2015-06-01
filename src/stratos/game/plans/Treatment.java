@@ -132,7 +132,7 @@ public class Treatment extends Plan implements Item.Passive {
       I.talkAbout == actor || I.talkAbout == patient
     );
     
-    final float severity = severity();//, modifier = typeModifier();
+    final float severity = severity();
     if (report) {
       I.say("Getting treatment priority for "+patient);
       I.say("  Severity: "+severity);
@@ -147,15 +147,10 @@ public class Treatment extends Plan implements Item.Passive {
       return 0;
     }
     
-    final float priority = priorityForActorWith(
-      actor, patient,
-      ROUTINE + (severity * ROUTINE), NO_MODIFIER,
-      REAL_HELP, FULL_COOPERATION,
-      MILD_FAIL_RISK * Nums.clamp(1 - severity, 0, 1),
-      BASE_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
-      report
+    setCompetence(successChanceFor(actor));
+    return PlanUtils.supportPriority(
+      actor, patient, motiveBonus(), competence(), severity
     );
-    return priority;
   }
   
   

@@ -29,12 +29,14 @@ public class CombatUtils {
   
   public static float powerLevel(Actor actor) {
     final boolean report = powerVerbose && I.talkAbout == actor;
+    if (! actor.health.alive()) return 0;
     
     float estimate = 1;
     estimate *= (actor.gear.armourRating() + actor.gear.attackDamage()) / 10f;
     estimate *= (actor.health.maxHealth()  + actor.gear.shieldCharge()) / 10f;
     estimate *= (2 - actor.health.injuryLevel  ()) / 2f;
     estimate *= (2 - actor.health.stressPenalty()) / 2f;
+    if (! actor.health.conscious()) estimate /= 2.5f;
     
     if (report) {
       I.say("\nESTIMATED POWER LEVEL OF "+actor+" IS "+estimate);
@@ -148,9 +150,10 @@ public class CombatUtils {
     }
     
     final boolean melee = actor.gear.meleeWeapon();
+    final float harm = Plan.REAL_HARM;
     Target best = asThreat ? primary : null;
     float bestValue = asThreat ?
-      (PlanUtils.harmIntendedBy(primary, actor, true) * 1.5f) : 0
+      PlanUtils.combatPriority(actor, primary, 0, 1, true, harm) : 0
     ;
     if (best != null) bestValue = Nums.max(bestValue, 0.1f);
     
@@ -159,7 +162,7 @@ public class CombatUtils {
       if (distance > Stage.ZONE_SIZE) continue;
       if (actor.senses.indoors(t)) continue;
       
-      float value = PlanUtils.harmIntendedBy(t, actor, true);
+      float value = PlanUtils.combatPriority(actor, t, 0, 1, true, harm);
       if (value <= 0) continue;
       if (melee) value /= 1 + distance;
       else       value /= 1 + (distance / (Stage.ZONE_SIZE / 2));

@@ -51,7 +51,11 @@ public class PavingMap {
     */
   public void flagForPaving(Tile t, boolean is) {
     final byte c = (roadCounter[t.x][t.y] += is ? 1 : -1);
-    if (c < 0) I.complain("CANNOT HAVE NEGATIVE ROAD COUNTER: "+t);
+    if (c < 0) {
+      I.say("\nWARNING: ROAD COUNTER NEGATIVE AT "+t);
+      roadCounter[t.x][t.y] = 0;
+      return;
+    }
     
     if (is && ! t.canPave()) {
       I.complain("CANNOT PAVE AT "+t+" ("+t.onTop()+")");
@@ -109,6 +113,7 @@ public class PavingMap {
   
   
   public boolean needsPaving(Tile t) {
+    if (t.reserved()) return false;
     final byte c = roadCounter[t.x][t.y];
     final boolean road = isRoad(t);
     if (c > 0 && ! road) return true;

@@ -158,7 +158,7 @@ public class MissionContact extends Mission {
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     if (panel == null) panel = new NegotiationPane(UI, this);
     
     final int type = missionType();

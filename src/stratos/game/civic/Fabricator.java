@@ -16,6 +16,7 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Outfits.*;
 
 
 
@@ -40,34 +41,19 @@ public class Fabricator extends Venue {
     Fabricator.class, "media/GUI/Buttons/fabricator_button.gif"
   );
   
-  final public static Conversion
-    POLYMER_TO_PLASTICS = new Conversion(
-      Fabricator.class, "lchc_to_plastics",
-      1, POLYMER, TO, 2, PLASTICS,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
-    ),
-    PLASTICS_TO_DECOR = new Conversion(
-      Fabricator.class, "plastics_to_decor",
-      2, PLASTICS, TO, 1, DECOR,
-      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
-    )
-  ;
-  
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
-    "Fabricator", UIConstants.TYPE_ENGINEER,
-    4, 2, IS_NORMAL,
+    "Fabricator", UIConstants.TYPE_ENGINEER, ICON,
+    "Fabricators manufacture "+PLASTICS+", pressfeed, decor and outfits for "+
+    "your citizens.",
+    4, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
-    POLYMER_TO_PLASTICS, PLASTICS_TO_DECOR
+    125, 2, 200, Structure.NORMAL_MAX_UPGRADES
   );
   
   
   public Fabricator(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      125, 2, 200,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -91,30 +77,43 @@ public class Fabricator extends Venue {
   final public static Upgrade
     POLYMER_LOOM = new Upgrade(
       "Polymer Loom",
-      "Speeds the production of standard "+PLASTICS+" and everyday clothing.",
+      "Speeds the production of standard "+PLASTICS+" and everyday outfits "+
+      "by 33%.",
       250, Upgrade.THREE_LEVELS, CARBS, 1,
-      null, Fabricator.class
+      null, BLUEPRINT
     ),
     FINERY_FLOOR = new Upgrade(
       "Finery Production",
       "Allows production of fine garments and decor for the upper classes.",
       500, Upgrade.THREE_LEVELS, null, 1,
-      POLYMER_LOOM, Fabricator.class
+      POLYMER_LOOM, BLUEPRINT
     ),
     CAMOUFLAGE_FLOOR = new Upgrade(
       "Camouflage Production",
       "Allows production of stealth-based protection for guerilla agents.",
       350, Upgrade.THREE_LEVELS, null, 2,
-      POLYMER_LOOM, Fabricator.class
+      POLYMER_LOOM, BLUEPRINT
     ),
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
       FABRICATOR.info,
-      200, Upgrade.THREE_LEVELS, Backgrounds.FABRICATOR, 1,
-      null, Fabricator.class
-    )
+      200, Upgrade.THREE_LEVELS, FABRICATOR, 1,
+      null, BLUEPRINT
+    );
     //  TODO:  Level 2 Upgrade.  And pressfeed?
-  ;
+  
+  
+  final public static Conversion
+    POLYMER_TO_PLASTICS = new Conversion(
+      BLUEPRINT, "lchc_to_plastics",
+      1, POLYMER, TO, 2, PLASTICS,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
+    ),
+    PLASTICS_TO_DECOR = new Conversion(
+      BLUEPRINT, "plastics_to_decor",
+      2, PLASTICS, TO, 1, DECOR,
+      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
+    );
   
   
   
@@ -128,7 +127,7 @@ public class Fabricator extends Venue {
     final float powerNeed = 2 + (structure.numUpgrades() / 2f);
     stocks.forceDemand(POWER, powerNeed, false);
     stocks.incDemand(PLASTICS, 5, 1, true);
-    stocks.translateDemands(POLYMER_TO_PLASTICS, 1);
+    stocks.translateRawDemands(POLYMER_TO_PLASTICS, 1);
   }
   
   
@@ -186,9 +185,7 @@ public class Fabricator extends Venue {
     //  needed upgrades.
     
     final OutfitType OT = client.gear.outfitType();
-    final Class ownType = this.getClass();
-    
-    if (OT != null && OT.materials().facility == ownType) {
+    if (OT != null && OT.materials().producesAt(this)) {
       Commission.addCommissions(client, this, choice, OT);
     }
     choice.add(BringUtils.nextHomePurchase(client, this));
@@ -199,20 +196,13 @@ public class Fabricator extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { CARBS, POLYMER, DECOR, PLASTICS };
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "fabricator");
+    return new Traded[] { POLYMER, DECOR, PLASTICS };
   }
   
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "Fabricators manufacture plastics, pressfeed, decor and outfits for "+
-      "your citizens.",
-      this, POLYMER_TO_PLASTICS, POLYMER_LOOM
+      super.helpInfo(),  this, POLYMER_TO_PLASTICS, POLYMER_LOOM
     );
   }
 }

@@ -36,6 +36,12 @@ public class MapsDisplay extends UIGroup {
     "Fertility map mode",
     "Minerals map mode" ,
   };
+  final static String
+    NORMAL_ID    = "normal_map_button"   ,
+    AMBIENCE_ID  = "ambience_map_button" ,
+    FERTILITY_ID = "fertility_map_button",
+    MINERALS_ID  = "minerals_map_button" ,
+    MODE_WIDGET_IDS[] = { NORMAL_ID, AMBIENCE_ID, FERTILITY_ID, MINERALS_ID };
   final static int MODE_BUTTON_SIZE = 20;
   
   final BaseUI UI;
@@ -65,7 +71,7 @@ public class MapsDisplay extends UIGroup {
     for (int n = NUM_MODES; n-- > 0;) {
       final int modeID = n;
       final Button b = new Button(
-        UI, MODE_ICONS[n], Button.CIRCLE_LIT, MODE_DESC[n]
+        UI, MODE_WIDGET_IDS[n], MODE_ICONS[n], Button.CIRCLE_LIT, MODE_DESC[n]
       ) {
         public void whenClicked() { setMapMode(modeID); }
       };

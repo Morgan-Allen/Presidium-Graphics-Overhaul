@@ -1,158 +1,358 @@
 
 
-<topic name="Welcome!" triggers="checkShowWelcome" urgent="true">
+<topic
+  name      = "Welcome!"
+  triggers  = "checkShowWelcome"
+  urgent    = "true"
+  completes = "checkMotionDone"
+>
   <image>media/Help/start_banner.png</image>
-  <content>
-Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.
-</content>
+  <content>Hello, and welcome to Stratos: The Sci-Fi Settlement Sim!  This tutorial will walk you through the essentials of setting up a settlement, exploring the surrounds, dealing with potential threats, and establishing a sound economy.</content>
   <link name="Navigation">Continue</link>
 </topic>
 
 
-<topic name="Navigation" completes="checkMotionDone">
+<topic
+  name      = "Navigation"
+  urgent    = "true"
+  completes = "checkMotionDone"
+>
   <content>First, you'll need to familiarise yourself with basic controls.  Use the W, S, A and D keys to move your viewpoint forward, back, left or right.
 
 (Note:  You can also use the arrow keys, click on the ground, or click a position on the minimap in the top-left.)</content>
 </topic>
 
-<topic name="Navigation Done" triggers="checkMotionDone" urgent="true">
+
+<topic
+  name     = "Navigation Done"
+  urgent   = "true"
+  triggers = "checkMotionDone"
+  whenOpen = "whenMotionDone"
+>
   <content>Well done!  If you ever get lost, messages (such as this one) can always be accessed from the Messages listing on the left-hand side of the screen.</content>
   <link name="The Bastion">Continue</link>
 </topic>
 
-<topic name="The Bastion" onOpen="onMotionDone">
+
+<topic
+  name     = "The Bastion"
+  whenOpen = "whenBastionTopicOpen"
+>
   <content>Your settlement starts out with a single main building:  The Bastion, which houses your family and personal servants, and serves as your seat of command for the settlement as a whole.  As such, you should strive to protect the Bastion at all costs.
 
 To do this, you will need to both identify any threats in the area, and take steps to establish defences, which is what we'll cover next.</content>
-  <link name="Build a Trooper Lodge">Continue</link>
+  <link name="Place a Trooper Lodge">Continue</link>
 </topic>
 
 
 
-<topic name="Build a Trooper Lodge" completes="checkBuiltBarracks">
+
+<topic
+  name      = "Place a Trooper Lodge"
+  urgent    = "true"
+  whenOpen  = "whenPlaceBarracksRequestOpen"
+  completes = "checkBarracksPlaced"
+  onFinish  = "onBarracksPlaced"
+>
   <content>To hire troops and other personnel, you'll need to construct facilities to house them.
 
 Open the Installations tab in the top-right of the screen.  Select the Trooper Lodge, click build, and then place one next to your Bastion.</content>
 </topic>
 
-<topic name="Trooper Lodge Built" triggers="checkBuiltBarracks" urgent="true">
+
+<topic
+  name     = "Trooper Lodge Placed"
+  urgent   = "true"
+  triggers = "checkBarracksPlaced"
+>
   <content>Good work.  Normally, buildings will take a while to construct and fully staff, but for now we'll speed things up and provide some starting recruits.  If you like, you can click on the new building and take a look at the staff recruited.
 
-Your citizens cannot be directly controlled, but you can hire them to perform missions on your behalf.  Next, we'll engage some of your troops to explore the surrounds of your base.</content>
+The next step would be gain some information about the surrounds of our base.  We need to know what's out there.</content>
   <link name="Declare a Recon Mission">Continue</link>
 </topic>
 
 
-<topic name="Declare a Recon Mission" completes="checkExploreBegun">
-  <content>Click on a darkened area of the map, and a small green icon should appear in the lower-centre of the screen.  Press this to declare a Recon Mission.</content>
+<topic
+  name      = "Declare a Recon Mission"
+  urgent    = "true"
+  whenOpen  = "whenExploreRequestOpen"
+  completes = "checkExploreBegun"
+  onFinish  = "onExploreBegun"
+>
+  <content>This is a unexplored area of the map- dark and unknown.  There might be threats lurking unseen, or precious resources to be found...
+
+Click here, and a small green icon should appear in the lower-centre of the screen.  Press this to declare a Recon Mission, then increase the reward to attract applicants.</content>
 </topic>
 
-<topic name="Recon Mission Begun" triggers="checkExploreBegun" urgent="true">
-  <content>Good work.  We'll assign some of your staff to the Recon Mission, but you can adjust the reward offered to attract more applicants.
 
-Your troopers should begin exploring the assigned area shortly.  In the meanwhile, let's take a look at getting a basic economy up and running.</content>
+<topic
+  name     = "Recon Mission Begun"
+  urgent   = "true"
+  triggers = "checkExploreBegun"
+>
+  <content>Good work.  Your troopers should begin exploring the assigned area shortly.  In the meanwhile, let's take a look at getting a basic economy up and running.</content>
   <link name="Economy Basics">Continue</link>
 </topic>
 
 
 
-<topic name="Economy Basics" urgent="true" completes="checkFacilitiesPlaced">
-<content>Go the the Installations panel again, and place a Supply Depot (under Commerce structures) and Engineer Station (under Engineer structures) close to your Bastion.</content>
-</topic>
 
-<topic name="Facilities Placed" triggers="checkFacilitiesPlaced" urgent="true">
-<content>Excellent.  The technicians at your Bastion should now begin constructing these facilities.  Once that's complete, we'll provide some initial staff and move on to setting imports and exports.</content>
-</topic>
-
-<topic name="Ready Facilities For Trade" triggers="checkFacilitiesReady" urgent="true" completes="checkTradeSetup">
-<content>Now that these facilities are fully built, you can select your Supply Depot, open up the Stock tab and set it to import ores and export parts.
-
-Your on-duty engineers should then begin processing imported ores into parts, which your supply corps will make available for sale.  This will provide you with a slow but steady cash flow.</content>
-</topic>
-
-<topic name="Trade Setup Done" triggers="checkTradeSetup" urgent="true" onOpen="onTradeSetup">
-<content>That should do it.  It may take a little time for dropships to arrive and perform their transactions- typically once per day.
-
-Once the sale is complete, on-duty auditors from your Bastion will drop by to record and deposit your earnings.  In the meantime, let's take another look at base security.</content>
-  <link name="Security Basics">Continue</link>
+<topic
+  name      = "Economy Basics"
+  urgent    = "true"
+  whenOpen  = "whenPlaceFacilitiesRequestOpen"
+  completes = "checkFacilitiesPlaced"
+  onFinish  = "onFacilitiesPlaced"
+>
+  <content>Go the the Installations panel again, and place a Stock Exchange (under Commerce structures) and Engineer Station (under Engineer structures) close to your Bastion.</content>
 </topic>
 
 
-
-
-<topic name="Security Basics" onOpen="onSecurityBasicsOpen" urgent="true">
-  <content>If they haven't done so already, local raiders are likely to begin harassing your settlement, potentially razing structures and harming citizens.
-
-When you're ready, we'll introduce a scouting Drone- a relatively weak robotic enemy, or artilect- to assault your Trooper Lodge.</content>
-  <link name="Base Under Attack!">Continue</link>
+<topic
+  name      = "Facilities Placed"
+  urgent    = "true"
+  triggers  = "checkFacilitiesPlaced"
+  completes = "checkFacilitiesReady"
+  onFinish  = "onFacilitiesReady"
+>
+  <content>Excellent.  The technicians at your Bastion should now begin constructing these facilities.  Once that's complete, we'll provide some initial staff and move on to getting some cash flow going.</content>
 </topic>
 
-<topic name="Base Under Attack!" onOpen="onBaseAttackOpen" completes="checkDroneDestroyed">
-<content>Here it comes!  Your patrolling troopers might polish it off themselves, but you can also select the interloper and click on the small red icon below to declare a Strike Mission against that target.
 
-Remember to offer a reward, or no-one will take up the challenge!
+<topic
+  name      = "Install Production Upgrades"
+  urgent    = "true"
+  triggers  = "checkFacilitiesReady"
+  completes = "checkFoundryUpgradesReady"
+>
+  <content>Good work.
+
+To improve their production of goods and range of services, many buildings can have upgrades installed.
+
+Select the Engineer Station, open the Upgrade pane, and queue Assembly Line twice.  Your construction staff will attend to it shortly, speeding up Parts manufacture.  These can then be sold for a profit.</content>
+</topic>
+
+
+<topic
+  name      = "Install Trade Upgrades"
+  urgent    = "true"
+  triggers  = "checkFoundryUpgradesReady"
+  completes = "checkMarketUpgradesReady"
+  onFinish  = "onMarketUpgradesReady"
+>
+  <content>You can also upgrade your Stock Exchange to make the most of any sales.  Select the Stock Exchange and queue the Rations Vending and Hardware Store upgrades.  This will increase space available to foodstuffs and building materials (e.g, parts), and generate extra profit from any purchases.</content>
+</topic>
+
+
+<topic
+  name     = "Trade Setup Done"
+  urgent   = "true"
+  triggers = "checkMarketUpgradesReady"
+>
+  <content>That should do it.  It takes a little time for dropships to arrive and perform their transactions- typically once per day.
+
+Once a sale is complete, on-duty auditors from your Bastion will drop by to record and file your profits and losses.  The trick is to make sure you have more of the former.
+
+In the meantime, let's take another look at base security.</content>
+  <link name="Destroy The Nearby Ruins">Continue</link>
+</topic>
+
+
+
+
+
+<topic
+  name      = "Destroy The Nearby Ruins"
+  urgent    = "true"
+  whenOpen  = "whenNearRuinsTopicOpen"
+  completes = "checkAttackMissionSetup"
+  onFinish  = "onAttackMissionSetup"
+>
+  <content>It looks as though your exploring troops have uncovered an Ancient Ruin close to your base.  Structures such as these often harbour dangerous creatures who may assault your base and waylay colonists- as such, it's a good idea to raze them when found.
+
+Select the Ancient Ruin and declare a Strike Mission (the small red icon underneath.)  Then increase the reward high enough to attract soldiers to carry out the task.</content>
+</topic>
+
+
+<topic
+  name      = "Strike Mission Begun"
+  urgent    = "true"
+  triggers  = "checkAttackMissionSetup"
+  completes = "checkNearRuinsDronesDestroyed"
+>
+  <content>Now that you have some applicants for the Strike Mission, they should polish off the ruins in short order.  Take care, however- some of the inhabitants will defend themselves!</content>
+</topic>
+
+
+<topic
+  name      = "Drones Destroyed"
+  urgent    = "true"
+  triggers  = "checkNearRuinsDronesDestroyed"
+  completes = "checkNearRuinsDestroyed"
+>
+  <content>Now that any local resistance has been dealt with, the ruins should fall in short order.</content>
+</topic>
+
+
+<topic
+  name      = "Strike Mission Complete"
+  urgent    = "true"
+  triggers  = "checkNearRuinsDestroyed"
+>
+  <content>Excellent!  Now that the ruins are destroyed, let's return to base.</content>
+  <link name="Hiring Basics">Continue</link>
+</topic>
+
+
+
+
+<topic
+  name      = "Hiring Basics"
+  urgent    = "true"
+  whenOpen  = "whenHiringBasicsTopicOpen"
+  completes = "checkHiringDone"
+>
+  <content>Some veteran Troopers have applied to work at your Trooper Lodge, along with a senior Artificer at your Engineer Station.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which candidates to hire.</content>
+</topic>
+
+
+<topic
+  name     = "Troops Hired"
+  urgent   = "true"
+  triggers = "checkHiringDone"
+>
+  <content>That's it.  Fresh recruits will arrive aboard visiting Dropships, along with trade goods.  But they might not arrive for a while.  If you like, you can open the facility's Staffing tab to get an ETA.
+
+While we're waiting, let's take a fresh look at our cash flow.</content>
+  <link name="Profits and Loss">Continue</link>
+</topic>
+
+
+<topic
+  name      = "Profits and Loss"
+  urgent    = "true"
+  whenOpen  = "whenBudgetsTopicOpen"
+  completes = "checkBudgetsPaneOpened"
+>
+  <content>At the moment, your funds are likely to be running low.  We'll explore some methods of fixing that, but first you should open the Finance pane (first button in the top-right), and click on the Budgets tab.  Then you can take a look at your profits and losses for each day.</content>
+</topic>
+
+<topic
+  name      = "Expanding Industry"
+  urgent    = "true"
+  triggers  = "checkBudgetsPaneOpened"
+  whenOpen  = "whenExpandingIndustryTopicOpen"
+  completes = "checkExtraIndustryPlaced"
+>
+  <content>...Not too encouraging.
+
+There are many ways to earn credits, but on a map like this, with large areas of barren rock and irradiated wasteland, heavy industry turns a faster profit.  Place a second Engineer Station near your first, and an Excavation Site somewhere close to both.
+
+Mining is most efficient near outcrops of surface rock, so keep an eye out for those when exploring.  (You can also check the minimap.)</content>
+</topic>
+
+<topic
+  name      = "Personal Housing"
+  urgent    = "true"
+  triggers  = "checkExtraIndustryPlaced"
+  whenOpen  = "whenPersonalHousingTopicOpen"
+  completes = "checkHousingPlaced"
+>
+  <content>While those are building, you may also want to start thinking about giving your citizens a few amenities, such as private housing.  Your colonists will claim lots by themselves given time and space, but you can anticipate that by placing a Seal Tent or two in convenient locations.  Try that now.</content>
+</topic>
+
+<topic
+  name      = "Build a Supply Depot"
+  urgent    = "true"
+  triggers  = "checkHousingPlaced"
+  whenOpen  = "whenSupplyDepotTopicOpen"
+  completes = "checkSupplyDepotPlaced"
+>
+  <content>Housing yields tax income, and will upgrade itself as more goods and services become available.
+
+Finally, you may want to supplement your trade income by exporting surplus minerals from your Excavation Site.  Place a Supply Depot to store raw materials and reserve them for trade.</content>
+</topic>
+
+<topic
+  name      = "Watch and Learn"
+  urgent    = "true"
+  triggers  = "checkSupplyDepotPlaced"
+  completes = "checkExtraBuildingFinished"
+  onFinish  = "onExtraBuildingFinished"
+>
+  <content>Good.  We'll wait for any current construction to finish.  All your expenses up to now have been covered for free, but from here on, you'll need to balance your own books.
+
+This might be a good time to see what your Auditors are up to.  Select the Bastion, go the Staff tab, and select one to see if any profits or losses are being filed.</content>
+</topic>
+
+<topic
+  name      = "Time and Money"
+  urgent    = "true"
+  triggers  = "checkExtraBuildingFinished"
+>
+  <content>Between imports, upgrades and hiring costs, it might take a day or two for your industry and trade venues to start turning a profit.  You can wait if you wish, or- if you're ready- we'll turn our attentions back to handling external enemies.
 </content>
-</topic>
-
-<topic name="Hire More Soldiers" triggers="checkDroneDestroyed" onOpen="onHireSoldiersOpen" urgent="true">
-<content>In order to beef up your security forces, a number of upgrades have been installed at your Trooper Lodge, increasing the barracks space and allowing better skill training.
-
-A number of veteran troopers have also applied to work at the facility, but you don't have space for all of them.  Open the facility's Staff tab- or the Personnel pane- to view their skills and traits.  Then you can decide which to hire.  Fresh recruits should arrive within a day or so.</content>
-</topic>
-
-<topic name="Uncover The Ruins" triggers="checkDroneDestroyed" urgent="true">
-<content>That Drone came from an Ancient Ruins somewhere in the darkness of the unexplored regions of the map- and where there's one, others are likely to follow.  Conduct further Recon and Strike Missions to find the ruins and destroy it.
-
-Note:  To tip the odds in your favour, you may wish to hire additional troops.
-
-Note:  You may also wish to make your Missions 'screened' to help control the timing and composition of your assault teams.</content>
+  <link name="Base Under Attack!">Bring It On</link>
 </topic>
 
 
 
-<topic name="Basic Housing" triggers="checkRuinsDestroyed" urgent="true">
-<content>Now that local threats have been dealt with, it's time to focus on building a more prosperous settlement.
 
-Your citizens will need food and housing, so you may wish to establish Holdings where they can settle down.  This can be done from the Installations pane, but your citizens will also establish homes themselves if there's enough pent-up demand- generally 1 Holding for every 4 citizens.
+<topic
+  name      = "Base Under Attack!"
+  urgent    = "true"
+  whenOpen  = "whenBaseAttackTopicOpen"
+  completes = "checkDroneAssaultDestroyed"
+>
+  <content>You asked for it!  Here come two enemy Drones to raze your colony.  Flag them with a Strike Mission ASAP and watch your Troopers handle it.  Don't forget to up the reward.</content>
+</topic>
 
-Your citizens can also upgrade their housing once they gain access to the right goods and services.  In addition to improving comfort and morale, this helps to generate tax revenue from sales and savings.  Simply click on a given Holding to see information on what it needs next.
+<topic
+  name      = "Find The Distant Ruins"
+  urgent    = "true"
+  triggers  = "checkDroneAssaultDestroyed"
+  completes = "checkFarRuinsFound"
+  onFinish  = "onFarRuinsFound"
+>
+  <content>Those creatures- known as Artilects- are still a threat, however.  You will need to use Recon Missions to explore the surrounding terrain until you find the Ancient Ruins that spawned the Drones.
 
-Try to have at least one Holding upgrade to a Pyon Shack.</content>
+(Tip:  Try searching in the same quadrant they came from.)</content>
+</topic>
+
+<topic
+  name      = "Ruins Discovered"
+  urgent    = "true"
+  triggers  = "checkFarRuinsFound"
+  completes = "checkFarRuinsDestroyed"
+  onFinish  = "onFarRuinsDestroyed"
+>
+  <content>The Ruins have been found.  Now destroy them.
+
+This may be a tough fight.  Consider building an extra Trooper Lodge or installing some upgrades at the first to hire more troops or improve their training.</content>
+</topic>
+
+<topic
+  name      = "Ruins Destroyed"
+  urgent    = "true"
+  triggers  = "checkFarRuinsDestroyed"
+  completes = "checkTutorialComplete"
+>
+  <content>From this point on, you're on your own.  The only thing left to do is ensure your settlement has turned a profit, and you can be confident it's future is secure.</content>
+  <link name="Finishing Up">Continue</link>
 </topic>
 
 
-<topic name="Structure Upgrades" triggers="checkRuinsDestroyed" urgent="true">
-<content>To improve the efficiency of goods manufacture and the range of services provided, your main buildings can each have a range of upgrades installed.  For example, your Engineer Station permits the Assembly Line upgrade to speed up parts manufacture.
-
-In addition to being sold for export, parts can be used to help upgrade housing.  Select the Engineer Station, go to the upgrades pane, and order an Assembly Line installed.  Your construction staff will attend to it shortly.
-
-Note:  You can also install upgrades to improve the quality of weapons and armour available to your soldiers.
-</content>
-</topic>
-
-
-<topic name="Food And Other Goods" urgent="true">
-<content>Your citizens won't starve immediately, but after several days their rations may start to run low.  Food- such as carbs, greens and protein- can be imported at the Supply Depot as you would any other good.  Plastics are also required for housing development, and can be imported in a similar way.
-
-However, to save on import costs, you may wish to build an Ecologist Station and Nursery to plant and harvest crops, and/or a Fabricator to manufacture plastics.  Your space is limited, however, so choose what to build wisely.</content>
-</topic>
-
-
-<topic name="Prosperity" triggers="checkHousingAndVenueUpgrade">
-<content>Now that you're familiar with upgrades to housing and other structures, along with the basics of trade and taxation, you'll need to establish a positive cash flow.
-
-Try to increase your current funds by at least 1000 credits.
-
-Tip:  You can always get an overview of current expenses and income, along with a summary of demand and prices for various goods, from the Finances pane in the top-right.</content>
+<topic
+  name      = "Tutorial Complete"
+  urgent    = "true"
+  triggers  = "checkTutorialComplete"
+>
+  <content>Congratulations.</content>
 </topic>
 
 
 
-<topic name="Congratulations" triggers="checkPositiveCashFlow" onOpen="onTutorialDone">
-<content>Congratulations!  You've covered the core essentials of playing Stratos, The Sci-Fi Settlement Sim.  While there's a wealth of other content to explore, from here on we'll leave you to your own devices.
 
-Please feel free to drop by the forums at presidium.game.net for other tips or to give feedback and commentary!  In the meantime, enjoy.</content>
-</topic>
 
 
 

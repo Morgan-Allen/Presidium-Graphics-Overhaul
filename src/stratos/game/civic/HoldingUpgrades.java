@@ -25,25 +25,25 @@ public class HoldingUpgrades {
   final public static Upgrade
     TENT_LEVEL = new Upgrade(
       "Seal Tent", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.class
+      null, Holding.BLUEPRINT
     ),
     PYON_LEVEL = new Upgrade(
       "Pyon Shacks", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.class
+      null, Holding.BLUEPRINT
     ),
     FREEBORN_LEVEL = new Upgrade(
       "Freeborn Holding", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      PYON_LEVEL, Holding.class
+      PYON_LEVEL, Holding.BLUEPRINT
     ),
     CITIZEN_LEVEL = new Upgrade(
       "Citizen Apartment", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      FREEBORN_LEVEL, Holding.class
+      FREEBORN_LEVEL, Holding.BLUEPRINT
     ),
     GELDER_LEVEL = new Upgrade(
       "Gelder Manse", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      CITIZEN_LEVEL, Holding.class
+      CITIZEN_LEVEL, Holding.BLUEPRINT
     ),
-    UPGRADE_ARRAY[] = Upgrade.upgradesFor(Holding.class);
+    UPGRADE_ARRAY[] = Upgrade.upgradesFor(Holding.BLUEPRINT);
   
   final static Object
     NEEDS_MET = "OKAY",
@@ -97,32 +97,6 @@ public class HoldingUpgrades {
   
   /**  Building materials/furnishings-
     */
-  final static Conversion MATERIALS[] = {
-    new Conversion(
-      Holding.class, "Level 1",
-      TRIVIAL_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 2",
-      1, PLASTICS,
-      SIMPLE_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 3",
-      2, PLASTICS, 1, PARTS, 1, POWER,
-      ROUTINE_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 4",
-      2, PLASTICS, 2, PARTS, 1, POWER, 1, MEDICINE,
-      MODERATE_DC, ASSEMBLY
-    ),
-    new Conversion(
-      Holding.class, "Level 5",
-      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
-      DIFFICULT_DC, ASSEMBLY
-    ),
-  };
   
   
   private static boolean checks(int targetLevel, int upgradeLevel) {
@@ -146,7 +120,7 @@ public class HoldingUpgrades {
   
   
   public static Conversion materials(int upgradeLevel) {
-    return MATERIALS[Nums.clamp(upgradeLevel, NUM_LEVELS)];
+    return Holding.MATERIALS[Nums.clamp(upgradeLevel, NUM_LEVELS)];
   }
   
   
@@ -330,13 +304,13 @@ public class HoldingUpgrades {
     final boolean NV = ! verbose;
     float rating = 1, r;
     
-    if (targetLevel >= LEVEL_PYON) {
+    if (targetLevel >= LEVEL_FREEBORN) {
       r = Nums.max(
         rateAccessTo(Bastion.class         , point, base),
         rateAccessTo(PhysicianStation.class, point, base)
       );
       if (r <= 0) return NV ? NOT_MET :
-        "Your pyons will need access to a Bastion or Sickbay to provide "+
+        "Your freeborn will need access to a Bastion or Sickbay to provide "+
         "life support or health services before they will feel safe enough "+
         "to settle down.";
       rating *= r;

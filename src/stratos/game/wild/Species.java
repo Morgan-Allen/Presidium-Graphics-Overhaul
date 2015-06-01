@@ -161,12 +161,6 @@ public abstract class Species extends Background {
   
   public Item[] nutrients() { return nutrients; }
   public float metabolism() { return baseBulk * speedMult; }
-  
-  
-  
-  /**  Feedback and diagnostics-
-    */
-  public String toString() { return name; }
 }
 
 

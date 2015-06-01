@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
@@ -10,16 +13,16 @@ import stratos.util.*;
 
 
 
-public class CommercePane extends SelectionPane {
+public class BudgetsPane extends SelectionPane {
   
   
   final static ImageAsset
-    COMMERCE_ICON = ImageAsset.fromImage(
-      CommercePane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
+    BUDGETS_ICON = ImageAsset.fromImage(
+      BudgetsPane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
     ),
-    COMMERCE_ICON_LIT = Button.CIRCLE_LIT;
+    BUDGETS_ICON_LIT = Button.CIRCLE_LIT;
   
-  final static String
+  final public static String
     CAT_DEMAND   = "[MARKETS]",
     CAT_BUDGET   = "[BUDGETS]",
     CATEGORIES[] = { CAT_DEMAND, CAT_BUDGET };
@@ -28,26 +31,17 @@ public class CommercePane extends SelectionPane {
   private int periodShown = -1;
   
   
-  public CommercePane(BaseUI UI) {
-    super(UI, null, false, false, 0, CATEGORIES);
+  public BudgetsPane(BaseUI UI) {
+    super(UI, null, null, false, false, 0, CATEGORIES);
+    setWidgetID(BUDGETS_PANE_ID);
   }
   
   
   static Button createButton(final BaseUI baseUI) {
-    final CommercePane pane = new CommercePane(baseUI);
-    final Button button = new Button(
-      baseUI, COMMERCE_ICON, COMMERCE_ICON_LIT, "Finance"
-    ) {
-      protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
-        }
-        else {
-          baseUI.setInfoPanels(pane, null);
-        }
-      }
-    };
-    return button;
+    return new PaneButton(
+      new BudgetsPane(baseUI), baseUI,
+      BUDGETS_BUTTON_ID, BUDGETS_ICON, BUDGETS_ICON_LIT, "Finance"
+    );
   }
   
   
@@ -119,6 +113,8 @@ public class CommercePane extends SelectionPane {
   
   protected void describeDemands(Description d) {
     final Base base = UI.played();
+    final Verse universe = base.world.offworld;
+    final VerseLocation locale = universe.stageLocation();
     final BaseCommerce BC = base.commerce;
     
     d.append("DEMAND REPORT FOR "+base);
@@ -132,7 +128,9 @@ public class CommercePane extends SelectionPane {
         baseCost = I.shorten(t.basePrice()    , 1);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+" (");
+      d.append(" ");
+      d.append(t);
+      d.append(" (");
       d.append(priceImp+"", Colour.LITE_RED  );
       d.append(" | ");
       d.append(priceExp+"", Colour.LITE_GREEN);
@@ -142,10 +140,23 @@ public class CommercePane extends SelectionPane {
     }
     
     Text.cancelBullet(d);
-    d.append("\n\nTrading partners:");
+    
     for (VerseLocation partner : BC.partners()) {
-      d.append("\n  ");
+      d.append("\n\n");
       d.append(partner);
+      if (partner == BC.homeworld()) d.append("  (Homeworld)");
+      else d.append(" (Trading Partner)");
+      
+      final Dropship nextShip = universe.journeys.nextShipBetween(
+        partner, locale, base, true
+      );
+      if (nextShip != null) {
+        float ETA = universe.journeys.arrivalETA(nextShip, base);
+        ETA /= Stage.STANDARD_HOUR_LENGTH;
+        d.append("\n  Dropship ETA: "+Nums.round(ETA, 1, true)+" hours");
+      }
+      
+      d.append("\n ");
       d.append(" (Makes: ");
       for (Traded t : partner.goodsMade) {
         if (t.form != Economy.FORM_MATERIAL) continue;
@@ -159,7 +170,7 @@ public class CommercePane extends SelectionPane {
       }
       d.append(")");
     }
-    if (BC.partners().size() == 0) d.append("\n    No partners.");
+    if (BC.partners().size() == 0) d.append("\n\nNo Trade Partners.");
 
     boolean noLocal = true, noTrade = true;
 
@@ -173,9 +184,11 @@ public class CommercePane extends SelectionPane {
       else noLocal = false;
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+": "+supply+"/"+demand);
+      d.append(" ");
+      d.append(t);
+      d.append(" ("+supply+"/"+demand+")");
     }
-    if (noLocal) d.append("\n  No local goods.");
+    if (noLocal) d.append("\n  (No local goods)");
     
     Text.cancelBullet(d);
     d.append("\n\nReserved For Trade: (import/export)");
@@ -187,9 +200,11 @@ public class CommercePane extends SelectionPane {
       else noTrade = false;
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" "+t+": "+demand+"/"+supply);
+      d.append(" ");
+      d.append(t);
+      d.append(" ("+supply+"/"+demand+")");
     }
-    if (noTrade) d.append("\n  No trade goods.");
+    if (noTrade) d.append("\n  (No trade goods)");
   }
 }
 

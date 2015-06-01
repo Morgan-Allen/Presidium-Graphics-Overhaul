@@ -80,6 +80,7 @@ public class Healthbar extends SFX {
     }
     
     //  Then, establish correct colours for the fill, back, and warning-
+    final ImageAsset blank = Image.SOLID_WHITE;
     Colour colour = this.colour;
     if (colour == null) colour = Colour.LITE_GREY;
     Colour back = new Colour(this.back == null ? Colour.WHITE : this.back);
@@ -88,12 +89,12 @@ public class Healthbar extends SFX {
     final float s = 1 - level, f = fog;
     
     if (widget) passW.draw(
-      ImageAsset.WHITE_TEX(), back,
+      blank.asTexture(), back,
       x, y, size, BAR_HEIGHT,
       0, 0, 1, 1
     );
     else passS.compileQuad(
-      ImageAsset.WHITE_TEX(), back, false,
+      blank.asTexture(), back, false,
       x, y, size, BAR_HEIGHT,
       0, 0, 1, 1,
       z, true
@@ -110,12 +111,12 @@ public class Healthbar extends SFX {
       flash.calcFloatBits();
       
       if (widget) passW.draw(
-        ImageAsset.WHITE_TEX(), flash,
+        blank.asTexture(), flash,
         x, y, size, BAR_HEIGHT,
         0, 0, 1, 1
       );
       else passS.compileQuad(
-        ImageAsset.WHITE_TEX(), flash, false,
+        blank.asTexture(), flash, false,
         x, y, size, BAR_HEIGHT,
         0, 0, 1, 1,
         z, true// + 0.05f, true
@@ -133,12 +134,12 @@ public class Healthbar extends SFX {
     mix.setValue((colour.value() * level) + (warn.value() * s));
     
     if (widget) passW.draw(
-      ImageAsset.WHITE_TEX(), mix,
+      blank.asTexture(), mix,
       x, y, size * level, BAR_HEIGHT,
       0, 0, 1, 1
     );
     else passS.compileQuad(
-      ImageAsset.WHITE_TEX(), mix, false,
+      blank.asTexture(), mix, false,
       x, y, size * level, BAR_HEIGHT,
       0, 0, 1, 1,
       z, true// + 0.1f, true

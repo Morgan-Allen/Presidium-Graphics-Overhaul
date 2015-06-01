@@ -26,9 +26,18 @@ public class Farming extends Plan {
     evalVerbose  = false,
     stepsVerbose = false;
   
+  final static int
+    STAGE_INIT = -1,
+    STAGE_COLLECT = 0,
+    STAGE_PLANT   = 1,
+    STAGE_WEEDS   = 2,
+    STAGE_HARVEST = 3,
+    STAGE_RETURN  = 4;
+  
   final Venue seedDepot;
   final Nursery nursery;
-  
+  private float diversity = 0, seedImpulse = 0;
+  private int stage = STAGE_INIT;
   
   
   public Farming(Actor actor, Venue seedDepot, Nursery plantation) {
@@ -40,15 +49,21 @@ public class Farming extends Plan {
   
   public Farming(Session s) throws Exception {
     super(s);
-    seedDepot = (Venue  ) s.loadObject();
-    nursery   = (Nursery) s.loadObject();
+    seedDepot   = (Venue  ) s.loadObject();
+    nursery     = (Nursery) s.loadObject();
+    diversity   = s.loadFloat();
+    seedImpulse = s.loadFloat();
+    stage       = s.loadInt  ();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(seedDepot);
-    s.saveObject(nursery  );
+    s.saveObject(seedDepot  );
+    s.saveObject(nursery    );
+    s.saveFloat (diversity  );
+    s.saveFloat (seedImpulse);
+    s.saveInt   (stage      );
   }
   
   
@@ -63,23 +78,66 @@ public class Farming extends Plan {
   final static Skill BASE_SKILLS[] = { HARD_LABOUR, CULTIVATION };
   final static Trait BASE_TRAITS[] = { ENERGETIC, NATURALIST };
   
-
+  
+  private Species pickSpecies(Tile t, boolean report) {
+    if (report) I.say("\nPicking crop species...");
+    
+    final Pick <Species> pick = new Pick <Species> ();
+    diversity = 0;
+    
+    for (Species s : Crop.ALL_VARIETIES) {
+      final Item
+        match   = Item.asMatch(GENE_SEED, s),
+        carried = actor.gear.matchFor(match),
+        atDepot = seedDepot.stocks.matchFor(match),
+        seed    = carried == null ? atDepot : carried;
+      
+      if (seed == null) continue;
+      else diversity++;
+      
+      float shortage = seedDepot.stocks.relativeShortage(Crop.yieldType(s));
+      if (t == null) { pick.compare(s, shortage * seed.quality); continue; }
+      
+      final float chance = Crop.habitatBonus(t, s, seed) * (1 + shortage);
+      if (report) {
+        I.say("  Chance for "+s+" is "+chance);
+        I.say("    Seed source: "+seed);
+      }
+      pick.compare(s, chance * Rand.num());
+    }
+    if (report) I.say("  Species picked: "+pick.result());
+    
+    diversity = Nums.clamp(diversity / 4, 0, 1);
+    return pick.result();
+  }
+  
+  
+  private float sumHarvest() {
+    return 
+      actor.gear.amountOf(CARBS  ) +
+      actor.gear.amountOf(GREENS ) +
+      actor.gear.amountOf(PROTEIN);
+  }
+  
+  
   protected float getPriority() {
     final boolean report = I.talkAbout == actor && evalVerbose;
     if ((! hasBegun()) && PlanUtils.competition(this, nursery, actor) > 0) {
       return 0;
     }
     
-    final float min = returnHarvestAction(0) == null ? 0 :  ROUTINE;
-    final float need = nursery.needForTending();
+    if (pickSpecies(null, report) == null) seedImpulse = 0;
+    else seedImpulse = nursery.needForTending() + diversity - 1;
+    final float min = returnHarvestAction(0) == null ? 0 : ROUTINE;
+    
     if (report) {
       I.say("\nEvaluating farming priority for "+this);
-      I.say("  Need for tending: "+need);
+      I.say("  Seed impulse: "+seedImpulse);
       I.say("  Motive bonus:     "+motiveBonus());
     }
     
     final float priority = PlanUtils.jobPlanPriority(
-      actor, this, need, 1, 0, 0, BASE_TRAITS
+      actor, this, seedImpulse, 1, 0, 0, BASE_TRAITS
     );
     return Nums.max(min, priority);
   }
@@ -103,11 +161,10 @@ public class Farming extends Plan {
     }
     
     //  Find the next tile for seeding, tending or harvest.
-    final boolean canPlant = nursery.needForTending() > 0 && canPlant();
     float minDist = Float.POSITIVE_INFINITY, dist;
     
     Tile toFarm = null;
-    if (canPlant) for (Tile t : nursery.toPlant()) {
+    if (seedImpulse > 0) for (Tile t : nursery.toPlant()) {
       if (! nursery.couldPlant(t)) continue;
       if (report) I.say("  Checking tile: "+t);
       
@@ -172,21 +229,13 @@ public class Farming extends Plan {
   }
   
   
-  private float sumHarvest() {
-    return 
-      actor.gear.amountOf(CARBS) +
-      actor.gear.amountOf(GREENS) +
-      actor.gear.amountOf(PROTEIN);
-  }
-  
-  
   private Action returnHarvestAction(int amountNeeded) {
     if (! hasBegun()) return null;
     
-    final boolean hasSample = actor.gear.amountOf(SAMPLES) > 0;
+    final boolean hasSeed = actor.gear.amountOf(GENE_SEED) > 0;
     final float sumHarvest = sumHarvest();
     
-    if (hasSample && sumHarvest == 0 && amountNeeded == 0) {
+    if (hasSeed && sumHarvest == 0 && amountNeeded == 0) {
       final Action returnSeed = new Action(
         actor, seedDepot,
         this, "actionReturnHarvest",
@@ -198,6 +247,7 @@ public class Farming extends Plan {
     if (sumHarvest <= amountNeeded && actor.gear.encumbrance() < 1) {
       return null;
     }
+    
     final Action returnAction = new Action(
       actor, seedDepot,
       this, "actionReturnHarvest",
@@ -209,7 +259,7 @@ public class Farming extends Plan {
   
   private Item nextSeedNeeded() {
     for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = Item.asMatch(SAMPLES, s);
+      final Item seed = Item.asMatch(GENE_SEED, s);
       if (seedDepot.stocks.amountOf(seed) == 0) continue;
       if (actor.gear.amountOf(seed) > 0) continue;
       return seed;
@@ -218,14 +268,9 @@ public class Farming extends Plan {
   }
   
   
-  private boolean canPlant() {
-    if (! GameSettings.hardCore) return true;
-    return
-      seedDepot.stocks.amountOf(SAMPLES) > 0 ||
-      actor.gear.amountOf(SAMPLES) > 0;
-  }
-  
-  
+
+  /**  Action Implementations-
+    */
   public boolean actionCollectSeed(Actor actor, Venue seedDepot) {
     actionReturnHarvest(actor, seedDepot);
     while (true) {
@@ -237,9 +282,6 @@ public class Farming extends Plan {
   }
   
   
-  
-  /**  Action Implementations-
-    */
   public boolean actionPlant(Actor actor, Crop crop) {
     //final boolean report = I.talkAbout == actor && stepsVerbose;
     if (! crop.inWorld()) {
@@ -249,7 +291,7 @@ public class Farming extends Plan {
     
     //  Initial seed quality has a substantial impact on crop health.
     final Item seed = actor.gear.bestSample(
-      Item.asMatch(SAMPLES, crop.species()), 0.1f
+      Item.asMatch(GENE_SEED, crop.species()), 0.1f
     );
     float plantDC = ROUTINE_DC;
     float health;
@@ -273,36 +315,12 @@ public class Farming extends Plan {
   }
   
   
-  private Species pickSpecies(Tile t, boolean report) {
-    final Pick <Species> pick = new Pick <Species> ();
-    if (report) I.say("\nPicking crop species...");
-    
-    for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = actor.gear.matchFor(Item.asMatch(SAMPLES, s));
-      float shortage = seedDepot.stocks.relativeShortage(Crop.yieldType(s));
-      
-      final float chance = Crop.habitatBonus(t, s, seed) * (1 + shortage);
-      if (report) {
-        I.say("  Chance for "+s+" is "+chance);
-        if (seed != null) I.say("    Seed quality "+seed.quality);
-      }
-      pick.compare(s, chance * Rand.num());
-    }
-    if (report) I.say("  Species picked: "+pick.result());
-    return pick.result();
-  }
-  
-  
   public boolean actionDisinfest(Actor actor, Crop crop) {
-    final Item seed = actor.gear.bestSample(
-      Item.asMatch(SAMPLES, crop.species()), 0.1f
-    );
-    int success = seed != null ? 2 : 0;
+    int success = 1;
     if (actor.skills.test(CULTIVATION, MODERATE_DC, 1)) success++;
     if (actor.skills.test(HARD_LABOUR, ROUTINE_DC , 1)) success++;
     if (Rand.index(5) <= success) {
       crop.disinfest();
-      if (seed != null) actor.gear.removeItem(seed);
     }
     return true;
   }
@@ -327,7 +345,7 @@ public class Farming extends Plan {
     actor.gear.transfer(CARBS  , depot);
     actor.gear.transfer(GREENS , depot);
     actor.gear.transfer(PROTEIN, depot);
-    for (Item seed : actor.gear.matches(SAMPLES)) {
+    for (Item seed : actor.gear.matches(GENE_SEED)) {
       actor.gear.removeItem(seed);
     }
     return true;

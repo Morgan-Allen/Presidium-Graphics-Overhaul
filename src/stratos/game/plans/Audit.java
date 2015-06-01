@@ -180,7 +180,7 @@ public class Audit extends Plan {
   }
   
   
-  public static Audit nextOfficialAudit(Actor actor) {
+  public static Audit nextOfficialAudit(Actor actor, Venue... venues) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nFinding next venue to audit for "+actor);
     
@@ -189,13 +189,16 @@ public class Audit extends Plan {
     
     final Stage world = actor.world();
     final Batch <Venue> batch = new Batch <Venue> ();
-    world.presences.sampleFromMap(work, world, 10, batch, work.base());
-    batch.add(work);
     
-    for (Target t : actor.senses.awareOf()) {
-      if (! (t instanceof Venue && t.base() == work.base())) continue;
-      batch.add((Venue) t);
+    if (venues == null || venues.length == 0) {
+      world.presences.sampleFromMap(work, world, 10, batch, work.base());
+      batch.add(work);
+      for (Target t : actor.senses.awareOf()) {
+        if (! (t instanceof Venue && t.base() == work.base())) continue;
+        batch.add((Venue) t);
+      }
     }
+    else Visit.appendTo(batch, venues);
     
     final Pick <Venue> pick = new Pick <Venue> (null, 0);
     for (Venue v : batch) {

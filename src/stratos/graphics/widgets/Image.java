@@ -6,10 +6,12 @@
 
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
-import stratos.start.PlayLoop;
+//import stratos.start.PlayLoop;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.Vector2;
+import static stratos.graphics.common.Colour.*;
 
 
 
@@ -19,14 +21,25 @@ import com.badlogic.gdx.math.Vector2;
 public class Image extends UINode {
   
   
-  public boolean lockToPixels = false;
-  public boolean blocksSelect = false;
+  /**  Data fields, constructors and setup methods-
+    */
+  final public static ImageAsset
+    TRANSLUCENT_WHITE = ImageAsset.withColor(15, SOFT_WHITE, Image.class),
+    TRANSLUCENT_GREY  = ImageAsset.withColor(16, SOFT_GREY , Image.class),
+    TRANSLUCENT_BLACK = ImageAsset.withColor(16, SOFT_BLACK, Image.class),
+    SOLID_WHITE       = ImageAsset.withColor(16, WHITE     , Image.class);
+  
+  public boolean
+    lockToPixels = false,
+    blocksSelect = false,
+    enabled      = true ;
+  
   protected Texture texture;
+  protected Texture greyOut = TRANSLUCENT_GREY.asTexture();
   
   
   public Image(HUD UI, String imagePath) {
     super(UI);
-    if (! PlayLoop.onMainThread()) I.complain("ONLY ON RENDER THREAD!");
     texture = ImageAsset.getTexture(imagePath);
   }
   
@@ -38,7 +51,12 @@ public class Image extends UINode {
   
   public Image(HUD myHUD, Texture t) {
     super(myHUD);
-    texture = t;
+    this.texture = t;
+  }
+  
+  
+  public void setDisabledOverlay(ImageAsset g) {
+    this.greyOut = g.asTexture();
   }
   
   
@@ -52,6 +70,8 @@ public class Image extends UINode {
   }
   
   
+  /**  Rendering and feedback methods-
+    */
   protected UINode selectionAt(Vector2 mousePos) {
     if (blocksSelect) return super.selectionAt(mousePos);
     else return null;
@@ -60,6 +80,7 @@ public class Image extends UINode {
   
   protected void render(WidgetsPass pass) {
     renderTex(texture, relAlpha, pass);
+    if (! enabled) renderTex(greyOut, relAlpha, pass);
   }
   
   

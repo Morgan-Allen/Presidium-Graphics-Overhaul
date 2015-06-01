@@ -33,21 +33,21 @@ public class EnforcerBloc extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     EnforcerBloc.class, "enforcer_bloc",
-    "Enforcer Bloc", UIConstants.TYPE_SECURITY,
-    4, 2, IS_NORMAL,
-    Bastion.BLUEPRINT, Owner.TIER_FACILITY
+    "Enforcer Bloc", UIConstants.TYPE_SECURITY, ICON,
+    "The Enforcer Bloc provides a civilian police force for your base, "+
+    "assisting administration and espionage as well as providing nonlethal "+
+    "force.",
+    4, 2, Structure.IS_NORMAL,
+    Bastion.BLUEPRINT, Owner.TIER_FACILITY,
+    450,  //Integrity
+    6  ,  //Armour
+    450,  //Build cost
+    Structure.NORMAL_MAX_UPGRADES
   );
   
   
   public EnforcerBloc(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      450,  //Integrity
-      6  ,  //Armour
-      450,  //Build cost
-      Structure.NORMAL_MAX_UPGRADES,
-      Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     this.attachSprite(MODEL.makeSprite());
   }
@@ -78,7 +78,7 @@ public class EnforcerBloc extends Venue {
   
   final public static Conversion
     PLASTICS_TO_PRESSFEED = new Conversion(
-      EnforcerBloc.class, "plastics_to_pressfeed",
+      BLUEPRINT, "plastics_to_pressfeed",
       1, PLASTICS, TO, 10, PRESSFEED,
       SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
     )
@@ -135,22 +135,6 @@ public class EnforcerBloc extends Venue {
     if (super.allowsEntry(m)) return true;
     if (Summons.summonedTo(m) == this) return true;
     return false;
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "enforcer_bloc");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Enforcer Bloc provides a civilian police force for your base, "+
-      "assisting administration and espionage as well as providing nonlethal "+
-      "force.";
   }
 }
 

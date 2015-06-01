@@ -92,9 +92,14 @@ public class RunnerMarket extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     RunnerMarket.class, "runner_market",
-    "Runner Market", UIConstants.TYPE_HIDDEN,
-    5, 2, IS_NORMAL,
-    StockExchange.BLUEPRINT, Owner.TIER_FACILITY
+    "Runner Market", UIConstants.TYPE_HIDDEN, ICON,
+    "Runner Markets can offer black market technology and other "+
+    "clandestine services to settlements willing to overlook their "+
+    "criminal connections.",
+    5, 2, Structure.IS_NORMAL,
+    StockExchange.BLUEPRINT, Owner.TIER_FACILITY,
+    150, 3, 250,
+    Structure.NORMAL_MAX_UPGRADES
   );
   
   private int gangID = GANG_NONE;
@@ -102,10 +107,6 @@ public class RunnerMarket extends Venue {
   
   public RunnerMarket(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      150, 3, 250,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachModel(MODEL);
   }
@@ -270,22 +271,6 @@ public class RunnerMarket extends Venue {
     if (b == RUNNER_BACKGROUNDS [gangID]) return nO + 2;
     if (b == SERVICE_BACKGROUNDS[gangID]) return nO + 1;
     return 0;
-  }
-  
-  
-  
-  /**  Rendering and interface-
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "runner_market");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Runner Markets can offer black market technology and other "+
-      "clandestine services to settlements willing to overlook their "+
-      "criminal connections.";
   }
 }
 

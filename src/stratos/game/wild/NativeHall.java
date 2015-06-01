@@ -131,13 +131,6 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   public Composite portrait(BaseUI UI) {
     return super.portrait(UI);
   }
-  
-  
-  public String helpInfo() {
-    return
-      "Native settlements will often have a central meeting place where "+
-      "the tribe's leadership and elders will gather to make decisions.";
-  }
 }
 
 

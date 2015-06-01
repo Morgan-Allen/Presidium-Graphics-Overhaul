@@ -201,7 +201,6 @@ public class Placement implements TileConstants {
       if (! a.inWorld()) {
         a.assignBase(v.base());
         a.enterWorldAt(v, world);
-        a.goAboard(v, world);
       }
       a.mind.setWork(v);
       if (v.crowdRating(a, Backgrounds.AS_RESIDENT) < 1) {
@@ -457,12 +456,17 @@ public class Placement implements TileConstants {
       I.say("    ");
     }
     for (Tile t : perim) {
+      //
+      //  We also forbid direct placement of natural items next to artificial
+      //  items, or placement next to unpath-able terrain.
       if (minor && t != null && t.owningTier() >= Owner.TIER_PRIVATE) {
-        //
-        //  We also forbid direct placement of natural items next to artificial
-        //  items-
         return false;
       }
+      if (spaceNeed == 1 && t != null && ! t.habitat().pathClear) {
+        return false;
+      }
+      //
+      //  Otherwise, we record the blockage-pattern around the perimeter-
       int block = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
       if (report) I.add(" "+block);
       if (block != inBlock) { inBlock = block; if (block == 0) numGaps++; }

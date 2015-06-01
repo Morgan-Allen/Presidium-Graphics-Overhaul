@@ -62,28 +62,19 @@ public class RoadsRepair extends Plan {
   /**  Target evaluation and prioritisation-
     */
   final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
-  final static Skill BASE_SKILLS[] = { ASSEMBLY, HARD_LABOUR };
   
   
   protected float getPriority() {
     if (GameSettings.paveFree) return -1;
-    final boolean report = evalVerbose && I.talkAbout == actor;
     
-    if (PlanUtils.competition(this, section, actor) > 0) {
-      if (report) I.say("\nToo much competition for paving!  Will quit.");
-      return -1;
-    }
-    return priorityForActorWith(
-      actor, around,
-      CASUAL, NO_MODIFIER,
-      NO_HARM, NO_COMPETITION, MILD_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    setCompetence(successChanceFor(actor));
+    return PlanUtils.jobPlanPriority(
+      actor, this, 1, competence(), 0, MILD_FAIL_RISK, BASE_TRAITS
     );
   }
   
   
-  //  TODO:  Merge this with the Repair class for simplicity?
+  //  TODO:  Merge this with the Repair class for simplicity..?
   public float successChanceFor(Actor actor) {
     float chance = 1;
     chance *= actor.skills.chance(HARD_LABOUR, 0);
@@ -140,8 +131,7 @@ public class RoadsRepair extends Plan {
     final Pick <Tile> pick = new Pick <Tile> ();
     
     for (Tile t : o.world.tilesIn(area, true)) {
-      if (t.worldSection() != this.section) continue;
-      if (! map.needsPaving(t)) continue;
+      if (t.worldSection() != this.section || ! map.needsPaving(t)) continue;
       float rating = 0;
       for (Tile n : t.vicinity(null)) if (n != null) {
         if (map.needsPaving(n)) rating++;
@@ -152,15 +142,16 @@ public class RoadsRepair extends Plan {
   }
   
   
-  private int setPavingAround(Tile t, boolean is) {
+  public static int updatePavingAround(Tile t, Base base) {
     int counter = 0;
     final Batch <Tile> toPave = new Batch <Tile> ();
     toPave.add(t);
     for (Tile n : t.edgeAdjacent(null)) if (n != null) toPave.add(n);
     
+    final PavingMap map = base.transport.map;
     for (Tile n : toPave) {
       if (! map.needsPaving(n)) continue;
-      final boolean pave = is && n.canPave();
+      final boolean pave = ! PavingMap.isRoad(n);
       if (pave) PavingMap.setPaveLevel(n, StageTerrain.ROAD_LIGHT, true );
       else      PavingMap.setPaveLevel(n, StageTerrain.ROAD_NONE , false);
       counter++;
@@ -180,7 +171,7 @@ public class RoadsRepair extends Plan {
       I.say("  Habitat ok? "+t.habitat().pathClear);
     }
     
-    final int paved = setPavingAround(t, true);
+    final int paved = updatePavingAround(t, base);
     if (paved == 0) return false;
     //  TODO:  Deduct credits (or materials?)
     return true;
@@ -188,7 +179,7 @@ public class RoadsRepair extends Plan {
   
   
   public boolean actionStrip(Actor actor, Tile t) {
-    final int paved = setPavingAround(t, false);
+    final int paved = updatePavingAround(t, base);
     if (paved == 0) return false;
     //  TODO:  Reclaim credits (or materials?)
     return true;

@@ -48,9 +48,12 @@ public class ShieldWall extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ShieldWall.class, "shield_wall",
-    "Shield Wall", UIConstants.TYPE_SECURITY,
-    2, 2, IS_LINEAR | IS_FIXTURE | IS_GRIDDED,
-    Bastion.BLUEPRINT, Owner.TIER_FACILITY
+    "Shield Wall", UIConstants.TYPE_SECURITY, ICON,
+    "Shield Walls are defensive emplacements that improve base security.",
+    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE | Structure.IS_GRIDDED,
+    Bastion.BLUEPRINT, Owner.TIER_FACILITY,
+    125, 15, 40,  //integrity, armour, and build cost
+    Structure.SMALL_MAX_UPGRADES
   );
   
   
@@ -61,10 +64,6 @@ public class ShieldWall extends Venue {
   
   public ShieldWall(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      125, 15, 40,  //integrity, armour, and build cost
-      Structure.SMALL_MAX_UPGRADES, Structure.TYPE_FIXTURE
-    );
     this.type = TYPE_INIT;
   }
   
@@ -295,19 +294,8 @@ public class ShieldWall extends Venue {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "shield_wall");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Shield Walls are defensive emplacements that improve base security.";
   }
 }
 

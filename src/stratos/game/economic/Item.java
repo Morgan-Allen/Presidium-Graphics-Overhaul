@@ -5,12 +5,11 @@
   */
 
 package stratos.game.economic;
-import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.common.Session.Saveable;
+import static stratos.game.economic.Economy.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
 
 
 
@@ -163,11 +162,6 @@ public class Item {
   
   public float outputFromQuality() {
     return OUTPUT_MULTS[(int) quality];
-  }
-  
-  
-  public boolean isCommon() {
-    return type.form == FORM_MATERIAL || type.form == FORM_PROVISION;
   }
   
   

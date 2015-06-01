@@ -45,11 +45,11 @@ public final class Spacing implements TileConstants {
   final static Assets.Loadable DISPOSAL = new Assets.Loadable(
     "SPACING_DISPOSAL", Spacing.class, true
   ) {
-    protected void loadAsset() {}
-    public boolean isLoaded() { return true; }
-    public boolean isDisposed() { return false; }
+    protected State loadAsset() { return State.LOADED; }
+    public boolean stateLoaded() { return true; }
+    public boolean stateDisposed() { return false; }
     
-    protected void disposeAsset() {
+    protected State disposeAsset() {
       Visit.wipe(tempT4);
       Visit.wipe(tempT8);
       Visit.wipe(tempT9);
@@ -58,6 +58,7 @@ public final class Spacing implements TileConstants {
       for (Tile    t[] : PERIM_ARRAYS) Visit.wipe(t);
       for (Element e[] : NEAR_ARRAYS ) Visit.wipe(e);
       Assets.registerForLoading(this);
+      return state = State.DISPOSED;
     }
   };
   

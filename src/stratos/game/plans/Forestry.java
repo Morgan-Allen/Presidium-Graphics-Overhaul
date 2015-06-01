@@ -16,6 +16,8 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Try merging this with Farming (or extending it.)
+
 public class Forestry extends Plan {
 
   private static boolean
@@ -32,7 +34,7 @@ public class Forestry extends Plan {
     STAGE_PROCESS  =  5,
     STAGE_DONE     =  6;
   
-  final static float
+  final public static float
     FLORA_PROCESS_TIME = Stage.STANDARD_HOUR_LENGTH,
     GROW_STAGE_POLYMER = 5;
   
@@ -43,9 +45,12 @@ public class Forestry extends Plan {
   private Flora toCut   = null;
   
   
-  public static Forestry nextSampling(Actor actor, Venue nursery) {
+  public static Forestry nextSampling(
+    Actor actor, Venue nursery, float urgency
+  ) {
     final Forestry f = new Forestry(actor, nursery);
     f.configureFor(STAGE_SAMPLING);
+    f.addMotives(Plan.MOTIVE_JOB, urgency * ROUTINE);
     return f;
   }
   
@@ -97,9 +102,10 @@ public class Forestry extends Plan {
   /**  Behaviour implementation-
     */
   public boolean configureFor(int stage) {
+    final Box2D limit = depot.areaClaimed();
     
     if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
-      toPlant = findPlantTile(actor, depot);
+      toPlant = findPlantTile(actor, depot, limit);
       if (toPlant == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       if (depot.stocks.amountOf(seedMatch()) > 0) {
         this.stage = STAGE_GET_SEED;
@@ -108,7 +114,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_CUTTING) {
-      toCut = findCutting(actor, depot);
+      toCut = findCutting(actor, depot, limit);
       if (toCut == null) { interrupt(INTERRUPT_NO_PREREQ); return false; }
       this.stage = stage;
     }
@@ -120,6 +126,18 @@ public class Forestry extends Plan {
   private boolean configured() {
     if (stage != STAGE_INIT) return true;
     return false;
+  }
+  
+  
+  private Item seedMatch() {
+    final Item match = Item.withReference(GENE_SEED, Flora.WILD_FLORA);
+    return Item.withAmount(match, 0.1f);
+  }
+  
+  
+  private Item sampleMatch() {
+    final Item match = Item.withReference(SAMPLES, Flora.WILD_FLORA);
+    return Item.withAmount(match, 1);
   }
   
   
@@ -149,7 +167,7 @@ public class Forestry extends Plan {
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_STORAGE) {
-      urgency = 0.5f;
+      urgency = 0.2f;
     }
     else if (stage == STAGE_GET_SEED || stage == STAGE_PLANTING) {
       urgency = 1 - abundance;
@@ -258,11 +276,6 @@ public class Forestry extends Plan {
   }
   
   
-  private Item seedMatch() {
-    return Item.withAmount(Item.withReference(GENE_SEED, Flora.TIMBER), 0.1f);
-  }
-  
-  
   public boolean actionCollectSeed(Actor actor, Venue depot) {
     final Item match = seedMatch();
     depot.stocks.transfer(match, actor);
@@ -281,7 +294,7 @@ public class Forestry extends Plan {
         I.say("  Occupied? "+(toPlant.inside().size() > 0));
         I.say("  Blocked? "+toPlant.blocked());
       }
-      toPlant = findPlantTile(actor, depot);
+      toPlant = findPlantTile(actor, depot, depot.areaClaimed());
       if (report) I.say("  New tile: "+toPlant);
       if (toPlant == null) stage = STAGE_STORAGE;
       return false;
@@ -354,7 +367,7 @@ public class Forestry extends Plan {
     final int growStage = cut.growStage();
     actor.gear.bumpItem(GREENS, growStage * Rand.num() / Flora.MAX_GROWTH);
     
-    actor.gear.addItem(Item.withReference(GENE_SEED, cut));
+    actor.gear.addItem(sampleMatch());
     stage = STAGE_STORAGE;
     return true;
   }
@@ -363,9 +376,7 @@ public class Forestry extends Plan {
   public boolean actionStoreSamples(Actor actor, Venue depot) {
     if (stepsVerbose) I.say("RETURNING SAMPLES TO "+depot);
     
-    for (Item seed : actor.gear.matches(seedMatch())) {
-      actor.gear.transfer(seed, depot);
-    }
+    actor.gear.transfer(SAMPLES    , depot);
     actor.gear.transfer(GENE_SEED  , depot);
     actor.gear.transfer(GREENS     , depot);
     
@@ -374,6 +385,9 @@ public class Forestry extends Plan {
   }
   
   
+  
+  /**  Rendering and interface methods-
+    */
   public void describeBehaviour(Description d) {
     if (stage == STAGE_INIT) {
       d.append("Performing forestry");
@@ -405,7 +419,7 @@ public class Forestry extends Plan {
   
   /**  Utility methods for finding suitable plant/harvest targets-
     */
-  public static Tile findPlantTile(Actor actor, Venue depot) {
+  public static Tile findPlantTile(Actor actor, Venue depot, Box2D limit) {
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == depot
     );
@@ -418,6 +432,7 @@ public class Forestry extends Plan {
       tried = Spacing.pickRandomTile(depot, Stage.ZONE_SIZE, actor.world());
       tried = Spacing.nearestOpenTile(tried, actor);
       if (tried == null || ! Flora.canGrowAt(tried)) continue;
+      if (limit != null && ! limit.contains(tried.x, tried.y)) continue;
       
       float rating = tried.habitat().moisture() / 10f;
       rating -= Plan.rangePenalty(actor.base(), actor, tried);
@@ -432,17 +447,13 @@ public class Forestry extends Plan {
   }
   
   
-  public static Flora findCutting(Actor actor, Target from) {
+  public static Flora findCutting(Actor actor, Target from, Box2D limit) {
     final Target near = from == null ? actor : from;
     final Presences p = actor.world().presences;
     
     Flora cuts = null;
-    cuts = (Flora) p.randomMatchNear(
-      Flora.class, near, Stage.ZONE_SIZE / 2
-    );
-    if (cuts == null) cuts = (Flora) p.nearestMatch(
-      Flora.class, near, Stage.ZONE_SIZE * 1.5f
-    );
+    cuts = (Flora) p.randomMatchNear(Flora.class, near, limit);
+    if (cuts == null) cuts = (Flora) p.nearestMatch(Flora.class, near, limit);
     if (cuts == null) return null;
     
     if (! cuts.inWorld()) {

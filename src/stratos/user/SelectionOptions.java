@@ -15,10 +15,10 @@ import com.badlogic.gdx.math.Vector2;
 
 
 
-public class TargetOptions extends UIGroup implements UIConstants {
+public class SelectionOptions extends UIGroup implements UIConstants {
   
   
-  final int
+  final static int
     OB_SIZE   = 40,
     OB_MARGIN = 2;
   //  need health bar, title, status fx,
@@ -28,7 +28,7 @@ public class TargetOptions extends UIGroup implements UIConstants {
   protected boolean active = true;
   
   
-  public TargetOptions(BaseUI UI, Target subject) {
+  public SelectionOptions(BaseUI UI, Target subject) {
     super(UI);
     this.BUI = UI;
     this.subject = subject;
@@ -40,9 +40,9 @@ public class TargetOptions extends UIGroup implements UIConstants {
   private class OptionButton extends Button {
     final Mission mission;
     
-    OptionButton(BaseUI UI, ImageAsset img, String info, Mission m) {
+    OptionButton(BaseUI UI, String ID, ImageAsset img, String info, Mission m) {
       super(
-        UI, img.asTexture(), Mission.MISSION_ICON_LIT.asTexture(), info
+        UI, ID, img.asTexture(), Mission.MISSION_ICON_LIT.asTexture(), info
       );
       this.mission = m;
     }
@@ -75,7 +75,8 @@ public class TargetOptions extends UIGroup implements UIConstants {
       subject instanceof Venue
     ) {
       options.add(new OptionButton(
-        BUI, Mission.STRIKE_ICON, "Destroy or capture subject",
+        BUI, STRIKE_BUTTON_ID, Mission.STRIKE_ICON,
+        "Destroy or capture subject",
         new MissionStrike(base, subject)
       ));
     }
@@ -85,7 +86,8 @@ public class TargetOptions extends UIGroup implements UIConstants {
       subject instanceof Item.Dropped
     ) {
       options.add(new OptionButton(
-        BUI, Mission.SECURITY_ICON, "Secure or protect subject",
+        BUI, SECURITY_BUTTON_ID, Mission.SECURITY_ICON,
+        "Secure or protect subject",
         new MissionSecurity(base, subject)
       ));
     }
@@ -94,7 +96,8 @@ public class TargetOptions extends UIGroup implements UIConstants {
     ) {
       final MissionContact contactMission = new MissionContact(base, subject);
       options.add(new OptionButton(
-        BUI, Mission.CONTACT_ICON, "Contact or negotiate with subject",
+        BUI, CONTACT_BUTTON_ID, Mission.CONTACT_ICON,
+        "Contact or negotiate with subject",
         contactMission
       ) {
         protected void whenClicked() {
@@ -112,7 +115,8 @@ public class TargetOptions extends UIGroup implements UIConstants {
       subject instanceof Tile && Exploring.canExplore(base, subject)
     ) {
       options.add(new OptionButton(
-        BUI, Mission.RECON_ICON, "Explore an area or follow subject",
+        BUI, RECON_BUTTON_ID, Mission.RECON_ICON,
+        "Explore an area or follow subject",
         new MissionRecon(base, (Tile) subject)
       ));
     }

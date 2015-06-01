@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 
@@ -73,11 +74,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     habitats[][];
   private byte
     minerals[][],
-    paveVals[][],
-    dirtVals[][];
+    paveVals[][];
   
   private TerrainSet meshSet;
-  private LayerType dirtLayer, roadLayer;
+  private LayerType roadLayer;
   
   private static class Sample {
     //int fertility, insolation, minerals, area;
@@ -107,7 +107,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     }
     this.minerals = new byte[mapSize][mapSize];
     this.paveVals = new byte[mapSize][mapSize];
-    this.dirtVals = new byte[mapSize][mapSize];
     
     initSamples();
   }
@@ -130,10 +129,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     }
     minerals = new byte[mapSize][mapSize];
     paveVals = new byte[mapSize][mapSize];
-    dirtVals = new byte[mapSize][mapSize];
     s.loadByteArray(minerals);
     s.loadByteArray(paveVals);
-    s.loadByteArray(dirtVals);
     
     initSamples();
   }
@@ -147,7 +144,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     
     s.saveByteArray(minerals);
     s.saveByteArray(paveVals);
-    s.saveByteArray(dirtVals);
   }
   
   
@@ -286,18 +282,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   }
   
   
-  //  TODO:  Revisit this
-  public void setSqualor(Tile t, byte newVal) {
-    final byte oldVal = dirtVals[t.x][t.y];
-    dirtVals[t.x][t.y] = newVal;
-    if (oldVal != newVal) for (Tile n : t.vicinity(tempV)) if (n != null) {
-      meshSet.flagUpdateAt(n.x, n.y, dirtLayer);
-      //final MeshPatch patch = patches[t.x / patchSize][t.y / patchSize];
-      //patch.updateDirt = true;
-    }
-  }
-  
-  
   public float trueHeight(float x, float y) {
     return Nums.sampleMap(mapSize, heightVals, x, y) / 4;
   }
@@ -336,11 +320,12 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     */
   public void initTerrainMesh(Habitat habitats[]) {
     int lID = -1;
-    final LayerType layers[] = new LayerType[habitats.length + 2];
+    final LayerType layers[] = new LayerType[habitats.length + 1];
     
     while (++lID < habitats.length) {
       final int layerIndex = lID;
-      layers[lID] = new LayerType(habitats[lID].animTex, false, lID) {
+      final Habitat h = habitats[lID];
+      layers[lID] = new LayerType(h.animTex, false, lID, h.name) {
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           return typeIndex[tx][ty] == layerIndex;
         }
@@ -350,22 +335,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       };
     }
     
-    dirtLayer = layers[lID] = new LayerType(
-      Habitat.SQUALOR_TEXTURE, true, lID
-    ) {
-      protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        final byte ID = varsIndex[tx][ty];
-        final byte squalor = dirtVals[tx][ty];
-        return ID * squalor > 10;
-      }
-      protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        return (tx + ty) % 4;
-      }
-    };
-    lID++;
-    
     roadLayer = layers[lID] = new LayerType(
-      Habitat.ROAD_TEXTURE, true, lID
+      Habitat.ROAD_TEXTURE, true, lID, "roads"
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
         return paveVals[tx][ty] > 0;
@@ -395,7 +366,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       area.include(t.x, t.y, 0.5f);
     }
     
-    final LayerType layer = new LayerType(tex, false, -1) {
+    final LayerType layer = new LayerType(tex, false, -1, "overlay") {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
         final Tile t = world.tileAt(tx, ty);
         return (t == null) ? false : (pathTable.get(t) != null);
@@ -434,3 +405,14 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     meshSet.renderWithin(area, rendering);
   }
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -25,26 +25,25 @@ public class TrooperLodge extends Venue {
   /**  Fields, constants, and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    TrooperLodge.class, "media/Buildings/military/house_garrison.png", 4.25f, 3
+    TrooperLodge.class, "media/Buildings/military/trooper_lodge.png", 4.25f, 3
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    TrooperLodge.class, "media/GUI/Buttons/garrison_button.gif"
+    TrooperLodge.class, "media/GUI/Buttons/trooper_lodge_button.gif"
   );
   
-  final static Blueprint BLUEPRINT = new Blueprint(
+  final public static Blueprint BLUEPRINT = new Blueprint(
     TrooperLodge.class, "trooper_lodge",
-    "Trooper Lodge", UIConstants.TYPE_SECURITY,
-    4, 3, IS_NORMAL,
-    Bastion.BLUEPRINT, Owner.TIER_FACILITY
+    "Trooper Lodge", UIConstants.TYPE_SECURITY, ICON,
+    "The Trooper Lodge allows you to recruit the sturdy, disciplined and "+
+    "heavily-equipped Trooper into the rank and file of your armed forces.",
+    4, 3, Structure.IS_NORMAL,
+    Bastion.BLUEPRINT, Owner.TIER_FACILITY,
+    500, 20, 250, Structure.NORMAL_MAX_UPGRADES
   );
   
   
   public TrooperLodge(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      500, 20, 250,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
-    );
     staff.setShiftType(Venue.SHIFTS_BY_24_HOUR);
     attachSprite(MODEL.makeSprite());
   }
@@ -72,40 +71,40 @@ public class TrooperLodge extends Venue {
       "Drills your soldiers for the rigours of close combat and tight "+
       "formations.",
       150, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class
+      null, BLUEPRINT
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
       "Drills your soldiers to improve ranged marksmanship.",
       150, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class
+      null, BLUEPRINT
     ),
     FIELD_MEDICINE = new Upgrade(
       "Field Medicine",
       "Drills your soldiers in first aid techniques and use of combat stims.",
       200, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class
+      null, BLUEPRINT
     ),
     FIELD_REPAIRS = new Upgrade(
       "Field Repairs",
       "Drills your soldiers in maintaining equipment and aiding in "+
       "construction projects.",
       200, Upgrade.THREE_LEVELS, null, 3,
-      null, TrooperLodge.class
+      null, BLUEPRINT
     ),
-    VOLUNTEER_STATION = new Upgrade(
-      "Volunteer Station",
+    VOLUNTEER_POST = new Upgrade(
+      "Volunteer Post",
       VOLUNTEER.info,
       200,
       Upgrade.THREE_LEVELS, Backgrounds.VOLUNTEER, 1,
-      null, TrooperLodge.class
+      null, BLUEPRINT
     ),
-    TROOPER_STATION = new Upgrade(
-      "Trooper Station",
+    TROOPER_OFFICE = new Upgrade(
+      "Trooper Office",
       TROOPER.info,
       450,
       Upgrade.THREE_LEVELS, Backgrounds.TROOPER, 1,
-      VOLUNTEER_STATION, TrooperLodge.class
+      VOLUNTEER_POST, BLUEPRINT
     );
 
   final static Upgrade TRAIN_UPGRADES[] = {
@@ -175,7 +174,7 @@ public class TrooperLodge extends Venue {
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
     if (v == Backgrounds.VOLUNTEER) return num + 2;
-    if (v == Backgrounds.TROOPER  ) return num + 1;
+    if (v == Backgrounds.TROOPER  ) return num + 2;
     return 0;
   }
   
@@ -183,31 +182,6 @@ public class TrooperLodge extends Venue {
   public Traded[] services() {
     return new Traded[] {};
   }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "garrison");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Trooper Lodge allows you to recruit the sturdy, disciplined and "+
-      "heavily-equipped Trooper into the rank and file of your armed forces.";
-  }
-  
-  //  TODO:  Add this to the various missions instead?  So that you can include
-  //  yourself, or agents of your household?
-  
-  /*
-  public SelectionInfoPane configPanel(SelectionInfoPane panel, BaseUI UI) {
-    //  TODO:  Add the Call-of-duty order here.
-    //return VenueDescription.configStandardPanel(this, panel, UI, false);
-  }
-  //*/
 }
 
 

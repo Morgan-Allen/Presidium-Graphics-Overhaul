@@ -10,7 +10,6 @@ import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -35,34 +34,24 @@ public class PhysicianStation extends Venue {
   );
   
   final static float
-    VISIT_COST = Backgrounds.MIN_DAILY_EXPENSE / 2;
-  
-  final public static Conversion
-    REAGENTS_TO_MEDICINE = new Conversion(
-      PhysicianStation.class, "reagents_to_medicine",
-      1, CATALYST, 1, GREENS, TO, 2, MEDICINE,
-      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
-    )
-  ;
+    VISIT_COST = Backgrounds.MIN_DAILY_EXPENSE * 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
     PhysicianStation.class, "physician_station",
-    "Physician Station", UIConstants.TYPE_PHYSICIAN,
-    3, 2, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY, REAGENTS_TO_MEDICINE
+    "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
+    "The Physician Station allows your citizens' injuries or diseases to be "+
+    "treated quickly and effectively.",
+    3, 2, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    200, 2, 350, Structure.NORMAL_MAX_UPGRADES
   );
   
   
-  final List <Plan> neuralScans = new List <Plan> ();  //TODO:  Use this?
   final List <Manufacture> cloneOrders = new List <Manufacture> ();
   
   
   public PhysicianStation(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      200, 2, 350,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -70,14 +59,12 @@ public class PhysicianStation extends Venue {
   
   public PhysicianStation(Session s) throws Exception {
     super(s);
-    s.loadObjects(neuralScans);
     s.loadObjects(cloneOrders);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObjects(neuralScans);
     s.saveObjects(cloneOrders);
   }
   
@@ -92,19 +79,23 @@ public class PhysicianStation extends Venue {
   final public static Upgrade
     MEDICAL_LAB = new Upgrade(
       "Medical Lab",
-      "Speeds the production of "+MEDICINE+" and benefits the treatment and "+
-      "diagnosis of most disease.",
+      "Speeds the production of "+MEDICINE+" by 33%.  Benefits the treatment "+
+      "and diagnosis of most disease.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
-      null, PhysicianStation.class
+      null, BLUEPRINT
     ),
+    
+    //  Soma and truth serums (for interrogation- hypnotic meds.)
+    HM_DISPENSARY = null,
+    
     EMERGENCY_ROOM = new Upgrade(
       "Emergency Room",
       "Surgical tools, anaesthetics and plasma reserves ensure that serious "+
       "injuries can be dealt with quickly.",
       300,
       Upgrade.THREE_LEVELS, null, 1,
-      null, PhysicianStation.class
+      null, BLUEPRINT
     ),
     GENE_THERAPIES = new Upgrade(
       "Gene Therapies",
@@ -112,32 +103,45 @@ public class PhysicianStation extends Venue {
       "correct diseases and nip mutation in the bud.",
       350,
       Upgrade.THREE_LEVELS, null, 1,
-      MEDICAL_LAB, PhysicianStation.class
+      MEDICAL_LAB, BLUEPRINT
     ),
-    CRYONICS_WARD = new Upgrade(
-      "Cryonics Ward",
-      "Allows a chance for the critically injured or clinically dead to make "+
-      "an eventual comeback.",
+    CRYONICS_PROGRAM = new Upgrade(
+      "Cryonics Program",
+      "Frozen organs and suspended animation allow the clinically dead to "+
+      "make a potential comeback.",
       400,
       Upgrade.THREE_LEVELS, null, 1,
-      EMERGENCY_ROOM, PhysicianStation.class
+      EMERGENCY_ROOM, BLUEPRINT
     ),
     
-    //  TODO:  Add Combat Stims and Truth Serum.
+    //  Combat stims plus extra chance of revival as enraged
+    COMBAT_STIMS = null,
     
-    MINDER_STATION = new Upgrade(
-      "Minder Ward",
-      Backgrounds.MINDER.info,
+    MINDER_POST = new Upgrade(
+      "Minder Post",
+      MINDER.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
-      MEDICAL_LAB, PhysicianStation.class
+      MEDICAL_LAB, BLUEPRINT
     ),
-    PHYSICIAN_STATION = new Upgrade(
-      "Physician Ward",
-      Backgrounds.PHYSICIAN.info,
+    PHYSICIAN_OFFICE = new Upgrade(
+      "Physician Office",
+      PHYSICIAN.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
-      MINDER_STATION, PhysicianStation.class
+      MINDER_POST, BLUEPRINT
+    );
+  
+  final public static Conversion
+    REAGENTS_TO_MEDICINE = new Conversion(
+      BLUEPRINT, "reagents_to_medicine",
+      1, REAGENTS, 1, GREENS, TO, 2, MEDICINE,
+      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+    ),
+    REAGENTS_TO_SOMA = new Conversion(
+      BLUEPRINT, "waste_to_soma",
+      1, REAGENTS, TO, 3, SOMA,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
     );
   
   
@@ -225,22 +229,23 @@ public class PhysicianStation extends Venue {
     //
     //  Sickbays consumes medicine and power based on current upgrade level,
     //  and have a mild positive effect on ambience-
-    stocks.incDemand(MEDICINE, 5, 1, true);
-    stocks.translateDemands(REAGENTS_TO_MEDICINE, 1);
+    stocks.incDemand(MEDICINE, 2 + numU, 1, true);
+    stocks.translateRawDemands(REAGENTS_TO_MEDICINE, 1);
+    stocks.translateRawDemands(REAGENTS_TO_SOMA    , 1);
     stocks.forceDemand(POWER, powerNeed, false);
     structure.setAmbienceVal(4 + numU);
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.MINDER, Backgrounds.PHYSICIAN };
+    return new Background[] { MINDER, PHYSICIAN };
   }
   
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.MINDER   ) return nO + 2;
-    if (v == Backgrounds.PHYSICIAN) return nO + 1;
+    if (v == MINDER   ) return nO + 2;
+    if (v == PHYSICIAN) return nO + 2;
     return 0;
   }
   
@@ -254,20 +259,13 @@ public class PhysicianStation extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return new Traded[] { GREENS, CATALYST, MEDICINE };
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "sickbay");
+    return new Traded[] { GREENS, REAGENTS, MEDICINE };
   }
   
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Physician Station allows your citizens' injuries or diseases to be "+
-      "treated quickly and effectively.",
-      this, REAGENTS_TO_MEDICINE, MEDICAL_LAB
+      super.helpInfo(), this, REAGENTS_TO_MEDICINE, MEDICAL_LAB
     );
   }
 }

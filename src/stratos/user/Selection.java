@@ -86,8 +86,8 @@ public class Selection implements UIConstants {
   boolean updateSelection(Stage world, Viewport port, UIGroup infoPanel) {
     if (
       selected != null &&
-      UI.currentPane() == null &&
-      UI.currentInfo() == null
+      UI.currentInfoPane() == null &&
+      UI.currentOptions() == null
     ) {
       pushSelection(selected);
     }
@@ -147,7 +147,6 @@ public class Selection implements UIConstants {
     if (s == null) {
       selected = null;
       UI.tracking.lockOn(null);
-      //UI.setInfoPanels(null, null);
       return;
     }
     
@@ -155,13 +154,16 @@ public class Selection implements UIConstants {
     I.talkAbout = selected;
     if (! PlayLoop.onMainThread()) return;
     
-    I.say("Pushing selection: "+s);
-    
     final Target locks = s.selectionLocksOn();
-    if (locks.inWorld()) UI.tracking.lockOn(locks);
-    final SelectionPane panel = s.configPanel(null, UI);
-    final TargetOptions info = s.configInfo(null, UI);
-    UI.setInfoPanels(panel, info);
+    if (locks != null && locks.inWorld()) UI.tracking.lockOn(locks);
+    else UI.tracking.lockOn(null);
+    
+    final SelectionPane    pane    = s.configSelectPane   (null, UI);
+    final SelectionOptions options = s.configSelectOptions(null, UI);
+    if (pane != null || options != null) {
+      UI.setInfoPane   (pane   );
+      UI.setOptionsList(options);
+    }
   }
   
   
@@ -245,7 +247,7 @@ public class Selection implements UIConstants {
         }
       }
       
-      final LayerType layer = new LayerType(tex, false, -1) {
+      final LayerType layer = new LayerType(tex, false, -1, "overlay") {
         
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           final Tile t = world.tileAt(tx, ty);
@@ -320,7 +322,7 @@ public class Selection implements UIConstants {
         xp = area.xpos(), yp = area.ypos(),
         xd = area.ydim(), yd = area.ydim();
       
-      final LayerType layer = new LayerType(texture, true, -1) {
+      final LayerType layer = new LayerType(texture, true, -1, "plane") {
         
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           return true;

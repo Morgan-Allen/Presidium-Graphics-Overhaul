@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -19,7 +21,6 @@ public abstract class SolidModel extends ModelAsset {
   
   private static boolean verbose = false;
   
-  
   protected boolean compiled = false, disposed = false;
   protected Model gdxModel;
   protected AnimControl animControl;
@@ -29,12 +30,8 @@ public abstract class SolidModel extends ModelAsset {
   protected Material allMaterials[];
   protected float    rotateOffset;
   
-  private ObjectMap <Object, Integer>
-    indices = new ObjectMap <Object, Integer> ();
-  private String
-    partNames[];
-  private Batch <String>
-    importantFilePaths = new Batch <String> ();
+  private ObjectMap <Object, Integer> indices = new ObjectMap();
+  private String partNames[];
   
   
   
@@ -43,30 +40,21 @@ public abstract class SolidModel extends ModelAsset {
   }
   
   
-  protected void disposeAsset() {
-    if (gdxModel != null) gdxModel.dispose();
-    disposed = true;
+  protected State loadAsset() {
+    return state = State.LOADED;
   }
   
   
-  public boolean isDisposed() {
-    return disposed;
+  protected State disposeAsset() {
+    if (gdxModel != null) gdxModel.dispose();
+    gdxModel = null;
+    return state = State.DISPOSED;
   }
   
   
   public Sprite makeSprite() {
     if (gdxModel == null) I.complain("MODEL MUST BE COMPILED FIRST!");
     return new SolidSprite(this);
-  }
-  
-  
-  protected void associateFile(String filePath) {
-    importantFilePaths.add(filePath);
-  }
-  
-  
-  public String[] importantFiles() {
-    return importantFilePaths.toArray(String.class);
   }
   
   
@@ -116,7 +104,7 @@ public abstract class SolidModel extends ModelAsset {
     for (NodePart p : node.parts) {
       partB.add(p);
       matsB.include(p.material);
-      if (verbose) I.say("  Part is: "+p.meshPart.id);
+      if (verbose) I.say("  Part is:     "+p.meshPart.id);
       if (verbose) I.say("  Material is: "+p.material.id);
     }
     for (Node n : node.children) compileFrom(n, nodeB, partB, matsB);
@@ -157,6 +145,13 @@ public abstract class SolidModel extends ModelAsset {
   public NodePart partWithName(String name) {
     for (NodePart p : allParts) if (p.meshPart.id.equals(name)) return p;
     return null;
+  }
+  
+  
+  public String materialID(String partName) {
+    final NodePart match = partWithName(partName);
+    if (match == null) return null;
+    return match.material.id;
   }
   
   

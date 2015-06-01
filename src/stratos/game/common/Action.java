@@ -341,16 +341,16 @@ public class Action implements Behaviour, AnimNames {
     }
     else {
       if (report) I.say("  Must have facing and line of sight.");
+      
       //  TODO:  Build line-of-sight considerations into the actor's reaction
       //  algorithms instead?
       final boolean seen = SenseUtils.hasLineOfSight(
         actor, actionTarget, Nums.max(maxDist, sightRange)
       );
-      
       if (Nums.min(motionDist, actionDist) < maxDist && ! seen) {
         pathsTo = actionTarget;
       }
-      if (PathSearch.blockedBy(pathsTo, actor)) {
+      if (! PathSearch.canApproach(pathsTo, actor)) {
         pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
       }
       
@@ -394,7 +394,7 @@ public class Action implements Behaviour, AnimNames {
         I.say("  Move target blocked? "+MB);
       }
     }
-    
+    //
     //  If both facing and proximity are satisfied, toggle the flag which
     //  allows action delivery to proceed.  (If delivery was already underway,
     //  cancel the action.)
@@ -408,7 +408,7 @@ public class Action implements Behaviour, AnimNames {
       if (oldState == STATE_CLOSED) { interrupt(INTERRUPT_CANCEL); return 0; }
       else progress = oldProgress = 0;
     }
-    
+    //
     //  If active updates to pathing & motion are called for, make them.
     float moveRate = speedMultiple(actor, false) * actor.health.baseSpeed();
     if (active) {

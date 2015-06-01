@@ -40,24 +40,35 @@ public class ExcavationSite extends Venue implements TileConstants {
     EXTRA_CLAIM_RANGE = 4,
     DIG_FACE_REFRESH  = Stage.STANDARD_DAY_LENGTH / 10,
     SMELTER_REFRESH   = 10;
+  
+  final public static Blueprint BLUEPRINT = new Blueprint(
+    ExcavationSite.class, "excavation_site",
+    "Excavation Site", UIConstants.TYPE_ENGINEER, ICON,
+    "Excavation Sites expedite extraction of minerals and artifacts "+
+    "from surrounding terrain.",
+    4, 1, Structure.IS_NORMAL,
+    EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
+    200, 15, 350, Structure.NORMAL_MAX_UPGRADES
+  );
 
   final public static Conversion
     LAND_TO_METALS = new Conversion(
-      ExcavationSite.class, "land_to_metals",
+      BLUEPRINT, "land_to_metals",
       TO, 1, METALS
     ),
     LAND_TO_ISOTOPES = new Conversion(
-      ExcavationSite.class, "land_to_isotopes",
+      BLUEPRINT, "land_to_isotopes",
       TO, 1, FUEL_RODS
     );
-  
-  final static Blueprint BLUEPRINT = new Blueprint(
-    ExcavationSite.class, "excavation_site",
-    "Excavation Site", UIConstants.TYPE_ENGINEER,
-    4, 1, IS_NORMAL,
-    EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
-    LAND_TO_METALS, LAND_TO_ISOTOPES
-  );
+  /*
+  //  TODO:  Move this elsewhere, I think.
+  final public static Conversion
+    WASTE_TO_LCHC = new Conversion(
+      BLUEPRINT, "waste_to_lchc",
+      TO, 1, POLYMER,
+      SIMPLE_DC, CHEMISTRY
+    );
+  //*/
   
   
   private static boolean verbose = false;
@@ -66,10 +77,6 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   public ExcavationSite(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      200, 15, 350,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_FIXTURE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(SHAFT_MODEL);
   }
@@ -114,7 +121,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   
-  /**  Methods for sorting and returning mine-faces in order of promise.
+  /**  Siting and output-estimation:
     */
   public int digLimit() {
     final int level = structure.upgradeLevel(SAFETY_PROTOCOL);
@@ -124,6 +131,34 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   public Box2D areaClaimed() {
     return new Box2D(footprint()).expandBy(EXTRA_CLAIM_RANGE);
+  }
+  
+  
+  private Item[] estimateDailyOutput() {
+    if (corridor == null) return new Item[0];
+    float sumM = 0, sumF = 0, outM, outF;
+    
+    for (Tile t : corridor) {
+      final Item i = Mining.mineralsAt(t);
+      if (i == null) continue;
+      if (i.type == METALS   ) sumM += i.amount;
+      if (i.type == FUEL_RODS) sumF += i.amount;
+    }
+    sumM /= corridor.length;
+    sumF /= corridor.length;
+    
+    outM = sumM;
+    outF = sumF;
+    
+    float mineMult = Mining.HARVEST_MULT * staff.workforce() / 2f;
+    mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.DEFAULT_TILE_DIG_TIME;
+    outM *= mineMult * extractMultiple(METALS   );
+    outF *= mineMult * extractMultiple(FUEL_RODS);
+    
+    return new Item[] {
+      Item.withAmount(METALS   , outM),
+      Item.withAmount(FUEL_RODS, outF)
+    };
   }
   
   
@@ -137,19 +172,19 @@ public class ExcavationSite extends Venue implements TileConstants {
     SAFETY_PROTOCOL = new Upgrade(
       "Safety Protocol",
       "Increases effective dig range while limiting pollution and improving "+
-      "the chance to recover artifacts.",
+      "the chance to recover "+CURIO+"s.",
       100,
       Upgrade.THREE_LEVELS, null, 1,
-      null, ExcavationSite.class
+      null, BLUEPRINT
     ),
     
     METALS_SMELTING = new Upgrade(
       "Metals Smelting",
-      "Allows veins of heavy metals to be sought out and processed more "+
+      "Allows veins of heavy metal ores to be sought out and processed more "+
       "reliably.",
       150,
       Upgrade.THREE_LEVELS, METALS, 2,
-      null, ExcavationSite.class
+      null, BLUEPRINT
     ),
     
     FUEL_RODS_SMELTING = new Upgrade(
@@ -158,7 +193,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "more reliably.",
       200,
       Upgrade.THREE_LEVELS, ANTIMASS, 2,
-      null, ExcavationSite.class
+      null, BLUEPRINT
     ),
     
     MANTLE_DRILLING = new Upgrade(
@@ -167,9 +202,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       METALS+" and "+FUEL_RODS+" at the cost of heavy pollution.",
       350,
       Upgrade.THREE_LEVELS, null, 1,
-      null, ExcavationSite.class
-    )
- ;
+      null, BLUEPRINT
+    );
   
   
   
@@ -217,15 +251,15 @@ public class ExcavationSite extends Venue implements TileConstants {
   }
   
   
-  public int extractionBonus(Traded mineral) {
-    if (mineral == METALS) {
-      return (0 + structure.upgradeLevel(METALS_SMELTING)) * 2;
+  public float extractMultiple(Traded mineral) {
+    if (mineral == METALS   ) {
+      return 1 + (structure.upgradeLevel(METALS_SMELTING   ) / 3f);
     }
     if (mineral == FUEL_RODS) {
-      return (0 + structure.upgradeLevel(FUEL_RODS_SMELTING)) * 2;
+      return 1 + (structure.upgradeLevel(FUEL_RODS_SMELTING) / 3f);
     }
-    if (mineral == ARTIFACTS) {
-      return (0 + structure.upgradeLevel(SAFETY_PROTOCOL)) * 2;
+    if (mineral == CURIO    ) {
+      return 1 + (structure.upgradeLevel(SAFETY_PROTOCOL   ) / 3f);
     }
     return -1;
   }
@@ -243,20 +277,30 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   
-  
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "excavation_site");
+  private String compileOutputReport() {
+    final StringBuffer report = new StringBuffer();
+    report.append(super.helpInfo());
+    
+    final Item out[] = estimateDailyOutput();
+    for (Item i : out) {
+      final String amount = I.shorten(i.amount, 1);
+      report.append("\n  Estimated "+i.type+" per day: "+amount);
+    }
+    return report.toString();
   }
   
   
   public String helpInfo() {
-    return
-      "Excavation Sites expedite the extraction of mineral wealth and "+
-      "buried artifacts from the terrain surrounding your settlement.";
+    if (inWorld() && structure.intact()) return compileOutputReport();
+    else return super.helpInfo();
   }
 }
+
+
+
+
 
 
 

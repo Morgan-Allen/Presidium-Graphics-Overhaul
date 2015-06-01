@@ -58,9 +58,12 @@ public class Smelter extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Smelter.class, "smelter",
-    "Smelter", UIConstants.TYPE_HIDDEN,
-    4, 2, IS_NORMAL,
-    ExcavationSite.BLUEPRINT, Owner.TIER_FACILITY
+    "Smelter", UIConstants.TYPE_HIDDEN, ExcavationSite.ICON,
+    "Smelters extract larger quantities of metals and heavy elements from "+
+    "subterranean mineral deposits.",
+    4, 2, Structure.IS_NORMAL,
+    ExcavationSite.BLUEPRINT, Owner.TIER_FACILITY,
+    75, 6, 150, Structure.NO_UPGRADES
   );
   
   protected ExcavationSite parent;
@@ -71,7 +74,6 @@ public class Smelter extends Venue {
   
   public Smelter(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(75, 6, 150, 0, Structure.TYPE_FIXTURE);
     this.assignTo(null, METALS);
   }
   
@@ -246,11 +248,6 @@ public class Smelter extends Venue {
   
   protected Traded[] goodsToShow() {
     return new Traded[] { output };
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ExcavationSite.ICON, "smelter");
   }
   
   

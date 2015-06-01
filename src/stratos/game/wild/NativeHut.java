@@ -135,18 +135,26 @@ public class NativeHut extends Venue {
       final String tribeName = TRIBE_NAMES[tribeID];
       
       allProfiles.add(new Blueprint(
-        NativeHut.class, "hall_"+tribeID,
-        "Native Hut ("+tribeName+")", UIConstants.TYPE_HIDDEN,
-        2, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
+        NativeHut.class, "hut_"+tribeID,
+        "Native Hut ("+tribeName+")", UIConstants.TYPE_HIDDEN, null,
+        "Native Hutments are simple but robust shelters constructed by "+
+        "indigenous primitives.",
+        2, 2, Structure.IS_WILD,
+        NO_REQUIREMENTS, Owner.TIER_FACILITY,
+        75, 3, 0, Structure.NO_UPGRADES
       ) {
         public Venue createVenue(Base base) {
           return newHall(tribeID, base);
         }
       });
       allProfiles.add(new Blueprint(
-        NativeHut.class, "hut_"+tribeID,
-        "Chief's Hall ("+tribeName+")", UIConstants.TYPE_HIDDEN,
-        3, 2, IS_WILD, NO_REQUIREMENTS, Owner.TIER_FACILITY
+        NativeHut.class, "all_"+tribeID,
+        "Chief's Hall ("+tribeName+")", UIConstants.TYPE_HIDDEN, null,
+        "Native settlements will often have a central meeting place where "+
+        "the tribe's leadership and elders will gather to make decisions.",
+        3, 2, Structure.IS_WILD,
+        NO_REQUIREMENTS, Owner.TIER_FACILITY,
+        150, 5, 0, Structure.SMALL_MAX_UPGRADES
       ) {
         public Venue createVenue(Base base) {
           return newHut(tribeID, base);
@@ -308,18 +316,6 @@ public class NativeHut extends Venue {
 
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return null;
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Native Hutments are simple but robust shelters constructed by "+
-      "indigenous primitives.";
-  }
-  
-  
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
     BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);

@@ -10,10 +10,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Consider building up finance reports that go back week after week
-//  for up to a year.
-
-
 public class BaseFinance {
   
   
@@ -54,12 +50,14 @@ public class BaseFinance {
     SOURCE_HIRING   = new Source(6 , "Hiring"           ),
     SOURCE_WAGES    = new Source(7 , "Wages"            ),
     SOURCE_TAXES    = new Source(8 , "Taxation"         ),
+    
     SOURCE_INSTALL  = new Source(9 , "Installation"     ),
     SOURCE_REPAIRS  = new Source(10, "Repairs"          ),
-    SOURCE_SALVAGE  = new Source(11, "Salvage"          ),
+    SOURCE_UPGRADE  = new Source(11, "Upgrades"         ),
+    SOURCE_SALVAGE  = new Source(12, "Salvage"          ),
     
-    SOURCE_LENDING  = new Source(12, "Lending"          ),
-    SOURCE_INTEREST = new Source(13, "Interest"         ),
+    SOURCE_LENDING  = new Source(13, "Lending"          ),
+    SOURCE_INTEREST = new Source(14, "Interest"         ),
     
     ALL_SOURCES[] = SOURCES.allEntries(Source.class);
   
@@ -70,8 +68,9 @@ public class BaseFinance {
   
   static class CashRecord {
     private int period;
-    final float income[] = new float[ALL_SOURCES.length];
-    final float outlay[] = new float[ALL_SOURCES.length];
+    float income[] = new float[ALL_SOURCES.length];
+    float outlay[] = new float[ALL_SOURCES.length];
+    int balanceCents = 0;  //100x actual balance, (int for precision.)
   }
   
   final List <CashRecord> records = new List <CashRecord> ();
@@ -93,6 +92,7 @@ public class BaseFinance {
       record.period = s.loadInt();
       s.loadFloatArray(record.income);
       s.loadFloatArray(record.outlay);
+      record.balanceCents = s.loadInt();
       records.add(record);
     }
     totals = records.first();
@@ -110,6 +110,7 @@ public class BaseFinance {
       s.saveInt(record.period);
       s.saveFloatArray(record.income);
       s.saveFloatArray(record.outlay);
+      s.saveInt(record.balanceCents);
     }
   }
   
@@ -171,6 +172,25 @@ public class BaseFinance {
   }
   
   
+  public float recentBalance() {
+    initRecords();
+    return periodBalance(recent.period);
+  }
+  
+  
+  public float totalBalance() {
+    initRecords();
+    return totals.balanceCents / 100f;
+  }
+  
+  
+  public float periodBalance(int ID) {
+    final CashRecord record = forPeriod(ID);
+    if (record == null) return 0;
+    return record.balanceCents / 100f;
+  }
+  
+  
   public boolean hasPeriodRecord(int ID) {
     return forPeriod(ID) != null;
   }
@@ -212,6 +232,11 @@ public class BaseFinance {
   public void incCredits(float inc, Source source) {
     initRecords();
     credits += inc;
+    if (source == null) return;
+    final int cents = (int) (inc * 100);
+    recent.balanceCents += cents;
+    totals.balanceCents += cents;
+    
     if (inc >= 0) {
       recent.income[source.index] += inc;
       totals.income[source.index] += inc;

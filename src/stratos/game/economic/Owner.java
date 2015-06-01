@@ -17,8 +17,8 @@ public interface Owner extends Target, Session.Saveable {
     TIER_PRIVATE  =  0,
     TIER_FACILITY =  1,
     TIER_TRADER   =  2,
-    TIER_DEPOT    =  3,
-    TIER_SHIPPING =  4;
+    //TIER_DEPOT    =  3,
+    TIER_SHIPPING =  3;
   
   Base base();
   Inventory inventory();

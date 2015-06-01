@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.MS3DFile.*;
@@ -44,8 +46,8 @@ public class MS3DModel extends SolidModel {
     filePath = path+fileName;
     xmlPath = path+xmlFile;
     this.xmlName = xmlName;
-    this.associateFile(filePath);
-    this.associateFile(xmlPath );
+    this.setKeyFile(filePath);
+    this.setKeyFile(xmlPath );
   }
   
   
@@ -56,9 +58,8 @@ public class MS3DModel extends SolidModel {
     return new MS3DModel(path, fileName, sourceClass, xmlFile, xmlName);
   }
   
-
-  protected void loadAsset() {
-    
+  
+  protected State loadAsset() {
     try {
       final FileHandle fileHandle = Gdx.files.internal(filePath);
       final DataInput0 input = new DataInput0(fileHandle.read(), true);
@@ -74,7 +75,7 @@ public class MS3DModel extends SolidModel {
     }
     catch (Exception e) {
       I.report(e);
-      return;
+      return state = State.ERROR;
     }
     
     data = new ModelData();
@@ -84,17 +85,12 @@ public class MS3DModel extends SolidModel {
     
     super.compileModel(new Model(data));
     if (config != null) loadAttachPoints(config.child("attachPoints"));
-    loaded = true;
+    return super.loadAsset();
   }
   
   
-  public boolean isLoaded() {
-    return loaded;
-  }
-  
-  
-  protected void disposeAsset() {
-    super.disposeAsset();
+  protected State disposeAsset() {
+    return super.disposeAsset();
   }
   
 
@@ -121,9 +117,7 @@ public class MS3DModel extends SolidModel {
         }
         if (verbose) I.say(""+mat.texture);
         tex.fileName = baseDir.child(mat.texture).path();
-        this.associateFile(tex.fileName);
-        // + "/" +
-        // mat.texture;
+        this.setKeyFile(tex.fileName);
         tex.id = mat.texture;
         tex.usage = ModelTexture.USAGE_DIFFUSE;
         m.textures = new Array <ModelTexture> ();
@@ -131,16 +125,12 @@ public class MS3DModel extends SolidModel {
       }
       data.materials.add(m);
     }
-
+    
     ModelMaterial mat = new ModelMaterial();
     mat.ambient = new Color(0.8f, 0.8f, 0.8f, 1f);
     mat.diffuse = new Color(0.8f, 0.8f, 0.8f, 1f);
     mat.id = "default";
     data.materials.add(mat);
-    /*
-    if (data.materials.size == 0) {
-    }
-    //*/
   }
   
   
@@ -162,34 +152,49 @@ public class MS3DModel extends SolidModel {
     attrs.add(VertexAttribute.Normal());
     attrs.add(VertexAttribute.TexCoords(0));
     attrs.add(VertexAttribute.BoneWeight(0));
+    attrs.add(VertexAttribute.BoneWeight(1));
+    attrs.add(VertexAttribute.BoneWeight(2));
 
     mesh.attributes = attrs.toArray();
 
-    final int n = 10;
+    final int n = 14;
     float[] verts = new float[ms3d.triangles.length * 3 * n];
 
     int p = 0;
     {
-      for (MS3DTriangle lol : ms3d.triangles) {
+      for (MS3DTriangle tri : ms3d.triangles) {
 
         for (int j = 0; j < 3; j++) {
-          MS3DVertex vert = ms3d.vertices[lol.indices[j]];
+          MS3DVertex vert = ms3d.vertices[tri.indices[j]];
           
           verts[p * n + 0] = vert.vertex[0];
           verts[p * n + 1] = vert.vertex[1];
           verts[p * n + 2] = vert.vertex[2];
           
-          verts[p * n + 3] = lol.normals[j][0];
-          verts[p * n + 4] = lol.normals[j][1];
-          verts[p * n + 5] = lol.normals[j][2];
+          verts[p * n + 3] = tri.normals[j][0];
+          verts[p * n + 4] = tri.normals[j][1];
+          verts[p * n + 5] = tri.normals[j][2];
           
-          verts[p * n + 6] = lol.u[j];
-          verts[p * n + 7] = lol.v[j];
+          verts[p * n + 6] = tri.u[j];
+          verts[p * n + 7] = tri.v[j];
           
+          // there are actually 4 bone weights, but we use only 3
+
           verts[p * n + 8] = vert.boneid;
-          verts[p * n + 9] = 1;
+          if(vert.boneIds == null || vert.boneIds[0] == -1) {
+            verts[p * n + 9] = 1f;
+          }
+          else {
+            verts[p * n + 9] = vert.weights[0] / 100f;
+            
+            verts[p * n + 10] = vert.boneIds[0];
+            verts[p * n + 11] = vert.weights[1] / 100f;
+            
+            verts[p * n + 12] = vert.boneIds[1];
+            verts[p * n + 13] = vert.weights[2] / 100f;
+          }            
           
-          lol.indices[j] = (short) p;
+          tri.indices[j] = (short) p;
           p++;
         }
       }

@@ -29,7 +29,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     OPTIONS_ICON_LIT = Button.CIRCLE_LIT,
     
     BORDER_TEX = ImageAsset.fromImage(
-      GameOptionsPane.class, "media/GUI/Panel.png"
+      GameOptionsPane.class, "media/GUI/Front/Panel.png"
     );
   
 
@@ -40,6 +40,8 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   
   private GameOptionsPane(BaseUI UI, Scenario played) {
     super(UI);
+    setWidgetID(OPTIONS_PANE_ID);
+    
     this.played = played;
     this.text = new Text(UI, INFO_FONT);
     this.bordering = new Bordering(UI, BORDER_TEX);
@@ -59,16 +61,17 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     final GameOptionsPane pane = new GameOptionsPane(baseUI, played);
     
     final Button button = new Button(
-      baseUI, OPTIONS_ICON_TEX, OPTIONS_ICON_LIT, "Game Options"
+      baseUI, OPTIONS_BUTTON_ID,
+      OPTIONS_ICON_TEX, OPTIONS_ICON_LIT, "Game Options"
     ) {
       
       protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
+        if (baseUI.currentInfoPane() == pane) {
+          baseUI.clearInfoPane();
           PlayLoop.setPaused(false);
         }
         else {
-          baseUI.setInfoPanels(pane, null);
+          baseUI.setInfoPane(pane);
           PlayLoop.setPaused(true);
         }
       }
@@ -82,7 +85,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
           PlayLoop.setPaused(! PlayLoop.paused());
         }
         if (
-          baseUI.currentPane() != pane &&
+          baseUI.currentInfoPane() != pane &&
           baseUI.currentTask() == null &&
           PlayLoop.paused()
         ) {
@@ -97,6 +100,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   protected void updateState() {
     super.updateState();
     text.setText("");
+    final BaseUI baseUI = (BaseUI) UI;
     
     text.append("\nScenario Options:");
     
@@ -112,7 +116,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       I.say("SAVING GAME...");
       PlayLoop.setPaused(false);
       played.scheduleSave();
-      ((BaseUI) UI).setInfoPanels(null, null);
+      baseUI.clearInfoPane();
     }});
     
     text.append("\n  ");

@@ -37,23 +37,31 @@ public class FormerPlant extends Venue implements TileConstants {
       FormerPlant.class, IMG_DIR+"former_plant.png", 3, 2
     );
   
+  final static Blueprint BLUEPRINT = new Blueprint(
+    FormerPlant.class, "former_plant",
+    "Former Plant", UIConstants.TYPE_ECOLOGIST, ICON,
+    "The Former Plant helps to accelerate terraforming efforts through "+
+    "forestry and carbons-cycling, creating heavy polymers as a biproduct.",
+    4, 2, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    25,  //integrity
+    5,  //armour
+    75,  //build cost
+    Structure.SMALL_MAX_UPGRADES
+  );
+  
   final public static Conversion
     FLORA_TO_POLYMER = new Conversion(
-      FormerPlant.class, "flora_to_polymer",
+      BLUEPRINT, "flora_to_polymer",
       TO, 1, POLYMER
     ),
     CARBS_TO_POLYMER = new Conversion(
-      Nursery.class, "carbs_to_polymer",
+      BLUEPRINT, "carbs_to_polymer",
       1, CARBS, TO, 1, POLYMER
     );
   
-  final static Blueprint BLUEPRINT = new Blueprint(
-    FormerPlant.class, "former_plant",
-    "Former Plant", UIConstants.TYPE_ECOLOGIST,
-    4, 2, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY,
-    FLORA_TO_POLYMER//, CARBS_TO_POLYMER
-  );
+  final static float
+    MIN_CLAIM_SIZE = 4;
   
   
   private Box2D areaClaimed = new Box2D();
@@ -61,13 +69,6 @@ public class FormerPlant extends Venue implements TileConstants {
   
   public FormerPlant(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      25,  //integrity
-      5,  //armour
-      75,  //build cost
-      Structure.SMALL_MAX_UPGRADES,  //max upgrades
-      Structure.TYPE_FIXTURE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(MODEL);
   }
@@ -90,7 +91,7 @@ public class FormerPlant extends Venue implements TileConstants {
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
-    areaClaimed.setTo(footprint()).expandBy(0);
+    areaClaimed.setTo(footprint()).expandBy((int) MIN_CLAIM_SIZE);
     if (area != null) areaClaimed.include(area);
     this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
       FACING_SOUTH : FACING_EAST
@@ -102,11 +103,11 @@ public class FormerPlant extends Venue implements TileConstants {
   public boolean canPlace(Account reasons) {
     if (! super.canPlace(reasons)) return false;
     if (areaClaimed.maxSide() > Stage.ZONE_SIZE) {
-      return reasons.asFailure("Area is too large!");
+      return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
     if (! Placement.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
-      return reasons.asFailure("Might obstruct pathing");
+      return reasons.setFailure("Might obstruct pathing");
     }
     return true;
   }
@@ -114,6 +115,20 @@ public class FormerPlant extends Venue implements TileConstants {
   
   public Box2D areaClaimed() {
     return areaClaimed;
+  }
+  
+  
+  private Item[] estimateDailyOutput() {
+    float sumTrees = 0, sumP;
+    for (Tile t : world.tilesIn(areaClaimed, true)) {
+      if (t.onTop() instanceof Flora) {
+        sumTrees += Flora.growChance(t);
+      }
+      sumTrees += t.habitat().moisture();
+    }
+    sumP = sumTrees * Forestry.GROW_STAGE_POLYMER / 2f;
+    sumP *= Flora.MAX_GROWTH / Flora.MATURE_DURATION;
+    return new Item[] { Item.withAmount(POLYMER, sumP) };
   }
   
   
@@ -197,20 +212,27 @@ public class FormerPlant extends Venue implements TileConstants {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "former_plant");
-  }
-  
-  
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
   
   
+  private String compileOutputReport() {
+    final StringBuffer report = new StringBuffer();
+    report.append(super.helpInfo());
+    
+    final Item out[] = estimateDailyOutput();
+    for (Item i : out) {
+      final String amount = I.shorten(i.amount, 1);
+      report.append("\n  Estimated "+i.type+" per day: "+amount);
+    }
+    return report.toString();
+  }
+  
+  
   public String helpInfo() {
-    return
-      "The Former Plant helps to accelerate terraforming efforts through "+
-      "forestry and carbons-cycling, creating heavy polymers as a biproduct.";
+    if (inWorld() && structure.intact()) return compileOutputReport();
+    else return super.helpInfo();
   }
 }
 

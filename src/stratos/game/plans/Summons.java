@@ -234,7 +234,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final Mission match = base.matchingMission(actor, MissionContact.class);
     if (
       (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
-      stays == base.HQ() && ! MessagePane.hasFocus(actor)
+      stays == base.HQ() && ! BaseUI.hasMessageFocus(actor)
     ) {
       final BaseUI UI = BaseUI.current();
       configDialogueFor(UI, actor, true);
@@ -247,7 +247,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   public static void cancelSummons(Actor subject) {
     final Summons summons = (Summons) subject.matchFor(Summons.class, false);
     if (summons == null) return;
-    I.say("CANCELLING SUMMONS!");
+    if (I.logEvents()) I.say("CANCELLING SUMMONS FOR "+subject);
     summons.interrupt(INTERRUPT_CANCEL);
     
     final BaseUI UI = BaseUI.current();
@@ -333,7 +333,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with, with, this
     ).assignContent("Yes, my liege?", responses);
-    if (pushNow) UI.setInfoPanels(panel, null);
+    if (pushNow) UI.setInfoPane(panel);
     return panel;
   }
   
@@ -356,7 +356,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with, with, this
     ).assignContent(lead, responses);
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPane(panel);
   }
   
   
@@ -370,7 +370,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
         configDialogueFor(UI, with, true);
       }
     });
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPane(panel);
   }
   
   
@@ -415,7 +415,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with, with, this
     ).assignContent(lead, responses);
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPane(panel);
   }
   
   
@@ -435,7 +435,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
         }
       }
     );
-    UI.setInfoPanels(panel, null);
+    UI.setInfoPane(panel);
   }
 }
 

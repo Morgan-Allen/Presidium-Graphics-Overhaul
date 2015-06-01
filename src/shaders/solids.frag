@@ -8,6 +8,7 @@
 varying vec3 v_position;
 varying vec3 v_normal;
 varying vec2 v_texCoords0;
+varying vec3 v_lightDiffuse;
 
 uniform sampler2D u_texture;
 uniform int u_numOverlays;
@@ -31,19 +32,10 @@ vec4 mixOverlays();
 
 
 void main() {
-	vec4 color = mixOverlays() * u_texColor;
-	
-  vec3 lightVal = u_ambientLight.rgb;
-  float dotVal = dot(-u_lightDirection, v_normal);
+  vec4 color = mixOverlays() * u_texColor;
   
-  if (dotVal > 1) dotVal = 1;
-  else if (dotVal < 0) {
-    lightVal *= (0.5f - dotVal);
-  }
-  else lightVal += u_diffuseLight.rgb * dotVal;
+  color.rgb *= v_lightDiffuse;
   
-  color.rgb *= lightVal;
-	
   gl_FragColor = color;
   if (gl_FragColor.a <= 0.001) discard;
 }

@@ -3,86 +3,101 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.user.*;
 import stratos.util.*;
+import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 
 import java.lang.reflect.*;
 
 
-
-//  TODO:  Later, you'll want to try and migrate as many relevant attributes
-//  over to this class as possible:
-  /*
-  final public int facilityType;
-  //  TODO:  Also, icon, possibly model and any construction dependancies-
-  //  you need to be able to filter this, for both the player and base AI.
+/*
+  //  TODO:  Finish moving attributes in here...
+  final public Traded materials[];
+  final public Conversion services[];
   
-  final public int
-    size, maxIntegrity, armouring, ambience;
+  final public Background careers[];
+  final public int shiftType;
   
-  final public Traded  materials[];
-  final public Background careers  [];
-  final public Conversion services [];
-  //*/
- 
+  //  TODO:  Allow reading from XML?  (Possibly model too...?)
+//*/
 
-public class Blueprint extends Index.Entry implements Session.Saveable {
+public class Blueprint extends Constant implements Session.Saveable {
   
   
   final public static Index <Blueprint> INDEX = new Index <Blueprint> ();
   
   final public Class <? extends Venue> baseClass;
+  final public String keyID;
+  
   final public String name;
+  final public ImageAsset icon;
   final public String category;
+  final public String description;
 
   final public int size, high;
-  final public int properties;
+  final public int
+    properties ,
+    integrity  ,
+    armour     ,
+    buildCost  ,
+    maxUpgrades;
   
   final public Blueprint required[];
   final public int owningTier;
-  final public Conversion processed[];
   
-  final public int maxIntegrity = Structure.DEFAULT_INTEGRITY;
-  
+  private Batch <Conversion> producing = new Batch();
+  private Batch <Conversion> consuming = new Batch();
   private Batch <Blueprint> allows = new Batch <Blueprint> ();
   private Batch <Blueprint> denies = new Batch <Blueprint> ();
   
   
   public Blueprint(
     Class <? extends Venue> baseClass, String key,
-    String name, String category,
+    String name, String category, ImageAsset icon, String description,
     int size, int high, int properties,
-    Blueprint required, int owningTier, Conversion... processed
+    Blueprint required, int owningTier,
+    int integrity, int armour, int buildCost, int maxUpgrades
   ) {
     this(
-      baseClass, key, name, category, size, high, properties,
-      required == null ? null : new Blueprint[] { required },
-      owningTier, processed
+      baseClass, key,
+      name, category, icon, description,
+      size, high,
+      properties, required == null ? null : new Blueprint[] { required },
+      owningTier, integrity, armour, buildCost, maxUpgrades
     );
   }
   
 
   public Blueprint(
     Class <? extends Venue> baseClass, String key,
-    String name, String category,
+    String name, String category, ImageAsset icon, String description,
     int size, int high, int properties,
-    Blueprint required[], int owningTier, Conversion... processed
+    Blueprint required[], int owningTier,
+    int integrity, int armour, int buildCost, int maxUpgrades
   ) {
-
-    super(INDEX, key);
+    super(INDEX, key, name);
     this.baseClass = baseClass;
-    this.name     = name;
-    this.category = category;
+    this.keyID     = key;
+    
+    this.name        = name;
+    this.category    = category;
+    this.icon        = icon;
+    this.description = description;
     
     this.size = size;
     this.high = high;
     
-    this.properties = properties;
+    this.properties  = properties ;
+    this.integrity   = integrity  ;
+    this.armour      = armour     ;
+    this.buildCost   = buildCost  ;
+    this.maxUpgrades = maxUpgrades;
+    
     this.required   = required == null ? Venue.NO_REQUIREMENTS : required;
     this.owningTier = owningTier;
-    this.processed  = processed ;
     
     for (Blueprint p : required) p.allows.include(this);
   }
@@ -106,47 +121,71 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   }
   
   
+  public static boolean hasProperty(Structure s, int property) {
+    return (s.properties() & property) == property;
+  }
+  
+  
   public boolean hasProperty(int property) {
     return (properties & property) == property;
   }
   
   
   public boolean isFixture() {
-    return hasProperty(Venue.IS_FIXTURE);
+    return hasProperty(Structure.IS_FIXTURE);
   }
   
   
-  public boolean isSingle() {
-    return ! (hasProperty(Venue.IS_LINEAR));// || hasProperty(Venue.IS_ZONED));
+  public boolean isGrouped() {
+    return hasProperty(Structure.IS_LINEAR);
   }
   
   
   public boolean isStandard() {
-    return properties == Venue.IS_NORMAL;
+    return properties == Structure.IS_NORMAL;
   }
   
   
   public boolean isUnique() {
-    return hasProperty(Venue.IS_UNIQUE);
+    return hasProperty(Structure.IS_UNIQUE);
   }
   
   
   public boolean isWild() {
-    return hasProperty(Venue.IS_WILD);
+    return hasProperty(Structure.IS_WILD);
   }
   
   
+  
+  /**  Conversion queries and registration-
+    */
   public Conversion producing(Object t) {
-    for (Conversion c : processed) if (c.out.type == t) return c;
+    for (Conversion c : producing) {
+      if (c.out != null && c.out.type == t) return c;
+    }
     return null;
   }
   
   
   public Conversion consuming(Object t) {
-    for (Conversion c : processed) {
+    for (Conversion c : producing) {
+      for (Item i : c.raw) if (i.type == t) return c;
+    }
+    for (Conversion c : consuming) {
       for (Item i : c.raw) if (i.type == t) return c;
     }
     return null;
+  }
+  
+  
+  public Series <Conversion> production() {
+    return producing;
+  }
+  
+  
+  public void addProduction(Conversion p) {
+    if (p.out != null) producing.include(p);
+    else if (p.raw.length > 0) consuming.include(p);
   }
   
   
@@ -210,11 +249,83 @@ public class Blueprint extends Index.Entry implements Session.Saveable {
   
   /**  Interface and debugging-
     */
-  public String toString() {
-    return name;
+  public void describeHelp(Description d, Selectable prior) {
+    final Base base = BaseUI.currentPlayed();
+    
+    if (icon != null) {
+      Text.insert(icon.asTexture(), 80, 80, false, d);
+      d.append("\n\n");
+    }
+    substituteReferences(description, d);
+    
+    d.append("\n");
+    if (category != null) {
+      d.append("\nCategory: "+category+" Structures");
+    }
+    final int cost = buildCost;
+    d.append("\nBuild cost: "+cost);
+    
+    if (consuming.size() > 0) d.append("\n\nConsumption:");
+    for (Conversion c : consuming) {
+      d.append("\n  ");
+      final String name = c.specialName();
+      if (name != null) d.append(name+" ");
+      d.append("Needs ");
+      for (Item i : c.raw) { d.append(i.type); d.append(" "); }
+    }
+    
+    if (producing.size() > 0) d.append("\n\nProduction:");
+    for (Conversion c : producing) {
+      d.append("\n  ");
+      final String name = c.specialName();
+      if (name != null) d.append(name);
+      
+      if (c.raw.length > 0) {
+        for (Item i : c.raw) {
+          d.append((int) i.amount+" ");
+          d.append(i.type);
+          d.append(" ");
+        }
+        d.append("to "+(int) c.out.amount+" ");
+        d.append(c.out.type);
+      }
+      else {
+        d.append(c.out.type);
+      }
+      d.append("\n  Base 2.5x per worker/day");
+    }
+    
+    final Upgrade upgrades[] = Upgrade.upgradesFor(this);
+    if (upgrades.length > 0) d.append("\n\nUpgrades:");
+    for (Upgrade u : upgrades) {
+      d.append("\n  ");
+      d.append(u);
+    }
+
+    if (required.length > 0) d.append("\n\nRequires:");
+    for (Blueprint req : required) {
+      if (req == required[0]) d.append(" ");
+      else d.append(", ");
+      d.append(req);
+    }
+    if (allows.size() > 0) d.append("\n\nAllows:");
+    for (Blueprint all : allows) {
+      if (all == allows.first()) d.append(" ");
+      else d.append(", ");
+      d.append(all);
+    }
+    
+    if (! isGrouped()) {
+      final Batch <Venue> built = base.listInstalled(this, false);
+      d.append("\n\nCurrently Built:");
+      if (built.size() > 0) for (Venue v : built) {
+        d.append("\n  ");
+        d.append(v);
+      }
+      else d.append(" None");
+    }
   }
 }
-
 
 
 

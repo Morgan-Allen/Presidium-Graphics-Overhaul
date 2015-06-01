@@ -257,8 +257,8 @@ public abstract class Structural extends Fixture implements
   }
   
   
-  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
-    if (info == null) info = new TargetOptions(UI, this);
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+    if (info == null) info = new SelectionOptions(UI, this);
     return info;
   }
   

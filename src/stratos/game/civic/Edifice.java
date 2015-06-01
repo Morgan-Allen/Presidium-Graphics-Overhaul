@@ -66,9 +66,12 @@ public class Edifice extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Edifice.class, "edifice",
-    "Edifice", UIConstants.TYPE_AESTHETIC,
-    3, 2, IS_FIXTURE,
-    Fabricator.BLUEPRINT, Owner.TIER_FACILITY
+    "Edifice", UIConstants.TYPE_AESTHETIC, ICON,
+    "The Edifice commemorates significant events in the history of your "+
+    "settlement beneath a frictionless composite facade.",
+    3, 2, Structure.IS_FIXTURE,
+    Fabricator.BLUEPRINT, Owner.TIER_FACILITY,
+    500, 50, 800, Structure.NO_UPGRADES
   );
   
   int eventCode = -1, styleCode = -1;
@@ -76,9 +79,6 @@ public class Edifice extends Venue {
   
   public Edifice(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      500, 50, 800, 0, Structure.TYPE_FIXTURE
-    );
     attachModel(MODEL);
   }
   
@@ -126,20 +126,8 @@ public class Edifice extends Venue {
 
   /**  Rendering and interface methods-
     */
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "edifice");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Edifice commemorates significant events in the history of your "+
-      "settlement beneath a frictionless composite facade.";
   }
 }
 

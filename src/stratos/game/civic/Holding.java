@@ -13,6 +13,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.civic.HoldingUpgrades.*;
 
@@ -38,6 +39,31 @@ public class Holding extends Venue {
   private static boolean
     verbose     = false,
     rateVerbose = false;
+
+  final static String
+    IMG_DIR = "media/Buildings/civilian/";
+  
+  final static ImageAsset ICONS[] = ImageAsset.fromImages(
+    Holding.class, "media/GUI/Buttons/",
+    "housing0_button.gif",
+    "housing1_button.gif",
+    "housing2_button.gif",
+    "housing3_button.gif",
+    "housing4_button.gif"
+  );
+  final public static ModelAsset
+    SEAL_TENT_MODEL = CutoutModel.fromImage(
+      Holding.class, IMG_DIR+"field_tent.png", 2, 2
+    ),
+    LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
+      Holding.class, IMG_DIR+"lower_class_housing.png",
+      3, 3, 2, 2, false
+    ),
+    MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
+      Holding.class, IMG_DIR+"middle_class_housing.png",
+      3, 3, 2, 2, false
+    ),
+    UPPER_CLASS_MODELS[][] = null;
   
   final public static int
     MAX_SIZE   = 2,
@@ -49,20 +75,49 @@ public class Holding extends Venue {
     UPGRADE_THRESH = 0.66f,
     DEVOLVE_THRESH = 0.66f;
   
+  final public static Blueprint BLUEPRINT = new Blueprint(
+    Holding.class, "housing",
+    "Housing", UIConstants.TYPE_PHYSICIAN, ICONS[0],
+    "Housing provides comfort, sanitation and other domestic benefits to "+
+    "your subjects.",
+    3, 2, Structure.IS_NORMAL,
+    Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
+    INTEGRITIES[0], 5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES
+  );
+  
   final static Conversion
     PROVIDE_HOUSING = new Conversion(
-      Holding.class, "provide_housing",
+      BLUEPRINT, "provide_housing",
       TO, 4, SERVICE_HOUSING
     )
   ;
   
-  final static Blueprint BLUEPRINT = new Blueprint(
-    Holding.class, "holding",
-    "Seal Tent", UIConstants.TYPE_PHYSICIAN,
-    3, 2, IS_NORMAL,
-    Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
-    PROVIDE_HOUSING
-  );
+  final static Conversion MATERIALS[] = {
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_1",
+      TRIVIAL_DC, ASSEMBLY
+    ).attachName("Level 1"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_2",
+      1, PLASTICS,
+      SIMPLE_DC, ASSEMBLY
+    ).attachName("Level 2"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_3",
+      2, PLASTICS, 1, PARTS, 1, POWER,
+      ROUTINE_DC, ASSEMBLY
+    ).attachName("Level 3"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_4",
+      2, PLASTICS, 2, PARTS, 1, POWER, 1, MEDICINE,
+      MODERATE_DC, ASSEMBLY
+    ).attachName("Level 4"),
+    new Conversion(
+      Holding.BLUEPRINT, "holding_level_5",
+      2, PLASTICS, 3, PARTS, 2, POWER, 1, MEDICINE, 1, WATER, 1, DATALINKS,
+      DIFFICULT_DC, ASSEMBLY
+    ).attachName("Level 5"),
+  };
   
   
   private int upgradeLevel, targetLevel, varID;
@@ -75,10 +130,6 @@ public class Holding extends Venue {
     super(BLUEPRINT, belongs);
     this.upgradeLevel = 0;
     this.varID = Rand.index(NUM_VARS);
-    structure.setupStats(
-      INTEGRITIES[0], 5, BUILD_COSTS[0],
-      Structure.BIG_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     attachSprite(modelFor(this).makeSprite());
   }
   
@@ -400,32 +451,6 @@ public class Holding extends Venue {
   
   /**  Rendering and interface methods-
     */
-  final static String
-    IMG_DIR = "media/Buildings/civilian/";
-  
-  final static ImageAsset ICONS[] = ImageAsset.fromImages(
-    Holding.class, "media/GUI/Buttons/",
-    "housing0_button.gif",
-    "housing1_button.gif",
-    "housing2_button.gif",
-    "housing3_button.gif",
-    "housing4_button.gif"
-  );
-  final public static ModelAsset
-    SEAL_TENT_MODEL = CutoutModel.fromImage(
-      Holding.class, IMG_DIR+"field_tent.png", 2, 2
-    ),
-    LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      Holding.class, IMG_DIR+"lower_class_housing.png",
-      3, 3, 2, 2, false
-    ),
-    MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      Holding.class, IMG_DIR+"middle_class_housing.png",
-      3, 3, 2, 2, false
-    ),
-    UPPER_CLASS_MODELS[][] = null;
-  
-  
   public void exitWorld() {
     super.exitWorld();
     HoldingExtra.removeExtras(this, extras);
@@ -460,7 +485,7 @@ public class Holding extends Venue {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
   
@@ -473,9 +498,7 @@ public class Holding extends Venue {
       if (uS != null) return uS;
       if (tS != null) return tS;
     }
-    return
-      "Holdings provide comfort, sanitation and other domestic benefits to "+
-      "your subjects.";
+    return super.helpInfo();
   }
   
   

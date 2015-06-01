@@ -236,6 +236,34 @@ public class SolidSprite extends Sprite {
   }
   
   
+  private Material currentOverlay(String partName) {
+    final String ID = model.materialID(partName);
+    if (ID == null) return null;
+    
+    final Material base = model.gdxModel.getMaterial(ID);
+    if (base == null) return null;
+    
+    final int index = model.indexFor(base);
+    if (materials[index] == base) return null;
+    
+    return materials[index];
+  }
+  
+
+  public boolean hasOverlay(String partName) {
+    return currentOverlay(partName) != null;
+  }
+  
+
+  public void clearOverlays(String partName) {
+    final Material overlay = currentOverlay(partName);
+    if (overlay == null) return;
+    final int index = Visit.indexOf(overlay, materials);
+    if (index == -1) return;
+    this.materials[index] = model.allMaterials[index];
+  }
+  
+  
   public Vec3D attachPoint(String function, Vec3D v) {
     if (v == null) v = new Vec3D();
     if (animStates.size() == 0) return v.setTo(position);

@@ -48,7 +48,7 @@ public class PlanetDisplay extends Assets.Loadable {
   private float hoverAlpha = 0, selectAlpha = 0;
   private Stitching labelling;
   
-  private boolean loaded = false, disposed = false;
+  //private boolean loaded = false, disposed = false;
   
   
   
@@ -59,7 +59,8 @@ public class PlanetDisplay extends Assets.Loadable {
   }
   
   
-  protected void loadAsset() {
+  protected State loadAsset() {
+    if (state == State.LOADED) return State.ERROR;
     
     this.shading = new ShaderProgram(
       Gdx.files.internal("shaders/planet.vert"),
@@ -79,25 +80,15 @@ public class PlanetDisplay extends Assets.Loadable {
       VertexAttribute.BoneWeight(0)
     );
     
-    loaded = true;
+    return state = State.LOADED;
   }
   
   
-  protected void disposeAsset() {
-    if (disposed) return;
+  protected State disposeAsset() {
+    if (state == State.DISPOSED) return State.ERROR;
     shading.dispose();
     labelling.dispose();
-    disposed = true;
-  }
-  
-  
-  public boolean isLoaded() {
-    return loaded;
-  }
-  
-  
-  public boolean isDisposed() {
-    return disposed;
+    return state = State.DISPOSED;
   }
   
   

@@ -37,7 +37,6 @@ public class StarField extends Assets.Loadable {
   
   private Stitching compiled;
   private ShaderProgram shading;
-  private boolean loaded = false, disposed = false;
   
   
   
@@ -53,7 +52,7 @@ public class StarField extends Assets.Loadable {
   }
   
   
-  protected void loadAsset() {
+  protected State loadAsset() {
     //  NOTE:  The normal attribute here is actually used to store the offset
     //  of a corner from the given decal's coordinate centre (see below).
     compiled = new Stitching(
@@ -74,25 +73,15 @@ public class StarField extends Assets.Loadable {
       throw new GdxRuntimeException("\n"+shading.getLog());
     }
     
-    loaded = true;
+    return state = State.LOADED;
   }
   
   
-  protected void disposeAsset() {
-    if (disposed) return;
+  protected State disposeAsset() {
+    if (stateDisposed()) return State.ERROR;
     shading.dispose();
     compiled.dispose();
-    disposed = true;
-  }
-  
-  
-  public boolean isLoaded() {
-    return loaded;
-  }
-  
-  
-  public boolean isDisposed() {
-    return disposed;
+    return state = State.DISPOSED;
   }
   
   

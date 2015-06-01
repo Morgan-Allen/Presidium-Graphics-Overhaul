@@ -24,6 +24,11 @@ public class UIGroup extends UINode {
   }
   
   
+  protected Series <UINode> kids() {
+    return kids;
+  }
+  
+  
   protected void render(WidgetsPass pass) {
     for (UINode kid : kids) if (! kid.hidden) {
       kid.render(pass);

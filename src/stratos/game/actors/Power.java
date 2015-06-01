@@ -661,6 +661,7 @@ public abstract class Power extends Technique implements Qualities {
             cost      = costFor(caster, selected),
             magnitude = Nums.abs(affinity);
           priorityMod += caster.traits.usedLevel(SUGGESTION) / 2f;
+          priorityMod += (Rand.num() - 0.5f) * Plan.PARAMOUNT * 2;
           caster.health.takeFatigue(cost);
           caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
           affects.relations.incRelation(caster, affinity, magnitude, -0.1f);

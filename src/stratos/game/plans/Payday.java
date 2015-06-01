@@ -105,12 +105,7 @@ public class Payday extends Plan {
     float modifier = (Nums.clamp(payGap, 0, 2) - 1) * CASUAL / 2f;
     modifier = NO_MODIFIER + (modifier * ROUTINE);
     
-    final float priority = priorityForActorWith(
-      actor, pays,
-      impetus, modifier, NO_HARM,
-      NO_COMPETITION, NO_FAIL_RISK,
-      NO_SKILLS, NO_TRAITS, PARTIAL_DISTANCE_CHECK, report
-    );
+    final float priority = impetus + modifier;
     if (report) {
       I.say("  Payment due: "+wagesDue+", pay gap: "+payGap+" days");
       I.say("  Greed impetus:  "+impetus );

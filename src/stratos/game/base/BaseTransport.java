@@ -12,7 +12,7 @@ import stratos.user.BaseUI;
 import stratos.util.*;
 
 
-//  TODO:  Use a single one of these for the entire world.
+//  TODO:  Use a single one of these for the entire world?
 
 public class BaseTransport {
   
@@ -356,7 +356,7 @@ public class BaseTransport {
   
   private Batch <Venue> venuesReached(Structural init, Base base) {
     if (init.flaggedWith() != null) return null;
-    final boolean report = distroVerbose;
+    final boolean report = distroVerbose && base == BaseUI.currentPlayed();
     if (report) I.say("\nDetermining provision access from "+init);
     
     final Batch <Venue> reached = new Batch <Venue> ();
@@ -408,31 +408,34 @@ public class BaseTransport {
   }
   
   
-  private void distributeTo(Batch <Venue> reached, Traded provided[]) {
+  private void distributeTo(
+    Batch <Venue> reached, Traded provided[], Base base
+  ) {
     //
     //  First, tabulate total supply and demand within the area-
-    final boolean report = distroVerbose;
+    final boolean report = distroVerbose && BaseUI.currentPlayed() == base;
+    Venue lastRep = null;
     if (report) I.say("\nDistributing provisions through paving network-");
     
     provSupply = new float[provided.length];
     provDemand = new float[provided.length];
     
     for (Venue s : reached) {
-      if (report) I.say("  Have reached: "+s);
-      
       for (int i = provided.length; i-- > 0;) {
         final Traded type = provided[i];
-        
-        final float in = s.structure.outputOf(type);
+        final float in  = s.stocks.demandFor(type, false);
+        final float out = s.stocks.demandFor(type, true );
+        if (report && (in > 0 || out > 0) && lastRep != s) {
+          I.say("  Have reached: "+s);
+          lastRep = s;
+        }
         if (in > 0) {
           provSupply[i] += in;
           if (report) I.say("    "+type+" supply: "+in);
         }
-        
-        final float out = s.stocks.demandFor(type);
-        if (out > 0 && ! s.stocks.producer(type)) {
-          if (report) I.say("    "+type+" demand: "+out);
+        if (out > 0) {
           provDemand[i] += out;
+          if (report) I.say("    "+type+" demand: "+out);
         }
       }
     }
@@ -452,13 +455,14 @@ public class BaseTransport {
       allDemand[i] += provDemand[i];
       allSupply[i] += provSupply[i];
       
-      if (provDemand[i] == 0) continue;
       final Traded type = provided[i];
       float supplyRatio = Nums.clamp(provSupply[i] / provDemand[i], 0, 1);
       
       for (Venue venue : reached) {
         final float d = venue.stocks.demandFor(type);
-        venue.stocks.setAmount(type, d * supplyRatio);
+        if (d == 0) continue;
+        if (venue.stocks.producer(type)) venue.stocks.setAmount(type, d);
+        else venue.stocks.setAmount(type, d * supplyRatio);
       }
     }
   }
@@ -485,7 +489,7 @@ public class BaseTransport {
     //
     //  Then, distribute water/power/et cetera within that area-
     for (Batch <Venue> reached : allReached) {
-      distributeTo(reached, provided);
+      distributeTo(reached, provided, base);
       for (Structural v : reached) v.flagWith(null);
     }
   }

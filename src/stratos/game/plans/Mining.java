@@ -36,18 +36,18 @@ public class Mining extends Plan {
     STAGE_DONE   =  3;
   final public static int
     MAX_SAMPLE_STORE = 50,
-    DEFAULT_TILE_DIG_TIME = Stage.STANDARD_DAY_LENGTH / 3,
+    DEFAULT_TILE_DIG_TIME = Stage.STANDARD_SHIFT_LENGTH,
     HARVEST_MULT = 5 ,
     SLAG_RATIO   = 10;
   
   final public static Traded MINED_TYPES[] = {
-    SLAG, METALS, FUEL_RODS, ARTIFACTS
+    SLAG, METALS, FUEL_RODS, CURIO
   };
   final static Table TYPE_MAP = Table.make(
     TYPE_RUBBLE  , SLAG     ,
-    TYPE_METALS  , METALS     ,
-    TYPE_ISOTOPES, FUEL_RODS ,
-    TYPE_RUINS   , ARTIFACTS
+    TYPE_METALS  , METALS   ,
+    TYPE_ISOTOPES, FUEL_RODS,
+    TYPE_RUINS   , CURIO
   );
   
   
@@ -167,7 +167,7 @@ public class Mining extends Plan {
     if (dist > site.digLimit() + (SS / 2)) return -1;
     
     final Item left = mineralsAt(face);
-    float rating = left == null ? 0.1f : (1 + site.extractionBonus(left.type));
+    float rating = left == null ? 0.1f : site.extractMultiple(left.type);
     rating *= SS / (SS + dist);
     return rating;
   }
@@ -203,21 +203,30 @@ public class Mining extends Plan {
   
   /**  Priority evaluation-
     */
-  final static Skill BASE_SKILLS[] = { GEOPHYSICS, HARD_LABOUR };
   final static Trait BASE_TRAITS[] = { ENERGETIC, URBANE };
   
-  
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
     
-    final float priority = priorityForActorWith(
-      actor, site, ROUTINE,
-      NO_MODIFIER, NO_HARM,
-      MILD_COOPERATION, MILD_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    float urgency = 0, sumW = 0;
+    for (Traded t : MINED_TYPES) {
+      final float weight = 1 + site.structure.upgradeBonus(t);
+      urgency += site.stocks.relativeShortage(t) * weight;
+      sumW += weight;
+    }
+    urgency /= sumW;
+
+    setCompetence(successChanceFor(actor));
+    return PlanUtils.jobPlanPriority(
+      actor, this, urgency, competence(), -1, REAL_FAIL_RISK, BASE_TRAITS
     );
-    return priority;
+  }
+  
+  
+  public float successChanceFor(Actor actor) {
+    float chance = 1;
+    chance += actor.skills.chance(GEOPHYSICS , SIMPLE_DC  );
+    chance += actor.skills.chance(HARD_LABOUR, MODERATE_DC);
+    return chance / 3;
   }
   
   
@@ -339,11 +348,11 @@ public class Mining extends Plan {
     final Item left = mineralsAt(face);
     if (left == null) { stage = STAGE_DUMP; return false; }
     
-    final float bonus = site.extractionBonus(left.type);
+    final float rate = site.extractMultiple(left.type);
     float success = 1;
     success += actor.skills.test(GEOPHYSICS , 5 , 1) ? 1 : 0;
     success *= actor.skills.test(HARD_LABOUR, 15, 1) ? 2 : 1;
-    success = (success + bonus) / 5f;
+    success *= rate;
     success /= DEFAULT_TILE_DIG_TIME;
     
     if (report) I.say("\nMINERALS LEFT: "+left);
@@ -354,8 +363,9 @@ public class Mining extends Plan {
     actor.gear.addItem(slag );
     
     if (report) {
-      I.say("  Dig success was: "+success+", bonus: "+bonus);
-      I.say("  Ore extracted:   "+mined);
+      I.say("  Dig success was: "+success);
+      I.say("  Extraction rate: "+rate   );
+      I.say("  Ore extracted:   "+mined  );
     }
     
     if (Rand.num() < success) {

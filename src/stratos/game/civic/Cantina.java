@@ -75,18 +75,21 @@ public class Cantina extends Venue implements Performance.Theatre {
   };
   
   final static float
-    LODGING_PRICE  = 2 ,
-    GAMBLE_PRICE   = 5 ,
-    SONG_TIP       = 1 ,
+    LODGING_PRICE  = 20,
+    GAMBLE_PRICE   = 10,
+    SONG_TIP       = 5 ,
     POT_INTERVAL   = 20,
     SOMA_MARGIN    = 1.5f,
     GAMBLE_MARGIN  = 0.2f;
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Cantina.class, "cantina",
-    "Cantina", UIConstants.TYPE_COMMERCE,
-    3, 2, IS_NORMAL,
-    SupplyDepot.BLUEPRINT, Owner.TIER_FACILITY
+    "Cantina", UIConstants.TYPE_COMMERCE, ICON,
+    "A lively hub for social activities, your citizens can rest and relax "+
+    "at the Cantina.  Unsavoury characters are known to drop by, however.",
+    3, 2, Structure.IS_NORMAL,
+    StockExchange.BLUEPRINT, Owner.TIER_FACILITY,
+    150, 2, 200, Structure.NO_UPGRADES
   );
   
   
@@ -97,7 +100,6 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   public Cantina(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(150, 2, 200, 0, Structure.TYPE_VENUE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(MODEL.makeSprite());
   }
@@ -195,9 +197,9 @@ public class Cantina extends Venue implements Performance.Theatre {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    stocks.forceDemand(SOMA   , 5, false);
-    stocks.forceDemand(CARBS  , 5, false);
-    stocks.forceDemand(PROTEIN, 5, false);
+    stocks.forceDemand(SOMA   , 3, false);
+    stocks.forceDemand(CARBS  , 2, false);
+    stocks.forceDemand(PROTEIN, 1, false);
     updateGambling(numUpdates);
   }
   
@@ -361,21 +363,9 @@ public class Cantina extends Venue implements Performance.Theatre {
   }
   
   
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "cantina");
-  }
-  
-  
   public String fullName() {
     if (nameID == -1) return "Cantina";
     return VENUE_NAMES[nameID];
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "A lively hub for social activities, your citizens can rest and relax "+
-      "at the Cantina.  Unsavoury characters are known to drop by, however.";
   }
 }
   

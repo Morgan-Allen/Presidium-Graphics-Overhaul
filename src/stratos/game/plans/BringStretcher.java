@@ -61,15 +61,7 @@ public class BringStretcher extends Plan implements Qualities {
     */
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    
-    final float priority = priorityForActorWith(
-      actor, patient, ROUTINE,
-      NO_MODIFIER, NO_HARM,
-      FULL_COMPETITION, NO_FAIL_RISK,
-      NO_SKILLS, NO_TRAITS, PARTIAL_DISTANCE_CHECK,
-      report
-    );
-    return priority;
+    return ROUTINE;
   }
   
   

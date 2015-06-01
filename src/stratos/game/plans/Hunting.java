@@ -159,7 +159,7 @@ public class Hunting extends Plan {
       priority += ROUTINE * PlanUtils.traitAverage(actor, SAMPLE_TRAITS);
       harmLevel = 0;
     }
-    if (alive) {
+    if (alive && priority > 0) {
       priority = PlanUtils.combatPriority(
         actor, prey, priority, 1, true, harmLevel
       );
@@ -330,8 +330,8 @@ public class Hunting extends Plan {
       I.say("  Meat amount:  "+meat );
       I.say("  Spyce amount: "+spyce);
     }
-    if (meat  > 0) depot.inventory().bumpItem(PROTEIN, meat );
-    if (spyce > 0) depot.inventory().bumpItem(SPYCE_T, spyce);
+    if (meat  > 0) depot.inventory().bumpItem(PROTEIN  , meat );
+    if (spyce > 0) depot.inventory().bumpItem(DRI_SPYCE, spyce);
     return true;
   }
   

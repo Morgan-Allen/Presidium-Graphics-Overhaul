@@ -12,6 +12,7 @@ import stratos.graphics.solids.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Devices.*;
 
 
 
@@ -237,7 +238,7 @@ public class ActorGear extends Inventory {
   public boolean physicalWeapon() {
     final Item weapon = deviceEquipped();
     if (weapon == null) return true;
-    if (deviceType().hasProperty(Economy.KINETIC)) return true;
+    if (deviceType().hasProperty(KINETIC)) return true;
     return false;
   }
   

@@ -26,7 +26,7 @@ public class PowersPane extends SelectionPane {
   
   
   public PowersPane(BaseUI UI) {
-    super(UI, null, false, false, 0);
+    super(UI, null, null, false, false, 0);
   }
   
   
@@ -66,14 +66,14 @@ public class PowersPane extends SelectionPane {
     
     public PowerButton(BaseUI UI, Power p, Target focus, UINode parent) {
       super(
-        UI, p.icon, CIRCLE_LIT,
+        UI, p.name, p.icon, CIRCLE_LIT,
         p.name.toUpperCase()+"\n  "+p.helpInfo
       );
       this.power  = p;
       this.focus  = focus;
       this.UI     = UI;
       this.parent = parent;
-      this.setGreyedTex(BUTTON_GREYED.asTexture());
+      this.setDisabledOverlay(BUTTON_GREYED);
       
       if (focus == null) I.complain("NO SUBJECT!");
     }

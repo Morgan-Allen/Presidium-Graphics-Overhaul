@@ -88,8 +88,9 @@ public class MissionRecon extends Mission {
     if (cached != null) return cached;
     
     final float range = exploreRadius();
-    final Exploring explore = Exploring.nextSurvey(base, actor, subject, range);
-    
+    final Exploring explore = Exploring.nextSurvey(
+      base, actor, (Tile) subject, range
+    );
     if (explore == null) {
       endMission(true);
       doneRecon = true;
@@ -118,6 +119,14 @@ public class MissionRecon extends Mission {
     final Tile tile = (Tile) subject;
     d.append(" around ");
     d.append(tile);
+  }
+  
+
+  public String helpInfo() {
+    if (applicants().empty() && Planet.dayValue(base.world) < 0.33f) return
+      "Colonists are usually reluctant to explore at night.  You may have to "+
+      "wait until morning for applicants.";
+    return super.helpInfo();
   }
   
   

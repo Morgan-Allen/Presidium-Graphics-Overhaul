@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-//import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -17,13 +16,7 @@ import com.badlogic.gdx.Input.Keys;
 
 
 
-
-//  TODO:  The area dedicated to the current info-panel must be made more
-//         flexible, to accomodate the stars & planet-charts.
-
 public class BaseUI extends HUD implements UIConstants {
-  
-  
   
   /**  Core field definitions, constructors, and save/load methods-
     */
@@ -39,25 +32,22 @@ public class BaseUI extends HUD implements UIConstants {
   private MapsDisplay mapsPanel;
   private Readout readout;
   
-  //private CommsPane commsPanel;
   private ReminderListing reminders;
-  //private PlanetPanel planetPanel;
-  //private StarsPanel  starsPanel ;  //Just use the homeworld.
-
   private Button optionsButton;
-  private Button commsButton;  //  TODO:  GET RID OF THIS
   
-  private Button buildButton;
-  private UINode rosterButton;
-  private Button edictsButton;
+  private Button installButton;
+  private UINode rosterButton ;
+  private Button budgetButton ;
+  private Button sectorsButton;
   
   
-  private UIGroup panelArea, infoArea;
+  private UIGroup infoArea, optionsArea, messageArea;
   private BorderedLabel popup;
   private Quickbar quickbar;
   
-  private UIGroup currentPanel, newPanel;
-  private TargetOptions currentInfo, newInfo;
+  private UIGroup currentInfo, newInfo;  //  TODO:  Insist on selection-panes?
+  private SelectionOptions currentOptions, newOptions;
+  private MessagePane currentMessage, newMessage;
   private boolean capturePanel = false;
   
   
@@ -101,13 +91,11 @@ public class BaseUI extends HUD implements UIConstants {
   public Stage world() { return world ; }
   
   public ReminderListing reminders() { return reminders; }
-  //public CommsPane commsPanel() { return commsPanel; }
   
   
   public static BaseUI current() {
     final HUD UI = PlayLoop.currentUI();
     if (UI instanceof BaseUI) return (BaseUI) UI;
-    //else I.complain("NO BASE UI IN PLACE!");
     return null;
   }
   
@@ -156,11 +144,18 @@ public class BaseUI extends HUD implements UIConstants {
     readout.alignTop(0, READOUT_HIGH);
     readout.attachTo(this);
     
-    this.panelArea = new UIGroup(this);
-    panelArea.alignVertical  (0, 0);
-    panelArea.alignHorizontal(0, 0);
-    panelArea.attachTo(this);
+    this.messageArea = new UIGroup(this);
+    messageArea.alignHorizontal(0.5f, MESSAGE_PANE_WIDE, 0);
+    messageArea.alignTop(READOUT_HIGH, MESSAGE_PANE_HIGH);
+    messageArea.attachTo(this);
+
+    //  TODO:  Constrain this better.
+    this.optionsArea = new UIGroup(this);
+    optionsArea.alignVertical  (0, 0);
+    optionsArea.alignHorizontal(0, 0);
+    optionsArea.attachTo(this);
     
+    //  TODO:  Constrain this better.
     this.infoArea = new UIGroup(this);
     infoArea.alignVertical  (0, 0);
     infoArea.alignHorizontal(0, 0);
@@ -171,8 +166,8 @@ public class BaseUI extends HUD implements UIConstants {
     popup.alignBottom(QUICKBAR_HIGH, 0);
     popup.attachTo(this);
     
-    currentPanel = newPanel = null;
-    currentInfo  = newInfo  = null;
+    currentInfo = newInfo = null;
+    currentOptions  = newOptions  = null;
     
     this.quickbar = new Quickbar(this);
     quickbar.alignAcross(0, 1);
@@ -185,7 +180,7 @@ public class BaseUI extends HUD implements UIConstants {
     
     final int
       PTS = PANEL_TAB_SIZE,
-      HTS = DEFAULT_MARGIN + (PTS / 2),
+      HTS = DEFAULT_MARGIN,// + (PTS / 2),
       PTH = PANEL_TABS_HIGH;
     
     this.optionsButton = GameOptionsPane.createButton(this, scenario);
@@ -199,11 +194,11 @@ public class BaseUI extends HUD implements UIConstants {
     reminders.alignVertical(QUICKBAR_HIGH, MINIMAP_HIGH + 40);
     reminders.attachTo(this);
     
-    this.buildButton = InstallationPane.createButton(this);
-    buildButton.stretch = false;
-    buildButton.alignTop(0, PTH);
-    buildButton.alignRight((PTS * 0) + HTS, PTS);
-    buildButton.attachTo(this);
+    this.installButton = InstallPane.createButton(this);
+    installButton.stretch = false;
+    installButton.alignTop(0, PTH);
+    installButton.alignRight((PTS * 0) + HTS, PTS);
+    installButton.attachTo(this);
     
     this.rosterButton = RosterPane.createButton(this);
     rosterButton.stretch = false;
@@ -211,29 +206,17 @@ public class BaseUI extends HUD implements UIConstants {
     rosterButton.alignRight((PTS * 1) + HTS, PTS);
     rosterButton.attachTo(this);
     
-    this.edictsButton = CommercePane.createButton(this);
-    edictsButton.stretch = false;
-    edictsButton.alignTop(0, PTH);
-    edictsButton.alignRight((PTS * 2) + HTS, PTS);
-    edictsButton.attachTo(this);
+    this.budgetButton = BudgetsPane.createButton(this);
+    budgetButton.stretch = false;
+    budgetButton.alignTop(0, PTH);
+    budgetButton.alignRight((PTS * 2) + HTS, PTS);
+    budgetButton.attachTo(this);
     
-    /*
-    this.planetPanel = new PlanetPanel(this);
-    this.planetButton = new Button(
-      this,
-      PlanetPanel.PLANET_ICON.asTexture(),
-      PlanetPanel.PLANET_ICON_LIT.asTexture(),
-      "planet sectors"
-    ) {
-      protected void whenClicked() {
-        setInfoPanels(planetPanel, null);
-      }
-    };
-    planetButton.stretch = false;
-    planetButton.alignTop(0, PTS);
-    planetButton.alignLeft(MINIMAP_WIDE + HS - (PTS * 1), PTS);
-    planetButton.attachTo(this);
-    //*/
+    this.sectorsButton = SectorsPane.createButton(this);
+    sectorsButton.stretch = false;
+    sectorsButton.alignTop(0, PTH);
+    sectorsButton.alignRight((PTS * 3) + HTS, PTS);
+    sectorsButton.attachTo(this);
   }
   
   
@@ -248,16 +231,6 @@ public class BaseUI extends HUD implements UIConstants {
     */
   public UITask currentTask() {
     return currentTask;
-  }
-  
-  
-  public UIGroup currentPane() {
-    return newPanel;
-  }
-  
-  
-  public TargetOptions currentInfo() {
-    return newInfo;
   }
   
   
@@ -282,7 +255,7 @@ public class BaseUI extends HUD implements UIConstants {
   public static boolean isOpen(UIGroup panel) {
     final HUD hud = PlayLoop.currentUI();
     if (! (hud instanceof BaseUI)) return false;
-    return ((BaseUI) hud).currentPane() == panel;
+    return ((BaseUI) hud).currentInfoPane() == panel;
   }
   
   
@@ -291,7 +264,7 @@ public class BaseUI extends HUD implements UIConstants {
     */
   public void updateInput() {
     super.updateInput();
-    selection.updateSelection(world, rendering.view, panelArea);
+    selection.updateSelection(world, rendering.view, infoArea);
   }
   
   
@@ -312,25 +285,32 @@ public class BaseUI extends HUD implements UIConstants {
     
     //  TODO:  This doesn't look terribly smooth if you inspect it closely-
     //  either use simple alpha-fadeouts or start rendering-to-texture instead.
-    if (capturePanel && currentPanel != null) {
-      final Box2D b = new Box2D().setTo(currentPanel.trueBounds());
+    if (capturePanel && currentInfo != null) {
+      final Box2D b = new Box2D().setTo(currentInfo.trueBounds());
       rendering.fading.applyFadeWithin(b, "panel_fade");
       capturePanel = false;
     }
-    if (currentPanel != newPanel) {
-      if (currentPanel != null) currentPanel.detach();
-      if (newPanel     != null) newPanel.attachTo(panelArea);
-      currentPanel = newPanel;
+    if (currentInfo != newInfo) {
+      if (currentInfo != null) currentInfo.detach();
+      if (newInfo     != null) newInfo.attachTo(infoArea);
+      currentInfo = newInfo;
     }
     
     //  Only attach the new information panel once the old one is done fading
     //  out.  TODO:  Use a similar trick above...
     if (
-      (currentInfo != newInfo) &&
-      (currentInfo == null || ! currentInfo.attached())
+      (currentOptions != newOptions) &&
+      (currentOptions == null || ! currentOptions.attached())
     ) {
-      if (newInfo != null) newInfo.attachTo(infoArea);
-      currentInfo = newInfo;
+      if (newOptions != null) newOptions.attachTo(optionsArea);
+      currentOptions = newOptions;
+    }
+    
+    //  TODO:  ALLOW FOR FADE-IN/FADE-OUT HERE AS WELL
+    if (currentMessage != newMessage) {
+      if (currentMessage != null) currentMessage.detach();
+      if (newMessage     != null) newMessage.attachTo(messageArea);
+      currentMessage = newMessage;
     }
     
     if (KeyInput.wasTyped(Keys.ESCAPE) && currentTask != null) {
@@ -342,33 +322,90 @@ public class BaseUI extends HUD implements UIConstants {
   
   /**  Updating the central information panel and target options-
     */
-  public void setInfoPanels(
-    UIGroup panel, TargetOptions options
-  ) {
-    if (panel   != currentPanel) {
+  public void setInfoPane(UIGroup info) {
+    if (info != currentInfo) {
       beginPanelFade();
-      newPanel = panel;
-    }
-    if (options != currentInfo ) {
-      if (currentInfo != null) currentInfo.active = false;
-      newInfo = options;
+      newInfo = info;
     }
   }
   
   
-  public void setPanelsInstant(
-    UIGroup panel, TargetOptions options
-  ) {
-    currentPanel = null; newPanel = panel  ;
-    currentInfo  = null; newInfo  = options;
-    capturePanel = false;
+  public void setOptionsList(SelectionOptions options) {
+    if (options != currentOptions) {
+      if (currentOptions != null) currentOptions.active = false;
+      newOptions = options;
+    }
   }
   
   
+  public void setMessagePane(MessagePane message) {
+    if (message != currentMessage) {
+      newMessage = message;
+    }
+  }
+  
+  
+  public void clearInfoPane() {
+    setInfoPane(null);
+  }
+  
+  
+  public void clearOptionsList() {
+    setOptionsList(null);
+  }
+  
+  
+  public void clearMessagePane() {
+    setMessagePane(null);
+  }
+  
+  
+  public UIGroup currentInfoPane() {
+    return newInfo;
+  }
+  
+  
+  public SelectionOptions currentOptions() {
+    return newOptions;
+  }
+  
+  
+  public MessagePane currentMessage() {
+    return newMessage;
+  }
+  
+  
+  public SelectionPane currentSelectionPane() {
+    if (newInfo instanceof SelectionPane) return (SelectionPane) newInfo;
+    return null;
+  }
+  
+  
+  public static boolean paneOpenFor(Object o) {
+    final BaseUI UI = current();
+    if (UI == null || ! (UI.currentInfoPane() instanceof SelectionPane)) {
+      return false;
+    }
+    return ((SelectionPane) UI.currentInfoPane()).selected == o;
+  }
+  
+  
+  public static boolean hasMessageFocus(Target subject) {
+    final BaseUI UI = BaseUI.current();
+    if (UI == null || UI.currentMessage() == null) return false;
+    return UI.currentMessage().focus == subject;
+  }
+  
+  
+  //  TODO:  get rid of this once render-to-texture is working...
   public void beginPanelFade() {
     capturePanel = true;
   }
 }
+
+
+
+
 
 
 

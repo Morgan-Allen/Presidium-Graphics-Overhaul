@@ -94,7 +94,7 @@ public class Verse {
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
       DESERT_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
-      VerseLocation.MAKES, SOMA, PLASTICS, DECOR, SPYCE_T,
+      VerseLocation.MAKES, SOMA, PLASTICS, DECOR, DRI_SPYCE,
       VerseLocation.NEEDS, WATER, CIRCUITRY, POLYMER,
       BORN_FREE,
       NOVICE, CULTIVATION, CHEMISTRY,
@@ -120,7 +120,7 @@ public class Verse {
       "crucial role in quadrant defence strategy.",
       FOREST_BLOOD, STRONG_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, CARBS, GREENS, MEDICINE,
-      VerseLocation.NEEDS, SERVICE_ARMAMENT, PARTS, CATALYST,
+      VerseLocation.NEEDS, SERVICE_ARMAMENT, PARTS, REAGENTS,
       BORN_GELDER, BORN_FREE,
       NOVICE, MARKSMANSHIP, ANATOMY,
       OFTEN, MILITARY_CIRCLES, SOMETIMES, PHYSICIAN_CIRCLES,
@@ -232,7 +232,7 @@ public class Verse {
     ALL_DIAPSOR_SECTORS[] = {
       SECTOR_ELYSIUM, SECTOR_PAVONIS, SECTOR_TERRA
     },
-    DEFAULT_START_LOCATION = SECTOR_TERRA;
+    DEFAULT_START_LOCATION = SECTOR_ELYSIUM;
   
   
   final public static VerseLocation

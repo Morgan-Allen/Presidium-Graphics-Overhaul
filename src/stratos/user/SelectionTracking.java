@@ -65,10 +65,15 @@ public class SelectionTracking {
   }
   
   
+  public float distanceFrom(Target t) {
+    if (t == null) return -1;
+    final Vec3D pos = t.position(null);
+    return view.lookedAt.distance(pos);
+  }
+  
+  
   public void lockOn(Target target) {
-    if (
-      target == null
-    ) {
+    if (target == null) {
       lockTarget = null;
     }
     else {
@@ -100,9 +105,10 @@ public class SelectionTracking {
     //  to dismiss it and focus on whatever comes in view instead.
     if (lockTarget != null && lockTarget == paneSelection()) {
       final Tile          under   = world.tileAt(nextPos.x, nextPos.y);
-      final SelectionPane pane    = under.configPanel(null, UI);
-      final TargetOptions options = under.configInfo (null, UI);
-      UI.setInfoPanels(pane, options);
+      final SelectionPane pane    = under.configSelectPane(null, UI);
+      final SelectionOptions options = under.configSelectOptions (null, UI);
+      UI.setInfoPane  (pane   );
+      UI.setOptionsList(options);
     }
     //
     //  Then clean up after.
@@ -113,8 +119,8 @@ public class SelectionTracking {
   
   
   protected Selectable paneSelection() {
-    if (! (UI.currentPane() instanceof SelectionPane)) return null;
-    return ((SelectionPane) UI.currentPane()).selected;
+    if (! (UI.currentInfoPane() instanceof SelectionPane)) return null;
+    return ((SelectionPane) UI.currentInfoPane()).selected;
   }
   
   
@@ -227,7 +233,7 @@ public class SelectionTracking {
     //
     //  If distance is too large, or drift would cause overshoot, just go
     //  straight to the point.  Otherwise, displace gradually-
-    if (distance > MAX_DRIFT_DISTANCE || drift >= 1) viewPos.setTo(targPos);
+    if (drift >= 1) viewPos.setTo(targPos);
     else viewPos.add(displace.scale(drift));
     view.lookedAt.setTo(viewPos);
   }

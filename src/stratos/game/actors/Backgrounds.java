@@ -8,7 +8,8 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Devices.*;
+import static stratos.game.economic.Outfits.*;
 
 
 //  TODO:  Allow backgrounds to 'extend' or 'develop' eachother.
@@ -237,8 +238,8 @@ public interface Backgrounds {
     CULTIVATOR = new Background(
       Backgrounds.class,
       "Cultivator",
-      "Hire additional cultivators to plant and reap harvests more "+
-      "quickly, maintain equipment, and perform other agricultural chores.",
+      "Cultivators plant and reap harvests, maintain farm equipment, and "+
+      "perform other agricultural chores.",
       "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, CULTIVATION, HARD_LABOUR, LEARNING, DOMESTICS, ASSEMBLY,
@@ -367,8 +368,8 @@ public interface Backgrounds {
     VOLUNTEER = new Background(
       Backgrounds.class,
       "Volunteer",
-      "Dedicated in defence of their homes, a volunteer militia provides the "+
-      "mainstay of your domestic forces.",
+      "Dedicated in defence of their homes, a volunteer militia makes up the "+
+      "bulk of your domestic forces.",
       "militant_skin.gif", "militant_portrait.png",
       CLASS_VASSAL, GUILD_MILITANT,
       PRACTICED, HAND_TO_HAND, MARKSMANSHIP,
@@ -380,7 +381,7 @@ public interface Backgrounds {
     TROOPER = new Background(
       Backgrounds.class,
       "Trooper",
-      "Seasoned professional soldiers, veterans provide the backbone of your "+
+      "Seasoned professional soldiers, Troopers provide the backbone of your "+
       "officer corps and command structure.",
       "militant_skin.gif", "militant_portrait.png",
       CLASS_AGENT, GUILD_MILITANT,
@@ -707,10 +708,10 @@ public interface Backgrounds {
       "",
       "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
-      PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, NOBLE_ETIQUETTE,
+      MASTER, HAND_TO_HAND, EXPERT, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
       SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
-      STEEL_DIRK, BELT_AND_BRACER
+      SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -726,10 +727,10 @@ public interface Backgrounds {
       "",
       "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
-      PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, NOBLE_ETIQUETTE,
+      MASTER, HAND_TO_HAND, EXPERT, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
       SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
-      STEEL_DIRK, BELT_AND_BRACER
+      SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -745,10 +746,10 @@ public interface Backgrounds {
       "",
       "highborn_male_skin.gif", "highborn_portrait.png",
       CLASS_STRATOI, NOT_A_GUILD,
-      PRACTICED, HAND_TO_HAND, BATTLE_TACTICS, NOBLE_ETIQUETTE,
+      MASTER, HAND_TO_HAND, EXPERT, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
       SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
-      STEEL_DIRK, BELT_AND_BRACER
+      SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
       public String nameFor(Actor actor) {
@@ -812,7 +813,7 @@ public interface Backgrounds {
       CLASS_STRATOI, NOT_A_GUILD,
       EXPERT, HAND_TO_HAND, SHIELD_AND_ARMOUR, BATTLE_TACTICS, PRACTICED,
       SURVEILLANCE, MARKSMANSHIP,
-      STEEL_DIRK, BLASTER, BODY_ARMOUR
+      SIDE_SABRE, BLASTER, BODY_ARMOUR
     ),
     
     

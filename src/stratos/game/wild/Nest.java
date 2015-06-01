@@ -208,9 +208,10 @@ public class Nest extends Venue {
   ) {
     return new Blueprint(
       Nest.class, s.name+"_nest",
-      s.name+" Nest", UIConstants.TYPE_HIDDEN,
-      size, high, IS_WILD,
-      Venue.NO_REQUIREMENTS, Owner.TIER_PRIVATE
+      s.name+" Nest", UIConstants.TYPE_HIDDEN, null, s.info,
+      size, high, Structure.IS_WILD,
+      Venue.NO_REQUIREMENTS, Owner.TIER_PRIVATE,
+      100, 5, 0, Structure.NO_UPGRADES
     ) {
       public Venue createVenue(Base base) {
         return new Nest(this, base, s, model);
@@ -336,17 +337,7 @@ public class Nest extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return null;
-  }
-
-
-  public String helpInfo() {
-    return species.info;
-  }
-  
-  
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     panel = VenuePane.configSimplePanel(this, panel, UI, null);
     
     final Description d = panel.detail(), l = panel.listing();

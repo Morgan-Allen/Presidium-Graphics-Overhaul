@@ -6,12 +6,10 @@
 package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
-import stratos.start.SaveUtils;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.base.*;
-import stratos.graphics.widgets.Text.Clickable;
-
+import stratos.user.notify.MessagePane.MessageSource;
 
 
 public class ReminderListing extends UIGroup {
@@ -34,19 +32,43 @@ public class ReminderListing extends UIGroup {
   
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
-      oldMessages.add(MessagePane.loadMessage(s, UI));
+      oldMessages.add(loadMessage(s));
     }
     for (int n = s.loadInt(); n-- > 0;) {
-      newMessages.add(MessagePane.loadMessage(s, UI));
+      newMessages.add(loadMessage(s));
     }
+    UI.setMessagePane(loadMessage(s));
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveInt(oldMessages.size());
-    for (MessagePane m : oldMessages) MessagePane.saveMessage(m, s);
+    for (MessagePane m : oldMessages) saveMessage(m, s);
     s.saveInt(newMessages.size());
-    for (MessagePane m : newMessages) MessagePane.saveMessage(m, s);
+    for (MessagePane m : newMessages) saveMessage(m, s);
+    saveMessage(UI.currentMessage(), s);
+  }
+  
+  
+  private void saveMessage(MessagePane message, Session s) throws Exception {
+    if (message == null) { s.saveObject(null); return; }
+    if (message.source == null) {
+      I.complain("\nNO SOURCE FOR MESSAGE: "+message.title);
+    }
+    s.saveObject(message.source   );
+    s.saveString(message.title    );
+    s.saveFloat (message.receipt());
+  }
+  
+  
+  private MessagePane loadMessage(Session s ) throws Exception {
+    final MessageSource source = (MessageSource) s.loadObject();
+    if (source == null) return null;
+    final String titleKey = s.loadString();
+    final float  receipt  = s.loadFloat ();
+    final MessagePane pane = source.configMessage(titleKey, UI);
+    pane.assignReceiptDate(receipt);
+    return pane;
   }
   
   
@@ -80,14 +102,6 @@ public class ReminderListing extends UIGroup {
   }
   
   
-  private Entry entryWithMessage(MessagePane message) {
-    for (Entry e : entries) if (e instanceof MessageReminder) {
-      if (((MessageReminder) e).message == message) return e;
-    }
-    return null;
-  }
-  
-  
   private boolean hasEntryRefers(Object refers) {
     return entryThatRefers(refers) != null;
   }
@@ -106,7 +120,7 @@ public class ReminderListing extends UIGroup {
       entry = new MessageReminder(UI, refers, (MessagePane) refers);
     }
     if (refers == oldMessages) {
-      entry = new MessageReminder(UI, oldMessages, forOldMessages());
+      entry = new CommsPane.Reminder(UI, oldMessages, this);
     }
     if (refers instanceof BaseAdvice.Topic) {
       final MessagePane advicePane = played.advice.configAdvicePanel(
@@ -197,7 +211,6 @@ public class ReminderListing extends UIGroup {
     }
     
     checkMessageOpened();
-    updateOldMessages();
     updateAdvicePanes();
     super.updateState();
   }
@@ -209,79 +222,41 @@ public class ReminderListing extends UIGroup {
   private void updateAdvicePanes() {
     for (Entry e : entries) if (e.refers instanceof BaseAdvice.Topic) {
       final MessagePane pane = ((MessageReminder) e).message;
-      if (UI.currentPane() != pane) continue;
+      if (UI.currentMessage() != pane) continue;
       UI.played().advice.configAdvicePanel(pane, e.refers, UI);
     }
   }
   
   
+  
   /**  Utility methods for message dialogues:
     */
-  private MessagePane forOldMessages() {
-    final MessagePane pane = new MessagePane(
-      UI, null, "Old Messages", null, null
-    );
-    return pane;
-  }
-  
-  
   private void checkMessageOpened() {
-    if (! (UI.currentPane() instanceof MessagePane)) return;
-    final MessagePane open = (MessagePane) UI.currentPane();
-    if (open == lastOpen) return;
+    final MessagePane open = UI.currentMessage();
+    if (open == lastOpen || open == null) return;
     lastOpen = open;
     if (open.source != null) open.source.messageWasOpened(open.title, UI);
   }
   
   
-  private void updateOldMessages() {
-    MessageReminder entry = (MessageReminder) entryThatRefers(oldMessages);
-    if (entry == null) return;
-    final String label = oldMessages.size()+" old messages";
-    entry.setLabel(label);
-    entry.setOpened(true);
-    //
-    //  We sort messages in order of time-of-receipt:
-    final List <MessagePane> sorting = new List <MessagePane> () {
-      protected float queuePriority(MessagePane m) {
-        return 0 - m.receiptDate();
-      }
-    };
-    Visit.appendTo(sorting, oldMessages);
-    sorting.queueSort();
-    //
-    //  
-    final Batch <Clickable> links = new Batch <Clickable> ();
-    for (final MessagePane panel : sorting) {
-      final Clickable link = new Clickable() {
-        
-        public String fullName() {
-          return panel.title;
-        }
-        
-        public void whenClicked() {
-          UI.setInfoPanels(panel, null);
-        }
-      };
-      links.add(link);
-    }
-    entry.message.assignContent("", links);
-  }
-  
-  
-  public MessagePane messageEntryFor(String messageKey) {
-    for (MessagePane message : newMessages) {
+  private MessagePane messageEntryFor(String messageKey, int urgent) {
+    if (urgent != 0) for (MessagePane message : newMessages) {
       if (message.title.equals(messageKey)) return message;
     }
-    for (MessagePane message : oldMessages) {
+    if (urgent != 1) for (MessagePane message : oldMessages) {
       if (message.title.equals(messageKey)) return message;
     }
     return null;
   }
   
   
-  public boolean hasMessageEntry(String messageKey) {
-    return messageEntryFor(messageKey) != null;
+  public boolean hasMessageEntry(String key, boolean urgent) {
+    return messageEntryFor(key, urgent ? 1 : 0) != null;
+  }
+  
+  
+  public boolean hasMessageEntry(String key) {
+    return hasMessageEntry(key, false) || hasMessageEntry(key, true);
   }
   
   

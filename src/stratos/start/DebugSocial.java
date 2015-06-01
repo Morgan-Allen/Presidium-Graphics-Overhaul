@@ -49,16 +49,18 @@ public class DebugSocial extends Scenario {
   
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
-      64, 0.2f,
-      Habitat.ESTUARY     , 2f,
-      Habitat.MEADOW      , 3f,
+      64, 0.5f,
+      Habitat.CURSED_EARTH, 3f,
       Habitat.BARRENS     , 2f,
-      Habitat.DUNE        , 1f
+      Habitat.DUNE        , 1f,
+      Habitat.SAVANNAH    , 1f
     );
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    //Flora.populateFlora(world);
+    
+    TG.setupOutcrops(world);
+    Flora.populateFlora(world);
     return world;
   }
   
@@ -75,10 +77,10 @@ public class DebugSocial extends Scenario {
     if (false) testCareers(base);
     if (false) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (false) configContactScenario (world, base, UI);
+    if (true ) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
-    if (true ) multiJobsScenario     (world, base, UI);
+    if (false) multiJobsScenario     (world, base, UI);
   }
   
   
@@ -166,10 +168,11 @@ public class DebugSocial extends Scenario {
       bastion, 11, 11, true, world,
       ruler, consort
     );
-    base.assignRuler(ruler);
-    bastion.updateAsScheduled(0, false);
-    for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
-    
+    if (bastion.inWorld()) {
+      base.assignRuler(ruler);
+      bastion.updateAsScheduled(0, false);
+      for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
+    }
     final TrooperLodge garrison = new TrooperLodge(base);
     Placement.establishVenue(garrison, world.tileAt(3, 15), true, world);
     
@@ -267,7 +270,6 @@ public class DebugSocial extends Scenario {
     for (Background b : jobs) {
       Actor a = b.sampleFor(base);
       a.enterWorldAt(bastion, world);
-      a.goAboard(bastion, world);
       if (tracked == null) tracked = a;
     }
     

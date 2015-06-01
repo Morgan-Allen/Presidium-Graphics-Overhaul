@@ -41,20 +41,22 @@ public class EcologistStation extends Venue {
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
     );
+  
+  
   final static Blueprint BLUEPRINT = new Blueprint(
     EcologistStation.class, "ecologist_station",
-    "Ecologist Station", UIConstants.TYPE_ECOLOGIST,
-    4, 3, IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_FACILITY
+    "Ecologist Station", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Ecologist Stations are responsible for agriculture and forestry, "+
+    "helping to secure food supplies and advance terraforming efforts.",
+    4, 3, Structure.IS_NORMAL,
+    NO_REQUIREMENTS, Owner.TIER_FACILITY,
+    150, 3, 250, Structure.NORMAL_MAX_UPGRADES
   );
+  
   
   
   public EcologistStation(Base belongs) {
     super(BLUEPRINT, belongs);
-    structure.setupStats(
-      150, 3, 250,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(STATION_MODEL.makeSprite());
   }
@@ -84,56 +86,51 @@ public class EcologistStation extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    CEREALS = new Upgrade(
-      "Cereals",
+    CEREAL_CULTURE = new Upgrade(
+      "Cereal Culture",
       "Improves cereal yields, which provide "+CARBS+".  Cereals yield more "+
       "calories than other crops, but lack the nutrients for a complete diet.",
       100,
-      Upgrade.THREE_LEVELS, CARBS,
-      1,
-      null, EcologistStation.class
+      Upgrade.THREE_LEVELS, CARBS, 1,
+      null, BLUEPRINT
     ),
-    BROADLEAVES = new Upgrade(
-      "Broadleaves",
+    FLORAL_CULTURE = new Upgrade(
+      "Floral Culture",
       "Improves broadleaf yields, which provide "+GREENS+".  These are "+
       "valued as luxury exports, but their yield in calories is limited.",
       150,
-      Upgrade.THREE_LEVELS, GREENS,
-      1,
-      null, EcologistStation.class
+      Upgrade.THREE_LEVELS, GREENS, 1,
+      null, BLUEPRINT
     ),
-    CULTIVATOR_STATION = new Upgrade(
-      "Cultivator Station",
-      Backgrounds.CULTIVATOR.info,
+    CULTIVATOR_POST = new Upgrade(
+      "Cultivator Post",
+      CULTIVATOR.info,
       50,
-      Upgrade.THREE_LEVELS, Backgrounds.CULTIVATOR, 1,
-      null, EcologistStation.class
+      Upgrade.THREE_LEVELS, CULTIVATOR, 1,
+      null, BLUEPRINT
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
       "Forestry programs assist in terraforming efforts and climate "+
       "moderation, as well as permitting "+POLYMER+" production.",
       100,
-      Upgrade.THREE_LEVELS, null,
-      1,
-      BROADLEAVES, EcologistStation.class
+      Upgrade.THREE_LEVELS, Flora.class, 1,
+      FLORAL_CULTURE, BLUEPRINT
     ),
     SYMBIOTICS = new Upgrade(
       "Symbiotics",
       "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
       "assists in animal breeding programs.",
       150,
-      Upgrade.THREE_LEVELS, PROTEIN,
-      1,
-      BROADLEAVES, EcologistStation.class
+      Upgrade.THREE_LEVELS, PROTEIN, 1,
+      FLORAL_CULTURE, BLUEPRINT
     ),
-    ECOLOGIST_STATION = new Upgrade(
-      "Ecologist Station",
-      Backgrounds.ECOLOGIST.info,
+    ECOLOGIST_OFFICE = new Upgrade(
+      "Ecologist Office",
+      ECOLOGIST.info,
       150,
-      Upgrade.THREE_LEVELS, Backgrounds.ECOLOGIST,
-      1,
-      TREE_FARMING, EcologistStation.class
+      Upgrade.THREE_LEVELS, ECOLOGIST, 1,
+      TREE_FARMING, BLUEPRINT
     );
   
   
@@ -146,8 +143,8 @@ public class EcologistStation extends Venue {
     //  If you're really short on food, consider foraging in the surrounds or
     //  farming 24/7.
     final float shortages = (
-      stocks.relativeShortage(CARBS ) +
-      stocks.relativeShortage(GREENS)
+      base.commerce.primaryShortage(CARBS ) +
+      base.commerce.primaryShortage(GREENS)
     ) / 2f;
     //
     //  First of all, find a suitable nursery to tend:
@@ -170,10 +167,10 @@ public class EcologistStation extends Venue {
       choice.add(foraging);
     }
     
-    if (actor.mind.vocation() == ECOLOGIST && onShift) {
+    if (actor.mind.vocation() == ECOLOGIST && ! offShift) {
       addEcologistJobs(actor, onShift, choice);
     }
-    if (actor.mind.vocation() == CULTIVATOR && onShift) {
+    if (actor.mind.vocation() == CULTIVATOR && ! offShift) {
       addCultivatorJobs(actor, onShift, choice);
     }
     return choice.weightedPick();
@@ -185,9 +182,9 @@ public class EcologistStation extends Venue {
   ) {
     //
     //  Consider collecting gene samples-
-    final boolean needsSeed = stocks.amountOf(GENE_SEED) < 5;
-    if (needsSeed) {
-      choice.add(Forestry.nextSampling(actor, this));
+    final float needSamples = SeedTailoring.needForSamples(this);
+    if (needSamples > 0) {
+      choice.add(Forestry.nextSampling(actor, this, needSamples));
     }
     for (Target e : actor.senses.awareOf()) if (e instanceof Fauna) {
       final Fauna f = (Fauna) e;
@@ -198,13 +195,14 @@ public class EcologistStation extends Venue {
     //
     //  Tailor seed varieties and consider breeding animals-
     for (Species s : Crop.ALL_VARIETIES) {
-      final SeedTailoring t = new SeedTailoring(actor, this, s);
-      if (staff.assignedTo(t) > 0) continue;
-      choice.add(t);
+      final Item seed = Item.withReference(GENE_SEED, s);
+      if (stocks.amountOf(seed) >= 1) continue;
+      choice.add(new SeedTailoring(actor, this, s));
     }
     if (stocks.amountOf(CARBS) > 1 && stocks.amountOf(PROTEIN) > 0.5f) {
       choice.add(AnimalBreeding.nextBreeding(actor, this));
     }
+    if (! choice.empty()) return;
     //
     //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
@@ -222,11 +220,18 @@ public class EcologistStation extends Venue {
       this, services(), 1, 5, 5
     );
     choice.add(d);
-    if (choice.empty()) {
-      //  TODO:  Merge with Polymer Press jobs
-      
-      choice.add(Forestry.nextPlanting(actor, this));
+    if (! choice.empty()) return;
+    //
+    //  Consider collecting gene samples-
+    final float needSamples = SeedTailoring.needForSamples(this);
+    if (needSamples > 0) {
+      choice.add(Forestry.nextSampling(actor, this, needSamples));
     }
+    //  TODO:  Merge with Former Plant jobs?
+    choice.add(Forestry.nextPlanting(actor, this));
+    //
+    //  Or, finally, fall back on supervising the venue...
+    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
   }
   
   
@@ -234,23 +239,24 @@ public class EcologistStation extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     //
-    //  Increment demand for gene seed, and decay current stocks-
+    //  Increment demands, and decay current stocks-
     stocks.incDemand(GENE_SEED, 5, 1, false);
-    final float decay = 0.1f / Stage.STANDARD_DAY_LENGTH;
+    stocks.incDemand(CARBS    , 5, 1, true );
+    stocks.incDemand(GREENS   , 5, 1, true );
+    stocks.incDemand(PROTEIN  , 5, 1, true );
+    final float decay = 1f / (
+      Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
+    );
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));
     }
-    for (Item seed : stocks.matches(SAMPLES)) {
-      stocks.removeItem(Item.withAmount(seed, decay));
+    for (Item sample : stocks.matches(SAMPLES)) {
+      stocks.removeItem(Item.withAmount(sample, decay));
     }
     //
-    //  Demand supplies, if breeding is going on-
-    final int numBred = AnimalBreeding.breedingAt(this).size() + 1;
-    stocks.incDemand(CARBS  , numBred * 2, 1, true);
-    stocks.incDemand(PROTEIN, numBred * 1, 1, true);
     //
     //  And update demand for nursery-placement:
-    final float nurseryDemand = structure.upgradeLevel(CULTIVATOR_STATION) + 1;
+    final float nurseryDemand = structure.upgradeLevel(CULTIVATOR_POST) + 1;
     base.demands.impingeDemand(Nursery.class, nurseryDemand, 1, this);
     //
     //  An update ambience-
@@ -265,8 +271,8 @@ public class EcologistStation extends Venue {
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == ECOLOGIST ) return num + 2;
     if (v == CULTIVATOR) return num + 2;
+    if (v == ECOLOGIST ) return num + 2;
     return 0;
   }
   
@@ -283,25 +289,5 @@ public class EcologistStation extends Venue {
   
   public void addServices(Choice choice, Actor client) {
     choice.add(BringUtils.nextHomePurchase(client, this));
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  protected Traded[] goodsToShow() {
-    return null;
-  }
-  
-  
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "botanical_station");
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Ecologist Stations are responsible for agriculture and forestry, "+
-      "helping to secure food supplies and advance terraforming efforts.";
   }
 }

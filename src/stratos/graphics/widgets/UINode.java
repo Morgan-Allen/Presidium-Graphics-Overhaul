@@ -7,6 +7,7 @@
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.math.*;
 
 
@@ -52,6 +53,7 @@ public abstract class UINode {
   final protected HUD UI;
   private UINode parent;
   private ListEntry <UINode> kidEntry;
+  private String widgetID;
   
   
   public UINode(HUD myHUD) {
@@ -81,6 +83,8 @@ public abstract class UINode {
     */
   protected abstract void render(WidgetsPass pass);
   protected String info() { return null; }
+  protected String widgetID() { return widgetID; }
+  protected void setWidgetID(String ID) { this.widgetID = ID; }
   
   
   
@@ -116,12 +120,12 @@ public abstract class UINode {
   /**  Convenience methods for setting relative and absolute bounds in a more
     *  human-legible manner-
     */
-  public void alignLeft(int margin, int width) {
+  public void alignLeft(float margin, int width) {
     relBound.setX(0, 0);
     absBound.setX(margin, width);
   }
   
-  public void alignRight(int margin, int width) {
+  public void alignRight(float margin, int width) {
     relBound.setX(1, 0);
     absBound.setX(0 - (margin + width), width);
   }
@@ -131,7 +135,7 @@ public abstract class UINode {
     absBound.setX(marginLeft, 0 - (marginLeft + marginRight));
   }
   
-  public void alignHorizontal(float relative, int width, int offset) {
+  public void alignHorizontal(float relative, float width, float offset) {
     relBound.setX(relative, 0);
     absBound.setX(offset - (width / 2f), width);
   }
@@ -147,12 +151,12 @@ public abstract class UINode {
   }
   
   
-  public void alignBottom(int margin, int height) {
+  public void alignBottom(float margin, int height) {
     relBound.setY(0, 0);
     absBound.setY(margin, height);
   }
   
-  public void alignTop(int margin, int height) {
+  public void alignTop(float margin, int height) {
     relBound.setY(1, 0);
     absBound.setY(0 - (margin + height), height);
   }
@@ -162,7 +166,7 @@ public abstract class UINode {
     absBound.setY(marginBottom, 0 - (marginBottom + marginTop));
   }
   
-  public void alignVertical(float relative, int height, int offset) {
+  public void alignVertical(float relative, float height, float offset) {
     relBound.setY(relative, 0);
     absBound.setY(offset - (height / 2f), height);
   }

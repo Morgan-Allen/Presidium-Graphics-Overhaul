@@ -12,7 +12,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
-import stratos.util.I;
+import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
@@ -40,30 +40,27 @@ public class Archives extends Venue {
   //  TODO:  Decide on an appropriate set of upgrades here.
   
   
-  final public static Conversion
-    CIRCUITRY_TO_DATALINKS = new Conversion(
-      Archives.class, "circuitry_to_datalinks",
-      1, CIRCUITRY, TO, 2, DATALINKS,
-      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
-    )
-  ;
-  
   final static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives",
-    "Archives", UIConstants.TYPE_PHYSICIAN,
-    4, 2, IS_NORMAL,
-    PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY, CIRCUITRY_TO_DATALINKS
+    "Archives", UIConstants.TYPE_PHYSICIAN, ICON,
+    "The Archives provide "+DATALINKS+" and facilitate research and "+
+    "administration by base personnel.",
+    4, 2, Structure.IS_NORMAL,
+    PhysicianStation.BLUEPRINT, Owner.TIER_FACILITY,
+    250, 3, 350, Structure.NORMAL_MAX_UPGRADES
   );
+  
+  final public static Conversion
+    CIRCUITRY_TO_DATALINKS = new Conversion(
+      BLUEPRINT, "circuitry_to_datalinks",
+      1, CIRCUITRY, TO, 2, DATALINKS,
+      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
+    );
   
   
   public Archives(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      250, 3, 350,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_DAY);
-    
     attachSprite(MODEL.makeSprite());
   }
   
@@ -95,13 +92,17 @@ public class Archives extends Venue {
   
   protected Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
-    final Choice choice = new Choice(actor);
     
+    final float needCirc = stocks.relativeShortage(CIRCUITRY);
     final Bringing d = BringUtils.bestBulkCollectionFor(
       this, new Traded[] { CIRCUITRY }, 1, 5, 5
     );
-    if (d != null) return d;
+    if (d != null) {
+      d.addMotives(Plan.MOTIVE_JOB, needCirc * Plan.ROUTINE);
+      return d;
+    }
     
+    final Choice choice = new Choice(actor);
     final Manufacture m = stocks.nextManufacture(actor, CIRCUITRY_TO_DATALINKS);
     if (m != null) choice.add(m.setBonusFrom(this, false));
     
@@ -116,16 +117,16 @@ public class Archives extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    
-    //  TODO:  Allow upgrades in different skill areas
+    //
+    //  TODO:  Allow upgrades for different skill areas!
     choice.add(Training.asResearch(client, this, STUDY_FEE));
-    choice.add(BringUtils.nextHomePurchase(client, this));
+    choice.add(BringUtils.nextHomePurchase(client, this, DATALINKS));
   }
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    stocks.translateDemands(CIRCUITRY_TO_DATALINKS, 1);
+    stocks.translateRawDemands(CIRCUITRY_TO_DATALINKS, 1);
     
     structure.setAmbienceVal(6);
     stocks.forceDemand(POWER, 3, false);
@@ -135,16 +136,9 @@ public class Archives extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "archives");
-  }
-  
-  
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      "The Archives provide "+DATALINKS+" and facilitate research and "+
-      "administration by base personnel.",
-      this, CIRCUITRY_TO_DATALINKS
+      super.helpInfo(), this, CIRCUITRY_TO_DATALINKS
     );
   }
 }

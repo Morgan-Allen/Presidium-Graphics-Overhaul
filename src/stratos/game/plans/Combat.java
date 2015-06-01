@@ -91,27 +91,20 @@ public class Combat extends Plan implements Qualities {
   /**  Gauging the relative strength of combatants, odds of success, and how
     *  (un)appealing an engagement would be.
     */
-  final static Trait BASE_TRAITS[] = { FEARLESS, DEFENSIVE, CRUEL };
-  final static Skill
-    MELEE_SKILLS[]  = { HAND_TO_HAND },
-    RANGED_SKILLS[] = { MARKSMANSHIP, STEALTH_AND_COVER };
-  
-  
   protected float getPriority() {
-    
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
     
-    float harmLevel = 1;
-    if (object == OBJECT_SUBDUE ) harmLevel = 0.5f;
-    if (object == OBJECT_DESTROY) harmLevel = 1.5f;
-    
-    if (! PlanUtils.isArmed(actor)) setCompetence(0);
-    else setCompetence(successChanceFor(actor));
-    
-    return PlanUtils.combatPriority(
+    float harmLevel = REAL_HARM;
+    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
+    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
+    final float priority = PlanUtils.combatPriority(
       actor, subject, motiveBonus(),
       teamSize, true, harmLevel
     );
+    
+    if (priority <= 0 || ! PlanUtils.isArmed(actor)) setCompetence(0);
+    else setCompetence(successChanceFor(actor));
+    return priority;
   }
   
   
@@ -181,6 +174,7 @@ public class Combat extends Plan implements Qualities {
         }
       }
     }
+    if (struck == null) struck = subject;
     
     if (report) {
       I.say("  Main target: "+this.subject);
@@ -358,7 +352,7 @@ public class Combat extends Plan implements Qualities {
       showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
     //  TODO:  Move weapon/armour properties to dedicated subclasses.
-    final boolean canStun = actor.gear.hasDeviceProperty(Economy.STUN);
+    final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN);
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
     final float bypass = Nums.clamp(0 - penalty, 0, 5);

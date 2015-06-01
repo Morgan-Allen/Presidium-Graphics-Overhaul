@@ -215,13 +215,16 @@ public class ActorRelations {
     final float baseVal = actor.base().relations.relationWith(other.base());
     if (other == other.base()) return baseVal;
     
-    float relVal = 0;
-    if (other == actor.mind.home) relVal += 1.0f;
-    if (other == actor.mind.work) relVal += 0.5f;
-    if (other.base() == actor.base()) {
-      relVal += actor.base().relations.communitySpirit() / 2;
+    if (other.base() == actor.base() || baseVal > 0) {
+      float relVal = 0;
+      if (other == actor.mind.home) relVal += 1.0f;
+      if (other == actor.mind.work) relVal += 0.5f;
+      if (other.base() == actor.base()) {
+        relVal += actor.base().relations.communitySpirit() / 2;
+      }
+      return (baseVal + Nums.clamp(relVal, 0, 2)) / 3f;
     }
-    return (baseVal + Nums.clamp(relVal, 0, 2)) / 3f;
+    else return baseVal;
   }
   
   

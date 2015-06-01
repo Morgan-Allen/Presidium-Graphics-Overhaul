@@ -28,7 +28,7 @@ public class Minimap extends Assets.Loadable {
   private Mesh mapMesh;
   private ShaderProgram shading;
   private Box2D cameraBox = new Box2D();
-  private boolean disposed = false;
+  //private boolean disposed = false;
   
   
   public Minimap() {
@@ -37,7 +37,7 @@ public class Minimap extends Assets.Loadable {
   
   
   public void updateTexture(int texSize, int RGBA[][]) {
-    if (disposed) return;
+    if (! stateLoaded()) return;
     
     final Pixmap drawnTo = new Pixmap(
       texSize, texSize, Pixmap.Format.RGBA8888
@@ -63,7 +63,7 @@ public class Minimap extends Assets.Loadable {
   
   
   public void updateGeometry(Box2D bound) {
-    if (disposed) return;
+    if (! stateLoaded()) return;
     
     //  Initialise the mesh if required-
     if (mapMesh == null) {
@@ -107,29 +107,18 @@ public class Minimap extends Assets.Loadable {
   }
   
   
-  protected void loadAsset() {
+  protected State loadAsset() {
     updateGeometry(null);
+    return state = State.LOADED;
   }
   
   
-  public boolean isLoaded() {
-    return mapMesh != null;
-  }
-  
-  
-  protected void disposeAsset() {
-    if (disposed || ! isLoaded()) return;
-    ///I.say("DISPOSING OF MINIMAP: "+this.hashCode());
-    
-    disposed = true;
+  protected State disposeAsset() {
+    if (! stateLoaded()) return State.ERROR;
     if (mapImage != null) mapImage.dispose();
     mapMesh.dispose();
     shading.dispose();
-  }
-  
-  
-  public boolean isDisposed() {
-    return disposed;
+    return state = State.DISPOSED;
   }
   
   
@@ -167,7 +156,7 @@ public class Minimap extends Assets.Loadable {
   
   
   public void renderWith(FogOverlay fogApplied) {
-    if (disposed) {
+    if (! stateLoaded()) {
       I.say("RENDERING CALL WHEN DISPOSED");
       return;
     }

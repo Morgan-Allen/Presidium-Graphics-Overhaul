@@ -6,18 +6,17 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.user.BaseUI;
 import stratos.util.*;
 
 
 
 public class PathSearch extends Search <Boarding> {
   
-  /**  Field definitions and constructors-
+  
+  /**  Data fields and construction-
     */
   private static boolean
     blocksVerbose = false;
-  
   
   final protected Boarding destination;
   private Mobile   client   = null;
@@ -25,7 +24,8 @@ public class PathSearch extends Search <Boarding> {
   private boolean useDanger = false;
   
   private Boarding closest;
-  private float closestDist;
+  private float    closestDist;
+  private boolean  limit;
   //
   //  TODO:  Incorporate the Places-search constraint code here.
   //  TODO:  Allow for airborne pathing.
@@ -39,42 +39,76 @@ public class PathSearch extends Search <Boarding> {
     if (dest == null) I.complain("NO DESTINATION!");
     this.destination = dest;
     this.closest     = init;
-    this.closestDist = Spacing.distance(init, dest);
-    this.aimPoint    = boardPoint(destination);
-    if (limit) this.maxSearched = searchLimit(init, dest, aimPoint);
+    this.limit       = limit;
   }
   
   
-  protected Boarding boardPoint(Boarding aims) {
+  
+  /**  Additional utility methods for setup and screening-
+    */
+  public void assignClient(Mobile client) {
+    this.client    = client;
+    this.useDanger = (client instanceof Actor);
+  }
+  
+  
+  public static boolean canApproach(Target aims, Mobile client) {
+    return approachTile(aims, client) != null;
+  }
+  
+  
+  public static Tile approachTile(Target aims, Mobile client) {
     while (true) {
-      if (aims instanceof Tile) {
-        if (aims != destination && ((Tile) aims).blocked()) {
-          I.say(
-            "\nPROBLEM WITH PATHING SEARCH: "+
-            "\n  Between "+this.init+" and "+this.destination+
-            "\n  "+aims+" IS A BLOCKED AIMING-POINT!"
-          );
-          BaseUI.current().tracking.lockOn(aims);
-          BaseUI.currentPlayed().intelMap.liftFogAround(aims, 5);
-          break;
+      if (blockedBy(aims, client)) return null;
+      if (aims instanceof Tile) return (Tile) aims;
+      
+      if (aims instanceof Property) {
+        aims = ((Property) aims).mainEntrance();
+      }
+      if (aims instanceof Boarding) {
+        for (Boarding c : ((Boarding) aims).canBoard()) {
+          if (c instanceof Tile) { aims = (Tile) c; break; }
         }
       }
-      Boarding entrance = null;
-      if (aims instanceof Property) {
-        entrance = ((Property) aims).mainEntrance();
+      if (aims instanceof Mobile) {
+        aims = ((Mobile) aims).aboard();
       }
-      if (entrance == null) break;
-      
-      if (! Visit.arrayIncludes(entrance.canBoard(), aims)) {
-        I.complain(
-          "\nPROBLEM WITH PATHING SEARCH: "+
-          "\n  Between "+this.init+" and "+this.destination+
-          "\n  "+entrance+" DOES NOT LEAD BACK TO "+aims+"!"
-        );
-      }
-      aims = entrance;
     }
-    return aims;
+  }
+  
+  
+  public static boolean blockedBy(Target t, Mobile m) {
+    if (t == null || ! t.inWorld()) return true;
+    if (! (t instanceof Boarding)) return false;
+    return blockedBy((Boarding) t, m);
+  }
+  
+  
+  //
+  //  TODO:  This all seems terribly complicated for such a frequently-used
+  //  function.  Any way to simplify?
+  
+  private static boolean blockedBy(final Boarding b, final Mobile client) {
+    if (b.boardableType() == Boarding.BOARDABLE_TILE) {
+      return b.pathType() == Tile.PATH_BLOCKS;
+    }
+    else if (client != null) {
+      final boolean
+        exists = b.inWorld(),
+        allows = (b == client.aboard()) || b.allowsEntry(client),
+        blocks = b.pathType() == Tile.PATH_BLOCKS;
+      
+      if (blocksVerbose && I.talkAbout == client) {
+        I.say("Assessing blockage at: "+b);
+        I.say("  Still in world? "+exists );
+        I.say("  Forbids entry? "+! allows);
+        I.say("  Blocks passage? "+blocks );
+      }
+      if (exists && (allows || ! blocks)) return false;
+      //if (mobile != null && mobile.position().z > b.height()) return false;
+      return true;
+    }
+    return false;
   }
   
   
@@ -89,13 +123,15 @@ public class PathSearch extends Search <Boarding> {
   }
   
   
-  public void assignClient(Mobile client) {
-    this.client    = client;
-    this.useDanger = (client instanceof Actor);
-  }
   
-  
+  /**  Actual search performance/execution-
+    */
   public PathSearch doSearch() {
+    this.aimPoint    = approachTile(destination, client);
+    this.closestDist = Spacing.distance(init, destination);
+    if (aimPoint == null) aimPoint = destination;
+    if (limit) this.maxSearched = searchLimit(init, destination, aimPoint);
+    
     if (verbose) {
       I.say("Searching for path between "+init+" and "+destination);
       I.say("  Search limit: "+maxSearched+", aim point: "+aimPoint);
@@ -137,9 +173,6 @@ public class PathSearch extends Search <Boarding> {
   }
   
   
-  
-  /**  Actual search-execution methods-
-    */
   protected Boarding[] adjacent(Boarding spot) {
     return spot.canBoard();
   }
@@ -168,43 +201,6 @@ public class PathSearch extends Search <Boarding> {
   }
   
   
-  public static boolean blockedBy(Target t, Mobile m) {
-    if (t == null || ! t.inWorld()) return true;
-    if (! (t instanceof Boarding)) return false;
-    return blockedBy((Boarding) t, m);
-  }
-  
-  
-  //
-  //  TODO:  This all seems terribly complicated for such a frequently-used
-  //  function.  Any way to simplify?
-  
-  //  TODO:  Each client should be able to override a method to specify this.
-  
-  private static boolean blockedBy(final Boarding b, final Mobile mobile) {
-    if (b.boardableType() == Boarding.BOARDABLE_TILE) {
-      return b.pathType() == Tile.PATH_BLOCKS;
-    }
-    else if (mobile != null) {
-      final boolean
-        exists = b.inWorld(),
-        allows = (b == mobile.aboard()) || b.allowsEntry(mobile),
-        blocks = b.pathType() == Tile.PATH_BLOCKS;
-      
-      if (blocksVerbose && I.talkAbout == mobile) {
-        I.say("Assessing blockage at: "+b);
-        I.say("  Still in world? "+exists );
-        I.say("  Forbids entry? "+! allows);
-        I.say("  Blocks passage? "+blocks );
-      }
-      if (exists && (allows || ! blocks)) return false;
-      //if (mobile != null && mobile.position().z > b.height()) return false;
-      return true;
-    }
-    return false;
-  }
-  
-  
   protected boolean canEnter(final Boarding spot) {
     return spot != null && ! blockedBy(spot, client);
   }
@@ -223,38 +219,4 @@ public class PathSearch extends Search <Boarding> {
 }
 
 
-
-/*
-if (m == null || m.motion == null || m.aboard() == b) return false;
-final Tile o = m.origin();
-final Series <Mobile> inside = t.inside();
-if (inside == null || inside.size() < 1) return false;
-int xd = o.x - t.x, yd = t.y - o.y;
-if (xd < 0) xd *= -1;
-if (yd < 0) yd *= -1;
-final Target PT = m.motion.target();
-
-if (xd <= 2 && yd <= 2) {
-  for (Mobile i : inside) if (i != m && i != PT) {
-    return true;
-  }
-}
-//*/
-
-//  TODO:  
-/*
-if (aimPoint != null) {
-  if (! venue.isEntrance(aimPoint)) {
-    I.complain(
-      "DESTINATION "+destination+" CANNOT ACCESS AIM POINT: "+aimPoint
-    );
-  }
-  if (! Visit.arrayIncludes(aimPoint.canBoard(null), destination)) {
-    I.complain(
-      "AIM POINT: "+aimPoint+" CANNOT ACCESS DESTINATION: "+destination
-    );
-  }
-}
-else aimPoint = venue;
-//*/
 

@@ -35,10 +35,10 @@ public class PlacingTask implements UITask {
     this.UI = UI;
     this.placeType = placeType;
     
-    if      (placeType.hasProperty(Venue.IS_ZONED )) mode = MODE_AREA;
-    else if (placeType.hasProperty(Venue.IS_LINEAR)) mode = MODE_LINE;
+    if      (placeType.hasProperty(Structure.IS_ZONED )) mode = MODE_AREA;
+    else if (placeType.hasProperty(Structure.IS_LINEAR)) mode = MODE_LINE;
     else mode = MODE_POINT;
-    gridLock = placeType.hasProperty(Venue.IS_GRIDDED);
+    gridLock = placeType.hasProperty(Structure.IS_GRIDDED);
   }
   
   
@@ -253,13 +253,30 @@ public class PlacingTask implements UITask {
   
   
   public static boolean isBeingPlaced(Target e) {
-    final BaseUI UI = BaseUI.current();
-    if (UI == null || ! (UI.currentTask() instanceof PlacingTask)) return false;
-    final PlacingTask task = (PlacingTask) UI.currentTask();
-    for (Venue v : task.placeItems.values()) if (e == v) return true;
+    final PlacingTask task = currentPlacement();
+    if (task != null) for (Venue v : task.placeItems.values()) {
+      if (e == v) return true;
+    }
     return false;
   }
+  
+  
+  public static boolean isBeingPlaced(Blueprint b) {
+    final PlacingTask task = currentPlacement();
+    if (task != null) for (Venue v : task.placeItems.values()) {
+      if (v.blueprint == b) return true;
+    }
+    return false;
+  }
+  
+  
+  private static PlacingTask currentPlacement() {
+    final BaseUI UI = BaseUI.current();
+    if (UI == null || ! (UI.currentTask() instanceof PlacingTask)) return null;
+    return (PlacingTask) UI.currentTask();
+  }
 }
+
 
 
 

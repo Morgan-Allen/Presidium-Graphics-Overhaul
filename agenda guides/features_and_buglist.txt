@@ -1,74 +1,26 @@
 
-
-BETTER UI INFO/HELP SYSTEM
-
-*  More help on how to get goods for export.  Include a general help-system
-  somewhere- from the markets pane, say.  Try to combine 'markets' and
-  'budgets' into a single panel (that, or give them two buttons.)
-*  Say when the next ship is arriving somewhere- under either the personnel or
-   markets pane (or both.)
-*  Fix bug with scrolling between different panes.
-
-*  Add illustrations to tutorial messages.  (The tutorial in general needs to
-   be debugged.)
-
-*  You need to properly explain click-and-drag for zoned/linear structures.
-   (Either that, or use default areas.)
-
-*  Try to include the ability to 'ping' areas of the screen for attention, and
-   include that as part of the tutorial process.
+THE TUTORIAL
 
 
-CLEANING UP THE ECONOMY:
+*  And I think I still need to explain security missions.  (And make sure the
+   artilects are more proactive as raiders.)
 
-*  A number of structures need bigger footprints, which will require some art
-   changes.  Look into that.
+*  If a mission is selected and then completes while looking at a different
+   panel, the selection-circle can persist.  (That might need a change to the
+   selection-system?)
 
-*  Try merging the solar bank with the nursery- or the latter with eco station
-*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
-   the excavation site, former plant, kommando lodge & eco station- take up
-   big plots.
-   
-*  Estimate output for nurseries, excavations, former plants, solar banks.
+*  Show missions on the minimap, along with proper tool-tips.
 
-*  List total earnings for specific buildings.  Breakdown expenses more finely.
-   Restore shortage listing for homelessness.
-
-*  Unavailable structures should be greyed out in the listings.
-*  Consider restricting access to some of these structures based on house-
-   philosophy or lack of expertise.
-   House Procyon- has culture lab, lacks eco station.
-   House Altair-  has archives, lacks stock exchange.
-   House Taygeta- has runner lodge, lacks enforcer bloc.
-   House Suhail-  has kommando lodge, lacks reactor.
-
-*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
-
-*  Consider making within-settlement deliveries cost-free?
-
-*  Allow rations-production to satisfy need to eat.
-
-
-TACTICAL AND OUTDOORS
-
-*  Exploring needs a note that it doesn't work at night.
-
-*  Get vermin into the game again!
-*  Nocturnal trait.  "They mostly come at night.  Mostly."
-
-*  Try to ensure more concerted mission-behaviours- form up on a single leader
-   if possible (alive, high-ranked, first in group.)
-
-*  Ensure raiders will attempt to besiege intervening walls!
-*  More vigorous attacks after a few days from artilects, etc.
-*  Notifications for casualties and base attacks.
-
-*  There is very noticeable slowdown on large maps every 2 seconds or so.
-   Profile and FIND OUT WHY.
+*  Fill up venues once the economic-part is done!
 
 
 
 BUILDINGS AND ECONOMY-
+
+*  Apply shipping-cost penalties, so that you can import what you like, but can't
+   always export.
+
+*  Try merging the solar bank with the nursery- or the latter with eco station
 
 *  Use service hatches to initiate heavier paving and utility-transmission?
 
@@ -98,12 +50,33 @@ BUILDINGS AND ECONOMY-
 
 *  Finalise perimeter fence artwork.
 
+*  Use the Fabricator exclusively to make luxury outfits and public decoration
+   for fancy houses and the nobility.  Common plastics get made at the engineer,
+   along with common outfits (or possibly at the stock exchange.)
+
+*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
+   the excavation site, former plant, kommando lodge & eco station- take up
+   big plots.
+
+*  Consider restricting access to some of these structures based on house-
+   philosophy or lack of expertise.
+   House Procyon- has culture lab, lacks eco station.
+   House Altair-  has archives, lacks stock exchange.
+   House Taygeta- has runner lodge, lacks enforcer bloc.
+   House Suhail-  has kommando lodge, lacks reactor.
+
+*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
+
+*  Allow rations-production to satisfy need to eat.
+
+
 
 CITIZEN BEHAVIOUR-
 
-*  Actors should be doing more to dispose of bodies.  Burial or recyling.
+*  Citizens are too eager to embark on tasks in distant areas.  (BringUtils
+   needs to ignore sources that are too far away- that's for bulk transport.)
 
-*  Citizens need to migrate offworld if unhappy/unemployed enough.
+*  Actors should be doing more to dispose of bodies.  Burial or recyling.
 
 *  There needs to be a super-fast system for testing pathability to different
    areas of the map.  (And maybe caching dangers en-route?)
@@ -113,18 +86,22 @@ CITIZEN BEHAVIOUR-
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
    ashore' every day or two, but those can't respond to job-demand as such.
 
+*  Citizens need to migrate offworld if unhappy/unemployed enough.
+
   >>>>>>> DO THIS <<<<<<<
 *  Proper evaluation of mood and memory-events.
 
-*  General internal clean-up of plan routines.  (Look in PlanUtils.)
-    Consider having the actor's agenda contain *only* plans:   Actions and
-    Missions can be handled separately.
+*  Consider having the actor's agenda contain *only* plans:   Actions and
+   Missions can be handled separately.  (And unify the priority/step evals.)
 
 *  Hide-and-seek needs to be more effective (for retreat, looting and combat.)
 
 *  Figure out entry-permissions for structures and guests, and/or sieges.  (It's
    also possible for long-range pathing to go kaput when it requires going
    through structures that don't permit it, like shield walls for animals.)
+
+*  Vehicles need to be salvaged along with their parent structures.
+
 
 
 CONTROL AND DIRECTION-
@@ -144,7 +121,17 @@ CONTROL AND DIRECTION-
    independant casting independantly (with reduced skill rank.)
 
 
+
 ENEMIES AND ENVIRONMENT-
+
+*  A lot of trees seem to 'die off' immediately when you start a fresh flora-
+   filled map.  Find out why.
+
+*  Get vermin into the game again!
+*  Nocturnal trait.  "They mostly come at night.  Mostly."
+
+*  Ensure raiders will attempt to besiege intervening walls!
+*  More vigorous attacks after a few days from artilects, etc.
 
 *  Try to polish up the Flora- have it look more exotic.
 
@@ -162,7 +149,23 @@ ENEMIES AND ENVIRONMENT-
    vermin behaviours.
 
 
+*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
+   The slowdown must be in those path-routines.
+
+*  There is very noticeable slowdown on large maps every 2 seconds or so.
+   Profile and FIND OUT WHY.
+   TODO:  Consider using jHiccup for this:
+   http://www.azulsystems.com/javaperformancetuning/
+   chart-java-jitter-with-jhiccup
+
+
+
 INTERFACE AND DEBUGGING
+
+*  Notifications for casualties and base attacks.
+
+*  List total earnings for specific buildings.  Breakdown expenses more finely.
+   Restore shortage listing for homelessness.
 
 *  Icons could be clearer, at least in the early game.
 
@@ -170,6 +173,10 @@ INTERFACE AND DEBUGGING
    and other situations.  Add those in later.
 
 *  Merge BaseCommerce with either the Verse class and/or the BaseAdvice class.
+
+*  Re-introduce the Planets/Sectors pane, and build the markets-report into
+   that for each world.  Then finance can stay on it's own.  (Add little
+   portraits for each world in the partners-listing too.  Use current art!)
 
 *  Try to implement some global debugging-levels.
 
@@ -189,5 +196,26 @@ INTERFACE AND DEBUGGING
 *  Read definitions from .xml and allow for later string translations.
 
 *  Try to use right-click for something?  Add an option for it at least.
+
+
+
+ART, GRAPHICS AND MEDIA PRODUCTION
+
+*  A number of structures need bigger footprints, which will require some art
+   changes.  Look into that.
+
+*  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
+   that.
+
+*  Ensure that .ms3d models loaded without skins show a default material.  (At
+   the moment they don't.)
+
+*  .ms3d model loading is extremely slow for some reason.
+
+*  Attempt using blender again.
+   http://waldobronchart.github.io/ShortcutMapper/#Blender
+   Emulate numeric pad in User Preferences/Input and by checking Emulate Numpad
+
+
 
 

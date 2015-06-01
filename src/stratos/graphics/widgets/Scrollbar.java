@@ -47,8 +47,13 @@ public class Scrollbar extends UINode {
   }
   
   
-  protected float scrollPos() {
+  public float scrollPos() {
     return scrollPos;
+  }
+  
+  
+  public void setScrollPos(float pos) {
+    this.scrollPos = pos;
   }
   
   

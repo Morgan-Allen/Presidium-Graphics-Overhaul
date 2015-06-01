@@ -5,12 +5,15 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.Mission;
 import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.util.*;
 
+
+//  TODO:  Don't refer to the Shield Wall explicitly?  Use a public interface?
 
 
 public class Patrolling extends Plan implements TileConstants, Qualities {
@@ -79,38 +82,42 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   /**  Obtaining and evaluating patrols targets-
     */
   final static Trait BASE_TRAITS[] = { FEARLESS, IGNORANT, SOLITARY };
-  final static Skill BASE_SKILLS[] = { SURVEILLANCE, FORENSICS };
-  
-  //  TODO:  Include bonus from first aid or assembly skills, depending on the
-  //  target?
 
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    //final boolean report = evalVerbose && I.talkAbout == actor;
     if (onPoint == null || patrolled.size() == 0) return 0;
     
     float urgency, relDanger = 0;
     if (actor.base() != null) for (Target t : patrolled) {
       relDanger += actor.base().dangerMap.sampleAround(t, Stage.ZONE_SIZE);
     }
-    relDanger /= patrolled.size();
-    urgency = Nums.clamp(relDanger * ROUTINE, IDLE, ROUTINE);
+    urgency = Nums.clamp(relDanger / patrolled.size(), 0, 1);
     
     float modifier = 0 - actor.senses.fearLevel();
     if (actor.senses.isEmergency()) addMotives(MOTIVE_EMERGENCY);
     
-    final float priority = priorityForActorWith(
-      actor, guarded,
-      urgency, modifier,
-      MILD_HELP, NO_COMPETITION, REAL_FAIL_RISK,
-      BASE_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
+    if (! PlanUtils.isArmed(actor)) setCompetence(0);
+    else setCompetence(successChanceFor(actor));
+    
+    //  TODO:  Include bonus from first aid or assembly skills, depending on the
+    //  target and damage done.
+    
+    final float priority = PlanUtils.jobPlanPriority(
+      actor, this, urgency + modifier, competence(),
+      -1, Plan.REAL_FAIL_RISK, BASE_TRAITS
     );
-    if (report) {
-      I.say("\nExtra patrolling factors:");
-      I.say("  Relative danger: "+relDanger);
-      I.say("  Base urgency:    "+urgency);
-    }
     return priority;
+  }
+  
+  
+  public float successChanceFor(Actor actor) {
+    
+    //  TODO:  Include bonus from first aid or assembly skills, depending on the
+    //  target and damage done.
+    
+    int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
+    final Tile under = actor.world().tileAt(guarded);
+    return PlanUtils.combatWinChance(actor, under, teamSize);
   }
   
   
@@ -137,19 +144,15 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     final float range = actor.health.sightRange() + 1;
     choice.isVerbose = report;
     
-    for (Action a : world.activities.actionMatches(guarded)) {
-      final Actor t = a.actor();
-      if (PlanUtils.harmIntendedBy(t, actor, true) <= 0) continue;
-      final float dist = Spacing.distance(t, guarded) / range;
-      final float bonus = Plan.ROUTINE * (1 - dist);
-      choice.add(new Combat(actor, (Element) t).setMotivesFrom(this, bonus));
+    final Target target = CombatUtils.bestTarget(actor, guarded, false);
+    if (target != null && Spacing.distance(target, guarded) < range) {
+      choice.add(new Combat(actor, (Element) target).setMotivesFrom(this, 0));
     }
-    
     if (guarded instanceof Actor) {
       choice.add(new FirstAid(actor, (Actor) guarded).setMotivesFrom(this, 0));
     }
     if (guarded instanceof Venue) {
-      choice.add(new Repairs(actor, (Venue) guarded).setMotivesFrom(this, 0));
+      choice.add(new Repairs (actor, (Venue) guarded).setMotivesFrom(this, 0));
     }
     final Behaviour picked = choice.pickMostUrgent();
     if (Choice.wouldSwitch(actor, old, picked, true, report)) {
@@ -418,40 +421,15 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       p.addMotives(Plan.MOTIVE_JOB, priority);
       return p;
     }
-    
-    //  TODO:  Restore sentry duty along shield walls!
-    
-    /*
-    final Venue
-      init = (Venue) world.presences.randomMatchNear(base, origin, range),
-      dest = (Venue) world.presences.randomMatchNear(base, origin, range);
-    
-    if (init instanceof ShieldWall || dest instanceof ShieldWall) {
-      Target pick, other;
-      if (Rand.yes()) { pick = init; other = dest; }
-      else            { pick = dest; other = init; }
-      if (! (pick instanceof ShieldWall)) pick = other;
-      final Patrolling s = Patrolling.sentryDuty(
-        actor, (ShieldWall) pick, Rand.index(8)
-      );
-      if (s != null) {
-        s.setMotive(Plan.MOTIVE_DUTY, priority);
-        return s;
-      }
-    }
-    
-    if (init != null && dest != null) {
-      final Patrolling p = (init == dest) ?
-        Patrolling.aroundPerimeter(actor, init, world) :
-        Patrolling.streetPatrol(actor, init, dest, world);
-      if (p != null) {
-        p.setMotive(Plan.MOTIVE_DUTY, priority);
-        return p;
-      }
-    }
-    //*/
-    
     return null;
+  }
+  
+  
+  public static ShieldWall turretIsAboard(Target t) {
+    if (! (t instanceof Mobile)) return null;
+    final Boarding aboard = ((Mobile) t).aboard();
+    if (aboard instanceof ShieldWall) return (ShieldWall) aboard;
+    else return null;
   }
   
   

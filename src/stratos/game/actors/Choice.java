@@ -135,10 +135,8 @@ public class Choice implements Qualities {
     //
     //  Firstly, acquire the priorities for each plan.  If the permitted range
     //  of priorities is zero, simply return the most promising.
-    
     boolean isEmergency = false;
     for (Behaviour plan : plans) if (plan.isEmergency()) isEmergency = true;
-    isEmergency &= actor.senses.isEmergency();
     
     float bestPriority = 0;
     Behaviour picked = null;
@@ -146,7 +144,8 @@ public class Choice implements Qualities {
     int i = 0;
     
     for (Behaviour plan : plans) {
-      if (isEmergency && ! plan.isEmergency()) {
+      final boolean emergency = plan.isEmergency();
+      if (isEmergency && ! emergency) {
         if (report) I.say("  "+plan+" is not an emergency plan!");
         weights[i++] = 0; continue;
       }
@@ -154,7 +153,10 @@ public class Choice implements Qualities {
       final float priority = plan.priorityFor(actor);
       if (priority > bestPriority) { bestPriority = priority; picked = plan; }
       weights[i++] = priority;
-      if (report) I.say("  "+plan+" has priority: "+priority);
+      if (report) {
+        I.say("  Considering- "+plan);
+        I.say("    Priority "+priority+", emergency "+emergency);
+      }
     }
     if (! free) {
       if (report) {
@@ -210,6 +212,7 @@ public class Choice implements Qualities {
     boolean report
   ) {
     report &= verboseSwitch;
+    
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null || ! checkPlanValid(next, actor, report)) return false;
     if (last == null || ! checkPlanValid(last, actor, report)) return true ;

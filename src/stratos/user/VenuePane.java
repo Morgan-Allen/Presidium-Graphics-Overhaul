@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -13,22 +16,18 @@ import static stratos.game.economic.Economy.*;
 
 
 
-//  NOTE:  I'm moving these methods here essentially for the sake of reducing
-//  clutter/space demands within the main Venue class.
-
-//  TODO:  At this point, you might as well write some custom widgets.
+//  TODO:  At this point, you might as well write some custom widgets here...
 
 public class VenuePane extends SelectionPane {
   
   
   final public static String
-    CAT_UPGRADES = "UPGRADE" ,
-    CAT_STOCK    = "STOCK"   ,
-    CAT_STAFFING = "STAFFING",
+    CAT_UPGRADES = "UPGRADE",
+    CAT_STOCK    = "STOCK"  ,
+    CAT_STAFFING = "STAFF"  ,
     DEFAULT_CATS[] = { CAT_UPGRADES, CAT_STOCK, CAT_STAFFING };
   
-  final Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
-  private Upgrade lastCU = null;
+  final public Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private Actor dismissing = null;
  
   
@@ -85,6 +84,8 @@ public class VenuePane extends SelectionPane {
   }
 
   
+  //  TODO:  Move this to the Sectors-pane, to set trade-sanctions and prices
+  //  for specific partners.
   
   private void describeStockOrders(Description d, Traded types[], BaseUI UI) {
     d.append("Orders:");
@@ -188,65 +189,68 @@ public class VenuePane extends SelectionPane {
   }
   
   
+  
+  /**  Listing demands, inventory and special items-
+    */
+  final static Traded ITEM_LIST_ORDER[] = (Traded[]) Visit.compose(
+    Traded.class, ALL_PROVISIONS, ALL_MATERIALS, ALL_SPECIAL_ITEMS
+  );
+  
   protected void describeStocks(Description d, BaseUI UI) {
     d.append("Stocks and Provisions:");
     
-    //  TODO:  Just use stock-demands for both these things?
-    for (Traded t : Economy.ALL_PROVISIONS) {
-      final float output = v.structure.outputOf(t);
-      final float demand = v.stocks.demandFor(t);
-      if (output <= 0 && demand <= 0) continue;
-      Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append("  ");
-      
-      if (output > 0) {
-        d.append(t+" Output: "+I.shorten(output, 1));
-      }
-      else if (demand > 0) {
-        final float supply = v.stocks.amountOf(t);
-        d.append(I.shorten(supply, 1)+"/"+I.shorten(demand, 1)+" "+t);
-      }
-    }
-    for (Traded type : ALL_MATERIALS) {
-      describeStocks(type, d);
+    final Traded[] demands = v.stocks.demanded();
+    final Batch <Item> special = new Batch();
+    for (Traded t : ITEM_LIST_ORDER) {
+      if (Visit.arrayIncludes(demands, t) && t.common()) describeStocks(t, d);
+      else for (Item i : v.stocks.matches(t)) special.add(i);
     }
     
-    Text.cancelBullet(d);
-    d.append("\nOther Items:");
-    for (Item i : v.stocks.allItems()) if (! i.isCommon()) {
-      d.append("\n  ");
-      i.describeTo(d);
+    if (! special.empty()) {
+      Text.cancelBullet(d);
+      d.append("\nOther Items:");
+      for (Item i : special) {
+        d.append("\n  ");
+        i.describeTo(d);
+      }
     }
-    
-    Text.cancelBullet(d);
-    d.append("\nSpecial Orders:");
-    for (Item i : v.stocks.specialOrders()) {
-      d.append("\n  ");
-      i.describeTo(d);
+    if (v.stocks.specialOrders().size() > 0) {
+      Text.cancelBullet(d);
+      d.append("\nSpecial Orders:");
+      for (Item i : v.stocks.specialOrders()) {
+        d.append("\n  ");
+        i.describeTo(d);
+      }
     }
-    //if (empty) d.append("\n  No stocks or orders.");
   }
   
   
   protected boolean describeStocks(Traded type, Description d) {
-    if (type.form != FORM_MATERIAL) return false;
-    
     final float needed = v.stocks.demandFor(type);
-    final float amount = v.stocks.amountOf(type);
+    final float amount = v.stocks.amountOf (type);
     if (needed == 0 && amount == 0) return false;
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
-    d.append("  "+I.shorten(amount, 1)+" "+type.name);
+    d.append("  "+I.shorten(amount, 1)+" ");
+    d.append(type);
     
-    final String nS = I.shorten(needed, 1);
-    d.append(" /"+nS);
-    if (v.stocks.producer(type)) d.append(" (producer)");
-    else d.append(" (consumer)");
+    if (type.form == FORM_PROVISION && needed == amount) {
+      if (v.stocks.producer(type)) d.append(" Output");
+      else d.append(" Used");
+    }
+    else {
+      final String nS = I.shorten(needed, 1);
+      d.append(" /"+nS);
+      if (v.stocks.producer(type)) d.append(" (producer)");
+      else d.append(" (consumer)");
+    }
     return true;
   }
   
   
   
+  /**  Describing personnel, visitors and residents-
+    */
   private void describeStaffing(Description d, BaseUI UI) {
     final Background c[] = v.careers();
     Batch <Actor> mentioned = new Batch <Actor> ();
@@ -332,7 +336,7 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  private void describeUpgrades(Description d, BaseUI UI) {
+  private void describeUpgrades(Description d, final BaseUI UI) {
     if (! v.structure().intact()) {
       d.append("Upgrades unavailable while under construction.");
       return;
@@ -342,47 +346,33 @@ public class VenuePane extends SelectionPane {
     //  they haven't started just yet.
     //  TODO:  Also- don't allow upgrades until the structure is finished
     //  building!  (Conversely, DO allow hiring before then.)
-    final Upgrade UA[] = Upgrade.upgradesFor(v.getClass());
+    final Upgrade UA[] = Upgrade.upgradesFor(v.blueprint);
     if (UA == null || UA.length == 0) {
       d.append("No upgrades available.");
       return;
     }
-    
     final Colour grey = Colour.LITE_GREY;
     
-    if (lastCU != null) {
-      d.append("\n");
-      d.append(lastCU.description, Colour.LITE_GREY);
-      for (Upgrade u : lastCU.required) {
-        d.append("\n  Requires: "+u.baseName);
-      }
-      if (! v.structure.upgradePossible(lastCU)) {
-        d.append("\n\n");
-        d.append(v.structure.upgradeError(lastCU));
-      }
-      d.append("\n\n");
-      d.append(new Description.Link("BACK") {
-        public void whenClicked() { lastCU = null; }
-      });
-    }
+    int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades();
+    if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
     
-    else for (final Upgrade upgrade : UA) {
+    for (final Upgrade upgrade : UA) {
+      final String name = upgrade.nameAt(v, -1, null);
       final int cost = upgrade.buildCost;
       final boolean possible =
         v.structure.upgradePossible(upgrade) &&
-        cost <= v.base().finance.credits()
-      ;
+        cost <= v.base().finance.credits();
       final int
         level  = v.structure.upgradeLevel(upgrade, Structure.STATE_INTACT ),
         queued = v.structure.upgradeLevel(upgrade, Structure.STATE_INSTALL);
-      if (level + queued == 0 && ! possible) continue;
-      
-      final String name = upgrade.nameAt(v, -1, null);
-      d.append("\n"+name);
-      if (possible) d.append("  ("+cost+" Credits)");
+      if ((! possible) && (level + queued == 0)) continue;
       
       d.append("\n  ");
-      final String desc = "INSTALL";
+      if (possible) d.append(name);
+      else d.append(name, grey);
+      
+      d.append("\n  ");
+      String desc = "INSTALL";
       if (possible) d.append(new Description.Link(desc) {
         public void whenClicked() {
           v.structure.beginUpgrade(upgrade, false);
@@ -391,10 +381,9 @@ public class VenuePane extends SelectionPane {
       });
       else d.append(desc, grey);
       
-      d.append("  ");
-      d.append(new Description.Link("INFO") {
-        public void whenClicked() { lastCU = upgrade; }
-      });
+      d.append(" ("+(level + queued)+"/"+upgrade.maxLevel+")");
+      if (possible) d.append(" ("+cost+" Credits)");
+      d.append(" (INFO)", upgrade);
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();
@@ -415,8 +404,7 @@ public class VenuePane extends SelectionPane {
   
   
   private void describeOrders(Description d) {
-    d.append("\n");
-    d.append("\nOrders:");
+    d.append("\n  Orders:");
     
     final Batch <Description.Link> orders = new Batch();
     addOrdersTo(orders);
@@ -500,7 +488,8 @@ public class VenuePane extends SelectionPane {
   public static void descActor(Mobile m, Description d, BaseUI UI) {
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
-      if (p != null) Text.insert(p.delayedImage(UI), 40, 40, true, d);
+      final String ID = ""+m.hashCode();
+      if (p != null) Text.insert(p.delayedImage(UI, ID), 40, 40, true, d);
       else d.append("\n");
     }
     else d.append("\n\n  ");

@@ -23,15 +23,45 @@ import static stratos.game.economic.Economy.*;
 public class JoinMission extends Plan {
   
   
+  /**  Data fields, constructors and save/load methods-
+    */
   private static boolean
     evalVerbose  = false,
     stepsVerbose = false;
   final Mission mission;
   
   
+  private JoinMission(Actor actor, Mission mission) {
+    super(actor, mission.subject(), MOTIVE_PERSONAL, NO_HARM);
+    this.mission = mission;
+    //this.admin = admin;
+  }
+
+
+  public JoinMission(Session s) throws Exception {
+    super(s);
+    mission = (Mission) s.loadObject();
+    //admin = (Venue) s.loadObject();
+  }
   
+  
+  public void saveState(Session s) throws Exception {
+    super.saveState(s);
+    s.saveObject(mission);
+    //s.saveObject(admin);
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new JoinMission(other, mission);
+  }
+  
+  
+  
+  /**  Assorted utility methods used externally-
+    */
   public static JoinMission attemptFor(Actor actor) {
-    if (actor.mind.mission() != null) {
+    if (actor.mind.mission() != null || ! actor.health.conscious()) {
       return null;
     }
     final boolean report = evalVerbose && I.talkAbout == actor;
@@ -78,10 +108,10 @@ public class JoinMission extends Plan {
       choice.add(step);
       steps.add(step);
       missions.add(mission);
-
+      
       if (report) {
         I.say("\n  Mission is: "+mission);
-        I.say("  apply point:  "+mission.applyPointFor(actor));
+        I.say("  apply point:  "+applyPointFor(actor, mission));
         I.say("  priority:     "+priority);
         I.say("  next step:    "+mission.nextStepFor(actor, true));
       }
@@ -101,7 +131,18 @@ public class JoinMission extends Plan {
   }
   
   
-  protected static float competence(Actor actor, Mission mission) {
+  private static Target applyPointFor(Actor actor, Mission mission) {
+    final int type = mission.missionType();
+    if (type == Mission.TYPE_BASE_AI) return actor;
+    if (type == Mission.TYPE_PUBLIC ) return actor;
+    
+    //  TODO:  BE STRICTER ABOUT THIS
+    if (mission.base().HQ() == null) return actor;
+    return mission.base().HQ();
+  }
+  
+  
+  public static float competence(Actor actor, Mission mission) {
     if (! (actor instanceof Human)) return 1;
     final Behaviour step = mission.nextStepFor(actor, true);
     if (step == null) return 0;
@@ -109,34 +150,6 @@ public class JoinMission extends Plan {
     step.priorityFor(actor);
     if (step instanceof Plan) return ((Plan) step).competence();
     else return 1;
-  }
-  
-  
-  
-  
-  private JoinMission(Actor actor, Mission mission) {
-    super(actor, mission.subject(), MOTIVE_PERSONAL, NO_HARM);
-    this.mission = mission;
-    //this.admin = admin;
-  }
-
-
-  public JoinMission(Session s) throws Exception {
-    super(s);
-    mission = (Mission) s.loadObject();
-    //admin = (Venue) s.loadObject();
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    super.saveState(s);
-    s.saveObject(mission);
-    //s.saveObject(admin);
-  }
-  
-  
-  public Plan copyFor(Actor other) {
-    return new JoinMission(other, mission);
   }
   
   
@@ -184,7 +197,7 @@ public class JoinMission extends Plan {
       return joins;
     }
     
-    final Target applyPoint = mission.applyPointFor(actor);
+    final Target applyPoint = applyPointFor(actor, mission);
     if (applyPoint == null) {
       I.complain("NO APPLY POINT FOR "+mission);
       return null;

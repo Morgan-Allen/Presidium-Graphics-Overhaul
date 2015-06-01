@@ -2,6 +2,7 @@
 
 package stratos.game.actors;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.util.*;
 
 
@@ -100,6 +101,12 @@ public class SenseUtils {
     }
     for (Tile t : considered) t.flagWith(null);
     
+    //
+    //  There's a special dispensation here for actors inside defensive turrets
+    //  and the like- we allow them to ignore their current platform for line-
+    //  of-sight purposes.
+    final Target platform = Patrolling.turretIsAboard(origin);
+    
     //  Then, we check to see if any such tiles are actually blocked, and
     //  perform a more exacting intersection test-
     if (reports) {
@@ -109,7 +116,7 @@ public class SenseUtils {
     }
     boolean blocked = false;
     boolean onRight, onLeft;
-    for (Tile t : considered) if (t.blocked()) {
+    for (Tile t : considered) if (t.blocked() && t.onTop() != platform) {
       if (t == target || t.onTop() == target) continue;
       
       //  We first check whether the centre of the tile in question falls

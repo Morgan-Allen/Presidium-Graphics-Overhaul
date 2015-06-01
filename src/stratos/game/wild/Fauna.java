@@ -388,7 +388,7 @@ public abstract class Fauna extends Actor {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final SelectionPane p = ActorDescription.configSimplePanel(this, panel, UI);
     final int BP = (int) (breedMetre * 100);
     p.listing().append("\n  Breeding condition: "+BP+"%");

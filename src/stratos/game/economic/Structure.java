@@ -5,17 +5,30 @@
   */
 package stratos.game.economic;
 import stratos.game.actors.*;
-import stratos.game.civic.ShieldWall;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
 import stratos.user.*;
 import stratos.graphics.common.*;
+import stratos.game.civic.ShieldWall;
+//import static stratos.game.economic.Venue.*;
 
 
 
 //  TODO:  Many of the sub-components here could probably be moved out to the
-//  VenueProfile class.
+//  Blueprint class.
+
+//  TODO:  MERGE THESE WITH VENUE-PROPERTIES INSTEAD!
+/*
+final public static int
+  TYPE_VENUE   = 0,
+  TYPE_FIXTURE = 1,
+  TYPE_VEHICLE = 2,
+  TYPE_CRAFTED = 3,
+  TYPE_ANCIENT = 4,
+  TYPE_ORGANIC = 5;
+//*/
+
 
 
 public class Structure {
@@ -45,8 +58,7 @@ public class Structure {
   final public static Upgrade 
     FACING_CHANGE = new Upgrade(
       "Facing Change", "",
-      0, Upgrade.SINGLE_LEVEL, null, 1,
-      null, Structure.class
+      0, Upgrade.SINGLE_LEVEL
     );
   
   
@@ -86,14 +98,18 @@ public class Structure {
     "N/A"
   };
   
-  //  TODO:  MERGE THESE WITH VENUE-PROPERTIES INSTEAD!
   final public static int
-    TYPE_VENUE   = 0,
-    TYPE_FIXTURE = 1,
-    TYPE_VEHICLE = 2,
-    TYPE_CRAFTED = 3,
-    TYPE_ANCIENT = 4,
-    TYPE_ORGANIC = 5;
+    IS_NORMAL  = 0 ,
+    IS_VEHICLE = 1 ,
+    IS_FIXTURE = 2 ,
+    IS_LINEAR  = 4 ,
+    IS_ZONED   = 8 ,
+    IS_GRIDDED = 16,
+    IS_UNIQUE  = 32,
+    IS_WILD    = 64,
+    IS_CRAFTED = 128,
+    IS_ANCIENT = 256,
+    IS_ORGANIC = 512;
   
   final public static int
     NO_UPGRADES         = 0,
@@ -112,11 +128,11 @@ public class Structure {
   
   final Basis basis;
   private Basis group[];
-
-  private int structureType = TYPE_VENUE       ;
+  
+  private int properties    = IS_NORMAL        ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
   private int maxUpgrades   = NO_UPGRADES      ;
-  private Item materials[], outputs[];
+  private Item materials[];
   private int
     buildCost     = DEFAULT_BUILD_COST,
     armouring     = DEFAULT_ARMOUR    ,
@@ -149,7 +165,7 @@ public class Structure {
     armouring     = s.loadInt();
     cloaking      = s.loadInt();
     ambienceVal   = s.loadInt();
-    structureType = s.loadInt();
+    properties    = s.loadInt();
     
     state     = s.loadInt()  ;
     integrity = s.loadFloat();
@@ -161,13 +177,12 @@ public class Structure {
       upgrades        = new Upgrade[maxUpgrades];
       upgradeStates   = new int    [maxUpgrades];
       for (int i = 0; i < maxUpgrades; i++) {
-        upgrades[i] = Upgrade.loadFrom(s);
+        upgrades     [i] = (Upgrade) s.loadObject();
         upgradeStates[i] = s.loadInt();
       }
     }
     
     materials = Item.loadItemsFrom(s);
-    outputs   = Item.loadItemsFrom(s);
   }
   
   
@@ -180,7 +195,7 @@ public class Structure {
     s.saveInt(armouring    );
     s.saveInt(cloaking     );
     s.saveInt(ambienceVal  );
-    s.saveInt(structureType);
+    s.saveInt(properties   );
 
     s.saveInt  (state    );
     s.saveFloat(integrity);
@@ -190,13 +205,21 @@ public class Structure {
       s.saveFloat(upgradeProgress);
       s.saveInt(upgradeIndex);
       for (int i = 0; i < maxUpgrades; i++) {
-        Upgrade.saveTo(s, upgrades[i]);
-        s.saveInt(upgradeStates[i]);
+        s.saveObject(upgrades     [i]);
+        s.saveInt   (upgradeStates[i]);
       }
     }
     
     Item.saveItemsTo(s, materials);
-    Item.saveItemsTo(s, outputs  );
+  }
+  
+  
+  public void setupStats(Blueprint blueprint) {
+    setupStats(
+      blueprint.integrity, blueprint.armour,
+      blueprint.buildCost, blueprint.maxUpgrades,
+      blueprint.properties
+    );
   }
   
   
@@ -205,12 +228,12 @@ public class Structure {
     int armouring,
     int buildCost,
     int maxUpgrades,
-    int type
+    int properties
   ) {
-    this.integrity = this.baseIntegrity = baseIntegrity;
-    this.armouring = armouring;
-    this.buildCost = buildCost;
-    this.structureType = type;
+    this.integrity  = this.baseIntegrity = baseIntegrity;
+    this.armouring  = armouring;
+    this.buildCost  = buildCost;
+    this.properties = properties;
     
     this.maxUpgrades = maxUpgrades;
     if (maxUpgrades > 0) {
@@ -241,11 +264,6 @@ public class Structure {
   
   public void assignMaterials(Item... materials) {
     this.materials = materials;
-  }
-  
-  
-  public void assignOutputs(Item... outputs) {
-    this.outputs = outputs;
   }
   
   
@@ -281,8 +299,8 @@ public class Structure {
     ) {
       float wear = 10f / Stage.STANDARD_DAY_LENGTH;
       wear *= baseIntegrity / GameSettings.ITEM_WEAR_DAYS;
-      if (structureType == TYPE_FIXTURE) wear /= 2;
-      if (structureType == TYPE_CRAFTED) wear *= 2;
+      if (Blueprint.hasProperty(this, IS_FIXTURE)) wear /= 2;
+      if (Blueprint.hasProperty(this, IS_CRAFTED)) wear *= 2;
       if (report) I.say("  Wear level: "+wear);
       if (Rand.num() > armouring / (armouring + DEFAULT_ARMOUR)) {
         takeDamage(wear * Rand.num() * 2);
@@ -320,29 +338,29 @@ public class Structure {
   
   
   public boolean flammable() {
-    return structureType == TYPE_VENUE || structureType == TYPE_VEHICLE;
+    return ! isFixture();
   }
   
   
   public boolean takesWear() {
-    return structureType != TYPE_ANCIENT && structureType != TYPE_ORGANIC;
+    if (regenerates()) return false;
+    if (Blueprint.hasProperty(this, IS_ANCIENT)) return false;
+    return true;
   }
   
   
   public boolean regenerates() {
-    return structureType == TYPE_ORGANIC;
+    return Blueprint.hasProperty(this, IS_ORGANIC);
   }
   
   
   public boolean isFixture() {
-    return structureType == TYPE_FIXTURE;
+    return Blueprint.hasProperty(this, IS_FIXTURE);
   }
   
   
-  public float outputOf(Traded outType) {
-    if (outputs == null) return 0;
-    for (Item i : outputs) if (i.type == outType) return i.amount;
-    return 0;
+  public int properties() {
+    return properties;
   }
   
   

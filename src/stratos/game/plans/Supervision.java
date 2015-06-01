@@ -108,15 +108,9 @@ public class Supervision extends Plan {
     }
     if (! venue.staff.onShift(actor)) return 0;
     
-    final float competeFactor = type == Type.TYPE_OVERSIGHT ?
-      FULL_COMPETITION : NO_COMPETITION
-    ;
-    return priorityForActorWith(
-      actor, venue,
-      ROUTINE, NO_MODIFIER,
-      NO_HARM, competeFactor, NO_FAIL_RISK,
-      NO_SKILLS, BASE_TRAITS, PARTIAL_DISTANCE_CHECK,
-      report
+    final int helpLimit = type == Type.TYPE_OVERSIGHT ? 1 : -1;
+    return PlanUtils.jobPlanPriority(
+      actor, this, 0.5f, 1, helpLimit, NO_FAIL_RISK, BASE_TRAITS
     );
   }
   

@@ -17,7 +17,7 @@ public class Condensor extends Venue {
   
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Condensor.class, "media/Buildings/aesthete/PLAZA.png", 3, 2
+    Condensor.class, "media/Buildings/aesthete/condensor.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Condensor.class, "media/GUI/Buttons/condensor_button.gif"
@@ -25,22 +25,21 @@ public class Condensor extends Venue {
   
   final static Blueprint BLUEPRINT = new Blueprint(
     Condensor.class, "condensor",
-    "Condensor", UIConstants.TYPE_HIDDEN,
-    3, 2, IS_FIXTURE,
-    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY
+    "Condensor", UIConstants.TYPE_AESTHETIC, ICON,
+    "The Condensor provides "+WATER+" and "+ATMO+" to the surrounding "+
+    "settlement.",
+    3, 2, Structure.IS_FIXTURE,
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
+    85 ,  // integrity
+    1  ,  // armour
+    200,  // build cost
+    Structure.NO_UPGRADES
   );
   
   
   
   public Condensor(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      85 ,  // integrity
-      1  ,  // armour
-      200,  // build cost
-      0  ,  // max upgrades
-      Structure.TYPE_FIXTURE
-    );
     attachModel(MODEL);
   }
   
@@ -72,14 +71,12 @@ public class Condensor extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (structure.intact()) {
       stocks.forceDemand(POWER, 4, false);
-      structure.assignOutputs(
-        Item.withAmount(ATMO , 10),
-        Item.withAmount(WATER, 5 )
-      );
+      stocks.forceDemand(ATMO, 10, true );
+      stocks.forceDemand(WATER, 5, true );
       structure.setAmbienceVal(5);
     }
     else {
-      structure.assignOutputs();
+      stocks.clearDemands();
       structure.setAmbienceVal(0);
     }
   }
@@ -88,20 +85,8 @@ public class Condensor extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "condensor");
-  }
-  
-  
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "The Condensor provides water and life support to the surrounding "+
-      "settlement.";
   }
 }
 

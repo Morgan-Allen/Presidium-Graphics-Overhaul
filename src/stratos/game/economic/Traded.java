@@ -1,10 +1,15 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.economic;
 import stratos.game.common.*;
-import stratos.graphics.common.ImageAsset;
+import static stratos.game.economic.Economy.*;
+import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.Text;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -12,7 +17,7 @@ import stratos.util.*;
 /**  Used to represent the types of goods and services that venues can provide
   *  or produce.
   */
-public class Traded extends Index.Entry implements Session.Saveable {
+public class Traded extends Constant implements Session.Saveable {
   
   
   final static String
@@ -59,7 +64,7 @@ public class Traded extends Index.Entry implements Session.Saveable {
     int form, int basePrice,
     String description
   ) {
-    super(INDEX, name);
+    super(INDEX, name, name);
     
     this.form = form;
     this.name = name;
@@ -104,13 +109,89 @@ public class Traded extends Index.Entry implements Session.Saveable {
   }
   
   
-  public Conversion materials() { return materials; }
-  public float basePrice() { return basePrice; }
+  public Conversion materials() {
+    return materials;
+  }
+  
+  
+  public float basePrice() {
+    return basePrice;
+  }
+  
+  
+  public boolean common() {
+    return form == FORM_MATERIAL || form == FORM_PROVISION;
+  }
   
   
   
-  public String toString() { return name; }
+  /**  Rendering and interface methods-
+    */
+  public void describeHelp(Description d, Selectable prior) {
+    
+    Text.insert(icon.asTexture(), 20, 20, true, d);
+    d.append(description);
+    d.append("\n  (Base price "+basePrice()+" credits)");
+    Text.cancelBullet(d);
+    
+    
+    final Base base = BaseUI.currentPlayed();
+    if (base == null) return;
+
+    final Batch <Blueprint>
+      canMake = new Batch <Blueprint> (),
+      canUse  = new Batch <Blueprint> ();
+    for (Blueprint b : base.setup.available()) {
+      if (b.category == UIConstants.TYPE_HIDDEN) continue;
+      else if (b.producing(this) != null) canMake.include(b);
+      else if (b.consuming(this) != null) canUse .include(b);
+    }
+    
+    d.append("\n");
+    for (Blueprint b : canUse) {
+      final Conversion c = b.consuming(this);
+      d.append("\nUsed by ");
+      d.append(b);
+      if (c.out != null) { d.append(" to make "); d.append(c.out.type); }
+    }
+    
+    for (Blueprint b : canMake) {
+      final Conversion c = b.producing(this);
+      if (c.raw.length == 0) {
+        d.append("\nMade at ");
+        d.append(b);
+      }
+      else {
+        d.append("\nMade from ");
+        for (Item i : c.raw) { d.append(i.type); d.append(" "); }
+        d.append("at ");
+        d.append(b);
+      }
+    }
+    
+    d.append("\n");
+    final float localShort = base.commerce.primaryShortage(this);
+    if (localShort >= 0) {
+      final int percent = (int) (localShort * 100);
+      d.append("\nLocal demand: "+percent+"% shortage");
+    }
+    else {
+      final int percent = (int) (localShort * -100);
+      d.append("\nLocal demand: "+percent+"% surplus");
+    }
+    final float tradeShort = base.commerce.tradingShortage(this);
+    if (tradeShort >= 0) {
+      final int percent = (int) (tradeShort * 100);
+      d.append("\nTrade demand: "+percent+"% shortage");
+    }
+    else {
+      final int percent = (int) (tradeShort * -100);
+      d.append("\nTrade demand: "+percent+"% surplus");
+    }
+  }
 }
+
+
 
 
 

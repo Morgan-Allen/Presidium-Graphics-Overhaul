@@ -20,8 +20,8 @@ public class BlurMap {
   
   final protected int trueSize, patchSize, gridSize, timePeriod;
   final float patchValues[][];
-  private float globalValue =  0;
-  private float samplerSums = -1;
+  private float globalValue = 0;
+  private float samplerSums = 0;
   
   final public Object parent, key;
   
@@ -99,10 +99,13 @@ public class BlurMap {
   
   
   public float sampleAsFraction(float x, float y, int period) {
-    final float sample = Nums.sampleMap(trueSize, patchValues, x, y);
+    final float sample = gridSize > 1 ?
+      Nums.sampleMap(trueSize, patchValues, x, y) :
+      patchValues[0][0];
     if (period <= 0 || sample <= 0) return sample;
     samplerSums += period * sample / timePeriod;
-    return globalValue * sample / Nums.max(sample, samplerSums);
+    samplerSums = Nums.max(samplerSums, sample);
+    return globalValue * sample / samplerSums;
   }
   
   

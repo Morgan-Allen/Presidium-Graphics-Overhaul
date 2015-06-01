@@ -24,7 +24,7 @@ public abstract class Actor extends Mobile implements
   /**  Field definitions, constructors and save/load functionality-
     */
   private static boolean
-    verbose    = false,
+    verbose      = false,
     basicVerbose = false;
   
   final public ActorHealth health = new ActorHealth(this);
@@ -152,6 +152,7 @@ public abstract class Actor extends Mobile implements
     if (report) {
       I.say("\nASSIGNING ACTION: "+I.tagHash(action));
       I.say("  Previous action: "+I.tagHash(actionTaken));
+      I.reportStackTrace();
       if (actionTaken != null) I.say("  Finished? "+actionTaken.finished());
     }
     
@@ -451,9 +452,20 @@ public abstract class Actor extends Mobile implements
   public void renderAt(
     Vec3D position, float rotation, Rendering rendering
   ) {
+    //
+    //  We render health-bars after the main sprite, as the label/healthbar are
+    //  anchored off the main sprite.
     final Sprite s = sprite();
     if (actionTaken != null) actionTaken.configSprite(s, rendering);
     super.renderAt(position, rotation, rendering);
+    //
+    //  Finally, if you have anything to say, render the chat bubbles.
+    renderHealthbars(rendering, base);
+    if (chat.numPhrases() > 0) {
+      chat.position.setTo(sprite().position);
+      chat.position.z += height();
+      chat.readyFor(rendering);
+    }
   }
   
   
@@ -462,18 +474,7 @@ public abstract class Actor extends Mobile implements
       mount.configureSpriteFrom(this, actionTaken, sprite());
       if (! mount.actorVisible(this)) return;
     }
-    //
-    //  We render health-bars after the main sprite, as the label/healthbar are
-    //  anchored off the main sprite.
     super.renderFor(rendering, base);
-    renderHealthbars(rendering, base);
-    //
-    //  Finally, if you have anything to say, render the chat bubbles.
-    if (chat.numPhrases() > 0) {
-      chat.position.setTo(sprite().position);
-      chat.position.z += height();
-      chat.readyFor(rendering);
-    }
   }
   
   
@@ -505,8 +506,8 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
-    if (info == null) info = new TargetOptions(UI, this);
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+    if (info == null) info = new SelectionOptions(UI, this);
     return info;
   }
 
@@ -551,6 +552,12 @@ public abstract class Actor extends Mobile implements
   
   public String objectCategory() {
     return UIConstants.TYPE_ACTOR;
+  }
+  
+  
+  public Constant infoSubject() {
+    if (mind.vocation() != null) return mind.vocation();
+    else return species();
   }
   
   

@@ -48,6 +48,8 @@ public class HUD extends UIGroup {
   private Vector2
     mousePos = new Vector2();
   
+  private Table <String, UINode> widgetsByID = new Table();
+  
   
   public HUD(Rendering rendering) {
     super(null);
@@ -108,8 +110,26 @@ public class HUD extends UIGroup {
       case (DRAGGED) : selected.whenDragged(); break;
     }
     
+    widgetsByID.clear();
+    recordActiveWidgetsFrom(this);
+    
     super.render(rendering.widgetsPass);
   }
+  
+  
+  private void recordActiveWidgetsFrom(UINode node) {
+    final String ID = node.widgetID();
+    if (ID != null) widgetsByID.put(ID, node);
+    if (node instanceof UIGroup) for (UINode kid : ((UIGroup) node).kids) {
+      if (! kid.hidden) recordActiveWidgetsFrom(kid);
+    }
+  }
+  
+  
+  public UINode activeWidgetWithID(String ID) {
+    return widgetsByID.get(ID);
+  }
+  
   
   
   //  NOTE:  This a placeholder method intended for override by subclasses, and

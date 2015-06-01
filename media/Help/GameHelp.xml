@@ -28,8 +28,14 @@ Tip:  Click on housing to see a status message on its current needs.  Click on c
   <content>You have no Technicians in your employ, which is likely to slow down construction considerably.  Perhaps you could hire some at the Bastion or an Engineer Station?</content>
 </topic>
 
+
 <topic name="No Auditors!">
   <content>You have no Auditors in your employ, who normally assess your business expenses and gather tax revenue.  This may lead to lost or misfiled earnings.  Hire at least one at the Bastion or an Enforcer Bloc.</content>
+</topic>
+
+
+<topic name="No Landing Site!">
+  <content>Visiting dropships can't seem to find a safe landing site near your settlement, which will prevent them from conducting trade or bringing fresh colonists.  Consider clearing some space or building them an Airfield.</content>
 </topic>
 
 

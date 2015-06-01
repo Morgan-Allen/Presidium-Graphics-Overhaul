@@ -35,29 +35,29 @@ public class SolarBank extends Venue {
     SolarBank.class, "media/GUI/Buttons/solar_array_button.gif"
   );
   
+  final static Blueprint BLUEPRINT = new Blueprint(
+    SolarBank.class, "solar_bank",
+    "Solar Bank", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Solar Banks provide clean power and a small amount of water to your "+
+    "settlement.",
+    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
+    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
+    10, 5, 40, Structure.NO_UPGRADES
+  );
+  
   final static Conversion
     LAND_TO_POWER = new Conversion(
-      SolarBank.class, "land_to_power",
+      BLUEPRINT, "land_to_power",
       TO, 2, POWER
     ),
     LAND_TO_WATER = new Conversion(
-      SolarBank.class, "land_to_water",
+      BLUEPRINT, "land_to_water",
       TO, 1, WATER
     );
   
   
-  final static Blueprint BLUEPRINT = new Blueprint(
-    SolarBank.class, "solar_bank",
-    "Solar Bank", UIConstants.TYPE_ECOLOGIST,
-    2, 2, IS_LINEAR | IS_FIXTURE,
-    EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
-    LAND_TO_POWER, LAND_TO_WATER
-  );
-  
-  
   public SolarBank(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(10, 5, 40, 0, Structure.TYPE_FIXTURE);
   }
   
   
@@ -76,16 +76,10 @@ public class SolarBank extends Venue {
     */
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    if (! structure.intact()) {
-      structure.assignOutputs();
-      return;
-    }
-    
+    if (! structure.intact()) { stocks.clearDemands(); return; }
     final float sun = world.terrain().insolationSample(origin());
-    structure.assignOutputs(
-      Item.withAmount(POWER, sun * 4),
-      Item.withAmount(WATER, (0.5f + 1 - sun) / 2)
-    );
+    stocks.forceDemand(POWER, sun * 4, true);
+    stocks.forceDemand(WATER, (0.5f + 1 - sun) / 2, true);
   }
   
   
@@ -124,21 +118,9 @@ public class SolarBank extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "solar_bank");
-  }
-  
-  
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final String status = null;
     return VenuePane.configSimplePanel(this, panel, UI, status);
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Solar Banks provide clean power and a small amount of water to your "+
-      "settlement.";
   }
 }
 

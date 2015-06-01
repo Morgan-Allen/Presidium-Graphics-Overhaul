@@ -8,6 +8,7 @@ import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
+
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 
@@ -31,17 +32,17 @@ public class Composite {
   final static Assets.Loadable DISPOSAL = new Assets.Loadable(
     "COMPOSITE_DISPOSAL", Composite.class, true
   ) {
-    protected void loadAsset() {}
-    public boolean isLoaded() { return true; }
-    public boolean isDisposed() { return false; }
+    protected State loadAsset() { return State.LOADED; }
+    public boolean stateLoaded() { return true; }
     
-    protected void disposeAsset() {
+    protected State disposeAsset() {
       I.say("DISPOSING OF COMPOSITES");
       for (Composite c : recent) c.dispose();
       recent.clear();
       recentTable.clear();
       
       Assets.registerForLoading(this);
+      return state = State.LOADED;
     }
   };
   
@@ -158,13 +159,14 @@ public class Composite {
   }
   
   
-  public Image delayedImage(HUD UI) {
-    final Image image = new Image(UI, ImageAsset.WHITE_TEX()) {
-      protected void renderTex(Texture tex, float alpha, WidgetsPass pass) {
-        tex = texture();
-        super.renderTex(tex, alpha, pass);
+  public Image delayedImage(HUD UI, final String widgetID) {
+    final Image image = new Image(UI, Image.SOLID_WHITE) {
+      protected void render(WidgetsPass pass) {
+        this.texture = texture();
+        super.render(pass);
       }
     };
+    image.setWidgetID(widgetID);
     return image;
   }
   

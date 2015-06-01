@@ -113,6 +113,11 @@ public class BaseSetup {
   }
   
   
+  public Blueprint[] available() {
+    return canPlace;
+  }
+  
+  
   
   /**  Time-sliced automation of building-placement methods-
     */
@@ -364,7 +369,6 @@ public class BaseSetup {
       //  for migration as soon as possible:
       if (GameSettings.hireFree || enterWorld) {
         worker.enterWorldAt(venue, venue.world());
-        worker.goAboard(venue, venue.world());
       }
       else {
         final Stage world = venue.base().world;

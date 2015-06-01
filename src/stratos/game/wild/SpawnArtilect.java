@@ -74,20 +74,8 @@ public class SpawnArtilect extends Plan implements Qualities {
   }
   
   
-  final static Skill BASE_SKILLS[] = { ASSEMBLY, INSCRIPTION };
-  
-  
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    
-    final float priority = priorityForActorWith(
-      actor, repairs, ROUTINE,
-      NO_MODIFIER, MILD_HELP,
-      MILD_COOPERATION, MILD_FAIL_RISK,
-      BASE_SKILLS, NO_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
-    );
-    return priority;
+    return ROUTINE;
   }
   
   
@@ -138,9 +126,8 @@ public class SpawnArtilect extends Plan implements Qualities {
     if (repairs != actor) {
       
       if (! repairs.inWorld()) {
-        repairs.enterWorldAt(location, actor.world());
-        repairs.goAboard(location, actor.world());
         repairs.mind.setHome(location);
+        repairs.enterWorldAt(location, actor.world());
         
         repairs.health.setupHealth(0, 0.5f, 1);
         repairs.health.setInjuryLevel(1 - (INIT_HEALTH * success));

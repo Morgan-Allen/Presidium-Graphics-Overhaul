@@ -411,8 +411,8 @@ public class Dropship extends Vehicle implements Owner {
   }
   
 
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    final SelectionPane pane = super.configPanel(panel, UI);
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+    final SelectionPane pane = super.configSelectPane(panel, UI);
     final Description d = pane.listing();
     
     //  TODO:  List homeworld and time remaining to Liftoff!

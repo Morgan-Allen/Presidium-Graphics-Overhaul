@@ -3,25 +3,20 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.user;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 
-import com.badlogic.gdx.Input.Keys;
 
 
-
-//  TODO:  Allow listing of current structures, and greyed-out options.
 //  TODO:  Allow a general summary of demand for structures of this type.
 //  TODO:  Expand a little on the category-selection system?
 
 
-public class InstallationPane extends SelectionPane {
+public class InstallPane extends SelectionPane {
   
   
   /**  Initial background setup-
@@ -38,7 +33,7 @@ public class InstallationPane extends SelectionPane {
   
   final static ImageAsset
     BUILD_ICON = ImageAsset.fromImage(
-      InstallationPane.class, "media/GUI/Panels/installations_tab.png"
+      InstallPane.class, "media/GUI/Panels/installations_tab.png"
     ),
     BUILD_ICON_LIT = Button.CIRCLE_LIT;
   
@@ -46,32 +41,23 @@ public class InstallationPane extends SelectionPane {
   
   /**  Interface presented-
     */
-  public static Button createButton(
-    final BaseUI baseUI
-  ) {
-    final InstallationPane pane = new InstallationPane(baseUI);
-    return new Button(baseUI, BUILD_ICON, BUILD_ICON_LIT, "Installations") {
-      protected void whenClicked() {
-        if (baseUI.currentPane() == pane) {
-          baseUI.setInfoPanels(null, null);
-        }
-        else {
-          baseUI.setInfoPanels(pane, null);
-        }
-      }
-    };
+  static Button createButton(final BaseUI baseUI) {
+    return new PaneButton(
+      new InstallPane(baseUI), baseUI,
+      INSTALL_BUTTON_ID, BUILD_ICON, BUILD_ICON_LIT, "Installations"
+    );
   }
   
   
-  private Venue helpFor;
   private Category category = null;
   final private Button catButtons[];
   
   
-  InstallationPane(BaseUI UI) {
-    super(UI, null, false, false, BAR_BUTTON_SIZE);
-    if (! setupDone) setupTypes();
+  InstallPane(BaseUI UI) {
+    super(UI, null, null, false, false, BAR_BUTTON_SIZE);
+    setWidgetID(INSTALL_PANE_ID);
     
+    if (! setupDone) setupTypes();
     catButtons = new Button[NUM_GUILDS];
     setupCategoryButtons();
   }
@@ -124,7 +110,7 @@ public class InstallationPane extends SelectionPane {
   
   private static void initCategory(String typeID) {
     final Category category = new Category();
-    category.name = typeID;
+    category.name  = typeID;
     categories.put(typeID, category);
   }
   
@@ -136,20 +122,21 @@ public class InstallationPane extends SelectionPane {
   
   private void setupCategoryButtons() {
     final UIGroup bar = new UIGroup(UI);
-    bar.attachTo(innerRegion);
+    bar.attachTo(border.inside);
     bar.alignToFill();
     
     for (int i = 0; i < NUM_GUILDS; i++) {
       final String catName = INSTALL_CATEGORIES[i];
       
-      final Button button = new Button(UI, GUILD_IMAGE_ASSETS[i], null) {
+      final Button button = new Button(
+        UI, catName, GUILD_IMAGE_ASSETS[i], null
+      ) {
         
         protected void whenClicked() {
           final BaseUI UI = BaseUI.current();
           UI.beginPanelFade();
           final Category match = categories.get(catName);
           category = match;
-          helpFor = null;
           
           for (Button b : catButtons) {
             if (b == this) b.toggled = true;
@@ -175,6 +162,11 @@ public class InstallationPane extends SelectionPane {
   }
   
   
+  public String category() {
+    return category == null ? null : category.name;
+  }
+  
+  
   
   /**  Regular updates and placement-kickoff:
     */
@@ -187,72 +179,60 @@ public class InstallationPane extends SelectionPane {
     detailText.setText("");
     
     final Base base = UI.played();
-    final Series <Venue> sampled = new List <Venue> ();
+    final Series <Venue> sampled = new List(), disabled = new List();
     
     for (Category cat : categories.values()) {
       if (category != null && cat != category) continue;
       for (Venue sample : cat.samples) {
-        if (! base.checkPrerequisites(sample.blueprint, Account.NONE)) continue;
-        else sampled.add(sample);
+        final Account reasons = new Account();
+        base.checkPrerequisites(sample.blueprint, reasons);
+        //
+        //  TODO:  Have a more nuanced evaluation for skipping disabled venues.
+        if (reasons.wasSuccess()) sampled.add(sample);
+        else if (! sample.blueprint.isUnique()) disabled.add(sample);
       }
     }
     
     final Text text = detailText;
     
-    if (helpFor != null) {
-      final Venue     sample   = helpFor            ;
-      final Blueprint type     = sample.blueprint   ;
-      final Composite icon     = sample.portrait(UI);
-      final String    typeName = type.name          ;
-      final String    typeDesc = sample.helpInfo()  ;
-      final int       cost     = sample.structure.buildCost();
-      
-      if (icon != null) Text.insert(icon.texture(), 80, 80, false, text);
-      text.append("\n\nFacility Name: "+typeName);
-      text.append("\nBuild cost: "+cost);
-      text.append("\n\n");
-      text.append(typeDesc, Colour.LITE_GREY);
-      text.append("\n");
-      if (type.required.length > 0) {
-        text.appendList("\nRequires: ", (Object[]) type.required);
-      }
-      if (type.allows().size() > 0) {
-        text.appendList("\nAllows: ", type.allows());
-      }
-      
-      final Batch <Venue> built = base.listInstalled(type, false);
-      text.append("\n\nCurrently Built:");
-      if (built.size() == 0) text.append(" None");
-      else for (Venue v : built) {
-        text.append("\n  ");
-        text.append(v);
-      }
-      
-      text.append("\n\n");
-      text.append(new Description.Link("Back") {
-        public void whenClicked() { helpFor = null; }
-      });
-    }
-    else if (sampled.size() == 0) {
+    if (sampled.empty() && disabled.empty()) {
       text.append("No structures available!");
     }
-    else for (final Venue sample : sampled) {
-      final Composite icon     = sample.portrait(UI);
-      final Blueprint type     = sample.blueprint   ;
-      final String    typeName = type.name          ;
-      final int       cost     = sample.structure.buildCost();
-      
-      if (icon != null) Text.insert(icon.texture(), 40, 40, true, text);
-      else text.append("\n  ");
-      text.append(" "+typeName+" ("+cost+" credits)");
-      text.append("\n  ");
-      text.append(new Description.Link("(BUILD) ") {
-        public void whenClicked() { UI.beginTask(new PlacingTask(UI, type)); }
-      });
-      text.append(new Description.Link("(INFO) ") {
-        public void whenClicked() { helpFor = sample; }
-      });
+    else {
+      for (final Venue sample : sampled) {
+        describeVenueOptions(sample, text, true , base);
+      }
+      for (final Venue sample : disabled) {
+        describeVenueOptions(sample, text, false, base);
+      }
     }
+  }
+  
+  
+  private void describeVenueOptions(
+    final Venue sample, Text text, boolean enabled, Base base
+  ) {
+    final Composite icon     = sample.portrait(UI);
+    final Blueprint type     = sample.blueprint   ;
+    final String    typeName = type.name          ;
+    final int       cost     = sample.structure.buildCost();
+    final Colour    greyed   = enabled ? Colour.WHITE : Colour.GREY;
+    
+    if (icon != null) {
+      final Image iconImage = icon.delayedImage(UI, type.keyID);
+      iconImage.setDisabledOverlay(Image.TRANSLUCENT_BLACK);
+      iconImage.enabled = enabled;
+      Text.insert(iconImage, 40, 40, true, text);
+    }
+    else text.append("\n  ");
+    text.append(" "+typeName+" ("+cost+" credits)", greyed);
+    text.append("\n  ");
+    
+    if (enabled) text.append(new Description.Link("(BUILD) ") {
+      public void whenClicked() { UI.beginTask(new PlacingTask(UI, type)); }
+    });
+    else text.append("(BUILD) ", greyed);
+    text.append("(INFO) ", sample.blueprint);
   }
 }
 

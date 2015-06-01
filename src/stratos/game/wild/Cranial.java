@@ -1,11 +1,12 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
@@ -13,11 +14,12 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.economic.Devices.*;
+import static stratos.game.economic.Outfits.*;
 
 
 
 //  TODO:  Add the grapple, silver plague and psy strike abilities.
-
 
 public class Cranial extends Artilect {
   
@@ -62,8 +64,8 @@ public class Cranial extends Artilect {
     
     gear.setBaseDamage(15);
     gear.setBaseArmour(15);
-    gear.equipDevice(Item.withQuality(Economy.INTRINSIC_BEAM  , 0));
-    gear.equipOutfit(Item.withQuality(Economy.INTRINSIC_ARMOUR, 0));
+    gear.equipDevice(Item.withQuality(INTRINSIC_BEAM  , 0));
+    gear.equipOutfit(Item.withQuality(INTRINSIC_ARMOUR, 0));
     
     traits.setLevel(HAND_TO_HAND, 15 + Rand.index(5) - 2);
     traits.setLevel(ANATOMY     , 10 + Rand.index(5) - 2);

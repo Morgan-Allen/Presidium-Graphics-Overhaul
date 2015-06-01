@@ -1,17 +1,16 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
-
 import stratos.game.common.*;
-import stratos.game.economic.DeviceType;
-import stratos.game.economic.Economy;
-import stratos.game.economic.OutfitType;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Devices.*;
 
 
 
@@ -88,7 +87,7 @@ public class CombatFX {
       world.ephemera.addGhost(uses, r, slashFX, 0.33f);
     }
     
-    else if (type == Economy.HUNTING_LANCE) {
+    else if (type == HUNTING_LANCE) {
       final ShotFX shot = applyShotFX(
         SPEAR_FX_MODEL, uses, applied, hits, 1 + (distance * 0.1f), world
       );

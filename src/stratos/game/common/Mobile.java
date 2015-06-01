@@ -8,6 +8,7 @@
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.game.maps.IntelMap;
+import stratos.game.plans.Patrolling;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -108,6 +109,21 @@ public abstract class Mobile extends Element
     world().schedule.scheduleForUpdates(this);
     world().toggleActive(this, true);
     return true;
+  }
+  
+  
+  public boolean enterWorldAt(Target t, Stage world) {
+    final Vec3D p = t.position(null);
+    if (! setPosition(p.x, p.y, world)) return false;
+    if (t instanceof Boarding) {
+      final Boarding b = (Boarding) t;
+      if (b.allowsEntry(this)) {
+        super.enterWorld();
+        goAboard(b, world);
+        return true;
+      }
+    }
+    return super.enterWorldAt(t, world);
   }
   
 
@@ -342,12 +358,6 @@ public abstract class Mobile extends Element
   }
   
   
-  public boolean visibleTo(Base base) {
-    if (indoors()) return false;
-    return super.visibleTo(base);
-  }
-  
-  
   protected float fogFor(Base base) {
     float baseFog = base.intelMap.displayFog(position.x, position.y, this);
     final float offset = IntelMap.FOG_SEEN_MIN + 0.01f;
@@ -367,6 +377,10 @@ public abstract class Mobile extends Element
   
   
   public void renderFor(Rendering rendering, Base base) {
+    
+    final Target platform = Patrolling.turretIsAboard(this);
+    if (indoors() && platform == null) return;
+    
     final Sprite s = this.sprite();
     viewPosition(s.position);
     final float alpha = Rendering.frameAlpha();

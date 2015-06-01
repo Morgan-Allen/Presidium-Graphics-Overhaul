@@ -97,7 +97,7 @@ public class Resting extends Plan {
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nGetting resting priority for "+actor);
     
-    float urgency = CASUAL, modifier = NONE;
+    float urgency = CASUAL;
     
     if (restPoint instanceof Venue) {
       final Venue venue = (Venue) restPoint;
@@ -121,7 +121,6 @@ public class Resting extends Plan {
     else {
       final float f = (stress - 0.5f) * 2;
       urgency = (urgency * (1 - f)) + (PARAMOUNT * f);
-      modifier = f * PARAMOUNT;
     }
     
     //  Include effects of hunger-
@@ -149,14 +148,8 @@ public class Resting extends Plan {
       urgency -= CASUAL;
     }
     
-    final float priority = priorityForActorWith(
-      actor, restPoint,
-      urgency, modifier,
-      NO_HARM, NO_COMPETITION, NO_FAIL_RISK,
-      NO_SKILLS, BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
-    );
-    return priority;
+    //  TODO:  INCLUDE LAZINESS!
+    return urgency;
   }
   
   
@@ -273,9 +266,10 @@ public class Resting extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
+    String desc = restPoint == actor.mind.home() ? "Resting" : "Sheltering";
     if (restPoint == actor || restPoint == null) {
       if (currentMode == MODE_DINE) d.append("Dining");
-      else d.append("Resting");
+      else d.append(desc);
       return;
     }
     if (currentMode == MODE_DINE) {
@@ -283,7 +277,7 @@ public class Resting extends Plan {
       d.append(restPoint);
     }
     else {
-      d.append("Resting at ");
+      d.append(desc+" at ");
       d.append(restPoint);
     }
   }

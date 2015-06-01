@@ -135,12 +135,18 @@ public class Outcrop extends Fixture {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean setPosition(float x, float y, Stage world) {
+    if (! super.setPosition(x, y, world)) return false;
     final ModelAsset model = modelFor(this, world);
     final Sprite s = model.makeSprite();
     if (size > 1 || type == TYPE_DUNE) s.scale = size / 2f;
     attachSprite(s);
+    return true;
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world) {
+    if (! super.enterWorldAt(x, y, world)) return false;
     setAsEstablished(true);
     world.presences.togglePresence(this, origin(), true , Outcrop.class);
     return true;

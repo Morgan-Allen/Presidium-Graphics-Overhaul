@@ -12,15 +12,16 @@ import stratos.util.*;
 public interface Target {
   
   boolean inWorld();
-  boolean destroyed();
-  boolean indoors();
   Stage world();
   Base base();
+  boolean destroyed();
+  
+  boolean indoors();
+  boolean isMobile();
   
   Vec3D position(Vec3D v);
   float height();
   float radius();
-  boolean isMobile();
   
   void flagWith(Object f);
   Object flaggedWith();

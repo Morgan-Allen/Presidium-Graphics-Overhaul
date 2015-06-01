@@ -11,16 +11,14 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.maps.*;
-import stratos.game.wild.Species;
+import stratos.game.wild.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  Adapt this to arbitrary species (including humans) and get rid of
-//  the intermediate 'culture' step...
-
+//  TODO:  Adapt this to arbitrary species (including humans.)
 
 public class SeedTailoring extends Plan {
   
@@ -30,16 +28,19 @@ public class SeedTailoring extends Plan {
     evalVerbose  = false,
     stepsVerbose = false;
   
+  final public static float
+    DESIRED_SAMPLES = 5,
+    SEED_DAYS_DECAY = 5;
+  
   final Venue lab;
   final Species species;
-  final Item cropType, seedType;
+  final Item seedType;
   
   
   public SeedTailoring(Actor actor, Venue lab, Species s) {
     super(actor, lab, MOTIVE_JOB, NO_HARM);
     this.lab = lab;
     this.species = s;
-    this.cropType = Item.asMatch(SAMPLES  , s);
     this.seedType = Item.asMatch(GENE_SEED, s);
   }
   
@@ -48,7 +49,6 @@ public class SeedTailoring extends Plan {
     super(s);
     lab     = (Venue  ) s.loadObject();
     species = (Species) s.loadObject();
-    this.cropType = Item.asMatch(SAMPLES  , species);
     this.seedType = Item.asMatch(GENE_SEED, species);
   }
   
@@ -73,45 +73,29 @@ public class SeedTailoring extends Plan {
   
   
   
-  /**  Obtaining and evaluating targets-
+  /**  Behaviour implementation-
     */
   protected float getPriority() {
-    //final EcologistStation station = nursery.belongs;
-    return Nums.clamp(
+    final boolean report = evalVerbose && (
+      I.talkAbout == actor || I.talkAbout == lab
+    );
+    //  TODO:  USE THE PLAN-UTILS METHOD HERE
+    final float priority = Nums.clamp(
       ROUTINE + (lab.structure.upgradeBonus(species) / 2f),
       0, URGENT
     );
+    if (report) I.say("\nSeed-tailoring priority for "+actor+" is "+priority);
+    return priority;
   }
   
   
-  
-  /**  Step implementation/sequence-
-    */
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && (
       I.talkAbout == actor || I.talkAbout == lab
     );
     if (report) I.say("\nGetting next seed-tailoring step for "+actor);
-    //
-    //  If the laboratory has adequate stocks, just return.
-    if (lab.stocks.amountOf(cropType) > 1) {
-      if (report) I.say("  Lab has enough!");
-      return null;
-    }
-    //
-    //  If the nursery has enough of the seed type, culture it-
-    if (lab.stocks.amountOf(seedType) > 1) {
-      if (report) I.say("  Will begin culture.");
-      final Action culture = new Action(
-        actor, lab,
-        this, "actionCultureSeed",
-        Action.STAND, "Culturing seed"
-      );
-      return culture;
-    }
-    //
-    //  Otherwise, prepare the basic gene seed-
-    if (lab.stocks.amountOf(GENE_SEED) > 1) {
+    
+    if (lab.stocks.amountOf(seedType) < 1) {
       if (report) I.say("  Will begin gene-tailoring");
       final Action prepare = new Action(
         actor, lab,
@@ -120,62 +104,64 @@ public class SeedTailoring extends Plan {
       );
       return prepare;
     }
-    ///I.sayAbout(actor, "No next action for seed tailoring.");
-    //
-    //  Otherwise, if possible, get gene samples from nearby flora-
-    //  TODO:  This is currently handled by the station.  Change that?
     return null;
   }
   
   
-  private float cultureTest(int DC, Venue lab) {
-    final Traded yield = Crop.yieldType(species);
-    float skillRating = 5;
-    if (! actor.skills.test(GENE_CULTURE, DC, 5.0f)) skillRating /= 2;
-    if (! actor.skills.test(CULTIVATION , DC, 5.0f)) skillRating /= 2;
-    skillRating += lab.structure.upgradeBonus(yield);
-    skillRating *= (1 - lab.stocks.relativeShortage(POWER));
-    return skillRating;
+  private static float numSamples(Venue lab) {
+    float samples = 0;
+    for (Item i : lab.stocks.matches(SAMPLES)) {
+      if (i.refers == Flora.WILD_FLORA) samples += Nums.max(1, i.amount);
+    }
+    return samples;
   }
   
   
-  public boolean actionCultureSeed(Actor actor, Venue lab) {
-    final Batch <Item> seedMatch = lab.stocks.matches(seedType);
-    if (seedMatch.size() == 0) return false;
-    final Item seed = seedMatch.atIndex(0);
-    final float successChance = 0.5f;
-    final float skillRating = cultureTest(ROUTINE_DC, lab);
-    //
-    //  Average quality with the seed-tailoring result, store and return-
-    if (Rand.num() < successChance * skillRating) {
-      Item crop = cropType;
-      crop = Item.withQuality(crop, (int) ((seed.quality + skillRating) / 2));
-      crop = Item.withAmount(crop, 0.1f);
-      lab.stocks.addItem(crop);
-      return true;
-    }
-    return false;
+  public static float needForSamples(Venue lab) {
+    return 1 - (numSamples(lab) / DESIRED_SAMPLES);
   }
   
   
   public boolean actionTailorGenes(Actor actor, Venue lab) {
+    final boolean report = stepsVerbose && (
+      I.talkAbout == actor || I.talkAbout == lab
+    );
     //
-    //  Calculate odds of success based on the skill of the researcher-
-    final float successChance = 0.2f;
-    final float skillRating = cultureTest(MODERATE_DC, lab);
+    //  Okay.  We boost the max/min quality based on the upgrades available at
+    //  the lab.
+    final Traded yield = Crop.yieldType(species);
+    final int upgrade = Nums.clamp(lab.structure.upgradeBonus(yield), 3);
+    final int minLevel = upgrade - 1, maxLevel = upgrade + 1;
     //
-    //  Use the seed in the lab to create seed for the different crop types.
-    if (Rand.num() < successChance * skillRating) {
-      float quality = skillRating * Rand.avgNums(2);
-      
-      Item seed = seedType;
-      seed = Item.withQuality(seed, (int) Nums.clamp(quality, 0, 5));
-      seed = Item.withAmount(seed, 0.1f);
-      lab.stocks.addItem(seed);
-      
-      return true;
-    }
-    return false;
+    //  There's also a partial bonus based on the quality of samples collected,
+    //  and a larger bonus based on the skill of the gene-tailor.  If neither
+    //  of those work out, then the tailoring-attempt fails.
+    float sampleBonus = numSamples(lab) / DESIRED_SAMPLES, skillCheck = -0.5f;
+    skillCheck += actor.skills.test(GENE_CULTURE, MODERATE_DC , 1) ? 1 : 0;
+    skillCheck += actor.skills.test(CULTIVATION , DIFFICULT_DC, 1) ? 1 : 0;
+    if (skillCheck + sampleBonus <= 0) return false;
+    //
+    //  The final quality of the result depends on the sum of the sample-bonus
+    //  and skill-bonus, contrained by the upgrades available at the lab-
+    int quality = Nums.round((skillCheck + sampleBonus) * 2, 1, false);
+    quality = (int) Nums.clamp(quality, minLevel, maxLevel);
+    
+    Item seed = seedType;
+    seed = Item.withQuality(seed, (int) Nums.clamp(quality, 0, 5));
+    seed = Item.withAmount(seed, 0.1f);
+    lab.stocks.addItem(seed);
+    
+    if (report) I.reportVars(
+      "\nAttempted seed-tailoring", "  ",
+      "Food yield "     , yield,
+      "Upgrade level "  , upgrade,
+      "Min/max quality ", minLevel+"/"+maxLevel,
+      "Sample bonus"    , sampleBonus,
+      "Skill check"     , skillCheck,
+      "Final quality"   , quality,
+      "Current stocks"  , lab.stocks.matchFor(seedType)
+    );
+    return true;
   }
   
   
@@ -189,9 +175,5 @@ public class SeedTailoring extends Plan {
     }
   }
 }
-
-
-
-
 
 

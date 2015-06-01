@@ -121,6 +121,12 @@ public class Pathing {
     if (report && extraVerbose) I.say("\nUpdating path target: "+moveTarget);
     
     final Target oldTarget = trueTarget;
+    
+    final boolean paths = moveTarget != null && moveTarget != mobile.aboard();
+    if (paths && ! PathSearch.canApproach(moveTarget, mobile)) {
+      I.say("\nWARNING:  "+mobile+" CANNOT ACCESS: "+moveTarget);
+      moveTarget = null;
+    }
     this.trueTarget = moveTarget;
     if (trueTarget != oldTarget) {
       if (report) {
@@ -139,7 +145,7 @@ public class Pathing {
   
   
   public boolean checkPathingOkay() {
-    final boolean report = pathVerbose && I.talkAbout == mobile;
+    final boolean report = I.talkAbout == mobile && verbose;
     if (trueTarget == null) {
       if (report) I.say("\nNo current path target!");
       return false;
@@ -191,7 +197,7 @@ public class Pathing {
   
   
   public boolean refreshFullPath() {
-    final boolean report = verbose && I.talkAbout == mobile;
+    final boolean report = I.talkAbout == mobile && verbose;
     if (report) {
       I.say("REFRESHING PATH TO: "+trueTarget);
       I.say("  Current position: "+mobile.aboard());

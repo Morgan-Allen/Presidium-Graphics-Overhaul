@@ -10,6 +10,7 @@ import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
+import stratos.graphics.widgets.Composite;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
@@ -33,16 +34,6 @@ public abstract class Venue extends Structural implements
     SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
     SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
   
-  final public static int
-    //  These are OR'd together in the VenueProfile to state properties-
-    IS_NORMAL  = 0 ,
-    IS_FIXTURE = 1 ,
-    IS_LINEAR  = 2 ,
-    IS_ZONED   = 4 ,
-    IS_GRIDDED = 8 ,
-    IS_UNIQUE  = 16,
-    IS_WILD    = 32;
-  
   final public static Blueprint NO_REQUIREMENTS[] = new Blueprint[0];
   
   
@@ -60,6 +51,7 @@ public abstract class Venue extends Structural implements
   
   protected Venue(Blueprint blueprint, Base base) {
     super(blueprint.size, blueprint.high, base);
+    structure.setupStats(blueprint);
     this.base      = base     ;
     this.blueprint = blueprint;
   }
@@ -144,8 +136,9 @@ public abstract class Venue extends Structural implements
     final Tile o = origin();
     if (blueprint.isFixture()) {
       //
-      //  Fixture-venues don't have entrances, so
-      entrance = null;
+      //  Fixture-venues don't normally have entrances, but we make an
+      //  exception for tiling-venues.
+      entrance = (pathType() <= Tile.PATH_CLEAR) ? origin() : null;
     }
     else {
       //
@@ -161,38 +154,38 @@ public abstract class Venue extends Structural implements
   
   
   public boolean canPlace(Account reasons) {
-    if (origin() == null) return reasons.asFailure("Over the edge!");
+    if (origin() == null) return reasons.setFailure("Over the edge!");
     final Stage world = origin().world;
     final boolean solid = pathType() >= Tile.PATH_HINDERS;
     //
     //  Make sure we don't displace any more important object, or occupy their
     //  entrances.  In addition, the entrance must be clear.
     if (! entranceOkay()) {
-      return reasons.asFailure("No room for entrance");
+      return reasons.setFailure("No room for entrance");
     }
     for (Tile t : world.tilesIn(footprint(), false)) {
-      if (t == null) return reasons.asFailure("Over the edge!");
+      if (t == null) return reasons.setFailure("Over the edge!");
       if (t.reserved()) {
         if (reasons == Account.NONE) return false;
-        return reasons.asFailure("Area reserved by "+t.onTop());
+        return reasons.setFailure("Area reserved by "+t.onTop());
       }
       if (! canBuildOn(t)) {
         if (reasons == Account.NONE) return false;
-        return reasons.asFailure(t.habitat()+" is not buildable");
+        return reasons.setFailure(t.habitat()+" is not buildable");
       }
       if (t.isEntrance() && solid) {
         if (reasons == Account.NONE) return false;
-        return reasons.asFailure("Is entrance for "+t.entranceFor());
+        return reasons.setFailure("Is entrance for "+t.entranceFor());
       }
     }
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
       if (reasons == Account.NONE) return false;
-      return reasons.asFailure("Too close to "+c);
+      return reasons.setFailure("Too close to "+c);
     }
     if (solid && ! checkPerimeter(world)) {
-      return reasons.asFailure("Might obstruct pathing");
+      return reasons.setFailure("Might obstruct pathing");
     }
-    return reasons.asSuccess();
+    return reasons.setSuccess();
   }
   
   
@@ -449,7 +442,7 @@ public abstract class Venue extends Structural implements
   
   /**  Interface methods-
     */
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configStandardPanel(this, panel, UI, null);
   }
   
@@ -466,9 +459,25 @@ public abstract class Venue extends Structural implements
     return blueprint.name+" "+suffix;
   }
   
+
+  public String helpInfo() {
+    return blueprint.description;
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    if (blueprint.icon == null) return null;
+    return Composite.withImage(blueprint.icon, blueprint.keyID);
+  }
+  
   
   public String objectCategory() {
     return blueprint.category;
+  }
+  
+  
+  public Constant infoSubject() {
+    return blueprint;
   }
   
   
@@ -582,7 +591,7 @@ public abstract class Venue extends Structural implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
-    if (pathType() <= Tile.PATH_CLEAR || ! blueprint.isSingle()) return;
+    if (pathType() <= Tile.PATH_CLEAR || blueprint.isGrouped()) return;
     super.renderSelection(rendering, hovered);
   }
 }

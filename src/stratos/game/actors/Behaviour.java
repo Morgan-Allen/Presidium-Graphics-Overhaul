@@ -19,6 +19,7 @@ import stratos.util.*;
 public interface Behaviour extends Session.Saveable {
   
   final public static float
+    NO_PRIORITY =  0,
     IDLE        =  1,
     CASUAL      =  2.5f,
     ROUTINE     =  5,

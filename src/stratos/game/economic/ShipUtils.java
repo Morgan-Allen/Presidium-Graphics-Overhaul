@@ -39,7 +39,6 @@ public class ShipUtils {
     for (Mobile m : ship.inside()) {
       if (landing && ! m.inWorld()) {
         m.enterWorldAt(ship, world);
-        m.goAboard(ship, world);
       }
       if ((! landing) && ! isBoarding(m, ship)) {
         m.goAboard(ship.dropPoint(), world);
@@ -87,7 +86,11 @@ public class ShipUtils {
       }
       for (Mobile m : under) if (m != ship) {
         final Tile e = Spacing.nearestOpenTile(m.origin(), m);
-        m.setPosition(e.x, e.y, world);
+        if (e == null) {
+          I.say("\nWARNING, COULD NOT FIND ESCAPE POINT FOR DROP: "+ship);
+          m.goAboard(ship, world);
+        }
+        else m.setPosition(e.x, e.y, world);
       }
       //
       //  Determine the position of the entrance tile-

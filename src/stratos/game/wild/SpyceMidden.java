@@ -1,15 +1,15 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.wild;
-import stratos.game.actors.Background;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
-import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -18,13 +18,12 @@ public class SpyceMidden extends SupplyCache {
   
   /**  Construction and save/load methods-
     */
-  final static Traded SPYCE = Economy.SPYCE_T;
   
   
   protected SpyceMidden() {
     super();
     final float spiceAmount = 1 + (Rand.num() * 2);
-    this.stored.addItem(Item.withAmount(SPYCE, spiceAmount));
+    this.stored.addItem(Item.withAmount(DRI_SPYCE, spiceAmount));
     attachSprite(Lictovore.MODEL_MIDDENS[Rand.index(3)].makeSprite());
   }
   
@@ -61,8 +60,8 @@ public class SpyceMidden extends SupplyCache {
   
   
   public void onGrowth(Tile t) {
-    stored.removeItem(Item.withAmount(SPYCE, Rand.num() / 2));
-    if (stored.amountOf(SPYCE) <= 0) setAsDestroyed();
+    stored.removeItem(Item.withAmount(DRI_SPYCE, Rand.num() / 2));
+    if (stored.amountOf(DRI_SPYCE) <= 0) setAsDestroyed();
   }
   
   

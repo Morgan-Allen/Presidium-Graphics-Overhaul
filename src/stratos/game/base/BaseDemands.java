@@ -217,14 +217,14 @@ public class BaseDemands {
   }
   
   
-  public float demandFractionFor(Target point, Object key, int period) {
+  public float demandSampleFor(Target point, Object key, int period) {
     final BlurMap map = mapForDemand(key);
     point.position(temp);
     return map.sampleAsFraction(temp.x, temp.y, period);
   }
   
   
-  public float supplyFractionFor(Target point, Object key, int period) {
+  public float supplySampleFor(Target point, Object key, int period) {
     final BlurMap map = mapForSupply(key);
     point.position(temp);
     return map.sampleAsFraction(temp.x, temp.y, period);

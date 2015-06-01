@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -10,7 +12,6 @@ import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Conditions.*;
@@ -55,30 +56,26 @@ public class Reactor extends Venue {
   };
   
   
+  final static Blueprint BLUEPRINT = new Blueprint(
+    Reactor.class, "reactor",
+    "Reactor", UIConstants.TYPE_ENGINEER, ICON,
+    "The Reactor provides copious "+POWER+" along with "+ANTIMASS+" output, "+
+    "but can become an explosive liability.",
+    4, 2, Structure.IS_NORMAL,
+    EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
+    300, 10, 300, Structure.NORMAL_MAX_UPGRADES
+  );
+  
   final public static Conversion
-    METALS_TO_FUEL = new Conversion(
-      Reactor.class, "metals_to_fuel",
-      1, METALS, TO, 1, FUEL_RODS,
-      MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
-    ),
-    ISOTOPES_TO_ANTIMASS = new Conversion(
-      Reactor.class, "isotopes_to_antimass",
+    FUEL_RODS_TO_ANTIMASS = new Conversion(
+      BLUEPRINT, "isotopes_to_antimass",
       4, FUEL_RODS, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
     ),
-    ISOTOPES_TO_POWER = new Conversion(
-      Reactor.class, "isotopes_to_power",
+    FUEL_RODS_TO_POWER = new Conversion(
+      BLUEPRINT, "isotopes_to_power",
       1, FUEL_RODS, TO, 25, POWER
-    )
-  ;
-  
-  final static Blueprint BLUEPRINT = new Blueprint(
-    Reactor.class, "reactor",
-    "Reactor", UIConstants.TYPE_ENGINEER,
-    4, 2, IS_NORMAL,
-    EngineerStation.BLUEPRINT, Owner.TIER_FACILITY,
-    METALS_TO_FUEL, ISOTOPES_TO_ANTIMASS, ISOTOPES_TO_POWER
-  );
+    );
   
   
   private float meltdown = 0.0f;
@@ -86,10 +83,6 @@ public class Reactor extends Venue {
 
   public Reactor(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      300, 10, 300,
-      Structure.NORMAL_MAX_UPGRADES, Structure.TYPE_VENUE
-    );
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
   }
@@ -116,11 +109,11 @@ public class Reactor extends Venue {
   final public static Upgrade
     WASTE_PROCESSING = new Upgrade(
       "Waste Processing",
-      "Reduces the rate at which "+FUEL_RODS+" are consumed, ameliorates "+
-      "pollution, and allows conversion of "+METALS+" to "+FUEL_RODS+".",
+      "Reduces the rate at which "+FUEL_RODS+" are consumed and ameliorates "+
+      "pollution.",
       150,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Reactor.class
+      null, BLUEPRINT
     ),
     REACTIVE_CONTAINMENT = new Upgrade(
       "Reactive Containment",
@@ -128,7 +121,7 @@ public class Reactor extends Venue {
       "damaged or under-supervised, and the risk of sabotage or infiltration.",
       200,
       Upgrade.THREE_LEVELS, null, 1,
-      null, Reactor.class
+      null, BLUEPRINT
     ),
     COLD_FUSION = new Upgrade(
       "Cold Fusion",
@@ -136,14 +129,14 @@ public class Reactor extends Venue {
       "severity of any meltdowns.",
       500,
       Upgrade.THREE_LEVELS, null, 1,
-      REACTIVE_CONTAINMENT, Reactor.class
+      REACTIVE_CONTAINMENT, BLUEPRINT
     ),
     PARTICLE_CIRCUIT = new Upgrade(
       "Particle Circuit",
       "Facilitates conversion of "+FUEL_RODS+" to "+ANTIMASS+", a volatile "+
       "energy source essential to space travel and atomics stockpiles.",
       450, Upgrade.THREE_LEVELS, null, 1,
-      WASTE_PROCESSING, Reactor.class
+      WASTE_PROCESSING, BLUEPRINT
     )
   ;
   
@@ -167,12 +160,7 @@ public class Reactor extends Venue {
     if (! staff.onShift(actor)) return choice.pickMostUrgent();
     //
     //  Then check to see if anything needs manufacture-
-    Manufacture m = null;
-    
-    m = stocks.nextManufacture(actor, METALS_TO_FUEL);
-    if (m != null) choice.add(m.setBonusFrom(this, true, WASTE_PROCESSING));
-    
-    m = stocks.nextManufacture(actor, ISOTOPES_TO_ANTIMASS);
+    Manufacture m = stocks.nextManufacture(actor, FUEL_RODS_TO_ANTIMASS);
     if (m != null) choice.add(m.setBonusFrom(this, true, PARTICLE_CIRCUIT));
     
     for (Item ordered : stocks.specialOrders()) {
@@ -222,23 +210,20 @@ public class Reactor extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     checkMeltdownAdvance();
     if (! structure.intact()) return;
-    
+    //
     //  Calculate output of power and consumption of fuel-
     float fuelConsumed = 1f / Stage.STANDARD_DAY_LENGTH, powerOutput = 25;
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
     powerOutput *= (2f + structure.upgradeLevel(COLD_FUSION)) / 2;
-    
+    //
     //  TODO:  Load fuel into the core gradually- (make a supervision task.)
     final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 2;
-    structure.assignOutputs(Item.withAmount(POWER, powerOutput));
-    
+    stocks.forceDemand(POWER, powerOutput, true);
+    //
     //  Update demand for raw materials-
     stocks.forceDemand(FUEL_RODS, 5, false);
-    if (structure.upgradeLevel(WASTE_PROCESSING) > 0) {
-      stocks.translateDemands(METALS_TO_FUEL, 1);
-    }
     //
     //  Output pollution-
     int pollution = 10;
@@ -356,7 +341,7 @@ public class Reactor extends Venue {
       final Actor a = (Actor) e;
       a.health.takeInjury(damage / 2f, true);
       a.traits.setLevel(POISONING, radiation / 25f);
-      if (Rand.index(100) < radiation) a.traits.incLevel(CANCER, Rand.num());
+      if (Rand.index(100) < radiation) a.traits.incLevel(CANCER  , Rand.num());
       if (Rand.index(100) < radiation) a.traits.incLevel(MUTATION, Rand.num());
     }
     else {
@@ -384,22 +369,15 @@ public class Reactor extends Venue {
   
   /**  Rendering and interface-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(ICON, "reactor");
-  }
-  
-
   protected Traded[] goodsToShow() {
     return new Traded[] { FUEL_RODS };
   }
   
   
   public String helpInfo() {
-    String help =
-      "The Reactor provides copious power along with "+ANTIMASS+" production, "+
-      "but can become an explosive liability.";
+    String help = BLUEPRINT.description;
     
-    if (inWorld()) {
+    if (inWorld() && structure.intact()) {
       if (! stocks.hasEnough(FUEL_RODS)) {
         help = "Power output will be limited without additional "+FUEL_RODS+".";
       }

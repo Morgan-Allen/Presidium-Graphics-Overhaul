@@ -100,7 +100,7 @@ public class Exploring extends Plan implements Qualities {
   
   
   public static Exploring nextSurvey(
-    Base base, Actor actor, Target point, float range
+    Base base, Actor actor, Tile point, float range
   ) {
     Tile core      = Spacing.nearestOpenTile(point, point);
     Tile toExplore = (range > 0) ? IntelMap.getUnexplored(
@@ -109,7 +109,7 @@ public class Exploring extends Plan implements Qualities {
     if (toExplore == null) return null;
     if (core == null) core = toExplore;
     
-    final Exploring e = new Exploring(actor, base, TYPE_SURVEY, core, 0);
+    final Exploring e = new Exploring(actor, base, TYPE_SURVEY, point, 0);
     e.lookedAt = toExplore;
     return e;
   }
@@ -139,14 +139,12 @@ public class Exploring extends Plan implements Qualities {
   
   
   public float successChanceFor(Actor actor) {
-    return successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
-  }
-  
-  
-  public float competence() {
-    if (actor == null) return 0;
-    if (PlanUtils.isArmed(actor)) return (super.competence() + 1f) / 2;
-    else return super.competence();
+    float chance = PlanUtils.successForActorWith(
+      actor, BASE_SKILLS, ROUTINE_DC, false
+    );
+    if (PlanUtils.isArmed(actor)) chance += 0.5f;
+    else chance -= 0.25f;
+    return Nums.clamp(chance, 0, 1);
   }
   
   

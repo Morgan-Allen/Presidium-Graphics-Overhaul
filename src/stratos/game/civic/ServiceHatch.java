@@ -49,22 +49,21 @@ public class ServiceHatch extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ServiceHatch.class, "service_hatch",
-    "Service Hatch", UIConstants.TYPE_ENGINEER,
-    2, 0, IS_FIXTURE | IS_LINEAR,
-    Bastion.BLUEPRINT, Owner.TIER_PRIVATE
+    "Service Hatch", UIConstants.TYPE_ENGINEER, HATCH_ICON,
+    "Service Hatches allow for power distribution and road connections, "+
+    "but can admit passage to dangerous vermin.",
+    2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
+    Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
+    10,  //integrity
+    25,  //armour
+    20,  //build cost
+    Structure.SMALL_MAX_UPGRADES
   );
   
   
   
   public ServiceHatch(Base base) {
     super(BLUEPRINT, base);
-    structure.setupStats(
-      10,  //integrity
-      25,  //armour
-      20,  //build cost
-      Structure.SMALL_MAX_UPGRADES,
-      Structure.TYPE_FIXTURE
-    );
   }
   
   
@@ -171,10 +170,8 @@ public class ServiceHatch extends Venue {
     //
     //  And assign life-support and other tangible effects-
     if (model == HUB_MODEL) {
-      structure.assignOutputs(
-        Item.withAmount(ATMO , 2),
-        Item.withAmount(POWER, 2)
-      );
+      stocks.forceDemand(ATMO , 2, true);
+      stocks.forceDemand(POWER, 2, true);
       structure.setAmbienceVal(-2);
       //  TODO:  Introduce the vermin-check here!
     }
@@ -216,11 +213,6 @@ public class ServiceHatch extends Venue {
 
   /**  Rendering and interface methods-
     */
-  public Composite portrait(BaseUI UI) {
-    return Composite.withImage(HATCH_ICON, "service_hatch");
-  }
-  
-  
   public String fullName() {
     if (inWorld()) {
       final Object model = buildSprite.baseSprite().model();
@@ -230,15 +222,8 @@ public class ServiceHatch extends Venue {
   }
   
   
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
-  }
-  
-  
-  public String helpInfo() {
-    return
-      "Service Hatches allow for power distribution and road connections, "+
-      "but can admit passage to dangerous vermin.";
   }
 }
 

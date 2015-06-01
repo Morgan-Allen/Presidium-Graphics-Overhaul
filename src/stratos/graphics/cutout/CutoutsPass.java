@@ -199,7 +199,7 @@ public class CutoutsPass {
         s.model.vertices[Z0 + off]
       );
       temp.scl(s.scale);
-      rendering.view.worldToGL(s.position, temp2);
+      Viewport.worldToGL(s.position, temp2);
       temp.add(temp2);
       vertComp[X0 + offset] = temp.x;
       vertComp[Y0 + offset] = temp.y;

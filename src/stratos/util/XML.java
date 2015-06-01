@@ -20,6 +20,15 @@ import stratos.start.Assets;
   */
 public class XML {
   
+  private static boolean
+    verbose      = false,
+    extraVerbose = false;
+  
+  public static void main(String args[]) {
+    verbose = true;
+    XML.load("media/Help/TutorialScript.xml");
+  }
+  
   
   protected XML
     parent,
@@ -31,7 +40,6 @@ public class XML {
     content,
     attributes[],
     values[];
-  protected Object attached = null;
   
   public String tag()       { return tag; }
   public String content()   { return content; }
@@ -40,9 +48,6 @@ public class XML {
   public XML child(int n)   { return children[n]; }
   public XML[] children()   { return children; }
   public XML parent()       { return parent; }
-  
-  public void attach(Object o) { attached = o; }
-  public Object attached() { return attached; }
   
   
   /**  Returns the first child matching the given tag.
@@ -122,13 +127,16 @@ public class XML {
   /**  Constructs a new XML node from the given text file.
    */
   private XML(String xmlF) {
+    final boolean report = extraVerbose;
+    if (report) I.say("\nLoading XML from path: "+xmlF);
+    
     try {
       XML current = this;
       boolean
-        rTag = false,  //reading an opening tag.
-        rAtt = false,  //reading a tag or attribute name.
-        rVal = false,  //reading an attribute value.
-        rCon = false;  //reading content between open and closing tags.
+        readsTag = false,  //reading an opening tag.
+        readsAtt = false,  //reading a tag or attribute name.
+        readsVal = false,  //reading an attribute value.
+        readsCon = false;  //reading content between open and closing tags.
       int
         cRead = 0,  //index for  start of content reading.
         aRead = 0,  //attribute reading...
@@ -138,64 +146,70 @@ public class XML {
       
       final File baseFile = new File(xmlF);
       final FileInputStream fR = new FileInputStream(baseFile);
-      byte
-        chars[] = new byte[length = (int) baseFile.length()],
-        read;
+      byte chars[] = new byte[length = (int) baseFile.length()];
+      char read;
       fR.read(chars);
       
       for (index = 0; index < length; index++) {
-        read = chars[index];
-        if (Character.isWhitespace((char)read)) read = ' ';
+        read = (char) chars[index];
+        if (Character.isWhitespace((char) read)) read = ' ';
+        if (report) I.say(" "+read);
+        //
         //  If you're reading a tag or value:
-        if (rTag) {
+        if (readsTag) {
+          //
           //  If you're reading an attribute value:
-          if (rVal) {
+          if (readsVal) {
             if (read == '"') {
               current.valueList.addLast(readS(chars, vRead, index));
-              ///I.say("\n  adding value: " + current.valueList.last().refers);
-              rVal = false;
+              if (report) I.say("  Adding value: "+current.valueList.last());
+              readsVal = false;
             }
             continue;
           }
           //  If you're reading an attribute or name tag:
-          if (rAtt) {
+          if (readsAtt) {
             switch(read) {
-              
               case('='):
-                current.attributeList.addLast(readS(chars, aRead, index));
-                ///I.say(
-                ///  "\n  adding attribute: " + current.attributeList.last().refers
-                ///  + " (No. " + current.attributeList.size() + ")");
-                rAtt = false;
-                break;
-              
               case('>'):
               case(' '):
-                current.tag = readS(chars, aRead, index);
-                ///I.say("\n  setting tag: " + current.tag);
-                rAtt = false;
+                if (current.tag == null) {
+                  current.tag = readS(chars, aRead, index);
+                  if (report) I.say("  Setting tag: "+current.tag);
+                }
+                else {
+                  current.attributeList.addLast(readS(chars, aRead, index));
+                  if (report) I.say(
+                    "  Adding attribute: "+current.attributeList.last()+
+                    " (No. "+current.attributeList.size()+")"
+                  );
+                }
+                readsAtt = false;
                 break;
             }
-            if (rAtt) continue;
+            if (readsAtt) continue;
           }
           //  Otherwise:
           switch(read) {
             
             case('"'):
-              rVal = true;
+              readsVal = true;
               vRead = index + 1;
               break;
             
             case('>'):
               if (chars[index - 1] == '/') {
                 //this is a closed tag, so the xml block ends here.
-                rTag = false;
-                ///I.say("\nclosed tag (" + current.tag + "). Going back to parent-");
+                readsTag = false;
+                if (report) I.say(
+                  "  Closed tag ("+current.tag+"). Going back to parent-"
+                );
                 current = current.parent;
               }
-              if (rCon = rTag) cRead = index + 1;
+              readsCon = readsTag;
+              if (readsCon) cRead = index + 1;
               //this was an opening tag, so new content should be read.
-              rTag = false;
+              readsTag = false;
               break;
             
             case('='):
@@ -207,34 +221,36 @@ public class XML {
             default:
               //anything else would begin an attribute in a tag.
               //I.say("\nopening tag: ");
-              rAtt = true;
+              readsAtt = true;
               aRead = index;
               break;
           }
           
-          if (rTag) continue;
+          if (readsTag) continue;
         }
         
         if (read == '<') {
           //  An opening/closing tag begins...
-          rTag = true;
+          readsTag = true;
           
-          if (rCon) {
-            //  Test.report("adding content.");
+          if (readsCon) {
+            if (report) I.say("  Adding content.");
             current.content = readS(chars, cRead, index);
-            rCon = false;
+            readsCon = false;
           }
           
           if (chars[index + 1] == '/') {
             //...this is a closing tag, so the xml block ends here.
-            rTag = false;
-            ///I.say("\nend xml block (" + current.tag + "). Going back to parent-");
+            readsTag = false;
+            if (report)  I.say(
+              "  End xml block ("+current.tag+"). Going back to parent-"
+            );
             current = current.parent;
           }
           else {
-            ///I.say("\nnew xml block:");
+            if (report) I.say("  New xml block:");
             //a new xml block starts here.
-            rVal = rAtt = false;
+            readsVal = readsAtt = false;
             XML xml = new XML();
             xml.indexAsChild = current.childList.size();
             xml.parent = current;
@@ -243,10 +259,10 @@ public class XML {
           }
         }
       }
-      ///I.say("\n\n___xxxBEGIN XML COMPILATIONxxx___");
-      compile();
+      if (report) I.say("\n___xxxBEGIN XML COMPILATIONxxx___");
+      compile(0);
       fR.close();
-      ///I.say("\n___xxxEND OF XML COMPILATIONxxx___\n\n");
+      if (report) I.say("___xxxEND OF XML COMPILATIONxxx___\n");
     }
     catch(IOException e) {
       I.say("" + e);
@@ -261,33 +277,39 @@ public class XML {
   
   private XML() {}
   
-  private static int indent = 0;
-  final static boolean print = false;
   
   
   /**  Transforms the temporary member lists into proper arrays.
     */
-  final private void compile() {
-    children = (XML[]) childList.toArray(XML.class);
-    attributes = (String[]) attributeList.toArray(String.class);
-    values = (String[]) valueList.toArray(String.class);
-    if (children == null)
+  final private void compile(int depth) {
+    children   = childList    .toArray(XML   .class);
+    attributes = attributeList.toArray(String.class);
+    values     = valueList    .toArray(String.class);
+    
+    if (children == null) {
       children = new XML[0];
-    if ((attributes == null) || (values == null))
-      attributes = values = new String[0];
-    if (print) {
-      byte iB[] = new byte[indent];
-      for (int n = indent; n-- > 0;) iB[n] = ' ';
-      String iS = new String(iB);
-      I.say("" + iS + "tag name: " + tag);
-      for (int n = 0; n < values.length; n++)
-        I.say("" + iS + "att/val pair: " + attributes[n] + " " + values[n]);
-      I.say("" + iS + "tag content: " + content);
     }
-    indent++;
-    for (XML child : children) child.compile();
-    indent--; 
+    if ((attributes == null) || (values == null)) {
+      attributes = values = new String[0];
+    }
+    if (verbose) {
+      final byte iB[] = new byte[depth * 2];
+      for (int n = depth * 2; n-- > 0;) iB[n] = ' ';
+      final String iS = new String(iB);
+      
+      I.say("\n"+iS+"Node Tag = \""+tag+"\"");
+      for (int n = 0; n < values.length; n++) {
+        I.say(iS+"  "+attributes[n]+" = \""+values[n]+"\"");
+      }
+      if (children.length == 0) I.say(iS+"  Content: "+content);
+      else I.say(iS+"  Children: ");
+    }
+    for (XML child : children) child.compile(depth + 1);
   }
 }
+
+
+
+
 
 

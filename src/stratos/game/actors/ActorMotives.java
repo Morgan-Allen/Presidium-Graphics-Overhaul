@@ -160,8 +160,9 @@ public class ActorMotives {
     
     if (receives.mind.home() instanceof Venue) {
       final Venue home = (Venue) receives.mind.home();
-      final float need = home.stocks.shortageOf(item.type);
-      if (need > 0) rating += need;
+      final float need = home.stocks.relativeShortage(item.type);
+      final float amount = home.stocks.demandFor(item.type);
+      if (need > 0) rating += need * 5 * (item.amount / amount);
     }
     
     if (item.type == receives.gear.deviceType()) {
@@ -201,8 +202,9 @@ public class ActorMotives {
     final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
     final Background b = actor.mind.vocation();
     
-    float baseUnit = (actor.gear.allCredits() + 100) / 2;
-    baseUnit += b.defaultSalary;
+    float baseUnit = 0;
+    baseUnit += b.defaultSalary / Backgrounds.NUM_DAYS_PAY;
+    baseUnit += ((actor.gear.allCredits() - 25) * 2);
     baseUnit /= Backgrounds.NUM_DAYS_PAY;
     if (baseUnit <= 0) return Plan.PARAMOUNT;
     

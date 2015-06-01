@@ -10,6 +10,7 @@ import stratos.util.*;
 
 import stratos.game.civic.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Owner.*;
 
 
 
@@ -115,12 +116,14 @@ public class BringUtils {
   }
   
   
-  public static Bringing nextHomePurchase(Actor actor, Venue from) {
+  public static Bringing nextHomePurchase(
+    Actor actor, Venue from, Traded... goods
+  ) {
     if (! (actor.mind.home() instanceof Venue)) return null;
     final Venue home = (Venue) actor.mind.home();
-    final Bringing d = fillBulkOrder(from, home, home.stocks.demanded(), 1, 5);
-    if (d == null) return null;
-    else return d.setWithPayment(actor);
+    if (goods == null || goods.length == 0) goods = home.stocks.demanded();
+    final Bringing d = fillBulkOrder(from, home, goods, 1, 5);
+    return (d == null) ? null : d.setWithPayment(actor);
   }
   
   
@@ -453,7 +456,7 @@ public class BringUtils {
     //  Secondly, obtain an estimate of stocks before and after the exchange.
     final boolean
       isTrade    = OT == DT && DP == OP,
-      isConsumer = DP == false && DT < Owner.TIER_DEPOT;
+      isConsumer = DP == false && DT < Owner.TIER_SHIPPING;
     final float
       OFB = futureBalance(orig, good, report),
       DFB = futureBalance(dest, good, report);
@@ -518,13 +521,22 @@ public class BringUtils {
     int origTier, boolean origProduce,
     int destTier, boolean destProduce
   ) {
+    //
+    //  Trade exchanges are always okay with lower-tier owners as long as they
+    //  produce/consume appropriately.
+    if (destTier == TIER_TRADER && origTier < TIER_TRADER) {
+      return origProduce;
+    }
+    if (origTier == TIER_TRADER && destTier < TIER_TRADER) {
+      return ! destProduce;
+    }
     //  Private trades (okay as long as the recipient is a consumer)
-    if (destTier <= Owner.TIER_PRIVATE) {
+    if (destTier <= TIER_PRIVATE) {
       if (destProduce == true) return false;
     }
     //  Same-tier trades (illegal between trade vessels or same demands)
     else if (origTier == destTier) {
-      if (origTier == Owner.TIER_SHIPPING) return false;
+      if (origTier == TIER_SHIPPING) return false;
       if (origProduce == destProduce) return false;
     }
     //  Downstream deliveries (from ships to depots to facilities)

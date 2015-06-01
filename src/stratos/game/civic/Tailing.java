@@ -122,7 +122,7 @@ public class Tailing extends Element {
     */
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
-    world.terrain().setHabitat(origin(), Habitat.STRIP_MINING);
+    world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
     
     for (Tile t : origin().allAdjacent(null)) {
       if (t != null) t.clearUnlessOwned();
@@ -177,11 +177,11 @@ public class Tailing extends Element {
     final int stage = 1 + (int) ((fillLevel / MAX_FILL) * 3);
     final ModelAsset model;
     
-    if      (wasteType == FUEL_RODS ) model = ISOTOPE_TAILING_MODEL    ;
-    else if (wasteType == METALS     ) model = METAL_ORE_TAILINGS[stage];
-    else if (wasteType == ARTIFACTS) model = ISOTOPE_TAILING_MODEL    ;
+    if      (wasteType == FUEL_RODS) model = ISOTOPE_TAILING_MODEL    ;
+    else if (wasteType == METALS   ) model = METAL_ORE_TAILINGS[stage];
+    else if (wasteType == CURIO    ) model = ISOTOPE_TAILING_MODEL    ;
     else                             model = RAW_SLAG_TAILINGS [stage];
-
+    
     final Sprite oldSprite = sprite();
     attachModel(model);
     

@@ -5,11 +5,12 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
+import stratos.user.Selectable;
 import stratos.util.*;
 
 
 
-public class Trait extends Index.Entry implements Qualities, Session.Saveable {
+public class Trait extends Constant implements Qualities {
   
   
   private static boolean verboseInit = false;
@@ -39,7 +40,7 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   protected Trait(
     String name, String description, int type, String... labels
   ) {
-    super(TRAIT_INDEX, name);
+    super(TRAIT_INDEX, name, name);
     
     this.name = name;
     this.description = description;
@@ -142,8 +143,8 @@ public class Trait extends Index.Entry implements Qualities, Session.Saveable {
   }
   
   
-  public String toString() {
-    return name;
+  public void describeHelp(Description d, Selectable prior) {
+    d.append(description);
   }
 }
 

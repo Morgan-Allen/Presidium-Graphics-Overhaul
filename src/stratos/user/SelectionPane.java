@@ -17,6 +17,9 @@ import stratos.util.*;
 //  TODO:  Adapt to work in an abbreviated horizontal format?  (More of a long-
 //         term project.)
 
+//  TODO:  Create proper, separately-instanced sub-panes for the different
+//         categories...
+
 
 public class SelectionPane extends UIGroup implements UIConstants {
   
@@ -25,24 +28,39 @@ public class SelectionPane extends UIGroup implements UIConstants {
     */
   final public static ImageAsset
     BORDER_TEX = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Panel.png"
+      SelectionPane.class, "media/GUI/Front/Panel.png"
     ),
     SCROLL_TEX = ImageAsset.fromImage(
       SelectionPane.class, "media/GUI/scroll_grab.gif"
+    ),
+    WIDGET_BACK = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_back.png"
+    ),
+    WIDGET_BACK_LIT = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_back_lit.png"
+    ),
+    WIDGET_CLOSE = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_close.png"
+    ),
+    WIDGET_CLOSE_LIT = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_close_lit.png"
+    ),
+    WIDGET_INFO = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_info.png"
+    ),
+    WIDGET_INFO_LIT = ImageAsset.fromImage(
+      SelectionPane.class, "media/GUI/Front/widget_info_lit.png"
     );
   final public static int
-    MARGIN_SIZE    = 10 ,
-    HEADER_HIGH    = 35 ,
     CORE_INFO_HIGH = 160,
     PORTRAIT_SIZE  = 80 ;
   
   
   final protected BaseUI UI;
-  final protected Selectable selected;
+  final public Selectable selected;
+  private SelectionPane previous;
   
   final Bordering border;
-  final UIGroup
-    innerRegion;
   final Text
     headerText ,
     detailText ,
@@ -53,59 +71,66 @@ public class SelectionPane extends UIGroup implements UIConstants {
   private Composite portrait     ;
   
   final   String categories[];
+  final   float  catScrolls[];
   private int    categoryID  ;
+  
+  private Button backButton;
+  private Button infoButton;
+  private Button closeButton;
   
 
   public SelectionPane(
-    final BaseUI UI, Selectable selected,
-    final Composite portrait,
+    BaseUI UI, Selectable selected, Composite portrait,
     boolean hasListing, String... categories
   ) {
-    this(UI, selected, portrait != null, hasListing, 0, categories);
+    this(UI, selected, null, portrait != null, hasListing, 0, categories);
     this.portrait = portrait;
   }
   
   
   public SelectionPane(
-    final BaseUI UI, Selectable selected,
+    final BaseUI UI, SelectionPane previous, Composite portrait
+  ) {
+    this(UI, null, previous, portrait != null, false, 0);
+    this.portrait = portrait;
+  }
+  
+  
+  public SelectionPane(
+    final BaseUI baseUI,
+    Selectable selected, SelectionPane previous,
     boolean hasPortrait, boolean hasListing, int topPadding,
     String... categories
   ) {
-    super(UI);
-    this.UI = UI;
+    super(baseUI);
+    this.UI = baseUI;
     this.alignVertical(0, PANEL_TABS_HIGH);
     this.alignRight   (0, INFO_PANEL_WIDE);
-
-    final int
-      TP = topPadding,
-      TM = 40, BM = 40,  //top and bottom margins
-      LM = 40, RM = 40;  //left and right margins
+    
+    this.selected = selected;
+    this.previous = previous;
+    
+    final int TP = topPadding;
     int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
     down += HEADER_HIGH + TP;
     
-    this.border = new Bordering(UI, BORDER_TEX);
-    border.left   = LM;
-    border.right  = RM;
-    border.bottom = BM;
-    border.top    = TM;
+    this.border = new Bordering(baseUI, BORDER_TEX);
+    border.left   = 20;
+    border.right  = 20;
+    border.bottom = 20;
+    border.top    = 20;
     border.alignAcross(0, 1);
     border.alignDown  (0, 1);
     border.attachTo(this);
     
-    this.innerRegion = new UIGroup(UI);
-    innerRegion.alignHorizontal(-15, -15);
-    innerRegion.alignVertical  (-15, -15);
-    innerRegion.attachTo(border.inside);
-    
-    headerText = new Text(UI, BaseUI.INFO_FONT);
+    headerText = new Text(baseUI, BaseUI.INFO_FONT);
     headerText.alignTop   (TP, HEADER_HIGH);
     headerText.alignAcross(0 , 1          );
     headerText.scale = BIG_FONT_SIZE;
-    headerText.attachTo(innerRegion);
-    
+    headerText.attachTo(border.inside);
     
     if (hasPortrait) {
-      portraitFrame = new UINode(UI) {
+      portraitFrame = new UINode(baseUI) {
         protected void render(WidgetsPass batch2d) {
           if (portrait == null) return;
           portrait.drawTo(batch2d, bounds, absAlpha);
@@ -113,28 +138,27 @@ public class SelectionPane extends UIGroup implements UIConstants {
       };
       portraitFrame.alignTop (HEADER_HIGH + TP, PORTRAIT_SIZE);
       portraitFrame.alignLeft(0               , PORTRAIT_SIZE);
-      portraitFrame.attachTo(innerRegion);
+      portraitFrame.attachTo(border.inside);
     }
     else {
       this.portrait      = null;
       this.portraitFrame = null;
     }
     
-    
-    detailText = new Text(UI, BaseUI.INFO_FONT) {
+    detailText = new Text(baseUI, BaseUI.INFO_FONT) {
       protected void whenLinkClicked(Clickable link) {
         super.whenLinkClicked(link);
         ((BaseUI) UI).beginPanelFade();
       }
     };
     detailText.scale = SMALL_FONT_SIZE;
-    detailText.attachTo(innerRegion);
+    detailText.attachTo(border.inside);
     
     if (hasListing) {
       detailText.alignHorizontal(0, 0);
       detailText.alignTop(down, CORE_INFO_HIGH);
       
-      listingText = new Text(UI, BaseUI.INFO_FONT) {
+      listingText = new Text(baseUI, BaseUI.INFO_FONT) {
         protected void whenLinkClicked(Clickable link) {
           super.whenLinkClicked(link);
           ((BaseUI) UI).beginPanelFade();
@@ -143,7 +167,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       listingText.alignVertical  (0, CORE_INFO_HIGH + down);
       listingText.alignHorizontal(0, 0                    );
       listingText.scale = SMALL_FONT_SIZE;
-      listingText.attachTo(innerRegion);
+      listingText.attachTo(border.inside);
       scrollbar = listingText.makeScrollBar(SCROLL_TEX);
       scrollbar.alignToMatch(listingText);
     }
@@ -156,24 +180,50 @@ public class SelectionPane extends UIGroup implements UIConstants {
     }
     
     scrollbar.alignRight(0 - SCROLLBAR_WIDE, SCROLLBAR_WIDE);
-    scrollbar.attachTo(innerRegion);
+    scrollbar.attachTo(border.inside);
     
-    this.selected = selected;
+    final SelectionPane pane = this;
     this.categories = categories;
     categoryID = defaultCategory();
-  }
-  
-  
-  public void assignPortrait(Composite portrait) {
-    this.portrait = portrait;
-  }
-  
-  
-  protected Vec2D screenTrackPosition() {
-    Vec2D middle = UI.trueBounds().centre();
-    middle.x -= INFO_PANEL_WIDE / 2;
-    //middle.y -= INFO_PANEL_HIGH / 2;
-    return middle;
+    this.catScrolls = new float[categories == null ? 0 :categories.length];
+    
+    this.backButton = new Button(
+      baseUI, "back", WIDGET_BACK, WIDGET_BACK_LIT, "Back"
+    ) {
+      protected void whenClicked() {
+        baseUI.setInfoPane(pane.previous);
+      }
+    };
+    backButton.alignTop  ( 0, 24);
+    backButton.alignRight(28, 48);
+    backButton.attachTo(this);
+    
+    this.closeButton = new Button(
+      baseUI, "close", WIDGET_CLOSE, WIDGET_CLOSE_LIT, "Close"
+    ) {
+      protected void whenClicked() {
+        if (pane.selected == baseUI.selection.selected()) {
+          baseUI.clearOptionsList();
+          baseUI.selection.pushSelection(null);
+        }
+        baseUI.clearInfoPane();
+      }
+    };
+    closeButton.alignTop  (-3, 30);
+    closeButton.alignRight( 0, 30);
+    closeButton.attachTo(this);
+    
+    this.infoButton = new Button(
+      baseUI, "info", WIDGET_INFO, WIDGET_INFO_LIT, "Info"
+    ) {
+      protected void whenClicked() {
+        final Constant type = pane.selected.infoSubject();
+        type.whenClicked();
+      }
+    };
+    infoButton.alignTop  (27, 30);
+    infoButton.alignRight( 0, 30);
+    infoButton.attachTo(this);
   }
   
   
@@ -189,6 +239,40 @@ public class SelectionPane extends UIGroup implements UIConstants {
   
   public Text listing() {
     return listingText;
+  }
+  
+  
+  
+  /**  Utility methods for creating sub-panes and categories:
+    */
+  protected static class PaneButton extends Button {
+    
+    final BaseUI baseUI;
+    final UIGroup pane;
+    
+    protected PaneButton(
+      UIGroup pane, BaseUI baseUI,
+      String widgetID, ImageAsset icon, ImageAsset iconLit, String helpInfo
+    ) {
+      super(baseUI, widgetID, icon, iconLit, helpInfo);
+      this.baseUI = baseUI;
+      this.pane   = pane  ;
+    }
+
+    protected void whenClicked() {
+      if (baseUI.currentInfoPane() == pane) {
+        baseUI.clearInfoPane();
+      }
+      else {
+        baseUI.setInfoPane(pane);
+        baseUI.clearOptionsList();
+      }
+    }
+  }
+  
+  
+  public void setPrevious(SelectionPane before) {
+    this.previous = before;
   }
   
   
@@ -224,11 +308,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
   }
   
   
-  public int categoryID() {
-    return categoryID;
-  }
-  
-  
   public String category() {
     if (categories.length == 0) return null;
     return categories[Nums.clamp(categoryID, categories.length)];
@@ -237,7 +316,11 @@ public class SelectionPane extends UIGroup implements UIConstants {
 
   private void setCategory(int catID) {
     UI.beginPanelFade();
+    
+    catScrolls[categoryID] = 1 - scrollbar.scrollPos();
     this.categoryID = catID;
+    scrollbar.setScrollPos(1 - catScrolls[categoryID]);
+    
     if (selected != null) defaults.put(selectType(), categories[catID]);
   }
   
@@ -247,7 +330,15 @@ public class SelectionPane extends UIGroup implements UIConstants {
     */
   protected void updateState() {
     updateText(UI, headerText, detailText, listingText);
-    if (selected != null) selected.configPanel(this, UI);
+    this.backButton.hidden = previous == null;
+    
+    if (selected != null) {
+      selected.configSelectPane(this, UI);
+      this.infoButton.hidden = selected.infoSubject() == null;
+    }
+    else {
+      this.infoButton.hidden = true;
+    }
     super.updateState();
   }
   
@@ -276,8 +367,6 @@ public class SelectionPane extends UIGroup implements UIConstants {
     if (listingText != null) listingText.setText("");
   }
 }
-
-
 
 
 
