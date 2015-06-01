@@ -102,8 +102,8 @@ public class EcologistStation extends Venue {
       Upgrade.THREE_LEVELS, GREENS, 1,
       null, BLUEPRINT
     ),
-    CULTIVATOR_STATION = new Upgrade(
-      "Cultivator Station",
+    CULTIVATOR_POST = new Upgrade(
+      "Cultivator Post",
       CULTIVATOR.info,
       50,
       Upgrade.THREE_LEVELS, CULTIVATOR, 1,
@@ -125,8 +125,8 @@ public class EcologistStation extends Venue {
       Upgrade.THREE_LEVELS, PROTEIN, 1,
       FLORAL_CULTURE, BLUEPRINT
     ),
-    ECOLOGIST_STATION = new Upgrade(
-      "Ecologist Station",
+    ECOLOGIST_OFFICE = new Upgrade(
+      "Ecologist Office",
       ECOLOGIST.info,
       150,
       Upgrade.THREE_LEVELS, ECOLOGIST, 1,
@@ -239,8 +239,11 @@ public class EcologistStation extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     //
-    //  Increment demand for gene seed, and decay current stocks-
+    //  Increment demands, and decay current stocks-
     stocks.incDemand(GENE_SEED, 5, 1, false);
+    stocks.incDemand(CARBS    , 5, 1, true );
+    stocks.incDemand(GREENS   , 5, 1, true );
+    stocks.incDemand(PROTEIN  , 5, 1, true );
     final float decay = 1f / (
       Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
     );
@@ -251,13 +254,9 @@ public class EcologistStation extends Venue {
       stocks.removeItem(Item.withAmount(sample, decay));
     }
     //
-    //  Demand supplies, if breeding is going on-
-    final int numBred = AnimalBreeding.breedingAt(this).size() + 1;
-    stocks.incDemand(CARBS  , numBred * 2, 1, true);
-    stocks.incDemand(PROTEIN, numBred * 1, 1, true);
     //
     //  And update demand for nursery-placement:
-    final float nurseryDemand = structure.upgradeLevel(CULTIVATOR_STATION) + 1;
+    final float nurseryDemand = structure.upgradeLevel(CULTIVATOR_POST) + 1;
     base.demands.impingeDemand(Nursery.class, nurseryDemand, 1, this);
     //
     //  An update ambience-
@@ -272,8 +271,8 @@ public class EcologistStation extends Venue {
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == ECOLOGIST ) return num + 2;
     if (v == CULTIVATOR) return num + 2;
+    if (v == ECOLOGIST ) return num + 2;
     return 0;
   }
   

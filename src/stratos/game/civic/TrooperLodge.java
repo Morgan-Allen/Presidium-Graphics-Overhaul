@@ -92,19 +92,19 @@ public class TrooperLodge extends Venue {
       200, Upgrade.THREE_LEVELS, null, 3,
       null, BLUEPRINT
     ),
-    VOLUNTEER_STATION = new Upgrade(
-      "Volunteer Station",
+    VOLUNTEER_POST = new Upgrade(
+      "Volunteer Post",
       VOLUNTEER.info,
       200,
       Upgrade.THREE_LEVELS, Backgrounds.VOLUNTEER, 1,
       null, BLUEPRINT
     ),
-    TROOPER_STATION = new Upgrade(
-      "Trooper Station",
+    TROOPER_OFFICE = new Upgrade(
+      "Trooper Office",
       TROOPER.info,
       450,
       Upgrade.THREE_LEVELS, Backgrounds.TROOPER, 1,
-      VOLUNTEER_STATION, BLUEPRINT
+      VOLUNTEER_POST, BLUEPRINT
     );
 
   final static Upgrade TRAIN_UPGRADES[] = {

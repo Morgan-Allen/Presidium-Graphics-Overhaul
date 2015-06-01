@@ -44,8 +44,8 @@ public class StockExchange extends Venue {
   final public static Blueprint BLUEPRINT = new Blueprint(
     StockExchange.class, "stock_exchange",
     "Stock Exchange", UIConstants.TYPE_COMMERCE, ICON,
-    "The Stock Exchange generates higher profits from the sale of finished "+
-    "goods to local homes and businesses.",
+    "The Stock Exchange generates profits from the sale of finished goods to "+
+    "local homes and businesses.",
     5, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_TRADER,
     150, 3, 250, Structure.NORMAL_MAX_UPGRADES
@@ -144,7 +144,7 @@ public class StockExchange extends Venue {
     //  TODO:  COOK UP RATIONS AS A 4TH FOOD TYPE
     RATIONS_VENDING = new Upgrade(
       "Rations Vending",
-      "Increases space available to carbs and protein and augments "+
+      "Increases space available to "+CARBS+" and "+PROTEIN+" and augments "+
       "profits from their sale.",
       150, Upgrade.THREE_LEVELS, null, 1,
       null, BLUEPRINT
@@ -153,8 +153,8 @@ public class StockExchange extends Venue {
     //  TODO:  PERMIT BASIC REPAIRS/RECHARGE OF ARMOUR/DEVICES
     HARDWARE_STORE = new Upgrade(
       "Hardware Store",
-      "Increases space available to parts and plastics, and augments profits "+
-      "from their sale.",
+      "Increases space available to "+PARTS+" and "+PLASTICS+", and augments "+
+      "profits from their sale.",
       150, Upgrade.THREE_LEVELS, null, 1,
       null, BLUEPRINT
     ),
@@ -162,17 +162,24 @@ public class StockExchange extends Venue {
     //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
     MEDICAL_EXCHANGE = new Upgrade(
       "Medical Exchange",
-      "Increases space available to greens and medicine, and augments "+
+      "Increases space available to "+GREENS+" and "+MEDICINE+", and augments "+
       "profits from their sale.",
       250, Upgrade.THREE_LEVELS, null, 1,
+      RATIONS_VENDING, BLUEPRINT
+    ),
+    
+    CREDITS_EXCHANGE = new Upgrade(
+      "Credits Exchange",
+      "Makes small periodic adjustments to revenue and outlays in response "+
+      "to large-scale investment patterns, magnifying both profit and loss.",
+      400, Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
     ),
     
-    VIRTUAL_CURRENCY = new Upgrade(
-      "Virtual Currency",
-      "Makes small periodic adjustments to revenue and outlays in response "+
-      "to large-scale investment patterns, magnifying both profit and loss.",
-      400, Upgrade.THREE_LEVELS, null, 1,
+    STOCK_VENDOR_OFFICE = new Upgrade(
+      "Stock Vendor Office",
+      STOCK_VENDOR.info,
+      100, Upgrade.TWO_LEVELS, STOCK_VENDOR, 1,
       null, BLUEPRINT
     ),
     
@@ -180,8 +187,8 @@ public class StockExchange extends Venue {
       "Advertisement",
       "Increases the likelihood of shoppers' visits and enhances morale when "+
       "doing so.",
-      300, Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      300, Upgrade.TWO_LEVELS, null, 1,
+      STOCK_VENDOR_OFFICE, BLUEPRINT
     );
   
   final public static Traded
@@ -205,7 +212,7 @@ public class StockExchange extends Venue {
   
   public int numOpenings(Background p) {
     final int nO = super.numOpenings(p);
-    if (p == Backgrounds.STOCK_VENDOR) return nO + 3;
+    if (p == Backgrounds.STOCK_VENDOR) return nO + 2;
     return 0;
   }
   
@@ -217,14 +224,19 @@ public class StockExchange extends Venue {
     //  ...You basically don't want the stock vendor wandering too far, because
     //  the venue has to be manned in order for citizens to come shopping.  So
     //  stick with jobs that happen within the venue.
-    if (PlanUtils.competition(Supervision.class, this, actor) > 0) {
+    if (staff.assignedTo(Bringing.class) == 0) {
       choice.add(BringUtils.bestBulkDeliveryFrom(
         this, services(), 2, 10, 5
       ));
       choice.add(BringUtils.bestBulkCollectionFor(
         this, services(), 2, 10, 5
       ));
+      if (! choice.empty()) return choice.weightedPick();
     }
+    /*
+    if (PlanUtils.competition(Supervision.class, this, actor) > 0) {
+    }
+    //*/
     //
     //  TODO:  Have the Supervision class delegate the precise behaviour you
     //  conduct back to the venue.
@@ -252,39 +264,17 @@ public class StockExchange extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    
-    final boolean report = verbose && I.talkAbout == this;
+    //
+    //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
-    
-    if (report) I.say("\nUpdating stock exchange...");
     for (Traded type : ALL_MATERIALS) {
-      final int typeSpace = spaceFor(type);
-      if (typeSpace == 0) continue;
-      //
-      //  We base our desired stock levels partly off installed upgrades, and
-      //  partly off local supply/demand levels.
-      final float
-        realDemand = base.demands.demandFractionFor(this, type, 1) * 2,
-        realSupply = base.demands.supplyFractionFor(this, type, 1) * 2,
-        shortage   = (realDemand / (realSupply + realDemand)) - 0.5f,
-        stockBonus = 1 + upgradeLevelFor(type),
-        idealStock = Nums.max(realDemand, realSupply) * stockBonus;
-      final boolean exports = shortage < 0;
-      stocks.incDemand(type, Nums.min(typeSpace, idealStock), 1, exports);
-      if (report) {
-        I.say("\nReal supply/demand for "+type+": "+realSupply+"/"+realDemand);
-        I.say("  Global supply:   "+base.demands.globalSupply(type));
-        I.say("  Global demand:   "+base.demands.globalDemand(type));
-        I.say("  Supply sampling: "+base.demands.supplySampling(type));
-        I.say("  Demand sampling: "+base.demands.demandSampling(type));
-        I.say("  Space available: "+typeSpace);
-        I.say("  Ideal stock is:  "+idealStock);
-      }
+      final float stockBonus = 1 + upgradeLevelFor(type);
+      stocks.updateTradeDemand(type, stockBonus, 1);
     }
     //
     //  In essence, we accumulate interest on any debts or losses accrued
     //  before taxation kicks in!
-    float interest = structure.upgradeLevel(VIRTUAL_CURRENCY) * 50 / 3f;
+    float interest = structure.upgradeLevel(CREDITS_EXCHANGE) * 50 / 3f;
     interest /= 100 * Stage.STANDARD_DAY_LENGTH;
     stocks.incCredits(stocks.allCredits() * interest);
   }

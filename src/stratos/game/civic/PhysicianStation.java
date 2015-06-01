@@ -79,8 +79,8 @@ public class PhysicianStation extends Venue {
   final public static Upgrade
     MEDICAL_LAB = new Upgrade(
       "Medical Lab",
-      "Speeds the production of "+MEDICINE+" and benefits the treatment and "+
-      "diagnosis of most disease.",
+      "Speeds the production of "+MEDICINE+" by 33%.  Benefits the treatment "+
+      "and diagnosis of most disease.",
       250,
       Upgrade.THREE_LEVELS, null, 1,
       null, BLUEPRINT
@@ -117,19 +117,19 @@ public class PhysicianStation extends Venue {
     //  Combat stims plus extra chance of revival as enraged
     COMBAT_STIMS = null,
     
-    MINDER_STATION = new Upgrade(
-      "Minder Ward",
+    MINDER_POST = new Upgrade(
+      "Minder Post",
       MINDER.info,
       50,
       Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
       MEDICAL_LAB, BLUEPRINT
     ),
-    PHYSICIAN_STATION = new Upgrade(
-      "Physician Ward",
+    PHYSICIAN_OFFICE = new Upgrade(
+      "Physician Office",
       PHYSICIAN.info,
       150,
       Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
-      MINDER_STATION, BLUEPRINT
+      MINDER_POST, BLUEPRINT
     );
   
   final public static Conversion
@@ -245,7 +245,7 @@ public class PhysicianStation extends Venue {
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
     if (v == MINDER   ) return nO + 2;
-    if (v == PHYSICIAN) return nO + 1;
+    if (v == PHYSICIAN) return nO + 2;
     return 0;
   }
   

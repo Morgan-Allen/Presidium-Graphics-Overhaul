@@ -36,10 +36,10 @@ public class TutorialScenario extends StartupScenario {
   
   private TrooperLodge     barracksBuilt = null;
   private EngineerStation  foundryBuilt  = null;
-  private SupplyDepot      depotBuilt    = null;
+  private StockExchange    marketBuilt   = null;
   private EcologistStation botanistBuilt = null;
   private boolean          topUpFunds    = true;
-  private float            creditsStart  = -1  ;
+  private boolean          auditorSeen   = false;
   
   private Tile            startAt      = null;
   private MissionRecon    reconSent    = null;
@@ -64,10 +64,10 @@ public class TutorialScenario extends StartupScenario {
     
     barracksBuilt = (TrooperLodge    ) s.loadObject();
     foundryBuilt  = (EngineerStation ) s.loadObject();
-    depotBuilt    = (SupplyDepot     ) s.loadObject();
+    marketBuilt   = (StockExchange   ) s.loadObject();
     botanistBuilt = (EcologistStation) s.loadObject();
-    topUpFunds    = s.loadBool ();
-    creditsStart  = s.loadFloat();
+    topUpFunds    = s.loadBool();
+    auditorSeen   = s.loadBool();
     
     startAt      = (Tile           ) s.loadObject();
     reconSent    = (MissionRecon   ) s.loadObject();
@@ -89,10 +89,10 @@ public class TutorialScenario extends StartupScenario {
 
     s.saveObject(barracksBuilt);
     s.saveObject(foundryBuilt );
-    s.saveObject(depotBuilt   );
+    s.saveObject(marketBuilt  );
     s.saveObject(botanistBuilt);
     s.saveBool  (topUpFunds   );
-    s.saveFloat (creditsStart );
+    s.saveBool  (auditorSeen  );
     
     s.saveObject (startAt     );
     s.saveObject (reconSent   );
@@ -117,10 +117,10 @@ public class TutorialScenario extends StartupScenario {
     
     barracksBuilt = null;
     foundryBuilt  = null;
-    depotBuilt    = null;
+    marketBuilt   = null;
     botanistBuilt = null;
     topUpFunds    = true;
-    creditsStart  = -1  ;
+    auditorSeen   = false;
     
     startAt      = null;
     reconSent    = null;
@@ -272,20 +272,27 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected void whenExploreRequestOpen() {
+    if (ruinsNear == null) return;
+    if (UI().tracking.distanceFrom(ruinsNear) > 8) {
+      UI().tracking.lockOn(ruinsNear);
+    }
     ScreenPing.addPingFor(UIConstants.RECON_BUTTON_ID);
   }
   
   
   protected boolean checkExploreBegun() {
-    final Mission match = firstBaseMission(MissionRecon.class);
-    if (match == null) return false;
-    reconSent = (MissionRecon) match;
+    if (reconSent == null) {
+      final Mission match = firstBaseMission(MissionRecon.class);
+      if (match == null) return false;
+      reconSent = (MissionRecon) match;
+    }
+    if (reconSent.applicants().size() == 0) return false;
+    if (reconSent.assignedPriority() < Mission.PRIORITY_NOMINAL) return false;
     return true;
   }
   
   
   protected void onExploreBegun() {
-    reconSent.assignPriority(Mission.PRIORITY_ROUTINE);
     for (Actor a : barracksBuilt.staff.workers()) {
       a.mind.assignMission(reconSent);
       break;
@@ -296,17 +303,20 @@ public class TutorialScenario extends StartupScenario {
   
   /**  First round of economic topics-
     */
-  protected boolean checkFacilitiesPlaced() {
-    foundryBuilt = (EngineerStation) firstBaseVenue(EngineerStation.class);
-    depotBuilt   = (SupplyDepot    ) firstBaseVenue(SupplyDepot    .class);
-    if (foundryBuilt == null || depotBuilt == null) return false;
-    return true;
+  protected void whenPlaceFacilitiesRequestOpen() {
+    if (UI().tracking.distanceFrom(bastion) > 12) {
+      UI().tracking.lockOn(bastion);
+    }
+    if (foundryBuilt == null) addPingsLeadingTo(EngineerStation.BLUEPRINT);
+    if (marketBuilt  == null) addPingsLeadingTo(StockExchange  .BLUEPRINT);
   }
   
   
-  protected void whenPlaceFacilitiesRequestOpen() {
-    if (foundryBuilt == null) addPingsLeadingTo(EngineerStation.BLUEPRINT);
-    if (depotBuilt   == null) addPingsLeadingTo(SupplyDepot    .BLUEPRINT);
+  protected boolean checkFacilitiesPlaced() {
+    foundryBuilt = (EngineerStation) firstBaseVenue(EngineerStation.class);
+    marketBuilt  = (StockExchange  ) firstBaseVenue(StockExchange  .class);
+    if (foundryBuilt == null || marketBuilt == null) return false;
+    return true;
   }
   
   
@@ -320,53 +330,50 @@ public class TutorialScenario extends StartupScenario {
     int num = 0;
     for (Actor a : bastion.staff.workers()) {
       if (a.mind.vocation() == Backgrounds.TECHNICIAN) {
-        Venue built = (num++ % 2 == 0) ? depotBuilt : foundryBuilt;
+        Venue built = (num++ % 2 == 0) ? marketBuilt : foundryBuilt;
         final Repairs build = new Repairs(a, built);
         build.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
         a.mind.assignBehaviour(build);
       }
     }
     
-    depotBuilt.stocks.clearDemands();
+    marketBuilt.stocks.clearDemands();
   }
   
   
   protected boolean checkFacilitiesReady() {
-    if (depotBuilt == null || foundryBuilt == null) return false;
-    if (! depotBuilt  .structure.intact()) return false;
+    if (marketBuilt == null || foundryBuilt == null) return false;
+    if (! marketBuilt .structure.intact()) return false;
     if (! foundryBuilt.structure.intact()) return false;
     return true;
   }
   
   
   protected void onFacilitiesReady() {
-    base().setup.fillVacancies(depotBuilt  , true);
+    base().setup.fillVacancies(marketBuilt , true);
     base().setup.fillVacancies(foundryBuilt, true);
   }
   
   
-  protected boolean checkUpgradesReady() {
+  protected boolean checkFoundryUpgradesReady() {
     if (foundryBuilt == null) return false;
-    final Upgrade ups = EngineerStation.ASSEMBLY_LINE;
-    if (foundryBuilt.structure.upgradeLevel(ups, Structure.STATE_NONE) < 3) {
-      return false;
-    }
-    return true;
+    return hasUpgrade(foundryBuilt, EngineerStation.ASSEMBLY_LINE, 2, false);
   }
   
   
-  protected boolean checkTradeSetup() {
-    if (depotBuilt == null) return false;
-    final Stocks DS = depotBuilt.stocks;
-    final Traded imp = Economy.METALS, exp = Economy.PARTS;
-    if (DS.demandFor(imp) < 10 || DS.producer(imp) == true ) return false;
-    if (DS.demandFor(exp) < 20 || DS.producer(exp) == false) return false;
-    return true;
+  protected boolean checkMarketUpgradesReady() {
+    if (marketBuilt == null) return false;
+    return
+      hasUpgrade(marketBuilt, StockExchange.RATIONS_VENDING, 1, false) &&
+      hasUpgrade(marketBuilt, StockExchange.HARDWARE_STORE , 1, false);
   }
   
   
-  protected void onTradeSetup() {
-    depotBuilt.stocks.bumpItem(Economy.PARTS, 10);
+  protected void onMarketUpgradesReady() {
+    if (marketBuilt == null || foundryBuilt == null) return;
+    foundryBuilt.structure.advanceUpgrade(1);
+    marketBuilt.structure.advanceUpgrade(1);
+    marketBuilt.stocks.bumpItem(Economy.PARTS, 10);
     GameSettings.noShips = false;
     world().offworld.journeys.scheduleLocalDrop(base(), 5);
     base().commerce.updateCommerce(0);
@@ -425,32 +432,42 @@ public class TutorialScenario extends StartupScenario {
   
   
   
+  /**  Second round of economic topics-
+    */
   protected void whenHiringBasicsTopicOpen() {
     if (barracksBuilt == null || ! barracksBuilt.structure.intact()) return;
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_STATION, 1);
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_STATION  , 1);
+    if (foundryBuilt  == null || ! foundryBuilt .structure.intact()) return;
+    
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_POST   , 1);
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_OFFICE   , 1);
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
     
+    foundryBuilt.structure.setUpgradeLevel(EngineerStation.TECHNICIAN_POST , 1);
+    foundryBuilt.structure.setUpgradeLevel(EngineerStation.ARTIFICER_OFFICE, 1);
+    
     final Base base = base();
-    while (base.commerce.numCandidates(Backgrounds.TROOPER) < 3) {
+    while (base.commerce.numCandidates(Backgrounds.TROOPER) < 2) {
       final Actor applies = Backgrounds.TROOPER.sampleFor(base);
       base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
     }
+    while (base.commerce.numCandidates(Backgrounds.ARTIFICER) < 1) {
+      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
+      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.ARTIFICER);
+    }
     
-    UI().tracking.lockOn(barracksBuilt);
     ScreenPing.addPingFor(UIConstants.ROSTER_BUTTON_ID);
   }
   
   
   protected boolean checkHiringDone() {
-    if (barracksBuilt == null) return false;
-    return barracksBuilt.staff.numHired(Backgrounds.TROOPER) >= 3;
+    if (barracksBuilt == null || foundryBuilt == null) return false;
+    return
+      barracksBuilt.staff.numHired(Backgrounds.TROOPER  ) >= 3 &&
+      foundryBuilt .staff.numHired(Backgrounds.ARTIFICER) >= 3;
   }
   
   
   
-  /**  Second round of economic topics-
-    */
   protected void whenBudgetsTopicOpen() {
     ScreenPing.addPingFor(UIConstants.BUDGETS_BUTTON_ID);
   }
@@ -492,31 +509,70 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkHousingPlaced() {
-    if (base().listInstalled(Holding.BLUEPRINT, false).size() < 2) {
-      return false;
+    return hasInstalled(2, Holding.BLUEPRINT, false);
+  }
+  
+  
+  protected void whenSupplyDepotTopicOpen() {
+    addPingsLeadingTo(SupplyDepot.BLUEPRINT);
+  }
+  
+  
+  protected boolean checkSupplyDepotPlaced() {
+    return hasInstalled(1, SupplyDepot.BLUEPRINT, false);
+  }
+  
+  
+  protected boolean checkAuditorSeen() {
+    if (this.auditorSeen) return true;
+    Selectable subject = UI().selection.selected();
+    if (subject instanceof Actor) {
+      final Actor actor = (Actor) subject;
+      if (actor.mind.vocation() == Backgrounds.AUDITOR) {
+        this.auditorSeen = true;
+        onAuditorSeen(actor);
+      }
     }
-    return true;
+    return false;
   }
   
   
-  protected void whenStockExchangeTopicOpen() {
-    addPingsLeadingTo(StockExchange.BLUEPRINT);
-  }
-  
-  
-  protected boolean checkStockExchangePlaced() {
-    if (base().listInstalled(StockExchange.BLUEPRINT, false).size() < 1) {
-      return false;
+  protected void onAuditorSeen(Actor actor) {
+    marketBuilt .stocks.incCredits(75 + Rand.index(50));
+    foundryBuilt.stocks.incCredits(25 + Rand.index(50));
+    
+    if (actor.health.asleep()) {
+      actor.health.liftFatigue(100);
+      actor.health.setState(ActorHealth.STATE_ACTIVE);
     }
-    return true;
+    final Audit audit = Audit.nextOfficialAudit(
+      actor, marketBuilt, foundryBuilt
+    );
+    audit.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
+    actor.mind.assignBehaviour(audit);
   }
   
   
-  protected void onStockExchangePlaced() {
+  protected boolean checkExtraBuildingFinished() {
+    boolean done = true;
+    done &= hasInstalled(2, EngineerStation.BLUEPRINT, true);
+    done &= hasInstalled(1, ExcavationSite.BLUEPRINT , true);
+    done &= hasInstalled(2, Holding.BLUEPRINT        , true);
+    done &= hasInstalled(1, SupplyDepot.BLUEPRINT    , true);
+    done &= checkAuditorSeen();
+    return done;
+  }
+  
+  
+  protected void onExtraBuildingFinished() {
     this.topUpFunds = false;
-    base().finance.setInitialFunding(3000, 0);
+    for (Object o : world().presences.allMatches(base())) {
+      final Venue v = (Venue) o;
+      base().setup.fillVacancies(v, false);
+    }
     world().offworld.journeys.scheduleLocalDrop(base(), 5);
     base().commerce.updateCommerce(0);
+    base().finance.setInitialFunding(3000, 0);
   }
   
   
@@ -621,6 +677,12 @@ public class TutorialScenario extends StartupScenario {
   
   private boolean hasInstalled(int minBuilt, Blueprint type, boolean intact) {
     return base().listInstalled(type, intact).size() >= minBuilt;
+  }
+  
+  
+  private boolean hasUpgrade(Venue v, Upgrade u, int level, boolean intact) {
+    final int state = intact ? Structure.STATE_INTACT : Structure.STATE_NONE;
+    return v.structure.upgradeLevel(u, state) >= level;
   }
   
   

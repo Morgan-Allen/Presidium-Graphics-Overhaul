@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.Text;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -127,7 +128,13 @@ public class Traded extends Constant implements Session.Saveable {
   /**  Rendering and interface methods-
     */
   public void describeHelp(Description d, Selectable prior) {
+    
+    Text.insert(icon.asTexture(), 20, 20, true, d);
     d.append(description);
+    d.append("\n  (Base price "+basePrice()+" credits)");
+    Text.cancelBullet(d);
+    
+    
     final Base base = BaseUI.currentPlayed();
     if (base == null) return;
 
@@ -160,6 +167,26 @@ public class Traded extends Constant implements Session.Saveable {
         d.append("at ");
         d.append(b);
       }
+    }
+    
+    d.append("\n");
+    final float localShort = base.commerce.primaryShortage(this);
+    if (localShort >= 0) {
+      final int percent = (int) (localShort * 100);
+      d.append("\nLocal demand: "+percent+"% shortage");
+    }
+    else {
+      final int percent = (int) (localShort * -100);
+      d.append("\nLocal demand: "+percent+"% surplus");
+    }
+    final float tradeShort = base.commerce.tradingShortage(this);
+    if (tradeShort >= 0) {
+      final int percent = (int) (tradeShort * 100);
+      d.append("\nTrade demand: "+percent+"% shortage");
+    }
+    else {
+      final int percent = (int) (tradeShort * -100);
+      d.append("\nTrade demand: "+percent+"% surplus");
     }
   }
 }

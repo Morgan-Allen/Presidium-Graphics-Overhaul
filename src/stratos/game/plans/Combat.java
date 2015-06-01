@@ -20,7 +20,7 @@ public class Combat extends Plan implements Qualities {
   protected static boolean
     evalVerbose   = false,
     begunVerbose  = false,
-    stepsVerbose  = true ,
+    stepsVerbose  = false,
     damageVerbose = false;
   
   

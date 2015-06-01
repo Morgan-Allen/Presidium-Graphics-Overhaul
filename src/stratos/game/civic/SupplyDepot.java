@@ -7,6 +7,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Ambience;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -18,44 +19,30 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Consider adding one or two upgrades, to allow for scrapping, granary
+//  functions, construction materials etc.?
+
 public class SupplyDepot extends Venue {
   
   /**  Other data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL_UNDER = CutoutModel.fromSplatImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 3.5f
+    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 2.75f, 1
+    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 3, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
   );
   
-  final static Traded
-    ALL_TRADE_TYPES[] = {
-      CARBS, PROTEIN, POLYMER, METALS,
-      PLASTICS, PARTS, GREENS, MEDICINE,
-      SOMA, REAGENTS, FUEL_RODS, CIRCUITRY
-    },
-    DEFAULT_TRADE_TYPES[] = {
-      CARBS, PROTEIN, GREENS, MEDICINE,
-      POLYMER, METALS, PLASTICS, PARTS
-    },
-    DEFAULT_IMPORT_TYPES[] = {
-      CARBS, PROTEIN, POLYMER, METALS
-    },
-    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
-    );
-  
   final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
     "Supply Depot", UIConstants.TYPE_COMMERCE, ICON,
-    "The Supply Depot allows for fine control over imports or exports to "+
-    "distant settlements.",
-    3, 1, Structure.IS_NORMAL,
-    NO_REQUIREMENTS, Owner.TIER_DEPOT,
+    "The Supply Depot allows for bulk storage of raw materials used by "+
+    "industry and manufacturing.",
+    4, 1, Structure.IS_NORMAL,
+    StockExchange.BLUEPRINT, Owner.TIER_TRADER,
     100,  //integrity
     2  ,  //armour
     200,  //build cost
@@ -74,9 +61,6 @@ public class SupplyDepot extends Venue {
     sprite.attach(MODEL_CORE , 0.1f, -0.1f,  0    );
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
-    
-    for (Traded t : DEFAULT_TRADE_TYPES ) stocks.forceDemand(t, 10, true );
-    for (Traded t : DEFAULT_IMPORT_TYPES) stocks.forceDemand(t, 5 , false);
   }
   
   
@@ -95,9 +79,26 @@ public class SupplyDepot extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
+  final static Traded
+    ALL_TRADE_TYPES[] = {
+      POLYMER, METALS, FUEL_RODS,
+      REAGENTS, SOMA, DRI_SPYCE
+    },
+    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
+      ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
+    );
+  
+  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
+    //
+    //  Update all stock demands-
+    structure.setAmbienceVal(Ambience.MILD_SQUALOR);
+    for (Traded type : ALL_TRADE_TYPES) {
+      final float stockBonus = 1 + upgradeLevelFor(type);
+      stocks.updateTradeDemand(type, stockBonus, 1);
+    }
     
     //  TODO:  You need to send those barges off to different settlements!
     for (CargoBarge b : barges) if (b.destroyed()) barges.remove(b);
@@ -112,11 +113,9 @@ public class SupplyDepot extends Venue {
   }
   
   
-  public float priceFor(Traded good, boolean sold) {
-    final boolean exports = stocks.producer(good);
-    if (   exports  &&    sold ) return base.commerce.exportPrice(good);
-    if ((! exports) && (! sold)) return base.commerce.importPrice(good);
-    return super.priceFor(good, sold);
+  private float upgradeLevelFor(Traded type) {
+    //  TODO:  Fill this in?
+    return 0;
   }
   
   
@@ -203,7 +202,7 @@ public class SupplyDepot extends Venue {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.SUPPLY_CORPS) return nO + 3;
+    if (v == Backgrounds.SUPPLY_CORPS) return nO + 2;
     return 0;
   }
   
@@ -217,7 +216,7 @@ public class SupplyDepot extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return DEFAULT_TRADE_TYPES;
+    return ALL_TRADE_TYPES;
   }
   
   
@@ -233,10 +232,13 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+    return VenuePane.configSimplePanel(this, panel, UI, null);
+    /*
     return VenuePane.configStandardPanel(
       this, panel, UI,
       ALL_TRADE_TYPES, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
     );
+    //*/
   }
 }
 

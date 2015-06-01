@@ -238,8 +238,8 @@ public interface Backgrounds {
     CULTIVATOR = new Background(
       Backgrounds.class,
       "Cultivator",
-      "Hire additional cultivators to plant and reap harvests more "+
-      "quickly, maintain equipment, and perform other agricultural chores.",
+      "Cultivators plant and reap harvests, maintain farm equipment, and "+
+      "perform other agricultural chores.",
       "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, CULTIVATION, HARD_LABOUR, LEARNING, DOMESTICS, ASSEMBLY,

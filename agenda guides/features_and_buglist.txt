@@ -1,83 +1,26 @@
 
+THE TUTORIAL
 
 
-BETTER UI INFO/HELP SYSTEM
-
-*  Consider adding a step for extra hires/upgrades before the second round of
-   attacks?  You will need that for the stock exchange anyway.
-*  In fact, just use the stock exchange, and install some upgrades there.  It's
-   a good deal simpler.
-
-*  And I think I still need to explain security missions.
-
-
-*  Citizens are too eager to embark on tasks in distant areas in general.
-   (BringUtils needs to ignore sources that are too far away- that's for bulk
-   transport only.)
-
-*  Re-introduce the Planets/Sectors pane, and build the markets-report into
-   that for each world.  Then finance can stay on it's own.  (Add little
-   portraits for each world in the partners-listing too.  Use current art!)
+*  And I think I still need to explain security missions.  (And make sure the
+   artilects are more proactive as raiders.)
 
 *  If a mission is selected and then completes while looking at a different
    panel, the selection-circle can persist.  (That might need a change to the
    selection-system?)
 
+*  Show missions on the minimap, along with proper tool-tips.
 
-CLEANING UP THE ECONOMY:
-
-*  Merge the Supply Depot with the Airfield, function-wise.
-
-*  Try merging the solar bank with the nursery- or the latter with eco station
-
-*  Use the Fabricator exclusively to make luxury outfits and public decoration
-   for fancy houses and the nobility.  Common plastics get made at the engineer,
-   along with common outfits (or possibly at the stock exchange.)
-
-*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
-   the excavation site, former plant, kommando lodge & eco station- take up
-   big plots.
-
-*  List total earnings for specific buildings.  Breakdown expenses more finely.
-   Restore shortage listing for homelessness.
-
-*  Consider restricting access to some of these structures based on house-
-   philosophy or lack of expertise.
-   House Procyon- has culture lab, lacks eco station.
-   House Altair-  has archives, lacks stock exchange.
-   House Taygeta- has runner lodge, lacks enforcer bloc.
-   House Suhail-  has kommando lodge, lacks reactor.
-
-*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
-
-*  Allow rations-production to satisfy need to eat.
-
-*  A number of structures need bigger footprints, which will require some art
-   changes.  Look into that.
-
-
-TACTICAL AND OUTDOORS
-
-*  Get vermin into the game again!
-*  Nocturnal trait.  "They mostly come at night.  Mostly."
-
-*  Ensure raiders will attempt to besiege intervening walls!
-*  More vigorous attacks after a few days from artilects, etc.
-*  Notifications for casualties and base attacks.
-
-
-*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
-   The slowdown must be in those path-routines.
-
-*  There is very noticeable slowdown on large maps every 2 seconds or so.
-   Profile and FIND OUT WHY.
-   TODO:  Consider using jHiccup for this:
-   http://www.azulsystems.com/javaperformancetuning/
-   chart-java-jitter-with-jhiccup
+*  Fill up venues once the economic-part is done!
 
 
 
 BUILDINGS AND ECONOMY-
+
+*  Apply shipping-cost penalties, so that you can import what you like, but can't
+   always export.
+
+*  Try merging the solar bank with the nursery- or the latter with eco station
 
 *  Use service hatches to initiate heavier paving and utility-transmission?
 
@@ -107,8 +50,31 @@ BUILDINGS AND ECONOMY-
 
 *  Finalise perimeter fence artwork.
 
+*  Use the Fabricator exclusively to make luxury outfits and public decoration
+   for fancy houses and the nobility.  Common plastics get made at the engineer,
+   along with common outfits (or possibly at the stock exchange.)
+
+*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
+   the excavation site, former plant, kommando lodge & eco station- take up
+   big plots.
+
+*  Consider restricting access to some of these structures based on house-
+   philosophy or lack of expertise.
+   House Procyon- has culture lab, lacks eco station.
+   House Altair-  has archives, lacks stock exchange.
+   House Taygeta- has runner lodge, lacks enforcer bloc.
+   House Suhail-  has kommando lodge, lacks reactor.
+
+*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
+
+*  Allow rations-production to satisfy need to eat.
+
+
 
 CITIZEN BEHAVIOUR-
+
+*  Citizens are too eager to embark on tasks in distant areas.  (BringUtils
+   needs to ignore sources that are too far away- that's for bulk transport.)
 
 *  Actors should be doing more to dispose of bodies.  Burial or recyling.
 
@@ -137,6 +103,7 @@ CITIZEN BEHAVIOUR-
 *  Vehicles need to be salvaged along with their parent structures.
 
 
+
 CONTROL AND DIRECTION-
 
   >>>>>>> DO THIS <<<<<<<
@@ -154,7 +121,17 @@ CONTROL AND DIRECTION-
    independant casting independantly (with reduced skill rank.)
 
 
+
 ENEMIES AND ENVIRONMENT-
+
+*  A lot of trees seem to 'die off' immediately when you start a fresh flora-
+   filled map.  Find out why.
+
+*  Get vermin into the game again!
+*  Nocturnal trait.  "They mostly come at night.  Mostly."
+
+*  Ensure raiders will attempt to besiege intervening walls!
+*  More vigorous attacks after a few days from artilects, etc.
 
 *  Try to polish up the Flora- have it look more exotic.
 
@@ -172,7 +149,23 @@ ENEMIES AND ENVIRONMENT-
    vermin behaviours.
 
 
+*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
+   The slowdown must be in those path-routines.
+
+*  There is very noticeable slowdown on large maps every 2 seconds or so.
+   Profile and FIND OUT WHY.
+   TODO:  Consider using jHiccup for this:
+   http://www.azulsystems.com/javaperformancetuning/
+   chart-java-jitter-with-jhiccup
+
+
+
 INTERFACE AND DEBUGGING
+
+*  Notifications for casualties and base attacks.
+
+*  List total earnings for specific buildings.  Breakdown expenses more finely.
+   Restore shortage listing for homelessness.
 
 *  Icons could be clearer, at least in the early game.
 
@@ -180,6 +173,10 @@ INTERFACE AND DEBUGGING
    and other situations.  Add those in later.
 
 *  Merge BaseCommerce with either the Verse class and/or the BaseAdvice class.
+
+*  Re-introduce the Planets/Sectors pane, and build the markets-report into
+   that for each world.  Then finance can stay on it's own.  (Add little
+   portraits for each world in the partners-listing too.  Use current art!)
 
 *  Try to implement some global debugging-levels.
 
@@ -201,7 +198,11 @@ INTERFACE AND DEBUGGING
 *  Try to use right-click for something?  Add an option for it at least.
 
 
+
 ART, GRAPHICS AND MEDIA PRODUCTION
+
+*  A number of structures need bigger footprints, which will require some art
+   changes.  Look into that.
 
 *  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
    that.

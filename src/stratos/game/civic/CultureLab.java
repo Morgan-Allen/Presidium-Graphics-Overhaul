@@ -92,28 +92,33 @@ public class CultureLab extends Venue {
       "Carbs Culture",
       "Employs gene-tailored yeast strains to provide "+CARBS+", cycle waste "+
       "products and output "+ATMO+".",
-      200, Upgrade.THREE_LEVELS, null, 1,
+      200, Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
       "permitting manufacture of "+REAGENTS+".",
-      250, Upgrade.THREE_LEVELS, null, 1,
+      250, Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
     ),
     TISSUE_CULTURE = new Upgrade(
       "Tissue Culture",
       "Allows production of "+PROTEIN+" for consumption and "+REPLICANTS+" "+
       "for use in medical emergencies.",
-      400, Upgrade.THREE_LEVELS, null, 1,
+      400, Upgrade.TWO_LEVELS, null, 1,
       CARBS_CULTURE, BLUEPRINT
     ),
+    
+    CHEMICAL_VATS = null,
+    
+    CORPSE_CYCLING = null,
+    
     //  TODO:  Just have a general structure-upgrade here-
-    VAT_BREEDER_STATION = new Upgrade(
-      "Vat Breeder Station",
+    VATS_BREEDER_POST = new Upgrade(
+      "Vats Breeder Post",
       VATS_BREEDER.info,
-      100, Upgrade.THREE_LEVELS, Backgrounds.VATS_BREEDER, 1,
+      100, Upgrade.TWO_LEVELS, VATS_BREEDER, 1,
       null, BLUEPRINT
     )
   ;
@@ -196,9 +201,7 @@ public class CultureLab extends Venue {
   
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.VATS_BREEDER) {
-      return nO + 3 + structure.upgradeLevel(VAT_BREEDER_STATION);
-    }
+    if (v == VATS_BREEDER) return nO + 2;
     return 0;
   }
   

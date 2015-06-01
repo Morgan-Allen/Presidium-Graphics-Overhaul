@@ -484,6 +484,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (role == null || ! role.approved) return null;
     if (actor.senses.isEmergency()) return null;
     
+    if (I.talkAbout == actor) {
+      I.say("GETTING WAIT ACTION...");
+    }
+    
+    
     for (Actor a : approved()) {
       if (a == actor || a.planFocus(null, true) != subject) continue;
       

@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -10,7 +12,6 @@ import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Conditions.*;
@@ -66,17 +67,12 @@ public class Reactor extends Venue {
   );
   
   final public static Conversion
-    METALS_TO_FUEL = new Conversion(
-      BLUEPRINT, "metals_to_fuel",
-      1, METALS, TO, 1, FUEL_RODS,
-      MODERATE_DC, CHEMISTRY, MODERATE_DC, FIELD_THEORY
-    ),
-    ISOTOPES_TO_ANTIMASS = new Conversion(
+    FUEL_RODS_TO_ANTIMASS = new Conversion(
       BLUEPRINT, "isotopes_to_antimass",
       4, FUEL_RODS, TO, 1, ANTIMASS,
       MODERATE_DC, CHEMISTRY, STRENUOUS_DC, FIELD_THEORY
     ),
-    ISOTOPES_TO_POWER = new Conversion(
+    FUEL_RODS_TO_POWER = new Conversion(
       BLUEPRINT, "isotopes_to_power",
       1, FUEL_RODS, TO, 25, POWER
     );
@@ -113,8 +109,8 @@ public class Reactor extends Venue {
   final public static Upgrade
     WASTE_PROCESSING = new Upgrade(
       "Waste Processing",
-      "Reduces the rate at which "+FUEL_RODS+" are consumed, ameliorates "+
-      "pollution, and allows conversion of "+METALS+" to "+FUEL_RODS+".",
+      "Reduces the rate at which "+FUEL_RODS+" are consumed and ameliorates "+
+      "pollution.",
       150,
       Upgrade.THREE_LEVELS, null, 1,
       null, BLUEPRINT
@@ -164,12 +160,7 @@ public class Reactor extends Venue {
     if (! staff.onShift(actor)) return choice.pickMostUrgent();
     //
     //  Then check to see if anything needs manufacture-
-    Manufacture m = null;
-    
-    m = stocks.nextManufacture(actor, METALS_TO_FUEL);
-    if (m != null) choice.add(m.setBonusFrom(this, true, WASTE_PROCESSING));
-    
-    m = stocks.nextManufacture(actor, ISOTOPES_TO_ANTIMASS);
+    Manufacture m = stocks.nextManufacture(actor, FUEL_RODS_TO_ANTIMASS);
     if (m != null) choice.add(m.setBonusFrom(this, true, PARTICLE_CIRCUIT));
     
     for (Item ordered : stocks.specialOrders()) {
@@ -219,23 +210,20 @@ public class Reactor extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     checkMeltdownAdvance();
     if (! structure.intact()) return;
-    
+    //
     //  Calculate output of power and consumption of fuel-
     float fuelConsumed = 1f / Stage.STANDARD_DAY_LENGTH, powerOutput = 25;
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
     powerOutput *= (2f + structure.upgradeLevel(COLD_FUSION)) / 2;
-    
+    //
     //  TODO:  Load fuel into the core gradually- (make a supervision task.)
     final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 2;
     stocks.forceDemand(POWER, powerOutput, true);
-    
+    //
     //  Update demand for raw materials-
     stocks.forceDemand(FUEL_RODS, 5, false);
-    if (structure.upgradeLevel(WASTE_PROCESSING) > 0) {
-      stocks.translateRawDemands(METALS_TO_FUEL, 1);
-    }
     //
     //  Output pollution-
     int pollution = 10;
@@ -353,7 +341,7 @@ public class Reactor extends Venue {
       final Actor a = (Actor) e;
       a.health.takeInjury(damage / 2f, true);
       a.traits.setLevel(POISONING, radiation / 25f);
-      if (Rand.index(100) < radiation) a.traits.incLevel(CANCER, Rand.num());
+      if (Rand.index(100) < radiation) a.traits.incLevel(CANCER  , Rand.num());
       if (Rand.index(100) < radiation) a.traits.incLevel(MUTATION, Rand.num());
     }
     else {

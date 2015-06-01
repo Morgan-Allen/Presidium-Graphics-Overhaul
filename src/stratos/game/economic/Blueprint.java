@@ -278,16 +278,21 @@ public class Blueprint extends Constant implements Session.Saveable {
     for (Conversion c : producing) {
       d.append("\n  ");
       final String name = c.specialName();
-      if (name != null) d.append(name+" ");
+      if (name != null) d.append(name);
       
       if (c.raw.length > 0) {
-        for (Item i : c.raw) { d.append(i.type); d.append(" "); }
-        d.append("to ");
+        for (Item i : c.raw) {
+          d.append((int) i.amount+" ");
+          d.append(i.type);
+          d.append(" ");
+        }
+        d.append("to "+(int) c.out.amount+" ");
         d.append(c.out.type);
       }
       else {
         d.append(c.out.type);
       }
+      d.append("\n  Base 2.5x per worker/day");
     }
     
     final Upgrade upgrades[] = Upgrade.upgradesFor(this);

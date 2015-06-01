@@ -68,15 +68,15 @@ public class EngineerStation extends Venue {
   final public static Upgrade
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
-      "Allows standardised "+PARTS+" to be manufactured quickly, but "+
-      "slightly increases pollution.",
+      "Allows standardised "+PARTS+" to be manufactured 33% faster.  Slightly"+
+      "increases pollution.",
       200,
       Upgrade.THREE_LEVELS, PARTS, 2,
       null, BLUEPRINT
     ),
     MOLDING_PRESS = null,  //  TODO:  INCLUDE THIS
-    TECHNICIAN_STATION = new Upgrade(
-      "Technician Station",
+    TECHNICIAN_POST = new Upgrade(
+      "Technician Post",
       TECHNICIAN.info,
       50,
       Upgrade.TWO_LEVELS, TECHNICIAN, 1,
@@ -99,20 +99,20 @@ public class EngineerStation extends Venue {
       null, BLUEPRINT
     ),
     T_NULL_ARMBAND = null, //  TODO:  INCLUDE THIS
-    ARTIFICER_STATION = new Upgrade(
-      "Artificer Station",
+    ARTIFICER_OFFICE = new Upgrade(
+      "Artificer Office",
       ARTIFICER.info,
       150,
       Upgrade.SINGLE_LEVEL, ARTIFICER, 1,
-      TECHNICIAN_STATION, BLUEPRINT
+      TECHNICIAN_POST, BLUEPRINT
     ),
     MICRO_ASSEMBLY = new Upgrade(
       "Micro Assembly",
-      "Allows for the precise yet highly customised assembly of "+CIRCUITRY+" "+
-      "and other personal commissions.",
+      "Allows customised "+CIRCUITRY+" to be produced 33% faster.  Provides "+
+      "a mild bonus to personal commissions.",
       150,
       Upgrade.THREE_LEVELS, PLASTICS, 1,
-      new Upgrade[] { ASSEMBLY_LINE, ARTIFICER_STATION }, BLUEPRINT
+      new Upgrade[] { ASSEMBLY_LINE, ARTIFICER_OFFICE }, BLUEPRINT
     );
   
   final public static Conversion
@@ -141,7 +141,7 @@ public class EngineerStation extends Venue {
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
     if (v == Backgrounds.TECHNICIAN) return num + 2;
-    if (v == Backgrounds.ARTIFICER ) return num + 1;
+    if (v == Backgrounds.ARTIFICER ) return num + 2;
     return 0;
   }
   

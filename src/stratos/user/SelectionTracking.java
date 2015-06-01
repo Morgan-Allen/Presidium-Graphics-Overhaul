@@ -65,6 +65,13 @@ public class SelectionTracking {
   }
   
   
+  public float distanceFrom(Target t) {
+    if (t == null) return -1;
+    final Vec3D pos = t.position(null);
+    return view.lookedAt.distance(pos);
+  }
+  
+  
   public void lockOn(Target target) {
     if (target == null) {
       lockTarget = null;

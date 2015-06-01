@@ -84,6 +84,8 @@ public class VenuePane extends SelectionPane {
   }
 
   
+  //  TODO:  Move this to the Sectors-pane, to set trade-sanctions and prices
+  //  for specific partners.
   
   private void describeStockOrders(Description d, Traded types[], BaseUI UI) {
     d.append("Orders:");
@@ -229,7 +231,8 @@ public class VenuePane extends SelectionPane {
     if (needed == 0 && amount == 0) return false;
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
-    d.append("  "+I.shorten(amount, 1)+" "+type.name);
+    d.append("  "+I.shorten(amount, 1)+" ");
+    d.append(type);
     
     if (type.form == FORM_PROVISION && needed == amount) {
       if (v.stocks.producer(type)) d.append(" Output");
@@ -365,7 +368,7 @@ public class VenuePane extends SelectionPane {
       if ((! possible) && (level + queued == 0)) continue;
       
       d.append("\n  ");
-      if (possible) d.append(name, upgrade);
+      if (possible) d.append(name);
       else d.append(name, grey);
       
       d.append("\n  ");
@@ -379,7 +382,8 @@ public class VenuePane extends SelectionPane {
       else d.append(desc, grey);
       
       d.append(" ("+(level + queued)+"/"+upgrade.maxLevel+")");
-      if (possible) d.append(" ("+cost+" Credits) ");
+      if (possible) d.append(" ("+cost+" Credits)");
+      d.append(" (INFO)", upgrade);
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();

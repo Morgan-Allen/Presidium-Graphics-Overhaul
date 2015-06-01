@@ -100,7 +100,7 @@ public class Exploring extends Plan implements Qualities {
   
   
   public static Exploring nextSurvey(
-    Base base, Actor actor, Target point, float range
+    Base base, Actor actor, Tile point, float range
   ) {
     Tile core      = Spacing.nearestOpenTile(point, point);
     Tile toExplore = (range > 0) ? IntelMap.getUnexplored(
@@ -109,7 +109,7 @@ public class Exploring extends Plan implements Qualities {
     if (toExplore == null) return null;
     if (core == null) core = toExplore;
     
-    final Exploring e = new Exploring(actor, base, TYPE_SURVEY, core, 0);
+    final Exploring e = new Exploring(actor, base, TYPE_SURVEY, point, 0);
     e.lookedAt = toExplore;
     return e;
   }

@@ -456,7 +456,7 @@ public class BringUtils {
     //  Secondly, obtain an estimate of stocks before and after the exchange.
     final boolean
       isTrade    = OT == DT && DP == OP,
-      isConsumer = DP == false && DT < Owner.TIER_DEPOT;
+      isConsumer = DP == false && DT < Owner.TIER_SHIPPING;
     final float
       OFB = futureBalance(orig, good, report),
       DFB = futureBalance(dest, good, report);

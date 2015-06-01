@@ -77,7 +77,8 @@ public class Fabricator extends Venue {
   final public static Upgrade
     POLYMER_LOOM = new Upgrade(
       "Polymer Loom",
-      "Speeds the production of standard "+PLASTICS+" and everyday clothing.",
+      "Speeds the production of standard "+PLASTICS+" and everyday outfits "+
+      "by 33%.",
       250, Upgrade.THREE_LEVELS, CARBS, 1,
       null, BLUEPRINT
     ),

@@ -159,10 +159,13 @@ public class MessageScript implements
     //  (We use an array here to allow deletions mid-iteration if something
     //  goes wrong, which java would not otherwise allow.)
     final Topic topics[] = new Topic[allTopics.size()];
+    final boolean verbose = false;
     allTopics.values().toArray(topics);
     final BaseUI UI = BaseUI.current();
-    
+
+    if (verbose) I.say("\nCHECKING ALL TOPICS");
     for (Topic topic : topics) {
+      if (verbose) I.say("  CHECKING TOPIC: "+topic.titleKey);
       //
       //  First, we check to see if any topics have been triggered.
       if (topic.triggers != null && ! topic.triggered) {

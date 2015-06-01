@@ -357,7 +357,12 @@ public class VerseJourneys {
   
   
   public boolean scheduleLocalDrop(Base base, float delay) {
-    final Dropship ship = setupDefaultShipping(base);
+    final VerseLocation
+      orig = base.commerce.homeworld(),
+      dest = universe.stageLocation();
+    
+    Dropship ship = nextShipBetween(orig, dest, base, true);
+    if (ship == null) ship = setupShipping(orig, dest, base, true);
     return scheduleLocalDrop(ship, delay);
   }
   

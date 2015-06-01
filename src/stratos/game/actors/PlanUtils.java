@@ -31,7 +31,7 @@ public class PlanUtils {
   }
   
   
-  /**  Combat-priority.  Should range from 0 to 30.
+  /**  Combat-priority.  Should range from 0 to 20.
     */
   public static float combatPriority(
     Actor actor, Target subject,
@@ -44,10 +44,21 @@ public class PlanUtils {
       return 0;
     }
     
-    incentive += dislike   = actor.relations.valueFor(subject) * -5 * harm;
-    incentive += harmDone  = harmIntendedBy(subject, actor, false) *  5;
+    dislike = actor.relations.valueFor(subject) * -10 * harm;
+    if (dislike > 0) {
+      dislike *= PlanUtils.traitAverage(actor, DEFENSIVE, CRUEL) * 2;
+    }
+    
+    harmDone = harmIntendedBy(subject, actor, false) * 10;
+    if (harmDone > 0) {
+      harmDone *= PlanUtils.traitAverage(actor, DEFENSIVE, IMPULSIVE);
+    }
+    
+    incentive += dislike ;
+    incentive += harmDone;
     incentive += wierdness = baseCuriosity(actor, subject, false) * 5;
     incentive += rewardBonus;
+    incentive = Nums.clamp(incentive, 0, 20);
     if (! asRealTask) return incentive;
     
     conscience = 10 * baseConscience(actor, subject) * harm;
@@ -58,7 +69,7 @@ public class PlanUtils {
     winChance  = combatWinChance(actor, subject, teamSize);
     inhibition = Nums.max(10 * (1 - winChance), conscience);
     if (incentive < inhibition) return -1;
-    priority   = incentive * (1 + winChance) / 2;
+    priority = incentive * (1 + winChance) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
@@ -482,7 +493,7 @@ public class PlanUtils {
     float strength  = actor.senses.powerLevel();
     float health    = 1f - actor.health.injuryLevel();
     float courage   = 1 + actor.traits.relativeLevel(FEARLESS);
-
+    
     final Base otherBase = enemy.base(), ownBase = actor.base();
     float danger = ownBase.dangerMap.sampleAround(
       enemy, Stage.ZONE_SIZE

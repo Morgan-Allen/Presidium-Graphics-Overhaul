@@ -88,8 +88,9 @@ public class MissionRecon extends Mission {
     if (cached != null) return cached;
     
     final float range = exploreRadius();
-    final Exploring explore = Exploring.nextSurvey(base, actor, subject, range);
-    
+    final Exploring explore = Exploring.nextSurvey(
+      base, actor, (Tile) subject, range
+    );
     if (explore == null) {
       endMission(true);
       doneRecon = true;

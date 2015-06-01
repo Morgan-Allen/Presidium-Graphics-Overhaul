@@ -42,10 +42,6 @@ public class Stocks extends Inventory {
   public Stocks(Property v) {
     super(v);
     this.basis = v;
-    final Traded services[] = v.services();
-    if (services != null) for (Traded t : services) {
-      incDemand(t, 0, 0, true);
-    }
   }
   
   
@@ -278,7 +274,10 @@ public class Stocks extends Inventory {
   
 
   protected void onWorldEntry() {
-    //  TODO:  Use this to register service presences?
+    final Traded services[] = basis.services();
+    if (services != null) for (Traded t : services) {
+      incDemand(t, 0, 0, true);
+    }
   }
   
   
@@ -392,23 +391,19 @@ public class Stocks extends Inventory {
       //  general demand to establish their ideal stock levels, and signal
       //  their own presence as suppliers.
       if (wantsSell && ! trades) {
-        final float shouldSupply = d.fixed ? 0 : BD.demandFractionFor(
+        final float shouldSupply = d.fixed ? 0 : BD.demandSampleFor(
           basis, type, period
         );
         d.demandAmount = Nums.min(shouldSupply + d.demandAmount, maxSupply);
-        final float supplyEst = (d.demandAmount + amount) / 2;
-        if (report) {
-          I.say("    Should supply:     "+shouldSupply);
-          I.say("    Impinging supply:  "+supplyEst   );
-        }
-        BD.impingeSupply(type, supplyEst, period, basis);
+        if (report) I.say("    Should supply:     "+shouldSupply);
+        BD.impingeSupply(type, d.demandAmount + (amount / 2), period, basis);
       }
       //
       //  Primary consumers of a good will signal their presence as such within
       //  the settlement.
       if (wantsBuy && ! trades) {
         if (report) I.say("    Impinging demand:  "+d.demandAmount);
-        BD.impingeDemand(type, d.demandAmount, period, basis);
+        BD.impingeDemand(type, d.demandAmount - (amount / 2), period, basis);
       }
       //
       //  All producers & consumers- including trade venues- will flag
@@ -424,6 +419,61 @@ public class Stocks extends Inventory {
         I.say("    Gives/takes:       "+doesSell+"/"+doesBuy);
       }
     }
+  }
+  
+  
+  public void updateTradeDemand(Traded type, float stockBonus, int period) {
+    final boolean report = I.talkAbout == basis && verbose;
+    final int typeSpace = basis.spaceFor(type);
+    if (typeSpace == 0) {
+      if (report) I.say("\nNo space for "+type+"!");
+      return;
+    }
+    //
+    //  We base our desired stock levels partly on the stocking-bonus, partly
+    //  on local demand, and partly on offworld import/export prices.
+    final Base base = basis.base();
+    final float
+      amount      = amountOf(type),
+      exportPays  = base.commerce.exportPrice(type) / type.basePrice(),
+      importCosts = base.commerce.importPrice(type) / type.basePrice(),
+      
+      localDemand = base.demands.demandSampleFor(basis, type, 1) * 2,
+      localSupply = base.demands.supplySampleFor(basis, type, 1) * 2,
+      tradeDemand = Nums.max(0, typeSpace * (exportPays  - 1)),
+      tradeSupply = Nums.max(0, amount    * (1 - importCosts)),
+      
+      total = localSupply + localDemand + tradeDemand + tradeSupply;
+    
+    final float shortage = total == 0 ? 0 : ((
+      (localDemand - localSupply) - (amount + tradeDemand - tradeSupply)
+    ) / total);
+    
+    final float idealStock = Nums.max(
+      localDemand + tradeDemand,
+      localSupply + tradeSupply
+    ) * stockBonus;
+    
+    final boolean exports = shortage < 0;
+    incDemand(type, Nums.min(typeSpace, idealStock), period, exports);
+    if (tradeDemand > 0) {
+      base.demands.impingeDemand(type, tradeDemand / 2, period, basis);
+    }
+    if (tradeSupply > 0) {
+      base.demands.impingeSupply(type, tradeSupply / 2, period, basis);
+    }
+    
+    if (report) I.reportVars(
+      "\nSetting trade-depot stock levels: "+type, " ",
+      "Local demand" , localDemand,
+      "Local supply" , localSupply,
+      "Trade demand" , tradeDemand,
+      "Trade supply" , tradeSupply,
+      "Current stock", amount+"/"+typeSpace,
+      "Shortage"     , shortage,
+      "Ideal stock"  , idealStock,
+      "Exports"      , exports
+    );
   }
   
   
