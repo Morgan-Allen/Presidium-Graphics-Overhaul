@@ -87,17 +87,6 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   }
   
   
-  public MessagePane configMessage(String title, BaseUI UI) {
-    //  TODO:  IMPLEMENT THIS!
-    return null;
-  }
-  
-  
-  public void messageWasOpened(String titleKey, BaseUI UI) {
-    //  TODO:  ALSO THIS!
-  }
-  
-  
   
   /**  Behaviour implementation-
     */
@@ -249,12 +238,8 @@ public class Summons extends Plan implements MessagePane.MessageSource {
     if (summons == null) return;
     if (I.logEvents()) I.say("CANCELLING SUMMONS FOR "+subject);
     summons.interrupt(INTERRUPT_CANCEL);
-    
     final BaseUI UI = BaseUI.current();
-    final Target aboard = subject.aboard();
-    if (UI != null && aboard instanceof Selectable) {
-      UI.selection.pushSelection((Selectable) subject.aboard());
-    }
+    if (BaseUI.hasMessageFocus(subject)) UI.clearMessagePane();
   }
   
   
@@ -269,8 +254,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   
   public static boolean canSummon(Target t, Base base) {
     final Actor ruler = base.ruler();
-    if (ruler == null || ! ruler.health.conscious()) return false;
-    if (ruler.mind.work() == null) return false;
+    if (ruler == null || ruler.mind.work() == null) return false;
     if (ruler == t || ! (t instanceof Actor)) return false;
     
     final Actor a = (Actor) t;
@@ -289,6 +273,29 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   
   /**  Helper methods for dialogue-construction
     */
+  public MessagePane configMessage(String title, BaseUI UI) {
+    //  TODO:  IMPLEMENT THIS!
+    return null;
+  }
+  
+  
+  public void messageWasOpened(String titleKey, BaseUI UI) {
+    //  TODO:  ALSO THIS!
+  }
+  
+  
+  private MessagePane messageFor(
+    BaseUI UI, Actor with, String lead, Series <Link> responses
+  ) {
+    final MessagePane panel = new MessagePane(
+      UI, with.portrait(UI), "Audience with "+with, with, this
+    );
+    panel.assignContent(lead, responses);
+    panel.assignParent(UI.currentSelectionPane());
+    return panel;
+  }
+  
+  
   private MessagePane configDialogueFor(
     final BaseUI UI, final Actor with, boolean pushNow
   ) {
@@ -330,11 +337,9 @@ public class Summons extends Plan implements MessagePane.MessageSource {
       }
     });
     
-    final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with, with, this
-    ).assignContent("Yes, my liege?", responses);
-    if (pushNow) UI.setInfoPane(panel);
-    return panel;
+    final MessagePane pane = messageFor(UI, with, "Yes my liege?", responses);
+    if (pushNow) UI.setMessagePane(pane);
+    return pane;
   }
   
   
@@ -353,10 +358,8 @@ public class Summons extends Plan implements MessagePane.MessageSource {
         }
     });
     
-    final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with, with, this
-    ).assignContent(lead, responses);
-    UI.setInfoPane(panel);
+    final MessagePane pane = messageFor(UI, with, lead, responses);
+    UI.setMessagePane(pane);
   }
   
   
@@ -370,7 +373,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
         configDialogueFor(UI, with, true);
       }
     });
-    UI.setInfoPane(panel);
+    UI.setMessagePane(panel);
   }
   
   
@@ -411,31 +414,27 @@ public class Summons extends Plan implements MessagePane.MessageSource {
         configDialogueFor(UI, with, true);
       }
     });
-    
-    final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with, with, this
-    ).assignContent(lead, responses);
-    UI.setInfoPane(panel);
+
+    final MessagePane pane = messageFor(UI, with, lead, responses);
+    UI.setMessagePane(pane);
   }
   
   
   private void pushMissionResponse(
     final BaseUI UI, final Actor with, final Mission taken
   ) {
-    final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with,
-      with, this
-    ).assignContent(
-      "My pleasure, your grace.",
-      new Link("Very well, then...") {
-        public void whenClicked() {
-          UI.selection.pushSelection(taken);
-          with.mind.assignMission(taken);
-          taken.setApprovalFor(with, true);
-        }
+    final Batch <Link> responses = new Batch();
+    responses.add(new Link("Very well, then...") {
+      public void whenClicked() {
+        UI.selection.pushSelection(taken);
+        with.mind.assignMission(taken);
+        taken.setApprovalFor(with, true);
       }
+    });
+    final MessagePane pane = messageFor(
+      UI, with, "My pleasure, your grace.", responses
     );
-    UI.setInfoPane(panel);
+    UI.setMessagePane(pane);
   }
 }
 

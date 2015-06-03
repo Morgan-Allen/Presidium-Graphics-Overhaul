@@ -193,6 +193,8 @@ public class Dialogue extends Plan implements Qualities {
     final boolean report = shouldReportEval();
     if (report) I.say("\nChecking for dialogue between "+actor+" and "+other);
     
+    setCompetence(1); //  Will modify below
+    
     if (GameSettings.noChat) return -1;
     if (! other.health.human()) return -1;
     if (stage == STAGE_DONE) return -1;
@@ -203,10 +205,17 @@ public class Dialogue extends Plan implements Qualities {
       return -1;
     }
     
+    setCompetence(successChanceFor(actor));
+    
     final float priority = PlanUtils.dialoguePriority(
-      actor, other, motiveBonus()
+      actor, other, motiveBonus(), competence()
     );
     return priority;
+  }
+  
+  
+  public float successChanceFor(Actor actor) {
+    return DialogueUtils.communicationChance(actor, other);
   }
   
   

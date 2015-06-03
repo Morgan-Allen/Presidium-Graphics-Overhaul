@@ -6,7 +6,6 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.graphics.sfx.TalkFX;
 import stratos.util.*;
 
 
@@ -26,6 +25,13 @@ public class DialogueUtils implements Qualities {
       return COMMON_CUSTOM;
     }
     return null;
+  }
+  
+  
+  public static float communicationChance(Actor actor, Actor other) {
+    final Skill language = languageFor(other);
+    if (language == null) return 0;
+    return actor.skills.chance(language, ROUTINE_DC);
   }
   
   

@@ -12,27 +12,19 @@ import stratos.util.*;
 
 
 
+//  TODO:  I'm going to have to disable this for the moment.  I need to clean
+//  up the threat-evaluation routines and allow stealth to work reliably (plus
+//  general hiding routines.)
 
 
+//  TODO:  Vermin should only pop up when there's a good opportunity for theft
+//  (i.e, looting priority is > 0) and the area isn't too dangerous for them (
+//  due to poor security) and corrosion lets them in (due to poor maintenance
+//  and squalor.)  They should then disappear into an 'off-map reservoir' as
+//  soon as looting is done and they retreat to their entry-point.
+//
+//  Simple.  Killing them is like playing whack-a-mole.
 
-//  Let's try simplicity for now.  It's basically a kind of raid-behaviour-
-//  (do I need to write a mission for that, or can I build it into the AI?)
-
-//  ...Actually, a Recovery mission might not be such a bad idea.  Try to
-//  add that.  (Plus a Disguise/Spying mission!)
-
-
-//  *  If offworld, how do you model that specific to each base?
-//  (This is desirable for the sake of simplicity and balance-maintanance.)
-
-//  Okay.  So, a given base has 'neighbours' above, below, and on each
-//  side, along with the general surrounding territory.
-
-//  *  They have a certain chance to lodge at a suitable entry-point and
-//     start to reproduce, and to migrate 'offworld' or to another entry-
-//     point if things get crowded.  (So extermination can temporarily
-//     cull their numbers, and failing to exterminate won't mean you're
-//     overrun.)  Not too hard.
 
 public class VerminBase extends Base {
   
@@ -60,14 +52,24 @@ public class VerminBase extends Base {
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
+    final boolean report = verbose;
     super.updateAsScheduled(numUpdates, instant);
+    
+    //  TODO:  RESTORE LATER (see above)...
+    if (true) return;
     //
     //  We perform updates to check for vermin-entry more quickly as the number
     //  of entry-points increases...
     final PresenceMap hatches = world.presences.mapFor(ServiceHatch.class);
     final int totalHatches = hatches.population();
-    if (totalHatches == 0) return;
+    if (totalHatches == 0 || instant) return;
     final int interval = SPAWN_PER_ENTRY_INTERVAL / totalHatches;
+    
+    if (report) {
+      I.say("Updating vermin base, total updates: "+numUpdates);
+      I.say("  Total hatches:  "+totalHatches);
+      I.say("  Spawn interval: "+interval    );
+    }
     //
     //  If the time has arrived, assemble a 'raid' where creatures arrive
     //  through another base's service hatches.
@@ -85,17 +87,24 @@ public class VerminBase extends Base {
         realPop += a.species().metabolism();
       }
       final float crowding = realPop / maxPop;
-      final int numEntered = (int) (Rand.index(3) + 1 * (1 - crowding));
-      if (numEntered <= 0) return;
+      final int numEntered = (int) ((Rand.index(3) + 1) * (1 - crowding));
       //
       //  Then, if crowding allows, assemble a group of vermin and add them to
       //  the hatch as immigrants.
+      if (report) {
+        I.say("\nChecking for vermin entry at: "+hatch);
+        I.say("  Position:    "+hatch.origin());
+        I.say("  Squalor:     "+squalor   );
+        I.say("  Crowding:    "+crowding  );
+        I.say("  Num entered: "+numEntered);
+      }
       for (int n = numEntered; n-- > 0;) {
-        Actor enters = Rand.num() < crowding ?
+        Actor enters = Rand.index(10) < crowding ?
           Roach   .SPECIES.sampleFor(this) :
           Roachman.SPECIES.sampleFor(this) ;
         enters.enterWorldAt(hatch, world);
         enters.mind.setHome(hatch);
+        if (report) I.say("  Entering world: "+enters);
       }
     }
   }

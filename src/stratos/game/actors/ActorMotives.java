@@ -162,7 +162,7 @@ public class ActorMotives {
       final Venue home = (Venue) receives.mind.home();
       final float need = home.stocks.relativeShortage(item.type);
       final float amount = home.stocks.demandFor(item.type);
-      if (need > 0) rating += need * 5 * (item.amount / amount);
+      if (need > 0 && amount > 0) rating += need * 5 * (item.amount / amount);
     }
     
     if (item.type == receives.gear.deviceType()) {
@@ -178,11 +178,12 @@ public class ActorMotives {
         rating += 2 * (item.quality - outfit.quality);
       }
     }
-    
+
     final float pricedAt = item.defaultPrice();
-    rating += receives.motives.greedPriority(pricedAt);
-    if (report) I.say("  Rating for "+item+" is: "+rating);
-    
+    if (receives.species().sapient()) {
+      rating += receives.motives.greedPriority(pricedAt);
+      if (report) I.say("  Rating for "+item+" is: "+rating);
+    }
     if (buys != null) {
       rating /= 1 + receives.motives.greedPriority(pricedAt);
       if (report) I.say("    After pricing? "+rating);
@@ -196,12 +197,11 @@ public class ActorMotives {
     //  The evaluation here is based on credits value relative to daily income-
     //  e.g, if I got this every day, how much is it worth to me?  (And even
     //  then, we're fudging things a little- see below.)
-    if (creditsPerDay <= 0) return 0;
     final boolean report = I.talkAbout == actor && rateVerbose;
-    
-    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
     final Background b = actor.mind.vocation();
-    
+    if (creditsPerDay <= 0 || (b != null && b.defaultSalary <= 0)) return 0;
+
+    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
     float baseUnit = 0;
     baseUnit += b.defaultSalary / Backgrounds.NUM_DAYS_PAY;
     baseUnit += ((actor.gear.allCredits() - 25) * 2);

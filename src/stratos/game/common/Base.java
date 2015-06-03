@@ -98,7 +98,7 @@ public class Base implements
   
   
   public static VerminBase vermin(Stage world) {
-    VerminBase base = (VerminBase) namedBase(world, KEY_ARTILECTS);
+    VerminBase base = (VerminBase) namedBase(world, KEY_VERMIN);
     if (base != null) return base;
     else base = new VerminBase(world);
     

@@ -92,7 +92,7 @@ public class Gifting extends Plan implements Qualities {
       modifier += (novelty + rating) * ROUTINE;
     }
     
-    return PlanUtils.dialoguePriority(actor, receives, modifier);
+    return PlanUtils.dialoguePriority(actor, receives, modifier, 1);
   }
   
   

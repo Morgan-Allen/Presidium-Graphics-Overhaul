@@ -86,6 +86,8 @@ public abstract class Vermin extends Actor {
   
   
   protected void addReactions(Target seen, Choice choice) {
+    //if (true) return;
+    
     if (seen instanceof Actor) {
       final Combat combat = new Combat(
         this, (Actor) seen, Combat.STYLE_EITHER, Combat.OBJECT_EITHER
@@ -101,14 +103,17 @@ public abstract class Vermin extends Actor {
   
   
   protected void addChoices(Choice choice) {
-    final boolean report = verbose && I.talkAbout == this;
+    final boolean report = I.talkAbout == this && verbose;
     if (report) I.say("\nCreating choices for "+this);
     
     choice.isVerbose = report;
+    
     //
     //  Finding home activities-
     final Exploring e = Exploring.nextWandering(this);
     if (e != null) choice.add(e.addMotives(Plan.MOTIVE_LEISURE, 1));
+    
+    choice.add(new Retreat(this));
     
     //  TODO:  Use vacated animal nests, ruins, or base-buildings.
     

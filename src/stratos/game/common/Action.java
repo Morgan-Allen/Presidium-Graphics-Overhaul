@@ -242,6 +242,18 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
+  public static boolean isMoving(Actor actor) {
+    final Action a = actor.currentAction();
+    return a == null ? false : a.isMoving();
+  }
+  
+  
+  public static boolean isStealthy(Actor actor) {
+    final Action a = actor.currentAction();
+    return a == null ? false : a.careful();
+  }
+  
+  
   
   /**  Helper methods for dealing with motion-
     */
@@ -294,7 +306,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   private float updateMotion(boolean active, int motionType) {
-    final boolean report = verboseMove && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verboseMove;
     
     //  Firstly, we establish current displacements between actor and target,
     //  motion target & action target, how far the actor can see, and whether

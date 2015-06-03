@@ -11,14 +11,9 @@ THE TUTORIAL
 
 *  Show missions on the minimap, along with proper tool-tips.
 
-*  Fill up venues once the economic-part is done!
-
 
 
 BUILDINGS AND ECONOMY-
-
-*  Apply shipping-cost penalties, so that you can import what you like, but can't
-   always export.
 
 *  Try merging the solar bank with the nursery- or the latter with eco station
 
@@ -30,7 +25,28 @@ BUILDINGS AND ECONOMY-
      Runner Market
      Kommando Lodge
      Airfield
+     Enforcer Bloc
      Cut out recruitment-extras for others.
+
+*  Use the Fabricator exclusively to make luxury outfits and public decoration
+   for fancy houses and the nobility.  Common plastics get made at the engineer,
+   along with common outfits (or possibly at the stock exchange.)
+
+*  Consider restricting access to some of these structures based on house-
+   philosophy or lack of expertise.
+   House Procyon- has culture lab, lacks eco station.
+   House Altair-  has archives, lacks stock exchange.
+   House Taygeta- has runner lodge, lacks enforcer bloc.
+   House Suhail-  has kommando lodge, lacks reactor.
+
+*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
+
+*  Allow rations-production to satisfy need to eat.
+
+
+
+*  Apply shipping-cost penalties, so that you can import what you like, but
+   can't always export.
   
   >>>>>>> DO THIS <<<<<<<
 *  There needs to be a more precise 'reservation' system to allow for zoning,
@@ -50,24 +66,9 @@ BUILDINGS AND ECONOMY-
 
 *  Finalise perimeter fence artwork.
 
-*  Use the Fabricator exclusively to make luxury outfits and public decoration
-   for fancy houses and the nobility.  Common plastics get made at the engineer,
-   along with common outfits (or possibly at the stock exchange.)
-
 *  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
    the excavation site, former plant, kommando lodge & eco station- take up
    big plots.
-
-*  Consider restricting access to some of these structures based on house-
-   philosophy or lack of expertise.
-   House Procyon- has culture lab, lacks eco station.
-   House Altair-  has archives, lacks stock exchange.
-   House Taygeta- has runner lodge, lacks enforcer bloc.
-   House Suhail-  has kommando lodge, lacks reactor.
-
-*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
-
-*  Allow rations-production to satisfy need to eat.
 
 
 

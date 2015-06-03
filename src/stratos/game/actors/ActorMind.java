@@ -78,6 +78,7 @@ public abstract class ActorMind implements Qualities {
   /**  Calling regular, periodic updates and triggering AI refreshments-
     */
   public void updateAI(int numUpdates) {
+    
     if (numUpdates % 10 != 0) return;
     final boolean report = I.talkAbout == actor && decisionVerbose;
     

@@ -301,7 +301,7 @@ public class Inventory {
     final float newAmount = oldItem.amount - item.amount;
     final Item entered = Item.withAmount(oldItem, newAmount);
     itemTable.put(entered, entered);
-    if (owner != null) owner.afterTransaction(item, item.amount - newAmount);
+    if (owner != null) owner.afterTransaction(item, 0 - item.amount);
     return true;
   }
   

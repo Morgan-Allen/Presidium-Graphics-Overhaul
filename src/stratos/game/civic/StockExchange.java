@@ -97,24 +97,28 @@ public class StockExchange extends Venue {
   }
   
   
+  //  TODO:  THIS SHOULD ONLY BE TRIGGERED BY BRINGING-PLANS, NOT THEFTS!
   public void afterTransaction(Item item, float amount) {
     super.afterTransaction(item, amount);
-    
+    //
+    //  You only pay half-price for goods being bought.
     if (amount >= 0) {
       stocks.incCredits(super.priceFor(item.type, false) / 2);
       return;
     }
+    //
+    //  For goods sold, you gain a variable bonus based on upgrade level-
     final float
       basePrice    = super.priceFor(item.type, true),
       upgradeLevel = upgradeLevelFor(item.type),
-      cashBonus    = basePrice * BASE_SALE_MARGIN * (upgradeLevel + 1),
-      catalogued   = catalogueLevel(item.type);
+      cashBonus    = basePrice * (BASE_SALE_MARGIN - 1) * (upgradeLevel + 1),
+      catalogued   = catalogueLevel(item.type),
+      sold         = 0 - amount,
+      paidOn       = Nums.min(catalogued, sold),
+      remainder    = sold - paidOn;
     
-    final float
-      paidOn    = Nums.min(catalogued, 0 - amount),
-      remainder = (0 - amount) - paidOn;
     adjustCatalogue(item.type, paidOn);
-    stocks.incCredits(cashBonus * paidOn);
+    stocks.incCredits(cashBonus * paidOn       );
     stocks.incCredits(cashBonus * remainder / 2);
   }
   

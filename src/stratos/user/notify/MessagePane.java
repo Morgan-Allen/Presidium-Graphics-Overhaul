@@ -23,19 +23,24 @@ public class MessagePane extends UIGroup implements UIConstants {
   final public String title;
   final public Target focus;
   final MessageSource source;
+
+  final   UINode    portraitFrame;
+  private Composite portrait     ;
   
   final Bordering border;
   final Text header, detail;
   final Button closeButton;
   
   private boolean contentSet = false;
+  private SelectionPane parent = null;
+  
   private String initText;
   private Clickable options[];
   private float receiptDate = -1;
   
   
   public MessagePane(
-    final BaseUI baseUI, Composite portrait,
+    final BaseUI baseUI, final Composite portrait,
     String title, Target focus, MessageSource source
   ) {
     super(baseUI);
@@ -56,16 +61,34 @@ public class MessagePane extends UIGroup implements UIConstants {
     border.alignAcross(0, 1);
     border.alignDown  (0, 1);
     border.attachTo(this);
+    final int rightInset;
+    
+    if (portrait != null) {
+      portraitFrame = new UINode(baseUI) {
+        protected void render(WidgetsPass batch2d) {
+          portrait.drawTo(batch2d, bounds, absAlpha);
+        }
+      };
+      portraitFrame.alignTop  (0, PORTRAIT_SIZE);
+      portraitFrame.alignRight(0, PORTRAIT_SIZE);
+      portraitFrame.attachTo(border.inside);
+      rightInset = PORTRAIT_SIZE + DEFAULT_MARGIN;
+    }
+    else {
+      this.portrait      = null;
+      this.portraitFrame = null;
+      rightInset = 0;
+    }
     
     this.header = new Text(baseUI, INFO_FONT);
-    header.alignTop   (0, HEADER_HIGH);
-    header.alignAcross(0, 1          );
+    header.alignTop       (0, HEADER_HIGH);
+    header.alignHorizontal(0, rightInset );
     header.scale = BIG_FONT_SIZE;
     header.attachTo(border.inside);
     
     this.detail = new Text(baseUI, INFO_FONT);
-    detail.alignVertical(0, HEADER_HIGH);
-    detail.alignAcross  (0, 1          );
+    detail.alignVertical  (0, HEADER_HIGH);
+    detail.alignHorizontal(0, rightInset );
     detail.scale = SMALL_FONT_SIZE;
     detail.attachTo(border.inside);
     
@@ -103,6 +126,12 @@ public class MessagePane extends UIGroup implements UIConstants {
   }
   
   
+  public MessagePane assignParent(SelectionPane parent) {
+    this.parent = parent;
+    return this;
+  }
+  
+  
   protected void assignReceiptDate(float time) {
     this.receiptDate = time;
   }
@@ -131,12 +160,22 @@ public class MessagePane extends UIGroup implements UIConstants {
   
   /**  Update methods-
     */
-  protected void updateText(
-    BaseUI UI, Text headerText, Text detailText, Text listingText
-  ) {
+  protected void updateState() {
+    
+    final BaseUI UI = BaseUI.current();
+    if (parent == null) {
+      closeButton.hidden = false;
+    }
+    else {
+      if (UI.currentInfoPane() != parent && UI.currentMessage() == this) {
+        UI.clearMessagePane();
+      }
+      closeButton.hidden = true;
+    }
+    
     if (contentSet) {
-      headerText.setText(title);
-      final Text d = detailText;
+      header().setText(title);
+      final Text d = detail();
       d.setText(initText);
       d.append("\n  ");
       for (Clickable option : options) {
@@ -144,7 +183,7 @@ public class MessagePane extends UIGroup implements UIConstants {
         d.append(option);
       }
     }
-    else return;
+    super.updateState();
   }
   
   

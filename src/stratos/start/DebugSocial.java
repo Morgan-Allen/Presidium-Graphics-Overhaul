@@ -75,9 +75,9 @@ public class DebugSocial extends Scenario {
     world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS);
     
     if (false) testCareers(base);
-    if (false) configDialogueScenario(world, base, UI);
+    if (true ) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (true ) configContactScenario (world, base, UI);
+    if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
     if (false) multiJobsScenario     (world, base, UI);
@@ -102,7 +102,6 @@ public class DebugSocial extends Scenario {
     final Dialogue d = new Dialogue(a1, a2);
     a1.mind.assignBehaviour(d);
     UI.selection.pushSelection(a1);
-    
     
     Actor a3 = new Human(Backgrounds.TECHNICIAN, base);
     Actor a4 = new Human(Backgrounds.TECHNICIAN, base);

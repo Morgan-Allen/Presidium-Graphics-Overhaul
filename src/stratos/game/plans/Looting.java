@@ -89,47 +89,68 @@ public class Looting extends Plan {
   
   
   public static Item pickItemFrom(Owner owner, Actor steals, Traded... types) {
+    final boolean report = I.talkAbout == steals && evalVerbose;
     
     if (types == null || types.length == 0) {
       types = owner.inventory().allItemTypes();
     }
     
-    final Pick <Item> pick = new Pick <Item> ();
+    final Pick <Item> pick = new Pick <Item> (0);
     for (Traded type : types) {
-      final float amount = owner.inventory().amountOf(type);
-      Item taken = Item.withAmount(type, Nums.min(1, amount));
+      final float amount = Nums.min(1, owner.inventory().amountOf(type));
+      if (amount <= 0) continue;
+      Item taken = Item.withAmount(type, amount);
       final float rating = ActorMotives.rateDesire(taken, null, steals);
       pick.compare(taken, rating);
+    }
+    
+    if (report) {
+      I.say("Picking item from "+owner);
+      I.say("  Result: "+pick.result());
     }
     return pick.result();
   }
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
     if (taken == null) return 0;
     final boolean isPrivate = mark.owningTier() == Owner.TIER_PRIVATE;
-    float urge = ActorMotives.rateDesire(taken, null, actor) / Plan.ROUTINE;
-    float harm = NO_HARM;
+    float urge = ActorMotives.rateDesire(taken, null, actor);
+    
+    if (stage == STAGE_DROP) {
+      if (report) I.say("\nDropping off goods!  Base value: "+urge);
+      return urge + ROUTINE;
+    }
     
     if (mark.base() == actor.base()) {
-      harm = MILD_HARM;
-      //  TODO:  USE SUCCESS-CHANCE INSTEAD
-      urge *= (1.5f - Planet.dayValue(actor.world()));
-      if (isPrivate) urge -= 0.5f;
+      if (isPrivate) urge -= ROUTINE;
     }
-    
     setCompetence(successChanceFor(actor));
-    final float priority = PlanUtils.jobPlanPriority(
-      actor, this, urge, competence(), 1, REAL_FAIL_RISK, BASE_TRAITS
-    );
+    float danger = 1 - PlanUtils.combatWinChance(actor, mark, 1);
+    float enjoys = (PlanUtils.traitAverage(actor, BASE_TRAITS) - 0.5f) * 2;
+    float likes  = actor.relations.valueFor(mark);
+    //
+    //  TODO:  Create a 'foraging' priority-method for this in PlanUtils?
+    danger *= (1 + Planet.dayValue(actor.world())) * PARAMOUNT;
+    float incentive = urge + motiveBonus();
+    incentive += (enjoys * ROUTINE) - (likes * ROUTINE);
+    float priority = incentive - danger;
+    
     if (report) {
-      I.say("\n  Got theft priority for "+actor);
+      I.say("\nGot theft priority for "+actor+" (hash "+hashCode()+")");
       I.say("  Source/taken:      "+mark+"/"+taken);
       I.say("  Private property?  "+isPrivate);
-      I.say("  Basic urge level:  "+urge);
+      I.say("  Basic urge level:  "+urge     );
+      I.say("  Motive bonus:      "+motiveBonus());
+      I.say("  Enjoyment:         "+enjoys   );
+      I.say("  Subject liking:    "+likes    );
+      I.say("  Total incentive    "+incentive);
+      I.say("  Danger nearby:     "+danger   );
+      I.say("  Final priority:    "+priority );
     }
+    if (priority < danger / 2) return 0;
     return priority;
   }
   
@@ -159,8 +180,10 @@ public class Looting extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
-    if (report) I.say("\nGetting next step for looting.");
+    final boolean report = I.talkAbout == actor && hasBegun() && stepsVerbose;
+    if (report) {
+      I.say("\nGetting next step for looting.");
+    }
     
     if (stage == STAGE_DONE) {
       if (report) I.say("  Looting complete!");
@@ -225,34 +248,26 @@ public class Looting extends Plan {
   
   private boolean shouldHide() {
     if (! hasBegun()) return false;
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     
     //  Technically, stealing counts as a form of 'attack'...
     final Base attacked = CombatUtils.baseAttacked(actor);
     if (attacked == null) return false;
     //  TODO:  Ignore other guild members?
-    
+
     //  TODO:  This should be built into the danger-evaluation method in
     //         ActorSenses!
     
+    //
     //  In essence, you flee if you're too close to a member of the base you're
     //  stealing from (and isn't the mark), or someone else has already made
     //  you a target:
-    for (Plan p : actor.world().activities.activePlanMatches(actor, null)){
+    for (Plan p : actor.world().activities.activePlanMatches(actor, null)) {
       if (report) I.say("  Somebody is targeting me: "+p.actor()+", "+p);
       if (p.actor().base() == attacked) return true;
     }
     if (actor.indoors()) return false;
-    
-    final float minRange = actor.health.sightRange() / 2;
-    for (Target t : actor.senses.awareOf()) {
-      if (! ((t instanceof Actor) && t.base() == attacked)) continue;
-      if (t == mark || t == actor || ((Actor) t).indoors()) continue;
-      if (Spacing.distance(t, actor) > minRange) continue;
-      if (report) I.say("  Too close to "+t);
-      return true;
-    }
-    return false;
+    return actor.senses.isEmergency();
   }
   
   

@@ -137,9 +137,9 @@ public class Combat extends Plan implements Qualities {
   /**  Actual behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor && (
+    final boolean report = I.talkAbout == actor && (
       hasBegun() || ! begunVerbose
-    );
+    ) && stepsVerbose;
     if (report) {
       I.say("\nGetting next combat step for: "+I.tagHash(this));
     }
@@ -152,7 +152,10 @@ public class Combat extends Plan implements Qualities {
       return null;
     }
     Target struck = subject;
-    if (hasBegun()) struck = CombatUtils.bestTarget(actor, subject, true);
+    if (hasBegun()) {
+      struck = CombatUtils.bestTarget(actor, subject, true);
+      if (struck == null) struck = subject;
+    }
     //
     //  If your prey has ducked indoors, consider tearing up the structure-
     //  TODO:  Look into potential 'siege' options for targets that you can't
@@ -161,7 +164,7 @@ public class Combat extends Plan implements Qualities {
       
       final Boarding haven = ((Actor) struck).aboard();
       final boolean
-        hasRefuge  = ! haven.allowsEntry(actor),
+        hasRefuge  = haven != null && ! haven.allowsEntry(actor),
         shouldRaze = object == OBJECT_DESTROY || hasMotives(MOTIVE_MISSION);
       
       if (hasRefuge) {
@@ -174,7 +177,6 @@ public class Combat extends Plan implements Qualities {
         }
       }
     }
-    if (struck == null) struck = subject;
     
     if (report) {
       I.say("  Main target: "+this.subject);
