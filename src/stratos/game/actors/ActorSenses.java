@@ -284,7 +284,7 @@ public class ActorSenses implements Qualities {
   //  methods in PlanUtils.
   
   protected void updateDangerEval(Batch <Target> awareOf) {
-    final boolean report = I.talkAbout == actor;// && dangerVerbose;
+    final boolean report = I.talkAbout == actor && dangerVerbose;
     if (report) {
       I.say("\nUpdating danger assessment for "+actor);
       I.say("  Total aware of: "+awareOf.size());

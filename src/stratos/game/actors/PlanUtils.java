@@ -27,7 +27,7 @@ public class PlanUtils {
   
   private static boolean reportOn(Actor a, float priority) {
     if (priority <= 0 && ! failVerbose) return false;
-    return I.talkAbout == a;// && verbose;
+    return I.talkAbout == a && verbose;
   }
   
   
@@ -91,7 +91,7 @@ public class PlanUtils {
   
   
   
-  /**  Retreat priority.  Should range from 0 to 30.
+  /**  Retreat priority.  Should range from 0 to 20.
     */
   public static float retreatPriority(
     Actor actor
@@ -104,14 +104,14 @@ public class PlanUtils {
     
     homeDistance = homeDistanceFactor(actor, actor.origin());
     if (Action.isStealthy(actor)) homeDistance /= 4;
-    if (! isArmed(actor)) homeDistance += 0.5f;
     if (actor.senses.isEmergency()) homeDistance *= 1.5f;
+    if (loseChance > 0 && ! isArmed(actor)) homeDistance += 0.5f;
     
     incentive    += Nums.max(loseChance, homeDistance / 3) * 20;
     incentive    += (injury = actor.health.injuryLevel()) * 10;
     escapeChance = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
     escapeChance = escapeChance * Nums.min(1, homeDistance);
-    priority     = incentive * escapeChance;
+    priority     = Nums.clamp(incentive * escapeChance, -10, 20);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
@@ -134,9 +134,9 @@ public class PlanUtils {
   /**  Dialogue priority.  Should range from 0 to 30.
     */
   public static float dialoguePriority(
-    Actor actor, Actor subject, float rewardBonus
+    Actor actor, Actor subject, float rewardBonus, float commChance
   ) {
-    float liking = 0, novelty = 0, solitude = 0, commChance = 0;
+    float liking = 0, novelty = 0, solitude = 0;
     float harmIntended = 0, baseNovelty = 0;
     float chatIncentive = 0, pleaIncentive = 0, priority = 0;
     

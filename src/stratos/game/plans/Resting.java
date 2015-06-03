@@ -95,7 +95,9 @@ public class Resting extends Plan {
   
   protected float getPriority() {
     final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting resting priority for "+actor);
+    if (report) {
+      I.say("\nGetting resting priority for "+actor);
+    }
     
     float urgency = CASUAL;
     

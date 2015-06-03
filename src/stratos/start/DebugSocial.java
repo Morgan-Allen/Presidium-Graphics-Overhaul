@@ -103,7 +103,6 @@ public class DebugSocial extends Scenario {
     a1.mind.assignBehaviour(d);
     UI.selection.pushSelection(a1);
     
-    
     Actor a3 = new Human(Backgrounds.TECHNICIAN, base);
     Actor a4 = new Human(Backgrounds.TECHNICIAN, base);
     a3.enterWorldAt(7 , 7, world);
