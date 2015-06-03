@@ -27,7 +27,7 @@ public class PlanUtils {
   
   private static boolean reportOn(Actor a, float priority) {
     if (priority <= 0 && ! failVerbose) return false;
-    return I.talkAbout == a && verbose;
+    return I.talkAbout == a;// && verbose;
   }
   
   
@@ -58,7 +58,7 @@ public class PlanUtils {
     incentive += harmDone;
     incentive += wierdness = baseCuriosity(actor, subject, false) * 5;
     incentive += rewardBonus;
-    incentive = Nums.clamp(incentive, 0, 20);
+    incentive = Nums.clamp(incentive, -20, 20);
     if (! asRealTask) return incentive;
     
     conscience = 10 * baseConscience(actor, subject) * harm;
@@ -97,25 +97,30 @@ public class PlanUtils {
     Actor actor
   ) {
     float incentive = 0, loseChance, priority;
-    float homeDistance, escapeChance;
+    float homeDistance, escapeChance, injury;
     
     loseChance = 1f - combatWinChance(actor, actor.origin(), 1);
     if (actor.senses.fearLevel() == 0) loseChance = 0;
-    loseChance += actor.health.injuryLevel();
     
     homeDistance = homeDistanceFactor(actor, actor.origin());
+    if (Action.isStealthy(actor)) homeDistance /= 4;
     if (! isArmed(actor)) homeDistance += 0.5f;
     if (actor.senses.isEmergency()) homeDistance *= 1.5f;
     
-    incentive    = Nums.max(loseChance, homeDistance / 3) * 10;
+    incentive    += Nums.max(loseChance, homeDistance / 3) * 20;
+    incentive    += (injury = actor.health.injuryLevel()) * 10;
     escapeChance = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
+    escapeChance = escapeChance * Nums.min(1, homeDistance);
     priority     = incentive * escapeChance;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
+      "haven is    ", actor.senses.haven()+" (at "+actor.origin()+")",
       "incentive   ", incentive,
-      "fear level  ", actor.senses.fearLevel(),
-      "emergency   ", actor.senses.isEmergency(),
+      "injury level", injury,
+      "fatigue     ", actor.health.fatigueLevel(),
+      "fear level  ", actor.senses.fearLevel   (),
+      "emergency   ", actor.senses.isEmergency (),
       "loseChance  ", loseChance,
       "homeDistance", homeDistance,
       "escapeChance", escapeChance,
@@ -178,10 +183,10 @@ public class PlanUtils {
     float incentive = 0, liking = 0, priority = 0, conscience;
     
     conscience = baseConscience(actor, subject);
-    liking = actor.relations.valueFor(subject);
-    incentive = ((liking + conscience - 0.5f) * 10) * subjectDanger * 2;
-    incentive += rewardBonus;
-    priority = incentive * supportChance;
+    liking     = actor.relations.valueFor(subject);
+    incentive  = ((liking + conscience - 0.5f) * 10) * subjectDanger * 2;
+    incentive  += rewardBonus;
+    priority   = incentive * supportChance;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",
@@ -470,18 +475,15 @@ public class PlanUtils {
   
   
   public static float homeDistanceFactor(Actor actor, Target around) {
-    final Stage world = actor.world();
     
-    if (actor.mind.home() == null) return 0;
-    float baseMult = Spacing.distance(around, actor.mind.home);
-    baseMult /= Stage.ZONE_SIZE;
-    baseMult = 1 - (2 / (2 + baseMult));
+    final Target haven = actor.senses.haven();
+    if (haven == null) return 0;
     
-    final Tile at   = world.tileAt(around);
-    final Base owns = world.claims.baseClaiming(at);
-    if (owns != null) {
-      baseMult *= 1 - owns.relations.relationWith(actor.base());
-    }
+    float baseMult = Spacing.distance(around, haven);
+    baseMult = Nums.sqrt(baseMult / Stage.ZONE_SIZE);
+    
+    //baseMult = 1 - (1 / (1 + baseMult));
+    
     return Nums.clamp(baseMult, 0, 2);
   }
   

@@ -173,7 +173,9 @@ public class ServiceHatch extends Venue {
       stocks.forceDemand(ATMO , 2, true);
       stocks.forceDemand(POWER, 2, true);
       structure.setAmbienceVal(-2);
+      //
       //  TODO:  Introduce the vermin-check here!
+      Base.vermin(world);
     }
   }
   

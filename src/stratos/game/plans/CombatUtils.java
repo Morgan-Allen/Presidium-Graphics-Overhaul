@@ -141,7 +141,7 @@ public class CombatUtils {
     *  asThreat is true, primary is evaluated as a threat itself.)
     */
   public static Target bestTarget(
-    Actor actor, Target primary, boolean asThreat
+    final Actor actor, final Target primary, boolean asThreat
   ) {
     final boolean report = Combat.stepsVerbose && I.talkAbout == actor;
     if (report) {
@@ -151,34 +151,30 @@ public class CombatUtils {
     
     final boolean melee = actor.gear.meleeWeapon();
     final float harm = Plan.REAL_HARM;
-    Target best = asThreat ? primary : null;
-    float bestValue = asThreat ?
-      PlanUtils.combatPriority(actor, primary, 0, 1, true, harm) : 0
-    ;
-    if (best != null) bestValue = Nums.max(bestValue, 0.1f);
     
-    for (Target t : actor.senses.awareOf()) {
-      final float distance = Spacing.distance(t, actor);
-      if (distance > Stage.ZONE_SIZE) continue;
-      if (actor.senses.indoors(t)) continue;
-      
-      float value = PlanUtils.combatPriority(actor, t, 0, 1, true, harm);
-      if (value <= 0) continue;
-      if (melee) value /= 1 + distance;
-      else       value /= 1 + (distance / (Stage.ZONE_SIZE / 2));
-      
-      if (report) {
-        I.say("    Value for "+t+" is "+value);
-        I.say("    Distance: "+distance);
+    final Pick <Target> pick = new Pick <Target> (0) {
+      public void compare(Target t, float minRating) {
+        if (PlanUtils.harmIntendedBy(t, actor, true) <= 0) return;
+        
+        final float distance = Spacing.distance(t, actor);
+        float value = PlanUtils.combatPriority(actor, t, 0, 1, false, harm);
+        if (value <= 0) return;
+        if (melee) value /= 1 + distance;
+        else       value /= 1 + (distance / (Stage.ZONE_SIZE / 2));
+        
+        if (report) {
+          I.say("    Value for "+t+" is "+value);
+          I.say("    Distance: "+distance);
+        }
+        super.compare(t, Nums.max(value, 0) + minRating);
       }
-      if (value > bestValue) { bestValue = value; best = t; }
-    }
+    };
     
-    if (report) I.say("  Final pick: "+best+", rating: "+bestValue);
-    if (bestValue >= 0) return best;
-    return asThreat ? primary : null;
+    if (asThreat) pick.compare(primary, 1);
+    for (Target t : actor.senses.awareOf()) pick.compare(t, 0);
+    
+    if (report) I.say("  Final pick: "+pick.result());
+    return pick.result();
   }
 }
-
-
 

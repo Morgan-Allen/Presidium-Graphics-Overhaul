@@ -27,10 +27,11 @@ public class ActorSenses implements Qualities {
   final Actor actor;
   final Table <Target, Saveable> awares = new Table <Target, Saveable> ();
   final Batch <Target> awareOf = new Batch <Target> ();
-
-  private boolean emergency  = false;
-  private float   powerLevel = -1   ;
-  private float   fearLevel  =  0   ;
+  
+  private boolean emergency   = false;
+  private boolean underAttack = false;
+  private float   powerLevel  = -1   ;
+  private float   fearLevel   =  0   ;
   
   private float fearByDirection[] = new float[4];
   private Target  safePoint  = null ;
@@ -47,10 +48,11 @@ public class ActorSenses implements Qualities {
       awares.put(e, s.loadObject());
       awareOf.add(e);
     }
-    emergency  = s.loadBool  ();
-    powerLevel = s.loadFloat ();
-    fearLevel  = s.loadFloat ();
-    safePoint  = s.loadTarget();
+    emergency   = s.loadBool  ();
+    underAttack = s.loadBool  ();
+    powerLevel  = s.loadFloat ();
+    fearLevel   = s.loadFloat ();
+    safePoint   = s.loadTarget();
   }
   
   
@@ -60,10 +62,11 @@ public class ActorSenses implements Qualities {
       s.saveTarget(e);
       s.saveObject(awares.get(e));
     }
-    s.saveBool  (emergency );
-    s.saveFloat (powerLevel);
-    s.saveFloat (fearLevel );
-    s.saveTarget(safePoint );
+    s.saveBool  (emergency  );
+    s.saveBool  (underAttack);
+    s.saveFloat (powerLevel );
+    s.saveFloat (fearLevel  );
+    s.saveTarget(safePoint  );
   }
   
   
@@ -116,11 +119,11 @@ public class ActorSenses implements Qualities {
     //  TODO:  Delegate all this to the ActorMind class..?
     final Choice reactions = new Choice(actor);
     reactions.isVerbose = report;
-    if (isEmergency()) {
-      actor.mind.putEmergencyResponse(reactions);
-    }
     for (Target e : justSeen) {
       actor.mind.addReactions(e, reactions);
+    }
+    if (isEmergency()) {
+      actor.mind.putEmergencyResponse(reactions);
     }
     
     final Behaviour reaction = reactions.pickMostUrgent();
@@ -277,8 +280,11 @@ public class ActorSenses implements Qualities {
   
   /**  Threat Evaluation methods-
     */
+  //  TODO:  This needs to be merged with the combatWinChance and homeDistance
+  //  methods in PlanUtils.
+  
   protected void updateDangerEval(Batch <Target> awareOf) {
-    final boolean report = dangerVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor;// && dangerVerbose;
     if (report) {
       I.say("\nUpdating danger assessment for "+actor);
       I.say("  Total aware of: "+awareOf.size());
@@ -286,13 +292,16 @@ public class ActorSenses implements Qualities {
     }
     
     float sumAllies = 1, sumFoes = 0, bravery;
-    emergency  = false;
-    powerLevel = CombatUtils.powerLevel(actor);
-    bravery    = (2 + actor.traits.relativeLevel(FEARLESS)) / 2;
+    boolean stealthy = Action.isStealthy(actor);
+    emergency   = false;
+    underAttack = false;
+    powerLevel  = CombatUtils.powerLevel(actor);
+    bravery     = (2 + actor.traits.relativeLevel(FEARLESS)) / 2;
     
     for (Target t : awareOf) if (t instanceof Actor) {
       final Actor near = (Actor) t;
       if (near == actor || ! near.health.alive()) continue;
+      if (stealthy && ! near.senses.awareOf(actor)) continue;
       
       float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
       if (attackRisk > 0) {
@@ -314,7 +323,9 @@ public class ActorSenses implements Qualities {
         }
       }
       
-      emergency |= near.isDoing(Combat.class, null) || attackRisk > bravery;
+      final Target victim = near.planFocus(Combat.class, true);
+      emergency   |= victim != null || sumFoes > bravery;
+      underAttack |= victim == actor;
     }
     
     //
@@ -323,25 +334,28 @@ public class ActorSenses implements Qualities {
     final float ambientDanger = actor.base().dangerMap.sampleAround(
       actor, Stage.ZONE_SIZE
     );
-    if (sumFoes > 0 && ambientDanger > 0) {
-      sumFoes += ambientDanger / powerLevel;
+    if (underAttack || ! stealthy) {
+      if (sumFoes > 0 && ambientDanger > 0) {
+        sumFoes += ambientDanger / powerLevel;
+      }
+      if (sumAllies > 0 && ambientDanger < 0) {
+        sumAllies += 0 - ambientDanger / powerLevel;
+      }
     }
-    if (sumAllies > 0 && ambientDanger < 0) {
-      sumAllies += 0 - ambientDanger / powerLevel;
-    }
-    
     fearLevel = sumFoes / (sumFoes + sumAllies);
     safePoint = Retreat.nearestHaven(actor, null, emergency);
 
     if (report) {
-      I.say("  Sum allies:     "+sumAllies    );
-      I.say("  Sum foes:       "+sumFoes      );
-      I.say("  Bravery:        "+bravery      );
-      I.say("  Personal power: "+powerLevel   );
-      I.say("  Ambient danger: "+ambientDanger);
-      I.say("  Fear level:     "+fearLevel    );
-      I.say("  Safe point:     "+safePoint    );
-      I.say("  Emergency:      "+emergency    );
+      I.say("  Sum allies:      "+sumAllies    );
+      I.say("  Sum foes:        "+sumFoes      );
+      I.say("  Bravery:         "+bravery      );
+      I.say("  Personal power:  "+powerLevel   );
+      I.say("  Ambient danger:  "+ambientDanger);
+      I.say("  Fear level:      "+fearLevel    );
+      I.say("  Safe point:      "+safePoint    );
+      I.say("  Emergency:       "+emergency    );
+      I.say("  In stealth mode: "+stealthy     );
+      I.say("  Under attack:    "+underAttack  );
       I.say("Danger by direction:");
       for (int n : TileConstants.T_ADJACENT) {
         I.say("  "+TileConstants.DIR_NAMES[n]+": "+dangerFromDirection(n));
@@ -358,6 +372,11 @@ public class ActorSenses implements Qualities {
   
   public boolean isEmergency() {
     return emergency;
+  }
+  
+  
+  public boolean underAttack() {
+    return underAttack;
   }
   
   

@@ -127,7 +127,6 @@ public abstract class Structural extends Fixture implements
   /**  Placement and construction-preview methods-
     */
   public void setFacing(int facing) {
-    if (I.logEvents()) I.say("\nSETTING "+this+" FACING TO: "+facing);
     this.facing = facing % NUM_FACES;
   }
   

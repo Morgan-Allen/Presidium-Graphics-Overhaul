@@ -111,8 +111,9 @@ public class Stocks extends Inventory {
     final int oldC = (int) allCredits();
     super.incCredits(inc);
     final int newC = (int) allCredits();
-    if (! basis.inWorld() || oldC == newC) return;
+    if ((! basis.inWorld()) || oldC == newC) return;
     
+    inc = newC - oldC;
     String phrase = inc >= 0 ? "+" : "-";
     phrase+=" "+(int) Nums.abs(inc)+" credits";
     basis.chat().addPhrase(phrase);
@@ -396,7 +397,7 @@ public class Stocks extends Inventory {
         );
         d.demandAmount = Nums.min(shouldSupply + d.demandAmount, maxSupply);
         if (report) I.say("    Should supply:     "+shouldSupply);
-        BD.impingeSupply(type, d.demandAmount + (amount / 2), period, basis);
+        BD.impingeSupply(type, (d.demandAmount + amount) / 2, period, basis);
       }
       //
       //  Primary consumers of a good will signal their presence as such within
@@ -435,6 +436,8 @@ public class Stocks extends Inventory {
     final Base base = basis.base();
     final float
       amount      = amountOf(type),
+      stockShort  = relativeShortage(type),
+      
       exportPays  = base.commerce.exportPrice(type) / type.basePrice(),
       importCosts = base.commerce.importPrice(type) / type.basePrice(),
       
@@ -445,9 +448,9 @@ public class Stocks extends Inventory {
       
       total = localSupply + localDemand + tradeDemand + tradeSupply;
     
-    final float shortage = total == 0 ? 0 : ((
-      (localDemand - localSupply) - (amount + tradeDemand - tradeSupply)
-    ) / total);
+    final float shortage = (total == 0 ? 0 : ((
+      (localDemand - localSupply) - (tradeDemand - tradeSupply)
+    ) / total)) + stockShort - 0.5f;
     
     final float idealStock = Nums.max(
       localDemand + tradeDemand,

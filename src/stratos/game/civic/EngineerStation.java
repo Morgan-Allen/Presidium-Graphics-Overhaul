@@ -68,7 +68,7 @@ public class EngineerStation extends Venue {
   final public static Upgrade
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
-      "Allows standardised "+PARTS+" to be manufactured 33% faster.  Slightly"+
+      "Allows standardised "+PARTS+" to be manufactured 33% faster.  Slightly "+
       "increases pollution.",
       200,
       Upgrade.THREE_LEVELS, PARTS, 2,

@@ -299,9 +299,29 @@ public class Bastion extends Venue {
     if (! structure.intact()) return;
     //
     //  Look after the ruler and any other housebound guests-
-    final Actor ruler = base.ruler();
-    if (ruler != null && ruler.aboard() == this) {
-      ruler.traits.setLevel(SEAT_OF_POWER_EFFECT, 1);
+    if (base.ruler() != null) {
+      final Actor ruler = base.ruler();
+      if (ruler.health.isDead()) {
+        base.assignRuler(null);
+      }
+      else if (ruler.aboard() == this) {
+        ruler.traits.setLevel(SEAT_OF_POWER_EFFECT, 1);
+      }
+    }
+    //
+    //  THE KING IS DEAD LONG LIVE THE KING-
+    else {
+      final Pick <Actor> pick = new Pick();
+      for (Actor a : staff.lodgers()) {
+        float rating = Career.ratePromotion(KNIGHTED, a, false);
+        pick.compare(a, rating);
+      }
+      final Actor chosen = pick.result();
+      if (chosen != null) {
+        if (I.logEvents()) I.say("\nTHEY ARE THE KWISATZ HADERACH: "+chosen);
+        base.assignRuler(chosen);
+        chosen.mind.setVocation(KNIGHTED);
+      }
     }
     //
     //  Provide power and life support-

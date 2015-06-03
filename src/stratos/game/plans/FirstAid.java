@@ -118,7 +118,7 @@ public class FirstAid extends Treatment {
     //
     //  You can't perform actual treatment while under fire, but you can get
     //  the patient out of harm's way (see below.)
-    final boolean underFire = actor.senses.isEmergency();
+    final boolean underFire = actor.senses.underAttack();
     
     if (patient.health.bleeding() && ! underFire) {
       final Action aids = new Action(

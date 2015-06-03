@@ -175,6 +175,7 @@ public class Placement implements TileConstants {
     final Venue v, final Target near, boolean intact, Stage world
   ) {
     if (! findClearanceFor(v, near, world)) return null;
+    if (! v.setupWith(v.origin(), null)) return null;
     
     for (Structure.Basis i : v.structure.asGroup()) {
       i.doPlacement();

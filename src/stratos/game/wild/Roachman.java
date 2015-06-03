@@ -52,8 +52,10 @@ public class Roachman extends Vermin {
     gear.setBaseDamage(8);
     gear.setBaseArmour(8);
     
-    traits.setLevel(DEFENSIVE,  0);
-    traits.setLevel(FEARLESS , -1);
+    traits.setLevel(FEARLESS  , -1);
+    traits.setLevel(ACQUISITIVE, 1);
+    traits.setLevel(STEALTH_AND_COVER, 15 + Rand.index(5) - 3);
+    traits.setLevel(HAND_TO_HAND     , 5  + Rand.index(5) - 3);
   }
   
   

@@ -201,6 +201,7 @@ public class PlacingTask implements UITask {
       final Venue p = placingAt(c, area, placePoints);
       p.doPlacement();
       placed.add(p);
+      if (I.logEvents()) I.say("  Facing: "+p.facing());
     }
     
     final Venue PA[] = placed.toArray(Venue.class);

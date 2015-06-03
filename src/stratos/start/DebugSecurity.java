@@ -50,7 +50,7 @@ public class DebugSecurity extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
-      Habitat.OCEAN       , 1f,
+      //Habitat.OCEAN       , 1f,
       Habitat.ESTUARY     , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
@@ -77,8 +77,8 @@ public class DebugSecurity extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    if (true ) wallsScenario   (world, base, UI);
-    if (false) verminScenario  (world, base, UI);
+    if (false) wallsScenario   (world, base, UI);
+    if (true ) verminScenario  (world, base, UI);
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
     if (false) raidingScenario (world, base, UI);
@@ -110,15 +110,14 @@ public class DebugSecurity extends Scenario {
     Placement.establishVenue(hatch, world.tileAt(4, 4), true, world);
     
     final Base vermin = Base.vermin(world);
+    /*
     Actor roach = Roach.SPECIES.sampleFor(vermin);
-    roach.enterWorldAt(7, 7, world);
+    roach.enterWorldAt(hatch, world);
     roach.mind.setHome(hatch);
+    //*/
     Actor enemy = Roachman.SPECIES.sampleFor(vermin);
-    enemy.enterWorldAt(9, 7, world);
+    enemy.enterWorldAt(hatch, world);
     enemy.mind.setHome(hatch);
-    
-    Actor meets = new Human(Backgrounds.VOLUNTEER, base);
-    meets.enterWorldAt(19, 19, world);
     
     Venue raids = new StockExchange(base);
     raids.stocks.bumpItem(Economy.CARBS, 20);
@@ -128,11 +127,16 @@ public class DebugSecurity extends Scenario {
       enemy, raids, Item.withAmount(Economy.CARBS, 5), hatch
     ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
     
+    //*
+    Actor meets = new Human(Backgrounds.VOLUNTEER, base);
+    meets.enterWorldAt(6, 6, world);
+    
     meets.mind.assignBehaviour(Patrolling.aroundPerimeter(
       meets, raids, world
     ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
+    //*/
     
-    UI.selection.pushSelection(enemy);
+    UI.selection.pushSelection(meets);
   }
   
   

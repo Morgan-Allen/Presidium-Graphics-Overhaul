@@ -73,16 +73,20 @@ public class Retreat extends Plan implements Qualities {
   /**  Evaluation of havens and hide points-
     */
   public static Boarding nearestHaven(
-    final Actor actor, Class prefClass, final boolean emergency
+    final Actor actor, final Class prefClass, final boolean emergency
   ) {
     final Target oldHaven = actor.senses.haven();
     final Stage world = actor.world();
     final float
       runRange   = actor.health.sightRange() + Stage.ZONE_SIZE,
       sightHaven = Stage.ZONE_SIZE / 2;
-    final boolean
-      atHaven  = actor.aboard() == oldHaven,
-      mustMove = atHaven && actor.senses.isEmergency() && ! actor.indoors();
+    
+    final boolean atHaven, mustMove, attacked = actor.senses.underAttack();
+    if (oldHaven == null) atHaven = false;
+    else if (actor.indoors()) atHaven = actor.aboard() == oldHaven;
+    else atHaven = Spacing.distance(actor, oldHaven) < sightHaven;
+    
+    mustMove = atHaven && attacked && ! Action.isMoving(actor);
     
     final Pick <Boarding> pick = new Pick <Boarding> () {
       
@@ -97,26 +101,19 @@ public class Retreat extends Plan implements Qualities {
         );
         rating *= 1 - actor.senses.dangerFromDirection(direction);
         
-        final float dist = 1 + (absDist / runRange);
-        super.compare(next, rating / (dist * (emergency ? 0.5f : 0.2f)));
+        if (next == actor.mind.home()   ) rating *= 2.0f;
+        if (next == actor.mind.work()   ) rating *= 1.5f;
+        if (next.getClass() == prefClass) rating *= 2.0f;
+        if (next.boardableType() == Boarding.BOARDABLE_TILE) rating /= 10;
+        
+        super.compare(next, rating / (1 + (absDist / runRange)));
       }
     };
     
-    if (emergency) {
-      if (pick.empty()) {
-        pick.compare(pickHidePoint(actor, runRange, actor, -2), 2);
-      }
-      if (pick.empty()) {
-        pick.compare(pickHidePoint(actor, runRange, actor,  0), 1);
-      }
-      if (pick.empty()) {
-        pick.compare(Spacing.pickRandomTile(actor, runRange, world), 0);
-      }
-    }
+    pick.compare(actor.mind.home(), 1);
+    pick.compare(actor.mind.work(), 1);
     
-    pick.compare(actor.mind.home(), 10);
-    pick.compare(actor.mind.work(), 5 );
-    
+    //  TODO:  Just use 'senses.awareOf' here?
     if (actor.species().sapient()) {
       final Presences presences = actor.world().presences;
       final Target refuge = presences.nearestMatch(
@@ -128,10 +125,27 @@ public class Retreat extends Plan implements Qualities {
       final Target cover  = presences.nearestMatch(
         Venue.class           , actor, -1
       );
-      pick.compare((Boarding) refuge, emergency ? 5 : 10);
-      pick.compare((Boarding) pref  , 20                );
-      pick.compare((Boarding) cover , emergency ? 1 : 2 );
+      final Target built  = presences.randomMatchNear(
+        Venue.class           , actor, -1
+      );
+      pick.compare((Boarding) refuge, 1.5f);
+      pick.compare((Boarding) pref  , 1);
+      pick.compare((Boarding) cover , 1);
+      pick.compare((Boarding) built , 1);
     }
+    
+    if (emergency || pick.empty()) {
+      if (pick.empty()) {
+        pick.compare(pickHidePoint(actor, runRange, actor, -2), 1);
+      }
+      if (pick.empty()) {
+        pick.compare(pickHidePoint(actor, runRange, actor,  0), 1);
+      }
+      if (pick.empty()) {
+        pick.compare(Spacing.pickRandomTile(actor, runRange, world), 1);
+      }
+    }
+    pick.compare(actor.senses.haven(), 1.5f);
     
     if (pick.result() != null) return pick.result();
     else return actor.aboard();
@@ -253,7 +267,7 @@ public class Retreat extends Plan implements Qualities {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     final boolean urgent = actor.senses.isEmergency();
     if (report) {
       I.say("\nFleeing to "+safePoint+", urgent? "+urgent);

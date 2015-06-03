@@ -16,8 +16,10 @@
     <animation name="stand"      start="0"  end="0"   duration="0.5" />
     <animation name="look"       start="0"  end="30"  duration="0.5" />
     <animation name="move"       start="37" end="56"  duration="0.5" />
+    <animation name="move_sneak" start="37" end="56"  duration="0.5" />
     <animation name="move_fast"  start="37" end="56"  duration="0.5" />
     <animation name="strike"     start="67" end="92"  duration="0.5" />
+    <animation name="strike_big" start="67" end="92"  duration="0.5" />
     <animation name="fall"       start="92" end="122" duration="0.5" />
   </animations>
 </model>
@@ -29,7 +31,7 @@
   type="JOINT"
   path="media/Actors/vermin/"
   file="Roachman2.ms3d"
-  scale="0.065"
+  scale="0.045"
   bound="2.5"
   stride="1.5"
   height="2.5"
@@ -39,6 +41,7 @@
     <animation name="move_fast"  start="58"   end="78"   duration="1" />
     <animation name="move_sneak" start="101"  end="139"  duration="1" />
     <animation name="strike"     start="151"  end="191"  duration="1" />
+    <animation name="strike_big" start="151"  end="191"  duration="1" />
     <animation name="feeding"    start="191"  end="366"  duration="1" />
     <animation name="idle"       start="366"  end="416"  duration="1" />
     <animation name="groom"      start="416"  end="526"  duration="1" />
