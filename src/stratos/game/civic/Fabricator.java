@@ -30,11 +30,7 @@ public class Fabricator extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 3, 2
-  );
-
-  final public static ModelAsset MODEL2 = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator.png", 3, 2
+    Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 4, 2
   );
   
   final static ImageAsset ICON = ImageAsset.fromImage(

@@ -31,7 +31,7 @@ public class Archives extends Venue {
     Archives.class, "media/GUI/Buttons/archives_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Archives.class, "media/Buildings/physician/archives.png", 3, 2
+    Archives.class, "media/Buildings/physician/archives.png", 4, 2
   );
   
   final static float
@@ -140,6 +140,11 @@ public class Archives extends Venue {
     return Manufacture.statusMessageFor(
       super.helpInfo(), this, CIRCUITRY_TO_DATALINKS
     );
+  }
+  
+  
+  protected Traded[] goodsToShow() {
+    return null;
   }
 }
 

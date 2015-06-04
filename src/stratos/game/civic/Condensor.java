@@ -17,7 +17,7 @@ public class Condensor extends Venue {
   
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Condensor.class, "media/Buildings/aesthete/condensor.png", 3, 2
+    Condensor.class, "media/Buildings/aesthete/condensor.png", 3, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Condensor.class, "media/GUI/Buttons/condensor_button.gif"
