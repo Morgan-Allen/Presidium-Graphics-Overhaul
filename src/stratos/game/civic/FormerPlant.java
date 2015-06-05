@@ -21,6 +21,11 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+//  TODO:  Rename to Chem-Panner and use to harvest Spyce and Chemicals, plus
+//  provide a terraforming bonus in the surrounds.
+
+
+
 public class FormerPlant extends Venue implements TileConstants {
   
   
@@ -49,16 +54,6 @@ public class FormerPlant extends Venue implements TileConstants {
     75,  //build cost
     Structure.SMALL_MAX_UPGRADES
   );
-  
-  final public static Conversion
-    FLORA_TO_POLYMER = new Conversion(
-      BLUEPRINT, "flora_to_polymer",
-      TO, 1, POLYMER
-    ),
-    CARBS_TO_POLYMER = new Conversion(
-      BLUEPRINT, "carbs_to_polymer",
-      1, CARBS, TO, 1, POLYMER
-    );
   
   final static float
     MIN_CLAIM_SIZE = 4;

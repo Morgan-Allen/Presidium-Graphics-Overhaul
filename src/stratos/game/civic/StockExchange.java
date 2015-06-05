@@ -100,14 +100,11 @@ public class StockExchange extends Venue {
   //  TODO:  THIS SHOULD ONLY BE TRIGGERED BY BRINGING-PLANS, NOT THEFTS!
   public void afterTransaction(Item item, float amount) {
     super.afterTransaction(item, amount);
+    if (amount >= 0) return;
     //
-    //  You only pay half-price for goods being bought.
-    if (amount >= 0) {
-      stocks.incCredits(super.priceFor(item.type, false) / 2);
-      return;
-    }
-    //
-    //  For goods sold, you gain a variable bonus based on upgrade level-
+    //  For goods sold, you gain a variable bonus based on upgrade level, on
+    //  top of normal full price for the good.  However, we only charge half-
+    //  price to customers (see below.)
     final float
       basePrice    = super.priceFor(item.type, true),
       upgradeLevel = upgradeLevelFor(item.type),
@@ -117,9 +114,12 @@ public class StockExchange extends Venue {
       paidOn       = Nums.min(catalogued, sold),
       remainder    = sold - paidOn;
     
+    final float totalBonus =
+      (basePrice * sold / 2     ) +
+      (cashBonus * paidOn       ) +
+      (cashBonus * remainder / 2);
+    stocks.incCredits(totalBonus);
     adjustCatalogue(item.type, paidOn);
-    stocks.incCredits(cashBonus * paidOn       );
-    stocks.incCredits(cashBonus * remainder / 2);
   }
   
   

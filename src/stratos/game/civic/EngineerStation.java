@@ -187,38 +187,30 @@ public class EngineerStation extends Venue {
   public Behaviour jobFor(Actor actor, boolean onShift) {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
-    
+    //
     //  Consider special commissions for weapons and armour-
     for (Item ordered : stocks.specialOrders()) {
       final Traded made = ordered.type;
       final Manufacture mO = new Manufacture(actor, this, ordered);
+      Upgrade forType = MICRO_ASSEMBLY;
       
       if (made == Outfits.OVERALLS) {
         mO.setBonusFrom(this, false, MOLDING_PRESS);
       }
       else if (made instanceof DeviceType) {
         final DeviceType DT = (DeviceType) made;
-        Upgrade forType = MICRO_ASSEMBLY;
         if (DT.hasProperty(Devices.KINETIC)) forType = COMPOSITE_MATERIALS;
         if (DT.hasProperty(Devices.ENERGY )) forType = PLASMA_WEAPONS;
-        mO.setBonusFrom(this, true, forType);
       }
       else if (made instanceof OutfitType) {
-        final OutfitType OT = (OutfitType) made;
-        if (OT.shieldBonus > OT.defence) {
-          //  TODO:  Add a bonus here from T-Null Arm-band.
-          mO.setBonusFrom(this, true, COMPOSITE_MATERIALS);
-        }
-        else {
-          mO.setBonusFrom(this, true, COMPOSITE_MATERIALS);
-        }
+        //final OutfitType OT = (OutfitType) made;
+        //  TODO:  Add a bonus here from T-Null Arm-band.
+        forType = COMPOSITE_MATERIALS;
       }
-      else mO.setBonusFrom(this, true, MICRO_ASSEMBLY);
-      
-      choice.add(mO);
+      choice.add(mO.setBonusFrom(this, true, forType));
     }
     if (! choice.empty()) return choice.pickMostUrgent();
-    
+    //
     //  Consider the production of general bulk commodities-
     final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
     if (mL != null) {
@@ -232,10 +224,10 @@ public class EngineerStation extends Venue {
     if (mI != null) {
       choice.add(mI.setBonusFrom(this, false, MICRO_ASSEMBLY));
     }
-    
+    //
     //  Finally, consider contributing toward local repairs-
     choice.add(Repairs.getNextRepairFor(actor, false));
-    
+    //
     //  And return whatever suits the actor best-
     return choice.weightedPick();
   }

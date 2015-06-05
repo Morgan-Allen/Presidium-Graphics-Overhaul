@@ -18,6 +18,9 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  Rename to Pharma Lab.  Allow for direct harvests?
+
+
 public class CultureLab extends Venue {
   
   

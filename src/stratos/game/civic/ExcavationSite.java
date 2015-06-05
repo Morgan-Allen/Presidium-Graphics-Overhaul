@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -59,16 +57,11 @@ public class ExcavationSite extends Venue implements TileConstants {
     LAND_TO_ISOTOPES = new Conversion(
       BLUEPRINT, "land_to_isotopes",
       TO, 1, FUEL_RODS
+    ),
+    FLORA_TO_POLYMER = new Conversion(
+      BLUEPRINT, "flora_to_polymer",
+      TO, 1, POLYMER
     );
-  /*
-  //  TODO:  Move this elsewhere, I think.
-  final public static Conversion
-    WASTE_TO_LCHC = new Conversion(
-      BLUEPRINT, "waste_to_lchc",
-      TO, 1, POLYMER,
-      SIMPLE_DC, CHEMISTRY
-    );
-  //*/
   
   
   private static boolean verbose = false;

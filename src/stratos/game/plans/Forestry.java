@@ -18,6 +18,9 @@ import static stratos.game.economic.Economy.*;
 
 //  TODO:  Try merging this with Farming (or extending it.)
 
+//  TODO:  Merge harvest with mining.  Merge planting with farming.
+
+
 public class Forestry extends Plan {
 
   private static boolean

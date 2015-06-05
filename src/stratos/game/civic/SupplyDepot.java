@@ -7,11 +7,10 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Ambience;
+import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -21,6 +20,10 @@ import static stratos.game.economic.Economy.*;
 
 //  TODO:  Consider adding one or two upgrades, to allow for scrapping, granary
 //  functions, construction materials etc.?
+
+//  Polymer still.  Extra barges.
+//  Hardware outlet.  Granary depot.
+
 
 public class SupplyDepot extends Venue {
   
@@ -86,6 +89,13 @@ public class SupplyDepot extends Venue {
     },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
+    );
+  
+  final public static Conversion
+    NIL_TO_POLYMER = new Conversion(
+      BLUEPRINT, "nil_to_polymer",
+      TO, 1, POLYMER,
+      SIMPLE_DC, CHEMISTRY
     );
   
   

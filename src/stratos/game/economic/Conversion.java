@@ -119,17 +119,6 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   }
   
   
-  public Conversion attachName(String name) {
-    this.specialName = name;
-    return this;
-  }
-  
-  
-  public String specialName() {
-    return specialName;
-  }
-  
-  
   
   /**  Economic helper methods-
     */
@@ -139,10 +128,49 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   }
   
   
+  public float testChance(Actor actor, float checkMod) {
+    if (skills.length == 0) return 1;
+    float chance = 0;
+    for (int i = skills.length; i-- > 0;) chance += actor.skills.chance(
+      skills[i], skillDCs[i] - checkMod
+    );
+    return chance / skills.length;
+  }
+  
+  
+  public float performTest(Actor actor, float checkMod, float duration) {
+    if (skills.length == 0) return 1;
+    float result = 0;
+    for (int i = skills.length; i-- > 0;) result += actor.skills.test(
+      skills[i], skillDCs[i] - checkMod, duration, 1
+    );
+    return result / skills.length;
+  }
+  
+  
+  
+  /**  Rendering and interface methods-
+    */
   public String toString() {
     return entryKey();
   }
+  
+  
+  public Conversion attachName(String name) {
+    this.specialName = name;
+    return this;
+  }
+  
+  
+  public String specialName() {
+    return specialName;
+  }
 }
+
+
+
+
+
 
 
 

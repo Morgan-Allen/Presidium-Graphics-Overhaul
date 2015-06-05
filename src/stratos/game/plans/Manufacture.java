@@ -115,9 +115,12 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   public Manufacture setBonusFrom(
     Venue works, boolean required, Upgrade... upgrades
   ) {
-    //  TODO:  Limit the maximum quality that can be achieved in the absence of
-    //  a suitable facility upgrade!
     this.speedBonus = estimatedOutput(works, conversion, upgrades);
+    if (commission && required) {
+      final int maxQuality = (int) (speedBonus * Item.MAX_QUALITY / 2f);
+      this.speedBonus = 1;
+      if (made.quality >= maxQuality) return null;
+    }
     return this;
   }
   
@@ -195,6 +198,20 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   }
   
   
+  private boolean hasNeeded() {
+    for (Item need : needed) {
+      if (! venue.inventory().hasItem(need)) return false;
+    }
+    return true;
+  }
+  
+  
+  public boolean valid() {
+    if ((GameSettings.hardCore || commission) && ! hasNeeded()) return false;
+    return super.valid();
+  }
+  
+  
   
   /**  Vary this based on delay since inception and demand at the venue-
     */
@@ -254,30 +271,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public float successChanceFor(Actor actor) {
-    final Conversion c = conversion;
-    float chance = 1.0f;
-    for (int i = c.skills.length; i-- > 0;) {
-      chance *= actor.skills.chance(c.skills[i], c.skillDCs[i]);
-    }
-    chance = (chance + 1) / 2f;
-    return chance;
-  }
-  
-  
-  private boolean hasNeeded() {
-    //
-    //  TODO:  Average the shortage of each needed item, so that penalties are
-    //  less stringent for output that demands multiple inputs?
-    for (Item need : needed) {
-      if (! venue.inventory().hasItem(need)) return false;
-    }
-    return true;
-  }
-  
-  
-  public boolean valid() {
-    if ((GameSettings.hardCore || commission) && ! hasNeeded()) return false;
-    return super.valid();
+    return conversion.testChance(actor, 0);
   }
   
   
@@ -286,19 +280,10 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     */
   public boolean finished() {
     if (super.finished()) return true;
-    //if (selfCommission()) return false;
     return
       (amountMade >= 2) || (amountMade >= made.amount) ||
       venue.inventory().hasItem(made);
   }
-  
-  /*
-  private boolean selfCommission() {
-    return
-      commission != null && commission.actor() == actor &&
-      ! commission.finished();
-  }
-  //*/
   
   
   public Behaviour getNextStep() {
@@ -308,14 +293,12 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     }
     
     if (venue.inventory().hasItem(made)) {
-      //if (selfCommission()) return commission;
       amountMade = made.amount;
       return null;
     }
     
     if (! hasNeeded()) {
       if (GameSettings.hardCore) return null;
-      //  TODO:  if (venue.stocks.hasConversion(needed)) return etc.
     }
     
     return new Action(
@@ -336,30 +319,17 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       interrupt(INTERRUPT_NO_PREREQ);
       return false;
     }
-    final Conversion c = conversion;
-    
-    //  Secondly, make sure the skill tests all check out, and deplete any raw
-    //  materials used up.
-    final float checkMod = (hasNeeded ? 0 : SHORTAGE_DC_MOD);
-    boolean success = true;
-    //  TODO:  Have this average results, rather than '&' them...
-    for (int i = c.skills.length; i-- > 0;) {
-      success &= actor.skills.test(c.skills[i], c.skillDCs[i] + checkMod, 1);
-    }
-    
-    float increment = 1f * speedBonus / (made.amount * TIME_PER_UNIT);
+    //
+    //  
+    final float success = conversion.performTest(actor, 0, 1);
+    float increment = success * speedBonus / (made.amount * TIME_PER_UNIT);
     if (made.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
     if (made.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;
     if (! hasNeeded) increment /= SHORTAGE_TIME_MULT;
-    if (! success) increment /= FAILURE_TIME_MULT;
-    
-    if ((success || GameSettings.hardCore) && increment > 0) {
-      for (Item r : c.raw) {
-        final Item used = Item.withAmount(r, r.amount * increment);
-        venue.inventory().removeItem(used);
-      }
+    for (Item r : conversion.raw) {
+      final Item used = Item.withAmount(r, r.amount * increment);
+      venue.inventory().removeItem(used);
     }
-    
     //
     //  Advance progress, and check if you're done yet.
     if (increment > 0) {
