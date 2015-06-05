@@ -7,6 +7,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Ambience;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -223,17 +224,15 @@ public class PhysicianStation extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    
-    final int numU = (1 + structure.numUpgrades()) / 2;
-    int powerNeed = 2 + numU;
+    final float numU = (1 + structure.numUpgrades()) / 2f;
     //
-    //  Sickbays consumes medicine and power based on current upgrade level,
-    //  and have a mild positive effect on ambience-
+    //  The station consumes medicine and power based on current upgrade level,
+    //  and has a mild positive effect on ambience-
     stocks.incDemand(MEDICINE, 2 + numU, 1, true);
+    stocks.forceDemand(POWER, 2 + numU, false);
+    structure.setAmbienceVal(2 + numU);
     stocks.translateRawDemands(REAGENTS_TO_MEDICINE, 1);
     stocks.translateRawDemands(REAGENTS_TO_SOMA    , 1);
-    stocks.forceDemand(POWER, powerNeed, false);
-    structure.setAmbienceVal(4 + numU);
   }
   
   

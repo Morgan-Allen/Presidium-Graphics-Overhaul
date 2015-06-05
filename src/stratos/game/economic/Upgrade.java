@@ -119,6 +119,8 @@ public class Upgrade extends Constant {
     else {
       level = b.structure().upgradeLevel(this, Structure.STATE_NONE);
     }
+    if (level >= maxLevel) level = maxLevel - 1;
+    
     if (level == 0) return baseName;
     if (level == 1) return "Improved "+baseName;
     else            return "Advanced "+baseName;

@@ -195,6 +195,7 @@ public class StockExchange extends Venue {
       STOCK_VENDOR_OFFICE, BLUEPRINT
     );
   
+  
   final public static Traded
     ALL_STOCKED[] = {
       CARBS, PROTEIN, GREENS,
@@ -216,7 +217,7 @@ public class StockExchange extends Venue {
   
   public int numOpenings(Background p) {
     final int nO = super.numOpenings(p);
-    if (p == Backgrounds.STOCK_VENDOR) return nO + 2;
+    if (p == Backgrounds.STOCK_VENDOR) return nO + 3;
     return 0;
   }
   

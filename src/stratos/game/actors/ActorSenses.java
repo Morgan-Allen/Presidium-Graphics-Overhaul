@@ -71,7 +71,6 @@ public class ActorSenses implements Qualities {
   
   
   
-  
   /**  Dealing with seen objects and reactions to them-
     */
   //  TODO:  Move the decision-related bits of this to the Mind class.

@@ -435,8 +435,7 @@ public class Forestry extends Plan {
       if (limit != null && ! limit.contains(tried.x, tried.y)) continue;
       
       float rating = tried.habitat().moisture() / 10f;
-      rating -= Plan.rangePenalty(actor.base(), actor, tried);
-      rating -= Plan.dangerPenalty(tried, actor);
+      rating -= PlanUtils.homeDistanceFactor(actor, tried);
       rating -= actor.world().ecology().forestRating(tried);
       
       if (report) I.say("  Rating for "+tried+" is "+rating);

@@ -426,7 +426,8 @@ public class Dropship extends Vehicle implements Owner {
       d.append("\n  "+t+" ("+has+"/"+sought+")");
     }
     
-    d.append("\n\nPort Of Origin: "+base.commerce.homeworld());
+    d.append("\n\nPort Of Origin: ");
+    d.append(base.commerce.homeworld());
     
     return pane;
   }

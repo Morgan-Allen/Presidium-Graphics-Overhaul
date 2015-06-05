@@ -744,8 +744,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public Target selectionLocksOn() {
-    if (visibleTo(BaseUI.currentPlayed())) return subject;
-    else return null;
+    return null;
   }
   
   
@@ -842,11 +841,15 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   private void returnSelectionAfterward() {
-    if (
-      BaseUI.paneOpenFor(this) && visibleTo(BaseUI.currentPlayed()) &&
-      (subject instanceof Selectable)
-    ) {
-      BaseUI.current().selection.pushSelection((Selectable) subject);
+    if (! BaseUI.paneOpenFor(this)) return;
+    final BaseUI UI = BaseUI.current();
+    
+    if (visibleTo(UI.played()) && (subject instanceof Selectable)) {
+      UI.selection.pushSelection((Selectable) subject);
+    }
+    else {
+      UI.selection.pushSelection(null);
+      UI.clearInfoPane();
     }
   }
 

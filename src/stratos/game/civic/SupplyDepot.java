@@ -30,7 +30,7 @@ public class SupplyDepot extends Venue {
     SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 3, 1
+    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 4, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
@@ -57,8 +57,8 @@ public class SupplyDepot extends Venue {
     staff.setShiftType(SHIFTS_BY_HOURS);
     
     final GroupSprite sprite = new GroupSprite();
-    sprite.attach(MODEL_UNDER, 0   ,  0   , -0.05f);
-    sprite.attach(MODEL_CORE , 0.1f, -0.1f,  0    );
+    sprite.attach(MODEL_UNDER, 0, 0, 0);
+    sprite.attach(MODEL_CORE , 0, 0, 0);
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
   }

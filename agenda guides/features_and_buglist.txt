@@ -1,16 +1,20 @@
 
-THE TUTORIAL
 
+TO DO NOW-
 
-*  And I think I still need to explain security missions.  (And make sure the
-   artilects are more proactive as raiders.)
+*  Text can sometimes be clipped by the scrollbar-widget: fix that!
 
-*  If a mission is selected and then completes while looking at a different
-   panel, the selection-circle can persist.  (That might need a change to the
-   selection-system?)
+*  Get rid of the forced-zoom during the tutorial topics.
 
-*  Show missions on the minimap, along with proper tool-tips.
+*  Treatment-priority in non-emergencies seems to be a little high for non-
+   medical staff.  Look into it.
 
+*  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.
+
+*  For some reason, the current OSX build does not run after download from
+   github.  (Replacing stratos.app with the local build's version works fine.)
+   In addition, windows-saves do not seem to load.  I probably mixed up the
+   build-version at some point- double-check in future.
 
 
 BUILDINGS AND ECONOMY-
@@ -69,6 +73,18 @@ BUILDINGS AND ECONOMY-
 *  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
    the excavation site, former plant, kommando lodge & eco station- take up
    big plots.
+
+
+THE TUTORIAL
+
+*  And I think I still need to explain security missions.  (And make sure the
+   artilects are more proactive as raiders.)
+
+*  If a mission is selected and then completes while looking at a different
+   panel, the selection-circle can persist.  (That might need a change to the
+   selection-system?)
+
+*  Show missions on the minimap, along with proper tool-tips.
 
 
 

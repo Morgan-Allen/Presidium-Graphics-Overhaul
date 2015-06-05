@@ -205,7 +205,7 @@ public abstract class Fauna extends Actor {
     
     float priority = ActorHealth.MAX_CALORIES - (health.caloryLevel() + 0.1f);
     priority *= Action.URGENT;
-    priority -= Plan.rangePenalty(base(), this, picked);
+    priority -= PlanUtils.homeDistanceFactor(this, picked);
     if (priority < 0) return null;
     
     final Action browse = new Action(

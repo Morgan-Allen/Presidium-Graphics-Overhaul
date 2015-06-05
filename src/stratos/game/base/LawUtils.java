@@ -61,6 +61,10 @@ public class LawUtils {
     final Behaviour
       root = actor.mind.rootBehaviour(),
       top  = actor.mind.topBehaviour ();
+    //
+    //  For now, we prevent any mission-activities from being registered as
+    //  'crimes'...
+    if (Plan.hasMotive(root, Plan.MOTIVE_MISSION)) return null;
     final Target victim = actor.planFocus(null, true);
     
     float harmRating = 0;

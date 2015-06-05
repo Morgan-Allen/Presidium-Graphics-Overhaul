@@ -27,7 +27,7 @@ public class PlanUtils {
   
   private static boolean reportOn(Actor a, float priority) {
     if (priority <= 0 && ! failVerbose) return false;
-    return I.talkAbout == a && verbose;
+    return I.talkAbout == a;// && verbose;
   }
   
   
@@ -344,13 +344,8 @@ public class PlanUtils {
       if (reportOn(actor, 0)) I.say("\nNo incentive for "+plan);
       return -1;
     }
-    //
-    //  NOTE:  We scale the fail penalty with the urgency as this tends to
-    //         be the best indication of how important screw-ups are as well
-    //         as success.  (Otherwise you see actors abandoning nearly-done
-    //         jobs.)
     priority = incentive * competence;
-    priority -= failPenalty = (1 - competence) * 10 * riskLevel * urgency;
+    priority -= failPenalty = (1 - competence) * 10 * riskLevel;
     
     
     if (reportOn(actor, priority)) I.reportVars(

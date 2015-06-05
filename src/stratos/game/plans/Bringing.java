@@ -305,8 +305,8 @@ public class Bringing extends Plan {
     //  usual distance evaluation.  Otherwise, proceed as normal.
     final float rangeDiv = driven == null ? 2f : 10f;
     final float extraRangePenalty = (
-      Plan.rangePenalty(actor.base(), actor , origin     ) +
-      Plan.rangePenalty(actor.base(), origin, destination)
+      PlanUtils.homeDistanceFactor(actor, origin     ) +
+      PlanUtils.homeDistanceFactor(actor, destination)
     ) / rangeDiv;
     
     //  TODO:  Move this out to PlanUtils, I think?

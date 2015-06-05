@@ -205,7 +205,7 @@ public class Audit extends Plan {
       if (PlanUtils.competition(Audit.class, v, actor) > 0) continue;
       final float cash = v.inventory().unTaxed();
       float rating = (Nums.abs(cash) + Nums.max(0, cash)) / RATE_DIVISOR;
-      rating /= 1 + Plan.rangePenalty(actor.base(), v, actor);
+      rating *= 2 / (2 + PlanUtils.homeDistanceFactor(actor, v));
       pick.compare(v, rating);
       if (report) {
         I.say("  Rating for "+v+" is "+rating);

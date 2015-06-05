@@ -348,25 +348,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public static boolean canFollow(Actor a, Behaviour b, boolean checkPriority) {
-    if (b == null || ! b.valid()) return false;
-    if (b.finished() || b.nextStepFor(a) == null) {
-      return false;
-    }
-    if (checkPriority && b.priorityFor(a) <= 0) {
-      return false;
-    }
-    return true;
-  }
-  
-  
-  public static boolean canPersist(Behaviour b) {
-    if (b == null || ! b.valid()) return false;
-    if (b.finished() || ! b.persistent()) return false;
-    return true;
-  }
-  
-  
   
   /**  Assorted utility evaluation methods-
     */
@@ -478,50 +459,31 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   
-  /**  Various utility methods for modifying plan priority (primarily invoked
-    *  above.)
+  /**  Various utility methods for application to generic Behaviours-
     */
-  //
-  //  TODO:  ALL THESE METHODS NEED TO GO!  MOVE TO PLAN-UTILS OR DELETE!
-  //*
-  public static float rangePenalty(Base base, Target from, Target to) {
-    if (from == null || to == null) return 0;
-    final float SS   = Stage.ZONE_SIZE;  //  TODO:  Modify by move speed!
-    final float dist = Spacing.distance(from, to) / SS;
-    
-    float baseMult = 2;
-    if (base != null) {
-      final Tile at = base.world.tileAt(to);
-      final Base owns = base.world.claims.baseClaiming(at);
-      if (owns != null) baseMult -= owns.relations.relationWith(base);
+  public static boolean canFollow(Actor a, Behaviour b, boolean checkPriority) {
+    if (b == null || ! b.valid()) return false;
+    if (b.finished() || b.nextStepFor(a) == null) {
+      return false;
     }
-    
-    if (dist <= 1) return (dist / 2) * baseMult;
-    return (Nums.log(2, dist) + 0.5f) * baseMult;
+    if (checkPriority && b.priorityFor(a) <= 0) {
+      return false;
+    }
+    return true;
   }
   
   
-  public static float dangerPenalty(Target t, Actor actor) {
-    final boolean report = utilsVerbose && I.talkAbout == actor;
-    
-    final Tile at = actor.origin();
-    float danger = actor.base().dangerMap.sampleAround(
-      at.x, at.y, Stage.ZONE_SIZE
-    );
-    if (danger < 0) return 0;
-    //danger *= 1 + actor.traits.relativeLevel(Qualities.NERVOUS);
-    final float strength = actor.senses.powerLevel();
-    
-    float penalty = danger / (1 + strength);
-    if (report) {
-      I.say("\nGetting danger penalty for "+actor);
-      I.say("  Combat strength: "+strength);
-      I.say("  Danger sample:   "+danger  );
-      I.say("  Final penalty:   "+penalty );
-    }
-    return penalty;
+  public static boolean canPersist(Behaviour b) {
+    if (b == null || ! b.valid()) return false;
+    if (b.finished() || ! b.persistent()) return false;
+    return true;
   }
-  //*/
+  
+  
+  public static boolean hasMotive(Behaviour b, int motives) {
+    if (! (b instanceof Plan)) return false;
+    return ((Plan) b).hasMotives(motives);
+  }
   
   
   

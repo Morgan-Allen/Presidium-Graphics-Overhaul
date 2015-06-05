@@ -9,9 +9,7 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.*;
-import stratos.user.BaseUI;
-import stratos.user.Selectable;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -219,7 +217,8 @@ public class Background extends Constant {
       final int level = baseSkills.get(s);
       d.append("\n  ");
       d.append(s);
-      d.append(" ("+(level - 3)+")");
+      int min = Nums.max(0, level - 2), max = level + 3;
+      d.append(" ("+min+"-"+max+")");
     }
     
     d.append("\n");

@@ -75,6 +75,10 @@ public class Foraging extends Plan {
     final boolean report = I.talkAbout == actor && evalVerbose;
     final boolean useHunger = store == null || store == actor.mind.home();
     
+    if (report) {
+      I.say("Getting forage priority...");
+    }
+    
     if (storeShortage() <= 0) {
       if (sumHarvest() > 0) return Plan.ROUTINE;
       else done = true;

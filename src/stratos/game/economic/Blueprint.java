@@ -79,6 +79,8 @@ public class Blueprint extends Constant implements Session.Saveable {
     int integrity, int armour, int buildCost, int maxUpgrades
   ) {
     super(INDEX, key, name);
+    setAsUniqueTo(baseClass);
+    
     this.baseClass = baseClass;
     this.keyID     = key;
     

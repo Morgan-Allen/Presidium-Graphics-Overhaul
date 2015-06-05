@@ -197,13 +197,6 @@ public class KommandoLodge extends Venue {
       choice.add(e);
     }
     
-    final float foodNeed = stocks.relativeShortage(CARBS);
-    if (foodNeed > 0) {
-      final Foraging f = new Foraging(actor, this);
-      f.addMotives(Plan.MOTIVE_JOB, foodNeed * Plan.ROUTINE);
-      choice.add(f);
-    }
-    
     final float meatNeed = stocks.relativeShortage(PROTEIN);
     final Batch <Target> prey = new Batch <Target> ();
     world.presences.sampleFromMap(actor, world, 5, prey, Mobile.class);

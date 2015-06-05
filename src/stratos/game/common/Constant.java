@@ -1,10 +1,14 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.common;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
+
 
 
 public abstract class Constant extends Index.Entry implements
@@ -22,6 +26,11 @@ public abstract class Constant extends Index.Entry implements
     this.name = name;
     final String asString = toString();
     if (validAsString(asString)) allConstants.put(asString, this);
+  }
+  
+  
+  protected void setAsUniqueTo(Class belongs) {
+    allConstants.put(OPEN_CHAR+belongs.getName()+SHUT_CHAR, this);
   }
   
   
@@ -92,6 +101,10 @@ public abstract class Constant extends Index.Entry implements
     final boolean report = verbose && PlayLoop.isFrameIncrement(60);
     StringBuffer scanned = null;
     boolean inItem = false;
+    //
+    //  We also look for occurrences of class names, but simplify this through
+    //  a little pre-substitution-
+    helpString = helpString.replaceAll("class ", OPEN_CAP);
     final char chars[] = helpString.toCharArray();
     //
     //  In essence, we search for any terms 'capped' between opening/closing
@@ -106,11 +119,19 @@ public abstract class Constant extends Index.Entry implements
         scanned = null;
         inItem = true;
       }
-      else if (c == SHUT_CHAR && inItem) {
+      else if ((c == SHUT_CHAR || c == ' ' || c == '.') && inItem) {
         final String key = OPEN_CHAR+scanned.toString()+SHUT_CHAR;
         if (report) I.say("\n  Found key: "+key);
+        
         final Object item = allConstants.get(key);
+        if (item == null) {
+          if (report) I.say("  No matches found!");
+          scanned.append(c);
+          continue;
+        }
+        
         d.append(item);
+        if (c != SHUT_CHAR) d.append(""+c);
         scanned = null;
         inItem = false;
       }
