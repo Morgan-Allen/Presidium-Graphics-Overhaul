@@ -257,7 +257,7 @@ public class MS3DModel extends SolidModel {
     for (int i = 0; i < ms3d.joints.length; i++) {
       MS3DJoint jo = ms3d.joints[i];
       for (ModelNodePart part : root.parts) {
-        part.bones.put(jo.name, new Matrix4());
+        part.bones.put(jo.name, jo.cmatrix.cpy());
       }
 
       ModelNode mn = new ModelNode();
@@ -265,8 +265,8 @@ public class MS3DModel extends SolidModel {
       mn.id = jo.name;
       mn.meshId = "mesh";
       mn.boneId = i;
-      mn.rotation = jo.matrix.getRotation(new Quaternion());
-      mn.translation = jo.matrix.getTranslation(new Vector3());
+      mn.rotation = jo.lmatrix.getRotation(new Quaternion());
+      mn.translation = jo.lmatrix.getTranslation(new Vector3());
       mn.scale = new Vector3(1, 1, 1);
 
       ModelNode parent = jo.parentName.isEmpty() ? root : lookup
@@ -282,11 +282,13 @@ public class MS3DModel extends SolidModel {
         ModelNodeKeyframe kf = new ModelNodeKeyframe();
         
         kf.keytime = jo.rotations[j].time;
+        
         kf.translation = new Vector3(jo.positions[j].data);
-        kf.translation.mul(jo.matrix);
-        kf.rotation = jo.matrix.getRotation(new Quaternion()).mul(
-          MS3DFile.fromEuler(jo.rotations[j].data)
-        );
+        kf.translation.mul(jo.lmatrix);
+        
+        kf.rotation = MS3DFile.fromEuler(jo.rotations[j].data);
+        kf.rotation.mulLeft(jo.lmatrix.getRotation(new Quaternion()));
+        
         ani.keyframes.add(kf);
       }
       animation.nodeAnimations.add(ani);
