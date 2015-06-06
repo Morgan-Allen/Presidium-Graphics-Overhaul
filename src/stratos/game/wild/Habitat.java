@@ -187,6 +187,9 @@ public class Habitat {
   final public static ImageAsset
     ROAD_TEXTURE = ImageAsset.fromImage(
       Habitat.class, TERRAIN_PATH+"road_map_new.png"
+    ),
+    RESERVE_TEXTURE = ImageAsset.fromImage(
+      Habitat.class, TERRAIN_PATH+"reserve_tiles.png"
     );
   
   

@@ -27,7 +27,7 @@ public class PlanUtils {
   
   private static boolean reportOn(Actor a, float priority) {
     if (priority <= 0 && ! failVerbose) return false;
-    return I.talkAbout == a;// && verbose;
+    return I.talkAbout == a && verbose;
   }
   
   

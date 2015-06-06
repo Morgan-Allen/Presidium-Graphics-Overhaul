@@ -42,8 +42,8 @@ public class SupplyDepot extends Venue {
   final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
     "Supply Depot", UIConstants.TYPE_COMMERCE, ICON,
-    "The Supply Depot allows for bulk storage of raw materials used by "+
-    "industry and manufacturing.",
+    "The Supply Depot allows for bulk storage and transport of raw materials "+
+    "used in manufacturing.",
     4, 1, Structure.IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_TRADER,
     100,  //integrity

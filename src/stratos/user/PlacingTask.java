@@ -191,22 +191,38 @@ public class PlacingTask implements UITask {
   private void performPlacement(Box2D area, Batch <Coord> placePoints) {
     final Batch <Venue> placed = new Batch <Venue> ();
     
+    //  TODO:  I AM PURELY INTERESTED IN THE PREVIEW-METHODS AT THE MOMENT.
+    //  WILL IMPLEMENT ACTUAL CONSTRUCTION LATER
+    
     if (I.logEvents()) {
       I.say("\nPLACING "+placeType.name+" IN AREA: "+area);
       I.say("  Placement points are:");
       for (Coord c : placePoints) I.say("    "+c);
     }
     
+    //final Stage world = UI.world();
+    
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
+      
+      //  TODO:  You need to be able to preview every tile that the structure
+      //  plans to reserve.
+      
+      //  TODO:  Now you need to work out a system for building up the
+      //  structure piece-by-piece.
+      /*
+      for (Tile t : world.tilesIn(p.footprint(), false)) {
+        t.setReserves(p);
+      }
+      //*/
+      //*
       p.doPlacement();
       placed.add(p);
       if (I.logEvents()) I.say("  Facing: "+p.facing());
+      //*/
     }
-    
-    final Venue PA[] = placed.toArray(Venue.class);
-    for (Venue p : PA) p.structure.assignGroup(PA);
-    
+    //final Venue PA[] = placed.toArray(Venue.class);
+    //for (Venue p : PA) p.structure.assignGroup(PA);
     UI.endCurrentTask();
   }
   

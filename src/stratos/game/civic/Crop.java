@@ -166,8 +166,8 @@ public class Crop extends Element {
   
   
   static Crop cropAt(Tile t) {
-    if (t.onTop() instanceof Crop) {
-      return (Crop) t.onTop();
+    if (t.above() instanceof Crop) {
+      return (Crop) t.above();
     }
     return null;
   }

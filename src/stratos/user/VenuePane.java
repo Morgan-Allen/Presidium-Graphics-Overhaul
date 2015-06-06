@@ -151,7 +151,7 @@ public class VenuePane extends SelectionPane {
   
   
   private void describeCondition(Description d, BaseUI UI) {
-    final Stage world = v.world();
+    final Stage world = v.origin().world();
     d.append("Condition and Repair:");
     
     final int repair = Nums.round(v.structure.repair(), 1, true);

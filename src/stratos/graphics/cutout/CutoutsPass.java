@@ -193,10 +193,11 @@ public class CutoutsPass {
     
     for (int off = 0; off < SIZE; off += VERTEX_SIZE) {
       final int offset = total + off;
+      final float spriteVerts[] = s.model.allFaces[s.faceIndex];
       temp.set(
-        s.model.vertices[X0 + off],
-        s.model.vertices[Y0 + off],
-        s.model.vertices[Z0 + off]
+        spriteVerts[X0 + off],
+        spriteVerts[Y0 + off],
+        spriteVerts[Z0 + off]
       );
       temp.scl(s.scale);
       Viewport.worldToGL(s.position, temp2);
@@ -205,8 +206,8 @@ public class CutoutsPass {
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
       vertComp[C0 + offset] = colourBits;
-      vertComp[U0 + offset] = s.model.vertices[U0 + off];
-      vertComp[V0 + offset] = s.model.vertices[V0 + off];
+      vertComp[U0 + offset] = spriteVerts[U0 + off];
+      vertComp[V0 + offset] = spriteVerts[V0 + off];
     }
     
     total += SIZE;

@@ -3,17 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.game.economic.*;
-import stratos.game.maps.PavingMap;
-import stratos.game.maps.StageTerrain;
-import stratos.graphics.common.*;
-import stratos.user.*;
 import stratos.util.*;
 
 
+//  TODO:  Merge with Structural?
 
 public class Fixture extends Element {
   
@@ -101,9 +96,9 @@ public class Fixture extends Element {
   public boolean enterWorldAt(int x, int y, Stage world) {
     if (! super.enterWorldAt(x, y, world)) return false;
     for (Tile t : world.tilesIn(area, false)) {
-      final Element old = t.onTop();
+      final Element old = t.above();
       if (old != null && old != this) old.setAsDestroyed();
-      t.setOnTop(this);
+      t.setAbove(this, owningTier() >= Owner.TIER_PRIVATE);
     }
     return true;
   }
@@ -119,7 +114,7 @@ public class Fixture extends Element {
   
   public void exitWorld() {
     for (Tile t : world().tilesIn(area, false)) {
-      t.setOnTop(null);
+      t.setAbove(null, owningTier() >= Owner.TIER_PRIVATE);
     }
     super.exitWorld();
   }

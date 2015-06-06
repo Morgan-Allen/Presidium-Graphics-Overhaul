@@ -91,33 +91,6 @@ public final class Spacing implements TileConstants {
     for (Tile t : world.tilesIn(area, true)) under.add(t);
     return (Tile[]) under.toArray(Tile.class);
   }
-
-  
-  
-  /**  Methods for assisting placement-viability checks:
-    */
-  public static int numNeighbours(Element element, Stage world) {
-    if (element.xdim() > 4 || element.xdim() != element.ydim()) {
-      I.complain("This method is intended only for small, regular elements.");
-    }
-    final int size = element.xdim() - 1;
-    int numNeighbours = 0;
-    final Element near[] = NEAR_ARRAYS[size];
-    final Tile perim[] = (size == 0) ?
-      element.origin().allAdjacent(PERIM_ARRAYS[0]) :
-      Spacing.perimeter(element.area(tA), world);
-    
-    for (Tile t : perim) if (t != null) {
-      final Element o = t.onTop();
-      if (o != null && o.flaggedWith() == null) {
-        near[numNeighbours++] = o;
-        o.flagWith(element);
-      }
-    }
-    
-    for (int i = numNeighbours; i-- > 0;) near[i].flagWith(null);
-    return numNeighbours;
-  }
   
   
   

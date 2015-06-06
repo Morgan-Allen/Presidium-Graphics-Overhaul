@@ -55,7 +55,8 @@ public class DebugPlacing extends Scenario {
       I.say("TILE IS: "+over);
       I.say("  SHOULD PAVE? "+base().transport.map.needsPaving(over));
       I.say("  Owned:       "+over.reserved());
-      I.say("  Owner is:    "+over.onTop());
+      I.say("  Owned by:    "+over.reserves());
+      I.say("  Above is:    "+over.above());
       I.say("  Owning tier: "+over.owningTier());
     }
   }
@@ -132,24 +133,24 @@ public class DebugPlacing extends Scenario {
     Venue v = null;
     
     v = new EngineerStation(base);
-    Placement.establishVenue(v, 4, 3, true, world);
+    PlaceUtils.establishVenue(v, 4, 3, true, world);
     
     v = new EngineerStation(base);
-    Placement.establishVenue(v, 4, 9, true, world);
+    PlaceUtils.establishVenue(v, 4, 9, true, world);
     
     v = new EngineerStation(base);
-    Placement.establishVenue(v, 4, 6, true, world);
+    PlaceUtils.establishVenue(v, 4, 6, true, world);
   }
   
   
   private void configTradeTest(Stage world, Base base, BaseUI UI) {
     
     final Venue depot = new SupplyDepot(base);
-    Placement.establishVenue(depot, 5 , 5 , true, world);
+    PlaceUtils.establishVenue(depot, 5 , 5 , true, world);
     depot.updateAsScheduled(0, false);
     
     final Venue works = new Fabricator(base);
-    Placement.establishVenue(works, 5 , 10, true, world);
+    PlaceUtils.establishVenue(works, 5 , 10, true, world);
     works.updateAsScheduled(0, false);
     
     base.commerce.updateCommerce(0);
@@ -161,8 +162,8 @@ public class DebugPlacing extends Scenario {
     
     final Venue pointA = new TrooperLodge(base);
     final Venue pointB = new TrooperLodge(base);
-    Placement.establishVenue(pointA, 5, 5 , false, world);
-    Placement.establishVenue(pointB, 5, 15, false, world);
+    PlaceUtils.establishVenue(pointA, 5, 5 , false, world);
+    PlaceUtils.establishVenue(pointB, 5, 15, false, world);
     pointA.updateAsScheduled(0, false);
     pointB.updateAsScheduled(0, false);
     
@@ -180,7 +181,7 @@ public class DebugPlacing extends Scenario {
   private void configMinesTest(Stage world, Base base, BaseUI UI) {
     final ExcavationSite station = new ExcavationSite(base);
     final Human worksA, worksB;
-    Placement.establishVenue(
+    PlaceUtils.establishVenue(
       station, 8, 8, true, world,
       worksA = new Human(Backgrounds.EXCAVATOR, base),
       worksB = new Human(Backgrounds.EXCAVATOR, base)
@@ -195,7 +196,7 @@ public class DebugPlacing extends Scenario {
   private void configPlantTest(Stage world, Base base, BaseUI UI) {
     
     final EcologistStation station = new EcologistStation(base);
-    Placement.establishVenue(station, 8, 8, true, world);
+    PlaceUtils.establishVenue(station, 8, 8, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.with(Economy.SAMPLES, s, 1, 4);
       station.stocks.addItem(seed);
@@ -208,7 +209,7 @@ public class DebugPlacing extends Scenario {
     if (site.canPlace()) site.doPlacement();
     
     final Bastion bastion = new Bastion(base);
-    Placement.establishVenue(bastion, site, true, world);
+    PlaceUtils.establishVenue(bastion, site, true, world);
     base.setup.fillVacancies(bastion, true);
   }
   

@@ -62,7 +62,7 @@ public class Wreckage extends Fixture {
     final int maxSize = (int) Nums.max(1, area.xdim() / 2);
     
     for (Tile t : world.tilesIn(area, true)) {
-      if (t.onTop() != null) continue;
+      if (t.above() != null) continue;
       int size = 2 + Rand.index(maxSize);
       
       while (size-- > 1) {

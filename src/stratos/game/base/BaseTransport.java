@@ -125,9 +125,9 @@ public class BaseTransport {
     if (route == null || route.path == null) { I.add("No path.\n"); return; }
     
     Target atBeg = route.start.entranceFor().first();
-    if (atBeg == null) atBeg = route.start.onTop();
+    if (atBeg == null) atBeg = route.start.reserves();
     Target atEnd = route.end.entranceFor().first();
-    if (atEnd == null) atEnd = route.end.onTop();
+    if (atEnd == null) atEnd = route.end.reserves();
     
     I.add("Route length: "+route.path.length+"\n  ");
     int i = 0; for (Tile t : route.path) {
@@ -267,7 +267,7 @@ public class BaseTransport {
     while (index-- > 0) {
       final Tile under = path[index];
       if (under.canPave()) filtered.add(under);
-      else if (under.onTop() != vA && under.onTop() != vB) return null;
+      else if (under.reserves() != vA && under.reserves() != vB) return null;
     }
     route.path = filtered.toArray(Tile.class);
     route.cost = route.path.length;
@@ -295,7 +295,7 @@ public class BaseTransport {
   
   
   private boolean checkEndpoint(Tile t) {
-    return t.isEntrance() || t.onTop() instanceof Venue;
+    return t.isEntrance() || t.reserves() instanceof Venue;
   }
   
   
@@ -354,7 +354,7 @@ public class BaseTransport {
   }
   
   
-  private Batch <Venue> venuesReached(Structural init, Base base) {
+  private Batch <Venue> venuesReached(Venue init, Base base) {
     if (init.flaggedWith() != null) return null;
     final boolean report = distroVerbose && base == BaseUI.currentPlayed();
     if (report) I.say("\nDetermining provision access from "+init);
@@ -394,7 +394,7 @@ public class BaseTransport {
         if (o == null) continue;
         insertAgenda(o);
         for (Tile b : o.edgeAdjacent(edgeB)) if (b != null) {
-          if (b.onTop() instanceof Venue) insertAgenda((Venue) b.onTop());
+          if (b.reserves() instanceof Venue) insertAgenda((Venue) b.reserves());
         }
       }
     }
@@ -403,7 +403,7 @@ public class BaseTransport {
     for (Target t : tried) t.flagWith(null);
     tried.clear();
     agenda.clear();
-    for (Structural v : reached) v.flagWith(reached);
+    for (Venue v : reached) v.flagWith(reached);
     return reached;
   }
   
@@ -490,7 +490,7 @@ public class BaseTransport {
     //  Then, distribute water/power/et cetera within that area-
     for (Batch <Venue> reached : allReached) {
       distributeTo(reached, provided, base);
-      for (Structural v : reached) v.flagWith(null);
+      for (Venue v : reached) v.flagWith(null);
     }
   }
 }

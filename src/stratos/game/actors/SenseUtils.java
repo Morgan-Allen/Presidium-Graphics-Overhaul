@@ -116,8 +116,8 @@ public class SenseUtils {
     }
     boolean blocked = false;
     boolean onRight, onLeft;
-    for (Tile t : considered) if (t.blocked() && t.onTop() != platform) {
-      if (t == target || t.onTop() == target) continue;
+    for (Tile t : considered) if (t.blocked() && t.above() != platform) {
+      if (t == target || t.above() == target) continue;
       
       //  We first check whether the centre of the tile in question falls
       //  between the start and end points of the line segment-

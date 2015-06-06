@@ -118,7 +118,7 @@ public class Ambience {
   
   public int exactValue(Tile tile) {
     int value = 0;
-    final Element owner = tile.onTop();
+    final Element owner = tile.above();
     
     if (owner instanceof Structure.Basis) {
       value = ((Structure.Basis) owner).structure().ambienceVal();

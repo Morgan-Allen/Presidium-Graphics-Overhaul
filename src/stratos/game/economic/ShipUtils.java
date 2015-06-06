@@ -74,15 +74,15 @@ public class ShipUtils {
       site.expandBy(-1);
       final Batch <Mobile> under = new Batch <Mobile> ();
       for (Tile t : Spacing.perimeter(site, world)) {
-        if (t.onTop() != null && t.owningTier() <= Owner.TIER_TERRAIN) {
-          t.onTop().setAsDestroyed();
+        if (t.above() != null && t.owningTier() <= Owner.TIER_TERRAIN) {
+          t.above().setAsDestroyed();
         }
       }
       for (Tile t : world.tilesIn(site, false)) {
         if (report) I.say("    Claiming tile: "+t);
-        if (t.onTop() != null) t.onTop().setAsDestroyed();
+        if (t.above() != null) t.above().setAsDestroyed();
         Visit.appendTo(under, t.inside());
-        t.setOnTop(ship);
+        t.setAbove(ship, true);
       }
       for (Mobile m : under) if (m != ship) {
         final Tile e = Spacing.nearestOpenTile(m.origin(), m);
@@ -95,7 +95,7 @@ public class ShipUtils {
       //
       //  Determine the position of the entrance tile-
       final int size = (int) site.xdim();
-      final int EC[] = Placement.entranceCoords(size, size, entryFace);
+      final int EC[] = PlaceUtils.entranceCoords(size, size, entryFace);
       final Tile exit = world.tileAt(site.xpos() + EC[0], site.ypos() + EC[1]);
       if (exit == null) I.complain("NO EXIT FOUND FOR "+ship);
       if (report) {
@@ -105,7 +105,7 @@ public class ShipUtils {
       }
       //
       //  And just make sure the exit is clear-
-      if (exit.onTop() != null) exit.onTop().setAsDestroyed();
+      if (exit.above() != null) exit.above().setAsDestroyed();
       ship.assignLandPoint(ship.aiming(), exit);
       exit.refreshAdjacent();
       if (report) for (Boarding b : exit.canBoard()) {
@@ -139,7 +139,7 @@ public class ShipUtils {
       else {
         if (report) I.say("  Taking off from ground...");
         site.expandBy(-1);
-        for (Tile t : world.tilesIn(site, false)) t.setOnTop(null);
+        for (Tile t : world.tilesIn(site, false)) t.setAbove(null, true);
       }
     }
     final Tile exits = Spacing.pickRandomTile(
@@ -253,10 +253,10 @@ public class ShipUtils {
     }
     
     if (area != null) {
-      if (Placement.checkAreaClear(area, world)) return true;
+      if (PlaceUtils.checkAreaClear(area, world)) return true;
       for (Tile t : world.tilesIn(area, false)) {
         if (t == null) return false;
-        if (t.onTop() == ship) continue;
+        if (t.above() == ship) continue;
         if (PavingMap.pavingReserved(t, true) || ! t.buildable()) return false;
       }
       return true;

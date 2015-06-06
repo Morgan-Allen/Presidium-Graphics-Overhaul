@@ -7,7 +7,7 @@
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Placement;
+import stratos.game.maps.PlaceUtils;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -178,7 +178,7 @@ public class Flora extends Element implements TileConstants {
     if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
     if (t.isEntrance() || t.inside().size() > 0) return false;
     if (growChance(t) == -1) return false;
-    return Placement.perimeterFits(t, Owner.TIER_TERRAIN);
+    return PlaceUtils.perimeterFits(t, Owner.TIER_TERRAIN);
   }
   
   
@@ -188,8 +188,8 @@ public class Flora extends Element implements TileConstants {
     
     if (updatesVerbose) I.say("Grow chance: "+growChance);
     
-    if (t.onTop() instanceof Flora) {
-      final Flora f = (Flora) t.onTop();
+    if (t.above() instanceof Flora) {
+      final Flora f = (Flora) t.above();
       if (Rand.num() < (growChance * 4 * GROWTH_PER_UPDATE)) {
         f.incGrowth(0.5f + Rand.num(), t.world, false);
         t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);

@@ -2,6 +2,8 @@
 
 TO DO NOW-
 
+*  COMMISSIONS MUST BE LIMITED BY MAX-QUALITY AT THE VENUE
+
 *  Text can sometimes be clipped by the scrollbar-widget: fix that!
 
 *  Get rid of the forced-zoom during the tutorial topics.
@@ -16,12 +18,23 @@ TO DO NOW-
    In addition, windows-saves do not seem to load.  I probably mixed up the
    build-version at some point- double-check in future.
 
+*  If a dying/injured citizen is trapped inside a shield wall, other citizens
+   can't find an access point to apply bandages.
+
+
 
 BUILDINGS AND ECONOMY-
 
-*  Try merging the solar bank with the nursery- or the latter with eco station
+*  Try merging the solar bank with the nursery- or the latter with eco station.
 
-*  Use service hatches to initiate heavier paving and utility-transmission?
+*  There needs to be a more precise 'reservation' system to allow for zoning,
+   entrances, urban-planning and not-in-the-world-yet situations.
+
+*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
+   the excavation site, former plant, kommando lodge & eco station- take up
+   big plots.
+
+
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange
@@ -32,10 +45,6 @@ BUILDINGS AND ECONOMY-
      Enforcer Bloc
      Cut out recruitment-extras for others.
 
-*  Use the Fabricator exclusively to make luxury outfits and public decoration
-   for fancy houses and the nobility.  Common plastics get made at the engineer,
-   along with common outfits (or possibly at the stock exchange.)
-
 *  Consider restricting access to some of these structures based on house-
    philosophy or lack of expertise.
    House Procyon- has culture lab, lacks eco station.
@@ -43,18 +52,24 @@ BUILDINGS AND ECONOMY-
    House Taygeta- has runner lodge, lacks enforcer bloc.
    House Suhail-  has kommando lodge, lacks reactor.
 
-*  Allow the former plant to digest carbs, and try to restore dust-crawlers.
+*  Buildings need to have multiple levels.  (At least for the main/root-guild
+   structures.)  Model these as an upgrade/research-type too.
+
+*  Have upgrades require a 'research' and 'prototype' phase, and include
+   notifications for that.  This will slow-down the upgrade process at first,
+   but allow for easier transmission of expertise between maps, and ensure that
+   initial building-choices don't overwhelm the player.
+
+
+
+*  Use service hatches to initiate heavier paving and utility-transmission?
+
+*  Try to restore dust-crawlers at excavation site.
 
 *  Allow rations-production to satisfy need to eat.
 
-
-
 *  Apply shipping-cost penalties, so that you can import what you like, but
    can't always export.
-  
-  >>>>>>> DO THIS <<<<<<<
-*  There needs to be a more precise 'reservation' system to allow for zoning,
-   entrances and not-in-the-world-yet situations.
 
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
    change.  (Allow that for buildings in general?)
@@ -62,17 +77,9 @@ BUILDINGS AND ECONOMY-
 *  Flesh out the full set of behaviours for the major Schools (and the Kommando
    lodge too.)
 
-*  Buildings need to have multiple levels.  (At least for the main/root-guild
-   structures.)
-
 *  Integrate spyce-sources and use it to boost Psy abilities (such as sovereign
    spells.)
 
-*  Finalise perimeter fence artwork.
-
-*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
-   the excavation site, former plant, kommando lodge & eco station- take up
-   big plots.
 
 
 THE TUTORIAL
@@ -220,6 +227,8 @@ ART, GRAPHICS AND MEDIA PRODUCTION
 
 *  A number of structures need bigger footprints, which will require some art
    changes.  Look into that.
+
+*  Finalise perimeter fence artwork.
 
 *  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
    that.

@@ -121,7 +121,6 @@ public class Holding extends Venue {
   
   
   private int upgradeLevel, targetLevel, varID;
-  private List <HoldingExtra> extras = new List <HoldingExtra> ();
   private int numTests = 0, upgradeCounter, devolveCounter;
   
   
@@ -139,7 +138,6 @@ public class Holding extends Venue {
     upgradeLevel = s.loadInt();
     targetLevel  = s.loadInt();
     varID        = s.loadInt();
-    s.loadObjects(extras);
     numTests       = s.loadInt();
     upgradeCounter = s.loadInt();
     devolveCounter = s.loadInt();
@@ -151,7 +149,6 @@ public class Holding extends Venue {
     s.saveInt(upgradeLevel);
     s.saveInt(targetLevel );
     s.saveInt(varID       );
-    s.saveObjects(extras);
     s.saveInt(numTests      );
     s.saveInt(upgradeCounter);
     s.saveInt(devolveCounter);
@@ -225,9 +222,6 @@ public class Holding extends Venue {
   /**  Moderating upgrades-
     */
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    if (numUpdates % 10 == 0 && structure.intact()) {
-      HoldingExtra.updateExtras(this, extras, numUpdates);
-    }
     super.updateAsScheduled(numUpdates, instant);
     
     if (instant || ! structure.intact()) return;
@@ -346,7 +340,6 @@ public class Holding extends Venue {
   
   private void impingeSqualor() {
     float ambience = AMBIENCES[upgradeLevel];
-    ambience += extras.size() / 2f;
     structure.setAmbienceVal(ambience);
   }
   
@@ -384,11 +377,6 @@ public class Holding extends Venue {
       needed.add(i.type);
     }
     return needed.toArray(Traded.class);
-  }
-  
-  
-  protected List <HoldingExtra> extras() {
-    return extras;
   }
   
   
@@ -451,12 +439,6 @@ public class Holding extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public void exitWorld() {
-    super.exitWorld();
-    HoldingExtra.removeExtras(this, extras);
-  }
-  
-  
   private static ModelAsset modelFor(Holding holding) {
     final int level = holding.upgradeLevel, VID = holding.varID;
     if (level == 0) return SEAL_TENT_MODEL;

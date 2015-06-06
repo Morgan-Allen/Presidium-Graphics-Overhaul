@@ -86,7 +86,7 @@ public class Arcology extends Venue {
     //  cap correctly around that...
     
     
-    final Object model = Placement.setupSegment(
+    final Object model = PlaceUtils.setupSegment(
       this, position, area, others, MODELS_X_AXIS, MODELS_Y_AXIS
     );
     attachModel((ModelAsset) model);

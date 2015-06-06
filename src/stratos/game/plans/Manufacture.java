@@ -326,13 +326,13 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     if (made.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
     if (made.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;
     if (! hasNeeded) increment /= SHORTAGE_TIME_MULT;
-    for (Item r : conversion.raw) {
-      final Item used = Item.withAmount(r, r.amount * increment);
-      venue.inventory().removeItem(used);
-    }
     //
     //  Advance progress, and check if you're done yet.
     if (increment > 0) {
+      for (Item r : conversion.raw) {
+        final Item used = Item.withAmount(r, r.amount * increment);
+        venue.inventory().removeItem(used);
+      }
       amountMade += increment * made.amount;
       final Item added = Item.withAmount(made, increment * made.amount);
       venue.stocks.addItem(added);

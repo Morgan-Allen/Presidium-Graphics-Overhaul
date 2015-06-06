@@ -93,7 +93,7 @@ public class DebugCommerce extends Scenario {
     world.offworld.journeys.setupDefaultShipping(base);
     
     final Venue depot = new SupplyDepot(base);
-    Placement.establishVenue(depot, 5, 5, true, world);
+    PlaceUtils.establishVenue(depot, 5, 5, true, world);
     depot.stocks.forceDemand(CARBS , 5, true );
     depot.stocks.forceDemand(METALS, 5, false);
     depot.stocks.bumpItem(CARBS, 10);
@@ -115,14 +115,14 @@ public class DebugCommerce extends Scenario {
     
     final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
     final Venue runnerMarket = new RunnerMarket(base);
-    Placement.establishVenue(runnerMarket, 10,  5, true, world, runner);
+    PlaceUtils.establishVenue(runnerMarket, 10,  5, true, world, runner);
     
     final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);
     final Venue looted = new StockExchange(base);
     for (Traded t : Economy.ALL_FOOD_TYPES) {
       looted.stocks.bumpItem(t, 10);
     }
-    Placement.establishVenue(looted, 5, 10, true, world, vendor);
+    PlaceUtils.establishVenue(looted, 5, 10, true, world, vendor);
     
     final SupplyCache cache = new SupplyCache();
     cache.enterWorldAt(15, 15, world);
@@ -164,13 +164,13 @@ public class DebugCommerce extends Scenario {
     UI.selection.pushSelection(citizen);
     
     final Venue foundry = new EngineerStation(base);
-    Placement.establishVenue(foundry, 6, 6, true, world);
+    PlaceUtils.establishVenue(foundry, 6, 6, true, world);
     base.setup.fillVacancies(foundry, true);
     foundry.stocks.bumpItem(Economy.METALS , 10);
     foundry.stocks.bumpItem(Economy.PARTS, 2 );
     
     final Venue reactor = new Reactor(base);
-    Placement.establishVenue(reactor, 3, 6, true, world);
+    PlaceUtils.establishVenue(reactor, 3, 6, true, world);
     base.setup.fillVacancies(reactor, true);
     reactor.stocks.bumpItem(FUEL_RODS, 10);
   }
@@ -180,14 +180,14 @@ public class DebugCommerce extends Scenario {
     GameSettings.hireFree = true;
     
     final Venue depot    = new SupplyDepot  (base);
-    Placement.establishVenue(depot   , 50, 50, true, world);
+    PlaceUtils.establishVenue(depot   , 50, 50, true, world);
     base.setup.fillVacancies(depot, true);
     depot.stocks.bumpItem(PARTS   , 80);
     depot.stocks.bumpItem(PLASTICS, 35);
     depot.stocks.bumpItem(CARBS   , 45);
     
     final Venue exchange = new StockExchange(base);
-    Placement.establishVenue(exchange, 5 , 5 , true, world);
+    PlaceUtils.establishVenue(exchange, 5 , 5 , true, world);
     base.setup.fillVacancies(exchange, true);
     exchange.stocks.forceDemand(PARTS   , 40, false);
     exchange.stocks.forceDemand(PLASTICS, 25, false);
@@ -204,8 +204,8 @@ public class DebugCommerce extends Scenario {
       guyA = new Human(Backgrounds.TECHNICIAN, base),
       guyB = new Human(Backgrounds.TECHNICIAN, base);
     
-    Placement.establishVenue(depot, 11, 1, true, world);
-    Placement.establishVenue(foundry, 6, 6, true, world, guyA, guyB);
+    PlaceUtils.establishVenue(depot, 11, 1, true, world);
+    PlaceUtils.establishVenue(foundry, 6, 6, true, world, guyA, guyB);
     
     depot.stocks.bumpItem(METALS, 10);
     foundry.stocks.forceDemand(METALS, 3, false);
@@ -232,26 +232,26 @@ public class DebugCommerce extends Scenario {
     //  Create one settlement over here, with a supply depot, engineer station
     //  and fabricator.
     final Venue depot = new SupplyDepot(base);
-    Placement.establishVenue(depot, 5, 5, true, world);
+    PlaceUtils.establishVenue(depot, 5, 5, true, world);
     
     final Venue engineer = new EngineerStation(base);
-    Placement.establishVenue(engineer, 5, 5, true, world);
+    PlaceUtils.establishVenue(engineer, 5, 5, true, world);
     final Venue fabricator = new Fabricator(base);
-    Placement.establishVenue(fabricator, 5, 5, true, world);
+    PlaceUtils.establishVenue(fabricator, 5, 5, true, world);
     final Venue reactor = new Reactor(base);
-    Placement.establishVenue(reactor, 5, 5, true, world);
+    PlaceUtils.establishVenue(reactor, 5, 5, true, world);
     
     //  Create another settlement over here, with a stock exchange, archives
     //  and physician station.
     final Venue exchange = new StockExchange(base);
-    Placement.establishVenue(exchange, 25, 25, true, world);
+    PlaceUtils.establishVenue(exchange, 25, 25, true, world);
     
     final Venue archives = new Archives(base);
-    Placement.establishVenue(archives, 25, 25, true, world);
+    PlaceUtils.establishVenue(archives, 25, 25, true, world);
     final Venue physician = new PhysicianStation(base);
-    Placement.establishVenue(physician, 25, 25, true, world);
+    PlaceUtils.establishVenue(physician, 25, 25, true, world);
     final Venue condensor = new Condensor(base);
-    Placement.establishVenue(condensor, 25, 25, true, world);
+    PlaceUtils.establishVenue(condensor, 25, 25, true, world);
     
     
     for (Mobile m : world.allMobiles()) if (m instanceof Actor) {

@@ -126,6 +126,7 @@ public class Commission extends Plan {
       upgrade = Item.withQuality(baseItem.type, quality);
       final float price = calcPrice(upgrade, makes);
       final boolean done = makes.stocks.hasItem(upgrade);
+      
       if (price >= actor.gear.allCredits() && ! done) continue;
       if (quality <= baseQuality) continue;
       

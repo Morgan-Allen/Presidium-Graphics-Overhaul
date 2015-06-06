@@ -116,7 +116,7 @@ public class Nursery extends Venue implements TileConstants {
       return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
-    if (! Placement.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
+    if (! PlaceUtils.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
@@ -234,7 +234,7 @@ public class Nursery extends Venue implements TileConstants {
     final Tile o = origin();
     
     for (Tile n : t.allAdjacent(null)) {
-      if (n == null || (n.onTop() instanceof Crop)) continue;
+      if (n == null || (n.above() instanceof Crop)) continue;
       if (n.pathType() >= Tile.PATH_HINDERS && n.reserved()) return -1;
     }
     
@@ -253,7 +253,7 @@ public class Nursery extends Venue implements TileConstants {
   
   public boolean couldPlant(Tile t) {
     if (! t.habitat().pathClear) return false;
-    if (t.onTop() instanceof Crop || ! t.reserved()) return plantType(t) > 0;
+    if (t.above() instanceof Crop || ! t.reserved()) return plantType(t) > 0;
     return false;
   }
   
@@ -269,8 +269,8 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Crop plantedAt(Tile t) {
-    if (t == null || ! (t.onTop() instanceof Crop)) return null;
-    return (Crop) t.onTop();
+    if (t == null || ! (t.above() instanceof Crop)) return null;
+    return (Crop) t.above();
   }
   
   

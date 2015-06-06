@@ -327,7 +327,9 @@ public class BaseSetup {
   
   /**  Establishing base personnel:
     */
-  public void fillVacancies(Venue venue, boolean enterWorld) {
+  public void fillVacancies(
+    Venue venue, boolean enterWorld, Actor... employed
+  ) {
     //
     //  We automatically fill any positions available when the venue is
     //  established.  This is done for free, but candidates cannot be screened.
@@ -335,10 +337,14 @@ public class BaseSetup {
     
     final boolean report = verbose && base == BaseUI.currentPlayed();
     final int MAX_TRIES = 100;  //Safety measure...
+    final boolean hasList = employed != null && employed.length > 0;
     int numTries = 0;
     if (report) I.say("\nAttempting to fill vacancies at "+venue);
     
-    for (Background v : venue.careers()) while (true) {
+    if (hasList) for (Actor worker : employed) {
+      addWorkerTo(venue, worker, enterWorld);
+    }
+    else for (Background v : venue.careers()) while (true) {
       
       //  True-loops are a recipe for trouble:
       if (++numTries > MAX_TRIES) {
@@ -356,24 +362,29 @@ public class BaseSetup {
         I.say("  Crowding for "+worker+" is "+crowding);
       }
       if (crowding >= 1) break;
-      
-      //  Then set the actor's employment status (and possibly residency as
-      //  well.  NOTE:  Work is set first to ensure residency is permitted at
-      //  various venues.)
-      worker.mind.setWork(venue);
-      if (venue.crowdRating(worker, Backgrounds.AS_RESIDENT) < 1) {
-        worker.mind.setHome(venue);
-      }
-      
-      //  Finally, ensure the new worker is either in the world, or registered
-      //  for migration as soon as possible:
-      if (GameSettings.hireFree || enterWorld) {
-        worker.enterWorldAt(venue, venue.world());
-      }
-      else {
-        final Stage world = venue.base().world;
-        world.offworld.journeys.addLocalImmigrant(worker, base);
-      }
+      else addWorkerTo(venue, worker, enterWorld);
+    }
+  }
+  
+  
+  private void addWorkerTo(Venue venue, Actor worker, boolean enterWorld) {
+    //
+    //  Then set the actor's employment status (and possibly residency as
+    //  well.  NOTE:  Work is set first to ensure residency is permitted at
+    //  various venues.)
+    worker.mind.setWork(venue);
+    if (venue.crowdRating(worker, Backgrounds.AS_RESIDENT) < 1) {
+      worker.mind.setHome(venue);
+    }
+    
+    //  Finally, ensure the new worker is either in the world, or registered
+    //  for migration as soon as possible:
+    if (GameSettings.hireFree || enterWorld) {
+      worker.enterWorldAt(venue, venue.world());
+    }
+    else {
+      final Stage world = venue.base().world;
+      world.offworld.journeys.addLocalImmigrant(worker, base);
     }
   }
   
@@ -384,6 +395,18 @@ public class BaseSetup {
     for (Venue v : venues) fillVacancies(v, enterWorld);
   }
   
+  /*
+    for (Actor a : employed) {
+      if (! a.inWorld()) {
+        a.assignBase(v.base());
+        a.enterWorldAt(v, world);
+      }
+      a.mind.setWork(v);
+      if (v.crowdRating(a, Backgrounds.AS_RESIDENT) < 1) {
+        a.mind.setHome(v);
+      }
+    }
+  //*/
   
   
   /**  Establishing relationships, gear, experience and health FX-

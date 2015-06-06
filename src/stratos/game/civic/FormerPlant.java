@@ -101,7 +101,7 @@ public class FormerPlant extends Venue implements TileConstants {
       return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
-    if (! Placement.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
+    if (! PlaceUtils.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
@@ -116,7 +116,7 @@ public class FormerPlant extends Venue implements TileConstants {
   private Item[] estimateDailyOutput() {
     float sumTrees = 0, sumP;
     for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (t.onTop() instanceof Flora) {
+      if (t.above() instanceof Flora) {
         sumTrees += Flora.growChance(t);
       }
       sumTrees += t.habitat().moisture();

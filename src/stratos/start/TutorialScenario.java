@@ -198,11 +198,11 @@ public class TutorialScenario extends StartupScenario {
     regions.queueSort();
     
     for (StageRegion s : regions) {
-      if (Placement.establishVenue(ruinsNear, s, true, world) != null) break;
+      if (PlaceUtils.establishVenue(ruinsNear, s, true, world) != null) break;
     }
     for (ListEntry l = regions; (l = l.lastEntry()) != regions;) {
       final StageRegion s = (StageRegion) l.refers;
-      if (Placement.establishVenue(ruinsFar, s, true, world) != null) break;
+      if (PlaceUtils.establishVenue(ruinsFar, s, true, world) != null) break;
     }
   }
   

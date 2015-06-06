@@ -423,14 +423,15 @@ public class VerseJourneys {
     final Stage world = base.world;
     Dropship ship = null;
     if (ship == null) ship = nextShipBetween(home, local, base, true);
-    if (ship != null) {
-      actor.mind.assignBehaviour(new Smuggling(actor, ship, world, false));
-      Verse.baseForLocation(home, universe).toggleExpat(actor, true);
-      return true;
+    if (ship == null) ship = setupShipping  (home, local, base, true);
+    if (ship == null) {
+      I.complain("\nCOULD NOT SET UP SHIPPING BETWEEN "+home+" AND "+local+"!");
+      return false;
     }
     
-    I.complain("\nNO SUITABLE SHIP FOUND BETWEEN "+home+" AND "+local+"!");
-    return false;
+    actor.mind.assignBehaviour(new Smuggling(actor, ship, world, false));
+    Verse.baseForLocation(home, universe).toggleExpat(actor, true);
+    return true;
   }
   
   

@@ -8,17 +8,12 @@ import stratos.game.common.*;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
-import stratos.start.Assets;
 import stratos.util.*;
 
 
 
 
 /*
-Forest, Grassland, Barrens, Spice Desert.
-Ocean, Shallows, Albedan, Swamp.
-Mesa, Dune Sea, Cursed Earth, Strip Mining.
-
 terrain chance (scaled proportionately) = x * (1 - x) * (1 + tx)
 x = moisture
 t = terraform-progress  (1 as default).
@@ -70,24 +65,22 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     typeIndex[][],
     varsIndex[][];
   
-  final Habitat
+  private Habitat
     habitats[][];
   private byte
     minerals[][],
-    paveVals[][];
+    paveVals[][],
+    reserved[][];
   
   private TerrainSet meshSet;
   private LayerType roadLayer;
+  private LayerType reservations;
   
   private static class Sample {
-    //int fertility, insolation, minerals, area;
-    //final int habitat[] = new int[Habitat.ALL_HABITATS.length];
     final int measures[] = new int[NUM_SAMPLE_MAPS];
     int area = 0;
   }
-  
   private Sample sampleGrid[][];
-  
   
   
   StageTerrain(
@@ -101,14 +94,19 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     this.varsIndex = varsIndex;
     this.heightVals = heightVals;
     
-    this.habitats = new Habitat[mapSize][mapSize];
+    initHabitatFields();
+    initSamples();
+  }
+  
+  
+  private void initHabitatFields() {
+    habitats = new Habitat[mapSize][mapSize];
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]];
     }
-    this.minerals = new byte[mapSize][mapSize];
-    this.paveVals = new byte[mapSize][mapSize];
-    
-    initSamples();
+    minerals = new byte[mapSize][mapSize];
+    paveVals = new byte[mapSize][mapSize];
+    reserved = new byte[mapSize][mapSize];
   }
   
   
@@ -117,21 +115,18 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     mapSize = s.loadInt();
     
     heightVals = new byte[mapSize + 1][mapSize + 1];
-    typeIndex = new byte[mapSize][mapSize];
-    varsIndex = new byte[mapSize][mapSize];
+    typeIndex  = new byte[mapSize    ][mapSize    ];
+    varsIndex  = new byte[mapSize    ][mapSize    ];
+    
+    initHabitatFields();
+    
     s.loadByteArray(heightVals);
     s.loadByteArray(typeIndex);
     s.loadByteArray(varsIndex);
     
-    habitats = new Habitat[mapSize][mapSize];
-    for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
-      habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]];
-    }
-    minerals = new byte[mapSize][mapSize];
-    paveVals = new byte[mapSize][mapSize];
     s.loadByteArray(minerals);
     s.loadByteArray(paveVals);
-    
+    s.loadByteArray(reserved);
     initSamples();
   }
   
@@ -144,6 +139,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     
     s.saveByteArray(minerals);
     s.saveByteArray(paveVals);
+    s.saveByteArray(reserved);
   }
   
   
@@ -316,11 +312,24 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   
+  /**  And finally, reservations-
+    */
+  public void setReservedAt(Tile t, boolean reserved, boolean inWorld) {
+    final boolean oldRes = this.reserved[t.x][t.y] > 0;
+    this.reserved[t.x][t.y] = (byte) ((reserved && ! inWorld) ? 1 : 0);
+    
+    if (reserved != oldRes) for (Tile n : t.vicinity(tempV)) if (n != null) {
+      meshSet.flagUpdateAt(n.x, n.y, reservations);
+    }
+  }
+  
+  
+  
   /**  Rendering and interface methods-
     */
   public void initTerrainMesh(Habitat habitats[]) {
     int lID = -1;
-    final LayerType layers[] = new LayerType[habitats.length + 1];
+    final LayerType layers[] = new LayerType[habitats.length + 2];
     
     while (++lID < habitats.length) {
       final int layerIndex = lID;
@@ -343,6 +352,18 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return ((tx + ty) % 3 == 0) ? 0 : 1;
+      }
+    };
+    
+    final Stage world = null;
+    reservations = layers[lID + 1] = new LayerType(
+      Habitat.RESERVE_TEXTURE, true, lID + 1, "reservations"
+    ) {
+      protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
+        return reserved[tx][ty] > 0;
+      }
+      protected int variantAt(int tx, int ty, TerrainSet terrain) {
+        return 0;
       }
     };
     

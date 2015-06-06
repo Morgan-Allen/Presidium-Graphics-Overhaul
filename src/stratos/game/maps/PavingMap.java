@@ -58,7 +58,7 @@ public class PavingMap {
     }
     
     if (is && ! t.canPave()) {
-      I.complain("CANNOT PAVE AT "+t+" ("+t.onTop()+")");
+      I.complain("CANNOT PAVE AT "+t+" ("+t.reserves()+")");
     }
     refreshPaving(t);
   }
@@ -95,9 +95,7 @@ public class PavingMap {
   
   public static void setPaveLevel(Tile t, byte level, boolean clear) {
     if (level > ROAD_NONE && ! t.canPave()) return;
-    if (clear && level > ROAD_NONE && t.onTop() != null && ! t.pathClear()) {
-      t.onTop().setAsDestroyed();
-    }
+    if (clear && level > ROAD_NONE && t.blocked()) t.clearUnlessOwned();
     t.world.terrain().setRoadType(t, level);
   }
   

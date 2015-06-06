@@ -7,9 +7,9 @@ package stratos.game.maps;
 import stratos.game.civic.ShieldWall;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.actors.Backgrounds;
-import stratos.graphics.widgets.KeyInput;
-import stratos.user.PlacingTask;
+//import stratos.game.actors.Backgrounds;
+//import stratos.graphics.widgets.KeyInput;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -17,7 +17,7 @@ import stratos.util.*;
 //  TODO:  Try merging this with the TileSpread class, or the PlacementGrid
 //  class.  Placement2 can probably be got rid off completely.
 
-public class Placement implements TileConstants {
+public class PlaceUtils implements TileConstants {
   
   
   private static boolean verbose = false, cacheVerbose = false;
@@ -121,7 +121,7 @@ public class Placement implements TileConstants {
     return true;
   }
   
-  
+  /*
   public static Tile findClearSpot(
     final Target near, final Stage world, final int margin
   ) {
@@ -144,6 +144,7 @@ public class Placement implements TileConstants {
     if (search.success()) return search.bestFound();
     else return null;
   }
+  //*/
   
   
   public static boolean findClearanceFor(
@@ -172,7 +173,8 @@ public class Placement implements TileConstants {
   
   
   public static Venue establishVenue(
-    final Venue v, final Target near, boolean intact, Stage world
+    final Venue v, final Target near, boolean intact, Stage world,
+    Actor... employed
   ) {
     if (! findClearanceFor(v, near, world)) return null;
     if (! v.setupWith(v.origin(), null)) return null;
@@ -195,18 +197,12 @@ public class Placement implements TileConstants {
     final Venue v, int atX, int atY, boolean intact, final Stage world,
     Actor... employed
   ) {
-    if (establishVenue(v, world.tileAt(atX, atY), intact, world) == null) {
+    final Tile near = world.tileAt(atX, atY);
+    if (establishVenue(v, near, intact, world, employed) == null) {
       return null;
     }
-    for (Actor a : employed) {
-      if (! a.inWorld()) {
-        a.assignBase(v.base());
-        a.enterWorldAt(v, world);
-      }
-      a.mind.setWork(v);
-      if (v.crowdRating(a, Backgrounds.AS_RESIDENT) < 1) {
-        a.mind.setHome(v);
-      }
+    if (! Visit.empty(employed)) {
+      v.base().setup.fillVacancies(v, intact, employed);
     }
     if (GameSettings.hireFree) v.base().setup.fillVacancies(v, intact);
     return v;
@@ -276,7 +272,7 @@ public class Placement implements TileConstants {
       
       for (int x = s; x-- > 0;) for (int y = s; y-- > 0;) {
         final Tile n = world.tileAt(dX + x, dY + y);
-        final Element under = n == null ? null : n.onTop();
+        final Element under = n == null ? null : n.reserves();
         if (under == null || ! ofType.isAssignableFrom(under.getClass())) {
           allMatch = false;
         }
@@ -517,9 +513,9 @@ public class Placement implements TileConstants {
   public static boolean isViableEntrance(Venue v, Tile e) {
     //  TODO:  Unify this with singleTileClear()?
     if (e == null || ! e.habitat().pathClear) return false;
-    if (e.onTop() == null) return true;
+    if (e.reserves() == null) return true;
     final int maxTier = Nums.min(v.owningTier(), Owner.TIER_PRIVATE);
-    final Element under = e.onTop();
+    final Element under = e.reserves();
     return under == null || (
       under.owningTier() < maxTier ||
       under.pathType  () <= Tile.PATH_CLEAR

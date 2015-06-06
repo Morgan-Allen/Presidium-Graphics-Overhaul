@@ -194,8 +194,8 @@ public class MapsDisplay extends UIGroup {
   
   private Colour baseToneFor(Tile t) {
     
-    if (t.onTop() instanceof Venue && t.pathType() >= Tile.PATH_HINDERS) {
-      final Base b = ((Venue) t.onTop()).base();
+    if (t.above() instanceof Venue && t.pathType() >= Tile.PATH_HINDERS) {
+      final Base b = ((Venue) t.above()).base();
       return b == null ? Colour.LITE_GREY : b.colour();
     }
     for (Mobile m : t.inside()) {
