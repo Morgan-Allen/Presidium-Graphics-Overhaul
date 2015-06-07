@@ -15,6 +15,7 @@ import stratos.game.wild.Species;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.*;
+import com.badlogic.gdx.graphics.*;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -151,6 +152,11 @@ public final class PlayLoop {
       
       new LwjglApplication(new ApplicationListener() {
         public void create() {
+          
+          String result = Gdx.gl.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
+          
+          I.say("GL shading language: " + result);
+          
           shouldLoop = true;
           initLoop();
         }
