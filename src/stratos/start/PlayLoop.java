@@ -152,11 +152,6 @@ public final class PlayLoop {
       
       new LwjglApplication(new ApplicationListener() {
         public void create() {
-          
-          String result = Gdx.gl.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
-          
-          I.say("GL shading language: " + result);
-          
           shouldLoop = true;
           initLoop();
         }
