@@ -49,7 +49,6 @@ public class Rendering {
     widgetsPass = new WidgetsPass(this);
     
     fading = new Fading(this);
-    reportVersion();
   }
   
   
@@ -68,19 +67,6 @@ public class Rendering {
   public Camera camera() { return view.camera; }
   public static float activeTime() { return activeTime; }
   public static float frameAlpha() { return frameAlpha; }
-  
-  
-  private void reportVersion() {
-    I.say(
-      "Please send me this info"+
-      "\n--- GL INFO -----------"+
-      "\n   GL_VENDOR: "+glGetString(GL_VENDOR)+
-      "\n GL_RENDERER: "+glGetString(GL_RENDERER)+
-      "\n  GL_VERSION: "+glGetString(GL_VERSION)+
-      "\nGLSL_VERSION: "+glGetString(GL_SHADING_LANGUAGE_VERSION)+
-      "\n-----------------------\n"
-    );
-  }
   
   
   public void updateViews(float worldTime, float frameTime) {

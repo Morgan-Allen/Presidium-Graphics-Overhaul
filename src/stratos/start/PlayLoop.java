@@ -3,15 +3,13 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.start;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-import stratos.game.actors.Backgrounds;
-import stratos.game.wild.Species;
 
+import static stratos.graphics.common.GL.*;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.*;
@@ -28,8 +26,8 @@ public final class PlayLoop {
   /**  Fields and constant definitions-
     */
   final public static Class DEFAULT_INIT_CLASSES[] = {
-    Backgrounds.class,
-    Species.class
+    stratos.game.actors.Backgrounds.class,
+    stratos.game.wild.Species.class
   };
   final public static String DEFAULT_INIT_PACKAGE = "stratos";
   
@@ -152,11 +150,18 @@ public final class PlayLoop {
       
       new LwjglApplication(new ApplicationListener() {
         public void create() {
-          
-          String result = Gdx.gl.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION);
-          
-          I.say("GL shading language: " + result);
-          
+          //
+          //  NOTE:  We perform some extra diagnostic printouts here, since the
+          //  GL context wasn't obtainable earlier:
+          I.say(
+            "Please send me this info"+
+            "\n--- GL INFO -----------"+
+            "\n   GL_VENDOR: "+glGetString(GL_VENDOR)+
+            "\n GL_RENDERER: "+glGetString(GL_RENDERER)+
+            "\n  GL_VERSION: "+glGetString(GL_VERSION)+
+            "\nGLSL_VERSION: "+glGetString(GL_SHADING_LANGUAGE_VERSION)+
+            "\n-----------------------\n"
+          );
           shouldLoop = true;
           initLoop();
         }

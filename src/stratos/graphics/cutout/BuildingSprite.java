@@ -4,50 +4,42 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.cutout;
-import java.io.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
+import stratos.start.PlayLoop;
 import stratos.util.*;
 
+import java.io.*;
 
-//  TODO:  Now you'll need to find a way to reveal the structure gradually.
-
-//  Revealing the splat bit-by-bit should be relatively simple.  It's the
-//  cutout that could be tricky.
-
-
-//  I think I can make this work now.  Have the venue enter the world
-//  immediately, but only count as 'on top' of certain tiles as they become
-//  available- and update the sprite as you go.
+import com.badlogic.gdx.math.*;
 
 
 
 public class BuildingSprite extends Sprite {
   
   
-  final private static Class <BuildingSprite> C = BuildingSprite.class;
-  
-  final static ModelAsset BUILDING_MODEL = new ClassModel("building_model", C) {
+  final static ModelAsset BUILDING_MODEL = new ClassModel(
+    "building_model", BuildingSprite.class
+  ) {
     public Sprite makeSprite() { return new BuildingSprite(); }
   };
+  
   final public static float
     ITEM_SIZE = 0.33f;
   
-  final public static CutoutModel
-    SCAFF_MODELS[] = new CutoutModel[7],
-    CRATE_MODEL = CutoutModel.fromImage(
-      BuildingSprite.class, "media/Items/crate.gif",
-      ITEM_SIZE, ITEM_SIZE * 0.4f
-    );
-  static {
-    for (int i = 0; i < 7; i++) SCAFF_MODELS[i] = CutoutModel.fromSplatImage(
+  final static CutoutModel
+    SCAFFOLD_MODEL = CutoutModel.fromImage(
       BuildingSprite.class,
-      "media/Buildings/civilian/"+"scaff_"+i+".png",
-      Nums.max(1, i)
+      "media/Buildings/civilian/scaffold.png", 1.1f, 1
+    ),
+    FOUNDATION_FRINGE_MODEL = CutoutModel.fromImage(
+      BuildingSprite.class,
+      "media/Buildings/civilian/foundation_fringe.png", 1, 1
+    ),
+    CRATE_MODEL = CutoutModel.fromImage(
+      BuildingSprite.class,
+      "media/Items/crate.gif", ITEM_SIZE, ITEM_SIZE * 0.4f
     );
-  }
-  
-  
   
   final public static PlaneFX.Model
     BLAST_MODEL = new PlaneFX.Model(
@@ -72,7 +64,7 @@ public class BuildingSprite extends Sprite {
   
   
   private Sprite baseSprite;
-  private List <CutoutSprite> scaffolds = new List();
+  private CutoutSprite buildSteps[] = null;
   
   private float condition;
   private int size, high;
@@ -112,9 +104,9 @@ public class BuildingSprite extends Sprite {
     condition = in.readFloat  ();
     baseSprite = ModelAsset.loadSprite(in);
     int numS = in.readInt();
-    while (numS-- > 0) {
-      Sprite s = ModelAsset.loadSprite(in);
-      scaffolds.add((CutoutSprite) s);
+    if (numS > 0) buildSteps = new CutoutSprite[numS];
+    for (int i = 0; i < numS; i++) {
+      buildSteps[i] = (CutoutSprite) ModelAsset.loadSprite(in);
     }
   }
   
@@ -126,8 +118,11 @@ public class BuildingSprite extends Sprite {
     out.writeBoolean(intact   );
     out.writeFloat  (condition);
     ModelAsset.saveSprite(baseSprite, out);
-    out.writeInt(scaffolds.size());
-    for (CutoutSprite s : scaffolds) ModelAsset.saveSprite(s, out);
+    if (buildSteps == null) out.writeInt(-1);
+    else {
+      out.writeInt(buildSteps.length);
+      for (CutoutSprite s : buildSteps) ModelAsset.saveSprite(s, out);
+    }
   }
   
   
@@ -151,11 +146,14 @@ public class BuildingSprite extends Sprite {
       baseSprite.passType = this.passType;
       baseSprite.readyFor(rendering);
     }
-    else for (CutoutSprite s : scaffolds) {
-      s.matchTo(this);
-      s.readyFor(rendering);
+    else if (buildSteps != null) {
+      for (int index = 0; index < buildSteps.length; index++) {
+        final CutoutSprite step = buildSteps[index];
+        if (step == null) continue;
+        provideOffset(step, index);
+        step.readyFor(rendering);
+      }
     }
-    
     /*
     final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex);
     if (displayed != null) {
@@ -176,34 +174,131 @@ public class BuildingSprite extends Sprite {
   
   /**  Display-state updates-
     */
+  final static int MAX_SIZE = 6, AL = MAX_SIZE + 1;
+  final static Vector3     GROUND_COORDS[][]   = new Vector3    [AL][];
+  final static CutoutModel FOUNDATION_MODELS[] = new CutoutModel[AL];
+  static {
+    for (int size = 1; size <= MAX_SIZE; size++) {
+      FOUNDATION_MODELS[size] = CutoutModel.fromSplatImage(
+        BuildingSprite.class,
+        "media/Buildings/civilian/"+"foundation_"+size+"x"+size+".png", size
+      );
+      final List <Vector3> coords = new List <Vector3> () {
+        protected float queuePriority(Vector3 r) { return r.z; }
+      };
+      final Vector3 temp = new Vector3();
+      coords.clear();
+      for (Coord c : Visit.grid(0, 0, size, size, 1)) {
+        final Vector3 coord = new Vector3(c.x, c.y, 0);
+        coord.z = Viewport.isometricRotation(coord, temp).z;
+        coords.add(coord);
+      }
+      coords.queueSort();
+      GROUND_COORDS[size] = coords.toArray(Vector3.class);
+    }
+  }
+  
+  
+  private void provideOffset(CutoutSprite step, int index) {
+    step.matchTo(this);
+    if (step.faceIndex == 0) {
+      final Vector3 coords[] = GROUND_COORDS[size];
+      final Vector3 offset = coords[index % coords.length];
+      step.position.x += offset.x - ((size - 1f) / 2);
+      step.position.y += offset.y - ((size - 1f) / 2);
+      step.position.z += Nums.max(0, (index / coords.length) - 1);
+    }
+  }
+  
+  
+  private void updateStepForIndex(
+    int stepIndex, int high, int progressIndex,
+    CutoutModel ground, CutoutModel normal
+  ) {
+    final Vector3 coords[] = GROUND_COORDS[size];
+    final Vector3 offset = coords[stepIndex % coords.length];
+    final int
+      xoff = (int) offset.x,
+      yoff = (int) offset.y,
+      zoff = stepIndex / coords.length;
+    CutoutModel used;
+    boolean singleton = false;
+    
+    //  Not reached yet...
+    if (progressIndex < stepIndex || zoff > high) {
+      used = null;
+    }
+    //  Ground-floor...
+    else if (zoff == 0) {
+      if (stepIndex <= progressIndex - size) used = ground;
+      else { used = FOUNDATION_FRINGE_MODEL; singleton = true; }
+    }
+    //  Building-up...
+    else {
+      if (stepIndex <= progressIndex - size) used = normal;
+      else { used = SCAFFOLD_MODEL; singleton = true; }
+    }
+    
+    //  Check for redundancy-
+    final CutoutSprite prior = buildSteps[stepIndex];
+    if (prior == null && used == null) return;
+    if (prior != null && prior.model() == used) return;
+    
+    //  And create a new sprite if different-
+    if (used == null) {
+      buildSteps[stepIndex] = null;
+    }
+    else if (singleton) {
+      buildSteps[stepIndex] = (CutoutSprite) used.makeSprite();
+    }
+    else {
+      buildSteps[stepIndex] = used.topSprite(xoff, yoff);
+    }
+  }
+  
+  
   public void updateCondition(
     float newCondition, boolean normalState, boolean burning
   ) {
-    final int SI = Nums.clamp(size, SCAFF_MODELS.length);
-    final CutoutModel scaffModel = SCAFF_MODELS[SI];
+    final Vector3 coords[] = GROUND_COORDS[Nums.clamp(size, AL)];
+    final int totalSteps = size + (coords.length * (high + 1));
+    final int oldIndex = Nums.round(condition * totalSteps, 1, true);
     
     this.condition = newCondition;
     this.intact    = normalState ;
-    if (intact) { scaffolds.clear(); return; }
+    if (intact) { buildSteps = null; return; }
+    else if (buildSteps == null) buildSteps = new CutoutSprite[totalSteps];
     
-    final int index = Nums.round(condition * size * size, 1, true);
-    while (index > scaffolds.size()) {
-      final int
-        nextI = (scaffolds.size() + 1) - 1,
-        inX   = nextI / size,
-        inY   = nextI % size;
-      final CutoutSprite s = scaffModel.facingSprite(inX, inY, 0);
-      if (s != null) scaffolds.add(s); else break;
+    final int newIndex = Nums.round(condition * totalSteps, 1, true);
+    if (oldIndex == newIndex) return;
+    
+    final CutoutModel ground = FOUNDATION_MODELS[size];
+    final CutoutModel normal = basisModel();
+    for (int i = totalSteps; i-- > 0;) {
+      updateStepForIndex(i, high, newIndex, ground, normal);
     }
-    while (index < scaffolds.size()) {
-      scaffolds.removeLast();
+  }
+  
+  
+  private CutoutModel basisModel() {
+    Sprite basis = baseSprite;
+    while (true) {
+      if (basis instanceof CutoutSprite) {
+        return (CutoutModel) basis.model();
+      }
+      else if (basis instanceof GroupSprite) {
+        final GroupSprite GS = (GroupSprite) basis;
+        basis = GS.childOfHeight(high);
+        if (basis == null) basis = GS.atIndex(0);
+      }
+      else return null;
     }
   }
   
   
   
   /**  TODO:  Get rid of these- they don't seem appropriate for buildings.
-    *  Might be useful for actors/agents, though?
+    *  (Might be useful for actors/agents, though?)
     */
   public void toggleFX(ModelAsset model, boolean on) {
   }
@@ -221,6 +316,32 @@ public class BuildingSprite extends Sprite {
     
   }
 }
+
+
+    /*
+    CutoutModel basisModel = basisModel();
+    if (basisModel == null) basisModel = scaffModel;
+    
+    this.condition = newCondition;
+    this.intact    = normalState ;
+    if (intact) { scaffolds.clear(); return; }
+    
+    final int index = Nums.round(condition * size * size, 1, true);
+    while (index > scaffolds.size()) {
+      final int
+        nextI = (scaffolds.size() + 1) - 1,
+        inX   = nextI / size,
+        inY   = nextI % size;
+      
+      final CutoutSprite s = basisModel.facingSprite(
+        inX, inY, (int) basisModel.high
+      );
+      if (s != null) scaffolds.add(s); else break;
+    }
+    while (index < scaffolds.size()) {
+      scaffolds.removeLast();
+    }
+    //*/
 
 
 /*

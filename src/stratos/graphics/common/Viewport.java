@@ -20,6 +20,29 @@ public class Viewport {
     DEFAULT_ROTATE  = 45,
     DEFAULT_ELEVATE = 25;
   
+  final static Quaternion
+    isometricRotation,
+    isometricInverted;
+  
+  static {
+    final Quaternion
+      invert = isometricInverted = new Quaternion(0, 0, 0, 0),
+      rotate = isometricRotation = new Quaternion(0, 0, 0, 0),
+      onAxis   = new Quaternion();
+    
+    rotate.set(Vector3.Z, 0);
+    onAxis.set(Vector3.X, 0 + Viewport.DEFAULT_ELEVATE);
+    rotate.mul(onAxis);
+    onAxis.set(Vector3.Y, 45);
+    rotate.mul(onAxis);
+    
+    invert.set(Vector3.Z, 0);
+    onAxis.set(Vector3.Y, -45);
+    invert.mul(onAxis);
+    onAxis.set(Vector3.X, 0 - Viewport.DEFAULT_ELEVATE);
+    invert.mul(onAxis);
+  }
+  
   
   final public OrthographicCamera camera;
   final public Vec3D lookedAt = new Vec3D();
@@ -212,6 +235,7 @@ public class Viewport {
   
   
   public static Vector3 worldToGL(Vec3D from, Vector3 to) {
+    if (to == null) to = new Vector3();
     to.x = from.x;
     to.y = from.z;
     to.z = from.y;
@@ -220,10 +244,25 @@ public class Viewport {
   
   
   public static Vec3D GLToWorld(Vector3 from, Vec3D to) {
+    if (to == null) to = new Vec3D();
     to.x = from.x;
     to.y = from.z;
     to.z = from.y;
     return to;
+  }
+  
+  
+  public static Vector3 isometricRotation(Vector3 from, Vector3 to) {
+    if (to == null) to = new Vector3();
+    if (from != to) to.set(from);
+    return to.mul(isometricRotation);
+  }
+  
+  
+  public static Vector3 isometricInverted(Vector3 from, Vector3 to) {
+    if (to == null) to = new Vector3();
+    if (from != to) to.set(from);
+    return to.mul(isometricInverted);
   }
 }
 

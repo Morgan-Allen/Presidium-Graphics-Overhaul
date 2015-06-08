@@ -715,7 +715,7 @@ public abstract class Venue extends Fixture implements
     healthbar.size = (radius() * 50);
     healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU];
     healthbar.matchTo(buildSprite);
-    healthbar.position.z += height() + 0.1f;
+    healthbar.position.z += height() + 0.6f;
     healthbar.readyFor(rendering);
     
     healthbar.colour = base().colour();
@@ -723,7 +723,7 @@ public abstract class Venue extends Fixture implements
     
     final Label label = new Label();
     label.matchTo(buildSprite);
-    label.position.z += height() + 0.25f;
+    label.position.z += height() + 0.75f;
     label.phrase = this.fullName();
     label.readyFor(rendering);
     label.fontScale = 1.0f;

@@ -395,18 +395,6 @@ public class BaseSetup {
     for (Venue v : venues) fillVacancies(v, enterWorld);
   }
   
-  /*
-    for (Actor a : employed) {
-      if (! a.inWorld()) {
-        a.assignBase(v.base());
-        a.enterWorldAt(v, world);
-      }
-      a.mind.setWork(v);
-      if (v.crowdRating(a, Backgrounds.AS_RESIDENT) < 1) {
-        a.mind.setHome(v);
-      }
-    }
-  //*/
   
   
   /**  Establishing relationships, gear, experience and health FX-

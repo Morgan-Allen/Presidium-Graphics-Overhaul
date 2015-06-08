@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.common;
 import java.io.*;
 
@@ -17,8 +19,6 @@ import stratos.util.*;
 //  This should also provide some convenience methods for saving/loading
 //  sprites of a given model type, and caching the model in case of multiple
 //  references.
-
-
 
 public abstract class ModelAsset extends Assets.Loadable {
   

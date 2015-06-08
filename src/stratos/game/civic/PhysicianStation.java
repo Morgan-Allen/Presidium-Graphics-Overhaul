@@ -28,7 +28,7 @@ public class PhysicianStation extends Venue {
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     PhysicianStation.class,
-    "media/Buildings/physician/physician_clinic.png", 3, 2
+    "media/Buildings/physician/physician_clinic.png", 3, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     PhysicianStation.class, "media/GUI/Buttons/hospice_button.gif"
@@ -42,7 +42,7 @@ public class PhysicianStation extends Venue {
     "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
     "The Physician Station allows your citizens' injuries or diseases to be "+
     "treated quickly and effectively.",
-    3, 2, Structure.IS_NORMAL,
+    3, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     200, 2, 350, Structure.NORMAL_MAX_UPGRADES
   );

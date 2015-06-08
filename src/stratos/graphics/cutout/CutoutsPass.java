@@ -1,23 +1,23 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.cutout;
 import static stratos.graphics.common.GL.*;
 import static stratos.graphics.cutout.CutoutModel.*;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.SFX;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.glutils.*;
 
 
 
-//  TODO:  See if you can unify this with other types of rendering pass.
+//  TODO:  See if you can unify this with other types of rendering pass?
 
 public class CutoutsPass {
 	
@@ -130,7 +130,7 @@ public class CutoutsPass {
       if (batch == null) {
         batch = new List <CutoutSprite> () {
           protected float queuePriority(CutoutSprite r) {
-            return r.depth;
+            return 0 - r.depth;
           }
         };
         subPasses.put(s.model(), batch);

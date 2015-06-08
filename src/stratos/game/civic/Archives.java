@@ -25,7 +25,6 @@ import static stratos.game.economic.Economy.*;
 
 public class Archives extends Venue {
   
-  
 
   final static ImageAsset ICON = ImageAsset.fromImage(
     Archives.class, "media/GUI/Buttons/archives_button.gif"

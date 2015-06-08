@@ -28,7 +28,7 @@ public class EngineerStation extends Venue {
     EngineerStation.class, "media/GUI/Buttons/artificer_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    EngineerStation.class, "media/Buildings/artificer/artificer.png", 4, 2
+    EngineerStation.class, "media/Buildings/artificer/artificer.png", 4, 1
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(
@@ -36,7 +36,7 @@ public class EngineerStation extends Venue {
     "Engineer Station", UIConstants.TYPE_ENGINEER, ICON,
     "The Engineer Station manufactures "+PARTS+", "+CIRCUITRY+", devices and "+
     "armour for your citizens.",
-    4, 2, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     200, 5, 350, Structure.NORMAL_MAX_UPGRADES
   );

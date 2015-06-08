@@ -123,6 +123,16 @@ public class GroupSprite extends Sprite {
   }
   
   
+  public CutoutSprite childOfHeight(int high) {
+    for (Sprite k : modules) if (k.model() instanceof CutoutModel) {
+      if (((CutoutModel) k.model()).high == high) {
+        return (CutoutSprite) k;
+      }
+    }
+    return null;
+  }
+  
+  
   
   /**  Rendering and updates-
     */

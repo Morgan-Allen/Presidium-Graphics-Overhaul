@@ -4,11 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.cutout;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
+import java.io.*;
 
 
 
@@ -32,6 +30,7 @@ public class CutoutSprite extends Sprite {
   
   
   protected void loadFrom(DataInputStream in) throws Exception {
+    super.loadFrom(in);
     faceIndex = in.read();
   }
   

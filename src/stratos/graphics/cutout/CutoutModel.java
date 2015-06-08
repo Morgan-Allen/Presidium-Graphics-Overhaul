@@ -5,11 +5,10 @@
   */
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
-import stratos.start.Assets;
 import stratos.util.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 
 
@@ -37,13 +36,13 @@ public class CutoutModel extends ModelAsset {
     new Vector3(0, 0, 0),
     new Vector3(1, 0, 0)
   };
-  final static Vector3 EAST_VERTS [] = {  //  (X-fixed at 0.)
+  final static Vector3 SOUTH_VERTS [] = {  //  (X-fixed at 0.)
     new Vector3(0, 0, 1),
     new Vector3(0, 1, 1),
     new Vector3(0, 0, 0),
     new Vector3(0, 1, 0)
   };
-  final static Vector3 SOUTH_VERTS[] = {  //  (Y-fixed at 0.)
+  final static Vector3 EAST_VERTS[] = {  //  (Y-fixed at 0.)
     new Vector3(0, 0, 1),
     new Vector3(1, 0, 1),
     new Vector3(0, 0, 0),
@@ -51,18 +50,17 @@ public class CutoutModel extends ModelAsset {
   };
   
   
-  private String fileName;
-  private Box2D window;
-  private float size, high;
-  
-  Texture texture;
-  Texture lightSkin;
-  
-  TextureRegion region;
-  float maxScreenWide, maxScreenHigh, minScreenHigh, imageScreenHigh;
-  //Vector2 offset, dimension;
-  
+  final String fileName;
+  final Box2D window;
+  final float size, high;
   final boolean splat;
+  
+  protected Texture texture;
+  protected Texture lightSkin;
+  
+  private TextureRegion region;
+  private float maxScreenWide, maxScreenHigh, minScreenHigh, imageScreenHigh;
+  
   final float vertices[] = new float[SIZE];
   protected float allFaces[][];
   final Table <String, Integer> faceLookup = new Table();
@@ -77,6 +75,7 @@ public class CutoutModel extends ModelAsset {
     this.fileName = fileName;
     this.window   = window  ;
     this.size     = size    ;
+    this.high     = high    ;
     this.splat    = splat   ;
   }
   
@@ -97,10 +96,7 @@ public class CutoutModel extends ModelAsset {
     
     String litName = fileName.substring(0, fileName.length() - 4);
     litName+="_lights.png";
-    if (Assets.exists(litName)) {
-      lightSkin = ImageAsset.getTexture(litName);
-    }
-    
+    if (assetExists(litName)) lightSkin = ImageAsset.getTexture(litName);
     return state = State.LOADED;
   }
   
@@ -112,7 +108,7 @@ public class CutoutModel extends ModelAsset {
   }
   
   
-  public Sprite makeSprite() {
+  public CutoutSprite makeSprite() {
     if (! stateLoaded()) {
       I.complain("CANNOT CREATE SPRITE UNTIL LOADED: "+fileName);
     }
@@ -203,32 +199,14 @@ public class CutoutModel extends ModelAsset {
   
   private void setupVertices() {
     //
-    //  Firstly, we put together some default rotations to and from screen
-    //  coordinates (ignoring scaling factors.)
-    final Quaternion
-      rotation = new Quaternion(0, 0, 0, 0),
-      inverse  = new Quaternion(0, 0, 0, 0),
-      onAxis   = new Quaternion();
+    //  For the default-sprite geometry, we do a naive translation of some
+    //  rectangular vertex-points, keeping the straightforward UV but
+    //  translating the screen-coordinates into world-space.  The effect is
+    //  something like a 2D cardboard-cutout, propped up at an angle on-stage.
+    //
     final Vector3 temp = new Vector3();
     final Batch <float[]> faces = new Batch();
     
-    rotation.set(Vector3.Z, 0);
-    onAxis.set(Vector3.Y, -45);
-    rotation.mul(onAxis);
-    onAxis.set(Vector3.X, 0 - Viewport.DEFAULT_ELEVATE);
-    rotation.mul(onAxis);
-
-    inverse.set(Vector3.Z, 0);
-    onAxis.set(Vector3.X, 0 + Viewport.DEFAULT_ELEVATE);
-    inverse.mul(onAxis);
-    onAxis.set(Vector3.Y, 45);
-    inverse.mul(onAxis);
-    //
-    //  Then, we do a naive translation of some rectangular vertex-points,
-    //  keeping the straightforward UV but translating the screen-coordinates
-    //  into world-space.  The effect is something like a 2D cardboard-cutout,
-    //  propped up at an angle on the stage.
-    //
     for (int i = 0, p = 0; i < vertices.length; i += VERTEX_SIZE) {
       final float
         x = VERT_PATTERN[p++],
@@ -237,11 +215,10 @@ public class CutoutModel extends ModelAsset {
       temp.set(
         maxScreenWide * (x - 0.5f), (imageScreenHigh * y) + minScreenHigh, z
       );
-      temp.mul(rotation);
+      Viewport.isometricInverted(temp, temp);
       vertices[X0 + i] = temp.x;
       vertices[Y0 + i] = temp.y;
       vertices[Z0 + i] = temp.z;
-
       vertices[C0 + i] = Sprite.WHITE_BITS;
       vertices[U0 + i] = (region.getU() * (1 - x)) + (region.getU2() * x);
       vertices[V0 + i] = (region.getV() * y) + (region.getV2() * (1 - y));
@@ -249,28 +226,36 @@ public class CutoutModel extends ModelAsset {
     faces.add(vertices);
     //
     //  As a method of facilitating certain construction-animations, we also
-    //  'dice up' the (apparent) front, east and south faces of the cutout-
-    //  something like the facets of a rubik's cube.
+    //  'dice up' the (apparent) front, east and south faces of the cutout,
+    //  much like the visible facets of a Rubik's Cube.
     //
     //  In this case, we preserve the simple geometry, but use the inverse
     //  transform to get the UV to line up with the isometric viewpoint.
     //
+    
+    //  TODO:  I'll want to try fusing the 3 faces together, and using that
+    //  to represent diced chunks instead.  Give it a more solid appearance,
+    //  and simplify ID-keys.
+    
     for (int x = (int) size; x-- > 0;) for (int y = (int) size; y-- > 0;) {
-      addFace(x, y, (int) high, TOP_VERTS, inverse, faces);
+      final String key = x+"_"+y+"_top";
+      addFace(x, y, (int) high, TOP_VERTS, faces, key);
     }
     for (int y = (int) size; y-- > 0;) for (int z = (int) high; z-- > 0;) {
-      addFace((int) size, y, z, EAST_VERTS, inverse, faces);
+      final String key = y+"_"+z+"_south";
+      addFace(0, y, z, SOUTH_VERTS, faces, key);
     }
     for (int x = (int) size; x-- > 0;) for (int z = (int) high; z-- > 0;) {
-      addFace(x, 0, z, SOUTH_VERTS, inverse, faces);
+      final String key = x+"_"+z+"_east";
+      addFace(x, (int) size, z, EAST_VERTS, faces, key);
     }
     this.allFaces = faces.toArray(float[].class);
   }
   
   
   private void addFace(
-    int x, int y, int z, Vector3 baseVerts[], Quaternion mulUV,
-    Batch <float[]> faces
+    int x, int y, int z, Vector3 baseVerts[], Batch <float[]> faces,
+    String key
   ) {
     float vertices[] = new float[baseVerts.length * VERTEX_SIZE];
     final Vector3 temp = new Vector3();
@@ -283,8 +268,7 @@ public class CutoutModel extends ModelAsset {
       vertices[X0 + i] = temp.x = (x + v.x - (size / 2));
       vertices[Y0 + i] = temp.y = (z + v.z);
       vertices[Z0 + i] = temp.z = (y + v.y - (size / 2));
-      
-      temp.mul(mulUV);
+      Viewport.isometricRotation(temp, temp);
       vertices[C0 + i] = Sprite.WHITE_BITS;
       vertices[U0 + i] = 0 + ((temp.x / maxScreenWide) + 0.5f   );
       vertices[V0 + i] = 1 - ((temp.y - minScreenHigh) / maxHigh);
@@ -292,18 +276,41 @@ public class CutoutModel extends ModelAsset {
     }
     //
     //  We then cache the face with a unique key for easy access (see below.)
-    final String key = x+"_"+y+"_"+z;
     faceLookup.put(key, faces.size());
     faces.add(vertices);
   }
-
   
+
+  public CutoutSprite topSprite(int x, int y) {
+    return faceWithKey(x+"_"+y+"_top");
+  }
+  
+
+  public CutoutSprite southSprite(int y, int z) {
+    return faceWithKey(y+"_"+z+"_south");
+  }
+  
+
+  public CutoutSprite eastSprite(int x, int z) {
+    return faceWithKey(x+"_"+z+"_east");
+  }
+  
+  
+  private CutoutSprite faceWithKey(String key) {
+    final Integer index = faceLookup.get(key);
+    if (index == null || index < 1) return null;
+    return new CutoutSprite(this, index);
+  }
+  
+  
+  /*
   public CutoutSprite facingSprite(int x, int y, int z) {
     final String key = x+"_"+y+"_"+z;
     final Integer index = faceLookup.get(key);
     if (index == null || index < 1) return null;
     return new CutoutSprite(this, index);
   }
+  //*/
 }
 
 

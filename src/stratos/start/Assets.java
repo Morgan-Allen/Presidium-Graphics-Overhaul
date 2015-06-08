@@ -60,6 +60,10 @@ public class Assets {
       final String stamp = fileStampFor(filePath);
       if (stamp != null) fileStamps.put(filePath, stamp);
     }
+    
+    protected boolean assetExists(String filePath) {
+      return exists(filePath);
+    }
   }
   
   
