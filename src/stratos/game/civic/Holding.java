@@ -57,11 +57,11 @@ public class Holding extends Venue {
     ),
     LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
       Holding.class, IMG_DIR+"lower_class_housing.png",
-      3, 3, 2, 2, false
+      3, 3, 2, 1, false
     ),
     MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
       Holding.class, IMG_DIR+"middle_class_housing.png",
-      3, 3, 2, 2, false
+      3, 3, 2, 1, false
     ),
     UPPER_CLASS_MODELS[][] = null;
   
@@ -80,7 +80,7 @@ public class Holding extends Venue {
     "Housing", UIConstants.TYPE_PHYSICIAN, ICONS[0],
     "Housing provides comfort, sanitation and other domestic benefits to "+
     "your subjects.",
-    3, 2, Structure.IS_NORMAL,
+    3, 1, Structure.IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
     INTEGRITIES[0], 5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES
   );

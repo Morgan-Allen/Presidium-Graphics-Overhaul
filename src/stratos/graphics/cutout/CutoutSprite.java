@@ -35,7 +35,7 @@ public class CutoutSprite extends Sprite {
   }
   
   
-  public ModelAsset model() {
+  public CutoutModel model() {
     return model;
   }
   

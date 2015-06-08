@@ -29,24 +29,33 @@ public class CutoutModel extends ModelAsset {
   final public static short VERT_INDICES[] = {
     0, 2, 1, 1, 2, 3
   };
-  
-  final static Vector3 TOP_VERTS  [] = {  //  (Z-fixed at 0.)
+  final static Vector3 FLAT_VERTS[] = {
     new Vector3(0, 1, 0),
     new Vector3(1, 1, 0),
     new Vector3(0, 0, 0),
-    new Vector3(1, 0, 0)
+    new Vector3(1, 0, 0),
   };
-  final static Vector3 SOUTH_VERTS [] = {  //  (X-fixed at 0.)
-    new Vector3(0, 0, 1),
-    new Vector3(0, 1, 1),
-    new Vector3(0, 0, 0),
-    new Vector3(0, 1, 0)
-  };
-  final static Vector3 EAST_VERTS[] = {  //  (Y-fixed at 0.)
-    new Vector3(0, 0, 1),
-    new Vector3(1, 0, 1),
-    new Vector3(0, 0, 0),
-    new Vector3(1, 0, 0)
+  final static int
+    BOX_X = 0, BOX_Y = 1, BOX_Z = 1;
+  final static Vector3 BOX_VERTS[] = {
+    
+    //  Top face (z at 1)-
+    new Vector3(0, 1, BOX_Z),
+    new Vector3(1, 1, BOX_Z),
+    new Vector3(0, 0, BOX_Z),
+    new Vector3(1, 0, BOX_Z),
+    
+    //  South face (x at 0)-
+    new Vector3(BOX_X, 0, 1),
+    new Vector3(BOX_X, 1, 1),
+    new Vector3(BOX_X, 0, 0),
+    new Vector3(BOX_X, 1, 0),
+    
+    //  East face (y at 1)-
+    new Vector3(0, BOX_Y, 1),
+    new Vector3(1, BOX_Y, 1),
+    new Vector3(0, BOX_Y, 0),
+    new Vector3(1, BOX_Y, 0)
   };
   
   
@@ -59,7 +68,7 @@ public class CutoutModel extends ModelAsset {
   protected Texture lightSkin;
   
   private TextureRegion region;
-  private float maxScreenWide, maxScreenHigh, minScreenHigh, imageScreenHigh;
+  private float maxScreenWide, maxScreenHigh, minScreenHigh, imgScreenHigh;
   
   final float vertices[] = new float[SIZE];
   protected float allFaces[][];
@@ -190,7 +199,7 @@ public class CutoutModel extends ModelAsset {
       viewAngle = Nums.toRadians(Viewport.DEFAULT_ELEVATE),
       wide      = size * Nums.ROOT2;
     maxScreenWide   =  wide;
-    imageScreenHigh =  wide * relHigh;
+    imgScreenHigh =  wide * relHigh;
     maxScreenHigh   = (wide * Nums.sin(viewAngle)) / 2;
     minScreenHigh   = 0 - maxScreenHigh;
     maxScreenHigh   += high * Nums.cos(viewAngle);
@@ -213,7 +222,7 @@ public class CutoutModel extends ModelAsset {
         y = VERT_PATTERN[p++],
         z = VERT_PATTERN[p++];
       temp.set(
-        maxScreenWide * (x - 0.5f), (imageScreenHigh * y) + minScreenHigh, z
+        maxScreenWide * (x - 0.5f), (imgScreenHigh * y) + minScreenHigh, z
       );
       Viewport.isometricInverted(temp, temp);
       vertices[X0 + i] = temp.x;
@@ -226,41 +235,32 @@ public class CutoutModel extends ModelAsset {
     faces.add(vertices);
     //
     //  As a method of facilitating certain construction-animations, we also
-    //  'dice up' the (apparent) front, east and south faces of the cutout,
-    //  much like the visible facets of a Rubik's Cube.
+    //  'dice up' the cutout, something like the apparent facets of a Rubik's
+    //  Cube.
     //
     //  In this case, we preserve the simple geometry, but use the inverse
     //  transform to get the UV to line up with the isometric viewpoint.
     //
-    
-    //  TODO:  I'll want to try fusing the 3 faces together, and using that
-    //  to represent diced chunks instead.  Give it a more solid appearance,
-    //  and simplify ID-keys.
-    
-    for (int x = (int) size; x-- > 0;) for (int y = (int) size; y-- > 0;) {
-      final String key = x+"_"+y+"_top";
-      addFace(x, y, (int) high, TOP_VERTS, faces, key);
-    }
-    for (int y = (int) size; y-- > 0;) for (int z = (int) high; z-- > 0;) {
-      final String key = y+"_"+z+"_south";
-      addFace(0, y, z, SOUTH_VERTS, faces, key);
-    }
-    for (int x = (int) size; x-- > 0;) for (int z = (int) high; z-- > 0;) {
-      final String key = x+"_"+z+"_east";
-      addFace(x, (int) size, z, EAST_VERTS, faces, key);
+    final boolean topOnly = (int) high == 0;
+    for (Coord c : Visit.grid(0, 0, (int) size, (int) size, 1)) {
+      if (topOnly) {
+        addFace(c.x, c.y, 0, FLAT_VERTS, faces);
+      }
+      else for (int h = (int) high; h-- > 0;) {
+        addFace(c.x, c.y, h, BOX_VERTS, faces);
+      }
     }
     this.allFaces = faces.toArray(float[].class);
   }
   
   
   private void addFace(
-    int x, int y, int z, Vector3 baseVerts[], Batch <float[]> faces,
-    String key
+    int x, int y, int z, Vector3 baseVerts[], Batch <float[]> faces
   ) {
-    float vertices[] = new float[baseVerts.length * VERTEX_SIZE];
+    final float vertices[] = new float[baseVerts.length * VERTEX_SIZE];
     final Vector3 temp = new Vector3();
     float maxHigh = maxScreenHigh - minScreenHigh;
-    maxHigh *= imageScreenHigh / maxHigh;
+    maxHigh *= imgScreenHigh / maxHigh;
     //
     //  And finally, we translate each of the interior points accordingly-
     int i = 0;
@@ -276,41 +276,25 @@ public class CutoutModel extends ModelAsset {
     }
     //
     //  We then cache the face with a unique key for easy access (see below.)
+    final String key = x+"_"+y+"_"+z;
+
+    final boolean report = size == 4;
+    if (report) {
+      I.say("\nAdding face: "+key);
+      I.say("  Vertices length: "+vertices.length);
+    }
+    
     faceLookup.put(key, faces.size());
     faces.add(vertices);
   }
   
-
-  public CutoutSprite topSprite(int x, int y) {
-    return faceWithKey(x+"_"+y+"_top");
-  }
   
-
-  public CutoutSprite southSprite(int y, int z) {
-    return faceWithKey(y+"_"+z+"_south");
-  }
-  
-
-  public CutoutSprite eastSprite(int x, int z) {
-    return faceWithKey(x+"_"+z+"_east");
-  }
-  
-  
-  private CutoutSprite faceWithKey(String key) {
-    final Integer index = faceLookup.get(key);
-    if (index == null || index < 1) return null;
-    return new CutoutSprite(this, index);
-  }
-  
-  
-  /*
   public CutoutSprite facingSprite(int x, int y, int z) {
-    final String key = x+"_"+y+"_"+z;
+    final String key = x+"_"+y+"_"+Nums.max(0, z);
     final Integer index = faceLookup.get(key);
     if (index == null || index < 1) return null;
     return new CutoutSprite(this, index);
   }
-  //*/
 }
 
 

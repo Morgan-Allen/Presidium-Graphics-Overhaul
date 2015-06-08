@@ -190,10 +190,12 @@ public class CutoutsPass {
     else if (  s.colour.glows()) colourBits = s.colour.floatBits;
     else if (! s.colour.blank()) colourBits = s.colour.floatBits;
     else colourBits = Colour.combineAlphaBits(fog, s.colour);
+
+    final float spriteVerts[] = s.model.allFaces[s.faceIndex];
+    final int sizeS = SIZE * (spriteVerts.length / SIZE);
     
-    for (int off = 0; off < SIZE; off += VERTEX_SIZE) {
+    for (int off = 0; off < sizeS; off += VERTEX_SIZE) {
       final int offset = total + off;
-      final float spriteVerts[] = s.model.allFaces[s.faceIndex];
       temp.set(
         spriteVerts[X0 + off],
         spriteVerts[Y0 + off],
@@ -210,9 +212,9 @@ public class CutoutsPass {
       vertComp[V0 + offset] = spriteVerts[V0 + off];
     }
     
-    total += SIZE;
-    lastTex = keyTex;
-    wasLit = lightPass;
+    total   += sizeS;
+    lastTex =  keyTex;
+    wasLit  =  lightPass;
   }
   
   

@@ -6,11 +6,9 @@
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
-import stratos.start.PlayLoop;
 import stratos.util.*;
 
 import java.io.*;
-
 import com.badlogic.gdx.math.*;
 
 
@@ -30,11 +28,11 @@ public class BuildingSprite extends Sprite {
   final static CutoutModel
     SCAFFOLD_MODEL = CutoutModel.fromImage(
       BuildingSprite.class,
-      "media/Buildings/civilian/scaffold.png", 1.1f, 1
+      "media/Buildings/civilian/scaffold.png", 1, 1
     ),
     FOUNDATION_FRINGE_MODEL = CutoutModel.fromImage(
       BuildingSprite.class,
-      "media/Buildings/civilian/foundation_fringe.png", 1, 1
+      "media/Buildings/civilian/foundation_fringe.png", 1, 0
     ),
     CRATE_MODEL = CutoutModel.fromImage(
       BuildingSprite.class,
@@ -83,7 +81,7 @@ public class BuildingSprite extends Sprite {
   ) {
     final BuildingSprite BS = new BuildingSprite();
     BS.baseSprite = sprite;
-    BS.size       = size;
+    BS.size       = Nums.min(size, MAX_SIZE);
     BS.high       = high;
     BS.intact     = true;
     BS.condition  = 0;
@@ -154,20 +152,6 @@ public class BuildingSprite extends Sprite {
         step.readyFor(rendering);
       }
     }
-    /*
-    final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex);
-    if (displayed != null) {
-      
-      displayed.matchTo(this);
-      displayed.position.z += high + 0.5f;
-      displayed.readyFor(rendering);
-      
-      final float progress = displayed.animProgress(false) % 1;
-      final float alpha = Nums.clamp(progress * 4 * (1 - progress), 0, 1);
-      displayed.colour = Colour.transparency(alpha);
-    }
-    else statusDisplayIndex = statusFX.size() - 1;
-    //*/
   }
   
   
@@ -201,7 +185,7 @@ public class BuildingSprite extends Sprite {
   
   private void provideOffset(CutoutSprite step, int index) {
     step.matchTo(this);
-    if (step.faceIndex == 0) {
+    if (step.model().size == 1) {
       final Vector3 coords[] = GROUND_COORDS[size];
       final Vector3 offset = coords[index % coords.length];
       step.position.x += offset.x - ((size - 1f) / 2);
@@ -212,31 +196,39 @@ public class BuildingSprite extends Sprite {
   
   
   private void updateStepForIndex(
-    int stepIndex, int high, int progressIndex,
+    int stepIndex, int progressIndex, int maxIndex,
     CutoutModel ground, CutoutModel normal
   ) {
-    final Vector3 coords[] = GROUND_COORDS[size];
-    final Vector3 offset = coords[stepIndex % coords.length];
+    final Vector3 groundCoords[] = GROUND_COORDS[size];
+    final int groundIndex = stepIndex % groundCoords.length;
+    final Vector3 offset = groundCoords[groundIndex];
     final int
       xoff = (int) offset.x,
       yoff = (int) offset.y,
-      zoff = stepIndex / coords.length;
-    CutoutModel used;
-    boolean singleton = false;
+      zoff = stepIndex / groundCoords.length;
     
-    //  Not reached yet...
-    if (progressIndex < stepIndex || zoff > high) {
-      used = null;
+    final float margin = size * 1f / groundCoords.length;
+    float localProgress = 0;
+    CutoutModel used = null;
+    localProgress += progressIndex * (1 + (margin * 2)) / maxIndex;
+    localProgress -= groundIndex * 1f / groundCoords.length;
+    localProgress -= margin;
+    
+    if (localProgress <= 0) {
+      if (zoff <= 0) localProgress += margin * 2;
+      else {
+        float highBonus = 1 - (zoff * 1f / high);
+        localProgress += (highBonus - 0.5f) * margin * 2;
+      }
+      if (localProgress <= 0) return;
     }
-    //  Ground-floor...
-    else if (zoff == 0) {
-      if (stepIndex <= progressIndex - size) used = ground;
-      else { used = FOUNDATION_FRINGE_MODEL; singleton = true; }
+    if (zoff == 0) {
+      if (localProgress <= margin) used = FOUNDATION_FRINGE_MODEL;
+      else used = ground;
     }
-    //  Building-up...
     else {
-      if (stepIndex <= progressIndex - size) used = normal;
-      else { used = SCAFFOLD_MODEL; singleton = true; }
+      if (localProgress <= margin) used = SCAFFOLD_MODEL;
+      else used = normal;
     }
     
     //  Check for redundancy-
@@ -248,11 +240,11 @@ public class BuildingSprite extends Sprite {
     if (used == null) {
       buildSteps[stepIndex] = null;
     }
-    else if (singleton) {
-      buildSteps[stepIndex] = (CutoutSprite) used.makeSprite();
+    else if (used.size == 1) {
+      buildSteps[stepIndex] = used.facingSprite(0, 0, 0);
     }
     else {
-      buildSteps[stepIndex] = used.topSprite(xoff, yoff);
+      buildSteps[stepIndex] = used.facingSprite(xoff, yoff, zoff - 1);
     }
   }
   
@@ -260,8 +252,8 @@ public class BuildingSprite extends Sprite {
   public void updateCondition(
     float newCondition, boolean normalState, boolean burning
   ) {
-    final Vector3 coords[] = GROUND_COORDS[Nums.clamp(size, AL)];
-    final int totalSteps = size + (coords.length * (high + 1));
+    final Vector3 coords[] = GROUND_COORDS[size];
+    final int totalSteps = coords.length * (high + 1);
     final int oldIndex = Nums.round(condition * totalSteps, 1, true);
     
     this.condition = newCondition;
@@ -275,7 +267,7 @@ public class BuildingSprite extends Sprite {
     final CutoutModel ground = FOUNDATION_MODELS[size];
     final CutoutModel normal = basisModel();
     for (int i = totalSteps; i-- > 0;) {
-      updateStepForIndex(i, high, newIndex, ground, normal);
+      updateStepForIndex(i, newIndex, totalSteps, ground, normal);
     }
   }
   
@@ -318,78 +310,30 @@ public class BuildingSprite extends Sprite {
 }
 
 
-    /*
-    CutoutModel basisModel = basisModel();
-    if (basisModel == null) basisModel = scaffModel;
-    
-    this.condition = newCondition;
-    this.intact    = normalState ;
-    if (intact) { scaffolds.clear(); return; }
-    
-    final int index = Nums.round(condition * size * size, 1, true);
-    while (index > scaffolds.size()) {
-      final int
-        nextI = (scaffolds.size() + 1) - 1,
-        inX   = nextI / size,
-        inY   = nextI % size;
-      
-      final CutoutSprite s = basisModel.facingSprite(
-        inX, inY, (int) basisModel.high
-      );
-      if (s != null) scaffolds.add(s); else break;
-    }
-    while (index < scaffolds.size()) {
-      scaffolds.removeLast();
-    }
-    //*/
+
 
 
 /*
-  private Sprite baseSprite;
-  private CutoutSprite scaffoldBase;
-  private GroupSprite scaffolding;
+final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex);
+if (displayed != null) {
+  
+  displayed.matchTo(this);
+  displayed.position.z += high + 0.5f;
+  displayed.readyFor(rendering);
+  
+  final float progress = displayed.animProgress(false) % 1;
+  final float alpha = Nums.clamp(progress * 4 * (1 - progress), 0, 1);
+  displayed.colour = Colour.transparency(alpha);
+}
+else statusDisplayIndex = statusFX.size() - 1;
+//*/
+
+
+/*
   
   private GroupSprite allStacks;
   private List <PlaneFX> statusFX = new List <PlaneFX> ();
   private int statusDisplayIndex = -1;
-  
-  private int size, high;
-  boolean intact;
-  float condition;
-  
-  
-  
-  public static BuildingSprite fromBase(
-    ModelAsset model, int size, int high
-  ) {
-    return fromBase((CutoutSprite) model.makeSprite(), size, high);
-  }
-  
-  
-  public static BuildingSprite fromBase(
-    Sprite sprite, int size, int high
-  ) {
-    final BuildingSprite BS = new BuildingSprite();
-    BS.baseSprite = sprite;
-
-    final int SI = Nums.clamp(size, SCAFF_MODELS.length);
-    BS.scaffoldBase = (CutoutSprite) SCAFF_MODELS[SI].makeSprite();
-    
-    BS.scaffolding = BS.scaffoldFor(size, high, 0);
-    BS.allStacks = new GroupSprite();
-    BS.size = size;
-    BS.high = high;
-    BS.intact = true;
-    BS.condition = 0;
-    return BS;
-  }
-  
-  
-  
-  public ModelAsset model() {
-    return BUILDING_MODEL;
-  }
-  
 
   public void loadFrom(DataInputStream in) throws Exception {
     super.loadFrom(in);
@@ -419,25 +363,7 @@ public class BuildingSprite extends Sprite {
   }
   
   
-  //  TODO:  Make use of this?
-  public void setAnimation(String animName, float progress, boolean loop) {}
-  
-  
   public void readyFor(Rendering rendering) {
-    
-    if (intact) {
-      baseSprite.matchTo(this);
-      baseSprite.passType = this.passType;
-      baseSprite.readyFor(rendering);
-    }
-    else {
-      scaffoldBase.matchTo(this);
-      scaffolding.matchTo(this);
-      scaffoldBase.scale = size;
-      scaffoldBase.passType = Sprite.PASS_SPLAT;
-      scaffoldBase.readyFor(rendering);
-      scaffolding.readyFor(rendering);
-    }
     allStacks.matchTo(this);
     allStacks.readyFor(rendering);
     
@@ -537,64 +463,6 @@ public class BuildingSprite extends Sprite {
     }
   }
   //*/
-  
-  
-  
-  /**  Producing and updating scaffold sprites-
-    */
-  /*
-  private int maxStages() {
-    int max = 0;
-    for (int z = 0; z < high; z++)
-      for (int x = 1; x < (size - z); x++)
-        for (int y = 1 + z; y < size; y++) max++;
-    return max;
-  }
-  
-  
-  private int scaffoldStage(int size, int high, float condition, int maxStage) {
-    final int newStage = (int) (condition * (maxStage + 1));
-    return newStage;
-  }
-  
-  
-  private GroupSprite scaffoldFor(int size, int high, float condition) {
-    condition = Nums.clamp(condition, 0, 1);
-    final int stage = scaffoldStage(size, high, condition, maxStages());
-    //
-    //  Otherwise, put together a composite sprite where the number of mini-
-    //  scaffolds provides a visual indicator of progress.
-    final GroupSprite sprite = new GroupSprite();
-    sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
-    if (size == 1) return sprite;
-    
-    final float xoff = (size / 2f), yoff = (size / 2f);
-    int numS = 0;
-    //
-    //  Iterate over the entire coordinate space as required-
-    loop: for (int z = 0; z < high; z++) {
-      final float
-        l = z * 1f / high,
-        h = z - (l * l),
-        i = z / 2f;
-      
-      for (int x = size - z; x-- > 1;) {
-        for (int y = 1 + z; y < size; y++) {
-          if (++numS > stage) break loop;
-          sprite.attach(
-            SCAFF_MODELS[0],
-            x + i - xoff,
-            y - (yoff + i),
-            h
-          );
-        }
-      }
-    }
-    return sprite;
-  }
-  //*/
-//}
-
 
 
 

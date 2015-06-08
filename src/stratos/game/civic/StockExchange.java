@@ -229,19 +229,15 @@ public class StockExchange extends Venue {
     //  ...You basically don't want the stock vendor wandering too far, because
     //  the venue has to be manned in order for citizens to come shopping.  So
     //  stick with jobs that happen within the venue.
-    if (staff.assignedTo(Bringing.class) == 0) {
-      choice.add(BringUtils.bestBulkDeliveryFrom(
-        this, services(), 2, 10, 5
-      ));
-      choice.add(BringUtils.bestBulkCollectionFor(
-        this, services(), 2, 10, 5
-      ));
-      if (! choice.empty()) return choice.weightedPick();
+    choice.add(BringUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    ));
+    choice.add(BringUtils.bestBulkCollectionFor(
+      this, services(), 2, 10, 5
+    ));
+    if (staff.assignedTo(Bringing.class) == 0 && ! choice.empty()) {
+      return choice.pickMostUrgent();
     }
-    /*
-    if (PlanUtils.competition(Supervision.class, this, actor) > 0) {
-    }
-    //*/
     //
     //  TODO:  Have the Supervision class delegate the precise behaviour you
     //  conduct back to the venue.

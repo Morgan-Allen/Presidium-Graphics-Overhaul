@@ -25,7 +25,7 @@ public class TrooperLodge extends Venue {
   /**  Fields, constants, and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    TrooperLodge.class, "media/Buildings/military/trooper_lodge.png", 4.25f, 3
+    TrooperLodge.class, "media/Buildings/military/trooper_lodge.png", 4, 3
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     TrooperLodge.class, "media/GUI/Buttons/trooper_lodge_button.gif"

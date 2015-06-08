@@ -188,6 +188,12 @@ public class EngineerStation extends Venue {
     if (! onShift) return null;
     final Choice choice = new Choice(actor);
     //
+    //  Consider contributing toward local repairs-
+    choice.add(Repairs.getNextRepairFor(actor, false));
+    if (actor.mind.vocation() == TECHNICIAN && ! choice.empty()) {
+      return choice.pickMostUrgent();
+    }
+    //
     //  Consider special commissions for weapons and armour-
     for (Item ordered : stocks.specialOrders()) {
       final Traded made = ordered.type;
@@ -209,7 +215,9 @@ public class EngineerStation extends Venue {
       }
       choice.add(mO.setBonusFrom(this, true, forType));
     }
-    if (! choice.empty()) return choice.pickMostUrgent();
+    if (actor.mind.vocation() == ARTIFICER && ! choice.empty()) {
+      return choice.pickMostUrgent();
+    }
     //
     //  Consider the production of general bulk commodities-
     final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
@@ -224,9 +232,6 @@ public class EngineerStation extends Venue {
     if (mI != null) {
       choice.add(mI.setBonusFrom(this, false, MICRO_ASSEMBLY));
     }
-    //
-    //  Finally, consider contributing toward local repairs-
-    choice.add(Repairs.getNextRepairFor(actor, false));
     //
     //  And return whatever suits the actor best-
     return choice.weightedPick();
