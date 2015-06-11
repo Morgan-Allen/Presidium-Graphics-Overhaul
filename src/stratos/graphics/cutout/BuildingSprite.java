@@ -7,13 +7,12 @@ package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.util.*;
-
 import java.io.*;
 import com.badlogic.gdx.math.*;
 
 
 
-public class BuildingSprite extends Sprite {
+public class BuildingSprite extends Sprite implements TileConstants {
   
   
   final static ModelAsset BUILDING_MODEL = new ClassModel(
@@ -67,6 +66,9 @@ public class BuildingSprite extends Sprite {
   private float condition;
   private int size, high;
   private boolean intact;
+  
+  public boolean flagChange = false;
+  
   
   
   public static BuildingSprite fromBase(
@@ -138,7 +140,6 @@ public class BuildingSprite extends Sprite {
   
   
   public void readyFor(Rendering rendering) {
-    
     if (intact) {
       baseSprite.matchTo(this);
       baseSprite.passType = this.passType;
@@ -152,6 +153,7 @@ public class BuildingSprite extends Sprite {
         step.readyFor(rendering);
       }
     }
+    flagChange = false;
   }
   
   
@@ -160,7 +162,9 @@ public class BuildingSprite extends Sprite {
     */
   final static int MAX_SIZE = 6, AL = MAX_SIZE + 1;
   final static Vector3     GROUND_COORDS[][]   = new Vector3    [AL][];
+  final static int         ALL_INDICES[][][]   = new int        [AL][][];
   final static CutoutModel FOUNDATION_MODELS[] = new CutoutModel[AL];
+  
   static {
     for (int size = 1; size <= MAX_SIZE; size++) {
       FOUNDATION_MODELS[size] = CutoutModel.fromSplatImage(
@@ -179,6 +183,11 @@ public class BuildingSprite extends Sprite {
       }
       coords.queueSort();
       GROUND_COORDS[size] = coords.toArray(Vector3.class);
+      ALL_INDICES  [size] = new int[size][size];
+      
+      int index = 0; for (Vector3 v : coords) {
+        ALL_INDICES[size][(int) v.x][(int) v.y] = index++;
+      }
     }
   }
   
@@ -195,57 +204,85 @@ public class BuildingSprite extends Sprite {
   }
   
   
+  private void updateStep(CutoutModel used, int x, int y, int z, int index) {
+    //
+    //  Check for redundancy-
+    final CutoutSprite prior = buildSteps[index];
+    if (prior == null && used == null) return;
+    if (prior != null && prior.model() == used) return;
+    //
+    //  And create a new sprite if different-
+    if (used == null) {
+      buildSteps[index] = null;
+    }
+    else if (used.size == 1) {
+      buildSteps[index] = used.facingSprite(0, 0, 0);
+    }
+    else {
+      buildSteps[index] = used.facingSprite(x, y, z - 1);
+    }
+  }
+  
+  
+  public void toggleFoundation(boolean map[][]) {
+    if (buildSteps == null) return;
+    
+    for (Coord c : Visit.grid(0, 0, size, size, 1)) {
+      final int index = ALL_INDICES[size][c.x][c.y];
+      CutoutModel used = null;
+      
+      if (map[c.x][c.y]) {
+        int numNear = 0;
+        for (int t : T_ADJACENT) try {
+          final int nX = c.x + T_X[t], nY = c.y + T_Y[t];
+          if (map[nX][nY]) numNear++;
+        }
+        catch (ArrayIndexOutOfBoundsException e) { numNear++; }
+        
+        final CutoutModel ground = FOUNDATION_MODELS[size];
+        used = numNear >= 4 ? ground : FOUNDATION_FRINGE_MODEL;
+      }
+      
+      updateStep(used, c.x, c.y, 0, index);
+    }
+  }
+  
+  
   private void updateStepForIndex(
     int stepIndex, int progressIndex, int maxIndex,
     CutoutModel ground, CutoutModel normal
   ) {
     final Vector3 groundCoords[] = GROUND_COORDS[size];
-    final int groundIndex = stepIndex % groundCoords.length;
+    final int groundSize = groundCoords.length;
+    if (stepIndex < groundSize) return;
+    
+    final int groundIndex = stepIndex % groundSize;
     final Vector3 offset = groundCoords[groundIndex];
     final int
       xoff = (int) offset.x,
       yoff = (int) offset.y,
-      zoff = stepIndex / groundCoords.length;
+      zoff = stepIndex / groundSize;
     
-    final float margin = size * 1f / groundCoords.length;
+    final float margin = size * 1f / groundSize;
     float localProgress = 0;
-    CutoutModel used = null;
+    final CutoutModel used;
     localProgress += progressIndex * (1 + (margin * 2)) / maxIndex;
-    localProgress -= groundIndex * 1f / groundCoords.length;
+    localProgress -= groundIndex * 1f / groundSize;
     localProgress -= margin;
     
     if (localProgress <= 0) {
-      if (zoff <= 0) localProgress += margin * 2;
-      else {
-        float highBonus = 1 - (zoff * 1f / high);
-        localProgress += (highBonus - 0.5f) * margin * 2;
-      }
-      if (localProgress <= 0) return;
+      float highBonus = 1 - (zoff * 1f / high);
+      localProgress += (highBonus - 0.5f) * margin * 2;
     }
-    if (zoff == 0) {
-      if (localProgress <= margin) used = FOUNDATION_FRINGE_MODEL;
-      else used = ground;
+    if (localProgress <= 0) {
+      used = null;
     }
     else {
       if (localProgress <= margin) used = SCAFFOLD_MODEL;
       else used = normal;
     }
     
-    //  Check for redundancy-
-    final CutoutSprite prior = buildSteps[stepIndex];
-    if (prior == null && used == null) return;
-    if (prior != null && prior.model() == used) return;
-    
-    //  And create a new sprite if different-
-    if (used == null) {
-      buildSteps[stepIndex] = null;
-    }
-    else if (used.size == 1) {
-      buildSteps[stepIndex] = used.facingSprite(0, 0, 0);
-    }
-    else {
-      buildSteps[stepIndex] = used.facingSprite(xoff, yoff, zoff - 1);
-    }
+    updateStep(used, xoff, yoff, zoff, stepIndex);
   }
   
   
@@ -254,7 +291,9 @@ public class BuildingSprite extends Sprite {
   ) {
     final Vector3 coords[] = GROUND_COORDS[size];
     final int totalSteps = coords.length * (high + 1);
+    
     final int oldIndex = Nums.round(condition * totalSteps, 1, true);
+    final boolean wasIntact = intact;
     
     this.condition = newCondition;
     this.intact    = normalState ;
@@ -262,7 +301,7 @@ public class BuildingSprite extends Sprite {
     else if (buildSteps == null) buildSteps = new CutoutSprite[totalSteps];
     
     final int newIndex = Nums.round(condition * totalSteps, 1, true);
-    if (oldIndex == newIndex) return;
+    if (oldIndex == newIndex && wasIntact == intact) return;
     
     final CutoutModel ground = FOUNDATION_MODELS[size];
     final CutoutModel normal = basisModel();

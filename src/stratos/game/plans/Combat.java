@@ -192,7 +192,7 @@ public class Combat extends Plan implements Qualities {
     Action strike = null;
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
     final boolean melee     = actor.gear.meleeWeapon();
-    final boolean razes     = struck instanceof Structure.Basis;
+    final boolean razes     = struck instanceof Placeable;
     final float   danger    = 1f - successChanceFor(actor);
     
     if (razes) {
@@ -333,7 +333,7 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  public boolean actionSiege(Actor actor, Structure.Basis target) {
+  public boolean actionSiege(Actor actor, Placeable target) {
     if (target.structure().destroyed()) return false;
     performSiege(actor, target);
     return true;
@@ -414,7 +414,7 @@ public class Combat extends Plan implements Qualities {
   
   
   public static void performSiege(
-    Actor actor, Structure.Basis besieged
+    Actor actor, Placeable besieged
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     

@@ -160,8 +160,8 @@ public class MineShaft extends Fixture implements Boarding {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.presences.togglePresence(this, origin(), true, MineShaft.class);
     
     parent.base().transport.updatePerimeter(this, true);

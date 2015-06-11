@@ -22,7 +22,7 @@ import stratos.game.economic.*;
 //  they can be constructed or repaired, and they have stock inventories.)
 
 
-public interface Property extends Structure.Basis, Owner, Boarding {
+public interface Property extends Placeable, Owner, Boarding {
   
   void addTasks(Choice choice, Actor forActor, Background background);
   float crowdRating(Actor forActor, Background background);

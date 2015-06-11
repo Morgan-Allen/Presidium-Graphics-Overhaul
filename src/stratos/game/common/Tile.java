@@ -186,8 +186,8 @@ public final class Tile implements
     if (! habitat().pathClear) return false;
     return
       above == null ||
-      above.owningTier() < Owner.TIER_PRIVATE ||
-      above.pathType() <= Tile.PATH_CLEAR;
+      above.owningTier() <  Owner.TIER_PRIVATE ||
+      above.pathType  () <= Tile .PATH_CLEAR;
   }
   
   
@@ -197,8 +197,10 @@ public final class Tile implements
   
   
   public int owningTier() {
-    if (reserves == null) return Owner.TIER_TERRAIN;
-    else return reserves.owningTier();
+    return Nums.max(
+      (above    == null ? Owner.TIER_TERRAIN : above   .owningTier()),
+      (reserves == null ? Owner.TIER_TERRAIN : reserves.owningTier())
+    );
   }
   
   
@@ -214,7 +216,7 @@ public final class Tile implements
   
   public void setReserves(Element e) {
     this.reserves = e;
-    world.terrain().setReservedAt(this, reserved(), e != null && e.inWorld());
+    world.terrain().setReservedAt(this, reserved() && above != reserves);
   }
   
   
@@ -224,8 +226,7 @@ public final class Tile implements
   
   
   public void setAbove(Element e, boolean reserves) {
-    if (e == above) return;
-    if (reserves) setReserves(e);
+    if (e == above && (e == this.reserves || ! reserves)) return;
     
     if (e != null && this.above != null) {
       I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);
@@ -240,14 +241,14 @@ public final class Tile implements
       PavingMap.setPaveLevel(this, roadLevel, false);
     }
     
+    setReserves(reserves ? e : this.reserves);
     world.sections.flagBoundsUpdate(x, y);
     refreshAdjacent();
   }
   
   
   public void clearUnlessOwned() {
-    if (owningTier() > Owner.TIER_TERRAIN) return;
-    if (above != null) above.setAsDestroyed();
+    if (above != null && above != reserves) above.setAsDestroyed();
   }
   
   

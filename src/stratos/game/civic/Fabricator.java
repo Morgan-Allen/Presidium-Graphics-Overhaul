@@ -26,7 +26,7 @@ public class Fabricator extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 4, 2
+    Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 4, 1
   );
   
   final static ImageAsset ICON = ImageAsset.fromImage(
@@ -38,7 +38,7 @@ public class Fabricator extends Venue {
     "Fabricator", UIConstants.TYPE_ENGINEER, ICON,
     "Fabricators manufacture "+DECOR+", "+PRESSFEED+" and finery for "+
     "the upper-crust.",
-    4, 2, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     125, 2, 200, Structure.NORMAL_MAX_UPGRADES
   );

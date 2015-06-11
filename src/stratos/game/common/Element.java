@@ -68,7 +68,7 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (inWorld()) I.complain("Already in world...");
     if (! setPosition(x, y, world)) return false;
     
@@ -76,7 +76,7 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
     this.world = world;
     this.inceptTime = world.currentTime();
     
-    if (! isMobile()) {
+    if (intact && ! isMobile()) {
       if (location.above() != null) location.above().setAsDestroyed();
       location.setAbove(this, owningTier() >= Owner.TIER_PRIVATE);
     }
@@ -84,9 +84,8 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
   }
   
   
-  public void enterWorld() {
-    if (location == null) I.complain("Position never set!");
-    enterWorldAt(location.x, location.y, location.world);
+  public boolean enterWorldAt(int x, int y, Stage world) {
+    return enterWorldAt(x, y, world, true);
   }
   
   
@@ -99,6 +98,12 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
     }
     enterWorld();
     return true;
+  }
+  
+  
+  public void enterWorld() {
+    if (location == null) I.complain("Position never set!");
+    enterWorldAt(location.x, location.y, location.world, true);
   }
   
   
@@ -119,7 +124,7 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
       return;
     }
     if (! isMobile()) {
-      location.setAbove(null, owningTier() >= Owner.TIER_PRIVATE);
+      location.setAbove(null, location.reserves() == this);
     }
     this.toggleProperty(PROP_IN_WORLD, false);
   }
@@ -205,6 +210,8 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
   public void onGrowth(Tile t) {}
   
   
+  //  TODO:  Get rid of this, I think?  The 'intact' argument in enterWorld()
+  //         should do the trick.
   public void setAsEstablished(boolean isGrown) {
     if (isGrown) inceptTime = -10;
     else inceptTime = world.currentTime();

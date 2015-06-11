@@ -80,6 +80,9 @@ BUILDINGS AND ECONOMY-
 *  Integrate spyce-sources and use it to boost Psy abilities (such as sovereign
    spells.)
 
+*  If you ever get fully-3D models in place, you can try block-by-block
+   construction/salvage of structures in arbitrary order.  Might not happen for
+   a while, though...
 
 
 THE TUTORIAL
@@ -147,9 +150,6 @@ CONTROL AND DIRECTION-
 
 
 ENEMIES AND ENVIRONMENT-
-
-*  A lot of trees seem to 'die off' immediately when you start a fresh flora-
-   filled map.  Find out why.
 
 *  Get vermin into the game again!
 *  Nocturnal trait.  "They mostly come at night.  Mostly."

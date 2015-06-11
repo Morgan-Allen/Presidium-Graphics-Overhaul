@@ -254,8 +254,8 @@ public class ActorSenses implements Qualities {
       if (action != null && action.careful()) stealth *= 2;
       return Nums.clamp(stealth, 0, 2);
     }
-    if (e instanceof Structure.Basis) {
-      return ((Structure.Basis) e).structure().cloaking() / 10f;
+    if (e instanceof Placeable) {
+      return ((Placeable) e).structure().cloaking() / 10f;
     }
     return 0;
   }

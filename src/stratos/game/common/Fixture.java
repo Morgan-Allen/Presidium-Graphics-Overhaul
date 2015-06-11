@@ -8,10 +8,7 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
-//  TODO:  Merge with Structural?
-
 public class Fixture extends Element {
-  
   
   
   /**  Field definitions, constructors, and save/load methods-
@@ -55,47 +52,9 @@ public class Fixture extends Element {
   }
   
   
-  //  TODO:  This may belong in the venue class.
-  public void clearSurrounds() {
-    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
-    final Stage world = origin().world;
-    for (Tile t : world.tilesIn(around, false)) {
-      if (t != null) t.clearUnlessOwned();
-    }
-    //*/
-    //
-    //  As a final step, we take anything mobile within our footprint area and
-    //  kick it outside:
-    Tile exit = null;
-    if (this instanceof Venue) exit = ((Venue) this).mainEntrance();
-    else {
-      final Tile perim[] = Spacing.perimeter(footprint(), world);
-      for (Tile p : perim) if (p != null && ! p.blocked()) { exit = p; break; }
-    }
-    if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
-    if (exit == null) I.complain("No exit point from "+this);
-    for (Tile t : world.tilesIn(footprint(), false)) {
-      for (Mobile m : t.inside()) {
-        m.setPosition(exit.x, exit.y, world);
-      }
-    }
-  }
-  
-  
-  public Tile[] surrounds() {
-    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
-    final Stage world = origin().world;
-    final Tile result[] = new Tile[(int) (around.xdim() * around.ydim())];
-    int i = 0; for (Tile t : world.tilesIn(around, false)) {
-      result[i++] = t;
-    }
-    return result;
-  }
-  
-  
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    for (Tile t : world.tilesIn(area, false)) {
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
+    if (intact) for (Tile t : world.tilesIn(area, false)) {
       final Element old = t.above();
       if (old != null && old != this) old.setAsDestroyed();
       t.setAbove(this, owningTier() >= Owner.TIER_PRIVATE);
@@ -114,7 +73,7 @@ public class Fixture extends Element {
   
   public void exitWorld() {
     for (Tile t : world().tilesIn(area, false)) {
-      t.setAbove(null, owningTier() >= Owner.TIER_PRIVATE);
+      t.setAbove(null, t.reserves() == this);
     }
     super.exitWorld();
   }
@@ -144,6 +103,17 @@ public class Fixture extends Element {
       o.elevation()
     );
     return v;
+  }
+  
+  
+  public Tile[] surrounds() {
+    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
+    final Stage world = origin().world;
+    final Tile result[] = new Tile[(int) (around.xdim() * around.ydim())];
+    int i = 0; for (Tile t : world.tilesIn(around, false)) {
+      result[i++] = t;
+    }
+    return result;
   }
   
   

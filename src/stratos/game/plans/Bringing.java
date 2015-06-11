@@ -461,7 +461,7 @@ public class Bringing extends Plan {
     if (goodsBulk > 5 && driven == null) {
       final Suspensor suspensor = new Suspensor(actor, this);
       final Tile o = actor.origin();
-      suspensor.enterWorldAt(o.x, o.y, o.world);
+      suspensor.enterWorldAt(o.x, o.y, o.world, true);
       this.suspensor = suspensor;
     }
     //

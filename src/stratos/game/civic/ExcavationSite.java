@@ -90,8 +90,8 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   /**  Presence in the world and boardability-
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     return true;
   }
   

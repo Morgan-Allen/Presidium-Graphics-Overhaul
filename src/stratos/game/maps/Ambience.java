@@ -120,8 +120,8 @@ public class Ambience {
     int value = 0;
     final Element owner = tile.above();
     
-    if (owner instanceof Structure.Basis) {
-      value = ((Structure.Basis) owner).structure().ambienceVal();
+    if (owner instanceof Placeable) {
+      value = ((Placeable) owner).structure().ambienceVal();
     }
     if (owner instanceof Flora) {
       value = ((Flora) owner).growStage();

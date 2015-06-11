@@ -103,8 +103,8 @@ public abstract class Mobile extends Element
   /**  Methods for handling world entry and exits- including any residence
     *  offworld (see the Stage and VerseBase classes.)
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     goAboard(origin(), world);
     world().schedule.scheduleForUpdates(this);
     world().toggleActive(this, true);

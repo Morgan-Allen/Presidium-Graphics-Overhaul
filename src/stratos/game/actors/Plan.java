@@ -459,7 +459,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   
-  /**  Various utility methods for application to generic Behaviours-
+  /**  Various utility methods, such as for application to generic Behaviours-
     */
   public static boolean canFollow(Actor a, Behaviour b, boolean checkPriority) {
     if (b == null || ! b.valid()) return false;
@@ -486,6 +486,34 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  public Target stepFocus() {
+    return nextStep == null ? null : nextStep.subject();
+  }
+  
+  
+  public Target actionFocus() {
+    for (Behaviour step = nextStep; step != null;) {
+      if (step instanceof Action) return step.subject();
+      else step = ((Plan) step).nextStep;
+    }
+    return null;
+  }
+  
+  
+  protected boolean lastStepIs(String methodName) {
+    if (! (lastStep instanceof Action)) return false;
+    return ((Action) lastStep).methodName().equals(methodName);
+  }
+  
+  
+  protected Target lastStepTarget() {
+    if (lastStep == null) return null;
+    if (lastStep instanceof Action) return ((Action) lastStep).subject();
+    if (lastStep instanceof Plan  ) return ((Plan  ) lastStep).lastStepTarget();
+    return null;
+  }
+  
+  
   
   /**  Rendering, interface and debug methods-
     */
@@ -493,12 +521,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     final StringDescription desc = new StringDescription();
     describeBehaviour(desc);
     return desc.toString();
-  }
-  
-  
-  protected boolean lastStepIs(String methodName) {
-    if (! (lastStep instanceof Action)) return false;
-    return ((Action) lastStep).methodName().equals(methodName);
   }
   
   
@@ -515,14 +537,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       lastStep.describeBehaviour(d);
       return false;
     }
-  }
-  
-  
-  protected Target lastStepTarget() {
-    if (lastStep == null) return null;
-    if (lastStep instanceof Action) return ((Action) lastStep).subject();
-    if (lastStep instanceof Plan  ) return ((Plan  ) lastStep).lastStepTarget();
-    return null;
   }
   
   

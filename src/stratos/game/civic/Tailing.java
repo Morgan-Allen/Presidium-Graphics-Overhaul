@@ -120,8 +120,8 @@ public class Tailing extends Element {
   
   /**  Life-cycle, updates and maintenance-
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
     
     for (Tile t : origin().allAdjacent(null)) {

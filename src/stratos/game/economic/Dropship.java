@@ -249,7 +249,7 @@ public class Dropship extends Vehicle implements Owner {
     final Tile entry = Spacing.pickRandomTile(
       world.tileAt(aimPos.x, aimPos.y), INIT_DIST, world
     );
-    enterWorldAt(entry.x, entry.y, world);
+    enterWorldAt(entry.x, entry.y, world, true);
     nextPosition.set(entry.x, entry.y, INIT_HIGH);
     nextRotation = 0;
     setHeading(nextPosition, nextRotation, true, world);
@@ -259,8 +259,8 @@ public class Dropship extends Vehicle implements Owner {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     if (landed()) completeDescent();
     return true;
   }

@@ -314,9 +314,9 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   /**  And finally, reservations-
     */
-  public void setReservedAt(Tile t, boolean reserved, boolean inWorld) {
+  public void setReservedAt(Tile t, boolean reserved) {
     final boolean oldRes = this.reserved[t.x][t.y] > 0;
-    this.reserved[t.x][t.y] = (byte) ((reserved && ! inWorld) ? 1 : 0);
+    this.reserved[t.x][t.y] = (byte) (reserved ? 1 : 0);
     
     if (reserved != oldRes) for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y, reservations);

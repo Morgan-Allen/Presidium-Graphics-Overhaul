@@ -70,7 +70,7 @@ public class Wreckage extends Fixture {
         heap.setPosition(t.x, t.y, world);
         if (! heap.footprint().containedBy(area)) continue;
         if (! heap.canPlace()) continue;
-        heap.enterWorldAt(t.x, t.y, world);
+        heap.enterWorldAt(t.x, t.y, world, true);
         break;
       }
     }

@@ -7,6 +7,11 @@ import stratos.util.*;
 
 
 
+//  TODO:  SEE IF YOU CAN MAKE THIS INDEPENDENT OF THE WORLD.  Could be useful
+//  for other fade-FX, rather than insisting the rendering elements handle it.
+
+
+
 /**  This class is used to add transitory or conditional special effects to the
   *  world.
   */

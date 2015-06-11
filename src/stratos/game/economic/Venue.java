@@ -7,6 +7,7 @@ package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.RoadsRepair;
 import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -146,7 +147,7 @@ public abstract class Venue extends Fixture implements
   
   
   
-  /**  Structure.Basis and positioning-
+  /**  Setup and positioning-
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (position == null) return false;
@@ -212,22 +213,6 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public void doPlacement() {
-    clearSurrounds();
-    enterWorld();
-    
-    if (structure.currentState() == Structure.STATE_INSTALL) {
-      if (GameSettings.buildFree) structure.setState(Structure.STATE_INTACT, 1);
-      else structure.setState(Structure.STATE_INSTALL, 0);
-    }
-    
-    if (sprite() != null) {
-      sprite().colour = null;
-      sprite().passType = Sprite.PASS_NORMAL;
-    }
-  }
-  
-  
   public void previewPlacement(boolean canPlace, Rendering rendering) {
     final Sprite sprite = this.buildSprite;
     if (sprite == null) return;
@@ -243,6 +228,8 @@ public abstract class Venue extends Fixture implements
     return canPlace(Account.NONE);
   }
   
+  
+  //  TODO:  Add these methods to a dedicated Siting class, I think...
   
   protected boolean entranceOkay() {
     if (blueprint.isFixture()) return true;
@@ -283,20 +270,45 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  
+  /**  Actual placement and life-cycle:
+    */
+  public void doPlacement() {
+    
+    final boolean intact =
+      structure.currentState() == Structure.STATE_INTACT ||
+      GameSettings.buildFree;
+    
+    if (intact) {
+      enterWorld();
+      structure.setState(Structure.STATE_INTACT, 1);
+      onCompletion();
+    }
+    else {
+      structure.setState(Structure.STATE_INSTALL, 0);
+      final Tile at = origin();
+      enterWorldAt(at.x, at.y, at.world, false);
+      for (Tile t : world.tilesIn(footprint(), false)) {
+        t.setReserves(this);
+      }
+    }
+    
+    if (sprite() != null) {
+      sprite().colour = null;
+      sprite().passType = Sprite.PASS_NORMAL;
+    }
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.schedule.scheduleForUpdates(this);
     
     if (base == null) I.complain("VENUES MUST HAVE A BASE ASSIGNED! "+this);
     
-    //  TODO:  Extend the above to non-venue fixtures as well (instead of the
-    //  procedure below.)
-    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
-      t.clearUnlessOwned();
-    }
-    
     world.presences.togglePresence(this, true);
     world.claims.assertNewClaim(this, areaClaimed());
+    
     stocks.onWorldEntry();
     staff.onCommission();
     impingeSupply(true);
@@ -318,6 +330,34 @@ public abstract class Venue extends Fixture implements
   
   
   public void onCompletion() {
+    //
+    //  TODO:  THIS IS USED BY THE DROPSHIP CLASS AS WELL- FACTOR THAT OUT!
+    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
+    final Stage world = origin().world;
+    
+    //
+    //  As a final step, we take anything mobile within our footprint area and
+    //  kick it outside:
+    Tile exit = mainEntrance();
+    if (exit == null) {
+      final Tile perim[] = Spacing.perimeter(footprint(), world);
+      for (Tile p : perim) if (p != null && ! p.blocked()) { exit = p; break; }
+    }
+    if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
+    if (exit == null) I.complain("No exit point from "+this);
+    
+    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
+      t.clearUnlessOwned();
+      RoadsRepair.updatePavingAround(t, base);
+    }
+    for (Tile t : world.tilesIn(around, false)) {
+      if (t != null) t.clearUnlessOwned();
+    }
+    for (Tile t : world.tilesIn(footprint(), false)) {
+      for (Mobile m : t.inside()) m.setPosition(exit.x, exit.y, world);
+    }
+    
+    //
     //  TODO:  RESTORE THIS!
     //world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f);
     setAsEstablished(false);
@@ -668,16 +708,30 @@ public abstract class Venue extends Fixture implements
   }
   
   
+  public BuildingSprite buildSprite() {
+    return buildSprite;
+  }
+  
+  
   public void renderFor(Rendering rendering, Base base) {
-    
+    //
+    //  (Note- see flagSpriteForChange in the Repairs class.)
     position(buildSprite.position);
     buildSprite.updateCondition(
       structure.repairLevel(),
-      structure.intact(),
-      structure.burning()
+      structure.intact     (),
+      structure.burning    ()
     );
-    buildSprite.passType = Sprite.PASS_NORMAL;
+    if (buildSprite.flagChange) {
+      final Tile o = origin();
+      final boolean map[][] = new boolean[size][size];
+      for (Tile t : world.tilesIn(footprint(), false)) {
+        map[t.x - o.x][t.y - o.y] = t.above() == this;
+      }
+      buildSprite.toggleFoundation(map);
+    }
     
+    buildSprite.passType = Sprite.PASS_NORMAL;
     super.renderFor(rendering, base);
     
     renderHealthbars(rendering, base);

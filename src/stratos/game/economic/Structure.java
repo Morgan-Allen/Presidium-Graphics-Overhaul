@@ -11,50 +11,14 @@ import stratos.util.*;
 import stratos.user.*;
 import stratos.graphics.common.*;
 import stratos.game.civic.ShieldWall;
-//import static stratos.game.economic.Venue.*;
-
-
-
-//  TODO:  Many of the sub-components here could probably be moved out to the
-//  Blueprint class.
-
-//  TODO:  MERGE THESE WITH VENUE-PROPERTIES INSTEAD!
-/*
-final public static int
-  TYPE_VENUE   = 0,
-  TYPE_FIXTURE = 1,
-  TYPE_VEHICLE = 2,
-  TYPE_CRAFTED = 3,
-  TYPE_ANCIENT = 4,
-  TYPE_ORGANIC = 5;
-//*/
 
 
 
 public class Structure {
   
   
-  /**  Defines an external interface so that, e.g, vehicles and buildings can
-    *  both possess a structure:
-    */
-  public static interface Basis extends
-    Session.Saveable, Target, Selectable, Accountable
-  {
-    Box2D footprint();
-    Structure structure();
-    Index <Upgrade> allUpgrades();
-    
-    void onCompletion();
-    void onDestruction();
-    boolean canPlace();
-    void doPlacement();
-  }
-  
-  
   /**  A couple of utility-uprades that might be used by any structure:
     */
-  final static Index <Upgrade> UTIL_UPGRADES = new Index <Upgrade> ();
-  
   final public static Upgrade 
     FACING_CHANGE = new Upgrade(
       "Facing Change", "",
@@ -66,10 +30,10 @@ public class Structure {
     */
   final public static int
     DEFAULT_INTEGRITY  = 100,
-    DEFAULT_ARMOUR     = 1,
-    DEFAULT_CLOAKING   = 0,
-    DEFAULT_BUILD_COST = 50,
-    DEFAULT_AMBIENCE   = 0;
+    DEFAULT_ARMOUR     = 1  ,
+    DEFAULT_CLOAKING   = 0  ,
+    DEFAULT_BUILD_COST = 50 ,
+    DEFAULT_AMBIENCE   = 0  ;
   final public static float
     BURN_PER_SECOND = 1.0f,
     REGEN_PER_DAY   = 0.2f;
@@ -126,8 +90,8 @@ public class Structure {
   private static boolean verbose = false;
   
   
-  final Basis basis;
-  private Basis group[];
+  final Placeable basis;
+  private Placeable group[];
   
   private int properties    = IS_NORMAL        ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
@@ -151,13 +115,13 @@ public class Structure {
   
   
   
-  Structure(Basis basis) {
+  Structure(Placeable basis) {
     this.basis = basis;
   }
   
   
   public void loadState(Session s) throws Exception {
-    group = (Basis[]) s.loadObjectArray(Basis.class);
+    group = (Placeable[]) s.loadObjectArray(Placeable.class);
     
     baseIntegrity = s.loadInt();
     maxUpgrades   = s.loadInt();
@@ -243,7 +207,7 @@ public class Structure {
   }
   
   
-  public void assignGroup(Basis... group) {
+  public void assignGroup(Placeable... group) {
     this.group = group;
   }
   
@@ -364,8 +328,8 @@ public class Structure {
   }
   
   
-  public Basis[] asGroup() {
-    if (group == null || group.length == 0) return new Basis[] {basis};
+  public Placeable[] asGroup() {
+    if (group == null || group.length == 0) return new Placeable[] {basis};
     return group;
   }
   
@@ -379,7 +343,7 @@ public class Structure {
       ((Element) basis).setAsDestroyed();
     }
     else setState(Structure.STATE_SALVAGE, -1);
-    if (group != null) for (Basis i : group) {
+    if (group != null) for (Placeable i : group) {
       i.structure().beginSalvage();
     }
   }
@@ -388,9 +352,16 @@ public class Structure {
   public void cancelSalvage() {
     if (state == STATE_INTACT) return;
     setState(Structure.STATE_INTACT, -1);
-    if (group != null) for (Basis i : group) {
+    if (group != null) for (Placeable i : group) {
       i.structure().cancelSalvage();
     }
+  }
+  
+  
+  public void completeSalvage() {
+    ((Element) basis).setAsDestroyed();
+    integrity = 0;
+    checkMaintenance();
   }
   
   
@@ -424,7 +395,13 @@ public class Structure {
     
     if (verbose && I.talkAbout == basis) I.say("Burn chance: "+burnChance);
     if (Rand.num() < burnChance) burning = true;
-    if (integrity <= 0) basis.onDestruction();
+    
+    if (integrity <= 0) {
+      if (I.logEvents()) I.say("\n"+basis+" WAS DESTROYED, DAMAGE: "+damage);
+      state = STATE_RAZED;
+      completeSalvage();
+      basis.onDestruction();
+    }
   }
   
   
@@ -436,15 +413,9 @@ public class Structure {
   
   protected void adjustRepair(float inc) {
     final int max = maxIntegrity();
-    integrity += inc;
-    if (integrity < 0) {
-      if (I.logEvents()) I.say("\n"+basis+" WAS DESTROYED, DAMAGE: "+inc);
-      state = STATE_RAZED;
-      ((Element) basis).setAsDestroyed();
-      integrity = 0;
-      checkMaintenance();
-    }
-    else if (integrity >= max) {
+    integrity = Nums.clamp(integrity + inc, 0, max);
+    
+    if (integrity >= max) {
       if (state == STATE_INSTALL) basis.onCompletion();
       if (state != STATE_SALVAGE) state = STATE_INTACT;
       integrity = max;

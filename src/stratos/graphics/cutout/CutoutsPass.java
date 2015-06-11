@@ -178,9 +178,14 @@ public class CutoutsPass {
   private void compileSprite(
     CutoutSprite s, Camera camera, boolean lightPass, Texture keyTex
   ) {
-    //final Texture keyTex = lightPass ? s.model.lightSkin : s.model.texture;
     if (keyTex == null) return;
-    if (keyTex != lastTex || lightPass != wasLit || total >= COMPILE_LIMIT) {
+    final float spriteVerts[] = s.model.allFaces[s.faceIndex];
+    final int sizeS = SIZE * (spriteVerts.length / SIZE);
+    if (
+      keyTex    != lastTex ||
+      lightPass != wasLit  ||
+      (total + sizeS) >= COMPILE_LIMIT
+    ) {
       compileAndRender(camera);
     }
 
@@ -190,9 +195,6 @@ public class CutoutsPass {
     else if (  s.colour.glows()) colourBits = s.colour.floatBits;
     else if (! s.colour.blank()) colourBits = s.colour.floatBits;
     else colourBits = Colour.combineAlphaBits(fog, s.colour);
-
-    final float spriteVerts[] = s.model.allFaces[s.faceIndex];
-    final int sizeS = SIZE * (spriteVerts.length / SIZE);
     
     for (int off = 0; off < sizeS; off += VERTEX_SIZE) {
       final int offset = total + off;

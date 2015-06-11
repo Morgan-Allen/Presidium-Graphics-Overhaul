@@ -243,8 +243,8 @@ public class ShieldWall extends Venue {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     refreshAdjacent();
     return true;
   }

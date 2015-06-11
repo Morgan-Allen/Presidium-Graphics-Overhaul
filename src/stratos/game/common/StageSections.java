@@ -148,10 +148,9 @@ public class StageSections implements TileConstants {
         for (Tile t : world.tilesIn(s.area, false)) {
           s.bounds.include(t.x, t.y, t.elevation(), 1);
         }
-        for (Element e : world.fixturesFrom(s.area)) {
+        for (Element e : fixturesFrom(s.area)) {
           s.bounds.include(boundsFrom(e, tempBounds));
         }
-        //I.say("Area "+s.area+"\nBounds: "+s.bounds+"\n___DEPTH: "+s.depth);
         return true;
       }
       //
@@ -161,8 +160,6 @@ public class StageSections implements TileConstants {
         if (s.depth == 0) return;
         s.bounds.setTo(s.kids[0].bounds);
         for (StageRegion k : s.kids) s.bounds.include(k.bounds);
-        //I.say("UPDATED BOUNDS: "+s.bounds);
-        //I.say("Area "+s.area+"\nBounds: "+s.bounds+"\n___DEPTH: "+s.depth);
       }
     };
     this.applyDescent(update);
@@ -176,6 +173,20 @@ public class StageSections implements TileConstants {
       e.xdim() + 1, e.ydim() + 1, e.zdim()
     );
   }
+
+  
+  protected Batch <Element> fixturesFrom(Box2D area) {
+    final Batch <Element> from = new Batch <Element> ();
+    for (Tile t : world.tilesIn(area, true)) {
+      final Element o = t.above();
+      if (o == null || o.flaggedWith() != null) continue;
+      o.flagWith(from);
+      from.add(o);
+    }
+    for (Element e : from) e.flagWith(null);
+    return from;
+  }
+  
   
   
   /**  Flags the sections hierarchy for updates, propagated up from the given
@@ -213,7 +224,7 @@ public class StageSections implements TileConstants {
         if (s.depth > 0) return;
         visibleSections.add(s);
         if (visibleFixtures != null) {
-          for (Element e : world.fixturesFrom(s.area)) {
+          for (Element e : fixturesFrom(s.area)) {
             if (e.sprite() == null) continue;
             final Box3D b = boundsFrom(e, tempBounds);
             if (! view.intersects(b.centre(), b.diagonal() / 2)) continue;

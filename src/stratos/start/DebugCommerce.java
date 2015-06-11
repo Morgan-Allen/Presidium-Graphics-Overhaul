@@ -125,7 +125,7 @@ public class DebugCommerce extends Scenario {
     PlaceUtils.establishVenue(looted, 5, 10, true, world, vendor);
     
     final SupplyCache cache = new SupplyCache();
-    cache.enterWorldAt(15, 15, world);
+    cache.enterWorldAt(15, 15, world, true);
     cache.inventory().bumpItem(Economy.DECOR, 10);
     
     runnerMarket.stocks.bumpItem(Economy.DECOR, 20);

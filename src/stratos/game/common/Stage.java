@@ -195,18 +195,7 @@ public class Stage {
   }
   
   
-  public Batch <Element> fixturesFrom(Box2D area) {
-    final Batch <Element> from = new Batch <Element> ();
-    for (Tile t : tilesIn(area, true)) {
-      final Element o = t.above();
-      if (o != null && o.origin() == t) from.add(o);
-    }
-    return from;
-  }
-  
-  
   //  TODO:  Are these still needed?  Consider cutting out.
-
   public float surfaceAt(float x, float y, boolean floor) {
     //
     //  Sample the height of the 4 nearby tiles, and interpolate between them.
@@ -323,6 +312,7 @@ public class Stage {
   
   /**  Rendering and interface methods-
     */
+  //  TODO:  Move this out to wherever the Ephemera class ends up.
   public static interface Visible {
     void renderFor(Rendering r, Base b);
     Sprite sprite();
