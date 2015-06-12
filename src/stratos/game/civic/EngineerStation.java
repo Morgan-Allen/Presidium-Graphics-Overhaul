@@ -196,23 +196,8 @@ public class EngineerStation extends Venue {
     //
     //  Consider special commissions for weapons and armour-
     for (Item ordered : stocks.specialOrders()) {
-      final Traded made = ordered.type;
       final Manufacture mO = new Manufacture(actor, this, ordered);
-      Upgrade forType = MICRO_ASSEMBLY;
-      
-      if (made == Outfits.OVERALLS) {
-        mO.setBonusFrom(this, false, MOLDING_PRESS);
-      }
-      else if (made instanceof DeviceType) {
-        final DeviceType DT = (DeviceType) made;
-        if (DT.hasProperty(Devices.KINETIC)) forType = COMPOSITE_MATERIALS;
-        if (DT.hasProperty(Devices.ENERGY )) forType = PLASMA_WEAPONS;
-      }
-      else if (made instanceof OutfitType) {
-        //final OutfitType OT = (OutfitType) made;
-        //  TODO:  Add a bonus here from T-Null Arm-band.
-        forType = COMPOSITE_MATERIALS;
-      }
+      final Upgrade forType = upgradeFor(ordered.type);
       choice.add(mO.setBonusFrom(this, true, forType));
     }
     if (actor.mind.vocation() == ARTIFICER && ! choice.empty()) {
@@ -239,18 +224,34 @@ public class EngineerStation extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    //  TODO:  Disallow commisions for certain gear if you don't have the
-    //         right upgrades.
     final DeviceType DT = client.gear.deviceType();
     final OutfitType OT = client.gear.outfitType();
     
     if (DT != null && DT.materials().producesAt(this)) {
-      Commission.addCommissions(client, this, choice, DT);
+      final Upgrade forType = upgradeFor(DT);
+      Commission.addCommissions(client, this, choice, DT, forType);
     }
     if (OT != null && OT.materials().producesAt(this)) {
-      Commission.addCommissions(client, this, choice, OT);
+      final Upgrade forType = upgradeFor(OT);
+      Commission.addCommissions(client, this, choice, OT, forType);
     }
     choice.add(BringUtils.nextHomePurchase(client, this));
+  }
+  
+  
+  private Upgrade upgradeFor(Traded made) {
+    if (made == Outfits.OVERALLS) {
+      return MOLDING_PRESS;
+    }
+    else if (made instanceof DeviceType) {
+      final DeviceType DT = (DeviceType) made;
+      if (DT.hasProperty(Devices.KINETIC)) return COMPOSITE_MATERIALS;
+      if (DT.hasProperty(Devices.ENERGY )) return PLASMA_WEAPONS     ;
+    }
+    else if (made instanceof OutfitType) {
+      return COMPOSITE_MATERIALS;
+    }
+    return MICRO_ASSEMBLY;
   }
   
 

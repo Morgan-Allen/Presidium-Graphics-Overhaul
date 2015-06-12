@@ -29,10 +29,15 @@ public class OutfitType extends Traded {
   ) {
     super(baseClass, FORM_OUTFIT, name, basePrice, null);
     
-    this.defence = defence;
+    this.defence     = defence    ;
     this.shieldBonus = shieldBonus;
-    this.materials = new Conversion(
-      facility, name+"_manufacture", Visit.compose(
+    
+    if (Visit.empty(conversionArgs)) {
+      this.materials = NATURAL_MATERIALS;
+    }
+    else this.materials = new Conversion(
+      facility, name+"_manufacture",
+      Visit.compose(
         Object.class, conversionArgs, new Object[] { TO, 1, this }
       )
     );

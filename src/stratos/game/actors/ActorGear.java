@@ -3,15 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
 import static stratos.game.economic.Devices.*;
 
 
@@ -102,13 +99,14 @@ public class ActorGear extends Inventory {
     */
   public void updateGear(int numUpdates) {
     if (Float.isNaN(credits)) credits = 0;
-    if (Float.isNaN(taxed)) taxed = 0;
+    if (Float.isNaN(taxed  )) taxed   = 0;
     
     final boolean report = verbose && I.talkAbout == actor;
     if (report) I.say("\nUpdating gear");
     
     if (outfit != null) regenerateShields();
     else currentShields = 0;
+    Item.checkForBreakdown(actor, outfit, 1, 1);
     
     for (Item item : allItems()) {
       if (item.refers instanceof Item.Passive) {
@@ -134,8 +132,23 @@ public class ActorGear extends Inventory {
   
   
   public boolean removeItem(Item item) {
+    
+    if (item.matchKind(outfit) && item.amount > 0) {
+      outfit = Item.withAmount(outfit, outfit.amount - item.amount);
+      if (outfit.amount <= 0) equipOutfit(null);
+      return true;
+    }
+    
+    if (item.matchKind(device) && item.amount > 0) {
+      device = Item.withAmount(outfit, device.amount - item.amount);
+      if (device.amount <= 0) equipDevice(null);
+      return true;
+    }
+    
     final boolean OK = super.removeItem(item);
-    if (OK) encumbrance = -1;
+    if (OK) {
+      encumbrance = -1;
+    }
     return OK;
   }
   

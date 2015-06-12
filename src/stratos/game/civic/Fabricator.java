@@ -163,13 +163,10 @@ public class Fabricator extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    //  TODO:  Disallow commissions for certain outfits if you don't have the
-    //  needed upgrades.
     final OutfitType OT = client.gear.outfitType();
     if (OT != null && OT.materials().producesAt(this)) {
-      Commission.addCommissions(client, this, choice, OT);
+      Commission.addCommissions(client, this, choice, OT, POLYMER_LOOM);
     }
-    //choice.add(BringUtils.nextHomePurchase(client, this));
   }
   
   

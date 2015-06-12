@@ -24,6 +24,9 @@ public class Traded extends Constant implements Session.Saveable {
     ITEM_PATH = "media/Items/",
     DEFAULT_PIC_PATH = ITEM_PATH+"crate.gif";
   
+  final static Conversion
+    NATURAL_MATERIALS = new Conversion((Class) null, "natural_materials");
+  
   final public static Index <Traded> INDEX = new Index <Traded> ();
   
   final public int form;
@@ -121,6 +124,11 @@ public class Traded extends Constant implements Session.Saveable {
   
   public boolean common() {
     return form == FORM_MATERIAL || form == FORM_PROVISION;
+  }
+  
+  
+  public boolean natural() {
+    return materials == NATURAL_MATERIALS;
   }
   
   
