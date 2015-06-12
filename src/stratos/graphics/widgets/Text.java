@@ -431,7 +431,8 @@ public class Text extends UIGroup implements Description {
     for (Box2D box : allEntries) {
       newLine = newWord = false;
       box.set(0, 0, 0, 0);
-      
+      //
+      //  UI elements can be used as bullets.
       if (box instanceof UIEntry) {
         final UIEntry entry = (UIEntry) box;
         entry.xdim(entry.wide);
@@ -443,7 +444,8 @@ public class Text extends UIGroup implements Description {
         }
         if (report) I.say("  UI entry: "+entry.graphic+", across: "+across);
       }
-      
+      //
+      //  Text elements receive subsequent formatting-
       else if (box instanceof TextEntry) {
         final TextEntry entry = (TextEntry) box;
         final char key = entry.key;
@@ -459,7 +461,10 @@ public class Text extends UIGroup implements Description {
       
       lastWord.add(box);
       across += box.xdim();
-      if ((maxWidth > 0) && (across > maxWidth)) newLine = true;
+      
+      float maxAcross = maxWidth;
+      if (bullet != null) maxAcross -= bullet.xdim();
+      if ((maxWidth > 0) && (across > maxAcross)) newLine = true;
       
       if (newWord) {
         Visit.appendTo(lastLine, lastWord);

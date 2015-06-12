@@ -4,9 +4,16 @@ TO DO NOW-
 
 *  COMMISSIONS MUST BE LIMITED BY MAX-QUALITY AT THE VENUE
 
-*  Text can sometimes be clipped by the scrollbar-widget: fix that!
-
 *  Get rid of the forced-zoom during the tutorial topics.
+
+*  The perimeter-check must be replaced with something more accomodating (and
+   reliable.)
+
+*  Try to migrate ephemera/stage.visible (list lower down!)
+
+
+*  It's possible for the 'watch and learn' topic to be presented early during
+   the tutorial.  Try to fix that.
 
 *  Treatment-priority in non-emergencies seems to be a little high for non-
    medical staff.  Look into it.
