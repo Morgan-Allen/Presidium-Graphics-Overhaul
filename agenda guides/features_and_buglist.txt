@@ -4,21 +4,17 @@ TO DO NOW-
 
 *  COMMISSIONS MUST BE LIMITED BY MAX-QUALITY AT THE VENUE
 
-*  Get rid of the forced-zoom during the tutorial topics.
+*  Treatment-priority in non-emergencies seems to be a little high for non-
+   medical staff.  Look into it.
+
 
 *  The perimeter-check must be replaced with something more accomodating (and
    reliable.)
 
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
-
-*  It's possible for the 'watch and learn' topic to be presented early during
-   the tutorial.  Try to fix that.
-
-*  Treatment-priority in non-emergencies seems to be a little high for non-
-   medical staff.  Look into it.
-
 *  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.
+
 
 *  For some reason, the current OSX build does not run after download from
    github.  (Replacing stratos.app with the local build's version works fine.)

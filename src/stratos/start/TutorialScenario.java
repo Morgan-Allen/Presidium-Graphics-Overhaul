@@ -48,6 +48,8 @@ public class TutorialScenario extends StartupScenario {
   private Venue           ruinsTarget  = null;
   private Batch <Drone>   dronesAttack = new Batch();
   
+  private Table <String, Target> allTargets = new Table();
+  
   
   public TutorialScenario(String prefix) {
     super(config(), prefix);
@@ -244,7 +246,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected void whenBastionTopicOpen() {
     base().intelMap.liftFogAround(bastion, 12);
-    UI().tracking.lockOn(bastion);
+    followIfNew(bastion, "bastion_seen");
   }
   
   
@@ -267,15 +269,13 @@ public class TutorialScenario extends StartupScenario {
     barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
     base().setup.fillVacancies(barracksBuilt, true);
     base().setup.fillVacancies(bastion      , true);
-    UI().tracking.lockOn(barracksBuilt);
+    followIfNew(barracksBuilt, "barracks_built");
   }
   
   
   protected void whenExploreRequestOpen() {
     if (ruinsNear == null) return;
-    if (UI().tracking.distanceFrom(ruinsNear) > 8) {
-      UI().tracking.lockOn(ruinsNear);
-    }
+    followIfNew(ruinsNear, "explore_ruins");
     ScreenPing.addPingFor(UIConstants.RECON_BUTTON_ID);
   }
   
@@ -304,9 +304,7 @@ public class TutorialScenario extends StartupScenario {
   /**  First round of economic topics-
     */
   protected void whenPlaceFacilitiesRequestOpen() {
-    if (UI().tracking.distanceFrom(bastion) > 12) {
-      UI().tracking.lockOn(bastion);
-    }
+    followIfNew(bastion, "placing_facilities");
     if (foundryBuilt == null) addPingsLeadingTo(EngineerStation.BLUEPRINT);
     if (marketBuilt  == null) addPingsLeadingTo(StockExchange  .BLUEPRINT);
   }
@@ -386,7 +384,7 @@ public class TutorialScenario extends StartupScenario {
     */
   protected void whenNearRuinsTopicOpen() {
     base().intelMap.liftFogAround(ruinsNear, 12);
-    UI().tracking.lockOn(ruinsNear);
+    followIfNew(ruinsNear, "ruins_strike");
     ScreenPing.addPingFor(UIConstants.STRIKE_BUTTON_ID);
   }
   
@@ -408,7 +406,7 @@ public class TutorialScenario extends StartupScenario {
       Actor drone = Drone.SPECIES.sampleFor(ruinsNear.base());
       drone.enterWorldAt(ruinsNear, world());
       drone.mind.setHome(ruinsNear);
-      if (n == 0) UI().tracking.lockOn(drone);
+      if (n == 0) followIfNew(drone, "ruins_under_attack");
     }
   }
   
@@ -509,6 +507,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkHousingPlaced() {
+    if (! checkExtraIndustryPlaced()) return false;
     return hasInstalled(2, Holding.BLUEPRINT, false);
   }
   
@@ -519,6 +518,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkSupplyDepotPlaced() {
+    if (! checkExtraIndustryPlaced()) return false;
     return hasInstalled(1, SupplyDepot.BLUEPRINT, false);
   }
   
@@ -602,11 +602,12 @@ public class TutorialScenario extends StartupScenario {
         dronesAttack.add(attacks);
       }
       
-      UI().tracking.lockOn(dronesAttack.first());
+      followIfNew(dronesAttack.first(), "base_being_attacked");
     }
     
     base().intelMap.liftFogAround(dronesAttack.first(), 9);
   }
+  
   
   protected boolean checkDroneAssaultDestroyed() {
     if (dronesAttack.size() == 0) return false;
@@ -616,15 +617,18 @@ public class TutorialScenario extends StartupScenario {
     return true;
   }
   
+  
   protected boolean checkFarRuinsFound() {
     if (ruinsFar == null) return false;
     return ruinsFar.visibleTo(base());
-    //return base().intelMap.fogAt(ruinsFar) > 0;
   }
   
+  
   protected void onFarRuinsFound() {
-    UI().tracking.lockOn(ruinsFar);
+    if (ruinsFar == null) return;
+    followIfNew(ruinsFar, "far_ruins_found");
   }
+  
   
   protected boolean checkFarRuinsDestroyed() {
     if (ruinsFar == null) return true;
@@ -632,6 +636,7 @@ public class TutorialScenario extends StartupScenario {
     for (Actor a : ruinsFar.staff.lodgers()) if (! a.destroyed()) return false;
     return true;
   }
+  
   
   protected void onFarRuinsDestroyed() {
   }
@@ -672,6 +677,13 @@ public class TutorialScenario extends StartupScenario {
     else if (! PlacingTask.isBeingPlaced(blueprint)) {
       ScreenPing.addPingFor(blueprint.keyID);
     }
+  }
+  
+  
+  private void followIfNew(Target t, String key) {
+    if (allTargets.get(key) != null) return;
+    allTargets.put(key, t);
+    UI().tracking.lockOn(t);
   }
   
   
