@@ -143,7 +143,7 @@ public class Treatment extends Plan implements Item.Passive {
       if (report) I.say("  Patient is up and about!");
       return 0;
     }
-    if (hasTreatment(sickness, patient, ! hasBegun())) {
+    if (hasTreatment(sickness, patient, hasBegun())) {
       if (report) I.say("  Patient already treated.");
       return 0;
     }

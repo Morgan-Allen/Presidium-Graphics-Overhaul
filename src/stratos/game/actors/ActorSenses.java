@@ -189,7 +189,7 @@ public class ActorSenses implements Qualities {
     senseChance += focusBonus(actor, e   , sightRange * 2);
     
     float hideChance = distance * (1 + stealthFactor(e, actor));
-    if (indoors(e)) hideChance += sightRange;
+    if (SenseUtils.indoorsTo(actor, e, false)) hideChance += sightRange;
     hideChance += hideBonus;
     final boolean noticed = senseChance > hideChance;
     
@@ -220,14 +220,6 @@ public class ActorSenses implements Qualities {
       return (Session.Saveable) seen;
     }
     return null;
-  }
-  
-  
-  public boolean indoors(Target e) {
-    if (! (e instanceof Mobile)) return false;
-    final Mobile m = (Mobile) e;
-    if ((! m.indoors()) || m.aboard() == actor.aboard()) return false;
-    return true;
   }
   
   

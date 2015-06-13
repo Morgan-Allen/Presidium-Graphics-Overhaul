@@ -18,7 +18,7 @@ public class SickLeave extends Plan {
   
   
   private static boolean
-    evalVerbose   = true ,
+    evalVerbose   = false,
     eventsVerbose = false;
   
   final Venue sickbay;

@@ -323,14 +323,6 @@ public class PlanUtils {
     incentive *= (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2;
     incentive += plan.motiveBonus();
     
-    if (plan.isJob() && work != null) {
-      shift = work.staff().shiftFor(actor);
-      dutyBonus = (1 + actor.traits.relativeLevel(DUTIFUL)) * 1.25f;
-      incentive += dutyBonus;
-      
-      if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
-      if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
-    }
     if (helpLimit >= 0) {
       help = competition(plan, plan.subject, actor);
       if (help > helpLimit && ! plan.hasBegun()) return -1;
@@ -339,14 +331,22 @@ public class PlanUtils {
       helpBonus = Nums.min(priority * 0.5f, help * 2.5f / helpLimit);
       incentive += helpBonus;
     }
-    
     if (incentive <= 0 && urgency <= 0) {
       if (reportOn(actor, 0)) I.say("\nNo incentive for "+plan);
       return -1;
     }
-    priority = incentive * competence;
-    priority -= failPenalty = (1 - competence) * 10 * riskLevel;
     
+    priority = incentive * competence;
+
+    if (plan.isJob() && work != null) {
+      shift = work.staff().shiftFor(actor);
+      dutyBonus = actor.traits.relativeLevel(DUTIFUL) * 1.25f;
+      if (shift == Venue.OFF_DUTY     ) dutyBonus -= 2.5f;
+      if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 2.5f;
+      priority += dutyBonus;
+    }
+    
+    priority -= failPenalty = (1 - competence) * 10 * riskLevel;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nJob priority for "+actor, "  ",

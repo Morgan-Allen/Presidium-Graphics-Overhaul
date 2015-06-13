@@ -7,16 +7,12 @@ TO DO NOW-
 
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
-
 *  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.
 
 *  For some reason, the current OSX build does not run after download from
    github.  (Replacing stratos.app with the local build's version works fine.)
    In addition, windows-saves do not seem to load.  I probably mixed up the
    build-version at some point- double-check in future.
-
-*  If a dying/injured citizen is trapped inside a shield wall, other citizens
-   can't find an access point to apply bandages.
 
 
 
@@ -183,6 +179,7 @@ ENEMIES AND ENVIRONMENT-
 
 INTERFACE AND DEBUGGING
 
+
 *  Notifications for casualties and base attacks.
 
 *  List total earnings for specific buildings.  Breakdown expenses more finely.
@@ -193,11 +190,17 @@ INTERFACE AND DEBUGGING
 *  You might need extra tips for no-archives, walls, low funding, homelessness
    and other situations.  Add those in later.
 
+
+*  All the methods for venue-placement and siting within PlaceUtils and the
+   PlacingTask class need to be reviewed and possibly merged into a single set
+   of methods.  Siting should be used for Dropships' land-areas as well.
+
 *  Merge BaseCommerce with either the Verse class and/or the BaseAdvice class.
 
 *  Re-introduce the Planets/Sectors pane, and build the markets-report into
    that for each world.  Then finance can stay on it's own.  (Add little
    portraits for each world in the partners-listing too.  Use current art!)
+
 
 *  Try to implement some global debugging-levels.
 
@@ -224,6 +227,12 @@ ART, GRAPHICS AND MEDIA PRODUCTION
 
 *  A number of structures need bigger footprints, which will require some art
    changes.  Look into that.
+
+*  You might consider some kind of alternate-rendering arrangement for indoor
+   or occluded actors- like a semi-transparent overlay if selected.  (Also,
+   shield walls/perimeter fence need to have some kind of alternative graphics
+   arrangement- consider making them into Mounts, and providing fresh art to
+   show windows with sentries inside.)
 
 *  Finalise perimeter fence artwork.
 

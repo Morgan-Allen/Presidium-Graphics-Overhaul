@@ -19,30 +19,67 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   /**  Fields, constructors, and save/load methods-
     */
+  private static boolean
+    stepsVerbose    = false,
+    priorityVerbose = false,
+    extraVerbose    = false,
+    beginsVerbose   = false;
+  
+  private static Class
+    verboseClass = null;
+  
+  
   final public static int
-    MOTIVE_NONE      = 0 ,
+    NO_PROPERTIES    = 0 ,
     MOTIVE_LEISURE   = 1 ,
     MOTIVE_JOB       = 2 ,
     MOTIVE_PERSONAL  = 4 ,
     MOTIVE_EMERGENCY = 8 ,
     MOTIVE_MISSION   = 16,
-    MOTIVE_CANCELLED = 32;
+    
+    IS_CANCELLED = 32 ,
+    HAS_PRIORITY = 64 ,
+    HAS_STEPS    = 128,
+    HAS_BEGUN    = HAS_PRIORITY | HAS_STEPS;
   final static String MOTIVE_NAMES[] = {
     "Leisure", "Job", "Personal", "Emergency", "Mission", "Cancelled"
   };
   
+  final public static float
+    
+    NO_FAIL_RISK      = 0.0f,
+    MILD_FAIL_RISK    = 0.5f,
+    REAL_FAIL_RISK    = 1.0f,
+    EXTREME_FAIL_RISK = 2.0f,
+    
+    NO_COMPETITION   =  0.0f,
+    MILD_COMPETITION =  0.5f,
+    FULL_COMPETITION =  1.0f,
+    MILD_COOPERATION = -0.5f,
+    FULL_COOPERATION = -1.0f,
+    
+    NO_HARM      =  0.0f,
+    MILD_HARM    =  0.5f,
+    REAL_HARM    =  1.0f,
+    EXTREME_HARM =  1.5f,
+    MILD_HELP    = -0.5f,
+    REAL_HELP    = -1.0f,
+    EXTREME_HELP = -1.5f,
+    
+    NO_DISTANCE_CHECK      = 0.0f,
+    PARTIAL_DISTANCE_CHECK = 0.5f,
+    NORMAL_DISTANCE_CHECK  = 1.0f,
+    HEAVY_DISTANCE_CHECK   = 2.0f,
+    
+    NO_MODIFIER = 0,
+    
+    PRIORITY_NEVER = 0 - PARAMOUNT;
+  final protected static Skill NO_SKILLS[] = null;
+  final protected static Trait NO_TRAITS[] = null;
+  
   final static float
     NULL_PRIORITY = -100;
   
-  private static boolean
-    stepsVerbose    = false,
-    priorityVerbose = false,
-    extraVerbose    = false,
-    beginsVerbose   = false,
-    utilsVerbose    = false,
-    doesVerbose     = false;
-  private static Class
-    verboseClass = null;
   
   final public Target subject;
   protected Actor actor;
@@ -53,11 +90,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   protected Behaviour
     nextStep = null,
     lastStep = null;
-  
-  private int   motiveProperties = -1;
-  private float motiveBonus      =  0;
-  private float harmFactor = 0, competence = -1;
-  private boolean begun;  //  TODO:  Have a general 'stage' counter?
+  private int
+    properties  = 0;
+  private float
+    motiveBonus = 0,
+    harmFactor  = 0,
+    competence  = 0;
   
   
   
@@ -67,7 +105,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     if (subject == null) I.complain("NULL PLAN SUBJECT");
     this.actor   = actor  ;
     this.subject = subject;
-    this.motiveProperties = motiveType;
+    this.properties = motiveType;
     this.harmFactor       = harmFactor;
   }
   
@@ -82,12 +120,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     this.nextStep     = (Behaviour) s.loadObject();
     this.lastStep     = (Behaviour) s.loadObject();
     
-    this.motiveProperties = s.loadInt  ();
-    this.motiveBonus      = s.loadFloat();
-    
-    this.harmFactor = s.loadFloat();
-    this.competence = s.loadFloat();
-    this.begun      = s.loadBool();
+    this.properties  = s.loadInt  ();
+    this.motiveBonus = s.loadFloat();
+    this.harmFactor  = s.loadFloat();
+    this.competence  = s.loadFloat();
   }
   
   
@@ -100,12 +136,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     s.saveObject(nextStep    );
     s.saveObject(lastStep    );
     
-    s.saveInt  (motiveProperties);
-    s.saveFloat(motiveBonus     );
-    
-    s.saveFloat(harmFactor);
-    s.saveFloat(competence);
-    s.saveBool (begun     );
+    s.saveInt  (properties );
+    s.saveFloat(motiveBonus);
+    s.saveFloat(harmFactor );
+    s.saveFloat(competence );
   }
   
   
@@ -166,7 +200,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     nextStep = lastStep = null;
     priorityEval = NULL_PRIORITY;
     actor.mind.cancelBehaviour(this, cause);
-    addMotives(MOTIVE_CANCELLED, 0);
+    addMotives(IS_CANCELLED, 0);
   }
   
   
@@ -250,8 +284,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     attemptToBind(actor);
     final boolean report = priorityVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
-    ) && (beginsVerbose || begun);
-    if (hasMotives(MOTIVE_CANCELLED)) return -1;
+    ) && (beginsVerbose || hasBegun());
+    if (hasMotives(IS_CANCELLED)) return -1;
     if (report && extraVerbose) {
       I.say("\nCurrent priority for "+this+" is: "+priorityEval);
     }
@@ -262,7 +296,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
       priorityEval = getPriority();
       if (report) I.say("\nNew priority: "+priorityEval);
-      begun        = true;
+      properties |= HAS_PRIORITY;
       lastEvalTime = time;
     }
     return priorityEval;
@@ -273,8 +307,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     attemptToBind(actor);
     final boolean report = stepsVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
-    ) && (beginsVerbose || begun);
-    if (hasMotives(MOTIVE_CANCELLED)) return null;
+    ) && (beginsVerbose || hasBegun());
+    if (hasMotives(IS_CANCELLED)) return null;
     
     if (report && extraVerbose) {
       I.say("\nCurrent plan step for "+this+" is: "+I.tagHash(nextStep));
@@ -304,7 +338,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
         if (report) I.say("SETTING SUB-STEP AS IDLE! "+this);
         priorityEval = IDLE;
       }
-      begun        = true;
+      properties |= HAS_STEPS;
       lastEvalTime = time;
     }
     return nextStep;
@@ -315,7 +349,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     final boolean report =
       (stepsVerbose || priorityVerbose) &&
       hasBegun() && I.talkAbout == actor;
-    if (hasMotives(MOTIVE_CANCELLED)) return true;
+    if (hasMotives(IS_CANCELLED)) return true;
     
     if (actor == null) return false;
     
@@ -334,7 +368,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean hasBegun() {
-    return actor != null && begun;
+    return actor != null && ((properties & HAS_BEGUN) == HAS_BEGUN);
   }
   
   
@@ -358,12 +392,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   //  time.)
   
   public Plan addMotives(int props, float bonus) {
-    if (begun && bonus != 0) I.complain(
+    if (hasBegun() && bonus != 0) I.complain(
       "\nWARNING:  Should not alter motive bonus once a plan begins! "+this
     );
-    this.motiveProperties |= props;
-    this.motiveBonus      += bonus;
-    this.lastEvalTime = -1;
+    this.properties   |= props;
+    this.motiveBonus  += bonus;
+    this.lastEvalTime = -1    ;
     return this;
   }
   
@@ -374,7 +408,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public Plan setMotivesFrom(Plan parent, float bonus) {
-    this.motiveProperties = parent.motiveProperties;
+    this.properties = parent.properties;
     this.motiveBonus      = parent.motiveBonus + bonus;
     this.lastEvalTime = -1;
     return this;
@@ -382,9 +416,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public void clearMotives() {
-    this.motiveProperties = MOTIVE_NONE;
-    this.motiveBonus      = 0;
-    this.begun            = false;
+    this.properties   = NO_PROPERTIES;
+    this.motiveBonus  = 0;
     this.priorityEval = NULL_PRIORITY;
     this.lastEvalTime = -1;
     this.nextStep = null;
@@ -392,7 +425,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean hasMotives(int props) {
-    return (this.motiveProperties & props) == props;
+    return (this.properties & props) == props;
   }
   
   
@@ -400,41 +433,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     return this.motiveBonus;
   }
   
-  
-  //  TODO:  Get rid of this.  Rely on the simpler, albeit more specialised,
-  //  eval-functions in the PlanUtils class.
-  
-  final public static float
-    
-    NO_FAIL_RISK      = 0.0f,
-    MILD_FAIL_RISK    = 0.5f,
-    REAL_FAIL_RISK    = 1.0f,
-    EXTREME_FAIL_RISK = 2.0f,
-    
-    NO_COMPETITION   =  0.0f,
-    MILD_COMPETITION =  0.5f,
-    FULL_COMPETITION =  1.0f,
-    MILD_COOPERATION = -0.5f,
-    FULL_COOPERATION = -1.0f,
-    
-    NO_HARM      =  0.0f,
-    MILD_HARM    =  0.5f,
-    REAL_HARM    =  1.0f,
-    EXTREME_HARM =  1.5f,
-    MILD_HELP    = -0.5f,
-    REAL_HELP    = -1.0f,
-    EXTREME_HELP = -1.5f,
-    
-    NO_DISTANCE_CHECK      = 0.0f,
-    PARTIAL_DISTANCE_CHECK = 0.5f,
-    NORMAL_DISTANCE_CHECK  = 1.0f,
-    HEAVY_DISTANCE_CHECK   = 2.0f,
-    
-    NO_MODIFIER = 0,
-    
-    PRIORITY_NEVER = 0 - PARAMOUNT;
-  final protected static Skill NO_SKILLS[] = null;
-  final protected static Trait NO_TRAITS[] = null;
   
   //  TODO:  This should be used to replace the skills handed over.
   //  TODO:  Consider making this abstract?
@@ -449,7 +447,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   public float harmFactor() { return harmFactor; }
   public float competence() { return competence; }
   
-  public int motiveProperties() { return motiveProperties; }
+  public int motiveProperties() { return properties; }
   
   protected void onceInvalid() {}
   
@@ -569,7 +567,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     if (b instanceof Plan) {
       final Plan p = (Plan) b;
-      I.say("    Plan properties: "+p.motiveProperties);
+      I.say("    Plan properties: "+p.properties);
       for (int i = 0; i < MOTIVE_NAMES.length; i++) {
         final int prop = 1 << i;
         if (p.hasMotives(prop)) I.say("    "+MOTIVE_NAMES[i]+" ("+prop+")");

@@ -53,21 +53,25 @@ public class PathSearch extends Search <Boarding> {
   
   
   public static boolean canApproach(Target aims, Mobile client) {
-    return approachTile(aims, client) != null;
+    return approachPoint(aims, client) != null;
   }
   
   
   public static Tile approachTile(Target aims, Mobile client) {
+    final Boarding point = approachPoint(aims, client);
+    return (point instanceof Tile) ? (Tile) point : null;
+  }
+  
+  
+  private static Boarding approachPoint(Target aims, Mobile client) {
     while (true) {
-      if (blockedBy(aims, client)) return null;
-      if (aims instanceof Tile) return (Tile) aims;
+      if (aims == null || blockedBy(aims, client)) return null;
+      if (aims instanceof Tile ) return (Tile ) aims;
+      if (aims instanceof Venue) return (Venue) aims;
       
-      if (aims instanceof Property) {
-        aims = ((Property) aims).mainEntrance();
-      }
       if (aims instanceof Boarding) {
         for (Boarding c : ((Boarding) aims).canBoard()) {
-          if (c instanceof Tile) { aims = (Tile) c; break; }
+          if (! blockedBy(c, client)) { aims = c; break; }
         }
       }
       if (aims instanceof Mobile) {

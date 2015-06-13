@@ -3,13 +3,9 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.game.maps.IntelMap;
-import stratos.game.plans.Patrolling;
-import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.sfx.PlaneFX;
@@ -380,9 +376,7 @@ public abstract class Mobile extends Element
   
   
   public void renderFor(Rendering rendering, Base base) {
-    
-    final Target platform = Patrolling.turretIsAboard(this);
-    if (indoors() && platform == null) return;
+    if (indoors()) return;
     
     final Sprite s = this.sprite();
     viewPosition(s.position);

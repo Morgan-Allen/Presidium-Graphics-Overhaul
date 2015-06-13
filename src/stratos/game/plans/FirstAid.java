@@ -19,7 +19,7 @@ public class FirstAid extends Treatment {
   
   
   private static boolean
-    evalVerbose  = true ,
+    evalVerbose  = false,
     stepsVerbose = false;
   
   
@@ -86,10 +86,15 @@ public class FirstAid extends Treatment {
     if (! patient.health.organic()) return 0;
     //
     //  Then, we ensure the patient is physically accessible/won't wander off-
+    if (sickbay == null) {
+      sickbay = findRefuge(actor);
+    }
     final Actor carries = Suspensor.carrying(patient);
+    final boolean outside = actor.aboard() != sickbay;
     if (
       (carries != null && carries != actor) ||
-      (patient.health.conscious() && patient.aboard() != actor.aboard())
+      (outside && patient.health.conscious()) ||
+      (outside && actor.aboard() instanceof PhysicianStation)
     ) {
       return -1;
     }
@@ -97,7 +102,7 @@ public class FirstAid extends Treatment {
     //  Then we determine if this is an actual emergency, and how severe the
     //  overall injury is.  (This is also used to limit the overall degree of
     //  team attention required.)
-    final boolean urgent = patient.health.bleeding() || ! patient.indoors();
+    final boolean urgent = patient.health.bleeding() || outside;
     if (urgent && patient.health.alive()) addMotives(MOTIVE_EMERGENCY);
     float urgency = severity();
     if (urgency <= 0  ) return 0;
@@ -138,8 +143,10 @@ public class FirstAid extends Treatment {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next first aid step for "+actor);
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    if (report) {
+      I.say("\nGetting next first aid step for "+actor);
+    }
     
     //
     //  You can't perform actual treatment while under fire, but you can get
@@ -155,10 +162,7 @@ public class FirstAid extends Treatment {
       return aids;
     }
     
-    if (sickbay == null) {
-      sickbay = findRefuge(actor);
-    }
-    if (sickbay != null && ! patient.indoors()) {
+    if (sickbay != null && patient.aboard() != sickbay) {
       final BringStretcher d = new BringStretcher(
         actor, patient, sickbay
       );
@@ -168,7 +172,7 @@ public class FirstAid extends Treatment {
       }
     }
     
-    if (underFire || Treatment.hasTreatment(INJURY, patient, ! hasBegun())) {
+    if (underFire || Treatment.hasTreatment(INJURY, patient, hasBegun())) {
       return null;
     }
     final Action aids = new Action(

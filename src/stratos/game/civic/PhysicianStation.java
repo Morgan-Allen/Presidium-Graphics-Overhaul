@@ -150,7 +150,7 @@ public class PhysicianStation extends Venue {
     if (! structure.intact()) return null;
     //
     //  If there are patients inside, make sure somebody's available.
-    if (numPatients() == 0 && ! staff.onShift(actor)) return null;
+    if (numPatients() == 0 && staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
     //  If anyone is waiting for treatment, tend to them- including outside the
@@ -161,8 +161,8 @@ public class PhysicianStation extends Venue {
     //  The ruler and his household also get special treatment-
     final Actor ruler = base.ruler();
     if (ruler != null) {
-      tryAdding(ruler, around);
       final Property home = ruler.mind.home();
+      tryAdding(ruler, around);
       if (home != null) for (Actor a : home.staff().lodgers()) {
         tryAdding(a, around);
       }
@@ -182,17 +182,17 @@ public class PhysicianStation extends Venue {
         choice.add(t);
       }
     }
+    if (! choice.empty()) return choice.pickMostUrgent();
     //
     //  Manufacture basic medicines for later use.
     final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
-    if (mS != null && (choice.empty() || ! onShift)) {
-      mS.setBonusFrom(this, false, MEDICAL_LAB);
-      choice.add(mS);
+    if (mS != null) {
+      choice.add(mS.setBonusFrom(this, false, MEDICAL_LAB));
     }
+    if (! choice.empty()) return choice.weightedPick();
     //
     //  Otherwise, just tend the desk...
-    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
-    return choice.pickMostUrgent();
+    return Supervision.oversight(this, actor);
   }
   
   

@@ -72,8 +72,8 @@ public class DebugTreating extends Scenario {
     GameSettings.paveFree  = true;
     
     if (false) configTreatmentScenario(world, base, UI);
-    if (false) configFirstAidScenario (world, base, UI);
-    if (true ) configRecoveryScenario (world, base, UI);
+    if (true ) configFirstAidScenario (world, base, UI);
+    if (false) configRecoveryScenario (world, base, UI);
   }
   
   
@@ -101,17 +101,27 @@ public class DebugTreating extends Scenario {
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     PlaceUtils.establishVenue(
-      new PhysicianStation(base), 6, 6, true, world,
+      new PhysicianStation(base), 8, 8, true, world,
       treats,
       new Human(Backgrounds.MINDER, base),
       new Human(Backgrounds.MINDER, base)
     );
     
-    final Actor patient = new Human(Backgrounds.TROOPER, base);
-    patient.enterWorldAt(world.tileAt(10, 10), world);
-    patient.health.takeInjury(patient.health.maxHealth(), false);
+    final Batch <ShieldWall> walls = new Batch();
+    for (int x = 16; x > 4; x-= 2) {
+      final ShieldWall s = new ShieldWall(base);
+      s.setPosition(x, 2, world);
+      walls.add(s);
+    }
+    PlacingTask.performPlacements(walls, null, base);
     
-    UI.selection.pushSelection(patient);
+    final Actor patient = new Human(Backgrounds.TROOPER, base);
+    patient.enterWorldAt(walls.atIndex(2), world);
+    patient.health.takeInjury(patient.health.maxHealth(), false);
+    patient.health.setState(ActorHealth.STATE_RESTING);
+    
+    treats.mind.assignBehaviour(new FirstAid(treats, patient));
+    UI.selection.pushSelection(treats);
   }
   
   

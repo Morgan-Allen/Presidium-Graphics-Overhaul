@@ -117,7 +117,7 @@ public class BringStretcher extends Plan implements Qualities {
       I.say("NOT CARRYING PATIENT!");
       return false;
     }
-    suspensor.exitWorld();
+    if (suspensor != null) suspensor.exitWorld();
     this.suspensor = null;
     patient.goAboard(destination, actor.world());
     return true;

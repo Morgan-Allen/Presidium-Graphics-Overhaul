@@ -271,7 +271,8 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public float successChanceFor(Actor actor) {
-    return conversion.testChance(actor, 0);
+    final float chance = conversion.testChance(actor, 0);
+    return Nums.clamp(chance + (speedBonus / 2), 0, 1);
   }
   
   

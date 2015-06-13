@@ -256,13 +256,8 @@ public class ShieldWall extends Venue {
   }
   
   
-  public boolean allowsEntry(Mobile m) {
-    if (isGate()) return super.allowsEntry(m);
-    if (! (m instanceof Actor)) return false;
-    final Actor a = (Actor) m;
-    if (a.aboard() instanceof ShieldWall) return true;
-    if (a.planFocus(null, true) instanceof ShieldWall) return true;
-    return false;
+  public int pathType() {
+    return Tile.PATH_HINDERS;
   }
   
   

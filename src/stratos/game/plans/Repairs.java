@@ -51,7 +51,7 @@ public class Repairs extends Plan {
   
   
   public Repairs(Actor actor, Placeable repaired, Skill skillUsed) {
-    super(actor, (Target) repaired, MOTIVE_NONE, REAL_HELP);
+    super(actor, (Target) repaired, NO_PROPERTIES, REAL_HELP);
     this.built = repaired;
     this.skillUsed = skillUsed;
   }

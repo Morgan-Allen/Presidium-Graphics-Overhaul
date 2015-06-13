@@ -356,7 +356,7 @@ public class Action implements Behaviour, AnimNames {
       
       //  TODO:  Build line-of-sight considerations into the actor's reaction
       //  algorithms instead?
-      final boolean seen = SenseUtils.hasLineOfSight(
+      final boolean seen = true && SenseUtils.hasLineOfSight(
         actor, actionTarget, Nums.max(maxDist, sightRange)
       );
       if (Nums.min(motionDist, actionDist) < maxDist && ! seen) {
@@ -455,7 +455,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   protected void updateAction(boolean active, Actor calls) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     if (report) {
       I.say("\nUpdating action for: "+actor+"  Target: "+actionTarget);
       I.say("  Method is: "+methodName()+", basis "+basis.getClass());

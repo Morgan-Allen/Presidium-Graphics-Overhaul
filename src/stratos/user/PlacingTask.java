@@ -9,6 +9,7 @@ import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.KeyInput;
 import stratos.util.*;
+
 import com.badlogic.gdx.Input.Keys;
 
 
@@ -249,6 +250,9 @@ public class PlacingTask implements UITask {
   }
   
   
+  
+  /**  Various public utility methods-
+    */
   public static boolean isBeingPlaced(Target e) {
     final PlacingTask task = currentPlacement();
     if (task != null) for (Venue v : task.placeItems.values()) {
@@ -272,7 +276,34 @@ public class PlacingTask implements UITask {
     if (UI == null || ! (UI.currentTask() instanceof PlacingTask)) return null;
     return (PlacingTask) UI.currentTask();
   }
+  
+  
+  public static void performPlacements(
+    Series <? extends Venue> placed, Box2D area, Base base
+  ) {
+    //  TODO:  UNIFY WITH THE METHODS ABOVE FOR HIGHER FIDELITY/CONCISION
+    final Batch <Coord> coords = new Batch();
+    
+    for (Venue v : placed) {
+      if (area == null) area = new Box2D().setTo(v.footprint());
+      else area.include(v.footprint());
+      final Tile at = v.origin();
+      final int hS = v.size / 2;
+      coords.add(new Coord(at.x + hS, at.y + hS));
+    }
+    
+    for (Venue s : placed) {
+      s.setupWith(s.origin(), area, coords.toArray(Coord.class));
+      s.doPlacement();
+    }
+  }
 }
+
+
+
+
+
+
 
 
 
