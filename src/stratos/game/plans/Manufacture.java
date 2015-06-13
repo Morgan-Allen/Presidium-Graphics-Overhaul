@@ -7,10 +7,14 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.user.VenuePane;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 
+
+
+//
+//  TODO:  Speed bonus needs to be upgraded constantly, in case new upgrades
+//  get added or raw materials run short during a manufacture task!
 
 
 public class Manufacture extends Plan implements Behaviour, Qualities {
@@ -27,10 +31,6 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     TIME_PER_UNIT     = Stage.STANDARD_DAY_LENGTH / (3 * MAX_UNITS_PER_DAY),
     DEVICE_TIME_MULT  = 2,
     OUTFIT_TIME_MULT  = 2;
-  final static float
-    SHORTAGE_DC_MOD    = 5,
-    SHORTAGE_TIME_MULT = 5,
-    FAILURE_TIME_MULT  = 5;
   
   
   final public Property venue;
@@ -115,11 +115,11 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   public Manufacture setBonusFrom(
     Venue works, boolean required, Upgrade... upgrades
   ) {
-    this.speedBonus = estimatedOutput(works, conversion, upgrades);
+    speedBonus = estimatedOutput(works, conversion, upgrades);
     if (commission && required) {
-      final int maxQuality = (int) (speedBonus * Item.MAX_QUALITY / 2f);
-      this.speedBonus = 1;
-      if (made.quality >= maxQuality) return null;
+      final int topQuality = (int) (speedBonus * Item.MAX_QUALITY / 2f);
+      speedBonus *= (Item.AVG_QUALITY + 0.5f) / (1 + made.quality);
+      if (made.quality >= topQuality) speedBonus /= 2;
     }
     return this;
   }
@@ -310,6 +310,12 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public boolean actionMake(Actor actor, Venue venue) {
+    final boolean report = I.talkAbout == venue && ! made.type.common();
+    if (report) {
+      I.say("\nMaking "+made+" at "+venue);
+      I.say("  Amount before:      "+venue.stocks.amountOf(made));
+      I.say("  Speed bonus:        "+speedBonus);
+    }
     //
     //  First, check to make sure you have adequate raw materials.  (In hard-
     //  core mode, raw materials are strictly essential, and will be depleted
@@ -325,7 +331,6 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     float increment = success * speedBonus / (made.amount * TIME_PER_UNIT);
     if (made.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
     if (made.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;
-    if (! hasNeeded) increment /= SHORTAGE_TIME_MULT;
     //
     //  Advance progress, and check if you're done yet.
     if (increment > 0) {
@@ -336,8 +341,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       amountMade += increment * made.amount;
       final Item added = Item.withAmount(made, increment * made.amount);
       venue.stocks.addItem(added);
-      if (verbose && I.talkAbout == actor) {
-        I.say("Progress increment on "+made+": "+increment);
+      if (report) {
+        I.say("  Progress increment: "+increment);
+        I.say("  Amount after:       "+venue.stocks.amountOf(made));
       }
     }
     return venue.stocks.hasItem(made);

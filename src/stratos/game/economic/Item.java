@@ -241,7 +241,7 @@ public class Item {
   public void describeFor(Actor owns, Description d) {
     //
     //  First describe yourself:
-    String s = ""+type;
+    String s = ""+type.name;
     if (
       type.form == FORM_DEVICE ||
       type.form == FORM_OUTFIT ||

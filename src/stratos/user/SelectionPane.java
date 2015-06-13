@@ -157,7 +157,8 @@ public class SelectionPane extends UIGroup implements UIConstants {
         ((BaseUI) UI).beginPanelFade();
       }
     };
-    int detailDown = down;
+    detailText.scale = SMALL_FONT_SIZE;
+    detailText.attachTo(border.inside);
     Text scrollParent = detailText;
 
     if (hasListing) {
@@ -168,20 +169,20 @@ public class SelectionPane extends UIGroup implements UIConstants {
         }
       };
       listingText.alignVertical  (0, CORE_INFO_HIGH + down);
-      listingText.alignHorizontal(0, 0                    );
+      listingText.alignHorizontal(0, SCROLLBAR_WIDE       );
       listingText.scale = SMALL_FONT_SIZE;
       listingText.attachTo(border.inside);
       
-      detailDown = CORE_INFO_HIGH;
+      detailText.alignHorizontal(0   , 0             );
+      detailText.alignTop       (down, CORE_INFO_HIGH);
       scrollParent = listingText;
     }
-    else listingText = null;
+    else {
+      detailText.alignHorizontal(0, SCROLLBAR_WIDE);
+      detailText.alignVertical  (0, down          );
+      listingText = null;
+    }
     
-    detailText.scale = SMALL_FONT_SIZE;
-    detailText.attachTo(border.inside);
-    detailText.alignHorizontal(0   , SCROLLBAR_WIDE);
-    detailText.alignTop       (down, detailDown    );
-
     scrollbar = scrollParent.makeScrollBar(SCROLL_TEX);
     scrollbar.alignToMatch(scrollParent);
     scrollbar.alignRight(0, SCROLLBAR_WIDE);

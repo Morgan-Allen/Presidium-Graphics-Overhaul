@@ -76,10 +76,10 @@ public class DebugCommerce extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.cashFree  = true;
     
-    if (true ) shippingScenario(world, base, UI);
+    if (false) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (false) purchaseScenario(world, base, UI);
+    if (true ) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) haulingScenario (world, base, UI);
     if (false) shoppingScenario(world, base, UI);
@@ -155,24 +155,26 @@ public class DebugCommerce extends Scenario {
   private void purchaseScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.needsFree = true;
     
-    Actor citizen = null;
-    for (int n = 2; n-- > 0;) {
-      citizen = new Human(Backgrounds.RUNNER_HUDZENA, base);
-      citizen.enterWorldAt(world.tileAt(10 + n, 10 + n), world);
-      citizen.gear.incCredits(1000);
-    }
-    UI.selection.pushSelection(citizen);
-    
     final Venue foundry = new EngineerStation(base);
     PlaceUtils.establishVenue(foundry, 6, 6, true, world);
     base.setup.fillVacancies(foundry, true);
-    foundry.stocks.bumpItem(Economy.METALS , 10);
-    foundry.stocks.bumpItem(Economy.PARTS, 2 );
+    
+    final Upgrade upgrade = EngineerStation.PLASMA_WEAPONS;
+    foundry.stocks.bumpItem(Economy.METALS, 10);
+    foundry.stocks.bumpItem(Economy.PARTS , 2 );
+    foundry.structure.setUpgradeLevel(upgrade, 2);
     
     final Venue reactor = new Reactor(base);
     PlaceUtils.establishVenue(reactor, 3, 6, true, world);
     base.setup.fillVacancies(reactor, true);
     reactor.stocks.bumpItem(FUEL_RODS, 10);
+    
+    Actor buys = new Human(Backgrounds.RUNNER_IV_PUNKS, base);
+    buys.enterWorldAt(12, 12, world);
+    buys.gear.incCredits(1000);
+    buys.gear.equipDevice(Item.withQuality(Devices.BLASTER, 1));
+    
+    UI.selection.pushSelection(buys);
   }
   
   

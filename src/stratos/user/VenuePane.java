@@ -205,6 +205,11 @@ public class VenuePane extends SelectionPane {
       if (Visit.arrayIncludes(demands, t) && t.common()) describeStocks(t, d);
       else for (Item i : v.stocks.matches(t)) special.add(i);
     }
+    for (Item i : v.stocks.allItems()) {
+      if (Visit.arrayIncludes(ITEM_LIST_ORDER, i.type)) continue;
+      if (v.stocks.hasOrderFor(i)) continue;
+      special.add(i);
+    }
     
     if (! special.empty()) {
       Text.cancelBullet(d);
@@ -220,6 +225,8 @@ public class VenuePane extends SelectionPane {
       for (Item i : v.stocks.specialOrders()) {
         d.append("\n  ");
         i.describeTo(d);
+        final float progress = v.stocks.amountOf(i);
+        d.append(" ("+(int) (progress * 100)+"%)");
       }
     }
   }

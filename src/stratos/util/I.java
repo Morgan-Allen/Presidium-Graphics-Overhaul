@@ -134,12 +134,13 @@ public class I {
   /**  A few utility printing methods-
     */
   public static String shorten(float f, int decimals) {
-    if (Nums.abs(f) < 0.1f) return "0";
+    final float margin = 1f / Nums.pow(10, decimals);
+    if (Nums.abs(f) < margin) return "0";
     final boolean neg = f < 0;
     if (neg) f *= -1;
     final int i = (int) f;
     final float r = f - i;
-    if (r == 0) return ""+i;
+    if (r < margin) return (neg ? "-" : "")+i;
     final String fraction = r+"";
     final int trim = Nums.min(decimals + 2, fraction.length());
     return (neg ? "-" : "")+i+(fraction.substring(1, trim));

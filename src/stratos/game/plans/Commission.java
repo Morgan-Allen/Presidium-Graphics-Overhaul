@@ -122,7 +122,7 @@ public class Commission extends Plan {
     //  We constrain maximum item-quality by the upgrade-level available at the
     //  venue in question...
     final float upgradeLevel = limits == null ? 1 : (
-      makes.structure().upgradeLevel(limits) / limits.maxLevel
+      makes.structure().upgradeLevel(limits) * 1f / limits.maxLevel
     );
     int maxQuality = Item.MAX_QUALITY + 1;
     maxQuality -= (Item.MAX_QUALITY - 1) * (1 - upgradeLevel);
@@ -146,8 +146,7 @@ public class Commission extends Plan {
       else if (quality < baseQuality) continue;
       
       added = new Commission(actor, upgrade, makes);
-      if (added.priorityFor(actor) <= 0) continue;
-      break;
+      if (added.priorityFor(actor) > 0) break;
     }
     
     if (report) {
