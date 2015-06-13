@@ -225,14 +225,21 @@ public class InstallPane extends SelectionPane {
       Text.insert(iconImage, 40, 40, true, text);
     }
     else text.append("\n  ");
-    text.append(" "+typeName+" ("+cost+" credits)", greyed);
-    text.append("\n  ");
+    text.append(" "+typeName);
+    text.append("  ");
+    Text.insert(
+      SelectionPane.WIDGET_INFO.asTexture(), 15, 15,
+      sample.blueprint, false, text
+    );
+    text.append("\n");
     
-    if (enabled) text.append(new Description.Link("(BUILD) ") {
+    final String buildDesc = " (BUILD)";
+    if (enabled) text.append(new Description.Link(buildDesc) {
       public void whenClicked() { UI.beginTask(new PlacingTask(UI, type)); }
     });
-    else text.append("(BUILD) ", greyed);
-    text.append("(INFO) ", sample.blueprint);
+    else text.append(buildDesc, greyed);
+    text.append(" ("+cost+" credits)", Colour.LITE_GREY);
+    text.append("\n");
   }
 }
 

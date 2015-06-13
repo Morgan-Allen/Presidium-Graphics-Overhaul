@@ -310,7 +310,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   
   public boolean actionMake(Actor actor, Venue venue) {
-    final boolean report = I.talkAbout == venue && ! made.type.common();
+    final boolean report = I.talkAbout == venue && verbose;
     if (report) {
       I.say("\nMaking "+made+" at "+venue);
       I.say("  Amount before:      "+venue.stocks.amountOf(made));

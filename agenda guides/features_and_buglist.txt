@@ -2,9 +2,6 @@
 
 TO DO NOW-
 
-*  Treatment-priority in non-emergencies seems to be a little high for non-
-   medical staff.  Look into it.
-
 *  The perimeter-check must be replaced with something more accomodating (and
    reliable.)
 

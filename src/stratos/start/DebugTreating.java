@@ -67,10 +67,17 @@ public class DebugTreating extends Scenario {
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     
     GameSettings.setDefaults();
-    GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
+    
+    if (false) configTreatmentScenario(world, base, UI);
+    if (false) configFirstAidScenario (world, base, UI);
+    if (true ) configRecoveryScenario (world, base, UI);
+  }
+  
+  
+  private void configTreatmentScenario(Stage world, Base base, BaseUI UI) {
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     final Venue station = new PhysicianStation(base);
@@ -83,14 +90,13 @@ public class DebugTreating extends Scenario {
     treated.enterWorldAt(4, 10, world);
     
     //  And now, we proceed to do various horrible things to the subject...
-    //treated.traits.incLevel(Conditions.HIREX_PARASITE, 0.99f);
-    treated.health.takeInjury(treated.health.maxHealth() + 1, true);
+    treated.traits.incLevel(Conditions.HIREX_PARASITE, 0.99f);
     
     UI.selection.pushSelection(treats);
   }
   
   
-  private void configMedicalScenario(Stage world, Base base, BaseUI UI) {
+  private void configFirstAidScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = true;
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
@@ -106,6 +112,29 @@ public class DebugTreating extends Scenario {
     patient.health.takeInjury(patient.health.maxHealth(), false);
     
     UI.selection.pushSelection(patient);
+  }
+  
+  
+  private void configRecoveryScenario(Stage world, Base base, BaseUI UI) {
+    
+    final Venue staysAt = new Cantina(base);
+    PlaceUtils.establishVenue(staysAt, 4, 4, true, world);
+    base.setup.fillVacancies(staysAt, true);
+    
+    final Actor treated = new Human(Backgrounds.EXCAVATOR, base);
+    treated.enterWorldAt(staysAt, world);
+    treated.health.setFatigueLevel(0.25f);
+    treated.health.setInjuryLevel (0.75f);
+    treated.health.setState(ActorHealth.STATE_RESTING);
+    
+    final Actor treats = staysAt.staff.workers().first();
+    treats.goAboard(world.tileAt(2, 7), world);
+    
+    final FirstAid aid = new FirstAid(treats, treated);
+    Item bandage = Item.with(Economy.TREATMENT, aid, 0.4f, Item.AVG_QUALITY);
+    treated.gear.addItem(bandage);
+    
+    UI.selection.pushSelection(treated);
   }
   
   

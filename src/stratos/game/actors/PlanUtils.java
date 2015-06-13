@@ -186,7 +186,7 @@ public class PlanUtils {
     liking     = actor.relations.valueFor(subject);
     incentive  = ((liking + conscience - 0.5f) * 10) * subjectDanger * 2;
     incentive  += rewardBonus;
-    priority   = incentive * supportChance;
+    priority   = incentive * (supportChance + subjectDanger) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",

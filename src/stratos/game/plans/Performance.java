@@ -192,18 +192,11 @@ public class Performance extends Recreation {
   final static Trait BASE_TRAITS[] = { OUTGOING, CREATIVE };
   
   public float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
-    if (expired()) {
-      if (report) {
-        I.say("\nPerformance expired, ID: "+hashCode());
-        if (lead != this) {
-          I.say("  Lead ID: "+lead.hashCode());
-          I.say("  Lead finished? "+lead.finished());
-        }
-        I.say("  Time spent: "+timeSpent);
-      }
-      return 0;
+    final boolean report = I.talkAbout == actor && hasBegun() && evalVerbose;
+    if (report) {
+      I.say("\nPerforming at "+venue+", priority?");
     }
+    if (expired()) return 0;
     
     setCompetence(successChanceFor(actor));
     return PlanUtils.jobPlanPriority(

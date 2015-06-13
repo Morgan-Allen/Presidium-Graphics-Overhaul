@@ -204,7 +204,9 @@ public class Item {
   
   
   public boolean matchKind(Item item) {
-    if (this.type != item.type) return false;
+    if (item == null || this.type != item.type) {
+      return false;
+    }
     if (this.refers != null) {
       if (item.refers == null) return false;
       if (! this.refers.equals(item.refers)) return false;

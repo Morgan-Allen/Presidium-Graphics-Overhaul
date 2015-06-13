@@ -185,7 +185,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     
     scrollbar = scrollParent.makeScrollBar(SCROLL_TEX);
     scrollbar.alignToMatch(scrollParent);
-    scrollbar.alignRight(0, SCROLLBAR_WIDE);
+    scrollbar.alignRight(0 - SCROLLBAR_WIDE, SCROLLBAR_WIDE);
     scrollbar.attachTo(border.inside);
     
     //

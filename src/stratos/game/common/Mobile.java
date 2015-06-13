@@ -115,6 +115,9 @@ public abstract class Mobile extends Element
   public boolean enterWorldAt(Target t, Stage world) {
     final Vec3D p = t.position(null);
     if (! setPosition(p.x, p.y, world)) return false;
+    //
+    //  As a convenient shortcut, we allow direct entry at boardable targets
+    //  where possible...
     if (t instanceof Boarding) {
       final Boarding b = (Boarding) t;
       if (b.allowsEntry(this)) {
