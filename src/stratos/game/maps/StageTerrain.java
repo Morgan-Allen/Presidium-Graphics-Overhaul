@@ -373,7 +373,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   public TerrainChunk createOverlay(
     final Stage world, Tile tiles[],
-    final boolean nullsCount, ImageAsset tex
+    final boolean innerFringe, ImageAsset tex
   ) {
     if (tiles == null || tiles.length < 1) I.complain("No tiles in overlay!");
     final int maxT = tiles.length * 2;
@@ -387,7 +387,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       area.include(t.x, t.y, 0.5f);
     }
     
-    final LayerType layer = new LayerType(tex, false, -1, "overlay") {
+    final LayerType layer = new LayerType(tex, innerFringe, -1, "overlay") {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
         final Tile t = world.tileAt(tx, ty);
         return (t == null) ? false : (pathTable.get(t) != null);

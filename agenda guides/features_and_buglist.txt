@@ -2,9 +2,6 @@
 
 TO DO NOW-
 
-*  The perimeter-check must be replaced with something more accomodating (and
-   reliable.)
-
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
 *  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.

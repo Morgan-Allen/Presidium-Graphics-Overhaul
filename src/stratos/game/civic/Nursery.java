@@ -116,7 +116,7 @@ public class Nursery extends Venue implements TileConstants {
       return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
-    if (! PlaceUtils.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
+    if (! PlaceUtils.pathingOkayAround(this, areaClaimed, owningTier(), 2, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;

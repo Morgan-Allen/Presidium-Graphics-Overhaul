@@ -6,15 +6,18 @@
 package stratos.user;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.KeyInput;
 import stratos.util.*;
 
+import stratos.graphics.widgets.KeyInput;
 import com.badlogic.gdx.Input.Keys;
 
 
 
 public class PlacingTask implements UITask {
+  
+  
   
   final static int
     MODE_POINT = 0,
@@ -224,6 +227,7 @@ public class PlacingTask implements UITask {
   private void renderPlacement(
     Box2D area, Batch <Coord> placePoints, boolean canPlace
   ) {
+    if (PlaceUtils.showPockets) return;
     //
     //  Base venue sprites off their current and projected neighbours!
     final Batch <Object> under = new Batch <Object> ();

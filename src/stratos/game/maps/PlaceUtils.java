@@ -4,11 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.maps;
-import stratos.game.civic.ShieldWall;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-//import stratos.game.actors.Backgrounds;
-//import stratos.graphics.widgets.KeyInput;
+import stratos.graphics.common.*;
+import stratos.graphics.terrain.*;
+import stratos.graphics.widgets.Image;
+import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -19,8 +20,11 @@ import stratos.util.*;
 
 public class PlaceUtils implements TileConstants {
   
-  
-  private static boolean verbose = false, cacheVerbose = false;
+  public static boolean
+    showPockets  = true ;
+  private static boolean
+    verbose      = false,
+    cacheVerbose = false;
   
   final private static Coord footprintCache[][][] = new Coord[100][100][];
   //
@@ -120,31 +124,6 @@ public class PlaceUtils implements TileConstants {
     }
     return true;
   }
-  
-  /*
-  public static Tile findClearSpot(
-    final Target near, final Stage world, final int margin
-  ) {
-    final Tile init = world.tileAt(near);
-    final float maxDist = near.radius() + 0.5f + (Stage.ZONE_SIZE / 2);
-    
-    final TileSpread search = new TileSpread(init) {
-      
-      protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, init) > maxDist) return false;
-        return t.onTop() == near || ! t.blocked();
-      }
-      
-      protected boolean canPlaceAt(Tile t) {
-        final Tile c = world.tileAt(t.x - margin, t.y - margin);
-        return checkAreaClear(c, margin * 2, margin * 2);
-      }
-    };
-    search.doSearch();
-    if (search.success()) return search.bestFound();
-    else return null;
-  }
-  //*/
   
   
   public static boolean findClearanceFor(
@@ -367,7 +346,154 @@ public class PlaceUtils implements TileConstants {
   
   /**  Other utility methods intended to help ensure free and easy pathing-
     */
-  private static Box2D tA = new Box2D();
+  public static boolean pathingOkayAround(
+    Target subject, Box2D footprint, int tier, int margin, Stage world
+  ) {
+    final boolean shows = tier >= Owner.TIER_PRIVATE && showPockets;
+    final Tile perimeter[] = Spacing.perimeter(footprint, world);
+    //
+    //  In essence, any directly-adjacent blocked-tiles are okay for now,
+    //  because the wall-hugging algorithm (below) will trace around those and
+    //  check for contiguous pathing.  But we need to ensure that passage is
+    //  *wide* enough to satisfy the safety margin.
+    final Batch <Element> blockages = new Batch();
+    boolean perimOkay = true;
+    for (Tile t : perimeter) {
+      if (! hasBlockingOwner(t, footprint, tier)) continue;
+      blockages.add(t.above());
+      t.above().flagWith(blockages);
+    }
+    //
+    //  As such, any blocked tiles within the safety-margin that *don't* belong
+    //  to adjacent 'walling' neighbours will disqualify placement.
+    for (int m = margin; m > 1 && perimOkay; m--) {
+      final Box2D insideMargin = new Box2D(footprint).expandBy(m - 1);
+      final Tile marginPerim[] = Spacing.perimeter(insideMargin, world);
+      
+      for (Tile t : marginPerim) {
+        if (t == null || singleTileClear(t, footprint, tier)) continue;
+        if (t.above() != null && t.above().flaggedWith() != null) continue;
+        perimOkay = false; break;
+      }
+    }
+    for (Element e : blockages) e.flagWith(null);
+    if (! perimOkay) return false;
+    //
+    //  This is where the wall-hugging starts.  We find all adjacent 'pockets'
+    //  of pathable terrain that can be traced from the perimeter.  (The trace-
+    //  length is limited to reduce computation-burden, and also because very
+    //  long detours are bad for pathing.)
+    final int maxTrace = perimeter.length + (Stage.ZONE_SIZE * margin) / 4;
+    final Batch <Batch <Tile>> pocketsFound = new Batch();
+    for (Tile t : perimeter) {
+      final Batch <Tile> pocket = findPocket(t, footprint, maxTrace, tier);
+      if (pocket != null) pocketsFound.add(pocket);
+    }
+    //
+    //  You need at least one pocket to ensure access to the item being
+    //  introduced, but anything beyond that indicates that a contiguous, empty
+    //  area is being partitioned- i.e, might create areas impossible to reach.
+    //  So valid placement needs exactly *one* pocket...
+    int numRealPockets = 0;
+    for (Batch <Tile> pocket : pocketsFound) if (pocket.size() > 0) {
+      for (Tile t : pocket) t.flagWith(null);
+      numRealPockets++;
+      //
+      //  (NOTE: Visual overlay creation may be toggled on for debug purposes.)
+      if (shows) {
+        final TerrainChunk overlay = world.terrain().createOverlay(
+          world, pocket.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+        );
+        final int index = pocketsFound.indexOf(pocket);
+        final Colour tones[] = Colour.PRIMARIES;
+        overlay.colour    = tones[Nums.clamp(index, tones.length)];
+        overlay.throwAway = true;
+        overlay.readyFor(PlayLoop.rendering());
+      }
+    }
+    return numRealPockets == 1;
+  }
+  
+  
+  private static Batch <Tile> findPocket(
+    Tile origin, Box2D area, int maxTrace, int tier
+  ) {
+    //
+    //  Basic sanity-checks and variable-setup comes first-
+    if (! singleTileClear(origin, area, tier)) return null;
+    if (origin.flaggedWith() != null         ) return null;
+    
+    final Batch <Tile> pocket = new Batch();
+    final Stack <Tile> agenda = new Stack();
+    final Batch <Batch <Tile>> pocketsMet = new Batch();
+    final Tile tempA[] = new Tile[4], tempB[] = new Tile[8];
+    
+    agenda.add(origin);
+    pocket.add(origin);
+    origin.flagWith(pocket);
+    //
+    //  Then, starting with the first tile encountered (along the area's
+    //  perimeter) we try 'hugging the wall' to find the lining of the current
+    //  pocket.
+    while (agenda.size() > 0 && pocket.size() <= maxTrace) {
+      final Tile best = agenda.removeFirst();
+      for (Tile t : best.edgeAdjacent(tempA)) {
+        if (! singleTileClear(t, area, tier)) continue;
+        //
+        //  Any other pockets we encounter are flagged for merging (see below.)
+        if (t.flaggedWith() != null) {
+          final Batch <Tile> other = (Batch <Tile>) t.flaggedWith();
+          if (other != pocket) pocketsMet.include(other);
+          continue;
+        }
+        //
+        //  Otherwise, we go across all directly-adjacent, non-blocked tiles,
+        //  and see if they share a contiguous 'wall' with the last tile.
+        boolean borders = false;
+        for (Tile n : t.allAdjacent(tempB)) if (n != null) {
+          if (singleTileClear(n, area, tier)  ) continue;
+          if (Spacing.maxAxisDist(n, best) > 1) continue;
+          borders = true; break;
+        }
+        if (borders) {
+          agenda.addLast(t);
+          pocket.add(t);
+          t.flagWith(pocket);
+        }
+      }
+    }
+    //
+    //  Having defined the current pocket, we merge with any bordering pockets
+    //  as well-
+    for (Batch <Tile> other : pocketsMet) {
+      for (Tile t : other) { t.flagWith(pocket); pocket.add(t); }
+      other.clear();
+    }
+    return pocket;
+  }
+  
+  
+  private static boolean hasBlockingOwner(Tile t, Box2D area, int tier) {
+    if (singleTileClear(t, area, tier)) return false;
+    return t != null && t.above() != null;
+  }
+  
+  
+  private static boolean singleTileClear(Tile t, Box2D footprint, int tier) {
+    if (t == null || ! t.habitat().pathClear) return false;
+    if (footprint.contains(t.x, t.y)) return false;
+    return t.owningTier() < tier || t.pathType() < Tile.PATH_HINDERS;
+  }
+  
+  
+  public static boolean pathingOkayAround(Element e, Stage world) {
+    return pathingOkayAround(e, e.area(null), e.owningTier(), 2, world);
+  }
+  
+  
+  public static boolean pathingOkayAround(Tile t, int tier) {
+    return pathingOkayAround(t, t.area(null), tier, 2, t.world);
+  }
   
   
   public static int[] entranceCoords(int xdim, int ydim, float face) {
@@ -400,116 +526,6 @@ public class PlaceUtils implements TileConstants {
   }
   
   
-  public static boolean perimeterFits(Element e, Stage world) {
-    boolean report = verbose && e.owningTier() > Owner.TIER_PRIVATE;
-    if (report) {
-      I.say("\nCHECKING PERIMETER FOR "+I.tagHash(e));
-    }
-    return perimeterFits(e, e.area(tA), e.owningTier(), 2, world);
-  }
-  
-  
-  public static boolean perimeterFits(Tile t, int tier) {
-    return perimeterFits(t, t.area(tA), tier, 2, t.world);
-  }
-  
-  
-  //
-  //  This method checks whether the placement of the given element in this
-  //  location would create secondary 'gaps' along it's perimeter that might
-  //  lead to the existence of inaccessible 'pockets' of terrain- that would
-  //  cause pathing problems.
-  public static boolean perimeterFits(
-    Target subject, Box2D footprint, int tier, int spaceNeed, Stage world
-  ) {
-    final boolean report = verbose && PlacingTask.isBeingPlaced(subject);
-    //
-    //  We check recursively for pockets at a finer resolution:
-    if (spaceNeed > 1) {
-      final boolean fits;
-      fits = perimeterFits(subject, footprint, tier, spaceNeed -1, world);
-      if (! fits) return false;
-    }
-    //
-    //  If more than one tile of space is required, pull the footprint down by
-    //  the appropriate amount (so that the clearance-check has space to
-    //  operate.)
-    if (spaceNeed > 1) {
-      final int shift = spaceNeed - 1;
-      footprint = new Box2D(footprint);
-      footprint.incX   (-shift);
-      footprint.incY   (-shift);
-      footprint.incHigh( shift);
-      footprint.incWide( shift);
-    }
-    //
-    //  In essence, we scan along the perimeter and note how often the tiles
-    //  switch between being blocked and unblocked.
-    final Tile perim[] = Spacing.perimeter(footprint, world);
-    final boolean minor = tier < Owner.TIER_PRIVATE;
-    int inBlock = -1, numGaps = 0;
-    if (report) {
-      I.say("  Checking tiles along perim, area: "+footprint);
-      I.say("    ");
-    }
-    for (Tile t : perim) {
-      //
-      //  We also forbid direct placement of natural items next to artificial
-      //  items, or placement next to unpath-able terrain.
-      if (minor && t != null && t.owningTier() >= Owner.TIER_PRIVATE) {
-        return false;
-      }
-      if (spaceNeed == 1 && t != null && ! t.habitat().pathClear) {
-        return false;
-      }
-      //
-      //  Otherwise, we record the blockage-pattern around the perimeter-
-      int block = checkClear(t, spaceNeed, tier, report) ? 0 : 1;
-      if (report) I.add(" "+block);
-      if (block != inBlock) { inBlock = block; if (block == 0) numGaps++; }
-    }
-    //
-    //  There's a potential fail case if a gap lies across the first and last
-    //  tiles checked, so we decrement the count in that case-
-    final boolean tailGap =
-      checkClear(perim[0               ], spaceNeed, tier, report) &&
-      checkClear(perim[perim.length - 1], spaceNeed, tier, report);
-    if (tailGap) numGaps--;
-    
-    if (report) {
-      I.say("  Footprint was: "+footprint);
-      I.say("  Gap count is: "+numGaps+" (spacing "+spaceNeed+")");
-    }
-    return numGaps < 2;
-  }
-  
-  
-  private static boolean checkClear(
-    Tile t, int space, int tier, boolean report
-  ) {
-    if (t == null) return false;
-    final int maxTier = Nums.min(tier, Owner.TIER_PRIVATE);
-    if (space == 1) {
-      return singleTileClear(t, maxTier);
-    }
-    else for (int x = space; x-- > 0;) for (int y = space; y-- > 0;) {
-      final Tile u = t.world.tileAt(x + t.x, y + t.y);
-      if (u == null || ! singleTileClear(u, maxTier)) return false;
-    }
-    return true;
-  }
-  
-  
-  private static boolean singleTileClear(Tile t, int tier) {
-    if (! t.habitat().pathClear) return false;
-    return t.owningTier() < tier || t.pathType() < Tile.PATH_HINDERS;
-  }
-  
-  
-  //  TODO:  You need a public boolean method to establish 'dominance' between
-  //  two different tiers for placement purposes.
-  
-  
   public static boolean isViableEntrance(Venue v, Tile e) {
     //  TODO:  Unify this with singleTileClear()?
     if (e == null || ! e.habitat().pathClear) return false;
@@ -525,8 +541,28 @@ public class PlaceUtils implements TileConstants {
 
 
 
-
-
-
-
-
+  
+  /*
+  public static Tile findClearSpot(
+    final Target near, final Stage world, final int margin
+  ) {
+    final Tile init = world.tileAt(near);
+    final float maxDist = near.radius() + 0.5f + (Stage.ZONE_SIZE / 2);
+    
+    final TileSpread search = new TileSpread(init) {
+      
+      protected boolean canAccess(Tile t) {
+        if (Spacing.distance(t, init) > maxDist) return false;
+        return t.onTop() == near || ! t.blocked();
+      }
+      
+      protected boolean canPlaceAt(Tile t) {
+        final Tile c = world.tileAt(t.x - margin, t.y - margin);
+        return checkAreaClear(c, margin * 2, margin * 2);
+      }
+    };
+    search.doSearch();
+    if (search.success()) return search.bestFound();
+    else return null;
+  }
+  //*/

@@ -246,7 +246,7 @@ public abstract class Venue extends Fixture implements
   
   
   protected boolean checkPerimeter(Stage world) {
-    return PlaceUtils.perimeterFits(this, world);
+    return PlaceUtils.pathingOkayAround(this, world);
   }
   
   

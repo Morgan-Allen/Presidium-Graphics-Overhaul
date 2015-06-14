@@ -30,6 +30,8 @@ public class Colour {
     CYAN         = new Colour().set(0, 1, 1, 1),
     MAGENTA      = new Colour().set(1, 0, 1, 1),
     
+    PRIMARIES[] = { RED, GREEN, BLUE, YELLOW, CYAN, MAGENTA },
+    
     BLACK        = new Colour().set(0   , 0   , 0   , 1),
     DARK_GREY    = new Colour().set(0.2f, 0.2f, 0.2f, 1),
     GREY         = new Colour().set(0.5f, 0.5f, 0.5f, 1),
@@ -42,6 +44,7 @@ public class Colour {
     SOFT_YELLOW  = new Colour(YELLOW ).withOpacity(0.5f),
     SOFT_CYAN    = new Colour(CYAN   ).withOpacity(0.5f),
     SOFT_MAGENTA = new Colour(MAGENTA).withOpacity(0.5f),
+    
     SOFT_GREY    = new Colour(GREY   ).withOpacity(0.5f),
     SOFT_WHITE   = new Colour(WHITE  ).withOpacity(0.5f),
     SOFT_BLACK   = new Colour(BLACK  ).withOpacity(0.5f),

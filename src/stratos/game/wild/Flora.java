@@ -179,7 +179,7 @@ public class Flora extends Element implements TileConstants {
     if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
     if (t.isEntrance() || t.inside().size() > 0) return false;
     if (growChance(t) == -1) return false;
-    return PlaceUtils.perimeterFits(t, Owner.TIER_TERRAIN);
+    return PlaceUtils.pathingOkayAround(t, Owner.TIER_TERRAIN);
   }
   
   
