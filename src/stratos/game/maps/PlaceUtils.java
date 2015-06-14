@@ -352,10 +352,10 @@ public class PlaceUtils implements TileConstants {
     final boolean shows = tier >= Owner.TIER_PRIVATE && showPockets;
     final Tile perimeter[] = Spacing.perimeter(footprint, world);
     //
-    //  This is where the wall-hugging starts.  We find all adjacent 'pockets'
-    //  of pathable terrain that can be traced from the perimeter.  (The trace-
-    //  length is limited to reduce computation-burden, and also because very
-    //  long detours are bad for pathing.)
+    //  To try and ensure that pathing-routes aren't interrupted, we find all
+    //  adjacent 'pockets' of pathable terrain that can be traced from the
+    //  perimeter.  (The trace- length is limited to reduce computation-burden,
+    //  and also because very long detours are bad for pathing.)
     final int maxTrace = perimeter.length + (Stage.ZONE_SIZE * margin) / 4;
     final Batch <Batch <Tile>> pocketsFound = new Batch();
     for (Tile t : perimeter) {
