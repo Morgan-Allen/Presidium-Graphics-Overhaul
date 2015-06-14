@@ -21,7 +21,7 @@ import stratos.util.*;
 public class PlaceUtils implements TileConstants {
   
   public static boolean
-    showPockets  = true ;
+    showPockets  = false;
   private static boolean
     verbose      = false,
     cacheVerbose = false;
@@ -352,33 +352,6 @@ public class PlaceUtils implements TileConstants {
     final boolean shows = tier >= Owner.TIER_PRIVATE && showPockets;
     final Tile perimeter[] = Spacing.perimeter(footprint, world);
     //
-    //  In essence, any directly-adjacent blocked-tiles are okay for now,
-    //  because the wall-hugging algorithm (below) will trace around those and
-    //  check for contiguous pathing.  But we need to ensure that passage is
-    //  *wide* enough to satisfy the safety margin.
-    final Batch <Element> blockages = new Batch();
-    boolean perimOkay = true;
-    for (Tile t : perimeter) {
-      if (! hasBlockingOwner(t, footprint, tier)) continue;
-      blockages.add(t.above());
-      t.above().flagWith(blockages);
-    }
-    //
-    //  As such, any blocked tiles within the safety-margin that *don't* belong
-    //  to adjacent 'walling' neighbours will disqualify placement.
-    for (int m = margin; m > 1 && perimOkay; m--) {
-      final Box2D insideMargin = new Box2D(footprint).expandBy(m - 1);
-      final Tile marginPerim[] = Spacing.perimeter(insideMargin, world);
-      
-      for (Tile t : marginPerim) {
-        if (t == null || singleTileClear(t, footprint, tier)) continue;
-        if (t.above() != null && t.above().flaggedWith() != null) continue;
-        perimOkay = false; break;
-      }
-    }
-    for (Element e : blockages) e.flagWith(null);
-    if (! perimOkay) return false;
-    //
     //  This is where the wall-hugging starts.  We find all adjacent 'pockets'
     //  of pathable terrain that can be traced from the perimeter.  (The trace-
     //  length is limited to reduce computation-burden, and also because very
@@ -400,7 +373,7 @@ public class PlaceUtils implements TileConstants {
       numRealPockets++;
       //
       //  (NOTE: Visual overlay creation may be toggled on for debug purposes.)
-      if (shows) {
+      if (shows && margin == 1) {
         final TerrainChunk overlay = world.terrain().createOverlay(
           world, pocket.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
         );
@@ -411,7 +384,13 @@ public class PlaceUtils implements TileConstants {
         overlay.readyFor(PlayLoop.rendering());
       }
     }
-    return numRealPockets == 1;
+    if (numRealPockets != 1) return false;
+    //
+    //  If an extra safety-margin is required, we expand the area and check
+    //  again at that size.  Otherwise return.
+    if (margin <= 1) return true;
+    final Box2D expanded = new Box2D(footprint).expandBy(1);
+    return pathingOkayAround(subject, expanded, tier, margin - 1, world);
   }
   
   
