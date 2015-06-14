@@ -203,7 +203,7 @@ public class PlacingTask implements UITask {
     
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
-      p.doPlacement();
+      p.doPlacement(false);
       placed.add(p);
       if (I.logEvents()) I.say("  Facing: "+p.facing());
     }
@@ -298,7 +298,7 @@ public class PlacingTask implements UITask {
     
     for (Venue s : placed) {
       s.setupWith(s.origin(), area, coords.toArray(Coord.class));
-      s.doPlacement();
+      s.doPlacement(false);
     }
   }
 }

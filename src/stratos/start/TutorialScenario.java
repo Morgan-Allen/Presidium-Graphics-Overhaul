@@ -144,6 +144,8 @@ public class TutorialScenario extends StartupScenario {
     config.siteLevel  = SITE_WASTELAND ;
     config.titleLevel = TITLE_COUNT    ;
     config.fundsLevel = FUNDING_MINIMAL;
+    
+    config.built.add(1, ShieldWall.BLUEPRINT);
     return config;
   }
   

@@ -206,7 +206,7 @@ public class DebugPlacing extends Scenario {
     final Nursery site = new Nursery(base);
     final Box2D area = new Box2D(13, 4, 10, 10);
     site.setupWith(world.tileAt(18, 8), area);
-    if (site.canPlace()) site.doPlacement();
+    if (site.canPlace()) site.doPlacement(false);
     
     final Bastion bastion = new Bastion(base);
     PlaceUtils.establishVenue(bastion, site, true, world);

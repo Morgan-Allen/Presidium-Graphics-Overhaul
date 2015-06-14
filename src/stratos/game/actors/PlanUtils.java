@@ -211,26 +211,25 @@ public class PlanUtils {
     float rewardBonus, boolean idle, float competence
   ) {
     float incentive = 0, novelty = 0, priority = 0, enjoys = 0;
-    float daylight = 0, exploreChance = 0, homeDist = 0;
+    float daylight = 0, sightChance = 0, homeDist = 0, danger = 0;
     
     if (idle) novelty = 0.2f;
     else novelty = Nums.clamp(Nums.max(
       (actor.base().intelMap.fogAt(surveyed) == 0 ? 0.5f : 0.25f),
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
-    
-    incentive = novelty * 10;
-    incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
-    incentive += rewardBonus;
 
     daylight = Planet.dayValue(actor.world());
-    exploreChance = actor.health.baseSpeed() * competence;
-    exploreChance *= (daylight + 1) / 2;
-    
     homeDist = homeDistanceFactor(actor, surveyed);
+    sightChance = actor.health.baseSpeed() * competence;
+    sightChance *= (daylight + 1) / 2;
     
-    priority = incentive * Nums.clamp(exploreChance, 0, 1);
-    priority -= (homeDist * 5) + ((1 - daylight) * 2.5f);
+    incentive = novelty * 10 * Nums.clamp(sightChance, 0, 1);
+    incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
+    incentive += rewardBonus;
+    
+    priority = incentive;
+    priority -= danger = ((homeDist * 5) + ((1 - daylight) * 5)) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
@@ -241,8 +240,9 @@ public class PlanUtils {
       "incentive"     , incentive    ,
       "novelty"       , novelty      ,
       "home distance" , homeDist     ,
-      "explore chance", exploreChance,
+      "sight chance"  , sightChance  ,
       "daylight"      , daylight     ,
+      "danger"        , danger       ,
       "priority"      , priority
     );
     

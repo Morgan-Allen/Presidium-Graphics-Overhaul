@@ -273,11 +273,8 @@ public abstract class Venue extends Fixture implements
   
   /**  Actual placement and life-cycle:
     */
-  public void doPlacement() {
-    
-    final boolean intact =
-      structure.currentState() == Structure.STATE_INTACT ||
-      GameSettings.buildFree;
+  public void doPlacement(boolean intact) {
+    intact |= GameSettings.buildFree || structure.intact();
     
     if (intact) {
       enterWorld();

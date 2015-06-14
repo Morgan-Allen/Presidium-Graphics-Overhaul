@@ -129,25 +129,31 @@ public class PlaceUtils implements TileConstants {
   public static boolean findClearanceFor(
     final Venue v, final Target near, final Stage world
   ) {
-    final float maxDist = Stage.ZONE_SIZE / 2;
+    //  TODO:  USE A PROPER SITING-CLASS FOR THIS
+    
+    final int maxDist = Stage.ZONE_SIZE / 2;
     Tile init = world.tileAt(near);
     init = Spacing.nearestOpenTile(init, init);
     if (init == null) return false;
     
-    final TileSpread search = new TileSpread(init) {
-      
-      protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, near) > maxDist) return false;
-        return ! t.blocked();
-      }
-      
-      protected boolean canPlaceAt(Tile t) {
+    //  For now, I'm just going to use the perimeter-methods to 'spiral out'
+    //  from the target in question and try tiles until you find a placement-
+    //  location.  (I ran into problems with tiles being simultaneously flagged
+    //  by the TileSpread and the pathingOkayAround method before.)
+    //  TODO:  Like it says, use a proper Siting class implementation
+    
+    v.setPosition(init.x, init.y, world);
+    if (checkPlacement(v.structure.asGroup(), world)) return true;
+    
+    Box2D area = new Box2D();
+    for (int m = 0; m < maxDist; m++) {
+      init.area(area).expandBy(m);
+      for (Tile t : Spacing.perimeter(area, world)) {
         v.setPosition(t.x, t.y, world);
-        return checkPlacement(v.structure.asGroup(), world);
+        if (checkPlacement(v.structure.asGroup(), world)) return true;
       }
-    };
-    search.doSearch();
-    return search.success();
+    }
+    return false;
   }
   
   
@@ -159,13 +165,7 @@ public class PlaceUtils implements TileConstants {
     if (! v.setupWith(v.origin(), null)) return null;
     
     for (Placeable i : v.structure.asGroup()) {
-      if (intact || GameSettings.buildFree) {
-        i.structure().setState(Structure.STATE_INTACT, 1.0f);
-      }
-      else {
-        i.structure().setState(Structure.STATE_INSTALL, 0.0f);
-      }
-      i.doPlacement();
+      i.doPlacement(intact);
       ((Element) i).setAsEstablished(true);
     }
     return v;
@@ -331,8 +331,7 @@ public class PlaceUtils implements TileConstants {
       final Venue groupA[] = group.toArray(Venue.class);
       
       for (Venue s : group) {
-        s.doPlacement();
-        if (intact) s.structure.setState(Structure.STATE_INTACT, 1);
+        s.doPlacement(intact);
         s.structure.assignGroup(groupA);
         placed.add(s);
       }

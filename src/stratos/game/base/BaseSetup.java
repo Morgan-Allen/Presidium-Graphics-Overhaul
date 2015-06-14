@@ -158,16 +158,13 @@ public class BaseSetup {
     
     for (Venue placing : toPlace) {
       rankSectionPlacings(new Venue[] {placing}, report);
-      attemptPlacements(sitings.size(), -1, report);
+      attemptPlacements(sitings.size(), -1, true, report);
     }
     
     final Batch <Venue> placed = new Batch <Venue> ();
     Visit.appendTo(placed, allPlaced);
     allPlaced.clear();
     sitings.clear();
-    for (Venue v : placed) {
-      v.structure().setState(Structure.STATE_INTACT, 1);
-    }
     return placed;
   }
   
@@ -215,7 +212,7 @@ public class BaseSetup {
       I.say("\nPlacement iterations: "+numIters+"/"+initPlaceCount);
       I.say("  Sitings remaining: "+sitings.size());
     }
-    attemptPlacements(numIters, buildLimit, report);
+    attemptPlacements(numIters, buildLimit, false, report);
   }
   
   
@@ -250,7 +247,7 @@ public class BaseSetup {
   
   
   private void attemptPlacements(
-    int maxChecked, float buildLimit, boolean report
+    int maxChecked, float buildLimit, boolean intact, boolean report
   ) {
     while (maxChecked-- > 0 && sitings.size() > 0) {
       final Siting best  = sitings.removeGreatest();
@@ -269,7 +266,7 @@ public class BaseSetup {
         I.say("  Rough location: "+best.placed);
         I.say("  Rating was:     "+best.rating);
       }
-      if (attemptExactPlacement(best, sample, report)) {
+      if (attemptExactPlacement(best, sample, intact, report)) {
         removeSitings(sample);
       }
       else if (report) I.say("  No suitable site found.");
@@ -288,7 +285,7 @@ public class BaseSetup {
   
   
   private boolean attemptExactPlacement(
-    Siting placing, Venue sample, boolean report
+    Siting placing, Venue sample, boolean intact, boolean report
   ) {
     final Pick <Tile> sitePick = new Pick <Tile> ();
     final Box2D tempA = new Box2D();
@@ -310,7 +307,7 @@ public class BaseSetup {
     }
     final Tile bestSite = sitePick.result();
     sample.setupWith(bestSite, null);
-    sample.doPlacement();
+    sample.doPlacement(intact);
     
     allPlaced.add(sample);
     totalBuildHP += sample.structure.maxIntegrity();

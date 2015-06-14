@@ -170,8 +170,10 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public void doPlacement() {
-    enterWorld();
+  public void doPlacement(boolean intact) {
+    intact |= GameSettings.buildFree || structure.intact();
+    final Tile at = origin();
+    enterWorldAt(at.x, at.y, at.world, intact);
   }
   
   

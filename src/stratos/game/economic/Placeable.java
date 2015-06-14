@@ -22,8 +22,8 @@ public interface Placeable extends
   Structure structure();
   Index <Upgrade> allUpgrades();
   
-  void doPlacement();
   boolean setupWith(Tile position, Box2D area, Coord... others);
+  void doPlacement(boolean intact);
   void onCompletion();
   void onDestruction();
   
