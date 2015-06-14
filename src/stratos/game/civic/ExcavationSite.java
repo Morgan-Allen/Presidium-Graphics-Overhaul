@@ -217,8 +217,8 @@ public class ExcavationSite extends Venue implements TileConstants {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final boolean report = verbose && I.talkAbout == actor;
     
     if (report) I.say("\nGETTING NEXT EXCAVATION TASK");

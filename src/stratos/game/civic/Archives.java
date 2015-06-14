@@ -89,8 +89,8 @@ public class Archives extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  protected Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     
     final float needCirc = stocks.relativeShortage(CIRCUITRY);
     final Bringing d = BringUtils.bestBulkCollectionFor(

@@ -248,7 +248,8 @@ public class NativeHut extends Venue {
   
   /**  Behaviour implementation-
     */
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     final int numHome = staff.lodgers().size();
     
@@ -260,7 +261,7 @@ public class NativeHut extends Venue {
           choice.add(hunt.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL));
         }
       }
-      if (onShift) {
+      if (staff.onShift(actor)) {
         choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.CASUAL));
       }
     }
@@ -276,7 +277,7 @@ public class NativeHut extends Venue {
         forage.addMotives(Plan.MOTIVE_JOB, urge);
         choice.add(forage);
       }
-      if (onShift) {
+      if (staff.onShift(actor)) {
         choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS));
       }
     }

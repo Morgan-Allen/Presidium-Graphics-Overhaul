@@ -144,7 +144,7 @@ public class CultureLab extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     final Choice choice = new Choice(actor);
     final boolean noShift = staff.shiftFor(actor) == OFF_DUTY;
     //

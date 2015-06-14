@@ -146,19 +146,16 @@ public class PhysicianStation extends Venue {
     );
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! structure.intact()) return null;
-    //
-    //  If there are patients inside, make sure somebody's available.
-    if (numPatients() == 0 && staff.offDuty(actor)) return null;
-    final Choice choice = new Choice(actor);
+  public Behaviour jobFor(Actor actor) {
     //
     //  If anyone is waiting for treatment, tend to them- including outside the
     //  building.
+    final boolean onShift = staff.onShift(actor);
+    final Choice choice = new Choice(actor);
     final Batch <Target> around = new Batch <Target> ();
     for (Mobile m : inside()) tryAdding(m, around);
     //
-    //  The ruler and his household also get special treatment-
+    //  The ruler and his household also get special treatment.
     final Actor ruler = base.ruler();
     if (ruler != null) {
       final Property home = ruler.mind.home();
@@ -168,6 +165,7 @@ public class PhysicianStation extends Venue {
       }
     }
     for (Target t : around) t.flagWith(null);
+    if (around.size() == 0 && staff.offDuty(actor)) return null;
     //
     //  Then, compare the urgency of treatment for each compiled patient:
     for (Target m : around) if (m instanceof Actor) {

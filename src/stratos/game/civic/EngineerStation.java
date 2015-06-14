@@ -184,12 +184,12 @@ public class EngineerStation extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (staff.shiftFor(actor) == OFF_DUTY) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
     //  Consider contributing toward local repairs-
-    choice.add(Repairs.getNextRepairFor(actor, onShift));
+    choice.add(Repairs.getNextRepairFor(actor, true));
     if (actor.mind.vocation() == TECHNICIAN && ! choice.empty()) {
       return choice.pickMostUrgent();
     }

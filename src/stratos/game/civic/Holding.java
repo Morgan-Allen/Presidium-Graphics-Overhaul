@@ -417,7 +417,7 @@ public class Holding extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
+  protected Behaviour jobFor(Actor actor) {
     //  TODO:  Include special orders for servants/minders?
     return null;
   }

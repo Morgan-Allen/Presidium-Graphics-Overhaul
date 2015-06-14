@@ -123,8 +123,8 @@ public class Fabricator extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     
     final Choice choice = new Choice(actor);
     
@@ -134,12 +134,16 @@ public class Fabricator extends Venue {
     }
     if (! choice.empty()) return choice.pickMostUrgent();
     
-    final Manufacture m = stocks.nextManufacture(actor, PLASTICS_TO_DECOR);
-    if (m != null) {
-      m.setBonusFrom(this, false, DECOR_STUDIO);
-      choice.add(m);
+    final Manufacture mP = stocks.nextManufacture(actor, PLASTICS_TO_PRESSFEED);
+    if (mP != null) {
+      mP.setBonusFrom(this, false, FILM_BASE);
+      choice.add(mP);
     }
-    
+    final Manufacture mD = stocks.nextManufacture(actor, PLASTICS_TO_DECOR);
+    if (mD != null) {
+      mD.setBonusFrom(this, false, DECOR_STUDIO);
+      choice.add(mD);
+    }
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
@@ -153,7 +157,7 @@ public class Fabricator extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { PLASTICS, DECOR };
+    return new Traded[] { PLASTICS, PRESSFEED, DECOR };
   }
   
   

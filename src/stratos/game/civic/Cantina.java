@@ -139,7 +139,7 @@ public class Cantina extends Venue implements Performance.Theatre {
 
   /**  Upgrades, services and economic functions-
     */
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     if (staff.shiftFor(actor) == OFF_DUTY) return null;
     
     if (actor.mind.vocation() == Backgrounds.SOMA_CHEF) {

@@ -140,38 +140,12 @@ public class SupplyDepot extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
-    //
-    //  During your secondary shift, consider supervising the venue-
-    final boolean offShift = staff.shiftFor(actor) == SECONDARY_SHIFT;
+  protected Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
-    //  During the primary shift, you can also perform repairs or localised
-    //  deliveries-
-    if (onShift || offShift) {
-      for (CargoBarge b : barges) {
-        if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
-        else if (b.abandoned()) choice.add(new Bringing(b, this));
-      }
-      choice.add(Repairs.getNextRepairFor(actor, true));
-      
-      final Bringing d = BringUtils.bestBulkDeliveryFrom(
-        this, services(), 2, 10, 5
-      );
-      if (d != null && staff.assignedTo(d) < 1) choice.add(d);
-      
-      final Bringing c = BringUtils.bestBulkCollectionFor(
-        this, services(), 2, 10, 5
-      );
-      if (c != null && staff.assignedTo(c) < 1) choice.add(c);
-      
-      return choice.weightedPick();
-    }
-    if (onShift && choice.empty()) {
-      choice.add(Supervision.oversight(this, actor));
-    }
-    //
-    //  See if there's a bulk delivery to be made-
+    //  See if there's a bulk delivery to be made, or if the cargo barge is in
+    //  need of repair.
     final Traded services[] = ALL_MATERIALS;
     final CargoBarge cargoBarge = barges.first();
     if (bargeReady(cargoBarge)) {
@@ -186,9 +160,29 @@ public class SupplyDepot extends Venue {
         this, services, 5, 50, depots
       );
       if (checkCargoJobOkay(bC, cargoBarge)) choice.add(bC);
-      if (! choice.empty()) return choice.pickMostUrgent();
     }
-    return null;
+    else for (CargoBarge b : barges) {
+      if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
+      else if (b.abandoned()) choice.add(new Bringing(b, this));
+    }
+    //
+    //  Otherwise, consider local deliveries.
+    final Bringing d = BringUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    );
+    if (d != null && staff.assignedTo(d) < 1) choice.add(d);
+    
+    final Bringing c = BringUtils.bestBulkCollectionFor(
+      this, services(), 2, 10, 5
+    );
+    if (c != null && staff.assignedTo(c) < 1) choice.add(c);
+    
+    if (! choice.empty()) return choice.weightedPick();
+    //
+    //  If none of that needs doing, consider local repairs or supervision.
+    choice.add(Repairs.getNextRepairFor(actor, true));
+    choice.add(Supervision.oversight(this, actor));
+    return choice.weightedPick();
   }
   
   

@@ -222,8 +222,8 @@ public class StockExchange extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
     //  ...You basically don't want the stock vendor wandering too far, because

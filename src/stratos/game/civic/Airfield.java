@@ -153,7 +153,7 @@ public class Airfield extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
+  protected Behaviour jobFor(Actor actor) {
     final Choice choice = new Choice(actor);
     
     final boolean shouldHaul =

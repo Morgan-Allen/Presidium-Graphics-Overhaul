@@ -268,11 +268,11 @@ public class Bastion extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
-    final boolean anyShift = staff.shiftFor(actor) != OFF_DUTY;
-    
-    //  TODO:  Apply to all advisors!
+    //
+    //  Firstly, we assign behaviours for all VIPs or their direct servants-
+    //  TODO:  Apply these behaviours to all advisors!
     if (actor == base().ruler()) {
       return Supervision.stayForVIP(this, actor);
     }
@@ -280,17 +280,26 @@ public class Bastion extends Venue {
     if (v == STEWARD || v == FIRST_CONSORT) {
       return Supervision.stayForVIP(this, actor);
     }
-    
+    else if (staff.offDuty(actor)) return null;
+    //
+    //  Then, assign any tasks for regular maintenance and security staff-
+    final Choice choice = new Choice(actor);
     if (v == Backgrounds.TECHNICIAN) {
-      return Repairs.getNextRepairFor(actor, true);
+      choice.add(Repairs.getNextRepairFor(actor, true));
     }
-    if (anyShift && (v == AUDITOR || v == MINISTER_FOR_ACCOUNTS)) {
-      return Audit.nextOfficialAudit(actor);
+    if (v == AUDITOR || v == MINISTER_FOR_ACCOUNTS) {
+      if (staff.onShift(actor)) {
+        choice.add(Sentencing.nextTrialFor(actor, this));
+      }
+      choice.add(Audit.nextOfficialAudit(actor));
     }
-    if (onShift && (v == TROOPER || v == WAR_MASTER)) {
-      return Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE);
+    if (v == TROOPER || v == WAR_MASTER) {
+      if (staff.onShift(actor)) {
+        choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
+      }
+      choice.add(Arrest.nextOfficialArrest(this, actor));
     }
-    return Supervision.oversight(this, actor);
+    return choice.weightedPick();
   }
   
   

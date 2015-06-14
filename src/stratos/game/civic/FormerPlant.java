@@ -177,14 +177,13 @@ public class FormerPlant extends Venue implements TileConstants {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
-    if (staff.shiftFor(actor) == OFF_DUTY) return null;
+  protected Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 1, 5, 5
     );
     if (d != null) return d;
-    else if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
     Venue source = (EcologistStation) world.presences.nearestMatch(

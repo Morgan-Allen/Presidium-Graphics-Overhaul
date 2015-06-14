@@ -182,11 +182,11 @@ public class RunnerMarket extends Venue {
     );
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     
     //  TODO:  It seems a little odd that runners would be working strictly 'on
-    //  the clock'.  Fudge this a little?
-    if (! onShift) return null;
+    //  the clock'.  Fudge this a little..?
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
     //  Either collect protection money from nearby businesses, or loot from

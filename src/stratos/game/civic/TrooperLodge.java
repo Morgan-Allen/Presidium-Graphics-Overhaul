@@ -121,26 +121,15 @@ public class TrooperLodge extends Venue {
   };
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
-    final boolean offShift = staff.shiftFor(actor) == SECONDARY_SHIFT;
-    //
-    //  We allow for drilling in various skills during a soldier's secondary
-    //  shift-
-    if (offShift) for (int i = 4; i-- > 0;) {
-      final Upgrade TU = TRAIN_UPGRADES[i];
-      final float trainLevel = structure.upgradeLevel(TU);
-      if (trainLevel == 0) continue;
-      final Skill TS[] = TRAIN_SKILLS[i];
-      final Training s = Training.asDrill(actor, this, TS, trainLevel * 5);
-      s.addMotives(Plan.MOTIVE_JOB, (trainLevel + 1) * Plan.CASUAL / 2);
-      choice.add(s);
-    }
     //
     //  If there are shield walls built nearby, we try to patrol along their
     //  perimeter.
-    //  TODO:  Move this to the factory method
-    if (onShift) {
+    if (staff.onShift(actor)) {
+      //
+      //  TODO:  Move this to the factory methods for Patrolling.
       final ShieldWall wall = (ShieldWall) world.presences.randomMatchNear(
         ShieldWall.class, this, Stage.ZONE_SIZE
       );
@@ -155,6 +144,18 @@ public class TrooperLodge extends Venue {
       else {
         choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
       }
+    }
+    //
+    //  We allow for drilling in various skills during a soldier's secondary
+    //  shift-
+    else for (int i = 4; i-- > 0;) {
+      final Upgrade TU = TRAIN_UPGRADES[i];
+      final float trainLevel = structure.upgradeLevel(TU);
+      if (trainLevel == 0) continue;
+      final Skill TS[] = TRAIN_SKILLS[i];
+      final Training s = Training.asDrill(actor, this, TS, trainLevel * 5);
+      s.addMotives(Plan.MOTIVE_JOB, (trainLevel + 1) * Plan.CASUAL / 2);
+      choice.add(s);
     }
     return choice.weightedPick();
   }

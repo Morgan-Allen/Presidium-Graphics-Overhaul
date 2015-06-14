@@ -538,8 +538,7 @@ public abstract class Venue extends Fixture implements
       addServices(choice, actor);
     }
     else {
-      final boolean onShift = staff.onShift(actor);
-      choice.add(jobFor(actor, onShift));
+      choice.add(jobFor(actor));
     }
   }
 
@@ -547,7 +546,7 @@ public abstract class Venue extends Fixture implements
   //
   //  By default, these do nothing.
   protected void addServices(Choice choice, Actor client) {}
-  protected Behaviour jobFor(Actor actor, boolean onShift) { return null; }
+  protected Behaviour jobFor(Actor actor) { return null; }
   
   
   public float ratePlacing(Target point, boolean exact) {
