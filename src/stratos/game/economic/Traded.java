@@ -21,8 +21,18 @@ public class Traded extends Constant implements Session.Saveable {
   
   
   final static String
-    ITEM_PATH = "media/Items/",
+    ITEM_PATH        = "media/Items/",
     DEFAULT_PIC_PATH = ITEM_PATH+"crate.gif";
+  final public static CutoutModel
+    SHORTAGE_MODEL = CutoutModel.fromImage(
+      Traded.class, ITEM_PATH+"short_icon.png", 0.4f, 0.5f
+    ),
+    OKAY_MODEL     = CutoutModel.fromImage(
+      Traded.class, ITEM_PATH+"okay_icon.png", 0.4f, 0.5f
+    ),
+    QUESTION_MODEL = CutoutModel.fromImage(
+      Traded.class, ITEM_PATH+"what_icon.png", 0.4f, 0.5f
+    );
   
   final static Conversion
     NATURAL_MATERIALS = new Conversion((Class) null, "natural_materials");

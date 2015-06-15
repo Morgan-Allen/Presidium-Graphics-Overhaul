@@ -780,7 +780,7 @@ public abstract class Venue extends Fixture implements
       progBar.level = structure.upgradeProgress();
       progBar.size = healthbar.size;
       progBar.position.setTo(healthbar.position);
-      progBar.yoff = Healthbar.BAR_HEIGHT;
+      progBar.yoff = 0 - Healthbar.BAR_HEIGHT;
       
       final Colour c = new Colour(healthbar.colour);
       c.set(
@@ -797,15 +797,26 @@ public abstract class Venue extends Fixture implements
     //  We also show a visual indication of all the goods present at this
     //  venue...
     final Batch <CutoutModel> itemModels = new Batch();
+    final Batch <CutoutModel> tickModels  = new Batch();
     for (Traded t : VenuePane.ITEM_LIST_ORDER) {
       if (stocks.demandFor(t) == 0) continue;
-      if (t.form == Economy.FORM_PROVISION) continue;
-      if (stocks.amountOf(t) > 0) itemModels.add(t.model);
+      final boolean producer = stocks.producer(t);
+      final boolean shortage = stocks.amountOf(t) < 1;
+      if (t.form == Economy.FORM_PROVISION && ! shortage) continue;
+      
+      itemModels.add(t.model);
+      if (shortage && producer) tickModels.add(Traded.QUESTION_MODEL);
+      else if (shortage)        tickModels.add(Traded.SHORTAGE_MODEL);
+      else                      tickModels.add(Traded.OKAY_MODEL    );
     }
     if (itemModels.size() > 0) {
       CutoutSprite.renderAbove(
         healthbar.position, 0, 0.05f, -1, rendering,
         0.5f, 1, itemModels
+      );
+      CutoutSprite.renderAbove(
+        healthbar.position, 0, 0.05f, -1.1f, rendering,
+        0.5f, 1, tickModels
       );
       zoff += 0.35f;
     }
