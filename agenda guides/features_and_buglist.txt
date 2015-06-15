@@ -2,6 +2,10 @@
 
 TO DO NOW-
 
+*  Try to use a fixed roads/walls-template for around the bastion.  That should
+   simplify a number of tasks below.
+
+
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
 *  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.
@@ -75,10 +79,6 @@ THE TUTORIAL
 
 *  And I think I still need to explain security missions.  (And make sure the
    artilects are more proactive as raiders.)
-
-*  If a mission is selected and then completes while looking at a different
-   panel, the selection-circle can persist.  (That might need a change to the
-   selection-system?)
 
 *  Show missions on the minimap, along with proper tool-tips.
 

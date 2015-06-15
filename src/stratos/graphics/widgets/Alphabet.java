@@ -21,8 +21,8 @@ import java.io.*;
 public class Alphabet {
   
   
-  Texture fontTex;
-  Letter letters[], map[];
+  private Texture fontTex;
+  private Letter letters[], map[];
   
   public static class Letter {
     public char map;
@@ -37,6 +37,7 @@ public class Alphabet {
   
   
   public Letter letterFor(char c) {
+    if (c < 0 || c >= map.length) return null;
     return map[c];
   }
   

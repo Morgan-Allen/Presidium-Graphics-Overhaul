@@ -161,7 +161,7 @@ public class Text extends UIGroup implements Description {
 
   boolean addEntry(char k, Clickable links, Colour c) {
     Letter l = null;
-    if (((l = alphabet.map[k]) == null) && (k != '\n')) return false;
+    if (((l = alphabet.letterFor(k)) == null) && (k != '\n')) return false;
     final TextEntry entry = new TextEntry();
     entry.key = k;
     entry.letter = l;
@@ -376,7 +376,7 @@ public class Text extends UIGroup implements Description {
     //
     //  Draw the text entry-
     pass.draw(
-      alphabet.fontTex, tint,
+      alphabet.texture(), tint,
       entry.xpos() + xpos() - scrolled.xpos(),
       entry.ypos() + ypos() - scrolled.ypos(),
       entry.xdim(), entry.ydim(),
