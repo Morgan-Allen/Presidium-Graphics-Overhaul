@@ -145,9 +145,9 @@ public class Outcrop extends Fixture {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    setAsEstablished(true);
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
+    if (intact) setAsEstablished(true);
     world.presences.togglePresence(this, origin(), true , Outcrop.class);
     return true;
   }

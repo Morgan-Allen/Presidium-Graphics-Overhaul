@@ -10,10 +10,7 @@ import stratos.util.*;
 
 
 
-public class Element implements
-  Target, Session.Saveable, Stage.Visible
-{
-  
+public class Element implements Target, Session.Saveable, Stage.Visible {
   
   /**  Common fields, basic constructors, and save/load methods
     */
@@ -71,23 +68,24 @@ public class Element implements
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (inWorld()) I.complain("Already in world...");
     if (! setPosition(x, y, world)) return false;
+    
     this.toggleProperty(PROP_IN_WORLD, true);
     this.world = world;
     this.inceptTime = world.currentTime();
-    if (! isMobile()) {
-      if (location.onTop() != null) location.onTop().setAsDestroyed();
-      location.setOnTop(this);
+    
+    if (intact && ! isMobile()) {
+      if (location.above() != null) location.above().setAsDestroyed();
+      location.setAbove(this, owningTier() >= Owner.TIER_PRIVATE);
     }
     return true;
   }
   
   
-  public void enterWorld() {
-    if (location == null) I.complain("Position never set!");
-    enterWorldAt(location.x, location.y, location.world);
+  public boolean enterWorldAt(int x, int y, Stage world) {
+    return enterWorldAt(x, y, world, true);
   }
   
   
@@ -100,6 +98,12 @@ public class Element implements
     }
     enterWorld();
     return true;
+  }
+  
+  
+  public void enterWorld() {
+    if (location == null) I.complain("Position never set!");
+    enterWorldAt(location.x, location.y, location.world, true);
   }
   
   
@@ -120,7 +124,7 @@ public class Element implements
       return;
     }
     if (! isMobile()) {
-      location.setOnTop(null);
+      location.setAbove(null, location.reserves() == this);
     }
     this.toggleProperty(PROP_IN_WORLD, false);
   }
@@ -206,6 +210,8 @@ public class Element implements
   public void onGrowth(Tile t) {}
   
   
+  //  TODO:  Get rid of this, I think?  The 'intact' argument in enterWorld()
+  //         should do the trick.
   public void setAsEstablished(boolean isGrown) {
     if (isGrown) inceptTime = -10;
     else inceptTime = world.currentTime();
@@ -264,6 +270,7 @@ public class Element implements
   
   
   public boolean visibleTo(Base base) {
+    if (! inWorld()) return base == base();
     final float fog = base == null ? 1 : fogFor(base);
     if (fog <= 0 || sprite == null) return false;
     else sprite.fog = fog;

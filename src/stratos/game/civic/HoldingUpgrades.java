@@ -391,7 +391,6 @@ public class HoldingUpgrades {
       "further investment in a life here.";
     
     float ambience = holding.world().ecology().ambience.valueAt(holding);
-    ambience += holding.extras().size() / 2f;
     if (ambience < AMBIENCE_NEEDS[targetLevel]) return NV ? NOT_MET :
       "The aesthetics of the area could stand improvement before the "+
       "residents will commit to improving their property.";

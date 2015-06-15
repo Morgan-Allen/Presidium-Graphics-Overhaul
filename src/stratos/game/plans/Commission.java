@@ -90,52 +90,68 @@ public class Commission extends Plan {
   //  separately!
   
   public static void addCommissions(
-    Actor actor, Venue makes, Choice choice, Traded... itemTypes
+    Actor actor, Venue makes, Choice choice, Traded itemType, Upgrade limits
   ) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nChecking commissions for "+actor);
     
     final boolean hasCommission = actor.mind.hasToDo(Commission.class);
     if (hasCommission) return;
+    final Item device = actor.gear.deviceEquipped();
+    final Item outfit = actor.gear.outfitEquipped();
     
-    if (Visit.arrayIncludes(itemTypes, actor.gear.deviceType())) {
-      choice.add(nextCommission(actor, makes, actor.gear.deviceEquipped()));
+    if (device != null && device.type == itemType) {
+      choice.add(nextCommission(actor, makes, device, limits));
     }
-    if (Visit.arrayIncludes(itemTypes, actor.gear.outfitType())) {
-      choice.add(nextCommission(actor, makes, actor.gear.outfitEquipped()));
+    if (outfit != null && outfit.type == itemType) {
+      choice.add(nextCommission(actor, makes, outfit, limits));
     }
   }
   
   
   private static Commission nextCommission(
-    Actor actor, Venue makes, Item baseItem
+    Actor actor, Venue makes, Item baseItem, Upgrade limits
   ) {
     if (baseItem == null || ! makes.openFor(actor)) return null;
     if (makes.stocks.specialOrders().size() >= MAX_ORDERS) return null;
-
+    
     final boolean report = evalVerbose && I.talkAbout == actor;
     final int baseQuality = (int) baseItem.quality;
     
-    int quality = Item.MAX_QUALITY + 1;
+    //
+    //  We constrain maximum item-quality by the upgrade-level available at the
+    //  venue in question...
+    final float upgradeLevel = limits == null ? 1 : (
+      makes.structure().upgradeLevel(limits) * 1f / limits.maxLevel
+    );
+    int maxQuality = Item.MAX_QUALITY + 1;
+    maxQuality -= (Item.MAX_QUALITY - 1) * (1 - upgradeLevel);
+    final boolean needsReplace = baseItem.amount < 0.5f;
+    
+    //
+    //  Then we see if this exceeds the quality of the item of this type the
+    //  actor currently possesses-
+    int quality = maxQuality;
     Commission added = null;
     Item upgrade = null;
-    
     while (--quality > 0) {
       //
       //  TODO:  Unify this with the priority-eval methods below!
       upgrade = Item.withQuality(baseItem.type, quality);
       final float price = calcPrice(upgrade, makes);
       final boolean done = makes.stocks.hasItem(upgrade);
+      
       if (price >= actor.gear.allCredits() && ! done) continue;
-      if (quality <= baseQuality) continue;
+      if (quality <= baseQuality && ! needsReplace) continue;
+      else if (quality < baseQuality) continue;
       
       added = new Commission(actor, upgrade, makes);
-      if (added.priorityFor(actor) <= 0) continue;
-      break;
+      if (added.priorityFor(actor) > 0) break;
     }
     
     if (report) {
       I.say("\nConsidering commission for "+baseItem);
+      I.say("  Max quality:  "+maxQuality);
       I.say("  Owner cash:   "+actor.gear.allCredits());
       I.say("  New item:     "+upgrade);
       I.say("  Base price:   "+upgrade.defaultPrice());

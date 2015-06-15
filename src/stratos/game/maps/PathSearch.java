@@ -53,21 +53,25 @@ public class PathSearch extends Search <Boarding> {
   
   
   public static boolean canApproach(Target aims, Mobile client) {
-    return approachTile(aims, client) != null;
+    return approachPoint(aims, client) != null;
   }
   
   
   public static Tile approachTile(Target aims, Mobile client) {
+    final Boarding point = approachPoint(aims, client);
+    return (point instanceof Tile) ? (Tile) point : null;
+  }
+  
+  
+  private static Boarding approachPoint(Target aims, Mobile client) {
     while (true) {
-      if (blockedBy(aims, client)) return null;
-      if (aims instanceof Tile) return (Tile) aims;
+      if (aims == null || blockedBy(aims, client)) return null;
+      if (aims instanceof Tile ) return (Tile ) aims;
+      if (aims instanceof Venue) return (Venue) aims;
       
-      if (aims instanceof Property) {
-        aims = ((Property) aims).mainEntrance();
-      }
       if (aims instanceof Boarding) {
         for (Boarding c : ((Boarding) aims).canBoard()) {
-          if (c instanceof Tile) { aims = (Tile) c; break; }
+          if (! blockedBy(c, client)) { aims = c; break; }
         }
       }
       if (aims instanceof Mobile) {
@@ -182,16 +186,21 @@ public class PathSearch extends Search <Boarding> {
     if (spot == null) return -1;
     if (spot == destination) return 0;
     float mods = 0;
-
+    
+    //  Finally, return a value based on pathing difficulties in the terrain-
+    float baseCost = Spacing.distance(prior, spot);
     if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
       mods += spot.inside().size() * 2;
     }
+    //  Discourage pathing through structures unless you really need to-
+    else {
+      baseCost *= 2;
+    }
+    
     if (useDanger) {
       //  TODO:  Implement this...
     }
     
-    //  Finally, return a value based on pathing difficulties in the terrain-
-    final float baseCost = Spacing.distance(prior, spot);
     switch (spot.pathType()) {
       case (Tile.PATH_CLEAR  ) : return (1.0f * baseCost) + mods;
       case (Tile.PATH_ROAD   ) : return (0.5f * baseCost) + mods;

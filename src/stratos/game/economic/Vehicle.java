@@ -20,7 +20,7 @@ import static stratos.game.actors.Qualities.*;
 
 public abstract class Vehicle extends Mobile implements
   Boarding, Owner, Property,
-  Selectable, Structure.Basis
+  Selectable, Placeable
 {
   
   /**  Fields, constants, constructors and save/load methods-
@@ -170,8 +170,24 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public void doPlacement() {
-    enterWorld();
+  public void doPlacement(boolean intact) {
+    intact |= GameSettings.buildFree || structure.intact();
+    final Tile at = origin();
+    enterWorldAt(at.x, at.y, at.world, intact);
+  }
+  
+  
+  public boolean setupWith(Tile position, Box2D area, Coord... others) {
+    return setPosition(position.x, position.y, position.world);
+  }
+  
+  
+  public boolean canPlace(Account reasons) {
+    return reasons.setSuccess();
+  }
+  
+  
+  public void previewPlacement(boolean canPlace, Rendering rendering) {
   }
   
   

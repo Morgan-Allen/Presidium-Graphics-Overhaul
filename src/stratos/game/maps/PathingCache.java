@@ -53,7 +53,6 @@ public class PathingCache {
   final Stage world;
   final Place tilePlaces[][];
   final Table <StageRegion, Caching> allCached = new Table();
-  //final MipMap pathMipMap;
   
   
   

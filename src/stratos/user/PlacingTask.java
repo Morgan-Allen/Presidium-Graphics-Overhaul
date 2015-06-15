@@ -6,14 +6,18 @@
 package stratos.user;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.KeyInput;
 import stratos.util.*;
+
+import stratos.graphics.widgets.KeyInput;
 import com.badlogic.gdx.Input.Keys;
 
 
 
 public class PlacingTask implements UITask {
+  
+  
   
   final static int
     MODE_POINT = 0,
@@ -199,14 +203,10 @@ public class PlacingTask implements UITask {
     
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
-      p.doPlacement();
+      p.doPlacement(false);
       placed.add(p);
       if (I.logEvents()) I.say("  Facing: "+p.facing());
     }
-    
-    final Venue PA[] = placed.toArray(Venue.class);
-    for (Venue p : PA) p.structure.assignGroup(PA);
-    
     UI.endCurrentTask();
   }
   
@@ -227,6 +227,7 @@ public class PlacingTask implements UITask {
   private void renderPlacement(
     Box2D area, Batch <Coord> placePoints, boolean canPlace
   ) {
+    if (PlaceUtils.showPockets) return;
     //
     //  Base venue sprites off their current and projected neighbours!
     final Batch <Object> under = new Batch <Object> ();
@@ -253,6 +254,9 @@ public class PlacingTask implements UITask {
   }
   
   
+  
+  /**  Various public utility methods-
+    */
   public static boolean isBeingPlaced(Target e) {
     final PlacingTask task = currentPlacement();
     if (task != null) for (Venue v : task.placeItems.values()) {
@@ -276,7 +280,34 @@ public class PlacingTask implements UITask {
     if (UI == null || ! (UI.currentTask() instanceof PlacingTask)) return null;
     return (PlacingTask) UI.currentTask();
   }
+  
+  
+  public static void performPlacements(
+    Series <? extends Venue> placed, Box2D area, Base base
+  ) {
+    //  TODO:  UNIFY WITH THE METHODS ABOVE FOR HIGHER FIDELITY/CONCISION
+    final Batch <Coord> coords = new Batch();
+    
+    for (Venue v : placed) {
+      if (area == null) area = new Box2D().setTo(v.footprint());
+      else area.include(v.footprint());
+      final Tile at = v.origin();
+      final int hS = v.size / 2;
+      coords.add(new Coord(at.x + hS, at.y + hS));
+    }
+    
+    for (Venue s : placed) {
+      s.setupWith(s.origin(), area, coords.toArray(Coord.class));
+      s.doPlacement(false);
+    }
+  }
 }
+
+
+
+
+
+
 
 
 

@@ -74,8 +74,8 @@ public class SelectionPane extends UIGroup implements UIConstants {
   final   float  catScrolls[];
   private int    categoryID  ;
   
-  private Button backButton;
-  private Button infoButton;
+  private Button backButton ;
+  private Button infoButton ;
   private Button closeButton;
   
 
@@ -110,6 +110,9 @@ public class SelectionPane extends UIGroup implements UIConstants {
     this.selected = selected;
     this.previous = previous;
     
+    //
+    //  Firstly set up the main border, framing elements, header and portrait
+    //  view, if provided-
     final int TP = topPadding;
     int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
     down += HEADER_HIGH + TP;
@@ -145,6 +148,9 @@ public class SelectionPane extends UIGroup implements UIConstants {
       this.portraitFrame = null;
     }
     
+    //
+    //  Set up the detail and, if applicable, listing-text widgets, along with
+    //  the associated scrollbar-widget at the side:
     detailText = new Text(baseUI, BaseUI.INFO_FONT) {
       protected void whenLinkClicked(Clickable link) {
         super.whenLinkClicked(link);
@@ -153,11 +159,9 @@ public class SelectionPane extends UIGroup implements UIConstants {
     };
     detailText.scale = SMALL_FONT_SIZE;
     detailText.attachTo(border.inside);
-    
+    Text scrollParent = detailText;
+
     if (hasListing) {
-      detailText.alignHorizontal(0, 0);
-      detailText.alignTop(down, CORE_INFO_HIGH);
-      
       listingText = new Text(baseUI, BaseUI.INFO_FONT) {
         protected void whenLinkClicked(Clickable link) {
           super.whenLinkClicked(link);
@@ -165,23 +169,28 @@ public class SelectionPane extends UIGroup implements UIConstants {
         }
       };
       listingText.alignVertical  (0, CORE_INFO_HIGH + down);
-      listingText.alignHorizontal(0, 0                    );
+      listingText.alignHorizontal(0, SCROLLBAR_WIDE       );
       listingText.scale = SMALL_FONT_SIZE;
       listingText.attachTo(border.inside);
-      scrollbar = listingText.makeScrollBar(SCROLL_TEX);
-      scrollbar.alignToMatch(listingText);
+      
+      detailText.alignHorizontal(0   , 0             );
+      detailText.alignTop       (down, CORE_INFO_HIGH);
+      scrollParent = listingText;
     }
     else {
+      detailText.alignHorizontal(0, SCROLLBAR_WIDE);
+      detailText.alignVertical  (0, down          );
       listingText = null;
-      detailText.alignHorizontal(0, 0   );
-      detailText.alignVertical  (0, down);
-      scrollbar = detailText .makeScrollBar(SCROLL_TEX);
-      scrollbar.alignToMatch(detailText);
     }
     
+    scrollbar = scrollParent.makeScrollBar(SCROLL_TEX);
+    scrollbar.alignToMatch(scrollParent);
     scrollbar.alignRight(0 - SCROLLBAR_WIDE, SCROLLBAR_WIDE);
     scrollbar.attachTo(border.inside);
     
+    //
+    //  Then set up the category-headings and other, more generalised
+    //  navigation-widgets-
     final SelectionPane pane = this;
     this.categories = categories;
     categoryID = defaultCategory();

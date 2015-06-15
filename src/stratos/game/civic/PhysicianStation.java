@@ -7,6 +7,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Ambience;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -27,7 +28,7 @@ public class PhysicianStation extends Venue {
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     PhysicianStation.class,
-    "media/Buildings/physician/physician_clinic.png", 3, 2
+    "media/Buildings/physician/physician_clinic.png", 3, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     PhysicianStation.class, "media/GUI/Buttons/hospice_button.gif"
@@ -41,7 +42,7 @@ public class PhysicianStation extends Venue {
     "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
     "The Physician Station allows your citizens' injuries or diseases to be "+
     "treated quickly and effectively.",
-    3, 2, Structure.IS_NORMAL,
+    3, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     200, 2, 350, Structure.NORMAL_MAX_UPGRADES
   );
@@ -145,28 +146,26 @@ public class PhysicianStation extends Venue {
     );
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! structure.intact()) return null;
-    //
-    //  If there are patients inside, make sure somebody's available.
-    if (numPatients() == 0 && ! staff.onShift(actor)) return null;
-    final Choice choice = new Choice(actor);
+  public Behaviour jobFor(Actor actor) {
     //
     //  If anyone is waiting for treatment, tend to them- including outside the
     //  building.
+    final boolean onShift = staff.onShift(actor);
+    final Choice choice = new Choice(actor);
     final Batch <Target> around = new Batch <Target> ();
     for (Mobile m : inside()) tryAdding(m, around);
     //
-    //  The ruler and his household also get special treatment-
+    //  The ruler and his household also get special treatment.
     final Actor ruler = base.ruler();
     if (ruler != null) {
-      tryAdding(ruler, around);
       final Property home = ruler.mind.home();
+      tryAdding(ruler, around);
       if (home != null) for (Actor a : home.staff().lodgers()) {
         tryAdding(a, around);
       }
     }
     for (Target t : around) t.flagWith(null);
+    if (around.size() == 0 && staff.offDuty(actor)) return null;
     //
     //  Then, compare the urgency of treatment for each compiled patient:
     for (Target m : around) if (m instanceof Actor) {
@@ -181,17 +180,17 @@ public class PhysicianStation extends Venue {
         choice.add(t);
       }
     }
+    if (! choice.empty()) return choice.pickMostUrgent();
     //
     //  Manufacture basic medicines for later use.
     final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
-    if (mS != null && (choice.empty() || ! onShift)) {
-      mS.setBonusFrom(this, false, MEDICAL_LAB);
-      choice.add(mS);
+    if (mS != null) {
+      choice.add(mS.setBonusFrom(this, false, MEDICAL_LAB));
     }
+    if (! choice.empty()) return choice.weightedPick();
     //
     //  Otherwise, just tend the desk...
-    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
-    return choice.pickMostUrgent();
+    return Supervision.oversight(this, actor);
   }
   
   
@@ -223,17 +222,15 @@ public class PhysicianStation extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    
-    final int numU = (1 + structure.numUpgrades()) / 2;
-    int powerNeed = 2 + numU;
+    final float numU = (1 + structure.numUpgrades()) / 2f;
     //
-    //  Sickbays consumes medicine and power based on current upgrade level,
-    //  and have a mild positive effect on ambience-
+    //  The station consumes medicine and power based on current upgrade level,
+    //  and has a mild positive effect on ambience-
     stocks.incDemand(MEDICINE, 2 + numU, 1, true);
+    stocks.forceDemand(POWER, 2 + numU, false);
+    structure.setAmbienceVal(2 + numU);
     stocks.translateRawDemands(REAGENTS_TO_MEDICINE, 1);
     stocks.translateRawDemands(REAGENTS_TO_SOMA    , 1);
-    stocks.forceDemand(POWER, powerNeed, false);
-    structure.setAmbienceVal(4 + numU);
   }
   
   

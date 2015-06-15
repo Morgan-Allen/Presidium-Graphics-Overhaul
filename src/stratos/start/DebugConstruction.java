@@ -71,30 +71,30 @@ public class DebugConstruction extends Scenario {
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
     GameSettings.fogFree   = true;
-    GameSettings.hireFree  = true;
     GameSettings.cashFree  = true;
     
-    if (false) buildingScenario(world, base, UI);
-    if (true ) pavingScenario  (world, base, UI);
+    if (true ) buildingScenario(world, base, UI);
+    if (false) pavingScenario  (world, base, UI);
   }
   
   
   private void buildingScenario(Stage world, Base base, BaseUI UI) {
     
     final Venue depot = new EngineerStation(base);
-    Placement.establishVenue(depot, 5, 5, true, world);
+    PlaceUtils.establishVenue(depot, 5, 5, true, world);
     depot.stocks.bumpItem(PARTS, 20);
     depot.updateAsScheduled(0, false);
     base.setup.fillVacancies(depot, true);
-    Actor tracks = depot.staff.workers().last();
+    
+    final Actor tracks = depot.staff.workers().last();
     UI.selection.pushSelection(tracks);
     
-    //base.commerce.updateCommerce(0);
-    //base.commerce.scheduleDrop(5);
-    //UI.selection.pushSelection(depot);
+    final Venue built = new SupplyDepot(base);
+    PlaceUtils.establishVenue(built, 12, 12, false, world);
     
-    Venue built = new SupplyDepot(base);
-    Placement.establishVenue(built, depot, false, world);
+    final Repairs job = new Repairs(tracks, built);
+    job.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
+    tracks.mind.assignBehaviour(job);
   }
   
   

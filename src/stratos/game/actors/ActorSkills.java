@@ -71,6 +71,7 @@ public class ActorSkills {
     Actor b, Skill opposed,
     float bonus
   ) {
+    if (checked == null) return 0;
     final float
       bonusA = actor.traits.usedLevel(checked) + Nums.max(0, bonus),
       bonusB = (b != null && opposed != null) ?
@@ -91,12 +92,10 @@ public class ActorSkills {
     Skill checked, Actor b, Skill opposed,
     float bonus, float duration, int range
   ) {
-    //  TODO:  Physical skills need to exercise strength/vigour and exact
-    //  fatigue!
-    //  TODO:  Sensitive skills must exercise reflex/insight, and tie in with
-    //  awareness/fog levels.
-    //  TODO:  Cognitive skills need study to advance, and exercise will/
-    //  intellect.
+    if (checked == null) return 0;
+    //  TODO:  Physical skills need to exact fatigue!
+    //  TODO:  Sensitive skills must tie in with awareness/fog levels.
+    //  TODO:  Cognitive skills should need study to advance.
     
     //  Invoke any known techniques here that are registered to be triggered
     //  by a skill of this type, and get their associated bonus:
@@ -114,6 +113,9 @@ public class ActorSkills {
     else for (int tried = range; tried-- > 0;) {
       if (Rand.num() < chance) success++;
     }
+    //
+    //  Then grant experience in the relevant skills (included those used by
+    //  any competitor.)
     practice(checked, chance, duration);
     if (b != null && opposed != null) {
       b.skills.practice(opposed, chance, duration);

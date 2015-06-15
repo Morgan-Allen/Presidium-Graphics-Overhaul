@@ -21,6 +21,11 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+//  TODO:  Rename to Chem-Panner and use to harvest Spyce and Chemicals, plus
+//  provide a terraforming bonus in the surrounds.
+
+
+
 public class FormerPlant extends Venue implements TileConstants {
   
   
@@ -49,16 +54,6 @@ public class FormerPlant extends Venue implements TileConstants {
     75,  //build cost
     Structure.SMALL_MAX_UPGRADES
   );
-  
-  final public static Conversion
-    FLORA_TO_POLYMER = new Conversion(
-      BLUEPRINT, "flora_to_polymer",
-      TO, 1, POLYMER
-    ),
-    CARBS_TO_POLYMER = new Conversion(
-      BLUEPRINT, "carbs_to_polymer",
-      1, CARBS, TO, 1, POLYMER
-    );
   
   final static float
     MIN_CLAIM_SIZE = 4;
@@ -106,7 +101,7 @@ public class FormerPlant extends Venue implements TileConstants {
       return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
-    if (! Placement.perimeterFits(this, areaClaimed, owningTier(), 2, world)) {
+    if (! PlaceUtils.pathingOkayAround(this, areaClaimed, owningTier(), 2, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
@@ -121,7 +116,7 @@ public class FormerPlant extends Venue implements TileConstants {
   private Item[] estimateDailyOutput() {
     float sumTrees = 0, sumP;
     for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (t.onTop() instanceof Flora) {
+      if (t.above() instanceof Flora) {
         sumTrees += Flora.growChance(t);
       }
       sumTrees += t.habitat().moisture();
@@ -182,14 +177,13 @@ public class FormerPlant extends Venue implements TileConstants {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
-    if (staff.shiftFor(actor) == OFF_DUTY) return null;
+  protected Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 1, 5, 5
     );
     if (d != null) return d;
-    else if (! onShift) return null;
     final Choice choice = new Choice(actor);
     
     Venue source = (EcologistStation) world.presences.nearestMatch(

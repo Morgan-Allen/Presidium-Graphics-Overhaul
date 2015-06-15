@@ -41,8 +41,8 @@ public class SpyceMidden extends SupplyCache {
   
   /**  Registration, life cycle and physical properties-
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.presences.togglePresence(this, origin(), true, SpyceMidden.class);
     return true;
   }

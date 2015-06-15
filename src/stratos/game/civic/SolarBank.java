@@ -94,7 +94,7 @@ public class SolarBank extends Venue {
   
   
   
-  /**  Structure.Basis and placement methods-
+  /**  Placeable and placement methods-
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;

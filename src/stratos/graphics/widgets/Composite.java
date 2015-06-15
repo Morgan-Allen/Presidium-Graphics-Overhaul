@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.start.Assets;
@@ -22,7 +24,7 @@ public class Composite {
   
   
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   final static int MAX_CACHED = 40;
   static Table <String, Composite> recentTable = new Table();
@@ -36,7 +38,7 @@ public class Composite {
     public boolean stateLoaded() { return true; }
     
     protected State disposeAsset() {
-      I.say("DISPOSING OF COMPOSITES");
+      if (verbose) I.say("DISPOSING OF COMPOSITES");
       for (Composite c : recent) c.dispose();
       recent.clear();
       recentTable.clear();

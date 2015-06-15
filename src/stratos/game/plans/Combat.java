@@ -192,7 +192,7 @@ public class Combat extends Plan implements Qualities {
     Action strike = null;
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
     final boolean melee     = actor.gear.meleeWeapon();
-    final boolean razes     = struck instanceof Structure.Basis;
+    final boolean razes     = struck instanceof Placeable;
     final float   danger    = 1f - successChanceFor(actor);
     
     if (razes) {
@@ -333,7 +333,7 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  public boolean actionSiege(Actor actor, Structure.Basis target) {
+  public boolean actionSiege(Actor actor, Placeable target) {
     if (target.structure().destroyed()) return false;
     performSiege(actor, target);
     return true;
@@ -371,30 +371,36 @@ public class Combat extends Plan implements Qualities {
     }
       
     if (success) {
-      damage = actor.gear.attackDamage() * Rand.num();
+      final float maxDamage = actor.gear.attackDamage();
+      damage = maxDamage * Rand.num();
       final float afterShields = target.gear.afterShields(
         damage, actor.gear.physicalWeapon()
       );
       final float
-        armourSoak  = (target.gear.armourRating() * Rand.num()) - bypass,
-        afterArmour = Nums.clamp(afterShields - armourSoak, 0, damage);
+        maxArmour   = target.gear.armourRating(),
+        armourSoak  = (maxArmour * Rand.num()) - bypass,
+        afterArmour = Nums.clamp(afterShields - armourSoak, 0, damage),
+        armourTook  = damage - afterArmour;
       
       if (report) {
         I.say("  Base damage:    "+damage      );
         I.say("  After shields:  "+afterShields);
-        I.say("  Armour absorbs: "+armourSoak  );
+        I.say("  Armour took:    "+armourTook  );
         I.say("  Final total:    "+afterArmour );
       }
       if (damage != afterArmour && showFX) {
         final boolean hit = damage > 0;
         CombatFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
       }
+      
+      final Item used = actor .gear.deviceEquipped();
+      final Item worn = target.gear.outfitEquipped();
+      Item.checkForBreakdown(actor , used, damage     / maxDamage, 10);
+      Item.checkForBreakdown(target, worn, armourTook / maxArmour, 10);
       damage = afterArmour;
     }
     
     if (damage > 0 && ! GameSettings.noBlood) {
-      //  TODO:  Allow for wear and tear to weapons/armour over time...
-      
       float fatDamage = 0, injDamage = 0;
       if (subdue && canStun) fatDamage = damage;
       else if (subdue || canStun) fatDamage = injDamage = damage / 2;
@@ -414,7 +420,7 @@ public class Combat extends Plan implements Qualities {
   
   
   public static void performSiege(
-    Actor actor, Structure.Basis besieged
+    Actor actor, Placeable besieged
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     
@@ -433,7 +439,11 @@ public class Combat extends Plan implements Qualities {
       I.say("  Base damage: "+actor.gear.attackDamage());
     }
     
-    float damage = actor.gear.attackDamage() * Rand.avgNums(2) * 2;
+    final float maxDamage = actor.gear.attackDamage();
+    final Item implement = actor.gear.deviceEquipped();
+    float damage = maxDamage * Rand.avgNums(2) * 2;
+    Item.checkForBreakdown(actor, implement, damage / maxDamage, 10);
+    
     final float armour = besieged.structure().armouring();
     if (accurate) damage *= 1.5f;
     else damage *= 0.5f;
@@ -469,60 +479,13 @@ public class Combat extends Plan implements Qualities {
   }
   
   
+  
+  /**  Rendering and interface methods-
+    */
   public void describeBehaviour(Description d) {
     d.append("In combat with ");
     d.append(subject);
   }
 }
-
-
-    /*
-    final boolean report = evalVerbose && I.talkAbout == actor && (
-      hasBegun() || ! begunVerbose
-    );
-    if (CombatUtils.isDowned(subject, object)) return 0;
-    float harmLevel = REAL_HARM;
-    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM   ;
-    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
-    
-    final float hostility = CombatUtils.hostileRating(actor, subject);
-    final boolean melee = actor.gear.meleeWeapon();
-    final boolean siege = (subject instanceof Venue);
-    
-    if (hostility <= 0 && motiveBonus() <= 0) return 0;
-    
-    float bonus = 0;
-    if (siege || CombatUtils.isActiveHostile(actor, subject)) {
-      bonus += PARAMOUNT;
-      bonus += CombatUtils.homeDefenceBonus(actor, subject);
-    }
-    if (! CombatUtils.isArmed(actor)) bonus -= PARAMOUNT;
-    
-    final float priority = priorityForActorWith(
-      actor, subject,
-      ROUTINE, bonus,
-      harmLevel, FULL_COOPERATION,
-      REAL_FAIL_RISK, melee ? MELEE_SKILLS : RANGED_SKILLS,
-      BASE_TRAITS, NORMAL_DISTANCE_CHECK,
-      report
-    );
-    
-    //  NOTE:  This may seem like a bit of kluge, but on balance it seems to
-    //  result in much more sensible behaviour (unless you're a psychopath,
-    //  you don't 'casually' decide to kill something.)
-    float threshold = 0;
-    threshold += (1 + actor.traits.relativeLevel(EMPATHIC)) / 2;
-    threshold *= siege ? ROUTINE : PARAMOUNT;
-    threshold *= 1 - hostility;
-    if (report) {
-      I.say("\n  Priority bonus:        "+bonus);
-      I.say("  Hostility of subject:  "+hostility);
-      I.say("  Emergency?             "+actor.senses.isEmergency());
-      I.say("  Basic combat priority: "+priority);
-      I.say("  Empathy threshold:     "+threshold);
-      I.say("  Success chance:        "+successChanceFor(actor));
-    }
-    return priority >= threshold ? priority : 0;
-    //*/
 
 

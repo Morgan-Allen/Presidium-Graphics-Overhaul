@@ -25,13 +25,12 @@ import static stratos.game.economic.Economy.*;
 
 public class Archives extends Venue {
   
-  
 
   final static ImageAsset ICON = ImageAsset.fromImage(
     Archives.class, "media/GUI/Buttons/archives_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Archives.class, "media/Buildings/physician/archives.png", 3, 2
+    Archives.class, "media/Buildings/physician/archives.png", 4, 2
   );
   
   final static float
@@ -90,8 +89,8 @@ public class Archives extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  protected Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     
     final float needCirc = stocks.relativeShortage(CIRCUITRY);
     final Bringing d = BringUtils.bestBulkCollectionFor(
@@ -140,6 +139,11 @@ public class Archives extends Venue {
     return Manufacture.statusMessageFor(
       super.helpInfo(), this, CIRCUITRY_TO_DATALINKS
     );
+  }
+  
+  
+  protected Traded[] goodsToShow() {
+    return null;
   }
 }
 

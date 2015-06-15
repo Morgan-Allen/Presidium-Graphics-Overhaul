@@ -1,23 +1,23 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.cutout;
 import static stratos.graphics.common.GL.*;
 import static stratos.graphics.cutout.CutoutModel.*;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.SFX;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.glutils.*;
 
 
 
-//  TODO:  See if you can unify this with other types of rendering pass.
+//  TODO:  See if you can unify this with other types of rendering pass?
 
 public class CutoutsPass {
 	
@@ -130,7 +130,7 @@ public class CutoutsPass {
       if (batch == null) {
         batch = new List <CutoutSprite> () {
           protected float queuePriority(CutoutSprite r) {
-            return r.depth;
+            return 0 - r.depth;
           }
         };
         subPasses.put(s.model(), batch);
@@ -178,9 +178,14 @@ public class CutoutsPass {
   private void compileSprite(
     CutoutSprite s, Camera camera, boolean lightPass, Texture keyTex
   ) {
-    //final Texture keyTex = lightPass ? s.model.lightSkin : s.model.texture;
     if (keyTex == null) return;
-    if (keyTex != lastTex || lightPass != wasLit || total >= COMPILE_LIMIT) {
+    final float spriteVerts[] = s.model.allFaces[s.faceIndex];
+    final int sizeS = SIZE * (spriteVerts.length / SIZE);
+    if (
+      keyTex    != lastTex ||
+      lightPass != wasLit  ||
+      (total + sizeS) >= COMPILE_LIMIT
+    ) {
       compileAndRender(camera);
     }
 
@@ -191,12 +196,12 @@ public class CutoutsPass {
     else if (! s.colour.blank()) colourBits = s.colour.floatBits;
     else colourBits = Colour.combineAlphaBits(fog, s.colour);
     
-    for (int off = 0; off < SIZE; off += VERTEX_SIZE) {
+    for (int off = 0; off < sizeS; off += VERTEX_SIZE) {
       final int offset = total + off;
       temp.set(
-        s.model.vertices[X0 + off],
-        s.model.vertices[Y0 + off],
-        s.model.vertices[Z0 + off]
+        spriteVerts[X0 + off],
+        spriteVerts[Y0 + off],
+        spriteVerts[Z0 + off]
       );
       temp.scl(s.scale);
       Viewport.worldToGL(s.position, temp2);
@@ -205,13 +210,13 @@ public class CutoutsPass {
       vertComp[Y0 + offset] = temp.y;
       vertComp[Z0 + offset] = temp.z;
       vertComp[C0 + offset] = colourBits;
-      vertComp[U0 + offset] = s.model.vertices[U0 + off];
-      vertComp[V0 + offset] = s.model.vertices[V0 + off];
+      vertComp[U0 + offset] = spriteVerts[U0 + off];
+      vertComp[V0 + offset] = spriteVerts[V0 + off];
     }
     
-    total += SIZE;
-    lastTex = keyTex;
-    wasLit = lightPass;
+    total   += sizeS;
+    lastTex =  keyTex;
+    wasLit  =  lightPass;
   }
   
   

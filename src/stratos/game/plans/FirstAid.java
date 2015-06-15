@@ -72,48 +72,81 @@ public class FirstAid extends Treatment {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    
-    setCompetence(0);  //  Will trump below...
-    if (patient.health.conscious() || ! patient.health.organic()) return 0;
-    
+    final boolean report = I.talkAbout == actor && evalVerbose && hasBegun();
     if (report) {
       I.say("\nGetting first aid priority for: "+patient);
-      I.reportStackTrace();
+      I.say("  Conscious? "+patient.health.conscious());
+      I.say("  Organic?   "+patient.health.organic  ());
+      I.say("  Bleeding?  "+patient.health.bleeding ());
+      I.say("  Severity?  "+severity());
     }
-    
+    //
+    //  First of all, we screen out things you can't do medicine to-
+    setCompetence(0);
+    if (! patient.health.organic()) return 0;
+    //
+    //  Then, we ensure the patient is physically accessible/won't wander off-
+    if (sickbay == null) {
+      sickbay = findRefuge(actor);
+    }
     final Actor carries = Suspensor.carrying(patient);
-    if (carries != null && carries != actor) return -1;
+    final boolean outside = actor.aboard() != sickbay;
     if (
-      PlanUtils.competition(this, patient, actor) > 0 &&
-      ! patient.health.bleeding()
+      (carries != null && carries != actor) ||
+      (outside && patient.health.conscious()) ||
+      (outside && actor.aboard() instanceof PhysicianStation)
     ) {
       return -1;
     }
-    
-    final float severity = severity();
-    if (severity <= 0) return 0;
-    if (severity > 0.5f || ! patient.indoors()) addMotives(MOTIVE_EMERGENCY);
-    
+    //
+    //  Then we determine if this is an actual emergency, and how severe the
+    //  overall injury is.  (This is also used to limit the overall degree of
+    //  team attention required.)
+    final boolean urgent = patient.health.bleeding() || outside;
+    if (urgent && patient.health.alive()) addMotives(MOTIVE_EMERGENCY);
+    float urgency = severity();
+    if (urgency <= 0  ) return 0;
+    if (! urgent      ) urgency /= 2;
+    if (urgency > 0.5f) addMotives(MOTIVE_EMERGENCY);
+    if (PlanUtils.competition(this, patient, actor) > urgency) {
+      return -1;
+    }
     setCompetence(successChanceFor(actor));
-    
+    //
+    //  And finally, overall priority is determined and returned...
     float priority = PlanUtils.supportPriority(
-      actor, patient, motiveBonus(), competence(), severity
+      actor, patient, motiveBonus(), competence(), urgency
     );
-    if (report) I.say("  Final priority: "+priority);
+    if (report) {
+      I.say("  Emergency?      "+urgent      );
+      I.say("  Urgency rated:  "+urgency     );
+      I.say("  Competence:     "+competence());
+      I.say("  Final priority: "+priority    );
+    }
     return priority;
   }
   
   
   public float successChanceFor(Actor actor) {
     if (! patient.health.alive()) return 1;
-    return PlanUtils.successForActorWith(actor, BASE_SKILLS, ROUTINE_DC, false);
+    return tryTreatment(
+      actor, patient,
+      INJURY, PhysicianStation.EMERGENCY_ROOM,
+      ANATOMY, PHARMACY, false
+    );
+  }
+  
+  
+  public int motionType(Actor actor) {
+    return isEmergency() ? MOTION_FAST : MOTION_ANY;
   }
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next first aid step for "+actor);
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    if (report) {
+      I.say("\nGetting next first aid step for "+actor);
+    }
     
     //
     //  You can't perform actual treatment while under fire, but you can get
@@ -129,10 +162,7 @@ public class FirstAid extends Treatment {
       return aids;
     }
     
-    if (sickbay == null) {
-      sickbay = findRefuge(actor);
-    }
-    if (sickbay != null && ! patient.indoors()) {
+    if (sickbay != null && patient.aboard() != sickbay) {
       final BringStretcher d = new BringStretcher(
         actor, patient, sickbay
       );
@@ -154,35 +184,12 @@ public class FirstAid extends Treatment {
   }
   
   
-  public int motionType(Actor actor) {
-    return patient.health.alive() ? MOTION_FAST : MOTION_ANY;
-  }
-  
-  
   public boolean actionFirstAid(Actor actor, Actor patient) {
-    
-    Item current = existingTreatment(INJURY, patient);
-    if (current == null) current = Item.with(TREATMENT, this, 0, 0);
-    
-    final float
-      inc   = 1f / STANDARD_TREAT_TIME,
-      DC    = severity() * 5,
-      bonus = getVenueBonus(true, PhysicianStation.EMERGENCY_ROOM);
-    
-    float check = Rand.yes() ? -1 : 1;
-    if (actor.skills.test(ANATOMY , DC - bonus, 10)) check++;
-    if (actor.skills.test(PHARMACY, 5  - bonus, 10)) check++;
-    
-    if (check > 0) {
-      final float quality = current.amount == 0 ? 1 :
-        (Item.MAX_QUALITY * (check - 1) / 2);
-      current = Item.with(current.type, current.refers, inc, quality);
-      patient.gear.addItem(current);
-      
-      if (check > 1) patient.health.setBleeding(false);
-      else patient.health.liftInjury(0);
-    }
-    return true;
+    return tryTreatment(
+      actor, patient,
+      INJURY, PhysicianStation.EMERGENCY_ROOM,
+      ANATOMY, PHARMACY, true
+    ) > 0;
   }
   
   
@@ -202,6 +209,8 @@ public class FirstAid extends Treatment {
   
   
   
+  /**  Rendering and interface methods
+    */
   public void describeBehaviour(Description d) {
     if (super.needsSuffix(d, "Giving First Aid to ")) {
       d.append(patient);

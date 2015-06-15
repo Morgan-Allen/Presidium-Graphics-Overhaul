@@ -55,7 +55,11 @@ public class DeviceType extends Traded {
     
     this.baseDamage = baseDamage;
     this.properties = properties;
-    this.materials = new Conversion(
+    
+    if (Visit.empty(conversionArgs)) {
+      this.materials = NATURAL_MATERIALS;
+    }
+    else this.materials = new Conversion(
       facility, name+"_manufacture", Visit.compose(
         Object.class, conversionArgs, new Object[] { TO, 1, this }
       )

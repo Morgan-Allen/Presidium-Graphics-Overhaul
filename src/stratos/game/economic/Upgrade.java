@@ -110,7 +110,7 @@ public class Upgrade extends Constant {
   
   /**  Rendering and interface methods-
     */
-  public String nameAt(Structure.Basis b, int index, Upgrade queued[]) {
+  public String nameAt(Placeable b, int index, Upgrade queued[]) {
     //  TODO:  THIS IS AN UGLY HACK SOLUTION WHICH YOU SHOULD REPLACE ASAP.
     int level = -1;
     if (index >= 0 && queued != null) {
@@ -119,6 +119,8 @@ public class Upgrade extends Constant {
     else {
       level = b.structure().upgradeLevel(this, Structure.STATE_NONE);
     }
+    if (level >= maxLevel) level = maxLevel - 1;
+    
     if (level == 0) return baseName;
     if (level == 1) return "Improved "+baseName;
     else            return "Advanced "+baseName;

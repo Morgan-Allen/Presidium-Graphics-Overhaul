@@ -19,7 +19,8 @@ public class Treatment extends Plan implements Item.Passive {
 
   final static int
     STANDARD_TREAT_TIME  = Stage.STANDARD_HOUR_LENGTH,
-    STANDARD_EFFECT_TIME = Stage.STANDARD_DAY_LENGTH ;
+    STANDARD_EFFECT_TIME = Stage.STANDARD_DAY_LENGTH ,
+    TIME_XP_MULT         = 4;
   
   private static boolean
     evalVerbose   = false,
@@ -155,13 +156,11 @@ public class Treatment extends Plan implements Item.Passive {
   
   
   public float successChanceFor(Actor actor) {
-    final float
-      severity = severity(),
-      bonus    = getVenueBonus(false, PhysicianStation.MEDICAL_LAB);
-    float chance = 1;
-    chance += actor.skills.chance(PHARMACY    , (severity * 10) - bonus);
-    chance += actor.skills.chance(GENE_CULTURE, 5 - bonus              );
-    return chance / 3;
+    return tryTreatment(
+      actor, patient,
+      sickness, PhysicianStation.MEDICAL_LAB,
+      PHARMACY, GENE_CULTURE, false
+    );
   }
   
   
@@ -169,12 +168,6 @@ public class Treatment extends Plan implements Item.Passive {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    /*
-    final boolean report = eventVerbose && (
-      I.talkAbout == actor || I.talkAbout == patient
-    );
-    //*/
-
     final Action aids = new Action(
       actor, patient,
       this, "actionDoTreatment",
@@ -184,7 +177,7 @@ public class Treatment extends Plan implements Item.Passive {
   }
   
 
-  //  TODO:  Include a diagnosis step/bonus?
+  //  TODO:  Re-include this step.
   /*
   private float diagnoseBonus() {
     float manners = -5;
@@ -210,42 +203,69 @@ public class Treatment extends Plan implements Item.Passive {
   
   
   public boolean actionDoTreatment(Actor actor, Actor patient) {
-    
-    Item current = existingTreatment(sickness, patient);
-    if (current == null) current = Item.with(TREATMENT, this, 0, 0);
-    
-    final float
-      inc   = 1f / STANDARD_TREAT_TIME,
-      DC    = severity() * 10,
-      bonus = getVenueBonus(true, PhysicianStation.MEDICAL_LAB);
-    
-    float check = Rand.yes() ? -1 : 1;
-    if (actor.skills.test(PHARMACY    , DC - bonus, 5f)) check++;
-    if (actor.skills.test(GENE_CULTURE, 5  - bonus, 5f)) check++;
-    
-    if (check > 0) {
-      final float quality = current.amount == 0 ? 1 :
-        (Item.MAX_QUALITY * (check - 1) / 2);
-      current = Item.with(current.type, current.refers, inc, quality);
-      patient.gear.addItem(current);
-      return true;
-    }
-    else return false;
+    return tryTreatment(
+      actor, patient,
+      sickness, PhysicianStation.MEDICAL_LAB,
+      PHARMACY, GENE_CULTURE, true
+    ) > 0;
   }
   
   
-  protected float getVenueBonus(boolean use, Upgrade tech) {
-    if (! (sickbay instanceof Venue)) return 0;
-    final Venue sickbay = (Venue) this.sickbay;
+  protected float tryTreatment(
+    Actor actor, Actor patient,
+    Condition sickness, Upgrade tech,
+    Skill primary, Skill secondary,
+    boolean realAction
+  ) {
+    //
+    //  Firstly, we calculate the overall difficulty of treatment, and any
+    //  circumstances bonuses or penalties that might apply (such as facility
+    //  upgrades, indoors or out, etc.  Note that a secondary skill cannot be
+    //  used without medicine!)
+    final float DC = severity() * 10;
+    float bonus = 0, check = 0;
+    Owner hasMeds = null;
     
-    float bonus = 0;
-    if (sickbay.stocks.amountOf(MEDICINE) > 0.1f) {
-      if (use) sickbay.stocks.removeItem(Item.withAmount(MEDICINE, 0.01f));
-      bonus += 5;
+    if (sickbay instanceof Venue) {
+      final Venue sickbay = (Venue) this.sickbay;
+      bonus += 5 * sickbay.structure().upgradeLevel(tech);
+      if (sickbay.stocks.amountOf(MEDICINE) > 0.1f) hasMeds = sickbay;
     }
-    bonus += 5 * sickbay.structure.upgradeLevel(tech);
-    
-    return bonus > 0 ? bonus : -5;
+    else bonus -= 2.5f;
+    if (actor.gear.amountOf(MEDICINE) > 0.1f) {
+      hasMeds = actor;
+    }
+    if (hasMeds != null) bonus += 5;
+    else { bonus /= 2; secondary = null; }
+    //
+    //  In the case of a real treatment attempt, we deduct a small portion of
+    //  any carried medicine, and add a treatment item to the patient's gear.
+    if (realAction) {
+      Item current = existingTreatment(sickness, patient);
+      if (current == null) current = Item.with(TREATMENT, this, 0, 0);
+      
+      final float timeInc = 1f / STANDARD_TREAT_TIME;
+      if (actor.skills.test(primary  , DC - bonus, TIME_XP_MULT)) check++;
+      if (actor.skills.test(secondary, 5  - bonus, TIME_XP_MULT)) check++;
+      
+      final float quality = current.amount == 0 ? 0 : (
+        (Item.MAX_QUALITY + 1) * check / 2
+      );
+      current = Item.with(current.type, current.refers, timeInc, quality);
+      patient.gear.addItem(current);
+      
+      final Item used = Item.withAmount(MEDICINE, 0.1f * timeInc);
+      if (hasMeds != null) hasMeds.inventory().removeItem(used);
+    }
+    //
+    //  If this is strictly for estimation purposes, we average the chance of
+    //  successful skill-tests, and return this result.
+    else {
+      check += actor.skills.chance(primary  , DC - bonus);
+      check += actor.skills.chance(secondary, 5  - bonus);
+      check = (check + 1) / 3;
+    }
+    return check;
   }
   
   
@@ -289,6 +309,45 @@ public class Treatment extends Plan implements Item.Passive {
 }
 
 
+/*
+Item current = existingTreatment(sickness, patient);
+if (current == null) current = Item.with(TREATMENT, this, 0, 0);
+final float
+  inc   = 1f / STANDARD_TREAT_TIME,
+  DC    = severity() * 10,
+  bonus = getVenueBonus(true, tech);
+
+float check = Rand.yes() ? -1 : 1;
+if (actor.skills.test(primary  , DC - bonus, TIME_XP_MULT)) check++;
+if (actor.skills.test(secondary, 5  - bonus, TIME_XP_MULT)) check++;
+
+if (check > 0) {
+  final float quality = current.amount == 0 ? 1 :
+    (Item.MAX_QUALITY * (check - 1) / 2);
+  current = Item.with(current.type, current.refers, inc, quality);
+  patient.gear.addItem(current);
+  return true;
+}
+else return false;
+//*/
+
+
+/*
+protected float getVenueBonus(boolean use, Upgrade tech) {
+  if (! (sickbay instanceof Venue)) return -2.5f;
+  
+  final Venue sickbay = (Venue) this.sickbay;
+  float bonus = 0, used = 0.1f / STANDARD_TREAT_TIME;
+  bonus += 5 * sickbay.structure.upgradeLevel(tech);
+  
+  if (sickbay.stocks.amountOf(MEDICINE) > 0.1f) {
+    if (use) sickbay.stocks.removeItem(Item.withAmount(MEDICINE, used));
+    bonus += 5;
+  }
+  else bonus /= 2;
+  return bonus;
+}
+//*/
 
 
 

@@ -208,9 +208,8 @@ public class MS3DFile {
     // public Quaternion rotation = new Quaternion();
     // public Vector3 position = new Vector3();
 
-    public Matrix4 matrix = new Matrix4();
-    public Matrix4 inverse = new Matrix4();
-    public Quaternion invRot = new Quaternion();
+    public Matrix4 lmatrix = new Matrix4();
+    public Matrix4 cmatrix = new Matrix4();
 
     public Keyframe[] rotations;
     public Keyframe[] positions;
@@ -239,6 +238,9 @@ public class MS3DFile {
 
       Quaternion rot = fromEuler(in.readFloats(new float[3]));
       Vector3 pos = in.read3D(new Vector3());
+      
+      joint.lmatrix.set(pos, rot, new Vector3(1,1,1));
+      joint.cmatrix.set(joint.lmatrix);
 
       int rots = in.readUShort();
       int poss = in.readUShort();
@@ -258,11 +260,7 @@ public class MS3DFile {
         kf.data = in.readFloats(new float[3]);
       }
 
-      joint.matrix.set(rot);
-      joint.matrix.setTranslation(pos);
 
-      joint.inverse.set(joint.matrix);
-      joint.inverse.inv();
     }
     
     if (nNumJoints == 0) {
@@ -271,9 +269,8 @@ public class MS3DFile {
       root.parentName = "";
       root.rotations = new Keyframe[0];
       root.positions = new Keyframe[0];
-      root.matrix.idt();
-      root.inverse.idt();
-      root.invRot.idt();
+      root.lmatrix.idt();
+      root.cmatrix.idt();
     }
   }
   
@@ -337,7 +334,6 @@ public class MS3DFile {
    */
   private void inverse() {
     Map<String, MS3DJoint> map = new HashMap<String, MS3DFile.MS3DJoint>();
-    Quaternion tempRot = new Quaternion();
 
     for (MS3DJoint j : joints) {
       map.put(j.name, j);
@@ -345,51 +341,8 @@ public class MS3DFile {
 
     for (MS3DJoint j : joints) {
       if (!j.parentName.isEmpty()) {
-        j.inverse.mul(map.get(j.parentName).inverse);
-        j.inverse.getRotation(j.invRot);
-        j.invRot.nor();
-      }
-    }
-
-    Vector3 tmp = new Vector3();
-
-    for (int i = 0; i < vertices.length; i++) {
-
-      MS3DVertex vert = vertices[i];
-      int bone = vert.boneid;
-
-      if (bone == -1)
-        continue;
-
-      tmp.x = vert.vertex[0];
-      tmp.y = vert.vertex[1];
-      tmp.z = vert.vertex[2];
-
-      tmp.mul(joints[bone].inverse);
-
-      vert.vertex[0] = tmp.x;
-      vert.vertex[1] = tmp.y;
-      vert.vertex[2] = tmp.z;
-
-    }
-
-    for (int i = 0; i < triangles.length; i++) {
-      MS3DTriangle tri = triangles[i];
-      for (int j = 0; j < tri.normals.length; j++) {
-        int bone = vertices[tri.indices[j]].boneid;
-
-        if (bone == -1)
-          continue;
-
-        float[] norm = tri.normals[j];
-
-        tmp.x = norm[0];
-        tmp.y = norm[1];
-        tmp.z = norm[2];
-        tmp.mul(joints[bone].invRot);
-        norm[0] = tmp.x;
-        norm[1] = tmp.y;
-        norm[2] = tmp.z;
+        MS3DJoint parent = map.get(j.parentName);
+        j.cmatrix.set(parent.cmatrix).mul(j.lmatrix);
       }
     }
   }

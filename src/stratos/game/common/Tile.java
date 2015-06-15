@@ -39,7 +39,8 @@ public final class Tile implements
   
   private float elevation = Float.NEGATIVE_INFINITY;
   private Habitat habitat = null;
-  private Element onTop   = null;
+  
+  private Element above = null, reserves = null;
   private Stack <Mobile> inside = NONE_INSIDE;
   
   
@@ -66,8 +67,9 @@ public final class Tile implements
   
   protected void loadTileState(Session s) throws Exception {
     elevation = s.loadFloat();
-    habitat = Habitat.ALL_HABITATS[s.loadInt()];
-    onTop = (Element) s.loadObject();
+    habitat  = Habitat.ALL_HABITATS[s.loadInt()];
+    above    = (Element) s.loadObject();
+    reserves = (Element) s.loadObject();
     if (s.loadBool()) s.loadObjects(inside = new Stack <Mobile> ());
     else inside = NONE_INSIDE;
   }
@@ -76,7 +78,8 @@ public final class Tile implements
   protected void saveTileState(Session s) throws Exception {
     s.saveFloat(elevation);
     s.saveInt(habitat().ID);
-    s.saveObject(onTop);
+    s.saveObject(above   );
+    s.saveObject(reserves);
     if (inside == NONE_INSIDE) s.saveBool(false);
     else { s.saveBool(true); s.saveObjects(inside); }
   }
@@ -104,6 +107,16 @@ public final class Tile implements
   public float radius() { return 0; }
   public float height() { return 0; }
   public boolean isMobile() { return false; }
+  
+  
+  public final void flagWith(final Object f) {
+    flagged = f;
+  }
+  
+  
+  public final Object flaggedWith() {
+    return flagged;
+  }
   
   
   
@@ -148,7 +161,7 @@ public final class Tile implements
   
   
   public int pathType() {
-    if (onTop != null) return onTop.pathType();
+    if (above != null) return above.pathType();
     if (world.terrain().isRoad(this)) return PATH_ROAD;
     return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS;
   }
@@ -172,20 +185,22 @@ public final class Tile implements
   public boolean canPave() {
     if (! habitat().pathClear) return false;
     return
-      onTop == null ||
-      onTop.owningTier() < Owner.TIER_PRIVATE ||
-      onTop.pathType() <= Tile.PATH_CLEAR;
+      above == null ||
+      above.owningTier() <  Owner.TIER_PRIVATE ||
+      above.pathType  () <= Tile .PATH_CLEAR;
   }
   
   
   public boolean reserved() {
-    return onTop != null && onTop.owningTier() >= Owner.TIER_PRIVATE;
+    return reserves != null && reserves.owningTier() >= Owner.TIER_PRIVATE;
   }
   
   
   public int owningTier() {
-    if (onTop == null) return Owner.TIER_TERRAIN;
-    else return onTop.owningTier();
+    return Nums.max(
+      (above    == null ? Owner.TIER_TERRAIN : above   .owningTier()),
+      (reserves == null ? Owner.TIER_TERRAIN : reserves.owningTier())
+    );
   }
   
   
@@ -194,13 +209,100 @@ public final class Tile implements
   }
   
   
-  public final void flagWith(final Object f) {
-    flagged = f;
+  public Element reserves() {
+    return reserves;
   }
   
   
-  public final Object flaggedWith() {
-    return flagged;
+  public void setReserves(Element e) {
+    this.reserves = e;
+    world.terrain().setReservedAt(this, reserved() && above != reserves);
+  }
+  
+  
+  public Element above() {
+    return above;
+  }
+  
+  
+  public void setAbove(Element e, boolean reserves) {
+    if (e == above && (e == this.reserves || ! reserves)) return;
+    
+    if (e != null && this.above != null) {
+      I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);
+    }
+    
+    final boolean wasPaved = pathType() == PATH_ROAD;
+    this.above = e;
+    final boolean newPaved = pathType() == PATH_ROAD;
+    
+    if (wasPaved != newPaved) {
+      final byte roadLevel = newPaved ? ROAD_LIGHT : ROAD_NONE;
+      PavingMap.setPaveLevel(this, roadLevel, false);
+    }
+    
+    setReserves(reserves ? e : this.reserves);
+    world.sections.flagBoundsUpdate(x, y);
+    refreshAdjacent();
+  }
+  
+  
+  public void clearUnlessOwned() {
+    if (above != null && above != reserves) above.setAsDestroyed();
+  }
+  
+  
+  
+  
+  /**  Implementing the Boardable interface-
+    */
+  public void refreshAdjacent() {
+    boardingCache = null;
+    for (int n : T_INDEX) {
+      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
+      if (t != null) t.boardingCache = null;
+    }
+  }
+  
+  
+  public Boarding[] canBoard() {
+    if (boardingCache != null) return boardingCache;
+    final Boarding batch[] = new Boarding[8];
+    isEntrance = false;
+    
+    //  If you're actually occupied, allow boarding of the owner-
+    if (blocked() && above() instanceof Boarding) {
+      return boardingCache = ((Boarding) above()).canBoard();
+    }
+    
+    //  Include any unblocked adjacent tiles-
+    for (int n : T_INDEX) {
+      batch[n] = null;
+      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
+      if (t == null || t.blocked()) continue;
+      batch[n] = t;
+    }
+    
+    //  Cull any diagonal tiles that are blocked by either adjacent neighbour-
+    for (int i : Tile.T_DIAGONAL) if (batch[i] != null) {
+      if (batch[(i + 7) % 8] == null) batch[i] = null;
+      if (batch[(i + 1) % 8] == null) batch[i] = null;
+    }
+    
+    //  Include anything that you're an entrance to-
+    for (int n : T_ADJACENT) {
+      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
+      if (t == null || ! (t.above() instanceof Boarding)) continue;
+      final Boarding v = (Boarding) t.above();
+      if (v.isEntrance(this)) {
+        batch[n] = v;
+        isEntrance = true;
+      }
+    }
+    
+    //  Cache and return-
+    boardingCache = batch;
+    return batch;
   }
   
   
@@ -226,96 +328,6 @@ public final class Tile implements
     if (batch == null) batch = new Tile[9];
     allAdjacent(batch);
     batch[8] = this;
-    return batch;
-  }
-  
-  
-  public Element onTop() {
-    return onTop;
-  }
-  
-  
-  public void setOnTop(Element e) {
-    if (e == onTop) return;
-    
-    //  TODO:  AUTOMATICALLY DISPLACE PRIOR OCCUPANT (set as destroyed?)
-    if (e != null && this.onTop != null) {
-      I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.onTop);
-    }
-    
-    final boolean wasPaved = pathType() == PATH_ROAD;
-    this.onTop = e;
-    final boolean newPaved = pathType() == PATH_ROAD;
-    if (wasPaved != newPaved) {
-      final byte roadLevel = newPaved ? ROAD_LIGHT : ROAD_NONE;
-      PavingMap.setPaveLevel(this, roadLevel, false);
-    }
-    
-    if (verbose) {
-      if (e != null) I.say(this+" now owned by: "+e);
-      else I.say(this+" now cleared.");
-    }
-    
-    world.sections.flagBoundsUpdate(x, y);
-    refreshAdjacent();
-  }
-  
-  
-  public void clearUnlessOwned() {
-    if (owningTier() > Owner.TIER_TERRAIN) return;
-    if (onTop != null) onTop.setAsDestroyed();
-  }
-  
-  
-  
-  /**  Implementing the Boardable interface-
-    */
-  public void refreshAdjacent() {
-    boardingCache = null;
-    for (int n : T_INDEX) {
-      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
-      if (t != null) t.boardingCache = null;
-    }
-  }
-  
-  
-  public Boarding[] canBoard() {
-    if (boardingCache != null) return boardingCache;
-    final Boarding batch[] = new Boarding[8];
-    isEntrance = false;
-    
-    //  If you're actually occupied, allow boarding of the owner-
-    if (blocked() && onTop() instanceof Boarding) {
-      return boardingCache = ((Boarding) onTop()).canBoard();
-    }
-    
-    //  Include any unblocked adjacent tiles-
-    for (int n : T_INDEX) {
-      batch[n] = null;
-      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
-      if (t == null || t.blocked()) continue;
-      batch[n] = t;
-    }
-    
-    //  Cull any diagonal tiles that are blocked by either adjacent neighbour-
-    for (int i : Tile.T_DIAGONAL) if (batch[i] != null) {
-      if (batch[(i + 7) % 8] == null) batch[i] = null;
-      if (batch[(i + 1) % 8] == null) batch[i] = null;
-    }
-    
-    //  Include anything that you're an entrance to-
-    for (int n : T_ADJACENT) {
-      final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
-      if (t == null || ! (t.onTop() instanceof Boarding)) continue;
-      final Boarding v = (Boarding) t.onTop();
-      if (v.isEntrance(this)) {
-        batch[n] = v;
-        isEntrance = true;
-      }
-    }
-    
-    //  Cache and return-
-    boardingCache = batch;
     return batch;
   }
   

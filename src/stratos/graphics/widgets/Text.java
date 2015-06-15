@@ -161,7 +161,7 @@ public class Text extends UIGroup implements Description {
 
   boolean addEntry(char k, Clickable links, Colour c) {
     Letter l = null;
-    if (((l = alphabet.map[k]) == null) && (k != '\n')) return false;
+    if (((l = alphabet.letterFor(k)) == null) && (k != '\n')) return false;
     final TextEntry entry = new TextEntry();
     entry.key = k;
     entry.letter = l;
@@ -376,7 +376,7 @@ public class Text extends UIGroup implements Description {
     //
     //  Draw the text entry-
     pass.draw(
-      alphabet.fontTex, tint,
+      alphabet.texture(), tint,
       entry.xpos() + xpos() - scrolled.xpos(),
       entry.ypos() + ypos() - scrolled.ypos(),
       entry.xdim(), entry.ydim(),
@@ -431,7 +431,8 @@ public class Text extends UIGroup implements Description {
     for (Box2D box : allEntries) {
       newLine = newWord = false;
       box.set(0, 0, 0, 0);
-      
+      //
+      //  UI elements can be used as bullets.
       if (box instanceof UIEntry) {
         final UIEntry entry = (UIEntry) box;
         entry.xdim(entry.wide);
@@ -443,7 +444,8 @@ public class Text extends UIGroup implements Description {
         }
         if (report) I.say("  UI entry: "+entry.graphic+", across: "+across);
       }
-      
+      //
+      //  Text elements receive subsequent formatting-
       else if (box instanceof TextEntry) {
         final TextEntry entry = (TextEntry) box;
         final char key = entry.key;
@@ -459,7 +461,10 @@ public class Text extends UIGroup implements Description {
       
       lastWord.add(box);
       across += box.xdim();
-      if ((maxWidth > 0) && (across > maxWidth)) newLine = true;
+      
+      float maxAcross = maxWidth;
+      if (bullet != null) maxAcross -= bullet.xdim();
+      if ((maxWidth > 0) && (across > maxAcross)) newLine = true;
       
       if (newWord) {
         Visit.appendTo(lastLine, lastWord);

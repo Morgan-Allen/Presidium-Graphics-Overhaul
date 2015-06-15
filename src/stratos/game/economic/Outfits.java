@@ -17,7 +17,7 @@ public final class Outfits {
     
     OVERALLS       = new OutfitType(
       BC, "Overalls"      , 1, 0, 50,
-      Fabricator.class, 1, PLASTICS, 5, ASSEMBLY
+      EngineerStation.class, 1, PLASTICS, 5, ASSEMBLY
     ),
     FINERY         = new OutfitType(
       BC, "Finery"        , 1, 0 , 400,
@@ -34,13 +34,12 @@ public final class Outfits {
     
     SEALSUIT       = new OutfitType(
       BC, "Sealsuit"      , 4, 1, 150,
-      Fabricator.class, 1, PLASTICS, 1, PARTS, 10, HANDICRAFTS
+      EngineerStation.class, 1, PLASTICS, 1, PARTS, 10, HANDICRAFTS
     ),
     STEALTH_SUIT   = new OutfitType(
       BC, "Stealth Suit"  , 8, 5, 250,
-      Fabricator.class, 1, PLASTICS, 2, PARTS, 15, HANDICRAFTS
+      EngineerStation.class, 1, PLASTICS, 2, PARTS, 15, HANDICRAFTS
     ),
-    
     BELT_AND_BRACER = new OutfitType(
       BC, "Belt and Bracer"   , 5, 10, 50,
       EngineerStation.class, 1, PARTS, 5, ASSEMBLY

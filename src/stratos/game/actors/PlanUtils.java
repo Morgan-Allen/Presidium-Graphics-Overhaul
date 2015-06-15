@@ -186,7 +186,7 @@ public class PlanUtils {
     liking     = actor.relations.valueFor(subject);
     incentive  = ((liking + conscience - 0.5f) * 10) * subjectDanger * 2;
     incentive  += rewardBonus;
-    priority   = incentive * supportChance;
+    priority   = incentive * (supportChance + subjectDanger) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",
@@ -211,26 +211,25 @@ public class PlanUtils {
     float rewardBonus, boolean idle, float competence
   ) {
     float incentive = 0, novelty = 0, priority = 0, enjoys = 0;
-    float daylight = 0, exploreChance = 0, homeDist = 0;
+    float daylight = 0, sightChance = 0, homeDist = 0, danger = 0;
     
     if (idle) novelty = 0.2f;
     else novelty = Nums.clamp(Nums.max(
       (actor.base().intelMap.fogAt(surveyed) == 0 ? 0.5f : 0.25f),
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
-    
-    incentive = novelty * 10;
-    incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
-    incentive += rewardBonus;
 
     daylight = Planet.dayValue(actor.world());
-    exploreChance = actor.health.baseSpeed() * competence;
-    exploreChance *= (daylight + 1) / 2;
-    
     homeDist = homeDistanceFactor(actor, surveyed);
+    sightChance = actor.health.baseSpeed() * competence;
+    sightChance *= (daylight + 1) / 2;
     
-    priority = incentive * Nums.clamp(exploreChance, 0, 1);
-    priority -= (homeDist * 5) + ((1 - daylight) * 2.5f);
+    incentive = novelty * 5 * Nums.clamp(sightChance, 0, 1);
+    incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
+    incentive += rewardBonus;
+    
+    priority = incentive;
+    priority -= danger = ((homeDist * 5) + ((1 - daylight) * 5)) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
@@ -241,8 +240,9 @@ public class PlanUtils {
       "incentive"     , incentive    ,
       "novelty"       , novelty      ,
       "home distance" , homeDist     ,
-      "explore chance", exploreChance,
+      "sight chance"  , sightChance  ,
       "daylight"      , daylight     ,
+      "danger"        , danger       ,
       "priority"      , priority
     );
     
@@ -323,14 +323,6 @@ public class PlanUtils {
     incentive *= (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2;
     incentive += plan.motiveBonus();
     
-    if (plan.isJob() && work != null) {
-      shift = work.staff().shiftFor(actor);
-      dutyBonus = (1 + actor.traits.relativeLevel(DUTIFUL)) * 1.25f;
-      incentive += dutyBonus;
-      
-      if (shift == Venue.OFF_DUTY     ) incentive -= 2.5f;
-      if (shift == Venue.PRIMARY_SHIFT) incentive += 2.5f;
-    }
     if (helpLimit >= 0) {
       help = competition(plan, plan.subject, actor);
       if (help > helpLimit && ! plan.hasBegun()) return -1;
@@ -339,19 +331,22 @@ public class PlanUtils {
       helpBonus = Nums.min(priority * 0.5f, help * 2.5f / helpLimit);
       incentive += helpBonus;
     }
-    
     if (incentive <= 0 && urgency <= 0) {
       if (reportOn(actor, 0)) I.say("\nNo incentive for "+plan);
       return -1;
     }
-    //
-    //  NOTE:  We scale the fail penalty with the urgency as this tends to
-    //         be the best indication of how important screw-ups are as well
-    //         as success.  (Otherwise you see actors abandoning nearly-done
-    //         jobs.)
-    priority = incentive * competence;
-    priority -= failPenalty = (1 - competence) * 10 * riskLevel * urgency;
     
+    priority = incentive * competence;
+
+    if (plan.isJob() && work != null) {
+      shift = work.staff().shiftFor(actor);
+      dutyBonus = actor.traits.relativeLevel(DUTIFUL) * 1.25f;
+      if (shift == Venue.OFF_DUTY     ) dutyBonus -= 2.5f;
+      if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 2.5f;
+      priority += dutyBonus;
+    }
+    
+    priority -= failPenalty = (1 - competence) * 10 * riskLevel;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nJob priority for "+actor, "  ",

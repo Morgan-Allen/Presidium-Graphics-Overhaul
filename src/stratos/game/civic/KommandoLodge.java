@@ -173,8 +173,8 @@ public class KommandoLodge extends Venue {
     );
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     final boolean report = verbose && I.talkAbout == actor;
     
@@ -195,13 +195,6 @@ public class KommandoLodge extends Venue {
     if (e != null) {
       e.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
       choice.add(e);
-    }
-    
-    final float foodNeed = stocks.relativeShortage(CARBS);
-    if (foodNeed > 0) {
-      final Foraging f = new Foraging(actor, this);
-      f.addMotives(Plan.MOTIVE_JOB, foodNeed * Plan.ROUTINE);
-      choice.add(f);
     }
     
     final float meatNeed = stocks.relativeShortage(PROTEIN);

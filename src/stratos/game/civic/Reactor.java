@@ -141,7 +141,7 @@ public class Reactor extends Venue {
   ;
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
     //
     //  First and foremost, check to see whether a meltdown is in progress, and
@@ -296,7 +296,7 @@ public class Reactor extends Venue {
       }
       //
       //  And deal damage to nearby objects-
-      markForDamage(t.onTop(), inRange);
+      markForDamage(t.above(), inRange);
       for (Mobile m : t.inside()) markForDamage(m, inRange);
     }
     markForDamage(this, inRange);
@@ -333,9 +333,9 @@ public class Reactor extends Venue {
     final float damage = maxDamage * (1 - dist);
 
     if (e instanceof Wreckage) return;
-    else if (e instanceof Structure.Basis) {
+    else if (e instanceof Placeable) {
       I.say("Doing "+damage+" to "+e);
-      ((Structure.Basis) e).structure().takeDamage(damage);
+      ((Placeable) e).structure().takeDamage(damage);
     }
     else if (e instanceof Actor) {
       final Actor a = (Actor) e;

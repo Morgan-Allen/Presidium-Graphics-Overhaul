@@ -7,11 +7,10 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Ambience;
+import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -22,6 +21,10 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Consider adding one or two upgrades, to allow for scrapping, granary
 //  functions, construction materials etc.?
 
+//  Polymer still.  Extra barges.
+//  Hardware outlet.  Granary depot.
+
+
 public class SupplyDepot extends Venue {
   
   /**  Other data fields, constructors and save/load methods-
@@ -30,7 +33,7 @@ public class SupplyDepot extends Venue {
     SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 3, 1
+    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 4, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
@@ -39,8 +42,8 @@ public class SupplyDepot extends Venue {
   final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
     "Supply Depot", UIConstants.TYPE_COMMERCE, ICON,
-    "The Supply Depot allows for bulk storage of raw materials used by "+
-    "industry and manufacturing.",
+    "The Supply Depot allows for bulk storage and transport of raw materials "+
+    "used in manufacturing.",
     4, 1, Structure.IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_TRADER,
     100,  //integrity
@@ -57,8 +60,8 @@ public class SupplyDepot extends Venue {
     staff.setShiftType(SHIFTS_BY_HOURS);
     
     final GroupSprite sprite = new GroupSprite();
-    sprite.attach(MODEL_UNDER, 0   ,  0   , -0.05f);
-    sprite.attach(MODEL_CORE , 0.1f, -0.1f,  0    );
+    sprite.attach(MODEL_UNDER, 0, 0, 0);
+    sprite.attach(MODEL_CORE , 0, 0, 0);
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
   }
@@ -86,6 +89,13 @@ public class SupplyDepot extends Venue {
     },
     ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
       ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
+    );
+  
+  final public static Conversion
+    NIL_TO_POLYMER = new Conversion(
+      BLUEPRINT, "nil_to_polymer",
+      TO, 1, POLYMER,
+      SIMPLE_DC, CHEMISTRY
     );
   
   
@@ -130,38 +140,12 @@ public class SupplyDepot extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
-    //
-    //  During your secondary shift, consider supervising the venue-
-    final boolean offShift = staff.shiftFor(actor) == SECONDARY_SHIFT;
+  protected Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
-    //  During the primary shift, you can also perform repairs or localised
-    //  deliveries-
-    if (onShift || offShift) {
-      for (CargoBarge b : barges) {
-        if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
-        else if (b.abandoned()) choice.add(new Bringing(b, this));
-      }
-      choice.add(Repairs.getNextRepairFor(actor, true));
-      
-      final Bringing d = BringUtils.bestBulkDeliveryFrom(
-        this, services(), 2, 10, 5
-      );
-      if (d != null && staff.assignedTo(d) < 1) choice.add(d);
-      
-      final Bringing c = BringUtils.bestBulkCollectionFor(
-        this, services(), 2, 10, 5
-      );
-      if (c != null && staff.assignedTo(c) < 1) choice.add(c);
-      
-      return choice.weightedPick();
-    }
-    if (onShift && choice.empty()) {
-      choice.add(Supervision.oversight(this, actor));
-    }
-    //
-    //  See if there's a bulk delivery to be made-
+    //  See if there's a bulk delivery to be made, or if the cargo barge is in
+    //  need of repair.
     final Traded services[] = ALL_MATERIALS;
     final CargoBarge cargoBarge = barges.first();
     if (bargeReady(cargoBarge)) {
@@ -176,9 +160,29 @@ public class SupplyDepot extends Venue {
         this, services, 5, 50, depots
       );
       if (checkCargoJobOkay(bC, cargoBarge)) choice.add(bC);
-      if (! choice.empty()) return choice.pickMostUrgent();
     }
-    return null;
+    else for (CargoBarge b : barges) {
+      if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
+      else if (b.abandoned()) choice.add(new Bringing(b, this));
+    }
+    //
+    //  Otherwise, consider local deliveries.
+    final Bringing d = BringUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    );
+    if (d != null && staff.assignedTo(d) < 1) choice.add(d);
+    
+    final Bringing c = BringUtils.bestBulkCollectionFor(
+      this, services(), 2, 10, 5
+    );
+    if (c != null && staff.assignedTo(c) < 1) choice.add(c);
+    
+    if (! choice.empty()) return choice.weightedPick();
+    //
+    //  If none of that needs doing, consider local repairs or supervision.
+    choice.add(Repairs.getNextRepairFor(actor, true));
+    choice.add(Supervision.oversight(this, actor));
+    return choice.weightedPick();
   }
   
   

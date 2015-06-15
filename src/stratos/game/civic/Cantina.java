@@ -24,7 +24,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   /**  Constants, field definitions, constructors and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Cantina.class, "media/Buildings/merchant/cantina.png", 3, 2
+    Cantina.class, "media/Buildings/merchant/cantina.png", 3, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Cantina.class, "media/GUI/Buttons/cantina_button.gif"
@@ -87,7 +87,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     "Cantina", UIConstants.TYPE_COMMERCE, ICON,
     "A lively hub for social activities, your citizens can rest and relax "+
     "at the Cantina.  Unsavoury characters are known to drop by, however.",
-    3, 2, Structure.IS_NORMAL,
+    3, 1, Structure.IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_FACILITY,
     150, 2, 200, Structure.NO_UPGRADES
   );
@@ -129,8 +129,8 @@ public class Cantina extends Venue implements Performance.Theatre {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     nameID = Rand.index(VENUE_NAMES.length);
     return true;
   }
@@ -139,8 +139,9 @@ public class Cantina extends Venue implements Performance.Theatre {
 
   /**  Upgrades, services and economic functions-
     */
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.shiftFor(actor) == OFF_DUTY) return null;
+    
     if (actor.mind.vocation() == Backgrounds.SOMA_CHEF) {
       final Traded needed[] = { SOMA, CARBS, PROTEIN };
       final Bringing d = BringUtils.bestBulkCollectionFor(
@@ -149,19 +150,20 @@ public class Cantina extends Venue implements Performance.Theatre {
       if (d != null) return d;
       return Supervision.oversight(this, actor);
     }
+    
     if (actor.mind.vocation() == Backgrounds.PERFORMER) {
       for (Actor a : Performance.audienceFor(this, Recreation.TYPE_EROTICS)) {
         final Performance p = new Performance(
           actor, this, Recreation.TYPE_EROTICS, a, LODGING_PRICE
         );
         if (staff.assignedTo(p) > 0) continue;
-        p.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
+        p.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
         return p;
       }
       final Performance p = new Performance(
         actor, this, Recreation.TYPE_SONG, null, SONG_TIP
       );
-      p.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
+      p.addMotives(Plan.MOTIVE_JOB, 0);
       return p;
     }
     return null;

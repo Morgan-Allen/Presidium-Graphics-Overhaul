@@ -57,11 +57,11 @@ public class Holding extends Venue {
     ),
     LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
       Holding.class, IMG_DIR+"lower_class_housing.png",
-      3, 3, 2, 2, false
+      3, 3, 2, 1, false
     ),
     MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
       Holding.class, IMG_DIR+"middle_class_housing.png",
-      3, 3, 2, 2, false
+      3, 3, 2, 1, false
     ),
     UPPER_CLASS_MODELS[][] = null;
   
@@ -80,7 +80,7 @@ public class Holding extends Venue {
     "Housing", UIConstants.TYPE_PHYSICIAN, ICONS[0],
     "Housing provides comfort, sanitation and other domestic benefits to "+
     "your subjects.",
-    3, 2, Structure.IS_NORMAL,
+    3, 1, Structure.IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
     INTEGRITIES[0], 5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES
   );
@@ -121,7 +121,6 @@ public class Holding extends Venue {
   
   
   private int upgradeLevel, targetLevel, varID;
-  private List <HoldingExtra> extras = new List <HoldingExtra> ();
   private int numTests = 0, upgradeCounter, devolveCounter;
   
   
@@ -139,7 +138,6 @@ public class Holding extends Venue {
     upgradeLevel = s.loadInt();
     targetLevel  = s.loadInt();
     varID        = s.loadInt();
-    s.loadObjects(extras);
     numTests       = s.loadInt();
     upgradeCounter = s.loadInt();
     devolveCounter = s.loadInt();
@@ -151,7 +149,6 @@ public class Holding extends Venue {
     s.saveInt(upgradeLevel);
     s.saveInt(targetLevel );
     s.saveInt(varID       );
-    s.saveObjects(extras);
     s.saveInt(numTests      );
     s.saveInt(upgradeCounter);
     s.saveInt(devolveCounter);
@@ -225,9 +222,6 @@ public class Holding extends Venue {
   /**  Moderating upgrades-
     */
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    if (numUpdates % 10 == 0 && structure.intact()) {
-      HoldingExtra.updateExtras(this, extras, numUpdates);
-    }
     super.updateAsScheduled(numUpdates, instant);
     
     if (instant || ! structure.intact()) return;
@@ -346,7 +340,6 @@ public class Holding extends Venue {
   
   private void impingeSqualor() {
     float ambience = AMBIENCES[upgradeLevel];
-    ambience += extras.size() / 2f;
     structure.setAmbienceVal(ambience);
   }
   
@@ -387,11 +380,6 @@ public class Holding extends Venue {
   }
   
   
-  protected List <HoldingExtra> extras() {
-    return extras;
-  }
-  
-  
   public void addTasks(Choice choice, Actor actor, Background background) {
     final boolean report = I.talkAbout == this && verbose;
     
@@ -429,7 +417,7 @@ public class Holding extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
+  protected Behaviour jobFor(Actor actor) {
     //  TODO:  Include special orders for servants/minders?
     return null;
   }
@@ -451,12 +439,6 @@ public class Holding extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public void exitWorld() {
-    super.exitWorld();
-    HoldingExtra.removeExtras(this, extras);
-  }
-  
-  
   private static ModelAsset modelFor(Holding holding) {
     final int level = holding.upgradeLevel, VID = holding.varID;
     if (level == 0) return SEAL_TENT_MODEL;

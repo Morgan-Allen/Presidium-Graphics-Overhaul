@@ -151,7 +151,7 @@ public class VenuePane extends SelectionPane {
   
   
   private void describeCondition(Description d, BaseUI UI) {
-    final Stage world = v.world();
+    final Stage world = v.origin().world();
     d.append("Condition and Repair:");
     
     final int repair = Nums.round(v.structure.repair(), 1, true);
@@ -192,7 +192,7 @@ public class VenuePane extends SelectionPane {
   
   /**  Listing demands, inventory and special items-
     */
-  final static Traded ITEM_LIST_ORDER[] = (Traded[]) Visit.compose(
+  final public static Traded ITEM_LIST_ORDER[] = (Traded[]) Visit.compose(
     Traded.class, ALL_PROVISIONS, ALL_MATERIALS, ALL_SPECIAL_ITEMS
   );
   
@@ -204,6 +204,11 @@ public class VenuePane extends SelectionPane {
     for (Traded t : ITEM_LIST_ORDER) {
       if (Visit.arrayIncludes(demands, t) && t.common()) describeStocks(t, d);
       else for (Item i : v.stocks.matches(t)) special.add(i);
+    }
+    for (Item i : v.stocks.allItems()) {
+      if (Visit.arrayIncludes(ITEM_LIST_ORDER, i.type)) continue;
+      if (v.stocks.hasOrderFor(i)) continue;
+      special.add(i);
     }
     
     if (! special.empty()) {
@@ -220,6 +225,8 @@ public class VenuePane extends SelectionPane {
       for (Item i : v.stocks.specialOrders()) {
         d.append("\n  ");
         i.describeTo(d);
+        final float progress = v.stocks.amountOf(i);
+        d.append(" ("+(int) (progress * 100)+"%)");
       }
     }
   }

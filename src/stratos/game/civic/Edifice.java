@@ -100,7 +100,7 @@ public class Edifice extends Venue {
   
   /**  Economic functions, upgrades and behaviour implementation-
     */
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     return null;
   }
   

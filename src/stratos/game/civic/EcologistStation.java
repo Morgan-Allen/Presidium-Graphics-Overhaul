@@ -134,10 +134,8 @@ public class EcologistStation extends Venue {
     );
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! structure.intact()) return null;
-    final boolean offShift = staff.shiftFor(actor) == OFF_DUTY;
-    if (offShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
     //  If you're really short on food, consider foraging in the surrounds or
@@ -155,7 +153,7 @@ public class EcologistStation extends Venue {
       if (at.base() != this.base()) continue;
       if (PlanUtils.competition(Farming.class, at, actor) > 0) continue;
       
-      if (shortages > 0.5f || onShift) {
+      if (shortages > 0.5f) {
         final Farming farming = new Farming(actor, this, at);
         farming.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
         choice.add(farming);
@@ -167,19 +165,17 @@ public class EcologistStation extends Venue {
       choice.add(foraging);
     }
     
-    if (actor.mind.vocation() == ECOLOGIST && ! offShift) {
-      addEcologistJobs(actor, onShift, choice);
+    if (actor.mind.vocation() == ECOLOGIST ) {
+      addEcologistJobs(actor, choice);
     }
-    if (actor.mind.vocation() == CULTIVATOR && ! offShift) {
-      addCultivatorJobs(actor, onShift, choice);
+    if (actor.mind.vocation() == CULTIVATOR) {
+      addCultivatorJobs(actor, choice);
     }
     return choice.weightedPick();
   }
   
   
-  protected void addEcologistJobs(
-    Actor actor, boolean onShift, Choice choice
-  ) {
+  protected void addEcologistJobs(Actor actor, Choice choice) {
     //
     //  Consider collecting gene samples-
     final float needSamples = SeedTailoring.needForSamples(this);
@@ -213,9 +209,7 @@ public class EcologistStation extends Venue {
   }
   
   
-  protected void addCultivatorJobs(
-    Actor actor, boolean onShift, Choice choice
-  ) {
+  protected void addCultivatorJobs(Actor actor, Choice choice) {
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 1, 5, 5
     );

@@ -103,8 +103,8 @@ public class ServiceHatch extends Venue {
       
       int tilesAdj = 0;
       for (Tile t : Spacing.perimeter(footprint(), world)) {
-        if (t == null || t.onTop() == null) continue;
-        if (t.onTop().base() == base) tilesAdj++;
+        if (t == null || t.reserves() == null) continue;
+        if (t.reserves().base() == base) tilesAdj++;
       }
       return need * (tilesAdj - MIN_ADJACENCY) / BASE_ADJACENCY;
     }
@@ -127,7 +127,7 @@ public class ServiceHatch extends Venue {
   
   
   private Object faceModel(Tile position, Box2D area, Coord... others) {
-    Object model = Placement.setupMergingSegment(
+    Object model = PlaceUtils.setupMergingSegment(
       this, position, area, others,
       MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, ServiceHatch.class
     );

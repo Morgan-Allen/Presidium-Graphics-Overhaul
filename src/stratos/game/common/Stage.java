@@ -195,18 +195,7 @@ public class Stage {
   }
   
   
-  public Batch <Element> fixturesFrom(Box2D area) {
-    final Batch <Element> from = new Batch <Element> ();
-    for (Tile t : tilesIn(area, true)) {
-      final Element o = t.onTop();
-      if (o != null && o.origin() == t) from.add(o);
-    }
-    return from;
-  }
-  
-  
   //  TODO:  Are these still needed?  Consider cutting out.
-
   public float surfaceAt(float x, float y, boolean floor) {
     //
     //  Sample the height of the 4 nearby tiles, and interpolate between them.
@@ -225,8 +214,8 @@ public class Stage {
   
   private float heightFor(int tX, int tY, boolean floor) {
     final Tile t = tileAt(Nums.clamp(tX, size), Nums.clamp(tY, size));
-    if (t.onTop() == null) return t.elevation();
-    return floor ? t.onTop().position(null).z : t.onTop().height();
+    if (t.above() == null) return t.elevation();
+    return floor ? t.above().position(null).z : t.above().height();
   }
   
   
@@ -303,12 +292,6 @@ public class Stage {
     return currentTime;
   }
   
-  /*
-  public float dayValue() {
-    return Planet.dayValue(this);
-  }
-  //*/
-  
   
   public Box2D area() {
     return new Box2D().set(-0.5f, -0.5f, size, size);
@@ -323,6 +306,7 @@ public class Stage {
   
   /**  Rendering and interface methods-
     */
+  //  TODO:  Move this out to wherever the Ephemera class ends up.
   public static interface Visible {
     void renderFor(Rendering r, Base b);
     Sprite sprite();
@@ -451,9 +435,9 @@ public class Stage {
   public Fixture pickedFixture(final HUD UI, final Viewport port, Base base) {
     final Tile t = pickedTile(UI, port, base);
     if (t == null) return null;
-    if (t.onTop() instanceof Fixture) {
-      if (! t.onTop().visibleTo(base)) return null;
-      return (Fixture) t.onTop();
+    if (t.reserves() instanceof Fixture) {
+      if (! t.reserves().visibleTo(base)) return null;
+      return (Fixture) t.reserves();
     }
     else return null;
   }

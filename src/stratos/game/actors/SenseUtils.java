@@ -60,19 +60,29 @@ public class SenseUtils {
     return allBroken;
   }
   
-
+  
+  public static boolean indoorsTo(Actor actor, Target e, boolean with) {
+    if (! (e instanceof Mobile)) return false;
+    final Mobile m = (Mobile) e;
+    return m.indoors() && ((m.aboard() == actor.aboard()) == with);
+  }
+  
   
   
   /**  Returns whether any blocked tiles lie between the two points given.
     */
   public static boolean hasLineOfSight(
-    Target origin, Target target, float maxRange
+    Actor origin, Target target, float maxRange
   ) {
     if (origin == null || target == null) return false;
-    if (maxRange > 0 && Spacing.distance(origin, target) > maxRange) {
+    final float distance = Spacing.distance(origin, target);
+    if (maxRange > 0 && distance > maxRange) {
       return false;
     }
-    final boolean reports = sightVerbose && I.talkAbout == origin;
+    if (distance <= 0 || indoorsTo(origin, target, true)) {
+      return true;
+    }
+    final boolean reports = I.talkAbout == origin && sightVerbose;
     
     //  Firstly, we determine the start and end points for the line segment,
     //  and the vector connecting the two-
@@ -116,8 +126,8 @@ public class SenseUtils {
     }
     boolean blocked = false;
     boolean onRight, onLeft;
-    for (Tile t : considered) if (t.blocked() && t.onTop() != platform) {
-      if (t == target || t.onTop() == target) continue;
+    for (Tile t : considered) if (t.blocked() && t.above() != platform) {
+      if (t == target || t.above() == target) continue;
       
       //  We first check whether the centre of the tile in question falls
       //  between the start and end points of the line segment-

@@ -148,10 +148,9 @@ public class StageSections implements TileConstants {
         for (Tile t : world.tilesIn(s.area, false)) {
           s.bounds.include(t.x, t.y, t.elevation(), 1);
         }
-        for (Element e : world.fixturesFrom(s.area)) {
+        for (Element e : fixturesFrom(s.area, null)) {
           s.bounds.include(boundsFrom(e, tempBounds));
         }
-        //I.say("Area "+s.area+"\nBounds: "+s.bounds+"\n___DEPTH: "+s.depth);
         return true;
       }
       //
@@ -161,8 +160,6 @@ public class StageSections implements TileConstants {
         if (s.depth == 0) return;
         s.bounds.setTo(s.kids[0].bounds);
         for (StageRegion k : s.kids) s.bounds.include(k.bounds);
-        //I.say("UPDATED BOUNDS: "+s.bounds);
-        //I.say("Area "+s.area+"\nBounds: "+s.bounds+"\n___DEPTH: "+s.depth);
       }
     };
     this.applyDescent(update);
@@ -176,6 +173,7 @@ public class StageSections implements TileConstants {
       e.xdim() + 1, e.ydim() + 1, e.zdim()
     );
   }
+  
   
   
   /**  Flags the sections hierarchy for updates, propagated up from the given
@@ -194,15 +192,16 @@ public class StageSections implements TileConstants {
   
   /**  Returns a list of all static elements visible to the given viewport.
     */
-  //
-  //  TODO:  This might be moved to the rendering method of the World instead?
   public void compileVisible(
     final Viewport view, final Base base,
     final Batch <StageRegion> visibleSections,
     final List <Stage.Visible> visibleFixtures
   ) {
+    //
+    //  We flag all encountered fixtures (which can occupy multiple tiles or
+    //  sections) to prevent duplicate rendering-attempts.
+    final Batch <Element> fixtures = new Batch(100);
     final Descent compile = new Descent() {
-      final Box3D tempBounds = new Box3D();
       
       public boolean descendTo(StageRegion s) {
         final Box3D b = s.bounds;
@@ -212,19 +211,40 @@ public class StageSections implements TileConstants {
       public void afterChildren(StageRegion s) {
         if (s.depth > 0) return;
         visibleSections.add(s);
-        if (visibleFixtures != null) {
-          for (Element e : world.fixturesFrom(s.area)) {
-            if (e.sprite() == null) continue;
-            final Box3D b = boundsFrom(e, tempBounds);
-            if (! view.intersects(b.centre(), b.diagonal() / 2)) continue;
-            if (e.visibleTo(base)) visibleFixtures.add(e);
-          }
-        }
+        if (visibleFixtures != null) fixturesFrom(s.area, fixtures);
       }
     };
     this.applyDescent(compile);
+    //
+    //  We can then handle/unflag those in a separate pass-
+    final Box3D tempBounds = new Box3D();
+    for (Element e : fixtures) {
+      if (e.sprite() == null) continue;
+      final Box3D b = boundsFrom(e, tempBounds);
+      if (! view.intersects(b.centre(), b.diagonal() / 2)) continue;
+      if (e.visibleTo(base)) visibleFixtures.add(e);
+    }
+    for (Element e : fixtures) e.flagWith(null);
+  }
+  
+  
+  protected Batch <Element> fixturesFrom(Box2D area, Batch <Element> from) {
+    final boolean ownPass = from == null;
+    if (ownPass) from = new Batch <Element> ();
+    
+    for (Tile t : world.tilesIn(area, true)) {
+      final Element o = t.above();
+      if (o == null || o.flaggedWith() != null) continue;
+      o.flagWith(from);
+      from.add(o);
+    }
+    
+    if (ownPass) for (Element e : from) e.flagWith(null);
+    return from;
   }
 }
+
+
 
 
 

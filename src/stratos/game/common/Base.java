@@ -10,6 +10,7 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
+import stratos.graphics.cutout.CutoutSprite;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -358,7 +359,7 @@ public class Base implements
   }
   
   
-  private static Batch <Mission> layoutMissions(
+  private static Series <Mission> layoutMissions(
     Stage world, Viewport view, Base player
   ) {
     final Table <Target, List <Mission>> seenTable = new Table();
@@ -375,36 +376,23 @@ public class Base implements
       }
     }
     
+    final float spacing = Mission.FLAG_SCALE * 1.5f;
     final Batch <Mission> visible = new Batch();
+    
     for (Target t : seenTable.keySet()) {
-      final List <Mission> onT = seenTable.get(t);
-      layoutMissions(onT, t, view);
-      Visit.appendTo(visible, onT);
+      final List <Mission> above = seenTable.get(t);
+      final Batch <Sprite> sprites = new Batch();
+      for (Mission m : above) sprites.add(m.flagSprite());
+      
+      final Vec3D point = new Vec3D();
+      if (t instanceof Element) ((Element) t).viewPosition(point);
+      else t.position(point);
+      point.z += t.height();
+      
+      CutoutSprite.layoutAbove(point, 0, -0.15f, -1, view, spacing, sprites);
+      Visit.appendTo(visible, above);
     }
     return visible;
-  }
-  
-  
-  private static void layoutMissions(
-    Series <Mission> missions, Target above, Viewport view
-  ) {
-    final Vec3D horiz = view.screenHorizontal(), adds = new Vec3D();
-    final float scale = Mission.FLAG_SCALE * 1.5f;
-    
-    float offset = (missions.size() - 1) / 2f, index = 0;
-    for (Mission m : missions) {
-      final Sprite s = m.flagSprite();
-      if (above instanceof Element) {
-        ((Element) above).viewPosition(s.position);
-      }
-      else {
-        above.position(s.position);
-      }
-      s.position.z += above.height() + (Mission.FLAG_SCALE / 3);
-      adds.setTo(horiz).normalise().scale((index - offset) * scale);
-      s.position.add(adds);
-      index++;
-    }
   }
   
   

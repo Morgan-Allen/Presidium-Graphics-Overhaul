@@ -72,6 +72,13 @@ public abstract class Visit <T> implements Iterable <T>, Iterator <T> {
 
   /**  More utility methods, this time for dealing with arrays-
     */
+  public static boolean empty(Object o[]) {
+    if (o == null || o.length == 0) return true;
+    for (Object i : o) if (i != null) return false;
+    return true;
+  }
+  
+  
   public static Object last(Object o[]) {
     if (o == null || o.length == 0) return null;
     return o[o.length - 1];

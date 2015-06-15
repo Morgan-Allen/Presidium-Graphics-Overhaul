@@ -96,8 +96,8 @@ public class Tailing extends Element {
     final Pick <Tile> pick = new Pick <Tile> ();
     
     for (Tile t : getDumpingArea(around)) {
-      if (t.onTop() instanceof Tailing) {
-        final Tailing top = (Tailing) t.onTop();
+      if (t.above() instanceof Tailing) {
+        final Tailing top = (Tailing) t.above();
         if (top.wasteType == wasteType && top.fillLevel < MAX_FILL) {
           pick.compare(t, 0 - Spacing.distance(t, start));
         }
@@ -109,7 +109,7 @@ public class Tailing extends Element {
     
     final Tile dumpAt = pick.result();
     if (dumpAt == null) return null;
-    if (dumpAt.onTop() instanceof Tailing) return (Tailing) dumpAt.onTop();
+    if (dumpAt.above() instanceof Tailing) return (Tailing) dumpAt.above();
     
     final Tailing toMake = new Tailing(wasteType);
     toMake.setPosition(dumpAt.x, dumpAt.y, dumpAt.world);
@@ -120,8 +120,8 @@ public class Tailing extends Element {
   
   /**  Life-cycle, updates and maintenance-
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
     
     for (Tile t : origin().allAdjacent(null)) {

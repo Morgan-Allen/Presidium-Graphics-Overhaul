@@ -74,8 +74,8 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.presences.togglePresence(this, origin(), true, Item.Dropped.class);
     return true;
   }

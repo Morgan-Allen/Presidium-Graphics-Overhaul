@@ -28,7 +28,7 @@ public class EngineerStation extends Venue {
     EngineerStation.class, "media/GUI/Buttons/artificer_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    EngineerStation.class, "media/Buildings/artificer/artificer.png", 4, 2
+    EngineerStation.class, "media/Buildings/artificer/artificer.png", 4, 1
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(
@@ -36,7 +36,7 @@ public class EngineerStation extends Venue {
     "Engineer Station", UIConstants.TYPE_ENGINEER, ICON,
     "The Engineer Station manufactures "+PARTS+", "+CIRCUITRY+", devices and "+
     "armour for your citizens.",
-    4, 2, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     200, 5, 350, Structure.NORMAL_MAX_UPGRADES
   );
@@ -74,7 +74,13 @@ public class EngineerStation extends Venue {
       Upgrade.THREE_LEVELS, PARTS, 2,
       null, BLUEPRINT
     ),
-    MOLDING_PRESS = null,  //  TODO:  INCLUDE THIS
+    MOLDING_PRESS = new Upgrade(
+      "Molding Press",
+      "Speeds the production of common "+PLASTICS+" and working outfits "+
+      "by 100%.  Slightly reduces pollution.",
+      150, Upgrade.SINGLE_LEVEL, PLASTICS, 1,
+      null, BLUEPRINT
+    ),
     TECHNICIAN_POST = new Upgrade(
       "Technician Post",
       TECHNICIAN.info,
@@ -82,10 +88,10 @@ public class EngineerStation extends Venue {
       Upgrade.TWO_LEVELS, TECHNICIAN, 1,
       null, BLUEPRINT
     ),
-    ALLOY_COMPOSITES = new Upgrade(
-      "Alloy Composites",
+    COMPOSITE_MATERIALS = new Upgrade(
+      "Composite Materials",
       "Improves the production of heavy armours along with most melee "+
-      "weapons and industrial tools.",
+      "weapons.",
       200,
       Upgrade.THREE_LEVELS, null, 2,
       null, BLUEPRINT
@@ -98,7 +104,15 @@ public class EngineerStation extends Venue {
       Upgrade.THREE_LEVELS, null, 2,
       null, BLUEPRINT
     ),
-    T_NULL_ARMBAND = null, //  TODO:  INCLUDE THIS
+    //  TODO:  INCLUDE THIS
+    /*
+    T_NULL_ARMBAND = new Upgrade(
+      "T-NULL Armband",
+      "",
+      400,
+      Upgrade.SINGLE_LEVEL
+    ),
+    //*/
     ARTIFICER_OFFICE = new Upgrade(
       "Artificer Office",
       ARTIFICER.info,
@@ -116,6 +130,11 @@ public class EngineerStation extends Venue {
     );
   
   final public static Conversion
+    POLYMER_TO_PLASTICS = new Conversion(
+      BLUEPRINT, "polymer_to_plastics",
+      1, POLYMER, TO, 2, PLASTICS,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY
+    ),
     METALS_TO_PARTS = new Conversion(
       BLUEPRINT, "metals_to_parts",
       1, METALS, TO, 2, PARTS,
@@ -129,19 +148,19 @@ public class EngineerStation extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { PARTS, CIRCUITRY, SERVICE_ARMAMENT };
+    return new Traded[] { PLASTICS, PARTS, CIRCUITRY, SERVICE_ARMAMENT };
   }
   
   
   public Background[] careers() {
-    return new Background[] { Backgrounds.TECHNICIAN, Backgrounds.ARTIFICER };
+    return new Background[] { TECHNICIAN, ARTIFICER };
   }
   
   
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
-    if (v == Backgrounds.TECHNICIAN) return num + 2;
-    if (v == Backgrounds.ARTIFICER ) return num + 2;
+    if (v == TECHNICIAN) return num + 2;
+    if (v == ARTIFICER ) return num + 2;
     return 0;
   }
   
@@ -149,11 +168,15 @@ public class EngineerStation extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    stocks.incDemand(PARTS, 5, 1, true);
-    stocks.translateRawDemands(METALS_TO_PARTS, 1);
+    
+    stocks.incDemand(PLASTICS, 5, 1, true);
+    stocks.incDemand(PARTS   , 5, 1, true);
+    stocks.translateRawDemands(POLYMER_TO_PLASTICS, 1);
+    stocks.translateRawDemands(METALS_TO_PARTS    , 1);
+    stocks.translateRawDemands(PARTS_TO_CIRCUITRY , 1);
     
     float pollution = 5, powerNeed = 5;
-    powerNeed *= (3 + structure.numUpgrades()) / 3;
+    powerNeed *= (3 + structure.numUpgrades()) / 6;
     pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
     pollution *= (5f + structure.upgradeLevel(ASSEMBLY_LINE)) / 5;
     stocks.forceDemand(POWER, powerNeed, false);
@@ -161,69 +184,74 @@ public class EngineerStation extends Venue {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
-    
+    //
+    //  Consider contributing toward local repairs-
+    choice.add(Repairs.getNextRepairFor(actor, true));
+    if (actor.mind.vocation() == TECHNICIAN && ! choice.empty()) {
+      return choice.pickMostUrgent();
+    }
+    //
     //  Consider special commissions for weapons and armour-
     for (Item ordered : stocks.specialOrders()) {
-      final Traded made = ordered.type;
       final Manufacture mO = new Manufacture(actor, this, ordered);
-      
-      if (made instanceof DeviceType) {
-        final DeviceType DT = (DeviceType) made;
-        Upgrade forType = MICRO_ASSEMBLY;
-        if (DT.hasProperty(Devices.KINETIC)) forType = ALLOY_COMPOSITES;
-        if (DT.hasProperty(Devices.ENERGY )) forType = PLASMA_WEAPONS;
-        mO.setBonusFrom(this, true, forType);
-      }
-      else if (made instanceof OutfitType) {
-        final OutfitType OT = (OutfitType) made;
-        if (OT.shieldBonus > OT.defence) {
-          //  TODO:  Add a bonus here from T-Null Arm-band.
-          mO.setBonusFrom(this, true, ALLOY_COMPOSITES);
-        }
-        else {
-          mO.setBonusFrom(this, true, ALLOY_COMPOSITES);
-        }
-      }
-      else mO.setBonusFrom(this, true, MICRO_ASSEMBLY);
-      
-      choice.add(mO);
+      final Upgrade forType = upgradeFor(ordered.type);
+      choice.add(mO.setBonusFrom(this, true, forType));
     }
-    if (! choice.empty()) return choice.pickMostUrgent();
-    
+    if (actor.mind.vocation() == ARTIFICER && ! choice.empty()) {
+      return choice.pickMostUrgent();
+    }
+    //
     //  Consider the production of general bulk commodities-
+    final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
+    if (mL != null) {
+      choice.add(mL.setBonusFrom(this, false, MOLDING_PRESS));
+    }
     final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS);
     if (mP != null) {
       choice.add(mP.setBonusFrom(this, false, ASSEMBLY_LINE));
     }
     final Manufacture mI = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY);
     if (mI != null) {
-      choice.add(mI.setBonusFrom(this, false, ASSEMBLY_LINE, MICRO_ASSEMBLY));
+      choice.add(mI.setBonusFrom(this, false, MICRO_ASSEMBLY));
     }
-    
-    //  Finally, consider contributing toward local repairs-
-    choice.add(Repairs.getNextRepairFor(actor, false));
-    
+    //
     //  And return whatever suits the actor best-
     return choice.weightedPick();
   }
   
   
   public void addServices(Choice choice, Actor client) {
-    //  TODO:  Disallow commisions for certain gear if you don't have the
-    //         right upgrades.
     final DeviceType DT = client.gear.deviceType();
     final OutfitType OT = client.gear.outfitType();
     
     if (DT != null && DT.materials().producesAt(this)) {
-      Commission.addCommissions(client, this, choice, DT);
+      final Upgrade forType = upgradeFor(DT);
+      Commission.addCommissions(client, this, choice, DT, forType);
     }
     if (OT != null && OT.materials().producesAt(this)) {
-      Commission.addCommissions(client, this, choice, OT);
+      final Upgrade forType = upgradeFor(OT);
+      Commission.addCommissions(client, this, choice, OT, forType);
     }
     choice.add(BringUtils.nextHomePurchase(client, this));
+  }
+  
+  
+  private Upgrade upgradeFor(Traded made) {
+    if (made == Outfits.OVERALLS) {
+      return MOLDING_PRESS;
+    }
+    else if (made instanceof DeviceType) {
+      final DeviceType DT = (DeviceType) made;
+      if (DT.hasProperty(Devices.KINETIC)) return COMPOSITE_MATERIALS;
+      if (DT.hasProperty(Devices.ENERGY )) return PLASMA_WEAPONS     ;
+    }
+    else if (made instanceof OutfitType) {
+      return COMPOSITE_MATERIALS;
+    }
+    return MICRO_ASSEMBLY;
   }
   
 

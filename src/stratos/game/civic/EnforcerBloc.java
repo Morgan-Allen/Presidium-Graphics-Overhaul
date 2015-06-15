@@ -76,28 +76,26 @@ public class EnforcerBloc extends Venue {
   //  Forensics Lab
   //  Mentat & Psy Corps
   
-  final public static Conversion
-    PLASTICS_TO_PRESSFEED = new Conversion(
-      BLUEPRINT, "plastics_to_pressfeed",
-      1, PLASTICS, TO, 10, PRESSFEED,
-      SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
-    )
-  ;
   
-  
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
+    
+    //  TODO:  Unify these with similar duties at the Bastion!
     
     if (actor.mind.vocation() == Backgrounds.AUDITOR) {
       choice.add(Audit.nextOfficialAudit(actor));
-      choice.add(Sentencing.nextTrialFor(actor, this));
-      choice.add(stocks.nextManufacture(actor, PLASTICS_TO_PRESSFEED));
+      if (staff.onShift(actor)) {
+        choice.add(Sentencing.nextTrialFor(actor, this));
+      }
+      //  TODO:  Customise pressfeed, rather than manufacture it.
     }
     if (actor.mind.vocation() == Backgrounds.ENFORCER) {
+      if (staff.onShift(actor)) {
+        choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
+      }
       choice.add(Arrest.nextOfficialArrest(this, actor));
-      choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
-      //  TODO:  DISTRIBUTE PRESSFEED!
+      //  TODO:  DISTRIBUTE PRESSFEED
     }
     return choice.weightedPick();
   }

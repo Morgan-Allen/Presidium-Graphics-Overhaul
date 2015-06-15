@@ -225,6 +225,12 @@ public class Staff {
   }
   
   
+  public boolean offDuty(Actor worker) {
+    if (! employs.structure().intact()) return true;
+    return shiftFor(worker) == Venue.OFF_DUTY;
+  }
+  
+  
   public int assignedTo(Class planClass) {
     int num = 0; for (Actor actor : workers) {
       if (actor.isDoing(planClass, null)) num++;

@@ -7,10 +7,10 @@ package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
+import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -20,21 +20,13 @@ import static stratos.game.economic.Outfits.*;
 
 
 
-//  TODO:  I'm going to consider getting rid of this entirely, and just using
-//  the engineer station for all industrial conversions.
-
-
 public class Fabricator extends Venue {
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 3, 2
-  );
-
-  final public static ModelAsset MODEL2 = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator.png", 3, 2
+    Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 4, 1
   );
   
   final static ImageAsset ICON = ImageAsset.fromImage(
@@ -44,9 +36,9 @@ public class Fabricator extends Venue {
   final public static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
     "Fabricator", UIConstants.TYPE_ENGINEER, ICON,
-    "Fabricators manufacture "+PLASTICS+", pressfeed, decor and outfits for "+
-    "your citizens.",
-    4, 2, Structure.IS_NORMAL,
+    "Fabricators manufacture "+DECOR+", "+PRESSFEED+" and finery for "+
+    "the upper-crust.",
+    4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     125, 2, 200, Structure.NORMAL_MAX_UPGRADES
   );
@@ -77,22 +69,24 @@ public class Fabricator extends Venue {
   final public static Upgrade
     POLYMER_LOOM = new Upgrade(
       "Polymer Loom",
-      "Speeds the production of standard "+PLASTICS+" and everyday outfits "+
-      "by 33%.",
-      250, Upgrade.THREE_LEVELS, CARBS, 1,
+      "Speeds production of fine garments for the upper classes by 50%, and "+
+      "improves ambience.",
+      400, Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
     ),
-    FINERY_FLOOR = new Upgrade(
-      "Finery Production",
-      "Allows production of fine garments and decor for the upper classes.",
-      500, Upgrade.THREE_LEVELS, null, 1,
-      POLYMER_LOOM, BLUEPRINT
+    DECOR_STUDIO = new Upgrade(
+      "Decor Studio",
+      "Facilitates production of customised "+DECOR+" for "+Fractal.class+
+      " and "+Edifice.class+" construction.",
+      500, Upgrade.TWO_LEVELS, null, 1,
+      null, BLUEPRINT
     ),
-    CAMOUFLAGE_FLOOR = new Upgrade(
-      "Camouflage Production",
-      "Allows production of stealth-based protection for guerilla agents.",
-      350, Upgrade.THREE_LEVELS, null, 2,
-      POLYMER_LOOM, BLUEPRINT
+    FILM_BASE = new Upgrade(
+      "Film Base",
+      "Allows production of raw "+PRESSFEED+" for use in public relations at "+
+      "the "+EnforcerBloc.class+".",
+      250, Upgrade.TWO_LEVELS, null, 1,
+      null, BLUEPRINT
     ),
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
@@ -100,19 +94,18 @@ public class Fabricator extends Venue {
       200, Upgrade.THREE_LEVELS, FABRICATOR, 1,
       null, BLUEPRINT
     );
-    //  TODO:  Level 2 Upgrade.  And pressfeed?
-  
+    //  TODO:  Level 2 Upgrade?
   
   final public static Conversion
-    POLYMER_TO_PLASTICS = new Conversion(
-      BLUEPRINT, "lchc_to_plastics",
-      1, POLYMER, TO, 2, PLASTICS,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, HANDICRAFTS
-    ),
     PLASTICS_TO_DECOR = new Conversion(
       BLUEPRINT, "plastics_to_decor",
       2, PLASTICS, TO, 1, DECOR,
       STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
+    ),
+    PLASTICS_TO_PRESSFEED = new Conversion(
+      BLUEPRINT, "plastics_to_pressfeed",
+      1, PLASTICS, TO, 2, PRESSFEED,
+      SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
     );
   
   
@@ -121,43 +114,36 @@ public class Fabricator extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     
     final int levelPC = structure.upgradeLevel(POLYMER_LOOM);
-    //if (levelPC > 0) stocks.translateDemands(CARBS_TO_LCHC, 1);
-    structure.setAmbienceVal(levelPC - 3);
+    structure.setAmbienceVal((levelPC - 1) * Ambience.MILD_AMBIENCE);
     
     final float powerNeed = 2 + (structure.numUpgrades() / 2f);
     stocks.forceDemand(POWER, powerNeed, false);
     stocks.incDemand(PLASTICS, 5, 1, true);
-    stocks.translateRawDemands(POLYMER_TO_PLASTICS, 1);
+    stocks.translateRawDemands(PLASTICS_TO_DECOR, 1);
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     
     final Choice choice = new Choice(actor);
     
     for (Item ordered : stocks.specialOrders()) {
       final Manufacture mO = new Manufacture(actor, this, ordered);
-      final Traded type = ordered.type;
-      if (type == DECOR || type == FINERY) {
-        mO.setBonusFrom(this, true, FINERY_FLOOR);
-      }
-      else if (type == STEALTH_SUIT || type == SEALSUIT) {
-        mO.setBonusFrom(this, true, CAMOUFLAGE_FLOOR);
-      }
-      else {
-        mO.setBonusFrom(this, false, POLYMER_LOOM);
-      }
-      choice.add(mO);
+      choice.add(mO.setBonusFrom(this, true, POLYMER_LOOM));
     }
     if (! choice.empty()) return choice.pickMostUrgent();
     
-    final Manufacture m = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
-    if (m != null) {
-      m.setBonusFrom(this, false, POLYMER_LOOM);
-      choice.add(m);
+    final Manufacture mP = stocks.nextManufacture(actor, PLASTICS_TO_PRESSFEED);
+    if (mP != null) {
+      mP.setBonusFrom(this, false, FILM_BASE);
+      choice.add(mP);
     }
-    
+    final Manufacture mD = stocks.nextManufacture(actor, PLASTICS_TO_DECOR);
+    if (mD != null) {
+      mD.setBonusFrom(this, false, DECOR_STUDIO);
+      choice.add(mD);
+    }
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
@@ -171,7 +157,7 @@ public class Fabricator extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { PLASTICS, DECOR };
+    return new Traded[] { PLASTICS, PRESSFEED, DECOR };
   }
   
   
@@ -181,14 +167,10 @@ public class Fabricator extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    //  TODO:  Disallow commissions for certain outfits if you don't have the
-    //  needed upgrades.
-    
     final OutfitType OT = client.gear.outfitType();
     if (OT != null && OT.materials().producesAt(this)) {
-      Commission.addCommissions(client, this, choice, OT);
+      Commission.addCommissions(client, this, choice, OT, POLYMER_LOOM);
     }
-    choice.add(BringUtils.nextHomePurchase(client, this));
   }
   
   
@@ -202,7 +184,7 @@ public class Fabricator extends Venue {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      super.helpInfo(),  this, POLYMER_TO_PLASTICS, POLYMER_LOOM
+      super.helpInfo(), this, PLASTICS_TO_DECOR, POLYMER_LOOM
     );
   }
 }

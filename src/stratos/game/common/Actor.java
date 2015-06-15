@@ -200,9 +200,9 @@ public abstract class Actor extends Mobile implements
   
   /**  Life cycle and updates-
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (base == null) I.complain("ACTOR MUST HAVE BASE ASSIGNED: "+this);
-    if (! super.enterWorldAt(x, y, world)) return false;
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     
     if (verbose || I.logEvents()) {
       I.say("\n"+this+" ("+mind.vocation()+") ENTERING WORLD AT "+x+"/"+y);

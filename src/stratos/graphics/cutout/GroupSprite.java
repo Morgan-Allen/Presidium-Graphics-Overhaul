@@ -1,10 +1,11 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import java.io.*;
 import java.util.Iterator;
 
@@ -13,20 +14,20 @@ import java.util.Iterator;
 public class GroupSprite extends Sprite {
   
   
+  private static boolean verbose = false;
+  
   final static ModelAsset GROUP_MODEL = new ClassModel(
     "GROUP-MODEL", GroupSprite.class
   ) {
     public Sprite makeSprite() { return new GroupSprite(); }
   };
   final public static int
-    SORT_BY_Z_ORDER = 0,
-    SORT_BY_ADDITION = 1;
-  
-  private static boolean verbose = false;
-  
+    NO_SORTING       = -1,
+    SORT_BY_Z_ORDER  =  0,
+    SORT_BY_ADDITION =  1;
   
   protected Stack <Sprite> modules = new Stack <Sprite> ();
-  protected Stack <Vec3D>  offsets = new Stack <Vec3D>  ();
+  protected Stack <Vec3D > offsets = new Stack <Vec3D > ();
   private Vec3D lastPosition = null;
   private int sortMode = SORT_BY_Z_ORDER;
   
@@ -72,10 +73,13 @@ public class GroupSprite extends Sprite {
   /**  Actual content modification-
     */
   public void attach(Sprite sprite, float xoff, float yoff, float zoff) {
-    if (!
-      ((sprite instanceof GroupSprite) ||
-      (sprite instanceof CutoutSprite))
-    ) I.complain("Can only attach cutouts or other group-sprites!");
+    if (! (
+      (sprite instanceof GroupSprite ) ||
+      (sprite instanceof CutoutSprite)
+    )) {
+      I.complain("Can only attach cutouts or other group-sprites!");
+      return;
+    }
     modules.addLast(sprite);
     offsets.addLast(new Vec3D(xoff, yoff, zoff));
     lastPosition = null;
@@ -116,6 +120,16 @@ public class GroupSprite extends Sprite {
   public Sprite atIndex(int n) {
     if (n == -1) return null;
     return modules.atIndex(n);
+  }
+  
+  
+  public CutoutSprite childOfHeight(int high) {
+    for (Sprite k : modules) if (k.model() instanceof CutoutModel) {
+      if (((CutoutModel) k.model()).high == high) {
+        return (CutoutSprite) k;
+      }
+    }
+    return null;
   }
   
   
@@ -184,7 +198,7 @@ public class GroupSprite extends Sprite {
   private void compressBefore(
     Rendering rendering, Series <Sprite> overlaid, float depthRange
   ) {
-    if (overlaid.size() == 0) return;
+    if (overlaid.size() == 0 || sortMode == NO_SORTING) return;
     final float baseDepth = rendering.view.screenDepth(this.position);
     if (verbose) I.say("\nCompressing Z order, base depth: "+baseDepth);
     
@@ -208,7 +222,7 @@ public class GroupSprite extends Sprite {
         rendering.view.translateFromScreen(s.position);
       }
     }
-    else {
+    if (sortMode == SORT_BY_ADDITION) {
       int i = 0; for (Sprite s : overlaid) {
         rendering.view.translateToScreen(s.position);
         final float relDepth = ++i * depthRange / overlaid.size();
@@ -216,7 +230,6 @@ public class GroupSprite extends Sprite {
         rendering.view.translateFromScreen(s.position);
       }
     }
-    
   }
   
   

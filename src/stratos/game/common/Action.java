@@ -354,8 +354,6 @@ public class Action implements Behaviour, AnimNames {
     else {
       if (report) I.say("  Must have facing and line of sight.");
       
-      //  TODO:  Build line-of-sight considerations into the actor's reaction
-      //  algorithms instead?
       final boolean seen = SenseUtils.hasLineOfSight(
         actor, actionTarget, Nums.max(maxDist, sightRange)
       );
@@ -455,7 +453,7 @@ public class Action implements Behaviour, AnimNames {
   
   
   protected void updateAction(boolean active, Actor calls) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     if (report) {
       I.say("\nUpdating action for: "+actor+"  Target: "+actionTarget);
       I.say("  Method is: "+methodName()+", basis "+basis.getClass());

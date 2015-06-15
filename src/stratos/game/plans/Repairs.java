@@ -1,11 +1,13 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.PavingMap;
+import stratos.game.maps.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.base.BaseFinance.*;
@@ -38,18 +40,18 @@ public class Repairs extends Plan {
     SALVAGE_COST_MULT  = 0.5f ,
     REPAIR_COST_MULT   = 0.25f;
   
-  final Structure.Basis built;
+  final Placeable built;
   final Skill skillUsed;
   private int repairType = REPAIR_REPAIR;
   
   
-  public Repairs(Actor actor, Structure.Basis repaired) {
+  public Repairs(Actor actor, Placeable repaired) {
     this(actor, repaired, ASSEMBLY);
   }
   
   
-  public Repairs(Actor actor, Structure.Basis repaired, Skill skillUsed) {
-    super(actor, (Target) repaired, MOTIVE_NONE, REAL_HELP);
+  public Repairs(Actor actor, Placeable repaired, Skill skillUsed) {
+    super(actor, (Target) repaired, NO_PROPERTIES, REAL_HELP);
     this.built = repaired;
     this.skillUsed = skillUsed;
   }
@@ -57,7 +59,7 @@ public class Repairs extends Plan {
   
   public Repairs(Session s) throws Exception {
     super(s);
-    built      = (Structure.Basis) s.loadObject();
+    built      = (Placeable) s.loadObject();
     skillUsed  = (Skill) s.loadObject();
     repairType = s.loadInt();
   }
@@ -79,7 +81,7 @@ public class Repairs extends Plan {
   
   /**  Assessing targets and priority-
     */
-  public static float needForRepair(Structure.Basis built) {
+  public static float needForRepair(Placeable built) {
     final Structure structure = built.structure();
     if (! structure.takesWear()) return 0;
     
@@ -99,16 +101,16 @@ public class Repairs extends Plan {
   public static Plan getNextRepairFor(Actor client, boolean asDuty) {
     final Stage world = client.world();
     final Choice choice = new Choice(client);
-    final boolean report = evalVerbose && I.talkAbout == client;
+    final boolean report = I.talkAbout == client && evalVerbose;
     choice.isVerbose = report;
     //
     //  First, sample any nearby venues that require repair, and add them to
     //  the list.
-    final Batch <Structure.Basis> toRepair = new Batch <Structure.Basis> ();
+    final Batch <Placeable> toRepair = new Batch <Placeable> ();
     world.presences.sampleFromMaps(
       client, world, 3, toRepair, Structure.DAMAGE_KEY
     );
-    for (Structure.Basis near : toRepair) {
+    for (Placeable near : toRepair) {
       if (near.base() != client.base()) continue;
       if (needForRepair(near) <= 0) continue;
       final Repairs b = new Repairs(client, near);
@@ -190,94 +192,204 @@ public class Repairs extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
-    if (report) I.say("\nGetting next build step?");
-    final Structure structure = built.structure();
-    final Element basis = (Element) built;
-    Action building = null;
+    final boolean report = I.talkAbout == actor && stepsVerbose && hasBegun();
+    if (report) {
+      I.say("\nGetting next build step for "+built);
+    }
     
-    //
-    //  Determine the type of action that needs to be taken:
+    final Structure structure = built.structure();
+    this.repairType = REPAIR_REPAIR;
+    
+    final float   repair = structure.repairLevel();
+    final Element basis  = (Element) built;
+    final int     state  = structure.currentState();
+    final boolean venue  = ! basis.isMobile();
+    
+    if (venue && state == Structure.STATE_INSTALL) {
+      final Tile laid = repair > 0 ? null : nextFoundationTile(actor, true);
+      repairType = REPAIR_BUILD;
+      if (report) I.say("  Performing installation...");
+      
+      if (laid != null) {
+        final Action lays = new Action(
+          actor, laid,
+          this, "actionLayFoundation",
+          Action.BUILD, "Laying foundation"
+        );
+        lays.setMoveTarget(Spacing.pickFreeTileAround(laid, actor));
+        if (report) I.say("  Laying foundation at "+laid);
+        return lays;
+      }
+    }
+    if (venue && state == Structure.STATE_SALVAGE) {
+      final Tile strip = repair > 0 ? null : nextFoundationTile(actor, false);
+      repairType = REPAIR_SALVAGE;
+      if (report) I.say("  Performing salvage...");
+      
+      if (strip != null) {
+        final Action strips = new Action(
+          actor, strip,
+          this, "actionStripFoundation",
+          Action.BUILD, "Stripping foundation"
+        );
+        strips.setMoveTarget(Spacing.pickFreeTileAround(strip, actor));
+        if (report) I.say("  Stripping foundation at "+strip);
+        return strips;
+      }
+    }
+    
     if (structure.needsUpgrade() && structure.goodCondition()) {
-      building = new Action(
+      final Action upgrades = new Action(
         actor, built,
         this, "actionUpgrade",
         Action.BUILD, "Upgrading "
       );
       repairType = REPAIR_UPGRADE;
       if (report) I.say("  Returning next upgrade action.");
+      return upgrades;
     }
     
-    if (structure.hasWear()) {
-      building = new Action(
-        actor, built,
-        this, "actionBuild",
-        Action.BUILD, "Assembling "
-      );
-      repairType = structure.needsSalvage() ? REPAIR_SALVAGE : (
-        structure.intact() ? REPAIR_REPAIR : REPAIR_BUILD
-      );
-      if (report) I.say("  Returning next build action.");
-    }
+    final Action builds = new Action(
+      actor, built,
+      this, "actionBuild",
+      Action.BUILD, "Assembling"
+    );
+    final Boarding movesTo = nextBuildPosition(actor);
+    if (movesTo == null) return null;
+    else builds.setMoveTarget(movesTo);
     
-    if (report && building == null) I.say("NOTHING TO BUILD");
-    if (building == null) return null;
-    //
-    //  Make sure that you can find a suitable spot to begin building at:
-    final boolean near = Spacing.adjacent(actor.origin(), basis);
-    boolean moveSet = false;
-    final boolean roll = Rand.num() < 0.2f;
-    
-    if (built instanceof Vehicle) {
-      final Vehicle m = (Vehicle) built;
-      if (m.indoors()) {
-        building.setMoveTarget(m.aboard());
-        moveSet = true;
-      }
-      else if (m.pilot() != null) return null;
+    if (repairType == REPAIR_REPAIR && report) {
+      I.say("  Returning next building action.");
     }
-    if (built instanceof Venue && built.structure().intact()) {
-      if (((Venue) built).mainEntrance() != null) moveSet = true;
-    }
-    //
-    //  If none is found, try to use an adjacent tile:
-    if ((! moveSet) && (roll || ! near)) {
-      final Tile t = Spacing.pickFreeTileAround(built, actor);
-      if (t == null) return null;
-      building.setMoveTarget(t);
-      moveSet = true;
-    }
-    if (! moveSet) {
-      building.setMoveTarget(actor.origin());
-    }
-    return building;
+    return builds;
   }
   
   
-  public boolean actionEstablish(Actor actor, Structure.Basis built) {
-    final Element e = (Element) built;
-    e.enterWorld();
+  private Tile nextFoundationTile(Actor actor, boolean lays) {
+    final Tile entry = ((Venue) built).mainEntrance();
+    if (entry == null) return null;
+    
+    final Stage world = actor.world();
+    final Pick <Tile> pick = new Pick <Tile> ();
+    
+    final Plan repairing[] = world.activities.activePlanMatches(
+      built, Repairs.class
+    ).toArray(Plan.class);
+    //
+    //  To ensure that tiles in need of paving don't become inaccessible, we
+    //  work backwards toward the venue's entrance.  (We also try to avoid more
+    //  than one worker attached to the same tile.)
+    for (Tile t : world.tilesIn(built.footprint(), false)) {
+      for (Plan r : repairing) if (r != this) {
+        if (r.stepFocus() == t || r.actor().origin() == t) continue;
+      }
+      final boolean laid = t.above() == built;
+      if (laid == lays) continue;
+      final float dist = Spacing.distance(t, entry);
+      pick.compare(t, dist * (lays ? 1 : -1));
+    }
+    return pick.result();
+  }
+  
+  
+  public boolean actionLayFoundation(Actor actor, Tile at) {
+    RoadsRepair.updatePavingAround(actor.origin(), built.base());
+    flagSpriteForChange();
+    //
+    //  First, we check to ensure that the tile still needs laying-
+    at = nextFoundationTile(actor, true);
+    if (at == null || ! Spacing.adjacent(actor, at)) return false;
+    //
+    //  Then, clear out any competition and assert occupation of the tile.
+    for (Tile n : at.vicinity(null)) if (n != null && n.above() != null) {
+      n.clearUnlessOwned();
+    }
+    at.setAbove((Element) built, true);
+    //
+    //  For shame, Montressor.  Don't brick up the workmen.
+    for (Mobile m : at.inside()) {
+      final Tile exit = Spacing.nearestOpenTile(m, m);
+      if (exit != null) m.setPosition(exit.x, exit.y, exit.world);
+    }
     return true;
   }
   
   
-  public boolean actionBuild(Actor actor, Structure.Basis built) {
+  public boolean actionStripFoundation(Actor actor, Tile at) {
+    RoadsRepair.updatePavingAround(actor.origin(), built.base());
+    flagSpriteForChange();
+    if (at.above() == built) {
+      at.setAbove(null, false);
+    }
+    if (nextFoundationTile(actor, false) == null) {
+      built.structure().completeSalvage();
+    }
+    return true;
+  }
+  
+  
+  private Boarding nextBuildPosition(Actor actor) {
+    //
+    //  Vehicles are built from within their hangars-
+    if (built instanceof Vehicle) {
+      final Vehicle m = (Vehicle) built;
+      if (m.indoors()) return m.aboard();
+      else return null;
+    }
+    //
+    //  Venues can be built from within or at random points around their
+    //  perimeter, if it's only minor upkeep required...
+    final Venue venue  = (Venue) built;
+    final Stage world  = venue.world();
+    final Tile  corner = venue.origin();
+    final int   size   = venue.size;
+    final float repair = venue.structure().repairLevel();
+    
+    if (built.structure().intact()) {
+      if (Rand.num() < 0.2f || ! Spacing.adjacent(actor, built)) {
+        return Spacing.pickFreeTileAround(built, actor);
+      }
+      return venue;
+    }
+    //
+    //  For installation & salvage, we try to move from the back of the
+    //  structure forward (so as to match up with the construct/salvage build-
+    //  sprite animation.)
+    final Pick <Tile> pick = new Pick <Tile> ();
+    Tile atBack  = world.tileAt(corner.x + size, corner.y);
+    Tile atFront = world.tileAt(corner.x, corner.y + size);
+    
+    for (Tile t : Spacing.perimeter(venue.footprint(), venue.world())) {
+      if (t == null || t.blocked()) continue;
+      float rating = 0;
+      rating += Spacing.distance(t, atBack ) * (0 + repair);
+      rating += Spacing.distance(t, atFront) * (1 - repair);
+      rating -= Spacing.distance(t, actor  ) / (size + 1  );
+      rating /= Nums.max(1, t.inside().size());
+      pick.compare(t, rating);
+    }
+    return pick.result();
+  }
+  
+  
+  public boolean actionBuild(Actor actor, Placeable built) {
     final boolean report = stepsVerbose && I.talkAbout == actor && hasBegun();
     RoadsRepair.updatePavingAround(actor.origin(), built.base());
-    
+    flagSpriteForChange();
+    //
     //  TODO:  Double the rate of repair again if you have proper tools and
     //  materials.
     final Structure structure = built.structure();
-    final boolean salvage = structure.needsSalvage();
-    final boolean free = GameSettings.buildFree;
-    final Base base = built.base();
+    final boolean   salvage   = structure.needsSalvage();
+    final boolean   free      = GameSettings.buildFree;
+    final Base      base      = built.base();
     
     float success = actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
     success *= 25f / TIME_PER_25_HP;
     float cost = 0;
-    
+    //
     //  TODO:  Base assembly DC (or other skills) on a Conversion for the
-    //  structure.  Require construction materials for full efficiency.
+    //  structure.  And require construction materials for full efficiency.
     if (salvage) {
       success *= actor.skills.test(skillUsed, 5, 1) ? 1 : 0.5f;
       final float amount = 0 - structure.repairBy(0 - success);
@@ -286,7 +398,6 @@ public class Repairs extends Plan {
         base.finance.incCredits(cost, SOURCE_SALVAGE);
       }
     }
-    
     else {
       success *= actor.skills.test(skillUsed, 10, 0.5f) ? 1 : 0.5f;
       success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
@@ -311,12 +422,11 @@ public class Repairs extends Plan {
   }
   
   
-  public boolean actionUpgrade(Actor actor, Structure.Basis built) {
+  public boolean actionUpgrade(Actor actor, Placeable built) {
     final Structure structure = built.structure();
     final Upgrade upgrade = structure.upgradeInProgress();
-    ///if (upgrade == null) I.say("NO UPGRADE!");
     if (upgrade == null) return false;
-    ///I.say("Advancing upgrade: "+upgrade.name);
+    
     int success = 1;
     success *= actor.skills.test(skillUsed, 10, 0.5f) ? 2 : 1;
     success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
@@ -334,7 +444,17 @@ public class Repairs extends Plan {
     d.append(REPAIR_DESC[repairType]+" ");
     d.append(built);
   }
+  
+  
+  private void flagSpriteForChange() {
+    if (! (built instanceof Venue)) return;
+    //
+    //  A slight kluge to improve efficiency.  (See the renderFor method in
+    //  Venue.)
+    ((Venue) built).buildSprite().flagChange = true;
+  }
 }
+
 
 
 

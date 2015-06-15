@@ -79,6 +79,17 @@ public class ActorDescription implements Qualities {
     //
     //  Then describe the actor's current behaviour-
     d.append("\nStatus: ");
+    /*
+    if (true) {
+      Action current = h.currentAction();
+      d.append(current);
+      
+      if (h.inWorld()) d.append("\n  In world!");
+      else d.append("\n  Not in world!");
+      return;
+    }
+    //*/
+    
     h.describeStatus(d);
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();

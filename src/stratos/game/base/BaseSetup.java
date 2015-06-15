@@ -158,16 +158,13 @@ public class BaseSetup {
     
     for (Venue placing : toPlace) {
       rankSectionPlacings(new Venue[] {placing}, report);
-      attemptPlacements(sitings.size(), -1, report);
+      attemptPlacements(sitings.size(), -1, true, report);
     }
     
     final Batch <Venue> placed = new Batch <Venue> ();
     Visit.appendTo(placed, allPlaced);
     allPlaced.clear();
     sitings.clear();
-    for (Venue v : placed) {
-      v.structure().setState(Structure.STATE_INTACT, 1);
-    }
     return placed;
   }
   
@@ -215,7 +212,7 @@ public class BaseSetup {
       I.say("\nPlacement iterations: "+numIters+"/"+initPlaceCount);
       I.say("  Sitings remaining: "+sitings.size());
     }
-    attemptPlacements(numIters, buildLimit, report);
+    attemptPlacements(numIters, buildLimit, false, report);
   }
   
   
@@ -250,7 +247,7 @@ public class BaseSetup {
   
   
   private void attemptPlacements(
-    int maxChecked, float buildLimit, boolean report
+    int maxChecked, float buildLimit, boolean intact, boolean report
   ) {
     while (maxChecked-- > 0 && sitings.size() > 0) {
       final Siting best  = sitings.removeGreatest();
@@ -269,7 +266,7 @@ public class BaseSetup {
         I.say("  Rough location: "+best.placed);
         I.say("  Rating was:     "+best.rating);
       }
-      if (attemptExactPlacement(best, sample, report)) {
+      if (attemptExactPlacement(best, sample, intact, report)) {
         removeSitings(sample);
       }
       else if (report) I.say("  No suitable site found.");
@@ -288,7 +285,7 @@ public class BaseSetup {
   
   
   private boolean attemptExactPlacement(
-    Siting placing, Venue sample, boolean report
+    Siting placing, Venue sample, boolean intact, boolean report
   ) {
     final Pick <Tile> sitePick = new Pick <Tile> ();
     final Box2D tempA = new Box2D();
@@ -310,7 +307,7 @@ public class BaseSetup {
     }
     final Tile bestSite = sitePick.result();
     sample.setupWith(bestSite, null);
-    sample.doPlacement();
+    sample.doPlacement(intact);
     
     allPlaced.add(sample);
     totalBuildHP += sample.structure.maxIntegrity();
@@ -327,7 +324,9 @@ public class BaseSetup {
   
   /**  Establishing base personnel:
     */
-  public void fillVacancies(Venue venue, boolean enterWorld) {
+  public void fillVacancies(
+    Venue venue, boolean enterWorld, Actor... employed
+  ) {
     //
     //  We automatically fill any positions available when the venue is
     //  established.  This is done for free, but candidates cannot be screened.
@@ -335,10 +334,14 @@ public class BaseSetup {
     
     final boolean report = verbose && base == BaseUI.currentPlayed();
     final int MAX_TRIES = 100;  //Safety measure...
+    final boolean hasList = employed != null && employed.length > 0;
     int numTries = 0;
     if (report) I.say("\nAttempting to fill vacancies at "+venue);
     
-    for (Background v : venue.careers()) while (true) {
+    if (hasList) for (Actor worker : employed) {
+      addWorkerTo(venue, worker, enterWorld);
+    }
+    else for (Background v : venue.careers()) while (true) {
       
       //  True-loops are a recipe for trouble:
       if (++numTries > MAX_TRIES) {
@@ -356,24 +359,29 @@ public class BaseSetup {
         I.say("  Crowding for "+worker+" is "+crowding);
       }
       if (crowding >= 1) break;
-      
-      //  Then set the actor's employment status (and possibly residency as
-      //  well.  NOTE:  Work is set first to ensure residency is permitted at
-      //  various venues.)
-      worker.mind.setWork(venue);
-      if (venue.crowdRating(worker, Backgrounds.AS_RESIDENT) < 1) {
-        worker.mind.setHome(venue);
-      }
-      
-      //  Finally, ensure the new worker is either in the world, or registered
-      //  for migration as soon as possible:
-      if (GameSettings.hireFree || enterWorld) {
-        worker.enterWorldAt(venue, venue.world());
-      }
-      else {
-        final Stage world = venue.base().world;
-        world.offworld.journeys.addLocalImmigrant(worker, base);
-      }
+      else addWorkerTo(venue, worker, enterWorld);
+    }
+  }
+  
+  
+  private void addWorkerTo(Venue venue, Actor worker, boolean enterWorld) {
+    //
+    //  Then set the actor's employment status (and possibly residency as
+    //  well.  NOTE:  Work is set first to ensure residency is permitted at
+    //  various venues.)
+    worker.mind.setWork(venue);
+    if (venue.crowdRating(worker, Backgrounds.AS_RESIDENT) < 1) {
+      worker.mind.setHome(venue);
+    }
+    
+    //  Finally, ensure the new worker is either in the world, or registered
+    //  for migration as soon as possible:
+    if (GameSettings.hireFree || enterWorld) {
+      worker.enterWorldAt(venue, venue.world());
+    }
+    else {
+      final Stage world = venue.base().world;
+      world.offworld.journeys.addLocalImmigrant(worker, base);
     }
   }
   

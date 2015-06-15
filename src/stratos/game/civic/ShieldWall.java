@@ -60,6 +60,7 @@ public class ShieldWall extends Venue {
   
   private Boarding entrances[] = null;
   private boolean hasFoundation = false;
+  private int type = -1;
   
   
   public ShieldWall(Base base) {
@@ -70,11 +71,13 @@ public class ShieldWall extends Venue {
   
   public ShieldWall(Session s) throws Exception {
     super(s);
+    type = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveInt(type);
   }
   
   
@@ -120,7 +123,7 @@ public class ShieldWall extends Venue {
   
   
   private Object faceModel(Tile position, Box2D area, Coord... others) {
-    Object model = Placement.setupMergingSegment(
+    Object model = PlaceUtils.setupMergingSegment(
       this, position, area, others,
       CAPS_X_AXIS, CAPS_Y_AXIS, MODEL_HUB, ShieldWall.class
     );
@@ -218,8 +221,8 @@ public class ShieldWall extends Venue {
       final Tile t = (Tile) entrances[i];
       if (t == null) continue;
       
-      if (t.onTop() instanceof ShieldWall) {
-        entrances[i] = (ShieldWall) t.onTop();
+      if (t.above() instanceof ShieldWall) {
+        entrances[i] = (ShieldWall) t.above();
       }
       else if (isGate() && ! t.blocked()) {
         entrances[i] = entrance = t;
@@ -240,8 +243,8 @@ public class ShieldWall extends Venue {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     refreshAdjacent();
     return true;
   }
@@ -250,16 +253,6 @@ public class ShieldWall extends Venue {
   public void exitWorld() {
     refreshAdjacent();
     super.exitWorld();
-  }
-  
-  
-  public boolean allowsEntry(Mobile m) {
-    if (isGate()) return super.allowsEntry(m);
-    if (! (m instanceof Actor)) return false;
-    final Actor a = (Actor) m;
-    if (a.aboard() instanceof ShieldWall) return true;
-    if (a.planFocus(null, true) instanceof ShieldWall) return true;
-    return false;
   }
   
   

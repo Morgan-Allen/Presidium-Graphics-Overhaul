@@ -36,14 +36,18 @@ public class Profile {
   }
   
   
-  public static Profile loadProfile(Session s, BaseProfiles bP) throws Exception {
+  public static Profile loadProfile(
+    Session s, BaseProfiles bP
+  ) throws Exception {
     final Profile p = new Profile((Actor) s.loadObject(), bP);
     p.paymentDue    = s.loadFloat();
     p.lastWageEval  = s.loadFloat();
     p.lastTaxEval   = s.loadFloat();
     p.lastPsychEval = s.loadFloat();
     p.sentence      = (Summons) s.loadObject();
-    p.offences      = (List) s.loadEnums(p.offences, Crime.values());
+    
+    if (p.offences == null) p.offences = new List();
+    p.offences = (List) s.loadEnums(p.offences, Crime.values());
     return p;
   }
   

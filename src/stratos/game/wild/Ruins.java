@@ -117,7 +117,7 @@ public class Ruins extends Venue {
   
   /**  Behavioural routines-
     */
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     //  TODO:  Fill this in.
     return null;
   }

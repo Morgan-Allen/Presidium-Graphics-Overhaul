@@ -22,7 +22,7 @@ public abstract class RandomScan {
   final private int seedBits;
   private LFSR lfsr;
   
-  private int lastScanIndex = 0;
+  private int lastScanIndex = -1;
   private int scan, seed;
   
   
@@ -67,11 +67,13 @@ public abstract class RandomScan {
     */
   public void doFullScan() {
     initSeeds();
+    lastScanIndex = 0;
     scanThrough(totalTiles);
   }
   
   public void scanThroughTo(int index) {
     if (index < 0 || index == lastScanIndex) return;
+    if (lastScanIndex == -1) { lastScanIndex = index; return; }
     index %= totalTiles;
     if (index > lastScanIndex) scanThrough(index - lastScanIndex);
     else scanThrough(index + totalTiles - lastScanIndex);

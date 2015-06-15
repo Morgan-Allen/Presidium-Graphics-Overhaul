@@ -1,7 +1,4 @@
-
 #version 120
-
-
 #define maxBones 50
 
 
@@ -47,18 +44,18 @@ void main() {
   v_normal = normalize((transform * vec4(a_normal, 0.0)).xyz);
   
   {
-    float NdotL = dot(v_normal, u_lightDirection);
+    float dota = dot(v_normal, -u_lightDirection);
+    vec3 ambient = u_ambientLight.rgb;
+    vec3 diffuse = u_diffuseLight.rgb;
+    
+    // diffuse light from the front and more ambient from back
+    if(dota < 0)
+      v_lightDiffuse = ambient * (0.5f - dota);
+    else
+      v_lightDiffuse = ambient + diffuse * dota;
 
     // standard directional ligh
-    //vec3 value = u_diffuseLight.rgb * clamp(NdotL, 0.0, 1.0);
-
-    // more ambient-ish
-    vec3 value = u_diffuseLight.rgb * (NdotL * 0.5 + 0.5);
-
-    vec3 ambient = u_ambientLight.rgb;
-    ambient = vec3(0.6, 0.6, 0.6); // temporary
-
-    v_lightDiffuse = ambient + value;
+    //v_lightDiffuse = ambient + diffuse * clamp(dota, 0.0, 1.0);
   }
   
   pos = transform * pos;

@@ -21,7 +21,7 @@ public class Joining extends Plan {
   
   
   public Joining(Actor actor, Plan basis, Actor joined) {
-    super(actor, basis.subject, MOTIVE_NONE, MILD_HELP);
+    super(actor, basis.subject, NO_PROPERTIES, MILD_HELP);
     this.basis = (basis.actor() == actor) ? basis : basis.copyFor(actor);
     this.joined = joined;
     this.setMotivesFrom(basis, 0);

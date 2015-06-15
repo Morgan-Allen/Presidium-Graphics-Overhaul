@@ -7,7 +7,7 @@
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Placement;
+import stratos.game.maps.PlaceUtils;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -136,6 +136,7 @@ public class Flora extends Element implements TileConstants {
   }
   
   
+  
   /**
    * Attempts to seed or grow new flora at the given coordinates.
    */
@@ -153,7 +154,7 @@ public class Flora extends Element implements TileConstants {
       if (! canGrowAt(t)) continue;
       
       final Flora f = new Flora(t.habitat());
-      f.enterWorldAt(t.x, t.y, world);
+      f.enterWorldAt(t.x, t.y, world, true);
       float stage = 0.5f;
       for (int n = MAX_GROWTH; n-- > 0;) {
         if (Rand.num() < growChance * 4) stage++;
@@ -178,7 +179,7 @@ public class Flora extends Element implements TileConstants {
     if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
     if (t.isEntrance() || t.inside().size() > 0) return false;
     if (growChance(t) == -1) return false;
-    return Placement.perimeterFits(t, Owner.TIER_TERRAIN);
+    return PlaceUtils.pathingOkayAround(t, Owner.TIER_TERRAIN);
   }
   
   
@@ -188,8 +189,8 @@ public class Flora extends Element implements TileConstants {
     
     if (updatesVerbose) I.say("Grow chance: "+growChance);
     
-    if (t.onTop() instanceof Flora) {
-      final Flora f = (Flora) t.onTop();
+    if (t.above() instanceof Flora) {
+      final Flora f = (Flora) t.above();
       if (Rand.num() < (growChance * 4 * GROWTH_PER_UPDATE)) {
         f.incGrowth(0.5f + Rand.num(), t.world, false);
         t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);
@@ -209,7 +210,7 @@ public class Flora extends Element implements TileConstants {
   public static Flora newGrowthAt(Tile t) {
     if (updatesVerbose) I.say("Seeding new tree at: "+t);
     final Flora f = new Flora(t.habitat());
-    f.enterWorldAt(t.x, t.y, t.world);
+    f.enterWorldAt(t.x, t.y, t.world, true);
     f.incGrowth((0.5f + Rand.num()) / 2, t.world, false);
     t.world.ecology().impingeBiomass(t, f.growth, Stage.GROWTH_INTERVAL);
     return f;
@@ -252,8 +253,8 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.presences.togglePresence(this, true);
     return true;
   }

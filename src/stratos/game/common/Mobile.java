@@ -3,13 +3,9 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.game.maps.IntelMap;
-import stratos.game.plans.Patrolling;
-import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.sfx.PlaneFX;
@@ -103,8 +99,8 @@ public abstract class Mobile extends Element
   /**  Methods for handling world entry and exits- including any residence
     *  offworld (see the Stage and VerseBase classes.)
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     goAboard(origin(), world);
     world().schedule.scheduleForUpdates(this);
     world().toggleActive(this, true);
@@ -115,6 +111,9 @@ public abstract class Mobile extends Element
   public boolean enterWorldAt(Target t, Stage world) {
     final Vec3D p = t.position(null);
     if (! setPosition(p.x, p.y, world)) return false;
+    //
+    //  As a convenient shortcut, we allow direct entry at boardable targets
+    //  where possible...
     if (t instanceof Boarding) {
       final Boarding b = (Boarding) t;
       if (b.allowsEntry(this)) {
@@ -377,9 +376,7 @@ public abstract class Mobile extends Element
   
   
   public void renderFor(Rendering rendering, Base base) {
-    
-    final Target platform = Patrolling.turretIsAboard(this);
-    if (indoors() && platform == null) return;
+    if (indoors()) return;
     
     final Sprite s = this.sprite();
     viewPosition(s.position);

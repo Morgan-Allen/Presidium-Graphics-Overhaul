@@ -7,6 +7,8 @@ package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.RoadsRepair;
+import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -17,12 +19,22 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public abstract class Venue extends Structural implements
-  Boarding, Owner, Property, Placeable
+public abstract class Venue extends Fixture implements
+  Boarding, Owner, Property, TileConstants, Placeable, Schedule.Updates
 {
   
   /**  Field definitions, constants, constructors, and save/load methods.
     */
+  final public static int
+    FACING_INIT   = -2,
+    FACING_NONE   = -1,
+    FACING_NORTH  =  N / 2,
+    FACING_EAST   =  E / 2,
+    FACING_SOUTH  =  S / 2,
+    FACING_WEST   =  W / 2,
+    ALL_FACINGS[] = { FACING_SOUTH, FACING_EAST, FACING_NORTH, FACING_WEST },
+    NUM_FACES     =  ALL_FACINGS.length;
+  
   final public static int
     PRIMARY_SHIFT      = 1,
     SECONDARY_SHIFT    = 2,
@@ -36,21 +48,25 @@ public abstract class Venue extends Structural implements
   
   final public static Blueprint NO_REQUIREMENTS[] = new Blueprint[0];
   
+  protected Base base;
   
   final public Blueprint blueprint;
+  final public Structure structure = new Structure(this);
   final public Staff staff = new Staff(this);
   final public Stocks stocks = new Stocks(this);
   
   protected Tile entrance;
   private List <Mobile> inside = new List <Mobile> ();
+  protected int facing = FACING_INIT;
   
+  protected BuildingSprite buildSprite;
   final public TalkFX chat = new TalkFX();
   private int nameID = -2;
   
   
   
   protected Venue(Blueprint blueprint, Base base) {
-    super(blueprint.size, blueprint.high, base);
+    super(blueprint.size, blueprint.high);
     structure.setupStats(blueprint);
     this.base      = base     ;
     this.blueprint = blueprint;
@@ -59,13 +75,16 @@ public abstract class Venue extends Structural implements
   
   public Venue(Session s) throws Exception {
     super(s);
+    this.base = (Base) s.loadObject();
     
     blueprint = (Blueprint) s.loadObject();
-    staff .loadState(s);
-    stocks.loadState(s);
+    structure.loadState(s);
+    staff    .loadState(s);
+    stocks   .loadState(s);
     
     entrance = (Tile) s.loadTarget();
     s.loadObjects(inside);
+    this.facing = s.loadInt();
     
     buildSprite = (BuildingSprite) sprite();
     nameID = s.loadInt();
@@ -74,13 +93,16 @@ public abstract class Venue extends Structural implements
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObject(base);
     
     s.saveObject(blueprint);
-    staff .saveState(s);
-    stocks.saveState(s);
+    structure.saveState(s);
+    staff    .saveState(s);
+    stocks   .saveState(s);
     
     s.saveTarget(entrance);
     s.saveObjects(inside);
+    s.saveInt(facing);
     
     s.saveInt(nameID);
   }
@@ -90,6 +112,8 @@ public abstract class Venue extends Structural implements
   public Structure structure() { return structure; }
   public Staff staff() { return staff; }
   public Base base() { return base; }
+  
+  public int buildCost() { return structure.buildCost(); }
   
   
   public void assignBase(Base base) {
@@ -123,7 +147,7 @@ public abstract class Venue extends Structural implements
   
   
   
-  /**  Structure.Basis and positioning-
+  /**  Setup and positioning-
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (position == null) return false;
@@ -144,9 +168,9 @@ public abstract class Venue extends Structural implements
       //
       //  If your current facing is viable, stick with that.
       if (facing == FACING_INIT) facing = FACING_EAST;
-      final int off[] = Placement.entranceCoords(size, size, facing);
+      final int off[] = PlaceUtils.entranceCoords(size, size, facing);
       entrance = world.tileAt(o.x + off[0], o.y + off[1]);
-      if (! Placement.isViableEntrance(this, entrance)) entrance = null;
+      if (! PlaceUtils.isViableEntrance(this, entrance)) entrance = null;
     }
     if (! entranceOkay()) return false;
     return true;
@@ -167,7 +191,7 @@ public abstract class Venue extends Structural implements
       if (t == null) return reasons.setFailure("Over the edge!");
       if (t.reserved()) {
         if (reasons == Account.NONE) return false;
-        return reasons.setFailure("Area reserved by "+t.onTop());
+        return reasons.setFailure("Area reserved by "+t.reserves());
       }
       if (! canBuildOn(t)) {
         if (reasons == Account.NONE) return false;
@@ -189,14 +213,27 @@ public abstract class Venue extends Structural implements
   }
   
   
+  public void previewPlacement(boolean canPlace, Rendering rendering) {
+    final Sprite sprite = this.buildSprite;
+    if (sprite == null) return;
+    this.viewPosition(sprite.position);
+    sprite.colour = canPlace ? Colour.GREEN : Colour.RED;
+    sprite.passType = Sprite.PASS_PREVIEW;
+    sprite.readyFor(rendering);
+    renderSelection(rendering, true);
+  }
+  
+  
   public boolean canPlace() {
     return canPlace(Account.NONE);
   }
   
   
+  //  TODO:  Add these methods to a dedicated Siting class, I think...
+  
   protected boolean entranceOkay() {
     if (blueprint.isFixture()) return true;
-    if (entrance == null || ! Placement.isViableEntrance(this, entrance)) {
+    if (entrance == null || ! PlaceUtils.isViableEntrance(this, entrance)) {
       return false;
     }
     return true;
@@ -209,24 +246,66 @@ public abstract class Venue extends Structural implements
   
   
   protected boolean checkPerimeter(Stage world) {
-    return Placement.perimeterFits(this, world);
+    return PlaceUtils.pathingOkayAround(this, world);
   }
   
   
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
-    if (base == null) I.complain("VENUES MUST HAVE A BASE ASSIGNED! "+this);
+  public Box2D areaClaimed() {
+    return footprint();
+  }
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    return true;
+  }
+  
+  
+  public void setFacing(int facing) {
+    this.facing = facing % NUM_FACES;
+  }
+  
+  
+  public int facing() {
+    return facing;
+  }
+  
+  
+  
+  /**  Actual placement and life-cycle:
+    */
+  public void doPlacement(boolean intact) {
+    intact |= GameSettings.buildFree || structure.intact();
     
-    //  TODO:  Extend the above to non-venue fixtures as well (instead of the
-    //  procedure below.)
-    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
-      final Element fringes = t.onTop();
-      if (fringes == null || fringes.owningTier() >= TIER_PRIVATE) continue;
-      else fringes.setAsDestroyed();
+    if (intact) {
+      enterWorld();
+      structure.setState(Structure.STATE_INTACT, 1);
+      onCompletion();
     }
+    else {
+      structure.setState(Structure.STATE_INSTALL, 0);
+      final Tile at = origin();
+      enterWorldAt(at.x, at.y, at.world, false);
+      for (Tile t : world.tilesIn(footprint(), false)) {
+        t.setReserves(this);
+      }
+    }
+    
+    if (sprite() != null) {
+      sprite().colour = null;
+      sprite().passType = Sprite.PASS_NORMAL;
+    }
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
+    world.schedule.scheduleForUpdates(this);
+    
+    if (base == null) I.complain("VENUES MUST HAVE A BASE ASSIGNED! "+this);
     
     world.presences.togglePresence(this, true);
     world.claims.assertNewClaim(this, areaClaimed());
+    
     stocks.onWorldEntry();
     staff.onCommission();
     impingeSupply(true);
@@ -239,10 +318,63 @@ public abstract class Venue extends Structural implements
     staff.onDecommission();
     world.presences.togglePresence(this, false);
     world.claims.removeClaim(this);
+    
+    if (base != null) updatePaving(false);
+    world.schedule.unschedule(this);
+    
     super.exitWorld();
   }
   
   
+  public void onCompletion() {
+    //
+    //  TODO:  THIS IS USED BY THE DROPSHIP CLASS AS WELL- FACTOR THAT OUT!
+    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
+    final Stage world = origin().world;
+    
+    //
+    //  As a final step, we take anything mobile within our footprint area and
+    //  kick it outside:
+    Tile exit = mainEntrance();
+    if (exit == null) {
+      final Tile perim[] = Spacing.perimeter(footprint(), world);
+      for (Tile p : perim) if (p != null && ! p.blocked()) { exit = p; break; }
+    }
+    if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
+    if (exit == null) I.complain("No exit point from "+this);
+    
+    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
+      t.clearUnlessOwned();
+      RoadsRepair.updatePavingAround(t, base);
+    }
+    for (Tile t : world.tilesIn(around, false)) {
+      if (t != null) t.clearUnlessOwned();
+    }
+    for (Tile t : world.tilesIn(footprint(), false)) {
+      for (Mobile m : t.inside()) m.setPosition(exit.x, exit.y, world);
+    }
+    
+    //
+    //  TODO:  RESTORE THIS!
+    //world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f);
+    setAsEstablished(false);
+  }
+  
+  
+  public void onDestruction() {
+    Wreckage.reduceToSlag(footprint(), world);
+  }
+  
+  
+  public void setAsDestroyed() {
+    buildSprite.clearFX();
+    super.setAsDestroyed();
+  }
+  
+  
+  
+  /**  Regular updates-
+    */
   public float scheduledInterval() {
     return 1;
   }
@@ -276,7 +408,9 @@ public abstract class Venue extends Structural implements
   
   
   protected void updatePaving(boolean inWorld) {
-    super.updatePaving(inWorld);
+    
+    base.transport.updatePerimeter(this, inWorld);
+    
     if (pathType() <= Tile.PATH_CLEAR) {
       byte road = inWorld ? StageTerrain.ROAD_LIGHT : StageTerrain.ROAD_NONE;
       for (Tile t : world.tilesIn(footprint(), false)) {
@@ -286,16 +420,6 @@ public abstract class Venue extends Structural implements
     else {
       base.transport.updateJunction(this, mainEntrance(), inWorld);
     }
-  }
-  
-  
-  public Box2D areaClaimed() {
-    return footprint();
-  }
-  
-  
-  public boolean preventsClaimBy(Venue other) {
-    return true;
   }
   
   
@@ -411,8 +535,7 @@ public abstract class Venue extends Structural implements
       addServices(choice, actor);
     }
     else {
-      final boolean onShift = staff.onShift(actor);
-      choice.add(jobFor(actor, onShift));
+      choice.add(jobFor(actor));
     }
   }
 
@@ -420,7 +543,7 @@ public abstract class Venue extends Structural implements
   //
   //  By default, these do nothing.
   protected void addServices(Choice choice, Actor client) {}
-  protected Behaviour jobFor(Actor actor, boolean onShift) { return null; }
+  protected Behaviour jobFor(Actor actor) { return null; }
   
   
   public float ratePlacing(Target point, boolean exact) {
@@ -581,18 +704,164 @@ public abstract class Venue extends Structural implements
   }
   
   
+  public BuildingSprite buildSprite() {
+    return buildSprite;
+  }
+  
+  
   public void renderFor(Rendering rendering, Base base) {
+    //
+    //  (Note- see flagSpriteForChange in the Repairs class.)
+    position(buildSprite.position);
+    buildSprite.updateCondition(
+      structure.repairLevel(),
+      structure.intact     (),
+      structure.burning    ()
+    );
+    if (buildSprite.flagChange) {
+      final Tile o = origin();
+      final boolean map[][] = new boolean[size][size];
+      for (Tile t : world.tilesIn(footprint(), false)) {
+        map[t.x - o.x][t.y - o.y] = t.above() == this;
+      }
+      buildSprite.toggleFoundation(map);
+    }
+    
+    buildSprite.passType = Sprite.PASS_NORMAL;
     super.renderFor(rendering, base);
+    
+    renderHealthbars(rendering, base);
     toggleStatusDisplay();
     updateItemSprites();
     renderChat(rendering, base);
+  }
+  
+
+  public void attachSprite(Sprite sprite) {
+    if (sprite == null) super.attachSprite(null);
+    else {
+      buildSprite = BuildingSprite.fromBase(sprite, size, high);
+      super.attachSprite(buildSprite);
+    }
+  }
+  
+  
+  protected float fogFor(Base base) {
+    if (base == this.base) return (1 + super.fogFor(base)) / 2f;
+    return super.fogFor(base);
+  }
+  
+  
+  protected void renderHealthbars(Rendering rendering, Base base) {
+    final boolean focused = BaseUI.isSelectedOrHovered(this);
+    final boolean alarm =
+      structure.intact() && (base == base() || focused) &&
+      (structure.burning() || structure.repairLevel() < 0.25f);
+    if ((! focused) && (! alarm)) return;
+    
+    float zoff = high;
+    //
+    //  First of all, we show the structure's current healthbar, and possibly
+    //  a sub-bar to show upgrade progress.
+    final int NU = structure.numUpgrades();
+    final Healthbar healthbar = new Healthbar();
+    healthbar.level = structure.repairLevel();
+    healthbar.size = (radius() * 50);
+    healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU];
+    healthbar.matchTo(buildSprite);
+    healthbar.position.z += (zoff += 0.6f);
+    healthbar.readyFor(rendering);
+    
+    healthbar.colour = base().colour();
+    healthbar.alarm = alarm;
+    
+    if (structure.needsUpgrade()) {
+      Healthbar progBar = new Healthbar();
+      progBar.level = structure.upgradeProgress();
+      progBar.size = healthbar.size;
+      progBar.position.setTo(healthbar.position);
+      progBar.yoff = 0 - Healthbar.BAR_HEIGHT;
+      
+      final Colour c = new Colour(healthbar.colour);
+      c.set(
+        (1 + c.r) / 2,
+        (1 + c.g) / 2,
+        (1 + c.b) / 2,
+        1
+      );
+      progBar.colour = c;
+      progBar.warn = healthbar.colour;
+      progBar.readyFor(rendering);
+    }
+    //
+    //  We also show a visual indication of all the goods present at this
+    //  venue...
+    final Batch <CutoutModel> itemModels = new Batch();
+    final Batch <CutoutModel> tickModels  = new Batch();
+    for (Traded t : VenuePane.ITEM_LIST_ORDER) {
+      if (stocks.demandFor(t) == 0) continue;
+      final boolean producer = stocks.producer(t);
+      final boolean shortage = stocks.amountOf(t) < 1;
+      if (t.form == Economy.FORM_PROVISION && ! shortage) continue;
+      
+      itemModels.add(t.model);
+      if (shortage && producer) tickModels.add(Traded.QUESTION_MODEL);
+      else if (shortage)        tickModels.add(Traded.SHORTAGE_MODEL);
+      else                      tickModels.add(Traded.OKAY_MODEL    );
+    }
+    if (itemModels.size() > 0) {
+      CutoutSprite.renderAbove(
+        healthbar.position, 0, 0.05f, -1, rendering,
+        0.5f, 1, itemModels
+      );
+      CutoutSprite.renderAbove(
+        healthbar.position, 0, 0.05f, -1.1f, rendering,
+        0.5f, 1, tickModels
+      );
+      zoff += 0.35f;
+    }
+    //
+    //  And then the name-label:
+    final Label label = new Label();
+    label.matchTo(buildSprite);
+    label.position.z += (zoff += 0.1f);
+    label.phrase = this.fullName();
+    label.readyFor(rendering);
+    label.fontScale = 1.0f;
+  }
+  
+  
+  public String toString() {
+    return fullName();
+  }
+  
+  
+  public void whenClicked() {
+    BaseUI.current().selection.pushSelection(this);
+  }
+  
+  
+  public Target selectionLocksOn() {
+    return this;
+  }
+  
+  
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+    if (info == null) info = new SelectionOptions(UI, this);
+    return info;
   }
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
     if (pathType() <= Tile.PATH_CLEAR || blueprint.isGrouped()) return;
-    super.renderSelection(rendering, hovered);
+    
+    final String key = origin()+"_print_"+this;
+    BaseUI.current().selection.renderTileOverlay(
+      rendering, origin().world,
+      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      Selection.SELECT_OVERLAY, key, true, (Object[]) structure.asGroup()
+    );
   }
 }
 

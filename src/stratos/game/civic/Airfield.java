@@ -41,7 +41,7 @@ public class Airfield extends Venue {
     "Airfield", UIConstants.TYPE_COMMERCE, ICON,
     "The Airfield provides smaller dropships with a convenient site to "+
     "land and refuel, facilitating offworld trade and migration.",
-    6, 3, Structure.IS_NORMAL,
+    6, 1, Structure.IS_NORMAL,
     new Blueprint[] { StockExchange.BLUEPRINT, Bastion.BLUEPRINT },
     Owner.TIER_FACILITY,
     250,  //integrity
@@ -153,7 +153,7 @@ public class Airfield extends Venue {
   }
   
   
-  protected Behaviour jobFor(Actor actor, boolean onShift) {
+  protected Behaviour jobFor(Actor actor) {
     final Choice choice = new Choice(actor);
     
     final boolean shouldHaul =

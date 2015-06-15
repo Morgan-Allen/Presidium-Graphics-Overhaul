@@ -305,8 +305,8 @@ public class Bringing extends Plan {
     //  usual distance evaluation.  Otherwise, proceed as normal.
     final float rangeDiv = driven == null ? 2f : 10f;
     final float extraRangePenalty = (
-      Plan.rangePenalty(actor.base(), actor , origin     ) +
-      Plan.rangePenalty(actor.base(), origin, destination)
+      PlanUtils.homeDistanceFactor(actor, origin     ) +
+      PlanUtils.homeDistanceFactor(actor, destination)
     ) / rangeDiv;
     
     //  TODO:  Move this out to PlanUtils, I think?
@@ -461,7 +461,7 @@ public class Bringing extends Plan {
     if (goodsBulk > 5 && driven == null) {
       final Suspensor suspensor = new Suspensor(actor, this);
       final Tile o = actor.origin();
-      suspensor.enterWorldAt(o.x, o.y, o.world);
+      suspensor.enterWorldAt(o.x, o.y, o.world, true);
       this.suspensor = suspensor;
     }
     //

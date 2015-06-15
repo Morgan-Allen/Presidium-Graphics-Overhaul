@@ -68,8 +68,8 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    final Behaviour job = super.jobFor(actor, onShift);
+  public Behaviour jobFor(Actor actor) {
+    final Behaviour job = super.jobFor(actor);
     if (job != null) return job;
     
     if (staff.shiftFor(actor) == SECONDARY_SHIFT) {

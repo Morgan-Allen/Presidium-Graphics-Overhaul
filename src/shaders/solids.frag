@@ -1,7 +1,4 @@
-
 #version 120
-
-
 #define maxOverlays 8
 
 

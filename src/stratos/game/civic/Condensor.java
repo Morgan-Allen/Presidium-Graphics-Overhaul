@@ -4,6 +4,7 @@ package stratos.game.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -17,7 +18,7 @@ public class Condensor extends Venue {
   
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Condensor.class, "media/Buildings/aesthete/condensor.png", 3, 2
+    Condensor.class, "media/Buildings/aesthete/condensor.png", 3, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Condensor.class, "media/GUI/Buttons/condensor_button.gif"
@@ -70,9 +71,17 @@ public class Condensor extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (structure.intact()) {
-      stocks.forceDemand(POWER, 4, false);
-      stocks.forceDemand(ATMO, 10, true );
-      stocks.forceDemand(WATER, 5, true );
+      final Tile at = world.tileAt(this);
+      
+      //  TODO:  Move this to the Solar Bank?
+      float waterOut = 0;
+      waterOut += world.terrain().fertilitySample(at);
+      waterOut += world.terrain().habitatSample(at, Habitat.SHALLOWS);
+      waterOut += world.terrain().habitatSample(at, Habitat.OCEAN   );
+      
+      stocks.forceDemand(POWER, 4       , false);
+      stocks.forceDemand(ATMO , 10      , true );
+      stocks.forceDemand(WATER, waterOut, true );
       structure.setAmbienceVal(5);
     }
     else {
@@ -87,6 +96,15 @@ public class Condensor extends Venue {
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
+  }
+  
+  
+  public String helpInfo() {
+    String info = super.helpInfo();
+    if (stocks.demandFor(WATER) < 5) info =
+      "The terrain around this Condensor is very dry, which will limit "+WATER+
+      " output.";
+    return info;
   }
 }
 

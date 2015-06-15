@@ -100,14 +100,11 @@ public class StockExchange extends Venue {
   //  TODO:  THIS SHOULD ONLY BE TRIGGERED BY BRINGING-PLANS, NOT THEFTS!
   public void afterTransaction(Item item, float amount) {
     super.afterTransaction(item, amount);
+    if (amount >= 0) return;
     //
-    //  You only pay half-price for goods being bought.
-    if (amount >= 0) {
-      stocks.incCredits(super.priceFor(item.type, false) / 2);
-      return;
-    }
-    //
-    //  For goods sold, you gain a variable bonus based on upgrade level-
+    //  For goods sold, you gain a variable bonus based on upgrade level, on
+    //  top of normal full price for the good.  However, we only charge half-
+    //  price to customers (see below.)
     final float
       basePrice    = super.priceFor(item.type, true),
       upgradeLevel = upgradeLevelFor(item.type),
@@ -117,9 +114,12 @@ public class StockExchange extends Venue {
       paidOn       = Nums.min(catalogued, sold),
       remainder    = sold - paidOn;
     
+    final float totalBonus =
+      (basePrice * sold / 2     ) +
+      (cashBonus * paidOn       ) +
+      (cashBonus * remainder / 2);
+    stocks.incCredits(totalBonus);
     adjustCatalogue(item.type, paidOn);
-    stocks.incCredits(cashBonus * paidOn       );
-    stocks.incCredits(cashBonus * remainder / 2);
   }
   
   
@@ -195,6 +195,7 @@ public class StockExchange extends Venue {
       STOCK_VENDOR_OFFICE, BLUEPRINT
     );
   
+  
   final public static Traded
     ALL_STOCKED[] = {
       CARBS, PROTEIN, GREENS,
@@ -216,31 +217,27 @@ public class StockExchange extends Venue {
   
   public int numOpenings(Background p) {
     final int nO = super.numOpenings(p);
-    if (p == Backgrounds.STOCK_VENDOR) return nO + 2;
+    if (p == Backgrounds.STOCK_VENDOR) return nO + 3;
     return 0;
   }
   
   
-  public Behaviour jobFor(Actor actor, boolean onShift) {
-    if (! onShift) return null;
+  public Behaviour jobFor(Actor actor) {
+    if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
     //  ...You basically don't want the stock vendor wandering too far, because
     //  the venue has to be manned in order for citizens to come shopping.  So
     //  stick with jobs that happen within the venue.
-    if (staff.assignedTo(Bringing.class) == 0) {
-      choice.add(BringUtils.bestBulkDeliveryFrom(
-        this, services(), 2, 10, 5
-      ));
-      choice.add(BringUtils.bestBulkCollectionFor(
-        this, services(), 2, 10, 5
-      ));
-      if (! choice.empty()) return choice.weightedPick();
+    choice.add(BringUtils.bestBulkDeliveryFrom(
+      this, services(), 2, 10, 5
+    ));
+    choice.add(BringUtils.bestBulkCollectionFor(
+      this, services(), 2, 10, 5
+    ));
+    if (staff.assignedTo(Bringing.class) == 0 && ! choice.empty()) {
+      return choice.pickMostUrgent();
     }
-    /*
-    if (PlanUtils.competition(Supervision.class, this, actor) > 0) {
-    }
-    //*/
     //
     //  TODO:  Have the Supervision class delegate the precise behaviour you
     //  conduct back to the venue.

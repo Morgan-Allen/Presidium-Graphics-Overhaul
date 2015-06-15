@@ -36,7 +36,10 @@ public class Item {
   /**  Field definitions, standard constructors and save/load functionality-
     */
   final public static int ANY = -1;
-  final public static int MAX_QUALITY = 4;
+  final public static int
+    BAD_QUALITY = 0,
+    AVG_QUALITY = 2,
+    MAX_QUALITY = 4;
   
   final public Traded type;
   final public Saveable refers;
@@ -101,6 +104,23 @@ public class Item {
   
   
   public static interface Dropped extends Owner, Selectable {
+  }
+  
+  
+  public static void checkForBreakdown(
+    Actor actor, Item implement, float damageLevel, int period
+  ) {
+    if (implement == null || implement.type.natural()) return;
+    if (damageLevel <= 0 || period <= 0) return;
+    
+    float wearChance = period * 1f / Stage.STANDARD_DAY_LENGTH;
+    wearChance *= damageLevel / GameSettings.ITEM_WEAR_DAYS;
+    wearChance *= (Item.AVG_QUALITY + 0.5f) / (1 + implement.quality);
+    float wearFraction = Rand.num();
+    
+    if (wearChance > (Rand.num() * wearFraction)) {
+      actor.gear.removeItem(Item.withAmount(implement, wearFraction));
+    }
   }
   
   
@@ -184,7 +204,9 @@ public class Item {
   
   
   public boolean matchKind(Item item) {
-    if (this.type != item.type) return false;
+    if (item == null || this.type != item.type) {
+      return false;
+    }
     if (this.refers != null) {
       if (item.refers == null) return false;
       if (! this.refers.equals(item.refers)) return false;
@@ -221,7 +243,7 @@ public class Item {
   public void describeFor(Actor owns, Description d) {
     //
     //  First describe yourself:
-    String s = ""+type;
+    String s = ""+type.name;
     if (
       type.form == FORM_DEVICE ||
       type.form == FORM_OUTFIT ||

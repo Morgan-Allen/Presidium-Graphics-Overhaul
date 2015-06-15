@@ -134,7 +134,7 @@ public class TerrainChunk implements TileConstants {
   
   
   public void readyFor(Rendering rendering) {
-    if (renderFlag || vertices.length == 0) return;
+    if (renderFlag || (vertices.length == 0 && fadeOut == null)) return;
     renderFlag = true;
     mesh();
     rendering.terrainPass.register(this);

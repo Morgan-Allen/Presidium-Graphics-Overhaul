@@ -9,7 +9,8 @@ import stratos.util.*;
 
 
 
-//  TODO:  Try and piggyback off the section-rating code?
+//  TODO:  MERGE WITH SECTION-PLACING CODE ASAP
+
 
 public abstract class TileSpread extends Search <Tile> {
   
@@ -61,6 +62,9 @@ public abstract class TileSpread extends Search <Tile> {
   
   /**  Convenience methods-
     */
+  //  TODO:  I DON'T THINK THESE ARE USED OFTEN ANY MORE.  CONSIDER DISPOSING
+  //  OF THEM?
+  
   public static Fixture tryPlacement(
     final Tile initTile, final Box2D limit,
     final Fixture parent, final Fixture toPlace
@@ -68,7 +72,7 @@ public abstract class TileSpread extends Search <Tile> {
     final TileSpread spread = new TileSpread(initTile) {
       protected boolean canAccess(Tile t) {
         if (limit != null && ! limit.contains(t.x, t.y)) return false;
-        if (parent != null && t.onTop() == parent) return true;
+        if (parent != null && t.above() == parent) return true;
         return t.buildable();
       }
       protected boolean canPlaceAt(Tile t) {
@@ -101,7 +105,7 @@ public abstract class TileSpread extends Search <Tile> {
     final TileSpread spread = new TileSpread(initTile) {
       protected boolean canAccess(Tile t) {
         if (limit != null && ! limit.contains(t.x, t.y)) return false;
-        if (parent != null && t.onTop() == parent) return true;
+        if (parent != null && t.above() == parent) return true;
         return t.buildable();
       }
       protected boolean canPlaceAt(Tile t) {
@@ -124,7 +128,7 @@ public abstract class TileSpread extends Search <Tile> {
 }
 
 
-
+//*/
 
 
 

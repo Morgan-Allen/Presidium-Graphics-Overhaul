@@ -154,7 +154,6 @@ public class Inventory {
   
   
   public float amountOf(Item item) {
-    //if (verbose) I.sayAbout(owner, "Seeking match for "+item);
     if (item == null) return 0;
     if (item.isMatch()) {
       float amount = 0;
@@ -166,7 +165,6 @@ public class Inventory {
     else {
       final Item found = itemTable.get(item);
       if (found == null || found.quality < item.quality) return 0;
-      //if (verbose) I.sayAbout(owner, "Match for "+item+" is "+found);
       return found.amount;
     }
   }
@@ -232,14 +230,16 @@ public class Inventory {
     //  Check to see if a similar item already exists.  If so, blend the new
     //  quality with the old-
     final Item oldItem = itemTable.get(item);
-    final int oldAmount = oldItem == null ? 0 : (int) oldItem.amount;
+    //final int oldAmount = oldItem == null ? 0 : (int) oldItem.amount;
     
     float amount = item.amount, quality = item.quality;
     if (oldItem != null) {
       itemTable.remove(oldItem);
-      quality = (quality * amount) + (oldItem.amount * oldItem.quality);
+      if (oldItem.quality != item.quality) {
+        quality = (quality * amount) + (oldItem.amount * oldItem.quality);
+        quality /= amount + oldItem.amount;
+      }
       amount += oldItem.amount;
-      quality /= amount;
       if (verbose && oldItem.type == tracked) I.say("REPLACING "+tracked);
     }
     

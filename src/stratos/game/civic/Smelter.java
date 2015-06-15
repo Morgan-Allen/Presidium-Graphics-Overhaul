@@ -110,8 +110,8 @@ public class Smelter extends Venue {
   
   /**  Behaviour implementation.
     */
-  public boolean enterWorldAt(int x, int y, Stage world) {
-    if (! super.enterWorldAt(x, y, world)) return false;
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
     return true;
   }
   
@@ -140,7 +140,7 @@ public class Smelter extends Venue {
   }
   
 
-  public Behaviour jobFor(Actor actor, boolean onShift) {
+  public Behaviour jobFor(Actor actor) {
     return null;
   }
   

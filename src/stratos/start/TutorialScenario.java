@@ -48,6 +48,8 @@ public class TutorialScenario extends StartupScenario {
   private Venue           ruinsTarget  = null;
   private Batch <Drone>   dronesAttack = new Batch();
   
+  private Table <String, Target> allTargets = new Table();
+  
   
   public TutorialScenario(String prefix) {
     super(config(), prefix);
@@ -142,6 +144,8 @@ public class TutorialScenario extends StartupScenario {
     config.siteLevel  = SITE_WASTELAND ;
     config.titleLevel = TITLE_COUNT    ;
     config.fundsLevel = FUNDING_MINIMAL;
+    
+    config.built.add(1, ShieldWall.BLUEPRINT);
     return config;
   }
   
@@ -198,11 +202,11 @@ public class TutorialScenario extends StartupScenario {
     regions.queueSort();
     
     for (StageRegion s : regions) {
-      if (Placement.establishVenue(ruinsNear, s, true, world) != null) break;
+      if (PlaceUtils.establishVenue(ruinsNear, s, true, world) != null) break;
     }
     for (ListEntry l = regions; (l = l.lastEntry()) != regions;) {
       final StageRegion s = (StageRegion) l.refers;
-      if (Placement.establishVenue(ruinsFar, s, true, world) != null) break;
+      if (PlaceUtils.establishVenue(ruinsFar, s, true, world) != null) break;
     }
   }
   
@@ -244,7 +248,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected void whenBastionTopicOpen() {
     base().intelMap.liftFogAround(bastion, 12);
-    UI().tracking.lockOn(bastion);
+    followIfNew(bastion, "bastion_seen");
   }
   
   
@@ -267,15 +271,13 @@ public class TutorialScenario extends StartupScenario {
     barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
     base().setup.fillVacancies(barracksBuilt, true);
     base().setup.fillVacancies(bastion      , true);
-    UI().tracking.lockOn(barracksBuilt);
+    followIfNew(barracksBuilt, "barracks_built");
   }
   
   
   protected void whenExploreRequestOpen() {
     if (ruinsNear == null) return;
-    if (UI().tracking.distanceFrom(ruinsNear) > 8) {
-      UI().tracking.lockOn(ruinsNear);
-    }
+    followIfNew(ruinsNear, "explore_ruins");
     ScreenPing.addPingFor(UIConstants.RECON_BUTTON_ID);
   }
   
@@ -304,9 +306,7 @@ public class TutorialScenario extends StartupScenario {
   /**  First round of economic topics-
     */
   protected void whenPlaceFacilitiesRequestOpen() {
-    if (UI().tracking.distanceFrom(bastion) > 12) {
-      UI().tracking.lockOn(bastion);
-    }
+    followIfNew(bastion, "placing_facilities");
     if (foundryBuilt == null) addPingsLeadingTo(EngineerStation.BLUEPRINT);
     if (marketBuilt  == null) addPingsLeadingTo(StockExchange  .BLUEPRINT);
   }
@@ -386,8 +386,10 @@ public class TutorialScenario extends StartupScenario {
     */
   protected void whenNearRuinsTopicOpen() {
     base().intelMap.liftFogAround(ruinsNear, 12);
-    UI().tracking.lockOn(ruinsNear);
-    ScreenPing.addPingFor(UIConstants.STRIKE_BUTTON_ID);
+    followIfNew(ruinsNear, "ruins_strike");
+    if (UI().selection.selected() == ruinsNear) {
+      ScreenPing.addPingFor(UIConstants.STRIKE_BUTTON_ID);
+    }
   }
   
   
@@ -408,7 +410,7 @@ public class TutorialScenario extends StartupScenario {
       Actor drone = Drone.SPECIES.sampleFor(ruinsNear.base());
       drone.enterWorldAt(ruinsNear, world());
       drone.mind.setHome(ruinsNear);
-      if (n == 0) UI().tracking.lockOn(drone);
+      if (n == 0) followIfNew(drone, "ruins_under_attack");
     }
   }
   
@@ -438,6 +440,9 @@ public class TutorialScenario extends StartupScenario {
     if (barracksBuilt == null || ! barracksBuilt.structure.intact()) return;
     if (foundryBuilt  == null || ! foundryBuilt .structure.intact()) return;
     
+    final Tile between = Spacing.bestMidpoint(barracksBuilt, foundryBuilt);
+    followIfNew(between, "hiring_begun");
+    
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_POST   , 1);
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_OFFICE   , 1);
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
@@ -451,7 +456,7 @@ public class TutorialScenario extends StartupScenario {
       base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
     }
     while (base.commerce.numCandidates(Backgrounds.ARTIFICER) < 1) {
-      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
+      final Actor applies = Backgrounds.ARTIFICER.sampleFor(base);
       base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.ARTIFICER);
     }
     
@@ -509,6 +514,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkHousingPlaced() {
+    if (! checkExtraIndustryPlaced()) return false;
     return hasInstalled(2, Holding.BLUEPRINT, false);
   }
   
@@ -519,6 +525,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkSupplyDepotPlaced() {
+    if (! checkExtraIndustryPlaced()) return false;
     return hasInstalled(1, SupplyDepot.BLUEPRINT, false);
   }
   
@@ -556,9 +563,9 @@ public class TutorialScenario extends StartupScenario {
   protected boolean checkExtraBuildingFinished() {
     boolean done = true;
     done &= hasInstalled(2, EngineerStation.BLUEPRINT, true);
-    done &= hasInstalled(1, ExcavationSite.BLUEPRINT , true);
-    done &= hasInstalled(2, Holding.BLUEPRINT        , true);
-    done &= hasInstalled(1, SupplyDepot.BLUEPRINT    , true);
+    done &= hasInstalled(1, ExcavationSite .BLUEPRINT, true);
+    done &= hasInstalled(2, Holding        .BLUEPRINT, true);
+    done &= hasInstalled(1, SupplyDepot    .BLUEPRINT, true);
     done &= checkAuditorSeen();
     return done;
   }
@@ -602,11 +609,12 @@ public class TutorialScenario extends StartupScenario {
         dronesAttack.add(attacks);
       }
       
-      UI().tracking.lockOn(dronesAttack.first());
+      followIfNew(dronesAttack.first(), "base_being_attacked");
     }
     
     base().intelMap.liftFogAround(dronesAttack.first(), 9);
   }
+  
   
   protected boolean checkDroneAssaultDestroyed() {
     if (dronesAttack.size() == 0) return false;
@@ -616,15 +624,18 @@ public class TutorialScenario extends StartupScenario {
     return true;
   }
   
+  
   protected boolean checkFarRuinsFound() {
     if (ruinsFar == null) return false;
     return ruinsFar.visibleTo(base());
-    //return base().intelMap.fogAt(ruinsFar) > 0;
   }
   
+  
   protected void onFarRuinsFound() {
-    UI().tracking.lockOn(ruinsFar);
+    if (ruinsFar == null) return;
+    followIfNew(ruinsFar, "far_ruins_found");
   }
+  
   
   protected boolean checkFarRuinsDestroyed() {
     if (ruinsFar == null) return true;
@@ -632,6 +643,7 @@ public class TutorialScenario extends StartupScenario {
     for (Actor a : ruinsFar.staff.lodgers()) if (! a.destroyed()) return false;
     return true;
   }
+  
   
   protected void onFarRuinsDestroyed() {
   }
@@ -672,6 +684,13 @@ public class TutorialScenario extends StartupScenario {
     else if (! PlacingTask.isBeingPlaced(blueprint)) {
       ScreenPing.addPingFor(blueprint.keyID);
     }
+  }
+  
+  
+  private void followIfNew(Target t, String key) {
+    if (allTargets.get(key) != null) return;
+    allTargets.put(key, t);
+    UI().tracking.lockOn(t);
   }
   
   

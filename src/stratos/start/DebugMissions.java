@@ -107,7 +107,7 @@ public class DebugMissions extends Scenario {
     natives.relations.setRelation(base, -0.25f, true);
     
     final NativeHut hut = NativeHut.newHall(1, natives);
-    Placement.establishVenue(hut, 4, 4, true, world);
+    PlaceUtils.establishVenue(hut, 4, 4, true, world);
     
     for (int i = 3; i-- > 0;) {
       final Actor actor = new Human(Backgrounds.GATHERER, natives);
@@ -169,7 +169,7 @@ public class DebugMissions extends Scenario {
     base.relations.setRelation(artilects, -1, true);
     
     final Ruins ruin = new Ruins(artilects);
-    Placement.establishVenue(ruin, 12, 12, true, world);
+    PlaceUtils.establishVenue(ruin, 12, 12, true, world);
     
     final Mission strike = new MissionStrike(base, ruin);
     strike.setMissionType(Mission.TYPE_SCREENED  );

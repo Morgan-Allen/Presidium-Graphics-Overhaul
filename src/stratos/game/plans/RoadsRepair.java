@@ -166,7 +166,7 @@ public class RoadsRepair extends Plan {
       I.say("\nPaving tile: "+t);
       I.say("  Actor at:   "+actor.origin());
       I.say("  Is paved?   "+(t.pathType() == Tile.PATH_ROAD));
-      I.say("  On top:     "+t.onTop());
+      I.say("  On top:     "+t.above());
       I.say("  Can pave?   "+t.canPave());
       I.say("  Habitat ok? "+t.habitat().pathClear);
     }

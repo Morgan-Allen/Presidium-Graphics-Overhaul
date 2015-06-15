@@ -395,7 +395,7 @@ public class Pathing {
       //
       //  Firstly, we check to avoid collision with nearby blocked tiles-
       if (t.blocked()) {
-        final float tMax = t.onTop() == null ? 0 : t.onTop().height();
+        final float tMax = t.above() == null ? 0 : t.above().height();
         if (mMin > tMax) continue;
         disp.set(m.position.x - t.x, m.position.y - t.y);
         final float dist = disp.length() - (m.radius() + t.radius());
