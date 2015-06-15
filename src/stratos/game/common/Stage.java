@@ -292,12 +292,6 @@ public class Stage {
     return currentTime;
   }
   
-  /*
-  public float dayValue() {
-    return Planet.dayValue(this);
-  }
-  //*/
-  
   
   public Box2D area() {
     return new Box2D().set(-0.5f, -0.5f, size, size);

@@ -192,7 +192,7 @@ public class VenuePane extends SelectionPane {
   
   /**  Listing demands, inventory and special items-
     */
-  final static Traded ITEM_LIST_ORDER[] = (Traded[]) Visit.compose(
+  final public static Traded ITEM_LIST_ORDER[] = (Traded[]) Visit.compose(
     Traded.class, ALL_PROVISIONS, ALL_MATERIALS, ALL_SPECIAL_ITEMS
   );
   

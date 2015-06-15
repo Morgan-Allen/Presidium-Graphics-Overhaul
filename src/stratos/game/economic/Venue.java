@@ -759,24 +759,21 @@ public abstract class Venue extends Fixture implements
       (structure.burning() || structure.repairLevel() < 0.25f);
     if ((! focused) && (! alarm)) return;
     
+    float zoff = high;
+    //
+    //  First of all, we show the structure's current healthbar, and possibly
+    //  a sub-bar to show upgrade progress.
     final int NU = structure.numUpgrades();
     final Healthbar healthbar = new Healthbar();
     healthbar.level = structure.repairLevel();
     healthbar.size = (radius() * 50);
     healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU];
     healthbar.matchTo(buildSprite);
-    healthbar.position.z += height() + 0.6f;
+    healthbar.position.z += (zoff += 0.6f);
     healthbar.readyFor(rendering);
     
     healthbar.colour = base().colour();
     healthbar.alarm = alarm;
-    
-    final Label label = new Label();
-    label.matchTo(buildSprite);
-    label.position.z += height() + 0.75f;
-    label.phrase = this.fullName();
-    label.readyFor(rendering);
-    label.fontScale = 1.0f;
     
     if (structure.needsUpgrade()) {
       Healthbar progBar = new Healthbar();
@@ -796,6 +793,30 @@ public abstract class Venue extends Fixture implements
       progBar.warn = healthbar.colour;
       progBar.readyFor(rendering);
     }
+    //
+    //  We also show a visual indication of all the goods present at this
+    //  venue...
+    final Batch <CutoutModel> itemModels = new Batch();
+    for (Traded t : VenuePane.ITEM_LIST_ORDER) {
+      if (stocks.demandFor(t) == 0) continue;
+      if (t.form == Economy.FORM_PROVISION) continue;
+      if (stocks.amountOf(t) > 0) itemModels.add(t.model);
+    }
+    if (itemModels.size() > 0) {
+      CutoutSprite.renderAbove(
+        healthbar.position, 0, 0.05f, -1, rendering,
+        0.5f, 1, itemModels
+      );
+      zoff += 0.35f;
+    }
+    //
+    //  And then the name-label:
+    final Label label = new Label();
+    label.matchTo(buildSprite);
+    label.position.z += (zoff += 0.1f);
+    label.phrase = this.fullName();
+    label.readyFor(rendering);
+    label.fontScale = 1.0f;
   }
   
   

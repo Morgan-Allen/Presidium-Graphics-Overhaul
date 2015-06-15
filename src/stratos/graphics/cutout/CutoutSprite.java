@@ -5,7 +5,9 @@
   */
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
+import stratos.start.PlayLoop;
 import stratos.util.*;
+
 import java.io.*;
 
 
@@ -52,7 +54,70 @@ public class CutoutSprite extends Sprite {
     if (passType == PASS_NORMAL && model.splat) passType = PASS_SPLAT;
     rendering.cutoutsPass.register(this);
   }
+  
+  
+  
+  /**  Some additional utility methods for convenience (used for rendering
+    *  status FX, good amounts when hovering over industries, etc...)
+    */
+  public static void renderAbove(
+    Vec3D point, float offX, float offY, float offZ, Rendering rendering,
+    float spacing, float scale, Series <CutoutModel> models
+  ) {
+    final Batch <CutoutSprite> sprites = new Batch();
+    for (CutoutModel m : models) {
+      CutoutSprite s = m.makeSprite();
+      s.scale = scale;
+      sprites.add(s);
+    }
+    renderAbove(point, offX, offY, offZ, rendering, spacing, sprites);
+  }
+  
+  
+  public static void renderAbove(
+    Vec3D point, float offX, float offY, float offZ, Rendering rendering,
+    float spacing, Series <CutoutSprite> sprites
+  ) {
+    /*
+    if (PlayLoop.isFrameIncrement(60)) {
+      I.say("\nY offset: "+offY);
+      I.say("Time: "+PlayLoop.frameUpdates());
+    }
+    //*/
+    
+    float
+      offAcross = (sprites.size() - 1) / 2f,
+      index     = 0;
+    final Vec3D
+      horiz = rendering.view.screenHorizontal().normalise(),
+      vert  = rendering.view.screenVertical  ().normalise(),
+      deep  = rendering.view.direction       ().normalise(),
+      adds  = new Vec3D();
+    
+    for (CutoutSprite s : sprites) {
+      s.position.setTo(point);
+      adds.setTo(horiz).scale(offX + ((index - offAcross) * spacing));
+      s.position.add(adds);
+      adds.setTo(vert).scale(offY);
+      s.position.add(adds);
+      adds.setTo(deep).scale(offZ);
+      s.position.add(adds);
+      index++;
+      
+      s.colour = Colour.glow(1);
+      s.readyFor(rendering);
+    }
+  }
 }
+
+
+
+
+
+
+
+
+
 
 
 
