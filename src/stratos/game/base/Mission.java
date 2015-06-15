@@ -4,9 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.base;
-import static stratos.game.base.Mission.TYPE_COVERT;
-import static stratos.game.base.Mission.TYPE_PUBLIC;
-import static stratos.game.base.Mission.TYPE_SCREENED;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -744,6 +741,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public Target selectionLocksOn() {
+    if (visibleTo(BaseUI.currentPlayed())) return subject;
     return null;
   }
   

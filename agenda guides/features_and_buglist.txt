@@ -17,13 +17,9 @@ BUILDINGS AND ECONOMY-
 
 *  Try merging the solar bank with the nursery- or the latter with eco station.
 
-*  There needs to be a more precise 'reservation' system to allow for zoning,
-   entrances, urban-planning and not-in-the-world-yet situations.
-
 *  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
    the excavation site, former plant, kommando lodge & eco station- take up
    big plots.
-
 
 
 *  Upgrades need to be filled in and tested for:
@@ -176,6 +172,8 @@ ENEMIES AND ENVIRONMENT-
 
 INTERFACE AND DEBUGGING
 
+*  You need to report output for *all* items produced at the engineer station,
+   fabricator, physician station, etc..
 
 *  Notifications for casualties and base attacks.
 

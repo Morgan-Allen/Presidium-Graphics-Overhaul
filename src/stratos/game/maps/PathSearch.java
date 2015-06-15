@@ -186,16 +186,21 @@ public class PathSearch extends Search <Boarding> {
     if (spot == null) return -1;
     if (spot == destination) return 0;
     float mods = 0;
-
+    
+    //  Finally, return a value based on pathing difficulties in the terrain-
+    float baseCost = Spacing.distance(prior, spot);
     if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
       mods += spot.inside().size() * 2;
     }
+    //  Discourage pathing through structures unless you really need to-
+    else {
+      baseCost *= 2;
+    }
+    
     if (useDanger) {
       //  TODO:  Implement this...
     }
     
-    //  Finally, return a value based on pathing difficulties in the terrain-
-    final float baseCost = Spacing.distance(prior, spot);
     switch (spot.pathType()) {
       case (Tile.PATH_CLEAR  ) : return (1.0f * baseCost) + mods;
       case (Tile.PATH_ROAD   ) : return (0.5f * baseCost) + mods;

@@ -14,6 +14,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class CutoutModel extends ModelAsset {
   
+  private static boolean
+    verbose = false;
+  private static String
+    verboseModel = "NONE";
+  
   public static final int
     VERTEX_SIZE = 3 + 1 + 2,  //  (position, colour and texture coords.)
     SIZE = 4 * VERTEX_SIZE,   //  (4 vertices, 1 per corner.)
@@ -277,13 +282,12 @@ public class CutoutModel extends ModelAsset {
     //
     //  We then cache the face with a unique key for easy access (see below.)
     final String key = x+"_"+y+"_"+z;
-
-    final boolean report = size == 4;
+    
+    final boolean report = verbose && fileName.endsWith(verboseModel);
     if (report) {
       I.say("\nAdding face: "+key);
       I.say("  Vertices length: "+vertices.length);
     }
-    
     faceLookup.put(key, faces.size());
     faces.add(vertices);
   }

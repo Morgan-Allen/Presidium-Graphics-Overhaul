@@ -83,6 +83,9 @@ public class ActorDescription implements Qualities {
     if (true) {
       Action current = h.currentAction();
       d.append(current);
+      
+      if (h.inWorld()) d.append("\n  In world!");
+      else d.append("\n  Not in world!");
       return;
     }
     //*/

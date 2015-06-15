@@ -347,7 +347,7 @@ public class VerseJourneys {
   
   public boolean scheduleLocalDrop(Dropship ship, float delay) {
     final Journey j = journeyFor(ship);
-    if (j == null) return false;
+    if (j == null || ship.inWorld()) return false;
     j.origin      = ship.base().commerce.homeworld();
     j.destination = universe.stageLocation();
     j.arriveTime  = universe.world.currentTime() + delay;

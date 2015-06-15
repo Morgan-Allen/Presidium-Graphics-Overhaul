@@ -224,7 +224,7 @@ public class PlanUtils {
     sightChance = actor.health.baseSpeed() * competence;
     sightChance *= (daylight + 1) / 2;
     
-    incentive = novelty * 10 * Nums.clamp(sightChance, 0, 1);
+    incentive = novelty * 5 * Nums.clamp(sightChance, 0, 1);
     incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
     incentive += rewardBonus;
     

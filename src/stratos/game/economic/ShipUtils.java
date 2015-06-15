@@ -35,7 +35,6 @@ public class ShipUtils {
   
   static void offloadPassengers(Dropship ship, boolean landing) {
     final Stage world = ship.world();
-    
     for (Mobile m : ship.inside()) {
       if (landing && ! m.inWorld()) {
         m.enterWorldAt(ship, world);

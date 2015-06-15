@@ -256,11 +256,6 @@ public class ShieldWall extends Venue {
   }
   
   
-  public int pathType() {
-    return Tile.PATH_HINDERS;
-  }
-  
-  
   public boolean isTower() {
     return type == TYPE_TOWER;
   }

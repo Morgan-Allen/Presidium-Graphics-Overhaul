@@ -221,7 +221,7 @@ public final class Spacing implements TileConstants {
       avg.x += pA.x / targets.length;
       avg.y += pA.y / targets.length;
     }
-    Tile open = client.world().tileAt(avg.x, avg.y);
+    final Tile open = client.world().tileAt(avg.x, avg.y);
     return Spacing.nearestOpenTile(open, client);
   }
   

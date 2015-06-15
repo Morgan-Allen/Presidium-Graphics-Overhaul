@@ -387,7 +387,9 @@ public class TutorialScenario extends StartupScenario {
   protected void whenNearRuinsTopicOpen() {
     base().intelMap.liftFogAround(ruinsNear, 12);
     followIfNew(ruinsNear, "ruins_strike");
-    ScreenPing.addPingFor(UIConstants.STRIKE_BUTTON_ID);
+    if (UI().selection.selected() == ruinsNear) {
+      ScreenPing.addPingFor(UIConstants.STRIKE_BUTTON_ID);
+    }
   }
   
   
@@ -438,6 +440,9 @@ public class TutorialScenario extends StartupScenario {
     if (barracksBuilt == null || ! barracksBuilt.structure.intact()) return;
     if (foundryBuilt  == null || ! foundryBuilt .structure.intact()) return;
     
+    final Tile between = Spacing.bestMidpoint(barracksBuilt, foundryBuilt);
+    followIfNew(between, "hiring_begun");
+    
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_POST   , 1);
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_OFFICE   , 1);
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
@@ -451,7 +456,7 @@ public class TutorialScenario extends StartupScenario {
       base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
     }
     while (base.commerce.numCandidates(Backgrounds.ARTIFICER) < 1) {
-      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
+      final Actor applies = Backgrounds.ARTIFICER.sampleFor(base);
       base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.ARTIFICER);
     }
     
@@ -558,9 +563,9 @@ public class TutorialScenario extends StartupScenario {
   protected boolean checkExtraBuildingFinished() {
     boolean done = true;
     done &= hasInstalled(2, EngineerStation.BLUEPRINT, true);
-    done &= hasInstalled(1, ExcavationSite.BLUEPRINT , true);
-    done &= hasInstalled(2, Holding.BLUEPRINT        , true);
-    done &= hasInstalled(1, SupplyDepot.BLUEPRINT    , true);
+    done &= hasInstalled(1, ExcavationSite .BLUEPRINT, true);
+    done &= hasInstalled(2, Holding        .BLUEPRINT, true);
+    done &= hasInstalled(1, SupplyDepot    .BLUEPRINT, true);
     done &= checkAuditorSeen();
     return done;
   }
