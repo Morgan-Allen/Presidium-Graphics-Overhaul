@@ -269,6 +269,7 @@ public class TutorialScenario extends StartupScenario {
   
   protected void onBarracksPlaced() {
     barracksBuilt.structure.setState(Structure.STATE_INTACT, 1);
+    barracksBuilt.onCompletion();
     base().setup.fillVacancies(barracksBuilt, true);
     base().setup.fillVacancies(bastion      , true);
     followIfNew(barracksBuilt, "barracks_built");
