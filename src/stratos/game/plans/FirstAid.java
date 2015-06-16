@@ -64,11 +64,23 @@ public class FirstAid extends Treatment {
   }
   
   
-  private static Boarding findRefuge(Actor actor) {
+  private Boarding findRefuge(Actor actor) {
+    final Boarding current = patient.aboard();
     final Target t = Retreat.nearestHaven(actor, PhysicianStation.class, false);
-    if (t instanceof Venue) return (Venue) t;
-    return null;
+    return (rateHaven(current) >= rateHaven(t)) ? current : (Boarding) t;
   }
+  
+  
+  private float rateHaven(Target t) {
+    //  TODO:  Consider putting this in a Pick object, and passing that on to
+    //  the retreat class...
+    if (! (t instanceof Venue)) return -1;
+    final Venue v = (Venue) t;
+    if (v.staff().workforce() <= 0) return -1;
+    if (v instanceof PhysicianStation) return 5;
+    return 2;
+  }
+  
   
   
   protected float getPriority() {
@@ -93,8 +105,7 @@ public class FirstAid extends Treatment {
     final boolean outside = actor.aboard() != sickbay;
     if (
       (carries != null && carries != actor) ||
-      (outside && patient.health.conscious()) ||
-      (outside && actor.aboard() instanceof PhysicianStation)
+      (outside && patient.health.conscious())
     ) {
       return -1;
     }

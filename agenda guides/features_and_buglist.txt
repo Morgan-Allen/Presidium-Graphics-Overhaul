@@ -6,6 +6,13 @@ TO DO NOW-
    simplify a number of tasks below.
 
 
+*  If venue-construction begins in an area with a large rock in the middle, it
+   appears that foundation-laying may never complete.  Fix that.
+
+*  Citizens with no combat or surveillance skills seem a little too eager to go
+   exploring.  (In addition, recon-missions sometimes close prematurely if they
+   run into un-pathable tiles.)
+
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
 *  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.

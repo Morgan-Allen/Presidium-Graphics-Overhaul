@@ -103,17 +103,17 @@ public class JoinMission extends Plan {
       }
       
       final Behaviour step = mission.nextStepFor(actor, true);
-      final float priority = step.priorityFor(actor);
+      final float priority = step == null ? -1 : step.priorityFor(actor);
       if (priority < ROUTINE) continue;
-      choice.add(step);
-      steps.add(step);
+      choice  .add(step   );
+      steps   .add(step   );
       missions.add(mission);
       
       if (report) {
         I.say("\n  Mission is: "+mission);
         I.say("  apply point:  "+applyPointFor(actor, mission));
-        I.say("  priority:     "+priority);
         I.say("  next step:    "+mission.nextStepFor(actor, true));
+        I.say("  priority:     "+priority);
       }
     }
     final Behaviour pickStep = choice.weightedPick();
