@@ -355,12 +355,18 @@ public class Repairs extends Plan {
     //  For installation & salvage, we try to move from the back of the
     //  structure forward (so as to match up with the construct/salvage build-
     //  sprite animation.)
+    final Plan repairing[] = world.activities.activePlanMatches(
+      built, Repairs.class
+    ).toArray(Plan.class);
     final Pick <Tile> pick = new Pick <Tile> ();
     Tile atBack  = world.tileAt(corner.x + size, corner.y);
     Tile atFront = world.tileAt(corner.x, corner.y + size);
     
     for (Tile t : Spacing.perimeter(venue.footprint(), venue.world())) {
       if (t == null || t.blocked()) continue;
+      for (Plan r : repairing) if (r != this) {
+        if (r.stepFocus() == t || r.actor().origin() == t) continue;
+      }
       float rating = 0;
       rating += Spacing.distance(t, atBack ) * (0 + repair);
       rating += Spacing.distance(t, atFront) * (1 - repair);

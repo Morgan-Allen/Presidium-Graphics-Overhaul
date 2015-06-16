@@ -154,7 +154,7 @@ public class BaseCommerce {
   protected void updateCandidates(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     
-    final boolean report = migrateVerbose && base == BaseUI.currentPlayed();
+    final boolean report = base == BaseUI.currentPlayed() && migrateVerbose;
     final Background demanded[] = Background.INDEX.allEntries(Background.class);
     
     final Tally <Background> jobSupply = new Tally <Background> ();
@@ -163,15 +163,16 @@ public class BaseCommerce {
     if (report) I.say("\nChecking for new recruits (slice: "+TIME_SLICE+")");
     
     for (Background b : demanded) {
+      final float jobDemand = base.demands.globalDemand(b);
+      if (jobDemand < 0.5f) continue;
       final float
-        demand = (base.demands.globalDemand(b) - 0.5f) * MAX_APPLICANTS,
-        supply = jobSupply.valueFor(b);
-      if (demand <= 0) continue;
-      float applyChance = (demand - supply) * TIME_SLICE;
+        appDemand = jobDemand * MAX_APPLICANTS,
+        appSupply = jobSupply.valueFor(b);
+      float applyChance = (appDemand - appSupply) * TIME_SLICE;
       
       if (report) {
         I.say("  Hire chance for "+b+" is "+applyChance);
-        I.say("  Supply/demand "+supply+" / "+demand);
+        I.say("  Supply/demand "+appSupply+" / "+appDemand);
       }
       
       while (Rand.num() < applyChance) {

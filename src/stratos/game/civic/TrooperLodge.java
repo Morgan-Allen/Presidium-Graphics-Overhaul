@@ -25,7 +25,7 @@ public class TrooperLodge extends Venue {
   /**  Fields, constants, and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    TrooperLodge.class, "media/Buildings/military/trooper_lodge.png", 4, 3
+    TrooperLodge.class, "media/Buildings/military/trooper_lodge.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     TrooperLodge.class, "media/GUI/Buttons/trooper_lodge_button.gif"
@@ -36,7 +36,7 @@ public class TrooperLodge extends Venue {
     "Trooper Lodge", UIConstants.TYPE_SECURITY, ICON,
     "The Trooper Lodge allows you to recruit the sturdy, disciplined and "+
     "heavily-equipped Trooper into the rank and file of your armed forces.",
-    4, 3, Structure.IS_NORMAL,
+    4, 2, Structure.IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_FACILITY,
     500, 20, 250, Structure.NORMAL_MAX_UPGRADES
   );

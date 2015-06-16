@@ -6,6 +6,10 @@ TO DO NOW-
    simplify a number of tasks below.
 
 
+*  Citizens with no combat or surveillance skills seem a little too eager to go
+   exploring.  (In addition, recon-missions sometimes close prematurely if they
+   run into un-pathable tiles.)
+
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
 *  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.

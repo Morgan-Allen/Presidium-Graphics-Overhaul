@@ -351,6 +351,7 @@ public abstract class Venue extends Fixture implements
       if (t != null) t.clearUnlessOwned();
     }
     for (Tile t : world.tilesIn(footprint(), false)) {
+      t.setAbove(this, true);
       for (Mobile m : t.inside()) m.setPosition(exit.x, exit.y, world);
     }
     
@@ -811,14 +812,14 @@ public abstract class Venue extends Fixture implements
     }
     if (itemModels.size() > 0) {
       CutoutSprite.renderAbove(
-        healthbar.position, 0, 0.05f, -1, rendering,
-        0.5f, 1, itemModels
+        healthbar.position, 0, 0.1f, -1, rendering,
+        0.375f, 1, itemModels
       );
       CutoutSprite.renderAbove(
-        healthbar.position, 0, 0.05f, -1.1f, rendering,
-        0.5f, 1, tickModels
+        healthbar.position, 0, 0.1f, -1.1f, rendering,
+        0.375f, 0.75f, tickModels
       );
-      zoff += 0.35f;
+      zoff += 0.4f;
     }
     //
     //  And then the name-label:

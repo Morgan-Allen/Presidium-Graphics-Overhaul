@@ -197,8 +197,14 @@ public class ActorGear extends Inventory {
     */
   public void equipDevice(Item device) {
     if (device != null && ! (device.type instanceof DeviceType)) return;
+    
+    final DeviceType oldType = deviceType();
     this.device = device;
-    this.ammoCount = MAX_AMMO_COUNT;
+    final DeviceType newType = deviceType();
+    
+    if (newType != oldType) {
+      this.ammoCount = (newType != null) ? MAX_AMMO_COUNT : 0;
+    }
   }
   
   
@@ -283,33 +289,36 @@ public class ActorGear extends Inventory {
   /**  Here, we deal with applying/removing Outfits-
     */
   public void equipOutfit(Item outfit) {
-    if (! (outfit.type instanceof OutfitType)) return;
-    final Actor actor = (Actor) owner;
-    final SolidSprite sprite = (SolidSprite) actor.sprite();
-    final Item oldItem = this.outfit;
+    if (outfit != null && ! (outfit.type instanceof OutfitType)) return;
+    
+    final OutfitType oldType = outfitType();
     this.outfit = outfit;
-    if (maxShields() > 0) powerCells = MAX_POWER_CELLS;
+    final OutfitType newType = outfitType();
+    
+    if (newType != oldType) {
+      powerCells     = (maxShields() > 0) ? MAX_POWER_CELLS : 0;
+      currentShields = maxShields();
+    }
+    
+    //  TODO:  FIGURE THIS OUT
+    /*
     //
     //  Attach/detach the appropriate media-
     if (oldItem != null) {
       final OutfitType type = (OutfitType) oldItem.type;
-      //  TODO:  FIGURE THIS OUT
-      /*
       if (type.skin != null) sprite.applyOverlay(
         type.skin.asTexture(), AnimNames.MAIN_BODY, true
       );
-      //*/
     }
-    if (outfit != null) {
+    if (newItem != null) {
       final OutfitType type = (OutfitType) outfit.type;
-      //  TODO:  FIGURE THIS OUT
-      /*
+        TODO:  FIGURE THIS OUT
       if (type.skin != null) sprite.applyOverlay(
         type.skin.asTexture(), AnimNames.MAIN_BODY, false
       );
-      //*/
       currentShields = maxShields();
     }
+    //*/
   }
   
   

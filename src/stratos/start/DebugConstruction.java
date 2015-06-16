@@ -89,8 +89,15 @@ public class DebugConstruction extends Scenario {
     final Actor tracks = depot.staff.workers().last();
     UI.selection.pushSelection(tracks);
     
-    final Venue built = new SupplyDepot(base);
-    PlaceUtils.establishVenue(built, 12, 12, false, world);
+    final Outcrop boulder = new Outcrop(3, 1, Outcrop.TYPE_MESA);
+    boulder.enterWorldAt(13, 13, world, true);
+    
+    final Outcrop dune = new Outcrop(1, 1, Outcrop.TYPE_DUNE);
+    dune.enterWorldAt(12, 13, world, true);
+    
+    final Venue built = new TrooperLodge(base);
+    built.setupWith(world.tileAt(12, 12), null);
+    built.doPlacement(false);
     
     final Repairs job = new Repairs(tracks, built);
     job.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
