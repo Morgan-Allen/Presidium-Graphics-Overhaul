@@ -70,7 +70,7 @@ public class RunnerMarket extends Venue {
     EcologistStation.class, "media/GUI/Buttons/runner_market_button.gif"
   );
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    RunnerMarket.class, IMG_DIR+"runner_market.png", 4, 3
+    RunnerMarket.class, IMG_DIR+"runner_market.png", 4, 1
   );
   
   final static int
@@ -96,7 +96,7 @@ public class RunnerMarket extends Venue {
     "Runner Markets can offer black market technology and other "+
     "clandestine services to settlements willing to overlook their "+
     "criminal connections.",
-    5, 2, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     StockExchange.BLUEPRINT, Owner.TIER_FACILITY,
     150, 3, 250,
     Structure.NORMAL_MAX_UPGRADES

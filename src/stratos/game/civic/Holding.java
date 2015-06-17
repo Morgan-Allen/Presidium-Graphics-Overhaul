@@ -80,7 +80,7 @@ public class Holding extends Venue {
     "Housing", UIConstants.TYPE_PHYSICIAN, ICONS[0],
     "Housing provides comfort, sanitation and other domestic benefits to "+
     "your subjects.",
-    3, 1, Structure.IS_NORMAL,
+    2, 1, Structure.IS_NORMAL,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
     INTEGRITIES[0], 5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES
   );

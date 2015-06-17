@@ -132,8 +132,7 @@ public class PlaceUtils implements TileConstants {
     //  TODO:  USE A PROPER SITING-CLASS FOR THIS
     
     final int maxDist = Stage.ZONE_SIZE / 2;
-    Tile init = world.tileAt(near);
-    init = Spacing.nearestOpenTile(init, init);
+    final Tile init = world.tileAt(near);
     if (init == null) return false;
     
     //  For now, I'm just going to use the perimeter-methods to 'spiral out'

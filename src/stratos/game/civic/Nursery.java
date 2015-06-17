@@ -32,7 +32,7 @@ public class Nursery extends Venue implements TileConstants {
   );
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
-      Nursery.class, IMG_DIR+"nursery.png", 2, 2
+      Nursery.class, IMG_DIR+"nursery.png", 2, 1
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -40,7 +40,7 @@ public class Nursery extends Venue implements TileConstants {
     "Nursery", UIConstants.TYPE_ECOLOGIST, ICON,
     "Nurseries secure a high-quality food source from plant crops, but need "+
     "space, hard labour and fertile soils.",
-    2, 2, Structure.IS_ZONED,
+    2, 1, Structure.IS_ZONED,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     25,  //integrity
     5,  //armour

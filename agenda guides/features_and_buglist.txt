@@ -6,18 +6,17 @@ TO DO NOW-
    simplify a number of tasks below.
 
 
-*  Citizens with no combat or surveillance skills seem a little too eager to go
-   exploring.  (In addition, recon-missions sometimes close prematurely if they
-   run into un-pathable tiles.)
-
-*  Try to migrate ephemera/stage.visible (list lower down!)
-
 *  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.
 
 *  For some reason, the current OSX build does not run after download from
    github.  (Replacing stratos.app with the local build's version works fine.)
    In addition, windows-saves do not seem to load.  I probably mixed up the
    build-version at some point- double-check in future.
+
+*  Try to migrate ephemera/stage.visible (list lower down!)
+
+*  Item-stocks rendering at the stock-exchange and supply depot needs to be
+   restored.
 
 
 

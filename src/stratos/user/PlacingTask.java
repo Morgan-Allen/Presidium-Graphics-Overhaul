@@ -14,9 +14,13 @@ import stratos.graphics.widgets.KeyInput;
 import com.badlogic.gdx.Input.Keys;
 
 
+//  TODO:  This needs to make direct use of, or merge with, the utility classes
+//         in PlaceUtils (and/or a Siting class.)
+
+
+
 
 public class PlacingTask implements UITask {
-  
   
   
   final static int
@@ -42,7 +46,7 @@ public class PlacingTask implements UITask {
     if      (placeType.hasProperty(Structure.IS_ZONED )) mode = MODE_AREA;
     else if (placeType.hasProperty(Structure.IS_LINEAR)) mode = MODE_LINE;
     else mode = MODE_POINT;
-    gridLock = placeType.hasProperty(Structure.IS_GRIDDED);
+    gridLock = true || placeType.hasProperty(Structure.IS_GRIDDED);
   }
   
   
@@ -51,10 +55,10 @@ public class PlacingTask implements UITask {
     boolean tryPlacement = false;
     
     if (gridLock && picked != null) {
-      final int baseSize = placeType.size, hS = baseSize / 2;
+      final int baseSize = 2;
       picked = picked.world.tileAt(
-        Nums.round(picked.x, baseSize, false) + hS,
-        Nums.round(picked.y, baseSize, false) + hS
+        Nums.round(picked.x, baseSize, false),
+        Nums.round(picked.y, baseSize, false)
       );
     }
     

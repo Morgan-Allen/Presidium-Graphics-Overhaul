@@ -69,7 +69,7 @@ public class Edifice extends Venue {
     "Edifice", UIConstants.TYPE_AESTHETIC, ICON,
     "The Edifice commemorates significant events in the history of your "+
     "settlement beneath a frictionless composite facade.",
-    3, 2, Structure.IS_FIXTURE,
+    4, 2, Structure.IS_FIXTURE,
     Fabricator.BLUEPRINT, Owner.TIER_FACILITY,
     500, 50, 800, Structure.NO_UPGRADES
   );

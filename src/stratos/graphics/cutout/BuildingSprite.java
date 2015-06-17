@@ -50,12 +50,12 @@ public class BuildingSprite extends Sprite implements TileConstants {
       "power_model", BuildingSprite.class,
       "media/Items/power.png" , 0.25f, 0, 0, true, true
     ),
-    LIFE_SUPPORT_MODEL = new PlaneFX.Model(
-      "power_model", BuildingSprite.class,
-      "media/Items/life_S.png", 0.25f, 0, 0, true, true
+    ATMO_MODEL  = new PlaneFX.Model(
+      "atmo_model", BuildingSprite.class,
+      "media/Items/atmo.png", 0.25f, 0, 0, true, true
     ),
     WATER_MODEL = new PlaneFX.Model(
-      "power_model", BuildingSprite.class,
+      "water_model", BuildingSprite.class,
       "media/Items/water.png" , 0.25f, 0, 0, true, true
     );
   
@@ -128,6 +128,16 @@ public class BuildingSprite extends Sprite implements TileConstants {
   
   public Sprite baseSprite() {
     return baseSprite;
+  }
+  
+  
+  public int size() {
+    return size;
+  }
+  
+  
+  public int high() {
+    return high;
   }
   
   

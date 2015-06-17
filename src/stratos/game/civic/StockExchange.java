@@ -46,7 +46,7 @@ public class StockExchange extends Venue {
     "Stock Exchange", UIConstants.TYPE_COMMERCE, ICON,
     "The Stock Exchange generates profits from the sale of finished goods to "+
     "local homes and businesses.",
-    5, 1, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_TRADER,
     150, 3, 250, Structure.NORMAL_MAX_UPGRADES
   );

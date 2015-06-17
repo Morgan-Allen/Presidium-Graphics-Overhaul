@@ -27,7 +27,7 @@ public class Smelter extends Venue {
   final static String IMG_DIR = "media/Buildings/artificer/";
   final public static ModelAsset
     DRILLING_MODELS[] = CutoutModel.fromImages(
-      Smelter.class, IMG_DIR, 3, 2, false,
+      Smelter.class, IMG_DIR, 3, 1, false,
       "mantle_drill_1.png",
       "mantle_drill_2.gif",
       "open_shaft.png"
@@ -35,15 +35,9 @@ public class Smelter extends Venue {
     OPENING_SHAFT_MODEL = CutoutModel.fromImage(
       Smelter.class, IMG_DIR+"sunk_shaft.gif", 2, 1
     ),
-    ALL_MOLD_MODELS[][] = CutoutModel.fromImageGrid(
-      Smelter.class, IMG_DIR+"all_molds.png",
-      4, 5, 1, 1, true
-    ),
+    ALL_MOLD_MODELS[][] = Tailing.ALL_MOLD_MODELS,
     SMOKE_STACK_MODEL = CutoutModel.fromImage(
       Smelter.class, IMG_DIR+"smoke_stack.png", 1, 1
-    ),
-    TAILING_SLAB_MODEL = CutoutModel.fromImage(
-      Smelter.class, IMG_DIR+"slab.png", 1, 1
     ),
     SMELTER_MOLD_MODELS[][] = {
       ALL_MOLD_MODELS[1],
@@ -61,7 +55,7 @@ public class Smelter extends Venue {
     "Smelter", UIConstants.TYPE_HIDDEN, ExcavationSite.ICON,
     "Smelters extract larger quantities of metals and heavy elements from "+
     "subterranean mineral deposits.",
-    4, 2, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     ExcavationSite.BLUEPRINT, Owner.TIER_FACILITY,
     75, 6, 150, Structure.NO_UPGRADES
   );

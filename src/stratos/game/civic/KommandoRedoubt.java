@@ -17,7 +17,12 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class KommandoLodge extends Venue {
+
+//  TODO:  Save this for the stage when the Schools get introduced!  Create a
+//  Xeno Lodge instead for animal-taming & breeding purposes.
+
+
+public class KommandoRedoubt extends Venue {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -26,20 +31,20 @@ public class KommandoLodge extends Venue {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    KommandoLodge.class, "media/Buildings/ecologist/kommando_lodge.png", 4, 2
+    KommandoRedoubt.class, "media/Buildings/ecologist/kommando_lodge.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    KommandoLodge.class, "media/GUI/Buttons/kommando_lodge_button.gif"
+    KommandoRedoubt.class, "media/GUI/Buttons/kommando_lodge_button.gif"
   );
   
   final static int CLAIM_RADIUS = Stage.ZONE_SIZE / 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    KommandoLodge.class, "kommando_lodge",
-    "Kommando Lodge", UIConstants.TYPE_SECURITY, ICON,
+    KommandoRedoubt.class, "kommando_lodge",
+    "Kommando Lodge", UIConstants.TYPE_HIDDEN, ICON,
     "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
     "sufficient Kommandos to harvest prey and intimidate foes.",
-    5, 2, Structure.IS_NORMAL,
+    4, 2, Structure.IS_NORMAL,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     150, 4, 550, Structure.NORMAL_MAX_UPGRADES
   );
@@ -50,7 +55,7 @@ public class KommandoLodge extends Venue {
   
   
   
-  public KommandoLodge(Base base) {
+  public KommandoRedoubt(Base base) {
     super(BLUEPRINT, base);
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
@@ -62,7 +67,7 @@ public class KommandoLodge extends Venue {
   }
   
   
-  public KommandoLodge(Session s) throws Exception {
+  public KommandoRedoubt(Session s) throws Exception {
     super(s);
     this.fleshStill = (Venue) s.loadObject();
     this.camouflaged = (GroupSprite) ModelAsset.loadSprite(s.input());

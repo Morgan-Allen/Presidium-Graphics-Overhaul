@@ -102,7 +102,7 @@ public class DebugEcology extends Scenario {
   
   private void configHarvestScenario(Stage world, Base base, BaseUI UI) {
     
-    final KommandoLodge lodge = new KommandoLodge(base);
+    final KommandoRedoubt lodge = new KommandoRedoubt(base);
     PlaceUtils.establishVenue(lodge, world.tileAt(20, 2), true, world);
     base.setup.fillVacancies(lodge, true);
     lodge.stocks.forceDemand(Economy.PROTEIN, 20, false);

@@ -25,7 +25,7 @@ public class ImageAsset extends Assets.Loadable {
   
   
   private ImageAsset(String keyPath, String filePath, Class sourceClass) {
-    super(keyPath, sourceClass, false);
+    super(keyPath+"_"+filePath, sourceClass, false);
     this.filePath = filePath;
   }
   

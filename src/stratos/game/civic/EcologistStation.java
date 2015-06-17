@@ -39,7 +39,7 @@ public class EcologistStation extends Venue {
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
-      EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
+      EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 2
     );
   
   
@@ -48,7 +48,7 @@ public class EcologistStation extends Venue {
     "Ecologist Station", UIConstants.TYPE_ECOLOGIST, ICON,
     "Ecologist Stations are responsible for agriculture and forestry, "+
     "helping to secure food supplies and advance terraforming efforts.",
-    4, 3, Structure.IS_NORMAL,
+    4, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     150, 3, 250, Structure.NORMAL_MAX_UPGRADES
   );

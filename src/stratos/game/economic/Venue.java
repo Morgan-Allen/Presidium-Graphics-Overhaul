@@ -621,7 +621,7 @@ public abstract class Venue extends Fixture implements
   protected void toggleStatusDisplay() {
     final boolean showBurn = structure.burning();
     buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
-    toggleStatusFor(ATMO , BuildingSprite.LIFE_SUPPORT_MODEL);
+    toggleStatusFor(ATMO , BuildingSprite.ATMO_MODEL);
     toggleStatusFor(POWER, BuildingSprite.POWER_MODEL);
     toggleStatusFor(WATER, BuildingSprite.WATER_MODEL);
   }
@@ -639,7 +639,6 @@ public abstract class Venue extends Fixture implements
   
   private boolean canShow(Traded type) {
     if (type.form == FORM_PROVISION) return false;
-    if (type.picPath == Traded.DEFAULT_PIC_PATH) return false;
     return true;
   }
 
@@ -739,7 +738,10 @@ public abstract class Venue extends Fixture implements
   
 
   public void attachSprite(Sprite sprite) {
-    if (sprite == null) super.attachSprite(null);
+    if (sprite == null) {
+      buildSprite = null;
+      super.attachSprite(null);
+    }
     else {
       buildSprite = BuildingSprite.fromBase(sprite, size, high);
       super.attachSprite(buildSprite);

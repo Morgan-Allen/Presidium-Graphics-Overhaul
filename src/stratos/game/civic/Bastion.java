@@ -26,7 +26,7 @@ public class Bastion extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Bastion.class, "media/Buildings/military/bastion.png", 7, 3
+    Bastion.class, "media/Buildings/military/bastion.png", 8, 3
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     Bastion.class, "media/GUI/Buttons/bastion_button.gif"
@@ -40,7 +40,7 @@ public class Bastion extends Venue {
     "The Bastion is your seat of command for the settlement as a "+
     "whole, houses your family, advisors and bodyguards, and provides "+
     "basic logistic support.",
-    7, 3, Structure.IS_UNIQUE,
+    8, 3, Structure.IS_UNIQUE,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     650, 15, 1000, Structure.BIG_MAX_UPGRADES
   );

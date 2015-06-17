@@ -1,12 +1,14 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.common;
-import java.io.*;
-import java.lang.reflect.Field;
-
 import stratos.util.*;
 
+import java.io.*;
 import com.badlogic.gdx.graphics.*;
+import java.lang.reflect.Field;
 
 
 
@@ -44,8 +46,8 @@ public abstract class Sprite {
   
   public void matchTo(Sprite s) {
     position.setTo(s.position);
-    scale = s.scale;
-    fog = s.fog;
+    scale  = s.scale ;
+    fog    = s.fog   ;
     colour = s.colour;
   }
   

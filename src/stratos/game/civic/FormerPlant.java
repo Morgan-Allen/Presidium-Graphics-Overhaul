@@ -39,7 +39,7 @@ public class FormerPlant extends Venue implements TileConstants {
   );
   final static ModelAsset
     MODEL = CutoutModel.fromImage(
-      FormerPlant.class, IMG_DIR+"former_plant.png", 3, 2
+      FormerPlant.class, IMG_DIR+"former_plant.png", 3, 1
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -47,7 +47,7 @@ public class FormerPlant extends Venue implements TileConstants {
     "Former Plant", UIConstants.TYPE_ECOLOGIST, ICON,
     "The Former Plant helps to accelerate terraforming efforts through "+
     "forestry and carbons-cycling, creating heavy polymers as a biproduct.",
-    4, 2, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     25,  //integrity
     5,  //armour
