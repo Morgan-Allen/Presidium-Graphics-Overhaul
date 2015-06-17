@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.util;
 import java.awt.*;
 import java.awt.image.*;
@@ -27,26 +26,22 @@ public class I {
   
   public static boolean mute = false;
   public static Object talkAbout = null;
+  public static boolean saw60Frames = false;
   
-  final static boolean WRITE_TO_LOG, LOG_BIG_EVENTS = true;
+  final public static boolean
+    AM_INSIDE_JAR ,
+    WRITE_TO_LOG  ,
+    LOG_BIG_EVENTS = true;
+  
   static {
-    //  TODO:  Use this trick in the AssetsLoader class too- it's much faster
-    //  than a brute-force search for files.
     
     final java.net.URL toThis = I.class.getResource("I.class");
     final boolean isJar = toThis.toString().startsWith("jar:");
-    WRITE_TO_LOG = isJar;
+    AM_INSIDE_JAR = isJar;
+    WRITE_TO_LOG  = isJar;
     
     System.out.println("\nPATH TO SELF IS: "+toThis);
     System.out.println("  IS JAR FILE?     "+isJar );
-    
-    //  Alternatively, you might use this (to detect eclipse specifically)-
-    //  http://stackoverflow.com/questions/482560/can-you-tell-on-runtime-if-youre-running-java-from-within-a-jar
-    /*
-    if (System.getProperty("java.class.path").contains("org.eclipse.equinox.launcher")) {
-      System.out.println("You're running inside Eclipse");
-    }
-    //*/
     
     if (WRITE_TO_LOG) try {
       String

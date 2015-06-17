@@ -85,7 +85,7 @@ public class CutoutModel extends ModelAsset {
     String fileName, Class modelClass, Box2D window,
     float size, float high, boolean splat
   ) {
-    super(fileName+"_"+window, modelClass);
+    super(fileName+"_"+window.xpos()+"_"+window.ypos()+"_"+size, modelClass);
     this.fileName = fileName;
     this.window   = window  ;
     this.size     = size    ;

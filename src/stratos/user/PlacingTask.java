@@ -22,6 +22,8 @@ import com.badlogic.gdx.Input.Keys;
 
 public class PlacingTask implements UITask {
   
+  private static boolean
+    verbose = false;
   
   final static int
     MODE_POINT = 0,
@@ -31,7 +33,6 @@ public class PlacingTask implements UITask {
   final BaseUI UI;
   final Blueprint placeType;
   final int mode;
-  final boolean gridLock;
   
   private Tile begins;
   private Tile endsAt;
@@ -46,7 +47,6 @@ public class PlacingTask implements UITask {
     if      (placeType.hasProperty(Structure.IS_ZONED )) mode = MODE_AREA;
     else if (placeType.hasProperty(Structure.IS_LINEAR)) mode = MODE_LINE;
     else mode = MODE_POINT;
-    gridLock = true || placeType.hasProperty(Structure.IS_GRIDDED);
   }
   
   
@@ -54,15 +54,13 @@ public class PlacingTask implements UITask {
     Tile picked = UI.selection.pickedTile();
     boolean tryPlacement = false;
     
-    if (gridLock && picked != null) {
+    if (picked != null) {
       final int baseSize = 2;
       picked = picked.world.tileAt(
         Nums.round(picked.x, baseSize, false),
         Nums.round(picked.y, baseSize, false)
       );
-    }
-    
-    if (picked != null) {
+      
       if (mode == MODE_POINT) {
         begins = endsAt = picked;
         if (UI.mouseDown()) tryPlacement = true;
@@ -87,18 +85,18 @@ public class PlacingTask implements UITask {
   
   
   private void setupAreaClaim(boolean tryPlacement) {
-    final boolean report = false;
-    if (report) {
-      I.say("\nGetting area claim...");
-      I.say("  Start/end points: "+begins+"/"+endsAt);
-      I.say("  Place mode: "+mode);
-    }
+    final boolean report = verbose && I.saw60Frames;
     //
     //  Set up some initial variables-
     final int baseSize = placeType.size;
-    final float hS = (baseSize / 2) + 0.5f;
     Box2D area = null;
     final Batch <Coord> placePoints = new Batch <Coord> ();
+    if (report) {
+      I.say("\nSetting up area claim...");
+      I.say("  Start/end points: "+begins+"/"+endsAt);
+      I.say("  Venue size: "+baseSize);
+      I.say("  Place mode: "+mode    );
+    }
     //
     //  If there's only one point to consider, just add that.
     if (mode == MODE_POINT || begins == endsAt) {
@@ -136,7 +134,7 @@ public class PlacingTask implements UITask {
     //  If an area hasn't been specified already, construct one to envelope
     //  all the place-points generated.
     if (area == null) for (Coord c : placePoints) {
-      final Box2D foot = new Box2D(c.x - hS, c.y - hS, baseSize, baseSize);
+      final Box2D foot = new Box2D(c.x, c.y, baseSize, baseSize);
       if (area == null) area = new Box2D(foot);
       else area.include(foot);
     }
@@ -160,8 +158,7 @@ public class PlacingTask implements UITask {
       placeItems.put(index, p);
     }
     
-    final float hS = (placeType.size / 2) + 0.5f;
-    p.setupWith(base.world.tileAt(c.x - hS, c.y - hS), area, points);
+    p.setupWith(base.world.tileAt(c.x - 0.5f, c.y - 0.5f), area, points);
     return p;
   }
   
@@ -296,8 +293,7 @@ public class PlacingTask implements UITask {
       if (area == null) area = new Box2D().setTo(v.footprint());
       else area.include(v.footprint());
       final Tile at = v.origin();
-      final int hS = v.size / 2;
-      coords.add(new Coord(at.x + hS, at.y + hS));
+      coords.add(new Coord(at.x, at.y));
     }
     
     for (Venue s : placed) {

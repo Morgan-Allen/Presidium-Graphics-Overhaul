@@ -233,7 +233,7 @@ public class PlaceUtils implements TileConstants {
       for (Coord c : otherPoints) I.add(c+" ");
     }
     final Stage world = position.world;
-    final int s = fixture.size, hS = s / 2;
+    final int s = fixture.size;
     boolean near[] = new boolean[8], adj, allMatch;
     int numN = 0;
     //
@@ -259,7 +259,7 @@ public class PlaceUtils implements TileConstants {
         adj = true;
       }
       else for (Coord p : otherPoints) {
-        if (dX + hS == p.x && dY + hS == p.y) adj = true;
+        if (dX == p.x && dY == p.y) adj = true;
       }
       
       near[dir] = adj;
@@ -285,14 +285,9 @@ public class PlaceUtils implements TileConstants {
     Blueprint type, Box2D around, Base base, boolean intact
   ) {
     final Stage world = base.world;
-    final int grid = type.size, hS = grid / 2;
-    if (hS > 0) {
-      around = new Box2D(around);
-      around.incX(0 - hS);
-      around.incY(0 - hS);
-      around.incWide(hS);
-      around.incHigh(hS);
-    }
+    final int grid = type.size;
+    around = new Box2D(around);
+    around.expandToUnit(grid);
     intact |= GameSettings.buildFree;
     
     final Tile perim[] = Spacing.perimeter(around, world);
@@ -312,7 +307,7 @@ public class PlaceUtils implements TileConstants {
         if (p == null || p.flaggedWith() != null) continue;
         if (area == null) area = new Box2D(p.x, p.y, 0, 0);
         area.include(p.x, p.y, 0.5f);
-        points.add(new Coord(p.x + hS, p.y + hS));
+        points.add(new Coord(p.x, p.y));
         p.flagWith(scanned);
         scanned.add(p);
       }
@@ -322,7 +317,7 @@ public class PlaceUtils implements TileConstants {
       
       for (Coord c : points) {
         final Venue s = type.createVenue(base);
-        s.setPosition(c.x - hS, c.y - hS, world);
+        s.setPosition(c.x, c.y, world);
         s.setupWith(s.origin(), area, pointsA);
         if (s.canPlace()) group.add(s);
       }

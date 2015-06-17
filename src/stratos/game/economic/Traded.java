@@ -9,6 +9,7 @@ import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.Text;
+import stratos.start.Assets;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -87,7 +88,7 @@ public class Traded extends Constant implements Session.Saveable {
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
     
-    if (new java.io.File(imagePath).exists()) {
+    if (Assets.exists(imagePath)) {
       this.icon  = ImageAsset.fromImage(typeClass, imagePath);
       this.model = CutoutModel.fromImage(typeClass, imagePath, IS, IS);
     }

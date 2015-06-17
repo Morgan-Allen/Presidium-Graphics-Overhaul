@@ -13,7 +13,6 @@ import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.Input.Keys;
-
 import java.io.*;
 
 
@@ -199,7 +198,7 @@ public class SkinsPreview extends VisualDebug {
   
   
   private void updateModel() {
-    boolean report = verbose && PlayLoop.isFrameIncrement(60);
+    boolean report = verbose && I.saw60Frames;
     //
     //  First of all, see if a valid file has been specified with this path-
     final File match = new File(currentPath);

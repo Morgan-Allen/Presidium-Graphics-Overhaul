@@ -68,12 +68,11 @@ public class Structure {
     IS_FIXTURE = 2 ,
     IS_LINEAR  = 4 ,
     IS_ZONED   = 8 ,
-    IS_GRIDDED = 16,
-    IS_UNIQUE  = 32,
-    IS_WILD    = 64,
-    IS_CRAFTED = 128,
-    IS_ANCIENT = 256,
-    IS_ORGANIC = 512;
+    IS_UNIQUE  = 16,
+    IS_WILD    = 32,
+    IS_CRAFTED = 64,
+    IS_ANCIENT = 128,
+    IS_ORGANIC = 256;
   
   final public static int
     NO_UPGRADES         = 0,

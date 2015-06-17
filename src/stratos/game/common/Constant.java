@@ -98,7 +98,7 @@ public abstract class Constant extends Index.Entry implements
   
   
   protected void substituteReferences(String helpString, Description d) {
-    final boolean report = verbose && PlayLoop.isFrameIncrement(60);
+    final boolean report = verbose && I.saw60Frames;
     StringBuffer scanned = null;
     boolean inItem = false;
     //

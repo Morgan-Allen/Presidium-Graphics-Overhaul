@@ -100,8 +100,8 @@ public class Assets {
     catch (Exception e) { I.report(e); }
     
     final Batch <String> names = new Batch <String> ();
-    compileClassNames(sourcePackage, names);
-    compileJarredClassNames(sourcePackage, names);
+    if (I.AM_INSIDE_JAR) compileJarredClassNames(sourcePackage, names);
+    else compileClassNames(sourcePackage, names);
     
     final String prefix = sourcePackage+".";
     for (String name : names) {
@@ -429,7 +429,6 @@ public class Assets {
   
   public static Batch <Class> loadPackage(String packageName) {
     if (classesToLoad.size() > 0) I.complain("CLASS LOADING NOT COMPLETE");
-    ///I.say("LOADING PACKAGE:");
     
     final String key = "package"+packageName;
     final Batch <Class> cached = (Batch<Class>) getResource(key);

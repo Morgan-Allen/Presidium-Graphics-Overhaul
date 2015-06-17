@@ -50,7 +50,7 @@ public class ShieldWall extends Venue {
     ShieldWall.class, "shield_wall",
     "Shield Wall", UIConstants.TYPE_SECURITY, ICON,
     "Shield Walls are defensive emplacements that improve base security.",
-    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE | Structure.IS_GRIDDED,
+    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Bastion.BLUEPRINT, Owner.TIER_FACILITY,
     125, 15, 40,  //integrity, armour, and build cost
     Structure.SMALL_MAX_UPGRADES
