@@ -18,6 +18,8 @@ TO DO NOW-
 *  Item-stocks rendering at the stock-exchange and supply depot needs to be
    restored.
 
+*  Ensure that mining still works after all these changes.  (Farming too.)
+
 
 
 BUILDINGS AND ECONOMY-

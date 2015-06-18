@@ -32,7 +32,6 @@ public class Blueprint extends Constant implements Session.Saveable {
   final public Class <? extends Venue> baseClass;
   final public String keyID;
   
-  final public String name;
   final public ImageAsset icon;
   final public String category;
   final public String description;
@@ -84,7 +83,6 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.baseClass = baseClass;
     this.keyID     = key;
     
-    this.name        = name;
     this.category    = category;
     this.icon        = icon;
     this.description = description;

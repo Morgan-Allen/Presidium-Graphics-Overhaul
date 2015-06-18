@@ -9,6 +9,7 @@ import stratos.game.base.*;
 import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
@@ -296,18 +297,7 @@ public class ShipUtils {
     //
     //  Otherwise, search for a suitable landing site on the bare ground near
     //  likely customers:
-    final Tile midTile = world.tileAt(world.size / 2, world.size / 2);
-    final Presences p = world.presences;
-    Target nearest = null;
-    nearest = p.randomMatchNear(SERVICE_COMMERCE, midTile, -1);
-    if (findLandingArea(ship, nearest, base)) return true;
-    nearest = p.randomMatchNear(base, midTile, -1);
-    if (findLandingArea(ship, nearest, base)) return true;
-    nearest = p.nearestMatch(base, midTile, -1);
-    if (findLandingArea(ship, nearest, base)) return true;
-    nearest = midTile;
-    if (findLandingArea(ship, nearest, base)) return true;
-    return false;
+    return findLandingArea(ship, base);
   }
   
   
@@ -315,7 +305,10 @@ public class ShipUtils {
     if ((! strip.inWorld()) || ! strip.structure.intact()) return -1;
     if (strip.docking() != null && strip.docking() != ship) return -1;
 
-    //  TODO:  SEE IF YOU CAN USE THE DELIVERYUTILS CLASS FOR THIS?
+    //  TODO:  SEE IF YOU CAN USE THE BRING-UTILS CLASS FOR THIS (see below.)
+    //  In principle, the findLandingArea class is already searching for
+    //  commerce-venues/trade-venues, so if one of those is an Airfield, that
+    //  should work fine...
     float rating = 1;
     for (Traded good : Economy.ALL_MATERIALS) {
       rating += Nums.max(0, strip.stocks.shortageOf(good));
@@ -337,32 +330,68 @@ public class ShipUtils {
 
   
   private static boolean findLandingArea(
-    final Dropship ship, Target from, final Base base
+    final Dropship ship, final Base base
   ) {
-    if (from == null) return false;
-    final Tile init = Spacing.nearestOpenTile(base.world.tileAt(from), from);
-    if (init == null) return false;
     final boolean report = siteVerbose && BaseUI.current().played() == base;
     
-    //
-    //  Then, spread out to try and find a decent landing site-
+    final Stage world = base.world;
+    final Presences p = world.presences;
+    final int ZS = Stage.ZONE_SIZE;
     final Box2D area = ship.area(null);
-    final int maxDist = Stage.ZONE_SIZE * 2;
-    final TileSpread spread = new TileSpread(init) {
-      protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, init) > maxDist) return false;
-        return true;
+    final Traded goods[] = ship.cargo.demanded();
+    //
+    //  If these ship doesn't have a position yet, we provisionally assign one,
+    //  and then see what might be interested in trading with it:
+    final Tile randTile = world.tileAt(
+      Rand.index(world.size),
+      Rand.index(world.size)
+    );
+    if (ship.landArea() == null || ship.dropPoint() == null) {
+      ship.setPosition(randTile.x, randTile.y, world);
+    }
+    final Bringing collects = BringUtils.bestBulkCollectionFor(
+      ship, goods, 2, 10, 5
+    );
+    final Bringing delivers = BringUtils.bestBulkDeliveryFrom(
+      ship, goods, 2, 10, 5
+    );
+    //
+    //  We then perform a general siting-pass favouring points close to these
+    //  preferred collection points (and commerce-venues in general.)
+    final Siting.Pass spread = new Siting.Pass(base, null) {
+      
+      protected float ratePlacing(Target point, boolean exact) {
+        Target nearest = p.nearestMatch(SERVICE_COMMERCE, point, -1);
+        if (nearest == null) nearest = p.nearestMatch(base, point, -1);
+        if (nearest == null) nearest = randTile;
+        float rating = 1;
+        
+        if (collects != null) {
+          rating *= ZS / (ZS + Spacing.distance(point, collects.origin));
+        }
+        if (delivers != null) {
+          rating *= ZS / (ZS + Spacing.distance(point, collects.destination));
+        }
+        if (nearest != null) {
+          rating *= ZS / (ZS + Spacing.distance(point, nearest));
+          return rating;
+        }
+        else return -1;
       }
-      protected boolean canPlaceAt(Tile t) {
+      
+      protected boolean canPlaceAt(Tile t, int facing, Account reasons) {
         area.xpos(t.x - 0.5f);
         area.ypos(t.y - 0.5f);
-        return checkLandingArea(ship, base.world, area);
+        if (checkLandingArea(ship, base.world, area)) {
+          return reasons.setSuccess();
+        }
+        else return reasons.setFailure("No landing possible.");
       }
     };
-    spread.doSearch();
-    
+    spread.performFullPass();
     //
-    //  
+    //  If successful, assign the landing pont in question, otherwise report
+    //  the failure.
     if (spread.success()) {
       final Vec3D aimPos = new Vec3D(
         area.xpos() + (area.xdim() / 2f),
@@ -375,7 +404,6 @@ public class ShipUtils {
       if (report) I.say("\n"+ship+" found landing at point: "+aimPos);
       return true;
     }
-    
     else {
       ship.assignLandPoint(null, null);
       if (report) I.say("No landing site found for "+ship+".");
@@ -383,5 +411,7 @@ public class ShipUtils {
     }
   }
 }
+
+
 
 

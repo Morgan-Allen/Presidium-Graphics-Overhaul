@@ -18,7 +18,7 @@ public abstract class Constant extends Index.Entry implements
   
   final static Table <String, Object> allConstants = new Table();
   
-  final String name;
+  final public String name;
   
   
   protected Constant(Index index, String key, String name) {

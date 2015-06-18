@@ -42,7 +42,7 @@ public class Traded extends Constant implements Session.Saveable {
   final public static Index <Traded> INDEX = new Index <Traded> ();
   
   final public int form;
-  final public String name, description;
+  final public String description;
   
   final public ImageAsset icon;
   final public CutoutModel model;
@@ -81,7 +81,6 @@ public class Traded extends Constant implements Session.Saveable {
     super(INDEX, name, name);
     
     this.form = form;
-    this.name = name;
     this.description = description;
     
     this.basePrice = basePrice * GameSettings.SPENDING_MULT;

@@ -55,7 +55,7 @@ public class PlacingTask implements UITask {
     boolean tryPlacement = false;
     
     if (picked != null) {
-      final int baseSize = 2;
+      final int baseSize = Stage.UNIT_GRID_SIZE;
       picked = picked.world.tileAt(
         Nums.round(picked.x, baseSize, false),
         Nums.round(picked.y, baseSize, false)

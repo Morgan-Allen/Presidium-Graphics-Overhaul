@@ -25,7 +25,7 @@ public class StageRegion implements Target, Session.Saveable {
   private Object flagged = null;
   
   
-  StageRegion(StageSections w, int x, int y, int d) {
+  StageRegion(StageRegions w, int x, int y, int d) {
     this.world = w.world;
     this.x = x;
     this.y = y;
