@@ -140,7 +140,7 @@ public class ActorGear extends Inventory {
     }
     
     if (item.matchKind(device) && item.amount > 0) {
-      device = Item.withAmount(outfit, device.amount - item.amount);
+      device = Item.withAmount(device, device.amount - item.amount);
       if (device.amount <= 0) equipDevice(null);
       return true;
     }

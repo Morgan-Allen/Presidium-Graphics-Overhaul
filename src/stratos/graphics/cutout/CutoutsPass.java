@@ -179,7 +179,9 @@ public class CutoutsPass {
     CutoutSprite s, Camera camera, boolean lightPass, Texture keyTex
   ) {
     if (keyTex == null) return;
-    final float spriteVerts[] = s.model.allFaces[s.faceIndex];
+    
+    final int faceIndex = Nums.clamp(s.faceIndex, s.model.allFaces.length);
+    final float spriteVerts[] = s.model.allFaces[faceIndex];
     final int sizeS = SIZE * (spriteVerts.length / SIZE);
     if (
       keyTex    != lastTex ||
