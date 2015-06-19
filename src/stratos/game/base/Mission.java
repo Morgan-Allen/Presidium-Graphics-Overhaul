@@ -478,13 +478,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   private Action nextWaitAction(Actor actor, Role role) {
+    if (true) return null;
+    
     if (role == null || ! role.approved) return null;
     if (actor.senses.isEmergency()) return null;
-    
-    if (I.talkAbout == actor) {
-      I.say("GETTING WAIT ACTION...");
-    }
-    
     
     for (Actor a : approved()) {
       if (a == actor || a.planFocus(null, true) != subject) continue;
