@@ -64,7 +64,7 @@ public class JoinMission extends Plan {
     if (actor.mind.mission() != null || ! actor.health.conscious()) {
       return null;
     }
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
@@ -72,12 +72,9 @@ public class JoinMission extends Plan {
     if (report) {
       I.say("\nEvaluating missions: "+actor+" ("+actor.mind.vocation()+")");
     }
-    final Choice choice = new Choice(actor) {
-      protected boolean checkPlanValid(Behaviour b) {
-        return true;
-      }
-    };
-    //  TODO:  Allow application for missions by other bases!
+    final Choice choice = new Choice(actor);
+    //
+    //  TODO:  Allow application for missions set by other bases!
     final Batch <Behaviour> steps    = new Batch <Behaviour> ();
     final Batch <Mission  > missions = new Batch <Mission  > ();
     
@@ -88,14 +85,15 @@ public class JoinMission extends Plan {
       }
       
       //  TODO:  Build this into the priorityFor method of the missions
-      //         themselves.
+      //         themselves?
       final float
         competence = competence(actor, mission),
         urgency    = mission.assignedPriority();
       
       if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
         if (report) {
-          I.say("\n  Cannot apply for "+mission);
+          I.say("");
+          I.say("  Cannot apply for    "+mission);
           I.say("  Mission urgency:    "+urgency);
           I.say("  Competence too low: "+competence);
         }
@@ -117,9 +115,9 @@ public class JoinMission extends Plan {
       }
     }
     final Behaviour pickStep = choice.weightedPick();
-    final int index = steps.indexOf(pickStep);
-    final Mission picked = missions.atIndex(index);
-    
+    final int       index    = steps.indexOf(pickStep);
+    final Mission   picked   = missions.atIndex(index);
+    //
     //  And try to apply for it-
     if (report) I.say("Mission picked: "+picked);
     if (picked == null) return null;

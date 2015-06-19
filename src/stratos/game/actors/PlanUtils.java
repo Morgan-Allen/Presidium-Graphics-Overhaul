@@ -94,20 +94,20 @@ public class PlanUtils {
   /**  Retreat priority.  Should range from 0 to 20.
     */
   public static float retreatPriority(
-    Actor actor
+    Actor actor, Target point
   ) {
     float incentive = 0, loseChance, priority;
     float homeDistance, escapeChance, injury;
     
-    loseChance = 1f - combatWinChance(actor, actor.origin(), 1);
+    loseChance = 1f - combatWinChance(actor, point, 1);
     if (actor.senses.fearLevel() == 0) loseChance = 0;
     
-    homeDistance = homeDistanceFactor(actor, actor.origin());
+    homeDistance = homeDistanceFactor(actor, point);
     if (Action.isStealthy(actor)) homeDistance /= 4;
     if (actor.senses.isEmergency()) homeDistance *= 1.5f;
     if (loseChance > 0 && ! isArmed(actor)) homeDistance += 0.5f;
     
-    incentive    += Nums.max(loseChance, homeDistance / 3) * 20;
+    incentive    += Nums.max(loseChance * 20, homeDistance * 5);
     incentive    += (injury = actor.health.injuryLevel()) * 10;
     escapeChance = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
     escapeChance = escapeChance * Nums.min(1, homeDistance);
@@ -211,25 +211,24 @@ public class PlanUtils {
     float rewardBonus, boolean idle, float competence
   ) {
     float incentive = 0, novelty = 0, priority = 0, enjoys = 0;
-    float daylight = 0, sightChance = 0, homeDist = 0, danger = 0;
+    float daylight = 0, sightChance = 0, retreatUrge = 0;
     
     if (idle) novelty = 0.2f;
     else novelty = Nums.clamp(Nums.max(
       (actor.base().intelMap.fogAt(surveyed) == 0 ? 0.5f : 0.25f),
       (actor.relations.noveltyFor(surveyed) - 1)
     ), 0, 1);
-
+    
     daylight = Planet.dayValue(actor.world());
-    homeDist = homeDistanceFactor(actor, surveyed);
     sightChance = actor.health.baseSpeed() * competence;
     sightChance *= (daylight + 1) / 2;
     
     incentive = novelty * 5 * Nums.clamp(sightChance, 0, 1);
     incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
     incentive += rewardBonus;
-    
-    priority = incentive;
-    priority -= danger = ((homeDist * 5) + ((1 - daylight) * 5)) / 2;
+
+    retreatUrge = PlanUtils.retreatPriority(actor, surveyed);
+    priority = incentive - (retreatUrge / 2);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
@@ -239,13 +238,13 @@ public class PlanUtils {
       "enjoy rating"  , enjoys       ,
       "incentive"     , incentive    ,
       "novelty"       , novelty      ,
-      "home distance" , homeDist     ,
       "sight chance"  , sightChance  ,
       "daylight"      , daylight     ,
-      "danger"        , danger       ,
+      "retreat urge"  , retreatUrge  ,
       "priority"      , priority
     );
     
+    if (priority < retreatUrge) return 0;
     return priority;
   }
   
@@ -470,16 +469,11 @@ public class PlanUtils {
   
   
   public static float homeDistanceFactor(Actor actor, Target around) {
-    
     final Target haven = actor.senses.haven();
     if (haven == null) return 0;
-    
     float baseMult = Spacing.distance(around, haven);
     baseMult = Nums.sqrt(baseMult / Stage.ZONE_SIZE);
-    
-    //baseMult = 1 - (1 / (1 + baseMult));
-    
-    return Nums.clamp(baseMult, 0, 2);
+    return baseMult / 2;
   }
   
   
