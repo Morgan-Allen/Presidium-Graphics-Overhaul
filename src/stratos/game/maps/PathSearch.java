@@ -53,30 +53,39 @@ public class PathSearch extends Search <Boarding> {
   
   
   public static boolean canApproach(Target aims, Mobile client) {
-    return approachPoint(aims, client) != null;
+    return approachPoint(aims, client, false) != null;
   }
   
   
   public static Tile approachTile(Target aims, Mobile client) {
-    final Boarding point = approachPoint(aims, client);
+    final Boarding point = approachPoint(aims, client, true);
     return (point instanceof Tile) ? (Tile) point : null;
   }
   
   
-  private static Boarding approachPoint(Target aims, Mobile client) {
-    while (true) {
+  private static Boarding approachPoint(
+    Target aims, Mobile client, boolean tileOnly
+  ) {
+    int numLoops = 0; while (true) {
       if (aims == null || blockedBy(aims, client)) return null;
-      if (aims instanceof Tile ) return (Tile ) aims;
-      if (aims instanceof Venue) return (Venue) aims;
-      
+      if (aims instanceof Tile) return (Tile) aims;
+      if (aims instanceof Venue && (! tileOnly)) return (Venue) aims;
+      //
+      //  If the current aim-point isn't suitable, see if one adjacent is.
+      final Target original = aims;
       if (aims instanceof Boarding) {
-        for (Boarding c : ((Boarding) aims).canBoard()) {
+        final Boarding b = (Boarding) aims;
+        for (Boarding c : b.canBoard()) if (c != null) {
+          if (c.boardableType() >= b.boardableType()) continue;
           if (! blockedBy(c, client)) { aims = c; break; }
         }
       }
       if (aims instanceof Mobile) {
         aims = ((Mobile) aims).aboard();
       }
+      //
+      //  Some safety measures to avoid infinite-loops...
+      if (aims == original || numLoops++ > 10) return null;
     }
   }
   

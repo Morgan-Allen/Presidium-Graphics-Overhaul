@@ -25,6 +25,9 @@ public final class PlayLoop {
   
   /**  Fields and constant definitions-
     */
+  private static boolean
+    verbose = false;
+  
   final public static Class DEFAULT_INIT_CLASSES[] = {
     stratos.game.actors.Backgrounds.class,
     stratos.game.wild.Species.class
@@ -41,8 +44,6 @@ public final class PlayLoop {
     
     MIN_SLEEP    = 10,
     SLEEP_MARGIN = 2;
-  private static boolean
-    verbose = false;
   
   
   private static String initPackage  = DEFAULT_INIT_PACKAGE;

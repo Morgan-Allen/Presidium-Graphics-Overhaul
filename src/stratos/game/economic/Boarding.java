@@ -11,7 +11,7 @@ import stratos.util.*;
 
 public interface Boarding extends Target, Session.Saveable {
   
-  final int
+  final static int
     BOARDABLE_TILE    = 0,
     BOARDABLE_VENUE   = 1,
     BOARDABLE_VEHICLE = 2,
