@@ -278,7 +278,7 @@ public class NativeHut extends Venue {
         choice.add(forage);
       }
       if (staff.onShift(actor)) {
-        choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS));
+        choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS, true));
       }
     }
     

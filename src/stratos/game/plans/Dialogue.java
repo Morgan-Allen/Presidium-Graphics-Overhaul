@@ -75,7 +75,7 @@ public class Dialogue extends Plan implements Qualities {
     this.other  = other;
     this.starts = starts == null ? this : starts;
     this.type   = type;
-    if (type == TYPE_PLEA) addMotives(MOTIVE_EMERGENCY);
+    if (type == TYPE_PLEA) toggleMotives(MOTIVE_EMERGENCY, true);
   }
   
   

@@ -229,7 +229,7 @@ public class HumanMind extends ActorMind implements Qualities {
       }
     }
     if (timeoff) {
-      choice.add(Repairs.getNextRepairFor(actor, false));
+      choice.add(Repairs.getNextRepairFor(actor, false, 0));
       choice.add(BringUtils.nextDisposalFor(actor));
     }
   }

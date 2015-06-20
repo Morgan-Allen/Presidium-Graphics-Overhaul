@@ -162,7 +162,7 @@ public class SupplyDepot extends Venue {
       if (checkCargoJobOkay(bC, cargoBarge)) choice.add(bC);
     }
     else for (CargoBarge b : barges) {
-      if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b));
+      if (Repairs.needForRepair(b) > 0) choice.add(new Repairs(actor, b, true));
       else if (b.abandoned()) choice.add(new Bringing(b, this));
     }
     //
@@ -180,7 +180,7 @@ public class SupplyDepot extends Venue {
     if (! choice.empty()) return choice.weightedPick();
     //
     //  If none of that needs doing, consider local repairs or supervision.
-    choice.add(Repairs.getNextRepairFor(actor, true));
+    choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
     choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }

@@ -70,7 +70,7 @@ public class BringStretcher extends Plan implements Qualities {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     if ((! hasBegun()) && PlanUtils.competition(this, patient, actor) > 0) {
       return null;
     }

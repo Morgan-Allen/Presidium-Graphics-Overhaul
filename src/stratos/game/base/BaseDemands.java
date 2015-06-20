@@ -149,6 +149,7 @@ public class BaseDemands {
   public void impingeSupply(
     Object key, float amount, float period, Target at
   ) {
+    if (at == null || amount <= 0) return;
     final boolean report = verbose && key == reportKey;
     if (report) {
       I.say("\nImpinging supply for "+amount+" "+key);
@@ -174,6 +175,7 @@ public class BaseDemands {
   public void impingeDemand(
     Object key, float amount, float period, Target at
   ) {
+    if (at == null || amount <= 0) return;
     final boolean report = verbose && key == reportKey;
     if (report) {
       I.say("\nImpinging demand for "+amount+" "+key);

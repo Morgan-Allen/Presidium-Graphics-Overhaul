@@ -143,7 +143,7 @@ public class Resting extends Plan {
     }
     
     //  Include day/night effects-
-    urgency += (1 - Planet.dayValue(actor.world())) * 2 * IDLE;
+    urgency += (1 - Planet.dayValue(actor.world())) * 2 * CASUAL;
     
     //  Include location effects-
     if (restPoint == actor && ! actor.indoors()) {
@@ -186,7 +186,7 @@ public class Resting extends Plan {
     }
     //
     //  If you're tired, put your feet up.
-    if (actor.health.fatigueLevel() > Planet.dayValue(actor.world())) {
+    if (actor.health.fatigueLevel() > Planet.dayValue(actor.world()) + 0.1f) {
       currentMode = MODE_SLEEP;
     }
     else if (relaxTime > (Rand.num() + 1) * RELAX_TIME) {

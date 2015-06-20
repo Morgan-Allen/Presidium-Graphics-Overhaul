@@ -180,17 +180,19 @@ public class PhysicianStation extends Venue {
         choice.add(t);
       }
     }
-    if (! choice.empty()) return choice.pickMostUrgent();
+    final Plan treats = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
+    if (treats != null) return treats;
     //
     //  Manufacture basic medicines for later use.
     final Manufacture mS = stocks.nextManufacture(actor, REAGENTS_TO_MEDICINE);
-    if (mS != null) {
-      choice.add(mS.setBonusFrom(this, false, MEDICAL_LAB));
-    }
-    if (! choice.empty()) return choice.weightedPick();
+    if (mS != null) choice.add(mS.setBonusFrom(this, false, MEDICAL_LAB));
+
+    final Plan works = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
+    if (works != null) return works;
     //
     //  Otherwise, just tend the desk...
-    return Supervision.oversight(this, actor);
+    choice.add(Supervision.oversight(this, actor));
+    return choice.weightedPick();
   }
   
   

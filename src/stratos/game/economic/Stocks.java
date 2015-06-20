@@ -436,13 +436,11 @@ public class Stocks extends Inventory {
     final Base base = basis.base();
     final float
       amount      = amountOf(type),
-      stockShort  = relativeShortage(type),
-      
       exportPays  = base.commerce.exportPrice(type) / type.basePrice(),
       importCosts = base.commerce.importPrice(type) / type.basePrice(),
       
-      localDemand = base.demands.demandSampleFor(basis, type, 1) * 2,
-      localSupply = base.demands.supplySampleFor(basis, type, 1) * 2,
+      localDemand = base.demands.demandSampleFor(basis, type, 1),
+      localSupply = base.demands.supplySampleFor(basis, type, 1),
       tradeDemand = Nums.max(0, typeSpace * (exportPays  - 1)),
       tradeSupply = Nums.max(0, amount    * (1 - importCosts)),
       
@@ -450,7 +448,7 @@ public class Stocks extends Inventory {
     
     final float shortage = (total == 0 ? 0 : ((
       (localDemand - localSupply) - (tradeDemand - tradeSupply)
-    ) / total)) + stockShort - 0.5f;
+    ) / total));
     
     final float idealStock = Nums.max(
       localDemand + tradeDemand,
@@ -459,6 +457,14 @@ public class Stocks extends Inventory {
     
     final boolean exports = shortage < 0;
     incDemand(type, Nums.min(typeSpace, idealStock), period, exports);
+    
+    //
+    //  We halve the supply/demand levels here to ensure that we don't cause
+    //  local supply/demand signals to overwhelm the original trade-signals.
+    
+    //  TODO:  It would be better to have a separate demand-map for this,
+    //  maybe?  It ought to flow along the same channels as canTradeBetween in
+    //  BringUtils.
     if (tradeDemand > 0) {
       base.demands.impingeDemand(type, tradeDemand / 2, period, basis);
     }

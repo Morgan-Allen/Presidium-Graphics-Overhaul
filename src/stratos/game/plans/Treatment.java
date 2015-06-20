@@ -93,7 +93,7 @@ public class Treatment extends Plan implements Item.Passive {
     final Treatment treatment = new Treatment(
       treats, patient, pick.result(), null, sickbay
     );
-    if (pick.bestRating() > 0.5f) treatment.addMotives(MOTIVE_EMERGENCY);
+    treatment.toggleMotives(MOTIVE_EMERGENCY, true);
     return treatment;
   }
   
