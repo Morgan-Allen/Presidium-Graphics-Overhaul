@@ -129,7 +129,7 @@ public class DebugSocial extends Scenario {
     
     final Base artilects = Base.artilects(world);
     final Ruins ruins = new Ruins(artilects);
-    PlaceUtils.establishVenue(ruins, 20, 20, true, world);
+    SiteUtils.establishVenue(ruins, 20, 20, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
     
@@ -163,7 +163,7 @@ public class DebugSocial extends Scenario {
     final Actor
       ruler   = new Human(Backgrounds.KNIGHTED     , base),
       consort = new Human(Backgrounds.FIRST_CONSORT, base);
-    PlaceUtils.establishVenue(
+    SiteUtils.establishVenue(
       bastion, 11, 11, true, world,
       ruler, consort
     );
@@ -173,7 +173,7 @@ public class DebugSocial extends Scenario {
       for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
     }
     final TrooperLodge garrison = new TrooperLodge(base);
-    PlaceUtils.establishVenue(garrison, world.tileAt(3, 15), true, world);
+    SiteUtils.establishVenue(garrison, world.tileAt(3, 15), true, world);
     
     //
     //  Introduce some natives to contact, some distance away-
@@ -206,19 +206,19 @@ public class DebugSocial extends Scenario {
     GameSettings.paveFree  = true;
     
     final Venue applyAt = new EngineerStation(base);
-    PlaceUtils.establishVenue(applyAt, 4, 4, true, world);
+    SiteUtils.establishVenue(applyAt, 4, 4, true, world);
     
     final Venue secondary = new Cantina(base);
-    PlaceUtils.establishVenue(secondary, 4, 9, true, world);
+    SiteUtils.establishVenue(secondary, 4, 9, true, world);
     base.setup.fillVacancies(secondary, true);
     
     final Venue applyFrom = new EngineerStation(base);
-    PlaceUtils.establishVenue(applyFrom, 9, 9, true, world,
+    SiteUtils.establishVenue(applyFrom, 9, 9, true, world,
       new Human(Backgrounds.TECHNICIAN, base)
     );
     
     final Venue powers = new SolarBank(base);
-    PlaceUtils.establishVenue(powers, 9, 4, true, world);
+    SiteUtils.establishVenue(powers, 9, 4, true, world);
     
     final Actor applies = applyFrom.staff.workers().first();
     FindWork.assignAmbition(applies, Backgrounds.ARTIFICER, applyAt, 2);
@@ -233,7 +233,7 @@ public class DebugSocial extends Scenario {
     final Species species = Yamagur.SPECIES;
     
     Venue nests = species.nestBlueprint().createVenue(wild);
-    PlaceUtils.establishVenue(nests, 9, 9, true, world);
+    SiteUtils.establishVenue(nests, 9, 9, true, world);
     
     Actor fauna = species.sampleFor(wild);
     fauna.enterWorldAt(7, 7, world);
@@ -262,7 +262,7 @@ public class DebugSocial extends Scenario {
     Tile start = world.tileAt(20, 20);
     
     Bastion bastion = new Bastion(base);
-    PlaceUtils.establishVenue(bastion, start, true, world);
+    SiteUtils.establishVenue(bastion, start, true, world);
     
     Background jobs[] = { TROOPER, FABRICATOR, SUPPLY_CORPS };
     Actor tracked = null;
@@ -272,9 +272,9 @@ public class DebugSocial extends Scenario {
       if (tracked == null) tracked = a;
     }
     
-    PlaceUtils.establishVenue(new TrooperLodge(base), start, true, world);
-    PlaceUtils.establishVenue(new Fabricator  (base), start, true, world);
-    PlaceUtils.establishVenue(new SupplyDepot (base), start, true, world);
+    SiteUtils.establishVenue(new TrooperLodge(base), start, true, world);
+    SiteUtils.establishVenue(new Fabricator  (base), start, true, world);
+    SiteUtils.establishVenue(new SupplyDepot (base), start, true, world);
     UI.selection.pushSelection(tracked);
   }
   

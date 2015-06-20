@@ -198,7 +198,7 @@ public class SkinsPreview extends VisualDebug {
   
   
   private void updateModel() {
-    boolean report = verbose && I.saw60Frames;
+    boolean report = verbose && I.used60Frames;
     //
     //  First of all, see if a valid file has been specified with this path-
     final File match = new File(currentPath);

@@ -95,12 +95,35 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Placement and supply-demand functions-
     */
+  final static Siting SITING = new Siting(BLUEPRINT) {
+    
+    public float ratePointDemand(Base base, Target point, boolean exact) {
+      final Stage world = point.world();
+      final Tile under = world.tileAt(point);
+
+      final Venue station = (Venue) world.presences.nearestMatch(
+        EcologistStation.class, point, -1
+      );
+      if (station == null || station.base() != base) return -1;
+      final float distance = Spacing.distance(point, station);
+      
+      float rating = super.ratePointDemand(base, point, exact);
+      rating *= world.terrain().fertilitySample(under) * 2;
+      rating /= 1 + (distance / Stage.ZONE_SIZE);
+      return rating;
+    }
+  };
+  
+  
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     //
     //  By default, we claim an area 2 tiles larger than the basic footprint,
     //  but we can also have a larger area assigned (e.g, by a human player or
     //  by an automated placement-search.)
+    
+    //  TODO:  Try grabbing a larger area if available!
+    
     areaClaimed.setTo(footprint()).expandBy(2);
     if (area != null) areaClaimed.include(area);
     this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
@@ -116,7 +139,7 @@ public class Nursery extends Venue implements TileConstants {
       return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
-    if (! PlaceUtils.pathingOkayAround(this, areaClaimed, owningTier(), 2, world)) {
+    if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), 2, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
@@ -125,26 +148,6 @@ public class Nursery extends Venue implements TileConstants {
   
   public Box2D areaClaimed() {
     return areaClaimed;
-  }
-  
-  
-  public float ratePlacing(Target point, boolean exact) {
-    
-    final Stage world = point.world();
-    final Presences presences = world.presences;
-    final EcologistStation station = (EcologistStation) presences.nearestMatch(
-      EcologistStation.class, point, -1
-    );
-    if (station == null || station.base() != base) return -1;
-    final float distance = Spacing.distance(point, station);
-    
-    float demand = base.demands.globalShortage(Nursery.class, false);
-    final Tile under = world.tileAt(point);
-    float rating = 0;
-    rating += world.terrain().fertilitySample(under);
-    rating /= 1 + (distance / Stage.ZONE_SIZE);
-    rating *= 10 * demand;
-    return rating;
   }
   
   

@@ -98,7 +98,7 @@ public class Bastion extends Venue {
     
     //  TODO:  SORT THIS OUT IN A CLEANER WAY
     final Tile o = origin();
-    final int off[] = PlaceUtils.entranceCoords(size, size, facing);
+    final int off[] = SiteUtils.entranceCoords(size, size, facing);
     Tile e = world.tileAt(o.x + off[0], o.y + off[1]);
     this.entrance = e;
   }
@@ -120,7 +120,7 @@ public class Bastion extends Venue {
     float midRating = relX * (1 - relX) * 4 * relY * (1 - relY) * 4;
     rating *= midRating;
     
-    if (PlaceUtils.checkAreaClear(areaClaimed(), world)) rating *= 2;
+    if (SiteUtils.checkAreaClear(areaClaimed(), world)) rating *= 2;
     //
     //  TODO:  You also want to be far away from hostile venues...
     Venue nearest = (Venue) world.presences.nearestMatch(Venue.class, at, -1);

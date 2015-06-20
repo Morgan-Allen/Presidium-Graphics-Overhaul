@@ -22,6 +22,13 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   int size;
   
   
+  public List() {
+    super(null);
+    list = (List <T>) this;
+    next = last = this;
+  }
+  
+  
   /**  Returns an array with identical contents to this List- unless the list
     *  has zero elements- in which case null is returned.
     */
@@ -240,6 +247,8 @@ public class List <T> extends ListEntry <T> implements Series <T> {
     */
   protected void appendEntry(final ListEntry <T> l) {
     couple(l.last, l.next);
+    l.list = this;
+    size++;
     couple(last, l);
     couple(l, this);
   }

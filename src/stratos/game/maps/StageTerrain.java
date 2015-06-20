@@ -81,6 +81,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     int area = 0;
   }
   private Sample sampleGrid[][];
+  private Sample globalSample;
   
   
   StageTerrain(
@@ -146,9 +147,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   /**  Averages and sampling-
     */
-  //  TODO:  Consider using Mip-Maps here?
+  //  TODO:  TRY TO USE THE WILDLIFE-BASE'S DEMAND-MAP TO STORE THIS DATA
   
   private Sample sampleAt(int x, int y) {
+    if (x < 0 || y < 0) return globalSample;
     return sampleGrid[x / SAMPLE_RESOLUTION][y / SAMPLE_RESOLUTION];
   }
   
@@ -159,6 +161,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     for (Coord c : Visit.grid(0, 0, SGS, SGS, 1)) {
       sampleGrid[c.x][c.y] = new Sample();
     }
+    globalSample = new Sample();
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       incSampleAt(c.x, c.y, habitatAt(c.x, c.y), 1);
     }
@@ -173,6 +176,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     s.measures[INDEX_MINERALS       ] += h.minerals  () * inc;
     s.measures[INDEX_FERTILITY      ] += h.moisture  () * inc;
     s.area += inc;
+    if (s != globalSample) incSampleAt(-1, -1, h, inc);
   }
   
   
@@ -205,6 +209,11 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   }
   
   
+  public float globalFertility() {
+    return globalSample.measures[INDEX_FERTILITY] / 10f;
+  }
+  
+  
   public float fertilitySample(Tile t) {
     return sampleAt(t, INDEX_FERTILITY) / 10;
   }
@@ -233,10 +242,12 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   public void setHabitat(Tile t, Habitat h) {
     final Habitat old = habitats[t.x][t.y];
-    incSampleAt(t.x, t.y, old, -1);
-    habitats[t.x][t.y] = h;
+    habitats [t.x][t.y] = h;
     typeIndex[t.x][t.y] = (byte) h.ID;
-    incSampleAt(t.x, t.y, h, 1);
+    if (old != h) {
+      incSampleAt(t.x, t.y, old, -1);
+      incSampleAt(t.x, t.y, h  ,  1);
+    }
     
     t.refreshHabitat();
     for (Tile n : t.vicinity(tempV)) if (n != null) {

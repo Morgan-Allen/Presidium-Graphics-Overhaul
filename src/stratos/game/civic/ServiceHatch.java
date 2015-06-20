@@ -127,7 +127,7 @@ public class ServiceHatch extends Venue {
   
   
   private Object faceModel(Tile position, Box2D area, Coord... others) {
-    Object model = PlaceUtils.setupMergingSegment(
+    Object model = SiteUtils.setupMergingSegment(
       this, position, area, others,
       MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, ServiceHatch.class
     );

@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.BaseDemands;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Siting;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -123,16 +124,25 @@ public class Nest extends Venue {
     //
     //  Otherwise, either use local fertility for browsers, or the abundance of
     //  browsers themselves for predators.
-    final Base base = Base.wildlife(world);
+    final Base  base        = Base.wildlife(world);
     final float forageRange = forageRange(species);
     
     float foodSupply = 0;
     if (species.browser()) {
-      foodSupply = world.terrain().fertilitySample(world.tileAt(point));
-      foodSupply *= (forageRange * forageRange) / BROWSER_RATIO;
+      if (point == null) {
+        foodSupply = world.terrain().globalFertility();
+        foodSupply /= BROWSER_RATIO;
+      }
+      else {
+        foodSupply = world.terrain().fertilitySample(world.tileAt(point));
+        foodSupply *= (forageRange * forageRange) / BROWSER_RATIO;
+      }
     }
     else {
-      foodSupply = base.demands.supplyAround(
+      if (point == null) {
+        foodSupply = base.demands.globalSupply(Species.KEY_BROWSER);
+      }
+      else foodSupply = base.demands.supplyAround(
         point, Species.KEY_BROWSER, forageRange
       );
       foodSupply /= PREDATOR_RATIO;
@@ -206,7 +216,7 @@ public class Nest extends Venue {
   protected static Blueprint constructBlueprint(
     int size, int high, final Species s, final ModelAsset model
   ) {
-    return new Blueprint(
+    final Blueprint blueprint = new Blueprint(
       Nest.class, s.name+"_nest",
       s.name+" Nest", UIConstants.TYPE_HIDDEN, null, s.info,
       size, high, Structure.IS_WILD,
@@ -217,6 +227,27 @@ public class Nest extends Venue {
         return new Nest(this, base, s, model);
       }
     };
+    
+    //  TODO:  Just have a fixed population-size per nest.
+    
+    final Siting siting = new Siting(blueprint) {
+      
+      public float rateSettlementDemand(Base base) {
+        return idealPopulation(null, s, base.world);
+      }
+      
+      public float ratePointDemand(Base base, Target point, boolean exact) {
+        final Stage world = point.world();
+        final float
+          idealPop = idealPopulation(point, s, world),
+          crowding = crowdingFor    (point, s, world),
+          mass     = s.metabolism(),
+          rating   = ((int) idealPop) * mass * (1 - crowding);
+        return rating;
+      }
+    };
+    blueprint.linkWith(siting);
+    return blueprint;
   }
   
   
@@ -278,17 +309,6 @@ public class Nest extends Venue {
   
   /**  Overrides for standard venue methods-
     */
-  public float ratePlacing(Target point, boolean exact) {
-    final Stage world = point.world();
-    final float
-      idealPop = idealPopulation(point, species, world),
-      crowding = crowdingFor    (point, species, world),
-      mass     = species.metabolism(),
-      rating   = ((int) idealPop) * mass * (1 - crowding);
-    return rating;
-  }
-  
-  
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
     impingeDemands(base.demands, -1);

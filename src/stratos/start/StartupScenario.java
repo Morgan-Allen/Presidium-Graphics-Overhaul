@@ -360,7 +360,7 @@ public class StartupScenario extends Scenario {
     //  TODO:  INTRODUCE ESTABLISHMENT FOR OTHER STRUCTURES.  ...But walls
     //  should probably still go first?
     if (config.built.valueFor(ShieldWall.BLUEPRINT) > 0) {
-      final Venue wall[] = PlaceUtils.placeAroundPerimeter(
+      final Venue wall[] = SiteUtils.placeAroundPerimeter(
         ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
       );
       for (Venue v : wall) ((ShieldWall) v).updateFacing(true);

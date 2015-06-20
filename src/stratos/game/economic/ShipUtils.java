@@ -95,7 +95,7 @@ public class ShipUtils {
       //
       //  Determine the position of the entrance tile-
       final int size = (int) site.xdim();
-      final int EC[] = PlaceUtils.entranceCoords(size, size, entryFace);
+      final int EC[] = SiteUtils.entranceCoords(size, size, entryFace);
       final Tile exit = world.tileAt(site.xpos() + EC[0], site.ypos() + EC[1]);
       if (exit == null) I.complain("NO EXIT FOUND FOR "+ship);
       if (report) {
@@ -253,7 +253,7 @@ public class ShipUtils {
     }
     
     if (area != null) {
-      if (PlaceUtils.checkAreaClear(area, world)) return true;
+      if (SiteUtils.checkAreaClear(area, world)) return true;
       for (Tile t : world.tilesIn(area, false)) {
         if (t == null) return false;
         if (t.above() == ship) continue;
@@ -358,7 +358,7 @@ public class ShipUtils {
     //
     //  We then perform a general siting-pass favouring points close to these
     //  preferred collection points (and commerce-venues in general.)
-    final Siting.Pass spread = new Siting.Pass(base, null) {
+    final SitingPass spread = new SitingPass(base, null, null) {
       
       protected float ratePlacing(Target point, boolean exact) {
         Target nearest = p.nearestMatch(SERVICE_COMMERCE, point, -1);

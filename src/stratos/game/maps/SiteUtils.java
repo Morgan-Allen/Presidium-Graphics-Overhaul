@@ -15,10 +15,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  Try merging this with the TileSpread class, or the PlacementGrid
-//  class.  Placement2 can probably be got rid off completely.
-
-public class PlaceUtils implements TileConstants {
+public class SiteUtils implements TileConstants {
   
   public static boolean
     showPockets  = false;

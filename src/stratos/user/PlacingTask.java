@@ -85,7 +85,7 @@ public class PlacingTask implements UITask {
   
   
   private void setupAreaClaim(boolean tryPlacement) {
-    final boolean report = verbose && I.saw60Frames;
+    final boolean report = verbose && I.used60Frames;
     //
     //  Set up some initial variables-
     final int baseSize = placeType.size;
@@ -228,7 +228,7 @@ public class PlacingTask implements UITask {
   private void renderPlacement(
     Box2D area, Batch <Coord> placePoints, boolean canPlace
   ) {
-    if (PlaceUtils.showPockets) return;
+    if (SiteUtils.showPockets) return;
     //
     //  Base venue sprites off their current and projected neighbours!
     final Batch <Object> under = new Batch <Object> ();

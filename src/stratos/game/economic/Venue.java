@@ -168,9 +168,9 @@ public abstract class Venue extends Fixture implements
       //
       //  If your current facing is viable, stick with that.
       if (facing == FACING_INIT) facing = FACING_EAST;
-      final int off[] = PlaceUtils.entranceCoords(size, size, facing);
+      final int off[] = SiteUtils.entranceCoords(size, size, facing);
       entrance = world.tileAt(o.x + off[0], o.y + off[1]);
-      if (! PlaceUtils.isViableEntrance(this, entrance)) entrance = null;
+      if (! SiteUtils.isViableEntrance(this, entrance)) entrance = null;
     }
     if (! entranceOkay()) return false;
     return true;
@@ -233,7 +233,7 @@ public abstract class Venue extends Fixture implements
   
   protected boolean entranceOkay() {
     if (blueprint.isFixture()) return true;
-    if (entrance == null || ! PlaceUtils.isViableEntrance(this, entrance)) {
+    if (entrance == null || ! SiteUtils.isViableEntrance(this, entrance)) {
       return false;
     }
     return true;
@@ -246,7 +246,7 @@ public abstract class Venue extends Fixture implements
   
   
   protected boolean checkPerimeter(Stage world) {
-    return PlaceUtils.pathingOkayAround(this, world);
+    return SiteUtils.pathingOkayAround(this, world);
   }
   
   
@@ -545,11 +545,6 @@ public abstract class Venue extends Fixture implements
   //  By default, these do nothing.
   protected void addServices(Choice choice, Actor client) {}
   protected Behaviour jobFor(Actor actor) { return null; }
-  
-  
-  public float ratePlacing(Target point, boolean exact) {
-    return 0;
-  }
   
   
   protected void impingeSupply(boolean onEntry) {

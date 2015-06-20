@@ -94,7 +94,7 @@ public class DebugSecurity extends Scenario {
     //  around it...
     base.setup.doPlacementsFor(bastion);
     
-    final Venue walls[] = PlaceUtils.placeAroundPerimeter(
+    final Venue walls[] = SiteUtils.placeAroundPerimeter(
       ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
     );
     for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
@@ -107,7 +107,7 @@ public class DebugSecurity extends Scenario {
     
     base.commerce.assignHomeworld(Verse.PLANET_AXIS_NOVENA);
     final Venue hatch = new ServiceHatch(base);
-    PlaceUtils.establishVenue(hatch, world.tileAt(4, 4), true, world);
+    SiteUtils.establishVenue(hatch, world.tileAt(4, 4), true, world);
     
     final Base vermin = Base.vermin(world);
     /*
@@ -121,7 +121,7 @@ public class DebugSecurity extends Scenario {
     
     Venue raids = new StockExchange(base);
     raids.stocks.bumpItem(Economy.CARBS, 20);
-    PlaceUtils.establishVenue(raids, world.tileAt(20, 20), true, world);
+    SiteUtils.establishVenue(raids, world.tileAt(20, 20), true, world);
     
     enemy.mind.assignBehaviour(new Looting(
       enemy, raids, Item.withAmount(Economy.CARBS, 5), hatch
@@ -143,7 +143,7 @@ public class DebugSecurity extends Scenario {
   private void breedingScenario(Stage world, Base base, BaseUI UI) {
     final Actor ecologist = new Human(Backgrounds.ECOLOGIST, base);
     final Venue station = new EcologistStation(base);
-    PlaceUtils.establishVenue(station, 10, 10, true, world, ecologist);
+    SiteUtils.establishVenue(station, 10, 10, true, world, ecologist);
     
     station.stocks.bumpItem(Economy.CARBS  , 5);
     station.stocks.bumpItem(Economy.PROTEIN, 5);
@@ -162,14 +162,14 @@ public class DebugSecurity extends Scenario {
   private void arrestScenario(Stage world, Base base, BaseUI UI) {
     final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
     final Venue runnerMarket = new RunnerMarket(base);
-    PlaceUtils.establishVenue(runnerMarket, 10,  5, true, world, runner);
+    SiteUtils.establishVenue(runnerMarket, 10,  5, true, world, runner);
     
     final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);
     final Venue looted = new StockExchange(base);
     for (Traded t : Economy.ALL_FOOD_TYPES) {
       looted.stocks.bumpItem(t, 10);
     }
-    PlaceUtils.establishVenue(looted, 5, 10, true, world, vendor);
+    SiteUtils.establishVenue(looted, 5, 10, true, world, vendor);
 
     final Looting loots = new Looting(
       runner, looted, Item.withAmount(Economy.GREENS, 1), runnerMarket
@@ -180,7 +180,7 @@ public class DebugSecurity extends Scenario {
     
     final Actor enforcer = new Human(Backgrounds.ENFORCER, base);
     final Venue enforcerBloc = new EnforcerBloc(base);
-    PlaceUtils.establishVenue(enforcerBloc, 5, 20, true, world, enforcer);
+    SiteUtils.establishVenue(enforcerBloc, 5, 20, true, world, enforcer);
     
     final Arrest arrests = new Arrest(enforcer, runner);
     enforcer.mind.assignBehaviour(arrests);
@@ -220,7 +220,7 @@ public class DebugSecurity extends Scenario {
     
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
-    PlaceUtils.establishVenue(bastion, 11, 11, true, world);
+    SiteUtils.establishVenue(bastion, 11, 11, true, world);
     base.setup.fillVacancies(bastion, true);
     
     //  And introduce ruins, with a complement of artilects.
@@ -228,7 +228,7 @@ public class DebugSecurity extends Scenario {
     artilects.relations.setRelation(base, -0.5f, true);
     
     final Ruins ruins = new Ruins(artilects);
-    PlaceUtils.establishVenue(ruins, 44, 44, true, world);
+    SiteUtils.establishVenue(ruins, 44, 44, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
     artilects.setup.doPlacementsFor(ruins);

@@ -123,7 +123,7 @@ public class ShieldWall extends Venue {
   
   
   private Object faceModel(Tile position, Box2D area, Coord... others) {
-    Object model = PlaceUtils.setupMergingSegment(
+    Object model = SiteUtils.setupMergingSegment(
       this, position, area, others,
       CAPS_X_AXIS, CAPS_Y_AXIS, MODEL_HUB, ShieldWall.class
     );

@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.maps.Siting;
 import stratos.graphics.widgets.HUD;
 import stratos.user.*;
 import stratos.util.*;
@@ -59,7 +60,9 @@ public class MissionStrike extends Mission {
     
     float targetValue = 0;
     if (subject instanceof Venue) {
-      targetValue = ((Venue) subject).ratePlacing(subject, false);
+      final Venue v = (Venue) subject;
+      final Siting s = v.blueprint.siting();
+      targetValue = s == null ? 0 : s.ratePointDemand(v.base(), v, false);
       targetValue = Nums.clamp(targetValue / BaseSetup.MAX_PLACE_RATING, 0, 1);
     }
     if (subject instanceof Actor) {

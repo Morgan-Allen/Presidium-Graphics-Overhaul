@@ -17,9 +17,8 @@ public class ListEntry <T> {
   protected List <T> list;
   
   
-  protected ListEntry() {
-    refers = null;
-    list = (List <T>) this;
+  protected ListEntry(T refers) {
+    this.refers = refers;
     next = last = this;
   }
   

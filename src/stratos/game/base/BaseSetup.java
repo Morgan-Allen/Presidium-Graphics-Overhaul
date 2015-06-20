@@ -7,11 +7,10 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
+import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.user.notify.*;
 
 
 
@@ -33,6 +32,7 @@ public class BaseSetup {
     DEFAULT_PLACE_HP  = 50,
     MAX_PLACE_RATING  = 10;
   final static int
+    MAX_SITINGS_IN_PASS   = 5,
     DEFAULT_VENUE_SAMPLES = 5,
     DEFAULT_CHAT_SAMPLES  = 5;
   
@@ -41,27 +41,8 @@ public class BaseSetup {
   final Base  base ;
   //
   //  Data structures for conducting time-sliced placement of private venues:
-  protected Blueprint canPlace[];
-  static class Siting {
-    Venue        sample   ;
-    StageRegion placed   ;
-    Tile         exactTile;
-    float        rating   ;
-  }
-  final Sorting <Siting> sitings = new Sorting <Siting> () {
-    public int compare(Siting a, Siting b) {
-      if (a.rating > b.rating) return  1;
-      if (b.rating > a.rating) return -1;
-      return 0;
-    }
-  };
-  //
-  //  State variables for time-sliced placement-evaluation:
-  private int   initPlaceCount = -1;  //  Total placements at start of cycle
-  private float lastEval       = -1;  //  Last evaluation time within cycle
-  private float totalBuildHP   =  0;  //  Total HP placed during this cycle
-  private Batch <Venue> allPlaced = new Batch <Venue> ();
-  
+  private Blueprint canPlace[];
+  private List <SitingPass> passes = new List();
   
   
   public BaseSetup(Base base, Stage world, Blueprint... canPlace) {
@@ -73,38 +54,14 @@ public class BaseSetup {
   
   public void loadState(Session s) throws Exception {
     canPlace = (Blueprint[]) s.loadObjectArray(Blueprint.class);
-    
-    final int numP = s.loadInt();
-    for (int n = numP ; n-- > 0;) {
-      final Siting p = new Siting();
-      p.sample    = (Venue       ) s.loadObject();
-      p.placed    = (StageRegion) s.loadTarget();
-      p.exactTile = (Tile        ) s.loadTarget();
-      p.rating    =                s.loadFloat ();
-      sitings.add(p);
-    }
-    
-    initPlaceCount = s.loadInt  ();
-    lastEval       = s.loadFloat();
-    totalBuildHP = s.loadFloat();
-    s.loadObjects(allPlaced);
+    for (int n = s.loadInt(); n-- > 0;) passes.add(SitingPass.loadPass(s));
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObjectArray(canPlace);
-    
-    s.saveInt(sitings.size());
-    for (Siting p : sitings) {
-      s.saveObject(p.sample   );
-      s.saveTarget(p.placed   );
-      s.saveTarget(p.exactTile);
-      s.saveFloat (p.rating   );
-    }
-    s.saveInt  (initPlaceCount);
-    s.saveFloat(lastEval      );
-    s.saveFloat(totalBuildHP);
-    s.saveObjects(allPlaced);
+    s.saveInt(passes.size());
+    for (SitingPass pass : passes) SitingPass.savePass(pass, s);
   }
   
   
@@ -121,205 +78,111 @@ public class BaseSetup {
   
   /**  Time-sliced automation of building-placement methods-
     */
-  //  TODO:  Try to unify this with the placement methods below...
-  
   public Batch <Venue> doFullPlacements(Blueprint... types) {
-    final Batch <Venue> placed = new Batch <Venue> ();
-    
-    for (StageRegion section : world.sections.sectionsUnder(world.area(), 0)) {
-      for (Blueprint p : types) {
-        final Venue v = p.createVenue(base);
-        float x = section.absX + Rand.index(section.size);
-        float y = section.absY + Rand.index(section.size);
-        v.setupWith(world.tileAt(x, y), null);
-        if (! v.canPlace()) continue;
-        final float rating = v.ratePlacing(world.tileAt(v), false);
-        if (rating <= 0) continue;
-        v.enterWorld();
-        v.structure.setState(Structure.STATE_INTACT, 1);
-        placed.add(v);
-      }
+    final Batch <Venue> placed = new Batch();
+    for (Blueprint type : types) {
+      final Siting siting = type.siting();
+      if (siting == null) continue;
+      int demand = Nums.round(siting.rateSettlementDemand(base), 1, true);
+      Visit.appendTo(placed, doPlacementsFor(type, demand));
     }
     return placed;
   }
   
-  
-  //  TODO:  Permit hints as to preferred placement-location, and an argument
-  //  for instant-placement.
-  public Batch <Venue> doPlacementsFor(Blueprint type, int count) {
-    final Venue toPlace[] = new Venue[count];
-    for (int n = count; n-- > 0;) toPlace[n] = type.createVenue(base);
-    return doPlacementsFor(toPlace);
+
+  public Batch <Venue> doPlacementsFor(Blueprint type, int demand) {
+    final Batch <Venue> placed = new Batch();
+    if (type.siting() == null) return placed;
+    while (demand-- > 0) {
+      final Venue toPlace = type.createVenue(base);
+      final SitingPass pass = new SitingPass(base, type.siting(), toPlace);
+      doSitingPass(pass, placed, 1);
+    }
+    return placed;
   }
   
-  
+
   public Batch <Venue> doPlacementsFor(Venue... toPlace) {
-    final boolean report = verbose && BaseUI.currentPlayed() == base;
-    
-    for (Venue placing : toPlace) {
-      rankSectionPlacings(new Venue[] {placing}, report);
-      attemptPlacements(sitings.size(), -1, true, report);
+    final Batch <Venue> placed = new Batch();
+    for (Venue v : toPlace) {
+      if (v.blueprint.siting() == null) continue;
+      final SitingPass pass = new SitingPass(base, v.blueprint.siting(), v);
+      doSitingPass(pass, placed, 1);
     }
-    
-    final Batch <Venue> placed = new Batch <Venue> ();
-    Visit.appendTo(placed, allPlaced);
-    allPlaced.clear();
-    sitings.clear();
     return placed;
+  }
+  
+  
+  private boolean doSitingPass(
+    SitingPass pass, Batch <Venue> placed, float fraction
+  ) {
+    if (fraction >= 1) pass.performFullPass();
+    else pass.performPassFraction(fraction);
+    
+    if (pass.success()) {
+      final Tile point = pass.pointPicked();
+      I.say("VENUE BEING PLACED: "+pass.placed.hashCode()+" AT "+point);
+      
+      pass.placed.setupWith(point, null);
+      pass.placed.doPlacement(true);
+      if (placed != null) placed.add(pass.placed);
+      return true;
+    }
+    return false;
   }
   
   
   public void updatePlacements() {
-    final boolean report = verbose && (BaseUI.currentPlayed() == base);
-    //
-    //  If the set of placings has been exhausted, then it's time for a new
-    //  cycle of evaluations.  Rank potential sites and reset the build-total.
-    if (sitings.size() == 0) {
-      final Venue samples[] = Blueprint.sampleVenues(
-        Owner.TIER_PRIVATE, canPlace
-      );
-      rankSectionPlacings(samples, report);
-      initPlaceCount = sitings.size();
-      if (report && initPlaceCount > 0) {
-        I.say("\nFinished ranking sections!");
-      }
-      totalBuildHP = 0;
-      allPlaced.clear();
-      return;
-    }
-    //
-    //  Calculate the total limit of building-placement for the cycle (this
-    //  shouldn't change much, but anyway...)
-    //  TODO:  Also base off finances, labour force, and the amount of
-    //  structures currently in need of repairs, et cetera.
-    float buildLimit = 0;
-    buildLimit = Nums.log(10, 1 + base.relations.population());
-    buildLimit *= DEFAULT_PLACE_HP;
-    final float evalPeriod = shortCycle ? SHORT_EVAL_PERIOD : FULL_EVAL_PERIOD;
-    //
-    //  Then calculate how many sites we can evaluate during this fraction of
-    //  the full cycle.
-    final float time = world.currentTime();
-    if (lastEval == -1) lastEval = time;
-    int numIters = 0;
-    numIters += initPlaceCount * time     / evalPeriod;
-    numIters -= initPlaceCount * lastEval / evalPeriod;
-    if (numIters <= 0) return;
-    //
-    //  And perform the actual placement attempts-
-    else lastEval = time;
-    if (report) {
-      I.say("\nPlacement iterations: "+numIters+"/"+initPlaceCount);
-      I.say("  Sitings remaining: "+sitings.size());
-    }
-    attemptPlacements(numIters, buildLimit, false, report);
-  }
-  
-  
-  private void rankSectionPlacings(Venue samples[], boolean report) {
     
-    sitings.clear();
-    if (report) {
-      I.say("\nAttempting to gather section rankings...");
-      I.say("  Time: "+base.world.currentTime());
-      I.say("  Total venue types: "+samples.length);
+    final float interval = shortCycle ?
+      SHORT_EVAL_PERIOD :
+      FULL_EVAL_PERIOD  ;
+    for (SitingPass pass : passes) {
+      final float fraction = 1 / (interval * passes.size());
+      doSitingPass(pass, null, fraction);
+      if (pass.complete()) passes.remove(pass);
     }
     
-    for (StageRegion section : world.sections.sectionsUnder(world.area(), 0)) {
-      for (Venue sample : samples) {
-        sample.assignBase(base);
-        final Siting p = new Siting();
-        p.sample    = sample ;
-        p.placed    = section;
-        p.exactTile = null   ;
-        p.rating    = sample.ratePlacing(section, false);
-        //
-        //  We add placements regardless of rating, but cull them during the
-        //  attempt-phases (see below.)
-        sitings.add(p);
-      }
-    }
-    
-    if (report) for (Siting p : sitings) if (p.rating > 0) {
-      descPlacing("  Ranking placement: ", p);
-    }
-  }
-  
-  
-  private void attemptPlacements(
-    int maxChecked, float buildLimit, boolean intact, boolean report
-  ) {
-    while (maxChecked-- > 0 && sitings.size() > 0) {
-      final Siting best  = sitings.removeGreatest();
-      final Venue sample = best.sample;
-      if (buildLimit > 0 && totalBuildHP > buildLimit) continue;
-      if (best.rating <= 0) {
-        if (report) {
-          I.say("\nCulling placement of "+sample);
-          I.say("  Rough location: "+best.placed);
-          I.say("  Rating was:     "+best.rating);
+    if (passes.empty() && canPlace != null) {
+      final List <SitingPass> sorting = new List <SitingPass> () {
+        protected float queuePriority(SitingPass pass) { return pass.rating; }
+      };
+      
+      for (Blueprint type : canPlace) if (canSite(type)) {
+        final float demand = type.siting().rateSettlementDemand(base);
+        if (demand > 0) {
+          final Venue toPlace = type.createVenue(base);
+          final SitingPass pass = new SitingPass(base, type.siting(), toPlace);
+          pass.rating = demand;
+          sorting.add(pass);
         }
-        continue;
       }
-      if (report) {
-        I.say("\nAttempting placement at best site for "+sample);
-        I.say("  Rough location: "+best.placed);
-        I.say("  Rating was:     "+best.rating);
+      
+      sorting.queueSort();
+      while (passes.size() < MAX_SITINGS_IN_PASS && ! sorting.empty()) {
+        passes.add(sorting.removeLast());
       }
-      if (attemptExactPlacement(best, sample, intact, report)) {
-        removeSitings(sample);
-      }
-      else if (report) I.say("  No suitable site found.");
     }
   }
   
   
-  private void removeSitings(Venue sample) {
-    final Batch <Siting> remains = new Batch <Siting> ();
-    while (sitings.size() > 0) {
-      final Siting s = sitings.removeLeast();
-      if (s.sample != sample) remains.add(s);
-    }
-    Visit.appendTo(sitings, remains);
-  }
-  
-  
-  private boolean attemptExactPlacement(
-    Siting placing, Venue sample, boolean intact, boolean report
-  ) {
-    final Pick <Tile> sitePick = new Pick <Tile> ();
-    final Box2D tempA = new Box2D();
+  private boolean canSite(Blueprint type) {
+    if (type == null || type.siting() == null) return false;
     
-    for (Tile t : world.tilesIn(placing.placed.area, false)) {
-      sample.setupWith(t, t.area(tempA));
-      if (! sample.canPlace()) continue;
-      final float rating = sample.ratePlacing(t, true);
-      sitePick.compare(t, rating);
-    }
+    //  TODO:  You also need to skip over certain venue-types, depending
+    //  on just how much autonomy/discretion the AI might have in different
+    //  areas of the map.
     
-    if (sitePick.empty()) {
-      if (report) I.say("  No room for placement!");
-      return false;
-    }
-    if (sitePick.bestRating() <= 0) {
-      if (report) I.say("  Best rating negative: "+sitePick.bestRating());
-      return false;
-    }
-    final Tile bestSite = sitePick.result();
-    sample.setupWith(bestSite, null);
-    sample.doPlacement(intact);
     
-    allPlaced.add(sample);
-    totalBuildHP += sample.structure.maxIntegrity();
-    
-    if (report) {
-      I.say("\nPlacing "+sample+" at "+bestSite);
-      I.say("  Rating:       "+sitePick.bestRating());
-      I.say("  Integrity:    "+sample.structure.maxIntegrity());
-      I.say("  Total so far: "+totalBuildHP);
+    if (type.owningTier > Owner.TIER_PRIVATE) {
+      if (base.advice.controlLevel() < BaseAdvice.LEVEL_TOTAL) return false;
+    }
+    else {
+      if (base.advice.controlLevel() < BaseAdvice.LEVEL_ADVISOR) return false;
     }
     return true;
   }
+  
   
   
   /**  Establishing base personnel:
@@ -428,24 +291,5 @@ public class BaseSetup {
     }
     establishRelations(among);
   }
-  
-  
-  
-  /** Feedback and debug methods-
-    */
-  private void descPlacing(String desc, Siting best) {
-    I.say(
-      "  "+desc+""+best.sample+
-      " "+best.placed.absX+"/"+best.placed.absY+
-      ", rating: "+best.rating
-    );
-  }
-  
 }
-
-
-
-
-
-
 

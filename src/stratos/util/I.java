@@ -26,7 +26,7 @@ public class I {
   
   public static boolean mute = false;
   public static Object talkAbout = null;
-  public static boolean saw60Frames = false;
+  public static boolean used60Frames = false;
   
   final public static boolean
     AM_INSIDE_JAR ,
