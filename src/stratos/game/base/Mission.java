@@ -181,15 +181,15 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public static float rewardFor(int priority) {
+    return REWARD_AMOUNTS[Nums.clamp(priority, LIMIT_PRIORITY)];
+  }
+  
+  
   
   /**  General life-cycle, justification and setup methods-
     */
   public abstract float rateImportance(Base base);
-  
-  
-  //  TODO:  Make use of this
-  public void toggleActive(boolean is) {
-  }
 
   
   public void updateMission() {
@@ -478,8 +478,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   private Action nextWaitAction(Actor actor, Role role) {
-    if (true) return null;
-    
     if (role == null || ! role.approved) return null;
     if (actor.senses.isEmergency()) return null;
     

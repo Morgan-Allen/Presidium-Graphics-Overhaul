@@ -170,7 +170,7 @@ public class Reactor extends Venue {
     }
     //
     //  Failing that, just keep the place in order-
-    choice.add(new Repairs(actor, this));
+    choice.add(new Repairs(actor, this, true));
     choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }

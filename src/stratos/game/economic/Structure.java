@@ -30,7 +30,7 @@ public class Structure {
     */
   final public static int
     DEFAULT_INTEGRITY  = 100,
-    DEFAULT_ARMOUR     = 1  ,
+    DEFAULT_ARMOUR     = 2  ,
     DEFAULT_CLOAKING   = 0  ,
     DEFAULT_BUILD_COST = 50 ,
     DEFAULT_AMBIENCE   = 0  ;
@@ -242,11 +242,12 @@ public class Structure {
       I.say("  Integrity: "+integrity+"/"+maxIntegrity());
     }
     
+    final int CHECK_PERIOD = 10;
     if (integrity <= 0 && state != STATE_INSTALL) {
       adjustRepair(-1);
       return;
     }
-    if (numUpdates % 5 == 0) checkMaintenance();
+    if (numUpdates % CHECK_PERIOD == 0) checkMaintenance();
     //
     //  Firstly, check to see if you're still burning-
     if (burning) {
@@ -258,17 +259,19 @@ public class Structure {
     //
     //  Then, check for gradual wear and tear-
     if (
-      (numUpdates % 10 == 0) &&
+      (numUpdates % CHECK_PERIOD == 0) &&
       takesWear() && (integrity > 0)
     ) {
-      float wear = 10f / Stage.STANDARD_DAY_LENGTH;
-      wear *= baseIntegrity / GameSettings.ITEM_WEAR_DAYS;
-      if (Blueprint.hasProperty(this, IS_FIXTURE)) wear /= 2;
+      float wear = baseIntegrity / GameSettings.ITEM_WEAR_DAYS;
+      wear *= DEFAULT_ARMOUR * 2f / (DEFAULT_ARMOUR + armouring);
+      if (Blueprint.hasProperty(this, IS_FIXTURE)) wear /= 5;
       if (Blueprint.hasProperty(this, IS_CRAFTED)) wear *= 2;
-      if (report) I.say("  Wear level: "+wear);
-      if (Rand.num() > armouring / (armouring + DEFAULT_ARMOUR)) {
-        takeDamage(wear * Rand.num() * 2);
+      if (report) {
+        I.say("  Taking wear...");
+        I.say("  Wear per day: "+wear+"/"+baseIntegrity);
       }
+      wear *= CHECK_PERIOD * 1f / Stage.STANDARD_DAY_LENGTH;
+      takeDamage(wear * Rand.num() * 2);
     }
     //
     //  And finally, organic structures can regenerate health-
@@ -283,7 +286,7 @@ public class Structure {
   /**  General state queries-
     */
   public int maxIntegrity() { return baseIntegrity + upgradeHP(); }
-  public int maxUpgrades() { return upgrades == null ? 0 : maxUpgrades; }
+  public int maxUpgrades () { return upgrades == null ? 0 : maxUpgrades; }
   public int currentState() { return state; }
   
   public int cloaking()  { return cloaking ; }
@@ -320,6 +323,11 @@ public class Structure {
   
   public boolean isFixture() {
     return Blueprint.hasProperty(this, IS_FIXTURE);
+  }
+  
+  
+  public boolean isLinear() {
+    return Blueprint.hasProperty(this, IS_LINEAR);
   }
   
   

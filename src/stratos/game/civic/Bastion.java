@@ -285,7 +285,7 @@ public class Bastion extends Venue {
     //  Then, assign any tasks for regular maintenance and security staff-
     final Choice choice = new Choice(actor);
     if (v == Backgrounds.TECHNICIAN) {
-      choice.add(Repairs.getNextRepairFor(actor, true));
+      choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
     }
     if (v == AUDITOR || v == MINISTER_FOR_ACCOUNTS) {
       if (staff.onShift(actor)) {

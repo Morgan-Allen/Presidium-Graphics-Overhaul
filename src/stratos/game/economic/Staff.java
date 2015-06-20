@@ -74,7 +74,7 @@ public class Staff {
   
   
   public boolean unoccupied() {
-    return lodgers.size() == 0;
+    return lodgers.size() == 0 && workers.size() == 0;
   }
   
   

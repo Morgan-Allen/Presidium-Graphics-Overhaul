@@ -23,6 +23,7 @@ public class Activities {
   final Stage world;
   final Table <Target   , List <Behaviour>> activeTable = new Table(1000);
   final Table <Behaviour, Target          > activeFoci  = new Table(1000);
+  final private Batch NONE = new Batch();
   
   
   public Activities(Stage world) {
@@ -122,12 +123,10 @@ public class Activities {
   }
   
   
-  public Batch <Behaviour> allTargeting(Target t) {
-    final Batch <Behaviour> batch = new Batch <Behaviour> ();
+  public Series <Behaviour> allTargeting(Target t) {
     final List <Behaviour> onTarget = activeTable.get(t);
-    if (onTarget == null) return batch;
-    for (Behaviour b : onTarget) batch.add(b);
-    return batch;
+    if (onTarget == null) return NONE;
+    return onTarget;
   }
   
   

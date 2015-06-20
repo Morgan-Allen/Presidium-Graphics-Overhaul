@@ -402,8 +402,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public Plan addMotives(int props) {
-    return addMotives(props, 0);
+  public Plan toggleMotives(int props, boolean has) {
+    if (has) properties |= props;
+    else properties &= ~ props;
+    this.lastEvalTime = -1    ;
+    return this;
   }
   
   

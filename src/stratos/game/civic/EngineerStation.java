@@ -189,9 +189,10 @@ public class EngineerStation extends Venue {
     final Choice choice = new Choice(actor);
     //
     //  Consider contributing toward local repairs-
-    choice.add(Repairs.getNextRepairFor(actor, true));
-    if (actor.mind.vocation() == TECHNICIAN && ! choice.empty()) {
-      return choice.pickMostUrgent();
+    choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
+    final Plan building = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
+    if (actor.mind.vocation() == TECHNICIAN && building != null) {
+      return building;
     }
     //
     //  Consider special commissions for weapons and armour-
@@ -200,8 +201,10 @@ public class EngineerStation extends Venue {
       final Upgrade forType = upgradeFor(ordered.type);
       choice.add(mO.setBonusFrom(this, true, forType));
     }
-    if (actor.mind.vocation() == ARTIFICER && ! choice.empty()) {
-      return choice.pickMostUrgent();
+
+    final Plan crafting = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
+    if (actor.mind.vocation() == ARTIFICER && crafting != null) {
+      return crafting;
     }
     //
     //  Consider the production of general bulk commodities-

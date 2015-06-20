@@ -38,7 +38,7 @@ public class MissionPane extends SelectionPane {
     //  first-
     final Description d = detail(), l = listing();
     final List <Actor> applied = mission.applicants();
-    final boolean canChange = ! mission.hasBegun();
+    boolean canChange = UI.played() == mission.base() && ! mission.hasBegun();
     //
     //  Then, we fill up the left-hand pane with broad mission parameters and
     //  commands:
@@ -148,13 +148,17 @@ public class MissionPane extends SelectionPane {
     //  being confirmed.)
     d.append("\n  Reward offered:  ");
     final int priority = mission.assignedPriority();
+    final float nextAmount = Mission.rewardFor(priority + 1);
+    final boolean canPay = mission.base().finance.credits() > nextAmount;
+    
     String payDesc = (priority == 0 || type == TYPE_BASE_AI) ?  "None" :
       REWARD_AMOUNTS[priority]+" credits"
     ;
+    if (! canPay) payDesc+=" (Can't afford increase!)";
     
-    final boolean canAdjust = canChange || (
+    final boolean canAdjust = canPay && (canChange || (
       type == TYPE_PUBLIC && priority < PRIORITY_PARAMOUNT
-    );
+    ));
     if (canAdjust) d.append(new Description.Link(payDesc) {
       public void whenClicked() {
         if (priority == PRIORITY_PARAMOUNT) mission.assignPriority(0);

@@ -332,7 +332,7 @@ public class TutorialScenario extends StartupScenario {
     for (Actor a : bastion.staff.workers()) {
       if (a.mind.vocation() == Backgrounds.TECHNICIAN) {
         Venue built = (num++ % 2 == 0) ? marketBuilt : foundryBuilt;
-        final Repairs build = new Repairs(a, built);
+        final Repairs build = new Repairs(a, built, true);
         build.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
         a.mind.assignBehaviour(build);
       }

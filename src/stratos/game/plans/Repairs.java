@@ -34,7 +34,7 @@ public class Repairs extends Plan {
   
   final public static float
     TIME_PER_25_HP     = Stage.STANDARD_HOUR_LENGTH / 5,
-    MIN_SERVICE_DAMAGE = 0.25f,
+    MIN_SERVICE_DAMAGE = 0.1f ,
     MAX_HELP_PER_25_HP = 0.5f ,
     BUILDS_COST_MULT   = 1.0f ,
     SALVAGE_COST_MULT  = 0.5f ,
@@ -45,15 +45,18 @@ public class Repairs extends Plan {
   private int repairType = REPAIR_REPAIR;
   
   
-  public Repairs(Actor actor, Placeable repaired) {
-    this(actor, repaired, ASSEMBLY);
+  public Repairs(Actor actor, Placeable repaired, boolean asJob) {
+    this(actor, repaired, ASSEMBLY, asJob);
   }
   
   
-  public Repairs(Actor actor, Placeable repaired, Skill skillUsed) {
+  public Repairs(
+    Actor actor, Placeable repaired, Skill skillUsed, boolean asJob
+  ) {
     super(actor, (Target) repaired, NO_PROPERTIES, REAL_HELP);
-    this.built = repaired;
+    this.built     = repaired ;
     this.skillUsed = skillUsed;
+    if (asJob) toggleMotives(MOTIVE_JOB, true);
   }
   
   
@@ -74,7 +77,7 @@ public class Repairs extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new Repairs(other, built, skillUsed);
+    return new Repairs(other, built, skillUsed, isJob());
   }
   
   
@@ -92,14 +95,20 @@ public class Repairs extends Plan {
     else if (wear < min) needRepair = wear * 0.5f / min;
     else needRepair = 0.5f + ((wear - min) / (1 - min));
     
-    if (structure.burning()) needRepair += 1.0f;
+    if (structure.burning     ()) needRepair += 1.0f;
     if (structure.needsUpgrade()) needRepair = Nums.max(needRepair, 1);
+
+    if (structure.isFixture()) needRepair *= 0.75f;
+    if (structure.isLinear ()) needRepair *= 0.75f;
+    
     return needRepair;
   }
   
   
-  public static Plan getNextRepairFor(Actor client, boolean asDuty) {
-    final Stage world = client.world();
+  public static Plan getNextRepairFor(
+    Actor client, boolean asDuty, float minDamage
+  ) {
+    final Stage  world  = client.world();
     final Choice choice = new Choice(client);
     final boolean report = I.talkAbout == client && evalVerbose;
     choice.isVerbose = report;
@@ -111,15 +120,14 @@ public class Repairs extends Plan {
       client, world, 3, toRepair, Structure.DAMAGE_KEY
     );
     for (Placeable near : toRepair) {
+      final float need = needForRepair(near);
       if (near.base() != client.base()) continue;
-      if (needForRepair(near) <= 0) continue;
-      final Repairs b = new Repairs(client, near);
-      if (asDuty) b.addMotives(Plan.MOTIVE_JOB);
-      choice.add(b);
+      if (need <= minDamage) continue;
+      choice.add(new Repairs(client, near, asDuty));
       
       if (report) {
         I.say("\n  "+near+" needs repair?");
-        I.say("  Need is: "+needForRepair(near));
+        I.say("  Need is:       "+need);
         I.say("  Needs upgrade? "+near.structure().needsUpgrade());
       }
     }
@@ -163,8 +171,6 @@ public class Repairs extends Plan {
       I.say("  Repair level: "+built.structure().repairLevel());
       I.say("  Urgency:      "+urgency  );
       I.say("  Help limit:   "+helpLimit);
-      //I.say("  Skill level:  "+actor.traits.usedLevel(skillUsed  ));
-      //I.say("  Labour level: "+actor.traits.usedLevel(HARD_LABOUR));
       I.say("  Competence    "+competence());
     }
     return priority;
@@ -238,7 +244,7 @@ public class Repairs extends Plan {
       }
     }
     
-    if (structure.needsUpgrade() && structure.goodCondition()) {
+    if (structure.needsUpgrade() && structure.repairLevel() >= 1) {
       final Action upgrades = new Action(
         actor, built,
         this, "actionUpgrade",
@@ -405,8 +411,8 @@ public class Repairs extends Plan {
       }
     }
     else {
-      success *= actor.skills.test(skillUsed, 10, 0.5f) ? 1 : 0.5f;
-      success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
+      success *= actor.skills.test(skillUsed, ROUTINE_DC  , 0.5f) ? 1 : 0.5f;
+      success *= actor.skills.test(skillUsed, DIFFICULT_DC, 0.5f) ? 2 : 1   ;
       final boolean intact = structure.intact();
       final float amount = structure.repairBy(success);
       if (! free) {

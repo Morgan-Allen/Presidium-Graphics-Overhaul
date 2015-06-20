@@ -94,7 +94,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
     urgency = Nums.clamp(relDanger / patrolled.size(), 0, 1);
     
     float modifier = 0 - actor.senses.fearLevel();
-    if (actor.senses.isEmergency()) addMotives(MOTIVE_EMERGENCY);
+    toggleMotives(MOTIVE_EMERGENCY, actor.senses.isEmergency());
     
     if (! PlanUtils.isArmed(actor)) setCompetence(0);
     else setCompetence(successChanceFor(actor));
@@ -152,7 +152,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
       choice.add(new FirstAid(actor, (Actor) guarded).setMotivesFrom(this, 0));
     }
     if (guarded instanceof Venue) {
-      choice.add(new Repairs (actor, (Venue) guarded).setMotivesFrom(this, 0));
+      choice.add(new Repairs (actor, (Venue) guarded, isJob()));
     }
     final Behaviour picked = choice.pickMostUrgent();
     if (Choice.wouldSwitch(actor, old, picked, true, report)) {

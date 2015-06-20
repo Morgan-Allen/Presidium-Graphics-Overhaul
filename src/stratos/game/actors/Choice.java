@@ -90,6 +90,13 @@ public class Choice implements Qualities {
   /**  Picks a plan from those assigned earlier using priorities to weight the
     *  likelihood of their selection.
     */
+  public Behaviour pickMostUrgent(float minPriority) {
+    final Behaviour b = weightedPick(false);
+    if (b == null || b.priorityFor(actor) < minPriority) return null;
+    else return b;
+  }
+  
+  
   public Behaviour pickMostUrgent() {
     return weightedPick(false);
   }

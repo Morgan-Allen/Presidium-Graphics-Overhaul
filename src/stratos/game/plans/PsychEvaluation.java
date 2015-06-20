@@ -24,7 +24,6 @@ public class PsychEvaluation extends Treatment {
     Actor treats, Actor patient, Condition treated, Boarding sickbay
   ) {
     super(treats, patient, Conditions.POOR_MORALE, null, sickbay);
-    addMotives(MOTIVE_JOB);
   }
   
   

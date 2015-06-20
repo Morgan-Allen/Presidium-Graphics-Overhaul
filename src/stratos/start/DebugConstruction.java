@@ -99,7 +99,7 @@ public class DebugConstruction extends Scenario {
     built.setupWith(world.tileAt(12, 12), null);
     built.doPlacement(false);
     
-    final Repairs job = new Repairs(tracks, built);
+    final Repairs job = new Repairs(tracks, built, true);
     job.addMotives(Plan.MOTIVE_JOB, Plan.PARAMOUNT);
     tracks.mind.assignBehaviour(job);
   }

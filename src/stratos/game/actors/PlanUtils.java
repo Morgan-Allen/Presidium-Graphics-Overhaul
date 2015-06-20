@@ -226,7 +226,7 @@ public class PlanUtils {
     incentive = novelty * 5 * Nums.clamp(sightChance, 0, 1);
     incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
     incentive += rewardBonus;
-
+    
     retreatUrge = PlanUtils.retreatPriority(actor, surveyed);
     priority = incentive - (retreatUrge / 2);
     
@@ -428,9 +428,9 @@ public class PlanUtils {
     for (Behaviour b : world.activities.allTargeting(t)) {
       if (b instanceof Plan) {
         final Plan plan = (Plan) b;
-        if (plan.actor() == actor) continue;
+        if (plan.actor() == actor || ! plan.actor.health.conscious()) continue;
         if (! plan.matchesPlan(match)) continue;
-        competition += plan.successChanceFor(plan.actor());
+        competition += plan.competence();
       }
     }
     return competition;

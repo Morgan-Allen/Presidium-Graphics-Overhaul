@@ -44,7 +44,7 @@ public class FirstAid extends Treatment {
   
   
   public Plan copyFor(Actor other) {
-    if (sickbay == null) sickbay = findRefuge(actor);
+    sickbay = findRefuge(actor, sickbay);
     return new FirstAid(other, patient, sickbay);
   }
   
@@ -64,19 +64,22 @@ public class FirstAid extends Treatment {
   }
   
   
-  private Boarding findRefuge(Actor actor) {
+  private Boarding findRefuge(Actor actor, Target compare) {
     final Boarding current = patient.aboard();
-    final Target t = Retreat.nearestHaven(actor, PhysicianStation.class, false);
-    return (rateHaven(current) >= rateHaven(t)) ? current : (Boarding) t;
+    if (compare == null) compare = Retreat.nearestHaven(
+      actor, PhysicianStation.class, false
+    );
+    final float rC = rateHaven(current), rT = rateHaven(compare);
+    return (rC >= rT) ? current : (Boarding) compare;
   }
   
   
   private float rateHaven(Target t) {
     //  TODO:  Consider putting this in a Pick object, and passing that on to
-    //  the retreat class...
+    //  the retreat class.
     if (! (t instanceof Venue)) return -1;
     final Venue v = (Venue) t;
-    if (v.staff().workforce() <= 0) return -1;
+    if (v.staff().unoccupied()) return -1;
     if (v instanceof PhysicianStation) return 5;
     return 2;
   }
@@ -84,9 +87,11 @@ public class FirstAid extends Treatment {
   
   
   protected float getPriority() {
-    final boolean report = I.talkAbout == actor && evalVerbose && hasBegun();
+    final boolean report =
+       I.talkAbout == actor && ! patient.health.conscious() &&
+       evalVerbose && hasBegun();
     if (report) {
-      I.say("\nGetting first aid priority for: "+patient);
+      I.say("\n"+actor+" getting first aid priority for: "+patient);
       I.say("  Conscious? "+patient.health.conscious());
       I.say("  Organic?   "+patient.health.organic  ());
       I.say("  Bleeding?  "+patient.health.bleeding ());
@@ -98,11 +103,9 @@ public class FirstAid extends Treatment {
     if (! patient.health.organic()) return 0;
     //
     //  Then, we ensure the patient is physically accessible/won't wander off-
-    if (sickbay == null) {
-      sickbay = findRefuge(actor);
-    }
+    sickbay = findRefuge(actor, sickbay);
     final Actor carries = Suspensor.carrying(patient);
-    final boolean outside = actor.aboard() != sickbay;
+    final boolean outside = patient.aboard() != sickbay;
     if (
       (carries != null && carries != actor) ||
       (outside && patient.health.conscious())
@@ -114,14 +117,16 @@ public class FirstAid extends Treatment {
     //  overall injury is.  (This is also used to limit the overall degree of
     //  team attention required.)
     final boolean urgent = patient.health.bleeding() || outside;
-    if (urgent && patient.health.alive()) addMotives(MOTIVE_EMERGENCY);
     float urgency = severity();
-    if (urgency <= 0  ) return 0;
-    if (! urgent      ) urgency /= 2;
-    if (urgency > 0.5f) addMotives(MOTIVE_EMERGENCY);
+    if (urgency <= 0) return 0;
+    if (! urgent) urgency /= 2;
+    
     if (PlanUtils.competition(this, patient, actor) > urgency) {
       return -1;
     }
+    toggleMotives(MOTIVE_EMERGENCY,
+      (urgent || urgency > 0.5f) && patient.health.alive()
+    );
     setCompetence(successChanceFor(actor));
     //
     //  And finally, overall priority is determined and returned...
@@ -129,6 +134,7 @@ public class FirstAid extends Treatment {
       actor, patient, motiveBonus(), competence(), urgency
     );
     if (report) {
+      I.say("  Sickbay is:     "+sickbay     );
       I.say("  Emergency?      "+urgent      );
       I.say("  Urgency rated:  "+urgency     );
       I.say("  Competence:     "+competence());
@@ -154,15 +160,19 @@ public class FirstAid extends Treatment {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
-    if (report) {
-      I.say("\nGetting next first aid step for "+actor);
-    }
-    
+    final boolean report =
+      I.talkAbout == actor && ! patient.health.conscious() &&
+      stepsVerbose && hasBegun();
     //
     //  You can't perform actual treatment while under fire, but you can get
     //  the patient out of harm's way (see below.)
     final boolean underFire = actor.senses.underAttack();
+    if (report) {
+      I.say("\n"+actor+" getting next first aid step for "+patient);
+      I.say("  Under fire?     "+underFire       );
+      I.say("  Sickbay:        "+sickbay         );
+      I.say("  Patient aboard: "+patient.aboard());
+    }
     
     if (patient.health.bleeding() && ! underFire) {
       final Action aids = new Action(
@@ -170,20 +180,24 @@ public class FirstAid extends Treatment {
         this, "actionFirstAid",
         Action.BUILD, "Giving first aid to "
       );
+      if (report) I.say("\n  Returning first aid action...");
       return aids;
     }
-    
+
+    sickbay = findRefuge(actor, sickbay);
     if (sickbay != null && patient.aboard() != sickbay) {
       final BringStretcher d = new BringStretcher(
         actor, patient, sickbay
       );
       if (d.nextStepFor(actor) != null) {
-        if (report) I.say("Returning new stretcher delivery...");
+        if (report) I.say("  Returning new stretcher delivery...");
         return d;
       }
+      else if (report) I.say("  Could not do stretcher delivery!");
     }
     
     if (underFire || Treatment.hasTreatment(INJURY, patient, hasBegun())) {
+      if (report) I.say("\n  Under fire or already treated.");
       return null;
     }
     final Action aids = new Action(
@@ -191,6 +205,7 @@ public class FirstAid extends Treatment {
       this, "actionFirstAid",
       Action.BUILD, "Applying bandages to "
     );
+    if (report) I.say("\n  Returning second aid action...");
     return aids;
   }
   

@@ -800,9 +800,10 @@ public abstract class Venue extends Fixture implements
     final Batch <CutoutModel> itemModels = new Batch();
     final Batch <CutoutModel> tickModels  = new Batch();
     for (Traded t : VenuePane.ITEM_LIST_ORDER) {
-      if (stocks.demandFor(t) == 0) continue;
+      final float demand = stocks.demandFor(t);
+      if (demand <= 0) continue;
       final boolean producer = stocks.producer(t);
-      final boolean shortage = stocks.amountOf(t) < 1;
+      final boolean shortage = stocks.amountOf(t) < Nums.min(1, demand);
       if (t.form == Economy.FORM_PROVISION && ! shortage) continue;
       
       itemModels.add(t.model);
