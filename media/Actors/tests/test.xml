@@ -30,8 +30,12 @@
 	<animation name="CarryOn" 		 start="94" end="114" duration="1" />
 	<animation name="Sneaking" 		 start="115" end="135" duration="1.5" />
 	<animation name="TalkingWarning" 		 start="136" end="161" duration="2.5" />
-	<animation name="Firenew" 		 start="162" end="187" duration="1.5" />
-	<animation name="FireHeavy" 		 start="188" end="210" duration="1.5" />
+	<animation name="Firenew" 		 start="162" end="188" duration="1.5" />
+	<animation name="FireHeavy" 		 start="189" end="219" duration="1.8" />
+	<animation name="Attack 2H" 		 start="220" end="242" duration="1.1" />
+	<animation name="Defence 2H" 		 start="243" end="266" duration="1.8" />
+	<animation name="Attack 1H" 		 start="267" end="297" duration="1.1" />
+	<animation name="Defence1H" 		 start="298" end="323" duration="1" />
   </animations>
   
   <attachPoints>
