@@ -202,13 +202,23 @@ public abstract class Venue extends Fixture implements
         return reasons.setFailure("Is entrance for "+t.entranceFor());
       }
     }
+    //
+    //  We also check against any claims make by other structures, and try to
+    //  avoid creating un-reachable areas with a closed-off perimeter.
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
+      
+      //  TODO:  You need to return a full list of conflicting venues- claims,
+      //  footprint, and perimeter- and subject them to a similar check.
+      if (c.owningTier() < this.owningTier()) continue;
+      
       if (reasons == Account.NONE) return false;
       return reasons.setFailure("Too close to "+c);
     }
     if (solid && ! checkPerimeter(world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
+    //
+    //  All going well, return success.
     return reasons.setSuccess();
   }
   

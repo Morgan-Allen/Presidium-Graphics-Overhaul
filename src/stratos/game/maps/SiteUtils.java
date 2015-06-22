@@ -98,89 +98,24 @@ public class SiteUtils implements TileConstants {
     return checkAreaClear(origin, (int) area.xdim(), (int) area.ydim());
   }
   
-  
-  //
-  //  NOTE:  This method assumes that the fixtures in question will occupy a
-  //  contiguous 'strip' or bloc for placement purposes.
-  public static boolean checkPlacement(
-    Placeable fixtures[], Stage world
-  ) {
-    Box2D limits = null;
-    for (Placeable f : fixtures) {
-      if (limits == null) limits = new Box2D(f.footprint());
-      else limits.include(f.footprint());
-    }
-    if (! checkAreaClear(
-      world.tileAt(limits.xpos() + 0.5f, limits.ypos() + 0.5f),
-      (int) limits.xdim(),
-      (int) limits.ydim()
-    )) return false;
-    
-    for (Placeable f : fixtures) {
-      if (! f.canPlace(Account.NONE)) return false;
-    }
-    return true;
-  }
-  
-  
-  public static boolean findClearanceFor(
-    final Venue v, final Target near, final Stage world
-  ) {
-    //  TODO:  USE A PROPER SITING-CLASS FOR THIS
-    
-    final int maxDist = Stage.ZONE_SIZE / 2;
-    final Tile init = world.tileAt(near);
-    if (init == null) return false;
-    
-    //  For now, I'm just going to use the perimeter-methods to 'spiral out'
-    //  from the target in question and try tiles until you find a placement-
-    //  location.  (I ran into problems with tiles being simultaneously flagged
-    //  by the TileSpread and the pathingOkayAround method before.)
-    //  TODO:  Like it says, use a proper Siting class implementation
-    
-    v.setPosition(init.x, init.y, world);
-    if (checkPlacement(v.structure.asGroup(), world)) return true;
-    
-    Box2D area = new Box2D();
-    for (int m = 0; m < maxDist; m++) {
-      init.area(area).expandBy(m);
-      for (Tile t : Spacing.perimeter(area, world)) {
-        v.setPosition(t.x, t.y, world);
-        if (checkPlacement(v.structure.asGroup(), world)) return true;
-      }
-    }
-    return false;
-  }
-  
-  
+
   public static Venue establishVenue(
     final Venue v, final Target near, boolean intact, Stage world,
     Actor... employed
   ) {
-    if (! findClearanceFor(v, near, world)) return null;
-    if (! v.setupWith(v.origin(), null)) return null;
-    
-    for (Placeable i : v.structure.asGroup()) {
-      i.doPlacement(intact);
-      ((Element) i).setAsEstablished(true);
-    }
-    return v;
+    final Tile at = v.base().world.tileAt(near);
+    return establishVenue(v, at.x, at.y, intact, world, employed);
   }
   
-  
+
   public static Venue establishVenue(
     final Venue v, int atX, int atY, boolean intact, final Stage world,
     Actor... employed
   ) {
-    final Tile near = world.tileAt(atX, atY);
-    if (establishVenue(v, near, intact, world, employed) == null) {
-      return null;
-    }
-    if (! Visit.empty(employed)) {
-      v.base().setup.fillVacancies(v, intact, employed);
-    }
-    if (GameSettings.hireFree) v.base().setup.fillVacancies(v, intact);
-    return v;
+    final SitingPass pass = new SitingPass(v.base(), v);
+    if (intact) pass.placeState = SitingPass.PLACE_INTACT;
+    pass.performFullPass();
+    return v.inWorld() ? v : null;
   }
   
   
@@ -535,3 +470,91 @@ public class SiteUtils implements TileConstants {
     else return null;
   }
   //*/
+
+  
+  /*
+  //
+  //  NOTE:  This method assumes that the fixtures in question will occupy a
+  //  contiguous 'strip' or bloc for placement purposes.
+  public static boolean checkPlacement(
+    Placeable fixtures[], Stage world
+  ) {
+    Box2D limits = null;
+    for (Placeable f : fixtures) {
+      if (limits == null) limits = new Box2D(f.footprint());
+      else limits.include(f.footprint());
+    }
+    if (! checkAreaClear(
+      world.tileAt(limits.xpos() + 0.5f, limits.ypos() + 0.5f),
+      (int) limits.xdim(),
+      (int) limits.ydim()
+    )) return false;
+    
+    for (Placeable f : fixtures) {
+      if (! f.canPlace(Account.NONE)) return false;
+    }
+    return true;
+  }
+  
+  
+  public static boolean findClearanceFor(
+    final Venue v, final Target near, final Stage world
+  ) {
+    //  TODO:  USE A PROPER SITING-CLASS FOR THIS
+    
+    final int maxDist = Stage.ZONE_SIZE / 2;
+    final Tile init = world.tileAt(near);
+    if (init == null) return false;
+    
+    //  For now, I'm just going to use the perimeter-methods to 'spiral out'
+    //  from the target in question and try tiles until you find a placement-
+    //  location.  (I ran into problems with tiles being simultaneously flagged
+    //  by the TileSpread and the pathingOkayAround method before.)
+    //  TODO:  Like it says, use a proper Siting class implementation
+    
+    v.setPosition(init.x, init.y, world);
+    if (checkPlacement(v.structure.asGroup(), world)) return true;
+    
+    Box2D area = new Box2D();
+    for (int m = 0; m < maxDist; m++) {
+      init.area(area).expandBy(m);
+      for (Tile t : Spacing.perimeter(area, world)) {
+        v.setPosition(t.x, t.y, world);
+        if (checkPlacement(v.structure.asGroup(), world)) return true;
+      }
+    }
+    return false;
+  }
+  
+  
+  public static Venue establishVenue(
+    final Venue v, final Target near, boolean intact, Stage world,
+    Actor... employed
+  ) {
+    if (! findClearanceFor(v, near, world)) return null;
+    if (! v.setupWith(v.origin(), null)) return null;
+    
+    for (Placeable i : v.structure.asGroup()) {
+      i.doPlacement(intact);
+      ((Element) i).setAsEstablished(true);
+    }
+    return v;
+  }
+  
+  
+  public static Venue establishVenue(
+    final Venue v, int atX, int atY, boolean intact, final Stage world,
+    Actor... employed
+  ) {
+    final Tile near = world.tileAt(atX, atY);
+    if (establishVenue(v, near, intact, world, employed) == null) {
+      return null;
+    }
+    if (! Visit.empty(employed)) {
+      v.base().setup.fillVacancies(v, intact, employed);
+    }
+    if (GameSettings.hireFree) v.base().setup.fillVacancies(v, intact);
+    return v;
+  }
+  //*/
+

@@ -124,6 +124,8 @@ public class SitingPass {
   private static class PassEntry {
     private float rating;
     private Target forPass;
+    
+    public String toString() { return forPass+" ("+rating+")"; }
   }
   
   
