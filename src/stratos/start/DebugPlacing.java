@@ -85,8 +85,6 @@ public class DebugPlacing extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.hireFree  = true;
-    GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
@@ -101,13 +99,9 @@ public class DebugPlacing extends Scenario {
   
   
   private void configEcology(Stage world, Base base, BaseUI UI) {
-    GameSettings.hireFree = false;
-    Flora.populateFlora(world);
-    Nest.populateFauna(world, Qudu.SPECIES);
-    /*
-    Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
     
     Flora.populateFlora(world);
+    //Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
     
     I.say("\nCHECKING FOR TILE-ACCESS...");
     for (Tile t : world.tilesIn(world.area(), false)) {
@@ -119,16 +113,20 @@ public class DebugPlacing extends Scenario {
       if (! open) I.say("  TILE SURROUNDED: "+t);
     }
     
-    Nest.populateFauna(world, Species.ANIMAL_SPECIES);
+    Nest.populateFauna(world, Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES);
+    
+    
+    //  TODO:  Either automate the inhabitant-displacement step, or perform
+    //  inhabitant-introduction in a later step.  Think about general history-
+    //  simulation.
     
     final Bastion b = new Bastion(base);
     base.setup.doPlacementsFor(b);
     
-    for (Venue v : world.claims.venuesConflicting(b)) {
+    if (b.inWorld()) for (Venue v : world.claims.venuesConflicting(b)) {
       for (Actor a : v.staff.lodgers()) a.exitWorld();
       v.exitWorld();
     }
-    //*/
   }
   
   

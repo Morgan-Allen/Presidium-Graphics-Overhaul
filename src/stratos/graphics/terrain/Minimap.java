@@ -28,7 +28,6 @@ public class Minimap extends Assets.Loadable {
   private Mesh mapMesh;
   private ShaderProgram shading;
   private Box2D cameraBox = new Box2D();
-  //private boolean disposed = false;
   
   
   public Minimap() {

@@ -16,8 +16,10 @@ import stratos.util.*;
 
 
 
-//  TODO:  Use the FindHome behaviour and the BaseSetup auto-placement methods
-//         to site/join nests if you possibly can.
+//  TODO:  Use the FindHome behaviour here?
+
+//  TODO:  Move some of these methods out to a NestUtils class to reduce
+//  clutter.
 
 
 public class Nest extends Venue {
@@ -33,8 +35,10 @@ public class Nest extends Venue {
     PREDATOR_SEPARATION = Stage.ZONE_SIZE * 2,
     MIN_SEPARATION      = 2,
     
-    BROWSER_RATIO   = 12,
-    PREDATOR_RATIO  = 4 ,
+    BROWSER_TO_FLORA_RATIO   = 50,
+    DEFAULT_BROWSER_SPECIES  = 4 ,
+    PREDATOR_TO_PREY_RATIO   = 4 ,
+    DEFAULT_PREDATOR_SPECIES = 2 ,
     
     DEFAULT_BREED_INTERVAL = Stage.STANDARD_DAY_LENGTH;
   
@@ -131,22 +135,36 @@ public class Nest extends Venue {
     if (species.browser()) {
       if (point == null) {
         foodSupply = world.terrain().globalFertility();
-        foodSupply /= BROWSER_RATIO;
+        foodSupply /= BROWSER_TO_FLORA_RATIO * DEFAULT_BROWSER_SPECIES;
       }
       else {
         foodSupply = world.terrain().fertilitySample(world.tileAt(point));
-        foodSupply *= (forageRange * forageRange) / BROWSER_RATIO;
+        foodSupply *= (forageRange * forageRange * 4) / BROWSER_TO_FLORA_RATIO;
       }
     }
     else {
       if (point == null) {
         foodSupply = base.demands.globalSupply(Species.KEY_BROWSER);
+        foodSupply /= DEFAULT_PREDATOR_SPECIES;
       }
       else foodSupply = base.demands.supplyAround(
         point, Species.KEY_BROWSER, forageRange
       );
-      foodSupply /= PREDATOR_RATIO;
+      foodSupply /= PREDATOR_TO_PREY_RATIO;
     }
+    
+    //
+    //  Include the effects of border-positioning-
+    if (point != null) {
+      final Vec3D at = point.position(null);
+      Box2D area = new Box2D(at.x, at.y, 0, 0);
+      area.expandBy((int) forageRange);
+      
+      float fullArea = area.area();
+      area.cropBy(world.area());
+      foodSupply *= area.area() / fullArea;
+    }
+    
     //
     //  If possible, we cache the result obtained for later use:
     final float estimate = (foodSupply / species.metabolism());
@@ -228,7 +246,10 @@ public class Nest extends Venue {
       }
     };
     
-    //  TODO:  Just have a fixed population-size per nest.
+    //  TODO:  Just have a fixed population-size per nest?
+    
+    //  TODO:  Consider moving the Sitings out to the individual Species'
+    //  class-implementations.  (Blueprints too.)
     
     final Siting siting = new Siting(blueprint) {
       
@@ -237,13 +258,32 @@ public class Nest extends Venue {
       }
       
       public float ratePointDemand(Base base, Target point, boolean exact) {
+        
         final Stage world = point.world();
+        Target other = world.presences.nearestMatch(Venue.class, point, -1);
+        final float distance;
+        if (other == null) distance = world.size;
+        else distance = Spacing.distance(point, other);
+        
+        if (distance <= MIN_SEPARATION) return -1;
+        float distMod = 1;
+        if (other instanceof Nest) {
+          final Nest near = (Nest) other;
+          final float spacing = Nums.max(
+            forageRange(s),
+            forageRange(near.species)
+          );
+          if (distance < spacing) distMod *= 1 - (distance / spacing);
+        }
+        else if (distance <= PREDATOR_SEPARATION) return -1;
+
         final float
           idealPop = idealPopulation(point, s, world),
           crowding = crowdingFor    (point, s, world),
           mass     = s.metabolism(),
           rating   = ((int) idealPop) * mass * (1 - crowding);
-        return rating;
+        
+        return rating * distMod;
       }
     };
     blueprint.linkWith(siting);
@@ -323,24 +363,10 @@ public class Nest extends Venue {
   
   public boolean preventsClaimBy(Venue other) {
     final float distance = Spacing.distance(this, other);
-    
-    if (other instanceof Nest) {
-      final Nest near = (Nest) other;
-      
-      if (this.species.type != near.species.type) {
-        return distance <= MIN_SEPARATION;
-      }
-      else {
-        final float minDist = Nums.max(
-          forageRange(this.species),
-          forageRange(near.species)
-        );
-        if (distance <= minDist) return true;
-      }
-      return false;
-    }
+    if (other instanceof Nest) return false;
     else return distance <= PREDATOR_SEPARATION;
   }
+
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {

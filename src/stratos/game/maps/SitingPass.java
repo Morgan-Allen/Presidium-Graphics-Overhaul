@@ -14,6 +14,15 @@ public class SitingPass {
   
   /**  Data fields, constructors and save/load methods-
     */
+  private static boolean
+    verbose        = true ,
+    regionsVerbose = false,
+    tilesVerbose   = false;
+  
+  final public static int
+    NO_PLACING    = 0,
+    PLACE_RESERVE = 1,
+    PLACE_INTACT  = 2;
   final static int
     STAGE_INIT        = -1,
     STAGE_REGION_SORT =  0,
@@ -28,13 +37,27 @@ public class SitingPass {
   final public Venue  placed;
   
   public float rating = -1;
+  public int placeState = PLACE_RESERVE;
   
+  //  TODO:  If you wanted, you could break this down into successively-finer
+  //  quadrants, mip-map style...
+
   int stage = STAGE_INIT;
   StageRegion nextRegion;
   Tile        nextTile  ;
   PassList regionSort = new PassList();
   PassList tilesSort  = new PassList();
   Tile picked = null;
+  
+  
+  public SitingPass(Base base, Siting siting) {
+    this(base, siting, siting.blueprint.createVenue(base));
+  }
+  
+  
+  public SitingPass(Base base, Venue placed) {
+    this(base, placed.blueprint.siting(), placed);
+  }
   
   
   public SitingPass(Base base, Siting siting, Venue placed) {
@@ -64,9 +87,10 @@ public class SitingPass {
       s.saveFloat (e.rating );
     }
     
-    s.saveInt   (pass.stage );
-    s.saveObject(pass.picked);
-    s.saveFloat (pass.rating);
+    s.saveInt   (pass.stage     );
+    s.saveObject(pass.picked    );
+    s.saveFloat (pass.rating    );
+    s.saveInt   (pass.placeState);
   }
   
   
@@ -85,12 +109,14 @@ public class SitingPass {
       pass.tilesSort.addFromPass (s.loadTarget(), s.loadFloat());
     }
     
-    pass.stage  = s.loadInt();
-    pass.picked = (Tile) s.loadObject();
-    pass.rating = s.loadFloat();
+    pass.stage      = s.loadInt();
+    pass.picked     = (Tile) s.loadObject();
+    pass.rating     = s.loadFloat();
+    pass.placeState = s.loadInt();
     
     return pass;
   }
+  
   
   
   /**  Some utility classes to help support saveable state...
@@ -146,9 +172,17 @@ public class SitingPass {
   
   
   protected boolean canPlaceAt(Tile best, int facing, Account reasons) {
-    if (! placed.setupWith(best, null)) return false;
     placed.setFacing(facing);
+    if (! placed.setupWith(best, null)) return false;
     return placed.canPlace(reasons);
+  }
+  
+  
+  protected void doPlacementAt(Tile best, int facing) {
+    if (placed == null) return;
+    placed.setFacing(facing);
+    if (! placed.setupWith(best, null)) return;
+    placed.doPlacement(placeState == PLACE_INTACT);
   }
   
   
@@ -171,9 +205,14 @@ public class SitingPass {
   /**  Time-slicing methods to ensure good use of CPU time-
     */
   void performSteps(final int stepLimit) {
+    final boolean report = verbose;
+    if (report) {
+      I.say("\nPerforming siting pass, steps allowed: "+stepLimit);
+    }
+    
     int stepsDone = 0;
     while (! complete()) {
-      if (stepLimit > 0 && stepsDone >= stepLimit) break;
+      if (stepLimit > 0 && stepsDone >= stepLimit ) break;
       if (stepLimit > 0 && world.schedule.timeUp()) break;
       
       if (stage <= STAGE_REGION_SORT) addRegionToSort();
@@ -185,30 +224,38 @@ public class SitingPass {
   
   
   boolean addRegionToSort() {
+    final boolean report = verbose && regionsVerbose;
+    
     if (nextRegion == null) nextRegion = world.sections.sectionAt(0, 0);
     else {
       final int stepSize = world.sections.resolution;
       int x = nextRegion.absX + stepSize, y = nextRegion.absY;
       if (x >= world.size) { x -= world.size; y += stepSize; }
       if (y >= world.size) {
-        stage = STAGE_TILES_SORT;
         regionSort.queueSort();
+        nextRegion = (StageRegion) regionSort.nextForPass();
+        stage      = (nextRegion != null) ? STAGE_TILES_SORT : STAGE_FAILED;
         return false;
       }
       nextRegion = world.sections.sectionAt(x, y);
     }
     
-    regionSort.addFromPass(nextRegion, ratePlacing(nextRegion, false));
+    final float rating = ratePlacing(nextRegion, false);
+    if (report) {
+      I.say("  Adding region to sort: "+nextRegion);
+      I.say("  Rating is: "+rating);
+    }
+    regionSort.addFromPass(nextRegion, rating);
     return true;
   }
   
   
   boolean addTileToSort() {
     final StageRegion r = nextRegion;
-    if (r == null) return false;
+    
+    final boolean report = verbose && tilesVerbose;
     
     if (nextTile == null) {
-      I.say("  Have begun tile-sort for "+r);
       nextTile = world.tileAt(r.absX, r.absY);
     }
     else {
@@ -218,10 +265,15 @@ public class SitingPass {
       if (y >= r.absY + r.size) {
         stage = STAGE_PLACE_CHECK;
         tilesSort.queueSort();
-        I.say("Moving on to place check at "+r);
         return false;
       }
       nextTile = world.tileAt(x, y);
+    }
+    
+    final float rating = ratePlacing(nextTile, false);
+    if (report) {
+      I.say("  Adding tile to sort: "+nextTile);
+      I.say("  Rating is: "+rating);
     }
     
     tilesSort.addFromPass(nextTile, ratePlacing(nextTile, true));
@@ -230,6 +282,8 @@ public class SitingPass {
   
   
   boolean doPlaceCheck() {
+    final boolean report = verbose;
+    
     final Tile best = (Tile) tilesSort.nextForPass();
     if (best == null) {
       nextRegion = (StageRegion) regionSort.nextForPass();
@@ -244,18 +298,25 @@ public class SitingPass {
       }
     }
     
-    
     //
-    //  TODO:  Try out multiple facings here, if entrance-blockage was a
-    //  problem...
+    //  TODO:  Try out multiple facings here, in case entrance-blockage was a
+    //  problem... 
+    
     if (canPlaceAt(best, 0, Account.NONE)) {
+      if (report) {
+        I.say("  Placement successful!");
+        I.say("  Can insert at: "+best+" ("+nextRegion+")");
+      }
       picked = best;
       stage = STAGE_SUCCESS;
+      if (placeState != NO_PLACING) doPlacementAt(picked, 0);
       return true;
     }
     return false;
   }
 }
+
+
 
 
 

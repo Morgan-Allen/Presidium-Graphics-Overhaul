@@ -571,10 +571,11 @@ public abstract class Venue extends Fixture implements
     if (blueprint.isUnique ()) return "The "+blueprint.name;
     
     if (nameID == -2 && inWorld()) {
-      nameID = base.nextVenueID(getClass());
+      nameID = base.nextVenueID(blueprint);
     }
     if (nameID < 0) return blueprint.name;
-    String suffix = ""+nameID;
+    
+    final String suffix = ""+nameID;
     return blueprint.name+" "+suffix;
   }
   

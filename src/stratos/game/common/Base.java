@@ -55,7 +55,7 @@ public class Base implements
   
   private String title  = "Player Base";  //  TODO:  ASSIGN TO FACTIONS
   private Colour colour = new Colour();
-  private Tally <Class> venueIDTallies = new Tally <Class> ();
+  private Tally <Blueprint> venueIDTallies = new Tally();
   
   
   private static Base namedBase(Stage world, String title) {
@@ -193,9 +193,7 @@ public class Base implements
     
     title = s.loadString();
     colour.loadFrom(s.input());
-    for (int i = s.loadInt(); i-- > 0;) {
-      venueIDTallies.set(s.loadClass(), s.loadFloat());
-    }
+    s.loadTally(venueIDTallies);
   }
   
   
@@ -221,10 +219,7 @@ public class Base implements
     
     s.saveString(title);
     colour.saveTo(s.output());
-    
-    final Tally <Class> t = venueIDTallies;
-    s.saveInt(t.size());
-    for (Class c : t.keys()) { s.saveClass(c); s.saveFloat(t.valueFor(c)); }
+    s.saveTally(venueIDTallies);
   }
   
   
@@ -449,9 +444,9 @@ public class Base implements
   }
   
   
-  public int nextVenueID(Class venueClass) {
-    venueIDTallies.add(1, venueClass);
-    return (int) venueIDTallies.valueFor(venueClass);
+  public int nextVenueID(Blueprint type) {
+    venueIDTallies.add(1, type);
+    return (int) venueIDTallies.valueFor(type);
   }
 }
 

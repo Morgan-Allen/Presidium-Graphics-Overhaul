@@ -55,7 +55,7 @@ public class Hareen extends Fauna {
   };
   
   
-  final static float DEFAULT_FLY_HEIGHT = 2.5f;
+  final static float DEFAULT_FLY_HEIGHT = 1.25f;
   final static int FLY_PATH_LIMIT = 16;
   
   private float flyHeight = DEFAULT_FLY_HEIGHT;
@@ -160,117 +160,6 @@ public class Hareen extends Fauna {
     */
   protected float moveAnimStride() { return 1.0f; }
 }
-
-
-
-
-//
-//  TODO:  Try to restore flight-pathing later on.
-/*
-protected MobilePathing initPathing() {
-  final Vareen actor = this;
-  //
-  //  We use a modified form of pathing search that can bypass most
-  //  tiles.
-  return new MobilePathing(actor) {
-    protected Boardable[] refreshPath(Boardable initB, Boardable destB) {
-      final Lair lair = (Lair) actor.AI.home();
-      
-      final PathingSearch flightPS = new PathingSearch(
-        initB, destB, FLY_PATH_LIMIT
-      ) {
-        final Boardable tileB[] = new Boardable[8];
-        
-        protected Boardable[] adjacent(Boardable spot) {
-          //
-          //  TODO:  There has got to be some way to factor this out into the
-          //  Tile and PathingSearch classes.  This is recapitulating a lot
-          //  of functionality AND IT'S DAMNED UGLY
-          //  ...Also, it can't make use of the pathingCache class, though
-          //  that's less vital here.
-          if (spot instanceof Tile) {
-            final Tile tile = ((Tile) spot);
-            for (int i : Tile.N_DIAGONAL) {
-              final Tile near = world.tileAt(
-                tile.x + Tile.N_X[i],
-                tile.y + Tile.N_Y[i]
-              );
-              tileB[i] = blocksMotion(near) ? null : near;
-            }
-            for (int i : Tile.N_ADJACENT) {
-              final Tile near = world.tileAt(
-                tile.x + Tile.N_X[i],
-                tile.y + Tile.N_Y[i]
-              );
-              if (
-                near != null && near.owner() == lair &&
-                lair != null && tile == lair.mainEntrance()
-              ) tileB[i] = lair;
-              else tileB[i] = blocksMotion(near) ? null : near;
-            }
-            Spacing.cullDiagonals(tileB);
-            return tileB;
-          }
-          return super.adjacent(spot);
-        }
-        
-        protected boolean canEnter(Boardable spot) {
-          return ! blocksMotion(spot);
-        }
-      };
-      flightPS.doSearch();
-      return flightPS.bestPath(Boardable.class);
-    }
-  };
-}
-
-
-public boolean blocksMotion(Boardable t) {
-  if (t instanceof Tile) {
-    final Element owner = ((Tile) t).owner();
-    return owner != null && owner.height() > 2.5f;
-  }
-  return false;
-}
-//*/
-
-
-
-
-/*
-protected Behaviour nextFeeding() {
-  //
-  //  If you can't find other food, just bask in the sun to gain energy-
-  if (pick == null && ! origin().blocked()) {
-    final Action basking = new Action(
-      this, origin(),
-      this, "actionBask",
-      Action.MOVE, "Basking"
-    );
-    basking.setProperties(Action.CAREFUL);
-    ///basking.setDuration(2.0f);
-    return basking;
-  }
-  //
-  //  Otherwise, go pluck some fruit or whatever-
-  if (pick == null) return null;
-  final Action foraging = new Action(
-    this, pick,
-    this, "actionForage",
-    Action.STRIKE, "Foraging"
-  );
-  foraging.setMoveTarget(Spacing.nearestOpenTile(pick, this));
-  return foraging;
-}
-
-
-public boolean actionBask(Vareen actor, Tile location) {
-  //
-  //  Adjust this based on night/day values?
-  health.takeSustenance(location.habitat().insolation() / 100f, 1.0f);
-  return true;
-}
-//*/
 
 
 
