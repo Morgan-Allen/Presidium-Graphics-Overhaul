@@ -49,8 +49,8 @@ public class Nursery extends Venue implements TileConstants {
   );
   
   final static int
-    MAX_AREA_SIDE = Stage.ZONE_SIZE - 4,
-    MIN_AREA_SIDE = BLUEPRINT.size  + 4;
+    MAX_CLAIM_SIDE = Nums.round(Stage.ZONE_SIZE - 2, 4, false),
+    MIN_CLAIM_SIDE = BLUEPRINT.size + 4;
   
   final public static Conversion
     LAND_TO_CARBS = new Conversion(
@@ -128,20 +128,20 @@ public class Nursery extends Venue implements TileConstants {
     //  but we can also have a larger area assigned (e.g, by a human player or
     //  by an automated placement-search.)
     
+    final Tile at = origin();
     final Stage world = position.world;
-    final Box2D
-      minArea = new Box2D(footprint()).expandTo(MIN_AREA_SIDE),
-      foot    = footprint();
+    final Box2D minArea = new Box2D(), foot = footprint();
+    
+    //  TODO:  Damn, but I need some simplified utilities for this crap.
+    minArea.setX(at.x - 2.5f, MIN_CLAIM_SIDE);
+    minArea.setY(at.y - 2.5f, MIN_CLAIM_SIDE);
     
     if (area == null) {
-      areaClaimed.setTo(minArea);
-      areaClaimed.expandTo(MAX_AREA_SIDE);
+      areaClaimed.setX(at.x - 4.5f, MAX_CLAIM_SIDE);
+      areaClaimed.setY(at.y - 4.5f, MAX_CLAIM_SIDE);
       
-      //  TODO:  Crop with an extra margin to allow clearance!
+      //  TODO:  Crop with an extra margin to allow clearance?
       areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed));
-      
-      //  TODO:  This can result in areas too large.
-      //areaClaimed.expandToUnit(Stage.UNIT_GRID_SIZE);
     }
     else {
       areaClaimed.setTo(area);
@@ -153,7 +153,7 @@ public class Nursery extends Venue implements TileConstants {
     setFacing(areaClaimed.xdim() > areaClaimed.ydim() ?
       FACING_SOUTH : FACING_EAST
     );
-    if (origin() != oldOrigin) scanForCropTiles();
+    if (at != oldOrigin) scanForCropTiles();
     return true;
   }
   
@@ -162,10 +162,10 @@ public class Nursery extends Venue implements TileConstants {
     if (! super.canPlace(reasons)) return false;
     final Stage world = origin().world;
     
-    if (areaClaimed.maxSide() > MAX_AREA_SIDE) {
+    if (areaClaimed.maxSide() > MAX_CLAIM_SIDE) {
       return reasons.setFailure("Area is too large!");
     }
-    if (areaClaimed.minSide() < MIN_AREA_SIDE) {
+    if (areaClaimed.minSide() < MIN_CLAIM_SIDE) {
       return reasons.setFailure("Area is too small!");
     }
     
@@ -200,7 +200,7 @@ public class Nursery extends Venue implements TileConstants {
     if (! areaClaimed.contains(t.x, t.y, 1)) return -1;
     
     final boolean across = facing() == FACING_NORTH || facing() == FACING_SOUTH;
-    final int s = 1 + Nums.round(t.world.size, 6, true);  //  Modulus offset.
+    final int s = Nums.round(t.world.size, 6, true);  //  Modulus offset.
     final Tile o = origin();
     
     for (Tile n : t.allAdjacent(null)) {

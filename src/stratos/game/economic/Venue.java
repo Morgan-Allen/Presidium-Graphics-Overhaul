@@ -287,9 +287,7 @@ public abstract class Venue extends Fixture implements
     
     if (intact) {
       final Box2D around = new Box2D(footprint()).expandBy(1);
-      for (Tile t : world.tilesIn(around, false)) {
-        t.clearUnlessOwned(intact);
-      }
+      for (Tile t : world.tilesIn(around, true)) t.clearUnlessOwned(intact);
       enterWorldAt(at.x, at.y, world, true);
       structure.setState(Structure.STATE_INTACT, 1);
       onCompletion();

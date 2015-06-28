@@ -181,15 +181,12 @@ public class SitingPass {
     }
     
     if (! placed.setupWith(best, null)) return false;
-    
-    //final int facing = SiteUtils.pickBestEntranceFace(placed);
-    //placed.setFacing(facing);
     return placed.canPlace(reasons);
   }
   
   
   protected void doPlacementAt(Tile best, int facing) {
-    if (! placed.setupWith(best, null)) return;
+    if (placed == null || ! placed.setupWith(best, null)) return;
     placed.doPlacement(placeState == PLACE_INTACT);
   }
   

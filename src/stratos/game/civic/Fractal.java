@@ -81,6 +81,8 @@ public class Fractal extends Venue {
 
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
+    if (area == null) area = new Box2D(footprint());
+    
     final Object model = SiteUtils.setupSegment(
       this, position, area, others, MODELS_X_AXIS, MODELS_Y_AXIS
     );
