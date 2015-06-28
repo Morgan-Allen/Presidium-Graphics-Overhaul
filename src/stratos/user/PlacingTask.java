@@ -19,8 +19,6 @@ import com.badlogic.gdx.Input.Keys;
 //         in PlaceUtils (and/or a Siting class.)
 
 
-
-
 public class PlacingTask implements UITask {
   
   private static boolean
@@ -53,15 +51,19 @@ public class PlacingTask implements UITask {
   
   public void doTask() {
     Tile picked = UI.selection.pickedTile();
-    boolean tryPlacement = false;
     
     if (picked != null) {
-      final int baseSize = Stage.UNIT_GRID_SIZE;
+      final int
+        unit = Stage.UNIT_GRID_SIZE,
+        sub  = Nums.round(placeType.size / 2, unit, false);
       picked = picked.world.tileAt(
-        Nums.round(picked.x, baseSize, false),
-        Nums.round(picked.y, baseSize, false)
+        Nums.round(picked.x - sub, unit, false),
+        Nums.round(picked.y - sub, unit, false)
       );
-      
+    }
+
+    boolean tryPlacement = false;
+    if (picked != null) {
       if (mode == MODE_POINT) {
         begins = endsAt = picked;
         if (UI.mouseDown()) tryPlacement = true;
@@ -76,17 +78,16 @@ public class PlacingTask implements UITask {
         else begins = endsAt = picked;
       }
     }
-    
-    if (KeyInput.wasTyped(Keys.ENTER)) tryPlacement = true;
-    
-    if (begins != null && endsAt != null) {
-      setupAreaClaim(tryPlacement);
+    if (KeyInput.wasTyped(Keys.ENTER)) {
+      tryPlacement = true;
     }
+    
+    if (begins != null && endsAt != null) setupAreaClaim(tryPlacement);
   }
   
   
   private void setupAreaClaim(boolean tryPlacement) {
-    final boolean report = verbose && I.used60Frames;
+    final boolean report = I.used60Frames && verbose;
     //
     //  Set up some initial variables-
     final int baseSize = placeType.size;
@@ -132,6 +133,18 @@ public class PlacingTask implements UITask {
       placePoints.add(new Coord((int) c.x, (int) c.y));
     }
     //
+    //  If an area hasn't been specified already, construct one to envelope
+    //  all the place-points generated.
+    if (area == null && begins != endsAt) for (Coord c : placePoints) {
+      final Box2D foot = new Box2D(c.x, c.y, baseSize, baseSize);
+      if (area == null) area = new Box2D(foot);
+      else area.include(foot);
+    }
+    if (report) {
+      I.say("  Final area:  "+area);
+      I.say("  Coordinates: "+placePoints);
+    }
+    //
     //  Check to see if placement is possible, render the preview, and if
     //  confirmed, initiate construction.
     boolean canPlace = checkPlacingOkay(area, placePoints);
@@ -163,7 +176,12 @@ public class PlacingTask implements UITask {
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
       if (p == null) { canPlace = false; break; }
-      if (KeyInput.wasTyped('e')) p.setFacing(p.facing() + 1);
+      if (KeyInput.wasTyped('e')) {
+        for (int n = Venue.ALL_FACINGS.length, face = p.facing(); n-- > 0;) {
+          p.setFacing(++face);
+          if (SiteUtils.isViableEntrance(p, p.mainEntrance())) break;
+        }
+      }
       if (! p.canPlace(reasons)) { canPlace = false; break; }
     }
     
@@ -171,7 +189,7 @@ public class PlacingTask implements UITask {
       POINT_MESSAGE = "(Enter to place, Esc to cancel, E to change entrance)",
       LINE_MESSAGE  = "(Drag to place line, Esc to cancel, Enter to place)"  ,
       AREA_MESSAGE  = "(Drag to select area, Esc to cancel, Enter to place)" ,
-      FAIL_MESSAGE  = "(ILLEGAL PLACEMENT- REASON NOT LOGGED INTERNALLY)";
+      FAIL_MESSAGE  = "(ILLEGAL PLACEMENT- REASON NOT LOGGED- LIKELY A BUG)" ;
     String message = null;
     switch (mode) {
       case MODE_POINT : message = POINT_MESSAGE; break;
@@ -213,13 +231,6 @@ public class PlacingTask implements UITask {
   
   /**  Rendering/preview and debug methods-
     */
-  /*
-  final static ImageAsset
-    FOOTPRINT_TEX = ImageAsset.fromImage(
-      PlacingTask.class, "media/GUI/blank_back.png"
-    );
-  //*/
-  
   private void renderPlacement(
     Box2D area, Batch <Coord> placePoints, boolean canPlace
   ) {
@@ -235,14 +246,13 @@ public class PlacingTask implements UITask {
         
         under.add(p.footprint());
         for (Tile t : p.reserved()) under.add(t);
-        //if (p.mainEntrance() != null) under.add(p.mainEntrance());
-        //for (Boarding b : p.canBoard()) under.add(b);
+        if (p.mainEntrance() != null) under.add(p.mainEntrance());
       }
     }
     
     UI.selection.renderTileOverlay(
       UI.rendering, UI.played().world,
-      canPlace ? Colour.WHITE : Colour.RED,
+      canPlace ? Colour.WHITE : Colour.SOFT_RED,
       Habitat.RESERVE_TEXTURE, true,
       "install_preview", false, under.toArray()
     );

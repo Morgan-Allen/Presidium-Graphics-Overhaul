@@ -184,17 +184,27 @@ public class Box3D {
   }
 	
   
+  
   /**  Returns whether this box contains the given point.
     */
 	public boolean contains(Vec3D vector) {
-		return
-		  (xpos < vector.x) &&
-		  (ypos < vector.y) &&
-		  (zpos < vector.z) &&
-		  (xmax > vector.x) &&
-		  (ymax > vector.y) &&
-		  (zmax > vector.z);
+	  return contains(vector.x, vector.y, vector.z, 0);
 	}
+	
+	
+	
+  /**  Returns whether this box contains the given point + radius.
+    */
+  public boolean contains(float xp, float yp, float zp, float radius) {
+    return
+      (xpos <= xp - radius) &&
+      (ypos <= yp - radius) &&
+      (zpos <= zp - radius) &&
+      (xmax >= xp + radius) &&
+      (ymax >= yp + radius) &&
+      (zmax >= zp + radius);
+  }
+  
   
   
   /**  Expands this box to include the argument box.

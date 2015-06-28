@@ -18,7 +18,7 @@ public class Fractal extends Venue {
   
   final static String IMG_DIR = "media/Buildings/aesthete/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    ServiceHatch.class, "media/GUI/Buttons/fractal_button.gif"
+    Fractal.class, "media/GUI/Buttons/fractal_button.gif"
   );
   final static CutoutModel
     FRACTAL_MODELS[][] = CutoutModel.fromImageGrid(

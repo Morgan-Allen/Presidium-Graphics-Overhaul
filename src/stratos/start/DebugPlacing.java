@@ -85,7 +85,6 @@ public class DebugPlacing extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
     
@@ -196,6 +195,9 @@ public class DebugPlacing extends Scenario {
   
   private void configPlantTest(Stage world, Base base, BaseUI UI) {
     
+    GameSettings.buildFree = true;
+    GameSettings.paveFree  = true;
+    
     final EcologistStation station = new EcologistStation(base);
     SiteUtils.establishVenue(station, 8, 8, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
@@ -210,11 +212,9 @@ public class DebugPlacing extends Scenario {
     pass.placeState = SitingPass.PLACE_INTACT;
     pass.performFullPass();
     
-    /*
     final Bastion bastion = new Bastion(base);
     SiteUtils.establishVenue(bastion, site, true, world);
     base.setup.fillVacancies(bastion, true);
-    //*/
   }
   
   

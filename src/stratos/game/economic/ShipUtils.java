@@ -379,7 +379,7 @@ public class ShipUtils {
         else return -1;
       }
       
-      protected boolean canPlaceAt(Tile t, int facing, Account reasons) {
+      protected boolean canPlaceAt(Tile t, Account reasons) {
         area.xpos(t.x - 0.5f);
         area.ypos(t.y - 0.5f);
         if (checkLandingArea(ship, base.world, area)) {

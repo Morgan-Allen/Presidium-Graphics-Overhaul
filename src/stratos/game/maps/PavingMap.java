@@ -132,7 +132,7 @@ public class PavingMap {
   
   
   public boolean needsPaving(Tile t) {
-    if (t.reserved()) return false;
+    if (t == null || t.reserved()) return false;
     final byte c = roadCounter[t.x][t.y];
     final boolean road = isRoad(t);
     if (c > 0 && ! road) return true;
@@ -142,6 +142,7 @@ public class PavingMap {
   
   
   public static boolean pavingReserved(Tile t, boolean alreadyPaved) {
+    if (t == null) return false;
     final Stage world = t.world;
     if (alreadyPaved && isRoad(t)) return true;
     for (Base b : world.bases()) {

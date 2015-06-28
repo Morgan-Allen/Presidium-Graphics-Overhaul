@@ -88,9 +88,6 @@ public class FormerPlant extends Venue implements TileConstants {
     if (! super.setupWith(position, area, others)) return false;
     areaClaimed.setTo(footprint()).expandBy((int) MIN_CLAIM_SIZE);
     if (area != null) areaClaimed.include(area);
-    this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACING_SOUTH : FACING_EAST
-    ;
     return true;
   }
   

@@ -128,10 +128,14 @@ public class ShieldWall extends Venue {
       CAPS_X_AXIS, CAPS_Y_AXIS, MODEL_HUB, ShieldWall.class
     );
     if (model == CAPS_X_AXIS[1]) {
-      model = SEGMENTS_X[(position.y / 2) % 4];
+      int index = (position.y / 2) % 8;
+      if (index == 3) index = 2;
+      model = SEGMENTS_X[index % 4];
     }
     if (model == CAPS_Y_AXIS[1]) {
-      model = SEGMENTS_Y[(position.x / 2) % 4];
+      int index = (position.x / 2) % 8;
+      if (index == 3) index = 2;
+      model = SEGMENTS_Y[index % 4];
     }
     return model;
   }

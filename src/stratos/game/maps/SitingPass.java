@@ -174,16 +174,21 @@ public class SitingPass {
   }
   
   
-  protected boolean canPlaceAt(Tile best, int facing, Account reasons) {
-    placed.setFacing(facing);
+  protected boolean canPlaceAt(Tile best, Account reasons) {
+    if (placed == null) return false;
+    if (isVerbose) {
+      I.say("Checking placing at "+best);
+    }
+    
     if (! placed.setupWith(best, null)) return false;
+    
+    //final int facing = SiteUtils.pickBestEntranceFace(placed);
+    //placed.setFacing(facing);
     return placed.canPlace(reasons);
   }
   
   
   protected void doPlacementAt(Tile best, int facing) {
-    if (placed == null) return;
-    placed.setFacing(facing);
     if (! placed.setupWith(best, null)) return;
     placed.doPlacement(placeState == PLACE_INTACT);
   }
@@ -302,11 +307,7 @@ public class SitingPass {
       }
     }
     
-    //
-    //  TODO:  Try out multiple facings here, in case entrance-blockage was a
-    //  problem... 
-    
-    if (canPlaceAt(best, 0, Account.NONE)) {
+    if (canPlaceAt(best, Account.NONE)) {
       if (report) {
         I.say("  Placement successful!");
         I.say("  Can insert at: "+best+" ("+nextRegion+")");

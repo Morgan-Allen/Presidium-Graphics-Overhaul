@@ -116,7 +116,9 @@ public class Bastion extends Venue {
   
   
   public boolean preventsClaimBy(Venue other) {
-    if (Spacing.adjacent(this, other)) return true;
+    if (Spacing.adjacent(this, other) && other.pathType() > Tile.PATH_CLEAR) {
+      return true;
+    }
     if (other.base() == base()) return false;
     else return super.preventsClaimBy(other);
   }

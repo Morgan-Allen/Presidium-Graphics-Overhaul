@@ -140,6 +140,7 @@ public class SiteUtils implements TileConstants {
   /**  Checks whether or not one owner trumps another-
     */
   public static boolean trumpsSiting(Placeable placed, Placeable other) {
+    if (placed.base() == other.base()) return false;
     if (placed.owningTier() >= Owner.TIER_FACILITY) {
       return other.owningTier() < Owner.TIER_FACILITY;
     }
@@ -254,7 +255,9 @@ public class SiteUtils implements TileConstants {
     final int side = perim.length / 4;
     final Batch <Tile> scanned = new Batch <Tile> ();
     final Batch <Venue> placed = new Batch <Venue> ();
-    
+    //
+    //  We then visit each side of the perimeter and place the appropriate
+    //  fixture-type in a line along that edge:
     for (int dir = 4; dir-- > 0;) {
       Batch <Coord> points = new Batch <Coord> ();
       Box2D area = null;
@@ -269,18 +272,28 @@ public class SiteUtils implements TileConstants {
         scanned.add(p);
       }
       final Coord pointsA[] = points.toArray(Coord.class);
-      
       for (Coord c : points) {
-        final Venue s = type.createVenue(base);
-        s.setPosition(c.x, c.y, world);
-        s.setupWith(s.origin(), area, pointsA);
-        if (! s.canPlace()) continue;
-        s.doPlacement(intact);
-        placed.add(s);
+        final Venue segment = type.createVenue(base);
+        segment.setupWith(world.tileAt(c.x, c.y), area, pointsA);
+        if (segment.canPlace()) {
+          placed.add(segment);
+        }
+        else if (verbose) {
+          final Account reasons = new Account();
+          segment.canPlace(reasons);
+          I.say("\nCOULD NOT PLACE AT: "+c+", because:");
+          for (String r : reasons.failReasons()) I.say("  "+r);
+        }
       }
     }
     
+    for (Venue segment : placed) segment.doPlacement(intact);
     for (Tile t : scanned) t.flagWith(null);
+    //
+    //  As a final touch, clear anything in the middle that doesn't belong-
+    if (intact) for (Tile t : world.tilesIn(around, true)) {
+      t.clearUnlessOwned(true);
+    }
     return placed.toArray(Venue.class);
   }
   
@@ -296,7 +309,7 @@ public class SiteUtils implements TileConstants {
     //
     //  To try and ensure that pathing-routes aren't interrupted, we find all
     //  adjacent 'pockets' of pathable terrain that can be traced from the
-    //  perimeter.  (The trace- length is limited to reduce computation-burden,
+    //  perimeter.  (The trace-length is limited to reduce computation-burden,
     //  and also because very long detours are bad for pathing.)
     final int maxTrace = perimeter.length + (Stage.ZONE_SIZE / 2);
     final Batch <Batch <Tile>> pocketsFound = new Batch();
@@ -389,13 +402,6 @@ public class SiteUtils implements TileConstants {
   }
   
   
-  private static boolean singleTileClear(Tile t, Box2D footprint, int tier) {
-    if (t == null || ! t.habitat().pathClear) return false;
-    if (footprint.contains(t.x, t.y)) return false;
-    return t.owningTier() < tier || t.pathType() < Tile.PATH_HINDERS;
-  }
-  
-  
   public static boolean pathingOkayAround(Element e, Stage world) {
     return pathingOkayAround(e, e.area(null), e.owningTier(), world);
   }
@@ -406,12 +412,31 @@ public class SiteUtils implements TileConstants {
   }
   
   
+  public static boolean checkAroundClaim(Venue v, Box2D claimed, Stage world) {
+    final int tier = v.owningTier();
+    for (Tile t : Spacing.perimeter(claimed, world)) if (t != null) {
+      if (! singleTileClear(t, claimed, tier)) return false;
+    }
+    return true;
+  }
+  
+  
+  private static boolean singleTileClear(Tile t, Box2D footprint, int tier) {
+    if (t == null || ! t.habitat().pathClear) return false;
+    if (footprint.contains(t.x, t.y)) return false;
+    return t.owningTier() < tier || t.pathType() < Tile.PATH_HINDERS;
+  }
+  
+  
+  
+  /**  And finally, utility methods for handling entrances and facing-
+    */
   public static int[] entranceCoords(int xdim, int ydim, float face) {
     if (face == Venue.FACING_NONE) return new int[] { 0, 0 };
     face = (face + 0.5f) % Venue.NUM_FACES;
     float edgeVal = face % 1;
-    
     int enterX = 1, enterY = -1;
+    
     if (face < Venue.FACING_EAST) {
       //  This is the north edge.
       enterX = xdim;
@@ -419,8 +444,8 @@ public class SiteUtils implements TileConstants {
     }
     else if (face < Venue.FACING_SOUTH) {
       //  This is the east edge.
-      enterX = (int) (ydim * (1 - edgeVal));
-      enterY = xdim;
+      enterX = (int) (xdim * (1 - edgeVal));
+      enterY = ydim;
     }
     else if (face < Venue.FACING_WEST) {
       //  This is the south edge.
@@ -429,10 +454,34 @@ public class SiteUtils implements TileConstants {
     }
     else {
       //  This is the west edge.
-      enterX = (int) (ydim * edgeVal);
+      enterX = (int) (xdim * edgeVal);
       enterY = -1;
     }
     return new int[] { enterX, enterY };
+  }
+  
+  
+  public static int pickBestEntranceFace(Venue v) {
+    
+    final Tile o = v == null ? null : v.origin();
+    int bestFace = Venue.FACING_INIT;
+    if (o == null) return bestFace;
+    
+    final Tile batch[] = new Tile[8];
+    float bestRating = -1;
+    
+    for (int face : Venue.ALL_FACINGS) {
+      final int coords[] = entranceCoords(v.xdim(), v.ydim(), face);
+      final Tile t = o.world.tileAt(o.x + coords[0], o.y + coords[1]);
+      if (! isViableEntrance(v, t)) continue;
+      
+      float rating = 1;
+      for (Tile n : t.allAdjacent(batch)) {
+        if (PavingMap.pavingReserved(n, false)) rating++;
+      }
+      if (rating > bestRating) { bestRating = rating; bestFace = face; }
+    }
+    return bestFace;
   }
   
   
@@ -440,14 +489,17 @@ public class SiteUtils implements TileConstants {
     //  TODO:  Unify this with singleTileClear()?
     if (e == null || ! e.habitat().pathClear) return false;
     if (e.reserves() == null) return true;
+    
     final int maxTier = Nums.min(v.owningTier(), Owner.TIER_PRIVATE);
     final Element under = e.reserves();
+    
     return under == null || (
       under.owningTier() < maxTier ||
       under.pathType  () <= Tile.PATH_CLEAR
     );
   }
 }
+
 
 
 

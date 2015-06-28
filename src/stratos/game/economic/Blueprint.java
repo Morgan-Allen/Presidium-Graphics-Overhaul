@@ -117,7 +117,9 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   
   public void linkWith(Siting siting) {
-    if (this.siting != null) I.say("\nWARNING: Siting already assign to "+this);
+    if (this.siting != null && this.siting != siting) {
+      I.say("\nWARNING: Siting already assigned to "+this);
+    }
     this.siting = siting;
   }
   

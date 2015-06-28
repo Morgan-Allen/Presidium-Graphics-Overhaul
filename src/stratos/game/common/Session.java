@@ -95,7 +95,7 @@ public final class Session {
     I.say("\nDISPLAYING TOTAL SAVE COUNTS:");
     for (Class CC : s.classCounts.keySet()) {
       final Vars.Int count = s.classCounts.get(CC);
-      I.say("  Saved "+count.val+" of "+CC.getSimpleName());
+      I.say("  Saved "+count.val+" of "+CC.getName());
     }
     
     return s;

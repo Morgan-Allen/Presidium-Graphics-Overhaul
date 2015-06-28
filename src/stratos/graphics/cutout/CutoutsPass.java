@@ -27,6 +27,7 @@ public class CutoutsPass {
     COMPILE_LIMIT = MAX_SPRITES * SIZE;
   
   private static Vector3 temp = new Vector3(), temp2 = new Vector3();
+  private static Colour tempC = new Colour();
   final static float GLOW_LIGHTS[] = { 1, 1, 1, 1 };
   
   
@@ -192,8 +193,8 @@ public class CutoutsPass {
     }
 
     final Colour fog = Colour.greyscale(s.fog);
-    final float colourBits;
-    if      (  s.colour == null) colourBits = fog     .floatBits;
+    float colourBits = 0;
+    if      (  s.colour == null) colourBits = fog.floatBits;
     else if (  s.colour.glows()) colourBits = s.colour.floatBits;
     else if (! s.colour.blank()) colourBits = s.colour.floatBits;
     else colourBits = Colour.combineAlphaBits(fog, s.colour);

@@ -307,7 +307,7 @@ public class Repairs extends Plan {
     if (at == null || ! Spacing.adjacent(actor, at)) return false;
     //
     //  Then, clear out any competition and assert occupation of the tile.
-    for (Tile n : at.vicinity(null)) if (n != null && n.above() != null) {
+    for (Tile n : at.vicinity(null)) if (n != null) {
       n.clearUnlessOwned();
     }
     at.setAbove((Element) built, true);

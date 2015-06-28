@@ -112,7 +112,7 @@ public class Ruins extends Venue {
   
   public boolean preventsClaimBy(Venue other) {
     if (other instanceof Ruins) return false;
-    return super.preventsClaimBy(other);
+    return true;
   }
   
   

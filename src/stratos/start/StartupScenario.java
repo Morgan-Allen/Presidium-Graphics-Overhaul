@@ -362,12 +362,13 @@ public class StartupScenario extends Scenario {
     //  should probably still go first.
     
     if (config.built.valueFor(ShieldWall.BLUEPRINT) > 0) {
-      int wallSize = WALL_SIZES[config.titleLevel] - bastion.blueprint.size;
+      final int
+        wallSize = WALL_SIZES[config.titleLevel] - bastion.blueprint.size;
       final Box2D enclosed = new Box2D(bastion.footprint());
       enclosed.incWide(wallSize);
       enclosed.incHigh(wallSize);
-      enclosed.incX(2 - wallSize);
-      enclosed.incY(-2);
+      enclosed.incX(0 - wallSize / 2);
+      enclosed.incY(0 - 2           );
       final Venue wall[] = SiteUtils.placeAroundPerimeter(
         ShieldWall.BLUEPRINT, enclosed, base, true
       );

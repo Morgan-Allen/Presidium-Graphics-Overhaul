@@ -136,63 +136,41 @@ public class Nursery extends Venue implements TileConstants {
     if (area == null) {
       areaClaimed.setTo(minArea);
       areaClaimed.expandTo(MAX_AREA_SIDE);
+      
+      //  TODO:  Crop with an extra margin to allow clearance!
       areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed));
+      
+      //  TODO:  This can result in areas too large.
+      //areaClaimed.expandToUnit(Stage.UNIT_GRID_SIZE);
     }
     else {
       areaClaimed.setTo(area);
     }
     if (! foot.containedBy(areaClaimed)) areaClaimed.setTo(foot);
-    if (origin() != oldOrigin) scanForCropTiles();
-    
-    this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACING_SOUTH : FACING_EAST
-    ;
-    return true;
-  }
-  
-  
-  private void scanForCropTiles() {
-    final boolean report = verbose && I.talkAbout == this;
-    
-    //  TODO:  Try only doing this once, during initial setup- and avoid the
-    //  extra-cropping step.  (Or consider reserving this for the preview-
-    //  methods only?)
-    
     //
-    //  We then grab all plantable tiles in the area claimed and resize the
-    //  claim itself to fit neatly around those:  TODO:  FIX!!
-    final Batch <Tile> grabbed = new Batch <Tile> ();
-    final Box2D cropped = new Box2D(footprint());
-    if (report) {
-      I.say("\nORIGINAL AREA CLAIMED: "+areaClaimed);
-      I.say("  FOOTPRINT:   "+footprint());
-      I.say("  ORIGIN TILE: "+origin());
-    }
-    
-    final Stage world = origin().world;
-    for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (couldPlant(t)) {
-        grabbed.add(t);
-        cropped.include(t.x, t.y, 0.5f);
-        if (report) I.say("  WILL PLANT AT: "+t);
-      }
-    }
-    areaClaimed.setTo(cropped);
-    toPlant = grabbed.toArray(Tile.class);
-    if (report) I.say("NEW CROPPED AREA: "+areaClaimed);
+    //  NOTE:  Facing must be set before crop-tiles are settled on, as this
+    //  affects row-orientation!
+    setFacing(areaClaimed.xdim() > areaClaimed.ydim() ?
+      FACING_SOUTH : FACING_EAST
+    );
+    if (origin() != oldOrigin) scanForCropTiles();
+    return true;
   }
   
   
   public boolean canPlace(Account reasons) {
     if (! super.canPlace(reasons)) return false;
+    final Stage world = origin().world;
+    
     if (areaClaimed.maxSide() > MAX_AREA_SIDE) {
       return reasons.setFailure("Area is too large!");
     }
     if (areaClaimed.minSide() < MIN_AREA_SIDE) {
       return reasons.setFailure("Area is too small!");
     }
-    final Stage world = origin().world;
+    
     if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), world)) {
+    //if (! SiteUtils.checkAroundClaim(this, areaClaimed, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
@@ -210,49 +188,19 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public boolean preventsClaimBy(Venue other) {
-    if (other.base() != base) return true;
-    if (other instanceof EcologistStation) return false;
     return true;
   }
   
   
   
-  /**  Establishing crop areas-
+  
+  /**  Utility methods for handling tile-planting:
     */
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
-    if (! structure.intact()) return;
-    structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
-    if (toPlant.length == 0) scanForCropTiles();
-    if (numUpdates % 10 == 0) checkCropStates();
-  }
-  
-  
-  protected void updatePaving(boolean inWorld) {
-    final boolean report = verbose && I.talkAbout == this;
-    
-    if (report) I.say("\nGETTING PERIMETER TILES FOR AREA: "+areaClaimed);
-    final Batch <Tile> around = new Batch <Tile> ();
-    for (Tile t : Spacing.perimeter(areaClaimed, world)) if (t != null) {
-      around.add(t);
-      if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
-    }
-    if (report) I.say("\nGETTING UNPLANTED TILES FOR AREA");
-    for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (! couldPlant(t)) {
-        around.add(t);
-        if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
-      }
-    }
-    base.transport.updatePerimeter(this, inWorld, around);
-  }
-  
-  
   private int plantType(Tile t) {
-    if (! areaClaimed.contains(t.x, t.y)) return -1;
+    if (! areaClaimed.contains(t.x, t.y, 1)) return -1;
     
-    final boolean across = facing == FACING_NORTH || facing == FACING_SOUTH;
-    final int s = Nums.round(t.world.size, 6, true);  //  Modulus offset.
+    final boolean across = facing() == FACING_NORTH || facing() == FACING_SOUTH;
+    final int s = 1 + Nums.round(t.world.size, 6, true);  //  Modulus offset.
     final Tile o = origin();
     
     for (Tile n : t.allAdjacent(null)) {
@@ -260,16 +208,45 @@ public class Nursery extends Venue implements TileConstants {
       if (n.pathType() >= Tile.PATH_HINDERS && n.reserved()) return -1;
     }
     
-    if (footprint().contains(t.x, t.y)) return -1;
+    if (footprint().contains(t.x, t.y, -1)) return -1;
     if (across) {
+      if (t.y == o.y) return -1;
       if ((t.x + s - o.x) % 3 == 2) return -1;
       if ((t.x + s - o.x) % 6 == 0) return  2;
     }
     else {
+      if (t.x == o.x) return -1;
       if ((t.y + s - o.y) % 3 == 2) return -1;
       if ((t.y + s - o.y) % 6 == 0) return  2;
     }
     return 1;
+  }
+  
+  
+  private void scanForCropTiles() {
+    final boolean report = verbose && I.talkAbout == this;
+    //
+    //  TODO:  Try only doing this once, during initial setup- and avoid the
+    //  extra-cropping step.  (Or consider reserving this for the preview-
+    //  methods only?)
+    //
+    //  We then grab all plantable tiles in the area claimed.
+    final Batch <Tile> grabbed = new Batch <Tile> ();
+    if (report) {
+      I.say("\nORIGINAL AREA CLAIMED: "+areaClaimed);
+      I.say("  FOOTPRINT:   "+footprint());
+      I.say("  ORIGIN TILE: "+origin());
+    }
+    
+    final Stage world = origin().world;
+    for (Tile t : world.tilesIn(areaClaimed, true)) {
+      if (couldPlant(t)) {
+        grabbed.add(t);
+        if (report) I.say("  WILL PLANT AT: "+t);
+      }
+    }
+    toPlant = grabbed.toArray(Tile.class);
+    if (report) I.say("NEW CROPPED AREA: "+areaClaimed);
   }
   
   
@@ -318,6 +295,33 @@ public class Nursery extends Venue implements TileConstants {
     
     if (report) I.say("NEEDS TENDING: "+needsTending);
     needsTending /= toPlant.length;
+  }
+  
+  
+  
+  /**  Other general update methods-
+    */
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    if (! structure.intact()) return;
+    structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
+    if (toPlant.length == 0) scanForCropTiles();
+    if (numUpdates % 10 == 0) checkCropStates();
+  }
+  
+  
+  protected void updatePaving(boolean inWorld) {
+    final boolean report = verbose && I.talkAbout == this;
+
+    if (report) I.say("\nGETTING UNPLANTED TILES FOR AREA");
+    final Batch <Tile> around = new Batch <Tile> ();
+    for (Tile t : world.tilesIn(areaClaimed, true)) {
+      if (! couldPlant(t)) {
+        around.add(t);
+        if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
+      }
+    }
+    base.transport.updatePerimeter(this, inWorld, around);
   }
   
   
