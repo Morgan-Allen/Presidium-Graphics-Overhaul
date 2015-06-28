@@ -48,6 +48,10 @@ public class Nursery extends Venue implements TileConstants {
     Structure.NO_UPGRADES
   );
   
+  final static int
+    MAX_AREA_SIDE = Stage.ZONE_SIZE - 4,
+    MIN_AREA_SIDE = BLUEPRINT.size  + 4;
+  
   final public static Conversion
     LAND_TO_CARBS = new Conversion(
       BLUEPRINT, "land_to_carbs",
@@ -100,7 +104,7 @@ public class Nursery extends Venue implements TileConstants {
     public float ratePointDemand(Base base, Target point, boolean exact) {
       final Stage world = point.world();
       final Tile under = world.tileAt(point);
-
+      
       final Venue station = (Venue) world.presences.nearestMatch(
         EcologistStation.class, point, -1
       );
@@ -116,16 +120,30 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
+    
+    final Tile oldOrigin = origin();
     if (! super.setupWith(position, area, others)) return false;
     //
     //  By default, we claim an area 2 tiles larger than the basic footprint,
     //  but we can also have a larger area assigned (e.g, by a human player or
     //  by an automated placement-search.)
     
-    //  TODO:  Try grabbing a larger area if available!
+    final Stage world = position.world;
+    final Box2D
+      minArea = new Box2D(footprint()).expandTo(MIN_AREA_SIDE),
+      foot    = footprint();
     
-    areaClaimed.setTo(footprint()).expandBy(2);
-    if (area != null) areaClaimed.include(area);
+    if (area == null) {
+      areaClaimed.setTo(minArea);
+      areaClaimed.expandTo(MAX_AREA_SIDE);
+      areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed));
+    }
+    else {
+      areaClaimed.setTo(area);
+    }
+    if (! foot.containedBy(areaClaimed)) areaClaimed.setTo(foot);
+    if (origin() != oldOrigin) scanForCropTiles();
+    
     this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
       FACING_SOUTH : FACING_EAST
     ;
@@ -133,13 +151,48 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
+  private void scanForCropTiles() {
+    final boolean report = verbose && I.talkAbout == this;
+    
+    //  TODO:  Try only doing this once, during initial setup- and avoid the
+    //  extra-cropping step.  (Or consider reserving this for the preview-
+    //  methods only?)
+    
+    //
+    //  We then grab all plantable tiles in the area claimed and resize the
+    //  claim itself to fit neatly around those:  TODO:  FIX!!
+    final Batch <Tile> grabbed = new Batch <Tile> ();
+    final Box2D cropped = new Box2D(footprint());
+    if (report) {
+      I.say("\nORIGINAL AREA CLAIMED: "+areaClaimed);
+      I.say("  FOOTPRINT:   "+footprint());
+      I.say("  ORIGIN TILE: "+origin());
+    }
+    
+    final Stage world = origin().world;
+    for (Tile t : world.tilesIn(areaClaimed, true)) {
+      if (couldPlant(t)) {
+        grabbed.add(t);
+        cropped.include(t.x, t.y, 0.5f);
+        if (report) I.say("  WILL PLANT AT: "+t);
+      }
+    }
+    areaClaimed.setTo(cropped);
+    toPlant = grabbed.toArray(Tile.class);
+    if (report) I.say("NEW CROPPED AREA: "+areaClaimed);
+  }
+  
+  
   public boolean canPlace(Account reasons) {
     if (! super.canPlace(reasons)) return false;
-    if (areaClaimed.maxSide() > Stage.ZONE_SIZE) {
+    if (areaClaimed.maxSide() > MAX_AREA_SIDE) {
       return reasons.setFailure("Area is too large!");
     }
+    if (areaClaimed.minSide() < MIN_AREA_SIDE) {
+      return reasons.setFailure("Area is too small!");
+    }
     final Stage world = origin().world;
-    if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), 2, world)) {
+    if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
@@ -151,23 +204,15 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  protected void checkCropStates() {
-    final boolean report = verbose && I.talkAbout == this;
-    if (toPlant == null || toPlant.length == 0) {
-      if (report) I.say("\nNO CROPS TO CHECK");
-      needsTending = 0;
-      return;
-    }
-    
-    if (report) I.say("\nCHECKING CROP STATES");
-    needsTending = 0;
-    for (Tile t : toPlant) {
-      final Crop c = plantedAt(t);
-      if (c == null || c.needsTending()) needsTending++;
-    }
-    
-    if (report) I.say("NEEDS TENDING: "+needsTending);
-    needsTending /= toPlant.length;
+  public Tile[] reserved() {
+    return toPlant;
+  }
+  
+  
+  public boolean preventsClaimBy(Venue other) {
+    if (other.base() != base) return true;
+    if (other instanceof EcologistStation) return false;
+    return true;
   }
   
   
@@ -200,32 +245,6 @@ public class Nursery extends Venue implements TileConstants {
       }
     }
     base.transport.updatePerimeter(this, inWorld, around);
-  }
-  
-  
-  private void scanForCropTiles() {
-    final boolean report = verbose && I.talkAbout == this;
-    //
-    //  We then grab all plantable tiles in the area claimed and resize the
-    //  claim itself to fit neatly around those:
-    final Batch <Tile> grabbed = new Batch <Tile> ();
-    final Box2D cropped = new Box2D(footprint());
-    if (report) {
-      I.say("\nORIGINAL AREA CLAIMED: "+areaClaimed);
-      I.say("  FOOTPRINT:   "+footprint());
-      I.say("  ORIGIN TILE: "+origin());
-    }
-    
-    for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (couldPlant(t)) {
-        grabbed.add(t);
-        cropped.include(t.x, t.y, 0.5f);
-        if (report) I.say("  WILL PLANT AT: "+t);
-      }
-    }
-    areaClaimed.setTo(cropped);
-    toPlant = grabbed.toArray(Tile.class);
-    if (report) I.say("NEW CROPPED AREA: "+areaClaimed);
   }
   
   
@@ -279,6 +298,26 @@ public class Nursery extends Venue implements TileConstants {
   
   public float needForTending() {
     return needsTending;
+  }
+  
+  
+  protected void checkCropStates() {
+    final boolean report = verbose && I.talkAbout == this;
+    if (toPlant == null || toPlant.length == 0) {
+      if (report) I.say("\nNO CROPS TO CHECK");
+      needsTending = 0;
+      return;
+    }
+    
+    if (report) I.say("\nCHECKING CROP STATES");
+    needsTending = 0;
+    for (Tile t : toPlant) {
+      final Crop c = plantedAt(t);
+      if (c == null || c.needsTending()) needsTending++;
+    }
+    
+    if (report) I.say("NEEDS TENDING: "+needsTending);
+    needsTending /= toPlant.length;
   }
   
   

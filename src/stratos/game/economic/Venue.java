@@ -208,9 +208,8 @@ public abstract class Venue extends Fixture implements
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
       
       //  TODO:  You need to return a full list of conflicting venues- claims,
-      //  footprint, and perimeter- and subject them to a similar check.
-      if (c.owningTier() < this.owningTier()) continue;
-      
+      //  footprint, and perimeter- and subject them to a similar check...
+      if (SiteUtils.trumpsSiting(this, c)) continue;
       if (reasons == Account.NONE) return false;
       return reasons.setFailure("Too close to "+c);
     }
@@ -227,9 +226,11 @@ public abstract class Venue extends Fixture implements
     final Sprite sprite = this.buildSprite;
     if (sprite == null) return;
     this.viewPosition(sprite.position);
+    /*
     sprite.colour = canPlace ? Colour.GREEN : Colour.RED;
     sprite.passType = Sprite.PASS_PREVIEW;
     sprite.readyFor(rendering);
+    //*/
     renderSelection(rendering, true);
   }
   
@@ -265,8 +266,13 @@ public abstract class Venue extends Fixture implements
   }
   
   
+  public Tile[] reserved() {
+    return new Tile[0];
+  }
+  
+  
   public boolean preventsClaimBy(Venue other) {
-    return true;
+    return false;
   }
   
   
@@ -353,16 +359,17 @@ public abstract class Venue extends Fixture implements
     if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
     if (exit == null) I.complain("No exit point from "+this);
     
-    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
-      t.clearUnlessOwned();
-      RoadsRepair.updatePavingAround(t, base);
-    }
     for (Tile t : world.tilesIn(around, false)) {
       if (t != null) t.clearUnlessOwned();
     }
     for (Tile t : world.tilesIn(footprint(), false)) {
       t.setAbove(this, true);
       for (Mobile m : t.inside()) m.setPosition(exit.x, exit.y, world);
+    }
+    
+    updatePaving(true);
+    for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
+      RoadsRepair.updatePavingAround(t, base);
     }
     
     //
@@ -870,7 +877,8 @@ public abstract class Venue extends Fixture implements
     BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world,
       hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, key, true, (Object[]) structure.asGroup()
+      Selection.SELECT_OVERLAY, false,
+      key, true, this
     );
   }
 }

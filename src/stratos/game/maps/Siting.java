@@ -23,9 +23,11 @@ import stratos.util.*;
 //  6.  The ability to customise or override these methods for use in once-off
 //      placements or unique structure-types.
 
-public abstract class Siting extends Constant {
+public class Siting extends Constant {
   
   
+  /**  Data fields, constructors and save/load methods-
+    */
   final static Index <Siting> INDEX = new Index();
   
   final public Blueprint blueprint;
@@ -38,7 +40,7 @@ public abstract class Siting extends Constant {
   }
   
   
-  public Siting loadConstant(Session s) throws Exception {
+  public static Siting loadConstant(Session s) throws Exception {
     return INDEX.loadEntry(s.input());
   }
   
@@ -54,6 +56,8 @@ public abstract class Siting extends Constant {
   
   
   
+  /**  Default methods for rating placement within a given map...
+    */
   public float rateSettlementDemand(Base base) {
     float sumDemand = 0;
     for (Conversion c : blueprint.production()) if (c.out != null) {
@@ -70,7 +74,7 @@ public abstract class Siting extends Constant {
   
   
   public float ratePointDemand(Base base, Target point, boolean exact) {
-    float sumRating = 0;
+    float sumRating = 1;
     
     //  TODO:  Also include the effects of ambience & danger!  (And try to
     //  make sure that venues cluster together a bit, for neatness' sake.)
@@ -90,7 +94,7 @@ public abstract class Siting extends Constant {
         supply /= i.amount * c.raw.length;
       }
       
-      sumRating += supply * demand;
+      sumRating += supply * demand / 10;
     }
     return sumRating;
   }

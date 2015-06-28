@@ -366,7 +366,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       }
     };
     
-    final Stage world = null;
     reservations = layers[lID + 1] = new LayerType(
       Habitat.RESERVE_TEXTURE, true, lID + 1, "reservations"
     ) {

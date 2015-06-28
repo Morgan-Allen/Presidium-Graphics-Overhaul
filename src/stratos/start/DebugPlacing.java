@@ -89,12 +89,12 @@ public class DebugPlacing extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
     
-    if (true ) configEcology  (world, base, UI);
+    if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
     if (false) configMinesTest(world, base, UI);
-    if (false) configPlantTest(world, base, UI);
+    if (true ) configPlantTest(world, base, UI);
   }
   
   
@@ -199,19 +199,22 @@ public class DebugPlacing extends Scenario {
     final EcologistStation station = new EcologistStation(base);
     SiteUtils.establishVenue(station, 8, 8, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = Item.with(Economy.SAMPLES, s, 1, 4);
+      final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);
       station.stocks.addItem(seed);
     }
     base.setup.fillVacancies(station, true);
     
     final Nursery site = new Nursery(base);
-    final Box2D area = new Box2D(13, 4, 10, 10);
-    site.setupWith(world.tileAt(18, 8), area);
-    if (site.canPlace()) site.doPlacement(false);
+    final SitingPass pass = new SitingPass(base, site);
+    pass.isVerbose = true;
+    pass.placeState = SitingPass.PLACE_INTACT;
+    pass.performFullPass();
     
+    /*
     final Bastion bastion = new Bastion(base);
     SiteUtils.establishVenue(bastion, site, true, world);
     base.setup.fillVacancies(bastion, true);
+    //*/
   }
   
   

@@ -98,13 +98,32 @@ public class SiteUtils implements TileConstants {
     return checkAreaClear(origin, (int) area.xdim(), (int) area.ydim());
   }
   
+  
+  public static float worldOverlap(Target point, Stage world, int claimSize) {
+    final Vec3D at = point.position(null);
+    Box2D area = new Box2D(at.x, at.y, 0, 0);
+    area.expandBy(claimSize);
+    
+    float fullArea = area.area();
+    area.cropBy(world.area());
+    return area.area() / fullArea;
+  }
+  
 
   public static Venue establishVenue(
     final Venue v, final Target near, boolean intact, Stage world,
     Actor... employed
   ) {
-    final Tile at = v.base().world.tileAt(near);
-    return establishVenue(v, at.x, at.y, intact, world, employed);
+    if (v.blueprint.siting() == null) return null;
+    final SitingPass pass = new SitingPass(v.base(), null, v) {
+      protected float ratePlacing(Target point, boolean exact) {
+        float rating = 1 / (1 + Spacing.zoneDistance(point, near));
+        return rating;
+      }
+    };
+    if (intact) pass.placeState = SitingPass.PLACE_INTACT;
+    pass.performFullPass();
+    return v.inWorld() ? v : null;
   }
   
 
@@ -112,10 +131,19 @@ public class SiteUtils implements TileConstants {
     final Venue v, int atX, int atY, boolean intact, final Stage world,
     Actor... employed
   ) {
-    final SitingPass pass = new SitingPass(v.base(), v);
-    if (intact) pass.placeState = SitingPass.PLACE_INTACT;
-    pass.performFullPass();
-    return v.inWorld() ? v : null;
+    final Tile at = world.tileAt(atX, atY);
+    return establishVenue(v, at, intact, world, employed);
+  }
+  
+  
+  
+  /**  Checks whether or not one owner trumps another-
+    */
+  public static boolean trumpsSiting(Placeable placed, Placeable other) {
+    if (placed.owningTier() >= Owner.TIER_FACILITY) {
+      return other.owningTier() < Owner.TIER_FACILITY;
+    }
+    else return other.owningTier() < placed.owningTier();
   }
   
   
@@ -227,9 +255,6 @@ public class SiteUtils implements TileConstants {
     final Batch <Tile> scanned = new Batch <Tile> ();
     final Batch <Venue> placed = new Batch <Venue> ();
     
-    //  TODO:  Try to get rid of these 'hS'/half-size offsets, both here and in
-    //         the PlacingTask class?  It's a tad confusing.
-    
     for (int dir = 4; dir-- > 0;) {
       Batch <Coord> points = new Batch <Coord> ();
       Box2D area = null;
@@ -243,22 +268,14 @@ public class SiteUtils implements TileConstants {
         p.flagWith(scanned);
         scanned.add(p);
       }
-      
       final Coord pointsA[] = points.toArray(Coord.class);
-      final Batch <Venue> group = new Batch <Venue> ();
       
       for (Coord c : points) {
         final Venue s = type.createVenue(base);
         s.setPosition(c.x, c.y, world);
         s.setupWith(s.origin(), area, pointsA);
-        if (s.canPlace()) group.add(s);
-      }
-      
-      final Venue groupA[] = group.toArray(Venue.class);
-      
-      for (Venue s : group) {
+        if (! s.canPlace()) continue;
         s.doPlacement(intact);
-        s.structure.assignGroup(groupA);
         placed.add(s);
       }
     }
@@ -272,7 +289,7 @@ public class SiteUtils implements TileConstants {
   /**  Other utility methods intended to help ensure free and easy pathing-
     */
   public static boolean pathingOkayAround(
-    Target subject, Box2D footprint, int tier, int margin, Stage world
+    Target subject, Box2D footprint, int tier, Stage world
   ) {
     final boolean shows = tier >= Owner.TIER_PRIVATE && showPockets;
     final Tile perimeter[] = Spacing.perimeter(footprint, world);
@@ -281,7 +298,7 @@ public class SiteUtils implements TileConstants {
     //  adjacent 'pockets' of pathable terrain that can be traced from the
     //  perimeter.  (The trace- length is limited to reduce computation-burden,
     //  and also because very long detours are bad for pathing.)
-    final int maxTrace = perimeter.length + (Stage.ZONE_SIZE * margin) / 4;
+    final int maxTrace = perimeter.length + (Stage.ZONE_SIZE / 2);
     final Batch <Batch <Tile>> pocketsFound = new Batch();
     for (Tile t : perimeter) {
       final Batch <Tile> pocket = findPocket(t, footprint, maxTrace, tier);
@@ -298,7 +315,7 @@ public class SiteUtils implements TileConstants {
       numRealPockets++;
       //
       //  (NOTE: Visual overlay creation may be toggled on for debug purposes.)
-      if (shows && margin == 1) {
+      if (shows) {
         final TerrainChunk overlay = world.terrain().createOverlay(
           world, pocket.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
         );
@@ -310,12 +327,7 @@ public class SiteUtils implements TileConstants {
       }
     }
     if (numRealPockets != 1) return false;
-    //
-    //  If an extra safety-margin is required, we expand the area and check
-    //  again at that size.  Otherwise return.
-    if (margin <= 1) return true;
-    final Box2D expanded = new Box2D(footprint).expandBy(1);
-    return pathingOkayAround(subject, expanded, tier, margin - 1, world);
+    else return true;
   }
   
   
@@ -377,12 +389,6 @@ public class SiteUtils implements TileConstants {
   }
   
   
-  private static boolean hasBlockingOwner(Tile t, Box2D area, int tier) {
-    if (singleTileClear(t, area, tier)) return false;
-    return t != null && t.above() != null;
-  }
-  
-  
   private static boolean singleTileClear(Tile t, Box2D footprint, int tier) {
     if (t == null || ! t.habitat().pathClear) return false;
     if (footprint.contains(t.x, t.y)) return false;
@@ -391,12 +397,12 @@ public class SiteUtils implements TileConstants {
   
   
   public static boolean pathingOkayAround(Element e, Stage world) {
-    return pathingOkayAround(e, e.area(null), e.owningTier(), 2, world);
+    return pathingOkayAround(e, e.area(null), e.owningTier(), world);
   }
   
   
   public static boolean pathingOkayAround(Tile t, int tier) {
-    return pathingOkayAround(t, t.area(null), tier, 2, t.world);
+    return pathingOkayAround(t, t.area(null), tier, t.world);
   }
   
   
@@ -444,117 +450,4 @@ public class SiteUtils implements TileConstants {
 }
 
 
-
-  
-  /*
-  public static Tile findClearSpot(
-    final Target near, final Stage world, final int margin
-  ) {
-    final Tile init = world.tileAt(near);
-    final float maxDist = near.radius() + 0.5f + (Stage.ZONE_SIZE / 2);
-    
-    final TileSpread search = new TileSpread(init) {
-      
-      protected boolean canAccess(Tile t) {
-        if (Spacing.distance(t, init) > maxDist) return false;
-        return t.onTop() == near || ! t.blocked();
-      }
-      
-      protected boolean canPlaceAt(Tile t) {
-        final Tile c = world.tileAt(t.x - margin, t.y - margin);
-        return checkAreaClear(c, margin * 2, margin * 2);
-      }
-    };
-    search.doSearch();
-    if (search.success()) return search.bestFound();
-    else return null;
-  }
-  //*/
-
-  
-  /*
-  //
-  //  NOTE:  This method assumes that the fixtures in question will occupy a
-  //  contiguous 'strip' or bloc for placement purposes.
-  public static boolean checkPlacement(
-    Placeable fixtures[], Stage world
-  ) {
-    Box2D limits = null;
-    for (Placeable f : fixtures) {
-      if (limits == null) limits = new Box2D(f.footprint());
-      else limits.include(f.footprint());
-    }
-    if (! checkAreaClear(
-      world.tileAt(limits.xpos() + 0.5f, limits.ypos() + 0.5f),
-      (int) limits.xdim(),
-      (int) limits.ydim()
-    )) return false;
-    
-    for (Placeable f : fixtures) {
-      if (! f.canPlace(Account.NONE)) return false;
-    }
-    return true;
-  }
-  
-  
-  public static boolean findClearanceFor(
-    final Venue v, final Target near, final Stage world
-  ) {
-    //  TODO:  USE A PROPER SITING-CLASS FOR THIS
-    
-    final int maxDist = Stage.ZONE_SIZE / 2;
-    final Tile init = world.tileAt(near);
-    if (init == null) return false;
-    
-    //  For now, I'm just going to use the perimeter-methods to 'spiral out'
-    //  from the target in question and try tiles until you find a placement-
-    //  location.  (I ran into problems with tiles being simultaneously flagged
-    //  by the TileSpread and the pathingOkayAround method before.)
-    //  TODO:  Like it says, use a proper Siting class implementation
-    
-    v.setPosition(init.x, init.y, world);
-    if (checkPlacement(v.structure.asGroup(), world)) return true;
-    
-    Box2D area = new Box2D();
-    for (int m = 0; m < maxDist; m++) {
-      init.area(area).expandBy(m);
-      for (Tile t : Spacing.perimeter(area, world)) {
-        v.setPosition(t.x, t.y, world);
-        if (checkPlacement(v.structure.asGroup(), world)) return true;
-      }
-    }
-    return false;
-  }
-  
-  
-  public static Venue establishVenue(
-    final Venue v, final Target near, boolean intact, Stage world,
-    Actor... employed
-  ) {
-    if (! findClearanceFor(v, near, world)) return null;
-    if (! v.setupWith(v.origin(), null)) return null;
-    
-    for (Placeable i : v.structure.asGroup()) {
-      i.doPlacement(intact);
-      ((Element) i).setAsEstablished(true);
-    }
-    return v;
-  }
-  
-  
-  public static Venue establishVenue(
-    final Venue v, int atX, int atY, boolean intact, final Stage world,
-    Actor... employed
-  ) {
-    final Tile near = world.tileAt(atX, atY);
-    if (establishVenue(v, near, intact, world, employed) == null) {
-      return null;
-    }
-    if (! Visit.empty(employed)) {
-      v.base().setup.fillVacancies(v, intact, employed);
-    }
-    if (GameSettings.hireFree) v.base().setup.fillVacancies(v, intact);
-    return v;
-  }
-  //*/
 

@@ -15,7 +15,7 @@ import stratos.util.*;
   *  both possess a structure:
   */
 public interface Placeable extends
-  Session.Saveable, Target, Selectable, Accountable
+  Session.Saveable, Target, Selectable, Accountable, Owner
 {
   
   Box2D footprint();

@@ -109,6 +109,7 @@ public abstract class Mobile extends Element
   
   
   public boolean enterWorldAt(Target t, Stage world) {
+    if (! t.inWorld()) I.complain("\n"+t+" IS NOT IN WORLD!");
     final Vec3D p = t.position(null);
     if (! setPosition(p.x, p.y, world)) return false;
     //

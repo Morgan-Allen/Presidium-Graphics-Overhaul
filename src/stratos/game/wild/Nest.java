@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.BaseDemands;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.SiteUtils;
 import stratos.game.maps.Siting;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -156,15 +157,8 @@ public class Nest extends Venue {
     //
     //  Include the effects of border-positioning-
     if (point != null) {
-      final Vec3D at = point.position(null);
-      Box2D area = new Box2D(at.x, at.y, 0, 0);
-      area.expandBy((int) forageRange);
-      
-      float fullArea = area.area();
-      area.cropBy(world.area());
-      foodSupply *= area.area() / fullArea;
+      foodSupply *= SiteUtils.worldOverlap(point, world, (int) forageRange);
     }
-    
     //
     //  If possible, we cache the result obtained for later use:
     final float estimate = (foodSupply / species.metabolism());

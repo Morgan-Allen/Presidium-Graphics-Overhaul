@@ -9,15 +9,18 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
+//  TODO:  If you wanted, you could break this down into successively-finer
+//  quadrants, mip-map style...
+
 public class SitingPass {
   
   
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    verbose        = true ,
-    regionsVerbose = false,
-    tilesVerbose   = false;
+    verbose        = false,
+    regionsVerbose = true ,
+    tilesVerbose   = true ;
   
   final public static int
     NO_PLACING    = 0,
@@ -38,9 +41,7 @@ public class SitingPass {
   
   public float rating = -1;
   public int placeState = PLACE_RESERVE;
-  
-  //  TODO:  If you wanted, you could break this down into successively-finer
-  //  quadrants, mip-map style...
+  public boolean isVerbose = false;
 
   int stage = STAGE_INIT;
   StageRegion nextRegion;
@@ -109,10 +110,10 @@ public class SitingPass {
       pass.tilesSort.addFromPass (s.loadTarget(), s.loadFloat());
     }
     
-    pass.stage      = s.loadInt();
+    pass.stage      = s.loadInt  ();
     pass.picked     = (Tile) s.loadObject();
     pass.rating     = s.loadFloat();
-    pass.placeState = s.loadInt();
+    pass.placeState = s.loadInt  ();
     
     return pass;
   }
@@ -207,9 +208,10 @@ public class SitingPass {
   /**  Time-slicing methods to ensure good use of CPU time-
     */
   void performSteps(final int stepLimit) {
-    final boolean report = verbose;
+    final boolean report = verbose || isVerbose;
     if (report) {
-      I.say("\nPerforming siting pass, steps allowed: "+stepLimit);
+      I.say("\nPerforming siting pass for: "+placed);
+      I.say("  Steps allowed: "+stepLimit);
     }
     
     int stepsDone = 0;
@@ -226,7 +228,7 @@ public class SitingPass {
   
   
   boolean addRegionToSort() {
-    final boolean report = verbose && regionsVerbose;
+    final boolean report = (verbose || isVerbose) && regionsVerbose;
     
     if (nextRegion == null) nextRegion = world.sections.sectionAt(0, 0);
     else {
@@ -255,7 +257,7 @@ public class SitingPass {
   boolean addTileToSort() {
     final StageRegion r = nextRegion;
     
-    final boolean report = verbose && tilesVerbose;
+    final boolean report = (verbose || isVerbose) && tilesVerbose;
     
     if (nextTile == null) {
       nextTile = world.tileAt(r.absX, r.absY);
@@ -284,7 +286,7 @@ public class SitingPass {
   
   
   boolean doPlaceCheck() {
-    final boolean report = verbose;
+    final boolean report = verbose || isVerbose;
     
     final Tile best = (Tile) tilesSort.nextForPass();
     if (best == null) {

@@ -106,7 +106,8 @@ public class LayerPattern implements TileConstants {
       {1, 5}   //15- all 4 corners
     },
     INNER_FRINGE_UV[][]     = shrinkUVMap(INNER_FRINGE_INDEX, 8, 0, 0),
-    INNER_FRINGE_ALT_UV[][] = shrinkUVMap(INNER_FRINGE_INDEX, 8, 4, 0);
+    INNER_FRINGE_ALT_UV[][] = shrinkUVMap(INNER_FRINGE_INDEX, 8, 4, 0),
+    INNER_FRINGE_CENTRE[]   = INNER_FRINGE_UV[31];
   private final static int innerIndices[] = new int[2];
   private static float innerUV[][] = new float[2][];
   

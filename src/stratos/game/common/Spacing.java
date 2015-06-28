@@ -236,7 +236,7 @@ public final class Spacing implements TileConstants {
   }
   
 
-  final public static float sectorDistance(final Target a, final Target b) {
+  final public static float zoneDistance(final Target a, final Target b) {
     return distance(a, b) / Stage.ZONE_SIZE;
   }
   

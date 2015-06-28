@@ -130,7 +130,7 @@ public class BaseSetup {
     float sumFractions, float buildLimit,
     Batch <Venue> record, boolean report
   ) {
-    report = true && (sorting.size() > 0 || canPlace != null);
+    report &= extraVerbose && (sorting.size() > 0 || canPlace != null);
     if (report) {
       I.say("\nUpdating siting passes for "+base);
       I.say("  Pass fraction: "+sumFractions  );

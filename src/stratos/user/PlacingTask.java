@@ -7,10 +7,11 @@ package stratos.user;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import stratos.graphics.widgets.KeyInput;
+
 import com.badlogic.gdx.Input.Keys;
 
 
@@ -131,14 +132,6 @@ public class PlacingTask implements UITask {
       placePoints.add(new Coord((int) c.x, (int) c.y));
     }
     //
-    //  If an area hasn't been specified already, construct one to envelope
-    //  all the place-points generated.
-    if (area == null) for (Coord c : placePoints) {
-      final Box2D foot = new Box2D(c.x, c.y, baseSize, baseSize);
-      if (area == null) area = new Box2D(foot);
-      else area.include(foot);
-    }
-    //
     //  Check to see if placement is possible, render the preview, and if
     //  confirmed, initiate construction.
     boolean canPlace = checkPlacingOkay(area, placePoints);
@@ -220,10 +213,12 @@ public class PlacingTask implements UITask {
   
   /**  Rendering/preview and debug methods-
     */
+  /*
   final static ImageAsset
     FOOTPRINT_TEX = ImageAsset.fromImage(
       PlacingTask.class, "media/GUI/blank_back.png"
     );
+  //*/
   
   private void renderPlacement(
     Box2D area, Batch <Coord> placePoints, boolean canPlace
@@ -232,20 +227,24 @@ public class PlacingTask implements UITask {
     //
     //  Base venue sprites off their current and projected neighbours!
     final Batch <Object> under = new Batch <Object> ();
-    under.add(area);
     
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
       if (p != null && p.origin() != null) {
         p.previewPlacement(canPlace, UI.rendering);
-        if (p.mainEntrance() != null) under.add(p.mainEntrance());
+        
+        under.add(p.footprint());
+        for (Tile t : p.reserved()) under.add(t);
+        //if (p.mainEntrance() != null) under.add(p.mainEntrance());
+        //for (Boarding b : p.canBoard()) under.add(b);
       }
     }
     
     UI.selection.renderTileOverlay(
       UI.rendering, UI.played().world,
-      canPlace ? Colour.SOFT_GREEN : Colour.SOFT_RED,
-      FOOTPRINT_TEX, "install_preview", false, under.toArray()
+      canPlace ? Colour.WHITE : Colour.RED,
+      Habitat.RESERVE_TEXTURE, true,
+      "install_preview", false, under.toArray()
     );
   }
   

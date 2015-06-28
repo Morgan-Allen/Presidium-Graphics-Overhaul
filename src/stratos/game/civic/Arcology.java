@@ -82,9 +82,10 @@ public class Arcology extends Venue {
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     
-    //  TODO:  You need to insert a special widget here at every 4th space, and
-    //  cap correctly around that...
+    if (area == null) area = new Box2D(footprint());
     
+    //  TODO:  You need to insert a special widget here at every 4th space, and
+    //  cap correctly around that!  (Consider the condensor?)
     
     final Object model = SiteUtils.setupSegment(
       this, position, area, others, MODELS_X_AXIS, MODELS_Y_AXIS

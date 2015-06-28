@@ -187,27 +187,22 @@ public class TutorialScenario extends StartupScenario {
     ruinsNear = (Ruins) RB.createVenue(artilects);
     ruinsFar  = (Ruins) RB.createVenue(artilects);
     ruinsNear.structure.setupStats(200, 5, 0, 0, RB.properties);
-    //
-    //  TODO:  I'm going to have to create custom Siting objects for the
-    //  various blueprints, and to allow for customised placement-passes like
-    //  this one...
-    final List <StageRegion> regions = new List <StageRegion> () {
-      protected float queuePriority(StageRegion r) {
-        return Spacing.distance(r, bastion);
+    
+    final SitingPass nearPass = new SitingPass(artilects, ruinsNear) {
+      protected float ratePlacing(Target point, boolean exact) {
+        float rating = super.ratePlacing(point, exact);
+        return rating / (1 + Spacing.zoneDistance(point, bastion));
       }
     };
-    for (StageRegion s : world.sections.sectionsUnder(world.area(), 0)) {
-      regions.add(s);
-    }
-    regions.queueSort();
-    
-    for (StageRegion s : regions) {
-      if (SiteUtils.establishVenue(ruinsNear, s, true, world) != null) break;
-    }
-    for (ListEntry l = regions; (l = l.lastEntry()) != regions;) {
-      final StageRegion s = (StageRegion) l.refers;
-      if (SiteUtils.establishVenue(ruinsFar, s, true, world) != null) break;
-    }
+    final SitingPass farPass = new SitingPass(artilects, ruinsFar) {
+      protected float ratePlacing(Target point, boolean exact) {
+        float rating = super.ratePlacing(point, exact);
+        return rating * (1 + Spacing.zoneDistance(point, bastion));
+      }
+    };
+    farPass.placeState = nearPass.placeState = SitingPass.PLACE_INTACT;
+    nearPass.performFullPass();
+    farPass .performFullPass();
   }
   
   
