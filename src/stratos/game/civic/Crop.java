@@ -348,7 +348,7 @@ public class Crop extends Element {
   protected void updateSprite() {
     if (covered) {
       final int f = parent.facing();
-      boolean across = f == Venue.FACING_NORTH || f == Venue.FACING_SOUTH;
+      boolean across = f == Venue.FACE_NORTH || f == Venue.FACE_SOUTH;
       if (across) attachModel(COVERING_RIGHT);
       else        attachModel(COVERING_LEFT );
       return;

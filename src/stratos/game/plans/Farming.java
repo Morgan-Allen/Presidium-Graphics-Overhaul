@@ -144,7 +144,7 @@ public class Farming extends Plan {
   
   
   public Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
     if (report) {
       I.say("\nGETTING NEXT FARMING STEP AT "+nursery.origin());
@@ -164,7 +164,7 @@ public class Farming extends Plan {
     float minDist = Float.POSITIVE_INFINITY, dist;
     
     Tile toFarm = null;
-    if (seedImpulse > 0) for (Tile t : nursery.toPlant()) {
+    if (seedImpulse > 0) for (Tile t : nursery.reserved()) {
       if (! nursery.couldPlant(t)) continue;
       if (report) I.say("  Checking tile: "+t);
       
@@ -177,7 +177,7 @@ public class Farming extends Plan {
     }
     
     if (report) {
-      I.say("  Tiles claimed: "+nursery.toPlant().length);
+      I.say("  Tiles claimed: "+nursery.reserved().length);
       I.say("  TILE TO PLANT: "+toFarm);
     }
     

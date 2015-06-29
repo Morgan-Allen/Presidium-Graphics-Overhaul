@@ -177,7 +177,7 @@ public class PlacingTask implements UITask {
       final Venue p = placingAt(c, area, placePoints);
       if (p == null) { canPlace = false; break; }
       if (KeyInput.wasTyped('e')) {
-        for (int n = Venue.ALL_FACINGS.length, face = p.facing(); n-- > 0;) {
+        for (int n = Venue.ALL_FACES.length, face = p.facing(); n-- > 0;) {
           p.setFacing(++face);
           if (SiteUtils.isViableEntrance(p, p.mainEntrance())) break;
         }

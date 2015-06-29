@@ -64,7 +64,9 @@ public class Nursery extends Venue implements TileConstants {
   
   
   private Box2D areaClaimed = new Box2D();
-  private Tile toPlant[] = new Tile[0];
+  private Tile reserved[]   = new Tile[0];
+  private Tile toPave[]     = new Tile[0];
+  private byte useMap[][]   = new byte[0][0];
   private float needsTending = 0;
   
   
@@ -78,7 +80,10 @@ public class Nursery extends Venue implements TileConstants {
   public Nursery(Session s) throws Exception {
     super(s);
     areaClaimed.loadFrom(s.input());
-    toPlant      = (Tile[]) s.loadObjectArray(Tile.class);
+    reserved = (Tile[]) s.loadObjectArray(Tile.class);
+    toPave   = (Tile[]) s.loadObjectArray(Tile.class);
+    useMap   = new byte[(int) areaClaimed.xdim()][(int) areaClaimed.ydim()];
+    s.loadByteArray(useMap);
     needsTending = s.loadFloat();
   }
   
@@ -86,7 +91,9 @@ public class Nursery extends Venue implements TileConstants {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     areaClaimed.saveTo(s.output());
-    s.saveObjectArray(toPlant     );
+    s.saveObjectArray(reserved    );
+    s.saveObjectArray(toPave      );
+    s.saveByteArray  (useMap      );
     s.saveFloat      (needsTending);
   }
   
@@ -120,8 +127,6 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
-    
-    final Tile oldOrigin = origin();
     if (! super.setupWith(position, area, others)) return false;
     //
     //  By default, we claim an area 2 tiles larger than the basic footprint,
@@ -141,7 +146,7 @@ public class Nursery extends Venue implements TileConstants {
       areaClaimed.setY(at.y - 4.5f, MAX_CLAIM_SIDE);
       
       //  TODO:  Crop with an extra margin to allow clearance?
-      areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed));
+      areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed, world));
     }
     else {
       areaClaimed.setTo(area);
@@ -151,9 +156,8 @@ public class Nursery extends Venue implements TileConstants {
     //  NOTE:  Facing must be set before crop-tiles are settled on, as this
     //  affects row-orientation!
     setFacing(areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACING_SOUTH : FACING_EAST
+      FACE_SOUTH : FACE_EAST
     );
-    if (at != oldOrigin) scanForCropTiles();
     return true;
   }
   
@@ -183,7 +187,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Tile[] reserved() {
-    return toPlant;
+    return reserved;
   }
   
   
@@ -196,74 +200,33 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Utility methods for handling tile-planting:
     */
+  public void doPlacement(boolean intact) {
+    super.doPlacement(intact);
+    
+    final SiteUtils.Division d = SiteUtils.getAreaDivision(
+      this, areaClaimed, facing(), 3, this
+    );
+    this.reserved = d.reserved;
+    this.toPave   = d.toPave  ;
+    this.useMap   = d.useMap  ;
+  }
+  
+  
   private int plantType(Tile t) {
-    if (! areaClaimed.contains(t.x, t.y, 1)) return -1;
-    
-    final boolean across = facing() == FACING_NORTH || facing() == FACING_SOUTH;
-    final int s = Nums.round(t.world.size, 6, true);  //  Modulus offset.
-    final Tile o = origin();
-    
-    for (Tile n : t.allAdjacent(null)) {
-      if (n == null || (n.above() instanceof Crop)) continue;
-      if (n.pathType() >= Tile.PATH_HINDERS && n.reserved()) return -1;
-    }
-    
-    if (footprint().contains(t.x, t.y, -1)) return -1;
-    if (across) {
-      if (t.y == o.y) return -1;
-      if ((t.x + s - o.x) % 3 == 2) return -1;
-      if ((t.x + s - o.x) % 6 == 0) return  2;
-    }
-    else {
-      if (t.x == o.x) return -1;
-      if ((t.y + s - o.y) % 3 == 2) return -1;
-      if ((t.y + s - o.y) % 6 == 0) return  2;
-    }
-    return 1;
+    final Tile o = t.world.tileAt(areaClaimed.xpos(), areaClaimed.ypos());
+    if (o == null) return -1;
+    try { return useMap[t.x - o.x][t.y - o.y]; }
+    catch (ArrayIndexOutOfBoundsException e) { return -1; }
   }
   
-  
-  private void scanForCropTiles() {
-    final boolean report = verbose && I.talkAbout == this;
-    //
-    //  TODO:  Try only doing this once, during initial setup- and avoid the
-    //  extra-cropping step.  (Or consider reserving this for the preview-
-    //  methods only?)
-    //
-    //  We then grab all plantable tiles in the area claimed.
-    final Batch <Tile> grabbed = new Batch <Tile> ();
-    if (report) {
-      I.say("\nORIGINAL AREA CLAIMED: "+areaClaimed);
-      I.say("  FOOTPRINT:   "+footprint());
-      I.say("  ORIGIN TILE: "+origin());
-    }
-    
-    final Stage world = origin().world;
-    for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (couldPlant(t)) {
-        grabbed.add(t);
-        if (report) I.say("  WILL PLANT AT: "+t);
-      }
-    }
-    toPlant = grabbed.toArray(Tile.class);
-    if (report) I.say("NEW CROPPED AREA: "+areaClaimed);
-  }
-  
-  
+
   public boolean couldPlant(Tile t) {
-    if (! t.habitat().pathClear) return false;
-    if (t.above() instanceof Crop || ! t.reserved()) return plantType(t) > 0;
-    return false;
+    return plantType(t) > 0;
   }
   
   
   public boolean shouldCover(Tile t) {
     return plantType(t) == 2;
-  }
-
-
-  public Tile[] toPlant() {
-    return toPlant;
   }
   
   
@@ -280,7 +243,7 @@ public class Nursery extends Venue implements TileConstants {
   
   protected void checkCropStates() {
     final boolean report = verbose && I.talkAbout == this;
-    if (toPlant == null || toPlant.length == 0) {
+    if (Visit.empty(reserved)) {
       if (report) I.say("\nNO CROPS TO CHECK");
       needsTending = 0;
       return;
@@ -288,13 +251,13 @@ public class Nursery extends Venue implements TileConstants {
     
     if (report) I.say("\nCHECKING CROP STATES");
     needsTending = 0;
-    for (Tile t : toPlant) {
+    for (Tile t : reserved) {
       final Crop c = plantedAt(t);
       if (c == null || c.needsTending()) needsTending++;
     }
     
     if (report) I.say("NEEDS TENDING: "+needsTending);
-    needsTending /= toPlant.length;
+    needsTending /= reserved.length;
   }
   
   
@@ -305,23 +268,12 @@ public class Nursery extends Venue implements TileConstants {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
-    if (toPlant.length == 0) scanForCropTiles();
     if (numUpdates % 10 == 0) checkCropStates();
   }
   
   
   protected void updatePaving(boolean inWorld) {
-    final boolean report = verbose && I.talkAbout == this;
-
-    if (report) I.say("\nGETTING UNPLANTED TILES FOR AREA");
-    final Batch <Tile> around = new Batch <Tile> ();
-    for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (! couldPlant(t)) {
-        around.add(t);
-        if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
-      }
-    }
-    base.transport.updatePerimeter(this, inWorld, around);
+    base.transport.updatePerimeter(this, inWorld, toPave);
   }
   
   
@@ -348,16 +300,15 @@ public class Nursery extends Venue implements TileConstants {
     AWAITING_GROWTH_INFO =
       "The crops around this Nursery have yet to mature.  Allow them a few "+
       "days to bear fruit.";
-  
+
   private String compileOutputReport() {
     final StringBuffer s = new StringBuffer();
-    
-    final int numTiles = toPlant.length;
+    final int numTiles = reserved.length;
     float
       health = 0, growth = 0, fertility = 0,
       numPlant = 0, numCarbs = 0, numGreens = 0;
     
-    for (Tile t : toPlant) {
+    for (Tile t : reserved) {
       final Crop c = plantedAt(t);
       fertility += t.habitat().moisture();
       if (c == null) continue;
@@ -401,6 +352,18 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
+  public void previewPlacement(boolean canPlace, Rendering rendering) {
+    
+    //  TODO:  Factor this out!
+    final SiteUtils.Division d = SiteUtils.getAreaDivision(
+      this, areaClaimed, facing(), 3, this
+    );
+    this.reserved = d.reserved;
+    
+    super.previewPlacement(canPlace, rendering);
+  }
+  
+  
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
@@ -411,4 +374,9 @@ public class Nursery extends Venue implements TileConstants {
     else return super.helpInfo();
   }
 }
+
+
+
+
+
 

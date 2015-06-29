@@ -239,8 +239,9 @@ public class ClaimsGrid {
   
   /**  Methods for dynamically resizing new claims-
     */
-  public Box2D cropNewClaim(Venue venue, Box2D original) {
+  public Box2D cropNewClaim(Venue venue, Box2D original, Stage world) {
     final Box2D cropped = new Box2D(original);
+    cropped.cropBy(world.area());
     for (Claim c : claimsConflicting(original, venue)) {
       
       //  TODO:  The area in conflict might be either the full claim-radius or

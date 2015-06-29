@@ -125,7 +125,7 @@ public class Bastion extends Venue {
   
   
   public void setFacing(int facing) {
-    super.setFacing(FACING_EAST);
+    super.setFacing(FACE_EAST);
   }
   
   

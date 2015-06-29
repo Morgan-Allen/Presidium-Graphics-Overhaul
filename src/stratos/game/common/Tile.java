@@ -279,6 +279,7 @@ public final class Tile implements
     if (boardingCache != null) return boardingCache;
     final Boarding batch[] = new Boarding[8];
     isEntrance = false;
+    boolean flagReserve = false;
     
     //  If you're actually occupied, allow boarding of the owner-
     if (blocked() && above() instanceof Boarding) {
@@ -307,8 +308,15 @@ public final class Tile implements
       if (v.isEntrance(this)) {
         isEntrance = true;
         if (v == t.above()) batch[n] = v;
+        else flagReserve = true;
       }
     }
+    
+    //  Flag yourself for reservation display ONLY if you're an entrance for
+    //  something unbuilt...
+    //  TODO:  Consider retaining this, but with a less obvious display- like
+    //  a swing-door symbol, or a ramp-icon, or similar?
+    ///if (reserves == null) world.terrain().setReservedAt(this, flagReserve);
     
     //  Cache and return-
     boardingCache = batch;

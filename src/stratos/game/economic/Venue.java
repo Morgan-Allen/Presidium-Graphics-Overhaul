@@ -26,14 +26,14 @@ public abstract class Venue extends Fixture implements
   /**  Field definitions, constants, constructors, and save/load methods.
     */
   final public static int
-    FACING_INIT   = -2,
-    FACING_NONE   = -1,
-    FACING_NORTH  =  N / 2,
-    FACING_EAST   =  E / 2,
-    FACING_SOUTH  =  S / 2,
-    FACING_WEST   =  W / 2,
-    ALL_FACINGS[] = { FACING_SOUTH, FACING_EAST, FACING_NORTH, FACING_WEST },
-    NUM_FACES     =  ALL_FACINGS.length;
+    FACE_INIT   = -2,
+    FACE_NONE   = -1,
+    FACE_NORTH  =  N / 2,
+    FACE_EAST   =  E / 2,
+    FACE_SOUTH  =  S / 2,
+    FACE_WEST   =  W / 2,
+    ALL_FACES[] = { FACE_SOUTH, FACE_EAST, FACE_NORTH, FACE_WEST },
+    NUM_FACES   =  ALL_FACES.length;
   
   final public static int
     PRIMARY_SHIFT      = 1,
@@ -57,7 +57,7 @@ public abstract class Venue extends Fixture implements
   
   protected Tile entrance;
   private List <Mobile> inside = new List <Mobile> ();
-  private int facing = FACING_INIT;
+  private int facing = FACE_INIT;
   
   protected BuildingSprite buildSprite;
   final public TalkFX chat = new TalkFX();
@@ -164,7 +164,7 @@ public abstract class Venue extends Fixture implements
     //  If position has been changed (or has been initially assigned) then
     //  we can take the liberty of choosing our ideal entrance-
     if (moved) setFacing(SiteUtils.pickBestEntranceFace(this));
-    if (facing == FACING_INIT) setFacing(FACING_NONE);
+    if (facing == FACE_INIT) setFacing(FACE_NONE);
     return true;
   }
   
@@ -890,7 +890,7 @@ public abstract class Venue extends Fixture implements
       rendering, origin().world,
       Colour.transparency(hovered ? 0.25f : 0.375f),
       Selection.SELECT_OVERLAY, false,
-      keyRes, true, areaClaimed()//(Object[]) reserved
+      keyRes, true, (Object[]) reserved
     );
   }
 }
