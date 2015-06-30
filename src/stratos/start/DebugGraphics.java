@@ -37,15 +37,15 @@ public class DebugGraphics {
       DebugGraphics.class, "FaunaModels.xml", "Micovore"
     ),
     SUSPENSOR_MODEL = MS3DModel.loadFrom(
-      "media/Vehicles/", "Barge.ms3d", Suspensor.class,
+      "media/Vehicles/", "Barge.ms3d", DebugGraphics.class,
       "VehicleModels.xml", "Suspensor"
     ),
     HUMAN_MODEL = MS3DModel.loadFrom(
       "media/Actors/human/", "male_final.ms3d",
-      Human.class, "HumanModels.xml", "MalePrime"
+      DebugGraphics.class, "HumanModels.xml", "MalePrime"
     ),
     DROPSHIP_MODEL =  MS3DModel.loadFrom(
-      "media/Vehicles/", "dropship.ms3d", Species.class,
+      "media/Vehicles/", "dropship.ms3d", DebugGraphics.class,
       "VehicleModels.xml", "Dropship"
     ),
     SM = DROPSHIP_MODEL;

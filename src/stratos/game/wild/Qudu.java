@@ -90,65 +90,8 @@ public class Qudu extends Fauna {
   
   
   public float height() {
-    return 0.33f * super.height();
+    return 1.33f * super.height();
   }
-  
-  
-  
-  /**  Behaviour implementations.
-    */
-  /*
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
-    if (! isDoingAction("actionHunker", null)) gear.setBaseArmour(15);
-  }
-  
-  
-  protected void onTileChange(Tile oldTile, Tile newTile) {
-    super.onTileChange(oldTile, newTile);
-    if (health.conscious()) {
-      float eaten = 1f / Stage.STANDARD_DAY_LENGTH;
-      eaten *= newTile.habitat().moisture() / 100f;
-      health.takeCalories(eaten, 1);
-    }
-  }
-  
-
-  protected void addChoices(Choice choice) {
-    super.addChoices(choice);
-  }
-  
-  
-  protected void putEmergencyResponse(Choice choice) {
-    final Batch <Action> hunkering = new Batch <Action> ();
-    
-    for (int n = Stage.STANDARD_HOUR_LENGTH; n-- > 0;) {
-      final Action hunker = new Action(
-        this, this,
-        this, "actionHunker",
-        Action.FALL, "Hunkering Down"
-      );
-      hunker.setProperties(Action.QUICK | Action.NO_LOOP);
-      hunkering.add(hunker);
-    }
-    
-    final Steps steps = new Steps(
-      this, this,
-      Action.PARAMOUNT + (senses.fearLevel() * Plan.ROUTINE),
-      Plan.MOTIVE_EMERGENCY, Plan.NO_HARM,
-      "Hunkering",
-      hunkering.toArray(Action.class)
-    );
-    choice.add(steps);
-  }
-  
-  
-  public boolean actionHunker(Qudu actor, Qudu doing) {
-    if (actor != this || doing != this) I.complain("No outside access.");
-    doing.gear.setBaseArmour(25);
-    return true;
-  }
-  //*/
   
   
 

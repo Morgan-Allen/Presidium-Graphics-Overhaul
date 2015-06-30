@@ -118,6 +118,11 @@ public class BaseAdvice {
   }
   
   
+  public int controlLevel() {
+    return controlLevel;
+  }
+  
+  
   public void updateAdvice(int numUpdates) {
     if (numUpdates % 10 != 0) return;
     
@@ -331,7 +336,7 @@ public class BaseAdvice {
     final Batch <Blueprint>
       canMake = new Batch <Blueprint> (),
       canUse  = new Batch <Blueprint> ();
-    for (Blueprint b : base.setup.canPlace) {
+    for (Blueprint b : base.setup.available()) {
       if (b.category == UIConstants.TYPE_HIDDEN) continue;
       else if (b.producing(t) != null) canMake.include(b);
       else if (b.consuming(t) != null) canUse .include(b);

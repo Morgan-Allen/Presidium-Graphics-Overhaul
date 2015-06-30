@@ -38,7 +38,7 @@ public class CloseCombatTechniques {
       NO_FATIGUE         ,
       MINOR_CONCENTRATION,
       Technique.TYPE_SKILL_USE_BASED, HAND_TO_HAND, 5,
-      KommandoLodge.VENDETTA_ARTILECT, Technique.TRIGGER_ATTACK
+      KommandoRedoubt.VENDETTA_ARTILECT, Technique.TRIGGER_ATTACK
     ) {
       
       public float bonusFor(Actor using, Skill skill, Target subject) {

@@ -147,8 +147,8 @@ public class Schedule {
   
   
   
-  /**  Advances the schedule of events in accordance with the current time in
-    *  the host world.
+  /**  Returns whether event-updates within the current schedule-call have
+    *  taken up more time than allowed.
     */
   public boolean timeUp() {
     if (maxInterval == -1) return false;
@@ -157,6 +157,10 @@ public class Schedule {
   }
   
   
+
+  /**  Advances the schedule of events in accordance up to the current time in
+    *  the host world.
+    */
   protected void advanceSchedule(final float currentTime) {
     this.currentTime = currentTime;
     

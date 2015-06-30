@@ -4,14 +4,16 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.util.*;
+
 import java.io.*;
 import java.util.zip.*;
 import java.net.*;
 import java.security.CodeSource;
 
-import stratos.util.*;
 
 
+//  TODO:  try using an Index for these?
 
 public class Assets {
   
@@ -41,8 +43,8 @@ public class Assets {
     protected Loadable(
       String modelName, Class sourceClass, boolean disposeWithSession
     ) {
-      this.assetID = modelName;
-      this.sourceClass = sourceClass;
+      this.assetID            = modelName+"_"+sourceClass.getSimpleName();
+      this.sourceClass        = sourceClass;
       this.disposeWithSession = disposeWithSession;
       Assets.registerForLoading(this);
     }
@@ -79,6 +81,9 @@ public class Assets {
   protected static Table <String, Object>
     resCache = new Table <String, Object> (1000);
   
+  static Table <String, Loadable>
+    assetCache = new Table <String, Loadable> (1000);
+  
   
   
   /**  Methods called externally by the PlayLoop class.
@@ -95,8 +100,8 @@ public class Assets {
     catch (Exception e) { I.report(e); }
     
     final Batch <String> names = new Batch <String> ();
-    compileClassNames(sourcePackage, names);
-    compileJarredClassNames(sourcePackage, names);
+    if (I.AM_INSIDE_JAR) compileJarredClassNames(sourcePackage, names);
+    else compileClassNames(sourcePackage, names);
     
     final String prefix = sourcePackage+".";
     for (String name : names) {
@@ -179,12 +184,16 @@ public class Assets {
   }
   
   
-  private static Table <Object, Object> regTable = new Table(1000);
-  
   public static void registerForLoading(Loadable asset) {
-    if (asset == null || regTable.get(asset) != null) return;
+    if (asset == null) return;
+    if (assetCache.get(asset.assetID) != null) {
+      final Loadable older = assetCache.get(asset.assetID);
+      I.say("\nWARNING FOR: "+asset.sourceClass);
+      I.say(asset.assetID+" ALREADY DEFINED IN "+older.sourceClass);
+    }
+    
     if (extraVerbose) I.say("    Registering- "+asset.assetID);
-    regTable.put(asset, asset);
+    assetCache.put(asset.assetID, asset);
     assetsToLoad.add(asset);
   }
   
@@ -213,7 +222,7 @@ public class Assets {
     }
     if (asset.stateLoaded()) {
       assetsToLoad.remove(asset);
-      modelCache.put(asset.assetID, asset);
+      assetCache.put(asset.assetID, asset);
       if (extraVerbose) I.say(" ...OK.");
     }
     else if (extraVerbose) I.say("  ...Still no joy.");
@@ -225,7 +234,7 @@ public class Assets {
     if (! asset.stateDisposed()) asset.disposeAsset();
     assetsToLoad.remove(asset);
     assetsLoaded.remove(asset);
-    regTable.remove(asset);
+    assetCache.remove(asset.assetID);
   }
   
   
@@ -236,7 +245,7 @@ public class Assets {
       if (e.refers.disposeWithSession) {
         e.refers.disposeAsset();
         assetsLoaded.removeEntry(e);
-        regTable.remove(e.refers);
+        assetCache.remove(e.refers.assetID);
       }
     }
   }
@@ -250,7 +259,7 @@ public class Assets {
     }
     assetsToLoad.clear();
     assetsLoaded.clear();
-    regTable.clear();
+    assetCache.clear();
   }
   
   
@@ -268,18 +277,15 @@ public class Assets {
   /**  Utility methods for referring to assets and their derivable state from
     *  with game-save files-
     */
-  static Table <String, Loadable>
-    modelCache = new Table <String, Loadable> (1000);
   static Table <Integer, Loadable>
-    IDModels = new Table <Integer, Loadable> (1000);
+    IDassets = new Table <Integer, Loadable> (1000);
   static Table <Loadable, Integer>
-    modelIDs = new Table <Loadable, Integer> (1000);
+    assetIDs = new Table <Loadable, Integer> (1000);
   static int counterID = 0;
   
-  
   public static void clearReferenceIDs() {
-    IDModels.clear();
-    modelIDs.clear();
+    IDassets.clear();
+    assetIDs.clear();
     counterID = 0;
   }
   
@@ -288,10 +294,10 @@ public class Assets {
       Loadable model, DataOutputStream out
   ) throws Exception {
     if (model == null) { out.writeInt(-1); return; }
-    final Integer modelID = modelIDs.get(model);
+    final Integer modelID = assetIDs.get(model);
     if (modelID != null) { out.writeInt(modelID); return; }
     final int newID = counterID++;
-    modelIDs.put(model, newID);
+    assetIDs.put(model, newID);
     out.writeInt(newID);
     Assets.writeString(out, model.assetID);
     Assets.writeString(out, model.sourceClass.getName());
@@ -303,18 +309,18 @@ public class Assets {
   ) throws Exception {
     final int modelID = in.readInt();
     if (modelID == -1) return null;
-    Loadable loaded = IDModels.get(modelID);
+    Loadable loaded = IDassets.get(modelID);
     if (loaded != null) return loaded;
     final String modelName = Assets.readString(in);
     final String className = Assets.readString(in);
     Class.forName(className);
-    loaded = modelCache.get(modelName);
+    loaded = assetCache.get(modelName);
     
     if (loaded == null) I.complain(
       "MODEL NAMED: "+modelName+
       "\nNO LONGER DEFINED IN SPECIFIED CLASS: "+className
     );
-    IDModels.put(modelID, loaded);
+    IDassets.put(modelID, loaded);
     return loaded;
   }
   
@@ -423,7 +429,6 @@ public class Assets {
   
   public static Batch <Class> loadPackage(String packageName) {
     if (classesToLoad.size() > 0) I.complain("CLASS LOADING NOT COMPLETE");
-    ///I.say("LOADING PACKAGE:");
     
     final String key = "package"+packageName;
     final Batch <Class> cached = (Batch<Class>) getResource(key);

@@ -28,6 +28,7 @@ public class Stage {
     UPDATES_PER_SECOND = PlayLoop.UPDATES_PER_SECOND,
     
     PATCH_RESOLUTION  = 8 ,
+    UNIT_GRID_SIZE    = 2 ,
     ZONE_SIZE         = 16,
     ZONE_AREA         = ZONE_SIZE * ZONE_SIZE,
     
@@ -48,7 +49,7 @@ public class Stage {
   
   final public int size;
   final Tile tiles[][];
-  final public StageSections sections;
+  final public StageRegions sections;
   final public ClaimsGrid claims;
   
   final public Schedule schedule;
@@ -73,7 +74,7 @@ public class Stage {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
-    sections = new StageSections(this, PATCH_RESOLUTION);
+    sections = new StageRegions(this, PATCH_RESOLUTION);
     claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime);
     

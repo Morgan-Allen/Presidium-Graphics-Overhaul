@@ -22,22 +22,29 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   int size;
   
   
+  public List() {
+    super(null);
+    list = (List <T>) this;
+    next = last = this;
+  }
+  
+  
   /**  Returns an array with identical contents to this List- unless the list
     *  has zero elements- in which case null is returned.
     */
-  final public T[] toArray(Class typeClass) {
+  public T[] toArray(Class typeClass) {
     final Object[] array = (Object[]) Array.newInstance(typeClass, size);
     int i = 0; for (T t : this) array[i++] = t;
     return (T[]) array;
   }
   
-  final public Object[] toArray() {
+  public Object[] toArray() {
     return toArray(Object.class);
   }
   
-  final public void add(final T r) { addLast(r); }
+  public void add(final T r) { addLast(r); }
   
-  final public T pass(final T r) { add(r); return r; }
+  public T pass(final T r) { add(r); return r; }
   
   
   /**  Adds the given member at the head of the list.
@@ -233,6 +240,19 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   protected float queuePriority(final T r) {
     return 0;
   }
+  
+  
+  
+  /**  Intended for certain space/time-saving hacks...
+    */
+  protected void appendEntry(final ListEntry <T> l) {
+    couple(l.last, l.next);
+    l.list = this;
+    size++;
+    couple(last, l);
+    couple(l, this);
+  }
+  
   
   
   /**  Adds the given element while maintaining queue priority (descending

@@ -21,7 +21,7 @@ public class Habitat {
     TERRAIN_PATH = "media/Terrain/";
   final public static CutoutModel
     DESERT_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
+      Habitat.class, TERRAIN_PATH+"desert_flora_as_copy.png",
       4, 4, 1.5f, 2, false
     ),
     FOREST_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
@@ -71,9 +71,9 @@ public class Habitat {
       "Ocean",
       "",
       new String[] {
-        "ocean.gif",
-        "ocean.2.gif",
-        "ocean.3.gif"
+        "ocean.0.gif",
+        "ocean.1.gif",
+        "ocean.2.gif"
       }, PLANKTON_MODELS,
       2, false, IS_OCEAN, FERTILITY, 5, INSOLATION, 3, MINERALS, 1
     ),
@@ -81,9 +81,9 @@ public class Habitat {
       "Shallows",
       "",
       new String[] {
-        "shallows.gif",
-        "shallows.2.gif",
-        "shallows.3.gif"
+        "shallows.0.gif",
+        "shallows.1.gif",
+        "shallows.1.gif"
       }, PLANKTON_MODELS,
       1, false, IS_OCEAN, FERTILITY, 5, INSOLATION, 4, MINERALS, 0
     ),

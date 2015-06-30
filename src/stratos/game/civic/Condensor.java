@@ -18,7 +18,7 @@ public class Condensor extends Venue {
   
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Condensor.class, "media/Buildings/aesthete/condensor.png", 3, 1
+    Condensor.class, "media/Buildings/aesthete/condensor.png", 2, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Condensor.class, "media/GUI/Buttons/condensor_button.gif"
@@ -29,7 +29,7 @@ public class Condensor extends Venue {
     "Condensor", UIConstants.TYPE_AESTHETIC, ICON,
     "The Condensor provides "+WATER+" and "+ATMO+" to the surrounding "+
     "settlement.",
-    3, 2, Structure.IS_FIXTURE,
+    2, 1, Structure.IS_FIXTURE,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     85 ,  // integrity
     1  ,  // armour

@@ -6,8 +6,11 @@
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
+import stratos.start.Assets;
 import stratos.util.*;
+
 import java.io.*;
+
 import com.badlogic.gdx.math.*;
 
 
@@ -50,12 +53,12 @@ public class BuildingSprite extends Sprite implements TileConstants {
       "power_model", BuildingSprite.class,
       "media/Items/power.png" , 0.25f, 0, 0, true, true
     ),
-    LIFE_SUPPORT_MODEL = new PlaneFX.Model(
-      "power_model", BuildingSprite.class,
-      "media/Items/life_S.png", 0.25f, 0, 0, true, true
+    ATMO_MODEL  = new PlaneFX.Model(
+      "atmo_model", BuildingSprite.class,
+      "media/Items/atmo.png", 0.25f, 0, 0, true, true
     ),
     WATER_MODEL = new PlaneFX.Model(
-      "power_model", BuildingSprite.class,
+      "water_model", BuildingSprite.class,
       "media/Items/water.png" , 0.25f, 0, 0, true, true
     );
   
@@ -131,6 +134,16 @@ public class BuildingSprite extends Sprite implements TileConstants {
   }
   
   
+  public int size() {
+    return size;
+  }
+  
+  
+  public int high() {
+    return high;
+  }
+  
+  
   
   /**  Interface contract methods-
     */
@@ -160,17 +173,25 @@ public class BuildingSprite extends Sprite implements TileConstants {
   
   /**  Display-state updates-
     */
-  final static int MAX_SIZE = 6, AL = MAX_SIZE + 1;
+  final static int MAX_SIZE = 8, AL = MAX_SIZE + 1;
   final static Vector3     GROUND_COORDS[][]   = new Vector3    [AL][];
   final static int         ALL_INDICES[][][]   = new int        [AL][][];
   final static CutoutModel FOUNDATION_MODELS[] = new CutoutModel[AL];
   
   static {
-    for (int size = 1; size <= MAX_SIZE; size++) {
-      FOUNDATION_MODELS[size] = CutoutModel.fromSplatImage(
-        BuildingSprite.class,
-        "media/Buildings/civilian/"+"foundation_"+size+"x"+size+".png", size
+    String lastOK = null; for (int size = 1; size <= MAX_SIZE; size++) {
+      String modelName = "media/Buildings/civilian/";
+      modelName += "foundation_"+size+"x"+size+".png";
+      if (! Assets.exists(modelName)) modelName = lastOK;
+      else lastOK = modelName;
+      
+      if (modelName == null) {
+        I.complain("\nNO SPLAT MODEL FOR SIZE "+size+"!");
+      }
+      else FOUNDATION_MODELS[size] = CutoutModel.fromSplatImage(
+        BuildingSprite.class, modelName, size
       );
+      
       final List <Vector3> coords = new List <Vector3> () {
         protected float queuePriority(Vector3 r) { return r.z; }
       };

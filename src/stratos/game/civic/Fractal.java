@@ -18,7 +18,7 @@ public class Fractal extends Venue {
   
   final static String IMG_DIR = "media/Buildings/aesthete/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    ServiceHatch.class, "media/GUI/Buttons/fractal_button.gif"
+    Fractal.class, "media/GUI/Buttons/fractal_button.gif"
   );
   final static CutoutModel
     FRACTAL_MODELS[][] = CutoutModel.fromImageGrid(
@@ -81,7 +81,9 @@ public class Fractal extends Venue {
 
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
-    final Object model = PlaceUtils.setupSegment(
+    if (area == null) area = new Box2D(footprint());
+    
+    final Object model = SiteUtils.setupSegment(
       this, position, area, others, MODELS_X_AXIS, MODELS_Y_AXIS
     );
     attachModel((ModelAsset) model);

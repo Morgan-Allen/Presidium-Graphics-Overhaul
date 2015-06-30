@@ -4,13 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
-import stratos.user.*;
-import stratos.graphics.common.*;
-import stratos.game.civic.ShieldWall;
 
 
 
@@ -68,12 +64,11 @@ public class Structure {
     IS_FIXTURE = 2 ,
     IS_LINEAR  = 4 ,
     IS_ZONED   = 8 ,
-    IS_GRIDDED = 16,
-    IS_UNIQUE  = 32,
-    IS_WILD    = 64,
-    IS_CRAFTED = 128,
-    IS_ANCIENT = 256,
-    IS_ORGANIC = 512;
+    IS_UNIQUE  = 16,
+    IS_WILD    = 32,
+    IS_CRAFTED = 64,
+    IS_ANCIENT = 128,
+    IS_ORGANIC = 256;
   
   final public static int
     NO_UPGRADES         = 0,
@@ -91,8 +86,6 @@ public class Structure {
   
   
   final Placeable basis;
-  private Placeable group[];
-  
   private int properties    = IS_NORMAL        ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
   private int maxUpgrades   = NO_UPGRADES      ;
@@ -121,7 +114,6 @@ public class Structure {
   
   
   public void loadState(Session s) throws Exception {
-    group = (Placeable[]) s.loadObjectArray(Placeable.class);
     
     baseIntegrity = s.loadInt();
     maxUpgrades   = s.loadInt();
@@ -151,7 +143,6 @@ public class Structure {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObjectArray(group);
     
     s.saveInt(baseIntegrity);
     s.saveInt(maxUpgrades  );
@@ -204,11 +195,6 @@ public class Structure {
       this.upgrades      = new Upgrade[maxUpgrades];
       this.upgradeStates = new int    [maxUpgrades];
     }
-  }
-  
-  
-  public void assignGroup(Placeable... group) {
-    this.group = group;
   }
   
   
@@ -336,12 +322,6 @@ public class Structure {
   }
   
   
-  public Placeable[] asGroup() {
-    if (group == null || group.length == 0) return new Placeable[] {basis};
-    return group;
-  }
-  
-  
   
   /**  State Modifications-
     */
@@ -351,18 +331,12 @@ public class Structure {
       ((Element) basis).setAsDestroyed();
     }
     else setState(Structure.STATE_SALVAGE, -1);
-    if (group != null) for (Placeable i : group) {
-      i.structure().beginSalvage();
-    }
   }
   
   
   public void cancelSalvage() {
     if (state == STATE_INTACT) return;
     setState(Structure.STATE_INTACT, -1);
-    if (group != null) for (Placeable i : group) {
-      i.structure().cancelSalvage();
-    }
   }
   
   

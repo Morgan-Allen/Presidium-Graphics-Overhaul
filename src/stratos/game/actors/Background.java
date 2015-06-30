@@ -43,7 +43,7 @@ public class Background extends Constant {
   
   final public static Index <Background> INDEX = new Index <Background> ();
   
-  final public String name, info;
+  final public String info;
   final protected Class baseClass;
   final protected ImageAsset costume, portrait;
   
@@ -64,7 +64,6 @@ public class Background extends Constant {
   ) {
     super(INDEX, name, name);
     this.baseClass = baseClass;
-    this.name = name;
     this.info = info == null ? "NO DESCRIPTION YET" : info;
     
     if (costumeTex == null) this.costume = null;

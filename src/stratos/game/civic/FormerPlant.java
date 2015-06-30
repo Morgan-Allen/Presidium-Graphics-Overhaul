@@ -39,7 +39,7 @@ public class FormerPlant extends Venue implements TileConstants {
   );
   final static ModelAsset
     MODEL = CutoutModel.fromImage(
-      FormerPlant.class, IMG_DIR+"former_plant.png", 3, 2
+      FormerPlant.class, IMG_DIR+"former_plant.png", 3, 1
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -47,7 +47,7 @@ public class FormerPlant extends Venue implements TileConstants {
     "Former Plant", UIConstants.TYPE_ECOLOGIST, ICON,
     "The Former Plant helps to accelerate terraforming efforts through "+
     "forestry and carbons-cycling, creating heavy polymers as a biproduct.",
-    4, 2, Structure.IS_NORMAL,
+    4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     25,  //integrity
     5,  //armour
@@ -88,9 +88,6 @@ public class FormerPlant extends Venue implements TileConstants {
     if (! super.setupWith(position, area, others)) return false;
     areaClaimed.setTo(footprint()).expandBy((int) MIN_CLAIM_SIZE);
     if (area != null) areaClaimed.include(area);
-    this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACING_SOUTH : FACING_EAST
-    ;
     return true;
   }
   
@@ -101,7 +98,7 @@ public class FormerPlant extends Venue implements TileConstants {
       return reasons.setFailure("Area is too large!");
     }
     final Stage world = origin().world;
-    if (! PlaceUtils.pathingOkayAround(this, areaClaimed, owningTier(), 2, world)) {
+    if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;

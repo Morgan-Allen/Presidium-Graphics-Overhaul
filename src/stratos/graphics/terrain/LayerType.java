@@ -58,7 +58,10 @@ public abstract class LayerType implements TileConstants {
     if (central) {
       if (layerID < 0) {
         gridBatch.add(new Coord(tx, ty));
-        textBatch.add(LayerPattern.OUTER_FRINGE_CENTRE);
+        textBatch.add(innerFringe ?
+          LayerPattern.INNER_FRINGE_CENTRE :
+          LayerPattern.OUTER_FRINGE_CENTRE
+        );
       }
       else if (tileID == layerID) {
         gridBatch.add(new Coord(tx, ty));

@@ -50,7 +50,7 @@ public class ShieldWall extends Venue {
     ShieldWall.class, "shield_wall",
     "Shield Wall", UIConstants.TYPE_SECURITY, ICON,
     "Shield Walls are defensive emplacements that improve base security.",
-    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE | Structure.IS_GRIDDED,
+    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Bastion.BLUEPRINT, Owner.TIER_FACILITY,
     125, 15, 40,  //integrity, armour, and build cost
     Structure.SMALL_MAX_UPGRADES
@@ -123,15 +123,19 @@ public class ShieldWall extends Venue {
   
   
   private Object faceModel(Tile position, Box2D area, Coord... others) {
-    Object model = PlaceUtils.setupMergingSegment(
+    Object model = SiteUtils.setupMergingSegment(
       this, position, area, others,
       CAPS_X_AXIS, CAPS_Y_AXIS, MODEL_HUB, ShieldWall.class
     );
     if (model == CAPS_X_AXIS[1]) {
-      model = SEGMENTS_X[(position.y / 2) % 4];
+      int index = (position.y / 2) % 8;
+      if (index == 3) index = 2;
+      model = SEGMENTS_X[index % 4];
     }
     if (model == CAPS_Y_AXIS[1]) {
-      model = SEGMENTS_Y[(position.x / 2) % 4];
+      int index = (position.x / 2) % 8;
+      if (index == 3) index = 2;
+      model = SEGMENTS_Y[index % 4];
     }
     return model;
   }

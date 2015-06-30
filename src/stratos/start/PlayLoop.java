@@ -323,6 +323,8 @@ public final class PlayLoop {
       KeyInput.updateInputs();
       lastFrame = time;
       numFrameUpdates++;
+      
+      I.used60Frames = numFrameUpdates % 60 == 0;
     }
     
     //  Now we essentially 'pretend' that updates were occurring once every

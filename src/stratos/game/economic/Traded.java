@@ -9,6 +9,7 @@ import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.Text;
+import stratos.start.Assets;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -20,10 +21,11 @@ import stratos.util.*;
 public class Traded extends Constant implements Session.Saveable {
   
   
-  final static String
-    ITEM_PATH        = "media/Items/",
-    DEFAULT_PIC_PATH = ITEM_PATH+"crate.gif";
+  final static String ITEM_PATH = "media/Items/";
   final public static CutoutModel
+    DEFAULT_MODEL  = CutoutModel.fromImage(
+      Traded.class, ITEM_PATH+"crate.gif", 0.4f, 0.5f
+    ),
     SHORTAGE_MODEL = CutoutModel.fromImage(
       Traded.class, ITEM_PATH+"short_icon.png", 0.4f, 0.5f
     ),
@@ -40,9 +42,8 @@ public class Traded extends Constant implements Session.Saveable {
   final public static Index <Traded> INDEX = new Index <Traded> ();
   
   final public int form;
-  final public String name, description;
+  final public String description;
   
-  final public String picPath;
   final public ImageAsset icon;
   final public CutoutModel model;
   
@@ -80,22 +81,19 @@ public class Traded extends Constant implements Session.Saveable {
     super(INDEX, name, name);
     
     this.form = form;
-    this.name = name;
     this.description = description;
     
     this.basePrice = basePrice * GameSettings.SPENDING_MULT;
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
     
-    if (new java.io.File(imagePath).exists()) {
-      this.picPath = imagePath;
+    if (Assets.exists(imagePath)) {
       this.icon  = ImageAsset.fromImage(typeClass, imagePath);
       this.model = CutoutModel.fromImage(typeClass, imagePath, IS, IS);
     }
     else {
-      this.picPath = DEFAULT_PIC_PATH;
-      this.icon  = ImageAsset.fromImage(typeClass, picPath);
-      this.model = CutoutModel.fromImage(typeClass, picPath, IS, IS);
+      this.icon  = ImageAsset.fromImage(typeClass, DEFAULT_MODEL.fileName());
+      this.model = DEFAULT_MODEL;
     }
     
     this.supplyKey = name+"_supply";

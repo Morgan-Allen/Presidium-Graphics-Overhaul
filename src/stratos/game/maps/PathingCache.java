@@ -291,25 +291,34 @@ public class PathingCache {
   /**  Methods for establishing Places in the first place-
     */
   private Place[] grabPlacesFor(Caching caching, final StageRegion section) {
-    ///I.say("Grabbing new places at: "+section.area);
     //
     //  We scan through every tile in this section, and grab any contiguous
-    //  areas of unblocked tiles.  (These must be flagged just after
-    //  acquisition, so that we know to skip over them.)
+    //  areas of unblocked tiles.  (These must be flagged just after being
+    //  acquired, so that subsequent passes will know to skip over them.)
     final Batch <Tile[]> allUnder = new Batch <Tile[]> ();
+    final Tile temp[] = new Tile[4];
+    
     for (Coord c : Visit.grid(section.area)) {
       final Tile t = world.tileAt(c.x, c.y);
       if (t.flaggedWith() != null || t.blocked()) continue;
-      final TileSpread spread = new TileSpread(t) {
-        protected boolean canAccess(Tile t) {
-          return section.area.contains(t.x, t.y) && ! t.blocked();
+      
+      final Batch <Tile> under = new Batch();
+      final Stack <Tile> agenda = new Stack <Tile> () {
+        public void add(Tile t) {
+          if (t == null || ! section.area.contains(t.x, t.y)) return;
+          if (t.flaggedWith() != null || t.blocked()) return;
+          t.flagWith(allUnder);
+          under.add(t);
+          super.add(t);
         }
-        protected boolean canPlaceAt(Tile t) { return false; }
       };
-      spread.doSearch();
-      final Tile under[] = spread.allSearched(Tile.class);
-      for (Tile u : under) u.flagWith(allUnder);
-      allUnder.add(under);
+      
+      agenda.add(t);
+      while (agenda.size() > 0) {
+        final Tile best = agenda.removeFirst();
+        for (Tile n : best.edgeAdjacent(temp)) agenda.add(n);
+      }
+      allUnder.add(under.toArray(Tile.class));
     }
     //
     //  Having obtained each block of tiles, we create corresponding Place
@@ -323,6 +332,8 @@ public class PathingCache {
       if (verbose) I.say(under.length+" tiles grabbed...");
       for (Tile u : under) {
         tilePlaces[u.x][u.y] = place;
+        //
+        //  And don't forget to unflag them afterward...
         u.flagWith(null);
       }
     }

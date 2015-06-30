@@ -253,7 +253,7 @@ public class Dropship extends Vehicle implements Owner {
     nextPosition.set(entry.x, entry.y, INIT_HIGH);
     nextRotation = 0;
     setHeading(nextPosition, nextRotation, true, world);
-    entranceFace = Venue.FACING_EAST;
+    entranceFace = Venue.FACE_EAST;
     stage = STAGE_DESCENT;
     stageInceptTime = world.currentTime();
   }

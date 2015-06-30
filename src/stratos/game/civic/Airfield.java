@@ -27,10 +27,10 @@ public class Airfield extends Venue {
   
   final static ModelAsset
     MODEL_BASE = CutoutModel.fromSplatImage(
-      Airfield.class, IMG_DIR+"airfield_base.png", 6.0f
+      Airfield.class, IMG_DIR+"airfield_base.png", 6
     ),
     MODEL_ROOF = CutoutModel.fromImage(
-      Airfield.class, IMG_DIR+"airfield_roof.png", 6.0f, 3.0f
+      Airfield.class, IMG_DIR+"airfield_roof.png", 6, 3
     );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Airfield.class, "media/GUI/Buttons/airfield_button.gif"

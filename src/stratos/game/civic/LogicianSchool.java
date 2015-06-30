@@ -24,7 +24,7 @@ public class LogicianSchool extends Venue {
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     LogicianSchool.class,
-    "media/Buildings/schools and preserves/logician_school.png", 5, 2
+    "media/Buildings/schools and preserves/logician_school.png", 6, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     LogicianSchool.class, "media/GUI/Buttons/hospice_button.gif"
@@ -34,7 +34,7 @@ public class LogicianSchool extends Venue {
     LogicianSchool.class, "logician_school",
     "Logician School", UIConstants.TYPE_HIDDEN, ICON,
     "<Logician School Description>",
-    5, 2, Structure.IS_NORMAL,
+    6, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     200, 4, 650, Structure.BIG_MAX_UPGRADES
   );

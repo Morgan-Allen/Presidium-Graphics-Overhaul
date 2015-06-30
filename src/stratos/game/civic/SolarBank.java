@@ -21,7 +21,7 @@ public class SolarBank extends Venue {
     IMG_DIR = "media/Buildings/ecologist/";
   final public static ModelAsset
     BANK_MODELS[][] = CutoutModel.fromImageGrid(
-      SolarBank.class, IMG_DIR+"all_solar_banks.png", 2, 3, 2, 2, false
+      SolarBank.class, IMG_DIR+"all_solar_banks.png", 2, 3, 2, 1, false
     ),
     
     MODEL_X_SEGMENT = BANK_MODELS[1][1],
@@ -40,7 +40,7 @@ public class SolarBank extends Venue {
     "Solar Bank", UIConstants.TYPE_ECOLOGIST, ICON,
     "Solar Banks provide clean power and a small amount of water to your "+
     "settlement.",
-    2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
+    2, 1, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     10, 5, 40, Structure.NO_UPGRADES
   );
@@ -98,6 +98,8 @@ public class SolarBank extends Venue {
     */
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
+    
+    if (area == null) area = new Box2D(footprint());
     
     if (area.xdim() > area.ydim()) {
       if ((position.x / 2) % 3 == 0) {

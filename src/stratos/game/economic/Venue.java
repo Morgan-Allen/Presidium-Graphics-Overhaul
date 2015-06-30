@@ -26,14 +26,14 @@ public abstract class Venue extends Fixture implements
   /**  Field definitions, constants, constructors, and save/load methods.
     */
   final public static int
-    FACING_INIT   = -2,
-    FACING_NONE   = -1,
-    FACING_NORTH  =  N / 2,
-    FACING_EAST   =  E / 2,
-    FACING_SOUTH  =  S / 2,
-    FACING_WEST   =  W / 2,
-    ALL_FACINGS[] = { FACING_SOUTH, FACING_EAST, FACING_NORTH, FACING_WEST },
-    NUM_FACES     =  ALL_FACINGS.length;
+    FACE_INIT   = -2,
+    FACE_NONE   = -1,
+    FACE_NORTH  =  N / 2,
+    FACE_EAST   =  E / 2,
+    FACE_SOUTH  =  S / 2,
+    FACE_WEST   =  W / 2,
+    ALL_FACES[] = { FACE_SOUTH, FACE_EAST, FACE_NORTH, FACE_WEST },
+    NUM_FACES   =  ALL_FACES.length;
   
   final public static int
     PRIMARY_SHIFT      = 1,
@@ -57,7 +57,7 @@ public abstract class Venue extends Fixture implements
   
   protected Tile entrance;
   private List <Mobile> inside = new List <Mobile> ();
-  protected int facing = FACING_INIT;
+  private int facing = FACE_INIT;
   
   protected BuildingSprite buildSprite;
   final public TalkFX chat = new TalkFX();
@@ -156,24 +156,40 @@ public abstract class Venue extends Fixture implements
   
   
   public boolean setPosition(float x, float y, Stage world) {
+    final Tile lastPos = origin();
     if (! super.setPosition(x, y, world)) return false;
     final Tile o = origin();
-    if (blueprint.isFixture()) {
+    final boolean moved = o != lastPos;
+    //
+    //  If position has been changed (or has been initially assigned) then
+    //  we can take the liberty of choosing our ideal entrance-
+    if (moved) setFacing(SiteUtils.pickBestEntranceFace(this));
+    if (facing == FACE_INIT) setFacing(FACE_NONE);
+    return true;
+  }
+  
+  
+  public void setFacing(int facing) {
+    this.facing = facing % NUM_FACES;
+    final Tile o = origin();
+    if (o == null) {
+      entrance = null;
+    }
+    else if (blueprint.isFixture()) {
       //
       //  Fixture-venues don't normally have entrances, but we make an
       //  exception for tiling-venues.
-      entrance = (pathType() <= Tile.PATH_CLEAR) ? origin() : null;
+      entrance = (pathType() <= Tile.PATH_CLEAR) ? o : null;
     }
     else {
-      //
-      //  If your current facing is viable, stick with that.
-      if (facing == FACING_INIT) facing = FACING_EAST;
-      final int off[] = PlaceUtils.entranceCoords(size, size, facing);
-      entrance = world.tileAt(o.x + off[0], o.y + off[1]);
-      if (! PlaceUtils.isViableEntrance(this, entrance)) entrance = null;
+      final int off[] = SiteUtils.entranceCoords(size, size, facing);
+      entrance = o.world.tileAt(o.x + off[0], o.y + off[1]);
     }
-    if (! entranceOkay()) return false;
-    return true;
+  }
+  
+  
+  public int facing() {
+    return facing;
   }
   
   
@@ -202,25 +218,23 @@ public abstract class Venue extends Fixture implements
         return reasons.setFailure("Is entrance for "+t.entranceFor());
       }
     }
+    //
+    //  We also check against any claims make by other structures, and try to
+    //  avoid creating un-reachable areas with a closed-off perimeter.
     for (Venue c : world.claims.venuesConflicting(areaClaimed(), this)) {
+      //
+      //  TODO:  You need to return a full list of conflicting venues- claims,
+      //  footprint, and perimeter- and subject them to a similar check...
+      if (SiteUtils.trumpsSiting(this, c)) continue;
       if (reasons == Account.NONE) return false;
       return reasons.setFailure("Too close to "+c);
     }
     if (solid && ! checkPerimeter(world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
+    //
+    //  All going well, return success.
     return reasons.setSuccess();
-  }
-  
-  
-  public void previewPlacement(boolean canPlace, Rendering rendering) {
-    final Sprite sprite = this.buildSprite;
-    if (sprite == null) return;
-    this.viewPosition(sprite.position);
-    sprite.colour = canPlace ? Colour.GREEN : Colour.RED;
-    sprite.passType = Sprite.PASS_PREVIEW;
-    sprite.readyFor(rendering);
-    renderSelection(rendering, true);
   }
   
   
@@ -233,9 +247,7 @@ public abstract class Venue extends Fixture implements
   
   protected boolean entranceOkay() {
     if (blueprint.isFixture()) return true;
-    if (entrance == null || ! PlaceUtils.isViableEntrance(this, entrance)) {
-      return false;
-    }
+    if (! SiteUtils.isViableEntrance(this, entrance)) return false;
     return true;
   }
   
@@ -246,7 +258,7 @@ public abstract class Venue extends Fixture implements
   
   
   protected boolean checkPerimeter(Stage world) {
-    return PlaceUtils.pathingOkayAround(this, world);
+    return SiteUtils.pathingOkayAround(this, world);
   }
   
   
@@ -255,18 +267,13 @@ public abstract class Venue extends Fixture implements
   }
   
   
+  public Tile[] reserved() {
+    return new Tile[0];
+  }
+  
+  
   public boolean preventsClaimBy(Venue other) {
-    return true;
-  }
-  
-  
-  public void setFacing(int facing) {
-    this.facing = facing % NUM_FACES;
-  }
-  
-  
-  public int facing() {
-    return facing;
+    return false;
   }
   
   
@@ -275,19 +282,22 @@ public abstract class Venue extends Fixture implements
     */
   public void doPlacement(boolean intact) {
     intact |= GameSettings.buildFree || structure.intact();
+    final Tile at = origin();
+    final Stage world = at.world;
     
     if (intact) {
-      enterWorld();
+      final Box2D around = new Box2D(footprint()).expandBy(1);
+      for (Tile t : world.tilesIn(around, true)) t.clearUnlessOwned(intact);
+      enterWorldAt(at.x, at.y, world, true);
       structure.setState(Structure.STATE_INTACT, 1);
       onCompletion();
     }
     else {
       structure.setState(Structure.STATE_INSTALL, 0);
-      final Tile at = origin();
-      enterWorldAt(at.x, at.y, at.world, false);
       for (Tile t : world.tilesIn(footprint(), false)) {
         t.setReserves(this);
       }
+      enterWorldAt(at.x, at.y, world, false);
     }
     
     if (sprite() != null) {
@@ -329,12 +339,10 @@ public abstract class Venue extends Fixture implements
   public void onCompletion() {
     //
     //  TODO:  THIS IS USED BY THE DROPSHIP CLASS AS WELL- FACTOR THAT OUT!
-    final Box2D around = new Box2D().setTo(footprint()).expandBy(1);
-    final Stage world = origin().world;
-    
     //
     //  As a final step, we take anything mobile within our footprint area and
     //  kick it outside:
+    final Stage world = origin().world;
     Tile exit = mainEntrance();
     if (exit == null) {
       final Tile perim[] = Spacing.perimeter(footprint(), world);
@@ -343,16 +351,15 @@ public abstract class Venue extends Fixture implements
     if (exit == null) exit = Spacing.nearestOpenTile(this, this, world);
     if (exit == null) I.complain("No exit point from "+this);
     
+    for (Tile t : world.tilesIn(footprint(), false)) {
+      t.clearUnlessOwned();
+      t.setAbove(this, true);
+      for (Mobile m : t.inside()) m.setPosition(exit.x, exit.y, world);
+    }
+    updatePaving(true);
     for (Tile t : Spacing.perimeter(footprint(), world)) if (t != null) {
       t.clearUnlessOwned();
       RoadsRepair.updatePavingAround(t, base);
-    }
-    for (Tile t : world.tilesIn(around, false)) {
-      if (t != null) t.clearUnlessOwned();
-    }
-    for (Tile t : world.tilesIn(footprint(), false)) {
-      t.setAbove(this, true);
-      for (Mobile m : t.inside()) m.setPosition(exit.x, exit.y, world);
     }
     
     //
@@ -409,9 +416,6 @@ public abstract class Venue extends Fixture implements
   
   
   protected void updatePaving(boolean inWorld) {
-    
-    base.transport.updatePerimeter(this, inWorld);
-    
     if (pathType() <= Tile.PATH_CLEAR) {
       byte road = inWorld ? StageTerrain.ROAD_LIGHT : StageTerrain.ROAD_NONE;
       for (Tile t : world.tilesIn(footprint(), false)) {
@@ -419,6 +423,7 @@ public abstract class Venue extends Fixture implements
       }
     }
     else {
+      base.transport.updatePerimeter(this, inWorld);
       base.transport.updateJunction(this, mainEntrance(), inWorld);
     }
   }
@@ -547,11 +552,6 @@ public abstract class Venue extends Fixture implements
   protected Behaviour jobFor(Actor actor) { return null; }
   
   
-  public float ratePlacing(Target point, boolean exact) {
-    return 0;
-  }
-  
-  
   protected void impingeSupply(boolean onEntry) {
     final int period = onEntry ? -1 : 1;
     base.demands.impingeSupply(getClass(), 1, period, this);
@@ -576,10 +576,11 @@ public abstract class Venue extends Fixture implements
     if (blueprint.isUnique ()) return "The "+blueprint.name;
     
     if (nameID == -2 && inWorld()) {
-      nameID = base.nextVenueID(getClass());
+      nameID = base.nextVenueID(blueprint);
     }
     if (nameID < 0) return blueprint.name;
-    String suffix = ""+nameID;
+    
+    final String suffix = ""+nameID;
     return blueprint.name+" "+suffix;
   }
   
@@ -621,7 +622,7 @@ public abstract class Venue extends Fixture implements
   protected void toggleStatusDisplay() {
     final boolean showBurn = structure.burning();
     buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
-    toggleStatusFor(ATMO , BuildingSprite.LIFE_SUPPORT_MODEL);
+    toggleStatusFor(ATMO , BuildingSprite.ATMO_MODEL);
     toggleStatusFor(POWER, BuildingSprite.POWER_MODEL);
     toggleStatusFor(WATER, BuildingSprite.WATER_MODEL);
   }
@@ -639,7 +640,6 @@ public abstract class Venue extends Fixture implements
   
   private boolean canShow(Traded type) {
     if (type.form == FORM_PROVISION) return false;
-    if (type.picPath == Traded.DEFAULT_PIC_PATH) return false;
     return true;
   }
 
@@ -739,7 +739,10 @@ public abstract class Venue extends Fixture implements
   
 
   public void attachSprite(Sprite sprite) {
-    if (sprite == null) super.attachSprite(null);
+    if (sprite == null) {
+      buildSprite = null;
+      super.attachSprite(null);
+    }
     else {
       buildSprite = BuildingSprite.fromBase(sprite, size, high);
       super.attachSprite(buildSprite);
@@ -854,6 +857,20 @@ public abstract class Venue extends Fixture implements
   }
   
   
+  public void previewPlacement(boolean canPlace, Rendering rendering) {
+    final Sprite sprite = this.buildSprite;
+    if (sprite == null) return;
+    this.viewPosition(sprite.position);
+    
+    if (canPlace) {
+      sprite.colour = new Colour(0, 1, 0, 0.5f);
+      sprite.passType = Sprite.PASS_PREVIEW;
+      sprite.readyFor(rendering);
+    }
+    renderSelection(rendering, true);
+  }
+  
+  
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
     if (pathType() <= Tile.PATH_CLEAR || blueprint.isGrouped()) return;
@@ -861,8 +878,19 @@ public abstract class Venue extends Fixture implements
     final String key = origin()+"_print_"+this;
     BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
-      Selection.SELECT_OVERLAY, key, true, (Object[]) structure.asGroup()
+      Colour.transparency(hovered ? 0.5f : 1),
+      Selection.SELECT_OVERLAY, false,
+      key, true, this
+    );
+
+    final String keyRes = origin()+"_reserve_print_"+this;
+    final Tile reserved[] = reserved();
+    
+    if (reserved.length > 0) BaseUI.current().selection.renderTileOverlay(
+      rendering, origin().world,
+      Colour.transparency(hovered ? 0.25f : 0.375f),
+      Selection.SELECT_OVERLAY, false,
+      keyRes, true, (Object[]) reserved
     );
   }
 }

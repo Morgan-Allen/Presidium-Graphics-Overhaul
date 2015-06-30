@@ -17,7 +17,6 @@ public class Trait extends Constant implements Qualities {
   
   final public static Index <Trait> TRAIT_INDEX = new Index <Trait> ();
   
-  final public String name;
   final public String description;
   final String labels[];
   
@@ -42,10 +41,9 @@ public class Trait extends Constant implements Qualities {
   ) {
     super(TRAIT_INDEX, name, name);
     
-    this.name = name;
     this.description = description;
-    this.type = type;
-    this.labels = labels;
+    this.type        = type;
+    this.labels      = labels;
     this.labelValues = new int[labels.length];
     
     if (verboseInit) {

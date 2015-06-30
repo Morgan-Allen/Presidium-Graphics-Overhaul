@@ -66,7 +66,8 @@ public class StartupScenario extends Scenario {
       "Baroness (Large Estate)"
     };
   final public static int
-    MAP_SIZES[] = { 64, 128, 256 },
+    MAP_SIZES [] = { 128, 128, 128 },
+    WALL_SIZES[] = { 16, 20, 24 },
     
     SITE_WASTELAND  = 0,
     SITE_WILDERNESS = 1,
@@ -358,15 +359,24 @@ public class StartupScenario extends Scenario {
     //  Once that's done, we can draw a curtain wall:
     
     //  TODO:  INTRODUCE ESTABLISHMENT FOR OTHER STRUCTURES.  ...But walls
-    //  should probably still go first?
+    //  should probably still go first.
+    
     if (config.built.valueFor(ShieldWall.BLUEPRINT) > 0) {
-      final Venue wall[] = PlaceUtils.placeAroundPerimeter(
-        ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
+      final int
+        wallSize = WALL_SIZES[config.titleLevel] - bastion.blueprint.size;
+      final Box2D enclosed = new Box2D(bastion.footprint());
+      enclosed.incWide(wallSize);
+      enclosed.incHigh(wallSize);
+      enclosed.incX(0 - wallSize / 2);
+      enclosed.incY(0 - 2           );
+      final Venue wall[] = SiteUtils.placeAroundPerimeter(
+        ShieldWall.BLUEPRINT, enclosed, base, true
       );
       for (Venue v : wall) ((ShieldWall) v).updateFacing(true);
       final float fogBound = bastion.areaClaimed().maxSide() * Nums.ROOT2 / 2;
       base.intelMap.liftFogAround(bastion, fogBound);
     }
+    
     //
     //  Then introduce personnel-
     for (Actor a : advisors) {

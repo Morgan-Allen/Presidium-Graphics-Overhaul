@@ -9,7 +9,7 @@ import stratos.util.*;
 
 
 
-public class StageSections implements TileConstants {
+public class StageRegions implements TileConstants {
   
   
   /**  Common fields, constructors and utility methods.
@@ -26,7 +26,7 @@ public class StageSections implements TileConstants {
   }
   
   
-  protected StageSections(Stage world, int resolution) {
+  protected StageRegions(Stage world, int resolution) {
     this.world = world;
     this.resolution = resolution;
     this.depth = depthFor(world.size / resolution);

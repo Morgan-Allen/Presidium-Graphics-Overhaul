@@ -60,7 +60,7 @@ public class VerminBase extends Base {
     //
     //  We perform updates to check for vermin-entry more quickly as the number
     //  of entry-points increases...
-    final PresenceMap hatches = world.presences.mapFor(ServiceHatch.class);
+    final PresenceMap hatches = world.presences.mapFor(Heighway.class);
     final int totalHatches = hatches.population();
     if (totalHatches == 0 || instant) return;
     final int interval = SPAWN_PER_ENTRY_INTERVAL / totalHatches;
@@ -76,7 +76,7 @@ public class VerminBase extends Base {
     if (numUpdates % interval == 0) {
       Target entryPoint = hatches.pickRandomAround(null, -1, null);
       if (entryPoint == null) return;
-      final ServiceHatch hatch = (ServiceHatch) entryPoint;
+      final Heighway hatch = (Heighway) entryPoint;
       //
       //  Get the maximum and current vermin population in the area.
       final float squalor = 5 - world.ecology().ambience.valueAt(hatch);

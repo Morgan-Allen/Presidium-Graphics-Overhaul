@@ -221,33 +221,39 @@ public class Selection implements UIConstants {
   
   public void renderTileOverlay(
     Rendering r, final Stage world,
-    Colour c, ImageAsset tex,
+    Colour c, ImageAsset tex, boolean innerFringe,
     final String key, boolean cache, final Object... group
   ) {
+    //
+    //  If we've already cached an overlay with this key, then use that.
+    //  Otherwise, we generate a fresh instance.
     TerrainChunk overlay = null;
-    
     if (cache && haveCached(key)) {
       overlay = overlayCache.get(key);
     }
     else {
-      //  Otherwise, put together a fresh overlay-
-      Box2D limit = null;
+      //
+      //  The first step is to flag any tiles underneath the affected area (
+      //  which can include tiles, fixtures, or arbitrary boxes.)
       final Batch <Tile> under = new Batch <Tile> ();
+      Box2D limit = null;
       
       for (Object o : group) {
         Box2D area = null;
         if (o instanceof Fixture) area = ((Fixture) o).footprint();
         if (o instanceof Box2D  ) area = (Box2D) o;
         if (o instanceof Tile   ) area = ((Tile) o).area(null);
+        
         if (area != null) for (Tile t : world.tilesIn(area, true)) {
-          if (limit == null) limit = new Box2D(t.x, t.y, 0, 0);
-          limit.include(t.x, t.y, 0.5f);
           under.add(t);
           t.flagWith(under);
+          if (limit == null) limit = new Box2D(t.x, t.y, 0, 0);
+          limit.include(t.x, t.y, 0.5f);
         }
       }
-      
-      final LayerType layer = new LayerType(tex, false, -1, "overlay") {
+      //
+      //  Then we create a terrain-layer to present this visually-
+      final LayerType layer = new LayerType(tex, innerFringe, -1, "overlay") {
         
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           final Tile t = world.tileAt(tx, ty);
@@ -255,19 +261,20 @@ public class Selection implements UIConstants {
         }
         
         protected int variantAt(int tx, int ty, TerrainSet terrain) {
-          final Tile t = world.tileAt(tx, ty);
-          return t.blocked() ? -1 : 0;
+          return 0;
         }
       };
-      limit.expandBy(1);
-      
+      if (! innerFringe) limit.expandBy(1);
+      //
+      //  Paint this over the world, unflag the tiles, and add to the cache for
+      //  later reference as needed.
       overlay = world.terrain().createOverlay(limit, layer);
       for (Tile t : under) t.flagWith(null);
       if (cache) addToCache(overlay, key);
       else overlay.throwAway = true;
     }
-    
-    //  Use a glow-colour, and ready for rendering-
+    //
+    //  Finally, apply a glow-colour and ready for rendering...
     c = new Colour(c).withGlow(c.a);
     overlay.colour = c;
     overlay.readyFor(r);

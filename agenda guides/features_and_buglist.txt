@@ -2,25 +2,69 @@
 
 TO DO NOW-
 
-*  Try to use a fixed roads/walls-template for around the bastion.  That should
-   simplify a number of tasks below.
+*  Try to use a fixed roads/walls-template for within the bastion.  That should
+   simplify a number of tasks below.  (You also need to space out the entrances
+   less frequently.)
 
-*  YOU NEED TO LIMIT DEBT-LEVELS FROM MISSION-PLEDGES, ETC.
+*  By default, venues should select entrances that are already designated for
+   paving (in a 2x2 area.)  This should reduce clutter.  (Better yet, you could
+   have venues switch their entrances if possible on blockage.)
+
+*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
+   the excavation site, chemical pan, xeno lodge & eco station- take up
+   big plots.  (These need to be visible during user-placement too.)
+
+
+*  Install AUTO-TURRETS at your sentry-posts & blast doors.  (Simple motion-
+   detectors if you don't have a pass-code.)  Plus combat stims at stock-
+   exchange & physician station.
+
+*  Ensure that mining still works after all these changes.  (Smelters?)
+*  Try merging the solar bank with the nursery- or the latter with eco station.
 
 
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
-*  Minimising the window shuts down the game on windows 7 or 8.  Not sure why.
+*  Item-stocks rendering at the stock-exchange and supply depot needs to be
+   restored.
+
+
+SPECIFIC TO FARMS & MINES-
+
+* Excavation sites:  tailings, openings, mantle drills, strip mining
+  Strip mining is the first step.
+  No multi smelters- everything gets processed at the central shaft.
+  Mantle drills will only be built on fully stripped terrain (i.e- full
+    barrens, minus all biomass, topsoil and surface minerals.)
+  Tailings never disappear (unless reprocessed.)
+  
+* Chemical pans appear more frequently in desert/caustic terrain.  They produce
+    reagents & spyce from the atmosphere or local deposits.
+
+* Moisture farms:    cropland, hives, covered tunnels, aquaculture + solar banks
+  Seedlings grow at the central nursery.
+  Cropland & hives appear with the right upgrades.
+  Covered tunnels & underground-sections increase growth once you add plastics,
+    and are preferred in deserts.
+  Aquaculture will appear if placed over water, giving extra greens & protein.
+  
+* Solar banks appear more frequently in dryer/sunnier terrain.  They produce
+    water & power, with more of the former when extended over water.
+
+
+* Can we assume, for now, that these are all 4x4 or 2x4 structures, with
+    facings/entrances in the appropriate direction?
+  
+  strip-mines -> mantle drills
+  tailings (general slag, ore ponds, isotope casings.)
+  chemical pans
+  
+  tunnels & aquaculture
+  nurseries & moisture farms
+  solar banks & condensors
 
 
 BUILDINGS AND ECONOMY-
-
-*  Try merging the solar bank with the nursery- or the latter with eco station.
-
-*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
-   the excavation site, former plant, kommando lodge & eco station- take up
-   big plots.
-
 
 *  Upgrades need to be filled in and tested for:
      Stock Exchange
@@ -38,27 +82,27 @@ BUILDINGS AND ECONOMY-
    House Taygeta- has runner lodge, lacks enforcer bloc.
    House Suhail-  has kommando lodge, lacks reactor.
 
-*  Buildings need to have multiple levels.  (At least for the main/root-guild
-   structures.)  Model these as an upgrade/research-type too.
-
 *  Have upgrades require a 'research' and 'prototype' phase, and include
    notifications for that.  This will slow-down the upgrade process at first,
    but allow for easier transmission of expertise between maps, and ensure that
    initial building-choices don't overwhelm the player.
 
+*  Buildings need to have multiple levels.  (At least for the main/root-guild
+   structures.)  Model these as an upgrade/research-type too.
 
+*  Limit service-hatches to along road-routes between structures (and required
+   to activate power-transmission in an area.)
 
-*  Use service hatches to initiate heavier paving and utility-transmission?
 
 *  Try to restore dust-crawlers at excavation site.
 
 *  Allow rations-production to satisfy need to eat.
 
 *  Apply shipping-cost penalties, so that you can import what you like, but
-   can't always export.
+   can't always viably export.
 
 *  Ensure that spontaneous-buildings can 'migrate' to new sites if conditions
-   change.  (Allow that for buildings in general?)
+   change.  (Allow that for buildings in general if desired.)
 
 *  Flesh out the full set of behaviours for the major Schools (and the Kommando
    lodge too.)
@@ -66,9 +110,9 @@ BUILDINGS AND ECONOMY-
 *  Integrate spyce-sources and use it to boost Psy abilities (such as sovereign
    spells.)
 
-*  If you ever get fully-3D models in place, you can try block-by-block
-   construction/salvage of structures in arbitrary order.  Might not happen for
-   a while, though...
+*  Wood is valued for aesthetic properties (decor at the fabricator), along
+   with trophies/curios for outfits.
+
 
 
 THE TUTORIAL
@@ -126,8 +170,8 @@ CONTROL AND DIRECTION-
 *  Psy abilities need to be persistent.
 
 *  Allow psy abilities to be learnt from the Pseer School and other psy
-   institutions.  Then, as you use them, you acquire practice that allows
-   independant casting independantly (with reduced skill rank.)
+   institutions (plus Kommando Redoubt.)  Then, as you use them, you acquire
+   practice that allows casting independantly (with reduced skill rank.)
 
 
 
@@ -154,15 +198,8 @@ ENEMIES AND ENVIRONMENT-
    for use by animals.)  Then get rid of the custom-coding.  And polish up
    vermin behaviours.
 
-
 *  I think I'm seeing some noticeable hiccups during pathing by a single drone.
    The slowdown must be in those path-routines.
-
-*  There is very noticeable slowdown on large maps every 2 seconds or so.
-   Profile and FIND OUT WHY.
-   TODO:  Consider using jHiccup for this:
-   http://www.azulsystems.com/javaperformancetuning/
-   chart-java-jitter-with-jhiccup
 
 
 
@@ -176,15 +213,9 @@ INTERFACE AND DEBUGGING
 *  List total earnings for specific buildings.  Breakdown expenses more finely.
    Restore shortage listing for homelessness.
 
-*  Icons could be clearer, at least in the early game.
-
 *  You might need extra tips for no-archives, walls, low funding, homelessness
    and other situations.  Add those in later.
 
-
-*  All the methods for venue-placement and siting within PlaceUtils and the
-   PlacingTask class need to be reviewed and possibly merged into a single set
-   of methods.  Siting should be used for Dropships' land-areas as well.
 
 *  Merge BaseCommerce with either the Verse class and/or the BaseAdvice class.
 
@@ -216,28 +247,22 @@ INTERFACE AND DEBUGGING
 
 ART, GRAPHICS AND MEDIA PRODUCTION
 
+*  Icons could be clearer, at least in the early game.
+
 *  A number of structures need bigger footprints, which will require some art
    changes.  Look into that.
 
-*  You might consider some kind of alternate-rendering arrangement for indoor
-   or occluded actors- like a semi-transparent overlay if selected.  (Also,
-   shield walls/perimeter fence need to have some kind of alternative graphics
-   arrangement- consider making them into Mounts, and providing fresh art to
-   show windows with sentries inside.)
-
 *  Finalise perimeter fence artwork.
-
-*  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
-   that.
-
-*  Ensure that .ms3d models loaded without skins show a default material.  (At
-   the moment they don't.)
-
-*  .ms3d model loading is extremely slow for some reason.
 
 *  Attempt using blender again.
    http://waldobronchart.github.io/ShortcutMapper/#Blender
    Emulate numeric pad in User Preferences/Input and by checking Emulate Numpad
+
+*  If you ever get fully-3D models in place, you can try block-by-block
+   construction/salvage of structures in arbitrary order.  Might not happen for
+   a while, though...
+
+
 
 
 

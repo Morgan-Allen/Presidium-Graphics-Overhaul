@@ -77,6 +77,31 @@ public class Ruins extends Venue {
         return sample;
       }
     };
+    
+    final Siting siting = new Siting(VENUE_BLUEPRINTS[0]) {
+      public float rateSettlementDemand(Base base) {
+        return 0;
+      }
+      
+      public float ratePointDemand(Base base, Target point, boolean exact) {
+        final boolean report = placeVerbose && (point instanceof StageRegion);
+        
+        final Stage world = point.world();
+        final Tile under = world.tileAt(point);
+        float rating = 2;
+        rating -= world.terrain().fertilitySample(under);
+        rating += world.terrain().habitatSample(under, Habitat.CURSED_EARTH);
+        rating *= SiteUtils.worldOverlap(point, world, MIN_RUINS_SPACING);
+        
+        if (report) {
+          I.say("\nRating ruins: "+this);
+          I.say("  Point evaluated: "+point);
+          I.say("  Rating is:       "+rating);
+        }
+        return rating;
+      }
+    };
+    VENUE_BLUEPRINTS[0].linkWith(siting);
   }
   
   
@@ -87,27 +112,7 @@ public class Ruins extends Venue {
   
   public boolean preventsClaimBy(Venue other) {
     if (other instanceof Ruins) return false;
-    return super.preventsClaimBy(other);
-  }
-  
-  
-  public float ratePlacing(Target point, boolean exact) {
-    final boolean report = placeVerbose && (point instanceof StageRegion);
-    if (report) {
-      I.say("\nRating are for "+this);
-      I.say("  SECTION IS: "+point);
-    }
-    
-    final Stage world = point.world();
-    final Tile under = world.tileAt(point);
-    float rating = 2;
-    rating -= world.terrain().fertilitySample(under);
-    rating += world.terrain().habitatSample(under, Habitat.CURSED_EARTH);
-    
-    if (report) {
-      I.say("  Rating is: "+rating);
-    }
-    return rating;
+    return true;
   }
   
   

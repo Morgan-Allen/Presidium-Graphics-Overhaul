@@ -47,7 +47,6 @@ public class Choice implements Qualities {
   protected static boolean checkPlanValid(
     Behaviour plan, Actor actor, boolean report
   ) {
-    
     final boolean valid = plan.valid();
     if (! valid) {
       if (report) I.say("\n  "+plan+" rejected- no longer valid.");

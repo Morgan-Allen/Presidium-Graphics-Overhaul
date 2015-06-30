@@ -18,7 +18,7 @@ public abstract class Constant extends Index.Entry implements
   
   final static Table <String, Object> allConstants = new Table();
   
-  final String name;
+  final public String name;
   
   
   protected Constant(Index index, String key, String name) {
@@ -98,7 +98,7 @@ public abstract class Constant extends Index.Entry implements
   
   
   protected void substituteReferences(String helpString, Description d) {
-    final boolean report = verbose && PlayLoop.isFrameIncrement(60);
+    final boolean report = verbose && I.used60Frames;
     StringBuffer scanned = null;
     boolean inItem = false;
     //

@@ -81,10 +81,10 @@ public class DebugTreating extends Scenario {
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     final Venue station = new PhysicianStation(base);
-    PlaceUtils.establishVenue(station, 4, 4, true, world, treats);
+    SiteUtils.establishVenue(station, 4, 4, true, world, treats);
     
     final Venue vats = new CultureLab(base);
-    PlaceUtils.establishVenue(vats, 10, 4, true, world);
+    SiteUtils.establishVenue(vats, 10, 4, true, world);
     
     final Actor treated = new Human(Backgrounds.EXCAVATOR, base);
     treated.enterWorldAt(4, 10, world);
@@ -100,7 +100,7 @@ public class DebugTreating extends Scenario {
     GameSettings.fogFree = true;
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
-    PlaceUtils.establishVenue(
+    SiteUtils.establishVenue(
       new PhysicianStation(base), 8, 8, true, world,
       treats,
       new Human(Backgrounds.MINDER, base),
@@ -128,7 +128,7 @@ public class DebugTreating extends Scenario {
   private void configRecoveryScenario(Stage world, Base base, BaseUI UI) {
     
     final Venue staysAt = new Cantina(base);
-    PlaceUtils.establishVenue(staysAt, 4, 4, true, world);
+    SiteUtils.establishVenue(staysAt, 4, 4, true, world);
     base.setup.fillVacancies(staysAt, true);
     
     final Actor treated = new Human(Backgrounds.EXCAVATOR, base);

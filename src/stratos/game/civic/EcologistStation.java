@@ -39,7 +39,7 @@ public class EcologistStation extends Venue {
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
-      EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 3
+      EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 2
     );
   
   
@@ -48,7 +48,7 @@ public class EcologistStation extends Venue {
     "Ecologist Station", UIConstants.TYPE_ECOLOGIST, ICON,
     "Ecologist Stations are responsible for agriculture and forestry, "+
     "helping to secure food supplies and advance terraforming efforts.",
-    4, 3, Structure.IS_NORMAL,
+    4, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     150, 3, 250, Structure.NORMAL_MAX_UPGRADES
   );
@@ -70,6 +70,12 @@ public class EcologistStation extends Venue {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
   }
+  
+  
+  
+  /**  Claims and siting-
+    */
+  final public static Siting SITING = new Siting(BLUEPRINT);
   
   
   public boolean preventsClaimBy(Venue other) {
@@ -144,6 +150,7 @@ public class EcologistStation extends Venue {
       base.commerce.primaryShortage(CARBS ) +
       base.commerce.primaryShortage(GREENS)
     ) / 2f;
+    final boolean fieldHand = actor.mind.vocation() == CULTIVATOR;
     //
     //  First of all, find a suitable nursery to tend:
     for (Target t : world.presences.sampleFromMap(
@@ -153,23 +160,26 @@ public class EcologistStation extends Venue {
       if (at.base() != this.base()) continue;
       if (PlanUtils.competition(Farming.class, at, actor) > 0) continue;
       
-      if (shortages > 0.5f) {
+      if (shortages > 0.5f || fieldHand) {
         final Farming farming = new Farming(actor, this, at);
         farming.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
         choice.add(farming);
       }
     }
-    if (shortages > 0.5f) {
+    //
+    //  If there are desperate shortages, consider foraging:
+    if (shortages > 0.5f && fieldHand) {
       final Foraging foraging = new Foraging(actor, this);
       foraging.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
       choice.add(foraging);
     }
-    
-    if (actor.mind.vocation() == ECOLOGIST ) {
-      addEcologistJobs(actor, choice);
-    }
-    if (actor.mind.vocation() == CULTIVATOR) {
+    //
+    //  Then add jobs specific to each vocation-
+    if (fieldHand) {
       addCultivatorJobs(actor, choice);
+    }
+    else {
+      addEcologistJobs(actor, choice);
     }
     return choice.weightedPick();
   }
@@ -189,7 +199,7 @@ public class EcologistStation extends Venue {
       else choice.add(Hunting.asSample(actor, f, this));
     }
     //
-    //  Tailor seed varieties and consider breeding animals-
+    //  Tailor seed varieties and consider breeding animals or forestry-
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.withReference(GENE_SEED, s);
       if (stocks.amountOf(seed) >= 1) continue;
@@ -199,6 +209,7 @@ public class EcologistStation extends Venue {
       choice.add(AnimalBreeding.nextBreeding(actor, this));
     }
     if (! choice.empty()) return;
+    choice.add(Forestry.nextPlanting(actor, this));
     //
     //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
@@ -215,14 +226,6 @@ public class EcologistStation extends Venue {
     );
     choice.add(d);
     if (! choice.empty()) return;
-    //
-    //  Consider collecting gene samples-
-    final float needSamples = SeedTailoring.needForSamples(this);
-    if (needSamples > 0) {
-      choice.add(Forestry.nextSampling(actor, this, needSamples));
-    }
-    //  TODO:  Merge with Former Plant jobs?
-    choice.add(Forestry.nextPlanting(actor, this));
     //
     //  Or, finally, fall back on supervising the venue...
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
@@ -255,11 +258,6 @@ public class EcologistStation extends Venue {
     //
     //  An update ambience-
     structure.setAmbienceVal(2);
-  }
-  
-  
-  public void onDestruction() {
-    super.onDestruction();
   }
   
   

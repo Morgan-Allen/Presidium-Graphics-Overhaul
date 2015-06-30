@@ -7,7 +7,7 @@
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.PlaceUtils;
+import stratos.game.maps.SiteUtils;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -179,7 +179,7 @@ public class Flora extends Element implements TileConstants {
     if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
     if (t.isEntrance() || t.inside().size() > 0) return false;
     if (growChance(t) == -1) return false;
-    return PlaceUtils.pathingOkayAround(t, Owner.TIER_TERRAIN);
+    return SiteUtils.pathingOkayAround(t, Owner.TIER_TERRAIN);
   }
   
   

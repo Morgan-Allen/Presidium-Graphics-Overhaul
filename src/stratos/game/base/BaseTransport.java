@@ -147,17 +147,15 @@ public class BaseTransport {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (report) I.say("\nUpdating perimeter for "+v);
     if (isMember) {
-      final Batch <Tile> around = new Batch <Tile> ();
-      for (Tile t : Spacing.perimeter(v.footprint(), world)) around.add(t);
-      updatePerimeter(v, true, around);
+      updatePerimeter(v, true, Spacing.perimeter(v.footprint(), world));
     }
-    else updatePerimeter(v, false, null);
+    else {
+      updatePerimeter(v, false, null);
+    }
   }
   
-
-  public void updatePerimeter(
-    Fixture v, boolean isMember, Batch <Tile> around
-  ) {
+  
+  public void updatePerimeter(Fixture v, boolean isMember, Tile around[]) {
     final boolean report = paveVerbose && I.talkAbout == v;
     if (report) I.say("Updating perimeter for "+v+", member? "+isMember);
     //

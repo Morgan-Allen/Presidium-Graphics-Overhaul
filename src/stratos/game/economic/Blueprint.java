@@ -5,6 +5,7 @@
   */
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.game.maps.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.common.*;
@@ -32,7 +33,6 @@ public class Blueprint extends Constant implements Session.Saveable {
   final public Class <? extends Venue> baseClass;
   final public String keyID;
   
-  final public String name;
   final public ImageAsset icon;
   final public String category;
   final public String description;
@@ -52,6 +52,8 @@ public class Blueprint extends Constant implements Session.Saveable {
   private Batch <Conversion> consuming = new Batch();
   private Batch <Blueprint> allows = new Batch <Blueprint> ();
   private Batch <Blueprint> denies = new Batch <Blueprint> ();
+  
+  private Siting siting = null;
   
   
   public Blueprint(
@@ -84,7 +86,6 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.baseClass = baseClass;
     this.keyID     = key;
     
-    this.name        = name;
     this.category    = category;
     this.icon        = icon;
     this.description = description;
@@ -112,6 +113,19 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   public void saveState(Session s) throws Exception {
     INDEX.saveEntry(this, s.output());
+  }
+  
+  
+  public void linkWith(Siting siting) {
+    if (this.siting != null && this.siting != siting) {
+      I.say("\nWARNING: Siting already assigned to "+this);
+    }
+    this.siting = siting;
+  }
+  
+  
+  public Siting siting() {
+    return siting;
   }
   
   

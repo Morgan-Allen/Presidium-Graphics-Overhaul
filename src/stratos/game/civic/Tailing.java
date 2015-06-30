@@ -125,7 +125,7 @@ public class Tailing extends Element {
     world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
     
     for (Tile t : origin().allAdjacent(null)) {
-      if (t != null) t.clearUnlessOwned();
+      if (t != null) t.clearUnlessOwned(intact);
     }
     return true;
   }

@@ -22,8 +22,6 @@ import static stratos.game.maps.StageTerrain.*;
 
 
 
-
-
 public class Mining extends Plan {
   
   /**  Fields, constructors and save/load methods-
@@ -103,40 +101,20 @@ public class Mining extends Plan {
   
   /**  Static location methods and priority evaluation-
     */
-  //  TODO:  Move this to the MineFace class.
+  //  TODO:  Move this to the MineFace class?
   
   public static Tile[] getTilesUnder(final ExcavationSite site) {
     final boolean report = picksVerbose && I.talkAbout == site;
-    if (report) I.say("\nGetting tiles beneath "+site);
-    
+    if (report) {
+      I.say("\nGetting tiles beneath "+site);
+    }
+    //
+    //  We essentially get all nearby tiles which are *not* mined out, sort them
+    //  based on distance and promise, and return.
     final Stage world = site.world();
-    final int range = site.digLimit(), SS = Stage.ZONE_SIZE;
-    final Box2D area = new Box2D().setTo(site.footprint());
-
-    //
-    //  Firstly, we spread out from beneath the excavation site and claim all
-    //  tiles which are either mined out, or directly under the structure, up
-    //  to a certain distance limit.
-    final TileSpread spread = new TileSpread(world.tileAt(site)) {
+    final Batch <Tile> touched = new Batch(), viable = new Batch();
+    final Sorting <Tile> agenda = new Sorting <Tile> () {
       
-      protected boolean canAccess(Tile t) {
-        if (area.distance(t.x, t.y) > range   ) return false;
-        if (area.contains(t.x, t.y)           ) return true ;
-        if (world.terrain().mineralsAt(t) == 0) return true ;
-        return false;
-      }
-      
-      protected boolean canPlaceAt(Tile t) { return false; }
-    };
-    spread.doSearch();
-    
-    //
-    //  We then get all adjacent tiles which are *not* mined out, sort them
-    //  based on distance and promise, and return-
-    final Tile open[] = spread.allSearched(Tile.class);
-    final Batch <Tile> touched = new Batch <Tile> ();
-
-    final Sorting <Tile> sorting = new Sorting <Tile> () {
       public int compare(Tile a, Tile b) {
         final float
           rA = (Float) a.flaggedWith(),
@@ -145,29 +123,37 @@ public class Mining extends Plan {
         if (rB > rA) return -1;
         return 0;
       }
-    };
-    for (Tile o : open) for (Tile n : o.edgeAdjacent(Spacing.tempT4)) {
-      if (n == null || n.flaggedWith() != null) continue;
       
-      final float rating = rateFace(site, n);
-      n.flagWith(rating);
-      touched.add(n);
-      if (rating > 0) sorting.add(n);
-    }
+      public void add(Tile n) {
+        if (n == null || n.flaggedWith() != null) return;
+        final float rating = rateFace(site, n);
+        n.flagWith(rating);
+        touched.add(n);
+        if (rating > 0) super.add(n);
+      }
+    };
+    final Tile init = world.tileAt(site), batch[] = new Tile[4];
     
+    agenda.add(init);
+    while (agenda.size() > 0) {
+      final Tile best = agenda.removeGreatest();
+      viable.add(best);
+      for (Tile n : best.edgeAdjacent(batch)) agenda.add(n);
+    }
     for (Tile t : touched) t.flagWith(null);
-    return sorting.toArray(Tile.class);
+    
+    return viable.toArray(Tile.class);
   }
   
   
   private static float rateFace(ExcavationSite site, Tile face) {
-    final int SS = Stage.ZONE_SIZE;
     
     final float dist = Spacing.distance(face, site);
-    if (dist > site.digLimit() + (SS / 2)) return -1;
+    if (dist > site.digLimit() + (site.size / 2)) return -1;
     
     final Item left = mineralsAt(face);
     float rating = left == null ? 0.1f : site.extractMultiple(left.type);
+    final int SS = Stage.ZONE_SIZE;
     rating *= SS / (SS + dist);
     return rating;
   }

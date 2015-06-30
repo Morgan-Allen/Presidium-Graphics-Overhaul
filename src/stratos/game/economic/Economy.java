@@ -156,7 +156,7 @@ public final class Economy {
     //  TODO:  Replace directly with Atomics.  Ships have their own on-board
     //  reactors.
     ANTIMASS = new Traded(
-      BC, "Antimass", "fuel_rods.gif" , FORM_SPECIAL, 1000,
+      BC, "Antimass", "antimass.gif" , FORM_SPECIAL, 1000,
       "A concentrated energy source needed for atomics and space travel"
     ),
     PRESSFEED = new Traded(
@@ -177,13 +177,13 @@ public final class Economy {
   
   final public static Traded
     ATMO  = new Traded(
-      BC, "Atmo" , "life_S.png", FORM_PROVISION, 5
+      BC, "Atmo" , "atmo.png" , FORM_PROVISION, 5
     ),
     POWER = new Traded(
-      BC, "Power", "power.png" , FORM_PROVISION, 10
+      BC, "Power", "power.png", FORM_PROVISION, 10
     ),
     WATER = new Traded(
-      BC, "Water", "water.png" , FORM_PROVISION, 20
+      BC, "Water", "water.png", FORM_PROVISION, 20
     );
   final public static Traded
     ALL_PROVISIONS[] = Traded.INDEX.soFar(Traded.class);

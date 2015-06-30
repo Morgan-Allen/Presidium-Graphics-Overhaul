@@ -32,7 +32,7 @@ public class Nursery extends Venue implements TileConstants {
   );
   final static ModelAsset
     NURSERY_MODEL = CutoutModel.fromImage(
-      Nursery.class, IMG_DIR+"nursery.png", 2, 2
+      Nursery.class, IMG_DIR+"nursery.png", 2, 1
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
@@ -40,13 +40,17 @@ public class Nursery extends Venue implements TileConstants {
     "Nursery", UIConstants.TYPE_ECOLOGIST, ICON,
     "Nurseries secure a high-quality food source from plant crops, but need "+
     "space, hard labour and fertile soils.",
-    2, 2, Structure.IS_ZONED,
+    2, 1, Structure.IS_ZONED,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     25,  //integrity
     5,  //armour
     75,  //build cost
     Structure.NO_UPGRADES
   );
+  
+  final static int
+    MAX_CLAIM_SIDE = Nums.round(Stage.ZONE_SIZE - 2, 4, false),
+    MIN_CLAIM_SIDE = BLUEPRINT.size + 4;
   
   final public static Conversion
     LAND_TO_CARBS = new Conversion(
@@ -60,7 +64,9 @@ public class Nursery extends Venue implements TileConstants {
   
   
   private Box2D areaClaimed = new Box2D();
-  private Tile toPlant[] = new Tile[0];
+  private Tile reserved[]   = new Tile[0];
+  private Tile toPave[]     = new Tile[0];
+  private byte useMap[][]   = new byte[0][0];
   private float needsTending = 0;
   
   
@@ -74,7 +80,10 @@ public class Nursery extends Venue implements TileConstants {
   public Nursery(Session s) throws Exception {
     super(s);
     areaClaimed.loadFrom(s.input());
-    toPlant      = (Tile[]) s.loadObjectArray(Tile.class);
+    reserved = (Tile[]) s.loadObjectArray(Tile.class);
+    toPave   = (Tile[]) s.loadObjectArray(Tile.class);
+    useMap   = new byte[(int) areaClaimed.xdim()][(int) areaClaimed.ydim()];
+    s.loadByteArray(useMap);
     needsTending = s.loadFloat();
   }
   
@@ -82,7 +91,9 @@ public class Nursery extends Venue implements TileConstants {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     areaClaimed.saveTo(s.output());
-    s.saveObjectArray(toPlant     );
+    s.saveObjectArray(reserved    );
+    s.saveObjectArray(toPave      );
+    s.saveByteArray  (useMap      );
     s.saveFloat      (needsTending);
   }
   
@@ -95,28 +106,75 @@ public class Nursery extends Venue implements TileConstants {
   
   /**  Placement and supply-demand functions-
     */
+  final static Siting SITING = new Siting(BLUEPRINT) {
+    
+    public float ratePointDemand(Base base, Target point, boolean exact) {
+      final Stage world = point.world();
+      final Tile under = world.tileAt(point);
+      
+      final Venue station = (Venue) world.presences.nearestMatch(
+        EcologistStation.class, point, -1
+      );
+      if (station == null || station.base() != base) return -1;
+      final float distance = Spacing.distance(point, station);
+      
+      float rating = super.ratePointDemand(base, point, exact);
+      rating *= world.terrain().fertilitySample(under) * 2;
+      rating /= 1 + (distance / Stage.ZONE_SIZE);
+      return rating;
+    }
+  };
+  
+  
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     //
     //  By default, we claim an area 2 tiles larger than the basic footprint,
     //  but we can also have a larger area assigned (e.g, by a human player or
     //  by an automated placement-search.)
-    areaClaimed.setTo(footprint()).expandBy(2);
-    if (area != null) areaClaimed.include(area);
-    this.facing = areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACING_SOUTH : FACING_EAST
-    ;
+    
+    final Tile at = origin();
+    final Stage world = position.world;
+    final Box2D minArea = new Box2D(), foot = footprint();
+    
+    //  TODO:  Damn, but I need some simplified utilities for this crap.
+    minArea.setX(at.x - 2.5f, MIN_CLAIM_SIDE);
+    minArea.setY(at.y - 2.5f, MIN_CLAIM_SIDE);
+    
+    if (area == null) {
+      areaClaimed.setX(at.x - 4.5f, MAX_CLAIM_SIDE);
+      areaClaimed.setY(at.y - 4.5f, MAX_CLAIM_SIDE);
+      
+      //  TODO:  Crop with an extra margin to allow clearance?
+      areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed, world));
+    }
+    else {
+      areaClaimed.setTo(area);
+    }
+    if (! foot.containedBy(areaClaimed)) areaClaimed.setTo(foot);
+    //
+    //  NOTE:  Facing must be set before crop-tiles are settled on, as this
+    //  affects row-orientation!
+    setFacing(areaClaimed.xdim() > areaClaimed.ydim() ?
+      FACE_SOUTH : FACE_EAST
+    );
     return true;
   }
   
   
   public boolean canPlace(Account reasons) {
     if (! super.canPlace(reasons)) return false;
-    if (areaClaimed.maxSide() > Stage.ZONE_SIZE) {
+    final Stage world = origin().world;
+    
+    if (areaClaimed.maxSide() > MAX_CLAIM_SIDE) {
       return reasons.setFailure("Area is too large!");
     }
-    final Stage world = origin().world;
-    if (! PlaceUtils.pathingOkayAround(this, areaClaimed, owningTier(), 2, world)) {
+    if (areaClaimed.minSide() < MIN_CLAIM_SIDE) {
+      return reasons.setFailure("Area is too small!");
+    }
+    
+    if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), world)) {
+    //if (! SiteUtils.checkAroundClaim(this, areaClaimed, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
@@ -128,143 +186,47 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  public float ratePlacing(Target point, boolean exact) {
-    
-    final Stage world = point.world();
-    final Presences presences = world.presences;
-    final EcologistStation station = (EcologistStation) presences.nearestMatch(
-      EcologistStation.class, point, -1
-    );
-    if (station == null || station.base() != base) return -1;
-    final float distance = Spacing.distance(point, station);
-    
-    float demand = base.demands.globalShortage(Nursery.class, false);
-    final Tile under = world.tileAt(point);
-    float rating = 0;
-    rating += world.terrain().fertilitySample(under);
-    rating /= 1 + (distance / Stage.ZONE_SIZE);
-    rating *= 10 * demand;
-    return rating;
+  public Tile[] reserved() {
+    return reserved;
   }
   
   
-  protected void checkCropStates() {
-    final boolean report = verbose && I.talkAbout == this;
-    if (toPlant == null || toPlant.length == 0) {
-      if (report) I.say("\nNO CROPS TO CHECK");
-      needsTending = 0;
-      return;
-    }
-    
-    if (report) I.say("\nCHECKING CROP STATES");
-    needsTending = 0;
-    for (Tile t : toPlant) {
-      final Crop c = plantedAt(t);
-      if (c == null || c.needsTending()) needsTending++;
-    }
-    
-    if (report) I.say("NEEDS TENDING: "+needsTending);
-    needsTending /= toPlant.length;
+  public boolean preventsClaimBy(Venue other) {
+    return true;
   }
   
   
   
-  /**  Establishing crop areas-
+  
+  /**  Utility methods for handling tile-planting:
     */
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
-    if (! structure.intact()) return;
-    structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
-    if (toPlant.length == 0) scanForCropTiles();
-    if (numUpdates % 10 == 0) checkCropStates();
-  }
-  
-  
-  protected void updatePaving(boolean inWorld) {
-    final boolean report = verbose && I.talkAbout == this;
+  public void doPlacement(boolean intact) {
+    super.doPlacement(intact);
     
-    if (report) I.say("\nGETTING PERIMETER TILES FOR AREA: "+areaClaimed);
-    final Batch <Tile> around = new Batch <Tile> ();
-    for (Tile t : Spacing.perimeter(areaClaimed, world)) if (t != null) {
-      around.add(t);
-      if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
-    }
-    if (report) I.say("\nGETTING UNPLANTED TILES FOR AREA");
-    for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (! couldPlant(t)) {
-        around.add(t);
-        if (report) I.say("  TILE AT: "+t.x+"|"+t.y);
-      }
-    }
-    base.transport.updatePerimeter(this, inWorld, around);
-  }
-  
-  
-  private void scanForCropTiles() {
-    final boolean report = verbose && I.talkAbout == this;
-    //
-    //  We then grab all plantable tiles in the area claimed and resize the
-    //  claim itself to fit neatly around those:
-    final Batch <Tile> grabbed = new Batch <Tile> ();
-    final Box2D cropped = new Box2D(footprint());
-    if (report) {
-      I.say("\nORIGINAL AREA CLAIMED: "+areaClaimed);
-      I.say("  FOOTPRINT:   "+footprint());
-      I.say("  ORIGIN TILE: "+origin());
-    }
-    
-    for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (couldPlant(t)) {
-        grabbed.add(t);
-        cropped.include(t.x, t.y, 0.5f);
-        if (report) I.say("  WILL PLANT AT: "+t);
-      }
-    }
-    areaClaimed.setTo(cropped);
-    toPlant = grabbed.toArray(Tile.class);
-    if (report) I.say("NEW CROPPED AREA: "+areaClaimed);
+    final SiteUtils.Division d = SiteUtils.getAreaDivision(
+      this, areaClaimed, facing(), 3, this
+    );
+    this.reserved = d.reserved;
+    this.toPave   = d.toPave  ;
+    this.useMap   = d.useMap  ;
   }
   
   
   private int plantType(Tile t) {
-    if (! areaClaimed.contains(t.x, t.y)) return -1;
-    
-    final boolean across = facing == FACING_NORTH || facing == FACING_SOUTH;
-    final int s = Nums.round(t.world.size, 6, true);  //  Modulus offset.
-    final Tile o = origin();
-    
-    for (Tile n : t.allAdjacent(null)) {
-      if (n == null || (n.above() instanceof Crop)) continue;
-      if (n.pathType() >= Tile.PATH_HINDERS && n.reserved()) return -1;
-    }
-    
-    if (footprint().contains(t.x, t.y)) return -1;
-    if (across) {
-      if ((t.x + s - o.x) % 3 == 2) return -1;
-      if ((t.x + s - o.x) % 6 == 0) return  2;
-    }
-    else {
-      if ((t.y + s - o.y) % 3 == 2) return -1;
-      if ((t.y + s - o.y) % 6 == 0) return  2;
-    }
-    return 1;
+    final Tile o = t.world.tileAt(areaClaimed.xpos(), areaClaimed.ypos());
+    if (o == null) return -1;
+    try { return useMap[t.x - o.x][t.y - o.y]; }
+    catch (ArrayIndexOutOfBoundsException e) { return -1; }
   }
   
-  
+
   public boolean couldPlant(Tile t) {
-    if (! t.habitat().pathClear) return false;
-    if (t.above() instanceof Crop || ! t.reserved()) return plantType(t) > 0;
-    return false;
+    return plantType(t) > 0;
   }
   
   
   public boolean shouldCover(Tile t) {
     return plantType(t) == 2;
-  }
-
-
-  public Tile[] toPlant() {
-    return toPlant;
   }
   
   
@@ -276,6 +238,42 @@ public class Nursery extends Venue implements TileConstants {
   
   public float needForTending() {
     return needsTending;
+  }
+  
+  
+  protected void checkCropStates() {
+    final boolean report = verbose && I.talkAbout == this;
+    if (Visit.empty(reserved)) {
+      if (report) I.say("\nNO CROPS TO CHECK");
+      needsTending = 0;
+      return;
+    }
+    
+    if (report) I.say("\nCHECKING CROP STATES");
+    needsTending = 0;
+    for (Tile t : reserved) {
+      final Crop c = plantedAt(t);
+      if (c == null || c.needsTending()) needsTending++;
+    }
+    
+    if (report) I.say("NEEDS TENDING: "+needsTending);
+    needsTending /= reserved.length;
+  }
+  
+  
+  
+  /**  Other general update methods-
+    */
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    if (! structure.intact()) return;
+    structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
+    if (numUpdates % 10 == 0) checkCropStates();
+  }
+  
+  
+  protected void updatePaving(boolean inWorld) {
+    base.transport.updatePerimeter(this, inWorld, toPave);
   }
   
   
@@ -302,16 +300,15 @@ public class Nursery extends Venue implements TileConstants {
     AWAITING_GROWTH_INFO =
       "The crops around this Nursery have yet to mature.  Allow them a few "+
       "days to bear fruit.";
-  
+
   private String compileOutputReport() {
     final StringBuffer s = new StringBuffer();
-    
-    final int numTiles = toPlant.length;
+    final int numTiles = reserved.length;
     float
       health = 0, growth = 0, fertility = 0,
       numPlant = 0, numCarbs = 0, numGreens = 0;
     
-    for (Tile t : toPlant) {
+    for (Tile t : reserved) {
       final Crop c = plantedAt(t);
       fertility += t.habitat().moisture();
       if (c == null) continue;
@@ -355,6 +352,18 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
+  public void previewPlacement(boolean canPlace, Rendering rendering) {
+    
+    //  TODO:  Factor this out!
+    final SiteUtils.Division d = SiteUtils.getAreaDivision(
+      this, areaClaimed, facing(), 3, this
+    );
+    this.reserved = d.reserved;
+    
+    super.previewPlacement(canPlace, rendering);
+  }
+  
+  
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
@@ -365,4 +374,9 @@ public class Nursery extends Venue implements TileConstants {
     else return super.helpInfo();
   }
 }
+
+
+
+
+
 

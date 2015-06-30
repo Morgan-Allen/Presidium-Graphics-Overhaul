@@ -6,8 +6,8 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.user.BaseUI;
 import stratos.util.*;
+import stratos.user.BaseUI;
 
 
 
@@ -22,7 +22,9 @@ public class ClaimsGrid {
   final Stage world;
   final Table <Venue, Claim> venueClaims;
   final List <Claim> areaClaims[][];
-  final Base         baseClaims[][];
+  
+  private Batch <Box2D> areaBits = new Batch();
+  final Base baseClaims[][];
   
   
   static class Claim {
@@ -145,24 +147,17 @@ public class ClaimsGrid {
         if ((! claim.flag) && claim.area.overlaps(area)) {
           final Venue other = claim.owner;
           if (other == owner) continue;
-          
           final boolean
             ownerClash = owner.preventsClaimBy(other),
-            otherClash = other.preventsClaimBy(owner);
-          final Box2D
-            ownerFP = owner.footprint(),
-            otherFP = other.footprint();
-
-          boolean clash = false;
-          if      (ownerClash && otherClash) clash = true;
-          else if (ownerClash && otherFP.overlaps(area      )) clash = true;
-          else if (otherClash && ownerFP.overlaps(claim.area)) clash = true;
+            otherClash = other.preventsClaimBy(owner),
+            clash      = ownerClash || otherClash;
           if (! clash) continue;
           
-          if (report && owner != null) {
+          if (report) {
             I.say("  CONFLICTS WITH: "+other);
-            I.say("    Prevents claim? "+other.preventsClaimBy(owner));
-            I.say("    Footprint:      "+other.footprint());
+            I.say("    Own clash?   "+ownerClash);
+            I.say("    Other clash? "+otherClash);
+            I.say("    Footprint:   "+other.footprint());
           }
           conflict.add(claim);
           claim.flag = true;
@@ -239,6 +234,51 @@ public class ClaimsGrid {
     final int NS = world.size / world.sections.resolution;
     for (Coord c : Visit.grid(0, 0, NS, NS, 1)) areaClaims[c.x][c.y] = null;
   }
+  
+  
+  
+  /**  Methods for dynamically resizing new claims-
+    */
+  public Box2D cropNewClaim(Venue venue, Box2D original, Stage world) {
+    final Box2D cropped = new Box2D(original);
+    cropped.cropBy(world.area());
+    for (Claim c : claimsConflicting(original, venue)) {
+      
+      //  TODO:  The area in conflict might be either the full claim-radius or
+      //  just the footprint- so you need to establish which.
+      
+      if (! cropToExclude(cropped, c.area)) break;
+    }
+    return cropped;
+  }
+  
+  
+  private boolean cropToExclude(Box2D cropped, Box2D blocks) {
+    final Vec2D cC = cropped.centre(), cB = blocks.centre(), dir = new Vec2D();
+    cB.sub(cC, dir);
+    final float absX = Nums.abs(dir.x), absY = Nums.abs(dir.y);
+    //
+    //  Is the blockage above?
+    if (dir.y >= absX) {
+      cropped.ymax(blocks.ypos());
+    }
+    //
+    //  Is the blockage below?
+    if (dir.y < 0 - absX) {
+      cropped.setY(blocks.ymax(), cropped.ymax() - blocks.ymax());
+    }
+    //
+    //  Is the blockage to the right?
+    if (dir.x >= absY) {
+      cropped.xmax(blocks.xpos());
+    }
+    //
+    //  Is the blockage to the left?
+    if (dir.x < 0 - absY) {
+      cropped.setX(blocks.xmax(), cropped.xmax() - blocks.xmax());
+    }
+    return true;
+  }
 }
 
 
@@ -249,51 +289,12 @@ public class ClaimsGrid {
   
   
   
-  
+  //  TODO:  THESE MIGHT BE USEFUL AGAIN NOW!
   
   /**  Utility methods for finding the largest claim which might fit within
     *  currently free space.
     */
   /*
-  public Box2D cropNewClaim(Box2D area) {
-    final Box2D cropped = new Box2D().setTo(area);
-    final Box2D sides[] = {
-      new Box2D(), new Box2D(), new Box2D(), new Box2D()  
-    }, temp = new Box2D();
-    
-    for (Claim c : claimsConflicting(area)) {
-      if (! cropToExclude(cropped, c.area, sides, temp)) break;
-    }
-    return cropped;
-  }
-  
-  
-  private boolean cropToExclude(
-    Box2D b, Box2D o, Box2D sides[], Box2D temp
-  ) {
-    //
-    //  Basically, create 4 areas for each side of this box, intersect with
-    //  those, and see which gives you the biggest remainder.
-    sides[0].set(o.xmax()           , o.ypos(), b.xdim(), o.ydim());
-    sides[1].set(o.xpos() - b.xdim(), o.ypos(), b.xdim(), o.ydim());
-    sides[2].set(o.xpos(), o.ymax()           , o.xdim(), b.ydim());
-    sides[3].set(o.xpos(), o.ypos() - b.ydim(), o.xdim(), b.ydim());
-    //
-    float bestArea = 0;
-    Box2D bestSide = null;
-    for (Box2D side : sides) {
-      temp.setTo(b).cropBy(side);
-      final float area = temp.area();
-      if (area > bestArea) { bestArea = area; bestSide = side; }
-    }
-    //
-    if (bestSide == null) {
-      b.set(-1, -1, 0, 0);
-      return false;
-    }
-    b.cropBy(bestSide);
-    return true;
-  }
   
   
   
@@ -301,7 +302,6 @@ public class ClaimsGrid {
     *  ease of deterministic placement.
     */
   /*
-  //  TODO:  This can probably be gotten rid of.  Not used
   public Box2D[] placeLatticeWithin(
     Box2D area, Venue client, int laneSize, int maxUnits, boolean useLeftovers
   ) {

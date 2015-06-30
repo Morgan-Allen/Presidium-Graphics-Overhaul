@@ -26,7 +26,7 @@ public class Bastion extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Bastion.class, "media/Buildings/military/bastion.png", 7, 3
+    Bastion.class, "media/Buildings/military/bastion.png", 8, 3
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     Bastion.class, "media/GUI/Buttons/bastion_button.gif"
@@ -40,7 +40,7 @@ public class Bastion extends Venue {
     "The Bastion is your seat of command for the settlement as a "+
     "whole, houses your family, advisors and bodyguards, and provides "+
     "basic logistic support.",
-    7, 3, Structure.IS_UNIQUE,
+    8, 3, Structure.IS_UNIQUE,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     650, 15, 1000, Structure.BIG_MAX_UPGRADES
   );
@@ -69,6 +69,44 @@ public class Bastion extends Venue {
   
   /**  Placement and claims-assertion methods:
     */
+  final public static Siting SITING = new Siting(BLUEPRINT) {
+    
+    public float ratePointDemand(Base base, Target point, boolean exact) {
+      float rating = 5;
+      
+      //
+      //  Okay- you want a spot as close to the centre of the map as possible,
+      //  but reasonably close to rich resources, and with enough space to
+      //  establish a shield wall.
+      
+      final Stage world = point.world();
+      final Tile at = world.tileAt(point);
+      
+      float relX = at.x * 1f / world.size, relY = at.y * 1f / world.size;
+      float midRating = relX * (1 - relX) * 4 * relY * (1 - relY) * 4;
+      rating *= midRating;
+      
+      if (! exact) {
+        final Box2D claims = new Box2D(at.x - 0.5f, at.y - 0.5f, 0, 0);
+        claims.expandBy(CLAIM_RADIUS);
+        if (SiteUtils.checkAreaClear(claims, world)) rating *= 2;
+        
+        final Venue nearest;
+        nearest = (Venue) world.presences.nearestMatch(Venue.class, at, -1);
+        if (nearest != null && nearest.base() != base) {
+          final float dist = Spacing.distance(point, nearest);
+          rating *= 4 / (2f + (dist / Stage.ZONE_SIZE));
+        }
+      }
+      //
+      //  TODO:  Also minerals & insolation, etc?
+      //rating *= 1 + world.terrain().fertilitySample(world.tileAt(point));
+      
+      return rating;
+    }
+  };
+  
+  
   public Box2D areaClaimed() {
     if (claims == null || ! inWorld()) {
       claims = new Box2D(footprint()).expandBy(CLAIM_RADIUS);
@@ -78,71 +116,16 @@ public class Bastion extends Venue {
   
   
   public boolean preventsClaimBy(Venue other) {
-    /*
-    if (excludes == null || ! inWorld()) {
-      excludes = new Box2D(footprint()).expandBy(EXCLUDE_RADIUS);
-    }
-    if (other.footprint().overlaps(excludes)) {
-      if (other.pathType() <= Tile.PATH_CLEAR) return false;
+    if (Spacing.adjacent(this, other) && other.pathType() > Tile.PATH_CLEAR) {
       return true;
     }
-    //*/
     if (other.base() == base()) return false;
     else return super.preventsClaimBy(other);
   }
   
   
-  public void setPosition(int x, int y, Stage world) {
-    super.setPosition(x, y, world);
-    this.facing = FACING_EAST;
-    
-    //  TODO:  SORT THIS OUT IN A CLEANER WAY
-    final Tile o = origin();
-    final int off[] = PlaceUtils.entranceCoords(size, size, facing);
-    Tile e = world.tileAt(o.x + off[0], o.y + off[1]);
-    this.entrance = e;
-  }
-  
-  
-  public float ratePlacing(Target point, boolean exact) {
-    
-    float rating = 5;
-    
-    //
-    //  Okay- you want a spot as close to the centre of the map as possible,
-    //  but reasonably close to rich resources, and with enough space to
-    //  establish a shield wall.
-    
-    final Stage world = point.world();
-    final Tile at = world.tileAt(point);
-    
-    float relX = at.x * 1f / world.size, relY = at.y * 1f / world.size;
-    float midRating = relX * (1 - relX) * 4 * relY * (1 - relY) * 4;
-    rating *= midRating;
-    
-    if (PlaceUtils.checkAreaClear(areaClaimed(), world)) rating *= 2;
-    //
-    //  TODO:  You also want to be far away from hostile venues...
-    Venue nearest = (Venue) world.presences.nearestMatch(Venue.class, at, -1);
-    if (nearest != null) {
-      
-    }
-    
-    return rating;
-    /*
-    //  TODO:  This could probably be sophisticated a bit...
-    final Stage world = point.world();
-    float rating = 5;
-    if (inWorld()) return rating;
-    
-    //  TODO:  Also minerals & insolation, etc?
-    rating *= 1 + world.terrain().fertilitySample(world.tileAt(point));
-    
-    final Target nearest = world.presences.nearestMatch(Venue.class, point, -1);
-    if (nearest == null) return rating;
-    final int SS = Stage.SECTOR_SIZE;
-    return rating * (SS + Spacing.distance(point, nearest)) / SS;
-    //*/
+  public void setFacing(int facing) {
+    super.setFacing(FACE_EAST);
   }
   
   

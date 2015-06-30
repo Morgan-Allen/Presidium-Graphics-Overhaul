@@ -85,7 +85,7 @@ public class CutoutModel extends ModelAsset {
     String fileName, Class modelClass, Box2D window,
     float size, float high, boolean splat
   ) {
-    super(fileName+""+window, modelClass);
+    super(fileName+"_"+window.xpos()+"_"+window.ypos()+"_"+size, modelClass);
     this.fileName = fileName;
     this.window   = window  ;
     this.size     = size    ;
@@ -298,6 +298,11 @@ public class CutoutModel extends ModelAsset {
     final Integer index = faceLookup.get(key);
     if (index == null || index < 1) return null;
     return new CutoutSprite(this, index);
+  }
+  
+  
+  public String fileName() {
+    return this.fileName;
   }
 }
 

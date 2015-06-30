@@ -226,6 +226,15 @@ public class BaseDemands {
   }
   
   
+  public float demandAround(Target point, Object key, float radius) {
+    final BlurMap map = mapForDemand(key);
+    point.position(temp);
+    float value = map.sampleAsFraction(temp.x, temp.y, -1);
+    if (radius > 0) value *= (radius * radius * 4) / (patchSize * patchSize);
+    return value;
+  }
+  
+  
   public float supplySampleFor(Target point, Object key, int period) {
     final BlurMap map = mapForSupply(key);
     point.position(temp);

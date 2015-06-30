@@ -85,9 +85,6 @@ public class DebugPlacing extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.hireFree  = true;
-    GameSettings.buildFree = true;
-    GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
     
@@ -101,11 +98,9 @@ public class DebugPlacing extends Scenario {
   
   
   private void configEcology(Stage world, Base base, BaseUI UI) {
-    GameSettings.hireFree = false;
-    
-    Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
     
     Flora.populateFlora(world);
+    //Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
     
     I.say("\nCHECKING FOR TILE-ACCESS...");
     for (Tile t : world.tilesIn(world.area(), false)) {
@@ -117,12 +112,17 @@ public class DebugPlacing extends Scenario {
       if (! open) I.say("  TILE SURROUNDED: "+t);
     }
     
-    Nest.populateFauna(world, Species.ANIMAL_SPECIES);
+    Nest.populateFauna(world, Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES);
+    
+    
+    //  TODO:  Either automate the inhabitant-displacement step, or perform
+    //  inhabitant-introduction in a later step.  Think about general history-
+    //  simulation.
     
     final Bastion b = new Bastion(base);
     base.setup.doPlacementsFor(b);
     
-    for (Venue v : world.claims.venuesConflicting(b)) {
+    if (b.inWorld()) for (Venue v : world.claims.venuesConflicting(b)) {
       for (Actor a : v.staff.lodgers()) a.exitWorld();
       v.exitWorld();
     }
@@ -133,24 +133,24 @@ public class DebugPlacing extends Scenario {
     Venue v = null;
     
     v = new EngineerStation(base);
-    PlaceUtils.establishVenue(v, 4, 3, true, world);
+    SiteUtils.establishVenue(v, 4, 3, true, world);
     
     v = new EngineerStation(base);
-    PlaceUtils.establishVenue(v, 4, 9, true, world);
+    SiteUtils.establishVenue(v, 4, 9, true, world);
     
     v = new EngineerStation(base);
-    PlaceUtils.establishVenue(v, 4, 6, true, world);
+    SiteUtils.establishVenue(v, 4, 6, true, world);
   }
   
   
   private void configTradeTest(Stage world, Base base, BaseUI UI) {
     
     final Venue depot = new SupplyDepot(base);
-    PlaceUtils.establishVenue(depot, 5 , 5 , true, world);
+    SiteUtils.establishVenue(depot, 5 , 5 , true, world);
     depot.updateAsScheduled(0, false);
     
     final Venue works = new Fabricator(base);
-    PlaceUtils.establishVenue(works, 5 , 10, true, world);
+    SiteUtils.establishVenue(works, 5 , 10, true, world);
     works.updateAsScheduled(0, false);
     
     base.commerce.updateCommerce(0);
@@ -162,8 +162,8 @@ public class DebugPlacing extends Scenario {
     
     final Venue pointA = new TrooperLodge(base);
     final Venue pointB = new TrooperLodge(base);
-    PlaceUtils.establishVenue(pointA, 5, 5 , false, world);
-    PlaceUtils.establishVenue(pointB, 5, 15, false, world);
+    SiteUtils.establishVenue(pointA, 5, 5 , false, world);
+    SiteUtils.establishVenue(pointB, 5, 15, false, world);
     pointA.updateAsScheduled(0, false);
     pointB.updateAsScheduled(0, false);
     
@@ -181,7 +181,7 @@ public class DebugPlacing extends Scenario {
   private void configMinesTest(Stage world, Base base, BaseUI UI) {
     final ExcavationSite station = new ExcavationSite(base);
     final Human worksA, worksB;
-    PlaceUtils.establishVenue(
+    SiteUtils.establishVenue(
       station, 8, 8, true, world,
       worksA = new Human(Backgrounds.EXCAVATOR, base),
       worksB = new Human(Backgrounds.EXCAVATOR, base)
@@ -195,21 +195,25 @@ public class DebugPlacing extends Scenario {
   
   private void configPlantTest(Stage world, Base base, BaseUI UI) {
     
+    GameSettings.buildFree = true;
+    GameSettings.paveFree  = true;
+    
     final EcologistStation station = new EcologistStation(base);
-    PlaceUtils.establishVenue(station, 8, 8, true, world);
+    SiteUtils.establishVenue(station, 8, 8, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = Item.with(Economy.SAMPLES, s, 1, 4);
+      final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);
       station.stocks.addItem(seed);
     }
     base.setup.fillVacancies(station, true);
     
     final Nursery site = new Nursery(base);
-    final Box2D area = new Box2D(13, 4, 10, 10);
-    site.setupWith(world.tileAt(18, 8), area);
-    if (site.canPlace()) site.doPlacement(false);
+    final SitingPass pass = new SitingPass(base, site);
+    pass.isVerbose = true;
+    pass.placeState = SitingPass.PLACE_INTACT;
+    pass.performFullPass();
     
     final Bastion bastion = new Bastion(base);
-    PlaceUtils.establishVenue(bastion, site, true, world);
+    SiteUtils.establishVenue(bastion, site, true, world);
     base.setup.fillVacancies(bastion, true);
   }
   

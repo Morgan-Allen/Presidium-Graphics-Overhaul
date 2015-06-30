@@ -175,8 +175,11 @@ public final class Tile implements
   
   public Batch <Boarding> entranceFor() {
     final Batch <Boarding> batch = new Batch <Boarding> ();
-    for (Boarding b : canBoard()) {
-      if (b instanceof Element) batch.add(b);
+    for (Tile t : edgeAdjacent(null)) {
+      if (t.reserves() instanceof Boarding) {
+        final Boarding a = (Boarding) t.reserves();
+        if (a.isEntrance(this)) batch.add(a);
+      }
     }
     return batch;
   }
@@ -217,6 +220,7 @@ public final class Tile implements
   public void setReserves(Element e) {
     this.reserves = e;
     world.terrain().setReservedAt(this, reserved() && above != reserves);
+    refreshAdjacent();
   }
   
   
@@ -243,14 +247,20 @@ public final class Tile implements
     
     setReserves(reserves ? e : this.reserves);
     world.sections.flagBoundsUpdate(x, y);
-    refreshAdjacent();
+  }
+  
+  
+  public void clearUnlessOwned(boolean instant) {
+    if (above != null && (above != reserves || ! reserved())) {
+      if (instant) above.exitWorld();
+      else above.setAsDestroyed();
+    }
   }
   
   
   public void clearUnlessOwned() {
-    if (above != null && above != reserves) above.setAsDestroyed();
+    clearUnlessOwned(false);
   }
-  
   
   
   
@@ -269,6 +279,7 @@ public final class Tile implements
     if (boardingCache != null) return boardingCache;
     final Boarding batch[] = new Boarding[8];
     isEntrance = false;
+    boolean flagReserve = false;
     
     //  If you're actually occupied, allow boarding of the owner-
     if (blocked() && above() instanceof Boarding) {
@@ -292,13 +303,20 @@ public final class Tile implements
     //  Include anything that you're an entrance to-
     for (int n : T_ADJACENT) {
       final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
-      if (t == null || ! (t.above() instanceof Boarding)) continue;
-      final Boarding v = (Boarding) t.above();
+      if (t == null || ! (t.reserves() instanceof Boarding)) continue;
+      final Boarding v = (Boarding) t.reserves();
       if (v.isEntrance(this)) {
-        batch[n] = v;
         isEntrance = true;
+        if (v == t.above()) batch[n] = v;
+        else flagReserve = true;
       }
     }
+    
+    //  Flag yourself for reservation display ONLY if you're an entrance for
+    //  something unbuilt...
+    //  TODO:  Consider retaining this, but with a less obvious display- like
+    //  a swing-door symbol, or a ramp-icon, or similar?
+    ///if (reserves == null) world.terrain().setReservedAt(this, flagReserve);
     
     //  Cache and return-
     boardingCache = batch;

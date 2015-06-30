@@ -24,7 +24,7 @@ public class NavigatorSchool extends Venue {
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     NavigatorSchool.class,
-    "media/Buildings/schools and preserves/spacer_school.png", 5, 2
+    "media/Buildings/schools and preserves/spacer_school.png", 6, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     NavigatorSchool.class, "media/GUI/Buttons/hospice_button.gif"
@@ -34,7 +34,7 @@ public class NavigatorSchool extends Venue {
     NavigatorSchool.class, "navigator_school",
     "Navigator School", UIConstants.TYPE_HIDDEN, ICON,
     "<Navigator School Description>",
-    5, 2, Structure.IS_NORMAL,
+    6, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     200, 4, 650, Structure.BIG_MAX_UPGRADES
   );

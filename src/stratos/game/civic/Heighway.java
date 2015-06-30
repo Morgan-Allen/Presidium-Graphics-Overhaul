@@ -17,20 +17,14 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-//  Problem:  The 2x2 gridlock system doesn't play nicely with other
-//            structures, so you need to find a smoother joining-system.
 
-//  The art here also probably needs revisions.  And it should be tough enough
-//  to withstand a typical siege, or act as an emergency refuge.
-
-
-public class ServiceHatch extends Venue {
+public class Heighway extends Venue {
   
   final static String
     IMG_DIR = "media/Buildings/civilian/";
   final static CutoutModel
     ALL_MODELS[][] = CutoutModel.fromImageGrid(
-      ServiceHatch.class,
+      Heighway.class,
       IMG_DIR+"all_big_roads.png", 2, 2,
       2, 0, true
     ),
@@ -40,18 +34,18 @@ public class ServiceHatch extends Venue {
   
   final public static ImageAsset
     LINE_ICON = ImageAsset.fromImage(
-      ServiceHatch.class, "media/GUI/Buttons/mag_line_button.gif"
+      Heighway.class, "media/GUI/Buttons/mag_line_button.gif"
     ),
     HATCH_ICON = ImageAsset.fromImage(
-      ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
+      Heighway.class, "media/GUI/Buttons/access_hatch_button.gif"
     );
   
   
   final public static Blueprint BLUEPRINT = new Blueprint(
-    ServiceHatch.class, "service_hatch",
-    "Service Hatch", UIConstants.TYPE_ENGINEER, HATCH_ICON,
-    "Service Hatches allow for power distribution and road connections, "+
-    "but can admit passage to dangerous vermin.",
+    Heighway.class, "service_hatch",
+    "Heighway", UIConstants.TYPE_ENGINEER, HATCH_ICON,
+    "Heighways allow for long-distance power and road connections, but can "+
+    "admit dangerous vermin.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
     Bastion.BLUEPRINT, Owner.TIER_PRIVATE,
     10,  //integrity
@@ -62,12 +56,12 @@ public class ServiceHatch extends Venue {
   
   
   
-  public ServiceHatch(Base base) {
+  public Heighway(Base base) {
     super(BLUEPRINT, base);
   }
   
   
-  public ServiceHatch(Session s) throws Exception {
+  public Heighway(Session s) throws Exception {
     super(s);
   }
   
@@ -97,7 +91,7 @@ public class ServiceHatch extends Venue {
     //  TODO:  Build that into the non-exact estimates too.
     if (exact) {
       final Object nearHatch = world.presences.nearestMatch(
-        ServiceHatch.class, point, EXCLUDE_RADIUS
+        Heighway.class, point, EXCLUDE_RADIUS
       );
       if (nearHatch != null) return -1;
       
@@ -127,9 +121,9 @@ public class ServiceHatch extends Venue {
   
   
   private Object faceModel(Tile position, Box2D area, Coord... others) {
-    Object model = PlaceUtils.setupMergingSegment(
+    Object model = SiteUtils.setupMergingSegment(
       this, position, area, others,
-      MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, ServiceHatch.class
+      MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, Heighway.class
     );
     /*
     if (model == MODELS_X_AXIS[1]) {
@@ -150,9 +144,9 @@ public class ServiceHatch extends Venue {
     if (numUpdates % 10 != 0) return;
     //
     //  Check to see if facing needs to be changed-
-    final Object oldModel = buildSprite.baseSprite().model();
-    final Object model = faceModel(origin(), null);
-    final Upgrade FC = Structure.FACING_CHANGE;
+    final Object  oldModel = buildSprite.baseSprite().model();
+    final Object  model    = faceModel(origin(), null);
+    final Upgrade FC       = Structure.FACING_CHANGE;
     boolean canChange = false;
     if (model != oldModel) {
       if (GameSettings.buildFree || structure.hasUpgrade(FC)) {
@@ -181,14 +175,11 @@ public class ServiceHatch extends Venue {
   
   
   protected boolean canBuildOn(Tile t) {
+    //
     //  Heighways can be used to span deserts and bodies of water, so they can
     //  be placed over anything.
     return true;
   }
-  
-  
-  //protected void updatePaving(boolean inWorld) {
-  //}
   
   
   public boolean allowsEntry(Mobile m) {
@@ -218,7 +209,7 @@ public class ServiceHatch extends Venue {
   public String fullName() {
     if (inWorld()) {
       final Object model = buildSprite.baseSprite().model();
-      if (model != HUB_MODEL) return "Heighway";
+      if (model == HUB_MODEL) return "Service Hatch";
     }
     return super.fullName();
   }

@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.maps;
 import stratos.game.base.BaseTransport;
 import stratos.game.common.*;
@@ -12,6 +15,9 @@ import static stratos.game.maps.StageTerrain.*;
 
 public class PavingMap {
   
+  
+  /**  Data fields, constructors, and save/load methods-
+    */
   private static boolean
     warnVerbose   = false,
     searchVerbose = false;
@@ -44,6 +50,21 @@ public class PavingMap {
     s.saveByteArray(roadCounter);
     flagMap.saveTo(s.output());
   }
+  
+  
+  
+  /**
+    */
+  //  TODO:  Now you need to see if it's possible to introduce an overall
+  //  'prefab' road-map into the world from the get-go?  Say, 2x2 thick every
+  //  10x10, spaces, just for an experiment?
+  
+  //  Or... lock on to the claiming structure.
+  
+  //  Use something like a grapevine structure.  All the big-claimers will plug
+  //  into eachother, grid-wise.
+  //  And the little-claimers plug into the closest big-claimer.
+  //  Service hatches line the longer routes.
   
   
   
@@ -111,7 +132,7 @@ public class PavingMap {
   
   
   public boolean needsPaving(Tile t) {
-    if (t.reserved()) return false;
+    if (t == null || t.reserved()) return false;
     final byte c = roadCounter[t.x][t.y];
     final boolean road = isRoad(t);
     if (c > 0 && ! road) return true;
@@ -121,6 +142,7 @@ public class PavingMap {
   
   
   public static boolean pavingReserved(Tile t, boolean alreadyPaved) {
+    if (t == null) return false;
     final Stage world = t.world;
     if (alreadyPaved && isRoad(t)) return true;
     for (Base b : world.bases()) {

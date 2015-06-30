@@ -42,7 +42,7 @@ public class PhysicianStation extends Venue {
     "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
     "The Physician Station allows your citizens' injuries or diseases to be "+
     "treated quickly and effectively.",
-    3, 1, Structure.IS_NORMAL,
+    4, 2, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     200, 2, 350, Structure.NORMAL_MAX_UPGRADES
   );

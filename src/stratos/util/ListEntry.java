@@ -17,9 +17,8 @@ public class ListEntry <T> {
   protected List <T> list;
   
   
-  ListEntry() {
-    refers = null;
-    list = (List <T>) this;
+  protected ListEntry(T refers) {
+    this.refers = refers;
     next = last = this;
   }
   
@@ -51,9 +50,10 @@ public class ListEntry <T> {
     list.removeEntry(this);
   }
   
+  
   /**  Links the two given entries within their list.
     */
-  final static void couple(final ListEntry l, final ListEntry n) {
+  protected final static void couple(final ListEntry l, final ListEntry n) {
     l.next = n;
     n.last = l;
   }
