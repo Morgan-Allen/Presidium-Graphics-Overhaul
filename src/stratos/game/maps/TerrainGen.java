@@ -376,11 +376,11 @@ public class TerrainGen implements TileConstants {
       float minAmount = minChance * (1.5f - Rand.num());
       if (Rand.num() < minChance) minAmount += 0.5f;
       minAmount *= StageTerrain.MAX_MINERAL_AMOUNT / 2f;
-      if (minAmount <= 0) continue;
+      if (minAmount <= 0) { var = StageTerrain.TYPE_RUBBLE; minAmount = 1; }
       //
       //  Store and summarise-
       final Tile location = world.tileAt(c.x, c.y);
-      terrain.setMinerals(location, (byte) var, minAmount);
+      terrain.setMinerals(location, (byte) var, (int) minAmount);
       totals[var] += terrain.mineralsAt(location, (byte) var);
     }
     

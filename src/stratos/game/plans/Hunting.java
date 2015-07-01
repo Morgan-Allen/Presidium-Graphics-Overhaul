@@ -331,7 +331,7 @@ public class Hunting extends Plan {
       I.say("  Spyce amount: "+spyce);
     }
     if (meat  > 0) depot.inventory().bumpItem(PROTEIN  , meat );
-    if (spyce > 0) depot.inventory().bumpItem(DRI_SPYCE, spyce);
+    if (spyce > 0) depot.inventory().bumpItem(DRY_SPYCE, spyce);
     return true;
   }
   

@@ -10,11 +10,8 @@ import stratos.game.maps.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
 
 
@@ -62,11 +59,9 @@ public class Nursery extends Venue implements TileConstants {
       TO, 1, GREENS
     );
   
-  
+
   private Box2D areaClaimed = new Box2D();
-  private Tile reserved[]   = new Tile[0];
-  private Tile toPave[]     = new Tile[0];
-  private byte useMap[][]   = new byte[0][0];
+  private SiteDivision division = SiteDivision.NONE;
   private float needsTending = 0;
   
   
@@ -80,10 +75,7 @@ public class Nursery extends Venue implements TileConstants {
   public Nursery(Session s) throws Exception {
     super(s);
     areaClaimed.loadFrom(s.input());
-    reserved = (Tile[]) s.loadObjectArray(Tile.class);
-    toPave   = (Tile[]) s.loadObjectArray(Tile.class);
-    useMap   = new byte[(int) areaClaimed.xdim()][(int) areaClaimed.ydim()];
-    s.loadByteArray(useMap);
+    division = SiteDivision.loadFrom(s);
     needsTending = s.loadFloat();
   }
   
@@ -91,10 +83,8 @@ public class Nursery extends Venue implements TileConstants {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     areaClaimed.saveTo(s.output());
-    s.saveObjectArray(reserved    );
-    s.saveObjectArray(toPave      );
-    s.saveByteArray  (useMap      );
-    s.saveFloat      (needsTending);
+    SiteDivision.saveTo(s, division);
+    s.saveFloat(needsTending);
   }
   
   
@@ -174,10 +164,15 @@ public class Nursery extends Venue implements TileConstants {
     }
     
     if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), world)) {
-    //if (! SiteUtils.checkAroundClaim(this, areaClaimed, world)) {
       return reasons.setFailure("Might obstruct pathing");
     }
     return true;
+  }
+  
+  
+  public void doPlacement(boolean intact) {
+    super.doPlacement(intact);
+    if (division == SiteDivision.NONE) updateDivision();
   }
   
   
@@ -187,7 +182,8 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public Tile[] reserved() {
-    return reserved;
+    if (! inWorld()) updateDivision();
+    return division.reserved;
   }
   
   
@@ -197,36 +193,20 @@ public class Nursery extends Venue implements TileConstants {
   
   
   
-  
   /**  Utility methods for handling tile-planting:
     */
-  public void doPlacement(boolean intact) {
-    super.doPlacement(intact);
-    
-    final SiteUtils.Division d = SiteUtils.getAreaDivision(
-      this, areaClaimed, facing(), 3, this
-    );
-    this.reserved = d.reserved;
-    this.toPave   = d.toPave  ;
-    this.useMap   = d.useMap  ;
+  private void updateDivision() {
+    division = SiteDivision.forArea(this, areaClaimed, facing(), 3, this);
   }
   
   
-  private int plantType(Tile t) {
-    final Tile o = t.world.tileAt(areaClaimed.xpos(), areaClaimed.ypos());
-    if (o == null) return -1;
-    try { return useMap[t.x - o.x][t.y - o.y]; }
-    catch (ArrayIndexOutOfBoundsException e) { return -1; }
-  }
-  
-
   public boolean couldPlant(Tile t) {
-    return plantType(t) > 0;
+    return division.useType(t, areaClaimed) > 0;
   }
   
   
   public boolean shouldCover(Tile t) {
-    return plantType(t) == 2;
+    return division.useType(t, areaClaimed) == 2;
   }
   
   
@@ -243,7 +223,7 @@ public class Nursery extends Venue implements TileConstants {
   
   protected void checkCropStates() {
     final boolean report = verbose && I.talkAbout == this;
-    if (Visit.empty(reserved)) {
+    if (Visit.empty(division.reserved)) {
       if (report) I.say("\nNO CROPS TO CHECK");
       needsTending = 0;
       return;
@@ -251,13 +231,13 @@ public class Nursery extends Venue implements TileConstants {
     
     if (report) I.say("\nCHECKING CROP STATES");
     needsTending = 0;
-    for (Tile t : reserved) {
+    for (Tile t : division.reserved) {
       final Crop c = plantedAt(t);
       if (c == null || c.needsTending()) needsTending++;
     }
     
     if (report) I.say("NEEDS TENDING: "+needsTending);
-    needsTending /= reserved.length;
+    needsTending /= division.reserved.length;
   }
   
   
@@ -273,7 +253,7 @@ public class Nursery extends Venue implements TileConstants {
   
   
   protected void updatePaving(boolean inWorld) {
-    base.transport.updatePerimeter(this, inWorld, toPave);
+    base.transport.updatePerimeter(this, inWorld, division.toPave);
   }
   
   
@@ -303,12 +283,12 @@ public class Nursery extends Venue implements TileConstants {
 
   private String compileOutputReport() {
     final StringBuffer s = new StringBuffer();
-    final int numTiles = reserved.length;
+    final int numTiles = division.reserved.length;
     float
       health = 0, growth = 0, fertility = 0,
       numPlant = 0, numCarbs = 0, numGreens = 0;
     
-    for (Tile t : reserved) {
+    for (Tile t : division.reserved) {
       final Crop c = plantedAt(t);
       fertility += t.habitat().moisture();
       if (c == null) continue;
@@ -349,18 +329,6 @@ public class Nursery extends Venue implements TileConstants {
   
   protected Traded[] goodsToShow() {
     return new Traded[] { CARBS, PROTEIN, GREENS };
-  }
-  
-  
-  public void previewPlacement(boolean canPlace, Rendering rendering) {
-    
-    //  TODO:  Factor this out!
-    final SiteUtils.Division d = SiteUtils.getAreaDivision(
-      this, areaClaimed, facing(), 3, this
-    );
-    this.reserved = d.reserved;
-    
-    super.previewPlacement(canPlace, rendering);
   }
   
   

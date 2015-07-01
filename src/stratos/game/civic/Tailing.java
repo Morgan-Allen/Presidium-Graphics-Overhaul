@@ -1,11 +1,11 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.actors.*;
-import stratos.game.maps.*;
-import stratos.game.plans.Mining;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -50,74 +50,6 @@ public class Tailing extends Element {
   
   
   
-  /**  Allotting space and finding dumping-grounds-
-    */
-  public static Tile[] getDumpingArea(Venue site) {
-    
-    final Tile centre = site.world().tileAt(site);
-    final Box2D
-      area       = new Box2D(site.footprint()).expandBy(3),
-      aroundSite = new Box2D(site.footprint()).expandBy(1);
-    
-    final Batch <Tile> grabbed = new Batch <Tile> ();
-    
-    for (Tile t : site.world().tilesIn(area, true)) {
-      if (aroundSite.contains(t.x, t.y)        ) continue;
-      if (t.x == centre.x || t.y == centre.y   ) continue;
-      grabbed.add(t);
-    }
-    
-    return grabbed.toArray(Tile.class);
-  }
-  
-  
-  //  TODO:  Specify the need for a tailing of a specific type here, rather
-  //  than leaving selection to chance.
-  
-  //  TODO:  Also this list needs to be cached and pre-screened for the sake
-  //  of efficiency, probably at the MineOpening class.
-  
-  public static Tailing nextTailingFor(Venue around, Actor client) {
-    final boolean report = verbose && I.talkAbout == client;
-    if (report) I.say("\nGetting next dump site for "+client);
-    
-    final Pick <Traded> typePick = new Pick <Traded> ();
-    for (Traded type : Mining.MINED_TYPES) {
-      float sample = client.gear.amountOf(type) + (1f / Mining.SLAG_RATIO);
-      if (type == SLAG) sample *= Rand.num();
-      //else sample *= (1 + Rand.num());
-      typePick.compare(type, sample);
-      if (report) I.say("  "+type+" sample rating: "+sample);
-    }
-    
-    final Traded wasteType = typePick.result();
-    final boolean onSite = client.aboard() == around;
-    final Target start = onSite ? around.mainEntrance() : client;
-    final Pick <Tile> pick = new Pick <Tile> ();
-    
-    for (Tile t : getDumpingArea(around)) {
-      if (t.above() instanceof Tailing) {
-        final Tailing top = (Tailing) t.above();
-        if (top.wasteType == wasteType && top.fillLevel < MAX_FILL) {
-          pick.compare(t, 0 - Spacing.distance(t, start));
-        }
-        else continue;
-      }
-      if (t.reserved()) continue;
-      pick.compare(t, 0 - Spacing.distance(t, start));
-    }
-    
-    final Tile dumpAt = pick.result();
-    if (dumpAt == null) return null;
-    if (dumpAt.above() instanceof Tailing) return (Tailing) dumpAt.above();
-    
-    final Tailing toMake = new Tailing(wasteType);
-    toMake.setPosition(dumpAt.x, dumpAt.y, dumpAt.world);
-    return toMake;
-  }
-  
-  
-  
   /**  Life-cycle, updates and maintenance-
     */
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
@@ -150,6 +82,11 @@ public class Tailing extends Element {
   }
   
   
+  public Traded wasteType() {
+    return wasteType;
+  }
+  
+  
   public void onGrowth(Tile at) {
     //  TODO:  Very gradually disappear based on terraforming effects?
   }
@@ -179,7 +116,6 @@ public class Tailing extends Element {
     
     if      (wasteType == FUEL_RODS) model = ISOTOPE_TAILING_MODEL    ;
     else if (wasteType == METALS   ) model = METAL_ORE_TAILINGS[stage];
-    else if (wasteType == CURIO    ) model = ISOTOPE_TAILING_MODEL    ;
     else                             model = RAW_SLAG_TAILINGS [stage];
     
     final Sprite oldSprite = sprite();
@@ -264,4 +200,6 @@ private void createArtifact(Venue site, float quality) {
   site.stocks.addItem(found);
 }
 //*/
+
+
 

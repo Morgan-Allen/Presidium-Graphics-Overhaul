@@ -247,7 +247,7 @@ public class Stocks extends Inventory {
   public float relativeShortage(Traded type) {
     final float demand = demandFor(type);
     if (demand == 0) return 0;
-    return (demand - amountOf(type)) / demand;
+    return Nums.clamp((demand - amountOf(type)) / demand, -1, 1);
   }
   
   

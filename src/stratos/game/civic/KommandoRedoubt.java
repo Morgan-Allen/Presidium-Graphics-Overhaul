@@ -239,7 +239,7 @@ public class KommandoRedoubt extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { PROTEIN, DRI_SPYCE };
+    return new Traded[] { PROTEIN, DRY_SPYCE };
   }
   
   

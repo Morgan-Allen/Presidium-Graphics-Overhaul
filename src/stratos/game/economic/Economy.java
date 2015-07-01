@@ -128,12 +128,21 @@ public final class Economy {
     SAMPLES = new Traded(
       BC, "Samples" , null, FORM_SPECIAL, 0
     ),
-    CURIO = new Traded(
-      BC, "Curio"   , null, FORM_SPECIAL, 0
+    
+    //  TODO:  You need the ability to have an otherwise-identical resource
+    //  look (and even be named and described) differently, such as for food
+    //  types, fossils/hides/wood-sections, et cetera.
+    //  This could be named differently for resources from different planets,
+    //  for example...
+    FOSSILS = new Traded(
+      BC, "Fossils" , null, FORM_SPECIAL, 200,
+      "The preserved remains of animals, plants, ancient artifacts or rare "+
+      "geological strata, coveted for their rarity, beauty and insight."
     ),
-    DRI_SPYCE = new Traded(
-      BC, "Dri Spyce", "spyce.gif"  , FORM_SPECIAL, 200,
-      "Halebdynum, or Dri Spyce, an exotic baryonic compound known to "+
+    
+    DRY_SPYCE = new Traded(
+      BC, "Dry Spyce", "spyce.gif"  , FORM_SPECIAL, 200,
+      "Halebdynum, or Dry Spyce, an exotic baryonic compound known to "+
       "heighten psyonic abilities."
     ),
     
@@ -146,11 +155,10 @@ public final class Economy {
     REPLICANTS = new Traded(
       BC, "Replicants" , null, FORM_SPECIAL, 0
     ),
-    
-    BLU_SPYCE = new Traded(
-      BC, "Blu Spyce", "spyce.gif"  , FORM_SPECIAL, 200,
-      "Natrizoral, or Blu Spyce, a refined form of spyce that confers "+
-      "particular benefits to transduction and metabolism."
+    SPYCE_BLUE = new Traded(
+      BC, "Spyce Blue", "spyce.gif"  , FORM_SPECIAL, 200,
+      "Natrizoral, a refined form of 'spyce wine' that can be doctored to "+
+      "enhance particular forms of psyonic powers."
     ),
     
     //  TODO:  Replace directly with Atomics.  Ships have their own on-board

@@ -6,21 +6,14 @@ TO DO NOW-
    simplify a number of tasks below.  (You also need to space out the entrances
    less frequently.)
 
-*  By default, venues should select entrances that are already designated for
-   paving (in a 2x2 area.)  This should reduce clutter.  (Better yet, you could
-   have venues switch their entrances if possible on blockage.)
-
-*  Introduce automatic area-claims.  And make sure the 4 big harvest structures-
-   the excavation site, chemical pan, xeno lodge & eco station- take up
-   big plots.  (These need to be visible during user-placement too.)
-
+*  Area-claims need to be refined a little, so that they're treated identically
+   to the footprints for other structures.  (Auto-crop must keep 2 tiles away
+   from other structures, and de/reservations must be immediate on placement
+   and world-exit.)
 
 *  Install AUTO-TURRETS at your sentry-posts & blast doors.  (Simple motion-
    detectors if you don't have a pass-code.)  Plus combat stims at stock-
    exchange & physician station.
-
-*  Ensure that mining still works after all these changes.  (Smelters?)
-*  Try merging the solar bank with the nursery- or the latter with eco station.
 
 
 *  Try to migrate ephemera/stage.visible (list lower down!)

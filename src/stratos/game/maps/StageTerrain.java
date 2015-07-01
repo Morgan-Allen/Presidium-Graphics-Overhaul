@@ -40,7 +40,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     TYPE_RUBBLE   = 0,
     
     NUM_MINERAL_TYPES  = 4 ,
-    MAX_MINERAL_COUNT  = 32,
     MAX_MINERAL_AMOUNT = 10,
     
     ROAD_NONE     = 0,
@@ -242,12 +241,12 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   public void setHabitat(Tile t, Habitat h) {
     final Habitat old = habitats[t.x][t.y];
+    if (old == h) return;
+    
     habitats [t.x][t.y] = h;
     typeIndex[t.x][t.y] = (byte) h.ID;
-    if (old != h) {
-      incSampleAt(t.x, t.y, old, -1);
-      incSampleAt(t.x, t.y, h  ,  1);
-    }
+    incSampleAt(t.x, t.y, old, -1);
+    incSampleAt(t.x, t.y, h  ,  1);
     
     t.refreshHabitat();
     for (Tile n : t.vicinity(tempV)) if (n != null) {
@@ -263,29 +262,31 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   public float mineralsAt(Tile t, byte type) {
-    byte m = minerals[t.x][t.y];
-    if (m == 0) return 0;
-    
-    if (m / MAX_MINERAL_COUNT != type) return 0;
-    final int count = m % MAX_MINERAL_COUNT;
-    return count * MAX_MINERAL_AMOUNT * 1f / MAX_MINERAL_COUNT;
+    final byte m = minerals[t.x][t.y];
+    return m == -1 ? 0 : (1 + (m % MAX_MINERAL_AMOUNT));
   }
   
   
   public byte mineralType(Tile t) {
-    return (byte) (minerals[t.x][t.y] / MAX_MINERAL_COUNT);
+    final byte value = minerals[t.x][t.y];
+    if (value == -1) return TYPE_RUBBLE;
+    return (byte) (value / MAX_MINERAL_AMOUNT);
+  }
+  
+  
+  public void setMinerals(Tile t, byte type, int amount) {
+    byte value = 0;
+    if (amount > 0) {
+      value += (type * MAX_MINERAL_AMOUNT);
+      value += Nums.clamp(amount - 1, MAX_MINERAL_AMOUNT);
+    }
+    else value = -1;
+    minerals[t.x][t.y] = value;
   }
   
   
   public float mineralsAt(Tile t) {
     return mineralsAt(t, mineralType(t));
-  }
-  
-  
-  public void setMinerals(Tile t, byte type, float amount) {
-    amount = amount * MAX_MINERAL_COUNT * 1f / MAX_MINERAL_AMOUNT;
-    final int count = Nums.clamp((int) amount, MAX_MINERAL_COUNT);
-    minerals[t.x][t.y] = (byte) ((type * MAX_MINERAL_COUNT) + count);
   }
   
   

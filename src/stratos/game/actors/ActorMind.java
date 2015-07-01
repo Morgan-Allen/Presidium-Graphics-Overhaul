@@ -178,6 +178,10 @@ public abstract class ActorMind implements Qualities {
         I.say("  Current root behaviour: "+I.tagHash(root));
       }
       if (! Plan.canFollow(actor, root, true)) {
+        if (report && root != null) {
+          I.say("  Could not follow root!");
+          Plan.reportPlanDetails(root, actor);
+        }
         if (Plan.canPersist(root)) todoList.add(root);
         root = nextBehaviour();
         if (report) {

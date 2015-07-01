@@ -23,7 +23,7 @@ public class SpyceMidden extends SupplyCache {
   protected SpyceMidden() {
     super();
     final float spiceAmount = 1 + (Rand.num() * 2);
-    this.stored.addItem(Item.withAmount(DRI_SPYCE, spiceAmount));
+    this.stored.addItem(Item.withAmount(DRY_SPYCE, spiceAmount));
     attachSprite(Lictovore.MODEL_MIDDENS[Rand.index(3)].makeSprite());
   }
   
@@ -60,8 +60,8 @@ public class SpyceMidden extends SupplyCache {
   
   
   public void onGrowth(Tile t) {
-    stored.removeItem(Item.withAmount(DRI_SPYCE, Rand.num() / 2));
-    if (stored.amountOf(DRI_SPYCE) <= 0) setAsDestroyed();
+    stored.removeItem(Item.withAmount(DRY_SPYCE, Rand.num() / 2));
+    if (stored.amountOf(DRY_SPYCE) <= 0) setAsDestroyed();
   }
   
   

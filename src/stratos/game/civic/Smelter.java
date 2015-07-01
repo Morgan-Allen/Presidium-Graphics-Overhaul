@@ -191,6 +191,7 @@ public class Smelter extends Venue {
   private void updateSprite(int progress) {
     //  TODO:  Consider a simple teardown-and-replace scheme instead?
     
+    /*
     final boolean inWorld = inWorld() && sprite() != null;
     //
     //  Otherwise, put together a group sprite-
@@ -228,6 +229,7 @@ public class Smelter extends Venue {
         MOLD_COORDS[c++] + yo,
       0);
     }
+    //*/
   }
   
   

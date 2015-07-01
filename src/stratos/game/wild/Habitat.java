@@ -75,7 +75,7 @@ public class Habitat {
         "ocean.1.gif",
         "ocean.2.gif"
       }, PLANKTON_MODELS,
-      2, false, IS_OCEAN, FERTILITY, 5, INSOLATION, 3, MINERALS, 1
+      1, false, IS_OCEAN, FERTILITY, 5, INSOLATION, 3, MINERALS, 1
     ),
     SHALLOWS = new Habitat(
       "Shallows",
@@ -100,19 +100,19 @@ public class Habitat {
       "Swamplands",
       "",
       "swamplands_ground.gif", FOREST_FLORA_MODELS,
-      2, true, FERTILITY, 9, INSOLATION, 6, MINERALS, 0
+      3, true, FERTILITY, 9, INSOLATION, 6, MINERALS, 0
     ),
     ESTUARY = new Habitat(
       "Rain Forest",
       "",
       "estuary_ground.png", FOREST_FLORA_MODELS,
-      1, true, IS_SPECKLE, FERTILITY, 7, INSOLATION, 7, MINERALS, 2
+      2, true, IS_SPECKLE, FERTILITY, 7, INSOLATION, 7, MINERALS, 2
     ),
     MEADOW = new Habitat(
       "Meadow",
       "",
       "meadows_ground.gif", FOREST_FLORA_MODELS,
-      0, true, FERTILITY, 6, INSOLATION, 5, MINERALS, 3
+      2, true, FERTILITY, 6, INSOLATION, 5, MINERALS, 3
     ),
     FOREST_HABITATS[] = { MEADOW, ESTUARY, SWAMPLANDS },
     //
@@ -121,13 +121,13 @@ public class Habitat {
       "Savannah",
       "",
       "savannah_ground.gif", DESERT_FLORA_MODELS,
-      2, true, FERTILITY, 5, INSOLATION, 7, MINERALS, 3
+      1, true, FERTILITY, 5, INSOLATION, 7, MINERALS, 3
     ),
     BARRENS = new Habitat(
       "Barrens",
       "",
       "barrens_ground.gif", DESERT_FLORA_MODELS,
-      1, true, FERTILITY, 3, INSOLATION, 8, MINERALS, 6
+      0, true, FERTILITY, 3, INSOLATION, 8, MINERALS, 6
     ),
     DUNE = new Habitat(
       "Desert",
@@ -150,14 +150,14 @@ public class Habitat {
       "Cursed Earth",
       "",
       "cursed_earth.png", NO_FLORA,// WASTES_FLORA_MODELS,
-      -1, true, FERTILITY, 2, INSOLATION, 3, MINERALS, 7,
+      0, true, FERTILITY, 2, INSOLATION, 3, MINERALS, 7,
       IS_WASTE
     ),
     BLACK_MESA = new Habitat(
       "Black Mesa",
       "",
       "black_mesa.png", NO_FLORA,
-      -1, false, FERTILITY, 0, INSOLATION, 9, MINERALS, 6,
+      0, false, FERTILITY, 0, INSOLATION, 9, MINERALS, 6,
       IS_WASTE, IS_SPECKLE
     ),
     TOXIC_RUNOFF = new Habitat(
@@ -168,7 +168,7 @@ public class Habitat {
         "toxic_runoff.1.png",
         "toxic_runoff.2.png"
       }, NO_FLORA,
-      -1, false, FERTILITY, 0, INSOLATION, 6, MINERALS, 2,
+      0, false, FERTILITY, 0, INSOLATION, 6, MINERALS, 2,
       IS_WASTE//, IS_SPECKLE
     ),
     //
@@ -200,7 +200,7 @@ public class Habitat {
   final public CutoutModel floraModels[][];
   final public boolean pathClear;
   
-  private int biosphere;
+  private int biomass;
   private float moisture, insolation, rockiness;
   private boolean isOcean, isWaste, isSpeckled;
   
@@ -208,18 +208,18 @@ public class Habitat {
   Habitat(
     String name, String info,
     String texName, CutoutModel fM[][],
-    int biosphere, boolean pathClear, Object... traits
+    int biomass, boolean pathClear, Object... traits
   ) {
     this(
       name, info, new String[] { texName }, fM,
-      biosphere, pathClear, traits
+      biomass, pathClear, traits
     );
   }
   
   Habitat(
     String name, String info,
     String groundTex[], CutoutModel fM[][],
-    int biosphere, boolean pathClear, Object... traits
+    int biomass, boolean pathClear, Object... traits
   ) {
     allHabs.add(this);
     this.name = name;
@@ -233,7 +233,7 @@ public class Habitat {
     this.baseTex = animTex[0];
     
     this.floraModels = fM;
-    this.biosphere = biosphere;
+    this.biomass = biomass;
     this.pathClear = pathClear;
     for (int i = 0; i < traits.length; i++) {
       if (traits[i] == FERTILITY ) moisture   = (Integer) traits[i + 1];
@@ -246,12 +246,14 @@ public class Habitat {
   }
   
   
-  public int biosphere() { return biosphere; }
-  public float moisture  () { return moisture  ; }
-  public float insolation() { return insolation; }
-  public float minerals  () { return rockiness ; }
+  public int     biomass   () { return biomass   ; }
+  public float   moisture  () { return moisture  ; }
+  public float   insolation() { return insolation; }
+  public float   minerals  () { return rockiness ; }
+  
   public boolean isOcean  () { return isOcean   ; }
   public boolean isWaste  () { return isWaste   ; }
+  
   public boolean isSpeckle() { return isSpeckled; }
   
   

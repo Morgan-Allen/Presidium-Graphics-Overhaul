@@ -137,66 +137,6 @@ public class SiteUtils implements TileConstants {
   
   
   
-  /**  Helps with area-subdivision for mines, farming, etc-
-    */
-  public static class Division {
-    public Tile reserved[];
-    public Tile toPave[];
-    public byte useMap[][];
-  }
-  //  TODO:  Consider making this a separate class
-  
-  
-  public static Division getAreaDivision(
-    Venue v, Box2D area, int face, int spacing,
-    Fixture... excluded
-  ) {
-    if (v.origin() == null) return null;
-    final Stage world = v.origin().world;
-    
-    area = new Box2D(area).cropBy(world.area());
-    final Tile o = world.tileAt(area.xpos(), area.ypos());
-    final boolean across = face == Venue.FACE_EAST || face == Venue.FACE_WEST;
-    
-    Batch <Tile> paved = new Batch();
-    Batch <Tile> claim = new Batch();
-    final byte useMap[][] = new byte[(int) area.xdim()][(int) area.ydim()];
-    
-    for (Tile t : world.tilesIn(area, false)) {
-      final int x = t.x - o.x, y = t.y - o.y;
-      byte use = 1;
-      
-      if (use == 1) for (Fixture f : excluded) {
-        if (! f.footprint().contains(t.x, t.y, 0)) continue;
-        use = -1; break;
-      }
-      if (use == 1) for (Fixture f : excluded) {
-        if (! f.footprint().contains(t.x, t.y, -1)) continue;
-        use = 0; break;
-      }
-      if (use == 1) {
-        final int dim = Nums.abs(across ? y : x);
-        if (dim % spacing > 0 && area.contains(t.x, t.y, 1)) {
-          if ((dim / spacing) == 1 && (dim % spacing) == 1) use = 2;
-          else use = 1;
-        }
-        else use = 0;
-      }
-      useMap[x][y] = use;
-      if (use == 0) paved.add(t);
-      if (use >= 1) claim.add(t);
-    }
-    
-    final Division d = new Division();
-    d.reserved = claim.toArray(Tile.class);
-    d.toPave   = paved.toArray(Tile.class);
-    d.useMap   = useMap;
-    return d;
-  }
-  
-  
-  
-  
   /**  Checks whether or not one owner trumps another-
     */
   public static boolean trumpsSiting(Placeable placed, Placeable other) {

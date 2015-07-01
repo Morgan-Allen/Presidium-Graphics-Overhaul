@@ -10,6 +10,7 @@ import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.wild.Habitat;
 import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -32,27 +33,16 @@ public class Mining extends Plan {
     STAGE_RETURN =  1,
     STAGE_DUMP   =  2,
     STAGE_DONE   =  3;
-  final public static int
-    MAX_SAMPLE_STORE = 50,
-    DEFAULT_TILE_DIG_TIME = Stage.STANDARD_SHIFT_LENGTH,
-    HARVEST_MULT = 5 ,
-    SLAG_RATIO   = 10;
-  
-  final public static Traded MINED_TYPES[] = {
-    SLAG, METALS, FUEL_RODS, CURIO
-  };
-  final static Table TYPE_MAP = Table.make(
-    TYPE_RUBBLE  , SLAG     ,
-    TYPE_METALS  , METALS   ,
-    TYPE_ISOTOPES, FUEL_RODS,
-    TYPE_RUINS   , CURIO
-  );
-  
+  final public static float
+    MAX_SAMPLE_STORE      = 50,
+    DEFAULT_TILE_DIG_TIME = Stage.STANDARD_HOUR_LENGTH,
+    HARVEST_MULT          = 1.0f,
+    SLAG_RATIO            = 2.5f;
   
   private static boolean
     evalVerbose  = false,
     picksVerbose = false,
-    eventVerbose = true ;
+    stepsVerbose = true ;
   
   
   final ExcavationSite site;
@@ -101,86 +91,108 @@ public class Mining extends Plan {
   
   /**  Static location methods and priority evaluation-
     */
-  //  TODO:  Move this to the MineFace class?
-  
-  public static Tile[] getTilesUnder(final ExcavationSite site) {
-    final boolean report = picksVerbose && I.talkAbout == site;
-    if (report) {
-      I.say("\nGetting tiles beneath "+site);
-    }
-    //
-    //  We essentially get all nearby tiles which are *not* mined out, sort them
-    //  based on distance and promise, and return.
-    final Stage world = site.world();
-    final Batch <Tile> touched = new Batch(), viable = new Batch();
-    final Sorting <Tile> agenda = new Sorting <Tile> () {
-      
-      public int compare(Tile a, Tile b) {
-        final float
-          rA = (Float) a.flaggedWith(),
-          rB = (Float) b.flaggedWith();
-        if (rA > rB) return  1;
-        if (rB > rA) return -1;
-        return 0;
-      }
-      
-      public void add(Tile n) {
-        if (n == null || n.flaggedWith() != null) return;
-        final float rating = rateFace(site, n);
-        n.flagWith(rating);
-        touched.add(n);
-        if (rating > 0) super.add(n);
-      }
-    };
-    final Tile init = world.tileAt(site), batch[] = new Tile[4];
+  public static Tile[] getOpenFaces(final ExcavationSite site) {
+    final Batch <Tile> open = new Batch();
+    Tile batch[] = new Tile[4];
+    final StageTerrain terrain = site.world().terrain();
     
-    agenda.add(init);
-    while (agenda.size() > 0) {
-      final Tile best = agenda.removeGreatest();
-      viable.add(best);
-      for (Tile n : best.edgeAdjacent(batch)) agenda.add(n);
+    //  TODO:  FILL THIS IN, AND BEGIN ABOVE-SURFACE OPERATIONS
+    for (Tile t : site.reserved()) {
+      if (terrain.mineralsAt(t) > 0) continue;
+      for (Tile n : t.edgeAdjacent(batch)) {
+        if (n == null || n.flaggedWith() != null || ! site.canDig(t)) continue;
+        n.flagWith(open);
+        open.add(n);
+      }
     }
-    for (Tile t : touched) t.flagWith(null);
     
-    return viable.toArray(Tile.class);
+    for (Tile n : open) n.flagWith(null);
+    return open.toArray(Tile.class);
   }
   
   
-  private static float rateFace(ExcavationSite site, Tile face) {
-    
-    final float dist = Spacing.distance(face, site);
-    if (dist > site.digLimit() + (site.size / 2)) return -1;
-    
-    final Item left = mineralsAt(face);
-    float rating = left == null ? 0.1f : site.extractMultiple(left.type);
-    final int SS = Stage.ZONE_SIZE;
-    rating *= SS / (SS + dist);
-    return rating;
-  }
-  
-  
-  public static Tile nextMineFace(ExcavationSite site, Tile under[]) {
-    if (under == null || under.length == 0) return null;
-    
-    final Pick <Tile> pick = new Pick <Tile> (null, 0);
-    for (int n = 5; n-- > 0;) {
-      final Tile face = (Tile) Rand.pickFrom(under);
-      pick.compare(face, rateFace(site, face));
+  public static Tile nextMineFace(final ExcavationSite site, Tile open[]) {
+    if (Visit.empty(open)) open = site.reserved();
+    final Pick <Tile> pick = new Pick(0);
+    for (Tile t : open) {
+      pick.compare(t, rateFace(site, t));
     }
     return pick.result();
   }
   
+  
+  private static float rateFace(ExcavationSite site, Tile face) {
+    if (! site.canDig(face)) return -1;
+    final Item left = mineralsAt(face);
+    float rating = left == null ? -1 : site.extractMultiple(left.type);
+    rating /= 1 + Spacing.zoneDistance(face, site);
+    return rating;
+  }
+  
+  
+  static Tailing nextDumpPoint(
+    final ExcavationSite site, Actor actor, Traded waste
+  ) {
+    final Pick <Tile> pick = new Pick(0);
+    
+    for (Tile t : site.reserved()) if (site.canDump(t)) {
+      if (t.above() instanceof Tailing) {
+        final Tailing d = (Tailing) t.above();
+        if (d.wasteType() != waste) continue;
+      }
+      else if (t.reserved()) continue;
+      float rating = 1 / (1 + Spacing.zoneDistance(actor, t));
+      pick.compare(t, rating);
+    }
+    
+    final Tile point = pick.result();
+    if (point == null) return null;
+    if (point.above() instanceof Tailing) return (Tailing) point.above();
+    
+    final Tailing d = new Tailing(waste);
+    d.setPosition(point.x, point.y, point.world);
+    return d;
+  }
+  
 
+  final public static Traded MINED_TYPES[] = {
+    FOSSILS, POLYMER, METALS, FUEL_RODS
+  };
+  
+  
+  private static Traded oreTypeCarried(Actor actor) {
+    for (Traded type : Mining.MINED_TYPES) if (type != SLAG) {
+      return type;
+    }
+    return null;
+  }
+  
+  
+  public static float totalOresCarried(Actor actor) {
+    float total = 0;
+    for (Traded type : MINED_TYPES) total += actor.gear.amountOf(type);
+    return total;
+  }
+  
+  
   public static Item mineralsAt(Tile face) {
     final StageTerrain terrain = face.world().terrain();
+    final Habitat h = face.habitat();
+    
+    //  TODO:  USE THESE FOR STRIP-MINING!
+    /*
+    if (face.above() != null) return face.above().materials();
+    if (h.biomass() > 0) return Item.withAmount(POLYMER, h.biomass());
+    //*/
     if (terrain.mineralsAt(face) == 0) return null;
     
     final byte type = terrain.mineralType(face);
     final float amount = terrain.mineralsAt(face, type);
-    if (type == StageTerrain.TYPE_RUBBLE) return null;
     
-    final Traded minType = (Traded) TYPE_MAP.get(type);
-    if (minType == null || amount <= 0) return null;
+    Traded minType = SLAG;
+    if (type == StageTerrain.TYPE_ISOTOPES) minType = FUEL_RODS;
+    if (type == StageTerrain.TYPE_METALS  ) minType = METALS   ;
+    if (type == StageTerrain.TYPE_RUINS   ) minType = FOSSILS  ;
     
     return Item.withAmount(minType, amount);
   }
@@ -192,6 +204,7 @@ public class Mining extends Plan {
   final static Trait BASE_TRAITS[] = { ENERGETIC, URBANE };
   
   protected float getPriority() {
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
     float urgency = 0, sumW = 0;
     for (Traded t : MINED_TYPES) {
@@ -200,11 +213,19 @@ public class Mining extends Plan {
       sumW += weight;
     }
     urgency /= sumW;
-
+    urgency = (urgency + 1) / 2;
+    
+    
     setCompetence(successChanceFor(actor));
-    return PlanUtils.jobPlanPriority(
+    final float priority = PlanUtils.jobPlanPriority(
       actor, this, urgency, competence(), -1, REAL_FAIL_RISK, BASE_TRAITS
     );
+    if (report) {
+      I.say("\nGetting mining priority for "+actor+"...?");
+      I.say("  Basic urgency:  "+urgency);
+      I.say("  Final priority: "+priority);
+    }
+    return priority;
   }
   
   
@@ -216,13 +237,6 @@ public class Mining extends Plan {
   }
   
   
-  public static float oresCarried(Actor actor) {
-    float total = 0;
-    for (Traded type : MINED_TYPES) total += actor.gear.amountOf(type);
-    return total;
-  }
-  
-  
   
   /**  Behaviour implementation-
     */
@@ -230,24 +244,34 @@ public class Mining extends Plan {
     //
     //  If you've successfully extracted enough ore, or the target is exhausted,
     //  then deliver to the smelters near the site.
-    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
-    
-    if (report) I.say("  Getting new mine action.");
-    
-    if (stage == STAGE_DONE) return null;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    if (report) {
+      I.say("\nGetting new mine action...");
+    }
+    if (stage == STAGE_DONE) {
+      if (report) I.say("  Mining complete!");
+      return null;
+    }
     
     //  If there's no dump site available, then physics precludes any real
     //  progress here.  Otherwise, you can take the tailings out once a given
     //  face is exhausted.  (NOTE:  We call nextTailing twice to ensure
     //  proximity relative to the mine entrance).
     if (stage == STAGE_INIT) {
-      dumpSite = Tailing.nextTailingFor(site, actor);
-      if (dumpSite == null) return null;
+      dumpSite = nextDumpPoint(site, actor, null);
+      if (dumpSite == null) {
+        if (report) I.say("  No dump site!");
+        return null;
+      }
       stage = STAGE_MINE;
     }
     if (stage == STAGE_DUMP) {
-      dumpSite = Tailing.nextTailingFor(site, actor);
-      if (dumpSite == null) return null;
+      dumpSite = nextDumpPoint(site, actor, oreTypeCarried(actor));
+      if (dumpSite == null) {
+        if (report) I.say("  No dump site!");
+        return null;
+      }
+      if (report) I.say("  Dumping tailings.");
       final Action dump = new Action(
         actor, dumpSite,
         this, "actionDumpTailings",
@@ -258,6 +282,7 @@ public class Mining extends Plan {
     }
     
     if (stage == STAGE_RETURN) {
+      if (report) I.say("  Returning with ores!");
       return new Action(
         actor, site,
         this, "actionDeliverOres",
@@ -266,49 +291,79 @@ public class Mining extends Plan {
     }
     
     if (stage == STAGE_MINE) {
-      if (actor.aboard() == site) {
-        final Action mines = new Action(
-          actor, face,
-          this, "actionMineFace",
-          Action.STRIKE_BIG, "Mining"
-        );
-        mines.setMoveTarget(site);
-        return mines;
-      }
-      else {
-        final Action entry = new Action(
-          actor, site,
-          this, "actionEnterShaft",
-          Action.STAND, "Entering shaft"
-        );
-        return entry;
-      }
+      if (report) I.say("  Mining at face: "+face);
+      //  TODO:  Include a 'detonation' step for stubborn obstacles, like
+      //  large rocks!
+      final Action mines = new Action(
+        actor, face,
+        this, "actionMineFace",
+        Action.STRIKE_BIG, "Mining"
+      );
+      mines.setMoveTarget(Spacing.nearestOpenTile(face, actor));
+      return mines;
     }
     
+    if (report) I.say("  No next step...");
     return null;
   }
   
   
-  public boolean actionEnterShaft(Actor actor, ExcavationSite site) {
-    //
-    //  NOTE:  The purpose of this detour is to ensure that the pathing-cache
-    //  (which is optimised for above-ground structures) doesn't have to strain
-    //  itself dealing with underground topography.
-    actor.goAboard(site, site.world());
-    //
-    //  TODO:  Consider introducing security/safety measures here?
-    return true;
-  }
-  
-  
-  public boolean actionDeliverOres(Actor actor, Venue venue) {
-    for (Traded type : MINED_TYPES) {
-      actor.gear.transfer(type, venue);
+  public boolean actionMineFace(Actor actor, Tile face) {
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    
+    final StageTerrain terrain = face.world.terrain();
+    final boolean done = terrain.mineralsAt(face) == 0;
+    Item left = mineralsAt(face);
+    if (left == null) left = Item.withAmount(SLAG, 0);
+    
+    if (report) {
+      I.say("\nMining at face: "+face);
+      I.say("  Minerals left: "+left);
     }
-    if (mineralsAt(face) == null || ! site.staff.onShift(actor)) {
-      stage = STAGE_DONE;
+    
+    final float rate = site.extractMultiple(left.type) / DEFAULT_TILE_DIG_TIME;
+    float success = 1;
+    success += actor.skills.test(GEOPHYSICS , 5 , 1) ? 1 : 0;
+    success *= actor.skills.test(HARD_LABOUR, 15, 1) ? 2 : 1;
+    success *= rate;
+    Item mined = null, slag = null;
+    
+    if (done || Rand.num() < success) {
+      if (report) I.say("  ...CRACKED IT!");
+      
+      final int leftAmount = (int) (left.amount - 1);
+      terrain.setMinerals(face, terrain.mineralType(face), leftAmount);
+      
+      if (leftAmount <= 0) terrain.setHabitat(face, Habitat.TOXIC_RUNOFF);
+      else terrain.setHabitat(face, Habitat.BARRENS);
+      
+      mined = Item.withAmount(left.type, HARVEST_MULT);
+      slag  = Item.withAmount(SLAG     , SLAG_RATIO  );
+      actor.gear.addItem(mined);
+      actor.gear.addItem(slag );
     }
-    else stage = STAGE_MINE;
+    
+    if (report) {
+      I.say("  Digging done?    "+done   );
+      I.say("  Dig success was: "+success);
+      I.say("  Extraction rate: "+rate   );
+      I.say("  Ore extracted:   "+mined  );
+      I.say("  Slag left over:  "+slag   );
+    }
+    
+    final boolean
+      offShift = done || site.staff.offDuty(actor);
+    final float
+      oresLoad = totalOresCarried(actor),
+      slagLoad = actor.gear.amountOf(SLAG);
+    
+    if      (slagLoad >= 5 || (slagLoad > 0 && offShift)) {
+      stage = STAGE_DUMP;
+    }
+    else if (oresLoad >= 5 || (oresLoad > 0 && offShift)) {
+      stage = STAGE_RETURN;
+    }
+    else if (offShift) stage = STAGE_DONE;
     return true;
   }
   
@@ -328,46 +383,14 @@ public class Mining extends Plan {
   }
   
   
-  public boolean actionMineFace(Actor actor, Tile face) {
-    final boolean report = eventVerbose && I.talkAbout == actor;
-    
-    final Item left = mineralsAt(face);
-    if (left == null) { stage = STAGE_DUMP; return false; }
-    
-    final float rate = site.extractMultiple(left.type);
-    float success = 1;
-    success += actor.skills.test(GEOPHYSICS , 5 , 1) ? 1 : 0;
-    success *= actor.skills.test(HARD_LABOUR, 15, 1) ? 2 : 1;
-    success *= rate;
-    success /= DEFAULT_TILE_DIG_TIME;
-    
-    if (report) I.say("\nMINERALS LEFT: "+left);
-    final Item
-      mined = Item.withAmount(left.type, left.amount * HARVEST_MULT * success),
-      slag =  Item.withAmount(SLAG     , left.amount * SLAG_RATIO   * success);
-    actor.gear.addItem(mined);
-    actor.gear.addItem(slag );
-    
-    if (report) {
-      I.say("  Dig success was: "+success);
-      I.say("  Extraction rate: "+rate   );
-      I.say("  Ore extracted:   "+mined  );
+  public boolean actionDeliverOres(Actor actor, Venue venue) {
+    for (Traded type : MINED_TYPES) {
+      actor.gear.transfer(type, venue);
     }
-    
-    if (Rand.num() < success) {
-      face.world.terrain().setMinerals(face, (byte) 0, 0);
+    if (mineralsAt(face) == null || ! site.staff.onShift(actor)) {
+      stage = STAGE_DONE;
     }
-    
-    final boolean offShift = ! site.staff.onShift(actor);
-    final float
-      oresLoad = oresCarried(actor),
-      slagLoad = actor.gear.amountOf(SLAG);
-    if (slagLoad >= 1 || (slagLoad > 0 && offShift)) {
-      stage = STAGE_DUMP;
-    }
-    else if (oresLoad >= 5 || (oresLoad > 0 && offShift)) {
-      stage = STAGE_RETURN;
-    }
+    else stage = STAGE_MINE;
     return true;
   }
   
@@ -392,7 +415,18 @@ public class Mining extends Plan {
 
 
 
-
-
-
+  
+  
+  /*
+  public boolean actionEnterShaft(Actor actor, ExcavationSite site) {
+    //
+    //  NOTE:  The purpose of this detour is to ensure that the pathing-cache
+    //  (which is optimised for above-ground structures) doesn't have to strain
+    //  itself dealing with underground topography.
+    actor.goAboard(site, site.world());
+    //
+    //  TODO:  Consider introducing security/safety measures here?
+    return true;
+  }
+  //*/
 

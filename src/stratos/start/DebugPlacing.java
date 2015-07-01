@@ -72,7 +72,7 @@ public class DebugPlacing extends Scenario {
       Habitat.DUNE        , 1f
     );
     final Stage world = new Stage(TG.generateTerrain());
-    //TG.setupMinerals(world, 0.6f, 0, 0.2f);
+    TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
     return world;
   }

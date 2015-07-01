@@ -21,12 +21,11 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-//  TODO:  Rename to Chem-Panner and use to harvest Spyce and Chemicals, plus
-//  provide a terraforming bonus in the surrounds.
+//  TODO:  Rename to Chem-Panner and use to harvest Spyce and Chemicals.  And
+//  maybe carbons.  Yeah, okay.
 
 
-
-public class FormerPlant extends Venue implements TileConstants {
+public class ChemPanner extends Venue implements TileConstants {
   
   
   /**  Constructors, data fields, setup and save/load methods-
@@ -35,18 +34,18 @@ public class FormerPlant extends Venue implements TileConstants {
   
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    FormerPlant.class, "media/GUI/Buttons/former_plant_button.gif"
+    ChemPanner.class, "media/GUI/Buttons/former_plant_button.gif"
   );
   final static ModelAsset
     MODEL = CutoutModel.fromImage(
-      FormerPlant.class, IMG_DIR+"former_plant.png", 3, 1
+      ChemPanner.class, IMG_DIR+"former_plant.png", 3, 1
     );
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    FormerPlant.class, "former_plant",
-    "Former Plant", UIConstants.TYPE_ECOLOGIST, ICON,
-    "The Former Plant helps to accelerate terraforming efforts through "+
-    "forestry and carbons-cycling, creating heavy polymers as a biproduct.",
+    ChemPanner.class, "chemical_pan",
+    "Chem Panner", UIConstants.TYPE_ECOLOGIST, ICON,
+    "The Chem Panner extracts rare or volatile elements from the local "+
+    "environment for use in industry and pharmaceuticals.",
     4, 1, Structure.IS_NORMAL,
     NO_REQUIREMENTS, Owner.TIER_FACILITY,
     25,  //integrity
@@ -62,14 +61,14 @@ public class FormerPlant extends Venue implements TileConstants {
   private Box2D areaClaimed = new Box2D();
   
   
-  public FormerPlant(Base base) {
+  public ChemPanner(Base base) {
     super(BLUEPRINT, base);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(MODEL);
   }
   
   
-  public FormerPlant(Session s) throws Exception {
+  public ChemPanner(Session s) throws Exception {
     super(s);
     areaClaimed.loadFrom(s.input());
   }
