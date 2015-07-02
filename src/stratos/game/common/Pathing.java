@@ -201,6 +201,7 @@ public class Pathing {
     if (report) {
       I.say("REFRESHING PATH TO: "+trueTarget);
       I.say("  Current position: "+mobile.aboard());
+      I.say("  Path was: "+I.list(path));
     }
     
     final Boarding origin = location(mobile);
@@ -209,7 +210,9 @@ public class Pathing {
       //  Firstly, we perform some basic sanity checks on the start and end
       //  points of the prospective route.
       pathTarget = location(trueTarget);
-      if (report) I.say("  BETWEEN: "+origin+" AND "+pathTarget);
+      if (report) {
+        I.say("  BETWEEN: "+origin+" AND "+pathTarget);
+      }
       final boolean
         origB = PathSearch.blockedBy(origin    , mobile),
         destB = PathSearch.blockedBy(pathTarget, mobile);

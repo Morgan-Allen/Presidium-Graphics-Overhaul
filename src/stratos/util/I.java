@@ -163,6 +163,7 @@ public class I {
   
   
   public static String list(Object array[]) {
+    if (array == null) return "NULL";
     final StringBuffer s = new StringBuffer();
     for (Object o : array) {
       final String pads = o == Visit.last(array) ? "" : ", ";

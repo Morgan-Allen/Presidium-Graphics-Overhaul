@@ -130,15 +130,16 @@ public class Farming extends Plan {
     else seedImpulse = nursery.needForTending() + diversity - 1;
     final float min = returnHarvestAction(0) == null ? 0 : ROUTINE;
     
-    if (report) {
-      I.say("\nEvaluating farming priority for "+this);
-      I.say("  Seed impulse: "+seedImpulse);
-      I.say("  Motive bonus: "+motiveBonus());
-    }
-    
     final float priority = PlanUtils.jobPlanPriority(
       actor, this, seedImpulse, 1, 0, 0, BASE_TRAITS
     );
+
+    if (report) {
+      I.say("\nEvaluating farming priority for "+this);
+      I.say("  Seed impulse:     "+seedImpulse);
+      I.say("  Motive bonus:     "+motiveBonus());
+      I.say("  Final priority:   "+priority);
+    }
     return Nums.max(min, priority);
   }
   

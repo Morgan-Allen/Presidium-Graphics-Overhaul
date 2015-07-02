@@ -757,12 +757,6 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  protected float fogFor(Base base) {
-    if (base == this.base) return (1 + super.fogFor(base)) / 2f;
-    return super.fogFor(base);
-  }
-  
-  
   protected void renderHealthbars(Rendering rendering, Base base) {
     final boolean focused = BaseUI.isSelectedOrHovered(this);
     final boolean alarm =

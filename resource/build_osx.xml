@@ -29,6 +29,10 @@
 		    <arg value="chmod +x ${insideApp}/MacOS/JavaApplicationStub"/>
 		</exec>
 		
-		<zip destfile="${outZip}" basedir="${output}" />
+		<!--
+		    NOTE: Automated zip-archiving seems to mess-up execute-permissions
+		    for some reason, unless done from within the Finder.  Removed for
+		    now.
+		--> 
 	</target>
 </project>

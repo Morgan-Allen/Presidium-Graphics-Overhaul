@@ -11,6 +11,7 @@ import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.common.Colour;
+import stratos.graphics.common.Rendering;
 
 import java.io.*;
 
@@ -239,7 +240,13 @@ public class StartupScenario extends Scenario {
   }
   
   
-  
+  public void renderVisuals(Rendering rendering) {
+    super.renderVisuals(rendering);
+    //  TODO:  MAKE THIS A GLOBAL SETTING
+    ///DebugPlacing.showZonePathing();
+  }
+
+
   /**  Private helper methods-
     */
   protected Human ruler(Base base) {

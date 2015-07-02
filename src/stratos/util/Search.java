@@ -111,12 +111,34 @@ public abstract class Search <T> {
     else if (! canEnter(spot)) return;
     //
     //  Create the new entry-
+    final boolean superVerbose = false;
     final Entry newEntry = new Entry();
     newEntry.priorCost = priorCost;
     newEntry.ETA       = estimate(spot);
     newEntry.total     = newEntry.priorCost + newEntry.ETA;
     newEntry.refers    = spot;
     newEntry.prior     = priorEntry;
+    
+    if (superVerbose) {
+      I.say("\n\nCurrent agenda: (origin is "+init+")");
+      for (T t : agenda) {
+        final Entry e = entryFor(t);
+        I.say("  ["+t+"]");
+        if (e != null) I.add(" "+e.total+" ("+
+          I.shorten(e.priorCost, 1)+"+"+I.shorten(e.ETA, 1)+
+        ")");
+      }
+      
+      final Entry n = newEntry;
+      I.say("\nNew entry is: "+n.refers);
+      I.say("  entry cost:        "+cost);
+      I.say("  future cost guess: "+n.ETA);
+      I.say("  total past cost:   "+n.priorCost);
+      I.say("  past + future:     "+n.total);
+      I.say("  last step:         "+prior);
+      I.add("");
+    }
+    
     //
     //  Finally, flagSprite the tile as assessed-
     setEntry(spot, newEntry);
