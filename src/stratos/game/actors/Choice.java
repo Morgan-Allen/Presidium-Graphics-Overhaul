@@ -26,11 +26,12 @@ public class Choice implements Qualities {
   
   public Choice(Actor actor) {
     this.actor = actor;
+    ///this.isVerbose = I.talkAbout == actor;
   }
   
   
   public Choice(Actor actor, Series <Behaviour> plans) {
-    this.actor = actor;
+    this(actor);
     for (Behaviour p : plans) add(p);
   }
   

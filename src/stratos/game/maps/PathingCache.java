@@ -117,7 +117,7 @@ public class PathingCache {
     }
     final Place placesPath[] = placesBetween(initB, destB, client, reports);
     
-    if (placesPath != null && placesPath.length >= 3) {
+    if (placesPath != null && placesPath.length > 3) {
       if (reports) I.say(
         "\nUsing partial cordoned search between "+initB+" and "+destB
       );
@@ -130,7 +130,7 @@ public class PathingCache {
       path = search.fullPath(Boarding.class);
       if (path != null) return path;
     }
-    if (placesPath != null && placesPath.length < 3) {
+    if (placesPath != null && placesPath.length <= 3) {
       if (reports) I.say(
         "\nUsing full cordoned search between "+initB+" and "+destB
       );
@@ -378,7 +378,7 @@ public class PathingCache {
     else {
       placesPath = placesBetween(initB, destB, null, verbose);
       if (placesPath == null) {
-        I.say("No places path exists!");
+        if (verbose) I.say("No places path exists!");
         return null;
       }
     }

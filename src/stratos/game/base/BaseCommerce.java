@@ -142,6 +142,15 @@ public class BaseCommerce {
     if (report && extraVerbose) I.say("\nUpdating commerce for base: "+base);
     if (base.primal) return;
     
+    //  TODO:  I really want the ability to switch between homeworlds or gain
+    //  extra trading partners.
+    /*
+    if (homeworld == Verse.PLANET_HALIBAN) {
+      this.togglePartner(homeworld, false);
+      this.assignHomeworld(Verse.PLANET_AXIS_NOVENA);
+    }
+    //*/
+    
     updateCandidates(numUpdates);
     summariseDemandAndPrices(numUpdates);
     updateActiveShipping(numUpdates);

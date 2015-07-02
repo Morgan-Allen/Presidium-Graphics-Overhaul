@@ -14,6 +14,7 @@ import stratos.game.plans.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.graphics.terrain.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -220,7 +221,67 @@ public class DebugPlacing extends Scenario {
   
   protected void afterCreation() {
   }
+  
+  
+  /**  Utility method for visual-debugging of large-scale pathfinding:
+    */
+  public static void showZonePathing() {
+    final Base base = BaseUI.currentPlayed();
+    if (base == null) return;
+    final boolean talks = I.used60Frames;
+    
+    final Stage world = base.world;
+    final PathingCache cache = world.pathingCache;
+    final Object selected = BaseUI.current().selection.selected  ();
+    final Object hovered  = BaseUI.current().selection.hovered   ();
+    final Tile   picked   = BaseUI.current().selection.pickedTile();
+    
+    
+    if (hovered instanceof Boarding && selected instanceof Boarding) {
+      
+      final Boarding path[] = cache.getLocalPath(
+        (Boarding) selected, (Boarding) hovered, -1, null, talks
+      );
+      if (Visit.empty(path)) return;
+      
+      final Batch <Tile> inPath = new Batch();
+      for (Boarding b : path) if (b instanceof Tile) inPath.add((Tile) b);
+      if (inPath.size() == 0) return;
+      
+      final TerrainChunk forPath = world.terrain().createOverlay(
+        world, inPath.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+      );
+      forPath.colour = Colour.MAGENTA;
+      forPath.readyFor(PlayLoop.rendering());
+    }
+    else {
+      final Tile inPlace[] = picked == null ? null : cache.placeTiles(picked);
+      if (inPlace == null) return;
+      
+      final TerrainChunk forPlace = world.terrain().createOverlay(
+        world, inPlace, true, Image.TRANSLUCENT_WHITE
+      );
+      forPlace.colour = Colour.RED;
+      forPlace.readyFor(PlayLoop.rendering());
+      
+      final Tile routes[][] = cache.placeRoutes(picked);
+      if (routes == null) return;
+      
+      final Batch <Tile> inRoutes = new Batch();
+      for (Tile route[] : cache.placeRoutes(picked)) for (Tile t : route) {
+        inRoutes.add(t);
+      }
+      final TerrainChunk forRoutes = world.terrain().createOverlay(
+        world, inRoutes.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+      );
+      forRoutes.colour = Colour.BLUE;
+      forRoutes.readyFor(PlayLoop.rendering());
+    }
+  }
+  
 }
+
+
 
 
 

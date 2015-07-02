@@ -99,7 +99,7 @@ public class Flora extends Element implements TileConstants {
     MAX_GROWTH = 4;
   
   final public static float
-    NUM_DAYS_MATURE    = 5,
+    NUM_DAYS_MATURE    = 2.5f,
     MATURE_DURATION    = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
     GROW_TIMES_PER_DAY = Stage.STANDARD_DAY_LENGTH / Stage.GROWTH_INTERVAL,
     GROWTH_PER_UPDATE  = MATURE_DURATION / (MAX_GROWTH * GROW_TIMES_PER_DAY),
@@ -107,7 +107,8 @@ public class Flora extends Element implements TileConstants {
     CEREAL_BONUS = 2.00f,
     HIVE_DIVISOR = 4.00f,
     DRYLAND_MULT = 0.75f,
-    WETLAND_MULT = 1.25f;
+    WETLAND_MULT = 1.25f,
+    WILD_MULD    = 0.50f;
   
   
   final Habitat habitat;
@@ -184,6 +185,8 @@ public class Flora extends Element implements TileConstants {
   
   
   public static Flora tryGrowthAt(Tile t, boolean certain) {
+    //  TODO:  UNIFY THIS WITH GROWTH-METHODS FOR CROPS
+    
     final float growChance = growChance(t);
     if (growChance == -1) return null;
     
