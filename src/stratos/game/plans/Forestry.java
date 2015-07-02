@@ -153,7 +153,7 @@ public class Forestry extends Plan {
   protected float getPriority() {
     //
     //  Basic variable setup and sanity checks-
-    final boolean report = evalVerbose && I.talkAbout == actor && hasBegun();
+    final boolean report = I.talkAbout == actor && hasBegun() && evalVerbose;
     if (! configured()) return 0;
     final Target subject = toPlant == null ? toCut : toPlant;
     if (subject == null) return 0;
@@ -162,11 +162,10 @@ public class Forestry extends Plan {
     //  As the abundance of flora increases, harvest becomes more attractive,
     //  and vice-versa for planting as abundance decreases.
     float abundance = actor.world().ecology().forestRating(at);
-    int growStage = -1;
-    float urgency = 0, shortage = 0;
+    float growStage = -1, urgency = 0, shortage = 0;
     if (toCut != null) {
       growStage = toCut.growStage() + 1;
-      abundance *= growStage * 2f / Flora.MAX_GROWTH;
+      abundance *= growStage / Flora.MAX_GROWTH;
     }
     
     if (stage == STAGE_SAMPLING || stage == STAGE_STORAGE) {
@@ -253,6 +252,14 @@ public class Forestry extends Plan {
         Action.REACH_DOWN, "Store Samples"
       );
       return returns;
+    }
+    
+    if (stage == STAGE_CUTTING) {
+      for (Item i : depot.stocks.matches(SAMPLES)) {
+        if (! (i.refers instanceof Flora)) continue;
+        stage = STAGE_PROCESS;
+        break;
+      }
     }
     
     if (stage == STAGE_CUTTING) {

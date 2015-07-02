@@ -173,6 +173,13 @@ public class Nursery extends Venue implements TileConstants {
   public void doPlacement(boolean intact) {
     super.doPlacement(intact);
     if (division == SiteDivision.NONE) updateDivision();
+    for (Tile t : division.reserved) t.setReserves(this, false);
+  }
+  
+  
+  public void exitWorld() {
+    for (Tile t : division.reserved) t.setReserves(null, false);
+    super.exitWorld();
   }
   
   

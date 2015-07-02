@@ -130,7 +130,9 @@ public final class Tile implements
   
   
   public void refreshHabitat() {
+    final Habitat old = habitat;
     habitat = world.terrain().habitatAt(x, y);
+    if (habitat != old) refreshAdjacent();
   }
   
   
@@ -217,9 +219,11 @@ public final class Tile implements
   }
   
   
-  public void setReserves(Element e) {
+  public void setReserves(Element e, boolean isUnder) {
     this.reserves = e;
-    world.terrain().setReservedAt(this, reserved() && above != reserves);
+    
+    boolean shouldShow = reserved() && above != reserves && isUnder;
+    world.terrain().setReservedAt(this, shouldShow);
     refreshAdjacent();
   }
   
@@ -245,7 +249,7 @@ public final class Tile implements
       PavingMap.setPaveLevel(this, roadLevel, false);
     }
     
-    setReserves(reserves ? e : this.reserves);
+    setReserves(reserves ? e : this.reserves, reserves);
     world.sections.flagBoundsUpdate(x, y);
   }
   

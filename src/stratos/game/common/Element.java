@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.game.economic.Owner;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -17,6 +17,9 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
   final protected static int
     PROP_IN_WORLD  = 1 << 0,
     PROP_DESTROYED = 1 << 2;
+  
+  final static Item[]
+    NO_MATERIALS = new Item[0];
   
 
   private Sprite sprite;
@@ -215,6 +218,11 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
   public void setAsEstablished(boolean isGrown) {
     if (isGrown) inceptTime = -10;
     else inceptTime = world.currentTime();
+  }
+  
+  
+  public Item[] materials() {
+    return NO_MATERIALS;
   }
   
   

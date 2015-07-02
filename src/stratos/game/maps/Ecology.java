@@ -104,9 +104,9 @@ public class Ecology {
   public float forestRating(Tile t) {
     checkMapsInit();
     float fertility = world.terrain().fertilitySample(t);
-    float foresting = biomassRating(t) * 2f / Flora.MAX_GROWTH;
+    float foresting = biomassRating(t) * 2 / Flora.MAX_GROWTH;
     if (fertility <= 0) return 1;
-    return Nums.clamp(foresting / fertility, 0, 2);
+    return Nums.clamp(foresting / fertility, 0, 1);
   }
   
   

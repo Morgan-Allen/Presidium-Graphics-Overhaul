@@ -95,32 +95,6 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   
-  /**  Presence in the world and boardability-
-    */
-  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
-    if (! super.enterWorldAt(x, y, world, intact)) return false;
-    return true;
-  }
-  
-  
-  public void exitWorld() {
-    super.exitWorld();
-    //
-    //  TODO:  Close all your shafts?  Eject occupants?
-  }
-  
-  
-  public void onDestruction() {
-    super.onDestruction();
-  }
-  
-  
-  public void onCompletion() {
-    super.onCompletion();
-  }
-  
-  
-  
   /**  Siting and output-estimation:
     */
   final static Siting SITING = new Siting(BLUEPRINT) {
@@ -131,8 +105,13 @@ public class ExcavationSite extends Venue implements TileConstants {
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     
+    //  TODO:  Unify the methods here with something similar from the Nursery
+    //  class, and make that a utility-function for SiteDivision.
+    
     if (area == null) {
+      final Stage world = position.world;
       areaClaimed.setTo(footprint()).expandBy(EXTRA_CLAIM_RANGE);
+      areaClaimed.cropBy(world.area());
     }
     else {
       areaClaimed.setTo(area);
@@ -166,6 +145,13 @@ public class ExcavationSite extends Venue implements TileConstants {
   public void doPlacement(boolean intact) {
     super.doPlacement(intact);
     if (division == SiteDivision.NONE) updateDivision();
+    for (Tile t : division.reserved) t.setReserves(this, false);
+  }
+  
+  
+  public void exitWorld() {
+    for (Tile t : division.reserved) t.setReserves(null, false);
+    super.exitWorld();
   }
   
   
@@ -280,7 +266,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public Traded[] services() {
-    return new Traded[] { METALS, FUEL_RODS };
+    return new Traded[] { METALS, FUEL_RODS, POLYMER };
   }
   
   
@@ -293,27 +279,23 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report =  verbose && I.talkAbout == actor;
     
-    if (report) I.say("\nGETTING NEXT EXCAVATION TASK");
+    if (report) {
+      I.say("\nGETTING NEXT EXCAVATION TASK...");
+    }
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
     if (d != null) return d;
-    final Choice choice = new Choice(actor);
     
-    if (report && openFaces != null) {
-      int numTaken = 0; for (Tile t : openFaces) {
-        if (world.terrain().mineralsAt(t) == 0) numTaken++;
-      }
-      if (report) I.say("  Faces processed: "+numTaken+"/"+openFaces.length);
-    }
+    final Choice choice = new Choice(actor);
+    choice.add(Forestry.nextCutting(actor, this));
     
     final Tile face = Mining.nextMineFace(this, openFaces);
     if (report) I.say("  Mine face is: "+face);
-    if (face != null) {
-      choice.add(new Mining(actor, face, this));
-    }
+    if (face != null) choice.add(new Mining(actor, face, this));
+    
     return choice.weightedPick();
   }
   

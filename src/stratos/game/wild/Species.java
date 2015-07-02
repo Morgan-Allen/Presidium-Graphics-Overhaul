@@ -79,7 +79,8 @@ public abstract class Species extends Background {
   final public ModelAsset model;
   
   final public Type type;
-  final public Item nutrients[];
+  private Item stageNutrients[][];
+  //final public Item nutrients[];
   
   //  TODO:  Use a table filled with generic string keys, so that it's more
   //  self-descriptive.
@@ -109,7 +110,7 @@ public abstract class Species extends Background {
     this.baseBulk  = bulk     ;
     this.speedMult = speedMult;
     this.baseSight = sight    ;
-    nutrients = new Item[0];
+    stageNutrients = new Item[4][0];
   }
   
   
@@ -135,7 +136,14 @@ public abstract class Species extends Background {
       if (o instanceof Integer) amount = (Integer) o;
       if (o instanceof Traded) n.add(Item.withAmount((Traded) o, amount));
     }
-    nutrients = n.toArray(Item.class);
+    
+    final Item nutrients[] = n.toArray(Item.class);
+    this.stageNutrients = new Item[4][nutrients.length];
+    for (int i = 4; i-- > 0;) for (int l = nutrients.length; l-- > 0;) {
+      final Item base = nutrients[l];
+      final float mult = (i + 1) / 4f;
+      stageNutrients[i][l] = Item.withAmount(base, base.amount * mult);
+    }
   }
   
   
@@ -159,7 +167,7 @@ public abstract class Species extends Background {
   public boolean animal  () { return browser() || predator() || vermin(); }
   public boolean living  () { return sapient() || animal(); }
   
-  public Item[] nutrients() { return nutrients; }
+  public Item[] nutrients(int stage) { return stageNutrients[stage]; }
   public float metabolism() { return baseBulk * speedMult; }
 }
 

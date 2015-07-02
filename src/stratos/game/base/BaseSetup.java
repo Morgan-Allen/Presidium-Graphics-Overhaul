@@ -262,7 +262,14 @@ public class BaseSetup {
   }
   
   
-  private void addWorkerTo(Venue venue, Actor worker, boolean enterWorld) {
+  public void fillVacancies(
+    Series <? extends Venue> venues, boolean enterWorld
+  ) {
+    for (Venue v : venues) fillVacancies(v, enterWorld);
+  }
+  
+  
+  public void addWorkerTo(Venue venue, Actor worker, boolean enterWorld) {
     //
     //  Then set the actor's employment status (and possibly residency as
     //  well.  NOTE:  Work is set first to ensure residency is permitted at
@@ -281,13 +288,6 @@ public class BaseSetup {
       final Stage world = venue.base().world;
       world.offworld.journeys.addLocalImmigrant(worker, base);
     }
-  }
-  
-  
-  public void fillVacancies(
-    Series <? extends Venue> venues, boolean enterWorld
-  ) {
-    for (Venue v : venues) fillVacancies(v, enterWorld);
   }
   
   

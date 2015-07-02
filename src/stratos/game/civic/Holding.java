@@ -325,13 +325,13 @@ public class Holding extends Venue {
     for (Item i : rationNeeds(this, maxFree)) {
       stocks.setAmount(i.type, i.amount + 1);
     }
-    for (Item i : materials(maxFree).raw) {
+    for (Item i : HoldingUpgrades.materials(maxFree).raw) {
       stocks.setAmount(i.type, i.amount + 1);
     }
     
     //  Power, water and life support are consumed at a fixed rate, but other
     //  materials wear out depending on use (and more slowly.)
-    for (Item i : materials(upgradeLevel).raw) {
+    for (Item i : HoldingUpgrades.materials(upgradeLevel).raw) {
       if (i.type.form == FORM_PROVISION) continue;
       stocks.bumpItem(i.type, i.amount * count * -wear);
     }
@@ -348,7 +348,7 @@ public class Holding extends Venue {
     targetLevel = Nums.clamp(targetLevel, NUM_LEVELS);
     stocks.clearDemands();
     
-    for (Item i : materials(targetLevel).raw) {
+    for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
       stocks.forceDemand(i.type, i.amount + 0.5f, false);
     }
     for (Item i : rationNeeds(this, targetLevel)) {
@@ -369,7 +369,7 @@ public class Holding extends Venue {
     //  Combine the listing of non-provisioned materials and demand for rations.
     //  (Note special goods, like pressfeed and datalinks, are delivered to the
     //  holding externally, and so are not included here.)
-    for (Item i : materials(targetLevel).raw) {
+    for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
       if (i.type.form == FORM_PROVISION) continue;
       needed.add(i.type);
     }

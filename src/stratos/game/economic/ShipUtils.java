@@ -370,7 +370,7 @@ public class ShipUtils {
           rating *= ZS / (ZS + Spacing.distance(point, collects.origin));
         }
         if (delivers != null) {
-          rating *= ZS / (ZS + Spacing.distance(point, collects.destination));
+          rating *= ZS / (ZS + Spacing.distance(point, delivers.destination));
         }
         if (nearest != null) {
           rating *= ZS / (ZS + Spacing.distance(point, nearest));

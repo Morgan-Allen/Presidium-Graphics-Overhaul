@@ -128,7 +128,7 @@ public class Choice implements Qualities {
     final boolean report = (verbose && I.talkAbout == actor) || isVerbose;
     
     if (plans.size() == 0) {
-      if (verboseReject && I.talkAbout == actor) I.say("  ...Empty choice!");
+      if (report) I.say("  ...Empty choice!");
       return null;
     }
     if (report) {

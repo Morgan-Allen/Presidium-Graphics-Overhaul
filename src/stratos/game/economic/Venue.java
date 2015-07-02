@@ -36,8 +36,8 @@ public abstract class Venue extends Fixture implements
     NUM_FACES   =  ALL_FACES.length;
   
   final public static int
-    PRIMARY_SHIFT      = 1,
-    SECONDARY_SHIFT    = 2,
+    PRIMARY_SHIFT      = 2,
+    SECONDARY_SHIFT    = 1,
     OFF_DUTY           = 0,
     
     SHIFTS_ALWAYS      = 0,
@@ -295,7 +295,7 @@ public abstract class Venue extends Fixture implements
     else {
       structure.setState(Structure.STATE_INSTALL, 0);
       for (Tile t : world.tilesIn(footprint(), false)) {
-        t.setReserves(this);
+        t.setReserves(this, true);
       }
       enterWorldAt(at.x, at.y, world, false);
     }
@@ -560,6 +560,13 @@ public abstract class Venue extends Fixture implements
   
   public int owningTier() {
     return blueprint.owningTier;
+  }
+  
+  
+  public Item[] materials() {
+    return super.materials();
+    //  TODO:  IMPLEMENT THIS!
+    //return structure.materials();
   }
   
   

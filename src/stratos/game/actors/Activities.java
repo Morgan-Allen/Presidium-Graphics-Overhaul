@@ -84,36 +84,41 @@ public class Activities {
   public void registerFocus(Behaviour b, Target focus, boolean is) {
     if (b == null) return;
     final Target oldFocus = activeFoci.get(b);
+    Actor doing = null;
+    if (b instanceof Plan  ) doing = ((Plan  ) b).actor();
+    if (b instanceof Action) doing = ((Action) b).actor();
     
-    final boolean report = verbose && (
-      //I.talkAbout == b.actor() ||
+    boolean report = verbose && (
       I.talkAbout == focus ||
       I.talkAbout == oldFocus
     );
     
     if (oldFocus != null) {
       if (report) {
-        I.say("\nRemoving old focus for "+b);
+        I.say("\n"+doing+" removing old focus for "+b);
         I.say("  Focus was: "+oldFocus);
       }
       activeFoci.remove(b);
       final List <Behaviour> active = activeTable.get(oldFocus);
       active.remove(b);
       if (active.size() == 0) activeTable.remove(oldFocus);
+      if (report) I.say("  ALL ACTIVE: "+active);
     }
     
     if (is) {
       if (report) {
-        I.say("\nRegistering new focus for "+b);
+        I.say("\n"+doing+" registering new focus for "+b);
         I.say("  Focus is: "+focus);
       }
       activeFoci.put(b, focus);
       List <Behaviour> active = activeTable.get(focus);
+      
       if (active == null) {
         active  = new List <Behaviour> ();
         activeTable.put(focus, active);
       }
       active.include(b);
+      if (report) I.say("  ALL ACTIVE: "+active);
     }
   }
   

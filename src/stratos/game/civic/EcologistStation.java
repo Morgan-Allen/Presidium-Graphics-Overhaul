@@ -158,7 +158,6 @@ public class EcologistStation extends Venue {
     )) {
       final Nursery at = (Nursery) t;
       if (at.base() != this.base()) continue;
-      if (PlanUtils.competition(Farming.class, at, actor) > 0) continue;
       
       if (shortages > 0.5f || fieldHand) {
         final Farming farming = new Farming(actor, this, at);

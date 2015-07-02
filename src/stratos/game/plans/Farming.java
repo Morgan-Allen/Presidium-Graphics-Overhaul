@@ -133,7 +133,7 @@ public class Farming extends Plan {
     if (report) {
       I.say("\nEvaluating farming priority for "+this);
       I.say("  Seed impulse: "+seedImpulse);
-      I.say("  Motive bonus:     "+motiveBonus());
+      I.say("  Motive bonus: "+motiveBonus());
     }
     
     final float priority = PlanUtils.jobPlanPriority(
@@ -160,21 +160,25 @@ public class Farming extends Plan {
       return returns;
     }
     
-    //  Find the next tile for seeding, tending or harvest.
-    float minDist = Float.POSITIVE_INFINITY, dist;
+    final Plan others[] = actor.world().activities.activePlanMatches(
+      nursery, Farming.class
+    ).toArray(Plan.class);
     
-    Tile toFarm = null;
+    final Pick <Tile> pick = new Pick();
     if (seedImpulse > 0) for (Tile t : nursery.reserved()) {
       if (! nursery.couldPlant(t)) continue;
-      if (report) I.say("  Checking tile: "+t);
-      
       final Crop c = nursery.plantedAt(t);
+      
       if (c == null || c.needsTending()) {
-        dist = Spacing.distance(actor, t);
-        if (Spacing.edgeAdjacent(t, actor.origin())) dist /= 2;
-        if (dist < minDist) { toFarm = t; minDist = dist; }
+        float rating = 2 / (1 + Spacing.zoneDistance(actor, t));
+        for (Plan p : others) {
+          rating += Spacing.zoneDistance(actor, p.actor()) * 2;
+        }
+        if (Spacing.edgeAdjacent(t, actor.origin())) rating *= 2;
+        pick.compare(t, rating);
       }
     }
+    final Tile toFarm = pick.result();
     
     if (report) {
       I.say("  Tiles claimed: "+nursery.reserved().length);
@@ -319,9 +323,7 @@ public class Farming extends Plan {
     int success = 1;
     if (actor.skills.test(CULTIVATION, MODERATE_DC, 1)) success++;
     if (actor.skills.test(HARD_LABOUR, ROUTINE_DC , 1)) success++;
-    if (Rand.index(5) <= success) {
-      crop.disinfest();
-    }
+    if (Rand.index(5) <= success) crop.disinfest();
     return true;
   }
   

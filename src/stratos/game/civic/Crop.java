@@ -117,6 +117,13 @@ public class Crop extends Element {
   }
   
   
+  public boolean canPlace() {
+    final Tile o = origin();
+    if (o != null && o.reserves() instanceof Nursery) return true;
+    return false;
+  }
+  
+  
   
   /**  Growth calculations-
     */
@@ -175,20 +182,14 @@ public class Crop extends Element {
   
   public static Traded yieldType(Species species) {
     if (species == null) return null;
-    final Traded type;
-    if (isHive(species)) {
-      type = Economy.PROTEIN;
-    }
-    else if (isCereal(species)) {
-      type = Economy.CARBS;
-    }
-    else type = Economy.GREENS;
-    return type;
+    return species.nutrients(0)[0].type;
   }
   
   
   public static float habitatBonus(Tile t, Species s, Item seed) {
     float bonus = 0.0f;
+    
+    //  TODO:  MOVE ALL THIS TO THE FLORA CLASS?
     
     //  First, apply appropriate modifier for microclimate-
     final float moisture = t.habitat().moisture() / 10f;

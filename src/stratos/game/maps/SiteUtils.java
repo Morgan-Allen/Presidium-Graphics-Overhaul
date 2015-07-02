@@ -123,7 +123,10 @@ public class SiteUtils implements TileConstants {
     };
     if (intact) pass.placeState = SitingPass.PLACE_INTACT;
     pass.performFullPass();
-    return v.inWorld() ? v : null;
+    
+    if (! v.inWorld()) return null;
+    for (Actor a : employed) v.base().setup.addWorkerTo(v, a, intact);
+    return v;
   }
   
 
@@ -314,6 +317,8 @@ public class SiteUtils implements TileConstants {
     final int maxTrace = perimeter.length + (Stage.ZONE_SIZE / 2);
     final Batch <Batch <Tile>> pocketsFound = new Batch();
     for (Tile t : perimeter) {
+      //  TODO:  DO NOT BORDER ON ANY CLAIMED AREAS EITHER!
+      
       final Batch <Tile> pocket = findPocket(t, footprint, maxTrace, tier);
       if (pocket != null) pocketsFound.add(pocket);
     }

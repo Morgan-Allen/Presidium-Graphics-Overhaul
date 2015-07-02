@@ -52,6 +52,13 @@ public class Tailing extends Element {
   
   /**  Life-cycle, updates and maintenance-
     */
+  public boolean canPlace() {
+    final Tile o = origin();
+    if (o != null && o.reserves() instanceof ExcavationSite) return true;
+    return false;
+  }
+  
+  
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
     world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
@@ -84,6 +91,11 @@ public class Tailing extends Element {
   
   public Traded wasteType() {
     return wasteType;
+  }
+  
+  
+  public float fillLevel() {
+    return fillLevel / MAX_FILL;
   }
   
   

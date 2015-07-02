@@ -8,53 +8,20 @@ TO DO NOW-
 
 *  Area-claims need to be refined a little, so that they're treated identically
    to the footprints for other structures.  (Auto-crop must keep 2 tiles away
-   from other structures, and de/reservations must be immediate on placement
-   and world-exit.)
+   from other structures, and vice versa.)
+
+*  I need a single generic 'harvest/seeding' plan for mining, farming, forestry
+   and chem-panning.  Everything else should extend that.
+
 
 *  Install AUTO-TURRETS at your sentry-posts & blast doors.  (Simple motion-
    detectors if you don't have a pass-code.)  Plus combat stims at stock-
    exchange & physician station.
 
-
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
 *  Item-stocks rendering at the stock-exchange and supply depot needs to be
    restored.
-
-
-SPECIFIC TO FARMS & MINES-
-
-* Excavation sites:  tailings, openings, mantle drills, strip mining
-  Strip mining is the first step.
-  No multi smelters- everything gets processed at the central shaft.
-  Mantle drills will only be built on fully stripped terrain (i.e- full
-    barrens, minus all biomass, topsoil and surface minerals.)
-  Tailings never disappear (unless reprocessed.)
-  
-* Chemical pans appear more frequently in desert/caustic terrain.  They produce
-    reagents & spyce from the atmosphere or local deposits.
-
-* Moisture farms:    cropland, hives, covered tunnels, aquaculture + solar banks
-  Seedlings grow at the central nursery.
-  Cropland & hives appear with the right upgrades.
-  Covered tunnels & underground-sections increase growth once you add plastics,
-    and are preferred in deserts.
-  Aquaculture will appear if placed over water, giving extra greens & protein.
-  
-* Solar banks appear more frequently in dryer/sunnier terrain.  They produce
-    water & power, with more of the former when extended over water.
-
-
-* Can we assume, for now, that these are all 4x4 or 2x4 structures, with
-    facings/entrances in the appropriate direction?
-  
-  strip-mines -> mantle drills
-  tailings (general slag, ore ponds, isotope casings.)
-  chemical pans
-  
-  tunnels & aquaculture
-  nurseries & moisture farms
-  solar banks & condensors
 
 
 BUILDINGS AND ECONOMY-
@@ -87,7 +54,7 @@ BUILDINGS AND ECONOMY-
    to activate power-transmission in an area.)
 
 
-*  Try to restore dust-crawlers at excavation site.
+*  Try to restore dust-crawlers at chem panner and/or excavation site.
 
 *  Allow rations-production to satisfy need to eat.
 
@@ -105,6 +72,27 @@ BUILDINGS AND ECONOMY-
 
 *  Wood is valued for aesthetic properties (decor at the fabricator), along
    with trophies/curios for outfits.
+
+
+
+SPECIFIC TO FARMS & MINES-
+
+*  Excavation sites:
+  Could use a new terrain-type for strip mining, and/or art to show shafts
+  being sunk for mantle drills.
+  Implement mining of surface rocks.
+  Extra tailings for polymer.
+  Output-estimation could be a little more averaged.
+  
+* Chemical pans appear more frequently in desert/caustic terrain.  They produce
+    reagents & spyce from the atmosphere or local deposits.
+
+*  Moisture farms:
+  Could be called that.
+  Could use art & code for aquaculture & desalinators.
+  
+* Solar banks appear more frequently in dryer/sunnier terrain.  They produce
+    water & power, with more of the former when extended over water.
 
 
 

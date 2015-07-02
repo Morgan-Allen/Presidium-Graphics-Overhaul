@@ -141,15 +141,15 @@ public class Suspensor extends Mobile implements Mount {
     }
     //
     //  If so, update your position so as to follow behind the actor-
-    final Vec3D FP = followed.position(null);
-    final Vec2D FR = new Vec2D().setFromAngle(followed.rotation());
+    final Vec3D disp = followed.position(null).sub(this.position);
     final float idealDist = followed.radius() + this.radius();
-    FR.scale(0 - idealDist);
-    FP.x += FR.x;
-    FP.y += FR.y;
-    nextPosition.setTo(FP);
+    disp.normalise().scale(idealDist * -1);
+    final float nextRot = new Vec2D(disp).scale(-1).toAngle();
+    disp.add(followed.position(null));
+    
+    nextPosition.setTo(disp);
     nextPosition.z = aboveGroundHeight();
-    nextRotation = followed.rotation();
+    nextRotation = nextRot;
     //
     //  And if you have a passenger, update their position.
     if (passenger != null) {

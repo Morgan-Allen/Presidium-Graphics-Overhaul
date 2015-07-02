@@ -316,7 +316,10 @@ public class PlanUtils {
     
     final Property work = actor.mind.work();
     float liking = actor.relations.valueFor(plan.subject);
-    if (urgency > 0 && plan.hasBegun()) urgency = Nums.max(urgency, 0.5f);
+    if (urgency > 0 && plan.hasBegun()) {
+      urgency = Nums.max(urgency, 0.5f);
+      shift   = Venue.SECONDARY_SHIFT;
+    }
     
     incentive += urgency * 10 * liking;
     incentive *= (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2;
@@ -338,7 +341,7 @@ public class PlanUtils {
     priority = incentive * competence;
 
     if (plan.isJob() && work != null) {
-      shift = work.staff().shiftFor(actor);
+      shift     = Nums.max(shift, work.staff().shiftFor(actor));
       dutyBonus = actor.traits.relativeLevel(DUTIFUL) * 1.25f;
       if (shift == Venue.OFF_DUTY     ) dutyBonus -= 2.5f;
       if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 2.5f;
@@ -408,29 +411,38 @@ public class PlanUtils {
   
   
   public static float competition(Class planClass, Target t, Actor actor) {
-    float competition = 0;
-    final Stage world = actor.world();
-    for (Behaviour b : world.activities.allTargeting(t)) {
-      if (b instanceof Plan) {
-        final Plan plan = (Plan) b;
-        if (plan.getClass() != planClass) continue;
-        if (plan.actor() == null || plan.actor() == actor) continue;
-        competition += plan.successChanceFor(plan.actor());
-      }
-    }
-    return competition;
+    return competition(planClass, null, t, actor, true);
+  }
+  
+  
+  public static int competitors(Class planClass, Target t, Actor actor) {
+    return (int) competition(planClass, null, t, actor, false);
   }
   
   
   public static float competition(Plan match, Target t, Actor actor) {
+    return competition(null, match, t, actor, true);
+  }
+  
+  
+  public static int competitors(Plan match, Target t, Actor actor) {
+    return (int) competition(null, match, t, actor, false);
+  }
+  
+  
+  private static float competition(
+    Class planClass, Plan match,
+    Target t, Actor actor, boolean useChance
+  ) {
     float competition = 0;
     final Stage world = actor.world();
     for (Behaviour b : world.activities.allTargeting(t)) {
       if (b instanceof Plan) {
         final Plan plan = (Plan) b;
+        if (planClass != null && plan.getClass() != planClass) continue;
+        if (match     != null && ! plan.matchesPlan(match)   ) continue;
         if (plan.actor() == actor || ! plan.actor.health.conscious()) continue;
-        if (! plan.matchesPlan(match)) continue;
-        competition += plan.competence();
+        competition += useChance ? plan.competence() : 1;
       }
     }
     return competition;

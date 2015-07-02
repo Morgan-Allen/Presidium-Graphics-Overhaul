@@ -7,11 +7,11 @@
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.SiteUtils;
-import stratos.game.wild.Species.Type;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.util.*;
+import stratos.game.wild.Species.Type;
 import static stratos.game.economic.Economy.*;
 
 
@@ -85,7 +85,7 @@ public class Flora extends Element implements TileConstants {
       Flora.class, "Pioneers"   , Type.FLORA
     ) {},
     WILD_FLORA  = new Species(
-      Flora.class, "Wild Flora" , Type.FLORA
+      Flora.class, "Wild Flora" , Type.FLORA, 2, POLYMER
     ) {};
   
   final static String STAGE_NAMES[] = {
@@ -250,6 +250,11 @@ public class Flora extends Element implements TileConstants {
   
   public int growStage() {
     return Nums.clamp((int) growth, MAX_GROWTH);
+  }
+  
+  
+  public Item[] materials() {
+    return WILD_FLORA.nutrients(growStage());
   }
   
   

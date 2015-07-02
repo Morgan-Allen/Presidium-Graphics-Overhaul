@@ -5,7 +5,6 @@
   */
 package stratos.start;
 import stratos.game.actors.*;
-import stratos.game.base.*;
 import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -73,6 +72,8 @@ public class DebugPlacing extends Scenario {
     );
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
+    TG.setupOutcrops(world);
+    Flora.populateFlora(world);
     world.terrain().readyAllMeshes();
     return world;
   }
@@ -211,10 +212,6 @@ public class DebugPlacing extends Scenario {
     pass.isVerbose = true;
     pass.placeState = SitingPass.PLACE_INTACT;
     pass.performFullPass();
-    
-    final Bastion bastion = new Bastion(base);
-    SiteUtils.establishVenue(bastion, site, true, world);
-    base.setup.fillVacancies(bastion, true);
   }
   
   
