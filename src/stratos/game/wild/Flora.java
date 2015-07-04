@@ -3,13 +3,14 @@
  *  I intend to slap on some kind of open-source license here in a while, but
  *  for now, feel free to poke around for non-commercial purposes.
  */
-
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.Composite;
+import stratos.user.BaseUI;
 import stratos.util.*;
 import stratos.game.wild.Species.Type;
 import static stratos.game.economic.Economy.*;
@@ -274,10 +275,35 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  public String toString() {
+  
+  /**  Rendering and interface methods-
+    */
+  public String fullName() {
     return STAGE_NAMES[growStage()]+" Flora";
   }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  FILL THIS IN!
+    return null;
+  }
+  
+  
+  public String helpInfo() {
+    return "Flora are the native vegetation of the planet.";
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -435,8 +435,14 @@ public class Stage {
   
   public Element pickedFixture(final HUD UI, final Viewport port, Base base) {
     final Tile t = pickedTile(UI, port, base);
-    if (t != null && t.reserves() != null && t.reserves().visibleTo(base)) {
+    if (t == null) return null;
+    
+    //  TODO:  Revisit this.  Fade-in/fade-out would be nice.
+    if (t.reserves() != null && t.reserves().visibleTo(base)) {
       return t.reserves();
+    }
+    else if (t.above() != null && t.above().visibleTo(base)) {
+      return t.above();
     }
     else return null;
   }

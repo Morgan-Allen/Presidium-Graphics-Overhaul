@@ -4,14 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.civic;
-import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
-import stratos.game.plans.*;
+import stratos.game.wild.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
-import static stratos.game.maps.StageTerrain.*;
 
 
 
@@ -123,7 +121,7 @@ public class MineShaft extends Fixture implements Boarding {
     
     final Batch <Item> left = new Batch <Item> ();
     for (Tile under : world.tilesIn(footprint(), false)) {
-      final Item at = Mining.mineralsAt(under);
+      final Item at = Outcrop.mineralsAt(under);
       if (at != null) left.add(at);
     }
     return mineralsLeft = left.toArray(Item.class);
@@ -173,7 +171,24 @@ public class MineShaft extends Fixture implements Boarding {
   }
   
   
+  /**  Rendering and interface methods-
+    */
+  public String fullName() {
+    return "Mine Shaft";
+  }
   
+  
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  FILL THIS IN!
+    return null;
+  }
+  
+  
+  public String helpInfo() {
+    return
+      "Mine shafts and mantle drills provide improved access to mineral "+
+      "deposits deep underground or at a distance.";
+  }
 }
 
 

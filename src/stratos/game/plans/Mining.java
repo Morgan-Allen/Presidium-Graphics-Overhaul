@@ -140,7 +140,7 @@ public class Mining extends Plan {
   
   private static float rateFace(ExcavationSite site, Tile face) {
     if (! site.canDig(face)) return -1;
-    final Item left = mineralsAt(face);
+    final Item left = Outcrop.mineralsAt(face);
     float rating = left == null ? -1 : site.extractMultiple(left.type);
     rating /= 1 + Spacing.zoneDistance(face, site);
     return rating;
@@ -316,27 +316,6 @@ public class Mining extends Plan {
   }
   
   
-  public static Item mineralsAt(Tile face) {
-    final StageTerrain terrain = face.world().terrain();
-    final Habitat h = face.habitat();
-    
-    if (face.above() instanceof Flora) return face.above().materials()[0];
-    if (h.biomass() > 0) return Item.withAmount(POLYMER, h.biomass());
-    
-    if (terrain.mineralsAt(face) == 0) return null;
-    
-    final byte type = terrain.mineralType(face);
-    final float amount = terrain.mineralsAt(face, type);
-    
-    Traded minType = SLAG;
-    if (type == StageTerrain.TYPE_ISOTOPES) minType = FUEL_RODS;
-    if (type == StageTerrain.TYPE_METALS  ) minType = METALS   ;
-    if (type == StageTerrain.TYPE_RUINS   ) minType = FOSSILS  ;
-    
-    return Item.withAmount(minType, amount);
-  }
-  
-  
   private float depleteTile(Tile face, Item contains) {
     final StageTerrain terrain = face.world().terrain();
     final Habitat h = face.habitat();
@@ -362,7 +341,7 @@ public class Mining extends Plan {
   public boolean actionMineFace(Actor actor, Tile face) {
     final boolean report = I.talkAbout == actor;// && stepsVerbose;
     
-    Item left = mineralsAt(face);
+    Item left = Outcrop.mineralsAt(face);
     final boolean done = left == null;
     if (left == null) left = Item.withAmount(SLAG, 0);
     
@@ -433,7 +412,7 @@ public class Mining extends Plan {
     for (Traded type : MINED_TYPES) {
       actor.gear.transfer(type, venue);
     }
-    if (mineralsAt(face) == null || site.staff.offDuty(actor)) {
+    if (Outcrop.mineralsAt(face) == null || site.staff.offDuty(actor)) {
       stage = STAGE_DONE;
       if (suspensor != null) suspensor.exitWorld();
       this.suspensor = null;

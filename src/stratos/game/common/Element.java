@@ -6,11 +6,14 @@
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
+import stratos.user.*;
 import stratos.util.*;
 
 
 
-public class Element implements Target, Session.Saveable, Stage.Visible {
+public abstract class Element implements
+  Target, Session.Saveable, Stage.Visible, Selectable
+{
   
   /**  Common fields, basic constructors, and save/load methods
     */
@@ -307,6 +310,50 @@ public class Element implements Target, Session.Saveable, Stage.Visible {
   
   public Sprite sprite() {
     return sprite;
+  }
+  
+  
+  public void whenClicked() {
+    BaseUI.current().selection.pushSelection(this);
+  }
+  
+
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+    if (panel == null) panel = new SelectionPane(UI, this, null, true);
+    panel.detail().append(helpInfo());
+    return panel;
+  }
+  
+  
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+    if (info == null) info = new SelectionOptions(UI, this);
+    return info;
+  }
+
+
+  public Target selectionLocksOn() {
+    return this;
+  }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (destroyed() || origin() == null) return;
+    BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
+  }
+  
+  
+  public String objectCategory() {
+    return UIConstants.TYPE_TERRAIN;
+  }
+  
+  
+  public Constant infoSubject() {
+    return null;
+  }
+  
+  
+  public String toString() {
+    return fullName();
   }
 }
 

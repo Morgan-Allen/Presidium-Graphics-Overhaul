@@ -8,7 +8,7 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
-public class Fixture extends Element {
+public abstract class Fixture extends Element {
   
   
   /**  Field definitions, constructors, and save/load methods-

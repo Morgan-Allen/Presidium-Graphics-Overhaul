@@ -9,6 +9,7 @@ import stratos.game.plans.*;
 //import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
+import stratos.graphics.widgets.Composite;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -218,6 +219,24 @@ public class Suspensor extends Mobile implements Mount {
       d.append("Carrying "+cargo);
     }
     else d.append("Idling");
+  }
+  
+  
+  public String fullName() {
+    return "Suspensor";
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  FILL THIS IN!
+    return null;
+  }
+  
+  
+  public String helpInfo() {
+    return
+      "Suspensors help to transport goods, tools or captives from place "+
+      "to place.";
   }
 }
 

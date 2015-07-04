@@ -5,6 +5,8 @@ package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.Composite;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
@@ -84,6 +86,24 @@ public class Wreckage extends Fixture {
     super.renderFor(rendering, base);
     sprite().position.z -= 0.25f;
     sprite().scale = spriteSize;
+  }
+  
+  
+  public String fullName() {
+    return "Wreckage";
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  FILL THIS IN!
+    return null;
+  }
+  
+  
+  public String helpInfo() {
+    return
+      "The remains of destroyed structures can linger on the landscape for a "+
+      "time...";
   }
 }
 

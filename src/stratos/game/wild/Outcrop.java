@@ -1,11 +1,22 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.wild;
+import static stratos.game.economic.Economy.FOSSILS;
+import static stratos.game.economic.Economy.FUEL_RODS;
+import static stratos.game.economic.Economy.METALS;
+import static stratos.game.economic.Economy.POLYMER;
+import static stratos.game.economic.Economy.SLAG;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
 import stratos.util.*;
+import stratos.game.economic.Item;
 import stratos.game.economic.Owner;
+import stratos.game.economic.Traded;
 import stratos.game.maps.StageTerrain;
 
 
@@ -13,15 +24,45 @@ import stratos.game.maps.StageTerrain;
 public class Outcrop extends Fixture {
   
   
-  /**  These are utility methods intended to determine the type and appearance
-    *  of an outcrop based on underlying terrain type and mineral content.
+  /**  Data fields, constructors and save/load methods-
     */
   final public static int
     TYPE_MESA    =  0,
     TYPE_DUNE    =  1,
     TYPE_DEPOSIT =  2;
   
+  final int type;
+  int mineral = -1;
+  float condition = 1.0f;
   
+  
+  public Outcrop(int size, int high, int type) {
+    super(size, high * size);
+    this.type = type;
+  }
+  
+  
+  public Outcrop(Session s) throws Exception {
+    super(s);
+    type      = s.loadInt  ();
+    mineral   = s.loadInt  ();
+    condition = s.loadFloat();
+    if (size > 1 || type == TYPE_DUNE) sprite().scale = size / 2f;
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    super.saveState(s);
+    s.saveInt  (type     );
+    s.saveInt  (mineral  );
+    s.saveFloat(condition);
+  }
+  
+
+  
+  /**  These are utility methods intended to determine the type and appearance
+    *  of an outcrop based on underlying terrain type and mineral content.
+    */
   static float rubbleFor(Outcrop outcrop, Stage world) {
     float rubble = 0, sum = 0;;
     for (Tile t : outcrop.surrounds()) if (t != null) {
@@ -91,37 +132,8 @@ public class Outcrop extends Fixture {
   
   
   
-  /**  Data fields, constructors and save/load methods-
+  /**  Positioning and life-cycle:
     */
-  final int type;
-  int mineral = -1;
-  float condition = 1.0f;
-  
-  
-  public Outcrop(int size, int high, int type) {
-    super(size, high * size);
-    this.type = type;
-  }
-  
-  
-  public Outcrop(Session s) throws Exception {
-    super(s);
-    type = s.loadInt();
-    mineral = s.loadInt();
-    condition = s.loadFloat();
-    if (size > 1 || type == TYPE_DUNE) sprite().scale = size / 2f;
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    super.saveState(s);
-    s.saveInt(type);
-    s.saveInt(mineral);
-    s.saveFloat(condition);
-  }
-  
-  
-
   public boolean canPlace() {
     //  This only gets called just before entering the world, so I think I can
     //  put this here.  TODO:  Move the location-verification code from the
@@ -153,19 +165,22 @@ public class Outcrop extends Fixture {
   }
   
   
-  public int owningTier() {
-    return Owner.TIER_OBJECT;
-  }
-  
-  
   public void exitWorld() {
     world.presences.togglePresence(this, origin(), false, Outcrop.class);
     super.exitWorld();
   }
   
   
-  public byte mineralType() {
-    return (byte) mineral;
+  
+  /**  Physical attributes and queries-
+    */
+  public int owningTier() {
+    return Owner.TIER_OBJECT;
+  }
+  
+  
+  public Traded mineralType() {
+    return mineralFor((byte) mineral);
   }
   
   
@@ -190,28 +205,60 @@ public class Outcrop extends Fixture {
   }
   
   
+  public static Traded mineralFor(byte type) {
+    if (type == -1) return null;
+    Traded minType = SLAG;
+    if (type == StageTerrain.TYPE_ISOTOPES) minType = FUEL_RODS;
+    if (type == StageTerrain.TYPE_METALS  ) minType = METALS   ;
+    if (type == StageTerrain.TYPE_RUINS   ) minType = FOSSILS  ;
+    return minType;
+  }
+  
+  
+  public static Item mineralsAt(Tile face) {
+    final StageTerrain terrain = face.world().terrain();
+    final Habitat h = face.habitat();
+    
+    if (face.above() instanceof Flora) return face.above().materials()[0];
+    if (h.biomass() > 0) return Item.withAmount(POLYMER, h.biomass());
+    
+    if (terrain.mineralsAt(face) == 0) return null;
+    
+    final byte  type   = terrain.mineralType(face);
+    final float amount = terrain.mineralsAt(face, type);
+    return Item.withAmount(mineralFor(type), amount);
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
   public String fullName() {
-    return "Outcrop";
+    if (this.type == TYPE_DUNE) return "Dunes";
+    
+    final Traded minType = mineralType();
+    if (minType != null && minType != SLAG && size >= 3) {
+      return "Deposit ("+minType+")";
+    }
+    else return "Outcrop";
   }
   
   
-  public String toString() {
-    return fullName();
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  FILL THIS IN!
+    return null;
+  }
+  
+  
+  public String helpInfo() {
+    return
+      "Rock outcrops are a frequent indication of underlying mineral wealth.";
   }
 }
 
 
-  
-
+//  TODO:  CONSIDER RE-USING THIS!  
   /*
-  public Composite portrait(HUD UI) {
-    return null;
-  }
-
-
   public void writeInformation(Description d, int categoryID, HUD UI) {
     final int c = (int) (100 * condition());
     d.append("  Condition: "+c+"%");
@@ -220,44 +267,6 @@ public class Outcrop extends Fixture {
     d.append("\n  Outcrop type: "+Terrain.MINERAL_NAMES[varID]);
     d.append("\n\n");
     d.append(helpInfo());
-  }
-
-
-  public Target selectionLocksOn() {
-    return this;
-  }
-  
-  
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    Selection.renderPlane(
-      rendering, viewPosition(null),
-      radius() + 0.5f + ((size - 1) / 5f),
-      Colour.transparency(hovered ? 0.25f : 0.5f),
-      Selection.SELECT_CIRCLE
-    );
-  }
-  
-  public String helpInfo() {
-    return
-      "Rock outcrops are a frequent indication of underlying mineral wealth.";
-  }
-  
-  
-  public String[] infoCategories() {
-    return null;
-  }
-  
-  
-  public InfoPanel createPanel(BaseUI UI) {
-    return new InfoPanel(UI, this, 0);
-  }
-  
-  
-  public void whenClicked() {
-    //
-    //  TODO:  This is some really awkward phrasing.  When have you ever used
-    //  a *non*-BaseUI?
-    BaseUI.current().selection.pushSelection(this, false);
   }
   //*/
 

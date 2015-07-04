@@ -457,7 +457,7 @@ public class TerrainGen implements TileConstants {
     for (int size = maxSize; size >= minSize; size--) {
       final Outcrop o = new Outcrop(size, 1, type);
       o.setPosition(t.x, t.y, t.world);
-      if (o.mineralType() == -1) return null;
+      if (o.mineralType() == null) return null;
       if (SiteUtils.pathingOkayAround(o, t.world) && o.canPlace()) {
         o.enterWorld();
         return o;

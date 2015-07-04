@@ -11,6 +11,8 @@ import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.Composite;
+import stratos.user.BaseUI;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.wild.Flora.*;
@@ -359,6 +361,8 @@ public class Crop extends Element {
     final ModelAsset model = speciesModel(species, stage);
     if (old != null && old.atIndex(0).model() == model) return;
     
+    //  TODO:  Vary the level here a bit based on growth
+    
     final GroupSprite GS = new GroupSprite();
     GS.attach(model, -0.25f, -0.25f, 0);
     GS.attach(model,  0.25f, -0.25f, 0);
@@ -370,8 +374,21 @@ public class Crop extends Element {
   }
   
   
-  public String toString() {
-    return species.name;
+  public String fullName() {
+    return "Crop ("+species.name+")";
+  }
+  
+  
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  FILL THIS IN!
+    return null;
+  }
+  
+  
+  public String helpInfo() {
+    return
+      "Crops take a few days to mature, depending on climate, seed stock and "+
+      "planting skill.";
   }
 }
 

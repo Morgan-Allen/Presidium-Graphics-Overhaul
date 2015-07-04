@@ -96,11 +96,6 @@ public class SupplyCache extends Fixture implements Item.Dropped {
     chat.readyFor(rendering);
   }
   
-  
-  public String toString() {
-    return fullName();
-  }
-  
 
   public String fullName() {
     return "Supply Cache";
@@ -111,27 +106,6 @@ public class SupplyCache extends Fixture implements Item.Dropped {
     return
       "Often left behind by advance scouts or air-dropped for colonists, "+
       "a supply cache may provide useful supplies to your settlement.";
-  }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_TERRAIN;
-  }
-  
-  
-  public Constant infoSubject() {
-    return null;
-  }
-
-
-  public Composite portrait(BaseUI UI) {
-    //  TODO:  Fix this.
-    return null;//new Composite(UI);
-  }
-  
-  
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
   }
   
 
@@ -148,22 +122,11 @@ public class SupplyCache extends Fixture implements Item.Dropped {
     
     return panel;
   }
-  
-  
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
-    if (info == null) info = new SelectionOptions(UI, this);
-    return info;
-  }
 
 
-  public Target selectionLocksOn() {
-    return this;
-  }
-  
-  
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || origin() == null) return;
-    BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  Fix this.
+    return null;//new Composite(UI);
   }
 }
 

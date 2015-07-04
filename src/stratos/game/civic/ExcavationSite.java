@@ -9,6 +9,7 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -178,7 +179,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     float sumM = 0, sumF = 0, outM, outF;
     
     for (Tile t : openFaces) {
-      final Item i = Mining.mineralsAt(t);
+      final Item i = Outcrop.mineralsAt(t);
       if (i == null) continue;
       if (i.type == METALS   ) sumM++;
       if (i.type == FUEL_RODS) sumF++;

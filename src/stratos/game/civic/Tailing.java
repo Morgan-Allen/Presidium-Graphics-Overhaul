@@ -131,38 +131,15 @@ public class Tailing extends Element implements Selectable {
     }
   }
   
-  
-  
-  //  TODO:  Just extend supply cache for all these methods?
-  
-  public String toString() {
-    return fullName();
-  }
-  
 
   public String fullName() {
     return "Tailing ("+wasteType.name+")";
   }
-  
-  
-  public String objectCategory() {
-    return UIConstants.TYPE_TERRAIN;
-  }
-  
-  
-  public Constant infoSubject() {
-    return null;
-  }
 
 
   public Composite portrait(BaseUI UI) {
-    //  TODO:  Fix this.
-    return null;//new Composite(UI);
-  }
-  
-  
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
+    //  TODO:  Fill this in.
+    return null;
   }
   
 
@@ -170,9 +147,7 @@ public class Tailing extends Element implements Selectable {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();
-    
     d.append("Total stored: "+fillLevel+"/"+MAX_FILL);
-    
     d.append("\n\n");
     d.append(helpInfo());
     
@@ -185,23 +160,6 @@ public class Tailing extends Element implements Selectable {
       "Tailings are the rubble and waste products left behind after mining "+
       "operations.  They cannot be easily salvaged, and pose a persistent "+
       "pollution hazard.";
-  }
-  
-  
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
-    if (info == null) info = new SelectionOptions(UI, this);
-    return info;
-  }
-
-
-  public Target selectionLocksOn() {
-    return this;
-  }
-  
-  
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || origin() == null) return;
-    BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
   }
 }
 
