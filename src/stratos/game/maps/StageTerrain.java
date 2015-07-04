@@ -73,6 +73,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   private TerrainSet meshSet;
   private LayerType roadLayer;
+  private LayerType stripLayer;
   private LayerType reservations;
   
   private static class Sample {
@@ -275,6 +276,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   public void setMinerals(Tile t, byte type, int amount) {
+    final byte oldVal = minerals[t.x][t.y];
+    
     byte value = 0;
     if (amount > 0) {
       value += (type * MAX_MINERAL_AMOUNT);
@@ -282,6 +285,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     }
     else value = -1;
     minerals[t.x][t.y] = value;
+    
+    if (value != oldVal) for (Tile n : t.vicinity(tempV)) if (n != null) {
+      meshSet.flagUpdateAt(n.x, n.y, stripLayer);
+    }
   }
   
   
@@ -340,24 +347,22 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   /**  Rendering and interface methods-
     */
   public void initTerrainMesh(Habitat habitats[]) {
-    int lID = -1;
-    final LayerType layers[] = new LayerType[habitats.length + 2];
+    final Batch <LayerType> layers = new Batch();
     
-    while (++lID < habitats.length) {
-      final int layerIndex = lID;
-      final Habitat h = habitats[lID];
-      layers[lID] = new LayerType(h.animTex, false, lID, h.name) {
+    for (Habitat h : habitats) {
+      final int layerIndex = layers.size();
+      layers.add(new LayerType(h.animTex, false, layerIndex, h.name) {
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
           return typeIndex[tx][ty] == layerIndex;
         }
         protected int variantAt(int tx, int ty, TerrainSet terrain) {
           return varsIndex[tx][ty];
         }
-      };
+      });
     }
     
-    roadLayer = layers[lID] = new LayerType(
-      Habitat.ROAD_TEXTURE, true, lID, "roads"
+    layers.add(roadLayer = new LayerType(
+      Habitat.ROAD_TEXTURE, true, layers.size(), "roads"
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
         return paveVals[tx][ty] > 0;
@@ -365,10 +370,21 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return ((tx + ty) % 3 == 0) ? 0 : 1;
       }
-    };
+    });
     
-    reservations = layers[lID + 1] = new LayerType(
-      Habitat.RESERVE_TEXTURE, true, lID + 1, "reservations"
+    layers.add(stripLayer = new LayerType(
+      Habitat.STRIP_TEXTURE, true, layers.size(), "stripping"
+    ) {
+      protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
+        return minerals[tx][ty] == -1;
+      }
+      protected int variantAt(int tx, int ty, TerrainSet terrain) {
+        return 0;//varsIndex[tx][ty];
+      }
+    });
+    
+    layers.add(reservations = new LayerType(
+      Habitat.RESERVE_TEXTURE, true, layers.size(), "reservations"
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
         return reserved[tx][ty] > 0;
@@ -376,9 +392,11 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return 0;
       }
-    };
+    });
     
-    meshSet = new TerrainSet(mapSize, -1, typeIndex, varsIndex, layers);
+    meshSet = new TerrainSet(
+      mapSize, -1, typeIndex, varsIndex, layers.toArray(LayerType.class)
+    );
   }
   
   

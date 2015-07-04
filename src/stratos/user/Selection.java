@@ -48,9 +48,9 @@ public class Selection implements UIConstants {
   
   final BaseUI UI;
   
-  private Tile pickTile;
-  private Fixture pickFixture;
-  private Mobile pickMobile;
+  private Tile    pickTile;
+  private Element pickElement;
+  private Mobile  pickMobile;
   private Mission pickMission;
   
   private Selectable hovered, selected;
@@ -75,7 +75,7 @@ public class Selection implements UIConstants {
   public Selectable selected() { return selected; }
   
   public Tile    pickedTile   () { return pickTile   ; }
-  public Fixture pickedFixture() { return pickFixture; }
+  public Element pickedElement() { return pickElement; }
   public Mobile  pickedMobile () { return pickMobile ; }
   public Mission pickedMission() { return pickMission; }
   
@@ -96,7 +96,7 @@ public class Selection implements UIConstants {
     if (UI.selected() != null) {
       pickTile = null;
       pickMobile = null;
-      pickFixture = null;
+      pickElement = null;
       hovered = null;
       return false;
     }
@@ -106,17 +106,15 @@ public class Selection implements UIConstants {
     final Base base = UI.played();
     hovered     = null;
     pickTile    = world.pickedTile   (UI, port, base);
-    pickFixture = world.pickedFixture(UI, port, base);
+    pickElement = world.pickedFixture(UI, port, base);
     pickMobile  = world.pickedMobile (UI, port, base);
     pickMission = Base.pickedMission(world, UI, port, base);
     
-    if (
-      verbose && pickTile != null &&
-      Gdx.input.isKeyPressed(Input.Keys.SPACE)
-    ) {
+    if (verbose && I.used60Frames) {
       I.say("\nPicked tile is: "+pickTile);
-      I.say("  Owner is:     "+pickTile.reserves());
-      I.say("  Path type is: "+pickTile.pathType());
+      I.say("  Owner is:       "+pickTile.reserves());
+      I.say("  Path type is:   "+pickTile.pathType());
+      I.say("  Picked element: "+pickElement);
     }
     
     //
@@ -127,8 +125,8 @@ public class Selection implements UIConstants {
     else if (pickMobile instanceof Selectable) {
       hovered = (Selectable) pickMobile;
     }
-    else if (pickFixture instanceof Selectable) {
-      hovered = (Selectable) pickFixture;
+    else if (pickElement instanceof Selectable) {
+      hovered = (Selectable) pickElement;
     }
     else {
       hovered = pickTile;
@@ -294,8 +292,8 @@ public class Selection implements UIConstants {
       e.position(null);
     
     renderPlane(
-      rendering, e.origin().world, pos, (e.xdim() / 2f) + 1,
-      hovered ? Colour.transparency(0.5f) : Colour.WHITE,
+      rendering, e.origin().world, pos, (e.xdim() + 0.5f) / 2,
+      Colour.transparency(hovered ? 0.25f : 0.5f),
       Selection.SELECT_CIRCLE, true, key
     );
   }

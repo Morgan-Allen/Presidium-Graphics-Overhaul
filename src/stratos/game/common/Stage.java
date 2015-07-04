@@ -433,12 +433,10 @@ public class Stage {
   }
   
   
-  public Fixture pickedFixture(final HUD UI, final Viewport port, Base base) {
+  public Element pickedFixture(final HUD UI, final Viewport port, Base base) {
     final Tile t = pickedTile(UI, port, base);
-    if (t == null) return null;
-    if (t.reserves() instanceof Fixture) {
-      if (! t.reserves().visibleTo(base)) return null;
-      return (Fixture) t.reserves();
+    if (t != null && t.reserves() != null && t.reserves().visibleTo(base)) {
+      return t.reserves();
     }
     else return null;
   }

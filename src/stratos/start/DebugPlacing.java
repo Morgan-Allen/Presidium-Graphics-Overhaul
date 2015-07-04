@@ -94,8 +94,8 @@ public class DebugPlacing extends Scenario {
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
-    if (false) configMinesTest(world, base, UI);
-    if (true ) configPlantTest(world, base, UI);
+    if (true ) configMinesTest(world, base, UI);
+    if (false) configPlantTest(world, base, UI);
   }
   
   
@@ -181,6 +181,11 @@ public class DebugPlacing extends Scenario {
   
   
   private void configMinesTest(Stage world, Base base, BaseUI UI) {
+    
+    GameSettings.buildFree = true;
+    GameSettings.paveFree  = true;
+    GameSettings.hireFree  = true;
+    
     final ExcavationSite station = new ExcavationSite(base);
     final Human worksA, worksB;
     SiteUtils.establishVenue(
@@ -199,6 +204,7 @@ public class DebugPlacing extends Scenario {
     
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
+    GameSettings.hireFree  = true;
     
     final EcologistStation station = new EcologistStation(base);
     SiteUtils.establishVenue(station, 8, 8, true, world);

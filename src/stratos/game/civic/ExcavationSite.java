@@ -143,8 +143,8 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public void doPlacement(boolean intact) {
-    super.doPlacement(intact);
     if (division == SiteDivision.NONE) updateDivision();
+    super.doPlacement(intact);
     for (Tile t : division.reserved) t.setReserves(this, false);
   }
   

@@ -37,7 +37,7 @@ public abstract class TargetTask implements UITask {
     //  valid as targets.  If so, preview in green.  Otherwise, preview in
     //  red.  If the user clicks, perform the placement.
     final Tile PT = UI.selection.pickedTile();
-    final Fixture PF = UI.selection.pickedFixture();
+    final Element PF = UI.selection.pickedElement();
     final Mobile PM = UI.selection.pickedMobile();
     
     boolean valid = true;

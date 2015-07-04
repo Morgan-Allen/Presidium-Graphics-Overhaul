@@ -85,51 +85,6 @@ public class SpyceMidden extends SupplyCache {
     //  TODO:  Fix this.
     return null;//new Composite(UI);
   }
-  
-
-  /*
-  public String objectCategory() {
-    return UIConstants.TYPE_TERRAIN;
-  }
-  
-  
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
-  }
-  
-
-  public SelectionPane configPanel(SelectionPane panel, BaseUI UI) {
-    if (panel == null) panel = new SelectionPane(UI, this, null, true);
-    final Description d = panel.detail();
-    d.append(helpInfo());
-    d.append("\n\nContains: "+spice());
-    return panel;
-  }
-  
-  
-  public TargetOptions configInfo(TargetOptions info, BaseUI UI) {
-    if (info == null) info = new TargetOptions(UI, this);
-    return info;
-  }
-
-
-  public Target selectionLocksOn() {
-    return this;
-  }
-  
-  
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (destroyed() || origin() == null) return;
-    BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
-    BaseUI.current().selection.renderPlane(
-      rendering, world,
-      position(null), (xdim() / 2f) + 0.5f,
-      Colour.transparency(hovered ?  0.25f : 0.5f),
-      Selection.SELECT_CIRCLE,
-      true, this+""
-    );
-  }
-    //*/
 }
 
 

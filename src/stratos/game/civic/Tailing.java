@@ -6,25 +6,27 @@
 package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.plans.Mining;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.Composite;
+import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 
 
 
-public class Tailing extends Element {
+public class Tailing extends Element implements Selectable {
   
   
   private static boolean verbose = true;
   
   final static int
-    MIN_FILL =  0,
-    MAX_FILL = 40;
+    MIN_FILL = 0 ,
+    MAX_FILL = (int) (10 * Mining.SLAG_RATIO);
   
   final Traded wasteType;
-  
   private float fillLevel = 0;
   
   
@@ -81,9 +83,7 @@ public class Tailing extends Element {
   
   
   public boolean takeFill(float amount) {
-    final float newFill = fillLevel + amount;
-    if (amount < 0 || newFill > MAX_FILL) return false;
-    this.fillLevel = newFill;
+    this.fillLevel = Nums.clamp(fillLevel + amount, 0, MAX_FILL);
     updateSprite();
     return true;
   }
@@ -109,33 +109,99 @@ public class Tailing extends Element {
     */
   final static String IMG_DIR = "media/Buildings/artificer/";
   final public static ModelAsset
-    ALL_MOLD_MODELS[][] = CutoutModel.fromImageGrid(
-      Tailing.class, IMG_DIR+"all_molds.png",
-      4, 5, 1, 1, true
+    ALL_TAILING_MODELS[][] = CutoutModel.fromImageGrid(
+      Tailing.class, IMG_DIR+"mine_tailings.png",
+      5, 5, 1, 1, false
     ),
-    ISOTOPE_TAILING_MODEL = CutoutModel.fromImage(
-      Tailing.class, IMG_DIR+"slab.png", 1, 1
-    ),
-    //  TODO:  You need to include artifacts/ruins as well.
-    METAL_ORE_TAILINGS[] = ALL_MOLD_MODELS[2],
-    RAW_SLAG_TAILINGS [] = ALL_MOLD_MODELS[3];
+    MAGMA_TAILINGS [] = ALL_TAILING_MODELS[0];
+  final static Traded MODEL_ORDER[] = {
+    null, SLAG, POLYMER, METALS, FUEL_RODS
+  };
   
   
   private void updateSprite() {
-    
-    final int stage = 1 + (int) ((fillLevel / MAX_FILL) * 3);
-    final ModelAsset model;
-    
-    if      (wasteType == FUEL_RODS) model = ISOTOPE_TAILING_MODEL    ;
-    else if (wasteType == METALS   ) model = METAL_ORE_TAILINGS[stage];
-    else                             model = RAW_SLAG_TAILINGS [stage];
+    final int stage = Nums.min(4, 1 + (int) (fillLevel() * 3));
+    final int index = Nums.max(1, Visit.indexOf(wasteType, MODEL_ORDER));
+    final ModelAsset model = ALL_TAILING_MODELS[index][stage];
     
     final Sprite oldSprite = sprite();
     attachModel(model);
-    
     if (oldSprite != null && oldSprite.model() != model) {
       world.ephemera.addGhost(this, 1, oldSprite, 0.5f);
     }
+  }
+  
+  
+  
+  //  TODO:  Just extend supply cache for all these methods?
+  
+  public String toString() {
+    return fullName();
+  }
+  
+
+  public String fullName() {
+    return "Tailing ("+wasteType.name+")";
+  }
+  
+  
+  public String objectCategory() {
+    return UIConstants.TYPE_TERRAIN;
+  }
+  
+  
+  public Constant infoSubject() {
+    return null;
+  }
+
+
+  public Composite portrait(BaseUI UI) {
+    //  TODO:  Fix this.
+    return null;//new Composite(UI);
+  }
+  
+  
+  public void whenClicked() {
+    BaseUI.current().selection.pushSelection(this);
+  }
+  
+
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+    if (panel == null) panel = new SelectionPane(UI, this, null, true);
+    
+    final Description d = panel.detail(), l = panel.listing();
+    
+    d.append("Total stored: "+fillLevel+"/"+MAX_FILL);
+    
+    d.append("\n\n");
+    d.append(helpInfo());
+    
+    return panel;
+  }
+  
+  
+  public String helpInfo() {
+    return
+      "Tailings are the rubble and waste products left behind after mining "+
+      "operations.  They cannot be easily salvaged, and pose a persistent "+
+      "pollution hazard.";
+  }
+  
+  
+  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+    if (info == null) info = new SelectionOptions(UI, this);
+    return info;
+  }
+
+
+  public Target selectionLocksOn() {
+    return this;
+  }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (destroyed() || origin() == null) return;
+    BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
   }
 }
 

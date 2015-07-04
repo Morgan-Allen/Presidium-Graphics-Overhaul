@@ -6,11 +6,13 @@
 package stratos.game.wild;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.terrain.*;
 import stratos.util.*;
 
 
 
 public class Habitat {
+  
   
   private static Batch <Habitat> allHabs = new Batch <Habitat> ();
   private static int nextID = 0;
@@ -135,17 +137,17 @@ public class Habitat {
       "desert_ground.gif", NO_FLORA,
       0, true, FERTILITY, 1, INSOLATION, 9, MINERALS, 5
     ),
-    DESERT_HABITATS[] = { DUNE, BARRENS, SAVANNAH },
-    
-    //
-    //  Waste habitats, which have special rules governing their introduction,
-    //  related to extreme inhospitability, pollution or volcanism-
     WHITE_MESA = new Habitat(
       "White Mesa",
       "",
       "mesa_ground.gif", NO_FLORA,
       0, true, FERTILITY, 0, INSOLATION, 5, MINERALS, 5
     ),
+    DESERT_HABITATS[] = { DUNE, BARRENS, SAVANNAH },
+    
+    //
+    //  Waste habitats, which have special rules governing their introduction,
+    //  related to extreme inhospitability, pollution or volcanism-
     CURSED_EARTH = new Habitat(
       "Cursed Earth",
       "",
@@ -169,24 +171,23 @@ public class Habitat {
         "toxic_runoff.2.png"
       }, NO_FLORA,
       0, false, FERTILITY, 0, INSOLATION, 6, MINERALS, 2,
-      IS_WASTE//, IS_SPECKLE
+      IS_WASTE
     ),
-    //
-    //  This is the gradient of habitats going from least to most insolation-
-    INSOLATION_GRADIENT[] = {
-      SWAMPLANDS,
-      ESTUARY,
-      MEADOW,
-      SAVANNAH,
-      BARRENS,
-      DUNE,
-      //CURSED_EARTH
-    };
+    STRIP_MINING = new Habitat(
+      "Strip Mining",
+      "",
+      "strip_mining.png", NO_FLORA,
+      0, false, FERTILITY, 0, INSOLATION, 0, MINERALS, 0,
+      IS_WASTE
+    );
   final public static Habitat
     ALL_HABITATS[] = (Habitat[]) allHabs.toArray(Habitat.class);
   final public static ImageAsset
     ROAD_TEXTURE = ImageAsset.fromImage(
       Habitat.class, TERRAIN_PATH+"road_map_new.png"
+    ),
+    STRIP_TEXTURE = ImageAsset.fromImage(
+      Habitat.class, TERRAIN_PATH+"strip_mining_alt.png"
     ),
     RESERVE_TEXTURE = ImageAsset.fromImage(
       Habitat.class, TERRAIN_PATH+"reserve_tiles.png"
@@ -211,10 +212,11 @@ public class Habitat {
     int biomass, boolean pathClear, Object... traits
   ) {
     this(
-      name, info, new String[] { texName }, fM,
-      biomass, pathClear, traits
+      name, info, new String[] { texName },
+      fM, biomass, pathClear, traits
     );
   }
+  
   
   Habitat(
     String name, String info,

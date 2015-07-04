@@ -95,16 +95,21 @@ public class Mining extends Plan {
   
   /**  Static location methods and priority evaluation-
     */
+  final public static Traded MINED_TYPES[] = {
+    FOSSILS, POLYMER, METALS, FUEL_RODS
+  };
+  
+  
   public static Tile[] getOpenFaces(final ExcavationSite site) {
     final Batch <Tile> open = new Batch();
     Tile batch[] = new Tile[4];
     final StageTerrain terrain = site.world().terrain();
     
-    //  TODO:  FILL THIS IN, AND BEGIN ABOVE-SURFACE OPERATIONS
     for (Tile t : site.reserved()) {
       if (terrain.mineralsAt(t) > 0) continue;
       for (Tile n : t.edgeAdjacent(batch)) {
-        if (n == null || n.flaggedWith() != null || ! site.canDig(t)) continue;
+        if (n == null || n.flaggedWith() != null) continue;
+        if (rateFace(site, n) <= 0) continue;
         n.flagWith(open);
         open.add(n);
       }
@@ -117,8 +122,18 @@ public class Mining extends Plan {
   
   public static Tile nextMineFace(final ExcavationSite site, Tile open[]) {
     if (Visit.empty(open)) open = site.reserved();
-    final Pick <Tile> pick = new Pick(0);
-    for (Tile t : open) pick.compare(t, rateFace(site, t));
+    final boolean report = evalVerbose && I.talkAbout == site;
+    if (report) I.say("\nGETTING NEXT MINE FACE?");
+    
+    final Pick <Tile> pick = new Pick <Tile> (0) {
+      public void compare(Tile next, float rating) {
+        if (report) I.say("  Rating for: "+next+" is "+rating);
+        super.compare(next, rating);
+      }
+    };
+    for (Tile t : open) {
+      pick.compare(t, rateFace(site, t));
+    }
     return pick.result();
   }
   
@@ -138,12 +153,15 @@ public class Mining extends Plan {
     final Pick <Tile> pick = new Pick(0);
     
     for (Tile t : site.reserved()) if (site.canDump(t)) {
+      float rating = 1;
       if (t.above() instanceof Tailing) {
         final Tailing d = (Tailing) t.above();
-        if (d.wasteType() != waste || d.fillLevel() >= 1) continue;
+        if (waste != null && d.wasteType() != waste) continue;
+        if (d.fillLevel() >= 1) continue;
+        rating *= 2;
       }
       else if (t.reserves() != site) continue;
-      float rating = 1 / (1 + Spacing.zoneDistance(actor, t));
+      rating /= 1 + Spacing.zoneDistance(actor, t);
       pick.compare(t, rating);
     }
     
@@ -156,17 +174,12 @@ public class Mining extends Plan {
     return d;
   }
   
-
-  final public static Traded MINED_TYPES[] = {
-    FOSSILS, POLYMER, METALS, FUEL_RODS
-  };
-  
   
   private static Traded oreTypeCarried(Actor actor) {
     for (Traded type : Mining.MINED_TYPES) if (type != SLAG) {
-      return type;
+      if (actor.gear.amountOf(type) > 0) return type;
     }
-    return null;
+    return (actor.gear.amountOf(SLAG) > 0) ? SLAG : null;
   }
   
   
@@ -279,12 +292,10 @@ public class Mining extends Plan {
     
     if (stage == STAGE_MINE) {
       if (report) I.say("  Mining at face: "+face);
-      //  TODO:  Include a 'detonation' step for stubborn obstacles, like
-      //  large rocks!
       final Action mines = new Action(
         actor, face,
         this, "actionMineFace",
-        Action.BUILD, "Mining"
+        Action.STRIKE_BIG, "Mining"
       );
       if (Rand.num() < 0.1f || ! Spacing.adjacent(actor, face)) {
         mines.setMoveTarget(Spacing.pickFreeTileAround(face, actor));
@@ -336,13 +347,13 @@ public class Mining extends Plan {
       else return contains.amount;
     }
     else if (h.biomass() > 0) {
-      terrain.setHabitat(face, Habitat.BLACK_MESA);
+      terrain.setHabitat(face, Habitat.STRIP_MINING);
       return h.biomass();
     }
     else {
       final int leftAmount = (int) (contains.amount - 1);
       terrain.setMinerals(face, terrain.mineralType(face), leftAmount);
-      terrain.setHabitat(face, Habitat.BLACK_MESA);
+      terrain.setHabitat(face, Habitat.STRIP_MINING);
       return 1;
     }
   }
@@ -409,8 +420,9 @@ public class Mining extends Plan {
       if (! dumps.canPlace()) return false;
       else dumps.enterWorld();
     }
-    if (! dumps.takeFill(1)) return false;
     
+    final float fill = actor.gear.amountOf(SLAG);
+    dumps.takeFill(fill);
     actor.gear.removeAllMatches(SLAG);
     stage = STAGE_RETURN;
     return true;

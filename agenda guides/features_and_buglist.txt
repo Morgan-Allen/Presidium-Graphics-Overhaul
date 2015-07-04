@@ -5,23 +5,17 @@ TO DO NOW-
 *  Try to use a fixed roads/walls-template for within the bastion.  That should
    simplify a number of tasks below.  (You also need to space out the entrances
    less frequently.)
+   I think this needs to be generalised into a 'fix auto-paving' problem.
+
 
 *  Area-claims need to be refined a little, so that they're treated identically
    to the footprints for other structures.  (Auto-crop must keep 2 tiles away
    from other structures, and vice versa.)
 
-*  I need a single generic 'harvest/seeding' plan for mining, farming, forestry
-   and chem-panning.  Everything else should extend that.
-
 
 *  Install AUTO-TURRETS at your sentry-posts & blast doors.  (Simple motion-
    detectors if you don't have a pass-code.)  Plus combat stims at stock-
    exchange & physician station.
-
-*  Try to migrate ephemera/stage.visible (list lower down!)
-
-*  Item-stocks rendering at the stock-exchange and supply depot needs to be
-   restored.
 
 
 BUILDINGS AND ECONOMY-
@@ -71,11 +65,14 @@ BUILDINGS AND ECONOMY-
    spells.)
 
 *  Wood is valued for aesthetic properties (decor at the fabricator), along
-   with trophies/curios for outfits.
+   with fossils/curios for outfits.
 
 
 
-SPECIFIC TO FARMS & MINES-
+SPECIFIC TO RESOURCE-HARVESTING-
+
+*  Create a single generic 'harvest/seeding' plan for mining, farming, forestry
+   and chem-panning.  Everything else should extend that.
 
 *  Excavation sites:
   Could use a new terrain-type for strip mining, and/or art to show shafts
@@ -94,6 +91,8 @@ SPECIFIC TO FARMS & MINES-
 * Solar banks appear more frequently in dryer/sunnier terrain.  They produce
     water & power, with more of the former when extended over water.
 
+*  Step-by-step demolition of large rocks (or other fixtures) as a prelude to
+   site-construction, paving, mining, et cetera.  Similar work-flow.
 
 
 THE TUTORIAL
@@ -228,6 +227,11 @@ INTERFACE AND DEBUGGING
 
 ART, GRAPHICS AND MEDIA PRODUCTION
 
+*  Try to migrate ephemera/stage.visible (list lower down!)
+
+*  Item-stocks rendering at the stock-exchange and supply depot needs to be
+   restored.
+
 *  Icons could be clearer, at least in the early game.
 
 *  A number of structures need bigger footprints, which will require some art
@@ -242,8 +246,6 @@ ART, GRAPHICS AND MEDIA PRODUCTION
 *  If you ever get fully-3D models in place, you can try block-by-block
    construction/salvage of structures in arbitrary order.  Might not happen for
    a while, though...
-
-
 
 
 

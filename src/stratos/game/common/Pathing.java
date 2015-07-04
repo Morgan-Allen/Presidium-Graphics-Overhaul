@@ -210,9 +210,7 @@ public class Pathing {
       //  Firstly, we perform some basic sanity checks on the start and end
       //  points of the prospective route.
       pathTarget = location(trueTarget);
-      if (report) {
-        I.say("  BETWEEN: "+origin+" AND "+pathTarget);
-      }
+      if (report) I.say("  BETWEEN: "+origin+" AND "+pathTarget);
       final boolean
         origB = PathSearch.blockedBy(origin    , mobile),
         destB = PathSearch.blockedBy(pathTarget, mobile);

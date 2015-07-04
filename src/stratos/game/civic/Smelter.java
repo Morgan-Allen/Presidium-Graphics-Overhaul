@@ -35,18 +35,9 @@ public class Smelter extends Venue {
     OPENING_SHAFT_MODEL = CutoutModel.fromImage(
       Smelter.class, IMG_DIR+"sunk_shaft.gif", 2, 1
     ),
-    ALL_MOLD_MODELS[][] = Tailing.ALL_MOLD_MODELS,
     SMOKE_STACK_MODEL = CutoutModel.fromImage(
       Smelter.class, IMG_DIR+"smoke_stack.png", 1, 1
-    ),
-    SMELTER_MOLD_MODELS[][] = {
-      ALL_MOLD_MODELS[1],
-      ALL_MOLD_MODELS[0]
-    },
-    TAILING_MOLD_MODELS[][] = {
-      ALL_MOLD_MODELS[2],
-      ALL_MOLD_MODELS[3]
-    };
+    );
   
   final public static int SMELT_AMOUNT = 10;
   
