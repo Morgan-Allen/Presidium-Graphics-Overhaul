@@ -26,6 +26,7 @@ public class CloseCombatTechniques {
   //  These are special techniques that boost damage against specific enemy-
   //  types...
   
+  /*
   private static Technique killTechnique(
     String name, String uniqueID, String icon, String FX,
     final Class <? extends Actor> victimClass
@@ -66,6 +67,7 @@ public class CloseCombatTechniques {
   final public static Technique MAN_KILLER = killTechnique(
     "Man Killer", "man_killer", null, null, Human.class
   );
+  //*/
 }
 
 

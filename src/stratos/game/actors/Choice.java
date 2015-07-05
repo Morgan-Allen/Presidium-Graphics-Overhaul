@@ -48,6 +48,14 @@ public class Choice implements Qualities {
   protected static boolean checkPlanValid(
     Behaviour plan, Actor actor, boolean report
   ) {
+    final Mount mount = actor.currentMount();
+    if (
+      (mount != null && plan instanceof Plan) &&
+      (! mount.allowsActivity((Plan) plan))
+    ) {
+      if (report) I.say("\n  "+plan+" rejected- "+mount+" will not allow!");
+      return false;
+    }
     final boolean valid = plan.valid();
     if (! valid) {
       if (report) I.say("\n  "+plan+" rejected- no longer valid.");

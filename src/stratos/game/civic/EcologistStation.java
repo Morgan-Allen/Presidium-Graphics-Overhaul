@@ -191,21 +191,12 @@ public class EcologistStation extends Venue {
     if (needSamples > 0) {
       choice.add(Forestry.nextSampling(actor, this, needSamples));
     }
-    for (Target e : actor.senses.awareOf()) if (e instanceof Fauna) {
-      final Fauna f = (Fauna) e;
-      final Item sample = Item.withReference(GENE_SEED, f.species());
-      if (stocks.hasItem(sample)) continue;
-      else choice.add(Hunting.asSample(actor, f, this));
-    }
     //
     //  Tailor seed varieties and consider breeding animals or forestry-
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.withReference(GENE_SEED, s);
       if (stocks.amountOf(seed) >= 1) continue;
       choice.add(new SeedTailoring(actor, this, s));
-    }
-    if (stocks.amountOf(CARBS) > 1 && stocks.amountOf(PROTEIN) > 0.5f) {
-      choice.add(AnimalBreeding.nextBreeding(actor, this));
     }
     if (! choice.empty()) return;
     choice.add(Forestry.nextPlanting(actor, this));

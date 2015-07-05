@@ -82,7 +82,7 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
-  public Property storedAt() {
+  public Property mountStoresAt() {
     return null;
   }
   

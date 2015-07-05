@@ -114,7 +114,6 @@ public class SiteUtils implements TileConstants {
     final Venue v, final Target near, boolean intact, Stage world,
     Actor... employed
   ) {
-    if (v.blueprint.siting() == null) return null;
     final SitingPass pass = new SitingPass(v.base(), null, v) {
       protected float ratePlacing(Target point, boolean exact) {
         float rating = 1 / (1 + Spacing.zoneDistance(point, near));

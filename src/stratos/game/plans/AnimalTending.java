@@ -3,9 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.plans;
-
 import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -22,9 +20,7 @@ import static stratos.game.economic.Economy.*;
 //  TODO:  Allow 'taming' of these specimens, so that mutual hostilities are
 //         less likely.
 
-
-public class AnimalBreeding extends Plan {
-  
+public class AnimalTending extends Plan {
   
   final static int
     BREED_TIME_PER_10_HP = Stage.STANDARD_DAY_LENGTH,
@@ -38,11 +34,11 @@ public class AnimalBreeding extends Plan {
   final Venue station;
   final Fauna handled;
   final Target releasePoint;
-  final Item asSeed, asSample;
+  final Item asSeed;
   
   
   
-  private AnimalBreeding(
+  private AnimalTending(
     Actor actor, Venue station, Fauna handled, Target releasePoint
   ) {
     super(actor, station, MOTIVE_JOB, NO_HARM);
@@ -50,17 +46,15 @@ public class AnimalBreeding extends Plan {
     this.handled = handled;
     this.releasePoint = releasePoint;
     this.asSeed   = Item.withReference(GENE_SEED, handled.species());
-    this.asSample = Item.withReference(SAMPLES  , handled          );
   }
   
   
-  public AnimalBreeding(Session s) throws Exception {
+  public AnimalTending(Session s) throws Exception {
     super(s);
     station       = (Venue) s.loadObject();
     handled       = (Fauna) s.loadObject();
     releasePoint  = s.loadTarget();
     this.asSeed   = Item.loadFrom(s);
-    this.asSample = Item.loadFrom(s);
   }
   
   
@@ -70,12 +64,11 @@ public class AnimalBreeding extends Plan {
     s.saveObject(handled);
     s.saveTarget(releasePoint);
     Item.saveTo(s, asSeed  );
-    Item.saveTo(s, asSample);
   }
   
   
   public Plan copyFor(Actor other) {
-    return new AnimalBreeding(other, station, handled, releasePoint);
+    return new AnimalTending(other, station, handled, releasePoint);
   }
   
   
@@ -84,15 +77,10 @@ public class AnimalBreeding extends Plan {
   }
   
   
-  public Item asSample() {
-    return asSample;
-  }
-  
-  
   
   /**  External factory methods:
     */
-  public static AnimalBreeding breedingFor(
+  public static AnimalTending breedingFor(
     Actor actor, Venue station, Species species, Boarding releasePoint
   ) {
     final Stage world = station.world();
@@ -101,20 +89,20 @@ public class AnimalBreeding extends Plan {
     );
     if (specimen == null) return null;
     specimen.pathing.updateTarget(releasePoint);
-    return new AnimalBreeding(actor, station, specimen, releasePoint);
+    return new AnimalTending(actor, station, specimen, releasePoint);
   }
   
   
-  public static Batch <Fauna> breedingAt(Venue station) {
+  public static Batch <Fauna> nestingAt(Venue station) {
     final Batch <Fauna> matches = new Batch <Fauna> ();
-    for (Item match : station.stocks.matches(GENE_SEED)) {
-      if (match.refers instanceof Fauna) matches.add((Fauna) match.refers);
+    for (Mobile m : station.inside()) if (m instanceof Fauna) {
+      matches.add((Fauna) m);
     }
     return matches;
   }
   
   
-  public static AnimalBreeding nextBreeding(
+  public static AnimalTending nextTending(
     Actor actor, Venue station
   ) {
     final boolean report = evalVerbose && (
@@ -122,10 +110,10 @@ public class AnimalBreeding extends Plan {
     );
     if (report) I.say("\nGETTING NEXT FAUNA TO BREED");
     
-    for (Fauna fauna : breedingAt(station)) {
+    for (Fauna fauna : nestingAt(station)) {
       if (fauna.inWorld()) continue;
       final Target releasePoint = fauna.pathing.target();
-      return new AnimalBreeding(actor, station, fauna, releasePoint);
+      return new AnimalTending(actor, station, fauna, releasePoint);
     }
     
     final Stage world = station.world();
@@ -155,11 +143,7 @@ public class AnimalBreeding extends Plan {
   
   
   protected float getPriority() {
-    
-    final boolean active =
-      actor.gear.hasItem(asSample) ||
-      station.staff().onShift(actor);
-    if (! active) return 0;
+    if (station.staff.offDuty(actor)) return 0;
     
     final float priority = PlanUtils.jobPlanPriority(
       actor, this, 1, competence(), -1, MILD_FAIL_RISK, BASE_TRAITS
@@ -180,41 +164,18 @@ public class AnimalBreeding extends Plan {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next breeding step for "+handled);
     
-    if (handled.inWorld()) return null;
+    final FirstAid aids = new FirstAid(actor, handled);
+    if (Plan.canFollow(actor, aids, true)) return aids;
     
-    if (actor.gear.hasItem(asSample)) {
+    final Treatment treats = Treatment.nextTreatment(actor, handled, station);
+    if (Plan.canFollow(actor, treats, true)) return treats;
+    
+    if (handled.health.agingStage() > ActorHealth.AGE_JUVENILE) {
       if (report) I.say("  Returning release!");
       final Tile point = Spacing.nearestOpenTile(releasePoint, actor);
-      final Action release = new Action(
-        actor, point,
-        this, "actionRelease",
-        Action.REACH_DOWN, "Releasing "
-      );
-      return release;
+      return new BringStretcher(actor, handled, point);
     }
-
-    final float progress = station.stocks.amountOf(asSample);
-    if (progress >= 1) {
-      if (report) I.say("  Returning pickup!");
-      final Action pickup = new Action(
-        actor, station,
-        this, "actionPickup",
-        Action.REACH_DOWN, "Releasing "
-      );
-      return pickup;
-    }
-    
-    if ((station.stocks.amountOf(asSeed) + progress) < 1) {
-      if (report) I.say("  Returning gene-tailor!");
-      final Action tailor = new Action(
-        actor, station,
-        this, "actionTailorSeed",
-        Action.BUILD, "Tailoring gene seed for "
-      );
-      return tailor;
-    }
-    
-    else {
+    if (handled.inWorld()) {
       if (report) I.say("  Returning tend action!");
       final Action tends = new Action(
         actor, handled,
@@ -223,6 +184,15 @@ public class AnimalBreeding extends Plan {
       );
       tends.setMoveTarget(station);
       return tends;
+    }
+    else {
+      if (report) I.say("  Returning gene-tailor!");
+      final Action tailor = new Action(
+        actor, station,
+        this, "actionTailorSeed",
+        Action.BUILD, "Tailoring gene seed for "
+      );
+      return tailor;
     }
   }
   
@@ -235,6 +205,14 @@ public class AnimalBreeding extends Plan {
     if (success <= 0) return false;
     success /= MINIMUM_TAILOR_TIME;
     station.stocks.addItem(Item.withAmount(asSeed, success));
+    
+    if (station.stocks.hasItem(asSeed)) {
+      handled.enterWorldAt(station, station.world());
+      if (station instanceof Captivity) {
+        handled.bindToMount((Captivity) station);
+      }
+      else I.say("\nWARNING: Animal-tending sites should allow captivity!");
+    }
     return true;
   }
   
@@ -248,11 +226,7 @@ public class AnimalBreeding extends Plan {
     //  TODO:  INCLUDE SEED QUALITY
     //  TODO:  INCLUDE EFFECTS OF UPGRADES (either that or a check bonus).
     final float upgrade = 0;
-    /*
-    final float upgrade = station.structure.upgradeLevel(
-      KommandoLodge.CAPTIVE_BREEDING
-    );
-    //*/
+    
     float success = 0;
     if (actor.skills.test(XENOZOOLOGY, MODERATE_DC, 1)) success++;
     if (actor.skills.test(DOMESTICS  , ROUTINE_DC , 1)) success++;
@@ -261,30 +235,24 @@ public class AnimalBreeding extends Plan {
     //
     //  Check whether the young scamp has enough to eat, and adjust stocks (or
     //  growth rate) accordingly-
-    //  TODO:  INCLUDE PROTEIN CONSUMPTION
+    final boolean predator = fauna.species.predator();
     final float bulk = fauna.health.maxHealth();
     success *= 10 / (bulk * BREED_TIME_PER_10_HP);
-    final Item eaten = Item.withAmount(CARBS, success * 2);
-    if (station.stocks.hasItem(eaten)) {
-      station.stocks.removeItem(eaten);
-    }
+    
+    final Item eaten = Item.withAmount(predator ? CARBS : PROTEIN, success * 2);
+    if (station.stocks.hasItem(eaten)) station.stocks.removeItem(eaten);
     else success /= 5;
     //
     //  Finally, adjust the specimen's progress and store the result:
-    //  TODO:  USE A SUMMONS HERE INSTEAD
-    Item basis = station.stocks.matchFor(asSample);
-    if (basis == null) {
-      basis = Item.withAmount(asSample, success);
-      fauna.health.setupHealth(0, 1, 0);
-    }
-    if (basis.amount < 1) {
-      station.stocks.addItem(Item.withAmount(basis, success));
-      final float age = fauna.health.ageLevel();
-      fauna.health.setMaturity(age + (success / 4));
-    }
+    //
+    //  TODO:  EITHER RESTORE INJURY OR ADJUST AGE!  AND IMPROVE RELATIONS WITH
+    //  THE SPECIMEN IN SO DOING!
+    
+    final float age = fauna.health.ageLevel();
+    fauna.health.setMaturity(age + (success / 4));
+    
     if (report) {
       I.say("  Growth increment: "+success);
-      I.say("  Stocked:          "+basis.amount);
       I.say("  Maturity:         "+fauna.health.ageLevel());
       I.say("  Release point:    "+releasePoint);
     }
@@ -292,18 +260,11 @@ public class AnimalBreeding extends Plan {
   }
   
   
-  public boolean actionPickup(Actor actor, Venue station) {
-    final Item basis = station.stocks.matchFor(asSample);
-    if (basis == null) return false;
-    station.stocks.transfer(basis, actor);
-    station.stocks.addItem(asSeed);
-    return true;
-  }
+  //  TODO:  HANDLE THIS AUTOMATICALLY ONCE GROWTH/TENDING-PROGRESS IS
+  //  COMPLETE, BUT BEFORE THE STRETCHER-DELIVERY!
   
-  
-  public boolean actionRelease(Actor actor, Boarding point) {
+  public boolean actionPrepRelease(Actor actor, Boarding point) {
     final Stage world = actor.world();
-    actor.gear.removeMatch(asSample);
     handled.enterWorldAt(point, world);
     
     if (point instanceof Venue) {

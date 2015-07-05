@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -360,8 +359,6 @@ public class Crop extends Element {
     final int stage = Nums.round(growStage, 1, true);
     final ModelAsset model = speciesModel(species, stage);
     if (old != null && old.atIndex(0).model() == model) return;
-    
-    //  TODO:  Vary the level here a bit based on growth
     
     final GroupSprite GS = new GroupSprite();
     GS.attach(model, -0.25f, -0.25f, 0);

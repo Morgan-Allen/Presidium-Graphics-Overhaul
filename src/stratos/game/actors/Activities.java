@@ -145,9 +145,8 @@ public class Activities {
     final List <Behaviour> onTarget = activeTable.get(t);
     if (onTarget == null) return batch;
     for (Behaviour b : onTarget) if (b instanceof Plan) {
-      final Plan p = (Plan) b;
-      if (planClass != null && p.getClass() != planClass) continue;
-      if (p.actor.actionFocus() == t) batch.add(p);
+      if (planClass != null && b.getClass() != planClass) continue;
+      batch.add((Plan) b);
     }
     return batch;
   }

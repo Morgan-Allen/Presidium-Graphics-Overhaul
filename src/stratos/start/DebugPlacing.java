@@ -94,8 +94,8 @@ public class DebugPlacing extends Scenario {
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
-    if (true ) configMinesTest(world, base, UI);
-    if (false) configPlantTest(world, base, UI);
+    if (false) configMinesTest(world, base, UI);
+    if (true ) configPlantTest(world, base, UI);
   }
   
   
@@ -164,8 +164,8 @@ public class DebugPlacing extends Scenario {
     
     final Venue pointA = new TrooperLodge(base);
     final Venue pointB = new TrooperLodge(base);
-    SiteUtils.establishVenue(pointA, 5, 5 , false, world);
-    SiteUtils.establishVenue(pointB, 5, 15, false, world);
+    SiteUtils.establishVenue(pointA, 5, 5 , true, world);
+    SiteUtils.establishVenue(pointB, 5, 15, true, world);
     pointA.updateAsScheduled(0, false);
     pointB.updateAsScheduled(0, false);
     

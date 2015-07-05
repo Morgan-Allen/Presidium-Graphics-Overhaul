@@ -25,7 +25,7 @@ import static stratos.game.economic.Economy.*;
 //  Xeno Lodge instead for animal-taming & breeding purposes.
 
 
-public class KommandoRedoubt extends Venue {
+public class XenoLodge extends Venue implements Captivity {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -34,20 +34,20 @@ public class KommandoRedoubt extends Venue {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    KommandoRedoubt.class, "media/Buildings/ecologist/kommando_redoubt.png",
+    XenoLodge.class, "media/Buildings/ecologist/xeno_lodge.png",
     4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    KommandoRedoubt.class, "media/GUI/Buttons/kommando_lodge_button.gif"
+    XenoLodge.class, "media/GUI/Buttons/xeno_lodge_button.gif"
   );
   
   final static int CLAIM_RADIUS = Stage.ZONE_SIZE / 2;
   
   final static Blueprint BLUEPRINT = new Blueprint(
-    KommandoRedoubt.class, "kommando_lodge",
-    "Kommando Lodge", UIConstants.TYPE_HIDDEN, ICON,
-    "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
-    "sufficient Kommandos to harvest prey and intimidate foes.",
+    XenoLodge.class, "xeno_lodge",
+    "Xeno Lodge", UIConstants.TYPE_ECOLOGIST, ICON,
+    "The Xeno Lodge allows for the capture and rehabilitation of animal "+
+    "species that might otherwise prove hostile to your citizens.",
     4, 2, Structure.IS_NORMAL,
     EcologistStation.BLUEPRINT, Owner.TIER_FACILITY,
     150, 4, 550, Structure.NORMAL_MAX_UPGRADES
@@ -59,7 +59,7 @@ public class KommandoRedoubt extends Venue {
   
   
   
-  public KommandoRedoubt(Base base) {
+  public XenoLodge(Base base) {
     super(BLUEPRINT, base);
     staff.setShiftType(SHIFTS_BY_HOURS);
     attachSprite(MODEL.makeSprite());
@@ -71,7 +71,7 @@ public class KommandoRedoubt extends Venue {
   }
   
   
-  public KommandoRedoubt(Session s) throws Exception {
+  public XenoLodge(Session s) throws Exception {
     super(s);
     this.fleshStill = (Venue) s.loadObject();
     this.camouflaged = (GroupSprite) ModelAsset.loadSprite(s.input());
@@ -115,11 +115,8 @@ public class KommandoRedoubt extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementations-
     */
-  /*
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
   );
-  //  TODO:  IMPLEMENT THESE PROPERLY WITH THE OTHER SCHOOLS!
-  //public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     NATIVE_MISSION = new Upgrade(
       "Native Mission",
@@ -136,10 +133,10 @@ public class KommandoRedoubt extends Venue {
       200, Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
     ),
-    MAW_TRAINING = new Upgrade(
+    RIDER_TRAINING = new Upgrade(
       "Maw Training",
-      "Trains your Kommandos to tame and ride Desert Maws, relatives of the "+
-      "Lictovore selectively bred as war mounts.",
+      "Trains your Ecologists to tame and ride Desert Maws, relatives of the "+
+      "Lictovore bred as war mounts.",
       300,
       Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
@@ -147,93 +144,59 @@ public class KommandoRedoubt extends Venue {
     FLESH_STILL = new Upgrade(
       "Flesh Still",
       "Improves the effiency of spyce and protein extraction from rendered-"+
-      "down kills.",
+      "down culls.",
       150,
       Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
-    ),
-    VENDETTA_VERMIN = new Upgrade(
-      "Vendetta: Vermin",
-      "Trains your Kommandos to efficiently dispatch silicates, insectiles "+
-      "and other dangerous, inedible pests.",
-      100,
-      Upgrade.SINGLE_LEVEL, null, 1,
-      null, BLUEPRINT
-    ),
-    VENDETTA_HUMAN = new Upgrade(
-      "Vendetta: Humans",
-      "Trains your Kommandos to efficiently dispatch human (or human-like) "+
-      "adversaries.",
-      200,
-      Upgrade.SINGLE_LEVEL, null, 1,
-      null, BLUEPRINT
-    ),
-    VENDETTA_ARTILECT = new Upgrade(
-      "Vendetta: Artilects",
-      "Trains your Kommandos to efficiently dispatch machines and cybrids.",
-      150,
-      Upgrade.SINGLE_LEVEL, null, 1,
-      null, BLUEPRINT
     );
-  //*/
+  
+  final public static Conversion
+    LAND_TO_PROTEIN = new Conversion(
+      BLUEPRINT, "land_to_protein",
+      TO, 1, PROTEIN
+    );
   
   
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
-    final Choice choice = new Choice(actor);
     final boolean report = verbose && I.talkAbout == actor;
-    
-    //  TODO:  Consider using 'joining' behaviours to actively recruit other
-    //         actors for a given purpose.  Then you can use that for hunting,
-    //         building, recreation, or what have you.
-    
-    //  TODO:  Include mounting behaviours, and placing skins nearby as a
-    //         warning to others.
-    
-    //  TODO:  Include Training behaviours that cover learning vendetta-based
-    //         techniques- as you would for a School!
-    
-    //  TODO:  Weight the likelihood of hunting based on vendettas, and add
-    //         special Techniques to deal extra damage.
-    
+
+    final Choice choice = new Choice(actor);
     final Exploring e = Exploring.nextExploration(actor);
-    if (e != null) {
-      e.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
-      choice.add(e);
+    if (e != null) choice.add(e.addMotives(Plan.MOTIVE_JOB, 0));
+    
+    //  TODO:  Include recruitment efforts among natives.
+    //  TODO:  Include animal-contact efforts.
+    //  TODO:  Include animal-breeding and culling if necessary.
+    //  TODO:  Allow agents to drop off wounded animals here.
+    
+    final Batch <Target> animals = new Batch();
+    //  TODO:  Allow automatic sampling to include actor-senses.
+    world.presences.sampleFromMap(actor, world, 5, animals, Mobile.class);
+
+    for (Target t : animals) if (Hunting.validPrey(t, actor)) {
+      final Fauna f = (Fauna) t;
+      
+      final Item sample = Item.withReference(GENE_SEED, f.species());
+      if (stocks.hasItem(sample)) continue;
+      else choice.add(Hunting.asSample(actor, f, this));
     }
+    choice.add(AnimalTending.nextTending(actor, this));
     
-    final float meatNeed = stocks.relativeShortage(PROTEIN);
-    final Batch <Target> prey = new Batch <Target> ();
-    world.presences.sampleFromMap(actor, world, 5, prey, Mobile.class);
-    for (Target t : actor.senses.awareOf()) prey.add(t);
-    
-    for (Target t : prey) if (Hunting.validPrey(t, actor)) {
-      final Hunting h = Hunting.asHarvest(actor, (Actor) t, this, false);
-      h.addMotives(Plan.MOTIVE_JOB, meatNeed * Plan.ROUTINE);
-      choice.add(h);
-    }
-    
-    choice.isVerbose = report;
-    final Behaviour pick = choice.weightedPick();
-    
-    if (report) I.say("\n  Next survey station job: "+pick);
-    return pick;
+    return choice.weightedPick();
   }
   
   
   public Background[] careers() {
-    return new Background[] {};
+    return new Background[] { SURVEYOR };
   }
   
-  /*
+  
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
-    if (v == Backgrounds.KOMMANDO) {
-      return nO + 3;
-    }
+    if (v == Backgrounds.SURVEYOR) return nO + 2;
     return 0;
   }
-  //*/
   
   
   public Traded[] services() {
@@ -244,12 +207,34 @@ public class KommandoRedoubt extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    stocks.forceDemand(CARBS, 5, false);
-    stocks.incDemand(PROTEIN, 10, 1, true);
+    
+    stocks.incDemand(CARBS  , 5, 1, false);
+    stocks.incDemand(PROTEIN, 5, 1, true );
   }
   
   
   protected void updatePaving(boolean inWorld) {
+  }
+  
+  
+  
+  /**  Captivity-implementation-
+    */
+  public Property mountStoresAt() {
+    return this;
+  }
+  
+  
+  public boolean setMounted(Actor mounted, boolean is) {
+    if (is) mounted.goAboard(this, world);
+    return true;
+  }
+  
+  
+  public boolean allowsActivity(Plan activity) {
+    if (! (activity instanceof Resting)) return false;
+    final Plan resting = new Resting(activity.actor(), this);
+    return activity.matchesPlan(resting);
   }
   
 
@@ -265,6 +250,17 @@ public class KommandoRedoubt extends Venue {
       camouflaged.fog = this.fogFor(base);
       camouflaged.readyFor(rendering);
     }
+  }
+  
+  
+  public boolean actorVisible(Actor mounted) {
+    return false;
+  }
+  
+  
+  public void configureSpriteFrom(
+    Actor mounted, Action action, Sprite actorSprite
+  ) {
   }
 }
 

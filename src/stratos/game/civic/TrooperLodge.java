@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -62,6 +63,8 @@ public class TrooperLodge extends Venue {
   
   /**  Upgrades, economic functions and actor behaviour-
     */
+  final static Siting SITING = new Siting(BLUEPRINT);
+  
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }

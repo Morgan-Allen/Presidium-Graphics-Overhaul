@@ -252,12 +252,25 @@ public interface Backgrounds {
       "Former Engineer",
       "Former Engineers perform forestry and carbons-cycling to accelerate "+
       "terraforming efforts and extract raw materials sustainably.",
-      "ecologist_skin.gif", "ecologist_portrait.png",
+      "pyon_skin.gif", "pyon_portrait.png",
       CLASS_VASSAL, GUILD_ECOLOGIST,
       PRACTICED, GEOPHYSICS, ASSEMBLY, HARD_LABOUR, CULTIVATION,
       LEARNING, GENE_CULTURE, SURVEILLANCE,
       RARELY, OUTGOING, OFTEN, POSITIVE,
       OVERALLS
+    ),
+    
+    SURVEYOR = new Background(
+      Backgrounds.class,
+      "Surveyor",
+      "",
+      "ecologist_skin.gif", "ecologist_portrait.png",
+      CLASS_AGENT, GUILD_ECOLOGIST,
+      EXPERT, XENOZOOLOGY, MARKSMANSHIP, STEALTH_AND_COVER,
+      PRACTICED, GENE_CULTURE, CHEMISTRY, MARKSMANSHIP, STEALTH_AND_COVER,
+      LEARNING, GEOPHYSICS, ATHLETICS,
+      ALWAYS, NATURALIST, SOMETIMES, EMPATHIC, CURIOUS,
+      STUN_WAND, SEALSUIT
     ),
     
     ECOLOGIST = new Background(
@@ -274,47 +287,8 @@ public interface Backgrounds {
       STUN_WAND, SEALSUIT
     ),
     
-    
-    NATIVE_AUXILIARY = new Background(
-      Backgrounds.class,
-      "Native Auxiliary",
-      "",
-      "native_skin.gif", null,
-      CLASS_VASSAL, GUILD_ECOLOGIST,
-      EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
-      PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
-      LEARNING, BATTLE_TACTICS, HAND_TO_HAND,
-      //  TODO:  Fill in personality
-      HUNTING_LANCE
-    ),
-    
-    KOMMANDO = new Background(
-      Backgrounds.class,
-      "Kommando (Stormer)",
-      "Kommandos are rugged guerilla combatants that utilise stealth and "+
-      "savagery to hunt down their foes.",
-      "kommando_skin.gif", "kommando_portrait.png",
-      CLASS_AGENT, GUILD_ECOLOGIST,
-      EXPERT, HAND_TO_HAND, SURVEILLANCE, STEALTH_AND_COVER,
-      PRACTICED, NATIVE_TABOO, ATHLETICS,
-      LEARNING, BATTLE_TACTICS, XENOZOOLOGY,
-      RARELY, NERVOUS, RELAXED, EMPATHIC, SOMETIMES, NATURALIST,
-      OFTEN, GENDER_MALE,
-      ZWEIHANDER, STEALTH_SUIT
-    ),
-    
-    SLAYER = new Background(
-      Backgrounds.class,
-      "Kommando (Slayer)",
-      "",
-      "kommando_skin.gif", "kommando_portrait.png",
-      CLASS_AGENT, GUILD_ECOLOGIST
-      //  TODO:  Fill in skills and abilities plus personality
-    ),
-    
     ECOLOGIST_CIRCLES[] = {
-      CULTIVATOR, FORMER_ENGINEER, ECOLOGIST,
-      NATIVE_AUXILIARY, KOMMANDO, SLAYER
+      CULTIVATOR, FORMER_ENGINEER, SURVEYOR, ECOLOGIST
     }
  ;
   
@@ -432,41 +406,6 @@ public interface Backgrounds {
       CLASS_STRATOI, GUILD_MILITANT
       //  TODO:  Fill in skills and abilities...
     ),
-    
-    //  TODO:  COME BACK TO THESE LATER.
-    /*
-    DECK_HAND = new Background(
-      Backgrounds.class,
-      "Deckhand",
-      "",
-      "air_corps_skin.gif", "air_corps_portrait.png",
-      CLASS_AGENT, GUILD_MILITANT,
-      PRACTICED, HARD_LABOUR, ASSEMBLY,
-      LEARNING, PILOTING, FIREARMS, SIMULACRA
-      //  TODO:  Fill in personality...
-    ),
-    
-    WINGMAN = new Background(
-      Backgrounds.class,
-      "Wingman",
-      "",
-      "air_corps_skin.gif", "air_corps_portrait.png",
-      CLASS_AGENT, GUILD_MILITANT,
-      PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
-      LEARNING, HARD_LABOUR, ASSEMBLY,
-      BLASTER, SEALSUIT
-      //  TODO:  Fill in personality...
-    ),
-    
-    ACE = new Background(
-      Backgrounds.class,
-      "Ace",
-      "",
-      "air_corps_skin.gif", "air_corps_portrait.png",
-      CLASS_STRATOI, GUILD_MILITANT
-      //  TODO:  Fill in extra skills.
-    ),
-    //*/
     
     MILITARY_CIRCLES[] = {
       VOLUNTEER, TROOPER  , MECH_LEGION,
@@ -891,7 +830,81 @@ public interface Backgrounds {
 
 
 
+//  TODO:  COME BACK TO THESE LATER.
+/*
+DECK_HAND = new Background(
+  Backgrounds.class,
+  "Deckhand",
+  "",
+  "air_corps_skin.gif", "air_corps_portrait.png",
+  CLASS_AGENT, GUILD_MILITANT,
+  PRACTICED, HARD_LABOUR, ASSEMBLY,
+  LEARNING, PILOTING, FIREARMS, SIMULACRA
+  //  TODO:  Fill in personality...
+),
 
+WINGMAN = new Background(
+  Backgrounds.class,
+  "Wingman",
+  "",
+  "air_corps_skin.gif", "air_corps_portrait.png",
+  CLASS_AGENT, GUILD_MILITANT,
+  PRACTICED, MARKSMANSHIP, PILOTING, SURVEILLANCE, STEALTH_AND_COVER,
+  LEARNING, HARD_LABOUR, ASSEMBLY,
+  BLASTER, SEALSUIT
+  //  TODO:  Fill in personality...
+),
+
+ACE = new Background(
+  Backgrounds.class,
+  "Ace",
+  "",
+  "air_corps_skin.gif", "air_corps_portrait.png",
+  CLASS_STRATOI, GUILD_MILITANT
+  //  TODO:  Fill in extra skills.
+),
+//*/
+
+
+
+/*
+NATIVE_AUXILIARY = new Background(
+  Backgrounds.class,
+  "Native Auxiliary",
+  "",
+  "native_skin.gif", null,
+  CLASS_VASSAL, GUILD_ECOLOGIST,
+  EXPERT, XENOZOOLOGY, SURVEILLANCE, STEALTH_AND_COVER,
+  PRACTICED, MARKSMANSHIP, NATIVE_TABOO,
+  LEARNING, BATTLE_TACTICS, HAND_TO_HAND,
+  //  TODO:  Fill in personality
+  HUNTING_LANCE
+),
+
+KOMMANDO = new Background(
+  Backgrounds.class,
+  "Kommando (Stormer)",
+  "Kommandos are rugged guerilla combatants that utilise stealth and "+
+  "savagery to hunt down their foes.",
+  "kommando_skin.gif", "kommando_portrait.png",
+  CLASS_AGENT, GUILD_ECOLOGIST,
+  EXPERT, HAND_TO_HAND, SURVEILLANCE, STEALTH_AND_COVER,
+  PRACTICED, NATIVE_TABOO, ATHLETICS,
+  LEARNING, BATTLE_TACTICS, XENOZOOLOGY,
+  RARELY, NERVOUS, RELAXED, EMPATHIC, SOMETIMES, NATURALIST,
+  OFTEN, GENDER_MALE,
+  ZWEIHANDER, STEALTH_SUIT
+),
+
+SLAYER = new Background(
+  Backgrounds.class,
+  "Kommando (Slayer)",
+  "",
+  "kommando_skin.gif", "kommando_portrait.png",
+  CLASS_AGENT, GUILD_ECOLOGIST
+  //  TODO:  Fill in skills and abilities plus personality
+),
+//*/
 
 
 

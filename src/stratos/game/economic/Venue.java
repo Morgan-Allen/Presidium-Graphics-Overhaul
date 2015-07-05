@@ -7,7 +7,7 @@ package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.RoadsRepair;
+import stratos.game.plans.*;
 import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -20,7 +20,7 @@ import static stratos.game.economic.Economy.*;
 
 
 public abstract class Venue extends Fixture implements
-  Boarding, Owner, Property, TileConstants, Placeable, Schedule.Updates
+  Property, TileConstants, Schedule.Updates
 {
   
   /**  Field definitions, constants, constructors, and save/load methods.

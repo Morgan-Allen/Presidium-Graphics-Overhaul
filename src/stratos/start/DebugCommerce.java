@@ -101,7 +101,7 @@ public class DebugCommerce extends Scenario {
     base.commerce.addCandidate(SUPPLY_CORPS, depot);
     UI.selection.pushSelection(depot);
     
-    final Actor brought = new Human(KOMMANDO, base);
+    final Actor brought = new Human(SURVEYOR, base);
     world.offworld.journeys.addLocalImmigrant(brought, base);
     
     base.commerce.updateCommerce(0);

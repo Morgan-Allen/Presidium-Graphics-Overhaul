@@ -34,10 +34,12 @@ public class Farming extends Plan {
     STAGE_HARVEST = 3,
     STAGE_RETURN  = 4;
   
-  final Venue seedDepot;
+  final Venue   seedDepot;
   final Nursery nursery;
+  
   private float diversity = 0, seedImpulse = 0;
-  private int stage = STAGE_INIT;
+  private int   stage = STAGE_INIT;
+  private Crop  picked = null;
   
   
   public Farming(Actor actor, Venue seedDepot, Nursery plantation) {
@@ -54,6 +56,7 @@ public class Farming extends Plan {
     diversity   = s.loadFloat();
     seedImpulse = s.loadFloat();
     stage       = s.loadInt  ();
+    picked      = (Crop) s.loadObject();
   }
   
   
@@ -64,6 +67,7 @@ public class Farming extends Plan {
     s.saveFloat (diversity  );
     s.saveFloat (seedImpulse);
     s.saveInt   (stage      );
+    s.saveObject(picked     );
   }
   
   
@@ -166,18 +170,19 @@ public class Farming extends Plan {
     ).toArray(Plan.class);
     
     final Pick <Tile> pick = new Pick();
-    if (seedImpulse > 0) for (Tile t : nursery.reserved()) {
+    if (seedImpulse > 0) findTile: for (Tile t : nursery.reserved()) {
+      
       if (! nursery.couldPlant(t)) continue;
       final Crop c = nursery.plantedAt(t);
-      
-      if (c == null || c.needsTending()) {
-        float rating = 2 / (1 + Spacing.zoneDistance(actor, t));
-        for (Plan p : others) {
-          rating += Spacing.zoneDistance(actor, p.actor()) * 2;
-        }
-        if (Spacing.edgeAdjacent(t, actor.origin())) rating *= 2;
-        pick.compare(t, rating);
+      if (c != null && ! c.needsTending()) continue;
+
+      for (Plan p : others) if (p != this) {
+        if (p.actionFocus() == t) continue findTile;
       }
+      
+      float rating = 2 / (1 + Spacing.zoneDistance(actor, t));
+      if (Spacing.edgeAdjacent(t, actor.origin())) rating *= 2;
+      pick.compare(t, rating);
     }
     final Tile toFarm = pick.result();
     
@@ -198,7 +203,7 @@ public class Farming extends Plan {
     }
     
     if (toFarm != null) {
-      Crop picked = nursery.plantedAt(toFarm);
+      this.picked = nursery.plantedAt(toFarm);
       final String actionName, anim, desc;
       
       if (picked != null && picked.blighted()) {
@@ -212,7 +217,7 @@ public class Farming extends Plan {
         desc = "Harvesting "+picked;
       }
       else {
-        picked = new Crop(nursery, pickSpecies(toFarm, report));
+        this.picked = new Crop(nursery, pickSpecies(toFarm, report));
         picked.setPosition(toFarm.x, toFarm.y, toFarm.world);
         actionName = "actionPlant";
         anim = Action.BUILD;
@@ -220,7 +225,7 @@ public class Farming extends Plan {
       }
       
       final Action plants = new Action(
-        actor, picked,
+        actor, toFarm,
         this, actionName,
         anim, desc
       );
@@ -287,8 +292,9 @@ public class Farming extends Plan {
   }
   
   
-  public boolean actionPlant(Actor actor, Crop crop) {
+  public boolean actionPlant(Actor actor, Tile toFarm) {
     //final boolean report = I.talkAbout == actor && stepsVerbose;
+    final Crop crop = this.picked;
     if (! crop.inWorld()) {
       if (! nursery.couldPlant(crop.origin())) return false;
       crop.enterWorld();
@@ -320,26 +326,26 @@ public class Farming extends Plan {
   }
   
   
-  public boolean actionDisinfest(Actor actor, Crop crop) {
+  public boolean actionDisinfest(Actor actor, Tile toFarm) {
     int success = 1;
     if (actor.skills.test(CULTIVATION, MODERATE_DC, 1)) success++;
     if (actor.skills.test(HARD_LABOUR, ROUTINE_DC , 1)) success++;
-    if (Rand.index(5) <= success) crop.disinfest();
+    if (Rand.index(5) <= success) picked.disinfest();
     return true;
   }
   
   
-  public boolean actionHarvest(Actor actor, Crop crop) {
+  public boolean actionHarvest(Actor actor, Tile toFarm) {
     final boolean report = I.talkAbout == actor && stepsVerbose;
-    final Item harvest = crop.yieldCrop();
+    final Item harvest = picked.yieldCrop();
     actor.gear.addItem(harvest);
     
     if (Rand.yes()) {
-      final Tile at = crop.origin();
-      crop = new Crop(nursery, pickSpecies(at, report));
-      crop.setPosition(at.x, at.y, at.world);
+      final Tile at = picked.origin();
+      picked = new Crop(nursery, pickSpecies(at, report));
+      picked.setPosition(at.x, at.y, at.world);
     }
-    actionPlant(actor, crop);
+    actionPlant(actor, toFarm);
     return true;
   }
   

@@ -148,7 +148,7 @@ public class DebugSecurity extends Scenario {
     station.stocks.bumpItem(Economy.CARBS  , 5);
     station.stocks.bumpItem(Economy.PROTEIN, 5);
     
-    final AnimalBreeding breeding = AnimalBreeding.breedingFor(
+    final AnimalTending breeding = AnimalTending.breedingFor(
       ecologist, station, Hareen.SPECIES, world.tileAt(25, 25)
     );
     station.stocks.addItem(Item.withAmount(breeding.asSeed(), 0.95f));

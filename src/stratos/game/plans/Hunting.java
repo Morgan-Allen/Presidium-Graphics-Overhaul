@@ -301,10 +301,10 @@ public class Hunting extends Plan {
     //
     //  We provide a bonus to extraction effiency based on upgrades available
     //  at the kommando lodge-
-    if (depot instanceof KommandoRedoubt) {
-      final KommandoRedoubt still = (KommandoRedoubt) depot;
-      float bonus = still.structure.upgradeLevel(KommandoRedoubt.FLESH_STILL);
-      mult += bonus / KommandoRedoubt.FLESH_STILL.maxLevel;
+    if (depot instanceof XenoLodge) {
+      final XenoLodge still = (XenoLodge) depot;
+      float bonus = still.structure.upgradeLevel(XenoLodge.FLESH_STILL);
+      mult += bonus / XenoLodge.FLESH_STILL.maxLevel;
     }
     //
     //  Then we measure the physical damage done, and decrement prey health.
