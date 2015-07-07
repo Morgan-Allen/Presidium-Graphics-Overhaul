@@ -4,11 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.util;
+
 import java.awt.*;
 import java.awt.image.*;
 
 import javax.swing.*;
 
+import java.awt.event.*;
 import java.io.*;
 import java.lang.reflect.Method;
 
@@ -264,36 +266,52 @@ public class I {
   
   
   
-  private static class Presentation extends JFrame {
+  private static class Presentation extends JFrame implements MouseListener {
     
     final static long serialVersionUID = 0;
     
     private Object data;
+    private int dataWide, dataHigh;
     private int mode;
     private float min, max;
+    
+    private boolean isClicked;
     
     
     Presentation(String name, Object data, int mode) {
       super(name);
       this.data = data;
       this.mode = mode;
+      this.addMouseListener(this);
     }
     
     
     public void paint(Graphics g) {
       super.paint(g);
-      if (mode == MODE_GREY) paintGrey(g);
+      if (mode == MODE_GREY  ) paintGrey  (g);
       if (mode == MODE_COLOUR) paintColour(g);
     }
     
     
+    public void mouseClicked(MouseEvent arg0) {
+      this.isClicked = true;
+    }
+    
+    
+    public void mouseEntered (MouseEvent arg0) {}
+    public void mouseExited  (MouseEvent arg0) {}
+    public void mousePressed (MouseEvent arg0) {}
+    public void mouseReleased(MouseEvent arg0) {}
+
+
     private void paintGrey(Graphics g) {
       final byte scale[] = new byte[256];
       for (int s = 256; s-- > 0;) {
         scale[s] = (byte) s;
       }
       float vals[][] = (float[][]) data;
-      final int w = vals.length, h = vals[0].length;
+      final int w = dataWide = vals.length, h = dataHigh = vals[0].length;
+      
       final byte byteData[] = new byte[w * h];
       for (Coord c : Visit.grid(0, 0, w, h, 1)) {
         final float pushed = (vals[c.x][c.y] - min) / (max - min);
@@ -306,7 +324,8 @@ public class I {
     
     private void paintColour(Graphics g) {
       final int vals[][] = (int[][]) data;
-      final int w = vals.length, h = vals[0].length;
+      final int w = dataWide = vals.length, h = dataHigh = vals[0].length;
+      
       final int intData[] = new int[w * h];
       for (Coord c : Visit.grid(0, 0, w, h, 1)) {
         intData[imgIndex(c.x, c.y, w, h)] = vals[c.x][c.y];
@@ -350,7 +369,7 @@ public class I {
     int colourVals[][],
     String name, int w, int h
   ) {
-    present(colourVals, MODE_COLOUR, name, w, h);
+    final Presentation p = present(colourVals, MODE_COLOUR, name, w, h);
   }
   
   
@@ -373,6 +392,40 @@ public class I {
       window.repaint();
     }
     return window;
+  }
+  
+  
+  public static Coord getDataCursor(String windowName, boolean report) {
+    final Presentation window = windows.get(windowName);
+    if (window == null) return new Coord(0, 0);
+    
+    final Container pane = window.getContentPane();
+    final Point loc      = MouseInfo.getPointerInfo().getLocation();
+    final Point corner   = pane.getLocationOnScreen();
+
+    int x = loc.x - corner.x, y = loc.y - corner.y;
+    x *= window.dataWide * 1f / pane.getWidth ();
+    y *= window.dataHigh * 1f / pane.getHeight();
+    x = Nums.clamp(x                        , window.dataWide);
+    y = Nums.clamp(window.dataHigh - (y + 1), window.dataHigh);
+    
+    if (report) {
+      I.say("\nGetting cursor:");
+      I.say("  Screen location: "+loc);
+      I.say("  Window origin:   "+corner);
+      I.say("  X and Y within data: "+x+"/"+y);
+    }
+    return new Coord(x, y);
+  }
+  
+  
+  public static boolean checkMouseClicked(String windowName) {
+    final Presentation window = windows.get(windowName);
+    if (window == null) return false;
+    
+    final boolean clicked = window.isClicked;
+    window.isClicked = false;
+    return clicked;
   }
 }
 
