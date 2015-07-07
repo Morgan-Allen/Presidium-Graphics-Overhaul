@@ -181,7 +181,7 @@ public class Staff {
         (Planet.isEvening(world) ? 2 : 0);
       
       if (index == hour) return Venue.PRIMARY_SHIFT;
-      else if (index == (hour + 1 % 3)) return Venue.SECONDARY_SHIFT;
+      else if (index == (hour + 1) % 3) return Venue.SECONDARY_SHIFT;
       else return Venue.OFF_DUTY;
     }
     

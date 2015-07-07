@@ -40,6 +40,18 @@ public class Coord {
   }
   
   
+  public Coord roundToUnit(int unit) {
+    this.x = Nums.round(x, unit, false);
+    this.y = Nums.round(y, unit, false);
+    return this;
+  }
+  
+  
+  public float axisDistance(Coord c) {
+    return Nums.abs(c.x - x) + Nums.abs(c.y - y);
+  }
+  
+  
   public boolean matches(Coord c) {
     return this.x == c.x && this.y == c.y;
   }

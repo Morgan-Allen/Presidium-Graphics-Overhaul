@@ -77,6 +77,7 @@ public abstract class Search <T> {
     final Object nextRef = agenda.leastRef();
     final T next = agenda.refValue(nextRef);
     agenda.deleteRef(nextRef);
+    
     if (endSearch(next)) {
       success = true;
       bestEntry = entryFor(next);
@@ -87,6 +88,7 @@ public abstract class Search <T> {
       );
       return false;
     }
+    
     for (T near : adjacent(next)) if (near != null) {
       tryEntry(near, next, cost(next, near));
     }

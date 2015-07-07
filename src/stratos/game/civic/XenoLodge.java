@@ -128,26 +128,25 @@ public class XenoLodge extends Venue implements Captivity {
     ),
     THERMAL_CAMOUFLAGE = new Upgrade(
       "Thermal Camouflage",
-      "Reduces the Kommando Lodge's thermal signature and light output, "+
+      "Reduces the Xeno Lodge's thermal signature and light output, "+
       "making it harder for outsiders to detect.",
       200, Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
     ),
-    RIDER_TRAINING = new Upgrade(
-      "Maw Training",
-      "Trains your Ecologists to tame and ride Desert Maws, relatives of the "+
-      "Lictovore bred as war mounts.",
-      300,
-      Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
-    ),
-    FLESH_STILL = new Upgrade(
-      "Flesh Still",
-      "Improves the effiency of spyce and protein extraction from rendered-"+
-      "down culls.",
+    CAPTIVE_BREEDING = new Upgrade(
+      "Captive Breeding",
+      "Improves the effiency of animal taming and breeding programs.",
       150,
       Upgrade.TWO_LEVELS, null, 1,
       null, BLUEPRINT
+    ),
+    PROTEIN_STILL = new Upgrade(
+      "Maw Harness",
+      "Improves the effiency of spyce and protein extraction from rendered-"+
+      "down culls.",
+      300,
+      Upgrade.TWO_LEVELS, null, 1,
+      CAPTIVE_BREEDING, BLUEPRINT
     );
   
   final public static Conversion
@@ -160,7 +159,7 @@ public class XenoLodge extends Venue implements Captivity {
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     final boolean report = verbose && I.talkAbout == actor;
-
+    
     final Choice choice = new Choice(actor);
     final Exploring e = Exploring.nextExploration(actor);
     if (e != null) choice.add(e.addMotives(Plan.MOTIVE_JOB, 0));
@@ -180,8 +179,14 @@ public class XenoLodge extends Venue implements Captivity {
       final Item sample = Item.withReference(GENE_SEED, f.species());
       if (stocks.hasItem(sample)) continue;
       else choice.add(Hunting.asSample(actor, f, this));
+      
+      //  TODO:  Include contact/dialogue-missions of some kind here.
     }
-    choice.add(AnimalTending.nextTending(actor, this));
+    
+    //  TODO:  Just use seed-tailoring here (or possibly at the ecologist
+    //  station.)  Then release it to live here.
+    //choice.add(AnimalTending.nextTending(actor, this));
+    
     
     return choice.weightedPick();
   }

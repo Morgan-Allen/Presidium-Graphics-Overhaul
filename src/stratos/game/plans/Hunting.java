@@ -303,8 +303,8 @@ public class Hunting extends Plan {
     //  at the kommando lodge-
     if (depot instanceof XenoLodge) {
       final XenoLodge still = (XenoLodge) depot;
-      float bonus = still.structure.upgradeLevel(XenoLodge.FLESH_STILL);
-      mult += bonus / XenoLodge.FLESH_STILL.maxLevel;
+      float bonus = still.structure.upgradeLevel(XenoLodge.PROTEIN_STILL);
+      mult += bonus / XenoLodge.PROTEIN_STILL.maxLevel;
     }
     //
     //  Then we measure the physical damage done, and decrement prey health.
