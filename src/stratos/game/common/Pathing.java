@@ -264,7 +264,7 @@ public class Pathing {
     
     if (GameSettings.pathFree) {
       final PathSearch search = new PathSearch(initB, destB, false);
-      search.verbose = report;
+      if (report) search.verbosity = Search.VERBOSE;
       search.assignClient(mobile);
       search.doSearch();
       return search.fullPath(Boarding.class);

@@ -140,17 +140,19 @@ public class PathSearch extends Search <Boarding> {
   /**  Actual search performance/execution-
     */
   public PathSearch doSearch() {
+    final boolean report = verbosity > NOT_VERBOSE;
+    
     this.aimPoint    = approachTile(destination, client);
     this.closestDist = Spacing.distance(init, destination);
     if (aimPoint == null) aimPoint = destination;
     if (limit) this.maxSearched = searchLimit(init, destination, aimPoint);
     
-    if (verbose) {
+    if (report) {
       I.say("Searching for path between "+init+" and "+destination);
       I.say("  Search limit: "+maxSearched+", aim point: "+aimPoint);
     }
     super.doSearch();
-    if (verbose) {
+    if (report) {
       if (success()) I.say("\n  Success!");
       else I.say("\n  Failed.");
       I.say("  Closest approach: "+closest+", aimed for "+aimPoint);

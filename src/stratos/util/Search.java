@@ -42,7 +42,9 @@ public abstract class Search <T> {
   private boolean success = false;
   private Entry bestEntry = null;
   
-  public boolean verbose = false;
+  
+  final public static int NOT_VERBOSE = 0, VERBOSE = 1, SUPER_VERBOSE = 2;
+  public int verbosity = NOT_VERBOSE;
   
 
   public Search(T init, int maxPathLength) {
@@ -57,11 +59,14 @@ public abstract class Search <T> {
     */
   public Search <T> doSearch() {
     final boolean canSearch = canEnter(init);
-    if (verbose) I.say("   ...searching "+canSearch);
+    final boolean report = verbosity > NOT_VERBOSE;
+    
     if (! canSearch) {
-      if (verbose) I.say("Cannot enter "+init);
+      if (report) I.say("\nCANNOT SEARCH FROM: "+init+"!");
       return this;
     }
+    if (report) I.say("\nBEGINNING SEARCH FROM "+init+"!");
+    
     tryEntry(init, null, 0);
     while (agenda.size() > 0) if (! stepSearch()) break;
     for (T t : flagged) setEntry(t, null);
@@ -70,27 +75,43 @@ public abstract class Search <T> {
   
   
   protected boolean stepSearch() {
+    final boolean report = verbosity > NOT_VERBOSE;
+    
     if (maxSearched > 0 && flagged.size() > maxSearched) {
-      if (verbose) I.say("Reached maximum search size ("+maxSearched+")");
+      if (report) I.say("  Reached maximum search size ("+maxSearched+")");
       return false;
     }
     final Object nextRef = agenda.leastRef();
     final T next = agenda.refValue(nextRef);
     agenda.deleteRef(nextRef);
     
+    if (report) I.say("\nBEST ENTRY IS: "+next);
     if (endSearch(next)) {
       success = true;
       bestEntry = entryFor(next);
       totalCost = bestEntry.total;
-      if (verbose) I.say(
-        "  ...search complete at "+next+", total cost: "+totalCost+
+      if (report) I.say(
+        "  Search complete at "+next+", total cost: "+totalCost+
         " all searched: "+flagged.size()
       );
       return false;
     }
     
-    for (T near : adjacent(next)) if (near != null) {
+    final T allNear[] = adjacent(next);
+    if (report) I.say("  ALL ADJACENT: "+I.list(allNear));
+    for (T near : allNear) if (near != null) {
       tryEntry(near, next, cost(next, near));
+    }
+    if (report && verbosity > VERBOSE) {
+      I.say("\nAgenda afterward: (origin is "+init+")");
+      for (T t : agenda) {
+        final Entry e = entryFor(t);
+        I.say("  ["+t+"]");
+        if (e != null) I.add(" "+e.total+" ("+
+          I.shorten(e.priorCost, 1)+"+"+I.shorten(e.ETA, 1)+
+        ")");
+      }
+      I.add("");
     }
     return true;
   }
@@ -113,7 +134,7 @@ public abstract class Search <T> {
     else if (! canEnter(spot)) return;
     //
     //  Create the new entry-
-    final boolean superVerbose = false;
+    final boolean report = verbosity > VERBOSE;
     final Entry newEntry = new Entry();
     newEntry.priorCost = priorCost;
     newEntry.ETA       = estimate(spot);
@@ -121,16 +142,7 @@ public abstract class Search <T> {
     newEntry.refers    = spot;
     newEntry.prior     = priorEntry;
     
-    if (superVerbose) {
-      I.say("\n\nCurrent agenda: (origin is "+init+")");
-      for (T t : agenda) {
-        final Entry e = entryFor(t);
-        I.say("  ["+t+"]");
-        if (e != null) I.add(" "+e.total+" ("+
-          I.shorten(e.priorCost, 1)+"+"+I.shorten(e.ETA, 1)+
-        ")");
-      }
-      
+    if (report) {
       final Entry n = newEntry;
       I.say("\nNew entry is: "+n.refers);
       I.say("  entry cost:        "+cost);
@@ -138,7 +150,6 @@ public abstract class Search <T> {
       I.say("  total past cost:   "+n.priorCost);
       I.say("  past + future:     "+n.total);
       I.say("  last step:         "+prior);
-      I.add("");
     }
     
     //
@@ -149,7 +160,6 @@ public abstract class Search <T> {
     if (bestEntry == null || bestEntry.ETA > newEntry.ETA) {
       bestEntry = newEntry;
     }
-    if (verbose) I.add("|");
   }
   
   
@@ -190,14 +200,21 @@ public abstract class Search <T> {
   
   public T[] bestPath(Class pathClass) {
     if (bestEntry == null) return null;
+    
     final Batch <T> pathTiles = new Batch <T> ();
     for (Entry next = bestEntry; next != null; next = next.prior) {
       pathTiles.add(next.refers);
     }
-    if (verbose) I.say("Path size: "+pathTiles.size());
     int len = pathTiles.size();
     T path[] = (T[]) Array.newInstance(pathClass, len);
     for (T t : pathTiles) path[--len] = t;
+
+    final boolean report = verbosity > NOT_VERBOSE;
+    if (report) {
+      I.say("\nGETTING FINAL PATH RESULT");
+      I.say("  Path size: "+pathTiles.size());
+      if (verbosity > VERBOSE) for (T t : path) I.say("    "+t);
+    }
     return path;
   }
   

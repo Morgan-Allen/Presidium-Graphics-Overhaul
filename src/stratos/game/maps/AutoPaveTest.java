@@ -52,8 +52,11 @@ public class AutoPaveTest {
   
   
   
-  /**  Basic code for maintaining nodes & links-
+  /**  Basic definitions for nodes and links-
     */
+  final static int INIT = -1, LIVE = 1, DEAD = 0;
+  static int nextID = 0;
+  
   class Unit extends Coord {
     Object flag;
     Node claims;
@@ -63,20 +66,27 @@ public class AutoPaveTest {
   class Node {
     Unit origin;
     Box2D area = new Box2D();
+    
     Node linkedNodeCache[];
     Link linkCache[];
     Object flag;
-    boolean fresh = true;
+    int stage = INIT;
     
-    public String toString() { return origin.toString(); }
+    final String ID = ""+(char) (nextID++ + 'A');
+    public String toString() {
+      //String coord = " ("+(origin.x / nodeSize)+"|"+(origin.y / nodeSize)+")";
+      String coord ="";
+      return ID+coord;
+    }
   }
   
   
   class Link {
     Node from, to;
-    float distanceGuess;
     Unit tiles[] = new Unit[0];
     int useCounter = 0;
+    
+    public String toString() { return from+"<->"+to; }
   }
   
   
@@ -105,35 +115,24 @@ public class AutoPaveTest {
   }
   
   
-  void deleteNode(Node node) {
-    nodes.remove(node);
-    for (Coord c : Visit.grid(node.area)) {
-      grid[c.x][c.y].claims = null;
-    }
-  }
-  
-  
-  void includeNode(Node node) {
-    nodes.include(node);
-    for (Coord c : Visit.grid(node.area)) {
-      grid[c.x][c.y].claims = node;
-    }
-  }
-  
-  
   
   /**  Searching for routes between nodes-
     */
   Node[] getLinkedWith(Node spot) {
     if (spot.linkedNodeCache != null) return spot.linkedNodeCache;
-    final Batch <Node> linked = new Batch();
-    final Batch <Link> links  = new Batch();
-    for (Link l : links) {
-      if (l.from == spot) linked.add(l.to  );
-      if (l.to   == spot) linked.add(l.from);
+    final Batch <Node> nearN = new Batch();
+    final Batch <Link> nearL = new Batch();
+    for (Link l : this.links) {
+      if (l.from == spot) { nearN.add(l.to  ); nearL.add(l); }
+      if (l.to   == spot) { nearN.add(l.from); nearL.add(l); }
     }
-    spot.linkCache = links.toArray(Link.class);
-    return spot.linkedNodeCache = linked.toArray(Node.class);
+    spot.linkCache       = nearL.toArray(Link.class);
+    spot.linkedNodeCache = nearN.toArray(Node.class);
+    
+    I.say("\nRefreshing node-adjacency: "+spot);
+    I.say("  Links are: "+nearL);
+    I.say("  Nodes are: "+nearN);
+    return spot.linkedNodeCache;
   }
   
   
@@ -143,7 +142,7 @@ public class AutoPaveTest {
     };
     for (Node n : nodes) if (n != spot) {
       final float dist = spot.origin.axisDistance(n.origin);
-      if (dist > maxLinkDist) continue;
+      if (n.stage == DEAD || dist > maxLinkDist) continue;
       n.flag = dist;
       sorting.add(n);
     }
@@ -156,38 +155,44 @@ public class AutoPaveTest {
   Link linkBetween(Node from, Node to) {
     getLinkedWith(from);
     for (Link l : from.linkCache) {
-      if (l.from == to || l.to == to) return l;
+      if (l.from == to   && l.to == from) return l;
+      if (l.from == from && l.to == to  ) return l;
     }
     return null;
   }
   
   
-  Node[] pathBetween(final Node init, final Node dest, final Node nearby[]) {
+  Node[] pathBetween(
+    final Node init, final Node dest, final Node nearby[], Node oldPath[]
+  ) {
     if (init == dest) return null;
     final float dist = init.origin.axisDistance(dest.origin);
     if (dist > maxLinkDist) return null;
+    final boolean report = oldPath == null && dist > nodeSize;
     
-    if (init.fresh && dist > nodeSize && nearby.length > 1) {
+    if (report) {
       I.say("\nFinding first path between "+init+" and "+dest);
     }
     final Search <Node> agenda = new Search <Node> (init, -1) {
       
       
       protected Node[] adjacent(Node spot) {
-        if (spot == init) return nearby;
-        return getLinkedWith(spot);
+        //  TODO:  This is potentially pretty explosive.  Be careful...
+        Node linked[] = getLinkedWith(spot);
+        Node adjacent[] = (Node[]) Visit.compose(Node.class, linked, nearby);
+        return adjacent;
       }
       
       
       protected float cost(Node prior, Node spot) {
         final Link oldLink = linkBetween(prior, spot);
-        if (oldLink != null) return oldLink.distanceGuess;
-        return prior.origin.axisDistance(spot.origin) + nodeSize;
+        final float dist = prior.origin.axisDistance(spot.origin);
+        return (oldLink == null) ? dist : (dist / 2);
       }
       
       
       protected float estimate(Node spot) {
-        return spot.origin.axisDistance(dest.origin);
+        return spot.origin.axisDistance(dest.origin) / 2f;
       }
       
       
@@ -205,7 +210,7 @@ public class AutoPaveTest {
         return (Entry) spot.flag;
       }
     };
-    
+    if (report) agenda.verbosity = Search.SUPER_VERBOSE;
     agenda.doSearch();
     return agenda.bestPath(Node.class);
   }
@@ -240,21 +245,15 @@ public class AutoPaveTest {
     }
     path[index++] = to.origin;
     //
-    //  Check to ensure no overlap with other nodes-
-    for (Unit i : path) {
-      if (i.claims != from && i.claims != to && i.claims != null) return null;
-    }
+    //  Finally, create the link itself:
     final Link l = new Link();
     l.from  = from;
     l.to    = to  ;
     l.tiles = path;
-    
-    //  TODO:  MAKE THIS BIT SEEM MORE IMPORTANT
-    l.distanceGuess = from.origin.axisDistance(to.origin) - (nodeSize / 2);
-    l.distanceGuess = Nums.max(0, l.distanceGuess);
     links.add(l);
     from.linkedNodeCache = null;
     to  .linkedNodeCache = null;
+    I.say("\nESTABLISHED LINK: "+l.from+"->"+l.to);
     return l;
   }
   
@@ -263,6 +262,7 @@ public class AutoPaveTest {
     links.remove(link);
     link.from.linkedNodeCache = null;
     link.to  .linkedNodeCache = null;
+    I.say("\nDELETED LINK: "+link.from+"->"+link.to);
   }
   
   
@@ -291,40 +291,111 @@ public class AutoPaveTest {
     }
     
     for (int i = path.length; i-- > 1;) {
-      final Node from = path[i], to = path[i - 1];
+      final Node from = path[i - 1], to = path[i];
       Link link = linkBetween(from, to);
-      if (link == null) link = establishLink(from, to, true);
-      if (link == null) continue;
-      
-      if (added) link.useCounter++;
-      else link.useCounter--;
-      if (link.useCounter == 0) deleteLink(link);
+      if (added) {
+        if (link == null) link = establishLink(from, to, true);
+        if (link == null) continue;
+        link.useCounter++;
+        I.say("  "+link+" USE COUNTER: "+link.useCounter);
+      }
+      else {
+        if (link == null) continue;
+        link.useCounter--;
+        I.say("  "+link+" USE COUNTER: "+link.useCounter);
+        if (link.useCounter <= 0) deleteLink(link);
+      }
     }
   }
   
   
+  
+  /**  Regular update methods-
+    */
   void updateAllLinks() {
+    //
+    //  Prune any connections to dead nodes:
+    for (Node path[] : pathsCache.values().toArray(new Node[0][0])) {
+      final Node from = path[0], to = path[path.length - 1];
+      if (from.stage != DEAD && to.stage != DEAD) continue;
+      final String storeKey = storeKey(from, to);
+      incrementLinks(path, storeKey, false);
+    }
+    //
+    //  Then update the current nodes and their surrounding network-
     for (Node node : nodes) {
+      final boolean init = node.stage == INIT, dead = node.stage == DEAD;
+      if (init || dead) for (Coord c : Visit.grid(node.area)) {
+        if (dead) grid[c.x][c.y].claims = null;
+        if (init) grid[c.x][c.y].claims = node;
+      }
+      if (dead) nodes.remove(node);
       //
-      //  TODO:  You want to visit the nearest neighbour for *every* node first,
-      //  then get the second-nearest for each and visit those, then the third-
-      //  nearest, et cetera.
+      //  Update connections to any nodes currently nearby:
+      //
+      //  TODO:  Actually, don't base the nearby-rating off absolute distance.
+      //  Always grab the closest neighbour, and anything else within a similar
+      //  radius (e.g, x1.5, say?)
       final Node nearby[] = getNearby(node);
+      if (init) {
+        I.say("\nFirst update for node: "+node);
+        I.say("  Nodes nearby: "+I.list(nearby));
+        node.stage = LIVE;
+      }
       for (Node other : nearby) {
         final String storeKey = storeKey(node, other);
         final Node
-          newPath[] = pathBetween(node, other, nearby),
-          oldPath[] = pathsCache.get(storeKey);
+          oldPath[] = pathsCache.get(storeKey),
+          newPath[] = dead ? null : pathBetween(node, other, nearby, oldPath);
         final String
           keyOld = pointsKey(oldPath),
           keyNew = pointsKey(newPath);
         if (! keyOld.equals(keyNew)) {
+          I.say("\nUpdating path between "+node+" and "+other);
           incrementLinks(oldPath, storeKey, false);
-          incrementLinks(newPath, storeKey, true);
+          incrementLinks(newPath, storeKey, true );
         }
-        break;
       }
-      node.fresh = false;
+    }
+  }
+  
+  
+  void flagAsDead(Node node) {
+    I.say("\n\nDELETING NODE AT: "+node);
+    node.stage = DEAD;
+    reportFullState();
+    updateAllLinks();
+    I.say("\nAFTER DELETION:");
+    reportFullState();
+  }
+  
+  
+  void addNode(Node node) {
+    I.say("\n\nADDING NODE AT: "+node);
+    nodes.include(node);
+    reportFullState();
+    updateAllLinks();
+    I.say("\nAFTER ADDITION:");
+    reportFullState();
+  }
+  
+  
+  private void reportFullState() {
+    I.say("All nodes: ");
+    for (Node n : nodes) {
+      I.say("  "+n+" : "+n.origin);
+      if (n.stage == INIT) I.add(" (init)");
+      if (n.stage == LIVE) I.add(" (live)");
+      if (n.stage == DEAD) I.add(" (dead)");
+    }
+    I.say("All links: ");
+    for (Link l : links) {
+      I.say("  "+l);
+      I.add(" (uses: "+l.useCounter+")");
+    }
+    I.say("All paths: ");
+    for (Node path[] : pathsCache.values()) {
+      I.say("  "+I.list(path));
     }
   }
   
@@ -337,19 +408,17 @@ public class AutoPaveTest {
     final boolean clicked = I.checkMouseClicked(windowName);
     final float v[][] = screenVals;
     
-    updateAllLinks();
-    
     for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
       v[c.x][c.y] = 0;
     }
     for (Link l : links) {
       for (Coord c : l.tiles) {
-        v[c.x][c.y] = 0.5f;
+        v[c.x][c.y] += 0.2f;
       }
     }
     for (Node n : nodes) {
       for (Coord c : Visit.grid(n.area)) {
-        v[c.x][c.y] = 1.0f;
+        v[c.x][c.y] += 0.5f;
       }
     }
     
@@ -357,10 +426,10 @@ public class AutoPaveTest {
     coords.roundToUnit(nodeSize);
     if (clicked) {
       final Node old = nodeAt(coords);
-      if (old != null) deleteNode(old);
+      if (old != null) flagAsDead(old);
       else {
         final Node made = nodeFor(coords);
-        if (isSpaceFor(made)) includeNode(made);
+        if (isSpaceFor(made)) addNode(made);
       }
     }
     

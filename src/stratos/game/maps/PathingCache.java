@@ -59,7 +59,6 @@ public class PathingCache {
   public PathingCache(Stage world) {
     this.world = world;
     this.tilePlaces = new Place[world.size][world.size];
-    //this.pathMipMap = new MipMap(world.size);
   }
   
   
@@ -103,6 +102,7 @@ public class PathingCache {
     Mobile client, boolean reports
   ) {
     Boarding path[] = null;
+    final int verbosity = reports ? Search.VERBOSE : Search.NOT_VERBOSE;
     
     if (Spacing.distance(initB, destB) <= Stage.ZONE_SIZE) {
       if (reports) I.say(
@@ -110,7 +110,7 @@ public class PathingCache {
       );
       final PathSearch search = new PathSearch(initB, destB, true);
       search.assignClient(client);
-      search.verbose = reports;
+      search.verbosity = verbosity;
       search.doSearch();
       path = search.fullPath(Boarding.class);
       if (path != null) return path;
@@ -125,7 +125,7 @@ public class PathingCache {
         initB, placesPath[2].core, placesPath, maxLength
       );
       search.assignClient(client);
-      search.verbose = reports;
+      search.verbosity = verbosity;
       search.doSearch();
       path = search.fullPath(Boarding.class);
       if (path != null) return path;
@@ -138,7 +138,7 @@ public class PathingCache {
         initB, destB, placesPath, maxLength
       );
       search.assignClient(client);
-      search.verbose = reports;
+      search.verbosity = verbosity;
       search.doSearch();
       path = search.fullPath(Boarding.class);
       if (path != null) return path;
@@ -149,7 +149,7 @@ public class PathingCache {
       );
       final PathSearch search = new PathSearch(initB, destB, true);
       search.assignClient(client);
-      search.verbose = reports;
+      search.verbosity = verbosity;
       search.doSearch();
       path = search.fullPath(Boarding.class);
       if (path != null) return path;
@@ -406,7 +406,6 @@ public class PathingCache {
           final Place under = tilePlaces[tile.x][tile.y];
           if (under != lastPlace) {
             for (int i = PPL; i-- > 0;) if (placesPath[i] == under) {
-              if (this.verbose) I.say("  Best Tile: "+best);
               PPI = Nums.clamp(i + 1, PPL);
               break;
             }
@@ -554,7 +553,7 @@ public class PathingCache {
         return (Entry) spot.flagged;
       }
     };
-    search.verbose = reports;
+    if (reports) search.verbosity = Search.VERBOSE;
     search.doSearch();
     if (! search.success()) return null;
     return search.fullPath(Place.class);
