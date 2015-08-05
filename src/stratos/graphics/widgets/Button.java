@@ -132,7 +132,7 @@ public class Button extends Image {
   
   
   protected void render(WidgetsPass pass) {
-    super.renderTex(texture, absAlpha, pass);
+    super.render(pass);
     if (! enabled) return;
     if (toggled) {
       super.renderTex(highlit, 1, pass);

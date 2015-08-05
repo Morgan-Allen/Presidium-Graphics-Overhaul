@@ -7,8 +7,6 @@ package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-
-import stratos.game.civic.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.economic.Owner.*;
 

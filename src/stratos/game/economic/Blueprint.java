@@ -14,6 +14,10 @@ import stratos.graphics.widgets.*;
 import java.lang.reflect.*;
 
 
+
+//  No.  I have to consider this carefully.
+
+
 /*
   //  TODO:  Finish moving attributes in here...
   final public Traded materials[];
@@ -45,39 +49,19 @@ public class Blueprint extends Constant implements Session.Saveable {
     buildCost  ,
     maxUpgrades;
   
-  final public Blueprint required[];
   final public int owningTier;
   
+  private Upgrade upgradeLevels[];
   private Batch <Conversion> producing = new Batch();
   private Batch <Conversion> consuming = new Batch();
-  private Batch <Blueprint> allows = new Batch <Blueprint> ();
-  private Batch <Blueprint> denies = new Batch <Blueprint> ();
   
   private Siting siting = null;
-  
-  
-  public Blueprint(
-    Class <? extends Venue> baseClass, String key,
-    String name, String category, ImageAsset icon, String description,
-    int size, int high, int properties,
-    Blueprint required, int owningTier,
-    int integrity, int armour, int buildCost, int maxUpgrades
-  ) {
-    this(
-      baseClass, key,
-      name, category, icon, description,
-      size, high,
-      properties, required == null ? null : new Blueprint[] { required },
-      owningTier, integrity, armour, buildCost, maxUpgrades
-    );
-  }
   
 
   public Blueprint(
     Class <? extends Venue> baseClass, String key,
     String name, String category, ImageAsset icon, String description,
-    int size, int high, int properties,
-    Blueprint required[], int owningTier,
+    int size, int high, int properties, int owningTier,
     int integrity, int armour, int buildCost, int maxUpgrades
   ) {
     super(INDEX, key, name);
@@ -99,10 +83,7 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.buildCost   = buildCost  ;
     this.maxUpgrades = maxUpgrades;
     
-    this.required   = required == null ? Venue.NO_REQUIREMENTS : required;
     this.owningTier = owningTier;
-    
-    for (Blueprint p : required) p.allows.include(this);
   }
   
   
@@ -130,11 +111,28 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   
   
+  /**  Factory methods for direct structure-upgrades.
+    */
+  public Upgrade[] upgradeLevels(int numLevels, int... buildCosts) {
+    this.upgradeLevels = new Upgrade[numLevels];
+    for (int i = 0; i < numLevels; i++) {
+      final Upgrade u = new Upgrade(
+        "level_1_"+this, "Upgrade to level "+(i + 1), buildCosts[i], 1
+      );
+      upgradeLevels[i] = u;
+    }
+    return upgradeLevels;
+  }
+  
+  
+  
   /**  Property queries-
     */
+  /*
   public Series <Blueprint> allows() {
     return allows;
   }
+  //*/
   
   
   public static boolean hasProperty(Structure s, int property) {
@@ -317,7 +315,8 @@ public class Blueprint extends Constant implements Session.Saveable {
       d.append("\n  ");
       d.append(u);
     }
-
+    
+    /*
     if (required.length > 0) d.append("\n\nRequires:");
     for (Blueprint req : required) {
       if (req == required[0]) d.append(" ");
@@ -330,6 +329,7 @@ public class Blueprint extends Constant implements Session.Saveable {
       else d.append(", ");
       d.append(all);
     }
+    //*/
     
     if (! isGrouped()) {
       final Batch <Venue> built = base.listInstalled(this, false);

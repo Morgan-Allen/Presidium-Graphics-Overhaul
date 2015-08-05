@@ -3,10 +3,8 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.plans;
-import stratos.game.civic.*;
+import stratos.content.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -19,8 +17,7 @@ import static stratos.game.maps.StageTerrain.*;
 
 
 //  TODO:  This is proceeding too quickly.  (And there needs to be a better
-//  method for determining how much apparent ore goes into tailings.)
-
+//  method for determining how much apparent ore goes into tailings.
 
 
 public class Mining extends Plan {

@@ -1,19 +1,16 @@
 
 
 package stratos.start;
+import stratos.content.civic.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.graphics.common.Colour;
-import stratos.graphics.common.Rendering;
-
-import java.io.*;
+import stratos.graphics.common.*;
 
 
 

@@ -48,33 +48,31 @@ public interface UIConstants {
   
   final public static String
     
-    TYPE_SECURITY  = "Security" ,
-    TYPE_COMMERCE  = "Commerce" ,
-    TYPE_AESTHETIC = "Aesthetic",
-    TYPE_ENGINEER  = "Engineer" ,
-    TYPE_ECOLOGIST = "Ecologist",
-    TYPE_PHYSICIAN = "Physician",
+    //  TODO:  Expand these later.
+    TYPE_SECURITY  = "Health & Security"     ,
+    TYPE_COMMERCE  = "Trade & Commerce"      ,
+    TYPE_ENGINEER  = "Engineering & Industry",
+    TYPE_ECOLOGIST = "Ecology & Environment" ,
     
     INSTALL_CATEGORIES[] = {
-      TYPE_SECURITY, TYPE_COMMERCE, TYPE_AESTHETIC,
-      TYPE_ENGINEER, TYPE_ECOLOGIST, TYPE_PHYSICIAN
+      TYPE_SECURITY, TYPE_ENGINEER, TYPE_ECOLOGIST, TYPE_COMMERCE
     },
+    TYPE_UNPLACED  = "Unplaced",
+    TYPE_WIP       = "<WORK IN PROGRESS>",
     
-    TYPE_SPECIAL   = "Special"  ,
-    TYPE_HIDDEN    = "<hidden>" ,
     TYPE_ACTOR     = "<actor>"  ,
     TYPE_VEHICLE   = "<vehicle>",
     TYPE_TERRAIN   = "<terrain>",
     TYPE_MISSION   = "<mission>";
+  
+  final public static int
+    NUM_INSTALL_CATEGORIES = INSTALL_CATEGORIES.length;
   
   
   final public static int
     BAR_BUTTON_SIZE = 40,
     BAR_SPACING     = 2 ,
     BAR_MAX_SLOTS   = 9 ;
-  
-  final public static int
-    NUM_GUILDS = 6;
   
   final public static float
     BIG_FONT_SIZE   = 1.0f ,

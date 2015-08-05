@@ -285,6 +285,12 @@ public class PlacingTask implements UITask {
   }
   
   
+  public static Blueprint currentPlaceType() {
+    final PlacingTask task = currentPlacement();
+    return task == null ? null : task.placeType;
+  }
+  
+  
   private static PlacingTask currentPlacement() {
     final BaseUI UI = BaseUI.current();
     if (UI == null || ! (UI.currentTask() instanceof PlacingTask)) return null;

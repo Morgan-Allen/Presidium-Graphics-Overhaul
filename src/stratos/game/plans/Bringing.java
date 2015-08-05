@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
+import stratos.content.civic.Suspensor;
 import stratos.game.actors.*;
-import stratos.game.civic.Suspensor;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;

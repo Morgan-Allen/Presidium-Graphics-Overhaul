@@ -63,13 +63,13 @@ public class Ruins extends Venue {
     VENUE_BLUEPRINTS = new Blueprint[1];
     VENUE_BLUEPRINTS[0] = new Blueprint(
       Ruins.class, "ruins",
-      "Ancient Ruins", UIConstants.TYPE_HIDDEN, null,
+      "Ancient Ruins", UIConstants.TYPE_WIP, null,
       "Ancient ruins cover the landscape of many worlds in regions irradiated "+
       "by nuclear fire or blighted by biological warfare.  Strange and "+
       "dangerous beings often haunt such forsaken places.",
       4, 2, Structure.IS_WILD | Structure.IS_ANCIENT,
-      NO_REQUIREMENTS, Owner.TIER_FACILITY,
-      500, 25, 0, Structure.NO_UPGRADES
+      Owner.TIER_FACILITY, 500,
+      25, 0, Structure.NO_UPGRADES
     ) {
       public Venue createVenue(Base base) {
         final Venue sample = new Ruins(base);

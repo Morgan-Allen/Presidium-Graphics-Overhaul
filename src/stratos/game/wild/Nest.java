@@ -231,10 +231,10 @@ public class Nest extends Venue {
   ) {
     final Blueprint blueprint = new Blueprint(
       Nest.class, s.name+"_nest",
-      s.name+" Nest", UIConstants.TYPE_HIDDEN, null, s.info,
+      s.name+" Nest", UIConstants.TYPE_WIP, null, s.info,
       size, high, Structure.IS_WILD,
-      Venue.NO_REQUIREMENTS, Owner.TIER_PRIVATE,
-      100, 5, 0, Structure.NO_UPGRADES
+      Owner.TIER_PRIVATE, 100,
+      5, 0, Structure.NO_UPGRADES
     ) {
       public Venue createVenue(Base base) {
         return new Nest(this, base, s, model);

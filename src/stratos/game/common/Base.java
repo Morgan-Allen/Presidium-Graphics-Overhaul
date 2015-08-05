@@ -52,6 +52,7 @@ public class Base implements
   final public BaseRelations relations = initRelations();
   final public BaseTactics   tactics   = initTactics  ();
   final public BaseAdvice    advice    = initAdvice   ();
+  final public BaseResearch  research  = initResearch ();
   
   private String title  = "Player Base";  //  TODO:  ASSIGN TO FACTIONS
   private Colour colour = new Colour();
@@ -226,6 +227,7 @@ public class Base implements
   protected BaseTactics   initTactics  () { return new BaseTactics  (this); }
   protected BaseRelations initRelations() { return new BaseRelations(this); }
   protected BaseAdvice    initAdvice   () { return new BaseAdvice   (this); }
+  protected BaseResearch  initResearch () { return new BaseResearch (this); }
   
   
   
@@ -417,11 +419,11 @@ public class Base implements
         return reasons.setFailure("You cannot have more than one "+print.name);
       }
     }
-    for (Blueprint req : print.required) {
-      if (listInstalled(req, true).size() <= 0) {
-        return reasons.setFailure("Requires "+req);
-      }
+    /*
+    if (research.getResearchLevel(print) < BaseResearch.LEVEL_ALLOWS) {
+      return reasons.setFailure("Not yet researched.");
     }
+    //*/
     return reasons.setSuccess();
   }
   

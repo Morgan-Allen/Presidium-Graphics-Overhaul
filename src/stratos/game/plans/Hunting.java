@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
+import stratos.content.civic.*;
 import stratos.game.actors.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -14,7 +14,6 @@ import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
-
 
 
 
@@ -301,10 +300,10 @@ public class Hunting extends Plan {
     //
     //  We provide a bonus to extraction effiency based on upgrades available
     //  at the kommando lodge-
-    if (depot instanceof XenoLodge) {
-      final XenoLodge still = (XenoLodge) depot;
-      float bonus = still.structure.upgradeLevel(XenoLodge.PROTEIN_STILL);
-      mult += bonus / XenoLodge.PROTEIN_STILL.maxLevel;
+    if (depot instanceof EcologistRedoubt) {
+      final EcologistRedoubt still = (EcologistRedoubt) depot;
+      float bonus = still.structure.upgradeLevel(EcologistRedoubt.PROTEIN_STILL);
+      mult += bonus / EcologistRedoubt.PROTEIN_STILL.maxLevel;
     }
     //
     //  Then we measure the physical damage done, and decrement prey health.

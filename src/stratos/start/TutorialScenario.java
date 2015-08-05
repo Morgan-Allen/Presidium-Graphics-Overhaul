@@ -4,8 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.content.civic.*;
+import stratos.content.wip.SupplyDepot;
 import stratos.game.base.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
@@ -37,7 +38,7 @@ public class TutorialScenario extends StartupScenario {
   private TrooperLodge     barracksBuilt = null;
   private EngineerStation  foundryBuilt  = null;
   private StockExchange    marketBuilt   = null;
-  private EcologistStation botanistBuilt = null;
+  private BotanicalStation botanistBuilt = null;
   private boolean          topUpFunds    = true;
   private boolean          auditorSeen   = false;
   
@@ -67,7 +68,7 @@ public class TutorialScenario extends StartupScenario {
     barracksBuilt = (TrooperLodge    ) s.loadObject();
     foundryBuilt  = (EngineerStation ) s.loadObject();
     marketBuilt   = (StockExchange   ) s.loadObject();
-    botanistBuilt = (EcologistStation) s.loadObject();
+    botanistBuilt = (BotanicalStation) s.loadObject();
     topUpFunds    = s.loadBool();
     auditorSeen   = s.loadBool();
     
@@ -673,9 +674,6 @@ public class TutorialScenario extends StartupScenario {
   private void addPingsLeadingTo(Blueprint blueprint) {
     if (! ScreenPing.checkWidgetActive(INSTALL_PANE_ID)) {
       ScreenPing.addPingFor(INSTALL_BUTTON_ID);
-    }
-    else if (! ScreenPing.checkCategoryActive(blueprint.category)) {
-      ScreenPing.addPingFor(blueprint.category);
     }
     else if (! PlacingTask.isBeingPlaced(blueprint)) {
       ScreenPing.addPingFor(blueprint.keyID);

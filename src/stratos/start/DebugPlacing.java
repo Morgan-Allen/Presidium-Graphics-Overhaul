@@ -4,8 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.content.civic.*;
+import stratos.content.wip.*;
 import stratos.game.actors.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -206,7 +207,7 @@ public class DebugPlacing extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.hireFree  = true;
     
-    final EcologistStation station = new EcologistStation(base);
+    final BotanicalStation station = new BotanicalStation(base);
     SiteUtils.establishVenue(station, 8, 8, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);

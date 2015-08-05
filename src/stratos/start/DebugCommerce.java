@@ -4,9 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.content.civic.*;
+import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -164,7 +165,7 @@ public class DebugCommerce extends Scenario {
     foundry.stocks.bumpItem(Economy.PARTS , 2 );
     foundry.structure.setUpgradeLevel(upgrade, 2);
     
-    final Venue reactor = new Reactor(base);
+    final Venue reactor = new Generator(base);
     SiteUtils.establishVenue(reactor, 3, 6, true, world);
     base.setup.fillVacancies(reactor, true);
     reactor.stocks.bumpItem(FUEL_RODS, 10);
@@ -240,7 +241,7 @@ public class DebugCommerce extends Scenario {
     SiteUtils.establishVenue(engineer, 5, 5, true, world);
     final Venue fabricator = new Fabricator(base);
     SiteUtils.establishVenue(fabricator, 5, 5, true, world);
-    final Venue reactor = new Reactor(base);
+    final Venue reactor = new Generator(base);
     SiteUtils.establishVenue(reactor, 5, 5, true, world);
     
     //  Create another settlement over here, with a stock exchange, archives

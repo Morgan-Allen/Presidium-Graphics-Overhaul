@@ -4,10 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.wild;
+import stratos.content.civic.*;
 import stratos.game.base.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
-import stratos.game.plans.*;
 import stratos.util.*;
 
 

@@ -4,9 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.content.civic.*;
+import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -142,7 +143,7 @@ public class DebugSecurity extends Scenario {
   
   private void breedingScenario(Stage world, Base base, BaseUI UI) {
     final Actor ecologist = new Human(Backgrounds.ECOLOGIST, base);
-    final Venue station = new EcologistStation(base);
+    final Venue station = new BotanicalStation(base);
     SiteUtils.establishVenue(station, 10, 10, true, world, ecologist);
     
     station.stocks.bumpItem(Economy.CARBS  , 5);

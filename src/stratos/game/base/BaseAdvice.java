@@ -1,21 +1,21 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.base;
+import stratos.content.civic.*;
 import stratos.game.actors.*;
-import stratos.game.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 
 
 //  TODO:  There probably need to be some dedicated UI classes for this.
-
-//  Provide a hyperlink system for help on different topics.
 
 //  Notify the player when deaths occur, and for what reason.
 
@@ -337,7 +337,7 @@ public class BaseAdvice {
       canMake = new Batch <Blueprint> (),
       canUse  = new Batch <Blueprint> ();
     for (Blueprint b : base.setup.available()) {
-      if (b.category == UIConstants.TYPE_HIDDEN) continue;
+      if (b.category == UIConstants.TYPE_WIP) continue;
       else if (b.producing(t) != null) canMake.include(b);
       else if (b.consuming(t) != null) canUse .include(b);
     }
@@ -350,6 +350,7 @@ public class BaseAdvice {
     
     for (Blueprint match : canMake) {
       final Conversion s = match.producing(t);
+      final String category = match.category;
       
       if (s.raw.length > 0) {
         d.append("Consider building a "+match.name+", which converts ");
@@ -360,15 +361,17 @@ public class BaseAdvice {
         d.append("Consider building a "+match.name+", which provides "+t+".");
       }
       
-      final String category = InstallPane.categoryFor(match);
       if (category != null) {
         d.append("\n  Category: "+category+" Structures", Colour.LITE_GREY);
       }
       
+      
+      /*
       if (match.required.length > 0) for (Blueprint req : match.required) {
         if (base.listInstalled(req, true).size() > 0) continue;
         d.append("\n  Requires: "+req.name, Colour.LITE_GREY);
       }
+      //*/
       d.append("\n\n");
     }
     

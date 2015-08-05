@@ -75,7 +75,7 @@ public class Bordering extends UIGroup {
       pass, bounds,
       left, right, top, bottom,
       leftU, rightU, bottomV, topV,
-      borderTex, Colour.transparency(relAlpha)
+      borderTex, Colour.transparency(absAlpha)
     );
     super.render(pass);
   }

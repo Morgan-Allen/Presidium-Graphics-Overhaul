@@ -4,9 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import stratos.game.civic.*;
+import stratos.content.civic.*;
+import stratos.content.wip.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+
 
 
 public final class Outfits {

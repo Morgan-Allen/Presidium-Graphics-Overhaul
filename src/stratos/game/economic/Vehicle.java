@@ -482,7 +482,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_HIDDEN;
+    return UIConstants.TYPE_WIP;
   }
   
   

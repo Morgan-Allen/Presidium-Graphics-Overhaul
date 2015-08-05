@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
+import stratos.content.civic.*;
 import stratos.graphics.common.*;
-import stratos.game.civic.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 

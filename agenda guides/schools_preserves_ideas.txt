@@ -5,18 +5,18 @@
 Internal | Metabolism   | Premonition
 External | Transduction | Suggestion
 Pseer:     no particular bonus
-Xenopath:  Blind Eye + Disintegrate (tran), bonus to External/Body
-Palatine:  Kinesthesia + Kin Memory (prem), bonus to Internal/Mind
+Xenopath:  Blind Sight + Disintegrate (tran), bonus to External/Body
+Palatine:  Kinesthesia + Astral Image (prem), bonus to Internal/Mind
 
 Kommando Lodge.        Pseer School.
   Survey Redoubt         * prem:  Foresight   + Remote Viewing
-  * Vendetta: Tribal     * meta:  Suspension  + Melee Augment
+  * Vendetta: Tribal     * meta:  Suspension  + Intensity
   * Vendetta: Vermin     * tran:  Telekinesis + Forcefield
-  * Vendetta: Robots     * sugg:  Command     + Possession
+  * Vendetta: Robots     * sugg:  Command     + Concentration
   * Maw Riding           >  Faster Building & Shield/Plasma Boost
   > Heim Krieg           Force Pylon & Seat of Power Uplink
 
-Logician School.       Jil Baru School (aka Shapers).
+Logician School.       Jil Baru School (aka Shapers)
   Archives               Manna Tree
   * Nonlethal Combat     * Adaptive Skin
   * Boost Cognition      * Venom Strike
@@ -24,8 +24,8 @@ Logician School.       Jil Baru School (aka Shapers).
   * Psy Protection       * Warp Genes
   > Extra Foresight      > Summon Beasts
 
-Tek Priestess School.  OCR Knight School (aka Orch Cyber Rep).
-  Atomic Pile            OCR Spring
+Tek Priestess School.  LENS Knight School
+  Atomic Pile            Archon Circle
   * Command Uplink       * Instant Armour
   * Stasis Field         * Arc Cannons
   * Create Cybrid        * Devour Metals
@@ -33,7 +33,7 @@ Tek Priestess School.  OCR Knight School (aka Orch Cyber Rep).
   > Banishment           > Zero Point
 
 Navigator School.      Collective School.
-  Sky Bridge             Oracle Node
+  Shipyard               Android Post
   * Short TP             * Gaia Effect
   * Cloaking Field       * Sense Thoughts
   * Time Phase           * Psy Healing

@@ -10,7 +10,7 @@ import stratos.util.*;
 
 public class AutoPaveTest {
   
-
+  
   /**  Setup functions and data fields-
     */
   public static void main(String s[]) {
@@ -336,6 +336,12 @@ public class AutoPaveTest {
       //  TODO:  Actually, don't base the nearby-rating off absolute distance.
       //  Always grab the closest neighbour, and anything else within a similar
       //  radius (e.g, x1.5, say?)
+      
+      //  TODO:  No.  That won't work- if you plant everything in two clusters,
+      //  those clusters won't connect at any point.  Base off direction?  (Or
+      //  insist on connecting everything?)
+      
+      
       final Node nearby[] = getNearby(node);
       if (init) {
         I.say("\nFirst update for node: "+node);

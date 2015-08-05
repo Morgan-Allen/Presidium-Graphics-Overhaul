@@ -7,8 +7,6 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.civic.*;
-import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

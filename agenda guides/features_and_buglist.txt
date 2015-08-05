@@ -2,39 +2,35 @@
 
 TO DO NOW-
 
-*  Try to use a fixed roads/walls-template for within the bastion.  That should
-   simplify a number of tasks below.  (You also need to space out the entrances
-   less frequently.)
-   I think this needs to be generalised into a 'fix auto-paving' problem.
-
+*  Auto-paving is working again (at least in the abstract.)  See if you can
+   get it to work across arbitrary distances?  ...No.  That should be up to the
+   player (but include it as an option for the AI.)
 
 *  Area-claims need to be refined a little, so that they're treated identically
    to the footprints for other structures.  (Auto-crop must keep 2 tiles away
    from other structures, and vice versa.)
 
-
 *  Install AUTO-TURRETS at your sentry-posts & blast doors.  (Simple motion-
    detectors if you don't have a pass-code.)  Plus combat stims at stock-
    exchange & physician station.
 
-
-BUILDINGS AND ECONOMY-
-
-*  Upgrades need to be filled in and tested for:
-     Stock Exchange
-     Archives
-     Airfield
-     Runner Market
-     Enforcer Bloc
-     Xeno Lodge
-     Cut out recruitment-extras for others.
+*  Limit to just 16 core structures for now-
+    Trooper Barracks.   Auto-Turret.        Sickbay.     Culture Vats.
+    Engineer Station.   Excavation Shaft.   Generator.   Former Bay.
+    Ecologist Redoubt.  Botanical Station.  Solar Bank.  Condensor.
+    Runner Market.      Stock Exchange.     Cantina.     Airfield.
+   Spontaneous-
+    Bastion.  Service Hatch.  Holdings.  Time Capsule.
+   Make sure upgrades and abilities are functioning for these.
 
 *  Consider restricting access to some of these structures based on house-
    philosophy or lack of expertise.
-   House Procyon- has culture lab, lacks eco station.
-   House Altair-  has archives, lacks stock exchange.
-   House Taygeta- has runner lodge, lacks enforcer bloc.
-   House Suhail-  has kommando lodge, lacks reactor.
+
+*  Provide notifications for deaths and arrivals.
+
+
+
+BUILDINGS AND ECONOMY-
 
 *  Have upgrades require a 'research' and 'prototype' phase, and include
    notifications for that.  This will slow-down the upgrade process at first,

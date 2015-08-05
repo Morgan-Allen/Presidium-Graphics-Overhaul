@@ -57,7 +57,7 @@ public class Quickbar extends UIGroup implements UIConstants {
       final char key = (char) ('0' + i + 1);
       final Button b = inSlots[i];
       if ((b == null) || (! KeyInput.wasTyped(key))) continue;
-      b.performAction();
+      if (b.enabled) b.performAction();
     }
   }
 }

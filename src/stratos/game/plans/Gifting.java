@@ -1,8 +1,10 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
-import stratos.game.base.Pledge;
-import stratos.game.civic.*;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
@@ -12,7 +14,6 @@ import stratos.util.*;
 
 //  TODO:  There's a problem with the 'greeting' phase here if the other actor
 //  isn't disposed to talk (e.g, is hostile, busy or asleep, etc.)
-
 
 public class Gifting extends Plan implements Qualities {
   

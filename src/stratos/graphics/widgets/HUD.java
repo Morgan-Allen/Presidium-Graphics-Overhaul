@@ -25,7 +25,7 @@ public class HUD extends UIGroup {
     verbose = false;
   
   final private static float
-    DRAG_DIST = 3.0f,
+    DRAG_DIST   = 3.0f,
     HOVER_DELAY = 0.5f;
   
   
