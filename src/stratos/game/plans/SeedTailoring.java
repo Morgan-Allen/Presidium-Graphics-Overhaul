@@ -78,7 +78,7 @@ public class SeedTailoring extends Plan {
     );
     //  TODO:  USE THE PLAN-UTILS METHOD HERE
     final float priority = Nums.clamp(
-      ROUTINE + (lab.structure.upgradeBonus(species) / 2f),
+      ROUTINE + (lab.structure.upgradeLevel(species) / 2f),
       0, URGENT
     );
     if (report) I.say("\nSeed-tailoring priority for "+actor+" is "+priority);
@@ -127,7 +127,7 @@ public class SeedTailoring extends Plan {
     //  Okay.  We boost the max/min quality based on the upgrades available at
     //  the lab.
     final Traded yield = Crop.yieldType(species);
-    final int upgrade = Nums.clamp(lab.structure.upgradeBonus(yield), 3);
+    final int upgrade = Nums.clamp(lab.structure.upgradeLevel(yield), 3);
     final int minLevel = upgrade - 1, maxLevel = upgrade + 1;
     //
     //  There's also a partial bonus based on the quality of samples collected,

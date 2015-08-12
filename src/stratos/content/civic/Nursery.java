@@ -39,9 +39,7 @@ public class Nursery extends Venue implements TileConstants {
     "space, hard labour and fertile soils.",
     2, 1, Structure.IS_ZONED,
     Owner.TIER_FACILITY, 25,
-    5,  //integrity
-    75,  //armour
-    Structure.NO_UPGRADES
+    5
   );
   
   final static int

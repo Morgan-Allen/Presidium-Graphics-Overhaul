@@ -61,9 +61,8 @@ public class Generator extends Venue {
     "Generator", UIConstants.TYPE_ENGINEER, ICON,
     "The Generator provides copious "+POWER+" along with "+ANTIMASS+" output, "+
     "but can become an explosive liability.",
-    4, 2, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 300,
-    10, 300, Structure.NORMAL_MAX_UPGRADES
+    4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 300, 10,
+    POWER, ANTIMASS, CORE_TECHNICIAN
   );
   
   final public static Conversion
@@ -112,31 +111,31 @@ public class Generator extends Venue {
       "Reduces the rate at which "+FUEL_RODS+" are consumed and ameliorates "+
       "pollution.",
       150,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     REACTIVE_CONTAINMENT = new Upgrade(
       "Reactive Containment",
       "Reduces the likelihood of meltdown occuring when the reactor is "+
       "damaged or under-supervised, and the risk of sabotage or infiltration.",
       200,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     COLD_FUSION = new Upgrade(
       "Cold Fusion",
       "Increases "+POWER+" output while limiting pollution and decreasing the "+
       "severity of any meltdowns.",
       500,
-      Upgrade.THREE_LEVELS, null, 1,
-      REACTIVE_CONTAINMENT, BLUEPRINT
+      Upgrade.THREE_LEVELS, REACTIVE_CONTAINMENT, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     PARTICLE_CIRCUIT = new Upgrade(
       "Particle Circuit",
       "Facilitates conversion of "+FUEL_RODS+" to "+ANTIMASS+", a volatile "+
       "energy source essential to space travel and atomics stockpiles.",
-      450, Upgrade.THREE_LEVELS, null, 1,
-      WASTE_PROCESSING, BLUEPRINT
+      450, Upgrade.THREE_LEVELS, WASTE_PROCESSING, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     )
   ;
   
@@ -353,16 +352,6 @@ public class Generator extends Venue {
   
   public void setMeltdown(float melt) {
     meltdown = melt;
-  }
-  
-  
-  public Background[] careers() {
-    return new Background[] { Backgrounds.CORE_TECHNICIAN };
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { POWER, ANTIMASS };
   }
   
   

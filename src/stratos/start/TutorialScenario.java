@@ -440,12 +440,11 @@ public class TutorialScenario extends StartupScenario {
     final Tile between = Spacing.bestMidpoint(barracksBuilt, foundryBuilt);
     followIfNew(between, "hiring_begun");
     
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_POST   , 1);
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_OFFICE   , 1);
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
     
-    foundryBuilt.structure.setUpgradeLevel(EngineerStation.TECHNICIAN_POST , 1);
-    foundryBuilt.structure.setUpgradeLevel(EngineerStation.ARTIFICER_OFFICE, 1);
+    
+    //barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_POST   , 1);
+    //barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_OFFICE   , 1);
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
     
     final Base base = base();
     while (base.commerce.numCandidates(Backgrounds.TROOPER) < 2) {

@@ -44,9 +44,8 @@ public class EcologistRedoubt extends Venue implements Captivity {
     "Ecologist Redoubt", UIConstants.TYPE_ECOLOGIST, ICON,
     "Your Ecologists help adapt plant and animal species to a human presence, "+
     "and often prove valuable in guerilla warfare.",
-    4, 2, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 150,
-    4, 550, Structure.NORMAL_MAX_UPGRADES
+    4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 4,
+    PROTEIN, DRY_SPYCE, SURVEYOR
   );
   
   
@@ -114,35 +113,38 @@ public class EcologistRedoubt extends Venue implements Captivity {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
   );
   final public static Upgrade
+    VENUE_LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, null, 450, 250
+    ),
     NATIVE_MISSION = new Upgrade(
       "Native Mission",
       "Improves recruitment from local tribal communities and raises the odds "+
       "of peaceful contact.",
       300,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     THERMAL_CAMOUFLAGE = new Upgrade(
       "Thermal Camouflage",
       "Reduces the Xeno Lodge's thermal signature and light output, "+
       "making it harder for outsiders to detect.",
-      200, Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      200, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     CAPTIVE_BREEDING = new Upgrade(
       "Captive Breeding",
       "Improves the effiency of animal taming and breeding programs.",
       150,
-      Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     PROTEIN_STILL = new Upgrade(
       "Maw Harness",
       "Improves the effiency of spyce and protein extraction from rendered-"+
       "down culls.",
       300,
-      Upgrade.TWO_LEVELS, null, 1,
-      CAPTIVE_BREEDING, BLUEPRINT
+      Upgrade.TWO_LEVELS, CAPTIVE_BREEDING, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     );
   
   final public static Conversion
@@ -188,20 +190,10 @@ public class EcologistRedoubt extends Venue implements Captivity {
   }
   
   
-  public Background[] careers() {
-    return new Background[] { SURVEYOR };
-  }
-  
-  
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
     if (v == Backgrounds.SURVEYOR) return nO + 2;
     return 0;
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { PROTEIN, DRY_SPYCE };
   }
   
   

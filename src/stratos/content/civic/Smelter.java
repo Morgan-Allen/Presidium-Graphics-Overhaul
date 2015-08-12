@@ -48,7 +48,7 @@ public class Smelter extends Venue {
     "subterranean mineral deposits.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 75,
-    6, 150, Structure.NO_UPGRADES
+    6
   );
   
   protected ExcavationSite parent;

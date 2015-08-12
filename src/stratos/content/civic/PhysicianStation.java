@@ -42,9 +42,8 @@ public class PhysicianStation extends Venue {
     "Physician Station", UIConstants.TYPE_SECURITY, ICON,
     "The Physician Station allows your citizens' injuries or diseases to be "+
     "treated quickly and effectively.",
-    4, 2, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 200,
-    2, 350, Structure.NORMAL_MAX_UPGRADES
+    4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 2,
+    MEDICINE, SERVICE_HEALTHCARE, MINDER, PHYSICIAN
   );
   
   
@@ -83,8 +82,8 @@ public class PhysicianStation extends Venue {
       "Speeds the production of "+MEDICINE+" by 33%.  Benefits the treatment "+
       "and diagnosis of most disease.",
       250,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     //  Soma and truth serums (for interrogation- hypnotic meds.)
@@ -95,24 +94,24 @@ public class PhysicianStation extends Venue {
       "Surgical tools, anaesthetics and plasma reserves ensure that serious "+
       "injuries can be dealt with quickly.",
       300,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     GENE_THERAPIES = new Upgrade(
       "Gene Therapies",
       "Allows for screening of genetic illness and birth defects, helping to "+
       "correct diseases and nip mutation in the bud.",
       350,
-      Upgrade.THREE_LEVELS, null, 1,
-      MEDICAL_LAB, BLUEPRINT
+      Upgrade.THREE_LEVELS, MEDICAL_LAB, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     CRYONICS_PROGRAM = new Upgrade(
       "Cryonics Program",
       "Frozen organs and suspended animation allow the clinically dead to "+
       "make a potential comeback.",
       400,
-      Upgrade.THREE_LEVELS, null, 1,
-      EMERGENCY_ROOM, BLUEPRINT
+      Upgrade.THREE_LEVELS, EMERGENCY_ROOM, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     //  Combat stims plus extra chance of revival as enraged
@@ -122,15 +121,15 @@ public class PhysicianStation extends Venue {
       "Minder Post",
       MINDER.info,
       50,
-      Upgrade.THREE_LEVELS, Backgrounds.MINDER, 1,
-      MEDICAL_LAB, BLUEPRINT
+      Upgrade.THREE_LEVELS, MEDICAL_LAB, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, Backgrounds.MINDER
     ),
     PHYSICIAN_OFFICE = new Upgrade(
       "Physician Office",
       PHYSICIAN.info,
       150,
-      Upgrade.THREE_LEVELS, Backgrounds.PHYSICIAN, 1,
-      MINDER_POST, BLUEPRINT
+      Upgrade.THREE_LEVELS, MINDER_POST, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, Backgrounds.PHYSICIAN
     );
   
   final public static Conversion
@@ -190,6 +189,9 @@ public class PhysicianStation extends Venue {
     final Plan works = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
     if (works != null) return works;
     //
+    //  Consider performing research-
+    //choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_PHYSICIAN));
+    //
     //  Otherwise, just tend the desk...
     choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
@@ -236,21 +238,11 @@ public class PhysicianStation extends Venue {
   }
   
   
-  public Background[] careers() {
-    return new Background[] { MINDER, PHYSICIAN };
-  }
-  
-  
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
     if (v == MINDER   ) return nO + 2;
     if (v == PHYSICIAN) return nO + 2;
     return 0;
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { MEDICINE, SERVICE_HEALTHCARE };
   }
   
   

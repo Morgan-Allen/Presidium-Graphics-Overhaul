@@ -15,10 +15,10 @@ public class Structure {
   
   /**  A couple of utility-uprades that might be used by any structure:
     */
-  final public static Upgrade 
+  final public static Upgrade
     FACING_CHANGE = new Upgrade(
-      "Facing Change", "",
-      0, Upgrade.SINGLE_LEVEL
+      "facing_change", "Facing Change",
+      0, Upgrade.SINGLE_LEVEL, null, null, Upgrade.Type.MISC_CHANGE, null
     );
   
   
@@ -28,7 +28,6 @@ public class Structure {
     DEFAULT_INTEGRITY  = 100,
     DEFAULT_ARMOUR     = 2  ,
     DEFAULT_CLOAKING   = 0  ,
-    DEFAULT_BUILD_COST = 50 ,
     DEFAULT_AMBIENCE   = 0  ;
   final public static float
     BURN_PER_SECOND = 1.0f,
@@ -81,24 +80,27 @@ public class Structure {
     0.4f , 0.45f, 0.5f ,
     0.5f , 0.55f, 0.55f, 0.6f , 0.6f , 0.65f
   };
+  final static int UPGRADES_PER_LEVEL = 3;
   
   private static boolean verbose = false;
   
   
   final Placeable basis;
+  private Blueprint blueprint = null;
+  
   private int properties    = IS_NORMAL        ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
   private int maxUpgrades   = NO_UPGRADES      ;
   private Item materials[];
   private int
-    buildCost     = DEFAULT_BUILD_COST,
+    buildCost     = 0                 ,
     armouring     = DEFAULT_ARMOUR    ,
     cloaking      = DEFAULT_CLOAKING  ,
     ambienceVal   = DEFAULT_AMBIENCE  ;
   
-  private int     state         = STATE_INSTALL;
-  private float   integrity     = baseIntegrity;
-  private boolean burning       = false        ;
+  private int     state     = STATE_INSTALL;
+  private float   integrity = baseIntegrity;
+  private boolean burning   = false        ;
   
   private float   upgradeProgress =  0  ;
   private int     upgradeIndex    = -1  ;
@@ -170,11 +172,15 @@ public class Structure {
   
   
   public void setupStats(Blueprint blueprint) {
+    this.blueprint = blueprint;
     setupStats(
-      blueprint.integrity, blueprint.armour,
-      blueprint.buildCost, blueprint.maxUpgrades,
+      blueprint.integrity,
+      blueprint.armour,
+      blueprint.buildCost(),
+      blueprint.numLevels() * UPGRADES_PER_LEVEL,
       blueprint.properties
     );
+    addUpgrade(blueprint.baseUpgrade());
   }
   
   
@@ -277,7 +283,10 @@ public class Structure {
   
   public int cloaking()  { return cloaking ; }
   public int armouring() { return armouring; }
-  public int buildCost() { return buildCost; }
+  
+  public int buildCost() {
+    return blueprint == null ? buildCost : blueprint.buildCost();
+  }
   
   public int ambienceVal() { return intact() ? ambienceVal : 0; }
   
@@ -495,6 +504,7 @@ public class Structure {
   
   
   public void addUpgrade(Upgrade upgrade) {
+    if (upgrade == null) return;
     beginUpgrade(upgrade, false);
     advanceUpgrade(1.0f);
   }
@@ -606,25 +616,6 @@ public class Structure {
   }
   
   
-  //  TODO:  Probably need to get rid of this.
-  //*
-  public int upgradeBonus(Object refers) {
-    if (upgrades == null) return 0;
-    final boolean report = verbose && I.talkAbout == basis;
-    
-    int bonus = 0;
-    for (int i = 0; i < upgrades.length; i++) {
-      final Upgrade u = upgrades[i];
-      if (u == null || upgradeStates[i] != STATE_INTACT) continue;
-      if (report) I.say("Upgrade is: "+u.baseName+", refers: "+u.refers);
-      if (u.refers == refers) bonus += u.bonus;
-    }
-    if (report) I.say("Bonus for "+refers+" is "+bonus);
-    return bonus;
-  }
-  //*/
-  
-  
   public int mainUpgradeLevel() {
     int level = 0;
     for (Upgrade u : upgrades) {
@@ -634,23 +625,22 @@ public class Structure {
   }
   
   
-  public int upgradeLevel(Upgrade type, int state) {
-    if (upgrades == null || type == null) return 0;
+  public int upgradeLevel(Object refers, int state) {
+    if (upgrades == null || refers == null) return 0;
     int num = 0;
     for (int i = 0; i < upgrades.length; i++) {
-      if (state == STATE_NONE) {
-        if (upgrades[i] == type) num++;
-      }
-      else {
-        if (upgrades[i] == type && upgradeStates[i] == state) num++;
-      }
+      final Upgrade u = upgrades[i];
+      if (u == null) continue;
+      if (u != refers && u.refers != refers) continue;
+      if (state != STATE_NONE && upgradeStates[i] != state) continue;
+      num++;
     }
     return num;
   }
   
   
-  public int upgradeLevel(Upgrade type) {
-    return upgradeLevel(type, STATE_INTACT);
+  public int upgradeLevel(Object refers) {
+    return upgradeLevel(refers, STATE_INTACT);
   }
   
   

@@ -197,7 +197,7 @@ public class Mining extends Plan {
     
     float urgency = 0, sumW = 0;
     for (Traded t : MINED_TYPES) {
-      final float weight = 1 + site.structure.upgradeBonus(t);
+      final float weight = 1 + site.structure.upgradeLevel(t);
       urgency += site.stocks.relativeShortage(t) * weight;
       sumW += weight;
     }

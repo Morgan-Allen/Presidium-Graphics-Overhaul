@@ -46,7 +46,7 @@ public class Archives extends Venue {
     "administration by base personnel.",
     4, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 250,
-    3, 350, Structure.NORMAL_MAX_UPGRADES
+    3
   );
   
   final public static Conversion
@@ -118,7 +118,7 @@ public class Archives extends Venue {
   public void addServices(Choice choice, Actor client) {
     //
     //  TODO:  Allow upgrades for different skill areas!
-    choice.add(Training.asResearch(client, this, STUDY_FEE));
+    choice.add(Studying.asStudy(client, this, STUDY_FEE));
     choice.add(BringUtils.nextHomePurchase(client, this, DATALINKS));
   }
   

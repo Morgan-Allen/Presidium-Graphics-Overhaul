@@ -20,31 +20,6 @@ import static stratos.game.economic.Economy.*;
 
 public class HoldingUpgrades {
   
-
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
-  final public static Upgrade
-    TENT_LEVEL = new Upgrade(
-      "Seal Tent", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.BLUEPRINT
-    ),
-    PYON_LEVEL = new Upgrade(
-      "Pyon Shacks", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      null, Holding.BLUEPRINT
-    ),
-    FREEBORN_LEVEL = new Upgrade(
-      "Freeborn Holding", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      PYON_LEVEL, Holding.BLUEPRINT
-    ),
-    CITIZEN_LEVEL = new Upgrade(
-      "Citizen Apartment", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      FREEBORN_LEVEL, Holding.BLUEPRINT
-    ),
-    GELDER_LEVEL = new Upgrade(
-      "Gelder Manse", "", 0, Upgrade.THREE_LEVELS, null, 0,
-      CITIZEN_LEVEL, Holding.BLUEPRINT
-    ),
-    UPGRADE_ARRAY[] = Upgrade.upgradesFor(Holding.BLUEPRINT);
   
   final static Object
     NEEDS_MET = "OKAY",
@@ -114,7 +89,7 @@ public class HoldingUpgrades {
   
   public static Upgrade upgradeFor(int upgradeLevel) {
     if (upgradeLevel >= 0 && upgradeLevel <= 4) {
-      return UPGRADE_ARRAY[upgradeLevel];
+      return Holding.UPGRADE_ARRAY[upgradeLevel];
     }
     return null;
   }

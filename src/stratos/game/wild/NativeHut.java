@@ -141,7 +141,7 @@ public class NativeHut extends Venue {
         "indigenous primitives.",
         2, 2, Structure.IS_WILD,
         Owner.TIER_FACILITY, 75,
-        3, 0, Structure.NO_UPGRADES
+        3
       ) {
         public Venue createVenue(Base base) {
           return newHall(tribeID, base);
@@ -154,7 +154,7 @@ public class NativeHut extends Venue {
         "the tribe's leadership and elders will gather to make decisions.",
         3, 2, Structure.IS_WILD,
         Owner.TIER_FACILITY, 150,
-        5, 0, Structure.SMALL_MAX_UPGRADES
+        5
       ) {
         public Venue createVenue(Base base) {
           return newHut(tribeID, base);

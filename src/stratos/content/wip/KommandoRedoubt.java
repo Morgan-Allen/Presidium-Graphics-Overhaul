@@ -50,7 +50,7 @@ public class KommandoRedoubt extends Venue {
     "sufficient Kommandos to harvest prey and intimidate foes.",
     4, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 150,
-    4, 550, Structure.NORMAL_MAX_UPGRADES
+    4
   );
   
   

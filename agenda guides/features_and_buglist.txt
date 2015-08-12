@@ -2,6 +2,9 @@
 
 TO DO NOW-
 
+*  The tutorial will have to be run-through again (due to changes in level-
+   upgrades, it might not be possible to hire enough crew.)
+
 *  Auto-paving is working again (at least in the abstract.)  See if you can
    get it to work across arbitrary distances?  ...No.  That should be up to the
    player (but include it as an option for the AI.)

@@ -36,9 +36,8 @@ public class EngineerStation extends Venue {
     "Engineer Station", UIConstants.TYPE_ENGINEER, ICON,
     "The Engineer Station manufactures "+PARTS+", "+CIRCUITRY+", devices and "+
     "armour for your citizens.",
-    4, 1, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 200,
-    5, 350, Structure.NORMAL_MAX_UPGRADES
+    4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 5,
+    PLASTICS, PARTS, CIRCUITRY, SERVICE_ARMAMENT, TECHNICIAN, ARTIFICER
   );
   
   
@@ -66,43 +65,42 @@ public class EngineerStation extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    VENUE_LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.THREE_LEVELS, null,
+      500,
+      650,
+      800
+    ),
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
       "Allows standardised "+PARTS+" to be manufactured 33% faster.  Slightly "+
       "increases pollution.",
       200,
-      Upgrade.THREE_LEVELS, PARTS, 2,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, PARTS
     ),
     MOLDING_PRESS = new Upgrade(
       "Molding Press",
       "Speeds the production of common "+PLASTICS+" and working outfits "+
       "by 100%.  Slightly reduces pollution.",
-      150, Upgrade.SINGLE_LEVEL, PLASTICS, 1,
-      null, BLUEPRINT
-    ),
-    TECHNICIAN_POST = new Upgrade(
-      "Technician Post",
-      TECHNICIAN.info,
-      50,
-      Upgrade.TWO_LEVELS, TECHNICIAN, 1,
-      null, BLUEPRINT
+      150, Upgrade.SINGLE_LEVEL, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, PLASTICS
     ),
     COMPOSITE_MATERIALS = new Upgrade(
       "Composite Materials",
       "Improves the production of heavy armours along with most melee "+
       "weapons.",
       200,
-      Upgrade.THREE_LEVELS, null, 2,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     PLASMA_WEAPONS = new Upgrade(
       "Plasma Weapons",
       "Allows high-flux energy pulses to be generated and controlled, "+
       "allowing upgrades to most ranged armaments.",
       300,
-      Upgrade.THREE_LEVELS, null, 2,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     //  TODO:  INCLUDE THIS
     /*
@@ -113,20 +111,13 @@ public class EngineerStation extends Venue {
       Upgrade.SINGLE_LEVEL
     ),
     //*/
-    ARTIFICER_OFFICE = new Upgrade(
-      "Artificer Office",
-      ARTIFICER.info,
-      150,
-      Upgrade.SINGLE_LEVEL, ARTIFICER, 1,
-      TECHNICIAN_POST, BLUEPRINT
-    ),
     MICRO_ASSEMBLY = new Upgrade(
       "Micro Assembly",
       "Allows customised "+CIRCUITRY+" to be produced 33% faster.  Provides "+
       "a mild bonus to personal commissions.",
       150,
-      Upgrade.THREE_LEVELS, PLASTICS, 1,
-      new Upgrade[] { ASSEMBLY_LINE, ARTIFICER_OFFICE }, BLUEPRINT
+      Upgrade.THREE_LEVELS, new Upgrade[] { ASSEMBLY_LINE }, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, PLASTICS
     );
   
   final public static Conversion
@@ -145,16 +136,6 @@ public class EngineerStation extends Venue {
       1, PARTS, TO, 2, CIRCUITRY,
       MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY
     );
-  
-  
-  public Traded[] services() {
-    return new Traded[] { PLASTICS, PARTS, CIRCUITRY, SERVICE_ARMAMENT };
-  }
-  
-  
-  public Background[] careers() {
-    return new Background[] { TECHNICIAN, ARTIFICER };
-  }
   
   
   public int numOpenings(Background v) {
@@ -201,11 +182,13 @@ public class EngineerStation extends Venue {
       final Upgrade forType = upgradeFor(ordered.type);
       choice.add(mO.setBonusFrom(this, true, forType));
     }
-
     final Plan crafting = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
     if (actor.mind.vocation() == ARTIFICER && crafting != null) {
       return crafting;
     }
+    //
+    //  Consider research for new upgrades and structures-
+    choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ENGINEER));
     //
     //  Consider the production of general bulk commodities-
     final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);

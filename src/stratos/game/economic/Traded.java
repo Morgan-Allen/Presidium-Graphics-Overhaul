@@ -51,6 +51,7 @@ public class Traded extends Constant implements Session.Saveable {
   
   private Conversion materials;
   private float basePrice;
+  final Batch <Blueprint> sources = new Batch();
   
   
   protected Traded(
@@ -107,6 +108,11 @@ public class Traded extends Constant implements Session.Saveable {
     if (materials != null) for (Item i : materials.raw) {
       this.basePrice += i.defaultPrice();
     }
+  }
+  
+  
+  public void addSource(Blueprint b) {
+    sources.include(b);
   }
   
   

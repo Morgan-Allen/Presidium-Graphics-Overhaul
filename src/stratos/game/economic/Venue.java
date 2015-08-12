@@ -52,8 +52,8 @@ public abstract class Venue extends Fixture implements
   
   final public Blueprint blueprint;
   final public Structure structure = new Structure(this);
-  final public Staff staff = new Staff(this);
-  final public Stocks stocks = new Stocks(this);
+  final public Staff     staff     = new Staff    (this);
+  final public Stocks    stocks    = new Stocks   (this);
   
   protected Tile entrance;
   private List <Mobile> inside = new List <Mobile> ();
@@ -108,12 +108,9 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public Index <Upgrade> allUpgrades() { return null; }
   public Structure structure() { return structure; }
   public Staff staff() { return staff; }
   public Base base() { return base; }
-  
-  public int buildCost() { return structure.buildCost(); }
   
   
   public void assignBase(Base base) {
@@ -121,28 +118,6 @@ public abstract class Venue extends Fixture implements
     world.presences.togglePresence(this, false);
     this.base = base;
     world.presences.togglePresence(this, true);
-  }
-  
-  
-  
-  /**  Dealing with items and inventory-
-    */
-  public Inventory inventory() {
-    return stocks;
-  }
-  
-  
-  public float priceFor(Traded good, boolean sold) {
-    return good.basePrice();
-  }
-  
-  
-  public int spaceFor(Traded good) {
-    return structure.maxIntegrity();
-  }
-  
-  
-  public void afterTransaction(Item item, float amount) {
   }
   
   
@@ -528,7 +503,7 @@ public abstract class Venue extends Fixture implements
   
   
   protected int numOpenings(Background b) {
-    return structure.upgradeBonus(b) - staff.numHired(b);
+    return structure.upgradeLevel(b) - staff.numHired(b);
   }
   
   
@@ -567,6 +542,35 @@ public abstract class Venue extends Fixture implements
     return super.materials();
     //  TODO:  IMPLEMENT THIS!
     //return structure.materials();
+  }
+  
+  
+  public Inventory inventory() {
+    return stocks;
+  }
+  
+  
+  public float priceFor(Traded good, boolean sold) {
+    return good.basePrice();
+  }
+  
+  
+  public int spaceFor(Traded good) {
+    return structure.maxIntegrity();
+  }
+  
+  
+  public void afterTransaction(Item item, float amount) {
+  }
+
+  
+  public Traded[] services() {
+    return blueprint.tradeServices();
+  }
+  
+  
+  public Background[] careers() {
+    return blueprint.careerServices();
   }
   
   

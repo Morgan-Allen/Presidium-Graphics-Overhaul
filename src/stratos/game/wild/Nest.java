@@ -234,7 +234,7 @@ public class Nest extends Venue {
       s.name+" Nest", UIConstants.TYPE_WIP, null, s.info,
       size, high, Structure.IS_WILD,
       Owner.TIER_PRIVATE, 100,
-      5, 0, Structure.NO_UPGRADES
+      5
     ) {
       public Venue createVenue(Base base) {
         return new Nest(this, base, s, model);

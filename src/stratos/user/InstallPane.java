@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
@@ -102,15 +103,23 @@ public class InstallPane extends SelectionPane {
       if (! c.toggled) continue;
       
       detailText.append(c.name+" Structures\n");
+      final int MAX_IN_ROW = 4;
+      int numInRow = 0;
       
       for (Blueprint b : c.belong) {
+        if (b.buildCost() < 0) continue;
         boolean enabled = base.checkPrerequisites(b, Account.NONE);
+        
         describeVenueOptions(b, detailText, enabled, base);
+        if ((++numInRow % MAX_IN_ROW) == 0) detailText.append("\n");
       }
       detailText.append("\n");
     }
     
-    if (lastSelected != null) describeCurrentType(lastSelected, detailText);
+    if (lastSelected != null) {
+      boolean enabled = base.checkPrerequisites(lastSelected, Account.NONE);
+      describeCurrentType(lastSelected, base, enabled, detailText);
+    }
   }
   
 
@@ -136,8 +145,10 @@ public class InstallPane extends SelectionPane {
   }
   
   
-  private void describeCurrentType(Blueprint type, Text text) {
-    final int cost = type.buildCost;
+  private void describeCurrentType(
+    final Blueprint type, final Base base, boolean enabled, Text text
+  ) {
+    final int cost = type.buildCost();
     
     text.append("\n\n");
     text.append(type.name+" ");
@@ -150,12 +161,25 @@ public class InstallPane extends SelectionPane {
     text.append("\n\n");
     text.append(type.description);
     text.append("\n\n");
+    
+    //
+    //  TODO:  IF THIS STRUCTURE IS NOT AVAILABLE, ADD THE OPTION OF RESEARCH!
+    //  TODO:  (Also, list the reason for unavailability.)
+    final Upgrade u = type.baseUpgrade();
+    if (u == null || enabled) return;
+    final int pLevel = base.research.getPolicyLevel(u);
+    if (pLevel >= BaseResearch.LEVEL_PRAXIS) return;
+    
+    text.append("This structure has not yet been researched.");
+    text.append("\n  ");
+    text.append(new Description.Link("Order Research") {
+      public void whenClicked() {
+        base.research.setPolicyLevel(u, BaseResearch.LEVEL_PRAXIS);
+        u.whenClicked();
+      }
+    });
   }
-  
 }
-
-
-
 
 
   

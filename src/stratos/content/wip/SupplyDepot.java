@@ -47,9 +47,7 @@ public class SupplyDepot extends Venue {
     "used in manufacturing.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_TRADER, 100,
-    2,  //integrity
-    200  ,  //armour
-    Structure.NORMAL_MAX_UPGRADES
+    2
   );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();

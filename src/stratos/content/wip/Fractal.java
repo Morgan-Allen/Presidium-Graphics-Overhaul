@@ -38,9 +38,7 @@ public class Fractal extends Venue {
     "geometric forms.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
     Owner.TIER_PRIVATE, 40,
-    8,  // integrity
-    30 ,  // armour
-    Structure.NO_UPGRADES
+    8
   );
   
   

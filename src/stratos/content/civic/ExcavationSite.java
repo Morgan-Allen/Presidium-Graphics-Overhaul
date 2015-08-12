@@ -45,11 +45,10 @@ public class ExcavationSite extends Venue implements TileConstants {
     "Excavation Site", UIConstants.TYPE_ENGINEER, ICON,
     "Excavation Sites expedite extraction of minerals and artifacts "+
     "from surrounding terrain.",
-    4, 1, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 200,
-    15, 350, Structure.NORMAL_MAX_UPGRADES
+    4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 15,
+    METALS, FUEL_RODS, POLYMER, EXCAVATOR
   );
-
+  
   final public static Conversion
     LAND_TO_METALS = new Conversion(
       BLUEPRINT, "land_to_metals",
@@ -228,8 +227,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Increases effective dig range while limiting pollution and improving "+
       "the chance to recover "+FOSSILS+".",
       100,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     METALS_SMELTING = new Upgrade(
@@ -237,8 +236,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows veins of heavy "+METALS+" to be sought out and processed "+
       "more reliably.",
       150,
-      Upgrade.THREE_LEVELS, METALS, 2,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, METALS
     ),
     
     FUEL_RODS_SMELTING = new Upgrade(
@@ -246,8 +245,8 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows deposits of radioactive "+FUEL_RODS+" to be sought out and "+
       "extracted more reliably.",
       200,
-      Upgrade.THREE_LEVELS, ANTIMASS, 2,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, ANTIMASS
     ),
     
     MANTLE_DRILLING = new Upgrade(
@@ -255,20 +254,9 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Enables deep sub-surface boring to sustain an indefinite production of "+
       METALS+" and "+FUEL_RODS+" at the cost of heavy pollution.",
       350,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     );
-  
-  
-  
-  public Background[] careers() {
-    return new Background[] { Backgrounds.EXCAVATOR };
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { METALS, FUEL_RODS, POLYMER };
-  }
   
   
   public int numOpenings(Background v) {

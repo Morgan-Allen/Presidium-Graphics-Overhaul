@@ -42,7 +42,7 @@ public class Bastion extends Venue {
     "basic logistic support.",
     8, 3, Structure.IS_UNIQUE,
     Owner.TIER_FACILITY, 650,
-    15, 1000, Structure.BIG_MAX_UPGRADES
+    15
   );
   
   
@@ -141,48 +141,48 @@ public class Bastion extends Venue {
       "Provides more openings for your "+TECHNICIAN+"s and "+AUDITOR+"s, "+
       "thereby aiding construction efforts and revenue flow.",
       200,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     SECURITY_MEASURES = new Upgrade(
       "Security Measures",
       "Increases patrols of "+TROOPER+"s in and around your settlement and "+
       "augments your Bastion's output of "+POWER+" and "+ATMO+".",
       300,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     NOBLE_QUARTERS = new Upgrade(
       "Noble Quarters",
       "Increases the space available to your family, advisors, honour guard "+
       "and honoured guests.",
       400,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     GUEST_QUARTERS = new Upgrade(
       "Guest Quarters",
       "Makes more space for prisoners and hostages, and creates openings for "+
       ""+STEWARD+"s in your employ.",
       250,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     BLAST_SHIELDS = new Upgrade(
       "Blast Shields",
       "Increases the structural integrity of the Bastion, particularly vital "+
       "in the event of atomic attack.",
       450,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     SEAT_OF_POWER = new Upgrade(
       "Seat of Power",
       "Augments the strength and range of your psyonic powers and capacity "+
       "to function without sleep or rest.",
       500,
-      Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     );
   
   final static Condition SEAT_OF_POWER_EFFECT = new Condition(

@@ -82,8 +82,39 @@ public class Holding extends Venue {
     "your subjects.",
     2, 1, Structure.IS_NORMAL,
     Owner.TIER_PRIVATE, INTEGRITIES[0],
-    5, BUILD_COSTS[0], Structure.BIG_MAX_UPGRADES
+    5
   );
+  
+  final public static Upgrade
+    TENT_LEVEL = new Upgrade(
+      "Seal Tent", "",
+      0, Upgrade.THREE_LEVELS, null, Holding.BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    ),
+    PYON_LEVEL = new Upgrade(
+      "Pyon Shacks", "",
+      0, Upgrade.THREE_LEVELS, null, Holding.BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    ),
+    FREEBORN_LEVEL = new Upgrade(
+      "Freeborn Holding", "",
+      0, Upgrade.THREE_LEVELS, PYON_LEVEL, Holding.BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    ),
+    CITIZEN_LEVEL = new Upgrade(
+      "Citizen Apartment", "",
+      0, Upgrade.THREE_LEVELS, FREEBORN_LEVEL, Holding.BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    ),
+    GELDER_LEVEL = new Upgrade(
+      "Gelder Manse", "",
+      0, Upgrade.THREE_LEVELS, CITIZEN_LEVEL, Holding.BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    ),
+    UPGRADE_ARRAY[] = Holding.BLUEPRINT.assignVenueLevels(
+      TENT_LEVEL, PYON_LEVEL, FREEBORN_LEVEL, CITIZEN_LEVEL, GELDER_LEVEL
+    );
+  
   
   final static Conversion
     PROVIDE_HOUSING = new Conversion(
@@ -163,8 +194,6 @@ public class Holding extends Venue {
   
   /**  Upgrade listings-
     */
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
-  
   public float ratePlacing(Target point, boolean exact) {
     final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
     float baseDemand = base.demands.globalShortage(SERVICE_HOUSING, false);

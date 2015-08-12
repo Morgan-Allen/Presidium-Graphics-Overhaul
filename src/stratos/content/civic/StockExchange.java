@@ -48,7 +48,7 @@ public class StockExchange extends Venue {
     "local homes and businesses.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_TRADER, 150,
-    3, 250, Structure.NORMAL_MAX_UPGRADES
+    3
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -150,8 +150,8 @@ public class StockExchange extends Venue {
       "Rations Vending",
       "Increases space available to "+CARBS+" and "+PROTEIN+" and augments "+
       "profits from their sale.",
-      150, Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      150, Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     //  TODO:  PERMIT BASIC REPAIRS/RECHARGE OF ARMOUR/DEVICES
@@ -159,8 +159,8 @@ public class StockExchange extends Venue {
       "Hardware Store",
       "Increases space available to "+PARTS+" and "+PLASTICS+", and augments "+
       "profits from their sale.",
-      150, Upgrade.THREE_LEVELS, null, 1,
-      null, BLUEPRINT
+      150, Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
@@ -168,31 +168,31 @@ public class StockExchange extends Venue {
       "Medical Exchange",
       "Increases space available to "+GREENS+" and "+MEDICINE+", and augments "+
       "profits from their sale.",
-      250, Upgrade.THREE_LEVELS, null, 1,
-      RATIONS_VENDING, BLUEPRINT
+      250, Upgrade.THREE_LEVELS, RATIONS_VENDING, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     CREDITS_EXCHANGE = new Upgrade(
       "Credits Exchange",
       "Makes small periodic adjustments to revenue and outlays in response "+
       "to large-scale investment patterns, magnifying both profit and loss.",
-      400, Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      400, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     STOCK_VENDOR_OFFICE = new Upgrade(
       "Stock Vendor Office",
       STOCK_VENDOR.info,
-      100, Upgrade.TWO_LEVELS, STOCK_VENDOR, 1,
-      null, BLUEPRINT
+      100, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, STOCK_VENDOR
     ),
     
     ADVERTISEMENT = new Upgrade(
       "Advertisement",
       "Increases the likelihood of shoppers' visits and enhances morale when "+
       "doing so.",
-      300, Upgrade.TWO_LEVELS, null, 1,
-      STOCK_VENDOR_OFFICE, BLUEPRINT
+      300, Upgrade.TWO_LEVELS, STOCK_VENDOR_OFFICE, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     );
   
   

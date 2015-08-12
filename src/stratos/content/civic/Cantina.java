@@ -90,7 +90,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     "at the Cantina.  Unsavoury characters are known to drop by, however.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 150,
-    2, 200, Structure.NO_UPGRADES
+    2
   );
   
   

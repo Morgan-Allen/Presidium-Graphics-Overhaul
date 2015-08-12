@@ -50,7 +50,7 @@ public class BotanicalStation extends Venue {
     "helping to secure food supplies and advance terraforming efforts.",
     4, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 150,
-    3, 250, Structure.NORMAL_MAX_UPGRADES
+    3
   );
   
   
@@ -88,55 +88,42 @@ public class BotanicalStation extends Venue {
   
   /**  Handling upgrades and economic functions-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
+  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    CEREAL_CULTURE = new Upgrade(
-      "Cereal Culture",
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.THREE_LEVELS, null,
+      450,
+      500,
+      550
+    ),
+    MONOCULTURE = new Upgrade(
+      "Monoculture",
       "Improves cereal yields, which provide "+CARBS+".  Cereals yield more "+
       "calories than other crops, but lack the nutrients for a complete diet.",
-      100,
-      Upgrade.THREE_LEVELS, CARBS, 1,
-      null, BLUEPRINT
+      100, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, CARBS
     ),
     FLORAL_CULTURE = new Upgrade(
       "Floral Culture",
       "Improves broadleaf yields, which provide "+GREENS+".  These are "+
       "valued as luxury exports, but their yield in calories is limited.",
-      150,
-      Upgrade.THREE_LEVELS, GREENS, 1,
-      null, BLUEPRINT
-    ),
-    CULTIVATOR_POST = new Upgrade(
-      "Cultivator Post",
-      CULTIVATOR.info,
-      50,
-      Upgrade.THREE_LEVELS, CULTIVATOR, 1,
-      null, BLUEPRINT
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, GREENS
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
       "Forestry programs assist in terraforming efforts and climate "+
       "moderation, as well as permitting "+POLYMER+" production.",
-      100,
-      Upgrade.THREE_LEVELS, Flora.class, 1,
-      FLORAL_CULTURE, BLUEPRINT
+      100, Upgrade.THREE_LEVELS, FLORAL_CULTURE, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, Flora.class
     ),
     SYMBIOTICS = new Upgrade(
       "Symbiotics",
       "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
       "assists in animal breeding programs.",
-      150,
-      Upgrade.THREE_LEVELS, PROTEIN, 1,
-      FLORAL_CULTURE, BLUEPRINT
-    ),
-    ECOLOGIST_OFFICE = new Upgrade(
-      "Ecologist Office",
-      ECOLOGIST.info,
-      150,
-      Upgrade.THREE_LEVELS, ECOLOGIST, 1,
-      TREE_FARMING, BLUEPRINT
+      150, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, PROTEIN
     );
   
   
@@ -192,6 +179,10 @@ public class BotanicalStation extends Venue {
       choice.add(Forestry.nextSampling(actor, this, needSamples));
     }
     //
+    //  Consider performing research-
+    choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ECOLOGIST));
+    ///choice.isVerbose = true;
+    //
     //  Tailor seed varieties and consider breeding animals or forestry-
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.withReference(GENE_SEED, s);
@@ -243,7 +234,10 @@ public class BotanicalStation extends Venue {
     //
     //
     //  And update demand for nursery-placement:
-    final float nurseryDemand = structure.upgradeLevel(CULTIVATOR_POST) + 1;
+    
+    //  TODO:  JUST MERGE WITH THE NURSERY!
+    
+    final float nurseryDemand = 0 + 1;
     base.demands.impingeDemand(Nursery.class, nurseryDemand, 1, this);
     //
     //  An update ambience-

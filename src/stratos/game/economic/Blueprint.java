@@ -5,6 +5,7 @@
   */
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.game.actors.*;
 import stratos.game.maps.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -15,19 +16,14 @@ import java.lang.reflect.*;
 
 
 
-//  No.  I have to consider this carefully.
-
-
 /*
   //  TODO:  Finish moving attributes in here...
   final public Traded materials[];
-  final public Conversion services[];
-  
-  final public Background careers[];
   final public int shiftType;
   
   //  TODO:  Allow reading from XML?  (Possibly model too...?)
 //*/
+
 
 public class Blueprint extends Constant implements Session.Saveable {
   
@@ -45,24 +41,26 @@ public class Blueprint extends Constant implements Session.Saveable {
   final public int
     properties ,
     integrity  ,
-    armour     ,
-    buildCost  ,
-    maxUpgrades;
+    armour     ;
   
   final public int owningTier;
   
   private Upgrade upgradeLevels[];
+  private Object services[];
   private Batch <Conversion> producing = new Batch();
   private Batch <Conversion> consuming = new Batch();
   
   private Siting siting = null;
+  private Traded tradeServices[] = null;
+  private Background careerServices[] = null;
   
 
   public Blueprint(
     Class <? extends Venue> baseClass, String key,
     String name, String category, ImageAsset icon, String description,
     int size, int high, int properties, int owningTier,
-    int integrity, int armour, int buildCost, int maxUpgrades
+    int integrity, int armour,
+    Object... services
   ) {
     super(INDEX, key, name);
     setAsUniqueTo(baseClass);
@@ -80,10 +78,24 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.properties  = properties ;
     this.integrity   = integrity  ;
     this.armour      = armour     ;
-    this.buildCost   = buildCost  ;
-    this.maxUpgrades = maxUpgrades;
-    
-    this.owningTier = owningTier;
+    this.owningTier  = owningTier ;
+    //
+    //  And finally, we register with any listed services.
+    final Batch <Traded    > TS = new Batch();
+    final Batch <Background> CS = new Batch();
+    for (Object o : services) {
+      if (o instanceof Background) {
+        ((Background) o).addHirePoint(this);
+        CS.add((Background) o); 
+      }
+      if (o instanceof Traded) {
+        ((Traded) o).addSource(this);
+        TS.add((Traded) o);
+      }
+    }
+    this.services = services;
+    this.tradeServices  = TS.toArray(Traded    .class);
+    this.careerServices = CS.toArray(Background.class);
   }
   
   
@@ -110,31 +122,74 @@ public class Blueprint extends Constant implements Session.Saveable {
   }
   
   
+  public Traded[] tradeServices() {
+    return tradeServices;
+  }
+  
+  
+  public Background[] careerServices() {
+    return careerServices;
+  }
+  
+  
   
   /**  Factory methods for direct structure-upgrades.
     */
-  public Upgrade[] upgradeLevels(int numLevels, int... buildCosts) {
-    this.upgradeLevels = new Upgrade[numLevels];
-    for (int i = 0; i < numLevels; i++) {
-      final Upgrade u = new Upgrade(
-        "level_1_"+this, "Upgrade to level "+(i + 1), buildCosts[i], 1
-      );
-      upgradeLevels[i] = u;
+  public Upgrade[] createVenueLevels(
+    int numLevels, Upgrade required, int... buildCosts
+  ) {
+    if (buildCosts.length != numLevels) {
+      I.complain("MUST HAVE BUILD COSTS FOR EACH VENUE LEVEL!");
+      return new Upgrade[0];
     }
+    this.upgradeLevels = new Upgrade[numLevels];
+    
+    for (int i = 0; i < numLevels; i++) upgradeLevels[i] = new Upgrade(
+      (i == 0) ? this.name : this.name+" Level "+(i + 1),
+      "Upgrade to level "+(i + 1),
+      buildCosts[i], 1,
+      (i == 0 ? required : upgradeLevels[i - 1]), this,
+      Upgrade.Type.VENUE_LEVEL, null
+    );
     return upgradeLevels;
+  }
+  
+  
+  public Upgrade[] assignVenueLevels(Upgrade... levels) {
+    this.upgradeLevels = levels;
+    return levels;
+  }
+  
+  
+  public Upgrade[] venueLevels() {
+    return upgradeLevels;
+  }
+  
+  
+  public Upgrade baseUpgrade() {
+    if (upgradeLevels == null) return null;
+    return upgradeLevels[0];
+  }
+  
+  
+  public int buildCost() {
+    //  TODO:  THIS MAY VARY BASED ON WHETHER THE UPGRADE IS A PROTOTYPE OR
+    //  NOT!
+    
+    if (upgradeLevels == null) return -1;
+    return baseUpgrade().buildCost;
+  }
+  
+  
+  public int numLevels() {
+    if (upgradeLevels == null) return 1;
+    return upgradeLevels.length;
   }
   
   
   
   /**  Property queries-
     */
-  /*
-  public Series <Blueprint> allows() {
-    return allows;
-  }
-  //*/
-  
-  
   public static boolean hasProperty(Structure s, int property) {
     return (s.properties() & property) == property;
   }
@@ -276,8 +331,12 @@ public class Blueprint extends Constant implements Session.Saveable {
     if (category != null) {
       d.append("\nCategory: "+category+" Structures");
     }
-    final int cost = buildCost;
+    final int cost = buildCost();
     d.append("\nBuild cost: "+cost);
+    
+    if (baseUpgrade() != null) {
+      baseUpgrade().describeResearchStatus(d);
+    }
     
     if (consuming.size() > 0) d.append("\n\nConsumption:");
     for (Conversion c : consuming) {
@@ -308,28 +367,6 @@ public class Blueprint extends Constant implements Session.Saveable {
       }
       d.append("\n  Base 2.5x per worker/day");
     }
-    
-    final Upgrade upgrades[] = Upgrade.upgradesFor(this);
-    if (upgrades.length > 0) d.append("\n\nUpgrades:");
-    for (Upgrade u : upgrades) {
-      d.append("\n  ");
-      d.append(u);
-    }
-    
-    /*
-    if (required.length > 0) d.append("\n\nRequires:");
-    for (Blueprint req : required) {
-      if (req == required[0]) d.append(" ");
-      else d.append(", ");
-      d.append(req);
-    }
-    if (allows.size() > 0) d.append("\n\nAllows:");
-    for (Blueprint all : allows) {
-      if (all == allows.first()) d.append(" ");
-      else d.append(", ");
-      d.append(all);
-    }
-    //*/
     
     if (! isGrouped()) {
       final Batch <Venue> built = base.listInstalled(this, false);

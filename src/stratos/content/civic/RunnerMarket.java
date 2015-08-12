@@ -99,7 +99,7 @@ public class RunnerMarket extends Venue {
     "criminal connections.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 150,
-    3, 250, Structure.NORMAL_MAX_UPGRADES
+    3
   );
   
   private int gangID = GANG_NONE;

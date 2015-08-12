@@ -37,9 +37,8 @@ public class TrooperLodge extends Venue {
     "Trooper Lodge", UIConstants.TYPE_SECURITY, ICON,
     "The Trooper Lodge allows you to recruit the sturdy, disciplined and "+
     "heavily-equipped Trooper into the rank and file of your armed forces.",
-    4, 2, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 500,
-    20, 250, Structure.NORMAL_MAX_UPGRADES
+    4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 500, 20,
+    VOLUNTEER, TROOPER
   );
   
   
@@ -69,47 +68,55 @@ public class TrooperLodge extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.THREE_LEVELS, null,
+      650,
+      800,
+      1000
+    ),
     MELEE_TRAINING = new Upgrade(
       "Melee Training",
       "Drills your soldiers for the rigours of close combat and tight "+
       "formations.",
-      150, Upgrade.THREE_LEVELS, null, 3,
-      null, BLUEPRINT
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
       "Drills your soldiers to improve ranged marksmanship.",
-      150, Upgrade.THREE_LEVELS, null, 3,
-      null, BLUEPRINT
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     FIELD_MEDICINE = new Upgrade(
       "Field Medicine",
       "Drills your soldiers in first aid techniques and use of combat stims.",
-      200, Upgrade.THREE_LEVELS, null, 3,
-      null, BLUEPRINT
+      200, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     FIELD_REPAIRS = new Upgrade(
       "Field Repairs",
       "Drills your soldiers in maintaining equipment and aiding in "+
       "construction projects.",
-      200, Upgrade.THREE_LEVELS, null, 3,
-      null, BLUEPRINT
-    ),
+      200, Upgrade.THREE_LEVELS, LEVELS[2], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    );
+    /*
     VOLUNTEER_POST = new Upgrade(
       "Volunteer Post",
       VOLUNTEER.info,
       200,
-      Upgrade.THREE_LEVELS, Backgrounds.VOLUNTEER, 1,
-      null, BLUEPRINT
+      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, Backgrounds.VOLUNTEER
     ),
     TROOPER_OFFICE = new Upgrade(
       "Trooper Office",
       TROOPER.info,
       450,
-      Upgrade.THREE_LEVELS, Backgrounds.TROOPER, 1,
-      VOLUNTEER_POST, BLUEPRINT
+      Upgrade.THREE_LEVELS, VOLUNTEER_POST, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, Backgrounds.TROOPER
     );
-
+    //*/
+  
   final static Upgrade TRAIN_UPGRADES[] = {
     MELEE_TRAINING,
     MARKSMAN_TRAINING,
@@ -156,7 +163,7 @@ public class TrooperLodge extends Venue {
       final float trainLevel = structure.upgradeLevel(TU);
       if (trainLevel == 0) continue;
       final Skill TS[] = TRAIN_SKILLS[i];
-      final Training s = Training.asDrill(actor, this, TS, trainLevel * 5);
+      final Studying s = Studying.asDrill(actor, this, TS, trainLevel * 5);
       s.addMotives(Plan.MOTIVE_JOB, (trainLevel + 1) * Plan.CASUAL / 2);
       choice.add(s);
     }
@@ -169,22 +176,11 @@ public class TrooperLodge extends Venue {
   }
   
   
-  
-  public Background[] careers() {
-    return new Background[] { Backgrounds.VOLUNTEER, Backgrounds.TROOPER };
-  }
-  
-  
   public int numOpenings(Background v) {
     int num = super.numOpenings(v);
     if (v == Backgrounds.VOLUNTEER) return num + 2;
     if (v == Backgrounds.TROOPER  ) return num + 2;
     return 0;
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] {};
   }
 }
 

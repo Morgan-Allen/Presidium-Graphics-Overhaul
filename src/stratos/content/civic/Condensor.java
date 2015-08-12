@@ -34,9 +34,7 @@ public class Condensor extends Venue {
     "settlement.",
     2, 1, Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 85,
-    1 ,  // integrity
-    200  ,  // armour
-    Structure.NO_UPGRADES
+    1
   );
   
   

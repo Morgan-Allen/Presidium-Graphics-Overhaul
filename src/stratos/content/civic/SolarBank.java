@@ -41,8 +41,8 @@ public class SolarBank extends Venue {
     "Solar Banks provide clean power and a small amount of water to your "+
     "settlement.",
     2, 1, Structure.IS_LINEAR | Structure.IS_FIXTURE,
-    Owner.TIER_FACILITY, 10,
-    5, 40, Structure.NO_UPGRADES
+    Owner.TIER_FACILITY, 10, 5,
+    POWER, WATER
   );
   
   final static Conversion
@@ -80,16 +80,6 @@ public class SolarBank extends Venue {
     final float sun = world.terrain().insolationSample(origin());
     stocks.forceDemand(POWER, sun * 4, true);
     stocks.forceDemand(WATER, (0.5f + 1 - sun) / 2, true);
-  }
-  
-  
-  public Background[] careers() {
-    return null;
-  }
-  
-  
-  public Traded[] services() {
-    return null;
   }
   
   

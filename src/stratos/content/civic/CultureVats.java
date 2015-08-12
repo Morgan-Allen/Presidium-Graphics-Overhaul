@@ -36,10 +36,8 @@ public class CultureVats extends Venue {
     "Culture Vats", UIConstants.TYPE_SECURITY, ICON,
     "The Culture Vats manufacture "+REAGENTS+", basic foodstuffs "+
     "and even cloned tissues for medical purposes.",
-    4, 2, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY,
-    400,
-    3, 450, Structure.NORMAL_MAX_UPGRADES
+    4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 400, 3,
+    CARBS, PROTEIN, REAGENTS, VATS_BREEDER
   );
   
   final public static Conversion
@@ -92,35 +90,36 @@ public class CultureVats extends Venue {
       "Carbs Culture",
       "Employs gene-tailored yeast strains to provide "+CARBS+", cycle waste "+
       "products and output "+ATMO+".",
-      200, Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      200, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
       "permitting manufacture of "+REAGENTS+".",
-      250, Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      250, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     TISSUE_CULTURE = new Upgrade(
       "Tissue Culture",
       "Allows production of "+PROTEIN+" for consumption and "+REPLICANTS+" "+
       "for use in medical emergencies.",
-      400, Upgrade.TWO_LEVELS, null, 1,
-      CARBS_CULTURE, BLUEPRINT
+      400, Upgrade.TWO_LEVELS, CARBS_CULTURE, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     
     CHEMICAL_VATS = null,
     
-    CORPSE_CYCLING = null,
-    
+    CORPSE_CYCLING = null
+    /*
     //  TODO:  Just have a general structure-upgrade here-
     VATS_BREEDER_POST = new Upgrade(
       "Vats Breeder Post",
       VATS_BREEDER.info,
-      100, Upgrade.TWO_LEVELS, VATS_BREEDER, 1,
-      null, BLUEPRINT
+      100, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, VATS_BREEDER
     )
+    //*/
   ;
   
   
@@ -186,16 +185,6 @@ public class CultureVats extends Venue {
   public void addServices(Choice choice, Actor forActor) {
     //  TODO:  Add functions here?
     //super.addServices(choice, forActor);
-  }
-
-
-  public Traded[] services() {
-    return new Traded[] { CARBS, PROTEIN, SOMA, REAGENTS };
-  }
-  
-  
-  public Background[] careers() {
-    return new Background[] { VATS_BREEDER };
   }
   
   

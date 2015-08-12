@@ -47,9 +47,7 @@ public class Airfield extends Venue {
     6, 1, Structure.IS_NORMAL,
     Owner.TIER_FACILITY,
     250,
-    5,  //integrity
-    400  ,  //armour
-    Structure.NORMAL_MAX_UPGRADES
+    5
   );
   
   private float fuelLevels;

@@ -69,7 +69,7 @@ public class Ruins extends Venue {
       "dangerous beings often haunt such forsaken places.",
       4, 2, Structure.IS_WILD | Structure.IS_ANCIENT,
       Owner.TIER_FACILITY, 500,
-      25, 0, Structure.NO_UPGRADES
+      25
     ) {
       public Venue createVenue(Base base) {
         final Venue sample = new Ruins(base);

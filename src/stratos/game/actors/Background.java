@@ -50,11 +50,11 @@ public class Background extends Constant {
   final public int standing;
   final public int guild;
   final public int defaultSalary;
+  final Batch <Blueprint> hirePoints = new Batch();
   
   final Table <Skill, Integer> baseSkills = new Table <Skill, Integer> ();
   final Table <Trait, Float> traitChances = new Table <Trait, Float  > ();
   final List <Traded> gear = new List <Traded> ();
-  
   
   
   protected Background(
@@ -103,6 +103,11 @@ public class Background extends Constant {
   
   public void saveState(Session s) throws Exception {
     INDEX.saveEntry(this, s.output());
+  }
+  
+  
+  public void addHirePoint(Blueprint b) {
+    hirePoints.include(b);
   }
   
   
@@ -192,14 +197,8 @@ public class Background extends Constant {
     substituteReferences(info, d);
     
     d.append("\n");
-    final Batch <Blueprint> hiredAt = new Batch();
-    final Base base = BaseUI.currentPlayed();
-    for (Blueprint b : base.setup.available()) {
-      for (Upgrade u : Upgrade.upgradesFor(b)) {
-        if (u.refers == this) hiredAt.include(b);
-      }
-    }
-    for (Blueprint b : hiredAt) {
+    
+    for (Blueprint b : hirePoints) {
       d.append("\nHired At: ");
       d.append(b);
     }

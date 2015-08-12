@@ -40,13 +40,10 @@ public class FormerBay extends Venue implements TileConstants {
   final public static Blueprint BLUEPRINT = new Blueprint(
     FormerBay.class, "former_bay",
     "Former Bay", UIConstants.TYPE_ENGINEER, ICON,
-    "The Former Bay extracts light minerals from the soil and atmosphere, "+
-    "speeding either terraforming or deforestation programs.",
-    4, 1, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 25,
-    5,  //integrity
-    75,  //armour
-    Structure.SMALL_MAX_UPGRADES
+    "The Former Bay extracts light minerals from the soil and atmosphere "+
+    "while speeding terraforming programs.",
+    4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 25, 5,
+    POLYMER, FORMER_ENGINEER
   );
   
   final static float
@@ -156,11 +153,6 @@ public class FormerBay extends Venue implements TileConstants {
   }
   
   
-  public Background[] careers () {
-    return new Background[] { FORMER_ENGINEER };
-  }
-  
-  
   protected int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
     if (b == FORMER_ENGINEER) return nO + 2;
@@ -189,9 +181,6 @@ public class FormerBay extends Venue implements TileConstants {
   
   protected void updatePaving(boolean inWorld) {
   }
-  
-  
-  public Traded[] services() { return new Traded[] { POLYMER }; }
   
   
   

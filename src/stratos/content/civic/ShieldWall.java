@@ -52,7 +52,7 @@ public class ShieldWall extends Venue {
     "Shield Walls are defensive emplacements that improve base security.",
     2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 125,
-    15, 40, Structure.SMALL_MAX_UPGRADES
+    15
   );
   
   

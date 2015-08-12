@@ -353,8 +353,8 @@ public class VenuePane extends SelectionPane {
     //  they haven't started just yet.
     //  TODO:  Also- don't allow upgrades until the structure is finished
     //  building!  (Conversely, DO allow hiring before then.)
-    final Upgrade UA[] = Upgrade.upgradesFor(v.blueprint);
-    if (UA == null || UA.length == 0) {
+    final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
+    if (UA == null || UA.size() == 0) {
       d.append("No upgrades available.");
       return;
     }

@@ -72,7 +72,7 @@ public class Edifice extends Venue {
     "settlement beneath a frictionless composite facade.",
     4, 2, Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 500,
-    50, 800, Structure.NO_UPGRADES
+    50
   );
   
   int eventCode = -1, styleCode = -1;

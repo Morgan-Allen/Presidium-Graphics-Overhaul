@@ -21,12 +21,12 @@ public class Upgrade extends Constant {
   
   
   final static Index <Upgrade> INDEX = new Index <Upgrade> ();
-  private static Table <Blueprint, Batch <Upgrade>> byVenue = new Table();
   
   public static enum Type {
     VENUE_LEVEL,
     TECH_MODULE,
-    SOC_POLICY
+    SOC_POLICY,
+    MISC_CHANGE
   };
   
   final public static int
@@ -39,39 +39,29 @@ public class Upgrade extends Constant {
   final public String description;
   
   final public Type type;
+  final public Object refers;
   final public int buildCost;
   final public int maxLevel;
   
   final public Blueprint origin;
   final public Upgrade required[];
-  final public Object refers;
-  final public int bonus;
   private Batch <Upgrade> leadsTo = new Batch <Upgrade> ();
   
   
   public Upgrade(
     String name, String desc,
-    int buildCost, int maxLevel
-  ) {
-    this(name, desc, buildCost, maxLevel, null, 1, null, null);
-  }
-  
-  
-  public Upgrade(
-    String name, String desc,
     int buildCost, int maxLevel,
-    Object refers, int bonus,
-    Object required, Blueprint origin
+    Object required, Blueprint origin,
+    Type type, Object refers
   ) {
     super(INDEX, name+"_"+origin, name);
     
     this.baseName    = name;
     this.description = desc;
-    this.type        = Type.TECH_MODULE;
+    this.type        = type;
+    this.refers      = refers;
     this.buildCost   = buildCost;
     this.origin      = origin;
-    this.refers      = refers;
-    this.bonus       = bonus;
     this.maxLevel    = maxLevel;
     
     if (required instanceof Upgrade) {
@@ -87,10 +77,6 @@ public class Upgrade extends Constant {
       this.required = new Upgrade[0];
     }
     for (Upgrade u : this.required) u.leadsTo.add(this);
-    
-    Batch <Upgrade> VU = byVenue.get(origin);
-    if (VU == null) byVenue.put(origin, VU = new Batch());
-    VU.add(this);
   }
   
   
@@ -104,9 +90,20 @@ public class Upgrade extends Constant {
   }
   
   
-  public static Upgrade[] upgradesFor(Blueprint venueType) {
-    final Batch <Upgrade> VU = byVenue.get(venueType);
-    return VU == null ? new Upgrade[0] : VU.toArray(Upgrade.class);
+  public static Series <Upgrade> upgradesAvailableFor(Venue venue) {
+    final Batch <Upgrade> available = new Batch();
+    for (Upgrade u : venue.blueprint.venueLevels()) {
+      if (! venue.structure.hasUpgrade(u)) continue;
+      for (Upgrade l : u.leadsTo()) if (u.origin == venue.blueprint) {
+        available.add(l);
+      }
+    }
+    return available;
+  }
+  
+  
+  public Batch <Upgrade> leadsTo() {
+    return leadsTo;
   }
   
   
@@ -146,10 +143,7 @@ public class Upgrade extends Constant {
       }
     }
     
-    if (required.length > 0) d.append("\nRequires:");
-    for (Upgrade u : required) { d.append("\n  "); d.append(u); }
-    if (leadsTo.size() > 0) d.append("\nLeads to:");
-    for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
+    describeResearchStatus(d);
     
     if (prior instanceof Venue) {
       final Venue at = (Venue) prior;
@@ -158,6 +152,31 @@ public class Upgrade extends Constant {
         d.append("\n\n  Cannot Install: "+error);
       }
     }
+  }
+  
+  
+  public void describeResearchStatus(Description d) {
+    if (required.length > 0) d.append("\nRequires:");
+    for (Upgrade u : required) { d.append("\n  "); d.append(u); }
+    if (leadsTo.size() > 0) d.append("\nLeads to:");
+    for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
+    
+    final Base base = BaseUI.currentPlayed();
+    if (base != null) {
+      String progDesc = base.research.progressDescriptor(this);
+      float  progLeft = base.research.researchRemaining (this);
+      d.append("\nResearch Status: "+progDesc);
+      if (progLeft > 0) {
+        d.append("\nResearch Progress: ");
+        d.append((int) ((1 - progLeft) * 100)+"%");
+      }
+    }
+  }
+  
+  
+  public void whenClicked() {
+    if (this == origin.baseUpgrade()) origin.whenClicked();
+    else super.whenClicked();
   }
 }
 

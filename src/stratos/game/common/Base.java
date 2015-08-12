@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
+import stratos.content.civic.EngineerStation;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.economic.*;
@@ -191,6 +192,7 @@ public class Base implements
     relations.loadState(s);
     tactics  .loadState(s);
     advice   .loadState(s);
+    research .loadState(s);
     
     title = s.loadString();
     colour.loadFrom(s.input());
@@ -217,6 +219,7 @@ public class Base implements
     relations.saveState(s);
     tactics  .saveState(s);
     advice   .saveState(s);
+    research .saveState(s);
     
     s.saveString(title);
     colour.saveTo(s.output());
@@ -419,11 +422,9 @@ public class Base implements
         return reasons.setFailure("You cannot have more than one "+print.name);
       }
     }
-    /*
-    if (research.getResearchLevel(print) < BaseResearch.LEVEL_ALLOWS) {
+    if (! research.hasTheory(print.baseUpgrade())) {
       return reasons.setFailure("Not yet researched.");
     }
-    //*/
     return reasons.setSuccess();
   }
   

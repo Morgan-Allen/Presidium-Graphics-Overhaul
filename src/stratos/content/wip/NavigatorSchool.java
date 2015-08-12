@@ -36,7 +36,7 @@ public class NavigatorSchool extends Venue {
     "<Navigator School Description>",
     6, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 200,
-    4, 650, Structure.BIG_MAX_UPGRADES
+    4
   );
   
   

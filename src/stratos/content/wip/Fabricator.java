@@ -40,7 +40,7 @@ public class Fabricator extends Venue {
     "the upper-crust.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 125,
-    2, 200, Structure.NORMAL_MAX_UPGRADES
+    2
   );
   
   
@@ -71,28 +71,28 @@ public class Fabricator extends Venue {
       "Polymer Loom",
       "Speeds production of fine garments for the upper classes by 50%, and "+
       "improves ambience.",
-      400, Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      400, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     DECOR_STUDIO = new Upgrade(
       "Decor Studio",
       "Facilitates production of customised "+DECOR+" for "+Fractal.class+
       " and "+Edifice.class+" construction.",
-      500, Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      500, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     FILM_BASE = new Upgrade(
       "Film Base",
       "Allows production of raw "+PRESSFEED+" for use in public relations at "+
       "the "+EnforcerBloc.class+".",
-      250, Upgrade.TWO_LEVELS, null, 1,
-      null, BLUEPRINT
+      250, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
     ),
     FABRICATOR_STATION = new Upgrade(
       "Fabricator Station",
       FABRICATOR.info,
-      200, Upgrade.THREE_LEVELS, FABRICATOR, 1,
-      null, BLUEPRINT
+      200, Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, FABRICATOR
     );
     //  TODO:  Level 2 Upgrade?
   

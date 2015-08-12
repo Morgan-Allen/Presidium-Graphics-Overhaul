@@ -39,9 +39,7 @@ public class EnforcerBloc extends Venue {
     "force.",
     4, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 450,
-    6,  //Integrity
-    450  ,  //Armour
-    Structure.NORMAL_MAX_UPGRADES
+    6
   );
   
   

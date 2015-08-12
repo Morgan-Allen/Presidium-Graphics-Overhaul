@@ -47,10 +47,7 @@ public class Heighway extends Venue {
     "Heighways allow for long-distance power and road connections, but can "+
     "admit dangerous vermin.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
-    Owner.TIER_PRIVATE, 10,
-    25,  //integrity
-    20,  //armour
-    Structure.SMALL_MAX_UPGRADES
+    Owner.TIER_PRIVATE, 10, 25
   );
   
   
@@ -189,16 +186,6 @@ public class Heighway extends Venue {
   
   public int pathType() {
     return Tile.PATH_ROAD;
-  }
-  
-  
-  public Background[] careers() {
-    return null;
-  }
-  
-  
-  public Traded[] services() {
-    return null;
   }
   
 

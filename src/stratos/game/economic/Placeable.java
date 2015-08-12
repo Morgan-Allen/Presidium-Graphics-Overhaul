@@ -19,7 +19,6 @@ public interface Placeable extends
 {
   Box2D footprint();
   Structure structure();
-  Index <Upgrade> allUpgrades();
   
   boolean setupWith(Tile position, Box2D area, Coord... others);
   void doPlacement(boolean intact);

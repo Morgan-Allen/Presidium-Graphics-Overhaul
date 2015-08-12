@@ -53,7 +53,7 @@ public class Arcology extends Venue {
     "but require space and "+WATER+".",
     2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 15,
-    1, 100, Structure.NO_UPGRADES
+    1
   );
   
   

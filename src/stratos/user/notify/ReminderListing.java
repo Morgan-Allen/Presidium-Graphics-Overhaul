@@ -5,6 +5,7 @@
   */
 package stratos.user.notify;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -116,6 +117,9 @@ public class ReminderListing extends UIGroup {
     if (refers instanceof Mission) {
       entry = new MissionReminder(UI, (Mission) refers);
     }
+    if (refers instanceof Upgrade) {
+      entry = new ResearchReminder(UI, (Upgrade) refers);
+    }
     if (refers instanceof MessagePane) {
       entry = new MessageReminder(UI, refers, (MessagePane) refers);
     }
@@ -155,6 +159,9 @@ public class ReminderListing extends UIGroup {
     final Base played = UI.played();
     for (final Mission mission : played.tactics.allMissions()) {
       needShow.add(mission);
+    }
+    for (Upgrade u : played.research.underResearch()) {
+      needShow.add(u);
     }
     if (oldMessages.size() > 0) {
       needShow.add(oldMessages);
