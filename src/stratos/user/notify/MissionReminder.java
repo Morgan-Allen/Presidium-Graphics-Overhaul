@@ -17,8 +17,10 @@ import stratos.util.*;
 public class MissionReminder extends ReminderListing.Entry {
   
   final Mission m;
-  final List <Image> appImgs = new List <Image> ();
   private Batch <Actor> applied = new Batch <Actor> ();
+  
+  final BorderedLabel label;
+  final List <Image> appImgs = new List <Image> ();
   
   
   MissionReminder(final BaseUI BUI, final Mission m) {
@@ -38,7 +40,7 @@ public class MissionReminder extends ReminderListing.Entry {
     button.alignHorizontal(0, 0);
     button.attachTo(this);
     
-    final BorderedLabel label = new BorderedLabel(BUI);
+    label = new BorderedLabel(BUI);
     label.alignLeft  ( 0 , 0);
     label.alignBottom(-DEFAULT_MARGIN, 0);
     label.text.scale = SMALL_FONT_SIZE;
@@ -75,6 +77,11 @@ public class MissionReminder extends ReminderListing.Entry {
       Visit.appendTo(applied, m.applicants());
       updateApplicantsShown();
     }
+    
+    label.text.setText("");
+    m.describeMission(label.text);
+    label.setToFitText(false, 0);
+    
     super.updateState();
   }
 }

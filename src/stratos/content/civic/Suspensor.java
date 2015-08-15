@@ -210,7 +210,7 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
-  public void describeStatus(Description d) {
+  public void describeStatus(Description d, Object client) {
     if (passenger != null) {
       d.append("Carrying ");
       d.append(passenger);

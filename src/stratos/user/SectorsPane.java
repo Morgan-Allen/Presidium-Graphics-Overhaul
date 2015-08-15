@@ -26,7 +26,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
     PLANET_ICON     = ImageAsset.fromImage(
       SectorsPane.class, "media/GUI/Panels/planet_tab.png"
     ),
-    PLANET_ICON_LIT = Button.CIRCLE_LIT;
+    PLANET_ICON_LIT = Button.CROSSHAIRS_LIT;
   
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(

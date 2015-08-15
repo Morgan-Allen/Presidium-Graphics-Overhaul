@@ -65,7 +65,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   final Base base;
-  final Target subject;
+  final Session.Saveable subject;
   
   final Stack <Role> roles = new Stack <Role> ();
   private int
@@ -84,13 +84,13 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   protected Mission(
-    Base base, Target subject,
+    Base base, Session.Saveable subject,
     CutoutModel flagModel, String description
   ) {
     if (subject == null) I.complain("CANNOT HAVE NULL SUBJECT!");
-    this.base = base;
-    this.subject = subject;
-    this.flagSprite = (CutoutSprite) flagModel.makeSprite();
+    this.base        = base;
+    this.subject     = subject;
+    this.flagSprite  = flagModel == null ? null : flagModel.makeSprite();
     this.description = description;
   }
   
@@ -98,7 +98,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public Mission(Session s) throws Exception {
     s.cacheInstance(this);
     base        = (Base) s.loadObject();
-    subject     = s.loadTarget();
+    subject     = s.loadObject();
     priority    = s.loadInt();
     missionType = s.loadInt();
     objectIndex = s.loadInt();
@@ -122,7 +122,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   public void saveState(Session s) throws Exception {
     s.saveObject(base       );
-    s.saveTarget(subject    );
+    s.saveObject(subject    );
     s.saveInt   (priority   );
     s.saveInt   (missionType);
     s.saveInt   (objectIndex);
@@ -162,8 +162,14 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public Target subject() {
+  public Session.Saveable subject() {
     return subject;
+  }
+  
+  
+  public Target subjectAsTarget() {
+    if (subject instanceof Target) return (Target) subject;
+    else return null;
   }
   
   
@@ -361,8 +367,24 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public boolean visibleTo(Base player) {
+    if (player != base && ! allVisible) {
+      if (missionType == TYPE_COVERT ) return false;
+      if (missionType == TYPE_BASE_AI) return false;
+    }
+    if (subject instanceof Element) {
+      if (! ((Element) subject).visibleTo(player)) return false;
+    }
+    return true;
+  }
+  
+  
+  
+  /**  Toggling applicant-permissions, plus commencement & cancellation-
+    */
+  //
   //  NOTE:  This method should be called within the ActorMind.assignMission
-  //  method, and not independantly.
+  //  method, and not independantly!
   public void setApplicant(Actor actor, boolean is) {
     final boolean report = shouldReport(actor) || I.logEvents();
     if (report) I.say("\n"+actor+" APPLIED FOR "+this+"? "+is);
@@ -525,7 +547,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   public boolean valid() {
     if (finished()) return false;
-    return ! subject.destroyed();
+    if (subjectAsTarget() == null) return true;
+    return ! subjectAsTarget().destroyed();
   }
   
   
@@ -534,8 +557,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final Behaviour step = nextStepFor(actor, true);
     if (step == null) return -1;
     float priority = step.priorityFor(actor);
-    
-    if (priority < Plan.ROUTINE && actor.mind.mission() != this) return 0;
     return priority;
   }
   
@@ -638,13 +659,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
       "button_recon.png"      ,
       "button_contact.png"    ,
       "button_security.png"   ,
+      "button_research.png"   ,
       "mission_button_lit.png"
     ),
     STRIKE_ICON   = ALL_ICONS[0],
     RECON_ICON    = ALL_ICONS[1],
     CONTACT_ICON  = ALL_ICONS[2],
     SECURITY_ICON = ALL_ICONS[3],
-    MISSION_ICON_LIT = ALL_ICONS[4];
+    RESEARCH_ICON = ALL_ICONS[4],
+    
+    MISSION_ICON_LIT = ALL_ICONS[5];
   //
   //  These icons need to be worked on a little more...
   final public static CutoutModel
@@ -697,19 +721,27 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final Composite cached = Composite.fromCache(key);
     if (cached != null) return cached;
     
+    final int size = SelectionPane.PORTRAIT_SIZE;
+    final ImageAsset icon = iconForMission(UI);
+    final Composite inset = compositeForSubject(UI);
+    return Composite.imageWithCornerInset(icon, inset, size, key);
+  }
+  
+  
+  protected ImageAsset iconForMission(BaseUI UI) {
     final CutoutModel flagModel = positiveModel();
     int flagIndex = Visit.indexOf(flagModel, ALL_MODELS);
     final ImageAsset icon = ALL_ICONS[flagIndex];
-    
-    final int size = SelectionPane.PORTRAIT_SIZE;
-    final Composite c = Composite.withSize(size, size, key);
-    c.layerFromGrid(icon, 0, 0, 1, 1);
-    
+    return icon;
+  }
+  
+  
+  protected Composite compositeForSubject(BaseUI UI) {
     if (subject instanceof Selectable) {
       final Selectable s = (Selectable) subject;
-      c.layerInBounds(s.portrait(UI), 0.1f, 0.1f, 0.4f, 0.4f);
+      return s.portrait(UI);
     }
-    return c;
+    return null;
   }
   
   
@@ -736,7 +768,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public Target selectionLocksOn() {
-    if (visibleTo(BaseUI.currentPlayed())) return subject;
+    if (visibleTo(BaseUI.currentPlayed())) return subjectAsTarget();
     return null;
   }
   
@@ -752,6 +784,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void renderFlag(Rendering rendering) {
+    if (flagSprite == null) return;
     flagSprite.scale = FLAG_SCALE;
     float glow = BaseUI.isHovered(this) ? 0.5f : 0;
     
@@ -773,6 +806,36 @@ public abstract class Mission implements Session.Saveable, Selectable {
       glowSprite.matchTo(flagSprite);
       glowSprite.colour = Colour.transparency(glow);
       glowSprite.readyFor(rendering);
+    }
+  }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (! visibleTo(BaseUI.currentPlayed())) return;
+    
+    if (subject instanceof Selectable) {
+      ((Selectable) subject).renderSelection(rendering, hovered);
+      return;
+    }
+    else if (subject instanceof Element) {
+      BaseUI.current().selection.renderCircleOnGround(
+        rendering, (Element) subject, hovered
+      );
+    }
+    else return;
+  }
+  
+  
+  private void returnSelectionAfterward() {
+    if (! BaseUI.paneOpenFor(this)) return;
+    final BaseUI UI = BaseUI.current();
+    
+    if (visibleTo(UI.played()) && (subject instanceof Selectable)) {
+      UI.selection.pushSelection((Selectable) subject);
+    }
+    else {
+      UI.selection.pushSelection(null);
+      UI.clearInfoPane();
     }
   }
   
@@ -803,59 +866,15 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  TODO:  Add some basic info here!
     return null;
   }
-  
-  
-  public void renderSelection(Rendering rendering, boolean hovered) {
-    if (! visibleTo(BaseUI.currentPlayed())) return;
-    
-    if (subject instanceof Selectable) {
-      ((Selectable) subject).renderSelection(rendering, hovered);
-      return;
-    }
-    else if (subject instanceof Element) {
-      BaseUI.current().selection.renderCircleOnGround(
-        rendering, (Element) subject, hovered
-      );
-    }
-    else return;
-  }
-  
-  
-  public boolean visibleTo(Base player) {
-    if (player != base && ! allVisible) {
-      if (missionType == TYPE_COVERT ) return false;
-      if (missionType == TYPE_BASE_AI) return false;
-    }
-    if (subject instanceof Element) {
-      if (! ((Element) subject).visibleTo(player)) return false;
-    }
-    return true;
-  }
-  
-  
-  private void returnSelectionAfterward() {
-    if (! BaseUI.paneOpenFor(this)) return;
-    final BaseUI UI = BaseUI.current();
-    
-    if (visibleTo(UI.played()) && (subject instanceof Selectable)) {
-      UI.selection.pushSelection((Selectable) subject);
-    }
-    else {
-      UI.selection.pushSelection(null);
-      UI.clearInfoPane();
-    }
-  }
 
   
   public abstract void describeMission(Description d);
   
   
-  public String describeObjective(int objectIndex) {
-    return objectiveDescriptions()[objectIndex];
+  public String progressDescriptor() {
+    if (hasBegun()) return "In Progress";
+    else return "Recruiting";
   }
-  
-  
-  public abstract String[] objectiveDescriptions();
 }
 
 

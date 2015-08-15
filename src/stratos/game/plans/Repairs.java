@@ -5,6 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -422,6 +423,12 @@ public class Repairs extends Plan {
       }
     }
     
+    final Upgrade basis = structure.blueprintUpgrade();
+    if (basis != null) {
+      final float progress = success / structure.maxIntegrity();
+      advancePrototypeResearch(basis, progress);
+    }
+    
     if (report) {
       I.say("Repairing structure: "+built);
       I.say("  Repair type:     "+REPAIR_DESC[repairType]);
@@ -443,9 +450,17 @@ public class Repairs extends Plan {
     success *= actor.skills.test(skillUsed, 10, 0.5f) ? 2 : 1;
     success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
     final float amount = structure.advanceUpgrade(success * 1f / 100);
-    final float cost = amount * upgrade.buildCost;
+    final float cost = amount * upgrade.buildCost(actor.base());
     built.base().finance.incCredits((0 - cost), SOURCE_UPGRADE);
+    advancePrototypeResearch(upgrade, amount);
     return true;
+  }
+  
+  
+  private void advancePrototypeResearch(Upgrade u, float progress) {
+    actor.base().research.incResearchFor(
+      u, progress / BaseResearch.PROTOTYPE_COST_MULT, BaseResearch.LEVEL_PRAXIS
+    );
   }
   
   

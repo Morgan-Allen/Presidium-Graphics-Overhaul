@@ -6,6 +6,7 @@
 package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.util.*;
 import stratos.user.*;
 import stratos.user.notify.*;
@@ -17,7 +18,7 @@ import stratos.graphics.widgets.*;
 //  Upgrades tend to either expand employment, give a bonus to production
 //  of a particular item type, or enhance a particular kind of service.
 
-public class Upgrade extends Constant {
+public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   
   final static Index <Upgrade> INDEX = new Index <Upgrade> ();
@@ -40,7 +41,7 @@ public class Upgrade extends Constant {
   
   final public Type type;
   final public Object refers;
-  final public int buildCost;
+  final public int defaultCost;
   final public int maxLevel;
   
   final public Blueprint origin;
@@ -50,7 +51,7 @@ public class Upgrade extends Constant {
   
   public Upgrade(
     String name, String desc,
-    int buildCost, int maxLevel,
+    int defaultCost, int maxLevel,
     Object required, Blueprint origin,
     Type type, Object refers
   ) {
@@ -60,7 +61,7 @@ public class Upgrade extends Constant {
     this.description = desc;
     this.type        = type;
     this.refers      = refers;
-    this.buildCost   = buildCost;
+    this.defaultCost = defaultCost;
     this.origin      = origin;
     this.maxLevel    = maxLevel;
     
@@ -107,6 +108,30 @@ public class Upgrade extends Constant {
   }
   
   
+  public int buildCost(Base base) {
+    final BaseResearch BR = base.research;
+    if (BR.hasPractice(this)) return defaultCost;
+    
+    final float resLeft = BR.researchRemaining(this, BaseResearch.LEVEL_PRAXIS);
+    final float mult = BaseResearch.PROTOTYPE_COST_MULT * resLeft;
+    return (int) (defaultCost * (1 + mult));
+  }
+  
+  
+  
+  /**  Support for research projects-
+    */
+  public void beginResearch(Base base) {
+    base.research.setPolicyLevel(this, BaseResearch.LEVEL_PRAXIS);
+    
+    final Mission research = new MissionResearch(base, this);
+    research.assignPriority(Mission.PRIORITY_NOMINAL);
+    base.tactics.addMission(research);
+    
+    if (base == BaseUI.currentPlayed()) research.whenClicked();
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
@@ -147,9 +172,9 @@ public class Upgrade extends Constant {
     
     if (prior instanceof Venue) {
       final Venue at = (Venue) prior;
-      if (! at.structure().upgradePossible(this)) {
-        final String error = at.structure().upgradeError(this);
-        d.append("\n\n  Cannot Install: "+error);
+      final Account reasons = new Account();
+      if (! at.structure().upgradePossible(this, reasons)) {
+        d.append("\n\n  Cannot Install: "+reasons.failReasons());
       }
     }
   }
@@ -162,14 +187,27 @@ public class Upgrade extends Constant {
     for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
     
     final Base base = BaseUI.currentPlayed();
-    if (base != null) {
-      String progDesc = base.research.progressDescriptor(this);
-      float  progLeft = base.research.researchRemaining (this);
-      d.append("\nResearch Status: "+progDesc);
-      if (progLeft > 0) {
-        d.append("\nResearch Progress: ");
-        d.append((int) ((1 - progLeft) * 100)+"%");
-      }
+    final Upgrade u = this;
+    if (base == null) return;
+    
+    final int pLevel = base.research.getResearchLevel(this);
+    final String progDesc = base.research.progressDescriptor(this);
+    final float progLeft = base.research.researchRemaining(this, pLevel);
+    
+    d.append("\nResearch Status: "+progDesc);
+    if (progLeft > 0) {
+      d.append("\nResearch Progress: ");
+      d.append((int) ((1 - progLeft) * 100)+"%");
+    }
+    
+    if (pLevel < BaseResearch.LEVEL_PRAXIS) {
+      d.append("\n  ");
+      d.append(new Description.Link("Order Research") {
+        public void whenClicked() {
+          if (I.logEvents()) I.say("\nBEGAN RESEARCH: "+u+" FOR "+base);
+          u.beginResearch(base);
+        }
+      });
     }
   }
   
@@ -178,7 +216,51 @@ public class Upgrade extends Constant {
     if (this == origin.baseUpgrade()) origin.whenClicked();
     else super.whenClicked();
   }
+  
+  
+  
+  /**  Messages related to message-status...
+    */
+  public void sendCompletionMessage(Base base, BaseUI current) {
+    final float date = base.world.currentTime();
+    final String title = "Research Complete: "+name;
+    final MessagePane message = configMessage(title, current);
+    current.reminders().addMessageEntry(message, true, date);
+  }
+  
+  
+  public MessagePane configMessage(final String titleKey, final BaseUI UI) {
+    final MessagePane message = new MessagePane(UI, titleKey, this);
+    final BaseResearch BR = UI.played().research;
+    final String desc = BR.progressDescriptor(this);
+    final Upgrade upgrade = this;
+    
+    message.assignContent(
+      "A new upgrade is now available in "+desc+" stage.",
+      new Description.Link("View "+name) {
+        public void whenClicked() {
+          upgrade.whenClicked();
+          UI.clearMessagePane();
+        }
+      }
+    );
+    return message;
+  }
+  
+  
+  public void messageWasOpened(String titleKey, BaseUI UI) {
+    UI.reminders().retireMessage(titleKey);
+  }
+  
+  
+  public ImageAsset portraitImage() {
+    if (origin == null) return null;
+    if (this == origin.baseUpgrade()) return origin.icon;
+    return InstallPane.upgradeIcon(origin.category);
+  }
 }
+
+
 
 
 

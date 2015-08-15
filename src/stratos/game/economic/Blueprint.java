@@ -145,7 +145,7 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.upgradeLevels = new Upgrade[numLevels];
     
     for (int i = 0; i < numLevels; i++) upgradeLevels[i] = new Upgrade(
-      (i == 0) ? this.name : this.name+" Level "+(i + 1),
+      (i == 0) ? this.name :" Level "+(i + 1)+" Upgrade",
       "Upgrade to level "+(i + 1),
       buildCosts[i], 1,
       (i == 0 ? required : upgradeLevels[i - 1]), this,
@@ -169,15 +169,6 @@ public class Blueprint extends Constant implements Session.Saveable {
   public Upgrade baseUpgrade() {
     if (upgradeLevels == null) return null;
     return upgradeLevels[0];
-  }
-  
-  
-  public int buildCost() {
-    //  TODO:  THIS MAY VARY BASED ON WHETHER THE UPGRADE IS A PROTOTYPE OR
-    //  NOT!
-    
-    if (upgradeLevels == null) return -1;
-    return baseUpgrade().buildCost;
   }
   
   
@@ -315,6 +306,12 @@ public class Blueprint extends Constant implements Session.Saveable {
   }
   
   
+  public int buildCost(Base base) {
+    if (upgradeLevels == null) return -1;
+    return baseUpgrade().buildCost(base);
+  }
+  
+  
   
   /**  Interface and debugging-
     */
@@ -331,7 +328,7 @@ public class Blueprint extends Constant implements Session.Saveable {
     if (category != null) {
       d.append("\nCategory: "+category+" Structures");
     }
-    final int cost = buildCost();
+    final int cost = buildCost(base);
     d.append("\nBuild cost: "+cost);
     
     if (baseUpgrade() != null) {

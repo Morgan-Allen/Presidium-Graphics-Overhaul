@@ -5,6 +5,7 @@
   */
 package stratos.user;
 import stratos.game.actors.*;
+import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -298,7 +299,7 @@ public class VenuePane extends SelectionPane {
           descApplicant(a.actor(), a, d, UI);
         }
         for (final Actor a : v.staff.workers()) if (a.mind.vocation() == b) {
-          descActor(a, d, UI);
+          descActor(a, d, UI, v);
           d.append("\n  ");
           d.append(descDuty(a));
           mentioned.include(a);
@@ -315,7 +316,7 @@ public class VenuePane extends SelectionPane {
     boolean anyLives = false;
     for (Actor a : v.staff.lodgers()) {
       if (mentioned.includes(a)) continue;
-      descActor(a, d, UI);
+      descActor(a, d, UI, v);
       anyLives = true;
     }
     if (! anyLives) d.append("None.");
@@ -326,7 +327,7 @@ public class VenuePane extends SelectionPane {
     boolean anyVisit = false;
     for (Mobile m : v.inside()) {
       if (Staff.doesBelong(m, v)) continue;
-      descActor(m, d, UI);
+      descActor(m, d, UI, v);
       anyVisit = true;
     }
     if (! anyVisit) d.append("None.");
@@ -362,35 +363,69 @@ public class VenuePane extends SelectionPane {
     
     int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades();
     if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
+    final Base base = v.base();
     
     for (final Upgrade upgrade : UA) {
       final String name = upgrade.nameAt(v, -1, null);
-      final int cost = upgrade.buildCost;
-      final boolean possible =
-        v.structure.upgradePossible(upgrade) &&
-        cost <= v.base().finance.credits();
+      final int cost = upgrade.buildCost(base);
+      
+      final Account reasons = new Account();
+      final boolean
+        possible = v.structure.upgradePossible(upgrade, reasons),
+        unknown  = reasons.hadReason(Structure.REASON_NO_KNOWLEDGE);
       final int
         level  = v.structure.upgradeLevel(upgrade, Structure.STATE_INTACT ),
         queued = v.structure.upgradeLevel(upgrade, Structure.STATE_INSTALL);
-      if ((! possible) && (level + queued == 0)) continue;
       
-      d.append("\n  ");
+      final ImageAsset icon = upgrade.portraitImage();
+      if (icon == null) d.append("\n  ");
+      else Text.insert(icon.asTexture(), 30, 30, true, d);
+      
       if (possible) d.append(name);
       else d.append(name, grey);
       
+      d.append(" ");
+      Text.insert(
+        SelectionPane.WIDGET_INFO.asTexture(),
+        15, 15, v.blueprint, false, d
+      );
+      
       d.append("\n  ");
-      String desc = "INSTALL";
-      if (possible) d.append(new Description.Link(desc) {
+      //
+      //  You can either research, prototype or install the upgrade, assuming
+      //  knowledge is the problem.  If it isn't, just allow for normal
+      //  installation (or prototyping.)
+      final int knowledge = base.research.getResearchLevel(upgrade);
+      if (unknown) d.append("(UNKNOWN) ", Colour.GREY);
+      String desc = "BEGIN RESEARCH";
+      if (knowledge == BaseResearch.LEVEL_THEORY) desc = "PROTOTYPE";
+      if (knowledge == BaseResearch.LEVEL_PRAXIS) desc = "INSTALL";
+      
+      if (possible || unknown) d.append(new Description.Link(desc) {
         public void whenClicked() {
-          v.structure.beginUpgrade(upgrade, false);
-          if (I.logEvents()) I.say("\nBEGAN UPGRADE: "+upgrade+" AT "+v);
+          if (unknown) {
+            if (I.logEvents()) I.say("\nBEGAN RESEARCH: "+upgrade+" FOR "+base);
+            upgrade.beginResearch(base);
+          }
+          else {
+            if (I.logEvents()) I.say("\nBEGAN UPGRADE: "+upgrade+" AT "+v);
+            v.structure.beginUpgrade(upgrade, false);
+          }
         }
       });
       else d.append(desc, grey);
-      
-      d.append(" ("+(level + queued)+"/"+upgrade.maxLevel+")");
-      if (possible) d.append(" ("+cost+" Credits)");
-      d.append(" (INFO)", upgrade);
+      //
+      //  If knowledge isn't the problem, either cite the reason or list the
+      //  funds required (in red if not available.)
+      if (! unknown) {
+        if (reasons.hadReason(Structure.REASON_NO_FUNDS)) {
+          d.append(" ("+cost+" Credits)", Colour.GREY);
+        }
+        else if (! possible) {
+          d.append(" "+reasons.failReasons(), Colour.RED);
+        }
+        else d.append(" ("+cost+" Credits)");
+      }
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();
@@ -492,7 +527,7 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  public static void descActor(Mobile m, Description d, BaseUI UI) {
+  public static void descActor(Mobile m, Description d, BaseUI UI, Venue v) {
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
       final String ID = ""+m.hashCode();
@@ -502,7 +537,7 @@ public class VenuePane extends SelectionPane {
     else d.append("\n\n  ");
     d.append(m);
     d.append("\n  ");
-    m.describeStatus(d);
+    m.describeStatus(d, v);
   }
 }
 

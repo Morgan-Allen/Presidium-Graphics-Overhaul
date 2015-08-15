@@ -44,9 +44,8 @@ public class Archives extends Venue {
     "Archives", UIConstants.TYPE_WIP, ICON,
     "The Archives provide "+DATALINKS+" and facilitate research and "+
     "administration by base personnel.",
-    4, 2, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 250,
-    3
+    4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 250, 3,
+    SAVANT, DATALINKS, SERVICE_RESEARCH
   );
   
   final public static Conversion
@@ -77,11 +76,6 @@ public class Archives extends Venue {
   
   /**  Upgrade and economy methods-
     */
-  public Background[] careers() {
-    return new Background[] { SAVANT };
-  }
-  
-  
   protected int numOpenings(Background b) {
     final int nO = super.numOpenings(b);
     if (b == SAVANT) return nO + 2;
@@ -107,11 +101,6 @@ public class Archives extends Venue {
     
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { DATALINKS, SERVICE_ADMIN };
   }
   
   

@@ -24,8 +24,9 @@ public class Studying extends Plan {
   /**  Data fields, setup and save/load functions-
     */
   private static boolean
-    evalVerbose = false,
-    stepVerbose = false;
+    evalVerbose  = false,
+    stepVerbose  = false,
+    fastResearch = false;
   
   final static int
     TYPE_STUDY    = 0,
@@ -40,6 +41,7 @@ public class Studying extends Plan {
   
   final Venue venue;
   final int type;
+  final Base base;
   
   private float skillLimit = -1;
   private Skill available[] = null;
@@ -49,10 +51,11 @@ public class Studying extends Plan {
   private Constant studied = null;
   
   
-  protected Studying(Actor actor, Venue venue, int type) {
+  protected Studying(Actor actor, Venue venue, int type, Base base) {
     super(actor, venue, MOTIVE_PERSONAL, NO_HARM);
     this.venue = venue;
     this.type  = type ;
+    this.base  = base ;
   }
   
   
@@ -60,6 +63,7 @@ public class Studying extends Plan {
     super(s);
     this.venue      = (Venue) s.loadObject();
     this.type       = s.loadInt();
+    this.base       = (Base) s.loadObject();
     
     this.skillLimit = s.loadFloat();
     this.available  = (Skill[]) s.loadObjectArray(Skill.class);
@@ -74,6 +78,7 @@ public class Studying extends Plan {
     super.saveState(s);
     s.saveObject(venue     );
     s.saveInt   (type      );
+    s.saveObject(base      );
     
     s.saveFloat      (skillLimit);
     s.saveObjectArray(available );
@@ -85,7 +90,7 @@ public class Studying extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    final Studying s = new Studying(other, venue, type);
+    final Studying s = new Studying(other, venue, type, base);
     s.chargeCost = chargeCost;
     s.skillLimit = skillLimit;
     s.available  = available ;
@@ -99,7 +104,7 @@ public class Studying extends Plan {
   public static Studying asStudy(
     Actor actor, Venue venue, float cost
   ) {
-    final Studying study = new Studying(actor, venue, TYPE_STUDY);
+    final Studying study = new Studying(actor, venue, TYPE_STUDY, venue.base());
     study.chargeCost = cost;
     return study;
   }
@@ -108,25 +113,42 @@ public class Studying extends Plan {
   public static Studying asDrill(
     Actor actor, Venue venue, Skill available[], float skillLimit
   ) {
-    final Studying drill = new Studying(actor, venue, TYPE_DRILL);
+    final Studying drill = new Studying(actor, venue, TYPE_DRILL, venue.base());
     drill.available  = available ;
     drill.skillLimit = skillLimit;
     return drill;
   }
   
   
-  public static Studying asResearch(Actor actor, Venue venue, String category) {
-    
-    final BaseResearch base = venue.base().research;
-    final Pick <Upgrade> pick = new Pick();
-    for (Upgrade u : base.underResearch()) {
-      if (u.origin.category != category) continue;
-      pick.compare(u, 0 - base.researchRemaining(u));
+  public static Studying asResearch(
+    Actor actor, Upgrade sought, Base base
+  ) {
+    //
+    //  Firstly, we obtain a set of possible sites for research-
+    final Pick <Venue> pick = new Pick();
+    final Batch <Target> possible = new Batch();
+    possible.include(actor.mind.home());
+    possible.include(actor.mind.work());
+    base.world.presences.sampleFromMap(
+      actor, base.world, 5, possible, Economy.SERVICE_RESEARCH
+    );
+    //
+    //  Then, we rate each on the basis of suitability for that field.
+    for (Target t : possible) {
+      if (! (t instanceof Venue)) continue;
+      final Venue venue = (Venue) t;
+      
+      float rating = 1;
+      if (sought.origin == venue.blueprint) rating *= 2;
+      if (venue.blueprint.category == sought.origin.category) rating *= 2;
+      pick.compare(venue, rating);
     }
-    
-    if (pick.empty()) return null;
-    final Studying research = new Studying(actor, venue, TYPE_RESEARCH);
-    research.studied = pick.result();
+    final Venue venue = pick.result();
+    if (venue == null) return null;
+    //
+    //  And return the result.
+    final Studying research = new Studying(actor, venue, TYPE_RESEARCH, base);
+    research.studied = sought;
     return research;
   }
   
@@ -138,6 +160,8 @@ public class Studying extends Plan {
     DRILL_TRAITS   [] = { ENERGETIC, DUTIFUL, IGNORANT },
     RESEARCH_TRAITS[] = { CURIOUS, AMBITIOUS, SOLITARY };
   
+  
+  
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
@@ -145,42 +169,47 @@ public class Studying extends Plan {
       I.say("\nStudy priority for "+actor+" ("+actor.mind.vocation()+")");
       I.say("  "+venue+" open? "+venue.openFor(actor));
     }
+    
     if (! venue.openFor(actor)) return -1;
     if (studied == null) studied = toStudy();
     if (studied == null) return -1;
-    float modifier = 0 - actor.motives.greedPriority(chargeCost);
     
+    final BaseResearch BR = venue.base().research;
+    if (type == TYPE_RESEARCH && BR.hasTheory((Upgrade) studied)) return -1;
+    
+    float modifier = IDLE;
     Trait baseTraits[] = NO_TRAITS;
     if (type == TYPE_RESEARCH) {
       baseTraits = RESEARCH_TRAITS;
-      modifier += ROUTINE;
     }
     if (type == TYPE_DRILL) {
       baseTraits = DRILL_TRAITS;
-      modifier += CASUAL;
     }
     if (type == TYPE_STUDY) {
       baseTraits = RESEARCH_TRAITS;
-      modifier += IDLE;
     }
     
     setCompetence(successChanceFor(actor));
     
-    float priority = PlanUtils.traitAverage(actor, baseTraits);
-    priority = (priority * CASUAL) + modifier;
-    /*
-    final float priority = PlanUtils.jobPlanPriority(
-      actor, this,
-      0.5f + (modifier / ROUTINE), competence(),
-      -1, MILD_FAIL_RISK, baseTraits
-    );
-    //*/
+    float priority = PlanUtils.traitAverage(actor, baseTraits) * CASUAL;
+    modifier -= actor.motives.greedPriority(chargeCost);
+    modifier += motiveBonus();
+    priority = (priority + modifier) * competence();
+    
     return priority;
   }
   
   
   public float successChanceFor(Actor actor) {
     if (type == TYPE_DRILL) return 1;
+    
+    //  TODO:  USE DIFFERENT SKILLS FOR RESEARCH IN DIFFERENT AREAS (physics,
+    //  biology, medicine, etc.)
+    
+    //  Also, certain skill-types might not need much research(?)
+    
+    //  Military- battle tactics.
+    //  
     
     float chance = 1;
     chance += actor.skills.chance(INSCRIPTION, INSCRIBE_DC);
@@ -241,6 +270,8 @@ public class Studying extends Plan {
     final float elapsed = time - beginTime;
     if (elapsed > STAY_TIME) return null;
     
+    //  TODO-  Add 'conferring with' and 'analysing data/experimenting' steps!
+    
     final Action study = new Action(
       actor, venue,
       this, "actionStudy",
@@ -259,13 +290,12 @@ public class Studying extends Plan {
     
     if (type == TYPE_RESEARCH) {
       final Upgrade sought = (Upgrade) studied;
+      final BaseResearch BR = venue.base().research;
+      if (BR.hasTheory(sought)) return true;
       
-      float inc = 1.0f;
+      float inc = fastResearch ? 50 : 1;
       inc /= BaseResearch.DEFAULT_RESEARCH_TIME;
-      
-      I.say("Research increment is: "+inc);
-      
-      venue.base().research.incResearchFor(sought, inc);
+      BR.incResearchFor(sought, inc, BaseResearch.LEVEL_THEORY);
       return true;
     }
     else if (type == TYPE_TUTOR) {

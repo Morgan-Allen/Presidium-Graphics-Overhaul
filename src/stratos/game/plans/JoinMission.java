@@ -32,7 +32,7 @@ public class JoinMission extends Plan {
   
   
   private JoinMission(Actor actor, Mission mission) {
-    super(actor, mission.subject(), MOTIVE_PERSONAL, NO_HARM);
+    super(actor, actor, MOTIVE_PERSONAL, NO_HARM);
     this.mission = mission;
     //this.admin = admin;
   }
@@ -64,13 +64,14 @@ public class JoinMission extends Plan {
     if (actor.mind.mission() != null || ! actor.health.conscious()) {
       return null;
     }
-    final boolean report = I.talkAbout == actor && evalVerbose;
+    final boolean report = false;// actor.mind.vocation() == Backgrounds.ECOLOGIST;// I.talkAbout == actor && evalVerbose;
     
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
     //  approved-)
     if (report) {
       I.say("\nEvaluating missions: "+actor+" ("+actor.mind.vocation()+")");
+      I.say("  Total missions: "+actor.base().tactics.allMissions().size());
     }
     final Choice choice = new Choice(actor);
     //
@@ -90,6 +91,10 @@ public class JoinMission extends Plan {
         competence = competence(actor, mission),
         urgency    = mission.assignedPriority();
       
+      //
+      //  TODO:  Compare against the competence of the best current applicant
+      //  instead, and withdraw if you're low in the rankings.
+      
       if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
         if (report) {
           I.say("");
@@ -102,7 +107,16 @@ public class JoinMission extends Plan {
       
       final Behaviour step = mission.nextStepFor(actor, true);
       final float priority = step == null ? -1 : step.priorityFor(actor);
-      if (priority < ROUTINE) continue;
+      /*
+      if (priority < ROUTINE) {
+        if (report) {
+          I.say("");
+          I.say("  Cannot apply for  "+mission);
+          I.say("  Mission priority: "+priority+" is too low!");
+        }
+        continue;
+      }
+      //*/
       choice  .add(step   );
       steps   .add(step   );
       missions.add(mission);

@@ -35,7 +35,7 @@ public class MissionSecurity extends Mission implements Qualities {
   float inceptTime = -1;
   
   
-  public MissionSecurity(Base base, Target subject) {
+  public MissionSecurity(Base base, Element subject) {
     super(
       base, subject, SECURITY_MODEL,
       "Securing "+subject
@@ -73,7 +73,7 @@ public class MissionSecurity extends Mission implements Qualities {
   /**  Behaviour implementation-
     */
   protected boolean shouldEnd() {
-    if (subject.destroyed()) return true;
+    if (subjectAsTarget().destroyed()) return true;
     if (inceptTime == -1) return false;
     return (base.world.currentTime() - inceptTime) > duration();
   }
@@ -105,20 +105,14 @@ public class MissionSecurity extends Mission implements Qualities {
   
   /**  Rendering and interface methods-
     */
-  public String describeObjective(int objectIndex) {
-    String desc = super.describeObjective(objectIndex);
-    if (inceptTime != -1) {
-      final int hours = (DURATION_LENGTHS[objectIndex] - (int) (
-        base.world.currentTime() - inceptTime
-      )) / Stage.STANDARD_HOUR_LENGTH;
-      desc = hours+" more hours security for ";
-    }
-    return desc;
-  }
-  
-  
-  public String[] objectiveDescriptions() {
-    return DURATION_NAMES;
+  public String progressDescriptor() {
+    if (inceptTime == -1 || ! hasBegun()) return super.progressDescriptor();
+
+    final int hours = (DURATION_LENGTHS[objective()] - (int) (
+      base.world.currentTime() - inceptTime
+    )) / Stage.STANDARD_HOUR_LENGTH;
+    
+    return super.progressDescriptor()+" ("+hours+" remaining)";
   }
   
   

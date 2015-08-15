@@ -6,6 +6,7 @@
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.start.Assets;
+import stratos.user.Selectable;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
@@ -55,6 +56,99 @@ public class Composite {
   private boolean disposed = false;
   
   
+  private void dispose() {
+    if (disposed) return;
+    if (verbose) I.say("\nDISPOSING OF COMPOSITE: "+tableKey);
+    
+    drawn.dispose();
+    if (composed != null) composed.dispose();
+    disposed = true;
+  }
+  
+  
+  public void layer(ImageAsset image) {
+    if (image == null || disposed) return;
+    if (composed != null) {
+      I.complain("Cannot add layers once texture is compiled!");
+    }
+    Pixmap.setBlending(Blending.SourceOver);
+    Pixmap.setFilter(Filter.BiLinear);
+    drawn.drawPixmap(image.asPixels(), 0, 0);
+  }
+  
+
+  public void layerFromGrid(
+    ImageAsset image, int offX, int offY, int gridW, int gridH
+  ) {
+    layerInBoundsRoot(
+      image, offX, offY, gridW, gridH, 0, 0, 1, 1
+    );
+  }
+  
+
+  public void layerInBounds(
+    Composite image, float x, float y, float w, float h
+  ) {
+    layerInBoundsRoot(image, 0, 0, 1, 1, x, y, w, h);
+  }
+  
+  
+  private void layerInBoundsRoot(
+    Object image,
+    int offX, int offY, int gridW, int gridH,  //  Source grid coords
+    float x, float y, float w, float h         //  Destination relative coords
+  ) {
+    if (image == null || disposed) return;
+    if (composed != null) {
+      I.complain("Cannot add layers once texture is compiled!");
+    }
+    Pixmap source = null;
+    if (image instanceof Composite ) source = ((Composite ) image).drawn;
+    if (image instanceof ImageAsset) source = ((ImageAsset) image).asPixels();
+    
+    final float
+      sX = (source.getWidth () * 1f) / gridW,
+      sY = (source.getHeight() * 1f) / gridH,
+      dW = drawn.getWidth(),
+      dH = drawn.getHeight();
+    
+    Pixmap.setBlending(Blending.SourceOver);
+    Pixmap.setFilter  (Filter  .BiLinear  );
+    drawn.drawPixmap(
+      source,
+      //  Source coordinates (x/y/w/h)
+      (int) (offX * sX), (int) (offY * sY), (int) sX, (int) sY,
+      //  Destination coordinates (x/y/w/h)
+      1 + (int) (dW * x), 1 + (int) (dH * y), (int) (dW * w), (int) (dH * h)
+    );
+  }
+  
+  
+  public Texture texture() {
+    if (disposed) return null;
+    if (composed == null) {
+      composed = new Texture(drawn);
+      composed.setFilter(Linear, Linear);
+    }
+    return composed;
+  }
+  
+  
+  public void drawTo(WidgetsPass pass, Box2D bounds, float alpha) {
+    if (disposed) return;
+    texture();
+    pass.draw(
+      composed, Colour.transparency(alpha),
+      bounds.xpos(), bounds.ypos(),
+      bounds.xdim(), bounds.ydim(),
+      0, 1, 1, 0
+    );
+  }
+  
+  
+  
+  /**  Various utility methods for caching and production purposes-
+    */
   public static Composite fromCache(String key) {
     final Composite cached = recentTable.get(key);
     if (cached != null) return cached;
@@ -89,78 +183,6 @@ public class Composite {
   }
   
   
-  private void dispose() {
-    if (disposed) return;
-    if (verbose) I.say("\nDISPOSING OF COMPOSITE: "+tableKey);
-    
-    drawn.dispose();
-    if (composed != null) composed.dispose();
-    disposed = true;
-  }
-  
-  
-  
-  public void layer(ImageAsset image) {
-    if (image == null || disposed) return;
-    if (composed != null) {
-      I.complain("Cannot add layers once texture is compiled!");
-    }
-    Pixmap.setBlending(Blending.SourceOver);
-    Pixmap.setFilter(Filter.BiLinear);
-    drawn.drawPixmap(image.asPixels(), 0, 0);
-  }
-  
-  
-  public void layerInBounds(
-    Composite image, float x, float y, float w, float h
-  ) {
-    if (image == null || disposed) return;
-    if (composed != null) {
-      I.complain("Cannot add layers once texture is compiled!");
-    }
-    final Pixmap source = image.drawn;
-    final float dw = drawn.getWidth(), dh = drawn.getHeight();
-    
-    drawn.drawPixmap(
-      source,
-      1, 1, source.getWidth(), source.getHeight(),
-      1 + (int) (dw * x), 1 + (int) (dh * y), (int) (dw * w), (int) (dh * h)
-    );
-  }
-  
-  
-  public void layerFromGrid(
-    ImageAsset image, int offX, int offY, int gridW, int gridH
-  ) {
-    if (image == null || disposed) return;
-    if (composed != null) {
-      I.complain("Cannot add layers once texture is compiled!");
-    }
-    final Pixmap source = image.asPixels();
-    final float
-      gX = (source.getWidth()  * 1f) / gridW,
-      gY = (source.getHeight() * 1f) / gridH;
-    Pixmap.setBlending(Blending.SourceOver);
-    Pixmap.setFilter(Filter.BiLinear);
-    drawn.drawPixmap(
-      source,
-      (int) (offX * gX), (int) (offY * gY),
-      (int) gX, (int) gY,
-      0, 0, drawn.getWidth(), drawn.getHeight()
-    );
-  }
-  
-  
-  public Texture texture() {
-    if (disposed) return null;
-    if (composed == null) {
-      composed = new Texture(drawn);
-      composed.setFilter(Linear, Linear);
-    }
-    return composed;
-  }
-  
-  
   public Image delayedImage(HUD UI, final String widgetID) {
     final Image image = new Image(UI, Image.SOLID_WHITE) {
       protected void render(WidgetsPass pass) {
@@ -173,17 +195,21 @@ public class Composite {
   }
   
   
-  public void drawTo(WidgetsPass pass, Box2D bounds, float alpha) {
-    if (disposed) return;
-    texture();
-    pass.draw(
-      composed, Colour.transparency(alpha),
-      bounds.xpos(), bounds.ypos(),
-      bounds.xdim(), bounds.ydim(),
-      0, 1, 1, 0
-    );
+  public static Composite imageWithCornerInset(
+    ImageAsset back, Composite corner, int size, String key
+  ) {
+    final Composite c = Composite.withSize(size, size, key);
+    c.layerFromGrid(back  , 0   , 0   , 1   , 1   );
+    c.layerInBounds(corner, 0.1f, 0.1f, 0.4f, 0.4f);
+    return c;
   }
 }
+
+
+
+
+
+
 
 
 

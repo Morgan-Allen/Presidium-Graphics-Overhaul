@@ -125,10 +125,7 @@ public class MissionPane extends SelectionPane {
     d.append("\n  Subject: ");
     if (mission.visibleTo(mission.base())) d.append(mission.subject());
     else d.append(""+mission.subject(), Colour.GREY);
-    
-    d.append("\n  Status:  ");
-    if (mission.hasBegun()) d.append("In Progress");
-    else d.append("Recruiting");
+    d.append("\n  Status:  "+mission.progressDescriptor());
     //
     //  Secondly, describe the mission type:
     final int type = mission.missionType();
@@ -192,9 +189,9 @@ public class MissionPane extends SelectionPane {
         });
       }
       else d.append(approved ? "  (approved)" : "");
-      
+
       d.append("\n");
-      a.describeStatus(d);
+      a.describeStatus(d, mission);
     }
   }
 }

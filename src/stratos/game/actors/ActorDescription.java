@@ -90,7 +90,7 @@ public class ActorDescription implements Qualities {
     }
     //*/
     
-    h.describeStatus(d);
+    h.describeStatus(d, h);
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;

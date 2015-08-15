@@ -441,11 +441,11 @@ public class Dropship extends Vehicle implements Owner {
   }
   
   
-  public void describeStatus(Description d) {
+  public void describeStatus(Description d, Object client) {
     if (stage == STAGE_DESCENT) d.append("Descending to drop point");
     else if (stage == STAGE_ASCENT) d.append("Taking off");
     else if (stage == STAGE_AWAY) d.append("Offworld");
-    else super.describeStatus(d);
+    else super.describeStatus(d, client);
   }
 }
 

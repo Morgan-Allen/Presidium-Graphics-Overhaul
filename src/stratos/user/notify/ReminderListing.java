@@ -117,9 +117,6 @@ public class ReminderListing extends UIGroup {
     if (refers instanceof Mission) {
       entry = new MissionReminder(UI, (Mission) refers);
     }
-    if (refers instanceof Upgrade) {
-      entry = new ResearchReminder(UI, (Upgrade) refers);
-    }
     if (refers instanceof MessagePane) {
       entry = new MessageReminder(UI, refers, (MessagePane) refers);
     }
@@ -159,9 +156,6 @@ public class ReminderListing extends UIGroup {
     final Base played = UI.played();
     for (final Mission mission : played.tactics.allMissions()) {
       needShow.add(mission);
-    }
-    for (Upgrade u : played.research.underResearch()) {
-      needShow.add(u);
     }
     if (oldMessages.size() > 0) {
       needShow.add(oldMessages);
@@ -257,6 +251,11 @@ public class ReminderListing extends UIGroup {
   }
   
   
+  public MessagePane urgentMessage(String key) {
+    return messageEntryFor(key, 1);
+  }
+  
+  
   public boolean hasMessageEntry(String key, boolean urgent) {
     return messageEntryFor(key, urgent ? 1 : 0) != null;
   }
@@ -276,6 +275,13 @@ public class ReminderListing extends UIGroup {
     message.assignReceiptDate(receiptDate);
     if (urgent) newMessages.include(message);
     else        oldMessages.include(message);
+  }
+  
+  
+  public boolean retireMessage(String titleKey) {
+    final MessagePane match = urgentMessage(titleKey);
+    if (match != null) { retireMessage(match); return true; }
+    else return false;
   }
   
   

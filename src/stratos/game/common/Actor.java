@@ -561,7 +561,7 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void describeStatus(Description d) {
+  public void describeStatus(Description d, Object client) {
     if (! health.conscious()) { d.append(health.stateDesc()); return; }
     if (! inWorld()) {
       final VerseJourneys journeys = base.world.offworld.journeys;
@@ -581,7 +581,7 @@ public abstract class Actor extends Mobile implements
     
     final Behaviour rootB = mind.rootBehaviour();
     final Mission mission = mind.mission();
-    if (mission != null && rootB == mission.cachedStepFor(this)) {
+    if (mission != client && rootB == mission.cachedStepFor(this)) {
       mission.describeMission(d);
     }
     else if (rootB != null) rootB.describeBehaviour(d);

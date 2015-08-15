@@ -20,7 +20,7 @@ public class BudgetsPane extends SelectionPane {
     BUDGETS_ICON = ImageAsset.fromImage(
       BudgetsPane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
     ),
-    BUDGETS_ICON_LIT = Button.CIRCLE_LIT;
+    BUDGETS_ICON_LIT = Button.CROSSHAIRS_LIT;
   
   final public static String
     CAT_DEMAND   = "[MARKETS]",
@@ -130,6 +130,7 @@ public class BudgetsPane extends SelectionPane {
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append(" ");
       d.append(t);
+      d.append("\n");
       d.append(" (");
       d.append(priceImp+"", Colour.LITE_RED  );
       d.append(" | ");

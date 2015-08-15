@@ -28,7 +28,27 @@ public class InstallPane extends SelectionPane {
     BUILD_ICON = ImageAsset.fromImage(
       InstallPane.class, "media/GUI/Panels/installations_tab.png"
     ),
-    BUILD_ICON_LIT = Button.CIRCLE_LIT;
+    BUILD_ICON_LIT = Button.CROSSHAIRS_LIT,
+    
+    THEORETICAL_FRAME = ImageAsset.fromImage(
+      InstallPane.class, "media/GUI/Buttons/theoretical_icon_frame.png"
+    ),
+    PROTOTYPE_FRAME = ImageAsset.fromImage(
+      InstallPane.class, "media/GUI/Buttons/prototype_icon_frame.png"
+    ),
+    SELECTED_FRAME = ImageAsset.fromImage(
+      InstallPane.class, "media/GUI/Buttons/selected_icon_frame.png"
+    );
+  final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
+    InstallPane.class, BUTTONS_PATH,
+    "militant_category_button.png",
+    "merchant_category_button.png",
+    "aesthete_category_button.png",
+    "artificer_category_button.png",
+    "ecologist_category_button.png",
+    "physician_category_button.png"
+  );
+
   
   
   static Button createButton(final BaseUI baseUI) {
@@ -88,6 +108,12 @@ public class InstallPane extends SelectionPane {
   }
   
   
+  public static ImageAsset upgradeIcon(String category) {
+    final int index = Visit.indexOf(category, INSTALL_CATEGORIES);
+    return index < 0 ? null : GUILD_IMAGE_ASSETS[index];
+  }
+  
+  
   
   /**  Regular updates and placement-kickoff:
     */
@@ -107,7 +133,7 @@ public class InstallPane extends SelectionPane {
       int numInRow = 0;
       
       for (Blueprint b : c.belong) {
-        if (b.buildCost() < 0) continue;
+        ///if (b.buildCost() < 0) continue;
         boolean enabled = base.checkPrerequisites(b, Account.NONE);
         
         describeVenueOptions(b, detailText, enabled, base);
@@ -128,19 +154,34 @@ public class InstallPane extends SelectionPane {
   ) {
     final Composite icon = Composite.withImage(type.icon, type.keyID);
     if (icon == null) return;
+    final int state = (int) base.research.getResearchLevel(type.baseUpgrade());
     
     final Button b = new Button(UI, type.keyID, icon.texture(), type.name) {
-      protected void whenClicked() { toggleSelected(type, this); }
+      protected void whenClicked() { toggleSelected(type, this, state); }
     };
-    b.setDisabledOverlay(Image.TRANSLUCENT_BLACK);
-    b.enabled = enabled;
-    b.toggled = type == PlacingTask.currentPlaceType();
+    
+    if (state != BaseResearch.LEVEL_PRAXIS) {
+      b.addOverlay(Image.TRANSLUCENT_BLACK);
+    }
+    if (state == BaseResearch.LEVEL_ALLOWS) {
+      b.addOverlay(THEORETICAL_FRAME);
+    }
+    if (state == BaseResearch.LEVEL_THEORY) {
+      b.addOverlay(PROTOTYPE_FRAME);
+    }
+    
+    b.setHighlight(SELECTED_FRAME.asTexture());
+    b.toggled = type == lastSelected;
     Text.insert(b, 40, 40, false, text);
   }
   
   
-  private void toggleSelected(Blueprint type, Button b) {
-    if (b.enabled) UI.beginTask(new PlacingTask(UI, type));
+  private void toggleSelected(Blueprint type, Button b, int state) {
+    if (state >= BaseResearch.LEVEL_THEORY) {
+      UI.beginTask(new PlacingTask(UI, type));
+    }
+    else UI.endCurrentTask();
+    UI.beginPanelFade();
     lastSelected = type;
   }
   
@@ -148,7 +189,7 @@ public class InstallPane extends SelectionPane {
   private void describeCurrentType(
     final Blueprint type, final Base base, boolean enabled, Text text
   ) {
-    final int cost = type.buildCost();
+    final int cost = type.buildCost(base);
     
     text.append("\n\n");
     text.append(type.name+" ");
@@ -157,27 +198,11 @@ public class InstallPane extends SelectionPane {
       15, 15, type, false, text
     );
     text.append(" ("+cost+" credits)", Colour.LITE_GREY);
-    
     text.append("\n\n");
+    
     text.append(type.description);
-    text.append("\n\n");
-    
-    //
-    //  TODO:  IF THIS STRUCTURE IS NOT AVAILABLE, ADD THE OPTION OF RESEARCH!
-    //  TODO:  (Also, list the reason for unavailability.)
-    final Upgrade u = type.baseUpgrade();
-    if (u == null || enabled) return;
-    final int pLevel = base.research.getPolicyLevel(u);
-    if (pLevel >= BaseResearch.LEVEL_PRAXIS) return;
-    
-    text.append("This structure has not yet been researched.");
-    text.append("\n  ");
-    text.append(new Description.Link("Order Research") {
-      public void whenClicked() {
-        base.research.setPolicyLevel(u, BaseResearch.LEVEL_PRAXIS);
-        u.whenClicked();
-      }
-    });
+    final Upgrade basis = type.baseUpgrade();
+    if (basis != null) basis.describeResearchStatus(text);
   }
 }
 

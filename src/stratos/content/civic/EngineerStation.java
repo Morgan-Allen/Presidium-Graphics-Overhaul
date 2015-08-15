@@ -65,7 +65,7 @@ public class EngineerStation extends Venue {
   );
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
-    VENUE_LEVELS[] = BLUEPRINT.createVenueLevels(
+    LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.THREE_LEVELS, null,
       500,
       650,
@@ -73,36 +73,40 @@ public class EngineerStation extends Venue {
     ),
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
-      "Allows standardised "+PARTS+" to be manufactured 33% faster.  Slightly "+
+      "Allows standardised "+PARTS+" to be manufactured 50% faster.  Slightly "+
       "increases pollution.",
-      200,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      300,
+      Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PARTS
     ),
     MOLDING_PRESS = new Upgrade(
       "Molding Press",
-      "Speeds the production of common "+PLASTICS+" and working outfits "+
-      "by 100%.  Slightly reduces pollution.",
-      150, Upgrade.SINGLE_LEVEL, null, BLUEPRINT,
+      "Speeds the production of common "+PLASTICS+" and lighter outfits "+
+      "by 50%.  Slightly reduces pollution.",
+      250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PLASTICS
     ),
     COMPOSITE_MATERIALS = new Upgrade(
       "Composite Materials",
       "Improves the production of heavy armours along with most melee "+
       "weapons.",
-      200,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      400,
+      Upgrade.THREE_LEVELS, MOLDING_PRESS, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
+    
+    //  TODO:  Replace with Plasma Flux, as a general pre-req for energy-
+    //  techs, like the generator?
+    
     PLASMA_WEAPONS = new Upgrade(
       "Plasma Weapons",
       "Allows high-flux energy pulses to be generated and controlled, "+
-      "allowing upgrades to most ranged armaments.",
-      300,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      "allowing upgrades to most ranged weapons.",
+      400,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
-    //  TODO:  INCLUDE THIS
+    //  TODO:  INCLUDE THIS, AND REQUIRE PLASMA WEAPONS
     /*
     T_NULL_ARMBAND = new Upgrade(
       "T-NULL Armband",
@@ -188,7 +192,7 @@ public class EngineerStation extends Venue {
     }
     //
     //  Consider research for new upgrades and structures-
-    choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ENGINEER));
+    ///choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ENGINEER));
     //
     //  Consider the production of general bulk commodities-
     final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);

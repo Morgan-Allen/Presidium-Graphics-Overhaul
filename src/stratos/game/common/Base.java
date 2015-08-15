@@ -314,10 +314,10 @@ public class Base implements
     */
   //  TODO:  Move to the tactics class?
   
-  public Mission matchingMission(Target t, Class typeClass) {
+  public Mission matchingMission(Object subject, Class typeClass) {
     for (Mission match : tactics.allMissions()) {
       if (typeClass != null && match.getClass() != typeClass) continue;
-      if (match.subject() != t) continue;
+      if (match.subject() != subject) continue;
       return match;
     }
     return null;
@@ -366,8 +366,8 @@ public class Base implements
     
     for (Base base : world.bases()) {
       for (Mission m : base.tactics.allMissions()) {
-        if (! m.visibleTo(player)) continue;
-        final Target t = m.subject();
+        if (m.subjectAsTarget() == null || ! m.visibleTo(player)) continue;
+        final Target t = (Target) m.subject();
         if (! view.intersects(t.position(null), t.radius())) continue;
         
         List <Mission> onT = seenTable.get(t);

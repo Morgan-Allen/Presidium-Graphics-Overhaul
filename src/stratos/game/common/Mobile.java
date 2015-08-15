@@ -409,7 +409,7 @@ public abstract class Mobile extends Element
   }
   
   
-  public abstract void describeStatus(Description d);
+  public abstract void describeStatus(Description d, Object client);
 }
 
 

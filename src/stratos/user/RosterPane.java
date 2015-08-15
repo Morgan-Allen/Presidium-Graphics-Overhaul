@@ -30,7 +30,7 @@ public class RosterPane extends SelectionPane {
     ROSTER_ICON = ImageAsset.fromImage(
       RosterPane.class, "media/GUI/Panels/roster_tab.png"
     ),
-    ROSTER_ICON_LIT = Button.CIRCLE_LIT;
+    ROSTER_ICON_LIT = Button.CROSSHAIRS_LIT;
   
   final static String
     CAT_APPLIES = "APPLICANTS",

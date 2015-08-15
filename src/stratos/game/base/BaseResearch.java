@@ -6,6 +6,8 @@
 package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.user.*;
+import stratos.user.notify.*;
 import stratos.util.*;
 
 
@@ -22,7 +24,8 @@ public class BaseResearch {
     LEVEL_PRAXIS =  2;
   
   final public static float
-    DEFAULT_RESEARCH_TIME = Stage.STANDARD_SHIFT_LENGTH * 10;
+    DEFAULT_RESEARCH_TIME = Stage.STANDARD_SHIFT_LENGTH * 10,
+    PROTOTYPE_COST_MULT   = 3.0f;
   
   
   private static class Research {
@@ -102,12 +105,13 @@ public class BaseResearch {
   }
   
   
-  public void incResearchFor(Upgrade u, float inc) {
+  public void incResearchFor(Upgrade u, float inc, int level) {
     final Research r = researchFor(u);
     final int oldCat = (int) r.actualLevel;
-    r.actualLevel += inc;
+    r.actualLevel = Nums.clamp(r.actualLevel + inc, 0, level);
     final int newCat = (int) r.actualLevel;
-    if (oldCat != newCat) r.actualLevel = newCat;
+    
+    if (oldCat != newCat) u.sendCompletionMessage(base, BaseUI.current());
     checkUnderResearch(r);
   }
   
@@ -145,10 +149,10 @@ public class BaseResearch {
   }
   
   
-  public float getResearchLevel(Upgrade u) {
+  public int getResearchLevel(Upgrade u) {
     final Research match = u == null ? null : allResearch.get(u);
     if (match == null) return LEVEL_BANNED;
-    else return match.actualLevel;
+    else return Nums.clamp((int) match.actualLevel, LEVEL_PRAXIS + 1);
   }
   
   
@@ -159,11 +163,10 @@ public class BaseResearch {
   }
   
   
-  public float researchRemaining(Upgrade u) {
+  public float researchRemaining(Upgrade u, int resLevel) {
     final Research match = u == null ? null : allResearch.get(u);
-    if (match == null) return 0;
-    if (match.policyLevel <= match.actualLevel) return 0;
-    return 1 - (match.actualLevel % 1);
+    if (match == null) return 1;
+    else return Nums.clamp(resLevel - match.actualLevel, 0, 1);
   }
   
   
@@ -193,6 +196,7 @@ public class BaseResearch {
   final public static String PROGRESS_LABELS[] = {
     "Unknown", "Theoretical", "Prototype", "Practical"
   };
+  
   
   public String progressDescriptor(Upgrade u) {
     final int level = (int) getResearchLevel(u);

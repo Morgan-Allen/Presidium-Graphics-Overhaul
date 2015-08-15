@@ -418,7 +418,7 @@ public abstract class Vehicle extends Mobile implements
       UI, this, portrait(UI), true
     );
     final Description d = panel.detail(), l = panel.listing();
-    describeStatus(d);
+    describeStatus(d, null);
     d.append("\n\n");
     
     final float repair = structure.repairLevel();
@@ -496,7 +496,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public void describeStatus(Description d) {
+  public void describeStatus(Description d, Object client) {
     if (pilot != null && pilot.mind.rootBehaviour() != null) {
       pilot.mind.rootBehaviour().describeBehaviour(d);
     }

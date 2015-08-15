@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
+import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
@@ -25,10 +26,11 @@ public class Structure {
   /**  Fields, definitions and save/load methods-
     */
   final public static int
-    DEFAULT_INTEGRITY  = 100,
-    DEFAULT_ARMOUR     = 2  ,
-    DEFAULT_CLOAKING   = 0  ,
-    DEFAULT_AMBIENCE   = 0  ;
+    DEFAULT_INTEGRITY  =  100,
+    DEFAULT_ARMOUR     =  2  ,
+    DEFAULT_CLOAKING   =  0  ,
+    DEFAULT_AMBIENCE   =  0  ,
+    DEFAULT_BUILD_COST = -1  ;
   final public static float
     BURN_PER_SECOND = 1.0f,
     REGEN_PER_DAY   = 0.2f;
@@ -176,7 +178,7 @@ public class Structure {
     setupStats(
       blueprint.integrity,
       blueprint.armour,
-      blueprint.buildCost(),
+      DEFAULT_BUILD_COST,
       blueprint.numLevels() * UPGRADES_PER_LEVEL,
       blueprint.properties
     );
@@ -284,10 +286,6 @@ public class Structure {
   public int cloaking()  { return cloaking ; }
   public int armouring() { return armouring; }
   
-  public int buildCost() {
-    return blueprint == null ? buildCost : blueprint.buildCost();
-  }
-  
   public int ambienceVal() { return intact() ? ambienceVal : 0; }
   
   public boolean intact()     { return state == STATE_INTACT; }
@@ -297,6 +295,22 @@ public class Structure {
   public float   repair()      { return integrity; }
   public float   repairLevel() { return integrity / maxIntegrity(); }
   public boolean burning()     { return burning; }
+  
+  
+  public int buildCost() {
+    if (blueprint == null) return buildCost;
+    //
+    //  TODO:  Try summing together the build cost for all extant
+    //         level-upgrades!
+    
+    return blueprint.baseUpgrade().buildCost(basis.base());
+  }
+  
+  
+  public Upgrade blueprintUpgrade() {
+    if (blueprint == null) return null;
+    return blueprint.baseUpgrade();
+  }
   
   
   public boolean flammable() {
@@ -601,18 +615,38 @@ public class Structure {
   }
   
   
-  public boolean upgradePossible(Upgrade upgrade) {
-    //  Consider returning a String explaining the problem, if there is one?
-    //  ...Or an error code of some kind?
-    if (upgrades == null) return false;
+  final public static String
+    REASON_NO_KNOWLEDGE    = "Lacks theoretical knowledge.",
+    REASON_NO_REQUIREMENTS = "Lacks pre-requisite upgrades",
+    REASON_SLOTS_FILLED    = "Upgrade slots filled!",
+    REASON_NO_FUNDS        = "Lacks sufficient funds!";
+  
+  //
+  //  TODO:  Consider moving this to the Upgrade class instead?...
+  
+  public boolean upgradePossible(Upgrade upgrade, Account reasons) {
+    if (upgrades == null) return reasons.setFailure(REASON_SLOTS_FILLED);
     
-    boolean hasSlot = false, hasReq = hasRequired(upgrade);
-    int numType = 0;
+    int numType = 0; boolean hasSlot = false;
     for (Upgrade u : upgrades) {
       if (u == null) hasSlot = true;
       else if (u == upgrade) numType++;
     }
-    return hasSlot && hasReq && numType < upgrade.maxLevel;
+    if (! (hasSlot && numType < upgrade.maxLevel)) {
+      return reasons.setFailure(REASON_SLOTS_FILLED);
+    }
+    
+    final boolean hasReq = hasRequired(upgrade);
+    if (! hasReq) return reasons.setFailure(REASON_NO_REQUIREMENTS);
+    
+    final Base         base = basis.base();
+    final BaseResearch BR   = base.research;
+    if (! BR.hasTheory(upgrade)) return reasons.setFailure(REASON_NO_KNOWLEDGE);
+    
+    final boolean noFund = upgrade.buildCost(base) > base.finance.credits();
+    if (noFund) return reasons.setFailure(REASON_NO_FUNDS);
+    
+    return reasons.setSuccess();
   }
   
   
@@ -678,22 +712,6 @@ public class Structure {
   
   /**  Rendering and interface-
     */
-  public String upgradeError(Upgrade upgrade) {
-    if (! hasRequired(upgrade)) {
-      return "Lacks prerequisites";
-    }
-    int totalLevel = upgradeLevel(upgrade, STATE_INTACT);
-    totalLevel += upgradeLevel(upgrade, STATE_INSTALL);
-    if (totalLevel >= upgrade.maxLevel) {
-      return "Maximum level reached ("+totalLevel+"/"+upgrade.maxLevel+")";
-    }
-    if (slotsFree() == 0) {
-      return "No upgrade slots remaining";
-    }
-    return "Insufficient funds!";
-  }
-  
-  
   public Batch <String> descOngoingUpgrades() {
     final Batch <String> desc = new Batch <String> ();
     if (upgrades == null) return desc;

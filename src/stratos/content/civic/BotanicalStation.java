@@ -180,7 +180,7 @@ public class BotanicalStation extends Venue {
     }
     //
     //  Consider performing research-
-    choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ECOLOGIST));
+    ///choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ECOLOGIST));
     ///choice.isVerbose = true;
     //
     //  Tailor seed varieties and consider breeding animals or forestry-
