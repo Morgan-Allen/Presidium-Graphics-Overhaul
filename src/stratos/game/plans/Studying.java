@@ -295,10 +295,13 @@ public class Studying extends Plan {
       float inc = fastResearch ? 50 : 1;
       inc *= sought.researchProcess.performTest(actor, 0, 1);
       inc /= BaseResearch.DEFAULT_RESEARCH_TIME;
-      
-      final float breakthrough = Rand.num();
+      //
+      //  Research progress can come as either gradual increments or sudden
+      //  breakthroughs-
+      final float breakthrough = (Rand.num() + 0.5f) / 2;
       if (Rand.num() * breakthrough < inc) {
         BR.incResearchFor(sought, breakthrough, BaseResearch.LEVEL_THEORY);
+        sought.sendBreakThroughMessage(base);
       }
       else {
         BR.incResearchFor(sought, inc, BaseResearch.LEVEL_THEORY);

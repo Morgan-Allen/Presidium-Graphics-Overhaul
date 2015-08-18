@@ -191,6 +191,11 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   }
   
   
+  public Mission researchDone(Base base) {
+    return base.matchingMission(this, MissionResearch.class);
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
@@ -249,9 +254,7 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
     }
     
     final Account reasons = new Account();
-    final Mission researchDone = base.matchingMission(
-      this, MissionResearch.class
-    );
+    final Mission researchDone = researchDone(base);
     final boolean
       possible = possibleAt(client, base, reasons),
       unknown  = reasons.hadReason(REASON_NO_KNOWLEDGE);
@@ -324,10 +327,26 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   /**  Messages related to message-status...
     */
-  public void sendCompletionMessage(Base base, BaseUI current) {
+  final static String
+    COMPLETE_KEY     = "Research Complete: ",
+    BREAKTHROUGH_KEY = "Breakthrough!";
+  
+  
+  public void sendCompletionMessage(Base base) {
+    sendMessageWithKey(base, COMPLETE_KEY+name);
+  }
+  
+  
+  public void sendBreakThroughMessage(Base base) {
+    sendMessageWithKey(base, BREAKTHROUGH_KEY);
+  }
+  
+  
+  private void sendMessageWithKey(Base base, String titleKey) {
+    final BaseUI current = BaseUI.current();
+    if (current == null) return;
     final float date = base.world.currentTime();
-    final String title = "Research Complete: "+name;
-    final MessagePane message = configMessage(title, current);
+    final MessagePane message = configMessage(titleKey, current);
     current.reminders().addMessageEntry(message, true, date);
   }
   
@@ -338,7 +357,7 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
     final String desc = BR.progressDescriptor(this);
     final Upgrade upgrade = this;
     
-    message.assignContent(
+    if (titleKey.equals(COMPLETE_KEY+name)) message.assignContent(
       "A new upgrade is now available in "+desc+" stage.",
       new Description.Link("View "+name) {
         public void whenClicked() {
@@ -347,6 +366,18 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
         }
       }
     );
+    
+    if (titleKey.equals(BREAKTHROUGH_KEY)) message.assignContent(
+      "There has been a breakthrough in our research into "+upgrade+"!",
+      new Description.Link("View Project") {
+        public void whenClicked() {
+          final Mission match = upgrade.researchDone(UI.played());
+          if (match != null) match.whenClicked();
+          UI.clearMessagePane();
+        }
+      }
+    );
+    
     return message;
   }
   

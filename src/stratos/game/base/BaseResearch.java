@@ -111,7 +111,7 @@ public class BaseResearch {
     r.actualLevel = Nums.clamp(r.actualLevel + inc, 0, level);
     final int newCat = (int) r.actualLevel;
     
-    if (oldCat != newCat) u.sendCompletionMessage(base, BaseUI.current());
+    if (oldCat != newCat) u.sendCompletionMessage(base);
     checkUnderResearch(r);
   }
   
