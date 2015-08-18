@@ -30,6 +30,9 @@ public class InstallPane extends SelectionPane {
     ),
     BUILD_ICON_LIT = Button.CROSSHAIRS_LIT,
     
+    ILLEGAL_FRAME = ImageAsset.fromImage(
+      InstallPane.class, "media/GUI/Buttons/illegal_icon_frame.png"
+    ),
     THEORETICAL_FRAME = ImageAsset.fromImage(
       InstallPane.class, "media/GUI/Buttons/theoretical_icon_frame.png"
     ),
@@ -109,8 +112,9 @@ public class InstallPane extends SelectionPane {
   
   
   public static ImageAsset upgradeIcon(String category) {
-    final int index = Visit.indexOf(category, INSTALL_CATEGORIES);
-    return index < 0 ? null : GUILD_IMAGE_ASSETS[index];
+    int index = Visit.indexOf(category, INSTALL_CATEGORIES);
+    if (index < 0) index = 0;
+    return GUILD_IMAGE_ASSETS[index];
   }
   
   
@@ -160,8 +164,13 @@ public class InstallPane extends SelectionPane {
       protected void whenClicked() { toggleSelected(type, this, state); }
     };
     
+    //  TODO:  REVISE THE ART HERE
+    /*
     if (state != BaseResearch.LEVEL_PRAXIS) {
       b.addOverlay(Image.TRANSLUCENT_BLACK);
+    }
+    if (state == BaseResearch.LEVEL_BANNED) {
+      b.addOverlay(ILLEGAL_FRAME);
     }
     if (state == BaseResearch.LEVEL_ALLOWS) {
       b.addOverlay(THEORETICAL_FRAME);
@@ -169,6 +178,7 @@ public class InstallPane extends SelectionPane {
     if (state == BaseResearch.LEVEL_THEORY) {
       b.addOverlay(PROTOTYPE_FRAME);
     }
+    //*/
     
     b.setHighlight(SELECTED_FRAME.asTexture());
     b.toggled = type == lastSelected;
@@ -177,11 +187,8 @@ public class InstallPane extends SelectionPane {
   
   
   private void toggleSelected(Blueprint type, Button b, int state) {
-    if (state >= BaseResearch.LEVEL_THEORY) {
-      UI.beginTask(new PlacingTask(UI, type));
-    }
-    else UI.endCurrentTask();
     UI.beginPanelFade();
+    UI.endCurrentTask();
     lastSelected = type;
   }
   
@@ -202,7 +209,10 @@ public class InstallPane extends SelectionPane {
     
     text.append(type.description);
     final Upgrade basis = type.baseUpgrade();
-    if (basis != null) basis.describeResearchStatus(text);
+    if (basis != null) {
+      text.append("\n");
+      basis.describeResearchStatus(text, base);
+    }
   }
 }
 

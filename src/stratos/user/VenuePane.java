@@ -350,82 +350,33 @@ public class VenuePane extends SelectionPane {
       return;
     }
     
-    //  TODO:  Try to revise this, and include some explanatory text for why
-    //  they haven't started just yet.
-    //  TODO:  Also- don't allow upgrades until the structure is finished
-    //  building!  (Conversely, DO allow hiring before then.)
+    //  TODO:  Allow both hiring and queuing of upgrades before a structure is
+    //  completed.
+    
     final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
     if (UA == null || UA.size() == 0) {
       d.append("No upgrades available.");
       return;
     }
-    final Colour grey = Colour.LITE_GREY;
     
     int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades();
     if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
-    final Base base = v.base();
     
     for (final Upgrade upgrade : UA) {
-      final String name = upgrade.nameAt(v, -1, null);
-      final int cost = upgrade.buildCost(base);
-      
-      final Account reasons = new Account();
-      final boolean
-        possible = v.structure.upgradePossible(upgrade, reasons),
-        unknown  = reasons.hadReason(Structure.REASON_NO_KNOWLEDGE);
-      final int
-        level  = v.structure.upgradeLevel(upgrade, Structure.STATE_INTACT ),
-        queued = v.structure.upgradeLevel(upgrade, Structure.STATE_INSTALL);
-      
+      d.append("\n");
       final ImageAsset icon = upgrade.portraitImage();
       if (icon == null) d.append("\n  ");
       else Text.insert(icon.asTexture(), 30, 30, true, d);
-      
-      if (possible) d.append(name);
-      else d.append(name, grey);
-      
+
+      final String name = upgrade.nameAt(v, -1, null);
+      d.append(" "+name);
       d.append(" ");
       Text.insert(
         SelectionPane.WIDGET_INFO.asTexture(),
-        15, 15, v.blueprint, false, d
+        15, 15, upgrade, false, d
       );
       
-      d.append("\n  ");
-      //
-      //  You can either research, prototype or install the upgrade, assuming
-      //  knowledge is the problem.  If it isn't, just allow for normal
-      //  installation (or prototyping.)
-      final int knowledge = base.research.getResearchLevel(upgrade);
-      if (unknown) d.append("(UNKNOWN) ", Colour.GREY);
-      String desc = "BEGIN RESEARCH";
-      if (knowledge == BaseResearch.LEVEL_THEORY) desc = "PROTOTYPE";
-      if (knowledge == BaseResearch.LEVEL_PRAXIS) desc = "INSTALL";
-      
-      if (possible || unknown) d.append(new Description.Link(desc) {
-        public void whenClicked() {
-          if (unknown) {
-            if (I.logEvents()) I.say("\nBEGAN RESEARCH: "+upgrade+" FOR "+base);
-            upgrade.beginResearch(base);
-          }
-          else {
-            if (I.logEvents()) I.say("\nBEGAN UPGRADE: "+upgrade+" AT "+v);
-            v.structure.beginUpgrade(upgrade, false);
-          }
-        }
-      });
-      else d.append(desc, grey);
-      //
-      //  If knowledge isn't the problem, either cite the reason or list the
-      //  funds required (in red if not available.)
-      if (! unknown) {
-        if (reasons.hadReason(Structure.REASON_NO_FUNDS)) {
-          d.append(" ("+cost+" Credits)", Colour.GREY);
-        }
-        else if (! possible) {
-          d.append(" "+reasons.failReasons(), Colour.RED);
-        }
-        else d.append(" ("+cost+" Credits)");
-      }
+      upgrade.describeResearchStatus(d, v);
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();

@@ -2,12 +2,21 @@
 
 TO DO NOW-
 
-*  Topic-specific research skills need to be worked out.
-*  Research should take place as a series of 'breakthroughs', or at least
-   involve more than one action.
+*  Hook up research-prereqs/levels for all the main buildings, plus their
+   associated skill-reqs.
+     Combat- Battle Tactics.
+     Trade & Admin- Accounting.
+     Aesthetic- Sensoria.
+     Medical- Anatomy & Pharmacy.
+     Ecological- Botany & Zoology.
+     Engineering- Assembly & Field Theory.
+     Plus a general architecture/printing skill?
 
-*  Update 'research' frame, and add 'unavailable' frame?
-*  Hook up research-prereqs/levels for all the main buildings!
+*  Research should ideally involve more than one action-type.  (Possibly split
+   up different skill-tasks between applicants?  Analyse/confer/etc.?)
+
+*  Update the art used to indicate various available/researchable/etc. states
+   for venues.
 
 
 *  The tutorial will have to be run-through again (due to changes in level-

@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
+import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -295,6 +296,12 @@ public class PlacingTask implements UITask {
     final BaseUI UI = BaseUI.current();
     if (UI == null || ! (UI.currentTask() instanceof PlacingTask)) return null;
     return (PlacingTask) UI.currentTask();
+  }
+  
+  
+  public static void performPlacingTask(Blueprint type) {
+    final BaseUI UI = BaseUI.current();
+    if (UI != null) UI.beginTask(new PlacingTask(UI, type));
   }
   
   

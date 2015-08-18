@@ -41,19 +41,22 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   final public Type type;
   final public Object refers;
+  final public Conversion researchProcess;
+  
   final public int defaultCost;
   final public int maxLevel;
   
   final public Blueprint origin;
-  final public Upgrade required[];
-  private Batch <Upgrade> leadsTo = new Batch <Upgrade> ();
+  private Batch <Upgrade> required = new Batch();
+  private Batch <Upgrade> leadsTo  = new Batch();
   
   
   public Upgrade(
     String name, String desc,
     int defaultCost, int maxLevel,
     Object required, Blueprint origin,
-    Type type, Object refers
+    Type type, Object refers,
+    Object... researchConversionArgs
   ) {
     super(INDEX, name+"_"+origin, name);
     
@@ -65,19 +68,25 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
     this.origin      = origin;
     this.maxLevel    = maxLevel;
     
+    this.researchProcess = new Conversion(
+      origin,
+      entryKey()+"_research",
+      researchConversionArgs
+    );
+    
     if (required instanceof Upgrade) {
-      this.required = new Upgrade[] { (Upgrade) required };
+      this.required.add((Upgrade) required);
     }
     else if (required instanceof Upgrade[]) {
-      this.required = (Upgrade[]) required;
+      Visit.appendTo(this.required, (Upgrade[]) required);
     }
-    else {
-      if (required != null) I.say(
-        "\nWARNING: "+required+" is not an upgrade or upgrade array!"
-      );
-      this.required = new Upgrade[0];
-    }
+    else if (required != null) I.say(
+      "\nWARNING: "+required+" is not an upgrade or upgrade array!"
+    );
     for (Upgrade u : this.required) u.leadsTo.add(this);
+    
+    final Upgrade frame = origin == null ? null : origin.baseUpgrade();
+    if (frame != null && frame != this) this.required.include(frame);
   }
   
   
@@ -88,6 +97,70 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   public void saveState(Session s) throws Exception {
     INDEX.saveEntry(this, s.output());
+  }
+  
+  
+  public Batch <Upgrade> leadsTo() {
+    return leadsTo;
+  }
+  
+  
+  
+  /**  Support for research projects and checking pre-requisites-
+    */
+  public void beginResearch(Base base) {
+    base.research.setPolicyLevel(this, BaseResearch.LEVEL_PRAXIS);
+    
+    final Mission research = new MissionResearch(base, this);
+    research.assignPriority(Mission.PRIORITY_NOMINAL);
+    base.tactics.addMission(research);
+    
+    if (base == BaseUI.currentPlayed()) research.whenClicked();
+  }
+  
+  
+  final public static String
+    REASON_NO_KNOWLEDGE    = "Lacks theoretical knowledge.",
+    REASON_NO_REQUIREMENTS = "Lacks pre-requisite upgrades",
+    REASON_SLOTS_FILLED    = "Upgrade slots filled!",
+    REASON_NO_FUNDS        = "Lacks sufficient funds!";
+  
+  public boolean possibleAt(Object client, Base base, Account reasons) {
+    
+    if (client instanceof Placeable) {
+      final Structure s = ((Placeable) client).structure();
+      
+      final int numType = s.upgradeLevel(this, Structure.STATE_NONE);
+      final boolean noSlots = s.slotsFree() <= 0 || numType >= maxLevel;
+      if (noSlots) return reasons.setFailure(REASON_SLOTS_FILLED);
+      
+      final boolean hasReq = hasRequirements(s);
+      if (! hasReq) return reasons.setFailure(REASON_NO_REQUIREMENTS);
+    }
+    
+    final boolean unknown = ! base.research.hasTheory(this);
+    if (unknown) return reasons.setFailure(REASON_NO_KNOWLEDGE);
+    
+    final boolean noFund = buildCost(base) > base.finance.credits();
+    if (noFund) return reasons.setFailure(REASON_NO_FUNDS);
+    
+    return reasons.setSuccess();
+  }
+  
+  
+  public boolean hasRequirements(Structure structure) {
+    for (Upgrade r : required) {
+      if (! structure.hasUpgradeOrQueued(r)) return false;
+    }
+    return true;
+  }
+  
+  
+  public boolean hasRequirements(Base base) {
+    for (Upgrade r : required) {
+      if (! base.research.hasPractice(r)) return false;
+    }
+    return true;
   }
   
   
@@ -103,11 +176,6 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   }
   
   
-  public Batch <Upgrade> leadsTo() {
-    return leadsTo;
-  }
-  
-  
   public int buildCost(Base base) {
     final BaseResearch BR = base.research;
     if (BR.hasPractice(this)) return defaultCost;
@@ -118,17 +186,8 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   }
   
   
-  
-  /**  Support for research projects-
-    */
-  public void beginResearch(Base base) {
-    base.research.setPolicyLevel(this, BaseResearch.LEVEL_PRAXIS);
-    
-    final Mission research = new MissionResearch(base, this);
-    research.assignPriority(Mission.PRIORITY_NOMINAL);
-    base.tactics.addMission(research);
-    
-    if (base == BaseUI.currentPlayed()) research.whenClicked();
+  public boolean isBlueprintUpgrade() {
+    return origin.baseUpgrade() == this;
   }
   
   
@@ -161,53 +220,97 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
       d.append("\n");
       substituteReferences(description, d);
       d.append("\n");
-      
-      if (origin != null) {
-        d.append("\n  Installed at: ");
-        d.append(origin);
-      }
     }
     
-    describeResearchStatus(d);
-    
-    if (prior instanceof Venue) {
-      final Venue at = (Venue) prior;
-      final Account reasons = new Account();
-      if (! at.structure().upgradePossible(this, reasons)) {
-        d.append("\n\n  Cannot Install: "+reasons.failReasons());
-      }
-    }
+    describeResearchStatus(d, this);
   }
   
   
-  public void describeResearchStatus(Description d) {
-    if (required.length > 0) d.append("\nRequires:");
-    for (Upgrade u : required) { d.append("\n  "); d.append(u); }
-    if (leadsTo.size() > 0) d.append("\nLeads to:");
-    for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
+  public void describeResearchStatus(Description d, final Object client) {
     
     final Base base = BaseUI.currentPlayed();
-    final Upgrade u = this;
+    final Upgrade upgrade = this;
     if (base == null) return;
     
-    final int pLevel = base.research.getResearchLevel(this);
-    final String progDesc = base.research.progressDescriptor(this);
-    final float progLeft = base.research.researchRemaining(this, pLevel);
-    
-    d.append("\nResearch Status: "+progDesc);
-    if (progLeft > 0) {
-      d.append("\nResearch Progress: ");
-      d.append((int) ((1 - progLeft) * 100)+"%");
+    if (client == origin || client == this) {
+      Text.cancelBullet(d);
+      
+      if (required.size() > 0) {
+        d.append("Requires:");
+        for (Upgrade u : required) { d.append("\n  "); d.append(u); }
+        d.append("\n");
+      }
+      if (leadsTo.size() > 0) {
+        d.append("Leads to:");
+        for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
+        d.append("\n");
+      }
+      return;
     }
     
-    if (pLevel < BaseResearch.LEVEL_PRAXIS) {
-      d.append("\n  ");
-      d.append(new Description.Link("Order Research") {
-        public void whenClicked() {
-          if (I.logEvents()) I.say("\nBEGAN RESEARCH: "+u+" FOR "+base);
-          u.beginResearch(base);
+    final Account reasons = new Account();
+    final Mission researchDone = base.matchingMission(
+      this, MissionResearch.class
+    );
+    final boolean
+      possible = possibleAt(client, base, reasons),
+      unknown  = reasons.hadReason(REASON_NO_KNOWLEDGE);
+    
+    //
+    //  You can either research, prototype or install the upgrade, assuming
+    //  knowledge is the problem.  If it isn't, just allow for normal
+    //  installation (or prototyping.)
+    
+    final int knowledge = base.research.getResearchLevel(this);
+    final String progDesc = base.research.progressDescriptor(this);
+    final float progLeft = base.research.researchRemaining(this, knowledge + 1);
+    final boolean underResearch = unknown && researchDone != null;
+    
+    d.append("\n Research Status: "+progDesc);
+    if (progLeft < 1) {
+      d.append(" ("+(int) ((1 - progLeft) * 100)+"%)");
+    }
+    d.append("\n");
+    
+    String desc = "BEGIN RESEARCH";
+    if (underResearch) desc = "Research in progress";
+    if (knowledge == BaseResearch.LEVEL_THEORY) desc = "PROTOTYPE";
+    if (knowledge == BaseResearch.LEVEL_PRAXIS) desc = "INSTALL";
+    
+    d.append(" ");
+    if (possible || unknown) d.append(new Description.Link(desc) {
+      public void whenClicked() {
+        if (underResearch) {
+          researchDone.whenClicked();
         }
-      });
+        else if (unknown) {
+          if (I.logEvents()) I.say("\nBEGAN RESEARCH: "+upgrade+" FOR "+base);
+          upgrade.beginResearch(base);
+        }
+        else {
+          if (I.logEvents()) I.say("\nBEGAN UPGRADE: "+upgrade+" AT "+client);
+          if (upgrade.isBlueprintUpgrade()) {
+            PlacingTask.performPlacingTask(upgrade.origin);
+          }
+          else if (client instanceof Placeable) {
+            ((Placeable) client).structure().beginUpgrade(upgrade, false);
+          }
+        }
+      }
+    });
+    else d.append(desc, Colour.GREY);
+    //
+    //  If knowledge isn't the problem, either cite the reason or list the
+    //  funds required (in red if not available.)
+    if (! unknown) {
+      final int cost = upgrade.buildCost(base);
+      if (reasons.hadReason(REASON_NO_FUNDS)) {
+        d.append(" ("+cost+" Credits)", Colour.GREY);
+      }
+      else if (! possible) {
+        d.append(" "+reasons.failReasons(), Colour.RED);
+      }
+      else d.append(" ("+cost+" Credits)");
     }
   }
   

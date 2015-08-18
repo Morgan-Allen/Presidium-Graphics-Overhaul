@@ -598,55 +598,12 @@ public class Structure {
   }
   
   
-  public boolean hasRequired(Upgrade upgrade) {
-    for (Upgrade r : upgrade.required) {
-      if (! Visit.arrayIncludes(upgrades, r)) return false;
-    }
-    return true;
-  }
-  
-  
   public int slotsFree() {
     int num = 0;
     for (Upgrade u : upgrades) {
       if (u == null) num++;
     }
     return num;
-  }
-  
-  
-  final public static String
-    REASON_NO_KNOWLEDGE    = "Lacks theoretical knowledge.",
-    REASON_NO_REQUIREMENTS = "Lacks pre-requisite upgrades",
-    REASON_SLOTS_FILLED    = "Upgrade slots filled!",
-    REASON_NO_FUNDS        = "Lacks sufficient funds!";
-  
-  //
-  //  TODO:  Consider moving this to the Upgrade class instead?...
-  
-  public boolean upgradePossible(Upgrade upgrade, Account reasons) {
-    if (upgrades == null) return reasons.setFailure(REASON_SLOTS_FILLED);
-    
-    int numType = 0; boolean hasSlot = false;
-    for (Upgrade u : upgrades) {
-      if (u == null) hasSlot = true;
-      else if (u == upgrade) numType++;
-    }
-    if (! (hasSlot && numType < upgrade.maxLevel)) {
-      return reasons.setFailure(REASON_SLOTS_FILLED);
-    }
-    
-    final boolean hasReq = hasRequired(upgrade);
-    if (! hasReq) return reasons.setFailure(REASON_NO_REQUIREMENTS);
-    
-    final Base         base = basis.base();
-    final BaseResearch BR   = base.research;
-    if (! BR.hasTheory(upgrade)) return reasons.setFailure(REASON_NO_KNOWLEDGE);
-    
-    final boolean noFund = upgrade.buildCost(base) > base.finance.credits();
-    if (noFund) return reasons.setFailure(REASON_NO_FUNDS);
-    
-    return reasons.setSuccess();
   }
   
   
@@ -691,6 +648,11 @@ public class Structure {
   
   public boolean hasUpgrade(Upgrade type) {
     return upgradeLevel(type) > 0;
+  }
+  
+  
+  public boolean hasUpgradeOrQueued(Upgrade type) {
+    return hasUpgrade(type) || upgradeLevel(type, STATE_INSTALL) > 0;
   }
   
   

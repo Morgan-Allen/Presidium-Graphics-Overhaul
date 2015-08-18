@@ -86,8 +86,8 @@ public class EngineerStation extends Venue {
       250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PLASTICS
     ),
-    COMPOSITE_MATERIALS = new Upgrade(
-      "Composite Materials",
+    ALLOY_COMPOSITES = new Upgrade(
+      "Alloy Composites",
       "Improves the production of heavy armours along with most melee "+
       "weapons.",
       400,
@@ -106,6 +106,9 @@ public class EngineerStation extends Venue {
       Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
+    
+    //  Power Cells.  Kinetic Ammo.  Robotics?
+    
     //  TODO:  INCLUDE THIS, AND REQUIRE PLASMA WEAPONS
     /*
     T_NULL_ARMBAND = new Upgrade(
@@ -117,11 +120,11 @@ public class EngineerStation extends Venue {
     //*/
     MICRO_ASSEMBLY = new Upgrade(
       "Micro Assembly",
-      "Allows customised "+CIRCUITRY+" to be produced 33% faster.  Provides "+
+      "Allows customised "+CIRCUITRY+" to be produced 50% faster.  Provides "+
       "a mild bonus to personal commissions.",
       150,
-      Upgrade.THREE_LEVELS, new Upgrade[] { ASSEMBLY_LINE }, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, PLASTICS
+      Upgrade.TWO_LEVELS, new Upgrade[] { ASSEMBLY_LINE }, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, CIRCUITRY
     );
   
   final public static Conversion
@@ -235,11 +238,11 @@ public class EngineerStation extends Venue {
     }
     else if (made instanceof DeviceType) {
       final DeviceType DT = (DeviceType) made;
-      if (DT.hasProperty(Devices.KINETIC)) return COMPOSITE_MATERIALS;
+      if (DT.hasProperty(Devices.KINETIC)) return ALLOY_COMPOSITES;
       if (DT.hasProperty(Devices.ENERGY )) return PLASMA_WEAPONS     ;
     }
     else if (made instanceof OutfitType) {
-      return COMPOSITE_MATERIALS;
+      return ALLOY_COMPOSITES;
     }
     return MICRO_ASSEMBLY;
   }

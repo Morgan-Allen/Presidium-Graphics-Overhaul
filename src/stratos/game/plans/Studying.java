@@ -201,20 +201,19 @@ public class Studying extends Plan {
   
   
   public float successChanceFor(Actor actor) {
-    if (type == TYPE_DRILL) return 1;
-    
-    //  TODO:  USE DIFFERENT SKILLS FOR RESEARCH IN DIFFERENT AREAS (physics,
-    //  biology, medicine, etc.)
-    
-    //  Also, certain skill-types might not need much research(?)
-    
-    //  Military- battle tactics.
-    //  
-    
-    float chance = 1;
-    chance += actor.skills.chance(INSCRIPTION, INSCRIBE_DC);
-    chance += actor.skills.chance(ACCOUNTING , ACCOUNTS_DC);
-    return chance / 3;
+    if (type == TYPE_DRILL) {
+      return 1;
+    }
+    else if (type == TYPE_RESEARCH) {
+      final Conversion r = ((Upgrade) studied).researchProcess;
+      return r.testChance(actor, 0);
+    }
+    else {
+      float chance = 1;
+      chance += actor.skills.chance(INSCRIPTION, INSCRIBE_DC);
+      chance += actor.skills.chance(ACCOUNTING , ACCOUNTS_DC);
+      return chance / 3;
+    }
   }
   
   
@@ -294,8 +293,16 @@ public class Studying extends Plan {
       if (BR.hasTheory(sought)) return true;
       
       float inc = fastResearch ? 50 : 1;
+      inc *= sought.researchProcess.performTest(actor, 0, 1);
       inc /= BaseResearch.DEFAULT_RESEARCH_TIME;
-      BR.incResearchFor(sought, inc, BaseResearch.LEVEL_THEORY);
+      
+      final float breakthrough = Rand.num();
+      if (Rand.num() * breakthrough < inc) {
+        BR.incResearchFor(sought, breakthrough, BaseResearch.LEVEL_THEORY);
+      }
+      else {
+        BR.incResearchFor(sought, inc, BaseResearch.LEVEL_THEORY);
+      }
       return true;
     }
     else if (type == TYPE_TUTOR) {

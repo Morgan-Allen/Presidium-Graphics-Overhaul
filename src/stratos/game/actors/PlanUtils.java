@@ -449,7 +449,8 @@ public class PlanUtils {
   }
   
 
-  //  TODO:  Pass in a conversion instead (or allow for that.)
+  //  TODO:  THE CONVERSION CLASS ALREADY HAS A UTILITY METHOD FOR THIS.  I
+  //  WOULD DISPENSE OR UNIFY AS SOON AS POSSIBLE.
   public static float successForActorWith(
     Actor actor, Skill baseSkills[], float DC, boolean realTest
   ) {

@@ -581,7 +581,8 @@ public abstract class Actor extends Mobile implements
     
     final Behaviour rootB = mind.rootBehaviour();
     final Mission mission = mind.mission();
-    if (mission != client && rootB == mission.cachedStepFor(this)) {
+    final boolean offMissionView = mission != null && mission != client;
+    if (offMissionView && rootB == mission.cachedStepFor(this)) {
       mission.describeMission(d);
     }
     else if (rootB != null) rootB.describeBehaviour(d);
