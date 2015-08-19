@@ -3,7 +3,7 @@
 TO DO NOW-
 
 *  Hook up research-prereqs/levels for all the main buildings, plus their
-   associated skill-reqs.
+   associated skill-reqs.  (Just the structure, not the effects.)
      Combat- Battle Tactics.
      Trade & Admin- Accounting.
      Aesthetic- Sensoria.
@@ -14,9 +14,6 @@ TO DO NOW-
 
 *  Research should ideally involve more than one action-type.  (Possibly split
    up different skill-tasks between applicants?  Analyse/confer/etc.?)
-
-*  Update the art used to indicate various available/researchable/etc. states
-   for venues.
 
 
 *  The tutorial will have to be run-through again (due to changes in level-

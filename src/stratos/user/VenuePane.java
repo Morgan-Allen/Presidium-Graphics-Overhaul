@@ -375,7 +375,7 @@ public class VenuePane extends SelectionPane {
         SelectionPane.WIDGET_INFO.asTexture(),
         15, 15, upgrade, false, d
       );
-      
+      d.append("\n");
       upgrade.describeResearchStatus(d, v);
     }
     

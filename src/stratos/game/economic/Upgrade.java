@@ -41,6 +41,7 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   final public Type type;
   final public Object refers;
+  final public int tier;
   final public Conversion researchProcess;
   
   final public int defaultCost;
@@ -73,7 +74,9 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
       entryKey()+"_research",
       researchConversionArgs
     );
-    
+    //
+    //  Finally, compile a proper listing of pre-requisite upgrades (if any),
+    //  and compute your tier in the hierarchy.
     if (required instanceof Upgrade) {
       this.required.add((Upgrade) required);
     }
@@ -84,6 +87,10 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
       "\nWARNING: "+required+" is not an upgrade or upgrade array!"
     );
     for (Upgrade u : this.required) u.leadsTo.add(this);
+    
+    int maxTier = -1;
+    for (Upgrade u : this.required) maxTier = Nums.max(maxTier, u.tier);
+    this.tier = maxTier + 1;
     
     final Upgrade frame = origin == null ? null : origin.baseUpgrade();
     if (frame != null && frame != this) this.required.include(frame);
@@ -269,7 +276,7 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
     final float progLeft = base.research.researchRemaining(this, knowledge + 1);
     final boolean underResearch = unknown && researchDone != null;
     
-    d.append("\n Research Status: "+progDesc);
+    d.append("Research Status: "+progDesc, Colour.LITE_GREY);
     if (progLeft < 1) {
       d.append(" ("+(int) ((1 - progLeft) * 100)+"%)");
     }
@@ -280,7 +287,7 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
     if (knowledge == BaseResearch.LEVEL_THEORY) desc = "PROTOTYPE";
     if (knowledge == BaseResearch.LEVEL_PRAXIS) desc = "INSTALL";
     
-    d.append(" ");
+    d.append("");
     if (possible || unknown) d.append(new Description.Link(desc) {
       public void whenClicked() {
         if (underResearch) {

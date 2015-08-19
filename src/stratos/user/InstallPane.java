@@ -30,18 +30,18 @@ public class InstallPane extends SelectionPane {
     ),
     BUILD_ICON_LIT = Button.CROSSHAIRS_LIT,
     
-    ILLEGAL_FRAME = ImageAsset.fromImage(
-      InstallPane.class, "media/GUI/Buttons/illegal_icon_frame.png"
+    STATE_FRAMES[] = ImageAsset.fromImages(
+      InstallPane.class, "media/GUI/Buttons/",
+      "selected_icon_frame.png",
+      "prototype_icon_frame.png",
+      "research_icon_frame.png",
+      "theoretical_icon_frame.png"
     ),
-    THEORETICAL_FRAME = ImageAsset.fromImage(
-      InstallPane.class, "media/GUI/Buttons/theoretical_icon_frame.png"
-    ),
-    PROTOTYPE_FRAME = ImageAsset.fromImage(
-      InstallPane.class, "media/GUI/Buttons/prototype_icon_frame.png"
-    ),
-    SELECTED_FRAME = ImageAsset.fromImage(
-      InstallPane.class, "media/GUI/Buttons/selected_icon_frame.png"
-    );
+    SELECTED_FRAME    = STATE_FRAMES[0],
+    PROTOTYPE_FRAME   = STATE_FRAMES[1],
+    RESEARCH_FRAME    = STATE_FRAMES[2],
+    THEORETICAL_FRAME = STATE_FRAMES[3];
+  
   final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
     InstallPane.class, BUTTONS_PATH,
     "militant_category_button.png",
@@ -126,21 +126,35 @@ public class InstallPane extends SelectionPane {
   ) {
     headerText.setText("Install Structures");
     detailText.setText("");
-    
     final Base base = UI.played();
+    
+    final List <Blueprint> sorting = new List <Blueprint> () {
+      protected float queuePriority(Blueprint r) {
+        if (r.baseUpgrade() == null) return 100;
+        return 0 - r.baseUpgrade().tier;
+      }
+    };
+    
     for (String catName : INSTALL_CATEGORIES) {
       final Category c = categories.get(catName);
       if (! c.toggled) continue;
       
-      detailText.append(c.name+" Structures\n");
+      sorting.clear();
+      for (Blueprint b : allBlueprints) {
+        if (! b.category.equals(catName)) continue;
+        if (b.icon == null || b.baseUpgrade() == null) continue;
+        if (! base.research.allows(b.baseUpgrade())) continue;
+        sorting.add(b);
+      }
+      if (sorting.empty()) continue;
+      else sorting.queueSort();
+      
+      detailText.append(" "+c.name+" Structures\n");
       final int MAX_IN_ROW = 4;
       int numInRow = 0;
       
-      for (Blueprint b : c.belong) {
-        ///if (b.buildCost() < 0) continue;
-        boolean enabled = base.checkPrerequisites(b, Account.NONE);
-        
-        describeVenueOptions(b, detailText, enabled, base);
+      for (Blueprint b : sorting) {
+        describeVenueOptions(b, detailText, base);
         if ((++numInRow % MAX_IN_ROW) == 0) detailText.append("\n");
       }
       detailText.append("\n");
@@ -154,34 +168,34 @@ public class InstallPane extends SelectionPane {
   
 
   private void describeVenueOptions(
-    final Blueprint type, Text text, boolean enabled, Base base
+    final Blueprint type, Text text, Base base
   ) {
     final Composite icon = Composite.withImage(type.icon, type.keyID);
-    if (icon == null) return;
-    final int state = (int) base.research.getResearchLevel(type.baseUpgrade());
+    if (icon == null || type.baseUpgrade() == null) return;
+    
+    final Upgrade forType = type.baseUpgrade();
+    final int state = (int) base.research.getResearchLevel(forType);
     
     final Button b = new Button(UI, type.keyID, icon.texture(), type.name) {
       protected void whenClicked() { toggleSelected(type, this, state); }
     };
     
-    //  TODO:  REVISE THE ART HERE
-    /*
-    if (state != BaseResearch.LEVEL_PRAXIS) {
-      b.addOverlay(Image.TRANSLUCENT_BLACK);
-    }
-    if (state == BaseResearch.LEVEL_BANNED) {
-      b.addOverlay(ILLEGAL_FRAME);
-    }
-    if (state == BaseResearch.LEVEL_ALLOWS) {
-      b.addOverlay(THEORETICAL_FRAME);
+    if (state <= BaseResearch.LEVEL_ALLOWS) {
+      if (forType.researchDone(base) != null) {
+        b.addOverlay(THEORETICAL_FRAME);
+        b.addOverlay(RESEARCH_FRAME);
+      }
+      else {
+        b.addOverlay(THEORETICAL_FRAME);
+      }
     }
     if (state == BaseResearch.LEVEL_THEORY) {
       b.addOverlay(PROTOTYPE_FRAME);
     }
-    //*/
-    
     b.setHighlight(SELECTED_FRAME.asTexture());
+    
     b.toggled = type == lastSelected;
+    text.append(" ");
     Text.insert(b, 40, 40, false, text);
   }
   
@@ -196,23 +210,20 @@ public class InstallPane extends SelectionPane {
   private void describeCurrentType(
     final Blueprint type, final Base base, boolean enabled, Text text
   ) {
-    final int cost = type.buildCost(base);
-    
     text.append("\n\n");
     text.append(type.name+" ");
     Text.insert(
       SelectionPane.WIDGET_INFO.asTexture(),
       15, 15, type, false, text
     );
-    text.append(" ("+cost+" credits)", Colour.LITE_GREY);
-    text.append("\n\n");
     
-    text.append(type.description);
     final Upgrade basis = type.baseUpgrade();
     if (basis != null) {
       text.append("\n");
       basis.describeResearchStatus(text, base);
     }
+    text.append("\n\n");
+    text.append(type.description);
   }
 }
 
