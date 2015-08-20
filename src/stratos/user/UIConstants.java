@@ -48,14 +48,20 @@ public interface UIConstants {
   
   final public static String
     
-    //  TODO:  Expand these later.
-    TYPE_SECURITY  = "Health & Security"     ,
+    TYPE_SECURITY  = "Security & Defence"    ,
+    TYPE_PHYSICIAN = "Health & Education"    ,
     TYPE_COMMERCE  = "Trade & Commerce"      ,
     TYPE_ENGINEER  = "Engineering & Industry",
     TYPE_ECOLOGIST = "Ecology & Environment" ,
+    TYPE_AESTHETIC = "Arts & Entertainment"  ,
     
     INSTALL_CATEGORIES[] = {
-      TYPE_SECURITY, TYPE_ENGINEER, TYPE_ECOLOGIST, TYPE_COMMERCE
+      TYPE_SECURITY,
+      TYPE_COMMERCE,
+      TYPE_PHYSICIAN,
+      TYPE_ENGINEER,
+      TYPE_ECOLOGIST,
+      TYPE_AESTHETIC
     },
     TYPE_UNPLACED  = "Unplaced",
     TYPE_WIP       = "<WORK IN PROGRESS>",
@@ -67,6 +73,19 @@ public interface UIConstants {
   
   final public static int
     NUM_INSTALL_CATEGORIES = INSTALL_CATEGORIES.length;
+  
+  final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
+    UIConstants.class, BUTTONS_PATH,
+    "militant_category_button.png",
+    "merchant_category_button.png",
+    "physician_category_button.png",
+    "artificer_category_button.png",
+    "ecologist_category_button.png",
+    "aesthete_category_button.png"
+  );
+  final static ImageAsset
+    DEFAULT_VENUE_ICON   = Image.SOLID_WHITE,
+    DEFAULT_UPGRADE_ICON = Image.SOLID_WHITE;
   
   
   final public static int

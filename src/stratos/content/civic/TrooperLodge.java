@@ -70,6 +70,7 @@ public class TrooperLodge extends Venue {
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.THREE_LEVELS, null,
+      new Object[] { 10, BATTLE_TACTICS, 0, HAND_TO_HAND, 0, MARKSMANSHIP },
       650,
       800,
       1000
@@ -79,43 +80,31 @@ public class TrooperLodge extends Venue {
       "Drills your soldiers for the rigours of close combat and tight "+
       "formations.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 10, HAND_TO_HAND
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
       "Drills your soldiers to improve ranged marksmanship.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 10, MARKSMANSHIP
     ),
     FIELD_MEDICINE = new Upgrade(
       "Field Medicine",
       "Drills your soldiers in first aid techniques and use of combat stims.",
       200, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 5, ANATOMY
     ),
     FIELD_REPAIRS = new Upgrade(
       "Field Repairs",
       "Drills your soldiers in maintaining equipment and aiding in "+
       "construction projects.",
       200, Upgrade.THREE_LEVELS, LEVELS[2], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 5, ASSEMBLY
     );
-    /*
-    VOLUNTEER_POST = new Upgrade(
-      "Volunteer Post",
-      VOLUNTEER.info,
-      200,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, Backgrounds.VOLUNTEER
-    ),
-    TROOPER_OFFICE = new Upgrade(
-      "Trooper Office",
-      TROOPER.info,
-      450,
-      Upgrade.THREE_LEVELS, VOLUNTEER_POST, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, Backgrounds.TROOPER
-    );
-    //*/
   
   final static Upgrade TRAIN_UPGRADES[] = {
     MELEE_TRAINING,

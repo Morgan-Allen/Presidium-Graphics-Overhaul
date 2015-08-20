@@ -163,11 +163,11 @@ public class Studying extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
     if (report) {
       I.say("\nStudy priority for "+actor+" ("+actor.mind.vocation()+")");
-      I.say("  "+venue+" open? "+venue.openFor(actor));
+      I.say("  "+venue+" open for study? "+venue.openFor(actor));
     }
     
     if (! venue.openFor(actor)) return -1;
@@ -195,6 +195,13 @@ public class Studying extends Plan {
     modifier -= actor.motives.greedPriority(chargeCost);
     modifier += motiveBonus();
     priority = (priority + modifier) * competence();
+    
+    if (report) {
+      I.say("  Motive bonus:   "+motiveBonus());
+      I.say("  Modifier is:    "+modifier);
+      I.say("  Competence is:  "+competence());
+      I.say("  Final priority: "+priority);
+    }
     
     return priority;
   }

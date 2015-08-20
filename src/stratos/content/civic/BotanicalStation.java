@@ -88,42 +88,45 @@ public class BotanicalStation extends Venue {
   
   /**  Handling upgrades and economic functions-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.THREE_LEVELS, null,
+      new Object[] { 10, CULTIVATION, 0, XENOZOOLOGY },
       450,
-      500,
-      550
+      600,
+      750
     ),
     MONOCULTURE = new Upgrade(
       "Monoculture",
       "Improves cereal yields, which provide "+CARBS+".  Cereals yield more "+
       "calories than other crops, but lack the nutrients for a complete diet.",
       100, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, CARBS
+      Upgrade.Type.TECH_MODULE, CARBS,
+      10, CULTIVATION
     ),
     FLORAL_CULTURE = new Upgrade(
       "Floral Culture",
       "Improves broadleaf yields, which provide "+GREENS+".  These are "+
       "valued as luxury exports, but their yield in calories is limited.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, GREENS
+      Upgrade.Type.TECH_MODULE, GREENS,
+      10, CULTIVATION
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
       "Forestry programs assist in terraforming efforts and climate "+
       "moderation, as well as permitting "+POLYMER+" production.",
       100, Upgrade.THREE_LEVELS, FLORAL_CULTURE, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, Flora.class
+      Upgrade.Type.TECH_MODULE, Flora.class,
+      15, CULTIVATION
     ),
     SYMBIOTICS = new Upgrade(
       "Symbiotics",
       "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
       "assists in animal breeding programs.",
       150, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, PROTEIN
+      Upgrade.Type.TECH_MODULE, PROTEIN,
+      5, XENOZOOLOGY
     );
   
   

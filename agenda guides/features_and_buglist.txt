@@ -4,12 +4,12 @@ TO DO NOW-
 
 *  Hook up research-prereqs/levels for all the main buildings, plus their
    associated skill-reqs.  (Just the structure, not the effects.)
-     Combat- Battle Tactics.
+     Combat-        Battle Tactics.
      Trade & Admin- Accounting.
-     Aesthetic- Sensoria.
-     Medical- Anatomy & Pharmacy.
-     Ecological- Botany & Zoology.
-     Engineering- Assembly & Field Theory.
+     Aesthetic-     Sensoria.
+     Medical-       Anatomy & Pharmacy.
+     Ecological-    Botany & Zoology.
+     Engineering-   Assembly & Field Theory.
      Plus a general architecture/printing skill?
 
 *  Research should ideally involve more than one action-type.  (Possibly split

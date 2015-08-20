@@ -32,25 +32,15 @@ public class InstallPane extends SelectionPane {
     
     STATE_FRAMES[] = ImageAsset.fromImages(
       InstallPane.class, "media/GUI/Buttons/",
-      "selected_icon_frame.png",
-      "prototype_icon_frame.png",
-      "research_icon_frame.png",
+      "selected_icon_frame.png"   ,
+      "prototype_icon_frame.png"  ,
+      "research_icon_frame.png"   ,
       "theoretical_icon_frame.png"
     ),
     SELECTED_FRAME    = STATE_FRAMES[0],
     PROTOTYPE_FRAME   = STATE_FRAMES[1],
     RESEARCH_FRAME    = STATE_FRAMES[2],
     THEORETICAL_FRAME = STATE_FRAMES[3];
-  
-  final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
-    InstallPane.class, BUTTONS_PATH,
-    "militant_category_button.png",
-    "merchant_category_button.png",
-    "aesthete_category_button.png",
-    "artificer_category_button.png",
-    "ecologist_category_button.png",
-    "physician_category_button.png"
-  );
 
   
   
@@ -88,10 +78,8 @@ public class InstallPane extends SelectionPane {
   
   
   protected static void setupTypes() {
-    initCategory(TYPE_SECURITY );
-    initCategory(TYPE_COMMERCE );
-    initCategory(TYPE_ENGINEER );
-    initCategory(TYPE_ECOLOGIST);
+    
+    for (String s : INSTALL_CATEGORIES) initCategory(s);
     
     for (Blueprint blueprint : Blueprint.allBlueprints()) {
       final Category category = categories.get(blueprint.category);
@@ -111,13 +99,6 @@ public class InstallPane extends SelectionPane {
   }
   
   
-  public static ImageAsset upgradeIcon(String category) {
-    int index = Visit.indexOf(category, INSTALL_CATEGORIES);
-    if (index < 0) index = 0;
-    return GUILD_IMAGE_ASSETS[index];
-  }
-  
-  
   
   /**  Regular updates and placement-kickoff:
     */
@@ -130,8 +111,8 @@ public class InstallPane extends SelectionPane {
     
     final List <Blueprint> sorting = new List <Blueprint> () {
       protected float queuePriority(Blueprint r) {
-        if (r.baseUpgrade() == null) return 100;
-        return 0 - r.baseUpgrade().tier;
+        if (r.baseUpgrade() == null) return -100;
+        return r.baseUpgrade().tier;
       }
     };
     
@@ -143,13 +124,15 @@ public class InstallPane extends SelectionPane {
       for (Blueprint b : allBlueprints) {
         if (! b.category.equals(catName)) continue;
         if (b.icon == null || b.baseUpgrade() == null) continue;
-        if (! base.research.allows(b.baseUpgrade())) continue;
+        if (! b.baseUpgrade().hasRequirements(base)) continue;
+        
+        //if (! base.research.allows(b.baseUpgrade())) continue;
         sorting.add(b);
       }
       if (sorting.empty()) continue;
       else sorting.queueSort();
       
-      detailText.append(" "+c.name+" Structures\n");
+      detailText.append("\n "+c.name+" Structures\n");
       final int MAX_IN_ROW = 4;
       int numInRow = 0;
       
@@ -216,6 +199,7 @@ public class InstallPane extends SelectionPane {
       SelectionPane.WIDGET_INFO.asTexture(),
       15, 15, type, false, text
     );
+    ///text.append("\n  Tier: "+type.baseUpgrade().tier);
     
     final Upgrade basis = type.baseUpgrade();
     if (basis != null) {

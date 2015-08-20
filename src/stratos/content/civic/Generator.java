@@ -102,40 +102,47 @@ public class Generator extends Venue {
 
   /**  Upgrades, economic functions and behaviour implementations-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, EngineerStation.PARTICLE_PHYSICS,
+      new Object[] { 10, FIELD_THEORY, 10, ASSEMBLY },
+      750, 1000
+    ),
     WASTE_PROCESSING = new Upgrade(
       "Waste Processing",
       "Reduces the rate at which "+FUEL_RODS+" are consumed and ameliorates "+
       "pollution.",
-      150,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      150, Upgrade.TWO_LEVELS,
+      LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, FIELD_THEORY, 5, ASSEMBLY
     ),
-    REACTIVE_CONTAINMENT = new Upgrade(
-      "Reactive Containment",
-      "Reduces the likelihood of meltdown occuring when the reactor is "+
-      "damaged or under-supervised, and the risk of sabotage or infiltration.",
-      200,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+    FIELD_INTEGRATION = new Upgrade(
+      "Field Integration",
+      "Reduces the likelihood of meltdown or sabotage and permits "+
+      "forcefield generation at the "+ShieldWall.BLUEPRINT+".",
+      500, Upgrade.SINGLE_LEVEL,
+      LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      15, FIELD_THEORY, 10, ASSEMBLY
     ),
-    COLD_FUSION = new Upgrade(
-      "Cold Fusion",
+    FUSION_CHAMBER = new Upgrade(
+      "Fusion Chamber",
       "Increases "+POWER+" output while limiting pollution and decreasing the "+
       "severity of any meltdowns.",
-      500,
-      Upgrade.THREE_LEVELS, REACTIVE_CONTAINMENT, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      500, Upgrade.TWO_LEVELS,
+      new Upgrade[] { FIELD_INTEGRATION, LEVELS[1] }, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      15, FIELD_THEORY, 15, ASSEMBLY
     ),
-    PARTICLE_CIRCUIT = new Upgrade(
-      "Particle Circuit",
-      "Facilitates conversion of "+FUEL_RODS+" to "+ANTIMASS+", a volatile "+
-      "energy source essential to space travel and atomics stockpiles.",
-      450, Upgrade.THREE_LEVELS, WASTE_PROCESSING, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+    MATTER_INVERSION = new Upgrade(
+      "Matter Inversion",
+      "Increases your stockpile of "+ANTIMASS+", a volatile energy source "+
+      "essential to space travel and military offensives.",
+      450, Upgrade.THREE_LEVELS,
+      new Upgrade[] { WASTE_PROCESSING, FIELD_INTEGRATION }, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      20, FIELD_THEORY, 15, ASSEMBLY
     )
   ;
   
@@ -160,7 +167,7 @@ public class Generator extends Venue {
     //
     //  Then check to see if anything needs manufacture-
     Manufacture m = stocks.nextManufacture(actor, FUEL_RODS_TO_ANTIMASS);
-    if (m != null) choice.add(m.setBonusFrom(this, true, PARTICLE_CIRCUIT));
+    if (m != null) choice.add(m.setBonusFrom(this, true, MATTER_INVERSION));
     
     for (Item ordered : stocks.specialOrders()) {
       final Manufacture mO = new Manufacture(actor, this, ordered);
@@ -177,7 +184,7 @@ public class Generator extends Venue {
   
   public boolean actionCheckMeltdown(Actor actor, Generator reactor) {
     float diagnoseDC = 5 + ((1 - meltdown) * 20);
-    final int FB = structure.upgradeLevel(REACTIVE_CONTAINMENT);
+    final int FB = structure.upgradeLevel(FIELD_INTEGRATION);
     diagnoseDC -= FB * 5;
     
     boolean success = true;
@@ -213,7 +220,7 @@ public class Generator extends Venue {
     //  Calculate output of power and consumption of fuel-
     float fuelConsumed = 1f / Stage.STANDARD_DAY_LENGTH, powerOutput = 25;
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
-    powerOutput *= (2f + structure.upgradeLevel(COLD_FUSION)) / 2;
+    powerOutput *= (2f + structure.upgradeLevel(FUSION_CHAMBER)) / 2;
     //
     //  TODO:  Load fuel into the core gradually- (make a supervision task.)
     final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
@@ -227,7 +234,7 @@ public class Generator extends Venue {
     //  Output pollution-
     int pollution = 10;
     pollution -= structure.upgradeLevel(WASTE_PROCESSING) * 2;
-    pollution -= structure.upgradeLevel(COLD_FUSION);
+    pollution -= structure.upgradeLevel(FUSION_CHAMBER);
     structure.setAmbienceVal(0 - pollution);
   }
   
@@ -236,7 +243,7 @@ public class Generator extends Venue {
     float chance = 1.5f - structure.repairLevel();
     chance *= 1 + (stocks.demandFor(POWER) / 20f);
     if (stocks.amountOf(ANTIMASS) == 0) chance /= 5;
-    chance /= (1f + structure.upgradeLevel(REACTIVE_CONTAINMENT));
+    chance /= (1f + structure.upgradeLevel(FIELD_INTEGRATION));
     return chance;
   }
   
@@ -265,7 +272,7 @@ public class Generator extends Venue {
   
   
   protected void performMeltdown() {
-    final int safety = 1 + structure.upgradeLevel(COLD_FUSION);
+    final int safety = 1 + structure.upgradeLevel(FUSION_CHAMBER);
     //
     //  Pollute the surroundings but cut back the meltdown somewhat-
     float radiationVal = (125 / safety) - 25;

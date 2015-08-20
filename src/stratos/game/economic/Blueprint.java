@@ -25,7 +25,7 @@ import java.lang.reflect.*;
 //*/
 
 
-public class Blueprint extends Constant implements Session.Saveable {
+public class Blueprint extends Constant implements UIConstants {
   
   
   final public static Index <Blueprint> INDEX = new Index <Blueprint> ();
@@ -69,7 +69,7 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.keyID     = key;
     
     this.category    = category;
-    this.icon        = icon;
+    this.icon        = icon == null ? DEFAULT_VENUE_ICON : icon;
     this.description = description;
     
     this.size = size;
@@ -136,7 +136,8 @@ public class Blueprint extends Constant implements Session.Saveable {
   /**  Factory methods for direct structure-upgrades.
     */
   public Upgrade[] createVenueLevels(
-    int numLevels, Upgrade required, int... buildCosts
+    int numLevels, Upgrade required,
+    Object[] researchConversionArgs, int... buildCosts
   ) {
     if (buildCosts.length != numLevels) {
       I.complain("MUST HAVE BUILD COSTS FOR EACH VENUE LEVEL!");
@@ -149,7 +150,7 @@ public class Blueprint extends Constant implements Session.Saveable {
       "Upgrade to level "+(i + 1),
       buildCosts[i], 1,
       (i == 0 ? required : upgradeLevels[i - 1]), this,
-      Upgrade.Type.VENUE_LEVEL, null
+      Upgrade.Type.VENUE_LEVEL, null, researchConversionArgs
     );
     return upgradeLevels;
   }

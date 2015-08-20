@@ -187,6 +187,7 @@ public class MessagePane extends UIGroup implements UIConstants {
       d.setText(initText);
       d.append("\n  ");
       for (Clickable option : options) {
+        if (option == null) continue;
         d.append("\n  ");
         d.append(option);
       }

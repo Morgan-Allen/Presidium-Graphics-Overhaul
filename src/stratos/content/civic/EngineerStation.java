@@ -61,12 +61,10 @@ public class EngineerStation extends Venue {
   
   /**  Economic functions, upgrades and employee behaviour-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.THREE_LEVELS, null,
+      new Object[] { 10, ASSEMBLY, 0, CHEMISTRY, 0, FIELD_THEORY },
       500,
       650,
       800
@@ -77,22 +75,34 @@ public class EngineerStation extends Venue {
       "increases pollution.",
       300,
       Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, PARTS
+      Upgrade.Type.TECH_MODULE, PARTS,
+      15, ASSEMBLY
     ),
     MOLDING_PRESS = new Upgrade(
       "Molding Press",
       "Speeds the production of common "+PLASTICS+" and lighter outfits "+
       "by 50%.  Slightly reduces pollution.",
       250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, PLASTICS
+      Upgrade.Type.TECH_MODULE, PLASTICS,
+      10, ASSEMBLY, 0, CHEMISTRY
     ),
-    ALLOY_COMPOSITES = new Upgrade(
-      "Alloy Composites",
-      "Improves the production of heavy armours along with most melee "+
+    COMPOSITE_ARMORS = new Upgrade(
+      "Composite Armors",
+      "Improves the production of heavy armors along with common melee "+
       "weapons.",
       400,
       Upgrade.THREE_LEVELS, MOLDING_PRESS, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.Type.TECH_MODULE, null,
+      15, ASSEMBLY, 5, CHEMISTRY
+    ),
+    
+    PARTICLE_PHYSICS = new Upgrade(
+      "Particle Physics",
+      "Improves "+POWER+" production by 5 and allows upgrades to common "+
+      "industrial lasers and power cells.",
+      350, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, POWER,
+      5, ASSEMBLY, 5, FIELD_THEORY
     ),
     
     //  TODO:  Replace with Plasma Flux, as a general pre-req for energy-
@@ -101,12 +111,14 @@ public class EngineerStation extends Venue {
     PLASMA_WEAPONS = new Upgrade(
       "Plasma Weapons",
       "Allows high-flux energy pulses to be generated and controlled, "+
-      "allowing upgrades to most ranged weapons.",
+      "allowing upgrades to powerful ranged weapons.",
       400,
-      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.THREE_LEVELS, PARTICLE_PHYSICS, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, ASSEMBLY, 15, FIELD_THEORY
     ),
     
+    //  KINETIC_WEAPONS = new Upgrade(),
     //  Power Cells.  Kinetic Ammo.  Robotics?
     
     //  TODO:  INCLUDE THIS, AND REQUIRE PLASMA WEAPONS
@@ -123,8 +135,9 @@ public class EngineerStation extends Venue {
       "Allows customised "+CIRCUITRY+" to be produced 50% faster.  Provides "+
       "a mild bonus to personal commissions.",
       150,
-      Upgrade.TWO_LEVELS, new Upgrade[] { ASSEMBLY_LINE }, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, CIRCUITRY
+      Upgrade.TWO_LEVELS, new Upgrade[] { ASSEMBLY_LINE, LEVELS[2] }, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, CIRCUITRY,
+      20, ASSEMBLY, 10, FIELD_THEORY
     );
   
   final public static Conversion
@@ -238,11 +251,11 @@ public class EngineerStation extends Venue {
     }
     else if (made instanceof DeviceType) {
       final DeviceType DT = (DeviceType) made;
-      if (DT.hasProperty(Devices.KINETIC)) return ALLOY_COMPOSITES;
+      if (DT.hasProperty(Devices.KINETIC)) return COMPOSITE_ARMORS;
       if (DT.hasProperty(Devices.ENERGY )) return PLASMA_WEAPONS     ;
     }
     else if (made instanceof OutfitType) {
-      return ALLOY_COMPOSITES;
+      return COMPOSITE_ARMORS;
     }
     return MICRO_ASSEMBLY;
   }

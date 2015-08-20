@@ -18,7 +18,9 @@ import stratos.graphics.widgets.*;
 //  Upgrades tend to either expand employment, give a bonus to production
 //  of a particular item type, or enhance a particular kind of service.
 
-public class Upgrade extends Constant implements MessagePane.MessageSource {
+public class Upgrade extends Constant implements
+  MessagePane.MessageSource, UIConstants
+{
   
   
   final static Index <Upgrade> INDEX = new Index <Upgrade> ();
@@ -38,6 +40,7 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   final public String baseName;
   final public String description;
+  private ImageAsset icon = null;
   
   final public Type type;
   final public Object refers;
@@ -336,7 +339,8 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
     */
   final static String
     COMPLETE_KEY     = "Research Complete: ",
-    BREAKTHROUGH_KEY = "Breakthrough!";
+    BREAKTHROUGH_KEY = "Breakthrough!",
+    SETBACK_KEY      = "Setback...";
   
   
   public void sendCompletionMessage(Base base) {
@@ -346,6 +350,11 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   public void sendBreakThroughMessage(Base base) {
     sendMessageWithKey(base, BREAKTHROUGH_KEY);
+  }
+  
+  
+  public void sendSetbackMessage(Base base) {
+    sendMessageWithKey(base, SETBACK_KEY);
   }
   
   
@@ -360,18 +369,25 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   public MessagePane configMessage(final String titleKey, final BaseUI UI) {
     final MessagePane message = new MessagePane(UI, titleKey, this);
-    final BaseResearch BR = UI.played().research;
-    final String desc = BR.progressDescriptor(this);
     final Upgrade upgrade = this;
     
     if (titleKey.equals(COMPLETE_KEY+name)) message.assignContent(
-      "A new upgrade is now available in "+desc+" stage.",
-      new Description.Link("View "+name) {
+      upgrade+" is now available in prototype form.  Prototypes are "+
+      "expensive, but their cost will decline as your engineers become "+
+      "familiar with the technology.",
+      
+      new Description.Link("View Upgrade") {
         public void whenClicked() {
           upgrade.whenClicked();
           UI.clearMessagePane();
         }
-      }
+      },
+      upgrade.isBlueprintUpgrade() ? new Description.Link("Place Prototype") {
+        public void whenClicked() {
+          PlacingTask.performPlacingTask(upgrade.origin);
+          UI.clearMessagePane();
+        }
+      } : null
     );
     
     if (titleKey.equals(BREAKTHROUGH_KEY)) message.assignContent(
@@ -395,9 +411,16 @@ public class Upgrade extends Constant implements MessagePane.MessageSource {
   
   
   public ImageAsset portraitImage() {
-    if (origin == null) return null;
-    if (this == origin.baseUpgrade()) return origin.icon;
-    return InstallPane.upgradeIcon(origin.category);
+    if (icon != null) return icon;
+    
+    if (origin == null) return icon = DEFAULT_UPGRADE_ICON;
+    if (this == origin.baseUpgrade()) return icon = origin.icon;
+    
+    final String cat = origin.category;
+    final int index = Visit.indexOf(cat, INSTALL_CATEGORIES);
+    if (index <= -1) return icon = DEFAULT_UPGRADE_ICON;
+    
+    return icon = UIConstants.GUILD_IMAGE_ASSETS[index];
   }
 }
 
