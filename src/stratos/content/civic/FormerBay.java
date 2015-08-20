@@ -119,6 +119,15 @@ public class FormerBay extends Venue implements TileConstants {
   /**  Economic functions-
     */
   //  TODO:  Integrate these upgrades to improve efficiency here.
+  //  TODO:  Include options for either desertification or 'greening'!
+  
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, null,
+      new Object[] { 10, GEOPHYSICS, 5, ASSEMBLY, 5, CHEMISTRY },
+      450, 650
+    );
+  
   /*
   final public static Upgrade
     

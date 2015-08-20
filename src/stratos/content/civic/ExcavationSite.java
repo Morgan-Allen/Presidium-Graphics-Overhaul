@@ -218,16 +218,18 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   /**  Economic functions-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.SINGLE_LEVEL, EngineerStation.LEVELS[0],
+      new Object[] { 15, ASSEMBLY, 0, ANCIENT_LORE },
+      400
+    ),
     SAFETY_PROTOCOL = new Upgrade(
       "Safety Protocol",
       "Increases effective dig range while limiting pollution and improving "+
       "the chance to recover "+FOSSILS+".",
       100,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     
@@ -236,7 +238,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows veins of heavy "+METALS+" to be sought out and processed "+
       "more reliably.",
       150,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, METALS
     ),
     
@@ -245,7 +247,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Allows deposits of radioactive "+FUEL_RODS+" to be sought out and "+
       "extracted more reliably.",
       200,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.TWO_LEVELS, SAFETY_PROTOCOL, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, ANTIMASS
     ),
     
@@ -254,7 +256,7 @@ public class ExcavationSite extends Venue implements TileConstants {
       "Enables deep sub-surface boring to sustain an indefinite production of "+
       METALS+" and "+FUEL_RODS+" at the cost of heavy pollution.",
       350,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.SINGLE_LEVEL, METALS_SMELTING, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     );
   

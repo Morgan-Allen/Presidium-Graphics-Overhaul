@@ -7,7 +7,6 @@ package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
-import static stratos.game.economic.Economy.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
@@ -15,6 +14,8 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -48,6 +49,12 @@ public class Heighway extends Venue {
     "admit dangerous vermin.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
     Owner.TIER_PRIVATE, 10, 25
+  );
+  
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, Bastion.LEVELS[0],
+    new Object[] { 5, ASSEMBLY },
+    30
   );
   
   

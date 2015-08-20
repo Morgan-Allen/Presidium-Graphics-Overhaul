@@ -140,17 +140,21 @@ public class StockExchange extends Venue {
   
   /**  Upgrades, behaviour and economic functions-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
-  
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.THREE_LEVELS, null,
+      new Object[] { 10, ACCOUNTING, 0, DOMESTICS },
+      450,
+      650,
+      850
+    ),
     
     //  TODO:  COOK UP RATIONS AS A 4TH FOOD TYPE
     RATIONS_VENDING = new Upgrade(
       "Rations Vending",
       "Increases space available to "+CARBS+" and "+PROTEIN+" and augments "+
       "profits from their sale.",
-      150, Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     
@@ -159,7 +163,7 @@ public class StockExchange extends Venue {
       "Hardware Store",
       "Increases space available to "+PARTS+" and "+PLASTICS+", and augments "+
       "profits from their sale.",
-      150, Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     
@@ -176,7 +180,7 @@ public class StockExchange extends Venue {
       "Credits Exchange",
       "Makes small periodic adjustments to revenue and outlays in response "+
       "to large-scale investment patterns, magnifying both profit and loss.",
-      400, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      400, Upgrade.TWO_LEVELS, LEVELS[1], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     

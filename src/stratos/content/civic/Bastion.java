@@ -132,16 +132,21 @@ public class Bastion extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.THREE_LEVELS, null,
+      new Object[] { 15, ASSEMBLY, 0, BATTLE_TACTICS },
+      850 ,
+      1200,
+      1750
+    ),
+    
     LOGISTIC_SUPPORT = new Upgrade(
       "Logistic Support",
       "Provides more openings for your "+TECHNICIAN+"s and "+AUDITOR+"s, "+
       "thereby aiding construction efforts and revenue flow.",
       200,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     SECURITY_MEASURES = new Upgrade(
@@ -149,7 +154,7 @@ public class Bastion extends Venue {
       "Increases patrols of "+TROOPER+"s in and around your settlement and "+
       "augments your Bastion's output of "+POWER+" and "+ATMO+".",
       300,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     NOBLE_QUARTERS = new Upgrade(
@@ -160,12 +165,14 @@ public class Bastion extends Venue {
       Upgrade.THREE_LEVELS, null, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
+    
+    //  TODO- MERGE WITH ABOVE
     GUEST_QUARTERS = new Upgrade(
       "Guest Quarters",
       "Makes more space for prisoners and hostages, and creates openings for "+
       ""+STEWARD+"s in your employ.",
       250,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     BLAST_SHIELDS = new Upgrade(
@@ -173,15 +180,18 @@ public class Bastion extends Venue {
       "Increases the structural integrity of the Bastion, particularly vital "+
       "in the event of atomic attack.",
       450,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, SECURITY_MEASURES, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
+    
+    //  TODO:  CREATE EXTRA, NOBLE-SPECIFIC ABILITY HERE
+    
     SEAT_OF_POWER = new Upgrade(
       "Seat of Power",
       "Augments the strength and range of your psyonic powers and capacity "+
       "to function without sleep or rest.",
       500,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     );
   

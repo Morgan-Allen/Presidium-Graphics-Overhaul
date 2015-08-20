@@ -88,9 +88,14 @@ public class Cantina extends Venue implements Performance.Theatre {
     "Cantina", UIConstants.TYPE_COMMERCE, ICON,
     "A lively hub for social activities, your citizens can rest and relax "+
     "at the Cantina.  Unsavoury characters are known to drop by, however.",
-    4, 1, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 150,
-    2
+    4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 2,
+    SERVICE_ENTERTAIN, PERFORMER, SOMA_CHEF
+  );
+  
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, StockExchange.LEVELS[0],
+    new Object[] { 5, MUSIC_AND_SONG, 5, DOMESTICS },
+    350
   );
   
   
@@ -207,11 +212,6 @@ public class Cantina extends Venue implements Performance.Theatre {
   }
   
   
-  public Background[] careers() {
-    return new Background[] { Backgrounds.SOMA_CHEF, Backgrounds.PERFORMER };
-  }
-  
-  
   public int numOpenings(Background v) {
     final int nO = super.numOpenings(v);
     if (v == Backgrounds.SOMA_CHEF) return nO + 1;
@@ -223,11 +223,6 @@ public class Cantina extends Venue implements Performance.Theatre {
   public float priceFor(Traded good) {
     if (good == SOMA) return SOMA.basePrice() * SOMA_MARGIN;
     return good.basePrice() * BaseCommerce.SMUGGLE_MARGIN;
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { SERVICE_ENTERTAIN };
   }
   
   

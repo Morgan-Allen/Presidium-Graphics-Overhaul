@@ -14,6 +14,7 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -32,9 +33,14 @@ public class Condensor extends Venue {
     "Condensor", UIConstants.TYPE_ECOLOGIST, ICON,
     "The Condensor provides "+WATER+" and "+ATMO+" to the surrounding "+
     "settlement.",
-    2, 1, Structure.IS_FIXTURE,
-    Owner.TIER_FACILITY, 85,
-    1
+    2, 1, Structure.IS_FIXTURE, Owner.TIER_FACILITY, 85, 1,
+    ATMO, WATER
+  );
+  
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
+    new Object[] { 10, ASSEMBLY, 5, GEOPHYSICS },
+    250
   );
   
   
@@ -58,16 +64,6 @@ public class Condensor extends Venue {
   
   /**  Economic functions-
     */
-  public Background[] careers() {
-    return null;
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { ATMO, WATER };
-  }
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (structure.intact()) {

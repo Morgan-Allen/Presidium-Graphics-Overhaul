@@ -72,17 +72,21 @@ public class PhysicianStation extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
-  
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.THREE_LEVELS, null,
+      new Object[] { 10, ANATOMY, 10, PHARMACY, 5, GENE_CULTURE },
+      600,
+      800,
+      1000
+    ),
+    
     MEDICAL_LAB = new Upgrade(
       "Medical Lab",
       "Speeds the production of "+MEDICINE+" by 33%.  Benefits the treatment "+
       "and diagnosis of most disease.",
       250,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     
@@ -94,7 +98,7 @@ public class PhysicianStation extends Venue {
       "Surgical tools, anaesthetics and plasma reserves ensure that serious "+
       "injuries can be dealt with quickly.",
       300,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     GENE_THERAPIES = new Upgrade(
@@ -115,8 +119,8 @@ public class PhysicianStation extends Venue {
     ),
     
     //  Combat stims plus extra chance of revival as enraged
-    COMBAT_STIMS = null,
-    
+    COMBAT_STIMS = null;
+    /*
     MINDER_POST = new Upgrade(
       "Minder Post",
       MINDER.info,
@@ -131,6 +135,7 @@ public class PhysicianStation extends Venue {
       Upgrade.THREE_LEVELS, MINDER_POST, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, Backgrounds.PHYSICIAN
     );
+  //*/
   
   final public static Conversion
     REAGENTS_TO_MEDICINE = new Conversion(

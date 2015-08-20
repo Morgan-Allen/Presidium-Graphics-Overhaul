@@ -128,6 +128,13 @@ public class RunnerMarket extends Venue {
   /**  Economic and behavioural overrides-
     */
   //  TODO:  Include corresponding upgrades and techniques for all of these!
+  final static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, StockExchange.LEVELS[0],
+      new Object[] { 5, STEALTH_AND_COVER, 5, ACCOUNTING },
+      350,
+      650
+    );
   
   final static Traded
     NEURAL_IMPLANT = new Traded(

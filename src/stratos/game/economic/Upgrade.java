@@ -168,7 +168,7 @@ public class Upgrade extends Constant implements
   
   public boolean hasRequirements(Base base) {
     for (Upgrade r : required) {
-      if (! base.research.hasPractice(r)) return false;
+      if (! base.research.hasTheory(r)) return false;
     }
     return true;
   }
@@ -178,7 +178,7 @@ public class Upgrade extends Constant implements
     final Batch <Upgrade> available = new Batch();
     for (Upgrade u : venue.blueprint.venueLevels()) {
       if (! venue.structure.hasUpgrade(u)) continue;
-      for (Upgrade l : u.leadsTo()) if (u.origin == venue.blueprint) {
+      for (Upgrade l : u.leadsTo()) if (l.origin == venue.blueprint) {
         available.add(l);
       }
     }
@@ -339,8 +339,8 @@ public class Upgrade extends Constant implements
     */
   final static String
     COMPLETE_KEY     = "Research Complete: ",
-    BREAKTHROUGH_KEY = "Breakthrough!",
-    SETBACK_KEY      = "Setback...";
+    BREAKTHROUGH_KEY = "Breakthrough: "     ,
+    SETBACK_KEY      = "Setback: "          ;
   
   
   public void sendCompletionMessage(Base base) {
@@ -349,12 +349,12 @@ public class Upgrade extends Constant implements
   
   
   public void sendBreakThroughMessage(Base base) {
-    sendMessageWithKey(base, BREAKTHROUGH_KEY);
+    sendMessageWithKey(base, BREAKTHROUGH_KEY+name);
   }
   
   
   public void sendSetbackMessage(Base base) {
-    sendMessageWithKey(base, SETBACK_KEY);
+    sendMessageWithKey(base, SETBACK_KEY+name);
   }
   
   
@@ -390,8 +390,21 @@ public class Upgrade extends Constant implements
       } : null
     );
     
-    if (titleKey.equals(BREAKTHROUGH_KEY)) message.assignContent(
-      "There has been a breakthrough in our research into "+upgrade+"!",
+    if (titleKey.equals(BREAKTHROUGH_KEY+name)) message.assignContent(
+      "One of our researchers had a flash of sudden insight, leading to a "+
+      "breakthrough in our research into "+upgrade+"!",
+      new Description.Link("View Project") {
+        public void whenClicked() {
+          final Mission match = upgrade.researchDone(UI.played());
+          if (match != null) match.whenClicked();
+          UI.clearMessagePane();
+        }
+      }
+    );
+    
+    if (titleKey.equals(SETBACK_KEY+name)) message.assignContent(
+      "There has been a setback in our research into "+upgrade+".  An avenue "+
+      "of investigation proved to be unfruitful.",
       new Description.Link("View Project") {
         public void whenClicked() {
           final Mission match = upgrade.researchDone(UI.played());

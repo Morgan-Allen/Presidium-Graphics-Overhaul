@@ -125,8 +125,6 @@ public class InstallPane extends SelectionPane {
         if (! b.category.equals(catName)) continue;
         if (b.icon == null || b.baseUpgrade() == null) continue;
         if (! b.baseUpgrade().hasRequirements(base)) continue;
-        
-        //if (! base.research.allows(b.baseUpgrade())) continue;
         sorting.add(b);
       }
       if (sorting.empty()) continue;

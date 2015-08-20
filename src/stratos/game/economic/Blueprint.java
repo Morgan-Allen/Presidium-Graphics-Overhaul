@@ -136,7 +136,7 @@ public class Blueprint extends Constant implements UIConstants {
   /**  Factory methods for direct structure-upgrades.
     */
   public Upgrade[] createVenueLevels(
-    int numLevels, Upgrade required,
+    int numLevels, Object required,
     Object[] researchConversionArgs, int... buildCosts
   ) {
     if (buildCosts.length != numLevels) {
