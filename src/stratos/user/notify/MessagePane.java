@@ -145,11 +145,6 @@ public class MessagePane extends UIGroup implements UIConstants {
   }
   
   
-  public float receipt() {
-    return receiptDate;
-  }
-  
-  
   public Text header() {
     return header;
   }

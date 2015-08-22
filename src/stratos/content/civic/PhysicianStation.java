@@ -39,7 +39,7 @@ public class PhysicianStation extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     PhysicianStation.class, "physician_station",
-    "Physician Station", UIConstants.TYPE_SECURITY, ICON,
+    "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
     "The Physician Station allows your citizens' injuries or diseases to be "+
     "treated quickly and effectively.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 2,

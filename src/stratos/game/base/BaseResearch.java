@@ -69,6 +69,13 @@ public class BaseResearch {
   }
   
   
+  public void initKnowledgeFrom(VerseLocation homeworld) {
+    for (Upgrade u : homeworld.knowledge()) {
+      setResearchLevel(u, LEVEL_PRAXIS);
+    }
+  }
+  
+  
   
   
   /**  Setting-queries and modifications-
@@ -163,10 +170,15 @@ public class BaseResearch {
   }
   
   
-  public float researchRemaining(Upgrade u, int resLevel) {
+  public float researchProgress(Upgrade u, int resLevel) {
     final Research match = u == null ? null : allResearch.get(u);
-    if (match == null) return 1;
-    else return Nums.clamp(resLevel - match.actualLevel, 0, 1);
+    if (match == null) return 0;
+    else return Nums.clamp(match.actualLevel + 1 - resLevel, 0, 1);
+  }
+  
+  
+  public float researchRemaining(Upgrade u, int resLevel) {
+    return 1 - researchProgress(u, resLevel);
   }
   
   

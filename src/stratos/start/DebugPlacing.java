@@ -8,6 +8,7 @@ import stratos.content.civic.*;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.BaseResearch;
+import stratos.game.base.Verse;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -91,9 +92,7 @@ public class DebugPlacing extends Scenario {
     GameSettings.setDefaults();
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
-    
-    base.research.setToPractice(EngineerStation .BLUEPRINT.baseUpgrade());
-    base.research.setToPractice(EcologistRedoubt.BLUEPRINT.baseUpgrade());
+    base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
     
     if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);

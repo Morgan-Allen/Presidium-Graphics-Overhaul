@@ -123,7 +123,8 @@ public class FormerBay extends Venue implements TileConstants {
   
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.TWO_LEVELS, null,
+      Upgrade.TWO_LEVELS,
+      new Upgrade[] { BotanicalStation.LEVELS[0], EngineerStation.LEVELS[0] },
       new Object[] { 10, GEOPHYSICS, 5, ASSEMBLY, 5, CHEMISTRY },
       450, 650
     );

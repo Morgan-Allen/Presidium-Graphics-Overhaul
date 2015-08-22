@@ -55,6 +55,7 @@ public class VerseLocation extends Background {
   final public int population;
   
   final Table <Background, Float> circles = new Table();
+  final List <Upgrade> knowledge = new List();
   
   
   public VerseLocation(
@@ -76,17 +77,33 @@ public class VerseLocation extends Background {
     final Batch <Traded> madeB = new Batch(), needB = new Batch();
     Object tag = null;
     float rating = -1;
+    
     for (Object arg : args) {
-      if (arg == MAKES || arg == NEEDS) tag = arg;
+      if (arg == MAKES || arg == NEEDS) {
+        tag = arg;
+      }
       if (arg instanceof Traded) {
         final Traded t = (Traded) arg;
         if (t.form != Economy.FORM_MATERIAL) continue;
         if (tag == MAKES) madeB.add(t);
         if (tag == NEEDS) needB.add(t);
       }
-      if (arg instanceof Float) rating = (Float) arg;
+      if (arg instanceof Float) {
+        rating = (Float) arg;
+      }
       if (arg instanceof Background[]) {
         for (Background b : (Background[]) arg) circles.put(b, rating);
+      }
+      if (arg instanceof Blueprint) {
+        arg = ((Blueprint) arg).baseUpgrade();
+      }
+      if (arg instanceof Upgrade) {
+        final Upgrade upgrade = (Upgrade) arg;
+        knowledge.include(upgrade);
+        for (Upgrade u : upgrade.leadsTo()) {
+          if (u.isBlueprintUpgrade()) continue;
+          knowledge.include(u);
+        }
       }
     }
     
@@ -99,6 +116,11 @@ public class VerseLocation extends Background {
   public Background[] circles() {
     final Background[] result = new Background[circles.size()];
     return circles.values().toArray(result);
+  }
+  
+  
+  public Series <Upgrade> knowledge() {
+    return knowledge;
   }
   
   

@@ -56,9 +56,9 @@ public class ReminderListing extends UIGroup {
     if (message.source == null) {
       I.complain("\nNO SOURCE FOR MESSAGE: "+message.title);
     }
-    s.saveObject(message.source   );
-    s.saveString(message.title    );
-    s.saveFloat (message.receipt());
+    s.saveObject(message.source       );
+    s.saveString(message.title        );
+    s.saveFloat (message.receiptDate());
   }
   
   

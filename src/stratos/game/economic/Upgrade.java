@@ -260,6 +260,17 @@ public class Upgrade extends Constant implements
         for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
         d.append("\n");
       }
+      final Conversion c = researchProcess;
+      if (c.skills.length > 0) {
+        d.append("Research obstacles:");
+        for (int i = 0; i < c.skills.length; i++) {
+          d.append("\n  ");
+          d.append(c.skills[i]);
+          d.append(": "+(int) c.skillDCs[i]);
+        }
+        d.append("\n");
+      }
+      
       return;
     }
     
@@ -348,7 +359,7 @@ public class Upgrade extends Constant implements
   }
   
   
-  public void sendBreakThroughMessage(Base base) {
+  public void sendBreakthroughMessage(Base base) {
     sendMessageWithKey(base, BREAKTHROUGH_KEY+name);
   }
   

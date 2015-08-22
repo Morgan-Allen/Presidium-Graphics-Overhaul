@@ -33,7 +33,7 @@ public class CultureVats extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     CultureVats.class, "culture_vats",
-    "Culture Vats", UIConstants.TYPE_SECURITY, ICON,
+    "Culture Vats", UIConstants.TYPE_PHYSICIAN, ICON,
     "The Culture Vats manufacture "+REAGENTS+", basic foodstuffs "+
     "and even cloned tissues for medical purposes.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 400, 3,

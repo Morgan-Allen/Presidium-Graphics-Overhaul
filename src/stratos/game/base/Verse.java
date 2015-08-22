@@ -10,6 +10,7 @@ import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+import stratos.content.civic.*;
 
 
 
@@ -98,7 +99,17 @@ public class Verse {
       VerseLocation.NEEDS, WATER, CIRCUITRY, POLYMER,
       BORN_FREE,
       NOVICE, CULTIVATION, CHEMISTRY,
-      OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES
+      OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES,
+      
+      BotanicalStation.BLUEPRINT,
+      EngineerStation .BLUEPRINT,
+      PhysicianStation.BLUEPRINT,
+      TrooperLodge    .BLUEPRINT,
+      StockExchange   .BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      
+      EcologistRedoubt.BLUEPRINT,
+      FormerBay.BLUEPRINT
     ),
     PLANET_PAREM_V = new VerseLocation(
       Verse.class, "Parem V", "House Procyon",
@@ -111,7 +122,17 @@ public class Verse {
       BORN_DREGS, BORN_PYON,
       NOVICE, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,
-      RARELY, ECOLOGIST_CIRCLES, AESTHETE_CIRCLES
+      RARELY, ECOLOGIST_CIRCLES, AESTHETE_CIRCLES,
+
+      EngineerStation .BLUEPRINT,
+      PhysicianStation.BLUEPRINT,
+      TrooperLodge    .BLUEPRINT,
+      StockExchange   .BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      
+      CultureVats.BLUEPRINT,
+      Generator.BLUEPRINT,
+      ExcavationSite.BLUEPRINT
     ),
     PLANET_HALIBAN = new VerseLocation(
       Verse.class, "Haliban", "House Altair",
@@ -124,7 +145,17 @@ public class Verse {
       BORN_GELDER, BORN_FREE,
       NOVICE, MARKSMANSHIP, ANATOMY,
       OFTEN, MILITARY_CIRCLES, SOMETIMES, PHYSICIAN_CIRCLES,
-      RARELY, VENDOR_CIRCLES
+      RARELY, VENDOR_CIRCLES,
+      
+      BotanicalStation.BLUEPRINT,
+      EngineerStation .BLUEPRINT,
+      PhysicianStation.BLUEPRINT,
+      TrooperLodge    .BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      
+      ShieldWall.BLUEPRINT,
+      Airfield.BLUEPRINT,
+      Bastion.LEVELS[1]
     ),
     PLANET_AXIS_NOVENA = new VerseLocation(
       Verse.class, "Axis Novena", "House Taygeta",
@@ -136,8 +167,19 @@ public class Verse {
       VerseLocation.NEEDS, GREENS, METALS, ANTIMASS,
       BORN_DREGS, BORN_GELDER,
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
-      OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES
+      OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES,
+      
+      BotanicalStation.BLUEPRINT,
+      EngineerStation .BLUEPRINT,
+      PhysicianStation.BLUEPRINT,
+      TrooperLodge    .BLUEPRINT,
+      StockExchange   .BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      
+      RunnerMarket.BLUEPRINT,
+      Cantina.BLUEPRINT
     ),
+    
     //
     //  TODO:  ...These need more detail.
     PLANET_SOLIPSUS_VIER = new VerseLocation(

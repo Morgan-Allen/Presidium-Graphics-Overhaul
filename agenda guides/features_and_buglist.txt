@@ -7,6 +7,7 @@ TO DO NOW-
      
      Trooper Lodge-     check.  2x.
      Auto Turret-       check.  1x.
+     
      Physician Station- check.  2x.
      Culture Vats-      check.  1x.
      
@@ -29,15 +30,8 @@ TO DO NOW-
      Holding-           check.  4x.
      Service Hatch-     check.
      Stasis Capsule ???
-
-*  DIFFERENT HOUSES MUST HAVE DIFFERENT INITIAL KNOWLEDGE-BANKS.
    Make sure upgrades and abilities are functioning for each of these.
-
-
-*  Research should ideally involve more than one action-type.  (Possibly split
-   up different skill-tasks between applicants?  Analyse/confer/etc.?)
-   Also, the priority should vary based on work-shifts.  (Need to allow sleep.)
-
+   (And double-check correct knowledge-setup for the various houses.)
 
 *  The tutorial will have to be run-through again (due to changes in level-
    upgrades, it might not be possible to hire enough crew.)
@@ -57,9 +51,6 @@ TO DO NOW-
    detectors if you don't have a pass-code.)  Plus combat stims at stock-
    exchange & physician station.
 
-*  Consider restricting access to some of these structures based on house-
-   philosophy or lack of expertise.
-
 *  Provide notifications for deaths and arrivals.
 
 
@@ -70,6 +61,8 @@ BEHAVIOUR TYPES-
 //  Work:         Commerce.  Manufacture.  Resources.
 //                Performance.  Medicine.  Audits.
 //  Emergencies:  Fighting.  Defending.  Fleeing.  Pleas.
+
+
 
 BUILDINGS AND ECONOMY-
 

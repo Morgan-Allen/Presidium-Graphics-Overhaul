@@ -112,10 +112,52 @@ public class InstallPane extends SelectionPane {
     final List <Blueprint> sorting = new List <Blueprint> () {
       protected float queuePriority(Blueprint r) {
         if (r.baseUpgrade() == null) return -100;
-        return r.baseUpgrade().tier;
+        int catIndex = Visit.indexOf(r.category, INSTALL_CATEGORIES);
+        return (catIndex * 100) + r.baseUpgrade().tier;
       }
     };
+    final List <Blueprint>
+      current  = new List(),
+      possible = new List(),
+      listed   = new List();
     
+    for (Blueprint b : allBlueprints) {
+      if (b.icon == null || b.baseUpgrade() == null) continue;
+      if (! b.baseUpgrade().hasRequirements(base)) continue;
+      
+      if (base.research.hasTheory(b.baseUpgrade())) {
+        
+        //  TODO:  This only comes up in the case where a unique building (e.g,
+        //  the bastion) is already placed.
+        //  Find a more elegant way to present this!
+        final boolean allowed = base.checkPrerequisites(b, Account.NONE);
+        if (allowed) current.add(b);
+      }
+      else possible.add(b);
+    }
+    
+    sorting.clear();
+    Visit.appendTo(sorting, current);
+    sorting.queueSort();
+    Visit.appendTo(listed, sorting);
+    
+    sorting.clear();
+    Visit.appendTo(sorting, possible);
+    sorting.queueSort();
+    Visit.appendTo(listed, sorting);
+
+    final int MAX_IN_ROW = 4;
+    int numInRow = 0;
+    
+    for (Blueprint b : listed) {
+      ++numInRow;
+      if (numInRow > 4 && (numInRow % MAX_IN_ROW) == 1) {
+        detailText.append("\n\n");
+      }
+      describeVenueOptions(b, detailText, base);
+    }
+    
+    /*
     for (String catName : INSTALL_CATEGORIES) {
       final Category c = categories.get(catName);
       if (! c.toggled) continue;
@@ -135,11 +177,14 @@ public class InstallPane extends SelectionPane {
       int numInRow = 0;
       
       for (Blueprint b : sorting) {
+        ++numInRow;
+        if (numInRow > 4 && (numInRow % MAX_IN_ROW) == 1) {
+          detailText.append("\n");
+        }
         describeVenueOptions(b, detailText, base);
-        if ((++numInRow % MAX_IN_ROW) == 0) detailText.append("\n");
       }
-      detailText.append("\n");
     }
+    //*/
     
     if (lastSelected != null) {
       boolean enabled = base.checkPrerequisites(lastSelected, Account.NONE);
@@ -197,7 +242,6 @@ public class InstallPane extends SelectionPane {
       SelectionPane.WIDGET_INFO.asTexture(),
       15, 15, type, false, text
     );
-    ///text.append("\n  Tier: "+type.baseUpgrade().tier);
     
     final Upgrade basis = type.baseUpgrade();
     if (basis != null) {

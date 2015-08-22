@@ -8,6 +8,7 @@ import stratos.game.base.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Planet;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -26,12 +27,13 @@ public class Studying extends Plan {
   private static boolean
     evalVerbose  = false,
     stepVerbose  = false,
-    fastResearch = false;
+    fastResearch = true ;
+  private static float
+    fastMultiple = 50f;
   
   final static int
     TYPE_STUDY    = 0,
     TYPE_DRILL    = 1,
-    TYPE_TUTOR    = 2,
     TYPE_RESEARCH = 3;
   
   final static float
@@ -98,7 +100,14 @@ public class Studying extends Plan {
   }
   
   
+  public boolean matchesPlan(Behaviour p) {
+    if (! super.matchesPlan(p)) return false;
+    final Studying s = (Studying) p;
+    return s.studied == studied && s.type == type;
+  }
   
+
+
   /**  Public factory methods-
     */
   public static Studying asStudy(
@@ -188,18 +197,20 @@ public class Studying extends Plan {
     if (type == TYPE_STUDY) {
       baseTraits = RESEARCH_TRAITS;
     }
-    
+
+    float dayValue = Planet.dayValue(actor.world());
     setCompetence(successChanceFor(actor));
     
     float priority = PlanUtils.traitAverage(actor, baseTraits) * CASUAL;
     modifier -= actor.motives.greedPriority(chargeCost);
     modifier += motiveBonus();
-    priority = (priority + modifier) * competence();
+    priority = (priority + modifier) * competence() * dayValue;
     
     if (report) {
       I.say("  Motive bonus:   "+motiveBonus());
       I.say("  Modifier is:    "+modifier);
       I.say("  Competence is:  "+competence());
+      I.say("  Day-value is:   "+dayValue);
       I.say("  Final priority: "+priority);
     }
     
@@ -266,58 +277,148 @@ public class Studying extends Plan {
   }
   
   
+  private Actor findColleague() {
+    final Pick <Actor> pick = new Pick();
+    
+    for (Actor a : venue.staff.visitors()) {
+      final Studying done = (Studying) a.matchFor(this);
+      if (a != actor && done != null) {
+        final float counselSkill = a.traits.usedLevel(COUNSEL) / 10;
+        pick.compare(a, done.competence() * (counselSkill + 1));
+      }
+    }
+    return pick.result();
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
+    final boolean report = I.talkAbout == actor && stepVerbose;
+    if (report) {
+      I.say("\nGetting next study-step for "+actor);
+      I.say("  Study subject: "+studied);
+    }
     
     final float time = actor.world().currentTime();
     if (beginTime == -1) beginTime = time;
     final float elapsed = time - beginTime;
     if (elapsed > STAY_TIME) return null;
     
-    //  TODO-  Add 'conferring with' and 'analysing data/experimenting' steps!
+    final int stepType = Rand.index(3);
+    final Actor colleague = findColleague();
+    //
+    //  We split the chance somewhat-evenly between conferring, experiments and
+    //  book-learnin'.
+    if (stepType == 1 && colleague != null) {
+      final Action confer = new Action(
+        actor, colleague,
+        this, "actionConfer",
+        Action.TALK_LONG, "Conferring with "+colleague+" on"
+      );
+      if (report) I.say("  Returning confer-step.");
+      return confer;
+    }
+    else if (stepType == 2 && type == TYPE_RESEARCH) {
+      final Action experiment = new Action(
+        actor, venue,
+        this, "actionExperiment",
+        Action.LOOK, "Experimenting with"
+      );
+      if (report) I.say("  Returning experiment-step.");
+      return experiment;
+    }
+    else {
+      final Action study = new Action(
+        actor, venue,
+        this, "actionStudy",
+        Action.LOOK, "Studying"
+      );
+      if (report) I.say("  Returning normal study-step.");
+      return study;
+    }
+  }
+  
+  
+  public boolean actionConfer(Actor actor, Actor colleague) {
+    final Studying done = (Studying) colleague.matchFor(this);
+    if (done == null) return false;
+    //
+    //  Conferring grants a bonus based on the counsel skill and the competence
+    //  of the instructor.
+    float bonus = 1;
+    bonus += DialogueUtils.talkResult(COUNSEL, ROUTINE_DC, colleague, actor);
+    bonus *= done.competence();
+    return performStudy(actor, venue, 1 + bonus);
+  }
+  
+  
+  public boolean actionExperiment(Actor actor, Venue venue) {
+    final Upgrade u = (Upgrade) studied;
+    if (u == null || u.origin == null) return false;
+    //
+    //  Experiment grants a bonus based on the presence of raw materials and
+    //  adequate facilities.
+    //  TODO:  Base this off any Conversions associated with the upgrade!
+    float bonus = 0;
+    if (venue.blueprint.category == u.origin.category) bonus += 0.5f;
+    else bonus -= 0.5f;
     
-    final Action study = new Action(
-      actor, venue,
-      this, "actionStudy",
-      Action.LOOK, "Studying"
-    );
-    return study;
+    return performStudy(actor, venue, 1 + bonus);
   }
   
   
   public boolean actionStudy(Actor actor, Venue venue) {
+    return performStudy(actor, venue, 1);
+  }
+  
+  
+  private boolean performStudy(Actor actor, Venue venue, float studyRate) {
     if (studied == null) return false;
     if (chargeCost > 0) {
       actor.gear.transferCredits(chargeCost, venue);
       chargeCost = 0;
     }
-    
+    //
+    //  Research progress can come as either gradual increments or sudden
+    //  breakthroughs- or even setbacks.
     if (type == TYPE_RESEARCH) {
       final Upgrade sought = (Upgrade) studied;
       final BaseResearch BR = venue.base().research;
-      if (BR.hasTheory(sought)) return true;
       
-      float inc = fastResearch ? 50 : 1;
-      inc *= sought.researchProcess.performTest(actor, 0, 1);
-      inc /= BaseResearch.DEFAULT_RESEARCH_TIME;
-      //
-      //  Research progress can come as either gradual increments or sudden
-      //  breakthroughs-
+      if (BR.hasTheory(sought)) return true;
+      final int   RES_LEVEL = BaseResearch.LEVEL_THEORY;
+      final float RES_TIME  = BaseResearch.DEFAULT_RESEARCH_TIME;
+      
+      float skillTest = sought.researchProcess.performTest(actor, 0, 1);
+      float progress = BR.researchProgress(sought, RES_LEVEL);
       final float breakthrough = (Rand.num() + 0.5f) / 2;
-      if (Rand.num() * breakthrough < inc) {
+      
+      float advance = fastResearch ? fastMultiple : 1;
+      advance *= studyRate / RES_TIME;
+      advance *= skillTest;
+      
+      float setback = fastResearch ? fastMultiple : 1;
+      setback *= (1 - skillTest) / RES_TIME;
+      setback *= (1 - progress) / 2;
+      
+      if (Rand.num() * breakthrough < advance) {
+        sought.sendBreakthroughMessage(base);
         BR.incResearchFor(sought, breakthrough, BaseResearch.LEVEL_THEORY);
-        sought.sendBreakThroughMessage(base);
+      }
+      else if (Rand.num() < setback) {
+        sought.sendSetbackMessage(base);
+        final float setbackAmount = 0 - breakthrough * progress;
+        BR.incResearchFor(sought, setbackAmount, BaseResearch.LEVEL_THEORY);
       }
       else {
-        BR.incResearchFor(sought, inc, BaseResearch.LEVEL_THEORY);
+        BR.incResearchFor(sought, advance, BaseResearch.LEVEL_THEORY);
       }
       return true;
     }
-    else if (type == TYPE_TUTOR) {
-      return true;
-    }
+    //
+    //  Personal study or drilling tends to be more straightforward.
     else {
       final Skill skill = (Skill) studied;
       final int knownLevel = (int) actor.traits.traitLevel(skill);
@@ -330,6 +431,8 @@ public class Studying extends Plan {
       else {
         practice += 0.5f;
       }
+      
+      practice *= studyRate;
       actor.skills.practiceAgainst(knownLevel, practice, skill);
       return true;
     }
@@ -340,7 +443,12 @@ public class Studying extends Plan {
   /**  Interface and reporting-
     */
   public void describeBehaviour(Description d) {
-    if (type == TYPE_RESEARCH) d.append("Researching ");
+    if (type == TYPE_RESEARCH) {
+      if (super.needsSuffix(d, "Researching"))
+      d.append(" ");
+      d.append(studied);
+      return;
+    }
     if (type == TYPE_STUDY   ) d.append("Studying ");
     if (type == TYPE_DRILL   ) d.append("Drilling in ");
     d.append(studied);

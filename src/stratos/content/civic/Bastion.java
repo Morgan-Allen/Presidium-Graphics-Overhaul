@@ -36,7 +36,7 @@ public class Bastion extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Bastion.class, "bastion",
-    "Bastion", UIConstants.TYPE_UNPLACED, ICON,
+    "Bastion", UIConstants.TYPE_SECURITY, ICON,
     "The Bastion is your seat of command for the settlement as a "+
     "whole, houses your family, advisors and bodyguards, and provides "+
     "basic logistic support.",

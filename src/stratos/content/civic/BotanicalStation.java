@@ -124,7 +124,7 @@ public class BotanicalStation extends Venue {
       "Symbiotics",
       "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
       "assists in animal breeding programs.",
-      150, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PROTEIN,
       5, XENOZOOLOGY
     );

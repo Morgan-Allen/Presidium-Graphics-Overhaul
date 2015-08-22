@@ -112,7 +112,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
     */
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.TWO_LEVELS, null,
+      Upgrade.TWO_LEVELS, BotanicalStation.LEVELS[0],
       new Object[] { 15, XENOZOOLOGY, 0, STEALTH_AND_COVER },
       450, 250
     ),

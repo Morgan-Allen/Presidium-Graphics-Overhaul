@@ -7,6 +7,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Planet;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -86,6 +87,14 @@ public class MissionResearch extends Mission {
       sought, BaseResearch.LEVEL_THEORY
     );
     d.append(" ("+(int) ((1 - progLeft) * 100)+"%)");
+  }
+  
+  
+  public String helpInfo() {
+    if (Planet.dayValue(base.world) < 0.33f) return
+      "Research takes time, and most researchers think better while awake.  "+
+      "Progress should be faster in the morning.";
+    return super.helpInfo();
   }
   
   
