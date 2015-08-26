@@ -197,8 +197,13 @@ public class Blueprint extends Constant implements UIConstants {
   }
   
   
-  public boolean isGrouped() {
+  public boolean isLinear() {
     return hasProperty(Structure.IS_LINEAR);
+  }
+  
+  
+  public boolean isZoned() {
+    return hasProperty(Structure.IS_ZONED);
   }
   
   
@@ -209,11 +214,6 @@ public class Blueprint extends Constant implements UIConstants {
   
   public boolean isUnique() {
     return hasProperty(Structure.IS_UNIQUE);
-  }
-  
-  
-  public boolean isWild() {
-    return hasProperty(Structure.IS_WILD);
   }
   
   
@@ -261,10 +261,17 @@ public class Blueprint extends Constant implements UIConstants {
   }
   
   
-  public static Blueprint[] allCivicBlueprints() {
+  public static Blueprint[] allCategoryBlueprints(
+    String... categories
+  ) {
     if (CIVIC_BP != null) return CIVIC_BP;
     final Batch <Blueprint> matches = new Batch <Blueprint> ();
-    for (Blueprint p : allBlueprints()) if (! p.isWild()) matches.add(p);
+    
+    for (Blueprint p : allBlueprints()) {
+      if (! Visit.arrayIncludes(categories, p.category)) continue;
+      matches.add(p);
+    }
+    
     return CIVIC_BP = matches.toArray(Blueprint.class);
   }
   
@@ -367,7 +374,7 @@ public class Blueprint extends Constant implements UIConstants {
       d.append("\n  Base 2.5x per worker/day");
     }
     
-    if (! isGrouped()) {
+    if (! isLinear()) {
       final Batch <Venue> built = base.listInstalled(this, false);
       d.append("\n\nCurrently Built:");
       if (built.size() > 0) for (Venue v : built) {

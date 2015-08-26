@@ -28,7 +28,7 @@ public class Upgrade extends Constant implements
   public static enum Type {
     VENUE_LEVEL,
     TECH_MODULE,
-    SOC_POLICY,
+    SOC_POLICY ,
     MISC_CHANGE
   };
   
@@ -36,6 +36,11 @@ public class Upgrade extends Constant implements
     SINGLE_LEVEL = 1,
     TWO_LEVELS   = 2,
     THREE_LEVELS = 3;
+  final public static int
+    COST_LOW    =  200,
+    COST_MEDIUM =  350,
+    COST_HIGH   =  500,
+    SIDE_EFFECT = -100;
   
   
   final public String baseName;
@@ -290,11 +295,13 @@ public class Upgrade extends Constant implements
     final float progLeft = base.research.researchRemaining(this, knowledge + 1);
     final boolean underResearch = unknown && researchDone != null;
     
-    d.append("Research Status: "+progDesc, Colour.LITE_GREY);
-    if (progLeft < 1) {
-      d.append(" ("+(int) ((1 - progLeft) * 100)+"%)");
+    if (knowledge != BaseResearch.LEVEL_PRAXIS) {
+      d.append("Research Status: "+progDesc, Colour.LITE_GREY);
+      if (progLeft < 1) {
+        d.append(" ("+(int) ((1 - progLeft) * 100)+"%)");
+      }
+      d.append("\n");
     }
-    d.append("\n");
     
     String desc = "BEGIN RESEARCH";
     if (underResearch) desc = "Research in progress";

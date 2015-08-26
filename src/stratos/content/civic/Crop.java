@@ -18,6 +18,9 @@ import static stratos.game.wild.Flora.*;
 
 
 
+//
+//  TODO:  MOVE MOST OF THE THIS TO THE FLORA CLASS, AND MERGE WITH THAT!
+
 public class Crop extends Element {
   
   
@@ -39,8 +42,8 @@ public class Crop extends Element {
   
   
   final public static int
-    NOT_PLANTED =  0,
-    MIN_GROWTH  =  1,
+    NOT_PLANTED = -1,
+    MIN_GROWTH  =  0,
     MIN_HARVEST =  3,
     MAX_GROWTH  =  4;
   final public static float
@@ -49,7 +52,7 @@ public class Crop extends Element {
     MAX_HEALTH =  2;
   
   final public static String STAGE_NAMES[] = {
-    "Unplanted ",
+    "Seedling ",
     "Sprouting ",
     "Growing ",
     "Mature ",
@@ -187,43 +190,32 @@ public class Crop extends Element {
   }
   
   
+  public static float yieldMultiple(Species s) {
+    if (isHive(s)) return 1f / HIVE_DIVISOR;
+    float bonus = 1;
+    if (isDryland(s)) bonus *= DRYLAND_MULT;
+    else              bonus *= WETLAND_MULT;
+    if (isCereal(s))  bonus *= CEREAL_BONUS;
+    return bonus;
+  }
+  
+  
   public static float habitatBonus(Tile t, Species s, Item seed) {
-    float bonus = 0.0f;
-    
-    //  TODO:  MOVE ALL THIS TO THE FLORA CLASS?
-    
-    //  First, apply appropriate modifier for microclimate-
+
     final float moisture = t.habitat().moisture() / 10f;
-    final boolean hive = isHive(s);
+    float bonus = 1;
     
-    if (hive) {
-      bonus = (1 + moisture) * 0.5f / HIVE_DIVISOR;
+    if (isHive(s)) {
+      bonus = (1 + moisture) / 2;
     }
     else if (isDryland(s)) {
-      bonus = DRYLAND_MULT * (1 + moisture) / 2f;
+      bonus = 1 - moisture;
     }
     else {
-      bonus = moisture * WETLAND_MULT;
+      bonus = moisture;
     }
-    
-    //  Then, we determine bonus based on crop type-
-    if (hive) {
-      bonus += 0.5f / HIVE_DIVISOR;
-    }
-    else if (isCereal(s)) {
-      bonus *= CEREAL_BONUS;
-    }
-    else {
-      bonus += 0;
-    }
-    
-    //  And if a seed is provided, that as well-
-    if (seed != null) {
-      if (hive) bonus += seed.quality / HIVE_DIVISOR;
-      else bonus += seed.quality;
-      return bonus;
-    }
-    else return Nums.clamp(bonus, 0, MAX_HEALTH);
+    if (seed != null) bonus *= 1 + (seed.quality * 1f / Item.MAX_QUALITY);
+    return Nums.clamp(bonus, 0, MAX_HEALTH);
   }
   
   
@@ -271,6 +263,7 @@ public class Crop extends Element {
       increment = 1f / NUM_DAYS_MATURE,
       health    = quality / MAX_HEALTH,
       growBonus = habitatBonus(tile, species, null),
+      yieldMult = yieldMultiple(species),
       pollution = 0 - world.ecology().ambience.valueAt(tile),
       waterNeed = parent.stocks.relativeShortage(WATER);
     
@@ -278,13 +271,14 @@ public class Crop extends Element {
       "Increment" , increment,
       "Health"    , health   ,
       "Grow bonus", growBonus,
+      "Yield mult", yieldMult,
       "Pollution" , pollution,
       "Water need", waterNeed,
       "Grow stage", growStage,
       "Blighted?" , blighted 
     );
     
-    increment *= growBonus * (1 + health) / 2;
+    increment *= growBonus * yieldMult * (1 + health) / 2;
     if (pollution > 0) increment *= (2 - pollution) / 2;
     if (waterNeed > 0) increment *= (2 - waterNeed) / 2;
     
@@ -302,8 +296,8 @@ public class Crop extends Element {
     final Traded type = yieldType(species);
     final float amount = growStage / MAX_GROWTH;
     growStage = NOT_PLANTED;
-    quality = NO_HEALTH;
-    blighted = false;
+    quality   = NO_HEALTH;
+    blighted  = false;
     parent.checkCropStates();
     
     updateSprite();
@@ -355,8 +349,9 @@ public class Crop extends Element {
       else        attachModel(COVERING_LEFT );
       return;
     }
+    
     final GroupSprite old = (GroupSprite) sprite();
-    final int stage = Nums.round(growStage, 1, true);
+    final int stage = (int) (growStage * MAX_GROWTH * 1f / MIN_HARVEST);
     final ModelAsset model = speciesModel(species, stage);
     if (old != null && old.atIndex(0).model() == model) return;
     
@@ -383,11 +378,26 @@ public class Crop extends Element {
   
   
   public String helpInfo() {
+    final Tile o = origin();
+    float moisture = o == null ? -1: o.habitat().moisture();
+    
+    String growth = STAGE_NAMES[Nums.clamp(growStage() + 1, 5)];
+    float percent = (int) (this.growStage * 100f / MAX_GROWTH);
+    String health = HEALTH_NAMES[(int) (quality * 5f / MAX_HEALTH)];
+    if (blighted) health+=" (Infested)";
+    
     return
       "Crops take a few days to mature, depending on climate, seed stock and "+
-      "planting skill.";
+      "planting skill."+
+      "\n\n  Moisture: "+moisture+
+      "\n  Health: "+health+
+      "\n  Growth: "+growth+" ("+percent+"%)";
   }
 }
+
+
+
+
 
 
 

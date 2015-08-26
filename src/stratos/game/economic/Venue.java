@@ -147,14 +147,8 @@ public abstract class Venue extends Fixture implements
   public void setFacing(int facing) {
     this.facing = facing % NUM_FACES;
     final Tile o = origin();
-    if (o == null) {
+    if (o == null || blueprint.isFixture()) {
       entrance = null;
-    }
-    else if (blueprint.isFixture()) {
-      //
-      //  Fixture-venues don't normally have entrances, but we make an
-      //  exception for tiling-venues.
-      entrance = (pathType() <= Tile.PATH_CLEAR) ? o : null;
     }
     else {
       final int off[] = SiteUtils.entranceCoords(size, size, facing);
@@ -378,12 +372,15 @@ public abstract class Venue extends Fixture implements
       staff.updateStaff(numUpdates);
       impingeSupply(false);
     }
+    
     if (structure.intact()) {
       stocks.updateOrders();
       if (rare) {
         stocks.updateDemands(10);
-        int needHome = 0;
-        for (Actor a : staff.workers()) if (a.mind.home() != this) needHome++;
+        int needHome = 0; for (Actor a : staff.workers()) {
+          final Placeable home = a.mind.home();
+          if (home == null && home != this) needHome++;
+        }
         base.demands.impingeDemand(SERVICE_HOUSING, needHome, 10, this);
       }
     }
@@ -392,15 +389,13 @@ public abstract class Venue extends Fixture implements
   
   protected void updatePaving(boolean inWorld) {
     if (pathType() <= Tile.PATH_CLEAR) {
-      byte road = inWorld ? StageTerrain.ROAD_LIGHT : StageTerrain.ROAD_NONE;
-      for (Tile t : world.tilesIn(footprint(), false)) {
-        world.terrain().setRoadType(t, road);
-      }
+      final Tile under[] = Spacing.under(footprint(), world);
+      base.transport.updatePerimeter(this, inWorld, under);
     }
     else {
       base.transport.updatePerimeter(this, inWorld);
-      base.transport.updateJunction(this, mainEntrance(), inWorld);
     }
+    base.transport.updateJunction(this, mainEntrance(), inWorld);
   }
   
   
@@ -878,7 +873,7 @@ public abstract class Venue extends Fixture implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
-    if (pathType() <= Tile.PATH_CLEAR || blueprint.isGrouped()) return;
+    if (pathType() <= Tile.PATH_CLEAR || blueprint.isLinear()) return;
     
     final String key = origin()+"_print_"+this;
     BaseUI.current().selection.renderTileOverlay(

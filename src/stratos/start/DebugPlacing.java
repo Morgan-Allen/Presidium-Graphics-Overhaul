@@ -92,6 +92,7 @@ public class DebugPlacing extends Scenario {
     GameSettings.setDefaults();
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
+    GameSettings.buildFree = true;
     base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
     
     if (false) configEcology  (world, base, UI);
@@ -119,7 +120,6 @@ public class DebugPlacing extends Scenario {
     }
     
     Nest.populateFauna(world, Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES);
-    
     
     //  TODO:  Either automate the inhabitant-displacement step, or perform
     //  inhabitant-introduction in a later step.  Think about general history-

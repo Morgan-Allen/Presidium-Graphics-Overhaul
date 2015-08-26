@@ -4,14 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.content.civic.EngineerStation;
-import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
-import stratos.graphics.cutout.CutoutSprite;
+import stratos.graphics.cutout.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -84,8 +82,10 @@ public class Base implements
   public static Base settlement(Stage world, String title, Colour colour) {
     final Base base = namedBase(world, title);
     if (base != null) return base;
-
-    final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
+    
+    final Blueprint canBuild[] = Blueprint.allCategoryBlueprints(
+      UIConstants.INSTALL_CATEGORIES
+    );
     return registerBase(new Base(world, false), world, title, colour, canBuild);
   }
   

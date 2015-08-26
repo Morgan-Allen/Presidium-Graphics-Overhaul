@@ -41,10 +41,13 @@ public class Heighway extends Venue {
       Heighway.class, "media/GUI/Buttons/access_hatch_button.gif"
     );
   
+  final static int
+    TYPE_HUB = 0,
+    TYPE_WAY = 1;
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Heighway.class, "service_hatch",
-    "Heighway", UIConstants.TYPE_UNPLACED, HATCH_ICON,
+    "Heighway", UIConstants.TYPE_ENGINEER, HATCH_ICON,
     "Heighways allow for long-distance power and road connections, but can "+
     "admit dangerous vermin.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
@@ -58,6 +61,8 @@ public class Heighway extends Venue {
   );
   
   
+  private int type = -1;
+  
   
   public Heighway(Base base) {
     super(BLUEPRINT, base);
@@ -66,11 +71,13 @@ public class Heighway extends Venue {
   
   public Heighway(Session s) throws Exception {
     super(s);
+    this.type = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveInt(type);
   }
   
   
@@ -119,6 +126,7 @@ public class Heighway extends Venue {
     
     final Object model = faceModel(position, area, others);
     attachModel((ModelAsset) model);
+    this.type = model == HUB_MODEL ? TYPE_HUB : TYPE_WAY;
     return true;
   }
   
@@ -128,16 +136,14 @@ public class Heighway extends Venue {
       this, position, area, others,
       MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, Heighway.class
     );
-    /*
     if (model == MODELS_X_AXIS[1]) {
-      final int step = (position.y / 2) % 4;
+      final int step = (position.y / 2) % 6;
       if (step == 0) model = HUB_MODEL;
     }
     if (model == MODELS_Y_AXIS[1]) {
-      final int step = (position.x / 2) % 4;
+      final int step = (position.x / 2) % 6;
       if (step == 0) model = HUB_MODEL;
     }
-    //*/
     return model;
   }
   
@@ -151,6 +157,7 @@ public class Heighway extends Venue {
     final Object  model    = faceModel(origin(), null);
     final Upgrade FC       = Structure.FACING_CHANGE;
     boolean canChange = false;
+    
     if (model != oldModel) {
       if (GameSettings.buildFree || structure.hasUpgrade(FC)) {
         canChange = true;
@@ -163,6 +170,7 @@ public class Heighway extends Venue {
       structure.resignUpgrade(FC, true);
       world.ephemera.addGhost(this, size, sprite(), 0.5f);
       attachModel((ModelAsset) model);
+      this.type = model == HUB_MODEL ? TYPE_HUB : TYPE_WAY;
     }
     //
     //  And assign life-support and other tangible effects-
@@ -195,8 +203,13 @@ public class Heighway extends Venue {
     return Tile.PATH_ROAD;
   }
   
-
-
+  
+  public Tile mainEntrance() {
+    return (type == TYPE_HUB) ? origin() : null;
+  }
+  
+  
+  
   /**  Rendering and interface methods-
     */
   public String fullName() {

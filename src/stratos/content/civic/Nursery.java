@@ -43,7 +43,7 @@ public class Nursery extends Venue implements TileConstants {
   );
   
   final static int
-    MAX_CLAIM_SIDE = Nums.round(Stage.ZONE_SIZE - 2, 4, false),
+    MAX_CLAIM_SIDE = BLUEPRINT.size + 8,
     MIN_CLAIM_SIDE = BLUEPRINT.size + 4;
   
   final public static Conversion
@@ -120,6 +120,8 @@ public class Nursery extends Venue implements TileConstants {
     //  but we can also have a larger area assigned (e.g, by a human player or
     //  by an automated placement-search.)
     
+    I.say("SETTING UP AT "+area+" / "+position);
+    
     final Tile at = origin();
     final Stage world = position.world;
     final Box2D minArea = new Box2D(), foot = footprint();
@@ -131,8 +133,6 @@ public class Nursery extends Venue implements TileConstants {
     if (area == null) {
       areaClaimed.setX(at.x - 4.5f, MAX_CLAIM_SIDE);
       areaClaimed.setY(at.y - 4.5f, MAX_CLAIM_SIDE);
-      
-      //  TODO:  Crop with an extra margin to allow clearance?
       areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed, world));
     }
     else {
@@ -192,7 +192,8 @@ public class Nursery extends Venue implements TileConstants {
   
   
   public boolean preventsClaimBy(Venue other) {
-    return true;
+    if (other instanceof BotanicalStation) return false;
+    return super.preventsClaimBy(other);
   }
   
   

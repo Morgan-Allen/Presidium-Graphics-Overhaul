@@ -35,21 +35,19 @@ TO DO NOW-
 
 *  The tutorial will have to be run-through again (due to changes in level-
    upgrades, it might not be possible to hire enough crew.)
+   
+   I'd say 2 + 1/level hires available at a given venue.  Keep it simple.
 
 *  Look into Nerdfish's feedback!
 
+*  Merge the botanical station with the nursery.  Little point to having both.
+   (You may have to tweak the SiteDivision class.)
 
-*  Auto-paving is working again (at least in the abstract.)  See if you can
-   get it to work across arbitrary distances?  ...No.  That should be up to the
-   player (but include it as an option for the AI.)
-
-*  Area-claims need to be refined a little, so that they're treated identically
-   to the footprints for other structures.  (Auto-crop must keep 2 tiles away
-   from other structures, and vice versa.)
-
-*  Install AUTO-TURRETS at your sentry-posts & blast doors.  (Simple motion-
-   detectors if you don't have a pass-code.)  Plus combat stims at stock-
-   exchange & physician station.
+*  Features to add:
+   Auto-Turret behaviour.  Forcefield generation.
+   Combat Stims.  Physician abilities.
+   T-Null Armbands.  Engineer abilities.
+   Lictor Riding.  Building-stealth.
 
 *  Provide notifications for deaths and arrivals.
 
@@ -96,6 +94,10 @@ BUILDINGS AND ECONOMY-
 
 *  Wood is valued for aesthetic properties (decor at the fabricator), along
    with fossils/curios for outfits.
+
+
+*  Implement long-distance auto-paving, but only for autonomous base-AI.  The
+   player can handle most connections themselves.
 
 
 

@@ -8,6 +8,7 @@ import stratos.content.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
+import stratos.game.wild.Flora;
 import stratos.game.wild.Species;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -86,8 +87,14 @@ public class Farming extends Plan {
     if (report) I.say("\nPicking crop species...");
     
     final Pick <Species> pick = new Pick <Species> ();
+    final Species HIVE = Flora.HIVE_GRUBS;
     diversity = 0;
     
+    //  TODO:  This is hideous!  SIMPLIFY
+    
+    //
+    //  TODO:  I think... you could just base this directly off seed quality?
+    //         The AI should be handled by whatever picks upgrades.
     for (Species s : Crop.ALL_VARIETIES) {
       final Item
         match   = Item.asMatch(GENE_SEED, s),
@@ -95,7 +102,7 @@ public class Farming extends Plan {
         atDepot = seedDepot.stocks.matchFor(match),
         seed    = carried == null ? atDepot : carried;
       
-      if (seed == null) continue;
+      if (seed == null || s == HIVE) continue;
       else diversity++;
       
       float shortage = seedDepot.stocks.relativeShortage(Crop.yieldType(s));
@@ -108,10 +115,18 @@ public class Farming extends Plan {
       }
       pick.compare(s, chance * Rand.num());
     }
-    if (report) I.say("  Species picked: "+pick.result());
     
+    Species picked = pick.result();
+    if (report) I.say("  Species picked: "+picked);
     diversity = Nums.clamp(diversity / 4, 0, 1);
-    return pick.result();
+    
+    //*
+    if (t != null && Rand.num() < 0.125f) {
+      if (report) I.say("  Picking: "+HIVE+" instead!");
+      return HIVE;
+    }
+    //*/
+    return picked;
   }
   
   

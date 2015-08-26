@@ -136,10 +136,10 @@ public class NativeHut extends Venue {
       
       allProfiles.add(new Blueprint(
         NativeHut.class, "hut_"+tribeID,
-        "Native Hut ("+tribeName+")", UIConstants.TYPE_WIP, null,
+        "Native Hut ("+tribeName+")", UIConstants.TYPE_NATIVE, null,
         "Native Hutments are simple but robust shelters constructed by "+
         "indigenous primitives.",
-        2, 2, Structure.IS_WILD,
+        2, 2, Structure.IS_CRAFTED,
         Owner.TIER_FACILITY, 75,
         3
       ) {
@@ -149,10 +149,10 @@ public class NativeHut extends Venue {
       });
       allProfiles.add(new Blueprint(
         NativeHut.class, "all_"+tribeID,
-        "Chief's Hall ("+tribeName+")", UIConstants.TYPE_WIP, null,
+        "Chief's Hall ("+tribeName+")", UIConstants.TYPE_NATIVE, null,
         "Native settlements will often have a central meeting place where "+
         "the tribe's leadership and elders will gather to make decisions.",
-        3, 2, Structure.IS_WILD,
+        3, 2, Structure.IS_CRAFTED,
         Owner.TIER_FACILITY, 150,
         5
       ) {

@@ -63,6 +63,11 @@ public interface UIConstants {
       TYPE_ECOLOGIST,
       TYPE_AESTHETIC
     },
+    
+    TYPE_NATIVE    = "Native",
+    TYPE_WILD      = "Wild"  ,
+    TYPE_RUINS     = "Ruins" ,
+    
     TYPE_UNPLACED  = "Unplaced",
     TYPE_WIP       = "<WORK IN PROGRESS>",
     

@@ -7,7 +7,7 @@ package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-import stratos.user.BaseUI;
+import stratos.user.*;
 
 
 
@@ -133,38 +133,50 @@ public class ClaimsGrid {
     final boolean report = verbose && owner.owningTier() > Owner.TIER_PRIVATE;
     
     final Batch <Claim> conflict = new Batch <Claim> ();
+    final boolean isZone = owner.blueprint.isZoned();
+    final int minSpace = Stage.UNIT_GRID_SIZE;
     if (report) {
       I.say("\nChecking for conflicts with claim by "+owner);
       I.say("  Area checked: "+area);
     }
-    
-    for (StageRegion s : world.sections.sectionsUnder(area, 1)) {
+    //
+    //  We pass over every stage-region that might intersect with the area
+    //  being claimed, and check to see if other claims are registered there.
+    for (StageRegion s : world.sections.sectionsUnder(area, minSpace + 1)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
-      
       if (claims != null) for (Claim claim : claims) {
+        //
+        //  Anything previously processed (or one's self) can be skipped...
         if (report) I.say("  Potential conflict: "+claim.owner);
-        
-        if ((! claim.flag) && claim.area.overlaps(area)) {
-          final Venue other = claim.owner;
-          if (other == owner) continue;
-          final boolean
-            ownerClash = owner.preventsClaimBy(other),
-            otherClash = other.preventsClaimBy(owner),
-            clash      = ownerClash || otherClash;
-          if (! clash) continue;
-          
-          if (report) {
-            I.say("  CONFLICTS WITH: "+other);
-            I.say("    Own clash?   "+ownerClash);
-            I.say("    Other clash? "+otherClash);
-            I.say("    Footprint:   "+other.footprint());
-          }
-          conflict.add(claim);
-          claim.flag = true;
+        final Venue other = claim.owner;
+        if (claim.flag || other == owner) continue;
+        //
+        //  Zoned structures need a minimum spacing around their perimeter,
+        //  while others can be placed adjacent.
+        final int margin = isZone || other.blueprint.isZoned() ? minSpace : 0;
+        if (claim.area.axisDistance(area) >= margin) continue;
+        //
+        //  However, venues might or might not clash with eachother, even if
+        //  within another's claim.
+        final boolean
+          ownerClash = owner.preventsClaimBy(other),
+          otherClash = other.preventsClaimBy(owner),
+          clash      = ownerClash || otherClash;
+        if (! clash) continue;
+        //
+        //  Failing that, flag the conflict and continue.
+        if (report) {
+          I.say("  CONFLICTS WITH: "+other);
+          I.say("    Own clash?   "+ownerClash);
+          I.say("    Other clash? "+otherClash);
+          I.say("    Footprint:   "+other.footprint());
         }
+        conflict.add(claim);
+        claim.flag = true;
       }
     }
-    
+    //
+    //  Clean up and return the results.
     for (Claim c : conflict) c.flag = false;
     return conflict;
   }

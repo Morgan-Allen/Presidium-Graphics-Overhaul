@@ -60,16 +60,21 @@ public class Structure {
   };
   
   final public static int
-    IS_NORMAL  = 0 ,
-    IS_VEHICLE = 1 ,
-    IS_FIXTURE = 2 ,
-    IS_LINEAR  = 4 ,
-    IS_ZONED   = 8 ,
-    IS_UNIQUE  = 16,
-    IS_WILD    = 32,
-    IS_CRAFTED = 64,
-    IS_ANCIENT = 128,
-    IS_ORGANIC = 256;
+    IS_NORMAL  = 0  ,
+    IS_VEHICLE = 1  ,
+    IS_FIXTURE = 2  ,
+    IS_LINEAR  = 4  ,
+    IS_ZONED   = 8  ,
+    IS_UNIQUE  = 16 ,
+    IS_CRAFTED = 32 ,
+    IS_ANCIENT = 64 ,
+    IS_ORGANIC = 128;
+  
+  //  Type- venue, vehicle, fixture, tiling?
+  //  Placement method- unique, point, line, zone?
+  //  Resilience- primitive, technological, ancient, organic?
+  //  Category- (for faction-membership.)
+  
   
   final public static int
     NO_UPGRADES         = 0,

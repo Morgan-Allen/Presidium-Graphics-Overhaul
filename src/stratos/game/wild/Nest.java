@@ -231,8 +231,8 @@ public class Nest extends Venue {
   ) {
     final Blueprint blueprint = new Blueprint(
       Nest.class, s.name+"_nest",
-      s.name+" Nest", UIConstants.TYPE_WIP, null, s.info,
-      size, high, Structure.IS_WILD,
+      s.name+" Nest", UIConstants.TYPE_WILD, null, s.info,
+      size, high, Structure.IS_CRAFTED,
       Owner.TIER_PRIVATE, 100,
       5
     ) {

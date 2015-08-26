@@ -363,8 +363,9 @@ public class VenuePane extends SelectionPane {
     if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
     
     for (final Upgrade upgrade : UA) {
-      d.append("\n\n");
-
+      d.append("\n");
+      Text.insert(upgrade.portraitImage().asTexture(), 40, true, d);
+      
       final String name = upgrade.nameAt(v, -1, null);
       d.append(name);
       d.append(" ");

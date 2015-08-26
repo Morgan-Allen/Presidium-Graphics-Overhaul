@@ -48,7 +48,6 @@ public class BaseSetup {
       return r.rating;
     }
   };
-  //private List <SitingPass> passes = new List();
   
   
   public BaseSetup(Base base, Stage world, Blueprint... canPlace) {
@@ -205,6 +204,7 @@ public class BaseSetup {
   
   private boolean canSite(Blueprint type) {
     if (type == null || type.siting() == null) return false;
+    if (! base.research.hasTheory(type.baseUpgrade())) return false;
     
     //  TODO:  You might also need to vary this for different regions of the
     //  map, depending on base-ownership or local autonomy.

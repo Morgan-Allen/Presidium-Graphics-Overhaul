@@ -236,21 +236,19 @@ public final class Tile implements
   public void setAbove(Element e, boolean reserves) {
     if (e == above && (e == this.reserves || ! reserves)) return;
     
-    if (e != null && this.above != null) {
-      I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);
-    }
-    
-    final boolean wasPaved = pathType() == PATH_ROAD;
+    final Element a = this.above;
     this.above = e;
-    final boolean newPaved = pathType() == PATH_ROAD;
     
-    if (wasPaved != newPaved) {
-      final byte roadLevel = newPaved ? ROAD_LIGHT : ROAD_NONE;
-      PavingMap.setPaveLevel(this, roadLevel, false);
-    }
+    final boolean pave = e != null && e.pathType() == PATH_ROAD;
+    final byte roadLevel = pave ? ROAD_LIGHT : ROAD_NONE;
+    PavingMap.setPaveLevel(this, roadLevel, false);
     
     setReserves(reserves ? e : this.reserves, reserves);
     world.sections.flagBoundsUpdate(x, y);
+    
+    if (e != null && a != null) {
+      I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);
+    }
   }
   
   

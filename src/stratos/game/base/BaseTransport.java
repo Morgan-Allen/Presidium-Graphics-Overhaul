@@ -19,6 +19,10 @@ public class BaseTransport {
   
   /**  Field definitions, constructor and save/load methods-
     */
+  final public static int
+    PAVING_UPDATE_INTERVAL = Stage.STANDARD_DAY_LENGTH  / 3,
+    FAST_PAVING_UPDATE     = Stage.STANDARD_HOUR_LENGTH / 2;
+  
   final static int PATH_RANGE = Stage.ZONE_SIZE / 2;
   private static boolean
     paveVerbose      = false,
@@ -76,71 +80,6 @@ public class BaseTransport {
   
   
   
-  /**  Debugging methods:
-    */
-  public void checkConsistency() {
-    //
-    //  NOTE:  This method only works with a single base in the world!
-    if (! checkConsistency) return;
-    I.say("\nChecking consistency for paving map...");
-    
-    final byte mask[][] = new byte[world.size][world.size];
-    boolean okay = true;
-    
-    for (Route route : allRoutes.keySet()) {
-      boolean routeOkay = true;
-      for (Tile t : route.path) {
-        mask[t.x][t.y]++;
-        if (! t.canPave()) {
-          I.say("  Should not pave at "+t+"!");
-          routeOkay = false;
-          okay = false;
-        }
-      }
-      final boolean
-        noStart = ! checkEndpoint(route.start),
-        noEnd   = ! checkEndpoint(route.end  );
-      if (noStart || noEnd) {
-        if (noStart) I.say("  START POINT INVALID");
-        if (noEnd  ) I.say("  END   POINT INVALID");
-        routeOkay = false;
-      }
-      if (! routeOkay) this.reportPath("\n  Unsuitable route", route);
-    }
-    
-    for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
-      final Tile t = world.tileAt(c.x, c.y);
-      final int pM = mask[c.x][c.y], tM = map.roadCounter(t);
-      if (pM != tM) {
-        I.say("  Discrepancy at: "+c+", "+pM+" =/= "+tM);
-        okay = false;
-      }
-    }
-    if (okay) I.say("No discrepancies in paving map found.");
-  }
-  
-
-  private void reportPath(String title, Route route) {
-    I.add(""+title+": ");
-    if (route == null || route.path == null) { I.add("No path.\n"); return; }
-    
-    Target atBeg = route.start.entranceFor().first();
-    if (atBeg == null) atBeg = route.start.reserves();
-    Target atEnd = route.end.entranceFor().first();
-    if (atEnd == null) atEnd = route.end.reserves();
-    
-    I.add("Route length: "+route.path.length+"\n  ");
-    int i = 0; for (Tile t : route.path) {
-      I.add(t.x+"|"+t.y+" ");
-      if (((++i % 10) == 0) && (i < route.path.length)) I.add("\n  ");
-    }
-    I.add("\n  Starts: "+atBeg+"  Ends: "+atEnd);
-    
-    I.add("\n");
-  }
-  
-  
-  
   /**  Methods related to installation, updates and deletion of junctions-
     */
   public void updatePerimeter(Fixture v, boolean isMember) {
@@ -189,10 +128,8 @@ public class BaseTransport {
       
       for (Object o : t.world.presences.matchesNear(Venue.class, v, area)) {
         final Venue n = (Venue) o;
-        if (n == v || n.base() != v.base()) continue;
-        Tile aims = n.mainEntrance();
-        if (n.blueprint.isFixture()) aims = world.tileAt(n);
-        else if (aims == null) continue;
+        final Tile aims = n.mainEntrance();
+        if (n == v || n.base() != v.base() || aims == null) continue;
         if (report) I.say("  Will try route to "+n+" ("+aims+")");
         
         final Route
@@ -286,17 +223,6 @@ public class BaseTransport {
   }
   
   
-  private boolean checkRouteValid(Route r) {
-    for (Tile t : r.path) if (! t.canPave()) return false;
-    return checkEndpoint(r.start) && checkEndpoint(r.end);
-  }
-  
-  
-  private boolean checkEndpoint(Tile t) {
-    return t.isEntrance() || t.reserves() instanceof Venue;
-  }
-  
-  
   private void disownRoute(Route route) {
     route.refCount--;
     if (route.refCount > 0) return;
@@ -311,10 +237,25 @@ public class BaseTransport {
   private void toggleRoute(Route route, Tile t, boolean is) {
     if (t == null) return;
     List <Route> atTile = tileRoutes.get(t);
-    if (atTile == null) tileRoutes.put(t, atTile = new List <Route> ());
-    if (is) atTile.add(route);
-    else atTile.remove(route);
-    if (atTile.size() == 0) tileRoutes.remove(t);
+    if (is) {
+      if (atTile == null) tileRoutes.put(t, atTile = new List <Route> ());
+      atTile.include(route);
+    }
+    else if (atTile != null) {
+      atTile.remove(route);
+      if (atTile.size() == 0) tileRoutes.remove(t);
+    }
+  }
+  
+  
+  private boolean checkRouteValid(Route r) {
+    for (Tile t : r.path) if (! t.canPave()) return false;
+    return checkEndpoint(r.start) && checkEndpoint(r.end);
+  }
+  
+  
+  private boolean checkEndpoint(Tile t) {
+    return t.isEntrance() || t.reserves() instanceof Venue;
   }
   
   
@@ -490,6 +431,71 @@ public class BaseTransport {
       distributeTo(reached, provided, base);
       for (Venue v : reached) v.flagWith(null);
     }
+  }
+  
+  
+  
+  /**  Debugging methods:
+    */
+  public void checkConsistency() {
+    //
+    //  NOTE:  This method only works with a single base in the world!
+    if (! checkConsistency) return;
+    I.say("\nChecking consistency for paving map...");
+    
+    final byte mask[][] = new byte[world.size][world.size];
+    boolean okay = true;
+    
+    for (Route route : allRoutes.keySet()) {
+      boolean routeOkay = true;
+      for (Tile t : route.path) {
+        mask[t.x][t.y]++;
+        if (! t.canPave()) {
+          I.say("  Should not pave at "+t+"!");
+          routeOkay = false;
+          okay = false;
+        }
+      }
+      final boolean
+        noStart = ! checkEndpoint(route.start),
+        noEnd   = ! checkEndpoint(route.end  );
+      if (noStart || noEnd) {
+        if (noStart) I.say("  START POINT INVALID");
+        if (noEnd  ) I.say("  END   POINT INVALID");
+        routeOkay = false;
+      }
+      if (! routeOkay) this.reportPath("\n  Unsuitable route", route);
+    }
+    
+    for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
+      final Tile t = world.tileAt(c.x, c.y);
+      final int pM = mask[c.x][c.y], tM = map.roadCounter(t);
+      if (pM != tM) {
+        I.say("  Discrepancy at: "+c+", "+pM+" =/= "+tM);
+        okay = false;
+      }
+    }
+    if (okay) I.say("No discrepancies in paving map found.");
+  }
+  
+
+  private void reportPath(String title, Route route) {
+    I.add(""+title+": ");
+    if (route == null || route.path == null) { I.add("No path.\n"); return; }
+    
+    Target atBeg = route.start.entranceFor().first();
+    if (atBeg == null) atBeg = route.start.reserves();
+    Target atEnd = route.end.entranceFor().first();
+    if (atEnd == null) atEnd = route.end.reserves();
+    
+    I.add("Route length: "+route.path.length+"\n  ");
+    int i = 0; for (Tile t : route.path) {
+      I.add(t.x+"|"+t.y+" ");
+      if (((++i % 10) == 0) && (i < route.path.length)) I.add("\n  ");
+    }
+    I.add("\n  Starts: "+atBeg+"  Ends: "+atEnd);
+    
+    I.add("\n");
   }
 }
 
