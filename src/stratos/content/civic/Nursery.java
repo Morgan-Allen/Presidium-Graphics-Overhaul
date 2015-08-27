@@ -7,16 +7,18 @@ package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
-public class Nursery extends Venue implements TileConstants {
+public class Nursery extends HarvestVenue implements TileConstants {
   
   
   /**  Constructors, data fields, setup and save/load methods-
@@ -43,27 +45,24 @@ public class Nursery extends Venue implements TileConstants {
   );
   
   final static int
-    MAX_CLAIM_SIDE = BLUEPRINT.size + 8,
-    MIN_CLAIM_SIDE = BLUEPRINT.size + 4;
+    MIN_CLAIM_SIDE = BLUEPRINT.size + 4,
+    MAX_CLAIM_SIDE = BLUEPRINT.size + 8;
   
   final public static Conversion
     LAND_TO_CARBS = new Conversion(
       BLUEPRINT, "land_to_carbs",
-      TO, 1, CARBS
+      10, HARD_LABOUR, 5, CULTIVATION, TO, 1, CARBS
     ),
     LAND_TO_GREENS = new Conversion(
       BLUEPRINT, "land_to_greens",
-      TO, 1, GREENS
+      10, HARD_LABOUR, 5, CULTIVATION, TO, 1, GREENS
     );
   
-
-  private Box2D areaClaimed = new Box2D();
-  private SiteDivision division = SiteDivision.NONE;
-  private float needsTending = 0;
+  
   
   
   public Nursery(Base base) {
-    super(BLUEPRINT, base);
+    super(BLUEPRINT, base, MIN_CLAIM_SIDE, MAX_CLAIM_SIDE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(NURSERY_MODEL);
   }
@@ -71,22 +70,11 @@ public class Nursery extends Venue implements TileConstants {
   
   public Nursery(Session s) throws Exception {
     super(s);
-    areaClaimed.loadFrom(s.input());
-    division = SiteDivision.loadFrom(s);
-    needsTending = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    areaClaimed.saveTo(s.output());
-    SiteDivision.saveTo(s, division);
-    s.saveFloat(needsTending);
-  }
-  
-  
-  public int owningTier() {
-    return Owner.TIER_PRIVATE;
   }
   
   
@@ -113,136 +101,14 @@ public class Nursery extends Venue implements TileConstants {
   };
   
   
-  public boolean setupWith(Tile position, Box2D area, Coord... others) {
-    if (! super.setupWith(position, area, others)) return false;
-    //
-    //  By default, we claim an area 2 tiles larger than the basic footprint,
-    //  but we can also have a larger area assigned (e.g, by a human player or
-    //  by an automated placement-search.)
-    
-    I.say("SETTING UP AT "+area+" / "+position);
-    
-    final Tile at = origin();
-    final Stage world = position.world;
-    final Box2D minArea = new Box2D(), foot = footprint();
-    
-    //  TODO:  Damn, but I need some simplified utilities for this crap.
-    minArea.setX(at.x - 2.5f, MIN_CLAIM_SIDE);
-    minArea.setY(at.y - 2.5f, MIN_CLAIM_SIDE);
-    
-    if (area == null) {
-      areaClaimed.setX(at.x - 4.5f, MAX_CLAIM_SIDE);
-      areaClaimed.setY(at.y - 4.5f, MAX_CLAIM_SIDE);
-      areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed, world));
-    }
-    else {
-      areaClaimed.setTo(area);
-    }
-    if (! foot.containedBy(areaClaimed)) areaClaimed.setTo(foot);
-    //
-    //  NOTE:  Facing must be set before crop-tiles are settled on, as this
-    //  affects row-orientation!
-    setFacing(areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACE_SOUTH : FACE_EAST
-    );
-    return true;
-  }
-  
-  
-  public boolean canPlace(Account reasons) {
-    if (! super.canPlace(reasons)) return false;
-    final Stage world = origin().world;
-    
-    if (areaClaimed.maxSide() > MAX_CLAIM_SIDE) {
-      return reasons.setFailure("Area is too large!");
-    }
-    if (areaClaimed.minSide() < MIN_CLAIM_SIDE) {
-      return reasons.setFailure("Area is too small!");
-    }
-    
-    if (! SiteUtils.pathingOkayAround(this, areaClaimed, owningTier(), world)) {
-      return reasons.setFailure("Might obstruct pathing");
-    }
-    return true;
-  }
-  
-  
-  public void doPlacement(boolean intact) {
-    if (division == SiteDivision.NONE) updateDivision();
-    super.doPlacement(intact);
-    for (Tile t : division.reserved) t.setReserves(this, false);
-  }
-  
-  
-  public void exitWorld() {
-    for (Tile t : division.reserved) t.setReserves(null, false);
-    super.exitWorld();
-  }
-  
-  
-  public Box2D areaClaimed() {
-    return areaClaimed;
-  }
-  
-  
-  public Tile[] reserved() {
-    if (! inWorld()) updateDivision();
-    return division.reserved;
-  }
-  
-  
   public boolean preventsClaimBy(Venue other) {
     if (other instanceof BotanicalStation) return false;
     return super.preventsClaimBy(other);
   }
   
   
-  
-  /**  Utility methods for handling tile-planting:
-    */
-  private void updateDivision() {
-    division = SiteDivision.forArea(this, areaClaimed, facing(), 3, this);
-  }
-  
-  
-  public boolean couldPlant(Tile t) {
-    return division.useType(t, areaClaimed) > 0;
-  }
-  
-  
-  public boolean shouldCover(Tile t) {
-    return division.useType(t, areaClaimed) == 2;
-  }
-  
-  
-  public Crop plantedAt(Tile t) {
-    if (t == null || ! (t.above() instanceof Crop)) return null;
-    return (Crop) t.above();
-  }
-  
-  
-  public float needForTending() {
-    return needsTending;
-  }
-  
-  
-  protected void checkCropStates() {
-    final boolean report = verbose && I.talkAbout == this;
-    if (Visit.empty(division.reserved)) {
-      if (report) I.say("\nNO CROPS TO CHECK");
-      needsTending = 0;
-      return;
-    }
-    
-    if (report) I.say("\nCHECKING CROP STATES");
-    needsTending = 0;
-    for (Tile t : division.reserved) {
-      final Crop c = plantedAt(t);
-      if (c == null || c.needsTending()) needsTending++;
-    }
-    
-    if (report) I.say("NEEDS TENDING: "+needsTending);
-    needsTending /= division.reserved.length;
+  public int owningTier() {
+    return Owner.TIER_PRIVATE;
   }
   
   
@@ -253,20 +119,36 @@ public class Nursery extends Venue implements TileConstants {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
-    if (numUpdates % 10 == 0) checkCropStates();
   }
   
   
-  protected void updatePaving(boolean inWorld) {
-    base.transport.updatePerimeter(this, inWorld, division.toPave);
+  public boolean couldPlant(Tile t) {
+    return claimDivision().useType(t, areaClaimed()) > 0;
   }
   
   
+  public boolean shouldCover(Tile t) {
+    return claimDivision().useType(t, areaClaimed()) == 2;
+  }
   
-  /**  Economic functions-
-    */
-  public Traded    [] services() { return null; }
-  public Background[] careers () { return null; }
+  
+  public Crop plantedAt(Tile t) {
+    if (t == null || ! (t.above() instanceof Crop)) return null;
+    return (Crop) t.above();
+  }
+  
+  
+  protected ResourceTending nextHarvestFor(Actor actor) {
+    if (needForTending() <= 0) return null;
+    return new Farming(actor, this);
+  }
+  
+  
+  protected boolean needsTending(Tile t) {
+    final Element e = ((Tile) t).above();
+    if (! (e instanceof Crop)) return true;
+    return ((Crop) e).needsTending();
+  }
   
   
   
@@ -288,12 +170,12 @@ public class Nursery extends Venue implements TileConstants {
 
   private String compileOutputReport() {
     final StringBuffer s = new StringBuffer();
-    final int numTiles = division.reserved.length;
+    final int numTiles = reserved().length;
     float
       health = 0, growth = 0, fertility = 0,
       numPlant = 0, numCarbs = 0, numGreens = 0;
     
-    for (Tile t : division.reserved) {
+    for (Tile t : reserved()) {
       final Crop c = plantedAt(t);
       fertility += t.habitat().moisture();
       if (c == null) continue;
@@ -323,20 +205,6 @@ public class Nursery extends Venue implements TileConstants {
   }
   
   
-  protected float[] goodDisplayOffsets() {
-    return new float[] {
-      0.0f, 0.0f,
-      0.5f, 0.0f,
-      1.0f, 0.0f
-    };
-  }
-  
-  
-  protected Traded[] goodsToShow() {
-    return new Traded[] { CARBS, PROTEIN, GREENS };
-  }
-  
-  
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null);
   }
@@ -347,9 +215,6 @@ public class Nursery extends Venue implements TileConstants {
     else return super.helpInfo();
   }
 }
-
-
-
 
 
 

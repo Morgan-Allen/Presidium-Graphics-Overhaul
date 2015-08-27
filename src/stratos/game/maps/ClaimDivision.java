@@ -10,12 +10,12 @@ import stratos.util.*;
 
 
 
-public class SiteDivision {
+public class ClaimDivision {
   
   
   /**  Data fields and save/load methods-
     */
-  final public static SiteDivision NONE = new SiteDivision();
+  final public static ClaimDivision NONE = new ClaimDivision();
   static {
     NONE.reserved = new Tile[0];
     NONE.toPave   = new Tile[0];
@@ -28,7 +28,7 @@ public class SiteDivision {
   public byte useMap[][];
   
   
-  public static void saveTo(Session s, SiteDivision d) throws Exception {
+  public static void saveTo(Session s, ClaimDivision d) throws Exception {
     if (d == null || d == NONE) { s.saveBool(false); return; }
     else s.saveBool(true);
     
@@ -40,10 +40,10 @@ public class SiteDivision {
   }
   
   
-  public static SiteDivision loadFrom(Session s) throws Exception {
+  public static ClaimDivision loadFrom(Session s) throws Exception {
     if (! s.loadBool()) return NONE;
     
-    final SiteDivision d = new SiteDivision();
+    final ClaimDivision d = new ClaimDivision();
     d.reserved = (Tile[]) s.loadObjectArray(Tile.class);
     d.toPave   = (Tile[]) s.loadObjectArray(Tile.class);
     d.useMap   = new byte[s.loadInt()][s.loadInt()];
@@ -54,7 +54,7 @@ public class SiteDivision {
   
   /**  Utility construction methods-
     */
-  public static SiteDivision forArea(
+  public static ClaimDivision forArea(
     Venue v, Box2D area, int face, int spacing,
     Fixture... excluded
   ) {
@@ -132,7 +132,7 @@ public class SiteDivision {
     //  TODO:  You may want to do some basic screening here too?
     for (Tile t : Spacing.perimeter(area, world)) paved.add(t);
     
-    final SiteDivision d = new SiteDivision();
+    final ClaimDivision d = new ClaimDivision();
     d.reserved = claim.toArray(Tile.class);
     d.toPave   = paved.toArray(Tile.class);
     d.useMap   = useMap;

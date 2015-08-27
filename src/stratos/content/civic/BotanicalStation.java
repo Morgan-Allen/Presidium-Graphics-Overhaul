@@ -146,14 +146,10 @@ public class BotanicalStation extends Venue {
     for (Target t : world.presences.sampleFromMap(
       this, world, 5, null, Nursery.class
     )) {
+      if (shortages < 0.5f && ! fieldHand) continue;
       final Nursery at = (Nursery) t;
       if (at.base() != this.base()) continue;
-      
-      if (shortages > 0.5f || fieldHand) {
-        final Farming farming = new Farming(actor, this, at);
-        farming.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
-        choice.add(farming);
-      }
+      choice.add(at.nextHarvestFor(actor));
     }
     //
     //  If there are desperate shortages, consider foraging:

@@ -298,8 +298,6 @@ public class Crop extends Element {
     growStage = NOT_PLANTED;
     quality   = NO_HEALTH;
     blighted  = false;
-    parent.checkCropStates();
-    
     updateSprite();
     return Item.withAmount(type, amount);
   }
@@ -311,15 +309,17 @@ public class Crop extends Element {
   
   
   public boolean needsTending() {
-    return
-      blighted ||
-      growStage == NOT_PLANTED ||
-      growStage >= MIN_HARVEST;
+    return growStage == NOT_PLANTED || blighted() || ripe();
   }
   
   
   public boolean blighted() {
     return blighted;
+  }
+  
+  
+  public boolean ripe() {
+    return growStage >= MIN_HARVEST;
   }
   
   

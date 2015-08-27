@@ -67,7 +67,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   private static boolean verbose = false;
   
   private Box2D areaClaimed = new Box2D();
-  private SiteDivision division = SiteDivision.NONE;
+  private ClaimDivision division = ClaimDivision.NONE;
   private Tile openFaces[] = new Tile[0];
   
   
@@ -81,7 +81,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   public ExcavationSite(Session s) throws Exception {
     super(s);
     areaClaimed.loadFrom(s.input());
-    division  = SiteDivision.loadFrom(s);
+    division  = ClaimDivision.loadFrom(s);
     openFaces = (Tile[]) s.loadObjectArray(Tile.class);
   }
   
@@ -89,7 +89,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     areaClaimed.saveTo(s.output());
-    SiteDivision.saveTo(s, division);
+    ClaimDivision.saveTo(s, division);
     s.saveObjectArray(openFaces);
   }
   
@@ -143,7 +143,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   
   public void doPlacement(boolean intact) {
-    if (division == SiteDivision.NONE) updateDivision();
+    if (division == ClaimDivision.NONE) updateDivision();
     super.doPlacement(intact);
     for (Tile t : division.reserved) t.setReserves(this, false);
   }
@@ -159,7 +159,7 @@ public class ExcavationSite extends Venue implements TileConstants {
   /**  Utility methods for handling dig-output and tile-assignment:
     */
   private void updateDivision() {
-    division = SiteDivision.forArea(this, areaClaimed, facing(), 3, this);
+    division = ClaimDivision.forArea(this, areaClaimed, facing(), 3, this);
   }
   
   
