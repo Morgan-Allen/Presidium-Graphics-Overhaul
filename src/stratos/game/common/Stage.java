@@ -455,7 +455,7 @@ public class Stage {
     float minDist = Float.POSITIVE_INFINITY;
     for (Mobile m : mobiles) {
       if (m.indoors() || ! (m instanceof Selectable)) continue;
-      if (! m.visibleTo(base)) continue;
+      if (m.selectionLocksOn() == null || ! m.visibleTo(base)) continue;
       final float selRad = (m.height() + m.radius()) / 2;
       final Vec3D selPos = m.viewPosition(null);
       if (! port.mouseIntersects(selPos, selRad, UI)) continue;

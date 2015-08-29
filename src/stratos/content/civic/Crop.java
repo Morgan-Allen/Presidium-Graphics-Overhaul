@@ -144,6 +144,11 @@ public class Crop extends Flora {
   }
   
   
+  public Item[] materials() {
+    return species().nutrients(growStage());
+  }
+  
+  
   
   /**  Rendering and interface-
     */

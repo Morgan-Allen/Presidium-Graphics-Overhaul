@@ -210,6 +210,18 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
+  public Target selectionLocksOn() {
+    return null;
+  }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (destroyed() || origin() == null) return;
+    //  TODO:  Revisit this later.
+    return;
+  }
+  
+  
   public void describeStatus(Description d, Object client) {
     if (passenger != null) {
       d.append("Carrying ");

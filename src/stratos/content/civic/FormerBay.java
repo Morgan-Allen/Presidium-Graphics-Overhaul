@@ -181,6 +181,13 @@ public class FormerBay extends Venue implements TileConstants {
     );
     if (source == null) source = this;
     
+    //  TODO:  I think you need to pass in some general 'motive rating'...
+    //  the needForTending() method.  And a method for returning tend-targets
+    //  as well.
+    
+    //  I just don't want to divvy up the underlying terrain without cause.
+    //  (Well, I can allocate that to the ClaimsDivision.)
+    
     choice.add(Gathering.asForestPlanting(actor, source));
     choice.add(Gathering.asForestCutting (actor, this  ));
     return choice.weightedPick();

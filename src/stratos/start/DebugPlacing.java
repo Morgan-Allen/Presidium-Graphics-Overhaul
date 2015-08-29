@@ -7,8 +7,7 @@ package stratos.start;
 import stratos.content.civic.*;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
-import stratos.game.base.BaseResearch;
-import stratos.game.base.Verse;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -98,9 +97,7 @@ public class DebugPlacing extends Scenario {
     if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
-    if (false) configRoadsTest(world, base, UI);
-    if (false) configMinesTest(world, base, UI);
-    if (true ) configPlantTest(world, base, UI);
+    if (true ) configRoadsTest(world, base, UI);
   }
   
   
@@ -181,48 +178,6 @@ public class DebugPlacing extends Scenario {
       tech.mind.assignBehaviour(roadBuild);
       UI.selection.pushSelection(tech);
     }
-  }
-  
-  
-  private void configMinesTest(Stage world, Base base, BaseUI UI) {
-    
-    GameSettings.buildFree = true;
-    GameSettings.paveFree  = true;
-    GameSettings.hireFree  = true;
-    
-    final ExcavationSite station = new ExcavationSite(base);
-    final Human worksA, worksB;
-    SiteUtils.establishVenue(
-      station, 8, 8, true, world,
-      worksA = new Human(Backgrounds.EXCAVATOR, base),
-      worksB = new Human(Backgrounds.EXCAVATOR, base)
-    );
-    worksA.goAboard(station.mainEntrance(), world);
-    worksB.goAboard(station.mainEntrance(), world);
-    
-    UI.selection.pushSelection(worksB);
-  }
-  
-  
-  private void configPlantTest(Stage world, Base base, BaseUI UI) {
-    
-    GameSettings.buildFree = true;
-    GameSettings.paveFree  = true;
-    GameSettings.hireFree  = true;
-    
-    final BotanicalStation station = new BotanicalStation(base);
-    SiteUtils.establishVenue(station, 8, 8, true, world);
-    for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);
-      station.stocks.addItem(seed);
-    }
-    base.setup.fillVacancies(station, true);
-    
-    final Nursery site = new Nursery(base);
-    final SitingPass pass = new SitingPass(base, site);
-    //pass.isVerbose = true;
-    pass.placeState = SitingPass.PLACE_INTACT;
-    pass.performFullPass();
   }
   
   

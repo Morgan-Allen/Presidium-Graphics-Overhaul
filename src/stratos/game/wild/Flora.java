@@ -46,8 +46,8 @@ public class Flora extends Element implements TileConstants {
    * Field definitions and constructors-
    */
   private static boolean
-    initVerbose    = true ,
-    updatesVerbose = true ;
+    initVerbose    = false,
+    updatesVerbose = false;
   
   final public static int
     NOT_PLANTED = -1,
@@ -100,7 +100,6 @@ public class Flora extends Element implements TileConstants {
       2, POLYMER
     ) {},
     BASE_VARIETY[] = { WILD_FLORA };
-
   
   final public static float
     NUM_DAYS_MATURE    = 2.5f,
@@ -374,7 +373,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public Item[] materials() {
-    return species.nutrients(growStage());
+    return WILD_FLORA.nutrients(growStage());
   }
   
   

@@ -51,9 +51,7 @@ public abstract class ResourceTending extends Plan {
     Actor actor, Venue depot, boolean depotAssess,
     Target toAssess[], Traded... harvestTypes
   ) {
-    //  TODO:  What properties should this have?
-    
-    super(actor, depot == null ? actor : depot, NO_PROPERTIES, NO_HARM);
+    super(actor, depot == null ? actor : depot, MOTIVE_JOB, NO_HARM);
     this.depot           = depot;
     this.assessed        = toAssess;
     this.harvestTypes    = harvestTypes;
@@ -106,9 +104,6 @@ public abstract class ResourceTending extends Plan {
   /**  Priority and step evaluation-
     */
   protected float getPriority() {
-    
-    //  TODO:  This needs to be customised per subclass.  I think.
-    
     //
     //  Priority cannot be properly assessed until the next/first step is
     //  determined.
@@ -119,6 +114,7 @@ public abstract class ResourceTending extends Plan {
       return -1;
     }
     final boolean personal = depot == null || depot == actor.mind.home();
+    final float carried = totalCarried();
     float baseMotive = 0;
     //
     //  We assign a motive bonus based on relative shortage of harvested goods
@@ -130,13 +126,19 @@ public abstract class ResourceTending extends Plan {
         baseMotive += ActorMotives.rateDesire(sample, null, actor);
       }
     }
-    baseMotive /= harvestTypes.length * 2;
+    if (harvestTypes.length > 0) {
+      baseMotive /= harvestTypes.length * 2;
+    }
+    if (carried > 0) {
+      baseMotive = Nums.max(0.5f, baseMotive);
+    }
     if (assessFromDepot) {
       final float need = ((HarvestVenue) depot).needForTending();
-      if (need <= 0) return -1;
+      if (need <= 0 && carried == 0) return -1;
       else baseMotive += need;
     }
-    else if (baseMotive <= 0) return -1;
+    else if (baseMotive <= 0 && carried == 0) return -1;
+    
     //
     //  We also, if possible, assess the actor's competence in relation to any
     //  relevant skills (and perhaps enjoyment.)
@@ -147,7 +149,7 @@ public abstract class ResourceTending extends Plan {
     //  And finally, return an overall priority assessment:
     return PlanUtils.jobPlanPriority(
       actor, this, baseMotive, competence(),
-      coop ? 1 : 0, NO_FAIL_RISK, enjoys
+      coop ? 2 : 1, NO_FAIL_RISK, enjoys
     );
   }
   

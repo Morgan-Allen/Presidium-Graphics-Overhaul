@@ -322,7 +322,7 @@ public class PlanUtils {
     }
     
     incentive += urgency * 10 * liking;
-    incentive *= (enjoyBonus = traitAverage(actor, enjoyTraits));
+    incentive += (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2.5f;
     incentive += plan.motiveBonus();
     
     if (helpLimit >= 0) {
@@ -342,10 +342,10 @@ public class PlanUtils {
 
     if (plan.isJob() && work != null) {
       shift     = Nums.max(shift, work.staff().shiftFor(actor));
-      dutyBonus = actor.traits.relativeLevel(DUTIFUL) * 1.25f;
-      if (shift == Venue.OFF_DUTY     ) dutyBonus -= 1.25f;
-      if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 3.75f;
-      priority += dutyBonus;
+      dutyBonus = (actor.traits.relativeLevel(DUTIFUL) + 1) * 2.5f;
+      if (shift == Venue.OFF_DUTY     ) dutyBonus -= 2.5f;
+      if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 2.5f;
+      priority += dutyBonus * urgency;
     }
     
     priority -= failPenalty = (1 - competence) * 10 * riskLevel;

@@ -41,7 +41,8 @@ public class Gathering extends ResourceTending {
     TYPE_BROWSING  = 0,
     TYPE_FARMING   = 1,
     TYPE_FORAGING  = 2,
-    TYPE_FORESTING = 3;
+    TYPE_LOGGING   = 3,
+    TYPE_FORESTING = 4;
   
   final public static float
     FLORA_PROCESS_TIME = Stage.STANDARD_HOUR_LENGTH,
@@ -59,7 +60,7 @@ public class Gathering extends ResourceTending {
     SAMPLE_TRAITS[] = { NATURALIST, ACQUISITIVE, CURIOUS   };
   
   final int type;
-  Flora toPlant = null;
+  Flora toTend = null;
   
   
   private Gathering(
@@ -74,14 +75,14 @@ public class Gathering extends ResourceTending {
   public Gathering(Session s) throws Exception {
     super(s);
     this.type    = s.loadInt();
-    this.toPlant = (Flora) s.loadObject();
+    this.toTend = (Flora) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveInt   (type   );
-    s.saveObject(toPlant);
+    s.saveObject(toTend);
   }
   
   
@@ -114,7 +115,7 @@ public class Gathering extends ResourceTending {
     if (store == null && actor.mind.home() instanceof Venue) {
       store = (Venue) actor.mind.home();
     }
-    final Tile points[] = sampleFloraPoints(actor, -1);
+    final Tile points[] = sampleFloraPoints(store == null ? actor : store, -1);
     final Gathering forage = new Gathering(
       actor, store, points, TYPE_FORAGING, FARM_EXTRACTS
     );
@@ -124,8 +125,8 @@ public class Gathering extends ResourceTending {
   
   
   public static Gathering asForestCutting(Actor actor, Venue depot) {
-    final Tile points[] = sampleFloraPoints(actor, -1);
-    return new Gathering(actor, depot, points, TYPE_FORESTING, LOGS_EXTRACTS);
+    final Tile points[] = sampleFloraPoints(depot, -1);
+    return new Gathering(actor, depot, points, TYPE_LOGGING, LOGS_EXTRACTS);
   }
   
   
@@ -173,7 +174,7 @@ public class Gathering extends ResourceTending {
     if (type == TYPE_BROWSING) {
       return null;
     }
-    else if (type == TYPE_FORESTING) {
+    else if (type == TYPE_FORESTING || type == TYPE_LOGGING) {
       return Nursery.LAND_TO_GREENS;
     }
     else if (type == TYPE_FORAGING || type == TYPE_FARMING) {
@@ -192,8 +193,8 @@ public class Gathering extends ResourceTending {
     //  In the event that we're at the 'tending' stage, determine exactly what
     //  specimen we're looking at.  (And if that's impossible, quit.)
     if (stage() == STAGE_TEND) {
-      toPlant = pickPlantedSpecimen((Tile) tended(), forPlanting());
-      if (toPlant == null) return null;
+      toTend = pickPlantedSpecimen((Tile) tended(), forPlanting());
+      if (toTend == null) return null;
     }
     return step;
   }
@@ -201,19 +202,10 @@ public class Gathering extends ResourceTending {
   
   private Flora pickPlantedSpecimen(Tile t, Species planted[]) {
     final Flora found = Flora.foundAt(t);
-    if (planted == null) return found;
-    final boolean forests = type == TYPE_FORESTING;
-    //
-    //  If there's a pre-existing specimen, check to see if it matches the
-    //  plan-type.
-    if (found != null && forests != found.species().domesticated) return found;
-    //
-    //  Otherwise, create a new specimen to fill the spot.
-    final Flora plants;
-    if (forests) {
-      plants = new Flora(Flora.WILD_FLORA);
-    }
-    else {
+
+    if (type == TYPE_FARMING) {
+      if (found != null && found.species().domesticated) return found;
+
       final Pick <Species> pick = new Pick <Species> ();
       for (Species s : planted) {
         final Item seed = actor.gear.bestSample(GENE_SEED, s, 1);
@@ -222,29 +214,42 @@ public class Gathering extends ResourceTending {
         pick.compare(s, chance + Rand.num());
       }
       if (pick.empty()) return null;
-      else plants = new Crop((Nursery) depot, pick.result());
+      
+      final Crop plants = new Crop((Nursery) depot, pick.result());
+      plants.setPosition(t.x, t.y, t.world);
+      return plants.canPlace() ? plants : null;
     }
-    //
-    //  Either way, set up position and check if placement is possible.
-    plants.setPosition(t.x, t.y, t.world);
-    return plants.canPlace() ? plants : null;
+    else if (type == TYPE_FORESTING) {
+      if (found != null && ! found.species().domesticated) return found;
+      
+      final Flora plants = new Flora(Flora.WILD_FLORA);
+      plants.setPosition(t.x, t.y, t.world);
+      return plants.canPlace() ? plants : null;
+    }
+    else return found;
   }
   
   
   protected float rateTarget(Target t) {
     final Flora c = Flora.foundAt(t);
-    final boolean forests = type == TYPE_FORESTING;
-    //
-    //  If you plant, then empty or sick tiles are valid, and only ripe targets
-    //  should be harvested.
-    if (forPlanting() != null) {
-      if (c == null || c.species().domesticated == forests) return 1;
-      else if (c.blighted() || c.ripe()) return 1 + c.growStage();
-      else return -1;
+    
+    if (type == TYPE_FARMING) {
+      if (c == null || ! c.species().domesticated) return 1;
+      if (c.blighted() || c.ripe()) return 1 + c.growStage();
     }
-    //
-    //  Otherwise, favour whatever is most mature.
-    else return c == null ? -1 : c.growStage();
+    if (type == TYPE_FORESTING) {
+      if (c == null || c.species().domesticated) return 1;
+    }
+    if (type == TYPE_LOGGING) {
+      if (c != null) return 1 + c.growStage();
+    }
+    if (type == TYPE_BROWSING) {
+      if (c != null) return c.growStage();
+    }
+    if (type == TYPE_FORAGING) {
+      if (c != null) return c.growStage();
+    }
+    return -1;
   }
   
   
@@ -256,14 +261,16 @@ public class Gathering extends ResourceTending {
     
     if (type == TYPE_FARMING) {
       if (c == null   ) { seedTile((Tile) t); return null         ; }
-      if (c != toPlant) { c.setAsDestroyed(); return c.materials(); }
+      if (c != toTend) { c.setAsDestroyed(); return c.materials(); }
       if (c.blighted()) { c.disinfest()     ; return null         ; }
       if (c.ripe()    ) { c.setAsDestroyed(); return c.materials(); }
     }
     if (type == TYPE_FORESTING) {
       if (c == null   ) { seedTile((Tile) t); return null;          }
-      if (c != toPlant) { c.setAsDestroyed(); return c.materials(); }
-      else              { c.setAsDestroyed(); return c.materials(); }
+      if (c != toTend) { c.setAsDestroyed(); return c.materials(); }
+    }
+    if (type == TYPE_LOGGING) {
+      if (c != null   ) { c.setAsDestroyed(); return c.materials(); }
     }
     if (type == TYPE_BROWSING) {
       float bite = 0.1f * actor.health.maxHealth() / 10;
@@ -281,8 +288,8 @@ public class Gathering extends ResourceTending {
   
   
   private void seedTile(Tile t) {
-    if (toPlant == null) return;
-    final Species s = toPlant.species();
+    if (toTend == null) return;
+    final Species s = toTend.species();
     //
     //  TODO:  Just base seed quality off upgrades at the source depot!
     //
@@ -295,15 +302,16 @@ public class Gathering extends ResourceTending {
     //
     //  Then put the thing in the dirt-
     if (t.above() != null) t.above().setAsDestroyed();
-    toPlant.enterWorldAt(t.x, t.y, t.world, true);
-    toPlant.seedWith(s, health);
+    toTend.enterWorldAt(t.x, t.y, t.world, true);
+    toTend.seedWith(s, health);
   }
   
   
   public boolean actionCollectTools(Actor actor, Venue depot) {
     if (! super.actionCollectTools(actor, depot)) return false;
     
-    for (Species s : forPlanting()) {
+    final Species planted[] = forPlanting();
+    if (planted != null) for (Species s : planted) {
       final Item seed = depot.stocks.bestSample(GENE_SEED, s, 1);
       if (seed == null || actor.gear.amountOf(seed) > 0) continue;
       actor.gear.addItem(seed);
@@ -321,18 +329,44 @@ public class Gathering extends ResourceTending {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (stage() == STAGE_TEND && toPlant != null) {
-      Flora c = Flora.foundAt(tended());
-      Species s = toPlant.species();
+    final Flora c = Flora.foundAt(tended());
+    
+    if (stage() != STAGE_TEND || toTend == null) {
+      super.describeBehaviour(d);
+      return;
+    }
+    if (type == TYPE_FARMING) {
+      Object s = toTend.species();
       if      (c == null   )   d.append("Planting "  );
-      else if (c != toPlant) { d.append("Clearing "  ); s = c.species(); }
+      else if (c != toTend) { d.append("Clearing "  ); s = c; }
       else if (c.blighted())   d.append("Weeding "   );
       else if (c.ripe    ())   d.append("Harvesting ");
       d.append(s);
     }
-    else super.describeBehaviour(d); 
+    if (type == TYPE_FORESTING) {
+      Object s = toTend.species();
+      if      (c == null   )   d.append("Planting "  );
+      else if (c != toTend) { d.append("Clearing "  ); s = c; }
+      d.append(s);
+    }
+    if (type == TYPE_LOGGING) {
+      d.append("Harvesting ");
+      d.append(c);
+    }
+    if (type == TYPE_BROWSING) {
+      d.append("Browsing on ");
+      d.append(c);
+    }
+    if (type == TYPE_FORAGING) {
+      d.append("Foraging from ");
+      d.append(c);
+    }
   }
 }
+
+
+
+
 
 
 
