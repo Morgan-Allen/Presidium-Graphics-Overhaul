@@ -44,7 +44,7 @@ public abstract class Fauna extends Actor {
     this.species = species;
     mind.setVocation(species);
     initStats();
-    attachSprite(species.model.makeSprite());
+    attachSprite(species.modelSequence[0].makeSprite());
     assignBase(base);
   }
   
@@ -185,10 +185,8 @@ public abstract class Fauna extends Actor {
   //  TODO:  USE FORAGING FOR THIS
   
   protected Behaviour nextBrowsing() {
-    final float range = Nest.forageRange(species);
-    Target centre = mind.home();
-    if (centre == null) centre = this;
-    
+    return Gathering.asBrowsing(this, Nest.forageRange(species));
+    /*
     final Batch <Flora> sampled = new Batch <Flora> ();
     world.presences.sampleFromMap(centre, world, 5, sampled, Flora.class);
     Flora picked = null;
@@ -216,9 +214,11 @@ public abstract class Fauna extends Actor {
     browse.setMoveTarget(Spacing.nearestOpenTile(picked.origin(), this));
     browse.setPriority(priority);
     return browse;
+    //*/
   }
   
   
+  /*
   public boolean actionBrowse(Fauna actor, Flora eaten) {
     if (! eaten.inWorld()) return false;
     float bite = 0.1f * health.maxHealth() / 10;
@@ -226,6 +226,7 @@ public abstract class Fauna extends Actor {
     actor.health.takeCalories(bite * PLANT_CONVERSION, 1);
     return true;
   }
+  //*/
   
   
   //  TODO:  USE NESTING/FINDHOME FOR THIS

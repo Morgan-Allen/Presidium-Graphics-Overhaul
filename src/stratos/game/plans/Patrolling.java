@@ -81,7 +81,7 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   /**  Obtaining and evaluating patrols targets-
     */
-  final static Trait BASE_TRAITS[] = { FEARLESS, IGNORANT, SOLITARY };
+  final static Trait BASE_TRAITS[] = { FEARLESS, PATIENT, SOLITARY };
 
   protected float getPriority() {
     //final boolean report = evalVerbose && I.talkAbout == actor;

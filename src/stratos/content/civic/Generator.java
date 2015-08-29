@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.game.wild.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -287,6 +288,7 @@ public class Generator extends Venue {
     final float maxDamage = (5 - safety) * (5 - safety) * 20;
     final Box2D area = this.area(null).expandBy(maxRange);
     final Batch <Element> inRange = new Batch <Element> ();
+    final StageTerrain terrain = world.terrain();
     //
     //  Then, deal with all the surrounding terrain-
     for (Tile t : world.tilesIn(area, true)) {
@@ -296,9 +298,9 @@ public class Generator extends Venue {
       //  Change the underlying terrain type-
       if (Rand.num() < 1 - dist) {
         if (Rand.index(10) != 0 && Rand.num() < (0.5f - dist)) {
-          world.terrain().setHabitat(t, Habitat.CURSED_EARTH);
+          terrain.setHabitat(t, Habitat.CURSED_EARTH);
         }
-        else world.terrain().setHabitat(t, Habitat.BARRENS);
+        else terrain.setHabitat(t, Habitat.BARRENS);
       }
       //
       //  And deal damage to nearby objects-

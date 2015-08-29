@@ -26,7 +26,8 @@ public class Exploring extends Plan implements Qualities {
   final static int
     TYPE_WANDER  = 0,
     TYPE_EXPLORE = 1,
-    TYPE_SURVEY  = 2;
+    TYPE_SURVEY  = 2,
+    TYPE_SAMPLES = 3;
   
   final Base base;
   final int  type;

@@ -114,11 +114,6 @@ public class SeedTailoring extends Plan {
   }
   
   
-  public static float needForSamples(Venue lab) {
-    return 1 - (numSamples(lab) / DESIRED_SAMPLES);
-  }
-  
-  
   public boolean actionTailorGenes(Actor actor, Venue lab) {
     final boolean report = stepsVerbose && (
       I.talkAbout == actor || I.talkAbout == lab
@@ -126,7 +121,7 @@ public class SeedTailoring extends Plan {
     //
     //  Okay.  We boost the max/min quality based on the upgrades available at
     //  the lab.
-    final Traded yield = Crop.yieldType(species);
+    final Item yield[] = species.nutrients(0);
     final int upgrade = Nums.clamp(lab.structure.upgradeLevel(yield), 3);
     final int minLevel = upgrade - 1, maxLevel = upgrade + 1;
     //
@@ -150,7 +145,7 @@ public class SeedTailoring extends Plan {
     
     if (report) I.reportVars(
       "\nAttempted seed-tailoring", "  ",
-      "Food yield "     , yield,
+      "Food yield "     , I.list(yield),
       "Upgrade level "  , upgrade,
       "Min/max quality ", minLevel+"/"+maxLevel,
       "Sample bonus"    , sampleBonus,

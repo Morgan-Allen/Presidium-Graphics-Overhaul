@@ -41,7 +41,10 @@ public abstract class Element implements
   }
   
   
-  protected Element() {}
+  protected Element() {
+    //
+    //  TODO:  Put something in here?
+  }
   
   
   public Element(Session s) throws Exception {

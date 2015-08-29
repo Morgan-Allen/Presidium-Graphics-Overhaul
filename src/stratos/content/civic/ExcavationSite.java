@@ -281,7 +281,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (d != null) return d;
     
     final Choice choice = new Choice(actor);
-    choice.add(Forestry.nextCutting(actor, this));
+    //choice.add(Forestry.nextCutting(actor, this));
     
     final Tile face = Mining.nextMineFace(this, openFaces);
     if (report) I.say("  Mine face is: "+face);

@@ -6,22 +6,18 @@
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.game.wild.*;
+import static stratos.game.economic.Economy.*;
+import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.Composite;
-import stratos.user.BaseUI;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
-import static stratos.game.wild.Flora.*;
 
 
 
-//
-//  TODO:  MOVE MOST OF THE THIS TO THE FLORA CLASS, AND MERGE WITH THAT!
-
-public class Crop extends Element {
+public class Crop extends Flora {
   
   
   final static String IMG_DIR = "media/Buildings/ecologist/";
@@ -40,71 +36,74 @@ public class Crop extends Element {
       Nursery.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
     );
   
-  
-  final public static int
-    NOT_PLANTED = -1,
-    MIN_GROWTH  =  0,
-    MIN_HARVEST =  3,
-    MAX_GROWTH  =  4;
-  final public static float
-    NO_HEALTH  = -1,
-    MIN_HEALTH =  0,
-    MAX_HEALTH =  2;
-  
-  final public static String STAGE_NAMES[] = {
-    "Seedling ",
-    "Sprouting ",
-    "Growing ",
-    "Mature ",
-    "Ripened "
-  };
-  final public static String HEALTH_NAMES[] = {
-    "Feeble",
-    "Poor",
-    "Fair",
-    "Good",
-    "Excellent",
-    "Perfect"
-  };
+  final public static Species
+    ONI_RICE    = new Species(
+      Flora.class, "Oni Rice",
+      "Oni Rice grows with unrivalled speed if kept well-watered.",
+      null, CROP_MODELS[0],
+      Type.FLORA, 0.8f, 0.75f, true, 2, CARBS
+    ) {},
+    DURWHEAT    = new Species(
+      Flora.class, "Durwheat",
+      "Durwheat is an excellent calory source suited to dryer soils.",
+      null, CROP_MODELS[1],
+      Type.FLORA, 0.65f, 0.35f, true, 2, CARBS
+    ) {},
+    TUBER_LILY  = new Species(
+      Flora.class, "Tuber Lily",
+      "Tuber Lilies are a sweet, savory crop vulnerable to drought.",
+      null, CROP_MODELS[2],
+      Type.FLORA, 0.5f, 0.85f, true, 2, GREENS
+    ) {},
+    BROADFRUITS = new Species(
+      Flora.class, "Broadfruits",
+      "Broadfruits survive hard times by fattening their fleshy leaves.",
+      null, CROP_MODELS[3],
+      Type.FLORA, 0.35f, 0.2f, true, 2, GREENS
+    ) {},
+    HIVE_GRUBS  = new Species(
+      Flora.class, "Hive Grubs",
+      "Hive Grubs help to aerate soil and provide valuable protein.",
+      null, new ModelAsset[] { GRUB_BOX_MODEL },
+      Type.FLORA, 0.2f, 0.5f, true, 2, PROTEIN
+    ) {};
   
   
   final public Nursery parent;
-  
-  private Species species;
-  private float growStage, quality;
-  private boolean blighted, covered;
+  private boolean covered;
   
   
   public Crop(Nursery parent, Species species) {
-    super();
+    super(species);
     this.parent = parent;
-    this.species = species;
-    growStage = NOT_PLANTED;
-    quality = 1.0f;
   }
   
   
   public Crop(Session s) throws Exception {
     super(s);
-    s.cacheInstance(this);
-    parent    = (Nursery) s.loadObject();
-    species   = (Species) s.loadObject();
-    growStage = s.loadFloat();
-    quality   = s.loadFloat();
-    blighted  = s.loadBool ();
-    covered   = s.loadBool ();
+    parent  = (Nursery) s.loadObject();
+    covered = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(parent   );
-    s.saveObject(species  );
-    s.saveFloat (growStage);
-    s.saveFloat (quality  );
-    s.saveBool  (blighted );
     s.saveBool  (covered  );
   }
+  
+  
+  
+  
+  /**  Specific overrides-
+    */
+  final public static Species ALL_VARIETIES[] = {
+    ONI_RICE,
+    DURWHEAT,
+    TUBER_LILY,
+    BROADFRUITS,
+    HIVE_GRUBS
+  };
   
   
   public int pathType() {
@@ -127,104 +126,10 @@ public class Crop extends Element {
     return false;
   }
   
-  
-  
-  /**  Growth calculations-
-    */
-  final public static Species ALL_VARIETIES[] = {
-    ONI_RICE,
-    DURWHEAT,
-    TUBER_LILY,
-    BROADFRUITS,
-    HIVE_GRUBS
-  };
-  
-  final static Object CROP_SPECIES[][] = {
-    new Object[] { ONI_RICE   , CARBS , CROP_MODELS[0] },
-    new Object[] { DURWHEAT   , CARBS , CROP_MODELS[1] },
-    new Object[] { TUBER_LILY , GREENS, CROP_MODELS[3] },
-    new Object[] { BROADFRUITS, GREENS, CROP_MODELS[2] },
-    new Object[] {
-      HIVE_GRUBS, PROTEIN,
-      new ModelAsset[] { GRUB_BOX_MODEL }
-    },
-    null,
-    null,
-    new Object[] { WILD_FLORA, GREENS, null },
-  };
-  
-  
-  public static ModelAsset speciesModel(Species s, int growStage) {
-    final int varID = Visit.indexOf(s, ALL_VARIETIES);
-    final ModelAsset seq[] = (ModelAsset[]) CROP_SPECIES[varID][2];
-    return seq[Nums.clamp(growStage, seq.length)];
-  }
-  
-  
-  static boolean isHive(Species s) {
-    return s == HIVE_GRUBS || s == BLUE_VALVES;
-  }
-  
-  
-  static boolean isCereal(Species s) {
-    return s == DURWHEAT || s == ONI_RICE;
-  }
-  
-  
-  static boolean isDryland(Species s) {
-    return s == DURWHEAT || s == BROADFRUITS;
-  }
-  
-  
-  static Crop cropAt(Tile t) {
-    if (t.above() instanceof Crop) {
-      return (Crop) t.above();
-    }
-    return null;
-  }
-  
-  
-  public static Traded yieldType(Species species) {
-    if (species == null) return null;
-    return species.nutrients(0)[0].type;
-  }
-  
-  
-  public static float yieldMultiple(Species s) {
-    if (isHive(s)) return 1f / HIVE_DIVISOR;
-    float bonus = 1;
-    if (isDryland(s)) bonus *= DRYLAND_MULT;
-    else              bonus *= WETLAND_MULT;
-    if (isCereal(s))  bonus *= CEREAL_BONUS;
-    return bonus;
-  }
-  
-  
-  public static float habitatBonus(Tile t, Species s, Item seed) {
 
-    final float moisture = t.habitat().moisture() / 10f;
-    float bonus = 1;
-    
-    if (isHive(s)) {
-      bonus = (1 + moisture) / 2;
-    }
-    else if (isDryland(s)) {
-      bonus = 1 - moisture;
-    }
-    else {
-      bonus = moisture;
-    }
-    if (seed != null) bonus *= 1 + (seed.quality * 1f / Item.MAX_QUALITY);
-    return Nums.clamp(bonus, 0, MAX_HEALTH);
-  }
-  
-  
   public void seedWith(Species s, float quality) {
-    this.species   = s;
-    this.quality   = Nums.clamp(quality, 0, MAX_HEALTH);
-    this.growStage = MIN_GROWTH;
-    this.covered   = parent.shouldCover(origin());
-    updateSprite();
+    this.covered = parent.shouldCover(origin());
+    super.seedWith(s, quality);
   }
   
   
@@ -234,107 +139,8 @@ public class Crop extends Element {
     //  can't grow if they're not seeded.
     if (parent == null || ! (parent.inWorld() && parent.couldPlant(tile))) {
       setAsDestroyed();
-      return;
     }
-    if (growStage == NOT_PLANTED || species == null) return;
-    
-    final boolean report = Nursery.verbose && I.talkAbout == parent;
-    final float
-      dailyGrowth = dailyGrowthEstimate(tile, report),
-      health      = quality / MAX_HEALTH,
-      increment   = dailyGrowth * MAX_GROWTH / GROW_TIMES_PER_DAY;
-    
-    if (Rand.num() < increment * (1 - health)) blighted = true;
-    growStage = Nums.clamp(growStage + increment, MIN_GROWTH, MAX_GROWTH);
-    //
-    //  Update biomass and possibly sprite state-
-    world.ecology().impingeBiomass(
-      origin(), growStage() / 2f, Stage.GROWTH_INTERVAL
-    );
-    updateSprite();
-  }
-  
-  
-  private float dailyGrowthEstimate(Tile tile, boolean report) {
-    if (blighted) return -1f / NUM_DAYS_MATURE;
-    
-    final Stage world = parent.world();
-    float
-      increment = 1f / NUM_DAYS_MATURE,
-      health    = quality / MAX_HEALTH,
-      growBonus = habitatBonus(tile, species, null),
-      yieldMult = yieldMultiple(species),
-      pollution = 0 - world.ecology().ambience.valueAt(tile),
-      waterNeed = parent.stocks.relativeShortage(WATER);
-    
-    if (report) I.reportVars("\nEstimating crop growth", "  ",
-      "Increment" , increment,
-      "Health"    , health   ,
-      "Grow bonus", growBonus,
-      "Yield mult", yieldMult,
-      "Pollution" , pollution,
-      "Water need", waterNeed,
-      "Grow stage", growStage,
-      "Blighted?" , blighted 
-    );
-    
-    increment *= growBonus * yieldMult * (1 + health) / 2;
-    if (pollution > 0) increment *= (2 - pollution) / 2;
-    if (waterNeed > 0) increment *= (2 - waterNeed) / 2;
-    
-    return increment;
-  }
-  
-  
-  public float dailyYieldEstimate(Tile tile) {
-    final float fullAmount = 1;
-    return dailyGrowthEstimate(tile, false) * fullAmount;
-  }
-  
-  
-  public Item yieldCrop() {
-    final Traded type = yieldType(species);
-    final float amount = growStage / MAX_GROWTH;
-    growStage = NOT_PLANTED;
-    quality   = NO_HEALTH;
-    blighted  = false;
-    updateSprite();
-    return Item.withAmount(type, amount);
-  }
-  
-  
-  public void disinfest() {
-    blighted = false;
-  }
-  
-  
-  public boolean needsTending() {
-    return growStage == NOT_PLANTED || blighted() || ripe();
-  }
-  
-  
-  public boolean blighted() {
-    return blighted;
-  }
-  
-  
-  public boolean ripe() {
-    return growStage >= MIN_HARVEST;
-  }
-  
-  
-  public int growStage() {
-    return (int) growStage;
-  }
-  
-  
-  public float health() {
-    return quality / ((blighted ? 2f : 1f) * MAX_HEALTH);
-  }
-  
-  
-  public Species species() {
-    return species;
+    else super.onGrowth(tile);
   }
   
   
@@ -351,8 +157,8 @@ public class Crop extends Element {
     }
     
     final GroupSprite old = (GroupSprite) sprite();
-    final int stage = (int) (growStage * MAX_GROWTH * 1f / MIN_HARVEST);
-    final ModelAsset model = speciesModel(species, stage);
+    final int stage = (int) (growStage() * MAX_GROWTH * 1f / MIN_HARVEST);
+    final ModelAsset model = modelForStage(stage);
     if (old != null && old.atIndex(0).model() == model) return;
     
     final GroupSprite GS = new GroupSprite();
@@ -363,11 +169,6 @@ public class Crop extends Element {
     attachSprite(GS);
     
     if (old != null) world.ephemera.addGhost(this, 1, old, 2.0f);
-  }
-  
-  
-  public String fullName() {
-    return "Crop ("+species.name+")";
   }
   
   
@@ -382,9 +183,9 @@ public class Crop extends Element {
     float moisture = o == null ? -1: o.habitat().moisture();
     
     String growth = STAGE_NAMES[Nums.clamp(growStage() + 1, 5)];
-    float percent = (int) (this.growStage * 100f / MAX_GROWTH);
-    String health = HEALTH_NAMES[(int) (quality * 5f / MAX_HEALTH)];
-    if (blighted) health+=" (Infested)";
+    float percent = (int) (this.growStage() * 100f / MAX_GROWTH);
+    String health = HEALTH_NAMES[(int) (health() * 5f / MAX_HEALTH)];
+    if (blighted()) health+=" (Infested)";
     
     return
       "Crops take a few days to mature, depending on climate, seed stock and "+

@@ -37,7 +37,7 @@ public abstract class Vermin extends Actor {
     mind.setVocation(s);
     assignBase(b);
     initStats();
-    attachSprite(species.model.makeSprite());
+    attachSprite(species.modelSequence[0].makeSprite());
   }
   
 
@@ -142,7 +142,7 @@ public abstract class Vermin extends Actor {
         choice.add(l.addMotives(Plan.MOTIVE_EMERGENCY, hungerBonus));
       }
     }
-    choice.add(new Foraging(this, home));
+    choice.add(Gathering.asBrowsing(this, Stage.ZONE_SIZE));
   }
   
   

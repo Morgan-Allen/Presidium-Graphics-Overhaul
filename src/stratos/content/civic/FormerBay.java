@@ -104,13 +104,10 @@ public class FormerBay extends Venue implements TileConstants {
   private Item[] estimateDailyOutput() {
     float sumTrees = 0, sumP;
     for (Tile t : world.tilesIn(areaClaimed, true)) {
-      if (t.above() instanceof Flora) {
-        sumTrees += Flora.growChance(t);
-      }
-      sumTrees += t.habitat().moisture();
+      final Flora f = Flora.foundAt(t);
+      if (f != null) sumTrees += f.dailyYieldEstimate(t);
     }
-    sumP = sumTrees * Forestry.GROW_STAGE_POLYMER / 2f;
-    sumP *= Flora.MAX_GROWTH / Flora.MATURE_DURATION;
+    sumP = sumTrees * Gathering.GROW_STAGE_POLYMER / 2f;
     return new Item[] { Item.withAmount(POLYMER, sumP) };
   }
   
@@ -183,8 +180,9 @@ public class FormerBay extends Venue implements TileConstants {
       BotanicalStation.class, this, Stage.ZONE_SIZE
     );
     if (source == null) source = this;
-    choice.add(Forestry.nextPlanting(actor, source));
-    choice.add(Forestry.nextCutting (actor, this  ));
+    
+    choice.add(Gathering.asForestPlanting(actor, source));
+    choice.add(Gathering.asForestCutting (actor, this  ));
     return choice.weightedPick();
   }
   

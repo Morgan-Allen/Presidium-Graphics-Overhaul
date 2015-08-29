@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -76,23 +75,25 @@ public abstract class Species extends Background {
     */
   final public String name, info;
   final public ImageAsset portrait;
-  final public ModelAsset model;
+  final public ModelAsset modelSequence[];
   
   final public Type type;
   private Item stageNutrients[][];
-  //final public Item nutrients[];
   
   //  TODO:  Use a table filled with generic string keys, so that it's more
-  //  self-descriptive.
+  //  self-descriptive?
   final public float
     baseBulk, speedMult, baseSight;
+  final public float
+    growRate, waterNeed;
+  final public boolean
+    domesticated;
   
   
   public Species(
     Class baseClass,
     String name, String info, String portraitTex, ModelAsset model,
-    Type type,
-    float bulk, float speedMult, float sight
+    Type type, float bulk, float speedMult, float sight
   ) {
     super(
       baseClass,
@@ -104,38 +105,53 @@ public abstract class Species extends Background {
     else this.portrait = ImageAsset.fromImage(baseClass, portraitTex);
     this.name  = name ;
     this.info  = info ;
-    this.model = model;
+    this.modelSequence = new ModelAsset[] { model };
     
     this.type      = type     ;
     this.baseBulk  = bulk     ;
     this.speedMult = speedMult;
     this.baseSight = sight    ;
+    
+    this.growRate  = 1.0f;
+    this.waterNeed = 0.5f;
     stageNutrients = new Item[4][0];
+    
+    this.domesticated = false;  //  TODO:  FIX THIS
   }
   
   
-  protected Species(Class baseClass, String name, Type type, Object... args) {
+  protected Species(
+    Class baseClass,
+    String name, String info, String portraitTex, ModelAsset sequence[],
+    Type type, float growRate, float waterNeed, boolean domesticated,
+    Object... args
+  ) {
     super(
       baseClass,
-      name, null, null, null,
+      name, info, null, null,
       NOT_A_CLASS, NOT_A_GUILD
     );
-    this.name     = name;
-    this.info     = name;
-    this.portrait = null;
-    this.model    = null;
     
-    this.type = type;
-    this.baseBulk = 1;
-    this.speedMult = 0;
-    this.baseSight = 0;
+    if (portraitTex == null) this.portrait = null;
+    else this.portrait = ImageAsset.fromImage(baseClass, portraitTex);
+    this.name  = name;
+    this.info  = name;
+    this.modelSequence = sequence;
     
     int amount = 0;
     Batch <Item> n = new Batch <Item> ();
     for (Object o : args) {
       if (o instanceof Integer) amount = (Integer) o;
-      if (o instanceof Traded) n.add(Item.withAmount((Traded) o, amount));
+      if (o instanceof Traded ) n.add(Item.withAmount((Traded) o, amount));
     }
+    
+    this.type         = type;
+    this.baseBulk     = 1;
+    this.speedMult    = 0;
+    this.baseSight    = 0;
+    this.growRate     = growRate;
+    this.waterNeed    = waterNeed;
+    this.domesticated = domesticated;
     
     final Item nutrients[] = n.toArray(Item.class);
     this.stageNutrients = new Item[4][nutrients.length];

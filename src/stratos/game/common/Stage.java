@@ -89,7 +89,7 @@ public class Stage {
   public Stage(StageTerrain terrain) {
     this(terrain.mapSize);
     this.terrain = terrain;
-    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
+    terrain.initTerrainMesh();
   }
   
   
@@ -104,7 +104,7 @@ public class Stage {
     schedule.loadFrom(s);
     
     terrain = (StageTerrain) s.loadObject();
-    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
+    terrain.initTerrainMesh();
     ecology.loadState(s);
     s.loadObjects(bases);
     for (int n = s.loadInt(); n-- > 0;) {

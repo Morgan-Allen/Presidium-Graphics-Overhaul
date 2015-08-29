@@ -204,7 +204,7 @@ public interface Qualities {
     IMPULSIVE   = new Trait("Impulsive", PERSONALITY, "Impulsive"),
     
     TRADITIONAL = new Trait("Traditional", PERSONALITY, "Traditional"),
-    IGNORANT    = new Trait("Ignorant", PERSONALITY, "Ignorant"),
+    PATIENT     = new Trait("Patient", PERSONALITY, "Patient"),
     STUBBORN    = new Trait("Stubborn", PERSONALITY, "Stubborn"),
     
     AMBITIOUS   = new Trait("Ambitious", PERSONALITY, "Ambitious"),

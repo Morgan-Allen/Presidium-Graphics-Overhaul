@@ -272,10 +272,7 @@ public class NativeHut extends Venue {
         stocks.amountOf(GREENS)
       );
       if (needFood > 0) {
-        final Foraging forage = new Foraging(actor, this);
-        final float urge = Plan.ROUTINE * (needFood / 4);
-        forage.addMotives(Plan.MOTIVE_JOB, urge);
-        choice.add(forage);
+        choice.add(Gathering.asForaging(actor, this));
       }
       if (staff.onShift(actor)) {
         choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS, true));

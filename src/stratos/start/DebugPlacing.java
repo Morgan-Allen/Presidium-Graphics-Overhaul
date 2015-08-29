@@ -220,7 +220,7 @@ public class DebugPlacing extends Scenario {
     
     final Nursery site = new Nursery(base);
     final SitingPass pass = new SitingPass(base, site);
-    pass.isVerbose = true;
+    //pass.isVerbose = true;
     pass.placeState = SitingPass.PLACE_INTACT;
     pass.performFullPass();
   }

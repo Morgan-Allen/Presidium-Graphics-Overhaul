@@ -38,7 +38,6 @@ public final class Tile implements
   private boolean isEntrance = false;
   
   private float elevation = Float.NEGATIVE_INFINITY;
-  private Habitat habitat = null;
   
   private Element above = null, reserves = null;
   private Stack <Mobile> inside = NONE_INSIDE;
@@ -67,19 +66,17 @@ public final class Tile implements
   
   protected void loadTileState(Session s) throws Exception {
     elevation = s.loadFloat();
-    habitat  = Habitat.ALL_HABITATS[s.loadInt()];
-    above    = (Element) s.loadObject();
-    reserves = (Element) s.loadObject();
+    above     = (Element) s.loadObject();
+    reserves  = (Element) s.loadObject();
     if (s.loadBool()) s.loadObjects(inside = new Stack <Mobile> ());
     else inside = NONE_INSIDE;
   }
   
   
   protected void saveTileState(Session s) throws Exception {
-    s.saveFloat(elevation);
-    s.saveInt(habitat().ID);
-    s.saveObject(above   );
-    s.saveObject(reserves);
+    s.saveFloat (elevation);
+    s.saveObject(above    );
+    s.saveObject(reserves );
     if (inside == NONE_INSIDE) s.saveBool(false);
     else { s.saveBool(true); s.saveObjects(inside); }
   }
@@ -123,16 +120,7 @@ public final class Tile implements
   /**  Geographical methods-
     */
   public Habitat habitat() {
-    if (habitat != null) return habitat;
-    refreshHabitat();
-    return habitat;
-  }
-  
-  
-  public void refreshHabitat() {
-    final Habitat old = habitat;
-    habitat = world.terrain().habitatAt(x, y);
-    if (habitat != old) refreshAdjacent();
+    return world.terrain().habitatAt(x, y);
   }
   
   
@@ -414,8 +402,9 @@ public final class Tile implements
   
   
   public String toString() {
-    if (habitat == null) return "Tile at X"+x+" Y"+y;
-    return habitat.name+" at X"+x+" Y"+y;
+    final Habitat h = habitat();
+    if (h == null) return "Tile at X"+x+" Y"+y;
+    else return h.name+" at X"+x+" Y"+y;
   }
   
   

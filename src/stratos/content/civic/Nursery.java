@@ -140,7 +140,7 @@ public class Nursery extends HarvestVenue implements TileConstants {
   
   protected ResourceTending nextHarvestFor(Actor actor) {
     if (needForTending() <= 0) return null;
-    return new Farming(actor, this);
+    return Gathering.asFarming(actor, this);
   }
   
   
@@ -181,12 +181,14 @@ public class Nursery extends HarvestVenue implements TileConstants {
       if (c == null) continue;
       
       final float perDay = c.dailyYieldEstimate(t);
-      final Traded type = Crop.yieldType(c.species());
+      final Item yield[] = c.materials();
       numPlant++;
-      health    += c.health();
-      growth    += c.growStage();
-      if (type == CARBS ) numCarbs  += perDay;
-      if (type == GREENS) numGreens += perDay;
+      health += c.health   ();
+      growth += c.growStage();
+      for (Item i : yield ) {
+        if (i.type == CARBS ) numCarbs  += perDay;
+        if (i.type == GREENS) numGreens += perDay;
+      }
     }
     
     if      (fertility < (numTiles * 0.5f)) s.append(POOR_SOILS_INFO     );

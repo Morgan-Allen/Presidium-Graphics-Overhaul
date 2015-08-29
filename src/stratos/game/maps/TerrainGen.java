@@ -10,6 +10,18 @@ import stratos.game.wild.Outcrop;
 import stratos.util.*;
 
 
+//  TODO:
+
+//  I cannot have a finite static terrain-gradient AND allow assertion of
+//  arbitrary habitats at the same time.  If you rely on the former, the
+//  latter must be constrained.  If the latter is not constrained, the
+//  former must be re-calculated.
+
+//  Water.  Strata.  Minerals.  Temperature.  Biomass.  Toxicity.
+
+//  This is beyond the scope of what I can handle at the moment.  Work out some
+//  proper terraform mechanics later.
+
 
 public class TerrainGen implements TileConstants {
   
@@ -23,6 +35,7 @@ public class TerrainGen implements TileConstants {
   
   final int mapSize, sectorGridSize;
   final float typeNoise;
+  
   final Habitat habitats[];
   final Float habitatAmounts[];
   
@@ -73,9 +86,7 @@ public class TerrainGen implements TileConstants {
   public StageTerrain generateTerrain() {
     setupSectors();
     setupTileHabitats();
-    final StageTerrain t = new StageTerrain(
-      habitats, typeIndex, varsIndex, heightMap
-    );
+    final StageTerrain t = new StageTerrain(typeIndex, varsIndex, heightMap);
     return t;
   }
   
@@ -217,32 +228,35 @@ public class TerrainGen implements TileConstants {
       float sum = Nums.sampleMap(mapSize, sectorVal, sampleX, sampleY);
       
       Habitat under = habitats[Nums.clamp((int) sum, habitats.length)];
-      
       if (! under.pathClear) {
-        typeIndex[c.x][c.y] = (byte) under.ID;
+        typeIndex[c.x][c.y] = (byte) under.layerID;
       }
       else {
         float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
         sum += detail * detail * 2;
         under = habitats[Nums.clamp((int) sum, habitats.length)];
-        typeIndex[c.x][c.y] = (byte) under.ID;
+        typeIndex[c.x][c.y] = (byte) under.layerID;
       }
       if (under.isSpeckle() && Rand.index(4) == 0) {
-        typeIndex[c.x][c.y] = (byte) (under.ID + 1);
+        typeIndex[c.x][c.y] = (byte) (under.layerID + 1);
       }
     }
     //
     //  Finally, paint the interiors of any ocean tiles-
-    //paintEdge(Habitat.CURSED_EARTH.ID, Habitat.SHORELINE.ID);
-    paintEdge(Habitat.OCEAN.ID, Habitat.SHORELINE.ID);
-    paintEdge(Habitat.OCEAN.ID, Habitat.SHALLOWS .ID);
+    final int
+      oceanID = Habitat.OCEAN    .layerID,
+      shoreID = Habitat.SHORELINE.layerID,
+      shallID = Habitat.SHALLOWS .layerID;
+    
+    paintEdge(oceanID, shoreID);
+    paintEdge(oceanID, shallID);
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       final byte type = typeIndex[c.x][c.y];
-      if (type >= Habitat.SHALLOWS.ID) continue;
+      if (type >= shallID) continue;
       float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
       detail *= detail * 1.5f;
       typeIndex[c.x][c.y] = (byte) (((detail * detail) > 0.25f) ?
-        Habitat.SHALLOWS.ID : Habitat.OCEAN.ID
+        shallID : oceanID
       );
     }
   }
@@ -370,7 +384,9 @@ public class TerrainGen implements TileConstants {
       //  Adjust abundance based on local terrain and global variables, and
       //  find the degree for the local deposit-
       if (pickHighest) chance *= abundances[var];
-      final float minChance = terrain.habitatAt(c.x, c.y).minerals() / 10f;
+      
+      final Habitat h = terrain.habitatAt(c.x, c.y);
+      final float minChance = h.minerals() / 10f;
       chance *= minChance;
       
       float minAmount = minChance * (1.5f - Rand.num());

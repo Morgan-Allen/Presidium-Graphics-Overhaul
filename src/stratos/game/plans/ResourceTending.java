@@ -34,10 +34,12 @@ public abstract class ResourceTending extends Plan {
   
   final Venue depot;
   final Traded harvestTypes[];
-  protected boolean coop       = false;
-  protected float   carryLimit = 5    ;
+  protected boolean coop     = false;
+  protected boolean useTools = true ;
   
-  private Target  toAssess[]      = null ;
+  //  TODO:  How do you re-calibrate motives?
+  
+  private Target  assessed[]      = null ;
   private Target  tended          = null ;
   private boolean assessFromDepot = false;
   
@@ -46,21 +48,23 @@ public abstract class ResourceTending extends Plan {
   
   
   protected ResourceTending(
-    Actor actor, Venue depot,
+    Actor actor, Venue depot, boolean depotAssess,
     Target toAssess[], Traded... harvestTypes
   ) {
-    super(actor, depot, MOTIVE_JOB, NO_HARM);
+    //  TODO:  What properties should this have?
+    
+    super(actor, depot == null ? actor : depot, NO_PROPERTIES, NO_HARM);
     this.depot           = depot;
-    this.toAssess        = toAssess;
+    this.assessed        = toAssess;
     this.harvestTypes    = harvestTypes;
+    this.assessFromDepot = depotAssess;
   }
   
   
   protected ResourceTending(
     Actor actor, HarvestVenue depot, Traded... harvestTypes
   ) {
-    this(actor, depot, null, harvestTypes);
-    this.assessFromDepot = true;
+    this(actor, depot, true, null, harvestTypes);
   }
 
 
@@ -70,9 +74,9 @@ public abstract class ResourceTending extends Plan {
     this.depot        = (Venue) s.loadObject();
     this.harvestTypes = (Traded[]) s.loadObjectArray(Traded.class);
     this.coop         = s.loadBool();
-    this.carryLimit   = s.loadFloat();
+    this.useTools     = s.loadBool();
     
-    this.toAssess        = s.loadTargetArray(Target.class);
+    this.assessed        = s.loadTargetArray(Target.class);
     this.tended          = s.loadTarget();
     this.assessFromDepot = s.loadBool();
     
@@ -87,9 +91,9 @@ public abstract class ResourceTending extends Plan {
     s.saveObject     (depot       );
     s.saveObjectArray(harvestTypes);
     s.saveBool       (coop        );
-    s.saveFloat      (carryLimit  );
+    s.saveBool       (useTools    );
     
-    s.saveTargetArray(toAssess       );
+    s.saveTargetArray(assessed       );
     s.saveTarget     (tended         );
     s.saveBool       (assessFromDepot);
     
@@ -102,6 +106,9 @@ public abstract class ResourceTending extends Plan {
   /**  Priority and step evaluation-
     */
   protected float getPriority() {
+    
+    //  TODO:  This needs to be customised per subclass.  I think.
+    
     //
     //  Priority cannot be properly assessed until the next/first step is
     //  determined.
@@ -118,8 +125,10 @@ public abstract class ResourceTending extends Plan {
     //  and/or personal need or desire.
     for (Traded t : harvestTypes) {
       if (depot != null) baseMotive += depot.stocks.relativeShortage(t);
-      final Item got = actor.gear.bestSample(t, null, -1);
-      if (personal) baseMotive += ActorMotives.rateDesire(got, null, actor);
+      if (personal) {
+        final Item sample = Item.withAmount(t, 1);
+        baseMotive += ActorMotives.rateDesire(sample, null, actor);
+      }
     }
     baseMotive /= harvestTypes.length * 2;
     if (assessFromDepot) {
@@ -127,6 +136,7 @@ public abstract class ResourceTending extends Plan {
       if (need <= 0) return -1;
       else baseMotive += need;
     }
+    else if (baseMotive <= 0) return -1;
     //
     //  We also, if possible, assess the actor's competence in relation to any
     //  relevant skills (and perhaps enjoyment.)
@@ -145,10 +155,10 @@ public abstract class ResourceTending extends Plan {
   protected Behaviour getNextStep() {
     //
     //  If you need to process a target and haven't picked up your tools, do
-    //  so now- assuming your arms aren't full.
-    final float carried = totalCarried();
-    final Target tended = carried >= carryLimit ? null : nextToTend();
-    if (tools == null && tended != null) {
+    //  so now.
+    final float carried = totalCarried(), limit = useTools ? 10 : 5;
+    final Target tended = carried >= limit ? null : nextToTend();
+    if (useTools && tools == null && tended != null) {
       stage = STAGE_PICKUP;
       final Action pickup = new Action(
         actor, depot,
@@ -158,8 +168,9 @@ public abstract class ResourceTending extends Plan {
       return pickup;
     }
     //
-    //  If you have tools and there's a target to tend to, do so now.
-    if (tools != null && tended != null) {
+    //  If you have tools and there's a target to tend to, do so now (assuming
+    //  your load isn't full.)
+    if (tended != null) {
       stage = STAGE_TEND;
       final Action tending = new Action(
         actor, tended,
@@ -173,7 +184,7 @@ public abstract class ResourceTending extends Plan {
     //
     //  If there's nothing left to tend to, but you have some resources
     //  gathered OR have taken out tools, return those to the depot.
-    if (carried > 0 || tools != null) {
+    if (carried > 0 || (tools != null && useTools)) {
       stage = STAGE_DROPOFF;
       final Action dropoff = new Action(
         actor, depot,
@@ -190,7 +201,12 @@ public abstract class ResourceTending extends Plan {
   
   
   protected Target nextToTend() {
-    if (tended != null && rateTarget(tended) > 0) return tended;
+    //
+    //  Target-lists from depots tend to be long, so we don't do a fresh search
+    //  unless you're in a squeezing-blood-from-stone scenario...
+    if (tended != null && rateTarget(tended) > 0 && assessFromDepot) {
+      return tended;
+    }
     //
     //  Non-cooperative harvests/tending must ensure that the same target isn't
     //  assigned to more than one worker.
@@ -204,7 +220,7 @@ public abstract class ResourceTending extends Plan {
     final Pick <Target> pick = new Pick <Target> (0);
     final Target toAssess[] = assessFromDepot ?
       ((HarvestVenue) depot).reserved() :
-      this.toAssess
+      this.assessed
     ;
     //
     //  Then, assess each target available and pick the highest-rated close-by.
@@ -235,6 +251,11 @@ public abstract class ResourceTending extends Plan {
   
   protected Target tended() {
     return tended;
+  }
+  
+  
+  protected Target[] assessed() {
+    return assessed;
   }
   
   

@@ -154,8 +154,7 @@ public class BotanicalStation extends Venue {
     //
     //  If there are desperate shortages, consider foraging:
     if (shortages > 0.5f && fieldHand) {
-      final Foraging foraging = new Foraging(actor, this);
-      foraging.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
+      final Gathering foraging = Gathering.asForaging(actor, this);
       choice.add(foraging);
     }
     //
@@ -173,12 +172,16 @@ public class BotanicalStation extends Venue {
   protected void addEcologistJobs(Actor actor, Choice choice) {
     //
     //  Consider collecting gene samples-
+    /*
     final float needSamples = SeedTailoring.needForSamples(this);
     if (needSamples > 0) {
-      choice.add(Forestry.nextSampling(actor, this, needSamples));
+      choice.add(Farming.asForestSampling(actor, this, needSamples));
     }
+    //*/
+    
     //
     //  Consider performing research-
+    //  TODO:  Decide on this.
     ///choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ECOLOGIST));
     ///choice.isVerbose = true;
     //
@@ -189,7 +192,7 @@ public class BotanicalStation extends Venue {
       choice.add(new SeedTailoring(actor, this, s));
     }
     if (! choice.empty()) return;
-    choice.add(Forestry.nextPlanting(actor, this));
+    choice.add(Gathering.asForestPlanting(actor, this));
     //
     //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
@@ -217,10 +220,11 @@ public class BotanicalStation extends Venue {
     if (! structure.intact()) return;
     //
     //  Increment demands, and decay current stocks-
-    stocks.incDemand(GENE_SEED, 5, 1, false);
-    stocks.incDemand(CARBS    , 5, 1, true );
-    stocks.incDemand(GREENS   , 5, 1, true );
-    stocks.incDemand(PROTEIN  , 5, 1, true );
+    final float needSeed = SeedTailoring.DESIRED_SAMPLES;
+    stocks.incDemand(GENE_SEED, needSeed, 1, false);
+    stocks.incDemand(CARBS    , 5       , 1, true );
+    stocks.incDemand(GREENS   , 5       , 1, true );
+    stocks.incDemand(PROTEIN  , 5       , 1, true );
     final float decay = 1f / (
       Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
     );
