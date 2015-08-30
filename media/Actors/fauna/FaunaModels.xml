@@ -158,6 +158,28 @@
 </model>
 
 
+<model
+  name="Avrodil"
+  format="MS3D"
+  type="JOINT"
+  path="media/Actors/human/"
+  file="Avrodil.ms3d"
+  scale="1"
+  bound="1.5"
+  stride="0.6"
+  height="1.0"
+>
+<animations rotate="90">
+	<animation name="still"      start="1"  end="1"  duration="1" />
+    <animation name="idle"      start="1"  end="10"  duration="2" />
+	<animation name="walk"      start="11"  end="39"  duration="2" />
+	<animation name="attack"      start="41"  end="87"  duration="2" />
+	<animation name="feeding"      start="88"  end="137"  duration="2.5" />
+	<animation name="death"      start="138"  end="182"  duration="2.5" />
+	<animation name="death2"      start="183"  end="236"  duration="2.5" />
+ </animations>
+
+</model>
 
 
 
