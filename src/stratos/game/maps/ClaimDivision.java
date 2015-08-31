@@ -28,6 +28,9 @@ public class ClaimDivision {
   public byte useMap[][];
   
   
+  private ClaimDivision() {}
+  
+  
   public static void saveTo(Session s, ClaimDivision d) throws Exception {
     if (d == null || d == NONE) { s.saveBool(false); return; }
     else s.saveBool(true);
@@ -54,6 +57,15 @@ public class ClaimDivision {
   
   /**  Utility construction methods-
     */
+  public static ClaimDivision forEmptyArea(Venue v, Box2D area) {
+    final ClaimDivision d = new ClaimDivision();
+    d.reserved = new Tile[0];
+    d.toPave   = new Tile[0];
+    d.useMap   = new byte[1][0];
+    return d;
+  }
+  
+  
   public static ClaimDivision forArea(
     Venue v, Box2D area, int face, int spacing,
     Fixture... excluded
@@ -65,7 +77,7 @@ public class ClaimDivision {
     final Tile o = world.tileAt(area.xpos(), area.ypos());
     
     final Vec2D central = area.centre();
-    final boolean across = true;// face == Venue.FACE_EAST || face == Venue.FACE_WEST;
+    final boolean across = face == Venue.FACE_EAST || face == Venue.FACE_WEST;
     final int halfDim = (int) ((across ? area.ydim() : area.xdim()) / 2);
     
     I.say("\nCentral point is: "+central+" area: "+area);

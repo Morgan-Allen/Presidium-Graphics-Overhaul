@@ -88,6 +88,7 @@ public class Ephemera {
   public Ghost addGhost(Target e, float size, Sprite s, float duration) {
     if (s == null) return null;
     final Ghost ghost = new Ghost();
+    
     ghost.size = (int) Nums.ceil(size);
     ghost.inceptTime = world.currentTime();
     ghost.sprite = s;

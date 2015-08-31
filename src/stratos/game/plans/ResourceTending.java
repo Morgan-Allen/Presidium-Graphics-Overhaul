@@ -34,14 +34,12 @@ public abstract class ResourceTending extends Plan {
   
   final Venue depot;
   final Traded harvestTypes[];
-  protected boolean coop     = false;
-  protected boolean useTools = true ;
+  final boolean assessFromDepot;
   
-  //  TODO:  How do you re-calibrate motives?
-  
-  private Target  assessed[]      = null ;
-  private Target  tended          = null ;
-  private boolean assessFromDepot = false;
+  protected boolean coop       = false;
+  protected boolean useTools   = true ;
+  protected Target  assessed[] = null ;
+  protected Target  tended     = null ;
   
   private Suspensor tools = null      ;
   private int       stage = STAGE_INIT;
@@ -118,48 +116,47 @@ public abstract class ResourceTending extends Plan {
     float baseMotive = 0;
     //
     //  We assign a motive bonus based on relative shortage of harvested goods
-    //  and/or personal need or desire.
+    //  and/or personal need or desire.  If you're tied to the needs to a given
+    //  venue, assess urgency there.
     for (Traded t : harvestTypes) {
-      if (depot != null) baseMotive += depot.stocks.relativeShortage(t);
       if (personal) {
         final Item sample = Item.withAmount(t, 1);
-        baseMotive += ActorMotives.rateDesire(sample, null, actor);
+        baseMotive += ActorMotives.rateDesire(sample, null, actor) / PARAMOUNT;
+      }
+      else if (depot != null) {
+        baseMotive += depot.stocks.relativeShortage(t);
       }
     }
     if (harvestTypes.length > 0) {
-      baseMotive /= harvestTypes.length * 2;
+      baseMotive /= harvestTypes.length;
     }
-    if (carried > 0) {
-      baseMotive = Nums.max(0.5f, baseMotive);
-    }
-    if (assessFromDepot) {
-      final float need = ((HarvestVenue) depot).needForTending();
+    if (assessFromDepot && depot instanceof HarvestVenue) {
+      final float need = ((HarvestVenue) depot).needForTending(this);
       if (need <= 0 && carried == 0) return -1;
       else baseMotive += need;
     }
-    else if (baseMotive <= 0 && carried == 0) return -1;
-    
     //
     //  We also, if possible, assess the actor's competence in relation to any
-    //  relevant skills (and perhaps enjoyment.)
+    //  relevant skills (and perhaps enjoyment.)  Then return an overall value.
     final Conversion process = tendProcess();
-    final Trait enjoys[] = enjoyTraits();
     if (process != null) setCompetence(process.testChance(actor, 0));
-    //
-    //  And finally, return an overall priority assessment:
+    else setCompetence(1);
     return PlanUtils.jobPlanPriority(
-      actor, this, baseMotive, competence(),
-      coop ? 2 : 1, NO_FAIL_RISK, enjoys
+      actor, this,
+      baseMotive, competence(),
+      coop ? 2 : 1, NO_FAIL_RISK, enjoyTraits()
     );
   }
   
   
   protected Behaviour getNextStep() {
+    if (stage == STAGE_DONE) return null;
     //
     //  If you need to process a target and haven't picked up your tools, do
     //  so now.
     final float carried = totalCarried(), limit = useTools ? 10 : 5;
     final Target tended = carried >= limit ? null : nextToTend();
+    
     if (useTools && tools == null && tended != null) {
       stage = STAGE_PICKUP;
       final Action pickup = new Action(
@@ -220,13 +217,11 @@ public abstract class ResourceTending extends Plan {
     //  If we haven't been assigned a list to begin with, use the list of
     //  tiles reserved by the depot.
     final Pick <Target> pick = new Pick <Target> (0);
-    final Target toAssess[] = assessFromDepot ?
-      ((HarvestVenue) depot).reserved() :
-      this.assessed
-    ;
+    final Target toAssess[] = targetsToAssess(assessFromDepot);
+    if (! assessFromDepot) this.assessed = toAssess;
     //
     //  Then, assess each target available and pick the highest-rated close-by.
-    for (Target t : toAssess) {
+    if (toAssess != null) for (Target t : toAssess) if (t != null) {
       float rating = rateTarget(t);
       rating *= 2 / (1 + Spacing.zoneDistance(actor, t));
       
@@ -239,6 +234,14 @@ public abstract class ResourceTending extends Plan {
   }
   
   
+  protected Target[] targetsToAssess(boolean fromDepot) {
+    return (fromDepot && depot instanceof HarvestVenue) ?
+      ((HarvestVenue) depot).getHarvestTiles(this) :
+      this.assessed
+    ;
+  }
+  
+  
   protected float totalCarried() {
     float total = 0;
     for (Traded t : harvestTypes) total += actor.gear.amountOf(t);
@@ -248,16 +251,6 @@ public abstract class ResourceTending extends Plan {
   
   protected int stage() {
     return stage;
-  }
-  
-  
-  protected Target tended() {
-    return tended;
-  }
-  
-  
-  protected Target[] assessed() {
-    return assessed;
   }
   
   
@@ -286,8 +279,8 @@ public abstract class ResourceTending extends Plan {
       actor.gear.transfer(t, depot);
     }
     if (tools != null) { tools.exitWorld(); tools = null; }
-    
     afterDepotDisposal();
+    this.stage = STAGE_DONE;
     return true;
   }
   

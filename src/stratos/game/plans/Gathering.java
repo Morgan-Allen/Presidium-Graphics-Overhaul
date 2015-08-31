@@ -29,7 +29,6 @@ import static stratos.game.economic.Economy.*;
 //  Conversions determine skills needed for final processing.
 //  Motives are different for each (I think.)
 
-//  TODO:  You might consider creating one or two other custom-plans for this?
 
 
 public class Gathering extends ResourceTending {
@@ -37,7 +36,7 @@ public class Gathering extends ResourceTending {
   
   /**  Data fields, constructors and save/load methods-
     */
-  final static int
+  final public static int
     TYPE_BROWSING  = 0,
     TYPE_FARMING   = 1,
     TYPE_FORAGING  = 2,
@@ -46,7 +45,7 @@ public class Gathering extends ResourceTending {
   
   final public static float
     FLORA_PROCESS_TIME = Stage.STANDARD_HOUR_LENGTH,
-    GROW_STAGE_POLYMER = 5;
+    GROW_STAGE_POLYMER = 2.5f;
   
   final static Traded
     FARM_EXTRACTS[] = { CARBS, GREENS, PROTEIN },
@@ -59,22 +58,22 @@ public class Gathering extends ResourceTending {
     FORAGE_TRAITS[] = { ENERGETIC, NATURALIST, ACQUISITIVE },
     SAMPLE_TRAITS[] = { NATURALIST, ACQUISITIVE, CURIOUS   };
   
-  final int type;
-  Flora toTend = null;
+  final public int type;
+  private Flora toTend = null;
   
   
   private Gathering(
-    Actor actor, Venue depot, Target assessed[], int type,
+    Actor actor, Venue depot, boolean depotAssess, int type,
     Traded... extracts
   ) {
-    super(actor, depot, assessed == null, assessed, extracts);
+    super(actor, depot, depotAssess, null, extracts);
     this.type = type;
   }
   
   
   public Gathering(Session s) throws Exception {
     super(s);
-    this.type    = s.loadInt();
+    this.type   = s.loadInt();
     this.toTend = (Flora) s.loadObject();
   }
   
@@ -87,7 +86,7 @@ public class Gathering extends ResourceTending {
   
   
   public Plan copyFor(Actor other) {
-    return new Gathering(other, (Nursery) depot, assessed(), type);
+    return new Gathering(other, depot, assessFromDepot, type);
   }
   
   
@@ -95,7 +94,7 @@ public class Gathering extends ResourceTending {
   /**  Assorted external factory methods for convenience-
     */
   public static Gathering asFarming(Actor actor, Nursery depot) {
-    return new Gathering(actor, depot, null, TYPE_FARMING, FARM_EXTRACTS);
+    return new Gathering(actor, depot, true, TYPE_FARMING, FARM_EXTRACTS);
   }
   
   
@@ -104,8 +103,10 @@ public class Gathering extends ResourceTending {
     if (fauna.mind.home() instanceof Venue) {
       store = (Venue) fauna.mind.home();
     }
-    final Tile points[] = sampleFloraPoints(fauna, range);
-    final Gathering browse = new Gathering(fauna, store, points, TYPE_BROWSING);
+    final Gathering browse = new Gathering(
+      fauna, store, false, TYPE_BROWSING, FARM_EXTRACTS
+    );
+    browse.clearMotives();
     browse.useTools = false;
     return browse;
   }
@@ -115,9 +116,8 @@ public class Gathering extends ResourceTending {
     if (store == null && actor.mind.home() instanceof Venue) {
       store = (Venue) actor.mind.home();
     }
-    final Tile points[] = sampleFloraPoints(store == null ? actor : store, -1);
     final Gathering forage = new Gathering(
-      actor, store, points, TYPE_FORAGING, FARM_EXTRACTS
+      actor, store, false, TYPE_FORAGING, FARM_EXTRACTS
     );
     forage.useTools = false;
     return forage;
@@ -125,36 +125,37 @@ public class Gathering extends ResourceTending {
   
   
   public static Gathering asForestCutting(Actor actor, Venue depot) {
-    final Tile points[] = sampleFloraPoints(depot, -1);
-    return new Gathering(actor, depot, points, TYPE_LOGGING, LOGS_EXTRACTS);
+    return new Gathering(actor, depot, true, TYPE_LOGGING, LOGS_EXTRACTS);
   }
   
   
   public static Gathering asForestPlanting(Actor actor, Venue depot) {
-    final Batch <Tile> points = new Batch <Tile> ();
-    final Stage world = depot.world();
-    for (int n = 5; n-- > 0;) {
-      final Tile point = Spacing.pickRandomTile(depot, Stage.ZONE_SIZE, world);
-      if (Flora.hasSpace(point)) points.include(point);
-    }
-    
-    final Tile PA[] = points.toArray(Tile.class);
-    return new Gathering(actor, depot, PA, TYPE_FORESTING);
+    return new Gathering(actor, depot, true, TYPE_FORESTING);
   }
   
   
-  private static Tile[] sampleFloraPoints(Target from, float range) {
+  public static Tile[] sampleSeedingPoints(Target from, float range) {
+    final Batch <Tile> points = new Batch <Tile> ();
     final Stage world = from.world();
-    final Series <Target> sampled = world.presences.sampleFromMap(
-      from, world, 5, null, Flora.class
-    );
-    final Tile points[] = new Tile[sampled.size()];
-    int index = 0;
+    for (int n = 5; n-- > 0;) {
+      final Tile p = Spacing.pickRandomTile(from, range, world);
+      if (Flora.hasSpace(p)) points.include(p);
+    }
+    return points.toArray(Tile.class);
+  }
+  
+  
+  public static Tile[] sampleFloraPoints(Target from, float range) {
+    final Stage world = from.world();
+    final List <Target> sampled = new List <Target> ();
+    world.presences.sampleFromMap(from, world, 5, sampled, Flora.class);
+    
+    final Batch <Tile> points = new Batch <Tile> ();
     for (Target o : sampled) {
       if (range > 0 && Spacing.distance(from, o) > range) continue;
-      points[index++] = ((Flora) o).origin();
+      points.add(((Flora) o).origin());
     }
-    return points;
+    return points.toArray(Tile.class);
   }
   
   
@@ -166,6 +167,7 @@ public class Gathering extends ResourceTending {
   
   
   protected Trait[] enjoyTraits() {
+    //  TODO:  Diversify a little?
     return FARM_TRAITS;
   }
   
@@ -191,10 +193,9 @@ public class Gathering extends ResourceTending {
     final Behaviour step = super.getNextStep();
     //
     //  In the event that we're at the 'tending' stage, determine exactly what
-    //  specimen we're looking at.  (And if that's impossible, quit.)
+    //  specimen we're looking at.
     if (stage() == STAGE_TEND) {
-      toTend = pickPlantedSpecimen((Tile) tended(), forPlanting());
-      if (toTend == null) return null;
+      toTend = pickPlantedSpecimen((Tile) tended, forPlanting());
     }
     return step;
   }
@@ -217,16 +218,32 @@ public class Gathering extends ResourceTending {
       
       final Crop plants = new Crop((Nursery) depot, pick.result());
       plants.setPosition(t.x, t.y, t.world);
-      return plants.canPlace() ? plants : null;
+      return plants;
     }
     else if (type == TYPE_FORESTING) {
       if (found != null && ! found.species().domesticated) return found;
       
-      final Flora plants = new Flora(Flora.WILD_FLORA);
+      final Flora plants = new Flora(Flora.BASE_SPECIES);
       plants.setPosition(t.x, t.y, t.world);
-      return plants.canPlace() ? plants : null;
+      return plants;
     }
     else return found;
+  }
+  
+  
+  protected Target[] targetsToAssess(boolean fromDepot) {
+    if (fromDepot) return super.targetsToAssess(true);
+    if (assessed != null) return assessed;
+    
+    if (forPlanting() != null) {
+      if (stage() == STAGE_TEND && actor.gear.amountOf(GENE_SEED) == 0) {
+        return null;
+      }
+      return sampleSeedingPoints(subject, Stage.ZONE_SIZE);
+    }
+    else {
+      return sampleFloraPoints(subject, Stage.ZONE_SIZE);
+    }
   }
   
   
@@ -238,7 +255,8 @@ public class Gathering extends ResourceTending {
       if (c.blighted() || c.ripe()) return 1 + c.growStage();
     }
     if (type == TYPE_FORESTING) {
-      if (c == null || c.species().domesticated) return 1;
+      if (c == null && Flora.hasSpace((Tile) t)) return 1;
+      if (c != null && c.species().domesticated) return 1;
     }
     if (type == TYPE_LOGGING) {
       if (c != null) return 1 + c.growStage();
@@ -258,16 +276,17 @@ public class Gathering extends ResourceTending {
     */
   protected Item[] afterHarvest(Target t) {
     final Flora c = Flora.foundAt(t);
+    this.assessed = null;
     
     if (type == TYPE_FARMING) {
       if (c == null   ) { seedTile((Tile) t); return null         ; }
-      if (c != toTend) { c.setAsDestroyed(); return c.materials(); }
+      if (c != toTend ) { c.setAsDestroyed(); return null         ; }
       if (c.blighted()) { c.disinfest()     ; return null         ; }
       if (c.ripe()    ) { c.setAsDestroyed(); return c.materials(); }
     }
     if (type == TYPE_FORESTING) {
       if (c == null   ) { seedTile((Tile) t); return null;          }
-      if (c != toTend) { c.setAsDestroyed(); return c.materials(); }
+      if (c != toTend ) { c.setAsDestroyed(); return null;          }
     }
     if (type == TYPE_LOGGING) {
       if (c != null   ) { c.setAsDestroyed(); return c.materials(); }
@@ -279,9 +298,15 @@ public class Gathering extends ResourceTending {
       return null;
     }
     if (type == TYPE_FORAGING) {
-      c.incGrowth(-0.5f, t.world());
+      //
+      //  TODO:  Base this off fruiting-materials for the species in question!
+      final Item gathered[] = {
+        Item.withAmount(CARBS , 0.1f / 1),
+        Item.withAmount(GREENS, 0.1f / 2)
+      };
+      c.incGrowth(-0.1f, t.world());
       Resting.dineFrom(actor, actor);
-      return c.species().nutrients(0);
+      return gathered;
     }
     return null;
   }
@@ -291,13 +316,16 @@ public class Gathering extends ResourceTending {
     if (toTend == null) return;
     final Species s = toTend.species();
     //
-    //  TODO:  Just base seed quality off upgrades at the source depot!
+    //  TODO:  Just base seed quality off upgrades at the source depot?
     //
     //  Assuming that's possible, we then determine the health of the seedling
     //  based on stock quality and planting skill-
     final Item seed = actor.gear.bestSample(Item.asMatch(GENE_SEED, s), 0.1f);
     float health = 0;
-    if (seed != null) health += seed.quality * 1f / Item.MAX_QUALITY;
+    if (seed != null) {
+      health += seed.quality * 1f / Item.MAX_QUALITY;
+      actor.gear.removeItem(seed);
+    }
     health += tendProcess().performTest(actor, 0, 1);
     //
     //  Then put the thing in the dirt-
@@ -313,8 +341,14 @@ public class Gathering extends ResourceTending {
     final Species planted[] = forPlanting();
     if (planted != null) for (Species s : planted) {
       final Item seed = depot.stocks.bestSample(GENE_SEED, s, 1);
-      if (seed == null || actor.gear.amountOf(seed) > 0) continue;
-      actor.gear.addItem(seed);
+      if (seed != null) {
+        final float hasAmount  = actor.gear.amountOf(seed);
+        final float takeAmount = Nums.min(seed.amount, 1 - hasAmount);
+        actor.gear.addItem(Item.withAmount(seed, takeAmount));
+      }
+      else {
+        actor.gear.addItem(Item.with(GENE_SEED, s, 1, Item.BAD_QUALITY));
+      }
     }
     return true;
   }
@@ -329,7 +363,7 @@ public class Gathering extends ResourceTending {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    final Flora c = Flora.foundAt(tended());
+    final Flora c = Flora.foundAt(tended);
     
     if (stage() != STAGE_TEND || toTend == null) {
       super.describeBehaviour(d);

@@ -1,12 +1,13 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.content.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
-//import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.Composite;
@@ -15,8 +16,16 @@ import stratos.util.*;
 
 
 
+//  TODO:  I think the constructor here needs to be private, and any references
+//  to the suspensor should be made strictly on a static basis- e.g, to avoid
+//  duplicates being created or instances being missing.
+
+
 public class Suspensor extends Mobile implements Mount {
   
+  
+  private static boolean
+    verbose = true;
 
   final static String
     FILE_DIR = "media/Vehicles/",
@@ -111,26 +120,34 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (verbose) I.say("  ENTERING WORLD: "+this+" "+this.hashCode());
+    return super.enterWorldAt(x, y, world, intact);
+  }
+
+
   public void exitWorld() {
+    if (verbose) I.say("  EXITING WORLD: "+this+" "+this.hashCode());
     if (passenger != null) passenger.bindToMount(null);
     super.exitWorld();
   }
   
   
   protected void updateAsMobile() {
-    final boolean report = true && (
+    final boolean report = verbose && (
       I.talkAbout == passenger || I.talkAbout == followed
     );
     super.updateAsMobile();
+    
     //
     //  Firstly, check whether you even need to exist any more-
-    if ((! followed.inWorld()) || (followed.matchFor(tracked) == null)) {
+    if ((! followed.inWorld()) || (tracked.finished())) {
       if (report) {
         I.say("\nSuspensor exiting world!");
         I.say("  Actor followed:   "+followed);
         I.say("  In world?         "+followed.inWorld());
         I.say("  Activity tracked: "+tracked);
-        I.say("  Activity valid?   "+(followed.matchFor(tracked) != null));
+        I.say("  Activity valid?   "+(tracked.finished()));
       }
       if (passenger != null) {
         final Vec3D ground = this.position(null);

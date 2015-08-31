@@ -19,6 +19,9 @@ public abstract class HarvestVenue extends Venue {
   
   /**  Data fields, constructors, and save/load methods.
     */
+  private static boolean
+    verbose = true;
+  
   final int minClaimSize, maxClaimSize;
   private ClaimDivision division = ClaimDivision.NONE;
   private Box2D areaClaimed = new Box2D();
@@ -60,7 +63,7 @@ public abstract class HarvestVenue extends Venue {
   /**  Initial placement, claims-setup and life-cycle.
     */
   public void doPlacement(boolean intact) {
-    if (division == ClaimDivision.NONE) updateDivision();
+    if (division == ClaimDivision.NONE) division = updateDivision();
     super.doPlacement(intact);
     for (Tile t : division.reserved) t.setReserves(this, false);
   }
@@ -110,8 +113,8 @@ public abstract class HarvestVenue extends Venue {
   }
   
   
-  private void updateDivision() {
-    division = ClaimDivision.forArea(this, areaClaimed, facing(), 3, this);
+  protected ClaimDivision updateDivision() {
+    return ClaimDivision.forArea(this, areaClaimed, facing(), 3, this);
   }
   
   
@@ -121,7 +124,7 @@ public abstract class HarvestVenue extends Venue {
   
   
   public Tile[] reserved() {
-    if (! inWorld()) updateDivision();
+    if (! inWorld()) division = updateDivision();
     return division.reserved;
   }
   
@@ -147,9 +150,22 @@ public abstract class HarvestVenue extends Venue {
   }
   
   
+  protected void updatePaving(boolean inWorld) {
+    if (Visit.empty(division.toPave)) {
+      base.transport.updatePerimeter(this, inWorld);
+      base.transport.updateJunction(this, origin(), inWorld);
+    }
+    else {
+      base.transport.updatePerimeter(this, inWorld, division.toPave);
+    }
+  }
+  
+  
   protected void checkTendStates() {
-    final boolean report = true;//  TODO:  verbose && I.talkAbout == this;
-    if (Visit.empty(division.reserved)) {
+    final boolean report = verbose && I.talkAbout == this;
+    
+    final Tile tended[] = division.reserved;
+    if (Visit.empty(tended)) {
       if (report) I.say("\nNO TILES TO CHECK");
       needsTending = 0;
       return;
@@ -157,28 +173,25 @@ public abstract class HarvestVenue extends Venue {
     
     if (report) I.say("\nCHECKING TILES TO TEND");
     needsTending = 0;
-    for (Tile t : division.reserved) {
+    for (Tile t : tended) {
       if (needsTending(t)) needsTending++;
     }
     
     if (report) I.say("NEEDS TENDING: "+needsTending);
-    needsTending /= division.reserved.length;
+    needsTending /= tended.length;
   }
   
   
-  public float needForTending() {
+  public float needForTending(ResourceTending tending) {
     return needsTending;
   }
   
   
-  protected void updatePaving(boolean inWorld) {
-    base.transport.updatePerimeter(this, inWorld, division.toPave);
+  public Tile[] getHarvestTiles(ResourceTending tending) {
+    return division.reserved;
   }
   
-
   
-  
-  protected abstract ResourceTending nextHarvestFor(Actor actor);
   protected abstract boolean needsTending(Tile t);
   
   

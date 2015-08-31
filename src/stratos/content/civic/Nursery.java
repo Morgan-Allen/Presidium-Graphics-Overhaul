@@ -138,9 +138,9 @@ public class Nursery extends HarvestVenue implements TileConstants {
   }
   
   
-  protected ResourceTending nextHarvestFor(Actor actor) {
-    if (needForTending() <= 0) return null;
-    return Gathering.asFarming(actor, this);
+  protected Gathering nextHarvestFor(Actor actor) {
+    final Gathering g = Gathering.asFarming(actor, this);
+    return needForTending(g) > 0 ? g : null;
   }
   
   

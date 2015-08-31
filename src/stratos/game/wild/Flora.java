@@ -88,18 +88,13 @@ public class Flora extends Element implements TileConstants {
   ;
   
   final public static Species
-    PIONEERS = new Species(
-      Flora.class, "Pioneers",
-      DEFAULT_INFO, null, null,
-      Type.FLORA, 0.2f, 0.1f, false
-    ) {},
-    WILD_FLORA = new Species(
+    BASE_SPECIES = new Species(
       Flora.class, "Wild Flora",
       DEFAULT_INFO, null, null,
       Type.FLORA, 0.5f, 0.8f, false,
-      2, POLYMER
+      10, POLYMER
     ) {},
-    BASE_VARIETY[] = { WILD_FLORA };
+    BASE_VARIETY[] = { BASE_SPECIES };
   
   final public static float
     NUM_DAYS_MATURE    = 2.5f,
@@ -154,7 +149,7 @@ public class Flora extends Element implements TileConstants {
     
     for (Coord c : Visit.grid(0, 0, world.size, world.size, 1)) {
       final Tile t = world.tileAt(c.x, c.y);
-      final Flora grows = tryGrowthAt(t, false);
+      final Flora grows = tryGrowthAt(t, true);
       if (grows == null) continue;
       
       final float growth = growthBonus(t, grows.species, null);
@@ -170,20 +165,26 @@ public class Flora extends Element implements TileConstants {
         I.say("  Initialising flora, stage: "+stage);
       }
       
-      grows.incGrowth(Nums.clamp(stage, 0, MAX_GROWTH - 0.5f), world);
+      grows.growth = stage;
+      grows.updateSprite();
       grows.setAsEstablished(true);
       world.ecology().impingeBiomass(t, stage, Stage.STANDARD_DAY_LENGTH);
     }
   }
   
   
-  public static Flora tryGrowthAt(Tile t, boolean certain) {
+  public static Flora tryGrowthAt(Tile t, boolean init) {
     if (! hasSpace(t)) return null;
     final Habitat soil = t.habitat();
     final Species s = (Species) Rand.pickFrom(soil.floraSpecies);
-    if ((! certain) && Rand.num() >= growthBonus(t, s, null)) return null;
+    
+    float growChance = growthBonus(t, s, null);
+    if (init) growChance /= 2;
+    else growChance *= Stage.GROWTH_INTERVAL / MATURE_DURATION;
+    if (Rand.num() >= growChance) return null;
     
     final Flora grown = new Flora(s);
+    grown.seedWith(s, Rand.num());
     grown.enterWorldAt(t.x, t.y, t.world, true);
     return grown;
   }
@@ -192,15 +193,21 @@ public class Flora extends Element implements TileConstants {
   public static boolean hasSpace(Tile t) {
     if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
     if (t.isEntrance() || t.inside().size() > 0) return false;
-    if (growthBonus(t, Flora.WILD_FLORA, null) == -1) return false;
-    
-    int numNear = 0;
+    if (growthBonus(t, BASE_SPECIES, null) == -1) return false;
+    return numNearOkay(t, true);
+  }
+  
+  
+  private static boolean numNearOkay(Tile t, boolean checkNeighbours) {
+    int numNear = checkNeighbours ? 0 : 1;
     for (Tile n : t.allAdjacent(null)) {
-      if (n != null && n.blocked()) numNear++;
-      if (numNear > 2) return false;
+      if (n == null || n.blocked()) numNear++;
+      if (n != null && ! n.buildable()) return false;
+      if (n != null && checkNeighbours && n.above() instanceof Flora) {
+        if (! numNearOkay(n, false)) return false;
+      }
     }
-    return true;
-    //return SiteUtils.pathingOkayAround(t, Owner.TIER_TERRAIN);
+    return numNear < 3;
   }
   
   
@@ -226,12 +233,10 @@ public class Flora extends Element implements TileConstants {
   
   
   private float dailyGrowthEstimate(Tile tile, boolean report) {
-    if (blighted) return -1f / NUM_DAYS_MATURE;
-    
     final Stage world = tile.world;
     float
       increment = 1f / NUM_DAYS_MATURE,
-      health    = quality / MAX_HEALTH,
+      health    = health(),
       growBonus = growthBonus(tile, species, null),
       yieldMult = species.growRate,
       pollution = 0 - world.ecology().ambience.valueAt(tile);
@@ -247,7 +252,6 @@ public class Flora extends Element implements TileConstants {
     );
     
     increment *= growBonus * yieldMult * (1 + health) / 2;
-    if (blighted     ) increment /= 2;
     if (pollution > 0) increment *= (2 - pollution) / 2;
     return increment;
   }
@@ -285,7 +289,7 @@ public class Flora extends Element implements TileConstants {
     final boolean report = updatesVerbose && I.talkAbout == this;
     final float
       dailyGrowth = dailyGrowthEstimate(tile, report),
-      health      = quality / MAX_HEALTH,
+      health      = health(),
       increment   = dailyGrowth * MAX_GROWTH / GROW_TIMES_PER_DAY;
     
     if (Rand.num() < increment * (1 - health)) {
@@ -314,6 +318,7 @@ public class Flora extends Element implements TileConstants {
     final int
       minGrowth = (int) ((moisture * moisture * MAX_GROWTH) + 1),
       maxGrowth = MAX_GROWTH + 1;
+    
     if (
       (growth <= 0 || growth >= maxGrowth) ||
       (growth > minGrowth && Rand.num() < dieChance)
@@ -330,10 +335,23 @@ public class Flora extends Element implements TileConstants {
   /**  Agriculture-related methods-
     */
   public void seedWith(Species s, float quality) {
-    this.species   = s;
-    this.quality   = Nums.clamp(quality, 0, MAX_HEALTH);
-    this.growth = MIN_GROWTH;
+    //
+    //  TODO:  This is a bit of a kluge (has to do with forestry not being
+    //  able to efficiently choose a species-range until it arrives at a given
+    //  tile.)  Remove once you have a better solution.
+    if (s == BASE_SPECIES) {
+      final Species var[] = origin().habitat().floraSpecies;
+      s = (Species) Rand.pickFrom(var);
+    }
+    this.species = s;
+    this.quality = Nums.clamp(quality, 0, MAX_HEALTH);
+    this.growth  = MIN_GROWTH;
     updateSprite();
+  }
+  
+  
+  public Species species() {
+    return species;
   }
   
   
@@ -363,17 +381,13 @@ public class Flora extends Element implements TileConstants {
   
   
   public float health() {
+    if (quality < 0) return 0.5f;
     return quality / ((blighted ? 2f : 1f) * MAX_HEALTH);
   }
   
   
-  public Species species() {
-    return species;
-  }
-  
-  
   public Item[] materials() {
-    return WILD_FLORA.nutrients(growStage());
+    return BASE_SPECIES.nutrients(growStage());
   }
   
   

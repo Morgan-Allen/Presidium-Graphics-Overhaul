@@ -108,7 +108,7 @@ public class SeedTailoring extends Plan {
   private static float numSamples(Venue lab) {
     float samples = 0;
     for (Item i : lab.stocks.matches(SAMPLES)) {
-      if (i.refers == Flora.WILD_FLORA) samples += Nums.max(1, i.amount);
+      if (i.refers == Flora.BASE_SPECIES) samples += Nums.max(1, i.amount);
     }
     return samples;
   }

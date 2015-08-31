@@ -26,15 +26,15 @@ public class Habitat extends Index.Entry {
   final public static CutoutModel
     DESERT_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"desert_flora_as_copy.png",
-      4, 4, 1.5f, 2, false
+      4, 4, 1.33f, 2, false
     ),
     FOREST_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
-      4, 4, 1.5f, 2, false
+      4, 4, 1.33f, 2, false
     ),
     WASTES_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
       Habitat.class, TERRAIN_PATH+"wastes_flora.png",
-      4, 4, 1.5f, 2, false
+      4, 4, 1.33f, 2, false
     ),
     TUNDRA_FLORA_MODELS[][] = null,
     PLANKTON_MODELS    [][] = null,

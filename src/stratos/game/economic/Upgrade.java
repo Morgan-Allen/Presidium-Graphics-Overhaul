@@ -181,7 +181,8 @@ public class Upgrade extends Constant implements
   
   public static Series <Upgrade> upgradesAvailableFor(Venue venue) {
     final Batch <Upgrade> available = new Batch();
-    for (Upgrade u : venue.blueprint.venueLevels()) {
+    final Upgrade levels[] = venue.blueprint.venueLevels();
+    if (levels != null) for (Upgrade u : levels) {
       if (! venue.structure.hasUpgrade(u)) continue;
       for (Upgrade l : u.leadsTo()) if (l.origin == venue.blueprint) {
         available.add(l);

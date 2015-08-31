@@ -61,7 +61,6 @@ public class DebugGathering extends Scenario {
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
-    Flora.populateFlora(world);
     world.terrain().readyAllMeshes();
     return world;
   }
@@ -82,11 +81,15 @@ public class DebugGathering extends Scenario {
     base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
     
     if (false) configFarmsTest   (world, base, UI);
-    if (true ) configForestryTest(world, base, UI);
+    if (false) configForestryTest(world, base, UI);
+    if (false) configLoggingTest (world, base, UI);
+    if (true ) configForageTest  (world, base, UI);
+    if (false) configBrowseTest  (world, base, UI);
   }
   
   
   private void configFarmsTest(Stage world, Base base, BaseUI UI) {
+    Flora.populateFlora(world);
     
     final BotanicalStation station = new BotanicalStation(base);
     SiteUtils.establishVenue(station, 8, 8, true, world);
@@ -105,11 +108,51 @@ public class DebugGathering extends Scenario {
   
   
   private void configForestryTest(Stage world, Base base, BaseUI UI) {
-    
     final FormerBay former = new FormerBay(base);
     SiteUtils.establishVenue(former, 8, 8, true, world);
     base.setup.fillVacancies(former, true);
+  }
+  
+  
+  private void configLoggingTest(Stage world, Base base, BaseUI UI) {
+    Flora.populateFlora(world);
+    final FormerBay former = new FormerBay(base);
+    SiteUtils.establishVenue(former, 8, 8, true, world);
+    base.setup.fillVacancies(former, true);
+  }
+  
+  
+  private void configForageTest(Stage world, Base base, BaseUI UI) {
+    Flora.populateFlora(world);
     
+    final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
+    final Venue hut = NativeHut.newHut(NativeHut.TRIBE_FOREST, base);
+    SiteUtils.establishVenue(hut, 8, 8, true, world);
+    natives.setup.fillVacancies(hut, true);
+    
+    for (Actor a : hut.staff.lodgers()) {
+      a.health.setCaloryLevel(0.2f);
+    }
+  }
+  
+  
+  private void configBrowseTest(Stage world, Base base, BaseUI UI) {
+    Flora.populateFlora(world);
+    
+    final Base wildlife = Base.wildlife(world);
+    final Nest n = (Nest) Qudu.SPECIES.nestBlueprint().createVenue(wildlife);
+    SiteUtils.establishVenue(n, 8, 8, true, world);
+    wildlife.setup.fillVacancies(n, true);
+    
+    final Fauna first = (Fauna) n.staff.lodgers().first();
+    if (first != null) {
+      first.health.setCaloryLevel(0.2f);
+      UI.selection.pushSelection(first);
+    }
+  }
+  
+  
+  private void configSampleTest(Stage world, Base base, BaseUI UI) {
     
   }
   

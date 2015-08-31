@@ -314,13 +314,14 @@ public class PlanUtils {
     float dutyBonus = 0, helpBonus = 0, shift = 0;
     float failPenalty = 0, help = 0;
     
-    final Property work = actor.mind.work();
-    float liking = actor.relations.valueFor(plan.subject);
-    if (urgency > 0 && plan.hasBegun()) {
+    if (plan.hasBegun() && plan.persistent()) {
       urgency = Nums.max(urgency, 0.5f);
       shift   = Venue.SECONDARY_SHIFT;
     }
+    else if (urgency <= 0) return -1;
     
+    final Property work = actor.mind.work();
+    float liking = actor.relations.valueFor(plan.subject);
     incentive += urgency * 10 * liking;
     incentive += (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2.5f;
     incentive += plan.motiveBonus();
