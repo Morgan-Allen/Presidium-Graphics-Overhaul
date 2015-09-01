@@ -128,33 +128,32 @@ public class Item {
   /**  Outside-accessible factory methods-
     */
   public static Item withAmount(Traded type, float amount) {
-    return new Item(type, null, amount, 0);
+    return with(type, null, amount, 0);
   }
   
   
   public static Item withAmount(Item item, float amount) {
-    final Item i = new Item(item.type, item.refers, amount, item.quality);
-    return i;
+    return with(item.type, item.refers, amount, item.quality);
   }
   
   
   public static Item withReference(Traded type, Saveable refers) {
-    return new Item(type, refers, 1, 0);
+    return with(type, refers, 1, 0);
   }
   
   
   public static Item withReference(Item item, Saveable refers) {
-    return new Item(item.type, refers, item.amount, item.quality);
+    return with(item.type, refers, item.amount, item.quality);
   }
   
   
   public static Item withQuality(Traded type, int quality) {
-    return new Item(type, null, 1, Nums.clamp(quality, 5));
+    return with(type, null, 1, Nums.clamp(quality, 5));
   }
   
   
   public static Item withQuality(Item item, int quality) {
-    return new Item(
+    return with(
       item.type, item.refers, item.amount, Nums.clamp(quality, 5)
     );
   }
@@ -163,9 +162,10 @@ public class Item {
   public static Item with(
     Traded type, Saveable refers, float amount, float quality
   ) {
-    if (amount < 0) I.complain("Amount must be positive!");
     return new Item(
-      type, refers, amount, Nums.clamp(quality, 0, 4)
+      type, refers,
+      amount <= 0 ? 1 : amount,
+      Nums.clamp(quality, BAD_QUALITY, MAX_QUALITY)
     );
   }
   
@@ -244,12 +244,12 @@ public class Item {
     //
     //  First describe yourself:
     String s = ""+type.name;
-    if (
+    if (type != SAMPLES && (
       type.form == FORM_DEVICE ||
       type.form == FORM_OUTFIT ||
       type.form == FORM_USABLE ||
       type.form == FORM_SPECIAL
-    ) {
+    )) {
       s = (I.shorten(amount, 1))+" "+descQuality()+" "+s;
     }
     else if (refers == null && amount != ANY) {

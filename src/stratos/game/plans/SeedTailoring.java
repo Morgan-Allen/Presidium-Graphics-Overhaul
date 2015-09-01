@@ -70,6 +70,50 @@ public class SeedTailoring extends Plan {
   
   
   
+  /**  Query methods used externally-
+    */
+  final public static Traded SAMPLE_TYPES[] = { SAMPLES };
+  
+  
+  private static Species referred(Item i) {
+    if (i.refers instanceof Species) return (Species) i.refers;
+    return null;
+  }
+  
+  
+  public static float numSamples(Venue lab) {
+    float samples = 0;
+    for (Item i : lab.stocks.matches(SAMPLES)) {
+      final Species s = referred(i);
+      if (s != null && ! s.domesticated) samples++;
+    }
+    return samples;
+  }
+  
+  
+  public static boolean hasSample(Owner owner, Species s) {
+    if (owner == null) return false;
+    for (Item i : owner.inventory().matches(SAMPLES)) {
+      if (s == referred(i)) return true;
+    }
+    return false;
+  }
+  
+  
+  public static Item sampleFrom(Flora flora) {
+    return Item.with(SAMPLES, flora.species(), 1, Item.AVG_QUALITY);
+  }
+  
+  
+  public static float sampleValue(Flora flora, Actor actor, Venue depot) {
+    if (flora.species().domesticated     ) return -1  ;
+    if (hasSample(actor, flora.species())) return -1  ;
+    if (hasSample(depot, flora.species())) return 0.5f;
+    return 1;
+  }
+  
+  
+  
   /**  Behaviour implementation-
     */
   protected float getPriority() {
@@ -102,15 +146,6 @@ public class SeedTailoring extends Plan {
       return prepare;
     }
     return null;
-  }
-  
-  
-  private static float numSamples(Venue lab) {
-    float samples = 0;
-    for (Item i : lab.stocks.matches(SAMPLES)) {
-      if (i.refers == Flora.BASE_SPECIES) samples += Nums.max(1, i.amount);
-    }
-    return samples;
   }
   
   

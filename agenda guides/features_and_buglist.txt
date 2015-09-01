@@ -40,9 +40,6 @@ TO DO NOW-
 
 *  Look into Nerdfish's feedback!
 
-*  Merge the botanical station with the nursery.  Little point to having both.
-   (You may have to tweak the SiteDivision class.)
-
 *  Features to add:
    Auto-Turret behaviour.  Forcefield generation.
    Combat Stims.  Physician abilities.

@@ -111,29 +111,29 @@ public abstract class ResourceTending extends Plan {
     if (stage == STAGE_DONE) {
       return -1;
     }
-    final boolean personal = depot == null || depot == actor.mind.home();
     final float carried = totalCarried();
     float baseMotive = 0;
     //
     //  We assign a motive bonus based on relative shortage of harvested goods
     //  and/or personal need or desire.  If you're tied to the needs to a given
     //  venue, assess urgency there.
-    for (Traded t : harvestTypes) {
-      if (personal) {
-        final Item sample = Item.withAmount(t, 1);
-        baseMotive += ActorMotives.rateDesire(sample, null, actor) / PARAMOUNT;
-      }
-      else if (depot != null) {
-        baseMotive += depot.stocks.relativeShortage(t);
-      }
-    }
-    if (harvestTypes.length > 0) {
-      baseMotive /= harvestTypes.length;
-    }
     if (assessFromDepot && depot instanceof HarvestVenue) {
       final float need = ((HarvestVenue) depot).needForTending(this);
       if (need <= 0 && carried == 0) return -1;
       else baseMotive += need;
+    }
+    else if (! Visit.empty(harvestTypes)) {
+      final boolean personal = depot == null || depot == actor.mind.home();
+      for (Traded t : harvestTypes) {
+        if (personal) {
+          final Item sample = Item.withAmount(t, 1);
+          baseMotive += ActorMotives.rateDesire(sample, null, actor) / PARAMOUNT;
+        }
+        else if (depot != null) {
+          baseMotive += depot.stocks.relativeShortage(t);
+        }
+      }
+      baseMotive /= harvestTypes.length;
     }
     //
     //  We also, if possible, assess the actor's competence in relation to any
@@ -141,11 +141,12 @@ public abstract class ResourceTending extends Plan {
     final Conversion process = tendProcess();
     if (process != null) setCompetence(process.testChance(actor, 0));
     else setCompetence(1);
-    return PlanUtils.jobPlanPriority(
+    final float priority = PlanUtils.jobPlanPriority(
       actor, this,
       baseMotive, competence(),
       coop ? 2 : 1, NO_FAIL_RISK, enjoyTraits()
     );
+    return priority;
   }
   
   
@@ -297,6 +298,7 @@ public abstract class ResourceTending extends Plan {
   protected abstract Conversion tendProcess();
   protected abstract Item[] afterHarvest(Target t);
   protected abstract void afterDepotDisposal();
+  
   
 
   /**  Rendering and interface methods-

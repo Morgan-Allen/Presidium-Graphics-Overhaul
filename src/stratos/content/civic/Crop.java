@@ -23,17 +23,17 @@ public class Crop extends Flora {
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static CutoutModel
     COVERING_LEFT = CutoutModel.fromImage(
-      Nursery.class, IMG_DIR+"covering_left.png", 1, 1
+      Crop.class, IMG_DIR+"covering_left.png", 1, 1
     ),
     COVERING_RIGHT = CutoutModel.fromImage(
-      Nursery.class, IMG_DIR+"covering_right.png", 1, 1
+      Crop.class, IMG_DIR+"covering_right.png", 1, 1
     ),
     CROP_MODELS[][] = CutoutModel.fromImageGrid(
-      Nursery.class, IMG_DIR+"all_crops.png",
+      Crop.class, IMG_DIR+"all_crops.png",
       4, 4, 0.5f, 0.5f, false
     ),
     GRUB_BOX_MODEL = CutoutModel.fromImage(
-      Nursery.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
+      Crop.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
     );
   
   final public static Species
@@ -69,11 +69,11 @@ public class Crop extends Flora {
     ) {};
   
   
-  final public Nursery parent;
+  final public BotanicalStation parent;
   private boolean covered;
   
   
-  public Crop(Nursery parent, Species species) {
+  public Crop(BotanicalStation parent, Species species) {
     super(species);
     this.parent = parent;
   }
@@ -81,7 +81,7 @@ public class Crop extends Flora {
   
   public Crop(Session s) throws Exception {
     super(s);
-    parent  = (Nursery) s.loadObject();
+    parent  = (BotanicalStation) s.loadObject();
     covered = s.loadBool();
   }
   
@@ -122,7 +122,7 @@ public class Crop extends Flora {
   
   public boolean canPlace() {
     final Tile o = origin();
-    if (o != null && o.reserves() instanceof Nursery) return true;
+    if (o != null && o.reserves() == parent) return true;
     return false;
   }
   

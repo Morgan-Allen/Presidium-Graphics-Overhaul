@@ -18,6 +18,7 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.terrain.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -83,8 +84,9 @@ public class DebugGathering extends Scenario {
     if (false) configFarmsTest   (world, base, UI);
     if (false) configForestryTest(world, base, UI);
     if (false) configLoggingTest (world, base, UI);
-    if (true ) configForageTest  (world, base, UI);
+    if (false) configForageTest  (world, base, UI);
     if (false) configBrowseTest  (world, base, UI);
+    if (true ) configSampleTest  (world, base, UI);
   }
   
   
@@ -98,12 +100,6 @@ public class DebugGathering extends Scenario {
       station.stocks.addItem(seed);
     }
     base.setup.fillVacancies(station, true);
-    
-    final Nursery site = new Nursery(base);
-    final SitingPass pass = new SitingPass(base, site);
-    
-    pass.placeState = SitingPass.PLACE_INTACT;
-    pass.performFullPass();
   }
   
   
@@ -153,7 +149,15 @@ public class DebugGathering extends Scenario {
   
   
   private void configSampleTest(Stage world, Base base, BaseUI UI) {
+    Flora.populateFlora(world);
     
+    final BotanicalStation station = new BotanicalStation(base);
+    SiteUtils.establishVenue(station, 8, 8, true, world);
+    for (Species s : Crop.ALL_VARIETIES) {
+      final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);
+      station.stocks.addItem(seed);
+    }
+    base.setup.fillVacancies(station, true);
   }
   
   

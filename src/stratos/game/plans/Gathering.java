@@ -15,7 +15,7 @@ import static stratos.game.economic.Economy.*;
 
 
 
-
+//  Intended Summary:
 //             Tools.  Skills.  Plant.  Harvest.  Species.  Extract.
 //  Browsing-   No.      No.     No.    Partial.    No.      Eats.
 //  Foraging-   No.      Yes.    No.    Partial.    No.      Foods + Eats.
@@ -23,12 +23,6 @@ import static stratos.game.economic.Economy.*;
 //  Forestry-   Yes.     Yes.    Yes.    None.     Trees.    No.
 //  Logging-    Yes.     Yes.    No.     Full.     Trees.    Carbons.
 //  Samples-    No.      Yes.    No.     None.      Any.     Gene Seed.
-
-//  Species is only needed if you 'plant'.
-//  Tools implies carry-limit.
-//  Conversions determine skills needed for final processing.
-//  Motives are different for each (I think.)
-
 
 
 public class Gathering extends ResourceTending {
@@ -41,7 +35,8 @@ public class Gathering extends ResourceTending {
     TYPE_FARMING   = 1,
     TYPE_FORAGING  = 2,
     TYPE_LOGGING   = 3,
-    TYPE_FORESTING = 4;
+    TYPE_FORESTING = 4,
+    TYPE_SAMPLE    = 5;
   
   final public static float
     FLORA_PROCESS_TIME = Stage.STANDARD_HOUR_LENGTH,
@@ -49,8 +44,8 @@ public class Gathering extends ResourceTending {
   
   final static Traded
     FARM_EXTRACTS[] = { CARBS, GREENS, PROTEIN },
-    LOGS_EXTRACTS[] = { POLYMER   },
-    SAMP_EXTRACTS[] = { GENE_SEED };
+    LOGS_EXTRACTS[] = { POLYMER },
+    SAMP_EXTRACTS[] = SeedTailoring.SAMPLE_TYPES;
   
   final static Trait
     FARM_TRAITS  [] = { ENERGETIC, NATURALIST, PATIENT     },
@@ -90,10 +85,17 @@ public class Gathering extends ResourceTending {
   }
   
   
+  public boolean matchesPlan(Behaviour p) {
+    if (! super.matchesPlan(p)) return false;
+    final Gathering g = (Gathering) p;
+    return g.type == this.type;
+  }
+  
+  
   
   /**  Assorted external factory methods for convenience-
     */
-  public static Gathering asFarming(Actor actor, Nursery depot) {
+  public static Gathering asFarming(Actor actor, BotanicalStation depot) {
     return new Gathering(actor, depot, true, TYPE_FARMING, FARM_EXTRACTS);
   }
   
@@ -134,6 +136,15 @@ public class Gathering extends ResourceTending {
   }
   
   
+  public static Gathering asFloraSample(Actor actor, Venue depot) {
+    final Gathering samples = new Gathering(
+      actor, depot, true, TYPE_SAMPLE, SAMP_EXTRACTS
+    );
+    samples.useTools = false;
+    return samples;
+  }
+  
+  
   public static Tile[] sampleSeedingPoints(Target from, float range) {
     final Batch <Tile> points = new Batch <Tile> ();
     final Stage world = from.world();
@@ -167,20 +178,20 @@ public class Gathering extends ResourceTending {
   
   
   protected Trait[] enjoyTraits() {
-    //  TODO:  Diversify a little?
+    //  TODO:  Diversify a little here.
     return FARM_TRAITS;
   }
   
   
   protected Conversion tendProcess() {
-    if (type == TYPE_BROWSING) {
-      return null;
-    }
-    else if (type == TYPE_FORESTING || type == TYPE_LOGGING) {
-      return Nursery.LAND_TO_GREENS;
+    if (type == TYPE_FORESTING || type == TYPE_LOGGING) {
+      return BotanicalStation.LAND_TO_GREENS;
     }
     else if (type == TYPE_FORAGING || type == TYPE_FARMING) {
-      return Nursery.LAND_TO_CARBS;
+      return BotanicalStation.LAND_TO_CARBS;
+    }
+    else if (type == TYPE_SAMPLE) {
+      return BotanicalStation.SAMPLE_EXTRACT;
     }
     else return null;
   }
@@ -211,12 +222,11 @@ public class Gathering extends ResourceTending {
       for (Species s : planted) {
         final Item seed = actor.gear.bestSample(GENE_SEED, s, 1);
         float chance = Flora.growthBonus(t, s, seed);
-        chance *= (1 + s.growRate) / 2;
         pick.compare(s, chance + Rand.num());
       }
       if (pick.empty()) return null;
       
-      final Crop plants = new Crop((Nursery) depot, pick.result());
+      final Crop plants = new Crop((BotanicalStation) depot, pick.result());
       plants.setPosition(t.x, t.y, t.world);
       return plants;
     }
@@ -234,10 +244,12 @@ public class Gathering extends ResourceTending {
   protected Target[] targetsToAssess(boolean fromDepot) {
     if (fromDepot) return super.targetsToAssess(true);
     if (assessed != null) return assessed;
-    
+    //
+    //  In the event that you're planting, make sure you have adequate seed
+    //  stocks-
     if (forPlanting() != null) {
-      if (stage() == STAGE_TEND && actor.gear.amountOf(GENE_SEED) == 0) {
-        return null;
+      if (stage() == STAGE_TEND) for (Species s : forPlanting()) {
+        if (actor.gear.bestSample(GENE_SEED, s, 1) == null) return null;
       }
       return sampleSeedingPoints(subject, Stage.ZONE_SIZE);
     }
@@ -266,6 +278,9 @@ public class Gathering extends ResourceTending {
     }
     if (type == TYPE_FORAGING) {
       if (c != null) return c.growStage();
+    }
+    if (type == TYPE_SAMPLE) {
+      if (c != null) return SeedTailoring.sampleValue(c, actor, depot);
     }
     return -1;
   }
@@ -307,6 +322,9 @@ public class Gathering extends ResourceTending {
       c.incGrowth(-0.1f, t.world());
       Resting.dineFrom(actor, actor);
       return gathered;
+    }
+    if (type == TYPE_SAMPLE) {
+      actor.gear.addItem(SeedTailoring.sampleFrom(c));
     }
     return null;
   }
@@ -393,6 +411,10 @@ public class Gathering extends ResourceTending {
     }
     if (type == TYPE_FORAGING) {
       d.append("Foraging from ");
+      d.append(c);
+    }
+    if (type == TYPE_SAMPLE) {
+      d.append("Sampling from ");
       d.append(c);
     }
   }
