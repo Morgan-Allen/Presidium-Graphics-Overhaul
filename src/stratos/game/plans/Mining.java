@@ -20,10 +20,10 @@ import static stratos.game.maps.StageTerrain.*;
 //  method for determining how much apparent ore goes into tailings.
 
 
+/*
 public class Mining extends Plan {
   
   /**  Fields, constructors and save/load methods-
-    */
   final public static int
     STAGE_INIT   = -1,
     STAGE_MINE   =  0,
@@ -91,7 +91,6 @@ public class Mining extends Plan {
   
   
   /**  Static location methods and priority evaluation-
-    */
   final public static Traded MINED_TYPES[] = {
     FOSSILS, POLYMER, METALS, FUEL_RODS
   };
@@ -189,8 +188,7 @@ public class Mining extends Plan {
   
   
   /**  Priority evaluation-
-    */
-  final static Trait BASE_TRAITS[] = { ENERGETIC, URBANE };
+  final static Trait BASE_TRAITS[] = { ENERGETIC, METICULOUS };
   
   protected float getPriority() {
     final boolean report = I.talkAbout == actor && evalVerbose;
@@ -227,7 +225,6 @@ public class Mining extends Plan {
   
   
   /**  Behaviour implementation-
-    */
   protected Behaviour getNextStep() {
     //
     //  If you've successfully extracted enough ore, or the target is exhausted,
@@ -421,7 +418,6 @@ public class Mining extends Plan {
   
   
   /**  Rendering and interface methods-
-    */
   public void describeBehaviour(Description d) {
     if (stage <= STAGE_MINE) {
       d.append("Mining ");
@@ -436,6 +432,6 @@ public class Mining extends Plan {
     }
   }
 }
-
+//*/
 
 

@@ -21,11 +21,14 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class ExcavationSite extends Venue implements TileConstants {
+public class ExcavationSite extends HarvestVenue {
   
   
-  /**  Constants, fields, constructors and save/load methods-
+  /**  Data fields, constructors and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final static String IMG_DIR = "media/Buildings/artificer/";
   final static CutoutModel SHAFT_MODEL = CutoutModel.fromImage(
     ExcavationSite.class, IMG_DIR+"excavation_shaft.gif", 4, 1
@@ -33,12 +36,6 @@ public class ExcavationSite extends Venue implements TileConstants {
   final static ImageAsset ICON = ImageAsset.fromImage(
     ExcavationSite.class, "media/GUI/Buttons/excavation_button.gif"
   );
-  
-  final static int
-    DIG_LIMITS[]      = { 8, 12, 15, 16 },
-    EXTRA_CLAIM_RANGE = 4,
-    DIG_FACE_REFRESH  = Stage.STANDARD_DAY_LENGTH / 10,
-    SMELTER_REFRESH   = 10;
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ExcavationSite.class, "excavation_site",
@@ -49,30 +46,27 @@ public class ExcavationSite extends Venue implements TileConstants {
     METALS, FUEL_RODS, POLYMER, EXCAVATOR
   );
   
+  final static int
+    MIN_CLAIM_SIZE = BLUEPRINT.size + 4,
+    MAX_CLAIM_SIZE = BLUEPRINT.size + 6;
+  
   final public static Conversion
     LAND_TO_METALS = new Conversion(
       BLUEPRINT, "land_to_metals",
-      TO, 1, METALS
+      15, HARD_LABOUR, 5, GEOPHYSICS, TO, 1, METALS
     ),
     LAND_TO_ISOTOPES = new Conversion(
       BLUEPRINT, "land_to_isotopes",
-      TO, 1, FUEL_RODS
+      15, HARD_LABOUR, 5, GEOPHYSICS, TO, 1, FUEL_RODS
     ),
     FLORA_TO_POLYMER = new Conversion(
       BLUEPRINT, "flora_to_polymer",
-      TO, 1, POLYMER
+      10, HARD_LABOUR, TO, 1, POLYMER
     );
   
   
-  private static boolean verbose = false;
-  
-  private Box2D areaClaimed = new Box2D();
-  private ClaimDivision division = ClaimDivision.NONE;
-  private Tile openFaces[] = new Tile[0];
-  
-  
   public ExcavationSite(Base base) {
-    super(BLUEPRINT, base);
+    super(BLUEPRINT, base, MIN_CLAIM_SIZE, MAX_CLAIM_SIZE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachModel(SHAFT_MODEL);
   }
@@ -80,17 +74,11 @@ public class ExcavationSite extends Venue implements TileConstants {
   
   public ExcavationSite(Session s) throws Exception {
     super(s);
-    areaClaimed.loadFrom(s.input());
-    division  = ClaimDivision.loadFrom(s);
-    openFaces = (Tile[]) s.loadObjectArray(Tile.class);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    areaClaimed.saveTo(s.output());
-    ClaimDivision.saveTo(s, division);
-    s.saveObjectArray(openFaces);
   }
   
   
@@ -102,78 +90,8 @@ public class ExcavationSite extends Venue implements TileConstants {
   };
   
   
-  public boolean setupWith(Tile position, Box2D area, Coord... others) {
-    if (! super.setupWith(position, area, others)) return false;
-    
-    //  TODO:  Unify the methods here with something similar from the Nursery
-    //  class, and make that a utility-function for SiteDivision.
-    
-    if (area == null) {
-      final Stage world = position.world;
-      areaClaimed.setTo(footprint()).expandBy(EXTRA_CLAIM_RANGE);
-      areaClaimed.cropBy(world.area());
-    }
-    else {
-      areaClaimed.setTo(area);
-    }
-    //
-    //  NOTE:  Facing must be set before dig-tiles are settled on, as this
-    //  affects row-orientation!
-    setFacing(areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACE_SOUTH : FACE_EAST
-    );
-    return true;
-  }
-  
-  
-  public Box2D areaClaimed() {
-    return areaClaimed;
-  }
-  
-  
-  public Tile[] reserved() {
-    if (! inWorld()) updateDivision();
-    return division.reserved;
-  }
-  
-  
-  public boolean preventsClaimBy(Venue other) {
-    return true;
-  }
-  
-  
-  public void doPlacement(boolean intact) {
-    if (division == ClaimDivision.NONE) updateDivision();
-    super.doPlacement(intact);
-    for (Tile t : division.reserved) t.setReserves(this, false);
-  }
-  
-  
-  public void exitWorld() {
-    for (Tile t : division.reserved) t.setReserves(null, false);
-    super.exitWorld();
-  }
-  
-  
-  
-  /**  Utility methods for handling dig-output and tile-assignment:
-    */
-  private void updateDivision() {
-    division = ClaimDivision.forArea(this, areaClaimed, facing(), 3, this);
-  }
-  
-  
-  public boolean canDig(Tile at) {
-    return division.useType(at, areaClaimed) == 1;
-  }
-  
-  
-  public boolean canDump(Tile at) {
-    return division.useType(at, areaClaimed) == 2;
-  }
-  
-  
   private Item[] estimateDailyOutput() {
+    final Tile openFaces[] = claimDivision().reserved;
     if (openFaces == null) return new Item[0];
     float sumM = 0, sumF = 0, outM, outF;
     
@@ -189,8 +107,8 @@ public class ExcavationSite extends Venue implements TileConstants {
     outM = sumM;
     outF = sumF;
     
-    float mineMult = Mining.HARVEST_MULT * staff.workforce() / 2f;
-    mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.DEFAULT_TILE_DIG_TIME;
+    float mineMult = NewMining.HARVEST_MULT * staff.workforce() / 2f;
+    mineMult *= Stage.STANDARD_SHIFT_LENGTH / NewMining.DEFAULT_TILE_DIG_TIME;
     outM *= mineMult * extractMultiple(METALS   );
     outF *= mineMult * extractMultiple(FUEL_RODS);
     
@@ -198,6 +116,19 @@ public class ExcavationSite extends Venue implements TileConstants {
       Item.withAmount(METALS   , outM),
       Item.withAmount(FUEL_RODS, outF)
     };
+  }
+  
+  
+  
+  /**  Utility methods for handling dig-output and tile-assignment:
+    */
+  public boolean canDig(Tile at) {
+    return claimDivision().useType(at, areaClaimed()) == 1;
+  }
+  
+  
+  public boolean canDump(Tile at) {
+    return claimDivision().useType(at, areaClaimed()) == 2;
   }
   
   
@@ -212,6 +143,11 @@ public class ExcavationSite extends Venue implements TileConstants {
       return 1 + (structure.upgradeLevel(SAFETY_PROTOCOL   ) / 3f);
     }
     return 1;
+  }
+  
+  
+  protected boolean needsTending(Tile t) {
+    return world.terrain().mineralsAt(t) > 0;
   }
   
   
@@ -281,12 +217,7 @@ public class ExcavationSite extends Venue implements TileConstants {
     if (d != null) return d;
     
     final Choice choice = new Choice(actor);
-    //choice.add(Forestry.nextCutting(actor, this));
-    
-    final Tile face = Mining.nextMineFace(this, openFaces);
-    if (report) I.say("  Mine face is: "+face);
-    if (face != null) choice.add(new Mining(actor, face, this));
-    
+    choice.add(NewMining.asMining(actor, this));
     return choice.weightedPick();
   }
   
@@ -295,15 +226,6 @@ public class ExcavationSite extends Venue implements TileConstants {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     structure.setAmbienceVal(structure.upgradeLevel(SAFETY_PROTOCOL) - 3);
-    
-    if (Visit.empty(openFaces) || numUpdates % DIG_FACE_REFRESH == 0) {
-      openFaces = Mining.getOpenFaces(this);
-    }
-  }
-  
-  
-  protected void updatePaving(boolean inWorld) {
-    base.transport.updatePerimeter(this, inWorld, division.toPave);
   }
   
   

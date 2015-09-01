@@ -6,7 +6,7 @@
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.plans.Mining;
+import stratos.game.plans.NewMining;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -24,7 +24,7 @@ public class Tailing extends Element implements Selectable {
   
   final static int
     MIN_FILL = 0 ,
-    MAX_FILL = (int) (10 * Mining.SLAG_RATIO);
+    MAX_FILL = (int) (10 * NewMining.SLAG_RATIO);
   
   final Traded wasteType;
   private float fillLevel = 0;

@@ -196,7 +196,7 @@ public interface Qualities {
     INDULGENT   = new Trait("Indulgent", PERSONALITY, "Indulgent"),
     
     DUTIFUL     = new Trait("Dutiful", PERSONALITY, "Dutiful"),
-    URBANE      = new Trait("Urbane", PERSONALITY, "Urbane"),
+    METICULOUS  = new Trait("Meticulous", PERSONALITY, "Urbane"),
     ABSTINENT   = new Trait("Abstinent", PERSONALITY, "Abstinent"),
     
     CREATIVE    = new Trait("Creative", PERSONALITY, "Creative"),

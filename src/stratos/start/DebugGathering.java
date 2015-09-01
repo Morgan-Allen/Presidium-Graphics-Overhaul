@@ -86,7 +86,9 @@ public class DebugGathering extends Scenario {
     if (false) configLoggingTest (world, base, UI);
     if (false) configForageTest  (world, base, UI);
     if (false) configBrowseTest  (world, base, UI);
-    if (true ) configSampleTest  (world, base, UI);
+    if (false) configSampleTest  (world, base, UI);
+    if (true ) configMiningTest  (world, base, UI);
+    if (false) configFormingTest (world, base, UI);
   }
   
   
@@ -161,7 +163,12 @@ public class DebugGathering extends Scenario {
   }
   
   
-  private void configMinesTest(Stage world, Base base, BaseUI UI) {
+  private void configFormingTest(Stage world, Base base, BaseUI UI) {
+    
+  }
+  
+  
+  private void configMiningTest(Stage world, Base base, BaseUI UI) {
     
     final ExcavationSite station = new ExcavationSite(base);
     final Human worksA, worksB;
