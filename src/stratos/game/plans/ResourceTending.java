@@ -24,6 +24,8 @@ public abstract class ResourceTending extends Plan {
   
   /**  Data fields, constructors and save/load methods-
     */
+  private static boolean verbose = false;
+  
   final protected static int
     STAGE_INIT    = -1,
     STAGE_PICKUP  =  0,
@@ -102,6 +104,8 @@ public abstract class ResourceTending extends Plan {
   /**  Priority and step evaluation-
     */
   protected float getPriority() {
+    final boolean report = verbose && I.talkAbout == subject;
+    if (report) I.say("\nGetting priority for "+this);
     //
     //  Priority cannot be properly assessed until the next/first step is
     //  determined.
@@ -109,25 +113,27 @@ public abstract class ResourceTending extends Plan {
       getNextStep();
     }
     if (stage == STAGE_DONE) {
+      if (report) I.say("  ALREADY DONE");
       return -1;
     }
-    final float carried = totalCarried();
     float baseMotive = 0;
+    final boolean
+      harvests = ! Visit.empty(harvestTypes),
+      persists = persistent() && hasBegun();
     //
     //  We assign a motive bonus based on relative shortage of harvested goods
     //  and/or personal need or desire.  If you're tied to the needs to a given
     //  venue, assess urgency there.
     if (assessFromDepot && depot instanceof HarvestVenue) {
-      final float need = ((HarvestVenue) depot).needForTending(this);
-      if (need <= 0 && carried == 0) return -1;
-      else baseMotive += need;
+      baseMotive += ((HarvestVenue) depot).needForTending(this);
     }
-    else if (! Visit.empty(harvestTypes)) {
+    else if (harvests) {
       final boolean personal = depot == null || depot == actor.mind.home();
       for (Traded t : harvestTypes) {
         if (personal) {
           final Item sample = Item.withAmount(t, 1);
-          baseMotive += ActorMotives.rateDesire(sample, null, actor) / PARAMOUNT;
+          final float motive = ActorMotives.rateDesire(sample, null, actor);
+          baseMotive += motive / PARAMOUNT;
         }
         else if (depot != null) {
           baseMotive += depot.stocks.relativeShortage(t);
@@ -135,6 +141,7 @@ public abstract class ResourceTending extends Plan {
       }
       baseMotive /= harvestTypes.length;
     }
+    baseMotive = Nums.max(baseMotive, persists ? 0.25f : 0);
     //
     //  We also, if possible, assess the actor's competence in relation to any
     //  relevant skills (and perhaps enjoyment.)  Then return an overall value.
@@ -146,6 +153,8 @@ public abstract class ResourceTending extends Plan {
       baseMotive, competence(),
       coop ? 2 : 1, NO_FAIL_RISK, enjoyTraits()
     );
+    
+    if (report) I.say(" FINAL PRIORITY: "+priority);
     return priority;
   }
   
@@ -156,9 +165,10 @@ public abstract class ResourceTending extends Plan {
     //  If you need to process a target and haven't picked up your tools, do
     //  so now.
     final float carried = totalCarried(), limit = useTools ? 10 : 5;
-    final Target tended = carried >= limit ? null : nextToTend();
+    final boolean offShift = assessFromDepot && depot.staff.offDuty(actor);
+    final Target toTend = (carried >= limit || offShift) ? null : nextToTend();
     
-    if (useTools && tools == null && tended != null) {
+    if (useTools && tools == null && toTend != null) {
       stage = STAGE_PICKUP;
       final Action pickup = new Action(
         actor, depot,
@@ -170,14 +180,14 @@ public abstract class ResourceTending extends Plan {
     //
     //  If you have tools and there's a target to tend to, do so now (assuming
     //  your load isn't full.)
-    if (tended != null) {
+    if (toTend != null) {
       stage = STAGE_TEND;
       final Action tending = new Action(
-        actor, tended,
+        actor, toTend,
         this, "actionTendTarget",
-        Action.BUILD, "Tending to "+tended
+        Action.BUILD, "Tending to "+toTend
       );
-      final Tile open = Spacing.nearestOpenTile(tended, actor);
+      final Tile open = Spacing.nearestOpenTile(toTend, actor);
       tending.setMoveTarget(open);
       return tending;
     }
@@ -201,6 +211,7 @@ public abstract class ResourceTending extends Plan {
   
   
   protected Target nextToTend() {
+    final boolean report = verbose && I.talkAbout == subject;
     //
     //  Target-lists from depots tend to be long, so we don't do a fresh search
     //  unless you're in a squeezing-blood-from-stone scenario...
@@ -220,6 +231,8 @@ public abstract class ResourceTending extends Plan {
     final Pick <Target> pick = new Pick <Target> (0);
     final Target toAssess[] = targetsToAssess(assessFromDepot);
     if (! assessFromDepot) this.assessed = toAssess;
+    
+    if (report) I.say("Getting next to tend: "+this);
     //
     //  Then, assess each target available and pick the highest-rated close-by.
     if (toAssess != null) for (Target t : toAssess) if (t != null) {
@@ -229,6 +242,8 @@ public abstract class ResourceTending extends Plan {
       if (rating > 0 && ! coop) for (Plan p : others) {
         if (p != this && p.actionFocus() == t) { rating = -1; break; }
       }
+      
+      if (report && rating > 0) I.say("  Rating for "+t+" is "+rating);
       pick.compare(t, rating);
     }
     return tended = pick.result();

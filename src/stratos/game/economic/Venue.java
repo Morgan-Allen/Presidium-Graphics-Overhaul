@@ -36,15 +36,16 @@ public abstract class Venue extends Fixture implements
     NUM_FACES   =  ALL_FACES.length;
   
   final public static int
-    PRIMARY_SHIFT      = 2,
-    SECONDARY_SHIFT    = 1,
-    OFF_DUTY           = 0,
+    PRIMARY_SHIFT      =  2,
+    SECONDARY_SHIFT    =  1,
+    OFF_DUTY           =  0,
+    NOT_HIRED          = -1,
     
-    SHIFTS_ALWAYS      = 0,
-    SHIFTS_BY_HOURS    = 1,   //different 8-hour periods off.
-    SHIFTS_BY_DAY      = 2,   //every second or third day off.
-    SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
-    SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
+    SHIFTS_ALWAYS      =  0,
+    SHIFTS_BY_HOURS    =  1,   //different 8-hour periods off.
+    SHIFTS_BY_DAY      =  2,   //every second or third day off.
+    SHIFTS_BY_24_HOUR  =  3,   //on for an entire day at a time.
+    SHIFTS_BY_CALENDAR =  4;   //weekends and holidays off.  NOT DONE YET
   
   final public static Blueprint NO_REQUIREMENTS[] = new Blueprint[0];
   
@@ -884,13 +885,14 @@ public abstract class Venue extends Fixture implements
     );
 
     final String keyRes = origin()+"_reserve_print_"+this;
-    final Tile reserved[] = reserved();
+    //final Tile reserved[] = reserved();
     
-    if (reserved.length > 0) BaseUI.current().selection.renderTileOverlay(
+    //if (reserved.length > 0)
+    BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world,
       Colour.transparency(hovered ? 0.25f : 0.375f),
       Selection.SELECT_OVERLAY, false,
-      keyRes, true, (Object[]) reserved
+      keyRes, true, footprint() //, (Object[]) reserved
     );
   }
 }

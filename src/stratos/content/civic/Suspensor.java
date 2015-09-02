@@ -25,7 +25,7 @@ public class Suspensor extends Mobile implements Mount {
   
   
   private static boolean
-    verbose = true;
+    verbose = false;
 
   final static String
     FILE_DIR = "media/Vehicles/",
@@ -188,6 +188,11 @@ public class Suspensor extends Mobile implements Mount {
   
   public boolean isMoving() {
     return followed.isMoving();
+  }
+  
+
+  protected boolean collides() {
+    return false;
   }
   
   

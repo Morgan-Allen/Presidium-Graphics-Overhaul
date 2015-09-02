@@ -100,9 +100,6 @@ BUILDINGS AND ECONOMY-
 
 SPECIFIC TO RESOURCE-HARVESTING-
 
-*  Create a single generic 'harvest/seeding' plan for mining, farming, forestry
-   and chem-panning.  Everything else should extend that.
-
 *  Excavation sites:
   Could use a new terrain-type for strip mining, and/or art to show shafts
   being sunk for mantle drills.

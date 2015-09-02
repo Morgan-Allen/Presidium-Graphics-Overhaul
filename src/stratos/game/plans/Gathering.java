@@ -53,6 +53,7 @@ public class Gathering extends ResourceTending {
     FORAGE_TRAITS[] = { ENERGETIC, NATURALIST, ACQUISITIVE },
     SAMPLE_TRAITS[] = { NATURALIST, ACQUISITIVE, CURIOUS   };
   
+  
   final public int type;
   private Flora toTend = null;
   

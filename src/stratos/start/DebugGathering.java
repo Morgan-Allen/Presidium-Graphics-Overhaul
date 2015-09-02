@@ -170,24 +170,22 @@ public class DebugGathering extends Scenario {
   
   private void configMiningTest(Stage world, Base base, BaseUI UI) {
     
-    final ExcavationSite station = new ExcavationSite(base);
-    final Human worksA, worksB;
-    SiteUtils.establishVenue(
-      station, 8, 8, true, world,
-      worksA = new Human(Backgrounds.EXCAVATOR, base),
-      worksB = new Human(Backgrounds.EXCAVATOR, base)
-    );
-    worksA.goAboard(station.mainEntrance(), world);
-    worksB.goAboard(station.mainEntrance(), world);
+    final ExcavationSite site = new ExcavationSite(base);
+    SiteUtils.establishVenue(site, 8, 8, true, world);
+    base.setup.fillVacancies(site, true);
+    site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));
     
-    UI.selection.pushSelection(worksB);
+    final Actor first = site.staff.workers().first();
+    final Mining dumps = Mining.asDumping(first, site);
+    dumps.addMotives(Plan.MOTIVE_JOB, 10);
+    first.mind.assignBehaviour(dumps);
+    
+    UI.selection.pushSelection(first);
   }
-  
   
   
   protected void afterCreation() {
   }
-  
 }
 
 

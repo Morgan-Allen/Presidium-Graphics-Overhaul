@@ -5,19 +5,18 @@
   */
 package stratos.content.civic;
 import stratos.game.common.*;
+import stratos.game.actors.*;
+import stratos.game.plans.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
-import stratos.game.plans.*;
-import stratos.game.actors.*;
 import stratos.game.wild.*;
+import static stratos.game.actors.Backgrounds.*;
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Backgrounds.*;
-import static stratos.game.economic.Economy.*;
 
 
 
@@ -97,7 +96,7 @@ public class ExcavationSite extends HarvestVenue {
     
     for (Tile t : openFaces) {
       final Item i = Outcrop.mineralsAt(t);
-      if (i == null) continue;
+      if (i == null || ! canDig(t)) continue;
       if (i.type == METALS   ) sumM++;
       if (i.type == FUEL_RODS) sumF++;
     }
@@ -107,8 +106,8 @@ public class ExcavationSite extends HarvestVenue {
     outM = sumM;
     outF = sumF;
     
-    float mineMult = NewMining.HARVEST_MULT * staff.workforce() / 2f;
-    mineMult *= Stage.STANDARD_SHIFT_LENGTH / NewMining.DEFAULT_TILE_DIG_TIME;
+    float mineMult = Mining.HARVEST_MULT * staff.workforce() / 2f;
+    mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.DEFAULT_TILE_DIG_TIME;
     outM *= mineMult * extractMultiple(METALS   );
     outF *= mineMult * extractMultiple(FUEL_RODS);
     
@@ -116,38 +115,6 @@ public class ExcavationSite extends HarvestVenue {
       Item.withAmount(METALS   , outM),
       Item.withAmount(FUEL_RODS, outF)
     };
-  }
-  
-  
-  
-  /**  Utility methods for handling dig-output and tile-assignment:
-    */
-  public boolean canDig(Tile at) {
-    return claimDivision().useType(at, areaClaimed()) == 1;
-  }
-  
-  
-  public boolean canDump(Tile at) {
-    return claimDivision().useType(at, areaClaimed()) == 2;
-  }
-  
-  
-  public float extractMultiple(Traded mineral) {
-    if (mineral == METALS   ) {
-      return 1 + (structure.upgradeLevel(METALS_SMELTING   ) / 3f);
-    }
-    if (mineral == FUEL_RODS) {
-      return 1 + (structure.upgradeLevel(FUEL_RODS_SMELTING) / 3f);
-    }
-    if (mineral == FOSSILS  ) {
-      return 1 + (structure.upgradeLevel(SAFETY_PROTOCOL   ) / 3f);
-    }
-    return 1;
-  }
-  
-  
-  protected boolean needsTending(Tile t) {
-    return world.terrain().mineralsAt(t) > 0;
   }
   
   
@@ -206,18 +173,15 @@ public class ExcavationSite extends HarvestVenue {
   
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
-    final boolean report =  verbose && I.talkAbout == actor;
     
-    if (report) {
-      I.say("\nGETTING NEXT EXCAVATION TASK...");
-    }
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 2, 10, 5
     );
     if (d != null) return d;
     
     final Choice choice = new Choice(actor);
-    choice.add(NewMining.asMining(actor, this));
+    choice.add(Mining.asMining (actor, this));
+    choice.add(Mining.asDumping(actor, this));
     return choice.weightedPick();
   }
   
@@ -226,6 +190,50 @@ public class ExcavationSite extends HarvestVenue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     structure.setAmbienceVal(structure.upgradeLevel(SAFETY_PROTOCOL) - 3);
+  }
+  
+  
+  
+  /**  Utility methods for handling dig-output and tile-assignment:
+    */
+  public boolean canDig(Tile at) {
+    return claimDivision().useType(at, areaClaimed()) == 1;
+  }
+  
+  
+  public boolean canDump(Tile at) {
+    return claimDivision().useType(at, areaClaimed()) == 2;
+  }
+  
+  
+  public float extractMultiple(Traded mineral) {
+    if (mineral == METALS   ) {
+      return 1 + (structure.upgradeLevel(METALS_SMELTING   ) / 3f);
+    }
+    if (mineral == FUEL_RODS) {
+      return 1 + (structure.upgradeLevel(FUEL_RODS_SMELTING) / 3f);
+    }
+    if (mineral == FOSSILS  ) {
+      return 1 + (structure.upgradeLevel(SAFETY_PROTOCOL   ) / 3f);
+    }
+    return 1;
+  }
+  
+  
+  protected boolean needsTending(Tile t) {
+    return world.terrain().mineralsAt(t) > 0;
+  }
+  
+  
+  public float needForTending(ResourceTending tending) {
+    final Mining m = (Mining) tending;
+    if (m.type == Mining.TYPE_MINING) {
+      return super.needForTending(tending);
+    }
+    if (m.type == Mining.TYPE_DUMPING) {
+      return stocks.amountOf(SLAG) / Tailing.MAX_FILL;
+    }
+    return 0;
   }
   
   

@@ -361,6 +361,9 @@ public class Pathing {
   
   public void applyCollision(float moveRate, Target focus) {
     final boolean report = I.talkAbout == mobile && moveVerbose;
+    final Mobile m = mobile;
+    if (m.indoors() || ! m.collides()) return;
+    //
     //  TODO:  I am probably going to have to implement some kind of proper
     //  polygonal pathfinding here.  For the moment, it's just kind of
     //  distracting.
@@ -383,8 +386,6 @@ public class Pathing {
       }
     }
     
-    final Mobile m = mobile;
-    if (m.indoors() || ! m.collides()) return;
     final Vec2D sum = new Vec2D(), disp = new Vec2D();
     int numHits = 0;
     final float mMin = m.position.z, mMax = mMin + m.height();

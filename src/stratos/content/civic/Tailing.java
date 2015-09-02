@@ -6,7 +6,7 @@
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.plans.NewMining;
+import stratos.game.plans.Mining;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -20,11 +20,12 @@ import static stratos.game.economic.Economy.*;
 public class Tailing extends Element implements Selectable {
   
   
-  private static boolean verbose = true;
+  private static boolean
+    verbose = true;
   
-  final static int
+  final public static int
     MIN_FILL = 0 ,
-    MAX_FILL = (int) (10 * NewMining.SLAG_RATIO);
+    MAX_FILL = (int) (10 * Mining.SLAG_RATIO);
   
   final Traded wasteType;
   private float fillLevel = 0;
@@ -100,7 +101,16 @@ public class Tailing extends Element implements Selectable {
   
   
   public void onGrowth(Tile at) {
-    //  TODO:  Very gradually disappear based on terraforming effects?
+    //
+    //  TODO:  Very gradually disappear based on terraforming fx?
+    //
+    //  TODO:  Extend Outcrop, for that matter?  ...Yeah.  Do.
+  }
+  
+  
+  public static Tailing foundAt(Tile at) {
+    if (at == null || ! (at.above() instanceof Tailing)) return null;
+    return (Tailing) at.above();
   }
   
   

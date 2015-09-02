@@ -245,6 +245,7 @@ public final class Tile implements
       if (instant) above.exitWorld();
       else above.setAsDestroyed();
     }
+    refreshAdjacent();
   }
   
   

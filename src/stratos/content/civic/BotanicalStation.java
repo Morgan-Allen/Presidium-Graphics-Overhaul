@@ -253,11 +253,6 @@ public class BotanicalStation extends HarvestVenue {
       stocks.removeItem(Item.withAmount(sample, decay));
     }
     //
-    //
-    //  And update demand for nursery-placement:
-    //final float nurseryDemand = 0 + 1;
-    //base.demands.impingeDemand(Nursery.class, nurseryDemand, 1, this);
-    //
     //  An update ambience-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
   }

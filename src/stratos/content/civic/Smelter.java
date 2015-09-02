@@ -160,7 +160,7 @@ public class Smelter extends Venue {
   /**  Rendering and interface methods-
     */
   private int spriteVariant() {
-    return Visit.indexOf(output, NewMining.MINED_TYPES);
+    return Visit.indexOf(output, Mining.MINED_TYPES);
   }
   
   //  TODO:  This looks right, but I need some way to fill in the gap along
