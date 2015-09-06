@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.terrain;
 import static stratos.graphics.common.GL.*;
 import stratos.graphics.common.*;
@@ -101,7 +103,10 @@ public class TerrainPass {
     shader.setUniformMatrix("u_camera", rendering.camera().combined);
     shader.setUniformi("u_texture", 0);
     final float lightSum[] = rendering.lighting.lightSum;
-    shader.setUniform4fv("u_lighting", lightSum, 0, 4);
+    final float lightDir[] = rendering.lighting.lightDir;
+    
+    shader.setUniform4fv("u_lighting"      , lightSum, 0, 4);
+    shader.setUniform3fv("u_lightDirection", lightDir, 0, 3);
     
     if (fogApplied != null) {
       fogApplied.applyToTerrain(shader);

@@ -27,7 +27,6 @@ uniform vec3 u_lightDirection;
 vec4 mixOverlays();
 
 
-
 void main() {
   vec4 color = mixOverlays() * u_texColor;
   

@@ -61,8 +61,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     mapSize;
   private byte
     heightVals[][],
-    typeIndex[][],
-    varsIndex[][];
+    typeIndex [][],
+    varsIndex [][];
   
   private Habitat
     habitats[][];
@@ -405,7 +405,9 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     });
     
     meshSet = new TerrainSet(
-      mapSize, -1, typeIndex, varsIndex, layers.toArray(LayerType.class)
+      mapSize, -1,
+      typeIndex, varsIndex, heightVals,
+      layers.toArray(LayerType.class)
     );
   }
   

@@ -49,12 +49,12 @@ void main() {
     vec3 diffuse = u_diffuseLight.rgb;
     
     // diffuse light from the front and more ambient from back
-    if(dota < 0)
+    if (dota < 0)
       v_lightDiffuse = ambient * (0.5f - dota);
     else
-      v_lightDiffuse = ambient + diffuse * dota;
-
-    // standard directional ligh
+      v_lightDiffuse = ambient + (diffuse * dota);
+    
+    // standard directional light
     //v_lightDiffuse = ambient + diffuse * clamp(dota, 0.0, 1.0);
   }
   

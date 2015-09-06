@@ -32,6 +32,8 @@ public class TerrainGen implements TileConstants {
     DETAIL_RESOLUTION = 8;
   final static float
     MAX_MINERAL_DENSITY = 1.0f;
+  final static boolean
+    USE_HEIGHT_VALS = false;
   
   final int mapSize, sectorGridSize;
   final float typeNoise;
@@ -212,8 +214,8 @@ public class TerrainGen implements TileConstants {
       mapSize + 1, new float[seedSize][seedSize], 1, 0.5f
     );
     final byte detailGrid[][] = heightDetail.asScaledBytes(10);
-    typeIndex = new byte[mapSize][mapSize];
-    varsIndex = new byte[mapSize][mapSize];
+    typeIndex = new byte[mapSize    ][mapSize    ];
+    varsIndex = new byte[mapSize    ][mapSize    ];
     heightMap = new byte[mapSize + 1][mapSize + 1];
     
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
@@ -259,6 +261,23 @@ public class TerrainGen implements TileConstants {
         shallID : oceanID
       );
     }
+    //
+    //  Finally, establish height-values:
+    if (USE_HEIGHT_VALS) for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
+      final byte high = typeIndex[c.x][c.y];
+      raisePoint(c, 0, 0, high);
+      raisePoint(c, 0, 1, high);
+      raisePoint(c, 1, 0, high);
+      raisePoint(c, 1, 1, high);
+    }
+  }
+  
+  
+  private void raisePoint(Coord c, int x, int y, byte high) {
+    byte val = heightMap[c.x + x][c.y + y];
+    if (val == 0) val = high;
+    else if (high < val) val = high;
+    heightMap[c.x + x][c.y + y] = val;
   }
   
   
