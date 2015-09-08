@@ -6,6 +6,7 @@
 package stratos.game.maps;
 import stratos.util.*;
 import stratos.graphics.common.*;
+import java.awt.MouseInfo;
 
 
 
@@ -33,22 +34,24 @@ public class FormingTest {
   
   
   void setupAndGo() {
+    reset();
     
+    while (true) {
+      updateVals();
+      
+      try { Thread.sleep(200); }
+      catch (Exception e) {}
+      
+      if (I.checkMouseClicked(displayKey)) reset();
+    }
+  }
+  
+  
+  void reset() {
     init = true;
     heightMap = new HeightMap(size);
     bioMap    = new float[size][size];
     colorVals = new int[size][size];
-    
-    while (true) {
-      updateVals();
-      I.present(colorVals, displayKey, dimMap, dimMap);
-      if (showGraph) {
-        I.present(graphVals, graphKey, dimGraph * 2, dimGraph * 2, 0, 1);
-      }
-      
-      try { Thread.sleep(200); }
-      catch (Exception e) {}
-    }
   }
   
   
@@ -97,6 +100,11 @@ public class FormingTest {
         axisY = Nums.clamp((int) (threshold * dimGraph), dimGraph);
       graphVals[axisX][axisY] = 1;
       tone.set(1, elevation, Nums.max(biomass, elevation), elevation);
+      if (elevation < globalBio / 2) {
+        //  Paint the water-line (a purely cosmetic effect...)
+        tone.g /= 2;
+        tone.a = (tone.a + 1) / 2;
+      }
       colorVals[c.x][c.y] = tone.getRGBA();
     }
     
@@ -104,6 +112,11 @@ public class FormingTest {
     I.say("\nUpdating map...");
     I.say("  Total biomass: "+I.shorten(globalBio * 100, 2)+"%");
     I.say("  Net growth:    "+I.shorten(sumGrowth * 100, 2)+"%");
+
+    I.present(colorVals, displayKey, dimMap, dimMap);
+    if (showGraph) {
+      I.present(graphVals, graphKey, dimGraph * 2, dimGraph * 2, 0, 1);
+    }
   }
   
   

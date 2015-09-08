@@ -259,6 +259,7 @@ public final class Tile implements
     */
   public void refreshAdjacent() {
     boardingCache = null;
+    elevation = Float.NEGATIVE_INFINITY;
     for (int n : T_INDEX) {
       final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t != null) t.boardingCache = null;

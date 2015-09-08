@@ -23,8 +23,8 @@ public class Mining extends ResourceTending {
     */
   final public static int
     TYPE_MINING  = 0,
-    TYPE_FORMING = 1,
-    TYPE_DUMPING = 2,
+    TYPE_DUMPING = 1,
+    TYPE_FORMING = 2,
     TYPE_BORING  = 3;
   
   final public static float
@@ -185,13 +185,15 @@ public class Mining extends ResourceTending {
       
       final float breakChance = 1f / DEFAULT_TILE_DIG_TIME;
       final byte typeID = terrain.mineralType(at);
+      final int  height = terrain.flatHeight (at);
       final Traded oreType = MINED_TYPES[typeID];
       float yield = breakChance * HARVEST_MULT / 2f;
       
       if (Rand.num() < breakChance) {
-        final int remains = (int) terrain.mineralsAt(at);
-        terrain.setMinerals(at, typeID, remains - 1);
+        final int remains = (int) terrain.mineralsAt(at) - 1;
+        terrain.setMinerals(at, typeID, remains);
         yield += 0.5f;
+        if (remains <= 0) terrain.punchTerrainTo(height - 1, at);
       }
       
       yield *= site.extractMultiple(oreType);

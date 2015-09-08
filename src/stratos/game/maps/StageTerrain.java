@@ -302,11 +302,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   }
   
   
-  public float trueHeight(float x, float y) {
-    return Nums.sampleMap(mapSize, heightVals, x, y) / 4;
-  }
-  
-  
   public int varAt(Tile t) {
     return varsIndex[t.x][t.y];
   }
@@ -314,6 +309,37 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   public Habitat[] gradient() {
     return gradient;
+  }
+  
+  
+  
+  /**  Methods for handling elevation:
+    */
+  public float trueHeight(float x, float y) {
+    return Nums.sampleMap(mapSize, heightVals, x, y) / 4;
+  }
+  
+  
+  public int flatHeight(Tile at) {
+    float minVal = Float.POSITIVE_INFINITY;
+    final int x = at.x * 2, y = at.y * 2;
+    minVal = Nums.min(minVal, heightVals[x + 0][y + 0]);
+    minVal = Nums.min(minVal, heightVals[x + 1][y + 0]);
+    minVal = Nums.min(minVal, heightVals[x + 0][y + 1]);
+    minVal = Nums.min(minVal, heightVals[x + 1][y + 1]);
+    return (int) minVal;
+  }
+  
+  
+  public void punchTerrainTo(int level, Tile at) {
+    final byte val = (byte) level;
+    final int x = at.x * 2, y = at.y * 2;
+    heightVals[x + 0][y + 0] = val;
+    heightVals[x + 1][y + 0] = val;
+    heightVals[x + 0][y + 1] = val;
+    heightVals[x + 1][y + 1] = val;
+    meshSet.flagUpdateAt(at.x, at.y);
+    at.refreshAdjacent();
   }
   
   

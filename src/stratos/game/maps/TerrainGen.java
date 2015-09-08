@@ -216,7 +216,7 @@ public class TerrainGen implements TileConstants {
     final byte detailGrid[][] = heightDetail.asScaledBytes(10);
     typeIndex = new byte[mapSize    ][mapSize    ];
     varsIndex = new byte[mapSize    ][mapSize    ];
-    heightMap = new byte[mapSize + 1][mapSize + 1];
+    heightMap = new byte[mapSize * 2][mapSize * 2];
     
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       varsIndex[c.x][c.y] = terrainVarsAt(c.x, c.y);
@@ -265,19 +265,24 @@ public class TerrainGen implements TileConstants {
     //  Finally, establish height-values:
     if (USE_HEIGHT_VALS) for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       final byte high = typeIndex[c.x][c.y];
-      raisePoint(c, 0, 0, high);
-      raisePoint(c, 0, 1, high);
-      raisePoint(c, 1, 0, high);
-      raisePoint(c, 1, 1, high);
+      //
+      //  The height-map has twice the resolution of the tile-map, and we want
+      //  the edges of tiles to align (by default), so we have to visit 16
+      //  points both within and around the tile itself...
+      for (Coord p : Visit.grid(-1, -1, 4, 4, 1)) {
+        raisePoint(c, p.x, p.y, high);
+      }
     }
   }
   
   
   private void raisePoint(Coord c, int x, int y, byte high) {
-    byte val = heightMap[c.x + x][c.y + y];
+    x = Nums.clamp(x + (c.x * 2), mapSize * 2);
+    y = Nums.clamp(y + (c.y * 2), mapSize * 2);
+    byte val = heightMap[x][y];
     if (val == 0) val = high;
     else if (high < val) val = high;
-    heightMap[c.x + x][c.y + y] = val;
+    heightMap[x][y] = val;
   }
   
   
@@ -312,14 +317,6 @@ public class TerrainGen implements TileConstants {
     if (sampleVar == 0) sampleVar = (byte) (Rand.index(MV + 1) % MV);
     varsIndex[x][y] = sampleVar;
     return sampleVar;
-  }
-  
-  
-  private void raiseHeight(int x, int y, float val) {
-    heightMap[x    ][y    ] = (byte) Nums.max(heightMap[x    ][y    ], val);
-    heightMap[x + 1][y    ] = (byte) Nums.max(heightMap[x + 1][y    ], val);
-    heightMap[x    ][y + 1] = (byte) Nums.max(heightMap[x    ][y + 1], val);
-    heightMap[x + 1][y + 1] = (byte) Nums.max(heightMap[x + 1][y + 1], val);
   }
   
   

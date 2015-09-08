@@ -196,8 +196,19 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
-  protected float aboveGroundHeight() { return 0.15f; }
+  protected float boardHeight(Boarding aboard) {
+    return super.boardHeight(followed.aboard());
+  }
+  
+  
+  protected float aboveGroundHeight() {
+    return 0.15f;
+  }
+  
+  
   public float radius() { return 0.0f; }
+  
+  
   public Base base() { return followed.base(); }
   
   

@@ -157,7 +157,7 @@ public class Tailing extends Element implements Selectable {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();
-    d.append("Total stored: "+fillLevel+"/"+MAX_FILL);
+    d.append("Total stored: "+I.shorten(fillLevel, 0)+"/"+MAX_FILL);
     d.append("\n\n");
     d.append(helpInfo());
     

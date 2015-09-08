@@ -187,8 +187,14 @@ public abstract class ResourceTending extends Plan {
         this, "actionTendTarget",
         Action.BUILD, "Tending to "+toTend
       );
-      final Tile open = Spacing.nearestOpenTile(toTend, actor);
-      tending.setMoveTarget(open);
+      if (Rand.index(10) == 0 || ! Spacing.adjacent(toTend, actor)) {
+        final Tile open = Spacing.nearestOpenTile(toTend, actor);
+        tending.setMoveTarget(open);
+      }
+      else {
+        final Tile open = actor.origin();
+        tending.setMoveTarget(open);
+      }
       return tending;
     }
     //

@@ -19,6 +19,42 @@ import stratos.user.*;
 import stratos.util.*;
 
 
+/*
+  Mines should reveal the ore-types being mined as you scrape back the topsoil.
+  
+  I think, at minimum, it should be possible to pare the soil back more than
+  one layer, and to see your workers down in the cut (even if unaccessible on
+  the outside.  Similar to cliff-topography.)
+  
+  I need this because, at present, mining-areas are stripped far too soon.
+  They should be productive for a couple of weeks at least, and hopefully a
+  full game-year (similar to a decade in their lives.)
+  
+  The side-shafts then become access-points for pathing into the cuts, and
+  upgrade into mantle-drills.
+  
+  There's a tailing-pond for each active plot, which either soaks away
+  gradually or overfills as it nears maximum capacity (depending on how careful
+  you are.)  It's main purpose, realism aside, is to give the player some
+  visual indicator of recent production.
+  
+  PONDS:  BLACK LINING WITH WHITE RIMS
+  
+  
+Math-
+  
+  A 12x12 area with 72 accessible tiles, allowing mining 8 layers deep, gives
+  you 72x8 = 576 total mine-units.  4 workers at 8 hours/day gives you 32
+  man-hours per day.
+  
+  576 / (32 x N) = 60 days' ideal lifespan for a mine, where N is how long it
+  takes 1 person to mine one tile.
+  
+  576 / (60 x 32) = 576 / 1920 = N, so roughly a 1/4 tile per hour per person
+  will allow a typical mine to last for 1 full year.
+//*/
+
+
 
 public class ExcavationSite extends HarvestVenue {
   

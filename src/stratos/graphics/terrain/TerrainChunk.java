@@ -100,20 +100,23 @@ public class TerrainChunk implements TileConstants {
     for (int n = 0, pointV = 0, pointI = 0; n < numTiles; n++) {
       
       final Coord coord = (Coord) iterV.next();
-      final float VP[] = LayerPattern.VERT_PATTERN;
-      final float[] UV = (float[]) iterT.next();
+      final float UV[]  = (float[]) iterT.next();
+      final float VP[]  = LayerPattern.VERT_PATTERN;
       
       for (int c = 0, p = 0, t = 0; c < 4; c++) {
         final int
           xoff = (int) VP[p + 0],
           yoff = (int) VP[p + 1],
-          zoff = (int) VP[p + 2];
+          zoff = (int) VP[p + 2],
+          hX   = (coord.x * 2) + xoff,
+          hY   = (coord.y * 2) + zoff,
+          high = belongs.heightVals[hX][hY];
+        
         p += 3;
-        putCornerSlope(coord.x + xoff, coord.y + zoff, norm);
-        final float high = belongs.heightVals[coord.x + xoff][coord.y + zoff];
+        putCornerNormal(hX, hY, norm);
         
         vertices[pointV++] = xoff + coord.x - 0.5f;
-        vertices[pointV++] = yoff + (high / 4);
+        vertices[pointV++] = yoff + (high / 4f);
         vertices[pointV++] = zoff + coord.y - 0.5f;
         
         vertices[pointV++] = norm.x;
@@ -131,21 +134,48 @@ public class TerrainChunk implements TileConstants {
   }
   
   
-  Vec3D putCornerSlope(int x, int y, Vec3D norm) {
-    return norm.set(
-      0 - (slope(x, y, true ) + slope(x - 1, y, true )),
-      0 - (slope(x, y, false) + slope(x, y - 1, false)),
-      2
-    ).normalise();
+  private Vec3D putCornerNormal(int x, int y, Vec3D norm) {
+    //
+    //  We determine the grid-coordinates of the tile and the relative offset
+    //  of this corner first (the height-map has a 2x2:1x1 resolution)
+    final boolean
+      xUp = x % 2 == 1,
+      yUp = y % 2 == 1;
+    final int
+      tX = (x / 2) * 2,
+      tY = (y / 2) * 2;
+    //
+    //  We measure the slope across the x and y axis, and determine if the
+    //  edges are flush with adjacent tiles.
+    float sX = diff(tX, y, 1, 0);
+    float sY = diff(x, tY, 0, 1);
+    final boolean
+      joinX = diff(x, y, xUp ? 1 : -1, 0) == 0,
+      joinY = diff(x, y, 0, yUp ? 1 : -1) == 0;
+    //
+    //  If the corner is perfectly adjoined across the border, we average the
+    //  measured slope over the adjacent tile (with greater weight given to
+    //  the origin.)
+    final float mixWeight = 0.4f;
+    if (joinX) {
+      sX += diff(tX + (xUp ? 2 : -2), y, 1, 0) * mixWeight;
+      sX /= 1 + mixWeight;
+    }
+    if (joinY) {
+      sY += diff(x, tY + (yUp ? 2 : -2), 0, 1) * mixWeight;
+      sY /= 1 + mixWeight;
+    }
+    //
+    //  Then set the normal at 90 degrees to the slope, normalise and return.
+    return norm.set(0 - sX, 0 - sY, 1).normalise();
   }
   
   
-  float slope(int x, int y, boolean across) {
+  private int diff(int x, int y, int offX, int offY) {
+    //
+    //  Return the difference between two points on the height grid-
     final byte HV[][] = belongs.heightVals;
-    try { return across ?
-      HV[x + 1][y] - HV[x][y] :
-      HV[x][y + 1] - HV[x][y] ;
-    }
+    try { return HV[x + offX][y + offY] - HV[x][y]; }
     catch (ArrayIndexOutOfBoundsException e) { return 0; }
   }
   
