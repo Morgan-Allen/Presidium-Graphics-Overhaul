@@ -29,9 +29,21 @@ public class Mining extends ResourceTending {
   
   final public static float
     MAX_SAMPLE_STORE      = 50,
-    DEFAULT_TILE_DIG_TIME = Stage.STANDARD_HOUR_LENGTH,
-    HARVEST_MULT          = 1.0f,
-    SLAG_RATIO            = 2.5f;
+    MAXIMUM_DIG_DEPTH     = 8,
+    EXAMPLE_DAILY_OUTPUT  = 10,
+    EXAMPLE_NUM_WORKERS   = 4,
+    DEFAULT_MINE_LIFESPAN = Stage.DAYS_PER_YEAR,
+    EXAMPLE_MINED_AREA    = (12 * 12) / 2,
+    AVG_RAW_DIG_YIELD     = StageTerrain.MAX_MINERAL_AMOUNT / 2,
+    SLAG_RATIO            = 2.5f,
+    
+    EXAMPLE_DAY_WORKTIME  = EXAMPLE_NUM_WORKERS * Stage.STANDARD_SHIFT_LENGTH,
+    DEFAULT_LIFE_WORKTIME = EXAMPLE_DAY_WORKTIME * DEFAULT_MINE_LIFESPAN,
+    DEFAULT_DIG_VOLUME    = EXAMPLE_MINED_AREA * MAXIMUM_DIG_DEPTH,
+    TILE_DIG_TIME         = DEFAULT_LIFE_WORKTIME / DEFAULT_DIG_VOLUME,
+    DAILY_DIG_FREQUENCY   = EXAMPLE_DAY_WORKTIME / TILE_DIG_TIME,
+    AVG_RAW_DAILY_YIELD   = DAILY_DIG_FREQUENCY * AVG_RAW_DIG_YIELD,
+    HARVEST_MULT          = EXAMPLE_DAILY_OUTPUT / AVG_RAW_DAILY_YIELD;
   
   final static Trait
     MINE_TRAITS[] = { PATIENT, METICULOUS };
@@ -134,7 +146,7 @@ public class Mining extends ResourceTending {
     
     if (type == TYPE_MINING) {
       if (! site.canDig(at)) return -1;
-      return terrain.mineralsAt(at) > 0 ? 1 : 0;
+      return MAXIMUM_DIG_DEPTH + terrain.flatHeight(at);
     }
     if (type == TYPE_DUMPING) {
       if (! site.canDump(at)) return -1;
@@ -180,23 +192,23 @@ public class Mining extends ResourceTending {
     final StageTerrain terrain = at.world.terrain();
     
     if (type == TYPE_MINING) {
+      final float  breakChance = 1f / TILE_DIG_TIME;
+      final byte   typeID      = terrain.mineralType(at);
+      final int    height      = terrain.flatHeight (at);
+      final Traded oreType     = MINED_TYPES[typeID];
+      final int    oreAmount   = (int) terrain.mineralsAt(at);
+
       terrain.setHabitat(at, Habitat.STRIP_MINING);
       at.clearUnlessOwned();
       
-      final float breakChance = 1f / DEFAULT_TILE_DIG_TIME;
-      final byte typeID = terrain.mineralType(at);
-      final int  height = terrain.flatHeight (at);
-      final Traded oreType = MINED_TYPES[typeID];
-      float yield = breakChance * HARVEST_MULT / 2f;
-      
+      float yield = breakChance / 2f;
       if (Rand.num() < breakChance) {
-        final int remains = (int) terrain.mineralsAt(at) - 1;
+        final int remains = Nums.max(1, oreAmount - 1);
         terrain.setMinerals(at, typeID, remains);
         yield += 0.5f;
-        if (remains <= 0) terrain.hardTerrainLevel(height - 1, at);
+        terrain.hardTerrainLevel(height - 1, at);
       }
-      
-      yield *= site.extractMultiple(oreType);
+      yield *= oreAmount * HARVEST_MULT * site.extractMultiple(oreType);
       
       return new Item[] {
         Item.with(oreType, null   , yield               , Item.AVG_QUALITY),
@@ -268,17 +280,6 @@ public class Mining extends ResourceTending {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

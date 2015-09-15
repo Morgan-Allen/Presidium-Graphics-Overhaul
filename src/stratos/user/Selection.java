@@ -357,8 +357,6 @@ public class Selection implements UIConstants {
           offsBatch.add(new Vec3D(tx, ty, 0));
           faceBatch.add(-1);
           textBatch.add(UV);
-          //gridBatch.add(new Coord(tx, ty));
-          //textBatch.add(UV);
         }
       };
       

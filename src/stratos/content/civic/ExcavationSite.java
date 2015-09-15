@@ -35,23 +35,11 @@ import stratos.util.*;
   
   There's a tailing-pond for each active plot, which either soaks away
   gradually or overfills as it nears maximum capacity (depending on how careful
-  you are.)  It's main purpose, realism aside, is to give the player some
-  visual indicator of recent production.
+  you are.)  It's main purpose, beside realism, is to give the player an at-a
+  glance visual indication of recent production.
   
   PONDS:  BLACK LINING WITH WHITE RIMS
   
-  
-Math-
-  
-  A 12x12 area with 72 accessible tiles, allowing mining 8 layers deep, gives
-  you 72x8 = 576 total mine-units.  4 workers at 8 hours/day gives you 32
-  man-hours per day.
-  
-  576 / (32 x N) = 60 days' ideal lifespan for a mine, where N is how long it
-  takes 1 person to mine one tile.
-  
-  576 / (60 x 32) = 576 / 1920 = N, so roughly a 1/4 tile per hour per person
-  will allow a typical mine to last for 1 full year.
 //*/
 
 
@@ -143,7 +131,7 @@ public class ExcavationSite extends HarvestVenue {
     outF = sumF;
     
     float mineMult = Mining.HARVEST_MULT * staff.workforce() / 2f;
-    mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.DEFAULT_TILE_DIG_TIME;
+    mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.TILE_DIG_TIME;
     outM *= mineMult * extractMultiple(METALS   );
     outF *= mineMult * extractMultiple(FUEL_RODS);
     

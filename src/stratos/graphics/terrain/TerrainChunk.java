@@ -6,14 +6,8 @@
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
-import com.badlogic.gdx.graphics.*;
-
 import java.util.Iterator;
 
-
-
-//  TODO:  Use the Stitching class!
 
 
 public class TerrainChunk implements TileConstants {
@@ -194,7 +188,6 @@ public class TerrainChunk implements TileConstants {
   public void readyFor(Rendering rendering) {
     if (renderFlag || (stitching == null && fadeOut == null)) return;
     renderFlag = true;
-    //mesh();
     rendering.terrainPass.register(this);
   }
   
