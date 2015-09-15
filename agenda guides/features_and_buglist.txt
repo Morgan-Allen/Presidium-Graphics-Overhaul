@@ -33,10 +33,17 @@ TO DO NOW-
    Make sure upgrades and abilities are functioning for each of these.
    (And double-check correct knowledge-setup for the various houses.)
 
+*  Normal facilities should not be placeable right next to a zoned-area.
+
+*  Trooper and Avrodil first- give 'em something to play with.
+   
+   
+
 *  The tutorial will have to be run-through again (due to changes in level-
    upgrades, it might not be possible to hire enough crew.)
    
    I'd say 2 + 1/level hires available at a given venue.  Keep it simple.
+
 
 *  Look into Nerdfish's feedback!
 

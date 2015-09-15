@@ -1,15 +1,18 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.content.military;
-
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
-import stratos.graphics.sfx.*;
+import stratos.game.wild.*;
+import stratos.graphics.sfx.PlaneFX;
+import stratos.graphics.sfx.ShotFX;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
-
 
 
 //
@@ -19,26 +22,33 @@ import static stratos.game.actors.Technique.*;
 //         thus allow for more appropriate SFX.)
 
 
-public class MarksmanTechniques {
+public class GeneralCombatTechniques {
   
+
+  //Shield Bypass.
+  //Disarming Stroke.
+  //Impact Connect.
+  //Cleaving Arc.
+
+  final static String DIR = "media/GUI/Powers/";
+  final static Class BASE_CLASS = GeneralCombatTechniques.class;
   
   final static ShotFX.Model
     TRACE_FX_MODEL = new ShotFX.Model(
-      "tracer_beam_fx", MarksmanTechniques.class,
+      "tracer_beam_fx", BASE_CLASS,
       "media/SFX/tracer_beam.png", 0.05f, 0, 0.05f, 3, true, true
     );
   final public static PlaneFX.Model
     AIM_MODEL = new PlaneFX.Model(
-      "aim_model", MarksmanTechniques.class,
+      "aim_model", BASE_CLASS,
       "media/SFX/aiming_anim.png", 4, 4, 16,
       (8 / 25f), 0.25f
     );
   final static PlaneFX.Model
     PIERCE_FX_MODEL = new PlaneFX.Model(
-      "pierce_fx", MarksmanTechniques.class,
+      "pierce_fx", BASE_CLASS,
       "media/SFX/penetrating_shot.png", 0.5f, 0, 0, false, false
     );
-  final static String DIR = "media/GUI/Powers/";
   
   
   
@@ -46,9 +56,9 @@ public class MarksmanTechniques {
   //  Special FX- little clock-timer above head.
   //            - direct line from barrel to target.
   
-  final public static Technique STEADY_AIM = new Technique(
-    "Steady Aim", DIR+"steady_aim.png", Action.FIRE,
-    MarksmanTechniques.class, "steady_aim",
+  final public static Technique FOCUS_FIRE = new Technique(
+    "Focus Fire", DIR+"steady_aim.png", Action.FIRE,
+    BASE_CLASS         , "focus_fire",
     MINOR_POWER        ,
     REAL_HARM          ,
     NO_FATIGUE         ,
@@ -76,9 +86,9 @@ public class MarksmanTechniques {
   //  Suppression Fire- expend extra ammo and reduce damage/accuracy, but with
   //                    chance to stun enemies in AoE.
   
-  final public static Technique SUPPRESSION_FIRE = new Technique(
-    "Suppression Fire", DIR+"suppression_fire.png", Action.FIRE,
-    MarksmanTechniques.class, "suppression_fire",
+  final public static Technique SUPPRESSION = new Technique(
+    "Suppression", DIR+"suppression_fire.png", Action.FIRE,
+    BASE_CLASS         , "suppression_fire",
     MEDIUM_POWER       ,
     REAL_HARM          ,
     NO_FATIGUE         ,
@@ -110,7 +120,8 @@ public class MarksmanTechniques {
     
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
-      //  TODO:  Just a simple stun effect instead...
+      //
+      //  TODO:  Just use a simple stun effect instead?
       affected.traits.incBonus(ATHLETICS   , -20);
       affected.traits.incBonus(SURVEILLANCE, -10);
       affected.traits.incBonus(MOTOR       , -5 );
@@ -118,17 +129,17 @@ public class MarksmanTechniques {
   };
   
   
-  //  Armour Bypass- chance to puncture cover or armour after Take Aim.
+  //  Shield Bypass- chance to puncture cover or armour after Take Aim.
   //  Special FX:  Attach 'puncture' fx at target...
   
-  final public static Technique ARMOUR_BYPASS = new Technique(
-    "Armour Bypass", DIR+"armour_bypass.png", Action.FIRE,
-    MarksmanTechniques.class, "armour_bypass",
+  final public static Technique SHIELD_BYPASS = new Technique(
+    "Shield Bypass", DIR+"armour_bypass.png", Action.FIRE,
+    BASE_CLASS, "armour_bypass",
     MINOR_POWER         ,
     REAL_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_SKILL_USE_BASED, MARKSMANSHIP, 15
+    Technique.TYPE_SKILL_USE_BASED, HAND_TO_HAND, 15
   ) {
     
     public float bonusFor(Actor using, Skill skill, Target subject) {
@@ -137,6 +148,9 @@ public class MarksmanTechniques {
     
     public void applyEffect(Actor using, boolean success, Target subject) {
       super.applyEffect(using, success, subject);
+      
+      //  TODO:  Use a 'volley' class to ignore armour values.
+      
       if (success) {
         CombatFX.applyBurstFX(
           PIERCE_FX_MODEL, subject.position(null), 0.5f, using.world()
@@ -145,8 +159,12 @@ public class MarksmanTechniques {
       }
     }
   };
-
   
+  
+  final public static Technique BULLET_PARRY = null;//  TODO:  Fill in!
+}
+
+
   /*
   //  Mobile Salvo- chance to fire while dodging or retreating.
   //  TODO:  This basically has to schedule a new action during movement-
@@ -154,7 +172,7 @@ public class MarksmanTechniques {
   //  Special FX- special back-or-side shot animations.
   final public static Technique MOBILE_SALVO = new Technique(
     "Mobile Salvo", DIR+"mobile_salvo.png", Action.FIRE,
-    MarksmanTechniques.class, 03,
+    BASE_CLASS, 03,
     MINOR_POWER        ,
     REAL_HARM          ,
     NO_FATIGUE         ,
@@ -170,7 +188,55 @@ public class MarksmanTechniques {
     }
   };
   //*/
-}
+  
+  
+  //  These are special techniques that boost damage against specific enemy-
+  //  types...
+  
+  /*
+  private static Technique killTechnique(
+    String name, String uniqueID, String icon, String FX,
+    final Class <? extends Actor> victimClass
+  ) {
+    return new Technique(
+      name, DIR+icon, Action.STRIKE_BIG,
+      CloseCombatTechniques.class, uniqueID,
+      MINOR_POWER        ,
+      REAL_HARM          ,
+      NO_FATIGUE         ,
+      MINOR_CONCENTRATION,
+      Technique.TYPE_SKILL_USE_BASED, HAND_TO_HAND, 5,
+      KommandoRedoubt.VENDETTA_ARTILECT, Technique.TRIGGER_ATTACK
+    ) {
+      
+      public float bonusFor(Actor using, Skill skill, Target subject) {
+        if (victimClass.isAssignableFrom(subject.getClass())) return 5;
+        else return -1;
+      }
+      
+      public void applyEffect(Actor using, boolean success, Target subject) {
+        super.applyEffect(using, success, subject);
+        //
+        //  TODO:  Include a special FX here!
+        CombatFX.applyFX(using.gear.deviceType(), using, subject, true);
+      }
+    };
+  }
+  
+  final public static Technique ARTILECT_KILLER = killTechnique(
+    "Artilect Killer", "artilect_killer", null, null, Artilect.class
+  );
+  
+  final public static Technique VERMIN_KILLER = killTechnique(
+    "Vermin Killer", "vermin_killer", null, null, Vermin.class
+  );
+  
+  final public static Technique MAN_KILLER = killTechnique(
+    "Man Killer", "man_killer", null, null, Human.class
+  );
+  //*/
+
+
 
 
 

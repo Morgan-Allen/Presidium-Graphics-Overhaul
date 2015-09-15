@@ -259,10 +259,3 @@ public class BaseResearch {
  ;
 //*/
 
-
-
-
-
-
-
-
