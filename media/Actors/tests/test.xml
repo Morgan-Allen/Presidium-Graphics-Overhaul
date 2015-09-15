@@ -30,14 +30,17 @@
 	<animation name="carry_on" 		 start="94" end="114" duration="1" />
 	<animation name="sneaking" 		 start="115" end="135" duration="1.5" />
 	<animation name="talking_warning" 		 start="136" end="161" duration="2.5" />
-	<animation name="firen_new" 		 start="162" end="181" duration="2.5" />
-	<animation name="fire_heavy" 		 start="182" end="208" duration="1.2" />
-	<animation name="attack_2H" 		 start="209" end="231" duration="1.1" />
-	<animation name="attack_daggerspear" 		 start="232" end="262" duration="1.1" />
-	<animation name="defence_sword" 		 start="263" end="288" duration="1.2" />
-	<animation name="defence_spear" 		 start="289" end="312" duration="1" />
-	<animation name="asleep" 		 start="313" end="363" duration="4" />
-	<animation name="frustrated" 		 start="364" end="450" duration="4" />
+	<animation name="firen_new" 		 start="162" end="185" duration="2.5" />
+	<animation name="fire_heavy" 		 start="186" end="212" duration="1.2" />
+	<animation name="attack_2H" 		 start="213" end="235" duration="1.1" />
+	<animation name="attack_1H" 		 start="236" end="266" duration="1.1" />
+	<animation name="defence_1H" 		 start="267" end="292" duration="1.2" />
+	<animation name="defence_2H" 		 start="293" end="316" duration="1" />
+	<animation name="asleep" 		 start="317" end="367" duration="4" />
+	<animation name="talk_complain" 		 start="368" end="454" duration="4" />
+	<animation name="flinch" 		 start="455" end="479" duration="0.9" />
+	<animation name="flinch2" 		 start="480" end="509" duration="1.1" />
+	<animation name="flinch3" 		 start="510" end="535" duration="0.8" />
   </animations>
   
   <attachPoints>

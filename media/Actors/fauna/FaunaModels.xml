@@ -14,16 +14,16 @@
   height="2.5"
 >
   <animations rotate="180">
-  <animation name="stand"      start="1"    end="1"    duration="1"   />
-	<animation name="move"       start="1"    end="32"   duration="1"   />
-	<animation name="move_fast"  start="34"   end="69"   duration="0.7" />
-	<animation name="move_carry" start="70"   end="102"  duration="1"   />
-	<animation name="build"      start="103"  end="228"  duration="2"   />
-	<animation name="reach_down" start="229"  end="354"  duration="3"   />
-	<animation name="stand"      start="355"  end="365"  duration="3"   />
-	<animation name="strike"     start="366"  end="416"  duration="1"   />
-	<animation name="strike_big" start="417"  end="462"  duration="1.2" />
-	<animation name="fall"       start="463"  end="523"  duration="2.5" />
+    <animation name="stand"      start="1"    end="1"    duration="1"   />
+    <animation name="move"       start="1"    end="32"   duration="1"   />
+    <animation name="move_fast"  start="34"   end="69"   duration="0.7" />
+    <animation name="move_carry" start="70"   end="102"  duration="1"   />
+    <animation name="build"      start="103"  end="228"  duration="2"   />
+    <animation name="reach_down" start="229"  end="354"  duration="3"   />
+    <animation name="stand"      start="355"  end="365"  duration="3"   />
+    <animation name="strike"     start="366"  end="416"  duration="1"   />
+    <animation name="strike_big" start="417"  end="462"  duration="1.2" />
+    <animation name="fall"       start="463"  end="523"  duration="2.5" />
   </animations>
 </model>
 
@@ -129,6 +129,7 @@
   </animations>
 </model>
 
+
 <model
   name="Yamagur"
   format="MS3D"
@@ -153,7 +154,7 @@
   </animations>
   
   <attachPoints>
-  <attachPoint function="target" joint="head"/>
+    <attachPoint function="target" joint="head"/>
   </attachPoints>
 </model>
 
@@ -162,23 +163,22 @@
   name="Avrodil"
   format="MS3D"
   type="JOINT"
-  path="media/Actors/human/"
+  path="media/Actors/fauna/"
   file="Avrodil.ms3d"
   scale="1"
   bound="1.5"
   stride="0.6"
   height="1.0"
 >
-<animations rotate="90">
-	<animation name="still"      start="1"  end="1"  duration="1" />
-    <animation name="idle"      start="1"  end="10"  duration="2" />
-	<animation name="walk"      start="11"  end="39"  duration="2" />
-	<animation name="attack"      start="41"  end="87"  duration="2" />
-	<animation name="feeding"      start="88"  end="137"  duration="2.5" />
-	<animation name="death"      start="138"  end="182"  duration="2.5" />
-	<animation name="death2"      start="183"  end="236"  duration="2.5" />
- </animations>
-
+  <animations rotate="90">
+    <animation name="still"    start="1"    end="1"    duration="1"   />
+    <animation name="idle"     start="1"    end="10"   duration="2"   />
+    <animation name="walk"     start="11"   end="39"   duration="2"   />
+    <animation name="attack"   start="41"   end="87"   duration="2"   />
+    <animation name="feeding"  start="88"   end="137"  duration="2.5" />
+    <animation name="death"    start="138"  end="182"  duration="2.5" />
+    <animation name="death2"   start="183"  end="236"  duration="2.5" />
+  </animations>
 </model>
 
 
