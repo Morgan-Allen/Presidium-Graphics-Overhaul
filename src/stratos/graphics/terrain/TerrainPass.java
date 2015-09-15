@@ -7,11 +7,7 @@ package stratos.graphics.terrain;
 import static stratos.graphics.common.GL.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -138,7 +134,7 @@ public class TerrainPass {
       for (TerrainChunk chunk : chunks) {
         if (chunk.layer.layerID != layer.layerID) I.complain("WRONG LAYER!");
         final Colour c = chunk.colour == null ? Colour.WHITE : chunk.colour;
-        
+        //
         //  In the event that an earlier terrain chunk is being faded out,
         //  render the predecessor semi-transparently-
         if (chunk.fadeOut != null) {
@@ -148,7 +144,7 @@ public class TerrainPass {
           if (alpha > 0) {
             final float outAlpha = Nums.clamp(alpha * 2, 0, 1);
             shader.setUniformf("u_opacity", opacity * outAlpha);
-            chunk.fadeOut.mesh().render(shader, GL20.GL_TRIANGLES);
+            chunk.stitching().renderWithShader(shader, false);
           }
           else {
             chunk.fadeOut.dispose();
@@ -158,16 +154,15 @@ public class TerrainPass {
           
           final float inAlpha = Nums.clamp((1 - alpha) * 2, 0, 1);
           shader.setUniformf("u_opacity", opacity * inAlpha * c.a);
-          chunk.mesh().render(shader, GL20.GL_TRIANGLES);
+          chunk.stitching().renderWithShader(shader, false);
         }
-        
+        //
         //  Otherwise just render directly.  In either case, flag as complete.
         else {
           shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
           shader.setUniformf("u_opacity", opacity * c.a);
-          chunk.mesh().render(shader, GL20.GL_TRIANGLES);
+          chunk.stitching().renderWithShader(shader, false);
         }
-        
         if (chunk.throwAway) chunk.dispose();
         else chunk.resetRenderFlag();
       }

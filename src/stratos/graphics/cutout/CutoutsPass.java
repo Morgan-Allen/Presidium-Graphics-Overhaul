@@ -18,6 +18,8 @@ import com.badlogic.gdx.graphics.glutils.*;
 
 
 //  TODO:  See if you can unify this with other types of rendering pass?
+//  TODO:  You might use Stitching, for example...
+
 
 public class CutoutsPass {
 	

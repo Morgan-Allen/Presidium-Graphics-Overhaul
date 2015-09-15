@@ -4,19 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.wild;
-import static stratos.game.economic.Economy.FOSSILS;
-import static stratos.game.economic.Economy.FUEL_RODS;
-import static stratos.game.economic.Economy.METALS;
-import static stratos.game.economic.Economy.POLYMER;
-import static stratos.game.economic.Economy.SLAG;
 import stratos.game.common.*;
+import stratos.game.economic.*;
+import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.game.economic.Item;
-import stratos.game.economic.Owner;
-import stratos.game.economic.Traded;
 import stratos.game.maps.StageTerrain;
 
 

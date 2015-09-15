@@ -30,8 +30,8 @@ public class TerrainSet {
   public TerrainSet(
       int size, int chunkSize,
       byte layerIndices[][],
-      byte varsIndices[][],
-      byte heightVals[][],
+      byte varsIndices [][],
+      byte heightVals  [][],
       LayerType layers[]
   ) {
     // Basic sanity checks first-
@@ -118,5 +118,23 @@ public class TerrainSet {
       }
     }
   }
+  
+
+  /**  Utility methods for geometry-generation-
+    */
+  protected static int heightDiff(
+    TerrainSet terrain, int x, int y, int offX, int offY
+  ) {
+    //
+    //  Return the difference between two points on the height grid.  NOTE:
+    //  Height-maps have double the resolution of the basic tile grid, so be
+    //  sure to multiply x2 before use...
+    final byte HV[][] = terrain.heightVals;
+    try { return HV[x + offX][y + offY] - HV[x][y]; }
+    catch (ArrayIndexOutOfBoundsException e) { return 0; }
+  }
 }
+
+
+
 

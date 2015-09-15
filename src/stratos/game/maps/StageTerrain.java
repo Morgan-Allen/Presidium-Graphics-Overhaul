@@ -331,13 +331,24 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   }
   
   
-  public void punchTerrainTo(int level, Tile at) {
+  public void hardTerrainLevel(int level, Tile at) {
     final byte val = (byte) level;
     final int x = at.x * 2, y = at.y * 2;
     heightVals[x + 0][y + 0] = val;
     heightVals[x + 1][y + 0] = val;
     heightVals[x + 0][y + 1] = val;
     heightVals[x + 1][y + 1] = val;
+    meshSet.flagUpdateAt(at.x, at.y);
+    at.refreshAdjacent();
+  }
+  
+  
+  public void softTerrainLevel(int level, Tile at) {
+    final byte val = (byte) level;
+    for (Coord p : Visit.grid(-1, -1, 4, 4, 1)) try {
+      heightVals[at.x * 2 + p.x][at.y * 2 + p.y] = val;
+    }
+    catch (ArrayIndexOutOfBoundsException e) {}
     meshSet.flagUpdateAt(at.x, at.y);
     at.refreshAdjacent();
   }

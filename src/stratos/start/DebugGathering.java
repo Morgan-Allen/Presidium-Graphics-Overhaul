@@ -61,7 +61,7 @@ public class DebugGathering extends Scenario {
     );
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
-    TG.setupOutcrops(world);
+    //TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();
     return world;
   }
@@ -169,19 +169,14 @@ public class DebugGathering extends Scenario {
   
   
   private void configMiningTest(Stage world, Base base, BaseUI UI) {
+    //Flora.populateFlora(world);
     
-    Flora.populateFlora(world);
+    if (true) return;
     
     final ExcavationSite site = new ExcavationSite(base);
     SiteUtils.establishVenue(site, 8, 8, true, world);
     base.setup.fillVacancies(site, true);
     site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));
-    
-    /*
-    for (Tile t : site.reserved()) {
-      world.terrain().punchTerrainTo(-2, t);
-    }
-    //*/
     
     final Actor first = site.staff.workers().first();
     final Mining dumps = Mining.asDumping(first, site);

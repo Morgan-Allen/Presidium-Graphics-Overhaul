@@ -6,10 +6,14 @@
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.*;
+
 import java.util.Iterator;
 
 
+
+//  TODO:  Use the Stitching class!
 
 
 public class TerrainChunk implements TileConstants {
@@ -21,9 +25,7 @@ public class TerrainChunk implements TileConstants {
   final LayerType layer;
   final TerrainSet belongs;
   
-  private float[] vertices;
-  private short[] indices;
-  private Mesh mesh;
+  private Stitching stitching = null;
   private boolean renderFlag = false, refreshFlag = true;
   
   protected TerrainChunk fadeOut = null;
@@ -46,30 +48,10 @@ public class TerrainChunk implements TileConstants {
   
   
   public void dispose() {
-    if (mesh != null) {
-      mesh.dispose();
-      mesh = null;
+    if (stitching != null) {
+      stitching.dispose();
+      stitching = null;
     }
-  }
-  
-  
-  protected Mesh mesh() {
-    if (mesh == null) {
-      if (verbose && vertices.length > 0) {
-        I.say("Setting up mesh object for "+hashCode());
-        I.say("Vertex/index length: "+vertices.length+"/"+indices.length);
-        I.say("Layer ID: "+layer.layerID);
-      }
-      mesh = new Mesh(
-        true, vertices.length, indices.length,
-        VertexAttribute.Position (),
-        VertexAttribute.Normal   (),
-        VertexAttribute.TexCoords(0)
-      );
-      mesh.setVertices(vertices);
-      mesh.setIndices(indices);
-    }
-    return mesh;
   }
   
   
@@ -79,55 +61,73 @@ public class TerrainChunk implements TileConstants {
     //  First of all, compile a list of all occupied tiles and their
     //  associated UV fringing, based on the position of any adjacent tiles
     //  with the same layer assignment.
-    final Batch<Coord> gridBatch = new Batch<Coord>();
-    final Batch<float[]> textBatch = new Batch<float[]>();
-
+    final Batch <Vec3D  > offsBatch = new Batch();
+    final Batch <Integer> faceBatch = new Batch();
+    final Batch <float[]> textBatch = new Batch();
+    
     for (Coord c : Visit.grid(gridX, gridY, width, height, 1)) try {
-      layer.addFringes(c.x, c.y, belongs, gridBatch, textBatch);
+      layer.addFringes(c.x, c.y, belongs, offsBatch, faceBatch, textBatch);
     } catch (Exception e) {}
     //
-    //  We have 4 vertices and 2 faces per tile.  Each vertex requires 3 floats
-    //  for geometry, 3 for normals, and 2 for tex coords.  And each face
-    //  requires 3 vertex indices.
-    final int numTiles = gridBatch.size();
-    vertices = new float[numTiles * 4 * (3 + 3 + 2)];
-    indices  = new short[numTiles * 2 * 3          ];
-    final Iterator iterV = gridBatch.iterator(), iterT = textBatch.iterator();
-    final Vec3D norm = new Vec3D();
-    //
-    //  Then we just fill up the arrays with the appropriate concatenation
-    //  of data-
-    for (int n = 0, pointV = 0, pointI = 0; n < numTiles; n++) {
-      
-      final Coord coord = (Coord) iterV.next();
-      final float UV[]  = (float[]) iterT.next();
-      final float VP[]  = LayerPattern.VERT_PATTERN;
+    //  We then create a new Stitching (with the default sequence of position/
+    //  normal/tex-UV data) to compile the data.
+    if (stitching != null) stitching.dispose();
+    final int numTiles = offsBatch.size();
+    stitching = new Stitching(true, numTiles);
+    
+    final Iterator
+      iterO = offsBatch.iterator(),
+      iterF = faceBatch.iterator(),
+      iterG = textBatch.iterator();
+    Vec3D pos = new Vec3D(), norm = new Vec3D();
+    float texU, texV;
+    
+    for (int n = 0; n < numTiles; n++) {
+      final Vec3D coord  = (Vec3D  ) iterO.next();
+      final int   facing = (Integer) iterF.next();
+      final float geom[] = (float[]) iterG.next();
+      final float VP[]   = LayerPattern.VERT_PATTERN;
       
       for (int c = 0, p = 0, t = 0; c < 4; c++) {
         final int
           xoff = (int) VP[p + 0],
           yoff = (int) VP[p + 1],
-          zoff = (int) VP[p + 2],
-          hX   = (coord.x * 2) + xoff,
-          hY   = (coord.y * 2) + zoff,
-          high = belongs.heightVals[hX][hY];
-        
+          hX   = (int) (coord.x * 2),
+          hY   = (int) (coord.y * 2),
+          high;
+        //
+        //  In the case of cliff-segments, we flip the section on it's side,
+        //  rotate to face an adjacent tile as required, and sample height from
+        //  the edges of said tile.
+        if (facing != -1) {
+          pos.set(xoff - 0.5f, yoff - 0.5f, - 0.5f);
+          norm.set(0, 0, 1);
+          ROTATE_Y.trans(pos );
+          ROTATE_Y.trans(norm);
+          Z_ROTATIONS[facing].trans(pos );
+          Z_ROTATIONS[facing].trans(norm);
+          final int
+            faceX = (pos.x > 0 ? 1 : 0) + T_X[facing * 2],
+            faceY = (pos.y > 0 ? 1 : 0) + T_Y[facing * 2];
+          high = belongs.heightVals[hX + faceX][hY + faceY];
+          pos.z -= 0.5f;
+        }
+        //
+        //  In the case of normal tiles, we compose normals based on slope
+        //  between adjoining tiles and sample within the same tile.
+        else {
+          pos.set(xoff - 0.5f, yoff - 0.5f, 0);
+          putCornerNormal(hX + xoff, hY + yoff, norm);
+          high = belongs.heightVals[hX + xoff][hY + yoff];
+        }
+        //
+        //  Then stitch the results together for later rendering...
+        pos.add(coord);
+        pos.z = (pos.z + high) / 4f;
+        texU = geom[t++];
+        texV = geom[t++];
         p += 3;
-        putCornerNormal(hX, hY, norm);
-        
-        vertices[pointV++] = xoff + coord.x - 0.5f;
-        vertices[pointV++] = yoff + (high / 4f);
-        vertices[pointV++] = zoff + coord.y - 0.5f;
-        
-        vertices[pointV++] = norm.x;
-        vertices[pointV++] = norm.z;
-        vertices[pointV++] = norm.y;
-        
-        vertices[pointV++] = UV[t++];
-        vertices[pointV++] = UV[t++];
-      }
-      for (float i : LayerPattern.INDEX_PATTERN) {
-        indices[pointI++] = (short) ((n * 4) + i);
+        stitching.appendDefaultVertex(pos, norm, texU, texV, true);
       }
     }
     refreshFlag = false;
@@ -172,11 +172,7 @@ public class TerrainChunk implements TileConstants {
   
   
   private int diff(int x, int y, int offX, int offY) {
-    //
-    //  Return the difference between two points on the height grid-
-    final byte HV[][] = belongs.heightVals;
-    try { return HV[x + offX][y + offY] - HV[x][y]; }
-    catch (ArrayIndexOutOfBoundsException e) { return 0; }
+    return TerrainSet.heightDiff(belongs, x, y, offX, offY);
   }
   
   
@@ -196,10 +192,15 @@ public class TerrainChunk implements TileConstants {
   
   
   public void readyFor(Rendering rendering) {
-    if (renderFlag || (vertices.length == 0 && fadeOut == null)) return;
+    if (renderFlag || (stitching == null && fadeOut == null)) return;
     renderFlag = true;
-    mesh();
+    //mesh();
     rendering.terrainPass.register(this);
+  }
+  
+  
+  protected Stitching stitching() {
+    return stitching;
   }
 }
 

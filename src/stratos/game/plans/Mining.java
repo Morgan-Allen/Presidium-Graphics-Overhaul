@@ -193,7 +193,7 @@ public class Mining extends ResourceTending {
         final int remains = (int) terrain.mineralsAt(at) - 1;
         terrain.setMinerals(at, typeID, remains);
         yield += 0.5f;
-        if (remains <= 0) terrain.punchTerrainTo(height - 1, at);
+        if (remains <= 0) terrain.hardTerrainLevel(height - 1, at);
       }
       
       yield *= site.extractMultiple(oreType);

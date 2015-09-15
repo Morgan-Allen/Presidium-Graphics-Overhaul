@@ -22,11 +22,6 @@ public class SolidsPass {
     MAX_SKINS = 8,
     MAX_BONES = 50;
   
-  final static String OVER_NAMES[] = {
-    "u_over0", "u_over1", "u_over2", "u_over3",
-    "u_over4", "u_over5", "u_over6", "u_over7",
-  };
-  
   
   final Rendering rendering;
   final Batch <SolidSprite> inPass = new Batch <SolidSprite> ();
@@ -125,6 +120,11 @@ public class SolidsPass {
   
   /**  Helper method for binding multiple texture overlays-
     */
+  final static String OVER_NAMES[] = {
+    "u_over0", "u_over1", "u_over2", "u_over3",
+    "u_over4", "u_over5", "u_over6", "u_over7",
+  };
+  
   private void bindOverlays(SolidSprite.Part part) {
     if (part == null || part.overlays == null || part.overlays.length < 1) {
       shading.setUniformi("u_numOverlays", 0);
