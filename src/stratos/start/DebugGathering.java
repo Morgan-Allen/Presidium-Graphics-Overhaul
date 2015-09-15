@@ -61,7 +61,7 @@ public class DebugGathering extends Scenario {
     );
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
-    //TG.setupOutcrops(world);
+    TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();
     return world;
   }
@@ -169,9 +169,7 @@ public class DebugGathering extends Scenario {
   
   
   private void configMiningTest(Stage world, Base base, BaseUI UI) {
-    //Flora.populateFlora(world);
-    
-    if (true) return;
+    Flora.populateFlora(world);
     
     final ExcavationSite site = new ExcavationSite(base);
     SiteUtils.establishVenue(site, 8, 8, true, world);

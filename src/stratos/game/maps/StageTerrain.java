@@ -114,7 +114,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     s.cacheInstance(this);
     
     mapSize = s.loadInt();
-    heightVals = new byte[mapSize + 1][mapSize + 1];
+    heightVals = new byte[mapSize * 2][mapSize * 2];
     typeIndex  = new byte[mapSize    ][mapSize    ];
     varsIndex  = new byte[mapSize    ][mapSize    ];
     
