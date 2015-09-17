@@ -99,7 +99,7 @@ public class ClaimsGrid {
   public Venue[] venuesClaiming(Box2D area) {
     final Batch <Venue> venues = new Batch <Venue> ();
     
-    for (StageRegion s : world.sections.sectionsUnder(area, 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(area, 0)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (claims != null) for (Claim claim : claims) {
         if (! claim.area.overlaps(area)) continue;
@@ -136,14 +136,15 @@ public class ClaimsGrid {
     final boolean isZone = owner.blueprint.isZoned();
     final int minSpace = Stage.UNIT_GRID_SIZE;
     if (report) {
-      I.say("\nChecking for conflicts with claim by "+owner);
+      I.say("\nChecking for conflicts with claim by "+owner+"...");
       I.say("  Area checked: "+area);
     }
     //
     //  We pass over every stage-region that might intersect with the area
     //  being claimed, and check to see if other claims are registered there.
-    for (StageRegion s : world.sections.sectionsUnder(area, minSpace + 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(area, minSpace)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
+      if (report) I.say("  Checking region: "+s.area);
       if (claims != null) for (Claim claim : claims) {
         //
         //  Anything previously processed (or one's self) can be skipped...
@@ -204,7 +205,7 @@ public class ClaimsGrid {
     newClaim.owner = owner;
     if (owner != null) venueClaims.put(owner, newClaim);
     
-    for (StageRegion s : world.sections.sectionsUnder(area, 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(area, 0)) {
       List <Claim> claims = areaClaims[s.x][s.y];
       if (claims == null) areaClaims[s.x][s.y] = claims = new List <Claim> ();
       claims.add(newClaim);
@@ -232,7 +233,7 @@ public class ClaimsGrid {
   
   
   private void removeClaim(Claim claim, boolean report) {
-    for (StageRegion s : world.sections.sectionsUnder(claim.area, 1)) {
+    for (StageRegion s : world.sections.sectionsUnder(claim.area, 0)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       claims.remove(claim);
       if (claims.size() == 0) areaClaims[s.x][s.y] = null;

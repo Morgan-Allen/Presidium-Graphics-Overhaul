@@ -107,9 +107,9 @@ public class Rendering {
     glDisable(GL10.GL_DEPTH_TEST);
     glDepthMask(false);
     cutoutsPass.performSplatPass();
-    terrainPass.performOverlayPass();
     glEnable(GL10.GL_DEPTH_TEST);
     glDepthMask(true);
+    terrainPass.performOverlayPass();
     glClear(GL_DEPTH_BUFFER_BIT);
     
     //  TODO:  Render transparent groups later.

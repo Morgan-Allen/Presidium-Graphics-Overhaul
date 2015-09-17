@@ -128,6 +128,9 @@ public class TerrainPass {
     final int index = (int) time, animIndex = (index + 1) % tex.length;
     
     for (int i : new int[] { index, animIndex }) {
+      //
+      //  We vary opacity in order to 'blur' between different frames for an
+      //  animated terrain-patch-
       final float opacity = (i == index) ? 1 : (time % 1);
       tex[i].asTexture().bind(0);
       
@@ -135,34 +138,30 @@ public class TerrainPass {
         if (chunk.layer.layerID != layer.layerID) I.complain("WRONG LAYER!");
         final Colour c = chunk.colour == null ? Colour.WHITE : chunk.colour;
         //
-        //  In the event that an earlier terrain chunk is being faded out,
-        //  render the predecessor semi-transparently-
+        //  In the event that an earlier terrain chunk is being faded out, we
+        //  render the predecessor semi-transparently (and dispose once gone.)
+        //  Otherwise, we just default to full opacity for the primary texture.
+        float inAlpha = 1, outAlpha = 0;
         if (chunk.fadeOut != null) {
           final float alpha = (chunk.fadeIncept + 1) - Rendering.activeTime();
-          shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
-          
-          if (alpha > 0) {
-            final float outAlpha = Nums.clamp(alpha * 2, 0, 1);
-            shader.setUniformf("u_opacity", opacity * outAlpha);
-            chunk.stitching().renderWithShader(shader, false);
-          }
-          else {
-            chunk.fadeOut.dispose();
-            chunk.fadeIncept = -1;
-            chunk.fadeOut = null;
-          }
-          
-          final float inAlpha = Nums.clamp((1 - alpha) * 2, 0, 1);
-          shader.setUniformf("u_opacity", opacity * inAlpha * c.a);
-          chunk.stitching().renderWithShader(shader, false);
+          outAlpha = Nums.clamp(     alpha  * 2, 0, 1);
+          inAlpha  = Nums.clamp((1 - alpha) * 2, 0, 1);
         }
-        //
-        //  Otherwise just render directly.  In either case, flag as complete.
-        else {
-          shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
-          shader.setUniformf("u_opacity", opacity * c.a);
-          chunk.stitching().renderWithShader(shader, false);
+        
+        shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
+        shader.setUniformf("u_opacity", opacity * c.a * inAlpha);
+        chunk.renderWithShader(shader);
+        
+        if (outAlpha > 0) {
+          shader.setUniformf("u_opacity", opacity * c.a * outAlpha);
+          chunk.fadeOut.renderWithShader(shader);
         }
+        else if (chunk.fadeOut != null) {
+          chunk.fadeOut.dispose();
+          chunk.fadeIncept = -1;
+          chunk.fadeOut = null;
+        }
+        
         if (chunk.throwAway) chunk.dispose();
         else chunk.resetRenderFlag();
       }

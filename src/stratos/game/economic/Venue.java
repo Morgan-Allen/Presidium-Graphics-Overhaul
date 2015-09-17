@@ -243,7 +243,7 @@ public abstract class Venue extends Fixture implements
   
   
   public boolean preventsClaimBy(Venue other) {
-    return false;
+    return blueprint.isZoned();
   }
   
   

@@ -42,15 +42,10 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     "Former Bay", UIConstants.TYPE_ENGINEER, ICON,
     "The Former Bay extracts light minerals from the soil and atmosphere "+
     "while speeding terraforming programs.",
-    4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 25, 5,
+    4, 1, Structure.IS_NORMAL | Structure.IS_ZONED,
+    Owner.TIER_FACILITY, 25, 5,
     POLYMER, FORMER_ENGINEER
   );
-  
-  /*
-  final static float
-    MIN_CLAIM_SIZE = 4;
-  //*/
-  //private Box2D areaClaimed = new Box2D();
   
   
   public FormerBay(Base base) {

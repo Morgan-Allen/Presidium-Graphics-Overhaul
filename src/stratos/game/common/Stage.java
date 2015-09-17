@@ -25,26 +25,26 @@ public class Stage {
     verbose = false;
   
   final public static int
-    UPDATES_PER_SECOND = PlayLoop.UPDATES_PER_SECOND,
+    UPDATES_PER_SECOND    = PlayLoop.UPDATES_PER_SECOND,
     
-    PATCH_RESOLUTION  = 8 ,
-    UNIT_GRID_SIZE    = 2 ,
-    ZONE_SIZE         = 16,
-    ZONE_AREA         = ZONE_SIZE * ZONE_SIZE,
+    PATCH_RESOLUTION      = 8 ,
+    UNIT_GRID_SIZE        = 2 ,
+    ZONE_SIZE             = 16,
+    ZONE_AREA             = ZONE_SIZE * ZONE_SIZE,
     
-    DAYS_PER_WEEK        = 6 ,
-    SHIFTS_PER_DAY       = 3 ,
-    DAYS_PER_YEAR        = 60,
-    HOURS_PER_DAY        = 24,
-    STANDARD_HOUR_LENGTH = 20, //  In real-time seconds
+    DAYS_PER_WEEK         = 6 ,
+    SHIFTS_PER_DAY        = 3 ,
+    DAYS_PER_YEAR         = 60,
+    HOURS_PER_DAY         = 24,
+    STANDARD_HOUR_LENGTH  = 20, //  In real-time seconds
     
     STANDARD_DAY_LENGTH   = STANDARD_HOUR_LENGTH * HOURS_PER_DAY ,
     STANDARD_SHIFT_LENGTH = STANDARD_DAY_LENGTH  / SHIFTS_PER_DAY,
     STANDARD_WEEK_LENGTH  = STANDARD_DAY_LENGTH  * DAYS_PER_WEEK ,
     STANDARD_YEAR_LENGTH  = STANDARD_DAY_LENGTH  * DAYS_PER_YEAR ,
     
-    GROWTH_INTERVAL    = STANDARD_DAY_LENGTH / 2,
-    DEFAULT_INIT_TIME  = STANDARD_DAY_LENGTH / 3;
+    GROWTH_INTERVAL       = STANDARD_DAY_LENGTH / 2,
+    DEFAULT_INIT_TIME     = STANDARD_DAY_LENGTH / 3;
   
   
   final public int size;

@@ -316,7 +316,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   /**  Methods for handling elevation:
     */
   public float trueHeight(float x, float y) {
-    return Nums.sampleMap(mapSize, heightVals, x, y) / 4;
+    return Nums.sampleMap(mapSize, heightVals, x + 0.5f, y + 0.5f) / 4;
   }
   
   
@@ -426,7 +426,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
         return minerals[tx][ty] == -1;
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        return 0;//varsIndex[tx][ty];
+        return 0;
       }
     });
     

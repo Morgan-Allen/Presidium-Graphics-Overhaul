@@ -140,6 +140,11 @@ public abstract class HarvestVenue extends Venue {
   }
   
   
+  public boolean preventsClaimBy(Venue other) {
+    return true;
+  }
+  
+  
   
   /**  Regular updates-
     */
@@ -194,8 +199,9 @@ public abstract class HarvestVenue extends Venue {
   
   protected abstract boolean needsTending(Tile t);
   
-  
 }
+
+
 
 
 

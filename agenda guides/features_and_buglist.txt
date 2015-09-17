@@ -33,11 +33,7 @@ TO DO NOW-
    Make sure upgrades and abilities are functioning for each of these.
    (And double-check correct knowledge-setup for the various houses.)
 
-*  Normal facilities should not be placeable right next to a zoned-area.
-
 *  Trooper and Avrodil first- give 'em something to play with.
-   
-   
 
 *  The tutorial will have to be run-through again (due to changes in level-
    upgrades, it might not be possible to hire enough crew.)
@@ -49,20 +45,12 @@ TO DO NOW-
 
 *  Features to add:
    Auto-Turret behaviour.  Forcefield generation.
-   Combat Stims.  Physician abilities.
+   Combat Stims.     Physician abilities.
    T-Null Armbands.  Engineer abilities.
-   Lictor Riding.  Building-stealth.
+   Lictor Riding.    Building-stealth.
 
 *  Provide notifications for deaths and arrivals.
 
-
-
-BEHAVIOUR TYPES-
-
-//  Spare Time:   Studying.  R&R.  Talking.  Exploring.
-//  Work:         Commerce.  Manufacture.  Resources.
-//                Performance.  Medicine.  Audits.
-//  Emergencies:  Fighting.  Defending.  Fleeing.  Pleas.
 
 
 
@@ -138,6 +126,12 @@ THE TUTORIAL
 
 
 CITIZEN BEHAVIOUR-
+
+
+//  Spare Time:   Studying.  R&R.  Talking.  Exploring.
+//  Work:         Commerce.  Manufacture.  Resources.
+//                Performance.  Medicine.  Audits.
+//  Emergencies:  Fighting.  Defending.  Fleeing.  Pleas.
 
 *  Citizens are too eager to embark on tasks in distant areas.  (BringUtils
    needs to ignore sources that are too far away- that's for bulk transport.)

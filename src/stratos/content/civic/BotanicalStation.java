@@ -47,7 +47,7 @@ public class BotanicalStation extends HarvestVenue {
     "Botanical Station", UIConstants.TYPE_ECOLOGIST, ICON,
     "Botanical Stations are responsible for agriculture and forestry, "+
     "helping to secure food supplies and advance terraforming efforts.",
-    4, 2, Structure.IS_NORMAL,
+    4, 2, Structure.IS_NORMAL | Structure.IS_ZONED,
     Owner.TIER_FACILITY, 150,
     3
   );

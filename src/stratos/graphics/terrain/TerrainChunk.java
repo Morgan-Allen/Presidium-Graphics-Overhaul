@@ -6,6 +6,8 @@
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
 import stratos.util.*;
+
+import com.badlogic.gdx.graphics.glutils.*;
 import java.util.Iterator;
 
 
@@ -192,10 +194,14 @@ public class TerrainChunk implements TileConstants {
   }
   
   
-  protected Stitching stitching() {
-    return stitching;
+  protected void renderWithShader(ShaderProgram shading) {
+    if (stitching == null) return;
+    stitching.renderWithShader(shading, false);
   }
 }
+
+
+
 
 
 

@@ -39,7 +39,6 @@ import stratos.util.*;
   glance visual indication of recent production.
   
   PONDS:  BLACK LINING WITH WHITE RIMS
-  
 //*/
 
 
@@ -65,13 +64,14 @@ public class ExcavationSite extends HarvestVenue {
     "Excavation Site", UIConstants.TYPE_ENGINEER, ICON,
     "Excavation Sites expedite extraction of minerals and artifacts "+
     "from surrounding terrain.",
-    4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 15,
+    4, 1, Structure.IS_NORMAL | Structure.IS_ZONED,
+    Owner.TIER_FACILITY, 200, 15,
     METALS, FUEL_RODS, POLYMER, EXCAVATOR
   );
   
   final static int
     MIN_CLAIM_SIZE = BLUEPRINT.size + 4,
-    MAX_CLAIM_SIZE = BLUEPRINT.size + 6;
+    MAX_CLAIM_SIZE = BLUEPRINT.size + 8;
   
   final public static Conversion
     LAND_TO_METALS = new Conversion(
@@ -255,7 +255,7 @@ public class ExcavationSite extends HarvestVenue {
       return super.needForTending(tending);
     }
     if (m.type == Mining.TYPE_DUMPING) {
-      return stocks.amountOf(SLAG) / Tailing.MAX_FILL;
+      return stocks.amountOf(SLAG) / Mining.TAILING_LIMIT;
     }
     return 0;
   }

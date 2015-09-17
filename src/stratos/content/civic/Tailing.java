@@ -20,13 +20,6 @@ import static stratos.game.economic.Economy.*;
 public class Tailing extends Element implements Selectable {
   
   
-  private static boolean
-    verbose = true;
-  
-  final public static int
-    MIN_FILL = 0 ,
-    MAX_FILL = (int) (10 * Mining.SLAG_RATIO);
-  
   final Traded wasteType;
   private float fillLevel = 0;
   
@@ -84,7 +77,7 @@ public class Tailing extends Element implements Selectable {
   
   
   public boolean takeFill(float amount) {
-    this.fillLevel = Nums.clamp(fillLevel + amount, 0, MAX_FILL);
+    this.fillLevel = Nums.clamp(fillLevel + amount, 0, Mining.TAILING_LIMIT);
     updateSprite();
     return true;
   }
@@ -96,7 +89,7 @@ public class Tailing extends Element implements Selectable {
   
   
   public float fillLevel() {
-    return fillLevel / MAX_FILL;
+    return fillLevel / Mining.TAILING_LIMIT;
   }
   
   
@@ -157,7 +150,7 @@ public class Tailing extends Element implements Selectable {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();
-    d.append("Total stored: "+I.shorten(fillLevel, 0)+"/"+MAX_FILL);
+    d.append("Total stored: "+I.shorten(fillLevel, 0)+"/"+Mining.TAILING_LIMIT);
     d.append("\n\n");
     d.append(helpInfo());
     

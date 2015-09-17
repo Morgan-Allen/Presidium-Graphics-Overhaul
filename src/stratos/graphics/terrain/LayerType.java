@@ -101,9 +101,6 @@ public abstract class LayerType implements TileConstants {
           ),
           cliff = Nums.max(sideA, sideB);
         
-        if (cliff > 0) I.say(
-          tx+"|"+ty+" CLIFF: "+sideA+"|"+sideB+" facing "+faceID
-        );
         for (int h = cliff; h-- > 0;) {
           offsBatch.add(new Vec3D(tx, ty, 0 - h));
           faceBatch.add(faceID);

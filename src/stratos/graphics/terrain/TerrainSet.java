@@ -119,7 +119,8 @@ public class TerrainSet {
     }
   }
   
-
+  
+  
   /**  Utility methods for geometry-generation-
     */
   protected static int heightDiff(

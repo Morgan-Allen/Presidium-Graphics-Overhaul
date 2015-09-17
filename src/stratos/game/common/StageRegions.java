@@ -88,19 +88,19 @@ public class StageRegions implements TileConstants {
   }
   
   
-  public Batch <StageRegion> sectionsUnder(Box2D area, int margin) {
+  public Batch <StageRegion> sectionsUnder(Box2D area, int tileMargin) {
     final Batch <StageRegion> batch = new Batch <StageRegion> ();
     
     final float s = 1f / resolution, dim = world.size / resolution;
     final Box2D clip = new Box2D();
     clip.setX(area.xpos() * s, area.xdim() * s);
     clip.setY(area.ypos() * s, area.ydim() * s);
-    clip.expandBy(1 + margin);
+    clip.expandBy(Nums.round((1 + tileMargin) * s, 1, true));
     
     for (Coord c : Visit.grid(clip)) {
       if (c.x < 0 || c.x >= dim || c.y < 0 || c.y >= dim) continue;
       final StageRegion under = hierarchy[0][c.x][c.y];
-      if (! under.area.overlaps(area)) continue;
+      if (under.area.axisDistance(area) > tileMargin) continue;
       batch.add(under);
     }
     return batch;

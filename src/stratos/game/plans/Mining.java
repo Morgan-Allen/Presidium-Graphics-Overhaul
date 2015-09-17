@@ -21,6 +21,9 @@ public class Mining extends ResourceTending {
   
   /**  Data fields, constructors and save/load methods-
     */
+  private static boolean
+    verbose = false;
+  
   final public static int
     TYPE_MINING  = 0,
     TYPE_DUMPING = 1,
@@ -29,12 +32,13 @@ public class Mining extends ResourceTending {
   
   final public static float
     MAX_SAMPLE_STORE      = 50,
-    MAXIMUM_DIG_DEPTH     = 8,
+    MAXIMUM_DIG_DEPTH     = 4 ,
     EXAMPLE_DAILY_OUTPUT  = 10,
-    EXAMPLE_NUM_WORKERS   = 4,
+    EXAMPLE_NUM_WORKERS   = 4 ,
     DEFAULT_MINE_LIFESPAN = Stage.DAYS_PER_YEAR,
     EXAMPLE_MINED_AREA    = (12 * 12) / 2,
-    AVG_RAW_DIG_YIELD     = StageTerrain.MAX_MINERAL_AMOUNT / 2,
+    EXAMPLE_TAILING_SPACE = EXAMPLE_MINED_AREA / 3,
+    AVG_RAW_DIG_YIELD     = StageTerrain.MAX_MINERAL_AMOUNT / 5,
     SLAG_RATIO            = 2.5f,
     
     EXAMPLE_DAY_WORKTIME  = EXAMPLE_NUM_WORKERS * Stage.STANDARD_SHIFT_LENGTH,
@@ -43,7 +47,11 @@ public class Mining extends ResourceTending {
     TILE_DIG_TIME         = DEFAULT_LIFE_WORKTIME / DEFAULT_DIG_VOLUME,
     DAILY_DIG_FREQUENCY   = EXAMPLE_DAY_WORKTIME / TILE_DIG_TIME,
     AVG_RAW_DAILY_YIELD   = DAILY_DIG_FREQUENCY * AVG_RAW_DIG_YIELD,
-    HARVEST_MULT          = EXAMPLE_DAILY_OUTPUT / AVG_RAW_DAILY_YIELD;
+    HARVEST_MULT          = EXAMPLE_DAILY_OUTPUT / AVG_RAW_DAILY_YIELD,
+    
+    TOTAL_RAW_LIFE_YIELD  = AVG_RAW_DIG_YIELD * DEFAULT_DIG_VOLUME,
+    TOTAL_LIFE_SLAG       = SLAG_RATIO * HARVEST_MULT * TOTAL_RAW_LIFE_YIELD,
+    TAILING_LIMIT         = TOTAL_LIFE_SLAG / EXAMPLE_TAILING_SPACE;
   
   final static Trait
     MINE_TRAITS[] = { PATIENT, METICULOUS };
@@ -187,6 +195,7 @@ public class Mining extends ResourceTending {
   
   protected Item[] afterHarvest(Target t) {
     
+    final boolean report = verbose && I.talkAbout == actor;
     final ExcavationSite site = (ExcavationSite) depot;
     final Tile at = (Tile) t;
     final StageTerrain terrain = at.world.terrain();
@@ -201,6 +210,8 @@ public class Mining extends ResourceTending {
       terrain.setHabitat(at, Habitat.STRIP_MINING);
       at.clearUnlessOwned();
       
+      if (report) I.say("\nMining tile: "+at+", break chance: "+breakChance);
+      
       float yield = breakChance / 2f;
       if (Rand.num() < breakChance) {
         final int remains = Nums.max(1, oreAmount - 1);
@@ -209,6 +220,8 @@ public class Mining extends ResourceTending {
         terrain.hardTerrainLevel(height - 1, at);
       }
       yield *= oreAmount * HARVEST_MULT * site.extractMultiple(oreType);
+      
+      if (report) I.say("  final yield: "+yield+", ore abundance: "+oreAmount);
       
       return new Item[] {
         Item.with(oreType, null   , yield               , Item.AVG_QUALITY),
@@ -223,7 +236,7 @@ public class Mining extends ResourceTending {
         dumps = new Tailing(oreDumped);
         dumps.enterWorldAt(at.x, at.y, at.world, true);
       }
-      else space = (1 - dumps.fillLevel()) * Tailing.MAX_FILL;
+      else space = (1 - dumps.fillLevel()) * TAILING_LIMIT;
       
       final Item slag = actor.gear.bestSample(SLAG, oreDumped, space);
       if (slag != null) {
