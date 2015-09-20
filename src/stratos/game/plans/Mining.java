@@ -51,13 +51,12 @@ public class Mining extends ResourceTending {
     
     TOTAL_RAW_LIFE_YIELD  = AVG_RAW_DIG_YIELD * DEFAULT_DIG_VOLUME,
     TOTAL_LIFE_SLAG       = SLAG_RATIO * HARVEST_MULT * TOTAL_RAW_LIFE_YIELD,
-    TAILING_LIMIT         = TOTAL_LIFE_SLAG / EXAMPLE_TAILING_SPACE;
+    TAILING_LIMIT         = (int) (TOTAL_LIFE_SLAG / EXAMPLE_TAILING_SPACE);
   
   final static Trait
     MINE_TRAITS[] = { PATIENT, METICULOUS };
-
   final public static Traded
-    MINED_TYPES[] = { FOSSILS, POLYMER, METALS, FUEL_RODS, SLAG };
+    MINED_TYPES[] = { null, METALS, FOSSILS, FUEL_RODS, SLAG };
   
   
   final public int type;
@@ -154,7 +153,14 @@ public class Mining extends ResourceTending {
     
     if (type == TYPE_MINING) {
       if (! site.canDig(at)) return -1;
-      return MAXIMUM_DIG_DEPTH + terrain.flatHeight(at);
+      final byte   typeID      = terrain.mineralType(at);
+      final int    oreAmount   = (int) terrain.mineralsAt(at);
+      final Traded oreType     = MINED_TYPES[typeID];
+      
+      float rating = MAXIMUM_DIG_DEPTH + terrain.flatHeight(at);
+      rating *= oreAmount;
+      if (oreType == null) rating /= 4;
+      return rating;
     }
     if (type == TYPE_DUMPING) {
       if (! site.canDump(at)) return -1;
@@ -202,15 +208,13 @@ public class Mining extends ResourceTending {
     
     if (type == TYPE_MINING) {
       final float  breakChance = 1f / TILE_DIG_TIME;
-      final byte   typeID      = terrain.mineralType(at);
       final int    height      = terrain.flatHeight (at);
+      final byte   typeID      = terrain.mineralType(at);
       final Traded oreType     = MINED_TYPES[typeID];
       final int    oreAmount   = (int) terrain.mineralsAt(at);
-
+      
       terrain.setHabitat(at, Habitat.STRIP_MINING);
       at.clearUnlessOwned();
-      
-      if (report) I.say("\nMining tile: "+at+", break chance: "+breakChance);
       
       float yield = breakChance / 2f;
       if (Rand.num() < breakChance) {
@@ -219,10 +223,9 @@ public class Mining extends ResourceTending {
         yield += 0.5f;
         terrain.hardTerrainLevel(height - 1, at);
       }
+      
+      if (oreType == null) return null;
       yield *= oreAmount * HARVEST_MULT * site.extractMultiple(oreType);
-      
-      if (report) I.say("  final yield: "+yield+", ore abundance: "+oreAmount);
-      
       return new Item[] {
         Item.with(oreType, null   , yield               , Item.AVG_QUALITY),
         Item.with(SLAG   , oreType, yield * SLAG_RATIO  , Item.AVG_QUALITY)

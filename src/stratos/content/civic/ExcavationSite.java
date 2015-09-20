@@ -114,7 +114,7 @@ public class ExcavationSite extends HarvestVenue {
   
   
   private Item[] estimateDailyOutput() {
-    final Tile openFaces[] = claimDivision().reserved;
+    final Tile openFaces[] = claimDivision().reserved();
     if (openFaces == null) return new Item[0];
     float sumM = 0, sumF = 0, outM, outF;
     
@@ -220,6 +220,12 @@ public class ExcavationSite extends HarvestVenue {
   
   /**  Utility methods for handling dig-output and tile-assignment:
     */
+  protected ClaimDivision updateDivision() {
+    final ClaimDivision d = super.updateDivision();
+    return d.withUsageMarked(0.25f, true, true, this, 2);
+  }
+  
+  
   public boolean canDig(Tile at) {
     return claimDivision().useType(at, areaClaimed()) == 1;
   }

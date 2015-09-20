@@ -12,14 +12,6 @@ import stratos.util.*;
 
 
 
-
-/*
-  terrain chance (scaled proportionately) = x * (1 - x) * (1 + tx)
-  x = moisture
-  t = terraform-progress  (1 as default).
-//*/
-
-
 public class StageTerrain implements TileConstants, Session.Saveable {
   
   
@@ -42,9 +34,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     NUM_MINERAL_TYPES  = 4 ,
     MAX_MINERAL_AMOUNT = 10,
     
-    ROAD_NONE     = 0,
-    ROAD_LIGHT    = 1,
-    ROAD_HEAVY    = 2,
+    ROAD_NONE     =  0,
+    ROAD_LIGHT    =  1,
+    ROAD_STRIP    = -1,
+    ///ROAD_HEAVY    = 2,
     
     TILE_VAR_LIMIT = 4;
   
@@ -281,8 +274,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   public void setMinerals(Tile t, byte type, int amount) {
-    final byte oldVal = minerals[t.x][t.y];
-    
     byte value = 0;
     if (amount > 0) {
       value += (type * MAX_MINERAL_AMOUNT);
@@ -290,10 +281,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     }
     else value = -1;
     minerals[t.x][t.y] = value;
-    
-    if (value != oldVal) for (Tile n : t.vicinity(tempV)) if (n != null) {
-      meshSet.flagUpdateAt(n.x, n.y, stripLayer);
-    }
   }
   
   
@@ -372,7 +359,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     paveVals[t.x][t.y] = level;
     
     if (level != oldLevel) for (Tile n : t.vicinity(tempV)) if (n != null) {
-      meshSet.flagUpdateAt(n.x, n.y, roadLayer);
+      meshSet.flagUpdateAt(n.x, n.y, roadLayer );
+      meshSet.flagUpdateAt(n.x, n.y, stripLayer);
     }
   }
   
@@ -423,7 +411,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       Habitat.STRIP_TEXTURE, true, layers.size(), "stripping"
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        return minerals[tx][ty] == -1;
+        return paveVals[tx][ty] < 0;
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return 0;

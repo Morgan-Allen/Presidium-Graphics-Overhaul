@@ -210,7 +210,7 @@ public class Flora extends Element implements TileConstants {
   public static float growthBonus(Tile t, Species s, Item seed) {
     final Habitat soil = t.habitat();
     if (soil.floraSpecies == null && ! s.domesticated) return -1;
-
+    
     final float moisture = soil.moisture() / 10f;
     float bonus = 0.5f;
     bonus += (s.waterNeed * moisture);

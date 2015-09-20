@@ -65,7 +65,7 @@ public abstract class HarvestVenue extends Venue {
   public void doPlacement(boolean intact) {
     if (division == ClaimDivision.NONE) division = updateDivision();
     super.doPlacement(intact);
-    for (Tile t : division.reserved) t.setReserves(this, false);
+    for (Tile t : division.reserved()) t.setReserves(this, false);
   }
   
   
@@ -114,7 +114,7 @@ public abstract class HarvestVenue extends Venue {
   
   
   protected ClaimDivision updateDivision() {
-    return ClaimDivision.forArea(this, areaClaimed, facing(), 3, this);
+    return ClaimDivision.forArea(this, areaClaimed, facing(), 2, 4, this);
   }
   
   
@@ -125,12 +125,12 @@ public abstract class HarvestVenue extends Venue {
   
   public Tile[] reserved() {
     if (! inWorld()) division = updateDivision();
-    return division.reserved;
+    return division.reserved();
   }
   
   
   public void exitWorld() {
-    for (Tile t : division.reserved) t.setReserves(null, false);
+    for (Tile t : division.reserved()) t.setReserves(null, false);
     super.exitWorld();
   }
   
@@ -156,12 +156,13 @@ public abstract class HarvestVenue extends Venue {
   
   
   protected void updatePaving(boolean inWorld) {
-    if (Visit.empty(division.toPave)) {
+    final Tile toPave[] = division.toPaveAround(this, null);
+    if (toPave == null || toPave.length == 0) {
       base.transport.updatePerimeter(this, inWorld);
       base.transport.updateJunction(this, origin(), inWorld);
     }
     else {
-      base.transport.updatePerimeter(this, inWorld, division.toPave);
+      base.transport.updatePerimeter(this, inWorld, toPave);
     }
   }
   
@@ -169,7 +170,7 @@ public abstract class HarvestVenue extends Venue {
   protected void checkTendStates() {
     final boolean report = verbose && I.talkAbout == this;
     
-    final Tile tended[] = division.reserved;
+    final Tile tended[] = division.reserved();
     if (Visit.empty(tended)) {
       if (report) I.say("\nNO TILES TO CHECK");
       needsTending = 0;
@@ -193,7 +194,7 @@ public abstract class HarvestVenue extends Venue {
   
   
   public Tile[] getHarvestTiles(ResourceTending tending) {
-    return division.reserved;
+    return division.reserved();
   }
   
   

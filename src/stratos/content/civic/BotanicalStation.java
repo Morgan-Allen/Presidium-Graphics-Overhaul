@@ -284,6 +284,12 @@ public class BotanicalStation extends HarvestVenue {
   
   /**  Agricultural methods-
     */
+  protected ClaimDivision updateDivision() {
+    final ClaimDivision d = super.updateDivision();
+    return d.withUsageMarked(0.5f, true, false, this, 2, 1);
+  }
+  
+  
   public boolean couldPlant(Tile t) {
     return claimDivision().useType(t, areaClaimed()) > 0;
   }

@@ -6,6 +6,8 @@
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.PavingMap;
+import stratos.game.maps.StageTerrain;
 import stratos.game.plans.Mining;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
@@ -57,9 +59,11 @@ public class Tailing extends Element implements Selectable {
   
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
-    world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
     
-    for (Tile t : origin().allAdjacent(null)) {
+    final Tile o = origin();
+    PavingMap.setPaveLevel(o, StageTerrain.ROAD_STRIP, true);
+    
+    for (Tile t : o.allAdjacent(null)) {
       if (t != null) t.clearUnlessOwned(intact);
     }
     return true;
@@ -95,9 +99,16 @@ public class Tailing extends Element implements Selectable {
   
   public void onGrowth(Tile at) {
     //
-    //  TODO:  Very gradually disappear based on terraforming fx?
-    //
-    //  TODO:  Extend Outcrop, for that matter?  ...Yeah.  Do.
+    //  TODO:  Extend Outcrop?
+    
+    if (Rand.num() < fillLevel) {
+      world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
+      float reduction = Mining.TAILING_LIMIT;
+      reduction *= Stage.GROWTH_INTERVAL * 1f / Stage.STANDARD_DAY_LENGTH;
+      reduction /= Mining.DEFAULT_MINE_LIFESPAN;
+      takeFill(0 - reduction);
+    }
+    if (fillLevel <= 0) setAsDestroyed();
   }
   
   

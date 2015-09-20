@@ -222,7 +222,7 @@ public class Gathering extends ResourceTending {
       final Pick <Species> pick = new Pick <Species> ();
       for (Species s : planted) {
         final Item seed = actor.gear.bestSample(GENE_SEED, s, 1);
-        float chance = Flora.growthBonus(t, s, seed);
+        float chance = Flora.growthBonus(t, s, seed) * s.growRate;
         pick.compare(s, chance + Rand.num());
       }
       if (pick.empty()) return null;
@@ -334,6 +334,11 @@ public class Gathering extends ResourceTending {
   private void seedTile(Tile t) {
     if (toTend == null) return;
     final Species s = toTend.species();
+    
+    //
+    //  TODO:  Use a better method of tracking progress here!
+    if (Rand.index(10) != 0) return;
+    
     //
     //  TODO:  Just base seed quality off upgrades at the source depot?
     //

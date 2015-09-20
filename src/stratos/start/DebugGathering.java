@@ -176,6 +176,22 @@ public class DebugGathering extends Scenario {
     base.setup.fillVacancies(site, true);
     site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));
     
+    /*
+    for (Tile t : site.reserved()) {
+      if (! site.canDump(t)) {
+        t.clearUnlessOwned();
+        world.terrain().setHabitat(t, Habitat.STRIP_MINING);
+        continue;
+      }
+      
+      Traded ore = (Traded) Rand.pickFrom(Mining.MINED_TYPES);
+      if (ore == null) ore = POLYMER;
+      final Tailing dumped = new Tailing(ore);
+      dumped.enterWorldAt(t.x, t.y, world, true);
+      dumped.takeFill(Mining.TAILING_LIMIT * Rand.num());
+    }
+    //*/
+    
     final Actor first = site.staff.workers().first();
     final Mining dumps = Mining.asDumping(first, site);
     dumps.addMotives(Plan.MOTIVE_JOB, 10);
