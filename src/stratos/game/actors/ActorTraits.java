@@ -296,12 +296,16 @@ public class ActorTraits implements Qualities {
     }
     
     if (toLevel == 0) {
+      type.onRemoval(actor);
       levels.remove(type);
       return;
     }
     
     Level level = levels.get(type);
-    if (level == null) levels.put(type, level = new Level());
+    if (level == null) {
+      levels.put(type, level = new Level());
+      type.onAddition(actor);
+    }
     
     final float oldVal = level.value;
     level.value = toLevel;
@@ -314,6 +318,11 @@ public class ActorTraits implements Qualities {
     }
     //*/
     tryReport(type, level.value - (int) oldVal);
+  }
+  
+  
+  public void remove(Trait type) {
+    setLevel(type, 0);
   }
   
   

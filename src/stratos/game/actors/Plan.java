@@ -280,6 +280,23 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  protected Action action() {
+    if (nextStep instanceof Action) return (Action) nextStep;
+    else return null;
+  }
+  
+  
+  public Plan parentPlan() {
+    if (actor == null) return null;
+    Behaviour prior = null;
+    for (Behaviour p : actor.mind.agenda) {
+      if (p == this) break;
+      else prior = p;
+    }
+    return (prior instanceof Plan) ? (Plan) prior : null;
+  }
+  
+  
   public float priorityFor(Actor actor) {
     attemptToBind(actor);
     final boolean report = priorityVerbose && I.talkAbout == actor && (

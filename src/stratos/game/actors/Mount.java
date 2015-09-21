@@ -7,6 +7,7 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
+import stratos.util.*;
 
 
 public interface Mount extends Session.Saveable, Target {
@@ -18,4 +19,5 @@ public interface Mount extends Session.Saveable, Target {
   
   boolean actorVisible(Actor mounted);
   void configureSpriteFrom(Actor mounted, Action action, Sprite actorSprite);
+  void describeActor(Actor mounted, Description d);
 }

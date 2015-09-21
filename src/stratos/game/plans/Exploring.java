@@ -140,9 +140,9 @@ public class Exploring extends Plan implements Qualities {
   
   
   public float successChanceFor(Actor actor) {
-    float chance = PlanUtils.successForActorWith(
-      actor, BASE_SKILLS, ROUTINE_DC, false
-    );
+    float chance = 1;
+    chance *= actor.skills.chance(SURVEILLANCE, ROUTINE_DC);
+    chance *= actor.skills.chance(ATHLETICS   , ROUTINE_DC);
     if (PlanUtils.isArmed(actor)) chance += 0.5f;
     else chance -= 0.25f;
     return Nums.clamp(chance, 0, 1);

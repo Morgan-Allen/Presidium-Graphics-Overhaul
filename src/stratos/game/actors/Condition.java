@@ -96,7 +96,7 @@ public class Condition extends Trait {
       
       ///I.sayAbout(actor, "Contract chance/day for "+c+" is: "+infectChance);
       if (Rand.num() > (infectChance / Stage.STANDARD_DAY_LENGTH)) continue;
-      if (actor.skills.test(IMMUNE, c.virulence - 10, 1.0f)) continue;
+      if (actor.skills.test(IMMUNE, c.virulence - 10, 1.0f, null)) continue;
       
       if (verbose) I.say("INFECTING "+actor+" WITH "+c);
       actor.traits.incLevel(c, 0.1f);
@@ -110,7 +110,7 @@ public class Condition extends Trait {
     if (! near.health.organic()) return 0;
     if (has.species() != near.species()) return 0;
     if (near.traits.traitLevel(this) != 0) return 0;
-    if (near.skills.test(IMMUNE, virulence / 2, 0.1f)) return 0;
+    if (near.skills.test(IMMUNE, virulence / 2, 0.1f, null)) return 0;
     //
     //  TODO:  THERE HAS GOT TO BE A MORE ELEGANT WAY TO EXPRESS THIS
     float chance = 0.1f;
@@ -159,7 +159,7 @@ public class Condition extends Trait {
     //  Otherwise, see if your immune system can respond, based on how much of
     //  an immune response is already marshalled, and how advanced the disease
     //  is-
-    else if (a.skills.test(IMMUNE, immuneDC, inc)) {
+    else if (a.skills.test(IMMUNE, immuneDC, inc, null)) {
       a.traits.incBonus(this, 0 - (inc * 2));
       a.traits.incLevel(this, 0 - inc);
       if (a.traits.usedLevel(this) < 0) {

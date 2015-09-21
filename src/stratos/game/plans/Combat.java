@@ -183,12 +183,6 @@ public class Combat extends Plan implements Qualities {
       I.say("  Best target: "+struck);
     }
     
-    //  Consider using any special combat-based techniques.
-    final Action technique = actor.skills.pickIndependantAction(
-      struck, Technique.TRIGGER_ATTACK, this
-    );
-    if (technique != null) return technique;
-    
     Action strike = null;
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
     final boolean melee     = actor.gear.meleeWeapon();
@@ -321,13 +315,14 @@ public class Combat extends Plan implements Qualities {
     */
   public boolean actionStrike(Actor actor, Actor target) {
     if (target.health.dying()) return false;
+    final Action a = action();
     //
     //  TODO:  You may want a separate category for animals?  Or Psy?
     if (actor.gear.meleeWeapon()) {
-      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object);
+      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object, a);
     }
     else {
-      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, object);
+      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, object, a);
     }
     return true;
   }
@@ -335,7 +330,7 @@ public class Combat extends Plan implements Qualities {
   
   public boolean actionSiege(Actor actor, Placeable target) {
     if (target.structure().destroyed()) return false;
-    performSiege(actor, target);
+    performSiege(actor, target, action());
     return true;
   }
   
@@ -343,7 +338,7 @@ public class Combat extends Plan implements Qualities {
   public static void performStrike(
     Actor actor, Actor target,
     Skill offence, Skill defence,
-    int strikeType
+    int strikeType, Action action
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     if (report) I.say("\n"+actor+" performing strike against "+target);
@@ -361,7 +356,7 @@ public class Combat extends Plan implements Qualities {
     if (subdue && ! canStun) penalty += 5;
     
     final boolean success = target.health.conscious() ? actor.skills.test(
-      offence, target, defence, 0 - penalty, 1
+      offence, target, defence, 0 - penalty, 1, action
     ) : true;
     
     if (report) {
@@ -420,17 +415,17 @@ public class Combat extends Plan implements Qualities {
   
   
   public static void performSiege(
-    Actor actor, Placeable besieged
+    Actor actor, Placeable besieged, Action action
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     
     boolean accurate = false;
     if (actor.gear.meleeWeapon()) {
-      accurate = actor.skills.test(HAND_TO_HAND, 0, 1);
+      accurate = actor.skills.test(HAND_TO_HAND, 0, 1, action);
     }
     else {
       final float penalty = rangePenalty(actor, besieged);
-      accurate = actor.skills.test(MARKSMANSHIP, penalty, 1);
+      accurate = actor.skills.test(MARKSMANSHIP, penalty, 1, action);
     }
 
     if (report) {

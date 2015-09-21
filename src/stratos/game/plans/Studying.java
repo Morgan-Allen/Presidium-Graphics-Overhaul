@@ -380,6 +380,7 @@ public class Studying extends Plan {
       actor.gear.transferCredits(chargeCost, venue);
       chargeCost = 0;
     }
+    final Action a = action();
     //
     //  Research progress can come as either gradual increments or sudden
     //  breakthroughs- or even setbacks.
@@ -391,7 +392,7 @@ public class Studying extends Plan {
       final int   RES_LEVEL = BaseResearch.LEVEL_THEORY;
       final float RES_TIME  = BaseResearch.DEFAULT_RESEARCH_TIME;
       
-      float skillTest = sought.researchProcess.performTest(actor, 0, 1);
+      float skillTest = sought.researchProcess.performTest(actor, 0, 1, a);
       float progress = BR.researchProgress(sought, RES_LEVEL);
       final float breakthrough = (Rand.num() + 0.5f) / 2;
       
@@ -425,8 +426,8 @@ public class Studying extends Plan {
       float practice = 1.0f;
       
       if (type == TYPE_STUDY) {
-        if (actor.skills.test(ACCOUNTING , ACCOUNTS_DC, 1)) practice++;
-        if (actor.skills.test(INSCRIPTION, INSCRIBE_DC, 1)) practice++;
+        if (actor.skills.test(ACCOUNTING , ACCOUNTS_DC, 1, a)) practice++;
+        if (actor.skills.test(INSCRIPTION, INSCRIBE_DC, 1, a)) practice++;
       }
       else {
         practice += 0.5f;

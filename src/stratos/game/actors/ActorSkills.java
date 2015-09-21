@@ -20,7 +20,8 @@ public class ActorSkills {
   
   
   final Actor actor;
-  final List <Technique> known = new List <Technique> ();
+  private List <Technique> known = new List <Technique> ();
+  private Technique active = null;
   
   
   public ActorSkills(Actor actor) {
@@ -30,11 +31,13 @@ public class ActorSkills {
   
   public void loadState(Session s) throws Exception {
     s.loadObjects(known);
+    active = (Technique) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObjects(known);
+    s.saveObject(active);
   }
   
   
@@ -59,6 +62,70 @@ public class ActorSkills {
     
     //
     //  And decay any skills that haven't been used in a while.
+  }
+  
+  
+  
+  /**  Helper methods for technique selection, updates and queries-
+    */
+  public Action bestTechniqueFor(Plan plan, Action taken) {
+    final Pick <Technique> pick = new Pick(0);
+    this.active = null;
+    
+    final Target  subject = taken.subject();
+    final float harmLevel = taken.actor.harmIntended(subject);
+    
+    for (Technique t : known) {
+      if (! t.triggeredBy(actor, plan, taken, null)) continue;
+      final float appeal = t.priorityFor(actor, subject, harmLevel);
+      pick.compare(t, appeal);
+    }
+    if (pick.empty()) return null;
+    
+    final Technique best = pick.result();
+    this.active = best;
+    return best.asActionFor(actor, subject);
+  }
+  
+  
+  public float skillBonusFromTechniques(Skill skill, Action taken) {
+    final Pick <Technique> pick = new Pick(0);
+    this.active = null;
+    
+    final boolean acts      = taken != null;
+    final Plan    current   = acts ? taken.parentPlan()                : null ;
+    final Target  subject   = acts ? taken.subject()                   : actor;
+    final float   harmLevel = acts ? taken.actor.harmIntended(subject) : -1   ;
+    
+    for (Technique t : known) {
+      if (! t.triggeredBy(actor, current, taken, skill)) continue;
+      final float appeal = t.priorityFor(actor, subject, harmLevel);
+      pick.compare(t, appeal);
+    }
+    if (pick.empty()) return -1;
+    
+    final Technique bonus = pick.result();
+    this.active = bonus;
+    return bonus.bonusFor(actor, skill, subject);
+  }
+  
+  
+  public Series <Technique> knownTechniques() {
+    return known;
+  }
+  
+  
+  public Series <Power> knownPowers() {
+    final Batch <Power> powers = new Batch <Power> ();
+    for (Technique t : known) if (t.type == Technique.TYPE_SOVEREIGN_POWER) {
+      powers.add((Power) t);
+    }
+    return powers;
+  }
+  
+  
+  public void addTechnique(Technique t) {
+    known.include(t);
   }
   
   
@@ -90,18 +157,19 @@ public class ActorSkills {
   
   public float test(
     Skill checked, Actor b, Skill opposed,
-    float bonus, float duration, int range
+    float bonus, float duration, int range,
+    Action action
   ) {
     if (checked == null) return 0;
     //  TODO:  Physical skills need to exact fatigue!
     //  TODO:  Sensitive skills must tie in with awareness/fog levels.
     //  TODO:  Cognitive skills should need study to advance.
     
+    //
     //  Invoke any known techniques here that are registered to be triggered
     //  by a skill of this type, and get their associated bonus:
-    final Target subject = actor.actionFocus();
-    final Technique boost = pickSkillBonus(checked, subject);
-    if (boost != null) bonus += boost.bonusFor(actor, checked, subject);
+    final float boost = skillBonusFromTechniques(checked, action);
+    if (boost > 0) bonus += boost;
     //
     //  Then get the baseline probability of success in the task.
     final float chance = chance(checked, b, opposed, bonus);
@@ -115,35 +183,43 @@ public class ActorSkills {
     }
     //
     //  Then grant experience in the relevant skills (included those used by
-    //  any competitor.)
+    //  any competitor) and activate any special effects for used techniques-
     practice(checked, chance, duration);
     if (b != null && opposed != null) {
       b.skills.practice(opposed, chance, duration);
     }
+    if (active != null) {
+      final Target subject = action == null ? actor : action.subject();
+      active.applyEffect(actor, success > 0, subject);
+    }
     //
-    //  And return the result.
-    if (boost != null) boost.applyEffect(actor, success > 0, subject);
+    //  Finally, return the result.
     return success;
   }
   
   
   public boolean test(
     Skill checked, Actor b, Skill opposed,
-    float bonus, float fullXP
+    float bonus, float fullXP,
+    Action action
   ) {
-    return test(checked, b, opposed, bonus, fullXP, 1) > 0;
+    return test(checked, b, opposed, bonus, fullXP, 1, action) > 0;
   }
   
   
   public float test(
-    Skill checked, float difficulty, float duration, int range
+    Skill checked, float difficulty, float duration, int range,
+    Action action
   ) {
-    return test(checked, null, null, 0 - difficulty, duration, range);
+    return test(checked, null, null, 0 - difficulty, duration, range, action);
   }
   
   
-  public boolean test(Skill checked, float difficulty, float duration) {
-    return test(checked, null, null, 0 - difficulty, duration, 1) > 0;
+  public boolean test(
+    Skill checked, float difficulty, float duration,
+    Action action
+  ) {
+    return test(checked, null, null, 0 - difficulty, duration, 1, action) > 0;
   }
   
   
@@ -162,72 +238,6 @@ public class ActorSkills {
     if (skillType.parent != null) {
       practice(skillType.parent, chance, duration / 4);
     }
-  }
-  
-  
-  
-  /**  Technique-handling methods:
-    *  TODO:  Move some of the decision-handling methods for Techniques over to
-    *  here?
-    */
-  public Series <Technique> knownTechniques() {
-    return known;
-  }
-  
-  
-  public Series <Power> knownPowers() {
-    final Batch <Power> powers = new Batch <Power> ();
-    for (Technique t : known) if (t.type == Technique.TYPE_SOVEREIGN_POWER) {
-      powers.add((Power) t);
-    }
-    return powers;
-  }
-  
-  
-  public void addTechnique(Technique t) {
-    known.include(t);
-  }
-  
-  
-  public Action pickIndependantAction(
-    Target subject, Object trigger, Plan plan
-  ) {
-    Technique picked = pickBestKnown(subject, plan.harmFactor(), trigger);
-    if (picked == null) return null;
-    return picked.asActionFor(actor, subject);
-  }
-  
-  //
-  //  TODO:  Limit this to 'Passive Bonus' type techniques, and sum all such
-  //  bonuses, not just the one.
-  protected Technique pickSkillBonus(Skill s, Target subject) {
-    final boolean report = techsVerbose && I.talkAbout == actor;
-    if (report) {
-      I.say("\n"+actor+" getting technique bonus for "+s+"...");
-      I.say("  Fatigue: "+actor.health.fatigueLevel());
-      I.say("  Concentration: "+actor.health.concentration());
-    }
-    final float harm = actor.harmIntended(subject);
-    final Technique picked = pickBestKnown(subject, harm, s);
-    
-    if (report) I.say("  Technique picked: "+picked);
-    return picked;
-  }
-  
-  
-  protected Technique pickBestKnown(
-    Target subject, float harmLevel, Object trigger
-  ) {
-    final boolean report = techsVerbose && I.talkAbout == actor;
-    Technique picked = null;
-    float bestAppeal = 0;
-    
-    for (Technique t : known) if (t.trigger == trigger) {
-      final float appeal = t.priorityFor(actor, subject, harmLevel);
-      if (report) I.say("  "+t.name+" has appeal: "+appeal);
-      if (appeal > bestAppeal) { bestAppeal = appeal; picked = t; }
-    }
-    return picked;
   }
 }
 

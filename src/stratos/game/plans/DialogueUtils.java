@@ -55,8 +55,9 @@ public class DialogueUtils implements Qualities {
     final Skill language = languageFor(other);
     final float attBonus = other.relations.valueFor(actor) * ROUTINE_DC;
     int result = 0;
-    result += actor.skills.test(language, ROUTINE_DC - attBonus, 1) ? 1 : 0;
-    result += actor.skills.test(plea    , opposeDC   - attBonus, 1) ? 1 : 0;
+    final Action a = actor.currentAction();
+    result += actor.skills.test(language, ROUTINE_DC - attBonus, 1, a) ? 1 : 0;
+    result += actor.skills.test(plea    , opposeDC   - attBonus, 1, a) ? 1 : 0;
     return result / 2f;
   }
   
@@ -94,10 +95,11 @@ public class DialogueUtils implements Qualities {
     final float level = actor.traits.usedLevel(about);
     //  TODO:  Use the Counsel skill here.
     
+    final Action a = other.currentAction();
     float effect = 0;
-    if (other.skills.test(about, level / 2, 0.5f)) effect += 5;
+    if (other.skills.test(about, level / 2, 0.5f, a)) effect += 5;
     else effect -= 5;
-    if (other.skills.test(about, level * Rand.num(), 0.5f)) effect += 5;
+    if (other.skills.test(about, level * Rand.num(), 0.5f, a)) effect += 5;
     else effect -= 5;
     
     effect *= CHAT_RELATION_BOOST / 25f;

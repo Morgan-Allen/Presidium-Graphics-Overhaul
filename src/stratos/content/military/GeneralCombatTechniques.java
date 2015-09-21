@@ -29,7 +29,7 @@ public class GeneralCombatTechniques {
   //Disarming Stroke.
   //Impact Connect.
   //Cleaving Arc.
-
+  
   final static String DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = GeneralCombatTechniques.class;
   
@@ -63,7 +63,7 @@ public class GeneralCombatTechniques {
     REAL_HARM          ,
     NO_FATIGUE         ,
     MINOR_CONCENTRATION,
-    Technique.TYPE_SKILL_USE_BASED, MARKSMANSHIP, 5
+    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 5
   ) {
     
     public float bonusFor(Actor using, Skill skill, Target subject) {
@@ -93,30 +93,39 @@ public class GeneralCombatTechniques {
     REAL_HARM          ,
     NO_FATIGUE         ,
     MAJOR_CONCENTRATION,
-    Technique.TYPE_SKILL_USE_BASED, MARKSMANSHIP, 10
+    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 10
   ) {
     
     public float bonusFor(Actor using, Skill skill, Target subject) {
       return -5;
     }
     
+    
     public void applyEffect(Actor using, boolean success, Target subject) {
       super.applyEffect(using, success, subject);
       ///I.say("Applying suppression: "+using+" to "+subject);
-
+      
+      //  TODO:  This is an AoE effect, and should be evaluated & applied as
+      //  such.
+      
       final Tile o = using.world().tileAt(subject);
       for (Tile t : o.allAdjacent(null)) {
         if (Rand.num() > 0.33f) continue;
+        for (Mobile m : t.inside()) if (m instanceof Actor) {
+          
+        }
         //  TODO:  Introduced fancy SFX here!
         //Combat.performStrike(actor, target, offence, defence, false);
       }
     }
+    
     
     public float priorityFor(Actor actor, Target subject, float harmLevel) {
       final float appeal = super.priorityFor(actor, subject, harmLevel);
       if (appeal <= 0) return 0;
       return appeal * actor.gear.ammoLevel();
     }
+    
     
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
@@ -139,7 +148,7 @@ public class GeneralCombatTechniques {
     REAL_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_SKILL_USE_BASED, HAND_TO_HAND, 15
+    Technique.TYPE_PASSIVE_EFFECT, HAND_TO_HAND, 15
   ) {
     
     public float bonusFor(Actor using, Skill skill, Target subject) {

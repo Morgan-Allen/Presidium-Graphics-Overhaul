@@ -163,9 +163,10 @@ public class SeedTailoring extends Plan {
     //  There's also a partial bonus based on the quality of samples collected,
     //  and a larger bonus based on the skill of the gene-tailor.  If neither
     //  of those work out, then the tailoring-attempt fails.
+    final Action a = action();
     float sampleBonus = numSamples(lab) / DESIRED_SAMPLES, skillCheck = -0.5f;
-    skillCheck += actor.skills.test(GENE_CULTURE, MODERATE_DC , 1) ? 1 : 0;
-    skillCheck += actor.skills.test(CULTIVATION , DIFFICULT_DC, 1) ? 1 : 0;
+    skillCheck += actor.skills.test(GENE_CULTURE, MODERATE_DC , 1, a) ? 1 : 0;
+    skillCheck += actor.skills.test(CULTIVATION , DIFFICULT_DC, 1, a) ? 1 : 0;
     if (skillCheck + sampleBonus <= 0) return false;
     //
     //  The final quality of the result depends on the sum of the sample-bonus

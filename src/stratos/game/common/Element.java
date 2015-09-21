@@ -316,6 +316,12 @@ public abstract class Element implements
   }
   
   
+  public ModelAsset spriteModel() {
+    final Sprite s = sprite();
+    return s == null ? null : s.model();
+  }
+  
+  
   public void whenClicked() {
     BaseUI.current().selection.pushSelection(this);
   }

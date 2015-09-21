@@ -287,11 +287,12 @@ public class Cantina extends Venue implements Performance.Theatre {
     actor.gear.incCredits(-price);
     venue.gamblePot += price;
     venue.stocks.incCredits(price);
-    
+
+    final Action a = actor.currentAction();
     float success = (Rand.num() * 2) - 1;
-    if (actor.skills.test(ACCOUNTING, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(ACCOUNTING, MODERATE_DC, 1, a)) success++;
     else success--;
-    if (actor.skills.test(MASQUERADE, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(MASQUERADE, MODERATE_DC, 1, a)) success++;
     else success--;
     
     if (success > 0) {

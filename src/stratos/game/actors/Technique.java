@@ -13,13 +13,15 @@ public abstract class Technique extends Index.Entry
   implements Session.Saveable
 {
   final public static int
-    TYPE_SKILL_USE_BASED    = 0,
+    TYPE_PASSIVE_EFFECT     = 0,
     TYPE_INDEPENDANT_ACTION = 1,
     TYPE_SOVEREIGN_POWER    = 2;
+  /*
   final public static Object
     TRIGGER_ATTACK = new Object(),
     TRIGGER_DEFEND = new Object(),
     TRIGGER_MOTION = new Object();
+  //*/
   
   final public static float
     MINOR_POWER          = 1.0f ,
@@ -55,8 +57,8 @@ public abstract class Technique extends Index.Entry
   
   final public int    type     ;
   final public Skill  skillUsed;
-  final public Object learnFrom;
-  final public Object trigger  ;
+  //final public Object learnFrom;
+  //final public Object trigger  ;
   final public int    minLevel ;
   
   final public float
@@ -66,7 +68,6 @@ public abstract class Technique extends Index.Entry
     concentrationCost;
   
   final public Condition asCondition;
-
   
   
   public Technique(
@@ -75,23 +76,7 @@ public abstract class Technique extends Index.Entry
     float power, float harm,
     float fatigue, float concentration,
     int type, Skill skillUsed, int minLevel
-  ) {
-    this(
-      name, iconFile, animName,
-      sourceClass, uniqueID,
-      power, harm, fatigue, concentration,
-      type, skillUsed, minLevel, skillUsed, skillUsed
-    );
-  }
-  
-  
-  public Technique(
-    String name, String iconFile, String animName,
-    Class sourceClass, String uniqueID,
-    float power, float harm,
-    float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel,
-    Object learnFrom, Object trigger
+    //Object learnFrom, Object trigger
   ) {
     super(INDEX, uniqueID);
     this.name     = name    ;
@@ -112,15 +97,17 @@ public abstract class Technique extends Index.Entry
     this.type      = type     ;
     this.skillUsed = skillUsed;
     this.minLevel  = minLevel ;
-    this.learnFrom = learnFrom;
-    this.trigger   = trigger  ;
+    //this.learnFrom = learnFrom;
+    //this.trigger   = trigger  ;
     
-    List <Technique> bySource = BY_SOURCE.get(learnFrom);
-    if (bySource == null) BY_SOURCE.put(learnFrom, bySource = new List());
+    List <Technique> bySource = BY_SOURCE.get(skillUsed);
+    if (bySource == null) BY_SOURCE.put(skillUsed, bySource = new List());
     bySource.add(this);
     
     this.asCondition = new Condition(name, false) {
-      public void affect(Actor a) { applyAsCondition(a); }
+      public void affect    (Actor a) { applyAsCondition(a); }
+      public void onAddition(Actor a) { onConditionStart(a); }
+      public void onRemoval (Actor a) { onConditionEnd  (a); }
     };
   }
   
@@ -135,56 +122,25 @@ public abstract class Technique extends Index.Entry
   }
   
   
+  
+  /**  Helper methods for determining skill-aquisition.
+    */
   public static Series <Technique> learntFrom(Object source) {
     return BY_SOURCE.get(source);
   }
   
   
-  
-  /**  Basic interface and utility methods for use and evaluation of different
-    *  techniques-
-    */
-  //  TODO:  You need separate methods here for each of the main types of
-  //  Technique- e.g, passive bonus v. independent action v. piggyback
-  //  action, etc.
-  public abstract float bonusFor(Actor using, Skill skill, Target subject);
-  
-  
-  public void applyEffect(Actor using, boolean success, Target subject) {
-    using.health.takeFatigue      (fatigueCost      );
-    using.health.takeConcentration(concentrationCost);
+  public boolean canBeLearnt(Actor learns) {
+    float level = learns.traits.traitLevel(skillUsed);
+    level += learns.traits.bonusFrom(skillUsed.parent);
+    return level >= minLevel;
   }
   
   
-  protected Action asActionFor(Actor actor, Target subject) {
-    final Action action = new Action(
-      actor, subject,
-      this, "actionUseTechnique",
-      animName, "Using "+name
-    );
-    action.setProperties(Action.RANGED | Action.QUICK);
-    action.setPriority(Action.ROUTINE);
-    return action;
-  }
-  
-  
-  public boolean actionUseTechnique(Actor actor, Target subject) {
-    applyEffect(actor, true, subject);
-    return true;
-  }
-  
-  
-  protected void applyAsCondition(Actor affected) {
-    if (affected.traits.traitLevel(asCondition) > 0) {
-      affected.traits.incLevel(asCondition, -1f / conditionDuration());
-      return;
-    }
-    else affected.traits.setLevel(asCondition, 1);
-  }
-  
-  
-  protected float conditionDuration() {
-    return Stage.STANDARD_HOUR_LENGTH;
+  public boolean triggeredBy(
+    Actor actor, Plan current, Action action, Skill used
+  ) {
+    return used == skillUsed;
   }
   
   
@@ -214,6 +170,70 @@ public abstract class Technique extends Index.Entry
     if (report) I.say("  Overall rating: "+rating);
     return rating;
   }
+  
+  
+  
+  /**  Basic interface and utility methods for use and evaluation of different
+    *  techniques-
+    */
+  //
+  //  TODO:  You need separate methods here for each of the main types of
+  //  Technique- e.g, passive bonus v. independent action v. piggyback
+  //  action, etc.
+  public abstract float bonusFor(Actor using, Skill skill, Target subject);
+  
+  
+  public void applyEffect(Actor using, boolean success, Target subject) {
+    using.health.takeFatigue      (fatigueCost      );
+    using.health.takeConcentration(concentrationCost);
+  }
+  
+  
+  protected Action asActionFor(Actor actor, Target subject) {
+    final Action action = new Action(
+      actor, subject,
+      this, "actionUseTechnique",
+      animName, "Using "+name
+    );
+    action.setProperties(Action.RANGED | Action.QUICK);
+    action.setPriority(Action.ROUTINE);
+    return action;
+  }
+  
+  
+  public static boolean isDoingAction(Actor actor, Technique used) {
+    final Action taken = actor.currentAction();
+    return taken != null && taken.basis == used;
+  }
+  
+  
+  public boolean actionUseTechnique(Actor actor, Target subject) {
+    applyEffect(actor, true, subject);
+    return true;
+  }
+  
+  
+  protected void applyAsCondition(Actor affected) {
+    if (affected.traits.traitLevel(asCondition) > 0) {
+      affected.traits.incLevel(asCondition, -1f / conditionDuration());
+      return;
+    }
+    else affected.traits.setLevel(asCondition, 0);
+  }
+  
+  
+  protected void onConditionStart(Actor affected) {
+  }
+  
+  
+  protected void onConditionEnd(Actor affected) {
+  }
+  
+  
+  protected float conditionDuration() {
+    return Stage.STANDARD_HOUR_LENGTH;
+  }
+  
   
   
   /**  Rendering, interface and printout methods-

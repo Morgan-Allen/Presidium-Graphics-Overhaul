@@ -292,7 +292,8 @@ public abstract class ResourceTending extends Plan {
   
   public boolean actionTendTarget(Actor actor, Target t) {
     final Conversion TP = tendProcess();
-    if (TP != null && TP.performTest(actor, 0, 1) < 0.5f) return false;
+    final Action a = action();
+    if (TP != null && TP.performTest(actor, 0, 1, a) < 0.5f) return false;
     
     final Item got[] = afterHarvest(t);
     if (got != null) for (Item i : got) actor.gear.addItem(i);

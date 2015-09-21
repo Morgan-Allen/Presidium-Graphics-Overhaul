@@ -292,10 +292,11 @@ public class Hunting extends Plan {
     //
     //  Firstly, use a series of basic skill checks to see how effectively the
     //  carcass can be butchered:
+    final Action a = action();
     float success = 1, mult = 0.5f;
-    if (actor.skills.test(XENOZOOLOGY, 10, 2)) success++;
-    if (actor.skills.test(DOMESTICS  , 5 , 1)) success++;
-    if (actor.skills.test(HARD_LABOUR, 5 , 1)) success++;
+    if (actor.skills.test(XENOZOOLOGY, 10, 2, a)) success++;
+    if (actor.skills.test(DOMESTICS  , 5 , 1, a)) success++;
+    if (actor.skills.test(HARD_LABOUR, 5 , 1, a)) success++;
     success /= 5;
     //
     //  We provide a bonus to extraction effiency based on upgrades available
@@ -342,7 +343,7 @@ public class Hunting extends Plan {
   
   
   public boolean actionSample(Actor actor, Actor prey) {
-    if (! actor.skills.test(XENOZOOLOGY, 10, 10)) return false;
+    if (! actor.skills.test(XENOZOOLOGY, 10, 10, action())) return false;
     actor.gear.addItem(sample());
     return true;
   }

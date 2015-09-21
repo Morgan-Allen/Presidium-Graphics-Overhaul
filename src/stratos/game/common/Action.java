@@ -170,6 +170,12 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Implementing the Behaviour contract-
     */
+  public Plan parentPlan() {
+    if (basis instanceof Plan) return (Plan) basis;
+    else return null;
+  }
+  
+  
   public float priorityFor(Actor actor) {
     return priority;
   }
@@ -555,8 +561,6 @@ public class Action implements Behaviour, AnimNames {
   /**  Methods to support rendering-
     */
   protected void configSprite(Sprite s, Rendering rendering) {
-    final SolidSprite sprite = (SolidSprite) s;
-    
     final boolean report = verboseAnim && I.talkAbout == actor;
     
     final String animName;
@@ -574,7 +578,7 @@ public class Action implements Behaviour, AnimNames {
       I.say("  Range name: "+animName);
       I.say("  Progress:   "+AP);
     }
-    sprite.setAnimation(animName, (AP > 1) ? (AP % 1) : AP, loop);
+    s.setAnimation(animName, (AP > 1) ? (AP % 1) : AP, loop);
   }
   
   

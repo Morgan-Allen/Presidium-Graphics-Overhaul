@@ -84,7 +84,15 @@ public class Trait extends Constant implements Qualities {
   
   /**  Mechanical effects-
     */
+  public void onAddition(Actor a) {
+  }
+  
+  
   public void affect(Actor a) {
+  }
+  
+  
+  public void onRemoval(Actor a) {
   }
   
   

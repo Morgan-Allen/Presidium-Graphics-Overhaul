@@ -547,7 +547,7 @@ public abstract class Power extends Technique implements Qualities {
         }
         
         if (subject.health.conscious()) {
-          if (subject.skills.test(IMMUNE, 10 + bonus, 10)) bonus = 0;
+          if (subject.skills.test(IMMUNE, 10 + bonus, 10, null)) bonus = 0;
         }
         if (bonus > 0) {
           subject.health.setState(ActorHealth.STATE_SUSPEND);

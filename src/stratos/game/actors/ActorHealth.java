@@ -535,7 +535,9 @@ public class ActorHealth implements Qualities {
     sum -= (bleeds ? 0 : 0.25f) - disease;
     sum -= Nums.clamp(moraleLevel(), -0.5f, 0.5f);
     
-    if (sum > 0) sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0);
+    if (sum > 0) {
+      sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0, null);
+    }
     
     return stressCache = Nums.clamp(sum, 0, 1);
   }
@@ -659,12 +661,6 @@ public class ActorHealth implements Qualities {
       final int moveType = taken.motionType(actor);
       if (moveType == Plan.MOTION_FAST) FM = RUN_FATIGUE_MULT;
     }
-    if (report) {
-      I.say("  Fatigue multiple: "+FM);
-      I.say("  Injury  multiple: "+IM);
-      I.say("  Morale  multiple: "+MM);
-      I.say("  Psych   multiple: "+PM);
-    }
     
     if (bleeds) {
       final float
@@ -680,13 +676,14 @@ public class ActorHealth implements Qualities {
       }
     }
     else if (injury > 0) {
-      actor.skills.test(IMMUNE, 10, 1f / Stage.STANDARD_HOUR_LENGTH);
+      actor.skills.test(IMMUNE, 10, 1f / Stage.STANDARD_HOUR_LENGTH, null);
       injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
     }
     
     fatigue += FATIGUE_GROW_PER_DAY * speedMult * maxHealth * FM / DL;
     fatigue = Nums.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
     injury  = Nums.clamp(injury , 0, MAX_DECOMP  * maxHealth);
+
     //
     //  Have morale converge to a default based on the cheerful trait and
     //  current stress levels.
@@ -701,7 +698,12 @@ public class ActorHealth implements Qualities {
     final float maxCon = maxConcentration();
     concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
     concentration = Nums.clamp(concentration, 0, maxCon);
+    
     if (report) {
+      I.say("  Fatigue multiple: "+FM+", fatigue: "+fatigue);
+      I.say("  Injury  multiple: "+IM+", injury:  "+injury);
+      I.say("  Morale  multiple: "+MM+", morale:  "+morale);
+      I.say("  Concentration multiple: "+PM);
       I.say("  Max. concentration: "+maxCon       );
       I.say("  Current level:      "+concentration);
     }
@@ -733,7 +735,7 @@ public class ActorHealth implements Qualities {
     
     if (currentAge > lifespan * (1 + (lifeExtend / 10))) {
       float deathDC = ROUTINE_DC * (1 + lifeExtend);
-      if (actor.skills.test(IMMUNE, deathDC, 0)) {
+      if (actor.skills.test(IMMUNE, deathDC, 0, null)) {
         lifeExtend++;
       }
       else {

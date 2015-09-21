@@ -297,8 +297,9 @@ public abstract class Vehicle extends Mobile implements
     
     if (pilot != null && pilot.aboard() == this) {
       pilotBonus = 1;
-      if (! pilot.skills.test(PILOTING, SIMPLE_DC, 0.5f)) pilotBonus /= 1.5f;
-      if (pilot.skills.test(PILOTING, MODERATE_DC, 0.5f)) pilotBonus *= 1.5f;
+      final Action a = pilot.currentAction();
+      if (! pilot.skills.test(PILOTING, SIMPLE_DC, 0.5f, a)) pilotBonus /= 1.5f;
+      if (pilot.skills.test(PILOTING, MODERATE_DC, 0.5f, a)) pilotBonus *= 1.5f;
     }
     else {
       pilotBonus = 0.5f;

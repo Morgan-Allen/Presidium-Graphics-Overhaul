@@ -117,8 +117,10 @@ public class SpawnArtilect extends Plan implements Qualities {
     final float DC = repairDC() + (repairs.inWorld() ? 0 : 5);
     final float inc = 10f / TIME_PER_10_HP;
     float success = 0;
-    success += actor.skills.test(ASSEMBLY, DC, 1) ? 1 : 0;
-    success += actor.skills.test(INSCRIPTION, DC, 1) ? 1 : 0;
+    final Action a = action();
+    success += actor.skills.test(ASSEMBLY   , DC, 1, a) ? 1 : 0;
+    success += actor.skills.test(INSCRIPTION, DC, 1, a) ? 1 : 0;
+    
     location.structure.repairBy(-1.0f * Rand.num() * inc);
     if (success <= 0) return false;
     

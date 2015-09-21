@@ -187,15 +187,16 @@ public class Generator extends Venue {
     float diagnoseDC = 5 + ((1 - meltdown) * 20);
     final int FB = structure.upgradeLevel(FIELD_INTEGRATION);
     diagnoseDC -= FB * 5;
-    
+
+    final Action a = actor.currentAction();
     boolean success = true;
     if (Rand.yes()) {
-      success &= actor.skills.test(FIELD_THEORY, diagnoseDC, 0.5f);
-      success &= actor.skills.test(CHEMISTRY, 5, 0.5f);
+      success &= actor.skills.test(FIELD_THEORY, diagnoseDC, 0.5f, a);
+      success &= actor.skills.test(CHEMISTRY, 5, 0.5f, a);
     }
     else {
-      success &= actor.skills.test(ASSEMBLY, diagnoseDC, 0.5f);
-      success &= actor.skills.test(SHIELD_AND_ARMOUR, 5, 0.5f);
+      success &= actor.skills.test(ASSEMBLY, diagnoseDC, 0.5f, a);
+      success &= actor.skills.test(SHIELD_AND_ARMOUR, 5, 0.5f, a);
     }
     if (success) {
       meltdown -= (1f + FB) / Stage.STANDARD_DAY_LENGTH;

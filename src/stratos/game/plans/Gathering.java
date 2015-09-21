@@ -293,16 +293,17 @@ public class Gathering extends ResourceTending {
   protected Item[] afterHarvest(Target t) {
     final Flora c = Flora.foundAt(t);
     this.assessed = null;
+    final Action a = action();
     
     if (type == TYPE_FARMING) {
-      if (c == null   ) { seedTile((Tile) t); return null         ; }
-      if (c != toTend ) { c.setAsDestroyed(); return null         ; }
-      if (c.blighted()) { c.disinfest()     ; return null         ; }
-      if (c.ripe()    ) { c.setAsDestroyed(); return c.materials(); }
+      if (c == null   ) { seedTile((Tile) t, a); return null         ; }
+      if (c != toTend ) { c.setAsDestroyed()   ; return null         ; }
+      if (c.blighted()) { c.disinfest()        ; return null         ; }
+      if (c.ripe()    ) { c.setAsDestroyed()   ; return c.materials(); }
     }
     if (type == TYPE_FORESTING) {
-      if (c == null   ) { seedTile((Tile) t); return null;          }
-      if (c != toTend ) { c.setAsDestroyed(); return null;          }
+      if (c == null   ) { seedTile((Tile) t, a); return null;          }
+      if (c != toTend ) { c.setAsDestroyed()   ; return null;          }
     }
     if (type == TYPE_LOGGING) {
       if (c != null   ) { c.setAsDestroyed(); return c.materials(); }
@@ -331,7 +332,7 @@ public class Gathering extends ResourceTending {
   }
   
   
-  private void seedTile(Tile t) {
+  private void seedTile(Tile t, Action action) {
     if (toTend == null) return;
     final Species s = toTend.species();
     
@@ -350,7 +351,7 @@ public class Gathering extends ResourceTending {
       health += seed.quality * 1f / Item.MAX_QUALITY;
       actor.gear.removeItem(seed);
     }
-    health += tendProcess().performTest(actor, 0, 1);
+    health += tendProcess().performTest(actor, 0, 1, action);
     //
     //  Then put the thing in the dirt-
     if (t.above() != null) t.above().setAsDestroyed();

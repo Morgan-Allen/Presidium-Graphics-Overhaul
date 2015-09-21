@@ -138,11 +138,13 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   }
   
   
-  public float performTest(Actor actor, float checkMod, float duration) {
+  public float performTest(
+    Actor actor, float checkMod, float duration, Action action
+  ) {
     if (skills.length == 0) return 1;
     float result = 0;
     for (int i = skills.length; i-- > 0;) result += actor.skills.test(
-      skills[i], skillDCs[i] - checkMod, duration, 1
+      skills[i], skillDCs[i] - checkMod, duration, 1, action
     );
     return result / skills.length;
   }

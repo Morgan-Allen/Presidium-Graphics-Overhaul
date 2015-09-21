@@ -113,6 +113,12 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
+  public void describeActor(Actor mounted, Description d) {
+    d.append("Being carried by ");
+    d.append(followed);
+  }
+  
+  
   
   /**  Performing regular updates-
     */

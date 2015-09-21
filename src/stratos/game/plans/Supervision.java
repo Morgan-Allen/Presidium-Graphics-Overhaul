@@ -206,8 +206,9 @@ public class Supervision extends Plan {
   
   public boolean actionInventory(Actor actor, StockExchange venue) {
     float inc = 1.0f;
-    inc += actor.skills.test(ACCOUNTING, ROUTINE_DC  , 1) ? 0 : 1;
-    inc *= actor.skills.test(ACCOUNTING, DIFFICULT_DC, 1) ? 1 : 2;
+    final Action a = action();
+    inc += actor.skills.test(ACCOUNTING, ROUTINE_DC  , 1, a) ? 0 : 1;
+    inc *= actor.skills.test(ACCOUNTING, DIFFICULT_DC, 1, a) ? 1 : 2;
     inc /= 2 * UNIT_CATALOGUE_TIME;
     if (venue.adjustCatalogue((Traded) worksOn, inc)) return true;
     return false;

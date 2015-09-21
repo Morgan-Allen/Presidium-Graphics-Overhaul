@@ -40,6 +40,7 @@ public abstract class Actor extends Mobile implements
   private Action actionTaken;
   private Mount  mount;
   private Base   base;
+  private Sprite disguise;
   
   final public Healthbar healthbar = new Healthbar();
   final public Label     label     = new Label    ();
@@ -66,6 +67,7 @@ public abstract class Actor extends Mobile implements
     actionTaken = (Action) s.loadObject();
     mount       = (Mount ) s.loadObject();
     base        = (Base  ) s.loadObject();
+    disguise  = ModelAsset.loadSprite(s.input());
   }
   
   
@@ -85,6 +87,7 @@ public abstract class Actor extends Mobile implements
     s.saveObject(actionTaken);
     s.saveObject(mount      );
     s.saveObject(base       );
+    ModelAsset.saveSprite(disguise, s.output());
   }
   
   
@@ -136,6 +139,11 @@ public abstract class Actor extends Mobile implements
     this.mount = newMount;
     if (oldMount != null) oldMount.setMounted(this, false);
     if (newMount != null) newMount.setMounted(this, true );
+  }
+  
+  
+  public void releaseFromMount() {
+    bindToMount(null);
   }
   
   
@@ -452,20 +460,32 @@ public abstract class Actor extends Mobile implements
   public void renderAt(
     Vec3D position, float rotation, Rendering rendering
   ) {
-    //
-    //  We render health-bars after the main sprite, as the label/healthbar are
-    //  anchored off the main sprite.
     final Sprite s = sprite();
     if (actionTaken != null) actionTaken.configSprite(s, rendering);
     super.renderAt(position, rotation, rendering);
     //
-    //  Finally, if you have anything to say, render the chat bubbles.
-    renderHealthbars(rendering, base);
-    if (chat.numPhrases() > 0) {
-      chat.position.setTo(sprite().position);
-      chat.position.z += height();
-      chat.readyFor(rendering);
-    }
+    //  We render health-bars after the main sprite, as the label/healthbar are
+    //  anchored off the main sprite.  In addition, we skip this while in
+    //  disguise...
+    if (disguise == null) renderHealthbars(rendering, base);
+  }
+  
+  
+  public Sprite sprite() {
+    if (disguise != null) return disguise;
+    else return super.sprite();
+  }
+  
+  
+  public void attachDisguise(Sprite app) {
+    world.ephemera.addGhost(this, 1, sprite(), 1.0f);
+    this.disguise = app;
+  }
+  
+  
+  public void detachDisguise() {
+    world.ephemera.addGhost(this, 1, disguise, 1.0f);
+    this.disguise = null;
   }
   
   
@@ -498,6 +518,12 @@ public abstract class Actor extends Mobile implements
     healthbar.size = 35;
     healthbar.position.z += height() + 0.1f;
     healthbar.readyFor(rendering);
+    
+    if (chat.numPhrases() > 0) {
+      chat.position.setTo(sprite().position);
+      chat.position.z += height();
+      chat.readyFor(rendering);
+    }
   }
   
   
@@ -586,6 +612,7 @@ public abstract class Actor extends Mobile implements
       mission.describeMission(d);
     }
     else if (rootB != null) rootB.describeBehaviour(d);
+    else if (mount != null) mount.describeActor(this, d);
     else d.append("Thinking");
   }
 }

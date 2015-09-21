@@ -318,7 +318,7 @@ public class Retreat extends Plan implements Qualities {
       return true;
     }
     else {
-      if (lastHidePoint != safePoint) SenseUtils.breaksPursuit(actor);
+      if (lastHidePoint != safePoint) SenseUtils.breaksPursuit(actor, action());
       lastHidePoint = safePoint;
       maxPriority *= DANGER_MEMORY_FADE;
       if (maxPriority < 0.5f) maxPriority = 0;

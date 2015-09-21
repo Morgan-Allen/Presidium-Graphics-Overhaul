@@ -244,8 +244,9 @@ public class Treatment extends Plan implements Item.Passive {
       if (current == null) current = Item.with(TREATMENT, this, 0, 0);
       
       final float timeInc = 1f / STANDARD_TREAT_TIME;
-      if (actor.skills.test(primary  , DC - bonus, TIME_XP_MULT)) check++;
-      if (actor.skills.test(secondary, 5  - bonus, TIME_XP_MULT)) check++;
+      final Action a = action();
+      if (actor.skills.test(primary  , DC - bonus, TIME_XP_MULT, a)) check++;
+      if (actor.skills.test(secondary, 5  - bonus, TIME_XP_MULT, a)) check++;
       
       final float quality = current.amount == 0 ? 0 : (
         (Item.MAX_QUALITY + 1) * check / 2

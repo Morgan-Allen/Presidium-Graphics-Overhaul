@@ -198,7 +198,7 @@ public class ActorDescription implements Qualities {
     for (Skill skill : sorting) descSkill(skill, d);
     
     d.append("\n\nTechniques: ");
-    for (Technique p : h.skills.known) {
+    for (Technique p : h.skills.knownTechniques()) {
       d.append("\n  "+p.name);
     }
     //if (h.skills.known.size() == 0) d.append("\n  None known");

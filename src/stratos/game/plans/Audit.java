@@ -116,7 +116,7 @@ public class Audit extends Plan {
   //  TODO:  Only make this crime catch-able through another auditor's checks-
   //         (which is what makes a high accounting skill valuable.)
   public static boolean checkForEmbezzlement(
-    Behaviour doing, Actor audits, boolean casual
+    Behaviour doing, Actor audits, boolean casual, Action taken
   ) {
     if (! (doing instanceof Audit)) return false;
     final Audit suspect = (Audit) doing;
@@ -129,7 +129,7 @@ public class Audit extends Plan {
     
     float DC = casual ? 20 : (seen ? 5 : 10);
     DC -= suspect.embezzled / 10f;
-    if (audits.skills.test(ACCOUNTING, DC, 1.0f)) return true;
+    if (audits.skills.test(ACCOUNTING, DC, 1.0f, taken)) return true;
     
     return false;
   }

@@ -449,28 +449,6 @@ public class PlanUtils {
     return competition;
   }
   
-
-  //  TODO:  THE CONVERSION CLASS ALREADY HAS A UTILITY METHOD FOR THIS.  I
-  //  WOULD DISPENSE OR UNIFY AS SOON AS POSSIBLE.
-  public static float successForActorWith(
-    Actor actor, Skill baseSkills[], float DC, boolean realTest
-  ) {
-    if (realTest) {
-      float success = 0;
-      for (Skill s : baseSkills) {
-        success += actor.skills.test(s, DC, 1) ? 1 : 0;
-      }
-      return success / baseSkills.length;
-    }
-    else {
-      float chance = 0;
-      for (Skill s : baseSkills) {
-        chance += actor.skills.chance(s, DC);
-      }
-      return chance / baseSkills.length;
-    }
-  }
-  
   
   
   /**  Combat-related utility methods.

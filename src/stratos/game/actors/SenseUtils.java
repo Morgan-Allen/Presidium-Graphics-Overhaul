@@ -17,7 +17,7 @@ public class SenseUtils {
   /**  Utility method for breaking awareness/pursuit when a hide attempt is
     *  successful.
     */
-  public static boolean breaksPursuit(Actor actor) {
+  public static boolean breaksPursuit(Actor actor, Action taken) {
     
     boolean allBroken = true;
     
@@ -30,7 +30,7 @@ public class SenseUtils {
 
       final float hideBonus = (actor.skills.test(
         Qualities.STEALTH_AND_COVER, follows,
-        Qualities.SURVEILLANCE, chasePenalty, 1, 2
+        Qualities.SURVEILLANCE, chasePenalty, 1, 2, taken
       ) * ActorHealth.DEFAULT_SIGHT);
       
       final boolean report = sightVerbose && (

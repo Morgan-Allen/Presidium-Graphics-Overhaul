@@ -236,6 +236,12 @@ public class EcologistRedoubt extends Venue implements Captivity {
     return activity.matchesPlan(resting);
   }
   
+  
+  public void describeActor(Actor mounted, Description d) {
+    d.append("Penned up at ");
+    d.append(this);
+  }
+  
 
 
   /**  Rendering and interface-
