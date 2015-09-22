@@ -11,6 +11,12 @@ TO DO NOW-
   
   Call of Duty  (can assign to several missions directly.)
   Noble Command (creates a commander position with several perks.)
+  
+  SFX might not belong with attacks called by a technique.
+  Create a Volley class for combat, that techniques can then modify in an
+  'organic' manner.
+  
+  Make sure you clear up the difference between training and innate abilities.
 
 
 

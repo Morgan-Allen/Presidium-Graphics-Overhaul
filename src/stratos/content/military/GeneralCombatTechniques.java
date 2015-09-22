@@ -6,30 +6,21 @@
 package stratos.content.military;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.DeviceType;
+import stratos.game.economic.*;
 import stratos.game.plans.*;
-import stratos.game.wild.*;
-import stratos.graphics.sfx.PlaneFX;
-import stratos.graphics.sfx.ShotFX;
-import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
+import stratos.graphics.sfx.*;
+import stratos.util.*;
 
 
 //
 //  TODO:  These should mostly be implemented as independent, attack-triggered
-//         actions, rather than passive skill bonuses.  (This should allow them
-//         to be chosen at the start of an action, rather than at the end, and
-//         thus allow for more appropriate SFX.)
-
+//         actions, rather than passive skill bonuses?
 
 public class GeneralCombatTechniques {
   
-
-  //Shield Bypass.
-  //Disarming Stroke.
-  //Impact Connect.
-  //Cleaving Arc.
+  
   
   final static String DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = GeneralCombatTechniques.class;
@@ -58,13 +49,13 @@ public class GeneralCombatTechniques {
   //            - direct line from barrel to target.
   
   final public static Technique FOCUS_FIRE = new Technique(
-    "Focus Fire", DIR+"steady_aim.png", Action.FIRE,
-    BASE_CLASS         , "focus_fire",
-    MINOR_POWER        ,
-    REAL_HARM          ,
-    NO_FATIGUE         ,
-    MINOR_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 5,
+    "Focus Fire", DIR+"steady_aim.png",
+    BASE_CLASS, "focus_fire",
+    MINOR_POWER         ,
+    REAL_HARM           ,
+    NO_FATIGUE          ,
+    MINOR_CONCENTRATION ,
+    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 5, Action.FIRE,
     Action.QUICK | Action.RANGED
   ) {
     
@@ -99,14 +90,14 @@ public class GeneralCombatTechniques {
   //                    chance to stun enemies in AoE.
   
   final public static Technique SUPPRESSION = new Technique(
-    "Suppression", DIR+"suppression_fire.png", Action.FIRE,
-    BASE_CLASS         , "suppression_fire",
-    MEDIUM_POWER       ,
-    REAL_HARM          ,
-    NO_FATIGUE         ,
-    MAJOR_CONCENTRATION,
+    "Suppression", DIR+"suppression_fire.png",
+    BASE_CLASS, "suppression_fire",
+    MEDIUM_POWER        ,
+    REAL_HARM           ,
+    NO_FATIGUE          ,
+    MAJOR_CONCENTRATION ,
     Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 10,
-    Action.QUICK | Action.RANGED
+    Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
     public float passiveBonus(Actor using, Skill skill, Target subject) {
@@ -164,13 +155,13 @@ public class GeneralCombatTechniques {
   //  Special FX:  Attach 'puncture' fx at target...
   
   final public static Technique SHIELD_BYPASS = new Technique(
-    "Shield Bypass", DIR+"armour_bypass.png", Action.FIRE,
+    "Shield Bypass", DIR+"armour_bypass.png",
     BASE_CLASS, "shield_bypass",
     MINOR_POWER         ,
     REAL_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, HAND_TO_HAND, 15,
+    Technique.TYPE_PASSIVE_EFFECT, HAND_TO_HAND, 15, Action.FIRE,
     Action.QUICK
   ) {
     

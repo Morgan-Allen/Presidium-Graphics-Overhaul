@@ -51,10 +51,8 @@ public class ActorSkills {
     for (Skill s : actor.traits.skillSet()) {
       final Series <Technique> learnt = Technique.learntFrom(s);
       if (learnt == null) continue;
-      float level = actor.traits.traitLevel(s);
-      level += actor.traits.bonusFrom(s.parent);
-      for (Technique t : learnt) {
-        if (level >= t.minLevel) known.include(t);
+      for (Technique t : learnt) if (t.canBeLearnt(actor)) {
+        known.include(t);
       }
     }
     //

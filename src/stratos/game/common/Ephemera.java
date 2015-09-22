@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.common;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
@@ -100,7 +103,8 @@ public class Ephemera {
     
     final Vec3D p = s.position;
     if (e instanceof Mobile) {
-      ((Mobile) e).viewPosition(ghost.offset);
+      final Mobile tracked = (Mobile) e;
+      tracked.viewPosition(ghost.offset);
       ghost.offset.sub(s.position).scale(-1);
     }
     
@@ -142,24 +146,25 @@ public class Ephemera {
   }
   
   
-  private void trackElement(
+  private boolean trackElement(
     Ghost ghost, StageRegion oldSection, List <Ghost> SG, Base base
   ) {
-    if (! (ghost.tracked instanceof Mobile)) return;
+    if (! (ghost.tracked instanceof Element)) return true;
     
     final Vec3D p = ghost.sprite.position;
-    final Mobile m = (Mobile) ghost.tracked;
-    if (! m.visibleTo(base)) return;
+    final Element m = (Element) ghost.tracked;
+    if (! m.visibleTo(base)) return false;
     
     m.viewPosition(p);
     p.add(ghost.offset);
     
     final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
-    if (section == oldSection) return;
+    if (section == oldSection) return true;
     SG.remove(ghost);
     SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
     SG.add(ghost);
+    return true;
   }
   
   
@@ -174,12 +179,11 @@ public class Ephemera {
           duration = ghost.duration,
           timeGone = timeNow - ghost.inceptTime;
         
-        if (timeGone >= duration) {
+        if (timeGone >= duration || ! trackElement(ghost, section, SG, base)) {
           SG.remove(ghost);
           continue;
         }
         else {
-          trackElement(ghost, section, SG, base);
           final Sprite s = ghost.sprite;
           if (! rendering.view.intersects(s.position, ghost.size)) continue;
           s.colour = Colour.transparency((duration - timeGone) / duration);

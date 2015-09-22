@@ -185,7 +185,7 @@ public class Combat extends Plan implements Qualities {
     
     Action strike = null;
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
-    final boolean melee     = actor.gear.meleeWeapon();
+    final boolean melee     = actor.gear.meleeDeviceOnly();
     final boolean razes     = struck instanceof Placeable;
     final float   danger    = 1f - successChanceFor(actor);
     
@@ -318,7 +318,7 @@ public class Combat extends Plan implements Qualities {
     final Action a = action();
     //
     //  TODO:  You may want a separate category for animals?  Or Psy?
-    if (actor.gear.meleeWeapon()) {
+    if (actor.gear.meleeDeviceOnly()) {
       performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object, a);
     }
     else {
@@ -350,8 +350,9 @@ public class Combat extends Plan implements Qualities {
     
     //
     //  TODO:  Move weapon/armour properties to dedicated subclasses?
-    
-    final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN);
+
+    final boolean kinetic = actor.gear.hasDeviceProperty(Devices.KINETIC);
+    final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN   );
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
     
@@ -371,9 +372,7 @@ public class Combat extends Plan implements Qualities {
     if (success) {
       final float maxDamage = actor.gear.attackDamage();
       damage = maxDamage * Rand.num();
-      final float afterShields = target.gear.afterShields(
-        damage, actor.gear.physicalWeapon()
-      );
+      final float afterShields = target.gear.afterShields(damage, kinetic);
       final float
         maxArmour   = target.gear.armourRating(),
         armourSoak  = (maxArmour * Rand.num()) - bypass,
@@ -426,7 +425,7 @@ public class Combat extends Plan implements Qualities {
     final boolean report = damageVerbose && I.talkAbout == actor;
     
     boolean accurate = false, success = false;;
-    if (actor.gear.meleeWeapon()) {
+    if (actor.gear.meleeDeviceOnly()) {
       accurate = actor.skills.test(HAND_TO_HAND, 0, 1, action);
     }
     else {

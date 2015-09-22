@@ -526,6 +526,12 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  public boolean visibleTo(Base base) {
+    if (mount != null && ! mount.actorVisible(this)) return false;
+    return super.visibleTo(base);
+  }
+  
+  
   protected void renderHealthbars(Rendering rendering, Base base) {
     final boolean focused = BaseUI.isSelectedOrHovered(this);
     final boolean alarm =

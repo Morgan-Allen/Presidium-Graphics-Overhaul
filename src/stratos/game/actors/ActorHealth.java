@@ -325,15 +325,18 @@ public class ActorHealth implements Qualities {
       I.say("  KO at: "+limitKO+", decomp at: "+absLimit);
     }
     
-    final float limit;
+    final float limit, oldInjury = injury;
     if (injury < limitKO) limit = limitKO;
     else if (terminal || ! awake) limit = absLimit;
     else limit = injury;
     
     if (organic() && (Rand.num() * maxHealth / 2f) < taken) bleeds = true;
     injury = Nums.clamp(injury + taken, 0, limit + 1);
+    final float difference = injury - oldInjury;
     
-    if (awake) adjustMorale(taken * (terminal ? -2f : -1f) / maxHealth);
+    if (awake && difference > 0) {
+      adjustMorale(difference * (terminal ? -2f : -1f) / maxHealth);
+    }
     checkStateChange();
     
     if (report) {
@@ -344,12 +347,16 @@ public class ActorHealth implements Qualities {
   
   
   public void liftInjury(float lifted) {
+    final float oldInjury = injury;
     injury -= lifted;
     if (Rand.num() > injuryLevel()) bleeds = false;
     if (injury < 0) injury = 0;
     
+    final float difference = oldInjury - injury;
     final boolean awake = conscious();
-    if (awake) adjustMorale(lifted * 0.5f / maxHealth);
+    if (awake && difference > 0) {
+      adjustMorale(difference * 0.5f / maxHealth);
+    }
   }
   
   

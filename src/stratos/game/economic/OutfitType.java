@@ -24,7 +24,8 @@ public class OutfitType extends Traded {
   
   
   public OutfitType(
-    Class baseClass, String name, int defence, int shieldBonus, int basePrice,
+    Class baseClass, String name,
+    int defence, int shieldBonus, int basePrice,
     Class <? extends Venue> facility, Object... conversionArgs
   ) {
     super(baseClass, FORM_OUTFIT, name, basePrice, null);

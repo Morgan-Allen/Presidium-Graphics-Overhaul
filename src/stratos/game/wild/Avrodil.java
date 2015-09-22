@@ -124,7 +124,9 @@ public class Avrodil extends Fauna implements Captivity {
   final static String DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = Avrodil.class;
   final static float
-    POLLEN_RADIUS = 2.0f;
+    POLLEN_RADIUS      = 2.0f,
+    POLLEN_MOTOR_HIT   = 5   ,
+    POLLEN_ACID_DAMAGE = 1.0f;
   
   
   final static ShotFX.Model
@@ -152,22 +154,20 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Technique CAMOUFLAGE = new Technique(
-    "Camouflage", DIR+"camouflage.png", Action.FALL,
-    BASE_CLASS         , "avrodil_camo",
-    MINOR_POWER        ,
-    REAL_HELP          ,
-    MINOR_FATIGUE      ,
-    NO_CONCENTRATION   ,
+    "Camouflage", DIR+"camouflage.png",
+    BASE_CLASS, "avrodil_camo",
+    MINOR_POWER     ,
+    REAL_HELP       ,
+    MINOR_FATIGUE   ,
+    NO_CONCENTRATION,
     Technique.TYPE_PASSIVE_EFFECT, null, 0,
-    Action.NORMAL
+    Action.FALL, Action.NORMAL
   ) {
     
     public void applyEffect(
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
-      final Tile location = using.origin();
-      if (location.habitat().floraSpecies == null) return;
       using.traits.setLevel(asCondition, 1);
     }
     
@@ -192,6 +192,7 @@ public class Avrodil extends Fauna implements Captivity {
       
       final Tile location = affected.origin();
       final Species flora[] = location.habitat().floraSpecies;
+      if (flora == null) return;
       final ModelAsset model = flora[0].modelSequence[2];
       affected.attachDisguise(model.makeSprite());
     }
@@ -221,14 +222,14 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Technique DEVOUR = new Technique(
-    "Devour", DIR+"devour.png", Action.STRIKE_BIG,
-    BASE_CLASS          , "avrodil_devour",
+    "Devour", DIR+"devour.png",
+    BASE_CLASS, "avrodil_devour",
     MEDIUM_POWER        ,
     EXTREME_HARM        ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
     Technique.TYPE_INDEPENDANT_ACTION, null, 0,
-    Action.QUICK
+    Action.STRIKE_BIG, Action.QUICK
   ) {
     
     public void applyEffect(
@@ -285,14 +286,14 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Technique WHIPLASH = new Technique(
-    "Whiplash", DIR+"avrodil_whiplash.png", Action.STRIKE,
-    BASE_CLASS          , "avrodil_whiplash",
+    "Whiplash", DIR+"avrodil_whiplash.png",
+    BASE_CLASS, "avrodil_whiplash",
     MINOR_POWER         ,
     REAL_HARM           ,
     MINOR_FATIGUE       ,
     MEDIUM_CONCENTRATION,
     Technique.TYPE_INDEPENDANT_ACTION, null, 0,
-    Action.QUICK | Action.RANGED
+    Action.STRIKE, Action.QUICK | Action.RANGED
   ) {
     
     public void applyEffect(
@@ -335,14 +336,14 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Technique POLLEN_SPRAY = new Technique(
-    "Pollen Spray", DIR+"avrodil_pollen_spray.png", Action.STRIKE_BIG,
-    BASE_CLASS          , "avrodil_pollen_spray",
+    "Pollen Spray", DIR+"avrodil_pollen_spray.png",
+    BASE_CLASS, "avrodil_pollen_spray",
     MEDIUM_POWER        ,
     REAL_HARM           ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
     Technique.TYPE_INDEPENDANT_ACTION, null, 0,
-    Action.QUICK
+    Action.STRIKE_BIG, Action.QUICK
   ) {
     
     public boolean triggeredBy(
@@ -365,7 +366,7 @@ public class Avrodil extends Fauna implements Captivity {
       CombatFX.applyBurstFX(POLLEN_BURST_MODEL, using, 0.5f, 1.5f);
       
       for (Actor hit : Technique.subjectsInRange(using, POLLEN_RADIUS)) {
-        if (hit == using || hit instanceof Avrodil) continue;
+        if (hit == using || hit.species() == using.species()) continue;
         hit.traits.setLevel(asCondition, 1);
       }
     }
@@ -373,8 +374,10 @@ public class Avrodil extends Fauna implements Captivity {
     
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
-      affected.traits.incBonus(MOTOR, -5);
-      affected.health.takeInjury(-1f, false);
+      final float level = affected.traits.traitLevel(asCondition);
+      
+      affected.traits.incBonus(MOTOR, 0 - POLLEN_MOTOR_HIT * level);
+      affected.health.takeInjury(POLLEN_ACID_DAMAGE * level, false);
       
       CombatFX.applyBurstFX(POLLEN_HAZE_MODEL, affected, 1.25f, 1.0f);
     }

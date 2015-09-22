@@ -246,26 +246,14 @@ public class ActorGear extends Inventory {
   }
   
   
-  public boolean meleeWeapon() {
-    final Item weapon = deviceEquipped();
-    if (weapon == null) return true;
-    if (deviceType().hasProperty(MELEE)) return true;
-    return false;
-  }
-  
-  
-  public boolean physicalWeapon() {
-    final Item weapon = deviceEquipped();
-    if (weapon == null) return true;
-    if (deviceType().hasProperty(KINETIC)) return true;
-    return false;
-  }
-  
-  
   public boolean hasDeviceProperty(int bits) {
     final DeviceType type = deviceType();
-    if (type == null) return false;
-    return type.hasProperty(bits);
+    return type != null && type.hasProperty(bits);
+  }
+  
+  
+  public boolean meleeDeviceOnly() {
+    return ! hasDeviceProperty(RANGED);
   }
   
   

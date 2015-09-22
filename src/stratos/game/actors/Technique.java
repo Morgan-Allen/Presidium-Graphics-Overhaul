@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.plans.*;
@@ -12,6 +15,7 @@ import stratos.util.*;
 public abstract class Technique extends Index.Entry
   implements Session.Saveable
 {
+  
   final public static int
     TYPE_PASSIVE_EFFECT     = 0,
     TYPE_INDEPENDANT_ACTION = 1,
@@ -70,12 +74,12 @@ public abstract class Technique extends Index.Entry
   
   
   public Technique(
-    String name, String iconFile, String animName,
-    Class sourceClass, String uniqueID,
-    float power, float harm,
-    float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel,
-    int actionProperties
+    String name, String iconFile, Class sourceClass,
+    String uniqueID, float power,
+    float harm, float fatigue,
+    float concentration, int type,
+    Skill skillUsed, int minLevel,
+    String animName, int actionProperties
   ) {
     super(INDEX, uniqueID);
     this.name     = name    ;

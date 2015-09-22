@@ -61,7 +61,7 @@ public class CombatUtils {
     //  TODO:  Get separate attack/defend skills for the other actor, depending
     //  on what type of weapon they have.
     final Skill attack, defend;
-    if (actor.gear.meleeWeapon()) {
+    if (actor.gear.meleeDeviceOnly()) {
       attack = HAND_TO_HAND;
       defend = HAND_TO_HAND;
     }
@@ -149,7 +149,7 @@ public class CombatUtils {
       I.say("  Treating as threat? "+asThreat);
     }
     
-    final boolean melee = actor.gear.meleeWeapon();
+    final boolean melee = actor.gear.meleeDeviceOnly();
     final float harm = Plan.REAL_HARM;
     
     final Pick <Target> pick = new Pick <Target> (0) {

@@ -78,7 +78,8 @@ public class CombatFX {
     final float distance = Spacing.distance(uses, applied);
     final Stage world = uses.world();
     
-    if (type == null || type.hasProperty(MELEE)) {
+    if (type == null) {
+      //  TODO:  Use a special 'punch' effect here...
       applyMeleeFX(SLASH_FX_MODEL, uses, applied, world);
     }
     
@@ -101,6 +102,10 @@ public class CombatFX {
         LASER_FX_MODEL, LASER_BURST_MODEL,
         uses, applied, hits, 0.66f, world
       );
+    }
+    
+    else {
+      applyMeleeFX(SLASH_FX_MODEL, uses, applied, world);
     }
   }
   
@@ -166,7 +171,9 @@ public class CombatFX {
   public static void applyBurstFX(
     PlaneFX.Model model, Target point, float heightFraction, float duration
   ) {
-    final Vec3D pos = point.position(null);
+    final Vec3D pos;
+    if (point instanceof Mobile) pos = ((Mobile) point).viewPosition(null);
+    else pos = point.position(null);
     pos.z += point.height() * heightFraction;
     
     final Sprite s = model.makeSprite();

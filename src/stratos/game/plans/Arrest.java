@@ -160,7 +160,7 @@ public class Arrest extends Plan {
     if (! canPursue()) return -1;
     
     final Actor other = (Actor) subject;
-    final boolean melee = actor.gear.meleeWeapon();
+    final boolean melee = actor.gear.meleeDeviceOnly();
     final boolean official = hasAuthority();
     
     float urge = 0, bonus = 0;

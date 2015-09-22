@@ -39,10 +39,10 @@ public abstract class Power extends Technique implements Qualities {
     Skill skillUsed, int minLevel
   ) {
     super(
-      name, IMG_DIR+imgFile, Action.PSY_QUICK,
-      Power.class, uniqueID,
-      0, 0, 0, 0,
-      Technique.TYPE_SOVEREIGN_POWER, skillUsed, minLevel,
+      name, IMG_DIR+imgFile, Power.class,
+      uniqueID, 0,
+      0, 0, 0, Technique.TYPE_SOVEREIGN_POWER,
+      skillUsed, minLevel, Action.PSY_QUICK,
       Action.QUICK | Action.RANGED  //  TODO- CUSTOMISE!
     );
     //this.name        = name;

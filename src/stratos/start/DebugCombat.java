@@ -5,9 +5,7 @@
   */
 package stratos.start;
 import stratos.content.civic.*;
-import stratos.content.wip.*;
 import stratos.game.actors.*;
-import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -16,7 +14,6 @@ import stratos.game.plans.*;
 import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
-
 
 
 
@@ -82,12 +79,13 @@ public class DebugCombat extends Scenario {
   
   
   private void combatScenario(Stage world, Base base, BaseUI UI) {
-    
+
     Actor soldier = null;
-    for (int n = 2; n-- > 0;) {
+    for (int n = 1; n-- > 0;) {
       soldier = new Human(Backgrounds.TROOPER, base);
       soldier.enterWorldAt(world.tileAt(4, 4), world);
     }
+    
     base.intelMap.liftFogAround(soldier, 9);
     
     final Base wildlife = Base.wildlife(world);
@@ -99,7 +97,7 @@ public class DebugCombat extends Scenario {
     avrodil.enterWorldAt(9, 9, world, true);
     avrodil.mind.assignBehaviour(new Combat(avrodil, soldier));
     
-    UI.selection.pushSelection(avrodil);
+    UI.selection.pushSelection(soldier);
   }
   
   
