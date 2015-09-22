@@ -218,14 +218,23 @@ public abstract class ActorMind implements Qualities {
       }
       cancelBehaviour(root, cause);
     }
-    
-    if (returned != null) {
-      final Action technique = actor.skills.bestTechniqueFor(
+    //
+    //  If we're not performing a Technique already, consider finding one
+    //  that's appropriate to the underlying activity-
+    Action technique = Technique.currentTechniqueBy(actor);
+    if (returned != null && technique == null) {
+      technique = actor.skills.bestTechniqueFor(
         returned.parentPlan(), returned
       );
-      return technique == null ? returned : technique;
+      if (report) I.say("  Picked technique: "+technique.basis);
     }
-    
+    if (technique != null) {
+      if (report) I.say("  Returning technique: "+technique.basis);
+      returned = technique;
+    }
+    //
+    //  Then, if possible, return the final result.
+    if (returned != null) return returned;
     if (warnVerbose) {
       //
       //  If you exhaust the maximum number of iterations (which I assume

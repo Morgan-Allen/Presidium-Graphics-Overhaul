@@ -130,7 +130,7 @@ public class ShotFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
-    final boolean report = false;
+    final boolean report = I.used60Frames && false;
     
     //  First, we need to determine what the 'perp' angle should be (as in,
     //  perpendicular to the line of the beam, as perceived by the viewer.)
@@ -150,6 +150,15 @@ public class ShotFX extends SFX {
     perp.sub(origin);
     perp.normalise().scale(model.width);
     
+    if (report) {
+      I.say("\nRendering shot FX: "+this.hashCode());
+      I.say("  Origin:   "+origin  );
+      I.say("  Target:   "+target  );
+      I.say("  Position: "+position);
+      
+      I.say("  Perpendicular line: "+perp);
+    }
+    
     //  Alright.  Based on time elapsed, divided by period, you should have a
     //  certain number of missiles in flight.
     final float distance = origin.distance(target), numParts, partLen;
@@ -167,7 +176,6 @@ public class ShotFX extends SFX {
     }
     
     if (report) {
-      I.say("\nRendering shot FX...");
       I.say("  Model ID:  "+model.texName);
       I.say("  Num parts: "+numParts);
       I.say("  Period:    "+model.period);

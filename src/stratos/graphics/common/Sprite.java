@@ -7,7 +7,9 @@ package stratos.graphics.common;
 import stratos.util.*;
 
 import java.io.*;
+
 import com.badlogic.gdx.graphics.*;
+
 import java.lang.reflect.Field;
 
 
@@ -49,6 +51,14 @@ public abstract class Sprite {
     scale  = s.scale ;
     fog    = s.fog   ;
     colour = s.colour;
+  }
+  
+  
+  public Vec3D attachPoint(String function, Vec3D v) {
+    if (v == null) v = new Vec3D();
+    v.setTo(position);
+    v.z += 0.5f;
+    return v;
   }
   
   

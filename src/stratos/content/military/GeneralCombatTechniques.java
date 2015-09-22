@@ -6,6 +6,7 @@
 package stratos.content.military;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.economic.DeviceType;
 import stratos.game.plans.*;
 import stratos.game.wild.*;
 import stratos.graphics.sfx.PlaneFX;
@@ -63,22 +64,33 @@ public class GeneralCombatTechniques {
     REAL_HARM          ,
     NO_FATIGUE         ,
     MINOR_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 5
+    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 5,
+    Action.QUICK | Action.RANGED
   ) {
     
-    public float bonusFor(Actor using, Skill skill, Target subject) {
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
       if (! (subject instanceof Mobile)) return 5;
       if (((Mobile) subject).isMoving()) return -1;
       return 5;
     }
     
-    public void applyEffect(Actor using, boolean success, Target subject) {
-      super.applyEffect(using, success, subject);
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
       
       //  Last but not least, include special FX-
       final Vec3D posFX = using.position(null);
       posFX.z += using.height() + 0.25f;
       CombatFX.applyBurstFX(AIM_MODEL, posFX, 1, using.world());
+    }
+    
+    
+    public boolean canBeLearnt(Actor learns) {
+      final DeviceType DT = learns.gear.deviceType();
+      if (DT == null || DT.natural()) return false;
+      return super.canBeLearnt(learns);
     }
   };
   
@@ -93,16 +105,19 @@ public class GeneralCombatTechniques {
     REAL_HARM          ,
     NO_FATIGUE         ,
     MAJOR_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 10
+    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 10,
+    Action.QUICK | Action.RANGED
   ) {
     
-    public float bonusFor(Actor using, Skill skill, Target subject) {
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
       return -5;
     }
     
     
-    public void applyEffect(Actor using, boolean success, Target subject) {
-      super.applyEffect(using, success, subject);
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
       ///I.say("Applying suppression: "+using+" to "+subject);
       
       //  TODO:  This is an AoE effect, and should be evaluated & applied as
@@ -117,6 +132,13 @@ public class GeneralCombatTechniques {
         //  TODO:  Introduced fancy SFX here!
         //Combat.performStrike(actor, target, offence, defence, false);
       }
+    }
+    
+    
+    public boolean canBeLearnt(Actor learns) {
+      final DeviceType DT = learns.gear.deviceType();
+      if (DT == null || DT.natural()) return false;
+      return super.canBeLearnt(learns);
     }
     
     
@@ -143,20 +165,23 @@ public class GeneralCombatTechniques {
   
   final public static Technique SHIELD_BYPASS = new Technique(
     "Shield Bypass", DIR+"armour_bypass.png", Action.FIRE,
-    BASE_CLASS, "armour_bypass",
+    BASE_CLASS, "shield_bypass",
     MINOR_POWER         ,
     REAL_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, HAND_TO_HAND, 15
+    Technique.TYPE_PASSIVE_EFFECT, HAND_TO_HAND, 15,
+    Action.QUICK
   ) {
     
-    public float bonusFor(Actor using, Skill skill, Target subject) {
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
       return 0;
     }
     
-    public void applyEffect(Actor using, boolean success, Target subject) {
-      super.applyEffect(using, success, subject);
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
       
       //  TODO:  Use a 'volley' class to ignore armour values.
       

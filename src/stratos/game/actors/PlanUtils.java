@@ -229,6 +229,7 @@ public class PlanUtils {
     
     retreatUrge = PlanUtils.retreatPriority(actor, surveyed);
     priority = incentive - (retreatUrge / 2);
+    if (idle) priority = Nums.max(priority, novelty / 2);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
@@ -243,8 +244,6 @@ public class PlanUtils {
       "retreat urge"  , retreatUrge  ,
       "priority"      , priority
     );
-    
-    if (priority < retreatUrge) return 0;
     return priority;
   }
   
@@ -407,7 +406,7 @@ public class PlanUtils {
     float strangeness = actor.relations.noveltyFor(toward.base());
     float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     if (positive) return curiosity * strangeness;
-    else return Nums.clamp(strangeness - curiosity, 0, 1);
+    else return Nums.clamp(strangeness + 0.5f - curiosity, 0, 1);
   }
   
   

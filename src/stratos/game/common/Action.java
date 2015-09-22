@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -14,13 +12,9 @@ import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-
 import java.lang.reflect.*;
 
 
-
-//  TODO:  ...You need to arrange for actions to terminate if you wind up
-//  staying in one place too long (which likely means you're stuck.)
 
 public class Action implements Behaviour, AnimNames {
   
@@ -28,6 +22,7 @@ public class Action implements Behaviour, AnimNames {
   /**  Field definitions, constants and constructors-
     */
   final public static int
+    NORMAL   = 0,   //  No special modifiers...
     QUICK    = 1,   //  Done while running.
     CAREFUL  = 2,   //  Done in stealth mode.
     TRACKS   = 4,   //  Should track facing with the target.

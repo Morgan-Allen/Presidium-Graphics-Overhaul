@@ -57,8 +57,6 @@ public abstract class Technique extends Index.Entry
   
   final public int    type     ;
   final public Skill  skillUsed;
-  //final public Object learnFrom;
-  //final public Object trigger  ;
   final public int    minLevel ;
   
   final public float
@@ -66,6 +64,7 @@ public abstract class Technique extends Index.Entry
     harmFactor       ,
     fatigueCost      ,
     concentrationCost;
+  final public int    actionProperties;
   
   final public Condition asCondition;
   
@@ -75,8 +74,8 @@ public abstract class Technique extends Index.Entry
     Class sourceClass, String uniqueID,
     float power, float harm,
     float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel
-    //Object learnFrom, Object trigger
+    int type, Skill skillUsed, int minLevel,
+    int actionProperties
   ) {
     super(INDEX, uniqueID);
     this.name     = name    ;
@@ -89,26 +88,41 @@ public abstract class Technique extends Index.Entry
     
     this.sourceClass = sourceClass;
     
-    this.powerLevel        = power        ;
-    this.harmFactor        = harm         ;
-    this.fatigueCost       = fatigue      ;
-    this.concentrationCost = concentration;
+    this.powerLevel        = power           ;
+    this.harmFactor        = harm            ;
+    this.fatigueCost       = fatigue         ;
+    this.concentrationCost = concentration   ;
+    this.actionProperties  = actionProperties;
     
     this.type      = type     ;
     this.skillUsed = skillUsed;
     this.minLevel  = minLevel ;
-    //this.learnFrom = learnFrom;
-    //this.trigger   = trigger  ;
     
     List <Technique> bySource = BY_SOURCE.get(skillUsed);
     if (bySource == null) BY_SOURCE.put(skillUsed, bySource = new List());
     bySource.add(this);
     
-    this.asCondition = new Condition(name, false) {
+    this.asCondition = new Condition(name, false, name) {
       public void affect    (Actor a) { applyAsCondition(a); }
       public void onAddition(Actor a) { onConditionStart(a); }
       public void onRemoval (Actor a) { onConditionEnd  (a); }
     };
+  }
+  
+  
+  //  TODO:  Hook these up properly.  (Plus area-of-effect!)
+  
+  public Technique assignActiveTriggers(
+    Class planClass,
+    Class subjectClass,
+    float harmMeant
+  ) {
+    return this;
+  }
+  
+  
+  public Technique assignPassiveTrigger(Skill skillUsed) {
+    return this;
   }
   
   
@@ -123,7 +137,7 @@ public abstract class Technique extends Index.Entry
   
   
   
-  /**  Helper methods for determining skill-aquisition.
+  /**  Helper methods for determining skill-aquisition and triggering-
     */
   public static Series <Technique> learntFrom(Object source) {
     return BY_SOURCE.get(source);
@@ -138,17 +152,18 @@ public abstract class Technique extends Index.Entry
   
   
   public boolean triggeredBy(
-    Actor actor, Plan current, Action action, Skill used
+    Actor actor, Plan current, Action action, Skill used, boolean passive
   ) {
-    return used == skillUsed;
+    if (passive && type == TYPE_PASSIVE_EFFECT) {
+      return used == skillUsed;
+    }
+    else {
+      return false;
+    }
   }
   
   
-  
-  /**  Decision methods for settling on a particular Technique to use in a
-    *  given situation-
-    */
-  public float priorityFor(Actor actor, Target subject, float harmLevel) {
+  public float priorityFor(Actor actor, Target subject, float harmWanted) {
     //
     //  Techniques become less attractive based on the fraction of fatigue or
     //  concentration they would consume.
@@ -162,9 +177,10 @@ public abstract class Technique extends Index.Entry
     //  Don't use a harmful technique against a subject you want to help, and
     //  try to avoid extreme harm against subjects you only want to subdue, et
     //  cetera.
-    if (harmLevel * harmFactor <= 0) return 0;
+    if (harmFactor >  0 && harmWanted <= 0) return 0;
+    if (harmFactor <= 0 && harmWanted >  0) return 0;
     float rating = 10;
-    rating -= Nums.abs(harmLevel - harmFactor);
+    rating -= Nums.abs(harmWanted - harmFactor);
     rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
     rating = powerLevel * rating / 10f;
     if (report) I.say("  Overall rating: "+rating);
@@ -176,40 +192,36 @@ public abstract class Technique extends Index.Entry
   /**  Basic interface and utility methods for use and evaluation of different
     *  techniques-
     */
-  //
-  //  TODO:  You need separate methods here for each of the main types of
-  //  Technique- e.g, passive bonus v. independent action v. piggyback
-  //  action, etc.
-  public abstract float bonusFor(Actor using, Skill skill, Target subject);
-  
-  
-  public void applyEffect(Actor using, boolean success, Target subject) {
+  public void applyEffect(
+    Actor using, boolean success, Target subject, boolean passive
+  ) {
     using.health.takeFatigue      (fatigueCost      );
     using.health.takeConcentration(concentrationCost);
   }
   
   
-  protected Action asActionFor(Actor actor, Target subject) {
+  protected Action createActionFor(Plan parent, Actor actor, Target subject) {
     final Action action = new Action(
       actor, subject,
       this, "actionUseTechnique",
       animName, "Using "+name
     );
-    action.setProperties(Action.RANGED | Action.QUICK);
-    action.setPriority(Action.ROUTINE);
+    action.setProperties(actionProperties);
+    action.setPriority(parent.priorityFor(actor));
     return action;
   }
   
   
-  public static boolean isDoingAction(Actor actor, Technique used) {
-    final Action taken = actor.currentAction();
-    return taken != null && taken.basis == used;
+  public boolean actionUseTechnique(Actor actor, Target subject) {
+    final boolean success = checkActionSuccess(actor, subject);
+    applyEffect(actor, success, subject, false);
+    return success;
   }
   
   
-  public boolean actionUseTechnique(Actor actor, Target subject) {
-    applyEffect(actor, true, subject);
-    return true;
+  protected boolean checkActionSuccess(Actor actor, Target subject) {
+    if (skillUsed == null) return true;
+    else return actor.skills.test(skillUsed, minLevel, 1, null);
   }
   
   
@@ -235,13 +247,63 @@ public abstract class Technique extends Index.Entry
   }
   
   
+  public float passiveBonus(Actor using, Skill skill, Target subject) {
+    return 0;
+  }
+  
+
+  
+  
+  public static boolean isDoingAction(Actor actor, Technique used) {
+    final Action taken = actor.currentAction();
+    return taken != null && taken.basis == used;
+  }
+  
+  
+  public static Action currentTechniqueBy(Actor actor) {
+    final Action taken = actor.currentAction();
+    if (taken == null || ! (taken.basis instanceof Technique)) return null;
+    return taken;
+  }
+  
+  
+  public static Series <Actor> subjectsInRange(Target point, float radius) {
+    final Batch <Actor> subjects = new Batch();
+    final Vec3D centre = point.position(null);
+    final Box2D area = new Box2D(centre.x, centre.y, 0, 0);
+    area.expandBy(Nums.round(radius + point.radius(), 1, true));
+    
+    for (Tile t : point.world().tilesIn(area, true)) {
+      for (Mobile m : t.inside()) {
+        if (Spacing.distance(m, point) > radius) continue;
+        if (! (m instanceof Actor)) continue;
+        subjects.add((Actor) m);
+      }
+    }
+    return subjects;
+  }
+  
+  
   
   /**  Rendering, interface and printout methods-
     */
   public String toString() {
     return name;
   }
+  
+  
+  public static void describeAction(
+    Action techniqueUse, Actor actor, Description d
+  ) {
+    d.append("Using ");
+    d.append(techniqueUse.basis);
+    d.append(" on ");
+    d.append(techniqueUse.subject());
+  }
 }
+
+
+
 
 
 

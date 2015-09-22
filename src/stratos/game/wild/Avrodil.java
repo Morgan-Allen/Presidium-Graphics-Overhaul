@@ -12,19 +12,24 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.sfx.PlaneFX;
+import stratos.graphics.sfx.ShotFX;
 import stratos.graphics.solids.*;
+import stratos.start.Assets;
+import stratos.user.BaseUI;
+import stratos.user.SelectionPane;
 import stratos.util.*;
 
 
 
-public class Avrodil extends Fauna implements Mount {
+public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Species SPECIES = new Species(
     Avrodil.class,
     "Avrodil",
-    "ENTER AVRODIL DESCRIPTION HERE",
-    
+    "The Avrodil is a species of voracious ambulatory plant life, notorious "+
+    "for it's rapid reproduction and aggressive temperament.",
     FILE_DIR+"AvrodilPortrait.png",
     MS3DModel.loadFrom(
       FILE_DIR, "Avrodil.ms3d", Avrodil.class,
@@ -83,14 +88,18 @@ public class Avrodil extends Fauna implements Mount {
     gear.setBaseArmour(4);
     
     traits.setLevel(FEARLESS    , 1);
-    traits.setLevel(MARKSMANSHIP, 5  + Rand.index(5) - 3);
+    traits.setLevel(MARKSMANSHIP, 5   + Rand.index(5) - 3);
     traits.setLevel(HAND_TO_HAND, 15  + Rand.index(5) - 3);
     
-    skills.addTechnique(CAMOUFLAGE);
+    skills.addTechnique(CAMOUFLAGE  );
+    skills.addTechnique(DEVOUR      );
+    skills.addTechnique(WHIPLASH    );
+    skills.addTechnique(POLLEN_SPRAY);
   }
   
   
   protected void addReactions(Target seen, Choice choice) {
+    super.addReactions(seen, choice);
   }
   
   
@@ -99,30 +108,64 @@ public class Avrodil extends Fauna implements Mount {
   }
   
   
+  protected Behaviour nextBuildingNest() {
+    return null;
+  }
+  
+  
+  protected float breedingReadiness(boolean checkNest) {
+    return super.breedingReadiness(false) * 2;
+  }
+  
+  
   
   /**  Specialised Techniques for personal use:
     */
   final static String DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = Avrodil.class;
+  final static float
+    POLLEN_RADIUS = 2.0f;
+  
+  
+  final static ShotFX.Model
+    WHIPLASH_MODEL = new ShotFX.Model(
+      "whiplash_fx", BASE_CLASS, "media/SFX/whiplash_thrown.png",
+      -1, 0, 0.3f, 3.0f, false, false
+    );
+  final static PlaneFX.Model
+    CAMO_CASTING_MODEL = new PlaneFX.Model(
+      "camo_cast_fx", BASE_CLASS, "media/SFX/camo_casting.png",
+      0.5f, 0, 0.2f, true, false
+    ),
+    WHIPLASH_BURST_MODEL = new PlaneFX.Model(
+      "whip_burst_fx", BASE_CLASS, "media/SFX/whiplash_burst.png",
+      0.5f, 0, 0, false, false
+    ),
+    POLLEN_BURST_MODEL = new PlaneFX.Model(
+      "pollen_burst_fx", BASE_CLASS, "media/SFX/pollen_burst.png",
+      1.0f, 0, 0.75f, false, false
+    ),
+    POLLEN_HAZE_MODEL = new PlaneFX.Model(
+      "pollen_haze_fx", BASE_CLASS, "media/SFX/pollen_haze.png",
+      2, 2, 4, 1.0f, 0.25f
+    );
   
   
   final public static Technique CAMOUFLAGE = new Technique(
     "Camouflage", DIR+"camouflage.png", Action.FALL,
     BASE_CLASS         , "avrodil_camo",
     MINOR_POWER        ,
-    NO_HARM            ,
+    REAL_HELP          ,
     MINOR_FATIGUE      ,
-    MAJOR_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, null, 0
+    NO_CONCENTRATION   ,
+    Technique.TYPE_PASSIVE_EFFECT, null, 0,
+    Action.NORMAL
   ) {
     
-    public float bonusFor(Actor using, Skill skill, Target subject) {
-      return -1;
-    }
-    
-    
-    public void applyEffect(Actor using, boolean success, Target subject) {
-      super.applyEffect(using, success, subject);
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
       final Tile location = using.origin();
       if (location.habitat().floraSpecies == null) return;
       using.traits.setLevel(asCondition, 1);
@@ -161,8 +204,11 @@ public class Avrodil extends Fauna implements Mount {
     
     
     public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used
+      Actor actor, Plan current, Action action, Skill used, boolean passive
     ) {
+      if (actor.traits.hasTrait(asCondition)) {
+        return false;
+      }
       if (current instanceof Retreat) {
         return true;
       }
@@ -181,33 +227,50 @@ public class Avrodil extends Fauna implements Mount {
     EXTREME_HARM        ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_INDEPENDANT_ACTION, null, 0
+    Technique.TYPE_INDEPENDANT_ACTION, null, 0,
+    Action.QUICK
   ) {
     
-    public float bonusFor(Actor using, Skill skill, Target subject) {
-      return -1;
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      final Avrodil eats = (Avrodil) using;
+      final Actor victim = (Actor) subject;
+      final boolean report = false;
+      
+      if (success) {
+        final float maxBulk = eats.health.baseBulk() / 2;
+        final float chance = 1f - (victim.health.baseBulk() / maxBulk);
+        if (Rand.num() > chance) success = false;
+        if (report) I.say("\nChance to devour is: "+chance);
+      }
+      else if (report) I.say("\nDevour attempt failed!");
+      
+      if (success) {
+        super.applyEffect(using, success, subject, passive);
+        victim.bindToMount(eats);
+        if (report) I.say("  Devour attempt successful!");
+      }
     }
     
     
-    public void applyEffect(Actor using, boolean success, Target subject) {
-      final Avrodil eats = (Avrodil) using;
-      final Actor victim = (Actor) subject;
-      
-      final float maxBulk = eats.health.baseBulk() / 2;
-      final float chance = 1f - (victim.health.baseBulk() / maxBulk);
-      if (Rand.num() > chance) success = false;
-      
-      super.applyEffect(using, success, subject);
-      if (success) victim.bindToMount(eats);
+    protected boolean checkActionSuccess(Actor actor, Target subject) {
+      return Combat.performStrike(
+        actor, (Actor) subject,
+        HAND_TO_HAND, HAND_TO_HAND,
+        Combat.OBJECT_DESTROY, actor.currentAction()
+      );
     }
     
     
     public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used
+      Actor actor, Plan current, Action action, Skill used, boolean passive
     ) {
-      if (! (action.subject() instanceof Actor)) {
+      if (passive || action == null || ! (action.subject() instanceof Actor)) {
         return false;
       }
+      if (! (current instanceof Combat)) return false;
+      
       final Avrodil eats = (Avrodil) actor;
       final Actor victim = (Actor) action.subject();
       if (eats.digesting != null) {
@@ -216,16 +279,106 @@ public class Avrodil extends Fauna implements Mount {
       if (victim.health.baseBulk() > eats.health.baseBulk() / 2) {
         return false;
       }
-      if (current instanceof Combat && used == HAND_TO_HAND) {
-        return true;
-      }
-      return false;
+      return true;
     }
   };
   
   
+  final public static Technique WHIPLASH = new Technique(
+    "Whiplash", DIR+"avrodil_whiplash.png", Action.STRIKE,
+    BASE_CLASS          , "avrodil_whiplash",
+    MINOR_POWER         ,
+    REAL_HARM           ,
+    MINOR_FATIGUE       ,
+    MEDIUM_CONCENTRATION,
+    Technique.TYPE_INDEPENDANT_ACTION, null, 0,
+    Action.QUICK | Action.RANGED
+  ) {
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      CombatFX.applyShotFX(
+        WHIPLASH_MODEL, WHIPLASH_BURST_MODEL,
+        using, subject, success, 0.5f, using.world()
+      );
+      if (success) {
+        final Actor struck = (Actor) subject;
+        Vec3D pos = struck.position(null).add(using.position(null));
+        pos.scale(0.5f);
+        struck.setHeading(pos, struck.rotation(), false, using.world());
+      }
+    }
+    
+    
+    protected boolean checkActionSuccess(Actor actor, Target subject) {
+      return Combat.performStrike(
+        actor, (Actor) subject,
+        MARKSMANSHIP, STEALTH_AND_COVER,
+        Combat.OBJECT_DESTROY, actor.currentAction()
+      );
+    }
+    
+    
+    public boolean triggeredBy(
+      Actor actor, Plan current, Action action, Skill used, boolean passive
+    ) {
+      if (passive || action == null || ! (action.subject() instanceof Actor)) {
+        return false;
+      }
+      if (Spacing.distance(actor, action.subject()) < 1) return false;
+      return current instanceof Combat;
+    }
+  };
   
-  //  TODO:  Also include Whiplash and Pollen Spray.
+  
+  final public static Technique POLLEN_SPRAY = new Technique(
+    "Pollen Spray", DIR+"avrodil_pollen_spray.png", Action.STRIKE_BIG,
+    BASE_CLASS          , "avrodil_pollen_spray",
+    MEDIUM_POWER        ,
+    REAL_HARM           ,
+    MEDIUM_FATIGUE      ,
+    MEDIUM_CONCENTRATION,
+    Technique.TYPE_INDEPENDANT_ACTION, null, 0,
+    Action.QUICK
+  ) {
+    
+    public boolean triggeredBy(
+      Actor actor, Plan current, Action action, Skill used, boolean passive
+    ) {
+      if (passive || action == null || ! (action.subject() instanceof Actor)) {
+        return false;
+      }
+      if (Spacing.distance(actor, action.subject()) > POLLEN_RADIUS - 0.5f) {
+        return false;
+      }
+      return current instanceof Combat;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      CombatFX.applyBurstFX(POLLEN_BURST_MODEL, using, 0.5f, 1.5f);
+      
+      for (Actor hit : Technique.subjectsInRange(using, POLLEN_RADIUS)) {
+        if (hit == using || hit instanceof Avrodil) continue;
+        hit.traits.setLevel(asCondition, 1);
+      }
+    }
+    
+    
+    protected void applyAsCondition(Actor affected) {
+      super.applyAsCondition(affected);
+      affected.traits.incBonus(MOTOR, -5);
+      affected.health.takeInjury(-1f, false);
+      
+      CombatFX.applyBurstFX(POLLEN_HAZE_MODEL, affected, 1.25f, 1.0f);
+    }
+  };
   
   
   
@@ -241,17 +394,24 @@ public class Avrodil extends Fauna implements Mount {
     
     if (digesting != null && ! instant) {
       final float burn = digesting.health.maxHealth() / DIGEST_DURATION;
-      digesting.health.takeFatigue(burn);
+      digesting.health.setState(ActorHealth.STATE_SUSPEND);
+      digesting.health.takeInjury(burn, true);
       health.takeCalories(burn, 1);
       health.liftInjury(burn * DIGEST_REGEN_FRACTION);
-      if (digesting.health.isDead()) digesting = null;
+      if (digesting.health.isDead()) {
+        digesting = null;
+      }
     }
   }
   
   
   public void enterStateKO(String animName) {
     super.enterStateKO(animName);
-    if (digesting != null) digesting.releaseFromMount();
+    if (digesting != null) {
+      digesting.health.setState(ActorHealth.STATE_ACTIVE);
+      digesting.health.setBleeding(true);
+      digesting.releaseFromMount();
+    }
   }
   
 
@@ -281,12 +441,24 @@ public class Avrodil extends Fauna implements Mount {
   public void configureSpriteFrom(
     Actor mounted, Action action, Sprite actorSprite
   ) {
+    viewPosition(actorSprite.position);
   }
   
   
   public void describeActor(Actor mounted, Description d) {
-    d.append("Being digesting by ");
+    d.append("Being digested by ");
     d.append(this);
+  }
+  
+  
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+    final SelectionPane pane = super.configSelectPane(panel, UI);
+    
+    if (digesting != null) {
+      pane.listing().append("\n  Digesting: ");
+      pane.listing().append(digesting);
+    }
+    return pane;
   }
   
   

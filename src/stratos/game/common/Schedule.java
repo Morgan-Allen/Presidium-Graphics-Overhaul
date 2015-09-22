@@ -39,19 +39,19 @@ public class Schedule {
   }
   
   private static class Event {
-    private float time;
-    private int initTime, lastUpdateCount;
+    private float updateTime, callTime = -1;
+    private int updatesCount;
     private Updates updates;
     
     public String toString() {
-      return updates+" Update for: "+time;
+      return updates+" Update for: "+updateTime+"/"+callTime;
     }
   }
   
   final Sorting <Event> events = new Sorting <Event> () {
     public int compare(Event a, Event b) {
       if (a.updates == b.updates) return 0;
-      return a.time > b.time ? 1 : -1;
+      return a.callTime > b.callTime ? 1 : -1;
     }
   };
   
@@ -71,10 +71,10 @@ public class Schedule {
     s.saveInt(allUpdates.size());
     for (Object node : allUpdates.values()) {
       final Event event = events.refValue(node);
-      s.saveFloat(event.time);
-      s.saveInt(event.initTime);
-      s.saveInt(event.lastUpdateCount);
-      s.saveObject(event.updates);
+      s.saveFloat (event.updateTime  );
+      s.saveFloat (event.callTime    );
+      s.saveInt   (event.updatesCount);
+      s.saveObject(event.updates     );
     }
   }
   
@@ -83,10 +83,10 @@ public class Schedule {
     currentTime = s.loadFloat();
     for (int n = s.loadInt(); n-- > 0;) {
       final Event event = new Event();
-      event.time = s.loadFloat();
-      event.initTime = s.loadInt();
-      event.lastUpdateCount = s.loadInt();
-      event.updates = (Updates) s.loadObject();
+      event.updateTime   = s.loadFloat();
+      event.callTime     = s.loadFloat();
+      event.updatesCount = s.loadInt();
+      event.updates      = (Updates) s.loadObject();
       allUpdates.put(event.updates, events.insert(event));
     }
   }
@@ -102,16 +102,22 @@ public class Schedule {
       return;
     }
     final Event event = new Event();
-    if (verbose) I.say("Scheduling "+updates+" for updates...");
-    
+    //
     //  We 'fudge' the incept and scheduling times a little here to help ensure
     //  that client updates are staggered evenly over the schedule, rather
     //  than clustering in one or two processor-intensive updates.
-    event.lastUpdateCount = Rand.index(10);
-    event.initTime = ((int) currentTime) - event.lastUpdateCount;
-    event.time = currentTime + (Rand.num() * updates.scheduledInterval());
-    event.updates = updates;
+    final float interval = updates.scheduledInterval();
+    event.updateTime   = currentTime + (Rand.num() * interval);
+    event.updatesCount = Rand.index(10);
+    event.callTime     = event.updateTime;
+    event.updates      = updates;
     allUpdates.put(updates, events.insert(event));
+    
+    if (verbose) {
+      I.say("Scheduling "+updates+" for updates...");
+      I.say("  Update time: "+event.updateTime);
+      I.say("  Call time:   "+event.callTime  );
+    }
   }
   
   
@@ -135,14 +141,25 @@ public class Schedule {
       I.reportStackTrace();
       return;
     }
-    if (verbose && ! delaysOnly) {
-      I.say("...Scheduling for instant update: "+updates);
-    }
+    
     final Event event = events.refValue(ref);
-    event.time = currentTime;
-    event.lastUpdateCount = -1; //  flag to pass 'instant' argument (below.)
+    if (event.updatesCount == 0) {
+      event.updateTime = event.callTime = currentTime;
+    }
+    else {
+      event.callTime = Nums.min(currentTime, event.updateTime) - 5;
+    }
     events.deleteRef(ref);
     allUpdates.put(event.updates, events.insert(event));
+    
+    if (verbose && updateVerbose) {
+      I.say("...Scheduled for instant update: "+updates);
+      I.say("  Call time:    "+event.callTime  );
+      I.say("  Current time: "+currentTime     );
+      I.say("  Update time:  "+event.updateTime);
+      
+      I.reportStackTrace();
+    }
   }
   
   
@@ -162,8 +179,13 @@ public class Schedule {
     *  the host world.
     */
   protected void advanceSchedule(final float currentTime) {
-    this.currentTime = currentTime;
     
+    final boolean report = updateVerbose;
+    if (report) {
+      I.say("\nUpdating schedule- time: "+currentTime);
+    }
+    
+    this.currentTime = currentTime;
     final int NU = PlayLoop.UPDATES_PER_SECOND * 2;
     maxInterval = (int) (1000 / (PlayLoop.gameSpeed() * NU)) - 1;
     
@@ -189,41 +211,46 @@ public class Schedule {
       }
       
       final Event event = events.refValue(leastRef);
-      lastEventTime = event.time;
-      if (event.time > currentTime) {
+      lastEventTime = event.callTime;
+      if (event.callTime > currentTime) {
         finishedOK = true;
         break;
       }
       
-      final int updateCount = (int) (currentTime - event.initTime);
-      final boolean instant = event.lastUpdateCount == -1;
       final float interval = event.updates.scheduledInterval();
+      final boolean instant = event.callTime < event.updateTime - 1;
       events.deleteRef(leastRef);
+      
+      if (report) {
+        I.say("  Updating: "+event.updates);
+        I.say("    Scheduled time:    "+event.updateTime  );
+        I.say("    Called time:       "+event.callTime    );
+        I.say("    Total updates:     "+event.updatesCount);
+        I.say("    Update-interval:   "+interval);
+        I.say("    Instant?           "+instant );
+      }
       
       //  TODO:  Stretch this out further based on the proportion of clients
       //  that updated successfully last cycle?
       if (! instant) {
-        if (lastUpdateOkay) event.time += interval + ((Rand.num() - 0.5f) / 5);
-        else                event.time += (interval * 2) - Rand.num();
+        event.updatesCount++;
+        event.updateTime += lastUpdateOkay ?
+          (interval + ((Rand.num() - 0.5f) / 5)) :
+          ((interval * 2) - Rand.num());
       }
+      event.callTime = event.updateTime;
       allUpdates.put(event.updates, events.insert(event));
+
+      long startTime = System.nanoTime();
+      final int updates = instant ? -1 : event.updatesCount;
+      event.updates.updateAsScheduled(updates, instant);
       
-      if (instant || updateCount > event.lastUpdateCount) {
-        long startTime = System.nanoTime();
-        if (updateVerbose) I.say("  Updating: "+event.updates);
-        event.updates.updateAsScheduled(updateCount, instant);
-        //
-        //  Instant events still get a shot at regular updates:
-        if (instant) event.lastUpdateCount = updateCount - 1;
-        else         event.lastUpdateCount = updateCount + 0;
-        
-        long updateTime = System.nanoTime() - startTime;
-        if (updateTime > longestTime) {
-          longestTime = updateTime;
-          longestUpdate = event.updates;
-        }
-        totalUpdated++;
+      long updateTime = System.nanoTime() - startTime;
+      if (updateTime > longestTime) {
+        longestTime = updateTime;
+        longestUpdate = event.updates;
       }
+      totalUpdated++;
     }
     
     this.lastUpdateOkay = finishedOK;

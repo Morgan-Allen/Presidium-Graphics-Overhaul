@@ -125,9 +125,9 @@ public class ActorDescription implements Qualities {
     if (hunger > 0) d.append(" (Hunger "+hunger+"%)");
     //
     //  And describe any special status FX-
-    final Batch <String   > healthDesc = new Batch <String> ();
-    for (Condition c : Conditions.ALL_CONDITIONS) {
-      if (h.traits.traitLevel(c) > 0) healthDesc.add(h.traits.description(c));
+    final Batch <String> healthDesc = new Batch <String> ();
+    for (Trait t : h.traits.conditions()) {
+      healthDesc.add(h.traits.description(t));
     }
     d.append("\n  ");
     for (String s : healthDesc) if (s != null) {
@@ -325,28 +325,24 @@ public class ActorDescription implements Qualities {
         l.append(Skill.skillDesc(level), Skill.skillTone(level));
       }
     }
-    l.append("\nCarried: ");
-    for (Item item : actor.gear.allItems()) l.append("\n  "+item);
+    
+    final Series <Technique> known = actor.skills.knownTechniques();
+    if (known.size() > 0) {
+      l.append("\n\nTechniques: ");
+      for (Technique p : known) {
+        l.append("\n  "+p.name);
+      }
+    }
+    
+    final Series <Item> carried = actor.gear.allItems();
+    if (carried.size() > 0) {
+      l.append("\n\nCarried: ");
+      for (Item item : carried) l.append("\n  "+item);
+    }
+    
     l.append("\n\n");
     l.append(actor.species().info, Colour.LITE_GREY);
     
-    /*
-    d.append("Is: ");
-    actor.describeStatus(d);
-    
-    d.append("\nNests at: ");
-    if (actor.mind.home() != null) {
-      d.append(actor.mind.home());
-    }
-    else d.append("No nest");
-    
-    
-    
-    l.append("Condition: ");
-    final Batch <String> CD = actor.health.conditionsDesc();
-    if (CD.size() == 0) l.append("Okay");
-    else l.appendList("", CD);
-    //*/
     return panel;
   }
 }

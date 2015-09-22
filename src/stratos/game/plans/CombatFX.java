@@ -79,35 +79,56 @@ public class CombatFX {
     final Stage world = uses.world();
     
     if (type == null || type.hasProperty(MELEE)) {
-      //
-      //  Put in a little 'splash' FX, in the direction of the arc.
-      final float r = uses.radius();
-      final Sprite slashFX = SLASH_FX_MODEL.makeSprite();
-      slashFX.scale = r * 2;
-      world.ephemera.addGhost(uses, r, slashFX, 0.33f);
+      applyMeleeFX(SLASH_FX_MODEL, uses, applied, world);
     }
     
     else if (type == HUNTING_LANCE) {
-      final ShotFX shot = applyShotFX(
-        SPEAR_FX_MODEL, uses, applied, hits, 1 + (distance * 0.1f), world
+      applyShotFX(
+        SPEAR_FX_MODEL,
+        uses, applied, hits, 1 + (distance * 0.1f), world
       );
     }
     
     else if (type.hasProperty(RANGED | KINETIC)) {
-      final ShotFX shot = applyShotFX(
-        PISTOL_FX_MODEL, uses, applied, hits, 1 + (distance * 0.1f), world
+      applyShotFX(
+        PISTOL_FX_MODEL, PISTOL_BURST_MODEL,
+        uses, applied, hits, 1 + (distance * 0.1f), world
       );
-      applyBurstFX(PISTOL_BURST_MODEL, shot.origin, 0.66f, world);
-      applyBurstFX(PISTOL_BURST_MODEL, shot.target, 0.66f, world);
     }
     
     else if (type.hasProperty(RANGED | ENERGY)) {
-      final ShotFX shot = applyShotFX(
-        LASER_FX_MODEL, uses, applied, hits, 0.66f, world
+      applyShotFX(
+        LASER_FX_MODEL, LASER_BURST_MODEL,
+        uses, applied, hits, 0.66f, world
       );
-      applyBurstFX(LASER_BURST_MODEL, shot.origin, 0.66f, world);
-      applyBurstFX(LASER_BURST_MODEL, shot.target, 0.66f, world);
     }
+  }
+  
+  
+  public static void applyMeleeFX(
+    ModelAsset model, Mobile uses, Target applied, Stage world
+  ) {
+    //
+    //  Put in a little 'splash' FX, in the direction of the arc.
+    final float r = uses.radius();
+    final Sprite slashFX = model.makeSprite();
+    uses.viewPosition(slashFX.position);
+    slashFX.scale = r * 2;
+    slashFX.position.z += uses.height() / 2;
+    world.ephemera.addGhost(uses, r, slashFX, 0.33f);
+  }
+  
+  
+  public static void applyShotFX(
+    ShotFX.Model model, PlaneFX.Model burstModel,
+    Mobile uses, Target applied,
+    boolean hits, float duration, Stage world
+  ) {
+    final ShotFX shot = applyShotFX(
+      model, uses, applied, hits, duration, world
+    );
+    applyBurstFX(burstModel, shot.origin, 0.66f, world);
+    applyBurstFX(burstModel, shot.target, 0.66f, world);
   }
   
   
@@ -117,18 +138,40 @@ public class CombatFX {
   ) {
     final ShotFX shot = (ShotFX) model.makeSprite();
     //  TODO:  Consider setting the fire point manually if the animation state
-    //  hasn't matured yet.
+    //  hasn't matured yet?
     
-    final SolidSprite sprite = (SolidSprite) uses.sprite();
+    final Sprite sprite = uses.sprite();
     uses.viewPosition(sprite.position);
     sprite.attachPoint("fire", shot.origin);
     shot.target.setTo(hitPoint(applied, hits));
     
     shot.position.setTo(shot.origin).add(shot.target).scale(0.5f);
     final float size = shot.origin.sub(shot.target, null).length() / 2;
-    world.ephemera.addGhost(null, size + 1, shot, duration);
     
+    if (false) I.reportVars(
+      "\nShot was fired:", "  ",
+      "From: "    , uses+" ("+uses.position(null)+")",
+      "To: "      , applied+" ("+applied.position(null)+")",
+      "Origin: "  , shot.origin,
+      "Target: "  , shot.target,
+      "Position: ", shot.position,
+      "Size: "    , size
+    );
+    
+    world.ephemera.addGhost(null, size + 1, shot, duration);
     return shot;
+  }
+  
+  
+  public static void applyBurstFX(
+    PlaneFX.Model model, Target point, float heightFraction, float duration
+  ) {
+    final Vec3D pos = point.position(null);
+    pos.z += point.height() * heightFraction;
+    
+    final Sprite s = model.makeSprite();
+    s.position.setTo(pos);
+    point.world().ephemera.addGhost(point, 1, s, duration);
   }
   
   
@@ -156,6 +199,8 @@ public class CombatFX {
     else {
       shieldFX = new ShieldFX();
       shieldFX.scale = 0.5f * uses.height();
+      uses.viewPosition(shieldFX.position);
+      shieldFX.position.z += uses.height() / 2;
       world.ephemera.addGhost(uses, 1, shieldFX, 2);
     }
     if (attackedBy != null) {

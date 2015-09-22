@@ -257,26 +257,47 @@ public abstract class Actor extends Mobile implements
     final Action action = actionTaken;
     
     boolean needsBigUpdate = false;
-    if (report) I.say("\nUpdating "+this+" as mobile, action: "+action);
+    if (report) {
+      I.say("\nUpdating "+this+" as mobile, action: "+action);
+      I.say("  Time:      "+world.currentTime());
+      I.say("  Conscious: "+OK);
+    }
     
-    if (action != null) action.updateAction(OK, this);
-    
-    if (action == null || ! OK) pathing.updateTarget(null);
+    if (action != null) {
+      action.updateAction(OK, this);
+    }
+    if (action == null || ! OK) {
+      pathing.updateTarget(null);
+    }
     else if (! pathing.checkPathingOkay()) {
       if (report) I.say("  Needs fresh pathing!");
       needsBigUpdate = true;
     }
     
-    if (action != null && ! Plan.canFollow(this, action, false)) {
-      if (report) I.say("  Have completed action: "+action);
+    
+    if (mount != null) {
+      final Plan activity = action == null ? null : action.parentPlan();
+      mount.position(nextPosition);
+      
+      if (activity != null && ! mount.allowsActivity(activity)) {
+        if (report) I.say("  Action not permitted by mount!");
+        assignAction(null);
+        needsBigUpdate = true;
+      }
+    }
+    if (! Plan.canFollow(this, action, false)) {
+      if (report) {
+        I.say("  Could not follow action: "+action);
+        Plan.reportPlanDetails(action, this);
+      }
       assignAction(null);
       needsBigUpdate = true;
     }
-    
-    //  TODO:  Include the effects of mount-riding here:
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
       aboard.position(nextPosition);
     }
+    
+    
     if (needsBigUpdate) {
       if (report) I.say("  SCHEDULING BIG UPDATE");
       world.schedule.scheduleNow(this);
@@ -296,6 +317,7 @@ public abstract class Actor extends Mobile implements
       I.say("    Num updates:      "+numUpdates);
       I.say("    Current time:     "+world.currentTime());
       I.say("    Okay/Check-sleep: "+OK+"/"+checkSleep);
+      I.say("    Current action:   "+actionTaken);
     }
     //
     //  Update our actions, pathing, and AI-
@@ -311,9 +333,15 @@ public abstract class Actor extends Mobile implements
       if (checkSleep) Resting.checkForWaking(this);
       
       else if (OK) {
-        if (report) I.say("  Next action is: "+nextAction+" vs. "+actionTaken);
-        if (nextAction != actionTaken) assignAction(nextAction);
-        if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
+        if (report) I.say("  Next action is: "+nextAction);
+        if (nextAction != actionTaken) {
+          if (report) I.say("  ASSIGNING ACTION");
+          assignAction(nextAction);
+        }
+        if (! pathing.checkPathingOkay()) {
+          if (report) I.say("  REFRESHING PATH!");
+          pathing.refreshFullPath();
+        }
       }
     }
     //
@@ -588,8 +616,15 @@ public abstract class Actor extends Mobile implements
   
   
   public void describeStatus(Description d, Object client) {
-    if (! health.conscious()) { d.append(health.stateDesc()); return; }
+    if (! health.conscious()) {
+      if (mount != null) mount.describeActor(this, d);
+      else d.append(health.stateDesc());
+      return;
+    }
     if (! inWorld()) {
+      //
+      //  TODO:  Move this to the BaseCommerce or VerseJourneys class, I would
+      //  suggest...
       final VerseJourneys journeys = base.world.offworld.journeys;
       final Vehicle ship = journeys.carries(this);
       if (ship != null && ship.inWorld()) {
@@ -602,6 +637,12 @@ public abstract class Actor extends Mobile implements
         ETA /= Stage.STANDARD_HOUR_LENGTH;
         d.append(" (ETA: "+Nums.round(ETA, 1, true)+" hours)");
       }
+      return;
+    }
+    
+    final Action technique = Technique.currentTechniqueBy(this);
+    if (technique != null) {
+      Technique.describeAction(technique, this, d);
       return;
     }
     

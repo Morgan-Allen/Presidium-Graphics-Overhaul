@@ -85,7 +85,6 @@ public class Retreat extends Plan implements Qualities {
     if (oldHaven == null) atHaven = false;
     else if (actor.indoors()) atHaven = actor.aboard() == oldHaven;
     else atHaven = Spacing.distance(actor, oldHaven) < sightHaven;
-    
     mustMove = atHaven && attacked && ! Action.isMoving(actor);
     
     final Pick <Boarding> pick = new Pick <Boarding> () {
@@ -134,7 +133,7 @@ public class Retreat extends Plan implements Qualities {
       pick.compare((Boarding) built , 1);
     }
     
-    if (emergency || pick.empty()) {
+    if ((! emergency) && pick.empty()) {
       if (pick.empty()) {
         pick.compare(pickHidePoint(actor, runRange, actor, -2), 1);
       }
@@ -157,6 +156,13 @@ public class Retreat extends Plan implements Qualities {
     *  to a full-blown long-distance retreat.)  Used to perform hit-and-run
     *  tactics, stealth while travelling, or an emergency hide.
     */
+  //  TODO:  Don't bother with fancy directional-evaluation here.  Just use
+  //  the relative strength of fog-of-war WRT hostile bases instead.
+  
+  //  In the event that you're hiding from your own base... use it's own fog
+  //  of war, and stop adding your own fog-FX.  Simple.
+  
+  
   public static Tile pickHidePoint(
     final Actor actor, float range, Target from, final int advanceFactor
   ) {

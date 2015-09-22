@@ -14,6 +14,21 @@ import stratos.util.*;
 //  technique or a trait-variant.
 
 
+
+//  Close Combat.      Medicine.
+//  Marksmanship.      Engineering.
+//  Surveillance.      Ecology.
+//  Piloting.          Accounting.
+//  Athletics.         Music & Song.
+//  Diplomacy.         Handicrafts.
+
+//  Psyonics    Palatine Way <> Xenopath Way
+//  Logician Training   <> Jil Baru Training
+//  Collective Training <> Navigator Training
+//  LENS Training       <> Tek Priest Training
+
+
+
 public interface Qualities {
   
   

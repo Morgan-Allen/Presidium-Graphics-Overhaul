@@ -69,22 +69,36 @@ public class ActorSkills {
   /**  Helper methods for technique selection, updates and queries-
     */
   public Action bestTechniqueFor(Plan plan, Action taken) {
+    final boolean report = I.talkAbout == actor && false;
     final Pick <Technique> pick = new Pick(0);
     this.active = null;
     
-    final Target  subject = taken.subject();
-    final float harmLevel = taken.actor.harmIntended(subject);
+    final Target subject = taken.subject();
+    float harmLevel = taken.actor.harmIntended(subject);
+    if (subject == actor) harmLevel -= 0.5f;
+    
+    if (report) {
+      I.say("\nGetting best technique for "+actor);
+      I.say("  Fatigue:       "+actor.health.fatigueLevel());
+      I.say("  Concentration: "+actor.health.concentration());
+      I.say("");
+    }
     
     for (Technique t : known) {
-      if (! t.triggeredBy(actor, plan, taken, null)) continue;
+      if (! t.triggeredBy(actor, plan, taken, null, false)) continue;
       final float appeal = t.priorityFor(actor, subject, harmLevel);
       pick.compare(t, appeal);
+      if (report) {
+        I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
+        I.say("    Appeal is "+appeal);
+      }
     }
     if (pick.empty()) return null;
     
     final Technique best = pick.result();
     this.active = best;
-    return best.asActionFor(actor, subject);
+    if (report) I.say("  Technique chosen: "+best);
+    return best.createActionFor(plan, actor, subject);
   }
   
   
@@ -98,7 +112,7 @@ public class ActorSkills {
     final float   harmLevel = acts ? taken.actor.harmIntended(subject) : -1   ;
     
     for (Technique t : known) {
-      if (! t.triggeredBy(actor, current, taken, skill)) continue;
+      if (! t.triggeredBy(actor, current, taken, skill, true)) continue;
       final float appeal = t.priorityFor(actor, subject, harmLevel);
       pick.compare(t, appeal);
     }
@@ -106,7 +120,7 @@ public class ActorSkills {
     
     final Technique bonus = pick.result();
     this.active = bonus;
-    return bonus.bonusFor(actor, skill, subject);
+    return bonus.passiveBonus(actor, skill, subject);
   }
   
   
@@ -190,7 +204,7 @@ public class ActorSkills {
     }
     if (active != null) {
       final Target subject = action == null ? actor : action.subject();
-      active.applyEffect(actor, success > 0, subject);
+      active.applyEffect(actor, success > 0, subject, true);
     }
     //
     //  Finally, return the result.

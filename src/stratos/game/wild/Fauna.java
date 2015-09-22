@@ -75,15 +75,25 @@ public abstract class Fauna extends Actor {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
-    if (numUpdates % 10 == 0 && health.alive()) {
-      float crowding = Nest.crowdingFor(this);
-      if (crowding >= 1 || mind.home() == null) crowding = 1.1f;
-      
-      float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
-      float breedInc = (1 - crowding) * 10 / Nest.DEFAULT_BREED_INTERVAL;
-      breedInc *= Nums.clamp(fertility, 0, ActorHealth.AGE_MAX);
+    final int period = 10;
+    if (numUpdates % period == 0 && health.alive()) {
+      final float breedRating = breedingReadiness(true);
+      float breedInc = period * breedRating / Nest.DEFAULT_BREED_INTERVAL;
       breedMetre = Nums.clamp(breedMetre + breedInc, 0, 1);
     }
+  }
+  
+  
+  protected float breedingReadiness(boolean checkNest) {
+    
+    float crowding = 0;
+    if (checkNest) {
+      crowding = Nest.crowdingFor(this);
+      if (crowding >= 1 || mind.home() == null) return 0;
+    }
+    
+    float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
+    return (1 - crowding) * Nums.clamp(fertility, 0, ActorHealth.AGE_MAX);
   }
   
 
@@ -113,6 +123,7 @@ public abstract class Fauna extends Actor {
       }
     };
   }
+  
   
   protected ActorRelations initRelations() {
     return new ActorRelations(this) {
@@ -150,7 +161,7 @@ public abstract class Fauna extends Actor {
     if (species.browser () ) choice.add(nextBrowsing());
     if (species.predator() ) choice.add(nextHunting ());
     if (breedMetre >= 0.99f) choice.add(nextBreeding());
-    choice.add(new Resting(this, senses.haven()));
+    if (senses.haven() != null) choice.add(new Resting(this, senses.haven()));
     choice.add(nextMigration   ());
     choice.add(nextBuildingNest());
     choice.add(new Retreat(this));
@@ -182,51 +193,10 @@ public abstract class Fauna extends Actor {
   }
   
   
-  //  TODO:  USE FORAGING FOR THIS
-  
   protected Behaviour nextBrowsing() {
     return Gathering.asBrowsing(this, Nest.forageRange(species));
-    /*
-    final Batch <Flora> sampled = new Batch <Flora> ();
-    world.presences.sampleFromMap(centre, world, 5, sampled, Flora.class);
-    Flora picked = null;
-    float bestRating = 0;
-    
-    for (Flora f : sampled) {
-      final float dist = Spacing.distance(this, f);
-      if (dist > (range * 2)) continue;
-      float rating = f.growStage() * Rand.avgNums(2);
-      rating *= range / (range + dist);
-      if (rating > bestRating) { picked = f; bestRating = rating; }
-    }
-    if (picked == null) return null;
-    
-    float priority = ActorHealth.MAX_CALORIES - (health.caloryLevel() + 0.1f);
-    priority *= Action.URGENT;
-    priority -= PlanUtils.homeDistanceFactor(this, picked);
-    if (priority < 0) return null;
-    
-    final Action browse = new Action(
-      this, picked,
-      this, "actionBrowse",
-      Action.STRIKE, "Browsing"
-    );
-    browse.setMoveTarget(Spacing.nearestOpenTile(picked.origin(), this));
-    browse.setPriority(priority);
-    return browse;
-    //*/
   }
   
-  
-  /*
-  public boolean actionBrowse(Fauna actor, Flora eaten) {
-    if (! eaten.inWorld()) return false;
-    float bite = 0.1f * health.maxHealth() / 10;
-    eaten.incGrowth(0 - bite, actor.world(), false);
-    actor.health.takeCalories(bite * PLANT_CONVERSION, 1);
-    return true;
-  }
-  //*/
   
   
   //  TODO:  USE NESTING/FINDHOME FOR THIS
@@ -335,12 +305,15 @@ public abstract class Fauna extends Actor {
   
   
   
-  //  TODO:  CREATE SPECIAL PLAN FOR THIS AND SHARE WITH HUMANOIDS, ETC
+  //  TODO:  CREATE SPECIAL PLAN FOR THIS AND SHARE WITH HUMANOIDS, ETC?
   
   protected Behaviour nextBreeding() {
-    if (mind.home() == null) return null;
+    Target shelter = mind.home();
+    if (shelter == null) shelter = senses.haven();
+    if (shelter == null) return null;
+    
     final Action breeds = new Action(
-      this, mind.home(),
+      this, shelter,
       this, "actionBreed",
       Action.FALL, "Breeding"
     );

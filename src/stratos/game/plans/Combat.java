@@ -5,7 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.base.Mission;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
@@ -335,7 +335,7 @@ public class Combat extends Plan implements Qualities {
   }
   
   
-  public static void performStrike(
+  public static boolean performStrike(
     Actor actor, Actor target,
     Skill offence, Skill defence,
     int strikeType, Action action
@@ -348,10 +348,13 @@ public class Combat extends Plan implements Qualities {
       lethal = strikeType == OBJECT_DESTROY,
       showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
-    //  TODO:  Move weapon/armour properties to dedicated subclasses.
+    //
+    //  TODO:  Move weapon/armour properties to dedicated subclasses?
+    
     final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN);
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
+    
     final float bypass = Nums.clamp(0 - penalty, 0, 5);
     if (subdue && ! canStun) penalty += 5;
     
@@ -409,17 +412,20 @@ public class Combat extends Plan implements Qualities {
       if (fatDamage > 0) target.health.takeFatigue(fatDamage        );
     }
     
-    if (! showFX) return;
-    CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);
+    if (showFX) {
+      CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);
+    }
+    
+    return success;
   }
   
   
-  public static void performSiege(
+  public static boolean performSiege(
     Actor actor, Placeable besieged, Action action
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     
-    boolean accurate = false;
+    boolean accurate = false, success = false;;
     if (actor.gear.meleeWeapon()) {
       accurate = actor.skills.test(HAND_TO_HAND, 0, 1, action);
     }
@@ -455,8 +461,13 @@ public class Combat extends Plan implements Qualities {
       I.say("  After armour: "+afterArmour);
     }
     
-    if (afterArmour > 0) besieged.structure().takeDamage(afterArmour);
+    if (afterArmour > 0) {
+      besieged.structure().takeDamage(afterArmour);
+      success = true;
+    }
     CombatFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
+    
+    return success;
   }
   
   

@@ -120,6 +120,10 @@ public class BaseRelations {
   public void setRelation(Base other, float attitude, boolean symmetric) {    
     final Relation r = new Relation(base, other, attitude, -1);
     baseRelations.put(other, r);
+    
+    if (I.logEvents()) {
+      I.say("Setting relations between "+base+" and "+other+" to "+attitude);
+    }
     if (symmetric) other.relations.setRelation(base, attitude, false);
   }
   

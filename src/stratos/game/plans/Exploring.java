@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -74,7 +76,7 @@ public class Exploring extends Plan implements Qualities {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next wandering for "+actor);
     
-    final float range = actor.health.sightRange() * 2;
+    final float range = actor.health.sightRange() / 2;
     Tile picked = Spacing.pickRandomTile(actor, range, actor.world());
     picked = Spacing.nearestOpenTile(picked, picked);
     if (picked == null) picked = actor.origin();

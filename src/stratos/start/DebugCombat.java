@@ -73,7 +73,6 @@ public class DebugCombat extends Scenario {
     GameSettings.setDefaults();
     GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
-    GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
@@ -83,26 +82,23 @@ public class DebugCombat extends Scenario {
   
   
   private void combatScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree = true;
-    GameSettings.noBlood = true;
     
-    //  TODO:  Get rid of the retreat behaviours if there's nowhere to retreat
-    //  to.  Simplest thing.
-    
-    /*
     Actor soldier = null;
-    for (int n = 4; n-- > 0;) {
+    for (int n = 2; n-- > 0;) {
       soldier = new Human(Backgrounds.TROOPER, base);
       soldier.enterWorldAt(world.tileAt(4, 4), world);
     }
-    //*/
+    base.intelMap.liftFogAround(soldier, 9);
     
     final Base wildlife = Base.wildlife(world);
     final Actor avrodil = Avrodil.SPECIES.sampleFor(wildlife);
     
-    avrodil.health.setFatigueLevel(0.75f);
+    avrodil.health.setMaturity(0.8f);
+    avrodil.health.setFatigueLevel(0.15f);
     
     avrodil.enterWorldAt(9, 9, world, true);
+    avrodil.mind.assignBehaviour(new Combat(avrodil, soldier));
+    
     UI.selection.pushSelection(avrodil);
   }
   

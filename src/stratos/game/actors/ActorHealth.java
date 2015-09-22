@@ -105,8 +105,8 @@ public class ActorHealth implements Qualities {
   private boolean
     bleeds = false;
   private float
-    morale        = 0,
-    concentration = 0;
+    morale        = MAX_MORALE / 2f,
+    concentration = DEFAULT_CONCENTRATION;
   //  TODO:  Need for sleep.
   
   private int
@@ -312,7 +312,8 @@ public class ActorHealth implements Qualities {
     */
   public void takeInjury(float taken, boolean terminal) {
     final boolean report = verbose && I.talkAbout == actor;
-
+    
+    final boolean awake = conscious();
     final float
       limitKO  = maxHealth * MAX_INJURY,
       absLimit = maxHealth * MAX_DECOMP;
@@ -326,11 +327,13 @@ public class ActorHealth implements Qualities {
     
     final float limit;
     if (injury < limitKO) limit = limitKO;
-    else if (terminal || ! conscious()) limit = absLimit;
+    else if (terminal || ! awake) limit = absLimit;
     else limit = injury;
     
     if (organic() && (Rand.num() * maxHealth / 2f) < taken) bleeds = true;
     injury = Nums.clamp(injury + taken, 0, limit + 1);
+    
+    if (awake) adjustMorale(taken * (terminal ? -2f : -1f) / maxHealth);
     checkStateChange();
     
     if (report) {
@@ -344,6 +347,9 @@ public class ActorHealth implements Qualities {
     injury -= lifted;
     if (Rand.num() > injuryLevel()) bleeds = false;
     if (injury < 0) injury = 0;
+    
+    final boolean awake = conscious();
+    if (awake) adjustMorale(lifted * 0.5f / maxHealth);
   }
   
   
@@ -633,13 +639,15 @@ public class ActorHealth implements Qualities {
   
   
   private void updateStresses() {
-    final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nUpdating stresses for "+actor);
+    final boolean report = I.talkAbout == actor && verbose;
+    if (report) {
+      I.say("\nUpdating stresses for "+actor);
+    }
     //
     //  Inorganic targets get a different selection of perks and drawbacks-
     if (state >= STATE_SUSPEND || ! organic()) {
       bleeds = false;
-      morale = 0;
+      morale = -1;
       float fatigueRegen = maxHealth * FATIGUE_GROW_PER_DAY / DEFAULT_HEALTH;
       fatigue = Nums.clamp(fatigue - fatigueRegen, 0, maxHealth);
       return;

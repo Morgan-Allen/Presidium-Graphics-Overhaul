@@ -95,9 +95,10 @@ public class Resting extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && hasBegun() && verbose;
     if (report) {
       I.say("\nGetting resting priority for "+actor);
+      I.say("  Begun? "+hasBegun());
     }
     
     float urgency = CASUAL;
@@ -148,7 +149,12 @@ public class Resting extends Plan {
     
     //  Include location effects-
     if (restPoint == actor && ! actor.indoors()) {
-      urgency -= CASUAL;
+      urgency = Nums.clamp(urgency - CASUAL, 0.1f, PARAMOUNT);
+    }
+    
+    if (report) {
+      I.say("  Relax time: "+relaxTime);
+      I.say("  Urgency: "+urgency);
     }
     
     //  TODO:  INCLUDE LAZINESS!
@@ -226,6 +232,8 @@ public class Resting extends Plan {
     }
     else {
       //  TODO:  Improve morale?
+      float relief = actor.health.maxHealth() / Stage.STANDARD_DAY_LENGTH;
+      actor.health.liftFatigue(relief);
       relaxTime += 1.0f;
     }
     return true;
@@ -266,12 +274,12 @@ public class Resting extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    String desc = restPoint == actor.mind.home() ? "Resting" : "Sheltering";
     if (restPoint == actor || restPoint == null) {
-      if (currentMode == MODE_DINE) d.append("Dining");
-      else d.append(desc);
+      if (currentMode == MODE_DINE) d.append("Eating");
+      else d.append("Resting");
       return;
     }
+    String desc = restPoint == actor.mind.home() ? "Resting" : "Sheltering";
     if (currentMode == MODE_DINE) {
       d.append("Eating at ");
       d.append(restPoint);

@@ -95,7 +95,7 @@ public class Verse {
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
       DESERT_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
-      VerseLocation.MAKES, REAGENTS, PLASTICS, DECOR, DRY_SPYCE,
+      VerseLocation.MAKES, REAGENTS, PLASTICS, DECOR, SPYCES,
       VerseLocation.NEEDS, WATER, CIRCUITRY, POLYMER,
       BORN_FREE,
       NOVICE, CULTIVATION, CHEMISTRY,

@@ -2,6 +2,32 @@
 
 TO DO NOW-
 
+*  Trooper and Avrodil first- give 'em something to play with.
+  
+  Frag Launcher    (halberd gun/training + ranged 15.             )
+  Shield Phasing   (halberd gun/training + ranged 10 + assembly 5.)
+  Shock Feed       (halberd gun/training + melee 10 + anatomy 5.  )
+  Use Power Armour (formation training/melee 15.)
+  
+  Call of Duty  (can assign to several missions directly.)
+  Noble Command (creates a commander position with several perks.)
+
+
+
+*  The tutorial will have to be run-through again (due to changes in level-
+   upgrades, it might not be possible to hire enough crew.)
+   
+   I'd say 2 + 1/level hires available at a given venue.  Keep it simple.
+
+*  Look into Nerdfish's feedback!
+
+*  Provide notifications for deaths and arrivals.
+
+*  Allow free trading by dropships sans trade facilities.
+
+*  Make supply depots into endpoints for heighways.
+
+
 *  Limit everything to level 2 at most for the moment (1 less than max.)
      That should be enough for demo purposes.
      
@@ -33,23 +59,11 @@ TO DO NOW-
    Make sure upgrades and abilities are functioning for each of these.
    (And double-check correct knowledge-setup for the various houses.)
 
-*  Trooper and Avrodil first- give 'em something to play with.
-
-*  The tutorial will have to be run-through again (due to changes in level-
-   upgrades, it might not be possible to hire enough crew.)
-   
-   I'd say 2 + 1/level hires available at a given venue.  Keep it simple.
-
-
-*  Look into Nerdfish's feedback!
-
 *  Features to add:
    Auto-Turret behaviour.  Forcefield generation.
    Combat Stims.     Physician abilities.
    T-Null Armbands.  Engineer abilities.
    Lictor Riding.    Building-stealth.
-
-*  Provide notifications for deaths and arrivals.
 
 
 

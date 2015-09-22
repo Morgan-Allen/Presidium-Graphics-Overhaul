@@ -64,10 +64,13 @@ public class Ephemera {
   static class Ghost implements Stage.Visible {
     
     int size;
-    Target tracked = null;
+    Vec3D offset = new Vec3D();
+    
     float inceptTime;
-    Sprite sprite;
     float duration = 2.0f;
+
+    Target tracked = null;
+    Sprite sprite;
     
     
     public void renderFor(Rendering r, Base b) {
@@ -89,14 +92,18 @@ public class Ephemera {
     if (s == null) return null;
     final Ghost ghost = new Ghost();
     
-    ghost.size = (int) Nums.ceil(size);
+    ghost.size       = (int) Nums.ceil(size);
     ghost.inceptTime = world.currentTime();
-    ghost.sprite = s;
-    ghost.duration = duration;
-    ghost.tracked = e;
+    ghost.sprite     = s;
+    ghost.duration   = duration;
+    ghost.tracked    = e;
     
     final Vec3D p = s.position;
-    if (e != null) e.position(p);
+    if (e instanceof Mobile) {
+      ((Mobile) e).viewPosition(ghost.offset);
+      ghost.offset.sub(s.position).scale(-1);
+    }
+    
     final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
@@ -145,11 +152,7 @@ public class Ephemera {
     if (! m.visibleTo(base)) return;
     
     m.viewPosition(p);
-    
-    //  TODO:  Try to make this a bit more consistent
-    if (ghost.sprite instanceof SFX) {
-      p.z += ghost.tracked.height() / 2f;
-    }
+    p.add(ghost.offset);
     
     final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
     if (section == oldSection) return;

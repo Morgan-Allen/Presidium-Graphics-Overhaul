@@ -42,7 +42,8 @@ public abstract class Power extends Technique implements Qualities {
       name, IMG_DIR+imgFile, Action.PSY_QUICK,
       Power.class, uniqueID,
       0, 0, 0, 0,
-      Technique.TYPE_SOVEREIGN_POWER, skillUsed, minLevel
+      Technique.TYPE_SOVEREIGN_POWER, skillUsed, minLevel,
+      Action.QUICK | Action.RANGED  //  TODO- CUSTOMISE!
     );
     //this.name        = name;
     this.helpInfo = helpInfo;
@@ -65,7 +66,7 @@ public abstract class Power extends Technique implements Qualities {
   }
   
   
-  public float bonusFor(Actor using, Skill skill, Target subject) {
+  public float passiveBonus(Actor using, Skill skill, Target subject) {
     return 0;
   }
   

@@ -45,7 +45,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
     "Your Ecologists help adapt plant and animal species to a human presence, "+
     "and often prove valuable in guerilla warfare.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 4,
-    PROTEIN, DRY_SPYCE, SURVEYOR
+    PROTEIN, SPYCES, SURVEYOR
   );
   
   

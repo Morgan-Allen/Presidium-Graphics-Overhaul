@@ -399,7 +399,12 @@ public class ActorTraits implements Qualities {
   
   
   public Batch <Condition> conditions() {
-    return (Batch) getMatches(null, Conditions.ALL_CONDITIONS);
+    final Batch <Condition> matches = new Batch();
+    for (Trait t : levels.keySet()) {
+      if (t instanceof Condition) matches.add((Condition) t);
+    }
+    return matches;
+    //return (Batch) getMatches(null, Conditions.ALL_CONDITIONS);
   }
   
   /*
