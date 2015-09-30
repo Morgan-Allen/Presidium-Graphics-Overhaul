@@ -47,10 +47,10 @@ public class Heighway extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Heighway.class, "service_hatch",
-    "Heighway", UIConstants.TYPE_ENGINEER, HATCH_ICON,
+    "Heighway", Target.TYPE_UNPLACED, HATCH_ICON,
     "Heighways allow for long-distance power and road connections, but can "+
     "admit dangerous vermin.",
-    2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
+    2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR | Structure.IS_PUBLIC,
     Owner.TIER_PRIVATE, 10, 25
   );
   
@@ -222,7 +222,7 @@ public class Heighway extends Venue {
   
   
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
 }
 

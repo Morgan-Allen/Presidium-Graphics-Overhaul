@@ -3,8 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.content.wip;
-import stratos.content.civic.CargoBarge;
+package stratos.content.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -14,6 +13,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Backgrounds.STOCK_VENDOR;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
@@ -39,15 +39,26 @@ public class SupplyDepot extends Venue {
   final public static ImageAsset ICON = ImageAsset.fromImage(
     SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
   );
+
+  final static Traded
+    ALL_TRADE_TYPES[] = {
+      POLYMER, METALS, FUEL_RODS, PLASTICS, PARTS,
+      CARBS, PROTEIN, GREENS, REAGENTS, SPYCES
+    },
+    HOME_PURCHASE_TYPES[] = {
+      PLASTICS, PARTS, CARBS, PROTEIN
+    };
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
-    "Supply Depot", UIConstants.TYPE_WIP, ICON,
+    "Supply Depot", Target.TYPE_COMMERCE, ICON,
     "The Supply Depot allows for bulk storage and transport of raw materials "+
     "used in manufacturing.",
     4, 1, Structure.IS_NORMAL,
-    Owner.TIER_TRADER, 100,
-    2
+    Owner.TIER_TRADER, 100, 2,
+    Visit.compose(Object.class, ALL_TRADE_TYPES, new Object[] {
+      SERVICE_COMMERCE, Backgrounds.SUPPLY_CORPS
+    })
   );
   
   private List <CargoBarge> barges = new List <CargoBarge> ();
@@ -62,6 +73,13 @@ public class SupplyDepot extends Venue {
     sprite.attach(MODEL_CORE , 0, 0, 0);
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
+    
+    for (Traded t : ALL_TRADE_TYPES) {
+      stocks.forceDemand(t, 5, true);
+    }
+    for (Traded t : HOME_PURCHASE_TYPES) {
+      stocks.forceDemand(t, 0, false);
+    }
   }
   
   
@@ -80,13 +98,11 @@ public class SupplyDepot extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
-  final static Traded
-    ALL_TRADE_TYPES[] = {
-      POLYMER, METALS, FUEL_RODS,
-      REAGENTS, SOMA, SPYCES
-    },
-    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_MATERIALS, new Traded[] { SERVICE_COMMERCE }
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.SINGLE_LEVEL, null,
+      new Object[] { 5, ACCOUNTING, 5, HARD_LABOUR },
+      400
     );
   
   final public static Conversion
@@ -107,7 +123,7 @@ public class SupplyDepot extends Venue {
       final float stockBonus = 1 + upgradeLevelFor(type);
       stocks.updateTradeDemand(type, stockBonus, 1);
     }
-    
+    //
     //  TODO:  You need to send those barges off to different settlements!
     for (CargoBarge b : barges) if (b.destroyed()) barges.remove(b);
     if (barges.size() == 0) {
@@ -138,6 +154,11 @@ public class SupplyDepot extends Venue {
   }
   
   
+  protected void addServices(Choice choice, Actor client) {
+    choice.add(BringUtils.nextHomePurchase(client, this, HOME_PURCHASE_TYPES));
+  }
+
+
   protected Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
@@ -197,20 +218,10 @@ public class SupplyDepot extends Venue {
   }
   
   
-  public Background[] careers() {
-    return new Background[] { Backgrounds.SUPPLY_CORPS };
-  }
-  
-  
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
+  public int numPositions(Background v) {
+    final int nO = super.numPositions(v);
     if (v == Backgrounds.SUPPLY_CORPS) return nO + 2;
     return 0;
-  }
-  
-  
-  public Traded[] services() {
-    return ALL_SERVICES;
   }
   
   
@@ -234,7 +245,7 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, ALL_TRADE_TYPES, null);
     /*
     return VenuePane.configStandardPanel(
       this, panel, UI,

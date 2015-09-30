@@ -54,7 +54,7 @@ public abstract class Species extends Background {
       Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES//, Yamagur.SPECIES
     },
     VERMIN_SPECIES[] = {
-      Roach.SPECIES, Roachman.SPECIES
+      Roach.SPECIES, Roachman.SPECIES, Avrodil.SPECIES
     },
     ARTILECT_SPECIES[] = {
       Drone.SPECIES, Tripod.SPECIES, Cranial.SPECIES

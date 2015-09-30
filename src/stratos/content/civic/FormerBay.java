@@ -39,7 +39,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     FormerBay.class, "former_bay",
-    "Former Bay", UIConstants.TYPE_ENGINEER, ICON,
+    "Former Bay", Target.TYPE_ENGINEER, ICON,
     "The Former Bay extracts light minerals from the soil and atmosphere "+
     "while speeding terraforming programs.",
     4, 1, Structure.IS_NORMAL | Structure.IS_ZONED,
@@ -74,10 +74,10 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.TWO_LEVELS,
+      Upgrade.SINGLE_LEVEL,
       new Upgrade[] { BotanicalStation.LEVELS[0], EngineerStation.LEVELS[0] },
       new Object[] { 10, GEOPHYSICS, 5, ASSEMBLY, 5, CHEMISTRY },
-      450, 650
+      450//, 650
     );
   
   /*
@@ -114,9 +114,9 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   }
   
   
-  protected int numOpenings(Background b) {
-    final int nO = super.numOpenings(b);
-    if (b == FORMER_ENGINEER) return nO + 2;
+  protected int numPositions(Background b) {
+    final int level = structure.mainUpgradeLevel();
+    if (b == FORMER_ENGINEER) return level + 1;
     return 0;
   }
   
@@ -209,7 +209,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
   
   

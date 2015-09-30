@@ -235,10 +235,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       return true;
     }
     
+    /*
     if (actor.actionInProgress()) {
       if (report) I.say("ACTOR IN MID-ACTION!");
       return false;
     }
+    //*/
     
     final float
       timeGone = actor.world().currentTime() - lastEvalTime,
@@ -299,10 +301,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public float priorityFor(Actor actor) {
-    attemptToBind(actor);
     final boolean report = priorityVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
     ) && (beginsVerbose || hasBegun());
+
+    attemptToBind(actor);
+    
     if (hasMotives(IS_CANCELLED)) return -1;
     if (report && extraVerbose) {
       I.say("\nCurrent priority for "+this+" is: "+priorityEval);

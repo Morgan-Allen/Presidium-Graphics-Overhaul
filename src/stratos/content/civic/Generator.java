@@ -59,7 +59,7 @@ public class Generator extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Generator.class, "generator",
-    "Generator", UIConstants.TYPE_ENGINEER, ICON,
+    "Generator", Target.TYPE_ENGINEER, ICON,
     "The Generator provides copious "+POWER+" along with "+ANTIMASS+" output, "+
     "but can become an explosive liability.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 300, 10,
@@ -207,9 +207,9 @@ public class Generator extends Venue {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
-    if (v == CORE_TECHNICIAN) return nO + 2;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == CORE_TECHNICIAN) return level + 1;
     return 0;
   }
   

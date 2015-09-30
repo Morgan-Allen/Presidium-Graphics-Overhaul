@@ -73,10 +73,33 @@ public class DebugEcology extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    if (false) configHuntingScenario(world, base, UI);
+    if (true ) speciesPlaceTest     (world, base, UI);
     if (false) nestPlaceTest        (world, base, UI);
+    if (false) configHuntingScenario(world, base, UI);
     if (false) configHarvestScenario(world, base, UI);
-    if (true ) configReactionsTest  (world, base, UI);
+    if (false) configReactionsTest  (world, base, UI);
+  }
+  
+  
+  private void speciesPlaceTest(Stage world, Base base, BaseUI UI) {
+    
+    Nest.populateFauna(world, Species.VERMIN_SPECIES);
+  }
+  
+  
+  private void nestPlaceTest(Stage world, Base base, BaseUI UI) {
+    
+    final Outcrop o = new Outcrop(2, 2, Outcrop.TYPE_MESA);
+    o.setPosition(10, 10, world);
+    o.attachModel(Outcrop.modelFor(o, world));
+    o.enterWorld();
+    
+    final Base wildlife = Base.wildlife(world);
+    final Nest n = (Nest) Qudu.SPECIES.nestBlueprint().createVenue(wildlife);
+    n.setPosition(10, 8, world);
+    n.enterWorld();
+    n.structure.setState(Structure.STATE_INTACT, 1);
+    wildlife.setup.fillVacancies(n, true);
   }
   
   
@@ -136,22 +159,6 @@ public class DebugEcology extends Scenario {
     
     hunts.mind.assignBehaviour(Hunting.asFeeding(hunts, prey));
     UI.selection.pushSelection(hunts);
-  }
-  
-  
-  private void nestPlaceTest(Stage world, Base base, BaseUI UI) {
-    
-    final Outcrop o = new Outcrop(2, 2, Outcrop.TYPE_MESA);
-    o.setPosition(10, 10, world);
-    o.attachModel(Outcrop.modelFor(o, world));
-    o.enterWorld();
-    
-    final Base wildlife = Base.wildlife(world);
-    final Nest n = (Nest) Qudu.SPECIES.nestBlueprint().createVenue(wildlife);
-    n.setPosition(10, 8, world);
-    n.enterWorld();
-    n.structure.setState(Structure.STATE_INTACT, 1);
-    wildlife.setup.fillVacancies(n, true);
   }
   
   

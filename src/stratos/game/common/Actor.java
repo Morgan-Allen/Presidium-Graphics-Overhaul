@@ -611,7 +611,7 @@ public abstract class Actor extends Mobile implements
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_ACTOR;
+    return Target.TYPE_ACTOR;
   }
   
   

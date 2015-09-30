@@ -44,9 +44,10 @@ public class StartupScenario extends Scenario {
   };
   final public static String
     SITE_DESC[] = {
-      "Wasteland",
-      "Wilderness",
-      "Settled"
+      "Wasteland (Ancient Robot Guardians)",
+      "Infested (Insect Vermin & Ravenous Plants)",
+      "Wilderness (Territorial Animals)",
+      "Settled (Just Folks)"
     },
     FUNDING_DESC[] = {
       "Minimal  (7500  Credits, 3% interest)",
@@ -68,8 +69,9 @@ public class StartupScenario extends Scenario {
     WALL_SIZES[] = { 16, 20, 24 },
     
     SITE_WASTELAND  = 0,
-    SITE_WILDERNESS = 1,
-    SITE_SETTLED    = 2,
+    SITE_INFESTED   = 1,
+    SITE_WILDERNESS = 2,
+    SITE_SETTLED    = 3,
     
     FUNDING_MINIMAL  = 0,
     FUNDING_STANDARD = 1,
@@ -164,7 +166,8 @@ public class StartupScenario extends Scenario {
     switch (config.siteLevel) {
       case(0) : wastes = 3; desert  = 2; barrens = 4; water = 0; break;
       case(1) : meadow = 4; barrens = 2; desert  = 2; water = 1; break;
-      case(2) : forest = 2; meadow  = 3; barrens = 2; water = 2; break;
+      case(2) : meadow = 4; barrens = 2; desert  = 2; water = 1; break;
+      case(3) : forest = 2; meadow  = 3; barrens = 2; water = 2; break;
     }
     
     //  TODO:  the terrain setup algorithm should not be directly interacting
@@ -417,6 +420,9 @@ public class StartupScenario extends Scenario {
     if (config.siteLevel == SITE_WILDERNESS) {
       maxRuins = world.size / (Stage.ZONE_SIZE * 4);
       nesting = Species.ANIMAL_SPECIES;
+    }
+    if (config.siteLevel == SITE_INFESTED) {
+      nesting = Species.VERMIN_SPECIES;
     }
     if (config.siteLevel == SITE_WASTELAND) {
       maxRuins = world.size / (Stage.ZONE_SIZE * 2);

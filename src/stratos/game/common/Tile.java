@@ -428,7 +428,7 @@ public final class Tile implements
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_TERRAIN;
+    return Target.TYPE_TERRAIN;
   }
   
   

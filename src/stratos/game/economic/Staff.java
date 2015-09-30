@@ -121,9 +121,16 @@ public class Staff {
   }
   
   
-  public int numOpenings(Background b) {
-    if (employs instanceof Venue) return ((Venue) employs).numOpenings(b);
+  public int numPositions(Background b) {
+    if (employs instanceof Venue) {
+      return ((Venue) employs).numPositions(b);
+    }
     return 0;
+  }
+  
+  
+  public int numOpenings(Background b) {
+    return numPositions(b) - numHired(b);
   }
   
   

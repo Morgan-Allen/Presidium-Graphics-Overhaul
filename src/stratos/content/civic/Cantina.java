@@ -85,7 +85,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Cantina.class, "cantina",
-    "Cantina", UIConstants.TYPE_COMMERCE, ICON,
+    "Cantina", Target.TYPE_COMMERCE, ICON,
     "A lively hub for social activities, your citizens can rest and relax "+
     "at the Cantina.  Unsavoury characters are known to drop by, however.",
     4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 2,
@@ -212,10 +212,10 @@ public class Cantina extends Venue implements Performance.Theatre {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
-    if (v == Backgrounds.SOMA_CHEF) return nO + 1;
-    if (v == Backgrounds.PERFORMER) return nO + 1;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == Backgrounds.SOMA_CHEF) return level;
+    if (v == Backgrounds.PERFORMER) return level;
     return 0;
   }
   

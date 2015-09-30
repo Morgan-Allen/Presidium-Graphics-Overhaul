@@ -29,7 +29,6 @@ public class OutfitType extends Traded {
     Class <? extends Venue> facility, Object... conversionArgs
   ) {
     super(baseClass, FORM_OUTFIT, name, basePrice, null);
-    
     this.defence     = defence    ;
     this.shieldBonus = shieldBonus;
     
@@ -38,9 +37,7 @@ public class OutfitType extends Traded {
     }
     else this.materials = new Conversion(
       facility, name+"_manufacture",
-      Visit.compose(
-        Object.class, conversionArgs, new Object[] { TO, 1, this }
-      )
+      Visit.compose(Object.class, conversionArgs, new Object[] { TO, 1, this })
     );
     setPrice(basePrice, materials);
     

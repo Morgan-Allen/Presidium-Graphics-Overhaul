@@ -1,6 +1,11 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.util.*;
 
 
@@ -42,7 +47,7 @@ public class ActorSkills {
   
   
   
-  /**  Called every 20 seconds or so.
+  /**  Updates and modifications-
     */
   public void updateSkills(int numUpdates) {
     //
@@ -63,8 +68,13 @@ public class ActorSkills {
   }
   
   
+  public void addTechnique(Technique t) {
+    known.include(t);
+  }
   
-  /**  Helper methods for technique selection, updates and queries-
+  
+  
+  /**  Helper methods for technique selection and queries-
     */
   public Action bestTechniqueFor(Plan plan, Action taken) {
     final boolean report = I.talkAbout == actor && false;
@@ -136,8 +146,21 @@ public class ActorSkills {
   }
   
   
-  public void addTechnique(Technique t) {
-    known.include(t);
+  public Series <Traded> gearProficiencies() {
+    final Batch <Traded> GP = new Batch();
+    final Background b = actor.mind.vocation();
+    if (b != null) for (Traded t : b.properGear()) {
+      GP.add(t);
+    }
+    for (Technique t : known) if (t.type == Technique.TYPE_GEAR_PROFICIENCY) {
+      GP.add((Traded) t.focus);
+    }
+    return GP;
+  }
+  
+  
+  public boolean hasGearProficiency(Traded type) {
+    return gearProficiencies().includes(type);
   }
   
   

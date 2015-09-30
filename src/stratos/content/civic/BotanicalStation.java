@@ -44,7 +44,7 @@ public class BotanicalStation extends HarvestVenue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     BotanicalStation.class, "botanical_station",
-    "Botanical Station", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Botanical Station", Target.TYPE_ECOLOGIST, ICON,
     "Botanical Stations are responsible for agriculture and forestry, "+
     "helping to secure food supplies and advance terraforming efforts.",
     4, 2, Structure.IS_NORMAL | Structure.IS_ZONED,
@@ -200,7 +200,7 @@ public class BotanicalStation extends HarvestVenue {
     //
     //  Consider performing research-
     //  TODO:  Decide on this.
-    ///choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ECOLOGIST));
+    ///choice.add(Studying.asResearch(actor, this, Target.TYPE_ECOLOGIST));
     ///choice.isVerbose = true;
     //
     //  Tailor seed varieties and consider breeding animals or forestry-
@@ -258,10 +258,10 @@ public class BotanicalStation extends HarvestVenue {
   }
   
   
-  public int numOpenings(Background v) {
-    int num = super.numOpenings(v);
-    if (v == CULTIVATOR) return num + 2;
-    if (v == ECOLOGIST ) return num + 2;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == CULTIVATOR) return level;
+    if (v == ECOLOGIST ) return level;
     return 0;
   }
   

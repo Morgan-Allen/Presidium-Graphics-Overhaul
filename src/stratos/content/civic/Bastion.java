@@ -36,7 +36,7 @@ public class Bastion extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Bastion.class, "bastion",
-    "Bastion", UIConstants.TYPE_SECURITY, ICON,
+    "Bastion", Target.TYPE_SECURITY, ICON,
     "The Bastion is your seat of command for the settlement as a "+
     "whole, houses your family, advisors and bodyguards, and provides "+
     "basic logistic support.",
@@ -229,8 +229,8 @@ public class Bastion extends Venue {
   }
   
   
-  public int numOpenings(Background b) {
-    final int nO = super.numOpenings(b);
+  public int numPositions(Background b) {
+    final int nO = super.numPositions(b);
     if (b == TROOPER) {
       return nO + 1 + structure.upgradeLevel(SECURITY_MEASURES);
     }
@@ -244,7 +244,7 @@ public class Bastion extends Venue {
       return nO + ((1 + structure.upgradeLevel(GUEST_QUARTERS)) / 2);
     }
     //
-    //  TODO:  Return the amount of space open to hostages and guests as well.
+    //  TODO:  Return the amount of space open to hostages and guests as well?
     return 0;
   }
   

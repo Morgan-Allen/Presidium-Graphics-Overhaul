@@ -5,7 +5,6 @@
   */
 package stratos.start;
 import stratos.content.civic.*;
-import stratos.content.wip.SupplyDepot;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -139,7 +138,7 @@ public class TutorialScenario extends StartupScenario {
     */
   private static Config config() {
     final Config config = new Config();
-    config.house = Verse.PLANET_HALIBAN;
+    config.house = Verse.PLANET_PAREM_V;
     config.gender = null;
     
     config.siteLevel  = SITE_WASTELAND ;
@@ -159,11 +158,9 @@ public class TutorialScenario extends StartupScenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
-    
     GameSettings.noAdvice = true;
     GameSettings.noShips  = true;
-    base.advice.setControlLevel(BaseAdvice.LEVEL_NONE);
-    
+    base.advice.setAutonomy(BaseAdvice.LEVEL_AUTO_NO_ADVICE);
     base.finance.setInitialFunding(2500, 0);
   }
   
@@ -440,10 +437,8 @@ public class TutorialScenario extends StartupScenario {
     final Tile between = Spacing.bestMidpoint(barracksBuilt, foundryBuilt);
     followIfNew(between, "hiring_begun");
     
-    
-    
-    //barracksBuilt.structure.setUpgradeLevel(TrooperLodge.VOLUNTEER_POST   , 1);
-    //barracksBuilt.structure.setUpgradeLevel(TrooperLodge.TROOPER_OFFICE   , 1);
+    foundryBuilt .structure.setMainUpgradeLevel(2);
+    barracksBuilt.structure.setMainUpgradeLevel(2);
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
     
     final Base base = base();
@@ -464,7 +459,7 @@ public class TutorialScenario extends StartupScenario {
     if (barracksBuilt == null || foundryBuilt == null) return false;
     return
       barracksBuilt.staff.numHired(Backgrounds.TROOPER  ) >= 3 &&
-      foundryBuilt .staff.numHired(Backgrounds.ARTIFICER) >= 3;
+      foundryBuilt .staff.numHired(Backgrounds.ARTIFICER) >= 2;
   }
   
   
@@ -527,6 +522,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   protected boolean checkAuditorSeen() {
+    if (! script.topicTriggered("Watch and Learn")) return false;
     if (this.auditorSeen) return true;
     Selectable subject = UI().selection.selected();
     if (subject instanceof Actor) {

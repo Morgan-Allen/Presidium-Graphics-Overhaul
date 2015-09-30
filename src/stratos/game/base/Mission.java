@@ -858,7 +858,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_MISSION;
+    return Target.TYPE_MISSION;
   }
   
   

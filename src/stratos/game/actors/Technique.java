@@ -6,10 +6,14 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
-import stratos.start.Assets;
+import stratos.start.*;
 import stratos.util.*;
 
+
+
+//  TODO:  You need to handle area-of-effect as well.
 
 
 public abstract class Technique extends Index.Entry
@@ -17,15 +21,10 @@ public abstract class Technique extends Index.Entry
 {
   
   final public static int
-    TYPE_PASSIVE_EFFECT     = 0,
-    TYPE_INDEPENDANT_ACTION = 1,
-    TYPE_SOVEREIGN_POWER    = 2;
-  /*
-  final public static Object
-    TRIGGER_ATTACK = new Object(),
-    TRIGGER_DEFEND = new Object(),
-    TRIGGER_MOTION = new Object();
-  //*/
+    TYPE_PASSIVE_SKILL_FX   = 0,
+    TYPE_GEAR_PROFICIENCY   = 1,
+    TYPE_INDEPENDANT_ACTION = 2,
+    TYPE_SOVEREIGN_POWER    = 3;
   
   final public static float
     MINOR_POWER          = 1.0f ,
@@ -60,7 +59,7 @@ public abstract class Technique extends Index.Entry
   final public String     animName;
   
   final public int    type     ;
-  final public Skill  skillUsed;
+  final public Skill  skillNeed;
   final public int    minLevel ;
   
   final public float
@@ -68,17 +67,17 @@ public abstract class Technique extends Index.Entry
     harmFactor       ,
     fatigueCost      ,
     concentrationCost;
+  final public Object focus;
   final public int    actionProperties;
   
   final public Condition asCondition;
   
   
-  public Technique(
-    String name, String iconFile, Class sourceClass,
-    String uniqueID, float power,
-    float harm, float fatigue,
-    float concentration, int type,
-    Skill skillUsed, int minLevel,
+  private Technique(
+    String name, String iconFile,
+    Class sourceClass, String uniqueID,
+    float power, float harm, float fatigue, float concentration,
+    int type, Skill skillUsed, int minLevel, Object focus,
     String animName, int actionProperties
   ) {
     super(INDEX, uniqueID);
@@ -96,10 +95,11 @@ public abstract class Technique extends Index.Entry
     this.harmFactor        = harm            ;
     this.fatigueCost       = fatigue         ;
     this.concentrationCost = concentration   ;
+    this.focus             = focus           ;
     this.actionProperties  = actionProperties;
     
     this.type      = type     ;
-    this.skillUsed = skillUsed;
+    this.skillNeed = skillUsed;
     this.minLevel  = minLevel ;
     
     List <Technique> bySource = BY_SOURCE.get(skillUsed);
@@ -114,20 +114,34 @@ public abstract class Technique extends Index.Entry
   }
   
   
-  //  TODO:  Hook these up properly.  (Plus area-of-effect!)
+  //  Used for active techniques.
+  public Technique(
+    String name, String iconFile, Class sourceClass, String uniqueID,
+    float power, float harm, float fatigue, float concentration,
+    int type, Skill skillUsed, int minLevel,
+    String animName, int actionProperties
+  ) { this(
+    name, iconFile, sourceClass, uniqueID,
+    power, harm, fatigue, concentration,
+    type, skillUsed, minLevel, null,
+    animName, actionProperties
+  ); }
   
-  public Technique assignActiveTriggers(
-    Class planClass,
-    Class subjectClass,
-    float harmMeant
-  ) {
-    return this;
-  }
   
-  
-  public Technique assignPassiveTrigger(Skill skillUsed) {
-    return this;
-  }
+  //  Used for passive techniques.
+  public Technique(
+    String name, String iconFile, Class sourceClass,
+    String uniqueID, float power,
+    float harm, float fatigue,
+    float concentration, int type,
+    Skill skillUsed, int minLevel,
+    Object focus
+  ) { this(
+    name, iconFile, sourceClass, uniqueID,
+    power, harm, fatigue, concentration,
+    type, skillUsed, minLevel, focus,
+    Action.STAND, Action.NORMAL
+  ); }
   
   
   public static Technique loadConstant(Session s) throws Exception {
@@ -149,8 +163,8 @@ public abstract class Technique extends Index.Entry
   
   
   public boolean canBeLearnt(Actor learns) {
-    float level = learns.traits.traitLevel(skillUsed);
-    level += learns.traits.bonusFrom(skillUsed.parent);
+    float level = learns.traits.traitLevel(skillNeed);
+    level += learns.traits.bonusFrom(skillNeed.parent);
     return level >= minLevel;
   }
   
@@ -158,8 +172,8 @@ public abstract class Technique extends Index.Entry
   public boolean triggeredBy(
     Actor actor, Plan current, Action action, Skill used, boolean passive
   ) {
-    if (passive && type == TYPE_PASSIVE_EFFECT) {
-      return used == skillUsed;
+    if (passive && type == TYPE_PASSIVE_SKILL_FX) {
+      return used == focus;
     }
     else {
       return false;
@@ -224,8 +238,8 @@ public abstract class Technique extends Index.Entry
   
   
   protected boolean checkActionSuccess(Actor actor, Target subject) {
-    if (skillUsed == null) return true;
-    else return actor.skills.test(skillUsed, minLevel, 1, null);
+    if (skillNeed == null) return true;
+    else return actor.skills.test(skillNeed, minLevel, 1, null);
   }
   
   
@@ -255,9 +269,16 @@ public abstract class Technique extends Index.Entry
     return 0;
   }
   
+  
+  public Traded allowsUse() {
+    if (focus instanceof Traded) return (Traded) focus;
+    else return null;
+  }
+  
 
   
-  
+  /**  Other static helper methods:
+    */
   public static boolean isDoingAction(Actor actor, Technique used) {
     final Action taken = actor.currentAction();
     return taken != null && taken.basis == used;
@@ -285,6 +306,20 @@ public abstract class Technique extends Index.Entry
       }
     }
     return subjects;
+  }
+  
+  
+  protected static boolean hasUpgrade(Target v, Upgrade upgrade, int level) {
+    if (! (v instanceof Venue)) return false;
+    final Structure s = ((Venue) v).structure();
+    return s.upgradeLevel(upgrade, Structure.STATE_INTACT) >= level;
+  }
+  
+  
+  protected static boolean hasGear(Actor actor, Traded gearType) {
+    if (actor.gear.deviceType() == gearType) return true;
+    if (actor.gear.outfitType() == gearType) return true;
+    return false;
   }
   
   

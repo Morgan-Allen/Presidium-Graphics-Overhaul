@@ -115,7 +115,7 @@ public class ActorHealth implements Qualities {
     ageMultiple = 1.0f;
   
   //
-  //  I don't save/load these, since they refresh frequently anyway
+  //  I don't save/load these, since they refresh frequently anyway...
   private float stressCache = -1;
   
   

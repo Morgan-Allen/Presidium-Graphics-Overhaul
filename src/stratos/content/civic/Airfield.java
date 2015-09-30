@@ -42,13 +42,12 @@ public class Airfield extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Airfield.class, "airfield",
-    "Airfield", UIConstants.TYPE_COMMERCE, ICON,
+    "Airfield", Target.TYPE_COMMERCE, ICON,
     "The Airfield provides smaller dropships with a convenient site to "+
     "land and refuel, facilitating offworld trade and migration.",
     6, 1, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY,
-    250,
-    5
+    Owner.TIER_FACILITY, 250, 5,
+    DECK_HAND, SHIP_CAPTAIN
   );
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
@@ -144,19 +143,9 @@ public class Airfield extends Venue {
   }
   
   
-  public Traded[] services() {
-    return null;
-  }
-  
-  
-  public Background[] careers() {
-    return new Background[] { DECK_HAND, SHIP_CAPTAIN };
-  }
-  
-  
-  protected int numOpenings(Background b) {
-    final int nO = super.numOpenings(b);
-    if (b == DECK_HAND) return nO + 2;
+  protected int numPositions(Background b) {
+    final int level = structure.mainUpgradeLevel();
+    if (b == DECK_HAND) return level + 1;
     return 0;
   }
   

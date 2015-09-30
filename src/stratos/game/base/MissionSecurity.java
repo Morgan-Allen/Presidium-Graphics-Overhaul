@@ -107,12 +107,12 @@ public class MissionSecurity extends Mission implements Qualities {
     */
   public String progressDescriptor() {
     if (inceptTime == -1 || ! hasBegun()) return super.progressDescriptor();
-
+    
     final int hours = (DURATION_LENGTHS[objective()] - (int) (
       base.world.currentTime() - inceptTime
     )) / Stage.STANDARD_HOUR_LENGTH;
     
-    return super.progressDescriptor()+" ("+hours+" remaining)";
+    return super.progressDescriptor()+" ("+hours+" hours remain)";
   }
   
   

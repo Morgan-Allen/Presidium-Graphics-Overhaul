@@ -41,7 +41,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     EcologistRedoubt.class, "ecologist_redoubt",
-    "Ecologist Redoubt", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Ecologist Redoubt", Target.TYPE_ECOLOGIST, ICON,
     "Your Ecologists help adapt plant and animal species to a human presence, "+
     "and often prove valuable in guerilla warfare.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 4,
@@ -196,8 +196,8 @@ public class EcologistRedoubt extends Venue implements Captivity {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
+  public int numPositions(Background v) {
+    final int nO = super.numPositions(v);
     if (v == Backgrounds.SURVEYOR) return nO + 2;
     return 0;
   }

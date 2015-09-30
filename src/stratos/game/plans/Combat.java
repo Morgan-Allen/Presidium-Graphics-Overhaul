@@ -364,17 +364,17 @@ public class Combat extends Plan implements Qualities {
     ) : true;
     
     if (report) {
-      I.say("  Max. damage:    "+actor.gear.attackDamage()+", stun: "+canStun);
-      I.say("  Vs. Armour:     "+target.gear.armourRating()+", pass "+bypass);
+      I.say("  Max. damage:    "+actor.gear.totalDamage()+", stun: "+canStun);
+      I.say("  Vs. Armour:     "+target.gear.totalArmour()+", pass "+bypass);
       I.say("  Range penalty:  "+penalty+", success? "+success);
     }
       
     if (success) {
-      final float maxDamage = actor.gear.attackDamage();
+      final float maxDamage = actor.gear.totalDamage();
       damage = maxDamage * Rand.num();
       final float afterShields = target.gear.afterShields(damage, kinetic);
       final float
-        maxArmour   = target.gear.armourRating(),
+        maxArmour   = target.gear.totalArmour(),
         armourSoak  = (maxArmour * Rand.num()) - bypass,
         afterArmour = Nums.clamp(afterShields - armourSoak, 0, damage),
         armourTook  = damage - afterArmour;
@@ -436,10 +436,10 @@ public class Combat extends Plan implements Qualities {
     if (report) {
       I.say("\nPerforming siege attack vs. "+besieged);
       I.say("  Accurate?    "+accurate);
-      I.say("  Base damage: "+actor.gear.attackDamage());
+      I.say("  Base damage: "+actor.gear.totalDamage());
     }
     
-    final float maxDamage = actor.gear.attackDamage();
+    final float maxDamage = actor.gear.totalDamage();
     final Item implement = actor.gear.deviceEquipped();
     float damage = maxDamage * Rand.avgNums(2) * 2;
     Item.checkForBreakdown(actor, implement, damage / maxDamage, 10);

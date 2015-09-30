@@ -61,7 +61,7 @@ public class ExcavationSite extends HarvestVenue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ExcavationSite.class, "excavation_site",
-    "Excavation Site", UIConstants.TYPE_ENGINEER, ICON,
+    "Excavation Site", Target.TYPE_ENGINEER, ICON,
     "Excavation Sites expedite extraction of minerals and artifacts "+
     "from surrounding terrain.",
     4, 1, Structure.IS_NORMAL | Structure.IS_ZONED,
@@ -70,7 +70,7 @@ public class ExcavationSite extends HarvestVenue {
   );
   
   final static int
-    MIN_CLAIM_SIZE = BLUEPRINT.size + 4,
+    MIN_CLAIM_SIZE = BLUEPRINT.size + 2,
     MAX_CLAIM_SIZE = BLUEPRINT.size + 8;
   
   final public static Conversion
@@ -147,9 +147,9 @@ public class ExcavationSite extends HarvestVenue {
     */
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.SINGLE_LEVEL, EngineerStation.LEVELS[0],
+      Upgrade.TWO_LEVELS, EngineerStation.LEVELS[0],
       new Object[] { 15, ASSEMBLY, 0, ANCIENT_LORE },
-      400
+      400, 550
     ),
     SAFETY_PROTOCOL = new Upgrade(
       "Safety Protocol",
@@ -188,9 +188,9 @@ public class ExcavationSite extends HarvestVenue {
     );
   
   
-  public int numOpenings(Background v) {
-    final int NO = super.numOpenings(v);
-    if (v == Backgrounds.EXCAVATOR) return NO + 3;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == Backgrounds.EXCAVATOR) return 1 + (level * 2);
     return 0;
   }
   

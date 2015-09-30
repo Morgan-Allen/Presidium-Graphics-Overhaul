@@ -33,7 +33,7 @@ public class EngineerStation extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     EngineerStation.class, "engineer_station",
-    "Engineer Station", UIConstants.TYPE_ENGINEER, ICON,
+    "Engineer Station", Target.TYPE_ENGINEER, ICON,
     "The Engineer Station manufactures "+PARTS+", "+CIRCUITRY+", devices and "+
     "armour for your citizens.",
     4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 5,
@@ -158,10 +158,10 @@ public class EngineerStation extends Venue {
     );
   
   
-  public int numOpenings(Background v) {
-    int num = super.numOpenings(v);
-    if (v == TECHNICIAN) return num + 2;
-    if (v == ARTIFICER ) return num + 2;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == TECHNICIAN) return level + 1;
+    if (v == ARTIFICER ) return level;
     return 0;
   }
   
@@ -208,7 +208,7 @@ public class EngineerStation extends Venue {
     }
     //
     //  Consider research for new upgrades and structures-
-    ///choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ENGINEER));
+    ///choice.add(Studying.asResearch(actor, this, Target.TYPE_ENGINEER));
     //
     //  Consider the production of general bulk commodities-
     final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
@@ -230,16 +230,17 @@ public class EngineerStation extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    final DeviceType DT = client.gear.deviceType();
-    final OutfitType OT = client.gear.outfitType();
+    final Item
+      baseDevice = GearPurchase.nextDeviceToPurchase(client, this),
+      baseOutfit = GearPurchase.nextOutfitToPurchase(client, this);
     
-    if (DT != null && DT.materials().producesAt(this)) {
-      final Upgrade forType = upgradeFor(DT);
-      Commission.addCommissions(client, this, choice, DT, forType);
+    if (baseDevice != null) {
+      final Upgrade limit = upgradeFor(baseDevice.type);
+      choice.add(GearPurchase.nextCommission(client, this, baseDevice, limit));
     }
-    if (OT != null && OT.materials().producesAt(this)) {
-      final Upgrade forType = upgradeFor(OT);
-      Commission.addCommissions(client, this, choice, OT, forType);
+    if (baseOutfit != null) {
+      final Upgrade limit = upgradeFor(baseOutfit.type);
+      choice.add(GearPurchase.nextCommission(client, this, baseOutfit, limit));
     }
     choice.add(BringUtils.nextHomePurchase(client, this));
   }
@@ -251,8 +252,8 @@ public class EngineerStation extends Venue {
     }
     else if (made instanceof DeviceType) {
       final DeviceType DT = (DeviceType) made;
+      if (DT.hasProperty(Devices.ENERGY )) return PLASMA_WEAPONS  ;
       if (DT.hasProperty(Devices.KINETIC)) return COMPOSITE_ARMORS;
-      if (DT.hasProperty(Devices.ENERGY )) return PLASMA_WEAPONS     ;
     }
     else if (made instanceof OutfitType) {
       return COMPOSITE_ARMORS;

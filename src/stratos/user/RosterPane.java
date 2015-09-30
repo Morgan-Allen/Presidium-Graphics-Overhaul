@@ -75,9 +75,20 @@ public class RosterPane extends SelectionPane {
   
   
   private Batch <Actor> listApplied(Base base) {
+    final boolean report = I.used60Frames && false;
+    if (report) I.say("\nListing applicants...");
+    
     final Batch <Actor> applied = new Batch <Actor> ();
     for (Actor a : base.commerce.allCandidates()) {
       final FindWork finds = (FindWork) a.matchFor(FindWork.class, false);
+      
+      if (report) {
+        I.say("\n  "+a+" ("+a.mind.vocation()+")");
+        I.say("  Application:   "+finds);
+        I.say("  Was hired?     "+(finds != null && finds.wasHired()));
+        I.say("  Can/did apply? "+(finds != null && finds.canOrDidApply()));
+      }
+      
       if (finds == null || finds.wasHired() || ! finds.canOrDidApply()) {
         continue;
       }

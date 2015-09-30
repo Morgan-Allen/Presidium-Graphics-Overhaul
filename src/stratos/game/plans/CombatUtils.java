@@ -32,7 +32,7 @@ public class CombatUtils {
     if (! actor.health.alive()) return 0;
     
     float estimate = 1;
-    estimate *= (actor.gear.armourRating() + actor.gear.attackDamage()) / 10f;
+    estimate *= (actor.gear.totalArmour() + actor.gear.totalDamage()) / 10f;
     estimate *= (actor.health.maxHealth()  + actor.gear.shieldCharge()) / 10f;
     estimate *= (2 - actor.health.injuryLevel  ()) / 2f;
     estimate *= (2 - actor.health.stressPenalty()) / 2f;

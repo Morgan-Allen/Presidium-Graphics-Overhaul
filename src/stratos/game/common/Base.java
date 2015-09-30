@@ -83,9 +83,7 @@ public class Base implements
     final Base base = namedBase(world, title);
     if (base != null) return base;
     
-    final Blueprint canBuild[] = Blueprint.allCategoryBlueprints(
-      UIConstants.INSTALL_CATEGORIES
-    );
+    final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
     return registerBase(new Base(world, false), world, title, colour, canBuild);
   }
   

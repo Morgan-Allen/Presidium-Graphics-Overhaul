@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.military;
+import stratos.content.civic.TrooperLodge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
@@ -62,18 +63,20 @@ public class TrooperTechniques {
     REAL_HARM          ,
     NO_FATIGUE         ,
     MINOR_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, HAND_TO_HAND, 5,
-    Action.STRIKE_BIG, Action.QUICK
+    Technique.TYPE_PASSIVE_SKILL_FX, HAND_TO_HAND, 5,
+    HAND_TO_HAND
   ) {
     
-    public float passiveBonus(Actor using, Skill skill, Target subject) {
-      return Rand.num() * 5;
+    public boolean canBeLearnt(Actor learns) {
+      return
+        hasGear(learns, Devices.HALBERD_GUN) &&
+        hasUpgrade(learns.mind.work(), TrooperLodge.MELEE_TRAINING, 1) &&
+        super.canBeLearnt(learns);
     }
     
     
-    public boolean canBeLearnt(Actor learns) {
-      if (learns.gear.deviceType() != Devices.HALBERD_GUN) return false;
-      return super.canBeLearnt(learns);
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
+      return Rand.num() * 5;
     }
     
     
@@ -84,7 +87,7 @@ public class TrooperTechniques {
       if (success && subject instanceof Actor) {
         CombatFX.applyBurstFX(ZAP_FX_MODEL, subject, 0.5f, 1);
         
-        final float damage = using.gear.baseDamage() * Rand.num() / 2;
+        final float damage = using.gear.totalDamage() * Rand.num() / 2;
         final Actor struck = (Actor) subject;
         struck.health.takeFatigue(damage);
         struck.health.takeInjury(damage, false);
@@ -100,13 +103,15 @@ public class TrooperTechniques {
     REAL_HELP          ,
     NO_FATIGUE         ,
     MINOR_CONCENTRATION,
-    Technique.TYPE_INDEPENDANT_ACTION, HAND_TO_HAND, 5,
+    Technique.TYPE_INDEPENDANT_ACTION, MARKSMANSHIP, 5,
     Action.FIRE, Action.QUICK
   ) {
     
     public boolean canBeLearnt(Actor learns) {
-      if (learns.gear.deviceType() != Devices.HALBERD_GUN) return false;
-      return super.canBeLearnt(learns);
+      return
+        hasGear(learns, Devices.HALBERD_GUN) &&
+        hasUpgrade(learns.mind.work(), TrooperLodge.MARKSMAN_TRAINING, 1) &&
+        super.canBeLearnt(learns);
     }
     
     
@@ -175,8 +180,10 @@ public class TrooperTechniques {
   ) {
     
     public boolean canBeLearnt(Actor learns) {
-      if (learns.gear.deviceType() != Devices.HALBERD_GUN) return false;
-      return super.canBeLearnt(learns);
+      return
+        hasGear(learns, Devices.HALBERD_GUN) &&
+        hasUpgrade(learns.mind.work(), TrooperLodge.MARKSMAN_TRAINING, 1) &&
+        super.canBeLearnt(learns);
     }
     
     
@@ -223,12 +230,12 @@ public class TrooperTechniques {
       );
       
       for (Actor a : Technique.subjectsInRange(subject, FRAG_BURST_RANGE)) {
-        float damage = (Rand.num() + 0.5f) * using.gear.baseDamage() / 1.5f;
+        float damage = (Rand.num() + 0.5f) * using.gear.totalDamage() / 1.5f;
         damage += FRAG_DAMAGE_BONUS;
         if (a != subject) damage /= 2;
         
         damage = Nums.max(0, a.gear.afterShields(damage, true));
-        damage -= a.gear.armourRating() * Rand.num();
+        damage -= a.gear.totalArmour() * Rand.num();
         
         if (damage > 0) {
           a.health.takeInjury(damage, true);
@@ -241,6 +248,16 @@ public class TrooperTechniques {
   };
   
   
+  final public static Technique POWER_ARMOUR_USE = new Technique(
+    "Power Armour Use", DIR+"power_armour_use.png",
+    BASE_CLASS      , "power_armour_use",
+    MAJOR_POWER     ,
+    NO_HARM         ,
+    NO_FATIGUE      ,
+    NO_CONCENTRATION,
+    Technique.TYPE_GEAR_PROFICIENCY, HAND_TO_HAND, 15,
+    Outfits.POWER_ARMOUR
+  ) {};
   
 }
 

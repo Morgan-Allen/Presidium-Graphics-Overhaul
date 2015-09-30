@@ -67,7 +67,7 @@ public class DeviceType extends Traded {
     setPrice(basePrice, materials);
     
     this.groupName = groupName;
-    this.animName = animName;
+    this.animName  = animName ;
   }
   
   

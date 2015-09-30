@@ -39,7 +39,7 @@ public class PhysicianStation extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     PhysicianStation.class, "physician_station",
-    "Physician Station", UIConstants.TYPE_PHYSICIAN, ICON,
+    "Physician Station", Target.TYPE_PHYSICIAN, ICON,
     "The Physician Station allows your citizens' injuries or diseases to be "+
     "treated quickly and effectively.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 2,
@@ -195,7 +195,7 @@ public class PhysicianStation extends Venue {
     if (works != null) return works;
     //
     //  Consider performing research-
-    //choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_PHYSICIAN));
+    //choice.add(Studying.asResearch(actor, this, Target.TYPE_PHYSICIAN));
     //
     //  Otherwise, just tend the desk...
     choice.add(Supervision.oversight(this, actor));
@@ -243,10 +243,10 @@ public class PhysicianStation extends Venue {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
-    if (v == MINDER   ) return nO + 2;
-    if (v == PHYSICIAN) return nO + 2;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == MINDER   ) return level;
+    if (v == PHYSICIAN) return level;
     return 0;
   }
   

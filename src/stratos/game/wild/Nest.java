@@ -88,8 +88,8 @@ public class Nest extends Venue {
   
   //  TODO:  Get rid of these.  Fauna are residents, not employees.
   
-  public int numOpenings(Background b) {
-    final int nO = super.numOpenings(b);
+  public int numPositions(Background b) {
+    final int nO = super.numPositions(b);
     if (cachedIdealPop == -1) return 0;
     if (b == species) return nO + (int) cachedIdealPop;
     return 0;
@@ -134,17 +134,7 @@ public class Nest extends Venue {
     final float forageRange = forageRange(species);
     
     float foodSupply = 0;
-    if (species.browser()) {
-      if (point == null) {
-        foodSupply = world.terrain().globalFertility();
-        foodSupply /= BROWSER_TO_FLORA_RATIO * DEFAULT_BROWSER_SPECIES;
-      }
-      else {
-        foodSupply = world.terrain().fertilitySample(world.tileAt(point));
-        foodSupply *= (forageRange * forageRange * 4) / BROWSER_TO_FLORA_RATIO;
-      }
-    }
-    else {
+    if (species.predator()) {
       if (point == null) {
         foodSupply = base.demands.globalSupply(Species.KEY_BROWSER);
         foodSupply /= DEFAULT_PREDATOR_SPECIES;
@@ -153,6 +143,16 @@ public class Nest extends Venue {
         point, Species.KEY_BROWSER, forageRange
       );
       foodSupply /= PREDATOR_TO_PREY_RATIO;
+    }
+    else {
+      if (point == null) {
+        foodSupply = world.terrain().globalFertility();
+        foodSupply /= BROWSER_TO_FLORA_RATIO * DEFAULT_BROWSER_SPECIES;
+      }
+      else {
+        foodSupply = world.terrain().fertilitySample(world.tileAt(point));
+        foodSupply *= (forageRange * forageRange * 4) / BROWSER_TO_FLORA_RATIO;
+      }
     }
     
     //
@@ -231,7 +231,7 @@ public class Nest extends Venue {
   ) {
     final Blueprint blueprint = new Blueprint(
       Nest.class, s.name+"_nest",
-      s.name+" Nest", UIConstants.TYPE_WILD, null, s.info,
+      s.name+" Nest", Target.TYPE_WILD, null, s.info,
       size, high, Structure.IS_CRAFTED,
       Owner.TIER_PRIVATE, 100,
       5
@@ -291,7 +291,8 @@ public class Nest extends Venue {
     
     final Batch <Blueprint> blueprints = new Batch <Blueprint> ();
     for (Species s : with) if (s.type == type) {
-      blueprints.add(s.nestBlueprint());
+      final Blueprint nestType = s.nestBlueprint();
+      if (nestType != null) blueprints.add(nestType);
     }
     final Batch <Venue> placed = wildlife.setup.doFullPlacements(
       blueprints.toArray(Blueprint.class)
@@ -302,6 +303,7 @@ public class Nest extends Venue {
   
   public static void populateFauna(Stage world, Species... available) {
     populate(world, available, Species.Type.BROWSER );
+    populate(world, available, Species.Type.VERMIN  );
     populate(world, available, Species.Type.PREDATOR);
   }
   
@@ -379,7 +381,7 @@ public class Nest extends Venue {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    panel = VenuePane.configSimplePanel(this, panel, UI, null);
+    panel = VenuePane.configSimplePanel(this, panel, UI, null, null);
     
     final Description d = panel.detail(), l = panel.listing();
     float idealPop = cachedIdealPop;

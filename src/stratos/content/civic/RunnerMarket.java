@@ -93,7 +93,7 @@ public class RunnerMarket extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     RunnerMarket.class, "runner_market",
-    "Runner Market", UIConstants.TYPE_COMMERCE, ICON,
+    "Runner Market", Target.TYPE_COMMERCE, ICON,
     "Runner Markets can offer black market technology and other "+
     "clandestine services to settlements willing to overlook their "+
     "criminal connections.",
@@ -272,14 +272,19 @@ public class RunnerMarket extends Venue {
   public Background[] careers() { return CAREERS; }
   
   
-  public int numOpenings(Background b) {
+  public int numPositions(Background b) {
     if (gangID == GANG_NONE) return 0;
-    final int nO = super.numOpenings(b);
-    if (b == RUNNER_BACKGROUNDS [gangID]) return nO + 2;
-    if (b == SERVICE_BACKGROUNDS[gangID]) return nO + 1;
+    final int level = structure.mainUpgradeLevel();
+    if (b == RUNNER_BACKGROUNDS [gangID]) return level + 1;
+    if (b == SERVICE_BACKGROUNDS[gangID]) return (level + 1) / 2;
     return 0;
   }
 }
+
+
+
+
+
 
 
 

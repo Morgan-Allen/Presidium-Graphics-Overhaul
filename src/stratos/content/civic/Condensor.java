@@ -30,7 +30,7 @@ public class Condensor extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Condensor.class, "condensor",
-    "Condensor", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Condensor", Target.TYPE_ECOLOGIST, ICON,
     "The Condensor provides "+WATER+" and "+ATMO+" to the surrounding "+
     "settlement.",
     2, 1, Structure.IS_FIXTURE, Owner.TIER_FACILITY, 85, 1,
@@ -92,7 +92,7 @@ public class Condensor extends Venue {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
   
   

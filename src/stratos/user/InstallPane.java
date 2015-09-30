@@ -63,7 +63,7 @@ public class InstallPane extends SelectionPane {
   
   /**  Setting up categories and their buttons-
     */
-  final static String DEFAULT_CATEGORY = TYPE_SECURITY;
+  final static String DEFAULT_CATEGORY = Target.TYPE_SECURITY;
   
   static class Category {
     String name;
@@ -78,8 +78,7 @@ public class InstallPane extends SelectionPane {
   
   
   protected static void setupTypes() {
-    
-    for (String s : INSTALL_CATEGORIES) initCategory(s);
+    for (String s : MAIN_INSTALL_CATEGORIES) initCategory(s);
     
     for (Blueprint blueprint : Blueprint.allBlueprints()) {
       final Category category = categories.get(blueprint.category);
@@ -112,7 +111,7 @@ public class InstallPane extends SelectionPane {
     final List <Blueprint> sorting = new List <Blueprint> () {
       protected float queuePriority(Blueprint r) {
         if (r.baseUpgrade() == null) return -100;
-        int catIndex = Visit.indexOf(r.category, INSTALL_CATEGORIES);
+        int catIndex = Visit.indexOf(r.category, MAIN_INSTALL_CATEGORIES);
         return (catIndex * 100) + r.baseUpgrade().tier;
       }
     };
@@ -121,9 +120,14 @@ public class InstallPane extends SelectionPane {
       possible = new List(),
       listed   = new List();
     
+    final boolean report = I.used60Frames && false;
+    if (report) I.say("Updating install pane.");
+    
     for (Blueprint b : allBlueprints) {
       if (b.icon == null || b.baseUpgrade() == null) continue;
       if (! b.baseUpgrade().hasRequirements(base)) continue;
+      
+      if (report) I.say("  "+b);
       
       if (base.research.hasTheory(b.baseUpgrade())) {
         
@@ -156,35 +160,6 @@ public class InstallPane extends SelectionPane {
       }
       describeVenueOptions(b, detailText, base);
     }
-    
-    /*
-    for (String catName : INSTALL_CATEGORIES) {
-      final Category c = categories.get(catName);
-      if (! c.toggled) continue;
-      
-      sorting.clear();
-      for (Blueprint b : allBlueprints) {
-        if (! b.category.equals(catName)) continue;
-        if (b.icon == null || b.baseUpgrade() == null) continue;
-        if (! b.baseUpgrade().hasRequirements(base)) continue;
-        sorting.add(b);
-      }
-      if (sorting.empty()) continue;
-      else sorting.queueSort();
-      
-      detailText.append("\n "+c.name+" Structures\n");
-      final int MAX_IN_ROW = 4;
-      int numInRow = 0;
-      
-      for (Blueprint b : sorting) {
-        ++numInRow;
-        if (numInRow > 4 && (numInRow % MAX_IN_ROW) == 1) {
-          detailText.append("\n");
-        }
-        describeVenueOptions(b, detailText, base);
-      }
-    }
-    //*/
     
     if (lastSelected != null) {
       boolean enabled = base.checkPrerequisites(lastSelected, Account.NONE);

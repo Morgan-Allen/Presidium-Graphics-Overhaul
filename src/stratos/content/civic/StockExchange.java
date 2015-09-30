@@ -41,14 +41,23 @@ public class StockExchange extends Venue {
     StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
   );
   
+  
+  final public static Traded
+    ALL_STOCKED[] = {
+      CARBS, PROTEIN, GREENS,
+      MEDICINE, PLASTICS, PARTS
+    };
+  
   final public static Blueprint BLUEPRINT = new Blueprint(
     StockExchange.class, "stock_exchange",
-    "Stock Exchange", UIConstants.TYPE_COMMERCE, ICON,
+    "Stock Exchange", Target.TYPE_COMMERCE, ICON,
     "The Stock Exchange generates profits from the sale of finished goods to "+
     "local homes and businesses.",
     4, 1, Structure.IS_NORMAL,
-    Owner.TIER_TRADER, 150,
-    3
+    Owner.TIER_TRADER, 150, 3,
+    Visit.compose(Object.class, ALL_STOCKED, new Object[] {
+      SERVICE_COMMERCE, STOCK_VENDOR
+    })
   );
   
   private float catalogueSums[] = new float[ALL_STOCKED.length];
@@ -149,7 +158,6 @@ public class StockExchange extends Venue {
       850
     ),
     
-    //  TODO:  COOK UP RATIONS AS A 4TH FOOD TYPE
     RATIONS_VENDING = new Upgrade(
       "Rations Vending",
       "Increases space available to "+CARBS+" and "+PROTEIN+" and augments "+
@@ -158,7 +166,8 @@ public class StockExchange extends Venue {
       Upgrade.Type.TECH_MODULE, null
     ),
     
-    //  TODO:  PERMIT BASIC REPAIRS/RECHARGE OF ARMOUR/DEVICES
+    //  TODO:  FAST FOOD!
+    
     HARDWARE_STORE = new Upgrade(
       "Hardware Store",
       "Increases space available to "+PARTS+" and "+PLASTICS+", and augments "+
@@ -167,7 +176,11 @@ public class StockExchange extends Venue {
       Upgrade.Type.TECH_MODULE, null
     ),
     
-    //  TODO:  PROVIDE STANDARD MEDKITS FOR USE
+    //  TODO:  Use this to provide raw materials (metal, polymer, reagents.)
+    SUPPLY_VAULT = null,
+    
+    //  TODO:  POWER CELLS!
+    
     MEDICAL_EXCHANGE = new Upgrade(
       "Medical Exchange",
       "Increases space available to "+GREENS+" and "+MEDICINE+", and augments "+
@@ -175,6 +188,8 @@ public class StockExchange extends Venue {
       250, Upgrade.THREE_LEVELS, RATIONS_VENDING, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
+    
+    //  TODO:  MEDKITS!
     
     CREDITS_EXCHANGE = new Upgrade(
       "Credits Exchange",
@@ -184,29 +199,12 @@ public class StockExchange extends Venue {
       Upgrade.Type.TECH_MODULE, null
     ),
     
-    STOCK_VENDOR_OFFICE = new Upgrade(
-      "Stock Vendor Office",
-      STOCK_VENDOR.info,
-      100, Upgrade.TWO_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, STOCK_VENDOR
-    ),
-    
     ADVERTISEMENT = new Upgrade(
       "Advertisement",
       "Increases the likelihood of shoppers' visits and enhances morale when "+
       "doing so.",
-      300, Upgrade.TWO_LEVELS, STOCK_VENDOR_OFFICE, BLUEPRINT,
+      300, Upgrade.TWO_LEVELS, LEVELS[1], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
-    );
-  
-  
-  final public static Traded
-    ALL_STOCKED[] = {
-      CARBS, PROTEIN, GREENS,
-      MEDICINE, PLASTICS, PARTS
-    },
-    ALL_SERVICES[] = (Traded[]) Visit.compose(Traded.class,
-      ALL_STOCKED, new Traded[] { SERVICE_COMMERCE }
     );
   
   
@@ -219,9 +217,9 @@ public class StockExchange extends Venue {
   }
   
   
-  public int numOpenings(Background p) {
-    final int nO = super.numOpenings(p);
-    if (p == Backgrounds.STOCK_VENDOR) return nO + 3;
+  public int numPositions(Background p) {
+    final int level = structure.mainUpgradeLevel();
+    if (p == Backgrounds.STOCK_VENDOR) return level + 1;
     return 0;
   }
   
@@ -285,16 +283,6 @@ public class StockExchange extends Venue {
   }
   
   
-  public Background[] careers() {
-    return new Background[] { Backgrounds.STOCK_VENDOR };
-  }
-  
-  
-  public Traded[] services() {
-    return ALL_SERVICES;
-  }
-  
-  
   
   /**  Rendering and interface methods-
     */
@@ -321,6 +309,11 @@ public class StockExchange extends Venue {
   
   protected Traded[] goodsToShow() {
     return DISPLAYED_GOODS;
+  }
+  
+  
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+    return VenuePane.configStandardPanel(this, panel, UI, DISPLAYED_GOODS);
   }
   
   

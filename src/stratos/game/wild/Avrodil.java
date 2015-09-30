@@ -12,12 +12,9 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.sfx.PlaneFX;
-import stratos.graphics.sfx.ShotFX;
+import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
-import stratos.start.Assets;
-import stratos.user.BaseUI;
-import stratos.user.SelectionPane;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -35,7 +32,7 @@ public class Avrodil extends Fauna implements Captivity {
       FILE_DIR, "Avrodil.ms3d", Avrodil.class,
       XML_FILE, "Avrodil"
     ),
-    Species.Type.PREDATOR,
+    Species.Type.VERMIN,
     3.50f, //bulk
     0.35f, //speed
     0.85f  //sight
@@ -160,7 +157,7 @@ public class Avrodil extends Fauna implements Captivity {
     REAL_HELP       ,
     MINOR_FATIGUE   ,
     NO_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, null, 0,
+    Technique.TYPE_PASSIVE_SKILL_FX, null, 0,
     Action.FALL, Action.NORMAL
   ) {
     

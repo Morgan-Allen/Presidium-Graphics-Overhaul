@@ -137,6 +137,7 @@ public class Upgrade extends Constant implements
   final public static String
     REASON_NO_KNOWLEDGE    = "Lacks theoretical knowledge.",
     REASON_NO_REQUIREMENTS = "Lacks pre-requisite upgrades",
+    REASON_MAX_UP_LEVEL    = "At maximum level",
     REASON_SLOTS_FILLED    = "Upgrade slots filled!",
     REASON_NO_FUNDS        = "Lacks sufficient funds!";
   
@@ -146,7 +147,9 @@ public class Upgrade extends Constant implements
       final Structure s = ((Placeable) client).structure();
       
       final int numType = s.upgradeLevel(this, Structure.STATE_NONE);
-      final boolean noSlots = s.slotsFree() <= 0 || numType >= maxLevel;
+      if (numType >= maxLevel) return reasons.setFailure(REASON_MAX_UP_LEVEL);
+      
+      final boolean noSlots = s.slotsFree() <= 0;
       if (noSlots) return reasons.setFailure(REASON_SLOTS_FILLED);
       
       final boolean hasReq = hasRequirements(s);
@@ -330,7 +333,7 @@ public class Upgrade extends Constant implements
         }
       }
     });
-    else d.append(desc, Colour.GREY);
+    //else d.append(desc, Colour.GREY);
     //
     //  If knowledge isn't the problem, either cite the reason or list the
     //  funds required (in red if not available.)
@@ -338,6 +341,9 @@ public class Upgrade extends Constant implements
       final int cost = upgrade.buildCost(base);
       if (reasons.hadReason(REASON_NO_FUNDS)) {
         d.append(" ("+cost+" Credits)", Colour.GREY);
+      }
+      if (reasons.hadReason(REASON_MAX_UP_LEVEL)) {
+        d.append(" "+reasons.failReasons(), Colour.GREY);
       }
       else if (! possible) {
         d.append(" "+reasons.failReasons(), Colour.RED);
@@ -449,7 +455,7 @@ public class Upgrade extends Constant implements
     if (this == origin.baseUpgrade()) return icon = origin.icon;
     
     final String cat = origin.category;
-    final int index = Visit.indexOf(cat, INSTALL_CATEGORIES);
+    final int index = Visit.indexOf(cat, MAIN_INSTALL_CATEGORIES);
     if (index <= -1) return icon = DEFAULT_UPGRADE_ICON;
     
     return icon = UIConstants.GUILD_IMAGE_ASSETS[index];

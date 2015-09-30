@@ -276,7 +276,7 @@ public class Hunting extends Plan {
     //  Determine just how large a chunk you can take out of the prey-
     final float
       before = prey.health.injury(),
-      damage = actor.gear.attackDamage() * (Rand.num() + 0.5f) / 10;
+      damage = actor.gear.totalDamage() * (Rand.num() + 0.5f) / 10;
     if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
     prey.health.takeInjury(damage, true);
     float taken = prey.health.injury() - before;

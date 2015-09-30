@@ -164,7 +164,7 @@ public class Traded extends Constant implements Session.Saveable {
       canMake = new Batch <Blueprint> (),
       canUse  = new Batch <Blueprint> ();
     for (Blueprint b : base.setup.available()) {
-      if (b.category == UIConstants.TYPE_WIP) continue;
+      if (b.category == Target.TYPE_WIP) continue;
       else if (b.producing(this) != null) canMake.include(b);
       else if (b.consuming(this) != null) canUse .include(b);
     }

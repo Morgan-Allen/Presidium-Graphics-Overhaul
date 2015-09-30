@@ -288,13 +288,12 @@ This might be a good time to see what your Auditors are up to.  Select the Basti
 <topic
   name      = "Time and Money"
   urgent    = "true"
-  triggers  = "checkExtraBuildingFinished"
+  triggers  = "checkAuditorSeen"
 >
-  <content>Between imports, upgrades and hiring costs, it might take a day or two for your industry and trade venues to start turning a profit.  You can wait if you wish, or- if you're ready- we'll turn our attentions back to handling external enemies.
+  <content>Auditors will periodically assess profits and losses at nearby venues, tally the sum, and report back to you.  Between imports, upgrades and hiring costs, it might take a day or two for your industry and trade venues to start turning a profit.  You can wait if you wish, or- if you're ready- we'll turn our attentions back to handling external enemies.
 </content>
   <link name="Base Under Attack!">Bring It On</link>
 </topic>
-
 
 
 

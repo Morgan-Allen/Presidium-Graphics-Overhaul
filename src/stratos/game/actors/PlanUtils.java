@@ -311,19 +311,21 @@ public class PlanUtils {
   ) {
     float incentive = 0, priority = 0, enjoyBonus = 0;
     float dutyBonus = 0, helpBonus = 0, shift = 0;
-    float failPenalty = 0, help = 0;
+    float failPenalty = 0, help = 0, motiveBonus = 0;
     
     if (plan.hasBegun() && plan.persistent()) {
       urgency = Nums.max(urgency, 0.5f);
       shift   = Venue.SECONDARY_SHIFT;
     }
-    else if (urgency <= 0) return -1;
+    else if (urgency <= 0 && plan.motiveBonus() <= 0) {
+      return -1;
+    }
     
     final Property work = actor.mind.work();
     float liking = actor.relations.valueFor(plan.subject);
     incentive += urgency * 10 * liking;
     incentive += (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2.5f;
-    incentive += plan.motiveBonus();
+    incentive += motiveBonus = plan.motiveBonus();
     
     if (helpLimit >= 0) {
       help = competition(plan, plan.subject, actor);
@@ -358,6 +360,7 @@ public class PlanUtils {
       "Liking"     , liking      ,
       "Urgency"    , urgency     ,
       "Competence" , competence  ,
+      "motiveBonus", motiveBonus ,
       "enjoyBonus" , enjoyBonus  ,
       "dutyBonus"  , dutyBonus   ,
       "failRisk"   , riskLevel   ,
@@ -456,6 +459,16 @@ public class PlanUtils {
     final DeviceType type = actor.gear.deviceType();
     final float baseDamage = actor.gear.baseDamage();
     return baseDamage > 0 || ((type != null) && type.baseDamage > 0);
+  }
+  
+  
+  public static boolean underAttack(Target target) {
+    final Stage world = target.world();
+    if (world == null) return false;
+    for (Behaviour b : world.activities.allTargeting(target)) {
+      if (b instanceof Combat) return true;
+    }
+    return false;
   }
   
   

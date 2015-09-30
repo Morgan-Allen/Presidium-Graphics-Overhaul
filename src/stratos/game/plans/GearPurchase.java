@@ -21,9 +21,7 @@ import static stratos.game.economic.Economy.*;
 //  those have expired...
 
 
-public class Commission extends Plan {
-  
-  
+public class GearPurchase extends Plan {
   
   /**  Data fields, construction and save/load methods-
     */
@@ -43,7 +41,7 @@ public class Commission extends Plan {
   private boolean delivered = false;
   
   
-  private Commission(Actor actor, Item baseItem, Venue shop) {
+  private GearPurchase(Actor actor, Item baseItem, Venue shop) {
     super(actor, shop, MOTIVE_PERSONAL, NO_HARM);
     this.item = Item.withReference(baseItem, actor);
     this.shop = shop;
@@ -54,7 +52,7 @@ public class Commission extends Plan {
   }
   
   
-  public Commission(Session s) throws Exception {
+  public GearPurchase(Session s) throws Exception {
     super(s);
     item = Item.loadFrom(s);
     shop = (Venue) s.loadObject();
@@ -79,43 +77,66 @@ public class Commission extends Plan {
   
   public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
-    return ((Commission) p).item.type == this.item.type;
+    return ((GearPurchase) p).item.type == this.item.type;
   }
   
   
   
   /**  Assessing and locating targets-
     */
-  //  TODO:  Specify the actor who buys and the actor it's intended for
-  //  separately!
-  
-  public static void addCommissions(
-    Actor actor, Venue makes, Choice choice, Traded itemType, Upgrade limits
-  ) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (report) I.say("\nChecking commissions for "+actor);
-    
-    final boolean hasCommission = actor.mind.hasToDo(Commission.class);
-    if (hasCommission) return;
-    final Item device = actor.gear.deviceEquipped();
-    final Item outfit = actor.gear.outfitEquipped();
-    
-    if (device != null && device.type == itemType) {
-      choice.add(nextCommission(actor, makes, device, limits));
-    }
-    if (outfit != null && outfit.type == itemType) {
-      choice.add(nextCommission(actor, makes, outfit, limits));
-    }
+  public static Item nextDeviceToPurchase(Actor actor, Venue makes) {
+    return GearPurchase.nextGearToPurchase(actor, makes, true, false);
   }
   
   
-  private static Commission nextCommission(
+  public static Item nextOutfitToPurchase(Actor actor, Venue makes) {
+    return GearPurchase.nextGearToPurchase(actor, makes, false, true);
+  }
+  
+  
+  private static Item nextGearToPurchase(
+    Actor actor, Venue makes, final boolean device, final boolean outfit
+  ) {
+    final Pick <Traded> pick = new Pick();
+    for (Traded t : actor.skills.gearProficiencies()) {
+      if (! t.materials().producesAt(makes)) continue;
+      
+      if (device && t instanceof DeviceType) {
+        float rating = ((DeviceType) t).baseDamage;
+        pick.compare(t, rating);
+      }
+      if (outfit && t instanceof OutfitType) {
+        float rating = ((OutfitType) t).defence;
+        pick.compare(t, rating);
+      }
+    }
+    final Traded itemType = pick.result();
+    if (itemType == null) return null;
+    
+    Item match = null;
+    if (actor.gear.outfitType() == itemType) {
+      match = actor.gear.outfitEquipped();
+    }
+    if (actor.gear.deviceType() == itemType) {
+      match = actor.gear.deviceEquipped();
+    }
+    if (match == null) {
+      match = actor.gear.bestSample(itemType, null, -1);
+    }
+    if (match == null) {
+      match = Item.with(itemType, null, 0.1f, Item.BAD_QUALITY);
+    }
+    return match;
+  }
+  
+  
+  public static GearPurchase nextCommission(
     Actor actor, Venue makes, Item baseItem, Upgrade limits
   ) {
     if (baseItem == null || ! makes.openFor(actor)) return null;
     if (makes.stocks.specialOrders().size() >= MAX_ORDERS) return null;
     
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     final int baseQuality = (int) baseItem.quality;
     
     //
@@ -132,7 +153,7 @@ public class Commission extends Plan {
     //  Then we see if this exceeds the quality of the item of this type the
     //  actor currently possesses-
     int quality = maxQuality;
-    Commission added = null;
+    GearPurchase added = null;
     Item upgrade = null;
     while (--quality > 0) {
       //
@@ -145,9 +166,12 @@ public class Commission extends Plan {
       if (quality <= baseQuality && ! needsReplace) continue;
       else if (quality < baseQuality) continue;
       
-      added = new Commission(actor, upgrade, makes);
+      added = new GearPurchase(actor, upgrade, makes);
       if (added.priorityFor(actor) > 0) break;
     }
+    
+    //  TODO:  Power Armour is not being considered here (and device upgrades
+    //  are not being considered for some reason.)  Investigate this.
     
     if (report) {
       I.say("\nConsidering commission for "+baseItem);
@@ -281,8 +305,8 @@ public class Commission extends Plan {
   
   
   public boolean actionPickupItem(Actor actor, Venue shop) {
-    shop.inventory().removeMatch(item);
-    actor.inventory().addItem(item);
+    shop .inventory().removeMatch(item);
+    actor.inventory().addItem    (item);
     shop.stocks.deleteSpecialOrder(item);
     
     shop .inventory().incCredits(    price);

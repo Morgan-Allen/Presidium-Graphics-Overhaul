@@ -490,16 +490,16 @@ public abstract class Venue extends Fixture implements
       return crowding;
     }
     else {
-      final int openings = numOpenings(background);
-      if (openings <= 0) return 1;
+      final int positions = numPositions(background);
+      if (positions <= 0) return 1;
       final int hired = staff.numHired(background);
-      return hired * 1f / (hired + openings);
+      return hired * 1f / positions;
     }
   }
   
   
-  protected int numOpenings(Background b) {
-    return structure.upgradeLevel(b) - staff.numHired(b);
+  protected int numPositions(Background b) {
+    return structure.upgradeLevel(b);
   }
   
   
@@ -574,7 +574,8 @@ public abstract class Venue extends Fixture implements
   /**  Interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, null);
+    final Traded sets[] = blueprint.tradeServices();
+    return VenuePane.configStandardPanel(this, panel, UI, sets);
   }
   
   
@@ -885,9 +886,7 @@ public abstract class Venue extends Fixture implements
     );
 
     final String keyRes = origin()+"_reserve_print_"+this;
-    //final Tile reserved[] = reserved();
     
-    //if (reserved.length > 0)
     BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world,
       Colour.transparency(hovered ? 0.25f : 0.375f),

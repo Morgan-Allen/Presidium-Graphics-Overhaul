@@ -41,7 +41,7 @@ public class Archives extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives",
-    "Archives", UIConstants.TYPE_WIP, ICON,
+    "Archives", Target.TYPE_WIP, ICON,
     "The Archives provide "+DATALINKS+" and facilitate research and "+
     "administration by base personnel.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 250, 3,
@@ -76,8 +76,8 @@ public class Archives extends Venue {
   
   /**  Upgrade and economy methods-
     */
-  protected int numOpenings(Background b) {
-    final int nO = super.numOpenings(b);
+  protected int numPositions(Background b) {
+    final int nO = super.numPositions(b);
     if (b == SAVANT) return nO + 2;
     return 0;
   }

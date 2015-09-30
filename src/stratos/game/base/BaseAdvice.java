@@ -28,9 +28,10 @@ public class BaseAdvice {
   
   
   final public static int
-    LEVEL_TOTAL   = 2,
-    LEVEL_ADVISOR = 1,
-    LEVEL_NONE    = 0;
+    LEVEL_FULL_AUTO      =  2,
+    LEVEL_AUTO_ADVISE    =  1,
+    LEVEL_AUTO_NO_ADVICE =  0,
+    LEVEL_NO_AUTO        = -1;
   final static int
     WARNING_SLOW  = Stage.STANDARD_DAY_LENGTH,
     WARNING_FAST  = Stage.STANDARD_HOUR_LENGTH,
@@ -68,7 +69,7 @@ public class BaseAdvice {
   final static XML textXML = XML.load("media/Help/GameHelp.xml");
   
   final Base base;
-  private int controlLevel = LEVEL_ADVISOR;
+  private int autonomy = LEVEL_AUTO_ADVISE;
   
   private float
     numNoFood = 0,
@@ -96,7 +97,7 @@ public class BaseAdvice {
   
   
   public void loadState(Session s) throws Exception {
-    this.controlLevel = s.loadInt();
+    this.autonomy = s.loadInt();
     for (Topic t : Topic.values()) {
       final float date = s.loadFloat();
       if (date >= 0) topicDates.put(t, date);
@@ -105,7 +106,7 @@ public class BaseAdvice {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(controlLevel);
+    s.saveInt(autonomy);
     for (Topic t : Topic.values()) {
       final Float date = topicDates.get(t);
       s.saveFloat(date == null ? -1 : date);
@@ -113,13 +114,13 @@ public class BaseAdvice {
   }
   
   
-  public void setControlLevel(int level) {
-    this.controlLevel = level;
+  public void setAutonomy(int level) {
+    this.autonomy = level;
   }
   
   
-  public int controlLevel() {
-    return controlLevel;
+  public int autonomy() {
+    return autonomy;
   }
   
   
@@ -220,7 +221,9 @@ public class BaseAdvice {
     //
     //  We first compile a list of everything one might complain about.
     final List <Topic> topics = new List <Topic> ();
-    if (GameSettings.noAdvice || controlLevel == LEVEL_NONE) return topics;
+    if (GameSettings.noAdvice || autonomy == LEVEL_AUTO_NO_ADVICE) {
+      return topics;
+    }
     
     if (numNoFood > 0.5f   ) topics.add(Topic.HUNGER_WARNING );
     if (numHungry > 0.5f   ) topics.add(Topic.HUNGER_SEVERE  );
@@ -337,7 +340,7 @@ public class BaseAdvice {
       canMake = new Batch <Blueprint> (),
       canUse  = new Batch <Blueprint> ();
     for (Blueprint b : base.setup.available()) {
-      if (b.category == UIConstants.TYPE_WIP) continue;
+      if (b.category == Target.TYPE_WIP) continue;
       else if (b.producing(t) != null) canMake.include(b);
       else if (b.consuming(t) != null) canUse .include(b);
     }

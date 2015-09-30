@@ -18,6 +18,7 @@ import stratos.util.*;
 //  TODO:  These should mostly be implemented as independent, attack-triggered
 //         actions, rather than passive skill bonuses?
 
+
 public class GeneralCombatTechniques {
   
   
@@ -55,7 +56,7 @@ public class GeneralCombatTechniques {
     REAL_HARM           ,
     NO_FATIGUE          ,
     MINOR_CONCENTRATION ,
-    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 5, Action.FIRE,
+    Technique.TYPE_PASSIVE_SKILL_FX, MARKSMANSHIP, 5, Action.FIRE,
     Action.QUICK | Action.RANGED
   ) {
     
@@ -96,7 +97,7 @@ public class GeneralCombatTechniques {
     REAL_HARM           ,
     NO_FATIGUE          ,
     MAJOR_CONCENTRATION ,
-    Technique.TYPE_PASSIVE_EFFECT, MARKSMANSHIP, 10,
+    Technique.TYPE_PASSIVE_SKILL_FX, MARKSMANSHIP, 10,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
@@ -161,7 +162,7 @@ public class GeneralCombatTechniques {
     REAL_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_PASSIVE_EFFECT, HAND_TO_HAND, 15, Action.FIRE,
+    Technique.TYPE_PASSIVE_SKILL_FX, HAND_TO_HAND, 15, Action.FIRE,
     Action.QUICK
   ) {
     

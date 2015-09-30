@@ -63,7 +63,7 @@ public class Ruins extends Venue {
     VENUE_BLUEPRINTS = new Blueprint[1];
     VENUE_BLUEPRINTS[0] = new Blueprint(
       Ruins.class, "ruins",
-      "Ancient Ruins", UIConstants.TYPE_RUINS, null,
+      "Ancient Ruins", Target.TYPE_RUINS, null,
       "Ancient ruins cover the landscape of many worlds in regions irradiated "+
       "by nuclear fire or blighted by biological warfare.  Strange and "+
       "dangerous beings often haunt such forsaken places.",
@@ -137,7 +137,7 @@ public class Ruins extends Venue {
   }
   
   
-  protected int numOpenings(Background b) {
+  protected int numPositions(Background b) {
     final boolean report = updateVerbose && I.talkAbout == this;
     //
     //  We 'salt' this estimate in a semi-random but deterministic way by
@@ -179,7 +179,7 @@ public class Ruins extends Venue {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
   
   

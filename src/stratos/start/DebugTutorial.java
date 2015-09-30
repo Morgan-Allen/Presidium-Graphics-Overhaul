@@ -5,7 +5,7 @@
   */
 package stratos.start;
 import stratos.game.common.*;
-import stratos.graphics.common.Rendering;
+import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
 

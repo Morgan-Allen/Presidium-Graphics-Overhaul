@@ -65,10 +65,11 @@ public class Structure {
     IS_FIXTURE = 2  ,
     IS_LINEAR  = 4  ,
     IS_ZONED   = 8  ,
-    IS_UNIQUE  = 16 ,
-    IS_CRAFTED = 32 ,
-    IS_ANCIENT = 64 ,
-    IS_ORGANIC = 128;
+    IS_PUBLIC  = 16 ,
+    IS_UNIQUE  = 32 ,
+    IS_CRAFTED = 64 ,
+    IS_ANCIENT = 128,
+    IS_ORGANIC = 256;
   
   //  Type- venue, vehicle, fixture, tiling?
   //  Placement method- unique, point, line, zone?
@@ -124,6 +125,8 @@ public class Structure {
   
   public void loadState(Session s) throws Exception {
     
+    blueprint = (Blueprint) s.loadObject();
+    
     baseIntegrity = s.loadInt();
     maxUpgrades   = s.loadInt();
     buildCost     = s.loadInt();
@@ -152,6 +155,8 @@ public class Structure {
   
   
   public void saveState(Session s) throws Exception {
+    
+    s.saveObject(blueprint);
     
     s.saveInt(baseIntegrity);
     s.saveInt(maxUpgrades  );
@@ -612,10 +617,26 @@ public class Structure {
   }
   
   
+  public void setMainUpgradeLevel(int level) {
+    if (blueprint == null || blueprint.venueLevels() == null) {
+      I.complain("\nNO VENUE-LEVELS ASSOCIATED WITH "+basis);
+      return;
+    }
+    final Upgrade levels[] = blueprint.venueLevels();
+    while (level-- > 0) {
+      if (level >= levels.length || hasUpgrade(levels[level])) continue;
+      addUpgrade(levels[level]);
+    }
+  }
+  
+  
   public int mainUpgradeLevel() {
+    if (blueprint == null || blueprint.venueLevels() == null) {
+      return -1;
+    }
     int level = 0;
-    for (Upgrade u : upgrades) {
-      if (u != null && u.type == Upgrade.Type.VENUE_LEVEL) level++;
+    for (Upgrade u : blueprint.venueLevels()) {
+      if (hasUpgrade(u)) level++;
     }
     return level;
   }

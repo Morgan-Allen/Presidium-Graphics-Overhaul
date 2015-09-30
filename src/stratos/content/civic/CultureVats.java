@@ -33,7 +33,7 @@ public class CultureVats extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     CultureVats.class, "culture_vats",
-    "Culture Vats", UIConstants.TYPE_PHYSICIAN, ICON,
+    "Culture Vats", Target.TYPE_PHYSICIAN, ICON,
     "The Culture Vats manufacture "+REAGENTS+", basic foodstuffs "+
     "and even cloned tissues for medical purposes.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 400, 3,
@@ -85,11 +85,10 @@ public class CultureVats extends Venue {
     */
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.TWO_LEVELS,
+      Upgrade.SINGLE_LEVEL,
       new Upgrade[] { PhysicianStation.LEVELS[0], EngineerStation.LEVELS[0] },
       new Object[] { 15, CHEMISTRY, 5, GENE_CULTURE },
-      400,
-      550
+      400//, 550
     ),
     CARBS_CULTURE = new Upgrade(
       "Carbs Culture",
@@ -193,9 +192,9 @@ public class CultureVats extends Venue {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
-    if (v == VATS_BREEDER) return nO + 2;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == VATS_BREEDER) return level;
     return 0;
   }
   

@@ -106,6 +106,7 @@ public class Verse {
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
       StockExchange   .BLUEPRINT,
+      SupplyDepot     .BLUEPRINT,
       Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
       
       EcologistRedoubt.BLUEPRINT,
@@ -128,6 +129,7 @@ public class Verse {
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
       StockExchange   .BLUEPRINT,
+      SupplyDepot     .BLUEPRINT,
       Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
       
       CultureVats.BLUEPRINT,
@@ -151,6 +153,7 @@ public class Verse {
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
+      SupplyDepot     .BLUEPRINT,
       Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
       
       ShieldWall.BLUEPRINT,
@@ -174,6 +177,7 @@ public class Verse {
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
       StockExchange   .BLUEPRINT,
+      SupplyDepot     .BLUEPRINT,
       Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
       
       RunnerMarket.BLUEPRINT,

@@ -32,7 +32,7 @@ public class LogicianSchool extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     LogicianSchool.class, "logician_school",
-    "Logician School", UIConstants.TYPE_WIP, ICON,
+    "Logician School", Target.TYPE_WIP, ICON,
     "<Logician School Description>",
     6, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 200,

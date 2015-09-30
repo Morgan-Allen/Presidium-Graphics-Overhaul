@@ -7,6 +7,7 @@ package stratos.content.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.Siting;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -77,10 +78,10 @@ public class Holding extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Holding.class, "housing",
-    "Housing", UIConstants.TYPE_UNPLACED, ICONS[0],
+    "Housing", Target.TYPE_PHYSICIAN, ICONS[0],
     "Housing provides comfort, sanitation and other domestic benefits to "+
     "your subjects.",
-    2, 1, Structure.IS_NORMAL,
+    2, 1, Structure.IS_PUBLIC,
     Owner.TIER_PRIVATE, INTEGRITIES[0],
     5
   );
@@ -194,6 +195,54 @@ public class Holding extends Venue {
   
   /**  Upgrade listings-
     */
+  final static Siting SITING = new Siting(BLUEPRINT) {
+    
+    public float rateSettlementDemand(Base base) {
+      return base.demands.globalShortage(SERVICE_HOUSING, false);
+    }
+    
+    
+    public float ratePointDemand(Base base, Target point, boolean exact) {
+      final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
+      float baseDemand = base.demands.globalShortage(SERVICE_HOUSING, false);
+      final Base claims = point.world().claims.baseClaiming(point);
+      
+      if (report) {
+        I.say("\nGetting place-rating for Holding at "+point);
+        I.say("  Current base: "+base+", base claiming area: "+claims);
+        I.say("  Demand for housing: "+baseDemand);
+      }
+      if (baseDemand <= 0 || claims != base) return -1;
+      float rating = 1;
+      
+      if (exact) {
+        final Tile at = (Tile) point;
+        final float range = Stage.ZONE_SIZE;
+        Target near = null;
+        
+        near = at.world.presences.nearestMatch(base, at, range);
+        if (near != null) rating *= 1f / (1 + Spacing.distance(near, at));
+        
+        near = at.world.presences.nearestMatch(SERVICE_HOUSING, at, range);
+        if (near != null) rating *= 1f / (1 + Spacing.distance(near, at));
+      }
+      else {
+        for (int level = 0 ; level < NUM_LEVELS; level++) {
+          final float access = rateAccessFrom(point, level, base);
+          if (access <= 0) break;
+          rating *= 1 + access;
+        }
+        final float maxRating = 1 << NUM_LEVELS;
+        if (report) I.say("  Rating from level: "+rating+"/"+maxRating);
+        rating = baseDemand * Plan.PARAMOUNT * rating / maxRating;
+      }
+      
+      if (report) I.say("  Final rating: "+rating);
+      return rating;
+    }
+  };
+  
+  /*
   public float ratePlacing(Target point, boolean exact) {
     final boolean report = rateVerbose && BaseUI.currentPlayed() == base;
     float baseDemand = base.demands.globalShortage(SERVICE_HOUSING, false);
@@ -232,6 +281,7 @@ public class Holding extends Venue {
     if (report) I.say("  Final rating: "+rating);
     return rating;
   }
+  //*/
   
   
   //  What you actually need here is a supplyFor(Object service) method- that
@@ -497,7 +547,7 @@ public class Holding extends Venue {
   
   
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
   
   

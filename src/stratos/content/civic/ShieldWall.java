@@ -49,7 +49,7 @@ public class ShieldWall extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ShieldWall.class, "shield_wall",
-    "Shield Wall", UIConstants.TYPE_SECURITY, ICON,
+    "Shield Wall", Target.TYPE_SECURITY, ICON,
     "Shield Walls are defensive emplacements that improve base security.",
     2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 125,
@@ -289,7 +289,7 @@ public class ShieldWall extends Venue {
   
   
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
 }
 

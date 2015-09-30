@@ -48,7 +48,7 @@ public class Arcology extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Arcology.class, "arcology",
-    "Arcology", UIConstants.TYPE_WIP, ICON,
+    "Arcology", Target.TYPE_WIP, ICON,
     "Arcology provides both beauty and life support to your settlement, "+
     "but require space and "+WATER+".",
     2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
@@ -136,7 +136,7 @@ public class Arcology extends Venue {
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final int gP = (int) (plantsHealth * 100);
     final String status = "Plant growth: "+gP+"%";
-    return VenuePane.configSimplePanel(this, panel, UI, status);
+    return VenuePane.configSimplePanel(this, panel, UI, null, status);
   }
 }
 

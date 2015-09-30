@@ -44,14 +44,15 @@ public class Blueprint extends Constant implements UIConstants {
     armour     ;
   
   final public int owningTier;
-  
   private Upgrade upgradeLevels[];
-  private Object services[];
+  
+  private Conversion processes[] = null;
   private Batch <Conversion> producing = new Batch();
   private Batch <Conversion> consuming = new Batch();
   
   private Siting siting = null;
-  private Traded tradeServices[] = null;
+  private Object     allServices   [] = null;
+  private Traded     tradeServices [] = null;
   private Background careerServices[] = null;
   
 
@@ -93,7 +94,7 @@ public class Blueprint extends Constant implements UIConstants {
         TS.add((Traded) o);
       }
     }
-    this.services = services;
+    this.allServices    = services;
     this.tradeServices  = TS.toArray(Traded    .class);
     this.careerServices = CS.toArray(Background.class);
   }
@@ -129,6 +130,11 @@ public class Blueprint extends Constant implements UIConstants {
   
   public Background[] careerServices() {
     return careerServices;
+  }
+  
+  
+  public Object[] allServices() {
+    return allServices;
   }
   
   
@@ -220,7 +226,19 @@ public class Blueprint extends Constant implements UIConstants {
   
   /**  Conversion queries and registration-
     */
+  private void getProcesses() {
+    if (this.processes != null) return;
+    this.processes = Conversion.processedAt(this);
+    
+    for (Conversion p : processes) {
+      if (p.out != null) producing.include(p);
+      else if (p.raw.length > 0) consuming.include(p);
+    }
+  }
+  
+  
   public Conversion producing(Object t) {
+    getProcesses();
     for (Conversion c : producing) {
       if (c.out != null && c.out.type == t) return c;
     }
@@ -229,6 +247,7 @@ public class Blueprint extends Constant implements UIConstants {
   
   
   public Conversion consuming(Object t) {
+    getProcesses();
     for (Conversion c : producing) {
       for (Item i : c.raw) if (i.type == t) return c;
     }
@@ -244,12 +263,6 @@ public class Blueprint extends Constant implements UIConstants {
   }
   
   
-  public void addProduction(Conversion p) {
-    if (p.out != null) producing.include(p);
-    else if (p.raw.length > 0) consuming.include(p);
-  }
-  
-  
   
   /**  Save and load functions for external reference.
     */
@@ -261,18 +274,19 @@ public class Blueprint extends Constant implements UIConstants {
   }
   
   
-  public static Blueprint[] allCategoryBlueprints(
-    String... categories
-  ) {
+  public static Blueprint[] allCivicBlueprints() {
     if (CIVIC_BP != null) return CIVIC_BP;
+    return CIVIC_BP = allCategoryBlueprints(Target.CIVIC_CATEGORIES);
+  }
+  
+  
+  public static Blueprint[] allCategoryBlueprints(String... categories) {
     final Batch <Blueprint> matches = new Batch <Blueprint> ();
-    
     for (Blueprint p : allBlueprints()) {
       if (! Visit.arrayIncludes(categories, p.category)) continue;
       matches.add(p);
     }
-    
-    return CIVIC_BP = matches.toArray(Blueprint.class);
+    return matches.toArray(Blueprint.class);
   }
   
   
