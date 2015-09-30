@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.military;
-import stratos.content.civic.TrooperLodge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
@@ -13,6 +12,7 @@ import stratos.graphics.sfx.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
+import stratos.content.civic.TrooperLodge;
 
 
 
@@ -20,7 +20,6 @@ import static stratos.game.actors.Technique.*;
 //  frag launcher?  Limit the ammo?)
 
 //  Platform Gunner.
-//  Power Armour Use.
 //  Golem Armour Use.
 
 
@@ -58,20 +57,21 @@ public class TrooperTechniques {
   
   final public static Technique ELECTROCUTE = new Technique(
     "Electrocute", DIR+"electrocute.png",
+    "Deals bonus shock damage during close combat, even in defence.",
     BASE_CLASS, "electrocute",
     MINOR_POWER        ,
     REAL_HARM          ,
     NO_FATIGUE         ,
     MINOR_CONCENTRATION,
-    Technique.TYPE_PASSIVE_SKILL_FX, HAND_TO_HAND, 5,
+    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, HAND_TO_HAND, 5,
     HAND_TO_HAND
   ) {
     
-    public boolean canBeLearnt(Actor learns) {
+    public boolean canBeLearnt(Actor learns, boolean trained) {
       return
         hasGear(learns, Devices.HALBERD_GUN) &&
         hasUpgrade(learns.mind.work(), TrooperLodge.MELEE_TRAINING, 1) &&
-        super.canBeLearnt(learns);
+        super.canBeLearnt(learns, trained);
     }
     
     
@@ -98,20 +98,21 @@ public class TrooperTechniques {
   
   final public static Technique SHIELD_HARMONICS = new Technique(
     "Shield Harmonics", DIR+"shield_harmonics.png",
+    "Provides additional shield regeneration to nearby allies.",
     BASE_CLASS, "shield_harmonics",
     MEDIUM_POWER       ,
     REAL_HELP          ,
     NO_FATIGUE         ,
     MINOR_CONCENTRATION,
-    Technique.TYPE_INDEPENDANT_ACTION, MARKSMANSHIP, 5,
+    IS_INDEPENDANT_ACTION | IS_TRAINED_ONLY, null, -1,
     Action.FIRE, Action.QUICK
   ) {
     
-    public boolean canBeLearnt(Actor learns) {
+    public boolean canBeLearnt(Actor learns, boolean trained) {
       return
         hasGear(learns, Devices.HALBERD_GUN) &&
         hasUpgrade(learns.mind.work(), TrooperLodge.MARKSMAN_TRAINING, 1) &&
-        super.canBeLearnt(learns);
+        super.canBeLearnt(learns, trained);
     }
     
     
@@ -170,20 +171,21 @@ public class TrooperTechniques {
   
   final public static Technique FRAG_LAUNCHER = new Technique(
     "Frag Launcher", DIR+"frag_launcher.png",
+    "Launches a devastating rocket attack at long-to-medium range.",
     BASE_CLASS, "frag_launcher",
     MAJOR_POWER        ,
     EXTREME_HARM       ,
     MINOR_FATIGUE      ,
     MAJOR_CONCENTRATION,
-    Technique.TYPE_INDEPENDANT_ACTION, MARKSMANSHIP, 15,
+    IS_INDEPENDANT_ACTION | IS_TRAINED_ONLY, MARKSMANSHIP, 15,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
-    public boolean canBeLearnt(Actor learns) {
+    public boolean canBeLearnt(Actor learns, boolean trained) {
       return
         hasGear(learns, Devices.HALBERD_GUN) &&
         hasUpgrade(learns.mind.work(), TrooperLodge.MARKSMAN_TRAINING, 1) &&
-        super.canBeLearnt(learns);
+        super.canBeLearnt(learns, trained);
     }
     
     
@@ -250,12 +252,13 @@ public class TrooperTechniques {
   
   final public static Technique POWER_ARMOUR_USE = new Technique(
     "Power Armour Use", DIR+"power_armour_use.png",
+    "Permits the use of "+Outfits.POWER_ARMOUR+".",
     BASE_CLASS      , "power_armour_use",
     MAJOR_POWER     ,
     NO_HARM         ,
     NO_FATIGUE      ,
     NO_CONCENTRATION,
-    Technique.TYPE_GEAR_PROFICIENCY, HAND_TO_HAND, 15,
+    IS_GEAR_PROFICIENCY | IS_TRAINED_ONLY, HAND_TO_HAND, 15,
     Outfits.POWER_ARMOUR
   ) {};
   

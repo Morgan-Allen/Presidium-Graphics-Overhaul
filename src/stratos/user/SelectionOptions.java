@@ -124,7 +124,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     }
     
     if (ruler != null) for (Power power : ruler.skills.knownPowers()) {
-      if (! power.appliesTo(ruler, subject)) continue;
+      if (power.icon == null || ! power.appliesTo(ruler, subject)) continue;
       
       final UIGroup option = new UIGroup(BUI);
       options.add(option);

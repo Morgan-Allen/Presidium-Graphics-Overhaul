@@ -234,7 +234,7 @@ public class MainMenu extends UIGroup {
       powers.addLast(p);
       if (powers.size() > MAX_POWERS) powers.removeFirst();
     }
-    help.setText(p.helpInfo);
+    help.setText(p.description);
     configForNew(null);
   }
   

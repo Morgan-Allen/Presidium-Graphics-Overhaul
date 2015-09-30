@@ -32,9 +32,10 @@ public class Studying extends Plan {
     fastMultiple = 50f;
   
   final static int
-    TYPE_STUDY    = 0,
-    TYPE_DRILL    = 1,
-    TYPE_RESEARCH = 3;
+    TYPE_SKILL     = 0,
+    TYPE_DRILL     = 1,
+    TYPE_TECHNIQUE = 2,
+    TYPE_RESEARCH  = 3;
   
   final static float
     STAY_TIME   = Stage.STANDARD_HOUR_LENGTH,
@@ -46,7 +47,7 @@ public class Studying extends Plan {
   final Base base;
   
   private float skillLimit = -1;
-  private Skill available[] = null;
+  private Constant available[] = null;
   
   private float chargeCost = 0;
   private float beginTime = -1;
@@ -68,7 +69,7 @@ public class Studying extends Plan {
     this.base       = (Base) s.loadObject();
     
     this.skillLimit = s.loadFloat();
-    this.available  = (Skill[]) s.loadObjectArray(Skill.class);
+    this.available  = (Constant[]) s.loadObjectArray(Skill.class);
     
     this.chargeCost = s.loadFloat();
     this.beginTime  = s.loadFloat();
@@ -106,14 +107,25 @@ public class Studying extends Plan {
     return s.studied == studied && s.type == type;
   }
   
-
-
+  
+  
   /**  Public factory methods-
     */
-  public static Studying asStudy(
+  public static Studying asTechniqueTraining(
+    Actor actor, Venue venue, float cost, Technique available[]
+  ) {
+    final Base base = venue.base();
+    final Studying study = new Studying(actor, venue, TYPE_TECHNIQUE, base);
+    study.chargeCost = cost;
+    study.available = available;
+    return null;
+  }
+  
+  
+  public static Studying asSkillStudy(
     Actor actor, Venue venue, float cost
   ) {
-    final Studying study = new Studying(actor, venue, TYPE_STUDY, venue.base());
+    final Studying study = new Studying(actor, venue, TYPE_SKILL, venue.base());
     study.chargeCost = cost;
     return study;
   }
@@ -180,7 +192,8 @@ public class Studying extends Plan {
     }
     
     if (! venue.openFor(actor)) return -1;
-    if (studied == null) studied = toStudy();
+    if (studied == null && type == TYPE_SKILL    ) studied = skillLearned    ();
+    if (studied == null && type == TYPE_TECHNIQUE) studied = techniqueTrained();
     if (studied == null) return -1;
     
     final BaseResearch BR = venue.base().research;
@@ -191,10 +204,13 @@ public class Studying extends Plan {
     if (type == TYPE_RESEARCH) {
       baseTraits = RESEARCH_TRAITS;
     }
+    if (type == TYPE_TECHNIQUE) {
+      baseTraits = DRILL_TRAITS;
+    }
     if (type == TYPE_DRILL) {
       baseTraits = DRILL_TRAITS;
     }
-    if (type == TYPE_STUDY) {
+    if (type == TYPE_SKILL) {
       baseTraits = RESEARCH_TRAITS;
     }
 
@@ -219,7 +235,7 @@ public class Studying extends Plan {
   
   
   public float successChanceFor(Actor actor) {
-    if (type == TYPE_DRILL) {
+    if (type == TYPE_DRILL || type == TYPE_TECHNIQUE) {
       return 1;
     }
     else if (type == TYPE_RESEARCH) {
@@ -235,7 +251,19 @@ public class Studying extends Plan {
   }
   
   
-  private Skill toStudy() {
+  private Technique techniqueTrained() {
+    final Pick <Technique> pick = new Pick();
+    if (available != null) for (Constant a : available) {
+      final Technique t = (Technique) a;
+      if (actor.skills.hasTechnique(t)) continue;
+      if (! t.canBeLearnt(actor, true)) continue;
+      pick.compare(t, t.powerLevel);
+    }
+    return pick.result();
+  }
+  
+  
+  private Skill skillLearned() {
     final boolean report = evalVerbose && I.talkAbout == actor;
     //
     //  We select whatever available skill is furthest from it's desired level.
@@ -249,7 +277,8 @@ public class Studying extends Plan {
     //
     //  If a customised skill-selection has been specified, we select from that
     //  range.
-    if (available != null) for (Skill s : available) {
+    if (available != null) for (Constant a : available) {
+      final Skill s = (Skill) a;
       final float bonus = ambition.skillLevel(s);
       pick.compare(s, (skillLimit + bonus) / 2);
     }
@@ -418,14 +447,24 @@ public class Studying extends Plan {
       }
       return true;
     }
+    else if (type == TYPE_TECHNIQUE) {
+      final Technique learned = (Technique) studied;
+      float learnChance = (studyRate * 2f) / (STAY_TIME * learned.powerLevel);
+      
+      if (Rand.num() < learnChance) {
+        actor.skills.addTechnique(learned);
+        return true;
+      }
+      else return false;
+    }
     //
     //  Personal study or drilling tends to be more straightforward.
     else {
-      final Skill skill = (Skill) studied;
-      final int knownLevel = (int) actor.traits.traitLevel(skill);
+      final Skill learned = (Skill) studied;
+      final int knownLevel = (int) actor.traits.traitLevel(learned);
       float practice = 1.0f;
       
-      if (type == TYPE_STUDY) {
+      if (type == TYPE_SKILL) {
         if (actor.skills.test(ACCOUNTING , ACCOUNTS_DC, 1, a)) practice++;
         if (actor.skills.test(INSCRIPTION, INSCRIBE_DC, 1, a)) practice++;
       }
@@ -434,7 +473,7 @@ public class Studying extends Plan {
       }
       
       practice *= studyRate;
-      actor.skills.practiceAgainst(knownLevel, practice, skill);
+      actor.skills.practiceAgainst(knownLevel, practice, learned);
       return true;
     }
   }
@@ -444,14 +483,15 @@ public class Studying extends Plan {
   /**  Interface and reporting-
     */
   public void describeBehaviour(Description d) {
-    if (type == TYPE_RESEARCH) {
+    if (type == TYPE_SKILL    ) d.append("Studying ");
+    if (type == TYPE_DRILL    ) d.append("Drilling in ");
+    if (type == TYPE_TECHNIQUE) d.append("Learning to use ");
+    if (type == TYPE_RESEARCH ) {
       if (super.needsSuffix(d, "Researching"))
       d.append(" ");
       d.append(studied);
       return;
     }
-    if (type == TYPE_STUDY   ) d.append("Studying ");
-    if (type == TYPE_DRILL   ) d.append("Drilling in ");
     d.append(studied);
     d.append(" at ");
     d.append(venue);

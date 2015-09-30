@@ -89,6 +89,7 @@ public class TrooperLodge extends Venue {
       5, BATTLE_TACTICS, 10, MARKSMANSHIP
     ),
     
+    
     //  TODO:  Add Frag Launcher & Power Armour upgrades, plus Noble Command
     //  and Call of Duty.
     

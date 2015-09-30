@@ -2,6 +2,9 @@
 
 TO DO NOW-
 
+*  Next up- Physician and Roaches/Roachmen.  Get 'em working.
+
+
 *  General tweaks-
    
    Supply Depot:  Handles anything used as raw materials (including second
@@ -13,6 +16,8 @@ TO DO NOW-
    Resource-sites need to have a more flexible zoning-policy (so they can fit
    inside the walls if need be.)
 
+*  There are some bugs with farm-tile orientation and placement that Peter
+   found (check the pics.)
 
 *  Look into Nerdfish's feedback!
 

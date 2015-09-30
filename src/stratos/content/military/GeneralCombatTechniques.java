@@ -51,12 +51,13 @@ public class GeneralCombatTechniques {
   
   final public static Technique FOCUS_FIRE = new Technique(
     "Focus Fire", DIR+"steady_aim.png",
+    "Increases effective "+MARKSMANSHIP+" against stationary targets.",
     BASE_CLASS, "focus_fire",
     MINOR_POWER         ,
     REAL_HARM           ,
     NO_FATIGUE          ,
     MINOR_CONCENTRATION ,
-    Technique.TYPE_PASSIVE_SKILL_FX, MARKSMANSHIP, 5, Action.FIRE,
+    Technique.IS_PASSIVE_SKILL_FX, MARKSMANSHIP, 5, Action.FIRE,
     Action.QUICK | Action.RANGED
   ) {
     
@@ -79,10 +80,10 @@ public class GeneralCombatTechniques {
     }
     
     
-    public boolean canBeLearnt(Actor learns) {
+    public boolean canBeLearnt(Actor learns, boolean trained) {
       final DeviceType DT = learns.gear.deviceType();
       if (DT == null || DT.natural()) return false;
-      return super.canBeLearnt(learns);
+      return super.canBeLearnt(learns, trained);
     }
   };
   
@@ -92,12 +93,13 @@ public class GeneralCombatTechniques {
   
   final public static Technique SUPPRESSION = new Technique(
     "Suppression", DIR+"suppression_fire.png",
+    "Temporarily lowers the target's mobility and accuracy.",
     BASE_CLASS, "suppression_fire",
     MEDIUM_POWER        ,
     REAL_HARM           ,
     NO_FATIGUE          ,
     MAJOR_CONCENTRATION ,
-    Technique.TYPE_PASSIVE_SKILL_FX, MARKSMANSHIP, 10,
+    Technique.IS_PASSIVE_SKILL_FX, MARKSMANSHIP, 10,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
@@ -127,10 +129,10 @@ public class GeneralCombatTechniques {
     }
     
     
-    public boolean canBeLearnt(Actor learns) {
+    public boolean canBeLearnt(Actor learns, boolean trained) {
       final DeviceType DT = learns.gear.deviceType();
       if (DT == null || DT.natural()) return false;
-      return super.canBeLearnt(learns);
+      return super.canBeLearnt(learns, trained);
     }
     
     
@@ -157,12 +159,13 @@ public class GeneralCombatTechniques {
   
   final public static Technique SHIELD_BYPASS = new Technique(
     "Shield Bypass", DIR+"armour_bypass.png",
+    "Allows shields' damage-reduction to be ignored.",
     BASE_CLASS, "shield_bypass",
     MINOR_POWER         ,
     REAL_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_PASSIVE_SKILL_FX, HAND_TO_HAND, 15, Action.FIRE,
+    Technique.IS_PASSIVE_SKILL_FX, HAND_TO_HAND, 15, Action.FIRE,
     Action.QUICK
   ) {
     

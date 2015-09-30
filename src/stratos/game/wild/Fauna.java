@@ -321,23 +321,26 @@ public abstract class Fauna extends Actor {
   }
   
   
-  public boolean actionBreed(Fauna actor, Nest nests) {
+  public boolean actionBreed(Fauna actor, Target at) {
     actor.breedMetre = 0;
     final int maxKids = 1 + (int) Nums.sqrt(10f / health.lifespan());
     
     for (int numKids = 1 + Rand.index(maxKids); numKids-- > 0;) {
       final Fauna young = (Fauna) species.sampleFor(base());
+      final Tile e = at.world().tileAt(at);
       
       young.assignBase(this.base());
       young.health.setupHealth(0, 1, 0);
-      young.mind.setHome(nests);
-      
-      final Tile e = nests.world().tileAt(nests);
       young.enterWorldAt(e.x, e.y, e.world);
-      young.goAboard(nests, world);
       
       if (I.logEvents()) {
-        I.say("Giving birth to new "+actor.species.name+" at: "+nests);
+        I.say("Giving birth to new "+actor.species.name+" at: "+at);
+      }
+      
+      if (at instanceof Property) {
+        final Property nest = (Property) at;
+        young.mind.setHome(nest);
+        young.goAboard(nest, world);
       }
     }
     return true;

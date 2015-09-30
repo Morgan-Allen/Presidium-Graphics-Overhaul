@@ -56,7 +56,7 @@ public class ActorSkills {
     for (Skill s : actor.traits.skillSet()) {
       final Series <Technique> learnt = Technique.learntFrom(s);
       if (learnt == null) continue;
-      for (Technique t : learnt) if (t.canBeLearnt(actor)) {
+      for (Technique t : learnt) if (t.canBeLearnt(actor, false)) {
         known.include(t);
       }
     }
@@ -139,10 +139,13 @@ public class ActorSkills {
   
   public Series <Power> knownPowers() {
     final Batch <Power> powers = new Batch <Power> ();
-    for (Technique t : known) if (t.type == Technique.TYPE_SOVEREIGN_POWER) {
-      powers.add((Power) t);
-    }
+    for (Technique t : known) if (t.isPower()) powers.add((Power) t);
     return powers;
+  }
+  
+  
+  public boolean hasTechnique(Technique t) {
+    return known.includes(t);
   }
   
   
@@ -152,8 +155,9 @@ public class ActorSkills {
     if (b != null) for (Traded t : b.properGear()) {
       GP.add(t);
     }
-    for (Technique t : known) if (t.type == Technique.TYPE_GEAR_PROFICIENCY) {
-      GP.add((Traded) t.focus);
+    for (Technique t : known) {
+      final Traded GT = t.allowsUse();
+      if (GT != null) GP.add(GT);
     }
     return GP;
   }

@@ -31,24 +31,18 @@ public abstract class Power extends Technique implements Qualities {
     IMG_DIR = "media/GUI/Powers/",
     SFX_DIR = "media/SFX/";
   
-  final public String helpInfo;
-  
   
   Power(
     String name, String uniqueID, String imgFile, String helpInfo,
     Skill skillUsed, int minLevel
   ) {
     super(
-      name, IMG_DIR+imgFile, Power.class,
+      name, IMG_DIR+imgFile, helpInfo, Power.class,
       uniqueID, 0,
-      0, 0, 0, Technique.TYPE_SOVEREIGN_POWER,
+      0, 0, 0, Technique.IS_SOVEREIGN_POWER,
       skillUsed, minLevel, Action.PSY_QUICK,
       Action.QUICK | Action.RANGED  //  TODO- CUSTOMISE!
     );
-    //this.name        = name;
-    this.helpInfo = helpInfo;
-    //this.buttonImage = ImageAsset.fromImage(Power.class, IMG_DIR+imgFile);
-    //this.properties  = properties;
   }
   
   

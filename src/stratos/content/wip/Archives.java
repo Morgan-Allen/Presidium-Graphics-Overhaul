@@ -107,7 +107,7 @@ public class Archives extends Venue {
   public void addServices(Choice choice, Actor client) {
     //
     //  TODO:  Allow upgrades for different skill areas!
-    choice.add(Studying.asStudy(client, this, STUDY_FEE));
+    choice.add(Studying.asSkillStudy(client, this, STUDY_FEE));
     choice.add(BringUtils.nextHomePurchase(client, this, DATALINKS));
   }
   

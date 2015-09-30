@@ -152,12 +152,14 @@ public class Avrodil extends Fauna implements Captivity {
   
   final public static Technique CAMOUFLAGE = new Technique(
     "Camouflage", DIR+"camouflage.png",
+    "Allows the Avrodil to enter a vegetative state, both concealing it's "+
+    "location and regenerating health.",
     BASE_CLASS, "avrodil_camo",
     MINOR_POWER     ,
     REAL_HELP       ,
     MINOR_FATIGUE   ,
     NO_CONCENTRATION,
-    Technique.TYPE_PASSIVE_SKILL_FX, null, 0,
+    Technique.IS_PASSIVE_SKILL_FX, null, 0,
     Action.FALL, Action.NORMAL
   ) {
     
@@ -180,6 +182,11 @@ public class Avrodil extends Fauna implements Captivity {
         final float cover = location.world.ecology().forestRating(location);
         affected.traits.incBonus(STEALTH_AND_COVER, 20 * cover);
         affected.traits.setLevel(asCondition, 0.99f);
+        
+        float feed = 1f / Stage.STANDARD_DAY_LENGTH;
+        feed *= affected.health.maxHealth();
+        affected.health.takeCalories(feed / 2, 1);
+        affected.health.liftInjury(feed / 2);
       }
     }
     
@@ -220,12 +227,13 @@ public class Avrodil extends Fauna implements Captivity {
   
   final public static Technique DEVOUR = new Technique(
     "Devour", DIR+"devour.png",
+    "Allows the Avrodil to consume and digest a chosen victim.",
     BASE_CLASS, "avrodil_devour",
     MEDIUM_POWER        ,
     EXTREME_HARM        ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_INDEPENDANT_ACTION, null, 0,
+    Technique.IS_INDEPENDANT_ACTION, null, 0,
     Action.STRIKE_BIG, Action.QUICK
   ) {
     
@@ -284,12 +292,14 @@ public class Avrodil extends Fauna implements Captivity {
   
   final public static Technique WHIPLASH = new Technique(
     "Whiplash", DIR+"avrodil_whiplash.png",
+    "Allows the Avrodil to lash out at distant targets, dealing injury and "+
+    "drawing them into closer range.",
     BASE_CLASS, "avrodil_whiplash",
     MINOR_POWER         ,
     REAL_HARM           ,
     MINOR_FATIGUE       ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_INDEPENDANT_ACTION, null, 0,
+    Technique.IS_INDEPENDANT_ACTION, null, 0,
     Action.STRIKE, Action.QUICK | Action.RANGED
   ) {
     
@@ -334,12 +344,13 @@ public class Avrodil extends Fauna implements Captivity {
   
   final public static Technique POLLEN_SPRAY = new Technique(
     "Pollen Spray", DIR+"avrodil_pollen_spray.png",
+    "Deals poison damage to all nearby creatures.",
     BASE_CLASS, "avrodil_pollen_spray",
     MEDIUM_POWER        ,
     REAL_HARM           ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
-    Technique.TYPE_INDEPENDANT_ACTION, null, 0,
+    Technique.IS_INDEPENDANT_ACTION, null, 0,
     Action.STRIKE_BIG, Action.QUICK
   ) {
     

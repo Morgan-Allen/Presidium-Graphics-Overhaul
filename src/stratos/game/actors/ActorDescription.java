@@ -199,7 +199,8 @@ public class ActorDescription implements Qualities {
     
     d.append("\n\nTechniques: ");
     for (Technique p : h.skills.knownTechniques()) {
-      d.append("\n  "+p.name);
+      d.append("\n  ");
+      d.append(p);
     }
     //if (h.skills.known.size() == 0) d.append("\n  None known");
   }
@@ -210,7 +211,8 @@ public class ActorDescription implements Qualities {
       baseLevel = (int) h.traits.traitLevel(skill),
       rootBonus = (int) h.traits.bonusFrom (skill.parent),
       bonus     = (int) h.traits.effectBonus(skill);
-    d.append("\n  "+skill.name);
+    d.append("\n  ");
+    d.append(skill);
     
     Colour c = Colour.WHITE;
     if (bonus > 0) c = Colour.GREEN;
@@ -330,7 +332,8 @@ public class ActorDescription implements Qualities {
     if (known.size() > 0) {
       l.append("\n\nTechniques: ");
       for (Technique p : known) {
-        l.append("\n  "+p.name);
+        l.append("\n  ");
+        l.append(p);
       }
     }
     

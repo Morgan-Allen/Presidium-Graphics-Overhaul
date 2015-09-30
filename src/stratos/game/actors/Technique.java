@@ -9,6 +9,7 @@ import stratos.game.plans.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.start.*;
+import stratos.user.Selectable;
 import stratos.util.*;
 
 
@@ -16,15 +17,15 @@ import stratos.util.*;
 //  TODO:  You need to handle area-of-effect as well.
 
 
-public abstract class Technique extends Index.Entry
-  implements Session.Saveable
-{
+public abstract class Technique extends Constant {
   
   final public static int
-    TYPE_PASSIVE_SKILL_FX   = 0,
-    TYPE_GEAR_PROFICIENCY   = 1,
-    TYPE_INDEPENDANT_ACTION = 2,
-    TYPE_SOVEREIGN_POWER    = 3;
+    IS_PASSIVE_SKILL_FX   = 1 ,
+    IS_INDEPENDANT_ACTION = 2 ,
+    IS_GEAR_PROFICIENCY   = 4 ,
+    IS_SOVEREIGN_POWER    = 8 ,
+    IS_NATURAL_ONLY       = 16,
+    IS_TRAINED_ONLY       = 32;
   
   final public static float
     MINOR_POWER          = 1.0f ,
@@ -54,13 +55,13 @@ public abstract class Technique extends Index.Entry
   
   final public Class sourceClass;
   
-  final public String     name    ;
-  final public ImageAsset icon    ;
-  final public String     animName;
+  final public ImageAsset icon       ;
+  final public String     description;
+  final public String     animName   ;
   
-  final public int    type     ;
-  final public Skill  skillNeed;
-  final public int    minLevel ;
+  final private int   properties;
+  final private Skill skillNeed ;
+  final private int   minLevel  ;
   
   final public float
     powerLevel       ,
@@ -75,14 +76,15 @@ public abstract class Technique extends Index.Entry
   
   private Technique(
     String name, String iconFile,
+    String description,
     Class sourceClass, String uniqueID,
     float power, float harm, float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel, Object focus,
+    int properties, Skill skillUsed, int minLevel, Object focus,
     String animName, int actionProperties
   ) {
-    super(INDEX, uniqueID);
-    this.name     = name    ;
-    this.animName = animName;
+    super(INDEX, uniqueID, name);
+    this.description = description;
+    this.animName    = animName   ;
     
     if (Assets.exists(iconFile)) {
       this.icon = ImageAsset.fromImage(sourceClass, iconFile);
@@ -98,9 +100,9 @@ public abstract class Technique extends Index.Entry
     this.focus             = focus           ;
     this.actionProperties  = actionProperties;
     
-    this.type      = type     ;
-    this.skillNeed = skillUsed;
-    this.minLevel  = minLevel ;
+    this.properties = properties;
+    this.skillNeed  = skillUsed ;
+    this.minLevel   = minLevel  ;
     
     List <Technique> bySource = BY_SOURCE.get(skillUsed);
     if (bySource == null) BY_SOURCE.put(skillUsed, bySource = new List());
@@ -116,12 +118,14 @@ public abstract class Technique extends Index.Entry
   
   //  Used for active techniques.
   public Technique(
-    String name, String iconFile, Class sourceClass, String uniqueID,
+    String name, String iconFile,
+    String description,
+    Class sourceClass, String uniqueID,
     float power, float harm, float fatigue, float concentration,
     int type, Skill skillUsed, int minLevel,
     String animName, int actionProperties
   ) { this(
-    name, iconFile, sourceClass, uniqueID,
+    name, iconFile, description, sourceClass, uniqueID,
     power, harm, fatigue, concentration,
     type, skillUsed, minLevel, null,
     animName, actionProperties
@@ -130,14 +134,14 @@ public abstract class Technique extends Index.Entry
   
   //  Used for passive techniques.
   public Technique(
-    String name, String iconFile, Class sourceClass,
-    String uniqueID, float power,
-    float harm, float fatigue,
-    float concentration, int type,
-    Skill skillUsed, int minLevel,
+    String name, String iconFile,
+    String description,
+    Class sourceClass, String uniqueID,
+    float power, float harm, float fatigue, float concentration,
+    int type, Skill skillUsed, int minLevel,
     Object focus
   ) { this(
-    name, iconFile, sourceClass, uniqueID,
+    name, iconFile, description, sourceClass, uniqueID,
     power, harm, fatigue, concentration,
     type, skillUsed, minLevel, focus,
     Action.STAND, Action.NORMAL
@@ -162,17 +166,37 @@ public abstract class Technique extends Index.Entry
   }
   
   
-  public boolean canBeLearnt(Actor learns) {
+  public boolean canBeLearnt(Actor learns, boolean trained) {
+    if (hasProperty(IS_NATURAL_ONLY)             ) return false;
+    if (hasProperty(IS_TRAINED_ONLY) && ! trained) return false;
+    if (skillNeed == null || minLevel <= 0       ) return true ;
     float level = learns.traits.traitLevel(skillNeed);
     level += learns.traits.bonusFrom(skillNeed.parent);
     return level >= minLevel;
   }
   
   
+  public boolean hasProperty(int prop) {
+    return (properties & prop) == prop;
+  }
+  
+  
+  public boolean isPower() {
+    return hasProperty(IS_SOVEREIGN_POWER) && (this instanceof Power);
+  }
+  
+  
+  public Traded allowsUse() {
+    if (! hasProperty(IS_GEAR_PROFICIENCY)) return null;
+    if (focus instanceof Traded) return (Traded) focus;
+    else return null;
+  }
+  
+  
   public boolean triggeredBy(
     Actor actor, Plan current, Action action, Skill used, boolean passive
   ) {
-    if (passive && type == TYPE_PASSIVE_SKILL_FX) {
+    if (passive && hasProperty(IS_PASSIVE_SKILL_FX)) {
       return used == focus;
     }
     else {
@@ -269,12 +293,6 @@ public abstract class Technique extends Index.Entry
     return 0;
   }
   
-  
-  public Traded allowsUse() {
-    if (focus instanceof Traded) return (Traded) focus;
-    else return null;
-  }
-  
 
   
   /**  Other static helper methods:
@@ -327,7 +345,7 @@ public abstract class Technique extends Index.Entry
   /**  Rendering, interface and printout methods-
     */
   public String toString() {
-    return name;
+    return "{"+name+"}";
   }
   
   
@@ -339,7 +357,29 @@ public abstract class Technique extends Index.Entry
     d.append(" on ");
     d.append(techniqueUse.subject());
   }
+  
+  
+  public void describeHelp(Description d, Selectable prior) {
+    d.append(description);
+    d.append("\n\n");
+    
+    if (hasProperty(IS_NATURAL_ONLY)) {
+      d.append("  Type: Natural");
+    }
+    else if (skillNeed != null && minLevel > 0) {
+      d.append("  Minimum ");
+      d.append(skillNeed);
+      d.append(": "+minLevel);
+    }
+    if (hasProperty(IS_TRAINED_ONLY)) {
+      d.append("  Type: Trained Only");
+    }
+  }
 }
+
+
+
+
 
 
 
