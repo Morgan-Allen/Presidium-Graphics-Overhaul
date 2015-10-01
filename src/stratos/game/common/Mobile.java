@@ -280,22 +280,29 @@ public abstract class Mobile extends Element
       }
     }
     
+    //
     //  Escape any currently blocked tile-
+    //  TODO:  This is replicated within the collision methods of Pathing.
+    //  Remove.
+    /*
     if (
       aboard.boardableType() == Boarding.BOARDABLE_TILE &&
       collides() && aboard.pathType() == Tile.PATH_BLOCKS
     ) {
       final Tile free = Spacing.nearestOpenTile(aboard, this);
-      if (free == null) I.complain("MOBILE IS TRAPPED! "+this);
-      
-      if (report) {
-        I.say(this+" IS ABOARD: "+aboard);
-        I.say("  ESCAPING TO: "+free);
+      if (free != null) {
+        nextPosition.x = free.x;
+        nextPosition.y = free.y;
+        if (report) {
+          I.say(this+" IS ABOARD: "+aboard);
+          I.say("  ESCAPING TO: "+free);
+        }
       }
-      nextPosition.x = free.x;
-      nextPosition.y = free.y;
-      return;
+      else if (I.logEvents() && I.used60Frames) {
+        I.say("MOBILE IS TRAPPED! "+this+" at "+aboard);
+      }
     }
+    //*/
     
     //
     //  Either way, update current position-
@@ -400,6 +407,7 @@ public abstract class Mobile extends Element
     s.scale = scale;
     s.position.setTo(position);
     s.rotation = rotation;
+    s.colour = Colour.WHITE;
     s.readyFor(rendering);
     //
     //  Render your shadow, either on the ground or on top of occupants-
