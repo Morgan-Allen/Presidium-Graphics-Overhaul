@@ -94,10 +94,10 @@ public class DebugPlacing extends Scenario {
     GameSettings.buildFree = true;
     base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
     
-    if (false) configEcology  (world, base, UI);
+    if (true ) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
-    if (true ) configRoadsTest(world, base, UI);
+    if (false) configRoadsTest(world, base, UI);
   }
   
   
@@ -116,7 +116,9 @@ public class DebugPlacing extends Scenario {
       if (! open) I.say("  TILE SURROUNDED: "+t);
     }
     
-    Nest.populateFauna(world, Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES);
+    NestUtils.populateFauna(world, Species.VERMIN_SPECIES);
+    /*
+    if (true) return;
     
     //  TODO:  Either automate the inhabitant-displacement step, or perform
     //  inhabitant-introduction in a later step.  Think about general history-
@@ -129,6 +131,7 @@ public class DebugPlacing extends Scenario {
       for (Actor a : v.staff.lodgers()) a.exitWorld();
       v.exitWorld();
     }
+    //*/
   }
   
   

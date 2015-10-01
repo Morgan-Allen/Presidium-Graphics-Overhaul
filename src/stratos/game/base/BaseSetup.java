@@ -135,12 +135,10 @@ public class BaseSetup {
     
     if (report) {
       I.say("\nUpdating siting passes for "+base);
-      I.say("  Pass fraction: "+sumFractions   );
-      I.say("  Build limit:   "+buildLimit     );
-      if (canPlace != null) {
-        I.say("  Place types:   "+canPlace.length);
-      }
-      I.say("  Total sorted:  "+sorting.size() );
+      I.say("  Pass fraction: "+sumFractions    );
+      I.say("  Build limit:   "+buildLimit      );
+      I.say("  Place types:   "+I.list(canPlace));
+      I.say("  Total sorted:  "+sorting.size()  );
       I.say("  Sorting is: ");
       for (SitingPass p : sorting) {
         I.say("    "+p.placed+": "+p.rating);

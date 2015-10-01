@@ -53,7 +53,7 @@ public class ActorSkills {
     //
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.
-    for (Skill s : actor.traits.skillSet()) {
+    if (actor.species().sapient()) for (Skill s : actor.traits.skillSet()) {
       final Series <Technique> learnt = Technique.learntFrom(s);
       if (learnt == null) continue;
       for (Technique t : learnt) if (t.canBeLearnt(actor, false)) {

@@ -4,8 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.content.abilities.*;
 import stratos.content.civic.*;
-import stratos.content.military.*;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;

@@ -61,15 +61,6 @@ public abstract class Species extends Background {
     }
   ;
   
-  final public static Blueprint NEST_BLUEPRINTS[];
-  static {
-    final Species nesting[] = ANIMAL_SPECIES;
-    NEST_BLUEPRINTS = new Blueprint[nesting.length];
-    for (int n = nesting.length ; n-- > 0;) {
-      NEST_BLUEPRINTS[n] = nesting[n].nestBlueprint();
-    }
-  }
-  
   
   /**  Fields and constructors.
     */
@@ -172,6 +163,7 @@ public abstract class Species extends Background {
   
   
   public Blueprint nestBlueprint() { return null; }
+  public boolean fixedNesting() { return true; }
   
   public boolean browser () { return type == Type.BROWSER ; }
   public boolean predator() { return type == Type.PREDATOR; }

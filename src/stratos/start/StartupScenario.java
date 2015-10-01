@@ -432,7 +432,7 @@ public class StartupScenario extends Scenario {
       Ruins.VENUE_BLUEPRINTS[0], maxRuins
     );
     Base.artilects(world).setup.fillVacancies(ruins, true);
-    if (nesting != null) Nest.populateFauna(world, nesting);
+    if (nesting != null) NestUtils.populateFauna(world, nesting);
   }
 }
 

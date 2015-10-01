@@ -536,6 +536,24 @@ public class PlanUtils {
   }
   
   
+  public static Series <Actor> subjectsInRange(Target point, float radius) {
+    final Batch <Actor> subjects = new Batch();
+    final Vec3D centre = point.position(null);
+    final Box2D area = new Box2D(centre.x, centre.y, 0, 0);
+    area.expandBy(Nums.round(radius + point.radius(), 1, true));
+    
+    final Stage world = point.world();
+    final PresenceMap mobiles = world.presences.mapFor(Mobile.class);
+    
+    for (Target m : mobiles.visitNear(point, radius, null)) {
+      if (Spacing.distance(m, point) > radius) continue;
+      if (! (m instanceof Actor)) continue;
+      subjects.add((Actor) m);
+    }
+    return subjects;
+  }
+  
+  
   //  TODO:  Consider passing in parent-Missions directly for purposes of
   //         reward-evaluation and team-assessment.
   

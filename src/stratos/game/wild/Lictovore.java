@@ -55,7 +55,7 @@ public class Lictovore extends Fauna {
     0.75f, //speed
     1.50f  //sight
   ) {
-    final Blueprint BLUEPRINT = Nest.constructBlueprint(
+    final Blueprint BLUEPRINT = NestUtils.constructBlueprint(
       3, 2, this, MODEL_NEST_MICOVORE
     );
     public Actor sampleFor(Base base) { return init(new Lictovore(base)); }
@@ -138,7 +138,7 @@ public class Lictovore extends Fauna {
     super.addChoices(choice);
     //
     //  Determine whether you should fight with others of your kind-
-    float crowding = Nest.crowdingFor(this) + 0.5f - health.caloryLevel();
+    float crowding = NestUtils.crowding(this) + 0.5f - health.caloryLevel();
     final Fauna fights = findCompetition();
     
     if (fights != null && crowding > 1) {

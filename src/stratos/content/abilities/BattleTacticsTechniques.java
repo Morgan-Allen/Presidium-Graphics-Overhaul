@@ -1,6 +1,6 @@
 
 
-package stratos.content.military;
+package stratos.content.abilities;
 
 
 public class BattleTacticsTechniques {

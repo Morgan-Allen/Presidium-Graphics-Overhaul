@@ -138,17 +138,17 @@ public class Hunting extends Plan {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     setCompetence(1);  //  Will adjust later- see below...
-    
     if (prey.destroyed() || ! prey.inWorld()) return -1;
+    
     final boolean start = ! hasBegun(), alive = prey.health.alive();
-    if (start && ! validPrey(prey, actor)) return -1;
+    if (start && ! validPrey(prey, actor)  ) return -1;
     if (alive && ! PlanUtils.isArmed(actor)) return -1;
     
     float priority = 0, harmLevel = 1, hunger = -1, crowdRating = -1;
     
     if (type == TYPE_FEEDS || type == TYPE_HARVEST) {
       hunger = actor.health.hungerLevel() + (start ? 0 : 0.25f);
-      crowdRating = alive ? Nest.crowdingFor(prey) : 1;
+      crowdRating = alive ? NestUtils.nestCrowding(prey) : 1;
       crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, -1, 1);
       priority += (hunger + motiveBonus()) * crowdRating;
       if (hunger > 0.5f) priority += PARAMOUNT * (hunger - 0.5f) * 2;

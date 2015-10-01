@@ -29,6 +29,18 @@ public abstract class Fauna extends Actor {
     LAIR_DIR = "media/Buildings/lairs and ruins/",
     XML_FILE = "FaunaModels.xml";
   
+  final public static int
+    DEFAULT_FORAGE_DIST = Stage.ZONE_SIZE / 2,
+    PREDATOR_SEPARATION = Stage.ZONE_SIZE * 2,
+    MIN_SEPARATION      = 2,
+    
+    BROWSER_TO_FLORA_RATIO   = 50,
+    DEFAULT_BROWSER_SPECIES  = 4 ,
+    PREDATOR_TO_PREY_RATIO   = 4 ,
+    DEFAULT_PREDATOR_SPECIES = 2 ,
+    
+    DEFAULT_BREED_INTERVAL = Stage.STANDARD_DAY_LENGTH;
+  
   final public static float
     PLANT_CONVERSION = 4.0f,
     MEAT_CONVERSION  = 8.0f,
@@ -77,21 +89,20 @@ public abstract class Fauna extends Actor {
     
     final int period = 10;
     if (numUpdates % period == 0 && health.alive()) {
-      final float breedRating = breedingReadiness(true);
-      float breedInc = period * breedRating / Nest.DEFAULT_BREED_INTERVAL;
+      final float breedRating = breedingReadiness(), breedInc;
+      if (breedRating > 0) {
+        breedInc = period * breedRating / DEFAULT_BREED_INTERVAL;
+      }
+      else {
+        breedInc = period * -1f / DEFAULT_BREED_INTERVAL;
+      }
       breedMetre = Nums.clamp(breedMetre + breedInc, 0, 1);
     }
   }
   
   
-  protected float breedingReadiness(boolean checkNest) {
-    
-    float crowding = 0;
-    if (checkNest) {
-      crowding = Nest.crowdingFor(this);
-      if (crowding >= 1 || mind.home() == null) return 0;
-    }
-    
+  protected float breedingReadiness() {
+    final float crowding = NestUtils.crowding(this);
     float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
     return (1 - crowding) * Nums.clamp(fertility, 0, ActorHealth.AGE_MAX);
   }
@@ -194,7 +205,7 @@ public abstract class Fauna extends Actor {
   
   
   protected Behaviour nextBrowsing() {
-    return Gathering.asBrowsing(this, Nest.forageRange(species));
+    return Gathering.asBrowsing(this, NestUtils.forageRange(species));
   }
   
   
@@ -216,12 +227,12 @@ public abstract class Fauna extends Actor {
     if (report) {
       I.say("\nChecking migration for "+this);
       I.say("  Last check:  "+timeSinceCheck+"/"+NEST_INTERVAL);
-      I.say("  Crowding is: "+Nest.crowdingFor(this)+", homeless? "+homeless);
+      I.say("  Crowding is: "+NestUtils.crowding(this)+", homeless? "+homeless);
     }
     
     if (timeSinceCheck > NEST_INTERVAL || homeless) {
-      final boolean crowded = homeless || Nest.crowdingFor(this) > 0.5f;
-      newNest = crowded ? Nest.findNestFor(this) : null;
+      final boolean crowded = homeless || NestUtils.crowding(this) > 0.5f;
+      newNest = crowded ? NestUtils.findNestFor(this) : null;
       lastMigrateCheck = world.currentTime();
     }
     if (newNest != null && newNest != home) {
@@ -232,7 +243,7 @@ public abstract class Fauna extends Actor {
     else {
       final Target centre = mind.home() == null ? this : mind.home();
       wandersTo = Spacing.pickRandomTile(
-        centre, Nest.forageRange(species) / 2, world
+        centre, NestUtils.forageRange(species) / 2, world
       );
       description = "Wandering";
       priority = Action.IDLE * (Planet.dayValue(world) + 1) / 2;
@@ -263,7 +274,7 @@ public abstract class Fauna extends Actor {
     if (point instanceof Nest) {
       final Nest nest = (Nest) point;
       
-      if (Nest.crowdingFor(nest, species, world) >= 1) {
+      if (NestUtils.crowding(species, nest, world) >= 1) {
         return false;
       }
       if (! nest.inWorld()) {

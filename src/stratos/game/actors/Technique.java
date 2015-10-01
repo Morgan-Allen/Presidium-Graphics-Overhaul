@@ -310,23 +310,6 @@ public abstract class Technique extends Constant {
   }
   
   
-  public static Series <Actor> subjectsInRange(Target point, float radius) {
-    final Batch <Actor> subjects = new Batch();
-    final Vec3D centre = point.position(null);
-    final Box2D area = new Box2D(centre.x, centre.y, 0, 0);
-    area.expandBy(Nums.round(radius + point.radius(), 1, true));
-    
-    for (Tile t : point.world().tilesIn(area, true)) {
-      for (Mobile m : t.inside()) {
-        if (Spacing.distance(m, point) > radius) continue;
-        if (! (m instanceof Actor)) continue;
-        subjects.add((Actor) m);
-      }
-    }
-    return subjects;
-  }
-  
-  
   protected static boolean hasUpgrade(Target v, Upgrade upgrade, int level) {
     if (! (v instanceof Venue)) return false;
     final Structure s = ((Venue) v).structure();

@@ -37,14 +37,17 @@ public class Avrodil extends Fauna implements Captivity {
     0.35f, //speed
     0.85f  //sight
   ) {
+    
     final ModelAsset NEST_MODEL = CutoutModel.fromImage(
-      Avrodil.class, LAIR_DIR+"sporing_body.png", 3.5f, 3
+      Avrodil.class, LAIR_DIR+"sporing_body.png", 2.5f, 2
     );
-    final Blueprint BLUEPRINT = Nest.constructBlueprint(
+    final Blueprint BLUEPRINT = NestUtils.constructBlueprint(
       3, 2, this, NEST_MODEL
     );
+    
     public Actor sampleFor(Base base) { return init(new Avrodil(base)); }
     public Blueprint nestBlueprint() { return BLUEPRINT; }
+    public boolean fixedNesting() { return false; }
   };
   
   final static float
@@ -111,7 +114,8 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   protected float breedingReadiness(boolean checkNest) {
-    return super.breedingReadiness(false) * 2;
+    float BR = super.breedingReadiness() * 2;
+    return BR;
   }
   
   
@@ -373,7 +377,7 @@ public class Avrodil extends Fauna implements Captivity {
       super.applyEffect(using, success, subject, passive);
       CombatFX.applyBurstFX(POLLEN_BURST_MODEL, using, 0.5f, 1.5f);
       
-      for (Actor hit : Technique.subjectsInRange(using, POLLEN_RADIUS)) {
+      for (Actor hit : PlanUtils.subjectsInRange(using, POLLEN_RADIUS)) {
         if (hit == using || hit.species() == using.species()) continue;
         hit.traits.setLevel(asCondition, 1);
       }

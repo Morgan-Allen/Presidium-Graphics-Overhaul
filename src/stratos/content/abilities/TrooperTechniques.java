@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.content.military;
+package stratos.content.abilities;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
@@ -24,7 +24,7 @@ import stratos.content.civic.TrooperLodge;
 
 
 public class TrooperTechniques {
-
+  
   final static String DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = TrooperTechniques.class;
   
@@ -143,7 +143,7 @@ public class TrooperTechniques {
       //  If possible, we move next to a nearby ally so as to maximise the
       //  effect:
       final Pick <Actor> pick = new Pick(0);
-      for (Actor ally : Technique.subjectsInRange(actor, HARMONICS_RANGE)) {
+      for (Actor ally : PlanUtils.subjectsInRange(actor, HARMONICS_RANGE)) {
         if (actor.base() != ally.base() || actor == ally) continue;
         final float rating = 1 / 1f + Spacing.distance(actor, ally);
         pick.compare(ally, rating);
@@ -160,7 +160,7 @@ public class TrooperTechniques {
       CombatFX.applyBurstFX(HARMONICS_FX_MODEL, affected, 0.5f, 1);
       affected.gear.boostShields(HARMONICS_BOOST, true);
       
-      for (Actor ally : Technique.subjectsInRange(affected, HARMONICS_RANGE)) {
+      for (Actor ally : PlanUtils.subjectsInRange(affected, HARMONICS_RANGE)) {
         if (affected.base() != ally.base() || affected == ally) continue;
         ally.gear.boostShields(HARMONICS_BOOST / 2, true);
         CombatFX.applyBurstFX(HARMONICS_FX_MODEL, ally, 0.5f, 1);
@@ -206,7 +206,7 @@ public class TrooperTechniques {
       final float priority = super.priorityFor(actor, subject, harmWanted);
       if (priority <= 0) return 0;
       
-      for (Actor a : Technique.subjectsInRange(subject, FRAG_BURST_RANGE)) {
+      for (Actor a : PlanUtils.subjectsInRange(subject, FRAG_BURST_RANGE)) {
         if (PlanUtils.combatPriority(
           actor, a, 0, 1, false, Plan.EXTREME_HARM
         ) <= 0) return -1;
@@ -231,7 +231,7 @@ public class TrooperTechniques {
         FRAG_BURST_MODEL, subject.position(null), 1.5f, world
       );
       
-      for (Actor a : Technique.subjectsInRange(subject, FRAG_BURST_RANGE)) {
+      for (Actor a : PlanUtils.subjectsInRange(subject, FRAG_BURST_RANGE)) {
         float damage = (Rand.num() + 0.5f) * using.gear.totalDamage() / 1.5f;
         damage += FRAG_DAMAGE_BONUS;
         if (a != subject) damage /= 2;

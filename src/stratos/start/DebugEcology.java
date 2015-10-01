@@ -83,7 +83,7 @@ public class DebugEcology extends Scenario {
   
   private void speciesPlaceTest(Stage world, Base base, BaseUI UI) {
     
-    Nest.populateFauna(world, Species.VERMIN_SPECIES);
+    NestUtils.populateFauna(world, Species.VERMIN_SPECIES);
   }
   
   
@@ -133,7 +133,7 @@ public class DebugEcology extends Scenario {
     UI.selection.pushSelection(tracks);
     
     final Base wildlife = Base.wildlife(world);
-    Nest.populateFauna(world, Qudu.SPECIES);
+    NestUtils.populateFauna(world, Qudu.SPECIES);
     Actor prey = Qudu.SPECIES.sampleFor(wildlife);
     prey.enterWorldAt(lodge, world);
     prey.health.setupHealth(0.5f, 1, 0);
