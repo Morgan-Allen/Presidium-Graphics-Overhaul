@@ -146,20 +146,26 @@ public abstract class Venue extends Fixture implements
   
   
   public void setFacing(int facing) {
-    this.facing = facing % NUM_FACES;
-    final Tile o = origin();
-    if (o == null || blueprint.isFixture()) {
-      entrance = null;
-    }
-    else {
-      final int off[] = SiteUtils.entranceCoords(size, size, facing);
-      entrance = o.world.tileAt(o.x + off[0], o.y + off[1]);
-    }
+    this.facing   = facing % NUM_FACES;
+    this.entrance = pickEntrance(facing);
+    this.canBoard = null;
   }
   
   
   public int facing() {
     return facing;
+  }
+  
+  
+  protected Tile pickEntrance(int facing) {
+    final Tile o = origin();
+    if (o == null || blueprint.isFixture()) {
+      return null;
+    }
+    else {
+      final int off[] = SiteUtils.entranceCoords(size, size, facing);
+      return o.world.tileAt(o.x + off[0], o.y + off[1]);
+    }
   }
   
   
@@ -515,7 +521,7 @@ public abstract class Venue extends Fixture implements
       choice.add(jobFor(actor));
     }
   }
-
+  
   //  TODO:  Make these abstract?
   //
   //  By default, these do nothing.

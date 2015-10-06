@@ -77,30 +77,13 @@ public class DebugSecurity extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
-    
-    if (false) wallsScenario   (world, base, UI);
+
     if (true ) verminScenario  (world, base, UI);
+    if (false) wallsScenario   (world, base, UI);
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
     if (false) raidingScenario (world, base, UI);
     if (false) combatScenario  (world, base, UI);
-  }
-  
-  
-  private void wallsScenario(Stage world, Base base, BaseUI UI) {
-    final Bastion bastion = new Bastion(base);
-    Flora.populateFlora(world);
-    //
-    //  Now, find a good location for the Bastion, and establish some walls
-    //  around it...
-    base.setup.doPlacementsFor(bastion);
-    
-    final Venue walls[] = SiteUtils.placeAroundPerimeter(
-      ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
-    );
-    for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
-    
-    base.finance.setInitialFunding(100000, 0);
   }
   
   
@@ -120,6 +103,7 @@ public class DebugSecurity extends Scenario {
     enemy.enterWorldAt(hatch, world);
     enemy.mind.setHome(hatch);
     
+    //*
     Venue raids = new StockExchange(base);
     raids.stocks.bumpItem(Economy.CARBS, 20);
     SiteUtils.establishVenue(raids, world.tileAt(20, 20), true, world);
@@ -127,17 +111,35 @@ public class DebugSecurity extends Scenario {
     enemy.mind.assignBehaviour(new Looting(
       enemy, raids, Item.withAmount(Economy.CARBS, 5), hatch
     ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
+    //*/
     
     //*
     Actor meets = new Human(Backgrounds.VOLUNTEER, base);
-    meets.enterWorldAt(6, 6, world);
+    meets.enterWorldAt(18, 27, world);
     
     meets.mind.assignBehaviour(Patrolling.aroundPerimeter(
       meets, raids, world
     ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
     //*/
     
-    UI.selection.pushSelection(meets);
+    UI.selection.pushSelection(enemy);
+  }
+  
+  
+  private void wallsScenario(Stage world, Base base, BaseUI UI) {
+    final Bastion bastion = new Bastion(base);
+    Flora.populateFlora(world);
+    //
+    //  Now, find a good location for the Bastion, and establish some walls
+    //  around it...
+    base.setup.doPlacementsFor(bastion);
+    
+    final Venue walls[] = SiteUtils.placeAroundPerimeter(
+      ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
+    );
+    for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
+    
+    base.finance.setInitialFunding(100000, 0);
   }
   
   

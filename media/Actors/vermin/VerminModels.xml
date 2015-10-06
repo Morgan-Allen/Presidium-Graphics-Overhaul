@@ -31,7 +31,7 @@
   type="JOINT"
   path="media/Actors/vermin/"
   file="Roachman2.ms3d"
-  scale="0.045"
+  scale="0.0375"
   bound="2.5"
   stride="1.5"
   height="2.5"

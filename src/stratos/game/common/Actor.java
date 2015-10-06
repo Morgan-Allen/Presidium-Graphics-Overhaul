@@ -670,7 +670,7 @@ public abstract class Actor extends Mobile implements
     if (! inWorld()) {
       //
       //  TODO:  Move this to the BaseCommerce or VerseJourneys class, I would
-      //  suggest...
+      //  suggest- either that or ActorDescription...
       final VerseJourneys journeys = base.world.offworld.journeys;
       final Vehicle ship = journeys.carries(this);
       if (ship != null && ship.inWorld()) {
@@ -680,8 +680,10 @@ public abstract class Actor extends Mobile implements
       else {
         d.append("Offworld");
         float ETA = journeys.arrivalETA(this, BaseUI.currentPlayed());
-        ETA /= Stage.STANDARD_HOUR_LENGTH;
-        d.append(" (ETA: "+Nums.round(ETA, 1, true)+" hours)");
+        if (ETA >= 0) {
+          ETA /= Stage.STANDARD_HOUR_LENGTH;
+          d.append(" (ETA: "+Nums.round(ETA, 1, true)+" hours)");
+        }
       }
       return;
     }

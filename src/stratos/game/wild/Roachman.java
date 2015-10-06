@@ -69,6 +69,10 @@ public class Roachman extends Vermin {
   }
   
   
+  public float radius() {
+    return 0.33f;
+  }
+  
   
   /**  Rendering and interface methods-
     */

@@ -19,4 +19,5 @@ public interface StageExit extends Boarding {
   
   int exitType();
   VerseLocation leadsTo();
+  boolean allowsStageExit(Mobile m);
 }

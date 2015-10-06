@@ -21,7 +21,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose     = false,
+    verbose     = true ,
     failVerbose = false;
   
   
@@ -35,53 +35,53 @@ public class PlanUtils {
     */
   public static float combatPriority(
     Actor actor, Target subject,
-    float rewardBonus, int teamSize, boolean asRealTask, float harm
+    float rewardBonus, int teamSize, boolean asRealTask, float lethality
   ) {
-    float incentive = 0, winChance, inhibition, priority = 0;
+    float incentive = 0, winChance, priority = 0;
     float harmDone, dislike, wierdness, conscience;
     
     if (! asRealTask && CombatUtils.isDowned(subject, Combat.OBJECT_EITHER)) {
       return 0;
     }
     
-    dislike = actor.relations.valueFor(subject) * -10 * harm;
+    final boolean emergency = actor.senses.isEmergency();
+    wierdness = baseCuriosity(actor, subject, false) * 5;
+    dislike   = actor.relations.valueFor(subject) * -10 * lethality;
+    harmDone  = harmIntendedBy(subject, actor, false) * 10;
+    
     if (dislike > 0) {
       dislike *= PlanUtils.traitAverage(actor, DEFENSIVE, CRUEL) * 2;
     }
-    
-    harmDone = harmIntendedBy(subject, actor, false) * 10;
     if (harmDone > 0) {
       harmDone *= PlanUtils.traitAverage(actor, DEFENSIVE, IMPULSIVE) * 2;
     }
     
-    incentive += dislike ;
-    incentive += harmDone;
-    incentive += wierdness = baseCuriosity(actor, subject, false) * 5;
-    incentive += rewardBonus;
-    incentive = Nums.clamp(incentive, -20, 20);
+    incentive += dislike + rewardBonus;
+    incentive += Nums.max(harmDone, wierdness);
+    incentive  = Nums.clamp(incentive, -20, 20);
     if (! asRealTask) return incentive;
     
-    conscience = 10 * baseConscience(actor, subject) * harm;
-    if (! isArmed(actor)          ) incentive -= 5;
-    if (actor.senses.isEmergency()) incentive += 5;
-    if (incentive <= conscience   ) winChance = priority = -1;
+    conscience = 10 * baseConscience(actor, subject) * lethality;
+    if (incentive <= conscience) winChance = priority = -1;
     else winChance = combatWinChance(actor, subject, teamSize);
     
-    inhibition = Nums.max(5 * (1 - winChance), conscience);
-    if (incentive < inhibition) priority = -1;
-    if (priority != -1) priority = incentive * (1 + winChance) / 2;
+    if (! isArmed(actor)) incentive -= 5;
+    if (emergency       ) incentive += 5;
+    if (priority != -1) {
+      priority  = incentive * (1 + winChance) / 2;
+      priority -= (1 - winChance) * 5;
+    }
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
       "subject  " , subject    ,
       "reward   " , rewardBonus,
-      "emergency" , actor.senses.isEmergency(),
-      "harm level", harm       ,
+      "emergency" , emergency  ,
+      "lethality" , lethality  ,
       "harm done ", harmDone   ,
       "dislike"   , dislike    ,
       "wierdness" , wierdness  ,
       "conscience", conscience ,
-      "inhibition", inhibition ,
       "incentive" , incentive  ,
       "winChance" , winChance  ,
       "priority " , priority   
@@ -106,7 +106,7 @@ public class PlanUtils {
     incentive    += Nums.max(loseChance * 15, homeDistance * 5);
     incentive    += (injury = actor.health.injuryLevel()) * 10;
     
-    if (hasWorldExit) homeDistance = Nums.max(1, homeDistance);
+    if (hasWorldExit) homeDistance = Nums.max(0.5f, homeDistance);
     
     if (asRealTask) {
       escapeChance  = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
@@ -122,27 +122,6 @@ public class PlanUtils {
     }
     
     priority = Nums.clamp(incentive * escapeChance, -10, 20);
-    
-    /*
-    ///final boolean urgent = actor.senses.isEmergency();
-    loseChance = 1f - combatWinChance(actor, point, 1);
-    if (actor.senses.fearLevel() == 0) loseChance = 0;
-    
-    homeDistance = homeDistanceFactor(actor, point);
-    
-    if (Action.isStealthy(actor)) homeDistance /= 2;
-    if (actor.senses.isEmergency()) homeDistance *= 1.5f;
-    if (loseChance > 0 && ! isArmed(actor)) homeDistance *= 1.5f;
-    
-    incentive += Nums.max(loseChance * 20, homeDistance * 5);
-    incentive += (injury = actor.health.injuryLevel()) * 10;
-    
-    escapeChance = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
-    escapeChance = escapeChance * Nums.min(1, homeDistance);
-    if (actor.indoors()) escapeChance += 0.25f;
-    
-    priority = Nums.clamp(incentive * escapeChance, -10, 20);
-    //*/
     
     if (asRealTask && reportOn(actor, priority)) I.reportVars(
       "\nRetreat priority for "+actor, "  ",

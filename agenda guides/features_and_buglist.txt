@@ -2,7 +2,14 @@
 
 TO DO NOW-
 
-*  Next up- Physician and Roaches/Roachmen.  Get 'em working.
+*  Salvaging solar banks (and possibly other fixtures) doesn't work correctly.
+
+*  There are some bugs with farm-tile orientation and placement that Peter
+   found (check the pics.)
+   
+*  For some reason, troops are not upgrading their equipment when available.
+   Hmm.
+
 
 *  Doctors (and anyone involved in combat) must keep a supply of medkits (or
    combat stims?) at all times.
@@ -20,13 +27,6 @@ TO DO NOW-
    inside the walls if need be.)
 
 
-*  Salvaging solar banks (and possibly other fixtures) doesn't work correctly.
-
-*  There are some bugs with farm-tile orientation and placement that Peter
-   found (check the pics.)
-
-*  Look into Nerdfish's feedback!
-
 *  Provide notifications for deaths and arrivals.
 
 *  Allow free trading by dropships sans trade facilities.
@@ -39,8 +39,6 @@ TO DO NOW-
   SFX might not belong with attacks called by a technique.
   Create a Volley class for combat, that techniques can then modify in an
   'organic' manner.
-  
-  Make sure you clear up the difference between training and innate abilities.
 
 
 *  Limit everything to level 2 at most for the moment (1 less than max.)
@@ -83,7 +81,6 @@ TO DO NOW-
 
 ENEMIES AND ENVIRONMENT-
 
-*  Get vermin into the game again!
 *  Nocturnal trait.  "They mostly come at night.  Mostly."
 
 *  Ensure raiders will attempt to besiege intervening walls!
@@ -98,7 +95,7 @@ ENEMIES AND ENVIRONMENT-
    it's territory.)  It needs a tweak to the placement algorithm.
 
 *  Extra concept art for new creatures/vermin:
-     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+     Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
 *  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
    for use by animals.)  Then get rid of the custom-coding.  And polish up

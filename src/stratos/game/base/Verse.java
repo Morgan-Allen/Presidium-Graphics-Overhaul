@@ -278,6 +278,13 @@ public class Verse {
     ALL_DIAPSOR_SECTORS[] = {
       SECTOR_ELYSIUM, SECTOR_PAVONIS, SECTOR_TERRA
     },
+    
+    SECTOR_UNDERGROUND = new VerseLocation(
+      Verse.class, "Underground Sector", "N/A",
+      "",
+      MUTATION, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
+    ),
+    
     DEFAULT_START_LOCATION = SECTOR_ELYSIUM;
   
   
@@ -480,12 +487,23 @@ public class Verse {
   }
   
   
-  public static boolean isWorldExit(Target point, Actor actor) {
+  public static boolean isWorldExit(
+    Target point, Actor actor, VerseLocation goes
+  ) {
     //
-    //  Returns whether the given point can be used to escape off-stage.
+    //  Returns whether the given point can be used to escape off-stage to a
+    //  given adjacent sector-
     if (! (point instanceof StageExit)) return false;
     final StageExit exit = (StageExit) point;
-    return exit.allowsEntry(actor) && exit.leadsTo() != null;
+    if (goes != null && exit.leadsTo() != goes) return false;
+    return exit.allowsEntry(actor) && exit.allowsStageExit(actor);
+  }
+  
+  
+  public static boolean isWorldExit(Target point, Actor actor) {
+    //
+    //  Returns whether the given point can be used to escape off-stage at all.
+    return isWorldExit(point, actor, null);
   }
 }
 

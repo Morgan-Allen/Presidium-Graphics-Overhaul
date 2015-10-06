@@ -4,14 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.civic;
+import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
@@ -19,7 +18,7 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-public class Heighway extends Venue {
+public class Heighway extends Venue implements StageExit {
   
   final static String
     IMG_DIR = "media/Buildings/civilian/";
@@ -89,33 +88,46 @@ public class Heighway extends Venue {
     MIN_ADJACENCY  = 2,
     BASE_ADJACENCY = 4;
   
-  public float ratePlacing(Target point, boolean exact) {
-    final Stage world = point.world();
+  final static Siting SITING = new Siting(BLUEPRINT) {
     
-    //  TODO:  Base this off demand for power & atmo distribution!
-    //  e.g, base.demands.demandAround(point, Economy.POWER), etc...
-    float need = 2;
-    //
-    //  We don't want hatches too close to other hatches, and they should be
-    //  'hugging' some nearby walls...
-    //  TODO:  Build that into the non-exact estimates too.
-    if (exact) {
+    
+    public float rateSettlementDemand(Base base) {
+      return 0.5f;
+    }
+    
+    
+    public float ratePointDemand(Base base, Target point, boolean exact) {
+      final Stage world = point.world();
+      
       final Object nearHatch = world.presences.nearestMatch(
         Heighway.class, point, EXCLUDE_RADIUS
       );
       if (nearHatch != null) return -1;
-      
-      int tilesAdj = 0;
-      for (Tile t : Spacing.perimeter(footprint(), world)) {
-        if (t == null || t.reserves() == null) continue;
-        if (t.reserves().base() == base) tilesAdj++;
+      //
+      //  TODO:  Base this off demand for power & atmo distribution!
+      //  e.g, base.demands.demandAround(point, Economy.POWER), etc...
+      float need = 2;
+      //
+      //  We don't want hatches too close to other hatches, and they should be
+      //  'hugging' some nearby walls...
+      //  TODO:  Build that into the non-exact estimates too.
+      if (exact) {
+        final Tile at = (Tile) point;
+        final Box2D area = at.area(null);
+        area.incHigh(BLUEPRINT.size - 1);
+        area.incWide(BLUEPRINT.size - 1);
+        int tilesAdj = 0;
+        for (Tile t : Spacing.perimeter(area, world)) {
+          if (t == null || t.reserves() == null) continue;
+          if (t.reserves().base() == base) tilesAdj++;
+        }
+        return need * (tilesAdj - MIN_ADJACENCY) / BASE_ADJACENCY;
       }
-      return need * (tilesAdj - MIN_ADJACENCY) / BASE_ADJACENCY;
+      else {
+        return need;
+      }
     }
-    else {
-      return need;
-    }
-  }
+  };
   
   
   
@@ -127,6 +139,7 @@ public class Heighway extends Venue {
     final Object model = faceModel(position, area, others);
     attachModel((ModelAsset) model);
     this.type = model == HUB_MODEL ? TYPE_HUB : TYPE_WAY;
+    setFacing(FACE_NONE);
     return true;
   }
   
@@ -171,6 +184,7 @@ public class Heighway extends Venue {
       world.ephemera.addGhost(this, size, sprite(), 0.5f);
       attachModel((ModelAsset) model);
       this.type = model == HUB_MODEL ? TYPE_HUB : TYPE_WAY;
+      setFacing(FACE_NONE);
     }
     //
     //  And assign life-support and other tangible effects-
@@ -204,12 +218,27 @@ public class Heighway extends Venue {
   }
   
   
-  public Tile mainEntrance() {
-    return (type == TYPE_HUB) ? origin() : null;
+  protected Tile pickEntrance(int facing) {
+    if (type == TYPE_HUB) return origin();
+    else return null;
   }
   
   
+  public boolean allowsStageExit(Mobile m) {
+    return allowsEntry(m);
+  }
   
+  
+  public int exitType() {
+    return StageExit.TYPE_BOLT_HOLE;
+  }
+  
+  
+  public VerseLocation leadsTo() {
+    return Verse.SECTOR_UNDERGROUND;
+  }
+
+
   /**  Rendering and interface methods-
     */
   public String fullName() {

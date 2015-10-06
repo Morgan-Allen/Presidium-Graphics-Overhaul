@@ -172,12 +172,6 @@ public class VerseJourneys {
   }
   
   
-  protected Journey journeyFor(Vehicle trans) {
-    for (Journey j : journeys) if (j.transport == trans) return j;
-    return null;
-  }
-  
-  
   protected void updateJourneys(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0 || GameSettings.noShips) return;
     
@@ -395,18 +389,30 @@ public class VerseJourneys {
     return scheduleLocalDrop(trans, delay);
   }
   
-
-  public Vehicle carries(Mobile mobile) {
+  
+  public Journey journeyFor(Mobile mobile) {
     for (Journey j : journeys) {
-      if (j.transport == mobile) return j.transport;
-      if (j.migrants.includes(mobile)) return j.transport;
+      if (j.transport == mobile) return j;
+      if (j.migrants.includes(mobile)) return j;
     }
     return null;
   }
   
   
-  public Vehicle[] transportsBetween(
-    VerseLocation orig, VerseLocation dest, Base base, boolean eitherWay
+  public Journey journeyFor(Vehicle trans) {
+    for (Journey j : journeys) if (j.transport == trans) return j;
+    return null;
+  }
+  
+
+  public Vehicle carries(Mobile mobile) {
+    final Journey j = journeyFor(mobile);
+    return j == null ? null : j.transport;
+  }
+  
+  
+  public Series <Journey> journeysBetween(
+    VerseLocation orig, VerseLocation dest, Base matchBase, boolean eitherWay
   ) {
     //
     //  We sort the incoming matches in order of arrival.
@@ -416,17 +422,34 @@ public class VerseJourneys {
         return time - j.arriveTime;
       }
     };
-    for (Journey j : journeys) if (j.transport.base() == base && (
-      (j.origin      == orig && j.destination == dest) ||
-      (j.destination == orig && j.origin      == dest && eitherWay)
-    )) {
-      matches.queueAdd(j);
+    for (Journey j : journeys) {
+      final Base base = j.transport == null ? null : j.transport.base();
+      if (matchBase != null && base != matchBase) continue;
+      if (
+        (j.origin      == orig && j.destination == dest) ||
+        (j.destination == orig && j.origin      == dest && eitherWay)
+      ) matches.queueAdd(j);
     }
-    //
-    //  And return in a more compact format-
-    final Vehicle between[] = new Vehicle[matches.size()];
-    int i = 0; for (Journey j : matches) between[i++] = j.transport;
-    return between;
+    return matches;
+  }
+  
+  
+  public Journey nextJourneyBetween(
+    VerseLocation orig, VerseLocation dest, Base matchBase, boolean eitherWay
+  ) {
+    return journeysBetween(orig, dest, matchBase, eitherWay).first();
+  }
+  
+  
+  public Vehicle[] transportsBetween(
+    VerseLocation orig, VerseLocation dest, Base matchBase, boolean eitherWay
+  ) {
+    final Batch <Vehicle> trans = new Batch();
+    final Series <Journey> matches = journeysBetween(
+      orig, dest, matchBase, eitherWay
+    );
+    for (Journey j : matches) if (j.transport != null) trans.add(j.transport);
+    return trans.toArray(Vehicle.class);
   }
   
 
@@ -484,7 +507,7 @@ public class VerseJourneys {
     if (transport != null) for (Mobile migrant : transport.inside()) {
       j.migrants.add(migrant);
     }
-    for (Mobile migrant : migrants) {
+    for (Mobile migrant : migrants) if (migrant != null) {
       j.migrants.add(migrant);
     }
     for (Mobile migrant : j.migrants) {
@@ -504,34 +527,41 @@ public class VerseJourneys {
     if (mobile.inWorld()) return 0;
     final float time = universe.world.currentTime();
     final VerseLocation locale = universe.stageLocation();
+    final VerseLocation resides = Verse.currentLocation(mobile, universe);
     //
-    //  If the actor is currently aboard a dropship, return it's arrival date.
-    Vehicle carries = carries(mobile);
-    Journey journey = journeyFor(carries);
-    if (carries != null && journey.destination == locale) {
-      final float ETA = journey.arriveTime - time;
-      if (ETA < 0 || carries.inWorld()) return 0;
-      else return ETA;
+    // If the actor is currently headed out and not coming back, return 'never'.
+    Journey journey = journeyFor(mobile);
+    VerseLocation going = journey == null ? null : journey.destination;
+    if (going != null && going != locale && ! journey.returns) {
+      return -1;
     }
     //
-    //  Otherwise, try to find the next dropship likely to visit the actor's
-    //  current location, and make a reasonable guess about trip times.
+    //  If the actor is currently aboard an incoming transport, return it's
+    //  arrival date.
+    if (going == locale) {
+      final float ETA = journey.arriveTime - time;
+      if (journey.transport != null && journey.transport.inWorld()) return 0;
+      if (ETA < 0) return 0;
+      return ETA;
+    }
     //
-    //  If it's currently heading out, it'll have to head back after picking up
-    //  passengers- and if it's already heading in but doesn't have the actor
-    //  aboard, a full return trip will be needed (in and out, twice as long.)
-    final VerseLocation resides = Verse.currentLocation(mobile, universe);
+    //  If there's a ship heading to the actor's current residence, then we
+    //  can assume that will pick up the actor going back.
     final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
-    carries = nextTransportBetween(locale, resides, base, false);
-    journey = journeyFor(carries);
-    if (carries != null) {
+    journey = nextJourneyBetween(locale, resides, base, false);
+    if (journey != null && journey.returns) {
       return journey.arriveTime + tripTime - time;
     }
-    carries = nextTransportBetween(resides, locale, base, false);
-    journey = journeyFor(carries);
-    if (carries != null) {
+    //
+    //  Finally, if there's a ship making the trip right now that *doesn't*
+    //  have the actor aboard, then a full return trip will be needed (in and
+    //  out, twice as long.)
+    journey = nextJourneyBetween(resides, locale, base, false);
+    if (journey != null && journey.returns) {
       return journey.arriveTime + (tripTime * 2) - time;
     }
+    //
+    //  Failing that, just quit.
     return -1;
   }
   

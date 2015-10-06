@@ -54,8 +54,6 @@ public class VerminBase extends Base {
     final boolean report = verbose;
     super.updateAsScheduled(numUpdates, instant);
     
-    //  TODO:  RESTORE LATER (see above)...
-    if (true) return;
     //
     //  We perform updates to check for vermin-entry more quickly as the number
     //  of entry-points increases...
@@ -72,6 +70,10 @@ public class VerminBase extends Base {
     //
     //  If the time has arrived, assemble a 'raid' where creatures arrive
     //  through another base's service hatches.
+    
+    //  TODO:  MAXIMUM VERMIN POPULATION SHOULD BE RELATIVE TO THE SETTLEMENT
+    //  AS A WHOLE!
+    
     if (numUpdates % interval == 0) {
       Target entryPoint = hatches.pickRandomAround(null, -1, null);
       if (entryPoint == null) return;
