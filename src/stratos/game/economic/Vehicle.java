@@ -19,14 +19,25 @@ import static stratos.game.actors.Qualities.*;
 
 
 public abstract class Vehicle extends Mobile implements
-  Boarding, Owner, Property,
-  Selectable, Placeable
+  Boarding, Owner, Property, Selectable, Placeable
 {
   
   /**  Fields, constants, constructors and save/load methods-
     */
   private static boolean
     verbose = false;
+  
+  final public static int
+    STAGE_LANDING  = 0,
+    STAGE_LANDED   = 1,
+    STAGE_BOARDING = 2,
+    STAGE_TAKEOFF   = 3,
+    STAGE_AWAY     = 4;
+  final public static float
+    INIT_DIST  = 10.0f,
+    INIT_HIGH  = 10.0f,
+    TOP_SPEED  =  5.0f,
+    NO_LANDING =  -100;
   
   protected Base base;
   final public Stocks cargo = new Stocks(this);
@@ -38,6 +49,10 @@ public abstract class Vehicle extends Mobile implements
   private Venue hangar;
   private float pilotBonus;
   
+  private Vec3D aimPos = new Vec3D(0, 0, NO_LANDING);
+  private float stageInceptTime = 0;
+  private int   stage = STAGE_AWAY;
+  
   protected float entranceFace = Venue.FACE_NONE;
   protected Boarding dropPoint;
   
@@ -46,6 +61,7 @@ public abstract class Vehicle extends Mobile implements
   
   public Vehicle() {
     super();
+    this.stage = STAGE_AWAY;
     structure.setState(Structure.STATE_INTACT, 1);
   }
 
@@ -55,11 +71,16 @@ public abstract class Vehicle extends Mobile implements
     structure.loadState(s);
     staff    .loadState(s);
     s.loadObjects(inside);
-    dropPoint    = (Boarding) s.loadTarget();
-    entranceFace = s.loadFloat();
+    
     base         = (Base ) s.loadObject();
     pilot        = (Actor) s.loadObject();
     hangar       = (Venue) s.loadObject();
+    dropPoint    = (Boarding) s.loadTarget();
+    entranceFace = s.loadFloat();
+    
+    aimPos.loadFrom(s.input());
+    stageInceptTime = s.loadFloat();
+    stage           = s.loadInt();
   }
   
   
@@ -69,11 +90,16 @@ public abstract class Vehicle extends Mobile implements
     structure.saveState(s);
     staff    .saveState(s);
     s.saveObjects(inside);
-    s.saveTarget(dropPoint   );
-    s.saveFloat (entranceFace);
+    
     s.saveObject(base        );
     s.saveObject(pilot       );
     s.saveObject(hangar      );
+    s.saveTarget(dropPoint   );
+    s.saveFloat (entranceFace);
+    
+    aimPos.saveTo(s.output());
+    s.saveFloat(stageInceptTime);
+    s.saveInt  (stage          );
   }
   
   
@@ -139,7 +165,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public float priceFor(Traded service, boolean sold) {
-    return service.basePrice();
+    return service.defaultPrice();
   }
   
   
@@ -226,6 +252,126 @@ public abstract class Vehicle extends Mobile implements
     return true;
   }
   
+
+  
+  
+  
+  /**  Handling the business of ascent and landing-
+    */
+  protected void assignLandPoint(Vec3D aimPos, Boarding dropPoint) {
+    if (aimPos == null) this.aimPos.set(0, 0, NO_LANDING);
+    else this.aimPos.setTo(aimPos);
+    this.dropPoint = dropPoint;
+  }
+  
+  
+  public Vec3D aiming() {
+    if (aimPos == null) return null;
+    return new Vec3D(aimPos);
+  }
+  
+  
+  public Box2D landArea() {
+    if (aimPos.z == NO_LANDING) return null;
+    final int size = (int) Nums.ceil(radius());
+    final Box2D area = new Box2D().set(aimPos.x, aimPos.y, 0, 0);
+    area.expandBy(size + 1);
+    return area;
+  }
+  
+  
+  public Box2D area(Box2D put) {
+    if (put == null) put = new Box2D();
+    final int size = (int) Nums.ceil(radius());
+    return put.set(position.x, position.y, 0, 0).expandBy(size + 1);
+  }
+  
+  
+  
+  public void beginLanding(Stage world) {
+    final Tile entry = Spacing.pickRandomTile(
+      world.tileAt(aimPos.x, aimPos.y), INIT_DIST, world
+    );
+    enterWorldAt(entry.x, entry.y, world, true);
+    nextPosition.set(entry.x, entry.y, INIT_HIGH);
+    nextRotation = 0;
+    setHeading(nextPosition, nextRotation, true, world);
+    entranceFace = Venue.FACE_EAST;
+    
+    stageInceptTime = world.currentTime();
+    stage           = STAGE_LANDING;
+    canBoard        = null;
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
+    if (landed()) completeLanding();
+    return true;
+  }
+  
+  
+  private void completeLanding() {
+    nextPosition.setTo(position.setTo(aimPos));
+    dropPoint = ShipUtils.performLanding(this, world, entranceFace);
+    if (stage == STAGE_LANDED) ShipUtils.offloadPassengers(this, true);
+    
+    stageInceptTime = world.currentTime();
+    stage           = STAGE_LANDED;
+    canBoard        = null;
+  }
+  
+  
+  public void beginBoarding() {
+    if (stage != STAGE_LANDED) I.complain("Cannot board until landed!");
+    stage = STAGE_BOARDING;
+  }
+  
+  
+  public void exitWorld() {
+    if (landed()) {
+      I.say("\n"+this+" EXITING WORLD UNDER ABNORMAL CIRCUMSTANCES");
+      I.reportStackTrace();
+      beginTakeoff();
+    }
+    ShipUtils.completeTakeoff(world, this);
+    super.exitWorld();
+  }
+  
+  
+  public void beginTakeoff() {
+    if (stage == STAGE_LANDED) ShipUtils.offloadPassengers(this, false);
+    ShipUtils.performTakeoff(world, this);
+    
+    stageInceptTime = world.currentTime();
+    stage           = STAGE_TAKEOFF;
+    canBoard        = null;
+  }
+  
+  
+  private void completeTakeoff() {
+    exitWorld();
+    stageInceptTime = world.currentTime();
+    stage           = STAGE_AWAY;
+    canBoard        = null;
+  }
+  
+  
+  public boolean landed() {
+    return stage == STAGE_LANDED || stage == STAGE_BOARDING;
+  }
+  
+  
+  public int flightStage() {
+    return stage;
+  }
+  
+  
+  public Boarding mainEntrance() {
+    if (landed()) return dropPoint;
+    else return null;
+  }
+  
   
   
   /**  Handling pathing-
@@ -237,7 +383,6 @@ public abstract class Vehicle extends Mobile implements
   
   protected void updateAsMobile() {
     super.updateAsMobile();
-    if (! structure.intact()) return;
     
     final boolean report = verbose && (
       I.talkAbout == this || (pilot != null && I.talkAbout == pilot)
@@ -251,17 +396,8 @@ public abstract class Vehicle extends Mobile implements
       I.say("  Path target:  "+pathing.target());
       I.say("  Next step is: "+step);
     }
-    
-    if (step != null) {
-      final float baseSpeed = baseMoveRate();
-      float moveRate = baseSpeed;
-      if (origin().pathType() == Tile.PATH_ROAD) moveRate *= 1.5f;
-      //  TODO:  RESTORE THIS
-      //if (origin().owner() instanceof Causeway) moveRate *= 1.5f;
-      moveRate *= (pilotBonus + 1) / 2;
-      pathing.headTowards(step, moveRate, 5 * baseSpeed, true);
-    }
     ///else world.schedule.scheduleNow(this);
+    updateVehicleMotion(step);
   }
   
   
@@ -272,6 +408,61 @@ public abstract class Vehicle extends Mobile implements
     }
     final Target focus = pilot.actionFocus();
     if (focus != null) pathing.updateTarget(focus);
+  }
+  
+  
+  protected void pathingAbort() {
+    if (pilot != null) {
+      final Action action = pilot.currentAction();
+      if (action != null) action.interrupt(Plan.INTERRUPT_LOSE_PATH);
+    }
+    pathing.updateTarget(null);
+  }
+  
+  
+  protected boolean collides() {
+    return false;
+  }
+  
+  
+  protected void updateVehicleMotion(Boarding step) {
+    
+    //
+    //  Check to see if ascent or descent are complete-
+    final float height = position.z / INIT_HIGH;
+    if (stage == STAGE_TAKEOFF && height >= 1) {
+      completeTakeoff();
+    }
+    if (stage == STAGE_LANDING) {
+      //
+      //  If obstructions appear during the descent, restart the flight-path.
+      //  If you touchdown, register as such.
+      if (! ShipUtils.checkLandingArea(this, world, landArea())) {
+        beginTakeoff();
+      }
+      else if (height <= 0) {
+        completeLanding();
+      }
+    }
+    
+    //
+    //  Different forms of motion may be in order.
+    final boolean canMove = structure.intact() && step != null;
+    final int motion = motionType();
+    
+    if ((motion == MOTION_HOVER || motion == MOTION_WALKS) && canMove) {
+      final float baseSpeed = baseMoveRate();
+      float moveRate = baseSpeed;
+      if (origin().pathType() == Tile.PATH_ROAD) moveRate *= 1.5f;
+      //  TODO:  RESTORE THIS?
+      //if (origin().owner() instanceof Causeway) moveRate *= 1.5f;
+      moveRate *= (pilotBonus + 1) / 2;
+      pathing.headTowards(step, moveRate, 5 * baseSpeed, true);
+    }
+    
+    if (motion == MOTION_FLYER && inWorld() && ! landed()) {
+      ShipUtils.adjustFlight(this, aimPos, 0, height);
+    }
   }
   
   
@@ -355,12 +546,16 @@ public abstract class Vehicle extends Mobile implements
   
   public Boarding[] canBoard() {
     if (canBoard != null) return canBoard;
-    
-    final Boarding batch[] = new Boarding[2];
-    batch[0] = dropPoint;
-    if (aboard() != null) batch[1] = aboard;
-    
-    return canBoard = batch;
+
+    if (landed()) {
+      final Boarding batch[] = new Boarding[2];
+      batch[0] = dropPoint;
+      if (aboard() != null) batch[1] = aboard;
+      return canBoard = batch;
+    }
+    else {
+      return canBoard = new Boarding[0];
+    }
   }
   
   
@@ -384,25 +579,6 @@ public abstract class Vehicle extends Mobile implements
   
   public Box2D footprint() {
     return area(null);
-  }
-  
-  
-  public Box2D area(Box2D put) {
-    if (put == null) put = new Box2D();
-    final Vec3D p = position;
-    final float r = radius();
-    put.set(p.x - r, p.y - r, r * 2, r * 2);
-    return put;
-  }
-  
-  
-  public boolean landed() {
-    return true;
-  }
-  
-  
-  public Boarding mainEntrance() {
-    return dropPoint;
   }
   
   

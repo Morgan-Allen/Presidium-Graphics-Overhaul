@@ -130,7 +130,7 @@ public class HoldingUpgrades {
     Holding holding, Traded need, boolean any
   ) {
     for (Actor a : holding.staff.lodgers()) {
-      boolean affords = a.gear.allCredits() > (need.basePrice() * 2);
+      boolean affords = a.gear.allCredits() > (need.defaultPrice() * 2);
       if (affords && any) return true;
       if ((! affords) && (! any)) return false;
     }

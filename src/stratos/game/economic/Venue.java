@@ -547,7 +547,7 @@ public abstract class Venue extends Fixture implements
   
   
   public float priceFor(Traded good, boolean sold) {
-    return good.basePrice();
+    return good.defaultPrice();
   }
   
   

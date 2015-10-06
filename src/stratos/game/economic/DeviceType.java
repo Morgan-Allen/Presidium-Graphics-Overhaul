@@ -64,7 +64,7 @@ public class DeviceType extends Traded {
         Object.class, conversionArgs, new Object[] { TO, 1, this }
       )
     );
-    setPrice(basePrice, materials);
+    setPriceMargin(basePrice, materials);
     
     this.groupName = groupName;
     this.animName  = animName ;

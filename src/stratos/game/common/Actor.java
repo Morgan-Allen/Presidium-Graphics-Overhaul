@@ -114,8 +114,8 @@ public abstract class Actor extends Mobile implements
   
   
   public float priceFor(Traded service, boolean sold) {
-    if (sold) return service.basePrice() * 1.5f;
-    else      return service.basePrice() / 1.5f;
+    if (sold) return service.defaultPrice() * 1.5f;
+    else      return service.defaultPrice() / 1.5f;
   }
   
   
@@ -432,8 +432,7 @@ public abstract class Actor extends Mobile implements
     if (subject == null) return 0;
     for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
       final Plan root = (Plan) b;
-      if (subject != null && root.subject() != subject) return 0;
-      return root.harmFactor();
+      if (subject == null || root.subject == subject) return root.harmFactor();
     }
     if (subject == actionFocus() && mind.topBehaviour() instanceof Plan) {
       return ((Plan) mind.topBehaviour()).harmFactor();

@@ -159,7 +159,7 @@ public class GearPurchase extends Plan {
       //
       //  TODO:  Unify this with the priority-eval methods below!
       upgrade = Item.withQuality(baseItem.type, quality);
-      final float price = calcPrice(upgrade, makes);
+      final float price = upgrade.priceAt(makes, true);
       final boolean done = makes.stocks.hasItem(upgrade);
       
       if (price >= actor.gear.allCredits() && ! done) continue;
@@ -179,18 +179,10 @@ public class GearPurchase extends Plan {
       I.say("  Owner cash:   "+actor.gear.allCredits());
       I.say("  New item:     "+upgrade);
       I.say("  Base price:   "+upgrade.defaultPrice());
-      I.say("  Vended price: "+calcPrice(upgrade, makes));
+      I.say("  Vended price: "+upgrade.priceAt(makes, true));
       if (added == null) I.say("  Can't afford replacement!");
     }
     return added;
-  }
-  
-  
-  private static float calcPrice(Item item, Venue shop) {
-    float price = item.priceAt(shop, true);
-    final Conversion m = item.type.materials();
-    if (m != null) for (Item i : m.raw) price += i.priceAt(shop, true);
-    return price;
   }
   
   
@@ -209,7 +201,7 @@ public class GearPurchase extends Plan {
     }
     //
     //  Include effects of pricing and quality-
-    if (price == -1) price = calcPrice(item, shop);
+    if (price == -1) price = item.priceAt(shop, true);
     float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
     if (price > actor.gear.allCredits() && ! done) {
       if (report) I.say("  Can't afford item.");

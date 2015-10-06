@@ -125,17 +125,20 @@ public class ActorDescription implements Qualities {
     if (hunger > 0) d.append(" (Hunger "+hunger+"%)");
     //
     //  And describe any special status FX-
-    final Batch <String> healthDesc = new Batch <String> ();
-    for (Trait t : h.traits.conditions()) {
-      healthDesc.add(h.traits.description(t));
-    }
     d.append("\n  ");
+    if (h.mind.work() == null) d.append("Unemployed ");
+    if (h.mind.home() == null) d.append("Homeless "  );
+    for (Trait t : h.traits.conditions()) {
+      d.append(h.traits.description(t), t);
+      d.append(" ");
+      //healthDesc.add(h.traits.description(t));
+    }
+    /*
     for (String s : healthDesc) if (s != null) {
       d.append(s);
       d.append(" ");
     }
-    if (h.mind.work() == null) d.append("Unemployed ");
-    if (h.mind.home() == null) d.append("Homeless "  );
+    //*/
   }
   
   
@@ -149,13 +152,17 @@ public class ActorDescription implements Qualities {
       PC = (int) h.gear.powerCells  ();
     final Item device = h.gear.deviceEquipped();
     if (device != null) {
-      d.append("\n  "+device+" ("+((int) h.gear.totalDamage())+")");
+      d.append("\n  "+device.descQuality()+" ");
+      d.append(device.type);
+      d.append(" ("+((int) h.gear.totalDamage())+")");
       if (PC > 0) d.append(" (Power "+PC+")");
     }
     final Item outfit = h.gear.outfitEquipped();
     final boolean showShields = MS > 0 || SC > 0;
     if (outfit != null) {
-      d.append("\n  "+outfit+" ("+((int) h.gear.totalArmour())+")");
+      d.append("\n  "+outfit.descQuality()+" ");
+      d.append(outfit.type);
+      d.append(" ("+((int) h.gear.totalArmour())+")");
     }
     else if (showShields) d.append("\n  No outfit");
     if (showShields) d.append(" (Shields "+SC+"/"+MS+")");

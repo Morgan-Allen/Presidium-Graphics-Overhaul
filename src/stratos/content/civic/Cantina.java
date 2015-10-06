@@ -221,8 +221,8 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   
   public float priceFor(Traded good) {
-    if (good == SOMA) return SOMA.basePrice() * SOMA_MARGIN;
-    return good.basePrice() * BaseCommerce.SMUGGLE_MARGIN;
+    if (good == SOMA) return SOMA.defaultPrice() * SOMA_MARGIN;
+    return good.defaultPrice() * BaseCommerce.SMUGGLE_MARGIN;
   }
   
   

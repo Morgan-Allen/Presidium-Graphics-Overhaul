@@ -66,8 +66,8 @@ public class BaseCommerce {
   public BaseCommerce(Base base) {
     this.base = base;
     for (Traded type : ALL_MATERIALS) {
-      importPrices.put(type, (float) type.basePrice());
-      exportPrices.put(type, (float) type.basePrice());
+      importPrices.put(type, (float) type.defaultPrice());
+      exportPrices.put(type, (float) type.defaultPrice());
     }
   }
   
@@ -317,7 +317,7 @@ public class BaseCommerce {
     //  Then, we tally up average supply and demand for goods offworld.
     for (Traded type : ALL_MATERIALS) {
       float
-        basePrice = type.basePrice(),
+        basePrice = type.defaultPrice(),
         importMul = 2, exportDiv = 2,
         avgDemand = 0, homeBonus = 0;
       for (VerseLocation partner : partners) {
@@ -388,14 +388,14 @@ public class BaseCommerce {
   
   public float importPrice(Traded type) {
     final Float price = importPrices.get(type);
-    if (price == null) return type.basePrice() * 10f;
+    if (price == null) return type.defaultPrice() * 10f;
     return price;
   }
   
   
   public float exportPrice(Traded type) {
     final Float price = exportPrices.get(type);
-    if (price == null) return type.basePrice() / 10f;
+    if (price == null) return type.defaultPrice() / 10f;
     return price;
   }
   
@@ -429,13 +429,13 @@ public class BaseCommerce {
     VerseJourneys travel = base.world.offworld.journeys;
     VerseLocation locale = base.world.offworld.stageLocation();
     
-    Dropship running[] = travel.shipsBetween(locale, homeworld, base, true);
-    Dropship last = (Dropship) Visit.last(running);
+    Vehicle running[] = travel.transportsBetween(locale, homeworld, base, true);
+    Vehicle last = (Vehicle) Visit.last(running);
     if (running.length < spaceLimit) {
-      travel.setupShipping(homeworld, locale, base, true);
+      travel.setupTransport(homeworld, locale, base, true);
     }
     if (running.length > spaceLimit && ! last.inWorld()) {
-      travel.retireShip(last);
+      travel.retireTransport(last);
     }
     
     if (report) {

@@ -478,7 +478,19 @@ public class Verse {
     }
     return null;
   }
+  
+  
+  public static boolean isWorldExit(Target point, Actor actor) {
+    //
+    //  Returns whether the given point can be used to escape off-stage.
+    if (! (point instanceof StageExit)) return false;
+    final StageExit exit = (StageExit) point;
+    return exit.allowsEntry(actor) && exit.leadsTo() != null;
+  }
 }
+
+
+
 
 
 

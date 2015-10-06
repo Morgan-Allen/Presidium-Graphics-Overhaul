@@ -453,8 +453,8 @@ public class Stocks extends Inventory {
     final Base base = basis.base();
     final float
       amount      = amountOf(type),
-      exportPays  = base.commerce.exportPrice(type) / type.basePrice(),
-      importCosts = base.commerce.importPrice(type) / type.basePrice(),
+      exportPays  = base.commerce.exportPrice(type) / type.defaultPrice(),
+      importCosts = base.commerce.importPrice(type) / type.defaultPrice(),
       
       localDemand = base.demands.demandSampleFor(basis, type, 1),
       localSupply = base.demands.supplySampleFor(basis, type, 1),

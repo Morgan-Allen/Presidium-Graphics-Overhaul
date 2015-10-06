@@ -5,6 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -264,8 +265,14 @@ public class Retreat extends Plan implements Qualities {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    float priority = PlanUtils.retreatPriority(actor, actor.origin());
-    toggleMotives(MOTIVE_EMERGENCY, actor.senses.isEmergency());
+    final boolean urgent = actor.senses.isEmergency();
+    final Target haven = actor.senses.haven();
+    final boolean hasExit = Verse.isWorldExit(haven, actor);
+    
+    float priority = PlanUtils.retreatPriority(
+      actor, actor.origin(), haven, true, urgent, hasExit
+    );
+    toggleMotives(MOTIVE_EMERGENCY, urgent);
     maxPriority = Nums.max(maxPriority, priority);
     return maxPriority;
   }
@@ -315,7 +322,12 @@ public class Retreat extends Plan implements Qualities {
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
-    if (actor.senses.fearLevel() <= 0) {
+    if (Verse.isWorldExit(safePoint, actor)) {
+      final StageExit exit = (StageExit) safePoint;
+      final VerseLocation goes = exit.leadsTo();
+      actor.world().offworld.journeys.handleEmmigrants(goes, null, actor);
+    }
+    else if (actor.senses.fearLevel() <= 0) {
       final Resting rest = new Resting(actor, safePoint);
       rest.addMotives(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxPriority = 0;

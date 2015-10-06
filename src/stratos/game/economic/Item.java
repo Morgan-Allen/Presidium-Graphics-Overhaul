@@ -170,18 +170,40 @@ public class Item {
   }
   
   
+  public float outputFromQuality() {
+    return OUTPUT_MULTS[(int) quality];
+  }
+  
+  
+  
+  /**  Pricing calculations-
+    */
   public float priceAt(Owner venue, boolean sold) {
-    return venue.priceFor(type, sold) * amount * PRICE_MULTS[(int) quality];
+    return priceFor(type, amount, quality, venue, sold);
   }
   
   
   public float defaultPrice() {
-    return type.basePrice() * amount * PRICE_MULTS[(int) quality];
+    return priceFor(type, amount, -1, null, false);
   }
   
-  
-  public float outputFromQuality() {
-    return OUTPUT_MULTS[(int) quality];
+
+  protected static float priceFor(
+    Traded type, float amount, float quality, Owner venue, boolean sold
+  ) {
+    float price = 0;
+    if (venue != null) price += venue.priceFor(type, sold);
+    else price += type.priceMargin();
+    
+    if (amount  >= 0) price *= amount;
+    if (quality >= 0) price *= PRICE_MULTS[(int) quality];
+    
+    final Conversion m = type.materials();
+    if (m != null) for (Item i : m.raw) {
+      price += priceFor(i.type, i.amount, i.quality, venue, sold);
+    }
+    
+    return price;
   }
   
   
@@ -243,7 +265,7 @@ public class Item {
   public void describeFor(Actor owns, Description d) {
     //
     //  First describe yourself:
-    String s = ""+type.name;
+    String s = "";
     if (type != SAMPLES && (
       type.form == FORM_DEVICE ||
       type.form == FORM_OUTFIT ||
@@ -256,6 +278,7 @@ public class Item {
       s = (I.shorten(amount, 1))+" "+s;
     }
     d.append(s);
+    d.append(type.name, type);
     //
     //  Then describe anything your refer to-
     if (refers instanceof Passive) {

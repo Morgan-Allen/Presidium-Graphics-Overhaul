@@ -125,7 +125,7 @@ public class BudgetsPane extends SelectionPane {
       final String
         priceImp = I.shorten(BC.importPrice(t), 1),
         priceExp = I.shorten(BC.exportPrice(t), 1),
-        baseCost = I.shorten(t.basePrice()    , 1);
+        baseCost = I.shorten(t.defaultPrice()    , 1);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append(" ");
@@ -148,7 +148,7 @@ public class BudgetsPane extends SelectionPane {
       if (partner == BC.homeworld()) d.append("  (Homeworld)");
       else d.append(" (Trading Partner)");
       
-      final Dropship nextShip = universe.journeys.nextShipBetween(
+      final Vehicle nextShip = universe.journeys.nextTransportBetween(
         partner, locale, base, true
       );
       if (nextShip != null) {

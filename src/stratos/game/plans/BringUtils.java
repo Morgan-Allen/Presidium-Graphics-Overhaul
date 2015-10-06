@@ -505,7 +505,7 @@ public class BringUtils {
       distFactor  = SS / (SS + Spacing.distance(orig, dest)),
       tierFactor  = Nums.max(1, Nums.abs(OT - DT)),
       priceDiff   = dest.priceFor(good, false) - orig.priceFor(good, true),
-      priceFactor = Nums.clamp(1 + (priceDiff / good.basePrice()), 0.5f, 2);
+      priceFactor = Nums.clamp(1 + (priceDiff / good.defaultPrice()), 0.5f, 2);
     if (report) {
       I.say("  Final rating "+rating);
       I.say("  base/distance factors: "+baseFactor +"/"+distFactor);

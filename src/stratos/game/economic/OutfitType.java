@@ -39,7 +39,7 @@ public class OutfitType extends Traded {
       facility, name+"_manufacture",
       Visit.compose(Object.class, conversionArgs, new Object[] { TO, 1, this })
     );
-    setPrice(basePrice, materials);
+    setPriceMargin(basePrice, materials);
     
     final String imagePath = ITEM_PATH+name+"_skin.gif";
     if (new File(imagePath).exists()) {
