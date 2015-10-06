@@ -24,26 +24,32 @@ import stratos.content.civic.TrooperLodge;
 
 
 public class TrooperTechniques {
-  
-  final static String DIR = "media/GUI/Powers/";
+
+  final static String
+    FX_DIR = "media/SFX/",
+    UI_DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = TrooperTechniques.class;
   
   final public static PlaneFX.Model
-    ZAP_FX_MODEL = new PlaneFX.Model(
-      "zap_fx", BASE_CLASS, "media/SFX/electro_zap.png",
+    ZAP_FX_MODEL = PlaneFX.imageModel(
+      "zap_fx", BASE_CLASS,
+      FX_DIR+"electro_zap.png",
       0.3f, 0, 0.1f, true, false
     ),
-    HARMONICS_FX_MODEL = new PlaneFX.Model(
-      "harmonics_fx", BASE_CLASS, "media/SFX/shield_harmonics.png",
+    HARMONICS_FX_MODEL = PlaneFX.imageModel(
+      "harmonics_fx", BASE_CLASS,
+      FX_DIR+"shield_harmonics.png",
       0.45f, 0, 0.2f, true, false
     ),
-    FRAG_BURST_MODEL = new PlaneFX.Model(
-      "frag_burst_fx", BASE_CLASS, "media/SFX/frag_burst.png",
+    FRAG_BURST_MODEL = PlaneFX.imageModel(
+      "frag_burst_fx", BASE_CLASS,
+      FX_DIR+"frag_burst.png",
       1.0f, 0, 1.0f, true, true
     );
   final public static ShotFX.Model
     FRAG_MISSILE_MODEL = new ShotFX.Model(
-      "frag_missile_fx", BASE_CLASS, "media/SFX/frag_missile.png",
+      "frag_missile_fx", BASE_CLASS,
+      FX_DIR+"frag_missile.png",
       0.05f, 0.1f, 0.15f, 0.75f, false, false
     );
   
@@ -56,7 +62,7 @@ public class TrooperTechniques {
   
   
   final public static Technique ELECTROCUTE = new Technique(
-    "Electrocute", DIR+"electrocute.png",
+    "Electrocute", UI_DIR+"electrocute.png",
     "Deals bonus shock damage during close combat, even in defence.",
     BASE_CLASS, "electrocute",
     MINOR_POWER        ,
@@ -85,7 +91,7 @@ public class TrooperTechniques {
     ) {
       super.applyEffect(using, success, subject, passive);
       if (success && subject instanceof Actor) {
-        CombatFX.applyBurstFX(ZAP_FX_MODEL, subject, 0.5f, 1);
+        ActionFX.applyBurstFX(ZAP_FX_MODEL, subject, 0.5f, 1);
         
         final float damage = using.gear.totalDamage() * Rand.num() / 2;
         final Actor struck = (Actor) subject;
@@ -97,7 +103,7 @@ public class TrooperTechniques {
   
   
   final public static Technique SHIELD_HARMONICS = new Technique(
-    "Shield Harmonics", DIR+"shield_harmonics.png",
+    "Shield Harmonics", UI_DIR+"shield_harmonics.png",
     "Provides additional shield regeneration to nearby allies.",
     BASE_CLASS, "shield_harmonics",
     MEDIUM_POWER       ,
@@ -125,8 +131,8 @@ public class TrooperTechniques {
     }
     
     
-    public float priorityFor(Actor actor, Target subject, float harmWanted) {
-      return super.priorityFor(actor, actor, Technique.REAL_HELP);
+    public float basePriority(Actor actor, Target subject, float harmWanted) {
+      return super.basePriority(actor, actor, Technique.REAL_HELP);
     }
 
 
@@ -157,20 +163,20 @@ public class TrooperTechniques {
     
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
-      CombatFX.applyBurstFX(HARMONICS_FX_MODEL, affected, 0.5f, 1);
+      ActionFX.applyBurstFX(HARMONICS_FX_MODEL, affected, 0.5f, 1);
       affected.gear.boostShields(HARMONICS_BOOST, true);
       
       for (Actor ally : PlanUtils.subjectsInRange(affected, HARMONICS_RANGE)) {
         if (affected.base() != ally.base() || affected == ally) continue;
         ally.gear.boostShields(HARMONICS_BOOST / 2, true);
-        CombatFX.applyBurstFX(HARMONICS_FX_MODEL, ally, 0.5f, 1);
+        ActionFX.applyBurstFX(HARMONICS_FX_MODEL, ally, 0.5f, 1);
       }
     }
   };
   
   
   final public static Technique FRAG_LAUNCHER = new Technique(
-    "Frag Launcher", DIR+"frag_launcher.png",
+    "Frag Launcher", UI_DIR+"frag_launcher.png",
     "Launches a devastating rocket attack at long-to-medium range.",
     BASE_CLASS, "frag_launcher",
     MAJOR_POWER        ,
@@ -199,11 +205,11 @@ public class TrooperTechniques {
     }
     
     
-    public float priorityFor(Actor actor, Target subject, float harmWanted) {
+    public float basePriority(Actor actor, Target subject, float harmWanted) {
       //
       //  TODO:  You need some generalised methods for handling AoE effects-
       //  both impacts and evaluation.
-      final float priority = super.priorityFor(actor, subject, harmWanted);
+      final float priority = super.basePriority(actor, subject, harmWanted);
       if (priority <= 0) return 0;
       
       for (Actor a : PlanUtils.subjectsInRange(subject, FRAG_BURST_RANGE)) {
@@ -224,10 +230,10 @@ public class TrooperTechniques {
       //  class?
       
       final Stage world = using.world();
-      CombatFX.applyShotFX(
+      ActionFX.applyShotFX(
         FRAG_MISSILE_MODEL, using, subject, success, 1.5f, world
       );
-      CombatFX.applyBurstFX(
+      ActionFX.applyBurstFX(
         FRAG_BURST_MODEL, subject.position(null), 1.5f, world
       );
       
@@ -251,7 +257,7 @@ public class TrooperTechniques {
   
   
   final public static Technique POWER_ARMOUR_USE = new Technique(
-    "Power Armour Use", DIR+"power_armour_use.png",
+    "Power Armour Use", UI_DIR+"power_armour_use.png",
     "Permits the use of "+Outfits.POWER_ARMOUR+".",
     BASE_CLASS      , "power_armour_use",
     MAJOR_POWER     ,

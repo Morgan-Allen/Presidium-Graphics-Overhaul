@@ -163,7 +163,7 @@ public abstract class Species extends Background {
   
   
   public Blueprint nestBlueprint() { return null; }
-  public boolean fixedNesting() { return true; }
+  public boolean   fixedNesting () { return true; }
   
   public boolean browser () { return type == Type.BROWSER ; }
   public boolean predator() { return type == Type.PREDATOR; }

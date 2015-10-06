@@ -317,6 +317,7 @@ public class ActorSenses implements Qualities {
       final Target victim = near.planFocus(Combat.class, true);
       emergency   |= victim != null || sumFoes > bravery;
       underAttack |= victim == actor;
+      underAttack |= attackRisk > 0 && Spacing.distance(near, actor) <= 2;
     }
     
     //

@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.plans;
+package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
@@ -14,38 +14,38 @@ import static stratos.game.economic.Devices.*;
 
 
 
-public class CombatFX {
+public class ActionFX {
   
   
   /**  Data fields, property accessors-
     */
   final static ShotFX.Model
     LASER_FX_MODEL = new ShotFX.Model(
-      "laser_beam_fx", CombatFX.class,
+      "laser_beam_fx", ActionFX.class,
       "media/SFX/blast_beam.gif", 0.05f, 0, 0.05f, 3, true, true
     ),
     PISTOL_FX_MODEL = new ShotFX.Model(
-      "pistol_shot_fx", CombatFX.class,
+      "pistol_shot_fx", ActionFX.class,
       "media/SFX/pistol_shot.gif", 0.02f, 0, 0.03f, 1.5f, true, true
     ),
     SPEAR_FX_MODEL = new ShotFX.Model(
-      "spear_fx", CombatFX.class,
+      "spear_fx", ActionFX.class,
       "media/SFX/spear_throw.gif",
       0.1f, 0.2f,
       0.12f, 1.2f,
       false, false
     );
   final static PlaneFX.Model
-    SLASH_FX_MODEL = new PlaneFX.Model(
-      "slash_fx", CombatFX.class,
+    SLASH_FX_MODEL = PlaneFX.imageModel(
+      "slash_fx", ActionFX.class,
       "media/SFX/melee_slash.png", 0.5f, 0, 0, false, false
     ),
-    LASER_BURST_MODEL = new PlaneFX.Model(
-      "laser_burst_fx", CombatFX.class,
+    LASER_BURST_MODEL = PlaneFX.imageModel(
+      "laser_burst_fx", ActionFX.class,
       "media/SFX/laser_burst.png", 0.75f, 0, 0, true, true
     ),
-    PISTOL_BURST_MODEL = new PlaneFX.Model(
-      "pistol_burst_fx", CombatFX.class,
+    PISTOL_BURST_MODEL = PlaneFX.imageModel(
+      "pistol_burst_fx", ActionFX.class,
       "media/SFX/pistol_burst.png", 0.2f, 180, 0, true, true
     );
   

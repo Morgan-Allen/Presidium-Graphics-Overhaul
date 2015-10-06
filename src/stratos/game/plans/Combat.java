@@ -387,7 +387,7 @@ public class Combat extends Plan implements Qualities {
       }
       if (damage != afterArmour && showFX) {
         final boolean hit = damage > 0;
-        CombatFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
+        ActionFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
       }
       
       final Item used = actor .gear.deviceEquipped();
@@ -412,7 +412,7 @@ public class Combat extends Plan implements Qualities {
     }
     
     if (showFX) {
-      CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);
+      ActionFX.applyFX(actor.gear.deviceType(), actor, target, success);
     }
     
     return success;
@@ -464,7 +464,7 @@ public class Combat extends Plan implements Qualities {
       besieged.structure().takeDamage(afterArmour);
       success = true;
     }
-    CombatFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
+    ActionFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
     
     return success;
   }

@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.actors;
 import stratos.graphics.common.Colour;
 import stratos.util.*;
@@ -58,13 +56,16 @@ public class Skill extends Trait {
   final public Skill parent;
   
   
-  Skill(String name, int form, Skill parent) {
-    this(name, "NO DESCRIPTION YET", form, parent);
+  Skill(Class baseClass, String name, int form, Skill parent) {
+    this(baseClass, name, "NO DESCRIPTION YET", null, form, parent);
   }
   
   
-  Skill(String name, String description, int form, Skill parent) {
-    super(name, description, SKILL, descLevelsFor(name));
+  Skill(
+    Class baseClass, String name, String description, String iconPath,
+    int form, Skill parent
+  ) {
+    super(baseClass, name, description, iconPath, SKILL, descLevelsFor(name));
     this.form = form;
     this.parent = parent;
   }

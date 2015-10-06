@@ -404,7 +404,6 @@ public class ActorTraits implements Qualities {
       if (t instanceof Condition) matches.add((Condition) t);
     }
     return matches;
-    //return (Batch) getMatches(null, Conditions.ALL_CONDITIONS);
   }
   
   /*

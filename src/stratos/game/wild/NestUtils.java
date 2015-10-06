@@ -115,59 +115,6 @@ public class NestUtils {
   }
   
   
-
-  /*
-  public static float crowdingFor(Target point, Species species, Stage world) {
-    if (point == null || species == null) return 1;
-    final boolean report = ratingVerbose && I.talkAbout == point;
-    
-    final float idealPop = idealPopulation(point, species, world);
-    if ((int) idealPop <= 0) return 1;
-    
-    final Base   base     = Base.wildlife(world);
-    final float  mass     = species.metabolism();
-    final String category = species.type.name() ;
-    final float
-      allType     = base.demands.supplyAround(point, category, -1),
-      allSpecies  = base.demands.supplyAround(point, species , -1),
-      rarity      = Nums.clamp(1 - (allSpecies / allType), 0, 1),
-      competition = allType / ((1 + rarity) * mass);
-    
-    if (report) I.reportVars(
-      "\nGetting crowding at "+point+" for "+species, "  ",
-      "all of type"     , allType    ,
-      "all of species"  , allSpecies ,
-      "rarity"          , rarity     ,
-      "competition"     , competition,
-      "metabolic mass"  , mass       ,
-      "ideal population", idealPop   
-    );
-    return competition / (int) idealPop;
-  }
-  
-  
-  public static float crowdingFor(Actor fauna) {
-    final Target home = fauna.mind.home();
-    if (! (home instanceof Nest)) return 0.49f;
-    final Nest nest = (Nest) home;
-    if (nest.cachedIdealPop == -1) return 0;
-    if (nest.cachedIdealPop ==  0) return 1;
-    return nest.staff.lodgers().size() * 1f / nest.cachedIdealPop;
-  }
-  
-  
-  protected void impingeDemands(BaseDemands demands, int period) {
-    final float  idealPop = idealPopulation(this, species, world);
-    final float  mass     = species.metabolism() * idealPop;
-    final String category = species.type.name();
-    demands.impingeSupply(species , mass, period, this);
-    demands.impingeSupply(category, mass, period, this);
-  }
-  //*/
-  
-  
-
-  
   
   /**  Utility methods for Nest-establishment.
     */

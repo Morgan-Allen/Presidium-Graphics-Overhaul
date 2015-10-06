@@ -19,7 +19,7 @@ public abstract class Mobile extends Element
   private static boolean
     verbose = Pathing.verbose;
   
-  final public static PlaneFX.Model SHADOW_MODEL = new PlaneFX.Model(
+  final public static PlaneFX.Model SHADOW_MODEL = PlaneFX.imageModel(
     "ground_shadow_model", Mobile.class,
     "media/SFX/ground_shadow.png", 1, 0, 0, false, false
   );

@@ -196,7 +196,7 @@ public class Bastion extends Venue {
     );
   
   final static Condition SEAT_OF_POWER_EFFECT = new Condition(
-    "seat_of_power_effect", true, "Seat of Power"
+    Bastion.class, "seat_of_power_effect", true, "Seat of Power"
   ) {
     public void affect(Actor a) {
       if ((a.aboard() instanceof Bastion) && (a == a.base().ruler())) {

@@ -9,6 +9,7 @@ import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
+import stratos.graphics.cutout.CutoutSprite;
 import stratos.graphics.sfx.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -45,6 +46,7 @@ public abstract class Actor extends Mobile implements
   final public Healthbar healthbar = new Healthbar();
   final public Label     label     = new Label    ();
   final public TalkFX    chat      = new TalkFX   ();
+  private Stack <Sprite> statusFX = null;
   
   
   public Actor() {
@@ -494,7 +496,7 @@ public abstract class Actor extends Mobile implements
     //  We render health-bars after the main sprite, as the label/healthbar are
     //  anchored off the main sprite.  In addition, we skip this while in
     //  disguise...
-    if (disguise == null) renderHealthbars(rendering, base);
+    if (disguise == null) renderInformation(rendering, base);
   }
   
   
@@ -531,26 +533,65 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  protected void renderHealthbars(Rendering rendering, Base base) {
+  protected void renderInformation(Rendering rendering, Base base) {
     final boolean focused = BaseUI.isSelectedOrHovered(this);
     final boolean alarm =
       health.alive() && (base == base() || focused) &&
       (health.bleeding() || health.healthLevel() < 0.25f);
-    if ((! focused) && (! alarm)) return;
+    final Batch <Condition> status = traits.conditions();
     
-    label.matchTo(sprite());
-    label.position.z += height() + 0.25f;
-    label.phrase = fullName();
-    label.readyFor(rendering);
+    if (status.size() > 0) {
+      
+      //
+      //  TODO:  You need a dedicated FX-class to handle this sort of thing!
+      //         (Unify with the shortage-displays at venues!)
+      
+      if (statusFX == null) {
+        statusFX = new Stack();
+      }
+      loop: for (Condition c : status) {
+        if (c.iconModel == null) continue;
+        for (Sprite s : statusFX) if (s.model() == c.iconModel) continue loop;
+        statusFX.add(c.iconModel.makeSprite());
+      }
+      for (Sprite s : statusFX) {
+        boolean used = false;
+        for (Condition c : status) if (c.iconModel == s.model()) used = true;
+        if (! used) statusFX.remove(s);
+      }
+      
+      float baseTime = world.currentTime(), scale = 0.25f;
+      CutoutSprite.layoutAbove(
+        sprite().position, 0, height() + 0.5f, 0,
+        rendering.view, scale, statusFX
+      );
+      for (Sprite s : statusFX) {
+        float time = baseTime;
+        time = (time + (statusFX.indexOf(s) * 0.25f)) % 1;
+        time =  time * (1 - time) * 4;
+        
+        s.scale  = scale;
+        s.colour = Colour.transparency(time);
+        s.readyFor(rendering);
+      }
+    }
+    else statusFX = null;
+    
+    if (focused || alarm) {
+      label.matchTo(sprite());
+      label.position.z += height() + 0.25f;
+      label.phrase = fullName();
+      label.readyFor(rendering);
 
-    if (health.dying()) return;
-    
-    healthbar.matchTo(sprite());
-    healthbar.level = (1 - health.injuryLevel());
-    healthbar.colour = base().colour();
-    healthbar.size = 35;
-    healthbar.position.z += height() + 0.1f;
-    healthbar.readyFor(rendering);
+      if (health.dying()) return;
+      
+      healthbar.matchTo(sprite());
+      healthbar.level  = (1 - health.injuryLevel());
+      healthbar.colour = base().colour();
+      healthbar.size   = (35 + health.maxHealth()) / 2f;
+      healthbar.position.z += height() + 0.1f;
+      healthbar.readyFor(rendering);
+    }
     
     if (chat.numPhrases() > 0) {
       chat.position.setTo(sprite().position);

@@ -386,34 +386,3 @@ public abstract class Fauna extends Actor {
 
 
 
-
-
-
-/*
-protected Behaviour nextResting() {
-  Target restPoint = this.origin();
-  final Nest nest = (Nest) this.mind.home();
-  if (nest != null && nest.inWorld() && nest.structure.intact()) {
-    restPoint = nest;
-  }
-  final Action rest = new Action(
-    this, restPoint,
-    this, "actionRest",
-    Action.FALL, "Resting"
-  );
-  final float fatigue = health.fatigueLevel();
-  
-  final float priority = Action.IDLE + (fatigue * Action.PARAMOUNT);
-  rest.setPriority(priority);
-  return rest;
-}
-
-
-public boolean actionRest(Fauna actor, Target point) {
-  if (actor.health.fatigue() >= 1) {
-    actor.health.setState(ActorHealth.STATE_RESTING);
-  }
-  return true;
-}
-//*/
-

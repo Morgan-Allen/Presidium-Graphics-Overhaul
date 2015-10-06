@@ -21,29 +21,33 @@ public class Condition extends Trait {
   final public int modifiers[];
   
   
-  public Condition(String keyID, boolean basic, String... names) {
-    this(keyID, 0, 0, 0, new Table(), names);
-  }
-  
-  
-  public Condition(String keyID, Table effects, String... names) {
-    this(keyID, 0, 0, 0, effects, names);
+  public Condition(
+    Class baseClass, String keyID, boolean basic, String... names
+  ) {
+    this(baseClass, keyID, null, null, 0, 0, 0, new Table(), names);
   }
   
   
   public Condition(
-    String keyID,
+    Class baseClass, String keyID, Table effects, String... names
+  ) {
+    this(baseClass, keyID, null, null, 0, 0, 0, effects, names);
+  }
+  
+  
+  public Condition(
+    Class baseClass, String keyID, String description, String iconPath,
     float latency, float virulence, float spread,
     Table effects,
     String... names
   ) {
-    super(keyID, Qualities.CONDITION, names);
+    super(baseClass, keyID, description, iconPath, Qualities.CONDITION, names);
     this.latency   = Nums.max(latency, 0.1f);
     this.virulence = virulence;
     this.spread    = spread   ;
     
     this.affected  = new Trait[effects.size()];
-    this.modifiers = new int[effects.size()];
+    this.modifiers = new int  [effects.size()];
     int i = 0; for (Object k : effects.keySet()) {
       modifiers[i] = (Integer) effects.get(k);
       affected[i++] = (Trait) k;

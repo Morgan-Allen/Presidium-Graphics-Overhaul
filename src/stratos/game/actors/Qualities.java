@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
-import stratos.game.common.Actor;
 import stratos.util.*;
 
 
@@ -14,6 +13,7 @@ import stratos.util.*;
 //  technique or a trait-variant.
 
 
+//  Endurance.  Percept.  Intellect.
 
 //  Close Combat.      Medicine.
 //  Marksmanship.      Engineering.
@@ -22,10 +22,10 @@ import stratos.util.*;
 //  Athletics.         Music & Song.
 //  Diplomacy.         Handicrafts.
 
-//  Psyonics    Palatine Way <> Xenopath Way
+//  Psyonics:   Palatine Way <> Xenopath Way
 //  Logician Training   <> Jil Baru Training
 //  Collective Training <> Navigator Training
-//  LENS Training       <> Tek Priest Training
+//  LENSr Training      <> Tek Priest Training
 
 
 
@@ -53,20 +53,22 @@ public interface Qualities {
   
   final static int
     FORM_NATURAL   = 0,
-    FORM_PHYSICAL  = 1,
-    FORM_SENSITIVE = 2,
-    FORM_COGNITIVE = 3,
-    FORM_PSYONIC   = 4,
+    FORM_PHYSICAL  = 1, //Phys.
+    FORM_SENSITIVE = 2, //Sens.
+    FORM_COGNITIVE = 3, //Intel.
+    FORM_PSYONIC   = 4, //Psy.
     FORM_INSTINCT  = 5;
+  
+  final static Class BC = Qualities.class;
   
   
   final public static Skill
-    IMMUNE    = new Skill("Immune"   , FORM_NATURAL, null),
-    MUSCULAR  = new Skill("Muscular" , FORM_NATURAL, null),
-    MOTOR     = new Skill("Motor"    , FORM_NATURAL, null),
-    PERCEPT   = new Skill("Percept"  , FORM_NATURAL, null),
-    COGNITION = new Skill("Cognition", FORM_NATURAL, null),
-    NERVE     = new Skill("Nerve"    , FORM_NATURAL, null),
+    IMMUNE    = new Skill(BC, "Immune"   , FORM_NATURAL, null),
+    MUSCULAR  = new Skill(BC, "Muscular" , FORM_NATURAL, null),
+    MOTOR     = new Skill(BC, "Motor"    , FORM_NATURAL, null),
+    PERCEPT   = new Skill(BC, "Percept"  , FORM_NATURAL, null),
+    COGNITION = new Skill(BC, "Cognition", FORM_NATURAL, null),
+    NERVE     = new Skill(BC, "Nerve"    , FORM_NATURAL, null),
     ATTRIBUTES[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   
@@ -74,49 +76,49 @@ public interface Qualities {
   final public static Skill
     //
     //  For the benefit of animals and non-human species-
-    SCENTING       = new Skill("Scenting"      , FORM_INSTINCT, PERCEPT  ),
-    LIMB_AND_MAW   = new Skill("Limb and Maw"  , FORM_INSTINCT, MOTOR    ),
-    NESTING        = new Skill("Nesting"       , FORM_INSTINCT, PERCEPT  ),
-    MIMESIS        = new Skill("Mimesis"       , FORM_INSTINCT, MOTOR    ),
-    PHEREMONIST    = new Skill("Pheremonist"   , FORM_INSTINCT, NERVE    ),
-    IMMANENCE      = new Skill("Immanence"     , FORM_INSTINCT, COGNITION),
+    SCENTING       = new Skill(BC, "Scenting"      , FORM_INSTINCT, PERCEPT  ),
+    LIMB_AND_MAW   = new Skill(BC, "Limb and Maw"  , FORM_INSTINCT, MOTOR    ),
+    NESTING        = new Skill(BC, "Nesting"       , FORM_INSTINCT, PERCEPT  ),
+    MIMESIS        = new Skill(BC, "Mimesis"       , FORM_INSTINCT, MOTOR    ),
+    PHEREMONIST    = new Skill(BC, "Pheremonist"   , FORM_INSTINCT, NERVE    ),
+    IMMANENCE      = new Skill(BC, "Immanence"     , FORM_INSTINCT, COGNITION),
     
     INSTINCT_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
     //
     //  Artifice-related skills:
-    ASSEMBLY       = new Skill("Assembly"      , FORM_COGNITIVE, COGNITION),
-    CHEMISTRY      = new Skill("Chemistry"     , FORM_COGNITIVE, COGNITION),
-    INSCRIPTION    = new Skill("Inscription"   , FORM_COGNITIVE, COGNITION),
-    FIELD_THEORY   = new Skill("Field Theory"  , FORM_COGNITIVE, COGNITION),
-    ASTROGATION    = new Skill("Astrogation"   , FORM_COGNITIVE, COGNITION),
-    SIMULACRA      = new Skill("Simulacra"     , FORM_COGNITIVE, COGNITION),
+    ASSEMBLY       = new Skill(BC, "Assembly"      , FORM_COGNITIVE, COGNITION),
+    CHEMISTRY      = new Skill(BC, "Chemistry"     , FORM_COGNITIVE, COGNITION),
+    INSCRIPTION    = new Skill(BC, "Inscription"   , FORM_COGNITIVE, COGNITION),
+    FIELD_THEORY   = new Skill(BC, "Field Theory"  , FORM_COGNITIVE, COGNITION),
+    ASTROGATION    = new Skill(BC, "Astrogation"   , FORM_COGNITIVE, COGNITION),
+    SIMULACRA      = new Skill(BC, "Simulacra"     , FORM_COGNITIVE, COGNITION),
     ARTIFICER_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Ecology-related skills:
-    XENOZOOLOGY    = new Skill("Xenozoology"   , FORM_COGNITIVE, COGNITION),
-    CULTIVATION    = new Skill("Cultivation"   , FORM_COGNITIVE, COGNITION),
-    GEOPHYSICS     = new Skill("Geophysics"    , FORM_COGNITIVE, COGNITION),
-    CETANI_ECOLOGY = new Skill("Cetani Ecology", FORM_COGNITIVE, COGNITION),
-    ALBEDO_ECOLOGY = new Skill("Albedo Ecology", FORM_COGNITIVE, COGNITION),
-    SILICO_ECOLOGY = new Skill("Silico Ecology", FORM_COGNITIVE, COGNITION),
+    XENOZOOLOGY    = new Skill(BC, "Xenozoology"   , FORM_COGNITIVE, COGNITION),
+    CULTIVATION    = new Skill(BC, "Cultivation"   , FORM_COGNITIVE, COGNITION),
+    GEOPHYSICS     = new Skill(BC, "Geophysics"    , FORM_COGNITIVE, COGNITION),
+    CETANI_ECOLOGY = new Skill(BC, "Cetani Ecology", FORM_COGNITIVE, COGNITION),
+    ALBEDO_ECOLOGY = new Skill(BC, "Albedo Ecology", FORM_COGNITIVE, COGNITION),
+    SILICO_ECOLOGY = new Skill(BC, "Silico Ecology", FORM_COGNITIVE, COGNITION),
     ECOLOGIST_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Physician-related skills:
-    PHARMACY       = new Skill("Pharmacy"      , FORM_COGNITIVE, COGNITION),
-    GENE_CULTURE   = new Skill("Gene Culture"  , FORM_COGNITIVE, COGNITION),
-    ANATOMY        = new Skill("Anatomy"       , FORM_COGNITIVE, COGNITION),
-    PSYCHOANALYSIS = new Skill("Psychoanalysis", FORM_COGNITIVE, COGNITION),
-    FORENSICS      = new Skill("Forensics"     , FORM_COGNITIVE, COGNITION),
-    SOCIAL_HISTORY = new Skill("Social History", FORM_COGNITIVE, COGNITION),
+    PHARMACY       = new Skill(BC, "Pharmacy"      , FORM_COGNITIVE, COGNITION),
+    GENE_CULTURE   = new Skill(BC, "Gene Culture"  , FORM_COGNITIVE, COGNITION),
+    ANATOMY        = new Skill(BC, "Anatomy"       , FORM_COGNITIVE, COGNITION),
+    PSYCHOANALYSIS = new Skill(BC, "Psychoanalysis", FORM_COGNITIVE, COGNITION),
+    FORENSICS      = new Skill(BC, "Forensics"     , FORM_COGNITIVE, COGNITION),
+    SOCIAL_HISTORY = new Skill(BC, "Social History", FORM_COGNITIVE, COGNITION),
     PHYSICIAN_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Research and governance:
-    BATTLE_TACTICS = new Skill("Battle Tactics", FORM_COGNITIVE, COGNITION),
-    ACCOUNTING     = new Skill("Accounting"    , FORM_COGNITIVE, COGNITION),
-    ANCIENT_LORE   = new Skill("Ancient Lore"  , FORM_COGNITIVE, COGNITION),
-    LEGISLATION    = new Skill("Legislation"   , FORM_COGNITIVE, COGNITION),
+    BATTLE_TACTICS = new Skill(BC, "Battle Tactics", FORM_COGNITIVE, COGNITION),
+    ACCOUNTING     = new Skill(BC, "Accounting"    , FORM_COGNITIVE, COGNITION),
+    ANCIENT_LORE   = new Skill(BC, "Ancient Lore"  , FORM_COGNITIVE, COGNITION),
+    LEGISLATION    = new Skill(BC, "Legislation"   , FORM_COGNITIVE, COGNITION),
     ADMIN_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     
     COGNITIVE_SKILLS[] = (Skill[]) Visit.compose(
@@ -127,58 +129,58 @@ public interface Qualities {
   final public static Skill
     //
     //  Methods of persuasion:
-    COMMAND           = new Skill("Command"        , FORM_SENSITIVE, PERCEPT),
-    SUASION           = new Skill("Suasion"        , FORM_SENSITIVE, PERCEPT),
-    COUNSEL           = new Skill("Counsel"        , FORM_SENSITIVE, PERCEPT),
-    TRUTH_SENSE       = new Skill("Truth Sense"    , FORM_SENSITIVE, PERCEPT),
+    COMMAND           = new Skill(BC, "Command"        , FORM_SENSITIVE, PERCEPT),
+    SUASION           = new Skill(BC, "Suasion"        , FORM_SENSITIVE, PERCEPT),
+    COUNSEL           = new Skill(BC, "Counsel"        , FORM_SENSITIVE, PERCEPT),
+    TRUTH_SENSE       = new Skill(BC, "Truth Sense"    , FORM_SENSITIVE, PERCEPT),
     //
     //  Knowing the language and culture:
-    NATIVE_TABOO      = new Skill("Native Taboo"   , FORM_SENSITIVE, PERCEPT),
-    COMMON_CUSTOM     = new Skill("Common Custom"  , FORM_SENSITIVE, PERCEPT),
-    NOBLE_ETIQUETTE   = new Skill("Noble Etiquette", FORM_SENSITIVE, PERCEPT),
-    OUTER_DIALECTS    = new Skill("Outer Dialects" , FORM_SENSITIVE, PERCEPT),
-    REPUBLIC_LAWS     = new Skill("Republic Laws"  , FORM_SENSITIVE, PERCEPT),
-    IMPERIAL_DOGMA    = new Skill("Imperial Dogma" , FORM_SENSITIVE, PERCEPT),
+    NATIVE_TABOO      = new Skill(BC, "Native Taboo"   , FORM_SENSITIVE, PERCEPT),
+    COMMON_CUSTOM     = new Skill(BC, "Common Custom"  , FORM_SENSITIVE, PERCEPT),
+    NOBLE_ETIQUETTE   = new Skill(BC, "Noble Etiquette", FORM_SENSITIVE, PERCEPT),
+    OUTER_DIALECTS    = new Skill(BC, "Outer Dialects" , FORM_SENSITIVE, PERCEPT),
+    REPUBLIC_LAWS     = new Skill(BC, "Republic Laws"  , FORM_SENSITIVE, PERCEPT),
+    IMPERIAL_DOGMA    = new Skill(BC, "Imperial Dogma" , FORM_SENSITIVE, PERCEPT),
     //
     //  Forms of artistic expression/entertainment:
-    EROTICS           = new Skill("Erotics"        , FORM_SENSITIVE, MOTOR  ),
-    MASQUERADE        = new Skill("Masquerade"     , FORM_SENSITIVE, PERCEPT),
-    MUSIC_AND_SONG    = new Skill("Music and Song" , FORM_SENSITIVE, MOTOR  ),
-    GRAPHIC_DESIGN    = new Skill("Graphic Design" , FORM_SENSITIVE, PERCEPT),
+    EROTICS           = new Skill(BC, "Erotics"        , FORM_SENSITIVE, MOTOR  ),
+    MASQUERADE        = new Skill(BC, "Masquerade"     , FORM_SENSITIVE, PERCEPT),
+    MUSIC_AND_SONG    = new Skill(BC, "Music and Song" , FORM_SENSITIVE, MOTOR  ),
+    GRAPHIC_DESIGN    = new Skill(BC, "Graphic Design" , FORM_SENSITIVE, PERCEPT),
     
     SENSITIVE_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
     //
     //  Direct combat skills:
-    FORMATION_COMBAT  = new Skill("Formation Combat" , FORM_PHYSICAL, NERVE),
-    MARKSMANSHIP      = new Skill("Marksmanship"     , FORM_PHYSICAL, MOTOR),
-    HAND_TO_HAND      = new Skill("Hand to Hand"     , FORM_PHYSICAL, MOTOR),
-    SHIELD_AND_ARMOUR = new Skill("Shield and Armour", FORM_PHYSICAL, MOTOR),
-    HEAVY_WEAPONS     = new Skill("Heavy Weapons"    , FORM_PHYSICAL, MOTOR),
-    FIREARMS          = new Skill("Firearms"         , FORM_PHYSICAL, MOTOR),
+    FORMATION_COMBAT  = new Skill(BC, "Formation Combat" , FORM_PHYSICAL, NERVE),
+    MARKSMANSHIP      = new Skill(BC, "Marksmanship"     , FORM_PHYSICAL, MOTOR),
+    HAND_TO_HAND      = new Skill(BC, "Hand to Hand"     , FORM_PHYSICAL, MOTOR),
+    SHIELD_AND_ARMOUR = new Skill(BC, "Shield and Armour", FORM_PHYSICAL, MOTOR),
+    HEAVY_WEAPONS     = new Skill(BC, "Heavy Weapons"    , FORM_PHYSICAL, MOTOR),
+    FIREARMS          = new Skill(BC, "Firearms"         , FORM_PHYSICAL, MOTOR),
     //
     //  Exploration and mobility:
-    ATHLETICS         = new Skill("Athletics"        , FORM_PHYSICAL, NERVE),
-    PILOTING          = new Skill("Piloting"         , FORM_PHYSICAL, MOTOR),
-    SURVEILLANCE      = new Skill("Surveillance"     , FORM_PHYSICAL, MOTOR),
-    STEALTH_AND_COVER = new Skill("Stealth and Cover", FORM_PHYSICAL, MOTOR),
+    ATHLETICS         = new Skill(BC, "Athletics"        , FORM_PHYSICAL, NERVE),
+    PILOTING          = new Skill(BC, "Piloting"         , FORM_PHYSICAL, MOTOR),
+    SURVEILLANCE      = new Skill(BC, "Surveillance"     , FORM_PHYSICAL, MOTOR),
+    STEALTH_AND_COVER = new Skill(BC, "Stealth and Cover", FORM_PHYSICAL, MOTOR),
     //
     //  General patience and elbow grease:
-    HANDICRAFTS       = new Skill("Handicrafts"      , FORM_PHYSICAL, MOTOR),
-    HARD_LABOUR       = new Skill("Hard Labour"      , FORM_PHYSICAL, NERVE),
-    DOMESTICS         = new Skill("Domestics"        , FORM_PHYSICAL, MOTOR),
-    BODY_MEDITATION   = new Skill("Body Meditation"  , FORM_PHYSICAL, NERVE),
+    HANDICRAFTS       = new Skill(BC, "Handicrafts"      , FORM_PHYSICAL, MOTOR),
+    HARD_LABOUR       = new Skill(BC, "Hard Labour"      , FORM_PHYSICAL, NERVE),
+    DOMESTICS         = new Skill(BC, "Domestics"        , FORM_PHYSICAL, MOTOR),
+    BODY_MEDITATION   = new Skill(BC, "Body Meditation"  , FORM_PHYSICAL, NERVE),
     
     PHYSICAL_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
-    SUGGESTION   = new Skill("Suggestion"  , FORM_PSYONIC, NERVE),
-    SYNESTHESIA  = new Skill("Synesthesia" , FORM_PSYONIC, NERVE),
-    METABOLISM   = new Skill("Metabolism"  , FORM_PSYONIC, NERVE),
-    TRANSDUCTION = new Skill("Transduction", FORM_PSYONIC, NERVE),
-    PROJECTION   = new Skill("Projection"  , FORM_PSYONIC, NERVE),
-    PREMONITION  = new Skill("Premonition" , FORM_PSYONIC, NERVE),
+    SUGGESTION   = new Skill(BC, "Suggestion"  , FORM_PSYONIC, NERVE),
+    SYNESTHESIA  = new Skill(BC, "Synesthesia" , FORM_PSYONIC, NERVE),
+    METABOLISM   = new Skill(BC, "Metabolism"  , FORM_PSYONIC, NERVE),
+    TRANSDUCTION = new Skill(BC, "Transduction", FORM_PSYONIC, NERVE),
+    PROJECTION   = new Skill(BC, "Projection"  , FORM_PSYONIC, NERVE),
+    PREMONITION  = new Skill(BC, "Premonition" , FORM_PSYONIC, NERVE),
     
     PSYONIC_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
@@ -190,48 +192,48 @@ public interface Qualities {
   
   //  TODO:  I think only about half of these are needed.
   public static Trait
-    DEFENSIVE  = new Trait("Defensive", PERSONALITY, "Defensive"),
-    CRITICAL   = new Trait("Critical", PERSONALITY, "Critical"),
-    NERVOUS    = new Trait("Nervous", PERSONALITY, "Nervous"),
+    DEFENSIVE  = new Trait(BC, "Defensive", PERSONALITY, "Defensive"),
+    CRITICAL   = new Trait(BC, "Critical", PERSONALITY, "Critical"),
+    NERVOUS    = new Trait(BC, "Nervous", PERSONALITY, "Nervous"),
     
-    CALM       = new Trait("Calm", PERSONALITY, "Calm"),
-    POSITIVE   = new Trait("Positive", PERSONALITY, "Positive"),
-    FEARLESS   = new Trait("Fearless", PERSONALITY, "Fearless"),
+    CALM       = new Trait(BC, "Calm", PERSONALITY, "Calm"),
+    POSITIVE   = new Trait(BC, "Positive", PERSONALITY, "Positive"),
+    FEARLESS   = new Trait(BC, "Fearless", PERSONALITY, "Fearless"),
     
-    CRUEL       = new Trait("Cruel", PERSONALITY, "Cruel"),
-    DISHONEST   = new Trait("Dishonest", PERSONALITY, "Dishonest"),
-    ACQUISITIVE = new Trait("Acquisitive", PERSONALITY, "Acquisitive"),
+    CRUEL       = new Trait(BC, "Cruel", PERSONALITY, "Cruel"),
+    DISHONEST   = new Trait(BC, "Dishonest", PERSONALITY, "Dishonest"),
+    ACQUISITIVE = new Trait(BC, "Acquisitive", PERSONALITY, "Acquisitive"),
     
-    EMPATHIC    = new Trait("Empathic", PERSONALITY, "Empathic"),
-    ETHICAL     = new Trait("Ethical", PERSONALITY, "Ethical"),
-    GENEROUS    = new Trait("Generous", PERSONALITY, "Generous"),
+    EMPATHIC    = new Trait(BC, "Empathic", PERSONALITY, "Empathic"),
+    ETHICAL     = new Trait(BC, "Ethical", PERSONALITY, "Ethical"),
+    GENEROUS    = new Trait(BC, "Generous", PERSONALITY, "Generous"),
     
-    SUBVERSIVE  = new Trait("Subversive", PERSONALITY, "Subversive"),
-    NATURALIST  = new Trait("Naturalist", PERSONALITY, "Naturalist"),
-    INDULGENT   = new Trait("Indulgent", PERSONALITY, "Indulgent"),
+    SUBVERSIVE  = new Trait(BC, "Subversive", PERSONALITY, "Subversive"),
+    NATURALIST  = new Trait(BC, "Naturalist", PERSONALITY, "Naturalist"),
+    INDULGENT   = new Trait(BC, "Indulgent", PERSONALITY, "Indulgent"),
     
-    DUTIFUL     = new Trait("Dutiful", PERSONALITY, "Dutiful"),
-    METICULOUS  = new Trait("Meticulous", PERSONALITY, "Urbane"),
-    ABSTINENT   = new Trait("Abstinent", PERSONALITY, "Abstinent"),
+    DUTIFUL     = new Trait(BC, "Dutiful", PERSONALITY, "Dutiful"),
+    METICULOUS  = new Trait(BC, "Meticulous", PERSONALITY, "Urbane"),
+    ABSTINENT   = new Trait(BC, "Abstinent", PERSONALITY, "Abstinent"),
     
-    CREATIVE    = new Trait("Creative", PERSONALITY, "Creative"),
-    CURIOUS     = new Trait("Curious", PERSONALITY, "Curious"),
-    IMPULSIVE   = new Trait("Impulsive", PERSONALITY, "Impulsive"),
+    CREATIVE    = new Trait(BC, "Creative", PERSONALITY, "Creative"),
+    CURIOUS     = new Trait(BC, "Curious", PERSONALITY, "Curious"),
+    IMPULSIVE   = new Trait(BC, "Impulsive", PERSONALITY, "Impulsive"),
     
-    TRADITIONAL = new Trait("Traditional", PERSONALITY, "Traditional"),
-    PATIENT     = new Trait("Patient", PERSONALITY, "Patient"),
-    STUBBORN    = new Trait("Stubborn", PERSONALITY, "Stubborn"),
+    TRADITIONAL = new Trait(BC, "Traditional", PERSONALITY, "Traditional"),
+    PATIENT     = new Trait(BC, "Patient", PERSONALITY, "Patient"),
+    STUBBORN    = new Trait(BC, "Stubborn", PERSONALITY, "Stubborn"),
     
-    AMBITIOUS   = new Trait("Ambitious", PERSONALITY, "Ambitious"),
-    ENERGETIC   = new Trait("Energetic", PERSONALITY, "Energetic"),
-    OUTGOING    = new Trait("Outgoing", PERSONALITY, "Outgoing"),
+    AMBITIOUS   = new Trait(BC, "Ambitious", PERSONALITY, "Ambitious"),
+    ENERGETIC   = new Trait(BC, "Energetic", PERSONALITY, "Energetic"),
+    OUTGOING    = new Trait(BC, "Outgoing", PERSONALITY, "Outgoing"),
     
-    HUMBLE      = new Trait("Humble", PERSONALITY, "Humble"),
-    RELAXED     = new Trait("Relaxed", PERSONALITY, "Relaxed"),
-    SOLITARY    = new Trait("Solitary", PERSONALITY, "Solitary"),
+    HUMBLE      = new Trait(BC, "Humble", PERSONALITY, "Humble"),
+    RELAXED     = new Trait(BC, "Relaxed", PERSONALITY, "Relaxed"),
+    SOLITARY    = new Trait(BC, "Solitary", PERSONALITY, "Solitary"),
     
-    EXCITABLE   = new Trait("Excitable", PERSONALITY, "Excitable"),
-    IMPASSIVE   = new Trait("Impassive", PERSONALITY, "Impassive"),
+    EXCITABLE   = new Trait(BC, "Excitable", PERSONALITY, "Excitable"),
+    IMPASSIVE   = new Trait(BC, "Impassive", PERSONALITY, "Impassive"),
     
     PERSONALITY_TRAITS[] = Personality.setupRelations(
       Trait.TRAIT_INDEX.soFar(Trait.class)
@@ -243,7 +245,7 @@ public interface Qualities {
     //  but do wax and wane based on aging, in a fashion similar to basic
     //  attributes.  TODO:  Implement that.
     
-    FEMININE = new Trait("Sex Traits", PHYSICAL,
+    FEMININE = new Trait(BC, "Sex Traits", PHYSICAL,
       "Busty",
       "Curvy",
       "Gamine",
@@ -252,7 +254,7 @@ public interface Qualities {
       "Bearded",
       "Hirsute"
     ),
-    HANDSOME = new Trait("Appearance", PHYSICAL,
+    HANDSOME = new Trait(BC, "Appearance", PHYSICAL,
       "Stunning",
       "Beautiful",
       "Handsome",
@@ -261,7 +263,7 @@ public interface Qualities {
       "Ugly",
       "Hideous"
     ),
-    TALL = new Trait("Height", PHYSICAL,
+    TALL = new Trait(BC, "Height", PHYSICAL,
       "Towering",
       "Big",
       "Tall",
@@ -270,7 +272,7 @@ public interface Qualities {
       "Small",
       "Diminutive"
     ),
-    STOUT = new Trait("Stoutness", PHYSICAL,
+    STOUT = new Trait(BC, "Stoutness", PHYSICAL,
       "Rotund",
       "Stout",
       "Sturdy",
@@ -283,38 +285,38 @@ public interface Qualities {
     
     //
     //  Categoric traits are qualitative physical traits unaffected by aging.
-    ORIENTATION = new Trait("Orientation", CATEGORIC,
+    ORIENTATION = new Trait(BC, "Orientation", CATEGORIC,
       "Heterosexual",
       "Bisexual",
       "Homosexual",
       null
     ),
-    GENDER_MALE   = new Trait("Male"  , CATEGORIC, "Male"  ),
-    GENDER_FEMALE = new Trait("Female", CATEGORIC, "Female"),
+    GENDER_MALE   = new Trait(BC, "Male"  , CATEGORIC, "Male"  ),
+    GENDER_FEMALE = new Trait(BC, "Female", CATEGORIC, "Female"),
     
-    DESERT_BLOOD = new Trait("Desert Blood", CATEGORIC,
+    DESERT_BLOOD = new Trait(BC, "Desert Blood", CATEGORIC,
       "Desert Blood", // "Desertborn", "Dark"
       null
     ),
-    TUNDRA_BLOOD = new Trait("Tundra Blood", CATEGORIC,
+    TUNDRA_BLOOD = new Trait(BC, "Tundra Blood", CATEGORIC,
       "Tundra Blood", // "Tundraborn", "Sallow"
       null
     ),
-    FOREST_BLOOD = new Trait("Forest Blood", CATEGORIC,
+    FOREST_BLOOD = new Trait(BC, "Forest Blood", CATEGORIC,
       "Forest Blood", //  "Forestborn", "Tan"
       null
     ),
-    WASTES_BLOOD = new Trait("Wastes Blood", CATEGORIC,
+    WASTES_BLOOD = new Trait(BC, "Wastes Blood", CATEGORIC,
       "Wastes Blood", //  "Wastesborn", "Pale"
       null
     ),
-    MUTATION = new Trait("Mutation", CATEGORIC,
+    MUTATION = new Trait(BC, "Mutation", CATEGORIC,
       "Major Mutation",
       "Minor Mutation",
       "Nominal Mutation",
       null
     ),
-    PSYONIC = new Trait("Psyonic", CATEGORIC,
+    PSYONIC = new Trait(BC, "Psyonic", CATEGORIC,
       "Psyon"
     ),
     RACIAL_TRAITS[] = {
@@ -333,29 +335,29 @@ public interface Qualities {
 //  TODO:  Put these in a separate class, so you can concisely describe their
 //  effects.
 final public static Trait
-PSYONIC        = new Trait(PHYSICAL, "Psyonic"       ),
-REGENERATIVE   = new Trait(PHYSICAL, "Regenerative"  ),
-SUPERCOGNITIVE = new Trait(PHYSICAL, "Supercognitive"),
-JUMPER         = new Trait(PHYSICAL, "Jumper"        ),
-HYPERPHYSICAL  = new Trait(PHYSICAL, "Hyperphysical" ),
-CHAMELEON      = new Trait(PHYSICAL, "Chameleon"     ),
-ULTRASENSITIVE = new Trait(PHYSICAL, "Ultrasensitive"),
-VENOMOUS       = new Trait(PHYSICAL, "Venomous"      ),
-PHASE_SHIFTER  = new Trait(PHYSICAL, "Phase Shifter" ),
-GILLED         = new Trait(PHYSICAL, "Gilled"        ),
-FOUR_ARMED     = new Trait(PHYSICAL, "Four Armed"    ),
-ODD_COLOUR     = new Trait(PHYSICAL, "Odd Colour"    ),
-ECCENTRIC      = new Trait(PHYSICAL, "Eccentric"     ),
-STERILE        = new Trait(PHYSICAL, "Sterile"       ),
-FURRED         = new Trait(PHYSICAL, "Furred"        ),
-SCALY          = new Trait(PHYSICAL, "Scaly"         ),
-SICKLY         = new Trait(PHYSICAL, "Sickly"        ),
-DISTURBED      = new Trait(PHYSICAL, "Disturbed"     ),
-DEFORMED       = new Trait(PHYSICAL, "Deformed"      ),
-LEPROUS        = new Trait(PHYSICAL, "Leprous"       ),
-NULL_EMPATH    = new Trait(PHYSICAL, "Null Empath"   ),
-ATAVIST        = new Trait(PHYSICAL, "Atavist"       ),
-ABOMINATION    = new Trait(PHYSICAL, "Abomination"   ),
+PSYONIC        = new Trait(BC, PHYSICAL, "Psyonic"       ),
+REGENERATIVE   = new Trait(BC, PHYSICAL, "Regenerative"  ),
+SUPERCOGNITIVE = new Trait(BC, PHYSICAL, "Supercognitive"),
+JUMPER         = new Trait(BC, PHYSICAL, "Jumper"        ),
+HYPERPHYSICAL  = new Trait(BC, PHYSICAL, "Hyperphysical" ),
+CHAMELEON      = new Trait(BC, PHYSICAL, "Chameleon"     ),
+ULTRASENSITIVE = new Trait(BC, PHYSICAL, "Ultrasensitive"),
+VENOMOUS       = new Trait(BC, PHYSICAL, "Venomous"      ),
+PHASE_SHIFTER  = new Trait(BC, PHYSICAL, "Phase Shifter" ),
+GILLED         = new Trait(BC, PHYSICAL, "Gilled"        ),
+FOUR_ARMED     = new Trait(BC, PHYSICAL, "Four Armed"    ),
+ODD_COLOUR     = new Trait(BC, PHYSICAL, "Odd Colour"    ),
+ECCENTRIC      = new Trait(BC, PHYSICAL, "Eccentric"     ),
+STERILE        = new Trait(BC, PHYSICAL, "Sterile"       ),
+FURRED         = new Trait(BC, PHYSICAL, "Furred"        ),
+SCALY          = new Trait(BC, PHYSICAL, "Scaly"         ),
+SICKLY         = new Trait(BC, PHYSICAL, "Sickly"        ),
+DISTURBED      = new Trait(BC, PHYSICAL, "Disturbed"     ),
+DEFORMED       = new Trait(BC, PHYSICAL, "Deformed"      ),
+LEPROUS        = new Trait(BC, PHYSICAL, "Leprous"       ),
+NULL_EMPATH    = new Trait(BC, PHYSICAL, "Null Empath"   ),
+ATAVIST        = new Trait(BC, PHYSICAL, "Atavist"       ),
+ABOMINATION    = new Trait(BC, PHYSICAL, "Abomination"   ),
 MUTANT_TRAITS[] = Trait.traitsSoFar();
 //*/
 
@@ -370,23 +372,23 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
   //    Sessile/Changeling/Blossom Node, Larva/Worker/Soldier/Queen, Jovian.
 
 
-    PRIME_DIRECTIVES    = new Trait("Prime Directives"   , Type.SUPERNORMAL),
-    ARTILECT            = new Trait("Artilect"           , Type.SUPERNORMAL),
-    SILICATE_METABOLISM = new Trait("Silicate Metabolism", Type.SUPERNORMAL),
-    MINDLESS            = new Trait("Mindless"           , Type.SUPERNORMAL),
-    ANCIENT             = new Trait("Ancient"            , Type.SUPERNORMAL),
-    HUMANOID            = new Trait("Humanoid"           , Type.INNATE     ),
-    INSECTILE           = new Trait("Insectile"          , Type.SUPERNORMAL),
-    PLANT_METABOLISM    = new Trait("Plant Metabolism"   , Type.SUPERNORMAL),
-    IMMOBILE            = new Trait("Immobile"           , Type.SUPERNORMAL),
-    XENOMORPH           = new Trait("Xenomorph"          , Type.SUPERNORMAL),
-    AMORPHOUS           = new Trait("Amorphous"          , Type.SUPERNORMAL),
-    MELDED              = new Trait("Melded"             , Type.SUPERNORMAL),
-    PART_CYBORG         = new Trait("Part Cyborg"        , Type.ACQUIRED   ),
-    FULL_CYBORG         = new Trait("Full Cyborg"        , Type.ACQUIRED   ),
-    FAST_METABOLISM     = new Trait("Fast Metabolism"    , Type.INNATE     ),
-    LONG_LIVED          = new Trait("Long Lived"         , Type.INNATE     ),
-    IMMORTAL            = new Trait("Immortal"           , Type.SUPERNORMAL),
+    PRIME_DIRECTIVES    = new Trait(BC, "Prime Directives"   , Type.SUPERNORMAL),
+    ARTILECT            = new Trait(BC, "Artilect"           , Type.SUPERNORMAL),
+    SILICATE_METABOLISM = new Trait(BC, "Silicate Metabolism", Type.SUPERNORMAL),
+    MINDLESS            = new Trait(BC, "Mindless"           , Type.SUPERNORMAL),
+    ANCIENT             = new Trait(BC, "Ancient"            , Type.SUPERNORMAL),
+    HUMANOID            = new Trait(BC, "Humanoid"           , Type.INNATE     ),
+    INSECTILE           = new Trait(BC, "Insectile"          , Type.SUPERNORMAL),
+    PLANT_METABOLISM    = new Trait(BC, "Plant Metabolism"   , Type.SUPERNORMAL),
+    IMMOBILE            = new Trait(BC, "Immobile"           , Type.SUPERNORMAL),
+    XENOMORPH           = new Trait(BC, "Xenomorph"          , Type.SUPERNORMAL),
+    AMORPHOUS           = new Trait(BC, "Amorphous"          , Type.SUPERNORMAL),
+    MELDED              = new Trait(BC, "Melded"             , Type.SUPERNORMAL),
+    PART_CYBORG         = new Trait(BC, "Part Cyborg"        , Type.ACQUIRED   ),
+    FULL_CYBORG         = new Trait(BC, "Full Cyborg"        , Type.ACQUIRED   ),
+    FAST_METABOLISM     = new Trait(BC, "Fast Metabolism"    , Type.INNATE     ),
+    LONG_LIVED          = new Trait(BC, "Long Lived"         , Type.INNATE     ),
+    IMMORTAL            = new Trait(BC, "Immortal"           , Type.SUPERNORMAL),
     SPECIES_TRAITS[] = Trait.traitsSoFar(),
     
     ALL_TRAITS[] = Trait.allTraits()
@@ -408,7 +410,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
   
   //
   //  BASIC IMPULSES-
-  NERVOUS = new Trait(PERSONALITY,
+  NERVOUS = new Trait(BC, PERSONALITY,
     "Cowardly",
     "Nervous",
     "Cautious",
@@ -417,7 +419,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Fearless",
     "Reckless"
   ),
-  AGGRESSIVE = new Trait(PERSONALITY,
+  AGGRESSIVE = new Trait(BC, PERSONALITY,
     "Vengeful",
     "Aggressive",
     "Defensive",
@@ -426,7 +428,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Gentle",
     "Pacifist"
   ),
-  FRIENDLY = new Trait(PERSONALITY,
+  FRIENDLY = new Trait(BC, PERSONALITY,
     "Fawning",
     "Complimentary",
     "Friendly",
@@ -435,7 +437,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Critical",
     "Caustic"
   ),
-  OPTIMISTIC = new Trait(PERSONALITY,
+  OPTIMISTIC = new Trait(BC, PERSONALITY,
     "Blithe",
     "Optimistic",
     "Cheerful",
@@ -444,7 +446,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Pessimistic",
     "Morose"
   ),
-  DEBAUCHED = new Trait(PERSONALITY,
+  DEBAUCHED = new Trait(BC, PERSONALITY,
     "Debauched",
     "Lusty",
     "Fun",
@@ -453,7 +455,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Abstinent",
     "Ascetic"
   ),
-  APPETITE = new Trait(PERSONALITY,
+  APPETITE = new Trait(BC, PERSONALITY,
     "Gluttonous",
     "Big Appetite",
     "Gourmand",
@@ -465,7 +467,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
   
   //
   //  META-DECISIONAL-
-  STUBBORN = new Trait(PERSONALITY,
+  STUBBORN = new Trait(BC, PERSONALITY,
     "Obstinate",
     "Stubborn",
     "Persistent",
@@ -474,7 +476,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Impulsive",
     "Fickle"
   ),
-  INQUISITIVE = new Trait(PERSONALITY,
+  INQUISITIVE = new Trait(BC, PERSONALITY,
     "Insatiably Curious",
     "Inquisitive",
     "Curious",
@@ -483,7 +485,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Disinterested",
     "Dull"
   ),
-  SOCIABLE = new Trait(PERSONALITY,
+  SOCIABLE = new Trait(BC, PERSONALITY,
     "Gregarious",
     "Sociable",
     "Open",
@@ -492,7 +494,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Solitary",
     "Withdrawn"
   ),
-  DUTIFUL = new Trait(PERSONALITY,
+  DUTIFUL = new Trait(BC, PERSONALITY,
     "Obedient",
     "Dutiful",
     "Respectful of Betters",
@@ -501,7 +503,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Rebellious",
     "Anarchic"
   ),
-  IMPASSIVE = new Trait(PERSONALITY,
+  IMPASSIVE = new Trait(BC, PERSONALITY,
     "Emotionless",
     "Impassive",
     "Rational",
@@ -510,7 +512,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Excitable",
     "Manic"
   ),
-  INDOLENT = new Trait(PERSONALITY,
+  INDOLENT = new Trait(BC, PERSONALITY,
     "Lethargic",
     "Indolent",
     "Relaxed",
@@ -522,7 +524,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
   
   //
   //  CULTURAL/ETHICAL-
-  TRADITIONAL = new Trait(PERSONALITY,
+  TRADITIONAL = new Trait(BC, PERSONALITY,
     "Hidebound",
     "Traditional",
     "Old-fashioned",
@@ -531,7 +533,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Radical",
     "Subversive"
   ),
-  NATURALIST = new Trait(PERSONALITY,
+  NATURALIST = new Trait(BC, PERSONALITY,
     "Gone Feral",
     "Ecophile",
     "Naturalist",
@@ -540,7 +542,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Industrialist",
     "Antiseptic"
   ),
-  ACQUISITIVE = new Trait(PERSONALITY,
+  ACQUISITIVE = new Trait(BC, PERSONALITY,
     "Avaricious",
     "Acquisitive",
     "Thrifty",
@@ -549,7 +551,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Extravagant",
     "Profligate"
   ),
-  AMBITIOUS = new Trait(PERSONALITY,
+  AMBITIOUS = new Trait(BC, PERSONALITY,
     "Narcissist",
     "Ambitious",
     "Proud",
@@ -558,7 +560,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Humble",
     "Complacent"
   ),
-  HONOURABLE = new Trait(PERSONALITY,
+  HONOURABLE = new Trait(BC, PERSONALITY,
     "Unimpeachable",
     "Honourable",
     "Trustworthy",
@@ -567,7 +569,7 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     "Dishonest",
     "Manipulative"
   ),
-  EMPATHIC = new Trait(PERSONALITY,
+  EMPATHIC = new Trait(BC, PERSONALITY,
     "Martyr Complex",
     "Compassionate",
     "Sympathetic",

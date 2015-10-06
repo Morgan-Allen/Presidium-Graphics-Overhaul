@@ -79,10 +79,14 @@ public class ActorSkills {
   public Action bestTechniqueFor(Plan plan, Action taken) {
     final boolean report = I.talkAbout == actor && false;
     final Pick <Technique> pick = new Pick(0);
+    final Pick <Action   > acts = new Pick(0);
     this.active = null;
     
+    //  TODO:  You need to sort out selection from multiple targets, or
+    //  evaluating an impact on multiple targets simultaneously, from here!
+    
     final Target subject = taken.subject();
-    float harmLevel = taken.actor.harmIntended(subject);
+    float harmLevel = actor.harmIntended(subject);
     if (subject == actor) harmLevel -= 0.5f;
     
     if (report) {
@@ -94,19 +98,27 @@ public class ActorSkills {
     
     for (Technique t : known) {
       if (! t.triggeredBy(actor, plan, taken, null, false)) continue;
-      final float appeal = t.priorityFor(actor, subject, harmLevel);
-      pick.compare(t, appeal);
+      final Action a = t.createActionFor(plan, actor, subject);
+      final Target actionSubject = a == null ? subject : a.subject();
+      final float appeal = t.basePriority(actor, actionSubject, harmLevel);
+      
+      if (a != null) {
+        pick.compare(t, appeal);
+        acts.compare(a, appeal);
+      }
       if (report) {
         I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
         I.say("    Appeal is "+appeal);
+        I.say("    Actionable? "+(a != null));
       }
     }
     if (pick.empty()) return null;
     
     final Technique best = pick.result();
+    final Action action = acts.result();
     this.active = best;
     if (report) I.say("  Technique chosen: "+best);
-    return best.createActionFor(plan, actor, subject);
+    return action;
   }
   
   
@@ -121,7 +133,7 @@ public class ActorSkills {
     
     for (Technique t : known) {
       if (! t.triggeredBy(actor, current, taken, skill, true)) continue;
-      final float appeal = t.priorityFor(actor, subject, harmLevel);
+      final float appeal = t.basePriority(actor, subject, harmLevel);
       pick.compare(t, appeal);
     }
     if (pick.empty()) return -1;

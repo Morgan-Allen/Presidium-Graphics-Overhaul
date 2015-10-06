@@ -295,7 +295,7 @@ public class Human extends Actor implements Qualities {
     
     //  TODO:  Also a bit of a hack.  Remove later.
     if (gear.shieldCharge() > gear.maxShields()) {
-      CombatFX.applyShieldFX(gear.outfitType(), this, null, false);
+      ActionFX.applyShieldFX(gear.outfitType(), this, null, false);
     }
     
     super.renderFor(rendering, base);

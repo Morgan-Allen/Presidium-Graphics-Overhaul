@@ -8,14 +8,14 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.economic.*;
-import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Technique.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Technique.*;
 
 
 
@@ -136,19 +136,19 @@ public class Avrodil extends Fauna implements Captivity {
       -1, 0, 0.3f, 3.0f, false, false
     );
   final static PlaneFX.Model
-    CAMO_CASTING_MODEL = new PlaneFX.Model(
+    CAMO_CASTING_MODEL = PlaneFX.imageModel(
       "camo_cast_fx", BASE_CLASS, "media/SFX/camo_casting.png",
       0.5f, 0, 0.2f, true, false
     ),
-    WHIPLASH_BURST_MODEL = new PlaneFX.Model(
+    WHIPLASH_BURST_MODEL = PlaneFX.imageModel(
       "whip_burst_fx", BASE_CLASS, "media/SFX/whiplash_burst.png",
       0.5f, 0, 0, false, false
     ),
-    POLLEN_BURST_MODEL = new PlaneFX.Model(
+    POLLEN_BURST_MODEL = PlaneFX.imageModel(
       "pollen_burst_fx", BASE_CLASS, "media/SFX/pollen_burst.png",
       1.0f, 0, 0.75f, false, false
     ),
-    POLLEN_HAZE_MODEL = new PlaneFX.Model(
+    POLLEN_HAZE_MODEL = PlaneFX.animatedModel(
       "pollen_haze_fx", BASE_CLASS, "media/SFX/pollen_haze.png",
       2, 2, 4, 1.0f, 0.25f
     );
@@ -163,7 +163,7 @@ public class Avrodil extends Fauna implements Captivity {
     REAL_HELP       ,
     MINOR_FATIGUE   ,
     NO_CONCENTRATION,
-    Technique.IS_PASSIVE_SKILL_FX, null, 0,
+    IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
     Action.FALL, Action.NORMAL
   ) {
     
@@ -237,7 +237,7 @@ public class Avrodil extends Fauna implements Captivity {
     EXTREME_HARM        ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
-    Technique.IS_INDEPENDANT_ACTION, null, 0,
+    IS_INDEPENDANT_ACTION | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE_BIG, Action.QUICK
   ) {
     
@@ -303,7 +303,7 @@ public class Avrodil extends Fauna implements Captivity {
     REAL_HARM           ,
     MINOR_FATIGUE       ,
     MEDIUM_CONCENTRATION,
-    Technique.IS_INDEPENDANT_ACTION, null, 0,
+    IS_INDEPENDANT_ACTION | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE, Action.QUICK | Action.RANGED
   ) {
     
@@ -312,7 +312,7 @@ public class Avrodil extends Fauna implements Captivity {
     ) {
       super.applyEffect(using, success, subject, passive);
       
-      CombatFX.applyShotFX(
+      ActionFX.applyShotFX(
         WHIPLASH_MODEL, WHIPLASH_BURST_MODEL,
         using, subject, success, 0.5f, using.world()
       );
@@ -354,7 +354,7 @@ public class Avrodil extends Fauna implements Captivity {
     REAL_HARM           ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
-    Technique.IS_INDEPENDANT_ACTION, null, 0,
+    IS_INDEPENDANT_ACTION | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE_BIG, Action.QUICK
   ) {
     
@@ -375,7 +375,7 @@ public class Avrodil extends Fauna implements Captivity {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
-      CombatFX.applyBurstFX(POLLEN_BURST_MODEL, using, 0.5f, 1.5f);
+      ActionFX.applyBurstFX(POLLEN_BURST_MODEL, using, 0.5f, 1.5f);
       
       for (Actor hit : PlanUtils.subjectsInRange(using, POLLEN_RADIUS)) {
         if (hit == using || hit.species() == using.species()) continue;
@@ -391,7 +391,7 @@ public class Avrodil extends Fauna implements Captivity {
       affected.traits.incBonus(MOTOR, 0 - POLLEN_MOTOR_HIT * level);
       affected.health.takeInjury(POLLEN_ACID_DAMAGE * level, false);
       
-      CombatFX.applyBurstFX(POLLEN_HAZE_MODEL, affected, 1.25f, 1.0f);
+      ActionFX.applyBurstFX(POLLEN_HAZE_MODEL, affected, 1.25f, 1.0f);
     }
   };
   

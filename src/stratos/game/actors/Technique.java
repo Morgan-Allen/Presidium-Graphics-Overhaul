@@ -83,15 +83,14 @@ public abstract class Technique extends Constant {
     String animName, int actionProperties
   ) {
     super(INDEX, uniqueID, name);
-    this.description = description;
-    this.animName    = animName   ;
+    this.sourceClass = sourceClass;
     
     if (Assets.exists(iconFile)) {
       this.icon = ImageAsset.fromImage(sourceClass, iconFile);
     }
     else this.icon = null;
-    
-    this.sourceClass = sourceClass;
+    this.description = description;
+    this.animName    = animName   ;
     
     this.powerLevel        = power           ;
     this.harmFactor        = harm            ;
@@ -108,7 +107,9 @@ public abstract class Technique extends Constant {
     if (bySource == null) BY_SOURCE.put(skillUsed, bySource = new List());
     bySource.add(this);
     
-    this.asCondition = new Condition(name, false, name) {
+    this.asCondition = new Condition(
+      sourceClass, name, description, iconFile, 0, 0, 0, new Table(), name
+    ) {
       public void affect    (Actor a) { applyAsCondition(a); }
       public void onAddition(Actor a) { onConditionStart(a); }
       public void onRemoval (Actor a) { onConditionEnd  (a); }
@@ -205,14 +206,14 @@ public abstract class Technique extends Constant {
   }
   
   
-  public float priorityFor(Actor actor, Target subject, float harmWanted) {
+  public float basePriority(Actor actor, Target subject, float harmWanted) {
     //
     //  Techniques become less attractive based on the fraction of fatigue or
     //  concentration they would consume.
     final boolean report = ActorSkills.techsVerbose && I.talkAbout == actor;
     final float
       conCost = concentrationCost / actor.health.concentration(),
-      fatCost = fatigueCost       / actor.health.fatigueLimit() ;
+      fatCost = fatigueCost       / actor.health.fatigueLimit ();
     if (report) I.say("  Con/Fat costs: "+conCost+"/"+fatCost);
     if (conCost > 1 || fatCost > 1) return 0;
     //
@@ -343,19 +344,19 @@ public abstract class Technique extends Constant {
   
   
   public void describeHelp(Description d, Selectable prior) {
-    d.append(description);
-    d.append("\n\n");
+    substituteReferences(description, d);
+    d.append("\n");
     
     if (hasProperty(IS_NATURAL_ONLY)) {
-      d.append("  Type: Natural");
+      d.append("\n  Instinctive");
     }
     else if (skillNeed != null && minLevel > 0) {
-      d.append("  Minimum ");
+      d.append("\n  Minimum ");
       d.append(skillNeed);
       d.append(": "+minLevel);
     }
     if (hasProperty(IS_TRAINED_ONLY)) {
-      d.append("  Type: Trained Only");
+      d.append("\n  Trained Only");
     }
   }
 }

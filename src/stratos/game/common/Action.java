@@ -12,6 +12,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
+
 import java.lang.reflect.*;
 
 

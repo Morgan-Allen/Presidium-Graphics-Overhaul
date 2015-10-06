@@ -32,15 +32,15 @@ public class GeneralCombatTechniques {
       "media/SFX/tracer_beam.png", 0.05f, 0, 0.05f, 3, true, true
     );
   final public static PlaneFX.Model
-    AIM_MODEL = new PlaneFX.Model(
+    AIM_FX_MODEL = PlaneFX.animatedModel(
       "aim_model", BASE_CLASS,
-      "media/SFX/aiming_anim.png", 4, 4, 16,
-      (8 / 25f), 0.25f
-    );
-  final static PlaneFX.Model
-    PIERCE_FX_MODEL = new PlaneFX.Model(
+      "media/SFX/aiming_anim.png",
+      4, 4, 16, (16 / 25f), 0.25f
+    ),
+    PIERCE_FX_MODEL = PlaneFX.imageModel(
       "pierce_fx", BASE_CLASS,
-      "media/SFX/penetrating_shot.png", 0.5f, 0, 0, false, false
+      "media/SFX/penetrating_shot.png",
+      0.5f, 0, 0, false, false
     );
   
   
@@ -62,7 +62,7 @@ public class GeneralCombatTechniques {
   ) {
     
     public float passiveBonus(Actor using, Skill skill, Target subject) {
-      if (! (subject instanceof Mobile)) return 5;
+      if (! (subject instanceof Mobile)) return  5;
       if (((Mobile) subject).isMoving()) return -1;
       return 5;
     }
@@ -72,11 +72,7 @@ public class GeneralCombatTechniques {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
-      
-      //  Last but not least, include special FX-
-      final Vec3D posFX = using.position(null);
-      posFX.z += using.height() + 0.25f;
-      CombatFX.applyBurstFX(AIM_MODEL, posFX, 1, using.world());
+      ActionFX.applyBurstFX(AIM_FX_MODEL, using, 1.5f, 1);
     }
     
     
@@ -136,8 +132,8 @@ public class GeneralCombatTechniques {
     }
     
     
-    public float priorityFor(Actor actor, Target subject, float harmLevel) {
-      final float appeal = super.priorityFor(actor, subject, harmLevel);
+    public float basePriority(Actor actor, Target subject, float harmLevel) {
+      final float appeal = super.basePriority(actor, subject, harmLevel);
       if (appeal <= 0) return 0;
       return appeal * actor.gear.ammoLevel();
     }
@@ -181,7 +177,7 @@ public class GeneralCombatTechniques {
       //  TODO:  Use a 'volley' class to ignore armour values.
       
       if (success) {
-        CombatFX.applyBurstFX(
+        ActionFX.applyBurstFX(
           PIERCE_FX_MODEL, subject.position(null), 0.5f, using.world()
         );
         ((Actor) subject).health.takeInjury(Rand.index(2) + 0.5f, true);

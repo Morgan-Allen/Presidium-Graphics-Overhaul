@@ -375,6 +375,11 @@ public final class PlayLoop {
   }
   
   
+  public static long stateUpdates() {
+    return numStateUpdates;
+  }
+  
+  
   public static boolean isFrameIncrement(int unit) {
     return (numFrameUpdates % unit) == 0;
   }

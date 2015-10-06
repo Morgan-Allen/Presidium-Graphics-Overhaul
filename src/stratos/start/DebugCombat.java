@@ -11,9 +11,11 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
-import stratos.graphics.common.Colour;
+import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
+import stratos.content.abilities.PhysicianTechniques;
 
 
 
@@ -78,26 +80,41 @@ public class DebugCombat extends Scenario {
   }
   
   
+  public void updateGameState() {
+    super.updateGameState();
+  }
+  
+  
   private void combatScenario(Stage world, Base base, BaseUI UI) {
 
     Actor soldier = null;
-    for (int n = 1; n-- > 0;) {
+    for (int n = 2; n-- > 0;) {
       soldier = new Human(Backgrounds.TROOPER, base);
-      soldier.enterWorldAt(world.tileAt(4, 4), world);
+      soldier.enterWorldAt(4, 4, world);
     }
     
-    base.intelMap.liftFogAround(soldier, 9);
+    Actor support = null;
+    for (int n = 1; n-- > 0;) {
+      support = new Human(Backgrounds.PHYSICIAN, base);
+      support.enterWorldAt(1, 1, world);
+      
+      support.gear.bumpItem(MEDICINE, 2);
+      support.skills.addTechnique(PhysicianTechniques.HYPO_SPRAY    );
+      support.skills.addTechnique(PhysicianTechniques.BOOSTER_SHOT  );
+      support.skills.addTechnique(PhysicianTechniques.PAX_9         );
+      support.skills.addTechnique(PhysicianTechniques.PSY_INHIBITION);
+    }
     
     final Base wildlife = Base.wildlife(world);
     final Actor avrodil = Avrodil.SPECIES.sampleFor(wildlife);
     
     avrodil.health.setMaturity(0.8f);
     avrodil.health.setFatigueLevel(0.15f);
-    
     avrodil.enterWorldAt(9, 9, world, true);
     avrodil.mind.assignBehaviour(new Combat(avrodil, soldier));
     
-    UI.selection.pushSelection(soldier);
+    base.intelMap.liftFogAround(support, 9);
+    UI.selection.pushSelection(support);
   }
   
   
@@ -123,11 +140,6 @@ public class DebugCombat extends Scenario {
     artilects.setup.fillVacancies(ruins, true);
     
     UI.selection.pushSelection(ruins.staff.workers().first());
-  }
-  
-  
-  public void updateGameState() {
-    super.updateGameState();
   }
   
   

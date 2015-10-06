@@ -1,8 +1,10 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
 import stratos.util.*;
-
 import static stratos.game.actors.Qualities.*;
 
 
@@ -10,6 +12,8 @@ import static stratos.game.actors.Qualities.*;
 public final class Conditions {
   
   private Conditions() {}
+  
+  final static Class BC = Conditions.class;
   
   
   final public static int
@@ -37,7 +41,7 @@ public final class Conditions {
     //
     //  Finally, listings for various conditions that might beset the actor-
     INJURY = new Condition(
-      "Injury", true,
+      BC, "Injury", true,
       "Critical Injury",
       "Serious Injury",
       "Modest Injury",
@@ -45,7 +49,7 @@ public final class Conditions {
       null
     ),
     FATIGUE = new Condition(
-      "Fatigue", true,
+      BC, "Fatigue", true,
       "Extreme Fatigue",
       "Heavy Fatigue",
       "Modest Fatigue",
@@ -53,7 +57,7 @@ public final class Conditions {
       null
     ),
     POOR_MORALE = new Condition(
-      "Morale", true,
+      BC, "Morale", true,
       "Broken Morale",
       "Poor Morale",
       null,
@@ -62,7 +66,7 @@ public final class Conditions {
     ),
     
     HUNGER = new Condition(
-      "Hunger", true,
+      BC, "Hunger", true,
       "Near Starvation",
       "Hungry",
       "Peckish",
@@ -70,12 +74,12 @@ public final class Conditions {
       "Full"
     ),
     MALNOURISHMENT = new Condition(
-      "Malnourishment", true,
+      BC, "Malnourishment", true,
       "Malnourished",
       null
     ),
     POISONING = new Condition(
-      "Poisoning",
+      BC, "Poisoning", null, null,
       SHORT_LATENCY, LOW_VIRULENCE, NO_SPREAD, Table.make(
         IMMUNE, -15, MUSCULAR, -15
       ),
@@ -87,7 +91,7 @@ public final class Conditions {
     ),
     
     SOMA_HAZE = new Condition(
-      "Soma Haze",
+      BC, "Soma Haze", null, null,
       NO_LATENCY, MINIMAL_VIRULENCE, NO_SPREAD, Table.make(
         MOTOR, -3, COGNITION, -2, PERCEPT, 1
       ),
@@ -98,7 +102,7 @@ public final class Conditions {
       "Haze Immune"
     ),
     ILLNESS = new Condition(
-      "Illness",
+      BC, "Illness", null, null,
       SHORT_LATENCY, LOW_VIRULENCE, RAPID_SPREAD, Table.make(
         IMMUNE, -5, MUSCULAR, -5
       ),
@@ -109,7 +113,7 @@ public final class Conditions {
        "Illness Immune"
     ),
     SPICE_ADDICTION = new Condition(
-      "Spice Addiction",
+      BC, "Spice Addiction", null, null,
       LONG_LATENCY, AVERAGE_VIRULENCE, NO_SPREAD, Table.make(
         IMMUNE, -10, PERCEPT, -5, NERVE, -5, COGNITION, -5
       ),
@@ -120,7 +124,7 @@ public final class Conditions {
       "Addiction Immune"
     ),
     CANCER = new Condition(
-      "Cancer",
+      BC, "Cancer", null, null,
       LONG_LATENCY, AVERAGE_VIRULENCE, NO_SPREAD, Table.make(
         IMMUNE, -20, MUSCULAR, -10
       ),
@@ -131,7 +135,7 @@ public final class Conditions {
       "Cancer Immune"
     ),
     RAGE_INFECTION = new Condition(
-      "Rage Infection",
+      BC, "Rage Infection", null, null,
       SHORT_LATENCY, HIGH_VIRULENCE, RAPID_SPREAD, Table.make(
         IMMUNE, 5, MUSCULAR, 5, DEFENSIVE, 5, COGNITION, -15
       ),
@@ -142,7 +146,7 @@ public final class Conditions {
       "Rage Immune"
     ),
     HIREX_PARASITE = new Condition(
-      "Hirex Parasite",
+      BC, "Hirex Parasite", null, null,
       MEDIUM_LATENCY, HIGH_VIRULENCE, SLOW_SPREAD, Table.make(
         COGNITION, -5, MOTOR, -5, PERCEPT, -5, MUSCULAR, -5, HANDSOME, -5
       ),
@@ -153,7 +157,7 @@ public final class Conditions {
       "Hirex Immune"
     ),
     ALBEDAN_STRAIN = new Condition(
-      "Albedan Strain",
+      BC, "Albedan Strain", null, null,
       MEDIUM_LATENCY, EXTREME_VIRULENCE, SLOW_SPREAD, Table.make(
         INDULGENT, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
       ),
@@ -164,7 +168,7 @@ public final class Conditions {
       "Strain Immune"
     ),
     SILVERQUICK = new Condition(
-      "Silverquick",
+      BC, "Silverquick", null, null,
       SHORT_LATENCY, EXTREME_VIRULENCE, RAPID_SPREAD, Table.make(
         IMPASSIVE, 5, IMMUNE, -20, MUSCULAR, -20
       ),
@@ -175,7 +179,7 @@ public final class Conditions {
       "Silverquick Immune"
     ),
     MOEBIUS_PLAGUE = new Condition(
-      "Moebius Plague",
+      BC, "Moebius Plague", null, null,
       LONG_LATENCY, EXTREME_VIRULENCE, NO_SPREAD, Table.make(
         MOTOR, -20, MUSCULAR, -20
       ),

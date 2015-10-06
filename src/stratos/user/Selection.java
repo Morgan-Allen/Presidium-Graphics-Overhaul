@@ -25,7 +25,7 @@ public class Selection implements UIConstants {
   /**  Field definitions and accessors-
     */
   final public static PlaneFX.Model
-    SIMPLE_SELECT_MODEL = new PlaneFX.Model(
+    SIMPLE_SELECT_MODEL = PlaneFX.imageModel(
       "select_circle_fx", Selection.class,
       "media/GUI/selectCircle.png", 1, 0, 0, false, false
     );
