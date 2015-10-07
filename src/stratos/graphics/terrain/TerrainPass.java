@@ -1,15 +1,13 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.terrain;
 import static stratos.graphics.common.GL.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
@@ -101,7 +99,10 @@ public class TerrainPass {
     shader.setUniformMatrix("u_camera", rendering.camera().combined);
     shader.setUniformi("u_texture", 0);
     final float lightSum[] = rendering.lighting.lightSum;
-    shader.setUniform4fv("u_lighting", lightSum, 0, 4);
+    final float lightDir[] = rendering.lighting.lightDir;
+    
+    shader.setUniform4fv("u_lighting"      , lightSum, 0, 4);
+    shader.setUniform3fv("u_lightDirection", lightDir, 0, 3);
     
     if (fogApplied != null) {
       fogApplied.applyToTerrain(shader);
@@ -127,40 +128,38 @@ public class TerrainPass {
     final int index = (int) time, animIndex = (index + 1) % tex.length;
     
     for (int i : new int[] { index, animIndex }) {
+      //
+      //  We vary opacity in order to 'blur' between different frames for an
+      //  animated terrain-patch-
       final float opacity = (i == index) ? 1 : (time % 1);
       tex[i].asTexture().bind(0);
       
       for (TerrainChunk chunk : chunks) {
         if (chunk.layer.layerID != layer.layerID) I.complain("WRONG LAYER!");
         final Colour c = chunk.colour == null ? Colour.WHITE : chunk.colour;
-        
-        //  In the event that an earlier terrain chunk is being faded out,
-        //  render the predecessor semi-transparently-
+        //
+        //  In the event that an earlier terrain chunk is being faded out, we
+        //  render the predecessor semi-transparently (and dispose once gone.)
+        //  Otherwise, we just default to full opacity for the primary texture.
+        float inAlpha = 1, outAlpha = 0;
         if (chunk.fadeOut != null) {
           final float alpha = (chunk.fadeIncept + 1) - Rendering.activeTime();
-          shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
-          
-          if (alpha > 0) {
-            final float outAlpha = Nums.clamp(alpha * 2, 0, 1);
-            shader.setUniformf("u_opacity", opacity * outAlpha);
-            chunk.fadeOut.mesh().render(shader, GL20.GL_TRIANGLES);
-          }
-          else {
-            chunk.fadeOut.dispose();
-            chunk.fadeIncept = -1;
-            chunk.fadeOut = null;
-          }
-          
-          final float inAlpha = Nums.clamp((1 - alpha) * 2, 0, 1);
-          shader.setUniformf("u_opacity", opacity * inAlpha * c.a);
-          chunk.mesh().render(shader, GL20.GL_TRIANGLES);
+          outAlpha = Nums.clamp(     alpha  * 2, 0, 1);
+          inAlpha  = Nums.clamp((1 - alpha) * 2, 0, 1);
         }
         
-        //  Otherwise just render directly.  In either case, flag as complete.
-        else {
-          shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
-          shader.setUniformf("u_opacity", opacity * c.a);
-          chunk.mesh().render(shader, GL20.GL_TRIANGLES);
+        shader.setUniformf("u_texColor", c.r, c.g, c.b, 1);
+        shader.setUniformf("u_opacity", opacity * c.a * inAlpha);
+        chunk.renderWithShader(shader);
+        
+        if (outAlpha > 0) {
+          shader.setUniformf("u_opacity", opacity * c.a * outAlpha);
+          chunk.fadeOut.renderWithShader(shader);
+        }
+        else if (chunk.fadeOut != null) {
+          chunk.fadeOut.dispose();
+          chunk.fadeIncept = -1;
+          chunk.fadeOut = null;
         }
         
         if (chunk.throwAway) chunk.dispose();

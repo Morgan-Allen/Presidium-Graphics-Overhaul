@@ -13,6 +13,7 @@ import static stratos.game.economic.Economy.*;
 
 public final class Outfits {
   
+  final static Class BC = Outfits.class;
   
   //  TODO:  You should have skins associated with some of these...
   final public static OutfitType

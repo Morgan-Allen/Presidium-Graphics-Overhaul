@@ -104,7 +104,7 @@ public class FirstAid extends Treatment {
     //  Then, we ensure the patient is physically accessible/won't wander off-
     sickbay = findRefuge(actor, sickbay);
     final Actor carries = Suspensor.carrying(patient);
-    final boolean outside = patient.aboard() != sickbay;
+    final boolean outside = patient.aboard() != sickbay || patient.isMoving();
     if (
       (carries != null && carries != actor) ||
       (outside && patient.health.conscious())

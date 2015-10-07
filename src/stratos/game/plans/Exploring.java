@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -26,7 +28,8 @@ public class Exploring extends Plan implements Qualities {
   final static int
     TYPE_WANDER  = 0,
     TYPE_EXPLORE = 1,
-    TYPE_SURVEY  = 2;
+    TYPE_SURVEY  = 2,
+    TYPE_SAMPLES = 3;
   
   final Base base;
   final int  type;
@@ -73,7 +76,7 @@ public class Exploring extends Plan implements Qualities {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next wandering for "+actor);
     
-    final float range = actor.health.sightRange() * 2;
+    final float range = actor.health.sightRange() / 2;
     Tile picked = Spacing.pickRandomTile(actor, range, actor.world());
     picked = Spacing.nearestOpenTile(picked, picked);
     if (picked == null) picked = actor.origin();
@@ -139,9 +142,9 @@ public class Exploring extends Plan implements Qualities {
   
   
   public float successChanceFor(Actor actor) {
-    float chance = PlanUtils.successForActorWith(
-      actor, BASE_SKILLS, ROUTINE_DC, false
-    );
+    float chance = 1;
+    chance *= actor.skills.chance(SURVEILLANCE, ROUTINE_DC);
+    chance *= actor.skills.chance(ATHLETICS   , ROUTINE_DC);
     if (PlanUtils.isArmed(actor)) chance += 0.5f;
     else chance -= 0.25f;
     return Nums.clamp(chance, 0, 1);

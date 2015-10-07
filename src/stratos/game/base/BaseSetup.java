@@ -15,6 +15,8 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  Unify this with the BaseAdvice class.
+
 public class BaseSetup {
   
   /**  Placement of assorted structure types based on internal demand:
@@ -28,7 +30,7 @@ public class BaseSetup {
   //  which there is no profile-centric demand- or only checking the first N
   //  types which have the most demand.
   final static float
-    FULL_EVAL_PERIOD  = Stage.STANDARD_DAY_LENGTH / 2,//  Eval-cycle length.
+    FULL_EVAL_PERIOD  = Stage.STANDARD_DAY_LENGTH  / 2, // Eval-cycle length.
     SHORT_EVAL_PERIOD = Stage.STANDARD_HOUR_LENGTH * 2,
     DEFAULT_PLACE_HP  = 50,
     MAX_PLACE_RATING  = 10;
@@ -48,7 +50,6 @@ public class BaseSetup {
       return r.rating;
     }
   };
-  //private List <SitingPass> passes = new List();
   
   
   public BaseSetup(Base base, Stage world, Blueprint... canPlace) {
@@ -131,31 +132,46 @@ public class BaseSetup {
     Batch <Venue> record, boolean report
   ) {
     report &= extraVerbose && (sorting.size() > 0 || canPlace != null);
+    
     if (report) {
       I.say("\nUpdating siting passes for "+base);
-      I.say("  Pass fraction: "+sumFractions  );
-      I.say("  Build limit:   "+buildLimit    );
-      I.say("  Total passes:  "+sorting.size());
-    }
-    
-    final boolean placeAll = buildLimit < 0;
-    if (sorting.empty() && canPlace != null) {
-      for (Blueprint type : canPlace) if (placeAll || canSite(type)) {
-        if (report) I.say("    Adding new pass for "+type);
-        final SitingPass pass = new SitingPass(base, type.siting());
-        sorting.add(pass);
+      I.say("  Pass fraction: "+sumFractions    );
+      I.say("  Build limit:   "+buildLimit      );
+      I.say("  Place types:   "+I.list(canPlace));
+      I.say("  Total sorted:  "+sorting.size()  );
+      I.say("  Sorting is: ");
+      for (SitingPass p : sorting) {
+        I.say("    "+p.placed+": "+p.rating);
       }
     }
     
+    final boolean placeAll = buildLimit < 0;
     float sumDemands = 0, sumBuilt = 0;
+    
+    if (sorting.empty() && canPlace != null) {
+      for (Blueprint type : canPlace) {
+        if (placeAll || hasSitePermission(type)) {
+          if (report) I.say("    Adding new pass for "+type);
+          final SitingPass pass = new SitingPass(base, type.siting());
+          sorting.add(pass);
+        }
+        else if (report) I.say("    Cannot auto-site: "+type);
+      }
+    }
+    
+    if (report) {
+      I.say("\n  "+sorting.size()+" entries in sorting.");
+    }
     for (SitingPass s : sorting) {
       float demand = s.siting.rateSettlementDemand(base);
       if (s.rating > 0) demand = Nums.min(demand, s.rating - 1);
+      if (report) I.say("    Demand for "+s.placed+" is: "+demand);
+      
       if (demand > 0) sumDemands += s.rating = demand;
       else sorting.remove(s);
     }
-    sorting.queueSort();
     
+    sorting.queueSort();
     if (! placeAll) {
       while (sorting.size() > MAX_SITINGS_IN_PASS) sorting.removeLast();
     }
@@ -203,17 +219,19 @@ public class BaseSetup {
   }
   
   
-  private boolean canSite(Blueprint type) {
+  public boolean hasSitePermission(Blueprint type) {
     if (type == null || type.siting() == null) return false;
+    if (! base.research.hasTheory(type.baseUpgrade())) return false;
     
     //  TODO:  You might also need to vary this for different regions of the
     //  map, depending on base-ownership or local autonomy.
     
-    if (type.owningTier > Owner.TIER_PRIVATE) {
-      if (base.advice.controlLevel() < BaseAdvice.LEVEL_TOTAL) return false;
+    final int control = base.advice.autonomy();
+    if (type.hasProperty(Structure.IS_PUBLIC)) {
+      if (control <= BaseAdvice.LEVEL_NO_AUTO) return false;
     }
     else {
-      if (base.advice.controlLevel() < BaseAdvice.LEVEL_ADVISOR) return false;
+      if (control < BaseAdvice.LEVEL_FULL_AUTO) return false;
     }
     return true;
   }

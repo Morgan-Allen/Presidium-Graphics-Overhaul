@@ -9,6 +9,7 @@ import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
+import stratos.graphics.cutout.CutoutSprite;
 import stratos.graphics.sfx.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -40,10 +41,12 @@ public abstract class Actor extends Mobile implements
   private Action actionTaken;
   private Mount  mount;
   private Base   base;
+  private Sprite disguise;
   
   final public Healthbar healthbar = new Healthbar();
   final public Label     label     = new Label    ();
   final public TalkFX    chat      = new TalkFX   ();
+  private Stack <Sprite> statusFX = null;
   
   
   public Actor() {
@@ -66,6 +69,7 @@ public abstract class Actor extends Mobile implements
     actionTaken = (Action) s.loadObject();
     mount       = (Mount ) s.loadObject();
     base        = (Base  ) s.loadObject();
+    disguise  = ModelAsset.loadSprite(s.input());
   }
   
   
@@ -85,6 +89,7 @@ public abstract class Actor extends Mobile implements
     s.saveObject(actionTaken);
     s.saveObject(mount      );
     s.saveObject(base       );
+    ModelAsset.saveSprite(disguise, s.output());
   }
   
   
@@ -111,8 +116,8 @@ public abstract class Actor extends Mobile implements
   
   
   public float priceFor(Traded service, boolean sold) {
-    if (sold) return service.basePrice() * 1.5f;
-    else      return service.basePrice() / 1.5f;
+    if (sold) return service.defaultPrice() * 1.5f;
+    else      return service.defaultPrice() / 1.5f;
   }
   
   
@@ -136,6 +141,11 @@ public abstract class Actor extends Mobile implements
     this.mount = newMount;
     if (oldMount != null) oldMount.setMounted(this, false);
     if (newMount != null) newMount.setMounted(this, true );
+  }
+  
+  
+  public void releaseFromMount() {
+    bindToMount(null);
   }
   
   
@@ -249,26 +259,47 @@ public abstract class Actor extends Mobile implements
     final Action action = actionTaken;
     
     boolean needsBigUpdate = false;
-    if (report) I.say("\nUpdating "+this+" as mobile, action: "+action);
+    if (report) {
+      I.say("\nUpdating "+this+" as mobile, action: "+action);
+      I.say("  Time:      "+world.currentTime());
+      I.say("  Conscious: "+OK);
+    }
     
-    if (action != null) action.updateAction(OK, this);
-    
-    if (action == null || ! OK) pathing.updateTarget(null);
+    if (action != null) {
+      action.updateAction(OK, this);
+    }
+    if (action == null || ! OK) {
+      pathing.updateTarget(null);
+    }
     else if (! pathing.checkPathingOkay()) {
       if (report) I.say("  Needs fresh pathing!");
       needsBigUpdate = true;
     }
     
-    if (action != null && ! Plan.canFollow(this, action, false)) {
-      if (report) I.say("  Have completed action: "+action);
+    
+    if (mount != null) {
+      final Plan activity = action == null ? null : action.parentPlan();
+      mount.position(nextPosition);
+      
+      if (activity != null && ! mount.allowsActivity(activity)) {
+        if (report) I.say("  Action not permitted by mount!");
+        assignAction(null);
+        needsBigUpdate = true;
+      }
+    }
+    if (! Plan.canFollow(this, action, false)) {
+      if (report) {
+        I.say("  Could not follow action: "+action);
+        Plan.reportPlanDetails(action, this);
+      }
       assignAction(null);
       needsBigUpdate = true;
     }
-    
-    //  TODO:  Include the effects of mount-riding here:
     if (aboard instanceof Mobile && (pathing.nextStep() == aboard || ! OK)) {
       aboard.position(nextPosition);
     }
+    
+    
     if (needsBigUpdate) {
       if (report) I.say("  SCHEDULING BIG UPDATE");
       world.schedule.scheduleNow(this);
@@ -288,6 +319,7 @@ public abstract class Actor extends Mobile implements
       I.say("    Num updates:      "+numUpdates);
       I.say("    Current time:     "+world.currentTime());
       I.say("    Okay/Check-sleep: "+OK+"/"+checkSleep);
+      I.say("    Current action:   "+actionTaken);
     }
     //
     //  Update our actions, pathing, and AI-
@@ -303,9 +335,15 @@ public abstract class Actor extends Mobile implements
       if (checkSleep) Resting.checkForWaking(this);
       
       else if (OK) {
-        if (report) I.say("  Next action is: "+nextAction+" vs. "+actionTaken);
-        if (nextAction != actionTaken) assignAction(nextAction);
-        if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
+        if (report) I.say("  Next action is: "+nextAction);
+        if (nextAction != actionTaken) {
+          if (report) I.say("  ASSIGNING ACTION");
+          assignAction(nextAction);
+        }
+        if (! pathing.checkPathingOkay()) {
+          if (report) I.say("  REFRESHING PATH!");
+          pathing.refreshFullPath();
+        }
       }
     }
     //
@@ -396,8 +434,7 @@ public abstract class Actor extends Mobile implements
     if (subject == null) return 0;
     for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
       final Plan root = (Plan) b;
-      if (subject != null && root.subject() != subject) return 0;
-      return root.harmFactor();
+      if (subject == null || root.subject == subject) return root.harmFactor();
     }
     if (subject == actionFocus() && mind.topBehaviour() instanceof Plan) {
       return ((Plan) mind.topBehaviour()).harmFactor();
@@ -452,20 +489,32 @@ public abstract class Actor extends Mobile implements
   public void renderAt(
     Vec3D position, float rotation, Rendering rendering
   ) {
-    //
-    //  We render health-bars after the main sprite, as the label/healthbar are
-    //  anchored off the main sprite.
     final Sprite s = sprite();
     if (actionTaken != null) actionTaken.configSprite(s, rendering);
     super.renderAt(position, rotation, rendering);
     //
-    //  Finally, if you have anything to say, render the chat bubbles.
-    renderHealthbars(rendering, base);
-    if (chat.numPhrases() > 0) {
-      chat.position.setTo(sprite().position);
-      chat.position.z += height();
-      chat.readyFor(rendering);
-    }
+    //  We render health-bars after the main sprite, as the label/healthbar are
+    //  anchored off the main sprite.  In addition, we skip this while in
+    //  disguise...
+    if (disguise == null) renderInformation(rendering, base);
+  }
+  
+  
+  public Sprite sprite() {
+    if (disguise != null) return disguise;
+    else return super.sprite();
+  }
+  
+  
+  public void attachDisguise(Sprite app) {
+    world.ephemera.addGhost(this, 1, sprite(), 1.0f);
+    this.disguise = app;
+  }
+  
+  
+  public void detachDisguise() {
+    world.ephemera.addGhost(this, 1, disguise, 1.0f);
+    this.disguise = null;
   }
   
   
@@ -478,26 +527,77 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  protected void renderHealthbars(Rendering rendering, Base base) {
+  public boolean visibleTo(Base base) {
+    if (mount != null && ! mount.actorVisible(this)) return false;
+    return super.visibleTo(base);
+  }
+  
+  
+  protected void renderInformation(Rendering rendering, Base base) {
     final boolean focused = BaseUI.isSelectedOrHovered(this);
     final boolean alarm =
       health.alive() && (base == base() || focused) &&
       (health.bleeding() || health.healthLevel() < 0.25f);
-    if ((! focused) && (! alarm)) return;
+    final Batch <Condition> status = traits.conditions();
     
-    label.matchTo(sprite());
-    label.position.z += height() + 0.25f;
-    label.phrase = fullName();
-    label.readyFor(rendering);
+    if (status.size() > 0) {
+      
+      //
+      //  TODO:  You need a dedicated FX-class to handle this sort of thing!
+      //         (Unify with the shortage-displays at venues!)
+      
+      if (statusFX == null) {
+        statusFX = new Stack();
+      }
+      loop: for (Condition c : status) {
+        if (c.iconModel == null) continue;
+        for (Sprite s : statusFX) if (s.model() == c.iconModel) continue loop;
+        statusFX.add(c.iconModel.makeSprite());
+      }
+      for (Sprite s : statusFX) {
+        boolean used = false;
+        for (Condition c : status) if (c.iconModel == s.model()) used = true;
+        if (! used) statusFX.remove(s);
+      }
+      
+      float baseTime = world.currentTime(), scale = 0.25f;
+      CutoutSprite.layoutAbove(
+        sprite().position, 0, height() + 0.5f, 0,
+        rendering.view, scale, statusFX
+      );
+      for (Sprite s : statusFX) {
+        float time = baseTime;
+        time = (time + (statusFX.indexOf(s) * 0.25f)) % 1;
+        time =  time * (1 - time) * 4;
+        
+        s.scale  = scale;
+        s.colour = Colour.transparency(time);
+        s.readyFor(rendering);
+      }
+    }
+    else statusFX = null;
+    
+    if (focused || alarm) {
+      label.matchTo(sprite());
+      label.position.z += height() + 0.25f;
+      label.phrase = fullName();
+      label.readyFor(rendering);
 
-    if (health.dying()) return;
+      if (health.dying()) return;
+      
+      healthbar.matchTo(sprite());
+      healthbar.level  = (1 - health.injuryLevel());
+      healthbar.colour = base().colour();
+      healthbar.size   = (35 + health.maxHealth()) / 2f;
+      healthbar.position.z += height() + 0.1f;
+      healthbar.readyFor(rendering);
+    }
     
-    healthbar.matchTo(sprite());
-    healthbar.level = (1 - health.injuryLevel());
-    healthbar.colour = base().colour();
-    healthbar.size = 35;
-    healthbar.position.z += height() + 0.1f;
-    healthbar.readyFor(rendering);
+    if (chat.numPhrases() > 0) {
+      chat.position.setTo(sprite().position);
+      chat.position.z += height();
+      chat.readyFor(rendering);
+    }
   }
   
   
@@ -551,7 +651,7 @@ public abstract class Actor extends Mobile implements
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_ACTOR;
+    return Target.TYPE_ACTOR;
   }
   
   
@@ -561,9 +661,16 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void describeStatus(Description d) {
-    if (! health.conscious()) { d.append(health.stateDesc()); return; }
+  public void describeStatus(Description d, Object client) {
+    if (! health.conscious()) {
+      if (mount != null) mount.describeActor(this, d);
+      else d.append(health.stateDesc());
+      return;
+    }
     if (! inWorld()) {
+      //
+      //  TODO:  Move this to the BaseCommerce or VerseJourneys class, I would
+      //  suggest...
       final VerseJourneys journeys = base.world.offworld.journeys;
       final Vehicle ship = journeys.carries(this);
       if (ship != null && ship.inWorld()) {
@@ -579,12 +686,20 @@ public abstract class Actor extends Mobile implements
       return;
     }
     
+    final Action technique = Technique.currentTechniqueBy(this);
+    if (technique != null) {
+      Technique.describeAction(technique, this, d);
+      return;
+    }
+    
     final Behaviour rootB = mind.rootBehaviour();
     final Mission mission = mind.mission();
-    if (mission != null && rootB == mission.cachedStepFor(this)) {
+    final boolean offMissionView = mission != null && mission != client;
+    if (offMissionView && rootB == mission.cachedStepFor(this)) {
       mission.describeMission(d);
     }
     else if (rootB != null) rootB.describeBehaviour(d);
+    else if (mount != null) mount.describeActor(this, d);
     else d.append("Thinking");
   }
 }

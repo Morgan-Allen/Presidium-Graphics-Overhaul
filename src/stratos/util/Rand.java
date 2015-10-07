@@ -52,32 +52,57 @@ public class Rand {
   }
   
   final public static Object pickFrom(Object[] array) {
-    if (array.length == 0) return null;
+    if (array == null || array.length == 0) return null;
     return array[GEN.nextInt(array.length)];
   }
+  
   
   final public static Object pickFrom(Series list) {
     return pickFrom(list.toArray());
   }
-
-  final public static Object pickFrom(Series list, Series weights) {
-    return pickFrom(list.toArray(), weights.toArray());
+  
+  
+  final public static Object pickFrom(Series list, Series <Float> weights) {
+    return pickFrom(list.toArray(), weights.toArray(), false);
   }
   
+  
   final public static Object pickFrom(Object array[], Object weights[]) {
+    return pickFrom(array, weights, false);
+  }
+  
+  
+  final public static Object pickFrom(Object array[], float weights[]) {
+    return pickFrom(array, weights, true);
+  }
+  
+  
+  final private static Object pickFrom(
+    Object array[], Object weightsArray, boolean floats
+  ) {
+    //
+    //  First of all, we get the sum of all associated weights to 'roll' in...
     float sumWeights = 0;
-    for (Object o : weights) sumWeights += (Float) o;
+    if (floats) for (float f : (float[]) weightsArray) sumWeights += f;
+    else for (Object f : (Object[]) weightsArray) sumWeights += (Float) f;
+    
     if (sumWeights == 0) return pickFrom(array);
     final float pickWith = Rand.num() * sumWeights;
     //
     //  Having summed the weights, and picked a random 'interval' within the
     //  'span' of values, pick the object entry underlying that interval.
-    sumWeights = 0; int i = 0; for (Object o : weights) {
-      sumWeights += (Float) o;
-      if (pickWith < sumWeights) return array[i];
+    sumWeights = 0; int i = 0; for (Object o : array) {
+      if (floats) sumWeights += ((float[]) weightsArray)[i];
+      else sumWeights += (Float) ((Object[]) weightsArray)[i];
+      
+      if (pickWith < sumWeights) return o;
       else i++;
     }
     return null;
   }
 }
+
+
+
+
 

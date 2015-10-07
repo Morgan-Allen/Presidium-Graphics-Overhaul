@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.util;
 
 
@@ -34,6 +33,15 @@ public interface TileConstants {
     Y_AXIS =  1,
     CORNER =  2,
     UNUSED = -1;
+  
+  final static Mat3D
+    R0   = new Mat3D().setIdentity().rotateZ(Nums.toRadians(0   )),
+    R90  = new Mat3D().setIdentity().rotateZ(Nums.toRadians(-90 )),
+    R180 = new Mat3D().setIdentity().rotateZ(Nums.toRadians(-180)),
+    R270 = new Mat3D().setIdentity().rotateZ(Nums.toRadians(-270)),
+    Z_ROTATIONS[] = { R0, R90, R180, R270 },
+    ROTATE_X = new Mat3D().setIdentity().rotateX(Nums.toRadians(-90)),
+    ROTATE_Y = new Mat3D().setIdentity().rotateY(Nums.toRadians(-90));
   
   final public static String DIR_NAMES[] = {
     "North", "Northeast", "East", "Southeast",

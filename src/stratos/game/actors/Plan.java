@@ -14,6 +14,7 @@ import stratos.util.*;
 //  TODO:  Some of the reasoning here is a little opaque.  Rewrite this to
 //  have a single 'update' method, then read off everything else passively.
 
+
 public abstract class Plan implements Session.Saveable, Behaviour {
   
   
@@ -234,10 +235,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       return true;
     }
     
+    /*
     if (actor.actionInProgress()) {
       if (report) I.say("ACTOR IN MID-ACTION!");
       return false;
     }
+    //*/
     
     final float
       timeGone = actor.world().currentTime() - lastEvalTime,
@@ -280,11 +283,30 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  protected Action action() {
+    if (nextStep instanceof Action) return (Action) nextStep;
+    else return null;
+  }
+  
+  
+  public Plan parentPlan() {
+    if (actor == null) return null;
+    Behaviour prior = null;
+    for (Behaviour p : actor.mind.agenda) {
+      if (p == this) break;
+      else prior = p;
+    }
+    return (prior instanceof Plan) ? (Plan) prior : null;
+  }
+  
+  
   public float priorityFor(Actor actor) {
-    attemptToBind(actor);
     final boolean report = priorityVerbose && I.talkAbout == actor && (
       verboseClass == null || verboseClass == this.getClass()
     ) && (beginsVerbose || hasBegun());
+
+    attemptToBind(actor);
+    
     if (hasMotives(IS_CANCELLED)) return -1;
     if (report && extraVerbose) {
       I.say("\nCurrent priority for "+this+" is: "+priorityEval);

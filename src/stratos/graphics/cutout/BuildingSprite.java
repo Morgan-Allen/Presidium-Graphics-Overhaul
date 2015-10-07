@@ -42,22 +42,22 @@ public class BuildingSprite extends Sprite implements TileConstants {
     );
   
   final public static PlaneFX.Model
-    BLAST_MODEL = new PlaneFX.Model(
+    BLAST_MODEL = PlaneFX.animatedModel(
       "blast_model", BuildingSprite.class,
       "media/SFX/blast_anim.gif", 5, 4, 25,
       (25 / 25f), 1.0f
     ),
     //  TODO:  try to find a way to derive these from the item-icons?
     
-    POWER_MODEL = new PlaneFX.Model(
+    POWER_MODEL = PlaneFX.imageModel(
       "power_model", BuildingSprite.class,
       "media/Items/power.png" , 0.25f, 0, 0, true, true
     ),
-    ATMO_MODEL  = new PlaneFX.Model(
+    ATMO_MODEL  = PlaneFX.imageModel(
       "atmo_model", BuildingSprite.class,
       "media/Items/atmo.png", 0.25f, 0, 0, true, true
     ),
-    WATER_MODEL = new PlaneFX.Model(
+    WATER_MODEL = PlaneFX.imageModel(
       "water_model", BuildingSprite.class,
       "media/Items/water.png" , 0.25f, 0, 0, true, true
     );

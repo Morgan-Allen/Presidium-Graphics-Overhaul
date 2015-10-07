@@ -38,7 +38,7 @@ public class MissionContact extends Mission {
   private Batch <Actor> allTried = new Batch <Actor> ();
   
   
-  public MissionContact(Base base, Target subject) {
+  public MissionContact(Base base, Element subject) {
     super(
       base, subject, CONTACT_MODEL,
       "Making Contact with "+subject

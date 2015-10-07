@@ -462,9 +462,11 @@ public class Text extends UIGroup implements Description {
       lastWord.add(box);
       across += box.xdim();
       
-      float maxAcross = maxWidth;
-      if (bullet != null) maxAcross -= bullet.xdim();
-      if ((maxWidth > 0) && (across > maxAcross)) newLine = true;
+      if (maxWidth > 0) {
+        float maxAcross = maxWidth;
+        if (bullet != null) maxAcross -= bullet.xdim();
+        if (across > maxAcross) newLine = true;
+      }
       
       if (newWord) {
         Visit.appendTo(lastLine, lastWord);

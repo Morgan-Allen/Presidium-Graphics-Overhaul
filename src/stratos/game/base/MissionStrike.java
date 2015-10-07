@@ -26,7 +26,7 @@ public class MissionStrike extends Mission {
     verbose     = false;
   
   
-  public MissionStrike(Base base, Target subject) {
+  public MissionStrike(Base base, Element subject) {
     super(
       base, subject, STRIKE_MODEL,
       "Striking at "+subject
@@ -53,7 +53,7 @@ public class MissionStrike extends Mission {
     );
     if (report) I.say("\nRating importance of "+this+" for "+base);
     
-    final Base enemy = subject.base();
+    final Base enemy = subjectAsTarget().base();
     final float dislike = 0 - base.relations.relationWith(enemy);
     if (report) I.say("  Enemy dislike:  "+dislike);
     if (dislike <= 0) return -1;

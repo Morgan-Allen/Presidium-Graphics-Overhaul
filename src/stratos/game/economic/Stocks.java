@@ -229,8 +229,19 @@ public class Stocks extends Inventory {
   
   public boolean producer(Traded type) {
     final Demand d = demands.get(type);
-    if (d == null) return false;
-    return d.producer;
+    return d != null && d.producer;
+  }
+  
+  
+  public boolean consumer(Traded type) {
+    final Demand d = demands.get(type);
+    return d != null && ! d.producer;
+  }
+  
+  
+  public boolean isDemandFixed(Traded type) {
+    final Demand d = demands.get(type);
+    return d != null && d.fixed;
   }
   
   
@@ -295,6 +306,12 @@ public class Stocks extends Inventory {
     d.demandAmount = amount  ;
     d.fixed        = true    ;
     d.producer     = producer;
+  }
+  
+  
+  public void setFreeTrade(Traded type) {
+    final Demand d = demandRecord(type);
+    d.fixed = false;
   }
   
   
@@ -436,8 +453,8 @@ public class Stocks extends Inventory {
     final Base base = basis.base();
     final float
       amount      = amountOf(type),
-      exportPays  = base.commerce.exportPrice(type) / type.basePrice(),
-      importCosts = base.commerce.importPrice(type) / type.basePrice(),
+      exportPays  = base.commerce.exportPrice(type) / type.defaultPrice(),
+      importCosts = base.commerce.importPrice(type) / type.defaultPrice(),
       
       localDemand = base.demands.demandSampleFor(basis, type, 1),
       localSupply = base.demands.supplySampleFor(basis, type, 1),

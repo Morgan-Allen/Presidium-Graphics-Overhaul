@@ -5,13 +5,13 @@
   */
 package stratos.game.economic;
 import stratos.game.common.*;
-import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.Text;
-import stratos.start.Assets;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.start.Assets;
+import static stratos.game.economic.Economy.*;
 
 
 
@@ -50,7 +50,7 @@ public class Traded extends Constant implements Session.Saveable {
   final public String supplyKey, demandKey;
   
   private Conversion materials;
-  private float basePrice;
+  private float priceMargin, defaultPrice;
   final Batch <Blueprint> sources = new Batch();
   
   
@@ -80,11 +80,11 @@ public class Traded extends Constant implements Session.Saveable {
     String description
   ) {
     super(INDEX, name, name);
+    this.form         = form;
+    this.priceMargin  = basePrice * GameSettings.SPENDING_MULT;
+    this.defaultPrice = priceMargin;
     
-    this.form = form;
     this.description = description;
-    
-    this.basePrice = basePrice * GameSettings.SPENDING_MULT;
     final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
     
@@ -102,12 +102,20 @@ public class Traded extends Constant implements Session.Saveable {
   }
   
   
-  protected void setPrice(float base, Conversion materials) {
-    this.basePrice = base / 5f;
-    this.materials = materials;
-    if (materials != null) for (Item i : materials.raw) {
-      this.basePrice += i.defaultPrice();
-    }
+  protected void setPriceMargin(float margin, Conversion materials) {
+    this.priceMargin  = margin * GameSettings.SPENDING_MULT;
+    this.materials    = materials;
+    this.defaultPrice = Item.priceFor(this, -1, -1, null, false);
+  }
+  
+  
+  protected float priceMargin() {
+    return priceMargin;
+  }
+  
+  
+  public float defaultPrice() {
+    return defaultPrice;
   }
   
   
@@ -131,11 +139,6 @@ public class Traded extends Constant implements Session.Saveable {
   }
   
   
-  public float basePrice() {
-    return basePrice;
-  }
-  
-  
   public boolean common() {
     return form == FORM_MATERIAL || form == FORM_PROVISION;
   }
@@ -153,9 +156,8 @@ public class Traded extends Constant implements Session.Saveable {
     
     Text.insert(icon.asTexture(), 20, 20, true, d);
     d.append(description);
-    d.append("\n  (Base price "+basePrice()+" credits)");
+    d.append("\n  (Base price "+defaultPrice()+" credits)");
     Text.cancelBullet(d);
-    
     
     final Base base = BaseUI.currentPlayed();
     if (base == null) return;
@@ -164,7 +166,7 @@ public class Traded extends Constant implements Session.Saveable {
       canMake = new Batch <Blueprint> (),
       canUse  = new Batch <Blueprint> ();
     for (Blueprint b : base.setup.available()) {
-      if (b.category == UIConstants.TYPE_WIP) continue;
+      if (b.category == Target.TYPE_WIP) continue;
       else if (b.producing(this) != null) canMake.include(b);
       else if (b.consuming(this) != null) canUse .include(b);
     }
@@ -185,30 +187,32 @@ public class Traded extends Constant implements Session.Saveable {
       }
       else {
         d.append("\nMade from ");
-        for (Item i : c.raw) { d.append(i.type); d.append(" "); }
+        for (Item i : c.raw) { i.describeTo(d); d.append(" "); }
         d.append("at ");
         d.append(b);
       }
     }
     
-    d.append("\n");
-    final float localShort = base.commerce.primaryShortage(this);
-    if (localShort >= 0) {
-      final int percent = (int) (localShort * 100);
-      d.append("\nLocal demand: "+percent+"% shortage");
-    }
-    else {
-      final int percent = (int) (localShort * -100);
-      d.append("\nLocal demand: "+percent+"% surplus");
-    }
-    final float tradeShort = base.commerce.tradingShortage(this);
-    if (tradeShort >= 0) {
-      final int percent = (int) (tradeShort * 100);
-      d.append("\nTrade demand: "+percent+"% shortage");
-    }
-    else {
-      final int percent = (int) (tradeShort * -100);
-      d.append("\nTrade demand: "+percent+"% surplus");
+    if (common()) {
+      d.append("\n");
+      final float localShort = base.commerce.primaryShortage(this);
+      if (localShort >= 0) {
+        final int percent = (int) (localShort * 100);
+        d.append("\nLocal demand: "+percent+"% shortage");
+      }
+      else {
+        final int percent = (int) (localShort * -100);
+        d.append("\nLocal demand: "+percent+"% surplus");
+      }
+      final float tradeShort = base.commerce.tradingShortage(this);
+      if (tradeShort >= 0) {
+        final int percent = (int) (tradeShort * 100);
+        d.append("\nTrade demand: "+percent+"% shortage");
+      }
+      else {
+        final int percent = (int) (tradeShort * -100);
+        d.append("\nTrade demand: "+percent+"% surplus");
+      }
     }
   }
 }

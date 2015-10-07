@@ -234,7 +234,7 @@ public class MainMenu extends UIGroup {
       powers.addLast(p);
       if (powers.size() > MAX_POWERS) powers.removeFirst();
     }
-    help.setText(p.helpInfo);
+    help.setText(p.description);
     configForNew(null);
   }
   
@@ -248,7 +248,7 @@ public class MainMenu extends UIGroup {
     text.setText("");
     text.append("Expedition Settings:\n");
     
-    describePerk(0, config.siteLevel, "Site Type"    , SITE_DESC   );
+    describePerk(0, config.siteLevel, "Site Type"     , SITE_DESC   );
     describePerk(1, config.fundsLevel, "Funding Level", FUNDING_DESC);
     describePerk(
       2, config.titleLevel, "Granted Title",
@@ -311,7 +311,7 @@ public class MainMenu extends UIGroup {
   private void describePerk(int index, int level, String label, String desc[]) {
     text.append("\n  "+label);
     final int perkLeft = MAX_PERKS + level - perkSpent();
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < desc.length; i++) {
       text.append("\n    ");
       if (i <= perkLeft) {
         final Colour c = level == i ? Colour.CYAN : null;

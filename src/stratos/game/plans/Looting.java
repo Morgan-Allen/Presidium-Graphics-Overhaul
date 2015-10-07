@@ -276,7 +276,7 @@ public class Looting extends Plan {
   public boolean actionHide(Actor actor, Actor self) {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nHiding at "+self.origin());
-    return SenseUtils.breaksPursuit(actor);
+    return SenseUtils.breaksPursuit(actor, action());
   }
   
   
@@ -288,8 +288,9 @@ public class Looting extends Plan {
       success &= true;//Rand.yes();
     }
     else {
-      actor.skills.test(ASSEMBLY, ROUTINE_DC, 1);
-      success &= actor.skills.test(INSCRIPTION, SIMPLE_DC, 1);
+      final Action a = action();
+      actor.skills.test(ASSEMBLY, ROUTINE_DC, 1, a);
+      success &= actor.skills.test(INSCRIPTION, SIMPLE_DC, 1, a);
     }
     if (success) {
       this.access = actor.origin();

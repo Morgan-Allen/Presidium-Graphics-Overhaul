@@ -25,7 +25,7 @@ import java.lang.reflect.*;
 //*/
 
 
-public class Blueprint extends Constant implements Session.Saveable {
+public class Blueprint extends Constant implements UIConstants {
   
   
   final public static Index <Blueprint> INDEX = new Index <Blueprint> ();
@@ -44,14 +44,15 @@ public class Blueprint extends Constant implements Session.Saveable {
     armour     ;
   
   final public int owningTier;
-  
   private Upgrade upgradeLevels[];
-  private Object services[];
+  
+  private Conversion processes[] = null;
   private Batch <Conversion> producing = new Batch();
   private Batch <Conversion> consuming = new Batch();
   
   private Siting siting = null;
-  private Traded tradeServices[] = null;
+  private Object     allServices   [] = null;
+  private Traded     tradeServices [] = null;
   private Background careerServices[] = null;
   
 
@@ -69,7 +70,7 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.keyID     = key;
     
     this.category    = category;
-    this.icon        = icon;
+    this.icon        = icon == null ? DEFAULT_VENUE_ICON : icon;
     this.description = description;
     
     this.size = size;
@@ -93,7 +94,7 @@ public class Blueprint extends Constant implements Session.Saveable {
         TS.add((Traded) o);
       }
     }
-    this.services = services;
+    this.allServices    = services;
     this.tradeServices  = TS.toArray(Traded    .class);
     this.careerServices = CS.toArray(Background.class);
   }
@@ -132,11 +133,17 @@ public class Blueprint extends Constant implements Session.Saveable {
   }
   
   
+  public Object[] allServices() {
+    return allServices;
+  }
+  
+  
   
   /**  Factory methods for direct structure-upgrades.
     */
   public Upgrade[] createVenueLevels(
-    int numLevels, Upgrade required, int... buildCosts
+    int numLevels, Object required,
+    Object[] researchConversionArgs, int... buildCosts
   ) {
     if (buildCosts.length != numLevels) {
       I.complain("MUST HAVE BUILD COSTS FOR EACH VENUE LEVEL!");
@@ -145,11 +152,11 @@ public class Blueprint extends Constant implements Session.Saveable {
     this.upgradeLevels = new Upgrade[numLevels];
     
     for (int i = 0; i < numLevels; i++) upgradeLevels[i] = new Upgrade(
-      (i == 0) ? this.name : this.name+" Level "+(i + 1),
+      (i == 0) ? this.name : this.name+" L"+(i + 1),
       "Upgrade to level "+(i + 1),
       buildCosts[i], 1,
       (i == 0 ? required : upgradeLevels[i - 1]), this,
-      Upgrade.Type.VENUE_LEVEL, null
+      Upgrade.Type.VENUE_LEVEL, null, researchConversionArgs
     );
     return upgradeLevels;
   }
@@ -169,15 +176,6 @@ public class Blueprint extends Constant implements Session.Saveable {
   public Upgrade baseUpgrade() {
     if (upgradeLevels == null) return null;
     return upgradeLevels[0];
-  }
-  
-  
-  public int buildCost() {
-    //  TODO:  THIS MAY VARY BASED ON WHETHER THE UPGRADE IS A PROTOTYPE OR
-    //  NOT!
-    
-    if (upgradeLevels == null) return -1;
-    return baseUpgrade().buildCost;
   }
   
   
@@ -205,8 +203,13 @@ public class Blueprint extends Constant implements Session.Saveable {
   }
   
   
-  public boolean isGrouped() {
+  public boolean isLinear() {
     return hasProperty(Structure.IS_LINEAR);
+  }
+  
+  
+  public boolean isZoned() {
+    return hasProperty(Structure.IS_ZONED);
   }
   
   
@@ -220,15 +223,22 @@ public class Blueprint extends Constant implements Session.Saveable {
   }
   
   
-  public boolean isWild() {
-    return hasProperty(Structure.IS_WILD);
-  }
-  
-  
   
   /**  Conversion queries and registration-
     */
+  private void getProcesses() {
+    if (this.processes != null) return;
+    this.processes = Conversion.processedAt(this);
+    
+    for (Conversion p : processes) {
+      if (p.out != null) producing.include(p);
+      else if (p.raw.length > 0) consuming.include(p);
+    }
+  }
+  
+  
   public Conversion producing(Object t) {
+    getProcesses();
     for (Conversion c : producing) {
       if (c.out != null && c.out.type == t) return c;
     }
@@ -237,6 +247,7 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   
   public Conversion consuming(Object t) {
+    getProcesses();
     for (Conversion c : producing) {
       for (Item i : c.raw) if (i.type == t) return c;
     }
@@ -249,12 +260,6 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   public Series <Conversion> production() {
     return producing;
-  }
-  
-  
-  public void addProduction(Conversion p) {
-    if (p.out != null) producing.include(p);
-    else if (p.raw.length > 0) consuming.include(p);
   }
   
   
@@ -271,9 +276,17 @@ public class Blueprint extends Constant implements Session.Saveable {
   
   public static Blueprint[] allCivicBlueprints() {
     if (CIVIC_BP != null) return CIVIC_BP;
+    return CIVIC_BP = allCategoryBlueprints(Target.CIVIC_CATEGORIES);
+  }
+  
+  
+  public static Blueprint[] allCategoryBlueprints(String... categories) {
     final Batch <Blueprint> matches = new Batch <Blueprint> ();
-    for (Blueprint p : allBlueprints()) if (! p.isWild()) matches.add(p);
-    return CIVIC_BP = matches.toArray(Blueprint.class);
+    for (Blueprint p : allBlueprints()) {
+      if (! Visit.arrayIncludes(categories, p.category)) continue;
+      matches.add(p);
+    }
+    return matches.toArray(Blueprint.class);
   }
   
   
@@ -315,6 +328,12 @@ public class Blueprint extends Constant implements Session.Saveable {
   }
   
   
+  public int buildCost(Base base) {
+    if (upgradeLevels == null) return -1;
+    return baseUpgrade().buildCost(base);
+  }
+  
+  
   
   /**  Interface and debugging-
     */
@@ -331,11 +350,12 @@ public class Blueprint extends Constant implements Session.Saveable {
     if (category != null) {
       d.append("\nCategory: "+category+" Structures");
     }
-    final int cost = buildCost();
+    final int cost = buildCost(base);
     d.append("\nBuild cost: "+cost);
     
     if (baseUpgrade() != null) {
-      baseUpgrade().describeResearchStatus(d);
+      d.append("\n");
+      baseUpgrade().describeResearchStatus(d, this);
     }
     
     if (consuming.size() > 0) d.append("\n\nConsumption:");
@@ -368,7 +388,7 @@ public class Blueprint extends Constant implements Session.Saveable {
       d.append("\n  Base 2.5x per worker/day");
     }
     
-    if (! isGrouped()) {
+    if (! isLinear()) {
       final Batch <Venue> built = base.listInstalled(this, false);
       d.append("\n\nCurrently Built:");
       if (built.size() > 0) for (Venue v : built) {

@@ -1,12 +1,13 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.content.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
-//import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.Composite;
@@ -15,8 +16,16 @@ import stratos.util.*;
 
 
 
+//  TODO:  I think the constructor here needs to be private, and any references
+//  to the suspensor should be made strictly on a static basis- e.g, to avoid
+//  duplicates being created or instances being missing.
+
+
 public class Suspensor extends Mobile implements Mount {
   
+  
+  private static boolean
+    verbose = false;
 
   final static String
     FILE_DIR = "media/Vehicles/",
@@ -104,6 +113,12 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
+  public void describeActor(Actor mounted, Description d) {
+    d.append("Being carried by ");
+    d.append(followed);
+  }
+  
+  
   
   /**  Performing regular updates-
     */
@@ -111,26 +126,34 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (verbose) I.say("  ENTERING WORLD: "+this+" "+this.hashCode());
+    return super.enterWorldAt(x, y, world, intact);
+  }
+
+
   public void exitWorld() {
+    if (verbose) I.say("  EXITING WORLD: "+this+" "+this.hashCode());
     if (passenger != null) passenger.bindToMount(null);
     super.exitWorld();
   }
   
   
   protected void updateAsMobile() {
-    final boolean report = true && (
+    final boolean report = verbose && (
       I.talkAbout == passenger || I.talkAbout == followed
     );
     super.updateAsMobile();
+    
     //
     //  Firstly, check whether you even need to exist any more-
-    if ((! followed.inWorld()) || (followed.matchFor(tracked) == null)) {
+    if ((! followed.inWorld()) || (tracked.finished())) {
       if (report) {
         I.say("\nSuspensor exiting world!");
         I.say("  Actor followed:   "+followed);
         I.say("  In world?         "+followed.inWorld());
         I.say("  Activity tracked: "+tracked);
-        I.say("  Activity valid?   "+(followed.matchFor(tracked) != null));
+        I.say("  Activity valid?   "+(tracked.finished()));
       }
       if (passenger != null) {
         final Vec3D ground = this.position(null);
@@ -173,9 +196,25 @@ public class Suspensor extends Mobile implements Mount {
     return followed.isMoving();
   }
   
+
+  protected boolean collides() {
+    return false;
+  }
   
-  protected float aboveGroundHeight() { return 0.15f; }
+  
+  protected float boardHeight(Boarding aboard) {
+    return super.boardHeight(followed.aboard());
+  }
+  
+  
+  protected float aboveGroundHeight() {
+    return 0.15f;
+  }
+  
+  
   public float radius() { return 0.0f; }
+  
+  
   public Base base() { return followed.base(); }
   
   
@@ -210,7 +249,19 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
-  public void describeStatus(Description d) {
+  public Target selectionLocksOn() {
+    return null;
+  }
+  
+  
+  public void renderSelection(Rendering rendering, boolean hovered) {
+    if (destroyed() || origin() == null) return;
+    //  TODO:  Revisit this later.
+    return;
+  }
+  
+  
+  public void describeStatus(Description d, Object client) {
     if (passenger != null) {
       d.append("Carrying ");
       d.append(passenger);

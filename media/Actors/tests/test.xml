@@ -27,17 +27,20 @@
     <animation name="strike_big" start="70" end="74" duration="1.5" />
     <animation name="move_fast"  start="75" end="83" duration="0.7" />
     <animation name="move_sneak" start="85" end="93" duration="0.7" />
-	<animation name="CarryOn" 		 start="94" end="114" duration="1" />
-	<animation name="Sneaking" 		 start="115" end="135" duration="1.5" />
-	<animation name="TalkingWarning" 		 start="136" end="161" duration="2.5" />
-	<animation name="Firenew" 		 start="162" end="197" duration="2" />
-	<animation name="FireHeavy" 		 start="198" end="246" duration="2.8" />
-	<animation name="Attack 2H" 		 start="247" end="269" duration="1.1" />
-	<animation name="Defence 2H" 		 start="270" end="293" duration="1.8" />
-	<animation name="Attack 1H" 		 start="294" end="324" duration="1.1" />
-	<animation name="Defence1H" 		 start="325" end="350" duration="1" />
-	<animation name="ASleep" 		 start="351" end="401" duration="4" />
-	<animation name="Frustrated" 		 start="402" end="488" duration="4" />
+	<animation name="carry_on" 		 start="94" end="114" duration="1" />
+	<animation name="sneaking" 		 start="115" end="135" duration="1.5" />
+	<animation name="talking_warning" 		 start="136" end="161" duration="2.5" />
+	<animation name="firen_new" 		 start="162" end="185" duration="2.5" />
+	<animation name="fire_heavy" 		 start="186" end="212" duration="1.2" />
+	<animation name="attack_2H" 		 start="213" end="235" duration="1.1" />
+	<animation name="attack_1H" 		 start="236" end="266" duration="1.1" />
+	<animation name="defence_1H" 		 start="267" end="292" duration="1.2" />
+	<animation name="defence_2H" 		 start="293" end="316" duration="1" />
+	<animation name="asleep" 		 start="317" end="367" duration="4" />
+	<animation name="talk_complain" 		 start="368" end="454" duration="4" />
+	<animation name="flinch" 		 start="455" end="479" duration="0.9" />
+	<animation name="flinch2" 		 start="480" end="509" duration="1.1" />
+	<animation name="flinch3" 		 start="510" end="535" duration="0.8" />
   </animations>
   
   <attachPoints>
@@ -61,11 +64,11 @@
 <animations rotate="90">
 	<animation name="still"      start="1"  end="1"  duration="1" />
     <animation name="idle"      start="1"  end="10"  duration="2" />
-	<animation name="walk"      start="11"  end="40"  duration="2" />
-	<animation name="attack"      start="41"  end="80"  duration="2" />
-	<animation name="feeding"      start="81"  end="130"  duration="2.5" />
-	<animation name="death"      start="131"  end="175"  duration="2.5" />
-	<animation name="death2"      start="176"  end="229"  duration="2.5" />
+	<animation name="walk"      start="11"  end="39"  duration="2" />
+	<animation name="attack"      start="41"  end="87"  duration="2" />
+	<animation name="feeding"      start="88"  end="137"  duration="2.5" />
+	<animation name="death"      start="138"  end="182"  duration="2.5" />
+	<animation name="death2"      start="183"  end="236"  duration="2.5" />
  </animations>
 
 </model>

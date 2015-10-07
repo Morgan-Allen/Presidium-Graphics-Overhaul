@@ -42,17 +42,17 @@ public class Pathing {
   
   void loadState(Session s) throws Exception {
     trueTarget = s.loadTarget();
-    path = (Boarding[]) s.loadTargetArray(Boarding.class);
+    path       = (Boarding[]) s.loadTargetArray(Boarding.class);
     pathTarget = (Boarding) s.loadTarget();
-    stepIndex = s.loadInt();
+    stepIndex  = s.loadInt();
   }
   
   
   void saveState(Session s) throws Exception {
-    s.saveTarget(trueTarget);
-    s.saveTargetArray(path);
-    s.saveTarget(pathTarget);
-    s.saveInt(stepIndex);
+    s.saveTarget     (trueTarget);
+    s.saveTargetArray(path      );
+    s.saveTarget     (pathTarget);
+    s.saveInt        (stepIndex );
   }
   
   
@@ -361,6 +361,9 @@ public class Pathing {
   
   public void applyCollision(float moveRate, Target focus) {
     final boolean report = I.talkAbout == mobile && moveVerbose;
+    final Mobile m = mobile;
+    if (m.indoors() || ! m.collides()) return;
+    //
     //  TODO:  I am probably going to have to implement some kind of proper
     //  polygonal pathfinding here.  For the moment, it's just kind of
     //  distracting.
@@ -372,7 +375,12 @@ public class Pathing {
       if (PathSearch.blockedBy(mobile.aboard(), mobile)) {
         final Tile blocked = mobile.origin();
         final Tile free = Spacing.nearestOpenTile(blocked, mobile);
-        if (free == null) I.complain("NO FREE TILE AVAILABLE!");
+        if (free == null) {
+          if (I.used60Frames && I.logEvents()) {
+            I.say("NO FREE TILE: "+m+" at "+mobile.aboard());
+          }
+          return;
+        }
         if (blockReport) {
           I.say("\nEscaping to free tile: "+free);
           I.say("  Was aboard: "+mobile.aboard());
@@ -383,12 +391,11 @@ public class Pathing {
       }
     }
     
-    final Mobile m = mobile;
-    if (m.indoors() || ! m.collides()) return;
     final Vec2D sum = new Vec2D(), disp = new Vec2D();
     int numHits = 0;
     final float mMin = m.position.z, mMax = mMin + m.height();
     final Box2D area = m.area(null).expandBy(1);
+    final float selfRadius = Nums.min(m.radius(), 0.5f);
     //
     //  After determining height range and ground-area affected, we iterate
     //  over every tile likely to be affected-
@@ -406,21 +413,21 @@ public class Pathing {
       }
       //
       //  Then, we check for collision with other mobiles within the same
-      //  height range-
-      //  TODO:  This isn't actually guaranteed to catch all nearby mobiles
-      //  unless you register them in multiple tiles.  See about that.
+      //  height range and any adjacent tiles.  (We effectively clip diameter
+      //  to one tile-unit for this purpose.)
       else for (Mobile near : t.inside()) {
         if (near == m || near == focus || ! near.collides()) continue;
         final float
-          nMin = near.aboveGroundHeight(),
-          nMax = nMin + near.height();
+          nMin       = near.aboveGroundHeight(),
+          nMax       = nMin + near.height(),
+          nearRadius = Nums.min(near.radius(), 0.5f);
         if (nMin > mMax || mMin > nMax) continue;
         //
         //  Then, we establish the relative distance and displacement-
-        disp.setFromAngle(Rand.num() * 360).scale(0.1f * m.radius());
+        disp.setFromAngle(Rand.num() * 360).scale(0.1f * selfRadius);
         disp.x += m.position.x - near.position.x;
         disp.y += m.position.y - near.position.y;
-        final float dist = disp.length() - (m.radius() + near.radius());
+        final float dist = disp.length() - (selfRadius + nearRadius);
         if (dist > 0 || disp.length() == 0) continue;
         //
         //  If both check out, we increase the translation based on distance

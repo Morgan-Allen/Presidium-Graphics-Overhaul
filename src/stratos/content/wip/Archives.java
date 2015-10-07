@@ -41,12 +41,11 @@ public class Archives extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives",
-    "Archives", UIConstants.TYPE_WIP, ICON,
+    "Archives", Target.TYPE_WIP, ICON,
     "The Archives provide "+DATALINKS+" and facilitate research and "+
     "administration by base personnel.",
-    4, 2, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 250,
-    3
+    4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 250, 3,
+    SAVANT, DATALINKS, SERVICE_RESEARCH
   );
   
   final public static Conversion
@@ -77,13 +76,8 @@ public class Archives extends Venue {
   
   /**  Upgrade and economy methods-
     */
-  public Background[] careers() {
-    return new Background[] { SAVANT };
-  }
-  
-  
-  protected int numOpenings(Background b) {
-    final int nO = super.numOpenings(b);
+  protected int numPositions(Background b) {
+    final int nO = super.numPositions(b);
     if (b == SAVANT) return nO + 2;
     return 0;
   }
@@ -110,15 +104,10 @@ public class Archives extends Venue {
   }
   
   
-  public Traded[] services() {
-    return new Traded[] { DATALINKS, SERVICE_ADMIN };
-  }
-  
-  
   public void addServices(Choice choice, Actor client) {
     //
     //  TODO:  Allow upgrades for different skill areas!
-    choice.add(Studying.asStudy(client, this, STUDY_FEE));
+    choice.add(Studying.asSkillStudy(client, this, STUDY_FEE));
     choice.add(BringUtils.nextHomePurchase(client, this, DATALINKS));
   }
   

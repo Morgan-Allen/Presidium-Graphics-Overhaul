@@ -134,6 +134,16 @@ public class SFXPass {
   
   
   protected void compileQuad(
+    Texture tex, Colour colour, boolean vivid, Vec3D verts[], Box2D frameUV
+  ) {
+    compileQuad(
+      tex, colour, vivid, verts,
+      frameUV.xpos(), frameUV.ypos(), frameUV.xmax(), frameUV.ymax()
+    );
+  }
+  
+  
+  protected void compileQuad(
     Texture tex, Colour colour, boolean vivid,
     Vec3D verts[], float umin, float vmin, float umax, float vmax
   ) {

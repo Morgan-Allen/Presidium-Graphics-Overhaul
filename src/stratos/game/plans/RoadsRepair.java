@@ -61,7 +61,7 @@ public class RoadsRepair extends Plan {
   
   /**  Target evaluation and prioritisation-
     */
-  final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
+  final static Trait BASE_TRAITS[] = { METICULOUS, ENERGETIC };
   
   
   protected float getPriority() {

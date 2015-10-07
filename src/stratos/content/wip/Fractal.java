@@ -33,7 +33,7 @@ public class Fractal extends Venue {
     */
   final public static Blueprint BLUEPRINT = new Blueprint(
     Fractal.class, "fractal",
-    "Fractal", UIConstants.TYPE_WIP, ICON,
+    "Fractal", Target.TYPE_WIP, ICON,
     "Fractals are decorative paving structures composed of interlocking "+
     "geometric forms.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,

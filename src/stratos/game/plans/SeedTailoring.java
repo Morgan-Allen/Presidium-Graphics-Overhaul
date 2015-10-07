@@ -70,6 +70,50 @@ public class SeedTailoring extends Plan {
   
   
   
+  /**  Query methods used externally-
+    */
+  final public static Traded SAMPLE_TYPES[] = { SAMPLES };
+  
+  
+  private static Species referred(Item i) {
+    if (i.refers instanceof Species) return (Species) i.refers;
+    return null;
+  }
+  
+  
+  public static float numSamples(Venue lab) {
+    float samples = 0;
+    for (Item i : lab.stocks.matches(SAMPLES)) {
+      final Species s = referred(i);
+      if (s != null && ! s.domesticated) samples++;
+    }
+    return samples;
+  }
+  
+  
+  public static boolean hasSample(Owner owner, Species s) {
+    if (owner == null) return false;
+    for (Item i : owner.inventory().matches(SAMPLES)) {
+      if (s == referred(i)) return true;
+    }
+    return false;
+  }
+  
+  
+  public static Item sampleFrom(Flora flora) {
+    return Item.with(SAMPLES, flora.species(), 1, Item.AVG_QUALITY);
+  }
+  
+  
+  public static float sampleValue(Flora flora, Actor actor, Venue depot) {
+    if (flora.species().domesticated     ) return -1  ;
+    if (hasSample(actor, flora.species())) return -1  ;
+    if (hasSample(depot, flora.species())) return 0.5f;
+    return 1;
+  }
+  
+  
+  
   /**  Behaviour implementation-
     */
   protected float getPriority() {
@@ -105,20 +149,6 @@ public class SeedTailoring extends Plan {
   }
   
   
-  private static float numSamples(Venue lab) {
-    float samples = 0;
-    for (Item i : lab.stocks.matches(SAMPLES)) {
-      if (i.refers == Flora.WILD_FLORA) samples += Nums.max(1, i.amount);
-    }
-    return samples;
-  }
-  
-  
-  public static float needForSamples(Venue lab) {
-    return 1 - (numSamples(lab) / DESIRED_SAMPLES);
-  }
-  
-  
   public boolean actionTailorGenes(Actor actor, Venue lab) {
     final boolean report = stepsVerbose && (
       I.talkAbout == actor || I.talkAbout == lab
@@ -126,16 +156,17 @@ public class SeedTailoring extends Plan {
     //
     //  Okay.  We boost the max/min quality based on the upgrades available at
     //  the lab.
-    final Traded yield = Crop.yieldType(species);
+    final Item yield[] = species.nutrients(0);
     final int upgrade = Nums.clamp(lab.structure.upgradeLevel(yield), 3);
     final int minLevel = upgrade - 1, maxLevel = upgrade + 1;
     //
     //  There's also a partial bonus based on the quality of samples collected,
     //  and a larger bonus based on the skill of the gene-tailor.  If neither
     //  of those work out, then the tailoring-attempt fails.
+    final Action a = action();
     float sampleBonus = numSamples(lab) / DESIRED_SAMPLES, skillCheck = -0.5f;
-    skillCheck += actor.skills.test(GENE_CULTURE, MODERATE_DC , 1) ? 1 : 0;
-    skillCheck += actor.skills.test(CULTIVATION , DIFFICULT_DC, 1) ? 1 : 0;
+    skillCheck += actor.skills.test(GENE_CULTURE, MODERATE_DC , 1, a) ? 1 : 0;
+    skillCheck += actor.skills.test(CULTIVATION , DIFFICULT_DC, 1, a) ? 1 : 0;
     if (skillCheck + sampleBonus <= 0) return false;
     //
     //  The final quality of the result depends on the sum of the sample-bonus
@@ -150,7 +181,7 @@ public class SeedTailoring extends Plan {
     
     if (report) I.reportVars(
       "\nAttempted seed-tailoring", "  ",
-      "Food yield "     , yield,
+      "Food yield "     , I.list(yield),
       "Upgrade level "  , upgrade,
       "Min/max quality ", minLevel+"/"+maxLevel,
       "Sample bonus"    , sampleBonus,

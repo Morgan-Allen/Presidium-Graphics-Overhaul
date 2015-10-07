@@ -22,7 +22,7 @@ public class PlanUtils {
   
   private static boolean
     verbose     = false,
-    failVerbose = true ;
+    failVerbose = false;
   
   
   private static boolean reportOn(Actor a, float priority) {
@@ -37,7 +37,7 @@ public class PlanUtils {
     Actor actor, Target subject,
     float rewardBonus, int teamSize, boolean asRealTask, float harm
   ) {
-    float incentive = 0, winChance, inhibition, priority;
+    float incentive = 0, winChance, inhibition, priority = 0;
     float harmDone, dislike, wierdness, conscience;
     
     if (! asRealTask && CombatUtils.isDowned(subject, Combat.OBJECT_EITHER)) {
@@ -51,7 +51,7 @@ public class PlanUtils {
     
     harmDone = harmIntendedBy(subject, actor, false) * 10;
     if (harmDone > 0) {
-      harmDone *= PlanUtils.traitAverage(actor, DEFENSIVE, IMPULSIVE);
+      harmDone *= PlanUtils.traitAverage(actor, DEFENSIVE, IMPULSIVE) * 2;
     }
     
     incentive += dislike ;
@@ -62,14 +62,14 @@ public class PlanUtils {
     if (! asRealTask) return incentive;
     
     conscience = 10 * baseConscience(actor, subject) * harm;
-    if      (incentive <= conscience   ) return -1     ;
-    else if (! isArmed(actor)          ) incentive -= 5;
-    else if (actor.senses.isEmergency()) incentive += 5;
+    if (! isArmed(actor)          ) incentive -= 5;
+    if (actor.senses.isEmergency()) incentive += 5;
+    if (incentive <= conscience   ) winChance = priority = -1;
+    else winChance = combatWinChance(actor, subject, teamSize);
     
-    winChance  = combatWinChance(actor, subject, teamSize);
-    inhibition = Nums.max(10 * (1 - winChance), conscience);
-    if (incentive < inhibition) return -1;
-    priority = incentive * (1 + winChance) / 2;
+    inhibition = Nums.max(5 * (1 - winChance), conscience);
+    if (incentive < inhibition) priority = -1;
+    if (priority != -1) priority = incentive * (1 + winChance) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
@@ -94,26 +94,57 @@ public class PlanUtils {
   /**  Retreat priority.  Should range from 0 to 20.
     */
   public static float retreatPriority(
-    Actor actor, Target point
+    Actor actor, Target point, Target haven,
+    boolean asRealTask, boolean emergency, boolean hasWorldExit
   ) {
     float incentive = 0, loseChance, priority;
     float homeDistance, escapeChance, injury;
+    final boolean attacked = actor.senses.underAttack();
     
+    loseChance    = 1f - combatWinChance(actor, point, 1);
+    homeDistance  = distanceFactor(actor, point, haven);
+    incentive    += Nums.max(loseChance * 15, homeDistance * 5);
+    incentive    += (injury = actor.health.injuryLevel()) * 10;
+    
+    if (hasWorldExit) homeDistance = Nums.max(1, homeDistance);
+    
+    if (asRealTask) {
+      escapeChance  = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
+      escapeChance *= Nums.min(1, homeDistance + (attacked ? 0 : 0.5f));
+      
+      if (emergency ) incentive += 2.5f;
+      if (! attacked) incentive -= 5.0f;
+      if (loseChance > 0 && ! isArmed(actor)    ) incentive += 2.5f;
+      if (Action.isStealthy(actor) && ! attacked) incentive -= 5.0f;
+    }
+    else {
+      escapeChance = Nums.min(1, homeDistance);
+    }
+    
+    priority = Nums.clamp(incentive * escapeChance, -10, 20);
+    
+    /*
+    ///final boolean urgent = actor.senses.isEmergency();
     loseChance = 1f - combatWinChance(actor, point, 1);
     if (actor.senses.fearLevel() == 0) loseChance = 0;
     
     homeDistance = homeDistanceFactor(actor, point);
-    if (Action.isStealthy(actor)) homeDistance /= 4;
-    if (actor.senses.isEmergency()) homeDistance *= 1.5f;
-    if (loseChance > 0 && ! isArmed(actor)) homeDistance += 0.5f;
     
-    incentive    += Nums.max(loseChance * 20, homeDistance * 5);
-    incentive    += (injury = actor.health.injuryLevel()) * 10;
+    if (Action.isStealthy(actor)) homeDistance /= 2;
+    if (actor.senses.isEmergency()) homeDistance *= 1.5f;
+    if (loseChance > 0 && ! isArmed(actor)) homeDistance *= 1.5f;
+    
+    incentive += Nums.max(loseChance * 20, homeDistance * 5);
+    incentive += (injury = actor.health.injuryLevel()) * 10;
+    
     escapeChance = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
     escapeChance = escapeChance * Nums.min(1, homeDistance);
-    priority     = Nums.clamp(incentive * escapeChance, -10, 20);
+    if (actor.indoors()) escapeChance += 0.25f;
     
-    if (reportOn(actor, priority)) I.reportVars(
+    priority = Nums.clamp(incentive * escapeChance, -10, 20);
+    //*/
+    
+    if (asRealTask && reportOn(actor, priority)) I.reportVars(
       "\nRetreat priority for "+actor, "  ",
       "haven is    ", actor.senses.haven()+" (at "+actor.origin()+")",
       "incentive   ", incentive,
@@ -227,8 +258,11 @@ public class PlanUtils {
     incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
     incentive += rewardBonus;
     
-    retreatUrge = PlanUtils.retreatPriority(actor, surveyed);
+    retreatUrge = PlanUtils.retreatPriority(
+      actor, surveyed, actor.senses.haven(), false, false, false
+    );
     priority = incentive - (retreatUrge / 2);
+    if (idle) priority = Nums.max(priority, novelty / 2);
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nExplore priority for "+actor, "  ",
@@ -243,8 +277,6 @@ public class PlanUtils {
       "retreat urge"  , retreatUrge  ,
       "priority"      , priority
     );
-    
-    if (priority < retreatUrge) return 0;
     return priority;
   }
   
@@ -312,18 +344,21 @@ public class PlanUtils {
   ) {
     float incentive = 0, priority = 0, enjoyBonus = 0;
     float dutyBonus = 0, helpBonus = 0, shift = 0;
-    float failPenalty = 0, help = 0;
+    float failPenalty = 0, help = 0, motiveBonus = 0;
     
-    final Property work = actor.mind.work();
-    float liking = actor.relations.valueFor(plan.subject);
-    if (urgency > 0 && plan.hasBegun()) {
+    if (plan.hasBegun() && plan.persistent()) {
       urgency = Nums.max(urgency, 0.5f);
       shift   = Venue.SECONDARY_SHIFT;
     }
+    else if (urgency <= 0 && plan.motiveBonus() <= 0) {
+      return -1;
+    }
     
+    final Property work = actor.mind.work();
+    float liking = actor.relations.valueFor(plan.subject);
     incentive += urgency * 10 * liking;
-    incentive *= (enjoyBonus = traitAverage(actor, enjoyTraits));
-    incentive += plan.motiveBonus();
+    incentive += (enjoyBonus = traitAverage(actor, enjoyTraits)) * 2.5f;
+    incentive += motiveBonus = plan.motiveBonus();
     
     if (helpLimit >= 0) {
       help = competition(plan, plan.subject, actor);
@@ -342,10 +377,10 @@ public class PlanUtils {
 
     if (plan.isJob() && work != null) {
       shift     = Nums.max(shift, work.staff().shiftFor(actor));
-      dutyBonus = actor.traits.relativeLevel(DUTIFUL) * 1.25f;
-      if (shift == Venue.OFF_DUTY     ) dutyBonus -= 1.25f;
-      if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 3.75f;
-      priority += dutyBonus;
+      dutyBonus = (actor.traits.relativeLevel(DUTIFUL) + 1) * 2.5f;
+      if (shift == Venue.OFF_DUTY     ) dutyBonus -= 2.5f;
+      if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 2.5f;
+      priority += dutyBonus * urgency;
     }
     
     priority -= failPenalty = (1 - competence) * 10 * riskLevel;
@@ -358,6 +393,7 @@ public class PlanUtils {
       "Liking"     , liking      ,
       "Urgency"    , urgency     ,
       "Competence" , competence  ,
+      "motiveBonus", motiveBonus ,
       "enjoyBonus" , enjoyBonus  ,
       "dutyBonus"  , dutyBonus   ,
       "failRisk"   , riskLevel   ,
@@ -406,7 +442,7 @@ public class PlanUtils {
     float strangeness = actor.relations.noveltyFor(toward.base());
     float curiosity = (1 + actor.traits.relativeLevel(CURIOUS)) / 2;
     if (positive) return curiosity * strangeness;
-    else return Nums.clamp(strangeness - curiosity, 0, 1);
+    else return Nums.clamp(strangeness + 0.5f - curiosity, 0, 1);
   }
   
   
@@ -448,27 +484,6 @@ public class PlanUtils {
     return competition;
   }
   
-
-  //  TODO:  Pass in a conversion instead (or allow for that.)
-  public static float successForActorWith(
-    Actor actor, Skill baseSkills[], float DC, boolean realTest
-  ) {
-    if (realTest) {
-      float success = 0;
-      for (Skill s : baseSkills) {
-        success += actor.skills.test(s, DC, 1) ? 1 : 0;
-      }
-      return success / baseSkills.length;
-    }
-    else {
-      float chance = 0;
-      for (Skill s : baseSkills) {
-        chance += actor.skills.chance(s, DC);
-      }
-      return chance / baseSkills.length;
-    }
-  }
-  
   
   
   /**  Combat-related utility methods.
@@ -480,12 +495,28 @@ public class PlanUtils {
   }
   
   
-  public static float homeDistanceFactor(Actor actor, Target around) {
-    final Target haven = actor.senses.haven();
+  public static boolean underAttack(Target target) {
+    final Stage world = target.world();
+    if (world == null) return false;
+    for (Behaviour b : world.activities.allTargeting(target)) {
+      if (b instanceof Combat) return true;
+    }
+    return false;
+  }
+  
+  
+  public static float distanceFactor(
+    Actor actor, Target around, Target haven
+  ) {
     if (haven == null) return 0;
     float baseMult = Spacing.distance(around, haven);
     baseMult = Nums.sqrt(baseMult / Stage.ZONE_SIZE);
     return baseMult / 2;
+  }
+  
+
+  public static float homeDistanceFactor(Actor actor, Target around) {
+    return distanceFactor(actor, around, actor.senses.haven());
   }
   
   
@@ -525,22 +556,45 @@ public class PlanUtils {
   
   
   public static float harmIntendedBy(
-    Target acts, Actor witness, boolean asCombat
+    Target acts, Actor witness, boolean combatOnly
   ) {
     if (acts instanceof Actor) {
       final Actor other = (Actor) acts;
-      final Target victim = asCombat ?
-        other.planFocus(Combat.class, true) :
-        other.actionFocus()
-      ;
-      if (victim != null) {
-        float protectUrge = witness.relations.valueFor(victim);
-        return other.harmIntended(victim) * protectUrge;
-      }
+      
+      Target attackVictim = other.planFocus(Combat.class, true);
+      Target otherVictim  = combatOnly ? null : other.actionFocus();
+      
+      float attackValue = witness.relations.valueFor(attackVictim);
+      float otherValue  = witness.relations.valueFor(otherVictim );
+      
+      float harmMeant = Nums.max(
+        other.harmIntended(attackVictim) * attackValue,
+        other.harmIntended(otherVictim ) * otherValue
+      );
+      return harmMeant;
     }
     if (acts instanceof Venue) {
+      //  TODO:  Fill this in
     }
     return 0;
+  }
+  
+  
+  public static Series <Actor> subjectsInRange(Target point, float radius) {
+    final Batch <Actor> subjects = new Batch();
+    final Vec3D centre = point.position(null);
+    final Box2D area = new Box2D(centre.x, centre.y, 0, 0);
+    area.expandBy(Nums.round(radius + point.radius(), 1, true));
+    
+    final Stage world = point.world();
+    final PresenceMap mobiles = world.presences.mapFor(Mobile.class);
+    
+    for (Target m : mobiles.visitNear(point, radius, null)) {
+      if (Spacing.distance(m, point) > radius) continue;
+      if (! (m instanceof Actor)) continue;
+      subjects.add((Actor) m);
+    }
+    return subjects;
   }
   
   
@@ -566,7 +620,8 @@ public class PlanUtils {
   //  TODO:  Use this for ambitions-evaluation?
   /*
   if (Visit.arrayIncludes(at.careers(), position)) {
-    //quality = at.base().profiles.profileFor(actor).salary() / position.defaultSalary;
+    //quality = at.base().profiles.profileFor(actor).salary() /
+     * position.defaultSalary;
     quality += Career.ratePromotion(position, actor, report) * 2;
   }
   else if (position == Backgrounds.AS_RESIDENT) {

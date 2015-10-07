@@ -269,9 +269,7 @@ public class SolidSprite extends Sprite {
     if (animStates.size() == 0) return v.setTo(position);
     
     final Integer nodeIndex = model.indexFor(function);
-    if (nodeIndex == null) {
-      return new Vec3D(position);
-    }
+    if (nodeIndex == null) return super.attachPoint(function, v);
     
     tempV.set(0, 0, 0);
     tempV.mul(boneTransforms[nodeIndex]);

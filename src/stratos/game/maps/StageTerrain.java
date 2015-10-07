@@ -12,14 +12,6 @@ import stratos.util.*;
 
 
 
-
-/*
-terrain chance (scaled proportionately) = x * (1 - x) * (1 + tx)
-x = moisture
-t = terraform-progress  (1 as default).
-//*/
-
-
 public class StageTerrain implements TileConstants, Session.Saveable {
   
   
@@ -42,9 +34,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     NUM_MINERAL_TYPES  = 4 ,
     MAX_MINERAL_AMOUNT = 10,
     
-    ROAD_NONE     = 0,
-    ROAD_LIGHT    = 1,
-    ROAD_HEAVY    = 2,
+    ROAD_NONE     =  0,
+    ROAD_LIGHT    =  1,
+    ROAD_STRIP    = -1,
+    ///ROAD_HEAVY    = 2,
     
     TILE_VAR_LIMIT = 4;
   
@@ -54,15 +47,15 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     INDEX_FERTILITY  = 0,
     INDEX_INSOLATION = 1,
     INDEX_MINERALS   = 2,
-    INDEX_HABITATS   = 3,
-    NUM_SAMPLE_MAPS  = INDEX_HABITATS + Habitat.ALL_HABITATS.length;
+    INDEX_HABITATS   = 3;
   
+  final Habitat gradient[] = Habitat.GRADIENT();
   final public int
     mapSize;
   private byte
     heightVals[][],
-    typeIndex[][],
-    varsIndex[][];
+    typeIndex [][],
+    varsIndex [][];
   
   private Habitat
     habitats[][];
@@ -76,8 +69,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   private LayerType stripLayer;
   private LayerType reservations;
   
-  private static class Sample {
-    final int measures[] = new int[NUM_SAMPLE_MAPS];
+  private class Sample {
+    final int measures[] = new int[gradient.length + INDEX_HABITATS];
     int area = 0;
   }
   private Sample sampleGrid[][];
@@ -85,14 +78,13 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   StageTerrain(
-    Habitat[] gradient,
     byte typeIndex[][],
     byte varsIndex[][],
     byte heightVals[][]
   ) {
-    this.mapSize = typeIndex.length;
-    this.typeIndex = typeIndex;
-    this.varsIndex = varsIndex;
+    this.mapSize    = typeIndex.length;
+    this.typeIndex  = typeIndex;
+    this.varsIndex  = varsIndex;
     this.heightVals = heightVals;
     
     initHabitatFields();
@@ -103,7 +95,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   private void initHabitatFields() {
     habitats = new Habitat[mapSize][mapSize];
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
-      habitats[c.x][c.y] = Habitat.ALL_HABITATS[typeIndex[c.x][c.y]];
+      habitats[c.x][c.y] = gradient[typeIndex[c.x][c.y]];
     }
     minerals = new byte[mapSize][mapSize];
     paveVals = new byte[mapSize][mapSize];
@@ -113,17 +105,17 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   public StageTerrain(Session s) throws Exception {
     s.cacheInstance(this);
-    mapSize = s.loadInt();
     
-    heightVals = new byte[mapSize + 1][mapSize + 1];
+    mapSize = s.loadInt();
+    heightVals = new byte[mapSize * 2][mapSize * 2];
     typeIndex  = new byte[mapSize    ][mapSize    ];
     varsIndex  = new byte[mapSize    ][mapSize    ];
-    
-    initHabitatFields();
     
     s.loadByteArray(heightVals);
     s.loadByteArray(typeIndex);
     s.loadByteArray(varsIndex);
+    
+    initHabitatFields();
     
     s.loadByteArray(minerals);
     s.loadByteArray(paveVals);
@@ -133,6 +125,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
+    
     s.saveInt(mapSize);
     s.saveByteArray(heightVals);
     s.saveByteArray(typeIndex);
@@ -171,10 +164,11 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   private void incSampleAt(int x, int y, Habitat h, int inc) {
     if (h == null) return;
     final Sample s = sampleAt(x, y);
-    s.measures[INDEX_HABITATS + h.ID] += inc;
-    s.measures[INDEX_INSOLATION     ] += h.insolation() * inc;
-    s.measures[INDEX_MINERALS       ] += h.minerals  () * inc;
-    s.measures[INDEX_FERTILITY      ] += h.moisture  () * inc;
+    final int hID = h.layerID;
+    s.measures[INDEX_HABITATS + hID] += inc;
+    s.measures[INDEX_INSOLATION    ] += h.insolation() * inc;
+    s.measures[INDEX_MINERALS      ] += h.minerals  () * inc;
+    s.measures[INDEX_FERTILITY     ] += h.moisture  () * inc;
     s.area += inc;
     if (s != globalSample) incSampleAt(-1, -1, h, inc);
   }
@@ -229,8 +223,13 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   }
   
   
+  public float habitatSample(Tile t, int habID) {
+    return sampleAt(t, INDEX_HABITATS + habID);
+  }
+  
+  
   public float habitatSample(Tile t, Habitat h) {
-    return sampleAt(t, INDEX_HABITATS + h.ID);
+    return sampleAt(t, h.layerID);
   }
   
   
@@ -244,12 +243,11 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     final Habitat old = habitats[t.x][t.y];
     if (old == h) return;
     
-    habitats [t.x][t.y] = h;
-    typeIndex[t.x][t.y] = (byte) h.ID;
+    habitats [t.x][t.y] = gradient[h.layerID];
+    typeIndex[t.x][t.y] = (byte) h.layerID;
     incSampleAt(t.x, t.y, old, -1);
     incSampleAt(t.x, t.y, h  ,  1);
     
-    t.refreshHabitat();
     for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y);
     }
@@ -276,8 +274,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   public void setMinerals(Tile t, byte type, int amount) {
-    final byte oldVal = minerals[t.x][t.y];
-    
     byte value = 0;
     if (amount > 0) {
       value += (type * MAX_MINERAL_AMOUNT);
@@ -285,10 +281,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     }
     else value = -1;
     minerals[t.x][t.y] = value;
-    
-    if (value != oldVal) for (Tile n : t.vicinity(tempV)) if (n != null) {
-      meshSet.flagUpdateAt(n.x, n.y, stripLayer);
-    }
   }
   
   
@@ -297,13 +289,55 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   }
   
   
-  public float trueHeight(float x, float y) {
-    return Nums.sampleMap(mapSize, heightVals, x, y) / 4;
+  public int varAt(Tile t) {
+    return varsIndex[t.x][t.y];
   }
   
   
-  public int varAt(Tile t) {
-    return varsIndex[t.x][t.y];
+  public Habitat[] gradient() {
+    return gradient;
+  }
+  
+  
+  
+  /**  Methods for handling elevation:
+    */
+  public float trueHeight(float x, float y) {
+    return Nums.sampleMap(mapSize, heightVals, x + 0.5f, y + 0.5f) / 4;
+  }
+  
+  
+  public int flatHeight(Tile at) {
+    float minVal = Float.POSITIVE_INFINITY;
+    final int x = at.x * 2, y = at.y * 2;
+    minVal = Nums.min(minVal, heightVals[x + 0][y + 0]);
+    minVal = Nums.min(minVal, heightVals[x + 1][y + 0]);
+    minVal = Nums.min(minVal, heightVals[x + 0][y + 1]);
+    minVal = Nums.min(minVal, heightVals[x + 1][y + 1]);
+    return (int) minVal;
+  }
+  
+  
+  public void hardTerrainLevel(int level, Tile at) {
+    final byte val = (byte) level;
+    final int x = at.x * 2, y = at.y * 2;
+    heightVals[x + 0][y + 0] = val;
+    heightVals[x + 1][y + 0] = val;
+    heightVals[x + 0][y + 1] = val;
+    heightVals[x + 1][y + 1] = val;
+    meshSet.flagUpdateAt(at.x, at.y);
+    at.refreshAdjacent();
+  }
+  
+  
+  public void softTerrainLevel(int level, Tile at) {
+    final byte val = (byte) level;
+    for (Coord p : Visit.grid(-1, -1, 4, 4, 1)) try {
+      heightVals[at.x * 2 + p.x][at.y * 2 + p.y] = val;
+    }
+    catch (ArrayIndexOutOfBoundsException e) {}
+    meshSet.flagUpdateAt(at.x, at.y);
+    at.refreshAdjacent();
   }
   
   
@@ -325,7 +359,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     paveVals[t.x][t.y] = level;
     
     if (level != oldLevel) for (Tile n : t.vicinity(tempV)) if (n != null) {
-      meshSet.flagUpdateAt(n.x, n.y, roadLayer);
+      meshSet.flagUpdateAt(n.x, n.y, roadLayer );
+      meshSet.flagUpdateAt(n.x, n.y, stripLayer);
     }
   }
   
@@ -346,10 +381,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   /**  Rendering and interface methods-
     */
-  public void initTerrainMesh(Habitat habitats[]) {
+  public void initTerrainMesh() {
     final Batch <LayerType> layers = new Batch();
     
-    for (Habitat h : habitats) {
+    for (Habitat h : gradient) {
       final int layerIndex = layers.size();
       layers.add(new LayerType(h.animTex, false, layerIndex, h.name) {
         protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
@@ -376,10 +411,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       Habitat.STRIP_TEXTURE, true, layers.size(), "stripping"
     ) {
       protected boolean maskedAt(int tx, int ty, TerrainSet terrain) {
-        return minerals[tx][ty] == -1;
+        return paveVals[tx][ty] < 0;
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
-        return 0;//varsIndex[tx][ty];
+        return 0;
       }
     });
     
@@ -395,7 +430,9 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     });
     
     meshSet = new TerrainSet(
-      mapSize, -1, typeIndex, varsIndex, layers.toArray(LayerType.class)
+      mapSize, -1,
+      typeIndex, varsIndex, heightVals,
+      layers.toArray(LayerType.class)
     );
   }
   

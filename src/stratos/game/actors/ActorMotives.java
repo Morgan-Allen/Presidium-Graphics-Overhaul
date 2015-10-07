@@ -154,8 +154,8 @@ public class ActorMotives {
     
     float rating = 0;
     if (Visit.arrayIncludes(Economy.ALL_FOOD_TYPES, item.type)) {
-      final float hunger = receives.health.hungerLevel();
-      if (hunger > 0.5f) rating += (hunger - 0.5f) * 2 * 10;
+      final float hunger = Nums.clamp(receives.health.hungerLevel(), 0, 1);
+      return hunger * hunger * 10;
     }
     
     if (receives.mind.home() instanceof Venue) {

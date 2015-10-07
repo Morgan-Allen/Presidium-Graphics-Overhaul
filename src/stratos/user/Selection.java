@@ -25,7 +25,7 @@ public class Selection implements UIConstants {
   /**  Field definitions and accessors-
     */
   final public static PlaneFX.Model
-    SIMPLE_SELECT_MODEL = new PlaneFX.Model(
+    SIMPLE_SELECT_MODEL = PlaneFX.imageModel(
       "select_circle_fx", Selection.class,
       "media/GUI/selectCircle.png", 1, 0, 0, false, false
     );
@@ -339,7 +339,8 @@ public class Selection implements UIConstants {
         
         protected void addFringes(
           int tx, int ty, TerrainSet terrain,
-          Batch <Coord> gridBatch,
+          Batch <Vec3D  > offsBatch,
+          Batch <Integer> faceBatch,
           Batch <float[]> textBatch
         ) {
           final int len = LayerPattern.UV_PATTERN.length;
@@ -353,7 +354,8 @@ public class Selection implements UIConstants {
               (((tx - 0.5f - xp) + f    ) / xd) :
               (((ty - 0.5f - yp) + 1 - f) / yd) ;
           }
-          gridBatch.add(new Coord(tx, ty));
+          offsBatch.add(new Vec3D(tx, ty, 0));
+          faceBatch.add(-1);
           textBatch.add(UV);
         }
       };

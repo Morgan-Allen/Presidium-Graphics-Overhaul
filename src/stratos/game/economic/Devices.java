@@ -52,7 +52,7 @@ public final class Devices {
     ),
     HALBERD_GUN = new DeviceType(
       BC, "Halberd Gun",
-      "", AnimNames.FIRE_SIDE,
+      "pistol", AnimNames.FIRE,
       13, RANGED | MELEE | KINETIC, 40,
       EngineerStation.class, 1, PARTS, 10, ASSEMBLY
     ),

@@ -31,7 +31,7 @@ public abstract class Power extends Technique implements Qualities {
     IMG_DIR = "media/GUI/Powers/",
     SFX_DIR = "media/SFX/";
   
-  final public String helpInfo;
+  final static Class BC = Power.class;
   
   
   Power(
@@ -39,15 +39,12 @@ public abstract class Power extends Technique implements Qualities {
     Skill skillUsed, int minLevel
   ) {
     super(
-      name, IMG_DIR+imgFile, Action.PSY_QUICK,
-      Power.class, uniqueID,
-      0, 0, 0, 0,
-      Technique.TYPE_SOVEREIGN_POWER, skillUsed, minLevel
+      name, IMG_DIR+imgFile, helpInfo, Power.class,
+      uniqueID, 0,
+      0, 0, 0, Technique.IS_SOVEREIGN_POWER,
+      skillUsed, minLevel, Action.PSY_QUICK,
+      Action.QUICK | Action.RANGED  //  TODO- CUSTOMISE!
     );
-    //this.name        = name;
-    this.helpInfo = helpInfo;
-    //this.buttonImage = ImageAsset.fromImage(Power.class, IMG_DIR+imgFile);
-    //this.properties  = properties;
   }
   
   
@@ -65,39 +62,39 @@ public abstract class Power extends Technique implements Qualities {
   }
   
   
-  public float bonusFor(Actor using, Skill skill, Target subject) {
+  public float passiveBonus(Actor using, Skill skill, Target subject) {
     return 0;
   }
   
   
   final public static PlaneFX.Model
     
-    REMOTE_VIEWING_FX_MODEL = new PlaneFX.Model(
+    REMOTE_VIEWING_FX_MODEL = PlaneFX.imageModel(
       "RV_swirl_fx", Power.class,
       SFX_DIR+"remote_viewing.png", 0.5f, -360, 1, false, true
     ),
     
-    LIGHT_BURST_MODEL = new PlaneFX.Model(
+    LIGHT_BURST_MODEL = PlaneFX.imageModel(
       "RV_burst_fx", Power.class,
       SFX_DIR+"light_burst.png", 0.5f, 0, 1, true, true
     ),
     
-    KINESTHESIA_FX_MODEL = new PlaneFX.Model(
+    KINESTHESIA_FX_MODEL = PlaneFX.imageModel(
       "kinesthesia_fx", Power.class,
       SFX_DIR+"kinesthesia.png", 0.5f, 360, 0, true, true
     ),
     
-    SUSPENSION_FX_MODEL = new PlaneFX.Model(
+    SUSPENSION_FX_MODEL = PlaneFX.imageModel(
       "suspension_fx", Power.class,
       SFX_DIR+"suspension.png", 0.5f, 360, 0, true, true
     ),
     
-    TELEKINESIS_FX_MODEL = new PlaneFX.Model(
+    TELEKINESIS_FX_MODEL = PlaneFX.imageModel(
       "telekinesis_fx", Power.class,
       SFX_DIR+"telekinesis.png", 0.5f, 360, 0, true, true
     ),
     
-    VOICE_OF_COMMAND_FX_MODEL = new PlaneFX.Model(
+    VOICE_OF_COMMAND_FX_MODEL = PlaneFX.imageModel(
       "voice_command_fx", Power.class,
       SFX_DIR+"voice_of_command.png", 1, 360, 1, true, true
     );
@@ -105,7 +102,7 @@ public abstract class Power extends Technique implements Qualities {
   
   final public static Trait
     KINESTHESIA_EFFECT = new Condition(
-      "Kinesthesia Effect", Table.make(
+      BC, "Kinesthesia Effect", Table.make(
         MOTOR, 10, HAND_TO_HAND, 10, MARKSMANSHIP, 10, ATHLETICS, 10
       ),
       "Kinesthesia", "Kinesthesia", "Kinesthesia", null
@@ -116,7 +113,7 @@ public abstract class Power extends Technique implements Qualities {
       }
     },
     SUSPENSION_EFFECT = new Condition(
-      "Suspension Effect", Table.make(),
+      BC, "Suspension Effect", Table.make(),
       "Suspension", "Suspension", "Suspension", null
     ) {
       public void affect(Actor a) {
@@ -131,7 +128,7 @@ public abstract class Power extends Technique implements Qualities {
       }
     },
     SPICE_VISION_EFFECT = new Condition(
-      "Spice Vision Effect", Table.make(
+      BC, "Spice Vision Effect", Table.make(
         IMMUNE, 10, COGNITION, 5, PERCEPT, 5, NERVE, 5
       ),
       "Spice Vision", "Spice Vision", "Spice Vision", null
@@ -547,7 +544,7 @@ public abstract class Power extends Technique implements Qualities {
         }
         
         if (subject.health.conscious()) {
-          if (subject.skills.test(IMMUNE, 10 + bonus, 10)) bonus = 0;
+          if (subject.skills.test(IMMUNE, 10 + bonus, 10, null)) bonus = 0;
         }
         if (bonus > 0) {
           subject.health.setState(ActorHealth.STATE_SUSPEND);

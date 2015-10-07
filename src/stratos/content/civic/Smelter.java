@@ -43,7 +43,7 @@ public class Smelter extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Smelter.class, "smelter",
-    "Smelter", UIConstants.TYPE_UNPLACED, ExcavationSite.ICON,
+    "Smelter", Target.TYPE_UNPLACED, ExcavationSite.ICON,
     "Smelters extract larger quantities of metals and heavy elements from "+
     "subterranean mineral deposits.",
     4, 1, Structure.IS_NORMAL,

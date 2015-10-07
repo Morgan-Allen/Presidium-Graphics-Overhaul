@@ -134,6 +134,8 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       Colour.LITE_GREY
     );
     
+    //
+    //  TODO:  You will need to include a separate panel for these...
     text.append("\n\nDebug Options:");
     appendDebugOptions(text);
   }

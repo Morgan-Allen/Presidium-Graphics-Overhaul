@@ -1,25 +1,31 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.game.economic.*;
 import stratos.graphics.common.*;
-import stratos.start.Assets;
+import stratos.start.*;
+import stratos.user.Selectable;
 import stratos.util.*;
 
 
 
-public abstract class Technique extends Index.Entry
-  implements Session.Saveable
-{
+//  TODO:  You need to handle area-of-effect as well.
+
+
+public abstract class Technique extends Constant {
+  
   final public static int
-    TYPE_SKILL_USE_BASED    = 0,
-    TYPE_INDEPENDANT_ACTION = 1,
-    TYPE_SOVEREIGN_POWER    = 2;
-  final public static Object
-    TRIGGER_ATTACK = new Object(),
-    TRIGGER_DEFEND = new Object(),
-    TRIGGER_MOTION = new Object();
+    IS_PASSIVE_SKILL_FX   = 1 ,
+    IS_INDEPENDANT_ACTION = 2 ,
+    IS_GEAR_PROFICIENCY   = 4 ,
+    IS_SOVEREIGN_POWER    = 8 ,
+    IS_NATURAL_ONLY       = 16,
+    IS_TRAINED_ONLY       = 32;
   
   final public static float
     MINOR_POWER          = 1.0f ,
@@ -49,80 +55,98 @@ public abstract class Technique extends Index.Entry
   
   final public Class sourceClass;
   
-  final public String     name    ;
-  final public ImageAsset icon    ;
-  final public String     animName;
+  final public ImageAsset icon       ;
+  final public String     description;
+  final public String     animName   ;
   
-  final public int    type     ;
-  final public Skill  skillUsed;
-  final public Object learnFrom;
-  final public Object trigger  ;
-  final public int    minLevel ;
+  final private int   properties;
+  final private Skill skillNeed ;
+  final private int   minLevel  ;
   
   final public float
     powerLevel       ,
     harmFactor       ,
     fatigueCost      ,
     concentrationCost;
+  final public Object focus;
+  final public int    actionProperties;
   
   final public Condition asCondition;
-
   
   
-  public Technique(
-    String name, String iconFile, String animName,
+  private Technique(
+    String name, String iconFile,
+    String description,
     Class sourceClass, String uniqueID,
-    float power, float harm,
-    float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel
+    float power, float harm, float fatigue, float concentration,
+    int properties, Skill skillUsed, int minLevel, Object focus,
+    String animName, int actionProperties
   ) {
-    this(
-      name, iconFile, animName,
-      sourceClass, uniqueID,
-      power, harm, fatigue, concentration,
-      type, skillUsed, minLevel, skillUsed, skillUsed
-    );
-  }
-  
-  
-  public Technique(
-    String name, String iconFile, String animName,
-    Class sourceClass, String uniqueID,
-    float power, float harm,
-    float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel,
-    Object learnFrom, Object trigger
-  ) {
-    super(INDEX, uniqueID);
-    this.name     = name    ;
-    this.animName = animName;
+    super(INDEX, uniqueID, name);
+    this.sourceClass = sourceClass;
     
     if (Assets.exists(iconFile)) {
       this.icon = ImageAsset.fromImage(sourceClass, iconFile);
     }
     else this.icon = null;
+    this.description = description;
+    this.animName    = animName   ;
     
-    this.sourceClass = sourceClass;
+    this.powerLevel        = power           ;
+    this.harmFactor        = harm            ;
+    this.fatigueCost       = fatigue         ;
+    this.concentrationCost = concentration   ;
+    this.focus             = focus           ;
+    this.actionProperties  = actionProperties;
     
-    this.powerLevel        = power        ;
-    this.harmFactor        = harm         ;
-    this.fatigueCost       = fatigue      ;
-    this.concentrationCost = concentration;
+    this.properties = properties;
+    this.skillNeed  = skillUsed ;
+    this.minLevel   = minLevel  ;
     
-    this.type      = type     ;
-    this.skillUsed = skillUsed;
-    this.minLevel  = minLevel ;
-    this.learnFrom = learnFrom;
-    this.trigger   = trigger  ;
-    
-    List <Technique> bySource = BY_SOURCE.get(learnFrom);
-    if (bySource == null) BY_SOURCE.put(learnFrom, bySource = new List());
+    List <Technique> bySource = BY_SOURCE.get(skillUsed);
+    if (bySource == null) BY_SOURCE.put(skillUsed, bySource = new List());
     bySource.add(this);
     
-    this.asCondition = new Condition(name, false) {
-      public void affect(Actor a) { applyAsCondition(a); }
+    this.asCondition = new Condition(
+      sourceClass, name, description, iconFile, 0, 0, 0, new Table(), name
+    ) {
+      public void affect    (Actor a) { applyAsCondition(a); }
+      public void onAddition(Actor a) { onConditionStart(a); }
+      public void onRemoval (Actor a) { onConditionEnd  (a); }
     };
   }
+  
+  
+  //  Used for active techniques.
+  public Technique(
+    String name, String iconFile,
+    String description,
+    Class sourceClass, String uniqueID,
+    float power, float harm, float fatigue, float concentration,
+    int type, Skill skillUsed, int minLevel,
+    String animName, int actionProperties
+  ) { this(
+    name, iconFile, description, sourceClass, uniqueID,
+    power, harm, fatigue, concentration,
+    type, skillUsed, minLevel, null,
+    animName, actionProperties
+  ); }
+  
+  
+  //  Used for passive techniques.
+  public Technique(
+    String name, String iconFile,
+    String description,
+    Class sourceClass, String uniqueID,
+    float power, float harm, float fatigue, float concentration,
+    int type, Skill skillUsed, int minLevel,
+    Object focus
+  ) { this(
+    name, iconFile, description, sourceClass, uniqueID,
+    power, harm, fatigue, concentration,
+    type, skillUsed, minLevel, focus,
+    Action.STAND, Action.NORMAL
+  ); }
   
   
   public static Technique loadConstant(Session s) throws Exception {
@@ -135,8 +159,75 @@ public abstract class Technique extends Index.Entry
   }
   
   
+  
+  /**  Helper methods for determining skill-aquisition and triggering-
+    */
   public static Series <Technique> learntFrom(Object source) {
     return BY_SOURCE.get(source);
+  }
+  
+  
+  public boolean canBeLearnt(Actor learns, boolean trained) {
+    if (hasProperty(IS_NATURAL_ONLY)             ) return false;
+    if (hasProperty(IS_TRAINED_ONLY) && ! trained) return false;
+    if (skillNeed == null || minLevel <= 0       ) return true ;
+    float level = learns.traits.traitLevel(skillNeed);
+    level += learns.traits.bonusFrom(skillNeed.parent);
+    return level >= minLevel;
+  }
+  
+  
+  public boolean hasProperty(int prop) {
+    return (properties & prop) == prop;
+  }
+  
+  
+  public boolean isPower() {
+    return hasProperty(IS_SOVEREIGN_POWER) && (this instanceof Power);
+  }
+  
+  
+  public Traded allowsUse() {
+    if (! hasProperty(IS_GEAR_PROFICIENCY)) return null;
+    if (focus instanceof Traded) return (Traded) focus;
+    else return null;
+  }
+  
+  
+  public boolean triggeredBy(
+    Actor actor, Plan current, Action action, Skill used, boolean passive
+  ) {
+    if (passive && hasProperty(IS_PASSIVE_SKILL_FX)) {
+      return used == focus;
+    }
+    else {
+      return false;
+    }
+  }
+  
+  
+  public float basePriority(Actor actor, Target subject, float harmWanted) {
+    //
+    //  Techniques become less attractive based on the fraction of fatigue or
+    //  concentration they would consume.
+    final boolean report = ActorSkills.techsVerbose && I.talkAbout == actor;
+    final float
+      conCost = concentrationCost / actor.health.concentration(),
+      fatCost = fatigueCost       / actor.health.fatigueLimit ();
+    if (report) I.say("  Con/Fat costs: "+conCost+"/"+fatCost);
+    if (conCost > 1 || fatCost > 1) return 0;
+    //
+    //  Don't use a harmful technique against a subject you want to help, and
+    //  try to avoid extreme harm against subjects you only want to subdue, et
+    //  cetera.
+    if (harmFactor >  0 && harmWanted <= 0) return 0;
+    if (harmFactor <= 0 && harmWanted >  0) return 0;
+    float rating = 10;
+    rating -= Nums.abs(harmWanted - harmFactor);
+    rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
+    rating = powerLevel * rating / 10f;
+    if (report) I.say("  Overall rating: "+rating);
+    return rating;
   }
   
   
@@ -144,33 +235,36 @@ public abstract class Technique extends Index.Entry
   /**  Basic interface and utility methods for use and evaluation of different
     *  techniques-
     */
-  //  TODO:  You need separate methods here for each of the main types of
-  //  Technique- e.g, passive bonus v. independent action v. piggyback
-  //  action, etc.
-  public abstract float bonusFor(Actor using, Skill skill, Target subject);
-  
-  
-  public void applyEffect(Actor using, boolean success, Target subject) {
+  public void applyEffect(
+    Actor using, boolean success, Target subject, boolean passive
+  ) {
     using.health.takeFatigue      (fatigueCost      );
     using.health.takeConcentration(concentrationCost);
   }
   
   
-  protected Action asActionFor(Actor actor, Target subject) {
+  protected Action createActionFor(Plan parent, Actor actor, Target subject) {
     final Action action = new Action(
       actor, subject,
       this, "actionUseTechnique",
       animName, "Using "+name
     );
-    action.setProperties(Action.RANGED | Action.QUICK);
-    action.setPriority(Action.ROUTINE);
+    action.setProperties(actionProperties);
+    action.setPriority(parent.priorityFor(actor));
     return action;
   }
   
   
   public boolean actionUseTechnique(Actor actor, Target subject) {
-    applyEffect(actor, true, subject);
-    return true;
+    final boolean success = checkActionSuccess(actor, subject);
+    applyEffect(actor, success, subject, false);
+    return success;
+  }
+  
+  
+  protected boolean checkActionSuccess(Actor actor, Target subject) {
+    if (skillNeed == null) return true;
+    else return actor.skills.test(skillNeed, minLevel, 1, null);
   }
   
   
@@ -179,7 +273,15 @@ public abstract class Technique extends Index.Entry
       affected.traits.incLevel(asCondition, -1f / conditionDuration());
       return;
     }
-    else affected.traits.setLevel(asCondition, 1);
+    else affected.traits.setLevel(asCondition, 0);
+  }
+  
+  
+  protected void onConditionStart(Actor affected) {
+  }
+  
+  
+  protected void onConditionEnd(Actor affected) {
   }
   
   
@@ -188,40 +290,83 @@ public abstract class Technique extends Index.Entry
   }
   
   
-  
-  /**  Decision methods for settling on a particular Technique to use in a
-    *  given situation-
-    */
-  public float priorityFor(Actor actor, Target subject, float harmLevel) {
-    //
-    //  Techniques become less attractive based on the fraction of fatigue or
-    //  concentration they would consume.
-    final boolean report = ActorSkills.techsVerbose && I.talkAbout == actor;
-    final float
-      conCost = concentrationCost / actor.health.concentration(),
-      fatCost = fatigueCost       / actor.health.fatigueLimit() ;
-    if (report) I.say("  Con/Fat costs: "+conCost+"/"+fatCost);
-    if (conCost > 1 || fatCost > 1) return 0;
-    //
-    //  Don't use a harmful technique against a subject you want to help, and
-    //  try to avoid extreme harm against subjects you only want to subdue, et
-    //  cetera.
-    if (harmLevel * harmFactor <= 0) return 0;
-    float rating = 10;
-    rating -= Nums.abs(harmLevel - harmFactor);
-    rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
-    rating = powerLevel * rating / 10f;
-    if (report) I.say("  Overall rating: "+rating);
-    return rating;
+  public float passiveBonus(Actor using, Skill skill, Target subject) {
+    return 0;
   }
+  
+
+  
+  /**  Other static helper methods:
+    */
+  public static boolean isDoingAction(Actor actor, Technique used) {
+    final Action taken = actor.currentAction();
+    return taken != null && taken.basis == used;
+  }
+  
+  
+  public static Action currentTechniqueBy(Actor actor) {
+    final Action taken = actor.currentAction();
+    if (taken == null || ! (taken.basis instanceof Technique)) return null;
+    return taken;
+  }
+  
+  
+  protected static boolean hasUpgrade(Target v, Upgrade upgrade, int level) {
+    if (! (v instanceof Venue)) return false;
+    final Structure s = ((Venue) v).structure();
+    return s.upgradeLevel(upgrade, Structure.STATE_INTACT) >= level;
+  }
+  
+  
+  protected static boolean hasGear(Actor actor, Traded gearType) {
+    if (actor.gear.deviceType() == gearType) return true;
+    if (actor.gear.outfitType() == gearType) return true;
+    return false;
+  }
+  
   
   
   /**  Rendering, interface and printout methods-
     */
   public String toString() {
-    return name;
+    return "{"+name+"}";
+  }
+  
+  
+  public static void describeAction(
+    Action techniqueUse, Actor actor, Description d
+  ) {
+    d.append("Using ");
+    d.append(techniqueUse.basis);
+    d.append(" on ");
+    d.append(techniqueUse.subject());
+  }
+  
+  
+  public void describeHelp(Description d, Selectable prior) {
+    substituteReferences(description, d);
+    d.append("\n");
+    
+    if (hasProperty(IS_NATURAL_ONLY)) {
+      d.append("\n  Instinctive");
+    }
+    else if (skillNeed != null && minLevel > 0) {
+      d.append("\n  Minimum ");
+      d.append(skillNeed);
+      d.append(": "+minLevel);
+    }
+    if (hasProperty(IS_TRAINED_ONLY)) {
+      d.append("\n  Trained Only");
+    }
   }
 }
+
+
+
+
+
+
+
 
 
 

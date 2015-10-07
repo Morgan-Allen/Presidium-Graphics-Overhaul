@@ -36,6 +36,7 @@ public class Image extends UINode {
   
   protected Texture texture;
   protected Texture greyOut = TRANSLUCENT_GREY.asTexture();
+  protected Batch <Texture> overlaid = null;
   
   
   public Image(HUD UI, String imagePath) {
@@ -60,6 +61,12 @@ public class Image extends UINode {
   }
   
   
+  public void addOverlay(ImageAsset g) {
+    if (overlaid == null) overlaid = new Batch();
+    overlaid.add(g.asTexture());
+  }
+  
+  
   public void expandToTexSize(float scale, boolean centre) {
     absBound.xdim(texture.getWidth()  * scale);
     absBound.ydim(texture.getHeight() * scale);
@@ -81,6 +88,9 @@ public class Image extends UINode {
   protected void render(WidgetsPass pass) {
     renderTex(texture, relAlpha, pass);
     if (! enabled) renderTex(greyOut, relAlpha, pass);
+    if (overlaid != null) for (Texture t : overlaid) {
+      renderTex(t, relAlpha, pass);
+    }
   }
   
   

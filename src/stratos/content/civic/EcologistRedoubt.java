@@ -41,11 +41,11 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     EcologistRedoubt.class, "ecologist_redoubt",
-    "Ecologist Redoubt", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Ecologist Redoubt", Target.TYPE_ECOLOGIST, ICON,
     "Your Ecologists help adapt plant and animal species to a human presence, "+
     "and often prove valuable in guerilla warfare.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 4,
-    PROTEIN, DRY_SPYCE, SURVEYOR
+    PROTEIN, SPYCES, SURVEYOR
   );
   
   
@@ -110,36 +110,42 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   /**  Upgrades, economic functions and behaviour implementations-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> (
-  );
   final public static Upgrade
-    VENUE_LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.TWO_LEVELS, null, 450, 250
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, BotanicalStation.LEVELS[0],
+      new Object[] { 15, XENOZOOLOGY, 0, STEALTH_AND_COVER },
+      450, 250
     ),
     NATIVE_MISSION = new Upgrade(
       "Native Mission",
       "Improves recruitment from local tribal communities and raises the odds "+
       "of peaceful contact.",
       300,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, NATIVE_TABOO
     ),
     THERMAL_CAMOUFLAGE = new Upgrade(
       "Thermal Camouflage",
-      "Reduces the Xeno Lodge's thermal signature and light output, "+
+      "Reduces the "+BLUEPRINT+"'s thermal signature and light output, "+
       "making it harder for outsiders to detect.",
-      200, Upgrade.TWO_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      200, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, STEALTH_AND_COVER, 5, XENOZOOLOGY
     ),
     CAPTIVE_BREEDING = new Upgrade(
       "Captive Breeding",
       "Improves the effiency of animal taming and breeding programs.",
       150,
-      Upgrade.TWO_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.TWO_LEVELS, BotanicalStation.SYMBIOTICS, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      15, XENOZOOLOGY
     ),
+    
+    //  TODO:  Get rid of this- you can harvest protein using captive breeding
+    //  (predator kills, milk & eggs.)
     PROTEIN_STILL = new Upgrade(
-      "Maw Harness",
+      "Protein Still",
       "Improves the effiency of spyce and protein extraction from rendered-"+
       "down culls.",
       300,
@@ -190,8 +196,8 @@ public class EcologistRedoubt extends Venue implements Captivity {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
+  public int numPositions(Background v) {
+    final int nO = super.numPositions(v);
     if (v == Backgrounds.SURVEYOR) return nO + 2;
     return 0;
   }
@@ -228,6 +234,12 @@ public class EcologistRedoubt extends Venue implements Captivity {
     if (! (activity instanceof Resting)) return false;
     final Plan resting = new Resting(activity.actor(), this);
     return activity.matchesPlan(resting);
+  }
+  
+  
+  public void describeActor(Actor mounted, Description d) {
+    d.append("Penned up at ");
+    d.append(this);
   }
   
 

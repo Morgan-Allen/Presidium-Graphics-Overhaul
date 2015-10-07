@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.content.abilities.*;
 import stratos.content.civic.*;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
@@ -76,6 +77,8 @@ public class DebugCommerce extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.cashFree  = true;
+    
+    base.research.initKnowledgeFrom(base.commerce.homeworld());
     
     if (false) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
@@ -156,14 +159,34 @@ public class DebugCommerce extends Scenario {
   private void purchaseScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.needsFree = true;
     
+    /*
+    I.say("\nSETTING UP SCENARIO!");
+    I.say("  Homeworld:     "+base.commerce.homeworld());
+    VerseLocation homeW = base.commerce.homeworld();
+    Upgrade houses  = Holding.BLUEPRINT.baseUpgrade();
+    Upgrade known[] = homeW.knowledge().toArray(Upgrade.class);
+    for (Upgrade u : known) {
+      I.say("    Knows of: "+u);
+    }
+    I.say("  Housing is:    "+houses);
+    
+    boolean hasTech = base.research.hasTheory(houses);
+    I.say("  Has tech theory? "+hasTech);
+    boolean canSite = base.setup.hasSitePermission(Holding.BLUEPRINT);
+    I.say("  Has site permission? "+canSite);
+    //*/
+    
+    
     final Venue foundry = new EngineerStation(base);
     SiteUtils.establishVenue(foundry, 6, 6, true, world);
     base.setup.fillVacancies(foundry, true);
     
-    final Upgrade upgrade = EngineerStation.PLASMA_WEAPONS;
-    foundry.stocks.bumpItem(Economy.METALS, 10);
-    foundry.stocks.bumpItem(Economy.PARTS , 2 );
-    foundry.structure.setUpgradeLevel(upgrade, 2);
+    foundry.stocks.bumpItem(Economy.METALS  , 10);
+    foundry.stocks.bumpItem(Economy.PARTS   , 10);
+    foundry.stocks.bumpItem(Economy.POLYMER , 10);
+    foundry.stocks.bumpItem(Economy.PLASTICS, 10);
+    foundry.structure.setUpgradeLevel(EngineerStation.PLASMA_WEAPONS  , 2);
+    foundry.structure.setUpgradeLevel(EngineerStation.COMPOSITE_ARMORS, 2);
     
     final Venue reactor = new Generator(base);
     SiteUtils.establishVenue(reactor, 3, 6, true, world);
@@ -174,6 +197,12 @@ public class DebugCommerce extends Scenario {
     buys.enterWorldAt(12, 12, world);
     buys.gear.incCredits(1000);
     buys.gear.equipDevice(Item.withQuality(Devices.BLASTER, 1));
+    
+    buys = new Human(Backgrounds.TROOPER, base);
+    buys.enterWorldAt(10, 12, world);
+    buys.gear.incCredits(2000);
+    buys.gear.equipDevice(Item.withQuality(Devices.HALBERD_GUN, 4));
+    buys.skills.addTechnique(TrooperTechniques.POWER_ARMOUR_USE);
     
     UI.selection.pushSelection(buys);
   }

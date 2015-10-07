@@ -22,13 +22,13 @@ import static stratos.game.economic.Economy.*;
 
 
 //  TODO:  Demand reagents to perform gene tailoring?
-  //
-  //  Cereal Culture.  Flora Culture.    Canopy Culture.
-  //  Symbiote Lab.    Hydroponics.      Field Hand Station.
-  //  Zeno Pharma.     Animal Breeding.  Survival Training.
+//
+//  Cereal Culture.  Flora Culture.    Canopy Culture.
+//  Symbiote Lab.    Hydroponics.      Field Hand Station.
+//  Zeno Pharma.     Animal Breeding.  Survival Training.
 
 
-public class BotanicalStation extends Venue {
+public class BotanicalStation extends HarvestVenue {
   
   
   /**  Fields, constructors, and save/load methods-
@@ -42,21 +42,38 @@ public class BotanicalStation extends Venue {
       BotanicalStation.class, IMG_DIR+"botanical_station.png", 4, 2
     );
   
-  
   final public static Blueprint BLUEPRINT = new Blueprint(
     BotanicalStation.class, "botanical_station",
-    "Botanical Station", UIConstants.TYPE_ECOLOGIST, ICON,
+    "Botanical Station", Target.TYPE_ECOLOGIST, ICON,
     "Botanical Stations are responsible for agriculture and forestry, "+
     "helping to secure food supplies and advance terraforming efforts.",
-    4, 2, Structure.IS_NORMAL,
+    4, 2, Structure.IS_NORMAL | Structure.IS_ZONED,
     Owner.TIER_FACILITY, 150,
     3
   );
   
+  final static int
+    MIN_CLAIM_SIDE = BLUEPRINT.size + 4,
+    MAX_CLAIM_SIDE = BLUEPRINT.size + 8;
+  
+  final public static Conversion
+    LAND_TO_CARBS = new Conversion(
+      BLUEPRINT, "land_to_carbs",
+      10, HARD_LABOUR, 5, CULTIVATION, TO, 1, CARBS
+    ),
+    LAND_TO_GREENS = new Conversion(
+      BLUEPRINT, "land_to_greens",
+      10, HARD_LABOUR, 5, CULTIVATION, TO, 1, GREENS
+    ),
+    SAMPLE_EXTRACT = new Conversion(
+      BLUEPRINT, "sample_extract",
+      10, CULTIVATION, 5, GENE_CULTURE, TO, 1, GENE_SEED
+    );
+  
   
   
   public BotanicalStation(Base belongs) {
-    super(BLUEPRINT, belongs);
+    super(BLUEPRINT, belongs, MIN_CLAIM_SIDE, MAX_CLAIM_SIDE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(STATION_MODEL.makeSprite());
   }
@@ -75,7 +92,24 @@ public class BotanicalStation extends Venue {
   
   /**  Claims and siting-
     */
-  final public static Siting SITING = new Siting(BLUEPRINT);
+  final static Siting SITING = new Siting(BLUEPRINT) {
+    
+    public float ratePointDemand(Base base, Target point, boolean exact) {
+      final Stage world = point.world();
+      final Tile under = world.tileAt(point);
+      
+      final Venue station = (Venue) world.presences.nearestMatch(
+        BotanicalStation.class, point, -1
+      );
+      if (station == null || station.base() != base) return -1;
+      final float distance = Spacing.distance(point, station);
+      
+      float rating = super.ratePointDemand(base, point, exact);
+      rating *= world.terrain().fertilitySample(under) * 2;
+      rating /= 1 + (distance / Stage.ZONE_SIZE);
+      return rating;
+    }
+  };
   
   
   public boolean preventsClaimBy(Venue other) {
@@ -88,42 +122,45 @@ public class BotanicalStation extends Venue {
   
   /**  Handling upgrades and economic functions-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.THREE_LEVELS, null,
+      new Object[] { 10, CULTIVATION, 0, XENOZOOLOGY },
       450,
-      500,
-      550
+      600,
+      750
     ),
     MONOCULTURE = new Upgrade(
       "Monoculture",
       "Improves cereal yields, which provide "+CARBS+".  Cereals yield more "+
       "calories than other crops, but lack the nutrients for a complete diet.",
       100, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, CARBS
+      Upgrade.Type.TECH_MODULE, CARBS,
+      10, CULTIVATION
     ),
     FLORAL_CULTURE = new Upgrade(
       "Floral Culture",
       "Improves broadleaf yields, which provide "+GREENS+".  These are "+
       "valued as luxury exports, but their yield in calories is limited.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, GREENS
+      Upgrade.Type.TECH_MODULE, GREENS,
+      10, CULTIVATION
     ),
     TREE_FARMING = new Upgrade(
       "Tree Farming",
       "Forestry programs assist in terraforming efforts and climate "+
       "moderation, as well as permitting "+POLYMER+" production.",
       100, Upgrade.THREE_LEVELS, FLORAL_CULTURE, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, Flora.class
+      Upgrade.Type.TECH_MODULE, Flora.class,
+      15, CULTIVATION
     ),
     SYMBIOTICS = new Upgrade(
       "Symbiotics",
       "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
       "assists in animal breeding programs.",
-      150, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, PROTEIN
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, PROTEIN,
+      5, XENOZOOLOGY
     );
   
   
@@ -132,32 +169,17 @@ public class BotanicalStation extends Venue {
     final Choice choice = new Choice(actor);
     //
     //  If you're really short on food, consider foraging in the surrounds or
-    //  farming 24/7.
+    //  farming, 24/7.
+    final boolean fieldHand = actor.mind.vocation() == CULTIVATOR;
     final float shortages = (
       base.commerce.primaryShortage(CARBS ) +
       base.commerce.primaryShortage(GREENS)
     ) / 2f;
-    final boolean fieldHand = actor.mind.vocation() == CULTIVATOR;
-    //
-    //  First of all, find a suitable nursery to tend:
-    for (Target t : world.presences.sampleFromMap(
-      this, world, 5, null, Nursery.class
-    )) {
-      final Nursery at = (Nursery) t;
-      if (at.base() != this.base()) continue;
-      
-      if (shortages > 0.5f || fieldHand) {
-        final Farming farming = new Farming(actor, this, at);
-        farming.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
-        choice.add(farming);
-      }
+    if (shortages >= 0.5f || fieldHand) {
+      choice.add(nextHarvestFor(actor));
     }
-    //
-    //  If there are desperate shortages, consider foraging:
     if (shortages > 0.5f && fieldHand) {
-      final Foraging foraging = new Foraging(actor, this);
-      foraging.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE * shortages);
-      choice.add(foraging);
+      choice.add(Gathering.asForaging(actor, this));
     }
     //
     //  Then add jobs specific to each vocation-
@@ -174,13 +196,11 @@ public class BotanicalStation extends Venue {
   protected void addEcologistJobs(Actor actor, Choice choice) {
     //
     //  Consider collecting gene samples-
-    final float needSamples = SeedTailoring.needForSamples(this);
-    if (needSamples > 0) {
-      choice.add(Forestry.nextSampling(actor, this, needSamples));
-    }
+    choice.add(Gathering.asFloraSample(actor, this));
     //
     //  Consider performing research-
-    choice.add(Studying.asResearch(actor, this, UIConstants.TYPE_ECOLOGIST));
+    //  TODO:  Decide on this.
+    ///choice.add(Studying.asResearch(actor, this, Target.TYPE_ECOLOGIST));
     ///choice.isVerbose = true;
     //
     //  Tailor seed varieties and consider breeding animals or forestry-
@@ -190,7 +210,7 @@ public class BotanicalStation extends Venue {
       choice.add(new SeedTailoring(actor, this, s));
     }
     if (! choice.empty()) return;
-    choice.add(Forestry.nextPlanting(actor, this));
+    choice.add(Gathering.asForestPlanting(actor, this));
     //
     //  Otherwise, consider exploring the surrounds-
     final Exploring x = Exploring.nextExploration(actor);
@@ -218,10 +238,11 @@ public class BotanicalStation extends Venue {
     if (! structure.intact()) return;
     //
     //  Increment demands, and decay current stocks-
-    stocks.incDemand(GENE_SEED, 5, 1, false);
-    stocks.incDemand(CARBS    , 5, 1, true );
-    stocks.incDemand(GREENS   , 5, 1, true );
-    stocks.incDemand(PROTEIN  , 5, 1, true );
+    final float needSeed = SeedTailoring.DESIRED_SAMPLES;
+    stocks.incDemand(GENE_SEED, needSeed, 1, false);
+    stocks.incDemand(CARBS    , 5       , 1, true );
+    stocks.incDemand(GREENS   , 5       , 1, true );
+    stocks.incDemand(PROTEIN  , 5       , 1, true );
     final float decay = 1f / (
       Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
     );
@@ -232,23 +253,15 @@ public class BotanicalStation extends Venue {
       stocks.removeItem(Item.withAmount(sample, decay));
     }
     //
-    //
-    //  And update demand for nursery-placement:
-    
-    //  TODO:  JUST MERGE WITH THE NURSERY!
-    
-    final float nurseryDemand = 0 + 1;
-    base.demands.impingeDemand(Nursery.class, nurseryDemand, 1, this);
-    //
     //  An update ambience-
-    structure.setAmbienceVal(2);
+    structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
   }
   
   
-  public int numOpenings(Background v) {
-    int num = super.numOpenings(v);
-    if (v == CULTIVATOR) return num + 2;
-    if (v == ECOLOGIST ) return num + 2;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == CULTIVATOR) return level;
+    if (v == ECOLOGIST ) return level;
     return 0;
   }
   
@@ -265,5 +278,139 @@ public class BotanicalStation extends Venue {
   
   public void addServices(Choice choice, Actor client) {
     choice.add(BringUtils.nextHomePurchase(client, this));
+  }
+  
+  
+  
+  /**  Agricultural methods-
+    */
+  protected ClaimDivision updateDivision() {
+    final ClaimDivision d = super.updateDivision();
+    return d.withUsageMarked(0.5f, true, false, this, 2, 1);
+  }
+  
+  
+  public boolean couldPlant(Tile t) {
+    return claimDivision().useType(t, areaClaimed()) > 0;
+  }
+  
+  
+  public boolean shouldCover(Tile t) {
+    return claimDivision().useType(t, areaClaimed()) == 2;
+  }
+  
+  
+  public Crop plantedAt(Tile t) {
+    if (t == null || ! (t.above() instanceof Crop)) return null;
+    return (Crop) t.above();
+  }
+  
+  
+  protected Gathering nextHarvestFor(Actor actor) {
+    final Gathering g = Gathering.asFarming(actor, this);
+    return needForTending(g) > 0 ? g : null;
+  }
+  
+  
+  protected boolean needsTending(Tile t) {
+    final Element e = ((Tile) t).above();
+    if (! (e instanceof Crop)) return true;
+    return ((Crop) e).needsTending();
+  }
+  
+  
+  public Tile[] getHarvestTiles(ResourceTending tending) {
+    final Gathering g = (Gathering) tending;
+    if (g.type == Gathering.TYPE_FARMING) {
+      return super.getHarvestTiles(tending);
+    }
+    if (g.type == Gathering.TYPE_SAMPLE) {
+      return Gathering.sampleFloraPoints(this, Stage.ZONE_SIZE);
+    }
+    return null;
+  }
+  
+  
+  public float needForTending(ResourceTending tending) {
+    final Gathering g = (Gathering) tending;
+    if (g.type == Gathering.TYPE_FARMING) {
+      return super.needForTending(tending);
+    }
+    if (g.type == Gathering.TYPE_SAMPLE) {
+      final float samples = SeedTailoring.numSamples(this);
+      return 1 - (samples / SeedTailoring.DESIRED_SAMPLES);
+    }
+    if (g.type == Gathering.TYPE_FORAGING) {
+      return 0;
+    }
+    return 0;
+  }
+  
+  
+  
+  /**  Rendering and interface methods-
+    */
+  final static String
+    POOR_SOILS_INFO =
+      "The poor soils around this Station will hamper growth and yield a "+
+      "stingy harvest.",
+    WAITING_ON_SEED_INFO =
+      "The land around this Station will have to be seeded by your "+
+      ""+Backgrounds.CULTIVATOR+"s.",
+    POOR_HEALTH_INFO =
+      "The crops around this Station are sickly.  Try to improve seed stock "+
+      "at the "+BotanicalStation.BLUEPRINT+".",
+    AWAITING_GROWTH_INFO =
+      "The crops around this Station have yet to mature.  Allow them a few "+
+      "days to bear fruit.";
+  
+  private String compileOutputReport() {
+    final StringBuffer s = new StringBuffer();
+    final int numTiles = reserved().length;
+    float
+      health = 0, growth = 0, fertility = 0,
+      numPlant = 0, numCarbs = 0, numGreens = 0;
+    
+    for (Tile t : reserved()) {
+      final Crop c = plantedAt(t);
+      fertility += t.habitat().moisture();
+      if (c == null) continue;
+      
+      final float perDay = c.dailyYieldEstimate(t);
+      final Item yield[] = c.materials();
+      numPlant++;
+      health += c.health   ();
+      growth += c.growStage();
+      for (Item i : yield ) {
+        if (i.type == CARBS ) numCarbs  += perDay;
+        if (i.type == GREENS) numGreens += perDay;
+      }
+    }
+    
+    if      (fertility < (numTiles * 0.5f)) s.append(POOR_SOILS_INFO     );
+    else if (numPlant == 0                ) s.append(WAITING_ON_SEED_INFO);
+    else if (health    < (numPlant * 0.5f)) s.append(POOR_HEALTH_INFO    );
+    else if (growth    < (numPlant * 0.5f)) s.append(AWAITING_GROWTH_INFO);
+    else s.append(BLUEPRINT.description);
+    
+    if (numCarbs  > 0) {
+      s.append("\n  Estimated "+CARBS +" per day: "+I.shorten(numCarbs , 1));
+    }
+    if (numGreens > 0) {
+      s.append("\n  Estimated "+GREENS+" per day: "+I.shorten(numGreens, 1));
+    }
+    return s.toString();
+  }
+  
+  
+  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+    return super.configSelectPane(panel, UI);
+    //return VenuePane.configSimplePanel(this, panel, UI, null);
+  }
+  
+  
+  public String helpInfo() {
+    if (inWorld() && structure.intact()) return compileOutputReport();
+    else return super.helpInfo();
   }
 }

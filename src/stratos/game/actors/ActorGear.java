@@ -224,7 +224,7 @@ public class ActorGear extends Inventory {
     *  weapons, or employing weapons in melee, gain a bonus based on their
     *  physical brawn.
     */
-  public float attackDamage() {
+  public float totalDamage() {
     final Item weapon = deviceEquipped();
     
     final float brawnBonus = actor.traits.traitLevel(MUSCULAR) / 4;
@@ -246,26 +246,14 @@ public class ActorGear extends Inventory {
   }
   
   
-  public boolean meleeWeapon() {
-    final Item weapon = deviceEquipped();
-    if (weapon == null) return true;
-    if (deviceType().hasProperty(MELEE)) return true;
-    return false;
-  }
-  
-  
-  public boolean physicalWeapon() {
-    final Item weapon = deviceEquipped();
-    if (weapon == null) return true;
-    if (deviceType().hasProperty(KINETIC)) return true;
-    return false;
-  }
-  
-  
   public boolean hasDeviceProperty(int bits) {
     final DeviceType type = deviceType();
-    if (type == null) return false;
-    return type.hasProperty(bits);
+    return type != null && type.hasProperty(bits);
+  }
+  
+  
+  public boolean meleeDeviceOnly() {
+    return ! hasDeviceProperty(RANGED);
   }
   
   
@@ -338,7 +326,7 @@ public class ActorGear extends Inventory {
     *  significant armour, or only lightly armoured, gain a bonus based on
     *  their reflexes.
     */
-  public float armourRating() {
+  public float totalArmour() {
     final Item armour = outfitEquipped();
     float reflexBonus = actor.traits.traitLevel(MOTOR) / 4;
     if (armour == null) return reflexBonus + baseArmour;

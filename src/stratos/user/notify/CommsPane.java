@@ -7,6 +7,7 @@ package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.start.SaveUtils;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -36,13 +37,24 @@ public class CommsPane extends SelectionPane {
     super.updateText(UI, headerText, detailText, listingText);
     headerText.setText("COMMUNICATIONS");
     
-    for (final MessagePane message : listing.oldMessages) {
+    final List <MessagePane> sorting = new List <MessagePane> () {
+      protected float queuePriority(MessagePane r) {
+        return r.receiptDate();
+      }
+    };
+    Visit.appendTo(sorting, listing.oldMessages);
+    sorting.queueSort();
+    
+    for (final MessagePane message : sorting) {
       detailText.append("\n  ");
       detailText.append(new Description.Link(message.title) {
         public void whenClicked() {
           UI.setMessagePane(message);
         }
       });
+      
+      final String timeStamp = SaveUtils.timeStamp(message.receiptDate());
+      detailText.append("\n    (Received: "+timeStamp+") ", Colour.GREY);
     }
   }
   

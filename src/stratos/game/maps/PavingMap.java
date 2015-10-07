@@ -87,7 +87,9 @@ public class PavingMap {
   
   public void flagForPaving(Tile tiles[], boolean is) {
     if (tiles == null || tiles.length == 0) return;
-    for (Tile t : tiles) if (t != null) flagForPaving(t, is);
+    for (Tile t : tiles) if (t != null) {
+      flagForPaving(t, is);
+    }
   }
   
   
@@ -96,8 +98,9 @@ public class PavingMap {
     final byte c = roadCounter[t.x][t.y];
     if (flag && GameSettings.paveFree) {
       setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
+      flagMap.set(0, t.x, t.y);
     }
-    flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
+    else flagMap.set((byte) (flag ? 1 : 0), t.x, t.y);
   }
   
   
@@ -132,7 +135,8 @@ public class PavingMap {
   
   
   public boolean needsPaving(Tile t) {
-    if (t == null || t.reserved()) return false;
+    if (t == null || ! t.canPave()) return false;
+    
     final byte c = roadCounter[t.x][t.y];
     final boolean road = isRoad(t);
     if (c > 0 && ! road) return true;
@@ -142,11 +146,17 @@ public class PavingMap {
   
   
   public static boolean pavingReserved(Tile t, boolean alreadyPaved) {
-    if (t == null) return false;
-    final Stage world = t.world;
-    if (alreadyPaved && isRoad(t)) return true;
-    for (Base b : world.bases()) {
-      if (b.transport.map.roadCounter(t) > 0) return true;
+    if (t == null) {
+      return false;
+    }
+    if (alreadyPaved && isRoad(t)) {
+      return true;
+    }
+    if (t.above() != null && t.above().pathType() == Tile.PATH_ROAD) {
+      return true;
+    }
+    for (Base b : t.world.bases()) if (b.transport.map.roadCounter(t) > 0) {
+       return true;
     }
     return false;
   }

@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import stratos.content.civic.Airfield;
+import stratos.content.civic.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -26,14 +26,14 @@ public class ShipUtils {
   
   /**  Utility methods for handling takeoff and landing:
     */
-  static boolean isBoarding(Mobile m, Dropship ship) {
+  static boolean isBoarding(Mobile m, Vehicle ship) {
     if (m.aboard() != ship) return false;
     if (VerseJourneys.activityFor(m) != null) return true;
     return false;
   }
   
   
-  static void offloadPassengers(Dropship ship, boolean landing) {
+  static void offloadPassengers(Vehicle ship, boolean landing) {
     final Stage world = ship.world();
     for (Mobile m : ship.inside()) {
       if (landing && ! m.inWorld()) {
@@ -47,7 +47,7 @@ public class ShipUtils {
   
   
   static Boarding performLanding(
-    Dropship ship, Stage world, float entryFace
+    Vehicle ship, Stage world, float entryFace
   ) {
     final boolean report = landVerbose && I.talkAbout == ship;
     final Boarding dropPoint = ship.dropPoint();
@@ -60,10 +60,16 @@ public class ShipUtils {
       I.say("  Drop point:    "+dropPoint);
     }
     
-    if (dropPoint instanceof Venue) {
+    if (dropPoint instanceof Airfield && ship instanceof Dropship) {
       //
       //  Rely on the docking functions of the landing site...
-      ((Airfield) dropPoint).setToDock(ship);
+      ((Airfield) dropPoint).setToDock((Dropship) ship);
+      return dropPoint;
+    }
+    else if (dropPoint instanceof SupplyDepot) {
+      //((SupplyDepot) dropPoint).setToDock(ship);
+      //
+      //  TODO:  SAME THING HERE!  CREATE AN INTERFACE!
       return dropPoint;
     }
     else {
@@ -118,7 +124,7 @@ public class ShipUtils {
   }
   
   
-  static void performTakeoff(Stage world, Dropship ship) {
+  static void performTakeoff(Stage world, Vehicle ship) {
     final boolean report = landVerbose && I.talkAbout == ship;
     if (report) I.say("\n"+ship+" performing takeoff!");
     
@@ -134,6 +140,12 @@ public class ShipUtils {
       if (dropPoint instanceof Airfield) {
         if (report) I.say("  Taking off from hangar...");
         ((Airfield) dropPoint).setToDock(null);
+      }
+      else if (dropPoint instanceof SupplyDepot) {
+        if (report) I.say("  Taking off from depot...");
+        //((SupplyDepot) dropPoint).setToDock(null);
+        //
+        //  TODO:  FILL THIS IN!
       }
       else {
         if (report) I.say("  Taking off from ground...");
@@ -151,7 +163,7 @@ public class ShipUtils {
   }
   
   
-  public static boolean allAboard(Dropship ship) {
+  public static boolean allAboard(Vehicle ship) {
     for (Mobile m : ship.staff.workers()) {
       if (! isBoarding(m, ship)) return false;
     }
@@ -159,8 +171,9 @@ public class ShipUtils {
   }
   
   
-  public static void completeTakeoff(Stage world, Dropship ship) {
-    world.offworld.journeys.handleEmmigrants(ship);
+  public static void completeTakeoff(Stage world, Vehicle ship) {
+    final VerseLocation goes = world.offworld.journeys.destinationFor(ship);
+    world.offworld.journeys.handleEmmigrants(goes, ship);
     ship.assignLandPoint(null, null);
   }
   
@@ -169,7 +182,7 @@ public class ShipUtils {
   /**  Dealing with motion during flight:
     */
   static void adjustFlight(
-    Dropship ship, Vec3D aimPos, float aimRot, float height
+    Vehicle ship, Vec3D aimPos, float aimRot, float height
   ) {
     final boolean report = flyVerbose && I.talkAbout == ship;
     if (report) I.say("\nAdjusting flight heading for "+ship);
@@ -197,7 +210,7 @@ public class ShipUtils {
     final float speed = Dropship.TOP_SPEED * height * UPS;
     float ascent = Dropship.TOP_SPEED * UPS / 4;
     ascent = Nums.min(ascent, Nums.abs(position.z - aimPos.z));
-    if (ship.flightStage() == Dropship.STAGE_DESCENT) ascent *= -1;
+    if (ship.flightStage() == Dropship.STAGE_LANDING) ascent *= -1;
     //
     //  Then head toward the aim point (for non-zero displacement)-
     if (disp.length() > 0) {
@@ -242,7 +255,7 @@ public class ShipUtils {
   //
   //  TODO:  Alternatively, use DeliveryUtils to try rating placement sites?
   
-  static boolean checkLandingArea(Dropship ship, Stage world, Box2D area) {
+  static boolean checkLandingArea(Vehicle ship, Stage world, Box2D area) {
     final Boarding dropPoint = ship.dropPoint();
     
     if (dropPoint instanceof Airfield) {
@@ -265,42 +278,57 @@ public class ShipUtils {
   }
   
   
-  public static boolean findLandingSite(Dropship ship, boolean useCache) {
+  public static boolean findLandingSite(Vehicle trans, boolean useCache) {
+    
+    //  TODO:  YOU'LL NEED TO FIND AN ALTERNATE ENTRY-POINT FOR GROUND-BASED
+    //  VEHICLES
+    
     //
     //  Basic variable setup and sanity checks-
-    final Base  base  = ship.base();
+    final Base  base  = trans.base();
     final Stage world = base.world ;
     final boolean report = siteVerbose && BaseUI.currentPlayed() == base;
-    if (ship.landed()) return true;
+    if (trans.landed()) return true;
     //
     //  If your current landing site is still valid, then keep it.
-    if (useCache && checkLandingArea(ship, world, ship.landArea())) {
+    if (useCache && checkLandingArea(trans, world, trans.landArea())) {
       if (report) {
-        I.say("\nCurrent landing site valid for "+ship);
-        I.say("  Point: "+ship.dropPoint());
-        I.say("  Area:  "+ship.landArea ());
+        I.say("\nCurrent landing site valid for "+trans);
+        I.say("  Point: "+trans.dropPoint());
+        I.say("  Area:  "+trans.landArea ());
       }
       return true;
     }
     //
-    //  If that fails, check to see if landing at a supply depot/launch hangar
+    //  If that fails, check to see if landing at a supply depot or an airfield
     //  is possible:
-    final Airfield strip = findAirfield(ship, world);
-    if (strip != null) {
-      final Vec3D aimPos = strip.dockLocation(ship);
-      ship.assignLandPoint(aimPos, strip);
-      strip.setToDock(ship);
-      if (report) I.say("Landing at airfield: "+strip);
-      return true;
+    if (trans instanceof CargoBarge) {
+      final CargoBarge barge = (CargoBarge) trans;
+      //final SupplyDepot depot = findSupplyDepot(barge, world);
+      //
+      //  TODO:  SAME STUFF HERE!  CREATE AN INTERFACE!
     }
+    
+    if (trans instanceof Dropship) {
+      final Dropship ship = (Dropship) trans;
+      final Airfield strip = findAirfield(ship, world);
+      if (strip != null) {
+        final Vec3D aimPos = strip.dockLocation(ship);
+        ship.assignLandPoint(aimPos, strip);
+        strip.setToDock(ship);
+        if (report) I.say("Landing at airfield: "+strip);
+        return true;
+      }
+    }
+    
     //
     //  Otherwise, search for a suitable landing site on the bare ground near
     //  likely customers:
-    return findLandingArea(ship, base);
+    return findLandingArea(trans, base);
   }
   
   
-  private static float rateAirfield(Airfield strip, Dropship ship) {
+  private static float rateAirfield(Airfield strip, Vehicle ship) {
     if ((! strip.inWorld()) || ! strip.structure.intact()) return -1;
     if (strip.docking() != null && strip.docking() != ship) return -1;
 
@@ -329,7 +357,7 @@ public class ShipUtils {
 
   
   private static boolean findLandingArea(
-    final Dropship ship, final Base base
+    final Vehicle ship, final Base base
   ) {
     final boolean report = siteVerbose && BaseUI.current().played() == base;
     

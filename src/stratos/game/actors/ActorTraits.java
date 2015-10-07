@@ -296,12 +296,16 @@ public class ActorTraits implements Qualities {
     }
     
     if (toLevel == 0) {
+      type.onRemoval(actor);
       levels.remove(type);
       return;
     }
     
     Level level = levels.get(type);
-    if (level == null) levels.put(type, level = new Level());
+    if (level == null) {
+      levels.put(type, level = new Level());
+      type.onAddition(actor);
+    }
     
     final float oldVal = level.value;
     level.value = toLevel;
@@ -314,6 +318,11 @@ public class ActorTraits implements Qualities {
     }
     //*/
     tryReport(type, level.value - (int) oldVal);
+  }
+  
+  
+  public void remove(Trait type) {
+    setLevel(type, 0);
   }
   
   
@@ -390,7 +399,11 @@ public class ActorTraits implements Qualities {
   
   
   public Batch <Condition> conditions() {
-    return (Batch) getMatches(null, Conditions.ALL_CONDITIONS);
+    final Batch <Condition> matches = new Batch();
+    for (Trait t : levels.keySet()) {
+      if (t instanceof Condition) matches.add((Condition) t);
+    }
+    return matches;
   }
   
   /*

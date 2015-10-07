@@ -24,11 +24,11 @@ public class OutfitType extends Traded {
   
   
   public OutfitType(
-    Class baseClass, String name, int defence, int shieldBonus, int basePrice,
+    Class baseClass, String name,
+    int defence, int shieldBonus, int basePrice,
     Class <? extends Venue> facility, Object... conversionArgs
   ) {
     super(baseClass, FORM_OUTFIT, name, basePrice, null);
-    
     this.defence     = defence    ;
     this.shieldBonus = shieldBonus;
     
@@ -37,11 +37,9 @@ public class OutfitType extends Traded {
     }
     else this.materials = new Conversion(
       facility, name+"_manufacture",
-      Visit.compose(
-        Object.class, conversionArgs, new Object[] { TO, 1, this }
-      )
+      Visit.compose(Object.class, conversionArgs, new Object[] { TO, 1, this })
     );
-    setPrice(basePrice, materials);
+    setPriceMargin(basePrice, materials);
     
     final String imagePath = ITEM_PATH+name+"_skin.gif";
     if (new File(imagePath).exists()) {

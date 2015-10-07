@@ -41,7 +41,10 @@ public abstract class Element implements
   }
   
   
-  protected Element() {}
+  protected Element() {
+    //
+    //  TODO:  Put something in here?
+  }
   
   
   public Element(Session s) throws Exception {
@@ -283,18 +286,20 @@ public abstract class Element implements
   public boolean visibleTo(Base base) {
     if (! inWorld()) return base == base();
     final float fog = base == null ? 1 : fogFor(base);
-    if (fog <= 0 || sprite == null) return false;
-    else sprite.fog = fog;
+    final Sprite s = sprite();
+    if (fog <= 0 || s == null) return false;
+    else s.fog = fog;
     return true;
   }
   
   
   public void renderFor(Rendering rendering, Base base) {
+    final Sprite s = sprite();
     final float timeGone = world.timeMidRender() - inceptTime;
-    if (timeGone < 1) sprite.colour = Colour.transparency(timeGone);
-    else sprite.colour = null;
-    viewPosition(sprite.position);
-    sprite.readyFor(rendering);
+    if (timeGone < 1) s.colour = Colour.transparency(timeGone);
+    else s.colour = null;
+    viewPosition(s.position);
+    s.readyFor(rendering);
   }
   
   
@@ -310,6 +315,12 @@ public abstract class Element implements
   
   public Sprite sprite() {
     return sprite;
+  }
+  
+  
+  public ModelAsset spriteModel() {
+    final Sprite s = sprite();
+    return s == null ? null : s.model();
   }
   
   
@@ -343,7 +354,7 @@ public abstract class Element implements
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_TERRAIN;
+    return Target.TYPE_TERRAIN;
   }
   
   

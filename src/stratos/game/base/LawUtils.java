@@ -68,6 +68,8 @@ public class LawUtils {
     final Target victim = actor.planFocus(null, true);
     
     float harmRating = 0;
+    final Action a = arrests.currentAction();
+    
     if (victim != null) {
       harmRating += actor.harmIntended(victim) * 2;
       harmRating *= arrests.base().relations.relationWith(victim.base());
@@ -80,7 +82,7 @@ public class LawUtils {
       if (top  instanceof Looting) return Crime.CRIME_THEFT  ;
     }
     //  Corruption means embezzlement, tax evasion or bribery.
-    if (Audit.checkForEmbezzlement(root, arrests, true)) {
+    if (Audit.checkForEmbezzlement(root, arrests, true, a)) {
       return Crime.CRIME_CORRUPTION;
     }
     //  Desertion means retreating from a mission or defecting to another base.

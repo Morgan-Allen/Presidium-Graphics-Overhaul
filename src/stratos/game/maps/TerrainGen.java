@@ -10,6 +10,18 @@ import stratos.game.wild.Outcrop;
 import stratos.util.*;
 
 
+//  TODO:
+
+//  I cannot have a finite static terrain-gradient AND allow assertion of
+//  arbitrary habitats at the same time.  If you rely on the former, the
+//  latter must be constrained.  If the latter is not constrained, the
+//  former must be re-calculated.
+
+//  Water.  Strata.  Minerals.  Temperature.  Biomass.  Toxicity.
+
+//  This is beyond the scope of what I can handle at the moment.  Work out some
+//  proper terraform mechanics later.
+
 
 public class TerrainGen implements TileConstants {
   
@@ -20,9 +32,12 @@ public class TerrainGen implements TileConstants {
     DETAIL_RESOLUTION = 8;
   final static float
     MAX_MINERAL_DENSITY = 1.0f;
+  final static boolean
+    USE_HEIGHT_VALS = false;
   
   final int mapSize, sectorGridSize;
   final float typeNoise;
+  
   final Habitat habitats[];
   final Float habitatAmounts[];
   
@@ -73,9 +88,7 @@ public class TerrainGen implements TileConstants {
   public StageTerrain generateTerrain() {
     setupSectors();
     setupTileHabitats();
-    final StageTerrain t = new StageTerrain(
-      habitats, typeIndex, varsIndex, heightMap
-    );
+    final StageTerrain t = new StageTerrain(typeIndex, varsIndex, heightMap);
     return t;
   }
   
@@ -201,9 +214,9 @@ public class TerrainGen implements TileConstants {
       mapSize + 1, new float[seedSize][seedSize], 1, 0.5f
     );
     final byte detailGrid[][] = heightDetail.asScaledBytes(10);
-    typeIndex = new byte[mapSize][mapSize];
-    varsIndex = new byte[mapSize][mapSize];
-    heightMap = new byte[mapSize + 1][mapSize + 1];
+    typeIndex = new byte[mapSize    ][mapSize    ];
+    varsIndex = new byte[mapSize    ][mapSize    ];
+    heightMap = new byte[mapSize * 2][mapSize * 2];
     
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       varsIndex[c.x][c.y] = terrainVarsAt(c.x, c.y);
@@ -217,34 +230,59 @@ public class TerrainGen implements TileConstants {
       float sum = Nums.sampleMap(mapSize, sectorVal, sampleX, sampleY);
       
       Habitat under = habitats[Nums.clamp((int) sum, habitats.length)];
-      
       if (! under.pathClear) {
-        typeIndex[c.x][c.y] = (byte) under.ID;
+        typeIndex[c.x][c.y] = (byte) under.layerID;
       }
       else {
         float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
         sum += detail * detail * 2;
         under = habitats[Nums.clamp((int) sum, habitats.length)];
-        typeIndex[c.x][c.y] = (byte) under.ID;
+        typeIndex[c.x][c.y] = (byte) under.layerID;
       }
       if (under.isSpeckle() && Rand.index(4) == 0) {
-        typeIndex[c.x][c.y] = (byte) (under.ID + 1);
+        typeIndex[c.x][c.y] = (byte) (under.layerID + 1);
       }
     }
     //
     //  Finally, paint the interiors of any ocean tiles-
-    //paintEdge(Habitat.CURSED_EARTH.ID, Habitat.SHORELINE.ID);
-    paintEdge(Habitat.OCEAN.ID, Habitat.SHORELINE.ID);
-    paintEdge(Habitat.OCEAN.ID, Habitat.SHALLOWS .ID);
+    final int
+      oceanID = Habitat.OCEAN    .layerID,
+      shoreID = Habitat.SHORELINE.layerID,
+      shallID = Habitat.SHALLOWS .layerID;
+    
+    paintEdge(oceanID, shoreID);
+    paintEdge(oceanID, shallID);
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       final byte type = typeIndex[c.x][c.y];
-      if (type >= Habitat.SHALLOWS.ID) continue;
+      if (type >= shallID) continue;
       float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
       detail *= detail * 1.5f;
       typeIndex[c.x][c.y] = (byte) (((detail * detail) > 0.25f) ?
-        Habitat.SHALLOWS.ID : Habitat.OCEAN.ID
+        shallID : oceanID
       );
     }
+    //
+    //  Finally, establish height-values:
+    if (USE_HEIGHT_VALS) for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
+      final byte high = typeIndex[c.x][c.y];
+      //
+      //  The height-map has twice the resolution of the tile-map, and we want
+      //  the edges of tiles to align (by default), so we have to visit 16
+      //  points both within and around the tile itself...
+      for (Coord p : Visit.grid(-1, -1, 4, 4, 1)) {
+        raisePoint(c, p.x, p.y, high);
+      }
+    }
+  }
+  
+  
+  private void raisePoint(Coord c, int x, int y, byte high) {
+    x = Nums.clamp(x + (c.x * 2), mapSize * 2);
+    y = Nums.clamp(y + (c.y * 2), mapSize * 2);
+    byte val = heightMap[x][y];
+    if (val == 0) val = high;
+    else if (high < val) val = high;
+    heightMap[x][y] = val;
   }
   
   
@@ -279,14 +317,6 @@ public class TerrainGen implements TileConstants {
     if (sampleVar == 0) sampleVar = (byte) (Rand.index(MV + 1) % MV);
     varsIndex[x][y] = sampleVar;
     return sampleVar;
-  }
-  
-  
-  private void raiseHeight(int x, int y, float val) {
-    heightMap[x    ][y    ] = (byte) Nums.max(heightMap[x    ][y    ], val);
-    heightMap[x + 1][y    ] = (byte) Nums.max(heightMap[x + 1][y    ], val);
-    heightMap[x    ][y + 1] = (byte) Nums.max(heightMap[x    ][y + 1], val);
-    heightMap[x + 1][y + 1] = (byte) Nums.max(heightMap[x + 1][y + 1], val);
   }
   
   
@@ -370,7 +400,9 @@ public class TerrainGen implements TileConstants {
       //  Adjust abundance based on local terrain and global variables, and
       //  find the degree for the local deposit-
       if (pickHighest) chance *= abundances[var];
-      final float minChance = terrain.habitatAt(c.x, c.y).minerals() / 10f;
+      
+      final Habitat h = terrain.habitatAt(c.x, c.y);
+      final float minChance = h.minerals() / 10f;
       chance *= minChance;
       
       float minAmount = minChance * (1.5f - Rand.num());

@@ -93,7 +93,7 @@ public class RunnerMarket extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     RunnerMarket.class, "runner_market",
-    "Runner Market", UIConstants.TYPE_COMMERCE, ICON,
+    "Runner Market", Target.TYPE_COMMERCE, ICON,
     "Runner Markets can offer black market technology and other "+
     "clandestine services to settlements willing to overlook their "+
     "criminal connections.",
@@ -128,6 +128,13 @@ public class RunnerMarket extends Venue {
   /**  Economic and behavioural overrides-
     */
   //  TODO:  Include corresponding upgrades and techniques for all of these!
+  final static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, StockExchange.LEVELS[0],
+      new Object[] { 5, STEALTH_AND_COVER, 5, ACCOUNTING },
+      350,
+      650
+    );
   
   final static Traded
     NEURAL_IMPLANT = new Traded(
@@ -208,7 +215,7 @@ public class RunnerMarket extends Venue {
     choice.add(Arrest.nextOfficialArrest(this, actor));
     //
     //  Next, consider smuggling goods out of the settlement-
-    for (Dropship ship : world.offworld.journeys.allVessels()) {
+    for (Dropship ship : world.offworld.journeys.allDropships()) {
       if (! ship.landed()) continue;
       final Smuggling s = Smuggling.bestSmugglingFor(this, ship, actor, 5);
       if (s != null && staff.assignedTo(s) == 0) choice.add(s);
@@ -265,14 +272,19 @@ public class RunnerMarket extends Venue {
   public Background[] careers() { return CAREERS; }
   
   
-  public int numOpenings(Background b) {
+  public int numPositions(Background b) {
     if (gangID == GANG_NONE) return 0;
-    final int nO = super.numOpenings(b);
-    if (b == RUNNER_BACKGROUNDS [gangID]) return nO + 2;
-    if (b == SERVICE_BACKGROUNDS[gangID]) return nO + 1;
+    final int level = structure.mainUpgradeLevel();
+    if (b == RUNNER_BACKGROUNDS [gangID]) return level + 1;
+    if (b == SERVICE_BACKGROUNDS[gangID]) return (level + 1) / 2;
     return 0;
   }
 }
+
+
+
+
+
 
 
 

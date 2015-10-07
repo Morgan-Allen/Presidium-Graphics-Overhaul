@@ -166,8 +166,9 @@ public abstract class ActorMind implements Qualities {
     Behaviour root = null, next = null;
     final int MAX_LOOP = 20;
     final String cause = "Getting next action";
+    Action returned = null;
     
-    for (int loop = MAX_LOOP; loop-- > 0;) {
+    decision: for (int loop = MAX_LOOP; loop-- > 0;) {
       //
       //  Firstly, check to ensure that our root behaviour is still valid- if
       //  not, you'll need to pick out a new one:
@@ -194,7 +195,7 @@ public abstract class ActorMind implements Qualities {
       for (Behaviour b : agenda) popBehaviour(b, cause);
       if (! Plan.canFollow(actor, root, true)) {
         if (warnVerbose) I.say(actor+"  CANNOT FOLLOW PLAN: "+root);
-        return null;
+        break decision;
       }
       //
       //  Then descend from the root node, adding each sub-step to the agenda,
@@ -210,10 +211,30 @@ public abstract class ActorMind implements Qualities {
           if (! valid) Plan.reportPlanDetails(next, actor);
         }
         if (! valid) break;
-        else if (next instanceof Action) return (Action) next;
+        else if (next instanceof Action) {
+          returned = (Action) next;
+          break decision;
+        }
       }
       cancelBehaviour(root, cause);
     }
+    //
+    //  If we're not performing a Technique already, consider finding one
+    //  that's appropriate to the underlying activity-
+    Action technique = Technique.currentTechniqueBy(actor);
+    if (returned != null && technique == null) {
+      technique = actor.skills.bestTechniqueFor(
+        returned.parentPlan(), returned
+      );
+      if (report) I.say("  Picked technique: "+technique.basis);
+    }
+    if (technique != null) {
+      if (report) I.say("  Returning technique: "+technique.basis);
+      returned = technique;
+    }
+    //
+    //  Then, if possible, return the final result.
+    if (returned != null) return returned;
     if (warnVerbose) {
       //
       //  If you exhaust the maximum number of iterations (which I assume

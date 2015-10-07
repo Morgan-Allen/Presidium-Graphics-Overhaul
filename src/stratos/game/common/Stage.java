@@ -25,26 +25,26 @@ public class Stage {
     verbose = false;
   
   final public static int
-    UPDATES_PER_SECOND = PlayLoop.UPDATES_PER_SECOND,
+    UPDATES_PER_SECOND    = PlayLoop.UPDATES_PER_SECOND,
     
-    PATCH_RESOLUTION  = 8 ,
-    UNIT_GRID_SIZE    = 2 ,
-    ZONE_SIZE         = 16,
-    ZONE_AREA         = ZONE_SIZE * ZONE_SIZE,
+    PATCH_RESOLUTION      = 8 ,
+    UNIT_GRID_SIZE        = 2 ,
+    ZONE_SIZE             = 16,
+    ZONE_AREA             = ZONE_SIZE * ZONE_SIZE,
     
-    DAYS_PER_WEEK        = 6 ,
-    SHIFTS_PER_DAY       = 3 ,
-    DAYS_PER_YEAR        = 60,
-    HOURS_PER_DAY        = 24,
-    STANDARD_HOUR_LENGTH = 20, //  In real-time seconds
+    DAYS_PER_WEEK         = 6 ,
+    SHIFTS_PER_DAY        = 3 ,
+    DAYS_PER_YEAR         = 60,
+    HOURS_PER_DAY         = 24,
+    STANDARD_HOUR_LENGTH  = 20, //  In real-time seconds
     
     STANDARD_DAY_LENGTH   = STANDARD_HOUR_LENGTH * HOURS_PER_DAY ,
     STANDARD_SHIFT_LENGTH = STANDARD_DAY_LENGTH  / SHIFTS_PER_DAY,
     STANDARD_WEEK_LENGTH  = STANDARD_DAY_LENGTH  * DAYS_PER_WEEK ,
     STANDARD_YEAR_LENGTH  = STANDARD_DAY_LENGTH  * DAYS_PER_YEAR ,
     
-    GROWTH_INTERVAL    = STANDARD_DAY_LENGTH / 2,
-    DEFAULT_INIT_TIME  = STANDARD_DAY_LENGTH / 3;
+    GROWTH_INTERVAL       = STANDARD_DAY_LENGTH / 2,
+    DEFAULT_INIT_TIME     = STANDARD_DAY_LENGTH / 3;
   
   
   final public int size;
@@ -89,7 +89,7 @@ public class Stage {
   public Stage(StageTerrain terrain) {
     this(terrain.mapSize);
     this.terrain = terrain;
-    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
+    terrain.initTerrainMesh();
   }
   
   
@@ -104,7 +104,7 @@ public class Stage {
     schedule.loadFrom(s);
     
     terrain = (StageTerrain) s.loadObject();
-    terrain.initTerrainMesh(Habitat.ALL_HABITATS);
+    terrain.initTerrainMesh();
     ecology.loadState(s);
     s.loadObjects(bases);
     for (int n = s.loadInt(); n-- > 0;) {
@@ -455,7 +455,7 @@ public class Stage {
     float minDist = Float.POSITIVE_INFINITY;
     for (Mobile m : mobiles) {
       if (m.indoors() || ! (m instanceof Selectable)) continue;
-      if (! m.visibleTo(base)) continue;
+      if (m.selectionLocksOn() == null || ! m.visibleTo(base)) continue;
       final float selRad = (m.height() + m.radius()) / 2;
       final Vec3D selPos = m.viewPosition(null);
       if (! port.mouseIntersects(selPos, selRad, UI)) continue;

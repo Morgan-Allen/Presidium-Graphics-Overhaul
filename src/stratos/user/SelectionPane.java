@@ -169,7 +169,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
         }
       };
       listingText.alignVertical  (0, CORE_INFO_HIGH + down);
-      listingText.alignHorizontal(0, SCROLLBAR_WIDE       );
+      listingText.alignHorizontal(0, 0);
       listingText.scale = SMALL_FONT_SIZE;
       listingText.attachTo(border.inside);
       
@@ -178,7 +178,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       scrollParent = listingText;
     }
     else {
-      detailText.alignHorizontal(0, SCROLLBAR_WIDE);
+      detailText.alignHorizontal(0, 0);
       detailText.alignVertical  (0, down          );
       listingText = null;
     }

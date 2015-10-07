@@ -21,29 +21,33 @@ public class Condition extends Trait {
   final public int modifiers[];
   
   
-  public Condition(String keyID, boolean basic, String... names) {
-    this(keyID, 0, 0, 0, new Table(), names);
-  }
-  
-  
-  public Condition(String keyID, Table effects, String... names) {
-    this(keyID, 0, 0, 0, effects, names);
+  public Condition(
+    Class baseClass, String keyID, boolean basic, String... names
+  ) {
+    this(baseClass, keyID, null, null, 0, 0, 0, new Table(), names);
   }
   
   
   public Condition(
-    String keyID,
+    Class baseClass, String keyID, Table effects, String... names
+  ) {
+    this(baseClass, keyID, null, null, 0, 0, 0, effects, names);
+  }
+  
+  
+  public Condition(
+    Class baseClass, String keyID, String description, String iconPath,
     float latency, float virulence, float spread,
     Table effects,
     String... names
   ) {
-    super(keyID, Qualities.CONDITION, names);
+    super(baseClass, keyID, description, iconPath, Qualities.CONDITION, names);
     this.latency   = Nums.max(latency, 0.1f);
     this.virulence = virulence;
     this.spread    = spread   ;
     
     this.affected  = new Trait[effects.size()];
-    this.modifiers = new int[effects.size()];
+    this.modifiers = new int  [effects.size()];
     int i = 0; for (Object k : effects.keySet()) {
       modifiers[i] = (Integer) effects.get(k);
       affected[i++] = (Trait) k;
@@ -96,7 +100,7 @@ public class Condition extends Trait {
       
       ///I.sayAbout(actor, "Contract chance/day for "+c+" is: "+infectChance);
       if (Rand.num() > (infectChance / Stage.STANDARD_DAY_LENGTH)) continue;
-      if (actor.skills.test(IMMUNE, c.virulence - 10, 1.0f)) continue;
+      if (actor.skills.test(IMMUNE, c.virulence - 10, 1.0f, null)) continue;
       
       if (verbose) I.say("INFECTING "+actor+" WITH "+c);
       actor.traits.incLevel(c, 0.1f);
@@ -110,7 +114,7 @@ public class Condition extends Trait {
     if (! near.health.organic()) return 0;
     if (has.species() != near.species()) return 0;
     if (near.traits.traitLevel(this) != 0) return 0;
-    if (near.skills.test(IMMUNE, virulence / 2, 0.1f)) return 0;
+    if (near.skills.test(IMMUNE, virulence / 2, 0.1f, null)) return 0;
     //
     //  TODO:  THERE HAS GOT TO BE A MORE ELEGANT WAY TO EXPRESS THIS
     float chance = 0.1f;
@@ -159,7 +163,7 @@ public class Condition extends Trait {
     //  Otherwise, see if your immune system can respond, based on how much of
     //  an immune response is already marshalled, and how advanced the disease
     //  is-
-    else if (a.skills.test(IMMUNE, immuneDC, inc)) {
+    else if (a.skills.test(IMMUNE, immuneDC, inc, null)) {
       a.traits.incBonus(this, 0 - (inc * 2));
       a.traits.incLevel(this, 0 - inc);
       if (a.traits.usedLevel(this) < 0) {

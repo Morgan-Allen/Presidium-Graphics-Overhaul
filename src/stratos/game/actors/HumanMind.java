@@ -153,6 +153,7 @@ public class HumanMind extends ActorMind implements Qualities {
       choice.add(new Dialogue(actor, nearby));
     }
     if (seen instanceof Item.Dropped) {
+      //  TODO:  Include foraging under this heading too.
       choice.add(new Looting(actor, (Item.Dropped) seen));
     }
   }
@@ -171,6 +172,7 @@ public class HumanMind extends ActorMind implements Qualities {
     //  TODO:  You need to respond to more distant actors/venues/items here?
     for (Target e : actor.senses.awareOf()) {
       addReactions(e, choice);
+      /*
       if (e instanceof Actor) {
         if (report) I.say("  Responding to actor: "+e);
         final Actor nearby = (Actor) e;
@@ -179,11 +181,14 @@ public class HumanMind extends ActorMind implements Qualities {
         //  TODO:  Reserve this for people you know.
         //choice.add(Gifting.nextGifting(null, actor, nearby));
       }
+      //*/
     }
     
     choice.add(Exploring.nextExploration(actor));
     choice.add(Exploring.nextWandering  (actor));
-    choice.add(new Foraging(actor, null));
+    
+    //  TODO:  Include a general 'looting' behaviour instead.
+    //choice.add(Gathering.asForaging(actor, null));
     choice.add(new Retreat(actor));
     
     if (work != null) {

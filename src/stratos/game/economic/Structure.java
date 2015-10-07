@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
+import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
@@ -25,10 +26,11 @@ public class Structure {
   /**  Fields, definitions and save/load methods-
     */
   final public static int
-    DEFAULT_INTEGRITY  = 100,
-    DEFAULT_ARMOUR     = 2  ,
-    DEFAULT_CLOAKING   = 0  ,
-    DEFAULT_AMBIENCE   = 0  ;
+    DEFAULT_INTEGRITY  =  100,
+    DEFAULT_ARMOUR     =  2  ,
+    DEFAULT_CLOAKING   =  0  ,
+    DEFAULT_AMBIENCE   =  0  ,
+    DEFAULT_BUILD_COST = -1  ;
   final public static float
     BURN_PER_SECOND = 1.0f,
     REGEN_PER_DAY   = 0.2f;
@@ -58,16 +60,22 @@ public class Structure {
   };
   
   final public static int
-    IS_NORMAL  = 0 ,
-    IS_VEHICLE = 1 ,
-    IS_FIXTURE = 2 ,
-    IS_LINEAR  = 4 ,
-    IS_ZONED   = 8 ,
-    IS_UNIQUE  = 16,
-    IS_WILD    = 32,
-    IS_CRAFTED = 64,
+    IS_NORMAL  = 0  ,
+    IS_VEHICLE = 1  ,
+    IS_FIXTURE = 2  ,
+    IS_LINEAR  = 4  ,
+    IS_ZONED   = 8  ,
+    IS_PUBLIC  = 16 ,
+    IS_UNIQUE  = 32 ,
+    IS_CRAFTED = 64 ,
     IS_ANCIENT = 128,
     IS_ORGANIC = 256;
+  
+  //  Type- venue, vehicle, fixture, tiling?
+  //  Placement method- unique, point, line, zone?
+  //  Resilience- primitive, technological, ancient, organic?
+  //  Category- (for faction-membership.)
+  
   
   final public static int
     NO_UPGRADES         = 0,
@@ -117,6 +125,8 @@ public class Structure {
   
   public void loadState(Session s) throws Exception {
     
+    blueprint = (Blueprint) s.loadObject();
+    
     baseIntegrity = s.loadInt();
     maxUpgrades   = s.loadInt();
     buildCost     = s.loadInt();
@@ -145,6 +155,8 @@ public class Structure {
   
   
   public void saveState(Session s) throws Exception {
+    
+    s.saveObject(blueprint);
     
     s.saveInt(baseIntegrity);
     s.saveInt(maxUpgrades  );
@@ -176,7 +188,7 @@ public class Structure {
     setupStats(
       blueprint.integrity,
       blueprint.armour,
-      blueprint.buildCost(),
+      DEFAULT_BUILD_COST,
       blueprint.numLevels() * UPGRADES_PER_LEVEL,
       blueprint.properties
     );
@@ -284,10 +296,6 @@ public class Structure {
   public int cloaking()  { return cloaking ; }
   public int armouring() { return armouring; }
   
-  public int buildCost() {
-    return blueprint == null ? buildCost : blueprint.buildCost();
-  }
-  
   public int ambienceVal() { return intact() ? ambienceVal : 0; }
   
   public boolean intact()     { return state == STATE_INTACT; }
@@ -297,6 +305,22 @@ public class Structure {
   public float   repair()      { return integrity; }
   public float   repairLevel() { return integrity / maxIntegrity(); }
   public boolean burning()     { return burning; }
+  
+  
+  public int buildCost() {
+    if (blueprint == null) return buildCost;
+    //
+    //  TODO:  Try summing together the build cost for all extant
+    //         level-upgrades!
+    
+    return blueprint.baseUpgrade().buildCost(basis.base());
+  }
+  
+  
+  public Upgrade blueprintUpgrade() {
+    if (blueprint == null) return null;
+    return blueprint.baseUpgrade();
+  }
   
   
   public boolean flammable() {
@@ -584,14 +608,6 @@ public class Structure {
   }
   
   
-  public boolean hasRequired(Upgrade upgrade) {
-    for (Upgrade r : upgrade.required) {
-      if (! Visit.arrayIncludes(upgrades, r)) return false;
-    }
-    return true;
-  }
-  
-  
   public int slotsFree() {
     int num = 0;
     for (Upgrade u : upgrades) {
@@ -601,25 +617,26 @@ public class Structure {
   }
   
   
-  public boolean upgradePossible(Upgrade upgrade) {
-    //  Consider returning a String explaining the problem, if there is one?
-    //  ...Or an error code of some kind?
-    if (upgrades == null) return false;
-    
-    boolean hasSlot = false, hasReq = hasRequired(upgrade);
-    int numType = 0;
-    for (Upgrade u : upgrades) {
-      if (u == null) hasSlot = true;
-      else if (u == upgrade) numType++;
+  public void setMainUpgradeLevel(int level) {
+    if (blueprint == null || blueprint.venueLevels() == null) {
+      I.complain("\nNO VENUE-LEVELS ASSOCIATED WITH "+basis);
+      return;
     }
-    return hasSlot && hasReq && numType < upgrade.maxLevel;
+    final Upgrade levels[] = blueprint.venueLevels();
+    while (level-- > 0) {
+      if (level >= levels.length || hasUpgrade(levels[level])) continue;
+      addUpgrade(levels[level]);
+    }
   }
   
   
   public int mainUpgradeLevel() {
+    if (blueprint == null || blueprint.venueLevels() == null) {
+      return -1;
+    }
     int level = 0;
-    for (Upgrade u : upgrades) {
-      if (u != null && u.type == Upgrade.Type.VENUE_LEVEL) level++;
+    for (Upgrade u : blueprint.venueLevels()) {
+      if (hasUpgrade(u)) level++;
     }
     return level;
   }
@@ -660,6 +677,11 @@ public class Structure {
   }
   
   
+  public boolean hasUpgradeOrQueued(Upgrade type) {
+    return hasUpgrade(type) || upgradeLevel(type, STATE_INSTALL) > 0;
+  }
+  
+  
   public float upgradeProgress() {
     return upgradeProgress;
   }
@@ -678,22 +700,6 @@ public class Structure {
   
   /**  Rendering and interface-
     */
-  public String upgradeError(Upgrade upgrade) {
-    if (! hasRequired(upgrade)) {
-      return "Lacks prerequisites";
-    }
-    int totalLevel = upgradeLevel(upgrade, STATE_INTACT);
-    totalLevel += upgradeLevel(upgrade, STATE_INSTALL);
-    if (totalLevel >= upgrade.maxLevel) {
-      return "Maximum level reached ("+totalLevel+"/"+upgrade.maxLevel+")";
-    }
-    if (slotsFree() == 0) {
-      return "No upgrade slots remaining";
-    }
-    return "Insufficient funds!";
-  }
-  
-  
   public Batch <String> descOngoingUpgrades() {
     final Batch <String> desc = new Batch <String> ();
     if (upgrades == null) return desc;

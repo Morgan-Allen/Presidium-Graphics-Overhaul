@@ -1,13 +1,14 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.sfx;
-import com.badlogic.gdx.graphics.*;
-
-import java.io.*;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
+import com.badlogic.gdx.graphics.*;
+import java.io.*;
+
 
 
 
@@ -30,9 +31,12 @@ public class ShotFX extends SFX {
     public Model(
       String modelName, Class modelClass,
       String texName,
-      float period   , float arc    ,
-      float width    , float length ,
-      boolean repeats, boolean vivid
+      float period   ,  //  delay-in-seconds between missiles, may be -1.
+      float arc      ,  //  elevation relative to distance.
+      float width    ,  //  in standard world-units.
+      float length   ,  //  in standard world-units.
+      boolean repeats,  //  single shot or segmented beam (by period)?
+      boolean vivid     //  glows uniformly or obeys lighting FX?
     ) {
       super(modelName, modelClass);
       this.texName = texName;
@@ -130,7 +134,7 @@ public class ShotFX extends SFX {
   
   
   protected void renderInPass(SFXPass pass) {
-    final boolean report = false;
+    final boolean report = I.used60Frames && false;
     
     //  First, we need to determine what the 'perp' angle should be (as in,
     //  perpendicular to the line of the beam, as perceived by the viewer.)
@@ -150,24 +154,30 @@ public class ShotFX extends SFX {
     perp.sub(origin);
     perp.normalise().scale(model.width);
     
+    if (report) {
+      I.say("\nRendering shot FX: "+this.hashCode());
+      I.say("  Origin:   "+origin  );
+      I.say("  Target:   "+target  );
+      I.say("  Position: "+position);
+      
+      I.say("  Perpendicular line: "+perp);
+    }
+    
     //  Alright.  Based on time elapsed, divided by period, you should have a
     //  certain number of missiles in flight.
     final float distance = origin.distance(target), numParts, partLen;
-    final Colour c;
+    final Colour c = colour == null ? Colour.WHITE : colour;
     if (model.period <= 0) {
       numParts = 1;
       partLen = distance;
-      c = Colour.WHITE;
     }
     else {
       if (inceptTime == -1) inceptTime = Rendering.activeTime();
       numParts = (Rendering.activeTime() - inceptTime) / model.period;
       partLen = model.length;
-      c = Colour.transparency(1f / (1 + numParts));
     }
     
     if (report) {
-      I.say("\nRendering shot FX...");
       I.say("  Model ID:  "+model.texName);
       I.say("  Num parts: "+numParts);
       I.say("  Period:    "+model.period);
@@ -198,13 +208,10 @@ public class ShotFX extends SFX {
         v.setTo(y ? end : start);
         v.z += QV[i++];
         
-        final float initDepth = pass.rendering.view.screenDepth(v);
-        if (x)
-          v.add(perp);
-        else
-          v.sub(perp);
-        final float afterDepth = pass.rendering.view.screenDepth(v);
-        
+        //final float initDepth = pass.rendering.view.screenDepth(v);
+        if (x) v.add(perp);
+        else   v.sub(perp);
+        //final float afterDepth = pass.rendering.view.screenDepth(v);
         ///I.say("  Difference: "+(initDepth - afterDepth));
       }
 

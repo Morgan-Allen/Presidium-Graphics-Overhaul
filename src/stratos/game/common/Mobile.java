@@ -19,7 +19,7 @@ public abstract class Mobile extends Element
   private static boolean
     verbose = Pathing.verbose;
   
-  final public static PlaneFX.Model SHADOW_MODEL = new PlaneFX.Model(
+  final public static PlaneFX.Model SHADOW_MODEL = PlaneFX.imageModel(
     "ground_shadow_model", Mobile.class,
     "media/SFX/ground_shadow.png", 1, 0, 0, false, false
   );
@@ -302,7 +302,7 @@ public abstract class Mobile extends Element
     position.setTo(nextPosition);
     rotation = nextRotation;
     super.setPosition(position.x, position.y, world);
-    nextPosition.z = boardHeight() + aboveGroundHeight();
+    nextPosition.z = boardHeight(aboard) + aboveGroundHeight();
     
     if (report) {
       I.say("Aboard: "+aboard);
@@ -312,7 +312,7 @@ public abstract class Mobile extends Element
   }
 
   
-  private float boardHeight() {
+  protected float boardHeight(Boarding aboard) {
     if (aboard == origin()) {
       return world.terrain().trueHeight(position.x, position.y);
     }
@@ -326,12 +326,16 @@ public abstract class Mobile extends Element
   }
   
   
+  protected boolean collides() {
+    return true;
+  }
+  
+  
   //  TODO:  Make this abstract?
   //  TODO:  Outsource these methods to the Pathing class, I'd say.  Make them
   //  configurable.
   protected void pathingAbort() {}
   protected float aboveGroundHeight() { return 0; }
-  protected boolean collides() { return true; }
   
   
   public int     motionType()  { return MOTION_WALKS; }
@@ -409,7 +413,7 @@ public abstract class Mobile extends Element
   }
   
   
-  public abstract void describeStatus(Description d);
+  public abstract void describeStatus(Description d, Object client);
 }
 
 

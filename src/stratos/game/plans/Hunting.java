@@ -138,17 +138,17 @@ public class Hunting extends Plan {
     final boolean report = evalVerbose && I.talkAbout == actor;
     
     setCompetence(1);  //  Will adjust later- see below...
-    
     if (prey.destroyed() || ! prey.inWorld()) return -1;
+    
     final boolean start = ! hasBegun(), alive = prey.health.alive();
-    if (start && ! validPrey(prey, actor)) return -1;
+    if (start && ! validPrey(prey, actor)  ) return -1;
     if (alive && ! PlanUtils.isArmed(actor)) return -1;
     
     float priority = 0, harmLevel = 1, hunger = -1, crowdRating = -1;
     
     if (type == TYPE_FEEDS || type == TYPE_HARVEST) {
       hunger = actor.health.hungerLevel() + (start ? 0 : 0.25f);
-      crowdRating = alive ? Nest.crowdingFor(prey) : 1;
+      crowdRating = alive ? NestUtils.nestCrowding(prey) : 1;
       crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, -1, 1);
       priority += (hunger + motiveBonus()) * crowdRating;
       if (hunger > 0.5f) priority += PARAMOUNT * (hunger - 0.5f) * 2;
@@ -276,7 +276,7 @@ public class Hunting extends Plan {
     //  Determine just how large a chunk you can take out of the prey-
     final float
       before = prey.health.injury(),
-      damage = actor.gear.attackDamage() * (Rand.num() + 0.5f) / 10;
+      damage = actor.gear.totalDamage() * (Rand.num() + 0.5f) / 10;
     if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
     prey.health.takeInjury(damage, true);
     float taken = prey.health.injury() - before;
@@ -292,10 +292,11 @@ public class Hunting extends Plan {
     //
     //  Firstly, use a series of basic skill checks to see how effectively the
     //  carcass can be butchered:
+    final Action a = action();
     float success = 1, mult = 0.5f;
-    if (actor.skills.test(XENOZOOLOGY, 10, 2)) success++;
-    if (actor.skills.test(DOMESTICS  , 5 , 1)) success++;
-    if (actor.skills.test(HARD_LABOUR, 5 , 1)) success++;
+    if (actor.skills.test(XENOZOOLOGY, 10, 2, a)) success++;
+    if (actor.skills.test(DOMESTICS  , 5 , 1, a)) success++;
+    if (actor.skills.test(HARD_LABOUR, 5 , 1, a)) success++;
     success /= 5;
     //
     //  We provide a bonus to extraction effiency based on upgrades available
@@ -330,7 +331,7 @@ public class Hunting extends Plan {
       I.say("  Spyce amount: "+spyce);
     }
     if (meat  > 0) depot.inventory().bumpItem(PROTEIN  , meat );
-    if (spyce > 0) depot.inventory().bumpItem(DRY_SPYCE, spyce);
+    if (spyce > 0) depot.inventory().bumpItem(SPYCES, spyce);
     return true;
   }
   
@@ -342,7 +343,7 @@ public class Hunting extends Plan {
   
   
   public boolean actionSample(Actor actor, Actor prey) {
-    if (! actor.skills.test(XENOZOOLOGY, 10, 10)) return false;
+    if (! actor.skills.test(XENOZOOLOGY, 10, 10, action())) return false;
     actor.gear.addItem(sample());
     return true;
   }

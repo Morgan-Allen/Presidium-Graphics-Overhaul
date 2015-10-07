@@ -103,7 +103,7 @@ public class Migration extends Plan {
     }
     if (ship == null || ! ship.inWorld()) {
       final Pick <Dropship> pick = new Pick <Dropship> ();
-      for (Dropship ship : actor.world().offworld.journeys.allVessels()) {
+      for (Dropship ship : actor.world().offworld.journeys.allDropships()) {
         pick.compare(ship, 0 - Spacing.distance(actor, ship));
       }
       ship = pick.result();

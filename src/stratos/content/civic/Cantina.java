@@ -85,12 +85,17 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Cantina.class, "cantina",
-    "Cantina", UIConstants.TYPE_COMMERCE, ICON,
+    "Cantina", Target.TYPE_COMMERCE, ICON,
     "A lively hub for social activities, your citizens can rest and relax "+
     "at the Cantina.  Unsavoury characters are known to drop by, however.",
-    4, 1, Structure.IS_NORMAL,
-    Owner.TIER_FACILITY, 150,
-    2
+    4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 2,
+    SERVICE_ENTERTAIN, PERFORMER, SOMA_CHEF
+  );
+  
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, StockExchange.LEVELS[0],
+    new Object[] { 5, MUSIC_AND_SONG, 5, DOMESTICS },
+    350
   );
   
   
@@ -207,27 +212,17 @@ public class Cantina extends Venue implements Performance.Theatre {
   }
   
   
-  public Background[] careers() {
-    return new Background[] { Backgrounds.SOMA_CHEF, Backgrounds.PERFORMER };
-  }
-  
-  
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
-    if (v == Backgrounds.SOMA_CHEF) return nO + 1;
-    if (v == Backgrounds.PERFORMER) return nO + 1;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == Backgrounds.SOMA_CHEF) return level;
+    if (v == Backgrounds.PERFORMER) return level;
     return 0;
   }
   
   
   public float priceFor(Traded good) {
-    if (good == SOMA) return SOMA.basePrice() * SOMA_MARGIN;
-    return good.basePrice() * BaseCommerce.SMUGGLE_MARGIN;
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { SERVICE_ENTERTAIN };
+    if (good == SOMA) return SOMA.defaultPrice() * SOMA_MARGIN;
+    return good.defaultPrice() * BaseCommerce.SMUGGLE_MARGIN;
   }
   
   
@@ -292,11 +287,12 @@ public class Cantina extends Venue implements Performance.Theatre {
     actor.gear.incCredits(-price);
     venue.gamblePot += price;
     venue.stocks.incCredits(price);
-    
+
+    final Action a = actor.currentAction();
     float success = (Rand.num() * 2) - 1;
-    if (actor.skills.test(ACCOUNTING, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(ACCOUNTING, MODERATE_DC, 1, a)) success++;
     else success--;
-    if (actor.skills.test(MASQUERADE, MODERATE_DC, 1)) success++;
+    if (actor.skills.test(MASQUERADE, MODERATE_DC, 1, a)) success++;
     else success--;
     
     if (success > 0) {

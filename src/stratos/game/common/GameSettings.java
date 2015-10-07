@@ -13,6 +13,46 @@ import java.lang.reflect.*;
 public class GameSettings {
   
   
+  /**  Global debugging flags.
+    */
+  //  TODO:  Insert these more widely.
+  public static boolean
+    initVerbose   = false,
+    updateVerbose = false,
+    extraVerbose  = false,
+    
+    mindVerbose   = false,
+    senseVerbose  = false,
+    evalVerbose   = false,
+    stepsVerbose  = false,
+    
+    healthVerbose = false,
+    equipVerbose  = false,
+    skillsVerbose = false,
+    powerVerbose  = false,
+    relateVerbose = false,
+    
+    fightVerbose  = false,
+    patrolVerbose = false,
+    talkVerbose   = false,
+    looksVerbose  = false,
+    treatVerbose  = false,
+    buildVerbose  = false,
+    makingVerbose = false,
+    studyVerbose  = false,
+    adminVerbose  = false,
+    buysVerbose   = false,
+    sellsVerbose  = false,
+    homeVerbose   = false,
+    workVerbose   = false,
+    
+    shipsVerbose  = false,
+    roadsVerbose  = false,
+    questVerbose  = false,
+    lawsVerbose   = false;
+    
+  
+  
   /**  Global setting fields which can be freely accessed from anywhere within
     *  the program (though they would typically only be changed during scenario
     *  setup.)
@@ -24,15 +64,15 @@ public class GameSettings {
   //
   //  
   final public static float
-    SMALL_HUMAN_SCALE = 0.55f,
-    BIG_HUMAN_SCALE   = 0.75f;
+    SMALL_HUMAN_SCALE = 0.550f,
+    BIG_HUMAN_SCALE   = 0.875f;
   
   //
   //  I'm including a number of vital economic constants here, since they have
   //  a pretty significant impact on gameplay.
   final public static float
-    SPENDING_MULT  = 0.4f,
-    ITEM_WEAR_DAYS = 30  ;
+    SPENDING_MULT  = 1.0f,
+    ITEM_WEAR_DAYS = 10  ;
   
   //  Gameplay effects-
   public static boolean
@@ -102,7 +142,10 @@ public class GameSettings {
   public static String[] publishSimpleOptions() {
     final Batch <String> names = new Batch <String> ();
     for (Field setting : settings) {
-      if (setting.getType() == boolean.class) names.add(setting.getName());
+      final String name = setting.getName();
+      if (name.contains("Verbose")) continue;
+      if (setting.getType() != boolean.class) continue;
+      names.add(name);
     }
     return names.toArray(String.class);
   }

@@ -139,10 +139,10 @@ public final class Economy {
       "geological strata, coveted for their rarity, beauty and insight."
     ),
     
-    DRY_SPYCE = new Traded(
-      BC, "Dry Spyce", "spyce.gif"  , FORM_SPECIAL, 200,
-      "Halebdynum, or Dry Spyce, an exotic baryonic compound known to "+
-      "heighten psyonic abilities."
+    SPYCES = new Traded(
+      BC, "Spyces", "spyce.gif"  , FORM_SPECIAL, 200,
+      "Spyces are exotic baryonic compounds known to heighten psyonic "+
+      "abilities."
     ),
     
     TREATMENT = new Traded(
@@ -216,6 +216,9 @@ public final class Economy {
     ),
     SERVICE_ADMIN      = new Traded(
       BC, "Admin"        , null, FORM_SERVICE, 0
+    ),
+    SERVICE_RESEARCH   = new Traded(
+      BC, "Research"     , null, FORM_SERVICE, 0
     ),
     SERVICE_COMMERCE   = new Traded(
       BC, "Commerce"     , null, FORM_SERVICE, 0

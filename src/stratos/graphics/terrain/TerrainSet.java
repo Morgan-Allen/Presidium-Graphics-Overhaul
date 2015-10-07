@@ -1,13 +1,12 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
-import stratos.start.Assets;
 import stratos.util.*;
-
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import stratos.start.Assets;
 
 
 
@@ -21,7 +20,7 @@ public class TerrainSet {
   
   final public int size, numLayers;
   final int chunkSize, chunkGrid;
-  final byte layerIndices[][], varsIndices[][];
+  final byte layerIndices[][], varsIndices[][], heightVals[][];
   
   final TerrainChunk chunks[][][];
   final public LayerType layers[];
@@ -31,7 +30,8 @@ public class TerrainSet {
   public TerrainSet(
       int size, int chunkSize,
       byte layerIndices[][],
-      byte varsIndices[][],
+      byte varsIndices [][],
+      byte heightVals  [][],
       LayerType layers[]
   ) {
     // Basic sanity checks first-
@@ -42,12 +42,13 @@ public class TerrainSet {
     //
     // Appropriate dimensions calculated-
     this.numLayers = layers.length;
-    this.size = size;
+    this.size      = size;
     this.chunkSize = chunkSize;
     this.chunkGrid = (int) Nums.ceil(size / chunkSize);
-    this.layers = layers;
+    this.layers    = layers;
     this.layerIndices = layerIndices;
-    this.varsIndices = varsIndices;
+    this.varsIndices  = varsIndices;
+    this.heightVals   = heightVals;
     //
     // And finally, the bite-size terrain chunks that actually get
     // rendered on a need-to-see basis-
@@ -117,5 +118,24 @@ public class TerrainSet {
       }
     }
   }
+  
+  
+  
+  /**  Utility methods for geometry-generation-
+    */
+  protected static int heightDiff(
+    TerrainSet terrain, int x, int y, int offX, int offY
+  ) {
+    //
+    //  Return the difference between two points on the height grid.  NOTE:
+    //  Height-maps have double the resolution of the basic tile grid, so be
+    //  sure to multiply x2 before use...
+    final byte HV[][] = terrain.heightVals;
+    try { return HV[x + offX][y + offY] - HV[x][y]; }
+    catch (ArrayIndexOutOfBoundsException e) { return 0; }
+  }
 }
+
+
+
 

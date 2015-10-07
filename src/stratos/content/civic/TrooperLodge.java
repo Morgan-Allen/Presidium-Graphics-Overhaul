@@ -34,7 +34,7 @@ public class TrooperLodge extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     TrooperLodge.class, "trooper_lodge",
-    "Trooper Lodge", UIConstants.TYPE_SECURITY, ICON,
+    "Trooper Lodge", Target.TYPE_SECURITY, ICON,
     "The Trooper Lodge allows you to recruit the sturdy, disciplined and "+
     "heavily-equipped Trooper into the rank and file of your armed forces.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 500, 20,
@@ -69,53 +69,45 @@ public class TrooperLodge extends Venue {
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.THREE_LEVELS, null,
-      650,
-      800,
-      1000
+      Upgrade.TWO_LEVELS, null,
+      new Object[] { 10, BATTLE_TACTICS, 0, HAND_TO_HAND, 0, MARKSMANSHIP },
+      650, 800//, 1000
     ),
     MELEE_TRAINING = new Upgrade(
       "Melee Training",
       "Drills your soldiers for the rigours of close combat and tight "+
-      "formations.",
+      "formation.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 10, HAND_TO_HAND
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
       "Drills your soldiers to improve ranged marksmanship.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 10, MARKSMANSHIP
     ),
+    
+    
+    //  TODO:  Add Frag Launcher & Power Armour upgrades, plus Noble Command
+    //  and Call of Duty.
+    
     FIELD_MEDICINE = new Upgrade(
       "Field Medicine",
       "Drills your soldiers in first aid techniques and use of combat stims.",
-      200, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      200, Upgrade.SINGLE_LEVEL, LEVELS[1], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 5, ANATOMY
     ),
     FIELD_REPAIRS = new Upgrade(
       "Field Repairs",
       "Drills your soldiers in maintaining equipment and aiding in "+
       "construction projects.",
-      200, Upgrade.THREE_LEVELS, LEVELS[2], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
+      200, Upgrade.SINGLE_LEVEL, LEVELS[1], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      5, BATTLE_TACTICS, 5, ASSEMBLY
     );
-    /*
-    VOLUNTEER_POST = new Upgrade(
-      "Volunteer Post",
-      VOLUNTEER.info,
-      200,
-      Upgrade.THREE_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, Backgrounds.VOLUNTEER
-    ),
-    TROOPER_OFFICE = new Upgrade(
-      "Trooper Office",
-      TROOPER.info,
-      450,
-      Upgrade.THREE_LEVELS, VOLUNTEER_POST, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, Backgrounds.TROOPER
-    );
-    //*/
   
   final static Upgrade TRAIN_UPGRADES[] = {
     MELEE_TRAINING,
@@ -176,11 +168,11 @@ public class TrooperLodge extends Venue {
   }
   
   
-  public int numOpenings(Background v) {
-    int num = super.numOpenings(v);
-    if (v == Backgrounds.VOLUNTEER) return num + 2;
-    if (v == Backgrounds.TROOPER  ) return num + 2;
-    return 0;
+  public int numPositions(Background v) {
+    final int numP = super.numPositions(v);
+    final int level = structure.mainUpgradeLevel();
+    if (v == Backgrounds.TROOPER) return 1 + level;
+    return numP;
   }
 }
 

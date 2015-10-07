@@ -23,7 +23,7 @@ public class MessagePane extends UIGroup implements UIConstants {
   final public String title;
   final public Target focus;
   final MessageSource source;
-
+  
   final   UINode    portraitFrame;
   private Composite portrait     ;
   
@@ -37,6 +37,14 @@ public class MessagePane extends UIGroup implements UIConstants {
   private String initText;
   private Clickable options[];
   private float receiptDate = -1;
+  
+  
+
+  public MessagePane(
+    final BaseUI baseUI, String title, MessageSource source
+  ) {
+    this(baseUI, null, title, null, source);
+  }
   
   
   public MessagePane(
@@ -137,11 +145,6 @@ public class MessagePane extends UIGroup implements UIConstants {
   }
   
   
-  public float receipt() {
-    return receiptDate;
-  }
-  
-  
   public Text header() {
     return header;
   }
@@ -179,6 +182,7 @@ public class MessagePane extends UIGroup implements UIConstants {
       d.setText(initText);
       d.append("\n  ");
       for (Clickable option : options) {
+        if (option == null) continue;
         d.append("\n  ");
         d.append(option);
       }

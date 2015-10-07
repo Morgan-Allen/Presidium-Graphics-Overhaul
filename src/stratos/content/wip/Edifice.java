@@ -67,7 +67,7 @@ public class Edifice extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Edifice.class, "edifice",
-    "Edifice", UIConstants.TYPE_WIP, ICON,
+    "Edifice", Target.TYPE_WIP, ICON,
     "The Edifice commemorates significant events in the history of your "+
     "settlement beneath a frictionless composite facade.",
     4, 2, Structure.IS_FIXTURE,
@@ -128,7 +128,7 @@ public class Edifice extends Venue {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
 }
 

@@ -20,7 +20,7 @@ public class BudgetsPane extends SelectionPane {
     BUDGETS_ICON = ImageAsset.fromImage(
       BudgetsPane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
     ),
-    BUDGETS_ICON_LIT = Button.CIRCLE_LIT;
+    BUDGETS_ICON_LIT = Button.CROSSHAIRS_LIT;
   
   final public static String
     CAT_DEMAND   = "[MARKETS]",
@@ -125,11 +125,12 @@ public class BudgetsPane extends SelectionPane {
       final String
         priceImp = I.shorten(BC.importPrice(t), 1),
         priceExp = I.shorten(BC.exportPrice(t), 1),
-        baseCost = I.shorten(t.basePrice()    , 1);
+        baseCost = I.shorten(t.defaultPrice()    , 1);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append(" ");
       d.append(t);
+      d.append("\n");
       d.append(" (");
       d.append(priceImp+"", Colour.LITE_RED  );
       d.append(" | ");
@@ -147,7 +148,7 @@ public class BudgetsPane extends SelectionPane {
       if (partner == BC.homeworld()) d.append("  (Homeworld)");
       else d.append(" (Trading Partner)");
       
-      final Dropship nextShip = universe.journeys.nextShipBetween(
+      final Vehicle nextShip = universe.journeys.nextTransportBetween(
         partner, locale, base, true
       );
       if (nextShip != null) {

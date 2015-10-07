@@ -90,7 +90,7 @@ public class ActorDescription implements Qualities {
     }
     //*/
     
-    h.describeStatus(d);
+    h.describeStatus(d, h);
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;
@@ -125,17 +125,20 @@ public class ActorDescription implements Qualities {
     if (hunger > 0) d.append(" (Hunger "+hunger+"%)");
     //
     //  And describe any special status FX-
-    final Batch <String   > healthDesc = new Batch <String> ();
-    for (Condition c : Conditions.ALL_CONDITIONS) {
-      if (h.traits.traitLevel(c) > 0) healthDesc.add(h.traits.description(c));
-    }
     d.append("\n  ");
+    if (h.mind.work() == null) d.append("Unemployed ");
+    if (h.mind.home() == null) d.append("Homeless "  );
+    for (Trait t : h.traits.conditions()) {
+      d.append(h.traits.description(t), t);
+      d.append(" ");
+      //healthDesc.add(h.traits.description(t));
+    }
+    /*
     for (String s : healthDesc) if (s != null) {
       d.append(s);
       d.append(" ");
     }
-    if (h.mind.work() == null) d.append("Unemployed ");
-    if (h.mind.home() == null) d.append("Homeless "  );
+    //*/
   }
   
   
@@ -149,13 +152,17 @@ public class ActorDescription implements Qualities {
       PC = (int) h.gear.powerCells  ();
     final Item device = h.gear.deviceEquipped();
     if (device != null) {
-      d.append("\n  "+device+" ("+((int) h.gear.attackDamage())+")");
+      d.append("\n  "+device.descQuality()+" ");
+      d.append(device.type);
+      d.append(" ("+((int) h.gear.totalDamage())+")");
       if (PC > 0) d.append(" (Power "+PC+")");
     }
     final Item outfit = h.gear.outfitEquipped();
     final boolean showShields = MS > 0 || SC > 0;
     if (outfit != null) {
-      d.append("\n  "+outfit+" ("+((int) h.gear.armourRating())+")");
+      d.append("\n  "+outfit.descQuality()+" ");
+      d.append(outfit.type);
+      d.append(" ("+((int) h.gear.totalArmour())+")");
     }
     else if (showShields) d.append("\n  No outfit");
     if (showShields) d.append(" (Shields "+SC+"/"+MS+")");
@@ -198,8 +205,9 @@ public class ActorDescription implements Qualities {
     for (Skill skill : sorting) descSkill(skill, d);
     
     d.append("\n\nTechniques: ");
-    for (Technique p : h.skills.known) {
-      d.append("\n  "+p.name);
+    for (Technique p : h.skills.knownTechniques()) {
+      d.append("\n  ");
+      d.append(p);
     }
     //if (h.skills.known.size() == 0) d.append("\n  None known");
   }
@@ -210,7 +218,8 @@ public class ActorDescription implements Qualities {
       baseLevel = (int) h.traits.traitLevel(skill),
       rootBonus = (int) h.traits.bonusFrom (skill.parent),
       bonus     = (int) h.traits.effectBonus(skill);
-    d.append("\n  "+skill.name);
+    d.append("\n  ");
+    d.append(skill);
     
     Colour c = Colour.WHITE;
     if (bonus > 0) c = Colour.GREEN;
@@ -325,28 +334,25 @@ public class ActorDescription implements Qualities {
         l.append(Skill.skillDesc(level), Skill.skillTone(level));
       }
     }
-    l.append("\nCarried: ");
-    for (Item item : actor.gear.allItems()) l.append("\n  "+item);
+    
+    final Series <Technique> known = actor.skills.knownTechniques();
+    if (known.size() > 0) {
+      l.append("\n\nTechniques: ");
+      for (Technique p : known) {
+        l.append("\n  ");
+        l.append(p);
+      }
+    }
+    
+    final Series <Item> carried = actor.gear.allItems();
+    if (carried.size() > 0) {
+      l.append("\n\nCarried: ");
+      for (Item item : carried) l.append("\n  "+item);
+    }
+    
     l.append("\n\n");
     l.append(actor.species().info, Colour.LITE_GREY);
     
-    /*
-    d.append("Is: ");
-    actor.describeStatus(d);
-    
-    d.append("\nNests at: ");
-    if (actor.mind.home() != null) {
-      d.append(actor.mind.home());
-    }
-    else d.append("No nest");
-    
-    
-    
-    l.append("Condition: ");
-    final Batch <String> CD = actor.health.conditionsDesc();
-    if (CD.size() == 0) l.append("Okay");
-    else l.appendList("", CD);
-    //*/
     return panel;
   }
 }

@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.charts;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
@@ -56,13 +58,13 @@ public class StarField extends Assets.Loadable {
     //  NOTE:  The normal attribute here is actually used to store the offset
     //  of a corner from the given decal's coordinate centre (see below).
     compiled = new Stitching(
-      3 + 3 + 1 + 2,                 //number of floats per vertex.
+      Stitching.BONED_VERTEX_SIZE,   //number of floats per vertex.
       true, 100,                     //is a quad, max. total quads
       new int[] {0, 1, 2, 1, 2, 3},  //indices for quad vertices
-      VertexAttribute.Position(),
-      VertexAttribute.Normal(),
-      VertexAttribute.Color(),
-      VertexAttribute.TexCoords(0)
+      VertexAttribute.Position  ( ),
+      VertexAttribute.Normal    ( ),
+      VertexAttribute.TexCoords (0),
+      VertexAttribute.BoneWeight(0)
     );
     
     shading = new ShaderProgram(

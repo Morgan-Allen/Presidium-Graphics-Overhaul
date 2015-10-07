@@ -115,7 +115,7 @@ public class Mat3D {
     return this;
   }
   
-  /**  Rotates this matrix by the given value about the X axis.
+  /**  Rotates this matrix by the given value anticlockwise about the X axis.
     */
   public Mat3D rotateX(float radians) {
     cr = Nums.cos(radians);
@@ -129,7 +129,7 @@ public class Mat3D {
     return setTo(tempM);
   }
   
-  /**  Rotates this matrix by the given value about the Y axis.
+  /**  Rotates this matrix by the given value anticlockwise about the Y axis.
     */
   public Mat3D rotateY(float radians) {
     cr = Nums.cos(radians);
@@ -143,7 +143,7 @@ public class Mat3D {
     return setTo(tempM);
   }
   
-  /**  Rotates this matrix by the given value about the Z axis.
+  /**  Rotates this matrix by the given value anticlockwise about the Z axis.
     */
   public Mat3D rotateZ(float radians) {
     cr = Nums.cos(radians);

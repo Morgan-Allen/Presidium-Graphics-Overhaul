@@ -44,7 +44,7 @@ public class Yamagur extends Fauna {
     0.65f, //speed
     1.10f  //sight
   ) {
-    final Blueprint BLUEPRINT = Nest.constructBlueprint(
+    final Blueprint BLUEPRINT = NestUtils.constructBlueprint(
       3, 2, this, NEST_MODEL
     );
     public Actor sampleFor(Base base) { return init(new Yamagur(base)); }

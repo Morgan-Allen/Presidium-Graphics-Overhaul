@@ -33,7 +33,7 @@ public class EnforcerBloc extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     EnforcerBloc.class, "enforcer_bloc",
-    "Enforcer Bloc", UIConstants.TYPE_WIP, ICON,
+    "Enforcer Bloc", Target.TYPE_WIP, ICON,
     "The Enforcer Bloc provides a civilian police force for your base, "+
     "assisting administration and espionage as well as providing nonlethal "+
     "force.",
@@ -98,8 +98,8 @@ public class EnforcerBloc extends Venue {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
+  public int numPositions(Background v) {
+    final int nO = super.numPositions(v);
     if (v == Backgrounds.AUDITOR) return nO + 1;
     if (v == Backgrounds.ENFORCER) return nO + 2;
     return 0;

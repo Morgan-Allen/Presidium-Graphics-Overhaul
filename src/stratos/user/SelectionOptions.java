@@ -77,7 +77,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
       options.add(new OptionButton(
         BUI, STRIKE_BUTTON_ID, Mission.STRIKE_ICON,
         "Destroy or capture subject",
-        new MissionStrike(base, subject)
+        new MissionStrike(base, (Element) subject)
       ));
     }
     if (
@@ -88,13 +88,15 @@ public class SelectionOptions extends UIGroup implements UIConstants {
       options.add(new OptionButton(
         BUI, SECURITY_BUTTON_ID, Mission.SECURITY_ICON,
         "Secure or protect subject",
-        new MissionSecurity(base, subject)
+        new MissionSecurity(base, (Element) subject)
       ));
     }
     if (
       Summons.canSummon(subject, base)
     ) {
-      final MissionContact contactMission = new MissionContact(base, subject);
+      final MissionContact contactMission = new MissionContact(
+        base, (Actor) subject
+      );
       options.add(new OptionButton(
         BUI, CONTACT_BUTTON_ID, Mission.CONTACT_ICON,
         "Contact or negotiate with subject",
@@ -122,7 +124,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     }
     
     if (ruler != null) for (Power power : ruler.skills.knownPowers()) {
-      if (! power.appliesTo(ruler, subject)) continue;
+      if (power.icon == null || ! power.appliesTo(ruler, subject)) continue;
       
       final UIGroup option = new UIGroup(BUI);
       options.add(option);

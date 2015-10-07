@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -18,11 +21,6 @@ public class SolidsPass {
   final static int
     MAX_SKINS = 8,
     MAX_BONES = 50;
-  
-  final static String OVER_NAMES[] = {
-    "u_over0", "u_over1", "u_over2", "u_over3",
-    "u_over4", "u_over5", "u_over6", "u_over7",
-  };
   
   
   final Rendering rendering;
@@ -69,12 +67,11 @@ public class SolidsPass {
     
     //  The ambient light, diffuse light, and light direction-
     final float
-      ambA[] = rendering.lighting.ambient.toFloatVals(),
-      difA[] = rendering.lighting.diffuse.toFloatVals();
-    final Vec3D d = rendering.lighting.direction;
-    final float lightDir[] = new float[] { d.x, d.y, d.z };
-    shading.setUniform4fv("u_ambientLight"  , ambA, 0, 4);
-    shading.setUniform4fv("u_diffuseLight"  , difA, 0, 4);
+      ambA    [] = rendering.lighting.ambient.toFloatVals(),
+      difA    [] = rendering.lighting.diffuse.toFloatVals(),
+      lightDir[] = rendering.lighting.lightDir;
+    shading.setUniform4fv("u_ambientLight"  , ambA    , 0, 4);
+    shading.setUniform4fv("u_diffuseLight"  , difA    , 0, 4);
     shading.setUniform3fv("u_lightDirection", lightDir, 0, 3);
     shading.setUniformMatrix("u_camera", rendering.camera().combined);
     
@@ -123,6 +120,11 @@ public class SolidsPass {
   
   /**  Helper method for binding multiple texture overlays-
     */
+  final static String OVER_NAMES[] = {
+    "u_over0", "u_over1", "u_over2", "u_over3",
+    "u_over4", "u_over5", "u_over6", "u_over7",
+  };
+  
   private void bindOverlays(SolidSprite.Part part) {
     if (part == null || part.overlays == null || part.overlays.length < 1) {
       shading.setUniformi("u_numOverlays", 0);

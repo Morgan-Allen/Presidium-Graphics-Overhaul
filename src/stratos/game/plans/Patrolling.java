@@ -81,26 +81,25 @@ public class Patrolling extends Plan implements TileConstants, Qualities {
   
   /**  Obtaining and evaluating patrols targets-
     */
-  final static Trait BASE_TRAITS[] = { FEARLESS, IGNORANT, SOLITARY };
-
+  final static Trait BASE_TRAITS[] = { FEARLESS, PATIENT, SOLITARY };
+  
   protected float getPriority() {
-    //final boolean report = evalVerbose && I.talkAbout == actor;
     if (onPoint == null || patrolled.size() == 0) return 0;
     
-    float urgency, relDanger = 0;
+    float urgency, relDanger = 0, modifier;
     if (actor.base() != null) for (Target t : patrolled) {
       relDanger += actor.base().dangerMap.sampleAround(t, Stage.ZONE_SIZE);
     }
     urgency = Nums.clamp(relDanger / patrolled.size(), 0, 1);
-    
-    float modifier = 0 - actor.senses.fearLevel();
-    toggleMotives(MOTIVE_EMERGENCY, actor.senses.isEmergency());
+    modifier = 0 - actor.senses.fearLevel();
     
     if (! PlanUtils.isArmed(actor)) setCompetence(0);
     else setCompetence(successChanceFor(actor));
+    toggleMotives(MOTIVE_EMERGENCY, PlanUtils.underAttack(guarded));
     
+    //
     //  TODO:  Include bonus from first aid or assembly skills, depending on the
-    //  target and damage done.
+    //  target and damage done?
     
     final float priority = PlanUtils.jobPlanPriority(
       actor, this, urgency + modifier, competence(),

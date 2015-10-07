@@ -27,6 +27,7 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   private Class facilityClass;
   private Blueprint facility;
   private String specialName;
+  private static Table <Object, Batch <Conversion>> byFacility = new Table();
   
   
   public Conversion(
@@ -76,7 +77,7 @@ public class Conversion extends Index.Entry implements Session.Saveable {
         skillN.add(num);
       }
       else if (o == TO             ) recRaw = false;
-      else if (o instanceof Traded) {
+      else if (o instanceof Traded ) {
         if (recRaw) { rawB.add(o); rawN.add(num); }
         else { out = Item.withAmount((Traded) o, num); }
       }
@@ -92,13 +93,23 @@ public class Conversion extends Index.Entry implements Session.Saveable {
       );
     }
     this.out = out;
-    skills = (Skill[]) skillB.toArray(Skill.class);
+    skills   = (Skill[]) skillB.toArray(Skill.class);
     skillDCs = Visit.fromFloats(skillN.toArray());
     //
     //  And register with the parent facility (if possible)-
+    if (facility != null) facilityClass = facility.baseClass;
     this.facility      = facility;
     this.facilityClass = facilityClass;
-    if (facility != null) facility.addProduction(this);
+    Batch <Conversion> list = null;
+    if (facility != null) {
+      list = byFacility.get(facility);
+      if (list == null) byFacility.put(facility, list = new Batch());
+    }
+    else if (facilityClass != null) {
+      list = byFacility.get(facilityClass);
+      if (list == null) byFacility.put(facilityClass, list = new Batch());
+    }
+    if (list != null) list.add(this);
   }
   
   
@@ -119,11 +130,22 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   }
   
   
+  public static Conversion[] processedAt(Blueprint facility) {
+    final Batch <Conversion>
+      produced = new Batch(),
+      listF    = byFacility.get(facility),
+      listC    = byFacility.get(facility.baseClass);
+    if (listF != null) Visit.appendTo(produced, listF);
+    if (listC != null) Visit.appendTo(produced, listC);
+    return produced.toArray(Conversion.class);
+  }
+  
+  
   
   /**  Economic helper methods-
     */
   protected int rawPriceValue() {
-    int sum = 0; for (Item i : raw) sum += i.type.basePrice();
+    int sum = 0; for (Item i : raw) sum += i.type.defaultPrice();
     return sum;
   }
   
@@ -138,11 +160,13 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   }
   
   
-  public float performTest(Actor actor, float checkMod, float duration) {
+  public float performTest(
+    Actor actor, float checkMod, float duration, Action action
+  ) {
     if (skills.length == 0) return 1;
     float result = 0;
     for (int i = skills.length; i-- > 0;) result += actor.skills.test(
-      skills[i], skillDCs[i] - checkMod, duration, 1
+      skills[i], skillDCs[i] - checkMod, duration, 1, action
     );
     return result / skills.length;
   }

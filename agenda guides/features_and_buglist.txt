@@ -2,50 +2,116 @@
 
 TO DO NOW-
 
-*  The tutorial will have to be run-through again (due to changes in level-
-   upgrades, it might not be possible to hire enough crew.)
+*  Next up- Physician and Roaches/Roachmen.  Get 'em working.
 
-*  Auto-paving is working again (at least in the abstract.)  See if you can
-   get it to work across arbitrary distances?  ...No.  That should be up to the
-   player (but include it as an option for the AI.)
+*  Doctors (and anyone involved in combat) must keep a supply of medkits (or
+   combat stims?) at all times.
+   Ammo Clips.  Power Cells.  Medkits.  Credits.  Device.  Outfit.
 
-*  Area-claims need to be refined a little, so that they're treated identically
-   to the footprints for other structures.  (Auto-crop must keep 2 tiles away
-   from other structures, and vice versa.)
+*  General tweaks-
+   
+   Supply Depot:  Handles anything used as raw materials (including second
+   -stage items like plastics, parts or foodstuffs.)  Allows direct control.
+   
+   Stock Exchange:  Handles anything considered a finished good (including
+   second-stage items like plastics, parts or foodstuffs.)  Allows upgrades.
+   
+   Resource-sites need to have a more flexible zoning-policy (so they can fit
+   inside the walls if need be.)
 
-*  Install AUTO-TURRETS at your sentry-posts & blast doors.  (Simple motion-
-   detectors if you don't have a pass-code.)  Plus combat stims at stock-
-   exchange & physician station.
 
-*  Limit to just 16 core structures for now-
-    Trooper Barracks.   Auto-Turret.        Sickbay.     Culture Vats.
-    Engineer Station.   Excavation Shaft.   Generator.   Former Bay.
-    Ecologist Redoubt.  Botanical Station.  Solar Bank.  Condensor.
-    Runner Market.      Stock Exchange.     Cantina.     Airfield.
-   Spontaneous-
-    Bastion.  Service Hatch.  Holdings.  Time Capsule.
-   Make sure upgrades and abilities are functioning for these.
+*  Salvaging solar banks (and possibly other fixtures) doesn't work correctly.
 
-*  Consider restricting access to some of these structures based on house-
-   philosophy or lack of expertise.
+*  There are some bugs with farm-tile orientation and placement that Peter
+   found (check the pics.)
+
+*  Look into Nerdfish's feedback!
 
 *  Provide notifications for deaths and arrivals.
 
+*  Allow free trading by dropships sans trade facilities.
+
+*  Extra Trooper abilities-
+  
+  Call of Duty  (can assign to several missions directly.)
+  Noble Command (creates a commander position with several perks.)
+  
+  SFX might not belong with attacks called by a technique.
+  Create a Volley class for combat, that techniques can then modify in an
+  'organic' manner.
+  
+  Make sure you clear up the difference between training and innate abilities.
+
+
+*  Limit everything to level 2 at most for the moment (1 less than max.)
+     That should be enough for demo purposes.
+     
+     Trooper Lodge-     check.  2x.
+     Auto Turret-       check.  1x.
+     
+     Physician Station- check.  2x.
+     Culture Vats-      check.  1x.
+     
+     Runner Market-     check.  1x.
+     Stock Exchange-    check.  2x.
+     Cantina-           check
+     Airfield-          check.
+     
+     Engineer Station-  check.  2x.
+     Generator-         check.  1x.
+     Former Bay-        check.
+     Excavation Site-   check.
+     
+     Ecologist Redoubt- check.  1x.
+     Botanical Station- check.  2x.
+     Solar Bank-        check.
+     Condensor-         check.
+     
+     Bastion-           check.  2x.
+     Holding-           check.  4x.
+     Service Hatch-     check.
+     Stasis Capsule ???
+   Make sure upgrades and abilities are functioning for each of these.
+   (And double-check correct knowledge-setup for the various houses.)
+
+*  Features to add:
+   Auto-Turret behaviour.  Forcefield generation.
+   Combat Stims.     Physician abilities.
+   T-Null Armbands.  Engineer abilities.
+   Lictor Riding.    Building-stealth.
+
+
+ENEMIES AND ENVIRONMENT-
+
+*  Get vermin into the game again!
+*  Nocturnal trait.  "They mostly come at night.  Mostly."
+
+*  Ensure raiders will attempt to besiege intervening walls!
+*  More vigorous attacks after a few days from artilects, etc.
+
+*  Try to polish up the Flora- have it look more exotic.
+
+*  Offworld raids by enemy houses!
+
+*  The Yamagur is sufficiently big and powerful that it can't really count as a
+   'prey' species (in fact, it tends to wind up pulverising any predators in
+   it's territory.)  It needs a tweak to the placement algorithm.
+
+*  Extra concept art for new creatures/vermin:
+     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
+
+*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
+   for use by animals.)  Then get rid of the custom-coding.  And polish up
+   vermin behaviours.
+
+*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
+   The slowdown must be in those path-routines.
 
 
 BUILDINGS AND ECONOMY-
 
-*  Have upgrades require a 'research' and 'prototype' phase, and include
-   notifications for that.  This will slow-down the upgrade process at first,
-   but allow for easier transmission of expertise between maps, and ensure that
-   initial building-choices don't overwhelm the player.
-
-*  Buildings need to have multiple levels.  (At least for the main/root-guild
-   structures.)  Model these as an upgrade/research-type too.
-
 *  Limit service-hatches to along road-routes between structures (and required
    to activate power-transmission in an area.)
-
 
 *  Try to restore dust-crawlers at chem panner and/or excavation site.
 
@@ -67,11 +133,12 @@ BUILDINGS AND ECONOMY-
    with fossils/curios for outfits.
 
 
+*  Implement long-distance auto-paving, but only for autonomous base-AI.  The
+   player can handle most connections themselves.
+
+
 
 SPECIFIC TO RESOURCE-HARVESTING-
-
-*  Create a single generic 'harvest/seeding' plan for mining, farming, forestry
-   and chem-panning.  Everything else should extend that.
 
 *  Excavation sites:
   Could use a new terrain-type for strip mining, and/or art to show shafts
@@ -104,6 +171,12 @@ THE TUTORIAL
 
 
 CITIZEN BEHAVIOUR-
+
+
+//  Spare Time:   Studying.  R&R.  Talking.  Exploring.
+//  Work:         Commerce.  Manufacture.  Resources.
+//                Performance.  Medicine.  Audits.
+//  Emergencies:  Fighting.  Defending.  Fleeing.  Pleas.
 
 *  Citizens are too eager to embark on tasks in distant areas.  (BringUtils
    needs to ignore sources that are too far away- that's for bulk transport.)
@@ -151,34 +224,6 @@ CONTROL AND DIRECTION-
 *  Allow psy abilities to be learnt from the Pseer School and other psy
    institutions (plus Kommando Redoubt.)  Then, as you use them, you acquire
    practice that allows casting independantly (with reduced skill rank.)
-
-
-
-ENEMIES AND ENVIRONMENT-
-
-*  Get vermin into the game again!
-*  Nocturnal trait.  "They mostly come at night.  Mostly."
-
-*  Ensure raiders will attempt to besiege intervening walls!
-*  More vigorous attacks after a few days from artilects, etc.
-
-*  Try to polish up the Flora- have it look more exotic.
-
-*  Offworld raids by enemy houses!
-
-*  The Yamagur is sufficiently big and powerful that it can't really count as a
-   'prey' species (in fact, it tends to wind up pulverising any predators in
-   it's territory.)  It needs a tweak to the placement algorithm.
-
-*  Extra concept art for new creatures/vermin:
-     Avrodil, Rem Leech, Mistaken, Desert Maw, Hirex Body.
-
-*  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
-   for use by animals.)  Then get rid of the custom-coding.  And polish up
-   vermin behaviours.
-
-*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
-   The slowdown must be in those path-routines.
 
 
 

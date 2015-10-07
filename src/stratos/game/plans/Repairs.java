@@ -5,6 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -150,7 +151,7 @@ public class Repairs extends Plan {
 
   /**  Target evaluation and prioritisation-
     */
-  final static Trait BASE_TRAITS[] = { URBANE, ENERGETIC };
+  final static Trait BASE_TRAITS[] = { METICULOUS, ENERGETIC };
   
   protected float getPriority() {
     final boolean report = evalVerbose && (
@@ -395,15 +396,16 @@ public class Repairs extends Plan {
     final boolean   salvage   = structure.needsSalvage();
     final boolean   free      = GameSettings.buildFree;
     final Base      base      = built.base();
+    final Action    a         = action();
     
-    float success = actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1) ? 1 : 0;
+    float success = actor.skills.test(HARD_LABOUR, ROUTINE_DC, 1, a) ? 1 : 0;
     success *= 25f / TIME_PER_25_HP;
     float cost = 0;
     //
     //  TODO:  Base assembly DC (or other skills) on a Conversion for the
     //  structure.  And require construction materials for full efficiency.
     if (salvage) {
-      success *= actor.skills.test(skillUsed, 5, 1) ? 1 : 0.5f;
+      success *= actor.skills.test(skillUsed, 5, 1, a) ? 1 : 0.5f;
       final float amount = 0 - structure.repairBy(0 - success);
       if (! free) {
         cost = amount * structure.buildCost() * SALVAGE_COST_MULT;
@@ -411,8 +413,8 @@ public class Repairs extends Plan {
       }
     }
     else {
-      success *= actor.skills.test(skillUsed, ROUTINE_DC  , 0.5f) ? 1 : 0.5f;
-      success *= actor.skills.test(skillUsed, DIFFICULT_DC, 0.5f) ? 2 : 1   ;
+      success *= actor.skills.test(skillUsed, ROUTINE_DC  , 0.5f, a) ? 1 : 0.5f;
+      success *= actor.skills.test(skillUsed, DIFFICULT_DC, 0.5f, a) ? 2 : 1   ;
       final boolean intact = structure.intact();
       final float amount = structure.repairBy(success);
       if (! free) {
@@ -420,6 +422,12 @@ public class Repairs extends Plan {
         cost *= -1 * (intact ? REPAIR_COST_MULT : BUILDS_COST_MULT);
         base.finance.incCredits(cost, intact ? SOURCE_REPAIRS : SOURCE_INSTALL);
       }
+    }
+    
+    final Upgrade basis = structure.blueprintUpgrade();
+    if (basis != null) {
+      final float progress = success / structure.maxIntegrity();
+      advancePrototypeResearch(basis, progress);
     }
     
     if (report) {
@@ -439,13 +447,22 @@ public class Repairs extends Plan {
     final Upgrade upgrade = structure.upgradeInProgress();
     if (upgrade == null) return false;
     
+    final Action a = action();
     int success = 1;
-    success *= actor.skills.test(skillUsed, 10, 0.5f) ? 2 : 1;
-    success *= actor.skills.test(skillUsed, 20, 0.5f) ? 2 : 1;
+    success *= actor.skills.test(skillUsed, 10, 0.5f, a) ? 2 : 1;
+    success *= actor.skills.test(skillUsed, 20, 0.5f, a) ? 2 : 1;
     final float amount = structure.advanceUpgrade(success * 1f / 100);
-    final float cost = amount * upgrade.buildCost;
+    final float cost = amount * upgrade.buildCost(actor.base());
     built.base().finance.incCredits((0 - cost), SOURCE_UPGRADE);
+    advancePrototypeResearch(upgrade, amount);
     return true;
+  }
+  
+  
+  private void advancePrototypeResearch(Upgrade u, float progress) {
+    actor.base().research.incResearchFor(
+      u, progress / BaseResearch.PROTOTYPE_COST_MULT, BaseResearch.LEVEL_PRAXIS
+    );
   }
   
   

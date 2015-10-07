@@ -50,12 +50,15 @@ public class VenuePane extends SelectionPane {
     
     VD.describeCondition(d, UI);
     if (category == CAT_UPGRADES) VD.describeUpgrades(l, UI);
-    if (category == CAT_STOCK) {
+    if (category == CAT_STOCK) VD.describeStocks(l, UI, setStock);
+    /*
+    {
       if (setStock != null && setStock.length > 0) {
         VD.describeStockOrders(l, setStock, UI);
       }
-      else VD.describeStocks(l, UI);
+      else VD.describeStocks(l, UI, setStock);
     }
+    //*/
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
     return panel;
   }
@@ -63,7 +66,7 @@ public class VenuePane extends SelectionPane {
   
   public static SelectionPane configSimplePanel(
     Venue venue, SelectionPane panel,
-    BaseUI UI, String statusMessage
+    BaseUI UI, Traded setStock[], String statusMessage
   ) {
     if (panel == null) panel = new VenuePane(
       UI, venue
@@ -77,77 +80,11 @@ public class VenuePane extends SelectionPane {
       d.append(statusMessage);
     }
     
-    VD.describeStocks(l, UI);
+    VD.describeStocks(l, UI, setStock);
     l.append("\n");
     VD.describeStaffing(l, UI);
     return panel;
   }
-
-  
-  //  TODO:  Move this to the Sectors-pane, to set trade-sanctions and prices
-  //  for specific partners.
-  
-  private void describeStockOrders(Description d, Traded types[], BaseUI UI) {
-    d.append("Orders:");
-    
-    if (! v.structure.intact()) {
-      d.append("  Venue under construction!  Cannot set orders until done.");
-      return;
-    }
-    
-    for (int i = 0 ; i < types.length; i++) {
-      final Traded t = types[i];
-      if (t.form != FORM_MATERIAL) continue;
-      
-      final boolean
-        demands = v.stocks.demandFor(t) > 0,
-        exports = demands && v.stocks.producer(t);
-      
-      final int level = (int) Nums.ceil(v.stocks.demandFor(t));
-      Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append("  ");
-      
-      final float maxTrade = v.spaceFor(t), minTrade = Nums.min(5, maxTrade);
-      //
-      //  The options here are cyclic...
-      if (exports == true) d.append(new Description.Link("EXPORTS") {
-        public void whenClicked() {
-          if (I.logEvents()) I.say("\n"+t+" IS BEING IMPORTED AT "+v);
-          v.stocks.forceDemand(t, minTrade, false);
-        }
-      }, Colour.LITE_GREEN);
-      
-      else if (demands == true) d.append(new Description.Link("IMPORTS") {
-        public void whenClicked() {
-          if (I.logEvents()) I.say("\n"+t+" IS NOT BEING TRADED AT "+v);
-          v.stocks.forceDemand(t, 0, false);
-        }
-      }, Colour.LITE_RED  );
-      
-      else d.append(new Description.Link("NO TRADE") {
-        public void whenClicked() {
-          if (I.logEvents()) I.say("\n"+t+" IS BEING EXPORTED AT "+v);
-          v.stocks.forceDemand(t, minTrade, true);
-        }
-      }, Colour.LITE_BLUE );
-      
-      final float amount = v.stocks.amountOf(t);
-      d.append(" "+I.shorten(amount, 1)+"/");
-      
-      d.append(new Description.Link(I.lengthen(level, 4, false)) {
-        public void whenClicked() {
-          final int newLevel = (level >= maxTrade) ? 0 : (level + 5);
-          v.stocks.forceDemand(t, newLevel, exports);
-          if (I.logEvents()) I.say("\n"+t+" LEVEL AT "+v+" IS "+newLevel);
-        }
-      });
-      d.append(" ");
-      d.append(t);
-      final int price = Nums.round(v.priceFor(t, exports), 1, true);
-      d.append(" ("+price+"c)");
-    }
-  }
-  
   
   
   private void describeCondition(Description d, BaseUI UI) {
@@ -196,27 +133,36 @@ public class VenuePane extends SelectionPane {
     Traded.class, ALL_PROVISIONS, ALL_MATERIALS, ALL_SPECIAL_ITEMS
   );
   
-  protected void describeStocks(Description d, BaseUI UI) {
+  protected void describeStocks(Description d, BaseUI UI, Traded setStock[]) {
     d.append("Stocks and Provisions:");
     
-    final Traded[] demands = v.stocks.demanded();
-    final Batch <Item> special = new Batch();
+    final Traded[] demands = setStock == null ? v.stocks.demanded() : setStock;
+    final Batch <Traded> special = new Batch();
+    
     for (Traded t : ITEM_LIST_ORDER) {
-      if (Visit.arrayIncludes(demands, t) && t.common()) describeStocks(t, d);
-      else for (Item i : v.stocks.matches(t)) special.add(i);
+      final float needed = v.stocks.demandFor(t);
+      final float amount = v.stocks.amountOf (t);
+      
+      if (Visit.arrayIncludes(demands, t) && t.common()) {
+        describeStocks(t, d, setStock == demands);
+      }
+      else if (needed > 0 || amount > 0) special.add(t);
     }
     for (Item i : v.stocks.allItems()) {
       if (Visit.arrayIncludes(ITEM_LIST_ORDER, i.type)) continue;
       if (v.stocks.hasOrderFor(i)) continue;
-      special.add(i);
+      special.include(i.type);
     }
     
     if (! special.empty()) {
       Text.cancelBullet(d);
       d.append("\nOther Items:");
-      for (Item i : special) {
-        d.append("\n  ");
-        i.describeTo(d);
+      for (Traded t : special) {
+        if (t.common()) describeStocks(t, d, false);
+        else for (Item i : v.stocks.matches(t)) {
+          d.append("\n  ");
+          i.describeTo(d);
+        }
       }
     }
     if (v.stocks.specialOrders().size() > 0) {
@@ -232,25 +178,73 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  protected boolean describeStocks(Traded type, Description d) {
+  protected boolean describeStocks(
+    final Traded type, Description d, boolean set
+  ) {
     final float needed = v.stocks.demandFor(type);
     final float amount = v.stocks.amountOf (type);
-    if (needed == 0 && amount == 0) return false;
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
     d.append("  "+I.shorten(amount, 1)+" ");
     d.append(type);
-    
-    if (type.form == FORM_PROVISION && needed == amount) {
-      if (v.stocks.producer(type)) d.append(" Output");
-      else d.append(" Used");
+
+    if (set) {
+      final String MODES[] = { "Trading", "No Trade", "Imports", "Exports" };
+      final boolean
+        consumer  =   v.stocks.consumer     (type),
+        producer  =   v.stocks.producer     (type),
+        freeTrade = ! v.stocks.isDemandFixed(type),
+        noTrade   =   needed == 0 && ! freeTrade,
+        trader    =   v.owningTier() == Owner.TIER_TRADER;
+      final int
+        numModes = MODES.length,
+        setUnit  = Nums.round(needed, 5, false),
+        limit    = v.spaceFor(type),
+        mode     = noTrade ? 1 : (freeTrade ? 0 : (producer ? 3 : 2));
+      
+      if (mode != 1) {
+        final String nS = I.shorten(needed, 1);
+        d.append(" /"+nS);
+      }
+      d.append(" (");
+      
+      String modeDesc = MODES[mode];
+      //if (mode == 0 && producer) modeDesc = "Made";
+      //if (mode == 0 && consumer) modeDesc = "Used";
+      
+      d.append(new Description.Link(modeDesc) {
+        public void whenClicked() {
+          int nextMode = (mode + 1) % numModes;
+          if (consumer && nextMode == 3 && ! trader) nextMode = 0;
+          if (producer && nextMode == 2 && ! trader) nextMode = 3;
+          
+          if (nextMode == 0) v.stocks.setFreeTrade(type);
+          if (nextMode == 1) v.stocks.forceDemand(type, 0, producer);
+          if (nextMode == 2) v.stocks.forceDemand(type, 5, false);
+          if (nextMode == 3) v.stocks.forceDemand(type, 5, true );
+        }
+      });
+      
+      if (mode > 1 && setUnit < limit) d.append(new Description.Link(" More") {
+        public void whenClicked() {
+          if (mode == 2) v.stocks.forceDemand(type, setUnit + 5, false);
+          if (mode == 3) v.stocks.forceDemand(type, setUnit + 5, true );
+        }
+      });
+      d.append(")");
+      //else d.append("(MORE)", Colour.GREY);
     }
     else {
-      final String nS = I.shorten(needed, 1);
-      d.append(" /"+nS);
-      if (v.stocks.producer(type)) d.append(" (producer)");
-      else d.append(" (consumer)");
+      if (needed != amount) {
+        final String nS = I.shorten(needed, 1);
+        d.append(" /"+nS);
+      }
+      if (v.stocks.producer(type)) d.append(" (Made)");
+      if (v.stocks.consumer(type)) d.append(" (Used)");
+      //if (v.stocks.producer(type)) d.append(" (producer)");
+      //else 
     }
+    
     return true;
   }
   
@@ -284,9 +278,9 @@ public class VenuePane extends SelectionPane {
       
       for (Background b : c) {
         final int
-          hired = v.staff.numHired(b),
-          total = v.staff.numOpenings(b) + hired,
-          apps  = v.staff.numApplied(b);
+          hired = v.staff.numHired    (b),
+          total = v.staff.numPositions(b),
+          apps  = v.staff.numApplied  (b);
         if (total == 0 && hired == 0) continue;
         
         Text.cancelBullet(d);
@@ -298,7 +292,7 @@ public class VenuePane extends SelectionPane {
           descApplicant(a.actor(), a, d, UI);
         }
         for (final Actor a : v.staff.workers()) if (a.mind.vocation() == b) {
-          descActor(a, d, UI);
+          descActor(a, d, UI, v);
           d.append("\n  ");
           d.append(descDuty(a));
           mentioned.include(a);
@@ -315,7 +309,7 @@ public class VenuePane extends SelectionPane {
     boolean anyLives = false;
     for (Actor a : v.staff.lodgers()) {
       if (mentioned.includes(a)) continue;
-      descActor(a, d, UI);
+      descActor(a, d, UI, v);
       anyLives = true;
     }
     if (! anyLives) d.append("None.");
@@ -326,7 +320,7 @@ public class VenuePane extends SelectionPane {
     boolean anyVisit = false;
     for (Mobile m : v.inside()) {
       if (Staff.doesBelong(m, v)) continue;
-      descActor(m, d, UI);
+      descActor(m, d, UI, v);
       anyVisit = true;
     }
     if (! anyVisit) d.append("None.");
@@ -349,52 +343,36 @@ public class VenuePane extends SelectionPane {
       return;
     }
     
-    //  TODO:  Try to revise this, and include some explanatory text for why
-    //  they haven't started just yet.
-    //  TODO:  Also- don't allow upgrades until the structure is finished
-    //  building!  (Conversely, DO allow hiring before then.)
+    //  TODO:  Allow both hiring and queuing of upgrades before a structure is
+    //  completed.
+    
     final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
     if (UA == null || UA.size() == 0) {
       d.append("No upgrades available.");
       return;
     }
-    final Colour grey = Colour.LITE_GREY;
     
     int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades();
     if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
     
     for (final Upgrade upgrade : UA) {
+      d.append("\n");
+      Text.insert(upgrade.portraitImage().asTexture(), 40, true, d);
+      
       final String name = upgrade.nameAt(v, -1, null);
-      final int cost = upgrade.buildCost;
-      final boolean possible =
-        v.structure.upgradePossible(upgrade) &&
-        cost <= v.base().finance.credits();
-      final int
-        level  = v.structure.upgradeLevel(upgrade, Structure.STATE_INTACT ),
-        queued = v.structure.upgradeLevel(upgrade, Structure.STATE_INSTALL);
-      if ((! possible) && (level + queued == 0)) continue;
-      
-      d.append("\n  ");
-      if (possible) d.append(name);
-      else d.append(name, grey);
-      
-      d.append("\n  ");
-      String desc = "INSTALL";
-      if (possible) d.append(new Description.Link(desc) {
-        public void whenClicked() {
-          v.structure.beginUpgrade(upgrade, false);
-          if (I.logEvents()) I.say("\nBEGAN UPGRADE: "+upgrade+" AT "+v);
-        }
-      });
-      else d.append(desc, grey);
-      
-      d.append(" ("+(level + queued)+"/"+upgrade.maxLevel+")");
-      if (possible) d.append(" ("+cost+" Credits)");
-      d.append(" (INFO)", upgrade);
+      d.append(name);
+      d.append(" ");
+      Text.insert(
+        SelectionPane.WIDGET_INFO.asTexture(),
+        15, 15, upgrade, false, d
+      );
+      d.append("\n");
+      upgrade.describeResearchStatus(d, v);
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();
     if (OA.size() > 0) {
+      Text.cancelBullet(d);
       d.append("\n\nUpgrades in progress: ");
       for (String u : OA) d.append("\n  "+u);
       d.append("\n");
@@ -492,7 +470,7 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  public static void descActor(Mobile m, Description d, BaseUI UI) {
+  public static void descActor(Mobile m, Description d, BaseUI UI, Venue v) {
     if (d instanceof Text && m instanceof Actor) {
       final Composite p = ((Actor) m).portrait(UI);
       final String ID = ""+m.hashCode();
@@ -502,7 +480,7 @@ public class VenuePane extends SelectionPane {
     else d.append("\n\n  ");
     d.append(m);
     d.append("\n  ");
-    m.describeStatus(d);
+    m.describeStatus(d, v);
   }
 }
 

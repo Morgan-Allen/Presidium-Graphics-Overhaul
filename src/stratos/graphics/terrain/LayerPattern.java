@@ -19,9 +19,9 @@ public class LayerPattern implements TileConstants {
   final public static float
     VERT_PATTERN[] = {
       0, 0, 0,
-      0, 0, 1,
+      0, 1, 0,
       1, 0, 0,
-      1, 0, 1
+      1, 1, 0
     },
     INDEX_PATTERN[] = {
       0, 1, 2, 2, 1, 3
@@ -33,7 +33,14 @@ public class LayerPattern implements TileConstants {
       MIN_UV, MIN_UV,
       MAX_UV, MAX_UV,
       MAX_UV, MIN_UV
+    },
+    FACING_CORNER_PATTERN[][] = {
+      {1, 0,  1, 1},  //north
+      {1, 1,  0, 1},  //east
+      {0, 1,  0, 0},  //south
+      {0, 0,  1, 0}   //west
     };
+  
   private final static float[][] shrinkUVMap(
     float initMap[][], float maxUV, int xoff, int yoff
   ) {
@@ -259,7 +266,7 @@ public class LayerPattern implements TileConstants {
   
   
   /**  Finally, we have code for the semi-randomised interior pieces of a
-    *  texture-
+    *  texture, and any cliff-sections.
     */
   final public static float
     OUTER_EXTRAS_INDEX[][] = {
@@ -268,7 +275,14 @@ public class LayerPattern implements TileConstants {
       {4, 4},
       {4, 5}
     },
-    OUTER_EXTRAS_UV[][] = shrinkUVMap(OUTER_EXTRAS_INDEX, 6, 0, 0);
+    OUTER_EXTRAS_UV[][] = shrinkUVMap(OUTER_EXTRAS_INDEX, 6, 0, 0),
+    CLIFF_EXTRAS_INDEX[][] = {
+      {4, 0},
+      {5, 1},
+      {4, 2},
+      {3, 1}
+    },
+    CLIFF_EXTRAS_UV[][] = shrinkUVMap(CLIFF_EXTRAS_INDEX, 6, 0, 0);
   
   
   protected static float[][] extraFringeUV(int varID) {
@@ -278,7 +292,12 @@ public class LayerPattern implements TileConstants {
     innerUV[1] = null;
     return innerUV;
   }
+  
+  
+  
 }
+
+
 
 
 

@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -19,15 +17,13 @@ import java.lang.reflect.*;
 
 
 
-//  TODO:  ...You need to arrange for actions to terminate if you wind up
-//  staying in one place too long (which likely means you're stuck.)
-
 public class Action implements Behaviour, AnimNames {
   
   
   /**  Field definitions, constants and constructors-
     */
   final public static int
+    NORMAL   = 0,   //  No special modifiers...
     QUICK    = 1,   //  Done while running.
     CAREFUL  = 2,   //  Done in stealth mode.
     TRACKS   = 4,   //  Should track facing with the target.
@@ -170,6 +166,12 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Implementing the Behaviour contract-
     */
+  public Plan parentPlan() {
+    if (basis instanceof Plan) return (Plan) basis;
+    else return null;
+  }
+  
+  
   public float priorityFor(Actor actor) {
     return priority;
   }
@@ -555,8 +557,6 @@ public class Action implements Behaviour, AnimNames {
   /**  Methods to support rendering-
     */
   protected void configSprite(Sprite s, Rendering rendering) {
-    final SolidSprite sprite = (SolidSprite) s;
-    
     final boolean report = verboseAnim && I.talkAbout == actor;
     
     final String animName;
@@ -574,7 +574,7 @@ public class Action implements Behaviour, AnimNames {
       I.say("  Range name: "+animName);
       I.say("  Progress:   "+AP);
     }
-    sprite.setAnimation(animName, (AP > 1) ? (AP % 1) : AP, loop);
+    s.setAnimation(animName, (AP > 1) ? (AP % 1) : AP, loop);
   }
   
   

@@ -29,6 +29,18 @@ public abstract class Fauna extends Actor {
     LAIR_DIR = "media/Buildings/lairs and ruins/",
     XML_FILE = "FaunaModels.xml";
   
+  final public static int
+    DEFAULT_FORAGE_DIST = Stage.ZONE_SIZE / 2,
+    PREDATOR_SEPARATION = Stage.ZONE_SIZE * 2,
+    MIN_SEPARATION      = 2,
+    
+    BROWSER_TO_FLORA_RATIO   = 50,
+    DEFAULT_BROWSER_SPECIES  = 4 ,
+    PREDATOR_TO_PREY_RATIO   = 4 ,
+    DEFAULT_PREDATOR_SPECIES = 2 ,
+    
+    DEFAULT_BREED_INTERVAL = Stage.STANDARD_DAY_LENGTH;
+  
   final public static float
     PLANT_CONVERSION = 4.0f,
     MEAT_CONVERSION  = 8.0f,
@@ -44,7 +56,7 @@ public abstract class Fauna extends Actor {
     this.species = species;
     mind.setVocation(species);
     initStats();
-    attachSprite(species.model.makeSprite());
+    attachSprite(species.modelSequence[0].makeSprite());
     assignBase(base);
   }
   
@@ -75,15 +87,24 @@ public abstract class Fauna extends Actor {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
-    if (numUpdates % 10 == 0 && health.alive()) {
-      float crowding = Nest.crowdingFor(this);
-      if (crowding >= 1 || mind.home() == null) crowding = 1.1f;
-      
-      float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
-      float breedInc = (1 - crowding) * 10 / Nest.DEFAULT_BREED_INTERVAL;
-      breedInc *= Nums.clamp(fertility, 0, ActorHealth.AGE_MAX);
+    final int period = 10;
+    if (numUpdates % period == 0 && health.alive()) {
+      final float breedRating = breedingReadiness(), breedInc;
+      if (breedRating > 0) {
+        breedInc = period * breedRating / DEFAULT_BREED_INTERVAL;
+      }
+      else {
+        breedInc = period * -1f / DEFAULT_BREED_INTERVAL;
+      }
       breedMetre = Nums.clamp(breedMetre + breedInc, 0, 1);
     }
+  }
+  
+  
+  protected float breedingReadiness() {
+    final float crowding = NestUtils.crowding(this);
+    float fertility = (health.agingStage() - 0.5f) * health.caloryLevel();
+    return (1 - crowding) * Nums.clamp(fertility, 0, ActorHealth.AGE_MAX);
   }
   
 
@@ -113,6 +134,7 @@ public abstract class Fauna extends Actor {
       }
     };
   }
+  
   
   protected ActorRelations initRelations() {
     return new ActorRelations(this) {
@@ -150,7 +172,7 @@ public abstract class Fauna extends Actor {
     if (species.browser () ) choice.add(nextBrowsing());
     if (species.predator() ) choice.add(nextHunting ());
     if (breedMetre >= 0.99f) choice.add(nextBreeding());
-    choice.add(new Resting(this, senses.haven()));
+    if (senses.haven() != null) choice.add(new Resting(this, senses.haven()));
     choice.add(nextMigration   ());
     choice.add(nextBuildingNest());
     choice.add(new Retreat(this));
@@ -182,50 +204,10 @@ public abstract class Fauna extends Actor {
   }
   
   
-  //  TODO:  USE FORAGING FOR THIS
-  
   protected Behaviour nextBrowsing() {
-    final float range = Nest.forageRange(species);
-    Target centre = mind.home();
-    if (centre == null) centre = this;
-    
-    final Batch <Flora> sampled = new Batch <Flora> ();
-    world.presences.sampleFromMap(centre, world, 5, sampled, Flora.class);
-    Flora picked = null;
-    float bestRating = 0;
-    
-    for (Flora f : sampled) {
-      final float dist = Spacing.distance(this, f);
-      if (dist > (range * 2)) continue;
-      float rating = f.growStage() * Rand.avgNums(2);
-      rating *= range / (range + dist);
-      if (rating > bestRating) { picked = f; bestRating = rating; }
-    }
-    if (picked == null) return null;
-    
-    float priority = ActorHealth.MAX_CALORIES - (health.caloryLevel() + 0.1f);
-    priority *= Action.URGENT;
-    priority -= PlanUtils.homeDistanceFactor(this, picked);
-    if (priority < 0) return null;
-    
-    final Action browse = new Action(
-      this, picked,
-      this, "actionBrowse",
-      Action.STRIKE, "Browsing"
-    );
-    browse.setMoveTarget(Spacing.nearestOpenTile(picked.origin(), this));
-    browse.setPriority(priority);
-    return browse;
+    return Gathering.asBrowsing(this, NestUtils.forageRange(species));
   }
   
-  
-  public boolean actionBrowse(Fauna actor, Flora eaten) {
-    if (! eaten.inWorld()) return false;
-    float bite = 0.1f * health.maxHealth() / 10;
-    eaten.incGrowth(0 - bite, actor.world(), false);
-    actor.health.takeCalories(bite * PLANT_CONVERSION, 1);
-    return true;
-  }
   
   
   //  TODO:  USE NESTING/FINDHOME FOR THIS
@@ -245,12 +227,12 @@ public abstract class Fauna extends Actor {
     if (report) {
       I.say("\nChecking migration for "+this);
       I.say("  Last check:  "+timeSinceCheck+"/"+NEST_INTERVAL);
-      I.say("  Crowding is: "+Nest.crowdingFor(this)+", homeless? "+homeless);
+      I.say("  Crowding is: "+NestUtils.crowding(this)+", homeless? "+homeless);
     }
     
     if (timeSinceCheck > NEST_INTERVAL || homeless) {
-      final boolean crowded = homeless || Nest.crowdingFor(this) > 0.5f;
-      newNest = crowded ? Nest.findNestFor(this) : null;
+      final boolean crowded = homeless || NestUtils.crowding(this) > 0.5f;
+      newNest = crowded ? NestUtils.findNestFor(this) : null;
       lastMigrateCheck = world.currentTime();
     }
     if (newNest != null && newNest != home) {
@@ -261,7 +243,7 @@ public abstract class Fauna extends Actor {
     else {
       final Target centre = mind.home() == null ? this : mind.home();
       wandersTo = Spacing.pickRandomTile(
-        centre, Nest.forageRange(species) / 2, world
+        centre, NestUtils.forageRange(species) / 2, world
       );
       description = "Wandering";
       priority = Action.IDLE * (Planet.dayValue(world) + 1) / 2;
@@ -292,7 +274,7 @@ public abstract class Fauna extends Actor {
     if (point instanceof Nest) {
       final Nest nest = (Nest) point;
       
-      if (Nest.crowdingFor(nest, species, world) >= 1) {
+      if (NestUtils.crowding(species, nest, world) >= 1) {
         return false;
       }
       if (! nest.inWorld()) {
@@ -334,12 +316,15 @@ public abstract class Fauna extends Actor {
   
   
   
-  //  TODO:  CREATE SPECIAL PLAN FOR THIS AND SHARE WITH HUMANOIDS, ETC
+  //  TODO:  CREATE SPECIAL PLAN FOR THIS AND SHARE WITH HUMANOIDS, ETC?
   
   protected Behaviour nextBreeding() {
-    if (mind.home() == null) return null;
+    Target shelter = mind.home();
+    if (shelter == null) shelter = senses.haven();
+    if (shelter == null) return null;
+    
     final Action breeds = new Action(
-      this, mind.home(),
+      this, shelter,
       this, "actionBreed",
       Action.FALL, "Breeding"
     );
@@ -347,23 +332,26 @@ public abstract class Fauna extends Actor {
   }
   
   
-  public boolean actionBreed(Fauna actor, Nest nests) {
+  public boolean actionBreed(Fauna actor, Target at) {
     actor.breedMetre = 0;
     final int maxKids = 1 + (int) Nums.sqrt(10f / health.lifespan());
     
     for (int numKids = 1 + Rand.index(maxKids); numKids-- > 0;) {
       final Fauna young = (Fauna) species.sampleFor(base());
+      final Tile e = at.world().tileAt(at);
       
       young.assignBase(this.base());
       young.health.setupHealth(0, 1, 0);
-      young.mind.setHome(nests);
-      
-      final Tile e = nests.world().tileAt(nests);
       young.enterWorldAt(e.x, e.y, e.world);
-      young.goAboard(nests, world);
       
       if (I.logEvents()) {
-        I.say("Giving birth to new "+actor.species.name+" at: "+nests);
+        I.say("Giving birth to new "+actor.species.name+" at: "+at);
+      }
+      
+      if (at instanceof Property) {
+        final Property nest = (Property) at;
+        young.mind.setHome(nest);
+        young.goAboard(nest, world);
       }
     }
     return true;
@@ -397,35 +385,4 @@ public abstract class Fauna extends Actor {
 }
 
 
-
-
-
-
-/*
-protected Behaviour nextResting() {
-  Target restPoint = this.origin();
-  final Nest nest = (Nest) this.mind.home();
-  if (nest != null && nest.inWorld() && nest.structure.intact()) {
-    restPoint = nest;
-  }
-  final Action rest = new Action(
-    this, restPoint,
-    this, "actionRest",
-    Action.FALL, "Resting"
-  );
-  final float fatigue = health.fatigueLevel();
-  
-  final float priority = Action.IDLE + (fatigue * Action.PARAMOUNT);
-  rest.setPriority(priority);
-  return rest;
-}
-
-
-public boolean actionRest(Fauna actor, Target point) {
-  if (actor.health.fatigue() >= 1) {
-    actor.health.setState(ActorHealth.STATE_RESTING);
-  }
-  return true;
-}
-//*/
 

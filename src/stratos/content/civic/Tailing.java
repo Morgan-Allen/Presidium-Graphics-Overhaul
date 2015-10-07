@@ -6,6 +6,8 @@
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.PavingMap;
+import stratos.game.maps.StageTerrain;
 import stratos.game.plans.Mining;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
@@ -19,12 +21,6 @@ import static stratos.game.economic.Economy.*;
 
 public class Tailing extends Element implements Selectable {
   
-  
-  private static boolean verbose = true;
-  
-  final static int
-    MIN_FILL = 0 ,
-    MAX_FILL = (int) (10 * Mining.SLAG_RATIO);
   
   final Traded wasteType;
   private float fillLevel = 0;
@@ -63,9 +59,11 @@ public class Tailing extends Element implements Selectable {
   
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
-    world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
     
-    for (Tile t : origin().allAdjacent(null)) {
+    final Tile o = origin();
+    PavingMap.setPaveLevel(o, StageTerrain.ROAD_STRIP, true);
+    
+    for (Tile t : o.allAdjacent(null)) {
       if (t != null) t.clearUnlessOwned(intact);
     }
     return true;
@@ -83,7 +81,7 @@ public class Tailing extends Element implements Selectable {
   
   
   public boolean takeFill(float amount) {
-    this.fillLevel = Nums.clamp(fillLevel + amount, 0, MAX_FILL);
+    this.fillLevel = Nums.clamp(fillLevel + amount, 0, Mining.TAILING_LIMIT);
     updateSprite();
     return true;
   }
@@ -95,12 +93,28 @@ public class Tailing extends Element implements Selectable {
   
   
   public float fillLevel() {
-    return fillLevel / MAX_FILL;
+    return fillLevel / Mining.TAILING_LIMIT;
   }
   
   
   public void onGrowth(Tile at) {
-    //  TODO:  Very gradually disappear based on terraforming effects?
+    //
+    //  TODO:  Extend Outcrop?
+    
+    if (Rand.num() < fillLevel) {
+      world.terrain().setHabitat(origin(), Habitat.TOXIC_RUNOFF);
+      float reduction = Mining.TAILING_LIMIT;
+      reduction *= Stage.GROWTH_INTERVAL * 1f / Stage.STANDARD_DAY_LENGTH;
+      reduction /= Mining.DEFAULT_MINE_LIFESPAN;
+      takeFill(0 - reduction);
+    }
+    if (fillLevel <= 0) setAsDestroyed();
+  }
+  
+  
+  public static Tailing foundAt(Tile at) {
+    if (at == null || ! (at.above() instanceof Tailing)) return null;
+    return (Tailing) at.above();
   }
   
   
@@ -147,7 +161,7 @@ public class Tailing extends Element implements Selectable {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();
-    d.append("Total stored: "+fillLevel+"/"+MAX_FILL);
+    d.append("Total stored: "+I.shorten(fillLevel, 0)+"/"+Mining.TAILING_LIMIT);
     d.append("\n\n");
     d.append(helpInfo());
     

@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.common;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
@@ -64,10 +67,13 @@ public class Ephemera {
   static class Ghost implements Stage.Visible {
     
     int size;
-    Target tracked = null;
+    Vec3D offset = new Vec3D();
+    
     float inceptTime;
-    Sprite sprite;
     float duration = 2.0f;
+
+    Target tracked = null;
+    Sprite sprite;
     
     
     public void renderFor(Rendering r, Base b) {
@@ -88,14 +94,20 @@ public class Ephemera {
   public Ghost addGhost(Target e, float size, Sprite s, float duration) {
     if (s == null) return null;
     final Ghost ghost = new Ghost();
-    ghost.size = (int) Nums.ceil(size);
+    
+    ghost.size       = (int) Nums.ceil(size);
     ghost.inceptTime = world.currentTime();
-    ghost.sprite = s;
-    ghost.duration = duration;
-    ghost.tracked = e;
+    ghost.sprite     = s;
+    ghost.duration   = duration;
+    ghost.tracked    = e;
     
     final Vec3D p = s.position;
-    if (e != null) e.position(p);
+    if (e instanceof Mobile) {
+      final Mobile tracked = (Mobile) e;
+      tracked.viewPosition(ghost.offset);
+      ghost.offset.sub(s.position).scale(-1);
+    }
+    
     final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
@@ -134,28 +146,25 @@ public class Ephemera {
   }
   
   
-  private void trackElement(
+  private boolean trackElement(
     Ghost ghost, StageRegion oldSection, List <Ghost> SG, Base base
   ) {
-    if (! (ghost.tracked instanceof Mobile)) return;
+    if (! (ghost.tracked instanceof Element)) return true;
     
     final Vec3D p = ghost.sprite.position;
-    final Mobile m = (Mobile) ghost.tracked;
-    if (! m.visibleTo(base)) return;
+    final Element m = (Element) ghost.tracked;
+    if (! m.visibleTo(base)) return false;
     
     m.viewPosition(p);
-    
-    //  TODO:  Try to make this a bit more consistent
-    if (ghost.sprite instanceof SFX) {
-      p.z += ghost.tracked.height() / 2f;
-    }
+    p.add(ghost.offset);
     
     final StageRegion section = world.sections.sectionAt((int) p.x, (int) p.y);
-    if (section == oldSection) return;
+    if (section == oldSection) return true;
     SG.remove(ghost);
     SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
     SG.add(ghost);
+    return true;
   }
   
   
@@ -170,12 +179,11 @@ public class Ephemera {
           duration = ghost.duration,
           timeGone = timeNow - ghost.inceptTime;
         
-        if (timeGone >= duration) {
+        if (timeGone >= duration || ! trackElement(ghost, section, SG, base)) {
           SG.remove(ghost);
           continue;
         }
         else {
-          trackElement(ghost, section, SG, base);
           final Sprite s = ghost.sprite;
           if (! rendering.view.intersects(s.position, ghost.size)) continue;
           s.colour = Colour.transparency((duration - timeGone) / duration);

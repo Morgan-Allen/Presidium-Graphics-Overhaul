@@ -3,83 +3,54 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.graphics.sfx;
-import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.*;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
+import com.badlogic.gdx.graphics.*;
 
 
 
 public class PlaneFX extends SFX {
   
   
+  /**  Data fields, constructors, and save/load methods-
+    */
   private static boolean
     verbose = false;
   
+  final Model model;
+  public float timeScale = 1.0f;
+  private float inceptTime = -1;
   
-  /**  Model definitions, fields, constructors, and save/load methods-
+  
+  protected PlaneFX(Model model) {
+    super(PRIORITY_MIDDLE);
+    this.model = model;
+  }
+  
+  
+  public Model model() {
+    return model;
+  }
+  
+  
+  /**  Model definitions and factory methods-
     */
   public static class Model extends stratos.graphics.common.ModelAsset {
     
-    final String imageName;
-    final float initSize, spin, growth;
-    final boolean tilted, vivid;
+    private String imageName;
+    private float initSize, spin, growth;
+    private boolean tilted, vivid;
     
-    final Box2D animUV[];
-    final Box2D bounds = new Box2D();
-    final float duration;
+    private Box2D animUV[];
+    private Box2D bounds = new Box2D();
+    private float duration;
     
     private Texture texture;
     
     
-    public Model(
-      String modelName, Class modelClass,
-      String image, float initSize, float spin, float growth,
-      boolean tilted, boolean vivid
-    ) {
-      super(modelName, modelClass);
-      this.imageName = image;
-      this.initSize = initSize;
-      this.spin = spin;
-      this.growth = growth;
-      this.tilted = tilted;
-      this.vivid = vivid;
-      
-      this.animUV = new Box2D[] {
-        new Box2D().set(0, 0, 1, 1)
-      };
-      this.duration = -1;
-    }
-    
-    
-    public Model(
-      String modelName, Class modelClass,
-      String image, int gridX, int gridY, int numFrames,
-      float duration, float scale
-    ) {
-      super(modelName, modelClass);
-      this.imageName = image;
-      this.initSize = 1 * scale;
-      this.spin = 0;
-      this.growth = 0;
-      this.tilted = true;
-      this.vivid = false;
-      this.animUV = new Box2D[numFrames];
-      
-      final float gW = 1f / gridX, gH = 1f / gridY;
-      int frame = 0;
-      for (int y = 0; y < gridX; y++) {
-        for (int x = 0; x < gridY; x++) {
-          if (frame >= numFrames) break;
-          final Box2D b = animUV[frame++] = new Box2D();
-          b.set(x * gW, y * gH, gW, gH);
-        }
-      }
-      this.duration = duration;
+    private Model(String modelName, Class sourceClass) {
+      super(modelName, sourceClass);
     }
     
     
@@ -94,7 +65,7 @@ public class PlaneFX extends SFX {
       
       if (animUV.length > 1) {
         w = bounds.xdim() * animUV[0].xdim();
-        h = bounds.xdim() * animUV[0].ydim();
+        h = bounds.ydim() * animUV[0].ydim();
         m = Nums.max(w, h);
         bounds.set(0, 0, w / m, h / m);
       }
@@ -113,19 +84,48 @@ public class PlaneFX extends SFX {
   }
   
   
-  final Model model;
-  public float timeScale = 1.0f;
-  private float inceptTime = -1;
-  
-  
-  protected PlaneFX(Model model) {
-    super(PRIORITY_MIDDLE);
-    this.model = model;
+  public static Model imageModel(
+    String modelName, Class modelClass,
+    String image,
+    float initSize, float spin, float growth, boolean tilted, boolean vivid
+  ) {
+    final Model m = new Model(modelName, modelClass);
+    m.imageName = image;
+    m.initSize  = initSize;
+    m.spin      = spin;
+    m.growth    = growth;
+    m.tilted    = tilted;
+    m.vivid     = vivid;
+    m.animUV    = new Box2D[] { new Box2D().set(0, 0, 1, 1) };
+    m.duration  = -1;
+    return m;
   }
   
   
-  public Model model() {
-    return model;
+  public static Model animatedModel(
+    String modelName, Class modelClass,
+    String image,
+    int gridX, int gridY, int numFrames, float duration, float scale
+  ) {
+    final Model m = imageModel(
+      modelName, modelClass,
+      image,
+      scale, 0, 0, true, false
+    );
+    m.animUV   = new Box2D[numFrames];
+    m.duration = duration;
+    
+    final float gW = 1f / gridX, gH = 1f / gridY;
+    int frame = 0;
+    for (int y = 0; y < gridY; y++) {
+      for (int x = 0; x < gridX; x++) {
+        if (frame >= numFrames) break;
+        final Box2D b = m.animUV[frame++] = new Box2D();
+        b.set(x * gW, y * gH, gW, gH);
+      }
+    }
+    
+    return m;
   }
   
   
@@ -158,6 +158,7 @@ public class PlaneFX extends SFX {
   protected void renderInPass(SFXPass pass) {
     final boolean report = verbose && (model.spin > 0 || model.growth > 0);
     
+    //
     //  Determine basic measurements-
     float progress = animProgress(false);
     if (model.duration > 0 && progress >= 1) return;
@@ -172,18 +173,21 @@ public class PlaneFX extends SFX {
       I.say("  Radius:   "+radius  );
     }
     
+    //
     //  Determine the correct animation frame-
-    final Box2D f;
+    Box2D frameUV;
     if (model.duration > 0) {
       final int
         maxFrame = model.animUV.length,
         frame    = Nums.clamp((int) (progress * maxFrame), maxFrame);
-      f = model.animUV[frame];
+      
+      frameUV  = model.animUV[frame];
       if (report) I.say("  Animation frame: "+progress);
     }
-    else f = model.animUV[0];
-    if (f == null) return;
+    else frameUV = model.animUV[0];
+    if (frameUV == null) return;
     
+    //
     //  Setup and translate vertex positions-
     final Viewport view = pass.rendering.view;
     trans.setIdentity();
@@ -211,12 +215,9 @@ public class PlaneFX extends SFX {
       if (report) I.say("  "+v);
     }
     
-    //  Compile geometry-
-    pass.compileQuad(
-      model.texture, colour, model.vivid,
-      verts, f.xpos(), f.ypos(), f.xmax(),
-      f.ymax()
-    );
+    //
+    //  Finally, compile geometry and return.
+    pass.compileQuad(model.texture, colour, model.vivid, verts, frameUV);
   }
 }
 

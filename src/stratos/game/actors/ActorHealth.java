@@ -105,8 +105,8 @@ public class ActorHealth implements Qualities {
   private boolean
     bleeds = false;
   private float
-    morale        = 0,
-    concentration = 0;
+    morale        = MAX_MORALE / 2f,
+    concentration = DEFAULT_CONCENTRATION;
   //  TODO:  Need for sleep.
   
   private int
@@ -115,7 +115,7 @@ public class ActorHealth implements Qualities {
     ageMultiple = 1.0f;
   
   //
-  //  I don't save/load these, since they refresh frequently anyway
+  //  I don't save/load these, since they refresh frequently anyway...
   private float stressCache = -1;
   
   
@@ -312,7 +312,8 @@ public class ActorHealth implements Qualities {
     */
   public void takeInjury(float taken, boolean terminal) {
     final boolean report = verbose && I.talkAbout == actor;
-
+    
+    final boolean awake = conscious();
     final float
       limitKO  = maxHealth * MAX_INJURY,
       absLimit = maxHealth * MAX_DECOMP;
@@ -324,13 +325,18 @@ public class ActorHealth implements Qualities {
       I.say("  KO at: "+limitKO+", decomp at: "+absLimit);
     }
     
-    final float limit;
+    final float limit, oldInjury = injury;
     if (injury < limitKO) limit = limitKO;
-    else if (terminal || ! conscious()) limit = absLimit;
+    else if (terminal || ! awake) limit = absLimit;
     else limit = injury;
     
     if (organic() && (Rand.num() * maxHealth / 2f) < taken) bleeds = true;
     injury = Nums.clamp(injury + taken, 0, limit + 1);
+    final float difference = injury - oldInjury;
+    
+    if (awake && difference > 0) {
+      adjustMorale(difference * (terminal ? -2f : -1f) / maxHealth);
+    }
     checkStateChange();
     
     if (report) {
@@ -341,9 +347,16 @@ public class ActorHealth implements Qualities {
   
   
   public void liftInjury(float lifted) {
+    final float oldInjury = injury;
     injury -= lifted;
     if (Rand.num() > injuryLevel()) bleeds = false;
     if (injury < 0) injury = 0;
+    
+    final float difference = oldInjury - injury;
+    final boolean awake = conscious();
+    if (awake && difference > 0) {
+      adjustMorale(difference * 0.5f / maxHealth);
+    }
   }
   
   
@@ -535,7 +548,9 @@ public class ActorHealth implements Qualities {
     sum -= (bleeds ? 0 : 0.25f) - disease;
     sum -= Nums.clamp(moraleLevel(), -0.5f, 0.5f);
     
-    if (sum > 0) sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0);
+    if (sum > 0) {
+      sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0, null);
+    }
     
     return stressCache = Nums.clamp(sum, 0, 1);
   }
@@ -631,13 +646,15 @@ public class ActorHealth implements Qualities {
   
   
   private void updateStresses() {
-    final boolean report = verbose && I.talkAbout == actor;
-    if (report) I.say("\nUpdating stresses for "+actor);
+    final boolean report = I.talkAbout == actor && verbose;
+    if (report) {
+      I.say("\nUpdating stresses for "+actor);
+    }
     //
     //  Inorganic targets get a different selection of perks and drawbacks-
     if (state >= STATE_SUSPEND || ! organic()) {
       bleeds = false;
-      morale = 0;
+      morale = -1;
       float fatigueRegen = maxHealth * FATIGUE_GROW_PER_DAY / DEFAULT_HEALTH;
       fatigue = Nums.clamp(fatigue - fatigueRegen, 0, maxHealth);
       return;
@@ -659,12 +676,6 @@ public class ActorHealth implements Qualities {
       final int moveType = taken.motionType(actor);
       if (moveType == Plan.MOTION_FAST) FM = RUN_FATIGUE_MULT;
     }
-    if (report) {
-      I.say("  Fatigue multiple: "+FM);
-      I.say("  Injury  multiple: "+IM);
-      I.say("  Morale  multiple: "+MM);
-      I.say("  Psych   multiple: "+PM);
-    }
     
     if (bleeds) {
       final float
@@ -680,13 +691,14 @@ public class ActorHealth implements Qualities {
       }
     }
     else if (injury > 0) {
-      actor.skills.test(IMMUNE, 10, 1f / Stage.STANDARD_HOUR_LENGTH);
+      actor.skills.test(IMMUNE, 10, 1f / Stage.STANDARD_HOUR_LENGTH, null);
       injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
     }
     
     fatigue += FATIGUE_GROW_PER_DAY * speedMult * maxHealth * FM / DL;
     fatigue = Nums.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
     injury  = Nums.clamp(injury , 0, MAX_DECOMP  * maxHealth);
+
     //
     //  Have morale converge to a default based on the cheerful trait and
     //  current stress levels.
@@ -701,7 +713,12 @@ public class ActorHealth implements Qualities {
     final float maxCon = maxConcentration();
     concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
     concentration = Nums.clamp(concentration, 0, maxCon);
+    
     if (report) {
+      I.say("  Fatigue multiple: "+FM+", fatigue: "+fatigue);
+      I.say("  Injury  multiple: "+IM+", injury:  "+injury);
+      I.say("  Morale  multiple: "+MM+", morale:  "+morale);
+      I.say("  Concentration multiple: "+PM);
       I.say("  Max. concentration: "+maxCon       );
       I.say("  Current level:      "+concentration);
     }
@@ -733,7 +750,7 @@ public class ActorHealth implements Qualities {
     
     if (currentAge > lifespan * (1 + (lifeExtend / 10))) {
       float deathDC = ROUTINE_DC * (1 + lifeExtend);
-      if (actor.skills.test(IMMUNE, deathDC, 0)) {
+      if (actor.skills.test(IMMUNE, deathDC, 0, null)) {
         lifeExtend++;
       }
       else {

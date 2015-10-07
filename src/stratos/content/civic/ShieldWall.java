@@ -13,6 +13,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -48,7 +49,7 @@ public class ShieldWall extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ShieldWall.class, "shield_wall",
-    "Shield Wall", UIConstants.TYPE_SECURITY, ICON,
+    "Shield Wall", Target.TYPE_SECURITY, ICON,
     "Shield Walls are defensive emplacements that improve base security.",
     2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 125,
@@ -154,14 +155,11 @@ public class ShieldWall extends Venue {
   
   /**  Registration, life cycle and economic functions-
     */
-  public Background[] careers() {
-    return null;
-  }
-  
-  
-  public Traded[] services() {
-    return null;
-  }
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, TrooperLodge.LEVELS[0],
+    new Object[] { 10, ASSEMBLY, 5, BATTLE_TACTICS },
+    40
+  );
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
@@ -291,7 +289,7 @@ public class ShieldWall extends Venue {
   
   
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
 }
 

@@ -136,10 +136,10 @@ public class NativeHut extends Venue {
       
       allProfiles.add(new Blueprint(
         NativeHut.class, "hut_"+tribeID,
-        "Native Hut ("+tribeName+")", UIConstants.TYPE_WIP, null,
+        "Native Hut ("+tribeName+")", Target.TYPE_NATIVE, null,
         "Native Hutments are simple but robust shelters constructed by "+
         "indigenous primitives.",
-        2, 2, Structure.IS_WILD,
+        2, 2, Structure.IS_CRAFTED,
         Owner.TIER_FACILITY, 75,
         3
       ) {
@@ -149,10 +149,10 @@ public class NativeHut extends Venue {
       });
       allProfiles.add(new Blueprint(
         NativeHut.class, "all_"+tribeID,
-        "Chief's Hall ("+tribeName+")", UIConstants.TYPE_WIP, null,
+        "Chief's Hall ("+tribeName+")", Target.TYPE_NATIVE, null,
         "Native settlements will often have a central meeting place where "+
         "the tribe's leadership and elders will gather to make decisions.",
-        3, 2, Structure.IS_WILD,
+        3, 2, Structure.IS_CRAFTED,
         Owner.TIER_FACILITY, 150,
         5
       ) {
@@ -272,10 +272,7 @@ public class NativeHut extends Venue {
         stocks.amountOf(GREENS)
       );
       if (needFood > 0) {
-        final Foraging forage = new Foraging(actor, this);
-        final float urge = Plan.ROUTINE * (needFood / 4);
-        forage.addMotives(Plan.MOTIVE_JOB, urge);
-        choice.add(forage);
+        choice.add(Gathering.asForaging(actor, this));
       }
       if (staff.onShift(actor)) {
         choice.add(new Repairs(actor, this, Qualities.HANDICRAFTS, true));
@@ -300,8 +297,8 @@ public class NativeHut extends Venue {
   }
   
   
-  public int numOpenings(Background b) {
-    final int nO = super.numOpenings(b);
+  public int numPositions(Background b) {
+    final int nO = super.numPositions(b);
     final int space = this instanceof NativeHall ?
       HALL_OCCUPANCY : HUT_OCCUPANCY
     ;

@@ -4,14 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.content.civic.EngineerStation;
-import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
-import stratos.graphics.cutout.CutoutSprite;
+import stratos.graphics.cutout.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -84,7 +82,7 @@ public class Base implements
   public static Base settlement(Stage world, String title, Colour colour) {
     final Base base = namedBase(world, title);
     if (base != null) return base;
-
+    
     final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
     return registerBase(new Base(world, false), world, title, colour, canBuild);
   }
@@ -314,10 +312,10 @@ public class Base implements
     */
   //  TODO:  Move to the tactics class?
   
-  public Mission matchingMission(Target t, Class typeClass) {
+  public Mission matchingMission(Object subject, Class typeClass) {
     for (Mission match : tactics.allMissions()) {
       if (typeClass != null && match.getClass() != typeClass) continue;
-      if (match.subject() != t) continue;
+      if (match.subject() != subject) continue;
       return match;
     }
     return null;
@@ -366,8 +364,8 @@ public class Base implements
     
     for (Base base : world.bases()) {
       for (Mission m : base.tactics.allMissions()) {
-        if (! m.visibleTo(player)) continue;
-        final Target t = m.subject();
+        if (m.subjectAsTarget() == null || ! m.visibleTo(player)) continue;
+        final Target t = (Target) m.subject();
         if (! view.intersects(t.position(null), t.radius())) continue;
         
         List <Mission> onT = seenTable.get(t);

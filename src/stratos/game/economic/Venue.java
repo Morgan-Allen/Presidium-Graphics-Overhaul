@@ -36,15 +36,16 @@ public abstract class Venue extends Fixture implements
     NUM_FACES   =  ALL_FACES.length;
   
   final public static int
-    PRIMARY_SHIFT      = 2,
-    SECONDARY_SHIFT    = 1,
-    OFF_DUTY           = 0,
+    PRIMARY_SHIFT      =  2,
+    SECONDARY_SHIFT    =  1,
+    OFF_DUTY           =  0,
+    NOT_HIRED          = -1,
     
-    SHIFTS_ALWAYS      = 0,
-    SHIFTS_BY_HOURS    = 1,   //different 8-hour periods off.
-    SHIFTS_BY_DAY      = 2,   //every second or third day off.
-    SHIFTS_BY_24_HOUR  = 3,   //on for an entire day at a time.
-    SHIFTS_BY_CALENDAR = 4;   //weekends and holidays off.  NOT DONE YET
+    SHIFTS_ALWAYS      =  0,
+    SHIFTS_BY_HOURS    =  1,   //different 8-hour periods off.
+    SHIFTS_BY_DAY      =  2,   //every second or third day off.
+    SHIFTS_BY_24_HOUR  =  3,   //on for an entire day at a time.
+    SHIFTS_BY_CALENDAR =  4;   //weekends and holidays off.  NOT DONE YET
   
   final public static Blueprint NO_REQUIREMENTS[] = new Blueprint[0];
   
@@ -147,14 +148,8 @@ public abstract class Venue extends Fixture implements
   public void setFacing(int facing) {
     this.facing = facing % NUM_FACES;
     final Tile o = origin();
-    if (o == null) {
+    if (o == null || blueprint.isFixture()) {
       entrance = null;
-    }
-    else if (blueprint.isFixture()) {
-      //
-      //  Fixture-venues don't normally have entrances, but we make an
-      //  exception for tiling-venues.
-      entrance = (pathType() <= Tile.PATH_CLEAR) ? o : null;
     }
     else {
       final int off[] = SiteUtils.entranceCoords(size, size, facing);
@@ -248,7 +243,7 @@ public abstract class Venue extends Fixture implements
   
   
   public boolean preventsClaimBy(Venue other) {
-    return false;
+    return blueprint.isZoned();
   }
   
   
@@ -378,12 +373,15 @@ public abstract class Venue extends Fixture implements
       staff.updateStaff(numUpdates);
       impingeSupply(false);
     }
+    
     if (structure.intact()) {
       stocks.updateOrders();
       if (rare) {
         stocks.updateDemands(10);
-        int needHome = 0;
-        for (Actor a : staff.workers()) if (a.mind.home() != this) needHome++;
+        int needHome = 0; for (Actor a : staff.workers()) {
+          final Placeable home = a.mind.home();
+          if (home == null && home != this) needHome++;
+        }
         base.demands.impingeDemand(SERVICE_HOUSING, needHome, 10, this);
       }
     }
@@ -392,15 +390,13 @@ public abstract class Venue extends Fixture implements
   
   protected void updatePaving(boolean inWorld) {
     if (pathType() <= Tile.PATH_CLEAR) {
-      byte road = inWorld ? StageTerrain.ROAD_LIGHT : StageTerrain.ROAD_NONE;
-      for (Tile t : world.tilesIn(footprint(), false)) {
-        world.terrain().setRoadType(t, road);
-      }
+      final Tile under[] = Spacing.under(footprint(), world);
+      base.transport.updatePerimeter(this, inWorld, under);
     }
     else {
       base.transport.updatePerimeter(this, inWorld);
-      base.transport.updateJunction(this, mainEntrance(), inWorld);
     }
+    base.transport.updateJunction(this, mainEntrance(), inWorld);
   }
   
   
@@ -494,16 +490,16 @@ public abstract class Venue extends Fixture implements
       return crowding;
     }
     else {
-      final int openings = numOpenings(background);
-      if (openings <= 0) return 1;
+      final int positions = numPositions(background);
+      if (positions <= 0) return 1;
       final int hired = staff.numHired(background);
-      return hired * 1f / (hired + openings);
+      return hired * 1f / positions;
     }
   }
   
   
-  protected int numOpenings(Background b) {
-    return structure.upgradeLevel(b) - staff.numHired(b);
+  protected int numPositions(Background b) {
+    return structure.upgradeLevel(b);
   }
   
   
@@ -551,7 +547,7 @@ public abstract class Venue extends Fixture implements
   
   
   public float priceFor(Traded good, boolean sold) {
-    return good.basePrice();
+    return good.defaultPrice();
   }
   
   
@@ -578,7 +574,8 @@ public abstract class Venue extends Fixture implements
   /**  Interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, null);
+    final Traded sets[] = blueprint.tradeServices();
+    return VenuePane.configStandardPanel(this, panel, UI, sets);
   }
   
   
@@ -878,7 +875,7 @@ public abstract class Venue extends Fixture implements
   
   public void renderSelection(Rendering rendering, boolean hovered) {
     if (destroyed() || origin() == null) return;
-    if (pathType() <= Tile.PATH_CLEAR || blueprint.isGrouped()) return;
+    if (pathType() <= Tile.PATH_CLEAR || blueprint.isLinear()) return;
     
     final String key = origin()+"_print_"+this;
     BaseUI.current().selection.renderTileOverlay(
@@ -889,13 +886,12 @@ public abstract class Venue extends Fixture implements
     );
 
     final String keyRes = origin()+"_reserve_print_"+this;
-    final Tile reserved[] = reserved();
     
-    if (reserved.length > 0) BaseUI.current().selection.renderTileOverlay(
+    BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world,
       Colour.transparency(hovered ? 0.25f : 0.375f),
       Selection.SELECT_OVERLAY, false,
-      keyRes, true, (Object[]) reserved
+      keyRes, true, footprint() //, (Object[]) reserved
     );
   }
 }

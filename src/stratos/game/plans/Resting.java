@@ -23,11 +23,12 @@ public class Resting extends Plan {
     verbose = false;
   
   final static int
-    MODE_NONE     = -1,
-    MODE_DINE     =  0,
-    MODE_LODGE    =  1,
-    MODE_SLEEP    =  2,
-    RELAX_TIME = Stage.STANDARD_HOUR_LENGTH / 2;
+    MODE_NONE  = -1,
+    MODE_DINE  =  0,
+    MODE_LODGE =  1,
+    MODE_SLEEP =  2,
+    RELAX_TIME =  Stage.STANDARD_HOUR_LENGTH / 2,
+    DINE_TIME  =  Stage.STANDARD_HOUR_LENGTH / 2;
   
   final Owner restPoint;
   public int cost;
@@ -94,9 +95,10 @@ public class Resting extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && hasBegun() && verbose;
     if (report) {
       I.say("\nGetting resting priority for "+actor);
+      I.say("  Begun? "+hasBegun());
     }
     
     float urgency = CASUAL;
@@ -147,7 +149,12 @@ public class Resting extends Plan {
     
     //  Include location effects-
     if (restPoint == actor && ! actor.indoors()) {
-      urgency -= CASUAL;
+      urgency = Nums.clamp(urgency - CASUAL, 0.1f, PARAMOUNT);
+    }
+    
+    if (report) {
+      I.say("  Relax time: "+relaxTime);
+      I.say("  Urgency: "+urgency);
     }
     
     //  TODO:  INCLUDE LAZINESS!
@@ -225,6 +232,8 @@ public class Resting extends Plan {
     }
     else {
       //  TODO:  Improve morale?
+      float relief = actor.health.maxHealth() / Stage.STANDARD_DAY_LENGTH;
+      actor.health.liftFatigue(relief);
       relaxTime += 1.0f;
     }
     return true;
@@ -239,28 +248,25 @@ public class Resting extends Plan {
   public static boolean dineFrom(Actor actor, Owner stores) {
     final Batch <Traded> menu = menuFor(stores);
     final int numFoods = menu.size();
+    if (numFoods == 0 || actor.health.hungerLevel() < 0.1f) return false;
     
-    if (numFoods > 0 && actor.health.hungerLevel() > 0.1f) {
-      final int FTC = ActorHealth.FOOD_TO_CALORIES;
-      float sumFood = 0, sumTypes = 0;
-      
-      for (Traded type : menu) {
-        final Item portion = Item.withAmount(type, 0.2f / (numFoods * FTC));
-        stores.inventory().removeItem(portion);
-        sumFood += portion.amount;
-        sumTypes++;
-      }
-      
-      if (stores.inventory().amountOf(MEDICINE) > 0) {
-        sumTypes++;
-      }
-      
-      sumTypes /= Economy.ALL_FOOD_TYPES.length;
-      actor.health.takeCalories(sumFood * FTC, sumTypes);
-      return true;
+    final int   FTC  = ActorHealth.FOOD_TO_CALORIES;
+    final float bite = ActorHealth.DEFAULT_BULK * 1f / (DINE_TIME * FTC);
+    float sumFood = 0, sumTypes = 0;
+    
+    for (Traded type : menu) {
+      final Item portion = Item.withAmount(type, bite);
+      stores.inventory().removeItem(portion);
+      sumFood += portion.amount;
+      sumTypes++;
+    }
+    if (stores.inventory().amountOf(MEDICINE) > 0) {
+      sumTypes++;
     }
     
-    return false;
+    sumTypes /= Economy.ALL_FOOD_TYPES.length;
+    actor.health.takeCalories(sumFood * FTC, sumTypes);
+    return true;
   }
   
   
@@ -268,12 +274,12 @@ public class Resting extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    String desc = restPoint == actor.mind.home() ? "Resting" : "Sheltering";
     if (restPoint == actor || restPoint == null) {
-      if (currentMode == MODE_DINE) d.append("Dining");
-      else d.append(desc);
+      if (currentMode == MODE_DINE) d.append("Eating");
+      else d.append("Resting");
       return;
     }
+    String desc = restPoint == actor.mind.home() ? "Resting" : "Sheltering";
     if (currentMode == MODE_DINE) {
       d.append("Eating at ");
       d.append(restPoint);

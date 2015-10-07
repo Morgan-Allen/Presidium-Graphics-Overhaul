@@ -39,6 +39,11 @@ public class Account {
   }
   
   
+  public boolean hadReason(String reason) {
+    return failReasons.includes(reason);
+  }
+  
+  
   
   /**  
     */

@@ -35,7 +35,7 @@ public class Fabricator extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
-    "Fabricator", UIConstants.TYPE_WIP, ICON,
+    "Fabricator", Target.TYPE_WIP, ICON,
     "Fabricators manufacture "+DECOR+", "+PRESSFEED+" and finery for "+
     "the upper-crust.",
     4, 1, Structure.IS_NORMAL,
@@ -150,8 +150,8 @@ public class Fabricator extends Venue {
   }
   
   
-  public int numOpenings(Background v) {
-    int nO = super.numOpenings(v);
+  public int numPositions(Background v) {
+    int nO = super.numPositions(v);
     if (v == FABRICATOR) return nO + 2;
     return 0;
   }
@@ -168,10 +168,8 @@ public class Fabricator extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    final OutfitType OT = client.gear.outfitType();
-    if (OT != null && OT.materials().producesAt(this)) {
-      Commission.addCommissions(client, this, choice, OT, POLYMER_LOOM);
-    }
+    final Item baseOutfit = GearPurchase.nextOutfitToPurchase(client, this);
+    GearPurchase.nextCommission(client, this, baseOutfit, null);
   }
   
   

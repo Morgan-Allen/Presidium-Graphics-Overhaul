@@ -7,7 +7,6 @@ package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
-import static stratos.game.economic.Economy.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
@@ -15,6 +14,8 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -40,16 +41,27 @@ public class Heighway extends Venue {
       Heighway.class, "media/GUI/Buttons/access_hatch_button.gif"
     );
   
+  final static int
+    TYPE_HUB = 0,
+    TYPE_WAY = 1;
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Heighway.class, "service_hatch",
-    "Heighway", UIConstants.TYPE_UNPLACED, HATCH_ICON,
+    "Heighway", Target.TYPE_UNPLACED, HATCH_ICON,
     "Heighways allow for long-distance power and road connections, but can "+
     "admit dangerous vermin.",
-    2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
+    2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR | Structure.IS_PUBLIC,
     Owner.TIER_PRIVATE, 10, 25
   );
   
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, Bastion.LEVELS[0],
+    new Object[] { 5, ASSEMBLY },
+    30
+  );
+  
+  
+  private int type = -1;
   
   
   public Heighway(Base base) {
@@ -59,11 +71,13 @@ public class Heighway extends Venue {
   
   public Heighway(Session s) throws Exception {
     super(s);
+    this.type = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveInt(type);
   }
   
   
@@ -112,6 +126,7 @@ public class Heighway extends Venue {
     
     final Object model = faceModel(position, area, others);
     attachModel((ModelAsset) model);
+    this.type = model == HUB_MODEL ? TYPE_HUB : TYPE_WAY;
     return true;
   }
   
@@ -121,16 +136,14 @@ public class Heighway extends Venue {
       this, position, area, others,
       MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, Heighway.class
     );
-    /*
     if (model == MODELS_X_AXIS[1]) {
-      final int step = (position.y / 2) % 4;
+      final int step = (position.y / 2) % 6;
       if (step == 0) model = HUB_MODEL;
     }
     if (model == MODELS_Y_AXIS[1]) {
-      final int step = (position.x / 2) % 4;
+      final int step = (position.x / 2) % 6;
       if (step == 0) model = HUB_MODEL;
     }
-    //*/
     return model;
   }
   
@@ -144,6 +157,7 @@ public class Heighway extends Venue {
     final Object  model    = faceModel(origin(), null);
     final Upgrade FC       = Structure.FACING_CHANGE;
     boolean canChange = false;
+    
     if (model != oldModel) {
       if (GameSettings.buildFree || structure.hasUpgrade(FC)) {
         canChange = true;
@@ -156,6 +170,7 @@ public class Heighway extends Venue {
       structure.resignUpgrade(FC, true);
       world.ephemera.addGhost(this, size, sprite(), 0.5f);
       attachModel((ModelAsset) model);
+      this.type = model == HUB_MODEL ? TYPE_HUB : TYPE_WAY;
     }
     //
     //  And assign life-support and other tangible effects-
@@ -188,8 +203,13 @@ public class Heighway extends Venue {
     return Tile.PATH_ROAD;
   }
   
-
-
+  
+  public Tile mainEntrance() {
+    return (type == TYPE_HUB) ? origin() : null;
+  }
+  
+  
+  
   /**  Rendering and interface methods-
     */
   public String fullName() {
@@ -202,7 +222,7 @@ public class Heighway extends Venue {
   
   
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null);
+    return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
 }
 

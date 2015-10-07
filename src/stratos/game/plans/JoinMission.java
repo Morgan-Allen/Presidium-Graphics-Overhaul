@@ -32,23 +32,20 @@ public class JoinMission extends Plan {
   
   
   private JoinMission(Actor actor, Mission mission) {
-    super(actor, mission.subject(), MOTIVE_PERSONAL, NO_HARM);
+    super(actor, actor, MOTIVE_PERSONAL, NO_HARM);
     this.mission = mission;
-    //this.admin = admin;
   }
 
 
   public JoinMission(Session s) throws Exception {
     super(s);
     mission = (Mission) s.loadObject();
-    //admin = (Venue) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(mission);
-    //s.saveObject(admin);
   }
   
   
@@ -71,6 +68,7 @@ public class JoinMission extends Plan {
     //  approved-)
     if (report) {
       I.say("\nEvaluating missions: "+actor+" ("+actor.mind.vocation()+")");
+      I.say("  Total missions: "+actor.base().tactics.allMissions().size());
     }
     final Choice choice = new Choice(actor);
     //
@@ -84,11 +82,12 @@ public class JoinMission extends Plan {
         continue;
       }
       
-      //  TODO:  Build this into the priorityFor method of the missions
-      //         themselves?
       final float
         competence = competence(actor, mission),
         urgency    = mission.assignedPriority();
+      //
+      //  TODO:  Compare against the competence of the best current applicant
+      //  instead, and withdraw if you're low in the rankings.
       
       if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
         if (report) {
@@ -102,7 +101,7 @@ public class JoinMission extends Plan {
       
       final Behaviour step = mission.nextStepFor(actor, true);
       final float priority = step == null ? -1 : step.priorityFor(actor);
-      if (priority < ROUTINE) continue;
+      
       choice  .add(step   );
       steps   .add(step   );
       missions.add(mission);

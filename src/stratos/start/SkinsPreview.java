@@ -13,6 +13,7 @@ import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.Input.Keys;
+
 import java.io.*;
 
 
@@ -28,7 +29,7 @@ public class SkinsPreview extends VisualDebug {
     verbose = true;
   
   final static Colour BACK_COLOUR = Colour.DARK_BLUE;
-  final static PlaneFX.Model CENTRE_MARK_MODEL = new PlaneFX.Model(
+  final static PlaneFX.Model CENTRE_MARK_MODEL = PlaneFX.imageModel(
     "centre_mark_model", SkinsPreview.class,
     "media/GUI/selectCircle.png", 0.5f, 0, 0, false, true
   );

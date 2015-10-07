@@ -33,7 +33,7 @@ public class CultureVats extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     CultureVats.class, "culture_vats",
-    "Culture Vats", UIConstants.TYPE_SECURITY, ICON,
+    "Culture Vats", Target.TYPE_PHYSICIAN, ICON,
     "The Culture Vats manufacture "+REAGENTS+", basic foodstuffs "+
     "and even cloned tissues for medical purposes.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 400, 3,
@@ -83,21 +83,25 @@ public class CultureVats extends Venue {
   
   /**  Upgrades, economic functions and employee behaviour-
     */
-  final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
-  public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.SINGLE_LEVEL,
+      new Upgrade[] { PhysicianStation.LEVELS[0], EngineerStation.LEVELS[0] },
+      new Object[] { 15, CHEMISTRY, 5, GENE_CULTURE },
+      400//, 550
+    ),
     CARBS_CULTURE = new Upgrade(
       "Carbs Culture",
       "Employs gene-tailored yeast strains to provide "+CARBS+", cycle waste "+
       "products and output "+ATMO+".",
-      200, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      200, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     DRUG_SYNTHESIS = new Upgrade(
       "Drug Synthesis",
       "Employs gene-tailored microbes to synthesise complex molecules, "+
       "permitting manufacture of "+REAGENTS+".",
-      250, Upgrade.TWO_LEVELS, null, BLUEPRINT,
+      250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     TISSUE_CULTURE = new Upgrade(
@@ -188,9 +192,9 @@ public class CultureVats extends Venue {
   }
   
   
-  public int numOpenings(Background v) {
-    final int nO = super.numOpenings(v);
-    if (v == VATS_BREEDER) return nO + 2;
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == VATS_BREEDER) return level;
     return 0;
   }
   

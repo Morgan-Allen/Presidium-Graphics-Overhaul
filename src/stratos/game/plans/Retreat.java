@@ -5,6 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -85,7 +86,6 @@ public class Retreat extends Plan implements Qualities {
     if (oldHaven == null) atHaven = false;
     else if (actor.indoors()) atHaven = actor.aboard() == oldHaven;
     else atHaven = Spacing.distance(actor, oldHaven) < sightHaven;
-    
     mustMove = atHaven && attacked && ! Action.isMoving(actor);
     
     final Pick <Boarding> pick = new Pick <Boarding> () {
@@ -134,7 +134,7 @@ public class Retreat extends Plan implements Qualities {
       pick.compare((Boarding) built , 1);
     }
     
-    if (emergency || pick.empty()) {
+    if ((! emergency) && pick.empty()) {
       if (pick.empty()) {
         pick.compare(pickHidePoint(actor, runRange, actor, -2), 1);
       }
@@ -157,6 +157,13 @@ public class Retreat extends Plan implements Qualities {
     *  to a full-blown long-distance retreat.)  Used to perform hit-and-run
     *  tactics, stealth while travelling, or an emergency hide.
     */
+  //  TODO:  Don't bother with fancy directional-evaluation here.  Just use
+  //  the relative strength of fog-of-war WRT hostile bases instead.
+  
+  //  In the event that you're hiding from your own base... use it's own fog
+  //  of war, and stop adding your own fog-FX.  Simple.
+  
+  
   public static Tile pickHidePoint(
     final Actor actor, float range, Target from, final int advanceFactor
   ) {
@@ -258,8 +265,14 @@ public class Retreat extends Plan implements Qualities {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    float priority = PlanUtils.retreatPriority(actor, actor.origin());
-    toggleMotives(MOTIVE_EMERGENCY, actor.senses.isEmergency());
+    final boolean urgent = actor.senses.isEmergency();
+    final Target haven = actor.senses.haven();
+    final boolean hasExit = Verse.isWorldExit(haven, actor);
+    
+    float priority = PlanUtils.retreatPriority(
+      actor, actor.origin(), haven, true, urgent, hasExit
+    );
+    toggleMotives(MOTIVE_EMERGENCY, urgent);
     maxPriority = Nums.max(maxPriority, priority);
     return maxPriority;
   }
@@ -309,7 +322,12 @@ public class Retreat extends Plan implements Qualities {
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
-    if (actor.senses.fearLevel() <= 0) {
+    if (Verse.isWorldExit(safePoint, actor)) {
+      final StageExit exit = (StageExit) safePoint;
+      final VerseLocation goes = exit.leadsTo();
+      actor.world().offworld.journeys.handleEmmigrants(goes, null, actor);
+    }
+    else if (actor.senses.fearLevel() <= 0) {
       final Resting rest = new Resting(actor, safePoint);
       rest.addMotives(Plan.MOTIVE_LEISURE, priorityFor(actor));
       maxPriority = 0;
@@ -318,7 +336,7 @@ public class Retreat extends Plan implements Qualities {
       return true;
     }
     else {
-      if (lastHidePoint != safePoint) SenseUtils.breaksPursuit(actor);
+      if (lastHidePoint != safePoint) SenseUtils.breaksPursuit(actor, action());
       lastHidePoint = safePoint;
       maxPriority *= DANGER_MEMORY_FADE;
       if (maxPriority < 0.5f) maxPriority = 0;

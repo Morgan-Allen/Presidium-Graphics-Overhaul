@@ -278,6 +278,19 @@ public class Box2D {
   }
   
   
+  
+  /**  Returns the maximum of either vertical or horizontal displacement
+    *  outside the bounds of this box.
+    */
+  public float axisDistance(Box2D other) {
+    final float
+      maxX = Nums.max(other.xpos - xmax, xpos - other.xmax),
+      maxY = Nums.max(other.ypos - ymax, ypos - other.ymax);
+    return Nums.max(maxX, maxY);
+  }
+  
+  
+  
   /**  Expands this box to include the argument box.
     */
   public Box2D include(Box2D box) {

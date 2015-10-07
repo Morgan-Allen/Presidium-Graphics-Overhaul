@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.common;
 import static stratos.graphics.common.GL.*;
 import stratos.graphics.cutout.*;
@@ -17,6 +19,7 @@ import com.badlogic.gdx.graphics.*;
 
 //  NOTE:  This class should not be instantiated until the LibGdx engine has
 //  invoked the create() method for the ApplicationListener.
+//
 public class Rendering {
   
   
@@ -97,17 +100,16 @@ public class Rendering {
     glClearColor(BC.r, BC.g, BC.b, BC.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    glDisable(GL10.GL_DEPTH_TEST);
-    glDepthMask(false);
+    glEnable(GL10.GL_DEPTH_TEST);
+    glDepthMask(true);
     terrainPass.performPass();
-    glEnable(GL10.GL_DEPTH_TEST);
-    glDepthMask(true);
-    cutoutsPass.performSplatPass();
+    
     glDisable(GL10.GL_DEPTH_TEST);
     glDepthMask(false);
-    terrainPass.performOverlayPass();
+    cutoutsPass.performSplatPass();
     glEnable(GL10.GL_DEPTH_TEST);
     glDepthMask(true);
+    terrainPass.performOverlayPass();
     glClear(GL_DEPTH_BUFFER_BIT);
     
     //  TODO:  Render transparent groups later.
@@ -118,6 +120,7 @@ public class Rendering {
     
     glDepthMask(false);
     sfxPass.performPass();
+    
     glDepthMask(true);
     glClear(GL_DEPTH_BUFFER_BIT);
     cutoutsPass.performPreviewPass();

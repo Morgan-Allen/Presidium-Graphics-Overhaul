@@ -38,7 +38,6 @@ public final class Tile implements
   private boolean isEntrance = false;
   
   private float elevation = Float.NEGATIVE_INFINITY;
-  private Habitat habitat = null;
   
   private Element above = null, reserves = null;
   private Stack <Mobile> inside = NONE_INSIDE;
@@ -67,19 +66,17 @@ public final class Tile implements
   
   protected void loadTileState(Session s) throws Exception {
     elevation = s.loadFloat();
-    habitat  = Habitat.ALL_HABITATS[s.loadInt()];
-    above    = (Element) s.loadObject();
-    reserves = (Element) s.loadObject();
+    above     = (Element) s.loadObject();
+    reserves  = (Element) s.loadObject();
     if (s.loadBool()) s.loadObjects(inside = new Stack <Mobile> ());
     else inside = NONE_INSIDE;
   }
   
   
   protected void saveTileState(Session s) throws Exception {
-    s.saveFloat(elevation);
-    s.saveInt(habitat().ID);
-    s.saveObject(above   );
-    s.saveObject(reserves);
+    s.saveFloat (elevation);
+    s.saveObject(above    );
+    s.saveObject(reserves );
     if (inside == NONE_INSIDE) s.saveBool(false);
     else { s.saveBool(true); s.saveObjects(inside); }
   }
@@ -123,16 +120,7 @@ public final class Tile implements
   /**  Geographical methods-
     */
   public Habitat habitat() {
-    if (habitat != null) return habitat;
-    refreshHabitat();
-    return habitat;
-  }
-  
-  
-  public void refreshHabitat() {
-    final Habitat old = habitat;
-    habitat = world.terrain().habitatAt(x, y);
-    if (habitat != old) refreshAdjacent();
+    return world.terrain().habitatAt(x, y);
   }
   
   
@@ -236,21 +224,19 @@ public final class Tile implements
   public void setAbove(Element e, boolean reserves) {
     if (e == above && (e == this.reserves || ! reserves)) return;
     
-    if (e != null && this.above != null) {
-      I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);
-    }
-    
-    final boolean wasPaved = pathType() == PATH_ROAD;
+    final Element a = this.above;
     this.above = e;
-    final boolean newPaved = pathType() == PATH_ROAD;
     
-    if (wasPaved != newPaved) {
-      final byte roadLevel = newPaved ? ROAD_LIGHT : ROAD_NONE;
-      PavingMap.setPaveLevel(this, roadLevel, false);
-    }
+    final boolean pave = e != null && e.pathType() == PATH_ROAD;
+    final byte roadLevel = pave ? ROAD_LIGHT : ROAD_NONE;
+    PavingMap.setPaveLevel(this, roadLevel, false);
     
     setReserves(reserves ? e : this.reserves, reserves);
     world.sections.flagBoundsUpdate(x, y);
+    
+    if (e != null && a != null) {
+      I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);
+    }
   }
   
   
@@ -259,6 +245,7 @@ public final class Tile implements
       if (instant) above.exitWorld();
       else above.setAsDestroyed();
     }
+    refreshAdjacent();
   }
   
   
@@ -272,6 +259,7 @@ public final class Tile implements
     */
   public void refreshAdjacent() {
     boardingCache = null;
+    elevation = Float.NEGATIVE_INFINITY;
     for (int n : T_INDEX) {
       final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t != null) t.boardingCache = null;
@@ -416,8 +404,9 @@ public final class Tile implements
   
   
   public String toString() {
-    if (habitat == null) return "Tile at X"+x+" Y"+y;
-    return habitat.name+" at X"+x+" Y"+y;
+    final Habitat h = habitat();
+    if (h == null) return "Tile at X"+x+" Y"+y;
+    else return h.name+" at X"+x+" Y"+y;
   }
   
   
@@ -439,7 +428,7 @@ public final class Tile implements
   
   
   public String objectCategory() {
-    return UIConstants.TYPE_TERRAIN;
+    return Target.TYPE_TERRAIN;
   }
   
   

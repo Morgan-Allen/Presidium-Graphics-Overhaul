@@ -45,7 +45,7 @@ public class KommandoRedoubt extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     KommandoRedoubt.class, "kommando_lodge",
-    "Kommando Lodge", UIConstants.TYPE_WIP, ICON,
+    "Kommando Lodge", Target.TYPE_WIP, ICON,
     "The Kommando Lodge allows you to recruit the tough, ruthless and self-"+
     "sufficient Kommandos to harvest prey and intimidate foes.",
     4, 2, Structure.IS_NORMAL,
@@ -237,7 +237,7 @@ public class KommandoRedoubt extends Venue {
   
   
   public Traded[] services() {
-    return new Traded[] { PROTEIN, DRY_SPYCE };
+    return new Traded[] { PROTEIN, SPYCES };
   }
   
   

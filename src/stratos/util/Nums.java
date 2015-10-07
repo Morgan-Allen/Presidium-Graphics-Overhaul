@@ -15,6 +15,7 @@ public final class Nums {
   
   final public static float
     PI    = (float) FastMath.PI     ,
+    E     = (float) FastMath.E      ,
     ROOT2 = (float) FastMath.sqrt(2);
   
   private Nums() {}

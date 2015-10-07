@@ -14,16 +14,16 @@
   height="2.5"
 >
   <animations rotate="180">
-  <animation name="stand"      start="1"    end="1"    duration="1"   />
-	<animation name="move"       start="1"    end="32"   duration="1"   />
-	<animation name="move_fast"  start="34"   end="69"   duration="0.7" />
-	<animation name="move_carry" start="70"   end="102"  duration="1"   />
-	<animation name="build"      start="103"  end="228"  duration="2"   />
-	<animation name="reach_down" start="229"  end="354"  duration="3"   />
-	<animation name="stand"      start="355"  end="365"  duration="3"   />
-	<animation name="strike"     start="366"  end="416"  duration="1"   />
-	<animation name="strike_big" start="417"  end="462"  duration="1.2" />
-	<animation name="fall"       start="463"  end="523"  duration="2.5" />
+    <animation name="stand"      start="1"    end="1"    duration="1"   />
+    <animation name="move"       start="1"    end="32"   duration="1"   />
+    <animation name="move_fast"  start="34"   end="69"   duration="0.7" />
+    <animation name="move_carry" start="70"   end="102"  duration="1"   />
+    <animation name="build"      start="103"  end="228"  duration="2"   />
+    <animation name="reach_down" start="229"  end="354"  duration="3"   />
+    <animation name="stand"      start="355"  end="365"  duration="3"   />
+    <animation name="strike"     start="366"  end="416"  duration="1"   />
+    <animation name="strike_big" start="417"  end="462"  duration="1.2" />
+    <animation name="fall"       start="463"  end="523"  duration="2.5" />
   </animations>
 </model>
 
@@ -111,25 +111,6 @@
 
 
 <model
-  name="Drivodil"
-  format="MS3D"
-  type="JOINT"
-  path="media/Actors/fauna/"
-  file="Drivodil.ms3d"
-  scale="0.02"
-  bound="2"
-  stride="0.6"
-  height="1.2"
->
-  <animations>
-    <animation name="stand"      start="0"  end="0"  duration="0.5" />
-    <animation name="move"       start="2"  end="10" duration="2.0" />
-    <animation name="strike"     start="11" end="15" duration="1.0" />
-    <animation name="fall"       start="16" end="22" duration="4.0" />
-  </animations>
-</model>
-
-<model
   name="Yamagur"
   format="MS3D"
   type="JOINT"
@@ -153,11 +134,34 @@
   </animations>
   
   <attachPoints>
-  <attachPoint function="target" joint="head"/>
+    <attachPoint function="target" joint="head"/>
   </attachPoints>
 </model>
 
 
+
+<model
+  name="Avrodil"
+  format="MS3D"
+  type="JOINT"
+  path="media/Actors/fauna/"
+  file="Avrodil.ms3d"
+  scale="1"
+  bound="1.5"
+  stride="0.6"
+  height="1.0"
+>
+  <animations rotate="270">
+    <animation name="still"       start="1"    end="1"    duration="1"   />
+    <animation name="stand"       start="1"    end="10"   duration="2"   />
+    <animation name="move"        start="11"   end="39"   duration="2"   />
+    <animation name="move_fast"   start="11"   end="39"   duration="2"   />
+    <animation name="strike"      start="41"   end="87"   duration="2"   />
+    <animation name="strike_big"  start="88"   end="137"  duration="2.5" />
+    <animation name="fall"        start="138"  end="182"  duration="2.5" />
+    <animation name="fall_alt"    start="183"  end="236"  duration="2.5" />
+  </animations>
+</model>
 
 
 

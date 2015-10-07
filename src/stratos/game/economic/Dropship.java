@@ -74,25 +74,10 @@ public class Dropship extends Vehicle implements Owner {
     );
   
   final public static int
-    STAGE_DESCENT  = 0,
-    STAGE_LANDED   = 1,
-    STAGE_BOARDING = 2,
-    STAGE_ASCENT   = 3,
-    STAGE_AWAY     = 4;
-  final public static int
     MAX_CAPACITY   = 100,
     MAX_PASSENGERS = 5,
     MAX_CREW       = 5;
-  final public static float
-    INIT_DIST  = 10.0f,
-    INIT_HIGH  = 10.0f,
-    TOP_SPEED  =  5.0f,
-    NO_LANDING =  -100;
   
-  
-  private Vec3D aimPos = new Vec3D(0, 0, NO_LANDING);
-  private float stageInceptTime = 0;
-  private int   stage = STAGE_AWAY;
   private int   nameID = -1;
   
   
@@ -100,30 +85,24 @@ public class Dropship extends Vehicle implements Owner {
   public Dropship() {
     super();
     attachSprite(FREIGHTER_MODEL.makeSprite());
-    this.stage = STAGE_AWAY;
     this.nameID = Rand.index(SHIP_NAMES.length);
   }
   
   
   public Dropship(Session s) throws Exception {
     super(s);
-    aimPos.loadFrom(s.input());
-    stageInceptTime = s.loadFloat();
-    stage = s.loadInt();
     nameID = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    aimPos.saveTo(s.output());
-    s.saveFloat(stageInceptTime);
-    s.saveInt(stage);
     s.saveInt(nameID);
   }
   
   
-  public int pathType() { return Tile.PATH_BLOCKS; }
+  public int pathType  () { return Tile.PATH_BLOCKS   ; }
+  public int motionType() { return Mobile.MOTION_FLYER; }
   public float height() { return 1.5f; }
   public float radius() { return 1.5f; }
   
@@ -140,7 +119,7 @@ public class Dropship extends Vehicle implements Owner {
     if (report) I.say("\nGetting next dropship job for "+actor);
     if (actor.isDoing(Bringing.class, null)) return;
     
-    if (stage >= STAGE_BOARDING) {
+    if (flightStage() >= STAGE_BOARDING) {
       final Smuggling boarding = new Smuggling(actor, this, world, true);
       if (staff.assignedTo(Bringing.class) == 0) {
         boarding.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
@@ -201,167 +180,17 @@ public class Dropship extends Vehicle implements Owner {
   }
   
   
-  public float priceFor(Traded service) {
+  public float priceFor(Traded service, boolean sold) {
     final BaseCommerce c = base.commerce;
     final float dockMult = Airfield.isGoodDockSite(dropPoint) ?
       1 : BaseCommerce.SMUGGLE_MARGIN
     ;
     if (cargo.canDemand(service)) {
-      if (cargo.producer(service)) return c.exportPrice(service) / dockMult;
-      else                         return c.importPrice(service) * dockMult;
+      if (sold) return c.importPrice(service) * dockMult;
+      else      return c.exportPrice(service) / dockMult;
     }
-    return service.basePrice() / dockMult;
+    return service.defaultPrice() / dockMult;
   }
-  
-  
-  
-  /**  Handling the business of ascent and landing-
-    */
-  protected void assignLandPoint(Vec3D aimPos, Boarding dropPoint) {
-    if (aimPos == null) this.aimPos.set(0, 0, NO_LANDING);
-    else this.aimPos.setTo(aimPos);
-    this.dropPoint = dropPoint;
-  }
-  
-  
-  public Vec3D aiming() {
-    if (aimPos == null) return null;
-    return new Vec3D(aimPos);
-  }
-  
-  
-  public Box2D landArea() {
-    if (aimPos.z == NO_LANDING) return null;
-    final int size = (int) Nums.ceil(radius());
-    final Box2D area = new Box2D().set(aimPos.x, aimPos.y, 0, 0);
-    area.expandBy(size + 1);
-    return area;
-  }
-  
-  
-  public Box2D area(Box2D put) {
-    if (put == null) put = new Box2D();
-    final int size = (int) Nums.ceil(radius());
-    return put.set(position.x, position.y, 0, 0).expandBy(size + 1);
-  }
-  
-  
-  public void beginDescent(Stage world) {
-    final Tile entry = Spacing.pickRandomTile(
-      world.tileAt(aimPos.x, aimPos.y), INIT_DIST, world
-    );
-    enterWorldAt(entry.x, entry.y, world, true);
-    nextPosition.set(entry.x, entry.y, INIT_HIGH);
-    nextRotation = 0;
-    setHeading(nextPosition, nextRotation, true, world);
-    entranceFace = Venue.FACE_EAST;
-    stage = STAGE_DESCENT;
-    stageInceptTime = world.currentTime();
-  }
-  
-  
-  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
-    if (! super.enterWorldAt(x, y, world, intact)) return false;
-    if (landed()) completeDescent();
-    return true;
-  }
-  
-  
-  private void completeDescent() {
-    nextPosition.setTo(position.setTo(aimPos));
-    dropPoint = ShipUtils.performLanding(this, world, entranceFace);
-    ShipUtils.offloadPassengers(this, true);
-    stageInceptTime = world.currentTime();
-    stage = STAGE_LANDED;
-  }
-  
-  
-  public void beginBoarding() {
-    if (stage != STAGE_LANDED) I.complain("Cannot board until landed!");
-    stage = STAGE_BOARDING;
-  }
-  
-  
-  public void exitWorld() {
-    if (landed()) {
-      I.say("\n"+this+" EXITING WORLD UNDER ABNORMAL CIRCUMSTANCES");
-      I.reportStackTrace();
-      beginAscent();
-    }
-    ShipUtils.completeTakeoff(world, this);
-    super.exitWorld();
-  }
-  
-  
-  public void beginAscent() {
-    if (stage == STAGE_LANDED) {
-      ShipUtils.offloadPassengers(this, false);
-    }
-    ShipUtils.performTakeoff(world, this);
-    stage = STAGE_ASCENT;
-    stageInceptTime = world.currentTime();
-  }
-  
-  
-  private void completeAscent() {
-    exitWorld();
-    stage = STAGE_AWAY;
-    stageInceptTime = world.currentTime();
-  }
-  
-  
-  public boolean landed() {
-    return stage == STAGE_LANDED || stage == STAGE_BOARDING;
-  }
-  
-  
-  public int flightStage() {
-    return stage;
-  }
-  
-  
-  protected void updateAsMobile() {
-    super.updateAsMobile();
-    //
-    //  Check to see if ascent or descent are complete-
-    final float height = position.z / INIT_HIGH;
-    if (stage == STAGE_ASCENT && height >= 1) {
-      completeAscent();
-    }
-    if (stage == STAGE_DESCENT) {
-      //
-      //  If obstructions appear during the descent, restart the flight-path.
-      //  If you touchdown, register as such.
-      if (! ShipUtils.checkLandingArea(this, world, landArea())) {
-        beginAscent();
-      }
-      else if (height <= 0) {
-        completeDescent();
-      }
-    }
-    //
-    //  Otherwise, adjust motion-
-    if (inWorld() && ! landed()) {
-      ShipUtils.adjustFlight(this, aimPos, 0, height);
-    }
-  }
-  
-
-  public Boarding[] canBoard() {
-    if (landed()) return super.canBoard();
-    else return new Boarding[0];
-  }
-  
-  
-  public Boarding mainEntrance() {
-    if (landed()) return super.mainEntrance();
-    else return null;
-  }
-  
-  
-  //  TODO:  Path-finding will need to be more generally addressed here...
-  public void pathingAbort() {}
-  protected boolean collides() { return false; }
   
   
   
@@ -441,12 +270,16 @@ public class Dropship extends Vehicle implements Owner {
   }
   
   
-  public void describeStatus(Description d) {
-    if (stage == STAGE_DESCENT) d.append("Descending to drop point");
-    else if (stage == STAGE_ASCENT) d.append("Taking off");
-    else if (stage == STAGE_AWAY) d.append("Offworld");
-    else super.describeStatus(d);
+  public void describeStatus(Description d, Object client) {
+    final int stage = flightStage();
+    if      (stage == STAGE_LANDING) d.append("Descending to drop point");
+    else if (stage == STAGE_TAKEOFF ) d.append("Taking off");
+    else if (stage == STAGE_AWAY   ) d.append("Offworld");
+    else super.describeStatus(d, client);
   }
 }
+
+
+
 
 

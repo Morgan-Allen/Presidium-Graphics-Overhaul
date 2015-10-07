@@ -45,19 +45,23 @@ public class BorderedLabel extends UIGroup implements UIConstants {
   
   
   public void setMessage(String message, boolean doFade, float across) {
-    text.setText(message);
-    this.doFade = doFade;
-    this.fadeOut = 1;
-    
     if (oldMessage == null || ! oldMessage.equals(message)) {
       oldMessage = message;
       this.fadeIn = doFade ? 0 : 1;
     }
+    text.setText(message);
+    setToFitText(doFade, across);
+  }
+  
+  
+  public void setToFitText(boolean doFade, float across) {
+    this.doFade = doFade;
+    this.fadeOut = 1;
     
     text.setToPreferredSize(UI.xdim());
     final int pw = (int) text.preferredSize().xdim();
-    text.alignHorizontal(across, pw, (int) (pw * (0.5f - across)));
     final int ph = (int) text.preferredSize().ydim();
+    text.alignHorizontal(across, pw, (int) (pw * (0.5f - across)));
     text.alignVertical  (0.5f  , ph, 0);
   }
   

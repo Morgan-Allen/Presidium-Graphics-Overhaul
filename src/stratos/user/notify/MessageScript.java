@@ -10,7 +10,6 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-
 import java.lang.reflect.*;
 
 

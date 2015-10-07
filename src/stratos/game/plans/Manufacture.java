@@ -215,7 +215,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
   
   /**  Vary this based on delay since inception and demand at the venue-
     */
-  final Trait BASE_TRAITS[] = { ENERGETIC, URBANE, ACQUISITIVE };
+  final Trait BASE_TRAITS[] = { ENERGETIC, METICULOUS, ACQUISITIVE };
   
 
   protected float getPriority() {
@@ -327,8 +327,9 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
       return false;
     }
     //
-    //  
-    final float success = conversion.performTest(actor, 0, 1);
+    //
+    final Action a = action();
+    final float success = conversion.performTest(actor, 0, 1, a);
     float increment = success * speedBonus / (made.amount * TIME_PER_UNIT);
     if (made.type instanceof DeviceType) increment /= DEVICE_TIME_MULT;
     if (made.type instanceof OutfitType) increment /= OUTFIT_TIME_MULT;

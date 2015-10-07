@@ -5,7 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.base.Mission;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
@@ -183,15 +183,9 @@ public class Combat extends Plan implements Qualities {
       I.say("  Best target: "+struck);
     }
     
-    //  Consider using any special combat-based techniques.
-    final Action technique = actor.skills.pickIndependantAction(
-      struck, Technique.TRIGGER_ATTACK, this
-    );
-    if (technique != null) return technique;
-    
     Action strike = null;
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
-    final boolean melee     = actor.gear.meleeWeapon();
+    final boolean melee     = actor.gear.meleeDeviceOnly();
     final boolean razes     = struck instanceof Placeable;
     final float   danger    = 1f - successChanceFor(actor);
     
@@ -321,13 +315,14 @@ public class Combat extends Plan implements Qualities {
     */
   public boolean actionStrike(Actor actor, Actor target) {
     if (target.health.dying()) return false;
+    final Action a = action();
     //
     //  TODO:  You may want a separate category for animals?  Or Psy?
-    if (actor.gear.meleeWeapon()) {
-      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object);
+    if (actor.gear.meleeDeviceOnly()) {
+      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object, a);
     }
     else {
-      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, object);
+      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, object, a);
     }
     return true;
   }
@@ -335,15 +330,15 @@ public class Combat extends Plan implements Qualities {
   
   public boolean actionSiege(Actor actor, Placeable target) {
     if (target.structure().destroyed()) return false;
-    performSiege(actor, target);
+    performSiege(actor, target, action());
     return true;
   }
   
   
-  public static void performStrike(
+  public static boolean performStrike(
     Actor actor, Actor target,
     Skill offence, Skill defence,
-    int strikeType
+    int strikeType, Action action
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     if (report) I.say("\n"+actor+" performing strike against "+target);
@@ -353,31 +348,33 @@ public class Combat extends Plan implements Qualities {
       lethal = strikeType == OBJECT_DESTROY,
       showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
-    //  TODO:  Move weapon/armour properties to dedicated subclasses.
-    final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN);
+    //
+    //  TODO:  Move weapon/armour properties to dedicated subclasses?
+
+    final boolean kinetic = actor.gear.hasDeviceProperty(Devices.KINETIC);
+    final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN   );
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
+    
     final float bypass = Nums.clamp(0 - penalty, 0, 5);
     if (subdue && ! canStun) penalty += 5;
     
     final boolean success = target.health.conscious() ? actor.skills.test(
-      offence, target, defence, 0 - penalty, 1
+      offence, target, defence, 0 - penalty, 1, action
     ) : true;
     
     if (report) {
-      I.say("  Max. damage:    "+actor.gear.attackDamage()+", stun: "+canStun);
-      I.say("  Vs. Armour:     "+target.gear.armourRating()+", pass "+bypass);
+      I.say("  Max. damage:    "+actor.gear.totalDamage()+", stun: "+canStun);
+      I.say("  Vs. Armour:     "+target.gear.totalArmour()+", pass "+bypass);
       I.say("  Range penalty:  "+penalty+", success? "+success);
     }
       
     if (success) {
-      final float maxDamage = actor.gear.attackDamage();
+      final float maxDamage = actor.gear.totalDamage();
       damage = maxDamage * Rand.num();
-      final float afterShields = target.gear.afterShields(
-        damage, actor.gear.physicalWeapon()
-      );
+      final float afterShields = target.gear.afterShields(damage, kinetic);
       final float
-        maxArmour   = target.gear.armourRating(),
+        maxArmour   = target.gear.totalArmour(),
         armourSoak  = (maxArmour * Rand.num()) - bypass,
         afterArmour = Nums.clamp(afterShields - armourSoak, 0, damage),
         armourTook  = damage - afterArmour;
@@ -390,7 +387,7 @@ public class Combat extends Plan implements Qualities {
       }
       if (damage != afterArmour && showFX) {
         final boolean hit = damage > 0;
-        CombatFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
+        ActionFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
       }
       
       final Item used = actor .gear.deviceEquipped();
@@ -414,32 +411,35 @@ public class Combat extends Plan implements Qualities {
       if (fatDamage > 0) target.health.takeFatigue(fatDamage        );
     }
     
-    if (! showFX) return;
-    CombatFX.applyFX(actor.gear.deviceType(), actor, target, success);
+    if (showFX) {
+      ActionFX.applyFX(actor.gear.deviceType(), actor, target, success);
+    }
+    
+    return success;
   }
   
   
-  public static void performSiege(
-    Actor actor, Placeable besieged
+  public static boolean performSiege(
+    Actor actor, Placeable besieged, Action action
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     
-    boolean accurate = false;
-    if (actor.gear.meleeWeapon()) {
-      accurate = actor.skills.test(HAND_TO_HAND, 0, 1);
+    boolean accurate = false, success = false;;
+    if (actor.gear.meleeDeviceOnly()) {
+      accurate = actor.skills.test(HAND_TO_HAND, 0, 1, action);
     }
     else {
       final float penalty = rangePenalty(actor, besieged);
-      accurate = actor.skills.test(MARKSMANSHIP, penalty, 1);
+      accurate = actor.skills.test(MARKSMANSHIP, penalty, 1, action);
     }
 
     if (report) {
       I.say("\nPerforming siege attack vs. "+besieged);
       I.say("  Accurate?    "+accurate);
-      I.say("  Base damage: "+actor.gear.attackDamage());
+      I.say("  Base damage: "+actor.gear.totalDamage());
     }
     
-    final float maxDamage = actor.gear.attackDamage();
+    final float maxDamage = actor.gear.totalDamage();
     final Item implement = actor.gear.deviceEquipped();
     float damage = maxDamage * Rand.avgNums(2) * 2;
     Item.checkForBreakdown(actor, implement, damage / maxDamage, 10);
@@ -460,8 +460,13 @@ public class Combat extends Plan implements Qualities {
       I.say("  After armour: "+afterArmour);
     }
     
-    if (afterArmour > 0) besieged.structure().takeDamage(afterArmour);
-    CombatFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
+    if (afterArmour > 0) {
+      besieged.structure().takeDamage(afterArmour);
+      success = true;
+    }
+    ActionFX.applyFX(actor.gear.deviceType(), actor, besieged, true);
+    
+    return success;
   }
   
   

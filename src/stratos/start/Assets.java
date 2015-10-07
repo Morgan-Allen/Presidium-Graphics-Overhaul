@@ -344,6 +344,7 @@ public class Assets {
   
   
   public static boolean exists(String fileName) {
+    if (fileName == null) return false;
     final File file = new File(fileName);
     return file.exists();
   }

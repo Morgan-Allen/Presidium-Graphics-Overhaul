@@ -121,9 +121,16 @@ public class Staff {
   }
   
   
-  public int numOpenings(Background b) {
-    if (employs instanceof Venue) return ((Venue) employs).numOpenings(b);
+  public int numPositions(Background b) {
+    if (employs instanceof Venue) {
+      return ((Venue) employs).numPositions(b);
+    }
     return 0;
+  }
+  
+  
+  public int numOpenings(Background b) {
+    return numPositions(b) - numHired(b);
   }
   
   
@@ -170,12 +177,14 @@ public class Staff {
       return Venue.PRIMARY_SHIFT;
     }
     final Stage world = employs.base().world;
+    final int hireIndex = workers.indexOf(worker);
+    if (hireIndex == -1) return Venue.NOT_HIRED;
     
     //
     //  Simplified versions in use for the present...
     if (shiftType == Venue.SHIFTS_BY_HOURS) {
       final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
-      final int index = (workers.indexOf(worker) + day) % 3;
+      final int index = (hireIndex + day) % 3;
       final int hour =
         Planet.isMorning(world) ? 1 :
         (Planet.isEvening(world) ? 2 : 0);
@@ -187,25 +196,22 @@ public class Staff {
     
     if (shiftType == Venue.SHIFTS_BY_24_HOUR) {
       final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
-      final int index = workers.indexOf(worker);
-      if (day % 3 == index % 3) return Venue.PRIMARY_SHIFT;
-      if (day % 3 == (index + 1) % 3) return Venue.SECONDARY_SHIFT;
+      if (day % 3 ==  hireIndex      % 3) return Venue.PRIMARY_SHIFT  ;
+      if (day % 3 == (hireIndex + 1) % 3) return Venue.SECONDARY_SHIFT;
       return Venue.OFF_DUTY;
     }
     
     if (shiftType == Venue.SHIFTS_BY_DAY) {
       final int day = (int) (world.currentTime() / Stage.STANDARD_DAY_LENGTH);
-      final int index = workers.indexOf(worker);
-      
       if (report) {
         I.say("\nGetting day-based shift for "+worker);
         I.say("  Day count: "+day);
-        I.say("  Worker ID: "+index);
+        I.say("  Worker ID: "+hireIndex);
         I.say("  At night?  "+Planet.isNight(world));
       }
       
       if (Planet.isNight(world)) return Venue.OFF_DUTY;
-      else if ((index % 3) == (day % 3) || Planet.dayValue(world) < 0.5f) {
+      else if ((hireIndex % 3) == (day % 3) || Planet.dayValue(world) < 0.5f) {
         return Venue.SECONDARY_SHIFT;
       }
       else return Venue.PRIMARY_SHIFT;

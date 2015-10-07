@@ -1,11 +1,12 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
+import stratos.game.common.*;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.widgets.*;
-import stratos.util.*;
 
 
 
@@ -38,35 +39,26 @@ public interface UIConstants {
   );
   
   
-  //
-  //  TODO:  I'll probably rework this into a different system:
-  //    Security, Economic, Recreation,
-  //    Health & Government, Schools, Wards & Preserves
-  //
-  //  By default, all buildings will appear in one big list, and you can
-  //  optionally filter them along those lines.
-  
-  final public static String
-    
-    //  TODO:  Expand these later.
-    TYPE_SECURITY  = "Health & Security"     ,
-    TYPE_COMMERCE  = "Trade & Commerce"      ,
-    TYPE_ENGINEER  = "Engineering & Industry",
-    TYPE_ECOLOGIST = "Ecology & Environment" ,
-    
-    INSTALL_CATEGORIES[] = {
-      TYPE_SECURITY, TYPE_ENGINEER, TYPE_ECOLOGIST, TYPE_COMMERCE
-    },
-    TYPE_UNPLACED  = "Unplaced",
-    TYPE_WIP       = "<WORK IN PROGRESS>",
-    
-    TYPE_ACTOR     = "<actor>"  ,
-    TYPE_VEHICLE   = "<vehicle>",
-    TYPE_TERRAIN   = "<terrain>",
-    TYPE_MISSION   = "<mission>";
-  
-  final public static int
-    NUM_INSTALL_CATEGORIES = INSTALL_CATEGORIES.length;
+  final static String MAIN_INSTALL_CATEGORIES[] = {
+    Target.TYPE_SECURITY ,
+    Target.TYPE_COMMERCE ,
+    Target.TYPE_PHYSICIAN,
+    Target.TYPE_ENGINEER ,
+    Target.TYPE_ECOLOGIST,
+    Target.TYPE_AESTHETIC
+  };
+  final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
+    UIConstants.class, BUTTONS_PATH,
+    "militant_category_button.png" ,
+    "merchant_category_button.png" ,
+    "physician_category_button.png",
+    "artificer_category_button.png",
+    "ecologist_category_button.png",
+    "aesthete_category_button.png"
+  );
+  final static ImageAsset
+    DEFAULT_VENUE_ICON   = Image.SOLID_WHITE,
+    DEFAULT_UPGRADE_ICON = Image.SOLID_WHITE;
   
   
   final public static int
@@ -97,7 +89,7 @@ public interface UIConstants {
     MESSAGE_PANE_HIGH = 200,
     
     INFO_PANEL_WIDE = 280,
-    SCROLLBAR_WIDE  =  20,
+    SCROLLBAR_WIDE  =  15,
     DEFAULT_MARGIN  =  10,
     MIN_WIDGET_SIZE =  20;
 }

@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -11,6 +13,7 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -37,9 +40,9 @@ public class SolarBank extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     SolarBank.class, "solar_bank",
-    "Solar Bank", UIConstants.TYPE_ECOLOGIST, ICON,
-    "Solar Banks provide clean power and a small amount of water to your "+
-    "settlement.",
+    "Solar Bank", Target.TYPE_ECOLOGIST, ICON,
+    "Solar Banks provide clean "+POWER+" and a small amount of "+WATER+" to "+
+    "your settlement.",
     2, 1, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 10, 5,
     POWER, WATER
@@ -54,6 +57,12 @@ public class SolarBank extends Venue {
       BLUEPRINT, "land_to_water",
       TO, 1, WATER
     );
+  
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
+    new Object[] { 10, ASSEMBLY, 0, GEOPHYSICS },
+    25
+  );
   
   
   public SolarBank(Base base) {
@@ -112,7 +121,7 @@ public class SolarBank extends Venue {
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final String status = null;
-    return VenuePane.configSimplePanel(this, panel, UI, status);
+    return VenuePane.configSimplePanel(this, panel, UI, null, status);
   }
 }
 

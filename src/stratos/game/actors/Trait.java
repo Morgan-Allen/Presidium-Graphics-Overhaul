@@ -5,7 +5,10 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.user.Selectable;
+import stratos.graphics.common.*;
+import stratos.graphics.cutout.*;
+import stratos.start.Assets;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -16,6 +19,9 @@ public class Trait extends Constant implements Qualities {
   private static boolean verboseInit = false;
   
   final public static Index <Trait> TRAIT_INDEX = new Index <Trait> ();
+  
+  final public ImageAsset icon;
+  final public CutoutModel iconModel;
   
   final public String description;
   final String labels[];
@@ -30,16 +36,30 @@ public class Trait extends Constant implements Qualities {
   
 
   protected Trait(
-    String name, int type, String... labels
+    Class baseClass, String name,
+    int type, String... labels
   ) {
-    this(name, "NO DESCRIPTION YET", type, labels);
+    this(baseClass, name, null, null, type, labels);
   }
   
   
   protected Trait(
-    String name, String description, int type, String... labels
+    Class baseClass, String name, String description, String iconPath,
+    int type, String... labels
   ) {
     super(TRAIT_INDEX, name, name);
+    
+    if (description == null) {
+      description = "NO DESCRIPTION YET";
+    }
+    if (Assets.exists(iconPath)) {
+      icon      = ImageAsset.fromImage(baseClass, iconPath);
+      iconModel = CutoutModel.fromImage(baseClass, iconPath, 1, 1);
+    }
+    else {
+      icon      = null;
+      iconModel = null;
+    }
     
     this.description = description;
     this.type        = type;
@@ -84,7 +104,15 @@ public class Trait extends Constant implements Qualities {
   
   /**  Mechanical effects-
     */
+  public void onAddition(Actor a) {
+  }
+  
+  
   public void affect(Actor a) {
+  }
+  
+  
+  public void onRemoval(Actor a) {
   }
   
   
@@ -142,9 +170,18 @@ public class Trait extends Constant implements Qualities {
   
   
   public void describeHelp(Description d, Selectable prior) {
-    d.append(description);
+    substituteReferences(description, d);
   }
 }
+
+
+
+
+
+
+
+
+
 
 
 
