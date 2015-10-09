@@ -155,12 +155,18 @@
     <animation name="still"       start="1"    end="1"    duration="1"   />
     <animation name="stand"       start="1"    end="10"   duration="2"   />
     <animation name="move"        start="11"   end="39"   duration="2"   />
-    <animation name="move_fast"   start="11"   end="39"   duration="2"   />
+    <animation name="move_fast"   start="11"   end="39"   duration="1.8"   />
     <animation name="strike"      start="41"   end="87"   duration="2"   />
     <animation name="strike_big"  start="88"   end="137"  duration="2.5" />
     <animation name="fall"        start="138"  end="182"  duration="2.5" />
     <animation name="fall_alt"    start="183"  end="236"  duration="2.5" />
+    <animation name="strike_far"  start="237"  end="276"  duration="1.5" />
+    <animation name="buzz"        start="277"  end="350"  duration="3" />
   </animations>
+    <attachPoints>
+    <attachPoint function="grapple"   joint="IK Arm.l" />
+    <attachPoint function="grapple2"  joint="IK Arm.r"/>
+  </attachPoints>
 </model>
 
 
