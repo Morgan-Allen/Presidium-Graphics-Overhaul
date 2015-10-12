@@ -268,11 +268,9 @@ public class PhysicianTechniques {
   };
   
   
-  //
-  //  TODO:  Fill in FX here (and descriptions for others!)
-  
   //  Prevents all directly harmful actions by self, but confers near-immunity
-  //  to suggestion or intimidation-based effects.
+  //  to suggestion or intimidation and a minor bonus to premonition and
+  //  concentration.
   final public static Technique PSY_INHIBITION = new Technique(
     "Psy Inhibition", UI_DIR+"psy_inhibition.png",
     "",

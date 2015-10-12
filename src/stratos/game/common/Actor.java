@@ -372,7 +372,7 @@ public abstract class Actor extends Mobile implements
       traits.updateTraits(numUpdates);
       skills.updateSkills(numUpdates);
     }
-    if (health.isDead()) setAsDestroyed();
+    if (health.isDead()) setAsDestroyed(false);
   }
   
   

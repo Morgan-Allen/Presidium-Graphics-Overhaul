@@ -6,8 +6,9 @@
 package stratos.graphics.sfx;
 import stratos.graphics.common.*;
 import stratos.util.*;
-import com.badlogic.gdx.graphics.*;
 import java.io.*;
+import com.badlogic.gdx.graphics.*;
+
 
 
 
@@ -26,7 +27,7 @@ public class ShotFX extends SFX {
     final float arc, period, width, length;
     final boolean repeats, vivid;
     
-    private Texture tex;
+    private Texture texture;
     
     public Model(
       String modelName, Class modelClass,
@@ -50,20 +51,19 @@ public class ShotFX extends SFX {
     
     
     protected State loadAsset() {
-      tex = ImageAsset.getTexture(texName);
+      texture = ImageAsset.getTexture(texName);
       return state = State.LOADED;
     }
     
     
     protected State disposeAsset() {
-      tex.dispose();
+      texture.dispose();
       return state = State.DISPOSED;
     }
     
     
-    public Sprite makeSprite() {
-      return new ShotFX(this);
-    }
+    public Sprite makeSprite() { return new ShotFX(this); }
+    public Object sortingKey() { return texture; }
   }
   
   
@@ -215,7 +215,7 @@ public class ShotFX extends SFX {
         ///I.say("  Difference: "+(initDepth - afterDepth));
       }
 
-      pass.compileQuad(model.tex, c, model.vivid, verts, 0, 0, 1, 1);
+      pass.compileQuad(model.texture, c, model.vivid, verts, 0, 0, 1, 1);
       if (! model.repeats)
         break;
     }

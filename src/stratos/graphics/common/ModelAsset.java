@@ -27,6 +27,8 @@ public abstract class ModelAsset extends Assets.Loadable {
     super(modelName, sourceClass, false);
   }
   
+  public abstract Object sortingKey();
+  
   
   public abstract Sprite makeSprite();
   

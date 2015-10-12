@@ -83,42 +83,42 @@ public class PhysicianStation extends Venue {
     
     MEDICAL_LAB = new Upgrade(
       "Medical Lab",
-      "Speeds the production of "+MEDICINE+" by 33%.  Benefits the treatment "+
-      "and diagnosis of most disease.",
+      "Speeds the production of "+MEDICINE+" and "+SOMA+" by 33%.  Benefits "+
+      "the treatment and diagnosis of most disease.",
       250,
       Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
-    
-    //  Soma and truth serums (for interrogation- hypnotic meds.)
-    HM_DISPENSARY = null,
-    
-    EMERGENCY_ROOM = new Upgrade(
-      "Emergency Room",
+    GENE_CLINIC = new Upgrade(
+      "Gene Therapies",
+      "Allows for screening of hereditary illness and DNA damage, helping to"+
+      "to treat chronic disease and prevent birth defects.",
+      350,
+      Upgrade.TWO_LEVELS, MEDICAL_LAB, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    ),
+    INTENSIVE_CARE = new Upgrade(
+      "Intensive Care",
       "Surgical tools, anaesthetics and plasma reserves ensure that serious "+
       "injuries can be dealt with quickly.",
       300,
       Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
-    GENE_THERAPIES = new Upgrade(
-      "Gene Therapies",
-      "Allows for screening of genetic illness and birth defects, helping to "+
-      "correct diseases and nip mutation in the bud.",
-      350,
-      Upgrade.THREE_LEVELS, MEDICAL_LAB, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
-    ),
-    CRYONICS_PROGRAM = new Upgrade(
-      "Cryonics Program",
-      "Frozen organs and suspended animation allow the clinically dead to "+
-      "make a potential comeback.",
-      400,
-      Upgrade.THREE_LEVELS, EMERGENCY_ROOM, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null
-    ),
     
-    //  Combat stims plus extra chance of revival as enraged
+    CLONING_PROGRAM = new Upgrade(
+      "Cloning Program",
+      "Replacement organs and suspended animation allow the clinically dead "+
+      "to make a gradual comeback.",
+      400,
+      Upgrade.TWO_LEVELS, INTENSIVE_CARE, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null
+    ),
+    //
+    //  Psy-boosting meds that consume spyce.
+    PNEUMA_LAB = null,
+    
+    //  Combat stims plus extra chance of revival as enraged.
     COMBAT_STIMS = null;
     /*
     MINDER_POST = new Upgrade(

@@ -67,11 +67,11 @@ public class VenueExtras {
       
       else if (e instanceof Vehicle) {
         final Vehicle vehicle = (Vehicle) e;
-        vehicle.setAsDestroyed();
+        vehicle.setAsDestroyed(false);
       }
       
       else {
-        e.setAsDestroyed();
+        e.setAsDestroyed(false);
       }
     }
   }

@@ -360,9 +360,7 @@ public class Structure {
     */
   public void beginSalvage() {
     if (state == STATE_SALVAGE || ! basis.inWorld()) return;
-    if (GameSettings.buildFree && (basis instanceof Element)) {
-      ((Element) basis).setAsDestroyed();
-    }
+    if (GameSettings.buildFree) basis.setAsDestroyed(true);
     else setState(Structure.STATE_SALVAGE, -1);
   }
   
@@ -374,7 +372,7 @@ public class Structure {
   
   
   public void completeSalvage() {
-    ((Element) basis).setAsDestroyed();
+    ((Element) basis).setAsDestroyed(false);
     integrity = 0;
     checkMaintenance();
   }
@@ -415,7 +413,7 @@ public class Structure {
       if (I.logEvents()) I.say("\n"+basis+" WAS DESTROYED, DAMAGE: "+damage);
       state = STATE_RAZED;
       completeSalvage();
-      basis.onDestruction();
+      basis.setAsDestroyed(false);
     }
   }
   
@@ -434,6 +432,11 @@ public class Structure {
       if (state == STATE_INSTALL) basis.onCompletion();
       if (state != STATE_SALVAGE) state = STATE_INTACT;
       integrity = max;
+    }
+    if (integrity <= 0) {
+      if (state == STATE_SALVAGE) basis.setAsDestroyed(true);
+      if (state != STATE_INSTALL) state = STATE_RAZED;
+      integrity = 0;
     }
     checkMaintenance();
   }

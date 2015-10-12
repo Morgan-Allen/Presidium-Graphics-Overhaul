@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 import stratos.user.*;
+import static stratos.game.common.Stage.*;
 
 
 
@@ -30,7 +31,7 @@ public class ClaimsGrid {
   static class Claim {
     Box2D area = new Box2D();
     Venue owner = null;
-    boolean flag = false;
+    private float flag = -1;
   }
   
   
@@ -121,7 +122,7 @@ public class ClaimsGrid {
   
   
   public Venue[] venuesConflicting(Box2D newClaim, Venue owner) {
-    final Batch <Claim> against = claimsConflicting(newClaim, owner);
+    final Series <Claim> against = claimsConflicting(newClaim, owner);
     final Venue conflict[] = new Venue[against.size()];
     int n = 0;
     for (Claim c : against) conflict[n++] = c.owner;
@@ -129,12 +130,10 @@ public class ClaimsGrid {
   }
   
   
-  private Batch <Claim> claimsConflicting(Box2D area, Venue owner) {
+  private Series <Claim> claimsConflicting(Box2D area, Venue owner) {
     final boolean report = verbose && owner.owningTier() > Owner.TIER_PRIVATE;
     
     final Batch <Claim> conflict = new Batch <Claim> ();
-    final boolean isZone = owner.blueprint.isZoned();
-    final int minSpace = Stage.UNIT_GRID_SIZE;
     if (report) {
       I.say("\nChecking for conflicts with claim by "+owner+"...");
       I.say("  Area checked: "+area);
@@ -142,7 +141,7 @@ public class ClaimsGrid {
     //
     //  We pass over every stage-region that might intersect with the area
     //  being claimed, and check to see if other claims are registered there.
-    for (StageRegion s : world.sections.sectionsUnder(area, minSpace)) {
+    for (StageRegion s : world.sections.sectionsUnder(area, UNIT_GRID_SIZE)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (report) I.say("  Checking region: "+s.area);
       if (claims != null) for (Claim claim : claims) {
@@ -150,11 +149,11 @@ public class ClaimsGrid {
         //  Anything previously processed (or one's self) can be skipped...
         if (report) I.say("  Potential conflict: "+claim.owner);
         final Venue other = claim.owner;
-        if (claim.flag || other == owner) continue;
+        if (claim.flag > 0 || other == owner) continue;
         //
         //  Zoned structures need a minimum spacing around their perimeter,
         //  while others can be placed adjacent.
-        final int margin = isZone || other.blueprint.isZoned() ? minSpace : 0;
+        final int margin = SiteUtils.minSpacing(owner, other);
         if (claim.area.axisDistance(area) >= margin) continue;
         //
         //  However, venues might or might not clash with eachother, even if
@@ -173,12 +172,12 @@ public class ClaimsGrid {
           I.say("    Footprint:   "+other.footprint());
         }
         conflict.add(claim);
-        claim.flag = true;
+        claim.flag = 1;
       }
     }
     //
     //  Clean up and return the results.
-    for (Claim c : conflict) c.flag = false;
+    for (Claim c : conflict) c.flag = -1;
     return conflict;
   }
   
@@ -252,43 +251,100 @@ public class ClaimsGrid {
   
   /**  Methods for dynamically resizing new claims-
     */
-  public Box2D cropNewClaim(Venue venue, Box2D original, Stage world) {
-    final Box2D cropped = new Box2D(original);
-    cropped.cropBy(world.area());
-    for (Claim c : claimsConflicting(original, venue)) {
-      
-      //  TODO:  The area in conflict might be either the full claim-radius or
-      //  just the footprint- so you need to establish which.
-      
-      if (! cropToExclude(cropped, c.area)) break;
+  //  TODO:  Move to the ClaimDivision class?
+  
+  public Box2D findBestClaim(
+    Venue venue, int minClaimSize, int maxClaimSize
+  ) {
+    //
+    //  Ensure proper grid alignment...
+    minClaimSize = Nums.round(minClaimSize, UNIT_GRID_SIZE, true );
+    maxClaimSize = Nums.round(maxClaimSize, UNIT_GRID_SIZE, false);
+    //
+    //  Initially, we set the claimed area to at least double the maximum area,
+    //  and then crop to avoid overlapping any neighbouring claims.
+    final Box2D claim = new Box2D();
+    claim.setTo(venue.footprint());
+    claim.expandBy(maxClaimSize);
+    cropNewClaim(venue, claim);
+    if (claim.xdim() <= 0 || claim.ydim() <= 0) {
+      return claim.setTo(venue.footprint());
     }
-    return cropped;
+    //
+    //  In the event that the claim is still too large, we crop incrementally
+    //  toward the central venue.
+    final Vec2D centre = venue.footprint().centre();
+    while (claim.maxSide() > maxClaimSize) {
+      if (claim.xdim() >= claim.ydim()) {
+        if (
+          Nums.abs(centre.x - claim.xmax()) <
+          Nums.abs(centre.x - claim.xpos())
+        ) claim.incX(UNIT_GRID_SIZE);
+        claim.incWide(0 - UNIT_GRID_SIZE);
+      }
+      else {
+        if (
+          Nums.abs(centre.y - claim.ymax()) <
+          Nums.abs(centre.y - claim.ypos())
+        ) claim.incY(UNIT_GRID_SIZE);
+        claim.incHigh(0 - UNIT_GRID_SIZE);
+      }
+    }
+    return claim;
   }
   
   
-  private boolean cropToExclude(Box2D cropped, Box2D blocks) {
-    final Vec2D cC = cropped.centre(), cB = blocks.centre(), dir = new Vec2D();
-    cB.sub(cC, dir);
+  private Box2D cropNewClaim(final Venue centre, Box2D original) {
+    final Box2D cropped = new Box2D(original);
+    cropped.cropBy(world.area());
+    
+    final List <Claim> conflicts = new List <Claim> () {
+      protected float queuePriority(Claim r) {
+        if (r.flag < 0) r.flag = Spacing.distance(centre, r.owner);
+        return r.flag;
+      }
+    };
+    Visit.appendTo(conflicts, claimsConflicting(original, centre));
+    conflicts.queueSort();
+    final Vec2D vecC = centre.footprint().centre();
+    
+    for (Claim c : conflicts) {
+      final int margin = SiteUtils.minSpacing(centre, c.owner);
+      cropToExclude(cropped, c.area, vecC, margin);
+    }
+    
+    for (Claim c : conflicts) c.flag = -1;
+    return original.setTo(cropped);
+  }
+  
+  
+  private boolean cropToExclude(
+    Box2D cropped, Box2D blocks, Vec2D centre, int margin
+  ) {
+    if (cropped.axisDistance(blocks) >= margin) return true;
+    final Vec2D cB = blocks.centre(), dir = cB.sub(centre, null);
     final float absX = Nums.abs(dir.x), absY = Nums.abs(dir.y);
     //
     //  Is the blockage above?
     if (dir.y >= absX) {
-      cropped.ymax(blocks.ypos());
+      cropped.ymax(blocks.ypos() - margin);
     }
     //
     //  Is the blockage below?
     if (dir.y < 0 - absX) {
-      cropped.setY(blocks.ymax(), cropped.ymax() - blocks.ymax());
+      final float limitY = blocks.ymax() + margin;
+      cropped.setY(limitY, cropped.ymax() - limitY);
     }
     //
     //  Is the blockage to the right?
     if (dir.x >= absY) {
-      cropped.xmax(blocks.xpos());
+      cropped.xmax(blocks.xpos() - margin);
     }
     //
     //  Is the blockage to the left?
     if (dir.x < 0 - absY) {
-      cropped.setX(blocks.xmax(), cropped.xmax() - blocks.xmax());
+      final float limitX = blocks.xmax() + margin;
+      cropped.setX(limitX, cropped.xmax() - limitX);
     }
     return true;
   }
@@ -296,98 +352,3 @@ public class ClaimsGrid {
 
 
 
-
-
-
-  
-  
-  
-  //  TODO:  THESE MIGHT BE USEFUL AGAIN NOW!
-  
-  /**  Utility methods for finding the largest claim which might fit within
-    *  currently free space.
-    */
-  /*
-  
-  
-  
-  /**  Prototype code for dividing up the map into a laticework of spaces for
-    *  ease of deterministic placement.
-    */
-  /*
-  public Box2D[] placeLatticeWithin(
-    Box2D area, Venue client, int laneSize, int maxUnits, boolean useLeftovers
-  ) {
-    final Batch <Claim> lattice = new Batch <Claim> ();
-    final Batch <Tile > flagged = new Batch <Tile > ();
-    final Box2D limit = new Box2D().setTo(area).expandBy(1);
-    final float
-      unit   = laneSize                         ,
-      minDim = (useLeftovers ? 0 : unit) + 1.99f,
-      shrink = 0 - (useLeftovers ? 1 : unit)    ;
-    
-    tileLoop: for (Coord c : Visit.grid(area)) {
-      
-      final Tile t = world.tileAt(c.x, c.y);
-      if (t == null || t.flaggedWith() == lattice) continue;
-      
-      final Box2D around = new Box2D();
-      around.xpos(t.x - 0.5f);
-      around.ypos(t.y - 0.5f);
-      final boolean horiz = Rand.yes();
-      
-      if (horiz) {
-        around.xdim(unit * (1 + Rand.index(maxUnits)));
-        around.ydim(unit);
-      }
-      else {
-        around.ydim(unit * (1 + Rand.index(maxUnits)));
-        around.xdim(unit);
-      }
-      around.expandBy(1);
-      
-      final Batch <Claim> conflicts = claimsConflicting(around);
-      while (needsShrinking(around, limit, client, conflicts)) {
-        if (horiz) around.incWide(shrink);
-        else       around.incHigh(shrink);
-        if (around.xdim() < minDim || around.ydim() < minDim) {
-          continue tileLoop;
-        }
-      }
-      if (around.xdim() < minDim || around.ydim() < minDim) continue;
-      
-      around.expandBy(-1);
-      lattice.add(assertNewClaim(null, around));
-      
-      for (Tile under : world.tilesIn(around, true)) {
-        under.flagWith(lattice);
-        flagged.add(under);
-      }
-    }
-    for (Tile t : flagged) t.flagWith(null);
-    //
-    //  And, last but not least, cleanup and return-
-    final Box2D out[] = new Box2D[lattice.size()];
-    int i = 0;
-    for (Claim claim : lattice) {
-      removeClaim(claim);
-      out[i++] = claim.area;
-    }
-    return out;
-  }
-  
-  
-  private boolean needsShrinking(
-    Box2D plot, Box2D limit, Venue client, Batch <Claim> conflicts
-  ) {
-    if (! plot.containedBy(world.area())) return true;
-    if (! plot.containedBy(limit)) return true;
-    if (client != null && plot.overlaps(client.area())) return true;
-    
-    for (Claim claim : conflicts) {
-      if (claim.owner == client) continue;
-      if (claim.area.overlaps(plot)) return true;
-    }
-    return false;
-  }
-  //*/

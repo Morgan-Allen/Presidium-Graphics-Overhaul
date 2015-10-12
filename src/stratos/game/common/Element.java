@@ -86,7 +86,7 @@ public abstract class Element implements
     this.inceptTime = world.currentTime();
     
     if (intact && ! isMobile()) {
-      if (location.above() != null) location.above().setAsDestroyed();
+      if (location.above() != null) location.above().setAsDestroyed(false);
       location.setAbove(this, owningTier() >= Owner.TIER_PRIVATE);
     }
     return true;
@@ -113,17 +113,6 @@ public abstract class Element implements
   public void enterWorld() {
     if (location == null) I.complain("Position never set!");
     enterWorldAt(location.x, location.y, location.world, true);
-  }
-  
-  
-  public void setAsDestroyed() {
-    if (! inWorld()) {
-      I.say(this+" never entered world...");
-      return;
-    }
-    this.toggleProperty(PROP_DESTROYED, true);
-    world.ephemera.addGhost(this, radius() * 2, sprite, 2.0f);
-    exitWorld();
   }
   
   
@@ -214,14 +203,12 @@ public abstract class Element implements
   
   
   
-  /**  Timing-associated methods-
+  /**  Timing and life-cycle associated methods-
     */
   public void onGrowth(Tile t) {}
   
   
-  //  TODO:  Get rid of this, I think?  The 'intact' argument in enterWorld()
-  //         should do the trick.
-  public void setAsEstablished(boolean isGrown) {
+  public void refreshIncept(boolean isGrown) {
     if (isGrown) inceptTime = -10;
     else inceptTime = world.currentTime();
   }
@@ -229,6 +216,17 @@ public abstract class Element implements
   
   public Item[] materials() {
     return NO_MATERIALS;
+  }
+  
+  
+  public void setAsDestroyed(boolean salvaged) {
+    if (! inWorld()) {
+      I.say(this+" never entered world...");
+      return;
+    }
+    this.toggleProperty(PROP_DESTROYED, true);
+    world.ephemera.addGhost(this, radius() * 2, sprite, 2.0f);
+    exitWorld();
   }
   
   

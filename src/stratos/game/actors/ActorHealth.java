@@ -611,7 +611,7 @@ public class ActorHealth implements Qualities {
       if (injury >= maxHealth * MAX_DECOMP) {
         if (report) I.say("  "+actor+" is decomposing...");
         state = STATE_DECOMP;
-        actor.setAsDestroyed();
+        actor.setAsDestroyed(false);
         return;
       }
     }

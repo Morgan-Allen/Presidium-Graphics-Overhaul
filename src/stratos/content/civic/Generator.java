@@ -267,9 +267,9 @@ public class Generator extends Venue {
   }
   
   
-  public void onDestruction() {
-    performMeltdown();
-    super.onDestruction();
+  public void setAsDestroyed(boolean salvaged) {
+    if (! salvaged) performMeltdown();
+    super.setAsDestroyed(salvaged);
   }
   
   
@@ -355,7 +355,7 @@ public class Generator extends Venue {
     }
     else {
       final float bulk = e.radius() * e.radius() * 4 * (e.height() + 0.5f);
-      if ((Rand.num() * bulk) < damage / 10) e.setAsDestroyed();
+      if ((Rand.num() * bulk) < damage / 10) e.setAsDestroyed(false);
     }
   }
   

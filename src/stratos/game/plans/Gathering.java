@@ -297,16 +297,16 @@ public class Gathering extends ResourceTending {
     
     if (type == TYPE_FARMING) {
       if (c == null   ) { seedTile((Tile) t, a); return null         ; }
-      if (c != toTend ) { c.setAsDestroyed()   ; return null         ; }
+      if (c != toTend ) { c.setAsDestroyed(false)   ; return null         ; }
       if (c.blighted()) { c.disinfest()        ; return null         ; }
-      if (c.ripe()    ) { c.setAsDestroyed()   ; return c.materials(); }
+      if (c.ripe()    ) { c.setAsDestroyed(false)   ; return c.materials(); }
     }
     if (type == TYPE_FORESTING) {
       if (c == null   ) { seedTile((Tile) t, a); return null;          }
-      if (c != toTend ) { c.setAsDestroyed()   ; return null;          }
+      if (c != toTend ) { c.setAsDestroyed(false)   ; return null;          }
     }
     if (type == TYPE_LOGGING) {
-      if (c != null   ) { c.setAsDestroyed(); return c.materials(); }
+      if (c != null   ) { c.setAsDestroyed(false); return c.materials(); }
     }
     if (type == TYPE_BROWSING) {
       float bite = 0.1f * actor.health.maxHealth() / 10;
@@ -338,7 +338,7 @@ public class Gathering extends ResourceTending {
     
     //
     //  TODO:  Use a better method of tracking progress here!
-    if (Rand.index(10) != 0) return;
+    if (Rand.index(10) != 0 && ! GameSettings.buildFree) return;
     
     //
     //  TODO:  Just base seed quality off upgrades at the source depot?
@@ -354,7 +354,7 @@ public class Gathering extends ResourceTending {
     health += tendProcess().performTest(actor, 0, 1, action);
     //
     //  Then put the thing in the dirt-
-    if (t.above() != null) t.above().setAsDestroyed();
+    if (t.above() != null) t.above().setAsDestroyed(false);
     toTend.enterWorldAt(t.x, t.y, t.world, true);
     toTend.seedWith(s, health);
   }

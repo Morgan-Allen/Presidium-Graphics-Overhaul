@@ -120,36 +120,36 @@ public class CutoutsPass {
       I.say("\nPerforming cutouts pass, total sprites: "+inPass.size());
     }
     
-    final Table <ModelAsset, List <CutoutSprite>> subPasses = new Table();
+    final Table <Object, List <CutoutSprite>> subPasses = new Table(100);
     final Batch <CutoutSprite> ghosts = new Batch <CutoutSprite> ();
-    final Stack <ModelAsset> sequence = new Stack <ModelAsset> ();
     
     for (CutoutSprite s : inPass) {
       if (s.colour != null && s.colour.transparent()) {
         ghosts.add(s);
         continue;
       }
-      List <CutoutSprite> batch = subPasses.get(s.model());
+      final Object sortKey = s.model().sortingKey();
+      List <CutoutSprite> batch = subPasses.get(sortKey);
       if (batch == null) {
         batch = new List <CutoutSprite> () {
-          protected float queuePriority(CutoutSprite r) {
-            return 0 - r.depth;
+          protected float queuePriority(CutoutSprite s) {
+            return 0 - s.depth;
           }
         };
-        subPasses.put(s.model(), batch);
-        sequence.add(s.model());
+        subPasses.put(sortKey, batch);
       }
       s.depth = rendering.view.screenDepth(s.position);
       batch.add(s);
     }
     
-    for (ModelAsset modelKey : sequence) {
-      final List <CutoutSprite> subPass = subPasses.get(modelKey);
+    for (Object sortKey : subPasses.keySet()) {
+      final List <CutoutSprite> subPass = subPasses.get(sortKey);
       subPass.queueSort();
       if (report) {
-        I.say("  Rendering pass for "+modelKey);
+        I.say("  Rendering pass for "+sortKey);
         I.say("  Total sprites in pass: "+subPass.size());
       }
+      //
       //  TODO:  Try using multi-texturing here instead.  Ought to be more
       //         efficient, and probably less bug-prone.
       for (CutoutSprite s : subPass) {

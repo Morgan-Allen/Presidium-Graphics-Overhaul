@@ -163,7 +163,7 @@ public class Flora extends Element implements TileConstants {
       
       grows.growth = stage;
       grows.updateSprite();
-      grows.setAsEstablished(true);
+      grows.refreshIncept(true);
       world.ecology().impingeBiomass(t, stage, Stage.STANDARD_DAY_LENGTH);
     }
   }
@@ -319,7 +319,7 @@ public class Flora extends Element implements TileConstants {
       (growth <= 0 || growth >= maxGrowth) ||
       (growth > minGrowth && Rand.num() < dieChance)
     ) {
-      setAsDestroyed();
+      setAsDestroyed(false);
       return;
     }
     

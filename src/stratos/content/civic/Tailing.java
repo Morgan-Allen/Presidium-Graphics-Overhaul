@@ -108,7 +108,7 @@ public class Tailing extends Element implements Selectable {
       reduction /= Mining.DEFAULT_MINE_LIFESPAN;
       takeFill(0 - reduction);
     }
-    if (fillLevel <= 0) setAsDestroyed();
+    if (fillLevel <= 0) setAsDestroyed(false);
   }
   
   

@@ -45,19 +45,6 @@ public abstract class SolidModel extends ModelAsset {
   }
   
   
-  protected State disposeAsset() {
-    if (gdxModel != null) gdxModel.dispose();
-    gdxModel = null;
-    return state = State.DISPOSED;
-  }
-  
-  
-  public Sprite makeSprite() {
-    if (gdxModel == null) I.complain("MODEL MUST BE COMPILED FIRST!");
-    return new SolidSprite(this);
-  }
-  
-  
   protected void compileModel(Model model) {
     this.gdxModel = model;
     
@@ -125,6 +112,24 @@ public abstract class SolidModel extends ModelAsset {
       }
       indices.put(function, indexFor(match));
     }
+  }
+  
+  
+  protected State disposeAsset() {
+    if (gdxModel != null) gdxModel.dispose();
+    gdxModel = null;
+    return state = State.DISPOSED;
+  }
+  
+  
+  public Sprite makeSprite() {
+    if (gdxModel == null) I.complain("MODEL MUST BE COMPILED FIRST!");
+    return new SolidSprite(this);
+  }
+  
+  
+  public Object sortingKey() {
+    return this;
   }
   
   

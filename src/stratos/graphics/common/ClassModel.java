@@ -9,6 +9,8 @@ public abstract class ClassModel extends ModelAsset {
   public ClassModel(String modelName, Class sourceClass) {
     super(modelName, sourceClass);
   }
+
+  public Object sortingKey() { return this; }
   
   public boolean stateLoaded  () { return true; }
   public boolean stateDisposed() { return true; }

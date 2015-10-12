@@ -14,11 +14,6 @@ import stratos.graphics.common.*;
 
 
 
-//  Planitia Sector (robots + ruins, artifact.)
-//  Pavonis Sector (mild settlement, pacified.)
-//  Aeolis Sector (desert plus wildlife.)
-//  Marineris Sector (neutral + water/islands.  Some wildlife.)
-
 public class StartupScenario extends Scenario {
   
   

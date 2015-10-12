@@ -61,7 +61,7 @@ public class SpyceMidden extends SupplyCache {
   
   public void onGrowth(Tile t) {
     stored.removeItem(Item.withAmount(SPYCES, Rand.num() / 2));
-    if (stored.amountOf(SPYCES) <= 0) setAsDestroyed();
+    if (stored.amountOf(SPYCES) <= 0) setAsDestroyed(false);
   }
   
   

@@ -6,6 +6,7 @@
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.ClaimDivision;
 import stratos.game.wild.*;
 import static stratos.game.economic.Economy.*;
 import stratos.game.wild.Species.Type;
@@ -138,7 +139,7 @@ public class Crop extends Flora {
     //  Crops disappear once their parent nursery is salvaged or destroyed, and
     //  can't grow if they're not seeded.
     if (parent == null || ! (parent.inWorld() && parent.couldPlant(tile))) {
-      setAsDestroyed();
+      setAsDestroyed(false);
     }
     else super.onGrowth(tile);
   }
@@ -154,8 +155,8 @@ public class Crop extends Flora {
     */
   protected void updateSprite() {
     if (covered) {
-      final int f = parent.facing();
-      boolean across = f == Venue.FACE_NORTH || f == Venue.FACE_SOUTH;
+      final byte f = parent.claimDivision().useType(origin());
+      final boolean across = f != ClaimDivision.USE_SECONDARY;
       if (across) attachModel(COVERING_RIGHT);
       else        attachModel(COVERING_LEFT );
       return;

@@ -147,7 +147,7 @@ public class FirstAid extends Treatment {
     if (! patient.health.alive()) return 1;
     return tryTreatment(
       actor, patient,
-      INJURY, PhysicianStation.EMERGENCY_ROOM,
+      INJURY, PhysicianStation.INTENSIVE_CARE,
       ANATOMY, PHARMACY, false
     );
   }
@@ -212,7 +212,7 @@ public class FirstAid extends Treatment {
   public boolean actionFirstAid(Actor actor, Actor patient) {
     return tryTreatment(
       actor, patient,
-      INJURY, PhysicianStation.EMERGENCY_ROOM,
+      INJURY, PhysicianStation.INTENSIVE_CARE,
       ANATOMY, PHARMACY, true
     ) > 0;
   }

@@ -9,6 +9,7 @@ import stratos.game.maps.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
 import stratos.game.base.*;
+import stratos.start.PlayLoop;
 import stratos.util.*;
 import stratos.user.*;
 
@@ -71,42 +72,23 @@ public abstract class HarvestVenue extends Venue {
   
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
-    //
-    //  By default, we claim an area 2 tiles larger than the basic footprint,
-    //  but we can also have a larger area assigned (e.g, by a human player or
-    //  by an automated placement-search.)
-    final Tile at = origin();
-    final Stage world = position.world;
-    final Box2D minArea = new Box2D(), foot = footprint();
-    minArea.setX(at.x - 2.5f, minClaimSize);
-    minArea.setY(at.y - 2.5f, minClaimSize);
-    
-    if (area == null) {
-      areaClaimed.setX(at.x - 4.5f, maxClaimSize);
-      areaClaimed.setY(at.y - 4.5f, maxClaimSize);
-      areaClaimed.setTo(world.claims.cropNewClaim(this, areaClaimed, world));
-    }
-    else {
-      areaClaimed.setTo(area);
-    }
-    if (! foot.containedBy(areaClaimed)) areaClaimed.setTo(foot);
-    //
-    //  NOTE:  Facing must be set before crop-tiles are settled on, as this
-    //  affects row-orientation!
-    setFacing(areaClaimed.xdim() > areaClaimed.ydim() ?
-      FACE_SOUTH : FACE_EAST
+    final Box2D claim = position.world.claims.findBestClaim(
+      this, minClaimSize, maxClaimSize
     );
+    if (claim == null) return false;
+    this.areaClaimed.setTo(claim);
     return true;
   }
   
   
   public boolean canPlace(Account reasons) {
-    if (! super.canPlace(reasons)) return false;
-    
+    if (! super.canPlace(reasons)) {
+      return false;
+    }
     if (areaClaimed.maxSide() > maxClaimSize) {
       return reasons.setFailure("Area is too large!");
     }
-    if (areaClaimed.minSide() < minClaimSize) {
+    if (areaClaimed.maxSide() < minClaimSize) {
       return reasons.setFailure("Area is too small!");
     }
     return true;

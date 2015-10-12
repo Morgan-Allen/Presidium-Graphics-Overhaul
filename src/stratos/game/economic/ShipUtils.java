@@ -80,12 +80,12 @@ public class ShipUtils {
       final Batch <Mobile> under = new Batch <Mobile> ();
       for (Tile t : Spacing.perimeter(site, world)) {
         if (t.above() != null && t.owningTier() <= Owner.TIER_TERRAIN) {
-          t.above().setAsDestroyed();
+          t.above().setAsDestroyed(false);
         }
       }
       for (Tile t : world.tilesIn(site, false)) {
         if (report) I.say("    Claiming tile: "+t);
-        if (t.above() != null) t.above().setAsDestroyed();
+        if (t.above() != null) t.above().setAsDestroyed(false);
         Visit.appendTo(under, t.inside());
         t.setAbove(ship, true);
       }
@@ -110,7 +110,7 @@ public class ShipUtils {
       }
       //
       //  And just make sure the exit is clear-
-      if (exit.above() != null) exit.above().setAsDestroyed();
+      if (exit.above() != null) exit.above().setAsDestroyed(false);
       ship.assignLandPoint(ship.aiming(), exit);
       exit.refreshAdjacent();
       if (report) for (Boarding b : exit.canBoard()) {

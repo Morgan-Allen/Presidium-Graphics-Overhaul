@@ -65,12 +65,12 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   
   
   public void afterTransaction(Item item, float amount) {
-    if (stored.empty()) setAsDestroyed();
+    if (stored.empty()) setAsDestroyed(false);
   }
   
   
   public void onGrowth(Tile t) {
-    if (stored.empty()) setAsDestroyed();
+    if (stored.empty()) setAsDestroyed(false);
   }
   
   

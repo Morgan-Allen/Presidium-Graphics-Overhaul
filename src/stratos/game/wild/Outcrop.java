@@ -153,7 +153,7 @@ public class Outcrop extends Fixture {
   
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
-    if (intact) setAsEstablished(true);
+    if (intact) refreshIncept(true);
     world.presences.togglePresence(this, origin(), true , Outcrop.class);
     return true;
   }
@@ -180,7 +180,7 @@ public class Outcrop extends Fixture {
   
   public void incCondition(float inc) {
     condition = Nums.clamp(condition + inc, 0, 1);
-    if (condition <= 0) setAsDestroyed();
+    if (condition <= 0) setAsDestroyed(false);
   }
   
   

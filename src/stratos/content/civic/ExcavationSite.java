@@ -222,17 +222,20 @@ public class ExcavationSite extends HarvestVenue {
     */
   protected ClaimDivision updateDivision() {
     final ClaimDivision d = super.updateDivision();
-    return d.withUsageMarked(0.25f, true, true, this, 2);
+    return d.withUsageMarked(
+      0.25f, true, true, this,
+      ClaimDivision.USE_SECONDARY
+    );
   }
   
   
   public boolean canDig(Tile at) {
-    return claimDivision().useType(at, areaClaimed()) == 1;
+    return claimDivision().useType(at) == 1;
   }
   
   
   public boolean canDump(Tile at) {
-    return claimDivision().useType(at, areaClaimed()) == 2;
+    return claimDivision().useType(at) == 2;
   }
   
   

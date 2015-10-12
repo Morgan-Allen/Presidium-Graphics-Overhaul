@@ -341,18 +341,14 @@ public abstract class Venue extends Fixture implements
     //
     //  TODO:  RESTORE THIS!
     //world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f);
-    setAsEstablished(false);
+    refreshIncept(false);
   }
   
   
-  public void onDestruction() {
-    Wreckage.reduceToSlag(footprint(), world);
-  }
-  
-  
-  public void setAsDestroyed() {
+  public void setAsDestroyed(boolean salvaged) {
+    if (! salvaged) Wreckage.reduceToSlag(footprint(), world);
     buildSprite.clearFX();
-    super.setAsDestroyed();
+    super.setAsDestroyed(salvaged);
   }
   
   
@@ -367,7 +363,7 @@ public abstract class Venue extends Fixture implements
   public void updateAsScheduled(int numUpdates, boolean instant) {
     if (destroyed()) {
       I.say(this+" IS DESTROYED! SHOULD NOT BE ON SCHEDULE!");
-      this.setAsDestroyed();
+      this.setAsDestroyed(false);
     }
     structure.updateStructure(numUpdates);
     

@@ -56,7 +56,7 @@ public abstract class Fixture extends Element {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
     if (intact) for (Tile t : world.tilesIn(area, false)) {
       final Element old = t.above();
-      if (old != null && old != this) old.setAsDestroyed();
+      if (old != null && old != this) old.setAsDestroyed(false);
       t.setAbove(this, owningTier() >= Owner.TIER_PRIVATE);
     }
     return true;

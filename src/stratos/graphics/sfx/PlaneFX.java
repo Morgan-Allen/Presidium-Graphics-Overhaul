@@ -6,6 +6,7 @@
 package stratos.graphics.sfx;
 import stratos.graphics.common.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.*;
 
 
@@ -81,6 +82,7 @@ public class PlaneFX extends SFX {
     
     
     public Sprite makeSprite() { return new PlaneFX(this); }
+    public Object sortingKey() { return texture; }
   }
   
   

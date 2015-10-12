@@ -122,14 +122,6 @@ public class CutoutModel extends ModelAsset {
   }
   
   
-  public CutoutSprite makeSprite() {
-    if (! stateLoaded()) {
-      I.complain("CANNOT CREATE SPRITE UNTIL LOADED: "+fileName);
-    }
-    return new CutoutSprite(this, 0);
-  }
-  
-  
   public static CutoutModel fromImage(
     Class sourceClass, String fileName, float size, float height
   ) {
@@ -179,6 +171,19 @@ public class CutoutModel extends ModelAsset {
   }
   
   
+  public CutoutSprite makeSprite() {
+    if (! stateLoaded()) {
+      I.complain("CANNOT CREATE SPRITE UNTIL LOADED: "+fileName);
+    }
+    return new CutoutSprite(this, 0);
+  }
+  
+  
+  public Object sortingKey() {
+    return texture;
+  }
+  
+  
   
   /**  Vertex-manufacture methods during initial setup-
     */
@@ -203,11 +208,11 @@ public class CutoutModel extends ModelAsset {
     final float
       viewAngle = Nums.toRadians(Viewport.DEFAULT_ELEVATE),
       wide      = size * Nums.ROOT2;
-    maxScreenWide   =  wide;
+    maxScreenWide =  wide;
     imgScreenHigh =  wide * relHigh;
-    maxScreenHigh   = (wide * Nums.sin(viewAngle)) / 2;
-    minScreenHigh   = 0 - maxScreenHigh;
-    maxScreenHigh   += high * Nums.cos(viewAngle);
+    maxScreenHigh = (wide * Nums.sin(viewAngle)) / 2;
+    minScreenHigh =  0 - maxScreenHigh;
+    maxScreenHigh += high * Nums.cos(viewAngle);
   }
   
   
@@ -264,7 +269,7 @@ public class CutoutModel extends ModelAsset {
   ) {
     final float vertices[] = new float[baseVerts.length * VERTEX_SIZE];
     final Vector3 temp = new Vector3();
-    float maxHigh = maxScreenHigh - minScreenHigh;
+    float maxHigh = maxScreenHigh - minScreenHigh, tU, tV;
     maxHigh *= imgScreenHigh / maxHigh;
     //
     //  And finally, we translate each of the interior points accordingly-
@@ -275,8 +280,13 @@ public class CutoutModel extends ModelAsset {
       vertices[Z0 + i] = temp.z = (y + v.y - (size / 2));
       Viewport.isometricRotation(temp, temp);
       vertices[C0 + i] = Sprite.WHITE_BITS;
-      vertices[U0 + i] = 0 + ((temp.x / maxScreenWide) + 0.5f   );
-      vertices[V0 + i] = 1 - ((temp.y - minScreenHigh) / maxHigh);
+      
+      tU = 0 + ((temp.x / maxScreenWide) + 0.5f   );
+      tV = 1 - ((temp.y - minScreenHigh) / maxHigh);
+      tU = region.u + (tU * (region.u2 - region.u));
+      tV = region.v + (tV * (region.v2 - region.v));
+      vertices[U0 + i] = tU;
+      vertices[V0 + i] = tV;
       i += VERTEX_SIZE;
     }
     //

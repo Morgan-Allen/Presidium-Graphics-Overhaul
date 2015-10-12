@@ -23,7 +23,7 @@ public interface Placeable extends
   boolean setupWith(Tile position, Box2D area, Coord... others);
   void doPlacement(boolean intact);
   void onCompletion();
-  void onDestruction();
+  void setAsDestroyed(boolean salvaged);
   
   boolean canPlace(Account reasons);
   void previewPlacement(boolean canPlace, Rendering rendering);

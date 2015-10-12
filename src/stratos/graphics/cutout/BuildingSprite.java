@@ -8,9 +8,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.start.Assets;
 import stratos.util.*;
-
 import java.io.*;
-
 import com.badlogic.gdx.math.*;
 
 

@@ -192,7 +192,8 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public void onDestruction() {
+  public void setAsDestroyed(boolean salvaged) {
+    super.setAsDestroyed(salvaged);
   }
   
   

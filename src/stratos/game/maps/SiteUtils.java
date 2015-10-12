@@ -99,6 +99,14 @@ public class SiteUtils implements TileConstants {
   }
   
   
+  public static int minSpacing(Venue a, Venue b) {
+    if (a.blueprint.isZoned() || b.blueprint.isZoned()) {
+      return Stage.UNIT_GRID_SIZE;
+    }
+    else return 0;
+  }
+  
+  
   public static float worldOverlap(Target point, Stage world, int claimSize) {
     final Vec3D at = point.position(null);
     Box2D area = new Box2D(at.x, at.y, 0, 0);
@@ -241,6 +249,34 @@ public class SiteUtils implements TileConstants {
     if (near[N]) return piecesY[0];
     if (near[S]) return piecesY[2];
     return hub;
+  }
+  
+  
+  public static Venue[] placeAlongLine(
+    Blueprint type, int initX, int initY, int length, boolean across,
+    Base base, boolean intact
+  ) {
+    final Batch <Venue> placed = new Batch();
+    final Batch <Coord> coords = new Batch();
+    final Box2D area = new Box2D(initX, initY, 0, 0);
+    
+    for (int l = 0; l < length; l += Stage.UNIT_GRID_SIZE) {
+      final int x = initX + (across ? 0 : l), y = initY + (across ? l : 0);
+      coords.add(new Coord(x, y));
+      area.include(x, y, 0.5f);
+    }
+    final Coord coordA[] = coords.toArray(Coord.class);
+    
+    for (Coord c : coords) {
+      final Venue v = type.createVenue(base);
+      final Tile t = base.world.tileAt(c.x, c.y);
+      v.setupWith(t, area, coordA);
+      if (! v.canPlace()) continue;
+      v.doPlacement(intact);
+      placed.add(v);
+    }
+    
+    return placed.toArray(Venue.class);
   }
   
   

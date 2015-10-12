@@ -53,7 +53,7 @@ public class BotanicalStation extends HarvestVenue {
   );
   
   final static int
-    MIN_CLAIM_SIDE = BLUEPRINT.size + 4,
+    MIN_CLAIM_SIDE = BLUEPRINT.size + 2,
     MAX_CLAIM_SIDE = BLUEPRINT.size + 8;
   
   final public static Conversion
@@ -286,17 +286,21 @@ public class BotanicalStation extends HarvestVenue {
     */
   protected ClaimDivision updateDivision() {
     final ClaimDivision d = super.updateDivision();
-    return d.withUsageMarked(0.5f, true, false, this, 2, 1);
+    return d.withUsageMarked(
+      0.5f, true, false, this,
+      ClaimDivision.USE_SECONDARY,
+      ClaimDivision.USE_NORMAL
+    );
   }
   
   
   public boolean couldPlant(Tile t) {
-    return claimDivision().useType(t, areaClaimed()) > 0;
+    return claimDivision().useType(t) > 0;
   }
   
   
   public boolean shouldCover(Tile t) {
-    return claimDivision().useType(t, areaClaimed()) == 2;
+    return claimDivision().useType(t) == 2;
   }
   
   

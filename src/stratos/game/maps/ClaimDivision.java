@@ -29,6 +29,13 @@ public class ClaimDivision {
     NONE.useMap   = new byte[0][0];
   }
   
+  final public static byte
+    USE_NONE      = -1,
+    USE_PAVE      =  0,
+    USE_NORMAL    =  1,
+    USE_SECONDARY =  2,
+    USE_TERTIARY  =  3;
+  
   
   private Box2D area = new Box2D();
   private Stack <Box2D> plots = new Stack();
@@ -73,6 +80,7 @@ public class ClaimDivision {
     */
   public static ClaimDivision forEmptyArea(Venue v, Box2D area) {
     final ClaimDivision d = new ClaimDivision();
+    d.area.setTo(area);
     d.reserved = new Tile[0];
     d.useMap   = new byte[1][0];
     return d;
@@ -84,7 +92,6 @@ public class ClaimDivision {
     Fixture... excluded
   ) {
     if (v.origin() == null) return null;
-    
     final ClaimDivision d = new ClaimDivision();
     
     final Stage world = v.origin().world;
@@ -96,15 +103,16 @@ public class ClaimDivision {
     
     for (Box2D plot : plots) {
       for (Tile t : world.tilesIn(plot, false)) {
-        byte use = 1;
+        byte use = USE_NORMAL;
         //
-        //  Any tiles under current or projected structures should be ignored.
-        if (use == 1) if (t.owningTier() >= Owner.TIER_PRIVATE) {
-          use = -1;
+        //  Any tiles under current or projected structures should be ignored,
+        //  as should unbuildable terrain.
+        if (use == 1) if (! t.buildable()) {
+          use = USE_NONE;
         }
         if (use == 1) for (Fixture f : excluded) {
           if (! f.footprint().contains(t.x, t.y, -1)) continue;
-          use = -1; break;
+          use = USE_NONE; break;
         }
         //
         //  Otherwise, mark the spot as used.
@@ -178,17 +186,12 @@ public class ClaimDivision {
     if (usageMask != null) for (Tile t : usageMask) t.flagWith(toPave);
     
     for (Box2D plot : plots) {
-      /*
-      if (! plot.isUsed()) {
-        continue;
-      }
-      //*/
       for (Tile t : Spacing.perimeter(plot, venue.world())) {
-        toPave.add(t);
+        if (t != null && t.buildable()) toPave.add(t);
       }
     }
     for (Tile t : Spacing.perimeter(venue.footprint(), venue.world())) {
-      toPave.add(t);
+      if (t != null && t.buildable()) toPave.add(t);
     }
     
     if (usageMask != null) for (Tile t : usageMask) t.flagWith(null);
@@ -266,8 +269,8 @@ public class ClaimDivision {
   
   /**  Utility methods for queries-
     */
-  public byte useType(Tile t, Box2D areaClaimed) {
-    final Tile o = t.world.tileAt(areaClaimed.xpos(), areaClaimed.ypos());
+  public byte useType(Tile t) {
+    final Tile o = t.world.tileAt(area.xpos(), area.ypos());
     if (o == null) return -1;
     try { return useMap[t.x - o.x][t.y - o.y]; }
     catch (ArrayIndexOutOfBoundsException e) { return -1; }

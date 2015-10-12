@@ -243,7 +243,7 @@ public final class Tile implements
   public void clearUnlessOwned(boolean instant) {
     if (above != null && (above != reserves || ! reserved())) {
       if (instant) above.exitWorld();
-      else above.setAsDestroyed();
+      else above.setAsDestroyed(false);
     }
     refreshAdjacent();
   }

@@ -1,19 +1,44 @@
 
 
 TO DO NOW-
-
-*  Salvaging solar banks (and possibly other fixtures) doesn't work correctly.
-
-*  There are some bugs with farm-tile orientation and placement that Peter
-   found (check the pics.)
    
 *  For some reason, troops are not upgrading their equipment when available.
    Hmm.
 
-
 *  Doctors (and anyone involved in combat) must keep a supply of medkits (or
    combat stims?) at all times.
    Ammo Clips.  Power Cells.  Medkits.  Credits.  Device.  Outfit.
+
+
+*  Traits & Techniques, like Mounts, need the ability to either veto or suggest
+   behaviours.  (In fact, a general interface for that would be nice.)
+
+*  Give vermin... one or two special abilities.  Like, night vision and
+   plague, plus a bite/behead ability.
+
+*  Next up- the runners and their special services.
+
+*  Shield FX must NOT display for critters without armour...
+
+
+*  Then, the ecologist and Yamagur.
+
+*  Add some artilect abilities.
+   Cran & Tri- impale, high beam, silver plague, reflection shockwave, plus
+   detonate and slough for Drone & Cybrid.
+
+*  Allow raids by enemy houses (and seeding of nearby territory.)
+
+*  Finally, the engineer, and highborn.
+
+
+*  Initial missions:
+    Planitia Sector (robots + ruins, artifact.)
+    Pavonis Sector (mild settlement, pacified.)
+    Aeolis Sector (desert plus wildlife.)
+    Marineris Sector (neutral + water/islands.  Some wildlife.)
+
+
 
 *  General tweaks-
    
@@ -25,6 +50,8 @@ TO DO NOW-
    
    Resource-sites need to have a more flexible zoning-policy (so they can fit
    inside the walls if need be.)
+   
+   Make sure housing has adequate aesthetics.
 
 
 *  Provide notifications for deaths and arrivals.

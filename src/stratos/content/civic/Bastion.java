@@ -107,23 +107,6 @@ public class Bastion extends Venue {
   };
   
   
-  public Box2D areaClaimed() {
-    if (claims == null || ! inWorld()) {
-      claims = new Box2D(footprint()).expandBy(CLAIM_RADIUS);
-    }
-    return claims;
-  }
-  
-  
-  public boolean preventsClaimBy(Venue other) {
-    if (Spacing.adjacent(this, other) && other.pathType() > Tile.PATH_CLEAR) {
-      return true;
-    }
-    if (other.base() == base()) return false;
-    else return super.preventsClaimBy(other);
-  }
-  
-  
   public void setFacing(int facing) {
     super.setFacing(FACE_EAST);
   }
