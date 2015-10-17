@@ -21,7 +21,7 @@ public class PlanUtils {
   
   
   private static boolean
-    verbose     = true ,
+    verbose     = false,
     failVerbose = false;
   
   

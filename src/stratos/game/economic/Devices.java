@@ -34,8 +34,11 @@ public final class Devices {
     ENERGY_DRAIN = 1 << 12;
   
   
-  //  TODO:  Move the various armour/device types to their own catalogues.
-  //  (Which you can do now, thanks to the revamped index system.)
+  final public static Traded
+    AMMO_CLIPS = new Traded(
+      BC, "Ammo Clips", null, FORM_SPECIAL, 4,
+      "Spare ammunition for weapons."
+    );
   
   final public static DeviceType
     STUN_WAND = new DeviceType(

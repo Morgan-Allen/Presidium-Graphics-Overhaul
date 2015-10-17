@@ -79,14 +79,87 @@ public class DebugCommerce extends Scenario {
     GameSettings.cashFree  = true;
     
     base.research.initKnowledgeFrom(base.commerce.homeworld());
-    
+
+    if (true ) shoppingScenario(world, base, UI);
     if (false) shippingScenario(world, base, UI);
-    if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (true ) purchaseScenario(world, base, UI);
+    if (false) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) haulingScenario (world, base, UI);
-    if (false) shoppingScenario(world, base, UI);
+  }
+  
+  
+  private void shoppingScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.hireFree = true;
+    
+    Venue runnerMarket = new RunnerMarket(base);
+    SiteUtils.establishVenue(runnerMarket, 5, 5, true, world);
+    base.setup.fillVacancies(runnerMarket, true);
+    
+    Venue trooperLodge = new TrooperLodge(base);
+    SiteUtils.establishVenue(trooperLodge, 10, 5, true, world);
+    base.setup.fillVacancies(trooperLodge, true);
+    
+    Venue medicalBay = new PhysicianStation(base);
+    SiteUtils.establishVenue(medicalBay, 5, 10, true, world);
+    base.setup.fillVacancies(medicalBay, true);
+
+    runnerMarket.stocks.bumpItem(REAGENTS, 5);
+    medicalBay  .stocks.bumpItem(MEDICINE, 5);
+    
+    for (Mobile m : world.allMobiles()) if (m instanceof Actor) {
+      final Actor a = (Actor) m;
+      if (a.base() == base) {
+        a.gear.incCredits(2000);
+        a.gear.taxDone();
+      }
+      if (a.mind.vocation() == TROOPER) UI.selection.pushSelection(a);
+    }
+    
+    /*
+    //  Create one settlement over here, with a supply depot, engineer station
+    //  and fabricator.
+    final Venue depot = new SupplyDepot(base);
+    SiteUtils.establishVenue(depot, 5, 5, true, world);
+    
+    final Venue engineer = new EngineerStation(base);
+    SiteUtils.establishVenue(engineer, 5, 5, true, world);
+    final Venue fabricator = new Fabricator(base);
+    SiteUtils.establishVenue(fabricator, 5, 5, true, world);
+    final Venue reactor = new Generator(base);
+    SiteUtils.establishVenue(reactor, 5, 5, true, world);
+    
+    //  Create another settlement over here, with a stock exchange, archives
+    //  and physician station.
+    final Venue exchange = new StockExchange(base);
+    SiteUtils.establishVenue(exchange, 25, 25, true, world);
+    
+    final Venue archives = new Archives(base);
+    SiteUtils.establishVenue(archives, 25, 25, true, world);
+    final Venue physician = new PhysicianStation(base);
+    SiteUtils.establishVenue(physician, 25, 25, true, world);
+    final Venue condensor = new Condensor(base);
+    SiteUtils.establishVenue(condensor, 25, 25, true, world);
+    
+    
+    for (Mobile m : world.allMobiles()) if (m instanceof Actor) {
+      final Actor a = (Actor) m;
+      if (a.base() == base) {
+        a.gear.incCredits(2000);
+        a.gear.taxDone();
+      }
+    }
+    for (Object o : world.presences.matchesNear(base(), null, -1)) {
+      final Venue v = (Venue) o;
+      if (v instanceof Holding) continue;
+      
+      for (Traded t : v.stocks.demanded()) {
+        v.stocks.bumpItem(t, 100, 100);
+      }
+    }
+
+    PlayLoop.setGameSpeed(1);
+    //*/
   }
   
   
@@ -117,7 +190,7 @@ public class DebugCommerce extends Scenario {
     //world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH / 2);
     world.offworld.journeys.scheduleLocalDrop(base, 5);
     
-    final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
+    final Actor runner = new Human(Backgrounds.RUNNER, base);
     final Venue runnerMarket = new RunnerMarket(base);
     SiteUtils.establishVenue(runnerMarket, 10,  5, true, world, runner);
     
@@ -193,7 +266,7 @@ public class DebugCommerce extends Scenario {
     base.setup.fillVacancies(reactor, true);
     reactor.stocks.bumpItem(FUEL_RODS, 10);
     
-    Actor buys = new Human(Backgrounds.RUNNER_IV_PUNKS, base);
+    Actor buys = new Human(Backgrounds.RUNNER, base);
     buys.enterWorldAt(12, 12, world);
     buys.gear.incCredits(1000);
     buys.gear.equipDevice(Item.withQuality(Devices.BLASTER, 1));
@@ -255,54 +328,6 @@ public class DebugCommerce extends Scenario {
     }
     
     world.offworld.journeys.scheduleLocalDrop(base, 20);
-  }
-  
-  
-  private void shoppingScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.hireFree = true;
-    
-    //  Create one settlement over here, with a supply depot, engineer station
-    //  and fabricator.
-    final Venue depot = new SupplyDepot(base);
-    SiteUtils.establishVenue(depot, 5, 5, true, world);
-    
-    final Venue engineer = new EngineerStation(base);
-    SiteUtils.establishVenue(engineer, 5, 5, true, world);
-    final Venue fabricator = new Fabricator(base);
-    SiteUtils.establishVenue(fabricator, 5, 5, true, world);
-    final Venue reactor = new Generator(base);
-    SiteUtils.establishVenue(reactor, 5, 5, true, world);
-    
-    //  Create another settlement over here, with a stock exchange, archives
-    //  and physician station.
-    final Venue exchange = new StockExchange(base);
-    SiteUtils.establishVenue(exchange, 25, 25, true, world);
-    
-    final Venue archives = new Archives(base);
-    SiteUtils.establishVenue(archives, 25, 25, true, world);
-    final Venue physician = new PhysicianStation(base);
-    SiteUtils.establishVenue(physician, 25, 25, true, world);
-    final Venue condensor = new Condensor(base);
-    SiteUtils.establishVenue(condensor, 25, 25, true, world);
-    
-    
-    for (Mobile m : world.allMobiles()) if (m instanceof Actor) {
-      final Actor a = (Actor) m;
-      if (a.base() == base) {
-        a.gear.incCredits(2000);
-        a.gear.taxDone();
-      }
-    }
-    for (Object o : world.presences.matchesNear(base(), null, -1)) {
-      final Venue v = (Venue) o;
-      if (v instanceof Holding) continue;
-      
-      for (Traded t : v.stocks.demanded()) {
-        v.stocks.bumpItem(t, 100, 100);
-      }
-    }
-
-    PlayLoop.setGameSpeed(1);
   }
   
   

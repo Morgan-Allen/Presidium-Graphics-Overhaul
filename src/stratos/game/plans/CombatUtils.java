@@ -20,7 +20,8 @@ public class CombatUtils {
   final public static float
     MAX_POWER   = 20,
     AVG_POWER   = 10,
-    MIN_POWER   =  0;
+    MIN_POWER   =  0,
+    AVG_DAMAGE  = 10;
   private static boolean
     threatsVerbose  = false,
     powerVerbose    = false,
@@ -32,8 +33,9 @@ public class CombatUtils {
     if (! actor.health.alive()) return 0;
     
     float estimate = 1;
-    estimate *= (actor.gear.totalArmour() + actor.gear.totalDamage()) / 10f;
-    estimate *= (actor.health.maxHealth()  + actor.gear.shieldCharge()) / 10f;
+    estimate *= actor.gear.totalArmour() + actor.gear.totalDamage ();
+    estimate *= actor.health.maxHealth() + actor.gear.shieldCharge();
+    estimate /= AVG_DAMAGE * AVG_DAMAGE;
     estimate *= (2 - actor.health.injuryLevel  ()) / 2f;
     estimate *= (2 - actor.health.stressPenalty()) / 2f;
     if (! actor.health.conscious()) estimate /= 2.5f;

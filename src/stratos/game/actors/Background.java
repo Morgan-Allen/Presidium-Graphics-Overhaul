@@ -89,7 +89,6 @@ public class Background extends Constant {
         traitChances.put((Trait) o, chance);
       }
       else if (o instanceof Traded) {
-        ///I.say("  "+name+" has gear: "+o);
         gear.add((Traded) o);
       }
     }

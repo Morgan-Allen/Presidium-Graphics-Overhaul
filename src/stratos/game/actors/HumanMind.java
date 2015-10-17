@@ -149,8 +149,11 @@ public class HumanMind extends ActorMind implements Qualities {
       final Actor nearby = (Actor) seen;
       choice.add(new Combat  (actor, nearby));
       choice.add(new FirstAid(actor, nearby));
-      choice.add(new Arrest  (actor, nearby));
       choice.add(new Dialogue(actor, nearby));
+      choice.add(new Arrest  (actor, nearby));
+      
+      //  TODO:  Restore this?
+      //choice.add(Hunting.asHarvest(actor, nearby, home, true));
     }
     if (seen instanceof Item.Dropped) {
       //  TODO:  Include foraging under this heading too.
@@ -165,29 +168,22 @@ public class HumanMind extends ActorMind implements Qualities {
   
   
   private void addConstantResponses(Choice choice) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     if (report) I.say("\nGetting constant responses.");
     choice.isVerbose = report;
     
+    //
     //  TODO:  You need to respond to more distant actors/venues/items here?
     for (Target e : actor.senses.awareOf()) {
       addReactions(e, choice);
-      /*
-      if (e instanceof Actor) {
-        if (report) I.say("  Responding to actor: "+e);
-        final Actor nearby = (Actor) e;
-        choice.add(Hunting.asHarvest(actor, nearby, home, true));
-        
-        //  TODO:  Reserve this for people you know.
-        //choice.add(Gifting.nextGifting(null, actor, nearby));
-      }
-      //*/
     }
     
     choice.add(Exploring.nextExploration(actor));
     choice.add(Exploring.nextWandering  (actor));
     
-    //  TODO:  Include a general 'looting' behaviour instead.
+    //  TODO:  Reserve this for people you know.
+    //choice.add(Gifting.nextGifting(null, actor, nearby));
+    //  TODO:  Restore this.
     //choice.add(Gathering.asForaging(actor, null));
     choice.add(new Retreat(actor));
     
@@ -235,7 +231,7 @@ public class HumanMind extends ActorMind implements Qualities {
     }
     if (timeoff) {
       choice.add(Repairs.getNextRepairFor(actor, false, 0));
-      choice.add(BringUtils.nextDisposalFor(actor));
+      choice.add(BringUtils.nextDisposalFor(actor, actor, home, work));
     }
   }
   

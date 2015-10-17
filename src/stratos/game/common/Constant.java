@@ -12,7 +12,7 @@ import stratos.util.*;
 
 
 public abstract class Constant extends Index.Entry implements
-  Text.Clickable, Session.Saveable
+  Text.Clickable, Session.Saveable, Accountable
 {
   private static boolean verbose = false;
   
@@ -35,9 +35,17 @@ public abstract class Constant extends Index.Entry implements
   
   
   public abstract void describeHelp(Description d, Selectable prior);
-  
-  
 
+  
+  
+  /**  Accountable interface-
+    */
+  public Base base() {
+    return null;
+  }
+  
+  
+  
   /**  Hyperlink support methods-
     */
   final static String OPEN_CAP  = "{", SHUT_CAP  = "}";

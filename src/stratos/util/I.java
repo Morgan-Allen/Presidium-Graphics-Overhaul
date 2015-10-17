@@ -124,6 +124,13 @@ public class I {
   }
   
   
+  public static Object cast(Object o, Class type) {
+    if (o == null || type == null) return o;
+    if (type.isAssignableFrom(o.getClass())) return o;
+    return null;
+  }
+  
+  
   public static void amMute(boolean m) { mute = m; }
   
   

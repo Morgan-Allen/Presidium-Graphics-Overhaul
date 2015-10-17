@@ -9,28 +9,24 @@ import stratos.util.*;
 
 
 
-//  TODO:  Have relation changes NOT due to dialogue *increase* novelty
-//  TODO:  Have relations start out with novelty of *more* than 100%, to allow
-//         for a period of 'first impressions' where relation adjustments are
-//         stronger.  (This also lets you define 'strangers' more strongly.)
-
 public class Relation {
   
   
   /**  Fields, constructors, save/load methods and identity functions-
     */
-  //  TODO:  Move most of these to the ActorRelations class.
-  
   final public static int
     TYPE_GENERIC = 0,
+    
     TYPE_CHILD   = 1,
     TYPE_PARENT  = 2,
     TYPE_SPOUSE  = 3,
     TYPE_SIBLING = 4,
     TYPE_LORD    = 5,
-    TYPE_VASSAL  = 6;
-  final static float  
-    //  NOTE:  Not used externally...
+    TYPE_VASSAL  = 6,
+    
+    TYPE_TRADED  = 7,
+    TYPE_GEAR    = 8;
+  final static float
     MIN_ADJUST   = 0.1f,
     MAX_VALUE    = 100 ;
   
@@ -69,12 +65,12 @@ public class Relation {
   
   
   private Relation(Session s) throws Exception {
-    object = (Accountable) s.loadObject();
-    subject = (Accountable) s.loadObject();
-    hash = Table.hashFor(object, subject);
+    object   = (Accountable) s.loadObject();
+    subject  = (Accountable) s.loadObject();
+    hash     = Table.hashFor(object, subject);
     attitude = s.loadFloat();
-    novelty = s.loadFloat();
-    type = s.loadInt();
+    novelty  = s.loadFloat();
+    type     = s.loadInt  ();
   }
   
   

@@ -134,7 +134,7 @@ public class Manufacture extends Plan implements Behaviour, Qualities {
     }
     
     float upgradeBonus = 0;
-    if (upgrades.length == 0) {
+    if (Visit.empty(upgrades)) {
       upgradeBonus = 0.5f;
     }
     else for (Upgrade upgrade : upgrades) {

@@ -1,12 +1,16 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
-import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
-import stratos.game.wild.Species;
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.economic.Economy.*;
+import static stratos.game.economic.Devices.*;
+import static stratos.game.economic.Outfits.*;
 
 
 
@@ -62,6 +66,8 @@ public class ActorMotives {
   public void updateValues(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     final float inc = (1f * UPDATE_INTERVAL) / MOTIVE_EVAL_TIME;
+    
+    updateItemValues();
     
     float RS = rateSolitude();
     solitude = (solitude * (1 - inc)) + (RS * inc);
@@ -146,49 +152,71 @@ public class ActorMotives {
   
   /**  Material motives-
     */
-  //  TODO:  Have holdings refer to this?  Or refer to supply/demand for
-  //         holdings?
+  //  The real problem here is that... certain techniques (and items that
+  //  grant techniques) have pre-requisite raw materials for use.  There needs
+  //  to be an access method for those.
   
-  public static float rateDesire(Item item, Actor buys, Actor receives) {
-    final boolean report = rateVerbose && I.talkAbout == buys;
-    
-    float rating = 0;
-    if (Visit.arrayIncludes(Economy.ALL_FOOD_TYPES, item.type)) {
-      final float hunger = Nums.clamp(receives.health.hungerLevel(), 0, 1);
-      return hunger * hunger * 10;
-    }
-    
-    if (receives.mind.home() instanceof Venue) {
-      final Venue home = (Venue) receives.mind.home();
-      final float need = home.stocks.relativeShortage(item.type);
-      final float amount = home.stocks.demandFor(item.type);
-      if (need > 0 && amount > 0) rating += need * 5 * (item.amount / amount);
-    }
-    
-    if (item.type == receives.gear.deviceType()) {
-      final Item device = receives.gear.deviceEquipped();
-      if (item.quality > device.quality) {
-        rating += 2 * (item.quality - device.quality);
+  //  I also have to distinguish between 'things wanted as personal gear' and
+  //  'things wanted for home or work'.  How do I do that?
+  
+  //  Food (based on hunger.)
+  //  Goods for home.
+  //  Personal gear.
+  //  Raw materials for techniques or item-use.
+  
+  
+  private void updateItemValues() {
+    final ActorRelations r = actor.relations;
+    final Property home = actor.mind.home();
+    final OutfitType OT = actor.gear.outfitType();
+    final DeviceType DT = actor.gear.deviceType();
+    final float hunger = Nums.clamp(actor.health.hungerLevel(), 0, 1);
+    //
+    //  We flag desire for any items needed at home, and anything needed to
+    //  prevent starvation...
+    if (home != null && home.inventory() instanceof Stocks) {
+      final Stocks s = (Stocks) actor.mind.home().inventory();
+      for (Traded t : s.shortageTypes()) {
+        final float rating = Nums.clamp(s.relativeShortage(t) / 2, 0, 1);
+        r.setRelation(t, rating, Relation.TYPE_TRADED);
       }
     }
-    
-    if (item.type == receives.gear.outfitType()) {
-      final Item outfit = receives.gear.outfitEquipped();
-      if (item.quality > outfit.quality) {
-        rating += 2 * (item.quality - outfit.quality);
-      }
+    for (Traded f : ALL_FOOD_TYPES) {
+      r.setRelation(f, hunger, Relation.TYPE_TRADED);
     }
-
-    final float pricedAt = item.defaultPrice();
-    if (receives.species().sapient()) {
-      rating += receives.motives.greedPriority(pricedAt);
-      if (report) I.say("  Rating for "+item+" is: "+rating);
+    //
+    //  Then we increment desire for personal gear, and any items needed for
+    //  techniques or attack/shields to function-
+    for (Traded t : actor.skills.getProficiencies()) {
+      r.setRelation(t, 0.5f, Relation.TYPE_GEAR);
     }
-    if (buys != null) {
-      rating /= 1 + receives.motives.greedPriority(pricedAt);
-      if (report) I.say("    After pricing? "+rating);
+    for (Technique t : actor.skills.knownTechniques()) {
+      final Traded c = t.consumes();
+      if (c != null) r.setRelation(c, 0.5f, Relation.TYPE_GEAR);
     }
-    return rating;
+    if (OT != null && OT.shieldBonus > 0 && ! OT.natural()) {
+      r.setRelation(POWER_CELLS, 0.5f, Relation.TYPE_GEAR);
+    }
+    if (DT != null && DT.baseDamage > 0 && ! DT.natural()) {
+      r.setRelation(AMMO_CLIPS, 0.5f, Relation.TYPE_GEAR);
+    }
+  }
+  
+  
+  public float rateValue(Item i) {
+    float value = actor.relations.valueFor(i.type);
+    return value * Nums.min(1, i.amount) * Action.PARAMOUNT;
+  }
+  
+  
+  public Traded[] valuedForTrade() {
+    final Batch <Traded> valued = new Batch();
+    for (Relation r : actor.relations.relations()) {
+      final Traded t = (Traded) I.cast(r.subject, Traded.class);
+      if (t == null || t.form != FORM_MATERIAL) continue;
+      valued.add(t);
+    }
+    return valued.toArray(Traded.class);
   }
   
 
@@ -227,3 +255,120 @@ public class ActorMotives {
     return level;
   }
 }
+
+
+
+
+/*
+
+public static float rateDesire(Item item, Actor buys, Actor receives) {
+  final boolean report = rateVerbose && I.talkAbout == buys;
+  
+  float rating = 0;
+  if (Visit.arrayIncludes(Economy.ALL_FOOD_TYPES, item.type)) {
+    final float hunger = Nums.clamp(receives.health.hungerLevel(), 0, 1);
+    return hunger * hunger * 10;
+  }
+  
+  if (receives.mind.home() instanceof Venue) {
+    final Venue home = (Venue) receives.mind.home();
+    final float need = home.stocks.relativeShortage(item.type);
+    final float amount = home.stocks.demandFor(item.type);
+    if (need > 0 && amount > 0) rating += need * 5 * (item.amount / amount);
+  }
+  
+  if (item.type == receives.gear.deviceType()) {
+    final Item device = receives.gear.deviceEquipped();
+    if (item.quality > device.quality) {
+      rating += 2 * (item.quality - device.quality);
+    }
+  }
+  
+  if (item.type == receives.gear.outfitType()) {
+    final Item outfit = receives.gear.outfitEquipped();
+    if (item.quality > outfit.quality) {
+      rating += 2 * (item.quality - outfit.quality);
+    }
+  }
+
+  final float pricedAt = item.defaultPrice();
+  if (receives.species().sapient()) {
+    rating += receives.motives.greedPriority(pricedAt);
+    if (report) I.say("  Rating for "+item+" is: "+rating);
+  }
+  if (buys != null) {
+    rating /= 1 + receives.motives.greedPriority(pricedAt);
+    if (report) I.say("    After pricing? "+rating);
+  }
+  return rating;
+}
+//*/
+
+
+
+/*
+//  TODO:  Put together a list of things that the character might want...
+
+private Stack <Traded> desired = new Stack();
+
+
+private void updateItemDesires() {
+  
+  boolean needsMed = false;
+  desired.clear();
+  
+  if (actor.mind.home() instanceof Venue) {
+    final Venue home = (Venue) actor.mind.home();
+    
+    for (Traded t : home.stocks.demanded()) {
+      final float need = home.stocks.relativeShortage(t);
+      if (need <= 0) continue;
+      desired.add(t);
+      final float rating = Action.PARAMOUNT * need / 10;
+      actor.relations.setRelation(t, rating, 0);
+    }
+  }
+  
+  final OutfitType OT = actor.gear.outfitType();
+  if (OT != null && ! OT.natural()) {
+    desired.add(OT);
+    actor.relations.setRelation(OT, Action.ROUTINE, 0);
+    
+    if (OT.shieldBonus > 0) {
+      desired.add(POWER_CELLS);
+      actor.relations.setRelation(POWER_CELLS, Action.ROUTINE, 0);
+      needsMed = true;
+    }
+  }
+  
+  final DeviceType DT = actor.gear.deviceType();
+  if (DT != null && ! DT.natural()) {
+    desired.add(DT);
+    actor.relations.setRelation(DT, Action.ROUTINE, 0);
+    
+    if (DT.baseDamage > 0) {
+      desired.add(AMMO_CLIPS);
+      actor.relations.setRelation(AMMO_CLIPS, Action.ROUTINE, 0);
+      needsMed = true;
+    }
+  }
+  
+  if (Visit.arrayIncludes(actor.mind.work().services(), SERVICE_HEALTHCARE)) {
+    needsMed = true;
+  }
+  if (needsMed) {
+    desired.add(MEDICINE);
+    actor.relations.setRelation(MEDICINE, Action.ROUTINE, 0);
+  }
+}
+
+
+public float rateItem(Item item) {
+  return -1;
+}
+
+
+public float amountDesired(Item item) {
+  return -1;
+}
+//*/

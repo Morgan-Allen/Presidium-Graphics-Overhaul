@@ -8,12 +8,10 @@ import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.sfx.*;
-import stratos.graphics.sfx.PlaneFX.Model;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
-import stratos.content.civic.PhysicianStation;
 
 
 

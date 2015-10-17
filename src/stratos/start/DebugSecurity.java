@@ -165,7 +165,7 @@ public class DebugSecurity extends Scenario {
   
   
   private void arrestScenario(Stage world, Base base, BaseUI UI) {
-    final Actor runner = new Human(Backgrounds.RUNNER_SILVERFISH, base);
+    final Actor runner = new Human(Backgrounds.RUNNER, base);
     final Venue runnerMarket = new RunnerMarket(base);
     SiteUtils.establishVenue(runnerMarket, 10,  5, true, world, runner);
     

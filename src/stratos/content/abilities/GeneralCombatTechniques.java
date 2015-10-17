@@ -44,11 +44,6 @@ public class GeneralCombatTechniques {
     );
   
   
-  
-  //  Steady Aim- bonus as long as you or the target stay in place.
-  //  Special FX- little clock-timer above head.
-  //            - direct line from barrel to target.
-  
   final public static Technique FOCUS_FIRE = new Technique(
     "Focus Fire", DIR+"steady_aim.png",
     "Increases effective "+MARKSMANSHIP+" against stationary targets.",
@@ -173,7 +168,6 @@ public class GeneralCombatTechniques {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
-      
       //  TODO:  Use a 'volley' class to ignore armour values.
       
       if (success) {
@@ -187,33 +181,17 @@ public class GeneralCombatTechniques {
   
   
   final public static Technique BULLET_PARRY = null;//  TODO:  Fill in!
+  
+  
+  final public static Technique FIRST_SHOT = null;
+  
+  
+  final public static Technique SOLO_RUN = null;
 }
 
 
-  /*
-  //  Mobile Salvo- chance to fire while dodging or retreating.
-  //  TODO:  This basically has to schedule a new action during movement-
-  //  actions.  We'll work out the anims later.
-  //  Special FX- special back-or-side shot animations.
-  final public static Technique MOBILE_SALVO = new Technique(
-    "Mobile Salvo", DIR+"mobile_salvo.png", Action.FIRE,
-    BASE_CLASS, 03,
-    MINOR_POWER        ,
-    REAL_HARM          ,
-    NO_FATIGUE         ,
-    MINOR_CONCENTRATION,
-    Technique.TYPE_COMBINED_ACTION, MARKSMANSHIP, 20,
-    TRIGGER_ATTACK, TRIGGER_MOTION
-  ) {
-    //  TODO:  Check if the actor is dodging or retreating, and try scheduling
-    //  an extra attack.
-    public float applyBonus(Actor using, Behaviour b, Action a) {
-      //  TODO:  Fill this in.
-      return 5;
-    }
-  };
-  //*/
-  
+
+
   
   //  These are special techniques that boost damage against specific enemy-
   //  types...

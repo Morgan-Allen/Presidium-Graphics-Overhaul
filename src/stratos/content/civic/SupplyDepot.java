@@ -155,7 +155,7 @@ public class SupplyDepot extends Venue {
   
   
   protected void addServices(Choice choice, Actor client) {
-    choice.add(BringUtils.nextHomePurchase(client, this, HOME_PURCHASE_TYPES));
+    choice.add(BringUtils.nextPersonalPurchase(client, this, HOME_PURCHASE_TYPES));
   }
 
 

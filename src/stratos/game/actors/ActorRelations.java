@@ -288,6 +288,18 @@ public class ActorRelations {
   }
   
   
+  public Relation setRelation(Accountable other, float value, int type) {
+    Relation r = relations.get(other);
+    if (r == null) {
+      r = new Relation(actor, other, value, value);
+      relations.put(other, r);
+    }
+    else r.setValue(value, value);
+    r.setType(type);
+    return r;
+  }
+  
+  
   public boolean hasRelation(Object other) {
     return relations.get(other) != null;
   }
@@ -302,6 +314,8 @@ public class ActorRelations {
     return valueFor(other) < 0;
   }
 }
+
+
 
 
 

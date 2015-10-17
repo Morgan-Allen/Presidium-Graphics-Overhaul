@@ -51,6 +51,7 @@ public class BringUtils {
   
   /**  Utility methods for dealing with domestic orders-
     */
+  /*
   public static Bringing nextDisposalFor(Actor actor) {
     final boolean report = dispVerbose && I.talkAbout == actor;
     //
@@ -65,6 +66,8 @@ public class BringUtils {
       final Property depot = (Property) t;
       if (openForTrade(depot, actor)) depots.add(depot);
     }
+    //
+    //  Then iterate over each...
     for (Owner origin : origins) if (openForTrade(origin, actor)) {
       if (report) {
         I.say("\nGetting next item disposal: "+actor);
@@ -112,16 +115,63 @@ public class BringUtils {
     }
     return null;
   }
+  //*/
   
   
-  public static Bringing nextHomePurchase(
+  public static Bringing nextPersonalPurchase(
     Actor actor, Venue from, Traded... goods
   ) {
-    if (! (actor.mind.home() instanceof Venue)) return null;
-    final Venue home = (Venue) actor.mind.home();
-    if (goods == null || goods.length == 0) goods = home.stocks.demanded();
-    final Bringing d = fillBulkOrder(from, home, goods, 1, 5);
-    return (d == null) ? null : d.setWithPayment(actor);
+    final boolean report = I.talkAbout == actor && dispVerbose;
+    if (report) {
+      I.say("\nGetting next purchase for "+actor);
+    }
+    final boolean freeTrade = goods == null || goods.length == 0;
+    if (freeTrade) goods = actor.motives.valuedForTrade();
+    Bringing d = fillBulkOrder(from, actor, goods, 1, 5);
+    //
+    //  In the event that the actor themselves has no immediate purchases, we
+    //  consider some for home instead.
+    if (d == null && actor.mind.home() instanceof Venue) {
+      final Venue home = (Venue) actor.mind.home();
+      if (freeTrade) goods = home.stocks.demanded();
+      d = fillBulkOrder(from, home, goods, 1, 5);
+    }
+    //
+    //  We don't require that the actor pay for deliveries to self or their own
+    //  home.
+    if (d == null || Staff.doesBelong(actor, from)) return d;
+    else return d.setWithPayment(actor);
+  }
+  
+  
+  public static Bringing nextDisposalFor(Actor actor, Owner... allFrom) {
+    final Pick <Bringing> pick = new Pick();
+    final Batch <Owner> dests = new Batch();
+    for (Owner d : allFrom) if (d != null) dests.add(d);
+    
+    for (Owner from : allFrom) if (from != null) {
+      //
+      //  
+      final Inventory stock = from.inventory();
+      final Batch <Traded> excess = new Batch();
+      for (Item i : stock.allItems()) {
+        if (! stock.canDemand(i.type)) excess.add(i.type);
+      }
+      if (excess.empty()) return null;
+      final Traded goods[] = excess.toArray(Traded.class);
+      //
+      //  
+      Bringing b = BringUtils.bestBulkDeliveryFrom(from, goods, 1, 5, dests);
+      if (b == null) b = BringUtils.bestBulkDeliveryFrom(from, goods, 1, 5, 2);
+      if (b == null) continue;
+      //
+      //  
+      final Owner goes = b.destination;
+      if (! Staff.doesBelong(actor, goes)) b.setWithPayment(goes);
+      pick.compare(b, b.pricePaid());
+    }
+    
+    return pick.result();
   }
   
   
@@ -252,6 +302,7 @@ public class BringUtils {
     int baseUnit, int amountLimit
   ) {
     final boolean report = reportRating(origin, destination, null);
+    if (report) I.say("\nFilling bulk order");
     //
     //  In essence, we take the single most demanded good at each step, and
     //  increment the size of the order for that by the base unit, until we
@@ -267,7 +318,7 @@ public class BringUtils {
       //  the road network, along with any goods that got a negative rating
       //  before.
       for (int i = goods.length; i-- > 0;) {
-        if (goods[i].form == FORM_PROVISION || skip[i]) continue;
+        if (goods[i].form != FORM_MATERIAL || skip[i]) continue;
         
         final int nextAmount = goodAmounts[i] + baseUnit;
         final float rating = rateTrading(
@@ -281,6 +332,7 @@ public class BringUtils {
       if (bestIndex == -1) break;
       goodAmounts[bestIndex] += baseUnit;
       sumAmounts             += baseUnit;
+      if (report) I.say("  "+goods[bestIndex]+" +"+baseUnit);
       if (sumAmounts >= amountLimit) break;
     }
     if (sumAmounts == 0) return null;

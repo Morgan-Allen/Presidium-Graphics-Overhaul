@@ -96,7 +96,7 @@ public class ActorSkills {
       I.say("");
     }
     
-    for (Technique t : known) {
+    for (Technique t : availableTechniques()) {
       if (! t.triggeredBy(actor, plan, taken, null, false)) continue;
       final Action a = t.createActionFor(plan, actor, subject);
       final Target actionSubject = a == null ? subject : a.subject();
@@ -131,7 +131,7 @@ public class ActorSkills {
     final Target  subject   = acts ? taken.subject()                   : actor;
     final float   harmLevel = acts ? taken.actor.harmIntended(subject) : -1   ;
     
-    for (Technique t : known) {
+    for (Technique t : availableTechniques()) {
       if (! t.triggeredBy(actor, current, taken, skill, true)) continue;
       final float appeal = t.basePriority(actor, subject, harmLevel);
       pick.compare(t, appeal);
@@ -141,6 +141,16 @@ public class ActorSkills {
     final Technique bonus = pick.result();
     this.active = bonus;
     return bonus.passiveBonus(actor, skill, subject);
+  }
+  
+  
+  public Series <Technique> availableTechniques() {
+    final Batch <Technique> all = new Batch();
+    for (Technique t : known) all.add(t);
+    for (UsedItemType t : actor.gear.usedItemTypes()) {
+      all.add(t.whenUsed);
+    }
+    return all;
   }
   
   
@@ -161,7 +171,7 @@ public class ActorSkills {
   }
   
   
-  public Series <Traded> gearProficiencies() {
+  public Series <Traded> getProficiencies() {
     final Batch <Traded> GP = new Batch();
     final Background b = actor.mind.vocation();
     if (b != null) for (Traded t : b.properGear()) {
@@ -172,11 +182,6 @@ public class ActorSkills {
       if (GT != null) GP.add(GT);
     }
     return GP;
-  }
-  
-  
-  public boolean hasGearProficiency(Traded type) {
-    return gearProficiencies().includes(type);
   }
   
   

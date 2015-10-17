@@ -283,7 +283,7 @@ public class Pledge implements Session.Saveable {
     
     float valueOf(Pledge p, Actor a) {
       final Item gift = ((Bringing) p.refers).allDelivered()[0];
-      return ActorMotives.rateDesire(gift, null, a);
+      return a.motives.rateValue(gift);
     }
     
     

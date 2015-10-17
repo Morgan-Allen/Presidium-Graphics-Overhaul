@@ -230,19 +230,12 @@ public class EngineerStation extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    final Item
-      baseDevice = GearPurchase.nextDeviceToPurchase(client, this),
-      baseOutfit = GearPurchase.nextOutfitToPurchase(client, this);
-    
-    if (baseDevice != null) {
-      final Upgrade limit = upgradeFor(baseDevice.type);
-      choice.add(GearPurchase.nextCommission(client, this, baseDevice, limit));
+    final Item gets = GearPurchase.nextGearToPurchase(client, this);
+    if (gets != null) {
+      final Upgrade limit = upgradeFor(gets.type);
+      choice.add(GearPurchase.nextCommission(client, this, gets, limit));
     }
-    if (baseOutfit != null) {
-      final Upgrade limit = upgradeFor(baseOutfit.type);
-      choice.add(GearPurchase.nextCommission(client, this, baseOutfit, limit));
-    }
-    choice.add(BringUtils.nextHomePurchase(client, this));
+    choice.add(BringUtils.nextPersonalPurchase(client, this));
   }
   
   

@@ -22,7 +22,6 @@ import static stratos.game.economic.Outfits.*;
 
 public class Fabricator extends Venue {
   
-  
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
@@ -168,8 +167,11 @@ public class Fabricator extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    final Item baseOutfit = GearPurchase.nextOutfitToPurchase(client, this);
-    GearPurchase.nextCommission(client, this, baseOutfit, null);
+    final Item gets = GearPurchase.nextGearToPurchase(client, this);
+    if (gets != null) {
+      final Upgrade limit = POLYMER_LOOM;
+      choice.add(GearPurchase.nextCommission(client, this, gets, limit));
+    }
   }
   
   

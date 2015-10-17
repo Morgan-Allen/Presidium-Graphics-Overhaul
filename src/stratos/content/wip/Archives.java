@@ -108,7 +108,7 @@ public class Archives extends Venue {
     //
     //  TODO:  Allow upgrades for different skill areas!
     choice.add(Studying.asSkillStudy(client, this, STUDY_FEE));
-    choice.add(BringUtils.nextHomePurchase(client, this, DATALINKS));
+    choice.add(BringUtils.nextPersonalPurchase(client, this, DATALINKS));
   }
   
   

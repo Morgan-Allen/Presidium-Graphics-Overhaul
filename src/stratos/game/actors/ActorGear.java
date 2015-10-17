@@ -31,7 +31,9 @@ public class ActorGear extends Inventory {
   
   private Item device = null;
   private Item outfit = null;
+  private UsedItemType usedTypes[] = null;
   
+  //  TODO- GET RID OF THESE.
   private int   ammoCount      =  0;
   private float powerCells     =  0;
   private float currentShields =  0;
@@ -131,6 +133,16 @@ public class ActorGear extends Inventory {
   }
   
   
+  public UsedItemType[] usedItemTypes() {
+    if (usedTypes != null) return usedTypes;
+    final Batch all = new Batch();
+    for (Item i : allItems()) if (i.type instanceof UsedItemType) {
+      all.add(i.type);
+    }
+    return usedTypes = (UsedItemType[]) all.toArray(UsedItemType.class);
+  }
+  
+  
   public boolean removeItem(Item item) {
     
     if (item.matchKind(outfit) && item.amount > 0) {
@@ -148,6 +160,7 @@ public class ActorGear extends Inventory {
     final boolean OK = super.removeItem(item);
     if (OK) {
       encumbrance = -1;
+      if (item.type instanceof UsedItemType) usedTypes = null;
     }
     return OK;
   }
@@ -156,6 +169,7 @@ public class ActorGear extends Inventory {
   public boolean addItem(Item item) {
     if (item == null || item.amount == 0) return false;
     encumbrance = -1;
+    if (item.type instanceof UsedItemType) usedTypes = null;
     
     final int oldAmount = (int) amountOf(item);
     if (item.refers == actor) item = Item.withReference(item, null);
@@ -189,6 +203,39 @@ public class ActorGear extends Inventory {
     String phrase = inc >= 0 ? "+" : "-";
     phrase+=" "+(int) Nums.abs(inc)+" credits";
     actor.chat.addPhrase(phrase);
+  }
+  
+  
+  
+  /**  Overrides for supply-and-demand methods-
+    */
+  public float demandFor(Traded type) {
+    if (! canDemand(type)) return 0;
+    return type.normalCarry(actor);
+  }
+  
+
+  public float shortageOf(Traded type) {
+    final float demand = demandFor(type);
+    if (demand <= 0) return 0;
+    final float amount = amountOf(type);
+    return (demand - amount) / demand;
+  }
+  
+  
+  public boolean canDemand(Traded type) {
+    final Relation r = actor.relations.relationWith(type);
+    if (r == null || r.type() != Relation.TYPE_GEAR) return false;
+    return r.value() > 0;
+  }
+  
+  
+  public Item bestSample(
+    Traded type, Session.Saveable refers, float maxAmount
+  ) {
+    if (type == deviceType()) return deviceEquipped();
+    if (type == outfitType()) return outfitEquipped();
+    return super.bestSample(type, refers, maxAmount);
   }
   
   

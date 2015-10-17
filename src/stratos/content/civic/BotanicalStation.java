@@ -277,7 +277,7 @@ public class BotanicalStation extends HarvestVenue {
   
   
   public void addServices(Choice choice, Actor client) {
-    choice.add(BringUtils.nextHomePurchase(client, this));
+    choice.add(BringUtils.nextPersonalPurchase(client, this));
   }
   
   

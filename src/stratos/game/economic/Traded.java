@@ -21,6 +21,8 @@ import static stratos.game.economic.Economy.*;
 public class Traded extends Constant implements Session.Saveable {
   
   
+  /**  Data fields, constructors, setup and save/load methods-
+    */
   final static String ITEM_PATH = "media/Items/";
   final public static CutoutModel
     DEFAULT_MODEL  = CutoutModel.fromImage(
@@ -89,7 +91,7 @@ public class Traded extends Constant implements Session.Saveable {
     final float IS = BuildingSprite.ITEM_SIZE;
     
     if (Assets.exists(imagePath)) {
-      this.icon  = ImageAsset.fromImage(typeClass, imagePath);
+      this.icon  = ImageAsset .fromImage(typeClass, imagePath        );
       this.model = CutoutModel.fromImage(typeClass, imagePath, IS, IS);
     }
     else {
@@ -109,16 +111,6 @@ public class Traded extends Constant implements Session.Saveable {
   }
   
   
-  protected float priceMargin() {
-    return priceMargin;
-  }
-  
-  
-  public float defaultPrice() {
-    return defaultPrice;
-  }
-  
-  
   public void addSource(Blueprint b) {
     sources.include(b);
   }
@@ -134,8 +126,28 @@ public class Traded extends Constant implements Session.Saveable {
   }
   
   
+  
+  /**  Other assorted property-queries:
+    */
+  protected float priceMargin() {
+    return priceMargin;
+  }
+  
+  
+  public float defaultPrice() {
+    return defaultPrice;
+  }
+  
+  
   public Conversion materials() {
     return materials;
+  }
+  
+  
+  public boolean hasSourceAt(Venue v) {
+    if (sources.includes(v.blueprint)) return true;
+    if (materials == null) return false;
+    return materials.producesAt(v);
   }
   
   
@@ -146,6 +158,16 @@ public class Traded extends Constant implements Session.Saveable {
   
   public boolean natural() {
     return materials == NATURAL_MATERIALS;
+  }
+  
+  
+  public int normalCarry(Actor actor) {
+    return Item.DEFAULT_CARRY;
+  }
+  
+  
+  public float useRating(Actor actor) {
+    return 0;
   }
   
   

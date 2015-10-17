@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.economic.Economy.*;
 import static stratos.game.economic.Devices.*;
 import static stratos.game.economic.Outfits.*;
 
@@ -191,7 +192,7 @@ public interface Backgrounds {
       CLASS_VASSAL, GUILD_PHYSICIAN,
       PRACTICED, DOMESTICS, SUASION, LEARNING, ANATOMY, PHARMACY, COUNSEL,
       OFTEN, EMPATHIC, SOMETIMES, STUBBORN,
-      OVERALLS
+      OVERALLS, MEDICINE
     ),
     
     VATS_BREEDER = new Background(
@@ -227,7 +228,7 @@ public interface Backgrounds {
       EXPERT, ANATOMY, PHARMACY,
       PRACTICED, GENE_CULTURE, PSYCHOANALYSIS, COUNSEL, SUASION,
       OFTEN, CURIOUS, SOMETIMES, METICULOUS, IMPASSIVE, RARELY, INDULGENT,
-      OVERALLS
+      OVERALLS, MEDICINE
     ),
     
     PHYSICIAN_CIRCLES[] = { MINDER, VATS_BREEDER, SAVANT, PHYSICIAN }
@@ -513,9 +514,9 @@ public interface Backgrounds {
       BLASTER, BELT_AND_BRACER
     ),
     
-    RUNNER_SILVERFISH = new Background(
+    RUNNER = new Background(
       Backgrounds.class,
-      "Runner (Silverfish)", "", "runner_skin.gif", "runner_portrait.png",
+      "Runner", "", "runner_skin.gif", "runner_portrait.png",
       CLASS_AGENT, NOT_A_GUILD,
       EXPERT, MARKSMANSHIP, STEALTH_AND_COVER,
       PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
@@ -523,9 +524,9 @@ public interface Backgrounds {
       OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, METICULOUS,
       BLASTER, STEALTH_SUIT
     ),
-    JACK_ARTIST = new Background(
+    FIXER = new Background(
       Backgrounds.class,
-      "Jack Artist", "", "artificer_skin.gif", "artificer_portrait.png",
+      "Fixer", "", "runner_skin.gif", "runner_portrait.png",
       CLASS_AGENT, NOT_A_GUILD,
       EXPERT, INSCRIPTION, SIMULACRA,
       PRACTICED, ASSEMBLY, ACCOUNTING,
@@ -533,59 +534,9 @@ public interface Backgrounds {
       OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, METICULOUS,
       OVERALLS
     ),
-    ASSASSIN = null,
-    //  TODO:  Assassin.
-    
-    RUNNER_IV_PUNKS = new Background(
-      Backgrounds.class,
-      "Runner (IV Punks)", "", "runner_skin.gif", "runner_portrait.png",
-      CLASS_AGENT, NOT_A_GUILD,
-      EXPERT, MARKSMANSHIP, STEALTH_AND_COVER,
-      PRACTICED, HAND_TO_HAND, SURVEILLANCE, BATTLE_TACTICS,
-      LEARNING, COMMAND, MASQUERADE, ANATOMY,
-      OFTEN, ACQUISITIVE, SOMETIMES, DEFENSIVE, DISHONEST,
-      BLASTER, STEALTH_SUIT
-    ),
-    STREET_COOK = new Background(
-      Backgrounds.class,
-      "Street Cook", "", "physician_skin.gif", "physician_portrait.png",
-      CLASS_AGENT, NOT_A_GUILD,
-      EXPERT, CHEMISTRY, PHARMACY, PRACTICED, FORENSICS,
-      LEARNING, ANATOMY, COUNSEL, TRUTH_SENSE,
-      OVERALLS
-    ),
-    BRUISER = null,
-    //  TODO:  Bruiser.
-    
-    RUNNER_HUDZENA = new Background(
-      Backgrounds.class,
-      "Runner (Hudzeena)", "", "runner_skin.gif", "runner_portrait.png",
-      CLASS_AGENT, NOT_A_GUILD,
-      EXPERT, MASQUERADE, STEALTH_AND_COVER,
-      PRACTICED, MARKSMANSHIP, SURVEILLANCE, SUASION,
-      LEARNING, NATIVE_TABOO, XENOZOOLOGY,
-      OFTEN, ACQUISITIVE, DISHONEST, SOMETIMES, NERVOUS, NATURALIST,
-      BLASTER, STEALTH_SUIT
-    ),
-    FACE_FIXER = new Background(
-      Backgrounds.class,
-      "Face Fixer", "", "physician_skin.gif", "physician_portrait.png",
-      CLASS_AGENT, NOT_A_GUILD,
-      EXPERT, GENE_CULTURE, ANATOMY, PRACTICED, SUASION,
-      LEARNING, GRAPHIC_DESIGN, HANDICRAFTS,
-      OVERALLS
-    ),
-    ANONYMOUS = null,
-    //  TODO:  Anonymous.
     
     DEFAULT_SHIP_CREW[] = { SHIP_CAPTAIN, DECK_HAND, DECK_HAND },
-    
-    RUNNER_CIRCLES[] = {
-      SHIP_CAPTAIN, DECK_HAND,
-      RUNNER_SILVERFISH, JACK_ARTIST,
-      RUNNER_IV_PUNKS, STREET_COOK,
-      RUNNER_HUDZENA, FACE_FIXER
-    };
+    RUNNER_CIRCLES[] = { SHIP_CAPTAIN, DECK_HAND, RUNNER, FIXER };
   
   
   final public static Background

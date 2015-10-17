@@ -1,7 +1,11 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.game.plans.CombatUtils;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
@@ -64,6 +68,8 @@ public class DeviceType extends Traded {
         Object.class, conversionArgs, new Object[] { TO, 1, this }
       )
     );
+    //  TODO:  Use this method for source-registration.
+    //this.addSource(facility);
     setPriceMargin(basePrice, materials);
     
     this.groupName = groupName;
@@ -73,6 +79,12 @@ public class DeviceType extends Traded {
   
   public boolean hasProperty(int p) {
     return (properties & p) == p;
+  }
+  
+  
+  public float useRating(Actor a) {
+    if (! a.gear.canDemand(this)) return 0;
+    return baseDamage / CombatUtils.AVG_DAMAGE;
   }
 }
 

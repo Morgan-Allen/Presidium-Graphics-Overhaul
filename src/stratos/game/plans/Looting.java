@@ -17,8 +17,8 @@ import static stratos.game.economic.Economy.*;
 //  You either sneak or use disguise to avoid attention.  If you've been seen,
 //  then you run for it.
 
-//  TODO:  Make this a general reaction/actor behaviour, and allow for multiple
-//  items to be nicked in one sitting (as long as you can carry them!)
+
+//  TODO:  Consider just using the Disposal methods in BringUtils for this.
 
 
 public class Looting extends Plan {
@@ -102,7 +102,7 @@ public class Looting extends Plan {
       final float amount = Nums.min(1, owner.inventory().amountOf(type));
       if (amount <= 0) continue;
       Item taken = Item.withAmount(type, amount);
-      final float rating = ActorMotives.rateDesire(taken, null, steals);
+      final float rating = steals.motives.rateValue(taken);
       pick.compare(taken, rating);
     }
     
@@ -119,7 +119,7 @@ public class Looting extends Plan {
     
     if (taken == null) return 0;
     final boolean isPrivate = mark.owningTier() == Owner.TIER_PRIVATE;
-    float urge = ActorMotives.rateDesire(taken, null, actor);
+    float urge = actor.motives.rateValue(taken);
     
     if (stage == STAGE_DROP) {
       if (report) I.say("\nDropping off goods!  Base value: "+urge);

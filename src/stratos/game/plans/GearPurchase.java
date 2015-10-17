@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.Pledge;
@@ -84,49 +86,25 @@ public class GearPurchase extends Plan {
   
   /**  Assessing and locating targets-
     */
-  public static Item nextDeviceToPurchase(Actor actor, Venue makes) {
-    return GearPurchase.nextGearToPurchase(actor, makes, true, false);
-  }
-  
-  
-  public static Item nextOutfitToPurchase(Actor actor, Venue makes) {
-    return GearPurchase.nextGearToPurchase(actor, makes, false, true);
-  }
-  
-  
-  private static Item nextGearToPurchase(
-    Actor actor, Venue makes, final boolean device, final boolean outfit
+  public static Item nextGearToPurchase(
+    Actor actor, Venue makes, Traded... services
   ) {
-    final Pick <Traded> pick = new Pick();
-    for (Traded t : actor.skills.gearProficiencies()) {
-      if (! t.materials().producesAt(makes)) continue;
-      
-      if (device && t instanceof DeviceType) {
-        float rating = ((DeviceType) t).baseDamage;
-        pick.compare(t, rating);
-      }
-      if (outfit && t instanceof OutfitType) {
-        float rating = ((OutfitType) t).defence;
-        pick.compare(t, rating);
-      }
+    final Pick <Traded> pick = new Pick(0);
+    
+    if (! Visit.empty(services)) for (Traded t : services) {
+      pick.compare(t, t.useRating(actor));
     }
+    else for (Traded t : actor.skills.getProficiencies()) {
+      if (! t.hasSourceAt(makes)) continue;
+      pick.compare(t, t.useRating(actor));
+    }
+    
     final Traded itemType = pick.result();
     if (itemType == null) return null;
     
-    Item match = null;
-    if (actor.gear.outfitType() == itemType) {
-      match = actor.gear.outfitEquipped();
-    }
-    if (actor.gear.deviceType() == itemType) {
-      match = actor.gear.deviceEquipped();
-    }
-    if (match == null) {
-      match = actor.gear.bestSample(itemType, null, -1);
-    }
-    if (match == null) {
-      match = Item.with(itemType, null, 0.1f, Item.BAD_QUALITY);
-    }
-    return match;
+    final Item match = actor.gear.bestSample(itemType, null, -1);
+    if (match != null) return match;
+    else return Item.with(itemType, null, 0.1f, Item.BAD_QUALITY);
   }
   
   
@@ -135,16 +113,27 @@ public class GearPurchase extends Plan {
   ) {
     if (baseItem == null || ! makes.openFor(actor)) return null;
     if (makes.stocks.specialOrders().size() >= MAX_ORDERS) return null;
-    
     final boolean report = I.talkAbout == actor && evalVerbose;
-    final int baseQuality = (int) baseItem.quality;
     
     //
-    //  We constrain maximum item-quality by the upgrade-level available at the
-    //  venue in question...
+    //  In the case of consumable items, we simply return a top-up relative to
+    //  the carry-limit for it's type.
+    if (baseItem.type.common() || baseItem.type instanceof UsedItemType) {
+      final int   limit    = baseItem.type.normalCarry(actor);
+      final float amount   = actor.gear.amountOf(baseItem);
+      final Item  replaces = Item.with(
+        baseItem.type, null, limit - amount, Item.AVG_QUALITY
+      );
+      return new GearPurchase(actor, replaces, makes);
+    }
+    
+    //
+    //  For devices and outfits, we constrain maximum item-quality by the
+    //  upgrade-level available at the venue in question...
     final float upgradeLevel = limits == null ? 1 : (
       makes.structure().upgradeLevel(limits) * 1f / limits.maxLevel
     );
+    final int baseQuality = (int) baseItem.quality;
     int maxQuality = Item.MAX_QUALITY + 1;
     maxQuality -= (Item.MAX_QUALITY - 1) * (1 - upgradeLevel);
     final boolean needsReplace = baseItem.amount < 0.5f;
@@ -169,9 +158,6 @@ public class GearPurchase extends Plan {
       added = new GearPurchase(actor, upgrade, makes);
       if (added.priorityFor(actor) > 0) break;
     }
-    
-    //  TODO:  Power Armour is not being considered here (and device upgrades
-    //  are not being considered for some reason.)  Investigate this.
     
     if (report) {
       I.say("\nConsidering commission for "+baseItem);
@@ -201,6 +187,7 @@ public class GearPurchase extends Plan {
     }
     //
     //  Include effects of pricing and quality-
+    if (shop == actor.mind.work() || shop == actor.mind.home()) price = 0;
     if (price == -1) price = item.priceAt(shop, true);
     float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
     if (price > actor.gear.allCredits() && ! done) {

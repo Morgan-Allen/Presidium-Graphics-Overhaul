@@ -1,22 +1,20 @@
 
 
 TO DO NOW-
-   
-*  For some reason, troops are not upgrading their equipment when available.
-   Hmm.
+
+*  Dropships appear to be missing crew?
+
+*  Next up- the runners and their special services.
 
 *  Doctors (and anyone involved in combat) must keep a supply of medkits (or
    combat stims?) at all times.
    Ammo Clips.  Power Cells.  Medkits.  Credits.  Device.  Outfit.
-
 
 *  Traits & Techniques, like Mounts, need the ability to either veto or suggest
    behaviours.  (In fact, a general interface for that would be nice.)
 
 *  Give vermin... one or two special abilities.  Like, night vision and
    plague, plus a bite/behead ability.
-
-*  Next up- the runners and their special services.
 
 *  Shield FX must NOT display for critters without armour...
 

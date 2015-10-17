@@ -278,9 +278,7 @@ public class Bringing extends Plan {
     //  Personal purchases get a few special modifiers-
     if (shops) {
       base = CASUAL;
-      for (Item i : items) {
-        modifier += ActorMotives.rateDesire(i, null, actor);
-      }
+      for (Item i : items) modifier += actor.motives.rateValue(i);
       modifier = Nums.clamp(modifier, 0, PARAMOUNT);
       
       final boolean needsBuy = stage <= STAGE_PICKUP;

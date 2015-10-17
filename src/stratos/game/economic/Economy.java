@@ -4,9 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import stratos.graphics.common.*;
 import stratos.util.*;
-import static stratos.game.actors.Qualities.*;
 
 
 
@@ -23,7 +21,7 @@ public final class Economy {
     FORM_SERVICE   = 3,
     FORM_DEVICE    = 4,
     FORM_OUTFIT    = 5,
-    FORM_USABLE    = 6,
+    FORM_USED_ITEM = 6,
     FORM_SPECIAL   = 7;
   
   

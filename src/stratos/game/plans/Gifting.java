@@ -87,7 +87,7 @@ public class Gifting extends Plan implements Qualities {
     float modifier = NO_MODIFIER;
     final float
       novelty = receives.relations.noveltyFor(actor),
-      rating = ActorMotives.rateDesire(gift, actor, receives);
+      rating  = giftValue(gift, actor, receives);
     if (! hasBegun()) {
       modifier -= ROUTINE;
       modifier += (novelty + rating) * ROUTINE;
@@ -153,6 +153,13 @@ public class Gifting extends Plan implements Qualities {
     */
   //  TODO:  Cache ratings for all these items in some global location,
   //  including bonuses for hunger, et cetera.
+  private static float giftValue(Item gift, Actor buys, Actor receives) {
+    float rating = receives.motives.rateValue(gift);
+    if (buys != null) {
+      rating -= buys.motives.greedPriority(gift.pricePerDay());
+    }
+    return rating;
+  }
   
   
   //  TODO:  Just iterate across all desires from the ActorDesires class.
@@ -165,23 +172,15 @@ public class Gifting extends Plan implements Qualities {
     if (parent != null) d.setMotivesFrom(parent, 0);
     if (d.priorityFor(buys) <= 0) return null;
     
-    float rating, bestRating = 0;
-    Item gift = null;
+    final Pick <Item> pickGift = new Pick(0);
+    
+    for (Traded t : receives.motives.valuedForTrade()) {
+      final Item gift = Item.withAmount(t, 1);
+      pickGift.compare(gift, giftValue(gift, buys, receives));
+    }
     Plan getting = null;
+    final Item gift = pickGift.result();
     
-    for (Traded f : Economy.ALL_FOOD_TYPES) {
-      final Item food = Item.withAmount(f, 1);
-      rating = ActorMotives.rateDesire(food, buys, receives);
-      if (rating > bestRating) { bestRating = rating; gift = food; }
-    }
-    
-    if (receives.mind.home() instanceof Venue) {
-      final Venue home = (Venue) receives.mind.home();
-      for (Item needs : home.stocks.shortages()) {
-        rating = ActorMotives.rateDesire(needs, buys, receives);
-        if (rating > bestRating) { bestRating = rating; gift = needs; }
-      }
-    }
     
     //  TODO:  Consider restoring this later.  (At the moment, there are
     //         problems with giving someone an outfit they already have!)

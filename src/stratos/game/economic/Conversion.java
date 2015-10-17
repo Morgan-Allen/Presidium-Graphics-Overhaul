@@ -124,7 +124,7 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   
   
   public boolean producesAt(Venue venue) {
-    if (facility == venue.blueprint) return true;
+    if (facility      == venue.blueprint ) return true;
     if (facilityClass == venue.getClass()) return true;
     return false;
   }

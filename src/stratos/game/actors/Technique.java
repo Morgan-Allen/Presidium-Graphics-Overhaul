@@ -22,10 +22,11 @@ public abstract class Technique extends Constant {
   final public static int
     IS_PASSIVE_SKILL_FX   = 1 ,
     IS_INDEPENDANT_ACTION = 2 ,
-    IS_GEAR_PROFICIENCY   = 4 ,
-    IS_SOVEREIGN_POWER    = 8 ,
-    IS_NATURAL_ONLY       = 16,
-    IS_TRAINED_ONLY       = 32;
+    IS_GAINED_FROM_ITEM   = 4 ,
+    IS_GEAR_PROFICIENCY   = 8 ,
+    IS_SOVEREIGN_POWER    = 16,
+    IS_NATURAL_ONLY       = 32,
+    IS_TRAINED_ONLY       = 64;
   
   final public static float
     MINOR_POWER          = 1.0f ,
@@ -194,6 +195,11 @@ public abstract class Technique extends Constant {
   }
   
   
+  public Traded consumes() {
+    return null;
+  }
+  
+  
   public boolean triggeredBy(
     Actor actor, Plan current, Action action, Skill used, boolean passive
   ) {
@@ -278,10 +284,12 @@ public abstract class Technique extends Constant {
   
   
   protected void onConditionStart(Actor affected) {
+    //  TODO:  Fill this in?
   }
   
   
   protected void onConditionEnd(Actor affected) {
+    //  TODO:  Fill this in?
   }
   
   

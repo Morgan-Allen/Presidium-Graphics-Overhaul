@@ -35,11 +35,12 @@ public class Item {
   
   /**  Field definitions, standard constructors and save/load functionality-
     */
-  final public static int ANY = -1;
   final public static int
+    ANY = -1,
     BAD_QUALITY = 0,
     AVG_QUALITY = 2,
-    MAX_QUALITY = 4;
+    MAX_QUALITY = 4,
+    DEFAULT_CARRY = 1;
   
   final public Traded type;
   final public Saveable refers;
@@ -187,6 +188,11 @@ public class Item {
     return priceFor(type, amount, -1, null, false);
   }
   
+  
+  public float pricePerDay() {
+    return defaultPrice() / GameSettings.ITEM_WEAR_DAYS;
+  }
+  
 
   protected static float priceFor(
     Traded type, float amount, float quality, Owner venue, boolean sold
@@ -269,7 +275,7 @@ public class Item {
     if (type != SAMPLES && (
       type.form == FORM_DEVICE ||
       type.form == FORM_OUTFIT ||
-      type.form == FORM_USABLE ||
+      type.form == FORM_USED_ITEM ||
       type.form == FORM_SPECIAL
     )) {
       s = (I.shorten(amount, 1))+" "+descQuality()+" "+s;

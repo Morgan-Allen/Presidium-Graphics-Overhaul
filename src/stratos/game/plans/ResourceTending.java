@@ -132,7 +132,7 @@ public abstract class ResourceTending extends Plan {
       for (Traded t : harvestTypes) {
         if (personal) {
           final Item sample = Item.withAmount(t, 1);
-          final float motive = ActorMotives.rateDesire(sample, null, actor);
+          final float motive = actor.motives.rateValue(sample);
           baseMotive += motive / PARAMOUNT;
         }
         else if (depot != null) {
