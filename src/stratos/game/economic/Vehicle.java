@@ -315,11 +315,11 @@ public abstract class Vehicle extends Mobile implements
   private void completeLanding() {
     nextPosition.setTo(position.setTo(aimPos));
     dropPoint = ShipUtils.performLanding(this, world, entranceFace);
-    if (stage == STAGE_LANDED) ShipUtils.offloadPassengers(this, true);
     
     stageInceptTime = world.currentTime();
     stage           = STAGE_LANDED;
     canBoard        = null;
+    ShipUtils.offloadPassengers(this, true);
   }
   
   

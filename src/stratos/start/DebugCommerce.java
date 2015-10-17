@@ -80,8 +80,8 @@ public class DebugCommerce extends Scenario {
     
     base.research.initKnowledgeFrom(base.commerce.homeworld());
 
-    if (true ) shoppingScenario(world, base, UI);
-    if (false) shippingScenario(world, base, UI);
+    if (false) shoppingScenario(world, base, UI);
+    if (true ) shippingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
     if (false) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);

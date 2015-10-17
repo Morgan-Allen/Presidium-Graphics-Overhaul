@@ -48,9 +48,9 @@ public class RunnerTechniques {
   //  TODO:  Actual usage!
   
   final public static Technique OVERLOAD = new Technique(
-    "Sniper Kit", UI_DIR+"sniper_kit.png",
-    "Deals devastating damage when granted the benefit of surprise.",
-    BASE_CLASS, "sniper kit",
+    "Overload", UI_DIR+"sniper_kit.png",
+    "Helps to bypass security systems and disable robotic opponents.",
+    BASE_CLASS, "overload",
     MINOR_POWER         ,
     REAL_HARM           ,
     NO_FATIGUE          ,
@@ -62,7 +62,7 @@ public class RunnerTechniques {
   
   final public static Technique SNIPER_KIT = new Technique(
     "Sniper Kit", UI_DIR+"sniper_kit.png",
-    "Deals devastating damage when granted the benefit of surprise.",
+    "Deals devastating ranged damage when granted the benefit of surprise.",
     BASE_CLASS, "sniper kit",
     MEDIUM_POWER        ,
     REAL_HARM           ,

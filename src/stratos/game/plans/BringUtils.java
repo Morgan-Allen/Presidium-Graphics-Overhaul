@@ -186,6 +186,7 @@ public class BringUtils {
   ) {
     final boolean report = sampleVerbose && I.talkAbout == orig;
     final Stage world = orig.world();
+    if (world == null) return null;
     Tally <Owner> ratings = new Tally <Owner> ();
     if (report) {
       I.say("\nGetting bulk delivery for "+orig);
@@ -245,11 +246,12 @@ public class BringUtils {
   ) {
     final boolean report = sampleVerbose && I.talkAbout == dest;
     final Stage world = dest.world();
-    Tally <Owner> ratings = new Tally <Owner> ();
+    if (world == null) return null;
     if (report) {
       I.say("\nGetting bulk collection for "+dest);
     }
     
+    Tally <Owner> ratings = new Tally <Owner> ();
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
       if (origs != null) sampled = origs;

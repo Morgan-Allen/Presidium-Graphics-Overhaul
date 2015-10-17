@@ -22,10 +22,10 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
-    extraVerbose   = false,
-    migrateVerbose = verbose && false,
-    tradeVerbose   = verbose && false;
+    verbose        = true ,
+    extraVerbose   = true ,
+    migrateVerbose = verbose && true ,
+    tradeVerbose   = verbose && true ;
   
   final public static float
     SHIP_JOURNEY_TIME   = Stage.STANDARD_DAY_LENGTH / 4f,
