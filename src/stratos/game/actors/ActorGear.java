@@ -33,7 +33,7 @@ public class ActorGear extends Inventory {
   private Item outfit = null;
   private UsedItemType usedTypes[] = null;
   
-  //  TODO- GET RID OF THESE.
+  //  TODO- GET RID OF THESE.  USE ITEMS INSTEAD.
   private int   ammoCount      =  0;
   private float powerCells     =  0;
   private float currentShields =  0;
@@ -266,6 +266,17 @@ public class ActorGear extends Inventory {
   }
   
   
+  public boolean hasDeviceProperty(int bits) {
+    final DeviceType type = deviceType();
+    return type != null && type.hasProperty(bits);
+  }
+  
+  
+  public boolean meleeDeviceOnly() {
+    return ! hasDeviceProperty(RANGED);
+  }
+  
+  
   
   /**  Returns this actor's effective attack damage.  Actors without equipped
     *  weapons, or employing weapons in melee, gain a bonus based on their
@@ -290,17 +301,6 @@ public class ActorGear extends Inventory {
       return actor.health.sightRange();
     }
     else return 1;
-  }
-  
-  
-  public boolean hasDeviceProperty(int bits) {
-    final DeviceType type = deviceType();
-    return type != null && type.hasProperty(bits);
-  }
-  
-  
-  public boolean meleeDeviceOnly() {
-    return ! hasDeviceProperty(RANGED);
   }
   
   

@@ -13,7 +13,7 @@ import stratos.util.*;
 
 
 
-public class Trait extends Constant implements Qualities {
+public class Trait extends Constant {
   
   
   private static boolean verboseInit = false;

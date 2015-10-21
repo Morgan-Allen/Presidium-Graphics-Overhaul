@@ -9,10 +9,11 @@ import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
-public class Combat extends Plan implements Qualities {
+public class Combat extends Plan {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -314,8 +315,21 @@ public class Combat extends Plan implements Qualities {
   /**  Executing the action-
     */
   public boolean actionStrike(Actor actor, Actor target) {
+    return Combat.performGeneralStrike(actor, target, object, action());
+  }
+  
+  
+  public boolean actionSiege(Actor actor, Placeable target) {
+    if (target.structure().destroyed()) return false;
+    performSiege(actor, target, action());
+    return true;
+  }
+  
+  
+  public static boolean performGeneralStrike(
+    Actor actor, Actor target, int object, Action a
+  ) {
     if (target.health.dying()) return false;
-    final Action a = action();
     //
     //  TODO:  You may want a separate category for animals?  Or Psy?
     if (actor.gear.meleeDeviceOnly()) {
@@ -324,13 +338,6 @@ public class Combat extends Plan implements Qualities {
     else {
       performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, object, a);
     }
-    return true;
-  }
-  
-  
-  public boolean actionSiege(Actor actor, Placeable target) {
-    if (target.structure().destroyed()) return false;
-    performSiege(actor, target, action());
     return true;
   }
   

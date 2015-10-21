@@ -9,7 +9,7 @@ import stratos.game.common.*;
 
 
 //  TODO:  MERGE THIS WITH THE CAREER CLASS- WHICH IS IS ESSENTIALLY A SET OF
-//  MEMORIES ABOUT YOUR PAST.
+//  MEMORIES ABOUT YOUR PAST?
 
 
 public class Memory implements Session.Saveable, Accountable {

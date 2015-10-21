@@ -9,13 +9,14 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
 //  TODO:  There's a problem with the 'greeting' phase here if the other actor
 //  isn't disposed to talk (e.g, is hostile, busy or asleep, etc.)
 
-public class Gifting extends Plan implements Qualities {
+public class Gifting extends Plan {
   
   
   final static int

@@ -187,8 +187,7 @@ public class Bastion extends Venue {
         final Actor ruler = a;
         final float bonus = (b.structure.upgradeLevel(SEAT_OF_POWER) + 2) / 5f;
         
-        float psiGain = ruler.health.maxConcentration();
-        psiGain *= bonus / ActorHealth.CONCENTRATE_REGEN_TIME;
+        float psiGain = bonus * ActorHealth.DEFAULT_CONCENTRATE_REGEN;
         ruler.health.gainConcentration(psiGain);
         
         float hitGain = ruler.health.maxHealth();

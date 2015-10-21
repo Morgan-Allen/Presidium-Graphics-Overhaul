@@ -5,6 +5,7 @@
   */
 package stratos.content.abilities;
 import stratos.game.common.*;
+import stratos.game.economic.Traded;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.sfx.*;
@@ -22,7 +23,7 @@ public class PhysicianTechniques {
     UI_DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = PhysicianTechniques.class;
   
-  final public static PlaneFX.Model
+  final static PlaneFX.Model
     HYPO_FX_MODEL = PlaneFX.animatedModel(
       "hypo_spray_fx", BASE_CLASS,
       FX_DIR+"hypo_spray_fx.png",
@@ -40,7 +41,12 @@ public class PhysicianTechniques {
     );
   
   final static float
-    MEDICINE_USE = 0.1f;
+    MEDICINE_USE = 0.1f,
+    
+    SPRAY_HEAL_INIT_MIN = 2,
+    SPRAY_HEAL_INIT_MAX = 5,
+    SPRAY_DURATION      = Stage.STANDARD_SHIFT_LENGTH,
+    SPRAY_DURATION_HEAL = 2;
   
   
   final public static Technique HYPO_SPRAY = new Technique(
@@ -55,19 +61,19 @@ public class PhysicianTechniques {
     ANATOMY
   ) {
     
-    public boolean canBeLearnt(Actor learns, boolean trained) {
-      return super.canBeLearnt(learns, trained);
-    }
-    
-    
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject
     ) {
       if (! (current instanceof Treatment)  ) return false;
       if (actor.gear.amountOf(MEDICINE) <= 0) return false;
-      final Actor treats = (Actor) action.subject();
-      if (treats.traits.traitLevel(asCondition) > 0) return false;
-      return super.triggeredBy(actor, current, action, used, passive);
+      final Actor treats = (Actor) subject;
+      if (treats.traits.hasTrait(asCondition)) return false;
+      return super.triggersPassive(actor, current, used, subject);
+    }
+    
+    
+    public Traded itemNeeded() {
+      return MEDICINE;
     }
     
     
@@ -86,14 +92,21 @@ public class PhysicianTechniques {
       final Actor treats = (Actor) subject;
       treats.traits.setLevel(asCondition, 1);
       treats.health.setBleeding(false);
-      treats.health.liftInjury(2 + Rand.index(4));
+      treats.health.liftInjury(roll(SPRAY_HEAL_INIT_MIN, SPRAY_HEAL_INIT_MAX));
       
       ActionFX.applyBurstFX(HYPO_FX_MODEL, using, 1.5f, 1);
     }
     
     
+    protected void applyAsCondition(Actor affected) {
+      super.applyAsCondition(affected);
+      float regen = SPRAY_DURATION_HEAL / SPRAY_DURATION;
+      affected.health.liftInjury(regen);
+    }
+    
+    
     protected float conditionDuration() {
-      return Stage.STANDARD_SHIFT_LENGTH;
+      return SPRAY_DURATION;
     }
   };
   
@@ -107,47 +120,38 @@ public class PhysicianTechniques {
     REAL_HELP          ,
     MINOR_FATIGUE      ,
     MAJOR_CONCENTRATION,
-    IS_INDEPENDANT_ACTION | IS_TRAINED_ONLY, PHARMACY, 10,
+    IS_ANY_TARGETING | IS_TRAINED_ONLY, PHARMACY, 10,
     Action.FIRE, Action.QUICK
   ) {
     
-    public boolean canBeLearnt(Actor learns, boolean trained) {
-      return super.canBeLearnt(learns, trained);
-    }
-    
-    
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
     ) {
-      if (passive || actor.gear.amountOf(MEDICINE) <= 0) return false;
-      if (current instanceof Treatment) return true;
-      if (actor.senses.isEmergency()  ) return true;
-      return false;
+      if (actor.gear.amountOf(MEDICINE) <= 0) return false;
+      if (current instanceof Treatment) return subject == current.subject();
+      else return actor.senses.isEmergency();
     }
     
     
-    protected Action createActionFor(Plan parent, Actor actor, Target subject) {
-      final Pick <Actor> pick = new Pick(0);
-      
-      if (parent instanceof Treatment) {
-        final float rating = parent.priorityFor(actor);
-        pick.compare((Actor) parent.subject, rating);
+    public Traded itemNeeded() {
+      return MEDICINE;
+    }
+
+
+    public float basePriority(Actor actor, Plan current, Target subject) {
+      if (current instanceof Treatment) {
+        return super.basePriority(actor, current, subject);
       }
-      else for (Target t : actor.senses.awareOf()) if (t instanceof Actor) {
-        final Actor a = (Actor) t;
-        if (! a.isDoing(Combat.class, null)) continue;
-        if (a.traits.hasTrait(asCondition) ) continue;
-        if (a.senses.underAttack()         ) continue;
+      else {
+        final Actor a = (Actor) subject;
+        if (! a.isDoing(Combat.class, null)) return -1;
+        if (a.traits.hasTrait(asCondition) ) return -1;
+        if (a.senses.underAttack()         ) return -1;
         final float rating = 0 - PlanUtils.combatPriority(
-          actor, t, 0, 1, false, Plan.REAL_HARM
+          actor, subject, 0, 1, false, Plan.REAL_HARM
         );
-        pick.compare(a, rating);
+        return rating;
       }
-      if (pick.empty()) return null;
-      
-      final Action action = super.createActionFor(parent, actor, pick.result());
-      action.setPriority(pick.bestRating());
-      return action;
     }
     
     
@@ -187,47 +191,29 @@ public class PhysicianTechniques {
     MILD_HARM           ,
     MINOR_FATIGUE       ,
     MEDIUM_CONCENTRATION,
-    IS_INDEPENDANT_ACTION | IS_TRAINED_ONLY, PHARMACY, 15,
+    IS_ANY_TARGETING | IS_TRAINED_ONLY, PHARMACY, 15,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
-    public boolean canBeLearnt(Actor learns, boolean trained) {
-      return super.canBeLearnt(learns, trained);
-    }
-    
-    
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
     ) {
-      if (passive || actor.gear.amountOf(MEDICINE) <= 0) return false;
-      if (actor.senses.isEmergency()) return true;
-      return false;
+      if (actor.gear.amountOf(MEDICINE) <= 0) return false;
+      return actor.senses.isEmergency() && subject instanceof Actor;
     }
     
     
-    public float basePriority(Actor actor, Target subject, float harmWanted) {
-      return super.basePriority(actor, subject, Plan.MILD_HARM);
+    public Traded itemNeeded() {
+      return MEDICINE;
     }
     
     
-    protected Action createActionFor(Plan parent, Actor actor, Target subject) {
-      final Pick <Actor> pick = new Pick(0);
-      
-      for (Target t : actor.senses.awareOf()) if (t instanceof Actor) {
-        final Actor a = (Actor) t;
-        if (! a.isDoing(Combat.class, null)) continue;
-        if (! a.health.organic()           ) continue;
-        if (a.traits.hasTrait(asCondition) ) continue;
-        final float rating = PlanUtils.combatPriority(
-          actor, t, 0, 1, false, Plan.MILD_HARM
-        );
-        pick.compare(a, rating);
-      }
-      if (pick.empty()) return null;
-      
-      final Action action = super.createActionFor(parent, actor, pick.result());
-      action.setPriority(pick.bestRating());
-      return action;
+    public float basePriority(Actor actor, Plan current, Target subject) {
+      final Actor a = (Actor) subject;
+      if (! a.isDoing(Combat.class, null)) return -1;
+      if (! a.health.organic()           ) return -1;
+      if (a.traits.hasTrait(asCondition) ) return -1;
+      return super.basePriority(actor, current, subject);
     }
     
     
@@ -279,8 +265,11 @@ public class PhysicianTechniques {
     NO_CONCENTRATION    ,
     IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, null, -1, null
   ) {
-    
-    
+  };
+  
+  
+  final public static Technique PHYSICIAN_TECHNIQUES[] = {
+    HYPO_SPRAY, BOOSTER_SHOT, PAX_9, PSY_INHIBITION
   };
 }
 

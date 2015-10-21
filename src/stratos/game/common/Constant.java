@@ -46,6 +46,13 @@ public abstract class Constant extends Index.Entry implements
   
   
   
+  /**  Index setup-
+    */
+  public static int shift(int n) {
+    return 1 << n;
+  }
+  
+  
   /**  Hyperlink support methods-
     */
   final static String OPEN_CAP  = "{", SHUT_CAP  = "}";

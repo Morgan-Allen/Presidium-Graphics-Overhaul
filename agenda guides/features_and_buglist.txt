@@ -24,6 +24,7 @@ TO DO NOW-
 *  Finally, the engineer, and highborn.
 
 *  See if you can hook up ammo clips and power cells.
+*  Psy inhibition needs to be filled in?
 
 
 *  Initial missions:

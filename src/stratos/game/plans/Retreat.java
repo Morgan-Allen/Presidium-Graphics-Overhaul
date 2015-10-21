@@ -11,7 +11,6 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
 
 
 
@@ -20,7 +19,7 @@ import static stratos.game.economic.Economy.*;
 //  Yeah.  They get some special treatment.
 
 
-public class Retreat extends Plan implements Qualities {
+public class Retreat extends Plan {
   
   
   /**  Constants, field definitions, constructors and save/load methods-
@@ -76,17 +75,21 @@ public class Retreat extends Plan implements Qualities {
   public static Boarding nearestHaven(
     final Actor actor, final Class prefClass, final boolean emergency
   ) {
+    if (actor == I.talkAbout && havenVerbose) {
+      I.say("\nPicking haven for "+actor+"...");
+    }
+    
     final Target oldHaven = actor.senses.haven();
     final Stage world = actor.world();
     final float
       runRange   = actor.health.sightRange() + Stage.ZONE_SIZE,
       sightHaven = Stage.ZONE_SIZE / 2;
     
-    final boolean atHaven, mustMove, attacked = actor.senses.underAttack();
+    final boolean atHaven, mustMove;
     if (oldHaven == null) atHaven = false;
     else if (actor.indoors()) atHaven = actor.aboard() == oldHaven;
     else atHaven = Spacing.distance(actor, oldHaven) < sightHaven;
-    mustMove = atHaven && attacked && ! Action.isMoving(actor);
+    mustMove = atHaven && emergency && ! actor.isMoving();
     
     final Pick <Boarding> pick = new Pick <Boarding> () {
       
@@ -133,17 +136,14 @@ public class Retreat extends Plan implements Qualities {
       pick.compare((Boarding) cover , 1);
       pick.compare((Boarding) built , 1);
     }
-    
-    if ((! emergency) && pick.empty()) {
-      if (pick.empty()) {
-        pick.compare(pickHidePoint(actor, runRange, actor, -2), 1);
-      }
-      if (pick.empty()) {
-        pick.compare(pickHidePoint(actor, runRange, actor,  0), 1);
-      }
-      if (pick.empty()) {
-        pick.compare(Spacing.pickRandomTile(actor, runRange, world), 1);
-      }
+    if (pick.empty()) {
+      pick.compare(pickHidePoint(actor, runRange, actor, -2), 1);
+    }
+    if (pick.empty()) {
+      pick.compare(pickHidePoint(actor, runRange, actor,  0), 1);
+    }
+    if (pick.empty()) {
+      pick.compare(Spacing.pickRandomTile(actor, runRange, world), 1);
     }
     pick.compare(actor.senses.haven(), 1.5f);
     

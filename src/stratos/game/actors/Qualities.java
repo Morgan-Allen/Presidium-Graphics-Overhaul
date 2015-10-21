@@ -29,7 +29,7 @@ import stratos.util.*;
 
 
 
-public interface Qualities {
+final public class Qualities {
   
   
   final public static int
@@ -51,7 +51,7 @@ public interface Qualities {
     PUNISHING_DC   =  25,
     IMPOSSIBLE_DC  =  30;
   
-  final static int
+  final public static int
     FORM_NATURAL   = 0,
     FORM_PHYSICAL  = 1, //Phys.
     FORM_SENSITIVE = 2, //Sens.

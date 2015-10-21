@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.actors;
 import stratos.game.base.*;
 import stratos.game.common.*;
@@ -12,6 +10,7 @@ import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.start.Scenario;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -85,7 +84,7 @@ issue certain tasks and vet others, and can extend to foreign kingdoms.
 
 
 
-public class HumanMind extends ActorMind implements Qualities {
+public class HumanMind extends ActorMind {
   
   
   

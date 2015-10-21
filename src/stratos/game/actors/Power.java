@@ -13,6 +13,7 @@ import stratos.graphics.sfx.*;
 import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -21,7 +22,7 @@ import stratos.util.*;
 //  TODO:  Merge with Techniques for the purpose.
 
 
-public abstract class Power extends Technique implements Qualities {
+public abstract class Power extends Technique {
   
   
   private static boolean

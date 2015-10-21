@@ -1,11 +1,14 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
-import stratos.content.civic.Suspensor;
 import stratos.game.common.*;
-import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.util.*;
+import stratos.content.civic.Suspensor;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -13,7 +16,7 @@ import stratos.util.*;
 //  is available (e.g, for kidnappings.)
 
 
-public class BringStretcher extends Plan implements Qualities {
+public class BringStretcher extends Plan {
   
   
   private static boolean verbose = false;

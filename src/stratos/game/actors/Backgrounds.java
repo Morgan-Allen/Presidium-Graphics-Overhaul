@@ -522,7 +522,7 @@ public interface Backgrounds {
       PRACTICED, SUASION, SURVEILLANCE, MASQUERADE,
       LEARNING, HAND_TO_HAND,
       OFTEN, ACQUISITIVE, SOMETIMES, NERVOUS, METICULOUS,
-      BLASTER, STEALTH_SUIT
+      CARBINE, STEALTH_SUIT
     ),
     FIXER = new Background(
       Backgrounds.class,

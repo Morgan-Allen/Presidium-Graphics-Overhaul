@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -9,6 +11,7 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -17,7 +20,7 @@ import stratos.util.*;
 
 //  TODO- MAKE THIS ANOTHER INFO-PANE
 
-public class ActorDescription implements Qualities {
+public class ActorDescription {
   
   
   private static boolean
@@ -120,7 +123,10 @@ public class ActorDescription implements Qualities {
     
     final int
       hunger = (int) (h.health.hungerLevel() * 100),
-      morale = (int) (h.health.moraleLevel() * 100);
+      morale = (int) (h.health.moraleLevel() * 100),
+      maxCon = (int) ActorHealth.BASE_CONCENTRATION,
+      conNow = (int) h.health.concentration();
+    d.append("\n  Concentration: "+conNow+"/"+maxCon);
     d.append("\n  Morale: "+morale+"%");
     if (hunger > 0) d.append(" (Hunger "+hunger+"%)");
     //

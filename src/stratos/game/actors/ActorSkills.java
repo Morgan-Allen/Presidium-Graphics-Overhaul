@@ -76,71 +76,99 @@ public class ActorSkills {
   
   /**  Helper methods for technique selection and queries-
     */
-  public Action bestTechniqueFor(Plan plan, Action taken) {
-    final boolean report = I.talkAbout == actor && false;
-    final Pick <Technique> pick = new Pick(0);
-    final Pick <Action   > acts = new Pick(0);
-    this.active = null;
+  private void rateActiveTechnique(
+    Technique t, Plan plan, Target subject, Choice choice, boolean report
+  ) {
+    if (! t.triggersAction(actor, plan, subject)) {
+      if (report) I.say("  "+t+" is not applicable to "+subject);
+      return;
+    }
     
-    //  TODO:  You need to sort out selection from multiple targets, or
-    //  evaluating an impact on multiple targets simultaneously, from here!
+    float appeal = -1  ;
+    Action taken = null;
+    final float radius = t.effectRadius();
+    final boolean desc = t.effectDescriminates();
     
-    final Target subject = taken.subject();
-    float harmLevel = actor.harmIntended(subject);
-    if (subject == actor) harmLevel -= 0.5f;
+    if (radius > 0) {
+      for (Actor affected : PlanUtils.subjectsInRange(subject, radius)) {
+        final float priority = t.basePriority(actor, plan, affected);
+        if (desc && priority <= 0) continue;
+        appeal += priority;
+      }
+    }
+    else {
+      appeal = t.basePriority(actor, plan, subject);
+    }
+    if (appeal > 0) {
+      taken = t.createActionFor(plan, actor, subject);
+      if (taken != null) taken.setPriority(appeal * Plan.ROUTINE);
+      choice.add(taken);
+    }
     
     if (report) {
-      I.say("\nGetting best technique for "+actor);
+      I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
+      I.say("    Appeal is: "+appeal);
+      I.say("    Targeting: "+subject);
+    }
+  }
+  
+  
+  public Action bestTechniqueFor(Plan plan, Action taken) {
+    final boolean report = I.talkAbout == actor && techsVerbose;
+    final Choice choice = new Choice(actor);
+    this.active = null;
+    
+    if (report) {
+      I.say("\nGetting best active technique for "+actor);
       I.say("  Fatigue:       "+actor.health.fatigueLevel());
       I.say("  Concentration: "+actor.health.concentration());
       I.say("");
     }
     
     for (Technique t : availableTechniques()) {
-      if (! t.triggeredBy(actor, plan, taken, null, false)) continue;
-      final Action a = t.createActionFor(plan, actor, subject);
-      final Target actionSubject = a == null ? subject : a.subject();
-      final float appeal = t.basePriority(actor, actionSubject, harmLevel);
-      
-      if (a != null) {
-        pick.compare(t, appeal);
-        acts.compare(a, appeal);
+      if (t.targetsSelf() || t.targetsAny()) {
+        rateActiveTechnique(t, plan, actor, choice, report);
       }
-      if (report) {
-        I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
-        I.say("    Appeal is "+appeal);
-        I.say("    Actionable? "+(a != null));
+      if (t.targetsFocus()) {
+        rateActiveTechnique(t, plan, taken.subject(), choice, report);
+      }
+      if (t.targetsAny()) for (Target seen : actor.senses.awareOf()) {
+        rateActiveTechnique(t, plan, seen, choice, report);
       }
     }
-    if (pick.empty()) return null;
     
-    final Technique best = pick.result();
-    final Action action = acts.result();
-    this.active = best;
-    if (report) I.say("  Technique chosen: "+best);
+    final Action action = (Action) choice.weightedPick();
+    this.active = action == null ? null : (Technique) action.basis;
+    if (report) I.say("  Technique chosen: "+active);
     return action;
   }
   
   
   public float skillBonusFromTechniques(Skill skill, Action taken) {
+    final boolean report = I.talkAbout == actor && techsVerbose;
+    if (report) {
+      I.say("\nGetting best passive technique for "+actor);
+      I.say("  Fatigue:       "+actor.health.fatigueLevel());
+      I.say("  Concentration: "+actor.health.concentration());
+      I.say("");
+    }
+    
     final Pick <Technique> pick = new Pick(0);
     this.active = null;
     
-    final boolean acts      = taken != null;
-    final Plan    current   = acts ? taken.parentPlan()                : null ;
-    final Target  subject   = acts ? taken.subject()                   : actor;
-    final float   harmLevel = acts ? taken.actor.harmIntended(subject) : -1   ;
+    final boolean acts    = taken != null;
+    final Plan    current = acts ? taken.parentPlan() : null ;
+    final Target  subject = acts ? taken.subject()    : actor;
     
-    for (Technique t : availableTechniques()) {
-      if (! t.triggeredBy(actor, current, taken, skill, true)) continue;
-      final float appeal = t.basePriority(actor, subject, harmLevel);
+    for (Technique t : availableTechniques()) if (t.isPassive()) {
+      if (! t.triggersPassive(actor, current, skill, subject)) continue;
+      final float appeal = t.basePriority(actor, current, subject);
       pick.compare(t, appeal);
     }
-    if (pick.empty()) return -1;
     
     final Technique bonus = pick.result();
     this.active = bonus;
-    return bonus.passiveBonus(actor, skill, subject);
+    return bonus == null ? 0 : bonus.passiveBonus(actor, skill, subject);
   }
   
   

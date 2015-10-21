@@ -6,15 +6,12 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
-import stratos.game.plans.Patrolling;
-import stratos.graphics.widgets.*;
-import stratos.user.*;
+import stratos.game.plans.*;
 import stratos.util.*;
 
 
 
-public class MissionSecurity extends Mission implements Qualities {
+public class MissionSecurity extends Mission {
   
   
   /**  Field definitions, constants and save/load methods-

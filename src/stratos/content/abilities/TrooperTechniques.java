@@ -110,7 +110,7 @@ public class TrooperTechniques {
     REAL_HELP          ,
     NO_FATIGUE         ,
     MINOR_CONCENTRATION,
-    IS_INDEPENDANT_ACTION | IS_TRAINED_ONLY, null, -1,
+    IS_ANY_TARGETING | IS_TRAINED_ONLY, null, -1,
     Action.FIRE, Action.QUICK
   ) {
     
@@ -122,17 +122,12 @@ public class TrooperTechniques {
     }
     
     
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
     ) {
       if (! (current instanceof Combat)) return false;
       if (actor.traits.hasTrait(asCondition)) return false;
       return true;
-    }
-    
-    
-    public float basePriority(Actor actor, Target subject, float harmWanted) {
-      return super.basePriority(actor, actor, Technique.REAL_HELP);
     }
 
 
@@ -140,24 +135,6 @@ public class TrooperTechniques {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       using.traits.setLevel(asCondition, 1);
-    }
-    
-    
-    protected Action createActionFor(Plan parent, Actor actor, Target subject) {
-      final Action a = super.createActionFor(parent, actor, actor);
-      //
-      //  If possible, we move next to a nearby ally so as to maximise the
-      //  effect:
-      final Pick <Actor> pick = new Pick(0);
-      for (Actor ally : PlanUtils.subjectsInRange(actor, HARMONICS_RANGE)) {
-        if (actor.base() != ally.base() || actor == ally) continue;
-        final float rating = 1 / 1f + Spacing.distance(actor, ally);
-        pick.compare(ally, rating);
-      }
-      if (! pick.empty()) {
-        a.setMoveTarget(pick.result().origin());
-      }
-      return a;
     }
     
     
@@ -183,7 +160,7 @@ public class TrooperTechniques {
     EXTREME_HARM       ,
     MINOR_FATIGUE      ,
     MAJOR_CONCENTRATION,
-    IS_INDEPENDANT_ACTION | IS_TRAINED_ONLY, MARKSMANSHIP, 15,
+    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, MARKSMANSHIP, 15,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
@@ -195,21 +172,21 @@ public class TrooperTechniques {
     }
     
     
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
     ) {
-      if (passive || action == null || ! (action.subject() instanceof Actor)) {
+      if (! (subject instanceof Actor)) {
         return false;
       }
       return current instanceof Combat;
     }
     
     
-    public float basePriority(Actor actor, Target subject, float harmWanted) {
+    public float basePriority(Actor actor, Plan current, Target subject) {
       //
       //  TODO:  You need some generalised methods for handling AoE effects-
       //  both impacts and evaluation.
-      final float priority = super.basePriority(actor, subject, harmWanted);
+      final float priority = super.basePriority(actor, current, subject);
       if (priority <= 0) return 0;
       
       for (Actor a : PlanUtils.subjectsInRange(subject, FRAG_BURST_RANGE)) {

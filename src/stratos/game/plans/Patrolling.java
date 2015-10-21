@@ -4,19 +4,20 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
-import stratos.content.civic.ShieldWall;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.util.*;
+import stratos.content.civic.ShieldWall;
+import static stratos.game.actors.Qualities.*;
 
 
 //
 //  TODO:  Don't refer to the Shield Wall explicitly.  Use a public interface.
 
-public class Patrolling extends Plan implements TileConstants, Qualities {
+public class Patrolling extends Plan implements TileConstants {
   
   
   /**  Fields, constructors, and save/load methods-

@@ -44,7 +44,13 @@ public final class Devices {
     STUN_WAND = new DeviceType(
       BC, "Stun Wand",
       "pistol", AnimNames.FIRE,
-      6, RANGED | ENERGY | STUN | HOMING, 35,
+      6, RANGED | ENERGY | STUN | MELEE, 35,
+      EngineerStation.class, 1, PARTS, 10, ASSEMBLY
+    ),
+    CARBINE = new DeviceType(
+      BC, "Carbine",
+      "pistol", AnimNames.FIRE,
+      8, RANGED | KINETIC, 30,
       EngineerStation.class, 1, PARTS, 10, ASSEMBLY
     ),
     BLASTER = new DeviceType(
@@ -60,6 +66,12 @@ public final class Devices {
       EngineerStation.class, 1, PARTS, 10, ASSEMBLY
     ),
     
+    HUNTING_LANCE = new DeviceType(
+      BC, "Hunting Lance",
+      "spear", AnimNames.STRIKE,
+      10, RANGED | KINETIC, 5,
+      null, 5, HANDICRAFTS
+    ),
     SIDE_SABRE = new DeviceType(
       BC, "Side Sabre",
       "light blade", AnimNames.STRIKE,
@@ -79,12 +91,6 @@ public final class Devices {
       EngineerStation.class, 3, PARTS, 15, ASSEMBLY
     ),
     
-    HUNTING_LANCE = new DeviceType(
-      BC, "Hunting Lance",
-      "spear", AnimNames.STRIKE,
-      10, RANGED | KINETIC, 5,
-      null, 5, HANDICRAFTS
-    ),
     LIMB_AND_MAW = new DeviceType(
       BC, "Limb and Maw",
       null, AnimNames.STRIKE,

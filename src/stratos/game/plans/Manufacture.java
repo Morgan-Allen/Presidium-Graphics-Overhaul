@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -17,7 +18,7 @@ import static stratos.game.economic.Economy.*;
 //  get added or raw materials run short during a manufacture task!
 
 
-public class Manufacture extends Plan implements Behaviour, Qualities {
+public class Manufacture extends Plan implements Behaviour {
   
   
   /**  Fields, constructors, and save/load methods-

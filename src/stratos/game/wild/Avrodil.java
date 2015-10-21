@@ -212,8 +212,8 @@ public class Avrodil extends Fauna implements Captivity {
     }
     
     
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject
     ) {
       if (actor.traits.hasTrait(asCondition)) {
         return false;
@@ -237,7 +237,7 @@ public class Avrodil extends Fauna implements Captivity {
     EXTREME_HARM        ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
-    IS_INDEPENDANT_ACTION | IS_NATURAL_ONLY, null, 0,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE_BIG, Action.QUICK
   ) {
     
@@ -273,16 +273,16 @@ public class Avrodil extends Fauna implements Captivity {
     }
     
     
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
     ) {
-      if (passive || action == null || ! (action.subject() instanceof Actor)) {
+      if (! (subject instanceof Actor)) {
         return false;
       }
       if (! (current instanceof Combat)) return false;
       
       final Avrodil eats = (Avrodil) actor;
-      final Actor victim = (Actor) action.subject();
+      final Actor victim = (Actor) subject;
       if (eats.digesting != null) {
         return false;
       }
@@ -303,7 +303,7 @@ public class Avrodil extends Fauna implements Captivity {
     REAL_HARM           ,
     MINOR_FATIGUE       ,
     MEDIUM_CONCENTRATION,
-    IS_INDEPENDANT_ACTION | IS_NATURAL_ONLY, null, 0,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE, Action.QUICK | Action.RANGED
   ) {
     
@@ -334,13 +334,13 @@ public class Avrodil extends Fauna implements Captivity {
     }
     
     
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
     ) {
-      if (passive || action == null || ! (action.subject() instanceof Actor)) {
+      if (! (subject instanceof Actor)) {
         return false;
       }
-      if (Spacing.distance(actor, action.subject()) < 1) return false;
+      if (Spacing.distance(actor, subject) < 1) return false;
       return current instanceof Combat;
     }
   };
@@ -354,17 +354,17 @@ public class Avrodil extends Fauna implements Captivity {
     REAL_HARM           ,
     MEDIUM_FATIGUE      ,
     MEDIUM_CONCENTRATION,
-    IS_INDEPENDANT_ACTION | IS_NATURAL_ONLY, null, 0,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE_BIG, Action.QUICK
   ) {
     
-    public boolean triggeredBy(
-      Actor actor, Plan current, Action action, Skill used, boolean passive
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
     ) {
-      if (passive || action == null || ! (action.subject() instanceof Actor)) {
+      if (! (subject instanceof Actor)) {
         return false;
       }
-      if (Spacing.distance(actor, action.subject()) > POLLEN_RADIUS - 0.5f) {
+      if (Spacing.distance(actor, subject) > POLLEN_RADIUS - 0.5f) {
         return false;
       }
       return current instanceof Combat;

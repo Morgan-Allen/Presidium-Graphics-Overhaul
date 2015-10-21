@@ -6,6 +6,7 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 

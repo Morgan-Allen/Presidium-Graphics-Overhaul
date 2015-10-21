@@ -416,7 +416,9 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  //  TODO:  Move these to the Mind class-
+  
+  //  TODO:  Move all these to either the Mind or PlanUtils class!
+  
   public boolean isDoingAction(String actionMethod, Target target) {
     if (actionTaken == null) return false;
     if (target != null && actionTaken.subject() != target) return false;
@@ -432,13 +434,17 @@ public abstract class Actor extends Mobile implements
   
   public float harmIntended(Target subject) {
     if (subject == null) return 0;
-    for (Behaviour b : mind.agenda()) if (b instanceof Plan) {
-      final Plan root = (Plan) b;
-      if (subject == null || root.subject == subject) return root.harmFactor();
+    
+    final Behaviour root = mind.rootBehaviour();
+    if (root instanceof Plan && root.subject() == subject) {
+      return ((Plan) root).harmFactor();
     }
-    if (subject == actionFocus() && mind.topBehaviour() instanceof Plan) {
-      return ((Plan) mind.topBehaviour()).harmFactor();
+    
+    final Behaviour top = mind.topBehaviour();
+    if (subject == actionFocus() && top instanceof Plan) {
+      return ((Plan) top).harmFactor();
     }
+    
     return 0;
   }
   

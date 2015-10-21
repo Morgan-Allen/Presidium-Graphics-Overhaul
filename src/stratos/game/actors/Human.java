@@ -13,6 +13,7 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.wild.Species;
+import static stratos.game.actors.Qualities.*;
 
 
 //  TODO:  Replace with 'Person' or 'Citizen'?
@@ -20,7 +21,7 @@ import stratos.game.wild.Species;
 //  TODO:  You also need to ensure that the media gets updated when an actor
 //         changes job.
 
-public class Human extends Actor implements Qualities {
+public class Human extends Actor {
   
   
   /**  Methods and constants related to preparing media and sprites-
@@ -206,7 +207,7 @@ public class Human extends Actor implements Qualities {
       faceOff = CHILD_FACE_OFF;
     }
     else {
-      int looks = (int) c.traits.traitLevel(Trait.HANDSOME) + 2 - ageStage;
+      int looks = (int) c.traits.traitLevel(HANDSOME) + 2 - ageStage;
       if (looks > 0) faceOff = male ? M_HOT_FACE_OFF : F_HOT_FACE_OFF;
       else if (looks == 0) faceOff = male ? M_AVG_FACE_OFF : F_AVG_FACE_OFF;
       else faceOff = ELDER_FACE_OFF;

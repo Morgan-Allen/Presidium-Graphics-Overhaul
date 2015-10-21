@@ -8,13 +8,14 @@ import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
 //  TODO:  MERGE THIS WITH THE ACTOR'S MEMORY-SET?
 
 
-public class Career implements Qualities {
+public class Career {
   
   
   private static boolean
@@ -364,7 +365,7 @@ public class Career implements Qualities {
         //
         //  NOTE: Personality traits are handled a little differently, since
         //  those can have opposites:
-        final float ownChance = (t.type == Trait.PERSONALITY) ?
+        final float ownChance = (t.type == PERSONALITY) ?
           Personality.traitChance(t, actor) :
           actor.traits.traitLevel(t)        ;
         

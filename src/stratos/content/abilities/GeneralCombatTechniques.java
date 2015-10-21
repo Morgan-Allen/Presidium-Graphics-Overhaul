@@ -52,8 +52,8 @@ public class GeneralCombatTechniques {
     REAL_HARM           ,
     NO_FATIGUE          ,
     MINOR_CONCENTRATION ,
-    Technique.IS_PASSIVE_SKILL_FX, MARKSMANSHIP, 5, Action.FIRE,
-    Action.QUICK | Action.RANGED
+    IS_PASSIVE_SKILL_FX, MARKSMANSHIP, 5,
+    MARKSMANSHIP
   ) {
     
     public float passiveBonus(Actor using, Skill skill, Target subject) {
@@ -90,8 +90,8 @@ public class GeneralCombatTechniques {
     REAL_HARM           ,
     NO_FATIGUE          ,
     MAJOR_CONCENTRATION ,
-    Technique.IS_PASSIVE_SKILL_FX, MARKSMANSHIP, 10,
-    Action.FIRE, Action.QUICK | Action.RANGED
+    IS_PASSIVE_SKILL_FX, MARKSMANSHIP, 10,
+    MARKSMANSHIP
   ) {
     
     public float passiveBonus(Actor using, Skill skill, Target subject) {
@@ -127,8 +127,8 @@ public class GeneralCombatTechniques {
     }
     
     
-    public float basePriority(Actor actor, Target subject, float harmLevel) {
-      final float appeal = super.basePriority(actor, subject, harmLevel);
+    public float basePriority(Actor actor, Plan current, Target subject) {
+      final float appeal = super.basePriority(actor, current, subject);
       if (appeal <= 0) return 0;
       return appeal * actor.gear.ammoLevel();
     }

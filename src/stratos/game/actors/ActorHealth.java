@@ -8,12 +8,13 @@ import stratos.game.common.*;
 import stratos.game.maps.Planet;
 import stratos.util.*;
 import static stratos.game.actors.Conditions.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
 //  TODO:  This could probably use a thorough cleanup for organisation/clarity.
 
-public class ActorHealth implements Qualities {
+public class ActorHealth {
   
   /**  Fields, constructors, and save/load methods-
     */
@@ -78,8 +79,8 @@ public class ActorHealth implements Qualities {
     MORALE_DECAY_PER_DAY = 0.33f,
     INJURY_REGEN_PER_DAY = 0.33f,
     
-    DEFAULT_CONCENTRATION  = 10,
-    CONCENTRATE_REGEN_TIME = Stage.STANDARD_HOUR_LENGTH;
+    BASE_CONCENTRATION        = 10,
+    DEFAULT_CONCENTRATE_REGEN = 10f / Stage.STANDARD_HOUR_LENGTH;
   
   
   final Actor actor;
@@ -106,7 +107,7 @@ public class ActorHealth implements Qualities {
     bleeds = false;
   private float
     morale        = MAX_MORALE / 2f,
-    concentration = DEFAULT_CONCENTRATION;
+    concentration = BASE_CONCENTRATION;
   //  TODO:  Need for sleep.
   
   private int
@@ -497,12 +498,6 @@ public class ActorHealth implements Qualities {
   }
   
   
-  public float maxConcentration() {
-    final float willLevel = actor.traits.usedLevel(NERVE) / 10f;
-    return DEFAULT_CONCENTRATION * (1 + willLevel) / 2f;
-  }
-  
-  
   public float concentration() {
     return concentration;
   }
@@ -710,17 +705,17 @@ public class ActorHealth implements Qualities {
     morale -= stress / DL;
     //
     //  Last but not least, update your reserves of concentration-
-    final float maxCon = maxConcentration();
-    concentration += maxCon * (1 - stress) * PM / CONCENTRATE_REGEN_TIME;
-    concentration = Nums.clamp(concentration, 0, maxCon);
+    float conRegen = DEFAULT_CONCENTRATE_REGEN, maxCon = BASE_CONCENTRATION;
+    conRegen      *= (10 + actor.traits.usedLevel(NERVE)) / 20;
+    maxCon        *= Nums.clamp((1 - stress) * PM * 2, 0, 1);
+    concentration =  Nums.clamp(concentration + conRegen, 0, maxCon);
     
     if (report) {
       I.say("  Fatigue multiple: "+FM+", fatigue: "+fatigue);
       I.say("  Injury  multiple: "+IM+", injury:  "+injury);
       I.say("  Morale  multiple: "+MM+", morale:  "+morale);
-      I.say("  Concentration multiple: "+PM);
-      I.say("  Max. concentration: "+maxCon       );
-      I.say("  Current level:      "+concentration);
+      I.say("  Concentration multiple: "+PM+", regen: "+conRegen);
+      I.say("  Concentration: "+concentration+"/"+maxCon);
     }
   }
   

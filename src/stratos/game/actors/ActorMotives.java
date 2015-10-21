@@ -191,7 +191,7 @@ public class ActorMotives {
       r.setRelation(t, 0.5f, Relation.TYPE_GEAR);
     }
     for (Technique t : actor.skills.knownTechniques()) {
-      final Traded c = t.consumes();
+      final Traded c = t.itemNeeded();
       if (c != null) r.setRelation(c, 0.5f, Relation.TYPE_GEAR);
     }
     if (OT != null && OT.shieldBonus > 0 && ! OT.natural()) {

@@ -1,17 +1,20 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
 import stratos.game.base.*;
 import stratos.game.common.Actor;
 import stratos.game.plans.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 //
 //  TODO:  SPLIT THIS INTO DIFFERENT CLASSES
 
-public class Wording implements Qualities {
+public class Wording {
   
   
   

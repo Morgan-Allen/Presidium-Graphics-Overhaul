@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -19,7 +20,7 @@ import stratos.util.*;
 
 
 
-public class Dialogue extends Plan implements Qualities {
+public class Dialogue extends Plan {
   
   
   /**  Constants, data fields, constructors and save/load methods-

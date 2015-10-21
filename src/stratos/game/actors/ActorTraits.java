@@ -3,19 +3,18 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.graphics.sfx.*;  //TODO:  Get rid of direct reference?
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
 //  TODO:  Consider putting skills, traits and physique in separate classes.
 
-public class ActorTraits implements Qualities {
+public class ActorTraits {
   
   
   /**  Common fields, constructors, and save/load methods-
@@ -134,12 +133,12 @@ public class ActorTraits implements Qualities {
   
   
   public boolean male() {
-    return traitLevel(Trait.GENDER_MALE) > 0;
+    return traitLevel(GENDER_MALE) > 0;
   }
   
   
   public boolean female() {
-    return traitLevel(Trait.GENDER_FEMALE) > 0;
+    return traitLevel(GENDER_FEMALE) > 0;
   }
   
   

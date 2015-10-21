@@ -15,7 +15,8 @@ import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
-import stratos.content.abilities.PhysicianTechniques;
+import static stratos.game.actors.Backgrounds.*;
+import stratos.content.abilities.*;
 
 
 
@@ -85,36 +86,57 @@ public class DebugCombat extends Scenario {
   }
   
   
-  private void combatScenario(Stage world, Base base, BaseUI UI) {
-
-    Actor soldier = null;
-    for (int n = 2; n-- > 0;) {
-      soldier = new Human(Backgrounds.TROOPER, base);
+  private void setupCombatScenario(
+    Stage world, Base base, BaseUI UI,
+    Background selfTypes[], Technique techniques[],
+    Species otherTypes[], Base otherBase
+  ) {
+    
+    Batch <Actor> soldiers = new Batch();
+    for (Background b : selfTypes) {
+      Actor soldier = b.sampleFor(base);
       soldier.enterWorldAt(4, 4, world);
-    }
-    
-    Actor support = null;
-    for (int n = 1; n-- > 0;) {
-      support = new Human(Backgrounds.PHYSICIAN, base);
-      support.enterWorldAt(1, 1, world);
+      soldiers.add(soldier);
       
-      support.gear.bumpItem(MEDICINE, 2);
-      support.skills.addTechnique(PhysicianTechniques.HYPO_SPRAY    );
-      support.skills.addTechnique(PhysicianTechniques.BOOSTER_SHOT  );
-      support.skills.addTechnique(PhysicianTechniques.PAX_9         );
-      support.skills.addTechnique(PhysicianTechniques.PSY_INHIBITION);
+      for (Technique t : techniques) {
+        if (t.isItemDerived()) soldier.gear.bumpItem(t.itemNeeded(), 1);
+        else soldier.skills.addTechnique(t);
+      }
+
+      base.intelMap.liftFogAround(soldier, 9);
+      UI.selection.pushSelection(soldier);
     }
     
-    final Base wildlife = Base.wildlife(world);
-    final Actor avrodil = Avrodil.SPECIES.sampleFor(wildlife);
+    if (otherTypes != null) for (Background b : otherTypes) {
+      Actor other = b.sampleFor(otherBase);
+      other.enterWorldAt(9, 9, world);
+      other.health.setMaturity(0.8f);
+      
+      Actor enemy = (Actor) Rand.pickFrom(soldiers);
+      other.mind.assignBehaviour(new Combat(other, enemy));
+    }
+  }
+  
+  
+  private void combatScenario(Stage world, Base base, BaseUI UI) {
     
-    avrodil.health.setMaturity(0.8f);
-    avrodil.health.setFatigueLevel(0.15f);
-    avrodil.enterWorldAt(9, 9, world, true);
-    avrodil.mind.assignBehaviour(new Combat(avrodil, soldier));
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { RUNNER, RUNNER },
+      RunnerTechniques.RUNNER_TECHNIQUES,
+      new Species[] { Tripod.SPECIES },
+      Base.artilects(world)
+    );
     
-    base.intelMap.liftFogAround(support, 9);
-    UI.selection.pushSelection(support);
+    /*
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { PHYSICIAN, TROOPER, TROOPER },
+      PhysicianTechniques.PHYSICIAN_TECHNIQUES,
+      new Species[] { Avrodil.SPECIES },
+      Base.artilects(world)
+    );
+    //*/
   }
   
   

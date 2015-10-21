@@ -6,10 +6,11 @@
 package stratos.game.actors;
 import stratos.game.common.Actor;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
-public class Choice implements Qualities {
+public class Choice {
   
   
   /**  Data fields, constructors and setup-

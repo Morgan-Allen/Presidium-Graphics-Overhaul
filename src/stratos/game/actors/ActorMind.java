@@ -14,7 +14,7 @@ import stratos.game.economic.Property;
 //  TODO:  Break down the report functions with some finer granularity.  You
 //         may only want to inspect certain facets of the decision-process.
 
-public abstract class ActorMind implements Qualities {
+public abstract class ActorMind {
   
   
   /**  Field definitions, constructor, save/load methods-

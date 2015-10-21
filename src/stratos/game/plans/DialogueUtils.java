@@ -7,10 +7,11 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
-public class DialogueUtils implements Qualities {
+public class DialogueUtils {
   
   
   /**  Helper methods for elaborating on chat options-

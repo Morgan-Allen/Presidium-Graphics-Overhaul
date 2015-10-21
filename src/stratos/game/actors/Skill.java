@@ -6,11 +6,10 @@
 package stratos.game.actors;
 import stratos.graphics.common.Colour;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
-//
-//  Consider folding these into the Trait class.
 public class Skill extends Trait {
   
   

@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -16,7 +17,7 @@ import stratos.util.*;
 //  impossible-to-reach areas (such as islands in the middle of an ocean.)
 //  You'll need to set up large-scale path-culling soon.
 
-public class Exploring extends Plan implements Qualities {
+public class Exploring extends Plan {
   
   
   /**  Construction and save/load methods-
