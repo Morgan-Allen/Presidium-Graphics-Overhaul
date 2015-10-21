@@ -25,6 +25,8 @@ TO DO NOW-
 
 *  See if you can hook up ammo clips and power cells.
 *  Psy inhibition needs to be filled in?
+*  Noble command and call of duty
+*  Some runner abilities need undercover ops to be implemented.
 
 
 *  Initial missions:

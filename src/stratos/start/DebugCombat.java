@@ -102,7 +102,7 @@ public class DebugCombat extends Scenario {
         if (t.isItemDerived()) soldier.gear.bumpItem(t.itemNeeded(), 1);
         else soldier.skills.addTechnique(t);
       }
-
+      
       base.intelMap.liftFogAround(soldier, 9);
       UI.selection.pushSelection(soldier);
     }

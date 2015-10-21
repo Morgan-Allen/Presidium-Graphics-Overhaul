@@ -80,6 +80,37 @@ public class RunnerMarket extends Venue {
       new Object[] { 5, STEALTH_AND_COVER, 5, ACCOUNTING },
       350,
       650
+    ),
+    FREE_MARKET  = new Upgrade(
+      "Free Market",
+      "Increases income from smuggling and sales of contraband.",
+      300, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, PHARMACY, 5, CHEMISTRY
+    ),
+    CYBERNETICS  = new Upgrade(
+      "Cybernetics",
+      "Grants your runners access to the black arts of AI hacking, helping "+
+      "them to bypass security and disable robotic opponents.",
+      300, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, INSCRIPTION, 5, ASSEMBLY
+    ),
+    CHEM_KITCHEN = new Upgrade(
+      "Marksman Training",
+      "Enables the sale and manufacture of "+SLOW_BURN_ITEM+" and "+
+      FAST_TOXIN_ITEM+".",
+      250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, PHARMACY, 5, CHEMISTRY
+    ),
+    SNIPER_TECH  = new Upgrade(
+      "Sniper Tech",
+      "Equips your runners with specialised long-range weaponry capable of "+
+      "devastating precision.",
+      350, Upgrade.TWO_LEVELS, LEVELS[1], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, BATTLE_TACTICS, 15, MARKSMANSHIP
     );
   
   
@@ -116,14 +147,21 @@ public class RunnerMarket extends Venue {
         final Smuggling s = Smuggling.bestSmugglingFor(this, ship, actor, 5);
         if (s != null && staff.assignedTo(s) == 0) choice.add(s);
       }
+      //
+      //  And finally, general technique acquisition...
+      choice.add(Studying.asTechniqueTraining(actor, this, 0, canLearn()));
     }
     //
-    //  And lastly, consider manufacturing contraband from scratch:
+    //  And lastly, consider manufacturing contraband from scratch, or simply
+    //  minding the place:
     if (job == FIXER) {
       for (Item ordered : stocks.specialOrders()) {
         final Manufacture mO = new Manufacture(actor, this, ordered);
         final Upgrade forType = upgradeFor(ordered.type);
         choice.add(mO.setBonusFrom(this, true, forType));
+      }
+      if (choice.empty()) {
+        choice.add(Supervision.oversight(this, actor));
       }
     }
     return choice.weightedPick();
@@ -136,11 +174,7 @@ public class RunnerMarket extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
-    if (I.talkAbout == client) {
-      ///choice.isVerbose = true;
-    }
-    
-    final Traded services[] = { SLOW_BURN_ITEM };
+    final Traded services[] = { SLOW_BURN_ITEM, FAST_TOXIN_ITEM };
     for (Traded t : services) {
       final Upgrade limit = upgradeFor(t);
       final Item gets = GearPurchase.nextGearToPurchase(client, this, t);
@@ -150,9 +184,20 @@ public class RunnerMarket extends Venue {
   }
   
   
+  private Technique[] canLearn() {
+    Batch <Technique> can = new Batch();
+    if (structure.hasUpgrade(CYBERNETICS)) can.add(OVERLOAD  );
+    if (structure.hasUpgrade(SNIPER_TECH)) can.add(SNIPER_KIT);
+    return can.toArray(Technique.class);
+  }
+  
+  
   private Upgrade upgradeFor(Traded type) {
     if (type == SLOW_BURN_ITEM) {
-      return null;
+      return CHEM_KITCHEN;
+    }
+    if (type == FAST_TOXIN_ITEM) {
+      return CHEM_KITCHEN;
     }
     return null;
   }

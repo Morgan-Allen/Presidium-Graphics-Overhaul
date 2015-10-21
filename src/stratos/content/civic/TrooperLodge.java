@@ -17,6 +17,7 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.content.abilities.TrooperTechniques.*;
 
 
 
@@ -83,16 +84,25 @@ public class TrooperLodge extends Venue {
     ),
     MARKSMAN_TRAINING = new Upgrade(
       "Marksman Training",
-      "Drills your soldiers to improve ranged marksmanship.",
+      "Drills your soldiers to improve ranged marksmanship and observation.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       5, BATTLE_TACTICS, 10, MARKSMANSHIP
     ),
-    
-    
-    //  TODO:  Add Frag Launcher & Power Armour upgrades, plus Noble Command
-    //  and Call of Duty.
-    
+    POWER_ARMOUR_UPGRADE = new Upgrade(
+      "Power Armour",
+      "Allows your soldiers to enter the field in mechanised combat suits.",
+      600, Upgrade.SINGLE_LEVEL, LEVELS[1], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, BATTLE_TACTICS, 15, HAND_TO_HAND
+    ),
+    FRAG_LAUNCHER_UPGRADE = new Upgrade(
+      "Frag Launcher",
+      "Allows your soldiers to field rocket-propelled grenades in the field.",
+      600, Upgrade.SINGLE_LEVEL, LEVELS[1], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, BATTLE_TACTICS, 15, MARKSMANSHIP
+    ),
     FIELD_MEDICINE = new Upgrade(
       "Field Medicine",
       "Drills your soldiers in first aid techniques and use of combat stims.",
@@ -117,9 +127,9 @@ public class TrooperLodge extends Venue {
   };
   final static Skill TRAIN_SKILLS[][] = {
     { HAND_TO_HAND, FORMATION_COMBAT },
-    { MARKSMANSHIP, SURVEILLANCE },
-    { ANATOMY, PHARMACY },
-    { ASSEMBLY, HARD_LABOUR }
+    { MARKSMANSHIP, SURVEILLANCE     },
+    { ANATOMY     , PHARMACY         },
+    { ASSEMBLY    , HARD_LABOUR      }
   };
   
   
@@ -149,7 +159,7 @@ public class TrooperLodge extends Venue {
     }
     //
     //  We allow for drilling in various skills during a soldier's secondary
-    //  shift-
+    //  shift, and acquiring upgrade-based techniques.
     else for (int i = 4; i-- > 0;) {
       final Upgrade TU = TRAIN_UPGRADES[i];
       final float trainLevel = structure.upgradeLevel(TU);
@@ -159,12 +169,16 @@ public class TrooperLodge extends Venue {
       s.addMotives(Plan.MOTIVE_JOB, (trainLevel + 1) * Plan.CASUAL / 2);
       choice.add(s);
     }
+    choice.add(Studying.asTechniqueTraining(actor, this, 0, canLearn()));
     return choice.weightedPick();
   }
   
   
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
+  private Technique[] canLearn() {
+    Batch <Technique> can = new Batch();
+    if (structure.hasUpgrade(FRAG_LAUNCHER_UPGRADE)) can.add(FRAG_LAUNCHER   );
+    if (structure.hasUpgrade(POWER_ARMOUR_UPGRADE )) can.add(POWER_ARMOUR_USE);
+    return can.toArray(Technique.class);
   }
   
   

@@ -89,7 +89,7 @@ public class PhysicianStation extends Venue {
       Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
-    GENE_CLINIC = new Upgrade(
+    GENE_THERAPIES = new Upgrade(
       "Gene Therapies",
       "Allows for screening of hereditary illness and DNA damage, helping to"+
       "to treat chronic disease and prevent birth defects.",
@@ -118,8 +118,8 @@ public class PhysicianStation extends Venue {
     //  Psy-boosting meds that consume spyce.
     PNEUMA_LAB = null,
     
-    //  Combat stims plus extra chance of revival as enraged.
-    COMBAT_STIMS = null;
+    //  Personal ability just for physicians.
+    PAX_CONDITIONING = null;
     /*
     MINDER_POST = new Upgrade(
       "Minder Post",
