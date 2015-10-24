@@ -183,7 +183,6 @@ public class Dialogue extends Plan {
   
   
   
-  
   /**  Target selection and priority evaluation-
     */
   final static Trait BASE_TRAITS[] = { OUTGOING, POSITIVE, EMPATHIC };
@@ -196,17 +195,26 @@ public class Dialogue extends Plan {
     
     setCompetence(1); //  Will modify below
     
-    if (GameSettings.noChat) return -1;
-    if (! other.health.human()) return -1;
-    if (stage == STAGE_DONE) return -1;
+    if (GameSettings.noChat || stage == STAGE_DONE) {
+      if (report) I.say("\n  Dialogue complete.");
+      return -1;
+    }
     
-    if (stage == STAGE_BYE) return CASUAL;
+    if (stage == STAGE_BYE) {
+      if (report) I.say("\n  Saying goodbye.");
+      return CASUAL;
+    }
+    
     if (type == TYPE_CASUAL && ! canTalk(other)) {
-      if (report) I.say("\n"+other+" can't talk now- skipping!");
+      if (report) I.say("\n  "+other+" can't talk now.");
       return -1;
     }
     
     setCompetence(successChanceFor(actor));
+    if (competence() <= 0) {
+      if (report) I.say("\n  Cannot communicate with "+other+".");
+      return -1;
+    }
     
     final float priority = PlanUtils.dialoguePriority(
       actor, other, motiveBonus(), competence()

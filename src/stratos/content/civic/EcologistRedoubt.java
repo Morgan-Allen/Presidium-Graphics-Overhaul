@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.civic;
+import stratos.content.abilities.EcologistTechniques;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -191,7 +192,9 @@ public class EcologistRedoubt extends Venue implements Captivity {
     //  station.)  Then release it to live here.
     //choice.add(AnimalTending.nextTending(actor, this));
     
-    
+    choice.add(Studying.asTechniqueTraining(
+      actor, this, 0, EcologistTechniques.ECOLOGIST_TECHNIQUES
+    ));
     return choice.weightedPick();
   }
   

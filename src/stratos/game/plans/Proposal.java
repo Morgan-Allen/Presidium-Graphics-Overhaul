@@ -75,7 +75,7 @@ public class Proposal extends Dialogue {
     //  the current value of their relationship with the proposer.
     final boolean report = (
       I.talkAbout == actor || I.talkAbout == other
-    );// && stepsVerbose;
+    ) && stepsVerbose;
     final float
       offersVal = offers.valueFor(other),
       soughtVal = sought.valueFor(other),

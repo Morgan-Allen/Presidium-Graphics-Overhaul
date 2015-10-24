@@ -19,12 +19,12 @@ import stratos.util.*;
 //         actions, rather than passive skill bonuses?
 
 
-public class GeneralCombatTechniques {
+public class CommonTechniques {
   
   
   
   final static String DIR = "media/GUI/Powers/";
-  final static Class BASE_CLASS = GeneralCombatTechniques.class;
+  final static Class BASE_CLASS = CommonTechniques.class;
   
   final static ShotFX.Model
     TRACE_FX_MODEL = new ShotFX.Model(
@@ -187,6 +187,12 @@ public class GeneralCombatTechniques {
   
   
   final public static Technique SOLO_RUN = null;
+  
+  
+  final public static Technique AIR_OF_COMMAND = null;
+  
+  
+  final public static Technique OATH_OF_FEALTY = null;
 }
 
 

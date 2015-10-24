@@ -36,6 +36,7 @@ public final class Outfits {
       BC, "Scrap Gear", 3, 0, 5,
       null, 0, HANDICRAFTS
     ),
+    
     INTRINSIC_ARMOUR = new OutfitType(
       BC, "Natural Armour", 0, 0, 0,
       null

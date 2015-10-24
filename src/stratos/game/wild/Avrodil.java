@@ -166,6 +166,21 @@ public class Avrodil extends Fauna implements Captivity {
     IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
     Action.FALL, Action.NORMAL
   ) {
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject
+    ) {
+      if (actor.traits.hasTrait(asCondition)) {
+        return false;
+      }
+      if (current instanceof Retreat) {
+        return true;
+      }
+      if (current instanceof Resting) {
+        return true;
+      }
+      return false;
+    }
+    
     
     public void applyEffect(
       Actor using, boolean success, Target subject, boolean passive
@@ -203,28 +218,15 @@ public class Avrodil extends Fauna implements Captivity {
       if (flora == null) return;
       final ModelAsset model = flora[0].modelSequence[2];
       affected.attachDisguise(model.makeSprite());
+      
+      applyAsCondition(affected);
+      SenseUtils.breaksPursuit(affected, null);
     }
     
     
     protected void onConditionEnd(Actor affected) {
       super.onConditionEnd(affected);
       affected.detachDisguise();
-    }
-    
-    
-    public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
-    ) {
-      if (actor.traits.hasTrait(asCondition)) {
-        return false;
-      }
-      if (current instanceof Retreat) {
-        return true;
-      }
-      if (current instanceof Resting) {
-        return true;
-      }
-      return false;
     }
   };
   

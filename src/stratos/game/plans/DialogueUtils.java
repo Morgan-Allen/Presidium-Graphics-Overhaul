@@ -32,7 +32,12 @@ public class DialogueUtils {
   public static float communicationChance(Actor actor, Actor other) {
     final Skill language = languageFor(other);
     if (language == null) return 0;
-    return actor.skills.chance(language, ROUTINE_DC);
+    float chance = 1;
+    if (! actor.traits.hasTrait(language)) {
+      if (actor.species() != other.species()) return 0;
+      else chance = 0.5f;
+    }
+    return chance * actor.skills.chance(language, ROUTINE_DC);
   }
   
   

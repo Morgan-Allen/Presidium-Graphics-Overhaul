@@ -152,7 +152,7 @@ public class RunnerTechniques {
       );
       
       ActionFX.applyBurstFX(
-        GeneralCombatTechniques.AIM_FX_MODEL, actor, 1.5f, 1
+        CommonTechniques.AIM_FX_MODEL, actor, 1.5f, 1
       );
       ActionFX.applyShotFX(
         SNIPER_TRACE_FX, actor, mark, hits, 1, actor.world()

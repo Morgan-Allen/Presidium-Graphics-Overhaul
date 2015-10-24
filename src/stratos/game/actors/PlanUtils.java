@@ -151,9 +151,9 @@ public class PlanUtils {
     float chatIncentive = 0, pleaIncentive = 0, priority = 0;
     
     final Relation r = actor.relations.relationWith(subject);
-    liking  = r == null ? 0 : r.value  ();
-    novelty = r == null ? 1 : r.novelty();
-    solitude = actor.motives.solitude();
+    liking       = r == null ? 0 : r.value  ();
+    novelty      = r == null ? 1 : r.novelty();
+    solitude     = actor.motives.solitude();
     harmIntended = Nums.clamp(harmIntendedBy(subject, actor, true), 0, 1);
     baseNovelty  = actor.relations.noveltyFor(subject.base());
     
