@@ -232,7 +232,7 @@ public class PhysicianTechniques {
       if (! success) return;
       
       final Actor affects = (Actor) subject;
-      affects.enterStateKO(Action.FALL);
+      affects.enterStateKO(Action.STAND);
       affects.mind.clearAgenda();
       affects.relations.incRelation(using, 0.5f, 0.1f, 0.2f);
       affects.traits.setLevel(asCondition, 1);

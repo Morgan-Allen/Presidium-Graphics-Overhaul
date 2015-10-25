@@ -104,11 +104,11 @@ public final class Devices {
       null
     ),
     
-    LASDRILL_FRAME = new DeviceType(
-      BC, "Laser Drill",
-      "laser drill", AnimNames.BUILD,
-      5, MELEE | KINETIC | ENERGY, 10,
-      EngineerStation.class, 2, PARTS, 5, ASSEMBLY
+    MANIPULATOR = new DeviceType(
+      BC, "Manipulator",
+      "maniples", AnimNames.STRIKE,
+      5, MELEE | KINETIC, 10,
+      EngineerStation.class, 1, PARTS, 5, ASSEMBLY
     ),
     MODUS_LUTE = new DeviceType(
       BC, "Modus Lute",
@@ -125,3 +125,7 @@ public final class Devices {
   final public static Traded
     ALL_DEVICES[] = Traded.INDEX.soFar(Traded.class);
 }
+
+
+
+

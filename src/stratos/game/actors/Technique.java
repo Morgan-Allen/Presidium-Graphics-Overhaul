@@ -163,12 +163,12 @@ public abstract class Technique extends Constant {
     String description,
     Class sourceClass, String uniqueID,
     float power, float harm, float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel,
+    int properties, Skill skillUsed, int minLevel,
     String animName, int actionProperties
   ) { this(
     name, iconFile, description, sourceClass, uniqueID,
     power, harm, fatigue, concentration,
-    type, skillUsed, minLevel, null,
+    properties, skillUsed, minLevel, null,
     animName, actionProperties
   ); }
   
@@ -179,12 +179,12 @@ public abstract class Technique extends Constant {
     String description,
     Class sourceClass, String uniqueID,
     float power, float harm, float fatigue, float concentration,
-    int type, Skill skillUsed, int minLevel,
+    int properties, Skill skillUsed, int minLevel,
     Object focus
   ) { this(
     name, iconFile, description, sourceClass, uniqueID,
     power, harm, fatigue, concentration,
-    type, skillUsed, minLevel, focus,
+    properties, skillUsed, minLevel, focus,
     Action.STAND, Action.NORMAL
   ); }
   

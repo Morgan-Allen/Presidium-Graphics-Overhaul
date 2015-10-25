@@ -10,12 +10,10 @@ import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
-import stratos.user.*;
-import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
+import stratos.content.abilities.EngineerTechniques;
 
 
 
@@ -206,9 +204,7 @@ public class EngineerStation extends Venue {
     if (actor.mind.vocation() == ARTIFICER && crafting != null) {
       return crafting;
     }
-    //
-    //  Consider research for new upgrades and structures-
-    ///choice.add(Studying.asResearch(actor, this, Target.TYPE_ENGINEER));
+    
     //
     //  Consider the production of general bulk commodities-
     final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
@@ -223,6 +219,14 @@ public class EngineerStation extends Venue {
     if (mI != null) {
       choice.add(mI.setBonusFrom(this, false, MICRO_ASSEMBLY));
     }
+    
+    //
+    //  Consider research for new upgrades and structures-
+    ///choice.add(Studying.asResearch(actor, this, Target.TYPE_ENGINEER));
+    choice.add(Studying.asTechniqueTraining(
+      actor, this, 0, EngineerTechniques.ENGINEER_TECHNIQUES)
+    );
+    
     //
     //  And return whatever suits the actor best-
     return choice.weightedPick();

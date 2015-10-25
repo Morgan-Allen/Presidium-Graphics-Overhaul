@@ -335,6 +335,13 @@ public class Structure {
   }
   
   
+  public boolean isMechanical() {
+    if (Blueprint.hasProperty(this, IS_CRAFTED)) return false;
+    if (Blueprint.hasProperty(this, IS_ORGANIC)) return false;
+    return true;
+  }
+  
+  
   public boolean regenerates() {
     return Blueprint.hasProperty(this, IS_ORGANIC);
   }

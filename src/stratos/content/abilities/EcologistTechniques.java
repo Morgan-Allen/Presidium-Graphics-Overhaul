@@ -11,9 +11,8 @@ import stratos.game.plans.*;
 import stratos.game.wild.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
-import static stratos.game.economic.Economy.FORM_SPECIAL;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.PlaneFX;
+import stratos.graphics.sfx.*;
 
 
 
@@ -241,7 +240,7 @@ public class EcologistTechniques {
   
   
   final public static Traded MOUNT_HARNESS = new Traded(
-    BASE_CLASS, "Mount Harness", null, FORM_SPECIAL, 0,
+    BASE_CLASS, "Mount Harness", null, Economy.FORM_SPECIAL, 0,
     "Allows riding of animal mounts."
   );
   
