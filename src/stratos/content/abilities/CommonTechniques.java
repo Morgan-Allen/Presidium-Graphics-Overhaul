@@ -189,10 +189,10 @@ public class CommonTechniques {
   final public static Technique SOLO_RUN = null;
   
   
-  final public static Technique AIR_OF_COMMAND = null;
+  final public static Technique AIR_OF_AUTHORITY = null;
   
   
-  final public static Technique OATH_OF_FEALTY = null;
+  final public static Technique WORD_OF_HONOUR = null;
 }
 
 

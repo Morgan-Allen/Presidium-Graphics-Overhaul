@@ -592,9 +592,10 @@ public abstract class Actor extends Mobile implements
       if (health.dying()) return;
       
       healthbar.matchTo(sprite());
-      healthbar.level  = (1 - health.injuryLevel());
-      healthbar.colour = base().colour();
-      healthbar.size   = (35 + health.maxHealth()) / 2f;
+      healthbar.hurtLevel  =  health.injuryLevel();
+      healthbar.tireLevel  =  health.fatigueLevel();
+      healthbar.colour     =  base().colour();
+      healthbar.size       =  (35 + health.maxHealth()) / 2f;
       healthbar.position.z += height() + 0.1f;
       healthbar.readyFor(rendering);
     }

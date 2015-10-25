@@ -147,6 +147,7 @@ public class Colour {
    * Sets this colour to match the argument Colour values.
    */
   public Colour set(Colour colour) {
+    if (colour == null) colour = Colour.WHITE;
     r = colour.r;
     g = colour.g;
     b = colour.b;

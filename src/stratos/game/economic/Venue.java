@@ -773,7 +773,7 @@ public abstract class Venue extends Fixture implements
     //  a sub-bar to show upgrade progress.
     final int NU = structure.numUpgrades();
     final Healthbar healthbar = new Healthbar();
-    healthbar.level = structure.repairLevel();
+    healthbar.hurtLevel = 1 - structure.repairLevel();
     healthbar.size = (radius() * 50);
     healthbar.size *= 1 + Structure.UPGRADE_HP_BONUSES[NU];
     healthbar.matchTo(buildSprite);
@@ -785,7 +785,7 @@ public abstract class Venue extends Fixture implements
     
     if (structure.needsUpgrade()) {
       Healthbar progBar = new Healthbar();
-      progBar.level = structure.upgradeProgress();
+      progBar.hurtLevel = 1 - structure.upgradeProgress();
       progBar.size = healthbar.size;
       progBar.position.setTo(healthbar.position);
       progBar.yoff = 0 - Healthbar.BAR_HEIGHT;

@@ -166,8 +166,9 @@ public class EngineerTechniques {
   
   final public static Technique POWER_LIFTER_USE = new Technique(
     "Power Lifter Use", UI_DIR+"power_lifter_use.png",
-    "Permits certain tamed animals to be used as personal mounts.",
-    BASE_CLASS      , "mount_training",
+    "Allows the use of a "+Outfits.POWER_LIFTER+", granting additional "+
+    "strength and protection at higher maintenance cost.",
+    BASE_CLASS      , "power_lifter_use",
     MAJOR_POWER     ,
     NO_HARM         ,
     NO_FATIGUE      ,

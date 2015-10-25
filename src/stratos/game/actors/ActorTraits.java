@@ -294,20 +294,20 @@ public class ActorTraits {
       return;
     }
     
-    if (toLevel == 0) {
-      type.onRemoval(actor);
+    Level level = levels.get(type);
+    final boolean init = level == null;
+    
+    if (toLevel == 0 && ! init) {
       levels.remove(type);
+      type.onRemoval(actor);
       return;
     }
-    
-    Level level = levels.get(type);
-    if (level == null) {
-      levels.put(type, level = new Level());
-      type.onAddition(actor);
-    }
+    else if (init) levels.put(type, level = new Level());
     
     final float oldVal = level.value;
     level.value = toLevel;
+    if (init) type.onAddition(actor);
+    
     /*
     if (type == MUTATION) {
       afterMutation(level.value - oldVal, false);
@@ -316,6 +316,7 @@ public class ActorTraits {
       type.affect(actor);
     }
     //*/
+    
     tryReport(type, level.value - (int) oldVal);
   }
   

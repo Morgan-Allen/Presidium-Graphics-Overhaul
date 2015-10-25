@@ -20,6 +20,12 @@ import stratos.content.abilities.*;
 
 
 
+//  TODO:  I need some automated testing here.  You have a setup method, and a
+//  checkResult method, that you then pass as string arguments.  Run the
+//  scenario for up to 5 minutes, say, or whenever pass/fail criteria are met.
+//  Then log the results and move on.
+
+
 public class DebugCombat extends Scenario {
   
   
@@ -120,6 +126,17 @@ public class DebugCombat extends Scenario {
   
   private void combatScenario(Stage world, Base base, BaseUI UI) {
     
+    //*
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { ECOLOGIST, ECOLOGIST },
+      EcologistTechniques.ECOLOGIST_TECHNIQUES,
+      new Species[] { Avrodil.SPECIES },
+      Base.vermin(world)
+    );
+    //*/
+    
+    /*
     setupCombatScenario(
       world, base, UI,
       new Background[] { RUNNER, RUNNER },
@@ -127,14 +144,15 @@ public class DebugCombat extends Scenario {
       new Species[] { Tripod.SPECIES },
       Base.artilects(world)
     );
+    //*/
     
     /*
     setupCombatScenario(
       world, base, UI,
       new Background[] { PHYSICIAN, TROOPER, TROOPER },
       PhysicianTechniques.PHYSICIAN_TECHNIQUES,
-      new Species[] { Avrodil.SPECIES },
-      Base.artilects(world)
+      new Species[] { Yamagur.SPECIES },
+      Base.wildlife(world)
     );
     //*/
   }

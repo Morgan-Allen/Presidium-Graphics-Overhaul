@@ -13,6 +13,7 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
+import stratos.util.Rand;
 
 
 
@@ -38,7 +39,7 @@ public class EcologistTechniques {
   final static PlaneFX.Model
     TRANQ_BURST_FX = PlaneFX.imageModel(
       "tranq_burst_fx", BASE_CLASS,
-      FX_DIR+"tranq_burst.png",
+      FX_DIR+"tranquilliser_burst.png",
       0.66f, 0, 0.33f, true, false
     );
   
@@ -47,6 +48,9 @@ public class EcologistTechniques {
     TRANQ_HIT_FULL = 5,
     TRANQ_HIT_TIME = 5;
   
+  final static float
+    CALL_MIN_NOVELTY   = 0.5f,
+    CALL_MAX_HOSTILITY = 0.5f;
 
   
   
@@ -91,7 +95,7 @@ public class EcologistTechniques {
         final Actor shot = (Actor) subject;
         shot.health.takeFatigue(TRANQ_HIT_INIT);
         shot.traits.incLevel(asCondition, 1);
-        ActionFX.applyBurstFX(TRANQ_BURST_FX, shot, 1.5f, 1);
+        ActionFX.applyBurstFX(TRANQ_BURST_FX, shot, 0.5f, 1);
       }
     }
     
@@ -118,7 +122,7 @@ public class EcologistTechniques {
     BASE_CLASS, "pattern_camo",
     MINOR_POWER         ,
     REAL_HELP           ,
-    MINOR_FATIGUE       ,
+    NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
     IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, null, 0,
     Action.MOVE_SNEAK, Action.NORMAL
@@ -193,7 +197,7 @@ public class EcologistTechniques {
     BASE_CLASS, "xeno_call",
     MINOR_POWER         ,
     MILD_HELP           ,
-    MINOR_FATIGUE       ,
+    NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
     IS_ANY_TARGETING, XENOZOOLOGY, 5,
     Action.TALK, Action.QUICK | Action.RANGED
@@ -203,11 +207,16 @@ public class EcologistTechniques {
       if (! (subject instanceof Fauna)) {
         return false;
       }
+      final Fauna calls = (Fauna) subject;
+      if (actor.relations.noveltyFor(calls) <= CALL_MIN_NOVELTY) {
+        return false;
+      }
       if (current instanceof Dialogue && current.subject() == subject) {
         return true;
       }
-      final Actor calls = (Actor) subject;
-      if (calls.planFocus(Combat.class, true) == actor) return true;
+      if (calls.planFocus(Combat.class, true) == actor) {
+        return true;
+      }
       return false;
     }
     
@@ -230,10 +239,22 @@ public class EcologistTechniques {
     ) {
       super.applyEffect(using, success, subject, passive);
       
-      //  TODO:  Boost relationship, and grant chance to convert.
+      final Fauna calls = (Fauna) subject;
+      using.relations.incRelation(calls, 0, 0, -1);
       
       if (success) {
+        calls.relations.incRelation(using, 0.5f, 0.5f, 0);
         
+        if (calls.harmIntended(using) > 0) {
+          Behaviour root = calls.mind.rootBehaviour();
+          calls.mind.cancelBehaviour(root, "Xeno Call Used!");
+        }
+        
+        float relation = calls.relations.valueFor(using);
+        if (Rand.num() < relation) {
+          calls.assignBase(using.base());
+          calls.mind.setHome(using.mind.home());
+        }
       }
     }
   };

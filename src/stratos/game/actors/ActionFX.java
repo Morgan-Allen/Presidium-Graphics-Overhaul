@@ -178,6 +178,7 @@ public class ActionFX {
     
     final Sprite s = model.makeSprite();
     s.position.setTo(pos);
+    s.scale = point.radius() * 2;
     point.world().ephemera.addGhost(point, 1, s, duration);
   }
   

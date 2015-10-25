@@ -287,12 +287,12 @@ public class Human extends Actor {
     //  TODO:  Move out to the CombatUtils class...
     final DeviceType DT = gear.deviceType();
     final Property work = mind.work();
-    if (DT != null) {
+    final SolidSprite shown = (SolidSprite) I.cast(sprite(), SolidSprite.class);
+    if (DT != null && shown != null) {
       boolean shouldArm = senses.isEmergency();
       if (work != null && work.staff().onShift(this)) shouldArm = true;
-      ((SolidSprite) sprite()).togglePart(DT.groupName, shouldArm);
+      shown.togglePart(DT.groupName, shouldArm);
     }
-    
     
     //  TODO:  Also a bit of a hack.  Remove later.
     if (gear.shieldCharge() > gear.maxShields()) {

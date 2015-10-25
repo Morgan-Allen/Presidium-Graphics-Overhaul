@@ -235,7 +235,8 @@ public class TrooperTechniques {
   
   final public static Technique POWER_ARMOUR_USE = new Technique(
     "Power Armour Use", UI_DIR+"power_armour_use.png",
-    "Permits the use of "+Outfits.POWER_ARMOUR+".",
+    "Permits the use of "+Outfits.POWER_ARMOUR+", granting additional "+
+    "strength and protection at higher maintenance cost.",
     BASE_CLASS      , "power_armour_use",
     MAJOR_POWER     ,
     NO_HARM         ,

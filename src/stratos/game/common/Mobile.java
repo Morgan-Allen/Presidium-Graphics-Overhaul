@@ -397,9 +397,11 @@ public abstract class Mobile extends Element
   ) {
     final Sprite s = this.sprite();
     float scale = spriteScale();
-    s.scale = scale;
-    s.position.setTo(position);
+    
+    s.scale    = scale;
+    s.colour   = Colour.WHITE;
     s.rotation = rotation;
+    s.position.setTo(position);
     s.readyFor(rendering);
     //
     //  Render your shadow, either on the ground or on top of occupants-

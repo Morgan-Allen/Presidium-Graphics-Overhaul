@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.sfx;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -7,8 +10,9 @@ import stratos.util.*;
 
 
 
-//  TODO:  Include a version of this for inclusion in the HUD as well?  Or just
-//  use the ProgressBar class?
+//  TODO:  You'll want to be able to display a fatigue component as well, and
+//  maybe tint the bar green/yellow to indicate poison?
+
 
 public class Healthbar extends SFX {
   
@@ -26,17 +30,19 @@ public class Healthbar extends SFX {
     BAR_HEIGHT = 5,
     DEFAULT_WIDTH = 40;
   final public static Colour
-    AMBER_FLASH = new Colour().set(1, 0.75f, 0, 1);
+    TIRED_GREY  = new Colour(0.8f, 0.8f , 0.8f, 1),
+    AMBER_FLASH = new Colour(1   , 0.75f, 0   , 1);
   
   
-  public float level = 0.5f, yoff = 0;
+  public float hurtLevel = 0.5f, tireLevel = 0.5f, yoff = 0;
   public float size = DEFAULT_WIDTH;
-  
+  public boolean alarm = false;
   public Colour
     back  = Colour.DARK_GREY,
     warn  = Colour.RED,
+    tire  = TIRED_GREY,
     flash = AMBER_FLASH;
-  public boolean alarm = false;
+  
   private float flashTime = 0;
   
   
@@ -81,71 +87,62 @@ public class Healthbar extends SFX {
     
     //  Then, establish correct colours for the fill, back, and warning-
     final ImageAsset blank = Image.SOLID_WHITE;
-    Colour colour = this.colour;
-    if (colour == null) colour = Colour.LITE_GREY;
-    Colour back = new Colour(this.back == null ? Colour.WHITE : this.back);
-    back.a = colour.a * fog;
-    warn.a = colour.a * fog;
-    final float s = 1 - level, f = fog;
-    
-    if (widget) passW.draw(
-      blank.asTexture(), back,
-      x, y, size, BAR_HEIGHT,
-      0, 0, 1, 1
-    );
-    else passS.compileQuad(
-      blank.asTexture(), back, false,
-      x, y, size, BAR_HEIGHT,
-      0, 0, 1, 1,
-      z, true
-    );
+    Colour back = new Colour(this.back);
+    back.blend(Colour.BLACK, fog);
+    back.calcFloatBits();
+    renderPortion(back, blank, x, y, size, z, passS, passW, basis, widget);
     
     //  When in alarm mode, you need to flash-
     if (alarm) {
-      final float urgency = (1 - level) * 2;
+      final float urgency = hurtLevel * 2;
       flashTime += ((urgency / Rendering.FRAMES_PER_SECOND) * Nums.PI / 2f);
       flashTime %= (Nums.PI * 2);
-      Colour flash = new Colour(this.flash == null ? Colour.WHITE : this.flash);
-      flash.a *= f * colour.a;
-      flash.a *= Nums.abs(Nums.sin(flashTime));
-      flash.calcFloatBits();
       
-      if (widget) passW.draw(
-        blank.asTexture(), flash,
-        x, y, size, BAR_HEIGHT,
-        0, 0, 1, 1
-      );
-      else passS.compileQuad(
-        blank.asTexture(), flash, false,
-        x, y, size, BAR_HEIGHT,
-        0, 0, 1, 1,
-        z, true// + 0.05f, true
-      );
+      Colour flash = new Colour(this.flash);
+      flash.a *= fog * Nums.abs(Nums.sin(flashTime));
+      flash.calcFloatBits();
+      renderPortion(flash, blank, x, y, size, z, passS, passW, basis, widget);
     }
     
-    //  Then, the filled section-
-    Colour warn = new Colour(this.warn == null ? Colour.WHITE : this.warn);
-    final Colour mix = new Colour().set(
-      (colour.r * level) + (warn.r * s),
-      (colour.g * level) + (warn.g * s),
-      (colour.b * level) + (warn.b * s),
-       colour.a
-    );
-    mix.setValue((colour.value() * level) + (warn.value() * s));
-    
+    //  If level/tiredLevel are > 0, then show them:
+    float fillLevel = 1 - Nums.clamp(hurtLevel + tireLevel, 0, 1);
+    if (tireLevel > 0) {
+      float across = size * Nums.min(1 - hurtLevel, fillLevel + tireLevel);
+      renderPortion(tire, blank, x, y, across, z, passS, passW, basis, widget);
+    }
+    if (fillLevel > 0) {
+      float across = size * fillLevel;
+      Colour mix = new Colour(warn);
+      mix.blend(flash, (1 - fillLevel));
+      mix.calcFloatBits();
+      renderPortion(mix, blank, x, y, across, z, passS, passW, basis, widget);
+    }
+  }
+  
+  
+  private void renderPortion(
+    Colour tone, ImageAsset tex,
+    int x, int y, float across, float z,
+    SFXPass passS, WidgetsPass passW, UINode basis, boolean widget
+  ) {
     if (widget) passW.draw(
-      blank.asTexture(), mix,
-      x, y, size * level, BAR_HEIGHT,
+      tex.asTexture(), tone,
+      x, y, across, BAR_HEIGHT,
       0, 0, 1, 1
     );
     else passS.compileQuad(
-      blank.asTexture(), mix, false,
-      x, y, size * level, BAR_HEIGHT,
+      tex.asTexture(), tone, false,
+      x, y, across, BAR_HEIGHT,
       0, 0, 1, 1,
-      z, true// + 0.1f, true
+      z, true
     );
   }
 }
+
+
+
+
+
 
 
 
