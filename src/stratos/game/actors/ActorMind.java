@@ -226,7 +226,6 @@ public abstract class ActorMind {
       technique = actor.skills.bestTechniqueFor(
         returned.parentPlan(), returned
       );
-      if (report) I.say("  Picked technique: "+technique.basis);
     }
     if (technique != null) {
       if (report) I.say("  Returning technique: "+technique.basis);

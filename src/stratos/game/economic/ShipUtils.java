@@ -21,7 +21,7 @@ public class ShipUtils {
   private static boolean
     landVerbose = false,
     flyVerbose  = false,
-    siteVerbose = true ;
+    siteVerbose = false;
   
   
   /**  Utility methods for handling takeoff and landing:

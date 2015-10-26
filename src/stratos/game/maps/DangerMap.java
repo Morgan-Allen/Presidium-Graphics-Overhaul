@@ -23,7 +23,7 @@ public class DangerMap extends BlurMap {
   
   public DangerMap(Stage world, Base base) {
     super(
-      world.size, world.sections.resolution,
+      world.size, world.regions.resolution,
       Stage.STANDARD_DAY_LENGTH, null, "Danger"
     );
     this.world = world;

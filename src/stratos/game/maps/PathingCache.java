@@ -186,7 +186,7 @@ public class PathingCache {
   
   
   private Place placeFor(Tile t) {
-    refreshWithNeighbours(world.sections.sectionAt(t.x, t.y));
+    refreshWithNeighbours(world.regions.regionAt(t.x, t.y));
     return tilePlaces[t.x][t.y];
   }
   
@@ -198,7 +198,7 @@ public class PathingCache {
   
   
   public Tile[][] placeRoutes(Tile t) {
-    refreshWithNeighbours(world.sections.sectionAt(t.x, t.y));
+    refreshWithNeighbours(world.regions.regionAt(t.x, t.y));
     final Place p = tilePlaces[t.x][t.y];
     if (p == null) return null;
     final Tile tiles[][] = new Tile[p.routes.size()][];
@@ -213,7 +213,7 @@ public class PathingCache {
     */
   private void refreshWithNeighbours(StageRegion section) {
     final StageRegion near[] = new StageRegion[9];
-    world.sections.neighbours(section, near);
+    world.regions.neighbours(section, near);
     near[8] = section;
     for (int i = 9; i-- > 0;) if (! refreshPlaces(near[i])) near[i] = null;
     for (StageRegion n : near) refreshRoutes(n);
@@ -256,7 +256,7 @@ public class PathingCache {
     final Caching caching = allCached.get(section);
     final Batch <Place> near = new Batch <Place> ();
     for (Place place : caching.places) near.add(place);
-    for (StageRegion nS : world.sections.neighbours(section, null)) {
+    for (StageRegion nS : world.regions.neighbours(section, null)) {
       if (nS == null) continue;
       final Caching nC = allCached.get(nS);
       if (nC != null) for (Place place : nC.places) near.add(place);

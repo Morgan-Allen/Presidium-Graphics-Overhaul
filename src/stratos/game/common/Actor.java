@@ -512,7 +512,15 @@ public abstract class Actor extends Mobile implements
   }
   
   
+  protected PlaneFX createShadow(Sprite rendered) {
+    if (disguise == rendered) return null;
+    else return super.createShadow(rendered);
+  }
+  
+  
   public void attachDisguise(Sprite app) {
+    viewPosition(sprite().position);
+    viewPosition(app     .position);
     world.ephemera.addGhost(this, 1, sprite(), 1.0f);
     this.disguise = app;
   }
@@ -547,7 +555,6 @@ public abstract class Actor extends Mobile implements
     final Batch <Condition> status = traits.conditions();
     
     if (status.size() > 0) {
-      
       //
       //  TODO:  You need a dedicated FX-class to handle this sort of thing!
       //         (Unify with the shortage-displays at venues!)
@@ -588,7 +595,7 @@ public abstract class Actor extends Mobile implements
       label.position.z += height() + 0.25f;
       label.phrase = fullName();
       label.readyFor(rendering);
-
+      
       if (health.dying()) return;
       
       healthbar.matchTo(sprite());

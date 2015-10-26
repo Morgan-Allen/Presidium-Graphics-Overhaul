@@ -36,7 +36,7 @@ public class PresenceMap implements Session.Saveable {
   
   public PresenceMap(Stage world, Object key) {
     this.world = world;
-    this.root = new Node(world.sections.root);
+    this.root = new Node(world.regions.root);
     //
     //  Check to ensure you've been given a valid key-
     boolean keyOkay = false;
@@ -55,7 +55,7 @@ public class PresenceMap implements Session.Saveable {
     key = s.loadkey();
     //
     //  Load the root node from disk-
-    root = new Node(world.sections.root);
+    root = new Node(world.regions.root);
     final int numLoad = s.loadInt();
     for (int n = numLoad; n-- > 0;) loadMember(s);
   }

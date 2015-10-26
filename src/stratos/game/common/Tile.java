@@ -83,7 +83,7 @@ public final class Tile implements
   
   
   public StageRegion worldSection() {
-    return world.sections.sectionAt(x, y);
+    return world.regions.regionAt(x, y);
   }
   
   
@@ -232,7 +232,7 @@ public final class Tile implements
     PavingMap.setPaveLevel(this, roadLevel, false);
     
     setReserves(reserves ? e : this.reserves, reserves);
-    world.sections.flagBoundsUpdate(x, y);
+    world.regions.flagBoundsUpdate(x, y);
     
     if (e != null && a != null) {
       I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);

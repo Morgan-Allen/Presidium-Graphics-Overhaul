@@ -22,8 +22,8 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = true ,
-    extraVerbose   = true ,
+    verbose        = false,
+    extraVerbose   = false,
     migrateVerbose = verbose && true ,
     tradeVerbose   = verbose && true ;
   

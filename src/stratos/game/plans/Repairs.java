@@ -154,9 +154,9 @@ public class Repairs extends Plan {
   final static Trait BASE_TRAITS[] = { METICULOUS, ENERGETIC };
   
   protected float getPriority() {
-    final boolean report = evalVerbose && (
+    final boolean report = (
       I.talkAbout == actor || I.talkAbout == built
-    );
+    ) && evalVerbose;
     
     float urgency = needForRepair(built), helpLimit;
     if (urgency <= 0) return 0;

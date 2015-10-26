@@ -43,7 +43,7 @@ public class StageRegion implements Target, Session.Saveable {
   
   
   public static StageRegion loadConstant(Session s) throws Exception {
-    return s.world().sections.sectionAt(s.loadInt(), s.loadInt());
+    return s.world().regions.regionAt(s.loadInt(), s.loadInt());
   }
   
   

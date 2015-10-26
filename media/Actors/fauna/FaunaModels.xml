@@ -116,7 +116,7 @@
   type="JOINT"
   path="media/Actors/fauna/"
   file="yamagur.ms3d"
-  scale="1"
+  scale="0.5"
   bound="2.5"
   stride="1.5"
   height="2.5"

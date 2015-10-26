@@ -75,8 +75,8 @@ public class DebugPlacing extends Scenario {
     );
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
-    TG.setupOutcrops(world);
-    Flora.populateFlora(world);
+    //TG.setupOutcrops(world);
+    //Flora.populateFlora(world);
     world.terrain().readyAllMeshes();
     return world;
   }
@@ -94,8 +94,8 @@ public class DebugPlacing extends Scenario {
     GameSettings.buildFree = true;
     base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
     
-    if (true ) configSalvaging(world, base, UI);
-    if (false) configEcology  (world, base, UI);
+    if (false) configSalvaging(world, base, UI);
+    if (true ) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
@@ -134,7 +134,8 @@ public class DebugPlacing extends Scenario {
       if (! open) I.say("  TILE SURROUNDED: "+t);
     }
     
-    NestUtils.populateFauna(world, Species.VERMIN_SPECIES);
+    NestUtils.populateFauna(world, Species.ANIMAL_SPECIES);
+    
     /*
     if (true) return;
     
@@ -219,7 +220,6 @@ public class DebugPlacing extends Scenario {
     final Object selected = BaseUI.current().selection.selected  ();
     final Object hovered  = BaseUI.current().selection.hovered   ();
     final Tile   picked   = BaseUI.current().selection.pickedTile();
-    
     
     if (hovered instanceof Boarding && selected instanceof Boarding) {
       

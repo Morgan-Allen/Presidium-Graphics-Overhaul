@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.wild;
+import stratos.game.base.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -82,7 +83,7 @@ public abstract class Fauna extends Actor {
   
   
   
-  /**  Registering abundance with the ecology class-
+  /**  Registering abundance within the ecology class-
     */
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
@@ -97,7 +98,25 @@ public abstract class Fauna extends Actor {
         breedInc = period * -1f / DEFAULT_BREED_INTERVAL;
       }
       breedMetre = Nums.clamp(breedMetre + breedInc, 0, 1);
+      
+      updateTrophicPresence(period);
     }
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
+    
+    updateTrophicPresence(-1);
+    return true;
+  }
+  
+  
+  protected void updateTrophicPresence(int period) {
+    final BaseDemands BD = base().demands;
+    final Tile at = origin();
+    BD.impingeSupply(species.trophicKey(), species.metabolism(), period, at);
+    BD.impingeSupply(Fauna.class         , species.metabolism(), period, at);
   }
   
   
@@ -150,7 +169,7 @@ public abstract class Fauna extends Actor {
             final Fauna f = (Fauna) other;
             if (f.species == species) return 0.25f;
             if (f.species.type == Species.Type.BROWSER) return 0;
-            if (f.species.predator()) return -0.5f;
+            if (f.species.predator() && species.preyedOn()) return -0.5f;
           }
           if (other.base() == actor.base()) return 0.5f;
           return -0.25f;
@@ -209,7 +228,12 @@ public abstract class Fauna extends Actor {
   }
   
   
+  protected Behaviour nextMigration() {
+    return Exploring.nextWandering(this);
+  }
   
+  
+  /*
   //  TODO:  USE NESTING/FINDHOME FOR THIS
   
   protected Behaviour nextMigration() {
@@ -289,6 +313,7 @@ public abstract class Fauna extends Actor {
     }
     return true;
   }
+  //*/
   
   
   protected Behaviour nextBuildingNest() {
@@ -356,6 +381,12 @@ public abstract class Fauna extends Actor {
     }
     return true;
   }
+  
+  
+  
+  /**  Some physical modifications-
+    */
+  //  TODO:  Move height and radius calculations here...
   
   
   

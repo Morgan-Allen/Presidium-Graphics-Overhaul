@@ -39,8 +39,10 @@ public abstract class Species extends Background {
     ARTILECT,
   }
   final public static String
-    KEY_BROWSER  = Type.BROWSER .name(),
-    KEY_PREDATOR = Type.PREDATOR.name();
+    KEY_FLORA     = "FLORA"    ,
+    KEY_PREYED_ON = "PREYED_ON",
+    KEY_PREDATOR  = "PREDATOR" ,
+    KEY_NON_PREY  = "NON_PREY" ;
   
   
   
@@ -51,7 +53,7 @@ public abstract class Species extends Background {
       Human.SPECIES
     },
     ANIMAL_SPECIES[] = {
-      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES//, Yamagur.SPECIES
+      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES, Yamagur.SPECIES
     },
     VERMIN_SPECIES[] = {
       Roach.SPECIES, Roachman.SPECIES, Avrodil.SPECIES
@@ -174,9 +176,18 @@ public abstract class Species extends Background {
   
   public boolean animal  () { return browser() || predator() || vermin(); }
   public boolean living  () { return sapient() || animal(); }
+  public boolean preyedOn() { return browser(); }
   
   public Item[] nutrients(int stage) { return stageNutrients[stage]; }
   public float metabolism() { return baseBulk * speedMult; }
+  
+  
+  public String trophicKey() {
+    if      (floral()  ) return KEY_FLORA    ;
+    else if (preyedOn()) return KEY_PREYED_ON;
+    else if (predator()) return KEY_PREDATOR ;
+    else                 return KEY_NON_PREY ;
+  }
 }
 
 

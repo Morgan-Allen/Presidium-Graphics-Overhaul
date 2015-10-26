@@ -123,7 +123,7 @@ public class Hunting extends Plan {
     if (a.species() == hunts.species()) {
       if (hunger < 1) return false;
     }
-    if (! a.species().browser()) {
+    if (! a.species().preyedOn()) {
       if (hunger < 0.5f) return false;
     }
     

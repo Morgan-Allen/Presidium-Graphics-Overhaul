@@ -146,6 +146,7 @@ public class ActorSkills {
   
   public float skillBonusFromTechniques(Skill skill, Action taken) {
     final boolean report = I.talkAbout == actor && techsVerbose;
+    
     if (report) {
       I.say("\nGetting best passive technique for "+actor);
       I.say("  Fatigue:       "+actor.health.fatigueLevel());
@@ -161,8 +162,17 @@ public class ActorSkills {
     final Target  subject = acts ? taken.subject()    : actor;
     
     for (Technique t : availableTechniques()) if (t.isPassive()) {
-      if (! t.triggersPassive(actor, current, skill, subject)) continue;
+      if (! t.triggersPassive(actor, current, skill, subject)) {
+        if (report) I.say("  "+t+" is not applicable to "+subject);
+        continue;
+      }
       final float appeal = t.basePriority(actor, current, subject);
+      
+      if (report) {
+        I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
+        I.say("    Appeal is: "+appeal);
+        I.say("    Targeting: "+subject);
+      }
       pick.compare(t, appeal);
     }
     

@@ -49,7 +49,7 @@ public class Stage {
   
   final public int size;
   final Tile tiles[][];
-  final public StageRegions sections;
+  final public StageRegions regions;
   final public ClaimsGrid claims;
   
   final public Schedule schedule;
@@ -74,7 +74,7 @@ public class Stage {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
-    sections = new StageRegions(this, PATCH_RESOLUTION);
+    regions  = new StageRegions(this, PATCH_RESOLUTION);
     claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime);
     
@@ -224,7 +224,7 @@ public class Stage {
   /**  Update and scheduling methods.
     */
   public void updateWorld() {
-    sections.updateBounds();
+    regions.updateBounds();
     final float oldTime = currentTime;
     currentTime += 1f / PlayLoop.UPDATES_PER_SECOND;
     
@@ -316,7 +316,7 @@ public class Stage {
   
   public Batch <StageRegion> visibleSections(Rendering rendering) {
     final Batch <StageRegion> visibleSections = new Batch <StageRegion> ();
-    sections.compileVisible(rendering.view, null, visibleSections, null);
+    regions.compileVisible(rendering.view, null, visibleSections, null);
     return visibleSections;
   }
   
@@ -336,7 +336,7 @@ public class Stage {
         return e.sprite().depth;
       }
     };
-    sections.compileVisible(
+    regions.compileVisible(
       rendering.view, base,
       visibleSections, allVisible
     );

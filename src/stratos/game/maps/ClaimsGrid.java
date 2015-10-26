@@ -37,7 +37,7 @@ public class ClaimsGrid {
   
   public ClaimsGrid(Stage world) {
     this.world = world;
-    final int NS = world.size / world.sections.resolution;
+    final int NS = world.size / world.regions.resolution;
     this.venueClaims = new Table <Venue, Claim> (NS * NS * 4);
     this.areaClaims = new List[NS][NS];
     this.baseClaims = new Base[NS][NS];
@@ -52,7 +52,7 @@ public class ClaimsGrid {
         temp.loadFrom(s.input())
       );
     }
-    final int NS = world.size / world.sections.resolution;
+    final int NS = world.size / world.regions.resolution;
     for (Coord c : Visit.grid(0, 0, NS, NS, 1)) {
       baseClaims[c.x][c.y] = (Base) s.loadObject();
     }
@@ -66,7 +66,7 @@ public class ClaimsGrid {
       s.saveObject(v);
       c.area.saveTo(s.output());
     }
-    final int NS = world.size / world.sections.resolution;
+    final int NS = world.size / world.regions.resolution;
     for (Coord c : Visit.grid(0, 0, NS, NS, 1)) {
       s.saveObject(baseClaims[c.x][c.y]);
     }
@@ -79,7 +79,7 @@ public class ClaimsGrid {
   //  TODO:  Is there any way to make this more precise?  Based off the danger-
   //  map, say?
   public Base baseClaiming(int tX, int tY) {
-    final StageRegion s = world.sections.sectionAt(tX, tY);
+    final StageRegion s = world.regions.regionAt(tX, tY);
     return baseClaims[s.x][s.y];
   }
   
@@ -100,7 +100,7 @@ public class ClaimsGrid {
   public Venue[] venuesClaiming(Box2D area) {
     final Batch <Venue> venues = new Batch <Venue> ();
     
-    for (StageRegion s : world.sections.sectionsUnder(area, 0)) {
+    for (StageRegion s : world.regions.regionsUnder(area, 0)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (claims != null) for (Claim claim : claims) {
         if (! claim.area.overlaps(area)) continue;
@@ -141,7 +141,7 @@ public class ClaimsGrid {
     //
     //  We pass over every stage-region that might intersect with the area
     //  being claimed, and check to see if other claims are registered there.
-    for (StageRegion s : world.sections.sectionsUnder(area, UNIT_GRID_SIZE)) {
+    for (StageRegion s : world.regions.regionsUnder(area, UNIT_GRID_SIZE)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (report) I.say("  Checking region: "+s.area);
       if (claims != null) for (Claim claim : claims) {
@@ -204,7 +204,7 @@ public class ClaimsGrid {
     newClaim.owner = owner;
     if (owner != null) venueClaims.put(owner, newClaim);
     
-    for (StageRegion s : world.sections.sectionsUnder(area, 0)) {
+    for (StageRegion s : world.regions.regionsUnder(area, 0)) {
       List <Claim> claims = areaClaims[s.x][s.y];
       if (claims == null) areaClaims[s.x][s.y] = claims = new List <Claim> ();
       claims.add(newClaim);
@@ -232,7 +232,7 @@ public class ClaimsGrid {
   
   
   private void removeClaim(Claim claim, boolean report) {
-    for (StageRegion s : world.sections.sectionsUnder(claim.area, 0)) {
+    for (StageRegion s : world.regions.regionsUnder(claim.area, 0)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       claims.remove(claim);
       if (claims.size() == 0) areaClaims[s.x][s.y] = null;
@@ -243,7 +243,7 @@ public class ClaimsGrid {
   
   public void clearAllClaims() {
     venueClaims.clear();
-    final int NS = world.size / world.sections.resolution;
+    final int NS = world.size / world.regions.resolution;
     for (Coord c : Visit.grid(0, 0, NS, NS, 1)) areaClaims[c.x][c.y] = null;
   }
   

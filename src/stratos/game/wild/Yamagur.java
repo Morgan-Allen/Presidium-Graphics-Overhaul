@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -31,9 +29,9 @@ public class Yamagur extends Fauna {
   final public static Species SPECIES = new Species(
     Yamagur.class,
     "Yamagur",
-    "Yamagur are immensely powerful, but somewhat solitary, quadrapedal "+
-    "browsers.  Though not actively aggressive, marked territorial "+
-    "instincts mean they are often best left to themselves.",
+    "Yamagur are immensely powerful quadrapedal browsers which build "+
+    "surprisingly elaborate nest structures.  Though not actively aggressive, "+
+    "they are often best left undisturbed.",
     FILE_DIR+"YamagurPortrait.png",
     MS3DModel.loadFrom(
       FILE_DIR, "yamagur.ms3d", Yamagur.class,
@@ -41,7 +39,7 @@ public class Yamagur extends Fauna {
     ),
     Species.Type.BROWSER,
     5.00f, //bulk
-    0.65f, //speed
+    0.40f, //speed
     1.10f  //sight
   ) {
     final Blueprint BLUEPRINT = NestUtils.constructBlueprint(
@@ -49,6 +47,7 @@ public class Yamagur extends Fauna {
     );
     public Actor sampleFor(Base base) { return init(new Yamagur(base)); }
     public Blueprint nestBlueprint() { return BLUEPRINT; }
+    public boolean preyedOn() { return false; }
   };
   
   
@@ -88,7 +87,7 @@ public class Yamagur extends Fauna {
   
   
   public float radius() {
-    return 1.0f;
+    return 1.0f * health.ageMultiple();
   }
   
   
@@ -128,7 +127,10 @@ public class Yamagur extends Fauna {
     return super.moveAnimStride() * 0.8f;
   }
   
-  protected float spriteScale() { return super.spriteScale() * 0.8f; }
+  
+  protected float spriteScale() {
+    return super.spriteScale();
+  }
 }
 
 

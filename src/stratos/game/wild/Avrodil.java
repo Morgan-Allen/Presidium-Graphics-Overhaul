@@ -161,14 +161,13 @@ public class Avrodil extends Fauna implements Captivity {
     BASE_CLASS, "avrodil_camo",
     MINOR_POWER     ,
     REAL_HELP       ,
-    MINOR_FATIGUE   ,
+    NO_FATIGUE      ,
     NO_CONCENTRATION,
-    IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
+    IS_SELF_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.FALL, Action.NORMAL
   ) {
-    public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
-    ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
       if (actor.traits.hasTrait(asCondition)) {
         return false;
       }
@@ -182,9 +181,25 @@ public class Avrodil extends Fauna implements Captivity {
     }
     
     
+    private ModelAsset disguiseFor(Actor actor) {
+      final Tile location = actor.origin();
+      final Species flora[] = location.habitat().floraSpecies;
+      if (flora == null) return null;
+      return flora[0].modelSequence[2];
+    }
+    
+    
+    protected boolean checkActionSuccess(Actor actor, Target subject) {
+      if (actor.isMoving()) return false;
+      if (disguiseFor(actor) == null) return false;
+      return super.checkActionSuccess(actor, subject);
+    }
+
+
     public void applyEffect(
       Actor using, boolean success, Target subject, boolean passive
     ) {
+      if (! success) return;
       super.applyEffect(using, success, subject, passive);
       using.traits.setLevel(asCondition, 1);
     }
@@ -213,10 +228,11 @@ public class Avrodil extends Fauna implements Captivity {
     protected void onConditionStart(Actor affected) {
       super.onConditionStart(affected);
       
-      final Tile location = affected.origin();
-      final Species flora[] = location.habitat().floraSpecies;
-      if (flora == null) return;
-      final ModelAsset model = flora[0].modelSequence[2];
+      final ModelAsset model = disguiseFor(affected);
+      if (model == null) {
+        affected.traits.remove(asCondition);
+        return;
+      }
       affected.attachDisguise(model.makeSprite());
       
       applyAsCondition(affected);

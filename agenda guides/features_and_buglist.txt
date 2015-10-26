@@ -2,18 +2,21 @@
 
 TO DO NOW-
 
-*  Next up- the runners and their special services.
+*  Then, the ecologist and Yamagur.
+
+*  And finally, the engineer and highborn.
+
 
 *  Traits & Techniques, like Mounts, need the ability to either veto or suggest
    behaviours.  (In fact, a general interface for that would be nice.)
 
-*  Give vermin... one or two special abilities.  Like, night vision and
-   plague, plus a bite/behead ability.
-
 *  Shield FX must NOT display for critters without armour...
 
 
-*  Then, the ecologist and Yamagur.
+*  Give vermin... one or two special abilities.  Like, night vision and
+   plague, plus a bite/behead ability.
+   Lictovores get Maul.
+   Yamagur get stun/slam.
 
 *  Add some artilect abilities.
    Cran & Tri- impale, high beam, silver plague, reflection shockwave, plus
@@ -21,7 +24,7 @@ TO DO NOW-
 
 *  Allow raids by enemy houses (and seeding of nearby territory.)
 
-*  Finally, the engineer, and highborn.
+
 
 *  See if you can hook up ammo clips and power cells.
 *  Psy inhibition needs to be filled in?
@@ -101,6 +104,11 @@ TO DO NOW-
    Combat Stims.     Physician abilities.
    T-Null Armbands.  Engineer abilities.
    Lictor Riding.    Building-stealth.
+
+*  Make sure that the NestUtils calls for fauna-population get translated back
+   into a SitingPass- and ensure that fauna can build their own nests again.
+
+*  Trees need more elegant spacing.
 
 
 ENEMIES AND ENVIRONMENT-

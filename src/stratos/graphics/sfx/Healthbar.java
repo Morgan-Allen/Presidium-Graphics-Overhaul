@@ -34,7 +34,7 @@ public class Healthbar extends SFX {
     AMBER_FLASH = new Colour(1   , 0.75f, 0   , 1);
   
   
-  public float hurtLevel = 0.5f, tireLevel = 0.5f, yoff = 0;
+  public float hurtLevel = 0, tireLevel = 0, yoff = 0;
   public float size = DEFAULT_WIDTH;
   public boolean alarm = false;
   public Colour
@@ -112,7 +112,7 @@ public class Healthbar extends SFX {
     }
     if (fillLevel > 0) {
       float across = size * fillLevel;
-      Colour mix = new Colour(warn);
+      Colour mix = new Colour(colour);
       mix.blend(flash, (1 - fillLevel));
       mix.calcFloatBits();
       renderPortion(mix, blank, x, y, across, z, passS, passW, basis, widget);
