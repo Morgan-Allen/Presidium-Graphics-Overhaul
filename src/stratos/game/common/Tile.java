@@ -352,7 +352,7 @@ public final class Tile implements
   }
   
   
-  public boolean allowsEntry(Mobile m) {
+  public boolean allowsEntry(Accountable m) {
     return true;
   }
   

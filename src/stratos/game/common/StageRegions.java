@@ -15,7 +15,7 @@ public class StageRegions implements TileConstants {
   /**  Common fields, constructors and utility methods.
     */
   final Stage world;
-  final public int resolution, depth;
+  final public int resolution, depth, gridSize, gridCount;
   final StageRegion hierarchy[][][], root;
   
   
@@ -27,10 +27,12 @@ public class StageRegions implements TileConstants {
   
   
   protected StageRegions(Stage world, int resolution) {
-    this.world = world;
+    this.world      = world;
     this.resolution = resolution;
-    this.depth = depthFor(world.size / resolution);
-    this.hierarchy = new StageRegion[depth][][];
+    this.gridSize   = world.size / resolution;
+    this.gridCount  = gridSize * gridSize;
+    this.depth      = depthFor(gridSize);
+    this.hierarchy  = new StageRegion[depth][][];
     //
     //  Next, we generate each level of the map, and initialise nodes for each-
     int gridSize = world.size / resolution, nodeSize = resolution, deep = 0;
@@ -107,7 +109,7 @@ public class StageRegions implements TileConstants {
   }
   
   
-  public Batch <StageRegion> allGroundRegions() {
+  public Batch <StageRegion> allGridRegions() {
     return regionsUnder(world.area(), 0);
   }
   

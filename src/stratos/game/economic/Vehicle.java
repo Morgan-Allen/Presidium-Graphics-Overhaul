@@ -566,7 +566,7 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public boolean allowsEntry(Mobile m) {
+  public boolean allowsEntry(Accountable m) {
     if (! structure.intact()) return false;
     if (m.base() == this.base) return true;
     return base.relations.relationWith(m.base()) > 0;

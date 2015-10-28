@@ -61,6 +61,9 @@ public class DebugPlacing extends Scenario {
       I.say("  Above is:    "+over.above());
       I.say("  Owning tier: "+over.owningTier());
     }
+    
+    showZonePathing();
+    if (I.used60Frames) PathingCache.reportObs();
   }
 
 
@@ -75,7 +78,7 @@ public class DebugPlacing extends Scenario {
     );
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
-    //TG.setupOutcrops(world);
+    TG.setupOutcrops(world);
     //Flora.populateFlora(world);
     world.terrain().readyAllMeshes();
     return world;
@@ -95,7 +98,7 @@ public class DebugPlacing extends Scenario {
     base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
     
     if (false) configSalvaging(world, base, UI);
-    if (true ) configEcology  (world, base, UI);
+    if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
@@ -121,7 +124,7 @@ public class DebugPlacing extends Scenario {
   
   private void configEcology(Stage world, Base base, BaseUI UI) {
     
-    Flora.populateFlora(world);
+    ///Flora.populateFlora(world);
     //Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
     
     I.say("\nCHECKING FOR TILE-ACCESS...");
@@ -232,11 +235,13 @@ public class DebugPlacing extends Scenario {
       for (Boarding b : path) if (b instanceof Tile) inPath.add((Tile) b);
       if (inPath.size() == 0) return;
       
-      final TerrainChunk forPath = world.terrain().createOverlay(
-        world, inPath.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
-      );
-      forPath.colour = Colour.MAGENTA;
-      forPath.readyFor(PlayLoop.rendering());
+      if (! inPath.empty()) {
+        final TerrainChunk forPath = world.terrain().createOverlay(
+          world, inPath.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+        );
+        forPath.colour = Colour.MAGENTA;
+        forPath.readyFor(PlayLoop.rendering());
+      }
     }
     else {
       final Tile inPlace[] = picked == null ? null : cache.placeTiles(picked);
@@ -255,11 +260,13 @@ public class DebugPlacing extends Scenario {
       for (Tile route[] : cache.placeRoutes(picked)) for (Tile t : route) {
         inRoutes.add(t);
       }
-      final TerrainChunk forRoutes = world.terrain().createOverlay(
-        world, inRoutes.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
-      );
-      forRoutes.colour = Colour.BLUE;
-      forRoutes.readyFor(PlayLoop.rendering());
+      if (! inRoutes.empty()) {
+        final TerrainChunk forRoutes = world.terrain().createOverlay(
+          world, inRoutes.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+        );
+        forRoutes.colour = Colour.BLUE;
+        forRoutes.readyFor(PlayLoop.rendering());
+      }
     }
   }
   

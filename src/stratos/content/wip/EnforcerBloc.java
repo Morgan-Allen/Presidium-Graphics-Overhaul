@@ -126,7 +126,7 @@ public class EnforcerBloc extends Venue {
   }
   
   
-  public boolean allowsEntry(Mobile m) {
+  public boolean allowsEntry(Accountable m) {
     if (super.allowsEntry(m)) return true;
     if (Summons.summonedTo(m) == this) return true;
     return false;

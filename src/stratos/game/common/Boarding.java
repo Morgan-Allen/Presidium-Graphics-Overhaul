@@ -25,6 +25,6 @@ public interface Boarding extends Target, Session.Saveable {
   boolean isEntrance(Boarding b);
   
   int pathType();
-  boolean allowsEntry(Mobile m);
   int boardableType();
+  boolean allowsEntry(Accountable m);
 }

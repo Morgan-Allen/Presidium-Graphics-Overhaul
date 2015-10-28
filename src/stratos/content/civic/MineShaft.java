@@ -74,18 +74,18 @@ public class MineShaft extends Fixture implements Boarding {
   public Series <Mobile> inside() {
     return inside;
   }
-
-
-  public boolean allowsEntry(Mobile m) {
+  
+  
+  public boolean allowsEntry(Accountable m) {
     return m.base() == parent.base();
   }
-
-
+  
+  
   public int boardableType() {
     return BOARDABLE_OTHER;
   }
-
-
+  
+  
   public Boarding[] canBoard() {
     if (canBoard != null) return canBoard;
     final Batch <Boarding> touches = new Batch <Boarding> ();

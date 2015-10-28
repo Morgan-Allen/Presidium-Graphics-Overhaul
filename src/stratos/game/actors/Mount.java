@@ -10,6 +10,9 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 
+//  TODO:  Have this extend Boarding for consistency.
+
+
 public interface Mount extends Session.Saveable, Target {
   
   boolean setMounted(Actor mounted, boolean is);

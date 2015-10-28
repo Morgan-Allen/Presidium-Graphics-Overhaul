@@ -19,9 +19,9 @@ public class PathSearch extends Search <Boarding> {
     blocksVerbose = false;
   
   final protected Boarding destination;
-  private Mobile   client   = null;
-  private Boarding aimPoint = null;
-  private boolean useDanger = false;
+  private Accountable client    = null;
+  private Boarding    aimPoint  = null;
+  private boolean     useDanger = false;
   
   private Boarding closest;
   private float    closestDist;
@@ -46,25 +46,25 @@ public class PathSearch extends Search <Boarding> {
   
   /**  Additional utility methods for setup and screening-
     */
-  public void assignClient(Mobile client) {
+  public void assignClient(Accountable client) {
     this.client    = client;
     this.useDanger = (client instanceof Actor);
   }
   
   
-  public static boolean canApproach(Target aims, Mobile client) {
+  public static boolean canApproach(Target aims, Accountable client) {
     return approachPoint(aims, client, false) != null;
   }
   
   
-  public static Tile approachTile(Target aims, Mobile client) {
+  public static Tile approachTile(Target aims, Accountable client) {
     final Boarding point = approachPoint(aims, client, true);
     return (point instanceof Tile) ? (Tile) point : null;
   }
   
   
   private static Boarding approachPoint(
-    Target aims, Mobile client, boolean tileOnly
+    Target aims, Accountable client, boolean tileOnly
   ) {
     int numLoops = 0; while (true) {
       if (aims == null || blockedBy(aims, client)) return null;
@@ -90,25 +90,25 @@ public class PathSearch extends Search <Boarding> {
   }
   
   
-  public static boolean blockedBy(Target t, Mobile m) {
+  public static boolean blockedBy(Target t, Accountable m) {
     if (t == null || ! t.inWorld()) return true;
     if (! (t instanceof Boarding)) return false;
     return blockedBy((Boarding) t, m);
   }
   
-  
   //
   //  TODO:  This all seems terribly complicated for such a frequently-used
   //  function.  Any way to simplify?
   
-  private static boolean blockedBy(final Boarding b, final Mobile client) {
+  public static boolean blockedBy(final Boarding b, final Accountable client) {
     if (b.boardableType() == Boarding.BOARDABLE_TILE) {
       return b.pathType() == Tile.PATH_BLOCKS;
     }
     else if (client != null) {
       final boolean
         exists = b.inWorld(),
-        allows = (b == client.aboard()) || b.allowsEntry(client),
+        inside = (client instanceof Mobile && ((Mobile) client).aboard() == b),
+        allows = b.allowsEntry(client),
         blocks = b.pathType() == Tile.PATH_BLOCKS;
       
       if (blocksVerbose && I.talkAbout == client) {
@@ -117,8 +117,7 @@ public class PathSearch extends Search <Boarding> {
         I.say("  Forbids entry? "+! allows);
         I.say("  Blocks passage? "+blocks );
       }
-      if (exists && (allows || ! blocks)) return false;
-      //if (mobile != null && mobile.position().z > b.height()) return false;
+      if (exists && (allows || inside || ! blocks)) return false;
       return true;
     }
     return false;

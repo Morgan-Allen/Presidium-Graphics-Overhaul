@@ -207,12 +207,6 @@ public class Heighway extends Venue implements StageExit {
   }
   
   
-  public boolean allowsEntry(Mobile m) {
-    if (m instanceof Vermin) return true;
-    else return false;
-  }
-  
-  
   public int pathType() {
     return Tile.PATH_ROAD;
   }
@@ -221,6 +215,12 @@ public class Heighway extends Venue implements StageExit {
   protected Tile pickEntrance(int facing) {
     if (type == TYPE_HUB) return origin();
     else return null;
+  }
+  
+  
+  public boolean allowsEntry(Accountable m) {
+    if (m instanceof Vermin) return true;
+    else return false;
   }
   
   

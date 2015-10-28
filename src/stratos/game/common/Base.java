@@ -30,6 +30,9 @@ public class Base implements
     KEY_FREEHOLD  = "Freehold" ,
     KEY_SETTLED   = "Settled"  ;
   
+  final public static int
+    MAX_BASES = 8;
+  
   
   final public Stage   world ;
   final public boolean primal;  //  TODO:  use type-  below
@@ -57,6 +60,92 @@ public class Base implements
   private Colour colour = new Colour();
   private Tally <Blueprint> venueIDTallies = new Tally();
   
+  private int baseID = 0;
+  
+  
+  protected Base(Stage world, boolean primal) {
+    this.world = world;
+    this.primal = primal;
+    
+    setup     = new BaseSetup(this, world);
+    demands   = new BaseDemands(this, world);
+    commerce  = new BaseCommerce(this);
+    transport = new BaseTransport(world);
+    
+    finance    = new BaseFinance(this);
+    profiles   = new BaseProfiles(this);
+    
+    dangerMap  = new DangerMap(world, this);
+    intelMap   = new IntelMap(this);
+    intelMap.initFog(world);
+  }
+  
+  
+  public Base(Session s) throws Exception {
+    this(s.world(), s.loadBool());
+    s.cacheInstance(this);
+    
+    setup    .loadState(s);
+    demands  .loadState(s);
+    commerce .loadState(s);
+    transport.loadState(s);
+    finance  .loadState(s);
+    profiles .loadState(s);
+    dangerMap.loadState(s);
+    intelMap .loadState(s);
+
+    ruler       = (Actor) s.loadObject();
+    commandPost = (Venue) s.loadObject();
+    isNative    = s.loadBool();
+    
+    relations.loadState(s);
+    tactics  .loadState(s);
+    advice   .loadState(s);
+    research .loadState(s);
+    
+    title = s.loadString();
+    colour.loadFrom(s.input());
+    s.loadTally(venueIDTallies);
+    
+    baseID = s.loadInt();
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    s.saveBool(primal);
+    
+    setup    .saveState(s);
+    demands  .saveState(s);
+    commerce .saveState(s);
+    transport.saveState(s);
+    finance  .saveState(s);
+    profiles .saveState(s);
+    dangerMap.saveState(s);
+    intelMap .saveState(s);
+    
+    s.saveObject(ruler      );
+    s.saveObject(commandPost);
+    s.saveBool  (isNative   );
+    
+    relations.saveState(s);
+    tactics  .saveState(s);
+    advice   .saveState(s);
+    research .saveState(s);
+    
+    s.saveString(title);
+    colour.saveTo(s.output());
+    s.saveTally(venueIDTallies);
+    
+    s.saveInt(baseID);
+  }
+  
+  
+  protected BaseTactics   initTactics  () { return new BaseTactics  (this); }
+  protected BaseRelations initRelations() { return new BaseRelations(this); }
+  protected BaseAdvice    initAdvice   () { return new BaseAdvice   (this); }
+  protected BaseResearch  initResearch () { return new BaseResearch (this); }
+  
+  
   
   private static Base namedBase(Stage world, String title) {
     for (Base base : world.bases()) {
@@ -70,9 +159,15 @@ public class Base implements
     Base base, Stage world, String title, Colour colour,
     Blueprint... canBuild
   ) {
+    if (world.bases().size() >= MAX_BASES) {
+      I.complain("\nCANNOT SUPPORT MORE THAN "+MAX_BASES+" BASES!");
+      return null;
+    }
     base.title = title;
     base.colour.set(colour);
     base.setup.setAvailableVenues(canBuild);
+    base.baseID = world.bases().size();
+    
     world.registerBase(base, true);
     if (I.logEvents()) I.say("\nREGISTERING NEW BASE: "+base);
     return base;
@@ -152,85 +247,6 @@ public class Base implements
   }
   
   
-  protected Base(Stage world, boolean primal) {
-    this.world = world;
-    this.primal = primal;
-    
-    setup     = new BaseSetup(this, world);
-    demands   = new BaseDemands(this, world);
-    commerce  = new BaseCommerce(this);
-    transport = new BaseTransport(world);
-    
-    finance    = new BaseFinance(this);
-    profiles   = new BaseProfiles(this);
-    
-    dangerMap  = new DangerMap(world, this);
-    intelMap   = new IntelMap(this);
-    intelMap.initFog(world);
-  }
-  
-  
-  public Base(Session s) throws Exception {
-    this(s.world(), s.loadBool());
-    s.cacheInstance(this);
-    
-    setup    .loadState(s);
-    demands  .loadState(s);
-    commerce .loadState(s);
-    transport.loadState(s);
-    finance  .loadState(s);
-    profiles .loadState(s);
-    dangerMap.loadState(s);
-    intelMap .loadState(s);
-
-    ruler       = (Actor) s.loadObject();
-    commandPost = (Venue) s.loadObject();
-    isNative    = s.loadBool();
-    
-    relations.loadState(s);
-    tactics  .loadState(s);
-    advice   .loadState(s);
-    research .loadState(s);
-    
-    title = s.loadString();
-    colour.loadFrom(s.input());
-    s.loadTally(venueIDTallies);
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    s.saveBool(primal);
-    
-    setup    .saveState(s);
-    demands  .saveState(s);
-    commerce .saveState(s);
-    transport.saveState(s);
-    finance  .saveState(s);
-    profiles .saveState(s);
-    dangerMap.saveState(s);
-    intelMap .saveState(s);
-    
-    s.saveObject(ruler      );
-    s.saveObject(commandPost);
-    s.saveBool  (isNative   );
-    
-    relations.saveState(s);
-    tactics  .saveState(s);
-    advice   .saveState(s);
-    research .saveState(s);
-    
-    s.saveString(title);
-    colour.saveTo(s.output());
-    s.saveTally(venueIDTallies);
-  }
-  
-  
-  protected BaseTactics   initTactics  () { return new BaseTactics  (this); }
-  protected BaseRelations initRelations() { return new BaseRelations(this); }
-  protected BaseAdvice    initAdvice   () { return new BaseAdvice   (this); }
-  protected BaseResearch  initResearch () { return new BaseResearch (this); }
-  
-  
   
   /**  Dealing with missions amd personnel-
     */
@@ -250,6 +266,7 @@ public class Base implements
   
   
   public Base base() { return this; }
+  public int baseID() { return baseID; }
   
   
   

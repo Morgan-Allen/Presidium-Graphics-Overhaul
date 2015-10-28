@@ -52,7 +52,7 @@ public class BaseTactics {
     APPLY_WAIT_DURATION   = Stage.STANDARD_DAY_LENGTH  * 2,
     DEFAULT_EVAL_INTERVAL = Stage.STANDARD_DAY_LENGTH  / 3,
     SHORT_EVAL_INTERVAL   = Stage.STANDARD_HOUR_LENGTH * 2,
-    SHORT_WAIT_DURATION   = SHORT_EVAL_INTERVAL + 2;
+    SHORT_WAIT_DURATION   = SHORT_EVAL_INTERVAL + 2       ;
   
   final static float
     DEFAULT_MIN_PARTY_STRENGTH = 1 / 1.5f,
@@ -141,7 +141,8 @@ public class BaseTactics {
   protected void updateMissionAssessments() {
     final boolean report = shouldReport();
     if (report) I.say("\nUPDATING MISSION ASSESSMENTS FOR "+base);
-    
+    //
+    //  Compile a list of all current and potential missions first.
     Batch <Mission> toAssess = new Batch <Mission> ();
     Visit.appendTo(toAssess, missions);
     addNewMissions(toAssess);
@@ -384,26 +385,41 @@ public class BaseTactics {
   
   
   protected Batch <Venue> getSampleVenues() {
-    final Batch <Venue> sampled = new Batch <Venue> ();
-    final PresenceMap venues = base.world.presences.mapFor(Venue.class);
-    final int limit = Nums.max(10, venues.population() / 100);
-    for (Target t : venues.visitNear(null, -1, null)) {
-      sampled.add((Venue) t);
+    return addSamples(new Batch(), Venue.class);
+  }
+  
+  
+  protected Batch <Mobile> getSampleMobiles() {
+    return addSamples(new Batch(), Mobile.class);
+  }
+  
+  
+  protected Batch addSamples(Batch sampled, Object typeKey) {
+    final Property baseHQ = base.HQ();
+    if (baseHQ == null) {
+      if (I.logEvents()) {
+        I.say("\nWARNING: "+base+" has no HQ, cannot get mission targets.");
+      }
+      return sampled;
+    }
+    
+    final PresenceMap sampFrom = base.world.presences.mapFor(typeKey);
+    final int limit = Nums.max(10, sampFrom.population() / 100);
+    
+    for (Target t : sampFrom.visitNear(null, -1, null)) {
+      if (! checkReachability(t, baseHQ)) continue;
+      sampled.add((Mobile) t);
       if (sampled.size() >= limit) break;
     }
     return sampled;
   }
   
   
-  protected Batch <Mobile> getSampleActors() {
-    final Batch <Mobile> sampled = new Batch <Mobile> ();
-    final PresenceMap mobiles = base.world.presences.mapFor(Mobile.class);
-    final int limit = Nums.max(10, mobiles.population() / 100);
-    for (Target t : mobiles.visitNear(null, -1, null)) {
-      sampled.add((Mobile) t);
-      if (sampled.size() >= limit) break;
-    }
-    return sampled;
+  protected boolean checkReachability(Target t, Target baseHQ) {
+    final Tile reachPoint = Spacing.nearestOpenTile(t, baseHQ);
+    return base.world.pathingCache.hasPathBetween(
+      baseHQ, reachPoint, base, false
+    );
   }
   
   
@@ -412,6 +428,10 @@ public class BaseTactics {
     return sampled;
   }
 }
+
+
+
+
 
 
 

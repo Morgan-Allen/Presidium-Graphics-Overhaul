@@ -10,55 +10,283 @@ import stratos.util.*;
 
 
 
+//
+//  TODO:  See if you can cache Boardings directly against themselves?
+//  TODO:  Also, direct cache-queries for Routes would be useful!
+
+
 public class PathingCache {
   
   
   /**  Constituent class and constant definitions-
     */
-  final static int UPDATE_INTERVAL = 10;
+  final static int UPDATE_INTERVAL = Stage.STANDARD_HOUR_LENGTH;
   
   private static boolean verbose = false;
-  private boolean printSearch = false;
+  
+  
+  private static int
+    numRoutes = 0,
+    numPlaces = 0,
+    numSets   = 0,
+    numZones  = 0,
+    numLiveRoutes = 0,
+    numLivePlaces = 0;
+  
+  
+  public static void reportObs() {
+    I.say("\nReporting on pathing objects...");
+    I.say("  Total routes: "+numRoutes);
+    I.say("  Total places: "+numPlaces);
+    I.say("  Total sets:   "+numSets  );
+    I.say("  Total zones:  "+numZones );
+    I.say("  Live routes:  "+numLiveRoutes);
+    I.say("  Live places:  "+numLivePlaces);
+  }
+  
   
   private class Route {
     Place from, to;
     float cost;
     Tile path[];
+    boolean isDead;
+    
+    Route() { numRoutes++; }
+    public void finalize() throws Throwable { numRoutes--; super.finalize(); }
   }
   
   private class Place {
-    Tile core, under[];
-    Caching caching;
+    StageRegion region;
+    Boarding core;
+    Tile under[];
+    
     Stack <Route> routes = new Stack <Route> ();
-    Zone zone;
+    Zone zones[] = new Zone[Base.MAX_BASES];
     
-    Place nearCache[];
     Object flagged;
-    boolean isDead = false;
+    boolean isDead;
     
-    public String toString() { return caching.section.toString(); }
+    Place() { numPlaces++; }
+    public void finalize() throws Throwable { numPlaces--; super.finalize(); }
   }
   
-  private class Caching {
-    StageRegion section;
+  private class PlaceSet {
+    int expiry = -1;
     Place places[];
-    float lastUpdateTime;
+    
+    PlaceSet() { numSets++; }
+    public void finalize() throws Throwable { numSets--; super.finalize(); }
   }
   
   private class Zone {
-    Batch <Place> places = new Batch <Place> ();
+    int expiry;
+    Base client;
+    Place places[] = null;
+    
+    Zone() { numZones++; }
+    public void finalize() throws Throwable { numZones--; super.finalize(); }
   }
   
   
   final Stage world;
   final Place tilePlaces[][];
-  final Table <StageRegion, Caching> allCached = new Table();
-  
+  final Table <StageRegion, PlaceSet> allCached;
   
   
   public PathingCache(Stage world) {
-    this.world = world;
+    this.world      = world;
     this.tilePlaces = new Place[world.size][world.size];
+    this.allCached  = new Table(world.regions.gridCount * 2);
+  }
+  
+  
+  
+  /**  Methods for refreshing the Places and Routes associated with each
+    *  Section of the map:
+    */
+  private void refreshWithNeighbours(StageRegion region) {
+    final StageRegion near[] = new StageRegion[9];
+    world.regions.neighbours(region, near);
+    near[8] = region;
+    
+    for (StageRegion n : near) if (n != null) refreshPlaces(n);
+    for (StageRegion n : near) if (n != null) refreshRoutesBetween(region, n);
+  }
+  
+  
+  private void refreshPlaces(StageRegion region) {
+    //
+    //  Check to see if we're due for a refresh or not.  If so, delete any
+    //  pre-existing Places.
+    final int time = (int) world.currentTime();
+    final PlaceSet oldSet = allCached.get(region);
+    if (oldSet != null) {
+      if (oldSet.expiry > time) return;
+      else deletePlaceSet(oldSet);
+    }
+    //
+    //  Then, scan all tiles within the region and create Places for either (A)
+    //  occupying venues that originate there, or (B) contiguous areas of
+    //  unblocked tiles within the region.
+    final Batch <Place> places = new Batch();
+    for (Tile t : world.tilesIn(region.area, false)) {
+      if (t.flaggedWith() != null) continue;
+      final Element a = t.reserves();
+      
+      if (a instanceof Boarding && a.origin() == t && t.blocked()) {
+        places.add(createPlaceWithVenue((Boarding) t.above()));
+      }
+      else if (! t.blocked()) {
+        places.add(createPlaceWithFloodFrom(t, region.area));
+      }
+    }
+    //
+    //  Clean up any flagging afterwards and store the results-
+    final PlaceSet newSet = new PlaceSet();
+    for (Place p : places) {
+      for (Tile u : p.under) {
+        u.flagWith(null);
+        tilePlaces[u.x][u.y] = p;
+      }
+      p.region = region;
+      numLivePlaces++;
+    }
+    newSet.places = places.toArray(Place.class);
+    allCached.put(region, newSet);
+    //
+    //  As a final touch, we set an expiry for the new place-set (including a
+    //  small random offset to ensure that updates don't all happen at once.)
+    newSet.expiry = time + UPDATE_INTERVAL - Rand.index(UPDATE_INTERVAL / 2);
+  }
+  
+  
+  private Place createPlaceWithVenue(Boarding venue) {
+    final Place p = new Place();
+    
+    final Stack <Tile> under = new Stack();
+    for (Tile t : Spacing.under(venue.area(null), world)) {
+      if (t.above() == venue && t.blocked()) {
+        under.add(t);
+        t.flagWith(p);
+      }
+    }
+    
+    p.core  = venue;
+    p.under = under.toArray(Tile.class);
+    return p;
+  }
+  
+  
+  private Place createPlaceWithFloodFrom(Tile t, Box2D area) {
+    final Place p = new Place();
+    
+    final Tile tempB[] = new Tile[4];
+    final Batch <Tile> flood  = new Batch();
+    final Stack <Tile> fringe = new Stack();
+    fringe.add(t);
+    t.flagWith(p);
+    
+    while (fringe.size() > 0) {
+      final Tile f = fringe.removeFirst();
+      flood.add(f);
+      for (Tile n : f.edgeAdjacent(tempB)) {
+        if (n == null || ! area.contains(n.x, n.y)) continue;
+        if (n.blocked() || n.flaggedWith() == p   ) continue;
+        fringe.add(n);
+        n.flagWith(p);
+      }
+    }
+    
+    final Tile under[] = flood.toArray(Tile.class);
+    float avgX = 0, avgY = 0;
+    for (Tile u : under) { avgX += u.x; avgY += u.y; }
+    avgX /= under.length;
+    avgY /= under.length;
+    
+    final Tile avg = world.tileAt(avgX, avgY);
+    final Pick <Tile> pickCore = new Pick();
+    for (Tile u : under) pickCore.compare(u, 0 - Spacing.distance(u, avg));
+    
+    p.core  = pickCore.result();
+    p.under = under;
+    return p;
+  }
+  
+  
+  private void deletePlaceSet(PlaceSet set) {
+    for (Place place : set.places) {
+      for (Route route : place.routes) {
+        route.from.routes.remove(route);
+        route.to  .routes.remove(route);
+        route.isDead = true;
+        numLiveRoutes--;
+      }
+      for (Tile u : place.under) tilePlaces[u.x][u.y] = null;
+      place.isDead = true;
+      numLivePlaces--;
+    }
+    set.places = null;
+  }
+  
+  
+  private void refreshRoutesBetween(StageRegion a, StageRegion b) {
+    final PlaceSet setA = allCached.get(a), setB = allCached.get(b);
+    
+    for (Place from : setA.places) for (Place to : setB.places) {
+      if (to == from || matchingRoute(from, to) != null) continue;
+      
+      final Route route = findNewRoute(from, to);
+      if (route == null) continue;
+      from.routes.add(route);
+      to  .routes.add(route);
+      numLiveRoutes++;
+    }
+  }
+  
+  
+  private Route matchingRoute(Place from, Place to) {
+    for (Route r : from.routes) if (
+      (r.from == from && r.to   == to) ||
+      (r.to   == from && r.from == to)
+    ) {
+      return r;
+    }
+    return null;
+  }
+  
+  
+  private Route findNewRoute(final Place a, final Place b) {
+    //
+    //  First, check to ensure that a valid path exists between the core of
+    //  these places, and restricted to their underlying area-
+    final PathSearch search = new PathSearch(a.core, b.core, false) {
+      protected boolean canEnter(Boarding spot) {
+        if (! super.canEnter(spot)) {
+          return false;
+        }
+        else if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
+          final Place p = placeFor((Tile) spot, false);
+          return p == a || p == b;
+        }
+        else {
+          return spot == a.core || spot == b.core;
+        }
+      }
+    };
+    search.doSearch();
+    if (! search.success()) return null;
+    //
+    //  If it does, create the Route object and assign proper data-
+    final Route route = new Route();
+    route.from = a;
+    route.to   = b;
+    route.cost = search.totalCost();
+    final Batch <Tile> tiles = new Batch <Tile> ();
+    for (Boarding onPath : search.fullPath(Boarding.class)) {
+      if (onPath instanceof Tile) tiles.add((Tile) onPath);
+    }
+    route.path = tiles.toArray(Tile.class);
+    return route;
   }
   
   
@@ -67,24 +295,39 @@ public class PathingCache {
     *  arbitrary destinations on the map- and a few other utility methods for
     *  diagnosis of bugs...
     */
+  private Place placeFor(Tile t, boolean refresh) {
+    if (refresh) {
+      refreshWithNeighbours(world.regions.regionAt(t.x, t.y));
+    }
+    return tilePlaces[t.x][t.y];
+  }
+  
+  
   private Place[] placesBetween(
-    Target initB, Target destB, Mobile client, boolean reports
+    Target initB, Target destB, Accountable client, boolean reports
   ) {
     final Tile
       initT = PathSearch.approachTile(initB, client),
       destT = PathSearch.approachTile(destB, client);
+    
     if (initT == null || destT == null) {
       if (reports) I.say("Initial place-tiles invalid: "+initT+"/"+destT);
       return null;
     }
+    
     final Place
-      initP = placeFor(initT),
-      destP = placeFor(destT);
+      initP = placeFor(initT, true),
+      destP = placeFor(destT, true);
+    
     if (initP == null || destP == null) {
       if (reports) I.say("Initial places invalid: "+initP+"/"+destP);
       return null;
     }
-    final Place placesPath[] = placesPath(initP, destP, reports);
+    if (! hasPathBetween(initP, destP, null, reports)) {
+      if (reports) I.say("NO PATH BETWEEN: "+initP+"/"+destP);
+      return null;
+    }
+    final Place placesPath[] = placesPath(initP, destP, false, client, reports);
     if (placesPath == null || placesPath.length < 1) {
       if (reports) I.say("NO PLACES PATH!");
       return null;
@@ -185,14 +428,8 @@ public class PathingCache {
   }
   
   
-  private Place placeFor(Tile t) {
-    refreshWithNeighbours(world.regions.regionAt(t.x, t.y));
-    return tilePlaces[t.x][t.y];
-  }
-  
-  
   public Tile[] placeTiles(Tile t) {
-    final Place p = placeFor(t);
+    final Place p = placeFor(t, true);
     return p == null ? null : p.under;
   }
   
@@ -208,154 +445,58 @@ public class PathingCache {
   
   
   
-  /**  Methods for refreshing the Places and Routes associated with each
-    *  Section of the map:
+  /**  Then some utility methods for rapid checking of pathability between
+    *  two points for a particular Base.
     */
-  private void refreshWithNeighbours(StageRegion section) {
-    final StageRegion near[] = new StageRegion[9];
-    world.regions.neighbours(section, near);
-    near[8] = section;
-    for (int i = 9; i-- > 0;) if (! refreshPlaces(near[i])) near[i] = null;
-    for (StageRegion n : near) refreshRoutes(n);
+  private Zone zoneFor(Place p, Base client) {
+    return p.zones[client.baseID()];
   }
   
   
-  private boolean refreshPlaces(StageRegion section) {
-    //
-    //  First of all, check to ensure that an update is required.  If so,
-    //  generate new places for underlying tiles:
-    if (section == null) return false;
-    final float time = world.currentTime();
-    Caching caching = allCached.get(section);
-    if (caching == null) {
-      caching = new Caching();
-      caching.section = section;
-      allCached.put(section, caching);
-    }
-    else if ((time - caching.lastUpdateTime) > UPDATE_INTERVAL) {
-      for (Place place : caching.places) deletePlace(place);
-    }
-    else return false;
-    if (verbose || printSearch) {
-      I.say("Refreshing places at: "+section.x+"|"+section.y+", time: "+time);
-    }
-    caching.places = grabPlacesFor(caching, section);
-    caching.lastUpdateTime = time;
-    return true;
-  }
-  
-  
-  private void refreshRoutes(StageRegion section) {
-    //
-    //  Grab all nearby Places first, including those in the same or adjacent
-    //  sections-
-    if (section == null) return;
-    if (verbose || printSearch) {
-      I.say("Refreshing ROUTES at: "+section.x+"|"+section.y);
-    }
-    final Caching caching = allCached.get(section);
-    final Batch <Place> near = new Batch <Place> ();
-    for (Place place : caching.places) near.add(place);
-    for (StageRegion nS : world.regions.neighbours(section, null)) {
-      if (nS == null) continue;
-      final Caching nC = allCached.get(nS);
-      if (nC != null) for (Place place : nC.places) near.add(place);
-    }
-    //
-    //  Having done so, establish routes between all distinct places where
-    //  possible-
-    for (Place place : caching.places) {
-      for (Place other : near) if (other != place) {
-        final Route route = routeBetween(place, other);
-        if (route == null) continue;
-        place.routes.add(route);
-        other.routes.add(route);
-        place.nearCache = other.nearCache = null;
-      }
-    }
-  }
-  
-  
-  private void deletePlace(Place place) {
-    for (Route route : place.routes) {
-      route.from.routes.remove(route);
-      route.to.routes.remove(route);
-      route.from.nearCache = route.to.nearCache = null;
-    }
-    for (Tile u : place.under) tilePlaces[u.x][u.y] = null;
-    place.isDead = true;
-  }
-  
-  
-  
-  /**  Methods for establishing Places in the first place-
-    */
-  private Place[] grabPlacesFor(Caching caching, final StageRegion section) {
-    //
-    //  We scan through every tile in this section, and grab any contiguous
-    //  areas of unblocked tiles.  (These must be flagged just after being
-    //  acquired, so that subsequent passes will know to skip over them.)
-    final Batch <Tile[]> allUnder = new Batch <Tile[]> ();
-    final Tile temp[] = new Tile[4];
+  private void fillZoneFrom(Place init, Base client, boolean reports) {
     
-    for (Coord c : Visit.grid(section.area)) {
-      final Tile t = world.tileAt(c.x, c.y);
-      if (t.flaggedWith() != null || t.blocked()) continue;
-      
-      final Batch <Tile> under = new Batch();
-      final Stack <Tile> agenda = new Stack <Tile> () {
-        public void add(Tile t) {
-          if (t == null || ! section.area.contains(t.x, t.y)) return;
-          if (t.flaggedWith() != null || t.blocked()) return;
-          t.flagWith(allUnder);
-          under.add(t);
-          super.add(t);
-        }
-      };
-      
-      agenda.add(t);
-      while (agenda.size() > 0) {
-        final Tile best = agenda.removeFirst();
-        for (Tile n : best.edgeAdjacent(temp)) agenda.add(n);
-      }
-      allUnder.add(under.toArray(Tile.class));
-    }
-    //
-    //  Having obtained each block of tiles, we create corresponding Place
-    //  objects, and assign them a core-
-    final Place places[] = new Place[allUnder.size()];
-    int i = 0; for (Tile[] under : allUnder) {
-      final Place place = places[i++] = new Place();
-      place.under = under;
-      place.core = findCore(under);
-      place.caching = caching;
-      if (verbose) I.say(under.length+" tiles grabbed...");
-      for (Tile u : under) {
-        tilePlaces[u.x][u.y] = place;
-        //
-        //  And don't forget to unflag them afterward...
-        u.flagWith(null);
-      }
-    }
-    return places;
+    final int  time   = (int) world.currentTime();
+    final Zone initZ  = zoneFor(init, client);
+    final int  baseID = client.baseID();
+    
+    if (initZ != null) for (Place p : initZ.places) p.zones[baseID] = null;
+    
+    final Zone zone = new Zone();
+    zone.places = placesPath(init, null, true, client, reports);
+    zone.expiry = time + UPDATE_INTERVAL;
+    zone.client = client;
+    for (Place p : zone.places) p.zones[baseID] = zone;
   }
   
   
-  private Tile findCore(Tile tiles[]) {
-    //
-    //  First, we get the average position of all the tiles-
-    final Vec2D avg = new Vec2D(), pos = new Vec2D();
-    for (Tile t : tiles) { avg.x += t.x; avg.y += t.y; }
-    avg.scale(1f / tiles.length);
-    //
-    //  Then return the tile closest to this centre-
-    Tile closest = null;
-    float minDist = Float.POSITIVE_INFINITY;
-    for (Tile t : tiles) {
-      final float dist = avg.pointDist(pos.set(t.x, t.y));
-      if (dist < minDist) { closest = t; minDist = dist; }
+  private boolean hasPathBetween(
+    Place initP, Place destP, Base client, boolean reports
+  ) {
+    final int time = (int) world.currentTime();
+    final Zone initZ = zoneFor(initP, client), destZ = zoneFor(destP, client);
+    
+    if (initZ == null || initZ.expiry < time) {
+      fillZoneFrom(initP, client, reports);
     }
-    return closest;
+    if (destZ == null || destZ.expiry < time) {
+      fillZoneFrom(destP, client, reports);
+    }
+    return initZ == destZ;
+  }
+  
+  
+  public boolean hasPathBetween(
+    Target a, Target b, Base client, boolean reports
+  ) {
+    final Tile
+      initT = PathSearch.approachTile(a, client),
+      destT = PathSearch.approachTile(b, client);
+    final Place
+      initP = placeFor(initT, true),
+      destP = placeFor(destT, true);
+    
+    if (initP == null || destP == null) return false;
+    return hasPathBetween(initP, destP, client, reports);
   }
   
   
@@ -394,10 +535,10 @@ public class PathingCache {
       
       final int PPL = placesPath.length;
       private Place lastPlace = placesPath[0];
-      private int PPI = PPL == 1 ? 0 : 1;
+      private int PPI = PPL == 1 ? 0 : 1, oldPPI = -1;
       private Target heading = PPL == 1 ? destB : placesPath[1].core;
       private Tile closest = initT;
-      private Box2D tempArea = new Box2D();
+      private Box2D tempArea = new Box2D(-1, -1, 0, 0);
       
       protected boolean stepSearch() {
         final Boarding best = closest;
@@ -439,110 +580,73 @@ public class PathingCache {
         if (! super.canEnter(spot)) return false;
         if (spot instanceof Tile) {
           final Tile tile = (Tile) spot;
+          if (PPI == oldPPI) return tempArea.contains(tile.x, tile.y);
+          
           final Place
             curr = placesPath[PPI],
             next = placesPath[Nums.clamp(PPI + 1, PPL)],
             last = placesPath[Nums.clamp(PPI - 1, PPL)];
-          tempArea.setTo(curr.caching.section.area);
-          tempArea.include(next.caching.section.area);
-          tempArea.include(last.caching.section.area);
+          tempArea.setTo  (curr.region.area);
+          tempArea.include(next.region.area);
+          tempArea.include(last.region.area);
+          
+          oldPPI = PPI;
           return tempArea.contains(tile.x, tile.y);
         }
         return true;
       }
-      //*/
+      
     };
     return search;
-  }
-  
-  
-  private PathSearch cordonedSearch(
-    Boarding a, Boarding b, StageRegion sA, StageRegion sB
-  ) {
-    //
-    //  Creates a pathing search between two points restricted to the given
-    //  sections.
-    final Box2D
-      cordon = new Box2D().setTo(sA.area).include(sB.area),
-      tB = new Box2D();
-    final PathSearch search = new PathSearch(a, b, false) {
-      protected boolean canEnter(Boarding spot) {
-        if (! super.canEnter(spot)) return false;
-        if (spot instanceof Tile) {
-          final Tile t = (Tile) spot;
-          return cordon.contains(t.x, t.y);
-        }
-        else {
-          spot.area(tB);
-          return cordon.intersects(tB);
-        }
-      }
-    };
-    return search;
-  }
-  
-  
-  private Route routeBetween(Place a, Place b) {
-    //
-    //  First, check to ensure that a valid path exists-
-    final PathSearch search = cordonedSearch(
-      a.core, b.core, a.caching.section, b.caching.section
-    );
-    search.doSearch();
-    if (! search.success()) return null;
-    //
-    //  If it does, create the Route object and assign proper data-
-    final Route route = new Route();
-    route.from = a;
-    route.to = b;
-    route.cost = search.totalCost();
-    final Batch <Tile> tiles = new Batch <Tile> ();
-    for (Boarding onPath : search.fullPath(Boarding.class)) {
-      if (onPath instanceof Tile) tiles.add((Tile) onPath);
-    }
-    route.path = tiles.toArray(Tile.class);
-    return route;
   }
   
   
   private Place[] placesPath(
-    final Place init, final Place dest, boolean reports
+    final Place init, final Place dest,
+    final boolean zoneFill, final Accountable client,
+    boolean reports
   ) {
-    if (reports) {
+    if (reports && dest != null) {
       I.say("\nSearching for place path between "+init.core+" and "+dest.core);
+    }
+    if (reports && zoneFill) {
+      I.say("\nSearching for places within zone starting from "+init.core);
     }
     
     final Search <Place> search = new Search <Place> (init, -1) {
       
+      final Place tempP[] = new Place[8];
+      
       protected Place[] adjacent(Place spot) {
-        //
-        //  TODO:  Apparently, the nearCache was the problem.  It was causing
-        //  dead places to stay in circulation within the agenda following
-        //  their obsolescence.
-        //if (spot.nearCache != null) return spot.nearCache;
-        refreshWithNeighbours(spot.caching.section);
-        final Place near[] = spot.nearCache = new Place[spot.routes.size()];
+        refreshWithNeighbours(spot.region);
+        
+        final Place near[] = spot.routes.size() > tempP.length ?
+          new Place[spot.routes.size()] : tempP
+        ;
         int i = 0; for (Route route : spot.routes) {
-          near[i++] = (route.from == spot) ? route.to : route.from;
+          final Place n = (route.from == spot) ? route.to : route.from;
+          if (PathSearch.blockedBy(n.core, client)) near[i] = null;
+          else near[i++] = n;
         }
+        while (i < tempP.length) near[i++] = null;
         return near;
       }
       
       protected float cost(Place prior, Place spot) {
         for (Route r : prior.routes) {
           if (r.from == spot || r.to == spot) return r.cost;
-          ///if (r.from == spot && r.to == prior) return r.cost;
-          ///if (r.to == spot && r.from == prior) return r.cost;
         }
         return -1;
       }
       
       protected boolean endSearch(Place best) {
-        return best == dest;
+        if (zoneFill) return false;
+        else return best == dest;
       }
       
       protected float estimate(Place spot) {
-        return Spacing.distance(spot.core, dest.core);
+        if (zoneFill) return 0;
+        else return Spacing.distance(spot.core, dest.core);
       }
       
       protected void setEntry(Place spot, Entry flag) {
@@ -553,26 +657,26 @@ public class PathingCache {
         return (Entry) spot.flagged;
       }
     };
+    
     if (reports) search.verbosity = Search.VERBOSE;
     search.doSearch();
-    if (! search.success()) return null;
-    return search.fullPath(Place.class);
-  }
-  
-  
-  
-  /**  Finally, some utility methods for rapid checking of pathability between
-    *  two points.
-    *  TODO:  YOU WILL HAVE TO CACHE THIS KIND OF INFORMATION
-    */
-  public boolean hasPathBetween(
-    Target a, Target b, Mobile client, boolean reports
-  ) {
-    final Place placesPath[] = placesBetween(a, b, client, reports);
-    return placesPath != null;
+    
+    if (zoneFill) {
+      return search.allSearched(Place.class);
+    }
+    else if (! search.success()) {
+      return null;
+    }
+    else {
+      return search.fullPath(Place.class);
+    }
   }
   
 }
+
+
+
+
 
 
 
@@ -584,8 +688,6 @@ public class PathingCache {
 //  TODO:  Next, ideally, you'll want to build up a recursive tree-structure
 //  out of Regions so that the viability of pathing attempts can be determined
 //  as quickly as possible (when querying nearby venues, etc.)
-
-
 
 
 

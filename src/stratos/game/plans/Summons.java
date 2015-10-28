@@ -263,7 +263,7 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   }
   
   
-  public static Property summonedTo(Mobile m) {
+  public static Property summonedTo(Accountable m) {
     if (! (m instanceof Actor)) return null;
     final Summons s = (Summons) ((Actor) m).matchFor(Summons.class, false);
     return s == null ? null : s.stays;

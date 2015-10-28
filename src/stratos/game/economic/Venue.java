@@ -454,7 +454,7 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public boolean allowsEntry(Mobile m) {
+  public boolean allowsEntry(Accountable m) {
     if (! structure.intact()) return false;
     if (m.base() == this.base) return true;
     //  TODO:  WORK THIS OUT

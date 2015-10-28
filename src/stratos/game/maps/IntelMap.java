@@ -289,7 +289,7 @@ public class IntelMap {
     //  be performing within the agenda-search itself.
     if (maxDist <= 0 && client instanceof Mobile) {
       if (world.pathingCache.hasPathBetween(
-        client, picked, (Mobile) client, report
+        client, picked, client.base(), report
       )) return picked;
       else return null;
     }

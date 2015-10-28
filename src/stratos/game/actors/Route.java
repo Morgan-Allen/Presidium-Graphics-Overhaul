@@ -1,11 +1,19 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.util.*;
 
 
-//  TODO:  Generalise this to more than just paving tiles?
+//  TODO:  See if you can use this in the PathingCache!
+
+//  Conversely, now that venues are place-nodes in the pathing map, you can
+//  simply check for routes outgoing to determine whether paving should be
+//  performed!  Ha!
+
 
 
 public class Route {

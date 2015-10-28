@@ -2,15 +2,25 @@
 
 TO DO NOW-
 
-*  Then, the ecologist and Yamagur.
+*  Make sure the pathing-cache works for fast calculation of zone-reachability!
+   (Later, you can piggy-back the paving-system off this data.)
 
-*  And finally, the engineer and highborn.
+*  Ensure raiders will attempt to besiege intervening walls.
+*  More vigorous attacks after a few days from artilects, etc.
+   
+   Cranials.  Get them working!
 
 
-*  Traits & Techniques, like Mounts, need the ability to either veto or suggest
-   behaviours.  (In fact, a general interface for that would be nice.)
+*  Hook up, and test, the common abilities.  (Plus general learning & use of
+   the others.)
 
-*  Shield FX must NOT display for critters without armour...
+*  See if you can hook up ammo clips and power cells.
+*  Psy inhibition needs to be filled in?
+*  Noble command and call of duty
+*  Some runner abilities need undercover ops to be implemented.
+
+
+*  Offworld raids by enemy houses!
 
 
 *  Give vermin... one or two special abilities.  Like, night vision and
@@ -22,14 +32,7 @@ TO DO NOW-
    Cran & Tri- impale, high beam, silver plague, reflection shockwave, plus
    detonate and slough for Drone & Cybrid.
 
-*  Allow raids by enemy houses (and seeding of nearby territory.)
 
-
-
-*  See if you can hook up ammo clips and power cells.
-*  Psy inhibition needs to be filled in?
-*  Noble command and call of duty
-*  Some runner abilities need undercover ops to be implemented.
 
 
 *  Initial missions:
@@ -115,12 +118,7 @@ ENEMIES AND ENVIRONMENT-
 
 *  Nocturnal trait.  "They mostly come at night.  Mostly."
 
-*  Ensure raiders will attempt to besiege intervening walls!
-*  More vigorous attacks after a few days from artilects, etc.
-
 *  Try to polish up the Flora- have it look more exotic.
-
-*  Offworld raids by enemy houses!
 
 *  The Yamagur is sufficiently big and powerful that it can't really count as a
    'prey' species (in fact, it tends to wind up pulverising any predators in
