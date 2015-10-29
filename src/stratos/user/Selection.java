@@ -266,10 +266,9 @@ public class Selection implements UIConstants {
       //
       //  Paint this over the world, unflag the tiles, and add to the cache for
       //  later reference as needed.
-      overlay = world.terrain().createOverlay(limit, layer);
+      overlay = world.terrain().createOverlay(limit, layer, ! cache);
       for (Tile t : under) t.flagWith(null);
       if (cache) addToCache(overlay, key);
-      else overlay.throwAway = true;
     }
     //
     //  Finally, apply a glow-colour and ready for rendering...
@@ -363,7 +362,7 @@ public class Selection implements UIConstants {
       area.incHigh(1);
       area.incWide(1);
       area.cropBy(world.area());
-      overlay = world.terrain().createOverlay(area, layer);
+      overlay = world.terrain().createOverlay(area, layer, ! cache);
       if (cache) addToCache(overlay, key);
     }
     

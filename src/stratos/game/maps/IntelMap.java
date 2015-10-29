@@ -191,9 +191,6 @@ public class IntelMap {
   
   /**  Helper method for grabbing unexplored tiles-
     */
-  //  TODO:  You'll need to use large-scale pathing-culling here as soon as
-  //  it's available.
-  
   public static Tile getUnexplored(
     Base base, Target client,
     Target centre, float distanceUnit, final float maxDist
@@ -285,8 +282,10 @@ public class IntelMap {
     //  possible to path toward:
     if (picked == null) return null;
     
-    //  TODO:  This needs to be made much more efficient, so that probing can
-    //  be performing within the agenda-search itself.
+    //  TODO:  Ideally, this should be performed at various stages within the
+    //  the agenda-search itself.  Try to get Zones directly from the pathing-
+    //  cache and search only within those?
+    
     if (maxDist <= 0 && client instanceof Mobile) {
       if (world.pathingCache.hasPathBetween(
         client, picked, client.base(), report

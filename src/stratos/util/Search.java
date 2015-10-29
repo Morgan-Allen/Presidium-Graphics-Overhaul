@@ -198,30 +198,37 @@ public abstract class Search <T> {
   }
   
   
-  public T[] bestPath(Class pathClass) {
+  public T[] bestPath(Class pathClass, int limit) {
     if (bestEntry == null) return null;
     
-    final Batch <T> pathTiles = new Batch <T> ();
+    final Stack <T> pathStack = new Stack();
     for (Entry next = bestEntry; next != null; next = next.prior) {
-      pathTiles.add(next.refers);
+      pathStack.addFirst(next.refers);
     }
-    int len = pathTiles.size();
+    final int len = limit <= 0 ? pathStack.size() : limit;
     T path[] = (T[]) Array.newInstance(pathClass, len);
-    for (T t : pathTiles) path[--len] = t;
-
+    
+    int index = 0;
+    for (T t : pathStack) { path[index++] = t; if (index > len) break; }
+    
     final boolean report = verbosity > NOT_VERBOSE;
     if (report) {
       I.say("\nGETTING FINAL PATH RESULT");
-      I.say("  Path size: "+pathTiles.size());
+      I.say("  True Path size: "+pathStack.size()+" (limit "+limit+")");
       if (verbosity > VERBOSE) for (T t : path) I.say("    "+t);
     }
     return path;
   }
   
   
-  public T[] fullPath(Class pathClass) {
+  public T[] fullPath(Class pathClass, int limit) {
     if (! success) return null;
-    return bestPath(pathClass);
+    return bestPath(pathClass, limit);
+  }
+  
+  
+  public T[] fullPath(Class pathClass) {
+    return fullPath(pathClass, -1);
   }
   
   

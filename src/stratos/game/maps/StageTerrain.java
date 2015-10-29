@@ -439,7 +439,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   public TerrainChunk createOverlay(
     final Stage world, Tile tiles[],
-    final boolean innerFringe, ImageAsset tex
+    final boolean innerFringe, ImageAsset tex,
+    boolean throwaway
   ) {
     if (tiles == null || tiles.length < 1) I.complain("No tiles in overlay!");
     final int maxT = tiles.length * 2;
@@ -462,12 +463,12 @@ public class StageTerrain implements TileConstants, Session.Saveable {
         return 0;
       }
     };
-    return createOverlay(area, layer);
+    return createOverlay(area, layer, throwaway);
   }
   
   
   public TerrainChunk createOverlay(
-    Box2D b, LayerType layer
+    Box2D b, LayerType layer, boolean throwaway
   ) {
     final int
       minX = (int) (b.xpos() + 0.5f),
@@ -479,6 +480,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       layer, meshSet
     );
     overlay.generateMeshData();
+    overlay.throwAway = throwaway;
     return overlay;
   }
   

@@ -370,7 +370,9 @@ public class SiteUtils implements TileConstants {
       //  (NOTE: Visual overlay creation may be toggled on for debug purposes.)
       if (shows) {
         final TerrainChunk overlay = world.terrain().createOverlay(
-          world, pocket.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+          world, pocket.toArray(Tile.class),
+          true, Image.TRANSLUCENT_WHITE,
+          true
         );
         final int index = pocketsFound.indexOf(pocket);
         final Colour tones[] = Colour.PRIMARIES;

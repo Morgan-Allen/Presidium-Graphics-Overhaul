@@ -28,6 +28,8 @@
 		<array>
 			<string>-XX:+AggressiveOpts</string>
 			<string>-XX:MaxGCPauseMillis=5</string>
+			<string>-Xms256m</string>
+			<string>-Xmx512m</string>
 		</array>
 		<key>MainClass</key>
 		<string>stratos.start.DebugStartup</string>

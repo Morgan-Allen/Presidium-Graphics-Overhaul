@@ -212,7 +212,7 @@ public class AutoPaveTest {
     };
     if (report) agenda.verbosity = Search.SUPER_VERBOSE;
     agenda.doSearch();
-    return agenda.bestPath(Node.class);
+    return agenda.bestPath(Node.class, -1);
   }
   
   

@@ -50,6 +50,13 @@ public class KeyInput {
   }
   
   
+  public static boolean isPressed(char k) {
+    final String name = (""+k).toUpperCase();
+    final int keyCode = Input.Keys.valueOf(name);
+    return isPressed(keyCode);
+  }
+  
+  
   public static boolean isPressed(int keyCode) {
     return Gdx.input.isKeyPressed(keyCode);
   }

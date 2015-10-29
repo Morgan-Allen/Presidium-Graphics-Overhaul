@@ -9,8 +9,6 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
-
-//
 //  TODO:  See if you can cache Boardings directly against themselves?
 //  TODO:  Also, direct cache-queries for Routes would be useful!
 
@@ -20,9 +18,9 @@ public class PathingCache {
   
   /**  Constituent class and constant definitions-
     */
-  final static int UPDATE_INTERVAL = Stage.STANDARD_HOUR_LENGTH;
+  private static boolean updatesVerbose = false;
   
-  private static boolean verbose = false;
+  final static int UPDATE_INTERVAL = Stage.STANDARD_HOUR_LENGTH;
   
   
   private static int
@@ -49,7 +47,6 @@ public class PathingCache {
     Place from, to;
     float cost;
     Tile path[];
-    boolean isDead;
     
     Route() { numRoutes++; }
     public void finalize() throws Throwable { numRoutes--; super.finalize(); }
@@ -64,7 +61,10 @@ public class PathingCache {
     Zone zones[] = new Zone[Base.MAX_BASES];
     
     Object flagged;
-    boolean isDead;
+    
+    public String toString() {
+      return "P"+under.length+" "+region.x+"|"+region.y+" ("+core+")";
+    }
     
     Place() { numPlaces++; }
     public void finalize() throws Throwable { numPlaces--; super.finalize(); }
@@ -150,9 +150,19 @@ public class PathingCache {
       }
       p.region = region;
       numLivePlaces++;
+      
+      if (updatesVerbose) I.say("\nCREATED NEW PLACE: "+p);
     }
     newSet.places = places.toArray(Place.class);
     allCached.put(region, newSet);
+    //
+    //  Any Places that share the same core as before (which is a cheap
+    //  shorthand for 'probably didn't change much' will retain the same Zone.)
+    if (oldSet != null) for (Place p : places) {
+      for (Place old : oldSet.places) if (old.core == p.core) {
+        p.zones = old.zones;
+      }
+    }
     //
     //  As a final touch, we set an expiry for the new place-set (including a
     //  small random offset to ensure that updates don't all happen at once.)
@@ -218,14 +228,11 @@ public class PathingCache {
       for (Route route : place.routes) {
         route.from.routes.remove(route);
         route.to  .routes.remove(route);
-        route.isDead = true;
         numLiveRoutes--;
       }
       for (Tile u : place.under) tilePlaces[u.x][u.y] = null;
-      place.isDead = true;
       numLivePlaces--;
     }
-    set.places = null;
   }
   
   
@@ -323,7 +330,7 @@ public class PathingCache {
       if (reports) I.say("Initial places invalid: "+initP+"/"+destP);
       return null;
     }
-    if (! hasPathBetween(initP, destP, null, reports)) {
+    if (! hasPathBetween(initP, destP, client.base(), reports)) {
       if (reports) I.say("NO PATH BETWEEN: "+initP+"/"+destP);
       return null;
     }
@@ -332,22 +339,30 @@ public class PathingCache {
       if (reports) I.say("NO PLACES PATH!");
       return null;
     }
-    if (! verifyPlacesPath(placesPath)) {
-      I.complain("Places path is broken...");
-      return null;
-    }
     return placesPath;
   }
   
   
   public Boarding[] getLocalPath(
     Boarding initB, Boarding destB, int maxLength,
-    Mobile client, boolean reports
+    Accountable client, boolean reports
   ) {
     Boarding path[] = null;
     final int verbosity = reports ? Search.VERBOSE : Search.NOT_VERBOSE;
     
-    if (Spacing.distance(initB, destB) <= Stage.ZONE_SIZE) {
+    if (client == null || client.base() == null) {
+      I.complain("\nNO BASE-CLIENT SPECIFIED!");
+      return null;
+    }
+
+    final float destDist     = Spacing.distance(initB, destB);
+    final Place placesPath[] = placesBetween(initB, destB, client, reports);
+    if (reports && placesPath != null) {
+      I.say("\nPlaces path is: ");
+      for (Place p : placesPath) I.say("  "+p);
+    }
+    
+    if (destDist <= world.regions.resolution || placesPath == null) {
       if (reports) I.say(
         "\nUsing simple agenda-bounded search between "+initB+" and "+destB
       );
@@ -355,76 +370,24 @@ public class PathingCache {
       search.assignClient(client);
       search.verbosity = verbosity;
       search.doSearch();
-      path = search.fullPath(Boarding.class);
+      path = search.fullPath(Boarding.class, maxLength);
       if (path != null) return path;
     }
-    final Place placesPath[] = placesBetween(initB, destB, client, reports);
     
-    if (placesPath != null && placesPath.length > 3) {
+    if (path == null && placesPath != null) {
       if (reports) I.say(
         "\nUsing partial cordoned search between "+initB+" and "+destB
       );
       final PathSearch search = fullPathSearch(
-        initB, placesPath[2].core, placesPath, maxLength
+        initB, destB, placesPath, maxLength, client, reports
       );
-      search.assignClient(client);
       search.verbosity = verbosity;
       search.doSearch();
       path = search.fullPath(Boarding.class);
       if (path != null) return path;
     }
-    if (placesPath != null && placesPath.length <= 3) {
-      if (reports) I.say(
-        "\nUsing full cordoned search between "+initB+" and "+destB
-      );
-      final PathSearch search = fullPathSearch(
-        initB, destB, placesPath, maxLength
-      );
-      search.assignClient(client);
-      search.verbosity = verbosity;
-      search.doSearch();
-      path = search.fullPath(Boarding.class);
-      if (path != null) return path;
-    }
-    if (path == null) {
-      if (reports) I.say(
-        "\nResorting to agenda-bounded search between "+initB+" and "+destB
-      );
-      final PathSearch search = new PathSearch(initB, destB, true);
-      search.assignClient(client);
-      search.verbosity = verbosity;
-      search.doSearch();
-      path = search.fullPath(Boarding.class);
-      if (path != null) return path;
-    }
+    
     return null;
-  }
-  
-  
-  private boolean verifyPlacesPath(Place placesPath[]) {
-    for (int i = 0; i < placesPath.length - 1; i++) {
-      final Place next = placesPath[i + 1], curr = placesPath[i];
-      if (next.isDead || curr.isDead) {
-        if (verbose) {
-          if (next.isDead) I.say("DEAD PLACE: "+next.core);
-          if (curr.isDead) I.say("DEAD PLACE: "+curr.core);
-          I.say("PATH BROKE AT INDEX: "+i+"/"+placesPath.length);
-        }
-        return false;
-      }
-      boolean linked = false;
-      for (Route r : curr.routes) {
-        if (r.from == next || r.to == next) linked = true;
-      }
-      if (! linked) {
-        if (verbose) {
-          I.say("NO ROUTE BETWEEN "+curr.core+" AND "+next.core);
-          I.say("PATH BROKE AT INDEX: "+i+"/"+placesPath.length);
-        }
-        return false;
-      }
-    }
-    return true;
   }
   
   
@@ -448,40 +411,35 @@ public class PathingCache {
   /**  Then some utility methods for rapid checking of pathability between
     *  two points for a particular Base.
     */
-  private Zone zoneFor(Place p, Base client) {
-    return p.zones[client.baseID()];
-  }
-  
-  
-  private void fillZoneFrom(Place init, Base client, boolean reports) {
+  private Zone zoneFor(
+    Place init, Base client, boolean refresh, boolean reports
+  ) {
+    final int  baseID  = client.baseID();
+    final int  time    = (int) world.currentTime();
+    final Zone oldZone = init.zones[baseID];
     
-    final int  time   = (int) world.currentTime();
-    final Zone initZ  = zoneFor(init, client);
-    final int  baseID = client.baseID();
-    
-    if (initZ != null) for (Place p : initZ.places) p.zones[baseID] = null;
-    
+    if (oldZone != null && oldZone.expiry > time) return oldZone;
+    if (! refresh) return null;
+
+    final Place inZone[] = placesPath(init, null, true, client, reports);
     final Zone zone = new Zone();
-    zone.places = placesPath(init, null, true, client, reports);
-    zone.expiry = time + UPDATE_INTERVAL;
+    zone.places = inZone;
     zone.client = client;
-    for (Place p : zone.places) p.zones[baseID] = zone;
+    zone.expiry = time + UPDATE_INTERVAL;
+    for (Place p : inZone) p.zones[baseID] = zone;
+    
+    if (updatesVerbose) I.say("\nCREATED NEW ZONE: "+zone);
+    return zone;
   }
   
   
   private boolean hasPathBetween(
     Place initP, Place destP, Base client, boolean reports
   ) {
-    final int time = (int) world.currentTime();
-    final Zone initZ = zoneFor(initP, client), destZ = zoneFor(destP, client);
-    
-    if (initZ == null || initZ.expiry < time) {
-      fillZoneFrom(initP, client, reports);
-    }
-    if (destZ == null || destZ.expiry < time) {
-      fillZoneFrom(destP, client, reports);
-    }
-    return initZ == destZ;
+    final Zone
+      initZ = zoneFor(initP, client, true, reports),
+      destZ = zoneFor(destP, client, true, reports);
+    return initZ != null && destZ != null && initZ == destZ;
   }
   
   
@@ -500,13 +458,27 @@ public class PathingCache {
   }
   
   
+  public Boarding[] compileZoneCoresFor(Base client, Tile at) {
+    
+    final Place place = placeFor(at, false);
+    if (place == null) return new Boarding[0];
+    final Zone zone = zoneFor(place, client, true, false);
+    if (zone == null) return new Boarding[0];
+    
+    final Batch <Boarding> cores = new Batch();
+    for (Place p : zone.places) cores.add(p.core);
+    return cores.toArray(Boarding.class);
+  }
+  
+  
   
   /**  Generating paths between nearby Places, and among the larger network of
     *  Places-
     */
   public PathSearch fullPathSearch(
     final Boarding initB, final Boarding destB,
-    Object placesPathRef, final int maxLength
+    Object placesPathRef, final int maxLength,
+    Accountable client, boolean reports
   ) {
     if (placesPathRef != null && ! (placesPathRef instanceof Place[])) {
       I.complain("PATH REF IS NOT A PLACE ARRAY!");
@@ -517,86 +489,73 @@ public class PathingCache {
       placesPath = (Place[]) placesPathRef;
     }
     else {
-      placesPath = placesBetween(initB, destB, null, verbose);
+      placesPath = placesBetween(initB, destB, client, reports);
       if (placesPath == null) {
-        if (verbose) I.say("No places path exists!");
+        if (reports) I.say("No places path exists!");
         return null;
       }
     }
     //
     //  We create a specialised form of pathing-search that always aims toward
     //  the next stop along the places-path.
-    //
-    //  TODO:  Put this in a dedicated class lower down, or possibly even move
-    //  to the PathingSearch class itself?
-    final Tile initT = PathSearch.approachTile(initB, null);
-    
     final PathSearch search = new PathSearch(initB, destB, false) {
       
       final int PPL = placesPath.length;
-      private Place lastPlace = placesPath[0];
-      private int PPI = PPL == 1 ? 0 : 1, oldPPI = -1;
+      private int PPI = PPL == 1 ? 0 : 1;
       private Target heading = PPL == 1 ? destB : placesPath[1].core;
-      private Tile closest = initT;
-      private Box2D tempArea = new Box2D(-1, -1, 0, 0);
       
-      protected boolean stepSearch() {
-        final Boarding best = closest;
-        if (best instanceof Tile) {
-          final Tile tile = (Tile) best;
-          final Place under = tilePlaces[tile.x][tile.y];
-          if (under != lastPlace) {
-            for (int i = PPL; i-- > 0;) if (placesPath[i] == under) {
-              PPI = Nums.clamp(i + 1, PPL);
-              break;
-            }
-          }
-          lastPlace = under;
-          heading = (PPI == PPL - 1) ? destB : placesPath[PPI].core;
-        }
-        return super.stepSearch();
+      
+      public PathSearch doSearch() {
+        int index = 0;
+        for (Place p : placesPath) p.flagged = index++;
+        super.doSearch();
+        for (Place p : placesPath) p.flagged = null;
+        return this;
       }
+      
       
       protected boolean endSearch(Boarding best) {
         if (super.endSearch(best)) return true;
-        if (best != closest) return false;
+        
+        if (best instanceof Tile) {
+          final Tile tile = (Tile) best;
+          final Place under = placeFor(tile, false);
+          
+          if (under.flagged instanceof Integer) {
+            PPI = (Integer) under.flagged;
+            PPI = Nums.clamp(PPI + 1, PPL);
+          }
+          heading = (PPI == PPL - 1) ? destB : placesPath[PPI].core;
+        }
+        
         if (maxLength > 0 && pathLength(best) >= maxLength) return true;
         return false;
       }
       
+      
       protected float estimate(Boarding spot) {
         float dist = Spacing.distance(spot, heading);
-        final float closestDist = Spacing.distance(closest, heading);
-        if (spot instanceof Tile && dist < closestDist) {
-          closest = (Tile) spot;
-        }
-        dist += (PPL - (PPI + 1)) * Stage.PATCH_RESOLUTION;
-        final Boarding best = bestFound();
-        if (best != null) dist += Spacing.distance(closest, spot) / 3.0f;
-        return dist * 1.1f;
+        dist += (PPL - (PPI + 1)) * world.regions.resolution;
+        dist += Spacing.distance(spot, destB);
+        return dist / 2f;
       }
+      
       
       protected boolean canEnter(Boarding spot) {
         if (! super.canEnter(spot)) return false;
-        if (spot instanceof Tile) {
-          final Tile tile = (Tile) spot;
-          if (PPI == oldPPI) return tempArea.contains(tile.x, tile.y);
-          
-          final Place
-            curr = placesPath[PPI],
-            next = placesPath[Nums.clamp(PPI + 1, PPL)],
-            last = placesPath[Nums.clamp(PPI - 1, PPL)];
-          tempArea.setTo  (curr.region.area);
-          tempArea.include(next.region.area);
-          tempArea.include(last.region.area);
-          
-          oldPPI = PPI;
-          return tempArea.contains(tile.x, tile.y);
+        
+        if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
+          final Place p = placeFor((Tile) spot, false);
+          return p.flagged != null;
         }
-        return true;
+        else {
+          final Place p = placeFor(((Element) spot).origin(), false);
+          return p.flagged != null;
+        }
       }
       
     };
+    search.assignClient(client);
     return search;
   }
   
@@ -607,10 +566,10 @@ public class PathingCache {
     boolean reports
   ) {
     if (reports && dest != null) {
-      I.say("\nSearching for place path between "+init.core+" and "+dest.core);
+      I.say("\nSearching for place path between "+init+" and "+dest);
     }
     if (reports && zoneFill) {
-      I.say("\nSearching for places within zone starting from "+init.core);
+      I.say("\nSearching for places within zone starting from "+init);
     }
     
     final Search <Place> search = new Search <Place> (init, -1) {

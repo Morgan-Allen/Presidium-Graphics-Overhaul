@@ -63,7 +63,6 @@ public class DebugPlacing extends Scenario {
     }
     
     showZonePathing();
-    if (I.used60Frames) PathingCache.reportObs();
   }
 
 
@@ -216,18 +215,38 @@ public class DebugPlacing extends Scenario {
   public static void showZonePathing() {
     final Base base = BaseUI.currentPlayed();
     if (base == null) return;
-    final boolean talks = I.used60Frames;
+    
+    final boolean talks = I.used60Frames, showObs = true, showVisual = true;
     
     final Stage world = base.world;
     final PathingCache cache = world.pathingCache;
     final Object selected = BaseUI.current().selection.selected  ();
     final Object hovered  = BaseUI.current().selection.hovered   ();
     final Tile   picked   = BaseUI.current().selection.pickedTile();
+    final Base   other    = Base.wildlife(world);
     
-    if (hovered instanceof Boarding && selected instanceof Boarding) {
+    if (KeyInput.isPressed('z') && hovered instanceof Tile) {
+      final Boarding cores[] = cache.compileZoneCoresFor(other, (Tile) hovered);
+      if (talks) I.say("\nPlaces in zone: "+cores.length);
+      
+      final Batch <Tile> within = new Batch();
+      for (Boarding b : cores) if (b instanceof Tile) {
+        within.add((Tile) b);
+      }
+      
+      if (showVisual && ! within.empty()) {
+        final TerrainChunk forRoutes = world.terrain().createOverlay(
+          world, within.toArray(Tile.class),
+          true, Image.TRANSLUCENT_WHITE, true
+        );
+        forRoutes.colour = Colour.GREEN;
+        forRoutes.readyFor(PlayLoop.rendering());
+      }
+    }
+    else if (hovered instanceof Boarding && selected instanceof Boarding) {
       
       final Boarding path[] = cache.getLocalPath(
-        (Boarding) selected, (Boarding) hovered, -1, null, talks
+        (Boarding) selected, (Boarding) hovered, -1, base, talks
       );
       if (Visit.empty(path)) return;
       
@@ -235,9 +254,10 @@ public class DebugPlacing extends Scenario {
       for (Boarding b : path) if (b instanceof Tile) inPath.add((Tile) b);
       if (inPath.size() == 0) return;
       
-      if (! inPath.empty()) {
+      if (showVisual && ! inPath.empty()) {
         final TerrainChunk forPath = world.terrain().createOverlay(
-          world, inPath.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+          world, inPath.toArray(Tile.class),
+          true, Image.TRANSLUCENT_WHITE, true
         );
         forPath.colour = Colour.MAGENTA;
         forPath.readyFor(PlayLoop.rendering());
@@ -247,11 +267,13 @@ public class DebugPlacing extends Scenario {
       final Tile inPlace[] = picked == null ? null : cache.placeTiles(picked);
       if (inPlace == null) return;
       
-      final TerrainChunk forPlace = world.terrain().createOverlay(
-        world, inPlace, true, Image.TRANSLUCENT_WHITE
-      );
-      forPlace.colour = Colour.RED;
-      forPlace.readyFor(PlayLoop.rendering());
+      if (showVisual) {
+        final TerrainChunk forPlace = world.terrain().createOverlay(
+          world, inPlace, true, Image.TRANSLUCENT_WHITE, true
+        );
+        forPlace.colour = Colour.RED;
+        forPlace.readyFor(PlayLoop.rendering());
+      }
       
       final Tile routes[][] = cache.placeRoutes(picked);
       if (routes == null) return;
@@ -260,14 +282,17 @@ public class DebugPlacing extends Scenario {
       for (Tile route[] : cache.placeRoutes(picked)) for (Tile t : route) {
         inRoutes.add(t);
       }
-      if (! inRoutes.empty()) {
+      if (showVisual && ! inRoutes.empty()) {
         final TerrainChunk forRoutes = world.terrain().createOverlay(
-          world, inRoutes.toArray(Tile.class), true, Image.TRANSLUCENT_WHITE
+          world, inRoutes.toArray(Tile.class),
+          true, Image.TRANSLUCENT_WHITE, true
         );
         forRoutes.colour = Colour.BLUE;
         forRoutes.readyFor(PlayLoop.rendering());
       }
     }
+    
+    if (talks && showObs) PathingCache.reportObs();
   }
   
 }
