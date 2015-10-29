@@ -375,16 +375,17 @@ public class Combat extends Plan {
       I.say("  Vs. Armour:     "+target.gear.totalArmour()+", pass "+bypass);
       I.say("  Range penalty:  "+penalty+", success? "+success);
     }
-      
+    
     if (success) {
       final float maxDamage = actor.gear.totalDamage();
       damage = maxDamage * Rand.num();
-      final float afterShields = target.gear.afterShields(damage, kinetic);
       final float
-        maxArmour   = target.gear.totalArmour(),
-        armourSoak  = (maxArmour * Rand.num()) - bypass,
-        afterArmour = Nums.clamp(afterShields - armourSoak, 0, damage),
-        armourTook  = damage - afterArmour;
+        afterShields = target.gear.afterShields(damage, kinetic),
+        shieldsTook  = damage - afterShields,
+        maxArmour    = target.gear.totalArmour(),
+        armourSoak   = (maxArmour * Rand.num()) - bypass,
+        afterArmour  = Nums.clamp(afterShields - armourSoak, 0, damage),
+        armourTook   = damage - afterArmour;
       
       if (report) {
         I.say("  Base damage:    "+damage      );
@@ -392,16 +393,17 @@ public class Combat extends Plan {
         I.say("  Armour took:    "+armourTook  );
         I.say("  Final total:    "+afterArmour );
       }
-      if (damage != afterArmour && showFX) {
-        final boolean hit = damage > 0;
-        ActionFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
-      }
       
       final Item used = actor .gear.deviceEquipped();
       final Item worn = target.gear.outfitEquipped();
       Item.checkForBreakdown(actor , used, damage     / maxDamage, 10);
       Item.checkForBreakdown(target, worn, armourTook / maxArmour, 10);
       damage = afterArmour;
+      
+      if (shieldsTook > 0 && showFX) {
+        final boolean hit = damage > 0;
+        ActionFX.applyShieldFX(target.gear.outfitType(), target, actor, hit);
+      }
     }
     
     if (damage > 0 && ! GameSettings.noBlood) {
