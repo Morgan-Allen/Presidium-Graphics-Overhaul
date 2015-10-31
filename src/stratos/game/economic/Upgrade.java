@@ -125,12 +125,9 @@ public class Upgrade extends Constant implements
     */
   public void beginResearch(Base base) {
     base.research.setPolicyLevel(this, BaseResearch.LEVEL_PRAXIS);
-    
     final Mission research = new MissionResearch(base, this);
     research.assignPriority(Mission.PRIORITY_NOMINAL);
     base.tactics.addMission(research);
-    
-    if (base == BaseUI.currentPlayed()) research.whenClicked();
   }
   
   
@@ -246,109 +243,161 @@ public class Upgrade extends Constant implements
       d.append("\n");
     }
     
-    describeResearchStatus(d, this);
+    describeTechChain(d);
+    //describeResearchStatus(d, this);
   }
   
   
-  public void describeResearchStatus(Description d, final Object client) {
+  public void describeTechChain(Description d) {
+    Text.cancelBullet(d);
     
-    final Base base = BaseUI.currentPlayed();
-    final Upgrade upgrade = this;
-    if (base == null) return;
-    
-    if (client == origin || client == this) {
-      Text.cancelBullet(d);
-      
-      if (required.size() > 0) {
-        d.append("Requires:");
-        for (Upgrade u : required) { d.append("\n  "); d.append(u); }
-        d.append("\n");
-      }
-      if (leadsTo.size() > 0) {
-        d.append("Leads to:");
-        for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
-        d.append("\n");
-      }
-      final Conversion c = researchProcess;
-      if (c.skills.length > 0) {
-        d.append("Research obstacles:");
-        for (int i = 0; i < c.skills.length; i++) {
-          d.append("\n  ");
-          d.append(c.skills[i]);
-          d.append(": "+(int) c.skillDCs[i]);
-        }
-        d.append("\n");
-      }
-      
-      return;
+    if (required.size() > 0) {
+      d.append("Requires:");
+      for (Upgrade u : required) { d.append("\n  "); d.append(u); }
+      d.append("\n");
     }
-    
-    final Account reasons = new Account();
-    final Mission researchDone = researchDone(base);
-    final boolean
-      possible = possibleAt(client, base, reasons),
-      unknown  = reasons.hadReason(REASON_NO_KNOWLEDGE);
-    
-    //
-    //  You can either research, prototype or install the upgrade, assuming
-    //  knowledge is the problem.  If it isn't, just allow for normal
-    //  installation (or prototyping.)
-    
-    final int knowledge = base.research.getResearchLevel(this);
-    final String progDesc = base.research.progressDescriptor(this);
-    final float progLeft = base.research.researchRemaining(this, knowledge + 1);
-    final boolean underResearch = unknown && researchDone != null;
-    
-    if (knowledge != BaseResearch.LEVEL_PRAXIS) {
-      d.append("Research Status: "+progDesc, Colour.LITE_GREY);
-      if (progLeft < 1) {
-        d.append(" ("+(int) ((1 - progLeft) * 100)+"%)");
+    if (leadsTo.size() > 0) {
+      d.append("Leads to:");
+      for (Upgrade u : leadsTo ) { d.append("\n  "); d.append(u); }
+      d.append("\n");
+    }
+    final Conversion c = researchProcess;
+    if (c.skills.length > 0) {
+      d.append("Research obstacles:");
+      for (int i = 0; i < c.skills.length; i++) {
+        d.append("\n  ");
+        d.append(c.skills[i]);
+        d.append(": "+(int) c.skillDCs[i]);
       }
       d.append("\n");
     }
+  }
+  
+  
+  public void appendBaseOrders(
+    Description d, final Base base
+  ) {
+    appendOrders(d, null, base);
+  }
+  
+  
+  public void appendVenueOrders(
+    Description d, final Venue v, final Base base
+  ) {
+    appendOrders(d, v, base);
+  }
+  
+  
+  private void appendOrders(
+    Description d, final Property v, final Base base
+  ) {
+    final Upgrade upgrade = this;
+    final String name = v == null ? baseName : upgrade.nameAt(v, -1, null);
     
-    String desc = "BEGIN RESEARCH";
-    if (underResearch) desc = "Research in progress";
-    if (knowledge == BaseResearch.LEVEL_THEORY) desc = "PROTOTYPE";
-    if (knowledge == BaseResearch.LEVEL_PRAXIS) desc = "INSTALL";
+    final boolean canInstall =
+      v == null &&
+      base.research.hasTheory(upgrade)
+    ;
+    final boolean canBuild =
+      base.research.hasTheory(upgrade) &&
+      v != null && upgrade.hasRequirements(v.structure())
+    ;
+    final boolean canResearch = (! base.research.banned(upgrade)) && (
+      upgrade.hasRequirements(base) ||
+      (v != null && upgrade.hasRequirements(v.structure()))
+    );
     
-    d.append("");
-    if (possible || unknown) d.append(new Description.Link(desc) {
-      public void whenClicked() {
-        if (underResearch) {
-          researchDone.whenClicked();
-        }
-        else if (unknown) {
-          if (I.logEvents()) I.say("\nBEGAN RESEARCH: "+upgrade+" FOR "+base);
-          upgrade.beginResearch(base);
-        }
-        else {
-          if (I.logEvents()) I.say("\nBEGAN UPGRADE: "+upgrade+" AT "+client);
-          if (upgrade.isBlueprintUpgrade()) {
+    Text.Clickable linksTo    = null;
+    String         progReport = null;
+    Colour         progColour = Colour.LITE_GREY;
+    
+    if (canInstall) {
+      int cost = upgrade.buildCost(base);
+      if (base.finance.hasCredits(cost)) {
+        linksTo = new Description.Link("") {
+          public void whenClicked() {
             PlacingTask.performPlacingTask(upgrade.origin);
           }
-          else if (client instanceof Placeable) {
-            ((Placeable) client).structure().beginUpgrade(upgrade, false);
+        };
+        progReport = (base.research.hasPractice(upgrade) ?
+          "(Build for " : "(Prototype for ")+cost+")"
+        ;
+      }
+      else {
+        progReport = (base.research.hasPractice(upgrade) ?
+          "(Build for " : "(Prototype for ")+cost+")"
+        ;
+        progColour = Colour.RED;
+      }
+    }
+    
+    else if (canBuild) {
+      int
+        level    = v.structure().upgradeLevel(upgrade),
+        maxLevel = upgrade.maxLevel,
+        cost     = upgrade.buildCost(base);
+      boolean doingUpgrade = v.structure().upgradeInProgress() == upgrade;
+      float progress = v.structure().upgradeProgress();
+      
+      if (level == maxLevel) {
+        progReport = "At max. level";
+      }
+      else if (doingUpgrade) {
+        progReport = "Progress: "+(int) (progress * 100)+"%";
+      }
+      else if (base.finance.hasCredits(cost)) {
+        linksTo = new Description.Link("") {
+          public void whenClicked() {
+            v.structure().beginUpgrade(upgrade, false);
           }
-        }
+        };
+        progReport = (base.research.hasPractice(upgrade) ?
+          "(Build for " : "(Prototype for ")+cost+")"
+        ;
       }
-    });
-    //else d.append(desc, Colour.GREY);
-    //
-    //  If knowledge isn't the problem, either cite the reason or list the
-    //  funds required (in red if not available.)
-    if (! unknown) {
-      final int cost = upgrade.buildCost(base);
-      if (reasons.hadReason(REASON_NO_FUNDS)) {
-        d.append(" ("+cost+" Credits)", Colour.GREY);
+      else {
+        progReport = (base.research.hasPractice(upgrade) ?
+          "(Build for " : "(Prototype for ")+cost+")"
+        ;
+        progColour = Colour.RED;
       }
-      if (reasons.hadReason(REASON_MAX_UP_LEVEL)) {
-        d.append(" "+reasons.failReasons(), Colour.GREY);
+    }
+    
+    else if (canResearch) {
+      int resLevel = base.research.getResearchLevel(upgrade) + 1;
+      final Mission resDone = upgrade.researchDone(base);
+      float progress = base.research.researchProgress(upgrade, resLevel);
+      
+      if (resDone != null) {
+        linksTo = resDone;
+        progReport = "Research: "+(int) (progress * 100)+"%";
       }
-      else if (! possible) {
-        d.append(" "+reasons.failReasons(), Colour.RED);
+      else {
+        linksTo = new Description.Link(" "+name) {
+          public void whenClicked() {
+            upgrade.beginResearch(base);
+          }
+        };
+        progReport = "Begin Research";
       }
-      else d.append(" ("+cost+" Credits)");
+    }
+    
+    else {
+      progReport = "Banned";
+      progColour = Colour.RED;
+    }
+    
+
+    Text.insert(
+      SelectionPane.WIDGET_INFO.asTexture(),
+      15, 15, upgrade, false, d
+    );
+    
+    d.append(" "+name, Colour.LITE_GREY);
+    if (progReport != null) {
+      d.append("\n    ");
+      if (linksTo != null) d.append(progReport, linksTo);
+      else d.append(progReport, progColour);
     }
   }
   

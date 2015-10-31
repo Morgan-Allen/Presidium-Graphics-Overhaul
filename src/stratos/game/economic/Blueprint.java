@@ -355,7 +355,7 @@ public class Blueprint extends Constant implements UIConstants {
     
     if (baseUpgrade() != null) {
       d.append("\n");
-      baseUpgrade().describeResearchStatus(d, this);
+      baseUpgrade().describeTechChain(d);
     }
     
     if (consuming.size() > 0) d.append("\n\nConsumption:");

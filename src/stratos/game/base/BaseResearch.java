@@ -158,14 +158,14 @@ public class BaseResearch {
   
   public int getResearchLevel(Upgrade u) {
     final Research match = u == null ? null : allResearch.get(u);
-    if (match == null) return LEVEL_BANNED;
+    if (match == null) return LEVEL_ALLOWS;
     else return Nums.clamp((int) match.actualLevel, LEVEL_PRAXIS + 1);
   }
   
   
   public int getPolicyLevel(Upgrade u) {
     final Research match = u == null ? null : allResearch.get(u);
-    if (match == null) return LEVEL_BANNED;
+    if (match == null) return LEVEL_ALLOWS;
     else return match.policyLevel;
   }
   

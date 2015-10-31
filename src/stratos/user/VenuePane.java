@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.base.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -352,22 +353,13 @@ public class VenuePane extends SelectionPane {
       return;
     }
     
+    final Base base = v.base();
     int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades();
     if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
     
     for (final Upgrade upgrade : UA) {
       d.append("\n");
-      Text.insert(upgrade.portraitImage().asTexture(), 40, true, d);
-      
-      final String name = upgrade.nameAt(v, -1, null);
-      d.append(name);
-      d.append(" ");
-      Text.insert(
-        SelectionPane.WIDGET_INFO.asTexture(),
-        15, 15, upgrade, false, d
-      );
-      d.append("\n");
-      upgrade.describeResearchStatus(d, v);
+      upgrade.appendVenueOrders(d, v, base);
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();

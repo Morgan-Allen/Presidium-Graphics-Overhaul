@@ -470,7 +470,13 @@ public class Repairs extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    d.append(REPAIR_DESC[repairType]+" ");
+    if (repairType == REPAIR_UPGRADE) {
+      Upgrade u = built.structure().upgradeInProgress();
+      d.append("Installing ");
+      d.append(u);
+      d.append(" at ");
+    }
+    else d.append(REPAIR_DESC[repairType]+" ");
     d.append(built);
   }
   

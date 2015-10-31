@@ -212,17 +212,19 @@ public class InstallPane extends SelectionPane {
     final Blueprint type, final Base base, boolean enabled, Text text
   ) {
     text.append("\n\n");
-    text.append(type.name+" ");
-    Text.insert(
-      SelectionPane.WIDGET_INFO.asTexture(),
-      15, 15, type, false, text
-    );
     
     final Upgrade basis = type.baseUpgrade();
     if (basis != null) {
-      text.append("\n");
-      basis.describeResearchStatus(text, base);
+      basis.appendBaseOrders(text, base);
     }
+    else {
+      text.append(type.name+" ");
+      Text.insert(
+        SelectionPane.WIDGET_INFO.asTexture(),
+        15, 15, type, false, text
+      );
+    }
+    
     text.append("\n\n");
     text.append(type.description);
   }
