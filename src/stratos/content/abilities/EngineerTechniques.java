@@ -42,7 +42,7 @@ public class EngineerTechniques {
     REAL_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    IS_PASSIVE_SKILL_FX, ASSEMBLY, 5,
+    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, ASSEMBLY, 5,
     HAND_TO_HAND
   ) {
     
@@ -87,7 +87,7 @@ public class EngineerTechniques {
     REAL_HELP,
     MINOR_FATIGUE,
     MAJOR_CONCENTRATION,
-    IS_PASSIVE_SKILL_FX, ASSEMBLY, 10,
+    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, ASSEMBLY, 10,
     ASSEMBLY
   ) {
     
@@ -123,7 +123,7 @@ public class EngineerTechniques {
     MILD_HARM           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    IS_PASSIVE_SKILL_FX, HAND_TO_HAND, 5,
+    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, HAND_TO_HAND, 5,
     HAND_TO_HAND
   ) {
     

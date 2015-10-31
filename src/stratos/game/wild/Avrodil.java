@@ -122,8 +122,10 @@ public class Avrodil extends Fauna implements Captivity {
   
   /**  Specialised Techniques for personal use:
     */
-  final static String DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = Avrodil.class;
+  final static String
+    UI_DIR = "media/GUI/Powers/",
+    FX_DIR = "media/SFX/";
   final static float
     POLLEN_RADIUS      = 2.0f,
     POLLEN_MOTOR_HIT   = 5   ,
@@ -132,30 +134,30 @@ public class Avrodil extends Fauna implements Captivity {
   
   final static ShotFX.Model
     WHIPLASH_MODEL = new ShotFX.Model(
-      "whiplash_fx", BASE_CLASS, "media/SFX/whiplash_thrown.png",
+      "whiplash_fx", BASE_CLASS, FX_DIR+"whiplash_thrown.png",
       -1, 0, 0.3f, 3.0f, false, false
     );
   final static PlaneFX.Model
     CAMO_CASTING_MODEL = PlaneFX.imageModel(
-      "camo_cast_fx", BASE_CLASS, "media/SFX/camo_casting.png",
+      "camo_cast_fx", BASE_CLASS, FX_DIR+"camo_casting.png",
       0.5f, 0, 0.2f, true, false
     ),
     WHIPLASH_BURST_MODEL = PlaneFX.imageModel(
-      "whip_burst_fx", BASE_CLASS, "media/SFX/whiplash_burst.png",
+      "whip_burst_fx", BASE_CLASS, FX_DIR+"whiplash_burst.png",
       0.5f, 0, 0, false, false
     ),
     POLLEN_BURST_MODEL = PlaneFX.imageModel(
-      "pollen_burst_fx", BASE_CLASS, "media/SFX/pollen_burst.png",
+      "pollen_burst_fx", BASE_CLASS, FX_DIR+"pollen_burst.png",
       1.0f, 0, 0.75f, false, false
     ),
     POLLEN_HAZE_MODEL = PlaneFX.animatedModel(
-      "pollen_haze_fx", BASE_CLASS, "media/SFX/pollen_haze.png",
+      "pollen_haze_fx", BASE_CLASS, FX_DIR+"pollen_haze.png",
       2, 2, 4, 1.0f, 0.25f
     );
   
   
   final public static Technique CAMOUFLAGE = new Technique(
-    "Camouflage", DIR+"camouflage.png",
+    "Camouflage", UI_DIR+"camouflage.png",
     "Allows the Avrodil to enter a vegetative state, both concealing it's "+
     "location and regenerating health.",
     BASE_CLASS, "avrodil_camo",
@@ -248,7 +250,7 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Technique DEVOUR = new Technique(
-    "Devour", DIR+"devour.png",
+    "Devour", UI_DIR+"devour.png",
     "Allows the Avrodil to consume and digest a chosen victim.",
     BASE_CLASS, "avrodil_devour",
     MEDIUM_POWER        ,
@@ -313,7 +315,7 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Technique WHIPLASH = new Technique(
-    "Whiplash", DIR+"avrodil_whiplash.png",
+    "Whiplash", UI_DIR+"avrodil_whiplash.png",
     "Allows the Avrodil to lash out at distant targets, dealing injury and "+
     "drawing them into closer range.",
     BASE_CLASS, "avrodil_whiplash",
@@ -365,7 +367,7 @@ public class Avrodil extends Fauna implements Captivity {
   
   
   final public static Technique POLLEN_SPRAY = new Technique(
-    "Pollen Spray", DIR+"avrodil_pollen_spray.png",
+    "Pollen Spray", UI_DIR+"avrodil_pollen_spray.png",
     "Deals poison damage to all nearby creatures.",
     BASE_CLASS, "avrodil_pollen_spray",
     MEDIUM_POWER        ,

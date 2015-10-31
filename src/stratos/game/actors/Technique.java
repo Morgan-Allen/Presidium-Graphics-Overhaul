@@ -53,19 +53,21 @@ public abstract class Technique extends Constant {
   
   final public static int
     
-    IS_LEARNED_NORMALLY   = 0   ,
-    IS_TRAINED_ONLY       = 1   ,
-    IS_GAINED_FROM_ITEM   = 2   ,
-    IS_NATURAL_ONLY       = 4   ,
+    IS_LEARNED_NORMALLY   = 0     ,
+    IS_TRAINED_ONLY       = 1 << 0,
+    IS_GAINED_FROM_ITEM   = 1 << 1,
+    IS_NATURAL_ONLY       = 1 << 2,
     
-    IS_PASSIVE_SKILL_FX   = 8   ,
-    IS_GEAR_PROFICIENCY   = 16  ,
+    IS_PASSIVE_SKILL_FX   = 1 << 3,
+    IS_GEAR_PROFICIENCY   = 1 << 4,
+    IS_PASSIVE_ALWAYS     = 1 << 5,
     
-    IS_SELF_TARGETING     = 32  ,  //  Will only affect self.
-    IS_FOCUS_TARGETING    = 64  ,  //  Will affect focus of current activity.
-    IS_ANY_TARGETING      = 128 ,  //  Can affect anyone or (thing) nearby.
+    IS_SELF_TARGETING     = 1 << 6,  //  Will only affect self.
+    IS_FOCUS_TARGETING    = 1 << 7,  //  Will affect focus of current activity.
+    IS_ANY_TARGETING      = 1 << 8,  //  Can affect anyone or (thing) nearby.
     
-    IS_SOVEREIGN_POWER    = 2048;
+    IS_PSY_ABILITY        = 1 << 9 ,
+    IS_SOVEREIGN_POWER    = 1 << 10;
   
   final public static float
     MINOR_POWER          = 1.0f ,

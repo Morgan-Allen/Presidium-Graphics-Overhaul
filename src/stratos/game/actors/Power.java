@@ -39,10 +39,17 @@ public abstract class Power extends Technique {
     String name, String uniqueID, String imgFile, String helpInfo,
     Skill skillUsed, int minLevel
   ) {
+    
+    //  TODO:  FILL THESE IN!
+    
     super(
-      name, IMG_DIR+imgFile, helpInfo, Power.class,
-      uniqueID, 0,
-      0, 0, 0, Technique.IS_SOVEREIGN_POWER,
+      name, IMG_DIR+imgFile, helpInfo,
+      Power.class, uniqueID,
+      0, 
+      0,
+      0,
+      0,
+      Technique.IS_SOVEREIGN_POWER,
       skillUsed, minLevel, Action.PSY_QUICK,
       Action.QUICK | Action.RANGED  //  TODO- CUSTOMISE!
     );

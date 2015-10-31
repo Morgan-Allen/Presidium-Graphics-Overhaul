@@ -62,7 +62,7 @@ public class EcologistTechniques {
     MILD_HARM           ,
     NO_FATIGUE          ,
     MINOR_CONCENTRATION ,
-    IS_FOCUS_TARGETING, MARKSMANSHIP, 10,
+    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, MARKSMANSHIP, 10,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
@@ -199,7 +199,7 @@ public class EcologistTechniques {
     MILD_HELP           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    IS_ANY_TARGETING, XENOZOOLOGY, 5,
+    IS_ANY_TARGETING | IS_TRAINED_ONLY, XENOZOOLOGY, 5,
     Action.TALK, Action.QUICK | Action.RANGED
   ) {
     
