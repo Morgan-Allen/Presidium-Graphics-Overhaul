@@ -205,11 +205,14 @@ public abstract class Search <T> {
     for (Entry next = bestEntry; next != null; next = next.prior) {
       pathStack.addFirst(next.refers);
     }
-    final int len = limit <= 0 ? pathStack.size() : limit;
-    T path[] = (T[]) Array.newInstance(pathClass, len);
     
+    final int len = limit <= 0 ?
+      pathStack.size() :
+      Nums.min(limit, pathStack.size());
+    
+    final T path[] = (T[]) Array.newInstance(pathClass, len);
     int index = 0;
-    for (T t : pathStack) { path[index++] = t; if (index > len) break; }
+    for (T t : pathStack) { path[index++] = t; if (index >= len) break; }
     
     final boolean report = verbosity > NOT_VERBOSE;
     if (report) {

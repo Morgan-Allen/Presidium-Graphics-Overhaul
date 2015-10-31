@@ -408,7 +408,7 @@ public class BaseTactics {
     
     for (Target t : sampFrom.visitNear(null, -1, null)) {
       if (! checkReachability(t, baseHQ)) continue;
-      sampled.add((Mobile) t);
+      sampled.add(t);
       if (sampled.size() >= limit) break;
     }
     return sampled;
