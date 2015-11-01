@@ -96,7 +96,9 @@ public class Flora extends Element implements TileConstants {
     NUM_DAYS_MATURE    = 2.5f,
     MATURE_DURATION    = Stage.STANDARD_DAY_LENGTH * NUM_DAYS_MATURE,
     GROW_TIMES_PER_DAY = Stage.STANDARD_DAY_LENGTH / Stage.GROWTH_INTERVAL,
-    GROWTH_PER_UPDATE  = MATURE_DURATION / (MAX_GROWTH * GROW_TIMES_PER_DAY),
+    //GROWTH_PER_UPDATE  = MATURE_DURATION / (MAX_GROWTH * GROW_TIMES_PER_DAY),
+    DIE_CHANCE_PER_DAY = 0.5f / NUM_DAYS_MATURE,
+    UPDATE_DIE_CHANCE  = DIE_CHANCE_PER_DAY / GROW_TIMES_PER_DAY,
     
     CEREAL_BONUS = 2.00f,
     HIVE_DIVISOR = 4.00f,
@@ -170,40 +172,35 @@ public class Flora extends Element implements TileConstants {
   
   
   public static Flora tryGrowthAt(Tile t, boolean init) {
-    if (! hasSpace(t)) return null;
+    final float maxGrowth = maxGrowth(t, BASE_SPECIES);
+    if (maxGrowth <= 0) return null;
+    
     final Habitat soil = t.habitat();
     final Species s = (Species) Rand.pickFrom(soil.floraSpecies);
-    
-    float growChance = growthBonus(t, s, null);
-    if (init) growChance /= 2;
-    else growChance *= Stage.GROWTH_INTERVAL / MATURE_DURATION;
-    if (Rand.num() >= growChance) return null;
     
     final Flora grown = new Flora(s);
     grown.seedWith(s, Rand.num());
     grown.enterWorldAt(t.x, t.y, t.world, true);
+    
+    if (init) grown.incGrowth(1 + (maxGrowth * Rand.num()), t.world, ! init);
     return grown;
   }
   
-  
+
   public static boolean hasSpace(Tile t) {
-    if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
-    if (t.isEntrance() || t.inside().size() > 0) return false;
-    if (growthBonus(t, BASE_SPECIES, null) == -1) return false;
-    return numNearOkay(t, true);
+    return maxGrowth(t, BASE_SPECIES) > 0;
   }
   
   
-  private static boolean numNearOkay(Tile t, boolean checkNeighbours) {
-    int numNear = checkNeighbours ? 0 : 1;
-    for (Tile n : t.allAdjacent(null)) {
-      if (n == null || n.blocked()) numNear++;
-      if (n != null && ! n.buildable()) return false;
-      if (n != null && checkNeighbours && n.above() instanceof Flora) {
-        if (! numNearOkay(n, false)) return false;
-      }
-    }
-    return numNear < 3;
+  public static float maxGrowth(Tile t, Species s) {
+    if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return 0;
+    if (t.isEntrance() || t.inside().size() > 0) return 0;
+    
+    if (growthBonus(t, s, null) == -1) return 0;
+    if (s.domesticated) return MAX_GROWTH;
+    
+    if (t.world.terrain().varAt(t) == 0) return 0;
+    return t.habitat().moisture() * MAX_GROWTH;
   }
   
   
@@ -264,7 +261,7 @@ public class Flora extends Element implements TileConstants {
     */
   public boolean canPlace() {
     if (inWorld()) return true;
-    return origin() != null && hasSpace(origin());
+    return origin() != null && maxGrowth(origin(), species) > 0;
   }
   
   
@@ -299,28 +296,20 @@ public class Flora extends Element implements TileConstants {
       origin(), growStage() / 2f, Stage.GROWTH_INTERVAL
     );
     
-    incGrowth(increment, tile.world);
+    incGrowth(increment, tile.world, true);
   }
   
   
-  public void incGrowth(float inc, Stage world) {
+  public void incGrowth(float inc, Stage world, boolean natural) {
+    final float maxGrowth = maxGrowth(origin(), species);
+    
     final int oldStage = Nums.clamp((int) growth, MAX_GROWTH);
-    growth = Nums.clamp(growth + inc, MIN_GROWTH, MAX_GROWTH);
+    growth = Nums.clamp(growth + inc, MIN_GROWTH, maxGrowth + 1);
     final int newStage = Nums.clamp((int) growth, MAX_GROWTH);
     
-    final float
-      moisture = origin().habitat().moisture() / 10f,
-      dieChance = (1 - moisture) * inc;
-    final int
-      minGrowth = (int) ((moisture * moisture * MAX_GROWTH) + 1),
-      maxGrowth = MAX_GROWTH + 1;
-    
-    if (
-      (growth <= 0 || growth >= maxGrowth) ||
-      (growth > minGrowth && Rand.num() < dieChance)
-    ) {
-      setAsDestroyed(false);
-      return;
+    if (natural && oldStage >= MIN_GROWTH) {
+      float dieChance = UPDATE_DIE_CHANCE * growth / maxGrowth;
+      if (Rand.num() < dieChance) { setAsDestroyed(false); return; }
     }
     
     if (oldStage != newStage) updateSprite();

@@ -95,35 +95,18 @@ public class DebugPlacing extends Scenario {
     GameSettings.cashFree  = true;
     GameSettings.buildFree = true;
     base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
-    
+
+    if (true ) configEcology  (world, base, UI);
     if (false) configSalvaging(world, base, UI);
-    if (false) configEcology  (world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
   }
   
   
-  private void configSalvaging(Stage world, Base base, BaseUI UI) {
-    
-    GameSettings.buildFree = false;
-    
-    final Venue b = new Bastion(base);
-    SiteUtils.establishVenue(b, 8, 8, true, world);
-    base.setup.fillVacancies(b, true);
-    
-    final Venue array[] = SiteUtils.placeAlongLine(
-      SolarBank.BLUEPRINT, 4, 4, 8, true, base, true
-    );
-    for (Venue a : array) {
-      a.structure().beginSalvage();
-    }
-  }
-  
-  
   private void configEcology(Stage world, Base base, BaseUI UI) {
     
-    ///Flora.populateFlora(world);
+    Flora.populateFlora(world);
     //Ruins.populateRuins(world, 2, Drone.SPECIES, Tripod.SPECIES);
     
     I.say("\nCHECKING FOR TILE-ACCESS...");
@@ -137,7 +120,6 @@ public class DebugPlacing extends Scenario {
     }
     
     NestUtils.populateFauna(world, Species.ANIMAL_SPECIES);
-    
     /*
     if (true) return;
     
@@ -153,6 +135,22 @@ public class DebugPlacing extends Scenario {
       v.exitWorld();
     }
     //*/
+  }
+  
+  
+  private void configSalvaging(Stage world, Base base, BaseUI UI) {
+    GameSettings.buildFree = false;
+    
+    final Venue b = new Bastion(base);
+    SiteUtils.establishVenue(b, 8, 8, true, world);
+    base.setup.fillVacancies(b, true);
+    
+    final Venue array[] = SiteUtils.placeAlongLine(
+      SolarBank.BLUEPRINT, 4, 4, 8, true, base, true
+    );
+    for (Venue a : array) {
+      a.structure().beginSalvage();
+    }
   }
   
   

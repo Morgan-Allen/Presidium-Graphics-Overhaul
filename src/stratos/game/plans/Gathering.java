@@ -310,7 +310,7 @@ public class Gathering extends ResourceTending {
     }
     if (type == TYPE_BROWSING) {
       float bite = 0.1f * actor.health.maxHealth() / 10;
-      c.incGrowth(0 - bite, t.world());
+      c.incGrowth(0 - bite, t.world(), false);
       actor.health.takeCalories(bite * Fauna.PLANT_CONVERSION, 1);
       return null;
     }
@@ -321,7 +321,7 @@ public class Gathering extends ResourceTending {
         Item.withAmount(CARBS , 0.1f / 1),
         Item.withAmount(GREENS, 0.1f / 2)
       };
-      c.incGrowth(-0.1f, t.world());
+      c.incGrowth(-0.1f, t.world(), false);
       Resting.dineFrom(actor, actor);
       return gathered;
     }

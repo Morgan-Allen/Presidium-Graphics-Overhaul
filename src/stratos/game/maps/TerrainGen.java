@@ -209,17 +209,21 @@ public class TerrainGen implements TileConstants {
   /**  Generating fine-scale details.
     */
   private void setupTileHabitats() {
+    //
+    //  Firstly, establish a broad picture of the terrain using seed values.
     final int seedSize = (mapSize / DETAIL_RESOLUTION) + 1;
     final HeightMap heightDetail = new HeightMap(
       mapSize + 1, new float[seedSize][seedSize], 1, 0.5f
     );
     final byte detailGrid[][] = heightDetail.asScaledBytes(10);
+    //
+    //  Then, fill in the details at higher resolution using random sampling on
+    //  one side or the other.
     typeIndex = new byte[mapSize    ][mapSize    ];
     varsIndex = new byte[mapSize    ][mapSize    ];
     heightMap = new byte[mapSize * 2][mapSize * 2];
     
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
-      varsIndex[c.x][c.y] = terrainVarsAt(c.x, c.y);
       
       final int
         XBI = (int) ((c.x * 1f / mapSize) * blendsX.length),
@@ -244,7 +248,16 @@ public class TerrainGen implements TileConstants {
       }
     }
     //
-    //  Finally, paint the interiors of any ocean tiles-
+    //  Then, establish terrain-variants (used to help fix mineral content and
+    //  growth of flora.)
+    RandomScan scan = new RandomScan(mapSize) {
+      protected void scanAt(int x, int y) {
+        varsIndex[x][y] = (byte) (canMarkAt(x, y) ? 1 : 0);
+      }
+    };
+    scan.doFullScan();
+    //
+    //  Then paint the interiors of any ocean tiles-
     final int
       oceanID = Habitat.OCEAN    .layerID,
       shoreID = Habitat.SHORELINE.layerID,
@@ -262,7 +275,7 @@ public class TerrainGen implements TileConstants {
       );
     }
     //
-    //  Finally, establish height-values:
+    //  And finally, establish actual height-values:
     if (USE_HEIGHT_VALS) for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       final byte high = typeIndex[c.x][c.y];
       //
@@ -274,6 +287,67 @@ public class TerrainGen implements TileConstants {
       }
     }
   }
+  
+  
+  
+  final private static int
+    PERIM_2_OFF_X[] = {
+      -2, -1,  0,  1,
+       2,  2 , 2,  2,
+       2,  1,  0, -1,
+      -2, -2, -2, -2
+    },
+    PERIM_2_OFF_Y[] = {
+       2,  2,  2,  2,
+       2,  1,  0, -1,
+      -2, -2, -2, -2,
+      -2, -1,  0,  1
+    };
+  
+  //  TODO:  Create a FloraUtils class for this sort of thing?
+  
+  private boolean canMarkAt(int mX, int mY) {
+    
+    //
+    //  Rule No. 1:  Do not mark a tile if it would deprive any marked
+    //  neighbour of a 'free exit'- i.e, enclose it completely.
+    for (int i : T_ADJACENT) {
+      int x = mX + T_X[i], y = mY + T_Y[i];
+      boolean anyExit = false;
+      
+      for (int n : T_ADJACENT) {
+        int nX = x + T_X[n], nY = y + T_Y[n];
+        //
+        //  If a neighbour is either blocked (or would be- i.e, is the
+        //  coordinate being checked) then there's no 'exit' on this side.
+        if (nX == mX && nY == mY) continue;
+        try { if (varsIndex[nX][nY] > 0) continue; }
+        catch (ArrayIndexOutOfBoundsException e) { continue; }
+        anyExit = true;
+        break;
+      }
+      if (! anyExit) return false;
+    }
+    
+    //
+    //  Rule No. 2:  Do not mark a tile within two tiles of another, unless you
+    //  have an existing contiguous neighbour marked.
+    for (int i = 16; i-- > 0;) {
+      int x = mX + PERIM_2_OFF_X[i], y = mY + PERIM_2_OFF_Y[i];
+      
+      boolean marked = false;
+      try { if (varsIndex[x][y] > 0) marked = true; }
+      catch (ArrayIndexOutOfBoundsException e) { continue; }
+      if (! marked) continue;
+      //
+      //  Only allow marking this tile if the tile between is already marked.
+      int bX = (x + mX) / 2, bY = (y + mY) / 2;
+      if (! (varsIndex[bX][bY] > 0)) return false;
+    }
+    
+    return true;
+  }
+  
   
   
   private void raisePoint(Coord c, int x, int y, byte high) {
@@ -304,19 +378,6 @@ public class TerrainGen implements TileConstants {
     for (Coord c : toPaint) {
       typeIndex[c.x][c.y] = (byte) replaceID;
     }
-  }
-  
-
-  private byte terrainVarsAt(int x, int y) {
-    final int dir = Rand.index(T_INDEX.length);
-    byte sampleVar;
-    try { sampleVar = varsIndex[x + T_X[dir]][y + T_Y[dir]]; }
-    catch (ArrayIndexOutOfBoundsException e) { sampleVar = 0; }
-    
-    final int MV = StageTerrain.TILE_VAR_LIMIT;
-    if (sampleVar == 0) sampleVar = (byte) (Rand.index(MV + 1) % MV);
-    varsIndex[x][y] = sampleVar;
-    return sampleVar;
   }
   
   
