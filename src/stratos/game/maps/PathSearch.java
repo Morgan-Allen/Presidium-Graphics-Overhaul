@@ -52,41 +52,31 @@ public class PathSearch extends Search <Boarding> {
   }
   
   
-  public static boolean canApproach(Target aims, Accountable client) {
-    return approachPoint(aims, client, false) != null;
-  }
-  
-  
-  public static Tile approachTile(Target aims, Accountable client) {
-    final Boarding point = approachPoint(aims, client, true);
-    return (point instanceof Tile) ? (Tile) point : null;
-  }
-  
-  
-  private static Boarding approachPoint(
-    Target aims, Accountable client, boolean tileOnly
-  ) {
-    int numLoops = 0; while (true) {
-      if (aims == null || blockedBy(aims, client)) return null;
-      if (aims instanceof Tile) return (Tile) aims;
-      if (aims instanceof Venue && (! tileOnly)) return (Venue) aims;
-      //
-      //  If the current aim-point isn't suitable, see if one adjacent is.
-      final Target original = aims;
-      if (aims instanceof Boarding) {
-        final Boarding b = (Boarding) aims;
-        for (Boarding c : b.canBoard()) if (c != null) {
-          if (c.boardableType() >= b.boardableType()) continue;
-          if (! blockedBy(c, client)) { aims = c; break; }
-        }
-      }
-      if (aims instanceof Mobile) {
-        aims = ((Mobile) aims).aboard();
-      }
-      //
-      //  Some safety measures to avoid infinite-loops...
-      if (aims == original || numLoops++ > 10) return null;
+  public static Boarding accessLocation(Target t, Mobile client) {
+    Boarding aboard = null;
+    if (t instanceof Boarding && t != client) {
+      aboard = (Boarding) t;
     }
+    else if (t instanceof Mobile) {
+      final Mobile a = (Mobile) t;
+      if (a.aboard() != null) aboard = a.aboard();
+      else aboard = a.origin();
+    }
+    else if (t instanceof Element) {
+      aboard = client.world().tileAt(t);
+    }
+    if (aboard == null || PathSearch.blockedBy(aboard, client)) return null;
+    return aboard;
+  }
+  
+  
+  private static Tile approachTile(Boarding dest, Boarding init) {
+    final Pick <Tile> pick = new Pick();
+    for (Boarding b : dest.canBoard()) if (b instanceof Tile) {
+      pick.compare((Tile) b, 0 - Spacing.distance(b, init));
+    }
+    if (pick.empty()) return dest.world().tileAt(dest);
+    return pick.result();
   }
   
   
@@ -96,12 +86,15 @@ public class PathSearch extends Search <Boarding> {
     return blockedBy((Boarding) t, m);
   }
   
+  
   //
   //  TODO:  This all seems terribly complicated for such a frequently-used
   //  function.  Any way to simplify?
-  
   public static boolean blockedBy(final Boarding b, final Accountable client) {
-    if (b.boardableType() == Boarding.BOARDABLE_TILE) {
+    if (b == null) {
+      return true;
+    }
+    else if (b.boardableType() == Boarding.BOARDABLE_TILE) {
       return b.pathType() == Tile.PATH_BLOCKS;
     }
     else if (client != null) {
@@ -120,7 +113,9 @@ public class PathSearch extends Search <Boarding> {
       if (exists && (allows || inside || ! blocks)) return false;
       return true;
     }
-    return false;
+    else {
+      return false;
+    }
   }
   
   
@@ -141,7 +136,7 @@ public class PathSearch extends Search <Boarding> {
   public PathSearch doSearch() {
     final boolean report = verbosity > NOT_VERBOSE;
     
-    this.aimPoint    = approachTile(destination, client);
+    this.aimPoint    = approachTile(destination, init);
     this.closestDist = Spacing.distance(init, destination);
     if (aimPoint == null) aimPoint = destination;
     if (limit) this.maxSearched = searchLimit(init, destination, aimPoint);

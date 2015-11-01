@@ -84,6 +84,12 @@ public class ShieldWall extends Venue {
   
   /**  Placement and setup methods-
     */
+  //  TODO:  Fill this in!
+  final static Siting SITING = new Siting(BLUEPRINT) {
+  };
+  
+  
+  
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     

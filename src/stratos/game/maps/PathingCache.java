@@ -9,6 +9,7 @@ import stratos.game.economic.*;
 import stratos.util.*;
 
 
+
 //  TODO:  See if you can cache Boardings directly against themselves?
 //  TODO:  Also, direct cache-queries for Routes would be useful!
 
@@ -302,6 +303,16 @@ public class PathingCache {
     *  arbitrary destinations on the map- and a few other utility methods for
     *  diagnosis of bugs...
     */
+  public Place placeFor(Boarding spot, boolean refresh) {
+    if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
+      return placeFor((Tile) spot, refresh);
+    }
+    else {
+      return placeFor(((Element) spot).origin(), refresh);
+    }
+  }
+  
+  
   private Place placeFor(Tile t, boolean refresh) {
     if (refresh) {
       refreshWithNeighbours(world.regions.regionAt(t.x, t.y));
@@ -311,20 +322,11 @@ public class PathingCache {
   
   
   private Place[] placesBetween(
-    Target initB, Target destB, Accountable client, boolean reports
+    Boarding initB, Boarding destB, Accountable client, boolean reports
   ) {
-    final Tile
-      initT = PathSearch.approachTile(initB, client),
-      destT = PathSearch.approachTile(destB, client);
-    
-    if (initT == null || destT == null) {
-      if (reports) I.say("Initial place-tiles invalid: "+initT+"/"+destT);
-      return null;
-    }
-    
     final Place
-      initP = placeFor(initT, true),
-      destP = placeFor(destT, true);
+      initP = placeFor(initB, true),
+      destP = placeFor(destB, true);
     
     if (initP == null || destP == null) {
       if (reports) I.say("Initial places invalid: "+initP+"/"+destP);
@@ -444,15 +446,11 @@ public class PathingCache {
   
   
   public boolean hasPathBetween(
-    Target a, Target b, Base client, boolean reports
+    Boarding a, Boarding b, Base client, boolean reports
   ) {
-    final Tile
-      initT = PathSearch.approachTile(a, client),
-      destT = PathSearch.approachTile(b, client);
     final Place
-      initP = placeFor(initT, true),
-      destP = placeFor(destT, true);
-    
+      initP = placeFor(a, true),
+      destP = placeFor(b, true);
     if (initP == null || destP == null) return false;
     return hasPathBetween(initP, destP, client, reports);
   }
@@ -543,15 +541,8 @@ public class PathingCache {
       
       protected boolean canEnter(Boarding spot) {
         if (! super.canEnter(spot)) return false;
-        
-        if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
-          final Place p = placeFor((Tile) spot, false);
-          return p.flagged != null;
-        }
-        else {
-          final Place p = placeFor(((Element) spot).origin(), false);
-          return p.flagged != null;
-        }
+        final Place p = placeFor(spot, false);
+        return p != null && p.flagged != null;
       }
       
     };

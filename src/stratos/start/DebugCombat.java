@@ -6,6 +6,8 @@
 package stratos.start;
 import stratos.content.civic.*;
 import stratos.game.actors.*;
+import stratos.game.base.Verse;
+import stratos.game.base.VerseLocation;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -77,18 +79,49 @@ public class DebugCombat extends Scenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
-    GameSettings.hireFree  = true;
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    if (false) raidingScenario (world, base, UI);
-    if (true ) combatScenario  (world, base, UI);
+    if (true ) raidingScenario (world, base, UI);
+    if (false) combatScenario  (world, base, UI);
   }
   
   
   public void updateGameState() {
     super.updateGameState();
+  }
+  
+  
+  private void raidingScenario(Stage world, Base base, BaseUI UI) {
+    //
+    //  Introduce a bastion, with standard personnel.
+    final VerseLocation homeworld = Verse.PLANET_PAREM_V;
+    base.research.initKnowledgeFrom(homeworld);
+    base.commerce.assignHomeworld  (homeworld);
+    base.finance.setInitialFunding(10000, 0);
+    
+    final Bastion bastion = new Bastion(base);
+    SiteUtils.establishVenue(bastion, 11, 11, true, world);
+    base.setup.fillVacancies(bastion, true);
+    
+    final Box2D perim = bastion.area(new Box2D()).expandBy(8);
+    SiteUtils.placeAroundPerimeter(ShieldWall.BLUEPRINT, perim, base, true);
+    final TrooperLodge barracks = new TrooperLodge(base);
+    SiteUtils.establishVenue(barracks, barracks, true, world);
+    base.setup.fillVacancies(barracks, true);
+    
+    //  And introduce ruins, with a complement of artilects.
+    final ArtilectBase artilects = Base.artilects(world);
+    artilects.relations.setRelation(base, -0.5f, true);
+    artilects.setOnlineLevel(0.25f);
+    
+    final Blueprint ruinsType = Ruins.VENUE_BLUEPRINTS[0];
+    final Ruins ruins = (Ruins) ruinsType.createVenue(artilects);
+    SiteUtils.establishVenue(ruins, 44, 44, true, world);
+    artilects.setup.fillVacancies(ruins, true);
+    
+    UI.selection.pushSelection(ruins.staff.workers().first());
   }
   
   
@@ -155,31 +188,6 @@ public class DebugCombat extends Scenario {
       Base.wildlife(world)
     );
     //*/
-  }
-  
-  
-  private void raidingScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree  = true;
-    GameSettings.hireFree = true;
-    world.advanceCurrentTime(Stage.STANDARD_DAY_LENGTH * 0.3f);
-    
-    //  Introduce a bastion, with standard personnel.
-    final Bastion bastion = new Bastion(base);
-    SiteUtils.establishVenue(bastion, 11, 11, true, world);
-    base.setup.fillVacancies(bastion, true);
-    
-    //  And introduce ruins, with a complement of artilects.
-    final Base artilects = Base.artilects(world);
-    artilects.relations.setRelation(base, -0.5f, true);
-    
-    final Ruins ruins = new Ruins(artilects);
-    SiteUtils.establishVenue(ruins, 44, 44, true, world);
-    final float healthLevel = (1 + Rand.avgNums(2)) / 2;
-    ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
-    artilects.setup.doPlacementsFor(ruins);
-    artilects.setup.fillVacancies(ruins, true);
-    
-    UI.selection.pushSelection(ruins.staff.workers().first());
   }
   
   

@@ -6,6 +6,7 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.base.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -94,9 +95,9 @@ public class Siting extends Constant {
         supply /= i.amount * c.raw.length;
       }
       
-      sumRating += supply * demand / 10;
+      sumRating += supply * demand / 10f;
     }
-    return sumRating;
+    return Nums.clamp(sumRating, 0, BaseSetup.MAX_PLACE_RATING);
   }
   
   

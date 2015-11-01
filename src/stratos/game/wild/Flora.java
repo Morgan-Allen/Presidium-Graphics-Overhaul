@@ -382,6 +382,11 @@ public class Flora extends Element implements TileConstants {
   }
   
   
+  public float height() {
+    return growth * 1f / MAX_GROWTH;
+  }
+  
+  
   public Item[] materials() {
     return BASE_SPECIES.nutrients(growStage());
   }

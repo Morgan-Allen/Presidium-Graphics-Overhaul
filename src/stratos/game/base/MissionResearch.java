@@ -43,12 +43,6 @@ public class MissionResearch extends Mission {
   }
   
   
-  
-  public float rateImportance(Base base) {
-    return 1;
-  }
-  
-  
   protected boolean shouldEnd() {
     return base.research.hasTheory(sought);
   }
@@ -64,6 +58,19 @@ public class MissionResearch extends Mission {
     study.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
     
     return cacheStepFor(actor, study);
+  }
+  
+  
+  
+  /**  TODO:  Fill this in!
+    */
+  public float targetValue(Base base) {
+    return 1;
+  }
+  
+  
+  public float harmLevel() {
+    return Plan.MILD_HELP;
   }
   
   

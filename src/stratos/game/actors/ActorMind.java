@@ -71,6 +71,9 @@ public abstract class ActorMind {
   public void onWorldExit() {
     //  TODO:  DETACH ALL MEMORIES TO AVOID INDEFINITE REFERENCE-CHAINS FROM
     //         DEAD OBJECTS!
+    
+    //actor.relations.clearAll();
+    //  etc...
   }
   
   
@@ -140,7 +143,10 @@ public abstract class ActorMind {
     if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
       onMission = mission.nextStepFor(actor, true);
     }
-    taken = Choice.switchFor(actor, onMission, taken, true, report);
+    if (onMission != null && taken != null && ! taken.isEmergency()) {
+      taken = onMission;
+    }
+    else taken = Choice.switchFor(actor, onMission, taken, true, report);
     if (report && onMission == null) I.say("  No mission behaviour.");
     
     if (report) {

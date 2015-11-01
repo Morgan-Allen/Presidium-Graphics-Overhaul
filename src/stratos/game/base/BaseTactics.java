@@ -31,8 +31,8 @@ import stratos.util.*;
 public class BaseTactics {
   
   protected static boolean
-    updatesVerbose = false,
-    shortWaiting   = false,
+    updatesVerbose = true ,
+    shortWaiting   = true ,
     extraVerbose   = false;
   protected static String
     verboseBase    = Base.KEY_ARTILECTS;
@@ -120,7 +120,7 @@ public class BaseTactics {
     }
     
     final int
-      interval = shortWaiting ? SHORT_EVAL_INTERVAL : DEFAULT_EVAL_INTERVAL,
+      interval = updateInterval(),
       period   = numUpdates % interval;
     
     if (period != 0) {
@@ -135,6 +135,11 @@ public class BaseTactics {
     //  here?
     this.forceStrength = estimateForceStrength();
     if (base.isBaseAI()) updateMissionAssessments();
+  }
+  
+  
+  protected int updateInterval() {
+    return shortWaiting ? SHORT_EVAL_INTERVAL : DEFAULT_EVAL_INTERVAL;
   }
   
   
@@ -159,9 +164,19 @@ public class BaseTactics {
     };
     for (Mission mission : toAssess) {
       final Rating r = new Rating();
-      r.rating  = rateMission(mission);
+      final Target target = mission.subjectAsTarget();
+      final Base other = target == null ? null : target.base();
+      final float
+        relations  = base.relations.relationWith(other),
+        value      = mission.targetValue(base),
+        harmLevel  = mission.harmLevel(),
+        baseForce  = 1 + base .tactics.forceStrength(),
+        enemyForce = 1 + other.tactics.forceStrength(),
+        risk       = enemyForce / (baseForce + enemyForce);
+      
+      r.rating  = rateMission(mission, relations, value, harmLevel, risk);
       r.mission = mission;
-      if (report) I.say("  Rating "+r.rating+" for "+mission);
+      if (report && r.rating > 0) I.say("  Rating "+r.rating+" for "+mission);
       
       final boolean
         official = missions.includes(mission),
@@ -172,7 +187,7 @@ public class BaseTactics {
       //  If this is a new mission, then assign it a root priority based on its
       //  perceived importance, and see if it's time to begin (see below.)
       if (official & ! begun) checkToLaunchMission(mission, r.rating, report);
-      sorting.add(r);
+      if (r.rating > 0) sorting.add(r);
     }
     //
     //  Then, take the N best missions (where N is determined by overall
@@ -205,15 +220,6 @@ public class BaseTactics {
         if (report) I.say("  TERMINATING OLD MISSION: "+m);
         m.endMission(true);
       }
-    }
-  }
-  
-  
-  protected void addNewMissions(Batch <Mission> toAssess) {
-    final Batch <Venue> venues = this.getSampleVenues();
-    for (Venue v : venues) {
-      toAssess.add(new MissionStrike  (base, v));
-      toAssess.add(new MissionSecurity(base, v));
     }
   }
   
@@ -254,7 +260,7 @@ public class BaseTactics {
       shouldBegin = false;
     if (timeOpen >  waitTime) shouldBegin = true ;
     if (applied  == 0       ) shouldBegin = false;
-    shouldBegin &= this.shouldLaunch(mission, partyChance, partyPower, timeUp);
+    shouldBegin &= shouldLaunch(mission, partyChance, partyPower, timeUp);
     
     if (! timeUp) return Launch.WAIT;
     return shouldBegin ? Launch.BEGIN : Launch.CANCEL;
@@ -300,6 +306,26 @@ public class BaseTactics {
   /**  Utility methods for rating the importance and strength of missions,
     *  parties and candidates-
     */
+  protected void addNewMissions(Batch <Mission> toAssess) {
+    final Batch <Venue> venues = getSampleVenues();
+    for (Venue v : venues) addMissionsForVenue(v, toAssess);
+    //
+    //  TODO:  Assess actors as well.
+  }
+  
+  
+  protected void addMissionsForVenue(Venue v, Batch <Mission> toAssess) {
+    toAssess.add(new MissionStrike  (base, v));
+    toAssess.add(new MissionSecurity(base, v));
+  }
+  
+  
+  protected void addMissionsForActor(Mobile a, Batch <Mission> toAssess) {
+    toAssess.add(new MissionStrike  (base, a));
+    toAssess.add(new MissionSecurity(base, a));
+  }
+  
+  
   protected boolean shouldAllow(
     Actor actor, Mission mission,
     float actorChance, float actorPower,
@@ -320,8 +346,28 @@ public class BaseTactics {
   }
   
   
-  protected float rateMission(Mission mission) {
-    return mission.rateImportance(base);
+  protected float rateMission(
+    Mission mission,
+    float relations,
+    float targetValue,
+    float harmLevel,
+    float riskLevel
+  ) {
+    //
+    //  In the case of 'helpful' missions, rate importance based on current
+    //  relations.
+    if (harmLevel < 0) {
+      return targetValue <= 0 ? 0 : (targetValue * relations * 2);
+    }
+    //
+    //  In the case of 'harmful' missions, modify based on dislike as well as
+    //  the risks of provocation.
+    else if (harmLevel > 0) {
+      return (targetValue * (0 - relations) * 2) - riskLevel;
+    }
+    //
+    //  Otherwise, just return the naked value:
+    else return targetValue;
   }
   
   
@@ -330,32 +376,32 @@ public class BaseTactics {
   }
   
   
-  private float successChance(Actor a, Mission m) {
+  protected float successChance(Actor a, Mission m) {
     final Behaviour step = m.nextStepFor(a, true);
     return (step instanceof Plan) ? ((Plan) step).successChanceFor(a) : 1;
   }
   
   
-  private float successChance(Mission mission) {
-    float sumChances = 0;
-    for (Actor a : mission.applicants()) {
-      sumChances += successChance(a, mission);
-    }
-    return sumChances;
-  }
-  
-  
-  private float actorPower(Actor actor, Mission mission) {
+  protected float actorPower(Actor actor, Mission mission) {
     return actor.senses.powerLevel();
   }
   
   
-  private float partyPower(Mission mission) {
+  protected float partyPower(Mission mission) {
     float power = 0;
     for (Actor a : mission.applicants()) {
       power += actorPower(a, mission);
     }
     return power;
+  }
+  
+  
+  protected float successChance(Mission mission) {
+    float sumChances = 0;
+    for (Actor a : mission.applicants()) {
+      sumChances += successChance(a, mission);
+    }
+    return sumChances;
   }
   
   
@@ -376,6 +422,7 @@ public class BaseTactics {
       final Actor a = (Actor) m;
       if (a.health.alive()) est += a.senses.powerLevel();
     }
+    //
     //  TODO:  Get ratings for various skill-types relevant to each mission- or
     //  perform some kind of monte-carlo sampling to determine success-odds.
     
@@ -415,7 +462,7 @@ public class BaseTactics {
   }
   
   
-  protected boolean checkReachability(Target t, Target baseHQ) {
+  protected boolean checkReachability(Target t, Property baseHQ) {
     final Tile reachPoint = Spacing.nearestOpenTile(t, baseHQ);
     return base.world.pathingCache.hasPathBetween(
       baseHQ, reachPoint, base, false

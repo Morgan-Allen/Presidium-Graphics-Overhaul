@@ -60,9 +60,14 @@ public class MissionSecurity extends Mission {
   
   /**  Importance assessment-
     */
-  public float rateImportance(Base base) {
+  public float targetValue(Base base) {
     //  TODO:  FILL THIS IN LATER
     return -1;
+  }
+  
+  
+  public float harmLevel() {
+    return Plan.REAL_HELP * duration() / DURATION_LENGTHS[1];
   }
   
   

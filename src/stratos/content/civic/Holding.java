@@ -89,27 +89,27 @@ public class Holding extends Venue {
   final public static Upgrade
     TENT_LEVEL = new Upgrade(
       "Seal Tent", "",
-      0, Upgrade.THREE_LEVELS, null, Holding.BLUEPRINT,
+      20, Upgrade.THREE_LEVELS, null, Holding.BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     PYON_LEVEL = new Upgrade(
       "Pyon Shacks", "",
-      0, Upgrade.THREE_LEVELS, null, Holding.BLUEPRINT,
+      30, Upgrade.THREE_LEVELS, null, Holding.BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     FREEBORN_LEVEL = new Upgrade(
       "Freeborn Holding", "",
-      0, Upgrade.THREE_LEVELS, PYON_LEVEL, Holding.BLUEPRINT,
+      40, Upgrade.THREE_LEVELS, PYON_LEVEL, Holding.BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     CITIZEN_LEVEL = new Upgrade(
       "Citizen Apartment", "",
-      0, Upgrade.THREE_LEVELS, FREEBORN_LEVEL, Holding.BLUEPRINT,
+      50, Upgrade.THREE_LEVELS, FREEBORN_LEVEL, Holding.BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     GELDER_LEVEL = new Upgrade(
       "Gelder Manse", "",
-      0, Upgrade.THREE_LEVELS, CITIZEN_LEVEL, Holding.BLUEPRINT,
+      60, Upgrade.THREE_LEVELS, CITIZEN_LEVEL, Holding.BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
     UPGRADE_ARRAY[] = Holding.BLUEPRINT.assignVenueLevels(

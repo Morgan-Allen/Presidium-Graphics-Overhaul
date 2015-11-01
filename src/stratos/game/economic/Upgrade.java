@@ -130,7 +130,7 @@ public class Upgrade extends Constant implements
     base.tactics.addMission(research);
   }
   
-  
+  /*
   final public static String
     REASON_NO_KNOWLEDGE    = "Lacks theoretical knowledge.",
     REASON_NO_REQUIREMENTS = "Lacks pre-requisite upgrades",
@@ -161,6 +161,7 @@ public class Upgrade extends Constant implements
     
     return reasons.setSuccess();
   }
+  //*/
   
   
   public boolean hasRequirements(Structure structure) {
@@ -242,9 +243,7 @@ public class Upgrade extends Constant implements
       substituteReferences(description, d);
       d.append("\n");
     }
-    
     describeTechChain(d);
-    //describeResearchStatus(d, this);
   }
   
   
@@ -294,11 +293,11 @@ public class Upgrade extends Constant implements
     final Upgrade upgrade = this;
     final String name = v == null ? baseName : upgrade.nameAt(v, -1, null);
     
-    final boolean canInstall =
+    final boolean canBuild =
       v == null &&
       base.research.hasTheory(upgrade)
     ;
-    final boolean canBuild =
+    final boolean canUpgrade =
       base.research.hasTheory(upgrade) &&
       v != null && upgrade.hasRequirements(v.structure())
     ;
@@ -311,7 +310,7 @@ public class Upgrade extends Constant implements
     String         progReport = null;
     Colour         progColour = Colour.LITE_GREY;
     
-    if (canInstall) {
+    if (canBuild) {
       int cost = upgrade.buildCost(base);
       if (base.finance.hasCredits(cost)) {
         linksTo = new Description.Link("") {
@@ -331,16 +330,19 @@ public class Upgrade extends Constant implements
       }
     }
     
-    else if (canBuild) {
+    else if (canUpgrade) {
       int
         level    = v.structure().upgradeLevel(upgrade),
         maxLevel = upgrade.maxLevel,
         cost     = upgrade.buildCost(base);
-      boolean doingUpgrade = v.structure().upgradeInProgress() == upgrade;
-      float progress = v.structure().upgradeProgress();
+      boolean doingUpgrade = v.structure().hasUpgradeOrQueued(upgrade);
+      float progress = v.structure().upgradeProgress(upgrade);
       
       if (level == maxLevel) {
         progReport = "At max. level";
+      }
+      else if (v.structure().slotsFree() == 0) {
+        progReport = "No free slots";
       }
       else if (doingUpgrade) {
         progReport = "Progress: "+(int) (progress * 100)+"%";

@@ -129,6 +129,7 @@ public class MissionPane extends SelectionPane {
     //
     //  Secondly, describe the mission type:
     final int type = mission.missionType();
+    if (type == TYPE_BASE_AI) return;
     final String typeDesc = type == TYPE_BASE_AI ? "BASE AI" :
       TYPE_DESC[type]
     ;

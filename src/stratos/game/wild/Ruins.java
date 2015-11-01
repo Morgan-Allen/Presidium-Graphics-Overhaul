@@ -33,11 +33,14 @@ public class Ruins extends Venue {
     "ruins_b.png",
     "ruins_c.png"
   );
-  
   final static int
-    MIN_RUINS_SPACING = (int) (Stage.ZONE_SIZE * 0.75f);
+    MIN_RUINS_SPACING = (int) (Stage.ZONE_SIZE * 0.75f),
+    MAX_RUINS_POP     = 6;
+  
   
   private static int NI = (int) (Rand.unseededNum() * 3);
+  
+  private byte speciesCaps[] = new byte[0];
   
   
   public Ruins(Base base) {
@@ -50,11 +53,13 @@ public class Ruins extends Venue {
   
   public Ruins(Session s) throws Exception {
     super(s);
+    //s.loadByteArray(speciesCaps);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    //s.saveByteArray(speciesCaps);
   }
   
   
@@ -70,18 +75,19 @@ public class Ruins extends Venue {
       "Ancient ruins cover the landscape of many worlds in regions irradiated "+
       "by nuclear fire or blighted by biological warfare.  Strange and "+
       "dangerous beings often haunt such forsaken places.",
-      4, 2, Structure.IS_ANCIENT,
-      Owner.TIER_FACILITY, 500,
-      25
+      4, 2, Structure.IS_ANCIENT, Owner.TIER_FACILITY, 500, 25
     ) {
       public Venue createVenue(Base base) {
         final Venue sample = new Ruins(base);
-        sample.structure.setState(Structure.STATE_INTACT, Rand.avgNums(2));
+        
+        float initRepair = (0.5f + Rand.num()) / 2;
+        sample.structure.setState(Structure.STATE_INTACT, initRepair);
         return sample;
       }
     };
     
     final Siting siting = new Siting(VENUE_BLUEPRINTS[0]) {
+      
       public float rateSettlementDemand(Base base) {
         return 0;
       }
@@ -119,52 +125,10 @@ public class Ruins extends Venue {
   }
   
   
-  protected void updatePaving(boolean inWorld) {}
-  
-  
-  
-  /**  Behavioural routines-
-    */
-  public Behaviour jobFor(Actor actor) {
-    //  TODO:  Fill this in.
-    return null;
-  }
-  
-  
-  public float crowdRating(Actor actor, Background b) {
-    if (b == Backgrounds.AS_RESIDENT) {
-      if (staff.isWorker(actor)) return 0;
-      else return 1;
-    }
-    return super.crowdRating(actor, b);
-  }
-  
-  
-  protected int numPositions(Background b) {
-    final boolean report = updateVerbose && I.talkAbout == this;
+  protected void updatePaving(boolean inWorld) {
     //
-    //  We 'salt' this estimate in a semi-random but deterministic way by
-    //  referring to terrain variation.
-    
-    //  TODO:  What is going on here?
-    
-    final int hired = staff.numHired(b);
-    float spaceLevel = structure.repairLevel();
-    spaceLevel *= 1 + world.terrain().varAt(origin());
-    spaceLevel *= 1f / StageTerrain.TILE_VAR_LIMIT;
-    
-    int space = 0;
-    if (b == Cranial.SPECIES) space = 0;// (int) (spaceLevel * 1);
-    if (b == Tripod .SPECIES) space = 1;// (int) (spaceLevel * 3);
-    if (b == Drone  .SPECIES) space = 2;// (int) (spaceLevel * 5);
-    if (report) I.say("  "+space+" openings for "+b+" at "+this);
-    return space - hired;
+    //  Ruins aren't, well... maintained, so neat paving isn't appropriate.
   }
-  
-  
-  //  TODO:  Allow for mutants, etc.?
-  public Background[] careers() { return Species.ARTILECT_SPECIES; }
-  public Traded[] services() { return null; }
   
   
   public static void populateRuins(
@@ -179,6 +143,82 @@ public class Ruins extends Venue {
   
   
   
+  /**  Behavioural routines-
+    */
+  //
+  //  This is the number of days ahead of 'schedule' that a given species can
+  //  be expected to spawn within the ruins, relative to the 'wakeup' time for
+  //  the base as a whole (typically 30 days.)
+  final static Species SPECIES[] = {
+    Drone  .SPECIES,
+    Tripod .SPECIES,
+    Cranial.SPECIES
+  };
+  final static Table <Species, Float> SPECIES_SCHEDULE = Table.make(
+    Drone  .SPECIES,  1.0f,
+    Tripod .SPECIES,  0.0f,
+    Cranial.SPECIES, -0.5f
+  );
+  
+  
+  //
+  //  TODO:  Allow for mutants and other squatters as well- as long as no
+  //  artilects are present.
+  public Background[] careers() {
+    return SPECIES;
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    
+    if (numUpdates % 10 == 0 && base() instanceof ArtilectBase && ! instant) {
+      
+      final ArtilectBase AB = (ArtilectBase) base();
+      final int numSpecies = SPECIES.length;
+      final int popLimit = 1 + (int) (MAX_RUINS_POP * structure.repairLevel());
+      
+      float fillLevel = AB.onlineLevel();
+      fillLevel += structure.repairLevel() - 0.5f;
+      int maxAll = 0;
+      //
+      //  The maximum number of species that can be housed grows by 1 for
+      //  every X/2 days (where X is the wake-up period for the base- typically
+      //  15 days or so.)  This is offset by the schedule-delay for each
+      //  species, plus the repair of the structure.
+      this.speciesCaps = new byte[numSpecies];
+      for (int n = 0; n < numSpecies; n++) {
+        final float schedule = SPECIES_SCHEDULE.get(SPECIES[n]);
+        int maxSpecies = Nums.max(0, (int) ((fillLevel + schedule) * 2));
+        maxAll         += maxSpecies;
+        speciesCaps[n] += maxSpecies;
+      }
+      //
+      //  If the total allowance is higher than the maximum population for a
+      //  given ruin, we discard the weakest species first-
+      while (maxAll > popLimit) {
+        for (int n = 0; n < numSpecies; n++) if (speciesCaps[n] > 0) {
+          speciesCaps[n]--;
+          maxAll--;
+          break;
+        }
+      }
+      //
+      //  As a final touch, we outsource spawning to the base itself (as this
+      //  ties in with larger tactical considerations.)
+      AB.updateSpawning(this, 10);
+    }
+  }
+  
+  
+  protected int numPositions(Background b) {
+    final int index = Visit.indexOf(b, SPECIES);
+    if (index >= 0 && speciesCaps.length > 0) return speciesCaps[index];
+    else return super.numPositions(b);
+  }
+  
+
+
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
@@ -191,6 +231,10 @@ public class Ruins extends Venue {
     BaseUI.current().selection.renderCircleOnGround(rendering, this, hovered);
   }
 }
+
+
+
+
 
 
 

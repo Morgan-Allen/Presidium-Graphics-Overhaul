@@ -1,6 +1,14 @@
 
 
 
+*  Implement cel-shading:
+    http://gamedev.stackexchange.com/questions/68401/
+    how-can-i-draw-outlines-around-3d-models
+
+*  Get rid of all the text-descriptions for the UI and use customised widgets
+   instead.
+
+
 
 *  Minimising the window shuts down the game on windows 7 or 8.  Find out why
    and fix.

@@ -19,7 +19,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   protected static boolean
     verbose     = false,
     evalVerbose = false,
-    allVisible  = true ;
+    allVisible  = false;
   
   protected boolean shouldReport(Object about) {
     return verbose && (
@@ -195,9 +195,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   /**  General life-cycle, justification and setup methods-
     */
-  public abstract float rateImportance(Base base);
-
-  
   public void updateMission() {
     if (missionType == TYPE_PUBLIC && priority > 0 && ! hasBegun()) {
       beginMission();
@@ -284,6 +281,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public abstract float targetValue(Base base);
+  public abstract float harmLevel();
+  
   protected abstract boolean shouldEnd();
   protected abstract Behaviour createStepFor(Actor actor);
   
@@ -295,8 +295,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     Actor applicant;
     boolean approved;
     Behaviour cached;
-    
-    //  TODO:  USE THIS!
     Pledge specialReward;
   }
   

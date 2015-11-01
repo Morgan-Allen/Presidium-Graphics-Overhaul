@@ -144,9 +144,8 @@ public abstract class Artilect extends Actor {
     if (! isCranial) {
       final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
       choice.add(patrol.addMotives(Plan.MOTIVE_JOB, Plan.IDLE));
-      choice.add(JoinMission.attemptFor(this));
     }
-    //if (distance > 1)
+    choice.add(JoinMission.attemptFor(this));
     choice.add(new Retreat(this));
     //
     //  Defend home site or retreat to different site (all).
@@ -157,10 +156,6 @@ public abstract class Artilect extends Actor {
     if (home != null && ! home.staff().onShift(this)) {
       final Resting rest = new Resting(this, mind.home());
       rest.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
-      /*
-      if (isDrone) rest.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
-      else rest.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE);
-      //*/
       choice.add(rest);
     }
     //

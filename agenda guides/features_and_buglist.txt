@@ -2,38 +2,30 @@
 
 TO DO NOW-
 
-*  Make sure the pathing-cache works for fast calculation of zone-reachability!
-   (Later, you can piggy-back the paving-system off this data.)
-
-*  Ensure raiders will attempt to besiege intervening walls.
-*  More vigorous attacks after a few days from artilects, etc.
+*  Double-check raid behaviours for completeness- including Cranials.
+   Allow troopers to man walls, and make sure their upgrades are hooked up.
    
-   Cranials.  Get them working!
-
-
-*  Hook up, and test, the common abilities.  (Plus general learning & use of
-   the others.)
-
-*  See if you can hook up ammo clips and power cells.
-*  Psy inhibition needs to be filled in?
-*  Noble command and call of duty
-*  Some runner abilities need undercover ops to be implemented.
-
-
+*  Cranials.  Get them working!  (Test all artilect techniques too.)
 *  Offworld raids by enemy houses!
+   
+*  Dropship crews are missing again for some reason.
+*  Structure-upgrades are counting as tech-upgrade against the total no. of
+   slots.  Maybe that's correct, but maybe not?  Subtract it from display,
+   anyway.
 
+*  Hook up, and test, all common abilities.  (Plus general learning & use of
+   the others.)
+*  See if you can hook up ammo clips and power cells.
+*  Pax inhibition needs to be filled in.
+*  Noble command and call of duty!
 
-*  Give vermin... one or two special abilities.  Like, night vision and
-   plague, plus a bite/behead ability.
-   Lictovores get Maul.
-   Yamagur get stun/slam.
-
-*  Add some artilect abilities.
-   Cran & Tri- impale, high beam, silver plague, reflection shockwave, plus
-   detonate and slough for Drone & Cybrid.
-
-
-
+*  Lictovores get Maul & Devour.
+   Yamagur get Slugger & Fortify.
+   Vareen get Bask & Flight.
+   Qudu get Withdraw & Fortify.
+   
+   Roaches get Infection & Night Vision.  Roachmen get Maul.
+   Avrodils get Camouflage, Whiplash, Pollen Spray & Devour.
 
 *  Initial missions:
     Planitia Sector (robots + ruins, artifact.)
@@ -199,6 +191,10 @@ THE TUTORIAL
 
 CITIZEN BEHAVIOUR-
 
+*  Some runner abilities need undercover ops to be implemented.
+
+*  Have actors generate emergency behaviours in a separate routine from
+   'regular' behaviours?  Have them trumped there?
 
 //  Spare Time:   Studying.  R&R.  Talking.  Exploring.
 //  Work:         Commerce.  Manufacture.  Resources.

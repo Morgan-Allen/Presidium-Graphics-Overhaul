@@ -364,12 +364,13 @@ public class VenuePane extends SelectionPane {
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();
     if (OA.size() > 0) {
+      final Upgrade inProg = v.structure.upgradeInProgress();
       Text.cancelBullet(d);
       d.append("\n\nUpgrades in progress: ");
       for (String u : OA) d.append("\n  "+u);
       d.append("\n");
       
-      if (v.structure.upgradeProgress() == 0) d.append(
+      if (v.structure.upgradeProgress(inProg) == 0) d.append(
         "\nUpgrades will be installed once your engineering staff arrive "+
         "on-site.", Colour.LITE_GREY
       );

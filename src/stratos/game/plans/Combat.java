@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.PathSearch;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
@@ -34,7 +35,12 @@ public class Combat extends Plan {
     OBJECT_EITHER  = 0,
     OBJECT_SUBDUE  = 1,
     OBJECT_DESTROY = 2,
-    ALL_OBJECTS[]  = { 0, 1, 2 };
+    ALL_OBJECTS[]  = { 0, 1, 2 },
+    
+    STEP_INIT   = -1,
+    STEP_RAZING =  0,
+    STEP_FIGHT  =  1,
+    STEP_COVER  =  2;
 
   final public static String STYLE_NAMES[] = {
     "Ranged",
@@ -50,6 +56,7 @@ public class Combat extends Plan {
   
   final int style, object;
   final boolean pursue;
+  private int stepType = STEP_INIT;
   
   
   public Combat(Actor actor, Element target) {
@@ -69,17 +76,19 @@ public class Combat extends Plan {
   
   public Combat(Session s) throws Exception {
     super(s);
-    this.style  = s.loadInt();
-    this.object = s.loadInt();
-    this.pursue = s.loadBool();
+    this.style    = s.loadInt ();
+    this.object   = s.loadInt ();
+    this.pursue   = s.loadBool();
+    this.stepType = s.loadInt ();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt(style);
-    s.saveInt(object);
-    s.saveBool(pursue);
+    s.saveInt (style   );
+    s.saveInt (object  );
+    s.saveBool(pursue  );
+    s.saveInt (stepType);
   }
   
   
@@ -144,7 +153,6 @@ public class Combat extends Plan {
     if (report) {
       I.say("\nGetting next combat step for: "+I.tagHash(this));
     }
-
     //
     //  Check to see if the main target is downed, and if not, see what your
     //  best current target would be:
@@ -158,19 +166,18 @@ public class Combat extends Plan {
       if (struck == null) struck = subject;
     }
     //
-    //  If your prey has ducked indoors, consider tearing up the structure-
-    //  TODO:  Look into potential 'siege' options for targets that you can't
-    //  path to directly- i.e, when indoors, or going through walls.
+    //  If your prey has ducked indoors, consider tearing up the structure...
     if (struck == subject && subject instanceof Actor) {
-      
-      final Boarding haven = ((Actor) struck).aboard();
+      final Boarding
+        aboard = ((Actor) struck).aboard(),
+        access = PathSearch.accessLocation(struck, actor);
       final boolean
-        hasRefuge  = haven != null && ! haven.allowsEntry(actor),
+        hasRefuge  = access == null,
         shouldRaze = object == OBJECT_DESTROY || hasMotives(MOTIVE_MISSION);
       
       if (hasRefuge) {
-        if (shouldRaze && haven.base() != actor.base()) {
-          struck = haven;
+        if (shouldRaze && aboard != null && aboard.base() != actor.base()) {
+          struck = aboard;
         }
         else {
           interrupt("Prey has found sanctuary!");
@@ -189,6 +196,7 @@ public class Combat extends Plan {
     final boolean melee     = actor.gear.meleeDeviceOnly();
     final boolean razes     = struck instanceof Placeable;
     final float   danger    = 1f - successChanceFor(actor);
+    final Target  covers    = coverPoint(actor, struck, razes, melee, danger);
     
     if (razes) {
       if (report) I.say("  Laying siege to: "+struck);
@@ -197,6 +205,7 @@ public class Combat extends Plan {
         this, "actionSiege",
         strikeAnim, "Razing"
       );
+      stepType = STEP_RAZING;
     }
     else {
       if (report) I.say("  Striking at: "+struck);
@@ -205,12 +214,13 @@ public class Combat extends Plan {
         this, "actionStrike",
         strikeAnim, "Striking at"
       );
+      stepType = covers == null ? STEP_FIGHT : STEP_COVER;
     }
     
     //  Depending on the type of target, and how dangerous the area is, a bit
     //  of dancing around may be in order.
-    if (melee) configMeleeAction (strike, razes, danger, report);
-    else       configRangedAction(strike, razes, danger, report);
+    if (melee) configMeleeAction (strike, razes, danger, covers, report);
+    else       configRangedAction(strike, razes, danger, covers, report);
     return strike;
   }
   
@@ -223,91 +233,47 @@ public class Combat extends Plan {
   }
   
   
-  private void configMeleeAction(
-    Action strike, boolean razes, float danger, boolean report
+  private Target coverPoint(
+    Actor a, Target struck, boolean razes, boolean melee, float danger
   ) {
-    ///if (eventsVerbose) I.sayAbout(actor, "Configuring melee attack.\n");
+    final float range    = actor.health.sightRange();
+    final float distance = Spacing.distance(actor, struck) / range;
     
-    final Element struck = (Element) strike.subject();
-    final Stage world = actor.world();
-    strike.setProperties(Action.QUICK);
-    if (razes) {
-      if (! Spacing.adjacent(actor, struck)) {
-        strike.setMoveTarget(Spacing.nearestOpenTile(struck, actor, world));
-      }
-      //  TODO:  Properly incorporate dodge mechanics here.
-      /*
-      else if (Rand.num() < 0.2f) {
-        strike.setMoveTarget(Spacing.pickFreeTileAround(struck, actor));
-      }
-      //*/
-      else strike.setMoveTarget(actor.origin());
-    }
+    if (melee || distance > range              ) return null;
+    if (   razes  && Rand.num() < 0.9f         ) return null;
+    if ((! razes) && (! a.senses.underAttack())) return null;
+    
+    float dodgeChance = danger * 2 / (1 + distance);
+    dodgeChance = Nums.clamp(dodgeChance, 0.25f, 0.75f);
+    if (Rand.num() > dodgeChance) return null;
+    
+    Target covers = Retreat.pickHidePoint(actor, range, struck, 1);
+    if (covers != null) covers = Spacing.nearestOpenTile(covers, actor);
+    if (covers == null) return null;
+    
+    final float hideDist = Spacing.distance(covers, struck) / range;
+    if (hideDist > 1) return null;
+    return covers;
+  }
+  
+  
+  private void configMeleeAction(
+    Action strike, boolean razes, float danger, Target cover, boolean report
+  ) {
+    strike.setProperties(Action.QUICK | Action.TRACKS);
   }
   
   
   private void configRangedAction(
-    Action strike, boolean razes, float danger, boolean report
+    Action strike, boolean razes, float danger, Target cover, boolean report
   ) {
-    final Activities activities = actor.world().activities;
-    
-    final Element struck   = (Element) strike.subject();
-    final float   range    = actor.health.sightRange();
-    final Tile    origin   = actor.origin();
-    final float   distance = Spacing.distance(actor, struck) / range;
-    
-    boolean underFire = activities.includesActivePlan(actor, Combat.class);
-    float dodgeChance = danger * 2 / (1 + distance);
-    dodgeChance = Nums.clamp(dodgeChance, 0.25f, 0.75f);
-    
-    boolean dodged = false, shouldDodge = Rand.num() < dodgeChance;
-    if (razes && Rand.yes()) shouldDodge = false;
-    if (! hasBegun()) shouldDodge = false;
-    
-    if (shouldDodge) {
-      //
-      //  We try to find a good spot to hide if possible, and just pick a tile
-      //  at random otherwise.  (Anything further away than max. firing range
-      //  is probably pointless.)
-      Target WP = Retreat.pickHidePoint(
-        actor, range, struck, underFire ? -1 : 1
-      );
-      if (WP == null || WP == origin) {
-        WP = Spacing.pickRandomTile(actor, range, actor.world());
-        WP = Spacing.nearestOpenTile(WP, actor);
-      }
-      
-      final float hideDist = Spacing.distance(WP, struck) / range;
-      if (hideDist < 2) {
-        //
-        //  If not under fire, consider advancing for a clearer shot-
-        //  Otherwise, consider falling back for cover.
-        if (Rand.num() > dodgeChance || ! underFire) {
-          if (hideDist > distance) WP = null;
-        }
-        if (WP != null && WP != origin) {
-          dodged = true;
-          strike.setMoveTarget(WP);
-        }
-      }
+    if (cover != null) {
+      strike.setMoveTarget(cover);
+      strike.setProperties(Action.QUICK | Action.TRACKS);
     }
-    
-    if (report) {
-      I.say("\nConfiguring ranged action.");
-      I.say("  Struck:       "+struck     );
-      I.say("  Razing:       "+razes      );
-      I.say("  Danger:       "+danger     );
-      I.say("  Distance:     "+distance   );
-      I.say("  Under fire?   "+underFire  );
-      I.say("  Dodge chance: "+dodgeChance);
-      I.say("  Should dodge? "+shouldDodge);
-      I.say("  Did dodge?    "+dodged     );
-      I.say("  Currently at: "+actor.origin());
-      I.say("  Move target:  "+strike.movesTo());
+    else {
+      strike.setProperties(Action.RANGED | Action.QUICK | Action.TRACKS);
     }
-    
-    if (dodged) strike.setProperties(Action.QUICK | Action.TRACKS);
-    else strike.setProperties(Action.RANGED | Action.QUICK | Action.TRACKS);
   }
   
   
@@ -329,9 +295,9 @@ public class Combat extends Plan {
   public static boolean performGeneralStrike(
     Actor actor, Actor target, int object, Action a
   ) {
-    if (target.health.dying()) return false;
-    //
-    //  TODO:  You may want a separate category for animals?  Or Psy?
+    if (target.health.dying()) {
+      return false;
+    }
     if (actor.gear.meleeDeviceOnly()) {
       performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object, a);
     }
@@ -355,9 +321,6 @@ public class Combat extends Plan {
       lethal = strikeType == OBJECT_DESTROY,
       showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
-    //
-    //  TODO:  Move weapon/armour properties to dedicated subclasses?
-
     final boolean kinetic = actor.gear.hasDeviceProperty(Devices.KINETIC);
     final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN   );
     float penalty = 0, damage = 0;
@@ -497,9 +460,30 @@ public class Combat extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    d.append("In combat with ");
+    if (stepType == STEP_INIT || stepType == STEP_FIGHT) {
+      d.append("In combat with ");
+    }
+    if (stepType == STEP_RAZING) {
+      d.append("Razing ");
+    }
+    if (stepType == STEP_COVER) {
+      d.append("Taking cover from ");
+    }
     d.append(subject);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

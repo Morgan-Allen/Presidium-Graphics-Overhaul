@@ -194,7 +194,7 @@ public class CultureVats extends Venue {
   
   public int numPositions(Background v) {
     final int level = structure.mainUpgradeLevel();
-    if (v == VATS_BREEDER) return level;
+    if (v == VATS_BREEDER) return level + 1;
     return 0;
   }
   

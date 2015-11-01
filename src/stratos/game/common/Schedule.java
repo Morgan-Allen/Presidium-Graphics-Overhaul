@@ -233,10 +233,13 @@ public class Schedule {
       //  TODO:  Stretch this out further based on the proportion of clients
       //  that updated successfully last cycle?
       if (! instant) {
-        event.updatesCount++;
-        event.updateTime += lastUpdateOkay ?
-          (interval + ((Rand.num() - 0.5f) / 5)) :
-          ((interval * 2) - Rand.num());
+       while (event.updateTime <= currentTime) {
+         event.updateTime += interval;
+       }
+       event.updatesCount++;
+       event.updateTime += lastUpdateOkay ?
+         ((Rand.num() - 0.5f) / 2) :
+         (interval * Rand.num() * 2);
       }
       event.callTime = event.updateTime;
       allUpdates.put(event.updates, events.insert(event));

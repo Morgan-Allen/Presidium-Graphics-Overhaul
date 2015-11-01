@@ -29,7 +29,7 @@ public class BaseSetup {
   //  TODO:  You can cull various building-types early by skipping anything for
   //  which there is no profile-centric demand- or only checking the first N
   //  types which have the most demand.
-  final static float
+  final public static float
     FULL_EVAL_PERIOD  = Stage.STANDARD_DAY_LENGTH  / 2, // Eval-cycle length.
     SHORT_EVAL_PERIOD = Stage.STANDARD_HOUR_LENGTH * 2,
     DEFAULT_PLACE_HP  = 50,

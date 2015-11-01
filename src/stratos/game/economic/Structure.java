@@ -692,7 +692,8 @@ public class Structure {
   }
   
   
-  public float upgradeProgress() {
+  public float upgradeProgress(Upgrade upgrade) {
+    if (upgrade != upgradeInProgress()) return 0;
     return upgradeProgress;
   }
   

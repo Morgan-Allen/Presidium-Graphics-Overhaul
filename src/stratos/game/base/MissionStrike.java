@@ -47,42 +47,35 @@ public class MissionStrike extends Mission {
   
   /**  Importance assessment-
     */
-  public float rateImportance(Base base) {
-    final boolean report = verbose && rateVerbose && I.matchOrNull(
+  public float targetValue(Base base) {
+    final boolean report = I.matchOrNull(
       base.title(), BaseTactics.verboseBase
-    );
-    if (report) I.say("\nRating importance of "+this+" for "+base);
-    
-    final Base enemy = subjectAsTarget().base();
-    final float dislike = 0 - base.relations.relationWith(enemy);
-    if (report) I.say("  Enemy dislike:  "+dislike);
-    if (dislike <= 0) return -1;
+    ) && rateVerbose && verbose;
     
     float targetValue = 0;
     if (subject instanceof Venue) {
       final Venue v = (Venue) subject;
       final Siting s = v.blueprint.siting();
-      targetValue = s == null ? 0 : s.ratePointDemand(v.base(), v, false);
+      targetValue = s == null ? 1 : s.ratePointDemand(v.base(), v, false);
       targetValue = Nums.clamp(targetValue / BaseSetup.MAX_PLACE_RATING, 0, 1);
     }
     if (subject instanceof Actor) {
       //  TODO:  GET A VALUE FOR THIS
     }
-    if (report) I.say("  Target value:   "+targetValue);
-    if (targetValue <= 0) return -1;
     
-    final float
-      baseForce  = 1 + base .tactics.forceStrength(),
-      enemyForce = 1 + enemy.tactics.forceStrength(),
-      risk       = enemyForce / (baseForce + enemyForce),
-      rating     = (dislike * targetValue * 2) - risk;
     if (report) {
-      I.say("  Base strength:  "+baseForce );
-      I.say("  Enemy strength: "+enemyForce);
-      I.say("  Overall risk:   "+risk      );
-      I.say("  Final rating:   "+rating    );
+      I.say("\nRating "+this+" for "+base);
+      I.say("  Target value:   "+targetValue);
     }
-    return rating;
+    return targetValue;
+  }
+  
+  
+  public float harmLevel() {
+    if (objective() == Combat.OBJECT_SUBDUE ) return Plan.MILD_HARM;
+    if (objective() == Combat.OBJECT_EITHER ) return Plan.REAL_HARM;
+    if (objective() == Combat.OBJECT_DESTROY) return Plan.EXTREME_HARM;
+    return 0;
   }
   
   

@@ -18,7 +18,7 @@ public class RoadsRepair extends Plan {
   /**  Data fields, setup and save/load methods-
     */
   private static boolean
-    stepsVerbose = true ,
+    stepsVerbose = false,
     evalVerbose  = false;
   
   final Base base;

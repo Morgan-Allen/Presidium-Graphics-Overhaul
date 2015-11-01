@@ -784,8 +784,9 @@ public abstract class Venue extends Fixture implements
     healthbar.alarm = alarm;
     
     if (structure.needsUpgrade()) {
+      final Upgrade inProg = structure.upgradeInProgress();
       Healthbar progBar = new Healthbar();
-      progBar.hurtLevel = 1 - structure.upgradeProgress();
+      progBar.hurtLevel = 1 - structure.upgradeProgress(inProg);
       progBar.size = healthbar.size;
       progBar.position.setTo(healthbar.position);
       progBar.yoff = 0 - Healthbar.BAR_HEIGHT;

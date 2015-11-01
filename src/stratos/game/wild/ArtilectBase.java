@@ -7,7 +7,15 @@ package stratos.game.wild;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.game.economic.*;
 import stratos.util.*;
+
+
+//  GENERAL NOTE:
+
+//  It... might be desirable for multiple bases belonging to the same faction
+//  to share the same fog-of-war, even if they have different AI.  (That way
+//  they can launch missions independently as needed.)  Okay.
 
 
 
@@ -15,14 +23,19 @@ import stratos.util.*;
 public class ArtilectBase extends Base {
   
   
+  
+  /**  Data fields, constants, constructors and save/load methods-
+    */
   private static boolean verbose = false;
   
   final static float
     MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
     ONLINE_WAKE_TIME  = Stage.STANDARD_YEAR_LENGTH / 2,
-    CHECK_INTERVAL    = Stage.STANDARD_HOUR_LENGTH * 2;
+    SPAWN_INTERVAL    = Stage.STANDARD_DAY_LENGTH;
+  
   
   private float onlineLevel = 0;
+  private Venue chosenHQ = null;
   
   
   
@@ -34,69 +47,144 @@ public class ArtilectBase extends Base {
   public ArtilectBase(Session s) throws Exception {
     super(s);
     this.onlineLevel = s.loadFloat();
+    this.chosenHQ = (Venue) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveFloat(onlineLevel);
+    s.saveObject(chosenHQ);
   }
   
   
+  
+  /**  Regular update methods-
+    */
   public void setOnlineLevel(float toLevel) {
     this.onlineLevel = toLevel;
   }
   
   
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
-    //
-    //  As long as there's a technologically-advanced non-artilect base on the
-    //  map, increment the 'wakeup' level.
-    if (numUpdates % CHECK_INTERVAL == 0) {
-      boolean hasFoe = false;
-      for (Base base : world.bases()) if (! base.primal) {
-        if (world.presences.nearestMatch(base, null, -1) != null) {
-          hasFoe = true;
+  public float onlineLevel() {
+    return onlineLevel;
+  }
+  
+  
+  private float rateHQ(Venue chosen) {
+    if (chosen == null) return 0;
+    return 0 - dangerMap.sampleAround(chosen, -1);
+  }
+  
+  
+  public Property HQ() {
+    return chosenHQ;
+  }
+  
+  
+  protected void updateSpawning(Ruins ruins, int period) {
+    final float spawnChance = period * 1f / SPAWN_INTERVAL;
+    if (Rand.num() < spawnChance) {
+      for (Species s : Ruins.SPECIES) {
+        final Actor adds = s.sampleFor(this);
+        if (ruins.crowdRating(adds, s) < 1) {
+          adds.enterWorldAt(ruins, world);
+          adds.mind.setHome(ruins);
+          break;
         }
       }
-      final float inc = CHECK_INTERVAL * 1f / ONLINE_WAKE_TIME;
-      onlineLevel += inc * (hasFoe ? 1 : -1);
-      onlineLevel = Nums.clamp(onlineLevel, 0, 1);
     }
   }
   
   
-  protected BaseTactics initTactics() {
-    return new BaseTactics(this) {
-      
-      
-      protected float rateMission(Mission mission) {
-        final float importance = mission.rateImportance(base);
-        if (importance <= 0) return -1;
-        return importance + onlineLevel;
+  
+  protected BaseTactics initTactics() { return new BaseTactics(this) {
+    
+    protected void updateMissionAssessments() {
+      //
+      //  As long as there's a technologically-advanced non-artilect base on
+      //  the map, increment the 'wakeup' level.
+      int numFoes = 0;
+      for (Base other : world.bases()) {
+        if (other.primal || base == other) continue;
+        base.relations.setRelation(other, -1, false);
+        if (world.presences.nearestMatch(other, null, -1) != null) {
+          numFoes++;
+        }
       }
+      final int interval = updateInterval();
+      final float inc = interval * 1f / ONLINE_WAKE_TIME;
+      onlineLevel += inc * (numFoes > 0 ? numFoes : -1);
+      onlineLevel = Nums.clamp(onlineLevel, 0, 100);
       
-      
-      protected boolean shouldAllow(
-        Actor actor, Mission mission,
-        float actorChance, float actorPower,
-        float partyChance, float partyPower
-      ) {
-        float powerLimit = MAX_MISSION_POWER * onlineLevel;
-        return actorPower + partyPower <= powerLimit;
+      //
+      //  You also need to select a suitable headquarters as a launching-point
+      //  for missions.
+      final Pick <Venue> pickHQ = new Pick();
+      pickHQ.compare(chosenHQ, rateHQ(chosenHQ) * 1.5f);
+      for (Object o : world.presences.allMatches(base)) {
+        final Venue v = (Venue) o;
+        pickHQ.compare(v, rateHQ(v));
       }
+      chosenHQ = pickHQ.result();
       
-      
-      protected boolean shouldLaunch(
-        Mission mission, float partyChance, float partyPower, boolean timeUp
-      ) {
-        float powerLimit = MAX_MISSION_POWER * onlineLevel;
-        return (partyPower > (powerLimit / 2)) || timeUp;
+      if (verbose) {
+        I.say("\nUpdating artilect tactics.");
+        I.say("  Potential foes:      "+numFoes    );
+        I.say("  Headquarters chosen: "+chosenHQ   );
+        I.say("  Online level:        "+onlineLevel);
       }
-    };
-  }
+      //
+      //  Then perform other tasks as standard.
+      super.updateMissionAssessments();
+    }
+    
+    
+    protected float rateMission(
+      Mission mission,
+      float relations, float targetValue, float harmLevel, float riskLevel
+    ) {
+      final float oldRating = super.rateMission(
+        mission, relations, targetValue, harmLevel, riskLevel
+      );
+      float rating = oldRating;
+      
+      if (mission instanceof MissionStrike && relations <= 0) {
+        rating += onlineLevel;
+      }
+      else if (rating > 0) {
+        rating *= 1 + onlineLevel;
+      }
+      if (verbose) {
+        I.say("\nAdjusting mission-rating for artilects: "+mission);
+        I.say("  New/old rating: "+rating+"/"+oldRating);
+      }
+      return rating;
+    }
+    
+    
+    protected boolean shouldAllow(
+      Actor actor, Mission mission,
+      float actorChance, float actorPower,
+      float partyChance, float partyPower
+    ) {
+      float powerLimit = MAX_MISSION_POWER * onlineLevel;
+      return actorPower + partyPower <= powerLimit;
+    }
+    
+    
+    protected boolean shouldLaunch(
+      Mission mission, float partyChance, float partyPower, boolean timeUp
+    ) {
+      float powerLimit = MAX_MISSION_POWER * onlineLevel;
+      return (partyPower > (powerLimit / 2)) || timeUp;
+    }
+  }; }
 }
+
+
+
+
 
 
 

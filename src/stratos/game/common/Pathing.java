@@ -28,7 +28,7 @@ public class Pathing {
     extraVerbose = false;
   
   final Mobile mobile;
-  Target trueTarget;
+  Target   moveTarget;
   Boarding pathTarget;
   
   private Boarding path[]    = null;
@@ -41,7 +41,7 @@ public class Pathing {
   
   
   void loadState(Session s) throws Exception {
-    trueTarget = s.loadTarget();
+    moveTarget = s.loadTarget();
     path       = (Boarding[]) s.loadTargetArray(Boarding.class);
     pathTarget = (Boarding) s.loadTarget();
     stepIndex  = s.loadInt();
@@ -49,7 +49,7 @@ public class Pathing {
   
   
   void saveState(Session s) throws Exception {
-    s.saveTarget     (trueTarget);
+    s.saveTarget     (moveTarget);
     s.saveTargetArray(path      );
     s.saveTarget     (pathTarget);
     s.saveInt        (stepIndex );
@@ -66,7 +66,7 @@ public class Pathing {
   
   
   public Target target() {
-    return trueTarget;
+    return moveTarget;
   }
   
   
@@ -99,38 +99,21 @@ public class Pathing {
   }
   
   
-  protected Boarding location(Target t) {
-    if (t instanceof Boarding && t != mobile) {
-      return (Boarding) t;
-    }
-    if (t instanceof Mobile) {
-      final Mobile a = (Mobile) t;
-      if (a.aboard() != null) return a.aboard();
-      return a.origin();
-    }
-    if (t instanceof Element) {
-      return mobile.world.tileAt(t);
-    }
-    I.complain("CANNOT GET LOCATION FOR: "+t);
-    return null;
-  }
-  
-  
   public void updateTarget(Target moveTarget) {
     final boolean report = verbose && I.talkAbout == mobile;
     if (report && extraVerbose) I.say("\nUpdating path target: "+moveTarget);
     
-    final Target oldTarget = trueTarget;
-    
+    final Target oldTarget = moveTarget;
     final boolean paths = moveTarget != null && moveTarget != mobile.aboard();
-    if (paths && ! PathSearch.canApproach(moveTarget, mobile)) {
+    
+    if (paths && PathSearch.accessLocation(moveTarget, mobile) == null) {
       I.say("\nWARNING:  "+mobile+" CANNOT ACCESS: "+moveTarget);
       moveTarget = null;
     }
-    this.trueTarget = moveTarget;
-    if (trueTarget != oldTarget) {
+    this.moveTarget = moveTarget;
+    if (moveTarget != oldTarget) {
       if (report) {
-        I.say("\nTARGET HAS CHANGED TO: "+trueTarget);
+        I.say("\nTARGET HAS CHANGED TO: "+moveTarget);
         I.say("  FROM: "+oldTarget);
       }
       path = null;
@@ -146,20 +129,20 @@ public class Pathing {
   
   public boolean checkPathingOkay() {
     final boolean report = I.talkAbout == mobile && verbose;
-    if (trueTarget == null) {
+    if (moveTarget == null) {
       if (report) I.say("\nNo current path target!");
       return false;
     }
     if (path == null) {
-      if (report) I.say("\nNo current path to target: "+trueTarget);
+      if (report) I.say("\nNo current path to target: "+moveTarget);
       return false;
     }
     
-    final Boarding dest = location(trueTarget);
+    final Boarding dest = PathSearch.accessLocation(moveTarget, mobile);
     boolean blocked = false, nearTarget = false, validPath = true;
     if (report) {
       I.say("\nChecking path okay for "+mobile);
-      I.say("  True target: "+trueTarget+", dest: "+dest);
+      I.say("  True target: "+moveTarget+", dest: "+dest);
     }
     //
     //  Check to ensure that subsequent steps along this path are not blocked,
@@ -199,26 +182,24 @@ public class Pathing {
   public boolean refreshFullPath() {
     final boolean report = I.talkAbout == mobile && verbose;
     if (report) {
-      I.say("REFRESHING PATH TO: "+trueTarget);
+      I.say("REFRESHING PATH TO: "+moveTarget);
       I.say("  Current position: "+mobile.aboard());
       I.say("  Path was: "+I.list(path));
     }
+
+    //
+    //  Firstly, we perform some basic sanity checks on the start and end
+    //  points of the prospective route.  Assuming those check out, we attempt
+    //  pathing between them.
+    final Boarding origin = PathSearch.accessLocation(mobile    , mobile);
+    pathTarget            = PathSearch.accessLocation(moveTarget, mobile);
     
-    final Boarding origin = location(mobile);
-    if (trueTarget == null) path = null;
+    if (origin == null || pathTarget == null) {
+      if (report) I.say("  Start/end points blocked: "+mobile+"/"+moveTarget);
+      path = null;
+    }
     else {
-      //  Firstly, we perform some basic sanity checks on the start and end
-      //  points of the prospective route.
-      pathTarget = location(trueTarget);
-      if (report) I.say("  BETWEEN: "+origin+" AND "+pathTarget);
-      final boolean
-        origB = PathSearch.blockedBy(origin    , mobile),
-        destB = PathSearch.blockedBy(pathTarget, mobile);
-      if (destB || origB) {
-        if (report) I.say("  Start/end points blocked: "+origB+"/"+destB);
-        path = null;
-      }
-      else path = pathBetween(origin, pathTarget);
+      path = pathBetween(origin, pathTarget);
     }
     if (path == null) {
       if (report) I.say("  COULDN'T PATH TO: "+pathTarget);
@@ -226,7 +207,7 @@ public class Pathing {
       stepIndex = -1;
       return false;
     }
-    
+    //
     //  If those pass inspection, we then select the next step in the currently
     //  approved path-
     else {
@@ -260,7 +241,7 @@ public class Pathing {
   
   
   protected Boarding[] pathBetween(Boarding initB, Boarding destB) {
-    final boolean report = pathVerbose && extraVerbose && I.talkAbout == mobile;
+    final boolean report = I.talkAbout == mobile && pathVerbose && extraVerbose;
     
     if (GameSettings.pathFree) {
       final PathSearch search = new PathSearch(initB, destB, false);

@@ -115,6 +115,7 @@ public class SenseUtils {
     //  There's a special dispensation here for actors inside defensive turrets
     //  and the like- we allow them to ignore their current platform for line-
     //  of-sight purposes.
+    //  TODO:  USE AN INTERFACE FOR THIS!  (Hook into blocksSight below?)
     final Target platform = Patrolling.turretIsAboard(origin);
     
     //  Then, we check to see if any such tiles are actually blocked, and
@@ -126,7 +127,7 @@ public class SenseUtils {
     }
     boolean blocked = false;
     boolean onRight, onLeft;
-    for (Tile t : considered) if (t.blocked() && t.above() != platform) {
+    for (Tile t : considered) if (t.blocksSight() && t.above() != platform) {
       if (t == target || t.above() == target) continue;
       
       //  We first check whether the centre of the tile in question falls

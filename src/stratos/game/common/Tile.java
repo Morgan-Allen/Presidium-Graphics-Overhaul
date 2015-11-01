@@ -145,6 +145,11 @@ public final class Tile implements
   }
   
   
+  public boolean blocksSight() {
+    return above != null && blocked() && above.height() > 0.5f;
+  }
+  
+  
   public boolean pathClear() {
     return pathType() <= PATH_CLEAR;
   }

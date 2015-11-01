@@ -288,8 +288,10 @@ public class IntelMap {
     
     if (maxDist <= 0 && client instanceof Mobile) {
       if (world.pathingCache.hasPathBetween(
-        client, picked, client.base(), report
-      )) return picked;
+        ((Mobile) client).aboard(), picked, client.base(), report
+      )) {
+        return picked;
+      }
       else return null;
     }
     else return picked;
