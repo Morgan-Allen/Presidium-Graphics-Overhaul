@@ -176,9 +176,8 @@ public abstract class Actor extends Mobile implements
   
   
   protected void pathingAbort() {
-    if (actionTaken == null) return;
     final Behaviour root = mind.rootBehaviour();
-    root.interrupt(Plan.INTERRUPT_LOSE_PATH);
+    if (root != null) root.interrupt(Plan.INTERRUPT_LOSE_PATH);
   }
   
   
@@ -371,6 +370,9 @@ public abstract class Actor extends Mobile implements
       gear  .updateGear  (numUpdates);
       traits.updateTraits(numUpdates);
       skills.updateSkills(numUpdates);
+    }
+    if (! health.conscious()) {
+      mind.cancelBehaviour(mind.rootBehaviour(), "Actor knocked out!");
     }
     if (health.isDead()) setAsDestroyed(false);
   }

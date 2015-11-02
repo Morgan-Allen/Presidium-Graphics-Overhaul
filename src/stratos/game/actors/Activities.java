@@ -145,8 +145,11 @@ public class Activities {
     final List <Behaviour> onTarget = activeTable.get(t);
     if (onTarget == null) return batch;
     for (Behaviour b : onTarget) if (b instanceof Plan) {
-      if (planClass != null && b.getClass() != planClass) continue;
-      batch.add((Plan) b);
+      if (planClass != null && ! planClass.isAssignableFrom(b.getClass())) {
+        continue;
+      }
+      final Plan p = (Plan) b;
+      if (p.isActive()) batch.add(p);
     }
     return batch;
   }

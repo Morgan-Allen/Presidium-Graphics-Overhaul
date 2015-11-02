@@ -270,7 +270,7 @@ public class Bastion extends Venue {
     }
     if (v == TROOPER || v == WAR_MASTER) {
       if (staff.onShift(actor)) {
-        choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
+        Patrolling.addFormalPatrols(actor, this, choice);
       }
       choice.add(Arrest.nextOfficialArrest(this, actor));
     }

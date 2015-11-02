@@ -362,9 +362,6 @@ public class Action implements Behaviour, AnimNames {
       if (Nums.min(motionDist, actionDist) < maxDist && ! seen) {
         pathsTo = actionTarget;
       }
-      if (PathSearch.accessLocation(pathsTo, actor) == null) {
-        pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
-      }
       
       closed = seen && (actionDist <= maxDist);
       approaching = closed || (seen && (actionDist <= (maxDist + 1)));

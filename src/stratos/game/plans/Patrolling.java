@@ -47,8 +47,8 @@ public class Patrolling extends Plan implements TileConstants {
     Actor actor, Element guarded, List <Target> patrolled, int type
   ) {
     super(actor, guarded, MOTIVE_JOB, MILD_HELP);
-    this.type = type;
-    this.guarded = guarded;
+    this.type      = type;
+    this.guarded   = guarded;
     this.patrolled = patrolled;
     onPoint = (Target) patrolled.first();
   }
@@ -155,6 +155,7 @@ public class Patrolling extends Plan implements TileConstants {
       choice.add(new Repairs (actor, (Venue) guarded, isJob()));
     }
     final Behaviour picked = choice.pickMostUrgent();
+    
     if (Choice.wouldSwitch(actor, old, picked, true, report)) {
       if (report) I.say("  Performing sub-task: "+picked);
       return picked;
@@ -216,6 +217,9 @@ public class Patrolling extends Plan implements TileConstants {
   
   public int motionType(Actor actor) {
     
+    //
+    //  TODO:  Revisit this later...
+    
     if (actor.senses.isEmergency()) {
       return MOTION_FAST;
     }
@@ -275,11 +279,12 @@ public class Patrolling extends Plan implements TileConstants {
   /**  External factory methods-
     */
   public static Patrolling aroundPerimeter(
-    Actor actor, Element guarded, Stage world
+    Actor actor, Element guarded, float priority
   ) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next perimeter patrol for "+actor);
     
+    final Stage world = actor.world();
     final List <Target> patrolled = new List <Target> ();
     
     if (guarded.isMobile()) {
@@ -305,13 +310,15 @@ public class Patrolling extends Plan implements TileConstants {
       }
     }
     
-    return new Patrolling(actor, guarded, patrolled, TYPE_SECURITY);
+    Patrolling p = new Patrolling(actor, guarded, patrolled, TYPE_SECURITY);
+    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
   }
   
   
   public static Patrolling streetPatrol(
-    Actor actor, Element init, Element dest, Stage world
+    Actor actor, Element init, Element dest, float priority
   ) {
+    final Stage world = actor.world();
     final List <Target> patrolled = new List <Target> ();
     final Tile
       initT = Spacing.nearestOpenTile((Element) init, dest, world),
@@ -327,73 +334,55 @@ public class Patrolling extends Plan implements TileConstants {
       patrolled.include(path[i]);
     }
     patrolled.add(dest);
-    return new Patrolling(actor, init, patrolled, TYPE_STREET_PATROL);
+    
+    Patrolling p = new Patrolling(actor, init, patrolled, TYPE_STREET_PATROL);
+    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
   }
   
   
   public static Patrolling sentryDuty(
-    Actor actor, ShieldWall start, int initDir
+    Actor actor, ShieldWall start, Venue barracks, float priority
   ) {
-    final Batch<Target> enRoute = new Batch<Target>();
-
-    final float maxDist = Stage.ZONE_SIZE * 1.5f;
-    final Vec3D p = start.position(null);
-    Tile ideal = actor.world().tileAt(
-      p.x + (T_X[initDir] * 2),
-      p.y + (T_Y[initDir] * 2)
-    );
-    if (ideal == null) return null;
-    
-    Boarding init = start, next = null;
-    float minDist = Float.POSITIVE_INFINITY;
-    for (Boarding b : init.canBoard()) {
-      if (! (b instanceof ShieldWall)) continue;
-      final float dist = Spacing.distance(b, ideal);
-      if (dist < minDist) {
-        minDist = dist;
-        next = b;
-      }
+    if (start == null || start.base() != barracks.base()) {
+      return null;
     }
-    if (next == null) return null;
     
-    init.flagWith(enRoute);
-    next.flagWith(enRoute);
-    enRoute.add(init);
-    enRoute.add(next);
+    final Vec3D between = Spacing.between(barracks, start);
+    final Vec2D prefHeading = new Vec2D(between).perp();
+    final float maxDist = Stage.ZONE_SIZE;
     
-    while (true) {
-      Boarding near = null;
-      for (Boarding b : next.canBoard()) {
-        if (!(b instanceof ShieldWall))
-          continue;
-        if (b.flaggedWith() != null)
-          continue;
-        near = b;
-        near.flagWith(enRoute);
-        enRoute.add(near);
-        break;
-      }
-      if (near == null || enRoute.size() > maxDist / 2)
-        break;
-      next = near;
-    }
-    for (Target t : enRoute) t.flagWith(null);
-    
-    final List<Target> patrolled = new List<Target>();
+    final List <Target> patrolled = new List();
+    final Batch <Target> flagged = new Batch();
     ShieldWall doors = null;
+    ShieldWall next = start;
+    float sumDist = 0; Vec3D temp = new Vec3D();
     
-    for (Target b : enRoute) {
-      final ShieldWall s = (ShieldWall) b;
-      final float dist = Spacing.distance(s, actor);
-      if (s.isTower()) patrolled.include(b);
-      if (s.isGate()) {
-        if (doors == null || (dist < Spacing.distance(doors, actor))) {
-          doors = s;
-        }
+    while (next != null) {
+      if (next.isTower()) patrolled.include(next);
+      if (next.isGate() && doors == null) doors = next;
+      sumDist += next.radius() * 2;
+      
+      if (sumDist > maxDist) break;
+      next.flagWith(flagged);
+      flagged.add(next);
+      
+      final Pick <Boarding> pick = new Pick();
+      for (Boarding b : next.canBoard()) {
+        if (! (b instanceof ShieldWall)) continue;
+        if (b.flaggedWith() != null) continue;
+        b.position(temp);
+        pick.compare(b, prefHeading.dot(temp.x, temp.y));
       }
+      next = (ShieldWall) pick.result();
     }
-    if (doors == null) return null;
-    return new Patrolling(actor, doors, patrolled, TYPE_SENTRY_DUTY);
+    
+    for (Target t : flagged) t.flagWith(null);
+    if (doors == null) {
+      return null;
+    }
+    
+    Patrolling p = new Patrolling(actor, doors, patrolled, TYPE_SENTRY_DUTY);
+    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
   }
   
   
@@ -416,12 +405,20 @@ public class Patrolling extends Plan implements TileConstants {
       base, origin, range
     );
     if (report) I.say("  Venue picked: "+pick);
-    if (pick != null) {
-      final Patrolling p = Patrolling.aroundPerimeter(actor, pick, world);
-      p.addMotives(Plan.MOTIVE_JOB, priority);
-      return p;
-    }
-    return null;
+    
+    if (pick == null) return null;
+    return Patrolling.aroundPerimeter(actor, pick, priority);
+  }
+  
+  
+  public static void addFormalPatrols(
+    Actor actor, Venue origin, Choice choice
+  ) {
+    ShieldWall wall = (ShieldWall) origin.world().presences.randomMatchNear(
+      ShieldWall.class, origin, Stage.ZONE_SIZE
+    );
+    choice.add(Patrolling.sentryDuty(actor, wall, origin, Plan.ROUTINE));
+    choice.add(Patrolling.nextGuardPatrol(actor, origin, Plan.CASUAL));
   }
   
   
@@ -454,7 +451,4 @@ public class Patrolling extends Plan implements TileConstants {
 
 
 
-//  TODO:  RESTORE THIS.
-/*
-//*/
 

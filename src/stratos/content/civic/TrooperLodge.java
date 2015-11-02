@@ -140,22 +140,8 @@ public class TrooperLodge extends Venue {
     //  If there are shield walls built nearby, we try to patrol along their
     //  perimeter.
     if (staff.onShift(actor)) {
-      //
-      //  TODO:  Move this to the factory methods for Patrolling.
-      final ShieldWall wall = (ShieldWall) world.presences.randomMatchNear(
-        ShieldWall.class, this, Stage.ZONE_SIZE
-      );
-      if (wall != null && wall.base() == base) {
-        final int compass = TileConstants.T_ADJACENT[Rand.index(4)];
-        final Patrolling sentry = Patrolling.sentryDuty(actor, wall, compass);
-        choice.add(sentry);
-      }
-      //
-      //  Otherwise, fall back on regular patrols.
-      //  TODO:  Try to patrol in groups?
-      else {
-        choice.add(Patrolling.nextGuardPatrol(actor, this, Plan.ROUTINE));
-      }
+      choice.isVerbose = true;
+      Patrolling.addFormalPatrols(actor, this, choice);
     }
     //
     //  We allow for drilling in various skills during a soldier's secondary

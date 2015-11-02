@@ -96,6 +96,8 @@ public class DebugCombat extends Scenario {
   private void raidingScenario(Stage world, Base base, BaseUI UI) {
     //
     //  Introduce a bastion, with standard personnel.
+    Flora.populateFlora(world);
+    
     final VerseLocation homeworld = Verse.PLANET_PAREM_V;
     base.research.initKnowledgeFrom(homeworld);
     base.commerce.assignHomeworld  (homeworld);
@@ -132,12 +134,13 @@ public class DebugCombat extends Scenario {
   ) {
     
     Batch <Actor> soldiers = new Batch();
+    Background mainType = selfTypes[0];
     for (Background b : selfTypes) {
       Actor soldier = b.sampleFor(base);
       soldier.enterWorldAt(4, 4, world);
       soldiers.add(soldier);
       
-      for (Technique t : techniques) {
+      if (mainType == b) for (Technique t : techniques) {
         if (t.isItemDerived()) soldier.gear.bumpItem(t.itemNeeded(), 1);
         else soldier.skills.addTechnique(t);
       }
@@ -159,7 +162,7 @@ public class DebugCombat extends Scenario {
   
   private void combatScenario(Stage world, Base base, BaseUI UI) {
     
-    //*
+    /*
     setupCombatScenario(
       world, base, UI,
       new Background[] { ECOLOGIST, ECOLOGIST },
@@ -179,7 +182,7 @@ public class DebugCombat extends Scenario {
     );
     //*/
     
-    /*
+    //*
     setupCombatScenario(
       world, base, UI,
       new Background[] { PHYSICIAN, TROOPER, TROOPER },

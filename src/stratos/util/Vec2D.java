@@ -181,6 +181,11 @@ public class Vec2D {
   }
   
   
+  public float dot(float vx, float vy) {
+    return (x * vx) + (y * vy);
+  }
+  
+  
   /**  Returns this vector's line distance from the point represented in the
     *  given argument vector.  This value may be either positive (if the given
     *  vector is to the 'right',) or negative, (if to the 'left',) and is

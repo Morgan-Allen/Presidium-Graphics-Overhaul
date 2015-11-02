@@ -96,7 +96,7 @@ public class MissionSecurity extends Mission {
     //  TODO:  Implement item salvage?
     
     final Patrolling patrol = Patrolling.aroundPerimeter(
-      actor, (Element) subject, base.world
+      actor, (Element) subject, 0
     );
     final float basePriority = basePriority(actor);
     patrol.addMotives(Plan.MOTIVE_MISSION, basePriority);

@@ -108,11 +108,12 @@ public class Pathing {
     
     if (paths && PathSearch.accessLocation(moveTarget, mobile) == null) {
       I.say("\nWARNING:  "+mobile+" CANNOT ACCESS: "+moveTarget);
+      mobile.pathingAbort();
       moveTarget = null;
     }
     this.moveTarget = moveTarget;
-    if (moveTarget != oldTarget) {
-      if (report) {
+    if (moveTarget != oldTarget || moveTarget == null) {
+      if (moveTarget != null && report) {
         I.say("\nTARGET HAS CHANGED TO: "+moveTarget);
         I.say("  FROM: "+oldTarget);
       }
@@ -353,6 +354,8 @@ public class Pathing {
       //
       //  If your current location is blocked, you need to escape to a free
       //  tile-
+      
+      //  TODO:  THIS IS DUPLICATED BELOW!  REMOVE IT!
       if (PathSearch.blockedBy(mobile.aboard(), mobile)) {
         final Tile blocked = mobile.origin();
         final Tile free = Spacing.nearestOpenTile(blocked, mobile);
@@ -433,6 +436,9 @@ public class Pathing {
     final int WS = m.world.size - 1;
     m.nextPosition.x = Nums.clamp(sum.x + m.nextPosition.x, 0, WS);
     m.nextPosition.y = Nums.clamp(sum.y + m.nextPosition.y, 0, WS);
+    
+    
+    //  TODO:  THIS IS DUPLICATED ABOVE!  REMOVE IT!
     
     //  If your current location is blocked, you need to escape to a free tile-
     if (PathSearch.blockedBy(mobile.aboard(), mobile)) {

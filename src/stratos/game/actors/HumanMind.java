@@ -7,9 +7,10 @@ package stratos.game.actors;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.start.Scenario;
 import stratos.util.*;
+import stratos.start.Scenario;
 import static stratos.game.actors.Qualities.*;
 
 
@@ -142,6 +143,16 @@ public class HumanMind extends ActorMind {
   
   protected void addReactions(Target seen, Choice choice) {
     final boolean report = verbose && I.talkAbout == actor;
+    
+    if (PathSearch.accessLocation(seen, actor) == null) return;
+    //  TODO- DIRECT MAP QUERIES SHOULD BE JUST AS FAST!  INVESTIGATE!
+    /*
+    final PathingCache map = actor.world().pathingCache;
+    if (! map.hasPathBetween(actor, seen, actor, report)) {
+      return;
+    }
+    //*/
+    
     if (seen instanceof Actor) {
       if (report) I.say("  Have seen other actor: "+seen);
       

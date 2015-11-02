@@ -95,8 +95,10 @@ public class BaseTransport {
   
   
   public void updatePerimeter(Fixture v, boolean isMember, Tile around[]) {
-    final boolean report = paveVerbose && I.talkAbout == v;
-    if (report) I.say("Updating perimeter for "+v+", member? "+isMember);
+    final boolean report = I.talkAbout == v && paveVerbose;
+    if (report) {
+      I.say("Updating perimeter for "+v+", member? "+isMember);
+    }
     //
     //  Update the route in question, deleting the old one if no longer needed.
     final Tile o = v.origin();
@@ -117,7 +119,7 @@ public class BaseTransport {
     //
     //  Basic sanity checks and setup-
     if (t == null) return;
-    final boolean report = paveVerbose && I.talkAbout == v;
+    final boolean report = I.talkAbout == v && paveVerbose;
     final List <Route> fromTile = tileRoutes.get(t);
     //
     //  In essence, we visit every nearby venue and try to path toward either
@@ -500,95 +502,6 @@ public class BaseTransport {
 }
 
 
-
-//  TODO:  There might still be some use for this.  See later.
-
-/*
-
-private boolean checkRouteEfficiency(final Route r, Fixture f) {
-  final boolean report = I.talkAbout == f && paveVerbose && extraVerbose;
-  
-  final Tile tempB[] = new Tile[10];
-  final Search <Tile> routeSearch = new Search <Tile> (r.start, 25) {
-    
-    protected Tile[] adjacent(Tile spot) {
-      //  We consider the opposite end-points of any routes attached to a
-      //  given tile to be 'adjacent' for search purposes.
-      final List <Route> routes = tileRoutes.get(spot);
-      if (report && routes != null) {
-        I.say("    "+routes.size()+" routes at "+spot.entranceFor());
-      }
-      int i = 0;
-      Tile temp[] = tempB;
-      if (routes != null) {
-        if (routes.size() > 10) temp = new Tile[routes.size()];
-        for (Route r : routes) temp[i++] = r.opposite(spot);
-      }
-      while (i < temp.length) temp[i++] = null;
-      return tempB;
-    }
-    
-    protected float cost(Tile prior, Tile spot) {
-      //  In essence the purpose of this is to favour a series of short hops
-      //  between buildings over roads that leap long distances.
-      float dist = Spacing.distance(prior, spot);
-      dist = dist * dist / 10;
-      if (report) {
-        final Object from = prior.entranceFor(), to = spot.entranceFor();
-        I.say("  Getting cost between:"+from+" and "+to);
-        I.say("    Cost: "+dist);
-      }
-      return dist;
-    }
-    
-    protected float estimate(Tile spot) {
-      //  We also use an 'optimistic' estimate of pathing costs to the end-
-      //  point, so that cost-so-far is weighed more heavily than cost-to-
-      //  come (and which more accurately reflects actual road-transport
-      //  efficiency.)
-      return Spacing.distance(spot, r.end) / 2;
-    }
-    
-    protected void setEntry(Tile spot, Entry flag) {
-      spot.flagWith(flag);
-      if (report && flag != null) {
-        final Object at = spot.entranceFor();
-        I.say("  Total cost to "+at+": "+fullCostEstimate(spot));
-      }
-    }
-    
-    protected Entry entryFor(Tile spot) {
-      return (Entry) spot.flaggedWith();
-    }
-    
-    protected boolean endSearch(Tile best) {
-      return best == r.end;
-    }
-  };
-  
-  float dist = Spacing.distance(r.start, r.end);
-  final float directCost = dist * dist / 10;
-  
-  if (report) {
-    I.say("\nChecking route efficiency between...");
-    I.say("  From: "+r.start.entranceFor());
-    I.say("  To:   "+r.end  .entranceFor());
-  }
-  routeSearch.doSearch();
-  final Tile  junctions[] = routeSearch.bestPath(Tile.class);
-  final float fullCost    = routeSearch.totalCost();
-  final boolean bestRoute = fullCost == -1 || (fullCost + 1) > directCost;
-  
-  if (report) {
-    I.say("  Final path:");
-    for (Tile t : junctions) I.say("    "+t.entranceFor());
-    I.say("  Path cost:   "+fullCost);
-    I.say("  Direct cost: "+directCost);
-    I.say("  Best route?  "+bestRoute);
-  }
-  return bestRoute;
-}
-//*/
 
 
 

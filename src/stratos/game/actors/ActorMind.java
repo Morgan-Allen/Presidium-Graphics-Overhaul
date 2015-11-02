@@ -358,18 +358,18 @@ public abstract class ActorMind {
   private Behaviour popBehaviour(Behaviour toPop, String cause) {
     final boolean report = I.talkAbout == actor && stepsVerbose;
     
-    if (toPop != null && agenda.first() != toPop) {
-      return toPop;
+    if (toPop == null || agenda.first() == toPop) {
+      toPop = agenda.removeFirst();
     }
-    final Behaviour b = agenda.removeFirst();
+    if (toPop == null) return toPop;
     if (report) {
-      I.say("\nPOPPING BEHAVIOUR: "+b);
+      I.say("\nPOPPING BEHAVIOUR: "+toPop);
       I.say("  Cause:          "+cause);
-      I.say("  Finished/valid: "+b.finished()+"/"+b.valid());
-      I.say("  Priority        "+b.priorityFor(actor));
+      I.say("  Finished/valid: "+toPop.finished()+"/"+toPop.valid());
+      I.say("  Priority        "+toPop.priorityFor(actor));
     }
-    b.toggleActive(false);
-    return b;
+    toPop.toggleActive(false);
+    return toPop;
   }
   
   
@@ -380,9 +380,11 @@ public abstract class ActorMind {
   
   
   public void assignBehaviour(Behaviour behaviour) {
-    if (behaviour == null) I.complain("CANNOT ASSIGN NULL BEHAVIOUR.");
     final boolean report = I.talkAbout == actor && decisionVerbose;
-
+    if (behaviour == null) {
+      if (report) I.say("\nCANNOT ASSIGN NULL BEHAVIOUR TO "+actor);
+      return;
+    }
     if (report) {
       I.say("\nASSIGNING BEHAVIOUR "+behaviour);
       if (warnVerbose) I.reportStackTrace();

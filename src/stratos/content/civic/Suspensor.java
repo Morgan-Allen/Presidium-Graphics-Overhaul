@@ -140,20 +140,24 @@ public class Suspensor extends Mobile implements Mount {
   
   
   protected void updateAsMobile() {
-    final boolean report = verbose && (
+    final boolean report = (
       I.talkAbout == passenger || I.talkAbout == followed
-    );
+    ) && verbose;
     super.updateAsMobile();
-    
     //
     //  Firstly, check whether you even need to exist any more-
-    if ((! followed.inWorld()) || (tracked.finished())) {
+    boolean valid = true;
+    if (tracked.finished()              ) valid = false;
+    if (! followed.inWorld()            ) valid = false;
+    if (! followed.mind.hasToDo(tracked)) valid = false;
+    if (! valid) {
       if (report) {
         I.say("\nSuspensor exiting world!");
         I.say("  Actor followed:   "+followed);
         I.say("  In world?         "+followed.inWorld());
         I.say("  Activity tracked: "+tracked);
-        I.say("  Activity valid?   "+(tracked.finished()));
+        I.say("  Finished?         "+(tracked.finished()));
+        I.say("  On agenda?        "+followed.mind.hasToDo(tracked));
       }
       if (passenger != null) {
         final Vec3D ground = this.position(null);

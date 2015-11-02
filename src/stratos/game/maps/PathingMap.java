@@ -5,7 +5,6 @@
   */
 package stratos.game.maps;
 import stratos.game.common.*;
-import stratos.game.economic.*;
 import stratos.util.*;
 
 
@@ -14,7 +13,7 @@ import stratos.util.*;
 //  TODO:  Also, direct cache-queries for Routes would be useful!
 
 
-public class PathingCache {
+public class PathingMap {
   
   
   /**  Constituent class and constant definitions-
@@ -94,7 +93,7 @@ public class PathingCache {
   final Table <StageRegion, PlaceSet> allCached;
   
   
-  public PathingCache(Stage world) {
+  public PathingMap(Stage world) {
     this.world      = world;
     this.tilePlaces = new Place[world.size][world.size];
     this.allCached  = new Table(world.regions.gridCount * 2);
@@ -449,10 +448,21 @@ public class PathingCache {
     Boarding a, Boarding b, Base client, boolean reports
   ) {
     final Place
-      initP = placeFor(a, true),
-      destP = placeFor(b, true);
+      initP = a == null ? null : placeFor(a, true),
+      destP = b == null ? null : placeFor(b, true);
     if (initP == null || destP == null) return false;
     return hasPathBetween(initP, destP, client, reports);
+  }
+  
+  
+  public boolean hasPathBetween(
+    Target a, Target b, Mobile client, boolean reports
+  ) {
+    return hasPathBetween(
+      PathSearch.accessLocation(a, client),
+      PathSearch.accessLocation(b, client),
+      client.base(), reports
+    );
   }
   
   
