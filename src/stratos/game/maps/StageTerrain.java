@@ -36,10 +36,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     
     ROAD_NONE     =  0,
     ROAD_LIGHT    =  1,
-    ROAD_STRIP    = -1,
-    ///ROAD_HEAVY    = 2,
-    
-    TILE_VAR_LIMIT = 4;
+    ROAD_STRIP    = -1;
   
   final static int
     TIME_INIT = -1,

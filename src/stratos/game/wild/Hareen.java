@@ -33,10 +33,10 @@ public class Hareen extends Fauna {
   final public static Species SPECIES = new Species(
     Hareen.class,
     "Hareen",
-    "Hareen are sharp-eyed aerial omnivores active by day, with a twinned "+
-    "pair of wings that makes them highly maneuverable flyers.  Their "+
-    "diet includes fruit, nuts, insects and carrion, but symbiotic algae "+
-    "in their skin also allow them to subsist partially on sunlight.",
+    "Hareen are sharp-eyed aerial omnivores, with a twinned pair of wings "+
+    "that make them highly maneuverable flyers.  Their diet includes fruit, "+
+    "seeds, insects and carrion, but symbiotic algae also supplement their "+
+    "needs.",
     FILE_DIR+"VareenPortrait.png",
     MS3DModel.loadFrom(
       FILE_DIR, "Vareen.ms3d", Hareen.class,

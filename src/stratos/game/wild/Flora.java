@@ -6,6 +6,7 @@
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.maps.TerrainGen;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -150,21 +151,7 @@ public class Flora extends Element implements TileConstants {
       final Flora grows = tryGrowthAt(t, true);
       if (grows == null) continue;
       
-      final float growth = growthBonus(t, grows.species, null);
-      float stage = 0;
-      for (int n = MAX_GROWTH; n-- > 0;) {
-        final float roll = Rand.index(8) / 8f;
-        if (roll < growth) stage += roll;
-      }
-      stage = Nums.clamp(stage * 2, 0.5f, MAX_GROWTH - 0.5f);
-      
-      if (report) {
-        I.say("  Growth chance at "+t+" was: "+growth);
-        I.say("  Initialising flora, stage: "+stage);
-      }
-      
-      grows.growth = stage;
-      grows.updateSprite();
+      final int stage = grows.growStage();
       grows.refreshIncept(true);
       world.ecology().impingeBiomass(t, stage, Stage.STANDARD_DAY_LENGTH);
     }
@@ -172,7 +159,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public static Flora tryGrowthAt(Tile t, boolean init) {
-    final float maxGrowth = maxGrowth(t, BASE_SPECIES);
+    float maxGrowth = maxGrowth(t, BASE_SPECIES);
     if (maxGrowth <= 0) return null;
     
     final Habitat soil = t.habitat();
@@ -182,25 +169,28 @@ public class Flora extends Element implements TileConstants {
     grown.seedWith(s, Rand.num());
     grown.enterWorldAt(t.x, t.y, t.world, true);
     
-    if (init) grown.incGrowth(1 + (maxGrowth * Rand.num()), t.world, ! init);
+    if (init) {
+      if (maxGrowth >= 1) maxGrowth += Rand.num();
+      grown.incGrowth(maxGrowth, t.world, false);
+    }
     return grown;
   }
   
 
   public static boolean hasSpace(Tile t) {
+    if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
+    if (t.isEntrance() || t.inside().size() > 0) return false;
     return maxGrowth(t, BASE_SPECIES) > 0;
   }
   
   
   public static float maxGrowth(Tile t, Species s) {
-    if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return 0;
-    if (t.isEntrance() || t.inside().size() > 0) return 0;
-    
     if (growthBonus(t, s, null) == -1) return 0;
     if (s.domesticated) return MAX_GROWTH;
-    
-    if (t.world.terrain().varAt(t) == 0) return 0;
-    return t.habitat().moisture() * MAX_GROWTH;
+    final int var = t.world.terrain().varAt(t) / TerrainGen.MARK_VARS;
+    if (var == 0) return 0;
+    if (var == 1) return MIN_GROWTH + (t.habitat().moisture() / 10) - 0.5f;
+    return t.habitat().moisture() * MAX_GROWTH / 10f;
   }
   
   
@@ -304,12 +294,16 @@ public class Flora extends Element implements TileConstants {
     final float maxGrowth = maxGrowth(origin(), species);
     
     final int oldStage = Nums.clamp((int) growth, MAX_GROWTH);
-    growth = Nums.clamp(growth + inc, MIN_GROWTH, maxGrowth + 1);
+    growth = Nums.clamp(growth + inc, MIN_GROWTH, maxGrowth);
     final int newStage = Nums.clamp((int) growth, MAX_GROWTH);
     
     if (natural && oldStage >= MIN_GROWTH) {
       float dieChance = UPDATE_DIE_CHANCE * growth / maxGrowth;
       if (Rand.num() < dieChance) { setAsDestroyed(false); return; }
+    }
+    
+    if (! natural) {
+      I.say("  INIT GROWTH AT "+growth);
     }
     
     if (oldStage != newStage) updateSprite();
@@ -376,6 +370,13 @@ public class Flora extends Element implements TileConstants {
   }
   
   
+  public int pathType() {
+    if (species.domesticated   ) return Tile.PATH_HINDERS;
+    if (growth < MIN_GROWTH + 1) return Tile.PATH_HINDERS;
+    return Tile.PATH_BLOCKS;
+  }
+  
+  
   public Item[] materials() {
     return BASE_SPECIES.nutrients(growStage());
   }
@@ -386,7 +387,8 @@ public class Flora extends Element implements TileConstants {
     */
   protected void updateSprite() {
     final Sprite oldSprite = sprite();
-    final ModelAsset model = modelForStage(growStage());
+    final int stage = growStage();
+    final ModelAsset model = modelForStage(stage);
     if (oldSprite != null && model == oldSprite.model()) return;
     
     attachSprite(model.makeSprite());

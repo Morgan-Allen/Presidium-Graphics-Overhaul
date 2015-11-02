@@ -29,7 +29,7 @@ public class Yamagur extends Fauna {
   final public static Species SPECIES = new Species(
     Yamagur.class,
     "Yamagur",
-    "Yamagur are immensely powerful quadrapedal browsers which build "+
+    "Yamagur are immensely powerful quadrupedal browsers which build "+
     "surprisingly elaborate nest structures.  Though not actively aggressive, "+
     "they are often best left undisturbed.",
     FILE_DIR+"YamagurPortrait.png",

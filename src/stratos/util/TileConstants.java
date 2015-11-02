@@ -34,6 +34,20 @@ public interface TileConstants {
     CORNER =  2,
     UNUSED = -1;
   
+  final public static int
+    PERIM_2_OFF_X[] = {
+      -2, -1,  0,  1,
+       2,  2 , 2,  2,
+       2,  1,  0, -1,
+      -2, -2, -2, -2
+    },
+    PERIM_2_OFF_Y[] = {
+       2,  2,  2,  2,
+       2,  1,  0, -1,
+      -2, -2, -2, -2,
+      -2, -1,  0,  1
+    };
+  
   final static Mat3D
     R0   = new Mat3D().setIdentity().rotateZ(Nums.toRadians(0   )),
     R90  = new Mat3D().setIdentity().rotateZ(Nums.toRadians(-90 )),

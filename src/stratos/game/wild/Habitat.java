@@ -59,8 +59,7 @@ public class Habitat extends Index.Entry {
     INSOLATION = "insolation",
     MINERALS   = "minerals"  ,
     IS_OCEAN   = "is ocean"  ,
-    IS_WASTE   = "is wastes" ,
-    IS_SPECKLE = "is speckle";
+    IS_WASTE   = "is wastes" ;
   
   
   //
@@ -110,7 +109,7 @@ public class Habitat extends Index.Entry {
       Habitat.class, 4, "Rain Forest",
       "",
       "estuary_ground.png", FOREST_FLORA_MODELS,
-      2, true, IS_SPECKLE, FERTILITY, 7, INSOLATION, 7, MINERALS, 2
+      2, true, FERTILITY, 7, INSOLATION, 7, MINERALS, 2
     ),
     MEADOW = new Habitat(
       Habitat.class, 5, "Meadow",
@@ -162,7 +161,7 @@ public class Habitat extends Index.Entry {
       "",
       "black_mesa.png", NO_FLORA,
       0, false, FERTILITY, 0, INSOLATION, 9, MINERALS, 6,
-      IS_WASTE, IS_SPECKLE
+      IS_WASTE
     ),
     TOXIC_RUNOFF = new Habitat(
       Habitat.class, 12, "Toxic Runoff",
@@ -204,7 +203,7 @@ public class Habitat extends Index.Entry {
   
   private int biomass;
   private float moisture, insolation, rockiness;
-  private boolean isOcean, isWaste, isSpeckled;
+  private boolean isOcean, isWaste;
   
   
   Habitat(
@@ -250,7 +249,6 @@ public class Habitat extends Index.Entry {
       if (traits[i] == INSOLATION) insolation = (Integer) traits[i + 1];
       if (traits[i] == IS_OCEAN  ) isOcean    = true;
       if (traits[i] == IS_WASTE  ) isWaste    = true;
-      if (traits[i] == IS_SPECKLE) isSpeckled = true;
     }
     
     if (fM == null || fM.length == 0) {
@@ -278,8 +276,6 @@ public class Habitat extends Index.Entry {
   
   public boolean isOcean() { return isOcean; }
   public boolean isWaste() { return isWaste; }
-  
-  public boolean isSpeckle() { return isSpeckled; }
   
   
   

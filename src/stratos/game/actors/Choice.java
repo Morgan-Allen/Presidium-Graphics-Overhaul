@@ -227,8 +227,7 @@ public class Choice {
     Actor actor, Behaviour last, Behaviour next, boolean stubborn,
     boolean report
   ) {
-    //report &= verboseSwitch;
-    report = I.talkAbout == actor;
+    report &= verboseSwitch;
     
     if (report) I.say("\nConsidering switch from "+last+" to "+next);
     if (next == null || ! checkPlanValid(next, actor, report)) return false;

@@ -243,19 +243,11 @@ public class TerrainGen implements TileConstants {
         under = habitats[Nums.clamp((int) sum, habitats.length)];
         typeIndex[c.x][c.y] = (byte) under.layerID;
       }
-      if (under.isSpeckle() && Rand.index(4) == 0) {
-        typeIndex[c.x][c.y] = (byte) (under.layerID + 1);
-      }
     }
     //
     //  Then, establish terrain-variants (used to help fix mineral content and
     //  growth of flora.)
-    RandomScan scan = new RandomScan(mapSize) {
-      protected void scanAt(int x, int y) {
-        varsIndex[x][y] = (byte) (canMarkAt(x, y) ? 1 : 0);
-      }
-    };
-    scan.doFullScan();
+    this.setupTerrainMarks();
     //
     //  Then paint the interiors of any ocean tiles-
     final int
@@ -290,24 +282,48 @@ public class TerrainGen implements TileConstants {
   
   
   
-  final private static int
-    PERIM_2_OFF_X[] = {
-      -2, -1,  0,  1,
-       2,  2 , 2,  2,
-       2,  1,  0, -1,
-      -2, -2, -2, -2
-    },
-    PERIM_2_OFF_Y[] = {
-       2,  2,  2,  2,
-       2,  1,  0, -1,
-      -2, -2, -2, -2,
-      -2, -1,  0,  1
+  
+  //  TODO:  Create a FloraUtils class for this sort of thing???
+  
+  final public static int
+    FILL_NONE  = 0,
+    FILL_SCRUB = 1,
+    FILL_TOTAL = 2,
+    MARK_VARS  = 4;
+  
+  private void setupTerrainMarks() {
+    final RandomScan fullScan = new RandomScan(mapSize) {
+      protected void scanAt(int x, int y) {
+        int var = Rand.index(MARK_VARS);
+        if      (canFillAt (x, y)) var += FILL_TOTAL * MARK_VARS;
+        else if (canScrubAt(x, y)) var += FILL_SCRUB * MARK_VARS;
+        varsIndex[x][y] = (byte) var;
+      }
     };
+    fullScan.doFullScan();
+  }
   
-  //  TODO:  Create a FloraUtils class for this sort of thing?
   
-  private boolean canMarkAt(int mX, int mY) {
-    
+  private int markedFill(int x, int y) {
+    try { return varsIndex[x][y] / MARK_VARS; }
+    catch (ArrayIndexOutOfBoundsException e) { return -1; }
+  }
+  
+  
+  private boolean canScrubAt(int mX, int mY) {
+    //
+    //  This is for low-lying vegetation that doesn't interfere with pathing!
+    int count = 0, countFull = 0;
+    for (int i : T_ADJACENT) {
+      final int fill = markedFill(mX + T_X[i], mY + T_Y[i]);
+      if (fill == FILL_SCRUB) count++;
+      if (fill == FILL_TOTAL) countFull++;
+    }
+    return count < 1 && countFull > 0;
+  }
+  
+  
+  private boolean canFillAt(int mX, int mY) {
     //
     //  Rule No. 1:  Do not mark a tile if it would deprive any marked
     //  neighbour of a 'free exit'- i.e, enclose it completely.
@@ -321,8 +337,7 @@ public class TerrainGen implements TileConstants {
         //  If a neighbour is either blocked (or would be- i.e, is the
         //  coordinate being checked) then there's no 'exit' on this side.
         if (nX == mX && nY == mY) continue;
-        try { if (varsIndex[nX][nY] > 0) continue; }
-        catch (ArrayIndexOutOfBoundsException e) { continue; }
+        if (markedFill(nX, nY) == FILL_TOTAL) continue;
         anyExit = true;
         break;
       }
@@ -334,17 +349,12 @@ public class TerrainGen implements TileConstants {
     //  have an existing contiguous neighbour marked.
     for (int i = 16; i-- > 0;) {
       int x = mX + PERIM_2_OFF_X[i], y = mY + PERIM_2_OFF_Y[i];
-      
-      boolean marked = false;
-      try { if (varsIndex[x][y] > 0) marked = true; }
-      catch (ArrayIndexOutOfBoundsException e) { continue; }
-      if (! marked) continue;
+      if (markedFill(x, y) != FILL_TOTAL) continue;
       //
       //  Only allow marking this tile if the tile between is already marked.
       int bX = (x + mX) / 2, bY = (y + mY) / 2;
-      if (! (varsIndex[bX][bY] > 0)) return false;
+      if (markedFill(bX, bY) != FILL_TOTAL) return false;
     }
-    
     return true;
   }
   

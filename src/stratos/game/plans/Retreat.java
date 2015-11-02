@@ -89,7 +89,7 @@ public class Retreat extends Plan {
     if (oldHaven == null) atHaven = false;
     else if (actor.indoors()) atHaven = actor.aboard() == oldHaven;
     else atHaven = Spacing.distance(actor, oldHaven) < sightHaven;
-    mustMove = atHaven && emergency && ! actor.isMoving();
+    mustMove = atHaven && emergency && (! actor.indoors());
     
     final Pick <Boarding> pick = new Pick <Boarding> () {
       

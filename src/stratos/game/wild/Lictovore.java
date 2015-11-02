@@ -43,8 +43,9 @@ public class Lictovore extends Fauna {
   final public static Species SPECIES = new Species(
     Lictovore.class,
     "Lictovore",
-    "The Lictovore is an imposing carnivore capable of tackling stubborn "+
-    "prey.  They defend established territories marked with spyce middens.",
+    "The Lictovore is an imposing obligate carnivore capable of tackling the "+
+    "most stubborn of prey.  They defend large territories which they mark "+
+    "with spyce middens, and sometimes raid in packs.",
     FILE_DIR+"MicovorePortrait.png",
     MS3DModel.loadFrom(
       FILE_DIR, "Micovore.ms3d", Lictovore.class,

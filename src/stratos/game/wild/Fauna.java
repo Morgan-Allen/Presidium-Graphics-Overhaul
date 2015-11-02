@@ -35,11 +35,8 @@ public abstract class Fauna extends Actor {
     PREDATOR_SEPARATION = Stage.ZONE_SIZE * 2,
     MIN_SEPARATION      = 2,
     
-    BROWSER_TO_FLORA_RATIO   = 50,
-    DEFAULT_BROWSER_SPECIES  = 4 ,
-    PREDATOR_TO_PREY_RATIO   = 4 ,
-    DEFAULT_PREDATOR_SPECIES = 2 ,
-    
+    BROWSER_TO_FLORA_RATIO = 75,
+    PREDATOR_TO_PREY_RATIO = 3 ,
     DEFAULT_BREED_INTERVAL = Stage.STANDARD_DAY_LENGTH;
   
   final public static float
