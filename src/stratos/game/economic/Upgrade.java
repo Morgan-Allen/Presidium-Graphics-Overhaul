@@ -130,43 +130,10 @@ public class Upgrade extends Constant implements
     base.tactics.addMission(research);
   }
   
-  /*
-  final public static String
-    REASON_NO_KNOWLEDGE    = "Lacks theoretical knowledge.",
-    REASON_NO_REQUIREMENTS = "Lacks pre-requisite upgrades",
-    REASON_MAX_UP_LEVEL    = "At maximum level",
-    REASON_SLOTS_FILLED    = "Upgrade slots filled!",
-    REASON_NO_FUNDS        = "Lacks sufficient funds!";
-  
-  public boolean possibleAt(Object client, Base base, Account reasons) {
-    
-    if (client instanceof Placeable) {
-      final Structure s = ((Placeable) client).structure();
-      
-      final int numType = s.upgradeLevel(this, Structure.STATE_NONE);
-      if (numType >= maxLevel) return reasons.setFailure(REASON_MAX_UP_LEVEL);
-      
-      final boolean noSlots = s.slotsFree() <= 0;
-      if (noSlots) return reasons.setFailure(REASON_SLOTS_FILLED);
-      
-      final boolean hasReq = hasRequirements(s);
-      if (! hasReq) return reasons.setFailure(REASON_NO_REQUIREMENTS);
-    }
-    
-    final boolean unknown = ! base.research.hasTheory(this);
-    if (unknown) return reasons.setFailure(REASON_NO_KNOWLEDGE);
-    
-    final boolean noFund = buildCost(base) > base.finance.credits();
-    if (noFund) return reasons.setFailure(REASON_NO_FUNDS);
-    
-    return reasons.setSuccess();
-  }
-  //*/
-  
   
   public boolean hasRequirements(Structure structure) {
     for (Upgrade r : required) {
-      if (! structure.hasUpgradeOrQueued(r)) return false;
+      if (! structure.hasUpgradeOrQueued(r, 1)) return false;
     }
     return true;
   }
@@ -331,12 +298,13 @@ public class Upgrade extends Constant implements
     }
     
     else if (canUpgrade) {
+      final Structure s = v.structure();
       int
-        level    = v.structure().upgradeLevel(upgrade),
+        level    = s.upgradeLevel(upgrade),
         maxLevel = upgrade.maxLevel,
         cost     = upgrade.buildCost(base);
-      boolean doingUpgrade = v.structure().hasUpgradeOrQueued(upgrade);
-      float progress = v.structure().upgradeProgress(upgrade);
+      boolean doingUpgrade = s.hasUpgradeOrQueued(upgrade, level + 1);
+      float progress = s.upgradeProgress(upgrade);
       
       if (level == maxLevel) {
         progReport = "At max. level";
@@ -350,7 +318,7 @@ public class Upgrade extends Constant implements
       else if (base.finance.hasCredits(cost)) {
         linksTo = new Description.Link("") {
           public void whenClicked() {
-            v.structure().beginUpgrade(upgrade, false);
+            s.beginUpgrade(upgrade, false);
           }
         };
         progReport = (base.research.hasPractice(upgrade) ?

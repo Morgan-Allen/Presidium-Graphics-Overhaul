@@ -118,8 +118,8 @@ public class DebugSecurity extends Scenario {
     meets.enterWorldAt(18, 27, world);
     
     meets.mind.assignBehaviour(Patrolling.aroundPerimeter(
-      meets, raids, world
-    ).addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
+      meets, raids, Plan.ROUTINE
+    ));
     //*/
     
     UI.selection.pushSelection(enemy);

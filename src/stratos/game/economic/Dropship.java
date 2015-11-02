@@ -183,7 +183,7 @@ public class Dropship extends Vehicle implements Owner {
   public float priceFor(Traded service, boolean sold) {
     final BaseCommerce c = base.commerce;
     final float dockMult = Airfield.isGoodDockSite(dropPoint) ?
-      1 : BaseCommerce.SMUGGLE_MARGIN
+      1 : BaseCommerce.NO_DOCK_MARGIN
     ;
     if (cargo.canDemand(service)) {
       if (sold) return c.importPrice(service) * dockMult;

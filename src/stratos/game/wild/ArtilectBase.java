@@ -26,7 +26,7 @@ public class ArtilectBase extends Base {
   
   /**  Data fields, constants, constructors and save/load methods-
     */
-  private static boolean verbose = false;
+  private static boolean verbose = BaseTactics.updatesVerbose;
   
   final static float
     MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
@@ -144,20 +144,21 @@ public class ArtilectBase extends Base {
       Mission mission,
       float relations, float targetValue, float harmLevel, float riskLevel
     ) {
-      final float oldRating = super.rateMission(
-        mission, relations, targetValue, harmLevel, riskLevel
-      );
-      float rating = oldRating;
-      
-      if (mission instanceof MissionStrike && relations <= 0) {
-        rating += onlineLevel;
-      }
-      else if (rating > 0) {
-        rating *= 1 + onlineLevel;
-      }
       if (verbose) {
         I.say("\nAdjusting mission-rating for artilects: "+mission);
-        I.say("  New/old rating: "+rating+"/"+oldRating);
+        I.say("  Old risk level: "+riskLevel);
+        I.say("  Old target val: "+targetValue);
+      }
+      riskLevel = Nums.clamp(riskLevel - onlineLevel, 0, 1);
+      if (harmLevel > 0 && relations <= 0) targetValue *= 1 + onlineLevel;
+      
+      final float rating = super.rateMission(
+        mission, relations, targetValue, harmLevel, riskLevel
+      );
+      if (verbose) {
+        I.say("  New risk level: "+riskLevel);
+        I.say("  New target val: "+targetValue);
+        I.say("  Rating is:      "+rating);
       }
       return rating;
     }

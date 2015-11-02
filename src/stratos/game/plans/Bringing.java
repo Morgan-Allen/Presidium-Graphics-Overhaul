@@ -152,10 +152,12 @@ public class Bringing extends Plan {
     if (pays instanceof Actor) {
       attemptToBind((Actor) pays);
     }
-    final boolean report = evalVerbose && (
+    final boolean report = (
       I.talkAbout == actor || I.talkAbout == pays
-    );
-    if (report) I.say("\nChecking for items at "+origin);
+    ) && evalVerbose;
+    if (report) {
+      I.say("\nChecking for items/payment at "+origin);
+    }
     
     if (stage >= STAGE_RETURN) {
       if (report) I.say("  Delivery complete.  Will return.");
@@ -264,8 +266,10 @@ public class Bringing extends Plan {
   /**  Assessing targets and priorities-
     */
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (report) I.say("\nEvaluating special factors for delivery priority:");
+    final boolean report = I.talkAbout == origin && evalVerbose;
+    if (report) {
+      I.say("\nEvaluating special factors for delivery priority:");
+    }
     //
     //  Determine basic priorities and delivery type:
     final boolean shops = shouldPay == actor;
@@ -449,10 +453,6 @@ public class Bringing extends Plan {
   public boolean actionPickup(Actor actor, Owner origin) {
     if (stage != STAGE_PICKUP) return false;
     if (driven != null && ! drivingDone(origin)) return false;
-    
-    if (I.talkAbout == actor) {
-      I.say("Picking up!");
-    }
     
     //  TODO:  Return the suspensor to it's point of origin.  (Not a lot of
     //         extra effort now.)

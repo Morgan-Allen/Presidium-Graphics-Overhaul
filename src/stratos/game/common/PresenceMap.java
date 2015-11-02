@@ -186,6 +186,11 @@ public class PresenceMap implements Session.Saveable {
   
   /**  Private utility methods for iterating efficiently through members:
     */
+  //  TODO:  Get rid of this.  Ideally, you want to be able to save/load
+  //  iteration-state instead, which means the possibility of multiple
+  //  iterations existing at once, and for that to work you can't have any
+  //  static references.
+  
   final static int MARKER_CACHE_SIZE = 100;
   
   //

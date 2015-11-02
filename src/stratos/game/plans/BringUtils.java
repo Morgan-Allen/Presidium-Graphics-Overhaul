@@ -184,7 +184,7 @@ public class BringUtils {
     Owner orig, Traded goods[], int unit, int amountLimit,
     Batch <? extends Owner> dests, int numSamples
   ) {
-    final boolean report = sampleVerbose && I.talkAbout == orig;
+    final boolean report = I.talkAbout == orig && sampleVerbose;
     final Stage world = orig.world();
     if (world == null) return null;
     Tally <Owner> ratings = new Tally <Owner> ();
@@ -244,7 +244,7 @@ public class BringUtils {
     Owner dest, Traded goods[], int unit, int amountLimit,
     Batch <? extends Owner> origs, int numSamples
   ) {
-    final boolean report = sampleVerbose && I.talkAbout == dest;
+    final boolean report = I.talkAbout == dest && sampleVerbose;
     final Stage world = dest.world();
     if (world == null) return null;
     if (report) {

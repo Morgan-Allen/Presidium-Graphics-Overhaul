@@ -19,7 +19,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   protected static boolean
     verbose     = false,
     evalVerbose = false,
-    allVisible  = false;
+    allVisible  = true ;
   
   protected boolean shouldReport(Object about) {
     return verbose && (

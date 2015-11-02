@@ -30,7 +30,7 @@ import stratos.util.*;
 
 public class BaseTactics {
   
-  protected static boolean
+  public static boolean
     updatesVerbose = true ,
     shortWaiting   = true ,
     extraVerbose   = false;
@@ -176,7 +176,7 @@ public class BaseTactics {
       
       r.rating  = rateMission(mission, relations, value, harmLevel, risk);
       r.mission = mission;
-      if (report && r.rating > 0) I.say("  Rating "+r.rating+" for "+mission);
+      if (report) I.say("  Rating "+r.rating+" for "+mission);
       
       final boolean
         official = missions.includes(mission),

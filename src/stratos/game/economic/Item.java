@@ -201,8 +201,8 @@ public class Item {
     if (venue != null) price += venue.priceFor(type, sold);
     else price += type.priceMargin();
     
-    if (amount  >= 0) price *= amount;
-    if (quality >= 0) price *= PRICE_MULTS[(int) quality];
+    if (amount  >= 0 &&   type.common()) price *= amount;
+    if (quality >= 0 && ! type.common()) price *= PRICE_MULTS[(int) quality];
     
     final Conversion m = type.materials();
     if (m != null) for (Item i : m.raw) {

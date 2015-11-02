@@ -238,7 +238,7 @@ public abstract class Mobile extends Element
   
   
   protected void updateAsMobile() {
-    final boolean report = verbose && I.talkAbout == this;
+    final boolean report = I.talkAbout == this && verbose;
     //  
     final Boarding step = pathing == null ? null : pathing.nextStep();
     final Tile oldTile = origin();
@@ -352,7 +352,7 @@ public abstract class Mobile extends Element
   
   protected PlaneFX createShadow(Sprite rendered) {
     if (shadow == null) shadow = (PlaneFX) SHADOW_MODEL.makeSprite();
-    shadow.scale = radius() * rendered.scale * Nums.ROOT2;
+    shadow.scale = radius() / Nums.ROOT2;
     
     final Vec3D p = shadow.position;
     p.setTo(rendered.position);

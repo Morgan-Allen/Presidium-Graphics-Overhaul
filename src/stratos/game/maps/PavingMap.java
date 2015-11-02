@@ -96,7 +96,7 @@ public class PavingMap {
   public void refreshPaving(Tile t) {
     final boolean flag = needsPaving(t);
     final byte c = roadCounter[t.x][t.y];
-    if (flag && GameSettings.paveFree) {
+    if (GameSettings.paveFree) {
       setPaveLevel(t, c > 0 ? ROAD_LIGHT : ROAD_NONE, true);
       flagMap.set(0, t.x, t.y);
     }
@@ -119,7 +119,7 @@ public class PavingMap {
   
   public static void setPaveLevel(Tile t, byte level, boolean clear) {
     if (level > ROAD_NONE && ! t.canPave()) return;
-    if (clear && level > ROAD_NONE && t.blocked()) t.clearUnlessOwned();
+    if (clear && level > ROAD_NONE && ! t.pathClear()) t.clearUnlessOwned();
     t.world.terrain().setRoadType(t, level);
   }
   

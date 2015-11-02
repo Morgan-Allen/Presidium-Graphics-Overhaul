@@ -68,8 +68,8 @@ public class PlanUtils {
     if (! isArmed(actor)) incentive -= 5;
     if (emergency       ) incentive += 5;
     if (priority != -1) {
-      priority  = incentive * (1 + winChance) / 2;
-      priority -= (1 - winChance) * 5;
+      priority = incentive - ((1 - winChance) * 10);
+      priority = (priority <= Plan.ROUTINE) ? 0 : priority;
     }
     
     if (reportOn(actor, priority)) I.reportVars(

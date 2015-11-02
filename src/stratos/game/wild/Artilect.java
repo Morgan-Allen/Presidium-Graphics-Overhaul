@@ -142,8 +142,7 @@ public abstract class Artilect extends Actor {
     //
     //  Security and defence related tasks-
     if (! isCranial) {
-      final Plan patrol = Patrolling.aroundPerimeter(this, guards, world);
-      choice.add(patrol.addMotives(Plan.MOTIVE_JOB, Plan.IDLE));
+      choice.add(Patrolling.aroundPerimeter(this, guards, Plan.IDLE));
     }
     choice.add(JoinMission.attemptFor(this));
     choice.add(new Retreat(this));

@@ -128,7 +128,7 @@ public class Cranial extends Artilect {
     MILD_HARM           ,
     NO_CONCENTRATION    ,
     NO_FATIGUE          ,
-    IS_PASSIVE_ALWAYS, null, 0,
+    IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0,
     Action.FALL, Action.NORMAL
   ) {
     
@@ -142,7 +142,7 @@ public class Cranial extends Artilect {
     EXTREME_HARM        ,
     MEDIUM_CONCENTRATION,
     NO_FATIGUE          ,
-    IS_FOCUS_TARGETING, null, 0,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE_BIG, Action.NORMAL
   ) {
     
@@ -156,7 +156,7 @@ public class Cranial extends Artilect {
     EXTREME_HARM        ,
     MEDIUM_CONCENTRATION,
     NO_FATIGUE          ,
-    IS_FOCUS_TARGETING, null, 0,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.FIRE, Action.RANGED
   ) {
     
@@ -170,7 +170,7 @@ public class Cranial extends Artilect {
     NO_HARM         ,
     NO_CONCENTRATION,
     NO_FATIGUE      ,
-    IS_PASSIVE_SKILL_FX, null, 0,
+    IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
     STEALTH_AND_COVER
   ) {
     
@@ -184,7 +184,7 @@ public class Cranial extends Artilect {
     REAL_HARM          ,
     MAJOR_CONCENTRATION,
     NO_FATIGUE         ,
-    IS_FOCUS_TARGETING, null, 0,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE, Action.NORMAL
   ) {
     
@@ -198,7 +198,7 @@ public class Cranial extends Artilect {
     NO_HARM             ,
     MAJOR_CONCENTRATION ,
     NO_FATIGUE          ,
-    IS_FOCUS_TARGETING, null, 0,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.FIRE, Action.RANGED
   ) {
     

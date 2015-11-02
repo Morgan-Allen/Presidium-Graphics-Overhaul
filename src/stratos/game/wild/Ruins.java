@@ -40,7 +40,7 @@ public class Ruins extends Venue {
   
   private static int NI = (int) (Rand.unseededNum() * 3);
   
-  private byte speciesCaps[] = new byte[0];
+  final byte speciesCaps[] = new byte[SPECIES.length];
   
   
   public Ruins(Base base) {
@@ -53,13 +53,13 @@ public class Ruins extends Venue {
   
   public Ruins(Session s) throws Exception {
     super(s);
-    //s.loadByteArray(speciesCaps);
+    s.loadByteArray(speciesCaps);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //s.saveByteArray(speciesCaps);
+    s.saveByteArray(speciesCaps);
   }
   
   
@@ -163,9 +163,16 @@ public class Ruins extends Venue {
   
   //
   //  TODO:  Allow for mutants and other squatters as well- as long as no
-  //  artilects are present.
-  public Background[] careers() {
-    return SPECIES;
+  //  artilects are present!
+  public float crowdRating(Actor forActor, Background background) {
+    final int index = Visit.indexOf(forActor.species(), SPECIES);
+    
+    if (index >= 0 && speciesCaps.length > 0) {
+      final int cap = speciesCaps[index];
+      final int pop = staff.numResident(SPECIES[index]);
+      return pop * 1f / cap;
+    }
+    else return 1;
   }
   
   
@@ -186,7 +193,6 @@ public class Ruins extends Venue {
       //  every X/2 days (where X is the wake-up period for the base- typically
       //  15 days or so.)  This is offset by the schedule-delay for each
       //  species, plus the repair of the structure.
-      this.speciesCaps = new byte[numSpecies];
       for (int n = 0; n < numSpecies; n++) {
         final float schedule = SPECIES_SCHEDULE.get(SPECIES[n]);
         int maxSpecies = Nums.max(0, (int) ((fillLevel + schedule) * 2));
@@ -208,13 +214,6 @@ public class Ruins extends Venue {
       //  ties in with larger tactical considerations.)
       AB.updateSpawning(this, 10);
     }
-  }
-  
-  
-  protected int numPositions(Background b) {
-    final int index = Visit.indexOf(b, SPECIES);
-    if (index >= 0 && speciesCaps.length > 0) return speciesCaps[index];
-    else return super.numPositions(b);
   }
   
 

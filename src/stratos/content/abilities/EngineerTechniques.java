@@ -78,11 +78,11 @@ public class EngineerTechniques {
   };
   
   
-  final public static Technique THERMAL_WELD = new Technique(
-    "Thermal Weld", UI_DIR+"thermal_weld.png",
+  final public static Technique PULSE_WELDER = new Technique(
+    "Pulse Welder", UI_DIR+"pulse_welder.png",
     "Speeds initial repairs of buildings and vehicles.  (Requires a "+
     Devices.MANIPULATOR+".)",
-    BASE_CLASS, "thermal_weld",
+    BASE_CLASS, "pulse_welder",
     MEDIUM_POWER,
     REAL_HELP,
     MINOR_FATIGUE,
@@ -179,7 +179,7 @@ public class EngineerTechniques {
   
   
   final public static Technique ENGINEER_TECHNIQUES[] = new Technique[] {
-    DEMOLITION, THERMAL_WELD, PNEUMATIC_RAM, POWER_LIFTER_USE
+    DEMOLITION, PULSE_WELDER, PNEUMATIC_RAM, POWER_LIFTER_USE
   };
 }
 

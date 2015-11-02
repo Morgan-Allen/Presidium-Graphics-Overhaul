@@ -124,7 +124,9 @@ public class Airfield extends Venue {
   public static boolean isGoodDockSite(Boarding dropPoint) {
     if (! (dropPoint instanceof Airfield)) return false;
     final Airfield airfield = (Airfield) dropPoint;
-    if (airfield.fuelLevels <= 0) return false;
+    
+    //  TODO:  Implement refueling at the Airfield!
+    //if (airfield.fuelLevels <= 0) return false;
     return true;
   }
   

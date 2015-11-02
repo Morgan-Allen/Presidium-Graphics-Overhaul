@@ -62,7 +62,7 @@ public class DebugPlacing extends Scenario {
       I.say("  Owning tier: "+over.owningTier());
     }
     
-    showZonePathing();
+    ///showZonePathing();
   }
 
 
@@ -217,7 +217,7 @@ public class DebugPlacing extends Scenario {
     final boolean talks = I.used60Frames, showObs = true, showVisual = true;
     
     final Stage world = base.world;
-    final PathingCache cache = world.pathingCache;
+    final PathingMap cache = world.pathingCache;
     final Object selected = BaseUI.current().selection.selected  ();
     final Object hovered  = BaseUI.current().selection.hovered   ();
     final Tile   picked   = BaseUI.current().selection.pickedTile();
@@ -290,7 +290,7 @@ public class DebugPlacing extends Scenario {
       }
     }
     
-    if (talks && showObs) PathingCache.reportObs();
+    if (talks && showObs) PathingMap.reportObs();
   }
   
 }

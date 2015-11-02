@@ -50,14 +50,21 @@ public class ActorSkills {
   /**  Updates and modifications-
     */
   public void updateSkills(int numUpdates) {
+    final boolean report = I.talkAbout == actor && techsVerbose;
     //
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.
     if (actor.species().sapient()) for (Skill s : actor.traits.skillSet()) {
       final Series <Technique> learnt = Technique.learntFrom(s);
-      if (learnt == null) continue;
-      for (Technique t : learnt) if (t.canBeLearnt(actor, false)) {
-        known.include(t);
+      if (learnt != null) for (Technique t : learnt) {
+        if (known.includes(t)) continue;
+        if (! t.canBeLearnt(actor, false)) continue;
+        
+        if (report) {
+          I.say("Learning: "+t);
+        }
+        
+        known.add(t);
       }
     }
     //

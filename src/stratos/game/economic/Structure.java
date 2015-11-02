@@ -634,7 +634,7 @@ public class Structure {
     }
     final Upgrade levels[] = blueprint.venueLevels();
     while (level-- > 0) {
-      if (level >= levels.length || hasUpgrade(levels[level])) continue;
+      if (level >= levels.length || hasUpgrade(levels[level], 1)) continue;
       addUpgrade(levels[level]);
     }
   }
@@ -646,7 +646,7 @@ public class Structure {
     }
     int level = 0;
     for (Upgrade u : blueprint.venueLevels()) {
-      if (hasUpgrade(u)) level++;
+      if (hasUpgrade(u, 1)) level++;
     }
     return level;
   }
@@ -683,12 +683,18 @@ public class Structure {
   
   
   public boolean hasUpgrade(Upgrade type) {
-    return upgradeLevel(type) > 0;
+    return hasUpgrade(type, 1);
   }
   
   
-  public boolean hasUpgradeOrQueued(Upgrade type) {
-    return hasUpgrade(type) || upgradeLevel(type, STATE_INSTALL) > 0;
+  public boolean hasUpgrade(Upgrade type, int level) {
+    return upgradeLevel(type) >= level;
+  }
+  
+  
+  public boolean hasUpgradeOrQueued(Upgrade type, int level) {
+    int total = upgradeLevel(type, STATE_INSTALL) + upgradeLevel(type);
+    return total >= level;
   }
   
   

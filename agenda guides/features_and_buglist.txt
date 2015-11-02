@@ -2,9 +2,12 @@
 
 TO DO NOW-
 
-*  Double-check raid behaviours for completeness- including Cranials.
-   Allow troopers to man walls, and make sure their upgrades are hooked up.
-   
+*  PROBLEM- zone-queries are slowing the game down noticeably even on a small
+   map like this when connecting to target-culling (see HumanMind.)  They
+   should not be.  Look into this.
+
+*  Make sure trooper upgrades are hooked up, and introduce Call to Arms.
+
 *  Cranials.  Get them working!  (Test all artilect techniques too.)
 *  Offworld raids by enemy houses!
    
@@ -16,8 +19,7 @@ TO DO NOW-
 *  Hook up, and test, all common abilities.  (Plus general learning & use of
    the others.)
 *  See if you can hook up ammo clips and power cells.
-*  Pax inhibition needs to be filled in.
-*  Noble command and call of duty!
+*  Pax Conditioning needs to be filled in.  Psy Protocol as booster skill.
 
 *  Lictovores get Maul & Devour.
    Yamagur get Slugger & Fortify.
@@ -26,6 +28,13 @@ TO DO NOW-
    
    Roaches get Infection & Night Vision.  Roachmen get Maul.
    Avrodils get Camouflage, Whiplash, Pollen Spray & Devour.
+
+*  Actors should be doing more to dispose of bodies.  Burial or recyling.
+*  In addition, picking rest/retreat points should be more sensible (check the
+   pure-combat scenarios.)
+
+*  A summary of profit and loss for each structure would be worthwhile!
+   (Also, venues should have min-stocks for certain goods, even when selling.)
 
 *  Initial missions:
     Planitia Sector (robots + ruins, artifact.)
@@ -112,19 +121,12 @@ ENEMIES AND ENVIRONMENT-
 
 *  Try to polish up the Flora- have it look more exotic.
 
-*  The Yamagur is sufficiently big and powerful that it can't really count as a
-   'prey' species (in fact, it tends to wind up pulverising any predators in
-   it's territory.)  It needs a tweak to the placement algorithm.
-
 *  Extra concept art for new creatures/vermin:
      Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
 *  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
    for use by animals.)  Then get rid of the custom-coding.  And polish up
    vermin behaviours.
-
-*  I think I'm seeing some noticeable hiccups during pathing by a single drone.
-   The slowdown must be in those path-routines.
 
 
 BUILDINGS AND ECONOMY-
@@ -204,11 +206,6 @@ CITIZEN BEHAVIOUR-
 *  Citizens are too eager to embark on tasks in distant areas.  (BringUtils
    needs to ignore sources that are too far away- that's for bulk transport.)
 
-*  Actors should be doing more to dispose of bodies.  Burial or recyling.
-
-*  There needs to be a super-fast system for testing pathability to different
-   areas of the map.  (And maybe caching dangers en-route?)
-
   >>>>>>> DO THIS <<<<<<<
 *  Rework the migration system to that it's more gradual- colonists arrive from
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
@@ -224,9 +221,8 @@ CITIZEN BEHAVIOUR-
 
 *  Hide-and-seek needs to be more effective (for retreat, looting and combat.)
 
-*  Figure out entry-permissions for structures and guests, and/or sieges.  (It's
-   also possible for long-range pathing to go kaput when it requires going
-   through structures that don't permit it, like shield walls for animals.)
+*  Figure out entry-permissions for structures and guests- especially walls.
+   Also, consider adding danger/FoW-evaluation to pathfinding?
 
 *  Vehicles need to be salvaged along with their parent structures.
 
@@ -237,10 +233,6 @@ CONTROL AND DIRECTION-
   >>>>>>> DO THIS <<<<<<<
 *  Make Pledges more persistent and nuanced (see Proposal class.)
    Also, try to allow negotiation with buildings, in some sense.
-
-  >>>>>>> DO THIS <<<<<<<
-*  Introduce Call-to-Arms at the Trooper Lodge (with respect to a particular
-   mission, or in order to 'man the barricades'.)
 
 *  Psy abilities need to be persistent.
 
