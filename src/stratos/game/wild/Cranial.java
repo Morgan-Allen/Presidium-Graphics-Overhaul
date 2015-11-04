@@ -33,7 +33,7 @@ public class Cranial extends Artilect {
       XML_FILE, "Cranial"
     );
   
-  final static Species SPECIES = new Species(
+  final public static Species SPECIES = new Species(
     Cranial.class,
     "Cranial",
     "Cranials are cunning, quasi-organic machine intelligences that direct "+
@@ -56,7 +56,7 @@ public class Cranial extends Artilect {
     traits.initAtts(10, 20, 30);
     health.initStats(
       1000,//lifespan
-      1.5f,//bulk bonus
+      3.5f,//bulk bonus
       1.0f,//sight range
       0.6f,//move speed,
       ActorHealth.ARTILECT_METABOLISM
@@ -65,8 +65,8 @@ public class Cranial extends Artilect {
     
     gear.setBaseDamage(15);
     gear.setBaseArmour(15);
-    gear.equipDevice(Item.withQuality(INTRINSIC_BEAM  , 0));
-    gear.equipOutfit(Item.withQuality(INTRINSIC_ARMOUR, 0));
+    gear.equipDevice(Item.withQuality(LIMB_AND_MAW       , 0));
+    gear.equipOutfit(Item.withQuality(INTRINSIC_SHIELDING, 0));
     
     traits.setLevel(HAND_TO_HAND, 15 + Rand.index(5) - 2);
     traits.setLevel(ANATOMY     , 10 + Rand.index(5) - 2);
@@ -74,7 +74,7 @@ public class Cranial extends Artilect {
     traits.setLevel(INSCRIPTION , 10 + Rand.index(5) - 2);
     
     traits.setLevel(IMPASSIVE, 1);
-    traits.setLevel(CRUEL, 1);
+    traits.setLevel(CRUEL    , 1);
     
     attachModel(MODEL_CRANIAL);
     name = nameWithBase("Cranial ");
@@ -97,7 +97,7 @@ public class Cranial extends Artilect {
   /**  Physical properties-
     */
   public float aboveGroundHeight() {
-    return 0.25f;
+    return 0;
   }
   
   
@@ -216,6 +216,11 @@ public class Cranial extends Artilect {
   
   public Composite portrait(BaseUI UI) {
     return null;
+  }
+  
+  
+  protected float moveAnimStride() {
+    return 2.0f;
   }
 }
 

@@ -29,6 +29,10 @@ public final class Outfits {
       BC, "Intrinsic Armour", 0, 0, 0,
       null
     ),
+    INTRINSIC_SHIELDING = new OutfitType(
+      BC, "Intrinsic Shielding", 0, 10, 0,
+      null
+    ),
     
     SCRAP_GEAR = new OutfitType(
       BC, "Scrap Gear", 3, 0, 5,

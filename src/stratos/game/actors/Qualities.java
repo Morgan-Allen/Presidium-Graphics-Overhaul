@@ -72,19 +72,6 @@ final public class Qualities {
     ATTRIBUTES[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   
-  //  TODO:  Move these down
-  final public static Skill
-    //
-    //  For the benefit of animals and non-human species-
-    SCENTING       = new Skill(BC, "Scenting"      , FORM_INSTINCT, PERCEPT  ),
-    LIMB_AND_MAW   = new Skill(BC, "Limb and Maw"  , FORM_INSTINCT, MOTOR    ),
-    NESTING        = new Skill(BC, "Nesting"       , FORM_INSTINCT, PERCEPT  ),
-    MIMESIS        = new Skill(BC, "Mimesis"       , FORM_INSTINCT, MOTOR    ),
-    PHEREMONIST    = new Skill(BC, "Pheremonist"   , FORM_INSTINCT, NERVE    ),
-    IMMANENCE      = new Skill(BC, "Immanence"     , FORM_INSTINCT, COGNITION),
-    
-    INSTINCT_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
-  
   final public static Skill
     //
     //  Artifice-related skills:
@@ -184,9 +171,19 @@ final public class Qualities {
     
     PSYONIC_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
+  final public static Skill
+    //
+    //  For the benefit of animals and non-human species-
+    MIMESIS        = new Skill(BC, "Mimesis"       , FORM_INSTINCT, MOTOR    ),
+    PHEREMONIST    = new Skill(BC, "Pheremonist"   , FORM_INSTINCT, NERVE    ),
+    IMMANENCE      = new Skill(BC, "Immanence"     , FORM_INSTINCT, COGNITION),
+    
+    INSTINCT_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
+  
   final public static Skill ALL_SKILLS[] = (Skill[]) Visit.compose(Skill.class,
-    ATTRIBUTES, INSTINCT_SKILLS, PSYONIC_SKILLS,
-    COGNITIVE_SKILLS, SENSITIVE_SKILLS, PHYSICAL_SKILLS
+    ATTRIBUTES,
+    COGNITIVE_SKILLS, SENSITIVE_SKILLS, PHYSICAL_SKILLS,
+    PSYONIC_SKILLS, INSTINCT_SKILLS
   );
   
   

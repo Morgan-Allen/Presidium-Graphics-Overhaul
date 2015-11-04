@@ -119,24 +119,33 @@
   type="JOINT"
   path="media/Actors/artilects/"
   file="Cranial.ms3d"
-  scale="0.5"
+  scale="0.25"
   bound="2.5"
   stride="1.5"
   height="2.5"
 >
-  <animations rotate="90">
-	<animation name="move"        start="1"  end="40"  duration="1.5" />
-	<animation name="run"        start="42"  end="81"  duration="1" />
-	<animation name="carry"        start="83"  end="143"  duration="3" />
-	<animation name="look"        start="144"  end="204"  duration="4" />
-	<animation name="build"        start="205"  end="305"  duration="3" />
-	<animation name="BigPsy"        start="307"  end="367"  duration="2" />
-	<animation name="QuickPsy1"        start="379"  end="413"  duration="1.2" />
-	<animation name="PhysicalAttack1"        start="414"  end="453"  duration="1.2" />
-	<animation name="PhysicalAttack2"        start="454"  end="537"  duration="1.2" />
-	<animation name="PhysicalAttack2 v2"        start="538"  end="584"  duration="1.2" />
-	<animation name="Death"        start="585"  end="652"  duration="2" />
+  <animations rotate="180">
+	<animation name="move"        start="1"    end="40"   duration="1.5" />
+	<animation name="move_fast"   start="42"   end="81"   duration="1"   />
+	
+	<animation name="carry"       start="83"   end="143"  duration="3"   />
+	<animation name="look"        start="144"  end="204"  duration="4"   />
+	<animation name="build"       start="205"  end="305"  duration="3"   />
+	
+	<animation name="BigPsy"      start="307"  end="367"  duration="2"   />
+	<animation name="QuickPsy1"   start="379"  end="413"  duration="1.2" />
+	
+	<animation name="strike"      start="414"  end="453"  duration="1.2" />
+	<animation name="fire"        start="454"  end="537"  duration="1.2" />
+	<animation name="strike_big"  start="538"  end="584"  duration="1.2" />
+	
+	<animation name="fall"        start="585"  end="652"  duration="2"   />
   </animations>
+  
+  <attachPoints>
+    <attachPoint function="fire"   joint="head"/>
+    <attachPoint function="target" joint="core"/>
+  </attachPoints>
   
 </model>
 
