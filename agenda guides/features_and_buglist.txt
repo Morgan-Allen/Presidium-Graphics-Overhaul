@@ -2,16 +2,13 @@
 
 TO DO NOW-
 
-*  PROBLEM- zone-queries are slowing the game down noticeably even on a small
-   map like this when connecting to target-culling (see HumanMind.)  They
-   should not be.  Look into this.
-
-*  Make sure trooper upgrades are hooked up, and introduce Call to Arms.
-
-*  Cranials.  Get them working!  (Test all artilect techniques too.)
+*  Make sure trooper abilities are linked to upgrades, and introduce
+   Call to Arms!
+*  Test (and flesh out) all artilect techniques.
 *  Offworld raids by enemy houses!
    
-*  Dropship crews are missing again for some reason.
+*  Dropship crews are missing during their first trip.  Fix.
+
 *  Structure-upgrades are counting as tech-upgrade against the total no. of
    slots.  Maybe that's correct, but maybe not?  Subtract it from display,
    anyway.
@@ -58,16 +55,10 @@ TO DO NOW-
    Make sure housing has adequate aesthetics.
 
 
-*  Provide notifications for deaths and arrivals.
-
-*  Allow free trading by dropships sans trade facilities.
-
-*  Extra Trooper abilities-
-  
-  Call of Duty  (can assign to several missions directly.)
-  Noble Command (creates a commander position with several perks.)
-  
-  SFX might not belong with attacks called by a technique.
+*  Path-zone refreshment needs to be done more intelligently to avoid 'spikes'
+   in usage (see the PathingMap class.)
+ 
+*  SFX might not belong with attacks called by a technique.
   Create a Volley class for combat, that techniques can then modify in an
   'organic' manner.
 

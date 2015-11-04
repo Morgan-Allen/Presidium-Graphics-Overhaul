@@ -252,7 +252,7 @@ public class Pathing {
       return search.fullPath(Boarding.class);
     }
     else {
-      return mobile.world().pathingCache.getLocalPath(
+      return mobile.world().pathingMap.getLocalPath(
         initB, destB, MAX_PATH_SCAN * 2, mobile, report
       );
     }

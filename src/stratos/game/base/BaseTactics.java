@@ -31,7 +31,7 @@ import stratos.util.*;
 public class BaseTactics {
   
   public static boolean
-    updatesVerbose = true ,
+    updatesVerbose = false,
     shortWaiting   = true ,
     extraVerbose   = false;
   protected static String
@@ -464,7 +464,7 @@ public class BaseTactics {
   
   protected boolean checkReachability(Target t, Property baseHQ) {
     final Tile reachPoint = Spacing.nearestOpenTile(t, baseHQ);
-    return base.world.pathingCache.hasPathBetween(
+    return base.world.pathingMap.hasPathBetween(
       baseHQ, reachPoint, base, false
     );
   }

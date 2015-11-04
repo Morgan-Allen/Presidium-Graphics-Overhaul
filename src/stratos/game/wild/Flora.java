@@ -159,8 +159,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public static Flora tryGrowthAt(Tile t, boolean init) {
-    float maxGrowth = maxGrowth(t, BASE_SPECIES);
-    if (maxGrowth <= 0) return null;
+    if (! hasSpace(t)) return null;
     
     final Habitat soil = t.habitat();
     final Species s = (Species) Rand.pickFrom(soil.floraSpecies);
@@ -170,7 +169,8 @@ public class Flora extends Element implements TileConstants {
     grown.enterWorldAt(t.x, t.y, t.world, true);
     
     if (init) {
-      if (maxGrowth >= 1) maxGrowth += Rand.num();
+      float maxGrowth = maxGrowth(t, BASE_SPECIES);
+      if (maxGrowth >= 1) maxGrowth -= Rand.num();
       grown.incGrowth(maxGrowth, t.world, false);
     }
     return grown;

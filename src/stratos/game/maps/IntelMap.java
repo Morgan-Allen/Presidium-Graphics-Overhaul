@@ -287,7 +287,7 @@ public class IntelMap {
     //  cache and search only within those?
     
     if (maxDist <= 0 && client instanceof Mobile) {
-      if (world.pathingCache.hasPathBetween(
+      if (world.pathingMap.hasPathBetween(
         ((Mobile) client).aboard(), picked, client.base(), report
       )) {
         return picked;

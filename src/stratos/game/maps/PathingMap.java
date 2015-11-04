@@ -9,8 +9,21 @@ import stratos.util.*;
 
 
 
-//  TODO:  See if you can cache Boardings directly against themselves?
+//  TODO:  Zone and place-route queries should not be auto-refreshing places
+//  any more, because that leads to irregular spikes in usage.  Get rid of the
+//  expiry-timers.
+
+//  Instead, places in a given sector should be refreshed when (A) member tiles
+//  have had their occupancy changed, but (B) no more than once every 5 seconds
+//  and (C) without violating schedule limits.
+
 //  TODO:  Also, direct cache-queries for Routes would be useful!
+
+//  At the moment, average results are about 200-300 tiles scanned and 600-
+//  1000 tiles searched per second, which is roughly in line with a refresh
+//  for each sector every 10 seconds with a 2-3x search factor.  Could be
+//  improved on, but not exorbitant.
+
 
 
 public class PathingMap {
@@ -29,18 +42,12 @@ public class PathingMap {
     numSets   = 0,
     numZones  = 0,
     numLiveRoutes = 0,
-    numLivePlaces = 0;
-  
-  
-  public static void reportObs() {
-    I.say("\nReporting on pathing objects...");
-    I.say("  Total routes: "+numRoutes);
-    I.say("  Total places: "+numPlaces);
-    I.say("  Total sets:   "+numSets  );
-    I.say("  Total zones:  "+numZones );
-    I.say("  Live routes:  "+numLiveRoutes);
-    I.say("  Live places:  "+numLivePlaces);
-  }
+    numLivePlaces = 0,
+    
+    numIterations   = 0,
+    numTilesScanned = 0,
+    numTilesRouted  = 0,
+    maxInQuery      = 0;
   
   
   private class Route {
@@ -100,6 +107,26 @@ public class PathingMap {
   }
   
   
+  public static void reportObs() {
+    I.say("\nReporting on pathing objects...");
+    I.say("  Total routes: "+numRoutes);
+    I.say("  Total places: "+numPlaces);
+    I.say("  Total sets:   "+numSets  );
+    I.say("  Total zones:  "+numZones );
+    I.say("  Live routes:  "+numLiveRoutes);
+    I.say("  Live places:  "+numLivePlaces);
+    
+    I.say("\nReporting on work done: ");
+    float avgTile = numTilesScanned * 1f / numIterations;
+    float avgRoute = numTilesRouted * 1f / numIterations;
+    I.say("  Average scanned/second: "+avgTile );
+    I.say("  Average routed/second:  "+avgRoute);
+    I.say("  Max. in single query:   "+maxInQuery);
+    
+    numIterations++;
+  }
+  
+  
   
   /**  Methods for refreshing the Places and Routes associated with each
     *  Section of the map:
@@ -134,7 +161,7 @@ public class PathingMap {
       final Element a = t.reserves();
       
       if (a instanceof Boarding && a.origin() == t && t.blocked()) {
-        places.add(createPlaceWithVenue((Boarding) t.above()));
+        places.add(createPlaceWithVenue((Boarding) t.reserves()));
       }
       else if (! t.blocked()) {
         places.add(createPlaceWithFloodFrom(t, region.area));
@@ -150,6 +177,7 @@ public class PathingMap {
       }
       p.region = region;
       numLivePlaces++;
+      numTilesScanned += p.under.length;
       
       if (updatesVerbose) I.say("\nCREATED NEW PLACE: "+p);
     }
@@ -264,19 +292,31 @@ public class PathingMap {
   
   private Route findNewRoute(final Place a, final Place b) {
     //
-    //  First, check to ensure that a valid path exists between the core of
+    //  In the case of pathing between two venue-places, we can just check
+    //  directly for boardability:
+    if (
+      a.core.boardableType() != Boarding.BOARDABLE_TILE &&
+      b.core.boardableType() != Boarding.BOARDABLE_TILE
+    ) {
+      if (! a.core.isEntrance(b.core)) return null;
+      final Route route = new Route();
+      route.from = a;
+      route.to   = b;
+      route.cost = Spacing.innerDistance(a.core, b.core) * 2.5f;
+      route.path = new Tile[0];
+      return route;
+    }
+    //
+    //  Otherwise, check to ensure that a valid path exists between the core of
     //  these places, and restricted to their underlying area-
     final PathSearch search = new PathSearch(a.core, b.core, false) {
       protected boolean canEnter(Boarding spot) {
         if (! super.canEnter(spot)) {
           return false;
         }
-        else if (spot.boardableType() == Boarding.BOARDABLE_TILE) {
-          final Place p = placeFor((Tile) spot, false);
-          return p == a || p == b;
-        }
         else {
-          return spot == a.core || spot == b.core;
+          final Place p = placeFor(spot, false);
+          return p == a || p == b;
         }
       }
     };
@@ -293,6 +333,7 @@ public class PathingMap {
       if (onPath instanceof Tile) tiles.add((Tile) onPath);
     }
     route.path = tiles.toArray(Tile.class);
+    numTilesRouted += search.allSearchedCount();
     return route;
   }
   
@@ -422,14 +463,24 @@ public class PathingMap {
     if (oldZone != null && oldZone.expiry > time) return oldZone;
     if (! refresh) return null;
 
+    if (updatesVerbose) I.say("\nCREATING NEW ZONE!");
+    final int evalBefore = numTilesScanned + numTilesRouted;
+    
     final Place inZone[] = placesPath(init, null, true, client, reports);
+    
+    final int evalAfter = numTilesScanned + numTilesRouted;
+    maxInQuery = Nums.max(maxInQuery, evalAfter - evalBefore);
+    
     final Zone zone = new Zone();
     zone.places = inZone;
     zone.client = client;
     zone.expiry = time + UPDATE_INTERVAL;
     for (Place p : inZone) p.zones[baseID] = zone;
     
-    if (updatesVerbose) I.say("\nCREATED NEW ZONE: "+zone);
+    if (updatesVerbose) {
+      I.say("\nDONE CREATING NEW ZONE!");
+      I.say("  Tiles evaluated: "+(evalAfter - evalBefore));
+    }
     return zone;
   }
   
@@ -578,7 +629,7 @@ public class PathingMap {
       final Place tempP[] = new Place[8];
       
       protected Place[] adjacent(Place spot) {
-        refreshWithNeighbours(spot.region);
+        if (! zoneFill) refreshWithNeighbours(spot.region);
         
         final Place near[] = spot.routes.size() > tempP.length ?
           new Place[spot.routes.size()] : tempP

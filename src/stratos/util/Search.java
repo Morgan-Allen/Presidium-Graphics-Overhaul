@@ -257,6 +257,11 @@ public abstract class Search <T> {
   public boolean success() {
     return success;
   }
+  
+  
+  public int allSearchedCount() {
+    return flagged.size();
+  }
 }
 
 

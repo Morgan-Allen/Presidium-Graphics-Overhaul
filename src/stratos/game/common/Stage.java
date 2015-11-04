@@ -63,7 +63,7 @@ public class Stage {
   final public Verse offworld = new Verse(this);
   
   final public Activities activities;
-  final public PathingMap pathingCache;
+  final public PathingMap pathingMap;
   final public Presences presences;
   final public Ephemera ephemera;
   
@@ -80,7 +80,7 @@ public class Stage {
     
     ecology      = new Ecology     (this);
     activities   = new Activities  (this);
-    pathingCache = new PathingMap(this);
+    pathingMap = new PathingMap(this);
     presences    = new Presences   (this);
     ephemera     = new Ephemera    (this);
   }

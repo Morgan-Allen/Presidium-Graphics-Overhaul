@@ -145,9 +145,9 @@ public class HumanMind extends ActorMind {
     final boolean report = verbose && I.talkAbout == actor;
     
     if (PathSearch.accessLocation(seen, actor) == null) return;
-    //  TODO- DIRECT MAP QUERIES SHOULD BE JUST AS FAST!  INVESTIGATE!
+    //  TODO- Direct map-queries need to be just as fast.
     /*
-    final PathingCache map = actor.world().pathingCache;
+    final PathingMap map = actor.world().pathingMap;
     if (! map.hasPathBetween(actor, seen, actor, report)) {
       return;
     }

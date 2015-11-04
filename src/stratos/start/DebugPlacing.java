@@ -217,7 +217,7 @@ public class DebugPlacing extends Scenario {
     final boolean talks = I.used60Frames, showObs = true, showVisual = true;
     
     final Stage world = base.world;
-    final PathingMap cache = world.pathingCache;
+    final PathingMap cache = world.pathingMap;
     final Object selected = BaseUI.current().selection.selected  ();
     final Object hovered  = BaseUI.current().selection.hovered   ();
     final Tile   picked   = BaseUI.current().selection.pickedTile();

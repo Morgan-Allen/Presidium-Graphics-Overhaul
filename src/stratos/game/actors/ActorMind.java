@@ -143,7 +143,10 @@ public abstract class ActorMind {
     if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
       onMission = mission.nextStepFor(actor, true);
     }
-    if (onMission != null && taken != null && ! taken.isEmergency()) {
+    if (
+      Plan.canFollow(actor, onMission, true) &&
+      (taken == null || ! taken.isEmergency())
+    ) {
       taken = onMission;
     }
     else taken = Choice.switchFor(actor, onMission, taken, true, report);
@@ -200,7 +203,10 @@ public abstract class ActorMind {
       //  Then, delete all existing entries from the agenda.
       for (Behaviour b : agenda) popBehaviour(b, cause);
       if (! Plan.canFollow(actor, root, true)) {
-        if (warnVerbose) I.say(actor+"  CANNOT FOLLOW PLAN: "+root);
+        if (warnVerbose) {
+          I.say(actor+"  CANNOT FOLLOW PLAN: "+root);
+          Plan.reportPlanDetails(root, actor);
+        }
         break decision;
       }
       //
