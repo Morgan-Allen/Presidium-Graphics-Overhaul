@@ -6,6 +6,7 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.maps.Planet;
+import stratos.game.base.BaseAdvice;
 import stratos.util.*;
 import static stratos.game.actors.Conditions.*;
 import static stratos.game.actors.Qualities.*;
@@ -590,6 +591,7 @@ public class ActorHealth {
   
   
   private void checkStateChange() {
+    final BaseAdvice advice = actor.base().advice;
     final boolean report = verbose && I.talkAbout == actor;
     if (report) {
       I.say("\nUpdating health state for "+actor);
@@ -611,14 +613,17 @@ public class ActorHealth {
       }
     }
     else if (injury >= maxHealth * MAX_INJURY) {
+      advice.sendCasualtyMessageFromInjury(actor);
       if (I.logEvents()) I.say("  "+actor+" has died of injury.");
       state = STATE_DYING;
     }
     else if (organic() && calories <= 0) {
+      advice.sendCasualtyMessageFromStarvation(actor);
       if (I.logEvents()) I.say("  "+actor+" has died from starvation.");
       state = STATE_DYING;
     }
     else if (actor.traits.usedLevel(IMMUNE) < -5) {
+      advice.sendCasualtyMessageFromDisease(actor);
       if (I.logEvents()) I.say("  "+actor+" has died of disease.");
       state = STATE_DYING;
     }
@@ -722,6 +727,7 @@ public class ActorHealth {
   
   private void advanceAge(int numUpdates) {
     if (! organic()) return;
+    final BaseAdvice advice = actor.base().advice;
     final boolean report = verbose && I.talkAbout == actor;
     
     final int DL = Stage.STANDARD_DAY_LENGTH;
@@ -749,6 +755,7 @@ public class ActorHealth {
         lifeExtend++;
       }
       else {
+        advice.sendCasualtyMessageFromOldAge(actor);
         if (I.logEvents()) I.say(actor+" has died of old age.");
         state = STATE_DYING;
       }

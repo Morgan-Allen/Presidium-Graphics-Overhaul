@@ -139,6 +139,11 @@ public class Text extends UIGroup implements Description {
   }
   
   
+  public void append(Object... o) {
+    for (Object i : o) append(i);
+  }
+  
+  
   public void appendList(String s, Object... l) {
     if (l.length == 0) return;
     append(s);

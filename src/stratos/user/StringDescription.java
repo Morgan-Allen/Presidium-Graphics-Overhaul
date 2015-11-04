@@ -29,6 +29,10 @@ public class StringDescription implements Description {
     else append(o.toString());
   }
   
+  public void append(Object... o) {
+    for (Object i : o) append(i);
+  }
+  
   
   public void append(Clickable l, Colour c) { append(null, l, c); }
   public void append(Clickable l) { append(null, l, null); }

@@ -9,6 +9,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.Text;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
@@ -20,7 +21,7 @@ import static stratos.game.actors.Backgrounds.*;
 //  Notify the player when deaths occur, and for what reason.
 
 //  TODO:  You should list the exact structures (or at least structure-types)
-//         that are demanding particular goods.
+//         that are demanding particular goods!
 
 
 
@@ -83,9 +84,9 @@ public class BaseAdvice {
     needSafety ,
     needsTechs ,
     needsAdmin ;
+  
   private Batch <Traded> shortages = new Batch <Traded> ();
   private Table <Traded, Batch <Blueprint>> demanding = new Table();
-  
   private Table <Topic, Float> topicDates = new Table <Topic, Float> ();
   
   
@@ -316,6 +317,9 @@ public class BaseAdvice {
   }
   
   
+  //  TODO:- USE TOPICS FOR THESE!
+  
+  
   private MessagePane messageForNeed(Traded t, BaseUI UI, MessagePane before) {
     
     final String titleKey = "Need "+t;
@@ -367,14 +371,6 @@ public class BaseAdvice {
       if (category != null) {
         d.append("\n  Category: "+category+" Structures", Colour.LITE_GREY);
       }
-      
-      
-      /*
-      if (match.required.length > 0) for (Blueprint req : match.required) {
-        if (base.listInstalled(req, true).size() > 0) continue;
-        d.append("\n  Requires: "+req.name, Colour.LITE_GREY);
-      }
-      //*/
       d.append("\n\n");
     }
     
@@ -394,7 +390,67 @@ public class BaseAdvice {
     
     return pane;
   }
+  
+  
+  
+  /**  Other miscellaneous topics-
+    */
+  final static MessageTopic TOPIC_CASUALTY = new MessageTopic(
+    "topic_casualty", true, Mobile.class, String.class
+  ) {
+    protected void configMessage(final BaseUI UI, Text d, Object... args) {
+      final Mobile killed = (Mobile) args[0];
+      final String cause  = (String) args[1];
+      d.append(killed, " has died from "+cause+".");
+    }
+  };
+  
+  
+  public void sendCasualtyMessageFromInjury(Actor a) {
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "injuries");
+  }
+  
+  
+  public void sendCasualtyMessageFromDisease(Actor a) {
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "disease");
+  }
+  
+  
+  public void sendCasualtyMessageFromStarvation(Actor a) {
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "starvation");
+  }
+  
+  
+  public void sendCasualtyMessageFromOldAge(Actor a) {
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "old age");
+  }
+  
+  
+  final static MessageTopic TOPIC_ARRIVALS = new MessageTopic(
+    "topic_arrivals", false, Mobile.class, VerseLocation.class
+  ) {
+    protected void configMessage(BaseUI UI, Text d, Object... args) {
+      final Mobile        arrived = (Mobile       ) args[0];
+      final VerseLocation origin  = (VerseLocation) args[1];
+      d.append(arrived, " has arrived from ");
+      if (origin == null) d.append("offworld.");
+      else d.append(origin, ".");
+    }
+  };
+  
+  
+  public void sendArrivalMessage(Mobile arrived, VerseLocation from) {
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_ARRIVALS.dispatchMessage("Arrival: "+arrived, arrived, from);
+  }
 }
+
+
+
 
 
 

@@ -7,20 +7,20 @@ package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
+import stratos.start.Scenario;
 import stratos.util.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import static stratos.user.UIConstants.*;
 
 
 //
 //  Upgrades tend to either expand employment, give a bonus to production
 //  of a particular item type, or enhance a particular kind of service.
 
-public class Upgrade extends Constant implements
-  MessagePane.MessageSource, UIConstants
-{
+public class Upgrade extends Constant {
   
   
   final static Index <Upgrade> INDEX = new Index <Upgrade> ();
@@ -201,6 +201,12 @@ public class Upgrade extends Constant implements
   
   
   public void describeHelp(Description d, Selectable prior) {
+    describeBasicInfo(d, prior);
+    describeTechChain(d);
+  }
+  
+  
+  public void describeBasicInfo(Description d, Selectable prior) {
     if (refers instanceof Background) {
       ((Background) refers).describeHelp(d, prior);
       d.append("\n");
@@ -210,7 +216,6 @@ public class Upgrade extends Constant implements
       substituteReferences(description, d);
       d.append("\n");
     }
-    describeTechChain(d);
   }
   
   
@@ -379,91 +384,85 @@ public class Upgrade extends Constant implements
   
   
   
-  /**  Messages related to message-status...
+  /**  Messages related to research-status...
     */
-  final static String
-    COMPLETE_KEY     = "Research Complete: ",
-    BREAKTHROUGH_KEY = "Breakthrough: "     ,
-    SETBACK_KEY      = "Setback: "          ;
+  final public static MessageTopic
+    TOPIC_RESEARCH_DONE = new MessageTopic(
+      "topic_research_done", true, Upgrade.class
+    ) {
+      protected void configMessage(final BaseUI UI, Text d, Object... args) {
+        final Upgrade upgrade = (Upgrade) args[0];
+        d.append(
+          upgrade, " is now available in prototype form.  Prototypes are "+
+          "expensive, but their cost will decline as your engineers become "+
+          "familiar with the technology.", "\n"
+        );
+        upgrade.describeBasicInfo(d, null);
+        
+        if (upgrade.isBlueprintUpgrade()) {
+          d.append("\n\n  ", new Description.Link("Place Prototype") {
+            public void whenClicked() {
+              PlacingTask.performPlacingTask(upgrade.origin);
+              UI.clearMessagePane();
+            }
+          });
+        }
+      }
+    },
+    TOPIC_BREAKTHROUGH = new MessageTopic(
+      "topic_breakthrough", false, Upgrade.class
+    ) {
+      protected void configMessage(final BaseUI UI, Text d, Object... args) {
+        final Upgrade upgrade = (Upgrade) args[0];
+        d.append(
+          "One of our researchers had a flash of sudden insight, leading to a "+
+          "breakthrough in our research into ", upgrade, "!"
+        );
+        d.append("\n  ", new Description.Link("View Project") {
+          public void whenClicked() {
+            final Mission match = upgrade.researchDone(UI.played());
+            if (match != null) match.whenClicked();
+            UI.clearMessagePane();
+          }
+        });
+      }
+    },
+    TOPIC_SETBACK = new MessageTopic(
+      "topic_setback", false, Upgrade.class
+    ) {
+      protected void configMessage(final BaseUI UI, Text d, Object... args) {
+        final Upgrade upgrade = (Upgrade) args[0];
+        d.append(
+          "There has been a setback in our research into ", upgrade, ".  A "+
+          "promising series of experimental results proved to be misleading."
+        );
+        d.append("\n  ", new Description.Link("View Project") {
+          public void whenClicked() {
+            final Mission match = upgrade.researchDone(UI.played());
+            if (match != null) match.whenClicked();
+            UI.clearMessagePane();
+          }
+        });
+      }
+    }
+  ;
   
   
   public void sendCompletionMessage(Base base) {
-    sendMessageWithKey(base, COMPLETE_KEY+name);
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_RESEARCH_DONE.dispatchMessage("Research Complete: "+baseName, this);
   }
   
   
   public void sendBreakthroughMessage(Base base) {
-    sendMessageWithKey(base, BREAKTHROUGH_KEY+name);
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_BREAKTHROUGH.dispatchMessage("Breakthrough: "+baseName, this);
   }
   
   
   public void sendSetbackMessage(Base base) {
-    sendMessageWithKey(base, SETBACK_KEY+name);
-  }
-  
-  
-  private void sendMessageWithKey(Base base, String titleKey) {
-    final BaseUI current = BaseUI.current();
-    if (current == null) return;
-    final float date = base.world.currentTime();
-    final MessagePane message = configMessage(titleKey, current);
-    current.reminders().addMessageEntry(message, true, date);
-  }
-  
-  
-  public MessagePane configMessage(final String titleKey, final BaseUI UI) {
-    final MessagePane message = new MessagePane(UI, titleKey, this);
-    final Upgrade upgrade = this;
-    
-    if (titleKey.equals(COMPLETE_KEY+name)) message.assignContent(
-      upgrade+" is now available in prototype form.  Prototypes are "+
-      "expensive, but their cost will decline as your engineers become "+
-      "familiar with the technology.",
-      
-      new Description.Link("View Upgrade") {
-        public void whenClicked() {
-          upgrade.whenClicked();
-          UI.clearMessagePane();
-        }
-      },
-      upgrade.isBlueprintUpgrade() ? new Description.Link("Place Prototype") {
-        public void whenClicked() {
-          PlacingTask.performPlacingTask(upgrade.origin);
-          UI.clearMessagePane();
-        }
-      } : null
-    );
-    
-    if (titleKey.equals(BREAKTHROUGH_KEY+name)) message.assignContent(
-      "One of our researchers had a flash of sudden insight, leading to a "+
-      "breakthrough in our research into "+upgrade+"!",
-      new Description.Link("View Project") {
-        public void whenClicked() {
-          final Mission match = upgrade.researchDone(UI.played());
-          if (match != null) match.whenClicked();
-          UI.clearMessagePane();
-        }
-      }
-    );
-    
-    if (titleKey.equals(SETBACK_KEY+name)) message.assignContent(
-      "There has been a setback in our research into "+upgrade+".  An avenue "+
-      "of investigation proved to be unfruitful.",
-      new Description.Link("View Project") {
-        public void whenClicked() {
-          final Mission match = upgrade.researchDone(UI.played());
-          if (match != null) match.whenClicked();
-          UI.clearMessagePane();
-        }
-      }
-    );
-    
-    return message;
-  }
-  
-  
-  public void messageWasOpened(String titleKey, BaseUI UI) {
-    UI.reminders().retireMessage(titleKey);
+    if (base != BaseUI.currentPlayed()) return;
+    TOPIC_SETBACK.dispatchMessage("Setback: "+baseName, this);
   }
   
   
@@ -480,16 +479,6 @@ public class Upgrade extends Constant implements
     return icon = UIConstants.GUILD_IMAGE_ASSETS[index];
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

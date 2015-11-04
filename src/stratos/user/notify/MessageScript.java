@@ -10,12 +10,13 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+
 import java.lang.reflect.*;
 
 
 
 public class MessageScript implements
-  Session.Saveable, MessagePane.MessageSource, UIConstants
+  Session.Saveable, Messaging, UIConstants
 {
   
   private class Topic {
@@ -118,11 +119,17 @@ public class MessageScript implements
   }
   
   
-  public MessagePane configMessage(String titleKey, BaseUI UI) {
-    return messageFor(titleKey, UI);
+  public MessagePane loadMessage(Session s, BaseUI UI) throws Exception {
+    final String title = s.loadString();
+    return messageFor(title, UI);
   }
   
   
+  public void saveMessage(MessagePane message, Session s) throws Exception {
+    s.saveString(message.title);
+  }
+
+
   public void clearScript() {
     for (Topic topic : allTopics.values()) {
       topic.asMessage = null ;
@@ -209,8 +216,9 @@ public class MessageScript implements
   }
   
   
-  public void messageWasOpened(String titleKey, BaseUI UI) {
-    if (I.logEvents()) I.say("\nTopic opened: "+titleKey);
+  public void messageWasOpened(MessagePane message, BaseUI UI) {
+    if (I.logEvents()) I.say("\nTopic opened: "+message.title);
+    UI.reminders().retireMessage(message);
   }
   
   
@@ -228,7 +236,7 @@ public class MessageScript implements
     final ReminderListing reminders = UI.reminders();
     if (topic.urgent && ! reminders.hasMessageEntry(topic.titleKey)) {
       final float receiptTime = UI.played().world.currentTime();
-      reminders.addMessageEntry(message, true, receiptTime);
+      reminders.addMessageEntry(message, true, receiptTime, true);
     }
     if (viewNow) UI.setMessagePane(message);
   }

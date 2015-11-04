@@ -13,7 +13,7 @@ import stratos.util.Description.Link;
 
 
 
-public class Summons extends Plan implements MessagePane.MessageSource {
+public class Summons extends Plan implements Messaging {
   
   
   private static boolean
@@ -273,14 +273,18 @@ public class Summons extends Plan implements MessagePane.MessageSource {
   
   /**  Helper methods for dialogue-construction
     */
-  public MessagePane configMessage(String title, BaseUI UI) {
-    //  TODO:  IMPLEMENT THIS!
-    return null;
+  public MessagePane loadMessage(Session s, BaseUI UI) throws Exception {
+    return configDialogueFor(UI, invites, false);
   }
   
   
-  public void messageWasOpened(String titleKey, BaseUI UI) {
-    //  TODO:  ALSO THIS!
+  public void saveMessage(MessagePane message, Session s) throws Exception {
+    //  No action required...
+  }
+  
+  
+  public void messageWasOpened(MessagePane message, BaseUI UI) {
+    //  No action required...
   }
   
   

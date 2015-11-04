@@ -22,7 +22,8 @@ public class MessagePane extends UIGroup implements UIConstants {
     */
   final public String title;
   final public Target focus;
-  final MessageSource source;
+  final Messaging source;
+  private Object arguments[];
   
   final   UINode    portraitFrame;
   private Composite portrait     ;
@@ -37,11 +38,12 @@ public class MessagePane extends UIGroup implements UIConstants {
   private String initText;
   private Clickable options[];
   private float receiptDate = -1;
-  
+  private boolean shouldKeep = true;
   
 
   public MessagePane(
-    final BaseUI baseUI, String title, MessageSource source
+    final BaseUI baseUI, String title,
+    Messaging source, Object... arguments
   ) {
     this(baseUI, null, title, null, source);
   }
@@ -49,12 +51,14 @@ public class MessagePane extends UIGroup implements UIConstants {
   
   public MessagePane(
     final BaseUI baseUI, final Composite portrait,
-    String title, Target focus, MessageSource source
+    String title, Target focus,
+    Messaging source, Object... arguments
   ) {
     super(baseUI);
-    this.title  = title ;
-    this.focus  = focus ;
-    this.source = source;
+    this.title     = title    ;
+    this.focus     = focus    ;
+    this.source    = source   ;
+    this.arguments = arguments;
     
     //  TODO:  Constrain this better?
     this.alignAcross(0, 1);
@@ -113,12 +117,6 @@ public class MessagePane extends UIGroup implements UIConstants {
   }
   
   
-  public static interface MessageSource extends Session.Saveable {
-    MessagePane configMessage(String titleKey, BaseUI UI);
-    void messageWasOpened(String titleKey, BaseUI UI);
-  }
-  
-  
   public MessagePane assignContent(String initText, Clickable... options) {
     this.contentSet = true    ;
     this.initText   = initText;
@@ -140,8 +138,9 @@ public class MessagePane extends UIGroup implements UIConstants {
   }
   
   
-  protected void assignReceiptDate(float time) {
+  protected void assignReceiptDate(float time, boolean shouldKeep) {
     this.receiptDate = time;
+    this.shouldKeep  = shouldKeep;
   }
   
   
@@ -157,6 +156,16 @@ public class MessagePane extends UIGroup implements UIConstants {
   
   public String toString() {
     return title;
+  }
+  
+  
+  public Object[] arguments() {
+    return arguments;
+  }
+  
+  
+  protected boolean shouldKeep() {
+    return shouldKeep;
   }
   
   

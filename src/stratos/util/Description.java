@@ -22,6 +22,7 @@ public interface Description {
   public void append(String s, Colour c);
   public void append(String s);
   public void append(Object o);
+  public void append(Object... o);
   
   public void appendList(String s, Series l);
   public void appendList(String s, Object... l);

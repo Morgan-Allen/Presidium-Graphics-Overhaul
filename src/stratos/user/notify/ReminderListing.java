@@ -5,12 +5,11 @@
   */
 package stratos.user.notify;
 import stratos.game.common.*;
-import stratos.game.economic.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.base.*;
-import stratos.user.notify.MessagePane.MessageSource;
+
 
 
 public class ReminderListing extends UIGroup {
@@ -33,10 +32,12 @@ public class ReminderListing extends UIGroup {
   
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
-      oldMessages.add(loadMessage(s));
+      final MessagePane pane = loadMessage(s);
+      if (pane != null) oldMessages.add(pane);
     }
     for (int n = s.loadInt(); n-- > 0;) {
-      newMessages.add(loadMessage(s));
+      final MessagePane pane = loadMessage(s);
+      if (pane != null) newMessages.add(pane);
     }
     UI.setMessagePane(loadMessage(s));
   }
@@ -52,23 +53,23 @@ public class ReminderListing extends UIGroup {
   
   
   private void saveMessage(MessagePane message, Session s) throws Exception {
-    if (message == null) { s.saveObject(null); return; }
-    if (message.source == null) {
-      I.complain("\nNO SOURCE FOR MESSAGE: "+message.title);
+    if (message == null || message.source == null || ! message.shouldKeep()) {
+      s.saveObject(null);
+      return;
     }
-    s.saveObject(message.source       );
-    s.saveString(message.title        );
-    s.saveFloat (message.receiptDate());
+    s.saveObject(message.source);
+    message.source.saveMessage(message, s);
+    s.saveFloat(message.receiptDate());
   }
   
   
   private MessagePane loadMessage(Session s ) throws Exception {
-    final MessageSource source = (MessageSource) s.loadObject();
+    final Messaging source = (Messaging) s.loadObject();
     if (source == null) return null;
-    final String titleKey = s.loadString();
-    final float  receipt  = s.loadFloat ();
-    final MessagePane pane = source.configMessage(titleKey, UI);
-    pane.assignReceiptDate(receipt);
+    
+    final MessagePane pane = source.loadMessage(s, UI);
+    final float receipt = s.loadFloat ();
+    pane.assignReceiptDate(receipt, true);
     return pane;
   }
   
@@ -236,7 +237,7 @@ public class ReminderListing extends UIGroup {
     final MessagePane open = UI.currentMessage();
     if (open == lastOpen || open == null) return;
     lastOpen = open;
-    if (open.source != null) open.source.messageWasOpened(open.title, UI);
+    if (open.source != null) open.source.messageWasOpened(open, UI);
   }
   
   
@@ -267,12 +268,12 @@ public class ReminderListing extends UIGroup {
   
   
   public void addMessageEntry(
-    MessagePane message, boolean urgent, float receiptDate
+    MessagePane message, boolean urgent, float receiptDate, boolean shouldKeep
   ) {
     if (message.source == null) {
       I.complain("\nMESSAGE "+message.title+" MUST HAVE SOURCE!");
     }
-    message.assignReceiptDate(receiptDate);
+    message.assignReceiptDate(receiptDate, shouldKeep);
     if (urgent) newMessages.include(message);
     else        oldMessages.include(message);
   }
@@ -289,7 +290,7 @@ public class ReminderListing extends UIGroup {
     final ListEntry <MessagePane> match = newMessages.match(message);
     if (match == null) return;
     newMessages.removeEntry(match);
-    oldMessages.include(message);
+    if (message.shouldKeep()) oldMessages.include(message);
   }
   
   

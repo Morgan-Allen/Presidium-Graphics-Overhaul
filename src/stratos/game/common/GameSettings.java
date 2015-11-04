@@ -185,29 +185,13 @@ public class GameSettings {
   
   
   protected static void saveSettings(Session s) throws Exception {
-    
-    for (Field f : settings) try {
-      final Type t = f.getType();
-      if      (t == Boolean.TYPE) s.saveBool (f.getBoolean(null));
-      else if (t == Float  .TYPE) s.saveFloat(f.getFloat  (null));
-      else if (t == Integer.TYPE) s.saveInt  (f.getInt    (null));
-    }
-    catch (Exception e) { I.report(e); }
-    
+    for (Field f : settings) s.saveWithType(f.get(null), f.getType());
     s.saveBool(PlayLoop.paused());
   }
   
   
   protected static void loadSettings(Session s) throws Exception {
-
-    for (Field f : settings) try {
-      final Type t = f.getType();
-      if      (t == Boolean.TYPE) f.setBoolean(null, s.loadBool ());
-      else if (t == Float  .TYPE) f.setFloat  (null, s.loadFloat());
-      else if (t == Integer.TYPE) f.setInt    (null, s.loadInt  ());
-    }
-    catch (Exception e) { I.report(e); }
-    
+    for (Field f : settings) f.set(null, s.loadWithType(f.getType()));
     PlayLoop.setPaused(s.loadBool());
   }
 }

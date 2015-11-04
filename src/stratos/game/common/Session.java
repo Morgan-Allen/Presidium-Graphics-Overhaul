@@ -659,10 +659,57 @@ public final class Session {
     out.write(chars);
     bytesOut += chars.length + 4;
   }
+  
+  
+  
+  /**  And finally, some methods for generalised save/loading given a base
+    *  type-
+    */
+  public Object loadWithType(Type t) throws Exception {
+    
+    if      (t == Boolean.TYPE) return loadBool  ();
+    else if (t == Float  .TYPE) return loadFloat ();
+    else if (t == Integer.TYPE) return loadInt   ();
+    else if (t == String.class) return loadString();
+    
+    else if (t == Double   .TYPE) return (double) loadFloat();
+    else if (t == Character.TYPE) return (char  ) loadInt  ();
+    else if (t == Short    .TYPE) return (short ) loadInt  ();
+    
+    else return loadObject();
+  }
+  
+  
+  public void saveWithType(Object o, Type t) throws Exception {
+    
+    if      (t == Boolean.TYPE) saveBool  ((Boolean) o);
+    else if (t == Float  .TYPE) saveFloat ((Float  ) o);
+    else if (t == Integer.TYPE) saveInt   ((Integer) o);
+    else if (t == String.class) saveString((String ) o);
+    
+    else if (t == Double   .TYPE) saveFloat((float) (double) (Double   ) o);
+    else if (t == Character.TYPE) saveInt  ((int  ) (char  ) (Character) o);
+    else if (t == Short    .TYPE) saveInt  ((int  ) (short ) (Short    ) o);
+    
+    else saveObject((Saveable) o);
+  }
+  
+  
+  public Object[] loadWithTypes(Type... types) throws Exception {
+    final Object loaded[] = new Object[types.length];
+    for (int i = 0; i < types.length; i++) {
+      loaded[i] = loadWithType(types[i]);
+    }
+    return loaded;
+  }
+  
+  
+  public void saveWithTypes(Object objects[], Type... types) throws Exception {
+    for (int i = 0; i < types.length; i++) {
+      saveWithType(objects[i], types[i]);
+    }
+  }
 }
-
-
-
 
 
 

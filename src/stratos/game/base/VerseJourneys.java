@@ -111,6 +111,18 @@ public class VerseJourneys {
   }
   
   
+  public static VerseLocation originFor(Mobile mobile) {
+    final Journey j = mobile.base().world.offworld.journeys.journeyFor(mobile);
+    return j == null ? null : j.origin;
+  }
+  
+  
+  public static VerseLocation destinationFor(Mobile mobile) {
+    final Journey j = mobile.base().world.offworld.journeys.journeyFor(mobile);
+    return j == null ? null : j.destination;
+  }
+  
+  
   
   /**  Exchange methods for interfacing with the world-
     */
@@ -283,7 +295,10 @@ public class VerseJourneys {
     //  And if the ship is coming back from offworld, see if it's time to
     //  begin landing-
     if (arriving && visitWorld && canEnter) {
-      if (hasTrans) ShipUtils.findLandingSite(trans, false);
+      if (hasTrans) {
+        ShipUtils.findLandingSite(trans, false);
+        trans.base().advice.sendArrivalMessage(trans, journey.origin);
+      }
       
       for (Mobile m : journey.migrants) trans.setInside(m, true);
       journey.migrants.clear();
