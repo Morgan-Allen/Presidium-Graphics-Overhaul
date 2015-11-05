@@ -27,9 +27,9 @@ public class Combat extends Plan {
   
   
   final public static int
-    STYLE_RANGED = 0,
-    STYLE_MELEE  = 1,
-    STYLE_EITHER = 2,
+    STYLE_SKIRMISH = 0,
+    STYLE_DEPLOYED = 1,
+    STYLE_EITHER   = 2,
     ALL_STYLES[] = { 0, 1, 2 },
     
     OBJECT_EITHER  = 0,
@@ -254,6 +254,40 @@ public class Combat extends Plan {
     final float hideDist = Spacing.distance(covers, struck) / range;
     if (hideDist > 1) return null;
     return covers;
+  }
+  
+  
+  private Tile formationPoint(Actor a) {
+    
+    //  TODO:  Test this out!
+    //  Use tiles and fixed directions instead (have to rely on a grid.)
+    
+    Mission deployment = a.mind.mission();
+    List <Actor> team = deployment.approved();
+    
+    Vec3D flagPoint = deployment.subjectAsTarget().position(null);
+    
+    Vec3D avgPos = new Vec3D(), tmp = new Vec3D();
+    for (Actor t : team) avgPos.add(t.position(tmp));
+    avgPos.scale(1f / team.size());
+    
+    Vec3D heading = tmp.setTo(flagPoint).sub(avgPos).normalise();
+    int index     = team.indexOf(a);
+    
+    float
+      rank   = (index / 4) + (team.size() / 8f),
+      file   = (index % 4) - 1.5f,
+      standX = flagPoint.x + (heading.x * file),
+      standY = flagPoint.y + (heading.y * rank);
+    
+    Stage world = a.world();
+    Tile stands = world.tileAt(
+      Nums.clamp(standX, 0, world.size -1),
+      Nums.clamp(standY, 0, world.size -1)
+    );
+    stands = Spacing.nearestOpenTile(stands, stands);
+    
+    return stands;
   }
   
   

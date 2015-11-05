@@ -301,11 +301,6 @@ public class Flora extends Element implements TileConstants {
       float dieChance = UPDATE_DIE_CHANCE * growth / maxGrowth;
       if (Rand.num() < dieChance) { setAsDestroyed(false); return; }
     }
-    
-    if (! natural) {
-      I.say("  INIT GROWTH AT "+growth);
-    }
-    
     if (oldStage != newStage) updateSprite();
   }
   

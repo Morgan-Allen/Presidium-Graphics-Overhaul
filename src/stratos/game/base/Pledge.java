@@ -257,6 +257,36 @@ public class Pledge implements Session.Saveable {
   
   
   
+  final public static Type TYPE_MILITARY_DUTY = new Type("Military Duty") {
+    
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      return new Pledge[] { new Pledge(this, makes) };
+    }
+    
+    
+    String description(Pledge p) {
+      return "Military Duty";
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      //  TODO:  HOOK THIS UP WITH CONSCRIPTION INTERFACE!
+      return Plan.ROUTINE;
+    }
+    
+    
+    Behaviour fulfillment(Pledge p, Pledge reward) {
+      return null;
+    }
+  };
+  
+  public static Pledge militaryDutyPledge(Actor from) {
+    return new Pledge(TYPE_MILITARY_DUTY, from);
+  }
+  
+  
+  
   final public static Type TYPE_GIFT_ITEM = new Type("Gift Item") {
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {

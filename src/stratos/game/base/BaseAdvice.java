@@ -328,13 +328,12 @@ public class BaseAdvice {
     pane.header().setText("Shortage of "+t);
     
     final Description d = pane.detail();
-    if (t instanceof Traded) {
-      final String help = ((Traded) t).description;
-      d.append(t+": ", Colour.LITE_GREY);
-      if (help == null) d.append("(No description)", Colour.LITE_GREY);
-      else d.append(help, Colour.LITE_GREY);
-      d.append("\n\n");
-    }
+
+    final String help = ((Traded) t).description;
+    d.append(t+": ", Colour.LITE_GREY);
+    if (help == null) d.append("(No description)", Colour.LITE_GREY);
+    else d.append(help, Colour.LITE_GREY);
+    d.append("\n\n");
     
     final float need = base.commerce.primaryShortage(t);
     final int percent = (int) (need * 100);
@@ -343,6 +342,7 @@ public class BaseAdvice {
     final Batch <Blueprint>
       canMake = new Batch <Blueprint> (),
       canUse  = new Batch <Blueprint> ();
+    
     for (Blueprint b : base.setup.available()) {
       if (b.category == Target.TYPE_WIP) continue;
       else if (b.producing(t) != null) canMake.include(b);
@@ -350,42 +350,30 @@ public class BaseAdvice {
     }
     
     if (canUse.size() > 0) {
-      d.append("This commodity is used by the following facilities:");
-      for (Blueprint b : canUse) d.append("\n  "+b.name);
-      d.append("\n\n");
+      d.append("\nConsumed by: ");
+      for (Blueprint b : canUse) {
+        if (b == canUse.first()) d.append(" ");
+        else if (b == canUse.last()) d.append(" and ");
+        else d.append(", ");
+        d.append(b);
+      }
     }
     
-    for (Blueprint match : canMake) {
-      final Conversion s = match.producing(t);
-      final String category = match.category;
-      
-      if (s.raw.length > 0) {
-        d.append("Consider building a "+match.name+", which converts ");
-        for (Item i : s.raw) d.append(i.type+" ");
-        d.append("to "+s.out.type+".");
+    if (canMake.size() > 0) {
+      d.append("\nProduced by: ");
+      for (Blueprint b : canMake) {
+        if (b == canUse.first()) d.append(" ");
+        else if (b == canUse.last()) d.append(" and ");
+        else d.append(", ");
+        d.append(b);
       }
-      else {
-        d.append("Consider building a "+match.name+", which provides "+t+".");
-      }
-      
-      if (category != null) {
-        d.append("\n  Category: "+category+" Structures", Colour.LITE_GREY);
-      }
-      d.append("\n\n");
     }
     
-    if (Visit.arrayIncludes(Economy.ALL_MATERIALS, t)) {
-      
-      if (canMake.size() > 0) {
-        d.append("Alternatively, you could import this good at a ");
-      }
-      else d.append("You could import this good at a ");
-      
-      if (Visit.arrayIncludes(StockExchange.ALL_STOCKED, t)) {
-        d.append("Supply Depot or Stock Exchange");
-      }
-      else d.append("Supply Depot");
-      d.append(".\n\n");
+    if (Visit.arrayIncludes(StockExchange.ALL_STOCKED, t)) {
+      d.append("\nCan import at ", StockExchange.BLUEPRINT);
+    }
+    if (Visit.arrayIncludes(SupplyDepot.ALL_STOCKED, t)) {
+      d.append("\nCan import at ", SupplyDepot.BLUEPRINT);
     }
     
     return pane;
@@ -401,7 +389,7 @@ public class BaseAdvice {
     protected void configMessage(final BaseUI UI, Text d, Object... args) {
       final Mobile killed = (Mobile) args[0];
       final String cause  = (String) args[1];
-      d.append(killed, " has died from "+cause+".");
+      d.appendAll(killed, " has died from "+cause+".");
     }
   };
   
@@ -436,9 +424,9 @@ public class BaseAdvice {
     protected void configMessage(BaseUI UI, Text d, Object... args) {
       final Mobile        arrived = (Mobile       ) args[0];
       final VerseLocation origin  = (VerseLocation) args[1];
-      d.append(arrived, " has arrived from ");
+      d.appendAll(arrived, " has arrived from ");
       if (origin == null) d.append("offworld.");
-      else d.append(origin, ".");
+      else d.appendAll(origin, ".");
     }
   };
   

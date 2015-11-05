@@ -119,7 +119,6 @@ public class MissionRecon extends Mission {
   
   
   public void describeMission(Description d) {
-    d.append("On ");
     d.append("Recon Mission", this);
     final Tile tile = (Tile) subject;
     d.append(" around ");

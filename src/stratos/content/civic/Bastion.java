@@ -41,8 +41,8 @@ public class Bastion extends Venue {
     "whole, houses your family, advisors and bodyguards, and provides "+
     "basic logistic support.",
     8, 3, Structure.IS_UNIQUE,
-    Owner.TIER_FACILITY, 650,
-    15
+    Owner.TIER_FACILITY, 650, 15,
+    SERVICE_SECURITY
   );
   
   
@@ -332,7 +332,7 @@ public class Bastion extends Venue {
     final int BB = structure.upgradeLevel(BLAST_SHIELDS);
     structure.updateStats(650 + 250 * BB, 15 + 5 * BB, 0);
     
-    int ambience = structure.numUpgrades() / 4;
+    int ambience = structure.numOptionalUpgrades() / 4;
     if (ambience == 3) ambience = 10;
     if (ambience == 2) ambience = 5;
     if (ambience == 1) ambience = 2;

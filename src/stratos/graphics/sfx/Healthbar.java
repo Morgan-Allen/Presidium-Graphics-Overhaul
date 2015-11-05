@@ -39,7 +39,6 @@ public class Healthbar extends SFX {
   public boolean alarm = false;
   public Colour
     back  = Colour.DARK_GREY,
-    warn  = Colour.RED,
     tire  = TIRED_GREY,
     flash = AMBER_FLASH;
   

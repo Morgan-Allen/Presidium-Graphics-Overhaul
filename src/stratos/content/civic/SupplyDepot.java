@@ -40,8 +40,8 @@ public class SupplyDepot extends Venue {
     SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
   );
 
-  final static Traded
-    ALL_TRADE_TYPES[] = {
+  final public static Traded
+    ALL_STOCKED[] = {
       POLYMER, METALS, FUEL_RODS, PLASTICS, PARTS,
       CARBS, PROTEIN, GREENS, REAGENTS, SPYCES
     },
@@ -56,7 +56,7 @@ public class SupplyDepot extends Venue {
     "used in manufacturing.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_TRADER, 100, 2,
-    Visit.compose(Object.class, ALL_TRADE_TYPES, new Object[] {
+    Visit.compose(Object.class, ALL_STOCKED, new Object[] {
       SERVICE_COMMERCE, Backgrounds.SUPPLY_CORPS
     })
   );
@@ -74,7 +74,7 @@ public class SupplyDepot extends Venue {
     sprite.setSortMode(GroupSprite.SORT_BY_ADDITION);
     attachSprite(sprite);
     
-    for (Traded t : ALL_TRADE_TYPES) {
+    for (Traded t : ALL_STOCKED) {
       stocks.forceDemand(t, 5, true);
     }
     for (Traded t : HOME_PURCHASE_TYPES) {
@@ -119,7 +119,7 @@ public class SupplyDepot extends Venue {
     //
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_SQUALOR);
-    for (Traded type : ALL_TRADE_TYPES) {
+    for (Traded type : ALL_STOCKED) {
       final float stockBonus = 1 + upgradeLevelFor(type);
       stocks.updateTradeDemand(type, stockBonus, 1);
     }
@@ -231,7 +231,7 @@ public class SupplyDepot extends Venue {
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {
-    return ALL_TRADE_TYPES;
+    return ALL_STOCKED;
   }
   
   
@@ -247,7 +247,7 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, ALL_TRADE_TYPES, null);
+    return VenuePane.configSimplePanel(this, panel, UI, ALL_STOCKED, null);
     /*
     return VenuePane.configStandardPanel(
       this, panel, UI,

@@ -90,6 +90,7 @@ public class DebugCombat extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
+    ///if (PlayLoop.stateUpdates() % 10 == 0) PathingMap.reportObs();
   }
   
   
@@ -109,9 +110,13 @@ public class DebugCombat extends Scenario {
     
     final Box2D perim = bastion.area(new Box2D()).expandBy(8);
     SiteUtils.placeAroundPerimeter(ShieldWall.BLUEPRINT, perim, base, true);
-    final TrooperLodge barracks = new TrooperLodge(base);
-    SiteUtils.establishVenue(barracks, barracks, true, world);
-    base.setup.fillVacancies(barracks, true);
+    
+    for (int n = 2; n-- > 0;) {
+      final TrooperLodge barracks = new TrooperLodge(base);
+      SiteUtils.establishVenue(barracks, barracks, true, world);
+      base.setup.fillVacancies(barracks, true);
+    }
+    
     
     //  And introduce ruins, with a complement of artilects.
     final ArtilectBase artilects = Base.artilects(world);
@@ -124,6 +129,48 @@ public class DebugCombat extends Scenario {
     artilects.setup.fillVacancies(ruins, true);
     
     UI.selection.pushSelection(ruins.staff.workers().first());
+  }
+  
+  
+  private void combatScenario(Stage world, Base base, BaseUI UI) {
+    
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { TROOPER, TROOPER, TROOPER },
+      TrooperTechniques.TROOPER_TECHNIQUES,
+      new Species[] { Cranial.SPECIES, Cranial.SPECIES },
+      Base.artilects(world)
+    );
+    
+    /*
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { ECOLOGIST, ECOLOGIST },
+      EcologistTechniques.ECOLOGIST_TECHNIQUES,
+      new Species[] { Avrodil.SPECIES },
+      Base.vermin(world)
+    );
+    //*/
+    
+    /*
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { RUNNER, RUNNER },
+      RunnerTechniques.RUNNER_TECHNIQUES,
+      new Species[] { Tripod.SPECIES },
+      Base.artilects(world)
+    );
+    //*/
+    
+    /*
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { PHYSICIAN, TROOPER, TROOPER },
+      PhysicianTechniques.PHYSICIAN_TECHNIQUES,
+      new Species[] { Yamagur.SPECIES },
+      Base.wildlife(world)
+    );
+    //*/
   }
   
   
@@ -157,40 +204,6 @@ public class DebugCombat extends Scenario {
       Actor enemy = (Actor) Rand.pickFrom(soldiers);
       other.mind.assignBehaviour(new Combat(other, enemy));
     }
-  }
-  
-  
-  private void combatScenario(Stage world, Base base, BaseUI UI) {
-    
-    /*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { ECOLOGIST, ECOLOGIST },
-      EcologistTechniques.ECOLOGIST_TECHNIQUES,
-      new Species[] { Avrodil.SPECIES },
-      Base.vermin(world)
-    );
-    //*/
-    
-    /*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { RUNNER, RUNNER },
-      RunnerTechniques.RUNNER_TECHNIQUES,
-      new Species[] { Tripod.SPECIES },
-      Base.artilects(world)
-    );
-    //*/
-    
-    //*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { PHYSICIAN, TROOPER, TROOPER },
-      PhysicianTechniques.PHYSICIAN_TECHNIQUES,
-      new Species[] { Yamagur.SPECIES },
-      Base.wildlife(world)
-    );
-    //*/
   }
   
   

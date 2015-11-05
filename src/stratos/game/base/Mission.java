@@ -32,7 +32,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
     TYPE_PUBLIC   =  0,
     TYPE_SCREENED =  1,
     TYPE_COVERT   =  2,
-    LIMIT_TYPE    =  3,
+    TYPE_MILITARY =  3,
+    LIMIT_TYPE    =  4,
     
     PRIORITY_NONE      = 0,
     PRIORITY_NOMINAL   = 1,
@@ -43,11 +44,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
     LIMIT_PRIORITY     = 6;
   
   final public static float REWARD_TYPE_MULTS[] = {
-    0.75f, 0.5f, 0.25f
+    0.75f, 0.5f, 0.25f, 0f
   };
   final public static String
     TYPE_DESC[] = {
-      "Public Bounty", "Screened", "Covert"
+      "Public Bounty", "Screened", "Covert", "Military"
     },
     PRIORITY_DESC[] = {
       "None", "Nominal", "Routine", "Urgent", "Critical", "Paramount"
@@ -481,9 +482,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     */
   public Behaviour nextStepFor(Actor actor, boolean create) {
     if (begun) updateMission();
-    if (done || priority <= 0) return null;
     
     final Role role = roleFor(actor);
+    if (done || (priority <= 0 && role == null)) return null;
+    
     final Action waiting = nextWaitAction(actor, role);
     if (waiting != null) return waiting;
     
@@ -743,7 +745,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+  public SelectionOptions configSelectOptions(
+    SelectionOptions info, BaseUI UI
+  ) {
     return null;
   }
   
@@ -844,13 +848,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
       "The target's current location is unknown.  This mission cannot proceed "+
       "until they are found.";
     if (missionType == TYPE_PUBLIC  ) return
-      "This is a public contract, open to all comers.";
+      "This mission is a public bounty, open to all comers.";
     if (missionType == TYPE_SCREENED) return
       "This is a screened mission.  Applicants will be subject to your "+
       "approval before they can embark.";
     if (missionType == TYPE_COVERT  ) return
       "This is a covert mission.  No agents or citizens will apply "+
       "unless recruited by interview.";
+    if (missionType == TYPE_MILITARY) return
+      "This is a military operation.  You may conscript any members of your "+
+      "standing armed forces to join.";
     return description;
   }
   

@@ -231,7 +231,7 @@ public class PhysicianStation extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    final float numU = (1 + structure.numUpgrades()) / 2f;
+    final float numU = (1 + structure.numOptionalUpgrades()) / 2f;
     //
     //  The station consumes medicine and power based on current upgrade level,
     //  and has a mild positive effect on ambience-

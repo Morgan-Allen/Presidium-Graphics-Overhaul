@@ -30,7 +30,12 @@ public class Structure {
     DEFAULT_ARMOUR     =  2  ,
     DEFAULT_CLOAKING   =  0  ,
     DEFAULT_AMBIENCE   =  0  ,
-    DEFAULT_BUILD_COST = -1  ;
+    DEFAULT_LEVELS     = -1  ,
+    DEFAULT_BUILD_COST = -1  ,
+    
+    STARTING_UPGRADES  = 4,
+    UPGRADES_PER_LEVEL = 2;
+  
   final public static float
     BURN_PER_SECOND = 1.0f,
     REGEN_PER_DAY   = 0.2f;
@@ -71,25 +76,12 @@ public class Structure {
     IS_ANCIENT = 128,
     IS_ORGANIC = 256;
   
-  //  Type- venue, vehicle, fixture, tiling?
-  //  Placement method- unique, point, line, zone?
-  //  Resilience- primitive, technological, ancient, organic?
-  //  Category- (for faction-membership.)
-  
-  
-  final public static int
-    NO_UPGRADES         = 0,
-    SMALL_MAX_UPGRADES  = 4,
-    NORMAL_MAX_UPGRADES = 6,
-    BIG_MAX_UPGRADES    = 8;
   final static float UPGRADE_HP_BONUSES[] = {
     0,
     0.15f, 0.25f, 0.35f,
     0.4f , 0.45f, 0.5f ,
     0.5f , 0.55f, 0.55f, 0.6f , 0.6f , 0.65f
   };
-  final static int UPGRADES_PER_LEVEL = 3;
-  
   private static boolean verbose = false;
   
   
@@ -98,7 +90,8 @@ public class Structure {
   
   private int properties    = IS_NORMAL        ;
   private int baseIntegrity = DEFAULT_INTEGRITY;
-  private int maxUpgrades   = NO_UPGRADES      ;
+  private int maxLevels     = DEFAULT_LEVELS   ;
+  
   private Item materials[];
   private int
     buildCost     = 0                 ,
@@ -128,7 +121,7 @@ public class Structure {
     blueprint = (Blueprint) s.loadObject();
     
     baseIntegrity = s.loadInt();
-    maxUpgrades   = s.loadInt();
+    maxLevels     = s.loadInt();
     buildCost     = s.loadInt();
     armouring     = s.loadInt();
     cloaking      = s.loadInt();
@@ -139,12 +132,13 @@ public class Structure {
     integrity = s.loadFloat();
     burning   = s.loadBool() ;
     
-    if (maxUpgrades > 0) {
+    final int maxU = s.loadInt();
+    if (maxU > 0) {
       upgradeProgress = s.loadFloat();
       upgradeIndex    = s.loadInt()  ;
-      upgrades        = new Upgrade[maxUpgrades];
-      upgradeStates   = new int    [maxUpgrades];
-      for (int i = 0; i < maxUpgrades; i++) {
+      upgrades        = new Upgrade[maxU];
+      upgradeStates   = new int    [maxU];
+      for (int i = 0; i < maxU; i++) {
         upgrades     [i] = (Upgrade) s.loadObject();
         upgradeStates[i] = s.loadInt();
       }
@@ -159,7 +153,7 @@ public class Structure {
     s.saveObject(blueprint);
     
     s.saveInt(baseIntegrity);
-    s.saveInt(maxUpgrades  );
+    s.saveInt(maxLevels    );
     s.saveInt(buildCost    );
     s.saveInt(armouring    );
     s.saveInt(cloaking     );
@@ -170,14 +164,16 @@ public class Structure {
     s.saveFloat(integrity);
     s.saveBool (burning  );
     
-    if (maxUpgrades > 0) {
+    if (upgrades != null) {
+      s.saveInt  (upgrades.length);
       s.saveFloat(upgradeProgress);
-      s.saveInt(upgradeIndex);
-      for (int i = 0; i < maxUpgrades; i++) {
+      s.saveInt  (upgradeIndex   );
+      for (int i = 0; i < upgrades.length; i++) {
         s.saveObject(upgrades     [i]);
         s.saveInt   (upgradeStates[i]);
       }
     }
+    else s.saveInt(-1);
     
     Item.saveItemsTo(s, materials);
   }
@@ -185,43 +181,54 @@ public class Structure {
   
   public void setupStats(Blueprint blueprint) {
     this.blueprint = blueprint;
-    setupStats(
+    adjustStats(
       blueprint.integrity,
       blueprint.armour,
+      DEFAULT_CLOAKING,
       DEFAULT_BUILD_COST,
-      blueprint.numLevels() * UPGRADES_PER_LEVEL,
+      blueprint.numLevels(),
       blueprint.properties
     );
+    
     addUpgrade(blueprint.baseUpgrade());
   }
   
   
-  public void setupStats(
+  public void adjustStats(
     int baseIntegrity,
     int armouring,
+    int cloaking,
     int buildCost,
-    int maxUpgrades,
+    int maxLevels,
     int properties
   ) {
-    this.integrity  = this.baseIntegrity = baseIntegrity;
+    final float condition = integrity * 1f / maxIntegrity();
+    this.baseIntegrity = baseIntegrity;
+    this.integrity = condition * maxIntegrity();
+    
     this.armouring  = armouring;
+    this.cloaking   = cloaking;
     this.buildCost  = buildCost;
     this.properties = properties;
     
-    this.maxUpgrades = maxUpgrades;
-    if (maxUpgrades > 0) {
-      this.upgrades      = new Upgrade[maxUpgrades];
-      this.upgradeStates = new int    [maxUpgrades];
+    final float oldMaxL = this.maxLevels;
+    this.maxLevels = maxLevels;
+    if (maxLevels > 0 && maxLevels != oldMaxL) {
+      final int maxUAL = this.upgradesArrayLength();
+      this.upgrades      = new Upgrade[maxUAL];
+      this.upgradeStates = new int    [maxUAL];
     }
   }
   
-  
-  public void updateStats(int baseIntegrity, int armouring, int cloaking) {
-    final float condition = integrity * 1f / maxIntegrity();
-    this.baseIntegrity = baseIntegrity;
-    this.armouring = armouring;
-    this.cloaking = cloaking;
-    integrity = condition * maxIntegrity();
+
+  public void updateStats(
+    int baseIntegrity,
+    int armouring,
+    int cloaking
+  ) {
+    adjustStats(
+      baseIntegrity, armouring, cloaking, buildCost, maxLevels, properties
+    );
   }
   
   
@@ -290,7 +297,6 @@ public class Structure {
   /**  General state queries-
     */
   public int maxIntegrity() { return baseIntegrity + upgradeHP(); }
-  public int maxUpgrades () { return upgrades == null ? 0 : maxUpgrades; }
   public int currentState() { return state; }
   
   public int cloaking()  { return cloaking ; }
@@ -311,9 +317,26 @@ public class Structure {
     if (blueprint == null) return buildCost;
     //
     //  TODO:  Try summing together the build cost for all extant
-    //         level-upgrades!
-    
+    //         level-upgrades?
     return blueprint.baseUpgrade().buildCost(basis.base());
+  }
+  
+  
+  protected int upgradesArrayLength() {
+    if (blueprint == null) return 0;
+    int total = maxLevels + (UPGRADES_PER_LEVEL * (maxLevels - 1));
+    return STARTING_UPGRADES + total;
+  }
+  
+  
+  protected int upgradeHP() {
+    if (upgrades == null) return 0;
+    int numUsed = 0;
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgrades[i] != null && upgradeStates[i] != STATE_INSTALL) numUsed++;
+    }
+    if (numUsed == 0) return 0;
+    return (int) (baseIntegrity * UPGRADE_HP_BONUSES[numUsed]);
   }
   
   
@@ -490,17 +513,6 @@ public class Structure {
   }
   
   
-  protected int upgradeHP() {
-    if (upgrades == null) return 0;
-    int numUsed = 0;
-    for (int i = 0; i < upgrades.length; i++) {
-      if (upgrades[i] != null && upgradeStates[i] != STATE_INSTALL) numUsed++;
-    }
-    if (numUsed == 0) return 0;
-    return (int) (baseIntegrity * UPGRADE_HP_BONUSES[numUsed]);
-  }
-  
-  
   
   
   /**  Handling upgrades-
@@ -571,7 +583,6 @@ public class Structure {
   public void beginUpgrade(Upgrade upgrade, boolean checkExists) {
     int atIndex = -1;
     for (int i = 0; i < upgrades.length; i++) {
-      ///I.sayAbout(venue, "Upgrade is: "+upgrades[i]);
       if (checkExists && upgrades[i] == upgrade) return;
       if (upgrades[i] == null) { atIndex = i; break; }
     }
@@ -618,40 +629,6 @@ public class Structure {
   }
   
   
-  public int slotsFree() {
-    int num = 0;
-    for (Upgrade u : upgrades) {
-      if (u == null) num++;
-    }
-    return num;
-  }
-  
-  
-  public void setMainUpgradeLevel(int level) {
-    if (blueprint == null || blueprint.venueLevels() == null) {
-      I.complain("\nNO VENUE-LEVELS ASSOCIATED WITH "+basis);
-      return;
-    }
-    final Upgrade levels[] = blueprint.venueLevels();
-    while (level-- > 0) {
-      if (level >= levels.length || hasUpgrade(levels[level], 1)) continue;
-      addUpgrade(levels[level]);
-    }
-  }
-  
-  
-  public int mainUpgradeLevel() {
-    if (blueprint == null || blueprint.venueLevels() == null) {
-      return -1;
-    }
-    int level = 0;
-    for (Upgrade u : blueprint.venueLevels()) {
-      if (hasUpgrade(u, 1)) level++;
-    }
-    return level;
-  }
-  
-  
   public int upgradeLevel(Object refers, int state) {
     if (upgrades == null || refers == null) return 0;
     int num = 0;
@@ -668,17 +645,6 @@ public class Structure {
   
   public int upgradeLevel(Object refers) {
     return upgradeLevel(refers, STATE_INTACT);
-  }
-  
-  
-  public int numUpgrades() {
-    if (upgrades == null) return 0;
-    int num = 0;
-    for (int i = 0; i < upgrades.length; i++) {
-      if (upgrades[i] == null || upgradeStates[i] != STATE_INTACT) continue;
-      num++;
-    }
-    return num;
   }
   
   
@@ -710,6 +676,74 @@ public class Structure {
       if (upgradeStates[i] == state) queued.add(upgrades[i]);
     }
     return queued;
+  }
+  
+
+  
+  /**  Methods for dealing with the venue's main upgrade-sequence (in contrast
+    *  with optional tech-modules.)  A certain amount of internal data-space
+    *  has to be 'reserved' for the former, and isn't visible externally.
+    */
+  public void setMainUpgradeLevel(int level) {
+    if (blueprint == null || blueprint.venueLevels() == null) {
+      I.complain("\nNO VENUE-LEVELS ASSOCIATED WITH "+basis);
+      return;
+    }
+    final Upgrade levels[] = blueprint.venueLevels();
+    while (level-- > 0) {
+      if (level >= levels.length || hasUpgrade(levels[level], 1)) continue;
+      addUpgrade(levels[level]);
+    }
+  }
+  
+  
+  public int mainUpgradeLevel() {
+    if (maxMainLevel() <= 0) return -1;
+    int level = 0;
+    for (Upgrade u : blueprint.venueLevels()) {
+      if (hasUpgrade(u, 1)) level++;
+    }
+    return level;
+  }
+  
+  
+  public int maxMainLevel() {
+    if (blueprint == null || blueprint.venueLevels() == null) {
+      return -1;
+    }
+    return blueprint.venueLevels().length;
+  }
+  
+  
+  public boolean hasSpaceFor(Upgrade up) {
+    if (upgrades == null || up.origin != blueprint) return false;
+    if (up.type == Upgrade.Type.VENUE_LEVEL) return true;
+    
+    int slots = 0;
+    for (Upgrade u : upgrades) {
+      if (u == null || u.type == Upgrade.Type.VENUE_LEVEL) slots++;
+    }
+    return slots - maxLevels > 0;
+  }
+  
+  
+  public int maxOptionalUpgrades() {
+    if (upgrades == null) return 0;
+    final int level = mainUpgradeLevel();
+    return STARTING_UPGRADES + ((level - 1) * UPGRADES_PER_LEVEL);
+  }
+  
+  
+  public int numOptionalUpgrades() {
+    if (upgrades == null) return 0;
+    int num = 0;
+    for (int i = 0; i < upgrades.length; i++) {
+      if (upgradeStates[i] != STATE_INTACT) continue;
+      final Upgrade u = upgrades[i];
+      if (u == null || u.type == Upgrade.Type.VENUE_LEVEL) continue;
+      num++;
+    }
+    return num;
   }
   
   

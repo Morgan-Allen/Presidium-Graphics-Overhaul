@@ -123,6 +123,9 @@ public class Profile {
     else if (ruler != null && actor.mind.home() == ruler.mind.home()) {
       mult = (1 - ruler.base().relations.communitySpirit());
     }
+    if (Visit.arrayIncludes(Backgrounds.MILITARY_CIRCLES, vocation)) {
+      mult *= 2;
+    }
     return vocation.defaultSalary * mult;
   }
   

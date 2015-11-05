@@ -2,19 +2,15 @@
 
 TO DO NOW-
 
-*  Make sure trooper abilities are linked to upgrades, and introduce
-   Call to Arms!
+*  Make sure trooper abilities are linked to upgrades.
 *  Test (and flesh out) all artilect techniques.
 *  Offworld raids by enemy houses!
-   
+
 *  Dropship crews are missing during their first trip.  Fix.
 
-*  Structure-upgrades are counting as tech-upgrade against the total no. of
-   slots.  Maybe that's correct, but maybe not?  Subtract it from display,
-   anyway.
-
 *  Hook up, and test, all common abilities.  (Plus general learning & use of
-   the others.)
+   the others.)  Reserve Suppression and Hew for Troopers- move psy powers out.
+   
 *  See if you can hook up ammo clips and power cells.
 *  Pax Conditioning needs to be filled in.  Psy Protocol as booster skill.
 
@@ -53,6 +49,9 @@ TO DO NOW-
    inside the walls if need be.)
    
    Make sure housing has adequate aesthetics.
+   
+   Allow both hiring and queueing of upgrades before a structure of complete,
+   and allow relocating once it is.
 
 
 *  Path-zone refreshment needs to be done more intelligently to avoid 'spikes'

@@ -131,16 +131,18 @@ public class Dropship extends Vehicle implements Owner {
     
     final Choice jobs = new Choice(actor);
     jobs.isVerbose = report;
+    if (report) I.say("  Getting best delivery...");
     
     final Batch <Venue> depots = BringUtils.nearbyDepots(
       this, world, SERVICE_COMMERCE
     );
     final Traded goods[] = cargo.demanded();
-    
     jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, depots));
     jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, depots));
-    if (! jobs.empty()) { choice.add(jobs.pickMostUrgent()); return; }
-    
+    if (jobs.empty()) {
+      jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, 5));
+      jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, 5));
+    }
     choice.add(jobs.pickMostUrgent());
   }
   

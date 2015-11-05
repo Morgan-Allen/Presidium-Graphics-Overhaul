@@ -1,10 +1,13 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
+import stratos.game.economic.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.widgets.*;
@@ -44,14 +47,7 @@ public class MissionPane extends SelectionPane {
     //  commands:
     describeStatus(mission, canChange, UI, d);
     describeOrders(canChange, d);
-    //
-    //  And lastly, we fill up the right-hand pane with the list of
-    //  applications, and options to confirm or deny them:
-    l.append(mission.helpInfo());
-    if (applied.size() > 0) {
-      l.append("\n\n");
-      listApplicants(mission, applied, canChange, UI, l);
-    }
+    listApplicants(mission, applied, canChange, UI, l);
     return this;
   }
   
@@ -77,7 +73,7 @@ public class MissionPane extends SelectionPane {
       });
     }
     else {
-      d.append("\nOrders:");
+      d.append("\n ");
       //  TODO:  CONSIDER REQUIRING CONFIRMATION EVEN FOR PUBLIC MISSIONS?
       
       final boolean begun = mission.hasBegun(), canBegin =
@@ -89,12 +85,13 @@ public class MissionPane extends SelectionPane {
         }
       });
       else d.append(" (BEGIN)", Colour.LITE_GREY);
-      d.append(new Description.Link(begun ? " (ABORT)" : " (DISMISS)") {
+      
+      d.append(new Description.Link(" (ABORT)") {
         public void whenClicked() {
           if (begun) confirmAbort = true;
           else mission.endMission(false);
         }
-      });
+      }, Colour.RED);
     }
   }
   
@@ -117,19 +114,156 @@ public class MissionPane extends SelectionPane {
     final Mission mission, boolean canChange,
     BaseUI UI, Description d
   ) {
-    final Colour FIXED = Colour.LITE_GREY;
-    final Base declares = mission.base();
+    //final Colour FIXED = Colour.LITE_GREY;
     //
     //  Firstly, declare the mission's patron and current status:
+    final Base declares = mission.base();
     d.append("Declared by "+declares);
     d.append("\n  Subject: ");
     if (mission.visibleTo(mission.base())) d.append(mission.subject());
     else d.append(""+mission.subject(), Colour.GREY);
     d.append("\n  Status:  "+mission.progressDescriptor());
+    d.append("\n");
+    
     //
     //  Secondly, describe the mission type:
-    final int type = mission.missionType();
+    final int type     = mission.missionType();
+    final int priority = mission.assignedPriority();
     if (type == TYPE_BASE_AI) return;
+    int payAmount = REWARD_AMOUNTS[priority];
+    
+    d.append("\nType and Reward: ");
+    for (int i = 0; i < LIMIT_TYPE; i++) {
+      final int newType = i;
+      final boolean active = type == newType;
+      d.append("\n  ");
+      
+      if (canChange) d.append(new Description.Link(TYPE_DESC[newType]) {
+        public void whenClicked() {
+          mission.setMissionType(newType);
+        }
+      }, (active ? Colour.GREEN : Text.LINK_COLOUR));
+      
+      else d.append(
+        TYPE_DESC[newType], active ? Colour.GREEN : Colour.LITE_GREY
+      );
+      
+      if (active) {
+        d.append(" ("+payAmount+" credits) ");
+        
+        final float nextAmount = Mission.rewardFor(priority + 1);
+        final boolean canPay = mission.base().finance.credits() > nextAmount;
+        final boolean canAdjust = canPay && (canChange || (
+          type == TYPE_PUBLIC && priority < PRIORITY_PARAMOUNT
+        ));
+        
+        if (canAdjust) d.append(new Description.Link("(More)") {
+          public void whenClicked() {
+            mission.assignPriority((priority + 1) % LIMIT_PRIORITY);
+          }
+        });
+      }
+    }
+    d.append("\n");
+  }
+  
+  
+  protected void listApplicants(
+    final Mission mission, List <Actor> applied, boolean canConfirm,
+    BaseUI UI, Description d
+  ) {
+    
+    if (mission.missionType() == TYPE_MILITARY && canConfirm) {
+      
+      final Stage world = UI.played().world;
+      final Batch <Venue> barracks = new Batch();
+      final Background MILITARY[] = Backgrounds.MILITARY_CIRCLES;
+      
+      for (Object o : world.presences.allMatches(Economy.SERVICE_SECURITY)) {
+        final Venue v = (Venue) o;
+        if (v.base() == UI.played()) barracks.add(v);
+      }
+      d.append("Standing Forces:");
+      
+      for (Venue v : barracks) {
+        
+        final Batch <Actor> soldiers = new Batch();
+        for (Actor s : v.staff.workers()) {
+          if (! Visit.arrayIncludes(MILITARY, s.mind.vocation())) {
+            continue;
+          }
+          soldiers.add(s);
+        }
+        if (soldiers.empty()) continue;
+        
+        d.append("\n  ");
+        final Composite portrait = v.portrait(UI);
+        if (portrait != null) Text.insert(portrait.texture(), 40, 40, true, d);
+        d.append(" "+v);
+        
+        d.append("\n  ");
+        for (Actor s : soldiers) {
+          final Composite PS = s.portrait(UI);
+          if (PS != null) Text.insert(PS.texture(), 20, 20, s, false, d);
+        }
+        
+        d.append("\n  ");
+        d.append(new Description.Link("(DEPLOY "+soldiers.size()+"X)") {
+          public void whenClicked() {
+            for (Actor s : soldiers) {
+              s.mind.assignMission(mission);
+              mission.setApprovalFor(s, true);
+              mission.setSpecialRewardFor(s, Pledge.militaryDutyPledge(s));
+            }
+          }
+        });
+      }
+      Text.cancelBullet(d);
+    }
+    
+    if (applied.size() == 0) {
+      d.append("\n");
+      d.append(mission.helpInfo(), Colour.LITE_GREY);
+    }
+    else {
+      d.append("Team Members:");
+      
+      for (final Actor a : applied) {
+        d.append("\n  ");
+        final Composite portrait = a.portrait(UI);
+        if (portrait != null) Text.insert(portrait.texture(), 40, 40, true, d);
+        d.append(" ");
+        d.append(a);
+        ///d.append(" ("+a.mind.vocation()+")");
+        
+        final boolean approved = mission.isApproved(a);
+        if (canConfirm) {
+          d.append("\n ");
+          final String option = approved ? "(DISMISS)" : "(APPROVE)";
+          d.append(new Description.Link(option) {
+            public void whenClicked() {
+              mission.setApprovalFor(a, ! approved);
+            }
+          });
+        }
+        else {
+          d.append("\n ");
+          d.append(approved ? "(approved)" : "", Colour.LITE_GREY);
+          d.append("\n ");
+          a.describeStatus(d, mission);
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+    
+    
+    /*
     final String typeDesc = type == TYPE_BASE_AI ? "BASE AI" :
       TYPE_DESC[type]
     ;
@@ -164,41 +298,5 @@ public class MissionPane extends SelectionPane {
       }
     });
     else d.append(payDesc, FIXED);
-  }
-  
-  
-  protected void listApplicants(
-    final Mission mission, List <Actor> applied, boolean canConfirm,
-    BaseUI UI, Description d
-  ) {
-    d.append("Applications:");
-    for (final Actor a : applied) {
-      d.append("\n  ");
-      final Composite portrait = a.portrait(UI);
-      if (portrait != null) Text.insert(portrait.texture(), 40, 40, true, d);
-      d.append(a);
-      d.append(" ("+a.mind.vocation()+")");
-
-      final boolean approved = mission.isApproved(a);
-      if (canConfirm) {
-        d.append("\n");
-        final String option = approved ? "(DISMISS)" : "(APPROVE)";
-        d.append(new Description.Link(option) {
-          public void whenClicked() {
-            mission.setApprovalFor(a, ! approved);
-          }
-        });
-      }
-      else d.append(approved ? "  (approved)" : "");
-
-      d.append("\n");
-      a.describeStatus(d, mission);
-    }
-  }
-}
-
-
-
-
-
+    //*/
 

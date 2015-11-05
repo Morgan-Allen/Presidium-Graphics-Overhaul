@@ -188,7 +188,6 @@ public class MissionContact extends Mission {
   
   
   public void describeMission(Description d) {
-    d.append("On ");
     d.append("Contact Mission ", this);
     d.append(" with ");
     d.append(subject);

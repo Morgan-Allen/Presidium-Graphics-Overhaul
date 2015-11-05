@@ -139,7 +139,7 @@ public class Text extends UIGroup implements Description {
   }
   
   
-  public void append(Object... o) {
+  public void appendAll(Object... o) {
     for (Object i : o) append(i);
   }
   

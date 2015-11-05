@@ -111,7 +111,6 @@ public class MissionStrike extends Mission {
   
   
   public void describeMission(Description d) {
-    d.append("On ");
     d.append("Strike Mission", this);
     d.append(" against ");
     d.append(subject);

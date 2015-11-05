@@ -119,7 +119,6 @@ public class MissionSecurity extends Mission {
   
   
   public void describeMission(Description d) {
-    d.append("On ");
     d.append("Security Mission", this);
     d.append(" for ");
     d.append(subject);

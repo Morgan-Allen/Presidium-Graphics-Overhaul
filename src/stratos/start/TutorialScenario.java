@@ -184,7 +184,7 @@ public class TutorialScenario extends StartupScenario {
     final Blueprint RB = Ruins.VENUE_BLUEPRINTS[0];
     ruinsNear = (Ruins) RB.createVenue(artilects);
     ruinsFar  = (Ruins) RB.createVenue(artilects);
-    ruinsNear.structure.setupStats(200, 5, 0, 0, RB.properties);
+    ruinsNear.structure.adjustStats(200, 5, 0, 0, 0, RB.properties);
     
     final SitingPass nearPass = new SitingPass(artilects, ruinsNear) {
       protected float ratePlacing(Target point, boolean exact) {
@@ -439,7 +439,7 @@ public class TutorialScenario extends StartupScenario {
     
     foundryBuilt .structure.setMainUpgradeLevel(2);
     barracksBuilt.structure.setMainUpgradeLevel(2);
-    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.MARKSMAN_TRAINING, 2);
+    barracksBuilt.structure.setUpgradeLevel(TrooperLodge.FIRING_RANGE, 2);
     
     final Base base = base();
     while (base.commerce.numCandidates(Backgrounds.TROOPER) < 2) {

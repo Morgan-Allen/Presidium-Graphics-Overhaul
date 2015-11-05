@@ -705,6 +705,11 @@ public final class Session {
   
   
   public void saveWithTypes(Object objects[], Type... types) throws Exception {
+    
+    if (objects.length != types.length) {
+      I.say("PROBLEM!");
+    }
+    
     for (int i = 0; i < types.length; i++) {
       saveWithType(objects[i], types[i]);
     }

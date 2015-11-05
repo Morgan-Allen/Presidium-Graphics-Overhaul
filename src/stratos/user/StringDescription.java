@@ -29,7 +29,7 @@ public class StringDescription implements Description {
     else append(o.toString());
   }
   
-  public void append(Object... o) {
+  public void appendAll(Object... o) {
     for (Object i : o) append(i);
   }
   

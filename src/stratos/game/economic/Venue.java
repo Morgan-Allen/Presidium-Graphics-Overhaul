@@ -771,7 +771,7 @@ public abstract class Venue extends Fixture implements
     //
     //  First of all, we show the structure's current healthbar, and possibly
     //  a sub-bar to show upgrade progress.
-    final int NU = structure.numUpgrades();
+    final int NU = structure.numOptionalUpgrades();
     final Healthbar healthbar = new Healthbar();
     healthbar.hurtLevel = 1 - structure.repairLevel();
     healthbar.size = (radius() * 50);
@@ -787,19 +787,15 @@ public abstract class Venue extends Fixture implements
       final Upgrade inProg = structure.upgradeInProgress();
       Healthbar progBar = new Healthbar();
       progBar.hurtLevel = 1 - structure.upgradeProgress(inProg);
+      progBar.tireLevel = 0;
       progBar.size = healthbar.size;
       progBar.position.setTo(healthbar.position);
       progBar.yoff = 0 - Healthbar.BAR_HEIGHT;
       
       final Colour c = new Colour(healthbar.colour);
-      c.set(
-        (1 + c.r) / 2,
-        (1 + c.g) / 2,
-        (1 + c.b) / 2,
-        1
-      );
+      c.blend(Colour.WHITE, 0.5f);
       progBar.colour = c;
-      progBar.warn = healthbar.colour;
+      progBar.flash  = c;
       progBar.readyFor(rendering);
     }
     //

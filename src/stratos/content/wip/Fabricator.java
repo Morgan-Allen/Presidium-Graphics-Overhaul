@@ -115,7 +115,7 @@ public class Fabricator extends Venue {
     final int levelPC = structure.upgradeLevel(POLYMER_LOOM);
     structure.setAmbienceVal((levelPC - 1) * Ambience.MILD_AMBIENCE);
     
-    final float powerNeed = 2 + (structure.numUpgrades() / 2f);
+    final float powerNeed = 2 + (structure.numOptionalUpgrades() / 2f);
     stocks.forceDemand(POWER, powerNeed, false);
     stocks.incDemand(PLASTICS, 5, 1, false);
     stocks.translateRawDemands(PLASTICS_TO_DECOR    , 1);

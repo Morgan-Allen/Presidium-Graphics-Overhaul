@@ -125,6 +125,26 @@ public class ShieldWall extends Venue {
   protected void updatePaving(boolean inWorld) {
     //
     //  Also, asking for pavement on the other side might be a trifle risky...
+    
+    if (! inWorld) {
+      base.transport.updatePerimeter(this, false, null);
+      return;
+    }
+    
+    //  TODO:  Come up with a good system here!  You should pave the 'interior'
+    //  side if possible.
+    
+    //  Well... there is a very ugly temporary hack for this.
+    
+    final Target HQ = world.presences.nearestMatch(Bastion.class, this, -1);
+    final Batch <Tile> toPave = new Batch();
+    
+    if (HQ != null) for (Tile t : Spacing.perimeter(footprint(), world)) {
+      if (t == null || ! t.canPave()) continue;
+      if (Spacing.distance(HQ, t) > Spacing.distance(this, HQ)) continue;
+      toPave.add(t);
+    }
+    base.transport.updatePerimeter(this, true, toPave.toArray(Tile.class));
   }
   
   

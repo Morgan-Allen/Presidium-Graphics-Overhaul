@@ -47,7 +47,7 @@ public class Airfield extends Venue {
     "land and refuel, facilitating offworld trade and migration.",
     6, 1, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 250, 5,
-    DECK_HAND, SHIP_CAPTAIN
+    SERVICE_SECURITY, DECK_HAND, SHIP_CAPTAIN
   );
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(

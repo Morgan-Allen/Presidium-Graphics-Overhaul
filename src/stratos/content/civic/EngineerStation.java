@@ -175,7 +175,7 @@ public class EngineerStation extends Venue {
     stocks.translateRawDemands(PARTS_TO_CIRCUITRY , 1);
     
     float pollution = 5, powerNeed = 5;
-    powerNeed *= (3 + structure.numUpgrades()) / 6;
+    powerNeed *= (3 + structure.numOptionalUpgrades()) / 6;
     pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
     pollution *= (5f + structure.upgradeLevel(ASSEMBLY_LINE)) / 5;
     stocks.forceDemand(POWER, powerNeed, false);

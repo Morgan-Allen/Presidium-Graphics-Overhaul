@@ -23,10 +23,10 @@ public class VenuePane extends SelectionPane {
   
   
   final public static String
-    CAT_UPGRADES = "UPGRADE",
-    CAT_STOCK    = "STOCK"  ,
-    CAT_STAFFING = "STAFF"  ,
-    DEFAULT_CATS[] = { CAT_UPGRADES, CAT_STOCK, CAT_STAFFING };
+    CAT_ORDERS   = "ORDERS",
+    CAT_STOCK    = "STOCK" ,
+    CAT_STAFFING = "STAFF" ,
+    DEFAULT_CATS[] = { CAT_ORDERS, CAT_STOCK, CAT_STAFFING };
   
   final public Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
   private Actor dismissing = null;
@@ -50,7 +50,7 @@ public class VenuePane extends SelectionPane {
     final Description d = panel.detail(), l = panel.listing();
     
     VD.describeCondition(d, UI);
-    if (category == CAT_UPGRADES) VD.describeUpgrades(l, UI);
+    if (category == CAT_ORDERS) VD.describeOrders(l, UI);
     if (category == CAT_STOCK) VD.describeStocks(l, UI, setStock);
     /*
     {
@@ -81,6 +81,9 @@ public class VenuePane extends SelectionPane {
       d.append(statusMessage);
     }
     
+    l.append("\n");
+    VD.describeOrders(l, UI);
+    l.append("\n");
     VD.describeStocks(l, UI, setStock);
     l.append("\n");
     VD.describeStaffing(l, UI);
@@ -120,8 +123,6 @@ public class VenuePane extends SelectionPane {
       d.append("\n  "+Ambience.dangerDesc(danger)+" Safety"+SN);
     }
     
-    describeOrders(d);
-    
     d.append("\n\n");
     d.append(v.helpInfo(), Colour.LITE_GREY);
   }
@@ -135,6 +136,8 @@ public class VenuePane extends SelectionPane {
   );
   
   protected void describeStocks(Description d, BaseUI UI, Traded setStock[]) {
+    if (v.stocks.empty()) return;
+    
     d.append("Stocks and Provisions:");
     
     final Traded[] demands = setStock == null ? v.stocks.demanded() : setStock;
@@ -210,8 +213,6 @@ public class VenuePane extends SelectionPane {
       d.append(" (");
       
       String modeDesc = MODES[mode];
-      //if (mode == 0 && producer) modeDesc = "Made";
-      //if (mode == 0 && consumer) modeDesc = "Used";
       
       d.append(new Description.Link(modeDesc) {
         public void whenClicked() {
@@ -255,6 +256,8 @@ public class VenuePane extends SelectionPane {
     */
   private void describeStaffing(Description d, BaseUI UI) {
     final Background c[] = v.careers();
+    if (Visit.empty(c) && v.inside().size() == 0) return;
+    
     Batch <Actor> mentioned = new Batch <Actor> ();
     
     if (dismissing != null) {
@@ -338,28 +341,40 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  private void describeUpgrades(Description d, final BaseUI UI) {
-    if (! v.structure().intact()) {
-      d.append("Upgrades unavailable while under construction.");
-      return;
-    }
-    
-    //  TODO:  Allow both hiring and queuing of upgrades before a structure is
-    //  completed.
-    
-    final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
-    if (UA == null || UA.size() == 0) {
-      d.append("No upgrades available.");
-      return;
-    }
-    
+  private void describeOrders(Description d, final BaseUI UI) {
     final Base base = v.base();
-    int numU = v.structure.numUpgrades(), maxU = v.structure.maxUpgrades();
-    if (maxU > 0) d.append("\nUpgrades Installed: "+numU+"/"+maxU);
+    final int
+      mainLevel = v.structure.mainUpgradeLevel(),
+      maxLevel  = v.structure.maxMainLevel(),
+      numU      = v.structure.numOptionalUpgrades(),
+      maxU      = v.structure.maxOptionalUpgrades();
     
-    for (final Upgrade upgrade : UA) {
+    if (maxLevel > 1) {
+      d.append(v.blueprint.name+" Level: "+mainLevel+"/"+maxLevel);
+
+      if (v.structure.intact() && mainLevel < maxLevel) {
+        final Upgrade VL[] = v.blueprint.venueLevels();
+        final int level = v.structure.mainUpgradeLevel();
+        final Upgrade next = VL[Nums.clamp(level + 1, VL.length)];
+        
+        d.append("\n");
+        next.appendVenueOrders(d, v, base);
+      }
       d.append("\n");
-      upgrade.appendVenueOrders(d, v, base);
+    }
+
+    final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
+    final boolean canUp = maxU > 0 && UA.size() > 0;
+    if (canUp && ! v.structure().intact()) {
+      d.append("\nUpgrades unavailable while under construction.");
+    }
+    else if (canUp) {
+      d.append("\nUpgrades Installed: "+numU+"/"+maxU);
+      for (final Upgrade upgrade : UA) {
+        if (upgrade.type != Upgrade.Type.TECH_MODULE) continue;
+        d.append("\n");
+        upgrade.appendVenueOrders(d, v, base);
+      }
     }
     
     final Batch <String> OA = v.structure.descOngoingUpgrades();
@@ -378,26 +393,22 @@ public class VenuePane extends SelectionPane {
         "\nUpgrades are currently being installed.", Colour.LITE_GREY
       );
     }
-  }
-  
-  
-  private void describeOrders(Description d) {
-    d.append("\n  Orders:");
-    
+
     final Batch <Description.Link> orders = new Batch();
     addOrdersTo(orders);
-    for (Description.Link link : orders) {
-      d.append(" ");
-      d.append(link);
+    if (orders.size() > 0) {
+      d.append("\n\nOther Orders:");
+      for (Description.Link link : orders) {
+        d.append("\n  ");
+        d.append(link);
+      }
     }
-    
-    //  TODO:  INCLUDE A RE-LOCATE OPTION TOO!
   }
   
   
   protected void addOrdersTo(Series <Description.Link> orderList) {
     final Base played = BaseUI.currentPlayed();
-
+    
     if (played == v.base()) {
       if (v.structure.needsSalvage()) {
         orderList.add(new Description.Link("Cancel Salvage") {
@@ -408,7 +419,7 @@ public class VenuePane extends SelectionPane {
         });
       }
       else {
-        orderList.add(new Description.Link("Salvage") {
+        orderList.add(new Description.Link("Salvage Structure") {
           public void whenClicked() {
             v.structure.beginSalvage();
             if (I.logEvents()) I.say("\nBEGAN SALVAGE: "+v);

@@ -12,15 +12,14 @@ import stratos.graphics.sfx.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
+import static stratos.game.economic.Economy.FORM_SPECIAL;
 import stratos.content.civic.TrooperLodge;
 
 
 
-//  TODO:  Implement these?  (And consider adding one or two extra SFX for the
-//  frag launcher?  Limit the ammo?)
-
-//  Platform Gunner.
-//  Golem Armour Use.
+//  TODO:  Implement these?
+//  Platform Gunner
+//  Golem Armour Use
 
 
 public class TrooperTechniques {
@@ -76,7 +75,7 @@ public class TrooperTechniques {
     public boolean canBeLearnt(Actor learns, boolean trained) {
       return
         hasGear(learns, Devices.HALBERD_GUN) &&
-        hasUpgrade(learns.mind.work(), TrooperLodge.MELEE_TRAINING, 1) &&
+        hasUpgrade(learns.mind.work(), TrooperLodge.SPARRING_GYM, 1) &&
         super.canBeLearnt(learns, trained);
     }
     
@@ -117,7 +116,7 @@ public class TrooperTechniques {
     public boolean canBeLearnt(Actor learns, boolean trained) {
       return
         hasGear(learns, Devices.HALBERD_GUN) &&
-        hasUpgrade(learns.mind.work(), TrooperLodge.MARKSMAN_TRAINING, 1) &&
+        hasUpgrade(learns.mind.work(), TrooperLodge.FIRING_RANGE, 1) &&
         super.canBeLearnt(learns, trained);
     }
     
@@ -152,6 +151,12 @@ public class TrooperTechniques {
   };
   
   
+  final public static Traded FRAG_LAUNCHER_AMMO = new Traded(
+    BASE_CLASS, "Frag Launcher", null, FORM_SPECIAL, 0,
+    "Ammunition for Frag Launchers."
+  );
+  
+  
   final public static Technique FRAG_LAUNCHER = new Technique(
     "Frag Launcher", UI_DIR+"frag_launcher.png",
     "Launches a devastating rocket attack at long-to-medium range.",
@@ -160,15 +165,20 @@ public class TrooperTechniques {
     EXTREME_HARM       ,
     MINOR_FATIGUE      ,
     MAJOR_CONCENTRATION,
-    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, MARKSMANSHIP, 15,
+    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, MARKSMANSHIP, 10,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
     public boolean canBeLearnt(Actor learns, boolean trained) {
       return
         hasGear(learns, Devices.HALBERD_GUN) &&
-        hasUpgrade(learns.mind.work(), TrooperLodge.MARKSMAN_TRAINING, 1) &&
+        hasUpgrade(learns.mind.work(), TrooperLodge.FRAG_LAUNCHER_UPGRADE, 1) &&
         super.canBeLearnt(learns, trained);
+    }
+    
+    
+    public Traded itemNeeded() {
+      return FRAG_LAUNCHER_AMMO;
     }
     
     
@@ -178,6 +188,7 @@ public class TrooperTechniques {
       if (! (subject instanceof Actor)) {
         return false;
       }
+      if (actor.gear.amountOf(FRAG_LAUNCHER_AMMO) == 0) return false;
       return current instanceof Combat;
     }
     
@@ -202,6 +213,7 @@ public class TrooperTechniques {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
+      using.gear.bumpItem(FRAG_LAUNCHER_AMMO, -1);
       
       //  TODO:  Could this be unified with similar methods in the Combat
       //  class?
@@ -242,17 +254,22 @@ public class TrooperTechniques {
     NO_HARM         ,
     NO_FATIGUE      ,
     NO_CONCENTRATION,
-    IS_GEAR_PROFICIENCY | IS_TRAINED_ONLY, HAND_TO_HAND, 15,
+    IS_GEAR_PROFICIENCY | IS_TRAINED_ONLY, HAND_TO_HAND, 10,
     Outfits.POWER_ARMOUR
-  ) {};
+  ) {
+    public boolean canBeLearnt(Actor learns, boolean trained) {
+      return
+        hasGear(learns, Devices.HALBERD_GUN) &&
+        hasUpgrade(learns.mind.work(), TrooperLodge.POWER_ARMOUR_UPGRADE, 1) &&
+        super.canBeLearnt(learns, trained);
+    }
+  };
   
+  
+  final public static Technique TROOPER_TECHNIQUES[] = {
+    ELECTROCUTE, SHIELD_HARMONICS, FRAG_LAUNCHER, POWER_ARMOUR_USE
+  };
 }
-
-
-
-
-
-
 
 
 

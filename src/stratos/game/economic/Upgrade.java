@@ -314,27 +314,25 @@ public class Upgrade extends Constant {
       if (level == maxLevel) {
         progReport = "At max. level";
       }
-      else if (v.structure().slotsFree() == 0) {
+      else if (! v.structure().hasSpaceFor(upgrade)) {
         progReport = "No free slots";
       }
       else if (doingUpgrade) {
         progReport = "Progress: "+(int) (progress * 100)+"%";
       }
-      else if (base.finance.hasCredits(cost)) {
-        linksTo = new Description.Link("") {
+      else {
+        if (base.finance.hasCredits(cost)) linksTo = new Description.Link("") {
           public void whenClicked() {
             s.beginUpgrade(upgrade, false);
           }
         };
-        progReport = (base.research.hasPractice(upgrade) ?
-          "(Build for " : "(Prototype for ")+cost+")"
-        ;
-      }
-      else {
-        progReport = (base.research.hasPractice(upgrade) ?
-          "(Build for " : "(Prototype for ")+cost+")"
-        ;
-        progColour = Colour.RED;
+        else progColour = Colour.RED;
+        
+        if (! base.research.hasPractice(this)) progReport = "Prototype";
+        else if (type == Type.VENUE_LEVEL) progReport = "Upgrade";
+        else progReport = "Install";
+        
+        progReport = "("+progReport+" for "+cost+")";
       }
     }
     
@@ -384,6 +382,11 @@ public class Upgrade extends Constant {
   
   
   
+  /**  Methods related to active use:
+    */
+  
+  
+  
   /**  Messages related to research-status...
     */
   final public static MessageTopic
@@ -392,7 +395,7 @@ public class Upgrade extends Constant {
     ) {
       protected void configMessage(final BaseUI UI, Text d, Object... args) {
         final Upgrade upgrade = (Upgrade) args[0];
-        d.append(
+        d.appendAll(
           upgrade, " is now available in prototype form.  Prototypes are "+
           "expensive, but their cost will decline as your engineers become "+
           "familiar with the technology.", "\n"
@@ -414,7 +417,7 @@ public class Upgrade extends Constant {
     ) {
       protected void configMessage(final BaseUI UI, Text d, Object... args) {
         final Upgrade upgrade = (Upgrade) args[0];
-        d.append(
+        d.appendAll(
           "One of our researchers had a flash of sudden insight, leading to a "+
           "breakthrough in our research into ", upgrade, "!"
         );
@@ -432,7 +435,7 @@ public class Upgrade extends Constant {
     ) {
       protected void configMessage(final BaseUI UI, Text d, Object... args) {
         final Upgrade upgrade = (Upgrade) args[0];
-        d.append(
+        d.appendAll(
           "There has been a setback in our research into ", upgrade, ".  A "+
           "promising series of experimental results proved to be misleading."
         );
