@@ -51,10 +51,11 @@ public class ActorSkills {
     */
   public void updateSkills(int numUpdates) {
     final boolean report = I.talkAbout == actor && techsVerbose;
+    boolean canLearn = actor.health.conscious() && actor.species().sapient();
     //
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.
-    if (actor.species().sapient()) for (Skill s : actor.traits.skillSet()) {
+    if (canLearn) for (Skill s : actor.traits.skillSet()) {
       final Series <Technique> learnt = Technique.learntFrom(s);
       if (learnt != null) for (Technique t : learnt) {
         if (known.includes(t)) continue;
@@ -68,10 +69,12 @@ public class ActorSkills {
       }
     }
     //
-    //  Flush older/expired TDPs.
-    
+    //  And apply passive techniques at all times.
+    for (Technique t : known) if (t.isPassiveAlways()) {
+      t.applyEffect(actor, true, actor, true);
+    }
     //
-    //  And decay any skills that haven't been used in a while.
+    //  ...And decay any skills that haven't been used in a while?
   }
   
   
@@ -168,7 +171,7 @@ public class ActorSkills {
     final Plan    current = acts ? taken.parentPlan() : null ;
     final Target  subject = acts ? taken.subject()    : actor;
     
-    for (Technique t : availableTechniques()) if (t.isPassive()) {
+    for (Technique t : availableTechniques()) if (t.isPassiveSkillFX()) {
       if (! t.triggersPassive(actor, current, skill, subject)) {
         if (report) I.say("  "+t+" is not applicable to "+subject);
         continue;

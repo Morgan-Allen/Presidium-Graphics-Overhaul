@@ -7,6 +7,7 @@ package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.plans.*;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
@@ -76,6 +77,11 @@ public class Cranial extends Artilect {
     traits.setLevel(IMPASSIVE, 1);
     traits.setLevel(CRUEL    , 1);
     
+    skills.addTechnique(IMPALE);
+    skills.addTechnique(POSITRON_BEAM);
+    skills.addTechnique(SHIELD_ABSORPTION);
+    skills.addTechnique(SELF_ASSEMBLY);
+    
     attachModel(MODEL_CRANIAL);
     name = nameWithBase("Cranial ");
   }
@@ -109,100 +115,6 @@ public class Cranial extends Artilect {
   public float radius() {
     return 0.5f;
   }
-  
-  
-  
-  /**  Special Techniques-
-    */
-  //  TODO:  MOVE TO THE ARTILECT CLASS?
-  final static Class BASE_CLASS = Artilect.class;
-  final static String
-    UI_DIR = "media/GUI/Powers/",
-    FX_DIR = "media/SFX/";
-  
-  final static Technique DETONATE = new Technique(
-    "Detonate", UI_DIR+"detonate.png",
-    "description",
-    BASE_CLASS, "detonate",
-    MINOR_POWER         ,
-    MILD_HARM           ,
-    NO_CONCENTRATION    ,
-    NO_FATIGUE          ,
-    IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0,
-    Action.FALL, Action.NORMAL
-  ) {
-    
-  };
-  
-  final static Technique IMPALE = new Technique(
-    "Impale", UI_DIR+"artilect_impale.png",
-    "description",
-    BASE_CLASS, "artilect_impale",
-    MEDIUM_POWER        ,
-    EXTREME_HARM        ,
-    MEDIUM_CONCENTRATION,
-    NO_FATIGUE          ,
-    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
-    Action.STRIKE_BIG, Action.NORMAL
-  ) {
-    
-  };
-  
-  final static Technique POSITRON_BEAM = new Technique(
-    "Positron Beam", UI_DIR+"positron_beam.png",
-    "description",
-    BASE_CLASS, "positron_beam",
-    MAJOR_POWER         ,
-    EXTREME_HARM        ,
-    MEDIUM_CONCENTRATION,
-    NO_FATIGUE          ,
-    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
-    Action.FIRE, Action.RANGED
-  ) {
-    
-  };
-  
-  final static Technique SHIELD_ABSORPTION = new Technique(
-    "Shield Absorption", UI_DIR+"artilect_shield_absorb.png",
-    "description",
-    BASE_CLASS, "artilect_shield_absorb",
-    MEDIUM_POWER    ,
-    NO_HARM         ,
-    NO_CONCENTRATION,
-    NO_FATIGUE      ,
-    IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
-    STEALTH_AND_COVER
-  ) {
-    
-  };
-  
-  final static Technique SLOUGH_FLESH = new Technique(
-    "Slough Flesh", UI_DIR+"artilect_slough_flesh.png",
-    "description",
-    BASE_CLASS, "artilect_slough_flesh",
-    MAJOR_POWER        ,
-    REAL_HARM          ,
-    MAJOR_CONCENTRATION,
-    NO_FATIGUE         ,
-    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
-    Action.STRIKE, Action.NORMAL
-  ) {
-    
-  };
-  
-  final static Technique SELF_ASSEMBLE = new Technique(
-    "Self Assemble", UI_DIR+"self_assemble.png",
-    "description",
-    BASE_CLASS, "self_assemble",
-    MAJOR_POWER         ,
-    NO_HARM             ,
-    MAJOR_CONCENTRATION ,
-    NO_FATIGUE          ,
-    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
-    Action.FIRE, Action.RANGED
-  ) {
-    
-  };
   
   
   

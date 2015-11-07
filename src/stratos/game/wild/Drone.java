@@ -69,18 +69,22 @@ public class Drone extends Artilect {
     );
     health.setupHealth(0, Rand.avgNums(2), Rand.avgNums(2));
 
-    gear.setBaseDamage(10);
+    gear.setBaseDamage(8 );
     gear.setBaseArmour(10);
     traits.setLevel(MARKSMANSHIP     , 10  + Rand.index(5) - 2);
     traits.setLevel(STEALTH_AND_COVER, 15 + Rand.index(5) - 2);
-    gear.equipDevice(Item.withQuality(INTRINSIC_BEAM  , 2));
-    gear.equipOutfit(Item.withQuality(INTRINSIC_ARMOUR, 2));
+    gear.equipDevice(Item.withQuality(INTRINSIC_BEAM     , 0));
+    gear.equipOutfit(Item.withQuality(INTRINSIC_SHIELDING, 0));
     
     traits.setLevel(CURIOUS, 1);
     
-    final ModelAsset model = DRONE_MODELS[0];
-    attachSprite(model.makeSprite());
+    skills.addTechnique(DETONATE     );
+    skills.addTechnique(SELF_ASSEMBLY);
+
     name = nameWithBase("Drone ");
+    final int MI = (name.hashCode() % 3);
+    final ModelAsset model = DRONE_MODELS[MI];
+    attachSprite(model.makeSprite());
   }
   
   

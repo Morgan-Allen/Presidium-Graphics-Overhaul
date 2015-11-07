@@ -5,15 +5,13 @@
   */
 package stratos.game.wild;
 import stratos.game.actors.*;
-import stratos.game.base.Mission;
 import stratos.game.common.*;
-import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.economic.*;
-import stratos.graphics.common.*;
-import stratos.graphics.solids.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Technique.*;
 
 
 
@@ -215,6 +213,253 @@ public abstract class Artilect extends Actor {
     final float fuelInc = 1f / FUEL_CELLS_REGEN;
     if (isDoing(Resting.class, null)) gear.incPowerCells(fuelInc);
   }
+  
+  
+  
+  /**  Special Techniques-
+    */
+  final static Class BASE_CLASS = Artilect.class;
+  final static String
+    UI_DIR = "media/GUI/Powers/",
+    FX_DIR = "media/SFX/";
+  
+  final static int
+    DETONATE_BASE_DAMAGE =  5,
+    DETONATE_BASE_RADIUS =  2,
+    DETONATE_USE_PERCENT = 50,
+    IMPALE_DAMAGE_MIN    =  5,
+    IMPALE_DAMAGE_MAX    = 15,
+    POSITRON_DAMAGE_AVG  = 20,
+    ASSEMBLY_DAY_REGEN   =  5,
+    ASSEMBLY_MAX_PERCENT = 25,
+    SHIELD_ABSORB_AVG    =  5;
+  
+  final static Technique DETONATE = new Technique(
+    "Detonate", UI_DIR+"detonate.png",
+    "description",
+    BASE_CLASS, "detonate",
+    MINOR_POWER         ,
+    MILD_HARM           ,
+    NO_CONCENTRATION    ,
+    NO_FATIGUE          ,
+    IS_PASSIVE_ALWAYS | IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
+    Action.STRIKE, Action.QUICK
+  ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      if (actor.health.injuryLevel() < 1f - (DETONATE_USE_PERCENT / 100f)) {
+        return false;
+      }
+      if (
+        current instanceof Combat &&
+        PlanUtils.harmIntendedBy(subject, actor, true) > 0
+      ) {
+        return true;
+      }
+      return false;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      if (passive && using.health.conscious()) return;
+      super.applyEffect(using, success, subject, passive);
+      final float
+        radius = DETONATE_BASE_RADIUS * using.health.baseBulk(),
+        damage = DETONATE_BASE_DAMAGE * using.health.baseBulk();
+      
+      for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
+        a.health.takeInjury(damage, false);
+      }
+      using.health.takeInjury(using.health.maxHealth(), true);
+    }
+  };
+  
+  
+  final static Technique IMPALE = new Technique(
+    "Impale", UI_DIR+"artilect_impale.png",
+    "description",
+    BASE_CLASS, "artilect_impale",
+    MEDIUM_POWER        ,
+    EXTREME_HARM        ,
+    MEDIUM_CONCENTRATION,
+    NO_FATIGUE          ,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
+    Action.STRIKE_BIG, Action.NORMAL
+  ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      return current instanceof Combat && subject instanceof Actor;
+    }
+    
+    
+    protected boolean checkActionSuccess(Actor actor, Target subject) {
+      if (! Combat.performGeneralStrike(
+        actor, subject, Combat.OBJECT_DESTROY, actor.currentAction()
+      )) return false;
+      return super.checkActionSuccess(actor, subject);
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      final Actor struck = (Actor) subject;
+      float damage = roll(IMPALE_DAMAGE_MIN, IMPALE_DAMAGE_MAX);
+      struck.health.takeInjury(damage, true);
+    }
+  };
+  
+  
+  final static Technique POSITRON_BEAM = new Technique(
+    "Positron Beam", UI_DIR+"positron_beam.png",
+    "description",
+    BASE_CLASS, "positron_beam",
+    MAJOR_POWER         ,
+    EXTREME_HARM        ,
+    MEDIUM_CONCENTRATION,
+    NO_FATIGUE          ,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
+    Action.FIRE, Action.RANGED
+  ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      return current instanceof Combat && canHit(subject);
+    }
+    
+    
+    private boolean canHit(Target subject) {
+      if (subject.isMobile() && ((Mobile) subject).isMoving()) {
+        return false;
+      }
+      return true;
+    }
+    
+    
+    protected boolean checkActionSuccess(Actor actor, Target subject) {
+      if (! canHit(subject)) return false;
+      if (! Combat.performGeneralStrike(
+        actor, subject, Combat.OBJECT_DESTROY, actor.currentAction()
+      )) return false;
+      return super.checkActionSuccess(actor, subject);
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      final float damage = POSITRON_DAMAGE_AVG * Rand.avgNums(2) * 2;
+      
+      if (success && subject instanceof Actor) {
+        final Actor struck = (Actor) subject;
+        struck.health.takeInjury(damage, true);
+        struck.enterStateKO(Action.FALL);
+      }
+      if (success && subject instanceof Placeable) {
+        ((Placeable) subject).structure().takeDamage(damage);
+      }
+    }
+  };
+  
+  
+  final static Technique SHIELD_ABSORPTION = new Technique(
+    "Shield Absorption", UI_DIR+"artilect_shield_absorb.png",
+    "description",
+    BASE_CLASS, "artilect_shield_absorb",
+    MEDIUM_POWER    ,
+    NO_HARM         ,
+    NO_CONCENTRATION,
+    NO_FATIGUE      ,
+    IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
+    STEALTH_AND_COVER
+  ) {
+    
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
+      return 0;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      //
+      //  TODO:  You need a Volley class to handle this properly.
+
+      if ((! success) || ! (subject instanceof Actor)) return;
+      final Actor strikes = (Actor) subject;
+      if (strikes.actionFocus() != using) return;
+      if (strikes.gear.meleeDeviceOnly()) return;
+      if (! strikes.isDoing(Combat.class, using)) return;
+      
+      float charge = SHIELD_ABSORB_AVG * Rand.num() * 2;
+      using.gear.boostShields(charge, false);
+    }
+  };
+  
+  
+  final static Technique SLOUGH_FLESH = new Technique(
+    "Slough", UI_DIR+"artilect_slough_flesh.png",
+    "description",
+    BASE_CLASS, "artilect_slough_flesh",
+    MAJOR_POWER        ,
+    REAL_HARM          ,
+    MAJOR_CONCENTRATION,
+    NO_FATIGUE         ,
+    IS_ANY_TARGETING | IS_NATURAL_ONLY, null, 0,
+    Action.STRIKE, Action.NORMAL
+  ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      if (! (subject instanceof Human)) return false;
+      final Human focus = (Human) subject;
+      return focus.health.organic() && ! focus.health.conscious();
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      final Human focus = (Human) subject;
+      final Boarding place = focus.aboard();
+      final Cybrid cybrid = new Cybrid(using.base(), focus);
+      
+      focus.exitWorld();
+      cybrid.enterWorldAt(place, place.world());
+    }
+  };
+  
+  
+  final static Technique SELF_ASSEMBLY = new Technique(
+    "Self Assembly", UI_DIR+"self_assembly.png",
+    "description",
+    BASE_CLASS, "self_assemble",
+    MAJOR_POWER         ,
+    NO_HARM             ,
+    MAJOR_CONCENTRATION ,
+    NO_FATIGUE          ,
+    IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0,
+    Action.FIRE, Action.RANGED
+  ) {
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      if (using.health.injuryLevel() < 1f - (ASSEMBLY_MAX_PERCENT / 100f)) {
+        return;
+      }
+      final float lift = ASSEMBLY_DAY_REGEN * 1f / Stage.STANDARD_DAY_LENGTH;
+      using.health.liftInjury(lift);
+    }
+  };
   
   
   

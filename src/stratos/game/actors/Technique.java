@@ -371,8 +371,13 @@ public abstract class Technique extends Constant {
   }
   
   
-  public boolean isPassive() {
+  public boolean isPassiveSkillFX() {
     return hasProperty(IS_PASSIVE_SKILL_FX);
+  }
+  
+  
+  public boolean isPassiveAlways() {
+    return hasProperty(IS_PASSIVE_ALWAYS);
   }
   
   

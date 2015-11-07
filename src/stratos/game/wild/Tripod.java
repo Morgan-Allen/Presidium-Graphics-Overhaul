@@ -59,10 +59,14 @@ public class Tripod extends Artilect {
     gear.setBaseArmour(20);
     traits.setLevel(MARKSMANSHIP, 10 + Rand.index(5) - 2);
     traits.setLevel(HAND_TO_HAND, 10 + Rand.index(5) - 2);
-    gear.equipDevice(Item.withQuality(INTRINSIC_BEAM  , 0));
-    gear.equipOutfit(Item.withQuality(INTRINSIC_ARMOUR, 0));
+    gear.equipDevice(Item.withQuality(INTRINSIC_BEAM     , 0));
+    gear.equipOutfit(Item.withQuality(INTRINSIC_SHIELDING, 0));
     
     traits.setLevel(FEARLESS, 1);
+    
+    skills.addTechnique(SELF_ASSEMBLY    );
+    skills.addTechnique(POSITRON_BEAM    );
+    skills.addTechnique(SHIELD_ABSORPTION);
     
     attachSprite(MODEL_TRIPOD.makeSprite());
     name = nameWithBase("Tripod ");

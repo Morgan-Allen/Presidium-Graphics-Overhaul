@@ -332,25 +332,25 @@ public class Combat extends Plan {
   
   
   public boolean actionSiege(Actor actor, Placeable target) {
-    if (target.structure().destroyed()) return false;
-    performSiege(actor, target, action());
-    return true;
+    return performSiege(actor, target, action());
   }
   
   
   public static boolean performGeneralStrike(
-    Actor actor, Actor target, int object, Action a
+    Actor actor, Target target, int object, Action a
   ) {
-    if (target.health.dying()) {
-      return false;
+    if (target instanceof Actor) {
+      if (actor.gear.meleeDeviceOnly()) return performStrike(
+        actor, (Actor) target, HAND_TO_HAND, HAND_TO_HAND, object, a
+      );
+      else return performStrike(
+        actor, (Actor) target, MARKSMANSHIP, STEALTH_AND_COVER, object, a
+      );
     }
-    if (actor.gear.meleeDeviceOnly()) {
-      performStrike(actor, target, HAND_TO_HAND, HAND_TO_HAND, object, a);
+    else if (target instanceof Placeable) {
+      return performSiege(actor, (Placeable) target, a);
     }
-    else {
-      performStrike(actor, target, MARKSMANSHIP, STEALTH_AND_COVER, object, a);
-    }
-    return true;
+    else return false;
   }
   
   
