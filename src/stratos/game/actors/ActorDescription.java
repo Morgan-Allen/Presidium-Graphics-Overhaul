@@ -78,13 +78,10 @@ public class ActorDescription implements Qualities {
       d.append(h.mind.home());
     }
     
-    Boarding can[] = h.aboard().canBoard();
-    
     d.append("\n  Current location: ");
     Stage world = BaseUI.currentPlayed().world;
     VerseLocation loc = Verse.currentLocation(h, world.offworld);
     d.append(loc);
-    d.append("\n  In world? "+h.inWorld());
     
     //
     //  Then describe the actor's current behaviour-

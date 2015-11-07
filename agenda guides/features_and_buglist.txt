@@ -6,6 +6,8 @@ TO DO NOW-
 
 *  The upgrade-sequence for weapons at the engineer station needs to be made
    clearer.
+   The only upgrades that allow for better weapons/armour aren't accessible
+   without tier-2 research!  Redesign!
 
 *  General tweaks-
    
