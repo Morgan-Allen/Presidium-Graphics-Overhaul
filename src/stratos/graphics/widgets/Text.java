@@ -204,31 +204,32 @@ public class Text extends UIGroup implements Description {
     *  function as hyperlinks given the right reference object, or as bullets
     *  to indent other elements, or both.
     */
-  public static boolean insert(
+  public static Button insert(
     Texture texGraphic, int wide, int high,
     final Clickable link, boolean asBullet, Description d
   ) {
-    if (texGraphic == null || ! (d instanceof Text)) return false;
+    if (texGraphic == null || ! (d instanceof Text)) return null;
     final HUD UI = ((Text) d).UI;
     final Button linked = new Button(UI, null, texGraphic, link.fullName());
     linked.setLinks(link);
-    return insert(linked, wide, high, asBullet, d);
+    return insert(linked, wide, high, asBullet, d) ? linked : null;
   }
   
   
-  public static boolean insert(
+  public static Image insert(
     Texture texGraphic, int wide, int high, boolean asBullet, Description d
   ) {
-    if (texGraphic == null || ! (d instanceof Text)) return false;
+    if (texGraphic == null || ! (d instanceof Text)) return null;
     final HUD UI = ((Text) d).UI;
-    return insert(new Image(UI, texGraphic), wide, high, asBullet, d);
+    final Image image = new Image(UI, texGraphic);
+    return insert(image, wide, high, asBullet, d) ? image : null;
   }
   
   
-  public static boolean insert(
+  public static Image insert(
     Texture texGraphic, int maxWide, boolean asBullet, Description d
   ) {
-    if (texGraphic == null || ! (d instanceof Text)) return false;
+    if (texGraphic == null || ! (d instanceof Text)) return null;
     int w = texGraphic.getWidth(), h = texGraphic.getHeight();
     if (w > maxWide) {
       final float scale = maxWide * 1f / w;

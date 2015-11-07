@@ -127,24 +127,25 @@ public class BringUtils {
     }
     final boolean freeTrade = goods == null || goods.length == 0;
     if (freeTrade) goods = actor.motives.valuedForTrade();
-    Bringing d = fillBulkOrder(from, actor, goods, 1, 5);
+    Bringing d = fillBulkOrder(from, actor, goods, 1, 5, false);
     //
     //  In the event that the actor themselves has no immediate purchases, we
     //  consider some for home instead.
     if (d == null && actor.mind.home() instanceof Venue) {
       final Venue home = (Venue) actor.mind.home();
       if (freeTrade) goods = home.stocks.demanded();
-      d = fillBulkOrder(from, home, goods, 1, 5);
+      d = fillBulkOrder(from, home, goods, 1, 5, false);
     }
     //
-    //  We don't require that the actor pay for deliveries to self or their own
-    //  home.
-    if (d == null || Staff.doesBelong(actor, from)) return d;
+    //  We require that the actor pay for deliveries to self or their own home,
+    //  but not from their workplace.
+    if (d == null || actor.mind.work() == from) return d;
     else return d.setWithPayment(actor);
   }
   
   
   public static Bringing nextDisposalFor(Actor actor, Owner... allFrom) {
+    
     final Pick <Bringing> pick = new Pick();
     final Batch <Owner> dests = new Batch();
     for (Owner d : allFrom) if (d != null) dests.add(d);
@@ -157,12 +158,12 @@ public class BringUtils {
       for (Item i : stock.allItems()) {
         if (! stock.canDemand(i.type)) excess.add(i.type);
       }
-      if (excess.empty()) return null;
+      if (excess.empty()) continue;
       final Traded goods[] = excess.toArray(Traded.class);
       //
       //  
-      Bringing b = BringUtils.bestBulkDeliveryFrom(from, goods, 1, 5, dests);
-      if (b == null) b = BringUtils.bestBulkDeliveryFrom(from, goods, 1, 5, 2);
+      Bringing b       = bestBulkDeliveryFrom(from, goods, 1, 5, dests, false);
+      if (b == null) b = bestBulkDeliveryFrom(from, goods, 1, 5, 2, false);
       if (b == null) continue;
       //
       //  
@@ -182,7 +183,7 @@ public class BringUtils {
     */
   public static Bringing bestBulkDeliveryFrom(
     Owner orig, Traded goods[], int unit, int amountLimit,
-    Batch <? extends Owner> dests, int numSamples
+    Batch <? extends Owner> dests, int numSamples, boolean destPays
   ) {
     final boolean report = I.talkAbout == orig && sampleVerbose;
     final Stage world = orig.world();
@@ -194,6 +195,7 @@ public class BringUtils {
     
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
+      final boolean filter = dests == null;
       if (dests != null) sampled = dests;
       else {
         sampled = new Batch <Owner> ();
@@ -203,7 +205,7 @@ public class BringUtils {
       }
       if (report) I.say("  Sample size for "+good+" is "+sampled.size());
       
-      final Owner bestDest = bestDestination(orig, sampled, good, unit);
+      final Owner bestDest = bestDestination(orig, sampled, good, unit, filter);
       if (bestDest == null) continue;
       final float rating = rateTrading(orig, bestDest, good, unit, unit);
       ratings.add(rating, bestDest);
@@ -211,26 +213,26 @@ public class BringUtils {
     if (ratings.size() == 0) return null;
     
     final Owner destination = ratings.highestValued();
-    return fillBulkOrder(orig, destination, goods, unit, amountLimit);
+    return fillBulkOrder(orig, destination, goods, unit, amountLimit, destPays);
   }
   
   
   public static Bringing bestBulkDeliveryFrom(
     Owner origin, Traded goods[], int baseUnit, int amountLimit,
-    Batch <? extends Owner> destinations
+    Batch <? extends Owner> destinations, boolean destPays
   ) {
     return bestBulkDeliveryFrom(
-      origin, goods, baseUnit, amountLimit, destinations, -1
+      origin, goods, baseUnit, amountLimit, destinations, -1, destPays
     );
   }
   
   
   public static Bringing bestBulkDeliveryFrom(
     Owner origin, Traded goods[], int baseUnit, int amountLimit,
-    int numSamples
+    int numSamples, boolean destPays
   ) {
     return bestBulkDeliveryFrom(
-      origin, goods, baseUnit, amountLimit, null, numSamples
+      origin, goods, baseUnit, amountLimit, null, numSamples, destPays
     );
   }
   
@@ -242,7 +244,7 @@ public class BringUtils {
     */
   public static Bringing bestBulkCollectionFor(
     Owner dest, Traded goods[], int unit, int amountLimit,
-    Batch <? extends Owner> origs, int numSamples
+    Batch <? extends Owner> origs, int numSamples, boolean destPays
   ) {
     final boolean report = I.talkAbout == dest && sampleVerbose;
     final Stage world = dest.world();
@@ -254,6 +256,8 @@ public class BringUtils {
     Tally <Owner> ratings = new Tally <Owner> ();
     for (Traded good : goods) {
       final Batch <? extends Owner> sampled;
+      final boolean filter = origs == null;
+      
       if (origs != null) sampled = origs;
       else {
         sampled = new Batch <Owner> ();
@@ -263,7 +267,7 @@ public class BringUtils {
       }
       if (report) I.say("  Sample size for "+good+" is "+sampled.size());
       
-      final Owner bestOrig = bestOrigin(sampled, dest, good, unit);
+      final Owner bestOrig = bestOrigin(sampled, dest, good, unit, filter);
       if (bestOrig == null) continue;
       final float rating = rateTrading(bestOrig, dest, good, unit, unit);
       ratings.add(rating, bestOrig);
@@ -271,26 +275,26 @@ public class BringUtils {
     if (ratings.size() == 0) return null;
     
     final Owner origin = ratings.highestValued();
-    return fillBulkOrder(origin, dest, goods, unit, amountLimit);
+    return fillBulkOrder(origin, dest, goods, unit, amountLimit, destPays);
   }
   
   
   public static Bringing bestBulkCollectionFor(
     Owner destination, Traded goods[], int baseUnit, int amountLimit,
-    Batch <? extends Owner> origins
+    Batch <? extends Owner> origins, boolean destPays
   ) {
     return bestBulkCollectionFor(
-      destination, goods, baseUnit, amountLimit, origins, -1
+      destination, goods, baseUnit, amountLimit, origins, -1, destPays
     );
   }
   
   
   public static Bringing bestBulkCollectionFor(
     Owner destination, Traded goods[], int baseUnit, int amountLimit,
-    int numSamples
+    int numSamples, boolean destPays
   ) {
     return bestBulkCollectionFor(
-      destination, goods, baseUnit, amountLimit, null, numSamples
+      destination, goods, baseUnit, amountLimit, null, numSamples, destPays
     );
   }
   
@@ -301,7 +305,7 @@ public class BringUtils {
     */
   public static Bringing fillBulkOrder(
     Owner origin, Owner destination, Traded goods[],
-    int baseUnit, int amountLimit
+    int baseUnit, int amountLimit, boolean destPays
   ) {
     final boolean report = reportRating(origin, destination, null);
     if (report) I.say("\nFilling bulk order");
@@ -349,13 +353,13 @@ public class BringUtils {
       I.say("\nFinal order batch is: "+toTake);
     }
     final Bringing order = new Bringing(toTake, origin, destination);
-    return order.setWithPayment(destination);
+    return destPays ? order.setWithPayment(destination) : order;
   }
   
   
   public static Owner bestOrigin(
     Batch <? extends Owner> origs, Owner dest,
-    Traded good, int unit
+    Traded good, int unit, boolean filterOrigs
   ) {
     if (origs.size() == 0) return null;
     if (dest.inventory().shortageOf(good) <= 0) return null;
@@ -368,7 +372,7 @@ public class BringUtils {
     
     Owner pick = null;
     float bestRating = 0;
-    for (Owner orig : origs) if (openForTrade(orig, null)) {
+    for (Owner orig : origs) if ((! filterOrigs) || openForTrade(orig, null)) {
       final float rating = rateTrading(orig, dest, good, unit, unit);
       if (rating > bestRating) { bestRating = rating; pick = orig; }
       if (report) I.say("  Rating for "+orig+" is "+rating);
@@ -380,7 +384,8 @@ public class BringUtils {
   
   
   public static Owner bestDestination(
-    Owner orig, Batch <? extends Owner> dests, Traded good, int unit
+    Owner orig, Batch <? extends Owner> dests,
+    Traded good, int unit, boolean filterDests
   ) {
     if (dests.size() == 0) return null;
     if (orig.inventory().amountOf(good) < unit) return null;
@@ -393,7 +398,7 @@ public class BringUtils {
     
     Owner pick = null;
     float bestRating = 0;
-    for (Owner dest : dests) if (openForTrade(dest, null)) {
+    for (Owner dest : dests) if ((! filterDests) || openForTrade(dest, null)) {
       final float rating = rateTrading(orig, dest, good, unit, unit);
       if (rating > bestRating) { bestRating = rating; pick = dest; }
       if (report) I.say("  Rating for "+dest+" is "+rating);
@@ -582,9 +587,10 @@ public class BringUtils {
     if (origTier == TIER_TRADER && destTier < TIER_TRADER) {
       return ! destProduce;
     }
-    //  Private trades (okay as long as the recipient is a consumer)
+    //  Private trades (okay as long as the recipient isn't a producer)
     if (destTier <= TIER_PRIVATE) {
       if (destProduce == true) return false;
+      else return true;
     }
     //  Same-tier trades (illegal between trade vessels or same demands)
     else if (origTier == destTier) {

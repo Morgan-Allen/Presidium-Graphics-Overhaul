@@ -230,6 +230,11 @@ public class Bringing extends Plan {
   }
   
   
+  public void clearPayment() {
+    
+  }
+  
+  
   public float pricePaid() {
     return goodsPrice;
   }

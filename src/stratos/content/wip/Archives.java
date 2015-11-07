@@ -88,7 +88,7 @@ public class Archives extends Venue {
     
     final float needCirc = stocks.relativeShortage(CIRCUITRY);
     final Bringing d = BringUtils.bestBulkCollectionFor(
-      this, new Traded[] { CIRCUITRY }, 1, 5, 5
+      this, new Traded[] { CIRCUITRY }, 1, 5, 5, true
     );
     if (d != null) {
       d.addMotives(Plan.MOTIVE_JOB, needCirc * Plan.ROUTINE);

@@ -74,6 +74,10 @@ public abstract class ActorMind {
     
     //actor.relations.clearAll();
     //  etc...
+    setWork(null);
+    setHome(null);
+    assignMission(null);
+    assignMaster(null);
   }
   
   
@@ -189,7 +193,7 @@ public abstract class ActorMind {
       }
       if (! Plan.canFollow(actor, root, true)) {
         if (report && root != null) {
-          I.say("  Could not follow root!");
+          I.say("  Could not follow root plan!");
           Plan.reportPlanDetails(root, actor);
         }
         if (Plan.canPersist(root)) todoList.add(root);
@@ -204,7 +208,7 @@ public abstract class ActorMind {
       for (Behaviour b : agenda) popBehaviour(b, cause);
       if (! Plan.canFollow(actor, root, true)) {
         if (warnVerbose) {
-          I.say(actor+"  CANNOT FOLLOW PLAN: "+root);
+          I.say(actor+"  CANNOT FOLLOW NEW PLAN: "+root);
           Plan.reportPlanDetails(root, actor);
         }
         break decision;
@@ -217,7 +221,7 @@ public abstract class ActorMind {
       while (loop-- > 0) {
         pushBehaviour(next, cause);
         next = next.nextStepFor(actor);
-        final boolean valid = Plan.canFollow(actor, next, true);
+        final boolean valid = Plan.canFollow(actor, next, false);
         if (report) {
           I.say("  Next step: "+next+", valid? "+valid);
           if (! valid) Plan.reportPlanDetails(next, actor);

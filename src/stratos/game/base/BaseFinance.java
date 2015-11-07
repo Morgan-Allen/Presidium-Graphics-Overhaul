@@ -251,7 +251,7 @@ public class BaseFinance {
   public void updateFinances() {
     //
     //  A few basic setup checks...
-    if (GameSettings.cashFree && credits < 1000) {
+    if (GameSettings.cashFree && credits < 5000) {
       credits += 1000;
     }
     initRecords();

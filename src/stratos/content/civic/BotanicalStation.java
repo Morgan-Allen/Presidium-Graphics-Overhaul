@@ -223,7 +223,7 @@ public class BotanicalStation extends HarvestVenue {
   
   protected void addCultivatorJobs(Actor actor, Choice choice) {
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
-      this, services(), 1, 5, 5
+      this, services(), 1, 5, 5, true
     );
     choice.add(d);
     if (! choice.empty()) return;

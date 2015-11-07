@@ -222,7 +222,7 @@ public class Gifting extends Plan {
         for (Object o : origins) I.say("    "+o);
       }
       getting = BringUtils.bestBulkCollectionFor(
-        buys, new Traded[] {gift.type}, 1, 1, 5
+        buys, new Traded[] {gift.type}, 1, 1, 5, true
       );
     }
 

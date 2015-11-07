@@ -20,7 +20,7 @@ import static stratos.content.abilities.TrooperTechniques.*;
 
 
 
-public class TrooperLodge extends Venue {
+public class TrooperLodge extends Venue implements Conscription {
   
   
   /**  Fields, constants, and save/load methods-
@@ -60,23 +60,46 @@ public class TrooperLodge extends Venue {
   
   
   
-  /**  Support for mobilisations-
+  /**  Support for mobilisations & conscription-
     */
-  public boolean isDeployed() {
-    return false;
+  public boolean canConscript(Mobile unit, boolean checkDowntime) {
+    if (checkDowntime && unit instanceof Actor) {
+      final Profile p = base().profiles.profileFor((Actor) unit);
+      if (p.downtimeDays() > 0) return false;
+    }
+    return Staff.doesBelong(unit, this);
   }
   
   
-  protected void addDeploymentBehaviours(Actor actor, Choice choice) {
-    
+  public float payMultiple(Actor conscript) {
+    float multiple = 2;
+    multiple *= 1 + (structure.upgradeLevel(CALL_OF_DUTY) * 0.25f);
+    return multiple;
   }
   
   
-  public float deploymentTime() {
-    float time = Stage.STANDARD_DAY_LENGTH;
-    if (structure.hasUpgrade(CALL_OF_DUTY)) time += Stage.STANDARD_DAY_LENGTH;
-    if (structure.hasUpgrade(ESPRIT_DE_CORPS)) time *= 1.5f;
-    return time;
+  public float motiveBonus(Actor conscript) {
+    float bonus = Plan.ROUTINE;
+    bonus += structure.upgradeLevel(CALL_OF_DUTY) * Plan.CASUAL / 2;
+    if (structure.hasUpgrade(ESPRIT_DE_CORPS)) bonus += Plan.CASUAL;
+    return bonus;
+  }
+  
+  
+  public void beginConscription(Mobile unit, Mission mission) {
+    final Actor s = (Actor) unit;
+    s.mind.assignMission(mission);
+    mission.setSpecialRewardFor(s, Pledge.militaryDutyPledge(s));
+    mission.setApprovalFor(s, true);
+  }
+  
+  
+  public void beginDowntime(Actor conscript) {
+    final Profile p = base().profiles.profileFor(conscript);
+    float downDays = 2;
+    downDays -= structure.upgradeLevel(ESPRIT_DE_CORPS) * 0.5f;
+    downDays -= structure.upgradeLevel(CALL_OF_DUTY   ) * 0.5f;
+    p.incDowntimeDays(downDays);
   }
   
   
@@ -95,7 +118,6 @@ public class TrooperLodge extends Venue {
       new Object[] { 10, BATTLE_TACTICS, 0, HAND_TO_HAND, 0, MARKSMANSHIP },
       650, 800//, 1000
     ),
-    
     SPARRING_GYM = new Upgrade(
       "Sparring Gym",
       "Drills both your soldiers and citizens for the rigours of close "+
@@ -115,24 +137,18 @@ public class TrooperLodge extends Venue {
     BARRACKS_SPACE = new Upgrade(
       "Barracks Space",
       "Increases barracks space by 1 for "+TROOPER+"s.",
-      200, Upgrade.SINGLE_LEVEL, LEVELS[0], BLUEPRINT,
+      400, Upgrade.SINGLE_LEVEL, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, SPARRING_GYM,
       5, BATTLE_TACTICS, 5, DOMESTICS
     ),
-    
-    //*
-    //  TODO:  Increases probability of volunteering for missions?  How do I
-    //  handle this, exactly?
     CALL_OF_DUTY = new Upgrade(
       "Call of Duty",
-      "Doubles soldiers' salaries, but extends duration of Call to Arms by "+
-      "24 hours.",
-      300, Upgrade.SINGLE_LEVEL, LEVELS[0], BLUEPRINT,
+      "Increases soldiers' salaries by 25%, but increases the priority given "+
+      "to military operations and reduces downtime.",
+      400, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, SPARRING_GYM,
       5, BATTLE_TACTICS, 5, DOMESTICS
     ),
-    //*/
-    
     POWER_ARMOUR_UPGRADE = new Upgrade(
       "Power Armour",
       "Allows your soldiers to enter the field in mechanised combat suits.",
@@ -142,30 +158,27 @@ public class TrooperLodge extends Venue {
       10, BATTLE_TACTICS, 15, HAND_TO_HAND
     ),
     FRAG_LAUNCHER_UPGRADE = new Upgrade(
-      "Frag Launcher",
+      "Frag Launchers",
       "Allows your soldiers to field explosive rockets in battle.",
       600, Upgrade.SINGLE_LEVEL,
       new Upgrade[] { LEVELS[1], FIRING_RANGE }, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       10, BATTLE_TACTICS, 15, MARKSMANSHIP
     ),
-    
     SUPPORT_TRAINING = new Upgrade(
       "Support Training",
-      "Drills your soldiers in the essentials of maintenance and field "+
-      "medicine.",
+      "Drills your soldiers and citizens in the essentials of maintenance "+
+      "and field medicine.",
       300, Upgrade.THREE_LEVELS, BARRACKS_SPACE, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       10, BATTLE_TACTICS, 5, ANATOMY, 5, ASSEMBLY
     ),
-    
-    //  TODO:  Increases barracks space and effectiveness of call to arms.
     ESPRIT_DE_CORPS  = new Upgrade(
       "Esprit de Corps",
-      "Increases barracks space by 1 and extends duration of Call to Arms "+
-      "by 50%.",
+      "Increases barracks space by 1 while raising priority of military "+
+      "operations and further reducing downtime.",
       500, Upgrade.SINGLE_LEVEL,
-      new Upgrade[] { BARRACKS_SPACE, SUPPORT_TRAINING }, BLUEPRINT,
+      new Upgrade[] { CALL_OF_DUTY, SUPPORT_TRAINING }, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       10, BATTLE_TACTICS, 10, COMMAND
     )
@@ -189,17 +202,18 @@ public class TrooperLodge extends Venue {
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
+    final Profile p = base().profiles.profileFor(actor);
     //
-    //  Patrol during normal hours, drill during secondary shift.
-    if (isDeployed()) {
-      addDeploymentBehaviours(actor, choice);
+    //  Patrol during normal hours, drill during secondary shift, or do nothing
+    //  at all during downtime post-mission:
+    if (p.downtimeDays() > 0) {
+      return null;
     }
     else if (staff.onShift(actor)) {
       Patrolling.addFormalPatrols(actor, this, choice);
     }
     else {
       addDrilling(choice, actor, true);
-      choice.add(Studying.asTechniqueTraining(actor, this, 0, canLearn()));
     }
     return choice.weightedPick();
   }
@@ -214,12 +228,11 @@ public class TrooperLodge extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
-    if (structure.hasUpgrade(CALL_OF_DUTY)) {
-      for (Actor soldier : staff.workers()) {
-        final Profile p = base.profiles.profileFor(soldier);
-        final float salary = p.salary() * (2 - 1);
-        p.incWagesDue(salary / Stage.STANDARD_DAY_LENGTH);
-      }
+    for (Actor a : staff.workers()) {
+      if (a.mind.mission() != null) continue;
+      final Profile p = base().profiles.profileFor(a);
+      final float downInc = -1f / Stage.STANDARD_DAY_LENGTH;
+      if (p.downtimeDays() > 0) p.incDowntimeDays(downInc);
     }
     
     if (structure.hasUpgrade(FRAG_LAUNCHER_UPGRADE)) {
@@ -242,6 +255,11 @@ public class TrooperLodge extends Venue {
       final Studying s = Studying.asDrill(actor, this, TS, trainLevel);
       
       if (job) s.addMotives(Plan.MOTIVE_JOB, (upLevel + 1) * Plan.CASUAL / 2);
+      choice.add(s);
+    }
+    if (job) {
+      Studying s = Studying.asTechniqueTraining(actor, this, 0, canLearn());
+      s.addMotives(Plan.MOTIVE_JOB, Plan.CASUAL);
       choice.add(s);
     }
   }

@@ -144,8 +144,11 @@ public class Resting extends Plan {
       urgency -= actor.motives.greedPriority(cost);
     }
     
-    //  Include day/night effects-
-    urgency += (1 - Planet.dayValue(actor.world())) * 2 * CASUAL;
+    //  Include day/night effects, but only if off-duty:
+    float nightVal = (1 - Planet.dayValue(actor.world())) * 2 * CASUAL;
+    final Property work = actor.mind.work();
+    if (work != null && work.staff().onShift(actor)) nightVal = 0;
+    urgency += nightVal;
     
     //  Include location effects-
     if (restPoint == actor && ! actor.indoors()) {

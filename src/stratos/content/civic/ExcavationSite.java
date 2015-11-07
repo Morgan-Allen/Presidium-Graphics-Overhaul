@@ -199,7 +199,7 @@ public class ExcavationSite extends HarvestVenue {
     if (staff.offDuty(actor)) return null;
     
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
-      this, services(), 2, 10, 5
+      this, services(), 2, 10, 5, true
     );
     if (d != null) return d;
     

@@ -102,7 +102,7 @@ public class StockExchange extends Venue {
   public float catalogueLevel(Traded good) {
     final int index = Visit.indexOf(good, ALL_STOCKED);
     if (index == -1) return 0;
-    return catalogueSums[index] / stocks.amountOf(good);
+    return Nums.clamp(catalogueSums[index] / stocks.amountOf(good), 0, 1);
   }
   
   
@@ -232,10 +232,10 @@ public class StockExchange extends Venue {
     //  the venue has to be manned in order for citizens to come shopping.  So
     //  stick with jobs that happen within the venue.
     choice.add(BringUtils.bestBulkDeliveryFrom(
-      this, services(), 2, 10, 5
+      this, services(), 2, 10, 5, true
     ));
     choice.add(BringUtils.bestBulkCollectionFor(
-      this, services(), 2, 10, 5
+      this, services(), 2, 10, 5, true
     ));
     if (staff.assignedTo(Bringing.class) == 0 && ! choice.empty()) {
       return choice.pickMostUrgent();
@@ -252,7 +252,7 @@ public class StockExchange extends Venue {
     final Property home = actor.mind.home();
     if (home instanceof Venue) {
       final Bringing d = BringUtils.fillBulkOrder(
-        this, home, ((Venue) home).stocks.demanded(), 1, 5
+        this, home, ((Venue) home).stocks.demanded(), 1, 5, true
       );
       if (d != null) {
         final float advertBonus = structure.upgradeLevel(ADVERTISEMENT) / 3f;

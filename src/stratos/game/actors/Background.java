@@ -153,6 +153,11 @@ public class Background extends Constant {
   }
   
   
+  public boolean isMilitary() {
+    return Visit.arrayIncludes(Backgrounds.MILITARY_CIRCLES, this);
+  }
+  
+  
   
   /**  Factory methods-
     */

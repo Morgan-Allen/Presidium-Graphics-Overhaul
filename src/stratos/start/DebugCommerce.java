@@ -79,13 +79,36 @@ public class DebugCommerce extends Scenario {
     GameSettings.cashFree  = true;
     
     base.research.initKnowledgeFrom(base.commerce.homeworld());
-
-    if (false) shoppingScenario(world, base, UI);
+    
     if (true ) shippingScenario(world, base, UI);
+    if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
     if (false) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) haulingScenario (world, base, UI);
+  }
+  
+  
+  private void shippingScenario(Stage world, Base base, BaseUI UI) {
+    
+    base .commerce.assignHomeworld    (Verse.PLANET_ASRA_NOVI);
+    world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS  );
+    world.offworld.journeys.setupDefaultShipping(base);
+    
+    final Venue depot = new SupplyDepot(base);
+    SiteUtils.establishVenue(depot, 5, 5, true, world);
+    depot.stocks.forceDemand(CARBS , 5, true );
+    depot.stocks.forceDemand(METALS, 5, false);
+    depot.stocks.bumpItem(CARBS, 10);
+    depot.updateAsScheduled(0, false);
+    base.commerce.addCandidate(SUPPLY_CORPS, depot);
+    UI.selection.pushSelection(depot);
+    
+    final Actor brought = new Human(SURVEYOR, base);
+    world.offworld.journeys.addLocalImmigrant(brought, base);
+    
+    base.commerce.updateCommerce(0);
+    ///world.offworld.journeys.scheduleLocalDrop(base, 5);
   }
   
   
@@ -160,29 +183,6 @@ public class DebugCommerce extends Scenario {
 
     PlayLoop.setGameSpeed(1);
     //*/
-  }
-  
-  
-  private void shippingScenario(Stage world, Base base, BaseUI UI) {
-    
-    base .commerce.assignHomeworld    (Verse.PLANET_ASRA_NOVI);
-    world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS  );
-    world.offworld.journeys.setupDefaultShipping(base);
-    
-    final Venue depot = new SupplyDepot(base);
-    SiteUtils.establishVenue(depot, 5, 5, true, world);
-    depot.stocks.forceDemand(CARBS , 5, true );
-    depot.stocks.forceDemand(METALS, 5, false);
-    depot.stocks.bumpItem(CARBS, 10);
-    depot.updateAsScheduled(0, false);
-    base.commerce.addCandidate(SUPPLY_CORPS, depot);
-    UI.selection.pushSelection(depot);
-    
-    final Actor brought = new Human(SURVEYOR, base);
-    world.offworld.journeys.addLocalImmigrant(brought, base);
-    
-    base.commerce.updateCommerce(0);
-    world.offworld.journeys.scheduleLocalDrop(base, 5);
   }
   
   
@@ -319,10 +319,9 @@ public class DebugCommerce extends Scenario {
     
     for (Actor guy : foundry.staff.workers()) {
       final Bringing d = BringUtils.fillBulkOrder(
-        depot, foundry, new Traded[] {METALS}, 1, 10
+        depot, foundry, new Traded[] {METALS}, 1, 10, true
       );
       if (d == null) continue;
-      d.setWithPayment(foundry);
       guy.mind.assignBehaviour(d);
       guy.setPosition(2, 2, world);
     }

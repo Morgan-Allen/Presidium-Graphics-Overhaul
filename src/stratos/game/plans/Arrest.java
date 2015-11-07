@@ -12,6 +12,11 @@ import static stratos.game.economic.Economy.*;
 
 
 
+
+//  TODO:  I'm disabling this for the moment, until I get it sorted (along with
+//  the enforcer bloc) in expansions.
+
+
 public class Arrest extends Plan {
   
   
@@ -73,7 +78,6 @@ public class Arrest extends Plan {
   
   
   public static Arrest nextOfficialArrest(Venue venue, Actor actor) {
-    
     final Stage world = venue.world();
     final Pick <Arrest> pick = new Pick <Arrest> ();
     final Batch <Mobile> suspects = new Batch <Mobile> ();
@@ -95,6 +99,7 @@ public class Arrest extends Plan {
   
   /**  Various utility methods for decision-making:
     */
+  /*
   private boolean canPursue() {
     if (stage == STAGE_DONE) return false;
     if (stage != STAGE_INIT) return true;
@@ -146,6 +151,15 @@ public class Arrest extends Plan {
     if (stage <= STAGE_ESCORT) return 1;
     else return super.evaluationInterval();
   }
+  //*/
+  
+
+  private boolean hasAuthority() {
+    if (! PlanUtils.isArmed(actor)) return false;
+    final Property work = actor.mind.work();
+    if (work == null) return false;
+    return (Visit.arrayIncludes(work.services(), SERVICE_SECURITY));
+  }
   
   
   
@@ -156,16 +170,21 @@ public class Arrest extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    return -1;
+    
+    /*
+    final boolean report = I.talkAbout == actor;// && evalVerbose;
     if (! canPursue()) return -1;
     
+    
     final Actor other = (Actor) subject;
-    final boolean melee = actor.gear.meleeDeviceOnly();
     final boolean official = hasAuthority();
     
     float urge = 0, bonus = 0;
     if (observed != null) urge = observed.severity() / 10f;
-    if (sentence != null) urge = Nums.max(0.5f, urge);
+    if (sentence != null) {
+      urge = Nums.max(0.5f, urge);
+    }
     
     if (stage == STAGE_WARN) {
       if (urge <= 0) return 0;
@@ -179,8 +198,13 @@ public class Arrest extends Plan {
     final float priority = PlanUtils.combatPriority(
       actor, other, (urge * PARAMOUNT) + bonus, 1, true, MILD_HARM
     );
+    if (report) {
+      I.say("Priority for arrest of "+other+" is: "+priority);
+    }
+    
     if (priority < ROUTINE && ! official) return 0;
     return priority;
+    //*/
   }
   
   
@@ -193,6 +217,8 @@ public class Arrest extends Plan {
   
   
   protected Behaviour getNextStep() {
+    return null;
+    /*
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (! canPursue()) return null;
     
@@ -269,6 +295,7 @@ public class Arrest extends Plan {
     }
     
     return null;
+    //*/
   }
   
   

@@ -29,7 +29,6 @@ public class VenuePane extends SelectionPane {
     DEFAULT_CATS[] = { CAT_ORDERS, CAT_STOCK, CAT_STAFFING };
   
   final public Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
-  private Actor dismissing = null;
  
   
   protected VenuePane(BaseUI UI, Venue v, String... categories) {
@@ -50,16 +49,8 @@ public class VenuePane extends SelectionPane {
     final Description d = panel.detail(), l = panel.listing();
     
     VD.describeCondition(d, UI);
-    if (category == CAT_ORDERS) VD.describeOrders(l, UI);
-    if (category == CAT_STOCK) VD.describeStocks(l, UI, setStock);
-    /*
-    {
-      if (setStock != null && setStock.length > 0) {
-        VD.describeStockOrders(l, setStock, UI);
-      }
-      else VD.describeStocks(l, UI, setStock);
-    }
-    //*/
+    if (category == CAT_ORDERS  ) VD.describeOrders(l, UI);
+    if (category == CAT_STOCK   ) VD.describeStocks(l, UI, setStock);
     if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
     return panel;
   }
@@ -136,7 +127,7 @@ public class VenuePane extends SelectionPane {
   );
   
   protected void describeStocks(Description d, BaseUI UI, Traded setStock[]) {
-    if (v.stocks.empty()) return;
+    if (v.stocks.empty() && Visit.empty(setStock)) return;
     
     d.append("Stocks and Provisions:");
     
@@ -255,29 +246,13 @@ public class VenuePane extends SelectionPane {
   /**  Describing personnel, visitors and residents-
     */
   private void describeStaffing(Description d, BaseUI UI) {
-    final Background c[] = v.careers();
-    if (Visit.empty(c) && v.inside().size() == 0) return;
-    
-    Batch <Actor> mentioned = new Batch <Actor> ();
-    
-    if (dismissing != null) {
-      d.append("\nAre you certain you want to dismiss ");
-      d.append(dismissing);
-      d.append("?\n  ");
-      d.append(new Description.Link("Confirm") {
-        public void whenClicked() {
-          final Actor works = dismissing;
-          if (! works.inWorld()) v.base().commerce.removeCandidate(works);
-          works.mind.setWork(null);
-          dismissing = null;
-        }
-      });
-      d.append(new Description.Link("  Cancel") {
-        public void whenClicked() { dismissing = null; }
-      });
+    final Staff s = v.staff();
+    if (s.lodgers().empty() && s.workers().empty() && s.visitors().empty()) {
       return;
     }
     
+    final Background c[] = v.careers();
+    final Batch <Actor> mentioned = new Batch <Actor> ();
     if (c != null && c.length > 0) {
       
       for (Background b : c) {
@@ -297,27 +272,23 @@ public class VenuePane extends SelectionPane {
         }
         for (final Actor a : v.staff.workers()) if (a.mind.vocation() == b) {
           descActor(a, d, UI, v);
-          d.append("\n  ");
-          d.append(descDuty(a));
           mentioned.include(a);
-          d.append(new Description.Link("  Dismiss") {
-            public void whenClicked() { dismissing = a; }
-          });
         }
         d.append("\n");
       }
     }
     
     Text.cancelBullet(d);
-    d.append("Residents: ");
-    boolean anyLives = false;
+    final Batch <Actor> lodging = new Batch();
     for (Actor a : v.staff.lodgers()) {
       if (mentioned.includes(a)) continue;
-      descActor(a, d, UI, v);
-      anyLives = true;
+      lodging.add(a);
     }
-    if (! anyLives) d.append("None.");
-    d.append("\n");
+    if (lodging.size() > 0) {
+      d.append("Residents: ");
+      for (Actor a : lodging) descActor(a, d, UI, v);
+      d.append("\n");
+    }
     
     Text.cancelBullet(d);
     d.append("Visitors: ");
@@ -329,15 +300,6 @@ public class VenuePane extends SelectionPane {
     }
     if (! anyVisit) d.append("None.");
     d.append("\n");
-  }
-  
-  
-  private String descDuty(Actor a) {
-    if (a.mind.work() == v) return v.staff.onShift(a) ?
-      "(On-Duty)" : "(Off-Duty)"
-    ;
-    if (a.mind.home() == v) return "(Resident)";
-    return "(Visiting)";
   }
   
   
@@ -355,7 +317,7 @@ public class VenuePane extends SelectionPane {
       if (v.structure.intact() && mainLevel < maxLevel) {
         final Upgrade VL[] = v.blueprint.venueLevels();
         final int level = v.structure.mainUpgradeLevel();
-        final Upgrade next = VL[Nums.clamp(level + 1, VL.length)];
+        final Upgrade next = VL[Nums.clamp(level, VL.length)];
         
         d.append("\n");
         next.appendVenueOrders(d, v, base);
@@ -434,6 +396,39 @@ public class VenuePane extends SelectionPane {
   /**  Utility methods for actor-description that tend to get re-used
     *  elsewhere...
     */
+  public static void descActor(Mobile m, Description d, BaseUI UI, Venue v) {
+    
+    final Composite p = m.portrait(UI);
+    final String ID = ""+m.hashCode();
+    if (p != null) Text.insert(p.delayedImage(UI, ID), 40, 40, true, d);
+    else d.append("\n ");
+    
+    d.append(m);
+    
+    d.append("\n  ");
+    m.describeStatus(d, v);
+    
+    if (m instanceof Actor) {
+      final Actor a = (Actor) m;
+      final Profile profile = a.base().profiles.profileFor(a);
+      
+      String actionDesc = "("+a.mind.vocation()+")";
+      if (a.mind.work() == v) {
+        if (profile.downtimeDays() > 0) {
+          actionDesc = "(On Leave)";
+        }
+        else if (v.staff.onShift(a)) {
+          actionDesc = "(On-Duty)";
+        }
+        else {
+          actionDesc = "(Off-Duty)";
+        }
+      }
+      d.append("\n  "+actionDesc, Colour.LITE_GREY);
+    }
+  }
+  
+  
   public static void descApplicant(
     Actor a, final FindWork sought, Description d, BaseUI UI
   ) {
@@ -471,20 +466,6 @@ public class VenuePane extends SelectionPane {
     d.append(new Description.Link("  Dismiss") {
       public void whenClicked() { sought.cancelApplication(); }
     });
-  }
-  
-  
-  public static void descActor(Mobile m, Description d, BaseUI UI, Venue v) {
-    if (d instanceof Text && m instanceof Actor) {
-      final Composite p = ((Actor) m).portrait(UI);
-      final String ID = ""+m.hashCode();
-      if (p != null) Text.insert(p.delayedImage(UI, ID), 40, 40, true, d);
-      else d.append("\n");
-    }
-    else d.append("\n\n  ");
-    d.append(m);
-    d.append("\n  ");
-    m.describeStatus(d, v);
   }
 }
 

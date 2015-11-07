@@ -204,9 +204,11 @@ public class BaseAdvice {
       if (job == TECHNICIAN || job == ARTIFICER         ) needsTechs = false;
       if (job == AUDITOR || job == MINISTER_FOR_ACCOUNTS) needsAdmin = false;
       
+      /*
       if (p.daysSincePsychEval(base.world) > Stage.DAYS_PER_WEEK) {
         numSecret += 1;
       }
+      //*/
     }
     
     if (total == 0) return;

@@ -174,11 +174,11 @@ public class SupplyDepot extends Venue {
         this, world, SERVICE_COMMERCE
       );
       final Bringing bD = BringUtils.bestBulkDeliveryFrom(
-        this, services, 5, 50, depots
+        this, services, 5, 50, depots, true
       );
       if (checkCargoJobOkay(bD, cargoBarge)) choice.add(bD);
       final Bringing bC = BringUtils.bestBulkCollectionFor(
-        this, services, 5, 50, depots
+        this, services, 5, 50, depots, true
       );
       if (checkCargoJobOkay(bC, cargoBarge)) choice.add(bC);
     }
@@ -189,19 +189,21 @@ public class SupplyDepot extends Venue {
     //
     //  Otherwise, consider local deliveries.
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
-      this, services(), 2, 10, 5
+      this, services(), 2, 10, 5, true
     );
     if (d != null && staff.assignedTo(d) < 1) choice.add(d);
     
     final Bringing c = BringUtils.bestBulkCollectionFor(
-      this, services(), 2, 10, 5
+      this, services(), 2, 10, 5, true
     );
     if (c != null && staff.assignedTo(c) < 1) choice.add(c);
     
     if (! choice.empty()) return choice.weightedPick();
     //
     //  If none of that needs doing, consider local repairs or supervision.
-    choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
+    if (staff.onShift(actor)) {
+      choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
+    }
     choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }
@@ -221,8 +223,7 @@ public class SupplyDepot extends Venue {
   
   
   public int numPositions(Background v) {
-    final int nO = super.numPositions(v);
-    if (v == Backgrounds.SUPPLY_CORPS) return nO + 2;
+    if (v == Backgrounds.SUPPLY_CORPS) return 3;
     return 0;
   }
   
@@ -247,13 +248,11 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, ALL_STOCKED, null);
-    /*
     return VenuePane.configStandardPanel(
       this, panel, UI,
-      ALL_TRADE_TYPES, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
+      ALL_STOCKED,
+      VenuePane.CAT_ORDERS, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
     );
-    //*/
   }
 }
 

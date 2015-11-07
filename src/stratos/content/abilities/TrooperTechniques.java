@@ -12,7 +12,7 @@ import stratos.graphics.sfx.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
-import static stratos.game.economic.Economy.FORM_SPECIAL;
+import static stratos.game.economic.Economy.*;
 import stratos.content.civic.TrooperLodge;
 
 
@@ -152,7 +152,7 @@ public class TrooperTechniques {
   
   
   final public static Traded FRAG_LAUNCHER_AMMO = new Traded(
-    BASE_CLASS, "Frag Launcher", null, FORM_SPECIAL, 0,
+    BASE_CLASS, "Frag Launcher", null, FORM_MATERIAL, 0,
     "Ammunition for Frag Launchers."
   );
   

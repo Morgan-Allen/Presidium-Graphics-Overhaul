@@ -84,14 +84,13 @@ public class ArtilectBase extends Base {
   
   protected void updateSpawning(Ruins ruins, int period) {
     final float spawnChance = period * 1f / SPAWN_INTERVAL;
-    if (Rand.num() < spawnChance) {
-      for (Species s : Ruins.SPECIES) {
-        final Actor adds = s.sampleFor(this);
-        if (ruins.crowdRating(adds, s) < 1) {
-          adds.enterWorldAt(ruins, world);
-          adds.mind.setHome(ruins);
-          break;
-        }
+
+    for (Species s : Ruins.SPECIES) {
+      final Actor adds = s.sampleFor(this);
+      if (ruins.crowdRating(adds, s) < 1 && Rand.num() < spawnChance) {
+        adds.enterWorldAt(ruins, world);
+        adds.mind.setHome(ruins);
+        break;
       }
     }
   }

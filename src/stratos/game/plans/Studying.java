@@ -69,7 +69,7 @@ public class Studying extends Plan {
     this.base       = (Base) s.loadObject();
     
     this.skillLimit = s.loadFloat();
-    this.available  = (Constant[]) s.loadObjectArray(Skill.class);
+    this.available  = (Constant[]) s.loadObjectArray(Constant.class);
     
     this.chargeCost = s.loadFloat();
     this.beginTime  = s.loadFloat();
@@ -118,7 +118,7 @@ public class Studying extends Plan {
     final Studying study = new Studying(actor, venue, TYPE_TECHNIQUE, base);
     study.chargeCost = cost;
     study.available = available;
-    return null;
+    return study;
   }
   
   
@@ -193,44 +193,49 @@ public class Studying extends Plan {
     
     if (! venue.openFor(actor)) return -1;
     if (studied == null && type == TYPE_SKILL    ) studied = skillLearned    ();
+    if (studied == null && type == TYPE_DRILL    ) studied = skillLearned    ();
     if (studied == null && type == TYPE_TECHNIQUE) studied = techniqueTrained();
     if (studied == null) return -1;
     
     final BaseResearch BR = venue.base().research;
     if (type == TYPE_RESEARCH && BR.hasTheory((Upgrade) studied)) return -1;
     
-    float modifier = IDLE;
+    float modifier = 0, powerVal = -1;
     Trait baseTraits[] = NO_TRAITS;
     if (type == TYPE_RESEARCH) {
       baseTraits = RESEARCH_TRAITS;
+      powerVal = (((Upgrade) studied).tier / 4f);
     }
     if (type == TYPE_TECHNIQUE) {
       baseTraits = DRILL_TRAITS;
+      powerVal = ((Technique) studied).powerLevel / Technique.MEDIUM_POWER;
     }
     if (type == TYPE_DRILL) {
       baseTraits = DRILL_TRAITS;
+      powerVal = 1;
     }
     if (type == TYPE_SKILL) {
       baseTraits = RESEARCH_TRAITS;
+      powerVal = 1;
     }
-
-    float dayValue = Planet.dayValue(actor.world());
+    
     setCompetence(successChanceFor(actor));
     
-    float priority = PlanUtils.traitAverage(actor, baseTraits) * CASUAL;
+    float priority = PlanUtils.traitAverage(actor, baseTraits) * ROUTINE;
     modifier -= actor.motives.greedPriority(chargeCost);
-    modifier += motiveBonus();
-    priority = (priority + modifier) * competence() * dayValue;
+    modifier += motiveBonus() + (powerVal * CASUAL / 2);
+    priority = (priority + modifier) * competence();
     
     if (report) {
+      I.say("  Topic of study: "+studied);
       I.say("  Motive bonus:   "+motiveBonus());
+      I.say("  Power value:    "+powerVal);
       I.say("  Modifier is:    "+modifier);
       I.say("  Competence is:  "+competence());
-      I.say("  Day-value is:   "+dayValue);
       I.say("  Final priority: "+priority);
     }
     
-    return priority;
+    return Nums.clamp(priority, 0, URGENT);
   }
   
   
@@ -449,7 +454,8 @@ public class Studying extends Plan {
     }
     else if (type == TYPE_TECHNIQUE) {
       final Technique learned = (Technique) studied;
-      float learnChance = (studyRate * 2f) / (STAY_TIME * learned.powerLevel);
+      float learnChance = 1f / (STAY_TIME * learned.powerLevel);
+      learnChance *= studyRate * 2f * Technique.MEDIUM_POWER;
       
       if (Rand.num() < learnChance) {
         actor.skills.addTechnique(learned);

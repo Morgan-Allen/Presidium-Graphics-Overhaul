@@ -136,19 +136,23 @@ public class Presences {
   }
   
   
-  public Iterable allMatches(Object service) {
+  public Iterable <Target> allMatches(Object service) {
     return matchesNear(service, null, -1);
   }
   
   
-  public Iterable matchesNear(Object service, Target client, float range) {
+  public Iterable <Target> matchesNear(
+    Object service, Target client, float range
+  ) {
     final PresenceMap map = allMaps.get(service);
     if (map == null) return nullStack;
     return map.visitNear(client, range, null);
   }
   
   
-  public Iterable matchesNear(Object service, Target client, Box2D area) {
+  public Iterable <Target> matchesNear(
+    Object service, Target client, Box2D area
+  ) {
     if (service == null) return nullStack;
     final PresenceMap map = allMaps.get(service);
     if (map == null) return nullStack;

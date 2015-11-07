@@ -2,11 +2,8 @@
 
 TO DO NOW-
 
-*  Make sure trooper abilities are linked to upgrades.
 *  Test (and flesh out) all artilect techniques.
 *  Offworld raids by enemy houses!
-
-*  Dropship crews are missing during their first trip.  Fix.
 
 *  Hook up, and test, all common abilities.  (Plus general learning & use of
    the others.)  Reserve Suppression and Hew for Troopers- move psy powers out.
@@ -30,10 +27,10 @@ TO DO NOW-
    (Also, venues should have min-stocks for certain goods, even when selling.)
 
 *  Initial missions:
-    Planitia Sector (robots + ruins, artifact.)
-    Pavonis Sector (mild settlement, pacified.)
-    Aeolis Sector (desert plus wildlife.)
-    Marineris Sector (neutral + water/islands.  Some wildlife.)
+   Planitia Sector (robots + ruins, artifact.)
+   Pavonis Sector (mild settlement, pacified.)
+   Aeolis Sector (desert plus wildlife.)
+   Marineris Sector (neutral + water/islands.  Some wildlife.)
 
 
 
@@ -45,12 +42,9 @@ TO DO NOW-
    Stock Exchange:  Handles anything considered a finished good (including
    second-stage items like plastics, parts or foodstuffs.)  Allows upgrades.
    
-   Resource-sites need to have a more flexible zoning-policy (so they can fit
-   inside the walls if need be.)
-   
    Make sure housing has adequate aesthetics.
    
-   Allow both hiring and queueing of upgrades before a structure of complete,
+   Allow both hiring and queueing of upgrades before a structure is complete,
    and allow relocating once it is.
 
 
@@ -58,8 +52,8 @@ TO DO NOW-
    in usage (see the PathingMap class.)
  
 *  SFX might not belong with attacks called by a technique.
-  Create a Volley class for combat, that techniques can then modify in an
-  'organic' manner.
+   Create a Volley class for combat, that techniques can then modify in an
+   'organic' manner.
 
 
 *  Limit everything to level 2 at most for the moment (1 less than max.)

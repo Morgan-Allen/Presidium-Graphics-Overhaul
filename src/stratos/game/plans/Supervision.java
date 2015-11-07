@@ -120,8 +120,10 @@ public class Supervision extends Plan {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next supervision step: "+actor);
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    if (report) {
+      I.say("\nGetting next supervision step: "+actor);
+    }
     
     final float time = actor.world().currentTime();
     if (beginTime == -1 && actor.aboard() == venue) beginTime = time;

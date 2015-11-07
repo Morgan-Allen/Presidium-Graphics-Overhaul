@@ -122,7 +122,7 @@ public final class Nums {
     if (value >= min && value <= max) return value;
     if (value < min) return min;
     if (value > max) return max;
-    return 0;
+    return (min + max) / 2;
   }
   
   

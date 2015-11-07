@@ -125,7 +125,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     if (staff.offDuty(actor)) return null;
     
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
-      this, services(), 1, 5, 5
+      this, services(), 1, 5, 5, true
     );
     if (d != null) return d;
     final Choice choice = new Choice(actor);

@@ -272,7 +272,7 @@ public class Bastion extends Venue {
       if (staff.onShift(actor)) {
         Patrolling.addFormalPatrols(actor, this, choice);
       }
-      choice.add(Arrest.nextOfficialArrest(this, actor));
+      //choice.add(Arrest.nextOfficialArrest(this, actor));
     }
     return choice.weightedPick();
   }

@@ -295,6 +295,7 @@ public class Combat extends Plan {
     Action strike, boolean razes, float danger, Target cover, boolean report
   ) {
     strike.setProperties(Action.QUICK | Action.TRACKS);
+    configPathPoint(strike);
   }
   
   
@@ -307,6 +308,17 @@ public class Combat extends Plan {
     }
     else {
       strike.setProperties(Action.RANGED | Action.QUICK | Action.TRACKS);
+    }
+    configPathPoint(strike);
+  }
+  
+  
+  private void configPathPoint(Action strike) {
+    final Target point = strike.movesTo();
+    if (PathSearch.accessLocation(point, actor) == null) {
+      final Tile free = Spacing.pickFreeTileAround(point, actor);
+      if (free != null) strike.setMoveTarget(free);
+      else interrupt(INTERRUPT_LOSE_PATH);
     }
   }
   

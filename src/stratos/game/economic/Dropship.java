@@ -137,11 +137,16 @@ public class Dropship extends Vehicle implements Owner {
       this, world, SERVICE_COMMERCE
     );
     final Traded goods[] = cargo.demanded();
-    jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, depots));
-    jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, depots));
+    
+    jobs.add(BringUtils.bestBulkDeliveryFrom (
+      this, goods, 2, 10, depots, true
+    ));
+    jobs.add(BringUtils.bestBulkCollectionFor(
+      this, goods, 2, 10, depots, true
+    ));
     if (jobs.empty()) {
-      jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, 5));
-      jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, 5));
+      jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, 5, true));
+      jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, 5, true));
     }
     choice.add(jobs.pickMostUrgent());
   }

@@ -180,6 +180,7 @@ public class Ruins extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     
     if (numUpdates % 10 == 0 && base() instanceof ArtilectBase && ! instant) {
+      I.say("...");
       
       final ArtilectBase AB = (ArtilectBase) base();
       final int numSpecies = SPECIES.length;
@@ -197,7 +198,7 @@ public class Ruins extends Venue {
         final float schedule = SPECIES_SCHEDULE.get(SPECIES[n]);
         int maxSpecies = Nums.max(0, (int) ((fillLevel + schedule) * 2));
         maxAll         += maxSpecies;
-        speciesCaps[n] += maxSpecies;
+        speciesCaps[n] = (byte) maxSpecies;
       }
       //
       //  If the total allowance is higher than the maximum population for a

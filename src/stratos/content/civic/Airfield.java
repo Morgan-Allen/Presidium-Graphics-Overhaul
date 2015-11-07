@@ -162,11 +162,11 @@ public class Airfield extends Venue {
     if (shouldHaul) {
       final Traded goods[] = docking.services();
       final Bringing d = BringUtils.bestBulkDeliveryFrom(
-        docking, goods, 1, 5, 5
+        docking, goods, 1, 5, 5, true
       );
       choice.add(d);
       final Bringing c = BringUtils.bestBulkCollectionFor(
-        docking, goods, 1, 5, 5
+        docking, goods, 1, 5, 5, true
       );
       choice.add(c);
     }

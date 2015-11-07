@@ -328,6 +328,12 @@ public class Summons extends Plan implements Messaging {
       }
     });
     
+    responses.add(new Link("I no longer require your services.") {
+      public void whenClicked() {
+        pushDismissalDialogue(UI, with, "But sir!  I have always been loyal!");
+      }
+    });
+    
     //  Order banishment, execution, or arrest.
     
     //  TODO:  Say farewell or dismiss from summons.
@@ -360,6 +366,28 @@ public class Summons extends Plan implements Messaging {
           with.gear.incCredits(50);
           pushGiftResponse(UI, with, "Thank you, your grace!");
         }
+    });
+    
+    final MessagePane pane = messageFor(UI, with, lead, responses);
+    UI.setMessagePane(pane);
+  }
+  
+  
+  private void pushDismissalDialogue(
+    final BaseUI UI, final Actor with, String lead
+  ) {
+    final Stack <Link> responses = new Stack <Link> ();
+    
+    responses.add(new Link("Nonetheless.  Clear out your station.") {
+      public void whenClicked() {
+        with.mind.setWork(null);
+        cancelSummons(with);
+      }
+    });
+    responses.add(new Link("Hmm.  Perhaps I shall reconsider.") {
+      public void whenClicked() {
+        configDialogueFor(UI, with, true);
+      }
     });
     
     final MessagePane pane = messageFor(UI, with, lead, responses);

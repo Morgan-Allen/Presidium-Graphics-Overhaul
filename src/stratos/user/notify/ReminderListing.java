@@ -154,6 +154,8 @@ public class ReminderListing extends UIGroup {
     //
     //  Include all currently ongoing missions and any special messages:
     List <Object> needShow = new List <Object> ();
+    final float currentTime = UI.played().world.currentTime();
+    
     final Base played = UI.played();
     for (final Mission mission : played.tactics.allMissions()) {
       needShow.add(mission);
@@ -163,6 +165,9 @@ public class ReminderListing extends UIGroup {
     }
     for (MessagePane o : newMessages) {
       needShow.add(o);
+      if ((! o.shouldKeep()) && (o.receiptDate() < currentTime - 10)) {
+        retireMessage(o);
+      }
     }
     for (Object o : played.advice.adviceTopics()) {
       needShow.add(o);

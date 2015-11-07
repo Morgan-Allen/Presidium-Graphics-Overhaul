@@ -377,10 +377,10 @@ public class ShipUtils {
       ship.setPosition(randTile.x, randTile.y, world);
     }
     final Bringing collects = BringUtils.bestBulkCollectionFor(
-      ship, goods, 2, 10, 5
+      ship, goods, 2, 10, 5, true
     );
     final Bringing delivers = BringUtils.bestBulkDeliveryFrom(
-      ship, goods, 2, 10, 5
+      ship, goods, 2, 10, 5, true
     );
     //
     //  We then perform a general siting-pass favouring points close to these

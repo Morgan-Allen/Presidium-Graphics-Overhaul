@@ -146,7 +146,7 @@ public class CultureVats extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     final Choice choice = new Choice(actor);
-    final boolean noShift = staff.shiftFor(actor) == OFF_DUTY;
+    final boolean noShift = staff.offDuty(actor);
     //
     //  Replicants need to be delivered to their Sickbays once ready, and other
     //  basic goods also need to be transported.
@@ -158,8 +158,10 @@ public class CultureVats extends Venue {
         choice.add(d.addMotives(Plan.MOTIVE_EMERGENCY, Plan.URGENT));
       }
     }
-    choice.add(BringUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5));
     if ((! noShift) && ! choice.empty()) return choice.pickMostUrgent();
+    choice.add(
+      BringUtils.bestBulkDeliveryFrom(this, services(), 2, 10, 5, true
+    ));
     //
     //  Foodstuffs-
     final Manufacture mS = stocks.nextManufacture(actor, WASTE_TO_CARBS);

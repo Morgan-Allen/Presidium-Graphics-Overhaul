@@ -27,7 +27,6 @@ public class Choice {
   
   public Choice(Actor actor) {
     this.actor = actor;
-    ///this.isVerbose = I.talkAbout == actor;
   }
   
   

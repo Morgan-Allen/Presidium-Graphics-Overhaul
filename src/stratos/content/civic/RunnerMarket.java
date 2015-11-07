@@ -139,7 +139,7 @@ public class RunnerMarket extends Venue {
       }
       //
       //  You also need to perform enforcement duties in the neighbourhood:
-      choice.add(Arrest.nextOfficialArrest(this, actor));
+      ///choice.add(Arrest.nextOfficialArrest(this, actor));
       //
       //  Next, consider smuggling goods out of the settlement-
       for (Dropship ship : world.offworld.journeys.allDropships()) {

@@ -361,10 +361,6 @@ public abstract class Venue extends Fixture implements
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    if (destroyed()) {
-      I.say(this+" IS DESTROYED! SHOULD NOT BE ON SCHEDULE!");
-      this.setAsDestroyed(false);
-    }
     structure.updateStructure(numUpdates);
     
     if (instant) return;

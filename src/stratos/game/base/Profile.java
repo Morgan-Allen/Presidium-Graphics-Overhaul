@@ -24,7 +24,8 @@ public class Profile {
   float paymentDue    =  0;
   float lastWageEval  = -1;
   float lastTaxEval   = -1;
-  float lastPsychEval = -1;
+  float downtimeDays  =  0;
+  
   Summons sentence;
   List <Crime> offences = null;
   
@@ -43,7 +44,7 @@ public class Profile {
     p.paymentDue    = s.loadFloat();
     p.lastWageEval  = s.loadFloat();
     p.lastTaxEval   = s.loadFloat();
-    p.lastPsychEval = s.loadFloat();
+    p.downtimeDays  = s.loadFloat();
     p.sentence      = (Summons) s.loadObject();
     
     if (p.offences == null) p.offences = new List();
@@ -57,26 +58,22 @@ public class Profile {
     s.saveFloat (p.paymentDue   );
     s.saveFloat (p.lastWageEval );
     s.saveFloat (p.lastTaxEval  );
-    s.saveFloat (p.lastPsychEval);
+    s.saveFloat (p.downtimeDays );
     s.saveObject(p.sentence     );
     s.saveEnums (p.offences     );
   }
   
   
   
-  /**  Psych evaluation and criminal record-
+  /**  Conscription and criminal record-
     */
-  public float daysSincePsychEval(Stage world) {
-    ///I.sayAbout(actor, "Last time: "+lastPsychEval);
-    final float interval;
-    if (lastPsychEval == -1) interval = Stage.STANDARD_YEAR_LENGTH;
-    else interval = world.currentTime() - lastPsychEval;
-    return interval / Stage.STANDARD_DAY_LENGTH;
+  public float downtimeDays() {
+    return downtimeDays;
   }
   
   
-  public void setPsychEvalTime(float time) {
-    lastPsychEval = time;
+  public void incDowntimeDays(float days) {
+    downtimeDays += days;
   }
   
   
@@ -111,7 +108,8 @@ public class Profile {
     //  reluctance to settle or personal dislike.  TODO:  Unify this with the
     //  FindWork / Career methods on the subject.
     final Background vocation = actor.mind.vocation();
-    if (vocation == null || actor.mind.work() == null) return 0;
+    final Property   work     = actor.mind.work    ();
+    if (vocation == null || work == null) return 0;
     //
     //  The ruler and his/her household have direct access to the funds of the
     //  state, so they get somewhat different treatment.
@@ -123,8 +121,8 @@ public class Profile {
     else if (ruler != null && actor.mind.home() == ruler.mind.home()) {
       mult = (1 - ruler.base().relations.communitySpirit());
     }
-    if (Visit.arrayIncludes(Backgrounds.MILITARY_CIRCLES, vocation)) {
-      mult *= 2;
+    if (work instanceof Conscription) {
+      mult *= ((Conscription) work).payMultiple(actor);
     }
     return vocation.defaultSalary * mult;
   }

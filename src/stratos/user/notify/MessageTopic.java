@@ -63,6 +63,11 @@ public abstract class MessageTopic extends Index.Entry implements Messaging {
   
   
   protected MessagePane initMessage(BaseUI UI, String title, Object... args) {
+    if (args.length != argTypes.length) {
+      I.complain("PROBLEM: ARGS AND TYPES DO NOT MATCH- "+args+"/"+argTypes);
+      return null;
+    }
+    
     final MessagePane pane = new MessagePane(UI, title, this, args);
     pane.header().setText(title);
     pane.detail().setText("");

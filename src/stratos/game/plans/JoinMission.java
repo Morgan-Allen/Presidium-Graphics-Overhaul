@@ -62,7 +62,7 @@ public class JoinMission extends Plan {
       return null;
     }
     final boolean report = I.talkAbout == actor && evalVerbose;
-    
+    //
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
     //  approved-)
@@ -82,25 +82,21 @@ public class JoinMission extends Plan {
         continue;
       }
       
+      final Behaviour step = mission.nextStepFor(actor, true);
       final float
-        competence = competence(actor, mission),
-        urgency    = mission.assignedPriority();
-      //
-      //  TODO:  Compare against the competence of the best current applicant
-      //  instead, and withdraw if you're low in the rankings.
-      
+        priority    = step == null ? -1 : step.priorityFor(actor),
+        competence  = competence (actor, mission),
+        competition = competition(actor, mission),
+        urgency     = mission.assignedPriority();
+
       if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
-        if (report) {
-          I.say("");
-          I.say("  Cannot apply for    "+mission);
-          I.say("  Mission urgency:    "+urgency);
-          I.say("  Competence too low: "+competence);
-        }
+        if (report) I.say("  Not competent for: "+mission+": "+competence);
         continue;
       }
-      
-      final Behaviour step = mission.nextStepFor(actor, true);
-      final float priority = step == null ? -1 : step.priorityFor(actor);
+      if (competition >= 1) {
+        if (report) I.say("  Party at limit: "+mission);
+        continue;
+      }
       
       choice  .add(step   );
       steps   .add(step   );
@@ -110,6 +106,8 @@ public class JoinMission extends Plan {
         I.say("\n  Mission is: "+mission);
         I.say("  apply point:  "+applyPointFor(actor, mission));
         I.say("  next step:    "+mission.nextStepFor(actor, true));
+        I.say("  competence:   "+competence);
+        I.say("  competition:  "+competition);
         I.say("  priority:     "+priority);
       }
     }
@@ -139,11 +137,18 @@ public class JoinMission extends Plan {
   }
   
   
+  public static float competition(Actor actor, Mission mission) {
+    if (mission.isApproved(actor)) return 0;
+    final int
+      priority   = mission.assignedPriority(),
+      partyLimit = Mission.PARTY_LIMITS[priority];
+    return mission.applicants().size() * 1f / partyLimit;
+  }
+  
+  
   public static float competence(Actor actor, Mission mission) {
-    if (! (actor instanceof Human)) return 1;
     final Behaviour step = mission.nextStepFor(actor, true);
     if (step == null) return 0;
-    
     step.priorityFor(actor);
     if (step instanceof Plan) return ((Plan) step).competence();
     else return 1;

@@ -135,6 +135,7 @@ public class VerseJourneys {
     final Journey journey = setupJourney(origin, destination, recurs);
     journey.transport = ship;
     ship.assignBase(base);
+    cycleOffworldPassengers(journey);
     return ship;
   }
   
@@ -314,9 +315,37 @@ public class VerseJourneys {
   }
   
   
-  private void refreshCrew(
+  private void cycleOffworldPassengers(Journey journey) {
+    final VerseBase base = Verse.baseForLocation(journey.origin, universe);
+    final Vehicle transport = journey.transport;
+    
+    if (transport != null) {
+      refreshCrewAndCargo(transport, true, Backgrounds.DEFAULT_SHIP_CREW);
+    }
+    
+    for (Mobile m : journey.migrants) {
+      final Activity a = activityFor(m);
+      if (a != null) base.toggleExpat(m, true);
+    }
+    journey.migrants.clear();
+    
+    if (journey.returns) for (Mobile m : base.expats()) {
+      final Activity a = activityFor(m);
+      if (a != null && a.doneOffworld() && a.origin() == journey.destination) {
+        base.toggleExpat(m, false);
+        journey.migrants.add(m);
+      }
+    }
+  }
+  
+  
+  private void refreshCrewAndCargo(
     Vehicle transport, boolean forLanding, Background... positions
   ) {
+    //
+    //  Configure the ship's cargo capacity-
+    final BaseCommerce commerce = transport.base().commerce;
+    commerce.configCargo(transport.cargo, Dropship.MAX_CAPACITY, true);
     //
     //  Update the ship's state of repairs while we're at this...
     if (forLanding) {
@@ -347,32 +376,6 @@ public class VerseJourneys {
   }
   
   
-  private void cycleOffworldPassengers(Journey journey) {
-    final VerseBase base = Verse.baseForLocation(journey.origin, universe);
-    final Vehicle transport = journey.transport;
-    
-    if (transport != null) {
-      final BaseCommerce commerce = transport.base().commerce;
-      commerce.configCargo(transport.cargo, Dropship.MAX_CAPACITY, true);
-      refreshCrew(transport, true, Backgrounds.DEFAULT_SHIP_CREW);
-    }
-    
-    for (Mobile m : journey.migrants) {
-      final Activity a = activityFor(m);
-      if (a != null) base.toggleExpat(m, true);
-    }
-    journey.migrants.clear();
-    
-    if (journey.returns) for (Mobile m : base.expats()) {
-      final Activity a = activityFor(m);
-      if (a != null && a.doneOffworld() && a.origin() == journey.destination) {
-        base.toggleExpat(m, false);
-        journey.migrants.add(m);
-      }
-    }
-  }
-  
-  
   
   /**  Utility methods specifically for handling local setup-
     */
@@ -383,17 +386,6 @@ public class VerseJourneys {
   }
   
   
-  public boolean scheduleLocalDrop(Vehicle trans, float delay) {
-    final Journey j = journeyFor(trans);
-    if (j == null || trans.inWorld()) return false;
-    j.origin      = trans.base().commerce.homeworld();
-    j.destination = universe.stageLocation();
-    j.arriveTime  = universe.world.currentTime() + delay;
-    cycleOffworldPassengers(j);
-    return true;
-  }
-  
-  
   public boolean scheduleLocalDrop(Base base, float delay) {
     final VerseLocation
       orig = base.commerce.homeworld(),
@@ -401,7 +393,12 @@ public class VerseJourneys {
     
     Vehicle trans = nextTransportBetween(orig, dest, base, true);
     if (trans == null) trans = setupTransport(orig, dest, base, true);
-    return scheduleLocalDrop(trans, delay);
+    
+    final Journey j = journeyFor(trans);
+    if (j == null || trans.inWorld()) return false;
+    j.arriveTime  = universe.world.currentTime() + delay;
+    cycleOffworldPassengers(j);
+    return true;
   }
   
   
@@ -542,35 +539,27 @@ public class VerseJourneys {
     if (mobile.inWorld()) return 0;
     final float time = universe.world.currentTime();
     final VerseLocation locale = universe.stageLocation();
-    final VerseLocation resides = Verse.currentLocation(mobile, universe);
-    //
-    // If the actor is currently headed out and not coming back, return 'never'.
-    Journey journey = journeyFor(mobile);
-    VerseLocation going = journey == null ? null : journey.destination;
-    if (going != null && going != locale && ! journey.returns) {
-      return -1;
-    }
     //
     //  If the actor is currently aboard an incoming transport, return it's
     //  arrival date.
-    if (going == locale) {
-      final float ETA = journey.arriveTime - time;
+    Journey journey = journeyFor(mobile);
+    if (journey != null && journey.destination == locale) {
       if (journey.transport != null && journey.transport.inWorld()) return 0;
-      if (ETA < 0) return 0;
-      return ETA;
+      final float ETA = journey.arriveTime - time;
+      return ETA < 0 ? 0 : ETA;
     }
     //
     //  If there's a ship heading to the actor's current residence, then we
     //  can assume that will pick up the actor going back.
     final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
-    journey = nextJourneyBetween(locale, resides, base, false);
-    if (journey != null && journey.returns) {
+    if (journey != null && journey.origin == locale && journey.returns) {
       return journey.arriveTime + tripTime - time;
     }
     //
     //  Finally, if there's a ship making the trip right now that *doesn't*
     //  have the actor aboard, then a full return trip will be needed (in and
     //  out, twice as long.)
+    VerseLocation resides = Verse.currentLocation(mobile, universe);
     journey = nextJourneyBetween(resides, locale, base, false);
     if (journey != null && journey.returns) {
       return journey.arriveTime + (tripTime * 2) - time;

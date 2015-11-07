@@ -71,6 +71,9 @@ public static enum Type {
 //  fulfilled immediately, the actor will attempt it later when possible.
 
 
+//  TODO:  Have this extend Constant!  Then you can put it anywhere you need.
+
+
 public class Pledge implements Session.Saveable {
   
   
@@ -151,6 +154,11 @@ public class Pledge implements Session.Saveable {
   
   public float valueFor(Actor actor) {
     return type.valueOf(this, actor);
+  }
+  
+  
+  public void performFullfillment() {
+    type.fulfillment(this, null);
   }
   
   
@@ -271,12 +279,19 @@ public class Pledge implements Session.Saveable {
     
     
     float valueOf(Pledge p, Actor a) {
-      //  TODO:  HOOK THIS UP WITH CONSCRIPTION INTERFACE!
+      final Object work = a.mind.work();
+      if (work instanceof Conscription) {
+        return ((Conscription) work).motiveBonus(a);
+      }
       return Plan.ROUTINE;
     }
     
     
     Behaviour fulfillment(Pledge p, Pledge reward) {
+      final Object work = p.makes.mind.work();
+      if (work instanceof Conscription) {
+        ((Conscription) work).beginDowntime(p.makes);
+      }
       return null;
     }
   };
@@ -433,6 +448,8 @@ public class Pledge implements Session.Saveable {
   
   
   //  TODO:  FIND A MORE EFFICIENT WAY TO HANDLE THIS!
+  //         ...Just limit to the same circles.
+  
   /*
   final public static Type TYPE_PROMOTION = new Type("Promotion") {
     

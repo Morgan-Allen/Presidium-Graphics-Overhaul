@@ -69,6 +69,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   final Session.Saveable subject;
   
   final Stack <Role> roles = new Stack <Role> ();
+  private List <Actor> applicants = null;
+  
   private int
     priority,
     missionType,
@@ -203,7 +205,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     else if (shouldEnd()) endMission(true);
     //
     //  Remove any applicants that have abandoned the mission-
-    for (Role role : roles) if (role.approved) {
+    for (Role role : roles) if (role.approved && begun) {
       final Actor a = role.applicant;
       if (! a.health.conscious()) a.mind.assignMission(null);
     }
@@ -333,15 +335,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public List <Actor> applicants() {
+    if (applicants != null) return applicants;
+    
     final List <Actor> all = new List <Actor> ();
     for (Role r : roles) all.add(r.applicant);
-    return all;
+    return this.applicants = all;
   }
   
   
   public boolean isApproved(Actor a) {
     final Role role = roleFor(a);
-    if (missionType == TYPE_PUBLIC) return true;
     return role == null ? false : role.approved;
   }
   
@@ -353,16 +356,22 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (roleFor(actor) != null) {
       return true;
     }
+    if (missionType == TYPE_PUBLIC) {
+      return true;
+    }
+    if (missionType == TYPE_SCREENED) {
+      return ! begun;
+    }
     if (missionType == TYPE_COVERT) {
       return false;
     }
-    if (missionType == TYPE_SCREENED && begun) {
+    if (missionType == TYPE_MILITARY) {
       return false;
     }
     if (missionType == TYPE_BASE_AI) {
       return base.tactics.shouldAllow(actor, this);
     }
-    return true;
+    return false;
   }
   
   
@@ -381,18 +390,19 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   /**  Toggling applicant-permissions, plus commencement & cancellation-
     */
-  //
-  //  NOTE:  This method should be called within the ActorMind.assignMission
-  //  method, and not independantly!
   public void setApplicant(Actor actor, boolean is) {
+    //
+    //  NOTE:  This method should be called within the ActorMind.assignMission
+    //  method, and not independantly!
+    if ((actor.mind.mission() == this) != is) {
+      I.complain("MUST CALL mind.assignMission() for "+actor+" first!");
+    }
+    
     final boolean report = shouldReport(actor) || I.logEvents();
     if (report) I.say("\n"+actor+" APPLIED FOR "+this+"? "+is);
     
     final Role oldRole = roleFor(actor);
     if (is) {
-      if (actor.mind.mission() != this) {
-        I.complain("MUST CALL assignMission() for "+actor+"!");
-      }
       if (oldRole != null) return;
       Role role = new Role();
       role.applicant = actor;
@@ -400,10 +410,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
       roles.add(role);
     }
     else {
-      if (actor.mind.mission() == this) I.complain("MUST CALL setMission()!");
       if (oldRole == null) return;
       roles.remove(oldRole);
     }
+    //
+    //  Flag the list of applicants for refresh-
+    this.applicants = null;
   }
   
   
@@ -461,10 +473,18 @@ public abstract class Mission implements Session.Saveable, Selectable {
     else reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
     
     for (Role role : roles) {
-      if (begun && reward > 0) {
-        if (report) I.say("  Dispensing "+reward+" credits to "+role.applicant);
-        role.applicant.gear.incCredits(reward);
-        base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
+      if (begun) {
+        if (report) {
+          I.say("  Dispensing "+reward+" credits to "+role.applicant);
+          I.say("  Special reward: "+role.specialReward);
+        }
+        if (reward > 0) {
+          role.applicant.gear.incCredits(reward);
+          base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
+        }
+        if (withReward && role.specialReward != null) {
+          role.specialReward.performFullfillment();
+        }
       }
       //
       //  Be sure to de-register this mission from the actor's agenda:
@@ -500,6 +520,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   private Action nextWaitAction(Actor actor, Role role) {
+    
+    //  TODO:  Move this out to the JoinMission class!
+    
     if (role == null || ! role.approved) return null;
     if (actor.senses.isEmergency()) return null;
     
@@ -562,6 +585,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   protected float basePriority(Actor actor) {
+    
+    //  TODO:  Move this out to the JoinMission class!
+    
     final boolean report = I.talkAbout == actor && evalVerbose;
     if (! visibleTo(actor.base())) return -1;
     
@@ -576,7 +602,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final boolean baseAI = missionType == TYPE_BASE_AI;
     final int
       partySize = rolesApproved(),
-      applySize = applicants().size(),
       limit     = PARTY_LIMITS[priority];
     final Role role = roleFor(actor);
     float rewardEval;
@@ -597,10 +622,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  ensure that applications remain stable.  Then weight by appeal to the
     //  actor's basic motives, and return:
     if (role == null || ! role.approved) {
-      if ((partySize >= limit) || (applySize > limit + partySize)) {
-        if (report) I.say("  No room for application! "+partySize+"/"+limit);
-        return -1;
-      }
       rewardEval /= Nums.max(limit    , 1);
     }
     else {
@@ -856,8 +877,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
       "This is a covert mission.  No agents or citizens will apply "+
       "unless recruited by interview.";
     if (missionType == TYPE_MILITARY) return
-      "This is a military operation.  You may conscript any members of your "+
-      "standing armed forces to join.";
+      "This is a military operation.  You may conscript any regular soldiers, "+
+      "but they will require leave afterward.";
     return description;
   }
   

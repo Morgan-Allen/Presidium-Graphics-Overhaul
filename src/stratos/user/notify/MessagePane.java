@@ -45,7 +45,7 @@ public class MessagePane extends UIGroup implements UIConstants {
     final BaseUI baseUI, String title,
     Messaging source, Object... arguments
   ) {
-    this(baseUI, null, title, null, source);
+    this(baseUI, null, title, null, source, arguments);
   }
   
   
