@@ -113,7 +113,7 @@ public abstract class ActorMind implements Qualities {
   
   
   public Behaviour nextBehaviour() {
-    final boolean report = I.talkAbout == actor && decisionVerbose;
+    final boolean report = I.talkAbout == actor;// && decisionVerbose;
     if (report) {
       I.say("\n\nACTOR IS GETTING NEXT BEHAVIOUR...");
     }

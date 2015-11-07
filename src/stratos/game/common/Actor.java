@@ -245,8 +245,8 @@ public abstract class Actor extends Mobile implements
   
   
   protected void updateAsMobile() {
-    super.updateAsMobile();
     final boolean report = I.talkAbout == this && verbose;
+    super.updateAsMobile();
     //
     //  NOTE:  We try to avoid calling anything computationally-intensive here,
     //  because mobile-updates occur at a fixed rate, leaving limited time for

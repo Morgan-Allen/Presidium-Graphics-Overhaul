@@ -457,7 +457,7 @@ public class VerseJourneys {
     //  If the actor is currently aboard a dropship, return it's arrival date.
     Dropship carries = carries(mobile);
     Journey  journey = journeyFor(carries);
-    if (carries != null && journey.destination == locale) {
+    if (journey != null && journey.destination == locale) {
       final float ETA = journey.arriveTime - time;
       if (ETA < 0 || carries.inWorld()) return 0;
       else return ETA;
@@ -465,20 +465,19 @@ public class VerseJourneys {
     //
     //  Otherwise, try to find the next dropship likely to visit the actor's
     //  current location, and make a reasonable guess about trip times.
+    final VerseLocation resides = Verse.currentLocation(mobile, universe);
+    carries = nextShipBetween(locale, resides, base, true);
+    journey = journeyFor(carries);
+    final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
+    
+    if (journey != null && journey.origin == locale && journey.returns) {
+      return journey.arriveTime + tripTime - time;
+    }
     //
     //  If it's currently heading out, it'll have to head back after picking up
     //  passengers- and if it's already heading in but doesn't have the actor
     //  aboard, a full return trip will be needed (in and out, twice as long.)
-    final VerseLocation resides = Verse.currentLocation(mobile, universe);
-    final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
-    carries = nextShipBetween(locale, resides, base, false);
-    journey = journeyFor(carries);
-    if (carries != null) {
-      return journey.arriveTime + tripTime - time;
-    }
-    carries = nextShipBetween(resides, locale, base, false);
-    journey = journeyFor(carries);
-    if (carries != null) {
+    if (journey != null && journey.returns) {
       return journey.arriveTime + (tripTime * 2) - time;
     }
     return -1;

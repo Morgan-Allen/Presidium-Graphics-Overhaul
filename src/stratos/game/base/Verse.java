@@ -470,8 +470,8 @@ public class Verse {
     if (mobile.inWorld()) {
       return universe.stageLocation();
     }
-    for (VerseBase base : universe.bases) if (base.isResident(mobile)) {
-      return base.location;
+    for (VerseBase base : universe.bases) {
+      if (base.isResident(mobile)) return base.location;
     }
     if (mobile instanceof Human) {
       return (VerseLocation) ((Human) mobile).career().homeworld();

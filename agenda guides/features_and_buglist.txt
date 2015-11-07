@@ -4,6 +4,8 @@ TO DO NOW-
 
 *  Next up- Physician and Roaches/Roachmen.  Get 'em working.
 
+*  The upgrade-sequence for weapons at the engineer station needs to be made
+   clearer.
 
 *  General tweaks-
    

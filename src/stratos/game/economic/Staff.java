@@ -371,6 +371,21 @@ public class Staff {
           if (a.mind.work() == employs) a.mind.setWork(null);
           workers.remove(a);
         }
+        
+        //  TODO:  This is a temporary hack for a situation that was never
+        //  supposed to arise.  Investigate!
+        
+        final Actor b = a;
+        if (VerseJourneys.activityFor(b) != null) continue;
+        final Verse verse = base.world.offworld;
+        VerseLocation off = Verse.currentLocation(b, verse);
+        VerseLocation local = verse.stageLocation();
+        
+        if (off != local && off != base.commerce.homeworld()) {
+          base.world.offworld.journeys.addLocalImmigrant(b, base);
+        }
+        
+        
       }
       for (Actor a : lodgers) {
         if (a.mind.home() != employs || ! a.health.alive()) {

@@ -362,6 +362,7 @@ public class Pathing {
   public void applyCollision(float moveRate, Target focus) {
     final boolean report = I.talkAbout == mobile && moveVerbose;
     final Mobile m = mobile;
+    
     if (m.indoors() || ! m.collides()) return;
     //
     //  TODO:  I am probably going to have to implement some kind of proper

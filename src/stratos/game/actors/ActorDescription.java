@@ -2,6 +2,7 @@
 
 
 package stratos.game.actors;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
@@ -66,31 +67,30 @@ public class ActorDescription implements Qualities {
     //  Describe your job, place of work, and current residence-
     final Background job = h.mind.vocation();
     if (job != null) {
-      d.append("\nVocation: "+job.nameFor(h));
+      d.append("\n  Vocation: "+job.nameFor(h));
     }
     if (h.mind.work() != null) {
-      d.append("\nEmployed at: ");
+      d.append("\n  Employed at: ");
       d.append(h.mind.work());
     }
     if (h.mind.home() != null) {
-      d.append("\nResident at: ");
+      d.append("\n  Resident at: ");
       d.append(h.mind.home());
     }
+    
+    Boarding can[] = h.aboard().canBoard();
+    
+    d.append("\n  Current location: ");
+    Stage world = BaseUI.currentPlayed().world;
+    VerseLocation loc = Verse.currentLocation(h, world.offworld);
+    d.append(loc);
+    d.append("\n  In world? "+h.inWorld());
+    
     //
     //  Then describe the actor's current behaviour-
-    d.append("\nStatus: ");
-    /*
-    if (true) {
-      Action current = h.currentAction();
-      d.append(current);
-      
-      if (h.inWorld()) d.append("\n  In world!");
-      else d.append("\n  Not in world!");
-      return;
-    }
-    //*/
-    
+    d.append("\n  Status: ");
     h.describeStatus(d, h);
+    
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;

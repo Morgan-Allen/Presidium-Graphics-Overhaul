@@ -6,6 +6,7 @@
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.game.maps.IntelMap;
+import stratos.game.maps.PathSearch;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.sfx.PlaneFX;
@@ -282,13 +283,9 @@ public abstract class Mobile extends Element
     
     //
     //  Escape any currently blocked tile-
-    //  TODO:  This is replicated within the collision methods of Pathing.
-    //  Remove.
-    /*
-    if (
-      aboard.boardableType() == Boarding.BOARDABLE_TILE &&
-      collides() && aboard.pathType() == Tile.PATH_BLOCKS
-    ) {
+    //  TODO:  REMOVE THE DUPLICATES OF THIS IN PATHING!
+    
+    if (PathSearch.blockedBy(aboard, this) && collides()) {
       final Tile free = Spacing.nearestOpenTile(aboard, this);
       if (free != null) {
         nextPosition.x = free.x;
@@ -302,7 +299,6 @@ public abstract class Mobile extends Element
         I.say("MOBILE IS TRAPPED! "+this+" at "+aboard);
       }
     }
-    //*/
     
     //
     //  Either way, update current position-
