@@ -92,12 +92,12 @@ public class PlaneFX extends SFX {
     float initSize, float spin, float growth, boolean tilted, boolean vivid
   ) {
     final Model m = new Model(modelName, modelClass);
-    m.imageName = image;
+    m.imageName = image   ;
     m.initSize  = initSize;
-    m.spin      = spin;
-    m.growth    = growth;
-    m.tilted    = tilted;
-    m.vivid     = vivid;
+    m.spin      = spin    ;
+    m.growth    = growth  ;
+    m.tilted    = tilted  ;
+    m.vivid     = vivid   ;
     m.animUV    = new Box2D[] { new Box2D().set(0, 0, 1, 1) };
     m.duration  = -1;
     return m;

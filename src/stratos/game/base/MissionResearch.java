@@ -55,7 +55,9 @@ public class MissionResearch extends Mission {
     
     final Studying study = Studying.asResearch(actor, sought, base);
     if (study == null) return null;
-    study.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
+    
+    float priority = basePriority(actor) * Planet.dayValue(base.world);
+    study.addMotives(Plan.MOTIVE_MISSION, priority);
     
     return cacheStepFor(actor, study);
   }

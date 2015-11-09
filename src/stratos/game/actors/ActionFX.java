@@ -132,8 +132,8 @@ public class ActionFX {
     final ShotFX shot = applyShotFX(
       model, uses, applied, hits, duration, world
     );
-    applyBurstFX(burstModel, shot.origin, 0.66f, world);
-    applyBurstFX(burstModel, shot.target, 0.66f, world);
+    applyBurstFX(burstModel, shot.origin, duration, world);
+    applyBurstFX(burstModel, shot.target, duration, world);
   }
   
   

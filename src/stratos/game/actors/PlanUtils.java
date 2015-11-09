@@ -41,9 +41,8 @@ public class PlanUtils {
     float incentive = 0, winChance, priority = 0;
     float harmDone, dislike, wierdness, conscience;
     
-    if (! asRealTask && CombatUtils.isDowned(subject, Combat.OBJECT_EITHER)) {
-      return 0;
-    }
+    final boolean downed = CombatUtils.isDowned(subject, Combat.OBJECT_EITHER);
+    if (downed) return 0;
     
     final boolean emergency = actor.senses.isEmergency();
     wierdness = baseCuriosity(actor, subject, false) * 5;

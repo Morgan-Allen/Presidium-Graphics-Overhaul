@@ -83,8 +83,8 @@ public class DebugCombat extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
     
-    if (true ) raidingScenario (world, base, UI);
-    if (false) combatScenario  (world, base, UI);
+    if (false) raidingScenario (world, base, UI);
+    if (true ) combatScenario  (world, base, UI);
   }
   
   
@@ -136,9 +136,9 @@ public class DebugCombat extends Scenario {
     
     setupCombatScenario(
       world, base, UI,
-      new Background[] { TROOPER, TROOPER, TROOPER },
+      new Background[] { TROOPER },
       TrooperTechniques.TROOPER_TECHNIQUES,
-      new Species[] { Cranial.SPECIES, Cranial.SPECIES },
+      new Species[] { Drone.SPECIES, Drone.SPECIES, Drone.SPECIES },
       Base.artilects(world)
     );
     
@@ -184,12 +184,15 @@ public class DebugCombat extends Scenario {
     Background mainType = selfTypes[0];
     for (Background b : selfTypes) {
       Actor soldier = b.sampleFor(base);
-      soldier.enterWorldAt(4, 4, world);
+      soldier.enterWorldAt(4 + Rand.index(2), 4 + Rand.index(2), world);
       soldiers.add(soldier);
       
       if (mainType == b) for (Technique t : techniques) {
         if (t.isItemDerived()) soldier.gear.bumpItem(t.itemNeeded(), 1);
-        else soldier.skills.addTechnique(t);
+        else {
+          if (t.itemNeeded() != null) soldier.gear.bumpItem(t.itemNeeded(), 1);
+          soldier.skills.addTechnique(t);
+        }
       }
       
       base.intelMap.liftFogAround(soldier, 9);
@@ -198,7 +201,7 @@ public class DebugCombat extends Scenario {
     
     if (otherTypes != null) for (Background b : otherTypes) {
       Actor other = b.sampleFor(otherBase);
-      other.enterWorldAt(9, 9, world);
+      other.enterWorldAt(9 + Rand.index(3), 9 + Rand.index(3), world);
       other.health.setMaturity(0.8f);
       
       Actor enemy = (Actor) Rand.pickFrom(soldiers);

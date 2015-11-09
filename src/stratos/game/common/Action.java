@@ -423,7 +423,7 @@ public class Action implements Behaviour, AnimNames {
     if (active) {
       if (report) I.say("Move rate: "+moveRate);
       actor.pathing.headTowards(closeOn, moveRate, 1, ! closed);
-      if (! closed) actor.pathing.applyCollision(moveRate, actionTarget);
+      if (! closed) actor.pathing.applyMotionCollision(moveRate, actionTarget);
       return moveRate;
     }
     else return 0;

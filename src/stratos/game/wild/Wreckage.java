@@ -28,13 +28,13 @@ public class Wreckage extends Fixture {
   private float spriteSize;
   
   
-  private Wreckage(boolean permanent, int size) {
+  private Wreckage(boolean permanent, int size, int tier) {
     super(size, size / 2);
     this.permanent = permanent;
-    final int tier = size > 1 ? Rand.index(2) : Rand.index(3);
+    if (tier < 0) tier = size > 1 ? Rand.index(2) : Rand.index(3);
     final ModelAsset model = SLAG_MODELS[Rand.index(3)][tier];
     attachSprite(model.makeSprite());
-    spriteSize = (size + Rand.num() + 0.5f) / 2f;
+    spriteSize = size + ((Rand.num() - 0.5f) / 2f);
   }
   
   
@@ -55,11 +55,32 @@ public class Wreckage extends Fixture {
   public int pathType() {
     return Tile.PATH_HINDERS;
   }
+  
+  
+  public float radius() {
+    return spriteSize;
+  }
 
 
   
   /**  Physical properties, placement and behaviour-
     */
+  public static void plantCraterAround(Target point, float radius) {
+    final Vec3D pos = point.position(null);
+    radius += point.radius();
+    final Tile origin = point.world().tileAt(pos.x - radius, pos.y - radius);
+    final int size = Nums.round(radius * 2, 1, true);
+    
+    final Wreckage crater = new Wreckage(false, size, 0);
+    crater.setPosition(origin.x, origin.y, point.world());
+    if (! crater.canPlace()) {
+      reduceToSlag(crater.area(null), point.world());
+      return;
+    }
+    crater.enterWorld();
+  }
+  
+  
   public static void reduceToSlag(Box2D area, Stage world) {
     final int maxSize = (int) Nums.max(1, area.xdim() / 2);
     
@@ -68,7 +89,7 @@ public class Wreckage extends Fixture {
       int size = 2 + Rand.index(maxSize);
       
       while (size-- > 1) {
-        final Wreckage heap = new Wreckage(false, size);
+        final Wreckage heap = new Wreckage(false, size, -1);
         heap.setPosition(t.x, t.y, world);
         if (! heap.footprint().containedBy(area)) continue;
         if (! heap.canPlace()) continue;

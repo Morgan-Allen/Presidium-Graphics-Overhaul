@@ -68,7 +68,7 @@ public class Human extends Actor {
     assignBase(base);
     career.applyCareer(this, base);
     mind.setVocation(career.vocation());
-    initSpriteFor(this);
+    initSpriteFor(this, this);
   }
   
   
@@ -76,7 +76,7 @@ public class Human extends Actor {
     super(s);
     career = new Career(this);
     career.loadState(s);
-    initSpriteFor(this);
+    initSpriteFor(this, this);
   }
   
   
@@ -241,20 +241,20 @@ public class Human extends Actor {
   }
   
   
-  private static void initSpriteFor(Human c) {
-    final boolean male = c.traits.male();
+  public static void initSpriteFor(Actor actor, Human form) {
+    final boolean male = form.traits.male();
     final SolidSprite s;
-    if (c.sprite() == null) {
+    if (actor.sprite() == null) {
       s = (SolidSprite) (male ? MODEL_MALE : MODEL_FEMALE).makeSprite();
-      c.attachSprite(s);
+      actor.attachSprite(s);
     }
-    else s = (SolidSprite) c.sprite();
+    else s = (SolidSprite) actor.sprite();
     
-    ImageAsset skin = BLOOD_SKINS[raceID(c)];
+    ImageAsset skin = BLOOD_SKINS[raceID(form)];
     
     //s.applyOverlay(skin.asTexture(), AnimNames.MAIN_BODY, true);
-    ImageAsset costume = c.career.vocation().costumeFor(c);
-    if (costume == null) costume = c.career.birth().costumeFor(c);
+    ImageAsset costume = form.career.vocation().costumeFor(form);
+    if (costume == null) costume = form.career.birth().costumeFor(form);
     //s.applyOverlay(costume.asTexture(), AnimNames.MAIN_BODY, true);
     
     s.setOverlaySkins(
@@ -262,15 +262,15 @@ public class Human extends Actor {
       skin.asTexture(),
       costume.asTexture()
     );
-    toggleSpriteGroups(c, s);
+    toggleSpriteGroups(actor, s);
   }
   
   
   //  TODO:  You might want to call this at more regular intervals?
-  private static void toggleSpriteGroups(Human human, SolidSprite sprite) {
+  private static void toggleSpriteGroups(Actor actor, SolidSprite sprite) {
     for (String groupName : ((SolidModel) sprite.model()).partNames()) {
       boolean valid = AnimNames.MAIN_BODY.equals(groupName);
-      final DeviceType DT = human.gear.deviceType();
+      final DeviceType DT = actor.gear.deviceType();
       if (DT != null && DT.groupName.equals(groupName)) valid = true;
       if (! valid) sprite.togglePart(groupName, false);
     }

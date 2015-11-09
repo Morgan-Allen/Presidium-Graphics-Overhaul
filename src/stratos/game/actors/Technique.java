@@ -83,6 +83,7 @@ public abstract class Technique extends Constant {
     MAJOR_CONCENTRATION  = 8.0f ;
   
   final public static float
+    HARM_UNRATED = -100,
     NO_HARM      = Plan.NO_HARM     ,
     MILD_HARM    = Plan.MILD_HARM   ,
     REAL_HARM    = Plan.REAL_HARM   ,
@@ -164,7 +165,10 @@ public abstract class Technique extends Constant {
     String name, String iconFile,
     String description,
     Class sourceClass, String uniqueID,
-    float power, float harm, float fatigue, float concentration,
+    float power,
+    float harm,
+    float fatigue,
+    float concentration,
     int properties, Skill skillUsed, int minLevel,
     String animName, int actionProperties
   ) { this(
@@ -180,7 +184,10 @@ public abstract class Technique extends Constant {
     String name, String iconFile,
     String description,
     Class sourceClass, String uniqueID,
-    float power, float harm, float fatigue, float concentration,
+    float power,
+    float harm,
+    float fatigue,
+    float concentration,
     int properties, Skill skillUsed, int minLevel,
     Object focus
   ) { this(
@@ -254,13 +261,17 @@ public abstract class Technique extends Constant {
     //  Don't use a harmful technique against a subject you want to help, and
     //  try to avoid extreme harm against subjects you only want to subdue, et
     //  cetera.
-    final float hostility = Nums.clamp(PlanUtils.combatPriority(
-      actor, subject, 0, 1, false, Plan.REAL_HARM
-    ) / Plan.PARAMOUNT, EXTREME_HELP, EXTREME_HARM);
-    if (harmFactor >  0 && hostility <= 0) return 0;
-    if (harmFactor <= 0 && hostility >  0) return 0;
     float rating = 10;
-    rating -= Nums.abs(harmFactor - hostility) * 10;
+    
+    if (harmFactor != HARM_UNRATED) {
+      final float hostility = Nums.clamp(PlanUtils.combatPriority(
+        actor, subject, 0, 1, false, Plan.REAL_HARM
+      ) / Plan.PARAMOUNT, EXTREME_HELP, EXTREME_HARM);
+      if (harmFactor >  0 && hostility <= 0) return 0;
+      if (harmFactor <= 0 && hostility >  0) return 0;
+      rating /= 1 + Nums.abs(harmFactor - hostility);
+    }
+    
     rating *= ((1 - conCost) + (1 - fatCost)) / 2f;
     rating = powerLevel * rating / 10f;
     if (report) I.say("  Overall rating: "+rating);

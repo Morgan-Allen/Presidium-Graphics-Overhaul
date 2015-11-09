@@ -341,49 +341,24 @@ public class Pathing {
   }
   
   
-  public void applyCollision(float moveRate, Target focus) {
+  public void applyMotionCollision(float moveRate, Target focus) {
     final boolean report = I.talkAbout == mobile && moveVerbose;
     final Mobile m = mobile;
+    
     if (m.indoors() || ! m.collides()) return;
     //
     //  TODO:  I am probably going to have to implement some kind of proper
     //  polygonal pathfinding here.  For the moment, it's just kind of
     //  distracting.
-    if (true) {
-      final boolean blockReport = I.talkAbout == mobile && verbose;
-      //
-      //  If your current location is blocked, you need to escape to a free
-      //  tile-
-      
-      //  TODO:  THIS IS DUPLICATED BELOW!  REMOVE IT!
-      if (PathSearch.blockedBy(mobile.aboard(), mobile)) {
-        final Tile blocked = mobile.origin();
-        final Tile free = Spacing.nearestOpenTile(blocked, mobile);
-        if (free == null) {
-          if (I.used60Frames && I.logEvents()) {
-            I.say("NO FREE TILE: "+m+" at "+mobile.aboard());
-          }
-          return;
-        }
-        if (blockReport) {
-          I.say("\nEscaping to free tile: "+free);
-          I.say("  Was aboard: "+mobile.aboard());
-        }
-        mobile.setPosition(free.x, free.y, mobile.world());
-        mobile.onMotionBlock(blocked);
-        return;
-      }
-    }
     
     final Vec2D sum = new Vec2D(), disp = new Vec2D();
     int numHits = 0;
     final float mMin = m.position.z, mMax = mMin + m.height();
-    final Box2D area = m.area(null).expandBy(1);
     final float selfRadius = Nums.min(m.radius(), 0.5f);
     //
     //  After determining height range and ground-area affected, we iterate
     //  over every tile likely to be affected-
-    for (Tile t : m.world.tilesIn(area, true)) {
+    for (Tile t : m.origin().allAdjacent(Spacing.tempT8)) if (t != null) {
       //
       //  Firstly, we check to avoid collision with nearby blocked tiles-
       if (t.blocked()) {
@@ -436,25 +411,24 @@ public class Pathing {
     final int WS = m.world.size - 1;
     m.nextPosition.x = Nums.clamp(sum.x + m.nextPosition.x, 0, WS);
     m.nextPosition.y = Nums.clamp(sum.y + m.nextPosition.y, 0, WS);
-    
-    
-    //  TODO:  THIS IS DUPLICATED ABOVE!  REMOVE IT!
-    
-    //  If your current location is blocked, you need to escape to a free tile-
-    if (PathSearch.blockedBy(mobile.aboard(), mobile)) {
-      final Tile blocked = mobile.origin();
-      final Tile free = Spacing.nearestOpenTile(blocked, mobile);
-      if (free == null) I.complain("NO FREE TILE AVAILABLE!");
-      if (report) I.say("Escaping to free tile: "+free);
-      mobile.setPosition(free.x, free.y, mobile.world());
-      mobile.onMotionBlock(blocked);
-      return;
+  }
+  
+  
+  public void applyStaticCollision() {
+    final Boarding aboard = mobile.aboard();
+    if (PathSearch.blockedBy(aboard, mobile) && mobile.collides()) {
+      final Tile free = Spacing.nearestOpenTile(aboard, mobile);
+      if (free != null) {
+        mobile.nextPosition.x = free.x;
+        mobile.nextPosition.y = free.y;
+      }
+      else if (I.logEvents() && I.used60Frames) {
+        I.say("MOBILE IS TRAPPED! "+this+" at "+aboard);
+      }
     }
   }
   
   
-  //
-  //  TODO:  Consider removing this to the Action or Motion classes
   public boolean facingTarget(Target target) {
     final boolean report = I.talkAbout == mobile && moveVerbose;
     if (target == null) return false;

@@ -538,10 +538,11 @@ public class VerseJourneys {
     //  Basic sanity checks first.
     if (mobile.inWorld()) return 0;
     final float time = universe.world.currentTime();
-    final VerseLocation locale = universe.stageLocation();
+    final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
+    final VerseLocation locale  = universe.stageLocation();
+    final VerseLocation resides = Verse.currentLocation(mobile, universe);
     //
-    //  If the actor is currently aboard an incoming transport, return it's
-    //  arrival date.
+    //  If the actor is currently aboard a dropship, return it's arrival date.
     Journey journey = journeyFor(mobile);
     if (journey != null && journey.destination == locale) {
       if (journey.transport != null && journey.transport.inWorld()) return 0;
@@ -549,23 +550,20 @@ public class VerseJourneys {
       return ETA < 0 ? 0 : ETA;
     }
     //
-    //  If there's a ship heading to the actor's current residence, then we
-    //  can assume that will pick up the actor going back.
-    final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
+    //  Otherwise, try to find the next dropship likely to visit the actor's
+    //  current location, and make a reasonable guess about trip times.
+    journey = this.nextJourneyBetween(locale, resides, base, true);
     if (journey != null && journey.origin == locale && journey.returns) {
       return journey.arriveTime + tripTime - time;
     }
     //
-    //  Finally, if there's a ship making the trip right now that *doesn't*
-    //  have the actor aboard, then a full return trip will be needed (in and
-    //  out, twice as long.)
-    VerseLocation resides = Verse.currentLocation(mobile, universe);
-    journey = nextJourneyBetween(resides, locale, base, false);
+    //  If it's currently heading here, it'll have to head back after picking
+    //  up passengers- and if it's already heading in but doesn't have the
+    //  actor aboard, a full return trip will be needed (in and out, twice as
+    //  long.)
     if (journey != null && journey.returns) {
       return journey.arriveTime + (tripTime * 2) - time;
     }
-    //
-    //  Failing that, just quit.
     return -1;
   }
   

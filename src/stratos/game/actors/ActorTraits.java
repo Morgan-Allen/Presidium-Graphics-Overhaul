@@ -5,7 +5,6 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.graphics.sfx.*;  //TODO:  Get rid of direct reference?
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -431,8 +430,8 @@ public class ActorTraits {
   
   private void tryReport(Trait type, float diff) {
     if ((! actor.inWorld()) || Nums.abs(diff) < 1) return;
-    final String prefix = diff > 0 ? "+" : "";
-    actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN);
+    //final String prefix = diff > 0 ? "+" : "";
+    //actor.chat.addPhrase(prefix+type, TalkFX.NOT_SPOKEN);
   }
 }
 

@@ -83,6 +83,11 @@ public class ActorSkills {
   }
   
   
+  public void removeTechnique(Technique t) {
+    known.remove(t);
+  }
+  
+  
   
   /**  Helper methods for technique selection and queries-
     */
@@ -154,22 +159,26 @@ public class ActorSkills {
   }
   
   
-  public float skillBonusFromTechniques(Skill skill, Action taken) {
+  protected float skillBonusFromTechniques(
+    Skill skill, Plan current, Target subject, Action taken
+  ) {
     final boolean report = I.talkAbout == actor && techsVerbose;
     
     if (report) {
       I.say("\nGetting best passive technique for "+actor);
-      I.say("  Fatigue:       "+actor.health.fatigueLevel());
+      I.say("  Fatigue:       "+actor.health.fatigueLevel ());
       I.say("  Concentration: "+actor.health.concentration());
-      I.say("");
+      I.say("  Skill used:    "+skill  );
+      I.say("  Current plan:  "+current);
+      I.say("  Subject:       "+subject);
     }
     
     final Pick <Technique> pick = new Pick(0);
     this.active = null;
-    
-    final boolean acts    = taken != null;
-    final Plan    current = acts ? taken.parentPlan() : null ;
-    final Target  subject = acts ? taken.subject()    : actor;
+    if (current == null && taken != null) current = taken.parentPlan();
+    if (subject == null && taken != null) subject = taken.subject();
+    if (current == null) current = actor.matchFor(null, true);
+    if (subject == null) subject = actor;
     
     for (Technique t : availableTechniques()) if (t.isPassiveSkillFX()) {
       if (! t.triggersPassive(actor, current, skill, subject)) {
@@ -265,15 +274,17 @@ public class ActorSkills {
     Action action
   ) {
     if (checked == null) return 0;
+    final boolean opponent = b != null && opposed != null;
     //  TODO:  Physical skills need to exact fatigue!
     //  TODO:  Sensitive skills must tie in with awareness/fog levels.
     //  TODO:  Cognitive skills should need study to advance.
-    
     //
     //  Invoke any known techniques here that are registered to be triggered
     //  by a skill of this type, and get their associated bonus:
-    final float boost = skillBonusFromTechniques(checked, action);
-    if (boost > 0) bonus += boost;
+    bonus += skillBonusFromTechniques(checked, null, null, action);
+    if (opponent) {
+      bonus -= b.skills.skillBonusFromTechniques(opposed, null, actor, null);
+    }
     //
     //  Then get the baseline probability of success in the task.
     final float chance = chance(checked, b, opposed, bonus);
@@ -289,12 +300,15 @@ public class ActorSkills {
     //  Then grant experience in the relevant skills (included those used by
     //  any competitor) and activate any special effects for used techniques-
     practice(checked, chance, duration);
-    if (b != null && opposed != null) {
-      b.skills.practice(opposed, chance, duration);
-    }
     if (active != null) {
       final Target subject = action == null ? actor : action.subject();
       active.applyEffect(actor, success > 0, subject, true);
+    }
+    if (opponent) {
+      b.skills.practice(opposed, 1 - chance, duration);
+      if (b.skills.active != null) {
+        b.skills.active.applyEffect(b, success < 1, actor, true);
+      }
     }
     //
     //  Finally, return the result.

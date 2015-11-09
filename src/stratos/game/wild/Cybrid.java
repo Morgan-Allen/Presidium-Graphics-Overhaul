@@ -6,8 +6,9 @@
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.graphics.widgets.Composite;
+import stratos.graphics.widgets.*;
 import stratos.user.BaseUI;
+import stratos.util.Nums;
 import stratos.util.Rand;
 
 
@@ -15,9 +16,22 @@ import stratos.util.Rand;
 //  ...Everybody loves Cylon Terminators!
 
 public class Cybrid extends Artilect {
+
   
+  final public static Species SPECIES = new Species(
+    Cybrid.class,
+    "Cybrid",
+    "Cybrids are lesser minions of the Cranial, created from the lifeless "+
+    "husk of former victims.  Their organic remains and a vestige of their "+
+    "old memories can allow them to approach undetected.",
+    null,
+    null,
+    Species.Type.ARTILECT, 1, 1, 1
+  ) {
+    public Actor sampleFor(Base base) { return new Cranial(base); }
+  };
   
-  Actor template;
+  Human template;
   
   
   public Cybrid(Base base) {
@@ -27,18 +41,37 @@ public class Cybrid extends Artilect {
   }
   
   
-  public Cybrid(Base base, Actor template) {
-    super(base, Human.SPECIES);
+  public Cybrid(Base base, Human template) {
+    super(base, SPECIES);
+    
+    traits.initAtts(10, 10, 10);
+    health.initStats(
+      1000,//lifespan
+      1.0f,//bulk bonus
+      1.0f,//sight range
+      0.5f,//move speed,
+      ActorHealth.ARTILECT_METABOLISM
+    );
+    
     this.template = template;
+    final float injury = Nums.min(0.99f, template.health.injuryLevel());
+    health.setInjuryLevel(injury);
+    health.setState(ActorHealth.STATE_DYING);
+    for (Skill s : template.traits.skillSet()) {
+      traits.setLevel(s, template.traits.traitLevel(s) / 2f);
+    }
     
     skills.addTechnique(SELF_ASSEMBLY);
-    skills.addTechnique(SLOUGH_FLESH);
+    skills.addTechnique(IMPLANTATION );
+    
+    attachSprite(template.sprite());
   }
   
   
   public Cybrid(Session s) throws Exception {
     super(s);
-    template = (Actor) s.loadObject();
+    template = (Human) s.loadObject();
+    Human.initSpriteFor(this, template);
   }
   
   
@@ -69,7 +102,7 @@ public class Cybrid extends Artilect {
   
   
   public String fullName() {
-    return null;
+    return template.fullName()+" (Cybrid)";
   }
   
   

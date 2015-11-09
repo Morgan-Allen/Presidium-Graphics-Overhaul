@@ -282,6 +282,10 @@ public class Resting extends Plan {
       else d.append("Resting");
       return;
     }
+    if (! actor.health.goodHealth()) {
+      d.append(actor.health.stateDesc());
+      return;
+    }
     String desc = restPoint == actor.mind.home() ? "Resting" : "Sheltering";
     if (currentMode == MODE_DINE) {
       d.append("Eating at ");
@@ -293,6 +297,11 @@ public class Resting extends Plan {
     }
   }
 }
+
+
+
+
+
 
 
 

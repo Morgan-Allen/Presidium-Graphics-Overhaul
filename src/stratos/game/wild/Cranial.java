@@ -77,10 +77,10 @@ public class Cranial extends Artilect {
     traits.setLevel(IMPASSIVE, 1);
     traits.setLevel(CRUEL    , 1);
     
-    skills.addTechnique(IMPALE);
-    skills.addTechnique(POSITRON_BEAM);
+    skills.addTechnique(IMPALE           );
+    skills.addTechnique(IMPLANTATION     );
     skills.addTechnique(SHIELD_ABSORPTION);
-    skills.addTechnique(SELF_ASSEMBLY);
+    skills.addTechnique(SELF_ASSEMBLY    );
     
     attachModel(MODEL_CRANIAL);
     name = nameWithBase("Cranial ");
@@ -108,7 +108,7 @@ public class Cranial extends Artilect {
   
   
   public float height() {
-    return 1.5f;
+    return 2.0f;
   }
   
   

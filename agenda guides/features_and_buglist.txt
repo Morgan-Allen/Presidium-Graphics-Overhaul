@@ -2,14 +2,15 @@
 
 TO DO NOW-
 
-*  Test (and flesh out) all artilect techniques.
-*  Offworld raids by enemy houses!
+*  The upgrade-sequence for weapons at the engineer station needs to be made
+   clearer.
+   The only upgrades that allow for better weapons/armour aren't accessible
+   without tier-2 research!  Redesign!
 
-*  Hook up, and test, all common abilities.  (Plus general learning & use of
-   the others.)  Reserve Suppression and Hew for Troopers- move psy powers out.
-   
-*  See if you can hook up ammo clips and power cells.
-*  Pax Conditioning needs to be filled in.  Psy Protocol as booster skill.
+*  Consider having research-priority increased if you work at the structure
+   that the upgrade belongs to.
+
+*  Offworld raids by enemy houses!
 
 *  Lictovores get Maul & Devour.
    Yamagur get Slugger & Fortify.
@@ -18,6 +19,12 @@ TO DO NOW-
    
    Roaches get Infection & Night Vision.  Roachmen get Maul.
    Avrodils get Camouflage, Whiplash, Pollen Spray & Devour.
+
+*  Hook up, and test, all common abilities.  (Plus general learning & use of
+   the others.)  Reserve Suppression and Hew for Troopers- move psy powers out.
+   
+*  See if you can hook up ammo clips and power cells.
+*  Pax Conditioning needs to be filled in.  Psy Protocol as booster skill.
 
 *  Actors should be doing more to dispose of bodies.  Burial or recyling.
 *  In addition, picking rest/retreat points should be more sensible (check the
@@ -31,7 +38,6 @@ TO DO NOW-
    Pavonis Sector (mild settlement, pacified.)
    Aeolis Sector (desert plus wildlife.)
    Marineris Sector (neutral + water/islands.  Some wildlife.)
-
 
 
 *  General tweaks-

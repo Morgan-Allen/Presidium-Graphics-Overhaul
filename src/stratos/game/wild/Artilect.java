@@ -8,6 +8,8 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.economic.*;
+import stratos.graphics.sfx.PlaneFX;
+import stratos.graphics.sfx.ShotFX;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -128,6 +130,7 @@ public abstract class Artilect extends Actor {
   protected void addChoices(Choice choice) {
     final boolean report = verbose && I.talkAbout == this;
     if (report) I.say("\n  Getting next behaviour for "+this);
+    choice.isVerbose = I.talkAbout == this;
     //
     //  Ascertain a few basic facts first-
     final boolean
@@ -139,9 +142,7 @@ public abstract class Artilect extends Actor {
     //final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
     //
     //  Security and defence related tasks-
-    if (! isCranial) {
-      choice.add(Patrolling.aroundPerimeter(this, guards, Plan.IDLE));
-    }
+    choice.add(Patrolling.aroundPerimeter(this, guards, Plan.IDLE));
     choice.add(JoinMission.attemptFor(this));
     choice.add(new Retreat(this));
     //
@@ -223,25 +224,56 @@ public abstract class Artilect extends Actor {
     UI_DIR = "media/GUI/Powers/",
     FX_DIR = "media/SFX/";
   
+  final static PlaneFX.Model
+    DETONATE_BURST_FX = PlaneFX.imageModel(
+      "detonate_burst_fx", BASE_CLASS,
+      FX_DIR+"frag_burst.png",
+      0.25f, 0.5f, 1.5f, true, false
+    ),
+    DETONATE_FRINGE_FX = PlaneFX.imageModel(
+      "detonate_fringe_fx", BASE_CLASS,
+      FX_DIR+"detonate_burst.png",
+      0.25f, 0.5f, 1.5f, false, false
+    ),
+    POSITRON_BURST_FX = PlaneFX.imageModel(
+      "positron_burst_fx", BASE_CLASS,
+      FX_DIR+"positron_burst.png",
+      0.5f, 0, 0, true, true
+    ),
+    IMPALE_BURST_FX = PlaneFX.imageModel(
+      "impale_burst_fx", BASE_CLASS,
+      FX_DIR+"penetrating_shot.png",
+      1, 0, 0, true, false
+    );
+  final static ShotFX.Model
+    POSITRON_BEAM_FX = new ShotFX.Model(
+      "positron_beam_fx", BASE_CLASS,
+      FX_DIR+"positron_beam.png",
+      0, 0, 0.08f, 1.0f, true, true
+    );
+  
   final static int
-    DETONATE_BASE_DAMAGE =  5,
+    DETONATE_BASE_DAMAGE = 10,
     DETONATE_BASE_RADIUS =  2,
-    DETONATE_USE_PERCENT = 50,
+    DETONATE_USE_PERCENT = 33,
     IMPALE_DAMAGE_MIN    =  5,
     IMPALE_DAMAGE_MAX    = 15,
     POSITRON_DAMAGE_AVG  = 20,
-    ASSEMBLY_DAY_REGEN   =  5,
-    ASSEMBLY_MAX_PERCENT = 25,
-    SHIELD_ABSORB_AVG    =  5;
+    ASSEMBLY_DAY_REGEN   = 15,
+    ASSEMBLY_MAX_PERCENT = 50,
+    SHIELD_ABSORB_AVG    =  2;
+  
   
   final static Technique DETONATE = new Technique(
     "Detonate", UI_DIR+"detonate.png",
-    "description",
+    "Allows the unit to self-destruct, either upon death or as a deliberate "+
+    "kamikaze tactic.  Deals base "+DETONATE_BASE_DAMAGE+" damage in a "+
+    DETONATE_BASE_RADIUS+" tile radius, scaling with bulk.",
     BASE_CLASS, "detonate",
     MINOR_POWER         ,
     MILD_HARM           ,
-    NO_CONCENTRATION    ,
     NO_FATIGUE          ,
+    NO_CONCENTRATION    ,
     IS_PASSIVE_ALWAYS | IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE, Action.QUICK
   ) {
@@ -269,22 +301,30 @@ public abstract class Artilect extends Actor {
         radius = DETONATE_BASE_RADIUS * using.health.baseBulk(),
         damage = DETONATE_BASE_DAMAGE * using.health.baseBulk();
       
+      final Vec3D point = using.position(null);
+      final Stage world = using.world();
+      ActionFX.applyBurstFX(DETONATE_BURST_FX , point, 1, world);
+      point.z += 0.1f;
+      ActionFX.applyBurstFX(DETONATE_FRINGE_FX, point, 1, world);
+      Wreckage.plantCraterAround(using, 0);
+      
       for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
-        a.health.takeInjury(damage, false);
+        if (a != using) a.health.takeInjury(damage, false);
       }
-      using.health.takeInjury(using.health.maxHealth(), true);
+      using.health.takeInjury(100, false);
     }
   };
   
   
   final static Technique IMPALE = new Technique(
     "Impale", UI_DIR+"artilect_impale.png",
-    "description",
+    "Deals "+IMPALE_DAMAGE_MIN+" to "+IMPALE_DAMAGE_MAX+" damage in melee "+
+    "combat while pinning the victim in place.",
     BASE_CLASS, "artilect_impale",
     MEDIUM_POWER        ,
     EXTREME_HARM        ,
-    MEDIUM_CONCENTRATION,
     NO_FATIGUE          ,
+    MEDIUM_CONCENTRATION,
     IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.STRIKE_BIG, Action.NORMAL
   ) {
@@ -306,21 +346,27 @@ public abstract class Artilect extends Actor {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
+      
+      if (! success) return;
+      ActionFX.applyBurstFX(IMPALE_BURST_FX, subject, 0.5f, 0.5f);
+      
       final Actor struck = (Actor) subject;
       float damage = roll(IMPALE_DAMAGE_MIN, IMPALE_DAMAGE_MAX);
       struck.health.takeInjury(damage, true);
+      struck.enterStateKO(Action.FALL);
     }
   };
   
   
   final static Technique POSITRON_BEAM = new Technique(
     "Positron Beam", UI_DIR+"positron_beam.png",
-    "description",
+    "Deals up to "+(POSITRON_DAMAGE_AVG * 2)+" damage against stationary "+
+    "targets.",
     BASE_CLASS, "positron_beam",
     MAJOR_POWER         ,
     EXTREME_HARM        ,
-    MEDIUM_CONCENTRATION,
     NO_FATIGUE          ,
+    MEDIUM_CONCENTRATION,
     IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
     Action.FIRE, Action.RANGED
   ) {
@@ -353,11 +399,14 @@ public abstract class Artilect extends Actor {
       super.applyEffect(using, success, subject, passive);
       
       final float damage = POSITRON_DAMAGE_AVG * Rand.avgNums(2) * 2;
+      ActionFX.applyShotFX(
+        POSITRON_BEAM_FX, POSITRON_BURST_FX,
+        using, subject, success, 2, using.world()
+      );
       
       if (success && subject instanceof Actor) {
         final Actor struck = (Actor) subject;
         struck.health.takeInjury(damage, true);
-        struck.enterStateKO(Action.FALL);
       }
       if (success && subject instanceof Placeable) {
         ((Placeable) subject).structure().takeDamage(damage);
@@ -368,15 +417,29 @@ public abstract class Artilect extends Actor {
   
   final static Technique SHIELD_ABSORPTION = new Technique(
     "Shield Absorption", UI_DIR+"artilect_shield_absorb.png",
-    "description",
+    "Allows the unit to absorb a portion of incoming attacks in order to "+
+    "regenerate their own shields.",
     BASE_CLASS, "artilect_shield_absorb",
     MEDIUM_POWER    ,
-    NO_HARM         ,
-    NO_CONCENTRATION,
+    HARM_UNRATED    ,
     NO_FATIGUE      ,
+    NO_CONCENTRATION,
     IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
     STEALTH_AND_COVER
   ) {
+    
+    
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject
+    ) {
+      if (! (subject instanceof Actor)) return false;
+      final Actor strikes = (Actor) subject;
+      if (strikes.actionFocus() != actor) return false;
+      if (strikes.gear.meleeDeviceOnly()) return false;
+      if (! strikes.isDoing(Combat.class, actor)) return false;
+      return super.triggersPassive(actor, current, used, subject);
+    }
+    
     
     public float passiveBonus(Actor using, Skill skill, Target subject) {
       return 0;
@@ -389,12 +452,8 @@ public abstract class Artilect extends Actor {
       super.applyEffect(using, success, subject, passive);
       //
       //  TODO:  You need a Volley class to handle this properly.
-
-      if ((! success) || ! (subject instanceof Actor)) return;
-      final Actor strikes = (Actor) subject;
-      if (strikes.actionFocus() != using) return;
-      if (strikes.gear.meleeDeviceOnly()) return;
-      if (! strikes.isDoing(Combat.class, using)) return;
+      if (! success) return;
+      ActionFX.applyShieldFX(using.gear.outfitType(), using, subject, true);
       
       float charge = SHIELD_ABSORB_AVG * Rand.num() * 2;
       using.gear.boostShields(charge, false);
@@ -402,16 +461,17 @@ public abstract class Artilect extends Actor {
   };
   
   
-  final static Technique SLOUGH_FLESH = new Technique(
-    "Slough", UI_DIR+"artilect_slough_flesh.png",
-    "description",
-    BASE_CLASS, "artilect_slough_flesh",
+  final static Technique IMPLANTATION = new Technique(
+    "Implantation", UI_DIR+"artilect_implantation.png",
+    "Converts an unconscious organic subject, living or dead, into a "+
+    Cybrid.SPECIES+", which will usually awaken after a few hours.",
+    BASE_CLASS, "artilect_implantation",
     MAJOR_POWER        ,
-    REAL_HARM          ,
-    MAJOR_CONCENTRATION,
+    HARM_UNRATED       ,
     NO_FATIGUE         ,
+    MAJOR_CONCENTRATION,
     IS_ANY_TARGETING | IS_NATURAL_ONLY, null, 0,
-    Action.STRIKE, Action.NORMAL
+    Action.BUILD, Action.NORMAL
   ) {
     
     public boolean triggersAction(Actor actor, Plan current, Target subject) {
@@ -426,24 +486,27 @@ public abstract class Artilect extends Actor {
     ) {
       super.applyEffect(using, success, subject, passive);
       
+      I.say("USED IMPLANTATION! "+using);
       final Human focus = (Human) subject;
       final Boarding place = focus.aboard();
       final Cybrid cybrid = new Cybrid(using.base(), focus);
       
       focus.exitWorld();
       cybrid.enterWorldAt(place, place.world());
+      cybrid.mind.setHome(using.mind.home());
     }
   };
   
   
   final static Technique SELF_ASSEMBLY = new Technique(
     "Self Assembly", UI_DIR+"self_assembly.png",
-    "description",
-    BASE_CLASS, "self_assemble",
+    "Allows the unit to regenerate any injuries below "+ASSEMBLY_MAX_PERCENT+
+    "% of total health.",
+    BASE_CLASS, "self_assembly",
     MAJOR_POWER         ,
     NO_HARM             ,
-    MAJOR_CONCENTRATION ,
     NO_FATIGUE          ,
+    NO_CONCENTRATION    ,
     IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0,
     Action.FIRE, Action.RANGED
   ) {
@@ -453,9 +516,21 @@ public abstract class Artilect extends Actor {
     ) {
       super.applyEffect(using, success, subject, passive);
       
-      if (using.health.injuryLevel() < 1f - (ASSEMBLY_MAX_PERCENT / 100f)) {
+      final float
+        injury    = using.health.injuryLevel(),
+        minInjury = 1f - (ASSEMBLY_MAX_PERCENT / 100f),
+        minRevive = (1 + minInjury) / 2;
+      
+      if (I.talkAbout == using) {
+        I.say("\nCurrent injury: "+using.health.injuryLevel());
+      }
+      if (injury <= minRevive && ! using.health.conscious()) {
+        using.health.setState(ActorHealth.STATE_ACTIVE);
+      }
+      if (injury <= minInjury) {
         return;
       }
+      
       final float lift = ASSEMBLY_DAY_REGEN * 1f / Stage.STANDARD_DAY_LENGTH;
       using.health.liftInjury(lift);
     }

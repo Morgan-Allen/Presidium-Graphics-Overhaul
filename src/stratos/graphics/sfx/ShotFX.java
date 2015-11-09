@@ -67,6 +67,7 @@ public class ShotFX extends SFX {
   }
   
   
+  
   final Model model;
   final public Vec3D
     origin = new Vec3D(),
@@ -165,16 +166,24 @@ public class ShotFX extends SFX {
     
     //  Alright.  Based on time elapsed, divided by period, you should have a
     //  certain number of missiles in flight.
-    final float distance = origin.distance(target), numParts, partLen;
+    final float
+      distance = origin.distance(target),
+      time     = Rendering.activeTime() - inceptTime,
+      numParts, partLen;
     final Colour c = colour == null ? Colour.WHITE : colour;
-    if (model.period <= 0) {
+    if (model.period < 0) {
       numParts = 1;
-      partLen = distance;
+      partLen  = distance;
+    }
+    else if (model.period == 0) {
+      if (inceptTime == -1) inceptTime = Rendering.activeTime();
+      numParts = time + (distance / model.length);
+      partLen  = model.length;
     }
     else {
       if (inceptTime == -1) inceptTime = Rendering.activeTime();
-      numParts = (Rendering.activeTime() - inceptTime) / model.period;
-      partLen = model.length;
+      numParts = time / model.period;
+      partLen  = model.length;
     }
     
     if (report) {
@@ -193,13 +202,10 @@ public class ShotFX extends SFX {
       end.setTo(line).scale(partLen).add(start);
 
       if (end.distance(origin) > distance) {
-        if (progress > distance)
-          break;
-        else
-          end.setTo(target);
+        if (progress > distance) break;
+        else end.setTo(target);
       }
-      if (progress < 0)
-        start.setTo(origin);
+      if (progress < 0) start.setTo(origin);
 
       final float QV[] = SFXPass.QUAD_VERTS;
       int i = 0;
@@ -208,16 +214,12 @@ public class ShotFX extends SFX {
         v.setTo(y ? end : start);
         v.z += QV[i++];
         
-        //final float initDepth = pass.rendering.view.screenDepth(v);
         if (x) v.add(perp);
         else   v.sub(perp);
-        //final float afterDepth = pass.rendering.view.screenDepth(v);
-        ///I.say("  Difference: "+(initDepth - afterDepth));
       }
-
+      
       pass.compileQuad(model.texture, c, model.vivid, verts, 0, 0, 1, 1);
-      if (! model.repeats)
-        break;
+      if (! model.repeats) break;
     }
   }
 }

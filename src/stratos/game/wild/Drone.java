@@ -7,6 +7,7 @@ package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.plans.Resting;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
@@ -54,6 +55,7 @@ public class Drone extends Artilect {
   
   
   final String name;
+  private float hovers = 0;
   
   
   public Drone(Base base) {
@@ -90,13 +92,15 @@ public class Drone extends Artilect {
   
   public Drone(Session s) throws Exception {
     super(s);
-    name = s.loadString();
+    name   = s.loadString();
+    hovers = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveString(name);
+    s.saveFloat(hovers);
   }
   
   
@@ -104,7 +108,7 @@ public class Drone extends Artilect {
   /**  Physical properties-
     */
   public float aboveGroundHeight() {
-    return health.conscious() ? 0.5f : 0;
+    return hovers = Nums.clamp(hovers += isMoving() ? 0.1f : -0.1f, 0, 0.5f);
   }
   
   

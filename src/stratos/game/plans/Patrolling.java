@@ -289,24 +289,24 @@ public class Patrolling extends Plan implements TileConstants {
     
     if (guarded.isMobile()) {
       patrolled.add(guarded);
-      return new Patrolling(actor, guarded, patrolled, TYPE_SECURITY);
     }
-    
-    final float range = Nums.max(
-      guarded.radius() * 2,
-      actor.health.sightRange() / 2
-    );
-    final Vec3D centre = guarded.position(null);
-    if (report) I.say("  Range is: "+range+", centre: "+centre);
-    
-    for (int n : T_ADJACENT) {
-      Tile point = world.tileAt(
-        Nums.clamp(centre.x + (T_X[n] * range), 0, world.size - 1),
-        Nums.clamp(centre.y + (T_Y[n] * range), 0, world.size - 1)
+    else {
+      final float range = Nums.max(
+        guarded.radius() * 2,
+        actor.health.sightRange() / 2
       );
-      if (point != null) {
-        if (report) I.say("  Patrol point: "+point);
-        patrolled.include(point);
+      final Vec3D centre = guarded.position(null);
+      if (report) I.say("  Range is: "+range+", centre: "+centre);
+      
+      for (int n : T_ADJACENT) {
+        Tile point = world.tileAt(
+          Nums.clamp(centre.x + (T_X[n] * range), 0, world.size - 1),
+          Nums.clamp(centre.y + (T_Y[n] * range), 0, world.size - 1)
+        );
+        if (point != null) {
+          if (report) I.say("  Patrol point: "+point);
+          patrolled.include(point);
+        }
       }
     }
     

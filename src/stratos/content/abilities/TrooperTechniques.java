@@ -7,6 +7,7 @@ package stratos.content.abilities;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.wild.Wreckage;
 import stratos.game.actors.*;
 import stratos.graphics.sfx.*;
 import stratos.util.*;
@@ -30,23 +31,28 @@ public class TrooperTechniques {
   final static Class BASE_CLASS = TrooperTechniques.class;
   
   final public static PlaneFX.Model
-    ZAP_FX_MODEL = PlaneFX.imageModel(
+    ZAP_FX = PlaneFX.imageModel(
       "zap_fx", BASE_CLASS,
       FX_DIR+"electro_zap.png",
-      0.3f, 0, 0.1f, true, false
+      0.75f, 0, 0.1f, true, false
     ),
-    HARMONICS_FX_MODEL = PlaneFX.imageModel(
+    HARMONICS_FX = PlaneFX.imageModel(
       "harmonics_fx", BASE_CLASS,
       FX_DIR+"shield_harmonics.png",
-      0.45f, 0, 0.2f, true, false
+      0.65f, 0, 0.2f, true, false
     ),
-    FRAG_BURST_MODEL = PlaneFX.imageModel(
+    FRAG_BURST_FX = PlaneFX.imageModel(
       "frag_burst_fx", BASE_CLASS,
       FX_DIR+"frag_burst.png",
       1.0f, 0, 1.0f, true, true
+    ),
+    FRAG_FRINGE_FX = PlaneFX.imageModel(
+      "frag_fringe_fx", BASE_CLASS,
+      FX_DIR+"detonate_burst.png",
+      1.0f, 0.5f, 1.0f, false, false
     );
   final public static ShotFX.Model
-    FRAG_MISSILE_MODEL = new ShotFX.Model(
+    FRAG_MISSILE_FX = new ShotFX.Model(
       "frag_missile_fx", BASE_CLASS,
       FX_DIR+"frag_missile.png",
       0.05f, 0.1f, 0.15f, 0.75f, false, false
@@ -90,7 +96,7 @@ public class TrooperTechniques {
     ) {
       super.applyEffect(using, success, subject, passive);
       if (success && subject instanceof Actor) {
-        ActionFX.applyBurstFX(ZAP_FX_MODEL, subject, 0.5f, 1);
+        ActionFX.applyBurstFX(ZAP_FX, subject, 0.5f, 1);
         
         final float damage = using.gear.totalDamage() * Rand.num() / 2;
         final Actor struck = (Actor) subject;
@@ -139,13 +145,13 @@ public class TrooperTechniques {
     
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
-      ActionFX.applyBurstFX(HARMONICS_FX_MODEL, affected, 0.5f, 1);
+      ActionFX.applyBurstFX(HARMONICS_FX, affected, 0.5f, 1);
       affected.gear.boostShields(HARMONICS_BOOST, true);
       
       for (Actor ally : PlanUtils.subjectsInRange(affected, HARMONICS_RANGE)) {
         if (affected.base() != ally.base() || affected == ally) continue;
         ally.gear.boostShields(HARMONICS_BOOST / 2, true);
-        ActionFX.applyBurstFX(HARMONICS_FX_MODEL, ally, 0.5f, 1);
+        ActionFX.applyBurstFX(HARMONICS_FX, ally, 0.5f, 1);
       }
     }
   };
@@ -219,12 +225,14 @@ public class TrooperTechniques {
       //  class?
       
       final Stage world = using.world();
+      final Vec3D point = subject.position(null);
       ActionFX.applyShotFX(
-        FRAG_MISSILE_MODEL, using, subject, success, 1.5f, world
+        FRAG_MISSILE_FX, using, subject, success, 1.5f, world
       );
-      ActionFX.applyBurstFX(
-        FRAG_BURST_MODEL, subject.position(null), 1.5f, world
-      );
+      ActionFX.applyBurstFX(FRAG_BURST_FX , point, 1, world);
+      point.z += 0.1f;
+      ActionFX.applyBurstFX(FRAG_FRINGE_FX, point, 1, world);
+      Wreckage.plantCraterAround(world.tileAt(subject), 0.5f);
       
       for (Actor a : PlanUtils.subjectsInRange(subject, FRAG_BURST_RANGE)) {
         float damage = (Rand.num() + 0.5f) * using.gear.totalDamage() / 1.5f;
@@ -236,7 +244,7 @@ public class TrooperTechniques {
         
         if (damage > 0) {
           a.health.takeInjury(damage, true);
-          a.enterStateKO(Action.FALL);
+          a.enterStateKO(Action.STAND);
           float damageLevel = damage / a.gear.baseArmour();
           Item.checkForBreakdown(a, a.gear.outfitEquipped(), damageLevel, 1);
         }

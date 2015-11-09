@@ -79,9 +79,7 @@ public class ShipUtils {
       site.expandBy(-1);
       final Batch <Mobile> under = new Batch <Mobile> ();
       for (Tile t : Spacing.perimeter(site, world)) {
-        if (t.above() != null && t.owningTier() <= Owner.TIER_TERRAIN) {
-          t.above().setAsDestroyed(false);
-        }
+        t.clearUnlessOwned();
       }
       for (Tile t : world.tilesIn(site, false)) {
         if (report) I.say("    Claiming tile: "+t);

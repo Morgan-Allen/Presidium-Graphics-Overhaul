@@ -6,6 +6,7 @@
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.game.maps.IntelMap;
+import stratos.game.maps.PathSearch;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.sfx.PlaneFX;
@@ -265,6 +266,9 @@ public abstract class Mobile extends Element
     //  If you're not in either your current 'aboard' object, or the area
     //  corresponding to the next step in pathing, you need to default to the
     //  nearest clear tile.
+    if (pathing != null) {
+      pathing.applyStaticCollision();
+    }
     final Tile newTile = world().tileAt(nextPosition.x, nextPosition.y);
     if (oldTile != newTile || outOfBounds) {
       if (oldTile != newTile) onTileChange(oldTile, newTile);
@@ -279,24 +283,6 @@ public abstract class Mobile extends Element
         goAboard(newTile, world);
       }
     }
-    
-    //  Escape any currently blocked tile-
-    if (
-      aboard.boardableType() == Boarding.BOARDABLE_TILE &&
-      collides() && aboard.pathType() == Tile.PATH_BLOCKS
-    ) {
-      final Tile free = Spacing.nearestOpenTile(aboard, this);
-      if (free == null) I.complain("MOBILE IS TRAPPED! "+this);
-      
-      if (report) {
-        I.say(this+" IS ABOARD: "+aboard);
-        I.say("  ESCAPING TO: "+free);
-      }
-      nextPosition.x = free.x;
-      nextPosition.y = free.y;
-      return;
-    }
-    
     //
     //  Either way, update current position-
     position.setTo(nextPosition);
@@ -310,7 +296,7 @@ public abstract class Mobile extends Element
       I.say("Next step: "+step);
     }
   }
-
+  
   
   protected float boardHeight(Boarding aboard) {
     if (aboard == origin()) {

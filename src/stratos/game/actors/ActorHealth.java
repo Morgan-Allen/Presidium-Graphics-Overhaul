@@ -211,8 +211,8 @@ public class ActorHealth {
     }
     
     fatigue = Rand.num() * (1 - (calories / maxHealth)) * maxHealth / 2f;
-    injury = Rand.num() * accidentChance * maxHealth / 2f;
-    morale = (Rand.num() - (0.5f + accidentChance)) / 2f;
+    injury  = Rand.num() * accidentChance * maxHealth / 2f;
+    morale  = (Rand.num() - (0.5f + accidentChance)) / 2f;
   }
   
   
@@ -394,7 +394,8 @@ public class ActorHealth {
   public void setState(int state) {
     final int oldState = this.state;
     this.state = state;
-    if (state != oldState && state != STATE_ACTIVE) {
+    
+    if (actor.inWorld() && state != oldState && state != STATE_ACTIVE) {
       actor.enterStateKO(Action.FALL);
     }
   }
@@ -480,6 +481,7 @@ public class ActorHealth {
   
   
   public boolean goodHealth() {
+    if (bleeds) return false;
     return conscious() || (asleep() && actor.traits.effectBonus(IMMUNE) > -5);
   }
   
@@ -627,7 +629,7 @@ public class ActorHealth {
       if (I.logEvents()) I.say("  "+actor+" has died of disease.");
       state = STATE_DYING;
     }
-    else if (fatigue + (injury / 2) >= maxHealth) {
+    else if (fatigue + injury >= maxHealth) {
       state = STATE_RESTING;
     }
     else if (fatigue <= 0 && asleep()) {
@@ -650,64 +652,66 @@ public class ActorHealth {
     if (report) {
       I.say("\nUpdating stresses for "+actor);
     }
+    final float DL = Stage.STANDARD_DAY_LENGTH;
+    float MM = 1, FM = 1, IM = 1, PM = 1, stress;
     //
     //  Inorganic targets get a different selection of perks and drawbacks-
     if (state >= STATE_SUSPEND || ! organic()) {
       bleeds = false;
       morale = -1;
-      float fatigueRegen = maxHealth * FATIGUE_GROW_PER_DAY / DEFAULT_HEALTH;
+      stress =  0;
+      float fatigueRegen = maxHealth / DEFAULT_HEALTH;
+      fatigueRegen *= DEFAULT_CONCENTRATE_REGEN;
       fatigue = Nums.clamp(fatigue - fatigueRegen, 0, maxHealth);
-      return;
     }
-    //
-    //  Regeneration rates differ during sleep-
-    final float DL = Stage.STANDARD_DAY_LENGTH;
-    float MM = 1, FM = 1, IM = 1, PM = 1;
-    final float regen = actor.skills.chance(IMMUNE, 10);
-    final Action taken = actor.currentAction();
-    
-    if (state == STATE_RESTING) {
-      FM = -3;
-      IM =  2;
-      MM =  1;
-      PM =  0;
-    }
-    else if (taken != null && taken.isMoving()) {
-      final int moveType = taken.motionType(actor);
-      if (moveType == Plan.MOTION_FAST) FM = RUN_FATIGUE_MULT;
-    }
-    
-    if (bleeds) {
-      final float
-        bleedMargin  = MAX_INJURY - 1f,
-        bleedAmount  = maxHealth * bleedMargin / BLEED_OUT_TIME,
-        stableChance = regen * 2 * 1f          / BLEED_OUT_TIME;
-      if (Rand.num() < stableChance) bleeds = false;
-      else injury += bleedAmount;
-      if (report) {
-        I.say("  bleedout time:    "+BLEED_OUT_TIME);
-        I.say("  bleeding for:     "+bleedAmount   );
-        I.say("  stabilise chance: "+stableChance  );
+    else {
+      //
+      //  Regeneration rates differ during sleep-
+      final float regen = actor.skills.chance(IMMUNE, 10);
+      final Action taken = actor.currentAction();
+      
+      if (state == STATE_RESTING) {
+        FM = -3;
+        IM =  2;
+        MM =  1;
+        PM =  0;
       }
+      else if (taken != null && taken.isMoving()) {
+        final int moveType = taken.motionType(actor);
+        if (moveType == Plan.MOTION_FAST) FM = RUN_FATIGUE_MULT;
+      }
+      
+      if (bleeds) {
+        final float
+          bleedMargin  = MAX_INJURY - 1f,
+          bleedAmount  = maxHealth * bleedMargin / BLEED_OUT_TIME,
+          stableChance = regen * 2 * 1f          / BLEED_OUT_TIME;
+        if (Rand.num() < stableChance) bleeds = false;
+        else injury += bleedAmount;
+        if (report) {
+          I.say("  bleedout time:    "+BLEED_OUT_TIME);
+          I.say("  bleeding for:     "+bleedAmount   );
+          I.say("  stabilise chance: "+stableChance  );
+        }
+      }
+      else if (injury > 0) {
+        actor.skills.test(IMMUNE, 10, 1f / Stage.STANDARD_HOUR_LENGTH, null);
+        injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
+      }
+      
+      fatigue += FATIGUE_GROW_PER_DAY * speedMult * maxHealth * FM / DL;
+      fatigue = Nums.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
+      injury  = Nums.clamp(injury , 0, MAX_DECOMP  * maxHealth);
+      //
+      //  Have morale converge to a default based on the cheerful trait and
+      //  current stress levels.
+      final float
+        defaultMorale = actor.traits.relativeLevel(POSITIVE) / 10f,
+        moraleInc     = MORALE_DECAY_PER_DAY * MM / DL;
+      stress = stressPenalty();
+      morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc);
+      morale -= stress / DL;
     }
-    else if (injury > 0) {
-      actor.skills.test(IMMUNE, 10, 1f / Stage.STANDARD_HOUR_LENGTH, null);
-      injury -= INJURY_REGEN_PER_DAY * maxHealth * regen * IM / DL;
-    }
-    
-    fatigue += FATIGUE_GROW_PER_DAY * speedMult * maxHealth * FM / DL;
-    fatigue = Nums.clamp(fatigue, 0, MAX_FATIGUE * maxHealth);
-    injury  = Nums.clamp(injury , 0, MAX_DECOMP  * maxHealth);
-
-    //
-    //  Have morale converge to a default based on the cheerful trait and
-    //  current stress levels.
-    final float
-      stress        = stressPenalty(),
-      defaultMorale = actor.traits.relativeLevel(POSITIVE) / 10f,
-      moraleInc     = MORALE_DECAY_PER_DAY * MM / DL;
-    morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc);
-    morale -= stress / DL;
     //
     //  Last but not least, update your reserves of concentration-
     float conRegen = DEFAULT_CONCENTRATE_REGEN, maxCon = BASE_CONCENTRATION;

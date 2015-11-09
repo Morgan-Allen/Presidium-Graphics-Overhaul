@@ -172,7 +172,7 @@ public class Ruins extends Venue {
       final int pop = staff.numResident(SPECIES[index]);
       return pop * 1f / cap;
     }
-    else return 1;
+    else return 0;
   }
   
   

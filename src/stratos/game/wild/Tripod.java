@@ -98,7 +98,14 @@ public class Tripod extends Artilect {
   }
   
   
+  protected float aboveGroundHeight() {
+    //  TODO:  Figure out why the model is above-ground!
+    return -0.1f;
+  }
   
+  
+
+
   /**  Rendering and interface methods-
     */
   public String fullName() {
