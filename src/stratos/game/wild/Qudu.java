@@ -81,6 +81,9 @@ public class Qudu extends Fauna {
     
     traits.setLevel(DEFENSIVE, -1);
     traits.setLevel(FEARLESS , -2);
+    
+    skills.addTechnique(FORTIFY );
+    skills.addTechnique(WITHDRAW);
   }
   
   

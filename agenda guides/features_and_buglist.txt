@@ -4,18 +4,10 @@
 
 TO DO NOW-
 
-*  Consider having research-priority increased if you work at the structure
-   that the upgrade belongs to.
+*  Test out all the fauna abilities.
+   Then make sure that ecologists can charm them effectively.
 
 *  Offworld raids by enemy houses!
-
-*  Lictovores get Maul & Devour.
-   Yamagur get Slugger & Fortify.
-   Vareen get Bask & Flight.
-   Qudu get Withdraw & Fortify.
-   
-   Roaches get Infection & Night Vision.  Roachmen get Maul.
-   Avrodils get Camouflage, Whiplash, Pollen Spray & Devour.
 
 *  Hook up, and test, all common abilities.  (Plus general learning & use of
    the others.)  Reserve Suppression and Hew for Troopers- move psy powers out.

@@ -200,36 +200,39 @@ public class Studying extends Plan {
     final BaseResearch BR = venue.base().research;
     if (type == TYPE_RESEARCH && BR.hasTheory((Upgrade) studied)) return -1;
     
-    float modifier = 0, powerVal = -1;
+    float modifier = 0, ratedVal = -1;
     Trait baseTraits[] = NO_TRAITS;
     if (type == TYPE_RESEARCH) {
       baseTraits = RESEARCH_TRAITS;
-      powerVal = (((Upgrade) studied).tier / 4f);
+      ratedVal = (((Upgrade) studied).tier / 4f);
+      
+      final Blueprint b = Blueprint.blueprintFor(actor.mind.work());
+      if (b != null && ((Upgrade) studied).origin == b) ratedVal += 0.5f;
     }
     if (type == TYPE_TECHNIQUE) {
       baseTraits = DRILL_TRAITS;
-      powerVal = ((Technique) studied).powerLevel / Technique.MEDIUM_POWER;
+      ratedVal = ((Technique) studied).powerLevel / Technique.MEDIUM_POWER;
     }
     if (type == TYPE_DRILL) {
       baseTraits = DRILL_TRAITS;
-      powerVal = 1;
+      ratedVal = 1;
     }
     if (type == TYPE_SKILL) {
       baseTraits = RESEARCH_TRAITS;
-      powerVal = 1;
+      ratedVal = 1;
     }
     
     setCompetence(successChanceFor(actor));
     
     float priority = PlanUtils.traitAverage(actor, baseTraits) * ROUTINE;
     modifier -= actor.motives.greedPriority(chargeCost);
-    modifier += motiveBonus() + (powerVal * CASUAL / 2);
+    modifier += motiveBonus() + (ratedVal * CASUAL / 2);
     priority = (priority + modifier) * competence();
     
     if (report) {
       I.say("  Topic of study: "+studied);
       I.say("  Motive bonus:   "+motiveBonus());
-      I.say("  Power value:    "+powerVal);
+      I.say("  Power value:    "+ratedVal);
       I.say("  Modifier is:    "+modifier);
       I.say("  Competence is:  "+competence());
       I.say("  Final priority: "+priority);

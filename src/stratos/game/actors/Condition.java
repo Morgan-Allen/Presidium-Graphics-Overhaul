@@ -78,33 +78,40 @@ public class Condition extends Trait {
   //  assuming no immune response.  However, an adult with average vigour of 10
   //  has a 75% chance to fight it off, even without acquired resistance.
   
+
+  
   public static void checkContagion(Actor actor) {
+    //
+    //  Let's say that under average squalor, you have a 10% chance of
+    //  contracting an illness per day.  (Before immune function kicks in.)
     final Tile o = actor.origin();
     final float squalor = actor.world().ecology().ambience.valueAt(o) / -10;
-    
+    float infectChance = 0.1f;
+    //
+    //  Let's say that perfect hygiene reduces the chance by a factor of 2,
+    //  and perfect squalor multiplies by a factor of 5.
+    if (squalor > 0) infectChance *= 1 + (5 * squalor);
+    else infectChance /= 1 - (2 * squalor);
+    checkContagion(actor, infectChance, Stage.STANDARD_DAY_LENGTH);
+  }
+  
+  
+  public static void checkContagion(
+    Actor actor, float infectChance, int period
+  ) {
     for (Object d : Conditions.SPONTANEOUS_DISEASE) {
       final Condition c = (Condition) d;
-      //
-      //  Let's say that under average squalor, you have a 10% chance of
-      //  contracting an illness per day.  (Before immune function kicks in.)
-      float infectChance = 0.1f;// * cleanFactor(actor);
-      //
-      //  Let's say that perfect hygiene reduces the chance by a factor of 2,
-      //  and perfect squalor multiplies by a factor of 5.
-      if (squalor > 0) infectChance *= 1 + (5 * squalor);
-      else infectChance /= 1 - (2 * squalor);
       //
       //  Finally, let's say that each 5 points in virulence reduces the chance
       //  of contraction by half.  And that the chance is multiplied by spread.
       infectChance /= 1 << (int) ((c.virulence / 5) - 1);
       infectChance *= (c.spread + 0.1f) / 10.2f;
       
-      ///I.sayAbout(actor, "Contract chance/day for "+c+" is: "+infectChance);
-      if (Rand.num() > (infectChance / Stage.STANDARD_DAY_LENGTH)) continue;
+      if (Rand.num() > (infectChance / period)) continue;
       if (actor.skills.test(IMMUNE, c.virulence - 10, 1.0f, null)) continue;
       
       if (verbose) I.say("INFECTING "+actor+" WITH "+c);
-      actor.traits.incLevel(c, 0.1f);
+      actor.traits.incLevel(c, 1f / period);
     }
   }
   

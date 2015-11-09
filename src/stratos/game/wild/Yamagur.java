@@ -83,6 +83,9 @@ public class Yamagur extends Fauna {
     
     traits.setLevel(HAND_TO_HAND, 10 + Rand.index(5) - 2);
     traits.setLevel(HANDICRAFTS , 5  + Rand.index(5) - 2);
+    
+    skills.addTechnique(FORTIFY);
+    skills.addTechnique(SLAM   );
   }
   
   

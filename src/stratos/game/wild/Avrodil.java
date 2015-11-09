@@ -19,7 +19,7 @@ import static stratos.game.actors.Technique.*;
 
 
 
-public class Avrodil extends Fauna implements Captivity {
+public class Avrodil extends Fauna {
   
   
   final public static Species SPECIES = new Species(
@@ -50,12 +50,6 @@ public class Avrodil extends Fauna implements Captivity {
     public boolean fixedNesting() { return false; }
   };
   
-  final static float
-    DIGEST_DURATION       = Stage.STANDARD_SHIFT_LENGTH,
-    DIGEST_REGEN_FRACTION = 0.2f;
-  
-  
-  private Actor digesting;
   
 
   public Avrodil(Base base) {
@@ -65,13 +59,11 @@ public class Avrodil extends Fauna implements Captivity {
   
   public Avrodil(Session s) throws Exception {
     super(s);
-    this.digesting = (Actor) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(digesting);
   }
   
   
@@ -249,71 +241,6 @@ public class Avrodil extends Fauna implements Captivity {
   };
   
   
-  final public static Technique DEVOUR = new Technique(
-    "Devour", UI_DIR+"devour.png",
-    "Allows the Avrodil to consume and digest a chosen victim.",
-    BASE_CLASS, "avrodil_devour",
-    MEDIUM_POWER        ,
-    EXTREME_HARM        ,
-    MEDIUM_FATIGUE      ,
-    MEDIUM_CONCENTRATION,
-    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
-    Action.STRIKE_BIG, Action.QUICK
-  ) {
-    
-    public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
-    ) {
-      final Avrodil eats = (Avrodil) using;
-      final Actor victim = (Actor) subject;
-      final boolean report = false;
-      
-      if (success) {
-        final float maxBulk = eats.health.baseBulk() / 2;
-        final float chance = 1f - (victim.health.baseBulk() / maxBulk);
-        if (Rand.num() > chance) success = false;
-        if (report) I.say("\nChance to devour is: "+chance);
-      }
-      else if (report) I.say("\nDevour attempt failed!");
-      
-      if (success) {
-        super.applyEffect(using, success, subject, passive);
-        victim.bindToMount(eats);
-        if (report) I.say("  Devour attempt successful!");
-      }
-    }
-    
-    
-    protected boolean checkActionSuccess(Actor actor, Target subject) {
-      return Combat.performStrike(
-        actor, (Actor) subject,
-        HAND_TO_HAND, HAND_TO_HAND,
-        Combat.OBJECT_DESTROY, actor.currentAction()
-      );
-    }
-    
-    
-    public boolean triggersAction(
-      Actor actor, Plan current, Target subject
-    ) {
-      if (! (subject instanceof Actor)) {
-        return false;
-      }
-      if (! (current instanceof Combat)) return false;
-      
-      final Avrodil eats = (Avrodil) actor;
-      final Actor victim = (Actor) subject;
-      if (eats.digesting != null) {
-        return false;
-      }
-      if (victim.health.baseBulk() > eats.health.baseBulk() / 2) {
-        return false;
-      }
-      return true;
-    }
-  };
-  
-  
   final public static Technique WHIPLASH = new Technique(
     "Whiplash", UI_DIR+"avrodil_whiplash.png",
     "Allows the Avrodil to lash out at distant targets, dealing injury and "+
@@ -423,7 +350,7 @@ public class Avrodil extends Fauna implements Captivity {
     return 0.75f;
   }
   
-  
+  /*
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
@@ -484,15 +411,18 @@ public class Avrodil extends Fauna implements Captivity {
     d.append("Being digested by ");
     d.append(this);
   }
+  //*/
   
   
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final SelectionPane pane = super.configSelectPane(panel, UI);
     
+    /*
     if (digesting != null) {
       pane.listing().append("\n  Digesting: ");
       pane.listing().append(digesting);
     }
+    //*/
     return pane;
   }
   

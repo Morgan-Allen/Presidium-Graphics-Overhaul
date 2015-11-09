@@ -193,6 +193,12 @@ public class Blueprint extends Constant implements UIConstants {
   }
   
   
+  public static Blueprint blueprintFor(Property p) {
+    if (p == null || p.structure().blueprintUpgrade() == null) return null;
+    return p.structure().blueprintUpgrade().origin;
+  }
+  
+  
   public boolean hasProperty(int property) {
     return (properties & property) == property;
   }

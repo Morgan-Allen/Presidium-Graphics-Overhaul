@@ -80,14 +80,6 @@ public class Lictovore extends Fauna {
   
   
   protected void initStats() {
-    //
-    //  TODO:  PUT ALL THESE ATTRIBUTES IN THE SPECIES FIELDS
-    traits.initAtts(20, 15, 5);
-    traits.setLevel(HAND_TO_HAND, 10);
-    traits.setLevel(STEALTH_AND_COVER, 10);
-    
-    traits.setLevel(DEFENSIVE, 2);
-    traits.setLevel(FEARLESS , 1);
     
     health.initStats(
       20,  //lifespan
@@ -98,6 +90,18 @@ public class Lictovore extends Fauna {
     );
     gear.setBaseDamage(15);
     gear.setBaseArmour(5);
+    
+    //
+    //  TODO:  PUT ALL THESE ATTRIBUTES IN THE SPECIES FIELDS
+    traits.initAtts(20, 15, 5);
+    traits.setLevel(HAND_TO_HAND, 10);
+    traits.setLevel(STEALTH_AND_COVER, 10);
+    
+    traits.setLevel(DEFENSIVE, 2);
+    traits.setLevel(FEARLESS , 1);
+    
+    skills.addTechnique(MAUL  );
+    skills.addTechnique(DEVOUR);
   }
   
   

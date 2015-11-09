@@ -55,6 +55,9 @@ public class Roach extends Vermin {
     traits.setLevel(DEFENSIVE, -1);
     traits.setLevel(FEARLESS , -2);
     traits.setLevel(STEALTH_AND_COVER, 5 + Rand.index(5) - 3);
+    
+    skills.addTechnique(Fauna.NIGHT_VISION);
+    skills.addTechnique(Fauna.INFECTION   );
   }
   
   

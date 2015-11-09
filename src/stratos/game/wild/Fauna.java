@@ -14,6 +14,8 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
+import static stratos.game.actors.Technique.*;
 
 
 
@@ -387,6 +389,434 @@ public abstract class Fauna extends Actor {
   
   
   
+  
+  /**  Special techniques-
+    */
+  final static Class BASE_CLASS = Fauna.class;
+  final static String
+    UI_DIR = "media/GUI/Powers/",
+    FX_DIR = "media/SFX/";
+  
+  final static int
+    WITHDRAW_MELEE_BONUS     = 15,
+    WITHDRAW_RANGED_BONUS    = 10,
+    WITHDRAW_BONUS_DURATION  = Stage.STANDARD_HOUR_LENGTH / 5,
+    BASK_CALORIE_PERCENT     = 50,
+    BASK_HEALTH_PERCENT      = 20,
+    FLIGHT_EVADE_BONUS       =  5,
+    FORTIFY_REPAIR           =  2,
+    FORTIFY_HP_PERCENT_EXTRA = 50,
+    FORTIFY_ARMOUR_EXTRA     =  5,
+    SLAM_DAMAGE_MIN          =  2,
+    SLAM_DAMAGE_MAX          =  8,
+    SLAM_RADIUS              =  2,
+    MAUL_DAMAGE_MAX          =  3,
+    MAUL_DEBUFF_PENALTY      = -5,
+    MAUL_DEBUFF_DURATION     = Stage.STANDARD_HOUR_LENGTH / 5,
+    DEFAULT_INFECTION_RADIUS =  1,
+    DIGEST_DURATION          = Stage.STANDARD_SHIFT_LENGTH,
+    DIGEST_REGEN_PERCENT     = 20;
+  
+  
+  final public static Technique WITHDRAW = new Technique(
+    "Withdraw", UI_DIR+"withdraw.png",
+    "Allows this creature to retreat into a protective stance when "+
+    "threatened, drastically reducing damage from outside attack.",
+    BASE_CLASS, "fauna_withdraw",
+    MEDIUM_POWER        ,
+    MILD_HELP           ,
+    NO_FATIGUE          ,
+    MINOR_CONCENTRATION ,
+    IS_SELF_TARGETING | IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
+    Action.MOVE_SNEAK, Action.NORMAL
+  ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      if (current instanceof Combat) return false;
+      if (actor.traits.hasTrait(asCondition)) return false;
+      return actor.senses.underAttack();
+    }
+    
+    
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject
+    ) {
+      //
+      //  This is supposed to be used only in a defensive capacity-
+      if (used != HAND_TO_HAND && used != STEALTH_AND_COVER) return false;
+      if (current instanceof Combat) return false;
+      return actor.traits.hasTrait(asCondition);
+    }
+    
+    
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
+      if (skill == HAND_TO_HAND     ) return WITHDRAW_MELEE_BONUS;
+      if (skill == STEALTH_AND_COVER) return WITHDRAW_RANGED_BONUS;
+      return 0;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      //
+      //  TODO:  You need a Volley class to do this properly.
+      SenseUtils.breaksPursuit(using, using.currentAction());
+      using.traits.setLevel(asCondition, 1);
+    }
+    
+    
+    protected float conditionDuration() {
+      return WITHDRAW_BONUS_DURATION;
+    }
+  };
+  
+  
+  final public static Technique BASK = new Technique(
+    "Fortify", UI_DIR+"fortify.png",
+    "Grants extra calories and faster health regeneration while resting "+
+    "or outdoors by day.",
+    BASE_CLASS, "fauna_bask",
+    MINOR_POWER         ,
+    MILD_HELP           ,
+    NO_FATIGUE          ,
+    NO_CONCENTRATION    ,
+    IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0, null
+  ) {
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      float dayVal = (Planet.dayValue(using.world()) - 0.25f) / 0.75f;
+      boolean canBask = using.health.asleep() || ! using.indoors();
+      if (canBask && dayVal > 0) {
+        
+        float foodVal = using.health.maxHealth();
+        foodVal *= dayVal * BASK_CALORIE_PERCENT / 100f;
+        foodVal *= 2f / ActorHealth.STARVE_INTERVAL;
+        using.health.takeCalories(foodVal, 1);
+        
+        float healthVal = using.health.maxHealth();
+        healthVal *= dayVal * BASK_HEALTH_PERCENT / 100f;
+        healthVal *= 2f / Stage.STANDARD_DAY_LENGTH;
+        using.health.liftInjury(healthVal);
+        
+        using.traits.setLevel(asCondition, 1);
+      }
+      else using.traits.remove(asCondition);
+    }
+  };
+  
+  
+  final public static Technique FLIGHT = new Technique(
+    "Flight", UI_DIR+"flight.png",
+    "Grants a higher chance of evading enemy attacks when retreating.",
+    BASE_CLASS, "fauna_flight",
+    MINOR_POWER         ,
+    MILD_HELP           ,
+    NO_FATIGUE          ,
+    MINOR_CONCENTRATION ,
+    IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0, null
+  ) {
+    
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject
+    ) {
+      if (! (current instanceof Retreat)) return false;
+      if (! actor.isMoving()) return false;
+      return used == HAND_TO_HAND || used == STEALTH_AND_COVER;
+    }
+    
+    
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
+      return FLIGHT_EVADE_BONUS;
+    }
+  };
+  
+  
+  final public static Technique FORTIFY = new Technique(
+    "Fortify", UI_DIR+"fortify.png",
+    "Allows nests to be constructed more rapidly, and grants the final "+
+    "product greater structural integrity.",
+    BASE_CLASS, "fauna_fortify",
+    MINOR_POWER         ,
+    MILD_HELP           ,
+    NO_FATIGUE          ,
+    MINOR_CONCENTRATION ,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
+    Action.BUILD, Action.NORMAL
+  ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      if (! (current instanceof Repairs)) return false;
+      if (! (subject instanceof Nest   )) return false;
+      return true;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      if (! success) return;
+      
+      final Nest nest = (Nest) subject;
+      final Blueprint b = nest.blueprint;
+      nest.structure().repairBy(FORTIFY_REPAIR);
+      
+      nest.structure.adjustStats(
+        (int) (b.integrity * (1 + (FORTIFY_HP_PERCENT_EXTRA / 100f))),
+        b.armour + FORTIFY_ARMOUR_EXTRA,
+        0, 0, 1, b.properties
+      );
+    }
+  };
+  
+  
+  final public static Technique SLAM = new Technique(
+    "Slam", UI_DIR+"slam.png",
+    "Deals extra damage in melee while stunning nearby opponents.",
+    BASE_CLASS, "fauna_slam",
+    MAJOR_POWER         ,
+    REAL_HARM           ,
+    MINOR_FATIGUE       ,
+    MEDIUM_CONCENTRATION,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
+    Action.STRIKE_BIG, Action.QUICK
+  ) {
+  
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      if (! (current instanceof Combat)) return false;
+      if (! (subject instanceof Actor )) return false;
+      return actor.gear.meleeDeviceOnly();
+    }
+    
+    
+    protected float effectRadius() {
+      return SLAM_RADIUS;
+    }
+    
+    
+    protected boolean effectDescriminates() {
+      return true;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      final Actor struck = (Actor) subject;
+      
+      float damage = roll(SLAM_DAMAGE_MIN, SLAM_DAMAGE_MAX);
+      struck.health.takeInjury(damage, false);
+      struck.enterStateKO(Action.FALL);
+    }
+  };
+  
+  
+  final public static Technique MAUL = new Technique(
+    "Maul", UI_DIR+"maul.png",
+    "Deals extra damage in melee while hindering an opponent's ability to "+
+    "strike back.  Can cause bleeding.",
+    BASE_CLASS, "fauna_maul",
+    MEDIUM_POWER        ,
+    REAL_HARM           ,
+    MINOR_FATIGUE       ,
+    MEDIUM_CONCENTRATION,
+    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
+    Action.STRIKE_BIG, Action.QUICK
+  ) {
+    
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      if (! (current instanceof Combat)) return false;
+      if (! (subject instanceof Actor )) return false;
+      return actor.gear.meleeDeviceOnly();
+    }
+    
+    
+    protected boolean checkActionSuccess(Actor actor, Target subject) {
+      if (! Combat.performGeneralStrike(
+        actor, subject, Combat.OBJECT_EITHER, actor.currentAction()
+      )) return false;
+      return super.checkActionSuccess(actor, subject);
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      if (success) {
+        final Actor struck = (Actor) subject;
+        struck.health.takeInjury(roll(0, MAUL_DAMAGE_MAX), false);
+        struck.traits.incBonus(HAND_TO_HAND, MAUL_DEBUFF_PENALTY);
+        
+        if (struck.health.organic() && Rand.yes()) {
+          struck.health.setBleeding(true);
+          struck.traits.setLevel(asCondition, 1);
+        }
+      }
+    }
+    
+    
+    protected float conditionDuration() {
+      return MAUL_DEBUFF_DURATION;
+    }
+
+
+    protected void applyAsCondition(Actor affected) {
+      super.applyAsCondition(affected);
+      affected.traits.incBonus(HAND_TO_HAND, MAUL_DEBUFF_PENALTY / 2f);
+      if (! affected.health.bleeding()) affected.traits.remove(asCondition);
+    }
+  };
+  
+  
+  final public static Technique INFECTION = new Technique(
+    "Infection", UI_DIR+"infection.png",
+    "Anyone in contact with or near this creature runs a risk of "+
+    "contracting disease.",
+    BASE_CLASS, "fauna_night_vision",
+    MINOR_POWER         ,
+    MILD_HARM           ,
+    NO_FATIGUE          ,
+    NO_CONCENTRATION    ,
+    IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0, null
+  ) {
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      float radius = DEFAULT_INFECTION_RADIUS * (using.health.baseBulk() + 1);
+      for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
+        float infectChance = 0.5f;
+        if (a.actionFocus() == using) infectChance *= 2;
+        Condition.checkContagion(a, infectChance, Stage.STANDARD_HOUR_LENGTH);
+      }
+    }
+  };
+  
+  
+  final public static Technique NIGHT_VISION = new Technique(
+    "Night Vision", UI_DIR+"night_vision.png",
+    "Grants this creature extended sight range by night, but reduced range "+
+    "by day.",
+    BASE_CLASS, "fauna_night_vision",
+    MEDIUM_POWER        ,
+    HARM_UNRATED        ,
+    NO_FATIGUE          ,
+    NO_CONCENTRATION    ,
+    IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0, null
+  ) {
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      final float dayVal = Planet.dayValue(using.world());
+      float bonus = (0.75f - dayVal) * 20;
+      using.traits.incBonus(SURVEILLANCE, bonus);
+    }
+  };
+  
+  
+  
+  final static Traded ITEM_DIGESTING = new Traded(
+    BASE_CLASS, "Digesting", null, Economy.FORM_SPECIAL, 0,
+    "Some unfortunate creature is being digested..."
+  );
+  
+  
+  final public static Technique DEVOUR = new Technique(
+    "Devour", UI_DIR+"devour.png",
+    "Allows the Avrodil to consume and digest a chosen victim.",
+    BASE_CLASS, "avrodil_devour",
+    MEDIUM_POWER        ,
+    EXTREME_HARM        ,
+    MEDIUM_FATIGUE      ,
+    MEDIUM_CONCENTRATION,
+    IS_FOCUS_TARGETING | IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0,
+    Action.STRIKE_BIG, Action.QUICK
+  ) {
+    
+    public boolean triggersAction(
+      Actor actor, Plan current, Target subject
+    ) {
+      if (! (subject instanceof Actor )) return false;
+      if (! (current instanceof Combat)) return false;
+      if (actor.gear.amountOf(ITEM_DIGESTING) > 0) return false;
+      
+      final Actor victim = (Actor) subject;
+      if (victim.health.baseBulk() > actor.health.baseBulk() / 2) {
+        return false;
+      }
+      return true;
+    }
+    
+    
+    protected boolean checkActionSuccess(Actor actor, Target subject) {
+      return Combat.performStrike(
+        actor, (Actor) subject,
+        HAND_TO_HAND, HAND_TO_HAND,
+        Combat.OBJECT_DESTROY, actor.currentAction()
+      );
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      if (passive) { updateDigestion(using); return; }
+      
+      final Actor victim = (Actor) subject;
+      final boolean report = false;
+      
+      if (success) {
+        final float maxBulk = using.health.baseBulk() / 2;
+        final float chance = 1f - (victim.health.baseBulk() / maxBulk);
+        if (Rand.num() > chance) success = false;
+        if (report) I.say("\nChance to devour is: "+chance);
+      }
+      else if (report) I.say("\nDevour attempt failed!");
+      
+      if (success) {
+        super.applyEffect(using, success, subject, passive);
+        
+        final Item digestion = Item.withReference(ITEM_DIGESTING, victim);
+        victim.exitToOffworld();
+        using.gear.addItem(digestion);
+        if (report) I.say("  Devour attempt successful!");
+      }
+    }
+    
+    
+    private void updateDigestion(Actor using) {
+      final Item digestion = using.gear.matches(ITEM_DIGESTING).first();
+      if (digestion == null) return;
+      
+      final Actor victim = (Actor) digestion.refers;
+      final float burn = victim.health.maxHealth() / DIGEST_DURATION;
+      victim.health.takeInjury(burn, true);
+      using.health.takeCalories(burn, 1);
+      using.health.liftInjury(burn * DIGEST_REGEN_PERCENT / 100f);
+      
+      final float amountGone = 1f / DIGEST_DURATION;
+      using.gear.removeItem(Item.withAmount(digestion, amountGone));
+      
+      if (! using.health.alive()) {
+        using.gear.removeItem(digestion);
+        victim.enterWorldAt(using.origin(), using.world());
+        victim.health.setBleeding(true);
+      }
+    }
+  };
+  
+  
+  
   /**  Rendering and interface methods-
     */
   protected float spriteScale() {
@@ -411,6 +841,8 @@ public abstract class Fauna extends Actor {
     return p;
   }
 }
+
+
 
 
 

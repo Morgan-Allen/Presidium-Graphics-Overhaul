@@ -95,6 +95,9 @@ public class Hareen extends Fauna {
     );
     gear.setBaseDamage(4);
     gear.setBaseArmour(2);
+    
+    skills.addTechnique(BASK  );
+    skills.addTechnique(FLIGHT);
   }
   
   

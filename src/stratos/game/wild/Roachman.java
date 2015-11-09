@@ -56,6 +56,10 @@ public class Roachman extends Vermin {
     traits.setLevel(ACQUISITIVE, 1);
     traits.setLevel(STEALTH_AND_COVER, 15 + Rand.index(5) - 3);
     traits.setLevel(HAND_TO_HAND     , 5  + Rand.index(5) - 3);
+    
+    skills.addTechnique(Fauna.MAUL        );
+    skills.addTechnique(Fauna.NIGHT_VISION);
+    skills.addTechnique(Fauna.INFECTION   );
   }
   
   
