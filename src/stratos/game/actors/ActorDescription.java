@@ -265,11 +265,10 @@ public class ActorDescription {
     
     final List <Relation> sorting = new List <Relation> () {
       protected float queuePriority(Relation r) {
-        if (! (r.subject instanceof Actor)) return 0 - (10 + r.value());
         return 0 - r.value();
       }
     };
-    Visit.appendTo(sorting, h.relations.relations());
+    Visit.appendTo(sorting, h.relations.personRelations());
     sorting.queueSort();
     
     d.append("Relationships: ");

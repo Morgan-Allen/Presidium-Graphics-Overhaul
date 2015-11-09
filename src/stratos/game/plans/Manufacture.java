@@ -126,6 +126,14 @@ public class Manufacture extends Plan implements Behaviour {
   }
   
   
+  public static int topQuality(
+    Venue v, Conversion c, Upgrade... upgrades
+  ) {
+    float speedBonus = estimatedOutput(v, c, upgrades);
+    return (int) (speedBonus * Item.MAX_QUALITY / 2f);
+  }
+  
+  
   public static float estimatedOutput(
     Venue v, Conversion c, Upgrade... upgrades
   ) {
@@ -201,7 +209,7 @@ public class Manufacture extends Plan implements Behaviour {
   
   private boolean hasNeeded() {
     for (Item need : needed) {
-      if (! venue.inventory().hasItem(need)) return false;
+      if (venue.inventory().amountOf(need) < 1) return false;
     }
     return true;
   }

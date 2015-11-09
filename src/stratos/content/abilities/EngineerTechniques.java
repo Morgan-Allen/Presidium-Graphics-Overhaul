@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.abilities;
+import stratos.content.civic.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -11,6 +12,7 @@ import stratos.game.plans.*;
 import stratos.game.wild.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
+import static stratos.game.economic.Economy.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.util.Rand;
@@ -31,7 +33,10 @@ public class EngineerTechniques {
     WELD_REPAIR_MAX  = 7 ,
     RAM_DAMAGE_MIN   = 5 ,
     RAM_DAMAGE_MAX   = 10,
-    RAM_BASE_HP_STUN = 10;
+    RAM_BASE_HP_STUN = 10,
+    
+    SHIELD_MOD_BONUS = 2,
+    SHIELD_MOD_REGEN = 1;
   
   
   final public static Technique DEMOLITION = new Technique(
@@ -180,6 +185,53 @@ public class EngineerTechniques {
   
   final public static Technique ENGINEER_TECHNIQUES[] = new Technique[] {
     DEMOLITION, PULSE_WELDER, PNEUMATIC_RAM, POWER_LIFTER_USE
+  };
+  
+  
+  
+  final public static Technique SHIELD_MODULATION = new Technique(
+    "Shield Modulation", UI_DIR+"shield_modulation.png",
+    "Grants a bonus to both stealth and shield regeneration while worn.",
+    BASE_CLASS, "shield_modulation",
+    MEDIUM_POWER    ,
+    MILD_HELP       ,
+    NO_FATIGUE      ,
+    NO_CONCENTRATION,
+    IS_GEAR_PROFICIENCY | IS_PASSIVE_ALWAYS, null, -1, null
+  ) {
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      using.traits.setLevel(asCondition, 1);
+    }
+    
+    
+    protected void applyAsCondition(Actor affected) {
+      if (affected.gear.amountOf(SHIELD_MODULATOR_ITEM) == 0) {
+        affected.traits.remove(asCondition);
+        return;
+      }
+      affected.traits.incBonus(STEALTH_AND_COVER, SHIELD_MOD_BONUS);
+      affected.gear.boostShields(SHIELD_MOD_REGEN, false);
+    }
+  };
+  
+  
+  final public static UsedItemType SHIELD_MODULATOR_ITEM = new UsedItemType(
+    BASE_CLASS, "Shield Modulator", null,
+    80, SHIELD_MODULATION.description,
+    SHIELD_MODULATION, EngineerStation.class,
+    1, PARTS, 1, CIRCUITRY, DIFFICULT_DC, ASSEMBLY, MODERATE_DC, FIELD_THEORY
+  ) {
+    public int normalCarry(Actor actor) {
+      return 1;
+    }
+    
+    public float useRating(Actor uses) {
+      if (! PlanUtils.isArmed(uses)) return -1;
+      return 0.5f + uses.traits.traitLevel(STEALTH_AND_COVER);
+    }
   };
 }
 

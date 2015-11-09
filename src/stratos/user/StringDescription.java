@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.Image;
@@ -47,9 +50,12 @@ public class StringDescription implements Description {
   public void appendList(String s, Object... l) {
     if (l.length == 0) return;
     append(s);
-    int i = 0; for (Object o : l) {
+    append(s);
+    for (Object o : l) {
+      if (o == l[0]) append(" ");
+      else if (o == Visit.last(l)) append(" and ");
+      else append(", ");
       append(o);
-      if (++i < l.length) append(", ");
     }
   }
   

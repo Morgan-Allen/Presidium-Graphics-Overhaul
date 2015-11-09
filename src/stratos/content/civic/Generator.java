@@ -105,7 +105,7 @@ public class Generator extends Venue {
     */
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.TWO_LEVELS, EngineerStation.PARTICLE_PHYSICS,
+      Upgrade.TWO_LEVELS, EngineerStation.FIELD_MODULATION,
       new Object[] { 10, FIELD_THEORY, 10, ASSEMBLY },
       750, 1000
     ),

@@ -134,6 +134,8 @@ public class DebugCombat extends Scenario {
   
   private void combatScenario(Stage world, Base base, BaseUI UI) {
     
+    Flora.populateFlora(world);
+    
     setupCombatScenario(
       world, base, UI,
       new Background[] { TROOPER },

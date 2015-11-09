@@ -139,18 +139,19 @@ public class ActorRelations {
     //  Then incrementally update each relation, and determine which are no
     //  longer important enough to remember (only personal relations are
     //  considered 'disposable' for this purpose:
-    int count = 0; for (Relation r : sorting) {
+    int personCount = 0; for (Relation r : sorting) {
       final boolean
         okay     = updateRelation(r, UPDATE_PERIOD),
-        excess   = ++count > MAX_RELATIONS,
+        excess   = personCount > MAX_RELATIONS,
         personal = r.subject instanceof Actor;
       
       if (report) {
         I.say("  Have updated relation with "+r.subject);
-        I.say("    ("+count+"/"+MAX_RELATIONS+", okay: "+okay+")");
+        I.say("    ("+personCount+"/"+MAX_RELATIONS+", okay: "+okay+")");
         I.say("    Value/novelty: "+r.value()+"/"+r.novelty());
       }
       if (personal) {
+        personCount++;
         //
         //  We generalise about the subject's base of origin based on relations
         //  with known members.  And regardless of like or dislike, we
@@ -267,9 +268,27 @@ public class ActorRelations {
 
   
   
-  public Batch <Relation> relations() {
+  public Batch <Relation> allRelations() {
     final Batch <Relation> all = new Batch <Relation> ();
     for (Relation r : relations.values()) all.add(r);
+    return all;
+  }
+  
+  
+  public Batch <Relation> baseRelations() {
+    final Batch <Relation> all = new Batch <Relation> ();
+    for (Relation r : relations.values()) {
+      if (r.subject instanceof Base) all.add(r);
+    }
+    return all;
+  }
+  
+  
+  public Batch <Relation> personRelations() {
+    final Batch <Relation> all = new Batch <Relation> ();
+    for (Relation r : relations.values()) {
+      if (r.subject instanceof Actor) all.add(r);
+    }
     return all;
   }
   

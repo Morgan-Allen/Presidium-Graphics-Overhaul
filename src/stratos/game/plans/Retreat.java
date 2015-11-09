@@ -94,7 +94,7 @@ public class Retreat extends Plan {
     final Pick <Boarding> pick = new Pick <Boarding> () {
       
       public void compare(Boarding next, float rating) {
-        if (next == null || ! next.allowsEntry(actor)) return;
+        if (PathSearch.accessLocation(next, actor) == null) return;
         
         final float absDist = Spacing.distance(actor, next);
         if (mustMove && absDist <= sightHaven) return;

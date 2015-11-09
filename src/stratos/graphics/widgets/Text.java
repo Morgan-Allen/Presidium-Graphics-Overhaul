@@ -147,9 +147,11 @@ public class Text extends UIGroup implements Description {
   public void appendList(String s, Object... l) {
     if (l.length == 0) return;
     append(s);
-    int i = 0; for (Object o : l) {
+    for (Object o : l) {
+      if (o == l[0]) append(" ");
+      else if (o == Visit.last(l)) append(" and ");
+      else append(", ");
       append(o);
-      if (++i < l.length) append(", ");
     }
   }
   

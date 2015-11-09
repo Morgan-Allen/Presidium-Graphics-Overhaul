@@ -158,6 +158,22 @@ public class Flora extends Element implements TileConstants {
   }
   
   
+  public static float maxGrowth(Tile t, Species s) {
+    if (growthBonus(t, s, null) == -1) return 0;
+    if (s.domesticated) return MAX_GROWTH;
+    final int
+      var  = t.world.terrain().varAt(t),
+      mark = var / TerrainGen.MARK_VARS;
+    if (mark == 0) return 0;
+    if (mark == 1) {
+      if (var % TerrainGen.MARK_VARS == 0) return 0.5f;
+      return 0;
+    }
+    float boost = var * 0.5f / TerrainGen.MARK_VARS;
+    return t.habitat().moisture() * (MAX_GROWTH + boost) / 10f;
+  }
+  
+  
   public static Flora tryGrowthAt(Tile t, boolean init) {
     if (! hasSpace(t)) return null;
     
@@ -181,16 +197,6 @@ public class Flora extends Element implements TileConstants {
     if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
     if (t.isEntrance() || t.inside().size() > 0) return false;
     return maxGrowth(t, BASE_SPECIES) > 0;
-  }
-  
-  
-  public static float maxGrowth(Tile t, Species s) {
-    if (growthBonus(t, s, null) == -1) return 0;
-    if (s.domesticated) return MAX_GROWTH;
-    final int var = t.world.terrain().varAt(t) / TerrainGen.MARK_VARS;
-    if (var == 0) return 0;
-    if (var == 1) return MIN_GROWTH + (t.habitat().moisture() / 10) - 0.5f;
-    return t.habitat().moisture() * MAX_GROWTH / 10f;
   }
   
   

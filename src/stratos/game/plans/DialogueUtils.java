@@ -151,7 +151,7 @@ public class DialogueUtils {
       //pick.compare(c.vocation() , Rand.num());
     }
     
-    for (Relation r : actor.relations.relations()) {
+    for (Relation r : actor.relations.allRelations()) {
       if (r.subject == other || r.subject == actor) continue;
       if (r.subject == other.base()) continue;
       final float

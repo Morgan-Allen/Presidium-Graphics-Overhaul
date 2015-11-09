@@ -80,10 +80,10 @@ public class DebugCommerce extends Scenario {
     
     base.research.initKnowledgeFrom(base.commerce.homeworld());
     
-    if (true ) shippingScenario(world, base, UI);
+    if (false) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (false) purchaseScenario(world, base, UI);
+    if (true ) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) haulingScenario (world, base, UI);
   }
@@ -258,8 +258,8 @@ public class DebugCommerce extends Scenario {
     foundry.stocks.bumpItem(Economy.PARTS   , 10);
     foundry.stocks.bumpItem(Economy.POLYMER , 10);
     foundry.stocks.bumpItem(Economy.PLASTICS, 10);
-    foundry.structure.setUpgradeLevel(EngineerStation.PLASMA_WEAPONS  , 2);
-    foundry.structure.setUpgradeLevel(EngineerStation.COMPOSITE_ARMORS, 2);
+    foundry.structure.setUpgradeLevel(EngineerStation.WEAPONS_WORKSHOP, 2);
+    foundry.structure.setUpgradeLevel(EngineerStation.ARMOUR_FOUNDRY  , 2);
     
     final Venue reactor = new Generator(base);
     SiteUtils.establishVenue(reactor, 3, 6, true, world);
@@ -269,7 +269,7 @@ public class DebugCommerce extends Scenario {
     Actor buys = new Human(Backgrounds.RUNNER, base);
     buys.enterWorldAt(12, 12, world);
     buys.gear.incCredits(1000);
-    buys.gear.equipDevice(Item.withQuality(Devices.BLASTER, 1));
+    buys.gear.equipDevice(Item.withQuality(Devices.CARBINE, 1));
     
     buys = new Human(Backgrounds.TROOPER, base);
     buys.enterWorldAt(10, 12, world);

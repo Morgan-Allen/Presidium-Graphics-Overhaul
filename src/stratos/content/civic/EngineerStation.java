@@ -10,10 +10,11 @@ import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.util.I;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
-import stratos.content.abilities.EngineerTechniques;
+import static stratos.content.abilities.EngineerTechniques.*;
 
 
 
@@ -69,73 +70,72 @@ public class EngineerStation extends Venue {
     ),
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
-      "Allows standardised "+PARTS+" to be manufactured 50% faster.  Slightly "+
+      "Allows standardised "+PARTS+" to be manufactured 33% faster.  Slightly "+
       "increases pollution.",
       300,
-      Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PARTS,
       15, ASSEMBLY
     ),
     MOLDING_PRESS = new Upgrade(
       "Molding Press",
       "Speeds the production of common "+PLASTICS+" and lighter outfits "+
-      "by 50%.  Slightly reduces pollution.",
-      250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+      "by 100%.",
+      500,
+      Upgrade.SINGLE_LEVEL, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PLASTICS,
       10, ASSEMBLY, 0, CHEMISTRY
     ),
-    COMPOSITE_ARMORS = new Upgrade(
-      "Composite Armors",
-      "Improves the production of heavy armors along with common melee "+
-      "weapons.",
+    WEAPONS_WORKSHOP = new Upgrade(
+      "Weapons Workshop",
+      "Raises the production quality of standard weaponry.",
       400,
-      Upgrade.THREE_LEVELS, MOLDING_PRESS, BLUEPRINT,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, ASSEMBLY, 5, MARKSMANSHIP
+    ),
+    ARMOUR_FOUNDRY = new Upgrade(
+      "Armour Foundry",
+      "Allows the production quality of standard armours.",
+      400,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       15, ASSEMBLY, 5, CHEMISTRY
     ),
-    
-    PARTICLE_PHYSICS = new Upgrade(
-      "Particle Physics",
-      "Improves "+POWER+" production by 5 and allows upgrades to common "+
-      "industrial lasers and power cells.",
-      350, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
+    FIELD_MODULATION = new Upgrade(
+      "Field Modulation",
+      "Slightly reduces power consumption and allows production of "+
+      SHIELD_MODULATOR_ITEM+"s, a useful defensive item.",
+      550, Upgrade.SINGLE_LEVEL, LEVELS[1], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, POWER,
       5, ASSEMBLY, 5, FIELD_THEORY
     ),
-    
-    //  TODO:  Replace with Plasma Flux, as a general pre-req for energy-
-    //  techs, like the generator?
-    
-    PLASMA_WEAPONS = new Upgrade(
-      "Plasma Weapons",
-      "Allows high-flux energy pulses to be generated and controlled, "+
-      "allowing upgrades to powerful ranged weapons.",
+    BEAM_WEAPONS = new Upgrade(
+      "Beam Weapons",
+      "Allows high-energy plasma to be reliably generated and controlled, "+
+      "permitting upgrades to powerful ranged weapons.",
       400,
-      Upgrade.THREE_LEVELS, PARTICLE_PHYSICS, BLUEPRINT,
+      Upgrade.THREE_LEVELS, FIELD_MODULATION, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       10, ASSEMBLY, 15, FIELD_THEORY
     ),
-    
-    //  KINETIC_WEAPONS = new Upgrade(),
-    //  Power Cells.  Kinetic Ammo.  Robotics?
-    
-    //  TODO:  INCLUDE THIS, AND REQUIRE PLASMA WEAPONS
-    /*
-    T_NULL_ARMBAND = new Upgrade(
-      "T-NULL Armband",
-      "",
-      400,
-      Upgrade.SINGLE_LEVEL
-    ),
-    //*/
     MICRO_ASSEMBLY = new Upgrade(
       "Micro Assembly",
-      "Allows customised "+CIRCUITRY+" to be produced 50% faster.  Provides "+
-      "a mild bonus to personal commissions.",
-      150,
-      Upgrade.TWO_LEVELS, new Upgrade[] { ASSEMBLY_LINE, LEVELS[2] }, BLUEPRINT,
+      "Allows customised "+CIRCUITRY+" to be produced 50% faster, and "+
+      "assists production of non-combat devices.",
+      200,
+      Upgrade.TWO_LEVELS, new Upgrade[] { ASSEMBLY_LINE, LEVELS[1] }, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, CIRCUITRY,
       20, ASSEMBLY, 10, FIELD_THEORY
+    ),
+    ROBOTIC_ARMATURE = new Upgrade(
+      "Robotic Armature",
+      "Allows your engineers to equip formidable "+Outfits.POWER_LIFTER+"s,"+
+      "and provides a bonus to manufacture of heavier armours.",
+      550,
+      Upgrade.SINGLE_LEVEL, MICRO_ASSEMBLY, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      20, ASSEMBLY, 5, HAND_TO_HAND
     );
   
   final public static Conversion
@@ -197,14 +197,13 @@ public class EngineerStation extends Venue {
     //  Consider special commissions for weapons and armour-
     for (Item ordered : stocks.specialOrders()) {
       final Manufacture mO = new Manufacture(actor, this, ordered);
-      final Upgrade forType = upgradeFor(ordered.type);
+      final Upgrade forType[] = upgradeFor(ordered.type);
       choice.add(mO.setBonusFrom(this, true, forType));
     }
     final Plan crafting = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
     if (actor.mind.vocation() == ARTIFICER && crafting != null) {
       return crafting;
     }
-    
     //
     //  Consider the production of general bulk commodities-
     final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
@@ -219,14 +218,11 @@ public class EngineerStation extends Venue {
     if (mI != null) {
       choice.add(mI.setBonusFrom(this, false, MICRO_ASSEMBLY));
     }
-    
     //
     //  Consider research for new upgrades and structures-
-    ///choice.add(Studying.asResearch(actor, this, Target.TYPE_ENGINEER));
     choice.add(Studying.asTechniqueTraining(
-      actor, this, 0, EngineerTechniques.ENGINEER_TECHNIQUES)
-    );
-    
+      actor, this, 0, ENGINEER_TECHNIQUES
+    ));
     //
     //  And return whatever suits the actor best-
     return choice.weightedPick();
@@ -234,28 +230,48 @@ public class EngineerStation extends Venue {
   
   
   public void addServices(Choice choice, Actor client) {
+    
+    if (structure.hasUpgrade(FIELD_MODULATION)) {
+      final Item gets = GearPurchase.nextGearToPurchase(
+        client, this, SHIELD_MODULATOR_ITEM
+      );
+      choice.add(GearPurchase.nextCommission(client, this, gets));
+    }
+    
     final Item gets = GearPurchase.nextGearToPurchase(client, this);
     if (gets != null) {
-      final Upgrade limit = upgradeFor(gets.type);
+      final Upgrade limit[] = upgradeFor(gets.type);
       choice.add(GearPurchase.nextCommission(client, this, gets, limit));
     }
     choice.add(BringUtils.nextPersonalPurchase(client, this));
   }
   
   
-  private Upgrade upgradeFor(Traded made) {
+  final static Upgrade[]
+    BASIC_OUTFIT_UPS = { MOLDING_PRESS },
+    BASIC_DEVICE_UPS = { ASSEMBLY_LINE, MICRO_ASSEMBLY },
+    BASIC_WEAPON_UPS = { WEAPONS_WORKSHOP },
+    BEAM_WEAPON_UPS  = { WEAPONS_WORKSHOP, BEAM_WEAPONS },
+    BASIC_ARMOUR_UPS = { ARMOUR_FOUNDRY },
+    ROBOT_ARMOUR_UPS = { ARMOUR_FOUNDRY, ROBOTIC_ARMATURE };
+  
+  
+  private Upgrade[] upgradeFor(Traded made) {
     if (made == Outfits.OVERALLS) {
-      return MOLDING_PRESS;
+      return BASIC_OUTFIT_UPS;
     }
     else if (made instanceof DeviceType) {
       final DeviceType DT = (DeviceType) made;
-      if (DT.hasProperty(Devices.ENERGY )) return PLASMA_WEAPONS  ;
-      if (DT.hasProperty(Devices.KINETIC)) return COMPOSITE_ARMORS;
+      if (DT.hasProperty(Devices.ENERGY )) return BEAM_WEAPON_UPS ;
+      if (DT.hasProperty(Devices.KINETIC)) return BASIC_WEAPON_UPS;
+    }
+    else if (made == Outfits.POWER_ARMOUR || made == Outfits.POWER_LIFTER) {
+      return ROBOT_ARMOUR_UPS;
     }
     else if (made instanceof OutfitType) {
-      return COMPOSITE_ARMORS;
+      return BASIC_ARMOUR_UPS;
     }
-    return MICRO_ASSEMBLY;
+    return BASIC_DEVICE_UPS;
   }
   
 

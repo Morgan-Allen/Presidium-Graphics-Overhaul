@@ -85,7 +85,7 @@ public class ActorMotives {
     if (baseF == 0) return 0;
     
     float numF = 0;
-    for (Relation r : actor.relations.relations()) {
+    for (Relation r : actor.relations.allRelations()) {
       numF += 2 * Nums.clamp(r.value() - r.novelty(), 0, 1);
     }
     return (baseF - numF) / baseF;
@@ -198,7 +198,7 @@ public class ActorMotives {
   
   public Traded[] valuedForTrade() {
     final Batch <Traded> valued = new Batch();
-    for (Relation r : actor.relations.relations()) {
+    for (Relation r : actor.relations.allRelations()) {
       final Traded t = (Traded) I.cast(r.subject, Traded.class);
       if (t == null || t.form != FORM_MATERIAL) continue;
       valued.add(t);

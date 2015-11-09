@@ -70,7 +70,7 @@ public class ActorSkills {
     }
     //
     //  And apply passive techniques at all times.
-    for (Technique t : known) if (t.isPassiveAlways()) {
+    for (Technique t : availableTechniques()) if (t.isPassiveAlways()) {
       t.applyEffect(actor, true, actor, true);
     }
     //

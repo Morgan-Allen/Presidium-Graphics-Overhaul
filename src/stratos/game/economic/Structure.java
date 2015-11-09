@@ -719,11 +719,11 @@ public class Structure {
     if (upgrades == null || up.origin != blueprint) return false;
     if (up.type == Upgrade.Type.VENUE_LEVEL) return true;
     
-    int slots = 0;
+    int used = 0;
     for (Upgrade u : upgrades) {
-      if (u == null || u.type == Upgrade.Type.VENUE_LEVEL) slots++;
+      if (u != null && u.type == Upgrade.Type.TECH_MODULE) used++;
     }
-    return slots - maxLevels > 0;
+    return used < maxOptionalUpgrades();
   }
   
   

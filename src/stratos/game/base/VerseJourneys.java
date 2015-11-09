@@ -549,6 +549,9 @@ public class VerseJourneys {
       final float ETA = journey.arriveTime - time;
       return ETA < 0 ? 0 : ETA;
     }
+    if (journey != null && journey.origin == locale && journey.returns) {
+      return journey.arriveTime + tripTime - time;
+    }
     //
     //  Otherwise, try to find the next dropship likely to visit the actor's
     //  current location, and make a reasonable guess about trip times.

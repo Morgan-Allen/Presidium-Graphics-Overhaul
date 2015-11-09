@@ -322,7 +322,9 @@ public class BaseAdvice {
   //  TODO:- USE TOPICS FOR THESE!
   
   
-  private MessagePane messageForNeed(Traded t, BaseUI UI, MessagePane before) {
+  private MessagePane messageForNeed(
+    final Traded t, final BaseUI UI, final MessagePane before
+  ) {
     
     final String titleKey = "Need "+t;
     final MessagePane pane = new MessagePane(UI, null, titleKey, null, null);
@@ -335,48 +337,44 @@ public class BaseAdvice {
     d.append(t+": ", Colour.LITE_GREY);
     if (help == null) d.append("(No description)", Colour.LITE_GREY);
     else d.append(help, Colour.LITE_GREY);
-    d.append("\n\n");
+    d.append("\n");
     
     final float need = base.commerce.primaryShortage(t);
     final int percent = (int) (need * 100);
-    d.append("Shortage: "+percent+"%\n\n");
+    d.append("Shortage: "+percent+"%\n");
     
     final Batch <Blueprint>
       canMake = new Batch <Blueprint> (),
-      canUse  = new Batch <Blueprint> ();
+      canUse  = new Batch <Blueprint> (),
+      canImp  = new Batch <Blueprint> ();
     
     for (Blueprint b : base.setup.available()) {
       if (b.category == Target.TYPE_WIP) continue;
       else if (b.producing(t) != null) canMake.include(b);
       else if (b.consuming(t) != null) canUse .include(b);
     }
-    
-    if (canUse.size() > 0) {
-      d.append("\nConsumed by: ");
-      for (Blueprint b : canUse) {
-        if (b == canUse.first()) d.append(" ");
-        else if (b == canUse.last()) d.append(" and ");
-        else d.append(", ");
-        d.append(b);
-      }
-    }
-    
-    if (canMake.size() > 0) {
-      d.append("\nProduced by: ");
-      for (Blueprint b : canMake) {
-        if (b == canUse.first()) d.append(" ");
-        else if (b == canUse.last()) d.append(" and ");
-        else d.append(", ");
-        d.append(b);
-      }
-    }
-    
     if (Visit.arrayIncludes(StockExchange.ALL_STOCKED, t)) {
-      d.append("\nCan import at ", StockExchange.BLUEPRINT);
+      canImp.add(StockExchange.BLUEPRINT);
     }
     if (Visit.arrayIncludes(SupplyDepot.ALL_STOCKED, t)) {
-      d.append("\nCan import at ", SupplyDepot.BLUEPRINT);
+      canImp.add(SupplyDepot.BLUEPRINT);
     }
+    
+    if (canUse.size() > 0) {
+      d.appendList("\nConsmed by:", canUse.toArray());
+    }
+    if (canMake.size() > 0) {
+      d.appendList("\nProduced by:", canMake.toArray());
+    }
+    if (canImp.size() > 0) {
+      d.appendList("\nCan import at:", canImp.toArray());
+    }
+    
+    if (before != null) d.append(new Description.Link("\n\n  Back") {
+      public void whenClicked() {
+        UI.setMessagePane(before);
+      }
+    });
     
     return pane;
   }

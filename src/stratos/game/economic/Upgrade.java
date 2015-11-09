@@ -279,6 +279,7 @@ public class Upgrade extends Constant {
     );
     
     Text.Clickable linksTo    = null;
+    String         nameSuffix = "";
     String         progReport = null;
     Colour         progColour = Colour.LITE_GREY;
     
@@ -311,11 +312,13 @@ public class Upgrade extends Constant {
       boolean doingUpgrade = s.hasUpgradeOrQueued(upgrade, level + 1);
       float progress = s.upgradeProgress(upgrade);
       
+      nameSuffix = " ("+level+"/"+maxLevel+")";
+      
       if (level == maxLevel) {
-        progReport = "At max. level";
+        progReport = "Max. level";
       }
       else if (! v.structure().hasSpaceFor(upgrade)) {
-        progReport = "No free slots";
+        progReport = "";
       }
       else if (doingUpgrade) {
         progReport = "Progress: "+(int) (progress * 100)+"%";
@@ -329,8 +332,8 @@ public class Upgrade extends Constant {
         else progColour = Colour.RED;
         
         if (! base.research.hasPractice(this)) progReport = "Prototype";
-        else if (type == Type.VENUE_LEVEL) progReport = "Upgrade";
-        else progReport = "Install";
+        else if (type == Type.VENUE_LEVEL    ) progReport = "Upgrade";
+        else                                   progReport = "Install";
         
         progReport = "("+progReport+" for "+cost+")";
       }
@@ -359,7 +362,6 @@ public class Upgrade extends Constant {
       progReport = "Banned";
       progColour = Colour.RED;
     }
-    
 
     Text.insert(
       SelectionPane.WIDGET_INFO.asTexture(),
@@ -368,7 +370,7 @@ public class Upgrade extends Constant {
     
     d.append(" "+name, Colour.LITE_GREY);
     if (progReport != null) {
-      d.append("\n    ");
+      d.append("\n    "+nameSuffix+" ");
       if (linksTo != null) d.append(progReport, linksTo);
       else d.append(progReport, progColour);
     }

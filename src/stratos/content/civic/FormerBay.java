@@ -136,7 +136,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     if (source == null) source = this;
     
     choice.add(Gathering.asForestPlanting(actor, source));
-    //choice.add(Gathering.asForestCutting (actor, this  ));
+    choice.add(Gathering.asForestCutting (actor, this  ));
     
     return choice.weightedPick();
   }

@@ -109,7 +109,7 @@ public class GearPurchase extends Plan {
   
   
   public static GearPurchase nextCommission(
-    Actor actor, Venue makes, Item baseItem, Upgrade limits
+    Actor actor, Venue makes, Item baseItem, Upgrade... limits
   ) {
     if (baseItem == null || ! makes.openFor(actor)) return null;
     if (makes.stocks.specialOrders().size() >= MAX_ORDERS) return null;
@@ -130,18 +130,16 @@ public class GearPurchase extends Plan {
     //
     //  For devices and outfits, we constrain maximum item-quality by the
     //  upgrade-level available at the venue in question...
-    final float upgradeLevel = limits == null ? 1 : (
-      makes.structure().upgradeLevel(limits) * 1f / limits.maxLevel
-    );
     final int baseQuality = (int) baseItem.quality;
-    int maxQuality = Item.MAX_QUALITY + 1;
-    maxQuality -= (Item.MAX_QUALITY - 1) * (1 - upgradeLevel);
+    final int maxQuality = Manufacture.topQuality(
+      makes, baseItem.type.materials(), limits
+    );
     final boolean needsReplace = baseItem.amount < 0.5f;
     
     //
     //  Then we see if this exceeds the quality of the item of this type the
     //  actor currently possesses-
-    int quality = maxQuality;
+    int quality = maxQuality + 1;
     GearPurchase added = null;
     Item upgrade = null;
     while (--quality > 0) {
@@ -189,7 +187,7 @@ public class GearPurchase extends Plan {
     //  Include effects of pricing and quality-
     if (shop == actor.mind.work() || shop == actor.mind.home()) price = 0;
     if (price == -1) price = item.priceAt(shop, true);
-    float modifier = item.quality * ROUTINE * 1f / Item.MAX_QUALITY;
+    float modifier = item.quality * ROUTINE * 1f / Item.AVG_QUALITY;
     if (price > actor.gear.allCredits() && ! done) {
       if (report) I.say("  Can't afford item.");
       return 0;
@@ -215,7 +213,7 @@ public class GearPurchase extends Plan {
       I.say("  Manufacture done: "+done    );
       I.say("  Final priority:   "+priority);
     }
-    return Nums.clamp(priority, 0, ROUTINE);
+    return Nums.clamp(priority, 0, URGENT);
   }
   
   

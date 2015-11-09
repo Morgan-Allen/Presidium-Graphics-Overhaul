@@ -71,11 +71,11 @@ public final class Outfits {
     ),
     BODY_ARMOUR    = new OutfitType(
       BC, "Body Armour"   , 15, 10, 150,
-      EngineerStation.class, 5, PARTS, 15, ASSEMBLY
+      EngineerStation.class, 2, PARTS, 15, ASSEMBLY
     ),
     POWER_ARMOUR   = new OutfitType(
       BC, "Power Armour"  , 20, 10, 275,
-      EngineerStation.class, 8, PARTS, 20, ASSEMBLY
+      EngineerStation.class, 4, PARTS, 20, ASSEMBLY
     );
   final public static Traded
     ALL_OUTFITS[] = Traded.INDEX.soFar(Traded.class);

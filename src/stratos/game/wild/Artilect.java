@@ -130,7 +130,6 @@ public abstract class Artilect extends Actor {
   protected void addChoices(Choice choice) {
     final boolean report = verbose && I.talkAbout == this;
     if (report) I.say("\n  Getting next behaviour for "+this);
-    choice.isVerbose = I.talkAbout == this;
     //
     //  Ascertain a few basic facts first-
     final boolean
@@ -296,11 +295,25 @@ public abstract class Artilect extends Actor {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       if (passive && using.health.conscious()) return;
-      super.applyEffect(using, success, subject, passive);
       final float
         radius = DETONATE_BASE_RADIUS * using.health.baseBulk(),
         damage = DETONATE_BASE_DAMAGE * using.health.baseBulk();
+      //
+      //  We try to ensure that we only explode in an enemy's face, rather than
+      //  an ally's...
+      boolean triggered = false;
+      for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
+        final float value = PlanUtils.combatPriority(
+          using, a, 0, 1, false, Plan.REAL_HARM
+        );
+        if (passive && a != using && value < 0) return;
+        if (value > 0) triggered = true;
+      }
+      if (! triggered) return;
       
+      super.applyEffect(using, success, subject, passive);
+      //
+      //  Then rig up SFX and deal damage.
       final Vec3D point = using.position(null);
       final Stage world = using.world();
       ActionFX.applyBurstFX(DETONATE_BURST_FX , point, 1, world);
