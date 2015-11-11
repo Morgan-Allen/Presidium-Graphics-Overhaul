@@ -8,7 +8,7 @@ import stratos.game.common.*;
 import stratos.game.maps.Planet;
 import stratos.game.base.BaseAdvice;
 import stratos.util.*;
-import static stratos.game.actors.Conditions.*;
+import static stratos.game.actors.Condition.*;
 import static stratos.game.actors.Qualities.*;
 
 

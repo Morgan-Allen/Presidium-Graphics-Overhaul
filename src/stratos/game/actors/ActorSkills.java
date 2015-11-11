@@ -91,43 +91,6 @@ public class ActorSkills {
   
   /**  Helper methods for technique selection and queries-
     */
-  private void rateActiveTechnique(
-    Technique t, Plan plan, Target subject, Choice choice, boolean report
-  ) {
-    if (! t.triggersAction(actor, plan, subject)) {
-      if (report) I.say("  "+t+" is not applicable to "+subject);
-      return;
-    }
-    
-    float appeal = -1  ;
-    Action taken = null;
-    final float radius = t.effectRadius();
-    final boolean desc = t.effectDescriminates();
-    
-    if (radius > 0) {
-      for (Actor affected : PlanUtils.subjectsInRange(subject, radius)) {
-        final float priority = t.basePriority(actor, plan, affected);
-        if (desc && priority <= 0) continue;
-        appeal += priority;
-      }
-    }
-    else {
-      appeal = t.basePriority(actor, plan, subject);
-    }
-    if (appeal > 0) {
-      taken = t.createActionFor(plan, actor, subject);
-      if (taken != null) taken.setPriority(appeal * Plan.ROUTINE);
-      choice.add(taken);
-    }
-    
-    if (report) {
-      I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
-      I.say("    Appeal is: "+appeal);
-      I.say("    Targeting: "+subject);
-    }
-  }
-  
-  
   public Action bestTechniqueFor(Plan plan, Action taken) {
     final boolean report = I.talkAbout == actor && techsVerbose;
     final Choice choice = new Choice(actor);
@@ -135,8 +98,9 @@ public class ActorSkills {
     
     if (report) {
       I.say("\nGetting best active technique for "+actor);
-      I.say("  Fatigue:       "+actor.health.fatigueLevel());
+      I.say("  Fatigue:       "+actor.health.fatigueLevel ());
       I.say("  Concentration: "+actor.health.concentration());
+      I.say("  Plan:          "+plan);
       I.say("");
     }
     
@@ -201,11 +165,48 @@ public class ActorSkills {
   }
   
   
+  private void rateActiveTechnique(
+    Technique t, Plan plan, Target subject, Choice choice, boolean report
+  ) {
+    if (! t.triggersAction(actor, plan, subject)) {
+      if (report) I.say("  "+t+" is not applicable to "+subject);
+      return;
+    }
+    
+    float appeal = -1  ;
+    Action taken = null;
+    final float radius = t.effectRadius();
+    final boolean desc = t.effectDescriminates();
+    
+    if (radius > 0) {
+      for (Actor affected : PlanUtils.subjectsInRange(subject, radius)) {
+        final float priority = t.basePriority(actor, plan, affected);
+        if (desc && priority <= 0) continue;
+        appeal += priority;
+      }
+    }
+    else {
+      appeal = t.basePriority(actor, plan, subject);
+    }
+    if (appeal > 0) {
+      taken = t.createActionFor(plan, actor, subject);
+      if (taken != null) taken.setPriority(appeal * Plan.ROUTINE);
+      choice.add(taken);
+    }
+    
+    if (report) {
+      I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
+      I.say("    Appeal is: "+appeal);
+      I.say("    Targeting: "+subject);
+    }
+  }
+  
+  
   public Series <Technique> availableTechniques() {
-    final Batch <Technique> all = new Batch();
+    final Batch <Technique> all = new Batch(known.size() * 2);
     for (Technique t : known) all.add(t);
-    for (UsedItemType t : actor.gear.usedItemTypes()) {
-      all.add(t.whenUsed);
+    for (Item i : actor.gear.usable()) {
+      Visit.appendTo(all, i.type.techniques());
     }
     return all;
   }
@@ -299,20 +300,35 @@ public class ActorSkills {
     //
     //  Then grant experience in the relevant skills (included those used by
     //  any competitor) and activate any special effects for used techniques-
-    practice(checked, chance, duration);
-    if (active != null) {
-      final Target subject = action == null ? actor : action.subject();
-      active.applyEffect(actor, success > 0, subject, true);
-    }
-    if (opponent) {
-      b.skills.practice(opposed, 1 - chance, duration);
-      if (b.skills.active != null) {
-        b.skills.active.applyEffect(b, success < 1, actor, true);
-      }
-    }
+    practice(checked, chance, duration, action);
+    if (opponent) b.skills.practice(opposed, 1 - chance, duration, action);
     //
     //  Finally, return the result.
     return success;
+  }
+  
+  
+  private void practice(
+    Skill skillType, float chance, float duration, Action after
+  ) {
+    final float level = actor.traits.traitLevel(skillType);
+    float practice = chance * (1 - chance) * 4;
+    practice *= duration / (10f * (level + 1));
+    actor.traits.incLevel(skillType, practice);
+    
+    if (active != null) {
+      active.afterSkillEffects(actor, chance, after);
+      active = null;
+    }
+    if (skillType.parent != null) {
+      practice(skillType.parent, chance, duration / 4, after);
+    }
+  }
+  
+  
+  public void practiceAgainst(int DC, float duration, Skill skillType) {
+    final float chance = chance(skillType, null, null, 0 - DC);
+    practice(skillType, chance, duration, null);
   }
   
   
@@ -338,24 +354,6 @@ public class ActorSkills {
     Action action
   ) {
     return test(checked, null, null, 0 - difficulty, duration, 1, action) > 0;
-  }
-  
-  
-  public void practiceAgainst(int DC, float duration, Skill skillType) {
-    final float chance = chance(skillType, null, null, 0 - DC);
-    practice(skillType, chance, duration);
-  }
-  
-  
-  private void practice(Skill skillType, float chance, float duration) {
-    final float level = actor.traits.traitLevel(skillType);
-    float practice = chance * (1 - chance) * 4;
-    practice *= duration / (10f * (level + 1));
-    actor.traits.incLevel(skillType, practice);
-    
-    if (skillType.parent != null) {
-      practice(skillType.parent, chance, duration / 4);
-    }
   }
 }
 

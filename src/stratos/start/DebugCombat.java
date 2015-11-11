@@ -134,8 +134,12 @@ public class DebugCombat extends Scenario {
   
   private void combatScenario(Stage world, Base base, BaseUI UI) {
     
-    Flora.populateFlora(world);
+    GameSettings.fogFree = true;
+    //Flora.populateFlora(world);
     
+    world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
+    
+    /*
     setupCombatScenario(
       world, base, UI,
       new Background[] { TROOPER },
@@ -143,13 +147,14 @@ public class DebugCombat extends Scenario {
       new Species[] { Drone.SPECIES, Drone.SPECIES, Drone.SPECIES },
       Base.artilects(world)
     );
+    //*/
     
-    /*
+    //*
     setupCombatScenario(
       world, base, UI,
-      new Background[] { ECOLOGIST, ECOLOGIST },
-      EcologistTechniques.ECOLOGIST_TECHNIQUES,
-      new Species[] { Avrodil.SPECIES },
+      new Background[] { ECOLOGIST, TROOPER },
+      null,//EcologistTechniques.ECOLOGIST_TECHNIQUES,
+      new Species[] { Roachman.SPECIES, Roachman.SPECIES },
       Base.vermin(world)
     );
     //*/
@@ -181,16 +186,21 @@ public class DebugCombat extends Scenario {
     Background selfTypes[], Technique techniques[],
     Species otherTypes[], Base otherBase
   ) {
+    //base.relations.setRelation(otherBase, -1, true);
     
     Batch <Actor> soldiers = new Batch();
     Background mainType = selfTypes[0];
+    Venue lair = null;
+    
     for (Background b : selfTypes) {
       Actor soldier = b.sampleFor(base);
       soldier.enterWorldAt(4 + Rand.index(2), 4 + Rand.index(2), world);
       soldiers.add(soldier);
       
-      if (mainType == b) for (Technique t : techniques) {
-        if (t.isItemDerived()) soldier.gear.bumpItem(t.itemNeeded(), 1);
+      if (mainType == b && techniques != null) for (Technique t : techniques) {
+        if (t.isItemDerived()) {
+          soldier.gear.bumpItem(t.itemNeeded(), 1);
+        }
         else {
           if (t.itemNeeded() != null) soldier.gear.bumpItem(t.itemNeeded(), 1);
           soldier.skills.addTechnique(t);
@@ -203,11 +213,26 @@ public class DebugCombat extends Scenario {
     
     if (otherTypes != null) for (Background b : otherTypes) {
       Actor other = b.sampleFor(otherBase);
-      other.enterWorldAt(9 + Rand.index(3), 9 + Rand.index(3), world);
+      other.enterWorldAt(5 + Rand.index(3), 5 + Rand.index(3), world);
       other.health.setMaturity(0.8f);
       
-      Actor enemy = (Actor) Rand.pickFrom(soldiers);
-      other.mind.assignBehaviour(new Combat(other, enemy));
+      final Actor  enemy = (Actor) Rand.pickFrom(soldiers);
+      final Combat c     = new Combat(other, enemy);
+      c.addMotives(Plan.NO_PROPERTIES, Plan.PARAMOUNT);
+      other.mind.assignBehaviour(c);
+      
+      if (lair == null) {
+        lair = NestUtils.createNestFor(other);
+        if (lair != null) {
+          lair.structure.setState(Structure.STATE_INTACT, 0.5f);
+          SiteUtils.establishVenue(lair, 50, 50, true, world);
+        }
+      }
+      if (lair != null) {
+        other.mind.setHome(lair);
+      }
+      
+      UI.selection.pushSelection(other);
     }
   }
   
@@ -215,6 +240,8 @@ public class DebugCombat extends Scenario {
   protected void afterCreation() {
   }
 }
+
+
 
 
 

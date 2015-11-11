@@ -4,7 +4,7 @@
 
 TO DO NOW-
 
-*  Test out all the fauna abilities.
+*  Add SFX for all Fauna abilities!
    Then make sure that ecologists can charm them effectively.
 
 *  Offworld raids by enemy houses!
@@ -27,6 +27,8 @@ TO DO NOW-
    Pavonis Sector (mild settlement, pacified.)
    Aeolis Sector (desert plus wildlife.)
    Marineris Sector (neutral + water/islands.  Some wildlife.)
+
+*  Add random tips during the loading-screens.
 
 
 *  General tweaks-

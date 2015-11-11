@@ -92,7 +92,7 @@ public class DebugTreating extends Scenario {
     treated.enterWorldAt(4, 10, world);
     
     //  And now, we proceed to do various horrible things to the subject...
-    treated.traits.incLevel(Conditions.HIREX_PARASITE, 0.99f);
+    treated.traits.incLevel(Condition.HIREX_PARASITE, 0.99f);
     
     UI.selection.pushSelection(treats);
   }
@@ -143,7 +143,7 @@ public class DebugTreating extends Scenario {
     treats.goAboard(world.tileAt(2, 7), world);
     
     final FirstAid aid = new FirstAid(treats, treated);
-    Item bandage = Item.with(Economy.TREATMENT, aid, 0.4f, Item.AVG_QUALITY);
+    Item bandage = Item.with(FirstAid.TREATMENT, aid, 0.4f, Item.AVG_QUALITY);
     treated.gear.addItem(bandage);
     
     UI.selection.pushSelection(treated);

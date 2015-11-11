@@ -5,7 +5,7 @@
   */
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.base.BaseResearch;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -345,18 +345,25 @@ public class Repairs extends Plan {
     }
     //
     //  Venues can be built from within or at random points around their
-    //  perimeter, if it's only minor upkeep required...
+    //  perimeter.
     final Venue venue  = (Venue) built;
     final Stage world  = venue.world();
     final Tile  corner = venue.origin();
     final int   size   = venue.size;
     final float repair = venue.structure().repairLevel();
-    
-    if (built.structure().intact()) {
+    //
+    //  We only build from inside if the purpose is upgrading-
+    if (repairType == REPAIR_UPGRADE) {
       if (Rand.num() < 0.2f || ! Spacing.adjacent(actor, built)) {
         return Spacing.pickFreeTileAround(built, actor);
       }
       return venue;
+    }
+    if (built.structure().intact()) {
+      if (Rand.num() < 0.2f || ! Spacing.adjacent(actor, built)) {
+        return Spacing.pickFreeTileAround(built, actor);
+      }
+      return actor.aboard();
     }
     //
     //  For installation & salvage, we try to move from the back of the

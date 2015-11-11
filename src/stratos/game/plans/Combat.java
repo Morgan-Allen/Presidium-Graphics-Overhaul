@@ -367,8 +367,9 @@ public class Combat extends Plan {
       lethal = strikeType == OBJECT_DESTROY,
       showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
-    final boolean kinetic = actor.gear.hasDeviceProperty(Devices.KINETIC);
+    final boolean phys    = actor.gear.hasDeviceProperty(Devices.KINETIC);
     final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN   );
+    final boolean melee   = actor.gear.meleeDeviceOnly();
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
     
@@ -389,12 +390,12 @@ public class Combat extends Plan {
       final float maxDamage = actor.gear.totalDamage();
       damage = maxDamage * Rand.num();
       final float
-        afterShields = target.gear.afterShields(damage, kinetic),
+        afterShields = melee ? damage : target.gear.afterShields(damage, phys),
         shieldsTook  = damage - afterShields,
         maxArmour    = target.gear.totalArmour(),
         armourSoak   = (maxArmour * Rand.num()) - bypass,
         afterArmour  = Nums.clamp(afterShields - armourSoak, 0, damage),
-        armourTook   = damage - afterArmour;
+        armourTook   = afterShields - afterArmour;
       
       if (report) {
         I.say("  Base damage:    "+damage      );
@@ -405,7 +406,7 @@ public class Combat extends Plan {
       
       final Item used = actor .gear.deviceEquipped();
       final Item worn = target.gear.outfitEquipped();
-      Item.checkForBreakdown(actor , used, damage     / maxDamage, 10);
+      Item.checkForBreakdown(actor , used, armourTook / maxDamage, 10);
       Item.checkForBreakdown(target, worn, armourTook / maxArmour, 10);
       damage = afterArmour;
       

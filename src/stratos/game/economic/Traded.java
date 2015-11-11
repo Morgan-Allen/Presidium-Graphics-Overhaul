@@ -5,12 +5,14 @@
   */
 package stratos.game.economic;
 import stratos.game.common.*;
+import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.Text;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.start.Assets;
+//import stratos.game.economic.Item.Passive;
 import static stratos.game.economic.Economy.*;
 
 
@@ -171,6 +173,16 @@ public class Traded extends Constant implements Session.Saveable {
   }
   
   
+  public void applyPassiveEffects(Item item, Actor owner) {
+    return;
+  }
+  
+  
+  public Technique[] techniques() {
+    return null;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
@@ -237,7 +249,38 @@ public class Traded extends Constant implements Session.Saveable {
       }
     }
   }
+  
+  
+  public void describeFor(Actor owns, Item i, Description d) {
+    //
+    //  First describe yourself:
+    String s = "";
+    if (this != SAMPLES && (
+      form == FORM_DEVICE ||
+      form == FORM_OUTFIT ||
+      form == FORM_USED_ITEM ||
+      form == FORM_SPECIAL
+    )) {
+      s = (I.shorten(i.amount, 1))+" "+i.descQuality()+" "+s;
+    }
+    else if (i.refers == null && i.amount != Item.ANY) {
+      s = (I.shorten(i.amount, 1))+" "+s;
+    }
+    d.append(s);
+    d.append(name, this);
+    describeRefers(owns, i, d);
+  }
+  
+  
+  protected void describeRefers(Actor owns, Item i, Description d) {
+    if (i.refers != null && i.refers != owns) {
+      d.append(" (");
+      d.append(i.refers);
+      d.append(")");
+    }
+  }
 }
+
 
 
 

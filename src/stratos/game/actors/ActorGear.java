@@ -31,7 +31,7 @@ public class ActorGear extends Inventory {
   
   private Item device = null;
   private Item outfit = null;
-  private UsedItemType usedTypes[] = null;
+  private Item used[] = null;
   
   //  TODO- GET RID OF THESE.  USE ITEMS INSTEAD.
   private int   ammoCount      =  0;
@@ -108,13 +108,11 @@ public class ActorGear extends Inventory {
     
     if (outfit != null) regenerateShields();
     else currentShields = 0;
-    Item.checkForBreakdown(actor, outfit, 1, 1);
     
-    for (Item item : allItems()) {
-      if (item.refers instanceof Item.Passive) {
-        if (report) I.say("  Applying item effect: "+item.refers);
-        ((Item.Passive) item.refers).applyPassiveItem(actor, item);
-      }
+    Item.checkForBreakdown(actor, device, 1, 1);
+    Item.checkForBreakdown(actor, outfit, 1, 1);
+    for (Item i : allItems()) if (! i.type.common()) {
+      i.type.applyPassiveEffects(i, actor);
     }
     
     encumbrance = -1;
@@ -133,13 +131,13 @@ public class ActorGear extends Inventory {
   }
   
   
-  public UsedItemType[] usedItemTypes() {
-    if (usedTypes != null) return usedTypes;
-    final Batch all = new Batch();
-    for (Item i : allItems()) if (i.type instanceof UsedItemType) {
-      all.add(i.type);
+  public Item[] usable() {
+    if (used != null) return used;
+    final Batch <Item> all = new Batch();
+    for (Item i : allItems()) if (i.type.techniques() != null) {
+      all.add(i);
     }
-    return usedTypes = (UsedItemType[]) all.toArray(UsedItemType.class);
+    return used = (Item[]) all.toArray(Item.class);
   }
   
   
@@ -160,7 +158,7 @@ public class ActorGear extends Inventory {
     final boolean OK = super.removeItem(item);
     if (OK) {
       encumbrance = -1;
-      if (item.type instanceof UsedItemType) usedTypes = null;
+      if (item.type.techniques() != null) used = null;
     }
     return OK;
   }
@@ -169,7 +167,7 @@ public class ActorGear extends Inventory {
   public boolean addItem(Item item) {
     if (item == null || item.amount == 0) return false;
     encumbrance = -1;
-    if (item.type instanceof UsedItemType) usedTypes = null;
+    if (item.type.techniques() != null) used = null;
     
     final int oldAmount = (int) amountOf(item);
     if (item.refers == actor) item = Item.withReference(item, null);

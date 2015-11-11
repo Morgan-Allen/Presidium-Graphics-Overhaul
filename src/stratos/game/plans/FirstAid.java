@@ -10,7 +10,7 @@ import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.actors.Conditions.*;
+import static stratos.game.actors.Condition.*;
 
 
 

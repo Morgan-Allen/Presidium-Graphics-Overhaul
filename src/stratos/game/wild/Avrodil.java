@@ -202,7 +202,7 @@ public class Avrodil extends Fauna {
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
       
-      if (affected.isMoving()) {
+      if (affected.isMoving() || ! affected.health.alive()) {
         affected.traits.remove(asCondition);
       }
       else {
@@ -348,82 +348,6 @@ public class Avrodil extends Fauna {
     */
   public float radius() {
     return 0.75f;
-  }
-  
-  /*
-  public void updateAsScheduled(int numUpdates, boolean instant) {
-    super.updateAsScheduled(numUpdates, instant);
-    
-    if (digesting != null && ! instant) {
-      final float burn = digesting.health.maxHealth() / DIGEST_DURATION;
-      digesting.health.setState(ActorHealth.STATE_SUSPEND);
-      digesting.health.takeInjury(burn, true);
-      health.takeCalories(burn, 1);
-      health.liftInjury(burn * DIGEST_REGEN_FRACTION);
-      if (digesting.health.isDead()) {
-        digesting = null;
-      }
-    }
-  }
-  
-  
-  public void enterStateKO(String animName) {
-    super.enterStateKO(animName);
-    if (digesting != null) {
-      digesting.health.setState(ActorHealth.STATE_ACTIVE);
-      digesting.health.setBleeding(true);
-      digesting.releaseFromMount();
-    }
-  }
-  
-
-  public boolean setMounted(Actor mounted, boolean is) {
-    if (is) this.digesting = mounted;
-    else this.digesting = null;
-    return true;
-  }
-  
-  
-  public Property mountStoresAt() {
-    return mind.home();
-  }
-  
-  
-  public boolean allowsActivity(Plan activity) {
-    return false;
-  }
-  
-  
-  public boolean actorVisible(Actor mounted) {
-    if (Technique.isDoingAction(this, DEVOUR)) return true;
-    return false;
-  }
-  
-  
-  public void configureSpriteFrom(
-    Actor mounted, Action action, Sprite actorSprite
-  ) {
-    viewPosition(actorSprite.position);
-  }
-  
-  
-  public void describeActor(Actor mounted, Description d) {
-    d.append("Being digested by ");
-    d.append(this);
-  }
-  //*/
-  
-  
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
-    final SelectionPane pane = super.configSelectPane(panel, UI);
-    
-    /*
-    if (digesting != null) {
-      pane.listing().append("\n  Digesting: ");
-      pane.listing().append(digesting);
-    }
-    //*/
-    return pane;
   }
   
   

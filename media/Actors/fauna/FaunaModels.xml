@@ -17,6 +17,7 @@
     <animation name="stand"      start="1"    end="1"    duration="1"   />
     <animation name="move"       start="1"    end="32"   duration="1"   />
     <animation name="move_fast"  start="34"   end="69"   duration="0.7" />
+    <animation name="move_sneak" start="70"   end="102"  duration="1"   />
     <animation name="move_carry" start="70"   end="102"  duration="1"   />
     <animation name="build"      start="103"  end="228"  duration="2"   />
     <animation name="reach_down" start="229"  end="354"  duration="3"   />

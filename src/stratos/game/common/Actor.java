@@ -373,7 +373,9 @@ public abstract class Actor extends Mobile implements
     if (! health.conscious()) {
       mind.cancelBehaviour(mind.rootBehaviour(), "Actor knocked out!");
     }
-    if (health.isDead()) setAsDestroyed(false);
+    if (health.isDead()) {
+      setAsDestroyed(false);
+    }
   }
   
   

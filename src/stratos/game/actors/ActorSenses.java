@@ -80,9 +80,11 @@ public class ActorSenses {
   //  TODO:  Move the decision-related bits of this to the Mind class.
   
   public void updateSenses() {
-    final boolean report = reactVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && reactVerbose;
     final float range = actor.health.sightRange();
-    if (report) I.say("\nUpdating senses, sight range: "+range);
+    if (report) {
+      I.say("\nUpdating senses, sight range: "+range);
+    }
     
     //  First, get the set of all targets that the actor might observe.
     final float percept = actor.traits.usedLevel(PERCEPT);
@@ -114,8 +116,9 @@ public class ActorSenses {
     updateDangerEval(awareOf);
     
     if (report) {
-      for (Target e : justSeen ) I.say("  Just saw "+e);
-      for (Target e : lostSight) I.say("  Lost sight of "+e);
+      for (Target e : awares.keySet()) I.say("  Aware of:      "+e);
+      for (Target e : justSeen       ) I.say("  Just saw:      "+e);
+      for (Target e : lostSight      ) I.say("  Lost sight of: "+e);
     }
     
     //  And finally, add any reactions to freshly-spotted targets-

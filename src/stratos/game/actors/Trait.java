@@ -155,17 +155,17 @@ public class Trait extends Constant {
     
     String bestDesc = null;
     float minDiff = Float.POSITIVE_INFINITY;
+    float rangeScale = Nums.max(trait.maxVal, 0 - trait.minVal);
     
     int i = 0; for (String s : trait.labels) {
-      float value = trait.labelValues[i];
-      if (value > 0) value /= trait.maxVal;
-      if (value < 0) value /= 0 - trait.minVal;
-      
+      final float value = trait.labelValues[i] / rangeScale;
       final float diff = Nums.abs(level - value);
-      if (diff < minDiff) { minDiff = diff; bestDesc = s; }
+      if (diff < minDiff && s != null) { minDiff = diff; bestDesc = s; }
       i++;
     }
-    return bestDesc;
+    
+    //level = Nums.round(level * 10, 1, true) / 10f;
+    return bestDesc;//+" ("+I.shorten(level, 2)+")";
   }
   
   

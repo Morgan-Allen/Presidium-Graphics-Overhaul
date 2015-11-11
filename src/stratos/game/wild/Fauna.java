@@ -19,7 +19,7 @@ import static stratos.game.actors.Technique.*;
 
 
 
-public abstract class Fauna extends Actor {
+public abstract class Fauna extends Actor implements Mount {
   
   
   /**  Field definitions, constructors, and save/load functionality-
@@ -232,6 +232,15 @@ public abstract class Fauna extends Actor {
   }
   
   
+  protected Behaviour nextBuildingNest() {
+    final Nest nest = (Nest) this.mind.home();
+    if (nest == null) return null;
+    final float repair = nest.structure.repairLevel();
+    if (repair >= 0.9f) return null;
+    return new Repairs(this, nest, HANDICRAFTS, false);
+  }
+  
+  
   /*
   //  TODO:  USE NESTING/FINDHOME FOR THIS
   
@@ -315,30 +324,6 @@ public abstract class Fauna extends Actor {
   //*/
   
   
-  protected Behaviour nextBuildingNest() {
-    final Nest nest = (Nest) this.mind.home();
-    if (nest == null) return null;
-    final float repair = nest.structure.repairLevel();
-    if (repair >= 0.99f) return null;
-    final Action buildNest = new Action(
-      this, nest,
-      this, "actionBuildNest",
-      Action.STRIKE, "Repairing Nest"
-    );
-    buildNest.setMoveTarget(Spacing.pickFreeTileAround(nest, this));
-    float priority = Action.CASUAL + ((1f - repair) * Action.ROUTINE);
-    buildNest.setPriority(priority);
-    return buildNest;
-  }
-  
-  
-  public boolean actionBuildNest(Fauna actor, Nest nest) {
-    if (! nest.inWorld()) nest.enterWorld();
-    nest.structure.repairBy(nest.structure.maxIntegrity() / 10f);
-    return true;
-  }
-  
-  
   
   //  TODO:  CREATE SPECIAL PLAN FOR THIS AND SHARE WITH HUMANOIDS, ETC?
   
@@ -396,6 +381,13 @@ public abstract class Fauna extends Actor {
   final static String
     UI_DIR = "media/GUI/Powers/",
     FX_DIR = "media/SFX/";
+  
+  //  Okay.  I would like to have FX for-
+  //    Withdraw.  (reverse-planefx, slams shut)
+  //    Maul/Devour.  (penetration-fx.)
+  //    Slam.         (circular burst.)
+  //    Infection.    (noxious haze.)
+  
   
   final static int
     WITHDRAW_MELEE_BONUS     = 15,
@@ -474,7 +466,7 @@ public abstract class Fauna extends Actor {
   
   
   final public static Technique BASK = new Technique(
-    "Fortify", UI_DIR+"fortify.png",
+    "Bask", UI_DIR+"bask.png",
     "Grants extra calories and faster health regeneration while resting "+
     "or outdoors by day.",
     BASE_CLASS, "fauna_bask",
@@ -515,7 +507,7 @@ public abstract class Fauna extends Actor {
     "Grants a higher chance of evading enemy attacks when retreating.",
     BASE_CLASS, "fauna_flight",
     MINOR_POWER         ,
-    MILD_HELP           ,
+    HARM_UNRATED        ,
     NO_FATIGUE          ,
     MINOR_CONCENTRATION ,
     IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0, null
@@ -524,8 +516,8 @@ public abstract class Fauna extends Actor {
     public boolean triggersPassive(
       Actor actor, Plan current, Skill used, Target subject
     ) {
-      if (! (current instanceof Retreat)) return false;
       if (! actor.isMoving()) return false;
+      if (! (current instanceof Retreat)) return used == STEALTH_AND_COVER;
       return used == HAND_TO_HAND || used == STEALTH_AND_COVER;
     }
     
@@ -544,15 +536,16 @@ public abstract class Fauna extends Actor {
     MINOR_POWER         ,
     MILD_HELP           ,
     NO_FATIGUE          ,
-    MINOR_CONCENTRATION ,
-    IS_FOCUS_TARGETING | IS_NATURAL_ONLY, null, 0,
-    Action.BUILD, Action.NORMAL
+    MEDIUM_CONCENTRATION,
+    IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0, null
   ) {
     
-    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject
+    ) {
       if (! (current instanceof Repairs)) return false;
       if (! (subject instanceof Nest   )) return false;
-      return true;
+      return used == HANDICRAFTS;
     }
     
     
@@ -654,6 +647,7 @@ public abstract class Fauna extends Actor {
         final Actor struck = (Actor) subject;
         struck.health.takeInjury(roll(0, MAUL_DAMAGE_MAX), false);
         struck.traits.incBonus(HAND_TO_HAND, MAUL_DEBUFF_PENALTY);
+        struck.traits.incBonus(MARKSMANSHIP, MAUL_DEBUFF_PENALTY);
         
         if (struck.health.organic() && Rand.yes()) {
           struck.health.setBleeding(true);
@@ -671,6 +665,7 @@ public abstract class Fauna extends Actor {
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
       affected.traits.incBonus(HAND_TO_HAND, MAUL_DEBUFF_PENALTY / 2f);
+      affected.traits.incBonus(MARKSMANSHIP, MAUL_DEBUFF_PENALTY / 2f);
       if (! affected.health.bleeding()) affected.traits.remove(asCondition);
     }
   };
@@ -680,7 +675,7 @@ public abstract class Fauna extends Actor {
     "Infection", UI_DIR+"infection.png",
     "Anyone in contact with or near this creature runs a risk of "+
     "contracting disease.",
-    BASE_CLASS, "fauna_night_vision",
+    BASE_CLASS, "fauna_infection",
     MINOR_POWER         ,
     MILD_HARM           ,
     NO_FATIGUE          ,
@@ -694,9 +689,16 @@ public abstract class Fauna extends Actor {
       
       float radius = DEFAULT_INFECTION_RADIUS * (using.health.baseBulk() + 1);
       for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
+        final int period = Stage.STANDARD_HOUR_LENGTH;
         float infectChance = 0.5f;
         if (a.actionFocus() == using) infectChance *= 2;
-        Condition.checkContagion(a, infectChance, Stage.STANDARD_HOUR_LENGTH);
+        
+        if (Condition.checkContagion(
+          a, infectChance, period,
+          Condition.ILLNESS, Condition.HIREX_PARASITE
+        )) {
+          //  <Apply SFX!>
+        }
       }
     }
   };
@@ -704,7 +706,7 @@ public abstract class Fauna extends Actor {
   
   final public static Technique NIGHT_VISION = new Technique(
     "Night Vision", UI_DIR+"night_vision.png",
-    "Grants this creature extended sight range by night, but reduced range "+
+    "Grants this creature extended sight range by night, but poorer vision "+
     "by day.",
     BASE_CLASS, "fauna_night_vision",
     MEDIUM_POWER        ,
@@ -728,13 +730,22 @@ public abstract class Fauna extends Actor {
   final static Traded ITEM_DIGESTING = new Traded(
     BASE_CLASS, "Digesting", null, Economy.FORM_SPECIAL, 0,
     "Some unfortunate creature is being digested..."
-  );
+  ) {
+    public void describeFor(Actor owns, Item i, Description d) {
+      d.appendAll("Digesting ", i.refers);
+    }
+  };
+  
+  
+  private boolean hasDevoured(Actor a) {
+    return gear.matchFor(Item.withReference(ITEM_DIGESTING, a)) != null;
+  }
   
   
   final public static Technique DEVOUR = new Technique(
     "Devour", UI_DIR+"devour.png",
-    "Allows the Avrodil to consume and digest a chosen victim.",
-    BASE_CLASS, "avrodil_devour",
+    "Allows this creature to consume and digest a chosen victim.",
+    BASE_CLASS, "fauna_devour",
     MEDIUM_POWER        ,
     EXTREME_HARM        ,
     MEDIUM_FATIGUE      ,
@@ -759,6 +770,12 @@ public abstract class Fauna extends Actor {
     
     
     protected boolean checkActionSuccess(Actor actor, Target subject) {
+      final Actor victim = (Actor) subject;
+      
+      final float maxBulk = actor.health.baseBulk() / 2;
+      final float chance = 1f - (victim.health.baseBulk() / maxBulk);
+      if (Rand.num() > chance) return false;
+      
       return Combat.performStrike(
         actor, (Actor) subject,
         HAND_TO_HAND, HAND_TO_HAND,
@@ -772,24 +789,15 @@ public abstract class Fauna extends Actor {
     ) {
       if (passive) { updateDigestion(using); return; }
       
-      final Actor victim = (Actor) subject;
-      final boolean report = false;
-      
-      if (success) {
-        final float maxBulk = using.health.baseBulk() / 2;
-        final float chance = 1f - (victim.health.baseBulk() / maxBulk);
-        if (Rand.num() > chance) success = false;
-        if (report) I.say("\nChance to devour is: "+chance);
-      }
-      else if (report) I.say("\nDevour attempt failed!");
-      
       if (success) {
         super.applyEffect(using, success, subject, passive);
         
+        final Actor victim = (Actor) subject;
         final Item digestion = Item.withReference(ITEM_DIGESTING, victim);
         victim.exitToOffworld();
+        victim.health.setState(ActorHealth.STATE_RESTING);
         using.gear.addItem(digestion);
-        if (report) I.say("  Devour attempt successful!");
+        if (using instanceof Mount) victim.bindToMount((Mount) using);
       }
     }
     
@@ -809,11 +817,50 @@ public abstract class Fauna extends Actor {
       
       if (! using.health.alive()) {
         using.gear.removeItem(digestion);
+        victim.releaseFromMount();
         victim.enterWorldAt(using.origin(), using.world());
         victim.health.setBleeding(true);
       }
     }
   };
+  
+  
+  
+  /**  Implementing mounted behaviours-
+    */
+  public boolean setMounted(Actor mounted, boolean is) {
+    return true;
+  }
+  
+  
+  public boolean allowsActivity(Plan activity) {
+    return true;
+  }
+  
+  
+  public Property mountStoresAt() {
+    return mind.home();
+  }
+  
+  
+  public boolean actorVisible(Actor mounted) {
+    return true;
+  }
+  
+  
+  public void configureSpriteFrom(Actor mounted, Action a, Sprite sprite) {
+    return;
+  }
+  
+  
+  public void describeActor(Actor mounted, Description d) {
+    if (hasDevoured(mounted)) {
+      d.appendAll("Being digested by ", this);
+    }
+    else {
+      
+    }
+  }
   
   
   

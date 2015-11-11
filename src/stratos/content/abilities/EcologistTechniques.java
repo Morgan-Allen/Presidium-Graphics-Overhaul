@@ -40,7 +40,7 @@ public class EcologistTechniques {
     TRANQ_BURST_FX = PlaneFX.imageModel(
       "tranq_burst_fx", BASE_CLASS,
       FX_DIR+"tranquilliser_burst.png",
-      0.66f, 0, 0.33f, true, false
+      0.5f, 0, 0.15f, true, false
     );
   
   final static int
@@ -159,7 +159,7 @@ public class EcologistTechniques {
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
       
-      if (affected.isMoving()) {
+      if (affected.isMoving() || ! affected.health.conscious()) {
         affected.traits.remove(asCondition);
       }
       else {

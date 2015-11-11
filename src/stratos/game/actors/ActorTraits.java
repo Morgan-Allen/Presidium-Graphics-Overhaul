@@ -150,7 +150,7 @@ public class ActorTraits {
     //  beneficial, whereas the latter are the result of random chance, and
     //  tend to be harmful.
     if (GameSettings.hardCore && (! selected) && Rand.num() < increase) {
-      incLevel(Conditions.CANCER, increase * 2 * Rand.num());
+      incLevel(Condition.CANCER, increase * 2 * Rand.num());
     }
     /*
     if (Rand.num() > increase / 5f) return;

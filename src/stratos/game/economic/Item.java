@@ -98,12 +98,6 @@ public class Item {
   
   /**  Methods for delivering special FX-
     */
-  public static interface Passive extends Session.Saveable {
-    public void applyPassiveItem(Actor carries, Item from);
-    public String describePassiveItem(Item from);
-  }
-  
-  
   public static interface Dropped extends Owner, Selectable {
   }
   
@@ -264,37 +258,7 @@ public class Item {
   /**  Rendering/interface functions-
     */
   public void describeTo(Description d) {
-    describeFor(null, d);
-  }
-  
-  
-  public void describeFor(Actor owns, Description d) {
-    //
-    //  First describe yourself:
-    String s = "";
-    if (type != SAMPLES && (
-      type.form == FORM_DEVICE ||
-      type.form == FORM_OUTFIT ||
-      type.form == FORM_USED_ITEM ||
-      type.form == FORM_SPECIAL
-    )) {
-      s = (I.shorten(amount, 1))+" "+descQuality()+" "+s;
-    }
-    else if (refers == null && amount != ANY) {
-      s = (I.shorten(amount, 1))+" "+s;
-    }
-    d.append(s);
-    d.append(type.name, type);
-    //
-    //  Then describe anything your refer to-
-    if (refers instanceof Passive) {
-      d.append(((Passive) refers).describePassiveItem(this));
-    }
-    else if (refers != null && refers != owns) {
-      d.append(" (");
-      d.append(refers);
-      d.append(")");
-    }
+    type.describeFor(null, this, d);
   }
   
   
@@ -305,7 +269,7 @@ public class Item {
   
   public String toString() {
     final StringDescription SD = new StringDescription();
-    describeFor(null, SD);
+    type.describeFor(null, this, SD);
     return SD.toString();
   }
 }

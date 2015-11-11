@@ -14,7 +14,7 @@ import static stratos.game.economic.Economy.*;
 public abstract class UsedItemType extends Traded {
   
   
-  final public Technique whenUsed;
+  final Technique whenUsed[];
   final Conversion materials;
   
   
@@ -26,7 +26,7 @@ public abstract class UsedItemType extends Traded {
     Class <? extends Venue> facility, Object... conversionArgs
   ) {
     super(typeClass, name, imgName, FORM_USED_ITEM, basePrice, description);
-    this.whenUsed = whenUsed;
+    this.whenUsed = new Technique[] { whenUsed };
     
     if (Visit.empty(conversionArgs)) {
       this.materials = NATURAL_MATERIALS;
@@ -44,6 +44,7 @@ public abstract class UsedItemType extends Traded {
   
   public abstract int normalCarry(Actor actor);
   public abstract float useRating(Actor uses);
+  public Technique[] techniques() { return whenUsed; }
 }
 
 

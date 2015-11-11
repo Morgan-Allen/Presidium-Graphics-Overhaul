@@ -441,7 +441,6 @@ public abstract class Artilect extends Actor {
     STEALTH_AND_COVER
   ) {
     
-    
     public boolean triggersPassive(
       Actor actor, Plan current, Skill used, Target subject
     ) {
@@ -499,7 +498,6 @@ public abstract class Artilect extends Actor {
     ) {
       super.applyEffect(using, success, subject, passive);
       
-      I.say("USED IMPLANTATION! "+using);
       final Human focus = (Human) subject;
       final Boarding place = focus.aboard();
       final Cybrid cybrid = new Cybrid(using.base(), focus);

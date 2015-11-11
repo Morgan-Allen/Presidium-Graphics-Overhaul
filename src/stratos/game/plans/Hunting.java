@@ -85,23 +85,23 @@ public class Hunting extends Plan {
   
   public Hunting(Session s) throws Exception {
     super(s);
-    prey = (Actor) s.loadObject();
-    type = s.loadInt();
-    depot = (Owner) s.loadObject();
-    stage = s.loadInt();
+    prey      = (Actor) s.loadObject();
+    type      = s.loadInt();
+    depot     = (Owner) s.loadObject();
+    stage     = s.loadInt();
     beginTime = s.loadFloat();
-    downing = (Combat) s.loadObject();
+    downing   = (Combat) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(prey);
-    s.saveInt(type);
-    s.saveObject(depot);
-    s.saveInt(stage);
-    s.saveFloat(beginTime);
-    s.saveObject(downing);
+    s.saveObject(prey     );
+    s.saveInt   (type     );
+    s.saveObject(depot    );
+    s.saveInt   (stage    );
+    s.saveFloat (beginTime);
+    s.saveObject(downing  );
   }
   
   
@@ -118,16 +118,21 @@ public class Hunting extends Plan {
     
     final Actor a = (Actor) prey;
     if (! a.health.organic()) return false;
+    final boolean alive = preyIsLive(prey);
     final float hunger = hunts.health.hungerLevel();
     
     if (a.species() == hunts.species()) {
       if (hunger < 1) return false;
     }
-    if (! a.species().preyedOn()) {
+    if (alive && ! a.species().preyedOn()) {
       if (hunger < 0.5f) return false;
     }
-    
     return true;
+  }
+  
+  
+  private static boolean preyIsLive(Target prey) {
+    return ! CombatUtils.isDowned(prey, Combat.OBJECT_EITHER);
   }
   
   
@@ -135,40 +140,62 @@ public class Hunting extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = evalVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     
-    setCompetence(1);  //  Will adjust later- see below...
     if (prey.destroyed() || ! prey.inWorld()) return -1;
-    
-    final boolean start = ! hasBegun(), alive = prey.health.alive();
+
+    final boolean start = ! hasBegun(), alive = preyIsLive(prey);
     if (start && ! validPrey(prey, actor)  ) return -1;
     if (alive && ! PlanUtils.isArmed(actor)) return -1;
     
-    float priority = 0, harmLevel = 1, hunger = -1, crowdRating = -1;
-    
+    float hunger = 0, urgency = 0, crowdRating = 0, priority = 0;
+    float harmLevel = Plan.REAL_HARM;
+    //
+    //  If you're planning to actually kill/eat this creature, then motivation
+    //  is based on current hunger (with a bonus if the hunt is already begun
+    //  and/or the creature is downed, to ensure the task isn't abandoned
+    //  prematurely.)
+    //  If the creature is alive, we also try to favour common (i.e, crowded)
+    //  species over rare ones.
     if (type == TYPE_FEEDS || type == TYPE_HARVEST) {
-      hunger = actor.health.hungerLevel() + (start ? 0 : 0.25f);
-      crowdRating = alive ? NestUtils.nestCrowding(prey) : 1;
-      crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, -1, 1);
-      priority += (hunger + motiveBonus()) * crowdRating;
-      if (hunger > 0.5f) priority += PARAMOUNT * (hunger - 0.5f) * 2;
+      
+      hunger = actor.health.hungerLevel();
+      if      (! alive) hunger += ActorHealth.MAX_CALORIES - 1;
+      else if (start  ) hunger += 0.25f;
+      
+      urgency += hunger;
+      urgency += motiveBonus() / Plan.PARAMOUNT;
+      
+      crowdRating = NestUtils.nestCrowding(prey);
+      crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, 0, 1);
+      
+      if (alive) urgency *= crowdRating;
+      if (hunger > 0.5f) urgency += (hunger - 0.5f) * 2;
     }
+    //
+    //  In the case of a sampling run, things are simpler.
     else {
-      priority += motiveBonus();
-      priority += ROUTINE * PlanUtils.traitAverage(actor, SAMPLE_TRAITS);
-      harmLevel = 0;
+      urgency += motiveBonus() / Plan.PARAMOUNT;
+      urgency += PlanUtils.traitAverage(actor, SAMPLE_TRAITS);
+      harmLevel = Plan.NO_HARM;
     }
-    if (alive && priority > 0) {
+    //
+    //  In any case, live prey can fight back, so we adjust our willingness to
+    //  undertake the task accordingly.  (Or not.)
+    if (alive && urgency > 0) {
       priority = PlanUtils.combatPriority(
-        actor, prey, priority, 1, true, harmLevel
+        actor, prey, urgency * Plan.PARAMOUNT, 1, true, harmLevel
       );
-      priority -= ROUTINE * actor.health.fatigueLevel();
       setCompetence(successChanceFor(actor));
     }
+    else {
+      priority = urgency * Plan.PARAMOUNT;
+    }
+
     if (report) {
       I.say("\nHunting type is: "+TYPE_DESC[type]);
       I.say("  Just started:    "+start   +" ("+hashCode()+")");
-      I.say("  Base urgency is: "+priority);
+      I.say("  Base urgency is: "+urgency );
       I.say("  Final priority:  "+priority);
       I.say("  Hunger is:       "+hunger  +" ("+actor.health.hungerLevel()+")");
       I.say("  Crowd-rating is: "+crowdRating);
@@ -197,7 +224,7 @@ public class Hunting extends Plan {
     //  TODO:  See if this can be tidied up a bit...
     
     if (type == TYPE_FEEDS) {
-      if (! CombatUtils.isDowned(prey, Combat.OBJECT_EITHER)) {
+      if (preyIsLive(prey)) {
         return downingStep(Combat.OBJECT_EITHER);
       }
       else {
@@ -212,7 +239,7 @@ public class Hunting extends Plan {
     }
     
     if (type == TYPE_HARVEST) {
-      if (! CombatUtils.isDowned(prey, Combat.OBJECT_EITHER)) {
+      if (preyIsLive(prey)) {
         return downingStep(Combat.OBJECT_EITHER);
       }
       else if (prey.aboard() == depot) {
@@ -359,7 +386,7 @@ public class Hunting extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    final boolean dead = ! prey.health.alive();
+    final boolean dead = ! preyIsLive(prey);
     
     if (type == TYPE_SAMPLE) {
       final Item sample = sample();
@@ -374,7 +401,7 @@ public class Hunting extends Plan {
     }
     
     if (type == TYPE_FEEDS) {
-      if (dead) d.append("Scavenging meat from ");
+      if (dead) d.append("Feeding on ");
       else d.append("Hunting ");
       d.append(prey);
     }

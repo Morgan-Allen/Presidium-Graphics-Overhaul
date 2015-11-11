@@ -143,8 +143,8 @@ public abstract class Power extends Technique {
     ) {
       public void affect(Actor a) {
         super.affect(a);
-        if (a.traits.traitLevel(Conditions.SPICE_ADDICTION) <= 0) {
-          a.traits.incLevel(Conditions.SPICE_ADDICTION, Rand.num() / 10f);
+        if (a.traits.traitLevel(Condition.SPICE_ADDICTION) <= 0) {
+          a.traits.incLevel(Condition.SPICE_ADDICTION, Rand.num() / 10f);
         }
       }
     };

@@ -93,6 +93,7 @@ public class Nest extends Venue {
   //  Only allow entry to the same species.
   public boolean allowsEntry(Accountable m) {
     if (! structure.intact()) return false;
+    if (m == base) return true;
     return (m instanceof Actor) && ((Actor) m).species() == species;
   }
   

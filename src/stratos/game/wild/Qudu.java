@@ -79,6 +79,9 @@ public class Qudu extends Fauna {
     gear.setBaseDamage(8);
     gear.setBaseArmour(15);
     
+    traits.setLevel(HAND_TO_HAND     , 10);
+    traits.setLevel(STEALTH_AND_COVER, 5 );
+    
     traits.setLevel(DEFENSIVE, -1);
     traits.setLevel(FEARLESS , -2);
     

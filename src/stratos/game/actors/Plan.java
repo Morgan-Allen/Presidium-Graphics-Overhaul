@@ -193,7 +193,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public void interrupt(String cause) {
     if (! hasBegun()) return;
-    if ((stepsVerbose || priorityVerbose) && I.talkAbout == actor) {
+    if (I.talkAbout == actor && (stepsVerbose || priorityVerbose)) {
       I.say("\n"+actor+" Aborting plan! "+I.tagHash(this));
       I.say("  Cause: "+cause);
       I.reportStackTrace();

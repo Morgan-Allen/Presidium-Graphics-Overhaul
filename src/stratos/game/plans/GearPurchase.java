@@ -297,15 +297,15 @@ public class GearPurchase extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (shop.stocks.hasOrderFor(item) && ! shop.stocks.hasItem(item)) {
+    if (shop.stocks.hasItem(item)) {
       d.append("Collecting ");
-      item.describeFor(actor, d);
+      item.type.describeFor(actor, item, d);
       d.append(" at ");
       d.append(shop);
-      return;
     }
-    if (super.needsSuffix(d, "Ordering ")) {
-      item.describeFor(actor, d);
+    else if (! shop.stocks.hasOrderFor(item)) {
+      d.append("Placing order for ");
+      item.type.describeFor(actor, item, d);
       d.append(" at ");
       d.append(shop);
     }

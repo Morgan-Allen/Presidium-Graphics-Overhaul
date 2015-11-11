@@ -143,9 +143,6 @@ public final class Economy {
       "abilities."
     ),
     
-    TREATMENT = new Traded(
-      BC, "Treatment"  , null, FORM_SPECIAL, 0
-    ),
     GENE_SEED = new Traded(
       BC, "Gene Seed"  , null, FORM_SPECIAL, 0
     ),

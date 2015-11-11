@@ -23,7 +23,7 @@ public class PsychEvaluation extends Treatment {
   protected PsychEvaluation(
     Actor treats, Actor patient, Condition treated, Boarding sickbay
   ) {
-    super(treats, patient, Conditions.POOR_MORALE, null, sickbay);
+    super(treats, patient, Condition.POOR_MORALE, null, sickbay);
   }
   
   

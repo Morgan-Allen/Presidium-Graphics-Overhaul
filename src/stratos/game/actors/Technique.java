@@ -13,6 +13,7 @@ import stratos.user.Selectable;
 import stratos.util.*;
 
 
+
 //  TODO:  You need a more polished constructor interface for this.
 /*
 TECHNIQUES
@@ -47,6 +48,7 @@ Scope and duration:
     amount  (3, 6-9 min-max, 50%?)
     type    (instant cost, temp bonus, regen?)
 //*/
+
 
 
 public abstract class Technique extends Constant {
@@ -209,6 +211,44 @@ public abstract class Technique extends Constant {
   
   
   
+  /**  General property queries
+    */
+  public boolean isPower() {
+    return hasProperty(IS_SOVEREIGN_POWER) && (this instanceof Power);
+  }
+  
+  
+  public boolean isPassiveSkillFX() {
+    return hasProperty(IS_PASSIVE_SKILL_FX);
+  }
+  
+  
+  public boolean isPassiveAlways() {
+    return hasProperty(IS_PASSIVE_ALWAYS);
+  }
+  
+  
+  public boolean isItemDerived() {
+    return hasProperty(IS_GAINED_FROM_ITEM) && itemNeeded() != null;
+  }
+  
+  
+  public boolean targetsSelf() {
+    return hasProperty(IS_SELF_TARGETING);
+  }
+  
+  
+  public boolean targetsFocus() {
+    return hasProperty(IS_FOCUS_TARGETING);
+  }
+  
+  
+  public boolean targetsAny() {
+    return hasProperty(IS_ANY_TARGETING);
+  }
+  
+  
+  
   /**  Helper methods for determining skill-aquisition and triggering-
     */
   public static Series <Technique> learntFrom(Object source) {
@@ -280,21 +320,12 @@ public abstract class Technique extends Constant {
   
   
   
-  /**  Basic interface and utility methods for use and evaluation of different
-    *  techniques-
+  /**  Basic interface and utility methods for active & passive use-
     */
-  public void applyEffect(
-    Actor using, boolean success, Target subject, boolean passive
-  ) {
-    using.health.takeFatigue      (fatigueCost      );
-    using.health.takeConcentration(concentrationCost);
-  }
-  
-  
   protected Action createActionFor(Plan parent, Actor actor, Target subject) {
     final Action action = new Action(
       actor, subject,
-      this, "actionUseTechnique",
+      this, "applyTechnique",
       animName, "Using "+name
     );
     action.setProperties(actionProperties);
@@ -303,26 +334,86 @@ public abstract class Technique extends Constant {
   }
   
   
-  public boolean actionUseTechnique(Actor actor, Target subject) {
+  protected void afterSkillEffects(Actor using, float success, Action taken) {
+    final Target subject = taken == null ? using : taken.subject();
+    applySelfEffects(using);
+    applyEffect(using, success > 0, subject, true);
+  }
+  
+  
+  public boolean applyTechnique(Actor actor, Target subject) {
     final boolean success = checkActionSuccess(actor, subject);
-    final Plan plan = (Plan) I.cast(actor.mind.topBehaviour(), Plan.class);
     
+    applySelfEffects(actor);
+    
+    final Plan plan = (Plan) I.cast(actor.mind.topBehaviour(), Plan.class);
     final float radius = effectRadius();
     final boolean desc = effectDescriminates();
     if (radius <= 0) {
       applyEffect(actor, success, subject, false);
     }
     else for (Target caught : PlanUtils.subjectsInRange(subject, radius)) {
-      if (desc && basePriority(actor, plan, subject) <= 0) continue;
+      if (desc && basePriority(actor, plan, caught) <= 0) continue;
       applyEffect(actor, success, caught, false);
     }
     return success;
   }
   
   
+  
+  /**  Configuration methods intended for subclass-specific overrides as and
+    *  when required-
+    */
+  public void applyEffect(
+    Actor using, boolean success, Target subject, boolean passive
+  ) {
+    if (! isPassiveAlways()) {
+      I.say("\n"+using+" APPLIED TECHNIQUE: "+this+" TO: "+subject);
+    }
+  }
+  
+  
   protected boolean checkActionSuccess(Actor actor, Target subject) {
     if (skillNeed == null) return true;
     else return actor.skills.test(skillNeed, minLevel, 1, null);
+  }
+  
+  
+  protected void applySelfEffects(Actor using) {
+    using.health.takeFatigue      (fatigueCost      );
+    using.health.takeConcentration(concentrationCost);
+  }
+  
+  
+  public float passiveBonus(Actor using, Skill skill, Target subject) {
+    return 0;
+  }
+  
+   
+  protected float conditionDuration() {
+    return Stage.STANDARD_HOUR_LENGTH;
+  }
+  
+  
+  protected float effectRadius() {
+    return 0;
+  }
+  
+  
+  protected boolean effectDescriminates() {
+    return false;
+  }
+  
+  
+  public Traded allowsUse() {
+    if (! hasProperty(IS_GEAR_PROFICIENCY)) return null;
+    if (focus instanceof Traded) return (Traded) focus;
+    else return null;
+  }
+  
+  
+  public Traded itemNeeded() {
+    return null;
   }
   
   
@@ -342,73 +433,6 @@ public abstract class Technique extends Constant {
       return;
     }
     else affected.traits.setLevel(asCondition, 0);
-  }
-  
-  
-  public float passiveBonus(Actor using, Skill skill, Target subject) {
-    return 0;
-  }
-  
-  
-  protected float conditionDuration() {
-    return Stage.STANDARD_HOUR_LENGTH;
-  }
-  
-  
-  protected float effectRadius() {
-    return 0;
-  }
-  
-  
-  protected boolean effectDescriminates() {
-    return false;
-  }
-  
-  
-  public boolean isPower() {
-    return hasProperty(IS_SOVEREIGN_POWER) && (this instanceof Power);
-  }
-  
-  
-  public Traded allowsUse() {
-    if (! hasProperty(IS_GEAR_PROFICIENCY)) return null;
-    if (focus instanceof Traded) return (Traded) focus;
-    else return null;
-  }
-  
-  
-  public Traded itemNeeded() {
-    return null;
-  }
-  
-  
-  public boolean isPassiveSkillFX() {
-    return hasProperty(IS_PASSIVE_SKILL_FX);
-  }
-  
-  
-  public boolean isPassiveAlways() {
-    return hasProperty(IS_PASSIVE_ALWAYS);
-  }
-  
-  
-  public boolean isItemDerived() {
-    return hasProperty(IS_GAINED_FROM_ITEM) && itemNeeded() != null;
-  }
-  
-  
-  public boolean targetsSelf() {
-    return hasProperty(IS_SELF_TARGETING);
-  }
-  
-  
-  public boolean targetsFocus() {
-    return hasProperty(IS_FOCUS_TARGETING);
-  }
-  
-  
-  public boolean targetsAny() {
-    return hasProperty(IS_ANY_TARGETING);
   }
   
 

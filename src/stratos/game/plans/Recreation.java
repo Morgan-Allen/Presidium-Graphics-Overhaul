@@ -169,7 +169,7 @@ public class Recreation extends Plan {
       cost = 0;
     }
     
-    if (actor.traits.traitLevel(Conditions.SOMA_HAZE) > 0) {
+    if (actor.traits.traitLevel(Condition.SOMA_HAZE) > 0) {
       comfort += 0.5f;
     }
     if (Resting.dineFrom(actor, venue)) {

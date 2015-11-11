@@ -167,7 +167,10 @@ public class ActorDescription {
     //  Then any other items carried, including current credits:
     d.append("\n\nCarried: ");
     final Batch <Item> carried = h.gear.allItems();
-    for (Item item : carried) d.append("\n  "+item);
+    for (Item item : carried) {
+      d.append("\n  ");
+      item.type.describeFor(h, item, d);
+    }
     final int credits = (int) h.gear.allCredits();
     if (credits > 0) {
       d.append("\n  "+(int) h.gear.taxedCredits()+" Credits Saved");
@@ -343,7 +346,10 @@ public class ActorDescription {
     final Series <Item> carried = actor.gear.allItems();
     if (carried.size() > 0) {
       l.append("\n\nCarried: ");
-      for (Item item : carried) l.append("\n  "+item);
+      for (Item item : carried) {
+        l.append("\n  ");
+        item.type.describeFor(actor, item, l);
+      }
     }
     
     l.append("\n\n");

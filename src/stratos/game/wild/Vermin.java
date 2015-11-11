@@ -93,6 +93,7 @@ public abstract class Vermin extends Actor {
         this, (Actor) seen, Combat.STYLE_EITHER, Combat.OBJECT_EITHER
       );
       choice.add(combat);
+      choice.add(Hunting.asFeeding(this, (Actor) seen));
     }
   }
   
@@ -107,6 +108,7 @@ public abstract class Vermin extends Actor {
     if (report) I.say("\nCreating choices for "+this);
     
     choice.isVerbose = report;
+    for (Target t : senses.awareOf()) addReactions(t, choice);
     
     //
     //  Finding home activities-

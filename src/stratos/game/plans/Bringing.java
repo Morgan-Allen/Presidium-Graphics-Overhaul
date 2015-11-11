@@ -553,7 +553,7 @@ public class Bringing extends Plan {
     
     d.append("Bringing ");
     for (Item i : items) {
-      i.describeFor(actor, d);
+      i.type.describeFor(actor, i, d);
       if (i != Visit.last(items)) d.append(", ");
     }
     

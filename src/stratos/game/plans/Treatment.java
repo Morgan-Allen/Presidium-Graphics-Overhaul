@@ -7,14 +7,14 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
-import static stratos.game.actors.Conditions.*;
+import static stratos.game.actors.Condition.*;
 import static stratos.game.actors.Qualities.*;
 
 
 
 //  TODO:  There's room for some additional refactoring here...
 
-public class Treatment extends Plan implements Item.Passive {
+public class Treatment extends Plan {
 
   final static int
     STANDARD_TREAT_TIME  = Stage.STANDARD_HOUR_LENGTH,
@@ -79,7 +79,7 @@ public class Treatment extends Plan implements Item.Passive {
     //
     //  By default, we pick the most severe conditions first.
     final Pick <Condition> pick = new Pick <Condition> (null, 0);
-    for (Condition c : Conditions.ALL_CONDITIONS) {
+    for (Condition c : Condition.ALL_CONDITIONS) {
       pick.compare(c, dangerRating(c, patient));
     }
     if (pick.empty()) return null;
@@ -117,13 +117,13 @@ public class Treatment extends Plan implements Item.Passive {
       level  = patient.traits.usedLevel(c),
       speed  = Nums.clamp((1f / (1 + c.latency)) + level, 0, 1),
       danger = (c.virulence + c.spread);
-    return level <= 0 ? 0 : (speed * danger / Conditions.EXTREME_VIRULENCE);
+    return level <= 0 ? 0 : (speed * danger / Condition.EXTREME_VIRULENCE);
   }
   
   
   protected float severity() {
     final float level = patient.traits.usedLevel(sickness);
-    return level * sickness.virulence / Conditions.EXTREME_VIRULENCE;
+    return level * sickness.virulence / Condition.EXTREME_VIRULENCE;
   }
   
   
@@ -269,27 +269,46 @@ public class Treatment extends Plan implements Item.Passive {
   }
   
   
-  public void applyPassiveItem(Actor carries, Item from) {
-    if (carries.traits.traitLevel(sickness) <= 0) return;
-    final boolean report = eventVerbose && I.talkAbout == carries;
-    
-    float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
-    float bonus = (5 + from.quality) / 5f;
-    carries.traits.incLevel(sickness, 0 - effect * bonus);
-    carries.gear.removeItem(Item.withAmount(from, effect));
-    
-    if (report) {
-      final float
-        level   = carries.traits.traitLevel(sickness),
-        symptom = carries.traits.usedLevel (sickness);
-      final String
-        desc = carries.traits.description(sickness);
-      I.say("\nApply treatment for "+sickness+" to "+carries);
-      I.say("  Disease progression: "+level);
-      I.say("  Symptom level:       "+symptom+" ("+desc+")");
-      I.say("  Bonus/effect:        "+bonus+"/"+effect);
+  
+  /**  Persistent after-effects:
+    */
+  final public static Traded TREATMENT = new Traded(
+    Treatment.class, "Treatment", null, FORM_SPECIAL, 0,
+    "Treatments keep patients in good health."
+  ) {
+    public void applyPassiveEffects(Item from, Actor carries) {
+      
+      final Treatment treatment = (Treatment) from.refers;
+      final Trait     sickness  = treatment.sickness;
+      if (carries.traits.traitLevel(sickness) <= 0) return;
+      
+      final boolean report = eventVerbose && I.talkAbout == carries;
+      
+      float effect = 1.0f / Stage.STANDARD_DAY_LENGTH;
+      float bonus = (5 + from.quality) / 5f;
+      carries.traits.incLevel(sickness, 0 - effect * bonus);
+      carries.gear.removeItem(Item.withAmount(from, effect));
+      
+      if (report) {
+        final float
+          level   = carries.traits.traitLevel(sickness),
+          symptom = carries.traits.usedLevel (sickness);
+        final String
+          desc = carries.traits.description(sickness);
+        I.say("\nApply treatment for "+sickness+" to "+carries);
+        I.say("  Disease progression: "+level);
+        I.say("  Symptom level:       "+symptom+" ("+desc+")");
+        I.say("  Bonus/effect:        "+bonus+"/"+effect);
+      }
     }
-  }
+    
+
+    protected void describeRefers(Actor owns, Item i, Description d) {
+      final Treatment treatment = (Treatment) i.refers;
+      d.append(" for ");
+      d.append(treatment.sickness);
+    }
+  };
   
   
   
@@ -301,53 +320,8 @@ public class Treatment extends Plan implements Item.Passive {
     d.append(" for ");
     d.append(sickness);
   }
-  
-  
-  public String describePassiveItem(Item from) {
-    return " for "+sickness;
-  }
 }
 
-
-/*
-Item current = existingTreatment(sickness, patient);
-if (current == null) current = Item.with(TREATMENT, this, 0, 0);
-final float
-  inc   = 1f / STANDARD_TREAT_TIME,
-  DC    = severity() * 10,
-  bonus = getVenueBonus(true, tech);
-
-float check = Rand.yes() ? -1 : 1;
-if (actor.skills.test(primary  , DC - bonus, TIME_XP_MULT)) check++;
-if (actor.skills.test(secondary, 5  - bonus, TIME_XP_MULT)) check++;
-
-if (check > 0) {
-  final float quality = current.amount == 0 ? 1 :
-    (Item.MAX_QUALITY * (check - 1) / 2);
-  current = Item.with(current.type, current.refers, inc, quality);
-  patient.gear.addItem(current);
-  return true;
-}
-else return false;
-//*/
-
-
-/*
-protected float getVenueBonus(boolean use, Upgrade tech) {
-  if (! (sickbay instanceof Venue)) return -2.5f;
-  
-  final Venue sickbay = (Venue) this.sickbay;
-  float bonus = 0, used = 0.1f / STANDARD_TREAT_TIME;
-  bonus += 5 * sickbay.structure.upgradeLevel(tech);
-  
-  if (sickbay.stocks.amountOf(MEDICINE) > 0.1f) {
-    if (use) sickbay.stocks.removeItem(Item.withAmount(MEDICINE, used));
-    bonus += 5;
-  }
-  else bonus /= 2;
-  return bonus;
-}
-//*/
 
 
 

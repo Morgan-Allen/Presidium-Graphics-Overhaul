@@ -94,7 +94,7 @@ public class Lictovore extends Fauna {
     //
     //  TODO:  PUT ALL THESE ATTRIBUTES IN THE SPECIES FIELDS
     traits.initAtts(20, 15, 5);
-    traits.setLevel(HAND_TO_HAND, 10);
+    traits.setLevel(HAND_TO_HAND     , 15);
     traits.setLevel(STEALTH_AND_COVER, 10);
     
     traits.setLevel(DEFENSIVE, 2);

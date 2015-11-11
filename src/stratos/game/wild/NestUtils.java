@@ -56,6 +56,13 @@ public class NestUtils {
   }
   
   
+  public static Nest createNestFor(Actor a) {
+    final Species s = a.species();
+    if (s == null || s.nestBlueprint() == null) return null;
+    return (Nest) s.nestBlueprint().createVenue(a.base());
+  }
+  
+  
   //
   //  TODO:  This is working well for purposes of initial setup.  But I need
   //  to translate it back into a SitingPass, and I need to handle migratory

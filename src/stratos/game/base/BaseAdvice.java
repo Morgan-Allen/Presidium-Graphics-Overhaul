@@ -191,7 +191,7 @@ public class BaseAdvice {
       numHungry += citizen.health.nutritionLevel() - 1;
       numSad    += 1 - citizen.health.moraleLevel();
       
-      for (Condition c : Conditions.ALL_CONDITIONS) {
+      for (Condition c : Condition.ALL_CONDITIONS) {
         numSick += citizen.traits.relativeLevel(c);
       }
       
