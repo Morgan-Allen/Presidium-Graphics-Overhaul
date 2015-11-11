@@ -231,6 +231,7 @@ public class DebugCommerce extends Scenario {
   
   private void purchaseScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.needsFree = true;
+    GameSettings.techsFree = true;
     
     /*
     I.say("\nSETTING UP SCENARIO!");
@@ -269,11 +270,13 @@ public class DebugCommerce extends Scenario {
     Actor buys = new Human(Backgrounds.RUNNER, base);
     buys.enterWorldAt(12, 12, world);
     buys.gear.incCredits(1000);
+    buys.gear.taxDone();
     buys.gear.equipDevice(Item.withQuality(Devices.CARBINE, 1));
     
     buys = new Human(Backgrounds.TROOPER, base);
     buys.enterWorldAt(10, 12, world);
     buys.gear.incCredits(2000);
+    buys.gear.taxDone();
     buys.gear.equipDevice(Item.withQuality(Devices.HALBERD_GUN, 4));
     buys.skills.addTechnique(TrooperTechniques.POWER_ARMOUR_USE);
     

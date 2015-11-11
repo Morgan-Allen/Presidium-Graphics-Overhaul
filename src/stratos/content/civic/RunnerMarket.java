@@ -97,7 +97,7 @@ public class RunnerMarket extends Venue {
       10, INSCRIPTION, 5, ASSEMBLY
     ),
     CHEM_KITCHEN = new Upgrade(
-      "Marksman Training",
+      "Chem Kitchen",
       "Enables the sale and manufacture of "+SLOW_BURN_ITEM+" and "+
       FAST_TOXIN_ITEM+".",
       250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,

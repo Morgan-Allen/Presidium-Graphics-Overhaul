@@ -848,7 +848,9 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
+  public SelectionOptions configSelectOptions(
+    SelectionOptions info, BaseUI UI
+  ) {
     if (info == null) info = new SelectionOptions(UI, this);
     return info;
   }
@@ -864,32 +866,41 @@ public abstract class Venue extends Fixture implements
       sprite.passType = Sprite.PASS_PREVIEW;
       sprite.readyFor(rendering);
     }
-    renderSelection(rendering, true);
+    renderSelection(rendering, true, canPlace ? Colour.LITE_GREEN : Colour.RED);
   }
   
   
   public void renderSelection(Rendering rendering, boolean hovered) {
+    renderSelection(rendering, hovered, Colour.WHITE);
+  }
+  
+  
+  protected void renderSelection(
+    Rendering rendering, boolean hovered, Colour tinge
+  ) {
     if (destroyed() || origin() == null) return;
     if (pathType() <= Tile.PATH_CLEAR || blueprint.isLinear()) return;
+    final Colour temp = new Colour();
     
     final String key = origin()+"_print_"+this;
+    temp.set(Colour.transparency(hovered ? 0.5f : 1)).multiply(tinge);
     BaseUI.current().selection.renderTileOverlay(
-      rendering, origin().world,
-      Colour.transparency(hovered ? 0.5f : 1),
+      rendering, origin().world, temp,
       Selection.SELECT_OVERLAY, false,
       key, true, this
     );
-
-    final String keyRes = origin()+"_reserve_print_"+this;
     
+    final String keyRes = origin()+"_reserve_print_"+this;
+    temp.set(Colour.transparency(hovered ? 0.25f : 0.375f)).multiply(tinge);
     BaseUI.current().selection.renderTileOverlay(
-      rendering, origin().world,
-      Colour.transparency(hovered ? 0.25f : 0.375f),
+      rendering, origin().world, temp,
       Selection.SELECT_OVERLAY, false,
-      keyRes, true, footprint() //, (Object[]) reserved
+      keyRes, true, areaClaimed()
     );
   }
 }
+
+
 
 
 

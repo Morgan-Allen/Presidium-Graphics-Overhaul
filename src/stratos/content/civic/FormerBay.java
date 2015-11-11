@@ -39,7 +39,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     FormerBay.class, "former_bay",
-    "Former Bay", Target.TYPE_ENGINEER, ICON,
+    "Former Bay", Target.TYPE_WIP, ICON,
     "The Former Bay extracts light minerals from the soil and atmosphere "+
     "while speeding terraforming programs.",
     4, 1, Structure.IS_NORMAL | Structure.IS_ZONED,
@@ -65,6 +65,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     super.saveState(s);
     //areaClaimed.saveTo(s.output());
   }
+  
   
   
   /**  Economic functions-
@@ -114,13 +115,6 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   }
   
   
-  protected int numPositions(Background b) {
-    final int level = structure.mainUpgradeLevel();
-    if (b == FORMER_ENGINEER) return level + 1;
-    return 0;
-  }
-  
-  
   protected Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     
@@ -141,7 +135,17 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     return choice.weightedPick();
   }
   
-
+  
+  protected int numPositions(Background b) {
+    final int level = structure.mainUpgradeLevel();
+    if (b == FORMER_ENGINEER) return level + 1;
+    return 0;
+  }
+  
+  
+  
+  /**  Division claims and tending methods.
+    */
   protected ClaimDivision updateDivision() {
     return ClaimDivision.forEmptyArea(this, areaClaimed());
   }
@@ -149,13 +153,14 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   
   public float needForTending(ResourceTending tending) {
     float abundance = world.ecology().forestRating(world.tileAt(this));
+    final float shortage = stocks.relativeShortage(POLYMER);
     
     final Gathering g = (Gathering) tending;
     if (g.type == Gathering.TYPE_FORESTING) {
       return 0.5f;
     }
     if (g.type == Gathering.TYPE_LOGGING) {
-      return abundance - 0.5f;
+      return abundance + shortage - 0.5f;
     }
     return 0;
   }

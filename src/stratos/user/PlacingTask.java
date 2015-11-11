@@ -246,7 +246,6 @@ public class PlacingTask implements UITask {
         p.previewPlacement(canPlace, UI.rendering);
         
         under.add(p.footprint());
-        for (Tile t : p.reserved()) under.add(t);
         if (p.mainEntrance() != null) under.add(p.mainEntrance());
       }
     }

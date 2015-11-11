@@ -231,7 +231,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     */
   private Action nextSomaOrderFor(Actor actor) {
     if (stocks.amountOf(SOMA) <= 0) return null;
-    if (actor.traits.traitLevel(Conditions.SOMA_HAZE) > 0) return null;
+    if (actor.traits.traitLevel(Condition.SOMA_HAZE) > 0) return null;
     final float price = priceFor(SOMA) / 10f;
     if ((price > actor.gear.allCredits() / 2) || ! openFor(actor)) return null;
     
@@ -255,7 +255,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     venue.stocks.incCredits(price);
     actor.gear.incCredits(-price);
     stocks.removeItem(Item.withAmount(SOMA, 0.1f));
-    actor.traits.incLevel(Conditions.SOMA_HAZE, 0.1f);
+    actor.traits.incLevel(Condition.SOMA_HAZE, 0.1f);
     return true;
   }
   

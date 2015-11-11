@@ -16,7 +16,7 @@ public class Viewport {
   /**  Data fields, constructors, etc.
     */
   final public static float
-    DEFAULT_SCALE   = 60.0f,
+    DEFAULT_SCALE   = 80.0f,
     DEFAULT_ROTATE  = 45,
     DEFAULT_ELEVATE = 25;
   

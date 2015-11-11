@@ -181,6 +181,18 @@ public class Colour {
   }
   
   
+  
+  /**  Colours one with the other.
+    */
+  public Colour multiply(Colour other) {
+    r *= other.r;
+    g *= other.g;
+    b *= other.b;
+    a *= other.a;
+    return this;
+  }
+  
+  
   /**  Returns this colour with alpha modified:
     */
   public Colour withOpacity(float a) {

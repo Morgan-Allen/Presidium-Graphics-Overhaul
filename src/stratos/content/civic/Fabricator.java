@@ -3,7 +3,9 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.content.wip;
+package stratos.content.civic;
+import stratos.content.wip.Edifice;
+import stratos.content.wip.EnforcerBloc;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
@@ -34,7 +36,7 @@ public class Fabricator extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
-    "Fabricator", Target.TYPE_WIP, ICON,
+    "Fabricator", Target.TYPE_AESTHETIC, ICON,
     "Fabricators manufacture "+DECOR+", "+PRESSFEED+" and finery for "+
     "the upper-crust.",
     4, 1, Structure.IS_NORMAL,
@@ -66,6 +68,12 @@ public class Fabricator extends Venue {
   final static Index <Upgrade> ALL_UPGRADES = new Index <Upgrade> ();
   public Index <Upgrade> allUpgrades() { return ALL_UPGRADES; }
   final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.SINGLE_LEVEL, null,
+      new Object[] { 10, CHEMISTRY, 5, HANDICRAFTS, 5, GRAPHIC_DESIGN },
+      400//,
+      //450
+    ),
     POLYMER_LOOM = new Upgrade(
       "Polymer Loom",
       "Speeds production of fine garments for the upper classes by 50%, and "+

@@ -1,6 +1,9 @@
-
-
-package stratos.content.wip;
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
+package stratos.content.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -10,6 +13,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.actors.Qualities.*;
 
 
 
@@ -39,6 +43,12 @@ public class Fractal extends Venue {
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
     Owner.TIER_PRIVATE, 40,
     8
+  );
+  
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, Fabricator.LEVELS[0],
+    new Object[] { 5, GRAPHIC_DESIGN },
+    30
   );
   
   

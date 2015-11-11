@@ -74,7 +74,8 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
     if (old != null) {
       I.complain(
         "ENTRY KEYS MUST BE UNIQUE: "+key+" is used by both:"+
-        "\n  "+entry+" ("+entry.getClass()+") and "+old+" ("+old.getClass()+")"
+        "\n  "+entry.key+" ("+entry.getClass()+")"+
+        " and "+old.key+" ("+old.getClass()+")"
       );
       return;
     }
@@ -114,7 +115,6 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
   
   /**  Other commonly-used utility methods:
     */
-  
   //  TODO:  Get rid of this method.  It relies on entries being added in a
   //  predictable order, which in turn depends on the order in which classes
   //  are loaded, which you don't want to have to handle manually.

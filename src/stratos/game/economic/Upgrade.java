@@ -94,6 +94,9 @@ public class Upgrade extends Constant {
     else if (required != null) I.say(
       "\nWARNING: "+required+" is not an upgrade or upgrade array!"
     );
+    if (origin != null && origin.baseUpgrade() != null) {
+      this.required.include(origin.baseUpgrade());
+    }
     for (Upgrade u : this.required) u.leadsTo.add(this);
     
     int maxTier = -1;
@@ -125,9 +128,14 @@ public class Upgrade extends Constant {
     */
   public void beginResearch(Base base) {
     base.research.setPolicyLevel(this, BaseResearch.LEVEL_PRAXIS);
-    final Mission research = new MissionResearch(base, this);
-    research.assignPriority(Mission.PRIORITY_NOMINAL);
-    base.tactics.addMission(research);
+    if (GameSettings.techsFree) {
+      base.research.setResearchLevel(this, BaseResearch.LEVEL_PRAXIS);
+    }
+    else {
+      final Mission research = new MissionResearch(base, this);
+      research.assignPriority(Mission.PRIORITY_NOMINAL);
+      base.tactics.addMission(research);
+    }
   }
   
   
@@ -148,15 +156,10 @@ public class Upgrade extends Constant {
   
   
   public static Series <Upgrade> upgradesAvailableFor(Venue venue) {
-    final Batch <Upgrade> available = new Batch();
-    final Upgrade levels[] = venue.blueprint.venueLevels();
-    if (levels != null) for (Upgrade u : levels) {
-      if (! venue.structure.hasUpgrade(u)) continue;
-      for (Upgrade l : u.leadsTo()) if (l.origin == venue.blueprint) {
-        available.add(l);
-      }
+    if (venue.blueprint == null || venue.blueprint.baseUpgrade() == null) {
+      return new Batch();
     }
-    return available;
+    return venue.blueprint.baseUpgrade().leadsTo;
   }
   
   
@@ -234,13 +237,12 @@ public class Upgrade extends Constant {
     }
     final Conversion c = researchProcess;
     if (c.skills.length > 0) {
-      d.append("Research obstacles:");
+      d.append("\nResearch Skills:");
       for (int i = 0; i < c.skills.length; i++) {
         d.append("\n  ");
         d.append(c.skills[i]);
         d.append(": "+(int) c.skillDCs[i]);
       }
-      d.append("\n");
     }
   }
   
@@ -276,7 +278,7 @@ public class Upgrade extends Constant {
     final boolean canResearch = (! base.research.banned(upgrade)) && (
       upgrade.hasRequirements(base) ||
       (v != null && upgrade.hasRequirements(v.structure()))
-    );
+    ) && ! base.research.hasTheory(upgrade);
     
     Text.Clickable linksTo    = null;
     String         nameSuffix = "";
@@ -358,6 +360,9 @@ public class Upgrade extends Constant {
       }
     }
     
+    else if (type == Type.TECH_MODULE) {
+      progReport = "Lack Prerequisites";
+    }
     else {
       progReport = "Banned";
       progColour = Colour.RED;

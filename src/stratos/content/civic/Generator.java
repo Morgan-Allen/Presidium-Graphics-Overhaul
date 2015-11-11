@@ -15,7 +15,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Conditions.*;
+import static stratos.game.actors.Condition.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
@@ -32,7 +32,7 @@ public class Generator extends Venue {
     verbose = false;
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Generator.class, "media/Buildings/artificer/reactor.png", 4, 2
+    Generator.class, "media/Buildings/artificer/reactor.png", 3.5f, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Generator.class, "media/GUI/Buttons/reactor_button.gif"
@@ -59,7 +59,7 @@ public class Generator extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Generator.class, "generator",
-    "Generator", Target.TYPE_ENGINEER, ICON,
+    "Generator", Target.TYPE_WIP, ICON,
     "The Generator provides copious "+POWER+" along with "+ANTIMASS+" output, "+
     "but can become an explosive liability.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 300, 10,

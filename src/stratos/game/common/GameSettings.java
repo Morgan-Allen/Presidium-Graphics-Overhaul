@@ -85,6 +85,7 @@ public class GameSettings {
     fogFree   = false,
     pathFree  = false,
     needsFree = false,
+    techsFree = false,
     
     noBlood   = false,
     noChat    = false,

@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
@@ -587,11 +586,14 @@ public class Structure {
       if (upgrades[i] == null) { atIndex = i; break; }
     }
     if (atIndex == -1) I.complain("NO ROOM FOR UPGRADE!");
+
     upgrades[atIndex] = upgrade;
     upgradeStates[atIndex] = STATE_INSTALL;
     if (upgradeIndex == atIndex) upgradeProgress = 0;
     upgradeIndex = nextUpgradeIndex();
     checkMaintenance();
+    
+    if (GameSettings.techsFree) advanceUpgrade(1);
   }
   
   

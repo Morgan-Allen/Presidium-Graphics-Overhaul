@@ -13,6 +13,8 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.content.civic.*;
+import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
 
@@ -48,12 +50,18 @@ public class Arcology extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Arcology.class, "arcology",
-    "Arcology", Target.TYPE_WIP, ICON,
+    "Arcology", Target.TYPE_ECOLOGIST, ICON,
     "Arcology provides both beauty and life support to your settlement, "+
     "but require space and "+WATER+".",
     2, 2, Structure.IS_LINEAR | Structure.IS_FIXTURE,
     Owner.TIER_FACILITY, 15,
     1
+  );
+  
+  final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
+    Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
+    new Object[] { 5, CULTIVATION },
+    30
   );
   
   

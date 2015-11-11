@@ -62,11 +62,11 @@ public class EngineerStation extends Venue {
     */
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.THREE_LEVELS, null,
+      Upgrade.TWO_LEVELS, null,
       new Object[] { 10, ASSEMBLY, 0, CHEMISTRY, 0, FIELD_THEORY },
       500,
-      650,
-      800
+      650//,
+      //800
     ),
     ASSEMBLY_LINE = new Upgrade(
       "Assembly Line",
@@ -154,14 +154,6 @@ public class EngineerStation extends Venue {
       1, PARTS, TO, 2, CIRCUITRY,
       MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY
     );
-  
-  
-  public int numPositions(Background v) {
-    final int level = structure.mainUpgradeLevel();
-    if (v == TECHNICIAN) return level + 1;
-    if (v == ARTIFICER ) return level;
-    return 0;
-  }
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
@@ -272,6 +264,14 @@ public class EngineerStation extends Venue {
       return BASIC_ARMOUR_UPS;
     }
     return BASIC_DEVICE_UPS;
+  }
+  
+  
+  public int numPositions(Background v) {
+    final int level = structure.mainUpgradeLevel();
+    if (v == TECHNICIAN) return level + 1;
+    if (v == ARTIFICER ) return level;
+    return 0;
   }
   
 

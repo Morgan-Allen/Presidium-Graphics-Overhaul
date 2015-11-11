@@ -390,15 +390,21 @@ public class PathingMap {
     Accountable client, boolean reports
   ) {
     Boarding path[] = null;
+    ///reports = I.talkAbout == client && client != null;
+    //if (reports) {
+    //  I.say("....");
+    //}
+    
     final int verbosity = reports ? Search.VERBOSE : Search.NOT_VERBOSE;
     
     if (client == null || client.base() == null) {
       I.complain("\nNO BASE-CLIENT SPECIFIED!");
       return null;
     }
-
+    
     final float destDist     = Spacing.distance(initB, destB);
     final Place placesPath[] = placesBetween(initB, destB, client, reports);
+    
     if (reports && placesPath != null) {
       I.say("\nPlaces path is: ");
       for (Place p : placesPath) I.say("  "+p);
@@ -477,8 +483,17 @@ public class PathingMap {
     zone.expiry = time + UPDATE_INTERVAL;
     for (Place p : inZone) p.zones[baseID] = zone;
     
+    //  TODO:  A bug is appearing where fully pathable endpoints are not being
+    //  shown as connected because initial zones are not auto-refreshing their
+    //  adjacent places, thus creating 'islands' for the endpoints.
+    
+    //  So- ALL places must be initialised when the map is first populated.
+    //  And then just update on a gentle schedule.
+    
     if (updatesVerbose) {
       I.say("\nDONE CREATING NEW ZONE!");
+      for (Place p : inZone) I.say("  "+p);
+      I.say("  Total places:    "+inZone.length);
       I.say("  Tiles evaluated: "+(evalAfter - evalBefore));
     }
     return zone;
@@ -629,7 +644,8 @@ public class PathingMap {
       final Place tempP[] = new Place[8];
       
       protected Place[] adjacent(Place spot) {
-        if (! zoneFill) refreshWithNeighbours(spot.region);
+        //if (! zoneFill)
+        refreshWithNeighbours(spot.region);
         
         final Place near[] = spot.routes.size() > tempP.length ?
           new Place[spot.routes.size()] : tempP

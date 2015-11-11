@@ -246,12 +246,12 @@ public class VenuePane extends SelectionPane {
   /**  Describing personnel, visitors and residents-
     */
   private void describeStaffing(Description d, BaseUI UI) {
+    final Background c[] = v.careers();
     final Staff s = v.staff();
-    if (s.lodgers().empty() && s.workers().empty() && s.visitors().empty()) {
+    if (Visit.empty(c) && s.lodgers().empty() && s.visitors().empty()) {
       return;
     }
     
-    final Background c[] = v.careers();
     final Batch <Actor> mentioned = new Batch <Actor> ();
     if (c != null && c.length > 0) {
       

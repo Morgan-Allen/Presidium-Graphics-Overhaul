@@ -46,7 +46,7 @@ public class Heighway extends Venue implements StageExit {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Heighway.class, "service_hatch",
-    "Heighway", Target.TYPE_UNPLACED, HATCH_ICON,
+    "Heighway", Target.TYPE_ENGINEER, HATCH_ICON,
     "Heighways allow for long-distance power and road connections, but can "+
     "admit dangerous vermin.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR | Structure.IS_PUBLIC,

@@ -296,14 +296,14 @@ public class Gathering extends ResourceTending {
     final Action a = action();
     
     if (type == TYPE_FARMING) {
-      if (c == null   ) { seedTile((Tile) t, a); return null         ; }
-      if (c != toTend ) { c.setAsDestroyed(false)   ; return null         ; }
-      if (c.blighted()) { c.disinfest()        ; return null         ; }
-      if (c.ripe()    ) { c.setAsDestroyed(false)   ; return c.materials(); }
+      if (c == null   ) { seedTile((Tile) t, a)  ; return null         ; }
+      if (c != toTend ) { c.setAsDestroyed(false); return null         ; }
+      if (c.blighted()) { c.disinfest()          ; return null         ; }
+      if (c.ripe()    ) { c.setAsDestroyed(false); return c.materials(); }
     }
     if (type == TYPE_FORESTING) {
-      if (c == null   ) { seedTile((Tile) t, a); return null;          }
-      if (c != toTend ) { c.setAsDestroyed(false)   ; return null;          }
+      if (c == null   ) { seedTile((Tile) t, a)  ; return null;          }
+      if (c != toTend ) { c.setAsDestroyed(false); return null;          }
     }
     if (type == TYPE_LOGGING) {
       if (c != null   ) { c.setAsDestroyed(false); return c.materials(); }
