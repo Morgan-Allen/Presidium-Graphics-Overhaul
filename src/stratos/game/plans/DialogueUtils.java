@@ -70,8 +70,88 @@ public class DialogueUtils {
   
   
   
+  /**  Common topics-
+    */
+  final public static Index <ChatLine> CHAT_TOPICS = new Index();
+  
+  public static class ChatLine extends Index.Entry implements Session.Saveable {
+    
+    final String line;
+    
+    ChatLine(String ID, String line) {
+      super(CHAT_TOPICS, ID);
+      this.line = line;
+    }
+    
+    public static ChatLine loadConstant(Session s) throws Exception {
+      return CHAT_TOPICS.loadEntry(s.input());
+    }
+    
+    public void saveState(Session s) throws Exception {
+      CHAT_TOPICS.saveEntry(this, s.output());
+    }
+    
+    public String toString() {
+      return line;
+    }
+  }
+  
+  final static ChatLine
+    LINE_WEATHER = new ChatLine("line_weather", "the weather"),
+    LINE_ANIMAL  = new ChatLine("line_animal", "'Who's a good boy then?'");
+  
+  
   final static float
     CHAT_RELATION_BOOST = 0.5f;
+  
+  
+  protected static Session.Saveable pickChatTopic(
+    Dialogue starts, Actor other
+  ) {
+    final Actor actor = starts.actor();
+    final Pick <Session.Saveable> pick = new Pick <Session.Saveable> ();
+    
+    if (! (actor.species().sapient() && other.species().sapient())) {
+      return LINE_ANIMAL;
+    }
+    
+    if (actor instanceof Human) {
+      //  TODO:  Make these especially compelling during introductions?
+      final Career c = ((Human) actor).career();
+      pick.compare(c.homeworld(), Rand.num());
+      pick.compare(LINE_WEATHER, Rand.num());
+    }
+    
+    for (Relation r : actor.relations.allRelations()) {
+      if (r.subject == other || r.subject == actor) continue;
+      if (r.subject == other.base()) continue;
+      final float
+        otherR = other.relations.valueFor(r.subject),
+        rating = (Nums.abs(otherR * r.value()) + 0.5f) * Rand.num();
+      pick.compare((Session.Saveable) r.subject, rating);
+    }
+    
+    for (Skill s : other.traits.skillSet()) {
+      final float
+        levelA = actor.traits.usedLevel(s),
+        levelO = other.traits.usedLevel(s),
+        rating = Nums.min(levelA, levelO) * Rand.num() / 10f;
+      if (levelA < 0 || levelO < 0) continue;
+      pick.compare(s, rating);
+    }
+    
+    for (Behaviour b : actor.mind.todoList()) if (b instanceof Plan) {
+      final Plan about = (Plan) b;
+      final float rating = about.priorityFor(actor) * Rand.num() / 5;
+      pick.compare(about, rating);
+    }
+    //  ...There has to be other stuff that an actor could suggest, such as at
+    //  the close of conversation?  Try for that.
+    
+    
+    return pick.result();
+  }
+  
   
   //  TODO:  Okay.  I want to make sure that relationships can actually go
   //  pretty far north or south, depending on how well traits and interests
@@ -133,52 +213,6 @@ public class DialogueUtils {
   
   protected static void discussEvent(Actor actor, Actor other, Memory about) {
     
-  }
-  
-  
-  
-  protected static Session.Saveable pickChatTopic(
-    Dialogue starts, Actor other
-  ) {
-    final Actor actor = starts.actor();
-    final Pick <Session.Saveable> pick = new Pick <Session.Saveable> ();
-    
-    if (actor instanceof Human) {
-      //  TODO:  Make these especially compelling during introductions?
-      final Career c = ((Human) actor).career();
-      //pick.compare(c.birth()    , Rand.num());
-      pick.compare(c.homeworld(), Rand.num());
-      //pick.compare(c.vocation() , Rand.num());
-    }
-    
-    for (Relation r : actor.relations.allRelations()) {
-      if (r.subject == other || r.subject == actor) continue;
-      if (r.subject == other.base()) continue;
-      final float
-        otherR = other.relations.valueFor(r.subject),
-        rating = (Nums.abs(otherR * r.value()) + 0.5f) * Rand.num();
-      pick.compare((Session.Saveable) r.subject, rating);
-    }
-    
-    for (Skill s : other.traits.skillSet()) {
-      final float
-        levelA = actor.traits.usedLevel(s),
-        levelO = other.traits.usedLevel(s),
-        rating = Nums.min(levelA, levelO) * Rand.num() / 10f;
-      if (levelA < 0 || levelO < 0) continue;
-      pick.compare(s, rating);
-    }
-    
-    for (Behaviour b : actor.mind.todoList()) if (b instanceof Plan) {
-      final Plan about = (Plan) b;
-      final float rating = about.priorityFor(actor) * Rand.num() / 5;
-      pick.compare(about, rating);
-    }
-    //  ...There has to be other stuff that an actor could suggest, such as at
-    //  the close of conversation?  Try for that.
-    
-    
-    return pick.result();
   }
   
   

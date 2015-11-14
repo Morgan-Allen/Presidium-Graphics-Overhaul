@@ -71,7 +71,7 @@ public class LawUtils {
     final Action a = arrests.currentAction();
     
     if (victim != null) {
-      harmRating += actor.harmIntended(victim) * 2;
+      harmRating += Plan.harmIntended(actor, victim) * 2;
       harmRating *= arrests.base().relations.relationWith(victim.base());
     }
     //

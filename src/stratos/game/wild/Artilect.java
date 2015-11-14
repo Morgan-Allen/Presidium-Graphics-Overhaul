@@ -141,7 +141,7 @@ public abstract class Artilect extends Actor {
     //final float distance = Spacing.distance(this, guards) / Stage.SECTOR_SIZE;
     //
     //  Security and defence related tasks-
-    choice.add(Patrolling.aroundPerimeter(this, guards, Plan.IDLE));
+    choice.add(Patrolling.protectionFor(this, guards, Plan.IDLE));
     choice.add(JoinMission.attemptFor(this));
     choice.add(new Retreat(this));
     //

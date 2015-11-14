@@ -20,7 +20,8 @@
     <animation name="strike"     start="36" end="39" duration="1.5" />
     <animation name="fall"       start="40" end="46" duration="2.1" />
     <animation name="look"       start="47" end="48" duration="1.3" />
-    <animation name="talk"       start="49" end="50" duration="2"   />
+    <animation name="talk_intro" start="49" end="50" duration="2"   />
+    <animation name="talk"       start="52" end="57" duration="4"   />
     <animation name="talk_long"  start="52" end="57" duration="4"   />
     <animation name="evade"      start="58" end="62" duration="1"   />
     <animation name="build"      start="63" end="65" duration="1"   />
@@ -57,7 +58,8 @@
     <animation name="strike"     start="36" end="39" duration="1.0" />
     <animation name="fall"       start="40" end="46" duration="2.1" />
     <animation name="look"       start="47" end="48" duration="1.3" />
-    <animation name="talk"       start="49" end="50" duration="2"   />
+    <animation name="talk_intro" start="49" end="50" duration="2"   />
+    <animation name="talk"       start="52" end="57" duration="4"   />
     <animation name="talk_long"  start="52" end="57" duration="4"   />
     <animation name="evade"      start="58" end="62" duration="1"   />
     <animation name="build"      start="63" end="65" duration="1"   />

@@ -165,7 +165,9 @@ public final class Spacing implements TileConstants {
     }
     else if (t instanceof Element) {
       final Element e = (Element) t;
-      perim = perimeter(e.area(tA), client.world());
+      e.area(tA);
+      if (tA.minSide() < 1) e.origin().area(tA);
+      perim = perimeter(tA, client.world());
     }
     else {
       I.complain("UNSUPPORTED TARGET TYPE: "+t);
@@ -174,7 +176,7 @@ public final class Spacing implements TileConstants {
     //
     //  We want to avoid any tiles that are obstructed, including by other
     //  actors, and probably to stay in the same spot if possible.
-    final Tile l = client.origin();
+    final Tile l = Rand.num() < 0.2f ? null : client.origin();
     final float weights[] = new float[perim.length];
     float sumWeights = 0;
     int index = -1;
@@ -183,7 +185,7 @@ public final class Spacing implements TileConstants {
       index++;
       if (p == null || p.blocked()) continue;
       if (p.inside().size() > 0   ) continue;
-      if (Spacing.adjacent(p, l)  ) return p;
+      if (l != null && Spacing.adjacent(p, l)) return p;
       
       final float weight = 1f;
       weights[index] = weight;

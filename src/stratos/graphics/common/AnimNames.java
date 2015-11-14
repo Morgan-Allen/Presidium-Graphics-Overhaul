@@ -19,6 +19,7 @@ public interface AnimNames {
     STRIKE     = "strike",
     STRIKE_BIG = "strike_big",
     
+    TALK_INTRO = "talk_intro",
     TALK       = "talk",
     TALK_LONG  = "talk_long",
     

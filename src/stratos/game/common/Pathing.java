@@ -279,26 +279,18 @@ public class Pathing {
   public void headTowards(
     Target target, float speed, float inertia, boolean moves
   ) {
+    if (target == null) return;
     final boolean report = I.talkAbout == mobile && verbose && extraVerbose;
     if (report) {
       I.say("\n"+mobile+" HEADING TOWARDS: "+target+" FROM: "+mobile.origin());
     }
-    
-    //  Don't move if something ahead is blocking entrance-
-    if (target instanceof Tile) {
-      final Series <Mobile> inside = ((Tile) target).inside();
-      if (inside.size() > 0) for (Mobile m : inside) if (deferTo(m)) {
-        speed /= 2;
-      }
-    }
     //
     //  Determine the appropriate offset and angle for this target-
-    if (target == null) return;
     final Vec2D disp = displacement(target);
-    final float dist = disp.length();
-    float angle = dist == 0 ? 0 : disp.normalise().toAngle();
+    float dist = disp.length();
+    final boolean canTurn = dist > 0;
+    float angle = canTurn ? disp.normalise().toAngle() : 0;
     float moveRate = moves ? (speed / Stage.UPDATES_PER_SECOND) : 0;
-    if (report) I.say("  MOVE DIST: "+dist);
     //
     //  Determine how far one can move this update, including limits on
     //  maximum rotation-
@@ -313,39 +305,36 @@ public class Pathing {
       angle = (angle + 360) % 360;
       moveRate *= (180 - absDif) / 180;
     }
+    //
+    //  To ensure non-collision with other objects, we subtract both our and
+    //  their radius from the distance moved.
+    if (! (target instanceof Tile)) {
+      dist -= target.radius();
+      dist -= mobile.radius();
+      if (dist < 0) dist = 0;
+    }
+    if (report) {
+      I.say("  Full dist: "+disp.length());
+      I.say("  Move dist: "+dist);
+      I.say("  Move rate: "+moveRate);
+      I.say("  Angle dif: "+angleDif);
+    }
     disp.scale(Nums.min(moveRate, dist));
-    
+    //
     //  Otherwise, apply the changes in heading-
     mobile.nextPosition.x = disp.x + mobile.position.x;
     mobile.nextPosition.y = disp.y + mobile.position.y;
-    if (dist > 0) mobile.nextRotation = angle;
-    if (
-      Float.isNaN(mobile.nextPosition.x) ||
-      Float.isNaN(mobile.nextPosition.y)
-    ) {
-      I.say("ILLEGAL POSITION");
-      new Exception().printStackTrace();
-    }
-  }
-  
-  
-  private boolean deferTo(Mobile other) {
-    //  TODO:  See below.
-    if (true) return false;
-    final Vec2D
-      heading = temp2.setFromAngle(mobile.rotation),
-      disp    = displacement(other);
-    if (heading.dot(disp) < 0) return false;
-    
-    return other.hashCode() > mobile.hashCode();
+    if (canTurn) mobile.nextRotation = angle;
   }
   
   
   public void applyMotionCollision(float moveRate, Target focus) {
-    final boolean report = I.talkAbout == mobile && moveVerbose;
     final Mobile m = mobile;
-    
-    if (m.indoors() || ! m.collides()) return;
+    if (m.indoors() || (! m.collides()) || (! m.isMoving())) return;
+    final boolean report = I.talkAbout == mobile && moveVerbose;
+    if (report) {
+      I.say("\nUpdating motion-collision for "+m);
+    }
     //
     //  TODO:  I am probably going to have to implement some kind of proper
     //  polygonal pathfinding here.  For the moment, it's just kind of
@@ -355,10 +344,11 @@ public class Pathing {
     int numHits = 0;
     final float mMin = m.position.z, mMax = mMin + m.height();
     final float selfRadius = Nums.min(m.radius(), 0.5f);
+    final Box2D area = m.area(null).expandBy(1);
     //
     //  After determining height range and ground-area affected, we iterate
     //  over every tile likely to be affected-
-    for (Tile t : m.origin().allAdjacent(Spacing.tempT8)) if (t != null) {
+    for (Tile t : m.world.tilesIn(area, false)) if (t != null) {
       //
       //  Firstly, we check to avoid collision with nearby blocked tiles-
       if (t.blocked()) {
@@ -369,6 +359,7 @@ public class Pathing {
         if (dist > 0 || disp.length() == 0) continue;
         sum.add(disp.normalise().scale(0 - dist));
         numHits++;
+        if (report) I.say("  Blocked tile: "+t);
       }
       //
       //  Then, we check for collision with other mobiles within the same
@@ -393,9 +384,11 @@ public class Pathing {
         //  within the sum of radii, with a small random 'salt'-
         sum.add(disp.normalise().scale(0 - dist));
         numHits++;
+        if (report) I.say("  Hit other mobile: "+near);
       }
     }
     if (numHits == 0 || sum.length() == 0) return;
+    if (report) I.say("  Sum of collisions: "+sum);
     sum.scale(0.5f / numHits);
     
     //  Ensure that the effects of displacement never entirely cancel basic
@@ -407,6 +400,7 @@ public class Pathing {
       facing.scale((SL - minDisp) * push);
       sum.add(facing).normalise().scale((minDisp + SL) / 2);
     }
+    if (report) I.say("  After averaging/adjustment: "+sum);
     
     final int WS = m.world.size - 1;
     m.nextPosition.x = Nums.clamp(sum.x + m.nextPosition.x, 0, WS);

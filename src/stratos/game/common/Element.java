@@ -225,7 +225,7 @@ public abstract class Element implements
       return;
     }
     this.toggleProperty(PROP_DESTROYED, true);
-    world.ephemera.addGhost(this, radius() * 2, sprite, 2.0f);
+    world.ephemera.addGhost(this, radius() * 2, sprite, 2.0f, 1);
     exitWorld();
   }
   

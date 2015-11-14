@@ -214,7 +214,7 @@ public class ShieldWall extends Venue {
     if (canChange) {
       structure.resignUpgrade(FC, true);
       this.type = newType;
-      world.ephemera.addGhost(this, size, sprite(), 0.5f);
+      world.ephemera.addGhost(this, size, sprite(), 0.5f, 1);
       attachModel((ModelAsset) model);
       refreshAdjacent();
     }

@@ -420,7 +420,7 @@ public abstract class Actor extends Mobile implements
   
   
   
-  //  TODO:  Move all these to either the Mind or PlanUtils class!
+  //  TODO:  Move all these to either the Mind, Plan or PlanUtils class!
   
   public boolean isDoingAction(String actionMethod, Target target) {
     if (actionTaken == null) return false;
@@ -432,23 +432,6 @@ public abstract class Actor extends Mobile implements
   public boolean isDoing(Class <? extends Plan> planClass, Target target) {
     final Target focus = planFocus(planClass, true);
     return (target == null) ? (focus != null) : (focus == target);
-  }
-  
-  
-  public float harmIntended(Target subject) {
-    if (subject == null) return 0;
-    
-    final Behaviour root = mind.rootBehaviour();
-    if (root instanceof Plan && root.subject() == subject) {
-      return ((Plan) root).harmFactor();
-    }
-    
-    final Behaviour top = mind.topBehaviour();
-    if (subject == actionFocus() && top instanceof Plan) {
-      return ((Plan) top).harmFactor();
-    }
-    
-    return 0;
   }
   
   
@@ -524,13 +507,13 @@ public abstract class Actor extends Mobile implements
   public void attachDisguise(Sprite app) {
     viewPosition(sprite().position);
     viewPosition(app     .position);
-    world.ephemera.addGhost(this, 1, sprite(), 1.0f);
+    world.ephemera.addGhost(this, 1, sprite(), 1.0f, 1);
     this.disguise = app;
   }
   
   
   public void detachDisguise() {
-    world.ephemera.addGhost(this, 1, disguise, 1.0f);
+    world.ephemera.addGhost(this, 1, disguise, 1.0f, 1);
     this.disguise = null;
   }
   

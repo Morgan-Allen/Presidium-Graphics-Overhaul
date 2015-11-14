@@ -159,9 +159,9 @@ public class HumanMind extends ActorMind {
       final Actor nearby = (Actor) seen;
       choice.add(new Combat  (actor, nearby));
       choice.add(new FirstAid(actor, nearby));
-      choice.add(new Dialogue(actor, nearby));
       choice.add(new Arrest  (actor, nearby));
       
+      choice.add(Dialogue.dialogueFor(actor, nearby));
       //  TODO:  Restore this?
       //choice.add(Hunting.asHarvest(actor, nearby, home, true));
     }

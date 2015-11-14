@@ -126,24 +126,29 @@ public class Avrodil extends Fauna {
   
   final static ShotFX.Model
     WHIPLASH_MODEL = new ShotFX.Model(
-      "whiplash_fx", BASE_CLASS, FX_DIR+"whiplash_thrown.png",
+      "whiplash_fx", BASE_CLASS,
+      FX_DIR+"whiplash_thrown.png",
       -1, 0, 0.3f, 3.0f, false, false
     );
   final static PlaneFX.Model
     CAMO_CASTING_MODEL = PlaneFX.imageModel(
-      "camo_cast_fx", BASE_CLASS, FX_DIR+"camo_casting.png",
+      "camo_cast_fx", BASE_CLASS,
+      FX_DIR+"camo_casting.png",
       0.5f, 0, 0.2f, true, false
     ),
     WHIPLASH_BURST_MODEL = PlaneFX.imageModel(
-      "whip_burst_fx", BASE_CLASS, FX_DIR+"whiplash_burst.png",
+      "whip_burst_fx", BASE_CLASS,
+      FX_DIR+"whiplash_burst.png",
       0.5f, 0, 0, false, false
     ),
     POLLEN_BURST_MODEL = PlaneFX.imageModel(
-      "pollen_burst_fx", BASE_CLASS, FX_DIR+"pollen_burst.png",
+      "pollen_burst_fx", BASE_CLASS,
+      FX_DIR+"pollen_burst.png",
       1.0f, 0, 0.75f, false, false
     ),
     POLLEN_HAZE_MODEL = PlaneFX.animatedModel(
-      "pollen_haze_fx", BASE_CLASS, FX_DIR+"pollen_haze.png",
+      "pollen_haze_fx", BASE_CLASS,
+      FX_DIR+"pollen_haze.png",
       2, 2, 4, 1.0f, 0.25f
     );
   

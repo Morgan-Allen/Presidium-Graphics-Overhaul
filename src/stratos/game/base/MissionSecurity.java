@@ -95,7 +95,7 @@ public class MissionSecurity extends Mission {
     if (cached != null) return cached;
     //  TODO:  Implement item salvage?
     
-    final Patrolling patrol = Patrolling.aroundPerimeter(
+    final Patrolling patrol = Patrolling.protectionFor(
       actor, (Element) subject, 0
     );
     final float basePriority = basePriority(actor);

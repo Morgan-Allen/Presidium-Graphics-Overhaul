@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.solids;
 
 import stratos.graphics.common.*;
@@ -15,10 +18,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 
+
 public class SolidSprite extends Sprite {
   
   
-  final static float ANIM_INTRO_TIME = 0.2f;
+  final static float
+    ANIM_INTRO_TIME    = 0.2f,
+    ANIM_TIME_ENDPOINT = 0.9f;
+  
   private static boolean verbose = false;
   
   
@@ -29,7 +36,7 @@ public class SolidSprite extends Sprite {
   private int hideMask = 0;
   
   private static class AnimState {
-    Animation current;
+    Animation anim;
     float time, incept;
   }
   final Stack <AnimState> animStates = new Stack <AnimState> ();
@@ -68,7 +75,7 @@ public class SolidSprite extends Sprite {
     final float AT = Rendering.activeTime();
     out.write(animStates.size());
     for (AnimState state : animStates) {
-      out.writeInt  (model.indexFor(state.current));
+      out.writeInt  (model.indexFor(state.anim));
       out.writeFloat(state.time  );
       out.writeFloat(AT - state.incept);
     }
@@ -81,7 +88,7 @@ public class SolidSprite extends Sprite {
     final float AT = Rendering.activeTime();
     for (int n = in.read(); n-- > 0;) {
       final AnimState state = new AnimState();
-      state.current = model.gdxModel.animations.get(in.readInt());
+      state.anim = model.gdxModel.animations.get(in.readInt());
       state.time    = in.readFloat();
       state.incept  = AT - in.readFloat();
       animStates.add(state);
@@ -109,7 +116,7 @@ public class SolidSprite extends Sprite {
       for (AnimState state : animStates) {
         float alpha = (time - state.incept) / ANIM_INTRO_TIME;
         if (alpha >= 1) { validFrom = state; alpha = 1; }
-        model.animControl.apply(state.current, state.time, alpha);
+        model.animControl.apply(state.anim, state.time, alpha);
       }
       while (animStates.first() != validFrom) animStates.removeFirst();
     }
@@ -206,16 +213,18 @@ public class SolidSprite extends Sprite {
     
     AnimState topState = animStates.last();
     final boolean newState =
-      (animStates.size() == 0) ||
-      (topState.current != match);
+      animStates.empty() || (topState.anim != match) ||
+      (loop && topState.time > topState.anim.duration * ANIM_TIME_ENDPOINT);
     
     if (newState) {
-      topState = new AnimState();
-      topState.current = match;
+      topState        = new AnimState();
+      topState.anim   = match;
       topState.incept = Rendering.activeTime();
       animStates.addLast(topState);
     }
-    if (loop) topState.time = progress * match.duration;
+    if (loop) {
+      topState.time = progress * match.duration;
+    }
     else {
       final float minTime = progress * match.duration;
       if (minTime > topState.time) topState.time = minTime;

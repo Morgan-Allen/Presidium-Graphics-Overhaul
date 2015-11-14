@@ -94,6 +94,12 @@ public class ClaimsGrid {
   }
   
   
+  public boolean inWilds(Target t) {
+    final Base claims = baseClaiming(t);
+    return claims == null || claims.isPrimal();
+  }
+  
+  
   
   /**  Public methods for querying and asserting area-specific claims.
     */

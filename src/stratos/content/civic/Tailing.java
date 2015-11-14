@@ -141,7 +141,7 @@ public class Tailing extends Element implements Selectable {
     final Sprite oldSprite = sprite();
     attachModel(model);
     if (oldSprite != null && oldSprite.model() != model) {
-      world.ephemera.addGhost(this, 1, oldSprite, 0.5f);
+      world.ephemera.addGhost(this, 1, oldSprite, 0.5f, 1);
     }
   }
   

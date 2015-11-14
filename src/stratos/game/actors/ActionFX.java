@@ -120,7 +120,7 @@ public class ActionFX {
     uses.viewPosition(slashFX.position);
     slashFX.scale = r * 2;
     slashFX.position.z += uses.height() / 2;
-    world.ephemera.addGhost(uses, r, slashFX, 0.33f);
+    world.ephemera.addGhost(uses, r, slashFX, 0.33f, 1);
   }
   
   
@@ -163,13 +163,32 @@ public class ActionFX {
       "Size: "    , size
     );
     
-    world.ephemera.addGhost(null, size + 1, shot, duration);
+    world.ephemera.addGhost(null, size + 1, shot, duration, 1);
     return shot;
   }
   
   
   public static void applyBurstFX(
-    PlaneFX.Model model, Target point, float heightFraction, float duration
+    PlaneFX.Model model, Vec3D point,
+    float duration, float scale, float alpha, Stage world
+  ) {
+    final Sprite s = model.makeSprite();
+    s.position.setTo(point);
+    s.scale = scale;
+    world.ephemera.addGhost(null, 1, s, duration, alpha);
+  }
+  
+  
+  public static void applyBurstFX(
+    PlaneFX.Model model, Vec3D point, float duration, Stage world
+  ) {
+    applyBurstFX(model, point, duration, 1, 1, world);
+  }
+  
+  
+  public static void applyBurstFX(
+    PlaneFX.Model model, Target point,
+    float heightFraction, float scale, float alpha, float duration
   ) {
     final Vec3D pos;
     if (point instanceof Mobile) pos = ((Mobile) point).viewPosition(null);
@@ -178,23 +197,23 @@ public class ActionFX {
     
     final Sprite s = model.makeSprite();
     s.position.setTo(pos);
-    s.scale = point.radius() * 2;
-    point.world().ephemera.addGhost(point, 1, s, duration);
+    s.scale = scale * 2 * point.radius();
+    point.world().ephemera.addGhost(point, 1, s, duration, alpha);
   }
   
   
   public static void applyBurstFX(
-    PlaneFX.Model model, Vec3D point, float duration, Stage world
+    PlaneFX.Model model, Target point, float heightFraction, float duration
   ) {
-    final Sprite s = model.makeSprite();
-    s.position.setTo(point);
-    world.ephemera.addGhost(null, 1, s, duration);
+    applyBurstFX(model, point, heightFraction, 1, 1, duration);
   }
   
   
   public static void applyShieldFX(
     OutfitType type, Mobile uses, Target attackedBy, boolean hits
   ) {
+    //  TODO:  Allow a custom texture and offset to be applied here!
+    
     final Stage world = uses.world();
     final Stage.Visible visible = world.ephemera.matchGhost(
       uses, ShieldFX.SHIELD_MODEL
@@ -209,7 +228,7 @@ public class ActionFX {
       shieldFX.scale = 0.5f * uses.height();
       uses.viewPosition(shieldFX.position);
       shieldFX.position.z += uses.height() / 2;
-      world.ephemera.addGhost(uses, 1, shieldFX, 2);
+      world.ephemera.addGhost(uses, 1, shieldFX, 2, 1);
     }
     if (attackedBy != null) {
       shieldFX.attachBurstFromPoint(attackedBy.position(null), hits);

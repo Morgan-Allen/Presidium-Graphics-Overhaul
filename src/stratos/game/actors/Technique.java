@@ -367,8 +367,9 @@ public abstract class Technique extends Constant {
   public void applyEffect(
     Actor using, boolean success, Target subject, boolean passive
   ) {
-    if (! isPassiveAlways()) {
+    if (false && ! isPassiveAlways()) {
       I.say("\n"+using+" APPLIED TECHNIQUE: "+this+" TO: "+subject);
+      I.say("  Success: "+success+"  Passive: "+passive);
     }
   }
   

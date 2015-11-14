@@ -144,30 +144,32 @@ public class PlanUtils {
   /**  Dialogue priority.  Should range from 0 to 30.
     */
   public static float dialoguePriority(
-    Actor actor, Actor subject, float rewardBonus, float commChance
+    Actor actor, Actor subject, boolean casual,
+    float rewardBonus, float commChance
   ) {
     float liking = 0, novelty = 0, solitude = 0;
     float harmIntended = 0, baseNovelty = 0;
     float chatIncentive = 0, pleaIncentive = 0, priority = 0;
+
+    novelty = actor.relations.noveltyFor(subject);
+    if (casual && novelty <= 0) return 0;
     
-    final Relation r = actor.relations.relationWith(subject);
-    liking       = r == null ? 0 : r.value  ();
-    novelty      = r == null ? 1 : r.novelty();
+    liking       = actor.relations.valueFor  (subject);
     solitude     = actor.motives.solitude();
     harmIntended = Nums.clamp(harmIntendedBy(subject, actor, true), 0, 1);
     baseNovelty  = actor.relations.noveltyFor(subject.base());
     
     chatIncentive += (liking * 1) + ((novelty * 4) * (1 + liking) / 2);
-    if (r == null) chatIncentive *= solitude;
-    
-    pleaIncentive = (harmIntended * 10) + (baseNovelty * 10);
-    if (pleaIncentive > 0) pleaIncentive += 5;
-    
+    if (! casual) {
+      chatIncentive *= solitude * 2;
+      pleaIncentive = (harmIntended * 10) + (baseNovelty * 5) + (novelty * 5);
+    }
     priority = (chatIncentive + pleaIncentive + rewardBonus) * commChance;
-
+    
     if (reportOn(actor, priority)) I.reportVars(
       "\nDialogue priority for "+actor, "  ",
       "subject"      , subject,
+      "casual"       , casual,
       "reward"       , rewardBonus,
       "liking"       , liking,
       "novelty"      , novelty,
@@ -188,22 +190,24 @@ public class PlanUtils {
     */
   public static float supportPriority(
     Actor actor, Element subject, float rewardBonus,
-    float supportChance, float subjectDanger
+    float supportChance, float urgency
   ) {
     float incentive = 0, liking = 0, priority = 0, conscience;
     
     conscience = baseConscience(actor, subject);
     liking     = actor.relations.valueFor(subject);
-    incentive  = ((liking + conscience - 0.5f) * 10) * subjectDanger * 2;
+    incentive  = ((liking + conscience) * 5) * urgency * 2;
     incentive  += rewardBonus;
-    priority   = incentive * (supportChance + subjectDanger) / 2;
+    
+    if (liking < 0 && incentive < (1 - liking) * Plan.CASUAL) priority = 0;
+    else priority = incentive * (supportChance + urgency) / 2;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nSupport priority for "+actor, "  ",
       "subject"      , subject      ,
       "reward"       , rewardBonus  ,
       "supportChance", supportChance,
-      "subjectDanger", subjectDanger,
+      "urgency"      , urgency,
       "liking"       , liking       ,
       "conscience"   , conscience   ,
       "incentive"    , incentive    ,
@@ -547,8 +551,8 @@ public class PlanUtils {
       float otherValue  = witness.relations.valueFor(otherVictim );
       
       float harmMeant = Nums.max(
-        other.harmIntended(attackVictim) * attackValue,
-        other.harmIntended(otherVictim ) * otherValue
+        Plan.harmIntended(other, attackVictim) * attackValue,
+        Plan.harmIntended(other, otherVictim ) * otherValue
       );
       return harmMeant;
     }

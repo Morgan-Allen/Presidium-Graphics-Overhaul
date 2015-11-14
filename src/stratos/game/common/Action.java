@@ -326,8 +326,8 @@ public class Action implements Behaviour, AnimNames {
     //  We also need to calculate an appropriate maximum distance in order for
     //  the action to progress-
     float maxDist = 0.01f;
-    if (ranged()) maxDist += sightRange * (moveState == STATE_CLOSED ? 2 : 1);
-    else if (moveState == STATE_CLOSED) maxDist += progress + 0.5f;
+    if (ranged()) maxDist += sightRange * (moveState == STATE_CLOSED ? 1 : 0);
+    else if (moveState == STATE_CLOSED) maxDist += progress + 0.25f;
     
     //  In order for the action to execute, the actor must both be close enough
     //  to the target and facing in the right direction.  If the target is
@@ -368,6 +368,7 @@ public class Action implements Behaviour, AnimNames {
       closeOn = approaching ? actionTarget : step;
       facing = actor.pathing.facingTarget(closeOn);
     }
+    
     actor.pathing.updateTarget(pathsTo);
     
     if (report) {
@@ -419,11 +420,22 @@ public class Action implements Behaviour, AnimNames {
     }
     //
     //  If active updates to pathing & motion are called for, make them.
-    float moveRate = speedMultiple(actor, false) * actor.health.baseSpeed();
     if (active) {
+      float moveRate = speedMultiple(actor, false) * actor.health.baseSpeed();
       if (report) I.say("Move rate: "+moveRate);
+      
       actor.pathing.headTowards(closeOn, moveRate, 1, ! closed);
-      if (! closed) actor.pathing.applyMotionCollision(moveRate, actionTarget);
+      
+      if (report && Spacing.distance(actor, actionTarget) < 0) {
+        I.say("BUMP AFTER HEADING!");
+      }
+      
+      actor.pathing.applyMotionCollision(moveRate, actionTarget);
+      
+      if (report && Spacing.distance(actor, actionTarget) < 0) {
+        I.say("BUMP AFTER COLLISION!");
+      }
+      
       return moveRate;
     }
     else return 0;

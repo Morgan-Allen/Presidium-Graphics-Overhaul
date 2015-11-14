@@ -21,14 +21,33 @@ public class Relation {
     TYPE_PARENT  = 2,
     TYPE_SPOUSE  = 3,
     TYPE_SIBLING = 4,
-    TYPE_LORD    = 5,
-    TYPE_VASSAL  = 6,
+    TYPE_MASTER  = 5,
+    TYPE_SERVANT = 6,
     
     TYPE_TRADED  = 7,
     TYPE_GEAR    = 8;
+  
+  final static String TYPE_DESCRIPTORS[] = {
+    "Generic",
+    "Child", "Parent", "Spouse", "Sibling",
+    "Master", "Servant", "Traded", "Gear"
+  };
+  
   final static float
     MIN_ADJUST   = 0.1f,
     MAX_VALUE    = 100 ;
+
+  final static String AFFECT_DESCRIPTORS[] = {
+    "Soulmate"  ,
+    "Close"     ,
+    "Friendly"  ,
+    "Civil"     ,
+    "Ambivalent",
+    "Tense"     ,
+    "Strained"  ,
+    "Hostile"   ,
+    "Nemesis"   ,
+  };
   
   private static boolean verbose = false;
   
@@ -166,23 +185,20 @@ public class Relation {
   
   /**  Interface and printout methods-
     */
-  final static String DESCRIPTORS[] = {
-    "Soulmate",
-    "Close",
-    "Friendly",
-    "Civil",
-    "Ambivalent",
-    "Tense",
-    "Strained",
-    "Hostile",
-    "Nemesis"
-  };
-  
   public static String describe(Relation r) {
     if (r == null) return "None";
+    
+    final String affectDesc;
     final float level = (MAX_VALUE - r.attitude) / (MAX_VALUE * 2);
-    final int DL = DESCRIPTORS.length;
-    return DESCRIPTORS[Nums.clamp((int) (level * DL), DL)];
+    final int DL = AFFECT_DESCRIPTORS.length;
+    affectDesc = AFFECT_DESCRIPTORS[Nums.clamp((int) (level * DL), DL)];
+    
+    if (r.type != TYPE_GENERIC) {
+      return TYPE_DESCRIPTORS[r.type]+", "+affectDesc;
+    }
+    else {
+      return affectDesc;
+    }
   }
   
   
@@ -190,6 +206,15 @@ public class Relation {
     return describe(this)+" relation between "+object+" and "+subject;
   }
 }
+
+
+
+
+
+
+
+
+
 
 
 

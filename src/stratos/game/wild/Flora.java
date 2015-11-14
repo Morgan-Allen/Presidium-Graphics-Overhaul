@@ -396,7 +396,7 @@ public class Flora extends Element implements TileConstants {
     if (oldSprite != null && model == oldSprite.model()) return;
     
     attachSprite(model.makeSprite());
-    if (oldSprite != null) world.ephemera.addGhost(this, 1, oldSprite, 2.0f);
+    if (oldSprite != null) world.ephemera.addGhost(this, 1, oldSprite, 2.0f, 1);
   }
   
   

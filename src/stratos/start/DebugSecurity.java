@@ -117,7 +117,7 @@ public class DebugSecurity extends Scenario {
     Actor meets = new Human(Backgrounds.VOLUNTEER, base);
     meets.enterWorldAt(18, 27, world);
     
-    meets.mind.assignBehaviour(Patrolling.aroundPerimeter(
+    meets.mind.assignBehaviour(Patrolling.protectionFor(
       meets, raids, Plan.ROUTINE
     ));
     //*/

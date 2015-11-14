@@ -433,8 +433,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public Plan setMotivesFrom(Plan parent, float bonus) {
-    this.properties = parent.properties;
-    this.motiveBonus      = parent.motiveBonus + bonus;
+    this.properties  = parent.properties;
+    this.motiveBonus = parent.motiveBonus + bonus;
     this.lastEvalTime = -1;
     return this;
   }
@@ -459,9 +459,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  //  TODO:  This should be used to replace the skills handed over.
   //  TODO:  Consider making this abstract?
-  public float successChanceFor(Actor actor) { return 1; }
+  public float successChanceFor(Actor actor) {
+    return 1;
+  }
   
   //  TODO:  This also needs to be automated.
   protected void setCompetence(float c) {
@@ -484,6 +485,20 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   /**  Various utility methods, such as for application to generic Behaviours-
     */
+  public static float harmIntended(Actor actor, Target toward) {
+    if (toward == null) return 0;
+    final Behaviour root = actor.mind.rootBehaviour();
+    if (! (root instanceof Plan)) return 0;
+    return ((Plan) root).harmIntended(toward);
+  }
+  
+  
+  public float harmIntended(Target t) {
+    if (t == subject || t == actionFocus()) return harmFactor;
+    return 0;
+  }
+  
+  
   public static boolean canFollow(Actor a, Behaviour b, boolean checkPriority) {
     if (b == null || ! b.valid()) return false;
     if (b.finished() || b.nextStepFor(a) == null) {

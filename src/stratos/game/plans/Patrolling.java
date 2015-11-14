@@ -23,7 +23,7 @@ public class Patrolling extends Plan implements TileConstants {
   /**  Fields, constructors, and save/load methods-
     */
   final static int
-    TYPE_SECURITY      = 0,
+    TYPE_PROTECTION    = 0,
     TYPE_STREET_PATROL = 1,
     TYPE_SENTRY_DUTY   = 2;
   final static int
@@ -87,24 +87,25 @@ public class Patrolling extends Plan implements TileConstants {
   protected float getPriority() {
     if (onPoint == null || patrolled.size() == 0) return 0;
     
-    float urgency, relDanger = 0, modifier;
+    float urgency, avgDanger = 0, modifier;
     if (actor.base() != null) for (Target t : patrolled) {
-      relDanger += actor.base().dangerMap.sampleAround(t, Stage.ZONE_SIZE);
+      avgDanger += actor.base().dangerMap.sampleAround(t, Stage.ZONE_SIZE);
     }
-    urgency = Nums.clamp(relDanger / patrolled.size(), 0, 1);
-    modifier = 0 - actor.senses.fearLevel();
+    avgDanger = Nums.clamp(avgDanger / patrolled.size(), 0, 2);
+    urgency   = avgDanger;
+    modifier  = 0 - actor.senses.fearLevel();
+    
+    //
+    //  TODO:  Include bonus from first aid or assembly skills, depending on the
+    //  target and damage done?  (Or not.)
     
     if (! PlanUtils.isArmed(actor)) setCompetence(0);
     else setCompetence(successChanceFor(actor));
     toggleMotives(MOTIVE_EMERGENCY, PlanUtils.underAttack(guarded));
     
-    //
-    //  TODO:  Include bonus from first aid or assembly skills, depending on the
-    //  target and damage done?
-    
     final float priority = PlanUtils.jobPlanPriority(
       actor, this, urgency + modifier, competence(),
-      -1, Plan.REAL_FAIL_RISK, BASE_TRAITS
+      -1, Plan.REAL_FAIL_RISK * avgDanger, BASE_TRAITS
     );
     return priority;
   }
@@ -112,8 +113,9 @@ public class Patrolling extends Plan implements TileConstants {
   
   public float successChanceFor(Actor actor) {
     
+    //
     //  TODO:  Include bonus from first aid or assembly skills, depending on the
-    //  target and damage done.
+    //  target and damage done?  (Or not.)
     
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
     final Tile under = actor.world().tileAt(guarded);
@@ -184,7 +186,7 @@ public class Patrolling extends Plan implements TileConstants {
       final Pathing p = ((Mobile) onPoint).pathing;
       final Target ahead = p == null ? onPoint : p.stepsAhead(2, true);
       
-      Tile open = Spacing.pickRandomTile(ahead, range / 2, actor.world());
+      Tile open = Spacing.pickRandomTile(ahead, 2, actor.world());
       open = Spacing.nearestOpenTile(open, actor);
       if (open == null) { interrupt(INTERRUPT_CANCEL); return null; }
       else stop = open;
@@ -278,14 +280,14 @@ public class Patrolling extends Plan implements TileConstants {
   
   /**  External factory methods-
     */
-  public static Patrolling aroundPerimeter(
+  public static Patrolling protectionFor(
     Actor actor, Element guarded, float priority
   ) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next perimeter patrol for "+actor);
     
     final Stage world = actor.world();
-    final List <Target> patrolled = new List <Target> ();
+    final List <Target> patrolled = new List();
     
     if (guarded.isMobile()) {
       patrolled.add(guarded);
@@ -310,7 +312,7 @@ public class Patrolling extends Plan implements TileConstants {
       }
     }
     
-    Patrolling p = new Patrolling(actor, guarded, patrolled, TYPE_SECURITY);
+    Patrolling p = new Patrolling(actor, guarded, patrolled, TYPE_PROTECTION);
     return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
   }
   
@@ -407,7 +409,7 @@ public class Patrolling extends Plan implements TileConstants {
     if (report) I.say("  Venue picked: "+pick);
     
     if (pick == null) return null;
-    return Patrolling.aroundPerimeter(actor, pick, priority);
+    return Patrolling.streetPatrol(actor, pick, pick, priority);
   }
   
   
@@ -434,17 +436,28 @@ public class Patrolling extends Plan implements TileConstants {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (type == TYPE_SECURITY) {
-      d.append("Patrolling around ");
+    if (type == TYPE_PROTECTION) {
+      d.append("Guarding ");
       d.append(guarded);
     }
     if (type == TYPE_STREET_PATROL || type == TYPE_SENTRY_DUTY) {
-      d.append("Patrolling between ");
-      d.append(guarded); d.append(" and ");
-      d.append(patrolled.last());
+      if (patrolled.size() == 1) {
+        d.appendAll("Patrolling around ", guarded);
+      }
+      else {
+        d.append("Patrolling between ");
+        d.append(guarded);
+        d.append(" and ");
+        d.append(patrolled.last());
+      }
     }
   }
 }
+
+
+
+
+
 
 
 

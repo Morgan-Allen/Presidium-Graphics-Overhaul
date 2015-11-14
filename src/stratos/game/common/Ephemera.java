@@ -91,7 +91,9 @@ public class Ephemera {
   }
   
   
-  public Ghost addGhost(Target e, float size, Sprite s, float duration) {
+  public Ghost addGhost(
+    Target e, float size, Sprite s, float duration, float alpha
+  ) {
     if (s == null) return null;
     final Ghost ghost = new Ghost();
     
@@ -108,9 +110,13 @@ public class Ephemera {
       ghost.offset.sub(s.position).scale(-1);
     }
     
+    if (alpha < 1) {
+      ghost.inceptTime -= duration * (1 - alpha);
+    }
+    
     final StageRegion section = world.regions.regionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
-    if (SG == null) ghosts.put(section, SG = new List <Ghost> ());
+    if (SG == null) ghosts.put(section, SG = new List());
     SG.add(ghost);
     return ghost;
   }
@@ -141,7 +147,7 @@ public class Ephemera {
     //  element and using the same sprite-model.  If so, turn back the incept
     //  time.  Otherwise, initialise (and do the same.)
     Ghost match = matchGhost(e, m);
-    if (match == null) match = addGhost(e, size, m.makeSprite(), duration);
+    if (match == null) match = addGhost(e, size, m.makeSprite(), duration, 1);
     match.inceptTime = world.currentTime() + duration;
   }
   

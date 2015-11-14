@@ -273,11 +273,14 @@ public class ActorDescription {
     };
     Visit.appendTo(sorting, h.relations.personRelations());
     sorting.queueSort();
+    Visit.appendTo(sorting, h.relations.baseRelations());
     
     d.append("Relationships: ");
     for (Relation r : sorting) {
+      if (r.subject == h.base() || r.value() == 0) continue;
       d.append("\n  ");
       d.append(r.subject);
+      
       if (showRelations) {
         final int percent = (int) (r.value() * 100);
         d.append(" "+percent+"%");
@@ -317,43 +320,46 @@ public class ActorDescription {
     Actor actor, SelectionPane panel, BaseUI UI
   ) {
     if (panel == null) panel = new SelectionPane(
-      UI, actor, actor.portrait(UI), true
+      UI, actor, actor.portrait(UI), false
     );
-    final Description d = panel.detail(), l = panel.listing();
+    final Description d = panel.detail();//, l = panel.listing();
     
     final ActorDescription HD = new ActorDescription(actor);
     HD.describeStatus(d, UI);
     
+    d.append("\n\n");
+    d.append(actor.species().info, Colour.LITE_GREY);
+    
     final Batch <Skill> skills = actor.traits.skillSet();
     if (skills.size() > 0) {
-      l.append("\n\nSkills: ");
+      d.append("\n\nSkills: ");
       for (Skill skill : skills) {
         final int level = (int) actor.traits.traitLevel(skill);
-        l.append("\n  "+skill.name+" "+level+" ");
-        l.append(Skill.skillDesc(level), Skill.skillTone(level));
+        d.append("\n  "+skill.name+" "+level+" ");
+        d.append(Skill.skillDesc(level), Skill.skillTone(level));
       }
     }
     
     final Series <Technique> known = actor.skills.knownTechniques();
     if (known.size() > 0) {
-      l.append("\n\nTechniques: ");
+      d.append("\n\nTechniques: ");
       for (Technique p : known) {
-        l.append("\n  ");
-        l.append(p);
+        d.append("\n  ");
+        d.append(p);
       }
     }
     
     final Series <Item> carried = actor.gear.allItems();
     if (carried.size() > 0) {
-      l.append("\n\nCarried: ");
+      d.append("\n\nCarried: ");
       for (Item item : carried) {
-        l.append("\n  ");
-        item.type.describeFor(actor, item, l);
+        d.append("\n  ");
+        item.type.describeFor(actor, item, d);
       }
     }
     
-    l.append("\n\n");
-    l.append(actor.species().info, Colour.LITE_GREY);
+    d.append("\n\n");
+    HD.describeRelations(d, UI);
     
     return panel;
   }

@@ -100,7 +100,7 @@ public class DebugSocial extends Scenario {
     a1.motives.setSolitude(1);
     a2.motives.setSolitude(1);
     
-    final Dialogue d = new Dialogue(a1, a2);
+    final Dialogue d = Dialogue.dialogueFor(a1, a2);
     a1.mind.assignBehaviour(d);
     UI.selection.pushSelection(a1);
     

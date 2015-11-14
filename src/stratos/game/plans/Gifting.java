@@ -94,7 +94,7 @@ public class Gifting extends Plan {
       modifier += (novelty + rating) * ROUTINE;
     }
     
-    return PlanUtils.dialoguePriority(actor, receives, modifier, 1);
+    return PlanUtils.dialoguePriority(actor, receives, false, modifier, 1);
   }
   
   
@@ -169,7 +169,7 @@ public class Gifting extends Plan {
     if (report) I.say("\nGetting next gift from "+buys+" for "+receives);
     
     if (buys.mind.hasToDo(Gifting.class)) return null;
-    final Dialogue d = new Dialogue(buys, receives);
+    final Dialogue d = Dialogue.dialogueFor(buys, receives);
     if (parent != null) d.setMotivesFrom(parent, 0);
     if (d.priorityFor(buys) <= 0) return null;
     

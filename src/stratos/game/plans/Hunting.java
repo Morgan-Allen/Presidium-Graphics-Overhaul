@@ -58,13 +58,9 @@ public class Hunting extends Plan {
   }
   
   
-  public static Hunting asHarvest(
-    Actor actor, Actor prey, Owner depot, boolean hungry
-  ) {
-    if (depot == null) return null;
-    final float hunger = actor.health.hungerLevel() * Plan.PARAMOUNT;
-    final Hunting h = new Hunting(actor, prey, TYPE_HARVEST, depot);
-    return (Hunting) h.addMotives(Plan.MOTIVE_EMERGENCY, hunger);
+  public static Hunting asHarvest(Actor actor, Actor prey, Owner depot) {
+    if (depot == null) I.complain("NO DEPOT SPECIFIED!");
+    return new Hunting(actor, prey, TYPE_HARVEST, depot);
   }
   
   
@@ -121,7 +117,7 @@ public class Hunting extends Plan {
     final boolean alive = preyIsLive(prey);
     final float hunger = hunts.health.hungerLevel();
     
-    if (a.species() == hunts.species()) {
+    if (a.species() == hunts.species() || ! a.species().animal()) {
       if (hunger < 1) return false;
     }
     if (alive && ! a.species().preyedOn()) {
@@ -210,6 +206,12 @@ public class Hunting extends Plan {
       if (actor.gear.hasItem(sample())) return true;
     }
     return super.valid();
+  }
+  
+  
+  public float harmIntended(Target t) {
+    if (t == depot) return 0;
+    return super.harmIntended(t);
   }
   
   

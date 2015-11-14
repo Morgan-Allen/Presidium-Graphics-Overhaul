@@ -237,13 +237,14 @@ public class Combat extends Plan {
     Actor a, Target struck, boolean razes, boolean melee, float danger
   ) {
     final float range    = actor.health.sightRange();
-    final float distance = Spacing.distance(actor, struck) / range;
+    final float distance = Spacing.distance(actor, struck);
     
     if (melee || distance > range              ) return null;
     if (   razes  && Rand.num() < 0.9f         ) return null;
     if ((! razes) && (! a.senses.underAttack())) return null;
     
-    float dodgeChance = danger * 2 / (1 + distance);
+    float dodgeChance = danger * 2 / (1 + (distance / range));
+    if (distance <= 1) dodgeChance = 1;
     dodgeChance = Nums.clamp(dodgeChance, 0.25f, 0.75f);
     if (Rand.num() > dodgeChance) return null;
     

@@ -108,7 +108,8 @@ public class ActorHealth {
     bleeds = false;
   private float
     morale        = MAX_MORALE / 2f,
-    concentration = BASE_CONCENTRATION;
+    concentration = BASE_CONCENTRATION,
+    stressPenalty = 0;
   //  TODO:  Need for sleep.
   
   private int
@@ -118,7 +119,7 @@ public class ActorHealth {
   
   //
   //  I don't save/load these, since they refresh frequently anyway...
-  private float stressCache = -1;
+  ///private float stressCache = -1;
   
   
   
@@ -506,6 +507,11 @@ public class ActorHealth {
   }
   
   
+  public float concentrationLevel() {
+    return concentration / BASE_CONCENTRATION;
+  }
+  
+  
   
   /**  Updates and internal state changes-
     */
@@ -530,27 +536,7 @@ public class ActorHealth {
   
   
   public float stressPenalty() {
-    if (stressCache != -1) return stressCache;
-    if (! organic()) return stressCache = 0;
-    
-    float disease = 0;
-    for (Trait t : ALL_CONDITIONS) {
-      disease += ((Condition) t).virulence * actor.traits.traitLevel(t) / 100f;
-    }
-    
-    float sum = 0;
-    sum += injuryLevel ();
-    sum += fatigueLevel();
-    sum += hungerLevel ();
-    
-    sum -= (bleeds ? 0 : 0.25f) - disease;
-    sum -= Nums.clamp(moraleLevel(), -0.5f, 0.5f);
-    
-    if (sum > 0) {
-      sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0, null);
-    }
-    
-    return stressCache = Nums.clamp(sum, 0, 1);
+    return stressPenalty;
   }
   
   
@@ -585,9 +571,9 @@ public class ActorHealth {
     }
     
     //  Deal with injury, fatigue and stress.
-    stressCache = -1;
     checkStateChange();
     updateStresses();
+    calcStressPenalty();
     advanceAge(numUpdates);
   }
   
@@ -718,7 +704,6 @@ public class ActorHealth {
     conRegen      *= (10 + actor.traits.usedLevel(NERVE)) / 20;
     maxCon        *= Nums.clamp((1 - stress) * PM * 2, 0, 1);
     concentration =  Nums.clamp(concentration + conRegen, 0, maxCon);
-    
     if (report) {
       I.say("  Fatigue multiple: "+FM+", fatigue: "+fatigue);
       I.say("  Injury  multiple: "+IM+", injury:  "+injury);
@@ -726,6 +711,27 @@ public class ActorHealth {
       I.say("  Concentration multiple: "+PM+", regen: "+conRegen);
       I.say("  Concentration: "+concentration+"/"+maxCon);
     }
+  }
+  
+  
+  private void calcStressPenalty() {
+    if (! organic()) { stressPenalty = 0; return; }
+    
+    float disease = 0;
+    for (Trait t : ALL_CONDITIONS) {
+      disease += ((Condition) t).virulence * actor.traits.traitLevel(t) / 100f;
+    }
+    
+    float sum = 0;
+    sum += injuryLevel ();
+    sum += fatigueLevel();
+    sum += hungerLevel ();
+    
+    sum -= (bleeds ? 0 : 0.25f) - disease;
+    sum -= Nums.clamp(moraleLevel(), -0.5f, 0.5f);
+    sum -= actor.skills.test(NERVE, null, null, sum * 10, 1, 0, null);
+    
+    stressPenalty = Nums.clamp(sum, 0, 1);
   }
   
   

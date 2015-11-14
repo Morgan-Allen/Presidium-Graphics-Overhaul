@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
-import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -14,6 +13,9 @@ import stratos.game.plans.*;
 import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.content.wip.*;
+import stratos.content.abilities.EcologistTechniques;
+import stratos.content.civic.*;
 
 
 
@@ -56,7 +58,7 @@ public class DebugEcology extends Scenario {
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    Flora.populateFlora(world);
+    //Flora.populateFlora(world);
     return world;
   }
   
@@ -71,13 +73,39 @@ public class DebugEcology extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
-    GameSettings.noChat    = true;
     
-    if (true ) speciesPlaceTest     (world, base, UI);
+    if (true ) tendingFaunaTest     (world, base, UI);
+    if (false) speciesPlaceTest     (world, base, UI);
     if (false) nestPlaceTest        (world, base, UI);
     if (false) configHuntingScenario(world, base, UI);
     if (false) configHarvestScenario(world, base, UI);
     if (false) configReactionsTest  (world, base, UI);
+  }
+  
+  
+  private void tendingFaunaTest(Stage world, Base base, BaseUI UI) {
+    
+    Base wildlife = Base.wildlife(world);
+    Fauna fauna = (Fauna) Lictovore.SPECIES.sampleFor(wildlife);
+    //fallen.health.setInjuryLevel(0.75f);
+    //fallen.health.setFatigueLevel(0.75f);
+    //fallen.health.setState(ActorHealth.STATE_RESTING);
+    fauna.enterWorldAt(12, 12, world, true);
+    
+    Actor meets = new Human(Backgrounds.ECOLOGIST, base);
+    meets.skills.addTechniques(EcologistTechniques.ECOLOGIST_TECHNIQUES);
+    meets.enterWorldAt(9, 9, world, true);
+    
+    //meets.mind.assignBehaviour(Dialogue.dialogueFor(meets, fauna));
+    UI.selection.pushSelection(meets);
+    
+    /*
+    Venue station = new EcologistRedoubt(base);
+    SiteUtils.establishVenue(station, 4, 4, true, world);
+    base.setup.fillVacancies(station, true);
+    
+    UI.selection.pushSelection(station.staff.workers().first());
+    //*/
   }
   
   
@@ -139,7 +167,7 @@ public class DebugEcology extends Scenario {
     prey.health.setupHealth(0.5f, 1, 0);
     prey.health.takeInjury(100, false);
     
-    Hunting harvest = Hunting.asHarvest(tracks, prey, lodge, false);
+    Hunting harvest = Hunting.asHarvest(tracks, prey, lodge);
     harvest.addMotives(Plan.MOTIVE_JOB, 100);
     tracks.mind.assignBehaviour(harvest);
   }

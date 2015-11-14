@@ -320,7 +320,7 @@ public class Generator extends Venue {
       blastFX.scale = this.size * (multFX + 1) / 3f;
       blastFX.timeScale = 2.0f;
       this.viewPosition(blastFX.position);
-      world.ephemera.addGhost(null, blastFX.scale, blastFX, 2.0f);
+      world.ephemera.addGhost(null, blastFX.scale, blastFX, 2.0f, 1);
     }
   }
   

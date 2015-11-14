@@ -6,6 +6,7 @@
 package stratos.content.civic;
 import stratos.content.abilities.EcologistTechniques;
 import stratos.game.actors.*;
+import stratos.game.base.Pledge;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
@@ -174,19 +175,36 @@ public class EcologistRedoubt extends Venue implements Captivity {
     //  TODO:  Include animal-breeding and culling if necessary.
     //  TODO:  Allow agents to drop off wounded animals here.
     
-    final Batch <Target> animals = new Batch();
-    //  TODO:  Allow automatic sampling to include actor-senses.
-    world.presences.sampleFromMap(actor, world, 5, animals, Mobile.class);
-
-    for (Target t : animals) if (Hunting.validPrey(t, actor)) {
-      final Fauna f = (Fauna) t;
+    final Batch <Target> sampled = new Batch();
+    world.presences.sampleFromMap(actor, world, 5, sampled, Mobile.class);
+    Visit.appendTo(sampled, inside());
+    
+    for (Target t : sampled) if (t instanceof Fauna) {
+      final Fauna fauna = (Fauna) t;
+      final boolean domestic = fauna.base() == base;
       
-      final Item sample = Item.withReference(GENE_SEED, f.species());
-      if (stocks.hasItem(sample)) continue;
-      else choice.add(Hunting.asSample(actor, f, this));
-      
-      //  TODO:  Include contact/dialogue-missions of some kind here.
+      if (domestic) {
+        choice.add(new AnimalTending(actor, fauna, this));
+      }
+      else {
+        final Item sample = Item.withReference(GENE_SEED, fauna.species());
+        if (stocks.hasItem(sample)) continue;
+        else choice.add(Hunting.asSample(actor, fauna, this));
+        choice.add(Hunting.asHarvest(actor, fauna, this));
+        
+        
+        
+        /*
+        Proposal prop = new Proposal(actor, fauna);
+        prop.setTerms(
+          Pledge.giftPledge(item, depot, from, to),
+          Pledge.joinBasePledge(fauna, base)
+        );
+        //*/
+      }
     }
+    
+    //  TODO:  Include contact-missions for natives?
     
     //  TODO:  Just use seed-tailoring here (or possibly at the ecologist
     //  station.)  Then release it to live here.

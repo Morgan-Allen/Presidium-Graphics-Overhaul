@@ -208,7 +208,7 @@ public class KommandoRedoubt extends Venue {
     for (Target t : actor.senses.awareOf()) prey.add(t);
     
     for (Target t : prey) if (Hunting.validPrey(t, actor)) {
-      final Hunting h = Hunting.asHarvest(actor, (Actor) t, this, false);
+      final Hunting h = Hunting.asHarvest(actor, (Actor) t, this);
       h.addMotives(Plan.MOTIVE_JOB, meatNeed * Plan.ROUTINE);
       choice.add(h);
     }

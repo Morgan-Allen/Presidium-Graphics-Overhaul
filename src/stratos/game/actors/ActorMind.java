@@ -26,7 +26,6 @@ public abstract class ActorMind {
   
   
   final protected Actor actor;
-  protected Actor master;
   
   final List <Behaviour> agenda   = new List <Behaviour> ();
   final List <Behaviour> todoList = new List <Behaviour> ();
@@ -43,8 +42,6 @@ public abstract class ActorMind {
   
   
   public void loadState(Session s) throws Exception {
-    master = (Actor) s.loadObject();
-    
     s.loadObjects(agenda  );
     s.loadObjects(todoList);
     
@@ -56,8 +53,6 @@ public abstract class ActorMind {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(master);
-    
     s.saveObjects(agenda  );
     s.saveObjects(todoList);
     
@@ -69,15 +64,11 @@ public abstract class ActorMind {
   
   
   public void onWorldExit() {
-    //  TODO:  DETACH ALL MEMORIES TO AVOID INDEFINITE REFERENCE-CHAINS FROM
-    //         DEAD OBJECTS!
-    
-    //actor.relations.clearAll();
-    //  etc...
     setWork(null);
     setHome(null);
     assignMission(null);
-    assignMaster(null);
+    clearAgenda();
+    actor.relations.clearAll();
   }
   
   
@@ -282,16 +273,6 @@ public abstract class ActorMind {
   
   /**  Setting home and work venues & applications, plus missions-
     */
-  public void assignMaster(Actor master) {
-    this.master = master;
-  }
-  
-  
-  public Actor master() {
-    return master;
-  }
-  
-  
   public void assignMission(Mission mission) {
     final Mission oldMission = this.mission;
     if (mission == oldMission) return;
@@ -458,7 +439,7 @@ public abstract class ActorMind {
   
   public boolean mustIgnore(Behaviour next) {
     if (! actor.health.conscious()) return true;
-    final boolean report = decisionVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && decisionVerbose;
     return Choice.wouldSwitch(actor, next, rootBehaviour(), false, report);
   }
   

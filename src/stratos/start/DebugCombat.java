@@ -145,17 +145,17 @@ public class DebugCombat extends Scenario {
       new Background[] { TROOPER },
       TrooperTechniques.TROOPER_TECHNIQUES,
       new Species[] { Drone.SPECIES, Drone.SPECIES, Drone.SPECIES },
-      Base.artilects(world)
+      Base.artilects(world), true
     );
     //*/
     
     //*
     setupCombatScenario(
       world, base, UI,
-      new Background[] { ECOLOGIST, TROOPER },
+      new Background[] { TROOPER },
       null,//EcologistTechniques.ECOLOGIST_TECHNIQUES,
-      new Species[] { Roachman.SPECIES, Roachman.SPECIES },
-      Base.vermin(world)
+      new Species[] { Roachman.SPECIES },
+      Base.vermin(world), true
     );
     //*/
     
@@ -165,7 +165,7 @@ public class DebugCombat extends Scenario {
       new Background[] { RUNNER, RUNNER },
       RunnerTechniques.RUNNER_TECHNIQUES,
       new Species[] { Tripod.SPECIES },
-      Base.artilects(world)
+      Base.artilects(world), true
     );
     //*/
     
@@ -175,7 +175,7 @@ public class DebugCombat extends Scenario {
       new Background[] { PHYSICIAN, TROOPER, TROOPER },
       PhysicianTechniques.PHYSICIAN_TECHNIQUES,
       new Species[] { Yamagur.SPECIES },
-      Base.wildlife(world)
+      Base.wildlife(world), true
     );
     //*/
   }
@@ -184,10 +184,8 @@ public class DebugCombat extends Scenario {
   private void setupCombatScenario(
     Stage world, Base base, BaseUI UI,
     Background selfTypes[], Technique techniques[],
-    Species otherTypes[], Base otherBase
+    Species otherTypes[], Base otherBase, boolean otherFights
   ) {
-    //base.relations.setRelation(otherBase, -1, true);
-    
     Batch <Actor> soldiers = new Batch();
     Background mainType = selfTypes[0];
     Venue lair = null;
@@ -213,13 +211,8 @@ public class DebugCombat extends Scenario {
     
     if (otherTypes != null) for (Background b : otherTypes) {
       Actor other = b.sampleFor(otherBase);
-      other.enterWorldAt(5 + Rand.index(3), 5 + Rand.index(3), world);
+      other.enterWorldAt(9 + Rand.index(3), 9 + Rand.index(3), world);
       other.health.setMaturity(0.8f);
-      
-      final Actor  enemy = (Actor) Rand.pickFrom(soldiers);
-      final Combat c     = new Combat(other, enemy);
-      c.addMotives(Plan.NO_PROPERTIES, Plan.PARAMOUNT);
-      other.mind.assignBehaviour(c);
       
       if (lair == null) {
         lair = NestUtils.createNestFor(other);
@@ -231,8 +224,23 @@ public class DebugCombat extends Scenario {
       if (lair != null) {
         other.mind.setHome(lair);
       }
-      
-      UI.selection.pushSelection(other);
+
+      final Actor enemy = (Actor) Rand.pickFrom(soldiers);
+      if (otherFights) {
+        final Combat c = new Combat(other, enemy);
+        c.addMotives(Plan.NO_PROPERTIES, Plan.PARAMOUNT);
+        other.mind.assignBehaviour(c);
+        UI.selection.pushSelection(enemy);
+      }
+      else {
+        final Combat c = new Combat(enemy, other);
+        c.addMotives(Plan.NO_PROPERTIES, Plan.PARAMOUNT);
+        enemy.mind.assignBehaviour(c);
+        final Retreat r = new Retreat(other, lair);
+        r.addMotives(Plan.NO_PROPERTIES, Plan.PARAMOUNT);
+        other.mind.assignBehaviour(r);
+        UI.selection.pushSelection(other);
+      }
     }
   }
   

@@ -125,7 +125,7 @@ public class InstallPane extends SelectionPane {
     
     for (Blueprint b : allBlueprints) {
       if (b.icon == null || b.baseUpgrade() == null) continue;
-      if (! b.baseUpgrade().hasRequirements(base)) continue;
+      //if (! b.baseUpgrade().hasRequirements(base)) continue;
       
       if (report) I.say("  "+b);
       
@@ -155,7 +155,7 @@ public class InstallPane extends SelectionPane {
     
     for (Blueprint b : listed) {
       ++numInRow;
-      if (numInRow > 4 && (numInRow % MAX_IN_ROW) == 1) {
+      if (numInRow > MAX_IN_ROW && (numInRow % MAX_IN_ROW) == 1) {
         detailText.append("\n\n");
       }
       describeVenueOptions(b, detailText, base);
@@ -224,6 +224,13 @@ public class InstallPane extends SelectionPane {
         15, 15, type, false, text
       );
     }
+    
+    text.append("\n     ");
+    text.append(new Description.Link("Remove Type") {
+      public void whenClicked() {
+        allBlueprints.remove(type);
+      }
+    });
     
     text.append("\n\n");
     text.append(type.description);

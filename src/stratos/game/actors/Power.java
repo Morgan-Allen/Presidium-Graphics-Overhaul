@@ -389,12 +389,12 @@ public abstract class Power extends Technique {
         final Sprite swirlFX = REMOTE_VIEWING_FX_MODEL.makeSprite();
         swirlFX.scale = SS / 2;
         swirlFX.position.setTo(p);
-        tile.world.ephemera.addGhost(null, SS, swirlFX, 1.0f);
+        tile.world.ephemera.addGhost(null, SS, swirlFX, 1.0f, 1);
         
         final Sprite burstFX = LIGHT_BURST_MODEL.makeSprite();
         burstFX.scale = SS / 2;
         burstFX.position.setTo(p);
-        tile.world.ephemera.addGhost(null, SS, burstFX, 2.0f);
+        tile.world.ephemera.addGhost(null, SS, burstFX, 2.0f, 1);
         
         return true;
       }
@@ -647,9 +647,7 @@ public abstract class Power extends Technique {
           command = new FirstAid(affects, (Actor) selected);
         }
         if (option == options[3] && selected instanceof Actor) {
-          command = new Dialogue(
-            affects, (Actor) selected, Dialogue.TYPE_CONTACT
-          );
+          command = Dialogue.dialogueFor(affects, (Actor) selected);
         }
         if (command == null) return true;
         
@@ -714,7 +712,7 @@ public abstract class Power extends Technique {
         selectFX.scale = scale * selected.radius() * 2;
         selected.position(selectFX.position);
         selected.world().ephemera.addGhost(
-          selected, 1, selectFX, 0.5f
+          selected, 1, selectFX, 0.5f, 1
         );
       }
     }

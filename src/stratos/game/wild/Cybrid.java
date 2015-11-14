@@ -90,11 +90,6 @@ public class Cybrid extends Artilect {
       protected void addReactions(Target seen, Choice choice) {
         super.addReactions(seen, choice);
       }
-      
-      public void assignMaster(Actor master) {
-        // TODO Auto-generated method stub
-        super.assignMaster(master);
-      }
     };
   }
   

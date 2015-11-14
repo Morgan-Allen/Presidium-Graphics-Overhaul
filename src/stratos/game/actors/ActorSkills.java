@@ -26,7 +26,7 @@ public class ActorSkills {
   
   final Actor actor;
   private List <Technique> known = new List <Technique> ();
-  private Technique active = null;
+  private Technique passiveBonus = null;
   
   
   public ActorSkills(Actor actor) {
@@ -36,13 +36,13 @@ public class ActorSkills {
   
   public void loadState(Session s) throws Exception {
     s.loadObjects(known);
-    active = (Technique) s.loadObject();
+    passiveBonus = (Technique) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObjects(known);
-    s.saveObject(active);
+    s.saveObject(passiveBonus);
   }
   
   
@@ -83,6 +83,11 @@ public class ActorSkills {
   }
   
   
+  public void addTechniques(Technique... techs) {
+    for (Technique t : techs) addTechnique(t);
+  }
+  
+  
   public void removeTechnique(Technique t) {
     known.remove(t);
   }
@@ -94,7 +99,6 @@ public class ActorSkills {
   public Action bestTechniqueFor(Plan plan, Action taken) {
     final boolean report = I.talkAbout == actor && techsVerbose;
     final Choice choice = new Choice(actor);
-    this.active = null;
     
     if (report) {
       I.say("\nGetting best active technique for "+actor);
@@ -117,8 +121,7 @@ public class ActorSkills {
     }
     
     final Action action = (Action) choice.weightedPick();
-    this.active = action == null ? null : (Technique) action.basis;
-    if (report) I.say("  Technique chosen: "+active);
+    if (report) I.say("  Technique chosen: "+action.basis);
     return action;
   }
   
@@ -138,7 +141,7 @@ public class ActorSkills {
     }
     
     final Pick <Technique> pick = new Pick(0);
-    this.active = null;
+    this.passiveBonus = null;
     if (current == null && taken != null) current = taken.parentPlan();
     if (subject == null && taken != null) subject = taken.subject();
     if (current == null) current = actor.matchFor(null, true);
@@ -160,7 +163,7 @@ public class ActorSkills {
     }
     
     final Technique bonus = pick.result();
-    this.active = bonus;
+    this.passiveBonus = bonus;
     return bonus == null ? 0 : bonus.passiveBonus(actor, skill, subject);
   }
   
@@ -316,9 +319,10 @@ public class ActorSkills {
     practice *= duration / (10f * (level + 1));
     actor.traits.incLevel(skillType, practice);
     
-    if (active != null) {
+    if (passiveBonus != null) {
+      final Technique active = passiveBonus;
+      passiveBonus = null;  // Can avoid certain infinite loops.
       active.afterSkillEffects(actor, chance, after);
-      active = null;
     }
     if (skillType.parent != null) {
       practice(skillType.parent, chance, duration / 4, after);

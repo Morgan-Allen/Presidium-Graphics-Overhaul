@@ -204,10 +204,7 @@ public class Studying extends Plan {
     Trait baseTraits[] = NO_TRAITS;
     if (type == TYPE_RESEARCH) {
       baseTraits = RESEARCH_TRAITS;
-      ratedVal = (((Upgrade) studied).tier / 4f);
-      
-      final Blueprint b = Blueprint.blueprintFor(actor.mind.work());
-      if (b != null && ((Upgrade) studied).origin == b) ratedVal += 0.5f;
+      ratedVal = valueOfUpgrade();
     }
     if (type == TYPE_TECHNIQUE) {
       baseTraits = DRILL_TRAITS;
@@ -256,6 +253,18 @@ public class Studying extends Plan {
       chance += actor.skills.chance(ACCOUNTING , ACCOUNTS_DC);
       return chance / 3;
     }
+  }
+  
+  
+  private float valueOfUpgrade() {
+    final Upgrade upgrade = (Upgrade) studied;
+    
+    float ratedVal = upgrade.tier / 4f;
+    final Blueprint w = Blueprint.blueprintFor(actor.mind.work());
+    if (w != null && upgrade.origin == w) ratedVal += 0.5f;
+    final Blueprint h = Blueprint.blueprintFor(actor.mind.home());
+    if (h != null && upgrade.origin == h) ratedVal += 0.5f;
+    return ratedVal;
   }
   
   

@@ -11,6 +11,7 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
+import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -155,10 +156,11 @@ public abstract class Fauna extends Actor implements Mount {
   
   
   protected ActorRelations initRelations() {
+    //
+    //  We install some default relationships with other animals, etc.-
     return new ActorRelations(this) {
-      //
-      //  We install some default relationships with other animals, etc.-
-      public float valueFor(Object object) {
+      
+      protected float initRelationValue(Accountable object) {
         if (object == actor || object == actor.mind.home()) {
           return 1.0f;
         }
@@ -175,9 +177,9 @@ public abstract class Fauna extends Actor implements Mount {
         }
         else return 0;
       }
-      //
-      //  We (unrealistically) assume that animals never learn.
-      public float noveltyFor(Object object) {
+      
+      
+      protected float initRelationNovelty(Accountable object) {
         if (object instanceof Fauna || object == actor.base()) return 0;
         else return MAX_NOVELTY;
       }
@@ -191,8 +193,14 @@ public abstract class Fauna extends Actor implements Mount {
     if (species.predator() ) choice.add(nextHunting ());
     if (breedMetre >= 0.99f) choice.add(nextBreeding());
     if (senses.haven() != null) choice.add(new Resting(this, senses.haven()));
-    choice.add(nextMigration   ());
-    choice.add(nextBuildingNest());
+    
+    if (domesticated()) {
+      addDomesticBehaviours(choice);
+    }
+    else {
+      choice.add(nextMigration   ());
+      choice.add(nextBuildingNest());
+    }
     choice.add(new Retreat(this));
   }
   
@@ -388,6 +396,33 @@ public abstract class Fauna extends Actor implements Mount {
   //    Slam.         (circular burst.)
   //    Infection.    (noxious haze.)
   
+  final static PlaneFX.Model
+    WITHDRAW_FX = PlaneFX.imageModel(
+      "fauna_withdraw_fx", BASE_CLASS,
+      FX_DIR+"withdraw_imp.png",
+      1, 0, -0.33f, true, false
+    ),
+    MAUL_FX = PlaneFX.imageModel(
+      "fauna_maul_fx", BASE_CLASS,
+      FX_DIR+"penetrating_shot.png",
+      0.5f, 0, 0.15f, true, false
+    ),
+    SLAM_FX = PlaneFX.imageModel(
+      "fauna_slam_fx", BASE_CLASS,
+      FX_DIR+"slam_burst.png",
+      1, 0.05f, 0.2f, false, false
+    ),
+    INFECTION_BURST_FX = PlaneFX.imageModel(
+      "infection_burst_fx", BASE_CLASS,
+      FX_DIR+"infection_burst.png",
+      0.5f, 0.15f, 0.33f, true, false
+    ),
+    INFECTION_HAZE_FX = PlaneFX.animatedModel(
+      "infection_haze_fx", BASE_CLASS,
+      FX_DIR+"infection_haze.png",
+      2, 2, 4, 1.0f, 0.25f
+    );
+  
   
   final static int
     WITHDRAW_MELEE_BONUS     = 15,
@@ -442,7 +477,7 @@ public abstract class Fauna extends Actor implements Mount {
     
     
     public float passiveBonus(Actor using, Skill skill, Target subject) {
-      if (skill == HAND_TO_HAND     ) return WITHDRAW_MELEE_BONUS;
+      if (skill == HAND_TO_HAND     ) return WITHDRAW_MELEE_BONUS ;
       if (skill == STEALTH_AND_COVER) return WITHDRAW_RANGED_BONUS;
       return 0;
     }
@@ -452,6 +487,8 @@ public abstract class Fauna extends Actor implements Mount {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
+      ActionFX.applyBurstFX(WITHDRAW_FX, using, 0.5f, 1.50f, 0.33f, 1);
+      ActionFX.applyBurstFX(WITHDRAW_FX, using, 0.5f, 1.25f, 0.66f, 1);
       //
       //  TODO:  You need a Volley class to do this properly.
       SenseUtils.breaksPursuit(using, using.currentAction());
@@ -597,6 +634,19 @@ public abstract class Fauna extends Actor implements Mount {
     }
     
     
+    protected void applySelfEffects(Actor using) {
+      super.applySelfEffects(using);
+      
+      final Stage world = using.world();
+      final Vec3D point = using.actionFocus().position(null);
+      point.add(using.position(null).scale(0.5f)).scale(0.66f);
+      final float s = SLAM_RADIUS / 1.2f;
+      ActionFX.applyBurstFX(SLAM_FX, point, 1, s * 1.2f, 0.2f, world);
+      ActionFX.applyBurstFX(SLAM_FX, point, 1, s * 1.0f, 0.6f, world);
+      ActionFX.applyBurstFX(SLAM_FX, point, 1, s * 0.8f, 1.0f, world);
+    }
+    
+    
     public void applyEffect(
       Actor using, boolean success, Target subject, boolean passive
     ) {
@@ -644,6 +694,8 @@ public abstract class Fauna extends Actor implements Mount {
       super.applyEffect(using, success, subject, passive);
       
       if (success) {
+        ActionFX.applyBurstFX(MAUL_FX, subject, 0.5f, 1);
+        
         final Actor struck = (Actor) subject;
         struck.health.takeInjury(roll(0, MAUL_DAMAGE_MAX), false);
         struck.traits.incBonus(HAND_TO_HAND, MAUL_DEBUFF_PENALTY);
@@ -687,6 +739,10 @@ public abstract class Fauna extends Actor implements Mount {
     ) {
       super.applyEffect(using, success, subject, passive);
       
+      if (true || Rand.index(4) == 0) {
+        ActionFX.applyBurstFX(INFECTION_HAZE_FX, using, 1, 1, 0.6f, 1);
+      }
+      
       float radius = DEFAULT_INFECTION_RADIUS * (using.health.baseBulk() + 1);
       for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
         final int period = Stage.STANDARD_HOUR_LENGTH;
@@ -697,7 +753,7 @@ public abstract class Fauna extends Actor implements Mount {
           a, infectChance, period,
           Condition.ILLNESS, Condition.HIREX_PARASITE
         )) {
-          //  <Apply SFX!>
+          ActionFX.applyBurstFX(INFECTION_BURST_FX, a, 0.5f, 1);
         }
       }
     }
@@ -791,9 +847,12 @@ public abstract class Fauna extends Actor implements Mount {
       
       if (success) {
         super.applyEffect(using, success, subject, passive);
+        ActionFX.applyBurstFX(MAUL_FX, subject, 0.5f, 1);
         
+        final Stage world = using.world();
         final Actor victim = (Actor) subject;
         final Item digestion = Item.withReference(ITEM_DIGESTING, victim);
+        world.ephemera.addGhost(victim, 1, victim.sprite(), 1, 1);
         victim.exitToOffworld();
         victim.health.setState(ActorHealth.STATE_RESTING);
         using.gear.addItem(digestion);
@@ -826,8 +885,61 @@ public abstract class Fauna extends Actor implements Mount {
   
   
   
-  /**  Implementing mounted behaviours-
+  /**  Implementing mounted and domestic behaviours-
     */
+  public void setAsDomesticated(Actor follows) {
+    relations.assignMaster(follows);
+    assignBase(follows.base());
+    mind.setHome(follows.mind.work());
+  }
+  
+  
+  public void setAsFeral() {
+    if (! domesticated()) return;
+    relations.clearMaster();
+    assignBase(Base.wildlife(world));
+    mind.setHome(null);
+  }
+  
+  
+  public boolean domesticated() {
+    return relations.master() != null;
+  }
+  
+  
+  protected void addDomesticBehaviours(Choice choice) {
+    final Actor follows = relations.master();
+    if (follows == null) return;
+    
+    final float loyalty = relations.valueFor(follows);
+    if (loyalty <= 0) {
+      setAsFeral();
+      return;
+    }
+    
+    final Behaviour current = follows.mind.rootBehaviour();
+    final float priority = loyalty * Plan.ROUTINE;
+    
+    if (current == null || current instanceof Resting) {
+      choice.add(new Resting(this, follows.aboard()));
+    }
+    if (current instanceof Combat && senses.awareOf(current.subject())) {
+      final Plan c = ((Combat) current).copyFor(this);
+      choice.add(c.addMotives(Plan.NO_PROPERTIES, priority / 2));
+    }
+    if (
+      (current instanceof Exploring ) ||
+      (current instanceof Hunting   ) ||
+      (current instanceof Retreat   ) ||
+      (current instanceof Combat    ) ||
+      (current instanceof Patrolling) ||
+      (current != null && world.claims.inWilds(current.subject()))
+    ) {
+      choice.add(Patrolling.protectionFor(this, follows, priority));
+    }
+  }
+  
+  
   public boolean setMounted(Actor mounted, boolean is) {
     return true;
   }
@@ -883,8 +995,8 @@ public abstract class Fauna extends Actor implements Mount {
   
   public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
     final SelectionPane p = ActorDescription.configSimplePanel(this, panel, UI);
-    final int BP = (int) (breedMetre * 100);
-    p.listing().append("\n  Breeding condition: "+BP+"%");
+    //final int BP = (int) (breedMetre * 100);
+    //p.detail().append("\n  Breeding condition: "+BP+"%");
     return p;
   }
 }

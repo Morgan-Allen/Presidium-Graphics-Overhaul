@@ -181,7 +181,7 @@ public class Heighway extends Venue implements StageExit {
     }
     if (canChange) {
       structure.resignUpgrade(FC, true);
-      world.ephemera.addGhost(this, size, sprite(), 0.5f);
+      world.ephemera.addGhost(this, size, sprite(), 0.5f, 1);
       attachModel((ModelAsset) model);
       this.type = model == HUB_MODEL ? TYPE_HUB : TYPE_WAY;
       setFacing(FACE_NONE);

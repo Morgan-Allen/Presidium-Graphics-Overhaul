@@ -13,6 +13,7 @@ import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Technique.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
+import stratos.util.I;
 import stratos.util.Rand;
 
 
@@ -46,11 +47,14 @@ public class EcologistTechniques {
   final static int
     TRANQ_HIT_INIT = 2,
     TRANQ_HIT_FULL = 5,
-    TRANQ_HIT_TIME = 5;
-  
-  final static float
-    CALL_MIN_NOVELTY   = 0.5f,
-    CALL_MAX_HOSTILITY = 0.5f;
+    TRANQ_HIT_TIME = 5,
+    
+    CALL_AFFECTION_MAX         = 50,
+    CALL_AFFECTION_NUDGE       = 10,
+    CALL_AFFECTION_MIN_CONVERT = 30,
+    CALL_AFFECTION_MAX_NEEDED  = 65,
+    CALL_MAX_RANGE             = Stage.ZONE_SIZE * 2,
+    CALL_NOVELTY_LOSS          = 10;
 
   
   
@@ -124,16 +128,22 @@ public class EcologistTechniques {
     REAL_HELP           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, null, 0,
-    Action.MOVE_SNEAK, Action.NORMAL
+    IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, null, 0, null
   ) {
-    public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+    
+    private boolean canHide(Actor using) {
+      if (! using.health.conscious()) return false;
+      if (using.isMoving() || ! using.senses.isEmergency()) return false;
+      return true;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
     ) {
-      if (actor.traits.hasTrait(asCondition)) {
-        return false;
-      }
-      return actor.senses.isEmergency();
+      super.applyEffect(using, success, subject, passive);
+      if (using.traits.hasTrait(asCondition) || ! canHide(using)) return;
+      using.traits.setLevel(asCondition, 1);
     }
     
     
@@ -148,18 +158,10 @@ public class EcologistTechniques {
     }
     
     
-    public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
-    ) {
-      super.applyEffect(using, success, subject, passive);
-      using.traits.setLevel(asCondition, 1);
-    }
-    
-    
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
       
-      if (affected.isMoving() || ! affected.health.conscious()) {
+      if (! canHide(affected)) {
         affected.traits.remove(asCondition);
       }
       else {
@@ -200,33 +202,45 @@ public class EcologistTechniques {
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
     IS_ANY_TARGETING | IS_TRAINED_ONLY, XENOZOOLOGY, 5,
-    Action.TALK, Action.QUICK | Action.RANGED
+    Action.LOOK, Action.RANGED
   ) {
     
-    public boolean triggersAction(Actor actor, Plan current, Target subject) {
-      if (! (subject instanceof Fauna)) {
-        return false;
-      }
-      final Fauna calls = (Fauna) subject;
-      if (actor.relations.noveltyFor(calls) <= CALL_MIN_NOVELTY) {
-        return false;
-      }
-      if (current instanceof Dialogue && current.subject() == subject) {
-        return true;
-      }
-      if (calls.planFocus(Combat.class, true) == actor) {
+    private boolean hasCompanion(Actor using) {
+      for (Actor a : using.relations.servants()) if (a instanceof Fauna) {
         return true;
       }
       return false;
     }
     
     
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      if (
+        (subject == actor) && (! actor.senses.isEmergency()) &&
+        actor.world().claims.inWilds(actor) &&
+        actor.health.concentrationLevel() >= 1 &&
+        (! hasCompanion(actor))
+      ) {
+        return true;
+      }
+      if (! (subject instanceof Fauna)) {
+        return false;
+      }
+      final Fauna f = (Fauna) subject;
+      if (f.relations.noveltyFor(actor) <= 0) return false;
+      return ! f.domesticated();
+    }
+    
+    
     public float basePriority(Actor actor, Plan current, Target subject) {
-      return PlanUtils.dialoguePriority(actor, (Fauna) subject, 0, 1);
+      if (super.basePriority(actor, current, subject) <= 0) return -1;
+      if (subject == actor) return Plan.CASUAL;
+      return PlanUtils.dialoguePriority(actor, (Fauna) subject, false, 0, 1);
     }
 
 
     protected boolean checkActionSuccess(Actor actor, Target subject) {
+      if (subject == actor) return true;
+      
       final boolean talks = DialogueUtils.talkResult(
         XENOZOOLOGY, MODERATE_DC, actor, (Fauna) subject
       ) > 0;
@@ -237,24 +251,50 @@ public class EcologistTechniques {
     public void applyEffect(
       Actor using, boolean success, Target subject, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
-      
+      //
+      //  In the case of shots-in-the-dark, pick a random nearby creature that
+      //  might respond, and check against that.
+      if (subject == using) {
+        subject = using.world().presences.randomMatchNear(
+          Fauna.class, using, CALL_MAX_RANGE
+        );
+        if (! (subject instanceof Fauna)) return;
+        success &= checkActionSuccess(using, subject);
+      }
       final Fauna calls = (Fauna) subject;
-      using.relations.incRelation(calls, 0, 0, -1);
-      
+      super.applyEffect(using, success, subject, passive);
+      //
+      //  If successful, nudge relations with the creature upward, and attempt
+      //  to initiate a conversation (if not already started.)
       if (success) {
-        calls.relations.incRelation(using, 0.5f, 0.5f, 0);
+        float affectMax   = CALL_AFFECTION_MAX   / 100f;
+        float affectNudge = CALL_AFFECTION_NUDGE / 100f;
+        calls.relations.incRelation(using, affectMax, affectNudge, 0);
         
-        if (calls.harmIntended(using) > 0) {
-          Behaviour root = calls.mind.rootBehaviour();
-          calls.mind.cancelBehaviour(root, "Xeno Call Used!");
+        final Dialogue response = Dialogue.responseFor(
+          calls, using, null, Plan.ROUTINE * Rand.num()
+        );
+        if (! calls.mind.mustIgnore(response)) {
+          calls.mind.assignBehaviour(response);
         }
-        
-        float relation = calls.relations.valueFor(using);
-        if (Rand.num() < relation) {
-          calls.assignBase(using.base());
-          calls.mind.setHome(using.mind.home());
+        //
+        //  If you don't already have an animal companion, you can attempt to
+        //  'convert' the creature-
+        if (hasCompanion(using)) return;
+        final float convertRoll = roll(
+          CALL_AFFECTION_MIN_CONVERT, CALL_AFFECTION_MAX_NEEDED
+        ) / 100;
+        if (convertRoll < calls.relations.valueFor(using)) {
+          calls.setAsDomesticated(using);
         }
+      }
+      //
+      //  If the call fails entirely, reduce novelty so that attempts can't be
+      //  made indefinitely:
+      else {
+        final float loss = CALL_NOVELTY_LOSS / -100f;
+        using.relations.incRelation(calls, 0, 0, loss);
+        calls.relations.incRelation(using, 0, 0, loss);
       }
     }
   };
@@ -275,13 +315,17 @@ public class EcologistTechniques {
     NO_CONCENTRATION,
     IS_GEAR_PROFICIENCY | IS_TRAINED_ONLY, XENOZOOLOGY, 15,
     MOUNT_HARNESS
-  ) {};
+  ) {
+    
+  };
   
   
   final public static Technique ECOLOGIST_TECHNIQUES[] = {
     TRANQUILLISE, PATTERN_CAMO, XENO_CALL, MOUNT_TRAINING
   };
 }
+
+
 
 
 

@@ -40,6 +40,8 @@ public class ActorRelations {
   
   
   final protected Actor actor;
+  
+  protected Actor master;
   final Table <Accountable, Relation> relations = new Table();
   
   
@@ -49,6 +51,7 @@ public class ActorRelations {
   
   
   public void loadState(Session s) throws Exception {
+    master = (Actor) s.loadObject();
     for (int n = s.loadInt(); n-- > 0;) {
       final Relation r = Relation.loadFrom(s);
       relations.put((Accountable) r.subject, r);
@@ -57,8 +60,72 @@ public class ActorRelations {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject(master);
     s.saveInt(relations.size());
     for (Relation r : relations.values()) Relation.saveTo(s, r);
+  }
+  
+  
+  
+  /**  Master/servant relations-
+    */
+  public void assignMaster(Actor master) {
+    final Actor oldM = this.master;
+    if (oldM == master) return;
+    
+    this.master = master;
+    
+    if (oldM != null) {
+      final Relation r = relations.get(oldM);
+      if (r != null) r.setType(Relation.TYPE_GENERIC);
+      oldM.relations.toggleAsServant(actor, false);
+    }
+    
+    if (master != null) {
+      final Relation r = relations.get(master);
+      if (r == null) setRelation(master, 0, Relation.TYPE_MASTER);
+      else r.setType(Relation.TYPE_MASTER);
+      master.relations.toggleAsServant(actor, true);
+    }
+  }
+  
+  
+  protected void toggleAsServant(Actor servant, boolean is) {
+    final Relation r = relations.get(servant);
+    
+    if (is) {
+      if (r == null) setRelation(servant, 0, Relation.TYPE_SERVANT);
+      else r.setType(Relation.TYPE_SERVANT);
+    }
+    else if (r != null) {
+      r.setType(Relation.TYPE_GENERIC);
+    }
+  }
+  
+  
+  public void clearMaster() {
+    assignMaster(null);
+  }
+  
+  
+  public Actor master() {
+    return master;
+  }
+  
+  
+  public Series <Actor> servants() {
+    final Batch <Actor> matches = new Batch();
+    for (Relation r : relations.values()) {
+      if (r.type() != Relation.TYPE_SERVANT) continue;
+      matches.add((Actor) r.subject);
+    }
+    return matches;
+  }
+  
+  
+  public void clearAll() {
+    clearMaster();
+    relations.clear();
   }
   
   
@@ -74,12 +141,12 @@ public class ActorRelations {
     
     for (Target t : actor.senses.awareOf()) if (t instanceof Actor) {
       final Actor  other   = (Actor) t;
-      final Target affects = other.planFocus(null, true);
+      final Target affects = other.actionFocus();
       //
       //  TODO:  Have 'spite' factor into this- e.g, so that helping an enemy
       //  counts as harm?
       final float
-        harm   = other.harmIntended(affects),
+        harm   = Plan.harmIntended(other, affects),
         cares  = Nums.clamp(valueFor(affects), 0, 1),
         impact = Nums.abs(harm * cares);
       if (report) {
@@ -120,7 +187,7 @@ public class ActorRelations {
   public void updateValues(int numUpdates) {
     //
     //  For the moment, I'm disabling these for animals, artilects, etc.
-    if (! actor.species().sapient()) return;
+    ///if (! actor.species().sapient()) return;
     final boolean report = I.talkAbout == actor && verbose;
     updateFromObservations();
     if (numUpdates % UPDATE_PERIOD != 0) return;
@@ -205,43 +272,54 @@ public class ActorRelations {
   public float valueFor(Object object) {
     if (! (object instanceof Accountable)) return 0;
     final Accountable other = (Accountable) object;
-    
+    //
     //  If we have an existing relationship, then return its value (this is
     //  always assumed to start at 1.0 for self.)
-    final Relation r = relations.get(other);
+    Relation r = relations.get(other);
     if (r != null) return r.value();
+    else return initRelationValue(other);
+  }
+  
+  
+  protected float initRelationValue(Accountable other) {
     if (other == actor) return 1;
-    
+    //
     //  Otherwise, we calculate what the starting relationship with this entity
     //  should be.  We base this off a weighted average depending on home/work
-    //  identity, community spirit, and relations with the parent base:
-    final float baseVal = actor.base().relations.relationWith(other.base());
-    if (other == other.base()) return baseVal;
+    //  identity, community spirit, and relations with their parent base:
+    Relation r = relations.get(other.base());
+    float initVal = 0;
+    if (r != null) initVal = r.value();
+    else initVal = actor.base().relations.relationWith(other.base());
     
-    if (other.base() == actor.base() || baseVal > 0) {
+    if (other.base() == actor.base() || initVal > 0) {
       float relVal = 0;
       if (other == actor.mind.home) relVal += 1.0f;
       if (other == actor.mind.work) relVal += 0.5f;
       if (other.base() == actor.base()) {
         relVal += actor.base().relations.communitySpirit() / 2;
       }
-      return (baseVal + Nums.clamp(relVal, 0, 2)) / 3f;
+      return (initVal + Nums.clamp(relVal, 0, 2)) / 2;
     }
-    else return baseVal;
+    else return initVal;
   }
   
   
   public float noveltyFor(Object object) {
     if (! (object instanceof Accountable)) return 0;
     final Accountable other = (Accountable) object;
-
+    
     final Relation r = relations.get(other);
-    if (r == null) {
-      final Base belongs = other.base();
-      final float baseNov = belongs == other ? 0 : noveltyFor(belongs);
-      return baseNov + INIT_NOVELTY;
-    }
-    return r.novelty();
+    if (r != null) return r.novelty();
+    else return initRelationNovelty(other);
+  }
+  
+  
+  protected float initRelationNovelty(Accountable other) {
+    if (other == actor) return 0;
+    final Base belongs = other.base();
+    final float baseNov = belongs == other ? 0 : noveltyFor(belongs);
+    return baseNov + INIT_NOVELTY;
   }
   
   
@@ -258,8 +336,8 @@ public class ActorRelations {
     
     Relation r = relations.get(other);
     if (r == null) {
-      final float baseVal = valueFor  (other);
-      final float baseNov = noveltyFor(other);
+      final float baseVal = initRelationValue  (other);
+      final float baseNov = initRelationNovelty(other);
       r = setRelation(other, baseVal, baseNov);
     }
     r.incValue(toLevel, weight);
