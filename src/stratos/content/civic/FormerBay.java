@@ -76,7 +76,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.SINGLE_LEVEL,
-      new Upgrade[] { BotanicalStation.LEVELS[0], EngineerStation.LEVELS[0] },
+      new Upgrade[] { EcologistStation.LEVELS[0], EngineerStation.LEVELS[0] },
       new Object[] { 10, GEOPHYSICS, 5, ASSEMBLY, 5, CHEMISTRY },
       450//, 650
     );
@@ -124,8 +124,8 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     if (d != null) return d;
     final Choice choice = new Choice(actor);
 
-    Venue source = (BotanicalStation) world.presences.nearestMatch(
-      BotanicalStation.class, this, Stage.ZONE_SIZE
+    Venue source = (EcologistStation) world.presences.nearestMatch(
+      EcologistStation.class, this, Stage.ZONE_SIZE
     );
     if (source == null) source = this;
     

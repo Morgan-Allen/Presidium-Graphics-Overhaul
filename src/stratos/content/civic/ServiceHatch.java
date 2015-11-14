@@ -18,13 +18,13 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-public class Heighway extends Venue implements StageExit {
+public class ServiceHatch extends Venue implements StageExit {
   
   final static String
     IMG_DIR = "media/Buildings/civilian/";
   final static CutoutModel
     ALL_MODELS[][] = CutoutModel.fromImageGrid(
-      Heighway.class,
+      ServiceHatch.class,
       IMG_DIR+"all_big_roads.png", 2, 2,
       2, 0, true
     ),
@@ -34,10 +34,10 @@ public class Heighway extends Venue implements StageExit {
   
   final public static ImageAsset
     LINE_ICON = ImageAsset.fromImage(
-      Heighway.class, "media/GUI/Buttons/mag_line_button.gif"
+      ServiceHatch.class, "media/GUI/Buttons/mag_line_button.gif"
     ),
     HATCH_ICON = ImageAsset.fromImage(
-      Heighway.class, "media/GUI/Buttons/access_hatch_button.gif"
+      ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
     );
   
   final static int
@@ -45,10 +45,10 @@ public class Heighway extends Venue implements StageExit {
     TYPE_WAY = 1;
   
   final public static Blueprint BLUEPRINT = new Blueprint(
-    Heighway.class, "service_hatch",
-    "Heighway", Target.TYPE_ENGINEER, HATCH_ICON,
-    "Heighways allow for long-distance power and road connections, but can "+
-    "admit dangerous vermin.",
+    ServiceHatch.class, "service_hatch",
+    "Service Hatch", Target.TYPE_MISC, HATCH_ICON,
+    "Service Hatches allow for long-distance power and road connections, but "+
+    "can admit dangerous vermin.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR | Structure.IS_PUBLIC,
     Owner.TIER_PRIVATE, 10, 25
   );
@@ -63,12 +63,12 @@ public class Heighway extends Venue implements StageExit {
   private int type = -1;
   
   
-  public Heighway(Base base) {
+  public ServiceHatch(Base base) {
     super(BLUEPRINT, base);
   }
   
   
-  public Heighway(Session s) throws Exception {
+  public ServiceHatch(Session s) throws Exception {
     super(s);
     this.type = s.loadInt();
   }
@@ -100,7 +100,7 @@ public class Heighway extends Venue implements StageExit {
       final Stage world = point.world();
       
       final Object nearHatch = world.presences.nearestMatch(
-        Heighway.class, point, EXCLUDE_RADIUS
+        ServiceHatch.class, point, EXCLUDE_RADIUS
       );
       if (nearHatch != null) return -1;
       //
@@ -147,7 +147,7 @@ public class Heighway extends Venue implements StageExit {
   private Object faceModel(Tile position, Box2D area, Coord... others) {
     Object model = SiteUtils.setupMergingSegment(
       this, position, area, others,
-      MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, Heighway.class
+      MODELS_X_AXIS, MODELS_Y_AXIS, HUB_MODEL, ServiceHatch.class
     );
     if (model == MODELS_X_AXIS[1]) {
       final int step = (position.y / 2) % 6;

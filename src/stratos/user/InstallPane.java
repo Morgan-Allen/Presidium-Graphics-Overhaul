@@ -57,6 +57,47 @@ public class InstallPane extends SelectionPane {
     super(UI, null, null, false, false, 0);
     setWidgetID(INSTALL_PANE_ID);
     if (! setupDone) setupTypes();
+    setupCategoryButtons();
+  }
+  
+  
+  private void setupCategoryButtons() {
+    final UIGroup bar = new UIGroup(UI);
+    bar.attachTo(border.inside);
+    bar.alignHorizontal(0, 5);
+    bar.alignTop(20, 20);
+    
+    final Button catButtons[] = new Button[MAIN_INSTALL_CATEGORIES.length];
+    
+    for (int i = 0; i < catButtons.length; i++) {
+      final String catName = MAIN_INSTALL_CATEGORIES[i];
+      
+      final Button button = new Button(
+        UI, catName, GUILD_IMAGE_ASSETS[i], null
+      ) {
+        
+        protected void whenClicked() {
+          final BaseUI UI = BaseUI.current();
+          UI.beginPanelFade();
+          final Category match = categories.get(catName);
+          this.toggled  = ! this.toggled;
+          match.toggled = ! this.toggled;
+        }
+        
+        protected String info() {
+          if (toggled) return "Remove Filter";
+          else return "Filter out "+catName+" Structures";
+        }
+      };
+      button.stretch = true;
+      button.setHighlight(Image.TRANSLUCENT_BLACK.asTexture());
+      catButtons[i] = button;
+      
+      final float divW = 1f / catButtons.length;
+      button.alignVertical(0, 0);
+      button.alignAcross((i + 0.1f) * divW, (i + 1f) * divW);
+      button.attachTo(bar);
+    }
   }
   
   
@@ -125,7 +166,10 @@ public class InstallPane extends SelectionPane {
     
     for (Blueprint b : allBlueprints) {
       if (b.icon == null || b.baseUpgrade() == null) continue;
-      //if (! b.baseUpgrade().hasRequirements(base)) continue;
+      if (! b.baseUpgrade().hasRequirements(base)) continue;
+      
+      Category c = categories.get(b.category);
+      if (c != null && ! c.toggled) continue;
       
       if (report) I.say("  "+b);
       
@@ -149,21 +193,10 @@ public class InstallPane extends SelectionPane {
     Visit.appendTo(sorting, possible);
     sorting.queueSort();
     Visit.appendTo(listed, sorting);
-
-    final int MAX_IN_ROW = 4;
-    int numInRow = 0;
     
     for (Blueprint b : listed) {
-      ++numInRow;
-      if (numInRow > MAX_IN_ROW && (numInRow % MAX_IN_ROW) == 1) {
-        detailText.append("\n\n");
-      }
+      Text.cancelBullet(detailText);
       describeVenueOptions(b, detailText, base);
-    }
-    
-    if (lastSelected != null) {
-      boolean enabled = base.checkPrerequisites(lastSelected, Account.NONE);
-      describeCurrentType(lastSelected, base, enabled, detailText);
     }
   }
   
@@ -177,34 +210,40 @@ public class InstallPane extends SelectionPane {
     final Upgrade forType = type.baseUpgrade();
     final int state = (int) base.research.getResearchLevel(forType);
     
-    final Button b = new Button(UI, type.keyID, icon.texture(), type.name) {
-      protected void whenClicked() { toggleSelected(type, this, state); }
-    };
-    
+    final Image b = new Image(UI, icon.texture());
     if (state <= BaseResearch.LEVEL_ALLOWS) {
       if (forType.researchDone(base) != null) {
         b.addOverlay(THEORETICAL_FRAME);
         b.addOverlay(RESEARCH_FRAME);
       }
       else {
+        b.addOverlay(Image.TRANSLUCENT_BLACK);
         b.addOverlay(THEORETICAL_FRAME);
       }
     }
     if (state == BaseResearch.LEVEL_THEORY) {
       b.addOverlay(PROTOTYPE_FRAME);
     }
-    b.setHighlight(SELECTED_FRAME.asTexture());
     
-    b.toggled = type == lastSelected;
-    text.append(" ");
-    Text.insert(b, 40, 40, false, text);
+    Text.insert(b, 40, 40, true, text);
+    
+    if (forType != null) {
+      text.append(" ");
+      forType.appendBaseOrders(text, base);
+    }
   }
+}
+
+
+
   
   
+  /*
   private void toggleSelected(Blueprint type, Button b, int state) {
     UI.beginPanelFade();
     UI.endCurrentTask();
-    lastSelected = type;
+    if (lastSelected == type) lastSelected = null;
+    else lastSelected = type;
   }
   
   
@@ -235,50 +274,6 @@ public class InstallPane extends SelectionPane {
     text.append("\n\n");
     text.append(type.description);
   }
-}
-
-
-  
-  /*
-  private void setupCategoryButtons() {
-    final UIGroup bar = new UIGroup(UI);
-    bar.attachTo(border.inside);
-    bar.alignToFill();
-    
-    for (int i = 0; i < NUM_INSTALL_CATEGORIES; i++) {
-      final String catName = INSTALL_CATEGORIES[i];
-      
-      final Button button = new Button(
-        UI, catName, GUILD_IMAGE_ASSETS[i], null
-      ) {
-        
-        protected void whenClicked() {
-          final BaseUI UI = BaseUI.current();
-          UI.beginPanelFade();
-          final Category match = categories.get(catName);
-          match.toggled = ! match.toggled;
-          this.toggled  = match.toggled;
-        }
-        
-        protected String info() {
-          if (toggled) return "Filter Off";
-          else return "Filter "+catName+" Structures";
-        }
-      };
-      button.stretch = true;
-      catButtons[i] = button;
-      
-      final int
-        barW = INFO_PANEL_WIDE - 50,
-        wide = (int) (barW / INSTALL_CATEGORIES.length);
-      button.alignTop(0, BAR_BUTTON_SIZE - 10);
-      button.alignLeft  ((wide * i), wide);
-      button.attachTo(bar);
-    }
-  }
   //*/
-
-
-
 
 

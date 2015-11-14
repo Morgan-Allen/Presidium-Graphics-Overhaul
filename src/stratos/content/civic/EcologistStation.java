@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.civic;
+import stratos.content.abilities.EcologistTechniques;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -27,25 +28,24 @@ import static stratos.game.economic.Economy.*;
 //  Symbiote Lab.    Hydroponics.      Field Hand Station.
 //  Zeno Pharma.     Animal Breeding.  Survival Training.
 
-
-public class BotanicalStation extends HarvestVenue {
+public class EcologistStation extends HarvestVenue {
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    BotanicalStation.class, "media/GUI/Buttons/ecologist_station_button.gif"
+    EcologistStation.class, "media/GUI/Buttons/ecologist_station_button.gif"
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
-      BotanicalStation.class, IMG_DIR+"botanical_station.png", 4, 2
+      EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 2
     );
   
   final public static Blueprint BLUEPRINT = new Blueprint(
-    BotanicalStation.class, "botanical_station",
-    "Botanical Station", Target.TYPE_ECOLOGIST, ICON,
-    "Botanical Stations are responsible for agriculture and forestry, "+
+    EcologistStation.class, "ecologist_station",
+    "Ecologist Station", Target.TYPE_ECOLOGIST, ICON,
+    "Ecologists are responsible for overseeing agriculture and forestry, "+
     "helping to secure food supplies and advance terraforming efforts.",
     4, 2, Structure.IS_NORMAL | Structure.IS_ZONED,
     Owner.TIER_FACILITY, 150,
@@ -72,14 +72,14 @@ public class BotanicalStation extends HarvestVenue {
   
   
   
-  public BotanicalStation(Base belongs) {
+  public EcologistStation(Base belongs) {
     super(BLUEPRINT, belongs, MIN_CLAIM_SIDE, MAX_CLAIM_SIDE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(STATION_MODEL.makeSprite());
   }
   
   
-  public BotanicalStation(Session s) throws Exception {
+  public EcologistStation(Session s) throws Exception {
     super(s);
   }
   
@@ -99,7 +99,7 @@ public class BotanicalStation extends HarvestVenue {
       final Tile under = world.tileAt(point);
       
       final Venue station = (Venue) world.presences.nearestMatch(
-        BotanicalStation.class, point, -1
+        EcologistStation.class, point, -1
       );
       if (station == null || station.base() != base) return -1;
       final float distance = Spacing.distance(point, station);
@@ -161,6 +161,24 @@ public class BotanicalStation extends HarvestVenue {
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PROTEIN,
       5, XENOZOOLOGY
+    ),
+    NATIVE_MISSION = new Upgrade(
+      "Native Mission",
+      "Improves recruitment from local tribal communities and raises the odds "+
+      "of peaceful contact.",
+      300,
+      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      10, NATIVE_TABOO
+    ),
+    MOUNT_TRAINING_UPGRADE = new Upgrade(
+      "Mount Training",
+      "Allows captive animals to be trained as mounts for use in patrols and "+
+      "exploration.",
+      400,
+      Upgrade.SINGLE_LEVEL, SYMBIOTICS, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, null,
+      15, XENOZOOLOGY, 5, BATTLE_TACTICS
     );
   
   
@@ -195,24 +213,52 @@ public class BotanicalStation extends HarvestVenue {
   
   protected void addEcologistJobs(Actor actor, Choice choice) {
     //
-    //  Consider collecting gene samples-
-    choice.add(Gathering.asFloraSample(actor, this));
+    //  Consider tending to animals-
+    final Batch <Target> sampled = new Batch();
+    world.presences.sampleFromMap(actor, world, 5, sampled, Mobile.class);
+    Visit.appendTo(sampled, inside());
+    
+    float faunaBonus  = structure.upgradeLevel(SYMBIOTICS    );
+    float nativeBonus = structure.upgradeLevel(NATIVE_MISSION);
+    
+    for (Target t : sampled) {
+      if (t instanceof Fauna) {
+        final Fauna fauna = (Fauna) t;
+        final boolean domestic = fauna.base() == base;
+        
+        if (! domestic) {
+          choice.add(Hunting.asHarvest(actor, fauna, this));
+          final Item sample = Item.withReference(GENE_SEED, fauna.species());
+          if (stocks.hasItem(sample)) continue;
+          else choice.add(Hunting.asSample(actor, fauna, this));
+        }
+        
+        final Dialogue d = Dialogue.dialogueFor(actor, fauna);
+        d.addMotives(Plan.MOTIVE_JOB, faunaBonus * Plan.CASUAL);
+        d.setCheckBonus(faunaBonus * 2.5f);
+        choice.add(d);
+      }
+      if (t instanceof Human && t.base().isNative()) {
+        final Dialogue d = Dialogue.dialogueFor(actor, (Human) t);
+        d.addMotives(Plan.MOTIVE_JOB, nativeBonus * Plan.CASUAL);
+        d.setCheckBonus(nativeBonus * 2.5f);
+        choice.add(d);
+      }
+    }
     //
-    //  Consider performing research-
-    //  TODO:  Decide on this.
-    ///choice.add(Studying.asResearch(actor, this, Target.TYPE_ECOLOGIST));
-    ///choice.isVerbose = true;
-    //
-    //  Tailor seed varieties and consider breeding animals or forestry-
+    //  Consider learning special techniques, tailoring seed varieties and
+    //  breeding animals-
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.withReference(GENE_SEED, s);
       if (stocks.amountOf(seed) >= 1) continue;
       choice.add(new SeedTailoring(actor, this, s));
     }
-    if (! choice.empty()) return;
-    choice.add(Gathering.asForestPlanting(actor, this));
+    choice.add(Studying.asTechniqueTraining(
+      actor, this, 0, EcologistTechniques.ECOLOGIST_TECHNIQUES
+    ));
     //
-    //  Otherwise, consider exploring the surrounds-
+    //  Otherwise, consider exploring the surrounds and collecting samples-
+    choice.add(Gathering.asFloraSample(actor, this));
     final Exploring x = Exploring.nextExploration(actor);
     if (x != null) choice.add(x.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
     //
@@ -227,6 +273,7 @@ public class BotanicalStation extends HarvestVenue {
     );
     choice.add(d);
     if (! choice.empty()) return;
+    choice.add(Gathering.asForestPlanting(actor, this));
     //
     //  Or, finally, fall back on supervising the venue...
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
@@ -363,7 +410,7 @@ public class BotanicalStation extends HarvestVenue {
       ""+Backgrounds.CULTIVATOR+"s.",
     POOR_HEALTH_INFO =
       "The crops around this Station are sickly.  Try to improve seed stock "+
-      "at the "+BotanicalStation.BLUEPRINT+".",
+      "at the "+EcologistStation.BLUEPRINT+".",
     AWAITING_GROWTH_INFO =
       "The crops around this Station have yet to mature.  Allow them a few "+
       "days to bear fruit.";

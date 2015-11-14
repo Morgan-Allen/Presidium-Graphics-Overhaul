@@ -156,8 +156,8 @@ public class DialogueUtils {
   //  TODO:  Okay.  I want to make sure that relationships can actually go
   //  pretty far north or south, depending on how well traits and interests
   //  match up.
-  public static float tryChat(Actor actor, Actor other) {
-    float boost = talkResult(SUASION, TRIVIAL_DC, actor, other) / 10f;
+  public static float tryChat(Actor actor, Actor other, int bonus) {
+    float boost = talkResult(SUASION, TRIVIAL_DC - bonus, actor, other) / 10f;
     boost *= CHAT_RELATION_BOOST;
     reinforceRelations(other, actor, boost, -1, false);
     return boost;

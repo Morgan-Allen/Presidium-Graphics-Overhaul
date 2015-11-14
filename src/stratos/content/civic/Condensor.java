@@ -30,7 +30,7 @@ public class Condensor extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Condensor.class, "condensor",
-    "Condensor", Target.TYPE_ECOLOGIST, ICON,
+    "Condensor", Target.TYPE_WIP, ICON,
     "The Condensor provides "+WATER+" and "+ATMO+" to the surrounding "+
     "settlement.",
     2, 1, Structure.IS_FIXTURE, Owner.TIER_FACILITY, 85, 1,
@@ -38,7 +38,7 @@ public class Condensor extends Venue {
   );
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
-    Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
+    Upgrade.SINGLE_LEVEL, EcologistStation.LEVELS[0],
     new Object[] { 10, ASSEMBLY, 5, GEOPHYSICS },
     250
   );

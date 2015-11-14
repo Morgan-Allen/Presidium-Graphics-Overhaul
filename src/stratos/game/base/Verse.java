@@ -101,13 +101,13 @@ public class Verse {
       NOVICE, CULTIVATION, CHEMISTRY,
       OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES,
       
-      BotanicalStation.BLUEPRINT,
+      EcologistStation.BLUEPRINT,
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
       StockExchange   .BLUEPRINT,
       SupplyDepot     .BLUEPRINT,
-      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, ServiceHatch.BLUEPRINT,
       
       EcologistRedoubt.BLUEPRINT,
       FormerBay.BLUEPRINT
@@ -130,7 +130,7 @@ public class Verse {
       TrooperLodge    .BLUEPRINT,
       StockExchange   .BLUEPRINT,
       SupplyDepot     .BLUEPRINT,
-      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, ServiceHatch.BLUEPRINT,
       
       CultureVats.BLUEPRINT,
       Generator.BLUEPRINT,
@@ -149,12 +149,12 @@ public class Verse {
       OFTEN, MILITARY_CIRCLES, SOMETIMES, PHYSICIAN_CIRCLES,
       RARELY, VENDOR_CIRCLES,
       
-      BotanicalStation.BLUEPRINT,
+      EcologistStation.BLUEPRINT,
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
       SupplyDepot     .BLUEPRINT,
-      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, ServiceHatch.BLUEPRINT,
       
       ShieldWall.BLUEPRINT,
       Airfield.BLUEPRINT,
@@ -172,13 +172,13 @@ public class Verse {
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
       OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES,
       
-      BotanicalStation.BLUEPRINT,
+      EcologistStation.BLUEPRINT,
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
       StockExchange   .BLUEPRINT,
       SupplyDepot     .BLUEPRINT,
-      Bastion.BLUEPRINT, Holding.BLUEPRINT, Heighway.BLUEPRINT,
+      Bastion.BLUEPRINT, Holding.BLUEPRINT, ServiceHatch.BLUEPRINT,
       
       RunnerMarket.BLUEPRINT,
       Cantina.BLUEPRINT

@@ -367,15 +367,22 @@ public class Upgrade extends Constant {
       progReport = "Banned";
       progColour = Colour.RED;
     }
-
+    
+    //*
+    d.append(" ");
     Text.insert(
       SelectionPane.WIDGET_INFO.asTexture(),
       15, 15, upgrade, false, d
     );
+    //*/
     
     d.append(" "+name, Colour.LITE_GREY);
+    
+    
+    d.append("\n    ");
+    
     if (progReport != null) {
-      d.append("\n    "+nameSuffix+" ");
+      d.append(nameSuffix+" ");
       if (linksTo != null) d.append(progReport, linksTo);
       else d.append(progReport, progColour);
     }

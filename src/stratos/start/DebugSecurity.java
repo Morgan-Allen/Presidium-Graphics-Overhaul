@@ -90,7 +90,7 @@ public class DebugSecurity extends Scenario {
   private void verminScenario(Stage world, Base base, BaseUI UI) {
     
     base.commerce.assignHomeworld(Verse.PLANET_AXIS_NOVENA);
-    final Venue hatch = new Heighway(base);
+    final Venue hatch = new ServiceHatch(base);
     SiteUtils.establishVenue(hatch, world.tileAt(4, 4), true, world);
     
     final Base vermin = Base.vermin(world);
@@ -145,7 +145,7 @@ public class DebugSecurity extends Scenario {
   
   private void breedingScenario(Stage world, Base base, BaseUI UI) {
     final Actor ecologist = new Human(Backgrounds.ECOLOGIST, base);
-    final Venue station = new BotanicalStation(base);
+    final Venue station = new EcologistStation(base);
     SiteUtils.establishVenue(station, 10, 10, true, world, ecologist);
     
     station.stocks.bumpItem(Economy.CARBS  , 5);

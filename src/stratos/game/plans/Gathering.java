@@ -96,7 +96,7 @@ public class Gathering extends ResourceTending {
   
   /**  Assorted external factory methods for convenience-
     */
-  public static Gathering asFarming(Actor actor, BotanicalStation depot) {
+  public static Gathering asFarming(Actor actor, EcologistStation depot) {
     return new Gathering(actor, depot, true, TYPE_FARMING, FARM_EXTRACTS);
   }
   
@@ -186,13 +186,13 @@ public class Gathering extends ResourceTending {
   
   protected Conversion tendProcess() {
     if (type == TYPE_FORESTING || type == TYPE_LOGGING) {
-      return BotanicalStation.LAND_TO_GREENS;
+      return EcologistStation.LAND_TO_GREENS;
     }
     else if (type == TYPE_FORAGING || type == TYPE_FARMING) {
-      return BotanicalStation.LAND_TO_CARBS;
+      return EcologistStation.LAND_TO_CARBS;
     }
     else if (type == TYPE_SAMPLE) {
-      return BotanicalStation.SAMPLE_EXTRACT;
+      return EcologistStation.SAMPLE_EXTRACT;
     }
     else return null;
   }
@@ -227,7 +227,7 @@ public class Gathering extends ResourceTending {
       }
       if (pick.empty()) return null;
       
-      final Crop plants = new Crop((BotanicalStation) depot, pick.result());
+      final Crop plants = new Crop((EcologistStation) depot, pick.result());
       plants.setPosition(t.x, t.y, t.world);
       return plants;
     }

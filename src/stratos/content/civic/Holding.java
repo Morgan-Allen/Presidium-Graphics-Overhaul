@@ -78,7 +78,7 @@ public class Holding extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Holding.class, "housing",
-    "Housing", Target.TYPE_PHYSICIAN, ICONS[0],
+    "Housing", Target.TYPE_MISC, ICONS[0],
     "Housing provides comfort, sanitation and other domestic benefits to "+
     "your subjects.",
     2, 1, Structure.IS_PUBLIC,

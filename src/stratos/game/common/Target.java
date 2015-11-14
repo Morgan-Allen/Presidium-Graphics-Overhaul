@@ -20,6 +20,8 @@ public interface Target {
     TYPE_ECOLOGIST = "Ecology & Environment" ,
     TYPE_AESTHETIC = "Arts & Entertainment"  ,
     
+    TYPE_MISC      = "Miscellaneous",
+    
     TYPE_UNPLACED  = "Unplaced",
     TYPE_SCHOOL    = "School",
     TYPE_WIP       = "<WORK IN PROGRESS>",

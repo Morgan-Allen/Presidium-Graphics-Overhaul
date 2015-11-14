@@ -168,7 +168,7 @@ public class ActorMotives {
         r.setRelation(t, rating, Relation.TYPE_TRADED);
       }
     }
-    for (Traded f : ALL_FOOD_TYPES) {
+    for (Traded f : actor.species().canEat()) {
       r.setRelation(f, hunger, Relation.TYPE_TRADED);
     }
     //

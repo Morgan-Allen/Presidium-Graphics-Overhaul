@@ -328,14 +328,6 @@ public class Hunting extends Plan {
     if (actor.skills.test(HARD_LABOUR, 5 , 1, a)) success++;
     success /= 5;
     //
-    //  We provide a bonus to extraction effiency based on upgrades available
-    //  at the kommando lodge-
-    if (depot instanceof EcologistRedoubt) {
-      final EcologistRedoubt still = (EcologistRedoubt) depot;
-      float bonus = still.structure.upgradeLevel(EcologistRedoubt.PROTEIN_STILL);
-      mult += bonus / EcologistRedoubt.PROTEIN_STILL.maxLevel;
-    }
-    //
     //  Then we measure the physical damage done, and decrement prey health.
     final float
       before = prey.health.injury(),

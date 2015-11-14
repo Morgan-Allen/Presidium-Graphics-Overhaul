@@ -37,7 +37,7 @@ public class TutorialScenario extends StartupScenario {
   private TrooperLodge     barracksBuilt = null;
   private EngineerStation  foundryBuilt  = null;
   private StockExchange    marketBuilt   = null;
-  private BotanicalStation botanistBuilt = null;
+  private EcologistStation botanistBuilt = null;
   private boolean          topUpFunds    = true;
   private boolean          auditorSeen   = false;
   
@@ -67,7 +67,7 @@ public class TutorialScenario extends StartupScenario {
     barracksBuilt = (TrooperLodge    ) s.loadObject();
     foundryBuilt  = (EngineerStation ) s.loadObject();
     marketBuilt   = (StockExchange   ) s.loadObject();
-    botanistBuilt = (BotanicalStation) s.loadObject();
+    botanistBuilt = (EcologistStation) s.loadObject();
     topUpFunds    = s.loadBool();
     auditorSeen   = s.loadBool();
     

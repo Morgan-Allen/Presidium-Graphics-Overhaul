@@ -178,8 +178,24 @@ public abstract class Species extends Background {
   public boolean living  () { return sapient() || animal(); }
   public boolean preyedOn() { return browser(); }
   
+  
+  
+  /**  Metabolism and trophic levels-
+    */
   public Item[] nutrients(int stage) { return stageNutrients[stage]; }
   public float metabolism() { return baseBulk * speedMult; }
+  
+  final static Traded[]
+    MEAT_ONLY  = new Traded[] { PROTEIN },
+    VEGETABLES = new Traded[] { CARBS, GREENS },
+    NONE_EATEN = new Traded[0];
+  
+  public Traded[] canEat() {
+    if (predator()) return MEAT_ONLY;
+    if (browser ()) return VEGETABLES;
+    if (living  ()) return Economy.ALL_FOOD_TYPES;
+    return NONE_EATEN;
+  }
   
   
   public String trophicKey() {

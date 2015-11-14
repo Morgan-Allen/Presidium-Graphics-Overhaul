@@ -65,6 +65,13 @@ public class FirstAid extends Treatment {
   
   private Boarding findRefuge(Actor actor, Target compare) {
     final Boarding current = patient.aboard();
+    //
+    //  We don't bring potential enemies back to our base even if we do stop
+    //  them dying...
+    if (patient.base().relations.relationWith(actor.base()) > 0) {
+      return current;
+    }
+    
     if (compare == null) compare = Retreat.nearestHaven(
       actor, PhysicianStation.class, false
     );

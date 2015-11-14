@@ -177,7 +177,7 @@ public class Recreation extends Plan {
     }
     final Actor chats = (Actor) Rand.pickFrom(venue.staff.visitors());
     if (chats != null) {
-      comfort += DialogueUtils.tryChat(actor, chats);
+      comfort += DialogueUtils.tryChat(actor, chats, 0);
     }
     
     comfort *= enjoyBonus;

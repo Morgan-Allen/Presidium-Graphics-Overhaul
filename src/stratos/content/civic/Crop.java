@@ -70,11 +70,11 @@ public class Crop extends Flora {
     ) {};
   
   
-  final public BotanicalStation parent;
+  final public EcologistStation parent;
   private boolean covered;
   
   
-  public Crop(BotanicalStation parent, Species species) {
+  public Crop(EcologistStation parent, Species species) {
     super(species);
     this.parent = parent;
   }
@@ -82,7 +82,7 @@ public class Crop extends Flora {
   
   public Crop(Session s) throws Exception {
     super(s);
-    parent  = (BotanicalStation) s.loadObject();
+    parent  = (EcologistStation) s.loadObject();
     covered = s.loadBool();
   }
   

@@ -64,6 +64,7 @@ public class Dialogue extends Plan {
   private int stage = STAGE_INIT;
   private Session.Saveable topic;
   private float tryCounter;
+  private int checkBonus;
   
   
   public static Dialogue dialogueFor(Actor actor, Actor other) {
@@ -112,6 +113,7 @@ public class Dialogue extends Plan {
     stage      = s.loadInt();
     topic      = s.loadObject();
     tryCounter = s.loadFloat();
+    checkBonus = s.loadInt();
   }
   
   
@@ -123,6 +125,7 @@ public class Dialogue extends Plan {
     s.saveInt   (stage     );
     s.saveObject(topic     );
     s.saveFloat (tryCounter);
+    s.saveInt   (checkBonus);
   }
   
   
@@ -133,6 +136,12 @@ public class Dialogue extends Plan {
   
   public Session.Saveable topic() {
     return topic;
+  }
+  
+  
+  public Dialogue setCheckBonus(float bonus) {
+    this.checkBonus = (int) bonus;
+    return this;
   }
   
   
@@ -406,7 +415,7 @@ public class Dialogue extends Plan {
   
   
   protected void discussTopic(Session.Saveable topic, boolean close) {
-    DialogueUtils.tryChat(actor, other);
+    DialogueUtils.tryChat(actor, other, checkBonus);
     
     if (topic instanceof Actor ) {
       DialogueUtils.discussPerson(actor, other, (Actor ) topic);

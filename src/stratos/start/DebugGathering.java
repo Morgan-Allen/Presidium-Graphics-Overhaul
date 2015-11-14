@@ -95,7 +95,7 @@ public class DebugGathering extends Scenario {
   private void configFarmsTest(Stage world, Base base, BaseUI UI) {
     Flora.populateFlora(world);
     
-    final BotanicalStation station = new BotanicalStation(base);
+    final EcologistStation station = new EcologistStation(base);
     SiteUtils.establishVenue(station, 8, 8, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);
@@ -153,7 +153,7 @@ public class DebugGathering extends Scenario {
   private void configSampleTest(Stage world, Base base, BaseUI UI) {
     Flora.populateFlora(world);
     
-    final BotanicalStation station = new BotanicalStation(base);
+    final EcologistStation station = new EcologistStation(base);
     SiteUtils.establishVenue(station, 8, 8, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);

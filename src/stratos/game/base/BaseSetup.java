@@ -318,7 +318,7 @@ public class BaseSetup {
       
       float initRelation = 0.25f;
       for (int n = DEFAULT_CHAT_SAMPLES; n-- > 0;) {
-        initRelation += DialogueUtils.tryChat(f, t);
+        initRelation += DialogueUtils.tryChat(f, t, 0);
       }
       float initNovelty = 1.0f;
       initNovelty -= (Rand.num() - 0.5f) / 2;

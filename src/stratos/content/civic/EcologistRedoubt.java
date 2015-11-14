@@ -23,6 +23,10 @@ import static stratos.game.economic.Economy.*;
 
 
 
+//  TODO:  I'm cutting this out for now.  Seems redundant until I can get the
+//  Kommandos online.
+
+
 public class EcologistRedoubt extends Venue implements Captivity {
   
   
@@ -43,7 +47,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     EcologistRedoubt.class, "ecologist_redoubt",
-    "Ecologist Redoubt", Target.TYPE_ECOLOGIST, ICON,
+    "Ecologist Redoubt", Target.TYPE_WIP, ICON,
     "Your Ecologists help adapt plant and animal species to a human presence, "+
     "and often prove valuable in guerilla warfare.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 150, 4,
@@ -112,9 +116,10 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   /**  Upgrades, economic functions and behaviour implementations-
     */
+  /*
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.TWO_LEVELS, BotanicalStation.LEVELS[0],
+      Upgrade.TWO_LEVELS, EcologistStation.LEVELS[0],
       new Object[] { 15, XENOZOOLOGY, 0, STEALTH_AND_COVER },
       450, 250
     ),
@@ -139,7 +144,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
       "Captive Breeding",
       "Improves the effiency of animal taming and breeding programs.",
       150,
-      Upgrade.TWO_LEVELS, BotanicalStation.SYMBIOTICS, BLUEPRINT,
+      Upgrade.TWO_LEVELS, EcologistStation.SYMBIOTICS, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       15, XENOZOOLOGY
     ),
@@ -211,6 +216,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   protected void updatePaving(boolean inWorld) {
   }
+  //*/
   
   
   

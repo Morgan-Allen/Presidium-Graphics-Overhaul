@@ -129,10 +129,10 @@ public class Resting extends Plan {
     
     //  Include effects of hunger-
     float sumFood = 0, hunger = Nums.clamp(actor.health.hungerLevel(), 0, 1);
-    for (Traded s : menuFor(restPoint)) {
+    for (Traded s : menuFor(actor, restPoint)) {
       sumFood += restPoint.inventory().amountOf(s);
     }
-    for (Traded s : menuFor(actor)) {
+    for (Traded s : menuFor(actor, actor)) {
       sumFood += actor.inventory().amountOf(s);
     }
     if (sumFood > 1) sumFood = 1;
@@ -162,20 +162,6 @@ public class Resting extends Plan {
     
     //  TODO:  INCLUDE LAZINESS!
     return urgency;
-  }
-  
-  
-  private static boolean hasMenu(Owner place) {
-    return menuFor(place).size() > 0;
-  }
-  
-  
-  private static Batch <Traded> menuFor(Owner place) {
-    Batch <Traded> menu = new Batch <Traded> ();
-    for (Traded type : ALL_FOOD_TYPES) {
-      if (place.inventory().amountOf(type) >= 0.1f) menu.add(type);
-    }
-    return menu;
   }
   
   
@@ -248,8 +234,25 @@ public class Resting extends Plan {
   }
   
   
+  
+  /**  Utility methods to support dining-
+    */
+  private static Batch <Traded> menuFor(Actor actor, Owner place) {
+    Batch <Traded> menu = new Batch <Traded> ();
+    for (Traded type : actor.species().canEat()) {
+      if (place.inventory().amountOf(type) >= 0.1f) menu.add(type);
+    }
+    return menu;
+  }
+  
+  
+  private boolean hasMenu(Owner place) {
+    return menuFor(actor, place).size() > 0;
+  }
+  
+  
   public static boolean dineFrom(Actor actor, Owner stores) {
-    final Batch <Traded> menu = menuFor(stores);
+    final Batch <Traded> menu = menuFor(actor, stores);
     final int numFoods = menu.size();
     if (numFoods == 0 || actor.health.hungerLevel() < 0.1f) return false;
     
