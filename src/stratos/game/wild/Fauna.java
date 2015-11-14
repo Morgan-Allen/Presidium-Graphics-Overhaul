@@ -126,6 +126,11 @@ public abstract class Fauna extends Actor implements Mount {
     return (1 - crowding) * Nums.clamp(fertility, 0, ActorHealth.AGE_MAX);
   }
   
+  
+  public float breedingCondition() {
+    return this.breedMetre;
+  }
+  
 
 
   /**  Shared behavioural methods-

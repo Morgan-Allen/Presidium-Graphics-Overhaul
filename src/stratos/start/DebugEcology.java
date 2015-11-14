@@ -86,26 +86,21 @@ public class DebugEcology extends Scenario {
   private void tendingFaunaTest(Stage world, Base base, BaseUI UI) {
     
     Base wildlife = Base.wildlife(world);
-    Fauna fauna = (Fauna) Lictovore.SPECIES.sampleFor(wildlife);
-    //fallen.health.setInjuryLevel(0.75f);
-    //fallen.health.setFatigueLevel(0.75f);
-    //fallen.health.setState(ActorHealth.STATE_RESTING);
+    Fauna fauna = (Fauna) Qudu.SPECIES.sampleFor(wildlife);
+    fauna.health.setInjuryLevel(0.75f);
+    fauna.health.setFatigueLevel(0.75f);
+    fauna.health.setState(ActorHealth.STATE_RESTING);
     fauna.enterWorldAt(12, 12, world, true);
     
     Actor meets = new Human(Backgrounds.ECOLOGIST, base);
     meets.skills.addTechniques(EcologistTechniques.ECOLOGIST_TECHNIQUES);
     meets.enterWorldAt(9, 9, world, true);
     
-    //meets.mind.assignBehaviour(Dialogue.dialogueFor(meets, fauna));
     UI.selection.pushSelection(meets);
     
-    /*
     Venue station = new EcologistRedoubt(base);
-    SiteUtils.establishVenue(station, 4, 4, true, world);
+    SiteUtils.establishVenue(station, 4, 4, true, world, meets);
     base.setup.fillVacancies(station, true);
-    
-    UI.selection.pushSelection(station.staff.workers().first());
-    //*/
   }
   
   

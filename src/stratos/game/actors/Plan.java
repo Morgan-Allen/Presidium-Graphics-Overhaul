@@ -104,10 +104,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     Actor actor, Target subject, int motiveType, float harmFactor
   ) {
     if (subject == null) I.complain("NULL PLAN SUBJECT");
-    this.actor   = actor  ;
-    this.subject = subject;
+    this.actor      = actor     ;
+    this.subject    = subject   ;
     this.properties = motiveType;
-    this.harmFactor       = harmFactor;
+    this.harmFactor = harmFactor;
   }
   
   
@@ -467,6 +467,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   //  TODO:  This also needs to be automated.
   protected void setCompetence(float c) {
     this.competence = c;
+  }
+  
+  
+  protected void setHarmFactor(float harmFactor) {
+    this.harmFactor = harmFactor;
   }
   
   

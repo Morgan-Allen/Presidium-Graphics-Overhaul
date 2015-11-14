@@ -170,11 +170,6 @@ public class EcologistRedoubt extends Venue implements Captivity {
     final Exploring e = Exploring.nextExploration(actor);
     if (e != null) choice.add(e.addMotives(Plan.MOTIVE_JOB, 0));
     
-    //  TODO:  Include recruitment efforts among natives.
-    //  TODO:  Include animal-contact efforts.
-    //  TODO:  Include animal-breeding and culling if necessary.
-    //  TODO:  Allow agents to drop off wounded animals here.
-    
     final Batch <Target> sampled = new Batch();
     world.presences.sampleFromMap(actor, world, 5, sampled, Mobile.class);
     Visit.appendTo(sampled, inside());
@@ -183,32 +178,13 @@ public class EcologistRedoubt extends Venue implements Captivity {
       final Fauna fauna = (Fauna) t;
       final boolean domestic = fauna.base() == base;
       
-      if (domestic) {
-        choice.add(new AnimalTending(actor, fauna, this));
-      }
-      else {
+      if (! domestic) {
         final Item sample = Item.withReference(GENE_SEED, fauna.species());
         if (stocks.hasItem(sample)) continue;
         else choice.add(Hunting.asSample(actor, fauna, this));
         choice.add(Hunting.asHarvest(actor, fauna, this));
-        
-        
-        
-        /*
-        Proposal prop = new Proposal(actor, fauna);
-        prop.setTerms(
-          Pledge.giftPledge(item, depot, from, to),
-          Pledge.joinBasePledge(fauna, base)
-        );
-        //*/
       }
     }
-    
-    //  TODO:  Include contact-missions for natives?
-    
-    //  TODO:  Just use seed-tailoring here (or possibly at the ecologist
-    //  station.)  Then release it to live here.
-    //choice.add(AnimalTending.nextTending(actor, this));
     
     choice.add(Studying.asTechniqueTraining(
       actor, this, 0, EcologistTechniques.ECOLOGIST_TECHNIQUES
