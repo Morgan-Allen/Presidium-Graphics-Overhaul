@@ -279,7 +279,7 @@ public abstract class Technique extends Constant {
   
   
   public boolean triggersPassive(
-    Actor actor, Plan current, Skill used, Target subject
+    Actor actor, Plan current, Skill used, Target subject, boolean reactive
   ) {
     return used == focus;
   }
@@ -307,8 +307,8 @@ public abstract class Technique extends Constant {
       final float hostility = Nums.clamp(PlanUtils.combatPriority(
         actor, subject, 0, 1, false, Plan.REAL_HARM
       ) / Plan.PARAMOUNT, EXTREME_HELP, EXTREME_HARM);
-      if (harmFactor >  0 && hostility <= 0) return 0;
-      if (harmFactor <= 0 && hostility >  0) return 0;
+      if (harmFactor >  0 && hostility <= 0) return -5;
+      if (harmFactor <= 0 && hostility >  0) return -5;
       rating /= 1 + Nums.abs(harmFactor - hostility);
     }
     
@@ -334,8 +334,7 @@ public abstract class Technique extends Constant {
   }
   
   
-  protected void afterSkillEffects(Actor using, float success, Action taken) {
-    final Target subject = taken == null ? using : taken.subject();
+  protected void afterSkillEffects(Actor using, float success, Target subject) {
     applySelfEffects(using);
     applyEffect(using, success > 0, subject, true);
   }
@@ -367,7 +366,7 @@ public abstract class Technique extends Constant {
   public void applyEffect(
     Actor using, boolean success, Target subject, boolean passive
   ) {
-    if (false && ! isPassiveAlways()) {
+    if (! isPassiveAlways()) {
       I.say("\n"+using+" APPLIED TECHNIQUE: "+this+" TO: "+subject);
       I.say("  Success: "+success+"  Passive: "+passive);
     }
@@ -419,12 +418,12 @@ public abstract class Technique extends Constant {
   
   
   protected void onConditionStart(Actor affected) {
-    //  TODO:  Fill this in?
+    return;
   }
   
   
   protected void onConditionEnd(Actor affected) {
-    //  TODO:  Fill this in?
+    return;
   }
   
   
@@ -440,7 +439,7 @@ public abstract class Technique extends Constant {
   
   /**  Other static helper methods:
     */
-  //  TODO:  Move these to other helper classes!
+  //  TODO:  Move these to other helper classes?
   
   public static boolean isDoingAction(Actor actor, Technique used) {
     final Action taken = actor.currentAction();

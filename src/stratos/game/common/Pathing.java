@@ -263,9 +263,8 @@ public class Pathing {
   /**  Specialty methods for modifying the position/facing of actors-
     */
   private static Vec3D temp3 = new Vec3D();
-  private static Vec2D temp2 = new Vec2D();
   
-  private Vec2D displacement(Target target) {
+  public Vec2D displacement(Target target) {
     final Vec3D p = target.position(temp3);
     final Vec2D disp = new Vec2D(
       p.x - mobile.position.x,

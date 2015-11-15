@@ -5,6 +5,7 @@
   */
 package stratos.content.abilities;
 import stratos.game.actors.*;
+import stratos.game.maps.Planet;
 import stratos.game.plans.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -46,7 +47,23 @@ public class RunnerTechniques {
     UI_DIR = "media/GUI/Powers/";
   final static Class BASE_CLASS = RunnerTechniques.class;
   
-  final static PlaneFX.Model
+
+  final static ShotFX.Model
+    TRACE_FX_MODEL = new ShotFX.Model(
+      "tracer_beam_fx", BASE_CLASS,
+      FX_DIR+"tracer_beam.png", 0.05f, 0, 0.05f, 3, true, true
+    );
+  final public static PlaneFX.Model
+    AIM_FX_MODEL = PlaneFX.animatedModel(
+      "aim_model", BASE_CLASS,
+      FX_DIR+"aiming_anim.png",
+      4, 4, 16, (16 / 25f), 0.25f
+    ),
+    PIERCE_FX_MODEL = PlaneFX.imageModel(
+      "pierce_fx", BASE_CLASS,
+      FX_DIR+"penetrating_shot.png",
+      0.5f, 0, 0, false, false
+    ),
     OVERLOAD_BURST_FX = PlaneFX.animatedModel(
       "overload_burst_fx", BASE_CLASS,
       FX_DIR+"overload_burst.png", 4, 2, 8, 1, 1.33f
@@ -69,24 +86,95 @@ public class RunnerTechniques {
     );
   
   final static int
+    FIRST_AIM_BONUS  =  5,
+    FIRST_DAMAGE_MIN =  2,
+    FIRST_DAMAGE_MAX =  6,
+    SOLO_SKILL_BONUS =  5,
     OVERLOAD_DAMAGE  = 10,
-    
-    SNIPER_HIT_MIN   = 5,
+    SNIPER_HIT_MIN   =  5,
     SNIPER_HIT_MAX   = 15,
+    SNIPER_VISION    = 10,
     
-    BURN_STAT_BONUS  = 5,
-    BURN_SKILL_BONUS = 2,
-    BURN_CHARGES     = 4,
-    
+    BURN_DURATION    = Stage.STANDARD_HOUR_LENGTH * 2,
+    BURN_STAT_BONUS  =  5,
+    BURN_SKILL_BONUS =  2,
+    BURN_CHARGES     =  3,
     TOXIN_DURATION   = Stage.STANDARD_HOUR_LENGTH / 2,
     TOXIN_RESIST_DC  = 10,
     TOXIN_DAMAGE     = 10,
-    TOXIN_CHARGES    = 4 ;
+    TOXIN_CHARGES    =  4;
   
   
-  //  TODO:  Allow hiding inside enemy structures this way?
-  //  TODO:  Sniper kit should improve night vision.
   
+  final public static Technique FIRST_SHOT = new Technique(
+    "First Shot", UI_DIR+"first_shot.png",
+    "Grants bonus damage and accuracy against surprised or flanked opponents.",
+    BASE_CLASS, "first_shot",
+    MINOR_POWER         ,
+    REAL_HARM           ,
+    NO_FATIGUE          ,
+    MEDIUM_CONCENTRATION,
+    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, MARKSMANSHIP, 5,
+    MARKSMANSHIP
+  ) {
+    
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
+    ) {
+      if (reactive || used != MARKSMANSHIP) return false;
+      if (! (current instanceof Combat)) return false;
+      if (! (subject instanceof Actor )) return false;
+      final Actor marks = (Actor) subject;
+      if (! marks.senses.awareOf(actor)) return true;
+      if (SenseUtils.flankingAngle(marks, actor) >= 90) return true;
+      return false;
+    }
+    
+    
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
+      return FIRST_AIM_BONUS;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      ActionFX.applyBurstFX(AIM_FX_MODEL, using, 1.5f, 1);
+      
+      if (success) {
+        final Actor marks = (Actor) subject;
+        float damage = roll(FIRST_DAMAGE_MIN, FIRST_DAMAGE_MAX);
+        marks.health.takeInjury(damage, true);
+      }
+    }
+  };
+  
+  
+  final public static Technique SOLO_RUN = new Technique(
+    "Solo Run", UI_DIR+"sniper_kit.png",
+    "Grants a +"+SOLO_SKILL_BONUS+" bonus to stealth and speed while "+
+    "operating alone and not detected.",
+    BASE_CLASS, "solo_run",
+    MINOR_POWER         ,
+    NO_HARM             ,
+    NO_FATIGUE          ,
+    NO_CONCENTRATION    ,
+    IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, STEALTH_AND_COVER, 5, null
+  ) {
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      for (Plan p : using.world().activities.activePlanMatches(using, null)) {
+        if (p.actor() != using) return;
+      }
+      using.traits.incBonus(STEALTH_AND_COVER, SOLO_SKILL_BONUS);
+      using.traits.incBonus(ATHLETICS        , SOLO_SKILL_BONUS);
+    }
+  };
+
   
   final public static Technique OVERLOAD = new Technique(
     "Overload", UI_DIR+"sniper_kit.png",
@@ -96,11 +184,16 @@ public class RunnerTechniques {
     EXTREME_HARM        ,
     NO_FATIGUE          ,
     MAJOR_CONCENTRATION ,
-    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, null, 0,
+    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, INSCRIPTION, 10,
     Action.LOOK, Action.RANGED
   ) {
     
     public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      final Mount m = actor.currentMount();
+      if (m instanceof Captivity && m instanceof Placeable) {
+        final Structure s = ((Placeable) m).structure();
+        if (s.isMechanical()) return true;
+      }
       return (current instanceof Combat && subject instanceof Artilect);
     }
     
@@ -109,7 +202,16 @@ public class RunnerTechniques {
       Actor using, boolean success, Target subject, boolean passive
     ) {
       super.applyEffect(using, success, subject, passive);
-      if (success) {
+      
+      if (success && subject instanceof Placeable) {
+        final Placeable p = (Placeable) subject;
+        using.releaseFromMount();
+        final Tile escapes = Spacing.nearestOpenTile(p, p);
+        if (! using.inWorld()) using.enterWorldAt(escapes, p.world());
+        using.goAboard(escapes, p.world());
+      }
+      
+      if (success && subject instanceof Artilect) {
         final Artilect zaps = (Artilect) subject;
         zaps.health.takeInjury(OVERLOAD_DAMAGE, true);
         
@@ -124,13 +226,13 @@ public class RunnerTechniques {
   final public static Technique SNIPER_KIT = new Technique(
     "Sniper Kit", UI_DIR+"sniper_kit.png",
     "Deals "+SNIPER_HIT_MIN+"-"+SNIPER_HIT_MAX+" damage to surprised or "+
-    "stationary targets.",
+    "stationary targets.  (Also improves night vision.)",
     BASE_CLASS, "sniper kit",
     MEDIUM_POWER        ,
     EXTREME_HARM        ,
     NO_FATIGUE          ,
     MAJOR_CONCENTRATION ,
-    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, null, 0,
+    IS_FOCUS_TARGETING | IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, MARKSMANSHIP, 15,
     Action.FIRE, Action.RANGED
   ) {
     
@@ -150,14 +252,6 @@ public class RunnerTechniques {
       final boolean hits = Combat.performGeneralStrike(
         actor, mark, Combat.OBJECT_DESTROY, actor.currentAction()
       );
-      
-      ActionFX.applyBurstFX(
-        CommonTechniques.AIM_FX_MODEL, actor, 1.5f, 1
-      );
-      ActionFX.applyShotFX(
-        SNIPER_TRACE_FX, actor, mark, hits, 1, actor.world()
-      );
-      
       return hits && super.checkActionSuccess(actor, mark);
     }
     
@@ -165,13 +259,25 @@ public class RunnerTechniques {
     public void applyEffect(
       Actor using, boolean success, Target subject, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
-      final Actor mark = (Actor) subject;
-      if (success) {
-        float damage = 0;
-        damage += (SNIPER_HIT_MAX - SNIPER_HIT_MIN) * Rand.num();
-        damage += SNIPER_HIT_MIN;
-        mark.health.takeInjury(damage, true);
+      if (passive) {
+        float nightVal = 1f - Planet.dayValue(using.world());
+        using.traits.incBonus(SURVEILLANCE, SNIPER_VISION * nightVal);
+      }
+      else {
+        super.applyEffect(using, success, subject, passive);
+        if (success) {
+          final Actor mark = (Actor) subject;
+          
+          ActionFX.applyBurstFX(AIM_FX_MODEL, using, 1.5f, 1);
+          ActionFX.applyShotFX(
+            SNIPER_TRACE_FX, using, mark, true, 1, using.world()
+          );
+          
+          float damage = 0;
+          damage += (SNIPER_HIT_MAX - SNIPER_HIT_MIN) * Rand.num();
+          damage += SNIPER_HIT_MIN;
+          mark.health.takeInjury(damage, true);
+        }
       }
     }
   };
@@ -298,6 +404,10 @@ public class RunnerTechniques {
       using.traits.setLevel(asCondition, 1);
     }
     
+    protected float conditionDuration() {
+      return BURN_DURATION;
+    }
+    
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
       affected.traits.incBonus(MOTOR       , BURN_STAT_BONUS );
@@ -327,7 +437,7 @@ public class RunnerTechniques {
   
   
   final public static Technique RUNNER_TECHNIQUES[] = {
-    OVERLOAD, SNIPER_KIT, FAST_TOXIN, SLOW_BURN
+    FIRST_SHOT, SOLO_RUN, OVERLOAD, SNIPER_KIT
   };
 }
 
@@ -351,17 +461,6 @@ final static Traded
   SIMSTIMS = new Traded(
     RunnerMarket.class, "Simstims", null, Economy.FORM_SPECIAL, 45,
     "Simstims provide voyeuristic virtual entertainment to the masses."
-  ),
-  
-  FAST_TOXIN = new Traded(
-    RunnerMarket.class, "Fast Toxin", null, Economy.FORM_USED_ITEM, 85,
-    "A fast-acting poison suitable for application to melee or kinetic "+
-    "weaponry."
-  ),
-  SLOW_BURN = new Traded(
-    RunnerMarket.class, "Slow Burn", null, Economy.FORM_USED_ITEM, 55,
-    "An addictive narcotic that greatly accelerates reaction times and "+
-    "perception."
   ),
   
   //  Disguise, beauty, and cognitive/sensitive/physical DNA treatments are

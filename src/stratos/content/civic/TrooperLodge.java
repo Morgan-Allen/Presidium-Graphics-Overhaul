@@ -263,12 +263,12 @@ public class TrooperLodge extends Venue implements Conscription {
       choice.add(s);
     }
   }
-
-
+  
+  
   private Technique[] canLearn() {
     Batch <Technique> can = new Batch();
-    can.add(ELECTROCUTE     );
-    can.add(SHIELD_HARMONICS);
+    can.add(FENDING_BLOW);
+    can.add(SUPPRESSION );
     if (structure.hasUpgrade(FRAG_LAUNCHER_UPGRADE)) can.add(FRAG_LAUNCHER   );
     if (structure.hasUpgrade(POWER_ARMOUR_UPGRADE )) can.add(POWER_ARMOUR_USE);
     return can.toArray(Technique.class);

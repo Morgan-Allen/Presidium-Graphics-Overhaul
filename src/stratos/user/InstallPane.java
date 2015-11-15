@@ -229,7 +229,6 @@ public class InstallPane extends SelectionPane {
     Text.insert(b, 40, 40, true, text);
     
     if (forType != null) {
-      text.append(" ");
       forType.appendBaseOrders(text, base);
     }
   }

@@ -3,27 +3,24 @@
 
 TO DO NOW-
    
-   
-*  Offworld raids by enemy houses!
-
-*  Hook up, and test, all common abilities.  (Plus general learning & use of
-   the others.)  Reserve Suppression and Hew for Troopers- move psy powers out.
+*  Offworld raids by enemy houses!  (And general 'wandering monsters'.)
    
 *  See if you can hook up ammo clips and power cells.
 *  Pax Conditioning needs to be filled in.  Psy Protocol as booster skill.
+*  Make sure techniques and behaviours are correct for nobles.  Platform gunner?
    
    
 *  Actors should be doing more to dispose of bodies.  Burial or recyling.
 *  In addition, picking rest/retreat points should be more sensible (check the
    pure-combat scenarios.)
-
+   
 *  A summary of profit and loss for each structure would be worthwhile!
    (Also, venues should have min-stocks for certain goods, even when selling.)
-
+   
 *  Animals & children need to be looked after as part of general Supervision-
    behaviour.  (In fact, you need a general interface for this, with animal-
    tending as some method overrides for the eco station.)
-
+   
 *  Mount behaviours are working, but could use some polish.  You need to have a
    better definition for the kinds of tasks that merit being mounted, and make
    sure that mounts are prompter about responding.  (A MountUtils class may

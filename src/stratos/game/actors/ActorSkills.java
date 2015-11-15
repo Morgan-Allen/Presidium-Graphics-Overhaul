@@ -26,7 +26,6 @@ public class ActorSkills {
   
   final Actor actor;
   private List <Technique> known = new List <Technique> ();
-  private Technique passiveBonus = null;
   
   
   public ActorSkills(Actor actor) {
@@ -36,13 +35,11 @@ public class ActorSkills {
   
   public void loadState(Session s) throws Exception {
     s.loadObjects(known);
-    passiveBonus = (Technique) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObjects(known);
-    s.saveObject(passiveBonus);
   }
   
   
@@ -126,48 +123,6 @@ public class ActorSkills {
   }
   
   
-  protected float skillBonusFromTechniques(
-    Skill skill, Plan current, Target subject, Action taken
-  ) {
-    final boolean report = I.talkAbout == actor && techsVerbose;
-    
-    if (report) {
-      I.say("\nGetting best passive technique for "+actor);
-      I.say("  Fatigue:       "+actor.health.fatigueLevel ());
-      I.say("  Concentration: "+actor.health.concentration());
-      I.say("  Skill used:    "+skill  );
-      I.say("  Current plan:  "+current);
-      I.say("  Subject:       "+subject);
-    }
-    
-    final Pick <Technique> pick = new Pick(0);
-    this.passiveBonus = null;
-    if (current == null && taken != null) current = taken.parentPlan();
-    if (subject == null && taken != null) subject = taken.subject();
-    if (current == null) current = actor.matchFor(null, true);
-    if (subject == null) subject = actor;
-    
-    for (Technique t : availableTechniques()) if (t.isPassiveSkillFX()) {
-      if (! t.triggersPassive(actor, current, skill, subject)) {
-        if (report) I.say("  "+t+" is not applicable to "+subject);
-        continue;
-      }
-      final float appeal = t.basePriority(actor, current, subject);
-      
-      if (report) {
-        I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
-        I.say("    Appeal is: "+appeal);
-        I.say("    Targeting: "+subject);
-      }
-      pick.compare(t, appeal);
-    }
-    
-    final Technique bonus = pick.result();
-    this.passiveBonus = bonus;
-    return bonus == null ? 0 : bonus.passiveBonus(actor, skill, subject);
-  }
-  
-  
   private void rateActiveTechnique(
     Technique t, Plan plan, Target subject, Choice choice, boolean report
   ) {
@@ -184,7 +139,7 @@ public class ActorSkills {
     if (radius > 0) {
       for (Actor affected : PlanUtils.subjectsInRange(subject, radius)) {
         final float priority = t.basePriority(actor, plan, affected);
-        if (desc && priority <= 0) continue;
+        if (desc && priority < 0) continue;
         appeal += priority;
       }
     }
@@ -245,6 +200,60 @@ public class ActorSkills {
     return GP;
   }
   
+
+  
+  /**  Handling assessment of passive skills-
+    */
+  static class PassiveResult { Technique used; float bonus; Target subject; }
+  final static PassiveResult NO_RESULT = new PassiveResult();
+  
+  
+  protected PassiveResult skillBonusFromTechniques(
+    Skill skill, Plan current, Target subject, Action taken
+  ) {
+    final boolean report = I.talkAbout == actor && techsVerbose;
+    
+    if (report) {
+      I.say("\nGetting best passive technique for "+actor);
+      I.say("  Fatigue:       "+actor.health.fatigueLevel ());
+      I.say("  Concentration: "+actor.health.concentration());
+      I.say("  Skill used:    "+skill  );
+      I.say("  Current plan:  "+current);
+      I.say("  Subject:       "+subject);
+      I.say("  Action taken:  "+taken  );
+    }
+    
+    final Pick <Technique> pick = new Pick(0);
+    final boolean reactive = taken == null;
+    if (current == null && taken != null) current = taken.parentPlan();
+    if (subject == null && taken != null) subject = taken.subject();
+    if (current == null) current = (Plan) actor.mind.topBehaviour();
+    if (subject == null) subject = actor;
+    
+    for (Technique t : availableTechniques()) if (t.isPassiveSkillFX()) {
+      if (! t.triggersPassive(actor, current, skill, subject, reactive)) {
+        if (report) I.say("  "+t+" is not applicable to "+subject);
+        continue;
+      }
+      final float appeal = t.basePriority(actor, current, subject);
+      
+      if (report) {
+        I.say("  "+t+" (Fat "+t.fatigueCost+" Con "+t.concentrationCost+")");
+        I.say("    Appeal is: "+appeal);
+        I.say("    Targeting: "+subject);
+      }
+      pick.compare(t, appeal);
+    }
+    if (pick.empty()) return NO_RESULT;
+    
+    final Technique used = pick.result();
+    final PassiveResult result = new PassiveResult();
+    result.subject = subject;
+    result.used = used;
+    result.bonus = used == null ? 0 : used.passiveBonus(actor, skill, subject);
+    return result;
+  }
+  
   
   
   /**  Methods for performing actual skill tests against both static and active
@@ -285,9 +294,12 @@ public class ActorSkills {
     //
     //  Invoke any known techniques here that are registered to be triggered
     //  by a skill of this type, and get their associated bonus:
-    bonus += skillBonusFromTechniques(checked, null, null, action);
+    PassiveResult resA, resB = NO_RESULT;
+    resA = skillBonusFromTechniques(checked, null, null, action);
+    bonus += resA.bonus;
     if (opponent) {
-      bonus -= b.skills.skillBonusFromTechniques(opposed, null, actor, null);
+      resB = b.skills.skillBonusFromTechniques(opposed, null, actor, null);
+      bonus -= resB.bonus;
     }
     //
     //  Then get the baseline probability of success in the task.
@@ -302,30 +314,28 @@ public class ActorSkills {
     }
     //
     //  Then grant experience in the relevant skills (included those used by
-    //  any competitor) and activate any special effects for used techniques-
-    practice(checked, chance, duration, action);
-    if (opponent) b.skills.practice(opposed, 1 - chance, duration, action);
-    //
-    //  Finally, return the result.
+    //  any competitor,) activate any special effects for used techniques, and
+    //  return the result.
+    practice(checked, chance, duration, resA);
+    if (opponent) b.skills.practice(opposed, 1 - chance, duration, resB);
     return success;
   }
   
   
   private void practice(
-    Skill skillType, float chance, float duration, Action after
+    Skill skillType, float chance, float duration,
+    PassiveResult result
   ) {
     final float level = actor.traits.traitLevel(skillType);
     float practice = chance * (1 - chance) * 4;
     practice *= duration / (10f * (level + 1));
     actor.traits.incLevel(skillType, practice);
     
-    if (passiveBonus != null) {
-      final Technique active = passiveBonus;
-      passiveBonus = null;  // Can avoid certain infinite loops.
-      active.afterSkillEffects(actor, chance, after);
+    if (result != NO_RESULT) {
+      result.used.afterSkillEffects(actor, chance, result.subject);
     }
     if (skillType.parent != null) {
-      practice(skillType.parent, chance, duration / 4, after);
+      practice(skillType.parent, chance, duration / 4, NO_RESULT);
     }
   }
   

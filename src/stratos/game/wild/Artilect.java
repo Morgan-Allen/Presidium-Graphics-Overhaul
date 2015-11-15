@@ -366,7 +366,7 @@ public abstract class Artilect extends Actor {
       final Actor struck = (Actor) subject;
       float damage = roll(IMPALE_DAMAGE_MIN, IMPALE_DAMAGE_MAX);
       struck.health.takeInjury(damage, true);
-      struck.enterStateKO(Action.FALL);
+      struck.forceReflex(Action.FALL, false);
     }
   };
   
@@ -442,14 +442,14 @@ public abstract class Artilect extends Actor {
   ) {
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (! (subject instanceof Actor)) return false;
       final Actor strikes = (Actor) subject;
       if (strikes.actionFocus() != actor) return false;
       if (strikes.gear.meleeDeviceOnly()) return false;
       if (! strikes.isDoing(Combat.class, actor)) return false;
-      return super.triggersPassive(actor, current, used, subject);
+      return super.triggersPassive(actor, current, used, subject, reactive);
     }
     
     

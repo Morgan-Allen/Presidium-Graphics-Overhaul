@@ -358,14 +358,14 @@ public class Combat extends Plan {
   public static boolean performStrike(
     Actor actor, Actor target,
     Skill offence, Skill defence,
-    int strikeType, Action action
+    int object, Action action
   ) {
     final boolean report = damageVerbose && I.talkAbout == actor;
     if (report) I.say("\n"+actor+" performing strike against "+target);
     
     final boolean
-      subdue = strikeType == OBJECT_SUBDUE ,
-      lethal = strikeType == OBJECT_DESTROY,
+      subdue = object == OBJECT_SUBDUE ,
+      lethal = object == OBJECT_DESTROY,
       showFX = ! (actor.indoors() && target.aboard() == actor.aboard());
     
     final boolean phys    = actor.gear.hasDeviceProperty(Devices.KINETIC);

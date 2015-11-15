@@ -139,23 +139,26 @@ public class DebugCombat extends Scenario {
     
     world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
     
-    /*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { TROOPER },
-      TrooperTechniques.TROOPER_TECHNIQUES,
-      new Species[] { Drone.SPECIES, Drone.SPECIES, Drone.SPECIES },
-      Base.artilects(world), true
-    );
-    //*/
-    
     //*
     setupCombatScenario(
       world, base, UI,
-      new Background[] { TROOPER },
-      null,//EcologistTechniques.ECOLOGIST_TECHNIQUES,
-      new Species[] { Roachman.SPECIES },
-      Base.vermin(world), true
+      new Background[] { TROOPER, TROOPER },
+      new Technique[] {
+        TrooperTechniques.SUPPRESSION,
+        TrooperTechniques.FENDING_BLOW
+      },
+      new Species[] { Yamagur.SPECIES },
+      Base.wildlife(world), true
+    );
+    //*/
+    
+    /*
+    setupCombatScenario(
+      world, base, UI,
+      new Background[] { ECOLOGIST },
+      EcologistTechniques.ECOLOGIST_TECHNIQUES,
+      new Species[] { Yamagur.SPECIES },
+      Base.wildlife(world), true
     );
     //*/
     

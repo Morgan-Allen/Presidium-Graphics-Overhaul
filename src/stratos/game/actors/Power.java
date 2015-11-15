@@ -467,7 +467,7 @@ public abstract class Power extends Technique {
           dislike += (newDist - oldDist) / Stage.ZONE_SIZE;
           dislike += injury / hurt.health.maxHealth();
           
-          hurt.enterStateKO(Action.FALL);
+          hurt.forceReflex(Action.FALL, false);
           hurt.health.takeInjury(injury, false);
           hurt.relations.incRelation(caster, 0 - dislike, 0.2f, 0);
           

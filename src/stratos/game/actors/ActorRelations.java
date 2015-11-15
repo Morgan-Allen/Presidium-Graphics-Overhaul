@@ -160,6 +160,7 @@ public class ActorRelations {
       //  We gradually decrease the weirdness of inoffensive subjects.
       if (impact == 0 || (impact <= 0.5f && ! hasRelation(other))) {
         incRelation(other.base(), 0, 0, -0.5f / OBSERVE_PERIOD);
+        incRelation(other, 0, 0, 0);
         if (report) I.say("  Meh.  Big deal.");
         continue;
       }

@@ -395,9 +395,8 @@ public class ActorHealth {
   public void setState(int state) {
     final int oldState = this.state;
     this.state = state;
-    
-    if (actor.inWorld() && state != oldState && state != STATE_ACTIVE) {
-      actor.enterStateKO(Action.FALL);
+    if (state != oldState && state != STATE_ACTIVE) {
+      actor.forceReflex(Action.FALL, true);
     }
   }
   
@@ -628,7 +627,7 @@ public class ActorHealth {
       if ((verbose || I.logEvents()) && state != STATE_RESTING) {
         I.say("\n"+actor+" ENTERED ABNORMAL HEALTH-STATE: "+stateDesc());
       }
-      actor.enterStateKO(Action.FALL);
+      actor.forceReflex(Action.FALL, true);
     }
   }
   

@@ -13,7 +13,6 @@ public class SenseUtils {
     sightVerbose = false;
   
   
-  
   /**  Utility method for breaking awareness/pursuit when a hide attempt is
     *  successful.
     */
@@ -65,6 +64,16 @@ public class SenseUtils {
     if (! (e instanceof Mobile)) return false;
     final Mobile m = (Mobile) e;
     return m.indoors() && ((m.aboard() == actor.aboard()) == with);
+  }
+  
+  
+  
+  /**  Used for flanking-checks (returns a result in degrees.)
+    */
+  public static float flankingAngle(Actor origin, Actor flanks) {
+    final Vec2D disp = origin.pathing.displacement(flanks);
+    final float angle = disp.normalise().toAngle();
+    return Nums.abs(angle - origin.rotation());
   }
   
   

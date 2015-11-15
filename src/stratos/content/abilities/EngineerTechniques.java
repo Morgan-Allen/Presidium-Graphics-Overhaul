@@ -52,7 +52,7 @@ public class EngineerTechniques {
   ) {
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (used != HAND_TO_HAND && used != MARKSMANSHIP) {
         return false;
@@ -97,7 +97,7 @@ public class EngineerTechniques {
   ) {
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (actor.gear.deviceType() != Devices.MANIPULATOR) return false;
       if (! (current instanceof Repairs)) return false;
@@ -133,7 +133,7 @@ public class EngineerTechniques {
   ) {
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (actor.gear.deviceType() != Devices.MANIPULATOR) return false;
       return (current instanceof Combat);
@@ -158,7 +158,7 @@ public class EngineerTechniques {
           struck.health.takeInjury(damage, false);
         }
         if (Rand.num() < stunChance) {
-          struck.enterStateKO(Action.STAND);
+          struck.forceReflex(Action.STAND, true);
         }
       }
       else if (success && subject instanceof Placeable) {

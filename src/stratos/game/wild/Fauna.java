@@ -475,7 +475,7 @@ public abstract class Fauna extends Actor implements Mount {
     
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       //
       //  This is supposed to be used only in a defensive capacity-
@@ -560,7 +560,7 @@ public abstract class Fauna extends Actor implements Mount {
   ) {
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (! actor.isMoving()) return false;
       if (! (current instanceof Retreat)) return used == STEALTH_AND_COVER;
@@ -587,7 +587,7 @@ public abstract class Fauna extends Actor implements Mount {
   ) {
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (! (current instanceof Repairs)) return false;
       if (! (subject instanceof Nest   )) return false;
@@ -664,7 +664,7 @@ public abstract class Fauna extends Actor implements Mount {
       
       float damage = roll(SLAM_DAMAGE_MIN, SLAM_DAMAGE_MAX);
       struck.health.takeInjury(damage, false);
-      struck.enterStateKO(Action.FALL);
+      struck.forceReflex(Action.FALL, true);
     }
   };
   

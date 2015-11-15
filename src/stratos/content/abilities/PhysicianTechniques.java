@@ -62,13 +62,13 @@ public class PhysicianTechniques {
   ) {
     
     public boolean triggersPassive(
-      Actor actor, Plan current, Skill used, Target subject
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (! (current instanceof Treatment)  ) return false;
       if (actor.gear.amountOf(MEDICINE) <= 0) return false;
       final Actor treats = (Actor) subject;
       if (treats.traits.hasTrait(asCondition)) return false;
-      return super.triggersPassive(actor, current, used, subject);
+      return super.triggersPassive(actor, current, used, subject, reactive);
     }
     
     
@@ -232,7 +232,7 @@ public class PhysicianTechniques {
       if (! success) return;
       
       final Actor affects = (Actor) subject;
-      affects.enterStateKO(Action.STAND);
+      affects.forceReflex(Action.STAND, true);
       affects.mind.clearAgenda();
       affects.relations.incRelation(using, 0.5f, 0.1f, 0.2f);
       affects.traits.setLevel(asCondition, 1);

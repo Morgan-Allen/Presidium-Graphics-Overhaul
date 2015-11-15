@@ -390,15 +390,17 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void enterStateKO(String animName) {
-    if (isDoingAction("actionFall", null)) return;
+  public void forceReflex(String animName, boolean stun) {
+    if (isDoingAction("actionFall", null) || ! inWorld()) return;
     final Action falling = new Action(
       this, this, this, "actionFall",
       animName, "Stricken"
     );
     falling.setProperties(Action.NO_LOOP | Action.PHYS_FX);
-    pathing.updateTarget(null);
-    mind.cancelBehaviour(mind.rootBehaviour(), "Actor knocked out!");
+    if (stun) {
+      pathing.updateTarget(null);
+      mind.cancelBehaviour(mind.rootBehaviour(), "Actor knocked out!");
+    }
     this.assignAction(falling);
   }
   

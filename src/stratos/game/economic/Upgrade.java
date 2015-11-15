@@ -368,8 +368,9 @@ public class Upgrade extends Constant {
     }
     
     
+    final boolean isBuilding = this == origin.baseUpgrade();
     
-    if (this == origin.baseUpgrade()) d.append("  "+name, this, Colour.WHITE);
+    if (isBuilding) d.append("  "+name, this, Colour.WHITE);
     else d.append("  "+name, this, Colour.LITE_GREY);
     d.append(nameSuffix);
     
@@ -383,9 +384,9 @@ public class Upgrade extends Constant {
     );
     //*/
     
-    
     if (progReport != null) {
-      d.append("\n    ");
+      if (isBuilding) d.append("\n  ");
+      else d.append("\n    ");
       if (linksTo != null) d.append(progReport, linksTo);
       else d.append(progReport, progColour);
     }
