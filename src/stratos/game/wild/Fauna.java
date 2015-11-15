@@ -13,6 +13,7 @@ import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.PlaneFX;
 import stratos.graphics.widgets.*;
+import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -50,6 +51,7 @@ public abstract class Fauna extends Actor implements Mount {
   
   final public Species species;
   private float breedMetre = 0.0f, lastMigrateCheck = -1;
+  private Actor riding = null;
   
   
   public Fauna(Species species, Base base) {
@@ -67,6 +69,7 @@ public abstract class Fauna extends Actor implements Mount {
     species          = (Species) s.loadObject();
     breedMetre       = s.loadFloat();
     lastMigrateCheck = s.loadFloat();
+    riding           = (Actor) s.loadObject();
   }
   
   
@@ -75,6 +78,7 @@ public abstract class Fauna extends Actor implements Mount {
     s.saveObject(species         );
     s.saveFloat (breedMetre      );
     s.saveFloat (lastMigrateCheck);
+    s.saveObject(riding          );
   }
   
   
@@ -912,6 +916,10 @@ public abstract class Fauna extends Actor implements Mount {
   }
   
   
+  //
+  //  TODO:  Move this (and related behaviours) to MountUtils.
+  
+  //*
   protected void addDomesticBehaviours(Choice choice) {
     final Actor follows = relations.master();
     if (follows == null) return;
@@ -930,22 +938,34 @@ public abstract class Fauna extends Actor implements Mount {
     }
     if (current instanceof Combat && senses.awareOf(current.subject())) {
       final Plan c = ((Combat) current).copyFor(this);
-      choice.add(c.addMotives(Plan.NO_PROPERTIES, priority / 2));
+      choice.add(c.addMotives(Plan.NO_PROPERTIES, priority * 0.5f));
     }
     if (
       (current instanceof Exploring ) ||
       (current instanceof Hunting   ) ||
+      (current instanceof Gathering ) ||
       (current instanceof Retreat   ) ||
-      (current instanceof Combat    ) ||
       (current instanceof Patrolling) ||
-      (current != null && world.claims.inWilds(current.subject()))
+      (current instanceof Combat    )
     ) {
-      choice.add(Patrolling.protectionFor(this, follows, priority));
+      if (riding == follows) {
+        Boarding dest = PathSearch.accessLocation(riding.pathing.target(), this);
+        if (dest != null) {
+          final BringPerson b = new BringPerson(this, riding, dest);
+          b.addMotives(Plan.NO_PROPERTIES, priority * 1.5f);
+          choice.add(b);
+        }
+      }
+      else choice.add(Patrolling.protectionFor(this, follows, priority));
     }
   }
+  //*/
   
   
   public boolean setMounted(Actor mounted, boolean is) {
+    if (mounted == riding) return true;
+    if (riding != null) riding.releaseFromMount();
+    riding = is ? mounted : null;
     return true;
   }
   
@@ -965,17 +985,25 @@ public abstract class Fauna extends Actor implements Mount {
   }
   
   
-  public void configureSpriteFrom(Actor mounted, Action a, Sprite sprite) {
+  public void configureSpriteFrom(
+    Actor mounted, Action a, Sprite sprite, Rendering rendering
+  ) {
+    if (a != null) a.configSprite(sprite, rendering);
+    //
+    //  TODO:  YOU NEED TO USE ATTACH-POINTS HERE!
+    viewPosition(sprite.position);
+    sprite.position.z += height() - (mounted.height() / 2f);
+    sprite.rotation = rotation();
     return;
   }
   
   
   public void describeActor(Actor mounted, Description d) {
-    if (hasDevoured(mounted)) {
-      d.appendAll("Being digested by ", this);
+    if (mounted == riding) {
+      d.appendAll("Being carried by ", this);
     }
-    else {
-      
+    else if (hasDevoured(mounted)) {
+      d.appendAll("Being digested by ", this);
     }
   }
   

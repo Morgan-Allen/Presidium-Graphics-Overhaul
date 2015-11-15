@@ -28,10 +28,16 @@ public class SeedTailoring extends Plan {
   final public static float
     DESIRED_SAMPLES = 5,
     SEED_DAYS_DECAY = 5;
+  final static int
+    STAGE_INIT    = -1,
+    STAGE_CULTURE =  0,
+    STAGE_REARING =  1,
+    STAGE_DONE    =  2;
   
   final Venue lab;
   final Species species;
   final Item seedType;
+  private int stage = STAGE_INIT;
   
   
   public SeedTailoring(Actor actor, Venue lab, Species s) {
@@ -44,9 +50,10 @@ public class SeedTailoring extends Plan {
   
   public SeedTailoring(Session s) throws Exception {
     super(s);
-    lab     = (Venue  ) s.loadObject();
-    species = (Species) s.loadObject();
-    this.seedType = Item.asMatch(GENE_SEED, species);
+    lab      = (Venue  ) s.loadObject();
+    species  = (Species) s.loadObject();
+    stage    = s.loadInt();
+    seedType = Item.asMatch(GENE_SEED, species);
   }
   
   
@@ -54,6 +61,7 @@ public class SeedTailoring extends Plan {
     super.saveState(s);
     s.saveObject(lab    );
     s.saveObject(species);
+    s.saveInt   (stage  );
   }
   
   
@@ -136,6 +144,8 @@ public class SeedTailoring extends Plan {
     );
     if (report) I.say("\nGetting next seed-tailoring step for "+actor);
     
+    if (stage == STAGE_DONE) return null;
+    
     if (lab.stocks.amountOf(seedType) < 1) {
       if (report) I.say("  Will begin gene-tailoring");
       final Action prepare = new Action(
@@ -145,6 +155,7 @@ public class SeedTailoring extends Plan {
       );
       return prepare;
     }
+    
     return null;
   }
   
@@ -178,6 +189,17 @@ public class SeedTailoring extends Plan {
     seed = Item.withQuality(seed, (int) Nums.clamp(quality, 0, 5));
     seed = Item.withAmount(seed, 0.1f);
     lab.stocks.addItem(seed);
+    
+    //
+    //  If we actually complete the task, there's special handling for animal
+    //  species-
+    if (species.animal() && lab.stocks.amountOf(seed) >= 1) {
+      lab.stocks.removeMatch(seed);
+      Fauna reared = (Fauna) species.sampleFor(actor.base());
+      reared.health.setupHealth(0, seed.quality / Item.MAX_QUALITY, 0);
+      reared.setAsDomesticated(actor);
+      stage = STAGE_DONE;
+    }
     
     if (report) I.reportVars(
       "\nAttempted seed-tailoring", "  ",

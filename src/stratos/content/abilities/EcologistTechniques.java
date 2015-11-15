@@ -205,20 +205,13 @@ public class EcologistTechniques {
     Action.LOOK, Action.RANGED
   ) {
     
-    private boolean hasCompanion(Actor using) {
-      for (Actor a : using.relations.servants()) if (a instanceof Fauna) {
-        return true;
-      }
-      return false;
-    }
-    
     
     public boolean triggersAction(Actor actor, Plan current, Target subject) {
       if (
         (subject == actor) && (! actor.senses.isEmergency()) &&
         actor.world().claims.inWilds(actor) &&
         actor.health.concentrationLevel() >= 1 &&
-        (! hasCompanion(actor))
+        animalCompanion(actor) == null
       ) {
         return true;
       }
@@ -280,7 +273,7 @@ public class EcologistTechniques {
         //
         //  If you don't already have an animal companion, you can attempt to
         //  'convert' the creature-
-        if (hasCompanion(using)) return;
+        if (animalCompanion(using) != null) return;
         final float convertRoll = roll(
           CALL_AFFECTION_MIN_CONVERT, CALL_AFFECTION_MAX_NEEDED
         ) / 100;
@@ -313,17 +306,79 @@ public class EcologistTechniques {
     NO_HARM         ,
     NO_FATIGUE      ,
     NO_CONCENTRATION,
-    IS_GEAR_PROFICIENCY | IS_TRAINED_ONLY, XENOZOOLOGY, 15,
+    IS_SELF_TARGETING | IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, XENOZOOLOGY, 15,
     MOUNT_HARNESS
   ) {
     
+    public boolean triggersAction(Actor actor, Plan current, Target subject) {
+      final Actor comp = animalCompanion(actor);
+      if (actor.currentMount() == comp) return false;
+      return shouldMount(actor, comp);
+    }
+    
+    
+    protected Action createActionFor(Plan parent, Actor actor, Target subject) {
+      final Action a = super.createActionFor(parent, actor, subject);
+      Fauna moves = animalCompanion(actor);
+      if (moves == null) return null;
+      a.setMoveTarget(moves);
+      return a;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, boolean success, Target subject, boolean passive
+    ) {
+      super.applyEffect(using, success, subject, passive);
+      
+      if (subject == using) subject = animalCompanion(using);
+      final Fauna companion = (Fauna) subject;
+      
+      if (shouldMount(using, companion)) {
+        using.bindToMount(companion);
+      }
+      else {
+        using.releaseFromMount();
+      }
+    }
   };
+  
+  
+  private static boolean shouldMount(Actor using, Actor companion) {
+    final Action action = using.currentAction();
+    
+    if (companion == null || action == null) return false;
+    if (companion.health.baseBulk() < using.health.baseBulk()) return false;
+    
+    final Target focus = action.subject();
+    if (focus == companion || action.movesTo() == companion) return true;
+
+    final float seeRange = using.health.sightRange();
+    final float distance = Spacing.distance(using, action.subject());
+    if (
+      distance < seeRange && (! action.ranged()) &&
+      (focus != companion.actionFocus() || focus.indoors())
+    ) {
+      return false;
+    }
+    return true;
+  }
+  
+  
+  private static Fauna animalCompanion(Actor using) {
+    for (Actor a : using.relations.servants()) if (a instanceof Fauna) {
+      return (Fauna) a;
+    }
+    return null;
+  }
   
   
   final public static Technique ECOLOGIST_TECHNIQUES[] = {
     TRANQUILLISE, PATTERN_CAMO, XENO_CALL, MOUNT_TRAINING
   };
 }
+
+
 
 
 

@@ -326,8 +326,12 @@ public class Action implements Behaviour, AnimNames {
     //  We also need to calculate an appropriate maximum distance in order for
     //  the action to progress-
     float maxDist = 0.01f;
-    if (ranged()) maxDist += sightRange * (moveState == STATE_CLOSED ? 1 : 0);
-    else if (moveState == STATE_CLOSED) maxDist += progress + 0.25f;
+    if (ranged()) {
+      maxDist += sightRange * (moveState == STATE_CLOSED ? 1.25f : 1);
+    }
+    else if (moveState == STATE_CLOSED) {
+      maxDist += progress + 0.25f;
+    }
     
     //  In order for the action to execute, the actor must both be close enough
     //  to the target and facing in the right direction.  If the target is
@@ -565,7 +569,7 @@ public class Action implements Behaviour, AnimNames {
   
   /**  Methods to support rendering-
     */
-  protected void configSprite(Sprite s, Rendering rendering) {
+  public void configSprite(Sprite s, Rendering rendering) {
     final boolean report = verboseAnim && I.talkAbout == actor;
     
     final String animName;
@@ -583,6 +587,7 @@ public class Action implements Behaviour, AnimNames {
       I.say("  Range name: "+animName);
       I.say("  Progress:   "+AP);
     }
+    
     s.setAnimation(animName, (AP > 1) ? (AP % 1) : AP, loop);
   }
   

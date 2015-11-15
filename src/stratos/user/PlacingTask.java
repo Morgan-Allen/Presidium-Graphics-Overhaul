@@ -221,6 +221,11 @@ public class PlacingTask implements UITask {
       if (I.logEvents()) I.say("  Facing: "+p.facing());
     }
     UI.endCurrentTask();
+    
+    if (placeType.isFixture()) {
+      final PlacingTask next = new PlacingTask(UI, placeType);
+      UI.beginTask(next);
+    }
   }
   
   

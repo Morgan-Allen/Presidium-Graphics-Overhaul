@@ -464,6 +464,11 @@ public abstract class Venue extends Fixture implements
   }
   
   
+  public boolean indoors() {
+    return true;
+  }
+  
+  
   
   /**  Recruiting staff and assigning manufacturing tasks-
     */

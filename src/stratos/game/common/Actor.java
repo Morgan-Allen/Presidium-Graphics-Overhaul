@@ -481,14 +481,31 @@ public abstract class Actor extends Mobile implements
   public void renderAt(
     Vec3D position, float rotation, Rendering rendering
   ) {
+    //
+    //  We allow either our current mount, and/or current action, to configure
+    //  our sprite's position and rotation as desired.
     final Sprite s = sprite();
-    if (actionTaken != null) actionTaken.configSprite(s, rendering);
+    s.position.setTo(position);
+    s.rotation = rotation;
+    if (mount != null) {
+      mount.configureSpriteFrom(this, actionTaken, s, rendering);
+    }
+    else if (actionTaken != null) {
+      actionTaken.configSprite(s, rendering);
+    }
+    position.setTo(s.position);
+    rotation = s.rotation;
     super.renderAt(position, rotation, rendering);
     //
     //  We render health-bars after the main sprite, as the label/healthbar are
     //  anchored off the main sprite.  In addition, we skip this while in
     //  disguise...
     if (disguise == null) renderInformation(rendering, base);
+  }
+  
+  
+  public void renderFor(Rendering rendering, Base base) {
+    super.renderFor(rendering, base);
   }
   
   
@@ -515,15 +532,6 @@ public abstract class Actor extends Mobile implements
   public void detachDisguise() {
     world.ephemera.addGhost(this, 1, disguise, 1.0f, 1);
     this.disguise = null;
-  }
-  
-  
-  public void renderFor(Rendering rendering, Base base) {
-    if (mount != null) {
-      mount.configureSpriteFrom(this, actionTaken, sprite());
-      if (! mount.actorVisible(this)) return;
-    }
-    super.renderFor(rendering, base);
   }
   
   

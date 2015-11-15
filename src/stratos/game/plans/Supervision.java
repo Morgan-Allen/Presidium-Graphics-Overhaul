@@ -165,7 +165,12 @@ public class Supervision extends Plan {
     }
     
     if (type == Type.TYPE_DOMESTIC) {
-      //  TODO:  Add child-minding, et cetera.
+      final Action minding = new Action(
+        actor, venue,
+        this, "actionDomestics",
+        Action.REACH_DOWN, "Minding the place"
+      );
+      return minding;
     }
 
     if (report) I.say("  Doing normal oversight...");
@@ -202,6 +207,7 @@ public class Supervision extends Plan {
   
   
   public boolean actionDomestics(Actor actor, Venue venue) {
+    //  TODO:  Add child-minding, et cetera...
     return true;
   }
   

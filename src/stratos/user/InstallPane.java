@@ -24,7 +24,7 @@ public class InstallPane extends SelectionPane {
   
   /**  Initial background setup-
     */
-  final static ImageAsset
+  final public static ImageAsset
     BUILD_ICON = ImageAsset.fromImage(
       InstallPane.class, "media/GUI/Panels/installations_tab.png"
     ),
@@ -85,8 +85,8 @@ public class InstallPane extends SelectionPane {
         }
         
         protected String info() {
-          if (toggled) return "Remove Filter";
-          else return "Filter out "+catName+" Structures";
+          if (toggled) return "Show "+catName+" structures";
+          else return "Hide "+catName+" structures";
         }
       };
       button.stretch = true;
@@ -204,6 +204,7 @@ public class InstallPane extends SelectionPane {
   private void describeVenueOptions(
     final Blueprint type, Text text, Base base
   ) {
+    //*
     final Composite icon = Composite.withImage(type.icon, type.keyID);
     if (icon == null || type.baseUpgrade() == null) return;
     

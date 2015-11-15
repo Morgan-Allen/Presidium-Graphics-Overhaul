@@ -21,6 +21,6 @@ public interface Mount extends Session.Saveable, Target {
   boolean allowsActivity(Plan activity);
   
   boolean actorVisible(Actor mounted);
-  void configureSpriteFrom(Actor mounted, Action action, Sprite actorSprite);
+  void configureSpriteFrom(Actor mounted, Action a, Sprite s, Rendering r);
   void describeActor(Actor mounted, Description d);
 }

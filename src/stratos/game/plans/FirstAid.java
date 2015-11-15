@@ -192,7 +192,7 @@ public class FirstAid extends Treatment {
 
     sickbay = findRefuge(actor, sickbay);
     if (sickbay != null && patient.aboard() != sickbay) {
-      final BringStretcher d = new BringStretcher(
+      final BringPerson d = new BringPerson(
         actor, patient, sickbay
       );
       if (d.nextStepFor(actor) != null) {

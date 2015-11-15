@@ -293,7 +293,7 @@ public class ActorHealth {
   /**  Methods related to sensing and motion-
     */
   public float baseBulk() {
-    return baseBulk;
+    return baseBulk * ageMultiple;
   }
   
   

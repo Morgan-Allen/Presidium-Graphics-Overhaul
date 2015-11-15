@@ -267,7 +267,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   
   public void configureSpriteFrom(
-    Actor mounted, Action action, Sprite actorSprite
+    Actor mounted, Action action, Sprite actorSprite, Rendering r
   ) {
   }
 }

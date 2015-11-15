@@ -414,9 +414,8 @@ public class ActorGear extends Inventory {
   
   public float maxShields() {
     if (outfit == null) return 0;
-    final float bulk = actor.health.baseBulk() / ActorHealth.DEFAULT_BULK;
     final OutfitType type = (OutfitType) outfit.type;
-    return type.shieldBonus * bulk * (outfit.quality + 2f) / 4;
+    return type.shieldBonus * (outfit.quality + 2f) / 4;
   }
   
   

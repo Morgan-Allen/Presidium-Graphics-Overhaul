@@ -314,13 +314,12 @@ public class Upgrade extends Constant {
       boolean doingUpgrade = s.hasUpgradeOrQueued(upgrade, level + 1);
       float progress = s.upgradeProgress(upgrade);
       
-      nameSuffix = " ("+level+"/"+maxLevel+")";
+      if (type != Type.VENUE_LEVEL) nameSuffix = " ("+level+"/"+maxLevel+")";
       
       if (level == maxLevel) {
         progReport = "Max. level";
       }
       else if (! v.structure().hasSpaceFor(upgrade)) {
-        progReport = "";
       }
       else if (doingUpgrade) {
         progReport = "Progress: "+(int) (progress * 100)+"%";
@@ -368,21 +367,25 @@ public class Upgrade extends Constant {
       progColour = Colour.RED;
     }
     
-    //*
+    
+    
+    if (this == origin.baseUpgrade()) d.append("  "+name, this, Colour.WHITE);
+    else d.append("  "+name, this, Colour.LITE_GREY);
+    d.append(nameSuffix);
+    
+    //  TODO:  SEE IF YOU CAN STICK THIS IN LATER?
+    /*
+    int size = (int) INFO_FONT.letterFor(' ').height;
     d.append(" ");
     Text.insert(
       SelectionPane.WIDGET_INFO.asTexture(),
-      15, 15, upgrade, false, d
+      size, size, upgrade, false, d
     );
     //*/
     
-    d.append(" "+name, Colour.LITE_GREY);
-    
-    
-    d.append("\n    ");
     
     if (progReport != null) {
-      d.append(nameSuffix+" ");
+      d.append("\n    ");
       if (linksTo != null) d.append(progReport, linksTo);
       else d.append(progReport, progColour);
     }

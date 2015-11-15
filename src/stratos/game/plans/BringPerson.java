@@ -16,41 +16,38 @@ import static stratos.game.actors.Qualities.*;
 //  is available (e.g, for kidnappings.)
 
 
-public class BringStretcher extends Plan {
+public class BringPerson extends Plan {
   
   
   private static boolean verbose = false;
   
   final Actor patient;
-  final Boarding origin, destination;
-  private Suspensor suspensor;
+  final Boarding destination;
+  private Mount platform = null;
   
   
-  public BringStretcher(
+  public BringPerson(
     Actor actor, Actor patient, Boarding destination
   ) {
     super(actor, patient, MOTIVE_EMERGENCY, NO_HARM);
     this.patient = patient;
-    this.origin = patient.aboard();
     this.destination = destination;
   }
   
   
-  public BringStretcher(Session s) throws Exception {
+  public BringPerson(Session s) throws Exception {
     super(s);
     this.patient = (Actor) s.loadObject();
-    this.origin = (Boarding) s.loadTarget();
     this.destination = (Boarding) s.loadTarget();
-    this.suspensor = (Suspensor) s.loadObject();
+    this.platform = (Suspensor) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(patient);
-    s.saveTarget(origin);
     s.saveTarget(destination);
-    s.saveObject(suspensor);
+    s.saveObject(platform);
   }
   
   
@@ -63,8 +60,7 @@ public class BringStretcher extends Plan {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == actor;
-    return ROUTINE;
+    return PlanUtils.supportPriority(actor, patient, motiveBonus(), 1, 0.5f);
   }
   
   
@@ -74,20 +70,20 @@ public class BringStretcher extends Plan {
   
   protected Behaviour getNextStep() {
     final boolean report = I.talkAbout == actor && verbose;
+    
     if ((! hasBegun()) && PlanUtils.competition(this, patient, actor) > 0) {
       return null;
     }
     if (patient.aboard() == destination) return null;
     final Actor carries = Suspensor.carrying(patient);
     
-    if (patient.aboard() == origin && carries == null) {
+    if (carries == null) {
       if (report) I.say("Returning new pickup");
       final Action pickup = new Action(
         actor, patient,
         this, "actionPickup",
         Action.REACH_DOWN, "Picking up "
       );
-      pickup.setMoveTarget(origin);
       return pickup;
     }
     
@@ -107,10 +103,18 @@ public class BringStretcher extends Plan {
   
   
   public boolean actionPickup(Actor actor, Actor patient) {
-    if (Suspensor.carrying(patient) != null) return false;
-    this.suspensor = new Suspensor(actor, this);
-    patient.bindToMount(suspensor);
-    suspensor.enterWorldAt(patient, actor.world());
+    if (Suspensor.carrying(patient) != null) {
+      return false;
+    }
+    else if (actor instanceof Mount) {
+      this.platform = (Mount) actor;
+      patient.bindToMount(platform);
+    }
+    else {
+      this.platform = new Suspensor(actor, this);
+      patient.bindToMount(platform);
+      ((Suspensor) platform).enterWorldAt(patient, actor.world());
+    }
     return true;
   }
   
@@ -120,8 +124,14 @@ public class BringStretcher extends Plan {
       I.say("NOT CARRYING PATIENT!");
       return false;
     }
-    if (suspensor != null) suspensor.exitWorld();
-    this.suspensor = null;
+    else if (platform == actor) {
+      patient.releaseFromMount();
+    }
+    else if (platform != null) {
+      patient.releaseFromMount();
+      ((Suspensor) platform).exitWorld();
+      this.platform = null;
+    }
     patient.goAboard(destination, actor.world());
     return true;
   }
@@ -135,5 +145,9 @@ public class BringStretcher extends Plan {
     d.append(destination);
   }
 }
+
+
+
+
 
 

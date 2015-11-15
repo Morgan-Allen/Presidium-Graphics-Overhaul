@@ -107,9 +107,11 @@ public class Suspensor extends Mobile implements Mount {
   
   
   public void configureSpriteFrom(
-    Actor mounted, Action action, Sprite actorSprite
+    Actor mounted, Action action, Sprite actorSprite, Rendering r
   ) {
     actorSprite.setAnimation(Action.FALL, 1, false);
+    viewPosition(actorSprite.position);
+    actorSprite.rotation = rotation();
   }
   
   
@@ -230,9 +232,14 @@ public class Suspensor extends Mobile implements Mount {
   /**  Utility methods for external use-
     */
   public static Actor carrying(Actor other) {
-    if (! (other.currentMount() instanceof Suspensor)) return null;
-    final Suspensor s = (Suspensor) other.currentMount();
-    return s.followed;
+    final Mount mount = other.currentMount();
+    if (mount instanceof Actor) {
+      return (Actor) mount;
+    }
+    if (mount instanceof Suspensor) {
+      return ((Suspensor) mount).followed;
+    }
+    return null;
   }
   
   
@@ -240,7 +247,7 @@ public class Suspensor extends Mobile implements Mount {
     if (! (to instanceof Boarding)) return null;
     final Actor carries = carrying(carried);
     if (carries != null && carries != actor) return null;
-    else return new BringStretcher(actor, carried, (Boarding) to);
+    else return new BringPerson(actor, carried, (Boarding) to);
   }
   
   

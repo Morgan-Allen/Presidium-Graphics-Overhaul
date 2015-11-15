@@ -74,12 +74,34 @@ public class DebugEcology extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     
-    if (true ) tendingFaunaTest     (world, base, UI);
+    if (true ) animalMountTest      (world, base, UI);
+    if (false) tendingFaunaTest     (world, base, UI);
     if (false) speciesPlaceTest     (world, base, UI);
     if (false) nestPlaceTest        (world, base, UI);
     if (false) configHuntingScenario(world, base, UI);
     if (false) configHarvestScenario(world, base, UI);
     if (false) configReactionsTest  (world, base, UI);
+  }
+  
+  
+  private void animalMountTest(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree = false;
+    
+    Base wildlife = Base.wildlife(world);
+    Fauna fauna = (Fauna) Yamagur.SPECIES.sampleFor(wildlife);
+    fauna.enterWorldAt(9, 9, world, true);
+    
+    Actor meets = new Human(Backgrounds.ECOLOGIST, base);
+    meets.skills.addTechniques(EcologistTechniques.ECOLOGIST_TECHNIQUES);
+    meets.enterWorldAt(7, 7, world, true);
+    
+    fauna.relations.setRelation(meets, 0.5f, 0);
+    meets.relations.setRelation(fauna, 0.5f, 0);
+    fauna.relations.assignMaster(meets);
+    
+    meets.mind.assignBehaviour(Exploring.nextExploration(meets));
+    UI.selection.pushSelection(meets);
+    
   }
   
   
