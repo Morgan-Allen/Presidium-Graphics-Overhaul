@@ -336,24 +336,23 @@ public abstract class Technique extends Constant {
   
   protected void afterSkillEffects(Actor using, float success, Target subject) {
     applySelfEffects(using);
-    applyEffect(using, success > 0, subject, true);
+    applyEffect(using, subject, success > 0, true);
   }
   
   
   public boolean applyTechnique(Actor actor, Target subject) {
     final boolean success = checkActionSuccess(actor, subject);
-    
     applySelfEffects(actor);
     
     final Plan plan = (Plan) I.cast(actor.mind.topBehaviour(), Plan.class);
     final float radius = effectRadius();
     final boolean desc = effectDescriminates();
     if (radius <= 0) {
-      applyEffect(actor, success, subject, false);
+      applyEffect(actor, subject, success, false);
     }
     else for (Target caught : PlanUtils.subjectsInRange(subject, radius)) {
       if (desc && basePriority(actor, plan, caught) <= 0) continue;
-      applyEffect(actor, success, caught, false);
+      applyEffect(actor, caught, success, false);
     }
     return success;
   }
@@ -364,7 +363,7 @@ public abstract class Technique extends Constant {
     *  when required-
     */
   public void applyEffect(
-    Actor using, boolean success, Target subject, boolean passive
+    Actor using, Target subject, boolean success, boolean passive
   ) {
     if (! isPassiveAlways()) {
       I.say("\n"+using+" APPLIED TECHNIQUE: "+this+" TO: "+subject);

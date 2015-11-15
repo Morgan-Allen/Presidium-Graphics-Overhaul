@@ -12,8 +12,6 @@ import stratos.util.*;
 
 
 
-
-
 //  The value of a given pledge to a given actor.
 //    Cash- base on greed.
 //    Gift item- base on value to actor.
@@ -144,6 +142,11 @@ public class Pledge implements Session.Saveable {
   
   public float amount() {
     return amount;
+  }
+  
+  
+  public boolean isDeceit() {
+    return false;
   }
   
   

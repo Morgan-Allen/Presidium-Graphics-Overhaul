@@ -493,9 +493,9 @@ public abstract class Fauna extends Actor implements Mount {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       ActionFX.applyBurstFX(WITHDRAW_FX, using, 0.5f, 1.50f, 0.33f, 1);
       ActionFX.applyBurstFX(WITHDRAW_FX, using, 0.5f, 1.25f, 0.66f, 1);
       //
@@ -523,9 +523,9 @@ public abstract class Fauna extends Actor implements Mount {
     IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0, null
   ) {
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       float dayVal = (Planet.dayValue(using.world()) - 0.25f) / 0.75f;
       boolean canBask = using.health.asleep() || ! using.indoors();
@@ -596,9 +596,9 @@ public abstract class Fauna extends Actor implements Mount {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (! success) return;
       
       final Nest nest = (Nest) subject;
@@ -657,9 +657,9 @@ public abstract class Fauna extends Actor implements Mount {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       final Actor struck = (Actor) subject;
       
       float damage = roll(SLAM_DAMAGE_MIN, SLAM_DAMAGE_MAX);
@@ -698,9 +698,9 @@ public abstract class Fauna extends Actor implements Mount {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       if (success) {
         ActionFX.applyBurstFX(MAUL_FX, subject, 0.5f, 1);
@@ -744,9 +744,9 @@ public abstract class Fauna extends Actor implements Mount {
     IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0, null
   ) {
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       if (true || Rand.index(4) == 0) {
         ActionFX.applyBurstFX(INFECTION_HAZE_FX, using, 1, 1, 0.6f, 1);
@@ -781,9 +781,9 @@ public abstract class Fauna extends Actor implements Mount {
     IS_PASSIVE_ALWAYS | IS_NATURAL_ONLY, null, 0, null
   ) {
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       final float dayVal = Planet.dayValue(using.world());
       float bonus = (0.75f - dayVal) * 20;
       using.traits.incBonus(SURVEILLANCE, bonus);
@@ -850,12 +850,12 @@ public abstract class Fauna extends Actor implements Mount {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       if (passive) { updateDigestion(using); return; }
       
       if (success) {
-        super.applyEffect(using, success, subject, passive);
+        super.applyEffect(using, subject, success, passive);
         ActionFX.applyBurstFX(MAUL_FX, subject, 0.5f, 1);
         
         final Stage world = using.world();

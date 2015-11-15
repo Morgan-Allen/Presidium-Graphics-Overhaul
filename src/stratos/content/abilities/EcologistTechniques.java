@@ -92,9 +92,9 @@ public class EcologistTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (success) {
         final Actor shot = (Actor) subject;
         shot.health.takeFatigue(TRANQ_HIT_INIT);
@@ -139,9 +139,9 @@ public class EcologistTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (using.traits.hasTrait(asCondition) || ! canHide(using)) return;
       using.traits.setLevel(asCondition, 1);
     }
@@ -242,7 +242,7 @@ public class EcologistTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       //
       //  In the case of shots-in-the-dark, pick a random nearby creature that
@@ -255,7 +255,7 @@ public class EcologistTechniques {
         success &= checkActionSuccess(using, subject);
       }
       final Fauna calls = (Fauna) subject;
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       //
       //  If successful, nudge relations with the creature upward, and attempt
       //  to initiate a conversation (if not already started.)
@@ -327,9 +327,9 @@ public class EcologistTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       if (subject == using) subject = animalCompanion(using);
       final Fauna companion = (Fauna) subject;

@@ -54,6 +54,16 @@ public class Proposal extends Dialogue {
   }
   
   
+  public Pledge termsOffered() {
+    return offers;
+  }
+  
+  
+  public Pledge termsSought() {
+    return sought;
+  }
+  
+  
   protected boolean shouldClose() {
     return (sought.accepted() || sought.refused());
   }

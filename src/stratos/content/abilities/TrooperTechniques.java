@@ -107,12 +107,12 @@ public class TrooperTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       //  (We want the passive skill-bonus, but we don't want to apply the
       //  technique twice-)
       if (passive && Technique.isDoingAction(using, this)) return;
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (success) {
         final Actor struck = (Actor) subject;
         struck.health.takeFatigue(FENDING_DAMAGE_EXTRA);
@@ -175,9 +175,9 @@ public class TrooperTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (! (subject instanceof Actor)) return;
       
       final Actor hits = (Actor) subject;
@@ -276,9 +276,9 @@ public class TrooperTechniques {
 
 
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       float damage = (Rand.num() + 0.5f) * using.gear.totalDamage() / 1.5f;
       damage += FRAG_DAMAGE_BONUS;
@@ -318,10 +318,10 @@ public class TrooperTechniques {
     Outfits.POWER_ARMOUR
   ) {
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       if (using.gear.outfitType() != Outfits.POWER_ARMOUR) return;
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       final Item armour = using.gear.outfitEquipped();
       float bonus = ARMOUR_POWER_BASE;

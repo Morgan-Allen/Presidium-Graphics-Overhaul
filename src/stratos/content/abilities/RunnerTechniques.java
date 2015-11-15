@@ -137,9 +137,9 @@ public class RunnerTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       ActionFX.applyBurstFX(AIM_FX_MODEL, using, 1.5f, 1);
       
       if (success) {
@@ -163,15 +163,24 @@ public class RunnerTechniques {
     IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, STEALTH_AND_COVER, 5, null
   ) {
     
-    public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
-    ) {
-      super.applyEffect(using, success, subject, passive);
+    private boolean shouldApplyTo(Actor using) {
       for (Plan p : using.world().activities.activePlanMatches(using, null)) {
-        if (p.actor() != using) return;
+        if (p.actor() != using) return false;
       }
-      using.traits.incBonus(STEALTH_AND_COVER, SOLO_SKILL_BONUS);
-      using.traits.incBonus(ATHLETICS        , SOLO_SKILL_BONUS);
+      return true;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, Target subject, boolean success, boolean passive
+    ) {
+      super.applyEffect(using, subject, success, passive);
+      if (shouldApplyTo(using)) {
+        using.traits.setLevel(asCondition, 1);
+        using.traits.incBonus(STEALTH_AND_COVER, SOLO_SKILL_BONUS);
+        using.traits.incBonus(ATHLETICS        , SOLO_SKILL_BONUS);
+      }
+      else using.traits.remove(asCondition);
     }
   };
 
@@ -199,9 +208,9 @@ public class RunnerTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       if (success && subject instanceof Placeable) {
         final Placeable p = (Placeable) subject;
@@ -257,14 +266,14 @@ public class RunnerTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       if (passive) {
         float nightVal = 1f - Planet.dayValue(using.world());
         using.traits.incBonus(SURVEILLANCE, SNIPER_VISION * nightVal);
       }
       else {
-        super.applyEffect(using, success, subject, passive);
+        super.applyEffect(using, subject, success, passive);
         if (success) {
           final Actor mark = (Actor) subject;
           
@@ -324,9 +333,9 @@ public class RunnerTechniques {
     }
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       ActionFX.applyBurstFX(TOXIN_BURST_FX, subject, 0.5f, 0.5f);
       final Actor struck = (Actor) subject;
       using.gear.bumpItem(FAST_TOXIN_ITEM, -1f / TOXIN_CHARGES);
@@ -397,9 +406,9 @@ public class RunnerTechniques {
     }
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       using.gear.bumpItem(SLOW_BURN_ITEM, -1f / BURN_CHARGES);
       using.traits.setLevel(asCondition, 1);
     }

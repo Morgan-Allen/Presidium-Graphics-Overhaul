@@ -83,9 +83,9 @@ public class PhysicianTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (! (subject instanceof Actor)) return;
       
       using.gear.bumpItem(MEDICINE, 0 - MEDICINE_USE);
@@ -156,9 +156,9 @@ public class PhysicianTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       using.gear.bumpItem(MEDICINE, 0 - MEDICINE_USE);
       final Actor affects = (Actor) subject;
@@ -225,9 +225,9 @@ public class PhysicianTechniques {
 
 
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       using.gear.bumpItem(MEDICINE, 0 - MEDICINE_USE);
       if (! success) return;
       

@@ -292,7 +292,7 @@ public abstract class Artilect extends Actor {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       if (passive && using.health.conscious()) return;
       final float
@@ -311,7 +311,7 @@ public abstract class Artilect extends Actor {
       }
       if (! triggered) return;
       
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       //
       //  Then rig up SFX and deal damage.
       final Vec3D point = using.position(null);
@@ -356,9 +356,9 @@ public abstract class Artilect extends Actor {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       if (! success) return;
       ActionFX.applyBurstFX(IMPALE_BURST_FX, subject, 0.5f, 0.5f);
@@ -407,9 +407,9 @@ public abstract class Artilect extends Actor {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       final float damage = POSITRON_DAMAGE_AVG * Rand.avgNums(2) * 2;
       ActionFX.applyShotFX(
@@ -459,9 +459,9 @@ public abstract class Artilect extends Actor {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       //
       //  TODO:  You need a Volley class to handle this properly.
       if (! success) return;
@@ -494,9 +494,9 @@ public abstract class Artilect extends Actor {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       final Human focus = (Human) subject;
       final Boarding place = focus.aboard();
@@ -523,9 +523,9 @@ public abstract class Artilect extends Actor {
   ) {
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       final float
         injury    = using.health.injuryLevel(),

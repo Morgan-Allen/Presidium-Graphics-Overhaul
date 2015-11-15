@@ -68,7 +68,7 @@ public class ActorSkills {
     //
     //  And apply passive techniques at all times.
     for (Technique t : availableTechniques()) if (t.isPassiveAlways()) {
-      t.applyEffect(actor, true, actor, true);
+      t.applyEffect(actor, actor, true, true);
     }
     //
     //  ...And decay any skills that haven't been used in a while?

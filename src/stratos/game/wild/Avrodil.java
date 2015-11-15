@@ -196,10 +196,10 @@ public class Avrodil extends Fauna {
 
 
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       if (! success) return;
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       using.traits.setLevel(asCondition, 1);
     }
     
@@ -260,9 +260,9 @@ public class Avrodil extends Fauna {
   ) {
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       
       ActionFX.applyShotFX(
         WHIPLASH_MODEL, WHIPLASH_BURST_MODEL,
@@ -324,9 +324,9 @@ public class Avrodil extends Fauna {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       ActionFX.applyBurstFX(POLLEN_BURST_MODEL, using, 0.5f, 1.5f);
       
       for (Actor hit : PlanUtils.subjectsInRange(using, POLLEN_RADIUS)) {

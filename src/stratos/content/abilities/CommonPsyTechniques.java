@@ -63,9 +63,9 @@ public class CommonPsyTechniques {
     }
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       //  TODO:  Use a 'volley' class to ignore armour values.
       
       if (success) {
@@ -110,9 +110,9 @@ public class CommonPsyTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (success && subject instanceof Actor) {
         ActionFX.applyBurstFX(ZAP_FX, subject, 0.5f, 1);
         
@@ -147,7 +147,7 @@ public class CommonPsyTechniques {
 
 
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
       using.traits.setLevel(asCondition, 1);
     }

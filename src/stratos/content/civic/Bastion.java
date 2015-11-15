@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.civic;
+import stratos.content.abilities.MiscTechniques;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -245,20 +246,26 @@ public class Bastion extends Venue {
   
   public Behaviour jobFor(Actor actor) {
     if (! structure.intact()) return null;
+    final Background v = actor.mind.vocation();
+    final Choice choice = new Choice(actor);
     //
     //  Firstly, we assign behaviours for all VIPs or their direct servants-
     //  TODO:  Apply these behaviours to all advisors!
     if (actor == base().ruler()) {
-      return Supervision.stayForVIP(this, actor);
+      choice.add(Studying.asTechniqueTraining(
+        actor, this, 0, MiscTechniques.NOBLE_TECHNIQUES
+      ));
+      choice.add(Supervision.stayForVIP(this, actor));
     }
-    final Background v = actor.mind.vocation();
     if (v == STEWARD || v == FIRST_CONSORT) {
-      return Supervision.stayForVIP(this, actor);
+      choice.add(Supervision.stayForVIP(this, actor));
     }
-    else if (staff.offDuty(actor)) return null;
+    if (! choice.empty()) return choice.weightedPick();
     //
     //  Then, assign any tasks for regular maintenance and security staff-
-    final Choice choice = new Choice(actor);
+    if (staff.offDuty(actor)) {
+      return null;
+    }
     if (v == Backgrounds.TECHNICIAN) {
       choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
     }

@@ -68,9 +68,9 @@ public class EngineerTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (success && subject instanceof Artilect) {
         final Artilect struck = (Artilect) subject;
         struck.health.takeInjury(DEMO_DAMAGE, false);
@@ -107,9 +107,9 @@ public class EngineerTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       if (success) {
         final Placeable built = (Placeable) subject;
         float repair = roll(WELD_REPAIR_MIN, WELD_REPAIR_MAX);
@@ -141,9 +141,9 @@ public class EngineerTechniques {
     
     
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       float damage = roll(RAM_DAMAGE_MIN, RAM_DAMAGE_MAX);
       
       if (success && subject instanceof Actor) {
@@ -200,9 +200,9 @@ public class EngineerTechniques {
     IS_GEAR_PROFICIENCY | IS_PASSIVE_ALWAYS, null, -1, null
   ) {
     public void applyEffect(
-      Actor using, boolean success, Target subject, boolean passive
+      Actor using, Target subject, boolean success, boolean passive
     ) {
-      super.applyEffect(using, success, subject, passive);
+      super.applyEffect(using, subject, success, passive);
       using.traits.setLevel(asCondition, 1);
     }
     
