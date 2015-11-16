@@ -36,7 +36,9 @@ public class EngineerStation extends Venue {
     "The Engineer Station manufactures "+PARTS+", "+CIRCUITRY+", devices and "+
     "armour for your citizens.",
     4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 5,
-    PLASTICS, PARTS, CIRCUITRY, SERVICE_ARMAMENT, TECHNICIAN, ARTIFICER
+    PLASTICS, PARTS, CIRCUITRY,
+    Devices.AMMO_CLIPS, Outfits.POWER_CELLS,
+    SERVICE_ARMAMENT, TECHNICIAN, ARTIFICER
   );
   
   

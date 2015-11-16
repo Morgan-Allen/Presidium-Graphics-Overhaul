@@ -155,8 +155,6 @@ public class ActorMotives {
   private void updateItemValues() {
     final ActorRelations r = actor.relations;
     final Property home = actor.mind.home();
-    final OutfitType OT = actor.gear.outfitType();
-    final DeviceType DT = actor.gear.deviceType();
     final float hunger = Nums.clamp(actor.health.hungerLevel(), 0, 1);
     //
     //  We flag desire for any items needed at home, and anything needed to
@@ -181,10 +179,10 @@ public class ActorMotives {
       final Traded c = t.itemNeeded();
       if (c != null) r.setRelation(c, 0.5f, Relation.TYPE_GEAR);
     }
-    if (OT != null && OT.shieldBonus > 0 && ! OT.natural()) {
+    if (actor.gear.maxPowerCells() > 0) {
       r.setRelation(POWER_CELLS, 0.5f, Relation.TYPE_GEAR);
     }
-    if (DT != null && DT.baseDamage > 0 && ! DT.natural()) {
+    if (actor.gear.maxAmmoUnits() > 0) {
       r.setRelation(AMMO_CLIPS, 0.5f, Relation.TYPE_GEAR);
     }
   }

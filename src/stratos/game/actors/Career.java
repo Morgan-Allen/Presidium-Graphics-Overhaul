@@ -538,15 +538,31 @@ public class Career {
       }
       else actor.gear.addItem(Item.withAmount(gear, 1 + Rand.index(3)));
     }
-    actor.gear.boostShields(actor.gear.maxShields(), true);
-    actor.gear.incPowerCells(ActorGear.MAX_POWER_CELLS);
     
-    //  TODO:  BASE THIS OFF THE ACQUISITIVE-TRAIT
+    final float
+      maxShields = actor.gear.maxShields   (),
+      maxCells   = actor.gear.maxPowerCells(),
+      maxAmmo    = actor.gear.maxAmmoUnits ();
+    if (maxShields > 0) {
+      actor.gear.boostShields(maxShields, true);
+    }
+    if (maxCells > 0) {
+      float fill = (Rand.num() + 1) / 2;
+      actor.gear.bumpItem(Outfits.POWER_CELLS, maxCells * fill);
+    }
+    if (maxAmmo > 0) {
+      float fill = (Rand.num() + 1) / 2;
+      actor.gear.bumpItem(Devices.AMMO_CLIPS, maxAmmo * fill);
+    }
+    
+    //  TODO:  BASE THIS OFF THE ACQUISITIVE TRAIT?
     float cash = ((Rand.num() + 0.5f) * v.defaultSalary) + Rand.index(10);
     actor.gear.incCredits(cash * GameSettings.SPENDING_MULT / 2);
     actor.gear.taxDone();
   }
 }
+
+
 
 
 

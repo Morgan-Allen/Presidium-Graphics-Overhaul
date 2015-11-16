@@ -210,8 +210,11 @@ public abstract class Artilect extends Actor {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    final float fuelInc = 1f / FUEL_CELLS_REGEN;
-    if (isDoing(Resting.class, null)) gear.incPowerCells(fuelInc);
+    
+    if (isDoing(Resting.class, null)) {
+      final float fuelInc = 1f / FUEL_CELLS_REGEN;
+      gear.bumpItem(Outfits.POWER_CELLS, fuelInc);
+    }
   }
   
   

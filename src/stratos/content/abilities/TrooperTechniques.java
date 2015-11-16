@@ -167,7 +167,7 @@ public class TrooperTechniques {
     
     protected void applySelfEffects(Actor using) {
       super.applySelfEffects(using);
-      using.gear.incAmmo(0 - SUPPRESS_AMMO_DRAIN);
+      using.gear.depleteAmmo(SUPPRESS_AMMO_DRAIN);
       ActionFX.applyShotFX(
         SUPPRESS_FIRE_FX, using, using.actionFocus(), true, 1, using.world()
       );

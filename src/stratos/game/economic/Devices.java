@@ -5,6 +5,8 @@
   */
 package stratos.game.economic;
 import stratos.content.civic.*;
+import stratos.game.actors.ActorGear;
+import stratos.game.common.Actor;
 import stratos.graphics.common.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
@@ -34,11 +36,15 @@ public final class Devices {
     ENERGY_DRAIN = 1 << 12;
   
   
-  final public static Traded
-    AMMO_CLIPS = new Traded(
-      BC, "Ammo Clips", null, FORM_SPECIAL, 4,
-      "Spare ammunition for weapons."
-    );
+  final public static Traded AMMO_CLIPS = new Traded(
+    BC, "Ammo Clips", null, FORM_MATERIAL, 4,
+    "Spare ammunition for weapons."
+  ) {
+    public int normalCarry(Actor actor) {
+      if (actor.gear.maxAmmoUnits() == 0) return 0;
+      return ActorGear.MAX_AMMO_COUNT / ActorGear.AMMO_PER_UNIT;
+    }
+  };
   
   final public static DeviceType
     STUN_WAND = new DeviceType(

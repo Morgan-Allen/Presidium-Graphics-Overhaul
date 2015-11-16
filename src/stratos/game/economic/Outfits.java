@@ -6,6 +6,8 @@
 package stratos.game.economic;
 import stratos.content.civic.*;
 import stratos.content.wip.*;
+import stratos.game.actors.ActorGear;
+import stratos.game.common.Actor;
 import stratos.graphics.common.AnimNames;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
@@ -16,11 +18,17 @@ public final class Outfits {
   
   final static Class BC = Outfits.class;
   
-  final public static Traded
-    POWER_CELLS = new Traded(
-      BC, "Power Cells", null, FORM_MATERIAL, 4,
-      "Spare power to maintain shields."
-    );
+  
+  final public static Traded POWER_CELLS = new Traded(
+    BC, "Power Cells", null, FORM_MATERIAL, 4,
+    "Spare power to maintain shields."
+  ) {
+    public int normalCarry(Actor actor) {
+      if (actor.gear.maxPowerCells() <= 0) return 0;
+      return ActorGear.MAX_POWER_CELLS;
+    }
+  };
+  
   
   //  TODO:  You should have skins associated with some of these...
   final public static OutfitType

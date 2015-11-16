@@ -66,25 +66,20 @@ public class ActorDescription {
   
   
   private void describeStatus(Description d, HUD UI) {
-    //
-    //  Describe your job, place of work, and current residence-
-    final Background job = h.mind.vocation();
-    if (job != null) {
-      d.append("\n  Vocation: "+job.nameFor(h));
-    }
-    if (h.mind.work() != null) {
-      d.append("\n  Employed at: ");
-      d.append(h.mind.work());
-    }
-    if (h.mind.home() != null) {
-      d.append("\n  Resident at: ");
-      d.append(h.mind.home());
-    }
-    //
-    //  Then describe the actor's current behaviour-
-    d.append("\n  Status: ");
-    h.describeStatus(d, h);
+
+    final int
+      IL     = (int) h.health.injury    (),
+      FL     = (int) h.health.fatigue   (),
+      MH     = (int) h.health.maxHealth (),
+      hunger = (int) (h.health.hungerLevel() * 100),
+      maxCon = (int) ActorHealth.BASE_CONCENTRATION,
+      conNow = (int) h.health.concentration();
     
+    d.append("Condition and Status:");
+    //
+    //  First describe the actor's current behaviour-
+    d.append("\n  ");
+    h.describeStatus(d, h);
     if (showPriorities) {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;
@@ -102,70 +97,62 @@ public class ActorDescription {
       }
     }
     //
+    //  Describe your job, place of work, and current residence-
+    final Background job = h.mind.vocation();
+    if (job != null) {
+      d.append("\n  Guild: "+job.nameFor(h));
+    }
+    if (h.mind.work() != null) {
+      d.append("\n  Employed at: ");
+      d.append(h.mind.work());
+    }
+    if (h.mind.home() != null) {
+      d.append("\n  Resident at: ");
+      d.append(h.mind.home());
+    }
+    //
     //  Then describe your physical condition-
-    d.append("\n\nCondition:");
-    final int
-      IL = (int) h.health.injury    (),
-      FL = (int) h.health.fatigue   (),
-      MH = (int) h.health.maxHealth ();
-    
-    d.append("\n  Health: "+(MH - IL)+"/"+MH);
-    if (FL > 0) d.append(" (Fatigue "+FL+")");
-    
-    final int
-      hunger = (int) (h.health.hungerLevel() * 100),
-      morale = (int) (h.health.moraleLevel() * 100),
-      maxCon = (int) ActorHealth.BASE_CONCENTRATION,
-      conNow = (int) h.health.concentration();
-    d.append("\n  Concentration: "+conNow+"/"+maxCon);
-    d.append("\n  Morale: "+morale+"%");
-    if (hunger > 0) d.append(" (Hunger "+hunger+"%)");
+    d.append("\n  HP: "+(MH - IL)+"/"+MH);
+    d.append("  AP: "+conNow+"/"+maxCon);
     //
     //  And describe any special status FX-
-    d.append("\n  ");
-    if (h.mind.work() == null) d.append("Unemployed ");
-    if (h.mind.home() == null) d.append("Homeless "  );
-    for (Trait t : h.traits.conditions()) {
-      d.append(h.traits.description(t), t);
-      d.append(" ");
-      //healthDesc.add(h.traits.description(t));
-    }
-    /*
-    for (String s : healthDesc) if (s != null) {
-      d.append(s);
-      d.append(" ");
-    }
-    //*/
+    final Batch <Object> status = new Batch();
+    final String moraleDesc = Trait.descriptionFor(
+      Condition.POOR_MORALE, 0 - h.health.moraleLevel()
+    );
+    if (moraleDesc != null   ) status.add(moraleDesc);
+    if (FL > 0               ) status.add("Tired ("+FL+")");
+    if (hunger > 0           ) status.add("Hungry ("+hunger+"%)");
+    if (h.mind.work() == null) status.add("Unemployed");
+    if (h.mind.home() == null) status.add("Homeless"  );
+    Visit.appendTo(status, h.traits.conditions());
+    d.appendList("\n ", status);
   }
   
   
   private void describeGear(Description d, HUD UI) {
     //
     //  First, describe major pieces of equipment:
-    d.append("Outfit & Equipment: ");
+    d.append("Gear & Equipment: ");
     final int
       MS = (int) h.gear.maxShields  (),
-      SC = (int) h.gear.shieldCharge(),
-      PC = (int) h.gear.powerCells  ();
+      SC = (int) h.gear.shieldCharge();
     final Item device = h.gear.deviceEquipped();
     if (device != null) {
       d.append("\n  "+device.descQuality()+" ");
       d.append(device.type);
-      d.append(" ("+((int) h.gear.totalDamage())+")");
-      if (PC > 0) d.append(" (Power "+PC+")");
+      d.append(" (+"+((int) h.gear.totalDamage())+")");
     }
     final Item outfit = h.gear.outfitEquipped();
-    final boolean showShields = MS > 0 || SC > 0;
     if (outfit != null) {
       d.append("\n  "+outfit.descQuality()+" ");
       d.append(outfit.type);
-      d.append(" ("+((int) h.gear.totalArmour())+")");
+      d.append(" (+"+(int) h.gear.totalArmour()+")");
     }
-    else if (showShields) d.append("\n  No outfit");
+    final boolean showShields = MS > 0 || SC > 0;
     if (showShields) d.append(" (Shields "+SC+"/"+MS+")");
     //
     //  Then any other items carried, including current credits:
-    d.append("\n\nCarried: ");
     final Batch <Item> carried = h.gear.allItems();
     for (Item item : carried) {
       d.append("\n  ");

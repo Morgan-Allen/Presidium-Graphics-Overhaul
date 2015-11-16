@@ -17,11 +17,12 @@ public class ActorGear extends Inventory {
   
   
   final public static float
-    SHIELD_REGEN_TIME = Stage.STANDARD_HOUR_LENGTH,
-    FUEL_DEPLETE      = 0.1f;
+    SHIELD_REGEN_TIME = Stage.STANDARD_HOUR_LENGTH;
   final public static int
-    MAX_AMMO_COUNT = 40,
-    MAX_POWER_CELLS = 5 ;
+    MAX_AMMO_COUNT   = 40,
+    AMMO_PER_UNIT    = 10,
+    MAX_POWER_CELLS  =  5,
+    CHARGES_PER_CELL =  8;
   
   private static boolean verbose = false;
   
@@ -33,9 +34,6 @@ public class ActorGear extends Inventory {
   private Item outfit = null;
   private Item used[] = null;
   
-  //  TODO- GET RID OF THESE.  USE ITEMS INSTEAD.
-  private int   ammoCount      =  0;
-  private float powerCells     =  0;
   private float currentShields =  0;
   private float encumbrance    = -1;
   
@@ -54,8 +52,6 @@ public class ActorGear extends Inventory {
     Item.saveTo(s, device);
     Item.saveTo(s, outfit);
     
-    s.saveInt  (ammoCount     );
-    s.saveFloat(powerCells    );
     s.saveFloat(currentShields);
     s.saveFloat(encumbrance   );
   }
@@ -69,8 +65,6 @@ public class ActorGear extends Inventory {
     device = Item.loadFrom(s);
     outfit = Item.loadFrom(s);
     
-    ammoCount      = s.loadInt  ();
-    powerCells     = s.loadFloat();
     currentShields = s.loadFloat();
     encumbrance    = s.loadFloat();
   }
@@ -237,87 +231,6 @@ public class ActorGear extends Inventory {
   }
   
   
-  
-  /**  Here we deal with equipping/removing Devices-
-    */
-  public void equipDevice(Item device) {
-    if (device != null && ! (device.type instanceof DeviceType)) return;
-    
-    final DeviceType oldType = deviceType();
-    this.device = device;
-    final DeviceType newType = deviceType();
-    
-    if (newType != oldType) {
-      this.ammoCount = (newType != null) ? MAX_AMMO_COUNT : 0;
-    }
-  }
-  
-  
-  public Item deviceEquipped() {
-    return device;
-  }
-  
-  
-  public DeviceType deviceType() {
-    if (device == null) return null;
-    return (DeviceType) device.type;
-  }
-  
-  
-  public boolean hasDeviceProperty(int bits) {
-    final DeviceType type = deviceType();
-    return type != null && type.hasProperty(bits);
-  }
-  
-  
-  public boolean meleeDeviceOnly() {
-    return ! hasDeviceProperty(RANGED);
-  }
-  
-  
-  
-  /**  Returns this actor's effective attack damage.  Actors without equipped
-    *  weapons, or employing weapons in melee, gain a bonus based on their
-    *  physical brawn.
-    */
-  public float totalDamage() {
-    final Item weapon = deviceEquipped();
-    
-    final float brawnBonus = actor.traits.traitLevel(MUSCULAR) / 4;
-    if (weapon == null) return (brawnBonus / 2) + baseDamage;
-    
-    final DeviceType type = (DeviceType) weapon.type;
-    final float damage = type.baseDamage * weapon.outputFromQuality();
-    
-    if (type.hasProperty(MELEE)) return damage + brawnBonus + baseDamage;
-    else return damage + baseDamage;
-  }
-  
-  
-  public float attackRange() {
-    if (deviceType().hasProperty(RANGED)) {
-      return actor.health.sightRange();
-    }
-    else return 1;
-  }
-  
-  
-  public int ammoCount() {
-    return ammoCount;
-  }
-  
-  
-  public void incAmmo(int inc) {
-    ammoCount += inc;
-    ammoCount = Nums.clamp(ammoCount, MAX_AMMO_COUNT);
-  }
-  
-  
-  public float ammoLevel() {
-    return ammoCount * 1f / MAX_AMMO_COUNT;
-  }
-  
-  
 
   /**  Here, we deal with applying/removing Outfits-
     */
@@ -327,11 +240,6 @@ public class ActorGear extends Inventory {
     final OutfitType oldType = outfitType();
     this.outfit = outfit;
     final OutfitType newType = outfitType();
-    
-    if (newType != oldType) {
-      powerCells     = (maxShields() > 0) ? MAX_POWER_CELLS : 0;
-      currentShields = maxShields();
-    }
     
     //  TODO:  FIGURE THIS OUT
     /*
@@ -367,6 +275,63 @@ public class ActorGear extends Inventory {
   
   
   
+  /**  Here we deal with equipping/removing Devices-
+    */
+  public void equipDevice(Item device) {
+    if (device != null && ! (device.type instanceof DeviceType)) return;
+    
+    final DeviceType oldType = deviceType();
+    this.device = device;
+    final DeviceType newType = deviceType();
+  }
+  
+  
+  public Item deviceEquipped() {
+    return device;
+  }
+  
+  
+  public DeviceType deviceType() {
+    if (device == null) return null;
+    return (DeviceType) device.type;
+  }
+  
+  
+  public boolean hasDeviceProperty(int bits) {
+    final DeviceType type = deviceType();
+    return type != null && type.hasProperty(bits);
+  }
+  
+  
+  public boolean meleeDeviceOnly() {
+    return ! hasDeviceProperty(RANGED);
+  }
+  
+  
+  
+  /**  Returns this actor's effective attack damage.  Actors without equipped
+    *  weapons, or employing weapons in melee, gain a bonus based on their
+    *  physical brawn.
+    */
+  public float totalDamage() {
+    final Item weapon = deviceEquipped();
+    if (weapon == null) return baseDamage;
+    
+    final DeviceType type = (DeviceType) weapon.type;
+    final float damage = type.baseDamage * weapon.outputFromQuality();
+    return damage + baseDamage;
+  }
+  
+  
+  public float attackRange() {
+    if (deviceType().hasProperty(RANGED)) {
+      return actor.health.sightRange();
+    }
+    else return 1;
+  }
+  
+  
+  
   /**  Returns this actor's effective armour rating.  Actors not wearing any
     *  significant armour, or only lightly armoured, gain a bonus based on
     *  their reflexes.
@@ -390,6 +355,9 @@ public class ActorGear extends Inventory {
   }
   
   
+  
+  /**  Helper methods for dealing with power cells, shields and ammunition.
+    */
   public float shieldCharge() {
     return currentShields;
   }
@@ -426,38 +394,65 @@ public class ActorGear extends Inventory {
   
   private void regenerateShields() {
     final float max = maxShields();
-    
-    //  TODO:  Log these properly.
-    /*
-    if (I.talkAbout == actor) {
-      I.say("\nShields are: "+currentShields+"/"+max);
-    }
-    //*/
+    float cellsUsed = 0;
     
     if (currentShields < max) {
       float regen = max / SHIELD_REGEN_TIME;
       regen = Nums.clamp(regen, 0, max - currentShields);
       currentShields = Nums.clamp(currentShields + regen, 0, max);
-      powerCells -= FUEL_DEPLETE * regen / (max * SHIELD_REGEN_TIME);
+      cellsUsed += regen / (max * CHARGES_PER_CELL);
     }
     if (currentShields > max) {
       final float sink = 5f / SHIELD_REGEN_TIME;
       currentShields = Nums.clamp(currentShields - sink, max, (max + 5) * 2);
     }
+    bumpItem(Outfits.POWER_CELLS, 0 - cellsUsed);
   }
   
   
-  public float powerCells() {
-    return powerCells;
+  public int maxPowerCells() {
+    if (maxShields() == 0) return 0;
+    final OutfitType type = outfitType();
+    if (type.natural() || type.shieldBonus == 0) return 0;
+    return MAX_POWER_CELLS;
   }
   
   
-  public void incPowerCells(float inc) {
-    if (inc <= 0) return;
-    powerCells += inc;
-    powerCells = Nums.clamp(powerCells, 0, MAX_POWER_CELLS);
+  public int maxAmmoUnits() {
+    if (! hasDeviceProperty(Devices.RANGED)) return 0;
+    final DeviceType type = deviceType();
+    if (type.natural() || type.baseDamage == 0) return 0;
+    return (MAX_AMMO_COUNT / AMMO_PER_UNIT);
+  }
+  
+  
+  public void depleteAmmo(int numShots) {
+    float ammoUsed = numShots * 1f / AMMO_PER_UNIT;
+    bumpItem(Devices.AMMO_CLIPS, 0 - ammoUsed);
+  }
+  
+  
+  public int ammoCount() {
+    return (int) (amountOf(Devices.AMMO_CLIPS) * AMMO_PER_UNIT);
+  }
+  
+  
+  public boolean canFireWeapon() {
+    if (meleeDeviceOnly()) return false;
+    return maxAmmoUnits() == 0 || ammoCount() > 0;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

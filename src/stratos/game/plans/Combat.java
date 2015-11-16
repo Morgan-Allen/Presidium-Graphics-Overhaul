@@ -193,7 +193,7 @@ public class Combat extends Plan {
     
     Action strike = null;
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
-    final boolean melee     = actor.gear.meleeDeviceOnly();
+    final boolean melee     = ! actor.gear.canFireWeapon();
     final boolean razes     = struck instanceof Placeable;
     final float   danger    = 1f - successChanceFor(actor);
     final Target  covers    = coverPoint(actor, struck, razes, melee, danger);
@@ -370,7 +370,9 @@ public class Combat extends Plan {
     
     final boolean phys    = actor.gear.hasDeviceProperty(Devices.KINETIC);
     final boolean canStun = actor.gear.hasDeviceProperty(Devices.STUN   );
-    final boolean melee   = actor.gear.meleeDeviceOnly();
+    final boolean ranged  = actor.gear.hasDeviceProperty(Devices.RANGED );
+    final boolean melee   = ! actor.gear.canFireWeapon();
+    
     float penalty = 0, damage = 0;
     penalty = rangePenalty(actor, target);
     
@@ -389,7 +391,14 @@ public class Combat extends Plan {
     
     if (success) {
       final float maxDamage = actor.gear.totalDamage();
-      damage = maxDamage * Rand.num();
+      //
+      //  We reduce damage if using a ranged implement as a melee weapon, but
+      //  grant a general strength bonus to melee attacks:
+      if (melee && ranged) damage /= 4;
+      else damage = maxDamage;
+      if (melee) damage += actor.skills.chance(MUSCULAR, MODERATE_DC) * 8;
+      damage *= Rand.num();
+      
       final float
         afterShields = melee ? damage : target.gear.afterShields(damage, phys),
         shieldsTook  = damage - afterShields,
