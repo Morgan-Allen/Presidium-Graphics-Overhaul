@@ -467,8 +467,20 @@ public abstract class ActorMind {
   }
   
   
+  public Plan topPlan() {
+    final Behaviour b = topBehaviour();
+    return b instanceof Plan ? (Plan) b : null;
+  }
+  
+  
   public Behaviour rootBehaviour() {
     return agenda.last();
+  }
+  
+  
+  public Plan rootPlan() {
+    final Behaviour b = rootBehaviour();
+    return b instanceof Plan ? (Plan) b : null;
   }
   
   

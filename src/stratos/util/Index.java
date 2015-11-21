@@ -101,7 +101,7 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
   
   public void saveEntry(T entry, DataOutputStream out) throws Exception {
     assignIDs();
-    out.writeInt(entry == null ? -1 : entry.uniqueID);
+    out.writeInt(entry == null ? -1 : entry.uniqueID());
   }
   
   

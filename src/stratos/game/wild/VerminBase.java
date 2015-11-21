@@ -54,6 +54,7 @@ public class VerminBase extends Base {
     final boolean report = verbose;
     super.updateAsScheduled(numUpdates, instant);
     
+    if (GameSettings.noSpawn) return;
     //
     //  We perform updates to check for vermin-entry more quickly as the number
     //  of entry-points increases...

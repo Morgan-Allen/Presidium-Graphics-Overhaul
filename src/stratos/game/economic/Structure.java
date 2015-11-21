@@ -650,6 +650,13 @@ public class Structure {
   }
   
   
+  public int upgradeOrQueuedLevel(Object refers) {
+    return
+      upgradeLevel(refers, STATE_INTACT ) +
+      upgradeLevel(refers, STATE_INSTALL);
+  }
+  
+  
   public boolean hasUpgrade(Upgrade type) {
     return hasUpgrade(type, 1);
   }
@@ -657,12 +664,6 @@ public class Structure {
   
   public boolean hasUpgrade(Upgrade type, int level) {
     return upgradeLevel(type) >= level;
-  }
-  
-  
-  public boolean hasUpgradeOrQueued(Upgrade type, int level) {
-    int total = upgradeLevel(type, STATE_INSTALL) + upgradeLevel(type);
-    return total >= level;
   }
   
   

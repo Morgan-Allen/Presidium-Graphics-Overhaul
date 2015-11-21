@@ -324,9 +324,12 @@ public class VenuePane extends SelectionPane {
       }
       d.append("\n");
     }
-
+    
     final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
+    final Upgrade inProg = v.structure.upgradeInProgress();
+    final float   upProg = v.structure.upgradeProgress(inProg);
     final boolean canUp = maxU > 0 && UA.size() > 0;
+    
     if (canUp && ! v.structure().intact()) {
       d.append("\nUpgrades unavailable while under construction.");
     }
@@ -334,37 +337,29 @@ public class VenuePane extends SelectionPane {
       d.append("\nUpgrades Installed: "+numU+"/"+maxU);
       for (final Upgrade upgrade : UA) {
         if (upgrade.type != Upgrade.Type.TECH_MODULE) continue;
-        d.append("\n");
         upgrade.appendVenueOrders(d, v, base);
+        if (inProg == upgrade && upProg > 0) {
+          d.append("\n    Progress: ");
+          d.append(((int) (upProg * 100))+"%");
+        }
       }
-    }
-    
-    final Batch <String> OA = v.structure.descOngoingUpgrades();
-    if (OA.size() > 0) {
-      final Upgrade inProg = v.structure.upgradeInProgress();
       Text.cancelBullet(d);
-      d.append("\n\nUpgrades in progress: ");
-      for (String u : OA) d.append("\n  "+u);
-      d.append("\n");
-      
-      if (v.structure.upgradeProgress(inProg) == 0) d.append(
-        "\nUpgrades will be installed once your engineering staff arrive "+
-        "on-site.", Colour.LITE_GREY
-      );
-      else d.append(
-        "\nUpgrades are currently being installed.", Colour.LITE_GREY
-      );
     }
 
     final Batch <Description.Link> orders = new Batch();
     addOrdersTo(orders);
     if (orders.size() > 0) {
-      d.append("\n\nOther Orders:");
+      d.append("\nOther Orders:");
       for (Description.Link link : orders) {
         d.append("\n  ");
         d.append(link);
       }
     }
+    
+    if (inProg != null && upProg <= 0) d.append(
+      "\nUpgrades will be installed once your engineering staff arrive "+
+      "on-site.", Colour.LITE_GREY
+    );
   }
   
   

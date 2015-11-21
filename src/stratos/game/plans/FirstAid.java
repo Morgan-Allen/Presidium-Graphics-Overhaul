@@ -68,7 +68,7 @@ public class FirstAid extends Treatment {
     //
     //  We don't bring potential enemies back to our base even if we do stop
     //  them dying...
-    if (patient.base().relations.relationWith(actor.base()) > 0) {
+    if (patient.base().relations.relationWith(actor.base()) < 0) {
       return current;
     }
     
@@ -125,7 +125,7 @@ public class FirstAid extends Treatment {
     final boolean urgent = patient.health.bleeding() || outside;
     float urgency = severity();
     if (urgency <= 0) return 0;
-    if (! urgent) urgency /= 2;
+    if (urgent) urgency = Nums.max(urgency, 0.5f);
     
     if (PlanUtils.competition(this, patient, actor) > urgency) {
       return -1;
@@ -133,7 +133,8 @@ public class FirstAid extends Treatment {
     toggleMotives(MOTIVE_EMERGENCY,
       (urgent || urgency > 0.5f) && patient.health.alive()
     );
-    setCompetence(successChanceFor(actor));
+    float chance = successChanceFor(actor);
+    setCompetence(Nums.max(chance, urgent ? 0.5f : 0));
     //
     //  And finally, overall priority is determined and returned...
     float priority = PlanUtils.supportPriority(

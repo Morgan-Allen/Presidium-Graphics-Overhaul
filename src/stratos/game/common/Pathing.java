@@ -307,7 +307,7 @@ public class Pathing {
     //
     //  To ensure non-collision with other objects, we subtract both our and
     //  their radius from the distance moved.
-    if (! (target instanceof Tile)) {
+    if (target != mobile.aboard() && ! (target instanceof Tile)) {
       dist -= target.radius();
       dist -= mobile.radius();
       if (dist < 0) dist = 0;

@@ -227,7 +227,7 @@ public class ActorSkills {
     final boolean reactive = taken == null;
     if (current == null && taken != null) current = taken.parentPlan();
     if (subject == null && taken != null) subject = taken.subject();
-    if (current == null) current = (Plan) actor.mind.topBehaviour();
+    if (current == null) current = actor.mind.topPlan();
     if (subject == null) subject = actor;
     
     for (Technique t : availableTechniques()) if (t.isPassiveSkillFX()) {

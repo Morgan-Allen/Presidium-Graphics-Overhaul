@@ -212,6 +212,7 @@ public class InstallPane extends SelectionPane {
     final int state = (int) base.research.getResearchLevel(forType);
     
     final Image b = new Image(UI, icon.texture());
+    b.setWidgetID(type.keyID);
     if (state <= BaseResearch.LEVEL_ALLOWS) {
       if (forType.researchDone(base) != null) {
         b.addOverlay(THEORETICAL_FRAME);

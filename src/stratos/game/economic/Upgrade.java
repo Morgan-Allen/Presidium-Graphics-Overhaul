@@ -7,7 +7,6 @@ package stratos.game.economic;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.start.Scenario;
 import stratos.util.*;
 import stratos.user.*;
 import stratos.user.notify.*;
@@ -141,7 +140,7 @@ public class Upgrade extends Constant {
   
   public boolean hasRequirements(Structure structure) {
     for (Upgrade r : required) {
-      if (! structure.hasUpgradeOrQueued(r, 1)) return false;
+      if (structure.upgradeOrQueuedLevel(r) == 0) return false;
     }
     return true;
   }
@@ -308,11 +307,9 @@ public class Upgrade extends Constant {
     else if (canUpgrade) {
       final Structure s = v.structure();
       int
-        level    = s.upgradeLevel(upgrade),
+        level    = s.upgradeOrQueuedLevel(upgrade),
         maxLevel = upgrade.maxLevel,
         cost     = upgrade.buildCost(base);
-      boolean doingUpgrade = s.hasUpgradeOrQueued(upgrade, level + 1);
-      float progress = s.upgradeProgress(upgrade);
       
       if (type != Type.VENUE_LEVEL) nameSuffix = " ("+level+"/"+maxLevel+")";
       
@@ -320,9 +317,6 @@ public class Upgrade extends Constant {
         progReport = "Max. level";
       }
       else if (! v.structure().hasSpaceFor(upgrade)) {
-      }
-      else if (doingUpgrade) {
-        progReport = "Progress: "+(int) (progress * 100)+"%";
       }
       else {
         if (base.finance.hasCredits(cost)) linksTo = new Description.Link("") {
@@ -369,9 +363,10 @@ public class Upgrade extends Constant {
     
     
     final boolean isBuilding = this == origin.baseUpgrade();
+    if ((! isBuilding) && (! canUpgrade) && (! canResearch)) return;
     
     if (isBuilding) d.append("  "+name, this, Colour.WHITE);
-    else d.append("  "+name, this, Colour.LITE_GREY);
+    else d.append("\n  "+name, this, Colour.LITE_GREY);
     d.append(nameSuffix);
     
     //  TODO:  SEE IF YOU CAN STICK THIS IN LATER?

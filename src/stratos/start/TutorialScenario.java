@@ -160,6 +160,7 @@ public class TutorialScenario extends StartupScenario {
     super.configureScenario(world, base, UI);
     GameSettings.noAdvice = true;
     GameSettings.noShips  = true;
+    GameSettings.noSpawn  = true;
     base.advice.setAutonomy(BaseAdvice.LEVEL_AUTO_NO_ADVICE);
     base.finance.setInitialFunding(2500, 0);
   }

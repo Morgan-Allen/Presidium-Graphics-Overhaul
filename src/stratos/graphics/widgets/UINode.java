@@ -70,6 +70,9 @@ public abstract class UINode {
     return parent;
   }
   
+  public String widgetID() { return widgetID; }
+  public void setWidgetID(String ID) { this.widgetID = ID; }
+  
   
   public int xpos() { return (int) bounds.xpos(); }
   public int ypos() { return (int) bounds.ypos(); }
@@ -83,8 +86,6 @@ public abstract class UINode {
     */
   protected abstract void render(WidgetsPass pass);
   protected String info() { return null; }
-  protected String widgetID() { return widgetID; }
-  protected void setWidgetID(String ID) { this.widgetID = ID; }
   
   
   

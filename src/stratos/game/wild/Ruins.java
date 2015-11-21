@@ -180,7 +180,7 @@ public class Ruins extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     
     if (numUpdates % 10 == 0 && base() instanceof ArtilectBase && ! instant) {
-      I.say("...");
+      if (GameSettings.noSpawn) return;
       
       final ArtilectBase AB = (ArtilectBase) base();
       final int numSpecies = SPECIES.length;

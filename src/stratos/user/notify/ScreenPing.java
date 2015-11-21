@@ -31,7 +31,6 @@ public class ScreenPing extends UIGroup {
   
   
   private Image centre, rings;
-  private String widgetID;
   private float baseSize, timeActive = 0, lifespan;
   
   
@@ -56,7 +55,7 @@ public class ScreenPing extends UIGroup {
     if (matches != null) return false;
     
     final ScreenPing ping = new ScreenPing(UI);
-    ping.widgetID = pingID;
+    ping.setWidgetID(pingID);
     ping.lifespan = lifespan;
     
     ping.centre = new Image(UI, CENTRE_IMG);
@@ -73,11 +72,6 @@ public class ScreenPing extends UIGroup {
     ping.attachTo(UI);
     
     return true;
-  }
-  
-  
-  protected String widgetID() {
-    return widgetID;
   }
   
   

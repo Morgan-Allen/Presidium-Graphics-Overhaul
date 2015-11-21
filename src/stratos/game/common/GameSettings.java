@@ -90,6 +90,7 @@ public class GameSettings {
     noBlood   = false,
     noChat    = false,
     noShips   = false,
+    noSpawn   = false,
     noAdvice  = false,
     
     hardCore  = false;
