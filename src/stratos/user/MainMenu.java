@@ -7,6 +7,7 @@ package stratos.user;
 import stratos.content.civic.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;

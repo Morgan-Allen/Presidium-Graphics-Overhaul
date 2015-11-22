@@ -681,6 +681,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       "button_contact.png"    ,
       "button_security.png"   ,
       "button_research.png"   ,
+      "button_claiming.png"   ,
       "mission_button_lit.png"
     ),
     STRIKE_ICON   = ALL_ICONS[0],
@@ -688,8 +689,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
     CONTACT_ICON  = ALL_ICONS[2],
     SECURITY_ICON = ALL_ICONS[3],
     RESEARCH_ICON = ALL_ICONS[4],
+    CLAIMING_ICON = ALL_ICONS[5],
     
-    MISSION_ICON_LIT = ALL_ICONS[5];
+    MISSION_ICON_LIT = ALL_ICONS[6];
   //
   //  These icons need to be worked on a little more...
   final public static CutoutModel

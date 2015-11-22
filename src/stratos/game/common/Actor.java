@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.CutoutSprite;
 import stratos.graphics.sfx.*;

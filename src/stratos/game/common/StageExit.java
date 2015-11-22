@@ -5,6 +5,7 @@
   */
 package stratos.game.common;
 import stratos.game.base.*;
+import stratos.game.verse.*;
 
 
 

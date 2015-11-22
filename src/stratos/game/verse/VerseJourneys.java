@@ -3,9 +3,10 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.base;
+package stratos.game.verse;
 import stratos.game.common.*;
 import stratos.game.actors.*;
+import stratos.game.base.BaseCommerce;
 import stratos.game.economic.*;
 import stratos.user.BaseUI;
 import stratos.util.*;
@@ -93,21 +94,6 @@ public class VerseJourneys {
       return activityFor(((Vehicle) mobile).pilot());
     }
     return null;
-  }
-
-  
-  static class Journey {
-    //  TODO:  This needs to be adaptable to arbitrary groups of individuals on
-    //  a journey, with or without ships.
-    
-    //Dropship vessel;
-    Vehicle transport;
-    Batch <Mobile> migrants = new Batch();
-    
-    VerseLocation origin;
-    VerseLocation destination;
-    float arriveTime;
-    boolean returns;
   }
   
   

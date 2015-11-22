@@ -4,14 +4,14 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.base;
-import stratos.content.civic.Airfield;
-import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.content.civic.Airfield;
 import static stratos.game.economic.Economy.*;
 
 

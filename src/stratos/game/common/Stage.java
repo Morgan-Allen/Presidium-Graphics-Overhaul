@@ -7,6 +7,7 @@ package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.maps.*;
+import stratos.game.verse.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;

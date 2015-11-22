@@ -9,6 +9,7 @@ import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
+import stratos.game.verse.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 

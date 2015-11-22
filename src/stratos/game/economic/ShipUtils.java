@@ -5,10 +5,10 @@
   */
 package stratos.game.economic;
 import stratos.content.civic.*;
-import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;

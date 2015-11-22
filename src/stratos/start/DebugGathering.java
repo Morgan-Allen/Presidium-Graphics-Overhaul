@@ -12,6 +12,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;

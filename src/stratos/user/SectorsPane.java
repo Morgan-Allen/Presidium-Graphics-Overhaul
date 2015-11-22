@@ -2,6 +2,7 @@
 
 package stratos.user;
 import stratos.game.base.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
@@ -118,7 +119,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
     
     left = new Button(
       UI, null,
-      LEFT_BUTTON_IMG.asTexture(),
+      LEFT_BUTTON_IMG  .asTexture(),
       Button.CIRCLE_LIT.asTexture(),
       "Rotate left"
     ) {
@@ -200,9 +201,11 @@ public class SectorsPane extends UIGroup implements UIConstants {
   /**  Main rendering methods-
     */
   protected void updateState() {
-    final DisplaySector DS = display.selectedAt(UI.mousePos());
-    final VerseLocation hovered = DS == null ? null : VerseLocation.sectorNamed(DS.label);
     
+    final DisplaySector DS = display.selectedAt(UI.mousePos());
+    final VerseLocation hovered = DS == null ? null :
+      VerseLocation.sectorNamed(DS.label)
+    ;
     if (UI.mouseClicked()) {
       focus = hovered;
       if (focus != null) {

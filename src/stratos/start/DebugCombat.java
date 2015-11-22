@@ -6,17 +6,15 @@
 package stratos.start;
 import stratos.content.civic.*;
 import stratos.game.actors.*;
-import stratos.game.base.Verse;
-import stratos.game.base.VerseLocation;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
 import static stratos.game.actors.Backgrounds.*;
 import stratos.content.abilities.*;
 

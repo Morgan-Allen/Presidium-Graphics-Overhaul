@@ -25,9 +25,9 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class PlanetDisplay extends Assets.Loadable {
   
   
-  final static int DEFAULT_RADIUS = 10;
-  final static float KEY_TOLERANCE = 0.02f;
-  private static boolean verbose = false;
+  final static int   DEFAULT_RADIUS = 10;
+  final static float KEY_TOLERANCE  = 0.02f;
+  private static boolean setupVerbose = false;
   
   
   private float
@@ -157,9 +157,12 @@ public class PlanetDisplay extends Assets.Loadable {
     final int
       partFaces = part.numVertices / 3,
       meshFaces = part.mesh.getNumIndices() / 3,
-      vertSize  = 3 + 3 + 2 + 2,  //position, normal, tex coord and bone weight.
+      vertSize  = 3 + 3 + 2 + 6,  //  vert, normal, tex coord and bone weights.
       offset    = part.indexOffset / vertSize;
-    if (verbose) {
+    
+    //  TODO:  THESE MAGIC CONSTANTS NEED TO BE IN A SINGLE CENTRAL INTERFACE.
+    
+    if (setupVerbose) {
       I.say("PART FACES: "+partFaces+", MESH FACES: "+meshFaces);
       I.say("Vertex Size: "+vertSize+", index offset: "+offset);
     }
@@ -177,15 +180,21 @@ public class PlanetDisplay extends Assets.Loadable {
     //  Finally, extract the vertex and tex-coord data, calculate edge and
     //  edge-normal vectors, and cache them for later reference-
     for (int n = 0; n < partFaces; n++) {
+      if (setupVerbose) I.say("\nINITING NEXT FACE: "+n);
+      
       for (int i = 0; i < 3; i++) {
         final int index = indices[offset + (n * 3) + i];
-        if (verbose) I.say("  Face/corner: "+n+"/"+i+", index is: "+index);
         final int off = index * vertSize;
         //
         final Vec3D c = tempV[i] = new Vec3D();
         c.set(vertData[off + 0], vertData[off + 1], vertData[off + 2]);
         final Vec2D t = tempT[i] = new Vec2D();
         t.set(vertData[off + 6], vertData[off + 7]);
+        if (setupVerbose) {
+          I.say("  Corner: "+i+", index is: "+index);
+          I.say("    Vertex:  "+c);
+          I.say("    Texture: "+t);
+        }
       }
       //
       final FaceData f = faceData[n] = new FaceData();
@@ -200,10 +209,21 @@ public class PlanetDisplay extends Assets.Loadable {
       f.n21 = f.c2.cross(f.c1, null).normalise();
       f.n32 = f.c3.cross(f.c2, null).normalise();
       f.n13 = f.c1.cross(f.c3, null).normalise();
-      //
       f.d1 = f.n32.dot(f.e21);
       f.d2 = f.n13.dot(f.e32);
       f.d3 = f.n21.dot(f.e13);
+      
+      if (setupVerbose) {
+        I.say("  Edge 2-1: "+f.e21);
+        I.say("  Edge 3-2: "+f.e32);
+        I.say("  Edge 1-3: "+f.e13);
+        I.say("  Norm 2-1: "+f.n21);
+        I.say("  Norm 3-2: "+f.n32);
+        I.say("  Norm 1-3: "+f.n13);
+        I.say("  Dist to corner 1: "+f.d1);
+        I.say("  Dist to corner 2: "+f.d2);
+        I.say("  Dist to corner 3: "+f.d3);
+      }
       //
       //  Finally, obtain a sample of the colour key and midpoints-
       f.midpoint = new Vec3D().add(f.c1).add(f.c2).add(f.c3).scale(1f / 3);
@@ -216,6 +236,11 @@ public class PlanetDisplay extends Assets.Loadable {
       );
       f.key = new Colour();
       f.key.setFromRGBA(colourVal);
+      
+      if (setupVerbose) {
+        I.say("    Midpoint: "+f.midpoint);
+        I.say("    Colour sample: "+f.key);
+      }
     }
   }
   
@@ -289,6 +314,7 @@ public class PlanetDisplay extends Assets.Loadable {
   
   
   private int colourOnSurface(Vec3D onSurface) {
+    
     if (faceData == null) return 0;
     boolean matchFound = false;
     for (FaceData f : faceData) {
@@ -306,6 +332,7 @@ public class PlanetDisplay extends Assets.Loadable {
   
   
   public DisplaySector selectedAt(Vector2 mousePos) {
+    
     final int colourVal = colourSelectedAt(mousePos);
     if (colourVal == 0) {
       this.hoverKey = null;

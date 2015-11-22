@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.game.maps.*;
 import stratos.util.*;
 
