@@ -26,6 +26,7 @@ public class ActorSkills {
   
   final Actor actor;
   private List <Technique> known = new List <Technique> ();
+  private Technique available[] = null;
   
   
   public ActorSkills(Actor actor) {
@@ -49,6 +50,7 @@ public class ActorSkills {
   public void updateSkills(int numUpdates) {
     final boolean report = I.talkAbout == actor && techsVerbose;
     boolean canLearn = actor.health.conscious() && actor.species().sapient();
+    
     //
     //  See if we've learned any new techniques based on practice in source
     //  skills or item proficiency.
@@ -67,6 +69,7 @@ public class ActorSkills {
     }
     //
     //  And apply passive techniques at all times.
+    this.available = null;
     for (Technique t : availableTechniques()) if (t.isPassiveAlways()) {
       t.applyEffect(actor, actor, true, true);
     }
@@ -160,13 +163,14 @@ public class ActorSkills {
   }
   
   
-  public Series <Technique> availableTechniques() {
+  public Technique[] availableTechniques() {
+    if (available != null) return available;
     final Batch <Technique> all = new Batch(known.size() * 2);
     for (Technique t : known) all.add(t);
     for (Item i : actor.gear.usable()) {
       Visit.appendTo(all, i.type.techniques());
     }
-    return all;
+    return available = all.toArray(Technique.class);
   }
   
   

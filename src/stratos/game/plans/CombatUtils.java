@@ -40,6 +40,12 @@ public class CombatUtils {
     estimate *= (2 - actor.health.stressPenalty()) / 2f;
     if (! actor.health.conscious()) estimate /= 2.5f;
     
+    float sumPowers = 0;
+    for (Technique t : actor.skills.availableTechniques()) {
+      sumPowers += t.powerLevel;
+    }
+    estimate *= 1 + (sumPowers / Technique.UNIT_POWER_BASELINE);
+    
     if (report) {
       I.say("\nESTIMATED POWER LEVEL OF "+actor+" IS "+estimate);
     }

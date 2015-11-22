@@ -82,7 +82,8 @@ public abstract class Technique extends Constant {
     NO_CONCENTRATION     = 0.0f ,
     MINOR_CONCENTRATION  = 2.0f ,
     MEDIUM_CONCENTRATION = 5.0f ,
-    MAJOR_CONCENTRATION  = 8.0f ;
+    MAJOR_CONCENTRATION  = 8.0f ,
+    UNIT_POWER_BASELINE  = MAJOR_POWER * 2;
   
   final public static float
     HARM_UNRATED = -100,
