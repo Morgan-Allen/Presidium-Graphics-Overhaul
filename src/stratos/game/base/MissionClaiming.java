@@ -25,22 +25,26 @@ public class MissionClaiming extends Mission {
   /**  Data fields, constructors, and save/load methods-
     */
   final VerseLocation claimed;
+  final Expedition expedition;
   
   
   public MissionClaiming(Base base, VerseLocation claimed) {
     super(base, claimed, null, "Claiming "+claimed);
     this.claimed = claimed;
+    this.expedition = new Expedition();
   }
   
   
   public MissionClaiming(Session s) throws Exception {
     super(s);
     this.claimed = (VerseLocation) subject;
+    this.expedition = (Expedition) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObject(expedition);
   }
   
   

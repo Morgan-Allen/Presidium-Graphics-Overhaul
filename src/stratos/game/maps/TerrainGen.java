@@ -59,8 +59,8 @@ public class TerrainGen implements TileConstants {
     *  habitats and float-specified proportions for each.  Do not fuck with it.
     */
   public TerrainGen(int minSize, float typeNoise, Object... gradient) {
-    this.mapSize = checkMapSize(minSize);
-    this.typeNoise = Nums.clamp(typeNoise, 0, 1);
+    this.mapSize        = checkMapSize(minSize);
+    this.typeNoise      = Nums.clamp(typeNoise, 0, 1);
     this.sectorGridSize = mapSize / Stage.ZONE_SIZE;
     //
     //  Here, we verify amd compile the gradient of habitat proportions.
@@ -80,8 +80,22 @@ public class TerrainGen implements TileConstants {
       }
     }
     if (gradient.length % 2 != 0) I.complain("Missing argument...");
-    habitats = habB.toArray(Habitat.class);
-    habitatAmounts = amountB.toArray(Float.class);
+    habitats       = habB   .toArray(Habitat.class);
+    habitatAmounts = amountB.toArray(Float  .class);
+  }
+  
+  
+  public TerrainGen(
+    int minSize, float typeNoise, Habitat habitats[], Float habitatWeights[]
+  ) {
+    this.mapSize        = checkMapSize(minSize);
+    this.typeNoise      = Nums.clamp(typeNoise, 0, 1);
+    this.sectorGridSize = mapSize / Stage.ZONE_SIZE;
+    if (habitats.length != habitatWeights.length) {
+      I.complain("Length mismatch...");
+    }
+    this.habitats       = habitats      ;
+    this.habitatAmounts = habitatWeights;
   }
   
   

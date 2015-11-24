@@ -80,77 +80,26 @@ public class StartupScenario extends Scenario {
     TITLE_COUNT    = 1,
     TITLE_BARON    = 2;
   
-  public static class Config {
-    //  TODO:  Just pick House, Province, Options.  And a few perks.
-    
-    public Background house ;
-    public Background gender;
-    public List <Trait    > chosenTraits = new List <Trait    > ();
-    public List <Skill    > chosenSkills = new List <Skill    > ();
-    public List <Technique> chosenTechs  = new List <Technique> ();
-    
-    public List  <Background> advisors = new List  <Background> ();
-    public Tally <Background> crew     = new Tally <Background> ();
-    public Tally <Blueprint > built    = new Tally <Blueprint > ();
-    public VerseLocation demesne;
-    public int siteLevel, fundsLevel, titleLevel;
-  }
   
-  final Config config;
+  private Expedition expedition;
   
   
   
-  public StartupScenario(Config config, String prefix) {
+  public StartupScenario(Expedition config, String prefix) {
     super(prefix, false);
-    this.config = config;
+    this.expedition = config;
   }
   
   
   public StartupScenario(Session s) throws Exception {
     super(s);
-    this.config = new Config();
-    config.house  = (Background) s.loadObject();
-    config.gender = (Background) s.loadObject();
-    s.loadObjects(config.chosenTraits);
-    s.loadObjects(config.chosenSkills);
-    s.loadObjects(config.chosenTechs );
-    
-    s.loadObjects(config.advisors    );
-    for (int i = s.loadInt(); i-- > 0;) {
-      config.crew.set((Background) s.loadObject(), s.loadInt());
-    }
-    for (int i = s.loadInt(); i-- > 0;) {
-      config.built.set((Blueprint) s.loadObject(), s.loadFloat());
-    }
-    config.demesne    = (VerseLocation) s.loadObject();
-    config.siteLevel  = s.loadInt();
-    config.fundsLevel = s.loadInt();
-    config.titleLevel = s.loadInt();
+    this.expedition = (Expedition) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject (config.house       );
-    s.saveObject (config.gender      );
-    s.saveObjects(config.chosenTraits);
-    s.saveObjects(config.chosenSkills);
-    s.saveObjects(config.chosenTechs );
-    s.saveObjects(config.advisors    );
-    s.saveInt(config.crew.size());
-    for (Background b : config.crew.keys()) {
-      s.saveObject(b);
-      s.saveInt((int) config.crew.valueFor(b));
-    }
-    s.saveInt(config.built.size());
-    for (Blueprint b : config.built.keys()) {
-      s.saveObject(b);
-      s.saveFloat(config.built.valueFor(b));
-    }
-    s.saveObject(config.demesne);
-    s.saveInt(config.siteLevel );
-    s.saveInt(config.fundsLevel);
-    s.saveInt(config.titleLevel);
+    s.saveObject(expedition);
   }
   
   
@@ -158,39 +107,18 @@ public class StartupScenario extends Scenario {
   /**  Required setup methods-
     */
   protected Stage createWorld() {
-    final int station = config.titleLevel;
-    float water = 2;
-    float forest = 0, meadow = 0, barrens = 0, desert = 0, wastes = 0;
     
-    switch (config.siteLevel) {
-      case(0) : wastes = 3; desert  = 2; barrens = 4; water = 0; break;
-      case(1) : meadow = 4; barrens = 2; desert  = 2; water = 1; break;
-      case(2) : meadow = 4; barrens = 2; desert  = 2; water = 1; break;
-      case(3) : forest = 2; meadow  = 3; barrens = 2; water = 2; break;
-    }
+    final int mapSize = MAP_SIZES[expedition.estateSize()];
+    final VerseLocation locale = expedition.destination();
+    final TerrainGen TG = locale.initialiseTerrain(mapSize);
     
-    //  TODO:  the terrain setup algorithm should not be directly interacting
-    //  with the world, only passing data onto the constructor.  The
-    //  'readyAllMeshes()' method should be called automatically then.
-    final TerrainGen TG = new TerrainGen(
-      MAP_SIZES[station], 0.2f,
-      Habitat.OCEAN       , water  ,
-      Habitat.ESTUARY     , forest ,
-      Habitat.MEADOW      , meadow ,
-      Habitat.BARRENS     , barrens,
-      Habitat.DUNE        , desert ,
-      Habitat.CURSED_EARTH, wastes
-    );
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();
-    
     Flora.populateFlora(world);
     
-    //  TODO:  THIS NEEDS TO BE CONFIGURED EXTERNALLY!
-    if (config.demesne == null) config.demesne = Verse.SECTOR_ELYSIUM;
-    world.offworld.assignStageLocation(config.demesne);
+    world.offworld.assignStageLocation(locale);
     return world;
   }
   
@@ -198,15 +126,10 @@ public class StartupScenario extends Scenario {
   protected Base createBase(Stage world) {
     final Base base = Base.settlement(world, "Player Base", Colour.LITE_BLUE);
     
-    int funding = -1, interest = -1;
-    switch (config.fundsLevel) {
-      case(0) : funding = 7500 ; interest = 3; break;
-      case(1) : funding = 10000; interest = 2; break;
-      case(2) : funding = 12500; interest = 1; break;
-    }
-    base.finance.setInitialFunding(funding, interest);
-    base.research.initKnowledgeFrom((VerseLocation) config.house);
-    base.commerce.assignHomeworld  ((VerseLocation) config.house);
+    final VerseLocation origin = expedition.origin();
+    base.finance.setInitialFunding(expedition.funding(), expedition.interest());
+    base.research.initKnowledgeFrom(origin);
+    base.commerce.assignHomeworld  (origin);
     return base;
   }
   
@@ -250,94 +173,17 @@ public class StartupScenario extends Scenario {
   /**  Private helper methods-
     */
   protected Human ruler(Base base) {
-    //
-    //  Firstly, we determine the ruler's current rank in the feudal hierarchy
-    //  and their class of origin.
-    final int station = config.titleLevel;
-    final Background vocation = Backgrounds.RULING_POSITIONS[station];
-    
-    final float promoteChance = (25 - (station * 10)) / 100f;
-    Background birth = Backgrounds.BORN_HIGH;
-    
-    while (Rand.num() < promoteChance) {
-      int index = Visit.indexOf(birth, Backgrounds.RULER_CLASSES);
-      if (index <= 0) break;
-      else birth = Backgrounds.RULER_CLASSES[index - 1];
-    }
-    //
-    //  Then we generate the ruler themselves along with any modifications
-    //  chosen by the player.
-    final Background house = config.house;
-    final Career rulerCareer = new Career(
-      vocation, birth, house, config.gender
-    );
-    final Human ruler = new Human(rulerCareer, base);
-    for (Skill s : house.skills()) {
-      ruler.traits.incLevel(s, 5 + Rand.index(5) - 2);
-    }
-    for (Trait t : config.chosenTraits) {
-      ruler.traits.setLevel(t, t.maxVal * (Rand.num() + 1) / 1);
-    }
-    for (Skill s : config.chosenSkills) {
-      ruler.traits.incLevel(s, 10 + Rand.index(5) - 2);
-    }
-    for (Technique t : config.chosenTechs) {
-      ruler.skills.addTechnique(t);
-    }
-    
-    return ruler;
+    return (Human) expedition.leader();
   }
   
   
   protected List <Human> advisors(Base base, Actor ruler) {
-    final List <Human> advisors = new List <Human> ();
-    final Background homeworld = config.house;
-    
-    for (Background b : config.advisors) {
-      final Pick <Human> pick = new Pick <Human> ();
-      //
-      //  We make several attempts to find the 'best' candidate possible for
-      //  the job.
-      for (int i = 5; i-- > 0;) {
-        final Career c = new Career(b, null, homeworld, null);
-        final Human candidate = new Human(c, base);
-        float rating = 0;
-        //
-        //  ...Which in the case of marriage, involves attraction.
-        if (b == Backgrounds.FIRST_CONSORT) {
-          rating += ruler.motives.attraction(candidate) * 1.0f;
-          rating += candidate.motives.attraction(ruler) * 0.5f;
-          rating += Career.ratePromotion(b, candidate, false) ;
-        }
-        else rating += Career.ratePromotion(b, candidate, false);
-        pick.compare(candidate, rating);
-      }
-      if (pick.empty()) continue;
-      //
-      //  Once that's determined, we further increment their skills based on
-      //  those the ruler finds valuable:
-      final Human advisor = pick.result();
-      for (Skill s : config.chosenSkills) {
-        if (advisor.traits.traitLevel(s) > 0) advisor.traits.incLevel(s, 5);
-      }
-      advisors.add(advisor);
-    }
-    return advisors;
+    return (List) expedition.advisors();
   }
   
   
   protected List <Human> colonists(Base base) {
-    final List <Human> colonists = new List <Human> ();
-    final Background homeworld = config.house;
-    
-    for (Background b : config.crew.keys()) {
-      final int num = (int) config.crew.valueFor(b);
-      for (int n = num; n-- > 0;) {
-        final Career c = new Career(b, null, homeworld, null);
-        colonists.add(new Human(c, base));
-      }
-    }
-    return colonists;
+    return (List) expedition.colonists();
   }
   
   
@@ -367,10 +213,9 @@ public class StartupScenario extends Scenario {
     
     //  TODO:  INTRODUCE ESTABLISHMENT FOR OTHER STRUCTURES.  ...But walls
     //  should probably still go first.
-    
-    if (config.built.valueFor(ShieldWall.BLUEPRINT) > 0) {
-      final int
-        wallSize = WALL_SIZES[config.titleLevel] - bastion.blueprint.size;
+    final int estateSize = expedition.estateSize();
+    if (estateSize >= 0) {
+      final int wallSize = WALL_SIZES[estateSize] - bastion.blueprint.size;
       final Box2D enclosed = new Box2D(bastion.footprint());
       enclosed.incWide(wallSize);
       enclosed.incHigh(wallSize);
@@ -409,29 +254,19 @@ public class StartupScenario extends Scenario {
   
   protected void establishLocals(Stage world) {
     
-    //  TODO:  Allow for natives as well?
-    int maxRuins = 0;
-    Species nesting[] = null;
+    //  TODO:  Allow for natives as well.
     
-    if (config.siteLevel == SITE_SETTLED) {
-      nesting = new Species[] { Qudu.SPECIES, Hareen.SPECIES };
-    }
-    if (config.siteLevel == SITE_WILDERNESS) {
-      maxRuins = world.size / (Stage.ZONE_SIZE * 4);
-      nesting = Species.ANIMAL_SPECIES;
-    }
-    if (config.siteLevel == SITE_INFESTED) {
-      nesting = Species.VERMIN_SPECIES;
-    }
-    if (config.siteLevel == SITE_WASTELAND) {
-      maxRuins = world.size / (Stage.ZONE_SIZE * 2);
-    }
+    final Species nesting[] = expedition.origin().nativeSpecies();
+
+    int maxRuins = expedition.estateSize() - 2;
+    for (Species s : nesting) if (s.type == Species.Type.ARTILECT) maxRuins++;
     
     final Batch <Venue> ruins = Base.artilects(world).setup.doPlacementsFor(
       Ruins.VENUE_BLUEPRINTS[0], maxRuins
     );
     Base.artilects(world).setup.fillVacancies(ruins, true);
-    if (nesting != null) NestUtils.populateFauna(world, nesting);
+    
+    NestUtils.populateFauna(world, nesting);
   }
 }
 

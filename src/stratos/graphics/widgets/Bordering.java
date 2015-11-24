@@ -48,13 +48,29 @@ public class Bordering extends UIGroup {
   }
   
   
+  public void attachAndSurround(UINode parent) {
+    attachTo(parent);
+    surround(parent);
+  }
+  
+  
+  public void attachAndFitWithin(UINode parent) {
+    attachTo(parent);
+    alignToFill();
+  }
+  
+  
   public void surround(UINode other) {
-    if (other.parent() != this.parent()) {
+    if (other == this.parent()) {
+      alignToFill();
+    }
+    else if (other.parent() == this.parent()) {
+      alignToMatch(other);
+    }
+    else {
       I.complain("MUST HAVE COMMON REFERENCE FRAME!");
       return;
     }
-    this.absBound.setTo(other.absBound);
-    this.relBound.setTo(other.relBound);
     
     absBound.incX(0 - left);
     absBound.incWide(left + right);

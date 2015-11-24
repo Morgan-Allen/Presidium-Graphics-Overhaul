@@ -28,7 +28,7 @@ public class BorderedLabel extends UIGroup implements UIConstants {
   private float fadeIn = 0, fadeOut = 0;
   
   
-  public BorderedLabel(BaseUI UI) {
+  public BorderedLabel(HUD UI) {
     super(UI);
     this.bordering = new Bordering(UI, BLACK_BAR);
     bordering.setInsets(20, 20, 10, 10);

@@ -24,7 +24,7 @@ import com.badlogic.gdx.utils.NumberUtils;
 public class WidgetsPass {
   
   
-  final Rendering rendering;
+  final public Rendering rendering;
   
   private Mesh mesh;
   private final float[] vertices;

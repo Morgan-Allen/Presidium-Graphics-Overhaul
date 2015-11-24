@@ -399,6 +399,28 @@ public class Text extends UIGroup implements Description {
   /**  Sets this text object to the size it would ideally prefer in order to
     *  accomodate it's text.
     */
+  public void setToPreferredSize() {
+    if (fullSize.xdim() > trueBounds().xdim()) {
+      relBound.xdim(0);
+      absBound.xdim(fullSize.xdim());
+    }
+    else {
+      relBound.ydim(0);
+      absBound.ydim(fullSize.ydim());
+    }
+  }
+  
+  
+  public void setToLineSize() {
+    final float lineHigh = alphabet.letterFor(' ').height * scale;
+    relBound.xdim(0);
+    relBound.ydim(0);
+    absBound.ydim(lineHigh);
+    format(-1);
+    absBound.xdim(fullSize.xdim());
+  }
+  
+  
   public void setToPreferredSize(float maxWidth) {
     format(maxWidth);
     relBound.xdim(0);

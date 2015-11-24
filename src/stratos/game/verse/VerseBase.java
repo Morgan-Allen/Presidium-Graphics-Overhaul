@@ -17,8 +17,8 @@ public class VerseBase implements Session.Saveable {
   final Stage world;
   final VerseLocation location;
   
-  final private Tally <Object> presences = new Tally <Object> ();
-  final private List <Mobile> expats = new List <Mobile> ();
+  final private Tally <Object> presences = new Tally();
+  final private List  <Mobile> expats    = new List();
   private float popLevel;
   
   

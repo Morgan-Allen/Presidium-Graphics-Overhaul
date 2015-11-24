@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.verse.*;
@@ -19,9 +22,6 @@ import com.badlogic.gdx.graphics.*;
 public class SectorsPane extends UIGroup implements UIConstants {
   
   
-  final static String
-    LOAD_PATH = "media/Charts/",
-    LOAD_FILE = "sectors.xml";
   
   final static ImageAsset
     PLANET_ICON     = ImageAsset.fromImage(
@@ -29,18 +29,19 @@ public class SectorsPane extends UIGroup implements UIConstants {
     ),
     PLANET_ICON_LIT = Button.CROSSHAIRS_LIT;
   
+  final static String IMG_DIR = ChartUtils.LOAD_PATH;
   final static ImageAsset
-    LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      SectorsPane.class , LOAD_PATH+"button_left.png"
+    LEFT_BUTTON_IMG = ImageAsset.fromImage(
+      SectorsPane.class , IMG_DIR+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      SectorsPane.class, LOAD_PATH+"button_right.png"
+      SectorsPane.class, IMG_DIR+"button_right.png"
     ),
-    BACKING_TEX      = ImageAsset.fromImage(
-      StarsPane.class, LOAD_PATH+"stars_backing.png"
+    BACKING_TEX = ImageAsset.fromImage(
+      StarsPane.class, IMG_DIR+"stars_backing.png"
     ),
-    BORDER_TEX       = ImageAsset.fromImage(
-      SectorsPane.class, LOAD_PATH+"planet_frame.png"
+    BORDER_TEX = ImageAsset.fromImage(
+      SectorsPane.class, IMG_DIR+"planet_frame.png"
     );
   
   
@@ -75,14 +76,9 @@ public class SectorsPane extends UIGroup implements UIConstants {
     this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
     this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
     
-    display = new PlanetDisplay() {
-      protected State loadAsset() {
-        super.loadAsset();
-        if (! stateLoaded()) return State.ERROR;
-        loadPlanet(LOAD_PATH, LOAD_FILE);
-        return State.LOADED;
-      }
-    };
+    display = ChartUtils.createPlanetDisplay(
+      ChartUtils.LOAD_PATH, ChartUtils.PLANET_LOAD_FILE
+    );
     
     final UIGroup leftSide = new UIGroup(UI);
     leftSide.alignLeft    (0   , CHARTS_WIDE   );
@@ -103,7 +99,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
     
     displayArea = new UIGroup(UI) {
       public void render(WidgetsPass pass) {
-        renderPlanet(pass);
+        ChartUtils.renderPlanet(display, this, pass);
         super.render(pass);
       }
     };
@@ -144,49 +140,6 @@ public class SectorsPane extends UIGroup implements UIConstants {
   
   
   
-  /**  Method for loading sector display information from external XML:
-    */
-  public void loadPlanet(String path, String file) {
-    final XML xml = XML.load(path+file);
-    
-    final XML
-      modelNode   = xml.child("globeModel"),
-      surfaceNode = xml.child("surfaceTex"),
-      sectorsNode = xml.child("sectorsTex"),
-      keysNode    = xml.child("sectorKeys");
-    
-    final MS3DModel globeModel = MS3DModel.loadFrom(
-      path, modelNode.value("name"), SectorsPane.class, null, null
-    );
-    final ImageAsset sectorKeys = ImageAsset.fromImage(
-      SectorsPane.class, path + keysNode.value("name")
-    );
-    Assets.loadNow(globeModel);
-    Assets.loadNow(sectorKeys);
-    final String
-      surfaceFile = path + surfaceNode.value("name"),
-      sectorsFile = path + sectorsNode.value("name");
-    final Texture
-      surfaceTex = ImageAsset.getTexture(surfaceFile),
-      sectorsTex = ImageAsset.getTexture(sectorsFile);
-    
-    display.attachModel(globeModel, surfaceTex, sectorsTex, sectorKeys);
-    
-    final XML sectors = xml.child("sectors");
-    for (XML sector : sectors.children()) {
-      final String name = sector.value("name");
-      final Colour key = new Colour().set(
-        sector.getFloat("R"),
-        sector.getFloat("G"),
-        sector.getFloat("B"),
-        1
-      );
-      display.attachSector(name, key);
-    }
-  }
-  
-  
-  
   /**  Navigation and feedback-
     */
   //  TODO:  Control elevation as well.  (Include a zoom function?)
@@ -218,32 +171,12 @@ public class SectorsPane extends UIGroup implements UIConstants {
     
     super.updateState();
   }
-  
-  
-  public void renderPlanet(WidgetsPass batch2d) {
-    //  TODO:  Fiddling directly with OpenGL calls this way is messy and risky.
-    //  See if you can centralise this somewhere (along with the Minimap
-    //  rendering.)
-    batch2d.end();
-    
-    //glClearColor(0, 0, 0, 1);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL10.GL_BLEND);
-    glDepthMask(true);
-    
-    //  TODO:  Add controls for this.
-    //display.setElevation(0);
-    
-    final Box2D planetBounds = displayArea.trueBounds();
-    display.renderWith(UI.rendering, planetBounds, UIConstants.INFO_FONT);
-    
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(false);
-    
-    batch2d.begin();
-    //super.render(batch2d);
-  }
 }
+
+
+
+
+
 
 
 

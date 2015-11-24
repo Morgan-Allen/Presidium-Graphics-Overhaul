@@ -503,7 +503,7 @@ public abstract class Actor extends Mobile implements
     //  We render health-bars after the main sprite, as the label/healthbar are
     //  anchored off the main sprite.  In addition, we skip this while in
     //  disguise...
-    if (disguise == null) renderInformation(rendering, base);
+    if (disguise == null && base != null) renderInformation(rendering, base);
   }
   
   
@@ -678,7 +678,7 @@ public abstract class Actor extends Mobile implements
       else d.append(health.stateDesc());
       return;
     }
-    if (! inWorld()) {
+    if (base != null && ! inWorld()) {
       //
       //  TODO:  Move this to the BaseCommerce or VerseJourneys class, I would
       //  suggest- either that or ActorDescription...

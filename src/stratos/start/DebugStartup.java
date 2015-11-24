@@ -7,6 +7,7 @@ package stratos.start;
 import stratos.graphics.common.Rendering;
 import stratos.graphics.widgets.HUD;
 import stratos.user.*;
+import stratos.user.mainmenu.*;
 
 
 
@@ -20,9 +21,8 @@ public class DebugStartup {
       public void beginGameSetup() {
         loading = true;
         final HUD UI = new HUD(PlayLoop.rendering());
-        final MainMenu mainMenu = new MainMenu(UI);
-        mainMenu.alignHorizontal(100, 100);
-        mainMenu.alignVertical  (50 , 50 );
+        final MainMenuNew mainMenu = new MainMenuNew(UI);
+        mainMenu.alignToFill();
         mainMenu.attachTo(UI);
         this.UI = UI;
         loaded = true;

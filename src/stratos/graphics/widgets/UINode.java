@@ -79,6 +79,11 @@ public abstract class UINode {
   public int xdim() { return (int) bounds.xdim(); }
   public int ydim() { return (int) bounds.ydim(); }
   public Box2D trueBounds() { return bounds; }
+
+  
+  public void setToPreferredSize() {
+    return;
+  }
   
   
   

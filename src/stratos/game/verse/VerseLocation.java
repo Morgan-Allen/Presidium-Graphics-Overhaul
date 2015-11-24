@@ -6,6 +6,8 @@
 package stratos.game.verse;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.maps.*;
+import stratos.game.wild.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -57,6 +59,10 @@ public class VerseLocation extends Background {
   final Table <Background, Float> circles = new Table();
   final List <Upgrade> knowledge = new List();
   
+  final Habitat habitats      [];
+  final Float   habitatWeights[];
+  final Species nativeSpecies [];
+  
   
   public VerseLocation(
     Class baseClass,
@@ -74,7 +80,11 @@ public class VerseLocation extends Background {
     this.climate = climate;
     this.gravity = gravity;
     
-    final Batch <Traded> madeB = new Batch(), needB = new Batch();
+    final Batch <Traded > madeB = new Batch();
+    final Batch <Traded > needB = new Batch();
+    final Batch <Habitat> habB  = new Batch();
+    final Batch <Float  > habWB = new Batch();
+    final Batch <Species> specB = new Batch();
     Object tag = null;
     float rating = -1;
     
@@ -105,10 +115,20 @@ public class VerseLocation extends Background {
           knowledge.include(u);
         }
       }
+      if (arg instanceof Habitat) {
+        habB.add((Habitat) arg);
+        habWB.add(rating);
+      }
+      if (arg instanceof Species) {
+        specB.add((Species) arg);
+      }
     }
     
-    goodsMade   = madeB.toArray(Traded.class);
-    goodsNeeded = needB.toArray(Traded.class);
+    goodsMade      = madeB.toArray(Traded .class);
+    goodsNeeded    = needB.toArray(Traded .class);
+    habitats       = habB .toArray(Habitat.class);
+    habitatWeights = habWB.toArray(Float  .class);
+    nativeSpecies  = specB.toArray(Species.class);
     this.population = population;
   }
   
@@ -137,7 +157,29 @@ public class VerseLocation extends Background {
     }
     return null;
   }
+  
+  
+  
+  public TerrainGen initialiseTerrain(int mapSize) {
+    return new TerrainGen(mapSize, 0.2f, habitats, habitatWeights);
+  }
+  
+  
+  public Species[] nativeSpecies() {
+    return nativeSpecies;
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

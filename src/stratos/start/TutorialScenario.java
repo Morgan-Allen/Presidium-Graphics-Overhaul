@@ -53,7 +53,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   public TutorialScenario(String prefix) {
-    super(config(), prefix);
+    super(expedition(), prefix);
     script = new MessageScript(this, SCRIPT_XML_PATH);
   }
   
@@ -137,17 +137,11 @@ public class TutorialScenario extends StartupScenario {
   
   /**  Initial setup-
     */
-  private static Config config() {
-    final Config config = new Config();
-    config.house = Verse.PLANET_PAREM_V;
-    config.gender = null;
-    
-    config.siteLevel  = SITE_WASTELAND ;
-    config.titleLevel = TITLE_COUNT    ;
-    config.fundsLevel = FUNDING_MINIMAL;
-    
-    config.built.add(1, ShieldWall.BLUEPRINT);
-    return config;
+  private static Expedition expedition() {
+    return new Expedition().configFrom(
+      Verse.PLANET_PAREM_V, Verse.SECTOR_TERRA,
+      new Batch <Actor> (), 8000, TITLE_COUNT
+    );
   }
   
   

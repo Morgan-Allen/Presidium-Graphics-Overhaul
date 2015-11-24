@@ -166,6 +166,11 @@ public class Background extends Constant {
   }
   
   
+  public Actor freeSample() {
+    return sampleFor(null);
+  }
+  
+  
   
   /**  Rendering and interface helper methods-
     */

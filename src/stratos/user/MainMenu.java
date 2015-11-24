@@ -4,21 +4,28 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-import stratos.content.civic.*;
-import stratos.game.actors.*;
-import stratos.game.base.*;
+//import stratos.content.civic.*;
+//import stratos.game.actors.*;
+//import stratos.game.base.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
-import static stratos.game.actors.Backgrounds.*;
-import static stratos.start.StartupScenario.*;
+
+import stratos.user.mainmenu.*;
+
+//import static stratos.game.actors.Backgrounds.*;
+//import static stratos.start.StartupScenario.*;
 
 
 
 //  TODO:  This needs a proper re-implementation using customised widgets.
 //         You also need to include landing-site-selection.
+
+
+//  TODO:  Work out the kinks here!
+
 
 public class MainMenu extends UIGroup {
   
@@ -32,7 +39,9 @@ public class MainMenu extends UIGroup {
   
   final Text text, help;
   int mode = MODE_INIT;
-  private StartupScenario.Config config;
+  
+  //private StartupScenario.Config config;
+  private Expedition config;
   private XML gameCredits = null;
   
   
@@ -64,22 +73,18 @@ public class MainMenu extends UIGroup {
     Call.add("\n  Quit"           , this, "configToQuit"     , text);
   }
   
-  
-  public void configInfo(Object args[]) {
-    text.setText("");
-    Call.add("\n\nBack", this, "configMainText", text);
+
+  public void configForNew(Object args[]) {
+    NewGamePane sitePane = new NewGamePane(UI);
     
-    if (gameCredits == null) gameCredits = XML.load(
-      "media/Help/GameCredits.xml"
-    ).matchChildValue("name", "Credits").child("content");
-    
-    help.setText("");
-    help.append(gameCredits.content(), Colour.LITE_GREY);
+    sitePane.alignToFill();
+    sitePane.attachTo(this);
   }
   
   
+  /*
   public void configForNew(Object args[]) {
-    if (this.config == null) this.config = new StartupScenario.Config();
+    if (this.config == null) this.config = new Expedition();
     text.setText("");
     text.append("Ruler Settings:\n");
     //
@@ -243,6 +248,7 @@ public class MainMenu extends UIGroup {
   
   /**  Second page of settings-
     */
+  /*
   public void configForLanding(Object arg[]) {
     if (arg != null && arg.length > 0) help.setText("");
     
@@ -270,7 +276,7 @@ public class MainMenu extends UIGroup {
     }
     
     text.append("\n  Household Advisors:");
-    text.append(" ("+config.advisors.size()+"/"+MAX_ADVISORS+")");
+    text.append(" ("+config.advisors().size()+"/"+MAX_ADVISORS+")");
     for (Background b : ADVISOR_BACKGROUNDS) {
       final Colour c = config.advisors.includes(b) ? Colour.CYAN : null;
       Call.add("\n    "+b.name, c, this, "setAdvisor", text, b);
@@ -358,8 +364,9 @@ public class MainMenu extends UIGroup {
     final Integer num = (int) config.crew.valueFor(b);
     return num == null ? 0 : num;
   }
+  //*/
   
-  
+  /*
   public void incColonists(Object args[]) {
     int totalColonists = 0;
     for (Background b : COLONIST_BACKGROUNDS) {
@@ -370,11 +377,12 @@ public class MainMenu extends UIGroup {
     int amount = numCrew(b);
     if (inc < 0 && amount <= 0) return;
     if (inc > 0 && totalColonists >= MAX_COLONISTS) return;
-    config.crew.add(inc, b);
+    config.addColonist(b);
     
     help.setText(b.info);
     configForLanding(null);
   }
+  //*/
   
   
   
@@ -384,8 +392,7 @@ public class MainMenu extends UIGroup {
   //  TODO:  Give the player a broad summary of the choices made (including the
   //  name of the ruler/subjects,) before committing to the landing choice.
   public void beginNewGame(Object args[]) {
-    final VerseLocation sector = (VerseLocation) config.house;
-    final String title = SaveUtils.uniqueVariant(sector.houseName);
+    final String title = SaveUtils.uniqueVariant(config.origin().houseName);
     PlayLoop.setupAndLoop(new StartupScenario(config, title));
   }
   
@@ -413,6 +420,19 @@ public class MainMenu extends UIGroup {
   public void configForSettings(Object args[]) {
     text.setText("\nChange Settings\n");
     Call.add("\n  Back", this, "configMainText", text);
+  }
+  
+  
+  public void configInfo(Object args[]) {
+    text.setText("");
+    Call.add("\n\nBack", this, "configMainText", text);
+    
+    if (gameCredits == null) gameCredits = XML.load(
+      "media/Help/GameCredits.xml"
+    ).matchChildValue("name", "Credits").child("content");
+    
+    help.setText("");
+    help.append(gameCredits.content(), Colour.LITE_GREY);
   }
   
   

@@ -1,26 +1,18 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
-import stratos.game.base.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
-import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
-import stratos.util.*;
-import static stratos.graphics.common.GL.*;
-
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.math.Vector2;
 
 
 
 public class StarsPane extends UIGroup implements UIConstants {
   
-  final static String
-    LOAD_PATH = "media/Charts/",
-    LOAD_FILE = "coordinates.xml";
   
   final static ImageAsset
     STARS_ICON = ImageAsset.fromImage(
@@ -28,18 +20,19 @@ public class StarsPane extends UIGroup implements UIConstants {
     ),
     STARS_ICON_LIT = Button.CIRCLE_LIT;
   
+  final static String IMG_DIR = ChartUtils.LOAD_PATH;
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      StarsPane.class  , LOAD_PATH+"button_left.png"
+      StarsPane.class  , IMG_DIR+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      StarsPane.class , LOAD_PATH+"button_right.png"
+      StarsPane.class , IMG_DIR+"button_right.png"
     ),
-    BACKING_TEX      = ImageAsset.fromImage(
-      StarsPane.class, LOAD_PATH+"stars_backing.png"
+    BACKING_TEX = ImageAsset.fromImage(
+      StarsPane.class, IMG_DIR+"stars_backing.png"
     ),
-    BORDER_TEX       = ImageAsset.fromImage(
-      StarsPane.class , LOAD_PATH+"planet_frame.png"
+    BORDER_TEX = ImageAsset.fromImage(
+      StarsPane.class , IMG_DIR+"planet_frame.png"
     );
   
   
@@ -59,14 +52,9 @@ public class StarsPane extends UIGroup implements UIConstants {
     this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
     this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
     
-    display = new StarField() {
-      protected State loadAsset() {
-        super.loadAsset();
-        if (! stateLoaded()) return State.ERROR;
-        loadStarfield(LOAD_PATH, LOAD_FILE);
-        return State.LOADED;
-      }
-    };
+    display = ChartUtils.createStarField(
+      ChartUtils.LOAD_PATH, ChartUtils.STARS_LOAD_FILE
+    );
     
     final UIGroup leftSide = new UIGroup(UI);
     leftSide.alignLeft    (0   , CHARTS_WIDE   );
@@ -87,7 +75,7 @@ public class StarsPane extends UIGroup implements UIConstants {
     
     displayArea = new UIGroup(UI) {
       public void render(WidgetsPass pass) {
-        renderStars(pass);
+        ChartUtils.renderStars(display, this, pass);
         super.render(pass);
       }
     };
@@ -128,83 +116,6 @@ public class StarsPane extends UIGroup implements UIConstants {
   
   
   
-  /**  Method for loading object coordinates from an external XML file:
-    */
-  public void loadStarfield(String path, String file) {
-    final XML xml = XML.load(path+file);
-    
-    //  First, get the texture atlas for field objects, along with textures for
-    //  the upper axis and sectors chart-
-    final XML
-      imgNode = xml.child("imageField"),
-      axisNode = xml.child("axisImage"),
-      chartNode = xml.child("sectorImage");
-    final String
-      imgFile = path + imgNode.value("name"),
-      axisFile = path + axisNode.value("name"),
-      chartFile = path + chartNode.value("name");
-    final Texture
-      image = ImageAsset.getTexture(imgFile),
-      axisImg = ImageAsset.getTexture(axisFile),
-      chartImg = ImageAsset.getTexture(chartFile);
-    
-    final int
-      gridW = imgNode.getInt("gridU"),
-      gridH = imgNode.getInt("gridV");
-    final float
-      fieldSize = chartNode.getFloat("size");
-    
-    //  Then, load up the array of different star types and the specific
-    //  systems associated-
-    final Table <String, int[]> logoImages = new Table <String, int[]> ();
-    for (XML type : xml.child("logoTypes").children()) {
-      final String name = type.value("name");
-      final int coords[] = new int[] {
-        type.getInt("imgU"),
-        type.getInt("imgV")
-      };
-      logoImages.put(name, coords);
-    }
-    
-    display.setupWith(chartImg, axisImg, fieldSize);
-    
-    final XML systems = xml.child("systems");
-    for (XML system : systems.children()) {
-      final String
-        name = system.value("name"),
-        type = system.value("type");
-      
-      final Vec3D position = new Vec3D(
-        system.getFloat("x"),
-        system.getFloat("y"),
-        system.getFloat("z")
-      );
-      display.addFieldObject(
-        image, null,
-        gridW, gridH, system.getInt("imgU"), system.getInt("imgV"),
-        0.67f, 0, 100 * 0.67f, position
-      );
-      
-      final int starImg[] = logoImages.get(type);
-      display.addFieldObject(
-        image, name,
-        gridW, gridH, starImg[0], starImg[1],
-        1, 0, 0, position
-      );
-    }
-    
-    final int selectCoords[] = logoImages.get("Selected");
-    display.setSelectObject(
-      image, gridW, gridH, selectCoords[0], selectCoords[1]
-    );
-    
-    final int[][] starTypes = new int[1][];
-    for (int[] type : logoImages.values()) { starTypes[0] = type; break; }
-    display.addRandomScatter(image, gridW, gridH, starTypes, 10, 1);
-  }
-  
-  
-  
   /**  Navigation and feedback-
     */
   //  TODO:  Include controls for both rotation AND elevation...
@@ -239,28 +150,6 @@ public class StarsPane extends UIGroup implements UIConstants {
     }
     
     super.updateState();
-  }
-  
-  
-  private void renderStars(WidgetsPass batch2d) {
-    //  TODO:  Fiddling directly with OpenGL calls this way is messy and risky.
-    //  See if you can centralise this somewhere (along with the Minimap
-    //  rendering.)
-    batch2d.end();
-    
-    //glClearColor(0, 0, 0, 1);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL10.GL_BLEND);
-    glDepthMask(true);
-    
-    final Box2D planetBounds = displayArea.trueBounds();
-    display.renderWith(UI.rendering, planetBounds, UIConstants.INFO_FONT);
-    
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(false);
-    
-    batch2d.begin();
-    //super.render(batch2d);
   }
 }
 
