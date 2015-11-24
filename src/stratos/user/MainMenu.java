@@ -11,9 +11,8 @@ import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
+import stratos.user.mainscreen.*;
 import stratos.util.*;
-
-import stratos.user.mainmenu.*;
 
 //import static stratos.game.actors.Backgrounds.*;
 //import static stratos.start.StartupScenario.*;

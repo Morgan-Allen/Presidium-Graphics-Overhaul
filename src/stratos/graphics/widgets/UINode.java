@@ -242,17 +242,17 @@ public abstract class UINode {
       x    = absBound.xpos(),
       y    = absBound.ypos();
     
-    if ((! stretch) && absBound.area() != 0) {
+    if (! stretch) {
       //  In this case we shrink either width or height to maintain a constant
       //  aspect ratio.
       final float
-        oldWide = wide,
-        oldHigh = high,
-        aspW    = wide / absBound.xdim(),
-        aspH    = high / absBound.ydim(),
-        scale   = Nums.max(aspW, aspH);
-      wide = absBound.xdim() * scale;
-      high = absBound.ydim() * scale;
+        oldWide = wide, absWide = Nums.max(1, absBound.xdim()),
+        oldHigh = high, absHigh = Nums.max(1, absBound.ydim()),
+        aspW    = wide / absWide,
+        aspH    = high / absHigh,
+        scale   = Nums.min(aspW, aspH);
+      wide = absWide * scale;
+      high = absHigh * scale;
       x += (oldWide - wide) / 2;
       y += (oldHigh - high) / 2;
     }

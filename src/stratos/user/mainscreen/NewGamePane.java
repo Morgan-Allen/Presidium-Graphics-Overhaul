@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.user.mainmenu;
+package stratos.user.mainscreen;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
@@ -26,9 +26,9 @@ public class NewGamePane extends MenuPane {
     STAGE_PICK_HOUSEHOLD = 2,
     STAGE_PICK_COLONISTS = 3;
   
-  
   private int stage = STAGE_PICK_SECTORS;
-
+  
+  
   private VerseLocation homeworld;
   private VerseLocation landing;
   
@@ -37,37 +37,27 @@ public class NewGamePane extends MenuPane {
   private List <Actor> colonists = new List();
   
   
-  final UIGroup worldsDisplay;
-  private Batch <Button> homeworlds;
-  
-  final UIGroup displayArea;
-  private PlanetDisplay display;
-  
-  
-  
   
   public NewGamePane(HUD UI) {
-    super(UI);
-    
-    worldsDisplay = new UIGroup(UI);
-    worldsDisplay.attachTo(this);
-    
-    display = createPlanetDisplay(LOAD_PATH, PLANET_LOAD_FILE);
-    displayArea = new UIGroup(UI) {
-      public void render(WidgetsPass pass) {
-        ChartUtils.renderPlanet(display, this, pass);
-        super.render(pass);
-      }
-    };
-    //  TODO:  Leave space for homeworld at top.
-    displayArea.alignToFill();
-    displayArea.attachTo(this);
+    super(UI, MainScreen.MENU_NEW_GAME_SITE);
   }
   
   
   
   protected void fillListing(List <UINode> listing) {
     
+  }
+  
+  
+  
+  protected void updateState() {
+    final MainScreen screen = MainScreen.current();
+    
+    screen.display.showLabels   = true ;
+    screen.display.showWeather  = false;
+    screen.worldsDisplay.hidden = false;
+    
+    super.updateState();
   }
   
   

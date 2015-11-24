@@ -5,6 +5,7 @@
   */
 package stratos.game.verse;
 import stratos.game.common.*;
+import stratos.graphics.common.ImageAsset;
 import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
@@ -84,6 +85,11 @@ public class Verse {
     HIGH_POPULATION   =  3,
     VAST_POPULATION   =  4;
   
+  final static String
+    WORLDS_DIR = "media/Charts/worlds/",
+    HOUSES_DIR = "media/Charts/houses/";
+  
+  
   final public static VerseLocation
     //
     //  TODO:  List common names and minor houses.
@@ -91,6 +97,8 @@ public class Verse {
     //         Sphere. (aliens and freeholds later.)
     PLANET_ASRA_NOVI = new VerseLocation(
       Verse.class, "Asra Novi", "House Suhail",
+      ImageAsset.fromImage(Verse.class, WORLDS_DIR+"asra_novi.png"   ),
+      ImageAsset.fromImage(Verse.class, HOUSES_DIR+"house_suhail.png"),
       "Asra Novi is a heavily-terraformed 'desert oasis' world noted for its "+
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
@@ -114,6 +122,8 @@ public class Verse {
     ),
     PLANET_PAREM_V = new VerseLocation(
       Verse.class, "Parem V", "House Procyon",
+      ImageAsset.fromImage(Verse.class, WORLDS_DIR+"parem_v.png"      ),
+      ImageAsset.fromImage(Verse.class, HOUSES_DIR+"house_procyon.png"),
       "Parem V was one of the first-settled systems in the known quadrant, "+
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
@@ -138,6 +148,8 @@ public class Verse {
     ),
     PLANET_HALIBAN = new VerseLocation(
       Verse.class, "Haliban", "House Altair",
+      ImageAsset.fromImage(Verse.class, WORLDS_DIR+"haliban.png"     ),
+      ImageAsset.fromImage(Verse.class, HOUSES_DIR+"house_altair.png"),
       "Noted for it's spartan regimen and stern justice, Haliban's early "+
       "defection to the Calivor Republic have earned it several foes- and a "+
       "crucial role in quadrant defence strategy.",
@@ -162,6 +174,8 @@ public class Verse {
     ),
     PLANET_AXIS_NOVENA = new VerseLocation(
       Verse.class, "Axis Novena", "House Taygeta",
+      ImageAsset.fromImage(Verse.class, WORLDS_DIR+"axis_novena.png"  ),
+      ImageAsset.fromImage(Verse.class, HOUSES_DIR+"house_taygeta.png"),
       "Aided by it's low gravity and thin atmosphere, Axis Novena became the "+
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black-market tech research.",
@@ -188,6 +202,8 @@ public class Verse {
     //  TODO:  ...These need more detail.
     PLANET_SOLIPSUS_VIER = new VerseLocation(
       Verse.class, "Solipsus Vier", "House Fomalhaut",
+      null,
+      null,
       "Notable for it's peculiar blend of pastoral tradition and caste "+
       "eugenics, Solipsus Vier is ruled by insular scientific elites fixated "+
       "on mental and physical purity.",
@@ -197,6 +213,8 @@ public class Verse {
     ),
     PLANET_NORUSEI = new VerseLocation(
       Verse.class, "Norusei", "House Rana",
+      null,
+      null,
       "Once an idyllic tropical planet-resort, Norusei has enjoyed something "+
       "of a renaissance following the devastation of the Machine Wars, "+
       "boasting a rich tourist trade and export of celebrity cult-idols.",
@@ -207,20 +225,26 @@ public class Verse {
     
     PLANET_URYM_HIVE = new VerseLocation(
       Verse.class, "Urym Hive", "House Algol (Minor)",
+      null,
+      null,
       "Chief factory-world of the Empire in its prime, today inescapable "+
       "poverty, desperate squalor and seething unrest render Urym Hive's "+
-      "unnumbered billions governable in name only.",
+      "uncounted billions governable in name only.",
       WASTES_BLOOD, INTENSE_GRAVITY, null, VAST_POPULATION
     ),
     PLANET_CALIVOR = new VerseLocation(
       Verse.class, "Calivor", "House Regulus (Minor)",
+      null,
+      null,
       "Capital of the Republic whose meteoric rise to prominence saw a dozen "+
       "noble houses unseated in disgrace, to many Calivor remains a gleaming "+
-      "beacon of opportunity.",
+      "beacon- and a looming threat.",
       TUNDRA_BLOOD, NORMAL_GRAVITY, null, HIGH_POPULATION
     ),
     PLANET_WEIRWORLD = new VerseLocation(
       Verse.class, "Weirworld", "House Ophiuchus (Exiled)",
+      null,
+      null,
       "Shrouded by dense nebulae and dark rumour, the Weirworld is reputedly "+
       "a hollow organic Sphere, host to fleets of Strain vessels which raid "+
       "or colonise the quadrant periphery.",
@@ -229,6 +253,8 @@ public class Verse {
     
     PLANET_DIAPSOR = new VerseLocation(
       Verse.class, "Diapsor", "No House (Freehold)",
+      null,
+      null,
       "Rendered all but uninhabitable after the Machine Wars, Diapsor was "+
       "placed under Imperial Quarantine until recent population pressures, "+
       "political reforms and ecologic recovery permitted re-settlement.",
@@ -240,6 +266,8 @@ public class Verse {
     
     PLANET_THE_HOMEWORLD = new VerseLocation(
       Verse.class, "The Homeworld", "No House (Jovian Protectorate)",
+      null,
+      null,
       "Surrounded by an impenetrable Null Barrier erected by the xenos "+
       "Jovians, the Homeworld is rumoured to be the birthplace of humanity, "+
       "transplanted by Jump Drives of colossal size.",
@@ -261,16 +289,22 @@ public class Verse {
   final public static VerseLocation
     SECTOR_ELYSIUM = new VerseLocation(
       Verse.class, "Elysium Sector", "No House (Freehold)",
+      null,
+      null,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),
     SECTOR_PAVONIS = new VerseLocation(
       Verse.class, "Pavonis Sector", "No House (Freehold)",
+      null,
+      null,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),
     SECTOR_TERRA = new VerseLocation(
       Verse.class, "Terra Sector", "No House (Freehold)",
+      null,
+      null,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),
@@ -281,6 +315,8 @@ public class Verse {
     
     SECTOR_UNDERGROUND = new VerseLocation(
       Verse.class, "Underground Sector", "N/A",
+      null,
+      null,
       "",
       MUTATION, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),

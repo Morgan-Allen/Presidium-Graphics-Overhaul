@@ -46,12 +46,13 @@ public class VerseLocation extends Background {
   final public static Object
     MAKES = new Object(),
     NEEDS = new Object();
+
   
+  final public ImageAsset planetImage, houseImage;
   
   final public VerseLocation belongs;
   final public Trait climate;
   final public int gravity;
-  
   final public String houseName;
   final public Traded goodsMade[], goodsNeeded[];
   final public int population;
@@ -65,8 +66,9 @@ public class VerseLocation extends Background {
   
   
   public VerseLocation(
-    Class baseClass,
-    String name, String houseName, String description,
+    Class baseClass, String name, String houseName,
+    ImageAsset planetImage, ImageAsset houseImage,
+    String description,
     Trait climate, int gravity, VerseLocation belongs,
     int population, Object... args
   ) {
@@ -74,7 +76,9 @@ public class VerseLocation extends Background {
       baseClass, name, description, null, null,
       -1, Backgrounds.NOT_A_GUILD, args
     );
-    this.houseName = houseName;
+    this.houseName   = houseName  ;
+    this.planetImage = planetImage;
+    this.houseImage  = houseImage ;
     
     this.belongs = belongs;
     this.climate = climate;

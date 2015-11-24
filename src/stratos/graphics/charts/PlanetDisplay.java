@@ -30,6 +30,13 @@ public class PlanetDisplay extends Assets.Loadable {
   private static boolean setupVerbose = false;
   
   
+  //  TODO:  Consider having different render-modes?  i.e, geographical,
+  //  political, aesthetic, etc.?
+  
+  public boolean showLabels  = true ;
+  public boolean showWeather = false;
+  
+  
   private float
     rotation  = 0,
     elevation = 0,
@@ -415,8 +422,9 @@ public class PlanetDisplay extends Assets.Loadable {
   
   /**  Render methods and helper functions-
     */
-  public void renderWith(Rendering rendering, Box2D bounds, Alphabet font) {
-    
+  public void renderWith(
+    Rendering rendering, Box2D bounds, Alphabet font
+  ) {
     //
     //  First of all, we configure viewing perspective, aperture size, rotation
     //  and offset:
@@ -480,9 +488,12 @@ public class PlanetDisplay extends Assets.Loadable {
     //  And on top of all these, the labels for each sector.
     Gdx.gl.glDisable(GL11.GL_DEPTH_TEST);
     Gdx.gl.glDepthMask(false);
-    font.texture().bind(1);
-    shading.setUniformi("u_surfacePass", GL11.GL_FALSE);
-    renderLabels(font);
+    
+    if (showLabels && font != null) {
+      font.texture().bind(1);
+      shading.setUniformi("u_surfacePass", GL11.GL_FALSE);
+      renderLabels(font);
+    }
     
     shading.end();
   }

@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.user.mainmenu;
+package stratos.user.mainscreen;
 import stratos.user.*;
 import stratos.graphics.common.Colour;
 import stratos.graphics.widgets.*;
@@ -14,13 +14,13 @@ import stratos.util.*;
 
 
 
-public class MainMenuNew extends MenuPane implements UIConstants {
+public class MainMenu2 extends MenuPane implements UIConstants {
   
   
   
   
-  public MainMenuNew(HUD UI) {
-    super(UI);
+  public MainMenu2(HUD UI) {
+    super(UI, MainScreen.MENU_INIT);
   }
   
   
@@ -77,7 +77,7 @@ public class MainMenuNew extends MenuPane implements UIConstants {
   
   public void enterQuitFlow(Object args[]) {
     
-    final MenuPane confirmPane = new MenuPane(UI) {
+    final MenuPane confirmPane = new MenuPane(UI, MainScreen.MENU_QUIT) {
       
       protected void fillListing(List <UINode> listing) {
         final Text question = new Text(UI, INFO_FONT);

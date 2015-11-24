@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.user.mainmenu;
+package stratos.user.mainscreen;
 import stratos.graphics.common.ImageAsset;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
@@ -25,12 +25,14 @@ public abstract class MenuPane extends ListingPane {
     );
   
   
+  final int stateID;
   Bordering border;
   Button backButton;
   
   
-  public MenuPane(HUD UI) {
+  public MenuPane(HUD UI, int stateID) {
     super(UI);
+    this.stateID = stateID;
   }
   
   
@@ -48,8 +50,8 @@ public abstract class MenuPane extends ListingPane {
         navigateBack();
       }
     };
-    backButton.alignTop  ( 0, 24);
-    backButton.alignRight(28, 48);
+    backButton.alignTop  (-12, 18);
+    backButton.alignRight( 18, 48);
     backButton.attachTo(this);
   }
   
@@ -63,7 +65,6 @@ public abstract class MenuPane extends ListingPane {
     backButton.hidden = rootPane() == this;
     super.updateState();
   }
-  
   
   
 }

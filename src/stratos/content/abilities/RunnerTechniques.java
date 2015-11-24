@@ -69,7 +69,7 @@ public class RunnerTechniques {
       FX_DIR+"overload_burst.png", 4, 2, 8, 1, 1.33f
     ),
     CYBER_HACK_FX = PlaneFX.imageModel(
-      "toxin_burst_fx", BASE_CLASS,
+      "cyber_hack_fx", BASE_CLASS,
       FX_DIR+"hack_flash_symbol.png",
       0.8f, 0.2f, 0.1f, false, true
     ),

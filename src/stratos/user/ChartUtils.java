@@ -5,12 +5,12 @@
   */
 package stratos.user;
 import stratos.graphics.common.*;
+import stratos.game.verse.*;
 import stratos.graphics.charts.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
-
 import static stratos.graphics.common.GL.*;
 import com.badlogic.gdx.graphics.*;
 
@@ -23,6 +23,35 @@ public class ChartUtils {
     LOAD_PATH        = "media/Charts/",
     PLANET_LOAD_FILE = "sectors.xml",
     STARS_LOAD_FILE  = "coordinates.xml";
+  
+  
+  
+  /**  Method for loading a carousel-display of homeworlds:
+    */
+  public static Carousel createWorldsCarousel(
+    HUD UI
+  ) {
+    final Carousel carousel = new Carousel(UI);
+    
+    for (final VerseLocation world : Verse.ALL_PLANETS) {
+      if (world.planetImage == null) continue;
+      
+      final UIGroup worldInfo = new UIGroup(UI);
+      worldInfo.stretch = false;
+      final Button b = new Button(
+        UI, world.name, world.planetImage, Button.CIRCLE_LIT, world.info
+      ) {
+        protected void whenClicked() {
+          carousel.setSpinTarget(world);
+        }
+      };
+      b.alignToFill();
+      b.attachTo(worldInfo);
+      carousel.addEntryFor(world, worldInfo);
+    }
+    return carousel;
+  }
+  
   
   
   /**  Method for loading sector display information from external XML:
@@ -112,16 +141,16 @@ public class ChartUtils {
     //  First, get the texture atlas for field objects, along with textures for
     //  the upper axis and sectors chart-
     final XML
-      imgNode = xml.child("imageField"),
-      axisNode = xml.child("axisImage"),
+      imgNode   = xml.child("imageField" ),
+      axisNode  = xml.child("axisImage"  ),
       chartNode = xml.child("sectorImage");
     final String
-      imgFile = path + imgNode.value("name"),
-      axisFile = path + axisNode.value("name"),
+      imgFile   = path + imgNode  .value("name"),
+      axisFile  = path + axisNode .value("name"),
       chartFile = path + chartNode.value("name");
     final Texture
-      image = ImageAsset.getTexture(imgFile),
-      axisImg = ImageAsset.getTexture(axisFile),
+      image    = ImageAsset.getTexture(imgFile),
+      axisImg  = ImageAsset.getTexture(axisFile),
       chartImg = ImageAsset.getTexture(chartFile);
     
     final int
@@ -191,13 +220,12 @@ public class ChartUtils {
     //  rendering.)
     pass.end();
     
-    //glClearColor(0, 0, 0, 1);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     
-    final Box2D planetBounds = displayArea.trueBounds();
-    display.renderWith(pass.rendering, planetBounds, UIConstants.INFO_FONT);
+    display.renderWith(
+      pass.rendering, displayArea.trueBounds(), UIConstants.INFO_FONT
+    );
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(false);
@@ -214,8 +242,6 @@ public class ChartUtils {
     //  rendering.)
     pass.end();
     
-    //glClearColor(0, 0, 0, 1);
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL10.GL_BLEND);
     glDepthMask(true);
     
