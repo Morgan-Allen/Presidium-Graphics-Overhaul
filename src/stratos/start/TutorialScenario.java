@@ -279,7 +279,7 @@ public class TutorialScenario extends StartupScenario {
       reconSent = (MissionRecon) match;
     }
     if (reconSent.applicants().size() == 0) return false;
-    if (reconSent.assignedPriority() < Mission.PRIORITY_NOMINAL) return false;
+    if (! reconSent.hasBegun()) return false;
     return true;
   }
   
