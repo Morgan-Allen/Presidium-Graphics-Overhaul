@@ -6,7 +6,7 @@
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
-import stratos.graphics.widgets.Text.Clickable;
+import stratos.util.Description.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 

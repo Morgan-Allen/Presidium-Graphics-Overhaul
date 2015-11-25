@@ -78,6 +78,7 @@ public class MainScreen extends HUD {
   
   
   protected void updateState() {
+    PlayLoop.rendering().backColour = Colour.BLACK;
     
     for (UINode kid : kids()) if (kid instanceof MenuPane) {
       menuState = ((MenuPane) kid).stateID;

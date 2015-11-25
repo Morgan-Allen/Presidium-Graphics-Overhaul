@@ -6,7 +6,6 @@
 package stratos.user;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.Image;
-import stratos.graphics.widgets.Text.Clickable;
 import stratos.util.*;
 
 

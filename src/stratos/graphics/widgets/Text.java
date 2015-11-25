@@ -38,12 +38,6 @@ public class Text extends UIGroup implements Description {
     *  navigate to other objects, with image and text entries provide
     *  information or emphasis-
     */
-  public static interface Clickable {
-    String fullName();
-    void whenClicked();
-  }
-  
-  
   static class UIEntry extends Box2D {
     UINode graphic;
     boolean visible;

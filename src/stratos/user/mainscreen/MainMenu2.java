@@ -5,10 +5,9 @@
   */
 package stratos.user.mainscreen;
 import stratos.user.*;
-import stratos.graphics.common.Colour;
 import stratos.graphics.widgets.*;
-import stratos.start.PlayLoop;
-import stratos.start.TutorialScenario;
+import stratos.util.Description.*;
+import stratos.start.*;
 import stratos.util.*;
 
 
@@ -25,84 +24,68 @@ public class MainMenu2 extends MenuPane implements UIConstants {
   
   
   protected void fillListing(List <UINode> listing) {
+    listing.add(createTextButton("  New Game", 1, new Link() {
+      public void whenClicked() { enterNewGameFlow(); }
+    }));
     
-    final Text newGame = new Text(UI, INFO_FONT);
-    Call.add("  New Game", this, "enterNewGameFlow", newGame);
-    newGame.setToLineSize();
-    listing.add(newGame);
+    listing.add(createTextButton("  Tutorial", 1, new Link() {
+      public void whenClicked() { enterTutorial(); }
+    }));
     
-    final Text tutorial = new Text(UI, INFO_FONT);
-    Call.add("  Tutorial", this, "enterTutorial", tutorial);
-    tutorial.setToLineSize();
-    listing.add(tutorial);
+    listing.add(createTextButton("  Continue Game", 1, new Link() {
+      public void whenClicked() { enterSavesList(); }
+    }));
     
-    final Text contGame = new Text(UI, INFO_FONT);
-    Call.add("  Continue Game", this, "enterSavesList", contGame);
-    contGame.setToLineSize();
-    listing.add(contGame);
+    listing.add(createTextButton("  Info & Credits", 1, new Link() {
+      public void whenClicked() { enterCredits(); }
+    }));
     
-    final Text credits = new Text(UI, INFO_FONT);
-    Call.add("  Info & Credits", this, "enterCredits", credits);
-    credits.setToLineSize();
-    listing.add(credits);
-    
-    final Text quit = new Text(UI, INFO_FONT);
-    Call.add("  Quit", this, "enterQuitFlow", quit);
-    quit.setToLineSize();
-    listing.add(quit);
+    listing.add(createTextButton("  Quit", 1, new Link() {
+      public void whenClicked() { enterQuitFlow(); }
+    }));
   }
   
   
-  public void enterNewGameFlow(Object args[]) {
+  public void enterNewGameFlow() {
     final NewGamePane nextPane = new NewGamePane(UI);
     navigateForward(nextPane, true);
   }
   
   
-  public void enterTutorial(Object args[]) {
+  public void enterTutorial() {
     final TutorialScenario tutorial = new TutorialScenario("tutorial_quick");
     PlayLoop.setupAndLoop(tutorial);
   }
   
   
-  public void enterSavesList(Object args[]) {
+  public void enterSavesList() {
     
   }
   
   
-  public void enterCredits(Object args[]) {
+  public void enterCredits() {
     
   }
   
   
-  public void enterQuitFlow(Object args[]) {
+  public void enterQuitFlow() {
     
     final MenuPane confirmPane = new MenuPane(UI, MainScreen.MENU_QUIT) {
       
       protected void fillListing(List <UINode> listing) {
-        final Text question = new Text(UI, INFO_FONT);
-        question.append("\nAre you sure you want to quit?\n", Colour.LITE_GREY);
-        question.scale = 0.75f;
-        question.setToPreferredSize(1000);
-        listing.add(question);
-        
-        final Text yes = new Text(UI, INFO_FONT);
-        Call.add("  Just Quit Already", this, "quitConfirmed", yes);
-        yes.setToLineSize();
-        listing.add(yes);
-        
-        final Text no = new Text(UI, INFO_FONT);
-        Call.add("  Back", this, "quitCancelled", no);
-        no.setToLineSize();
-        listing.add(no);
-      }
-      
-      public void quitConfirmed(Object args[]) {
-        PlayLoop.exitLoop();
-      }
-      
-      public void quitCancelled(Object args[]) {
-        this.navigateBack();
+        listing.add(createTextItem(
+          "Are you sure you want to quit?", 1.2f, null
+        ));
+        listing.add(createTextButton("  Just quit already", 1, new Link() {
+          public void whenClicked() {
+            PlayLoop.exitLoop();
+          }
+        }));
+        listing.add(createTextButton("  Maybe not", 1, new Link() {
+          public void whenClicked() {
+            navigateBack();
+          }
+        }));
       }
     };
     navigateForward(confirmPane, true);
@@ -136,19 +119,6 @@ public class MainMenu2 extends MenuPane implements UIConstants {
     help.setText("");
     help.append(gameCredits.content(), Colour.LITE_GREY);
   }
-  
-  
-  public void configToQuit(Object args[]) {
-    text.setText("\nAre you sure you want to quit?\n");
-    Call.add("\n  Just Quit Already", this, "quitConfirmed", text);
-    Call.add("\n  Back", this, "configMainText", text);
-  }
-  
-  
-  public void quitConfirmed(Object args[]) {
-    PlayLoop.exitLoop();
-  }
-  
   //*/
 }
 

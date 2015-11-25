@@ -42,8 +42,7 @@ public abstract class Element implements
   
   
   protected Element() {
-    //
-    //  TODO:  Put something in here?
+    return;
   }
   
   

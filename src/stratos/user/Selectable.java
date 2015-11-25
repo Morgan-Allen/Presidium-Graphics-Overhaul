@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public interface Selectable extends Text.Clickable, Session.Saveable {
+public interface Selectable extends Description.Clickable, Session.Saveable {
   
   String fullName();
   Composite portrait(BaseUI UI);

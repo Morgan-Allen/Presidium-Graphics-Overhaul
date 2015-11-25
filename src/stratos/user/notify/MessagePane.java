@@ -6,7 +6,7 @@
 package stratos.user.notify;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
-import stratos.graphics.widgets.Text.Clickable;
+import stratos.util.Description.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.user.SelectionPane.*;

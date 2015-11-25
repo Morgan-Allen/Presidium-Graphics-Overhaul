@@ -25,6 +25,7 @@ import stratos.util.*;
 
 //  TODO:  Work out the kinks here!
 
+/*
 
 public class MainMenu extends UIGroup {
   
@@ -387,6 +388,7 @@ public class MainMenu extends UIGroup {
   
   /**  Exits the main menu and starts a new game-
     */
+/*
   //
   //  TODO:  Give the player a broad summary of the choices made (including the
   //  name of the ruler/subjects,) before committing to the landing choice.
@@ -399,6 +401,7 @@ public class MainMenu extends UIGroup {
   
   /**  Beginning a quick-start game-
     */
+/*
   public void configQuickstart(Object args[]) {
     final TutorialScenario tutorial = new TutorialScenario("tutorial_quick");
     PlayLoop.setupAndLoop(tutorial);
@@ -408,6 +411,7 @@ public class MainMenu extends UIGroup {
   
   /**  Loading games, settings, and quitting-
     */
+/*
   public void configToContinue(Object args[]) {
     text.setText("");
     text.append("\nSaved Games:");
@@ -447,7 +451,7 @@ public class MainMenu extends UIGroup {
   }
 }
 
-
+//*/
 
 
 

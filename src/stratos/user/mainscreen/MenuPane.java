@@ -4,8 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user.mainscreen;
-import stratos.graphics.common.ImageAsset;
+import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -67,7 +68,40 @@ public abstract class MenuPane extends ListingPane {
   }
   
   
+  
+  /**  Utility methods for manufacturing common widgets-
+    */
+  protected UINode createTextButton(
+    String text, float scale, Text.Clickable link
+  ) {
+    final Text t = new Text(UI, UIConstants.INFO_FONT);
+    if (link != null) t.append(text, link);
+    else t.append(text);
+    t.scale = scale;
+    t.setToLineSize();
+    return t;
+  }
+  
+  
+  protected UINode createTextItem(
+    String text, float scale, Colour c
+  ) {
+    final Text t = new Text(UI, UIConstants.INFO_FONT);
+    t.append(text, c == null ? Colour.WHITE : c);
+    t.scale = scale;
+    t.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
+    return t;
+  }
+  
+  
 }
+
+
+
+
+
+
+
 
 
 

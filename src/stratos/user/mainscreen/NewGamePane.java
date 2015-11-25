@@ -7,6 +7,7 @@ package stratos.user.mainscreen;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
+import stratos.graphics.common.Colour;
 import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
@@ -43,9 +44,38 @@ public class NewGamePane extends MenuPane {
   }
   
   
-  
   protected void fillListing(List <UINode> listing) {
+    //
+    //  Pick a sector first.
+    listing.add(createTextItem("Landing Site:", 1.2f, null));
+
+    final VerseLocation landings[] = Verse.ALL_DIAPSOR_SECTORS;
+    for (final VerseLocation landing : landings) {
+      listing.add(createTextButton("  "+landing.name, 1, new Description.Link() {
+        public void whenClicked() { selectLanding(landing); }
+      }));
+    }
+    listing.add(createTextItem(
+      "Your landing site will determine the type of resources initially "+
+      "available to your settlement, along with local species and other "+
+      "threats.", 0.75f, Colour.LITE_GREY
+    ));
     
+    //
+    //  Then pick a homeworld:
+    listing.add(createTextItem("Homeworld:", 1.2f, null));
+    
+    final VerseLocation homeworlds[] = Verse.ALL_PLANETS;
+    for (final VerseLocation homeworld : homeworlds) {
+      listing.add(createTextButton("  "+homeworld.name, 1, new Description.Link() {
+        public void whenClicked() { selectHomeworld(homeworld); }
+      }));
+    }
+    listing.add(createTextItem(
+      "Your homeworld will determine the initial colonists and finance "+
+      "available to your settlement, along with technical expertise and "+
+      "trade revenue.", 0.75f, Colour.LITE_GREY
+    ));
   }
   
   
@@ -58,47 +88,6 @@ public class NewGamePane extends MenuPane {
     screen.worldsDisplay.hidden = false;
     
     super.updateState();
-  }
-  
-  
-  
-  
-  
-  void updateText(Description d) {
-    //
-    //  Pick a sector first.
-    d.append("Landing Site:");
-
-    final VerseLocation landings[] = Verse.ALL_DIAPSOR_SECTORS;
-    for (final VerseLocation landing : landings) {
-      d.append("\n  ");
-      d.append(new Description.Link(landing.name) {
-        public void whenClicked() { selectLanding(landing); }
-      });
-    }
-    
-    d.append(
-      "\n\nYour landing site will determine the type of resources initially "+
-      "available to your settlement, along with local species and other "+
-      "threats."
-    );
-    //
-    //  Then pick a homeworld:
-    d.append("Homeworld:");
-    
-    final VerseLocation homeworlds[] = Verse.ALL_PLANETS;
-    for (final VerseLocation homeworld : homeworlds) {
-      d.append("\n  ");
-      d.append(new Description.Link(homeworld.name) {
-        public void whenClicked() { selectHomeworld(homeworld); }
-      });
-    }
-    
-    d.append(
-      "\n\nYour homeworld will determine the initial colonists and finance "+
-      "available to your settlement, along with technical expertise and "+
-      "trade revenue."
-    );
   }
   
   
