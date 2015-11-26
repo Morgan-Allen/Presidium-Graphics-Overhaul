@@ -89,6 +89,17 @@ public class Image extends UINode {
     else return null;
   }
   
+
+  protected void setUnstretched(
+    float x, float y, float wide, float high, Box2D bounds
+  ) {
+    final float
+      texWide = texture.getWidth (),
+      texHigh = texture.getHeight(),
+      scale   = Nums.min(wide / texWide, high / texHigh);
+    bounds.set(x, y, texWide * scale, texHigh * scale);
+  }
+  
   
   protected void render(WidgetsPass pass) {
     renderTex(texture, absAlpha, pass);
@@ -100,30 +111,13 @@ public class Image extends UINode {
   
   
   protected void renderTex(Texture tex, float alpha, WidgetsPass pass) {
-    final float scale = stretch ? 1 : Nums.min(
-      bounds.xdim() / texture.getWidth(),
-      bounds.ydim() / texture.getHeight()
-    );
-    final Box2D drawn = new Box2D().set(
-      bounds.xpos(), bounds.ypos(),
-      stretch ? bounds.xdim() : (texture.getWidth()  * scale),
-      stretch ? bounds.ydim() : (texture.getHeight() * scale)
-    );
-    if (! stretch) {
-      final float
-        gapX = bounds.xdim() - drawn.xdim(),
-        gapY = bounds.ydim() - drawn.ydim();
-      drawn.xpos(drawn.xpos() + (gapX / 2));
-      drawn.ypos(drawn.ypos() + (gapY / 2));
-    }
-    
+    final Box2D drawn = new Box2D(bounds);
     if (lockToPixels) {
-      drawn.xpos((int) drawn.xpos()); 
-      drawn.ypos((int) drawn.ypos()); 
-      drawn.xdim((int) drawn.xdim()); 
+      drawn.xpos((int) drawn.xpos());
+      drawn.ypos((int) drawn.ypos());
+      drawn.xdim((int) drawn.xdim());
       drawn.ydim((int) drawn.ydim()); 
     }
-    
     pass.draw(
       tex, Colour.transparency(alpha),
       drawn.xpos(), drawn.ypos(), drawn.xdim(), drawn.ydim(),

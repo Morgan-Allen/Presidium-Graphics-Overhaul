@@ -7,8 +7,8 @@ package stratos.util;
 import stratos.graphics.common.*;
 
 
+
 public interface Description {
-  
   
   public void append(String s, Clickable link, Colour c);
   public void append(Clickable link, Colour c);
@@ -23,9 +23,6 @@ public interface Description {
   public void appendList(String s, Series l);
   public void appendList(String s, Object... l);
   
-  //public boolean insert(ImageAsset graphic, int maxSize);
-  //public boolean insert(Texture graphic, int maxSize);
-  
   
   public static interface Clickable {
     String fullName();
@@ -38,6 +35,7 @@ public interface Description {
     final String name;
     public Link() { this(""); }
     public Link(String name) { this.name = name; }
+    
     public String fullName() { return name; }
   }
 }

@@ -4,6 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user.mainscreen;
+import com.badlogic.gdx.math.Vector2;
+
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -17,6 +19,9 @@ public abstract class MenuPane extends ListingPane {
   final public static ImageAsset
     BORDER_TEX = ImageAsset.fromImage(
       MenuPane.class, "media/GUI/Front/Panel.png"
+    ),
+    BUTTON_FRAME_TEX = ImageAsset.fromImage(
+      MenuPane.class, "media/GUI/tips_frame.png"
     ),
     WIDGET_BACK = ImageAsset.fromImage(
       MenuPane.class, "media/GUI/Front/widget_back.png"
@@ -71,15 +76,59 @@ public abstract class MenuPane extends ListingPane {
   
   /**  Utility methods for manufacturing common widgets-
     */
+  protected class TextButton extends UIGroup {
+    
+    final Description.Link link;
+    final Bordering around;
+    boolean toggled;
+    
+    
+    public TextButton(HUD UI, String text, float scale, Description.Link link) {
+      super(UI);
+      this.link = link;
+      
+      final Text t = new Text(UI, UIConstants.INFO_FONT);
+      if (link != null) t.append(text, link);
+      else t.append(text);
+      t.scale = scale;
+      t.setToLineSize();
+
+      this.alignToMatch(t);
+      
+      around = new Bordering(UI, BUTTON_FRAME_TEX);
+      around.alignToFill();
+      around.attachTo(this);
+      
+      t.alignToFill();
+      t.attachTo(this);
+    }
+    
+    
+    protected UINode selectionAt(Vector2 mousePos) {
+      return (trueBounds().contains(mousePos.x, mousePos.y)) ? this : null;
+    }
+    
+    
+    protected void whenClicked() {
+      link.whenClicked();
+    }
+    
+    
+    protected void updateState() {
+      if      (toggled    ) around.relAlpha = 1.0f;
+      else if (amHovered()) around.relAlpha = 0.5f;
+      else                  around.relAlpha = 0.0f;
+      around.hidden = around.relAlpha == 0;
+      
+      super.updateState();
+    }
+  }
+  
+  
   protected UINode createTextButton(
-    String text, float scale, Text.Clickable link
+    String text, float scale, final Description.Link link
   ) {
-    final Text t = new Text(UI, UIConstants.INFO_FONT);
-    if (link != null) t.append(text, link);
-    else t.append(text);
-    t.scale = scale;
-    t.setToLineSize();
-    return t;
+    return new TextButton(UI, text, scale, link);
   }
   
   
@@ -90,7 +139,15 @@ public abstract class MenuPane extends ListingPane {
     t.append(text, c == null ? Colour.WHITE : c);
     t.scale = scale;
     t.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
-    return t;
+    
+    final UIGroup item = new UIGroup(UI);
+    item.alignToMatch(t);
+    //final Bordering b = new Bordering(UI, BUTTON_FRAME_TEX);
+    //b.alignToFill();
+    //b.attachTo(item);
+    t.alignToFill();
+    t.attachTo(item);
+    return item;
   }
   
   

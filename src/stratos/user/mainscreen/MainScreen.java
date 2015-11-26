@@ -12,6 +12,8 @@ import stratos.user.*;
 import stratos.util.*;
 import static stratos.user.ChartUtils.*;
 
+import stratos.game.verse.Verse;
+
 
 
 public class MainScreen extends HUD {
@@ -66,7 +68,7 @@ public class MainScreen extends HUD {
     displayArea.alignHorizontal(dispInX, dispInX);
     displayArea.attachTo(this);
     
-    worldsDisplay = createWorldsCarousel(this);
+    worldsDisplay = createWorldsCarousel(this, Verse.ALL_CAPITALS);
     worldsDisplay.alignTop(MARGIN, CAROUSEL_HIGH);
     worldsDisplay.alignHorizontal(dispInX, dispInX);
     worldsDisplay.attachTo(this);

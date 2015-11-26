@@ -52,7 +52,7 @@ public class SelectSitePane extends MenuPane {
     //  Pick a homeworld first.
     listing.add(createTextItem("Homeworld:", 1.2f, null));
     
-    final VerseLocation homeworlds[] = Verse.ALL_PLANETS;
+    final VerseLocation homeworlds[] = Verse.ALL_CAPITALS;
     for (final VerseLocation homeworld : homeworlds) {
       listing.add(createTextButton("  "+homeworld.name, 1, new Link() {
         public void whenClicked() { selectHomeworld(homeworld); }
@@ -93,6 +93,7 @@ public class SelectSitePane extends MenuPane {
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = false;
+    screen.helpField.hidden     = false;
     if (landing == null) screen.display.spinAtRate(9, 0);
     
     forwardButton.hidden = landing == null || homeworld == null;
@@ -103,6 +104,8 @@ public class SelectSitePane extends MenuPane {
   private void selectHomeworld(VerseLocation homeworld) {
     final MainScreen screen = MainScreen.current();
     screen.worldsDisplay.setSelection(homeworld);
+    screen.helpField.setText("");
+    screen.helpField.append(homeworld.info, Colour.LITE_GREY);
     this.homeworld = homeworld;
   }
   
@@ -110,6 +113,8 @@ public class SelectSitePane extends MenuPane {
   private void selectLanding(VerseLocation landing) {
     final MainScreen screen = MainScreen.current();
     screen.display.setSelection(landing.name, true);
+    screen.helpField.setText("");
+    screen.helpField.append(landing.info, Colour.LITE_GREY);
     this.landing = landing;
   }
 }

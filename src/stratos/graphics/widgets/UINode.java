@@ -242,20 +242,26 @@ public abstract class UINode {
       x    = absBound.xpos(),
       y    = absBound.ypos();
     
-    if (! stretch) {
-      //  In this case we shrink either width or height to maintain a constant
-      //  aspect ratio.
-      final float
-        oldWide = wide, absWide = Nums.max(1, absBound.xdim()),
-        oldHigh = high, absHigh = Nums.max(1, absBound.ydim()),
-        aspW    = wide / absWide,
-        aspH    = high / absHigh,
-        scale   = Nums.min(aspW, aspH);
-      wide = absWide * scale;
-      high = absHigh * scale;
-      x += (oldWide - wide) / 2;
-      y += (oldHigh - high) / 2;
-    }
+    if (stretch) bounds.set(x, y, wide, high);
+    else setUnstretched(x, y, wide, high, bounds);
+  }
+  
+  
+  protected void setUnstretched(
+    float x, float y, float wide, float high, Box2D bounds
+  ) {
+    //  In this case we shrink either width or height to maintain a constant
+    //  aspect ratio.
+    final float
+      oldWide = wide, absWide = Nums.max(1, absBound.xdim()),
+      oldHigh = high, absHigh = Nums.max(1, absBound.ydim()),
+      aspW    = wide / absWide,
+      aspH    = high / absHigh,
+      scale   = Nums.min(aspW, aspH);
+    wide = absWide * scale;
+    high = absHigh * scale;
+    x += (oldWide - wide) / 2;
+    y += (oldHigh - high) / 2;
     bounds.set(x, y, wide, high);
   }
   

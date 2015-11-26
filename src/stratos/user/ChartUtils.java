@@ -29,11 +29,11 @@ public class ChartUtils {
   /**  Method for loading a carousel-display of homeworlds:
     */
   public static Carousel createWorldsCarousel(
-    HUD UI
+    HUD UI, VerseLocation shown[]
   ) {
     final Carousel carousel = new Carousel(UI);
     
-    for (final VerseLocation world : Verse.ALL_PLANETS) {
+    for (final VerseLocation world : shown) {
       if (world.planetImage == null) continue;
       
       final UIGroup worldInfo = new UIGroup(UI);
