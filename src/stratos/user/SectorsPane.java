@@ -146,7 +146,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
   private void incRotation(float amount, boolean inFrame) {
     float oldRot = display.rotation();
     if (inFrame) amount *= 2f / Rendering.FRAMES_PER_SECOND;
-    display.setRotation(oldRot + amount);
+    display.setCoords(oldRot + amount, 0, true);
   }
   
   
@@ -162,8 +162,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
     if (UI.mouseClicked()) {
       focus = hovered;
       if (focus != null) {
-        display.setSelection(focus == null ? null : focus.name);
-        
+        display.setSelection(focus.name, true);
         infoPanel.header.setText(focus.name);
         infoPanel.detail.setText(focus.info);
       }

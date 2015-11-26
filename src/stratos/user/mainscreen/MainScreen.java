@@ -20,7 +20,8 @@ public class MainScreen extends HUD {
   final static int
     MENU_PANEL_WIDE = UIConstants.INFO_PANEL_WIDE,
     MARGIN          = UIConstants.DEFAULT_MARGIN * 2,
-    CAROUSEL_HIGH   = 80;
+    CAROUSEL_HIGH   = 80,
+    HELP_FIELD_HIGH = 80;
   final static int
     MENU_INIT          = 0,
     MENU_NEW_GAME_SITE = 1,
@@ -36,6 +37,7 @@ public class MainScreen extends HUD {
   UIGroup displayArea;
   PlanetDisplay display;
   Carousel worldsDisplay;
+  Text helpField;
   
   
   
@@ -49,7 +51,8 @@ public class MainScreen extends HUD {
     
     final int
       dispInX = MENU_PANEL_WIDE + (MARGIN * 2),
-      dispInY = CAROUSEL_HIGH   + (MARGIN * 2);
+      dispTop = CAROUSEL_HIGH   + (MARGIN * 2),
+      dispBot = HELP_FIELD_HIGH + (MARGIN * 2);
     display = createPlanetDisplay(LOAD_PATH, PLANET_LOAD_FILE);
     display.showLabels = false;
     
@@ -59,7 +62,7 @@ public class MainScreen extends HUD {
         super.render(pass);
       }
     };
-    displayArea.alignVertical  (dispInY, dispInY);
+    displayArea.alignVertical  (dispBot, dispTop);
     displayArea.alignHorizontal(dispInX, dispInX);
     displayArea.attachTo(this);
     
@@ -67,6 +70,12 @@ public class MainScreen extends HUD {
     worldsDisplay.alignTop(MARGIN, CAROUSEL_HIGH);
     worldsDisplay.alignHorizontal(dispInX, dispInX);
     worldsDisplay.attachTo(this);
+    
+    helpField = new Text(this, UIConstants.INFO_FONT);
+    helpField.alignBottom(MARGIN, HELP_FIELD_HIGH);
+    helpField.alignHorizontal(dispInX, dispInX);
+    helpField.scale = 0.75f;
+    helpField.attachTo(this);
   }
   
   
@@ -84,11 +93,14 @@ public class MainScreen extends HUD {
       menuState = ((MenuPane) kid).stateID;
     }
     
-    if (menuState == MENU_INIT) {
+    if (menuState == MENU_INIT || menuState == MENU_QUIT) {
       float rotInc = 90f / (10 * Rendering.FRAMES_PER_SECOND);
-      display.setRotation(display.rotation() + rotInc);
-      display.showWeather = true;
-      worldsDisplay.hidden = true;
+      display.setCoords(display.rotation() + rotInc, 0, true);
+      display.setSelection(null, false);
+      display.showWeather  = true ;
+      display.showLabels   = false;
+      worldsDisplay.hidden = true ;
+      helpField.hidden     = true ;
     }
     
     super.updateState();

@@ -235,8 +235,8 @@ public class Vec2D {
   
   
   /**  Returns this vector's value interpreted as an angle ((1, 0) == 0 degrees,
-    *  (0, 1) == 90 degrees, (-1, 0) == 180 degree, etc.)  The value returned is
-    *  in degrees.
+    *  (0, 1) == 90 degrees, (-1, 0) == 180 degree, etc.)  This flips over into
+    *  negative degree values once you go past 180.
     */
   public float toAngle() {
     return Nums.atan2(y, x) * 180 / Nums.PI;

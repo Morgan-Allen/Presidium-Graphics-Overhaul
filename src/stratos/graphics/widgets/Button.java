@@ -138,7 +138,7 @@ public class Button extends Image {
     super.render(pass);
     if (! enabled) return;
     if (toggled) {
-      super.renderTex(highlit, 1, pass);
+      super.renderTex(highlit, absAlpha, pass);
     }
     else if (amPressed() || amDragged() || amClicked()) {
       super.renderTex(highlit, pressLit * absAlpha, pass);

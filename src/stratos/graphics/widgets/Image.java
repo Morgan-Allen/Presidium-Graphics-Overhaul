@@ -86,10 +86,10 @@ public class Image extends UINode {
   
   
   protected void render(WidgetsPass pass) {
-    renderTex(texture, relAlpha, pass);
-    if (! enabled) renderTex(greyOut, relAlpha, pass);
+    renderTex(texture, absAlpha, pass);
+    if (! enabled) renderTex(greyOut, absAlpha, pass);
     if (overlaid != null) for (Texture t : overlaid) {
-      renderTex(t, relAlpha, pass);
+      renderTex(t, absAlpha, pass);
     }
   }
   

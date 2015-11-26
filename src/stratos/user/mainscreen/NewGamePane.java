@@ -7,10 +7,11 @@ package stratos.user.mainscreen;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
-import stratos.graphics.common.Colour;
+import stratos.graphics.common.*;
 import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.util.Description.*;
 import static stratos.user.ChartUtils.*;
 
 
@@ -30,6 +31,8 @@ public class NewGamePane extends MenuPane {
   private int stage = STAGE_PICK_SECTORS;
   
   
+  private UINode forwardButton;
+  
   private VerseLocation homeworld;
   private VerseLocation landing;
   
@@ -46,12 +49,27 @@ public class NewGamePane extends MenuPane {
   
   protected void fillListing(List <UINode> listing) {
     //
-    //  Pick a sector first.
+    //  Pick a homeworld first.
+    listing.add(createTextItem("Homeworld:", 1.2f, null));
+    
+    final VerseLocation homeworlds[] = Verse.ALL_PLANETS;
+    for (final VerseLocation homeworld : homeworlds) {
+      listing.add(createTextButton("  "+homeworld.name, 1, new Link() {
+        public void whenClicked() { selectHomeworld(homeworld); }
+      }));
+    }
+    listing.add(createTextItem(
+      "Your homeworld will determine the initial colonists and finance "+
+      "available to your settlement, along with technical expertise and "+
+      "trade revenue.", 0.75f, Colour.LITE_GREY
+    ));
+    //
+    //  Then pick a sector.
     listing.add(createTextItem("Landing Site:", 1.2f, null));
 
     final VerseLocation landings[] = Verse.ALL_DIAPSOR_SECTORS;
     for (final VerseLocation landing : landings) {
-      listing.add(createTextButton("  "+landing.name, 1, new Description.Link() {
+      listing.add(createTextButton("  "+landing.name, 1, new Link() {
         public void whenClicked() { selectLanding(landing); }
       }));
     }
@@ -61,23 +79,13 @@ public class NewGamePane extends MenuPane {
       "threats.", 0.75f, Colour.LITE_GREY
     ));
     
-    //
-    //  Then pick a homeworld:
-    listing.add(createTextItem("Homeworld:", 1.2f, null));
-    
-    final VerseLocation homeworlds[] = Verse.ALL_PLANETS;
-    for (final VerseLocation homeworld : homeworlds) {
-      listing.add(createTextButton("  "+homeworld.name, 1, new Description.Link() {
-        public void whenClicked() { selectHomeworld(homeworld); }
-      }));
-    }
-    listing.add(createTextItem(
-      "Your homeworld will determine the initial colonists and finance "+
-      "available to your settlement, along with technical expertise and "+
-      "trade revenue.", 0.75f, Colour.LITE_GREY
-    ));
+    forwardButton = createTextButton("Continue", 1, new Link() {
+      public void whenClicked() {
+        
+      }
+    });
+    listing.add(forwardButton);
   }
-  
   
   
   protected void updateState() {
@@ -87,20 +95,23 @@ public class NewGamePane extends MenuPane {
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = false;
     
+    forwardButton.hidden = landing == null || homeworld == null;
     super.updateState();
   }
   
   
-  private void selectLanding(VerseLocation landing) {
-    this.landing = landing;
-  }
-  
-  
   private void selectHomeworld(VerseLocation homeworld) {
+    final MainScreen screen = MainScreen.current();
+    screen.worldsDisplay.setSelection(homeworld);
     this.homeworld = homeworld;
   }
   
   
+  private void selectLanding(VerseLocation landing) {
+    final MainScreen screen = MainScreen.current();
+    screen.display.setSelection(landing.name, true);
+    this.landing = landing;
+  }
 }
 
 

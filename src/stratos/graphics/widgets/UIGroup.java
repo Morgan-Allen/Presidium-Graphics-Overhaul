@@ -15,7 +15,13 @@ import com.badlogic.gdx.math.*;
 public class UIGroup extends UINode {
   
   
-  final List <UINode> kids = new List <UINode> ();
+  /**  Data fields, constructors, and basic access/setter methods-
+    */
+  final List <UINode> kids = new List <UINode> () {
+    protected float queuePriority(UINode r) {
+      return 0 - r.relDepth;
+    }
+  };
   
   
   public UIGroup(HUD myHUD) {
@@ -29,6 +35,9 @@ public class UIGroup extends UINode {
   }
   
   
+  
+  /**  Overrides for general UI functions-
+    */
   protected void render(WidgetsPass pass) {
     for (UINode kid : kids) if (! kid.hidden) {
       kid.render(pass);
@@ -70,7 +79,21 @@ public class UIGroup extends UINode {
     super.updateAbsoluteBounds(base);
     for (UINode kid : kids) if (! kid.hidden) kid.updateAbsoluteBounds();
   }
+  
+  
+  
+  /**  Other utility methods related to display-
+    */
+  protected void sortKidsByDepth() {
+    kids.queueSort();
+  }
 }
+
+
+
+
+
+
 
 
 

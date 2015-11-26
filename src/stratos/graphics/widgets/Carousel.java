@@ -13,7 +13,9 @@ public class Carousel extends UIGroup {
   
   
   final static float
-    SPIN_RATE = 90f / Rendering.FRAMES_PER_SECOND;
+    SPIN_RATE  = 180f / Rendering.FRAMES_PER_SECOND,
+    SHRINK_MIN = 0.75f,
+    GROW_MAX   = 1.50f;
   
   
   final List <UINode> entries = new List();
@@ -27,30 +29,35 @@ public class Carousel extends UIGroup {
   
   
   protected void updateState() {
-    
+    //
+    //  Firstly, update our current spin position (interpolating toward the
+    //  target angle as needed.)
     final float spinDiff = Vec2D.degreeDif(targetAngle, spinAngle);
-    if (Nums.abs(spinDiff) <= SPIN_RATE) {
-      spinAngle = targetAngle;
-    }
-    else {
-      spinAngle += SPIN_RATE * (spinDiff > 0 ? 1 : -1);
-    }
-    
+    if (Nums.abs(spinDiff) <= SPIN_RATE) spinAngle = targetAngle;
+    else spinAngle += SPIN_RATE * (spinDiff > 0 ? 1 : -1);
+    //
+    //  Then update the displacement, size, depth and opacity of each of our
+    //  children.
     int index = 0; for (UINode b : entries) {
       float angle = index * 360f / entries.size();
-      angle = Nums.toRadians(angle + spinAngle);
-      float across = (1 + Nums.cos(angle)) / 2;
-      float depth  = (1 + Nums.sin(angle)) / 2;
+      angle = Nums.toRadians(angle - spinAngle);
       
-      float halfW = 1f / entries.size();
-      b.alignVertical(0, 0);
-      b.alignAcross(across - (halfW * across), across + (halfW * (1 - across)));
+      final float
+        across = (1 + Nums.sin(angle)) / 2,
+        depth  = (1 - Nums.cos(angle)) / 2,
+        scale  = SHRINK_MIN + ((1 - depth) * (GROW_MAX - SHRINK_MIN)),
+        size   = scale * Nums.min(ydim(), xdim() / entries.size()),
+        offX   = size * (0.5f - across) / xdim();
+      
+      b.alignVertical(0.5f, size, 0);
+      b.alignHorizontal(across + offX, size, 0);
       b.relDepth = depth;
+      if (depth <= 0.5f) b.relAlpha = 1;
+      else b.relAlpha = 1.5f - depth;
+      
       index++;
-      //  TODO:  Shrink the rearward nodes to give a fake 'perspective' effect-
-      //         and darken them a bit..?
     }
-    
+    sortKidsByDepth();
     super.updateState();
   }
   
@@ -62,21 +69,13 @@ public class Carousel extends UIGroup {
   }
   
   
-  public void setSpinTarget(Object ref) {
-    targetAngle = refers.indexOf(ref) * 360f / refers.size();
+  public void setSelection(Object ref) {
+    final int index = refers.indexOf(ref);
+    if (index >= 0) targetAngle = index * 360f / refers.size();
   }
   
   
 }
-
-
-
-
-
-
-
-
-
 
 
 

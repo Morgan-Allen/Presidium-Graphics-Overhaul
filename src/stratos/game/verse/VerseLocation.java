@@ -10,6 +10,7 @@ import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
@@ -77,8 +78,8 @@ public class VerseLocation extends Background {
       -1, Backgrounds.NOT_A_GUILD, args
     );
     this.houseName   = houseName  ;
-    this.planetImage = planetImage;
-    this.houseImage  = houseImage ;
+    this.planetImage = planetImage == null ? Image.SOLID_WHITE : planetImage;
+    this.houseImage  = houseImage  == null ? Image.SOLID_WHITE : houseImage ;
     
     this.belongs = belongs;
     this.climate = climate;

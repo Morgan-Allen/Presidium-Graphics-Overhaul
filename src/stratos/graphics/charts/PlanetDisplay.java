@@ -5,10 +5,10 @@
   */
 package stratos.graphics.charts;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.Label;
+import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
-import stratos.start.Assets;
+import stratos.start.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
@@ -25,9 +25,12 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 public class PlanetDisplay extends Assets.Loadable {
   
   
-  final static int   DEFAULT_RADIUS = 10;
-  final static float KEY_TOLERANCE  = 0.02f;
   private static boolean setupVerbose = false;
+  
+  final static float
+    DEFAULT_RADIUS      = 10,
+    KEY_TOLERANCE       = 0.02f,
+    ZOOM_SECOND_DEGREES = 120;
   
   
   //  TODO:  Consider having different render-modes?  i.e, geographical,
@@ -37,12 +40,9 @@ public class PlanetDisplay extends Assets.Loadable {
   public boolean showWeather = false;
   
   
-  private float
-    rotation  = 0,
-    elevation = 0,
-    radius    = DEFAULT_RADIUS;
-  private Mat3D
-    rotMatrix = new Mat3D().setIdentity();
+  private float radius = DEFAULT_RADIUS;
+  private Vec2D polarCoords = new Vec2D(), targetCoords = new Vec2D();
+  private Mat3D rotMatrix = new Mat3D().setIdentity();
   
   private Viewport view;
   private ShaderProgram shading;
@@ -57,8 +57,6 @@ public class PlanetDisplay extends Assets.Loadable {
   private Colour hoverKey, selectKey;
   private float hoverAlpha = 0, selectAlpha = 0;
   private Stitching labelling;
-  
-  //private boolean loaded = false, disposed = false;
   
   
   
@@ -109,7 +107,8 @@ public class PlanetDisplay extends Assets.Loadable {
     SolidModel model, Texture surfaceTex,
     Texture sectorsTex, ImageAsset sectorsKeyTex
   ) {
-    this.rotation = 0;
+    this.polarCoords.set(0, 0);
+    this.targetCoords.setTo(polarCoords);
     this.globeModel = model;
     
     final String partNames[] = globeModel.partNames();
@@ -281,6 +280,32 @@ public class PlanetDisplay extends Assets.Loadable {
   
   /**  Selection, feedback and highlighting-
     */
+  public DisplaySector sectorWithColour(Colour key) {
+    for (DisplaySector s : sectors) {
+      if (s.colourKey.difference(key) < KEY_TOLERANCE) return s;
+    }
+    return null;
+  }
+  
+  
+  public DisplaySector sectorLabelled(String label) {
+    for (DisplaySector sector : sectors) if (sector.label != null) {
+      if (sector.label.equals(label)) return sector;
+    }
+    return null;
+  }
+  
+  
+  public DisplaySector selected() {
+    return sectorWithColour(selectKey);
+  }
+  
+  
+  public DisplaySector hovered() {
+    return sectorWithColour(hoverKey);
+  }
+  
+  
   public Vec3D surfacePosition(Vector2 mousePos) {
     
     final Vec3D
@@ -341,43 +366,28 @@ public class PlanetDisplay extends Assets.Loadable {
   public DisplaySector selectedAt(Vector2 mousePos) {
     
     final int colourVal = colourSelectedAt(mousePos);
-    if (colourVal == 0) {
-      this.hoverKey = null;
-      return null;
-    }
+    final Colour matchKey = new Colour();
+    if (colourVal != 0) matchKey.setFromRGBA(colourVal);
+    final DisplaySector sector = sectorWithColour(matchKey);
     
-    final Colour match = new Colour();
-    match.setFromRGBA(colourVal);
-    if (match.difference(hoverKey) >= KEY_TOLERANCE) {
+    if (sector != hovered()) {
       this.hoverAlpha = 0;
-      this.hoverKey = match;
+      this.hoverKey   = sector == null ? null : sector.colourKey;
     }
-    
-    for (DisplaySector sector : sectors) {
-      final float diff = match.difference(sector.colourKey);
-      if (diff < KEY_TOLERANCE) return sector;
-    }
-    
-    return null;
+    return sector;
   }
   
   
   private void calcCoordinates(DisplaySector sector) {
     sector.coordinates.set(0, 0, 0);
+    int numF = 0;
     for (FaceData f : faceData) {
       final float diff = sector.colourKey.difference(f.key);
       if (diff > KEY_TOLERANCE) continue;
       sector.coordinates.add(f.midpoint);
+      numF++;
     }
-    sector.coordinates.normalise().scale(radius);
-  }
-  
-  
-  public DisplaySector sectorLabelled(String label) {
-    for (DisplaySector sector : sectors) if (sector.label != null) {
-      if (sector.label.equals(label)) return sector;
-    }
-    return null;
+    sector.coordinates.scale(1f / numF);
   }
   
   
@@ -390,32 +400,41 @@ public class PlanetDisplay extends Assets.Loadable {
   }
   
   
-  public void setRotation(float rotation) {
-    this.rotation = rotation;
+  public void setCoords(float rotation, float elevation, boolean instant) {
+    targetCoords.x = (rotation + 360) % 360;
+    targetCoords.y = Nums.clamp(elevation, -90, 90);
+    if (instant) polarCoords.setTo(targetCoords);
   }
   
   
   public float rotation() {
-    return this.rotation;
-  }
-  
-  
-  public void setElevation(float elevation) {
-    this.elevation = elevation;
+    return this.polarCoords.x;
   }
   
   
   public float elevation() {
-    return this.elevation;
+    return this.polarCoords.y;
   }
   
   
-  public void setSelection(String sectorLabel) {
+  public void setSelection(String sectorLabel, boolean asZoom) {
     final DisplaySector DS = sectorLabelled(sectorLabel);
     final int key = DS == null ? 0 : colourOnSurface(DS.coordinates);
     if (key == 0) selectKey = null;
     else (selectKey = new Colour()).setFromRGBA(key);
     selectAlpha = 0;
+    
+    if (DS != null && asZoom) {
+      final Vec3D pos = DS.coordinates;
+      final Vec2D
+        latCoords  = new Vec2D(pos.x, pos.z),
+        longCoords = new Vec2D(latCoords.length(), pos.y);
+      final float
+        rotation  = 90 - latCoords.toAngle(),
+        elevation = longCoords.toAngle();
+      
+      setCoords(rotation, elevation, false);
+    }
   }
   
   
@@ -426,14 +445,28 @@ public class PlanetDisplay extends Assets.Loadable {
     Rendering rendering, Box2D bounds, Alphabet font
   ) {
     //
-    //  First of all, we configure viewing perspective, aperture size, rotation
-    //  and offset:
+    //  Firstly, we perform interpolation toward the current target
+    //  coordinates (if they differ from the current set.)
+    Vec2D displacement = new Vec2D();
+    displacement.x = Vec2D.degreeDif(targetCoords.x, polarCoords.x);
+    displacement.y = targetCoords.y - polarCoords.y;
+    
+    final float
+      ZPF        = ZOOM_SECOND_DEGREES / Rendering.FRAMES_PER_SECOND,
+      coordsDiff = displacement.length();
+    
+    if (coordsDiff < ZPF) polarCoords.setTo(targetCoords);
+    else polarCoords.add(displacement.normalise().scale(ZPF));
+    
+    //
+    //  Secondly, we configure viewing perspective, aperture size, rotation
+    //  and offset for the view.
     rotMatrix.setIdentity();
-    rotMatrix.rotateY(Nums.toRadians(0 - rotation));
-    view.updateForWidget(bounds, (radius * 2) + 0, 90, elevation);
+    rotMatrix.rotateY(Nums.toRadians(0 - rotation()));
+    view.updateForWidget(bounds, (radius * 2) + 0, 90, elevation());
     
     final Matrix4 trans = new Matrix4().idt();
-    trans.rotate(Vector3.Y, 0 - rotation);
+    trans.rotate(Vector3.Y, 0 - rotation());
 
     final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
     final float portalSize = Nums.min(bounds.xdim(), bounds.ydim());

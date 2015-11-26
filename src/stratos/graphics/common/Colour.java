@@ -157,7 +157,7 @@ public class Colour {
   }
   
   
-  /**  Returns the average value different between these two colours-
+  /**  Returns the average value difference between these two colours-
     */
   public float difference(Colour c) {
     if (c == null) return 1;

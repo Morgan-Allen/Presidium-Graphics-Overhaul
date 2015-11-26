@@ -42,7 +42,7 @@ public class ChartUtils {
         UI, world.name, world.planetImage, Button.CIRCLE_LIT, world.info
       ) {
         protected void whenClicked() {
-          carousel.setSpinTarget(world);
+          carousel.setSelection(world);
         }
       };
       b.alignToFill();

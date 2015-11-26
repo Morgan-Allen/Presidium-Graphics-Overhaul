@@ -83,8 +83,18 @@ public final class Nums {
   }
   
   
+  public static float acos(float a) {
+    return (float) FastMath.acos(a);
+  }
+  
+  
   public static float sin(float a) {
     return (float) FastMath.sin(a);
+  }
+  
+  
+  public static float asin(float a) {
+    return (float) FastMath.asin(a);
   }
   
   
@@ -95,6 +105,11 @@ public final class Nums {
   
   public static float toRadians(float d) {
     return (float) FastMath.toRadians(d);
+  }
+  
+  
+  public static float toDegrees(float r) {
+    return (float) FastMath.toDegrees(r);
   }
   
   
