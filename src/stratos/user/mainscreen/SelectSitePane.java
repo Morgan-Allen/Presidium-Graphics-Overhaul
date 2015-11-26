@@ -20,7 +20,7 @@ import static stratos.user.ChartUtils.*;
 //         headers and footers.
 
 
-public class NewGamePane extends MenuPane {
+public class SelectSitePane extends MenuPane {
   
   final static int
     STAGE_PICK_SECTORS   = 0,
@@ -42,7 +42,7 @@ public class NewGamePane extends MenuPane {
   
   
   
-  public NewGamePane(HUD UI) {
+  public SelectSitePane(HUD UI) {
     super(UI, MainScreen.MENU_NEW_GAME_SITE);
   }
   
@@ -90,10 +90,10 @@ public class NewGamePane extends MenuPane {
   
   protected void updateState() {
     final MainScreen screen = MainScreen.current();
-    
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = false;
+    if (landing == null) screen.display.spinAtRate(9, 0);
     
     forwardButton.hidden = landing == null || homeworld == null;
     super.updateState();

@@ -438,6 +438,14 @@ public class PlanetDisplay extends Assets.Loadable {
   }
   
   
+  public void spinAtRate(float degreesPerSecond, float elevation) {
+    setCoords(
+      rotation() + (degreesPerSecond / Rendering.FRAMES_PER_SECOND),
+      elevation, true
+    );
+  }
+  
+  
   
   /**  Render methods and helper functions-
     */

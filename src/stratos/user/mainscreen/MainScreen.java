@@ -24,11 +24,11 @@ public class MainScreen extends HUD {
     HELP_FIELD_HIGH = 80;
   final static int
     MENU_INIT          = 0,
-    MENU_NEW_GAME_SITE = 1,
-    MENU_NEW_GAME_CREW = 2,
-    MENU_SAVES_LIST    = 3,
-    MENU_CREDITS       = 4,
-    MENU_QUIT          = 5;
+    MENU_SAVES_LIST    = 1,
+    MENU_CREDITS       = 2,
+    MENU_QUIT          = 3,
+    MENU_NEW_GAME_SITE = 4,
+    MENU_NEW_GAME_CREW = 5;
   
   
   MenuPane menuView;
@@ -44,7 +44,7 @@ public class MainScreen extends HUD {
   public MainScreen(Rendering rendering) {
     super(rendering);
     
-    menuView = new MainMenu2(this);
+    menuView = new MainMenu(this);
     menuView.alignVertical(MARGIN * 2, MARGIN * 2);
     menuView.alignLeft(MARGIN, MENU_PANEL_WIDE);
     menuView.attachTo(this);
@@ -93,9 +93,8 @@ public class MainScreen extends HUD {
       menuState = ((MenuPane) kid).stateID;
     }
     
-    if (menuState == MENU_INIT || menuState == MENU_QUIT) {
-      float rotInc = 90f / (10 * Rendering.FRAMES_PER_SECOND);
-      display.setCoords(display.rotation() + rotInc, 0, true);
+    if (menuState < MENU_NEW_GAME_SITE) {
+      display.spinAtRate(9, 0);
       display.setSelection(null, false);
       display.showWeather  = true ;
       display.showLabels   = false;
@@ -105,14 +104,7 @@ public class MainScreen extends HUD {
     
     super.updateState();
   }
-  
 }
-
-
-
-
-
-
 
 
 

@@ -70,6 +70,8 @@ public class SaveUtils {
   
   public static String[] latestSaves() {
     final File savesDir = new File(SAVES_DIR);
+    if (! savesDir.exists()) savesDir.mkdir();
+    
     final Table <String, String> allPrefixes = new Table <String, String> ();
     final List <String> latest = new List <String> ();
     

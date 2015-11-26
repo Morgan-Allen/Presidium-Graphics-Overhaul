@@ -3,27 +3,118 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.user;
-//import stratos.content.civic.*;
-//import stratos.game.actors.*;
-//import stratos.game.base.*;
-import stratos.game.verse.*;
-import stratos.graphics.common.*;
+package stratos.user.mainscreen;
+import stratos.user.*;
+import stratos.graphics.common.Colour;
 import stratos.graphics.widgets.*;
+import stratos.util.Description.*;
 import stratos.start.*;
-import stratos.user.mainscreen.*;
 import stratos.util.*;
 
-//import static stratos.game.actors.Backgrounds.*;
-//import static stratos.start.StartupScenario.*;
 
 
 
-//  TODO:  This needs a proper re-implementation using customised widgets.
-//         You also need to include landing-site-selection.
+public class MainMenu extends MenuPane implements UIConstants {
+  
+  
+  public MainMenu(HUD UI) {
+    super(UI, MainScreen.MENU_INIT);
+  }
+  
+  
+  protected void fillListing(List <UINode> listing) {
+    
+    final Image banner = new Image(UI, "media/Help/start_banner.png");
+    banner.stretch = false;
+    banner.expandToTexSize(1, false);
+    listing.add(banner);
+    
+    listing.add(createTextButton("  New Game", 1, new Link() {
+      public void whenClicked() { enterNewGameFlow(); }
+    }));
+    
+    listing.add(createTextButton("  Tutorial", 1, new Link() {
+      public void whenClicked() { enterTutorial(); }
+    }));
+    
+    listing.add(createTextButton("  Continue Game", 1, new Link() {
+      public void whenClicked() { enterSavesList(); }
+    }));
+    
+    listing.add(createTextButton("  Info & Credits", 1, new Link() {
+      public void whenClicked() { enterCredits(); }
+    }));
+    
+    listing.add(createTextButton("  Quit", 1, new Link() {
+      public void whenClicked() { enterQuitFlow(); }
+    }));
+  }
+  
+  
+  public void enterNewGameFlow() {
+    final SelectSitePane sitePane = new SelectSitePane(UI);
+    navigateForward(sitePane, true);
+  }
+  
+  
+  public void enterTutorial() {
+    final TutorialScenario tutorial = new TutorialScenario("tutorial_quick");
+    PlayLoop.setupAndLoop(tutorial);
+  }
+  
+  
+  public void enterSavesList() {
+    final SavesListPane savesPane = new SavesListPane(UI);
+    navigateForward(savesPane, true);
+  }
+  
+  
+  public void enterCredits() {
+    final MenuPane creditsPane = new MenuPane(UI, MainScreen.MENU_CREDITS) {
+      
+      protected void fillListing(List <UINode> listing) {
+        final String text = XML.load(
+          "media/Help/GameCredits.xml"
+        ).matchChildValue("name", "Credits").child("content").content();
+        
+        listing.add(createTextItem("Credits:", 1.2f, null));
+        listing.add(createTextItem(text, 0.75f, Colour.LITE_GREY));
+      }
+    };
+    navigateForward(creditsPane, true);
+  }
+  
+  
+  public void enterQuitFlow() {
+    final MenuPane confirmPane = new MenuPane(UI, MainScreen.MENU_QUIT) {
+      
+      protected void fillListing(List <UINode> listing) {
+        listing.add(createTextItem(
+          "Are you sure you want to quit?", 1.2f, null
+        ));
+        listing.add(createTextButton("  Just quit already", 1, new Link() {
+          public void whenClicked() {
+            PlayLoop.exitLoop();
+          }
+        }));
+        listing.add(createTextButton("  Maybe not", 1, new Link() {
+          public void whenClicked() {
+            navigateBack();
+          }
+        }));
+      }
+    };
+    navigateForward(confirmPane, true);
+  }
+  
+  
+}
 
 
-//  TODO:  Work out the kinks here!
+
+
+
+
 
 /*
 
@@ -399,59 +490,12 @@ public class MainMenu extends UIGroup {
   
   
   
-  /**  Beginning a quick-start game-
-    */
-/*
-  public void configQuickstart(Object args[]) {
-    final TutorialScenario tutorial = new TutorialScenario("tutorial_quick");
-    PlayLoop.setupAndLoop(tutorial);
-  }
-  
-  
-  
-  /**  Loading games, settings, and quitting-
-    */
-/*
-  public void configToContinue(Object args[]) {
-    text.setText("");
-    text.append("\nSaved Games:");
-    GameOptionsPane.appendLoadOptions(text, null);
-    Call.add("\n\nBack", this, "configMainText", text);
-  }
-  
-  
   public void configForSettings(Object args[]) {
     text.setText("\nChange Settings\n");
     Call.add("\n  Back", this, "configMainText", text);
   }
-  
-  
-  public void configInfo(Object args[]) {
-    text.setText("");
-    Call.add("\n\nBack", this, "configMainText", text);
-    
-    if (gameCredits == null) gameCredits = XML.load(
-      "media/Help/GameCredits.xml"
-    ).matchChildValue("name", "Credits").child("content");
-    
-    help.setText("");
-    help.append(gameCredits.content(), Colour.LITE_GREY);
-  }
-  
-  
-  public void configToQuit(Object args[]) {
-    text.setText("\nAre you sure you want to quit?\n");
-    Call.add("\n  Just Quit Already", this, "quitConfirmed", text);
-    Call.add("\n  Back", this, "configMainText", text);
-  }
-  
-  
-  public void quitConfirmed(Object args[]) {
-    PlayLoop.exitLoop();
-  }
-}
-
 //*/
+
 
 
 

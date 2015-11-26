@@ -143,10 +143,8 @@ public class SectorsPane extends UIGroup implements UIConstants {
   /**  Navigation and feedback-
     */
   //  TODO:  Control elevation as well.  (Include a zoom function?)
-  private void incRotation(float amount, boolean inFrame) {
-    float oldRot = display.rotation();
-    if (inFrame) amount *= 2f / Rendering.FRAMES_PER_SECOND;
-    display.setCoords(oldRot + amount, 0, true);
+  private void incRotation(float degrees, boolean inFrame) {
+    display.spinAtRate(degrees * 2, 0);
   }
   
   

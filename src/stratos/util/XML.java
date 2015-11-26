@@ -30,6 +30,9 @@ public class XML {
   }
   
   
+  final static XML NULL_NODE = new XML().compile(0);
+  
+  
   protected XML
     parent,
     children[];
@@ -41,8 +44,8 @@ public class XML {
     attributes[],
     values[];
   
-  public String tag()       { return tag; }
-  public String content()   { return content; }
+  public String tag()       { return tag == null ? "" : tag; }
+  public String content()   { return content == null ? "" : content; }
   public int numChildren()  { return children.length; }
   public int indexAsChild() { return indexAsChild; }
   public XML child(int n)   { return children[n]; }
@@ -54,7 +57,7 @@ public class XML {
     */
   public XML child(String tag) {
     for (XML child : children) if (child.tag.equals(tag)) return child;
-    return null;
+    return NULL_NODE;
   }
 
   /**  Returns an array of all children matching the given tag.
@@ -74,7 +77,7 @@ public class XML {
     for (XML child : childList)
       if (child.value(att).equals(value))
         return child;
-    return null;
+    return NULL_NODE;
   }
   
   
@@ -281,7 +284,7 @@ public class XML {
   
   /**  Transforms the temporary member lists into proper arrays.
     */
-  final private void compile(int depth) {
+  final private XML compile(int depth) {
     children   = childList    .toArray(XML   .class);
     attributes = attributeList.toArray(String.class);
     values     = valueList    .toArray(String.class);
@@ -305,6 +308,7 @@ public class XML {
       else I.say(iS+"  Children: ");
     }
     for (XML child : children) child.compile(depth + 1);
+    return this;
   }
 }
 
