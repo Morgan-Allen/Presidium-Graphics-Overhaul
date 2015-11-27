@@ -76,20 +76,16 @@ public abstract class MenuPane extends ListingPane {
   
   /**  Utility methods for manufacturing common widgets-
     */
-  protected class TextButton extends UIGroup {
+  protected abstract class TextButton extends UIGroup {
     
-    final Description.Link link;
     final Bordering around;
-    boolean toggled;
     
     
-    public TextButton(HUD UI, String text, float scale, Description.Link link) {
+    public TextButton(HUD UI, String text, float scale) {
       super(UI);
-      this.link = link;
       
       final Text t = new Text(UI, UIConstants.INFO_FONT);
-      if (link != null) t.append(text, link);
-      else t.append(text);
+      t.append(text);
       t.scale = scale;
       t.setToLineSize();
 
@@ -109,13 +105,16 @@ public abstract class MenuPane extends ListingPane {
     }
     
     
-    protected void whenClicked() {
-      link.whenClicked();
+    protected abstract void whenClicked();
+    
+    
+    protected boolean toggled() {
+      return false;
     }
     
     
     protected void updateState() {
-      if      (toggled    ) around.relAlpha = 1.0f;
+      if      (toggled()  ) around.relAlpha = 1.0f;
       else if (amHovered()) around.relAlpha = 0.5f;
       else                  around.relAlpha = 0.0f;
       around.hidden = around.relAlpha == 0;
@@ -128,7 +127,11 @@ public abstract class MenuPane extends ListingPane {
   protected UINode createTextButton(
     String text, float scale, final Description.Link link
   ) {
-    return new TextButton(UI, text, scale, link);
+    return new TextButton(UI, text, scale) {
+      protected void whenClicked() {
+        link.whenClicked();
+      }
+    };
   }
   
   

@@ -48,15 +48,17 @@ public class SelectSitePane extends MenuPane {
   
   
   protected void fillListing(List <UINode> listing) {
+    final SelectSitePane pane = this;
     //
     //  Pick a homeworld first.
     listing.add(createTextItem("Homeworld:", 1.2f, null));
     
     final VerseLocation homeworlds[] = Verse.ALL_CAPITALS;
     for (final VerseLocation homeworld : homeworlds) {
-      listing.add(createTextButton("  "+homeworld.name, 1, new Link() {
-        public void whenClicked() { selectHomeworld(homeworld); }
-      }));
+      listing.add(new TextButton(UI, "  "+homeworld.name, 1) {
+        protected void whenClicked() { selectHomeworld(homeworld); }
+        protected boolean toggled() { return pane.homeworld == homeworld; }
+      });
     }
     listing.add(createTextItem(
       "Your homeworld will determine the initial colonists and finance "+
@@ -69,9 +71,10 @@ public class SelectSitePane extends MenuPane {
 
     final VerseLocation landings[] = Verse.ALL_DIAPSOR_SECTORS;
     for (final VerseLocation landing : landings) {
-      listing.add(createTextButton("  "+landing.name, 1, new Link() {
+      listing.add(new TextButton(UI, "  "+landing.name, 1) {
         public void whenClicked() { selectLanding(landing); }
-      }));
+        protected boolean toggled() { return pane.landing == landing; }
+      });
     }
     listing.add(createTextItem(
       "Your landing site will determine the type of resources initially "+
@@ -79,12 +82,13 @@ public class SelectSitePane extends MenuPane {
       "threats.", 0.75f, Colour.LITE_GREY
     ));
     
-    forwardButton = createTextButton("Continue", 1, new Link() {
+    //
+    //  And include an option to proceed further...
+    listing.add(forwardButton = new TextButton(UI, "Continue", 1) {
       public void whenClicked() {
         
       }
     });
-    listing.add(forwardButton);
   }
   
   
