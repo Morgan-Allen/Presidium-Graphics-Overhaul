@@ -8,6 +8,7 @@ import stratos.game.base.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.user.*;
@@ -22,6 +23,7 @@ public class Base implements
   
   /**  Fields, constructors, and save/load methods-
     */
+  /*
   final public static String
     KEY_ARTILECTS = "Artilects",
     KEY_NATIVES   = "Natives"  ,
@@ -29,13 +31,14 @@ public class Base implements
     KEY_WILDLIFE  = "Wildlife" ,
     KEY_FREEHOLD  = "Freehold" ,
     KEY_SETTLED   = "Settled"  ;
+  //*/
   
   final public static int
     MAX_BASES = 8;
   
   
-  final public Stage   world ;
-  final public boolean primal;  //  TODO:  use type-  below
+  final public Stage   world  ;
+  final public Faction faction;
   
   final public BaseSetup     setup    ;
   final public BaseDemands   demands  ;
@@ -49,23 +52,22 @@ public class Base implements
   
   private Actor ruler;
   private Venue commandPost;
-  private boolean isNative;  //  TODO:  Replace with 'type'/faction variable!
   
   final public BaseRelations relations = initRelations();
   final public BaseTactics   tactics   = initTactics  ();
   final public BaseAdvice    advice    = initAdvice   ();
   final public BaseResearch  research  = initResearch ();
   
-  private String title  = "Player Base";  //  TODO:  ASSIGN TO FACTIONS
+  private String title  = "Player Base";
   private Colour colour = new Colour();
   private Tally <Blueprint> venueIDTallies = new Tally();
   
   private int baseID = 0;
   
   
-  protected Base(Stage world, boolean primal) {
-    this.world = world;
-    this.primal = primal;
+  protected Base(Stage world, Faction faction) {
+    this.world   = world  ;
+    this.faction = faction;
     
     setup     = new BaseSetup(this, world);
     demands   = new BaseDemands(this, world);
@@ -82,7 +84,7 @@ public class Base implements
   
   
   public Base(Session s) throws Exception {
-    this(s.world(), s.loadBool());
+    this(s.world(), (Faction) s.loadObject());
     s.cacheInstance(this);
     
     setup    .loadState(s);
@@ -96,7 +98,6 @@ public class Base implements
 
     ruler       = (Actor) s.loadObject();
     commandPost = (Venue) s.loadObject();
-    isNative    = s.loadBool();
     
     relations.loadState(s);
     tactics  .loadState(s);
@@ -112,7 +113,7 @@ public class Base implements
   
   
   public void saveState(Session s) throws Exception {
-    s.saveBool(primal);
+    s.saveObject(faction);
     
     setup    .saveState(s);
     demands  .saveState(s);
@@ -125,7 +126,6 @@ public class Base implements
     
     s.saveObject(ruler      );
     s.saveObject(commandPost);
-    s.saveBool  (isNative   );
     
     relations.saveState(s);
     tactics  .saveState(s);
@@ -156,61 +156,65 @@ public class Base implements
   
   
   private static Base registerBase(
-    Base base, Stage world, String title, Colour colour,
-    Blueprint... canBuild
+    Base base, Stage world, Blueprint... canBuild
   ) {
     if (world.bases().size() >= MAX_BASES) {
       I.complain("\nCANNOT SUPPORT MORE THAN "+MAX_BASES+" BASES!");
       return null;
     }
-    base.title = title;
-    base.colour.set(colour);
     base.setup.setAvailableVenues(canBuild);
     base.baseID = world.bases().size();
-    
     world.registerBase(base, true);
+    
+    if (base.title == null) base.title = base.faction.name;
+    base.colour.set(base.faction.bannerColour());
+    
     if (I.logEvents()) I.say("\nREGISTERING NEW BASE: "+base);
     return base;
   }
   
   
-  public static Base settlement(Stage world, String title, Colour colour) {
-    final Base base = namedBase(world, title);
+  public static Base settlement(
+    Stage world, String customTitle, Faction faction
+  ) {
+    final Base base = namedBase(world, faction.name);
     if (base != null) return base;
     
     final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
-    return registerBase(new Base(world, false), world, title, colour, canBuild);
+    final Base made = registerBase(new Base(world, faction), world, canBuild);
+    if (customTitle != null) made.title = customTitle;
+    return made;
   }
   
   
   public static Base wildlife(Stage world) {
-    Base base = namedBase(world, KEY_WILDLIFE);
+    Base base = namedBase(world, Verse.FACTION_WILDLIFE.name);
     if (base != null) return base;
-    else base = new Base(world, true);
+    else base = new Base(world, Verse.FACTION_WILDLIFE);
     
     final Blueprint canBuild[] = new Blueprint[0];
-    return registerBase(base, world, KEY_WILDLIFE, Colour.LITE_GREEN, canBuild);
+    return registerBase(base, world, canBuild);
   }
   
   
   public static VerminBase vermin(Stage world) {
-    VerminBase base = (VerminBase) namedBase(world, KEY_VERMIN);
+    VerminBase base = (VerminBase) namedBase(world, Verse.FACTION_VERMIN.name);
     if (base != null) return base;
     else base = new VerminBase(world);
     
     final Blueprint canBuild[] = new Blueprint[0];
-    registerBase(base, world, KEY_VERMIN, Colour.LITE_GREY, canBuild);
+    registerBase(base, world, canBuild);
     return base;
   }
   
   
   public static ArtilectBase artilects(Stage world) {
-    ArtilectBase base = (ArtilectBase) namedBase(world, KEY_ARTILECTS);
+    ArtilectBase base = (ArtilectBase) namedBase(world, Verse.FACTION_ARTILECTS.name);
     if (base != null) return base;
     else base = new ArtilectBase(world);
     
     final Blueprint canBuild[] = new Blueprint[0];
-    registerBase(base, world, KEY_ARTILECTS, Colour.LITE_RED, canBuild);
+    registerBase(base, world, canBuild);
     return base;
   }
   
@@ -218,22 +222,18 @@ public class Base implements
   public static Base natives(Stage world, int tribeID) {
     final String title = NativeHut.TRIBE_NAMES[tribeID];
     Base base = namedBase(world, title);
-    if (base != null) return base;
-    else base = new Base(world, true);
     
-    base.isNative = true;
+    if (base != null) return base;
+    else base = new Base(world, Verse.FACTION_NATIVES);
+    
     final Blueprint canBuild[] = NativeHut.VENUE_BLUEPRINTS[tribeID];
-    return registerBase(base, world, title, Colour.LITE_YELLOW, canBuild);
-  }
-  
-  
-  public boolean isNative() {
-    return isNative;
+    base.title = title;
+    return registerBase(base, world, canBuild);
   }
   
   
   public boolean isPrimal() {
-    return primal;
+    return faction.primal();
   }
   
   

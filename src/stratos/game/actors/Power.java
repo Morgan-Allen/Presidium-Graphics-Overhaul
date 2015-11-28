@@ -19,7 +19,18 @@ import static stratos.game.actors.Qualities.*;
 
 //  TODO:  Make this available to actors, once the feedback mechanism is in
 //  place.  (This will most likely require individual instancing.)
-//  TODO:  Merge with Techniques for the purpose.
+
+
+//  TODO:  Round out the list-
+
+//    Remote Viewing. (Reveals map.)
+//    Time Dilation.  (Slows down time & target.)
+//    Foresight.      (Extra save/s.)
+//    Suspension.     (Heals over time.)
+//    Absorption.     (Better defence/stealth.)
+//    Pyrolysis.      (Deals minor DoT.)
+//    Suggestion.     (Open a dialogue.)
+//    Kinesthesia.    (Boost reflex/speed.)
 
 
 public abstract class Power extends Technique {

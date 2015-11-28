@@ -141,7 +141,7 @@ public class BaseCommerce {
   public void updateCommerce(int numUpdates) {
     final boolean report = verbose && BaseUI.current().played() == base;
     if (report && extraVerbose) I.say("\nUpdating commerce for base: "+base);
-    if (base.primal) return;
+    if (base.isPrimal()) return;
     
     //  TODO:  I really want the ability to switch between homeworlds or gain
     //  extra trading partners.

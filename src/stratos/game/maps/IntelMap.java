@@ -77,7 +77,7 @@ public class IntelMap {
   
   
   public FogOverlay fogOver() {
-    if (GameSettings.fogFree || base.primal) return null;
+    if (GameSettings.fogFree || base.isPrimal()) return null;
     return fogOver;
   }
   
@@ -85,21 +85,26 @@ public class IntelMap {
   
   /**  Visual refreshment-
     */
+  private static boolean showNoFog(Base base) {
+    return GameSettings.fogFree || base.isPrimal();
+  }
+  
+  
   public void updateAndRender(float fogTime, Rendering rendering) {
-    if (GameSettings.fogFree || base.primal) return;
+    if (showNoFog(base)) return;
     fogOver.updateVals(fogTime, fogVals);
     fogOver.registerFor(rendering);
   }
   
   
   public float displayFog(Tile t, Object client) {
-    if (GameSettings.fogFree || base.primal) return 1;
+    if (showNoFog(base)) return 1;
     return Nums.clamp(fogOver.sampleAt(t.x, t.y, client), 0, 1);
   }
   
   
   public float displayFog(float x, float y, Object client) {
-    if (GameSettings.fogFree || base.primal) return 1;
+    if (showNoFog(base)) return 1;
     return Nums.clamp(fogOver.sampleAt(x, y, client), 0, 1);
   }
   
@@ -133,32 +138,32 @@ public class IntelMap {
   
   
   public float fogAt(Tile t) {
-    if (GameSettings.fogFree || base.primal) return 1;
+    if (showNoFog(base)) return 1;
     return t == null ? -1 : fogVals[t.x][t.y];
   }
   
   
   public float fogAt(int x, int y) {
-    if (GameSettings.fogFree || base.primal) return 1;
+    if (showNoFog(base)) return 1;
     return fogVals[Nums.clamp(x, world.size)][Nums.clamp(y, world.size)];
   }
   
   
   public float fogAt(Target t) {
-    if (GameSettings.fogFree || base.primal) return 1;
+    if (showNoFog(base)) return 1;
     return fogAt(world.tileAt(t));
   }
   
   
   public int liftFogAround(Target t, float radius) {
-    if (GameSettings.fogFree || base.primal) return (int) radius;
+    if (showNoFog(base)) return (int) radius;
     final Vec3D p = t.position(null);
     return liftFogAround(p.x, p.y, radius);
   }
   
   
   public int liftFogAround(float x, float y, float radius) {
-    if (GameSettings.fogFree || base.primal) return (int) radius;
+    if (showNoFog(base)) return (int) radius;
     //
     //  We record and return the number of new tiles seen-
     final Box2D area = new Box2D().set(
@@ -195,7 +200,7 @@ public class IntelMap {
     Base base, Target client,
     Target centre, float distanceUnit, final float maxDist
   ) {
-    if (GameSettings.fogFree || base.primal) return null;
+    if (showNoFog(base)) return null;
     final boolean report = pickVerbose && I.talkAbout == client;
     if (report) {
       I.say("\nGetting next unexplored area near "+centre);

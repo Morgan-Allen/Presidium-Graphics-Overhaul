@@ -25,7 +25,6 @@ public abstract class ListingPane extends UIGroup {
     content = new UIGroup(UI);
     content.alignToFill();
     content.attachTo(this);
-    refreshListing();
     initForeground();
   }
   
@@ -38,6 +37,8 @@ public abstract class ListingPane extends UIGroup {
       I.say("  Absolute bound: "+absBound);
       I.say("  Final bound:    "+trueBounds());
     }
+    
+    if (listing.empty()) refreshListing();
     
     final float spacing = listSpacing();
     float absDown = 0, relDown = 0;
@@ -68,6 +69,11 @@ public abstract class ListingPane extends UIGroup {
   
   protected List <UINode> listing() {
     return listing;
+  }
+  
+  
+  protected ListingPane before() {
+    return before;
   }
   
   

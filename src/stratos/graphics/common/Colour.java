@@ -37,6 +37,10 @@ public class Colour {
     GREY         = new Colour().set(0.5f, 0.5f, 0.5f, 1),
     LITE_GREY    = new Colour().set(0.8f, 0.8f, 0.8f, 1),
     WHITE        = new Colour().set(1   , 1   , 1   , 1),
+    BROWN        = new Colour().set(0.5f, 0.2f, 0.2f, 1),
+    
+    LITE_BROWN   = new Colour(BROWN  ).blend(WHITE, 0.5f),
+    DARK_BROWN   = new Colour(BROWN  ).blend(BLACK, 0.5f),
     
     SOFT_RED     = new Colour(RED    ).withOpacity(0.5f),
     SOFT_GREEN   = new Colour(GREEN  ).withOpacity(0.5f),

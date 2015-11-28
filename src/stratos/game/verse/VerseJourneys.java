@@ -302,7 +302,7 @@ public class VerseJourneys {
   
   
   private void cycleOffworldPassengers(Journey journey) {
-    final VerseBase base = Verse.baseForLocation(journey.origin, universe);
+    final Demographic base = Verse.baseForLocation(journey.origin, universe);
     final Vehicle transport = journey.transport;
     
     if (transport != null) {
@@ -343,7 +343,7 @@ public class VerseJourneys {
     //  changing the roster due to losses or career changes.
     for (Background b : positions) {
       if (transport.staff().numHired(b) < Visit.countInside(b, positions)) {
-        final Human staff = new Human(new Career(b), transport.base());
+        final Human staff = new Human(new Career(b), transport.base().faction);
         staff.mind.setWork(transport);
         staff.mind.setHome(transport);
       }
@@ -580,7 +580,7 @@ public class VerseJourneys {
     for (Journey j : journeys) {
       reportJourneyState(j, "\n"+j.transport+" is travelling between...");
     }
-    for (VerseBase base : universe.bases) {
+    for (Demographic base : universe.bases) {
       I.say("\n"+base.location+" has the following residents:");
       for (Mobile m : base.expats()) {
         I.say("    "+m);

@@ -11,6 +11,7 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
+import stratos.game.verse.Verse;
 import stratos.graphics.common.Colour;
 import stratos.user.*;
 import stratos.util.*;
@@ -77,7 +78,7 @@ public class DebugMissions extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.settlement(world, "Player Base", Colour.BLUE);
+    return Base.settlement(world, "Player Base", Verse.FACTION_ALTAIR);
   }
   
 

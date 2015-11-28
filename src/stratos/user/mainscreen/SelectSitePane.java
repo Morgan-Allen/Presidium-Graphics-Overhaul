@@ -4,15 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user.mainscreen;
-import stratos.game.common.*;
 import stratos.graphics.widgets.*;
-import stratos.graphics.charts.*;
 import stratos.graphics.common.*;
 import stratos.game.verse.*;
-import stratos.user.*;
 import stratos.util.*;
-import stratos.util.Description.*;
-import static stratos.user.ChartUtils.*;
 
 
 
@@ -22,6 +17,7 @@ import static stratos.user.ChartUtils.*;
 
 public class SelectSitePane extends MenuPane {
   
+  /*
   final static int
     STAGE_PICK_SECTORS   = 0,
     STAGE_CONFIG_LEADER  = 1,
@@ -29,16 +25,16 @@ public class SelectSitePane extends MenuPane {
     STAGE_PICK_COLONISTS = 3;
   
   private int stage = STAGE_PICK_SECTORS;
-  
+  //*/
   
   private UINode forwardButton;
-  
-  private VerseLocation homeworld;
-  private VerseLocation landing;
-  
+  VerseLocation homeworld;
+  VerseLocation landing;
+  /*
   private Actor leader;
   private List <Actor> advisors  = new List();
   private List <Actor> colonists = new List();
+  //*/
   
   
   
@@ -91,14 +87,14 @@ public class SelectSitePane extends MenuPane {
   
   
   protected void updateState() {
+    super.updateState();
+    
     final MainScreen screen = MainScreen.current();
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = false;
     if (landing == null) screen.display.spinAtRate(9, 0);
-    
     forwardButton.hidden = landing == null || homeworld == null;
-    super.updateState();
   }
   
   
@@ -119,7 +115,7 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
-    
+    navigateForward(new SelectCrewPane(UI), true);
   }
 }
 

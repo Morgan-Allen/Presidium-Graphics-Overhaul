@@ -11,7 +11,7 @@ import stratos.util.*;
 
 
 
-public class VerseBase implements Session.Saveable {
+public class Demographic implements Session.Saveable {
   
   
   final Stage world;
@@ -22,14 +22,14 @@ public class VerseBase implements Session.Saveable {
   private float popLevel;
   
   
-  protected VerseBase(Verse universe, VerseLocation location) {
+  protected Demographic(Verse universe, VerseLocation location) {
     this.world    = universe.world;
     this.location = location;
     this.popLevel = location.population;
   }
   
   
-  public VerseBase(Session s) throws Exception {
+  public Demographic(Session s) throws Exception {
     s.cacheInstance(this);
     this.world = s.world();
     this.location = (VerseLocation) s.loadObject();

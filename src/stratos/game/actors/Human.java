@@ -7,6 +7,7 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
@@ -19,7 +20,8 @@ import static stratos.game.actors.Qualities.*;
 //  TODO:  Replace with 'Person' or 'Citizen'?
 
 //  TODO:  You also need to ensure that the media gets updated when an actor
-//         changes job.
+//         changes job!
+
 
 public class Human extends Actor {
   
@@ -55,18 +57,18 @@ public class Human extends Actor {
   
   /**  Field definitions, constructors and save/load methods-
     */
-  final Career career;
+  private Career career;
   
   
   public Human(Background vocation, Base base) {
-    this(new Career(vocation), base);
+    this(new Career(vocation), base.faction);
+    assignBase(base);
   }
   
   
-  public Human(Career career, Base base) {
+  public Human(Career career, Faction faction) {
     this.career = career;
-    assignBase(base);
-    career.applyCareer(this, base);
+    career.applyCareer(this, faction);
     mind.setVocation(career.vocation());
     initSpriteFor(this, this);
   }
@@ -88,13 +90,19 @@ public class Human extends Actor {
   
   protected ActorMind initMind() { return new HumanMind(this); }
   
-  public Career career() { return career; }
-  
-  public Species species() { return SPECIES; }
   
   public void setVocation(Background b) {
     career.recordVocation(b);
   }
+  
+  
+  public void assignCareer(Career c) {
+    this.career = c;
+  }
+  
+  
+  public Career career() { return career; }
+  public Species species() { return SPECIES; }
   
   
   

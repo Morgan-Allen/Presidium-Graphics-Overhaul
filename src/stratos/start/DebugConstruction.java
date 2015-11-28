@@ -11,6 +11,7 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
+import stratos.game.verse.Verse;
 import stratos.graphics.common.Colour;
 import stratos.user.*;
 import static stratos.game.economic.Economy.*;
@@ -62,7 +63,7 @@ public class DebugConstruction extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.settlement(world, "Player Base", Colour.BLUE);
+    return Base.settlement(world, "Player Base", Verse.FACTION_PROCYON);
   }
   
   

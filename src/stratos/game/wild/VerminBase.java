@@ -7,6 +7,7 @@ package stratos.game.wild;
 import stratos.content.civic.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.verse.Verse;
 import stratos.util.*;
 
 
@@ -36,7 +37,7 @@ public class VerminBase extends Base {
   
   
   public VerminBase(Stage world) {
-    super(world, true);
+    super(world, Verse.FACTION_VERMIN);
   }
   
   

@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
-import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.verse.*;
@@ -117,41 +116,30 @@ public class Career {
   /**  Binds this career to a specific in-world actor and configures their
     *  physique, aptitudes and motivations:
     */
-  public void applyCareer(Human actor, Base base) {
+  public void applyCareer(Human actor, Faction faction) {
     if (verbose) I.say("\nGENERATING NEW CAREER");
     subject = actor;
     
-    applyBackgrounds(actor, base);
+    applyBackgrounds(actor, faction);
     applySex(actor);
     setupAttributes(actor);
     fillPersonality(actor);
     
     //
     //  TODO:  Specify a few starter relationships here!  (And vary the base
-    //  relation somewhat.)
-    actor.relations.setRelation(base, 0.5f, 0);
-    float knowFauna   = actor.traits.traitLevel(XENOZOOLOGY );
-    float knowNatives = actor.traits.traitLevel(NATIVE_TABOO);
-    float knowRobots  = actor.traits.traitLevel(ANCIENT_LORE);
+    //  relation somewhat.  Also, consider encoding this data in Backgrounds?)
+    final ActorTraits AT = actor.traits;
+    final float
+      likeFauna = Nums.clamp(AT.traitLevel(XENOZOOLOGY ) / 10, 0, 1),
+      likeNativ = Nums.clamp(AT.traitLevel(NATIVE_TABOO) / 10, 0, 1),
+      likeRobot = Nums.clamp(AT.traitLevel(ANCIENT_LORE) / 10, 0, 1);
+
+    final ActorRelations AR = actor.relations;
+    AR.setRelation(Verse.FACTION_WILDLIFE , likeFauna / 2, 1 - likeFauna);
+    AR.setRelation(Verse.FACTION_NATIVES  , likeNativ / 2, 1 - likeNativ);
+    AR.setRelation(Verse.FACTION_ARTILECTS, likeRobot / 2, 1 - likeRobot);
+    AR.setRelation(faction, 0.5f, 0);
     
-    //  TODO:  KEY THIS OFF A SETTING-BASED FACTION RATHER THAN A LOCAL BASE.
-    for (Base b : base.world.bases()) {
-      if (b.isNative()) {
-        final float like = Nums.clamp(knowNatives / 10, 0, 1);
-        actor.relations.setRelation(b, like / 2, 1 - like);
-      }
-      if (b == Base.wildlife(base.world)) {
-        final float like = Nums.clamp(knowFauna   / 10, 0, 1);
-        actor.relations.setRelation(b, like / 2, 1 - like);
-      }
-      if (b == Base.artilects(base.world)) {
-        final float like = Nums.clamp(knowRobots  / 10, 0, 1);
-        actor.relations.setRelation(b, like / 2, 1 - like);
-      }
-    }
-    
-    
-    //actor.relations.setRelation(other, value, novelty);
     
     //  We top up basic attributes to match.
     actor.traits.initDNA(0);
@@ -187,19 +175,19 @@ public class Career {
   
   /**  Methods for generating an actor's background life-story:
     */
-  private void applyBackgrounds(Human actor, Base base) {
+  private void applyBackgrounds(Human actor, Faction faction) {
     //
     //  If the target vocation is undetermined, we work forward at random from
     //  birth towards a final career stage:
     if (vocation == null) {
-      pickBirthClass(actor, base);
+      pickBirthClass(actor, faction);
       applyBackground(birth, actor);
       
-      pickHomeworld(actor, base);
+      pickHomeworld(actor, faction);
       applyBackground(homeworld, actor);
       applySystem((VerseLocation) homeworld, actor);
       
-      pickVocation(actor, base);
+      pickVocation(actor, faction);
       applyBackground(vocation, actor);
     }
     //
@@ -208,21 +196,21 @@ public class Career {
     else {
       applyBackground(vocation, actor);
       
-      pickHomeworld(actor, base);
+      pickHomeworld(actor, faction);
       applyBackground(homeworld, actor);
       applySystem((VerseLocation) homeworld, actor);
       
-      pickBirthClass(actor, base);
+      pickBirthClass(actor, faction);
       applyBackground(birth, actor);
     }
   }
   
   
-  private void pickBirthClass(Human actor, Base base) {
+  private void pickBirthClass(Human actor, Faction faction) {
     if (birth != null) {
       return;
     }
-    else if (base.isNative()) {
+    else if (faction == Verse.FACTION_NATIVES) {
       birth = Backgrounds.BORN_NATIVE;
     }
     else {
@@ -238,12 +226,12 @@ public class Career {
   }
   
   
-  private void pickHomeworld(Human actor, Base base) {
+  private void pickHomeworld(Human actor, Faction faction) {
     if (homeworld != null) {
       return;
     }
-    else if (base.isNative()) {
-      homeworld = base.world.offworld.localWorld();
+    else if (faction == Verse.FACTION_NATIVES) {
+      homeworld = faction.startSite();
     }
     else {
       //  TODO:  Include some weighting based off house relations!
@@ -258,17 +246,18 @@ public class Career {
   }
   
   
-  private void pickVocation(Human actor, Base base) {
+  private void pickVocation(Human actor, Faction faction) {
     final Pick <Background> pick = new Pick <Background> ();
+    final VerseLocation homeworld = faction.startSite();
     
-    if (base.isNative()) {
+    if (faction == Verse.FACTION_NATIVES || homeworld == null) {
       for (Background b : Backgrounds.NATIVE_CIRCLES) {
         pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num());
       }
     }
     else {
-      for (Background b : base.commerce.homeworld().circles()) {
-        final float weight = base.commerce.homeworld().weightFor(b);
+      for (Background b : homeworld.circles()) {
+        final float weight = homeworld.weightFor(b);
         if (weight <= 0) continue;
         pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num() * weight);
       }
@@ -276,7 +265,7 @@ public class Career {
         final Background b = (Background) Rand.pickFrom(
           Backgrounds.ALL_STANDARD_CIRCLES
         );
-        final float weight = (1 + base.commerce.homeworld().weightFor(b)) / 2;
+        final float weight = (1 + homeworld.weightFor(b)) / 2;
         pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num() * weight);
       }
     }
@@ -497,7 +486,7 @@ public class Career {
       if (n                    == raceID) chance /= 1 - RACE_CLIMATE_CHANCE;
       if (Nums.abs(raceID - n) == 1     ) chance /= 1 - HALF_CLIMATE_CHANCE;
       if (report) {
-        I.say("  Base chance for "+RACIAL_TRAITS[n]+" is: "+chance);
+        I.say("  Faction chance for "+RACIAL_TRAITS[n]+" is: "+chance);
       }
       chance *= Rand.avgNums(2);
       sumChances += chance;

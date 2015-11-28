@@ -124,9 +124,10 @@ public class StartupScenario extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    final Base base = Base.settlement(world, "Player Base", Colour.LITE_BLUE);
-    
     final VerseLocation origin = expedition.origin();
+    final Base base = Base.settlement(
+      world, "Player Base", origin.startingOwner
+    );
     base.finance.setInitialFunding(expedition.funding(), expedition.interest());
     base.research.initKnowledgeFrom(origin);
     base.commerce.assignHomeworld  (origin);

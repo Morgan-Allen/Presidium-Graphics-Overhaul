@@ -86,7 +86,7 @@ public abstract class MenuPane extends ListingPane {
       super(UI);
       
       final Text t = new Text(UI, UIConstants.INFO_FONT);
-      t.append(text);
+      t.append(text, Text.LINK_COLOUR);
       t.scale = scale;
       t.setToLineSize();
 

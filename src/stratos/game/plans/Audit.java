@@ -136,7 +136,7 @@ public class Audit extends Plan {
   
   
   public static boolean payIncomeTax(Actor actor, Venue home) {
-    if (actor.base().primal || actor.mind.vocation().defaultSalary == 0) {
+    if (actor.base().isPrimal() || actor.mind.vocation().defaultSalary == 0) {
       return false;
     }
     

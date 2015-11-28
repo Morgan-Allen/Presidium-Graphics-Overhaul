@@ -49,12 +49,13 @@ public class VerseLocation extends Background {
     NEEDS = new Object();
 
   
-  final public ImageAsset planetImage, houseImage;
+  final public ImageAsset planetImage;
   
   final public VerseLocation belongs;
   final public Trait climate;
   final public int gravity;
-  final public String houseName;
+  
+  final public Faction startingOwner;
   final public Traded goodsMade[], goodsNeeded[];
   final public int population;
   
@@ -67,8 +68,8 @@ public class VerseLocation extends Background {
   
   
   public VerseLocation(
-    Class baseClass, String name, String houseName,
-    ImageAsset planetImage, ImageAsset houseImage,
+    Class baseClass, String name, String imagePath,
+    Faction owner,
     String description,
     Trait climate, int gravity, VerseLocation belongs,
     int population, Object... args
@@ -77,9 +78,12 @@ public class VerseLocation extends Background {
       baseClass, name, description, null, null,
       -1, Backgrounds.NOT_A_GUILD, args
     );
-    this.houseName   = houseName  ;
-    this.planetImage = planetImage == null ? Image.SOLID_WHITE : planetImage;
-    this.houseImage  = houseImage  == null ? Image.SOLID_WHITE : houseImage ;
+    this.planetImage = imagePath == null ?
+      Image.SOLID_WHITE : ImageAsset.fromImage(baseClass, imagePath)
+    ;
+    
+    this.startingOwner = owner;
+    if (owner != null) owner.bindToStartSite(this);
     
     this.belongs = belongs;
     this.climate = climate;

@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.CombatUtils;
+import stratos.game.verse.*;
 import stratos.util.*;
 
 
@@ -34,13 +35,11 @@ public class BaseTactics {
     updatesVerbose = false,
     shortWaiting   = true ,
     extraVerbose   = false;
-  protected static String
-    verboseBase    = Base.KEY_ARTILECTS;
+  protected static Faction
+    verboseBase    = Verse.FACTION_ARTILECTS;
   
   protected boolean shouldReport() {
-    return updatesVerbose && I.matchOrNull(
-      base.title(), verboseBase
-    );
+    return updatesVerbose && I.matchOrNull(base.faction, verboseBase);
   }
   
   

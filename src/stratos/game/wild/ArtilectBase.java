@@ -7,6 +7,7 @@ package stratos.game.wild;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.game.verse.Verse;
 import stratos.game.economic.*;
 import stratos.util.*;
 
@@ -40,7 +41,7 @@ public class ArtilectBase extends Base {
   
   
   public ArtilectBase(Stage world) {
-    super(world, true);
+    super(world, Verse.FACTION_ARTILECTS);
   }
   
   
@@ -105,7 +106,7 @@ public class ArtilectBase extends Base {
       //  the map, increment the 'wakeup' level.
       int numFoes = 0;
       for (Base other : world.bases()) {
-        if (other.primal || base == other) continue;
+        if (other.isPrimal() || base == other) continue;
         base.relations.setRelation(other, -1, false);
         if (world.presences.nearestMatch(other, null, -1) != null) {
           numFoes++;

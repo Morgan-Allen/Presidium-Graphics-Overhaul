@@ -71,7 +71,7 @@ public class DebugCombat extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.settlement(world, "Player Base", Colour.BLUE);
+    return Base.settlement(world, "Player Base", Verse.FACTION_ALTAIR);
   }
   
   
