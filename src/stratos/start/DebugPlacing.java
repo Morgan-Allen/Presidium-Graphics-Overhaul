@@ -199,7 +199,7 @@ public class DebugPlacing extends Scenario {
       final Plan roadBuild = new RoadsRepair(tech, tech.origin());
       roadBuild.addMotives(Plan.MOTIVE_JOB, 100);
       tech.mind.assignBehaviour(roadBuild);
-      UI.selection.pushSelection(tech);
+      Selection.pushSelection(tech, null);
     }
   }
   

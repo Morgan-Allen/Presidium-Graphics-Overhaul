@@ -126,7 +126,7 @@ public class DebugCombat extends Scenario {
     SiteUtils.establishVenue(ruins, 44, 44, true, world);
     artilects.setup.fillVacancies(ruins, true);
     
-    UI.selection.pushSelection(ruins.staff.workers().first());
+    Selection.pushSelection(ruins.staff.workers().first(), null);
   }
   
   
@@ -207,7 +207,7 @@ public class DebugCombat extends Scenario {
       }
       
       base.intelMap.liftFogAround(soldier, 9);
-      UI.selection.pushSelection(soldier);
+      Selection.pushSelection(soldier, null);
     }
     
     if (otherTypes != null) for (Background b : otherTypes) {
@@ -231,7 +231,7 @@ public class DebugCombat extends Scenario {
         final Combat c = new Combat(other, enemy);
         c.addMotives(Plan.NO_PROPERTIES, Plan.PARAMOUNT);
         other.mind.assignBehaviour(c);
-        UI.selection.pushSelection(enemy);
+        Selection.pushSelection(enemy, null);
       }
       else {
         final Combat c = new Combat(enemy, other);
@@ -240,7 +240,7 @@ public class DebugCombat extends Scenario {
         final Retreat r = new Retreat(other, lair);
         r.addMotives(Plan.NO_PROPERTIES, Plan.PARAMOUNT);
         other.mind.assignBehaviour(r);
-        UI.selection.pushSelection(other);
+        Selection.pushSelection(other, null);
       }
     }
   }

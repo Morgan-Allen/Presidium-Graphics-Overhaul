@@ -91,7 +91,7 @@ public class Condensor extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
   

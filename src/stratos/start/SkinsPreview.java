@@ -229,7 +229,7 @@ public class SkinsPreview extends VisualDebug {
     t.setText("Enter File Path: "+currentPath);
     t.append("\n  Last Valid Path: "+lastValidPath);
     t.append(new Description.Link("\n  (clear path)") {
-      public void whenClicked() { currentPath = ""; }
+      public void whenClicked(Object context) { currentPath = ""; }
     });
     
     //
@@ -241,7 +241,7 @@ public class SkinsPreview extends VisualDebug {
         t.append("\n  ");
         final String name = entry.value("name");
         t.append(new Description.Link(name) {
-          public void whenClicked() { switchToEntry(entry); }
+          public void whenClicked(Object context) { switchToEntry(entry); }
         });
       }
     }
@@ -253,7 +253,7 @@ public class SkinsPreview extends VisualDebug {
       if (index == OPTION_COSTS && ! showAsHuman) continue;
       
       t.append(new Description.Link(option) {
-        public void whenClicked() { optionType = index; }
+        public void whenClicked(Object context) { optionType = index; }
       }, (index == optionType) ? Colour.GREEN : Text.LINK_COLOUR);
     }
     //
@@ -264,13 +264,13 @@ public class SkinsPreview extends VisualDebug {
     else if (optionType == OPTION_ANIMS) {
       t.append("\n  ");
       t.append(new Description.Link("(NONE)") {
-        public void whenClicked() { currentAnim = null; }
+        public void whenClicked(Object context) { currentAnim = null; }
       }, (currentAnim == null) ? Colour.GREEN : Text.LINK_COLOUR);
       
       for (final String animName : currentModel.animNames()) {
         t.append("\n  ");
         t.append(new Description.Link(animName) {
-          public void whenClicked() { currentAnim = animName; }
+          public void whenClicked(Object context) { currentAnim = animName; }
         }, (currentAnim == animName) ? Colour.GREEN : Text.LINK_COLOUR);
       }
     }
@@ -294,7 +294,7 @@ public class SkinsPreview extends VisualDebug {
         
         t.append("\n  ");
         t.append(new Description.Link(part) {
-          public void whenClicked() { partsHide[index] = ! hide; }
+          public void whenClicked(Object context) { partsHide[index] = ! hide; }
         }, (! partsHide[index]) ? Colour.GREEN : Text.LINK_COLOUR);
         
         final boolean isBase = part.equals(basePartName);
@@ -308,7 +308,7 @@ public class SkinsPreview extends VisualDebug {
         t.append("\n  ");
         final boolean picked = baseSkin == skin;
         t.append(new Description.Link(skin) {
-          public void whenClicked() { baseSkin = picked ? null : skin; }
+          public void whenClicked(Object context) { baseSkin = picked ? null : skin; }
         }, picked ? Colour.GREEN : Text.LINK_COLOUR);
       }
       t.append("\n\nCostume skins:");
@@ -316,7 +316,7 @@ public class SkinsPreview extends VisualDebug {
         t.append("\n  ");
         final boolean picked = costumeSkin == skin;
         t.append(new Description.Link(skin) {
-          public void whenClicked() { costumeSkin = picked ? null : skin; }
+          public void whenClicked(Object context) { costumeSkin = picked ? null : skin; }
         }, picked ? Colour.GREEN : Text.LINK_COLOUR);
       }
     }
@@ -324,16 +324,16 @@ public class SkinsPreview extends VisualDebug {
     //  
     t.append("\n\nShould loop: ");
     t.append(new Description.Link(shouldLoop ? "TRUE" : "FALSE") {
-      public void whenClicked() { shouldLoop = ! shouldLoop; }
+      public void whenClicked(Object context) { shouldLoop = ! shouldLoop; }
     });
     t.append("\n\nMove mode: ");
     t.append(new Description.Link(inMoveMode() ? "TRUE" : "FALSE") {
-      public void whenClicked() { toggleMoveMode(); }
+      public void whenClicked(Object context) { toggleMoveMode(); }
     });
     t.append(new Description.Link(
       showOrigin ? " (hide origin)" : " (show origin)"
     ) {
-      public void whenClicked() { showOrigin = ! showOrigin; }
+      public void whenClicked(Object context) { showOrigin = ! showOrigin; }
     });
     
     t.append(

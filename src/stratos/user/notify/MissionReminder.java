@@ -33,7 +33,7 @@ public class MissionReminder extends ReminderListing.Entry {
       portrait.texture(), Button.CIRCLE_LIT.asTexture(), m.fullName()
     ) {
       protected void whenClicked() {
-        BUI.selection.pushSelection(m);
+        Selection.pushSelection(m, null);
       }
     };
     button.alignVertical  (0, 0);

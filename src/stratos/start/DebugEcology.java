@@ -100,7 +100,7 @@ public class DebugEcology extends Scenario {
     fauna.relations.assignMaster(meets);
     
     meets.mind.assignBehaviour(Exploring.nextExploration(meets));
-    UI.selection.pushSelection(meets);
+    Selection.pushSelection(meets, null);
     
   }
   
@@ -118,7 +118,7 @@ public class DebugEcology extends Scenario {
     meets.skills.addTechniques(EcologistTechniques.ECOLOGIST_TECHNIQUES);
     meets.enterWorldAt(9, 9, world, true);
     
-    UI.selection.pushSelection(meets);
+    Selection.pushSelection(meets, null);
     
     Venue station = new EcologistRedoubt(base);
     SiteUtils.establishVenue(station, 4, 4, true, world, meets);
@@ -163,7 +163,7 @@ public class DebugEcology extends Scenario {
     float novelty = fauna.relations.noveltyFor(person.base());
     I.say("Base novelty is: "+novelty);
     
-    UI.selection.pushSelection(fauna);
+    Selection.pushSelection(fauna, null);
   }
   
   
@@ -175,7 +175,7 @@ public class DebugEcology extends Scenario {
     lodge.stocks.forceDemand(Economy.PROTEIN, 20, false);
     
     Actor tracks = lodge.staff.workers().last();
-    UI.selection.pushSelection(tracks);
+    Selection.pushSelection(tracks, null);
     
     final Base wildlife = Base.wildlife(world);
     NestUtils.populateFauna(world, Qudu.SPECIES);
@@ -203,7 +203,7 @@ public class DebugEcology extends Scenario {
     prey.health.takeFatigue(prey.health.maxHealth());
     
     hunts.mind.assignBehaviour(Hunting.asFeeding(hunts, prey));
-    UI.selection.pushSelection(hunts);
+    Selection.pushSelection(hunts, null);
   }
   
   

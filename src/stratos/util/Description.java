@@ -26,7 +26,7 @@ public interface Description {
   
   public static interface Clickable {
     String fullName();
-    void whenClicked();
+    void whenClicked(Object context);
   }
   
   

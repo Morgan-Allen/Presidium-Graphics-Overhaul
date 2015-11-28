@@ -14,13 +14,13 @@ import stratos.util.*;
 public interface Selectable extends Description.Clickable, Session.Saveable {
   
   String fullName();
-  Composite portrait(BaseUI UI);
+  Composite portrait(HUD UI);
   String helpInfo();
   String objectCategory();
   Constant infoSubject();
   
-  SelectionPane    configSelectPane   (SelectionPane    pane, BaseUI UI);
-  SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI);
+  SelectionPane    configSelectPane   (SelectionPane    pane, HUD UI);
+  SelectionOptions configSelectOptions(SelectionOptions info, HUD UI);
   
   Target selectionLocksOn();
   void renderSelection(Rendering rendering, boolean hovered);

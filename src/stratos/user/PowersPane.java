@@ -31,7 +31,7 @@ public class PowersPane extends SelectionPane {
   
   
   protected void updateText(
-    BaseUI UI, Text headerText, Text detailText, Text listingText
+    Text headerText, Text detailText, Text listingText
   ) {
     headerText.setText("Powers");
     //  TODO:  You need to be able to avoid specifying a focus from the start
@@ -157,7 +157,7 @@ public class PowersPane extends SelectionPane {
         final BorderedLabel label = new BorderedLabel(UI);
         label.setMessage("", false, 0);
         label.text.append(new Description.Link(option) {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             final Actor caster = UI.played().ruler();
             final PowerTask task = new PowerTask(
               UI, parent.power, option, parent.focus, caster

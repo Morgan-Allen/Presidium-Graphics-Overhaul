@@ -311,7 +311,7 @@ public class BaseAdvice {
     for (final Traded o : shortages) {
       d.append("\n  ");
       d.append(new Description.Link(o.toString()) {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           final MessagePane help = messageForNeed(o, UI, pane);
           UI.setMessagePane(help);
         }
@@ -372,7 +372,7 @@ public class BaseAdvice {
     }
     
     if (before != null) d.append(new Description.Link("\n\n  Back") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         UI.setMessagePane(before);
       }
     });

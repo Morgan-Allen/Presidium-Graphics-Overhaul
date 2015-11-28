@@ -125,7 +125,7 @@ public class Drone extends Artilect {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return null;
   }
 }

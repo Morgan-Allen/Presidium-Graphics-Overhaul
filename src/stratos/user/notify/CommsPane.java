@@ -23,18 +23,20 @@ public class CommsPane extends SelectionPane {
     COMMS_ICON_LIT = Button.CIRCLE_LIT;
   
   
+  final BaseUI BUI;
   final ReminderListing listing;
   
   public CommsPane(BaseUI UI, ReminderListing listing) {
     super(UI, null, null, false);
+    this.BUI = UI;
     this.listing = listing;
   }
   
   
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText, Text listingText
+    Text headerText, Text detailText, Text listingText
   ) {
-    super.updateText(UI, headerText, detailText, listingText);
+    super.updateText(headerText, detailText, listingText);
     headerText.setText("COMMUNICATIONS");
     
     final List <MessagePane> sorting = new List <MessagePane> () {
@@ -48,8 +50,8 @@ public class CommsPane extends SelectionPane {
     for (final MessagePane message : sorting) {
       detailText.append("\n  ");
       detailText.append(new Description.Link(message.title) {
-        public void whenClicked() {
-          UI.setMessagePane(message);
+        public void whenClicked(Object context) {
+          BUI.setMessagePane(message);
         }
       });
       

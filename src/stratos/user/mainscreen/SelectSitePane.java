@@ -85,9 +85,7 @@ public class SelectSitePane extends MenuPane {
     //
     //  And include an option to proceed further...
     listing.add(forwardButton = new TextButton(UI, "Continue", 1) {
-      public void whenClicked() {
-        
-      }
+      protected void whenClicked() { pushNextPane(); }
     });
   }
   
@@ -97,7 +95,6 @@ public class SelectSitePane extends MenuPane {
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = false;
-    screen.helpField.hidden     = false;
     if (landing == null) screen.display.spinAtRate(9, 0);
     
     forwardButton.hidden = landing == null || homeworld == null;
@@ -108,18 +105,21 @@ public class SelectSitePane extends MenuPane {
   private void selectHomeworld(VerseLocation homeworld) {
     final MainScreen screen = MainScreen.current();
     screen.worldsDisplay.setSelection(homeworld);
-    screen.helpField.setText("");
-    screen.helpField.append(homeworld.info, Colour.LITE_GREY);
     this.homeworld = homeworld;
+    homeworld.whenClicked(null);
   }
   
   
   private void selectLanding(VerseLocation landing) {
     final MainScreen screen = MainScreen.current();
     screen.display.setSelection(landing.name, true);
-    screen.helpField.setText("");
-    screen.helpField.append(landing.info, Colour.LITE_GREY);
     this.landing = landing;
+    landing.whenClicked(null);
+  }
+  
+  
+  private void pushNextPane() {
+    
   }
 }
 

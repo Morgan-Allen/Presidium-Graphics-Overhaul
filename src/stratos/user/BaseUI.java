@@ -45,8 +45,8 @@ public class BaseUI extends HUD implements UIConstants {
   private BorderedLabel popup;
   private Quickbar quickbar;
   
-  private UIGroup currentInfo, newInfo;  //  TODO:  Insist on selection-panes?
-  private SelectionOptions currentOptions, newOptions;
+  private UIGroup currentInfo, newInfo;
+  private UIGroup currentOptions, newOptions;
   private MessagePane currentMessage, newMessage;
   private boolean capturePanel = false;
   
@@ -330,9 +330,10 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  public void setOptionsList(SelectionOptions options) {
+  public void setOptionsList(UIGroup options) {
     if (options != currentOptions) {
-      if (currentOptions != null) currentOptions.active = false;
+      //  TODO:  get rid of this once render-to-texture is working...
+      if (currentOptions != null) currentOptions.fadeout = true;
       newOptions = options;
     }
   }
@@ -365,19 +366,13 @@ public class BaseUI extends HUD implements UIConstants {
   }
   
   
-  public SelectionOptions currentOptions() {
+  public UIGroup currentOptions() {
     return newOptions;
   }
   
   
   public MessagePane currentMessage() {
     return newMessage;
-  }
-  
-  
-  public SelectionPane currentSelectionPane() {
-    if (newInfo instanceof SelectionPane) return (SelectionPane) newInfo;
-    return null;
   }
   
   
@@ -398,8 +393,8 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   //  TODO:  get rid of this once render-to-texture is working...
-  public void beginPanelFade() {
-    capturePanel = true;
+  public static void beginPanelFade() {
+    if (current() != null) current().capturePanel = true;
   }
 }
 

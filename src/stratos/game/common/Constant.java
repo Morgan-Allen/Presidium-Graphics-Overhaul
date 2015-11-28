@@ -32,9 +32,6 @@ public abstract class Constant extends Index.Entry implements
   protected void setAsUniqueTo(Class belongs) {
     allConstants.put(OPEN_CHAR+belongs.getName()+SHUT_CHAR, this);
   }
-  
-  
-  public abstract void describeHelp(Description d, Selectable prior);
 
   
   
@@ -45,10 +42,14 @@ public abstract class Constant extends Index.Entry implements
   }
   
   
+  
   /**  Hyperlink support methods-
     */
   final static String OPEN_CAP  = "{", SHUT_CAP  = "}";
   final static char   OPEN_CHAR = '{', SHUT_CHAR = '}';
+  
+  
+  public abstract void describeHelp(Description d, Selectable prior);
   
   
   private boolean validAsString(String asString) {
@@ -80,27 +81,26 @@ public abstract class Constant extends Index.Entry implements
   }
   
   
-  public void whenClicked() {
+  public void whenClicked(Object context) {
     //
     //  By default, we simply create a fresh selection pane and allow
     //  subclasses to fill in a more detailed description.
-    final BaseUI UI = BaseUI.current();
+    final HUD UI = PlayLoop.currentUI();
     if (UI == null) return;
-    final SelectionPane lastPane = UI.currentSelectionPane();
-    final Selectable prior = lastPane == null ? null : lastPane.selected;
     //
     //  (We also include a reference to the subject of the last opened pane (if
     //  any), which can be contextually useful.)
-    final SelectionPane help = new SelectionPane(UI, lastPane, null) {
+    final Selectable prior = Selection.selectionFromContext(context);
+    final SelectionPane help = new SelectionPane(UI) {
       protected void updateText(
-        BaseUI UI, Text headerText, Text detailText, Text listingText
+        Text headerText, Text detailText, Text listingText
       ) {
-        super.updateText(UI, headerText, detailText, listingText);
+        super.updateText(headerText, detailText, listingText);
         headerText.setText(fullName());
         describeHelp(detailText, prior);
       }
     };
-    UI.setInfoPane(help);
+    Selection.pushSelectionPane(help, context);
   }
   
   

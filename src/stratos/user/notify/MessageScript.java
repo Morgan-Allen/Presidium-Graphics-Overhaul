@@ -280,7 +280,7 @@ public class MessageScript implements
           "\n  WARNING: NO TOPIC MATCHING "+linkKey
         );
         else d.append(new Description.Link("\n  "+linkName) {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             if (topic.completes == null && ! topic.completed) {
               if (I.logEvents()) I.say("\nTopic closed: "+topic.titleKey);
               topic.completed = true;

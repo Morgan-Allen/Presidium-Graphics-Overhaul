@@ -7,18 +7,18 @@ package stratos.user.mainscreen;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.graphics.charts.*;
+import stratos.game.verse.*;
 import stratos.start.*;
 import stratos.user.*;
-import stratos.util.*;
 import static stratos.user.ChartUtils.*;
-
-import stratos.game.verse.Verse;
 
 
 
 public class MainScreen extends HUD {
   
   
+  /**  Data fields, construction and setup methods-
+    */
   final static int
     MENU_PANEL_WIDE = UIConstants.INFO_PANEL_WIDE,
     MARGIN          = UIConstants.DEFAULT_MARGIN * 2,
@@ -39,12 +39,20 @@ public class MainScreen extends HUD {
   UIGroup displayArea;
   PlanetDisplay display;
   Carousel worldsDisplay;
-  Text helpField;
+  
+  UIGroup infoArea;
+  private UIGroup currentInfo;
   
   
   
   public MainScreen(Rendering rendering) {
     super(rendering);
+    
+    //  TODO:  Constrain this better!
+    this.infoArea = new UIGroup(this);
+    infoArea.alignVertical  (0, 0);
+    infoArea.alignHorizontal(0, 0);
+    infoArea.attachTo(this);
     
     menuView = new MainMenu(this);
     menuView.alignVertical(MARGIN * 2, MARGIN * 2);
@@ -72,15 +80,12 @@ public class MainScreen extends HUD {
     worldsDisplay.alignTop(MARGIN, CAROUSEL_HIGH);
     worldsDisplay.alignHorizontal(dispInX, dispInX);
     worldsDisplay.attachTo(this);
-    
-    helpField = new Text(this, UIConstants.INFO_FONT);
-    helpField.alignBottom(MARGIN, HELP_FIELD_HIGH);
-    helpField.alignHorizontal(dispInX, dispInX);
-    helpField.scale = 0.75f;
-    helpField.attachTo(this);
   }
   
   
+  
+  /**  Regular queries and updates methods-
+    */
   public static MainScreen current() {
     final HUD current = PlayLoop.currentUI();
     if (current instanceof MainScreen) return (MainScreen) current;
@@ -101,12 +106,33 @@ public class MainScreen extends HUD {
       display.showWeather  = true ;
       display.showLabels   = false;
       worldsDisplay.hidden = true ;
-      helpField.hidden     = true ;
     }
     
     super.updateState();
   }
+  
+  
+  
+  /**  Handling any necessary help-information:
+    */
+  public void setInfoPane(UIGroup info) {
+    if (currentInfo != null) currentInfo.detach();
+    currentInfo = info;
+    if (currentInfo != null) currentInfo.attachTo(infoArea);
+  }
+  
+  
+  public void clearInfoPane() {
+    setInfoPane(null);
+  }
+  
+  
+  public UIGroup currentInfoPane() {
+    return currentInfo;
+  }
 }
+
+
 
 
 

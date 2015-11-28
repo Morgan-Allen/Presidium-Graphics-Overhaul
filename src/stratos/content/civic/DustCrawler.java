@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -132,7 +134,7 @@ public class DustCrawler extends Vehicle {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return null;
   }
   

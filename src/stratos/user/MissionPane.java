@@ -23,14 +23,14 @@ import static stratos.game.base.Mission.*;
 public class MissionPane extends SelectionPane {
   
   
-  final BaseUI UI;
+  final protected Base viewing;
   final protected Mission mission;
   private boolean confirmAbort = false;
   
   
-  public MissionPane(BaseUI UI, Mission selected) {
+  public MissionPane(HUD UI, Mission selected) {
     super(UI, selected, selected.portrait(UI), true);
-    this.UI = UI;
+    this.viewing = BaseUI.currentPlayed();
     this.mission = selected;
   }
 
@@ -41,12 +41,12 @@ public class MissionPane extends SelectionPane {
     //  first-
     final Description d = detail(), l = listing();
     final List <Actor> applied = mission.applicants();
-    boolean canChange = UI.played() == mission.base() && ! mission.hasBegun();
+    boolean canChange = viewing == mission.base() && ! mission.hasBegun();
     //
     //  Then, we fill up the left-hand pane with broad mission parameters and
     //  commands:
-    describeStatus(mission, canChange, UI, d);
-    listApplicants(mission, applied, canChange, UI, l);
+    describeStatus(mission, canChange, d);
+    listApplicants(mission, applied, canChange, l);
     return this;
   }
   
@@ -54,8 +54,8 @@ public class MissionPane extends SelectionPane {
   public SelectionPane configPublicPanel() {
     final Description d = detail(), l = listing();
     
-    describeStatus(mission, false, UI, d);
-    listApplicants(mission, mission.applicants(), false, UI, l);
+    describeStatus(mission, false, d);
+    listApplicants(mission, mission.applicants(), false, l);
     return this;
   }
   
@@ -66,8 +66,7 @@ public class MissionPane extends SelectionPane {
   
   
   protected void describeStatus(
-    final Mission mission, boolean canChange,
-    BaseUI UI, Description d
+    final Mission mission, boolean canChange, Description d
   ) {
     //final Colour FIXED = Colour.LITE_GREY;
     //
@@ -79,7 +78,7 @@ public class MissionPane extends SelectionPane {
     else d.append(""+mission.subject(), Colour.GREY);
     d.append("\n  Status:  "+mission.progressDescriptor());
     
-    if (declares == UI.played()) describeOrders(canChange, d);
+    if (declares == viewing) describeOrders(canChange, d);
     d.append("\n");
     
     //
@@ -96,7 +95,7 @@ public class MissionPane extends SelectionPane {
       d.append("\n  ");
       
       if (canChange) d.append(new Description.Link(TYPE_DESC[newType]) {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           mission.setMissionType(newType);
         }
       }, (active ? Colour.GREEN : Text.LINK_COLOUR));
@@ -115,7 +114,7 @@ public class MissionPane extends SelectionPane {
         ));
         
         if (canAdjust) d.append(new Description.Link("(More)") {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             mission.assignPriority((priority + 1) % LIMIT_PRIORITY);
           }
         });
@@ -134,12 +133,12 @@ public class MissionPane extends SelectionPane {
         Colour.LITE_GREY
       );
       d.append(new Description.Link(" (YES)") {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           mission.endMission(true);
         }
       });
       d.append(new Description.Link(" (NO)") {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           confirmAbort = false;
         }
       });
@@ -151,14 +150,14 @@ public class MissionPane extends SelectionPane {
         mission.rolesApproved() > 0 && canChange && type != TYPE_PUBLIC
       ;
       if (canBegin) d.append(new Description.Link(" (BEGIN)") {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           mission.beginMission();
         }
       });
       else d.append(" (BEGIN)", Colour.GREY);
       
       d.append(new Description.Link(" (ABORT)") {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           if (begun) confirmAbort = true;
           else mission.endMission(false);
         }
@@ -169,17 +168,15 @@ public class MissionPane extends SelectionPane {
   
   protected void listApplicants(
     final Mission mission, List <Actor> applied, boolean canConfirm,
-    BaseUI UI, Description d
+    Description d
   ) {
-    
     if (mission.missionType() == TYPE_MILITARY && canConfirm) {
 
-      final Base  base  = UI.played();
-      final Stage world = base.world;
+      final Stage world = mission.base().world;
       final Batch <Conscription> barracks = new Batch();
       
       for (Target b : world.presences.allMatches(Economy.SERVICE_SECURITY)) {
-        if (b.base() == base && b instanceof Conscription) {
+        if (b.base() == viewing && b instanceof Conscription) {
           barracks.add((Conscription) b);
         }
       }
@@ -228,7 +225,7 @@ public class MissionPane extends SelectionPane {
         if (numA > 0) {
           d.append("\n  ");
           d.append(new Description.Link("(DEPLOY "+numA+"X)") {
-            public void whenClicked() {
+            public void whenClicked(Object context) {
               for (Actor s : available) {
                 b.beginConscription(s, mission);
               }
@@ -265,7 +262,7 @@ public class MissionPane extends SelectionPane {
           d.append(" ");
           final String option = approved ? "(DISMISS)" : "(APPROVE)";
           d.append(new Description.Link(option) {
-            public void whenClicked() {
+            public void whenClicked(Object context) {
               mission.setApprovalFor(a, ! approved);
               if (approved) a.mind.assignMission(null);
             }

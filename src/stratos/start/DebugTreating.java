@@ -94,7 +94,7 @@ public class DebugTreating extends Scenario {
     //  And now, we proceed to do various horrible things to the subject...
     treated.traits.incLevel(Condition.HIREX_PARASITE, 0.99f);
     
-    UI.selection.pushSelection(treats);
+    Selection.pushSelection(treats, null);
   }
   
   
@@ -123,7 +123,7 @@ public class DebugTreating extends Scenario {
     patient.health.setState(ActorHealth.STATE_RESTING);
     
     treats.mind.assignBehaviour(new FirstAid(treats, patient));
-    UI.selection.pushSelection(treats);
+    Selection.pushSelection(treats, null);
   }
   
   
@@ -146,7 +146,7 @@ public class DebugTreating extends Scenario {
     Item bandage = Item.with(FirstAid.TREATMENT, aid, 0.4f, Item.AVG_QUALITY);
     treated.gear.addItem(bandage);
     
-    UI.selection.pushSelection(treated);
+    Selection.pushSelection(treated, null);
   }
   
   

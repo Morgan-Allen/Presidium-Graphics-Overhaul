@@ -99,10 +99,10 @@ public class RosterPane extends SelectionPane {
   
   
   protected void updateText(
-    BaseUI UI, Text headerText, Text detailText, Text listingText
+    Text headerText, Text detailText, Text listingText
   ) {
-    super.updateText(UI, headerText, detailText, listingText);
-    final Base base = UI.played();
+    super.updateText(headerText, detailText, listingText);
+    final Base base = BaseUI.currentPlayed();
     final Description d = detailText;
     
     if (category() == CAT_APPLIES) {

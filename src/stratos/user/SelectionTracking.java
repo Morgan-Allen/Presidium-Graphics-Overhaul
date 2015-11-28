@@ -112,7 +112,7 @@ public class SelectionTracking {
     }
     //
     //  Then clean up after.
-    UI.selection.pushSelection(null);
+    Selection.pushSelection(null, null);
     lockTarget = null;
     view.lookedAt.setTo(nextPos);
   }
@@ -131,7 +131,7 @@ public class SelectionTracking {
     
     if (KeyInput.wasTyped(' ')) {
       final Selectable ruler = UI.played().ruler();
-      if (ruler != null) UI.selection.pushSelection(ruler);
+      if (ruler != null) Selection.pushSelection(ruler, null);
     }
     
     lockX = lockY = 0;

@@ -124,7 +124,7 @@ public class CargoBarge extends Vehicle implements Owner {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return null;
   }
   

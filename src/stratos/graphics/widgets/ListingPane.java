@@ -66,6 +66,11 @@ public abstract class ListingPane extends UIGroup {
   }
   
   
+  protected List <UINode> listing() {
+    return listing;
+  }
+  
+  
   protected void navigateForward(ListingPane next, boolean matchFrame) {
     final UINode parent = parent();
     next.before = this;

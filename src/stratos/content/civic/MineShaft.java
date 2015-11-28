@@ -177,7 +177,7 @@ public class MineShaft extends Fixture implements Boarding {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  FILL THIS IN!
     return null;
   }

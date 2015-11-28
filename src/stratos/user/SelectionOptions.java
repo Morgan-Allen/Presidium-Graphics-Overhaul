@@ -25,10 +25,18 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   
   final BaseUI BUI;
   final Target subject;
-  protected boolean active = true;
   
   
-  public SelectionOptions(BaseUI UI, Target subject) {
+  public static SelectionOptions configOptions(
+    Target subject, SelectionOptions info, HUD UI
+  ) {
+    if (info != null) return info;
+    if (UI != BaseUI.current()) return null;
+    return new SelectionOptions((BaseUI) UI, subject);
+  }
+  
+  
+  private SelectionOptions(BaseUI UI, Target subject) {
     super(UI);
     this.BUI = UI;
     this.subject = subject;
@@ -53,13 +61,13 @@ public class SelectionOptions extends UIGroup implements UIConstants {
       //  If an existing mission matches this one, just select that instead.
       final Mission match = base.matchingMission(mission);
       if (match != null) {
-        BUI.selection.pushSelection(match);
+        Selection.pushSelection(match, null);
         return;
       }
       //
       //  Otherwise, create a new mission for the target.
       base.tactics.addMission(mission);
-      BUI.selection.pushSelection(mission);
+      Selection.pushSelection(mission, null);
     }
   }
   
@@ -157,14 +165,14 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     
     this.alignBottom(0, 0);
     this.alignHorizontal(0.5f, 0, 0);
-    
-    if (active) {
-      this.relAlpha += DEFAULT_FADE_INC;
-      if (relAlpha > 1) relAlpha = 1;
-    }
-    else {
+
+    if (fadeout) {
       this.relAlpha -= DEFAULT_FADE_INC;
       if (relAlpha <= 0) detach();
+    }
+    else {
+      this.relAlpha += DEFAULT_FADE_INC;
+      if (relAlpha > 1) relAlpha = 1;
     }
     
     super.updateState();
@@ -172,7 +180,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   
   
   protected UINode selectionAt(Vector2 mousePos) {
-    if ((! active) || relAlpha < 1) return null;
+    if (fadeout || relAlpha < 1) return null;
     return super.selectionAt(mousePos);
   }
 }

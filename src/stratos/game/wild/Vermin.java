@@ -156,12 +156,12 @@ public abstract class Vermin extends Actor {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return null;
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return ActorDescription.configSimplePanel(this, panel, UI);
   }
 }

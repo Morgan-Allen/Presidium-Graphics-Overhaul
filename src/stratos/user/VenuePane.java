@@ -31,14 +31,14 @@ public class VenuePane extends SelectionPane {
   final public Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
  
   
-  protected VenuePane(BaseUI UI, Venue v, String... categories) {
+  protected VenuePane(HUD UI, Venue v, String... categories) {
     super(UI, v, v.portrait(UI), true, categories);
     this.v = v;
   }
   
   
   public static SelectionPane configStandardPanel(
-    Venue venue, SelectionPane panel, BaseUI UI,
+    Venue venue, SelectionPane panel, HUD UI,
     Traded setStock[], String... cats
   ) {
     if (cats == null || cats.length == 0) cats = DEFAULT_CATS;
@@ -58,7 +58,7 @@ public class VenuePane extends SelectionPane {
   
   public static SelectionPane configSimplePanel(
     Venue venue, SelectionPane panel,
-    BaseUI UI, Traded setStock[], String statusMessage
+    HUD UI, Traded setStock[], String statusMessage
   ) {
     if (panel == null) panel = new VenuePane(
       UI, venue
@@ -82,7 +82,7 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  private void describeCondition(Description d, BaseUI UI) {
+  private void describeCondition(Description d, HUD UI) {
     final Stage world = v.origin().world();
     d.append("Condition and Repair:");
     
@@ -126,7 +126,7 @@ public class VenuePane extends SelectionPane {
     Traded.class, ALL_PROVISIONS, ALL_MATERIALS, ALL_SPECIAL_ITEMS
   );
   
-  protected void describeStocks(Description d, BaseUI UI, Traded setStock[]) {
+  protected void describeStocks(Description d, HUD UI, Traded setStock[]) {
     if (v.stocks.empty() && Visit.empty(setStock)) return;
     
     d.append("Stocks and Provisions:");
@@ -206,7 +206,7 @@ public class VenuePane extends SelectionPane {
       String modeDesc = MODES[mode];
       
       d.append(new Description.Link(modeDesc) {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           int nextMode = (mode + 1) % numModes;
           if (consumer && nextMode == 3 && ! trader) nextMode = 0;
           if (producer && nextMode == 2 && ! trader) nextMode = 3;
@@ -219,7 +219,7 @@ public class VenuePane extends SelectionPane {
       });
       
       if (mode > 1 && setUnit < limit) d.append(new Description.Link(" More") {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           if (mode == 2) v.stocks.forceDemand(type, setUnit + 5, false);
           if (mode == 3) v.stocks.forceDemand(type, setUnit + 5, true );
         }
@@ -245,7 +245,7 @@ public class VenuePane extends SelectionPane {
   
   /**  Describing personnel, visitors and residents-
     */
-  private void describeStaffing(Description d, BaseUI UI) {
+  private void describeStaffing(Description d, HUD UI) {
     final Background c[] = v.careers();
     final Staff s = v.staff();
     if (Visit.empty(c) && s.lodgers().empty() && s.visitors().empty()) {
@@ -303,7 +303,7 @@ public class VenuePane extends SelectionPane {
   }
   
   
-  private void describeOrders(Description d, final BaseUI UI) {
+  private void describeOrders(Description d, final HUD UI) {
     final Base base = v.base();
     final int
       mainLevel = v.structure.mainUpgradeLevel(),
@@ -369,7 +369,7 @@ public class VenuePane extends SelectionPane {
     if (played == v.base()) {
       if (v.structure.needsSalvage()) {
         orderList.add(new Description.Link("Cancel Salvage") {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             v.structure.cancelSalvage();
             if (I.logEvents()) I.say("\nCANCELLED SALVAGE: "+v);
           }
@@ -377,7 +377,7 @@ public class VenuePane extends SelectionPane {
       }
       else {
         orderList.add(new Description.Link("Salvage Structure") {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             v.structure.beginSalvage();
             if (I.logEvents()) I.say("\nBEGAN SALVAGE: "+v);
           }
@@ -391,7 +391,7 @@ public class VenuePane extends SelectionPane {
   /**  Utility methods for actor-description that tend to get re-used
     *  elsewhere...
     */
-  public static void descActor(Mobile m, Description d, BaseUI UI, Venue v) {
+  public static void descActor(Mobile m, Description d, HUD UI, Venue v) {
     
     final Composite p = m.portrait(UI);
     final String ID = ""+m.hashCode();
@@ -425,7 +425,7 @@ public class VenuePane extends SelectionPane {
   
   
   public static void descApplicant(
-    Actor a, final FindWork sought, Description d, BaseUI UI
+    Actor a, final FindWork sought, Description d, HUD UI
   ) {
     final Composite comp = a.portrait(UI);
     if (comp != null) Text.insert(comp.texture(), 40, 40, true, d);
@@ -456,10 +456,10 @@ public class VenuePane extends SelectionPane {
     d.append("\n  ");
     final String hireDesc = "Hire for "+sought.hiringFee()+" credits";
     d.append(new Description.Link(hireDesc) {
-      public void whenClicked() { sought.confirmApplication(); }
+      public void whenClicked(Object context) { sought.confirmApplication(); }
     });
     d.append(new Description.Link("  Dismiss") {
-      public void whenClicked() { sought.cancelApplication(); }
+      public void whenClicked(Object context) { sought.cancelApplication(); }
     });
   }
 }

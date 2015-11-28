@@ -328,12 +328,12 @@ public class Human extends Actor {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return faceComposite(this);
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return ActorDescription.configPanel(this, panel, UI);
   }
 }

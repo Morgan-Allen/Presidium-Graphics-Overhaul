@@ -80,12 +80,16 @@ public class InstallPane extends SelectionPane {
           final BaseUI UI = BaseUI.current();
           UI.beginPanelFade();
           final Category match = categories.get(catName);
-          this.toggled  = ! this.toggled;
-          match.toggled = ! this.toggled;
+          match.toggled = ! match.toggled;
+        }
+        
+        protected boolean toggled() {
+          final Category match = categories.get(catName);
+          return ! match.toggled;
         }
         
         protected String info() {
-          if (toggled) return "Show "+catName+" structures";
+          if (toggled()) return "Show "+catName+" structures";
           else return "Hide "+catName+" structures";
         }
       };
@@ -143,11 +147,11 @@ public class InstallPane extends SelectionPane {
   /**  Regular updates and placement-kickoff:
     */
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText, Text listingText
+    Text headerText, Text detailText, Text listingText
   ) {
     headerText.setText("Install Structures");
     detailText.setText("");
-    final Base base = UI.played();
+    final Base base = BaseUI.currentPlayed();
     
     final List <Blueprint> sorting = new List <Blueprint> () {
       protected float queuePriority(Blueprint r) {

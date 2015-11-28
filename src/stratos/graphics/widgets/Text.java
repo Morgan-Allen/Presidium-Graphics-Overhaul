@@ -340,7 +340,7 @@ public class Text extends UIGroup implements Description {
   
   
   protected void whenLinkClicked(Clickable link) {
-    link.whenClicked();
+    link.whenClicked(this);
   }
   
   

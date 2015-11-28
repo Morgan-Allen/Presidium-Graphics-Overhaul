@@ -10,8 +10,7 @@ import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
-import stratos.graphics.widgets.Composite;
-import stratos.user.*;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
@@ -289,7 +288,7 @@ public class Suspensor extends Mobile implements Mount {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  FILL THIS IN!
     return null;
   }

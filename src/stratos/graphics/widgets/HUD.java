@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
@@ -12,7 +10,6 @@ import stratos.util.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.math.*;
-//import com.badlogic.gdx.graphics.g2d.*;
 
 
 
@@ -21,6 +18,8 @@ import com.badlogic.gdx.math.*;
 public class HUD extends UIGroup {
   
   
+  /**  Data fields, constructors and setup methods-
+    */
   private static boolean
     verbose = false;
   
@@ -57,6 +56,9 @@ public class HUD extends UIGroup {
   }
   
   
+  
+  /**  Regular updates, input records and rendering cycle-
+    */
   public void updateInput() {
     nextMB = Gdx.input.isButtonPressed(Buttons.LEFT);
     nextMP.x = Gdx.input.getX();
@@ -131,12 +133,38 @@ public class HUD extends UIGroup {
   }
   
   
-  
   //  NOTE:  This a placeholder method intended for override by subclasses, and
   //  called by the main PlayLoop.
-  public void renderWorldFX() {}
+  public void renderWorldFX() {
+    return;
+  }
   
   
+  
+  /**  Handling mouse activity-
+    */
+  public Vector2 mousePos() { return mousePos; }
+  public Vector2 dragOrigin() { return dragMP; }
+  
+  public int mouseX() { return (int) mousePos.x; }
+  public int mouseY() { return (int) mousePos.y; }
+  
+  
+  public boolean mouseDown() { return mouseB;  }
+  public boolean mouseClicked() { return isMouseState(CLICKED); }
+  public boolean mouseHovered() { return isMouseState(HOVERED); }
+  public boolean mouseDragged() { return isMouseState(DRAGGED); }
+  public boolean mousePressed() { return isMouseState(PRESSED); }
+
+  
+  public boolean isMouseState(final byte state) {
+    return mouseState == state;
+  }
+  
+  
+  
+  /**  Handling hovers and selections-
+    */
   private boolean selectionMatch(UINode a, UINode b) {
     if (a == b) return true;
     if (a == null && b != null) return false;
@@ -156,26 +184,6 @@ public class HUD extends UIGroup {
   }
   
   
-  
-  public Vector2 mousePos() { return mousePos; }
-  public Vector2 dragOrigin() { return dragMP; }
-  
-  public int mouseX() { return (int) mousePos.x; }
-  public int mouseY() { return (int) mousePos.y; }
-  
-  
-  public boolean mouseDown() { return mouseB;  }
-  public boolean mouseClicked() { return isMouseState(CLICKED); }
-  public boolean mouseHovered() { return isMouseState(HOVERED); }
-  public boolean mouseDragged() { return isMouseState(DRAGGED); }
-  public boolean mousePressed() { return isMouseState(PRESSED); }
-  
-  
-  public boolean isMouseState(final byte state) {
-    return mouseState == state;
-  }
-  
-  
   public UINode selected() {
     return selected;
   }
@@ -184,6 +192,28 @@ public class HUD extends UIGroup {
   public Box2D screenBounds() {
     return bounds;
   }
+  
+  
+  
+  /**  These are some generic stub methods for common-but-not-universal UI
+    *  functions that a particular HUD might or might not use:
+    */
+  public void setInfoPane(UIGroup info) {}
+  public void clearInfoPane() {}
+  public UIGroup currentInfoPane() { return null; }
+  
+  public void setOptionsList(UIGroup options) {}
+  public void clearOptionsList() {}
+  public UIGroup currentOptions() { return null; }
 }
+
+
+
+
+
+
+
+
+
 
 

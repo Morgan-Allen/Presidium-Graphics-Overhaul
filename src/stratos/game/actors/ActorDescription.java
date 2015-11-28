@@ -43,7 +43,7 @@ public class ActorDescription {
   
   
   public static SelectionPane configPanel(
-    Actor human, SelectionPane panel, BaseUI UI
+    Actor human, SelectionPane panel, HUD UI
   ) {
     //  TODO:  Break into Inventory, Skills, Traits and Relations.
     
@@ -304,7 +304,7 @@ public class ActorDescription {
   /**  Abbreviated version for simpler creatures:
     */
   public static SelectionPane configSimplePanel(
-    Actor actor, SelectionPane panel, BaseUI UI
+    Actor actor, SelectionPane panel, HUD UI
   ) {
     if (panel == null) panel = new SelectionPane(
       UI, actor, actor.portrait(UI), false

@@ -119,7 +119,7 @@ public class SolarBank extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     final String status = null;
     return VenuePane.configSimplePanel(this, panel, UI, null, status);
   }

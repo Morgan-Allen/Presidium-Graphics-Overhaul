@@ -101,7 +101,7 @@ public class DebugCommerce extends Scenario {
     depot.stocks.bumpItem(CARBS, 10);
     depot.updateAsScheduled(0, false);
     base.commerce.addCandidate(SUPPLY_CORPS, depot);
-    UI.selection.pushSelection(depot);
+    Selection.pushSelection(depot, null);
     
     final Actor brought = new Human(SURVEYOR, base);
     world.offworld.journeys.addLocalImmigrant(brought, base);
@@ -135,7 +135,7 @@ public class DebugCommerce extends Scenario {
         a.gear.incCredits(2000);
         a.gear.taxDone();
       }
-      if (a.mind.vocation() == TROOPER) UI.selection.pushSelection(a);
+      if (a.mind.vocation() == TROOPER) Selection.pushSelection(a, null);
     }
     
     /*
@@ -223,7 +223,7 @@ public class DebugCommerce extends Scenario {
     //  manufacture of contraband.
     //  TODO:  Consider having a sub-class who provide those services?
     
-    UI.selection.pushSelection(runner);
+    Selection.pushSelection(runner, null);
     //  TODO:  Set up initial relationships...
   }
   
@@ -279,7 +279,7 @@ public class DebugCommerce extends Scenario {
     buys.gear.equipDevice(Item.withQuality(Devices.HALBERD_GUN, 4));
     buys.skills.addTechnique(TrooperTechniques.POWER_ARMOUR_USE);
     
-    UI.selection.pushSelection(buys);
+    Selection.pushSelection(buys, null);
   }
   
   
@@ -300,7 +300,7 @@ public class DebugCommerce extends Scenario {
     exchange.stocks.forceDemand(PLASTICS, 25, false);
     exchange.stocks.forceDemand(CARBS   , 35, false);
     
-    UI.selection.pushSelection(depot);
+    Selection.pushSelection(depot, null);
   }
   
   
@@ -317,7 +317,7 @@ public class DebugCommerce extends Scenario {
     depot.stocks.bumpItem(METALS, 10);
     foundry.stocks.forceDemand(METALS, 3, false);
     
-    UI.selection.pushSelection(foundry);
+    Selection.pushSelection(foundry, null);
     
     for (Actor guy : foundry.staff.workers()) {
       final Bringing d = BringUtils.fillBulkOrder(

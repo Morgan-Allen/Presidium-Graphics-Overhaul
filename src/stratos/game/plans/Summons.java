@@ -295,7 +295,7 @@ public class Summons extends Plan implements Messaging {
       UI, with.portrait(UI), "Audience with "+with, with, this
     );
     panel.assignContent(lead, responses);
-    panel.assignParent(UI.currentSelectionPane());
+    panel.assignParent(Selection.currentSelectionPane());
     return panel;
   }
   
@@ -308,7 +308,7 @@ public class Summons extends Plan implements Messaging {
     //  Ask to join a declared mission.
     if (UI.played().tactics.allMissions().size() > 0) {
       responses.add(new Link("I want you to join a mission.") {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           pushMissionDialogue(UI, with, "What would you ask of me?");
         }
       });
@@ -323,13 +323,13 @@ public class Summons extends Plan implements Messaging {
     //  Offer a gift.
     
     responses.add(new Link("I'd like to offer you a gift.") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         pushGiftDialogue(UI, with, "What do you have in mind?");
       }
     });
     
     responses.add(new Link("I no longer require your services.") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         pushDismissalDialogue(UI, with, "But sir!  I have always been loyal!");
       }
     });
@@ -342,7 +342,7 @@ public class Summons extends Plan implements Messaging {
     //  FUNCTIONS.  IMPLEMENT AS SUCH.
     
     responses.add(new Link("You are dismissed.") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         cancelSummons(with);
       }
     });
@@ -361,7 +361,7 @@ public class Summons extends Plan implements Messaging {
     //  effects!
     
     responses.add(new Link("How about 50 credits?") {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           UI.played().finance.incCredits(-50, BaseFinance.SOURCE_REWARDS);
           with.gear.incCredits(50);
           pushGiftResponse(UI, with, "Thank you, your grace!");
@@ -379,13 +379,13 @@ public class Summons extends Plan implements Messaging {
     final Stack <Link> responses = new Stack <Link> ();
     
     responses.add(new Link("Nonetheless.  Clear out your station.") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         with.mind.setWork(null);
         cancelSummons(with);
       }
     });
     responses.add(new Link("Hmm.  Perhaps I shall reconsider.") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         configDialogueFor(UI, with, true);
       }
     });
@@ -401,7 +401,7 @@ public class Summons extends Plan implements Messaging {
     final MessagePane panel = new MessagePane(
       UI, with.portrait(UI), "Audience with "+with, with, this
     ).assignContent(lead, new Link("Very well, then...") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         configDialogueFor(UI, with, true);
       }
     });
@@ -423,7 +423,7 @@ public class Summons extends Plan implements Messaging {
       final Mission m = (Mission) p.refers();
       
       responses.add(new Link(""+m.toString()) {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           final boolean wouldAccept = m.priorityFor(with) > 0;
           
           if (wouldAccept) {
@@ -442,7 +442,7 @@ public class Summons extends Plan implements Messaging {
     }
     
     responses.add(new Link("Speaking of other business...") {
-      public void whenClicked() {
+      public void whenClicked(Object context) {
         configDialogueFor(UI, with, true);
       }
     });
@@ -457,8 +457,8 @@ public class Summons extends Plan implements Messaging {
   ) {
     final Batch <Link> responses = new Batch();
     responses.add(new Link("Very well, then...") {
-      public void whenClicked() {
-        UI.selection.pushSelection(taken);
+      public void whenClicked(Object context) {
+        Selection.pushSelection(taken, null);
         with.mind.assignMission(taken);
         taken.setApprovalFor(with, true);
       }

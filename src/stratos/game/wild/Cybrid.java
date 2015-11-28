@@ -7,7 +7,6 @@ package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.graphics.widgets.*;
-import stratos.user.BaseUI;
 import stratos.util.Nums;
 import stratos.util.Rand;
 
@@ -101,7 +100,7 @@ public class Cybrid extends Artilect {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return null;
   }
 }

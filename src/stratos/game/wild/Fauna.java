@@ -1021,12 +1021,12 @@ public abstract class Fauna extends Actor implements Mount {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return Composite.withImage(species.portrait, species.name);
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     final SelectionPane p = ActorDescription.configSimplePanel(this, panel, UI);
     //final int BP = (int) (breedMetre * 100);
     //p.detail().append("\n  Breeding condition: "+BP+"%");

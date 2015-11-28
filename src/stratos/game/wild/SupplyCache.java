@@ -1,5 +1,8 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -8,7 +11,7 @@ import stratos.graphics.cutout.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.sfx.TalkFX;
-import stratos.graphics.widgets.Composite;
+import stratos.graphics.widgets.*;
 
 
 
@@ -109,7 +112,7 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   }
   
 
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();
@@ -124,7 +127,7 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   }
 
 
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  Fix this.
     return null;//new Composite(UI);
   }

@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.user;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -19,6 +17,8 @@ import stratos.util.*;
 
 //  TODO:  Create proper, separately-instanced sub-panes for the different
 //         categories...
+
+//  TODO:  Try to adapt this so that it works with any HUD, not just a Base-UI.
 
 
 public class SelectionPane extends UIGroup implements UIConstants {
@@ -56,7 +56,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     PORTRAIT_SIZE  = 80 ;
   
   
-  final protected BaseUI UI;
+  final protected HUD UI;
   final public Selectable selected;
   private SelectionPane previous;
   
@@ -78,9 +78,14 @@ public class SelectionPane extends UIGroup implements UIConstants {
   private Button infoButton ;
   private Button closeButton;
   
-
+  
+  public SelectionPane(HUD UI) {
+    this(UI, null, null);
+  }
+  
+  
   public SelectionPane(
-    BaseUI UI, Selectable selected, Composite portrait,
+    HUD UI, Selectable selected, Composite portrait,
     boolean hasListing, String... categories
   ) {
     this(UI, selected, null, portrait != null, hasListing, 0, categories);
@@ -89,7 +94,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
   
   
   public SelectionPane(
-    final BaseUI UI, SelectionPane previous, Composite portrait
+    final HUD UI, SelectionPane previous, Composite portrait
   ) {
     this(UI, null, previous, portrait != null, false, 0);
     this.portrait = portrait;
@@ -97,13 +102,13 @@ public class SelectionPane extends UIGroup implements UIConstants {
   
   
   public SelectionPane(
-    final BaseUI baseUI,
+    final HUD UI,
     Selectable selected, SelectionPane previous,
     boolean hasPortrait, boolean hasListing, int topPadding,
     String... categories
   ) {
-    super(baseUI);
-    this.UI = baseUI;
+    super(UI);
+    this.UI = UI;
     this.alignVertical(0, PANEL_TABS_HIGH);
     this.alignRight   (0, INFO_PANEL_WIDE);
     
@@ -117,7 +122,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     int down = hasPortrait ? (PORTRAIT_SIZE + MARGIN_SIZE) : 0;
     down += HEADER_HIGH + TP;
     
-    this.border = new Bordering(baseUI, BORDER_TEX);
+    this.border = new Bordering(UI, BORDER_TEX);
     border.left   = 20;
     border.right  = 20;
     border.bottom = 20;
@@ -126,14 +131,14 @@ public class SelectionPane extends UIGroup implements UIConstants {
     border.alignDown  (0, 1);
     border.attachTo(this);
     
-    headerText = new Text(baseUI, BaseUI.INFO_FONT);
+    headerText = new Text(UI, BaseUI.INFO_FONT);
     headerText.alignTop   (TP, HEADER_HIGH);
     headerText.alignAcross(0 , 1          );
     headerText.scale = BIG_FONT_SIZE;
     headerText.attachTo(border.inside);
     
     if (hasPortrait) {
-      portraitFrame = new UINode(baseUI) {
+      portraitFrame = new UINode(UI) {
         protected void render(WidgetsPass batch2d) {
           if (portrait == null) return;
           portrait.drawTo(batch2d, bounds, absAlpha);
@@ -151,10 +156,10 @@ public class SelectionPane extends UIGroup implements UIConstants {
     //
     //  Set up the detail and, if applicable, listing-text widgets, along with
     //  the associated scrollbar-widget at the side:
-    detailText = new Text(baseUI, BaseUI.INFO_FONT) {
+    detailText = new Text(UI, BaseUI.INFO_FONT) {
       protected void whenLinkClicked(Clickable link) {
         super.whenLinkClicked(link);
-        ((BaseUI) UI).beginPanelFade();
+        BaseUI.beginPanelFade();
       }
     };
     detailText.scale = SMALL_FONT_SIZE;
@@ -162,10 +167,10 @@ public class SelectionPane extends UIGroup implements UIConstants {
     Text scrollParent = detailText;
 
     if (hasListing) {
-      listingText = new Text(baseUI, BaseUI.INFO_FONT) {
+      listingText = new Text(UI, BaseUI.INFO_FONT) {
         protected void whenLinkClicked(Clickable link) {
           super.whenLinkClicked(link);
-          ((BaseUI) UI).beginPanelFade();
+          BaseUI.beginPanelFade();
         }
       };
       listingText.alignVertical  (0, CORE_INFO_HIGH + down);
@@ -178,8 +183,8 @@ public class SelectionPane extends UIGroup implements UIConstants {
       scrollParent = listingText;
     }
     else {
-      detailText.alignHorizontal(0, 0);
-      detailText.alignVertical  (0, down          );
+      detailText.alignHorizontal(0, 0   );
+      detailText.alignVertical  (0, down);
       listingText = null;
     }
     
@@ -196,11 +201,14 @@ public class SelectionPane extends UIGroup implements UIConstants {
     categoryID = defaultCategory();
     this.catScrolls = new float[categories == null ? 0 :categories.length];
     
+    //
+    //  This gives generalised information on the current selection and some
+    //  broad navigation directives.
     this.backButton = new Button(
-      baseUI, "back", WIDGET_BACK, WIDGET_BACK_LIT, "Back"
+      UI, "back", WIDGET_BACK, WIDGET_BACK_LIT, "Back"
     ) {
       protected void whenClicked() {
-        baseUI.setInfoPane(pane.previous);
+        Selection.pushSelectionPane(pane.previous, pane.previous.previous);
       }
     };
     backButton.alignTop  ( 0, 24);
@@ -208,26 +216,27 @@ public class SelectionPane extends UIGroup implements UIConstants {
     backButton.attachTo(this);
     
     this.closeButton = new Button(
-      baseUI, "close", WIDGET_CLOSE, WIDGET_CLOSE_LIT, "Close"
+      UI, "close", WIDGET_CLOSE, WIDGET_CLOSE_LIT, "Close"
     ) {
       protected void whenClicked() {
-        if (pane.selected == baseUI.selection.selected()) {
-          baseUI.clearOptionsList();
-          baseUI.selection.pushSelection(null);
+        final Selectable focus = Selection.currentSelection();
+        if (pane.selected == focus && focus != null) {
+          UI.clearOptionsList();
+          Selection.pushSelection(null, null);
         }
-        baseUI.clearInfoPane();
+        UI.clearInfoPane();
       }
     };
     closeButton.alignTop  (-3, 30);
     closeButton.alignRight( 0, 30);
     closeButton.attachTo(this);
-    
+
     this.infoButton = new Button(
-      baseUI, "info", WIDGET_INFO, WIDGET_INFO_LIT, "Info"
+      UI, "info", WIDGET_INFO, WIDGET_INFO_LIT, "Info"
     ) {
       protected void whenClicked() {
         final Constant type = pane.selected.infoSubject();
-        type.whenClicked();
+        type.whenClicked(this);
       }
     };
     infoButton.alignTop  (27, 30);
@@ -268,7 +277,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       this.pane   = pane  ;
     }
 
-    protected void whenClicked() {
+    protected void whenClicked(Object context) {
       if (baseUI.currentInfoPane() == pane) {
         baseUI.clearInfoPane();
       }
@@ -322,9 +331,12 @@ public class SelectionPane extends UIGroup implements UIConstants {
     return categories[Nums.clamp(categoryID, categories.length)];
   }
   
-
+  
   private void setCategory(int catID) {
-    UI.beginPanelFade();
+    
+    //  TODO:  Get rid of the panel-fade call once render-to-texture is in
+    //  place!
+    BaseUI.beginPanelFade();
     
     catScrolls[categoryID] = 1 - scrollbar.scrollPos();
     this.categoryID = catID;
@@ -338,22 +350,18 @@ public class SelectionPane extends UIGroup implements UIConstants {
   /**  Display and updates-
     */
   protected void updateState() {
-    updateText(UI, headerText, detailText, listingText);
+    updateText(headerText, detailText, listingText);
     this.backButton.hidden = previous == null;
+    this.closeButton.hidden = BaseUI.current() == null;
+    this.infoButton.hidden = selected == null || selected.infoSubject() == null;
     
-    if (selected != null) {
-      selected.configSelectPane(this, UI);
-      this.infoButton.hidden = selected.infoSubject() == null;
-    }
-    else {
-      this.infoButton.hidden = true;
-    }
+    if (selected != null) selected.configSelectPane(this, UI);
     super.updateState();
   }
   
   
   protected void updateText(
-    final BaseUI UI, Text headerText, Text detailText, Text listingText
+    Text headerText, Text detailText, Text listingText
   ) {
     if (selected != null) {
       headerText.setText(selected.fullName());
@@ -367,7 +375,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
         final boolean CC = categoryID == i;
         headerText.append(new Text.Clickable() {
           public String fullName() { return ""+categories[index]+" "; }
-          public void whenClicked() { setCategory(index); }
+          public void whenClicked(Object context) { setCategory(index); }
         }, CC ? Colour.GREEN : Text.LINK_COLOUR);
       }
     }

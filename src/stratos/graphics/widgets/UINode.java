@@ -47,6 +47,7 @@ public abstract class UINode {
     absAlpha = 1;
   public boolean
     hidden  = false,
+    fadeout = false,
     stretch = true ;
   
   
@@ -65,10 +66,6 @@ public abstract class UINode {
     return (bounds.contains(mousePos.x, mousePos.y)) ? this : null;
   }
   
-  
-  protected UINode parent() {
-    return parent;
-  }
   
   public String widgetID() { return widgetID; }
   public void setWidgetID(String ID) { this.widgetID = ID; }
@@ -119,6 +116,11 @@ public abstract class UINode {
   
   public boolean attached() {
     return parent != null;
+  }
+  
+  
+  public  UINode parent() {
+    return parent;
   }
   
   

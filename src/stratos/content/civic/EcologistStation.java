@@ -454,7 +454,7 @@ public class EcologistStation extends HarvestVenue {
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return super.configSelectPane(panel, UI);
     //return VenuePane.configSimplePanel(this, panel, UI, null);
   }

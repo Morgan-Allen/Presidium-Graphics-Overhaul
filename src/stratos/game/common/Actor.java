@@ -10,8 +10,9 @@ import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
-import stratos.graphics.cutout.CutoutSprite;
+import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.wild.Species;
@@ -617,9 +618,8 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
-    if (info == null) info = new SelectionOptions(UI, this);
-    return info;
+  public SelectionOptions configSelectOptions(SelectionOptions info, HUD UI) {
+    return SelectionOptions.configOptions(this, info, UI);
   }
 
   
@@ -644,11 +644,6 @@ public abstract class Actor extends Mobile implements
 
   public String toString() {
     return fullName();
-  }
-  
-  
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
   }
   
   

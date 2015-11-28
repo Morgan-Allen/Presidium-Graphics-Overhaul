@@ -47,9 +47,9 @@ public class BudgetsPane extends SelectionPane {
   
   
   protected void updateText(
-    BaseUI UI, Text headerText, Text detailText, Text listingText
+    Text headerText, Text detailText, Text listingText
   ) {
-    super.updateText(UI, headerText, detailText, listingText);
+    super.updateText(headerText, detailText, listingText);
     final Description d = detailText;
     if (category() == CAT_BUDGET) describeFinance(d);
     if (category() == CAT_DEMAND) describeDemands(d);
@@ -57,7 +57,7 @@ public class BudgetsPane extends SelectionPane {
   
   
   protected void describeFinance(Description d) {
-    final Base base = UI.played();
+    final Base base = BaseUI.currentPlayed();
     final BaseFinance BF = base.finance;
     
     d.append("FINANCE REPORT FOR "+base);
@@ -71,7 +71,7 @@ public class BudgetsPane extends SelectionPane {
     d.append("\nShow period: ");
     for (final int period : periods) d.append(
       new Description.Link("\n  Day "+period+" ") {
-        public void whenClicked() { periodShown = period; }
+        public void whenClicked(Object context) { periodShown = period; }
       },
       (period == periodShown ? Colour.GREEN : Text.LINK_COLOUR)
     );
@@ -113,7 +113,7 @@ public class BudgetsPane extends SelectionPane {
   
   
   protected void describeDemands(Description d) {
-    final Base base = UI.played();
+    final Base base = BaseUI.currentPlayed();
     final Verse universe = base.world.offworld;
     final VerseLocation locale = universe.stageLocation();
     final BaseCommerce BC = base.commerce;

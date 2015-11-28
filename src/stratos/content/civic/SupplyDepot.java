@@ -11,9 +11,9 @@ import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.actors.Backgrounds.STOCK_VENDOR;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
@@ -247,7 +247,7 @@ public class SupplyDepot extends Venue {
   }
   
 
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return VenuePane.configStandardPanel(
       this, panel, UI,
       ALL_STOCKED,

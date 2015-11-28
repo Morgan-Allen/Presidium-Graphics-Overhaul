@@ -30,23 +30,23 @@ public class MainMenu extends MenuPane implements UIConstants {
     listing.add(banner);
     
     listing.add(createTextButton("  New Game", 1, new Link() {
-      public void whenClicked() { enterNewGameFlow(); }
+      public void whenClicked(Object context) { enterNewGameFlow(); }
     }));
     
     listing.add(createTextButton("  Tutorial", 1, new Link() {
-      public void whenClicked() { enterTutorial(); }
+      public void whenClicked(Object context) { enterTutorial(); }
     }));
     
     listing.add(createTextButton("  Continue Game", 1, new Link() {
-      public void whenClicked() { enterSavesList(); }
+      public void whenClicked(Object context) { enterSavesList(); }
     }));
     
     listing.add(createTextButton("  Info & Credits", 1, new Link() {
-      public void whenClicked() { enterCredits(); }
+      public void whenClicked(Object context) { enterCredits(); }
     }));
     
     listing.add(createTextButton("  Quit", 1, new Link() {
-      public void whenClicked() { enterQuitFlow(); }
+      public void whenClicked(Object context) { enterQuitFlow(); }
     }));
   }
   
@@ -93,12 +93,12 @@ public class MainMenu extends MenuPane implements UIConstants {
           "Are you sure you want to quit?", 1.2f, null
         ));
         listing.add(createTextButton("  Just quit already", 1, new Link() {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             PlayLoop.exitLoop();
           }
         }));
         listing.add(createTextButton("  Maybe not", 1, new Link() {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             navigateBack();
           }
         }));
@@ -106,8 +106,6 @@ public class MainMenu extends MenuPane implements UIConstants {
     };
     navigateForward(confirmPane, true);
   }
-  
-  
 }
 
 

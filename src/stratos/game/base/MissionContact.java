@@ -163,13 +163,13 @@ public class MissionContact extends Mission {
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new NegotiationPane(UI, this);
     
     final int type = missionType();
     final NegotiationPane NP = (NegotiationPane) panel;
     
-    if (UI.played() == base) {
+    if (BaseUI.currentPlayed() == base) {
       return NP.configOwningPanel();
     }
     else if (allVisible || type == TYPE_PUBLIC) {

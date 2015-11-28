@@ -8,8 +8,8 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.economic.*;
-import stratos.graphics.sfx.PlaneFX;
-import stratos.graphics.sfx.ShotFX;
+import stratos.graphics.sfx.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -554,7 +554,7 @@ public abstract class Artilect extends Actor {
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return ActorDescription.configSimplePanel(this, panel, UI);
   }
   

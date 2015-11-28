@@ -3,14 +3,12 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.plans.*;
 import stratos.graphics.common.*;
-import stratos.graphics.sfx.TalkFX;
+import stratos.graphics.sfx.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -591,7 +589,7 @@ public abstract class Vehicle extends Mobile implements
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new SelectionPane(
       UI, this, portrait(UI), true
     );
@@ -614,9 +612,8 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
-    if (info == null) info = new SelectionOptions(UI, this);
-    return info;
+  public SelectionOptions configSelectOptions(SelectionOptions info, HUD UI) {
+    return SelectionOptions.configOptions(this, info, UI);
   }
   
   
@@ -649,28 +646,8 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Target selectionLocksOn() {
-    return this;
-  }
-  
-
-  public String toString() {
-    return fullName();
-  }
-  
-  
   public String objectCategory() {
-    return Target.TYPE_WIP;
-  }
-  
-  
-  public Constant infoSubject() {
-    return null;
-  }
-  
-  
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
+    return Target.TYPE_VEHICLE;
   }
   
   

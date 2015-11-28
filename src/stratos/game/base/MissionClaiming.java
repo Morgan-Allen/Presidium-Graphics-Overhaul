@@ -7,9 +7,8 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.verse.*;
-import stratos.graphics.common.ImageAsset;
-import stratos.graphics.widgets.Composite;
-import stratos.user.BaseUI;
+import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
@@ -82,12 +81,12 @@ public class MissionClaiming extends Mission {
   
   /**  Rendering and interface methods-
     */
-  protected ImageAsset iconForMission(BaseUI UI) {
+  protected ImageAsset iconForMission(HUD UI) {
     return Mission.CLAIMING_ICON;
   }
   
   
-  protected Composite compositeForSubject(BaseUI UI) {
+  protected Composite compositeForSubject(HUD UI) {
     return null;
     //return Composite.withImage(location.icon, "founding_"+location);
   }

@@ -103,7 +103,7 @@ public class DebugSocial extends Scenario {
     
     final Dialogue d = Dialogue.dialogueFor(a1, a2);
     a1.mind.assignBehaviour(d);
-    UI.selection.pushSelection(a1);
+    Selection.pushSelection(a1, null);
     
     Actor a3 = new Human(Backgrounds.TECHNICIAN, base);
     Actor a4 = new Human(Backgrounds.TECHNICIAN, base);
@@ -118,7 +118,7 @@ public class DebugSocial extends Scenario {
     d2.setTerms(Pledge.giftPledge(gift, a3, a3, a4), null);
     a3.mind.assignBehaviour(d2);
     
-    UI.selection.pushSelection(a3);
+    Selection.pushSelection(a3, null);
     
     //  TODO:  RE-TEST THE ENTIRE GIFT-GETTING ROUTINE, INCLUDING PURCHASES AND
     //  COMMISSIONS.
@@ -148,7 +148,7 @@ public class DebugSocial extends Scenario {
     subject.enterWorldAt(22, 29, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
     subject.health.setState(ActorHealth.STATE_DYING);
-    UI.selection.pushSelection(subject);
+    Selection.pushSelection(subject, null);
     
     final Actor finds = ruins.staff.hiredAs(Tripod.SPECIES).first();
     if (finds != null) finds.goAboard(world.tileAt(20, 25), world);
@@ -198,7 +198,7 @@ public class DebugSocial extends Scenario {
     consort.mind.assignMission(peaceMission);
     peaceMission.setApprovalFor(consort, true);
     peaceMission.beginMission();
-    UI.selection.pushSelection(peaceMission);
+    Selection.pushSelection(peaceMission, null);
   }
   
   
@@ -224,7 +224,7 @@ public class DebugSocial extends Scenario {
     
     final Actor applies = applyFrom.staff.workers().first();
     FindWork.assignAmbition(applies, Backgrounds.ARTIFICER, applyAt, 2);
-    UI.selection.pushSelection(applies);
+    Selection.pushSelection(applies, null);
   }
   
   
@@ -252,7 +252,7 @@ public class DebugSocial extends Scenario {
       Mission.PRIORITY_ROUTINE, Mission.TYPE_SCREENED,
       meets
     );
-    UI.selection.pushSelection(watch);
+    Selection.pushSelection(watch, null);
   }
   
 
@@ -277,7 +277,7 @@ public class DebugSocial extends Scenario {
     SiteUtils.establishVenue(new TrooperLodge(base), start, true, world);
     SiteUtils.establishVenue(new Fabricator  (base), start, true, world);
     SiteUtils.establishVenue(new SupplyDepot (base), start, true, world);
-    UI.selection.pushSelection(tracked);
+    Selection.pushSelection(tracked, null);
   }
   
   

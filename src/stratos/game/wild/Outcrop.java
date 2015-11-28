@@ -238,7 +238,7 @@ public class Outcrop extends Fixture {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  FILL THIS IN!
     return null;
   }

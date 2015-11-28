@@ -739,7 +739,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public String toString() { return description; }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     final String key = getClass().getSimpleName()+"_"+subject.hashCode();
     final Composite cached = Composite.fromCache(key);
     if (cached != null) return cached;
@@ -751,7 +751,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  protected ImageAsset iconForMission(BaseUI UI) {
+  protected ImageAsset iconForMission(HUD UI) {
     final CutoutModel flagModel = positiveModel();
     int flagIndex = Visit.indexOf(flagModel, ALL_MODELS);
     final ImageAsset icon = ALL_ICONS[flagIndex];
@@ -759,7 +759,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  protected Composite compositeForSubject(BaseUI UI) {
+  protected Composite compositeForSubject(HUD UI) {
     if (subject instanceof Selectable) {
       final Selectable s = (Selectable) subject;
       return s.portrait(UI);
@@ -769,17 +769,17 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public SelectionOptions configSelectOptions(
-    SelectionOptions info, BaseUI UI
+    SelectionOptions info, HUD UI
   ) {
     return null;
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new MissionPane(UI, this);
     final MissionPane MP = (MissionPane) panel;
     
-    if (UI.played() == base) {
+    if (BaseUI.currentPlayed() == base) {
       return MP.configOwningPanel();
     }
     else if (allVisible || missionType == TYPE_PUBLIC) {
@@ -798,8 +798,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
+  public void whenClicked(Object context) {
+    Selection.pushSelection(this, context);
   }
   
   
@@ -856,10 +856,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final BaseUI UI = BaseUI.current();
     
     if (visibleTo(UI.played()) && (subject instanceof Selectable)) {
-      UI.selection.pushSelection((Selectable) subject);
+      Selection.pushSelection((Selectable) subject, null);
     }
     else {
-      UI.selection.pushSelection(null);
+      Selection.pushSelection(null, null);
       UI.clearInfoPane();
     }
   }

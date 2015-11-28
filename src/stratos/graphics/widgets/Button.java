@@ -123,6 +123,11 @@ public class Button extends Image {
   }
   
   
+  protected boolean toggled() {
+    return toggled;
+  }
+  
+  
   public void performAction() {
     this.whenClicked();
   }
@@ -130,14 +135,14 @@ public class Button extends Image {
   
   protected void whenClicked() {
     super.whenClicked();
-    if (enabled && links != null) links.whenClicked();
+    if (enabled && links != null) links.whenClicked(this);
   }
   
   
   protected void render(WidgetsPass pass) {
     super.render(pass);
     if (! enabled) return;
-    if (toggled) {
+    if (toggled()) {
       super.renderTex(highlit, absAlpha, pass);
     }
     else if (amPressed() || amDragged() || amClicked()) {

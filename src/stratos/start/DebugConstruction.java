@@ -85,7 +85,7 @@ public class DebugConstruction extends Scenario {
     base.setup.fillVacancies(depot, true);
     
     final Actor tracks = depot.staff.workers().last();
-    UI.selection.pushSelection(tracks);
+    Selection.pushSelection(tracks, null);
     
     final Outcrop boulder = new Outcrop(3, 1, Outcrop.TYPE_MESA);
     boulder.enterWorldAt(13, 13, world, true);

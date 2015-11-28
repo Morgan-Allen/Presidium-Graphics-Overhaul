@@ -105,7 +105,7 @@ public class Nest extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     panel = VenuePane.configSimplePanel(this, panel, UI, null, null);
     //*
     final Description d = panel.detail(), l = panel.listing();

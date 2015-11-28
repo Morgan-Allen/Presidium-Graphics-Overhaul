@@ -65,7 +65,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       OPTIONS_ICON_TEX, OPTIONS_ICON_LIT, "Game Options"
     ) {
       
-      protected void whenClicked() {
+      protected void whenClicked(Object context) {
         if (baseUI.currentInfoPane() == pane) {
           baseUI.clearInfoPane();
           PlayLoop.setPaused(false);
@@ -79,7 +79,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       protected void updateState() {
         super.updateState();
         if (KeyInput.wasTyped(Keys.ESCAPE) && baseUI.currentTask() == null) {
-          whenClicked();
+          whenClicked(null);
         }
         if (KeyInput.wasTyped('f') || KeyInput.wasTyped('F')) {
           PlayLoop.setPaused(! PlayLoop.paused());
@@ -105,14 +105,14 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     text.append("\nScenario Options:");
     
     text.append("\n  ");
-    text.append(new Link("Save and Exit") { public void whenClicked() {
+    text.append(new Link("Save and Exit") { public void whenClicked(Object context) {
       I.say("EXITING GAME...");
       PlayLoop.setPaused(false);
       played.scheduleSaveAndExit();
     }});
     
     text.append("\n  ");
-    text.append(new Link("Save and Resume") { public void whenClicked() {
+    text.append(new Link("Save and Resume") { public void whenClicked(Object context) {
       I.say("SAVING GAME...");
       PlayLoop.setPaused(false);
       played.scheduleSave();
@@ -120,7 +120,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     }});
     
     text.append("\n  ");
-    text.append(new Link("Restart") { public void whenClicked() {
+    text.append(new Link("Restart") { public void whenClicked(Object context) {
       I.say("WILL RESTART...");
       PlayLoop.setPaused(false);
       played.scheduleReset();
@@ -150,7 +150,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       final boolean toggled = Boolean.TRUE.equals(value);
       
       text.append(new Description.Link(""+value) {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           GameSettings.assignOptionValue(! toggled, option);
         }
       });
@@ -172,7 +172,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       else                titlePath = SaveUtils.suffixFor(path);
       
       text.append("\n  ");
-      text.append(new Link(titlePath) { public void whenClicked() {
+      text.append(new Link(titlePath) { public void whenClicked(Object context) {
         SaveUtils.loadGame(path, true);
       }});
     }

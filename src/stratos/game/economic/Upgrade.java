@@ -287,8 +287,8 @@ public class Upgrade extends Constant {
     if (canBuild) {
       int cost = upgrade.buildCost(base);
       if (base.finance.hasCredits(cost)) {
-        linksTo = new Description.Link("") {
-          public void whenClicked() {
+        linksTo = new Description.Link() {
+          public void whenClicked(Object context) {
             PlacingTask.performPlacingTask(upgrade.origin);
           }
         };
@@ -320,7 +320,7 @@ public class Upgrade extends Constant {
       }
       else {
         if (base.finance.hasCredits(cost)) linksTo = new Description.Link("") {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             s.beginUpgrade(upgrade, false);
           }
         };
@@ -345,7 +345,7 @@ public class Upgrade extends Constant {
       }
       else {
         linksTo = new Description.Link(" "+name) {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             upgrade.beginResearch(base);
           }
         };
@@ -388,15 +388,10 @@ public class Upgrade extends Constant {
   }
   
   
-  public void whenClicked() {
-    if (this == origin.baseUpgrade()) origin.whenClicked();
-    else super.whenClicked();
+  public void whenClicked(Object context) {
+    if (this == origin.baseUpgrade()) origin.whenClicked(context);
+    else super.whenClicked(context);
   }
-  
-  
-  
-  /**  Methods related to active use:
-    */
   
   
   
@@ -417,7 +412,7 @@ public class Upgrade extends Constant {
         
         if (upgrade.isBlueprintUpgrade()) {
           d.append("\n\n  ", new Description.Link("Place Prototype") {
-            public void whenClicked() {
+            public void whenClicked(Object context) {
               PlacingTask.performPlacingTask(upgrade.origin);
               UI.clearMessagePane();
             }
@@ -435,9 +430,9 @@ public class Upgrade extends Constant {
           "breakthrough in our research into ", upgrade, "!"
         );
         d.append("\n  ", new Description.Link("View Project") {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             final Mission match = upgrade.researchDone(UI.played());
-            if (match != null) match.whenClicked();
+            if (match != null) match.whenClicked(null);
             UI.clearMessagePane();
           }
         });
@@ -453,9 +448,9 @@ public class Upgrade extends Constant {
           "promising series of experimental results proved to be misleading."
         );
         d.append("\n  ", new Description.Link("View Project") {
-          public void whenClicked() {
+          public void whenClicked(Object context) {
             final Mission match = upgrade.researchDone(UI.played());
-            if (match != null) match.whenClicked();
+            if (match != null) match.whenClicked(null);
             UI.clearMessagePane();
           }
         });

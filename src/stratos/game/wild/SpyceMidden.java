@@ -81,7 +81,7 @@ public class SpyceMidden extends SupplyCache {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  Fix this.
     return null;//new Composite(UI);
   }

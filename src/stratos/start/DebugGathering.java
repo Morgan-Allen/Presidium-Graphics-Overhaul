@@ -146,7 +146,7 @@ public class DebugGathering extends Scenario {
     final Fauna first = (Fauna) n.staff.lodgers().first();
     if (first != null) {
       first.health.setCaloryLevel(0.2f);
-      UI.selection.pushSelection(first);
+      Selection.pushSelection(first, null);
     }
   }
   
@@ -198,7 +198,7 @@ public class DebugGathering extends Scenario {
     dumps.addMotives(Plan.MOTIVE_JOB, 10);
     first.mind.assignBehaviour(dumps);
     
-    UI.selection.pushSelection(first);
+    Selection.pushSelection(first, null);
   }
   
   

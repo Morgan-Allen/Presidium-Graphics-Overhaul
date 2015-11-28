@@ -6,6 +6,7 @@
 package stratos.game.common;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -321,24 +322,23 @@ public abstract class Element implements
   }
   
   
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
+  public void whenClicked(Object context) {
+    Selection.pushSelection(this, context);
   }
   
-
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     panel.detail().append(helpInfo());
     return panel;
   }
   
   
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
-    if (info == null) info = new SelectionOptions(UI, this);
-    return info;
+  public SelectionOptions configSelectOptions(SelectionOptions info, HUD UI) {
+    return SelectionOptions.configOptions(this, info, UI);
   }
-
-
+  
+  
   public Target selectionLocksOn() {
     return this;
   }

@@ -128,7 +128,7 @@ public class NativeHall extends NativeHut implements Performance.Theatre {
   
   /**  Rendering and interface-
     */
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return super.portrait(UI);
   }
 }

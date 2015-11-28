@@ -12,7 +12,7 @@ import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
-import stratos.graphics.widgets.Composite;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
@@ -576,9 +576,14 @@ public abstract class Venue extends Fixture implements
   
   /**  Interface methods-
     */
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     final Traded sets[] = blueprint.tradeServices();
     return VenuePane.configStandardPanel(this, panel, UI, sets);
+  }
+  
+  
+  public SelectionOptions configSelectOptions(SelectionOptions info, HUD UI) {
+    return SelectionOptions.configOptions(this, info, UI);
   }
   
   
@@ -601,7 +606,7 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     if (blueprint.icon == null) return null;
     return Composite.withImage(blueprint.icon, blueprint.keyID);
   }
@@ -835,29 +840,6 @@ public abstract class Venue extends Fixture implements
     label.phrase = this.fullName();
     label.readyFor(rendering);
     label.fontScale = 1.0f;
-  }
-  
-  
-  public String toString() {
-    return fullName();
-  }
-  
-  
-  public void whenClicked() {
-    BaseUI.current().selection.pushSelection(this);
-  }
-  
-  
-  public Target selectionLocksOn() {
-    return this;
-  }
-  
-  
-  public SelectionOptions configSelectOptions(
-    SelectionOptions info, BaseUI UI
-  ) {
-    if (info == null) info = new SelectionOptions(UI, this);
-    return info;
   }
   
   

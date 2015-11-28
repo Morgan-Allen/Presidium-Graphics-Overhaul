@@ -178,7 +178,7 @@ public class Crop extends Flora {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  FILL THIS IN!
     return null;
   }

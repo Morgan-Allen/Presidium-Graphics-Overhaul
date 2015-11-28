@@ -79,6 +79,7 @@ public abstract class MenuPane extends ListingPane {
   protected abstract class TextButton extends UIGroup {
     
     final Bordering around;
+    public boolean toggled = false;
     
     
     public TextButton(HUD UI, String text, float scale) {
@@ -104,13 +105,13 @@ public abstract class MenuPane extends ListingPane {
       return (trueBounds().contains(mousePos.x, mousePos.y)) ? this : null;
     }
     
+
+    protected boolean toggled() {
+      return toggled;
+    }
+    
     
     protected abstract void whenClicked();
-    
-    
-    protected boolean toggled() {
-      return false;
-    }
     
     
     protected void updateState() {
@@ -128,8 +129,15 @@ public abstract class MenuPane extends ListingPane {
     String text, float scale, final Description.Link link
   ) {
     return new TextButton(UI, text, scale) {
+      boolean toggled = false;
+      
       protected void whenClicked() {
-        link.whenClicked();
+        toggled = ! toggled;
+        link.whenClicked(null);
+      }
+      
+      protected boolean toggled() {
+        return toggled;
       }
     };
   }
@@ -145,9 +153,6 @@ public abstract class MenuPane extends ListingPane {
     
     final UIGroup item = new UIGroup(UI);
     item.alignToMatch(t);
-    //final Bordering b = new Bordering(UI, BUTTON_FRAME_TEX);
-    //b.alignToFill();
-    //b.attachTo(item);
     t.alignToFill();
     t.attachTo(item);
     return item;

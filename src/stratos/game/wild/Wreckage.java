@@ -6,7 +6,7 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.Composite;
-import stratos.user.BaseUI;
+import stratos.graphics.widgets.HUD;
 import stratos.util.*;
 
 
@@ -115,7 +115,7 @@ public class Wreckage extends Fixture {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  FILL THIS IN!
     return null;
   }

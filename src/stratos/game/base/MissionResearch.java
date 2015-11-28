@@ -79,12 +79,12 @@ public class MissionResearch extends Mission {
   
   /**  Rendering and interface methods-
     */
-  protected ImageAsset iconForMission(BaseUI UI) {
+  protected ImageAsset iconForMission(HUD UI) {
     return Mission.RESEARCH_ICON;
   }
   
   
-  protected Composite compositeForSubject(BaseUI UI) {
+  protected Composite compositeForSubject(HUD UI) {
     return Composite.withImage(sought.portraitImage(), "research_"+sought);
   }
   

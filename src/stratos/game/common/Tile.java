@@ -399,15 +399,6 @@ public final class Tile implements
   }
   
   
-  public void whenClicked() {
-    //  TODO:  Open a simple display pane to give basic information on the
-    //         habitat type?
-    final BaseUI UI = BaseUI.current();
-    UI.selection.pushSelection(null);
-    UI.tracking.lockOn(this);
-  }
-  
-  
   public String toString() {
     final Habitat h = habitat();
     if (h == null) return "Tile at X"+x+" Y"+y;
@@ -415,13 +406,25 @@ public final class Tile implements
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return null;
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public void whenClicked(Object context) {
+    Selection.pushSelection(this, context);
+  }
+  
+  
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
+    //  TODO:  Open a simple display pane to give basic information on the
+    //         habitat type?
     return null;
+  }
+  
+  
+  public SelectionOptions configSelectOptions(SelectionOptions info, HUD UI) {
+    return SelectionOptions.configOptions(this, info, UI);
   }
   
   
@@ -440,12 +443,6 @@ public final class Tile implements
   public Constant infoSubject() {
     //  TODO:  Add info here!!!
     return null;
-  }
-  
-  
-  public SelectionOptions configSelectOptions(SelectionOptions info, BaseUI UI) {
-    if (info == null) info = new SelectionOptions(UI, this);
-    return info;
   }
   
   

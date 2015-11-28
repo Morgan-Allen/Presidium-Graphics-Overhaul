@@ -6,13 +6,12 @@
 package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.PavingMap;
-import stratos.game.maps.StageTerrain;
-import stratos.game.plans.Mining;
-import stratos.game.wild.Habitat;
+import stratos.game.maps.*;
+import stratos.game.plans.*;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.Composite;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
@@ -151,13 +150,13 @@ public class Tailing extends Element implements Selectable {
   }
 
 
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     //  TODO:  Fill this in.
     return null;
   }
   
 
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new SelectionPane(UI, this, null, true);
     
     final Description d = panel.detail(), l = panel.listing();

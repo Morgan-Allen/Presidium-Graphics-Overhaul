@@ -6,7 +6,7 @@
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.user.*;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
@@ -18,7 +18,7 @@ public class NegotiationPane extends MissionPane {
   final PledgeMenu offers, sought;
   
   
-  public NegotiationPane(BaseUI UI, MissionContact selected) {
+  public NegotiationPane(HUD UI, MissionContact selected) {
     super(UI, selected);
     this.contact = selected;
     
@@ -48,7 +48,7 @@ public class NegotiationPane extends MissionPane {
     }
     
     final boolean canChange = ! mission.hasBegun();
-    super.describeStatus(contact, canChange, UI, d);
+    super.describeStatus(contact, canChange, d);
     super.describeOrders(canChange, d);
     
     offers.made = contact.pledgeOffers();
@@ -58,7 +58,7 @@ public class NegotiationPane extends MissionPane {
     sought.listTermsFor(subject, ruler  , "\n\nTerms Sought: ", l);
     
     l.append("\n\n");
-    super.listApplicants(contact, contact.applicants(), canChange, UI, l);
+    super.listApplicants(contact, contact.applicants(), canChange, l);
     return this;
   }
   
@@ -78,7 +78,7 @@ public class NegotiationPane extends MissionPane {
       //  Clicking on the main terms-descriptor opens a menu to allow you to
       //  select other terms (and closes any other menu open.)
       d.append(new Description.Link(desc) {
-        public void whenClicked() {
+        public void whenClicked(Object context) {
           final boolean willShow = ! showMenu;
           offers.showMenu = sought.showMenu = false;
           showMenu = willShow;
@@ -97,7 +97,7 @@ public class NegotiationPane extends MissionPane {
           for (final Pledge pledge : pledges) {
             d.append("\n    ");
             d.append(new Description.Link(pledge.description()) {
-              public void whenClicked() {
+              public void whenClicked(Object context) {
                 setMade(pledge);
                 showMenu = false;
               }
@@ -114,7 +114,7 @@ public class NegotiationPane extends MissionPane {
             pledges[0].description() : type.name
           ;
           d.append(new Description.Link(typeDesc) {
-            public void whenClicked() {
+            public void whenClicked(Object context) {
               if (pledges.length == 1) {
                 setMade(pledges[0]);
                 showMenu = false;

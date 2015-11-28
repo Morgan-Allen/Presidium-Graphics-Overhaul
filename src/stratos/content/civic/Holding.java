@@ -541,12 +541,12 @@ public class Holding extends Venue {
   }
   
   
-  public Composite portrait(BaseUI UI) {
+  public Composite portrait(HUD UI) {
     return Composite.withImage(ICONS[upgradeLevel], "holding"+upgradeLevel);
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return VenuePane.configSimplePanel(this, panel, UI, null, null);
   }
   

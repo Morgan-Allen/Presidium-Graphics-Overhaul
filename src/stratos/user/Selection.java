@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
@@ -13,9 +12,6 @@ import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
 import stratos.start.PlayLoop;
 import stratos.util.*;
-
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 
 
 
@@ -89,7 +85,7 @@ public class Selection implements UIConstants {
       UI.currentInfoPane() == null &&
       UI.currentOptions() == null
     ) {
-      pushSelection(selected);
+      pushSelection(selected, null);
     }
     //
     //  If a UI element is selected, don't pick anything else-
@@ -133,35 +129,84 @@ public class Selection implements UIConstants {
     }
     
     if (UI.mouseClicked() && UI.currentTask() == null) {
-      pushSelection(hovered);
+      pushSelection(hovered, null);
     }
     I.talkAbout = selected;
     return true;
   }
   
-
-  public void pushSelection(Selectable s) {
+  
+  public static SelectionPane paneFromContext(Object context) {
+    SelectionPane lastPane = null;
+    UINode node = (context instanceof UINode) ? ((UINode) context) : null;
     
-    if (s == null) {
-      selected = null;
-      UI.tracking.lockOn(null);
-      return;
+    while (node != null) if (node instanceof SelectionPane) {
+        lastPane = (SelectionPane) node;
+        break;
+    }
+    else node = node.parent();
+    return lastPane;
+  }
+  
+  
+  public static Selectable selectionFromContext(Object context) {
+    final SelectionPane pane = paneFromContext(context);
+    return pane == null ? null : pane.selected;
+  }
+  
+  
+  public static void pushSelection(Selectable s, Object context) {
+    
+    if (BaseUI.current() != null) {
+      final BaseUI UI = BaseUI.current();
+      final Selection selection = UI.selection;
+      
+      if (s == null) {
+        selection.selected = null;
+        UI.tracking.lockOn(null);
+        return;
+      }
+      selection.selected = s;
+      I.talkAbout = selection.selected;
+      if (! PlayLoop.onMainThread()) return;
+      
+      final Target locks = s.selectionLocksOn();
+      if (locks != null && locks.inWorld()) UI.tracking.lockOn(locks);
+      else UI.tracking.lockOn(null);
     }
     
-    selected = s;
-    I.talkAbout = selected;
-    if (! PlayLoop.onMainThread()) return;
-    
-    final Target locks = s.selectionLocksOn();
-    if (locks != null && locks.inWorld()) UI.tracking.lockOn(locks);
-    else UI.tracking.lockOn(null);
-    
+    final HUD UI = PlayLoop.currentUI();
     final SelectionPane    pane    = s.configSelectPane   (null, UI);
     final SelectionOptions options = s.configSelectOptions(null, UI);
+    
     if (pane != null || options != null) {
+      if (pane != null) pane.setPrevious(paneFromContext(context));
       UI.setInfoPane   (pane   );
       UI.setOptionsList(options);
     }
+  }
+  
+  
+  public static void pushSelectionPane(SelectionPane infoPane, Object context) {
+    final HUD UI = PlayLoop.currentUI();
+    if (UI != null) {
+      infoPane.setPrevious(paneFromContext(context));
+      UI.setInfoPane(infoPane);
+    }
+  }
+  
+  
+  public static Selectable currentSelection() {
+    final BaseUI UI = BaseUI.current();
+    return UI == null ? null : UI.selection.selected;
+  }
+  
+  
+  public static SelectionPane currentSelectionPane() {
+    final HUD UI = PlayLoop.currentUI();
+    final UIGroup pane = UI == null ? null : UI.currentInfoPane();
+    if (! (pane instanceof SelectionPane)) return null;
+    return (SelectionPane) pane;
   }
   
   

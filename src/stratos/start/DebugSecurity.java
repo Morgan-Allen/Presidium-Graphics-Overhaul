@@ -123,7 +123,7 @@ public class DebugSecurity extends Scenario {
     ));
     //*/
     
-    UI.selection.pushSelection(enemy);
+    Selection.pushSelection(enemy, null);
   }
   
   
@@ -161,7 +161,7 @@ public class DebugSecurity extends Scenario {
     ecologist.mind.assignBehaviour(breeding);
     //*/
     
-    UI.selection.pushSelection(ecologist);
+    Selection.pushSelection(ecologist, null);
   }
   
   
@@ -190,7 +190,7 @@ public class DebugSecurity extends Scenario {
     
     final Arrest arrests = new Arrest(enforcer, runner);
     enforcer.mind.assignBehaviour(arrests);
-    UI.selection.pushSelection(enforcer);
+    Selection.pushSelection(enforcer, null);
   }
   
   
@@ -213,9 +213,9 @@ public class DebugSecurity extends Scenario {
     final Base artilects = Base.artilects(world);
     final Actor threat = new Tripod(artilects);
     threat.enterWorldAt(world.tileAt(8, 6), world);
-    //UI.selection.pushSelection(threat, true);
+    //Selection.pushSelection(threat, true);
     
-    UI.selection.pushSelection(soldier);
+    Selection.pushSelection(soldier, null);
   }
   
   
@@ -240,7 +240,7 @@ public class DebugSecurity extends Scenario {
     artilects.setup.doPlacementsFor(ruins);
     artilects.setup.fillVacancies(ruins, true);
     
-    UI.selection.pushSelection(ruins.staff.workers().first());
+    Selection.pushSelection(ruins.staff.workers().first(), null);
   }
   
   

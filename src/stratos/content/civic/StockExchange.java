@@ -312,7 +312,7 @@ public class StockExchange extends Venue {
   }
   
   
-  public SelectionPane configSelectPane(SelectionPane panel, BaseUI UI) {
+  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     return VenuePane.configStandardPanel(this, panel, UI, DISPLAYED_GOODS);
   }
   
