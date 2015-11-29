@@ -38,7 +38,7 @@ public class EngineerStation extends Venue {
     4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 5,
     PLASTICS, PARTS, CIRCUITRY,
     Devices.AMMO_CLIPS, Outfits.POWER_CELLS,
-    SERVICE_ARMAMENT, TECHNICIAN, ARTIFICER
+    SERVICE_ARMAMENT, TECHNICIAN, ENGINEER
   );
   
   
@@ -195,7 +195,7 @@ public class EngineerStation extends Venue {
       choice.add(mO.setBonusFrom(this, true, forType));
     }
     final Plan crafting = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
-    if (actor.mind.vocation() == ARTIFICER && crafting != null) {
+    if (actor.mind.vocation() == ENGINEER && crafting != null) {
       return crafting;
     }
     //
@@ -272,7 +272,7 @@ public class EngineerStation extends Venue {
   public int numPositions(Background v) {
     final int level = structure.mainUpgradeLevel();
     if (v == TECHNICIAN) return level + 1;
-    if (v == ARTIFICER ) return level;
+    if (v == ENGINEER ) return level;
     return 0;
   }
   

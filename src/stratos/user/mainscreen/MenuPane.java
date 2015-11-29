@@ -149,13 +149,20 @@ public abstract class MenuPane extends ListingPane {
     final Text t = new Text(UI, UIConstants.INFO_FONT);
     t.append(text, c == null ? Colour.WHITE : c);
     t.scale = scale;
-    t.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
     
     final UIGroup item = new UIGroup(UI);
+    t.attachTo(item);
+    updateTextItem(item, text, c);
+    return item;
+  }
+  
+  
+  protected void updateTextItem(UINode item, String text, Colour c) {
+    final Text t = (Text) ((UIGroup) item).kids().first();
+    t.setText(text);
+    t.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
     item.alignToMatch(t);
     t.alignToFill();
-    t.attachTo(item);
-    return item;
   }
   
   

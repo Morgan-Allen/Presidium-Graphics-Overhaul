@@ -7,18 +7,29 @@ package stratos.game.verse;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.util.*;
+import static stratos.game.actors.Backgrounds.*;
+
 
 
 
 public class Expedition implements Session.Saveable {
   
   
-  VerseLocation origin      = Verse.PLANET_ASRA_NOVI;
-  VerseLocation destination = Verse.SECTOR_ELYSIUM  ;
+  final static Background BASIC_BACKGROUNDS[] = {
+    TROOPER  , RUNNER  , ECOLOGIST,
+    PHYSICIAN, ENGINEER, AUDITOR
+  };
+  
+  
+  VerseLocation origin      = Verse.DEFAULT_HOMEWORLD     ;
+  VerseLocation destination = Verse.DEFAULT_START_LOCATION;
+  
   int funding   ;
   int estateSize;
   int interest  ;
   
+  Table <Background, Integer> positions = new Table();
+  List <Actor> applicants = new List();
   Actor leader = null;
   List <Actor> advisors  = new List();
   List <Actor> colonists = new List();

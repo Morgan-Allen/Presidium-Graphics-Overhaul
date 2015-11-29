@@ -223,7 +223,7 @@ public class DebugSocial extends Scenario {
     SiteUtils.establishVenue(powers, 9, 4, true, world);
     
     final Actor applies = applyFrom.staff.workers().first();
-    FindWork.assignAmbition(applies, Backgrounds.ARTIFICER, applyAt, 2);
+    FindWork.assignAmbition(applies, Backgrounds.ENGINEER, applyAt, 2);
     Selection.pushSelection(applies, null);
   }
   

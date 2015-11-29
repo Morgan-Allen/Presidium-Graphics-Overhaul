@@ -215,11 +215,19 @@ public class List <T> extends ListEntry <T> implements Series <T> {
   }
   
   
-  /**  Discards the given element from the list if present- if included more than
-    *  once, only the first is returned.
+  /**  Discards the given element from the list if present- if included more
+    *  than once, only the first is returned.
     */
   final public void remove(final T r) {
     removeEntry(match(r));
+  }
+  
+  
+  /**  Toggles membership in this list.
+    */
+  final public void toggleMember(final T r, boolean is) {
+    if (is) include(r);
+    else remove(r);
   }
   
   

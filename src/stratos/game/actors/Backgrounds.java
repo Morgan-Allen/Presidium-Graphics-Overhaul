@@ -165,10 +165,10 @@ public interface Backgrounds {
       LIFTER_FRAME, MANIPULATOR
     ),
     
-    ARTIFICER = new Background(
+    ENGINEER = new Background(
       Backgrounds.class,
-      "Artificer",
-      "Artificers are highly educated as physicists and engineers, and can "+
+      "Engineer",
+      "Engineers are highly educated as physicists and artificers, and can "+
       "tackle commissions reliant on dangerous or arcane technologies.",
       "artificer_skin.gif", "artificer_portrait.png",
       CLASS_AGENT, GUILD_ARTIFICER,
@@ -178,7 +178,7 @@ public interface Backgrounds {
       LIFTER_FRAME, MANIPULATOR
     ),
     
-    ARTIFICER_CIRCLES[] = { EXCAVATOR, TECHNICIAN, CORE_TECHNICIAN, ARTIFICER }
+    ARTIFICER_CIRCLES[] = { EXCAVATOR, TECHNICIAN, CORE_TECHNICIAN, ENGINEER }
   ;
 
   final public static Background
@@ -600,7 +600,7 @@ public interface Backgrounds {
       CLASS_STRATOI, NOT_A_GUILD,
       MASTER, HAND_TO_HAND, EXPERT, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
-      SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
+      SOMETIMES, GIFTED, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
       SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
@@ -619,7 +619,7 @@ public interface Backgrounds {
       CLASS_STRATOI, NOT_A_GUILD,
       MASTER, HAND_TO_HAND, EXPERT, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
-      SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
+      SOMETIMES, GIFTED, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
       SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");
@@ -638,7 +638,7 @@ public interface Backgrounds {
       CLASS_STRATOI, NOT_A_GUILD,
       MASTER, HAND_TO_HAND, EXPERT, BATTLE_TACTICS, NOBLE_ETIQUETTE,
       PRACTICED, ACCOUNTING, SUGGESTION, PREMONITION,
-      SOMETIMES, PSYONIC, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
+      SOMETIMES, GIFTED, SOLITARY, OFTEN, AMBITIOUS, RARELY, NERVOUS,
       SIDE_SABRE, BELT_AND_BRACER
     ) {
       final ImageAsset female_skin = costumeFor("highborn_male_skin.gif");

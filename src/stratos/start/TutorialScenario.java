@@ -442,9 +442,9 @@ public class TutorialScenario extends StartupScenario {
       final Actor applies = Backgrounds.TROOPER.sampleFor(base);
       base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
     }
-    while (base.commerce.numCandidates(Backgrounds.ARTIFICER) < 1) {
-      final Actor applies = Backgrounds.ARTIFICER.sampleFor(base);
-      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.ARTIFICER);
+    while (base.commerce.numCandidates(Backgrounds.ENGINEER) < 1) {
+      final Actor applies = Backgrounds.ENGINEER.sampleFor(base);
+      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.ENGINEER);
     }
     
     ScreenPing.addPingFor(UIConstants.ROSTER_BUTTON_ID);
@@ -455,7 +455,7 @@ public class TutorialScenario extends StartupScenario {
     if (barracksBuilt == null || foundryBuilt == null) return false;
     return
       barracksBuilt.staff.numHired(Backgrounds.TROOPER  ) >= 3 &&
-      foundryBuilt .staff.numHired(Backgrounds.ARTIFICER) >= 2;
+      foundryBuilt .staff.numHired(Backgrounds.ENGINEER) >= 2;
   }
   
   

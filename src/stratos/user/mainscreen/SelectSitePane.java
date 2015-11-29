@@ -115,31 +115,9 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
-    navigateForward(new SelectCrewPane(UI), true);
+    navigateForward(new SelectTraitsPane(UI), true);
   }
 }
-
-
-
-  /*
-  public static class Config {
-    //  TODO:  Just pick House, Province, Options.  And a few perks.
-    
-    public Background house ;
-    public Background gender;
-    public List <Trait    > chosenTraits = new List <Trait    > ();
-    public List <Skill    > chosenSkills = new List <Skill    > ();
-    public List <Technique> chosenTechs  = new List <Technique> ();
-    
-    public List  <Background> advisors = new List  <Background> ();
-    public Tally <Background> crew     = new Tally <Background> ();
-    public Tally <Blueprint > built    = new Tally <Blueprint > ();
-    public VerseLocation demesne;
-    public int siteLevel, fundsLevel, titleLevel;
-  }
-  
-  final Config config;
-  //*/
   
   
   

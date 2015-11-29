@@ -188,7 +188,7 @@ final public class Qualities {
   
   
   //  TODO:  I think only about half of these are needed.
-  public static Trait
+  final public static Trait
     DEFENSIVE  = new Trait(BC, "Defensive", PERSONALITY, "Defensive"),
     CRITICAL   = new Trait(BC, "Critical", PERSONALITY, "Critical"),
     NERVOUS    = new Trait(BC, "Nervous", PERSONALITY, "Nervous"),
@@ -313,8 +313,8 @@ final public class Qualities {
       "Nominal Mutation",
       null
     ),
-    PSYONIC = new Trait(BC, "Psyonic", CATEGORIC,
-      "Psyon"
+    GIFTED = new Trait(BC, "Gifted", CATEGORIC,
+      "Gifted"
     ),
     RACIAL_TRAITS[] = {
       DESERT_BLOOD, FOREST_BLOOD, TUNDRA_BLOOD, WASTES_BLOOD

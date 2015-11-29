@@ -202,7 +202,7 @@ public class BaseAdvice {
       }
       if (! hasFood) numNoFood++;
       
-      if (job == TECHNICIAN || job == ARTIFICER         ) needsTechs = false;
+      if (job == TECHNICIAN || job == ENGINEER         ) needsTechs = false;
       if (job == AUDITOR || job == MINISTER_FOR_ACCOUNTS) needsAdmin = false;
       
       /*
