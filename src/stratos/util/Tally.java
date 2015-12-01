@@ -63,6 +63,15 @@ public class Tally <K> {
   }
   
   
+  public float total() {
+    float total = 0;
+    for (Map.Entry <K, Float> e : store.entrySet()) {
+      total += e.getValue();
+    }
+    return total;
+  }
+  
+  
   public int size() {
     return store.size();
   }

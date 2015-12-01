@@ -79,14 +79,19 @@ public abstract class MenuPane extends ListingPane {
   protected abstract class TextButton extends UIGroup {
     
     final Bordering around;
+    final String text;
+    final Text label;
+    
+    public boolean enabled = true ;
     public boolean toggled = false;
     
     
     public TextButton(HUD UI, String text, float scale) {
       super(UI);
       
-      final Text t = new Text(UI, UIConstants.INFO_FONT);
-      t.append(text, Text.LINK_COLOUR);
+      this.text = text;
+      final Text t = label = new Text(UI, UIConstants.INFO_FONT);
+      t.append(text);
       t.scale = scale;
       t.setToLineSize();
 
@@ -102,12 +107,17 @@ public abstract class MenuPane extends ListingPane {
     
     
     protected UINode selectionAt(Vector2 mousePos) {
+      if (! enabled()) return null;
       return (trueBounds().contains(mousePos.x, mousePos.y)) ? this : null;
     }
     
 
     protected boolean toggled() {
       return toggled;
+    }
+    
+    protected boolean enabled() {
+      return enabled;
     }
     
     
@@ -118,7 +128,11 @@ public abstract class MenuPane extends ListingPane {
       if      (toggled()  ) around.relAlpha = 1.0f;
       else if (amHovered()) around.relAlpha = 0.5f;
       else                  around.relAlpha = 0.0f;
-      around.hidden = around.relAlpha == 0;
+      around.hidden =       around.relAlpha == 0  ;
+      
+      label.setText("");
+      if (enabled()) label.append(text, Text.LINK_COLOUR);
+      else           label.append(text, Colour.LITE_GREY);
       
       super.updateState();
     }
@@ -129,15 +143,8 @@ public abstract class MenuPane extends ListingPane {
     String text, float scale, final Description.Link link
   ) {
     return new TextButton(UI, text, scale) {
-      boolean toggled = false;
-      
       protected void whenClicked() {
-        toggled = ! toggled;
         link.whenClicked(null);
-      }
-      
-      protected boolean toggled() {
-        return toggled;
       }
     };
   }
@@ -158,6 +165,7 @@ public abstract class MenuPane extends ListingPane {
   
   
   protected void updateTextItem(UINode item, String text, Colour c) {
+    if (item == null) return;
     final Text t = (Text) ((UIGroup) item).kids().first();
     t.setText(text);
     t.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);

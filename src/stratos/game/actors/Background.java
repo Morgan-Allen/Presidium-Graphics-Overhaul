@@ -7,6 +7,7 @@
 
 package stratos.game.actors;
 import stratos.game.common.*;
+import stratos.game.verse.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.user.*;
@@ -166,8 +167,8 @@ public class Background extends Constant {
   }
   
   
-  public Actor freeSample() {
-    return sampleFor(null);
+  public Actor sampleFor(Faction faction) {
+    return new Human(new Career(this), faction);
   }
   
   

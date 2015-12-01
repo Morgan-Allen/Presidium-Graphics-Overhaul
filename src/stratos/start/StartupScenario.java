@@ -20,66 +20,10 @@ import stratos.graphics.common.*;
 
 public class StartupScenario extends Scenario {
   
-  
-  final public static int
-    MAX_SKILLS    = 3,
-    MAX_TRAITS    = 2,
-    MAX_POWERS    = 3,
-    MAX_ADVISORS  = 2,
-    MAX_COLONISTS = 9,
-    MAX_PERKS     = 3;
-  final public static Background ADVISOR_BACKGROUNDS[] = {
-    Backgrounds.FIRST_CONSORT,
-    Backgrounds.MINISTER_FOR_ACCOUNTS,
-    Backgrounds.WAR_MASTER
-  };
-  final public static Background COLONIST_BACKGROUNDS[] = {
-    Backgrounds.VOLUNTEER,
-    Backgrounds.SUPPLY_CORPS,
-    Backgrounds.FABRICATOR,
-    Backgrounds.TECHNICIAN,
-    Backgrounds.CULTIVATOR,
-    Backgrounds.MINDER
-  };
-  final public static String
-    SITE_DESC[] = {
-      "Wasteland (Ancient Robot Guardians)",
-      "Infested (Insect Vermin & Ravenous Plants)",
-      "Wilderness (Territorial Animals)",
-      "Settled (Just Folks)"
-    },
-    FUNDING_DESC[] = {
-      "Minimal  (7500  Credits, 3% interest)",
-      "Standard (10000 Credits, 2% interest)",
-      "Generous (12500 Credits, 1% interest)"
-    },
-    TITLE_MALE[] = {
-      "Knighted Lord (Small Estate)",
-      "Count (Typical Estate)",
-      "Baron (Large Estate)"
-    },
-    TITLE_FEMALE[] = {
-      "Knighted Lady (Small Estate)",
-      "Countess (Typical Estate)",
-      "Baroness (Large Estate)"
-    };
+
   final public static int
     MAP_SIZES [] = { 128, 128, 128 },
-    WALL_SIZES[] = { 16, 20, 24 },
-    
-    SITE_WASTELAND  = 0,
-    SITE_INFESTED   = 1,
-    SITE_WILDERNESS = 2,
-    SITE_SETTLED    = 3,
-    
-    FUNDING_MINIMAL  = 0,
-    FUNDING_STANDARD = 1,
-    FUNDING_GENEROUS = 2,
-    
-    TITLE_KNIGHTED = 0,
-    TITLE_COUNT    = 1,
-    TITLE_BARON    = 2;
-  
+    WALL_SIZES[] = { 16, 20, 24 };
   
   private Expedition expedition;
   

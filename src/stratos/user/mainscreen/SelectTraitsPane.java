@@ -17,8 +17,18 @@ import static stratos.game.actors.Backgrounds.*;
 
 
 
-//  TODO:  Use a shared Expedition reference to maintain persistent data.  And
-//  create a UI for that which is displayed by default!
+//  TODO:  The leader needs to actually have their traits/powers (and portrait)
+//         updated when those qualities are toggled on/off.
+
+//  TODO:  Either all state-variables should be derived from the expedition, or
+//         it should be wiped when you navigate back (otherwise the local
+//         records de-sync.)
+
+//  TODO:  Consider allowing at least *some* customisation of the site, funding
+//         and title, etc.  Another pane might be in order.
+
+//  TODO:  Consider listing applicants in a horizontal layout above the
+//         sector-display (i.e, instead of the homeworld-selection.)
 
 
 public class SelectTraitsPane extends MenuPane {
@@ -29,44 +39,52 @@ public class SelectTraitsPane extends MenuPane {
     MAX_POWERS = 2;
   
   
-  UINode traitHeader, powerHeader;
+  private UINode
+    traitHeader,
+    powerHeader,
+    advisHeader,
+    colonHeader;
   
-  Stage landing;
-  Base base;
+  final Expedition expedition;
   
-  Human leader;
   Background gender;
   List <Trait> traitsPicked = new List();
   List <Technique> powersPicked = new List();
+  List <Background> advisorTypes = new List();
+  Tally <Background> colonistNumbers = new Tally();
   
   
   
-  public SelectTraitsPane(HUD UI) {
+  public SelectTraitsPane(HUD UI, Expedition expedition) {
     super(UI, MainScreen.MENU_NEW_GAME_CREW);
+    this.expedition = expedition;
+    initLeader();
   }
   
   
   private void initLeader() {
-    SelectSitePane oldPane = (SelectSitePane) before();
-    if (oldPane == null) return;
-    
     if (gender == null) gender = Rand.yes() ? BORN_MALE : BORN_FEMALE;
-    final Faction f = oldPane.homeworld.startingOwner;
-    final Career c = new Career(KNIGHTED, BORN_HIGH, oldPane.homeworld, gender);
     
-    if (leader == null) leader = new Human(c, f);
+    final VerseLocation home = expedition.origin();
+    final Career c = new Career(KNIGHTED, BORN_HIGH, home, gender);
+    Human leader = (Human) expedition.leader();
+    
+    if (leader == null) leader = new Human(c, home.startingOwner);
     else leader.assignCareer(c);
+    
+    expedition.assignLeader(leader);
+    Selection.pushSelectionPane(new ExpeditionPane(UI, expedition), null);
   }
   
   
   protected void fillListing(List <UINode> listing) {
-    if (leader == null) initLeader();
-
+    
     listing.add(traitHeader = createTextItem("Traits", 1.2f, null));
     for (final Trait trait : SELECT_TRAITS) {
-      listing.add(new TextButton(UI, "  "+trait.name, 1) {
+      listing.add(new TextButton(UI, "  "+trait.name, 0.75f) {
         protected void whenClicked() { toggleTrait(trait); }
         protected boolean toggled() { return traitsPicked.includes(trait); }
+        protected boolean enabled() { return canToggle(trait); }
       });
     }
     
@@ -74,7 +92,7 @@ public class SelectTraitsPane extends MenuPane {
     float space = 1f / SELECT_GENDERS.length;
     int gI = 0;
     for (final Background g : SELECT_GENDERS) {
-      final TextButton option = new TextButton(UI, "  "+g.name, 1) {
+      final TextButton option = new TextButton(UI, "  "+g.name, 0.75f) {
         protected void whenClicked() { setGender(g); }
         protected boolean toggled() { return gender == g; }
       };
@@ -82,32 +100,78 @@ public class SelectTraitsPane extends MenuPane {
       option.alignAcross(space * gI, space * ++gI);
       option.attachTo(sexSwitch);
     }
-    sexSwitch.alignTop(0, 20);
+    sexSwitch.alignTop(0, 15);
     listing.add(sexSwitch);
-    
     listing.add(createTextItem(
       "Traits define some of the key strengths and weaknesses of your main "+
       "character.", 0.75f, Colour.LITE_GREY
     ));
     
     listing.add(powerHeader = createTextItem("Powers", 1.2f, null));
-    final Power powers[] = {
-      Power.REMOTE_VIEWING,
-      Power.FORESIGHT,
-      Power.SUSPENSION,
-      Power.KINESTHESIA
-    };
-    for (final Power power : powers) {
-      listing.add(new TextButton(UI, "  "+power.name, 1) {
+    for (final Power power : SELECT_POWERS) {
+      listing.add(new TextButton(UI, "  "+power.name, 0.75f) {
         protected void whenClicked() { togglePower(power); }
         protected boolean toggled() { return powersPicked.includes(power); }
+        protected boolean enabled() { return canToggle(power); }
       });
     }
-
     listing.add(createTextItem(
       "Psi Powers allow you to intervene in conflicts remotely, and can be "+
       "learned from Schools.", 0.75f, Colour.LITE_GREY
     ));
+    
+    listing.add(advisHeader = createTextItem("Advisors", 1.2f, null));
+    for (final Background b : Expedition.ADVISOR_BACKGROUNDS) {
+      listing.add(new TextButton(UI, "  "+b.name, 0.75f) {
+        protected void whenClicked() { toggleAdvisor(b); }
+        protected boolean toggled() { return advisorTypes.includes(b); }
+        protected boolean enabled() { return canToggleAdvisor(b); }
+      });
+    }
+    listing.add(createTextItem(
+      "Advisors are particularly skilled or talented individuals who can be "+
+      "sent on crucial missions or perform administrative duties.",
+      0.75f, Colour.LITE_GREY
+    ));
+    
+    listing.add(colonHeader = createTextItem("Colonists", 1.2f, null));
+    for (final Background b : Expedition.COLONIST_BACKGROUNDS) {
+      
+      final UIGroup counter = new UIGroup(UI);
+      final Text label = new Text(UI, UIConstants.INFO_FONT);
+      label.scale = 0.75f;
+      label.setText(b.name);
+      label.setToLineSize();
+      label.alignAcross(0, 0.5f);
+      label.attachTo(counter);
+      
+      TextButton plus = new TextButton(UI, " + ", 1) {
+        protected void whenClicked() { incColonists(b, 1); }
+        protected boolean enabled() { return canIncColonists(b, 1); }
+      };
+      plus.alignAcross(0.5f, 0.65f);
+      plus.attachTo(counter);
+      
+      TextButton minus = new TextButton(UI, " - ", 1) {
+        protected void whenClicked() { incColonists(b, -1); }
+        protected boolean enabled() { return canIncColonists(b, -1); }
+      };
+      minus.alignAcross(0.65f, 0.8f);
+      minus.attachTo(counter);
+      
+      counter.alignTop(0, 15);
+      listing.add(counter);
+    }
+    listing.add(createTextItem(
+      "Colonists provide the backbone of your workforce, giving you a "+
+      "headstart in establishing defences or trade.",
+      0.75f, Colour.LITE_GREY
+    ));
+    
+    listing.add(new TextButton(UI, "  Continue", 1) {
+      protected void whenClicked() { pushNextPane(); }
+      protected boolean enabled() { return canProgress(); }
+    });
   }
   
   
@@ -116,6 +180,19 @@ public class SelectTraitsPane extends MenuPane {
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = true ;
+
+    
+    int numT = traitsPicked.size(), maxT = MAX_TRAITS;
+    updateTextItem(traitHeader, "Traits ("+numT+"/"+maxT+")", null);
+    
+    int numP = powersPicked.size(), maxP = maxPowers();
+    updateTextItem(powerHeader, "Powers ("+numP+"/"+maxP+")", null);
+    
+    int numA = advisorTypes.size(), maxA = maxAdvisors();
+    updateTextItem(advisHeader, "Advisors ("+numA+"/"+maxA+")", null);
+    
+    int numC = (int) colonistNumbers.total(), maxC = maxColonists();
+    updateTextItem(colonHeader, "Colonists ("+numC+"/"+maxC+")", null);
     
     super.updateState();
   }
@@ -139,7 +216,7 @@ public class SelectTraitsPane extends MenuPane {
     "+5 to "+MARKSMANSHIP+", "+COMMAND+" and "+HAND_TO_HAND+".",
     
     "Grants the "+WORD_OF_HONOUR+" technique.  Improves relations with other "+
-    "noble houses.  +5 to "+ANCIENT_LORE+" and "+NOBLE_ETIQUETTE+".",
+    "Noble Houses.  +5 to "+ANCIENT_LORE+" and "+NOBLE_ETIQUETTE+".",
     
     "Grants an additional starting Psi Power.  Improves concentration (which "+
     "reduces Powers' cooldown.)"
@@ -149,131 +226,135 @@ public class SelectTraitsPane extends MenuPane {
     BORN_MALE
   };
   
+  
   private void toggleTrait(Trait trait) {
-    traitsPicked.toggleMember(trait, traitsPicked.includes(trait));
-    //trait.whenClicked(null);
-    
-    int num = traitsPicked.size(), max = MAX_TRAITS;
-    updateTextItem(traitHeader, "Traits ("+num+"/"+max+")", null);
+    traitsPicked.toggleMember(trait, ! traitsPicked.includes(trait));
+    updateHelp(trait);
+  }
+  
+  
+  private boolean canToggle(Trait trait) {
+    if (powersPicked.size() > MAX_POWERS && trait == GIFTED) return false;
+    if (traitsPicked.includes(trait)) return true;
+    else return traitsPicked.size() < maxTraits();
+  }
+  
+  
+  private int maxTraits() {
+    return MAX_TRAITS;
   }
   
   
   private void setGender(Background gender) {
     this.gender = gender;
-    //gender.whenClicked(null);
-  }
-  
-  
-  private void updateActorTraits() {
-    //leader.traits.clearAll();
+    updateHelp(gender);
   }
   
   
   
   /**  Handling power selection-
     */
+  final static Power SELECT_POWERS[] = {
+    Power.REMOTE_VIEWING,
+    Power.FORESIGHT,
+    Power.SUSPENSION,
+    Power.KINESTHESIA
+  };
+  
   private void togglePower(Power power) {
     powersPicked.toggleMember(power, ! powersPicked.includes(power));
-    //power.whenClicked(null);
-    
-    int num = powersPicked.size(), max = MAX_POWERS;
-    if (traitsPicked.includes(GIFTED)) max += 1;
-    updateTextItem(powerHeader, "Powers ("+num+"/"+max+")", null);
+    updateHelp(power);
   }
   
   
+  private boolean canToggle(Power power) {
+    if (powersPicked.includes(power)) return true;
+    else return powersPicked.size() < maxPowers();
+  }
+  
+  
+  private int maxPowers() {
+    if (traitsPicked.includes(GIFTED)) return MAX_POWERS + 1;
+    else return MAX_POWERS;
+  }
+  
+  
+  
+  /**  Handling advisor selection-
+    */
+  private void toggleAdvisor(Background b) {
+    final boolean is = ! advisorTypes.includes(b);
+    advisorTypes.toggleMember(b, is);
+    
+    if (is) expedition.addAdvisor(b);
+    else for (Actor a : expedition.colonists()) if (a.mind.vocation() == b) {
+      expedition.removeMigrant(a);
+    }
+  }
+  
+  
+  private boolean canToggleAdvisor(Background b) {
+    if (advisorTypes.includes(b)) return true;
+    return advisorTypes.size() < maxAdvisors();
+  }
+  
+  
+  private int maxAdvisors() {
+    return Expedition.MAX_ADVISORS;
+  }
+  
+  
+  
+  /**  Handling colonist selection-
+    */
+  private void incColonists(Background b, int inc) {
+    colonistNumbers.add(inc, b);
+    
+    int numB = 0, allowed = (int) colonistNumbers.valueFor(b);
+    for (Actor a : expedition.colonists()) if (a.mind.vocation() == b) {
+      if (++numB > allowed) expedition.removeMigrant(a);
+    }
+    while (allowed > numB++) expedition.addColonist(b);
+  }
+  
+  
+  private boolean canIncColonists(Background b, int inc) {
+    if (inc > 0) return colonistNumbers.total() < maxColonists();
+    else return colonistNumbers.valueFor(b) > 0;
+  }
+  
+  
+  private int maxColonists() {
+    return Expedition.MAX_COLONISTS;
+  }
+  
+  
+  
+  /**  Other navigation tasks.
+    */
+  private boolean canProgress() {
+    if (powersPicked.size() != maxPowers()) return false;
+    if (traitsPicked.size() != maxTraits()) return false;
+    if (advisorTypes.size() != maxAdvisors()) return false;
+    if (colonistNumbers.total() != maxColonists()) return false;
+    return true;
+  }
+  
+  
+  private void updateHelp(Constant c) {
+    //helpField.setText("");
+    //c.describeHelp(helpField, null);
+    //helpField.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
+  }
+  
+  
+  private void pushNextPane() {
+    ///navigateForward(new SelectCrewPane(UI), true);
+  }
   
   
 }
 
-
-
-  /*
-  public void configForNew(Object args[]) {
-    if (this.config == null) this.config = new Expedition();
-    text.setText("");
-    text.append("Ruler Settings:\n");
-    //
-    //  TODO:  Give an accompanying description of the House in question, using
-    //  a preview image and side-text.
-    text.append("\n  House:");
-    I.say("  HOUSE IS: "+config.house);
-    
-    final VerseLocation START_HOUSES[] = {
-      Verse.PLANET_ASRA_NOVI,
-      Verse.PLANET_AXIS_NOVENA,
-      Verse.PLANET_HALIBAN,
-      Verse.PLANET_PAREM_V
-    };
-    if (config.house == null) {
-      config.house = (VerseLocation) Rand.pickFrom(START_HOUSES);
-    }
-    
-    for (Background b : START_HOUSES) {
-      final VerseLocation s = (VerseLocation) b;
-      final Colour c = config.house == s ? Colour.CYAN : null;
-      Call.add("\n    "+s.houseName, c, this, "setHouse", text, s);
-    }
-    
-    text.append("\n  Starting Skills: ");
-    text.append("("+config.chosenSkills.size()+"/"+MAX_SKILLS+")");
-    for (Skill s : Backgrounds.KNIGHTED.skills()) {
-      if (Backgrounds.KNIGHTED.skillLevel(s) <= 5) continue;
-      final Colour c = config.chosenSkills.includes(s) ? Colour.CYAN : null;
-      Call.add("\n    "+s.name, c, this, "toggleSkill", text, s);
-    }
-    
-    text.append("\n  Starting Powers: ");
-    text.append("("+config.chosenTechs.size()+"/"+MAX_POWERS+")");
-    for (Power p : Power.BASIC_POWERS) {
-      final Colour c = config.chosenTechs.includes(p) ? Colour.CYAN : null;
-      Call.add("\n    "+p.name, c, this, "togglePower", text, p);
-    }
-    
-    text.append("\n  Favoured traits: ");
-    text.append("("+config.chosenTraits.size()+"/"+MAX_TRAITS+")");
-    for (Trait t : Backgrounds.KNIGHTED.traits()) {
-      final float l = Backgrounds.KNIGHTED.traitChance(t);
-      final String name = Trait.descriptionFor(t, l);
-      final Colour c = config.chosenTraits.includes(t) ? Colour.CYAN : null;
-      Call.add("\n    "+name, c, this, "toggleTrait", text, t);
-    }
-    
-    text.append("\n    ");
-    if (config.gender == null) config.gender = BORN_FEMALE;
-    Call.add(
-      "Male", (config.gender == BORN_MALE) ? Colour.CYAN : null,
-      this, "setGender", text, true
-    );
-    text.append(" | ");
-    Call.add(
-      "Female", (config.gender == BORN_FEMALE) ? Colour.CYAN : null,
-      this, "setGender", text, false
-    );
-    //
-    //  Only allow continuation once all sections are filled-
-    String complaint = null;
-    if      (config.chosenSkills.size() < MAX_SKILLS) {
-      complaint = "Please select "+MAX_SKILLS+" skills";
-    }
-    else if (config.chosenTraits.size() < MAX_TRAITS) {
-      complaint = "Please select "+MAX_TRAITS+" traits";
-    }
-    else if (config.chosenTechs.size() < MAX_POWERS) {
-      complaint = "Please select "+MAX_POWERS+" powers";
-    }
-    if (complaint == null) {
-      text.append("\n\n  Sections complete!");
-      Call.add("\n    Continue", this, "configForLanding", text, true);
-    }
-    else {
-      text.append("\n\n  "+complaint, Colour.LITE_GREY);
-      text.append("\n    Continue", Colour.LITE_GREY);
-    }
-    Call.add("\n\n  Go Back", this, "configMainText", text);
-  }
-
-//*/
 
 
 

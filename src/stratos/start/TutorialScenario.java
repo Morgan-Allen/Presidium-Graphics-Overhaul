@@ -140,7 +140,8 @@ public class TutorialScenario extends StartupScenario {
   private static Expedition expedition() {
     return new Expedition().configFrom(
       Verse.PLANET_PAREM_V, Verse.SECTOR_TERRA,
-      new Batch <Actor> (), 8000, TITLE_COUNT
+      Verse.PLANET_PAREM_V.startingOwner, 8000, Expedition.TITLE_COUNT,
+      new Batch <Actor> ()
     );
   }
   

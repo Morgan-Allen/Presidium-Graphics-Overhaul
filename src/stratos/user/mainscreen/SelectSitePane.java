@@ -11,40 +11,19 @@ import stratos.util.*;
 
 
 
-//  TODO:  Just use a Text for now.  Don't bother with interior listings, or
-//         headers and footers.
-
-
 public class SelectSitePane extends MenuPane {
   
-  /*
-  final static int
-    STAGE_PICK_SECTORS   = 0,
-    STAGE_CONFIG_LEADER  = 1,
-    STAGE_PICK_HOUSEHOLD = 2,
-    STAGE_PICK_COLONISTS = 3;
   
-  private int stage = STAGE_PICK_SECTORS;
-  //*/
-  
-  private UINode forwardButton;
-  VerseLocation homeworld;
-  VerseLocation landing;
-  /*
-  private Actor leader;
-  private List <Actor> advisors  = new List();
-  private List <Actor> colonists = new List();
-  //*/
-  
+  final Expedition expedition;
   
   
   public SelectSitePane(HUD UI) {
     super(UI, MainScreen.MENU_NEW_GAME_SITE);
+    expedition = new Expedition();
   }
   
   
   protected void fillListing(List <UINode> listing) {
-    final SelectSitePane pane = this;
     //
     //  Pick a homeworld first.
     listing.add(createTextItem("Homeworld:", 1.2f, null));
@@ -53,7 +32,7 @@ public class SelectSitePane extends MenuPane {
     for (final VerseLocation homeworld : homeworlds) {
       listing.add(new TextButton(UI, "  "+homeworld.name, 1) {
         protected void whenClicked() { selectHomeworld(homeworld); }
-        protected boolean toggled() { return pane.homeworld == homeworld; }
+        protected boolean toggled() { return hasHomeworld(homeworld); }
       });
     }
     listing.add(createTextItem(
@@ -69,7 +48,7 @@ public class SelectSitePane extends MenuPane {
     for (final VerseLocation landing : landings) {
       listing.add(new TextButton(UI, "  "+landing.name, 1) {
         public void whenClicked() { selectLanding(landing); }
-        protected boolean toggled() { return pane.landing == landing; }
+        protected boolean toggled() { return hasLanding(landing); }
       });
     }
     listing.add(createTextItem(
@@ -80,8 +59,9 @@ public class SelectSitePane extends MenuPane {
     
     //
     //  And include an option to proceed further...
-    listing.add(forwardButton = new TextButton(UI, "Continue", 1) {
+    listing.add(new TextButton(UI, "  Continue", 1) {
       protected void whenClicked() { pushNextPane(); }
+      protected boolean enabled() { return canProgress(); }
     });
   }
   
@@ -93,29 +73,48 @@ public class SelectSitePane extends MenuPane {
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = false;
-    if (landing == null) screen.display.spinAtRate(9, 0);
-    forwardButton.hidden = landing == null || homeworld == null;
+    if (expedition.destination() == null) screen.display.spinAtRate(9, 0);
   }
+  
+  
   
   
   private void selectHomeworld(VerseLocation homeworld) {
     final MainScreen screen = MainScreen.current();
     screen.worldsDisplay.setSelection(homeworld);
-    this.homeworld = homeworld;
+    expedition.setOrigin(homeworld, homeworld.startingOwner);
     homeworld.whenClicked(null);
+  }
+  
+  
+  private boolean hasHomeworld(VerseLocation world) {
+    return expedition.origin() == world;
   }
   
   
   private void selectLanding(VerseLocation landing) {
     final MainScreen screen = MainScreen.current();
     screen.display.setSelection(landing.name, true);
-    this.landing = landing;
+    expedition.setDestination(landing);
     landing.whenClicked(null);
   }
   
   
+  private boolean hasLanding(VerseLocation landing) {
+    return expedition.destination() == landing;
+  }
+  
+  
+  
+  private boolean canProgress() {
+    if (expedition.origin     () == null) return false;
+    if (expedition.destination() == null) return false;
+    return true;
+  }
+  
+  
   private void pushNextPane() {
-    navigateForward(new SelectTraitsPane(UI), true);
+    navigateForward(new SelectTraitsPane(UI, expedition), true);
   }
 }
   
