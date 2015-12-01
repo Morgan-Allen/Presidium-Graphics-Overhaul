@@ -31,7 +31,7 @@ import static stratos.game.actors.Backgrounds.*;
 //         sector-display (i.e, instead of the homeworld-selection.)
 
 
-public class SelectTraitsPane extends MenuPane {
+public class SelectHouseholdPane extends MenuPane {
   
   
   final static int
@@ -55,7 +55,7 @@ public class SelectTraitsPane extends MenuPane {
   
   
   
-  public SelectTraitsPane(HUD UI, Expedition expedition) {
+  public SelectHouseholdPane(HUD UI, Expedition expedition) {
     super(UI, MainScreen.MENU_NEW_GAME_CREW);
     this.expedition = expedition;
     initLeader();

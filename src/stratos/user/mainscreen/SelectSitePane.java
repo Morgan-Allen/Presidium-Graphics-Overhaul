@@ -114,7 +114,7 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
-    navigateForward(new SelectTraitsPane(UI, expedition), true);
+    navigateForward(new SelectHouseholdPane(UI, expedition), true);
   }
 }
   
