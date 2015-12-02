@@ -29,9 +29,8 @@ public class BaseDemands {
     DEFAULT_PATCH_SIZE  = Stage.ZONE_SIZE * 2,
     DEFAULT_TIME_PERIOD = Stage.STANDARD_DAY_LENGTH;
   
-  final Stage world;
   final Base base;
-  final int size, patchSize, timePeriod;
+  private int size = -1, patchSize, timePeriod;
   
   final Table <Object, BlurMap>
     supply = new Table <Object, BlurMap> (),
@@ -42,12 +41,8 @@ public class BaseDemands {
   
   
   
-  public BaseDemands(Base base, Stage world) {
-    this.world      = world;
-    this.base       = base;
-    this.size       = world.size;
-    this.patchSize  = DEFAULT_PATCH_SIZE;
-    this.timePeriod = DEFAULT_TIME_PERIOD;
+  public BaseDemands(Base base) {
+    this.base = base;
   }
   
   
@@ -79,6 +74,13 @@ public class BaseDemands {
   private BlurMap mapForKeyFrom(
     Table <Object, BlurMap> table, Object key
   ) {
+    //
+    //  If needed, we extract size information from the world.
+    if (size == -1) {
+      this.size = base.world.size;
+      this.patchSize  = DEFAULT_PATCH_SIZE;
+      this.timePeriod = DEFAULT_TIME_PERIOD;
+    }
     //
     //  For the sake of rapid access, we permit direct access to any maps that
     //  have been manufactured earlier by this demand-set:

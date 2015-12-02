@@ -9,6 +9,7 @@ import stratos.game.actors.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.start.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -26,9 +27,12 @@ import static stratos.game.actors.Backgrounds.*;
 
 //  TODO:  Consider allowing at least *some* customisation of the site, funding
 //         and title, etc.  Another pane might be in order.
+//
+//         Also, funding, backer, origin/destination etc. need showing.
 
 //  TODO:  Consider listing applicants in a horizontal layout above the
-//         sector-display (i.e, instead of the homeworld-selection.)
+//         sector-display (i.e, instead of the homeworld-selection.)  The
+//         info-pane could then give data on individual colonists, etc.
 
 
 public class SelectHouseholdPane extends MenuPane {
@@ -349,11 +353,20 @@ public class SelectHouseholdPane extends MenuPane {
   
   
   private void pushNextPane() {
-    ///navigateForward(new SelectCrewPane(UI), true);
+    String prefix = SaveUtils.uniqueVariant(expedition.leader().fullName());
+    final StartupScenario newGame = new StartupScenario(expedition, prefix);
+    PlayLoop.setupAndLoop(newGame);
   }
   
   
 }
+
+
+
+
+
+
+
 
 
 

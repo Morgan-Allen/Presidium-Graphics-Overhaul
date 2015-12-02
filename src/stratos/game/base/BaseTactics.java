@@ -39,7 +39,7 @@ public class BaseTactics {
     verboseBase    = Verse.FACTION_ARTILECTS;
   
   protected boolean shouldReport() {
-    return updatesVerbose && I.matchOrNull(base.faction, verboseBase);
+    return updatesVerbose && I.matchOrNull(base.faction(), verboseBase);
   }
   
   

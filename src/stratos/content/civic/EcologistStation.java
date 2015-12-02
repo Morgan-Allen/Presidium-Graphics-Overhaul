@@ -239,7 +239,7 @@ public class EcologistStation extends HarvestVenue {
         d.setCheckBonus(faunaBonus * 2.5f);
         choice.add(d);
       }
-      if (t instanceof Human && t.base().faction == Verse.FACTION_NATIVES) {
+      if (t instanceof Human && t.base().faction() == Verse.FACTION_NATIVES) {
         final Dialogue d = Dialogue.dialogueFor(actor, (Human) t);
         d.addMotives(Plan.MOTIVE_JOB, nativeBonus * Plan.CASUAL);
         d.setCheckBonus(nativeBonus * 2.5f);

@@ -276,8 +276,8 @@ public class SelectionPane extends UIGroup implements UIConstants {
       this.baseUI = baseUI;
       this.pane   = pane  ;
     }
-
-    protected void whenClicked(Object context) {
+    
+    protected void whenClicked() {
       if (baseUI.currentInfoPane() == pane) {
         baseUI.clearInfoPane();
       }

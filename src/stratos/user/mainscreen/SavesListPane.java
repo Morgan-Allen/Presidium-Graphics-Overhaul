@@ -41,7 +41,9 @@ public class SavesListPane extends MenuPane {
       else                titlePath = SaveUtils.suffixFor(path);
       
       listing.add(createTextButton("  "+titlePath, 1, new Link() {
-        public void whenClicked(Object context) { SaveUtils.loadGame(path, true); }
+        public void whenClicked(Object context) {
+          SaveUtils.loadGame(path, true);
+        }
       }));
     }
   }

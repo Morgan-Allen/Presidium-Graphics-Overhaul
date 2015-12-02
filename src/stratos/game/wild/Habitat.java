@@ -68,6 +68,7 @@ public class Habitat extends Index.Entry {
   //  by the fixtures themselves.)
   
   final public static Habitat
+    
     //
     //  Ocean habitats, which occur at or below current sea levels.
     OCEAN = new Habitat(
@@ -97,6 +98,7 @@ public class Habitat extends Index.Entry {
       0, true, IS_OCEAN, FERTILITY, 5, INSOLATION, 5, MINERALS, 2
     ),
     OCEAN_HABITATS[] = { SHORELINE, SHALLOWS, OCEAN },
+    
     //
     //  Forest habitats, which occur in equatorial regions with adequate rain-
     SWAMPLANDS = new Habitat(
@@ -118,6 +120,7 @@ public class Habitat extends Index.Entry {
       2, true, FERTILITY, 6, INSOLATION, 5, MINERALS, 3
     ),
     FOREST_HABITATS[] = { MEADOW, ESTUARY, SWAMPLANDS },
+    
     //
     //  Desert habitats, which occur under hotter conditions-
     SAVANNAH = new Habitat(
@@ -180,7 +183,9 @@ public class Habitat extends Index.Entry {
       "strip_mining.png", NO_FLORA,
       0, false, FERTILITY, 0, INSOLATION, 0, MINERALS, 0,
       IS_WASTE
-    );
+    ),
+    WASTE_HABITATS[] = { CURSED_EARTH, BLACK_MESA, TOXIC_RUNOFF, STRIP_MINING };
+  
   final public static ImageAsset
     ROAD_TEXTURE = ImageAsset.fromImage(
       Habitat.class, TERRAIN_PATH+"road_map_new.png"

@@ -108,6 +108,7 @@ public class Expedition implements Session.Saveable {
     */
   public VerseLocation origin     () { return origin     ; }
   public VerseLocation destination() { return destination; }
+  public Faction       backing    () { return backing    ; }
   public int funding   () { return funding   ; }
   public int estateSize() { return estateSize; }
   public int interest  () { return interest  ; }

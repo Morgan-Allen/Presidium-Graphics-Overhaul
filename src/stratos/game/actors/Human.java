@@ -61,7 +61,7 @@ public class Human extends Actor {
   
   
   public Human(Background vocation, Base base) {
-    this(new Career(vocation), base.faction);
+    this(new Career(vocation), base.faction());
     assignBase(base);
   }
   

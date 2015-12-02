@@ -288,7 +288,7 @@ public class ActorRelations {
     //  Otherwise, we calculate what the starting relationship with this entity
     //  should be.  We base this off a weighted average depending on home/work
     //  identity, community spirit, and relations with their parent base:
-    Relation r = relations.get(other.base().faction);
+    Relation r = relations.get(other.base().faction());
     float initVal = 0;
     if (r != null) initVal = r.value();
     else initVal = actor.base().relations.relationWith(other.base());

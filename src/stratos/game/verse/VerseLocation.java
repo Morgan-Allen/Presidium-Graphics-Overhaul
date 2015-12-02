@@ -47,17 +47,15 @@ public class VerseLocation extends Background {
   final public static Object
     MAKES = new Object(),
     NEEDS = new Object();
-
   
-  final public ImageAsset planetImage;
   
   final public VerseLocation belongs;
   final public Trait climate;
   final public int gravity;
   
   final public Faction startingOwner;
-  final public Traded goodsMade[], goodsNeeded[];
   final public int population;
+  final public Traded goodsMade[], goodsNeeded[];
   
   final Table <Background, Float> circles = new Table();
   final List <Upgrade> knowledge = new List();
@@ -66,10 +64,11 @@ public class VerseLocation extends Background {
   final Float   habitatWeights[];
   final Species nativeSpecies [];
   
+  final public ImageAsset planetImage;
+  
   
   public VerseLocation(
-    Class baseClass, String name, String imagePath,
-    Faction owner,
+    Class baseClass, String name, String imagePath, Faction owner,
     String description,
     Trait climate, int gravity, VerseLocation belongs,
     int population, Object... args
@@ -81,14 +80,17 @@ public class VerseLocation extends Background {
     this.planetImage = imagePath == null ?
       Image.SOLID_WHITE : ImageAsset.fromImage(baseClass, imagePath)
     ;
-    
+    //
+    //  Populate basic fields first-
     this.startingOwner = owner;
     if (owner != null) owner.bindToStartSite(this);
-    
-    this.belongs = belongs;
-    this.climate = climate;
-    this.gravity = gravity;
-    
+    this.belongs    = belongs   ;
+    this.climate    = climate   ;
+    this.gravity    = gravity   ;
+    this.population = population;
+    //
+    //  Then extract any information on variable-length attributes from the
+    //  list of final arguments:
     final Batch <Traded > madeB = new Batch();
     final Batch <Traded > needB = new Batch();
     final Batch <Habitat> habB  = new Batch();
@@ -96,7 +98,7 @@ public class VerseLocation extends Background {
     final Batch <Species> specB = new Batch();
     Object tag = null;
     float rating = -1;
-    
+    //  TODO:  Consider requiring tags for attributes other than needs/makes
     for (Object arg : args) {
       if (arg == MAKES || arg == NEEDS) {
         tag = arg;
@@ -132,13 +134,22 @@ public class VerseLocation extends Background {
         specB.add((Species) arg);
       }
     }
-    
+    //
+    //  If any of our key attribute-lists is empty, populate from the parent.
+    if (belongs != null) {
+      if (madeB.empty()) Visit.appendTo(madeB, belongs.goodsMade     );
+      if (needB.empty()) Visit.appendTo(needB, belongs.goodsNeeded   );
+      if (habB .empty()) Visit.appendTo(habB , belongs.habitats      );
+      if (habWB.empty()) Visit.appendTo(habWB, belongs.habitatWeights);
+      if (specB.empty()) Visit.appendTo(specB, belongs.nativeSpecies );
+    }
+    //
+    //  Otherwise, store them in a more compact form.
     goodsMade      = madeB.toArray(Traded .class);
     goodsNeeded    = needB.toArray(Traded .class);
     habitats       = habB .toArray(Habitat.class);
     habitatWeights = habWB.toArray(Float  .class);
     nativeSpecies  = specB.toArray(Species.class);
-    this.population = population;
   }
   
   

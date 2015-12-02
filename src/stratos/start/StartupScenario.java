@@ -70,7 +70,7 @@ public class StartupScenario extends Scenario {
   protected Base createBase(Stage world) {
     final VerseLocation origin = expedition.origin();
     final Base base = Base.settlement(
-      world, "Player Base", origin.startingOwner
+      world, "Player Base", expedition.backing()
     );
     base.finance.setInitialFunding(expedition.funding(), expedition.interest());
     base.research.initKnowledgeFrom(origin);
@@ -140,7 +140,7 @@ public class StartupScenario extends Scenario {
     //  First of all, we attempt to establish the Bastion itself and some
     //  peripheral defences-
     final Bastion bastion = new Bastion(base);
-    advisors.add(ruler);
+    if (ruler != null) advisors.add(ruler);
     base.assignRuler(ruler);
     base.setup.doPlacementsFor(bastion);
     base.setup.fillVacancies(bastion, true);
@@ -177,6 +177,7 @@ public class StartupScenario extends Scenario {
     //
     //  Then introduce personnel-
     for (Actor a : advisors) {
+      a.assignBase(base);
       a.mind.setHome(bastion);
       a.mind.setWork(bastion);
       a.enterWorldAt(bastion, world);
@@ -188,7 +189,7 @@ public class StartupScenario extends Scenario {
     }
     base.setup.establishRelations(bastion.staff.lodgers());
     //
-    //  TODO:  Vary this based on starting House
+    //  TODO:  Vary this based on starting House!
     bastion.updateAsScheduled(0, false);
     for (Item i : bastion.stocks.shortages()) {
       bastion.stocks.addItem(i);

@@ -341,9 +341,10 @@ public class VerseJourneys {
     //
     //  This crew will need to be updated every now and then- in the sense of
     //  changing the roster due to losses or career changes.
+    final Base home = transport.base();
     for (Background b : positions) {
       if (transport.staff().numHired(b) < Visit.countInside(b, positions)) {
-        final Human staff = new Human(new Career(b), transport.base().faction);
+        final Human staff = new Human(new Career(b), home.faction());
         staff.mind.setWork(transport);
         staff.mind.setHome(transport);
       }

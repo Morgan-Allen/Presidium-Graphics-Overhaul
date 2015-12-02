@@ -5,13 +5,14 @@
   */
 package stratos.game.verse;
 import stratos.game.common.*;
-import stratos.graphics.common.Colour;
-import stratos.graphics.common.ImageAsset;
+import stratos.game.wild.*;
+import stratos.graphics.common.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.wild.Habitat.*;
 import stratos.content.civic.*;
 
 
@@ -113,6 +114,8 @@ public class Verse {
       "Civilised", null, Colour.WHITE     ,
       false
     ),
+    CIVIL_FACTIONS[] = Faction.INDEX.soFar(Faction.class),
+    
     FACTION_NATIVES   = new Faction(
       "Natives"  , null, Colour.LITE_YELLOW,
       true
@@ -128,7 +131,8 @@ public class Verse {
     FACTION_ARTILECTS = new Faction(
       "Artilects", null, Colour.LITE_RED   ,
       true
-    );
+    ),
+    PRIMAL_FACTIONS[] = Faction.INDEX.soFar(Faction.class);
   
   
   final public static VerseLocation
@@ -144,6 +148,7 @@ public class Verse {
       DESERT_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, REAGENTS, PLASTICS, DECOR, SPYCES,
       VerseLocation.NEEDS, WATER, CIRCUITRY, POLYMER,
+      
       BORN_FREE,
       NOVICE, CULTIVATION, CHEMISTRY,
       OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES,
@@ -167,6 +172,7 @@ public class Verse {
       WASTES_BLOOD, NORMAL_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, PARTS, ANTIMASS, CIRCUITRY,
       VerseLocation.NEEDS, FUEL_RODS, PROTEIN,
+      
       BORN_DREGS, BORN_PYON,
       NOVICE, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,
@@ -191,6 +197,7 @@ public class Verse {
       FOREST_BLOOD, STRONG_GRAVITY, null, MEDIUM_POPULATION,
       VerseLocation.MAKES, CARBS, GREENS, MEDICINE,
       VerseLocation.NEEDS, SERVICE_ARMAMENT, PARTS, REAGENTS,
+      
       BORN_GELDER, BORN_FREE,
       NOVICE, MARKSMANSHIP, ANATOMY,
       OFTEN, MILITARY_CIRCLES, SOMETIMES, PHYSICIAN_CIRCLES,
@@ -215,6 +222,7 @@ public class Verse {
       TUNDRA_BLOOD, MILD_GRAVITY, null, HIGH_POPULATION,
       VerseLocation.MAKES, CIRCUITRY, MEDICINE, SERVICE_COMMERCE,
       VerseLocation.NEEDS, GREENS, METALS, ANTIMASS,
+      
       BORN_DREGS, BORN_GELDER,
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
       OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES,
@@ -318,17 +326,32 @@ public class Verse {
     SECTOR_ELYSIUM = new VerseLocation(
       Verse.class, "Elysium Sector", null, FACTION_WILDLIFE,
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
+      0.15f, OCEAN,
+      0.35f, SWAMPLANDS,
+      0.25f, ESTUARY,
+      0.25f, MEADOW,
+      Qudu.SPECIES, Hareen.SPECIES
     ),
     SECTOR_PAVONIS = new VerseLocation(
       Verse.class, "Pavonis Sector", null, FACTION_WILDLIFE,
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
+      0.25f, ESTUARY,
+      0.35f, MEADOW,
+      0.15f, SAVANNAH,
+      0.10f, BARRENS,
+      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES
     ),
     SECTOR_TERRA = new VerseLocation(
       Verse.class, "Terra Sector", null, FACTION_WILDLIFE,
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
+      0.20f, SAVANNAH,
+      0.25f, BARRENS,
+      0.40f, DUNE,
+      0.15f, CURSED_EARTH,
+      Drone.SPECIES
     ),
     
     ALL_DIAPSOR_SECTORS[] = {
@@ -340,7 +363,6 @@ public class Verse {
       "",
       MUTATION, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
     ),
-    
     DEFAULT_START_LOCATION = SECTOR_ELYSIUM;
   
   
@@ -355,22 +377,22 @@ public class Verse {
     
     //  TODO:  Finish these up, and create some dedicated classes for the
     //  purpose.
-    setRelations(FACTION_ARTILECTS, -1.0f, true, (Object[]) ALL_PLANETS);
-    setRelations(FACTION_VERMIN   , -0.5f, true, (Object[]) ALL_PLANETS);
-    setRelations(FACTION_NATIVES  ,  0.0f, true, (Object[]) ALL_PLANETS);
-    setRelations(FACTION_WILDLIFE ,  0.2f, true, (Object[]) ALL_PLANETS);
+    setRelations(FACTION_ARTILECTS, -1.0f, true, CIVIL_FACTIONS);
+    setRelations(FACTION_VERMIN   , -0.5f, true, CIVIL_FACTIONS);
+    setRelations(FACTION_NATIVES  ,  0.0f, true, CIVIL_FACTIONS);
+    setRelations(FACTION_WILDLIFE ,  0.2f, true, CIVIL_FACTIONS);
     
     //  House Altair-
     //    Enemies:  Rigel-Procyon and Taygeta, Hive Urym
     //    Allies:  Fomalhaut and Calivor
     //    Bonus to Commoner relations, penalty to Noble and Native relations
-    setRelations(PLANET_HALIBAN, false,
-      FACTION_NATIVES  , -0.25f,
-      FACTION_ARTILECTS, -0.5f ,
-      FACTION_WILDLIFE ,  0.0f ,
+    setRelations(FACTION_ALTAIR, false,
+      FACTION_NATIVES     , -0.25f,
+      FACTION_ARTILECTS   , -0.5f ,
+      FACTION_WILDLIFE    ,  0.0f ,
       
-      PLANET_AXIS_NOVENA  , -0.25f,
-      PLANET_PAREM_V      , -0.5f ,
+      FACTION_TAYGETA     , -0.25f,
+      FACTION_PROCYON     , -0.5f ,
       PLANET_URYM_HIVE    , -0.25f,
       PLANET_SOLIPSUS_VIER,  0.25f,
       PLANET_CALIVOR      ,  0.5f
@@ -380,13 +402,13 @@ public class Verse {
     //    Enemies:  Rigel-Procyon and Fomalhaut, Hive Urym
     //    Allies:  Ophiuchus-Rana
     //    Bonus to Native relations, penalty to Merchant relations
-    setRelations(PLANET_ASRA_NOVI, false,
-      FACTION_NATIVES  ,  0.4f ,
-      FACTION_ARTILECTS, -0.75f,
-      FACTION_WILDLIFE ,  0.2f ,
+    setRelations(FACTION_SUHAIL, false,
+      FACTION_NATIVES     ,  0.4f ,
+      FACTION_ARTILECTS   , -0.75f,
+      FACTION_WILDLIFE    ,  0.2f ,
       
       PLANET_SOLIPSUS_VIER, -0.25f,
-      PLANET_PAREM_V      , -0.5f ,
+      FACTION_PROCYON     , -0.5f ,
       PLANET_URYM_HIVE    , -0.25f,
       PLANET_NORUSEI      ,  0.5f
     );
@@ -395,12 +417,12 @@ public class Verse {
     //    Enemies:  Altair and Fomalhaut, Calivor
     //    Allies:  Hive Urym
     //    Bonus to Artilect and Noble relations, penalty to Commoner relations
-    setRelations(PLANET_PAREM_V, false,
-      FACTION_NATIVES  ,  0.0f ,
-      FACTION_ARTILECTS,  0.25f,
-      FACTION_WILDLIFE , -0.2f ,
+    setRelations(FACTION_PROCYON, false,
+      FACTION_NATIVES     ,  0.0f ,
+      FACTION_ARTILECTS   ,  0.25f,
+      FACTION_WILDLIFE    , -0.2f ,
       
-      PLANET_HALIBAN      , -0.5f ,
+      FACTION_ALTAIR      , -0.5f ,
       PLANET_SOLIPSUS_VIER, -0.25f,
       PLANET_URYM_HIVE    ,  0.65f
     );
@@ -470,9 +492,9 @@ public class Verse {
   /**  Political setup and query methods-
     */
   public float defaultRelations(Base base, Base other) {
-    final Table BR = relations.get(base.faction);
+    final Table BR = relations.get(base.faction());
     if (BR == null) return 0;
-    final Float val = (Float) BR.get(other.faction);
+    final Float val = (Float) BR.get(other.faction());
     return val != null ? val : 0;
   }
   
@@ -489,6 +511,9 @@ public class Verse {
     final Table vals = Table.make(tableVals);
     for (Object k : vals.keySet()) {
       final Object v = vals.get(k);
+      if (k instanceof VerseLocation) {
+        k = ((VerseLocation) k).startingOwner;
+      }
       if (v instanceof Float) {
         setRelation(a, k, (Float) v, symmetric);
       }
@@ -498,7 +523,7 @@ public class Verse {
   
   
   void setRelations(
-    Object a, float value, boolean symmetric, Object... others
+    Object a, float value, boolean symmetric, Faction... others
   ) {
     for (Object k : others) {
       setRelation(a, k, value, symmetric);

@@ -37,8 +37,7 @@ public class Base implements
     MAX_BASES = 8;
   
   
-  final public Stage   world  ;
-  final public Faction faction;
+  final public Stage world;
   
   final public BaseSetup     setup    ;
   final public BaseDemands   demands  ;
@@ -49,7 +48,8 @@ public class Base implements
   final public BaseProfiles profiles ;
   final public DangerMap    dangerMap;
   final public IntelMap     intelMap ;
-  
+
+  private Faction faction;
   private Actor ruler;
   private Venue commandPost;
   
@@ -69,8 +69,8 @@ public class Base implements
     this.world   = world  ;
     this.faction = faction;
     
-    setup     = new BaseSetup(this, world);
-    demands   = new BaseDemands(this, world);
+    setup     = new BaseSetup(this);
+    demands   = new BaseDemands(this);
     commerce  = new BaseCommerce(this);
     transport = new BaseTransport(world);
     
@@ -84,8 +84,9 @@ public class Base implements
   
   
   public Base(Session s) throws Exception {
-    this(s.world(), (Faction) s.loadObject());
+    this(s.world(), null);
     s.cacheInstance(this);
+    this.faction = (Faction) s.loadObject();
     
     setup    .loadState(s);
     demands  .loadState(s);
@@ -262,6 +263,16 @@ public class Base implements
   
   public Property HQ() {
     return ruler == null ? null : ruler.mind.home();
+  }
+  
+  
+  public Faction faction() {
+    return faction;
+  }
+  
+  
+  public void assignFaction(Faction f) {
+    this.faction = f;
   }
   
   

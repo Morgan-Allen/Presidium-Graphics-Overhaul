@@ -40,21 +40,15 @@ public class BaseSetup {
     DEFAULT_CHAT_SAMPLES  = 5;
   
   
-  final Stage world;
-  final Base  base ;
-  //
-  //  Data structures for conducting time-sliced placement of private venues:
+  final Base base;
   private Blueprint canPlace[];
-  final List <SitingPass> sorting = new List <SitingPass> () {
-    protected float queuePriority(SitingPass r) {
-      return r.rating;
-    }
+  private List <SitingPass> sorting = new List <SitingPass> () {
+    protected float queuePriority(SitingPass r) { return r.rating; }
   };
   
   
-  public BaseSetup(Base base, Stage world, Blueprint... canPlace) {
+  public BaseSetup(Base base, Blueprint... canPlace) {
     this.base     = base    ;
-    this.world    = world   ;
     this.canPlace = canPlace;
   }
   

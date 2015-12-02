@@ -138,11 +138,13 @@ public class TutorialScenario extends StartupScenario {
   /**  Initial setup-
     */
   private static Expedition expedition() {
-    return new Expedition().configFrom(
+    final Faction backing = Verse.PLANET_PAREM_V.startingOwner;
+    final Expedition e = new Expedition().configFrom(
       Verse.PLANET_PAREM_V, Verse.SECTOR_TERRA,
-      Verse.PLANET_PAREM_V.startingOwner, 8000, Expedition.TITLE_COUNT,
-      new Batch <Actor> ()
+      backing, 8000, Expedition.TITLE_COUNT, new Batch()
     );
+    e.assignLeader(Backgrounds.KNIGHTED.sampleFor(backing));
+    return e;
   }
   
   
