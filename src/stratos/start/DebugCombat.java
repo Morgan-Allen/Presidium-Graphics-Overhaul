@@ -57,8 +57,7 @@ public class DebugCombat extends Scenario {
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
-      //Habitat.OCEAN       , 1f,
-      Habitat.ESTUARY     , 2f,
+      Habitat.FOREST      , 2f,
       Habitat.MEADOW      , 3f,
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f

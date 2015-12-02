@@ -329,7 +329,7 @@ public class Verse {
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
       0.15f, OCEAN,
       0.35f, SWAMPLANDS,
-      0.25f, ESTUARY,
+      0.25f, FOREST,
       0.25f, MEADOW,
       Qudu.SPECIES, Hareen.SPECIES
     ),
@@ -337,7 +337,7 @@ public class Verse {
       Verse.class, "Pavonis Sector", null, FACTION_WILDLIFE,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
-      0.25f, ESTUARY,
+      0.25f, FOREST,
       0.35f, MEADOW,
       0.15f, SAVANNAH,
       0.10f, BARRENS,

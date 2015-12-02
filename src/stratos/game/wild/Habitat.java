@@ -107,7 +107,7 @@ public class Habitat extends Index.Entry {
       "swamplands_ground.gif", FOREST_FLORA_MODELS,
       3, true, FERTILITY, 9, INSOLATION, 6, MINERALS, 0
     ),
-    ESTUARY = new Habitat(
+    FOREST = new Habitat(
       Habitat.class, 4, "Rain Forest",
       "",
       "estuary_ground.png", FOREST_FLORA_MODELS,
@@ -119,7 +119,7 @@ public class Habitat extends Index.Entry {
       "meadows_ground.gif", FOREST_FLORA_MODELS,
       2, true, FERTILITY, 6, INSOLATION, 5, MINERALS, 3
     ),
-    FOREST_HABITATS[] = { MEADOW, ESTUARY, SWAMPLANDS },
+    FOREST_HABITATS[] = { MEADOW, FOREST, SWAMPLANDS },
     
     //
     //  Desert habitats, which occur under hotter conditions-
