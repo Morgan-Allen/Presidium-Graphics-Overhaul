@@ -46,7 +46,7 @@ public class ActorTraits {
     DNA = s.loadString();
     geneHash = s.loadInt();
     for (int n = s.loadInt(); n-- > 0;) {
-      final Trait type = Trait.loadConstant(s);//   ALL_TRAIT_TYPES[s.loadInt()];
+      final Trait type = Trait.loadConstant(s);
       final Level level = new Level();
       level.value = s.loadFloat();
       level.bonus = s.loadFloat();
@@ -61,7 +61,6 @@ public class ActorTraits {
     s.saveInt(levels.size());
     for (Trait type : levels.keySet()) {
       type.saveState(s);
-      //s.saveInt(type.traitID);
       final Level level = levels.get(type);
       s.saveFloat(level.value);
       s.saveFloat(level.bonus);
@@ -72,12 +71,19 @@ public class ActorTraits {
   public void initAtts(float physical, float sensitive, float cognitive) {
     //
     //  Replace these with just 3 attributes.  Simpler that way.
-    actor.traits.setLevel(MUSCULAR , physical );
-    actor.traits.setLevel(IMMUNE   , physical );
-    actor.traits.setLevel(MOTOR    , sensitive);
-    actor.traits.setLevel(PERCEPT  , sensitive);
-    actor.traits.setLevel(COGNITION, cognitive);
-    actor.traits.setLevel(NERVE    , cognitive);
+    setLevel(MUSCULAR , physical );
+    setLevel(IMMUNE   , physical );
+    setLevel(MOTOR    , sensitive);
+    setLevel(PERCEPT  , sensitive);
+    setLevel(COGNITION, cognitive);
+    setLevel(NERVE    , cognitive);
+  }
+  
+  
+  public void wipeTraits() {
+    levels.clear();
+    DNA      = null;
+    geneHash = -1;
   }
   
   

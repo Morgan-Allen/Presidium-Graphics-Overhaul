@@ -32,9 +32,21 @@ public class ExpeditionPane extends SelectionPane {
   protected void updateText(Text header, Text detail, Text listing) {
     super.updateText(headerText, detailText, listingText);
     
+    headerText.appendAll("Expedition to ", expedition.destination());
+    
+    describeBacking(detail);
     appendActor(expedition.leader(), listing);
     for (Actor a : expedition.advisors ()) appendActor(a, listing);
     for (Actor c : expedition.colonists()) appendActor(c, listing);
+  }
+  
+  
+  void describeBacking(Description d) {
+    d.append("\n  Starting Capital: "+expedition.funding()+" Credits");
+    d.append("\n  Tribute Returned: "+expedition.tribute()+"%");
+    d.append("\n  Title: "+expedition.titleDesc());
+    d.appendAll("\n  Vassal of: ", expedition.backing());
+    d.appendAll("\n  Point of origin: ", expedition.origin());
   }
   
   
@@ -47,6 +59,18 @@ public class ExpeditionPane extends SelectionPane {
     d.append("\n ("+a.mind.vocation()+")", Colour.LITE_GREY);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

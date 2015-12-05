@@ -72,7 +72,7 @@ public class StartupScenario extends Scenario {
     final Base base = Base.settlement(
       world, "Player Base", expedition.backing()
     );
-    base.finance.setInitialFunding(expedition.funding(), expedition.interest());
+    base.finance.setInitialFunding(expedition.funding(), expedition.tribute());
     base.research.initKnowledgeFrom(origin);
     base.commerce.assignHomeworld  (origin);
     return base;

@@ -177,7 +177,9 @@ public class Dialogue extends Plan {
       if (report) I.say("  Conversation ongoing- okay.");
       return true;
     }
-    
+    if (type == TYPE_CASUAL && chatsWith != null && chatsWith != actor) {
+      return false;
+    }
     if (stage == STAGE_INIT && other == starts.actor()) {
       if (report) I.say("  Other actor started conversation.");
       return true;

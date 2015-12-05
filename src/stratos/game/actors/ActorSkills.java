@@ -15,6 +15,8 @@ import stratos.util.*;
 public class ActorSkills {
   
   
+  /**  Data fields, construction and save/load methods.
+    */
   final static float
     MIN_FAIL_CHANCE    = 0.1f,
     MAX_SUCCEED_CHANCE = 0.9f;
@@ -90,6 +92,11 @@ public class ActorSkills {
   
   public void removeTechnique(Technique t) {
     known.remove(t);
+  }
+  
+  
+  public void wipeTechniques() {
+    known.clear();
   }
   
   
@@ -346,7 +353,7 @@ public class ActorSkills {
   
   public void practiceAgainst(int DC, float duration, Skill skillType) {
     final float chance = chance(skillType, null, null, 0 - DC);
-    practice(skillType, chance, duration, null);
+    practice(skillType, chance, duration, NO_RESULT);
   }
   
   

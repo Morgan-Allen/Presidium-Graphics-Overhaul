@@ -156,6 +156,14 @@ public class Composite {
   }
   
   
+  public static void wipeCache(String key) {
+    final Composite cached = recentTable.get(key);
+    if (cached == null) return;
+    recent.remove(cached);
+    recentTable.remove(key);
+  }
+  
+  
   public static Composite withSize(int wide, int high, String key) {
     final Composite c = new Composite();
     c.tableKey = key;

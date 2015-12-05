@@ -63,7 +63,7 @@ public class Expedition implements Session.Saveable {
   
   int funding   ;
   int estateSize;
-  int interest  ;
+  int tribute  ;
   
   Table <Background, Integer> positions = new Table();
   List <Actor> applicants = new List();
@@ -84,7 +84,7 @@ public class Expedition implements Session.Saveable {
     destination = (VerseLocation) s.loadObject();
     funding    = s.loadInt();
     estateSize = s.loadInt();
-    interest   = s.loadInt();
+    tribute   = s.loadInt();
     leader = (Actor) s.loadObject();
     s.loadObjects(advisors );
     s.loadObjects(colonists);
@@ -96,7 +96,7 @@ public class Expedition implements Session.Saveable {
     s.saveObject (destination);
     s.saveInt    (funding    );
     s.saveInt    (estateSize );
-    s.saveInt    (interest   );
+    s.saveInt    (tribute    );
     s.saveObject (leader     );
     s.saveObjects(advisors   );
     s.saveObjects(colonists  );
@@ -111,7 +111,7 @@ public class Expedition implements Session.Saveable {
   public Faction       backing    () { return backing    ; }
   public int funding   () { return funding   ; }
   public int estateSize() { return estateSize; }
-  public int interest  () { return interest  ; }
+  public int tribute   () { return tribute   ; }
   
   public Actor leader() { return leader; }
   public Series <Actor> advisors () { return advisors ; }
@@ -119,7 +119,7 @@ public class Expedition implements Session.Saveable {
   
   
   
-  /**  Secondary configuration utilities-
+  /**  Configuration utilities for use by the new-game flow-
     */
   public void setOrigin(VerseLocation l, Faction b) {
     this.backing = b;
@@ -132,6 +132,88 @@ public class Expedition implements Session.Saveable {
   }
   
   
+  public void setFunding(int funding) {
+    this.funding = funding;
+  }
+  
+  
+  public void setTribute(int tribute) {
+    this.tribute = tribute;
+  }
+  
+  
+  public void setEstateSize(int size) {
+    this.estateSize = size;
+  }
+  
+  
+  public void assignLeader(Actor leader) {
+    this.leader = leader;
+  }
+  
+  
+  public void addAdvisor(Background b) {
+    //
+    //  We make several attempts to find the 'best' candidate possible for
+    //  the job.
+    
+    I.say("\nAdding advisor: "+b);
+    
+    final Pick <Actor> pick = new Pick();
+    for (int i = 5; i-- > 0;) {
+      final Actor candidate = b.sampleFor(backing);
+      float rating = 0;
+      //
+      //  TODO:  Consider including this under an 'evalPromotion' method for
+      //  backgrounds, which you could then customise per-job!
+      
+      if (b == Backgrounds.FIRST_CONSORT && leader != null) {
+        rating += leader.motives.attraction(candidate) * 1.0f;
+        rating += candidate.motives.attraction(leader) * 0.5f;
+        rating += Career.ratePromotion(b, candidate, false)  ;
+      }
+      else rating += Career.ratePromotion(b, candidate, false);
+      
+      I.say("  Rating for "+candidate+": "+rating);
+      
+      pick.compare(candidate, rating);
+    }
+    if (! pick.empty()) advisors.add(pick.result());
+  }
+  
+  
+  public void addColonist(Background b) {
+    colonists.add(b.sampleFor(backing));
+  }
+  
+  
+  public void removeMigrant(Actor a) {
+    if (leader == a) leader = null;
+    advisors.remove(a);
+    colonists.remove(a);
+  }
+  
+  
+  public Actor firstMigrant(Background b) {
+    if (leader != null && leader.mind.vocation() == b) return leader;
+    for (Actor a : advisors ) if (a.mind.vocation() == b) return a;
+    for (Actor a : colonists) if (a.mind.vocation() == b) return a;
+    return null;
+  }
+  
+  
+  public int numMigrants(Background b) {
+    int num = 0;
+    if (leader != null && leader.mind.vocation() == b) num++;
+    for (Actor a : advisors ) if (a.mind.vocation() == b) num++;
+    for (Actor a : colonists) if (a.mind.vocation() == b) num++;
+    return num;
+  }
+
+  
+  
+  /**  Configuration utilities for use by in-world Missions-
+    */
   public Expedition configFrom(
     VerseLocation origin, VerseLocation destination,
     Faction backing, int funding, int estateSize,
@@ -162,51 +244,15 @@ public class Expedition implements Session.Saveable {
   }
   
   
-  public void assignLeader(Actor leader) {
-    this.leader = leader;
+  
+  /**  Rendering and interface utilities-
+    */
+  public String titleDesc() {
+    boolean male = leader == null ? true : leader.traits.male();
+    if (male) return TITLE_MALE  [estateSize];
+    else      return TITLE_FEMALE[estateSize];
   }
-  
-  
-  public void addAdvisor(Background b) {
-    colonists.add(b.sampleFor(backing));
-  }
-  
-  
-  public void addColonist(Background b) {
-    colonists.add(b.sampleFor(backing));
-  }
-  
-  
-  public void removeMigrant(Actor a) {
-    if (leader == a) leader = null;
-    advisors.remove(a);
-    colonists.remove(a);
-  }
-  
-  
-  public int numMigrants(Background b) {
-    int num = 0;
-    if (leader != null && leader.mind.vocation() == b) num++;
-    for (Actor a : advisors ) if (a.mind.vocation() == b) num++;
-    for (Actor a : colonists) if (a.mind.vocation() == b) num++;
-    return num;
-  }
-  
-  
-  
-  
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

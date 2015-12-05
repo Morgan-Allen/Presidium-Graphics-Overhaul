@@ -18,21 +18,68 @@ import static stratos.game.actors.Backgrounds.*;
 
 
 
-//  TODO:  The leader needs to actually have their traits/powers (and portrait)
-//         updated when those qualities are toggled on/off.
-
-//  TODO:  Either all state-variables should be derived from the expedition, or
-//         it should be wiped when you navigate back (otherwise the local
-//         records de-sync.)
-
 //  TODO:  Consider allowing at least *some* customisation of the site, funding
-//         and title, etc.  Another pane might be in order.
-//
-//         Also, funding, backer, origin/destination etc. need showing.
+//         and title (possibly from homeworld or traits).  Another pane might
+//         be in order.
 
 //  TODO:  Consider listing applicants in a horizontal layout above the
 //         sector-display (i.e, instead of the homeworld-selection.)  The
 //         info-pane could then give data on individual colonists, etc.
+
+//  TODO:  There definitely needs to be help-text for the traits & powers- and
+//         the info-pane should disappear once you navigate back to the main
+//         screen.
+
+//  TODO:  Include the extra Techniques/Skills related to traits!
+
+
+//  TODO:  Consider some further refinements to leader-generation...?
+//  Traditional or Upstart
+//  Fearless or Diplomatic
+//  Gifted
+//  Male or Female + Orientation
+
+/*
+-    //
+-    //  Firstly, we determine the ruler's current rank in the feudal hierarchy
+-    //  and their class of origin.
+-    final int station = config.titleLevel;
+-    final Background vocation = Backgrounds.RULING_POSITIONS[station];
+-    
+-    final float promoteChance = (25 - (station * 10)) / 100f;
+-    Background birth = Backgrounds.BORN_HIGH;
+-    
+-    while (Rand.num() < promoteChance) {
+-      int index = Visit.indexOf(birth, Backgrounds.RULER_CLASSES);
+-      if (index <= 0) break;
+-      else birth = Backgrounds.RULER_CLASSES[index - 1];
+-    }
+-    //
+-    //  Then we generate the ruler themselves along with any modifications
+-    //  chosen by the player.
+-    final Background house = config.house;
+-    final Career rulerCareer = new Career(
+-      vocation, birth, house, config.gender
+-    );
+-    final Human ruler = new Human(rulerCareer, base);
+-    for (Skill s : house.skills()) {
+-      ruler.traits.incLevel(s, 5 + Rand.index(5) - 2);
+-    }
+-    for (Trait t : config.chosenTraits) {
+-      ruler.traits.setLevel(t, t.maxVal * (Rand.num() + 1) / 1);
+-    }
+-    for (Skill s : config.chosenSkills) {
+-      ruler.traits.incLevel(s, 10 + Rand.index(5) - 2);
+-    }
+-    for (Technique t : config.chosenTechs) {
+-      ruler.skills.addTechnique(t);
+-    }
+-    
+-    return ruler;
++    return (Human) expedition.leader();
+//*/
+
+
 
 
 public class SelectHouseholdPane extends MenuPane {
@@ -48,15 +95,10 @@ public class SelectHouseholdPane extends MenuPane {
     powerHeader,
     advisHeader,
     colonHeader;
+  private Text
+    colonLabels[];
   
   final Expedition expedition;
-  
-  Background gender;
-  List <Trait> traitsPicked = new List();
-  List <Technique> powersPicked = new List();
-  List <Background> advisorTypes = new List();
-  Tally <Background> colonistNumbers = new Tally();
-  
   
   
   public SelectHouseholdPane(HUD UI, Expedition expedition) {
@@ -66,28 +108,13 @@ public class SelectHouseholdPane extends MenuPane {
   }
   
   
-  private void initLeader() {
-    if (gender == null) gender = Rand.yes() ? BORN_MALE : BORN_FEMALE;
-    
-    final VerseLocation home = expedition.origin();
-    final Career c = new Career(KNIGHTED, BORN_HIGH, home, gender);
-    Human leader = (Human) expedition.leader();
-    
-    if (leader == null) leader = new Human(c, home.startingOwner);
-    else leader.assignCareer(c);
-    
-    expedition.assignLeader(leader);
-    Selection.pushSelectionPane(new ExpeditionPane(UI, expedition), null);
-  }
-  
-  
   protected void fillListing(List <UINode> listing) {
     
     listing.add(traitHeader = createTextItem("Traits", 1.2f, null));
     for (final Trait trait : SELECT_TRAITS) {
       listing.add(new TextButton(UI, "  "+trait.name, 0.75f) {
         protected void whenClicked() { toggleTrait(trait); }
-        protected boolean toggled() { return traitsPicked.includes(trait); }
+        protected boolean toggled() { return hasTrait(trait); }
         protected boolean enabled() { return canToggle(trait); }
       });
     }
@@ -98,7 +125,7 @@ public class SelectHouseholdPane extends MenuPane {
     for (final Background g : SELECT_GENDERS) {
       final TextButton option = new TextButton(UI, "  "+g.name, 0.75f) {
         protected void whenClicked() { setGender(g); }
-        protected boolean toggled() { return gender == g; }
+        protected boolean toggled() { return hasGender(g); }
       };
       option.alignVertical(0, 0);
       option.alignAcross(space * gI, space * ++gI);
@@ -115,7 +142,7 @@ public class SelectHouseholdPane extends MenuPane {
     for (final Power power : SELECT_POWERS) {
       listing.add(new TextButton(UI, "  "+power.name, 0.75f) {
         protected void whenClicked() { togglePower(power); }
-        protected boolean toggled() { return powersPicked.includes(power); }
+        protected boolean toggled() { return hasPower(power); }
         protected boolean enabled() { return canToggle(power); }
       });
     }
@@ -128,7 +155,7 @@ public class SelectHouseholdPane extends MenuPane {
     for (final Background b : Expedition.ADVISOR_BACKGROUNDS) {
       listing.add(new TextButton(UI, "  "+b.name, 0.75f) {
         protected void whenClicked() { toggleAdvisor(b); }
-        protected boolean toggled() { return advisorTypes.includes(b); }
+        protected boolean toggled() { return hasAdvisor(b); }
         protected boolean enabled() { return canToggleAdvisor(b); }
       });
     }
@@ -139,10 +166,14 @@ public class SelectHouseholdPane extends MenuPane {
     ));
     
     listing.add(colonHeader = createTextItem("Colonists", 1.2f, null));
+    colonLabels = new Text[Expedition.COLONIST_BACKGROUNDS.length];
+    int labelIndex = 0;
+    
     for (final Background b : Expedition.COLONIST_BACKGROUNDS) {
       
       final UIGroup counter = new UIGroup(UI);
       final Text label = new Text(UI, UIConstants.INFO_FONT);
+      colonLabels[labelIndex++] = label;
       label.scale = 0.75f;
       label.setText(b.name);
       label.setToLineSize();
@@ -184,21 +215,85 @@ public class SelectHouseholdPane extends MenuPane {
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = true ;
-
     
-    int numT = traitsPicked.size(), maxT = MAX_TRAITS;
+    int numT = numTraits(), maxT = MAX_TRAITS;
     updateTextItem(traitHeader, "Traits ("+numT+"/"+maxT+")", null);
     
-    int numP = powersPicked.size(), maxP = maxPowers();
+    int numP = numPowers(), maxP = maxPowers();
     updateTextItem(powerHeader, "Powers ("+numP+"/"+maxP+")", null);
     
-    int numA = advisorTypes.size(), maxA = maxAdvisors();
+    int numA = numAdvisors(), maxA = maxAdvisors();
     updateTextItem(advisHeader, "Advisors ("+numA+"/"+maxA+")", null);
     
-    int numC = (int) colonistNumbers.total(), maxC = maxColonists();
+    int numC = numColonists(), maxC = maxColonists();
     updateTextItem(colonHeader, "Colonists ("+numC+"/"+maxC+")", null);
     
+    if (colonLabels != null) for (int i = colonLabels.length; i-- > 0;) {
+      final Background b = Expedition.COLONIST_BACKGROUNDS[i];
+      final Text t = colonLabels[i];
+      final int numM = expedition.numMigrants(b);
+      final Colour tint = numM > 0 ? Text.LINK_COLOUR : Colour.LITE_GREY;
+      t.setText("");
+      t.append("  "+b.name+" ("+numM+")", tint);
+    }
+    
     super.updateState();
+  }
+  
+  
+  private void updateHelp(Constant c) {
+    //helpField.setText("");
+    //c.describeHelp(helpField, null);
+    //helpField.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
+  }
+  
+  
+  private void updateLeaderMedia() {
+    Human.refreshMedia((Human) leader());
+  }
+  
+
+  
+  /**  Leader creation and updates-
+    */
+  private void initLeader() {
+    
+    final VerseLocation home    = expedition.origin ();
+    final Faction       faction = expedition.backing();
+    
+    Background gender = Rand.yes() ? BORN_MALE : BORN_FEMALE;
+    final Career c = new Career(KNIGHTED, BORN_HIGH, home, gender);
+    Human leader = (Human) expedition.leader();
+    
+    if (leader == null) leader = new Human(c, faction);
+    else                leader.applyCareer(c, faction);
+    
+    for (Trait t : SELECT_TRAITS) leader.traits.setLevel(t, 0);
+    leader.skills.wipeTechniques();
+    
+    expedition.assignLeader(leader);
+    Selection.pushSelectionPane(new ExpeditionPane(UI, expedition), null);
+  }
+  
+  
+  private Actor leader() {
+    return expedition.leader();
+  }
+  
+  
+  private boolean hasTrait(Trait t) {
+    return leader().traits.hasTrait(t);
+  }
+  
+  
+  private boolean hasGender(Background b) {
+    if (b == BORN_MALE) return leader().traits.male  ();
+    else                return leader().traits.female();
+  }
+  
+  
+  private boolean hasPower(Technique t) {
+    return leader().skills.hasTechnique(t);
   }
   
   
@@ -232,15 +327,26 @@ public class SelectHouseholdPane extends MenuPane {
   
   
   private void toggleTrait(Trait trait) {
-    traitsPicked.toggleMember(trait, ! traitsPicked.includes(trait));
+    final boolean has = hasTrait(trait);
+    leader().traits.setLevel(trait, has ? 0 : trait.maxVal / 2f);
+    
+    //  TODO:  Include extra techniques related to trait!
+    
     updateHelp(trait);
+    updateLeaderMedia();
   }
   
   
   private boolean canToggle(Trait trait) {
-    if (powersPicked.size() > MAX_POWERS && trait == GIFTED) return false;
-    if (traitsPicked.includes(trait)) return true;
-    else return traitsPicked.size() < maxTraits();
+    if (numPowers() > MAX_POWERS && trait == GIFTED) return false;
+    if (hasTrait(trait)) return true;
+    else return numTraits() < maxTraits();
+  }
+  
+  
+  private int numTraits() {
+    int n = 0; for (Trait t : SELECT_TRAITS) if (hasTrait(t)) n++;
+    return n;
   }
   
   
@@ -250,8 +356,15 @@ public class SelectHouseholdPane extends MenuPane {
   
   
   private void setGender(Background gender) {
-    this.gender = gender;
+    final float genVal = FEMININE.maxVal / 2f;
+    final boolean male = gender == BORN_MALE;
+    
+    leader().traits.setLevel(FEMININE     , genVal * (male ? -1 : 1));
+    leader().traits.setLevel(GENDER_MALE  , male ? 1 : 0            );
+    leader().traits.setLevel(GENDER_FEMALE, male ? 0 : 1            );
+    
     updateHelp(gender);
+    updateLeaderMedia();
   }
   
   
@@ -265,20 +378,30 @@ public class SelectHouseholdPane extends MenuPane {
     Power.KINESTHESIA
   };
   
+  
   private void togglePower(Power power) {
-    powersPicked.toggleMember(power, ! powersPicked.includes(power));
+    final boolean has = hasPower(power);
+    if (has) leader().skills.removeTechnique(power);
+    else     leader().skills.addTechnique   (power);
     updateHelp(power);
+    updateLeaderMedia();
   }
   
   
   private boolean canToggle(Power power) {
-    if (powersPicked.includes(power)) return true;
-    else return powersPicked.size() < maxPowers();
+    if (hasPower(power)) return true;
+    else return numPowers() < maxPowers();
+  }
+  
+  
+  private int numPowers() {
+    int n = 0; for (Power p : SELECT_POWERS) if (hasPower(p)) n++;
+    return n;
   }
   
   
   private int maxPowers() {
-    if (traitsPicked.includes(GIFTED)) return MAX_POWERS + 1;
+    if (hasTrait(GIFTED)) return MAX_POWERS + 1;
     else return MAX_POWERS;
   }
   
@@ -287,19 +410,25 @@ public class SelectHouseholdPane extends MenuPane {
   /**  Handling advisor selection-
     */
   private void toggleAdvisor(Background b) {
-    final boolean is = ! advisorTypes.includes(b);
-    advisorTypes.toggleMember(b, is);
-    
-    if (is) expedition.addAdvisor(b);
-    else for (Actor a : expedition.colonists()) if (a.mind.vocation() == b) {
-      expedition.removeMigrant(a);
-    }
+    final Actor a = expedition.firstMigrant(b);
+    if (a != null) expedition.removeMigrant(a);
+    else expedition.addAdvisor(b);
+  }
+  
+  
+  private boolean hasAdvisor(Background b) {
+    return expedition.firstMigrant(b) != null;
   }
   
   
   private boolean canToggleAdvisor(Background b) {
-    if (advisorTypes.includes(b)) return true;
-    return advisorTypes.size() < maxAdvisors();
+    if (hasAdvisor(b)) return true;
+    return numAdvisors() < maxAdvisors();
+  }
+  
+  
+  private int numAdvisors() {
+    return expedition.advisors().size();
   }
   
   
@@ -312,19 +441,19 @@ public class SelectHouseholdPane extends MenuPane {
   /**  Handling colonist selection-
     */
   private void incColonists(Background b, int inc) {
-    colonistNumbers.add(inc, b);
-    
-    int numB = 0, allowed = (int) colonistNumbers.valueFor(b);
-    for (Actor a : expedition.colonists()) if (a.mind.vocation() == b) {
-      if (++numB > allowed) expedition.removeMigrant(a);
-    }
-    while (allowed > numB++) expedition.addColonist(b);
+    if (inc > 0) expedition.addColonist(b);
+    else expedition.removeMigrant(expedition.firstMigrant(b));
   }
   
   
   private boolean canIncColonists(Background b, int inc) {
-    if (inc > 0) return colonistNumbers.total() < maxColonists();
-    else return colonistNumbers.valueFor(b) > 0;
+    if (inc > 0) return numColonists() < maxColonists();
+    else return expedition.numMigrants(b) > 0;
+  }
+  
+  
+  private int numColonists() {
+    return expedition.colonists().size();
   }
   
   
@@ -337,18 +466,11 @@ public class SelectHouseholdPane extends MenuPane {
   /**  Other navigation tasks.
     */
   private boolean canProgress() {
-    if (powersPicked.size() != maxPowers()) return false;
-    if (traitsPicked.size() != maxTraits()) return false;
-    if (advisorTypes.size() != maxAdvisors()) return false;
-    if (colonistNumbers.total() != maxColonists()) return false;
+    if (numPowers   () != maxPowers   ()) return false;
+    if (numTraits   () != maxTraits   ()) return false;
+    if (numAdvisors () != maxAdvisors ()) return false;
+    if (numColonists() != maxColonists()) return false;
     return true;
-  }
-  
-  
-  private void updateHelp(Constant c) {
-    //helpField.setText("");
-    //c.describeHelp(helpField, null);
-    //helpField.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
   }
   
   
@@ -357,8 +479,6 @@ public class SelectHouseholdPane extends MenuPane {
     final StartupScenario newGame = new StartupScenario(expedition, prefix);
     PlayLoop.setupAndLoop(newGame);
   }
-  
-  
 }
 
 

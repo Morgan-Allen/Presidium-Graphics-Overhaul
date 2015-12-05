@@ -114,10 +114,11 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
+    expedition.setFunding(10000);
     navigateForward(new SelectHouseholdPane(UI, expedition), true);
   }
 }
-  
-  
-  
-  
+
+
+
+

@@ -67,10 +67,7 @@ public class Human extends Actor {
   
   
   public Human(Career career, Faction faction) {
-    this.career = career;
-    career.applyCareer(this, faction);
-    mind.setVocation(career.vocation());
-    initSpriteFor(this, this);
+    applyCareer(career, faction);
   }
   
   
@@ -88,7 +85,9 @@ public class Human extends Actor {
   }
   
   
-  protected ActorMind initMind() { return new HumanMind(this); }
+  protected ActorMind initMind() {
+    return new HumanMind(this);
+  }
   
   
   public void setVocation(Background b) {
@@ -96,8 +95,12 @@ public class Human extends Actor {
   }
   
   
-  public void assignCareer(Career c) {
+  public void applyCareer(Career c, Faction f) {
+    traits.wipeTraits();
     this.career = c;
+    career.applyCareer(this, f);
+    mind.setVocation(career.vocation());
+    refreshMedia(this);
   }
   
   
@@ -187,8 +190,16 @@ public class Human extends Actor {
   }
   
   
+  public static void refreshMedia(Human c) {
+    //  TODO:  Also refresh if equipment or job changes!
+    initSpriteFor(c, c);
+    final String key = ""+c.hashCode();
+    Composite.wipeCache(key);
+  }
+  
+  
   private static Composite faceComposite(Human c) {
-    //  TODO:  Also refresh if equipment or vocation changes!
+    
     final String key = ""+c.hashCode();
     final Composite cached = Composite.fromCache(key);
     if (cached != null) return cached;

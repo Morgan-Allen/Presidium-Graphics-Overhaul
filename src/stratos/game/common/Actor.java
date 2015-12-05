@@ -52,6 +52,7 @@ public abstract class Actor extends Mobile implements
   
   
   public Actor() {
+    return;
   }
   
   

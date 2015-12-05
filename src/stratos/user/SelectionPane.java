@@ -103,7 +103,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
   
   public SelectionPane(
     final HUD UI,
-    Selectable selected, SelectionPane previous,
+    final Selectable selected, SelectionPane previous,
     boolean hasPortrait, boolean hasListing, int topPadding,
     String... categories
   ) {
@@ -140,6 +140,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     if (hasPortrait) {
       portraitFrame = new UINode(UI) {
         protected void render(WidgetsPass batch2d) {
+          if (selected != null) portrait = selected.portrait(UI);
           if (portrait == null) return;
           portrait.drawTo(batch2d, bounds, absAlpha);
         }
