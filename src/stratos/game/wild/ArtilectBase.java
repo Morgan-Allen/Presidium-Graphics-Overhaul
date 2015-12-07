@@ -7,7 +7,7 @@ package stratos.game.wild;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
-import stratos.game.verse.Verse;
+import stratos.game.verse.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 
@@ -41,7 +41,7 @@ public class ArtilectBase extends Base {
   
   
   public ArtilectBase(Stage world) {
-    super(world, Verse.FACTION_ARTILECTS);
+    super(world, Faction.FACTION_ARTILECTS);
   }
   
   

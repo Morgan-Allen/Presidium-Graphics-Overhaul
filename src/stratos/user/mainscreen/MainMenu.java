@@ -77,8 +77,8 @@ public class MainMenu extends MenuPane implements UIConstants {
           "media/Help/GameCredits.xml"
         ).matchChildValue("name", "Credits").child("content").content();
         
-        listing.add(createTextItem("Credits:", 1.2f, null));
-        listing.add(createTextItem(text, 0.75f, Colour.LITE_GREY));
+        listing.add(createTextItem("Credits:", 1.2f, null, 1));
+        listing.add(createTextItem(text, 0.75f, Colour.LITE_GREY, 0));
       }
     };
     navigateForward(creditsPane, true);
@@ -90,7 +90,7 @@ public class MainMenu extends MenuPane implements UIConstants {
       
       protected void fillListing(List <UINode> listing) {
         listing.add(createTextItem(
-          "Are you sure you want to quit?", 1.2f, null
+          "Are you sure you want to quit?", 1.2f, null, 1
         ));
         listing.add(createTextButton("  Just quit already", 1, new Link() {
           public void whenClicked(Object context) {

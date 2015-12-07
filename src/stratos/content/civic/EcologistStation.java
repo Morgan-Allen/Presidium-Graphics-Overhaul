@@ -4,12 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.civic;
-import stratos.content.abilities.EcologistTechniques;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.game.verse.Verse;
+import stratos.game.verse.*;
 import stratos.game.actors.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
@@ -20,6 +19,7 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.economic.Economy.*;
+import stratos.content.abilities.EcologistTechniques;
 
 
 
@@ -239,7 +239,7 @@ public class EcologistStation extends HarvestVenue {
         d.setCheckBonus(faunaBonus * 2.5f);
         choice.add(d);
       }
-      if (t instanceof Human && t.base().faction() == Verse.FACTION_NATIVES) {
+      if (t instanceof Human && t.base().faction() == Faction.FACTION_NATIVES) {
         final Dialogue d = Dialogue.dialogueFor(actor, (Human) t);
         d.addMotives(Plan.MOTIVE_JOB, nativeBonus * Plan.CASUAL);
         d.setCheckBonus(nativeBonus * 2.5f);

@@ -302,7 +302,7 @@ public class VerseJourneys {
   
   
   private void cycleOffworldPassengers(Journey journey) {
-    final Demographic base = Verse.baseForLocation(journey.origin, universe);
+    final Demographic base = Verse.demographicFor(journey.origin, universe);
     final Vehicle transport = journey.transport;
     
     if (transport != null) {
@@ -481,7 +481,7 @@ public class VerseJourneys {
     }
     
     actor.mind.assignBehaviour(new Smuggling(actor, trans, world, false));
-    Verse.baseForLocation(home, universe).toggleExpat(actor, true);
+    Verse.demographicFor(home, universe).toggleExpat(actor, true);
     return true;
   }
   

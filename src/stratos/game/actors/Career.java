@@ -9,6 +9,7 @@ import stratos.game.economic.*;
 import stratos.game.verse.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.verse.Faction.*;
 
 
 
@@ -135,9 +136,9 @@ public class Career {
       likeRobot = Nums.clamp(AT.traitLevel(ANCIENT_LORE) / 10, 0, 1);
 
     final ActorRelations AR = actor.relations;
-    AR.setRelation(Verse.FACTION_WILDLIFE , likeFauna / 2, 1 - likeFauna);
-    AR.setRelation(Verse.FACTION_NATIVES  , likeNativ / 2, 1 - likeNativ);
-    AR.setRelation(Verse.FACTION_ARTILECTS, likeRobot / 2, 1 - likeRobot);
+    AR.setRelation(FACTION_WILDLIFE , likeFauna / 2, 1 - likeFauna);
+    AR.setRelation(FACTION_NATIVES  , likeNativ / 2, 1 - likeNativ);
+    AR.setRelation(FACTION_ARTILECTS, likeRobot / 2, 1 - likeRobot);
     AR.setRelation(faction, 0.5f, 0);
     
     
@@ -210,7 +211,7 @@ public class Career {
     if (birth != null) {
       return;
     }
-    else if (faction == Verse.FACTION_NATIVES) {
+    else if (faction == FACTION_NATIVES) {
       birth = Backgrounds.BORN_NATIVE;
     }
     else {
@@ -230,7 +231,7 @@ public class Career {
     if (homeworld != null) {
       return;
     }
-    else if (faction == Verse.FACTION_NATIVES) {
+    else if (faction == FACTION_NATIVES) {
       homeworld = faction.startSite();
     }
     else {
@@ -250,7 +251,7 @@ public class Career {
     final Pick <Background> pick = new Pick <Background> ();
     final VerseLocation homeworld = faction.startSite();
     
-    if (faction == Verse.FACTION_NATIVES || homeworld == null) {
+    if (faction == FACTION_NATIVES || homeworld == null) {
       for (Background b : Backgrounds.NATIVE_CIRCLES) {
         pick.compare(b, ratePromotion(b, actor, verbose) * Rand.num());
       }

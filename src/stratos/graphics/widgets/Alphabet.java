@@ -42,6 +42,11 @@ public class Alphabet {
   }
   
   
+  public float lineHeight() {
+    return letterFor(' ').height;
+  }
+  
+  
   public Texture texture() {
     return fontTex;
   }

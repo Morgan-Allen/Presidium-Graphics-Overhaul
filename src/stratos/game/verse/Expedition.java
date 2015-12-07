@@ -16,9 +16,6 @@ public class Expedition implements Session.Saveable {
 
   /**  Data fields, constants, constructors and save/load methods-
     */
-  final public static int
-    MAX_ADVISORS  = 2,
-    MAX_COLONISTS = 8;
   final public static Background ADVISOR_BACKGROUNDS[] = {
     FIRST_CONSORT,
     MINISTER_FOR_ACCOUNTS,
@@ -49,21 +46,24 @@ public class Expedition implements Session.Saveable {
       "Baroness (Large Estate)"
     };
   final public static int
-    FUNDING_MINIMAL  = 0,
-    FUNDING_STANDARD = 1,
-    FUNDING_GENEROUS = 2,
-    TITLE_KNIGHTED   = 0,
-    TITLE_COUNT      = 1,
-    TITLE_BARON      = 2;
+    TITLE_KNIGHTED        = 0,
+    TITLE_COUNT           = 1,
+    TITLE_BARON           = 2,
+    DEFAULT_FUNDING       = 8000,
+    DEFAULT_TRIBUTE       = 25,
+    DEFAULT_MAX_ADVISORS  = 2,
+    DEFAULT_MAX_COLONISTS = 8;
   
   
   Faction backing           = Verse.DEFAULT_HOMEWORLD.startingOwner;
   VerseLocation origin      = Verse.DEFAULT_HOMEWORLD;
   VerseLocation destination = Verse.DEFAULT_START_LOCATION;
-  
-  int funding   ;
-  int estateSize;
-  int tribute  ;
+
+  int titleGranted = TITLE_KNIGHTED ;
+  int funding      = DEFAULT_FUNDING;
+  int tribute      = DEFAULT_TRIBUTE;
+  int maxAdvisors  = DEFAULT_MAX_ADVISORS ;
+  int maxColonists = DEFAULT_MAX_COLONISTS;
   
   Table <Background, Integer> positions = new Table();
   List <Actor> applicants = new List();
@@ -83,7 +83,7 @@ public class Expedition implements Session.Saveable {
     origin      = (VerseLocation) s.loadObject();
     destination = (VerseLocation) s.loadObject();
     funding    = s.loadInt();
-    estateSize = s.loadInt();
+    titleGranted = s.loadInt();
     tribute   = s.loadInt();
     leader = (Actor) s.loadObject();
     s.loadObjects(advisors );
@@ -95,7 +95,7 @@ public class Expedition implements Session.Saveable {
     s.saveObject (origin     );
     s.saveObject (destination);
     s.saveInt    (funding    );
-    s.saveInt    (estateSize );
+    s.saveInt    (titleGranted );
     s.saveInt    (tribute    );
     s.saveObject (leader     );
     s.saveObjects(advisors   );
@@ -109,9 +109,13 @@ public class Expedition implements Session.Saveable {
   public VerseLocation origin     () { return origin     ; }
   public VerseLocation destination() { return destination; }
   public Faction       backing    () { return backing    ; }
-  public int funding   () { return funding   ; }
-  public int estateSize() { return estateSize; }
-  public int tribute   () { return tribute   ; }
+  
+
+  public int titleGranted() { return titleGranted; }
+  public int funding     () { return funding     ; }
+  public int tribute     () { return tribute     ; }
+  public int maxAdvisors () { return maxAdvisors ; }
+  public int maxColonists() { return maxColonists; }
   
   public Actor leader() { return leader; }
   public Series <Actor> advisors () { return advisors ; }
@@ -132,23 +136,25 @@ public class Expedition implements Session.Saveable {
   }
   
   
-  public void setFunding(int funding) {
+  public void setFunding(int funding, int tributePercent) {
     this.funding = funding;
+    this.tribute = tributePercent;
   }
   
   
-  public void setTribute(int tribute) {
-    this.tribute = tribute;
-  }
-  
-  
-  public void setEstateSize(int size) {
-    this.estateSize = size;
+  public void setTitleGranted(int title) {
+    this.titleGranted = title;
   }
   
   
   public void assignLeader(Actor leader) {
     this.leader = leader;
+  }
+  
+  
+  public void seMigrantLimits(int maxAdvisors, int maxColonists) {
+    this.maxAdvisors  = maxAdvisors ;
+    this.maxColonists = maxColonists;
   }
   
   
@@ -215,8 +221,8 @@ public class Expedition implements Session.Saveable {
   /**  Configuration utilities for use by in-world Missions-
     */
   public Expedition configFrom(
-    VerseLocation origin, VerseLocation destination,
-    Faction backing, int funding, int estateSize,
+    VerseLocation origin, VerseLocation destination, Faction backing,
+    int titleGranted, int funding, int tributePercent,
     Series <Actor> applicants
   ) {
     this.backing     = backing    ;
@@ -238,8 +244,9 @@ public class Expedition implements Session.Saveable {
       else colonists.add(a);
     }
     
-    this.funding    = funding   ;
-    this.estateSize = estateSize;
+    this.titleGranted = titleGranted  ;
+    this.funding      = funding       ;
+    this.tribute      = tributePercent;
     return this;
   }
   
@@ -249,8 +256,8 @@ public class Expedition implements Session.Saveable {
     */
   public String titleDesc() {
     boolean male = leader == null ? true : leader.traits.male();
-    if (male) return TITLE_MALE  [estateSize];
-    else      return TITLE_FEMALE[estateSize];
+    if (male) return TITLE_MALE  [titleGranted];
+    else      return TITLE_FEMALE[titleGranted];
   }
 }
 

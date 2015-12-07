@@ -189,9 +189,9 @@ public class Base implements
   
   
   public static Base wildlife(Stage world) {
-    Base base = namedBase(world, Verse.FACTION_WILDLIFE.name);
+    Base base = namedBase(world, Faction.FACTION_WILDLIFE.name);
     if (base != null) return base;
-    else base = new Base(world, Verse.FACTION_WILDLIFE);
+    else base = new Base(world, Faction.FACTION_WILDLIFE);
     
     final Blueprint canBuild[] = new Blueprint[0];
     return registerBase(base, world, canBuild);
@@ -199,7 +199,7 @@ public class Base implements
   
   
   public static VerminBase vermin(Stage world) {
-    VerminBase base = (VerminBase) namedBase(world, Verse.FACTION_VERMIN.name);
+    VerminBase base = (VerminBase) namedBase(world, Faction.FACTION_VERMIN.name);
     if (base != null) return base;
     else base = new VerminBase(world);
     
@@ -210,7 +210,7 @@ public class Base implements
   
   
   public static ArtilectBase artilects(Stage world) {
-    ArtilectBase base = (ArtilectBase) namedBase(world, Verse.FACTION_ARTILECTS.name);
+    ArtilectBase base = (ArtilectBase) namedBase(world, Faction.FACTION_ARTILECTS.name);
     if (base != null) return base;
     else base = new ArtilectBase(world);
     
@@ -225,7 +225,7 @@ public class Base implements
     Base base = namedBase(world, title);
     
     if (base != null) return base;
-    else base = new Base(world, Verse.FACTION_NATIVES);
+    else base = new Base(world, Faction.FACTION_NATIVES);
     
     final Blueprint canBuild[] = NativeHut.VENUE_BLUEPRINTS[tribeID];
     base.title = title;

@@ -26,7 +26,7 @@ public class SelectSitePane extends MenuPane {
   protected void fillListing(List <UINode> listing) {
     //
     //  Pick a homeworld first.
-    listing.add(createTextItem("Homeworld:", 1.2f, null));
+    listing.add(createTextItem("Homeworld:", 1.2f, null, 1));
     
     final VerseLocation homeworlds[] = Verse.ALL_CAPITALS;
     for (final VerseLocation homeworld : homeworlds) {
@@ -38,11 +38,11 @@ public class SelectSitePane extends MenuPane {
     listing.add(createTextItem(
       "Your homeworld will determine the initial colonists and finance "+
       "available to your settlement, along with technical expertise and "+
-      "trade revenue.", 0.75f, Colour.LITE_GREY
+      "trade revenue.", 0.75f, Colour.LITE_GREY, 3
     ));
     //
     //  Then pick a sector.
-    listing.add(createTextItem("Landing Site:", 1.2f, null));
+    listing.add(createTextItem("Landing Site:", 1.2f, null, 1));
 
     final VerseLocation landings[] = Verse.ALL_DIAPSOR_SECTORS;
     for (final VerseLocation landing : landings) {
@@ -54,7 +54,7 @@ public class SelectSitePane extends MenuPane {
     listing.add(createTextItem(
       "Your landing site will determine the type of resources initially "+
       "available to your settlement, along with local species and other "+
-      "threats.", 0.75f, Colour.LITE_GREY
+      "threats.", 0.75f, Colour.LITE_GREY, 3
     ));
     
     //
@@ -73,12 +73,15 @@ public class SelectSitePane extends MenuPane {
     screen.display.showLabels   = true ;
     screen.display.showWeather  = false;
     screen.worldsDisplay.hidden = false;
+    screen.crewDisplay.hidden   = true ;
     if (expedition.destination() == null) screen.display.spinAtRate(9, 0);
   }
   
   
   
-  
+
+  /**  Handling homeworld selection-
+    */
   private void selectHomeworld(VerseLocation homeworld) {
     final MainScreen screen = MainScreen.current();
     screen.worldsDisplay.setSelection(homeworld);
@@ -92,6 +95,9 @@ public class SelectSitePane extends MenuPane {
   }
   
   
+
+  /**  Handling landing selection-
+    */
   private void selectLanding(VerseLocation landing) {
     final MainScreen screen = MainScreen.current();
     screen.display.setSelection(landing.name, true);
@@ -106,6 +112,8 @@ public class SelectSitePane extends MenuPane {
   
   
   
+  /**  Other navigation tasks.
+    */
   private boolean canProgress() {
     if (expedition.origin     () == null) return false;
     if (expedition.destination() == null) return false;
@@ -114,8 +122,15 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
-    expedition.setFunding(10000);
-    navigateForward(new SelectHouseholdPane(UI, expedition), true);
+    //MainScreen.current().clearInfoPane();
+    expedition.backing().configStartingExpedition(expedition);
+    navigateForward(new SelectTraitsPane(UI, expedition), true);
+  }
+  
+  
+  protected void navigateBack() {
+    MainScreen.current().clearInfoPane();
+    super.navigateBack();
   }
 }
 

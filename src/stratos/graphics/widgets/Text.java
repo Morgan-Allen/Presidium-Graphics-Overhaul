@@ -103,6 +103,16 @@ public class Text extends UIGroup implements Description {
   }
   
   
+  public Alphabet font() {
+    return alphabet;
+  }
+  
+  
+  public float lineHeight() {
+    return alphabet.lineHeight() * scale;
+  }
+  
+  
   
   /**  Adds the given String to this text object in association with
     *  the specified selectable.

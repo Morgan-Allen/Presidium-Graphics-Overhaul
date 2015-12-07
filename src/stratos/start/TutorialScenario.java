@@ -140,8 +140,8 @@ public class TutorialScenario extends StartupScenario {
   private static Expedition expedition() {
     final Faction backing = Verse.PLANET_PAREM_V.startingOwner;
     final Expedition e = new Expedition().configFrom(
-      Verse.PLANET_PAREM_V, Verse.SECTOR_TERRA,
-      backing, 8000, Expedition.TITLE_COUNT, new Batch()
+      Verse.PLANET_PAREM_V, Verse.SECTOR_TERRA, backing,
+      Expedition.TITLE_COUNT, 2000, 0, new Batch()
     );
     e.assignLeader(Backgrounds.KNIGHTED.sampleFor(backing));
     return e;

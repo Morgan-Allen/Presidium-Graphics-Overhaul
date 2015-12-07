@@ -68,7 +68,7 @@ public class DebugGathering extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.settlement(world, "Player Base", Verse.FACTION_SUHAIL);
+    return Base.settlement(world, "Player Base", Faction.FACTION_SUHAIL);
   }
   
   

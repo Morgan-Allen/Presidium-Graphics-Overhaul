@@ -66,7 +66,7 @@ public class DebugSecurity extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.settlement(world, "Player Base", Verse.FACTION_ALTAIR);
+    return Base.settlement(world, "Player Base", Faction.FACTION_ALTAIR);
   }
   
   

@@ -151,7 +151,7 @@ public abstract class MenuPane extends ListingPane {
   
   
   protected UINode createTextItem(
-    String text, float scale, Colour c
+    String text, float scale, Colour c, int numLines
   ) {
     final Text t = new Text(UI, UIConstants.INFO_FONT);
     t.append(text, c == null ? Colour.WHITE : c);
@@ -159,7 +159,16 @@ public abstract class MenuPane extends ListingPane {
     
     final UIGroup item = new UIGroup(UI);
     t.attachTo(item);
-    updateTextItem(item, text, c);
+    
+    if (numLines > 0) {
+      t.alignTop(0, (int) (t.lineHeight() * numLines));
+    }
+    else {
+      t.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
+    }
+    
+    item.alignToMatch(t);
+    t.alignToFill();
     return item;
   }
   
@@ -167,10 +176,8 @@ public abstract class MenuPane extends ListingPane {
   protected void updateTextItem(UINode item, String text, Colour c) {
     if (item == null) return;
     final Text t = (Text) ((UIGroup) item).kids().first();
-    t.setText(text);
-    t.setToPreferredSize(MainScreen.MENU_PANEL_WIDE);
-    item.alignToMatch(t);
-    t.alignToFill();
+    t.setText("");
+    t.append(text, c == null ? Colour.WHITE : c);
   }
   
   

@@ -39,6 +39,7 @@ public class MainScreen extends HUD {
   UIGroup displayArea;
   PlanetDisplay display;
   Carousel worldsDisplay;
+  CrewDisplay crewDisplay;
   
   UIGroup infoArea;
   private UIGroup currentInfo;
@@ -80,6 +81,10 @@ public class MainScreen extends HUD {
     worldsDisplay.alignTop(MARGIN, CAROUSEL_HIGH);
     worldsDisplay.alignHorizontal(dispInX, dispInX);
     worldsDisplay.attachTo(this);
+    
+    crewDisplay = new CrewDisplay(this);
+    crewDisplay.alignToMatch(worldsDisplay);
+    crewDisplay.attachTo(this);
   }
   
   
@@ -106,6 +111,7 @@ public class MainScreen extends HUD {
       display.showWeather  = true ;
       display.showLabels   = false;
       worldsDisplay.hidden = true ;
+      crewDisplay.hidden   = true ;
     }
     
     super.updateState();

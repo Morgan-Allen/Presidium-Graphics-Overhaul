@@ -116,6 +116,7 @@ public class BaseResearch {
   public void incResearchFor(Upgrade u, float inc, int level) {
     final Research r = researchFor(u);
     final int oldCat = (int) r.actualLevel;
+    inc *= base.faction().techResearchMultiple();
     r.actualLevel = Nums.clamp(r.actualLevel + inc, 0, level);
     final int newCat = (int) r.actualLevel;
     

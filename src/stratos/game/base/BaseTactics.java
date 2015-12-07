@@ -36,7 +36,7 @@ public class BaseTactics {
     shortWaiting   = true ,
     extraVerbose   = false;
   protected static Faction
-    verboseBase    = Verse.FACTION_ARTILECTS;
+    verboseBase    = Faction.FACTION_ARTILECTS;
   
   protected boolean shouldReport() {
     return updatesVerbose && I.matchOrNull(base.faction(), verboseBase);

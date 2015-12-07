@@ -10,8 +10,7 @@ import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
-import stratos.game.verse.Verse;
-import stratos.graphics.common.Colour;
+import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.content.wip.*;
@@ -65,7 +64,7 @@ public class DebugEcology extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    return Base.settlement(world, "Player Base", Verse.FACTION_SUHAIL);
+    return Base.settlement(world, "Player Base", Faction.FACTION_SUHAIL);
   }
   
   

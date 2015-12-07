@@ -33,7 +33,7 @@ public class SavesListPane extends MenuPane {
       SaveUtils.latestSaves()     :
       SaveUtils.savedFiles(prefix);
     
-    listing.add(createTextItem("Saved Games:", 1.2f, null));
+    listing.add(createTextItem("Saved Games:", 1.2f, null, 1));
     
     for (final String path : saves) {
       final String titlePath;

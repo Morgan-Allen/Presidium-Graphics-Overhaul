@@ -11,6 +11,7 @@ import stratos.game.wild.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.user.Selectable;
 import stratos.util.*;
 
 
@@ -187,6 +188,19 @@ public class VerseLocation extends Background {
   
   public Species[] nativeSpecies() {
     return nativeSpecies;
+  }
+  
+  
+  
+  /**  Rendering and interface methods-
+    */
+  public void describeHelp(Description d, Selectable prior) {
+    substituteReferences(info, d);
+    
+    if (startingOwner != null) {
+      d.append("\n\n");
+      d.append(startingOwner.startInfo);
+    }
   }
 }
 

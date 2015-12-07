@@ -27,7 +27,9 @@ public class Image extends UINode {
     TRANSLUCENT_WHITE = ImageAsset.withColor(15, SOFT_WHITE, Image.class),
     TRANSLUCENT_GREY  = ImageAsset.withColor(16, SOFT_GREY , Image.class),
     TRANSLUCENT_BLACK = ImageAsset.withColor(16, SOFT_BLACK, Image.class),
-    SOLID_WHITE       = ImageAsset.withColor(16, WHITE     , Image.class);
+    SOLID_WHITE       = ImageAsset.withColor(16, WHITE     , Image.class),
+    SOLID_BLACK       = ImageAsset.withColor(16, BLACK     , Image.class),
+    FULL_TRANSPARENCY = ImageAsset.withColor(16, NONE      , Image.class);
   
   public boolean
     lockToPixels = false,
@@ -52,6 +54,11 @@ public class Image extends UINode {
   
   public Image(HUD myHUD, Texture t) {
     super(myHUD);
+    this.texture = t;
+  }
+  
+  
+  public void setBaseTexture(Texture t) {
     this.texture = t;
   }
   

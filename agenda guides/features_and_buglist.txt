@@ -2,19 +2,18 @@
 
 
 TO DO NOW-
-
+   
+*  Actors should be doing more to dispose of bodies.  Burial or recyling.
 
 *  Offworld raids by enemy houses!  (And general 'wandering monsters'.)
    
 *  Pax Conditioning needs to be filled in.  Sleep Gas as booster skill.
    
-   
-*  Actors should be doing more to dispose of bodies.  Burial or recyling.
-*  In addition, picking rest/retreat points should be more sensible (check the
-   pure-combat scenarios.)
-   
 *  A summary of profit and loss for each structure would be worthwhile!
    (Also, venues should have min-stocks for certain goods, even when selling.)
+
+*  In addition, picking rest/retreat points should be more sensible (check the
+   pure-combat scenarios.)
 
 
 *  Initial missions:
@@ -31,6 +30,14 @@ TO DO NOW-
    better definition for the kinds of tasks that merit being mounted, and make
    sure that mounts are prompter about responding.  (A MountUtils class may
    be in order for cleanup.)
+
+
+*  During the new-game screen, consider inserting the portrait for the leader
+   in the current pane, directly.  And certainly give it a label!
+
+*  Ensure that political-relations fx for house suhail and full trait/skill fx
+   for gender are working when you begin a new game.  (Also, consider allowing
+   'upstart' or 'diplomatic' as backgrounds.)
 
 *  Add random tips during the loading-screens.
 

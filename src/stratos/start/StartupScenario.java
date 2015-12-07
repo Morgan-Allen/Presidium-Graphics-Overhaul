@@ -52,7 +52,7 @@ public class StartupScenario extends Scenario {
     */
   protected Stage createWorld() {
     
-    final int mapSize = MAP_SIZES[expedition.estateSize()];
+    final int mapSize = MAP_SIZES[expedition.titleGranted()];
     final VerseLocation locale = expedition.destination();
     final TerrainGen TG = locale.initialiseTerrain(mapSize);
     
@@ -100,6 +100,9 @@ public class StartupScenario extends Scenario {
     //  largely for balance reasons, though strictly speaking the locals would
     //  of course be there first.)
     establishLocals(world);
+    //
+    //  And finally, establish any other faction-specific special FX...
+    expedition.backing().applyEffectsOnLanding(expedition, base, world);
   }
   
   
@@ -158,7 +161,7 @@ public class StartupScenario extends Scenario {
     
     //  TODO:  INTRODUCE ESTABLISHMENT FOR OTHER STRUCTURES.  ...But walls
     //  should probably still go first.
-    final int estateSize = expedition.estateSize();
+    final int estateSize = expedition.titleGranted();
     if (estateSize >= 0) {
       final int wallSize = WALL_SIZES[estateSize] - bastion.blueprint.size;
       final Box2D enclosed = new Box2D(bastion.footprint());
@@ -204,7 +207,7 @@ public class StartupScenario extends Scenario {
     
     final Species nesting[] = expedition.origin().nativeSpecies();
 
-    int maxRuins = expedition.estateSize() - 2;
+    int maxRuins = expedition.titleGranted() - 2;
     for (Species s : nesting) if (s.type == Species.Type.ARTILECT) maxRuins++;
     
     final Batch <Venue> ruins = Base.artilects(world).setup.doPlacementsFor(

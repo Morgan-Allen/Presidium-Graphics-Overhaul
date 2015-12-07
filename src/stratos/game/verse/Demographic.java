@@ -11,19 +11,23 @@ import stratos.util.*;
 
 
 
+//  TODO:  Consider saving any details of the original founding Expedition (or
+//         just the expedition itself!)
+
+
 public class Demographic implements Session.Saveable {
   
   
-  final Stage world;
   final VerseLocation location;
   
+  private Faction claimant;
+  private Expedition founding;
   final private Tally <Object> presences = new Tally();
-  final private List  <Mobile> expats    = new List();
+  final private List  <Mobile> expats    = new List ();
   private float popLevel;
   
   
   protected Demographic(Verse universe, VerseLocation location) {
-    this.world    = universe.world;
     this.location = location;
     this.popLevel = location.population;
   }
@@ -31,7 +35,6 @@ public class Demographic implements Session.Saveable {
   
   public Demographic(Session s) throws Exception {
     s.cacheInstance(this);
-    this.world = s.world();
     this.location = (VerseLocation) s.loadObject();
     s.loadTally(presences);
     
@@ -53,13 +56,17 @@ public class Demographic implements Session.Saveable {
   }
   
   
+  public void setClaimant(Faction claimant, Expedition founding) {
+    this.claimant = claimant;
+    this.founding = founding;
+  }
+  
   
   protected void updateBase() {
     for (Mobile m : expats) {
       final Activity a = VerseJourneys.activityFor(m);
       if (a != null) a.whileOffworld();
     }
-    
     //
     //  TODO:  Allow all residents a chance to apply for work elsewhere- use
     //  that to replace candidate generation in BaseCommerce.

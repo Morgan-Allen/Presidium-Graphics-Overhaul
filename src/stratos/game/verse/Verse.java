@@ -6,12 +6,12 @@
 package stratos.game.verse;
 import stratos.game.common.*;
 import stratos.game.wild.*;
-import stratos.graphics.common.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.verse.Faction.*;
 import static stratos.game.wild.Habitat.*;
 import stratos.content.civic.*;
 
@@ -87,53 +87,7 @@ public class Verse {
     HIGH_POPULATION   =  3,
     VAST_POPULATION   =  4;
   
-  final static String
-    WORLDS_DIR = "media/Charts/worlds/",
-    HOUSES_DIR = "media/Charts/houses/";
-  
-  
-  final public static Faction
-    
-    FACTION_SUHAIL    = new Faction(
-      "House Suhail" , HOUSES_DIR+"house_suhail.png" , Colour.MAGENTA,
-      false
-    ),
-    FACTION_PROCYON   = new Faction(
-      "House Procyon", HOUSES_DIR+"house_procyon.png", Colour.LITE_GREY,
-      false
-    ),
-    FACTION_ALTAIR    = new Faction(
-      "House Altair" , HOUSES_DIR+"house_altair.png" , Colour.LITE_BLUE,
-      false
-    ),
-    FACTION_TAYGETA   = new Faction(
-      "House Taygeta", HOUSES_DIR+"house_taygeta.png", Colour.DARK_CYAN,
-      false
-    ),
-    FACTION_CIVILISED = new Faction(
-      "Civilised", null, Colour.WHITE     ,
-      false
-    ),
-    CIVIL_FACTIONS[] = Faction.INDEX.soFar(Faction.class),
-    
-    FACTION_NATIVES   = new Faction(
-      "Natives"  , null, Colour.LITE_YELLOW,
-      true
-    ),
-    FACTION_WILDLIFE  = new Faction(
-      "Wildlife" , null, Colour.LITE_GREEN ,
-      true
-    ),
-    FACTION_VERMIN    = new Faction(
-      "Vermin"   , null, Colour.LITE_BROWN ,
-      true
-    ),
-    FACTION_ARTILECTS = new Faction(
-      "Artilects", null, Colour.LITE_RED   ,
-      true
-    ),
-    PRIMAL_FACTIONS[] = Faction.INDEX.soFar(Faction.class);
-  
+  final static String WORLDS_DIR = "media/Charts/worlds/";
   
   final public static VerseLocation
     //
@@ -531,7 +485,10 @@ public class Verse {
   }
   
   
-  public static Demographic baseForLocation(
+  
+  /**  Physical demographics and travel methods-
+    */
+  public static Demographic demographicFor(
     VerseLocation location, Verse universe
   ) {
     if (location == null) return null;
@@ -541,6 +498,14 @@ public class Verse {
     final Demographic base = new Demographic(universe, location);
     universe.bases.add(base);
     return base;
+  }
+  
+  
+  public static float travelDistance(VerseLocation a, VerseLocation b) {
+    //
+    //  TODO:  Clearly, this needs some customisation...
+    if (a == b) return 0;
+    return 1;
   }
   
   

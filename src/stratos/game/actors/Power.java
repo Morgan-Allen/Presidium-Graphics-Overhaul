@@ -231,8 +231,8 @@ public abstract class Power extends Technique {
     
     FORESIGHT = new Power(
       "Foresight", "power_foresight", "power_foresight.gif",
-      "Accept your vision of events and allow them to be fulfilled.\n(Saves "+
-      "current game.)", PREMONITION, 5
+      "Permits you to play through future events, then revert to an "+
+      "earlier point in time.", PREMONITION, 5
     ) {
     /*
       final String
@@ -363,7 +363,7 @@ public abstract class Power extends Technique {
     
     REMOTE_VIEWING = new Power(
       "Remote Viewing", "power_remote_viewing", "power_remote_viewing.png",
-      "Lifts fog around target terrain.",
+      "Reveals an area of distant terrain.",
       PROJECTION, 10
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
@@ -576,7 +576,7 @@ public abstract class Power extends Technique {
     
     KINESTHESIA = new Power(
       "Kinesthesia", "power_kinesthesia", "power_kinesthesia.png",
-      "Boosts most combat-related and acrobatic skills.",
+      "Boosts most combat-related and athletic skills.",
       SYNESTHESIA, 5
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
@@ -733,7 +733,7 @@ public abstract class Power extends Technique {
  //
  //  These are available for initial selection for free.
  final public static Power BASIC_POWERS[] = {
-   REMOTE_VIEWING, VOICE_OF_COMMAND, SUSPENSION, TELEKINESIS
+   REMOTE_VIEWING, VOICE_OF_COMMAND, SUSPENSION, KINESTHESIA
  };
 }
 
