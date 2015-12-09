@@ -162,6 +162,7 @@ public class HumanMind extends ActorMind {
       choice.add(new Arrest  (actor, nearby));
       
       choice.add(Dialogue.dialogueFor(actor, nearby));
+      choice.add(Burial  .burialFor  (actor, nearby));
       //  TODO:  Restore this?
       //choice.add(Hunting.asHarvest(actor, nearby, home, true));
     }

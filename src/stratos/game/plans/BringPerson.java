@@ -29,7 +29,7 @@ public class BringPerson extends Plan {
   public BringPerson(
     Actor actor, Actor patient, Boarding destination
   ) {
-    super(actor, patient, MOTIVE_EMERGENCY, NO_HARM);
+    super(actor, patient, MOTIVE_JOB, NO_HARM);
     this.patient = patient;
     this.destination = destination;
   }
@@ -61,6 +61,13 @@ public class BringPerson extends Plan {
     */
   protected float getPriority() {
     return PlanUtils.supportPriority(actor, patient, motiveBonus(), 1, 0.5f);
+  }
+  
+  
+  public static boolean canCarry(Actor a, Actor carried) {
+    //
+    //  TODO:  You might want to sophisticate this a bit...
+    return true;
   }
   
   

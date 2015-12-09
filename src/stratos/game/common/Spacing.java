@@ -96,7 +96,7 @@ public final class Spacing implements TileConstants {
   
   /**  Finding vacant tiles (useful to avoid certain pathing-errors)-
     */
-  private static boolean isOpenTile(Tile t) {
+  public static boolean isOpenTile(Tile t) {
     if (t == null || t.blocked()) return false;
     if (t.inside().size() > 0) return false;
     return true;

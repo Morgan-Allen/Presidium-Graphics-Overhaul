@@ -147,7 +147,7 @@ public class DebugSocial extends Scenario {
     final Human subject = new Human(career, base.faction());
     subject.enterWorldAt(22, 29, world);
     subject.health.takeInjury(subject.health.maxHealth() + 1, true);
-    subject.health.setState(ActorHealth.STATE_DYING);
+    subject.health.setState(ActorHealth.STATE_DEAD);
     Selection.pushSelection(subject, null);
     
     final Actor finds = ruins.staff.hiredAs(Tripod.SPECIES).first();

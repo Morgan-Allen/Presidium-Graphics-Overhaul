@@ -31,12 +31,12 @@ public class ActorHealth {
     STATE_ACTIVE  = 0,
     STATE_RESTING = 1,
     STATE_SUSPEND = 2,
-    STATE_DYING   = 3,
+    STATE_DEAD    = 3,
     STATE_DECOMP  = 4;
   final static String STATE_DESC[] = {
     "Active",
     "Asleep",
-    "In Suspended Animation",
+    "In Stasis",
     "Dead",
     "Decomposed",
   };
@@ -466,7 +466,7 @@ public class ActorHealth {
   
   
   public boolean dying() {
-    return state >= STATE_DYING;
+    return state >= STATE_DEAD;
   }
   
   
@@ -565,7 +565,7 @@ public class ActorHealth {
     if (state <= STATE_RESTING && metabolism == HUMAN_METABOLISM) {
       Condition.checkContagion(actor);
     }
-    if (state == STATE_DYING) {
+    if (state == STATE_DEAD) {
       injury += maxHealth * 1f / DECOMPOSE_TIME;
     }
     
@@ -591,7 +591,7 @@ public class ActorHealth {
     if (state == STATE_SUSPEND) {
       if (report) I.say("  "+actor+" is in suspended animation.");
     }
-    else if (state == STATE_DYING || state == STATE_DECOMP) {
+    else if (state == STATE_DEAD || state == STATE_DECOMP) {
       if (injury >= maxHealth * MAX_DECOMP) {
         if (report) I.say("  "+actor+" is decomposing...");
         state = STATE_DECOMP;
@@ -602,17 +602,17 @@ public class ActorHealth {
     else if (injury >= maxHealth * MAX_INJURY) {
       advice.sendCasualtyMessageFromInjury(actor);
       if (I.logEvents()) I.say("  "+actor+" has died of injury.");
-      state = STATE_DYING;
+      state = STATE_DEAD;
     }
     else if (organic() && calories <= 0) {
       advice.sendCasualtyMessageFromStarvation(actor);
       if (I.logEvents()) I.say("  "+actor+" has died from starvation.");
-      state = STATE_DYING;
+      state = STATE_DEAD;
     }
     else if (actor.traits.usedLevel(IMMUNE) < -5) {
       advice.sendCasualtyMessageFromDisease(actor);
       if (I.logEvents()) I.say("  "+actor+" has died of disease.");
-      state = STATE_DYING;
+      state = STATE_DEAD;
     }
     else if (fatigue + injury >= maxHealth) {
       state = STATE_RESTING;
@@ -623,7 +623,7 @@ public class ActorHealth {
     }
     
     if (oldState != state && state != STATE_ACTIVE) {
-      if (state < STATE_DYING && ! organic()) state = STATE_DYING;
+      if (state < STATE_DEAD && ! organic()) state = STATE_DEAD;
       if ((verbose || I.logEvents()) && state != STATE_RESTING) {
         I.say("\n"+actor+" ENTERED ABNORMAL HEALTH-STATE: "+stateDesc());
       }
@@ -766,7 +766,7 @@ public class ActorHealth {
       else {
         advice.sendCasualtyMessageFromOldAge(actor);
         if (I.logEvents()) I.say(actor+" has died of old age.");
-        state = STATE_DYING;
+        state = STATE_DEAD;
       }
     }
   }

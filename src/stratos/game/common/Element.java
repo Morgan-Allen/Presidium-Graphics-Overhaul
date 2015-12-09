@@ -205,7 +205,9 @@ public abstract class Element implements
   
   /**  Timing and life-cycle associated methods-
     */
-  public void onGrowth(Tile t) {}
+  public void onGrowth(Tile t) {
+    return;
+  }
   
   
   public void refreshIncept(boolean isGrown) {

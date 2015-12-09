@@ -344,7 +344,7 @@ public class VerseJourneys {
     final Base home = transport.base();
     for (Background b : positions) {
       if (transport.staff().numHired(b) < Visit.countInside(b, positions)) {
-        final Human staff = new Human(new Career(b), home.faction());
+        final Human staff = new Human(b, home);
         staff.mind.setWork(transport);
         staff.mind.setHome(transport);
       }

@@ -55,7 +55,7 @@ public class Cybrid extends Artilect {
     this.template = template;
     final float injury = Nums.min(0.99f, template.health.injuryLevel());
     health.setInjuryLevel(injury);
-    health.setState(ActorHealth.STATE_DYING);
+    health.setState(ActorHealth.STATE_DEAD);
     for (Skill s : template.traits.skillSet()) {
       traits.setLevel(s, template.traits.traitLevel(s) / 2f);
     }

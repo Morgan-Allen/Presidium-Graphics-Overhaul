@@ -57,7 +57,7 @@ public class DebugTreating extends Scenario {
     final Stage world = new Stage(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
-    Flora.populateFlora(world);
+    ///Flora.populateFlora(world);
     return world;
   }
   
@@ -75,8 +75,9 @@ public class DebugTreating extends Scenario {
     GameSettings.paveFree  = true;
     
     if (false) configTreatmentScenario(world, base, UI);
-    if (true ) configFirstAidScenario (world, base, UI);
+    if (false) configFirstAidScenario (world, base, UI);
     if (false) configRecoveryScenario (world, base, UI);
+    if (true ) configBurialScenario   (world, base, UI);
   }
   
   
@@ -151,9 +152,32 @@ public class DebugTreating extends Scenario {
   }
   
   
+  private void configBurialScenario(Stage world, Base base, BaseUI UI) {
+    
+    Actor medic = Backgrounds.MINDER.sampleFor(base);
+    Venue station = new PhysicianStation(base);
+    SiteUtils.establishVenue(station, 4, 4, true, world, medic);
+    //medic.enterWorldAt(4, 4, world);
+    
+    Actor corpse = Backgrounds.EXCAVATOR.sampleFor(base);
+    corpse.health.setInjuryLevel(0.9f);
+    corpse.health.setState(ActorHealth.STATE_DEAD);
+    corpse.enterWorldAt(9, 9, world);
+    
+    Burial b = Burial.burialFor(medic, corpse);
+    medic.mind.assignBehaviour(b);
+    Selection.pushSelection(medic, null);
+  }
+  
+  
   protected void afterCreation() {
   }
 }
+
+
+
+
+
 
 
 

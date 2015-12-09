@@ -10,15 +10,16 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 
-//  TODO:  Have this extend Boarding for consistency.
+//  TODO:  Have this extend Boarding for consistency?  Merge with Captivity if
+//  you can.
 
 
 public interface Mount extends Session.Saveable, Target {
   
+  boolean allowsActivity(Plan activity);
+  
   boolean setMounted(Actor mounted, boolean is);
   Property mountStoresAt();
-  
-  boolean allowsActivity(Plan activity);
   
   boolean actorVisible(Actor mounted);
   void configureSpriteFrom(Actor mounted, Action a, Sprite s, Rendering r);

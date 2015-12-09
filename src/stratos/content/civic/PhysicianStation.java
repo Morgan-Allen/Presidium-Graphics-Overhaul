@@ -7,11 +7,9 @@ package stratos.content.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Ambience;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
@@ -19,12 +17,11 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class PhysicianStation extends Venue {
+public class PhysicianStation extends Venue implements Burial.Services {
   
   /**  Static constants, field definitions, constructors and save/load methods-
     */
-  private static boolean
-    verbose = false;
+  private static boolean verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     PhysicianStation.class,
@@ -35,7 +32,8 @@ public class PhysicianStation extends Venue {
   );
   
   final static float
-    VISIT_COST = Backgrounds.MIN_DAILY_EXPENSE * 2;
+    VISIT_COST  = Backgrounds.MIN_DAILY_EXPENSE * 2,
+    MAX_CORPSES = 4;
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     PhysicianStation.class, "physician_station",
@@ -43,7 +41,7 @@ public class PhysicianStation extends Venue {
     "The Physician Station allows your citizens' injuries or diseases to be "+
     "treated quickly and effectively.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 2,
-    MEDICINE, SERVICE_HEALTHCARE, MINDER, PHYSICIAN
+    MEDICINE, SERVICE_HEALTHCARE, SERVICE_BURIAL, MINDER, PHYSICIAN
   );
   
   
@@ -216,18 +214,6 @@ public class PhysicianStation extends Venue {
   }
   
   
-  private int numPatients() {
-    int count = 0;
-    for (Mobile m : inside()) if (m instanceof Actor) {
-      final Actor actor = (Actor) m;
-      if      (actor.health.conscious() == false   ) count++;
-      else if (actor.health.injuryLevel() > 0      ) count++;
-      else if (actor.isDoing(SickLeave.class, null)) count++;
-    }
-    return count;
-  }
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
@@ -249,9 +235,42 @@ public class PhysicianStation extends Venue {
     if (v == PHYSICIAN) return level;
     return 0;
   }
+
   
   
+  /**  Evaluating patients and crowding-
+    */
+  private int numPatients(boolean alive) {
+    int count = 0;
+    for (Mobile m : inside()) if (m instanceof Actor) {
+      final Actor actor = (Actor) m;
+      if (! alive) {
+        if (! actor.health.alive()) count++;
+      }
+      else if (actor.health.conscious() == false   ) count++;
+      else if (actor.health.injuryLevel() > 0      ) count++;
+      else if (actor.isDoing(SickLeave.class, null)) count++;
+    }
+    return count;
+  }
   
+  
+  public float corpseCrowding() {
+    return numPatients(false) / MAX_CORPSES;
+  }
+  
+  
+  public float corpseHarmLevel(Actor corpse) {
+    return Plan.MILD_HELP;
+  }
+  
+  
+  public boolean acceptsCorpse(Actor corpse) {
+    return corpse.species().sapient();
+  }
+  
+
+
   /**  Rendering and interface methods-
     */
   protected Traded[] goodsToShow() {

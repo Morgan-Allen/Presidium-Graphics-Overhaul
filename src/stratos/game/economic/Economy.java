@@ -200,6 +200,9 @@ public final class Economy {
     SERVICE_HEALTHCARE = new Traded(
       BC, "Healthcare"   , null, FORM_SERVICE, 0
     ),
+    SERVICE_BURIAL     = new Traded(
+      BC, "Burial"       , null, FORM_SERVICE, 0
+    ),
     SERVICE_HOUSING    = new Traded(
       BC, "Housing"      , null, FORM_SERVICE, 0
     ),

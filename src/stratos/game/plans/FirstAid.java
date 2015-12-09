@@ -56,7 +56,7 @@ public class FirstAid extends Treatment {
   
   
   protected float severity() {
-    if (! patient.health.alive()) return 0.5f;
+    if (! patient.health.alive()) return 0;
     float severity = patient.health.injuryLevel() * ActorHealth.MAX_INJURY;
     if (patient.health.bleeding()) severity += 0.5f;
     return severity;
@@ -108,21 +108,19 @@ public class FirstAid extends Treatment {
     setCompetence(0);
     if (! patient.health.organic()) return 0;
     //
-    //  Then, we ensure the patient is physically accessible/won't wander off-
-    sickbay = findRefuge(actor, sickbay);
+    //  Ensure that they aren't being carried separately-
     final Actor carries = Suspensor.carrying(patient);
-    final boolean outside = patient.aboard() != sickbay || patient.isMoving();
-    if (
-      (carries != null && carries != actor) ||
-      (outside && patient.health.conscious())
-    ) {
-      return -1;
-    }
+    if (carries != null && carries != actor) return -1;
+    //
+    //  And ensure that the patient won't wander off-
+    sickbay = findRefuge(actor, sickbay);
+    final boolean waiting = patient.aboard() == sickbay && ! patient.isMoving();
+    if (patient.health.conscious() && ! waiting) return -1;
     //
     //  Then we determine if this is an actual emergency, and how severe the
     //  overall injury is.  (This is also used to limit the overall degree of
     //  team attention required.)
-    final boolean urgent = patient.health.bleeding() || outside;
+    final boolean urgent = patient.health.bleeding() || ! patient.indoors();
     float urgency = severity();
     if (urgency <= 0) return 0;
     if (urgent) urgency = Nums.max(urgency, 0.5f);

@@ -306,7 +306,7 @@ public class Hunting extends Plan {
     final float
       before = prey.health.injury(),
       damage = actor.gear.totalDamage() * (Rand.num() + 0.5f) / 10;
-    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DYING);
+    if (! prey.health.dying()) prey.health.setState(ActorHealth.STATE_DEAD);
     prey.health.takeInjury(damage, true);
     float taken = prey.health.injury() - before;
     taken /= ActorHealth.DECOMP_FRACTION;
@@ -333,7 +333,7 @@ public class Hunting extends Plan {
       before = prey.health.injury(),
       damage = success * 2,
       DF     = ActorHealth.DECOMP_FRACTION;
-    if (prey.health.alive()) prey.health.setState(ActorHealth.STATE_DYING);
+    if (prey.health.alive()) prey.health.setState(ActorHealth.STATE_DEAD);
     prey.health.takeInjury(damage, true);
     //
     //  Based on the damage, we extract meat and spyce from the carcass-

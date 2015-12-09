@@ -15,8 +15,9 @@ import static stratos.game.actors.Qualities.*;
 //  TODO:  You need to use separate actions for invites/gifting.  Get rid of
 //  urgency-based quits for now, and just allow for 3 exchanges at a time, say.
 
-//  TODO:  Try and improve on the mechanics here in general.  Restore sensible
-//  location-setting, and allow for multiple participants.
+
+//  TODO:  Allow for 'discussion' with the dead- labelled as 'paying respects'?
+//         (But only at grave markers.)
 
 
 
