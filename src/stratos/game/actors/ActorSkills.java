@@ -128,7 +128,10 @@ public class ActorSkills {
     }
     
     final Action action = (Action) choice.weightedPick();
-    if (report) I.say("  Technique chosen: "+action.basis);
+    if (report) {
+      if (action != null) I.say("  Technique chosen: "+action.basis);
+      else I.say("  No technique picked.");
+    }
     return action;
   }
   

@@ -214,6 +214,11 @@ public class Dialogue extends Plan {
   }
   
   
+  public boolean isPlea() {
+    return type == TYPE_PLEA;
+  }
+  
+  
   
   /**  Target selection and priority evaluation-
     */

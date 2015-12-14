@@ -136,7 +136,7 @@ public class DebugCombat extends Scenario {
     
     world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
     
-    //*
+    /*
     setupCombatScenario(
       world, base, UI,
       new Background[] { TROOPER, TROOPER },
@@ -169,13 +169,13 @@ public class DebugCombat extends Scenario {
     );
     //*/
     
-    /*
+    //*
     setupCombatScenario(
       world, base, UI,
       new Background[] { PHYSICIAN, TROOPER, TROOPER },
       PhysicianTechniques.PHYSICIAN_TECHNIQUES,
-      new Species[] { Yamagur.SPECIES },
-      Base.wildlife(world), true
+      new Background[] { RUNNER, RUNNER },
+      Base.artilects(world), true
     );
     //*/
   }
@@ -184,7 +184,7 @@ public class DebugCombat extends Scenario {
   private void setupCombatScenario(
     Stage world, Base base, BaseUI UI,
     Background selfTypes[], Technique techniques[],
-    Species otherTypes[], Base otherBase, boolean otherFights
+    Background otherTypes[], Base otherBase, boolean otherFights
   ) {
     Batch <Actor> soldiers = new Batch();
     Background mainType = selfTypes[0];

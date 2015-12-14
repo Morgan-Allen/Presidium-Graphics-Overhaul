@@ -5,7 +5,7 @@
   */
 package stratos.content.abilities;
 import stratos.game.common.*;
-import stratos.game.economic.Traded;
+import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.game.actors.*;
 import stratos.graphics.sfx.*;
@@ -34,19 +34,25 @@ public class PhysicianTechniques {
       FX_DIR+"booster_shot_fx.png",
       4, 1, 4, 1, 0.25f
     ),
-    PAX_FX_MODEL = PlaneFX.animatedModel(
-      "pax_9_fx", BASE_CLASS,
-      FX_DIR+"pax_9_fx.png",
-      4, 1, 4, 1, 0.25f
+    PAX_GAS_BURST_MODEL = PlaneFX.imageModel(
+      "pax_gas_burst_fx", BASE_CLASS,
+      FX_DIR+"pax_gas_burst.png",
+      1, 0, 1, true, false
     );
   
-  final static float
-    MEDICINE_USE = 0.1f,
-    
-    SPRAY_HEAL_INIT_MIN = 2,
-    SPRAY_HEAL_INIT_MAX = 5,
-    SPRAY_DURATION      = Stage.STANDARD_SHIFT_LENGTH,
-    SPRAY_DURATION_HEAL = 2;
+  final static int
+    MEDICINE_CHARGES    =  10,
+    SPRAY_HEAL_INIT_MIN =  2,
+    SPRAY_HEAL_INIT_MAX =  5,
+    SPRAY_DURATION      =  Stage.STANDARD_SHIFT_LENGTH,
+    SPRAY_DURATION_HEAL =  2,
+    BOOST_STAT_BONUS    =  5,
+    BOOST_FATIGUE_LIFT  =  5,
+    GAS_STAT_PENALTY    = -5,
+    GAS_FATIGUE_DAMAGE  =  5,
+    GAS_DURATION        =  10,
+    PAX_SOCIAL_BONUS    =  2,
+    PAX_COMMAND_BONUS   =  5;
   
   
   final public static Technique HYPO_SPRAY = new Technique(
@@ -88,7 +94,7 @@ public class PhysicianTechniques {
       super.applyEffect(using, subject, success, passive);
       if (! (subject instanceof Actor)) return;
       
-      using.gear.bumpItem(MEDICINE, 0 - MEDICINE_USE);
+      using.gear.bumpItem(MEDICINE, -1f / MEDICINE_CHARGES);
       final Actor treats = (Actor) subject;
       treats.traits.setLevel(asCondition, 1);
       treats.health.setBleeding(false);
@@ -160,7 +166,7 @@ public class PhysicianTechniques {
     ) {
       super.applyEffect(using, subject, success, passive);
       
-      using.gear.bumpItem(MEDICINE, 0 - MEDICINE_USE);
+      using.gear.bumpItem(MEDICINE, -1f / MEDICINE_CHARGES);
       final Actor affects = (Actor) subject;
       affects.traits.setLevel(asCondition, 1);
       
@@ -172,25 +178,24 @@ public class PhysicianTechniques {
       super.applyAsCondition(affected);
       
       float statUp = Nums.min(1, affected.traits.traitLevel(asCondition));
-      affected.traits.incBonus(IMMUNE   , 5 * statUp);
-      affected.traits.incBonus(MOTOR    , 5 * statUp);
-      affected.traits.incBonus(COGNITION, 5 * statUp);
+      affected.traits.incBonus(IMMUNE   , BOOST_STAT_BONUS * statUp);
+      affected.traits.incBonus(MOTOR    , BOOST_STAT_BONUS * statUp);
+      affected.traits.incBonus(COGNITION, BOOST_STAT_BONUS * statUp);
       
       float fatInc = 1f / conditionDuration();
-      affected.health.liftFatigue(5 * fatInc);
+      affected.health.liftFatigue(BOOST_FATIGUE_LIFT * fatInc);
     }
   };
   
   
-  //  Reduces hostilities and increases suggestibility.
   final public static Technique PAX_9 = new Technique(
     "Pax 9", UI_DIR+"pax_9.png",
-    "",
+    "Temporarily stuns and dazes a hostile enemy.",
     BASE_CLASS, "pax_9",
-    MAJOR_POWER         ,
-    MILD_HARM           ,
-    MINOR_FATIGUE       ,
-    MEDIUM_CONCENTRATION,
+    MAJOR_POWER        ,
+    MILD_HARM          ,
+    MINOR_FATIGUE      ,
+    MAJOR_CONCENTRATION,
     IS_ANY_TARGETING | IS_TRAINED_ONLY, PHARMACY, 15,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
@@ -199,21 +204,17 @@ public class PhysicianTechniques {
       Actor actor, Plan current, Target subject
     ) {
       if (actor.gear.amountOf(MEDICINE) <= 0) return false;
-      return actor.senses.isEmergency() && subject instanceof Actor;
+      if (! (subject instanceof Actor)      ) return false;
+      final Actor a = (Actor) subject;
+      if (! a.isDoing(Combat.class, null)) return false;
+      if (! a.health.organic()           ) return false;
+      if (a.traits.hasTrait(asCondition) ) return false;
+      return true;
     }
     
     
     public Traded itemNeeded() {
       return MEDICINE;
-    }
-    
-    
-    public float basePriority(Actor actor, Plan current, Target subject) {
-      final Actor a = (Actor) subject;
-      if (! a.isDoing(Combat.class, null)) return -1;
-      if (! a.health.organic()           ) return -1;
-      if (a.traits.hasTrait(asCondition) ) return -1;
-      return super.basePriority(actor, current, subject);
     }
     
     
@@ -228,58 +229,82 @@ public class PhysicianTechniques {
       Actor using, Target subject, boolean success, boolean passive
     ) {
       super.applyEffect(using, subject, success, passive);
-      using.gear.bumpItem(MEDICINE, 0 - MEDICINE_USE);
+      using.gear.bumpItem(MEDICINE, -1f / MEDICINE_CHARGES);
       if (! success) return;
       
       final Actor affects = (Actor) subject;
-      affects.forceReflex(Action.STAND, true);
-      affects.mind.clearAgenda();
-      affects.relations.incRelation(using, 0.5f, 0.1f, 0.2f);
       affects.traits.setLevel(asCondition, 1);
-      SenseUtils.breaksPursuit(affects, null);
-      
-      ActionFX.applyBurstFX(PAX_FX_MODEL, using, 1.5f, 1);
+      ActionFX.applyBurstFX(PAX_GAS_BURST_MODEL, subject, 0, 1);
+    }
+    
+    
+    protected float conditionDuration() {
+      return GAS_DURATION;
     }
     
     
     protected void applyAsCondition(Actor affected) {
       super.applyAsCondition(affected);
-      affected.traits.incBonus(NERVE    , -5   );
-      affected.traits.incBonus(PERCEPT  , -5   );
-      affected.traits.incBonus(DEFENSIVE, -0.5f);
-      affected.traits.incBonus(EMPATHIC ,  0.5f);
+      affected.traits.incBonus(HAND_TO_HAND, GAS_STAT_PENALTY);
+      affected.traits.incBonus(MARKSMANSHIP, GAS_STAT_PENALTY);
+      affected.traits.incBonus(ATHLETICS   , GAS_STAT_PENALTY);
+      
+      float fatigue = GAS_FATIGUE_DAMAGE / conditionDuration();
+      affected.health.takeFatigue(fatigue);
     }
   };
   
   
-  //  Prevents all directly harmful actions by self, but confers near-immunity
-  //  to suggestion or intimidation and a minor bonus to premonition and
-  //  concentration.
-  final public static Technique PSY_INHIBITION = new Technique(
-    "Psy Inhibition", UI_DIR+"psy_inhibition.png",
-    "",
-    BASE_CLASS, "psy_inhibition",
-    MAJOR_POWER         ,
-    NO_HARM             ,
-    NO_FATIGUE          ,
-    NO_CONCENTRATION    ,
-    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, null, -1, null
+  
+  //  TODO:  Replace with Pax Conditioning, which inhibits harmful actions but
+  //  also provides a bonus to most persuasion/plea attempts.
+  
+  final public static Technique PAX_CONDITIONING = new Technique(
+    "Pax Conditioning", UI_DIR+"pax_conditioning.png",
+    "Conditions the physician against hostile or unethical behaviour, helping "+
+    "to instil greater trust in both friend and foe.",
+    BASE_CLASS, "pax_conditioning",
+    MINOR_POWER     ,
+    NO_HARM         ,
+    NO_FATIGUE      ,
+    NO_CONCENTRATION,
+    IS_PASSIVE_SKILL_FX | IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, null, -1, null
   ) {
+    
+    public boolean triggersPassive(
+      Actor actor, Plan current, Skill used, Target subject, boolean reactive
+    ) {
+      if (! (current instanceof Dialogue)) return false;
+      return used == COMMAND || used == SUASION || used == COUNSEL;
+    }
+    
+    
+    public float passiveBonus(Actor using, Skill skill, Target subject) {
+      if (skill == COMMAND) return PAX_COMMAND_BONUS;
+      else                  return PAX_SOCIAL_BONUS ;
+    }
+    
+    
+    public void applyEffect(
+      Actor using, Target subject, boolean success, boolean passive
+    ) {
+      using.traits.setLevel(asCondition, 1);
+    }
+    
+    
+    protected void applyAsCondition(Actor affected) {
+      affected.traits.incBonus(EMPATHIC , EMPATHIC .maxVal / 2f);
+      affected.traits.incBonus(ETHICAL  , ETHICAL  .maxVal / 2f);
+      affected.traits.incBonus(DEFENSIVE, DEFENSIVE.minVal / 2f);
+      super.applyAsCondition(affected);
+    }
   };
   
   
   final public static Technique PHYSICIAN_TECHNIQUES[] = {
-    HYPO_SPRAY, BOOSTER_SHOT, PAX_9, PSY_INHIBITION
+    HYPO_SPRAY, BOOSTER_SHOT, PAX_9, PAX_CONDITIONING
   };
 }
-
-
-
-
-
-
-
-
 
 
 
