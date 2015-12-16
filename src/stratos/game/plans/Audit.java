@@ -47,6 +47,9 @@ public class Audit extends Plan {
   private Property audited;
   public int checkBonus = 0;
   private int numVisits = 0;
+  
+  private Tally <Property>
+    perVenue = new Tally();
   private float
     expenses ,
     income   ,
@@ -74,6 +77,12 @@ public class Audit extends Plan {
     checkBonus = s.loadInt();
     numVisits  = s.loadInt();
     
+    for (int n = s.loadInt(); n-- > 0;) {
+      final Property v = (Property) s.loadObject();
+      final float p = s.loadFloat();
+      perVenue.add(p, v);
+    }
+    
     expenses   = s.loadFloat();
     income     = s.loadFloat();
     taxesPaid  = s.loadFloat();
@@ -92,6 +101,12 @@ public class Audit extends Plan {
     s.saveObject(audited   );
     s.saveInt   (checkBonus);
     s.saveInt   (numVisits );
+    
+    s.saveInt(perVenue.size());
+    for (Property v : perVenue.keys()) {
+      s.saveObject(v);
+      s.saveFloat(perVenue.valueFor(v));
+    }
     
     s.saveFloat (expenses  );
     s.saveFloat (income    );
@@ -338,6 +353,7 @@ public class Audit extends Plan {
     base.finance.incCredits(0 - expenses , BaseFinance.SOURCE_BIZ_OUT);
     base.finance.incCredits(    taxesPaid, BaseFinance.SOURCE_TAXES  );
     base.finance.incCredits(0 - wagesPaid, BaseFinance.SOURCE_WAGES  );
+    base.finance.recordVenueBalances(perVenue);
     this.totalSum = 0;
     stage = STAGE_DONE;
     return true;
@@ -421,6 +437,7 @@ public class Audit extends Plan {
     this.wagesPaid += sumWages;
     balance -= sumWages;
     this.totalSum += balance;
+    this.perVenue.add(balance, audited);
     return balance;
   }
   

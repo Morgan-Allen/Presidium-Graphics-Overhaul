@@ -51,6 +51,7 @@ public final class Economy {
     INSOLATION = new Traded(BC, "Insolation", null, FORM_RESOURCE, 0),
     LAND_AREA  = new Traded(BC, "Land Area" , null, FORM_RESOURCE, 0);
   final public static Traded
+    NO_GOODS[] = new Traded[0],
     ALL_RESOURCES[] = Traded.INDEX.soFar(Traded.class);
   
   

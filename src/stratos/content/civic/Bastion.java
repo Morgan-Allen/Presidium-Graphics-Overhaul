@@ -336,7 +336,7 @@ public class Bastion extends Venue {
     stocks.forceDemand(PARTS   , partNeed * 1.0f, 0);
     stocks.forceDemand(PLASTICS, partNeed * 0.5f, 0);
     
-    stocks.updateStockDemands(1, new Traded[0]);
+    stocks.updateStockDemands(1, NO_GOODS);
     //
     //  Modify maximum integrity based on upgrades-
     final int BB = structure.upgradeLevel(BLAST_SHIELDS);

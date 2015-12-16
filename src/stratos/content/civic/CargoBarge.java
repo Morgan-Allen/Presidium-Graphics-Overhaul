@@ -113,7 +113,7 @@ public class CargoBarge extends Vehicle implements Owner {
   }
   
   
-  public Traded[] services() { return null; }
+  public Traded[] services() { return Economy.NO_GOODS; }
   
   
   

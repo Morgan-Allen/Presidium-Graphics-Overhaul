@@ -5,7 +5,8 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
-import stratos.user.BaseUI;
+import stratos.game.economic.*;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -70,6 +71,7 @@ public class BaseFinance {
     private int period;
     float income[] = new float[ALL_SOURCES.length];
     float outlay[] = new float[ALL_SOURCES.length];
+    Tally <Property> perVenue = new Tally();
     int balanceCents = 0;  //100x actual balance, (int for precision.)
   }
   
@@ -201,7 +203,7 @@ public class BaseFinance {
     for (CashRecord r : records) if (r.period != TOTALS_PERIOD) {
       if (r.period == ID) return r;
     }
-    return null;
+    return totals;
   }
   
   
@@ -226,6 +228,12 @@ public class BaseFinance {
   }
   
   
+  public Tally <Property> venueBalances(int periodID) {
+    CashRecord record = forPeriod(periodID);
+    return record.perVenue;
+  }
+  
+  
   
   /**  Updates and modifications-
     */
@@ -233,10 +241,10 @@ public class BaseFinance {
     initRecords();
     credits += inc;
     if (source == null) return;
+    
     final int cents = (int) (inc * 100);
     recent.balanceCents += cents;
     totals.balanceCents += cents;
-    
     if (inc >= 0) {
       recent.income[source.index] += inc;
       totals.income[source.index] += inc;
@@ -244,6 +252,16 @@ public class BaseFinance {
     else {
       recent.outlay[source.index] += inc;
       totals.outlay[source.index] += inc;
+    }
+  }
+  
+  
+  public void recordVenueBalances(Tally <Property> balances) {
+    initRecords();
+    for (Property venue : balances.keys()) {
+      final float balance = balances.valueFor(venue);
+      recent.perVenue.add(balance, venue);
+      totals.perVenue.add(balance, venue);
     }
   }
   

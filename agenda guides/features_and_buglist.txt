@@ -3,8 +3,6 @@
 
 TO DO NOW-   
 
-*  A summary of profit and loss for each structure would be worthwhile!
-
 *  In addition, picking rest/retreat points should be more sensible (check the
    pure-combat scenarios.)
 

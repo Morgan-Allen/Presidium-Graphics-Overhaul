@@ -306,7 +306,7 @@ public class Holding extends Venue {
     if (instant || ! structure.intact()) return;
     consumeMaterials();
     updateDemands(upgradeLevel + 1);
-    stocks.updateStockDemands(1, new Traded[0]);
+    stocks.updateStockDemands(1, NO_GOODS);
     impingeSqualor();
 
     final int CHECK_TIME = 10;

@@ -61,54 +61,63 @@ public class BudgetsPane extends SelectionPane {
     final BaseFinance BF = base.finance;
     
     d.append("FINANCE REPORT FOR "+base);
-    int sumTI = 0, sumWI = 0, sumTO = 0, sumWO = 0, sumTB = 0, sumWB = 0;
+    int sumWI = 0, sumWO = 0, sumWB = 0;
     //
     //  First of all, we let the user determine what day-period to inspect:
     final Batch <Integer> periods = BF.periodIDs();
-    if (! BF.hasPeriodRecord(periodShown)) periodShown = periods.last();
-
-    final String showName = "Day "+periodShown;
-    d.append("\nShow period: ");
+    
+    d.append("\n\n  Show period:");
     for (final int period : periods) d.append(
-      new Description.Link("\n  Day "+period+" ") {
+      new Description.Link(" Day "+period+" ") {
         public void whenClicked(Object context) { periodShown = period; }
       },
       (period == periodShown ? Colour.GREEN : Text.LINK_COLOUR)
     );
+    d.append(new Description.Link(" Total") {
+      public void whenClicked(Object context) {
+        periodShown = -1;
+      }
+    }, (periodShown == -1 ? Colour.GREEN : Text.LINK_COLOUR));
     //
     //  Then we list all income sources:
-    d.append("\n\n  Income sources: ("+showName+"/total)");
+    d.append("\n\n  Income sources");
     
     for (BaseFinance.Source key : BaseFinance.ALL_SOURCES) {
-      final int
-        period = (int) BF.periodIncome(key, periodShown),
-        total  = (int) BF.totalIncome (key);
-      if (period == 0 && total == 0) continue;
-      d.append("\n    "+key+": "+period+"/"+total);
+      final int period = (int) BF.periodIncome(key, periodShown);
+      if (period == 0) continue;
+      d.append("\n    "+key+": "+period);
       sumWI += period ;
-      sumTI += total;
     }
-    d.append("\n    Total income: "+sumWI+"/"+sumTI);
+    d.append("\n    Total income: "+sumWI);
     //
     //  And outlay sources-
-    d.append("\n\n  Outlay sources: ("+showName+"/total)");
+    d.append("\n\n  Outlay sources");
     for (BaseFinance.Source key : BaseFinance.ALL_SOURCES) {
-      final int
-        period = 0 - (int) BF.periodOutlay(key, periodShown),
-        total  = 0 - (int) BF.totalOutlay (key);
-      if (period == 0 && total == 0) continue;
-      d.append("\n    "+key+": "+period+"/"+total);
+      final int period = 0 - (int) BF.periodOutlay(key, periodShown);
+      if (period == 0) continue;
+      d.append("\n    "+key+": "+period);
       sumWO += period ;
-      sumTO += total;
     }
-    d.append("\n    Total outlays: "+sumWO+"/"+sumTO);
+    d.append("\n    Total outlays: "+sumWO);
     //
     //  And finally, total balance-
-    sumTB = sumTI - sumTO;
     sumWB = sumWI - sumWO;
-    d.append("\n\n  Balance: "+sumWB+"/"+sumTB);
+    d.append("\n\n  Balance: "+sumWB);
     d.append("\n  Current credit: "+(int) BF.credits());
+
+    final Tally <Property>
+      balances = base.finance.venueBalances(periodShown);
     
+    d.append("\n\n  Balances by venue");
+    if (balances.size() == 0) {
+      d.append("\n    No venues assessed.", Colour.LITE_GREY);
+    }
+    else for (Property venue : balances.keys()) {
+      d.appendAll("\n    ", venue, " : ");
+      final int total = (int) balances.valueFor(venue);
+      final Colour toneT = total >= 0 ? Colour.GREEN : Colour.RED;
+      d.append(""+total, toneT);
+    }
   }
   
   

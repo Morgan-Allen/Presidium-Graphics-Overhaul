@@ -212,7 +212,7 @@ public class RunnerMarket extends Venue {
       if (u != null && structure.upgradeLevel(u) <= 0) continue;
       else cons.add(c);
     }
-    stocks.updateStockDemands(1, new Traded[0], cons.toArray(Conversion.class));
+    stocks.updateStockDemands(1, NO_GOODS, cons.toArray(Conversion.class));
   }
   
   
