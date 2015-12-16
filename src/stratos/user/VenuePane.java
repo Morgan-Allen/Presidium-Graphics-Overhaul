@@ -135,8 +135,8 @@ public class VenuePane extends SelectionPane {
     final Batch <Traded> special = new Batch();
     
     for (Traded t : ITEM_LIST_ORDER) {
-      final float needed = v.stocks.demandFor(t);
-      final float amount = v.stocks.amountOf (t);
+      final float needed = v.stocks.totalDemand(t);
+      final float amount = v.stocks.amountOf   (t);
       
       if (Visit.arrayIncludes(demands, t) && t.common()) {
         describeStocks(t, d, setStock == demands);
@@ -176,68 +176,37 @@ public class VenuePane extends SelectionPane {
   protected boolean describeStocks(
     final Traded type, Description d, boolean set
   ) {
-    final float needed = v.stocks.demandFor(type);
-    final float amount = v.stocks.amountOf (type);
+    final float
+      consumption = v.stocks.consumption(type),
+      production  = v.stocks.production (type),
+      amount      = v.stocks.amountOf   (type),
+      stockMax    = v.spaceFor          (type);
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
     d.append("  "+I.shorten(amount, 1)+" ");
     d.append(type);
-
+    
     if (set) {
-      final String MODES[] = { "Trading", "No Trade", "Imports", "Exports" };
-      final boolean
-        consumer  =   v.stocks.consumer     (type),
-        producer  =   v.stocks.producer     (type),
-        freeTrade = ! v.stocks.isDemandFixed(type),
-        noTrade   =   needed == 0 && ! freeTrade,
-        trader    =   v.owningTier() == Owner.TIER_TRADER;
-      final int
-        numModes = MODES.length,
-        setUnit  = Nums.round(needed, 5, false),
-        limit    = v.spaceFor(type),
-        mode     = noTrade ? 1 : (freeTrade ? 0 : (producer ? 3 : 2));
-      
-      if (mode != 1) {
-        final String nS = I.shorten(needed, 1);
-        d.append(" /"+nS);
-      }
-      d.append(" (");
-      
-      String modeDesc = MODES[mode];
-      
-      d.append(new Description.Link(modeDesc) {
+      d.append(" Buy: ");
+      d.append(new Description.Link(""+consumption) {
         public void whenClicked(Object context) {
-          int nextMode = (mode + 1) % numModes;
-          if (consumer && nextMode == 3 && ! trader) nextMode = 0;
-          if (producer && nextMode == 2 && ! trader) nextMode = 3;
-          
-          if (nextMode == 0) v.stocks.setFreeTrade(type);
-          if (nextMode == 1) v.stocks.forceDemand(type, 0, producer);
-          if (nextMode == 2) v.stocks.forceDemand(type, 5, false);
-          if (nextMode == 3) v.stocks.forceDemand(type, 5, true );
+          float bump = consumption + 5;
+          if (bump > stockMax - production) bump = 0;
+          v.stocks.forceDemand(type, bump, production);
         }
       });
-      
-      if (mode > 1 && setUnit < limit) d.append(new Description.Link(" More") {
+      d.append(" Sell: ");
+      d.append(new Description.Link(""+production) {
         public void whenClicked(Object context) {
-          if (mode == 2) v.stocks.forceDemand(type, setUnit + 5, false);
-          if (mode == 3) v.stocks.forceDemand(type, setUnit + 5, true );
+          float bump = production + 5;
+          if (bump > stockMax - consumption) bump = 0;
+          v.stocks.forceDemand(type, consumption, bump);
         }
       });
-      d.append(")");
-      //else d.append("(MORE)", Colour.GREY);
     }
     else {
-      if (needed != amount) {
-        final String nS = I.shorten(needed, 1);
-        d.append(" /"+nS);
-      }
-      if (v.stocks.producer(type)) d.append(" (Made)");
-      if (v.stocks.consumer(type)) d.append(" (Used)");
-      //if (v.stocks.producer(type)) d.append(" (producer)");
-      //else 
+      d.append("/"+(production + consumption));
     }
-    
     return true;
   }
   

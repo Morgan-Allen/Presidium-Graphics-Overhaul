@@ -239,11 +239,10 @@ public class Manufacture extends Plan implements Behaviour {
     }
     
     final float
-      amount   = venue.inventory().amountOf (made     ) - 1,
-      demand   = venue.inventory().demandFor(made.type) + 1,
-      shortage = (demand - amount) / demand;
-    if (demand < amount) {
-      if (report) I.say("  Insufficient demand: "+demand+"/"+amount);
+      amount   = venue.inventory().amountOf(made),
+      shortage = venue.inventory().relativeShortage(made.type, true);
+    if (shortage <= 0 && ! commission) {
+      if (report) I.say("  No shortage!");
       return 0;
     }
     
@@ -257,7 +256,7 @@ public class Manufacture extends Plan implements Behaviour {
     );
     if (report) {
       I.say("\n  Basic urgency: "+urgency);
-      I.say("  Amount/Demand: "+amount+"/"+demand);
+      I.say("  Amount/Shortage: "+amount+"/"+shortage);
       I.say("  Speed bonus:   "+speedBonus);
       
       I.say("\n  Needed items:");
@@ -297,8 +296,9 @@ public class Manufacture extends Plan implements Behaviour {
   
   
   public Behaviour getNextStep() {
-    final float demand = venue.inventory().demandFor(made.type);
+    
     if (made.type.form == Economy.FORM_MATERIAL) {
+      final float demand = venue.inventory().absoluteShortage(made.type, true);
       made = Item.withAmount(made, demand + 1);
     }
     

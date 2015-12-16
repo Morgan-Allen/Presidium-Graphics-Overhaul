@@ -124,10 +124,11 @@ public class Fabricator extends Venue {
     structure.setAmbienceVal((levelPC - 1) * Ambience.MILD_AMBIENCE);
     
     final float powerNeed = 2 + (structure.numOptionalUpgrades() / 2f);
-    stocks.forceDemand(POWER, powerNeed, false);
-    stocks.incDemand(PLASTICS, 5, 1, false);
-    stocks.translateRawDemands(PLASTICS_TO_DECOR    , 1);
-    stocks.translateRawDemands(PLASTICS_TO_PRESSFEED, 1);
+    stocks.forceDemand(POWER, powerNeed, 0);
+    stocks.updateStockDemands(1, services(),
+      PLASTICS_TO_DECOR,
+      PLASTICS_TO_PRESSFEED
+    );
   }
   
   

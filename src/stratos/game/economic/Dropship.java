@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import stratos.content.civic.Airfield;
+import stratos.content.civic.*;
 import stratos.content.wip.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
@@ -78,7 +78,7 @@ public class Dropship extends Vehicle implements Owner {
     MAX_PASSENGERS = 5,
     MAX_CREW       = 5;
   
-  private int   nameID = -1;
+  private int nameID = -1;
   
   
   
@@ -257,9 +257,9 @@ public class Dropship extends Vehicle implements Owner {
     d.append("\n\nGoods sought: ");
     for (Traded t : ALL_MATERIALS) {
       final int
-        sought = (int) cargo.demandFor(t),
-        has    = (int) cargo.amountOf (t);
-      if (sought == 0 || cargo.producer(t) == false) continue;
+        sought = (int) cargo.consumption(t),
+        has    = (int) cargo.amountOf   (t);
+      if (sought <= 0) continue;
       d.append("\n  "+t+" ("+has+"/"+sought+")");
     }
     

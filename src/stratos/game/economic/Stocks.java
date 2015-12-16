@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import stratos.game.base.BaseDemands;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
@@ -26,10 +26,9 @@ public class Stocks extends Inventory {
   
   static class Demand {
     Traded type;
-    private float demandAmount;
-    private float demandBonus;
-    private boolean producer;
-    private boolean fixed;
+    float consumption;
+    float production;
+    boolean fixed;
   }
   
   
@@ -55,9 +54,8 @@ public class Stocks extends Inventory {
     while (numD-- > 0) {
       final Demand d = new Demand();
       d.type         = (Traded) s.loadObject();
-      d.demandAmount = s.loadFloat();
-      d.demandBonus  = s.loadFloat();
-      d.producer     = s.loadBool ();
+      d.consumption  = s.loadFloat();
+      d.production   = s.loadFloat();
       d.fixed        = s.loadBool ();
       demands.put(d.type, d);
     }
@@ -74,9 +72,8 @@ public class Stocks extends Inventory {
     s.saveInt(demands.size());
     for (Demand d : demands.values()) {
       s.saveObject(d.type        );
-      s.saveFloat (d.demandAmount);
-      s.saveFloat (d.demandBonus );
-      s.saveBool  (d.producer    );
+      s.saveFloat (d.consumption );
+      s.saveFloat (d.production  );
       s.saveBool  (d.fixed       );
     }
   }
@@ -144,46 +141,8 @@ public class Stocks extends Inventory {
   }
   
   
-  public Traded[] demanded() {
-    final Batch <Traded> batch = new Batch <Traded> ();
-    for (Demand d : demands.values()) if (d.demandAmount > 0) {
-      batch.add(d.type);
-    }
-    return batch.toArray(Traded.class);
-  }
-  
-  
-  public Traded[] shortageTypes() {
-    final Batch <Traded> batch = new Batch <Traded> ();
-    for (Demand d : demands.values()) if (shortageOf(d.type) > 0) {
-      batch.add(d.type);
-    }
-    return batch.toArray(Traded.class);
-  }
-  
-  
-  public Traded[] surplusTypes() {
-    final Batch <Traded> batch = new Batch <Traded> ();
-    for (Demand d : demands.values()) if (shortageOf(d.type) < 0) {
-      batch.add(d.type);
-    }
-    return batch.toArray(Traded.class);
-  }
-  
-  
-  public Batch <Item> shortages() {
-    final Batch <Item> batch = new Batch <Item> ();
-    for (Demand d : demands.values()) {
-      float amount = shortageOf(d.type);
-      if (amount <= 0) continue;
-      batch.add(Item.withAmount(d.type, amount));
-    }
-    return batch;
-  }
-  
-  
   public Manufacture nextManufacture(Actor actor, Conversion c) {
-    final float shortage = shortageOf(c.out.type);
+    final float shortage = relativeShortage(c.out.type, true);
     if (shortage <= 0) return null;
     
     final Manufacture m = new Manufacture(
@@ -210,32 +169,89 @@ public class Stocks extends Inventory {
   }
   
   
-  
-  /**  Public accessor methods-
+  /**  Returns the shortage of a given good-type for this vendor...
+    *  NOTE:  The amount returned here can vary from +1 to -1 (or even beyond)
+    *  depending on whether current stocks are lower than consumption-levels
+    *  (positive) or higher (negative, scaled against production-level.)
     */
-  public float demandFor(Traded type, boolean asConsumer) {
-    final Demand d = demands.get(type);
-    if (d == null || d.producer == asConsumer) return 0;
-    return d.demandAmount;
+  public float relativeShortage(Traded type, boolean production) {
+    final Demand d = demandRecord(type);
+    final float amount = amountOf(type), base = d.consumption;
+    
+    if (production) {
+      return Nums.clamp(1 - (amount / (base + d.production)), 0, 1);
+    }
+    else if (amount >= base) {
+      if (d.production == 0) return -1;
+      else return Nums.clamp(0 - (amount - base) / d.production, -1, 0);
+    }
+    else {
+      return 1 - (amount / base);
+    }
   }
   
   
-  public float demandFor(Traded type) {
-    final Demand d = demands.get(type);
-    if (d == null) return 0;
-    return d.demandAmount;
+  public float absoluteShortage(Traded type, boolean production) {
+    final Demand d = demandRecord(type);
+    final float amount = amountOf(type), base = d.consumption;
+    
+    if (production) return base + d.production - amount;
+    else return base - amount;
   }
   
   
-  public boolean producer(Traded type) {
+  
+  /**  Supplementary supply/demand-related methods-
+    */
+  public float totalDemand(Traded type) {
     final Demand d = demands.get(type);
-    return d != null && d.producer;
+    return d == null ? 0 : d.production + d.consumption;
+  }
+  
+
+  public float consumption(Traded type) {
+    final Demand d = demands.get(type);
+    return d == null ? 0 : d.consumption;
   }
   
   
-  public boolean consumer(Traded type) {
+  public float production(Traded type) {
     final Demand d = demands.get(type);
-    return d != null && ! d.producer;
+    return d == null ? 0 : d.production;
+  }
+  
+  
+  public float absoluteSurplus(Traded type, boolean production) {
+    return 0 - absoluteShortage(type, production);
+  }
+  
+  
+  public Traded[] demanded() {
+    final Batch <Traded> batch = new Batch <Traded> ();
+    for (Demand d : demands.values()) if (d.consumption + d.production > 0) {
+      batch.add(d.type);
+    }
+    return batch.toArray(Traded.class);
+  }
+  
+  
+  public Traded[] shortageTypes(boolean production) {
+    final Batch <Traded> batch = new Batch <Traded> ();
+    for (Demand d : demands.values()) {
+      if (relativeShortage(d.type, production) > 0) batch.add(d.type);
+    }
+    return batch.toArray(Traded.class);
+  }
+  
+  
+  public Batch <Item> shortages() {
+    final Batch <Item> batch = new Batch <Item> ();
+    for (Demand d : demands.values()) {
+      float amount = absoluteShortage(d.type, false);
+      if (amount <= 0) continue;
+      batch.add(Item.withAmount(d.type, amount));
+    }
+    return batch;
   }
   
   
@@ -247,28 +263,6 @@ public class Stocks extends Inventory {
   
   public boolean canDemand(Traded type) {
     return demands.get(type) != null;
-  }
-  
-  
-  public boolean hasEnough(Traded type) {
-    return amountOf(type) > (demandFor(type) / 2);
-  }
-  
-  
-  public float relativeShortage(Traded type) {
-    final float demand = demandFor(type);
-    if (demand == 0) return 0;
-    return Nums.clamp((demand - amountOf(type)) / demand, -1, 1);
-  }
-  
-  
-  public float shortageOf(Traded type) {
-    return demandFor(type) - amountOf(type);
-  }
-  
-  
-  public float surplusOf(Traded type) {
-    return amountOf(type) - demandFor(type);
   }
   
   
@@ -287,9 +281,7 @@ public class Stocks extends Inventory {
 
   protected void onWorldEntry() {
     final Traded services[] = basis.services();
-    if (services != null) for (Traded t : services) {
-      incDemand(t, 0, 0, true);
-    }
+    if (services != null) for (Traded t : services) setConsumption(t, 0);
   }
   
   
@@ -299,13 +291,12 @@ public class Stocks extends Inventory {
   
   
   public void forceDemand(
-    Traded type, float amount, boolean producer
+    Traded type, float consumption, float production
   ) {
-    if (amount < 0) amount = 0;
     final Demand d = demandRecord(type);
-    d.demandAmount = amount  ;
-    d.fixed        = true    ;
-    d.producer     = producer;
+    d.consumption = Nums.max(0, consumption);
+    d.production  = Nums.max(0, production );
+    d.fixed       = true;
   }
   
   
@@ -315,28 +306,69 @@ public class Stocks extends Inventory {
   }
   
   
-  //  TODO:  You can probably get rid of this now.  It's not really used a
-  //         great deal any more- the demand increments are internalised from
-  //         the demand-map.
-  //*
-  public void incDemand(
-    Traded type, float amount, int period, boolean producer
-  ) {
-    //final boolean fresh = demands.get(type) == null;
-    //  TODO:  Give a warning if you change the produce/consume type of a non-
-    //         fresh demand at a standard facility.
+  public void setConsumption(Traded type, float consumption) {
     final Demand d = demandRecord(type);
-    if (d.fixed) return;
-    
-    d.producer = producer;
-    d.demandBonus += amount * period;
+    d.consumption = Nums.max(0, consumption);
   }
-  //*/
   
   
-  public void translateRawDemands(Conversion cons, int period) {
+  public void updateStockDemands(
+    int period, Traded services[], Conversion... cons
+  ) {
+    final BaseDemands BD = basis.base().demands;
+    final Presences BP = basis.world().presences;
+    final Tile      at = basis.world().tileAt(basis);
+    final boolean isTrader = Visit.arrayIncludes(services, SERVICE_COMMERCE);
+    
+    for (Item i : specialOrders) if (hasItem(i)) {
+      deleteSpecialOrder(i);
+    }
+    for (Bringing d : reservations) {
+      if (! d.isActive()) setReservation(d, false);
+    }
+    //
+    //  Translate any demand for conversion-processes:
+    for (Conversion c : cons) for (Item r : c.raw) setConsumption(r.type, 0);
+    for (Conversion c : cons) translateRawDemands(c, period);
+    //
+    //  Update production-demand based on sampling of ambient consumption-
+    //  levels:
+    if (isTrader) {
+      for (Traded t : services) {
+        final Demand d = demandRecord(t);
+        
+        boolean buys  = amountOf(d.type) > 0 && d.production > 0;
+        boolean sells = d.consumption > 0 && ! buys;
+        BP.togglePresence(basis, at, sells, d.type.supplyKey);
+        BP.togglePresence(basis, at, buys , d.type.demandKey);
+        
+        if (d.fixed || ! t.common()) continue;
+        d.consumption = BD.demandSampleFor(basis, t, period);
+        d.production  = BD.supplySampleFor(basis, t, period);
+      }
+    }
+    else {
+      for (Traded t : services) {
+        final Demand d = demandRecord(t);
+        if (d.fixed || ! t.common()) continue;
+        d.production = BD.demandSampleFor(basis, t, period) + 1;
+      }
+      for (Demand d : demands.values()) {
+        boolean sells = amountOf(d.type) > 0 && d.production > 0;
+        boolean buys = d.consumption > 0 && ! sells;
+        BP.togglePresence(basis, at, sells, d.type.supplyKey);
+        BP.togglePresence(basis, at, buys , d.type.demandKey);
+        
+        if (d.fixed || d.production > 0) continue;
+        BD.impingeDemand(d.type, d.consumption, period, basis);
+      }
+    }
+  }
+  
+  
+  private void translateRawDemands(Conversion cons, int period) {
     final boolean report = extraVerbose && I.talkAbout == basis;
-    final float demand = cons.out == null ? 1 : demandFor(cons.out.type);
+    final float demand = cons.out == null ? 1 : totalDemand(cons.out.type);
     if (report) {
       I.say("\nTranslating demand for "+cons+" at "+basis);
       I.say("  Base demand is: "+demand);
@@ -346,166 +378,8 @@ public class Stocks extends Inventory {
     for (Item raw : cons.raw) {
       final float needed = raw.amount * demand / cons.out.amount;
       if (report) I.say("  Need "+needed+" "+raw.type+" as raw materials");
-      incDemand(raw.type, needed, period, producer(raw.type));
-    }
-  }
-  
-  
-  public void updateDemands(int period) {
-    //
-    //  Basic variable setup and cleanup checks first.
-    final boolean report = I.talkAbout == basis && verbose;
-    
-    final Traded[]    BS = basis.services();
-    final Presences   BP = basis.world().presences;
-    final BaseDemands BD = basis.base().demands;
-    final Tile        at = basis.world().tileAt(basis);
-    final boolean trades = Visit.arrayIncludes(BS, SERVICE_COMMERCE);
-    final int  maxSupply = basis.staff().workforce() * SUPPLY_PER_WORKER;
-    
-    if (report) {
-      I.say("\nUpdating stock demands for "+basis);
-      I.say("  Base period: "+period);
-      I.say("  Is trader:   "+trades);
-    }
-    for (Item i : specialOrders) if (i.type.materials() != null) {
-      translateRawDemands(i.type.materials(), period);
-    }
-    else if (hasItem(i)) {
-      deleteSpecialOrder(i);
-    }
-    for (Bringing d : reservations) {
-      if (! d.isActive()) setReservation(d, false);
-    }
-    //
-    //  Then we iterate across all goods in demand at this venue, and determine
-    //  how to register the venue for trade within the world...
-    for (Demand d : demands.values()) {
-      final Traded type   = d.type;
-      final float  amount = amountOf(type);
-      final boolean
-        wantsSell = BringUtils.canTradeBetween(
-          owner.owningTier() , d.producer,
-          Owner.TIER_FACILITY, false
-        ),
-        wantsBuy  = BringUtils.canTradeBetween(
-          Owner.TIER_FACILITY, true,
-          owner.owningTier() , d.producer
-        );
-      //
-      //  Firstly, we update the internal demand record based on the accrued
-      //  bonus registered between updates.
-      if (! d.fixed) d.demandAmount = d.demandBonus / period;
-      d.demandBonus = 0;
-      if (report) {
-        I.say("  Updating channel for "+d.type+" (producer "+d.producer+")");
-        I.say("    Current amount:    "+amount   );
-        I.say("    Open for sale:     "+wantsSell);
-        I.say("    Open to buy:       "+wantsBuy );
-        I.say("    Maximum supply:    "+maxSupply);
-      }
-      //
-      //  Primary producers of a good will attempt to sample the settlement's
-      //  general demand to establish their ideal stock levels, and signal
-      //  their own presence as suppliers.
-      if (wantsSell && ! trades) {
-        final float shouldSupply = d.fixed ? 0 : BD.demandSampleFor(
-          basis, type, period
-        );
-        d.demandAmount = Nums.min(shouldSupply + d.demandAmount, maxSupply);
-        if (report) I.say("    Should supply:     "+shouldSupply);
-        BD.impingeSupply(type, (d.demandAmount + amount) / 2, period, basis);
-      }
-      //
-      //  Primary consumers of a good will signal their presence as such within
-      //  the settlement.
-      if (wantsBuy && ! trades) {
-        if (report) I.say("    Impinging demand:  "+d.demandAmount);
-        BD.impingeDemand(type, d.demandAmount - (amount / 2), period, basis);
-      }
-      //
-      //  All producers & consumers- including trade venues- will flag
-      //  themselves as available for deliveries- but traders will not modify
-      //  overall supply/demand levels themselves.
-      final boolean
-        doesSell = wantsSell && amount         > 0,
-        doesBuy  = wantsBuy  && d.demandAmount > 0;
-      BP.togglePresence(basis, at, doesSell, type.supplyKey);
-      BP.togglePresence(basis, at, doesBuy , type.demandKey);
-      if (report) {
-        I.say("    Demand amount is:  "+d.demandAmount);
-        I.say("    Gives/takes:       "+doesSell+"/"+doesBuy);
-      }
-    }
-  }
-  
-  
-  public void updateTradeDemand(Traded type, float stockBonus, int period) {
-    final boolean report = I.talkAbout == basis && verbose;
-    final int typeSpace = basis.spaceFor(type);
-    if (typeSpace == 0) {
-      if (report) I.say("\nNo space for "+type+"!");
-      return;
-    }
-    //
-    //  We base our desired stock levels partly on the stocking-bonus, partly
-    //  on local demand, and partly on offworld import/export prices.
-    final Base base = basis.base();
-    final float
-      amount      = amountOf(type),
-      exportPays  = base.commerce.exportPrice(type) / type.defaultPrice(),
-      importCosts = base.commerce.importPrice(type) / type.defaultPrice(),
-      
-      localDemand = base.demands.demandSampleFor(basis, type, 1),
-      localSupply = base.demands.supplySampleFor(basis, type, 1),
-      tradeDemand = Nums.max(0, typeSpace * (exportPays  - 1)),
-      tradeSupply = Nums.max(0, amount    * (1 - importCosts)),
-      
-      total = localSupply + localDemand + tradeDemand + tradeSupply;
-    
-    final float shortage = (total == 0 ? 0 : ((
-      (localDemand - localSupply) - (tradeDemand - tradeSupply)
-    ) / total));
-    
-    final float idealStock = Nums.max(
-      localDemand + tradeDemand,
-      localSupply + tradeSupply
-    ) * stockBonus;
-    
-    final boolean exports = shortage < 0;
-    incDemand(type, Nums.min(typeSpace, idealStock), period, exports);
-    
-    //
-    //  We halve the supply/demand levels here to ensure that we don't cause
-    //  local supply/demand signals to overwhelm the original trade-signals.
-    
-    //  TODO:  It would be better to have a separate demand-map for this,
-    //  maybe?  It ought to flow along the same channels as canTradeBetween in
-    //  BringUtils.
-    if (tradeDemand > 0) {
-      base.demands.impingeDemand(type, tradeDemand / 2, period, basis);
-    }
-    if (tradeSupply > 0) {
-      base.demands.impingeSupply(type, tradeSupply / 2, period, basis);
-    }
-    
-    if (report) I.reportVars(
-      "\nSetting trade-depot stock levels: "+type, " ",
-      "Local demand" , localDemand,
-      "Local supply" , localSupply,
-      "Trade demand" , tradeDemand,
-      "Trade supply" , tradeSupply,
-      "Current stock", amount+"/"+typeSpace,
-      "Shortage"     , shortage,
-      "Ideal stock"  , idealStock,
-      "Exports"      , exports
-    );
-  }
-  
-  
-  public void updateOrders() {
-    for (Item i : specialOrders) {
-      if (hasItem(i)) specialOrders.remove(i);
+      final Demand d = demandRecord(raw.type);
+      d.consumption += needed;
     }
   }
   
@@ -520,8 +394,7 @@ public class Stocks extends Inventory {
     }
     
     for (Demand d : demands.values()) {
-      d.demandAmount = 0;
-      d.producer = false;
+      d.production = d.consumption = 0;
       presences.togglePresence(basis, at, false, d.type.demandKey);
       presences.togglePresence(basis, at, false, d.type.supplyKey);
     }

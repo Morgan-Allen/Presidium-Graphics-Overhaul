@@ -270,9 +270,10 @@ public class StockExchange extends Venue {
     //
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
+    stocks.updateStockDemands(1, ALL_MATERIALS);
     for (Traded type : ALL_MATERIALS) {
       final float stockBonus = 1 + upgradeLevelFor(type);
-      stocks.updateTradeDemand(type, stockBonus, 1);
+      stocks.setConsumption(type, stocks.consumption(type) + stockBonus);
     }
     //
     //  In essence, we accumulate interest on any debts or losses accrued

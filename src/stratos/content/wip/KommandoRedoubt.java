@@ -244,8 +244,8 @@ public class KommandoRedoubt extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    stocks.forceDemand(CARBS, 5, false);
-    stocks.incDemand(PROTEIN, 10, 1, true);
+    stocks.forceDemand(CARBS, 5, 0);
+    stocks.setConsumption(PROTEIN, 5);
   }
   
   

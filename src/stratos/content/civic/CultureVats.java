@@ -131,16 +131,17 @@ public class CultureVats extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    stocks.translateRawDemands(WASTE_TO_CARBS   , 1);
-    stocks.translateRawDemands(CARBS_TO_PROTEIN , 1);
-    stocks.translateRawDemands(WASTE_TO_REAGENTS, 1);
-    
+    stocks.updateStockDemands(1, services(),
+      CARBS_TO_PROTEIN,
+      WASTE_TO_CARBS,
+      WASTE_TO_REAGENTS
+    );
     final float needPower = 5 * (1 + (structure.numOptionalUpgrades() / 3f));
     final int cycleBonus = structure.upgradeLevel(CARBS_CULTURE);
     final float pollution = 5 - cycleBonus;
-    stocks.forceDemand(POWER, needPower, false);
+    stocks.forceDemand(POWER, needPower, 0);
     structure.setAmbienceVal(0 - pollution);
-    stocks.forceDemand(ATMO, cycleBonus * 2, true);
+    stocks.forceDemand(ATMO, 0, cycleBonus * 2);
   }
   
   

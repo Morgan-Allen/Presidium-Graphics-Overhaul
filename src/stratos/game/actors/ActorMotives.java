@@ -160,8 +160,8 @@ public class ActorMotives {
     //  We flag desire for any items needed at home, and anything needed to
     //  prevent starvation...
     if (home != null && home.inventory() instanceof Stocks) {
-      final Stocks s = (Stocks) actor.mind.home().inventory();
-      for (Traded t : s.shortageTypes()) {
+      final Stocks s = (Stocks) home.inventory();
+      for (Traded t : s.shortageTypes(false)) {
         final float rating = Nums.clamp(s.relativeShortage(t) / 2, 0, 1);
         r.setRelation(t, rating, Relation.TYPE_TRADED);
       }

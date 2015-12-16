@@ -343,14 +343,19 @@ public class Inventory {
   /**  Default supply-and-demand functions intended for override by certain
     *  subclasses.
     */
-  public float   demandFor (Traded type) { return 0    ; }
-  public float   shortageOf(Traded type) { return 0    ; }
-  public boolean producer  (Traded type) { return false; }
-  public boolean canDemand (Traded type) { return false; }
+  public float consumption(Traded type) { return 0; }
+  public float production (Traded type) { return 0; }
   
+  public float relativeShortage(Traded type, boolean production) { return 0; }
+  public float absoluteShortage(Traded type, boolean production) { return 0; }
   
+  public boolean canDemand(Traded t) { return false; }
   public void setReservation(Bringing d, boolean is) {}
   public Series <Bringing> reservations() { return null; };
+  
+  public float relativeShortage(Traded type) {
+    return relativeShortage(type, false);
+  }
   
   
   /**  Returns whether this inventory has enough of the given item to satisfy

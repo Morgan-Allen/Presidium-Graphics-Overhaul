@@ -113,7 +113,7 @@ public class Arcology extends Venue {
     
     if (structure.intact()) {
       float waterNeed = 1f - world.terrain().fertilitySample(origin()) / 2;
-      stocks.forceDemand(WATER, waterNeed, false);
+      stocks.forceDemand(WATER, waterNeed, 0);
       
       final float growth = 1f + stocks.amountOf(WATER) - waterNeed;
       plantsHealth += growth / FULL_GROWTH_INTERVAL;

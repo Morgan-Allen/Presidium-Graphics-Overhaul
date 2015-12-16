@@ -306,6 +306,7 @@ public class Holding extends Venue {
     if (instant || ! structure.intact()) return;
     consumeMaterials();
     updateDemands(upgradeLevel + 1);
+    stocks.updateStockDemands(1, new Traded[0]);
     impingeSqualor();
 
     final int CHECK_TIME = 10;
@@ -428,14 +429,14 @@ public class Holding extends Venue {
     stocks.clearDemands();
     
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
-      stocks.forceDemand(i.type, i.amount + 0.5f, false);
+      stocks.forceDemand(i.type, i.amount + 0.5f, 0);
     }
     for (Item i : rationNeeds(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, false);
+      stocks.forceDemand(i.type, i.amount, 0);
     }
     
     final float supportNeed = supportNeed(this, targetLevel);
-    stocks.forceDemand(ATMO, supportNeed, false);
+    stocks.forceDemand(ATMO, supportNeed, 0);
   }
   
   

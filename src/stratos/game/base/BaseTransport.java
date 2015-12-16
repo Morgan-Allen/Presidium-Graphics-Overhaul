@@ -364,8 +364,8 @@ public class BaseTransport {
     for (Venue s : reached) {
       for (int i = provided.length; i-- > 0;) {
         final Traded type = provided[i];
-        final float in  = s.stocks.demandFor(type, false);
-        final float out = s.stocks.demandFor(type, true );
+        final float in  = s.stocks.consumption(type);
+        final float out = s.stocks.production (type);
         if (report && (in > 0 || out > 0) && lastRep != s) {
           I.say("  Have reached: "+s);
           lastRep = s;
@@ -375,7 +375,7 @@ public class BaseTransport {
           if (report) I.say("    "+type+" supply: "+in);
         }
         if (out > 0) {
-          provDemand[i] += out;
+          provDemand[i] += out - in;
           if (report) I.say("    "+type+" demand: "+out);
         }
       }
@@ -400,10 +400,12 @@ public class BaseTransport {
       float supplyRatio = Nums.clamp(provSupply[i] / provDemand[i], 0, 1);
       
       for (Venue venue : reached) {
-        final float d = venue.stocks.demandFor(type);
-        if (d == 0) continue;
-        if (venue.stocks.producer(type)) venue.stocks.setAmount(type, d);
-        else venue.stocks.setAmount(type, d * supplyRatio);
+        final float
+          c = venue.stocks.consumption(type),
+          p = venue.stocks.production (type)
+        ;
+        if      (p > 0) venue.stocks.setAmount(type, p - c          );
+        else if (c > 0) venue.stocks.setAmount(type, c * supplyRatio);
       }
     }
   }

@@ -201,17 +201,23 @@ public class ActorGear extends Inventory {
   
   /**  Overrides for supply-and-demand methods-
     */
-  public float demandFor(Traded type) {
+  public float consumption(Traded type) {
     if (! canDemand(type)) return 0;
     return type.normalCarry(actor);
   }
   
-
-  public float shortageOf(Traded type) {
-    final float demand = demandFor(type);
+  
+  public float relativeShortage(Traded type, boolean production) {
+    final float demand = consumption(type);
     if (demand <= 0) return 0;
     final float amount = amountOf(type);
     return (demand - amount) / demand;
+  }
+  
+  
+  public float absoluteShortage(Traded type, boolean production) {
+    final float demand = consumption(type), amount = amountOf(type);
+    return demand - amount;
   }
   
   

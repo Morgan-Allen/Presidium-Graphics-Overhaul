@@ -287,10 +287,10 @@ public class EcologistStation extends HarvestVenue {
     //
     //  Increment demands, and decay current stocks-
     final float needSeed = SeedTailoring.DESIRED_SAMPLES;
-    stocks.incDemand(GENE_SEED, needSeed, 1, false);
-    stocks.incDemand(CARBS    , 5       , 1, true );
-    stocks.incDemand(GREENS   , 5       , 1, true );
-    stocks.incDemand(PROTEIN  , 5       , 1, true );
+    stocks.setConsumption(GENE_SEED, needSeed);
+    stocks.setConsumption(CARBS  , 2);
+    stocks.setConsumption(GREENS , 1);
+    stocks.setConsumption(PROTEIN, 1);
     final float decay = 1f / (
       Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
     );

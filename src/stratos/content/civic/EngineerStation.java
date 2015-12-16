@@ -162,17 +162,19 @@ public class EngineerStation extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    stocks.incDemand(PLASTICS, 5, 1, true);
-    stocks.incDemand(PARTS   , 5, 1, true);
-    stocks.translateRawDemands(POLYMER_TO_PLASTICS, 1);
-    stocks.translateRawDemands(METALS_TO_PARTS    , 1);
-    stocks.translateRawDemands(PARTS_TO_CIRCUITRY , 1);
+    stocks.setConsumption(PLASTICS, 2);
+    stocks.setConsumption(PARTS   , 2);
+    stocks.updateStockDemands(1, services(),
+      PARTS_TO_CIRCUITRY,
+      METALS_TO_PARTS,
+      POLYMER_TO_PLASTICS
+    );
     
     float pollution = 5, powerNeed = 5;
     powerNeed *= (3 + structure.numOptionalUpgrades()) / 6;
     pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
     pollution *= (5f + structure.upgradeLevel(ASSEMBLY_LINE)) / 5;
-    stocks.forceDemand(POWER, powerNeed, false);
+    stocks.forceDemand(POWER, powerNeed, 0);
     structure.setAmbienceVal(0 - pollution);
   }
   

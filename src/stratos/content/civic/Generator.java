@@ -228,10 +228,10 @@ public class Generator extends Venue {
     final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
     if (stocks.hasItem(fuel)) stocks.removeItem(fuel);
     else powerOutput /= 2;
-    stocks.forceDemand(POWER, powerOutput, true);
+    stocks.forceDemand(POWER, 0, powerOutput);
     //
     //  Update demand for raw materials-
-    stocks.forceDemand(FUEL_RODS, 5, false);
+    stocks.forceDemand(FUEL_RODS, 5, 0);
     //
     //  Output pollution-
     int pollution = 10;
@@ -243,7 +243,7 @@ public class Generator extends Venue {
   
   private float meltdownChance() {
     float chance = 1.5f - structure.repairLevel();
-    chance *= 1 + (stocks.demandFor(POWER) / 20f);
+    chance *= 1 + (stocks.production(POWER) / 20f);
     if (stocks.amountOf(ANTIMASS) == 0) chance /= 5;
     chance /= (1f + structure.upgradeLevel(FIELD_INTEGRATION));
     return chance;
@@ -377,7 +377,7 @@ public class Generator extends Venue {
     String help = BLUEPRINT.description;
     
     if (inWorld() && structure.intact()) {
-      if (! stocks.hasEnough(FUEL_RODS)) {
+      if (stocks.relativeShortage(FUEL_RODS) > 0) {
         help = "Power output will be limited without additional "+FUEL_RODS+".";
       }
       final int nC = CORE_DESC.length;

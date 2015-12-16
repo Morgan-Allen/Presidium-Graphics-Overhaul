@@ -22,8 +22,8 @@ public class BaseCommerce {
   /**  Field definitions, constructor, save/load methods-
     */
   private static boolean
-    verbose        = false,
-    extraVerbose   = false,
+    verbose        = true ,
+    extraVerbose   = true ,
     migrateVerbose = verbose && true ,
     tradeVerbose   = verbose && true ;
   
@@ -288,28 +288,23 @@ public class BaseCommerce {
         venue.services(), SERVICE_COMMERCE
       );
       for (Traded type : venue.stocks.demanded()) {
-        final boolean producer = venue.stocks.producer(type);
         final float
-          amount   = venue.stocks.amountOf  (type),
-          demand   = venue.stocks.demandFor (type),
-          shortage = venue.stocks.shortageOf(type),
-          surplus  = venue.stocks.surplusOf (type);
-        
+          amount      = venue.stocks.amountOf   (type),
+          consumption = venue.stocks.consumption(type),
+          production  = venue.stocks.production (type)
+        ;
         if (report && extraVerbose) {
           I.say("  "+venue+" "+type+" (tier: "+tier+")");
-          I.say("    Is trader: "+trader);
-          I.say("    Amount:    "+amount+"/"+demand);
-          if (surplus  > 0) I.say("    Surplus:  "+surplus );
-          if (shortage > 0) I.say("    Shortage: "+shortage);
-        }
-        
-        if ((! trader) && (! producer)) {
-          primarySupply.add(amount, type);
-          primaryDemand.add(demand, type);
+          I.say("    Amount:          "+amount+", trader: "+trader);
+          I.say("    Produce/Consume: "+production+"/"+consumption);
         }
         if (trader) {
-          if (producer) exportSupply.add(amount, type);
-          else importDemand.add(demand - amount, type);
+          exportSupply.add(Nums.max(0, amount - consumption), type);
+          importDemand.add(Nums.max(0, consumption - amount), type);
+        }
+        else {
+          primarySupply.add(Nums.max(0, amount - consumption), type);
+          primaryDemand.add(Nums.max(0, consumption - amount), type);
         }
       }
     }
@@ -348,6 +343,18 @@ public class BaseCommerce {
       exportDiv *= BASE_EXPORT_DIV / 2;
       importPrices.put(type, basePrice * importMul);
       exportPrices.put(type, basePrice / exportDiv);
+    }
+    //
+    //  Report as necessary and return...
+    if (report) {
+      I.say("\nTotal export-supply: ");
+      for (Traded t : exportSupply.keys()) {
+        I.say("  "+t+" "+exportSupply.valueFor(t));
+      }
+      I.say("\nTotal import-demand: ");
+      for (Traded t : importDemand.keys()) {
+        I.say("  "+t+" "+importDemand.valueFor(t));
+      }
     }
   }
   
@@ -471,7 +478,7 @@ public class BaseCommerce {
     for (Item i : imports) {
       final int amount = Nums.round(i.amount * scaleImp, 2, false);
       if (amount <= 0) continue;
-      forShipping.forceDemand(i.type, amount, false);
+      forShipping.forceDemand(i.type, 0, amount);
       if (fillImp) forShipping.bumpItem(i.type, amount);
     }
     
@@ -479,10 +486,14 @@ public class BaseCommerce {
     for (Item e : exports) {
       final int amount = Nums.round(e.amount * scaleExp, 2, false);
       if (amount <= 0) continue;
-      forShipping.forceDemand(e.type, amount, true);
+      forShipping.forceDemand(e.type, amount, 0);
     }
   }
 }
+
+
+
+
 
 
 

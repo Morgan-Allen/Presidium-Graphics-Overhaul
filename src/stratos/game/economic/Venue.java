@@ -369,9 +369,11 @@ public abstract class Venue extends Fixture implements
     if (! structure.needsSalvage()) {
       if (rare) updatePaving(true);
       staff.updateStaff(numUpdates);
+      
+      //  TODO:  This should also be handled by the Stocks, maybe...?
       impingeSupply(false);
     }
-    
+    /*
     if (structure.intact()) {
       stocks.updateOrders();
       if (rare) {
@@ -380,9 +382,14 @@ public abstract class Venue extends Fixture implements
           final Placeable home = a.mind.home();
           if (home == null && home != this) needHome++;
         }
+        
+        //  TODO:  This needs to be handled by the BaseCommerce class, or
+        //  something similar.
+        
         base.demands.impingeDemand(SERVICE_HOUSING, needHome, 10, this);
       }
     }
+    //*/
   }
   
   
@@ -810,16 +817,18 @@ public abstract class Venue extends Fixture implements
     final Batch <CutoutModel> itemModels = new Batch();
     final Batch <CutoutModel> tickModels  = new Batch();
     for (Traded t : VenuePane.ITEM_LIST_ORDER) {
-      final float demand = stocks.demandFor(t);
-      if (demand <= 0) continue;
-      final boolean producer = stocks.producer(t);
-      final boolean shortage = stocks.amountOf(t) < Nums.min(1, demand);
-      if (t.form == Economy.FORM_PROVISION && ! shortage) continue;
+      final float
+        amount      = stocks.amountOf   (t),
+        consumption = stocks.consumption(t),
+        production  = stocks.production (t),
+        totalDemand = consumption + production;
+      if (totalDemand == 0 && amount == 0) continue;
+      if (t.form == Economy.FORM_PROVISION && totalDemand <= amount) continue;
       
       itemModels.add(t.model);
-      if (shortage && producer) tickModels.add(Traded.QUESTION_MODEL);
-      else if (shortage)        tickModels.add(Traded.SHORTAGE_MODEL);
-      else                      tickModels.add(Traded.OKAY_MODEL    );
+      if      (amount < consumption) tickModels.add(Traded.SHORTAGE_MODEL);
+      else if (amount < totalDemand) tickModels.add(Traded.QUESTION_MODEL);
+      else                           tickModels.add(Traded.OKAY_MODEL    );
     }
     if (itemModels.size() > 0) {
       CutoutSprite.renderAbove(

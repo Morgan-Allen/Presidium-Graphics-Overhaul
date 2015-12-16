@@ -206,11 +206,13 @@ public class RunnerMarket extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
+    final Batch <Conversion> cons = new Batch();
     for (Conversion c : BLUEPRINT.production()) {
       final Upgrade u = upgradeFor(c.out.type);
       if (u != null && structure.upgradeLevel(u) <= 0) continue;
-      else stocks.translateRawDemands(c, 1);
+      else cons.add(c);
     }
+    stocks.updateStockDemands(1, new Traded[0], cons.toArray(Conversion.class));
   }
   
   

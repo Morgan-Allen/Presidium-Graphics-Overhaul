@@ -51,73 +51,6 @@ public class BringUtils {
   
   /**  Utility methods for dealing with domestic orders-
     */
-  /*
-  public static Bringing nextDisposalFor(Actor actor) {
-    final boolean report = dispVerbose && I.talkAbout == actor;
-    //
-    //  We allow the actor to dispose of any 'excess' items in their own
-    //  inventory, their home, or their workplace.
-    final Owner origins[] = {actor, actor.mind.home(), actor.mind.work()};
-    //
-    //  Excess items can, in principle, be disposed of anywhere that accepts
-    //  them- so we just fall back on whatever the actor can see.
-    final Batch <Property> depots = new Batch <Property> ();
-    for (Target t : actor.senses.awareOf()) if (t instanceof Property) {
-      final Property depot = (Property) t;
-      if (openForTrade(depot, actor)) depots.add(depot);
-    }
-    //
-    //  Then iterate over each...
-    for (Owner origin : origins) if (openForTrade(origin, actor)) {
-      if (report) {
-        I.say("\nGetting next item disposal: "+actor);
-        I.say("Origin is: "+origin);
-      }
-      //
-      //  We include anything 'unnecesary' from the inventory in question- any
-      //  kind of bulk commodity which isn't in demand- as up for disposal.
-      final Pick <Bringing> pick = new Pick <Bringing> ();
-      final Batch <Item> excess = new Batch <Item> ();
-      for (Item i : origin.inventory().allItems()) {
-        if (i.type.form != Economy.FORM_MATERIAL) continue;
-        if (origin.inventory().canDemand(i.type)) continue;
-        if (report) I.say("  Excess item: "+i);
-        excess.add(i);
-      }
-      if (excess.size() == 0) continue;
-      //
-      //  Then, we iterate over any candidate depots and see if they'll accept
-      //  the good in question.  (If the depot is one of the origin points,
-      //  only take goods in demand- otherwise, make sure the depot deals in
-      //  goods of that type.)
-      for (Property depot : depots) for (Item i : excess) {
-        final Traded t = i.type;
-        final boolean sells = ! Visit.arrayIncludes(origins, depot);
-        
-        if ((! sells) && depot.inventory().demandFor(t) <= 0       ) continue;
-        if (   sells  && ! Visit.arrayIncludes(depot.services(), t)) continue;
-        
-        final Item moved = Item.withAmount(t, Nums.min(5, i.amount));
-        final Bringing d = new Bringing(moved, origin, depot);
-        d.setWithPayment(sells ? depot : null);
-        
-        if (report) {
-          I.say("  Candidate depot: "+depot+" ("+i.type+")");
-          I.say("  Rating (sells):  "+d.pricePaid()+" ("+sells+")");
-        }
-        pick.compare(d, d.pricePaid());
-      }
-      //
-      //  Return whatever option seems most profitable (if any)-
-      final Bringing disposal = pick.result();
-      if (report) I.say("Final choice: "+disposal);
-      if (disposal != null) return disposal;
-    }
-    return null;
-  }
-  //*/
-  
-  
   public static Bringing nextPersonalPurchase(
     Actor actor, Venue from, Traded... goods
   ) {
@@ -362,7 +295,7 @@ public class BringUtils {
     Traded good, int unit, boolean filterOrigs
   ) {
     if (origs.size() == 0) return null;
-    if (dest.inventory().shortageOf(good) <= 0) return null;
+    if (dest.inventory().relativeShortage(good, true) < 0) return null;
     
     final boolean report = reportRating(null, dest, good);
     if (report) {
@@ -477,7 +410,7 @@ public class BringUtils {
     //  OS/DS == origin/destination stocks
     //  OA/DA == origin/destination amount
     //  OT/DT == origin/destination tier
-    //  OD/DD == origin/destination demand
+    //  OF/DF == origin/destination shortage
     final Inventory
       OS = orig.inventory(),
       DS = dest.inventory();
@@ -488,35 +421,25 @@ public class BringUtils {
       if (report) I.say("  Origin lacks supply.");
       return -1;
     }
-    
     final int
       OT = OS.owner.owningTier(),
       DT = DS.owner.owningTier();
-    final boolean
-      OP = OS.producer(good),
-      DP = DS.producer(good);
+    final float
+      OF = OS.relativeShortage(good, false),
+      DF = DS.relativeShortage(good, false);
     
     if (report) {
       I.say("  Checking tiers...");
-      I.say("  Origin tier:      "+nameForTier(OT)+", Exporter: "+OP);
-      I.say("  Destination tier: "+nameForTier(DT)+", Exporter: "+DP);
+      I.say("  Origin tier:      "+nameForTier(OT)+", Shortage: "+OF);
+      I.say("  Destination tier: "+nameForTier(DT)+", Shortage: "+DF);
     }
-    if (! canTradeBetween(OT, OP, DT, DP)) return -1;
-    final float
-      OD = OS.demandFor(good),
-      DD = DS.demandFor(good);
-    if (DA >= DD) {
-      if (report) I.say("  No shortage at destination.");
-      return -1;
-    }
+    if (! canTradeBetween(OT, OF, DT, DF)) return -1;
     //
     //  Secondly, obtain an estimate of stocks before and after the exchange.
-    final boolean
-      isTrade    = OT == DT && DP == OP,
-      isConsumer = DP == false && DT < Owner.TIER_SHIPPING;
     final float
       OFB = futureBalance(orig, good, report),
-      DFB = futureBalance(dest, good, report);
+      DFB = futureBalance(dest, good, report)
+    ;
     float origAfter = 0, destAfter = 0;
     origAfter = OA + (OFB - amount);
     destAfter = DA + (DFB + amount);
@@ -524,35 +447,37 @@ public class BringUtils {
       I.say("  Trade unit is "+amount);
       I.say("  Origin      reserved: "+OFB);
       I.say("  Destination reserved: "+DFB);
-      I.say("  Origin      demand  : "+OD+" ("+nameForTier(OT)+")");
-      I.say("  Destination demand  : "+DD+" ("+nameForTier(DT)+")");
+      I.say("  Origin      shortage: "+OF+" ("+nameForTier(OT)+")");
+      I.say("  Destination shortage: "+DF+" ("+nameForTier(DT)+")");
       I.say("  Origin      after   : "+origAfter);
       I.say("  Destination after   : "+destAfter);
     }
-    if (origAfter < 0 || destAfter >= (DD + unit)) return -1;
     //
-    //  Then, assign ratings for relative shortages at the start/end points (in
-    //  the case of symmetric trades, based on projected stocks afterwards.)
-    float origShort = 0, destShort = 0, rating = 0;
-    if (! isTrade) { origAfter += amount; destAfter -= amount; }
-    if (OD > 0) origShort = 1 - (origAfter / OD);
-    if (DD > 0) destShort = 1 - (destAfter / DD);
+    //  We set the min/max amount thresholds to either 0, consumption, or total
+    //  demand, depending on circumstances...
+    float minAtOrig = OF > 0 ? 0 : OS.consumption(good);
+    float maxAtDest = DS.consumption(good);
+    if (DF <= -1) maxAtDest += DS.production(good);
+    if (origAfter < minAtOrig || destAfter >= (maxAtDest + unit)) return -1;
     //
     //  In the case of an equal trade, rate based on those relative shortages.
     //  Otherwise favour deliveries to local consumers or, finally, deliver for
     //  export.
+    final boolean
+      isTrade    = OT == DT,
+      isConsumer = DF > OF && DT < Owner.TIER_SHIPPING;
+    
+    float rating;
     if (isTrade) {
-      rating = destShort - origShort;
+      rating = (DF - OF) * 2;
     }
     else if (isConsumer) {
-      rating = 1 + destShort;
+      rating = 1 + DF;
     }
     else {
-      rating = destShort / 2;
+      rating = DF / 2;
     }
     if (report) {
-      I.say("  Origin      shortage: "+origShort);
-      I.say("  Destination shortage: "+destShort);
       I.say("  Rating so far       : "+rating   );
     }
     if (rating <= 0) return -1;
@@ -575,35 +500,27 @@ public class BringUtils {
   
   
   public static boolean canTradeBetween(
-    int origTier, boolean origProduce,
-    int destTier, boolean destProduce
+    int origTier, float origShortage,
+    int destTier, float destShortage
   ) {
     //
-    //  Trade exchanges are always okay with lower-tier owners as long as they
-    //  produce/consume appropriately.
-    if (destTier == TIER_TRADER && origTier < TIER_TRADER) {
-      return origProduce;
+    //  As a rule, both shortages and surpluses at lower-tier venues will trump
+    //  those at higher-tier venues.
+    final boolean
+      origNeed = origShortage > 0,
+      destNeed = destShortage > 0,
+      sameTier = origTier == destTier;
+    
+    if ((sameTier && origTier == TIER_SHIPPING) || (destShortage <= -1)) {
+      return false;
     }
-    if (origTier == TIER_TRADER && destTier < TIER_TRADER) {
-      return ! destProduce;
+    if (origNeed) {
+      if (destTier < origTier && destNeed) return true;
+      else return false;
     }
-    //  Private trades (okay as long as the recipient isn't a producer)
-    if (destTier <= TIER_PRIVATE) {
-      if (destProduce == true) return false;
+    if (destNeed) {
+      if (destTier > origTier && origNeed) return false;
       else return true;
-    }
-    //  Same-tier trades (illegal between trade vessels or same demands)
-    else if (origTier == destTier) {
-      if (origTier == TIER_SHIPPING) return false;
-      if (origProduce == destProduce) return false;
-    }
-    //  Downstream deliveries (from ships to depots to facilities)
-    else if (origTier > destTier) {
-      if (origProduce == true  || destProduce == true ) return false;
-    }
-    //  Upstream delivieries (from facilities to ships to depots)
-    else if (origTier < destTier) {
-      if (origProduce == false || destProduce == false) return false;
     }
     return true;
   }

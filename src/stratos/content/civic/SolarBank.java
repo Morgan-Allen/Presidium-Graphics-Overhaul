@@ -87,8 +87,8 @@ public class SolarBank extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) { stocks.clearDemands(); return; }
     final float sun = world.terrain().insolationSample(origin());
-    stocks.forceDemand(POWER, sun * 4, true);
-    stocks.forceDemand(WATER, (0.5f + 1 - sun) / 2, true);
+    stocks.forceDemand(POWER, 0, sun * 4);
+    stocks.forceDemand(WATER, 0, (0.5f + 1 - sun) / 2);
   }
   
   

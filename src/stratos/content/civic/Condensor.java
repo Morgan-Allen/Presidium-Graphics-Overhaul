@@ -76,9 +76,9 @@ public class Condensor extends Venue {
       waterOut += world.terrain().habitatSample(at, Habitat.OCEAN   );
       waterOut *= 2.5f;
       
-      stocks.forceDemand(POWER, 4       , false);
-      stocks.forceDemand(ATMO , 10      , true );
-      stocks.forceDemand(WATER, waterOut, true );
+      stocks.forceDemand(POWER, 4, 0       );
+      stocks.forceDemand(ATMO , 0, 10      );
+      stocks.forceDemand(WATER, 0, waterOut);
       structure.setAmbienceVal(5);
     }
     else {
@@ -98,7 +98,7 @@ public class Condensor extends Venue {
   
   public String helpInfo() {
     String info = super.helpInfo();
-    if (stocks.demandFor(WATER) < 5) info =
+    if (stocks.production(WATER) < 5) info =
       "The terrain around this Condensor is very dry, which will limit "+WATER+
       " output.";
     return info;

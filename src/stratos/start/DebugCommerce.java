@@ -76,13 +76,12 @@ public class DebugCommerce extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.cashFree  = true;
-    
     base.research.initKnowledgeFrom(base.commerce.homeworld());
     
-    if (false) shippingScenario(world, base, UI);
+    if (true ) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
     if (false) runnersScenario (world, base, UI);
-    if (true ) purchaseScenario(world, base, UI);
+    if (false) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) haulingScenario (world, base, UI);
   }
@@ -92,12 +91,11 @@ public class DebugCommerce extends Scenario {
     
     base .commerce.assignHomeworld    (Verse.PLANET_ASRA_NOVI);
     world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS  );
-    world.offworld.journeys.setupDefaultShipping(base);
     
     final Venue depot = new SupplyDepot(base);
     SiteUtils.establishVenue(depot, 5, 5, true, world);
-    depot.stocks.forceDemand(CARBS , 5, true );
-    depot.stocks.forceDemand(METALS, 5, false);
+    depot.stocks.forceDemand(CARBS , 0, 5);
+    depot.stocks.forceDemand(METALS, 5, 0);
     depot.stocks.bumpItem(CARBS, 10);
     depot.updateAsScheduled(0, false);
     base.commerce.addCandidate(SUPPLY_CORPS, depot);
@@ -107,7 +105,8 @@ public class DebugCommerce extends Scenario {
     world.offworld.journeys.addLocalImmigrant(brought, base);
     
     base.commerce.updateCommerce(0);
-    ///world.offworld.journeys.scheduleLocalDrop(base, 5);
+    world.offworld.journeys.setupDefaultShipping(base);
+    world.offworld.journeys.scheduleLocalDrop(base, 5);
   }
   
   
@@ -296,10 +295,9 @@ public class DebugCommerce extends Scenario {
     final Venue exchange = new StockExchange(base);
     SiteUtils.establishVenue(exchange, 5 , 5 , true, world);
     base.setup.fillVacancies(exchange, true);
-    exchange.stocks.forceDemand(PARTS   , 40, false);
-    exchange.stocks.forceDemand(PLASTICS, 25, false);
-    exchange.stocks.forceDemand(CARBS   , 35, false);
-    
+    exchange.stocks.forceDemand(PARTS   , 40, 0);
+    exchange.stocks.forceDemand(PLASTICS, 25, 0);
+    exchange.stocks.forceDemand(CARBS   , 35, 0);
     Selection.pushSelection(depot, null);
   }
   
@@ -315,7 +313,7 @@ public class DebugCommerce extends Scenario {
     SiteUtils.establishVenue(foundry, 6, 6, true, world, guyA, guyB);
     
     depot.stocks.bumpItem(METALS, 10);
-    foundry.stocks.forceDemand(METALS, 3, false);
+    foundry.stocks.forceDemand(METALS, 3, 0);
     
     Selection.pushSelection(foundry, null);
     

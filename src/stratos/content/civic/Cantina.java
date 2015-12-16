@@ -205,9 +205,9 @@ public class Cantina extends Venue implements Performance.Theatre {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
-    stocks.forceDemand(SOMA   , 3, false);
-    stocks.forceDemand(CARBS  , 2, false);
-    stocks.forceDemand(PROTEIN, 1, false);
+    stocks.forceDemand(SOMA   , 2, 0);
+    stocks.forceDemand(CARBS  , 1, 0);
+    stocks.forceDemand(PROTEIN, 1, 0);
     updateGambling(numUpdates);
   }
   

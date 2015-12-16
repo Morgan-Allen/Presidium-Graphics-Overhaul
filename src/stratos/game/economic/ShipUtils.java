@@ -336,8 +336,8 @@ public class ShipUtils {
     //  should work fine...
     float rating = 1;
     for (Traded good : Economy.ALL_MATERIALS) {
-      rating += Nums.max(0, strip.stocks.shortageOf(good));
-      rating += Nums.max(0, strip.stocks.surplusOf (good));
+      rating += Nums.max(0, strip.stocks.absoluteShortage(good, true ));
+      rating += Nums.max(0, strip.stocks.absoluteSurplus (good, false));
     }
     rating /= 2 * ALL_MATERIALS.length;
     return rating;

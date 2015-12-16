@@ -4,6 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
+import static stratos.game.economic.Economy.SERVICE_HOUSING;
+
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
@@ -363,56 +365,60 @@ public class Staff {
   /**  Life cycle, recruitment and updates-
     */
   protected void updateStaff(int numUpdates) {
-    if (numUpdates % REFRESH_INTERVAL == 0) {
-      final Base base = employs.base();
-      //
-      //  Clear out the office for anyone dead or missing-
-      for (Actor a : workers) {
-        if (a.mind.work() != employs || ! a.health.alive()) {
-          if (a.mind.work() == employs) a.mind.setWork(null);
-          workers.remove(a);
-        }
-        
-        //  TODO:  This is a temporary hack for a situation that was never
-        //  supposed to arise.  Investigate!
-        
-        final Actor b = a;
-        if (VerseJourneys.activityFor(b) != null) continue;
-        final Verse verse = base.world.offworld;
-        VerseLocation off = Verse.currentLocation(b, verse);
-        VerseLocation local = verse.stageLocation();
-        
-        if (off != local && off != base.commerce.homeworld()) {
-          base.world.offworld.journeys.addLocalImmigrant(b, base);
-        }
-        
-        
+    if (numUpdates % REFRESH_INTERVAL != 0) return;
+    final Base base = employs.base();
+    int needHome = 0;
+    //
+    //  Clear out the office for anyone dead or missing-
+    for (Actor a : workers) {
+      if (a.mind.work() != employs || ! a.health.alive()) {
+        if (a.mind.work() == employs) a.mind.setWork(null);
+        workers.remove(a);
       }
-      for (Actor a : lodgers) {
-        if (a.mind.home() != employs || ! a.health.alive()) {
-          if (a.mind.home() == employs) a.mind.setHome(null);
-          lodgers.remove(a);
-        }
+      final Placeable home = a.mind.home();
+      if (home == null && home != employs) needHome++;
+      
+      //  TODO:  This is a temporary hack for a situation that was never
+      //  supposed to arise.  Investigate!
+      final Actor b = a;
+      if (VerseJourneys.activityFor(b) != null) continue;
+      final Verse verse = base.world.offworld;
+      VerseLocation off = Verse.currentLocation(b, verse);
+      VerseLocation local = verse.stageLocation();
+      
+      if (off != local && off != base.commerce.homeworld()) {
+        base.world.offworld.journeys.addLocalImmigrant(b, base);
       }
-      for (FindWork a : applications) {
-        if (a.employer() != employs || ! a.actor().health.alive()) {
-          setApplicant(a, false);
-        }
+    }
+    for (Actor a : lodgers) {
+      if (a.mind.home() != employs || ! a.health.alive()) {
+        if (a.mind.home() == employs) a.mind.setHome(null);
+        lodgers.remove(a);
       }
-      //
-      //  If there's an unfilled opening, look for someone to fill it.
-      if (employs.careers() != null) for (Background v : employs.careers()) {
-        final int openings = numOpenings(v);
-        if (openings <= 0) continue;
-        
-        if (GameSettings.hireFree) {
-          final Actor citizen = v.sampleFor(base);
-          citizen.mind.setWork(employs);
-          citizen.enterWorldAt(employs, base.world);
-        }
-        else {
-          base.demands.impingeDemand(v, openings, REFRESH_INTERVAL, employs);
-        }
+    }
+    for (FindWork a : applications) {
+      if (a.employer() != employs || ! a.actor().health.alive()) {
+        setApplicant(a, false);
+      }
+    }
+    //
+    //  Boost demand for housing based on homelessness, and...
+    base.demands.impingeDemand(
+      SERVICE_HOUSING, needHome, REFRESH_INTERVAL, employs
+    );
+    //
+    //  ...If there's an unfilled opening, look for someone to fill it.
+    if (employs.careers() != null) for (Background v : employs.careers()) {
+      final int openings = numOpenings(v);
+      if (openings <= 0) continue;
+      
+      if (GameSettings.hireFree) {
+        final Actor citizen = v.sampleFor(base);
+        citizen.mind.setWork(employs);
+        citizen.enterWorldAt(employs, base.world);
+      }
+      else {
+        base.demands.impingeDemand(v, openings, REFRESH_INTERVAL, employs);
       }
     }
   }

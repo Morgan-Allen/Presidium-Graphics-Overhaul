@@ -172,7 +172,6 @@ public class DebugEcology extends Scenario {
     final KommandoRedoubt lodge = new KommandoRedoubt(base);
     SiteUtils.establishVenue(lodge, world.tileAt(20, 2), true, world);
     base.setup.fillVacancies(lodge, true);
-    lodge.stocks.forceDemand(Economy.PROTEIN, 20, false);
     
     Actor tracks = lodge.staff.workers().last();
     Selection.pushSelection(tracks, null);

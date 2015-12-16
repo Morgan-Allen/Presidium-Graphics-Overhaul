@@ -1,17 +1,17 @@
 
 
 
-TO DO NOW-
-   
-*  Offworld raids by enemy houses!  (And general 'wandering monsters'.)
-   
-*  Pax Conditioning needs to be filled in.  Sleep Gas as booster skill.
-   
+TO DO NOW-   
+
 *  A summary of profit and loss for each structure would be worthwhile!
-   (Also, venues should have min-stocks for certain goods, even when selling.)
 
 *  In addition, picking rest/retreat points should be more sensible (check the
    pure-combat scenarios.)
+
+*  Offworld raids by enemy houses!  (And general 'wandering monsters'.)
+
+*  Saving/loading is still brittle.  There needs to be some (optional?)
+   metadata to pin down crashes due to incorrect I/O counts.
 
 
 *  Initial missions:
@@ -19,6 +19,9 @@ TO DO NOW-
    Pavonis Sector (mild settlement, pacified.)
    Aeolis Sector (desert plus wildlife.)
    Marineris Sector (neutral + water/islands.  Some wildlife.)
+
+*  The Airfield should be responsible for imposing offworld supply/demand at a
+   local level.
    
 *  Animals & children need to be looked after as part of general Supervision-
    behaviour.  (In fact, you need a general interface for this, with animal-
@@ -100,12 +103,8 @@ TO DO NOW-
 *  Make sure that the NestUtils calls for fauna-population get translated back
    into a SitingPass- and ensure that fauna can build their own nests again.
 
-*  Trees need more elegant spacing.
-
 
 ENEMIES AND ENVIRONMENT-
-
-*  Nocturnal trait.  "They mostly come at night.  Mostly."
 
 *  Try to polish up the Flora- have it look more exotic.
 

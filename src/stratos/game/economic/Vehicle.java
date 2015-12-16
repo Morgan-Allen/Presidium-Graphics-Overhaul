@@ -479,8 +479,10 @@ public abstract class Vehicle extends Mobile implements
     
     structure.updateStructure(numUpdates);
     if (! structure.intact()) return;
-    cargo.updateOrders();
-    staff.updateStaff(numUpdates);
+    if (! instant) {
+      cargo.updateStockDemands(1, services());
+      staff.updateStaff(numUpdates);
+    }
     if (! pathing.checkPathingOkay()) pathing.refreshFullPath();
     
     //  TODO:  Allow vehicles to act as Mounts.
@@ -496,22 +498,6 @@ public abstract class Vehicle extends Mobile implements
       pilot = null;
     }
   }
-  
-  
-  /*
-  public boolean blocksMotion(Boardable b) {
-    if (super.blocksMotion(b)) return true;
-    if (b instanceof Tile && b != aboard()) {
-      final Tile t = (Tile) b;
-      if (Spacing.distance(t, origin()) > MobilePathing.MAX_PATH_SCAN) {
-        return false; 
-      }
-      if (t.inside().size() > 0) return true;
-    }
-    return false;
-  }
-  //*/
-  
   
   
   

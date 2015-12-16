@@ -61,7 +61,7 @@ public class PlanUtils {
     incentive  = Nums.clamp(incentive, -20, 20);
     if (! asRealTask) return incentive;
     
-    conscience = 10 * baseConscience(actor, subject) * lethality;
+    conscience = 5 * baseConscience(actor, subject) * lethality;
     if (incentive <= conscience) winChance = priority = -1;
     else winChance = combatWinChance(actor, subject, teamSize);
     
@@ -69,10 +69,12 @@ public class PlanUtils {
     if (emergency       ) incentive += 5;
     if (priority != -1) {
       priority = incentive - ((1 - winChance) * 10);
-      priority = (priority <= Plan.ROUTINE) ? 0 : priority;
+      priority = priority <= 0 ? -1 : Nums.max(Plan.ROUTINE, priority);
     }
     
-    if (reportOn(actor, priority)) I.reportVars(
+    boolean talk = I.talkAbout == actor && subject.base() != actor.base();
+    
+    if (reportOn(actor, priority) || talk) I.reportVars(
       "\nCombat priority for "+actor, "  ",
       "subject  " , subject    ,
       "reward   " , rewardBonus,

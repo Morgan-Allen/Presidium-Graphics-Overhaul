@@ -141,7 +141,7 @@ public class Airfield extends Venue {
     
     //  TODO:  As long as you have power and fuel rods, you can manufacture
     //  fuel for dropships.
-    stocks.forceDemand(POWER, 5, false);
+    stocks.forceDemand(POWER, 5, 0);
   }
   
   

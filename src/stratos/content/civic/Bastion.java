@@ -321,19 +321,22 @@ public class Bastion extends Venue {
     int powerLimit = 20 + (SB * 10), lifeSLimit = 10 + (SB * 5);
     powerLimit *= condition;
     lifeSLimit *= condition;
-    stocks.forceDemand(POWER, powerLimit, true);
-    stocks.forceDemand(ATMO , lifeSLimit, true);
+    
+    stocks.forceDemand(POWER, 0, powerLimit);
+    stocks.forceDemand(ATMO , 0, lifeSLimit);
     //
     //  Demand provisions-
     final int foodNeed = staff.lodgers().size() + 2;
-    stocks.forceDemand(CARBS   , foodNeed * 1.5f, false);
-    stocks.forceDemand(PROTEIN , foodNeed * 1.0f, false);
-    stocks.forceDemand(GREENS  , foodNeed * 1.0f, false);
-    stocks.forceDemand(MEDICINE, foodNeed * 0.5f, false);
+    stocks.forceDemand(CARBS   , foodNeed * 1.5f, 0);
+    stocks.forceDemand(PROTEIN , foodNeed * 1.0f, 0);
+    stocks.forceDemand(GREENS  , foodNeed * 1.0f, 0);
+    stocks.forceDemand(MEDICINE, foodNeed * 0.5f, 0);
     
     final int partNeed = structure.upgradeLevel(LOGISTIC_SUPPORT) + 2;
-    stocks.forceDemand(PARTS   , partNeed * 1.0f, false);
-    stocks.forceDemand(PLASTICS, partNeed * 0.5f, false);
+    stocks.forceDemand(PARTS   , partNeed * 1.0f, 0);
+    stocks.forceDemand(PLASTICS, partNeed * 0.5f, 0);
+    
+    stocks.updateStockDemands(1, new Traded[0]);
     //
     //  Modify maximum integrity based on upgrades-
     final int BB = structure.upgradeLevel(BLAST_SHIELDS);

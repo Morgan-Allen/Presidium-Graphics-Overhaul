@@ -75,10 +75,10 @@ public class SupplyDepot extends Venue {
     attachSprite(sprite);
     
     for (Traded t : ALL_STOCKED) {
-      stocks.forceDemand(t, 5, true);
+      stocks.forceDemand(t, 0, 5);
     }
     for (Traded t : HOME_PURCHASE_TYPES) {
-      stocks.forceDemand(t, 0, false);
+      stocks.forceDemand(t, 5, 0);
     }
   }
   
@@ -119,10 +119,7 @@ public class SupplyDepot extends Venue {
     //
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_SQUALOR);
-    for (Traded type : ALL_STOCKED) {
-      final float stockBonus = 1 + upgradeLevelFor(type);
-      stocks.updateTradeDemand(type, stockBonus, 1);
-    }
+    stocks.updateStockDemands(1, ALL_STOCKED);
     //
     //  TODO:  You need to send those barges off to different settlements!
     for (CargoBarge b : barges) if (b.destroyed()) barges.remove(b);
