@@ -23,19 +23,8 @@ public class Base implements
   
   /**  Fields, constructors, and save/load methods-
     */
-  /*
-  final public static String
-    KEY_ARTILECTS = "Artilects",
-    KEY_NATIVES   = "Natives"  ,
-    KEY_VERMIN    = "Vermin"   ,
-    KEY_WILDLIFE  = "Wildlife" ,
-    KEY_FREEHOLD  = "Freehold" ,
-    KEY_SETTLED   = "Settled"  ;
-  //*/
-  
   final public static int
     MAX_BASES = 8;
-  
   
   final public Stage world;
   
@@ -110,6 +99,7 @@ public class Base implements
     s.loadTally(venueIDTallies);
     
     baseID = s.loadInt();
+    I.say("\nLOADED BASE: "+faction.name+", ID: "+baseID);
   }
   
   
@@ -148,9 +138,11 @@ public class Base implements
   
   
   
-  private static Base namedBase(Stage world, String title) {
+  private static Base findBase(Stage world, String title, Faction belongs) {
     for (Base base : world.bases()) {
-      if (base.title != null && base.title.equals(title)) return base;
+      if (belongs != null && base.faction != belongs ) continue;
+      if (title != null && ! title.equals(base.title)) continue;
+      return base;
     }
     return null;
   }
@@ -178,7 +170,7 @@ public class Base implements
   public static Base settlement(
     Stage world, String customTitle, Faction faction
   ) {
-    final Base base = namedBase(world, faction.name);
+    final Base base = findBase(world, null, faction);
     if (base != null) return base;
     
     final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
@@ -189,7 +181,7 @@ public class Base implements
   
   
   public static Base wildlife(Stage world) {
-    Base base = namedBase(world, Faction.FACTION_WILDLIFE.name);
+    Base base = findBase(world, null, Faction.FACTION_WILDLIFE);
     if (base != null) return base;
     else base = new Base(world, Faction.FACTION_WILDLIFE);
     
@@ -199,30 +191,30 @@ public class Base implements
   
   
   public static VerminBase vermin(Stage world) {
-    VerminBase base = (VerminBase) namedBase(world, Faction.FACTION_VERMIN.name);
-    if (base != null) return base;
+    Base base = findBase(world, null, Faction.FACTION_VERMIN);
+    if (base != null) return (VerminBase) base;
     else base = new VerminBase(world);
     
     final Blueprint canBuild[] = new Blueprint[0];
     registerBase(base, world, canBuild);
-    return base;
+    return (VerminBase) base;
   }
   
   
   public static ArtilectBase artilects(Stage world) {
-    ArtilectBase base = (ArtilectBase) namedBase(world, Faction.FACTION_ARTILECTS.name);
-    if (base != null) return base;
+    Base base = findBase(world, null, Faction.FACTION_ARTILECTS);
+    if (base != null) return (ArtilectBase) base;
     else base = new ArtilectBase(world);
     
     final Blueprint canBuild[] = new Blueprint[0];
     registerBase(base, world, canBuild);
-    return base;
+    return (ArtilectBase) base;
   }
   
   
   public static Base natives(Stage world, int tribeID) {
     final String title = NativeHut.TRIBE_NAMES[tribeID];
-    Base base = namedBase(world, title);
+    Base base = findBase(world, title, Faction.FACTION_NATIVES);
     
     if (base != null) return base;
     else base = new Base(world, Faction.FACTION_NATIVES);

@@ -4,20 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.game.base.*;
-import stratos.start.Assets;
-import stratos.start.Scenario;
+import stratos.start.*;
 import stratos.util.*;
-
 import java.io.*;
 import java.lang.reflect.*;
 
 
-//
-//  TODO:  It would be very helpful to include some supplementary information
-//  here along with the save file listing how many bytes of data each save-ID-
-//  tagged object should be reading in after writing out.  That would help to
-//  nail down any discrepancies.
 
 //  TODO:  See if it's possible to check for correct use of the cacheInstance
 //  method?  Technically there's already a check for that below, but it's
@@ -35,7 +27,8 @@ import java.lang.reflect.*;
 public final class Session {
   
   private static boolean
-    verbose = false;
+    verbose    = false,
+    saveCounts = true ;
   
   final static int
     CLASS_CAPACITY  = 200,
@@ -66,8 +59,9 @@ public final class Session {
   private Stage world = null;
   
   private int operation = OP_NONE;
-  private DataOutputStream out;
-  private DataInputStream  in ;
+  private DataOutputStream out   ;
+  private DataInputStream  in    ;
+  private DataOutputStream counts;
   private int bytesIn = 0, bytesOut = 0, fileSize = 0;
   
   
@@ -81,9 +75,13 @@ public final class Session {
     s.out = new DataOutputStream(new BufferedOutputStream(
       new FileOutputStream(saveFile))
     );
+    if (saveCounts) s.counts = new DataOutputStream(new BufferedOutputStream(
+      new FileOutputStream(saveFile+".counts_out")
+    ));
+    
     Assets.clearReferenceIDs();
     s.operation = OP_SAVE;
-    s.world = world;
+    s.world     = world  ;
     s.scenario = scenario;
     
     s.saveInt(world.size);
@@ -92,12 +90,13 @@ public final class Session {
     GameSettings.saveSettings(s);
     s.finish();
     
-    I.say("\nDISPLAYING TOTAL SAVE COUNTS:");
-    for (Class CC : s.classCounts.keySet()) {
-      final Vars.Int count = s.classCounts.get(CC);
-      I.say("  Saved "+count.val+" of "+CC.getName());
+    if (saveCounts) {
+      I.say("\nDISPLAYING TOTAL SAVE COUNTS:");
+      for (Class CC : s.classCounts.keySet()) {
+        final Vars.Int count = s.classCounts.get(CC);
+        I.say("  Saved "+count.val+" of "+CC.getName());
+      }
     }
-    
     return s;
   }
   
@@ -106,9 +105,14 @@ public final class Session {
     final Session s = new Session();
     
     final File asFile = new File(saveFile);
-    try { s.in = new DataInputStream(new BufferedInputStream(
-      new FileInputStream(asFile))
-    ); }
+    try {
+      s.in = new DataInputStream(new BufferedInputStream(
+        new FileInputStream(asFile))
+      );
+      if (saveCounts) s.counts = new DataOutputStream(new BufferedOutputStream(
+        new FileOutputStream(saveFile+".counts_in")
+      ));
+    }
     catch (Exception e) {
       e.printStackTrace();
       return null;
@@ -148,6 +152,11 @@ public final class Session {
     classIDs.clear();
     loadIDs .clear();
     loadMethods.clear();
+    
+    if (counts != null) {
+      counts.flush();
+      counts.close();
+    }
     if (out != null) {
       out.flush();
       out.close();
@@ -452,21 +461,29 @@ public final class Session {
     if (s == null) { out.writeInt(-1); return; }
     final Integer saveID = saveIDs.get(s);
     if (saveID == null) {
-      Vars.Int count = classCounts.get(s.getClass());
-      if (count == null) classCounts.put(s.getClass(), count = new Vars.Int());
-      count.val++;
       
       //I.say("Saving new object, class- "+s.getClass().getName());
       saveIDs.put(s, nextObjectID);
       out.writeInt(nextObjectID++);
       saveClass(s.getClass());
+      
       final int initBytes = bytesOut;
       s.saveState(this);
+      
       if (verbose) I.say(
         "Saved new object: "+s.getClass().getName()+
         " total bytes saved: "+(bytesOut - initBytes)
       );
-      bytesOut = initBytes;
+      if (counts != null) {
+        counts.writeChars("\n  "+saveID+" ("+s.getClass());
+        counts.writeChars("): "+(bytesOut - initBytes));
+        
+        Vars.Int count = classCounts.get(s.getClass());
+        if (count == null) {
+          classCounts.put(s.getClass(), count = new Vars.Int());
+        }
+        count.val++;
+      }
     }
     else {
       out.writeInt(saveID);
@@ -550,7 +567,12 @@ public final class Session {
       "BEFORE ANY MEMBER FIELDS OR VARIABLES HAVE BEEN LOADED.  (THIS DOES "+
       "NOT APPLY TO THOSE THAT IMPLEMENT loadConstant(Session s).)  THANK YOU."
     );
-    bytesIn = initBytes;
+    
+    if (counts != null) {
+      final Saveable s = (Saveable) loaded;
+      counts.writeChars("\n  "+loadID+" ("+s.getClass());
+      counts.writeChars("): "+(bytesIn - initBytes));
+    }
     return loaded;
   }
   

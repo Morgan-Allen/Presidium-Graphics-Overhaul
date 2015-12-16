@@ -65,8 +65,8 @@ public class Stage {
   
   final public Activities activities;
   final public PathingMap pathingMap;
-  final public Presences presences;
-  final public Ephemera ephemera;
+  final public Presences  presences ;
+  final public Ephemera   ephemera  ;
   
   
   public Stage(int size) {

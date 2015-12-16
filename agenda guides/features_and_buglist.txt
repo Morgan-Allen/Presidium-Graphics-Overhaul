@@ -1,15 +1,12 @@
 
 
 
-TO DO NOW-   
+TO DO NOW-
 
 *  In addition, picking rest/retreat points should be more sensible (check the
    pure-combat scenarios.)
 
 *  Offworld raids by enemy houses!  (And general 'wandering monsters'.)
-
-*  Saving/loading is still brittle.  There needs to be some (optional?)
-   metadata to pin down crashes due to incorrect I/O counts.
 
 
 *  Initial missions:
