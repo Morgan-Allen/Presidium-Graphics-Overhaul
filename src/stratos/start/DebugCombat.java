@@ -12,7 +12,6 @@ import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
-import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
@@ -131,7 +130,7 @@ public class DebugCombat extends Scenario {
   
   private void combatScenario(Stage world, Base base, BaseUI UI) {
     
-    GameSettings.fogFree = true;
+    //GameSettings.fogFree = true;
     //Flora.populateFlora(world);
     
     world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
@@ -172,7 +171,7 @@ public class DebugCombat extends Scenario {
     //*
     setupCombatScenario(
       world, base, UI,
-      new Background[] { PHYSICIAN, TROOPER, TROOPER },
+      new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
       PhysicianTechniques.PHYSICIAN_TECHNIQUES,
       new Background[] { RUNNER, RUNNER },
       Base.artilects(world), true

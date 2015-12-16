@@ -216,7 +216,7 @@ public class SolidSprite extends Sprite {
     //  animation state is approaching it's expiration date.
     AnimState topState = animStates.last();
     boolean newState = topState == null || topState.anim != match;
-    if (! newState) {
+    if (loop && ! newState) {
       final float timeLive = Rendering.activeTime() - topState.incept;
       final float timeLimit = match.duration * ANIM_TIME_ENDPOINT;
       if (timeLive > timeLimit) newState = true;

@@ -85,26 +85,21 @@ public class IntelMap {
   
   /**  Visual refreshment-
     */
-  private static boolean showNoFog(Base base) {
-    return GameSettings.fogFree || base.isPrimal();
-  }
-  
-  
   public void updateAndRender(float fogTime, Rendering rendering) {
-    if (showNoFog(base)) return;
+    if (GameSettings.fogFree) return;
     fogOver.updateVals(fogTime, fogVals);
     fogOver.registerFor(rendering);
   }
   
   
   public float displayFog(Tile t, Object client) {
-    if (showNoFog(base)) return 1;
+    if (GameSettings.fogFree) return 1;
     return Nums.clamp(fogOver.sampleAt(t.x, t.y, client), 0, 1);
   }
   
   
   public float displayFog(float x, float y, Object client) {
-    if (showNoFog(base)) return 1;
+    if (GameSettings.fogFree) return 1;
     return Nums.clamp(fogOver.sampleAt(x, y, client), 0, 1);
   }
   
@@ -138,32 +133,32 @@ public class IntelMap {
   
   
   public float fogAt(Tile t) {
-    if (showNoFog(base)) return 1;
+    if (GameSettings.fogFree) return 1;
     return t == null ? -1 : fogVals[t.x][t.y];
   }
   
   
   public float fogAt(int x, int y) {
-    if (showNoFog(base)) return 1;
+    if (GameSettings.fogFree) return 1;
     return fogVals[Nums.clamp(x, world.size)][Nums.clamp(y, world.size)];
   }
   
   
   public float fogAt(Target t) {
-    if (showNoFog(base)) return 1;
+    if (GameSettings.fogFree) return 1;
     return fogAt(world.tileAt(t));
   }
   
   
   public int liftFogAround(Target t, float radius) {
-    if (showNoFog(base)) return (int) radius;
+    if (GameSettings.fogFree) return (int) radius;
     final Vec3D p = t.position(null);
     return liftFogAround(p.x, p.y, radius);
   }
   
   
   public int liftFogAround(float x, float y, float radius) {
-    if (showNoFog(base)) return (int) radius;
+    if (GameSettings.fogFree) return (int) radius;
     //
     //  We record and return the number of new tiles seen-
     final Box2D area = new Box2D().set(
@@ -194,13 +189,27 @@ public class IntelMap {
   
   
   
+  /**  Supplemental method for estimating danger at a given tile:
+    */
+  public float dangerAt(Tile at) {
+    float danger = 0;
+    for (Base b : base.world.bases()) {
+      float fog   = b.intelMap.fogAt(at);
+      float power = b.dangerMap.sampleAround(at.x, at.y, -1);
+      danger *= fog * power * b.relations.relationWith(base) * -1;
+    }
+    return danger;
+  }
+  
+  
+  
   /**  Helper method for grabbing unexplored tiles-
     */
   public static Tile getUnexplored(
     Base base, Target client,
     Target centre, float distanceUnit, final float maxDist
   ) {
-    if (showNoFog(base)) return null;
+    if (GameSettings.fogFree) return null;
     final boolean report = pickVerbose && I.talkAbout == client;
     if (report) {
       I.say("\nGetting next unexplored area near "+centre);

@@ -100,10 +100,8 @@ public class Retreat extends Plan {
         final float absDist = Spacing.distance(actor, next);
         if (mustMove && absDist <= sightHaven) return;
         
-        final int direction = Spacing.compassDirection(
-          actor.origin(), world.tileAt(next)
-        );
-        rating *= 1 - actor.senses.dangerFromDirection(direction);
+        float danger = actor.base().dangerMap.sampleAround(next, -1);
+        rating /= 1 + Nums.max(danger, 0);
         
         if (next == actor.mind.home()   ) rating *= 2.0f;
         if (next == actor.mind.work()   ) rating *= 1.5f;
@@ -166,7 +164,8 @@ public class Retreat extends Plan {
   
   
   public static Tile pickHidePoint(
-    final Actor actor, float range, Target from, final int advanceFactor
+    final Actor actor, final float range, final Target from,
+    final int advanceFactor
   ) {
     final boolean report = havenVerbose && I.talkAbout == actor;
     if (report) I.say("\nPICKING POINT OF WITHDRAWAL FROM "+actor.origin());
@@ -174,12 +173,14 @@ public class Retreat extends Plan {
     //  The idea here is to pick tiles at random at first, then as the actor
     //  gets closer to a given area, allow systematic scanning of nearby tiles
     //  to zero in on any strong cover available.
-    final Stage world = actor.world();
+    final Stage world = actor.world ();
     final Tile  at    = actor.origin();
+    //
+    //  TODO:  You need to include the 'advance factor' for consideration here.
     final Pick <Tile> pick = new Pick <Tile> () {
       public void compare(Tile next, float rating) {
         if (advanceFactor == 0) rating *= 1;
-        else rating *= rateTileCover(actor, next, advanceFactor);
+        else rating *= rateTileCover(actor, next);
         if (report) I.say("  Rating for "+next+" was: "+rating);
         super.compare(next, rating);
       }
@@ -210,55 +211,46 @@ public class Retreat extends Plan {
   }
   
   
-  private static float rateTileCover(Actor actor, Tile t, int advanceFactor) {
-    //  TODO:  Check to make sure the tile is reachable!
-    if (t == null || t.blocked()) return 0;
-
-    final boolean report = havenVerbose && I.talkAbout == actor;
-    
-    //  We confer a bonus to the rating if the tile in question has cover in
-    //  the same direction as the actor's perceived sources of danger, while
-    //  allowing clear sight to one side or the other (for easy retaliation.)
-    float rating = 0.5f;
-    final Tile allNear[] = t.allAdjacent(null);
-    
-    if (report) {
-      for (int n : TileConstants.T_INDEX) if (isCover(allNear[n])) {
-        I.say("      Blocked: "+TileConstants.DIR_NAMES[n]);
-      }
-    }
-    
-    for (int n : TileConstants.T_ADJACENT) {
-      final Tile
-        tile  = allNear[n],
-        left  = allNear[(n + 1) % 8],
-        right = allNear[(n + 7) % 8];
-      if (isCover(tile) && ! (isCover(left) && isCover(right))) {
-        final float danger = actor.senses.dangerFromDirection(n);
-        if (report && danger > 0) I.say(
-          "    Cover from "+TileConstants.DIR_NAMES[n]+
-          "    Danger: "+actor.senses.dangerFromDirection(n)
-        );
-        rating += danger;
-      }
-    }
-    
-    //  We also favour locations that are either towards or away from danger,
-    //  depending on whether an advance is called for:
-    final int direction = Spacing.compassDirection(actor.origin(), t);
-    final float distance = Spacing.distance(actor.origin(), t);
-    final float maxMove = ActorHealth.DEFAULT_SIGHT * actor.health.baseSpeed();
-    
-    float dirBonus = actor.senses.dangerFromDirection(direction);
-    dirBonus *= distance * advanceFactor / maxMove;
-    if (report && dirBonus > 0) I.say("    Direction bonus: "+dirBonus);
-    
-    return rating * Nums.clamp(1 + dirBonus, 0, 2);
+  private static boolean isCover(Tile t) {
+    return t == null || t.blocked();
   }
   
   
-  private static boolean isCover(Tile t) {
-    return t != null && t.blocked();
+  private static float rateTileCover(Actor actor, Tile at) {
+    final boolean report = havenVerbose && I.talkAbout == actor;
+    //
+    //  Basic sanity-checks and variable-setup first:
+    //  TODO:  Check to make sure the tile is reachable!
+    if (at == null || at.blocked()) return 0;
+    final IntelMap map = actor.base().intelMap;
+    final float baseDanger = map.dangerAt(at);
+    float rating = 0;
+    
+    final Tile allNear[] = at.allAdjacent(null);
+    if (report) for (int n : TileConstants.T_INDEX) if (isCover(allNear[n])) {
+      I.say("      Blocked: "+TileConstants.DIR_NAMES[n]);
+    }
+    //
+    //  We confer a bonus to the rating if the tile in question has cover in
+    //  the same direction as the actor's perceived sources of danger, while
+    //  allowing clear sight to one side or the other (for easy retaliation.)
+    for (int n : TileConstants.T_ADJACENT) {
+      final Tile
+        cover = allNear[n],
+        left  = allNear[(n + 1) % 8],
+        right = allNear[(n + 7) % 8];
+      
+      if (isCover(cover) && ! (isCover(left) && isCover(right))) {
+        final float danger = map.dangerAt(cover);
+        if (report && danger > 0) I.say(
+          "    Cover from "+TileConstants.DIR_NAMES[n]+
+          "    Danger: "+danger+" (base "+baseDanger+")"
+        );
+        if (danger > baseDanger) rating++;
+        if (danger < baseDanger) rating--;
+      }
+    }
+    return rating;
   }
   
   

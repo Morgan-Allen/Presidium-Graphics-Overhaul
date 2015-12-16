@@ -3,11 +3,11 @@
 
 TO DO NOW-
 
-*  In addition, picking rest/retreat points should be more sensible (check the
-   pure-combat scenarios.)
+*  Offworld raids by enemy houses!  And general 'wandering monsters'.
+   Plus, adding missions to claim nearby sectors.
 
-*  Offworld raids by enemy houses!  (And general 'wandering monsters'.)
-
+*  Path-zone refreshment needs to be done more intelligently to avoid 'spikes'
+   in usage (see the PathingMap class.)
 
 *  Initial missions:
    Planitia Sector (robots + ruins, artifact.)
@@ -38,6 +38,7 @@ TO DO NOW-
 *  Add random tips during the loading-screens.
 
 
+
 *  General tweaks-
    
    Supply Depot:  Handles anything used as raw materials (including second
@@ -51,10 +52,6 @@ TO DO NOW-
    Allow both hiring and queueing of upgrades before a structure is complete,
    and allow relocating once it is.
 
-
-*  Path-zone refreshment needs to be done more intelligently to avoid 'spikes'
-   in usage (see the PathingMap class.)
- 
 *  SFX might not belong with attacks called by a technique.
    Create a Volley class for combat, that techniques can then modify in an
    'organic' manner.  (Skills might need something similar.)

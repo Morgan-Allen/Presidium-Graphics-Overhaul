@@ -36,9 +36,7 @@ public class ActorSenses {
   private boolean underAttack = false;
   private float   powerLevel  = -1   ;
   private float   fearLevel   =  0   ;
-  
-  private float fearByDirection[] = new float[4];
-  private Target  safePoint  = null ;
+  private Target  safePoint  = null  ;
   
   
   public ActorSenses(Actor actor) {
@@ -355,10 +353,6 @@ public class ActorSenses {
       I.say("  Emergency:       "+emergency    );
       I.say("  In stealth mode: "+stealthy     );
       I.say("  Under attack:    "+underAttack  );
-      I.say("Danger by direction:");
-      for (int n : TileConstants.T_ADJACENT) {
-        I.say("  "+TileConstants.DIR_NAMES[n]+": "+dangerFromDirection(n));
-      }
     }
   }
   
@@ -386,18 +380,6 @@ public class ActorSenses {
   
   public Boarding haven() {
     return (Boarding) safePoint;
-  }
-  
-  
-  public float dangerFromDirection(Target point) {
-    final Tile at = actor.world().tileAt(point);
-    final int quadrant = Spacing.compassDirection(actor.origin(), at) / 2;
-    return fearByDirection[quadrant];
-  }
-  
-  
-  public float dangerFromDirection(int dirIndex) {
-    return fearByDirection[dirIndex / 2];
   }
 }
 
