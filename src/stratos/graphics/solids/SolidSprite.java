@@ -193,7 +193,7 @@ public class SolidSprite extends Sprite {
       
       p.mesh = part.meshPart.mesh;
       p.meshBones = boneSet;
-      p.meshType = part.meshPart.primitiveType;
+      p.meshType  = part.meshPart.primitiveType;
       p.meshIndex = part.meshPart.indexOffset;
       p.meshVerts = part.meshPart.numVertices;
       allParts.add(p);
@@ -210,12 +210,20 @@ public class SolidSprite extends Sprite {
   public void setAnimation(String id, float progress, boolean loop) {
     Animation match = model.gdxModel.getAnimation(id);
     if (match == null) return;
-    
+    //
+    //  We add a new animation state if either (A) the current stack of states
+    //  is empty, (B) the animation has been changed, or (C) if the current
+    //  animation state is approaching it's expiration date.
     AnimState topState = animStates.last();
-    final boolean newState =
-      animStates.empty() || (topState.anim != match) ||
-      (loop && topState.time > topState.anim.duration * ANIM_TIME_ENDPOINT);
-    
+    boolean newState = topState == null || topState.anim != match;
+    if (! newState) {
+      final float timeLive = Rendering.activeTime() - topState.incept;
+      final float timeLimit = match.duration * ANIM_TIME_ENDPOINT;
+      if (timeLive > timeLimit) newState = true;
+    }
+    //
+    //  If a new state is required, manufacture it.  Either way, update the
+    //  current state based on the progress argument given-
     if (newState) {
       topState        = new AnimState();
       topState.anim   = match;
