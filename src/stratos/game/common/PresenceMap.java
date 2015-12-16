@@ -80,17 +80,26 @@ public class PresenceMap implements Session.Saveable {
     final boolean leaf = n.section.depth == 0;
     for (Object k : n) if (k != null) {
       if (leaf) {
-        //
-        //  TODO:  Later, if the section resolution goes down to the tile,
-        //         you will need to refine this.
         final Box2D b = n.section.area;
-        //temp.set(b.xpos() + 1, b.ypos() + 1, 0);
         s.saveInt((int) b.xpos() + 1);
         s.saveInt((int) b.ypos() + 1);
         s.saveTarget((Target) k);
       }
       else saveNode((Node) k, s);
     }
+  }
+  
+  
+  private Node nodeForRegion(StageRegion r, Node from) {
+    if (from.section       == r) return from;
+    if (from.section.depth == 0) return null;
+    for (Object k : from) {
+      final Node n = (Node) k;
+      if (n.section.area.contains(r.absX, r.absY)) {
+        return nodeForRegion(r, n);
+      }
+    }
+    return null;
   }
   
   
@@ -184,55 +193,143 @@ public class PresenceMap implements Session.Saveable {
   
   
   
-  /**  Private utility methods for iterating efficiently through members:
+  /**  Visits all map-targets within a the given range and area (if those 
+    *  are specified.)  Arguments may also be null, or -1 for range.
     */
-  //  TODO:  Get rid of this.  Ideally, you want to be able to save/load
-  //  iteration-state instead, which means the possibility of multiple
-  //  iterations existing at once, and for that to work you can't have any
-  //  static references.
-  
-  final static int MARKER_CACHE_SIZE = 100;
-  
-  //
-  //  I'm extending Sorting.Node directly here and caching some objects
-  //  persistently in order to save on allocation time.
-  //  TODO:  Try something similar for pathing?
-  private static final class NodeMarker extends Sorting.Node {
-    Object node;
-    float distance;
-    boolean leaf;
+  public static class Iteration implements
+    Iterator <Target>, Iterable <Target>, Session.Saveable
+  {
     
-    protected void clear() { super.clear(); node = null; }
+    final PresenceMap map;
+    final Tile origin;
+    final float range;
+    final Box2D area;
+    final Sorting <NodeMarker> agenda = new Sorting <NodeMarker> () {
+      public int compare(NodeMarker a, NodeMarker b) {
+        if (a.refers == b.refers) return 0;
+        return a.distance < b.distance ? 1 : -1;
+      }
+    };
+    private NodeMarker next;
+    
+    
+    private Iteration(PresenceMap map, Tile origin, float range, Box2D area) {
+      this.map    = map;
+      this.origin = origin;
+      this.range  = origin == null ? -1 : range;
+      this.area   = area;
+      
+      this.agenda.addAsEntry(new NodeMarker(map.root, false, origin));
+      this.next = nextTarget();
+    }
+    
+    
+    public Iteration(Session s) throws Exception {
+      s.cacheInstance(this);
+      this.map    = (PresenceMap) s.loadObject();
+      this.origin = (Tile) s.loadTarget();
+      this.range  = s.loadFloat();
+      this.area   = new Box2D().loadFrom(s.input());
+      
+      for (int n = s.loadInt(); n-- > 0;) {
+        final NodeMarker m = loadMarker(s);
+        if (m != null) agenda.addAsEntry(m);
+      }
+      next = loadMarker(s);
+    }
+    
+    
+    public void saveState(Session s) throws Exception {
+      s.saveObject(map   );
+      s.saveTarget(origin);
+      s.saveFloat (range );
+      area.saveTo(s.output());
+      
+      s.saveInt(agenda.size());
+      for (NodeMarker m : agenda) saveMarker(m, s);
+      saveMarker(next, s);
+    }
+    
+    
+    private NodeMarker loadMarker(Session s) throws Exception {
+      final boolean leaf = s.loadBool();
+      final float dist = s.loadFloat();
+      Object node = leaf ? s.loadTarget() : s.loadObject();
+      if (! leaf) node = map.nodeForRegion((StageRegion) node, map.root);
+      if (node == null) return null;
+      return new NodeMarker(node, leaf, dist);
+    }
+    
+    
+    private void saveMarker(NodeMarker m, Session s) throws Exception {
+      s.saveBool(m.leaf);
+      s.saveFloat(m.distance);
+      if (m.leaf) s.saveTarget((Target) m.refers);
+      else s.saveObject(((Node) m.refers).section);
+    }
+    
+    
+    private NodeMarker nextTarget() {
+      while (true) {
+        if (agenda.size() == 0) return null;
+        //
+        //  We obtain the next entry in the agenda-
+        final NodeMarker marker = (NodeMarker) agenda.greatestRef();
+        agenda.deleteRef(marker);
+        final boolean leaf = marker.leaf;
+        //
+        //  If it's not a node, return this.  Otherwise, add the children of
+        //  the node to the agenda.  Reject anything out of range.
+        if (range > 0 && marker.distance > range) continue;
+        if (! checkArea(marker.refers, leaf, area) ) continue;
+        if (leaf) return marker;
+        
+        final Node node = (Node) marker.refers;
+        final boolean kidLeaf = node.section.depth == 0;
+        for (Object o : node) if (o != null) {
+          agenda.addAsEntry(new NodeMarker(o, kidLeaf, origin));
+        }
+      }
+    }
+    
+    
+    public boolean hasNext() {
+      if (next == null) return false;
+      return true;
+    }
+    
+    
+    public Target next() {
+      final Target target = (Target) next.refers;
+      next = nextTarget();
+      return target;
+    }
+    
+    
+    public void remove() {}
+    public Iterator iterator() { return this; }
   }
   
-  private NodeMarker markers[] = initMarkers();
-  private int markUseIndex = 0;
+  
+  private static final class NodeMarker extends Sorting.Node {
+    
+    final Object refers;
+    final boolean leaf;
+    final float distance;
+    
+    private NodeMarker(Object n, boolean leaf, float distance) {
+      this.refers     = n;
+      this.leaf     = leaf;
+      this.distance = distance;
+    }
+    
+    private NodeMarker(Object n, boolean leaf, Tile origin) {
+      this(n, leaf, heuristic(n, leaf, origin));
+    }
+  }
+  
+  
   private static Vec3D temp = new Vec3D();
-  
-  
-  private NodeMarker[] initMarkers() {
-    markers = new NodeMarker[MARKER_CACHE_SIZE];
-    for (int n = MARKER_CACHE_SIZE; n-- > 0;) markers[n] = new NodeMarker();
-    return markers;
-  }
-  
-  
-  final private NodeMarker nextMarker(
-    final Object n, final boolean leaf, final Tile origin
-  ) {
-    final NodeMarker m = (markUseIndex >= MARKER_CACHE_SIZE) ?
-      new NodeMarker()       :
-      markers[markUseIndex++];
-    m.node = n;
-    m.leaf = leaf;
-    m.distance = heuristic(n, leaf, origin);
-    return m;
-  }
-  
-  
-  final private void clearMarkers() {
-    while (markUseIndex > 0) markers[--markUseIndex].clear();
-  }
   
   
   final private static float heuristic(
@@ -260,72 +357,10 @@ public class PresenceMap implements Session.Saveable {
   }
   
   
-  
-  /**  Visits all map-targets within a the given range and area (if those 
-    *  are specified.)  Arguments may also be null, or -1 for range.
-    *  
-    *  NOTE:  This method is *NOT* thread-friendly, and in fact should only
-    *  be used in strict sequence- finish one iteration before you even attempt
-    *  to perform another.
-    */
   public Iterable <Target> visitNear(
     final Target origin, final float range, final Box2D area
   ) {
-    final Tile oT = tileAt(origin);
-    final boolean checkRange = origin != null && range > 0;
-    clearMarkers();
-    
-    final Sorting <NodeMarker> agenda = new Sorting <NodeMarker> () {
-      public int compare(NodeMarker a, NodeMarker b) {
-        if (a.node == b.node) return 0;
-        return a.distance < b.distance ? 1 : -1;
-      }
-    };
-    agenda.addAsEntry(nextMarker(root, false, oT));
-    //
-    //  Then, define a method of iterating over these entries, and return it-
-    final class nearIter implements Iterator, Iterable {
-      
-      private Object next = nextTarget();
-      
-      private Object nextTarget() {
-        while (true) {
-          if (agenda.size() == 0) return null;
-          //
-          //  We obtain the next entry in the agenda-
-          final NodeMarker marker = (NodeMarker) agenda.greatestRef();
-          agenda.deleteRef(marker);
-          final boolean leaf = marker.leaf;
-          //
-          //  If it's not a node, return this.  Otherwise, add the children of
-          //  the node to the agenda.  Reject anything out of range.
-          if (checkRange && marker.distance > range) continue;
-          if (! checkArea(marker.node, leaf, area) ) continue;
-          if (leaf) return marker.node;
-          
-          final Node node = (Node) marker.node;
-          final boolean kidLeaf = node.section.depth == 0;
-          for (Object o : node) {
-            if (o != null) agenda.addAsEntry(nextMarker(o, kidLeaf, oT));
-          }
-        }
-      }
-      
-      public boolean hasNext() {
-        if (next == null) { clearMarkers(); return false; }
-        return true;
-      }
-      
-      public Object next() {
-        final Object target = next;
-        next = nextTarget();
-        return target;
-      }
-      
-      public void remove() {}
-      public Iterator iterator() { return this; }
-    }
-    return new nearIter();
+    return new Iteration(this, tileAt(origin), range, area);
   }
   
   
