@@ -1,13 +1,14 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.Exploring;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -71,8 +72,18 @@ public class MissionRecon extends Mission {
   
   
   
-  /**  Importance assessment-
+  /**  Importance/suitability assessment-
     */
+  public static MissionRecon reconFor(Object target, Base base) {
+    if ((
+      target instanceof Tile
+    ) && Exploring.canExplore(base, (Tile) target)) {
+      return new MissionRecon(base, (Tile) target);
+    }
+    return null;
+  }
+  
+  
   public float targetValue(Base base) {
     //  TODO:  FILL THIS IN LATER
     return -1;

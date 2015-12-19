@@ -1,14 +1,14 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
 import stratos.game.actors.*;
-import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.user.PowersPane.PowerButton;
 import stratos.util.*;
 
 import com.badlogic.gdx.math.Vector2;
@@ -78,67 +78,32 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     final Actor  ruler = base.ruler();
     final List <UINode> options = new List <UINode> ();
     
-    //  TODO:  The mission-classes themselves should be responsible for
-    //  filtering these out.
+    final Mission strike  = MissionStrike  .strikeFor  (subject, base);
+    final Mission secure  = MissionSecurity.securityFor(subject, base);
+    final Mission recon   = MissionRecon   .reconFor   (subject, base);
+    final Mission contact = MissionContact .contactFor (subject, base);
     
-    
-    
-    if (
-      subject instanceof Actor ||
-      subject instanceof Venue
-    ) {
-      options.add(new OptionButton(
-        BUI, STRIKE_BUTTON_ID, Mission.STRIKE_ICON,
-        "Destroy or capture subject",
-        new MissionStrike(base, (Element) subject)
-      ));
-    }
-    if (
-      subject instanceof Actor ||
-      subject instanceof Venue ||
-      subject instanceof Item.Dropped
-    ) {
-      options.add(new OptionButton(
-        BUI, SECURITY_BUTTON_ID, Mission.SECURITY_ICON,
-        "Secure or protect subject",
-        new MissionSecurity(base, (Element) subject)
-      ));
-    }
-    if (
-      Summons.canSummon(subject, base)
-    ) {
-      final MissionContact contactMission = new MissionContact(
-        base, (Actor) subject
-      );
-      options.add(new OptionButton(
-        BUI, CONTACT_BUTTON_ID, Mission.CONTACT_ICON,
-        "Contact or negotiate with subject",
-        contactMission
-      ) {
-        protected void whenClicked() {
-          if (subject.base() == base) contactMission.setupAsSummons();
-          super.whenClicked();
-        }
-        
-        protected String info() {
-          if (subject.base() != base) return super.info();
-          return "Summon this citizen for discussion.";
-        }
-      });
-    }
-    if (
-      subject instanceof Tile && Exploring.canExplore(base, subject)
-    ) {
-      options.add(new OptionButton(
-        BUI, RECON_BUTTON_ID, Mission.RECON_ICON,
-        "Explore an area or follow subject",
-        new MissionRecon(base, (Tile) subject)
-      ));
-    }
+    if (strike != null) options.add(new OptionButton(
+      BUI, STRIKE_BUTTON_ID, Mission.STRIKE_ICON,
+      "Destroy or capture subject", strike
+    ));
+    if (secure != null) options.add(new OptionButton(
+      BUI, SECURITY_BUTTON_ID, Mission.SECURITY_ICON,
+      "Secure or protect subject", secure
+    ));
+    if (recon != null) options.add(new OptionButton(
+      BUI, RECON_BUTTON_ID, Mission.RECON_ICON,
+      "Explore an area or follow subject", recon
+    ));
+    if (contact != null) options.add(new OptionButton(
+      BUI, CONTACT_BUTTON_ID, Mission.CONTACT_ICON,
+      "Contact or negotiate with subject", contact
+    ));
     
     if (ruler != null) for (Power power : ruler.skills.knownPowers()) {
       if (power.icon == null || ! power.appliesTo(ruler, subject)) continue;
-      
+      //
+      //  Generate an option-button for the Power that can be used:
       final UIGroup option = new UIGroup(BUI);
       options.add(option);
       final Button button;

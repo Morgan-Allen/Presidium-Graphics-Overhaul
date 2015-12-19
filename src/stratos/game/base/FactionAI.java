@@ -190,18 +190,18 @@ public class FactionAI {
   
   /**  Generating missions for the various targets assembled:
     */
-  protected void addMissionsForTarget(Object target, Batch <Mission> added) {
+  protected void addMissionsForTarget(
+    Object subject, Batch <Mission> added, Base base
+  ) {
+    final Mission strike  = MissionStrike  .strikeFor  (subject, base);
+    final Mission secure  = MissionSecurity.securityFor(subject, base);
+    final Mission recon   = MissionRecon   .reconFor   (subject, base);
+    final Mission contact = MissionContact .contactFor (subject, base);
     
-    //  TODO:  The Mission-classes themselves need to specify if targets are
-    //  valid or not.
-    if (target instanceof Mobile) {
-    }
-    if (target instanceof Venue) {
-    }
-    if (target instanceof Tile) {
-    }
-    if (target instanceof SectorBase) {
-    }
+    if (strike  != null) added.add(strike );
+    if (secure  != null) added.add(secure );
+    if (recon   != null) added.add(recon  );
+    if (contact != null) added.add(contact);
   }
   
   

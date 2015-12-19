@@ -102,8 +102,19 @@ public class MissionContact extends Mission {
   
   
   
-  /**  Importance assessment-
+  /**  Importance/suitability assessment-
     */
+  public static MissionContact contactFor(Object target, Base base) {
+    if (Summons.canSummon(target, base)) {
+      final Actor summoned = (Actor) target;
+      final MissionContact mission = new MissionContact(base, summoned);
+      if (summoned.base() == base) mission.setupAsSummons();
+      return mission;
+    }
+    return null;
+  }
+  
+  
   public float targetValue(Base base) {
     //  TODO:  FILL THIS IN LATER
     return -1;
@@ -193,5 +204,10 @@ public class MissionContact extends Mission {
     d.append(subject);
   }
 }
+
+
+
+
+
 
 

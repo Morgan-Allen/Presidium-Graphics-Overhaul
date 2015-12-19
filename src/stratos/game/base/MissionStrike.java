@@ -43,8 +43,19 @@ public class MissionStrike extends Mission {
   
   
   
-  /**  Importance assessment-
+  /**  Importance/suitability assessment-
     */
+  public static MissionStrike strikeFor(Object target, Base base) {
+    if ((
+      target instanceof Actor ||
+      target instanceof Venue
+    ) && ((Target) target).base() != base) {
+      return new MissionStrike(base, (Element) target);
+    }
+    return null;
+  }
+  
+  
   public float targetValue(Base base) {
     final boolean report = I.matchOrNull(
       base.title(), FactionAI.verboseBase

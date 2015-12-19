@@ -6,6 +6,7 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.util.*;
 
@@ -58,8 +59,20 @@ public class MissionSecurity extends Mission {
   
   
   
-  /**  Importance assessment-
+  /**  Importance/suitability assessment-
     */
+  public static MissionSecurity securityFor(Object target, Base base) {
+    if ((
+      target instanceof Actor ||
+      target instanceof Venue ||
+      target instanceof Item.Dropped
+    ) && ((Target) target).base().relations.relationWith(base) >= 0) {
+      return new MissionSecurity(base, (Element) target);
+    }
+    return null;
+  }
+  
+  
   public float targetValue(Base base) {
     //  TODO:  FILL THIS IN LATER
     return -1;

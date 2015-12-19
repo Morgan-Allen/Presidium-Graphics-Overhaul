@@ -252,7 +252,7 @@ public class Summons extends Plan implements Messaging {
   }
   
   
-  public static boolean canSummon(Target t, Base base) {
+  public static boolean canSummon(Object t, Base base) {
     final Actor ruler = base.ruler();
     if (ruler == null || ruler.mind.work() == null) return false;
     if (ruler == t || ! (t instanceof Actor)) return false;
