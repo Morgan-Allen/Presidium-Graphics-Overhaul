@@ -68,13 +68,13 @@ public class FactionAI {
   
   
   public FactionAI(Base base) {
-    this.base = base;
+    this.base   = base;
     this.sector = null;
   }
   
   
   public FactionAI(SectorBase demo) {
-    this.base = null;
+    this.base   = null;
     this.sector = demo;
   }
   

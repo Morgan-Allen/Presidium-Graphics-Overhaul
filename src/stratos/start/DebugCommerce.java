@@ -128,12 +128,10 @@ public class DebugCommerce extends Scenario {
     runnerMarket.stocks.bumpItem(REAGENTS, 5);
     medicalBay  .stocks.bumpItem(MEDICINE, 5);
     
-    for (Mobile m : world.allMobiles()) if (m instanceof Actor) {
+    for (Mobile m : base.allUnits()) if (m instanceof Actor) {
       final Actor a = (Actor) m;
-      if (a.base() == base) {
-        a.gear.incCredits(2000);
-        a.gear.taxDone();
-      }
+      a.gear.incCredits(2000);
+      a.gear.taxDone();
       if (a.mind.vocation() == TROOPER) Selection.pushSelection(a, null);
     }
     

@@ -41,6 +41,7 @@ public abstract class Mobile extends Element
     nextPosition = new Vec3D();
   
   private ListEntry <Mobile> worldEntry;
+  private Base base;
   protected Boarding aboard = null;
   final public Pathing pathing = initPathing();
   
@@ -57,6 +58,8 @@ public abstract class Mobile extends Element
     this.nextRotation = s.loadFloat();
     position.    loadFrom(s.input());
     nextPosition.loadFrom(s.input());
+    
+    base   = (Base    ) s.loadObject();
     aboard = (Boarding) s.loadTarget();
     if (pathing != null) pathing.loadState(s);
   }
@@ -68,15 +71,31 @@ public abstract class Mobile extends Element
     s.saveFloat(nextRotation);
     position    .saveTo(s.output());
     nextPosition.saveTo(s.output());
+    
+    s.saveObject(base  );
     s.saveTarget(aboard);
     if (pathing != null) pathing.saveState(s);
   }
   
-  
-  public abstract Base base();
-  
   protected Pathing initPathing() { return null; }
   public abstract boolean isMoving();
+  
+  
+  
+  /**  Toggling/untoggling base-membership (needed for proper registration and
+    *  state-updates.)
+    */
+  public void assignBase(Base base) {
+    if (! inWorld()) { this.base = base; return; }
+    base.toggleUnit(this, false);
+    this.base = base;
+    base.toggleUnit(this, true );
+  }
+  
+  
+  public Base base() {
+    return base;
+  }
   
   
   
@@ -101,10 +120,11 @@ public abstract class Mobile extends Element
     *  offworld (see the Stage and VerseBase classes.)
     */
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (base == null) I.complain("MOBILE MUST HAVE BASE ASSIGNED: "+this);
     if (! super.enterWorldAt(x, y, world, intact)) return false;
     goAboard(origin(), world);
     world().schedule.scheduleForUpdates(this);
-    world().toggleActive(this, true);
+    base().toggleUnit(this, true);
     return true;
   }
   
@@ -135,7 +155,7 @@ public abstract class Mobile extends Element
   
   public void exitWorld() {
     if (! inWorld()) I.complain("Already exited world: "+this);
-    world.toggleActive(this, false);
+    base().toggleUnit(this, false);
     world().schedule.unschedule(this);
     //
     //  To be on the safe side, unregister from both current and next tiles-

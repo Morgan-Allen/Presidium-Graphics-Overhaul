@@ -38,7 +38,6 @@ public abstract class Vehicle extends Mobile implements
     TOP_SPEED  =  5.0f,
     NO_LANDING =  -100;
   
-  protected Base base;
   final public Stocks cargo = new Stocks(this);
   final public Structure structure = new Structure(this);
   final public Staff staff = new Staff(this);
@@ -71,7 +70,6 @@ public abstract class Vehicle extends Mobile implements
     staff    .loadState(s);
     s.loadObjects(inside);
     
-    base         = (Base ) s.loadObject();
     pilot        = (Actor) s.loadObject();
     hangar       = (Venue) s.loadObject();
     dropPoint    = (Boarding) s.loadTarget();
@@ -90,7 +88,6 @@ public abstract class Vehicle extends Mobile implements
     staff    .saveState(s);
     s.saveObjects(inside);
     
-    s.saveObject(base        );
     s.saveObject(pilot       );
     s.saveObject(hangar      );
     s.saveTarget(dropPoint   );
@@ -102,8 +99,6 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public void assignBase(Base base) { this.base = base; }
-  public Base base() { return base; }
   public Staff staff() { return staff; }
   public Structure structure() { return structure; }
   
@@ -556,8 +551,8 @@ public abstract class Vehicle extends Mobile implements
   
   public boolean allowsEntry(Accountable m) {
     if (! structure.intact()) return false;
-    if (m.base() == this.base) return true;
-    return base.relations.relationWith(m.base()) > 0;
+    if (m.base() == this.base()) return true;
+    return base().relations.relationWith(m.base()) > 0;
   }
   
   
@@ -608,7 +603,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   protected float fogFor(Base base) {
-    if (base == this.base) return (1 + super.fogFor(base)) / 2f;
+    if (base == this.base()) return (1 + super.fogFor(base)) / 2f;
     return super.fogFor(base);
   }
   

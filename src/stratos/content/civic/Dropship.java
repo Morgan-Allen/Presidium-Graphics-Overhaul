@@ -187,7 +187,7 @@ public class Dropship extends Vehicle implements Owner {
   
   
   public float priceFor(Traded service, boolean sold) {
-    final BaseCommerce c = base.commerce;
+    final BaseCommerce c = base().commerce;
     final float dockMult = Airfield.isGoodDockSite(dropPoint) ?
       1 : BaseCommerce.NO_DOCK_MARGIN
     ;
@@ -263,7 +263,7 @@ public class Dropship extends Vehicle implements Owner {
     }
     
     d.append("\n\nPort Of Origin: ");
-    d.append(base.commerce.homeworld());
+    d.append(base().commerce.homeworld());
     
     return pane;
   }

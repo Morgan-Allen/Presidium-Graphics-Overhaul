@@ -54,8 +54,7 @@ public class Stage {
   final public ClaimsGrid claims;
   
   final public Schedule schedule;
-  private float currentTime = DEFAULT_INIT_TIME;
-  private List <Mobile> mobiles = new List <Mobile> ();
+  private int timeTick = DEFAULT_INIT_TIME * UPDATES_PER_SECOND;
   
   private StageTerrain terrain;
   private Ecology ecology;
@@ -78,7 +77,7 @@ public class Stage {
     }
     regions  = new StagePatches(this, PATCH_RESOLUTION);
     claims   = new ClaimsGrid(this);
-    schedule = new Schedule(currentTime);
+    schedule = new Schedule(currentTime());
     
     ecology      = new Ecology     (this);
     activities   = new Activities  (this);
@@ -102,17 +101,16 @@ public class Stage {
       tiles[c.x][c.y].loadTileState(s);
     }
     claims.loadState(s);
-    currentTime = s.loadFloat();
+    timeTick = s.loadInt();
     schedule.loadFrom(s);
     
     terrain = (StageTerrain) s.loadObject();
     terrain.initTerrainMesh();
     ecology.loadState(s);
     s.loadObjects(bases);
-    for (int n = s.loadInt(); n-- > 0;) {
-      toggleActive((Mobile) s.loadObject(), true);
-    }
+    
     offworld.loadState(s);
+    entry.loadState(s);
     
     activities.loadState(s);
     presences.loadState(s);
@@ -127,16 +125,15 @@ public class Stage {
       tiles[c.x][c.y].saveTileState(s);
     }
     claims.saveState(s);
-    s.saveFloat(currentTime);
+    s.saveInt(timeTick);
     schedule.saveTo(s);
     
     s.saveObject(terrain);
     ecology.saveState(s);
     
     s.saveObjects(bases);
-    s.saveInt(mobiles.size());
-    for (Mobile m : mobiles) s.saveObject(m);
     offworld.saveState(s);
+    entry.saveState(s);
     
     activities.saveState(s);
     presences.saveState(s);
@@ -227,30 +224,20 @@ public class Stage {
     */
   public void updateWorld() {
     regions.updateBounds();
-    final float oldTime = currentTime;
-    currentTime += 1f / PlayLoop.UPDATES_PER_SECOND;
+    final float oldTime = currentTime();
+    timeTick++;
+    final float currentTime = currentTime();
     
     boolean secChange = ((int) (oldTime / 2)) != ((int) (currentTime / 2));
     if (secChange && I.logEvents()) I.say("\nTime is "+currentTime);
     
-    for (Base base : bases) {
-      if (secChange) base.intelMap.updateFogValues();
-    }
     if (secChange) offworld.updateVerse(currentTime);
     ecology.updateEcology();
     schedule.advanceSchedule(currentTime);
-    for (Mobile m : mobiles) m.updateAsMobile();
-  }
-  
-  
-  protected void toggleActive(Mobile m, boolean is) {
-    if (is) {
-      m.setWorldEntry(mobiles.addLast(m));
-      presences.togglePresence(m, m.origin(), true );
-    }
-    else {
-      mobiles.removeEntry(m.worldEntry());
-      presences.togglePresence(m, m.origin(), false);
+    
+    for (Base base : bases) {
+      if (secChange) base.intelMap.updateFogValues();
+      base.updateUnits();
     }
   }
   
@@ -268,14 +255,8 @@ public class Stage {
   
   
   public void advanceCurrentTime(float interval) {
-    this.currentTime += interval;
+    this.timeTick += interval / UPDATES_PER_SECOND;
   }
-  
-  
-  public List <Mobile> allMobiles() {
-    return mobiles;
-  }
-  
   
   
   
@@ -292,7 +273,7 @@ public class Stage {
   
   
   public float currentTime() {
-    return currentTime;
+    return timeTick * 1f / UPDATES_PER_SECOND;
   }
   
   
@@ -350,7 +331,7 @@ public class Stage {
     //  We also render visible mobiles and ghosted SFX-
     Vec3D viewPos = new Vec3D();
     float viewRad = -1;
-    for (Mobile active : this.mobiles) {
+    for (Base b : bases) for (Mobile active : b.allUnits()) {
       if (active.sprite() == null || ! active.visibleTo(base)) continue;
       active.viewPosition(viewPos);
       viewRad = (active.height() / 2) + active.radius();
@@ -395,7 +376,7 @@ public class Stage {
   public float timeMidRender() {
     //  Updates to currentTime occur 10 times per second or so, so adding the
     //  frame-time within that fraction gives the exact answer.
-    return currentTime + (PlayLoop.frameTime() / UPDATES_PER_SECOND);
+    return (timeTick + PlayLoop.frameTime() / UPDATES_PER_SECOND);
   }
   
   
@@ -455,7 +436,7 @@ public class Stage {
     //  TODO:  You may want to use some pre-emptive culling here in future.
     Mobile nearest = null;
     float minDist = Float.POSITIVE_INFINITY;
-    for (Mobile m : mobiles) {
+    for (Base b : bases) for (Mobile m : b.allUnits()) {
       if (m.indoors() || ! (m instanceof Selectable)) continue;
       if (m.selectionLocksOn() == null || ! m.visibleTo(base)) continue;
       final float selRad = (m.height() + m.radius()) / 2;

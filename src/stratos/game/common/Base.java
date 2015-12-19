@@ -41,6 +41,7 @@ public class Base implements
   private Faction faction;
   private Actor ruler;
   private Venue commandPost;
+  private List <Mobile> allUnits = new List();
   
   final public BaseRelations relations = initRelations();
   final public FactionAI     tactics   = initTactics  ();
@@ -87,6 +88,10 @@ public class Base implements
     ruler       = (Actor) s.loadObject();
     commandPost = (Venue) s.loadObject();
     
+    for (int n = s.loadInt(); n-- > 0;) {
+      toggleUnit((Mobile) s.loadObject(), true);
+    }
+    
     relations.loadState(s);
     tactics  .loadState(s);
     advice   .loadState(s);
@@ -115,6 +120,9 @@ public class Base implements
     
     s.saveObject(ruler      );
     s.saveObject(commandPost);
+    
+    s.saveInt(allUnits.size());
+    for (Mobile m : allUnits) s.saveObject(m);
     
     relations.saveState(s);
     tactics  .saveState(s);
@@ -331,6 +339,28 @@ public class Base implements
     relations.updateRelations(numUpdates);
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after relations: "+timeAfter);
+  }
+  
+  
+  public void updateUnits() {
+    for (Mobile m : allUnits) m.updateAsMobile();
+  }
+  
+  
+  protected void toggleUnit(Mobile m, boolean is) {
+    if (is) {
+      m.setWorldEntry(allUnits.addLast(m));
+      world.presences.togglePresence(m, m.origin(), true );
+    }
+    else {
+      allUnits.removeEntry(m.worldEntry());
+      world.presences.togglePresence(m, m.origin(), false);
+    }
+  }
+  
+  
+  public Series <Mobile> allUnits() {
+    return allUnits;
   }
   
   

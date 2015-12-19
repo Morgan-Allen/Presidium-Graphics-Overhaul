@@ -42,9 +42,8 @@ public abstract class Actor extends Mobile implements
   
   private Action actionTaken;
   private Mount  mount;
-  private Base   base;
-  private Sprite disguise;
   
+  private Sprite disguise;
   final public Healthbar healthbar = new Healthbar();
   final public Label     label     = new Label    ();
   final public TalkFX    chat      = new TalkFX   ();
@@ -71,7 +70,6 @@ public abstract class Actor extends Mobile implements
     
     actionTaken = (Action) s.loadObject();
     mount       = (Mount ) s.loadObject();
-    base        = (Base  ) s.loadObject();
     disguise  = ModelAsset.loadSprite(s.input());
   }
   
@@ -91,7 +89,6 @@ public abstract class Actor extends Mobile implements
     
     s.saveObject(actionTaken);
     s.saveObject(mount      );
-    s.saveObject(base       );
     ModelAsset.saveSprite(disguise, s.output());
   }
   
@@ -195,25 +192,10 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public void assignBase(Base base) {
-    if (! inWorld()) { this.base = base; return; }
-    final Tile o = origin();
-    world.presences.togglePresence(this, o, false);
-    this.base = base;
-    world.presences.togglePresence(this, o, true);
-  }
-  
-  
-  public Base base() {
-    return base;
-  }
-  
-  
   
   /**  Life cycle and updates-
     */
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
-    if (base == null) I.complain("ACTOR MUST HAVE BASE ASSIGNED: "+this);
     if (! super.enterWorldAt(x, y, world, intact)) return false;
     
     if (verbose || I.logEvents()) {
@@ -505,7 +487,7 @@ public abstract class Actor extends Mobile implements
     //  We render health-bars after the main sprite, as the label/healthbar are
     //  anchored off the main sprite.  In addition, we skip this while in
     //  disguise...
-    if (disguise == null && base != null) renderInformation(rendering, base);
+    if (disguise == null) renderInformation(rendering, base());
   }
   
   
@@ -674,11 +656,11 @@ public abstract class Actor extends Mobile implements
       else d.append(health.stateDesc());
       return;
     }
-    if (base != null && ! inWorld()) {
+    if (base() != null && ! inWorld()) {
       //
       //  TODO:  Move this to the BaseCommerce or VerseJourneys class, I would
       //  suggest- either that or ActorDescription...
-      final VerseJourneys journeys = base.world.offworld.journeys;
+      final VerseJourneys journeys = base().world.offworld.journeys;
       final Vehicle ship = journeys.carries(this);
       if (ship != null && ship.inWorld()) {
         d.append("Aboard ");
