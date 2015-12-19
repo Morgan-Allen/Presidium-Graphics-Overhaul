@@ -28,8 +28,8 @@ public class SelectSitePane extends MenuPane {
     //  Pick a homeworld first.
     listing.add(createTextItem("Homeworld:", 1.2f, null, 1));
     
-    final VerseLocation homeworlds[] = Verse.ALL_CAPITALS;
-    for (final VerseLocation homeworld : homeworlds) {
+    final Sector homeworlds[] = Verse.ALL_CAPITALS;
+    for (final Sector homeworld : homeworlds) {
       listing.add(new TextButton(UI, "  "+homeworld.name, 1) {
         protected void whenClicked() { selectHomeworld(homeworld); }
         protected boolean toggled() { return hasHomeworld(homeworld); }
@@ -44,8 +44,8 @@ public class SelectSitePane extends MenuPane {
     //  Then pick a sector.
     listing.add(createTextItem("Landing Site:", 1.2f, null, 1));
 
-    final VerseLocation landings[] = Verse.ALL_DIAPSOR_SECTORS;
-    for (final VerseLocation landing : landings) {
+    final Sector landings[] = Verse.ALL_DIAPSOR_SECTORS;
+    for (final Sector landing : landings) {
       listing.add(new TextButton(UI, "  "+landing.name, 1) {
         public void whenClicked() { selectLanding(landing); }
         protected boolean toggled() { return hasLanding(landing); }
@@ -82,7 +82,7 @@ public class SelectSitePane extends MenuPane {
 
   /**  Handling homeworld selection-
     */
-  private void selectHomeworld(VerseLocation homeworld) {
+  private void selectHomeworld(Sector homeworld) {
     final MainScreen screen = MainScreen.current();
     screen.worldsDisplay.setSelection(homeworld);
     expedition.setOrigin(homeworld, homeworld.startingOwner);
@@ -90,7 +90,7 @@ public class SelectSitePane extends MenuPane {
   }
   
   
-  private boolean hasHomeworld(VerseLocation world) {
+  private boolean hasHomeworld(Sector world) {
     return expedition.origin() == world;
   }
   
@@ -98,7 +98,7 @@ public class SelectSitePane extends MenuPane {
 
   /**  Handling landing selection-
     */
-  private void selectLanding(VerseLocation landing) {
+  private void selectLanding(Sector landing) {
     final MainScreen screen = MainScreen.current();
     screen.display.setSelection(landing.name, true);
     expedition.setDestination(landing);
@@ -106,7 +106,7 @@ public class SelectSitePane extends MenuPane {
   }
   
   
-  private boolean hasLanding(VerseLocation landing) {
+  private boolean hasLanding(Sector landing) {
     return expedition.destination() == landing;
   }
   

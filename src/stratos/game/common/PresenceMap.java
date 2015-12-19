@@ -27,9 +27,9 @@ public class PresenceMap implements Session.Saveable {
   final Node root;
   
   static class Node extends List {
-    final StageRegion section;
+    final StagePatch section;
     int population = 0;
-    Node(StageRegion s) { this.section = s; }
+    Node(StagePatch s) { this.section = s; }
   }
   
   
@@ -90,7 +90,7 @@ public class PresenceMap implements Session.Saveable {
   }
   
   
-  private Node nodeForRegion(StageRegion r, Node from) {
+  private Node nodeForRegion(StagePatch r, Node from) {
     if (from.section       == r) return from;
     if (from.section.depth == 0) return null;
     for (Object k : from) {
@@ -165,8 +165,8 @@ public class PresenceMap implements Session.Saveable {
       
       if (nodeKid == null) {
         if (is) {
-          StageRegion worldKid = null;
-          for (StageRegion k : n.section.kids) if (k.area.contains(x, y)) {
+          StagePatch worldKid = null;
+          for (StagePatch k : n.section.kids) if (k.area.contains(x, y)) {
             worldKid = k;
             break;
           }
@@ -255,7 +255,7 @@ public class PresenceMap implements Session.Saveable {
       final boolean leaf = s.loadBool();
       final float dist = s.loadFloat();
       Object node = leaf ? s.loadTarget() : s.loadObject();
-      if (! leaf) node = map.nodeForRegion((StageRegion) node, map.root);
+      if (! leaf) node = map.nodeForRegion((StagePatch) node, map.root);
       if (node == null) return null;
       return new NodeMarker(node, leaf, dist);
     }
@@ -280,8 +280,8 @@ public class PresenceMap implements Session.Saveable {
         //
         //  If it's not a node, return this.  Otherwise, add the children of
         //  the node to the agenda.  Reject anything out of range.
-        if (range > 0 && marker.distance > range) continue;
-        if (! checkArea(marker.refers, leaf, area) ) continue;
+        if (range > 0 && marker.distance > range  ) continue;
+        if (! checkArea(marker.refers, leaf, area)) continue;
         if (leaf) return marker;
         
         final Node node = (Node) marker.refers;

@@ -14,6 +14,9 @@ import stratos.util.*;
 
 
 
+//  TODO:  Get rid of the Base reference and just use FactionAI.
+
+
 public abstract class Mission implements Session.Saveable, Selectable {
   
   protected static boolean
@@ -369,7 +372,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       return false;
     }
     if (missionType == TYPE_BASE_AI) {
-      return base.tactics.shouldAllow(actor, this);
+      return base.tactics.allowsApplicant(actor, this);
     }
     return false;
   }

@@ -89,19 +89,19 @@ public class Verse {
   
   final static String WORLDS_DIR = "media/Charts/worlds/";
   
-  final public static VerseLocation
+  final public static Sector
     //
     //  TODO:  List common names and minor houses.
     //         Introduce Calivor, Nordsei, Solipsus, Urym Hive & The Outer
     //         Sphere. (aliens and freeholds later.)
-    PLANET_ASRA_NOVI = new VerseLocation(
+    PLANET_ASRA_NOVI = new Sector(
       Verse.class, "Asra Novi", WORLDS_DIR+"asra_novi.png", FACTION_SUHAIL,
       "Asra Novi is a heavily-terraformed 'desert oasis' world noted for its "+
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
       DESERT_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
-      VerseLocation.MAKES, REAGENTS, PLASTICS, DECOR, SPYCES,
-      VerseLocation.NEEDS, WATER, CIRCUITRY, POLYMER,
+      Sector.MAKES, REAGENTS, PLASTICS, DECOR, SPYCES,
+      Sector.NEEDS, WATER, CIRCUITRY, POLYMER,
       
       BORN_FREE,
       NOVICE, CULTIVATION, CHEMISTRY,
@@ -118,14 +118,14 @@ public class Verse {
       EcologistRedoubt.BLUEPRINT,
       FormerBay.BLUEPRINT
     ),
-    PLANET_PAREM_V = new VerseLocation(
+    PLANET_PAREM_V = new Sector(
       Verse.class, "Parem V", WORLDS_DIR+"parem_v.png", FACTION_PROCYON,
       "Parem V was one of the first-settled systems in the known quadrant, "+
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
       WASTES_BLOOD, NORMAL_GRAVITY, null, MEDIUM_POPULATION,
-      VerseLocation.MAKES, PARTS, ANTIMASS, CIRCUITRY,
-      VerseLocation.NEEDS, FUEL_RODS, PROTEIN,
+      Sector.MAKES, PARTS, ANTIMASS, CIRCUITRY,
+      Sector.NEEDS, FUEL_RODS, PROTEIN,
       
       BORN_DREGS, BORN_PYON,
       NOVICE, ASSEMBLY, ANCIENT_LORE,
@@ -143,14 +143,14 @@ public class Verse {
       Generator.BLUEPRINT,
       ExcavationSite.BLUEPRINT
     ),
-    PLANET_HALIBAN = new VerseLocation(
+    PLANET_HALIBAN = new Sector(
       Verse.class, "Haliban", WORLDS_DIR+"haliban.png", FACTION_ALTAIR,
       "Noted for it's spartan regimen and stern justice, Haliban's early "+
       "defection to the Calivor Republic have earned it several foes- and a "+
       "crucial role in quadrant defence strategy.",
       FOREST_BLOOD, STRONG_GRAVITY, null, MEDIUM_POPULATION,
-      VerseLocation.MAKES, CARBS, GREENS, MEDICINE,
-      VerseLocation.NEEDS, SERVICE_ARMAMENT, PARTS, REAGENTS,
+      Sector.MAKES, CARBS, GREENS, MEDICINE,
+      Sector.NEEDS, SERVICE_ARMAMENT, PARTS, REAGENTS,
       
       BORN_GELDER, BORN_FREE,
       NOVICE, MARKSMANSHIP, ANATOMY,
@@ -168,14 +168,14 @@ public class Verse {
       Airfield.BLUEPRINT,
       Bastion.LEVELS[1]
     ),
-    PLANET_AXIS_NOVENA = new VerseLocation(
+    PLANET_AXIS_NOVENA = new Sector(
       Verse.class, "Axis Novena", WORLDS_DIR+"axis_novena.png", FACTION_TAYGETA,
       "Aided by it's low gravity and thin atmosphere, Axis Novena became the "+
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black-market tech research.",
       TUNDRA_BLOOD, MILD_GRAVITY, null, HIGH_POPULATION,
-      VerseLocation.MAKES, CIRCUITRY, MEDICINE, SERVICE_COMMERCE,
-      VerseLocation.NEEDS, GREENS, METALS, ANTIMASS,
+      Sector.MAKES, CIRCUITRY, MEDICINE, SERVICE_COMMERCE,
+      Sector.NEEDS, GREENS, METALS, ANTIMASS,
       
       BORN_DREGS, BORN_GELDER,
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
@@ -195,7 +195,7 @@ public class Verse {
     
     //
     //  TODO:  ...These need more detail.
-    PLANET_SOLIPSUS_VIER = new VerseLocation(
+    PLANET_SOLIPSUS_VIER = new Sector(
       Verse.class, "Solipsus Vier", null,
       new Faction("House Fomalhaut", null, FACTION_CIVILISED),
       "Notable for it's peculiar blend of pastoral tradition and caste "+
@@ -205,7 +205,7 @@ public class Verse {
       OFTEN, PHYSICIAN_CIRCLES, SOMETIMES, ECOLOGIST_CIRCLES, MILITARY_CIRCLES,
       RARELY, VENDOR_CIRCLES, NEVER, RUNNER_CIRCLES
     ),
-    PLANET_NORUSEI = new VerseLocation(
+    PLANET_NORUSEI = new Sector(
       Verse.class, "Norusei", null,
       new Faction("House Rana", null, FACTION_CIVILISED),
       "Once an idyllic tropical planet-resort, Norusei has enjoyed something "+
@@ -216,7 +216,7 @@ public class Verse {
       RARELY, ARTIFICER_CIRCLES, MILITARY_CIRCLES
     ),
     
-    PLANET_URYM_HIVE = new VerseLocation(
+    PLANET_URYM_HIVE = new Sector(
       Verse.class, "Urym Hive", null,
       new Faction("House Algol (Minor)", null, FACTION_CIVILISED),
       "Chief factory-world of the Empire in its prime, today inescapable "+
@@ -224,7 +224,7 @@ public class Verse {
       "uncounted billions governable in name only.",
       WASTES_BLOOD, INTENSE_GRAVITY, null, VAST_POPULATION
     ),
-    PLANET_CALIVOR = new VerseLocation(
+    PLANET_CALIVOR = new Sector(
       Verse.class, "Calivor", null,
       new Faction("House Regulus (Minor)", null, FACTION_CIVILISED),
       "Capital of the Republic whose meteoric rise to prominence saw a dozen "+
@@ -232,7 +232,7 @@ public class Verse {
       "beacon- and a looming threat.",
       TUNDRA_BLOOD, NORMAL_GRAVITY, null, HIGH_POPULATION
     ),
-    PLANET_WEIRWORLD = new VerseLocation(
+    PLANET_WEIRWORLD = new Sector(
       Verse.class, "Weirworld", null,
       new Faction("House Ophiuchus (Exiled)", null, FACTION_CIVILISED),
       "Shrouded by dense nebulae and dark rumour, the Weirworld is reputedly "+
@@ -241,7 +241,7 @@ public class Verse {
       MUTATION, NOMINAL_GRAVITY, null, MEDIUM_POPULATION
     ),
     
-    PLANET_DIAPSOR = new VerseLocation(
+    PLANET_DIAPSOR = new Sector(
       Verse.class, "Diapsor", null, FACTION_NATIVES,
       "Rendered all but uninhabitable after the Machine Wars, Diapsor was "+
       "placed under Imperial Quarantine until recent population pressures, "+
@@ -252,7 +252,7 @@ public class Verse {
     PLANET_HIVE_IDO  = null,
     PLANET_XIRIDU    = null,
     
-    PLANET_THE_HOMEWORLD = new VerseLocation(
+    PLANET_THE_HOMEWORLD = new Sector(
       Verse.class, "The Homeworld", null,
       new Faction("No House (Jovian Protectorate)", null, FACTION_CIVILISED),
       "Surrounded by an impenetrable Null Barrier erected by the xenos "+
@@ -276,8 +276,8 @@ public class Verse {
     DEFAULT_HOMEWORLD = PLANET_ASRA_NOVI;
   
   
-  final public static VerseLocation
-    SECTOR_ELYSIUM = new VerseLocation(
+  final public static Sector
+    SECTOR_ELYSIUM = new Sector(
       Verse.class, "Elysium Sector", null, FACTION_WILDLIFE,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
@@ -287,7 +287,7 @@ public class Verse {
       0.25f, MEADOW,
       Qudu.SPECIES, Hareen.SPECIES
     ),
-    SECTOR_PAVONIS = new VerseLocation(
+    SECTOR_PAVONIS = new Sector(
       Verse.class, "Pavonis Sector", null, FACTION_WILDLIFE,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
@@ -297,7 +297,7 @@ public class Verse {
       0.10f, BARRENS,
       Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES
     ),
-    SECTOR_TERRA = new VerseLocation(
+    SECTOR_TERRA = new Sector(
       Verse.class, "Terra Sector", null, FACTION_WILDLIFE,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
@@ -312,7 +312,7 @@ public class Verse {
       SECTOR_ELYSIUM, SECTOR_PAVONIS, SECTOR_TERRA
     },
     
-    SECTOR_UNDERGROUND = new VerseLocation(
+    SECTOR_UNDERGROUND = new Sector(
       Verse.class, "Underground Sector", null, FACTION_VERMIN,
       "",
       MUTATION, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
@@ -320,9 +320,9 @@ public class Verse {
     DEFAULT_START_LOCATION = SECTOR_ELYSIUM;
   
   
-  final public static VerseLocation
-    ALL_SECTORS[] = (VerseLocation[]) Visit.compose(
-      VerseLocation.class, ALL_PLANETS, ALL_DIAPSOR_SECTORS
+  final public static Sector
+    ALL_SECTORS[] = (Sector[]) Visit.compose(
+      Sector.class, ALL_PLANETS, ALL_DIAPSOR_SECTORS
     );
   
   
@@ -386,11 +386,11 @@ public class Verse {
   
   /**  Setup, data fields and save/load methods-
     */
-  final Stage world;
-  private VerseLocation stageLocation = DEFAULT_START_LOCATION;
+  final public Stage world;
+  private Sector stageLocation = DEFAULT_START_LOCATION;
   
   final public VerseJourneys journeys = new VerseJourneys(this);
-  final List <Demographic> bases = new List <Demographic> ();
+  final List <SectorBase> bases = new List <SectorBase> ();
   
   //  TODO:  THIS WILL HAVE TO BE SAVED AND LOADED TOO
   final Table <Object, Table <Object, Float>> relations = new Table();
@@ -403,7 +403,7 @@ public class Verse {
   
   
   public void loadState(Session s) throws Exception {
-    stageLocation = (VerseLocation) s.loadObject();
+    stageLocation = (Sector) s.loadObject();
     journeys.loadState(s);
     s.loadObjects(bases);
   }
@@ -416,18 +416,18 @@ public class Verse {
   }
   
   
-  public void assignStageLocation(VerseLocation location) {
+  public void assignStageLocation(Sector location) {
     this.stageLocation = location;
   }
   
   
-  public VerseLocation stageLocation() {
+  public Sector stageLocation() {
     return stageLocation;
   }
   
   
-  public VerseLocation localWorld() {
-    VerseLocation l = stageLocation;
+  public Sector localWorld() {
+    Sector l = stageLocation;
     while (l.belongs != null) l = l.belongs;
     return l;
   }
@@ -438,7 +438,7 @@ public class Verse {
     */
   public void updateVerse(float time) {
     journeys.updateJourneys((int) time);
-    for (Demographic base : bases) base.updateBase();
+    for (SectorBase base : bases) base.updateBase();
   }
   
   
@@ -465,8 +465,8 @@ public class Verse {
     final Table vals = Table.make(tableVals);
     for (Object k : vals.keySet()) {
       final Object v = vals.get(k);
-      if (k instanceof VerseLocation) {
-        k = ((VerseLocation) k).startingOwner;
+      if (k instanceof Sector) {
+        k = ((Sector) k).startingOwner;
       }
       if (v instanceof Float) {
         setRelation(a, k, (Float) v, symmetric);
@@ -488,20 +488,44 @@ public class Verse {
   
   /**  Physical demographics and travel methods-
     */
-  public static Demographic demographicFor(
-    VerseLocation location, Verse universe
+  /*
+  public static SectorBase sectorBaseFor(
+    Sector location, Verse universe
   ) {
     if (location == null) return null;
-    for (Demographic base : universe.bases) {
+    for (SectorBase base : universe.bases) {
       if (base.location == location) return base;
     }
-    final Demographic base = new Demographic(universe, location);
+    final SectorBase base = new SectorBase(universe, location);
     universe.bases.add(base);
     return base;
   }
+  //*/
   
   
-  public static float travelDistance(VerseLocation a, VerseLocation b) {
+  public Series <SectorBase> sectorBases() {
+    return bases;
+  }
+  
+  
+  public SectorBase baseForSector(Sector s) {
+    //
+    //  TODO:  You may want the ability to include multiple bases per sector in
+    //  future...
+    for (SectorBase b : bases) {
+      if (b.location == s) return b;
+    }
+    return null;
+    /*
+    final SectorBase base = new SectorBase(this, s);
+    base.setClaimant(f, null);
+    bases.add(base);
+    return base;
+    //*/
+  }
+  
+  
+  public static float travelDistance(Sector a, Sector b) {
     //
     //  TODO:  Clearly, this needs some customisation...
     if (a == b) return 0;
@@ -509,28 +533,28 @@ public class Verse {
   }
   
   
-  public static VerseLocation currentLocation(Mobile mobile, Verse universe) {
+  public static Sector currentLocation(Mobile mobile, Verse universe) {
     if (mobile.inWorld()) {
       return universe.stageLocation();
     }
-    for (Demographic base : universe.bases) {
+    for (SectorBase base : universe.bases) {
       if (base.isResident(mobile)) return base.location;
     }
     if (mobile instanceof Human) {
-      return (VerseLocation) ((Human) mobile).career().homeworld();
+      return (Sector) ((Human) mobile).career().homeworld();
     }
     return null;
   }
   
   
   public static boolean isWorldExit(
-    Target point, Actor actor, VerseLocation goes
+    Target point, Actor actor, Sector goes
   ) {
     //
     //  Returns whether the given point can be used to escape off-stage to a
     //  given adjacent sector-
-    if (! (point instanceof StageExit)) return false;
-    final StageExit exit = (StageExit) point;
+    if (! (point instanceof EntryPoints.Portal)) return false;
+    final EntryPoints.Portal exit = (EntryPoints.Portal) point;
     if (goes != null && exit.leadsTo() != goes) return false;
     return exit.allowsEntry(actor) && exit.allowsStageExit(actor);
   }

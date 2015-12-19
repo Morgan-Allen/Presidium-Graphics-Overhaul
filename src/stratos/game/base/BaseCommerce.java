@@ -46,8 +46,8 @@ public class BaseCommerce {
   
   final Base base;
   
-  protected VerseLocation homeworld = Verse.DEFAULT_HOMEWORLD;
-  final List <VerseLocation> partners = new List <VerseLocation> ();
+  protected Sector homeworld = Verse.DEFAULT_HOMEWORLD;
+  final List <Sector> partners = new List <Sector> ();
   protected int maxShipsPerDay = 0;
   final List <Actor> candidates = new List <Actor> ();
   
@@ -74,7 +74,7 @@ public class BaseCommerce {
   
   public void loadState(Session s) throws Exception {
     
-    homeworld = (VerseLocation) s.loadObject();
+    homeworld = (Sector) s.loadObject();
     s.loadObjects(partners);
     maxShipsPerDay = s.loadInt();
     s.loadObjects(candidates);
@@ -108,24 +108,24 @@ public class BaseCommerce {
   }
   
   
-  public void assignHomeworld(VerseLocation s) {
+  public void assignHomeworld(Sector s) {
     homeworld = s;
     togglePartner(s, true);
   }
   
   
-  public VerseLocation homeworld() {
+  public Sector homeworld() {
     return homeworld;
   }
   
   
-  public void togglePartner(VerseLocation s, boolean is) {
+  public void togglePartner(Sector s, boolean is) {
     if (is) partners.include(s);
     else    partners.remove (s);
   }
   
   
-  public Series <VerseLocation> partners() {
+  public Series <Sector> partners() {
     return partners;
   }
   
@@ -315,7 +315,7 @@ public class BaseCommerce {
         basePrice = type.defaultPrice(),
         importMul = 2, exportDiv = 2,
         avgDemand = 0, homeBonus = 0;
-      for (VerseLocation partner : partners) {
+      for (Sector partner : partners) {
         if (Visit.arrayIncludes(partner.goodsMade  , type)) {
           avgDemand--;
         }
@@ -434,7 +434,7 @@ public class BaseCommerce {
     //  At any rate, we simply adjust the number of current ships based on
     //  the space allowance-
     VerseJourneys travel = base.world.offworld.journeys;
-    VerseLocation locale = base.world.offworld.stageLocation();
+    Sector locale = base.world.offworld.stageLocation();
     
     Vehicle running[] = travel.transportsBetween(locale, homeworld, base, true);
     Vehicle last = (Vehicle) Visit.last(running);

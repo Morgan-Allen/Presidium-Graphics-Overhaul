@@ -65,7 +65,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
   final UIGroup displayArea;
   final Button left, right;
   
-  private VerseLocation focus;
+  private Sector focus;
   final SectorPanel infoPanel;
   
   
@@ -154,8 +154,8 @@ public class SectorsPane extends UIGroup implements UIConstants {
   protected void updateState() {
     
     final DisplaySector DS = display.selectedAt(UI.mousePos());
-    final VerseLocation hovered = DS == null ? null :
-      VerseLocation.sectorNamed(DS.label)
+    final Sector hovered = DS == null ? null :
+      Sector.sectorNamed(DS.label)
     ;
     if (UI.mouseClicked()) {
       focus = hovered;

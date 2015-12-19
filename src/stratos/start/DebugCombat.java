@@ -95,7 +95,7 @@ public class DebugCombat extends Scenario {
     //  Introduce a bastion, with standard personnel.
     Flora.populateFlora(world);
     
-    final VerseLocation homeworld = Verse.PLANET_PAREM_V;
+    final Sector homeworld = Verse.PLANET_PAREM_V;
     base.research.initKnowledgeFrom(homeworld);
     base.commerce.assignHomeworld  (homeworld);
     base.finance.setInitialFunding(10000, 0);

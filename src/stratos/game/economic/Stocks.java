@@ -334,7 +334,7 @@ public class Stocks extends Inventory {
     //  Update production-demand based on sampling of ambient consumption-
     //  levels:
     if (isTrader) {
-      for (Traded t : services) {
+      for (Traded t : services) if (t.common()) {
         final Demand d = demandRecord(t);
         
         boolean buys  = amountOf(d.type) > 0 && d.production > 0;
@@ -342,9 +342,14 @@ public class Stocks extends Inventory {
         BP.togglePresence(basis, at, sells, d.type.supplyKey);
         BP.togglePresence(basis, at, buys , d.type.demandKey);
         
-        if (d.fixed || ! t.common()) continue;
-        d.consumption = BD.demandSampleFor(basis, t, period);
-        d.production  = BD.supplySampleFor(basis, t, period);
+        if (d.fixed) {
+          final float need = (d.consumption + d.production) / 2;
+          BD.impingeDemand(d.type, need, period, basis);
+        }
+        else {
+          d.consumption = BD.demandSampleFor(basis, t, period);
+          d.production  = BD.supplySampleFor(basis, t, period);
+        }
       }
     }
     else {

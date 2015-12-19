@@ -78,6 +78,11 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     final Actor  ruler = base.ruler();
     final List <UINode> options = new List <UINode> ();
     
+    //  TODO:  The mission-classes themselves should be responsible for
+    //  filtering these out.
+    
+    
+    
     if (
       subject instanceof Actor ||
       subject instanceof Venue

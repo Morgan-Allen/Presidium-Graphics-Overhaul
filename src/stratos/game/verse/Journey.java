@@ -12,11 +12,18 @@ import stratos.util.*;
 
 public class Journey {
   
+  final public static int
+    PURPOSE_SHIPPING = 0,
+    PURPOSE_RAIDING  = 1,
+    PURPOSE_ESCAPE   = 2;
+  
+  
+  int purpose;
   Vehicle transport;
   Batch <Mobile> migrants = new Batch();
   
-  VerseLocation origin;
-  VerseLocation destination;
+  Sector origin;
+  Sector destination;
   float arriveTime;
   boolean returns;
 }

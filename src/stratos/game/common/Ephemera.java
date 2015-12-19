@@ -26,7 +26,7 @@ public class Ephemera {
   final Stage world;
   
   private Colour fadeColour = null;
-  final Table <StageRegion, List <Ghost>> ghosts = new Table(100);
+  final Table <StagePatch, List <Ghost>> ghosts = new Table(100);
   
   
   protected Ephemera(Stage world) {
@@ -114,7 +114,7 @@ public class Ephemera {
       ghost.inceptTime -= duration * (1 - alpha);
     }
     
-    final StageRegion section = world.regions.regionAt((int) p.x, (int) p.y);
+    final StagePatch section = world.regions.regionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List());
     SG.add(ghost);
@@ -130,7 +130,7 @@ public class Ephemera {
   
   public Ghost matchGhost(Target e, ModelAsset m) {
     final Vec3D p = e.position(null);
-    final StageRegion section = world.regions.regionAt((int) p.x, (int) p.y);
+    final StagePatch section = world.regions.regionAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     
     Ghost match = null;
@@ -153,7 +153,7 @@ public class Ephemera {
   
   
   private boolean trackElement(
-    Ghost ghost, StageRegion oldSection, List <Ghost> SG, Base base
+    Ghost ghost, StagePatch oldSection, List <Ghost> SG, Base base
   ) {
     if (! (ghost.tracked instanceof Element)) return true;
     
@@ -164,7 +164,7 @@ public class Ephemera {
     m.viewPosition(p);
     p.add(ghost.offset);
     
-    final StageRegion section = world.regions.regionAt((int) p.x, (int) p.y);
+    final StagePatch section = world.regions.regionAt((int) p.x, (int) p.y);
     if (section == oldSection) return true;
     SG.remove(ghost);
     SG = ghosts.get(section);
@@ -178,7 +178,7 @@ public class Ephemera {
     final Batch <Ghost> results = new Batch <Ghost> ();
     final float timeNow = world.timeMidRender();
     
-    for (StageRegion section : world.visibleSections(rendering)) {
+    for (StagePatch section : world.visibleSections(rendering)) {
       final List <Ghost> SG = ghosts.get(section);
       if (SG != null) for (Ghost ghost : SG) {
         final float

@@ -19,7 +19,7 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-public class ServiceHatch extends Venue implements StageExit {
+public class ServiceHatch extends Venue implements EntryPoints.Portal {
   
   final static String
     IMG_DIR = "media/Buildings/civilian/";
@@ -231,11 +231,11 @@ public class ServiceHatch extends Venue implements StageExit {
   
   
   public int exitType() {
-    return StageExit.TYPE_BOLT_HOLE;
+    return EntryPoints.Portal.TYPE_BOLT_HOLE;
   }
   
   
-  public VerseLocation leadsTo() {
+  public Sector leadsTo() {
     return Verse.SECTOR_UNDERGROUND;
   }
 

@@ -9,7 +9,7 @@ import stratos.util.*;
 
 
 
-public class StageRegion implements Target, Session.Saveable {
+public class StagePatch implements Target, Session.Saveable {
   
   
   /**  Data fields, construction, and save/load methods-
@@ -19,13 +19,13 @@ public class StageRegion implements Target, Session.Saveable {
   final public Box2D area   = new Box2D();
   final public int x, y, absX, absY, depth, size;
   
-  protected StageRegion kids[], parent;
+  protected StagePatch kids[], parent;
   protected boolean updateBounds = true;
   
   private Object flagged = null;
   
   
-  StageRegion(StageRegions w, int x, int y, int d) {
+  StagePatch(StagePatches w, int x, int y, int d) {
     this.world = w.world;
     this.x = x;
     this.y = y;
@@ -42,7 +42,7 @@ public class StageRegion implements Target, Session.Saveable {
   }
   
   
-  public static StageRegion loadConstant(Session s) throws Exception {
+  public static StagePatch loadConstant(Session s) throws Exception {
     return s.world().regions.regionAt(s.loadInt(), s.loadInt());
   }
   

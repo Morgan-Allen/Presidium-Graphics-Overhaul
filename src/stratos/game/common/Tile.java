@@ -82,7 +82,7 @@ public final class Tile implements
   }
   
   
-  public StageRegion worldSection() {
+  public StagePatch worldSection() {
     return world.regions.regionAt(x, y);
   }
   

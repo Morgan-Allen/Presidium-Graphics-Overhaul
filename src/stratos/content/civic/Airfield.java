@@ -8,10 +8,9 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
-import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.actors.Backgrounds.*;
@@ -23,7 +22,7 @@ import static stratos.game.actors.Qualities.*;
 //  shipping, along with fueling-options.
 
 
-public class Airfield extends Venue {
+public class Airfield extends Venue implements EntryPoints.Docking {
   
   /**  Constructors, data fields, setup and save/load methods-
     */
@@ -47,7 +46,7 @@ public class Airfield extends Venue {
     "land and refuel, facilitating offworld trade and migration.",
     6, 1, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 250, 5,
-    SERVICE_SECURITY, DECK_HAND, SHIP_CAPTAIN
+    SERVICE_SECURITY, SERVICE_DOCKING, DECK_HAND, SHIP_CAPTAIN
   );
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
@@ -58,7 +57,7 @@ public class Airfield extends Venue {
   );
   
   private float fuelLevels;
-  private Dropship docking;
+  private Vehicle docking;
   
   
   public Airfield(Base base) {
@@ -76,7 +75,7 @@ public class Airfield extends Venue {
   public Airfield(Session s) throws Exception {
     super(s);
     fuelLevels = s.loadFloat();
-    docking    = (Dropship) s.loadObject();
+    docking    = (Vehicle) s.loadObject();
   }
   
   
@@ -103,21 +102,33 @@ public class Airfield extends Venue {
   }
   
   
-  public Dropship docking() {
-    return docking;
+  public boolean allowsDocking(Vehicle docks) {
+    return docks instanceof Dropship & docking == null;
   }
   
   
-  public void setToDock(Dropship ship) {
-    docking = ship;
+  public boolean isDocked(Vehicle docks) {
+    return docking == docks;
   }
-
   
-  public Vec3D dockLocation(Dropship ship) {
+  
+  public Series <Vehicle> docked() {
+    return new Batch(docking);
+  }
+  
+  
+  public Vec3D dockLocation(Vehicle docks) {
+    //  TODO:  No magic numbers please!
     final Vec3D DL = this.origin().position(null);
     DL.x += 0.5f + 1.5f;
     DL.y += 2.0f + 1.5f;
     return DL;
+  }
+  
+  
+  public void setAsDocked(Vehicle docks, boolean is) {
+    if (is) this.docking = docks;
+    else this.docking = null;
   }
   
   
@@ -130,8 +141,8 @@ public class Airfield extends Venue {
     return true;
   }
   
-  
-  
+
+
   /**  Behaviour implementation-
     */
   public void updateAsScheduled(int numUpdates, boolean instant) {

@@ -42,7 +42,7 @@ import stratos.util.*;
 
 
 
-public class VerseLocation extends Background {
+public class Sector extends Background {
 
   
   final public static Object
@@ -50,7 +50,7 @@ public class VerseLocation extends Background {
     NEEDS = new Object();
   
   
-  final public VerseLocation belongs;
+  final public Sector belongs;
   final public Trait climate;
   final public int gravity;
   
@@ -68,10 +68,10 @@ public class VerseLocation extends Background {
   final public ImageAsset planetImage;
   
   
-  public VerseLocation(
+  public Sector(
     Class baseClass, String name, String imagePath, Faction owner,
     String description,
-    Trait climate, int gravity, VerseLocation belongs,
+    Trait climate, int gravity, Sector belongs,
     int population, Object... args
   ) {
     super(
@@ -172,8 +172,8 @@ public class VerseLocation extends Background {
   }
   
   
-  public static VerseLocation sectorNamed(String name) {
-    for (VerseLocation s : Verse.ALL_SECTORS) if (s.name.equals(name)) {
+  public static Sector sectorNamed(String name) {
+    for (Sector s : Verse.ALL_SECTORS) if (s.name.equals(name)) {
       return s;
     }
     return null;

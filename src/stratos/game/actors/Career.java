@@ -186,7 +186,7 @@ public class Career {
       
       pickHomeworld(actor, faction);
       applyBackground(homeworld, actor);
-      applySystem((VerseLocation) homeworld, actor);
+      applySystem((Sector) homeworld, actor);
       
       pickVocation(actor, faction);
       applyBackground(vocation, actor);
@@ -199,7 +199,7 @@ public class Career {
       
       pickHomeworld(actor, faction);
       applyBackground(homeworld, actor);
-      applySystem((VerseLocation) homeworld, actor);
+      applySystem((Sector) homeworld, actor);
       
       pickBirthClass(actor, faction);
       applyBackground(birth, actor);
@@ -249,7 +249,7 @@ public class Career {
   
   private void pickVocation(Human actor, Faction faction) {
     final Pick <Background> pick = new Pick <Background> ();
-    final VerseLocation homeworld = faction.startSite();
+    final Sector homeworld = faction.startSite();
     
     if (faction == FACTION_NATIVES || homeworld == null) {
       for (Background b : Backgrounds.NATIVE_CIRCLES) {
@@ -468,7 +468,7 @@ public class Career {
   
   //
   //  TODO:  Try incorporating these trait-FX into the rankings first.
-  private void applySystem(VerseLocation world, Actor actor) {
+  private void applySystem(Sector world, Actor actor) {
     //
     //  Assign skin texture (race) based on prevailing climate.  (Climate
     //  matching the parent homeworld is most likely, followed by races with

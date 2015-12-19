@@ -44,7 +44,7 @@ public class SitingPass {
   public boolean isVerbose = false;
 
   int stage = STAGE_INIT;
-  StageRegion nextRegion;
+  StagePatch nextRegion;
   Tile        nextTile  ;
   PassList regionSort = new PassList();
   PassList tilesSort  = new PassList();
@@ -101,7 +101,7 @@ public class SitingPass {
     final Venue      placed = (Venue ) s.loadObject();
     final SitingPass pass   = new SitingPass(base, siting, placed);
     
-    pass.nextRegion = (StageRegion) s.loadObject();
+    pass.nextRegion = (StagePatch) s.loadObject();
     pass.nextTile   = (Tile       ) s.loadObject();
     for (int i = s.loadInt(); i-- > 0;) {
       pass.regionSort.addFromPass(s.loadTarget(), s.loadFloat());
@@ -239,7 +239,7 @@ public class SitingPass {
       if (x >= world.size) { x -= world.size; y += stepSize; }
       if (y >= world.size) {
         regionSort.queueSort();
-        nextRegion = (StageRegion) regionSort.nextForPass();
+        nextRegion = (StagePatch) regionSort.nextForPass();
         stage      = (nextRegion != null) ? STAGE_TILES_SORT : STAGE_FAILED;
         return false;
       }
@@ -257,7 +257,7 @@ public class SitingPass {
   
   
   boolean addTileToSort() {
-    final StageRegion r = nextRegion;
+    final StagePatch r = nextRegion;
     
     final boolean report = (verbose || isVerbose) && tilesVerbose;
     
@@ -292,7 +292,7 @@ public class SitingPass {
     
     final Tile best = (Tile) tilesSort.nextForPass();
     if (best == null) {
-      nextRegion = (StageRegion) regionSort.nextForPass();
+      nextRegion = (StagePatch) regionSort.nextForPass();
       nextTile   = null;
       if (nextRegion == null) {
         stage = STAGE_FAILED;

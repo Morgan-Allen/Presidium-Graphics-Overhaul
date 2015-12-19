@@ -6,6 +6,7 @@
 package stratos.game.plans;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.content.civic.Dropship;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.game.verse.*;
@@ -24,7 +25,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
   
   private Venue warehouse;
   private Vehicle vessel;
-  private VerseLocation origin;
+  private Sector origin;
   
   private boolean tripDone;
   private float profits;
@@ -59,7 +60,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
     vessel    = (Vehicle) s.loadObject();
     tripDone  = s.loadBool ();
     profits   = s.loadFloat();
-    origin    = (VerseLocation) s.loadObject();
+    origin    = (Sector) s.loadObject();
     moved     = Item.loadItemsFrom(s);
   }
   
@@ -231,7 +232,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
   }
   
   
-  public VerseLocation origin() {
+  public Sector origin() {
     return origin;
   }
   

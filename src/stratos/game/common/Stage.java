@@ -50,7 +50,7 @@ public class Stage {
   
   final public int size;
   final Tile tiles[][];
-  final public StageRegions regions;
+  final public StagePatches regions;
   final public ClaimsGrid claims;
   
   final public Schedule schedule;
@@ -61,7 +61,8 @@ public class Stage {
   private Ecology ecology;
   private List <Base> bases = new List <Base> ();
   
-  final public Verse offworld = new Verse(this);
+  final public Verse       offworld = new Verse      (this);
+  final public EntryPoints entry    = new EntryPoints(this);
   
   final public Activities activities;
   final public PathingMap pathingMap;
@@ -75,7 +76,7 @@ public class Stage {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
-    regions  = new StageRegions(this, PATCH_RESOLUTION);
+    regions  = new StagePatches(this, PATCH_RESOLUTION);
     claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime);
     
@@ -315,8 +316,8 @@ public class Stage {
   }
   
   
-  public Batch <StageRegion> visibleSections(Rendering rendering) {
-    final Batch <StageRegion> visibleSections = new Batch <StageRegion> ();
+  public Batch <StagePatch> visibleSections(Rendering rendering) {
+    final Batch <StagePatch> visibleSections = new Batch <StagePatch> ();
     regions.compileVisible(rendering.view, null, visibleSections, null);
     return visibleSections;
   }
@@ -331,7 +332,7 @@ public class Stage {
     //
     //  First, we obtain lists of all current visible fixtures, actors, and
     //  terrain sections.
-    final Batch <StageRegion> visibleSections = new Batch <StageRegion> ();
+    final Batch <StagePatch> visibleSections = new Batch <StagePatch> ();
     final List <Visible> allVisible = new List <Visible> () {
       protected float queuePriority(Visible e) {
         return e.sprite().depth;
@@ -399,12 +400,12 @@ public class Stage {
   
   
   protected void renderTerrain(
-    Batch <StageRegion> sections, Rendering rendering, Base base
+    Batch <StagePatch> sections, Rendering rendering, Base base
   ) {
     final float renderTime = timeMidRender();
     if (verbose) I.say("Render time: "+renderTime);
     terrain.readyAllMeshes();
-    for (StageRegion section : sections) {
+    for (StagePatch section : sections) {
       terrain.renderFor(section.area, rendering, renderTime);
     }
     if (base != null && ! GameSettings.fogFree) {

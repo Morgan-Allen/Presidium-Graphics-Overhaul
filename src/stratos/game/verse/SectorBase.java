@@ -15,10 +15,12 @@ import stratos.util.*;
 //         just the expedition itself!)
 
 
-public class Demographic implements Session.Saveable {
+
+public class SectorBase implements Session.Saveable {
   
-  
-  final VerseLocation location;
+
+  final public Verse universe;
+  final public Sector location;
   
   private Faction claimant;
   private Expedition founding;
@@ -27,15 +29,19 @@ public class Demographic implements Session.Saveable {
   private float popLevel;
   
   
-  protected Demographic(Verse universe, VerseLocation location) {
+  protected SectorBase(Verse universe, Sector location) {
+    this.universe = universe;
     this.location = location;
     this.popLevel = location.population;
   }
   
   
-  public Demographic(Session s) throws Exception {
+  public SectorBase(Session s) throws Exception {
     s.cacheInstance(this);
-    this.location = (VerseLocation) s.loadObject();
+    this.universe = s.world().offworld;
+    this.location = (Sector    ) s.loadObject();
+    this.claimant = (Faction   ) s.loadObject();
+    this.founding = (Expedition) s.loadObject();
     s.loadTally(presences);
     
     for (int n = s.loadInt(); n-- > 0;) {
@@ -48,6 +54,8 @@ public class Demographic implements Session.Saveable {
   
   public void saveState(Session s) throws Exception {
     s.saveObject(location);
+    s.saveObject(claimant);
+    s.saveObject(founding);
     s.saveTally(presences);
     
     s.saveInt(expats.size());
@@ -60,8 +68,29 @@ public class Demographic implements Session.Saveable {
     this.claimant = claimant;
     this.founding = founding;
   }
+
   
   
+  /**  Basic query/access methods-
+    */
+  protected Series <Mobile> expats() {
+    return expats;
+  }
+  
+  
+  protected boolean isResident(Mobile m) {
+    final ListEntry <Mobile> e = m.worldEntry();
+    return e != null && e.list() == expats;
+  }
+  
+  
+  public Faction faction() {
+    return claimant;
+  }
+  
+  
+  /**  Update and modification methods-
+    */
   protected void updateBase() {
     for (Mobile m : expats) {
       final Activity a = VerseJourneys.activityFor(m);
@@ -86,17 +115,6 @@ public class Demographic implements Session.Saveable {
       e.delete();
       m.setWorldEntry(null);
     }
-  }
-  
-  
-  protected Series <Mobile> expats() {
-    return expats;
-  }
-  
-  
-  protected boolean isResident(Mobile m) {
-    final ListEntry <Mobile> e = m.worldEntry();
-    return e != null && e.list() == expats;
   }
 }
 

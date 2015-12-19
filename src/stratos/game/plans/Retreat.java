@@ -316,8 +316,8 @@ public class Retreat extends Plan {
   
   public boolean actionFlee(Actor actor, Target safePoint) {
     if (Verse.isWorldExit(safePoint, actor) && actor.senses.isEmergency()) {
-      final StageExit exit = (StageExit) safePoint;
-      final VerseLocation goes = exit.leadsTo();
+      final EntryPoints.Portal exit = (EntryPoints.Portal) safePoint;
+      final Sector goes = exit.leadsTo();
       actor.world().offworld.journeys.handleEmmigrants(goes, actor);
     }
     else if (actor.senses.fearLevel() <= 0) {

@@ -9,14 +9,14 @@ import stratos.util.*;
 
 
 
-public class StageRegions implements TileConstants {
+public class StagePatches implements TileConstants {
   
   
   /**  Common fields, constructors and utility methods.
     */
   final Stage world;
   final public int resolution, depth, gridSize, gridCount;
-  final StageRegion hierarchy[][][], root;
+  final StagePatch hierarchy[][][], root;
   
   
   private int depthFor(int size) {
@@ -26,20 +26,20 @@ public class StageRegions implements TileConstants {
   }
   
   
-  protected StageRegions(Stage world, int resolution) {
+  protected StagePatches(Stage world, int resolution) {
     this.world      = world;
     this.resolution = resolution;
     this.gridSize   = world.size / resolution;
     this.gridCount  = gridSize * gridSize;
     this.depth      = depthFor(gridSize);
-    this.hierarchy  = new StageRegion[depth][][];
+    this.hierarchy  = new StagePatch[depth][][];
     //
     //  Next, we generate each level of the map, and initialise nodes for each-
     int gridSize = world.size / resolution, nodeSize = resolution, deep = 0;
     while (deep < depth) {
-      hierarchy[deep] = new StageRegion[gridSize][gridSize];
+      hierarchy[deep] = new StagePatch[gridSize][gridSize];
       for (Coord c : Visit.grid(0, 0, gridSize, gridSize, 1)) {
-        final StageRegion n = new StageRegion(this, c.x, c.y, deep);
+        final StagePatch n = new StagePatch(this, c.x, c.y, deep);
         hierarchy[deep][c.x][c.y] = n;
         n.area.set(
           (c.x * nodeSize) - 0.5f,
@@ -52,12 +52,12 @@ public class StageRegions implements TileConstants {
         //  Along with references to child nodes-
         if (deep > 0) {
           final int d = n.depth - 1, x = c.x * 2, y = c.y * 2;
-          n.kids = new StageRegion[4];
+          n.kids = new StagePatch[4];
           n.kids[0] = hierarchy[d][x    ][y    ];
           n.kids[1] = hierarchy[d][x + 1][y    ];
           n.kids[2] = hierarchy[d][x    ][y + 1];
           n.kids[3] = hierarchy[d][x + 1][y + 1];
-          for (StageRegion k : n.kids) k.parent = n;
+          for (StagePatch k : n.kids) k.parent = n;
         }
       }
       deep++;
@@ -71,17 +71,17 @@ public class StageRegions implements TileConstants {
   
   /**  Positional queries and iteration methods-
     */
-  public StageRegion regionAt(int x, int y) {
+  public StagePatch regionAt(int x, int y) {
     return hierarchy[0][x / resolution][y / resolution];
   }
   
   
-  public StageRegion[] neighbours(StageRegion section, StageRegion[] batch) {
-    if (batch == null) batch = new StageRegion[8];
+  public StagePatch[] neighbours(StagePatch section, StagePatch[] batch) {
+    if (batch == null) batch = new StagePatch[8];
     int i = 0; for (int n : T_INDEX) {
       try {
         final int x = section.x + T_X[n], y = section.y + T_Y[n];
-        final StageRegion s = hierarchy[section.depth][x][y];
+        final StagePatch s = hierarchy[section.depth][x][y];
         batch[i++] = s;
       }
       catch (ArrayIndexOutOfBoundsException e) { batch [i++] = null; }
@@ -90,8 +90,8 @@ public class StageRegions implements TileConstants {
   }
   
   
-  public Batch <StageRegion> regionsUnder(Box2D area, int tileMargin) {
-    final Batch <StageRegion> batch = new Batch <StageRegion> ();
+  public Batch <StagePatch> regionsUnder(Box2D area, int tileMargin) {
+    final Batch <StagePatch> batch = new Batch <StagePatch> ();
     
     final float s = 1f / resolution, dim = world.size / resolution;
     final Box2D clip = new Box2D();
@@ -101,7 +101,7 @@ public class StageRegions implements TileConstants {
     
     for (Coord c : Visit.grid(clip)) {
       if (c.x < 0 || c.x >= dim || c.y < 0 || c.y >= dim) continue;
-      final StageRegion under = hierarchy[0][c.x][c.y];
+      final StagePatch under = hierarchy[0][c.x][c.y];
       if (under.area.axisDistance(area) > tileMargin) continue;
       batch.add(under);
     }
@@ -109,7 +109,7 @@ public class StageRegions implements TileConstants {
   }
   
   
-  public Batch <StageRegion> allGridRegions() {
+  public Batch <StagePatch> allGridRegions() {
     return regionsUnder(world.area(), 0);
   }
   
@@ -119,8 +119,8 @@ public class StageRegions implements TileConstants {
     *  of world sections-
     */
   public static interface Descent {
-    boolean descendTo(StageRegion s);
-    void afterChildren(StageRegion s);
+    boolean descendTo(StagePatch s);
+    void afterChildren(StagePatch s);
   }
   
   
@@ -129,9 +129,9 @@ public class StageRegions implements TileConstants {
   }
   
   
-  private void descendTo(StageRegion s, Descent d) {
+  private void descendTo(StagePatch s, Descent d) {
     if (! d.descendTo(s)) return;
-    if (s.depth > 0) for (StageRegion k : s.kids) descendTo(k, d);
+    if (s.depth > 0) for (StagePatch k : s.kids) descendTo(k, d);
     d.afterChildren(s);
   }
   
@@ -140,7 +140,7 @@ public class StageRegions implements TileConstants {
     */
   protected void updateBounds() {
     final Descent update = new Descent() {
-      public boolean descendTo(StageRegion s) {
+      public boolean descendTo(StagePatch s) {
         //
         //  If the section has already been updated, or isn't a leaf node,
         //  return.
@@ -162,11 +162,11 @@ public class StageRegions implements TileConstants {
       }
       //
       //  All non-leaf nodes base their bounds on the limits of their children.
-      public void afterChildren(StageRegion s) {
+      public void afterChildren(StagePatch s) {
         s.updateBounds = false;
         if (s.depth == 0) return;
         s.bounds.setTo(s.kids[0].bounds);
-        for (StageRegion k : s.kids) s.bounds.include(k.bounds);
+        for (StagePatch k : s.kids) s.bounds.include(k.bounds);
       }
     };
     this.applyDescent(update);
@@ -187,7 +187,7 @@ public class StageRegions implements TileConstants {
     *  tile coordinates-
     */
   protected void flagBoundsUpdate(int x, int y) {
-    StageRegion toFlag = hierarchy[0][x / resolution][y / resolution];
+    StagePatch toFlag = hierarchy[0][x / resolution][y / resolution];
     while (toFlag != null) {
       if (toFlag.updateBounds) break;
       toFlag.updateBounds = true;
@@ -201,7 +201,7 @@ public class StageRegions implements TileConstants {
     */
   public void compileVisible(
     final Viewport view, final Base base,
-    final Batch <StageRegion> visibleSections,
+    final Batch <StagePatch> visibleSections,
     final List <Stage.Visible> visibleFixtures
   ) {
     //
@@ -210,12 +210,12 @@ public class StageRegions implements TileConstants {
     final Batch <Element> fixtures = new Batch(100);
     final Descent compile = new Descent() {
       
-      public boolean descendTo(StageRegion s) {
+      public boolean descendTo(StagePatch s) {
         final Box3D b = s.bounds;
         return view.intersects(b.centre(), b.diagonal() / 2);
       }
       
-      public void afterChildren(StageRegion s) {
+      public void afterChildren(StagePatch s) {
         if (s.depth > 0) return;
         visibleSections.add(s);
         if (visibleFixtures != null) fixturesFrom(s.area, fixtures);

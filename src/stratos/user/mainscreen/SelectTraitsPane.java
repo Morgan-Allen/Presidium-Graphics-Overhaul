@@ -130,11 +130,11 @@ public class SelectTraitsPane extends MenuPane {
   private void initLeader() {
     if (expedition.leader() != null) return;
     
-    final VerseLocation home    = expedition.origin ();
-    final Faction       faction = expedition.backing();
+    final Sector  home    = expedition.origin ();
+    final Faction faction = expedition.backing();
     
     Background gender = Rand.yes() ? BORN_MALE : BORN_FEMALE;
-    final Career c = new Career(KNIGHTED, BORN_HIGH, home, gender);
+    final Career c     = new Career(KNIGHTED, BORN_HIGH, home, gender);
     final Human leader = new Human(c, faction);
     
     for (Trait t : SELECT_TRAITS) leader.traits.setLevel(t, 0);

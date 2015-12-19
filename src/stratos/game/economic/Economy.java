@@ -222,6 +222,9 @@ public final class Economy {
     SERVICE_COMMERCE   = new Traded(
       BC, "Commerce"     , null, FORM_SERVICE, 0
     ),
+    SERVICE_DOCKING    = new Traded(
+      BC, "Docking"      , null, FORM_SERVICE, 0
+    ),
     SERVICE_REPAIRS    = new Traded(
       BC, "Repairs"      , null, FORM_SERVICE, 0
     ),

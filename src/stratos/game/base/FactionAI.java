@@ -7,7 +7,7 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.plans.CombatUtils;
+import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.util.*;
 
@@ -22,15 +22,254 @@ import stratos.util.*;
 //                    success, but high motivation.
 //  Recon mission:  Fog rating.  Demand for resources you haven't found.
 
-//  TODO:  You'll have to give some thought to chaining missions together,
-//  through (e.g, using a contact mission to gain applicants for a strike team.)
-//  Also, ruler-personality.
+
+
+//  TODO:  This will have to be associated passively with Factions, probably in
+//         the Verse class.
+
+//  TODO:  Base any decisions (almost) purely off information from a
+//         Demographic object derived from a Base.
+
+//  You can evaluate total force-strength for a given base (either local or
+//  offworld.)  Then evaluate the importance of said mission.  (The missions
+//  themselves can give a basic rating.)  Then you can allow staff to apply
+//  locally (or randomly generate applicants) up to a certain total strength.
+
+//  ...And then you launch, creating a journey if necessary to transport the
+//  troops.  (The JoinMission class can handle that, I think.)
 
 
 
+//  TODO:  Consider making this class abstract, so that you have to create a
+//         CivicBase/CivicBaseAI, et cetera?
 
-public class BaseTactics {
+
+public class FactionAI {
   
+  
+  /**  Data fields, constructors and save/load methods-
+    */
+  final static int
+    MIN_MISSIONS = 1,
+    MAX_MISSIONS = 5,
+    
+    //  TODO:  Make these variable?  Like raid-frequency/force-strength?
+    MISSION_WAIT_DURATION = Stage.STANDARD_DAY_LENGTH  * 2,
+    DEFAULT_EVAL_INTERVAL = Stage.STANDARD_DAY_LENGTH  / 3,
+    SHORT_EVAL_INTERVAL   = Stage.STANDARD_HOUR_LENGTH * 2,
+    SHORT_WAIT_DURATION   = SHORT_EVAL_INTERVAL + 2       ;
+  
+  
+  final protected Base base;
+  final protected SectorBase sector;
+  
+  final List <Mission> missions = new List <Mission> ();
+  private float forceStrength;
+  
+  
+  public FactionAI(Base base) {
+    this.base = base;
+    this.sector = null;
+  }
+  
+  
+  public FactionAI(SectorBase demo) {
+    this.base = null;
+    this.sector = demo;
+  }
+  
+  
+  public void loadState(Session s) throws Exception {
+    s.loadObjects(missions);
+    forceStrength = s.loadFloat();
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    s.saveObjects(missions);
+    s.saveFloat(forceStrength);
+  }
+  
+  
+  
+  /**  Basic access methods-
+    */
+  public void addMission(Mission m) {
+    missions.include(m);
+  }
+  
+  
+  public void removeMission(Mission m) {
+    missions.remove(m);
+  }
+  
+  
+  public Series <Mission> allMissions() {
+    return missions;
+  }
+  
+  
+  public float forceStrength() {
+    return forceStrength;
+  }
+  
+  
+  
+  /**  Calling regular updates-
+    */
+  public void updateForBase(int numUpdates) {
+    if (base == null) return;
+  }
+  
+  
+  public void updateForSector() {
+    if (sector == null) return;
+  }
+  
+  
+  protected int updateInterval() {
+    return shortWaiting ? SHORT_EVAL_INTERVAL : DEFAULT_EVAL_INTERVAL;
+  }
+  
+  
+  protected int missionWaitInterval() {
+    return shortWaiting ? SHORT_WAIT_DURATION : MISSION_WAIT_DURATION;
+  }
+  
+  
+  
+  /**  Obtaining samples of 
+    */
+  protected Batch <Object> assembleSampleTargets() {
+    final Batch <Object> sampled = new Batch();
+    final Verse verse = base == null ? sector.universe : base.world.offworld;
+    final Faction faction = base == null ? sector.faction() : base.faction();
+    
+    if (base != null) {
+      addSamples(sampled, Venue .class, verse.world);
+      addSamples(sampled, Mobile.class, verse.world);
+    }
+    for (SectorBase b : verse.sectorBases()) {
+      if (b.faction() == faction) continue;
+      sampled.add(b);
+    }
+    return sampled;
+  }
+  
+  
+  protected Batch addSamples(Batch sampled, Object typeKey, Stage world) {
+    
+    final Boarding origin = base == null ? null : base.HQ();
+    if (origin == null && base != null) {
+      if (I.logEvents()) {
+        I.say("\nWARNING: "+this+" has no origin, cannot get mission targets.");
+      }
+      return sampled;
+    }
+    
+    final PresenceMap sampFrom = base.world.presences.mapFor(typeKey);
+    final int limit = Nums.max(10, sampFrom.population() / 100);
+    
+    for (Target t : sampFrom.visitNear(null, -1, null)) {
+      if (origin != null && ! checkReachability(t, origin)) continue;
+      sampled.add(t);
+      if (sampled.size() >= limit) break;
+    }
+    return sampled;
+  }
+  
+  
+  protected boolean checkReachability(Target t, Boarding origin) {
+    final Tile reachPoint = Spacing.nearestOpenTile(t, origin);
+    return base.world.pathingMap.hasPathBetween(
+      origin, reachPoint, base, false
+    );
+  }
+  
+  
+  
+  /**  Generating missions for the various targets assembled:
+    */
+  protected void addMissionsForTarget(Object target, Batch <Mission> added) {
+    
+    //  TODO:  The Mission-classes themselves need to specify if targets are
+    //  valid or not.
+    if (target instanceof Mobile) {
+    }
+    if (target instanceof Venue) {
+    }
+    if (target instanceof Tile) {
+    }
+    if (target instanceof SectorBase) {
+    }
+  }
+  
+  
+  protected void compareMissionsVsCurrent(Batch <Mission> sampled) {
+    //
+    //  Declare no more than 3-5 missions at once (depending on intelligence or
+    //  admin-skills of ruler and/or forces available.)
+    
+    //
+    //  Only declare a new mission if an old one has failed or expired, or the
+    //  rating drops below half the next top contender.  Simple enough.
+    
+  }
+  
+  
+  
+  /**  Evaluation of missions and applicants-
+    */
+  public boolean allowsApplicant(Actor actor, Mission m) {
+    return true;
+  }
+  
+  
+  protected boolean checkWorthLaunching(Mission m) {
+    return true;
+  }
+  
+  
+  protected float rateMission(
+    Mission mission,
+    float relations, float targetValue,
+    float harmLevel, float riskLevel
+  ) {
+    return 1;
+  }
+  
+  
+  protected void generateOffworldApplicants(Mission mission) {
+    //
+    //  Finally, once missions have been declared, then if you happen to be
+    //  off-world, you generate applicants, generate a journey, generate an
+    //  entry-point, check for pathability to the target, assign the applicants
+    //  as passengers, and launch...
+  }
+  
+  
+  
+  
+  
+  /**  Rendering, interface and debug functions-
+    */
+  public static boolean
+    updatesVerbose = false,
+    shortWaiting   = true ,
+    extraVerbose   = false;
+  protected static Faction
+    verboseBase    = Faction.FACTION_ARTILECTS;
+
+  
+  protected boolean shouldReport() {
+    if (! updatesVerbose) return false;
+    if (base != null) return I.matchOrNull(base  .faction(), verboseBase);
+    else              return I.matchOrNull(sector.faction(), verboseBase);
+  }
+}
+  
+  
+  /*
   public static boolean
     updatesVerbose = false,
     shortWaiting   = true ,
@@ -66,7 +305,7 @@ public class BaseTactics {
   private float forceStrength = -1;
   
   
-  public BaseTactics(Base base) {
+  public FactionAI(Base base) {
     this.base = base;
   }
   
@@ -86,6 +325,7 @@ public class BaseTactics {
   
   /**  Public queries-
     */
+  /*
   public float forceStrength() {
     return forceStrength;
   }
@@ -111,6 +351,7 @@ public class BaseTactics {
   
   /**  Performing regular assessment updates-
     */
+  /*
   public void updateTactics(int numUpdates) {
     final boolean report = shouldReport();
     
@@ -305,6 +546,7 @@ public class BaseTactics {
   /**  Utility methods for rating the importance and strength of missions,
     *  parties and candidates-
     */
+  /*
   protected void addNewMissions(Batch <Mission> toAssess) {
     final Batch <Venue> venues = getSampleVenues();
     for (Venue v : venues) addMissionsForVenue(v, toAssess);
@@ -409,6 +651,7 @@ public class BaseTactics {
   /**  Utility methods for estimating overall strength/base-power and for
     *  getting target-batches to sample.
     */
+  /*
   protected float estimateForceStrength() {
     //  TODO:  Try to ensure this stays as efficient as possible- in fact, you
     //  might as well update for all bases at once!
@@ -421,6 +664,7 @@ public class BaseTactics {
       final Actor a = (Actor) m;
       if (a.health.alive()) est += a.senses.powerLevel();
     }
+    
     //
     //  TODO:  Get ratings for various skill-types relevant to each mission- or
     //  perform some kind of monte-carlo sampling to determine success-odds.
@@ -473,7 +717,8 @@ public class BaseTactics {
     final Batch <StageRegion> sampled = new Batch <StageRegion> ();
     return sampled;
   }
-}
+  //*/
+//}
 
 
 

@@ -53,7 +53,7 @@ public class StartupScenario extends Scenario {
   protected Stage createWorld() {
     
     final int mapSize = MAP_SIZES[expedition.titleGranted()];
-    final VerseLocation locale = expedition.destination();
+    final Sector locale = expedition.destination();
     final TerrainGen TG = locale.initialiseTerrain(mapSize);
     
     final Stage world = new Stage(TG.generateTerrain());
@@ -68,7 +68,7 @@ public class StartupScenario extends Scenario {
   
   
   protected Base createBase(Stage world) {
-    final VerseLocation origin = expedition.origin();
+    final Sector origin = expedition.origin();
     final Base base = Base.settlement(
       world, "Player Base", expedition.backing()
     );

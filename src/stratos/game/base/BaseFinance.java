@@ -294,6 +294,8 @@ public class BaseFinance {
       final CashRecord oldest = records.atIndex(1);
       records.remove(oldest);
     }
+    //
+    //  TODO:  Finally, scrub any records for venues no longer in the world!
   }
 }
 

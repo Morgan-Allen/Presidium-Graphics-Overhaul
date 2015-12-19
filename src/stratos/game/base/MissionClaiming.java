@@ -23,11 +23,11 @@ public class MissionClaiming extends Mission {
   
   /**  Data fields, constructors, and save/load methods-
     */
-  final VerseLocation claimed;
+  final Sector claimed;
   final Expedition expedition;
   
   
-  public MissionClaiming(Base base, VerseLocation claimed) {
+  public MissionClaiming(Base base, Sector claimed) {
     super(base, claimed, null, "Claiming "+claimed);
     this.claimed = claimed;
     this.expedition = new Expedition();
@@ -36,7 +36,7 @@ public class MissionClaiming extends Mission {
   
   public MissionClaiming(Session s) throws Exception {
     super(s);
-    this.claimed = (VerseLocation) subject;
+    this.claimed = (Sector) subject;
     this.expedition = (Expedition) s.loadObject();
   }
   

@@ -56,8 +56,8 @@ public class Expedition implements Session.Saveable {
   
   
   Faction backing           = Verse.DEFAULT_HOMEWORLD.startingOwner;
-  VerseLocation origin      = Verse.DEFAULT_HOMEWORLD;
-  VerseLocation destination = Verse.DEFAULT_START_LOCATION;
+  Sector origin      = Verse.DEFAULT_HOMEWORLD;
+  Sector destination = Verse.DEFAULT_START_LOCATION;
 
   int titleGranted = TITLE_KNIGHTED ;
   int funding      = DEFAULT_FUNDING;
@@ -80,8 +80,8 @@ public class Expedition implements Session.Saveable {
   
   public Expedition(Session s) throws Exception {
     s.cacheInstance(this);
-    origin      = (VerseLocation) s.loadObject();
-    destination = (VerseLocation) s.loadObject();
+    origin      = (Sector) s.loadObject();
+    destination = (Sector) s.loadObject();
     funding    = s.loadInt();
     titleGranted = s.loadInt();
     tribute   = s.loadInt();
@@ -106,8 +106,8 @@ public class Expedition implements Session.Saveable {
   
   /**  Basic no-brainer access methods-
     */
-  public VerseLocation origin     () { return origin     ; }
-  public VerseLocation destination() { return destination; }
+  public Sector origin     () { return origin     ; }
+  public Sector destination() { return destination; }
   public Faction       backing    () { return backing    ; }
   
 
@@ -125,13 +125,13 @@ public class Expedition implements Session.Saveable {
   
   /**  Configuration utilities for use by the new-game flow-
     */
-  public void setOrigin(VerseLocation l, Faction b) {
+  public void setOrigin(Sector l, Faction b) {
     this.backing = b;
     this.origin  = l;
   }
   
   
-  public void setDestination(VerseLocation l) {
+  public void setDestination(Sector l) {
     this.destination = l;
   }
   
@@ -221,7 +221,7 @@ public class Expedition implements Session.Saveable {
   /**  Configuration utilities for use by in-world Missions-
     */
   public Expedition configFrom(
-    VerseLocation origin, VerseLocation destination, Faction backing,
+    Sector origin, Sector destination, Faction backing,
     int titleGranted, int funding, int tributePercent,
     Series <Actor> applicants
   ) {

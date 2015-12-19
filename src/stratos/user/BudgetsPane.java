@@ -124,7 +124,7 @@ public class BudgetsPane extends SelectionPane {
   protected void describeDemands(Description d) {
     final Base base = BaseUI.currentPlayed();
     final Verse universe = base.world.offworld;
-    final VerseLocation locale = universe.stageLocation();
+    final Sector locale = universe.stageLocation();
     final BaseCommerce BC = base.commerce;
     
     d.append("DEMAND REPORT FOR "+base);
@@ -152,7 +152,7 @@ public class BudgetsPane extends SelectionPane {
     
     Text.cancelBullet(d);
     
-    for (VerseLocation partner : BC.partners()) {
+    for (Sector partner : BC.partners()) {
       d.append("\n\n");
       d.append(partner);
       if (partner == BC.homeworld()) d.append("  (Homeworld)");

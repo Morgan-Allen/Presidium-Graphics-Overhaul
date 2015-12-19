@@ -70,7 +70,7 @@ public class BaseResearch {
   }
   
   
-  public void initKnowledgeFrom(VerseLocation homeworld) {
+  public void initKnowledgeFrom(Sector homeworld) {
     for (Upgrade u : homeworld.knowledge()) {
       setResearchLevel(u, LEVEL_PRAXIS);
     }

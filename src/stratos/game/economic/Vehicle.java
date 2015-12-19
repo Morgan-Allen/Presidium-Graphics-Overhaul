@@ -6,6 +6,7 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.verse.EntryPoints;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
@@ -29,7 +30,7 @@ public abstract class Vehicle extends Mobile implements
     STAGE_LANDING  = 0,
     STAGE_LANDED   = 1,
     STAGE_BOARDING = 2,
-    STAGE_TAKEOFF   = 3,
+    STAGE_TAKEOFF  = 3,
     STAGE_AWAY     = 4;
   final public static float
     INIT_DIST  = 10.0f,
@@ -257,7 +258,7 @@ public abstract class Vehicle extends Mobile implements
   
   /**  Handling the business of ascent and landing-
     */
-  protected void assignLandPoint(Vec3D aimPos, Boarding dropPoint) {
+  public void assignLandPoint(Vec3D aimPos, Boarding dropPoint) {
     if (aimPos == null) this.aimPos.set(0, 0, NO_LANDING);
     else this.aimPos.setTo(aimPos);
     this.dropPoint = dropPoint;
@@ -312,12 +313,12 @@ public abstract class Vehicle extends Mobile implements
   
   private void completeLanding() {
     nextPosition.setTo(position.setTo(aimPos));
-    dropPoint = ShipUtils.performLanding(this, world, entranceFace);
+    dropPoint = PilotUtils.performLanding(this, world, entranceFace);
     
     stageInceptTime = world.currentTime();
     stage           = STAGE_LANDED;
     canBoard        = null;
-    ShipUtils.offloadPassengers(this, true);
+    PilotUtils.offloadPassengers(this, true);
   }
   
   
@@ -333,14 +334,17 @@ public abstract class Vehicle extends Mobile implements
       I.reportStackTrace();
       beginTakeoff();
     }
-    ShipUtils.completeTakeoff(world, this);
+    PilotUtils.completeTakeoff(world, this);
     super.exitWorld();
   }
   
   
   public void beginTakeoff() {
-    if (stage == STAGE_LANDED) ShipUtils.offloadPassengers(this, false);
-    ShipUtils.performTakeoff(world, this);
+    if (stage == STAGE_LANDED) PilotUtils.offloadPassengers(this, false);
+    
+    final Tile exits = Spacing.pickRandomTile(origin(), INIT_DIST, world);
+    final Vec3D exitPoint = new Vec3D(exits.x, exits.y, INIT_HIGH);
+    PilotUtils.performTakeoff(world, this, exitPoint);
     
     stageInceptTime = world.currentTime();
     stage           = STAGE_TAKEOFF;
@@ -436,7 +440,7 @@ public abstract class Vehicle extends Mobile implements
       //
       //  If obstructions appear during the descent, restart the flight-path.
       //  If you touchdown, register as such.
-      if (! ShipUtils.checkLandingArea(this, world, landArea())) {
+      if (! EntryPoints.checkLandingArea(this, world, landArea())) {
         beginTakeoff();
       }
       else if (height <= 0) {
@@ -460,7 +464,7 @@ public abstract class Vehicle extends Mobile implements
     }
     
     if (motion == MOTION_FLYER && inWorld() && ! landed()) {
-      ShipUtils.adjustFlight(this, aimPos, 0, height);
+      PilotUtils.adjustFlight(this, aimPos, 0, height, TOP_SPEED);
     }
   }
   

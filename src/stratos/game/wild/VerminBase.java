@@ -113,8 +113,8 @@ public class VerminBase extends Base {
   }
   
   
-  protected BaseTactics initTactics() {
-    return new BaseTactics(this) {
+  protected FactionAI initTactics() {
+    return new FactionAI(this) {
       /*
       protected float rateMission(Mission mission) {
         final float importance = mission.rateImportance(base);

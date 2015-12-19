@@ -79,7 +79,7 @@ public class ClaimsGrid {
   //  TODO:  Is there any way to make this more precise?  Based off the danger-
   //  map, say?
   public Base baseClaiming(int tX, int tY) {
-    final StageRegion s = world.regions.regionAt(tX, tY);
+    final StagePatch s = world.regions.regionAt(tX, tY);
     return baseClaims[s.x][s.y];
   }
   
@@ -106,7 +106,7 @@ public class ClaimsGrid {
   public Venue[] venuesClaiming(Box2D area) {
     final Batch <Venue> venues = new Batch <Venue> ();
     
-    for (StageRegion s : world.regions.regionsUnder(area, 0)) {
+    for (StagePatch s : world.regions.regionsUnder(area, 0)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (claims != null) for (Claim claim : claims) {
         if (! claim.area.overlaps(area)) continue;
@@ -147,7 +147,7 @@ public class ClaimsGrid {
     //
     //  We pass over every stage-region that might intersect with the area
     //  being claimed, and check to see if other claims are registered there.
-    for (StageRegion s : world.regions.regionsUnder(area, UNIT_GRID_SIZE)) {
+    for (StagePatch s : world.regions.regionsUnder(area, UNIT_GRID_SIZE)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       if (report) I.say("  Checking region: "+s.area);
       if (claims != null) for (Claim claim : claims) {
@@ -210,7 +210,7 @@ public class ClaimsGrid {
     newClaim.owner = owner;
     if (owner != null) venueClaims.put(owner, newClaim);
     
-    for (StageRegion s : world.regions.regionsUnder(area, 0)) {
+    for (StagePatch s : world.regions.regionsUnder(area, 0)) {
       List <Claim> claims = areaClaims[s.x][s.y];
       if (claims == null) areaClaims[s.x][s.y] = claims = new List <Claim> ();
       claims.add(newClaim);
@@ -238,7 +238,7 @@ public class ClaimsGrid {
   
   
   private void removeClaim(Claim claim, boolean report) {
-    for (StageRegion s : world.regions.regionsUnder(claim.area, 0)) {
+    for (StagePatch s : world.regions.regionsUnder(claim.area, 0)) {
       final List <Claim> claims = areaClaims[s.x][s.y];
       claims.remove(claim);
       if (claims.size() == 0) areaClaims[s.x][s.y] = null;

@@ -150,7 +150,7 @@ public class BaseAdvice {
     shortages.clear();
     
     final Verse universe = base.world.offworld;
-    final VerseLocation locale = universe.stageLocation();
+    final Sector locale = universe.stageLocation();
     for (Dropship ship : universe.journeys.allDropships()) {
       if (! universe.journeys.dueToArrive(ship, locale)) continue;
       if (ship.dropPoint() == null) needLanding = true;
@@ -420,11 +420,11 @@ public class BaseAdvice {
   
   
   final static MessageTopic TOPIC_ARRIVALS = new MessageTopic(
-    "topic_arrivals", false, Mobile.class, VerseLocation.class
+    "topic_arrivals", false, Mobile.class, Sector.class
   ) {
     protected void configMessage(BaseUI UI, Text d, Object... args) {
       final Mobile        arrived = (Mobile       ) args[0];
-      final VerseLocation origin  = (VerseLocation) args[1];
+      final Sector origin  = (Sector) args[1];
       d.appendAll(arrived, " has arrived from ");
       if (origin == null) d.append("offworld.");
       else d.appendAll(origin, ".");
@@ -432,7 +432,7 @@ public class BaseAdvice {
   };
   
   
-  public void sendArrivalMessage(Mobile arrived, VerseLocation from) {
+  public void sendArrivalMessage(Mobile arrived, Sector from) {
     if (base != BaseUI.currentPlayed()) return;
     TOPIC_ARRIVALS.dispatchMessage("Arrival: "+arrived, arrived, from);
   }

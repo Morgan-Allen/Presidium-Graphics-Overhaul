@@ -24,10 +24,9 @@ import stratos.util.*;
 public class ArtilectBase extends Base {
   
   
-  
   /**  Data fields, constants, constructors and save/load methods-
     */
-  private static boolean verbose = BaseTactics.updatesVerbose;
+  private static boolean verbose = FactionAI.updatesVerbose;
   
   final static float
     MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
@@ -98,9 +97,11 @@ public class ArtilectBase extends Base {
   
   
   
-  protected BaseTactics initTactics() { return new BaseTactics(this) {
+  protected FactionAI initTactics() { return new FactionAI(this) {
     
-    protected void updateMissionAssessments() {
+    public void updateForBase(int numUpdates) {
+      final int interval = updateInterval();
+      if (numUpdates % interval != 0) return;
       //
       //  As long as there's a technologically-advanced non-artilect base on
       //  the map, increment the 'wakeup' level.
@@ -112,11 +113,9 @@ public class ArtilectBase extends Base {
           numFoes++;
         }
       }
-      final int interval = updateInterval();
       final float inc = interval * 1f / ONLINE_WAKE_TIME;
       onlineLevel += inc * (numFoes > 0 ? numFoes : -1);
       onlineLevel = Nums.clamp(onlineLevel, 0, 100);
-      
       //
       //  You also need to select a suitable headquarters as a launching-point
       //  for missions.
@@ -127,7 +126,6 @@ public class ArtilectBase extends Base {
         pickHQ.compare(v, rateHQ(v));
       }
       chosenHQ = pickHQ.result();
-      
       if (verbose) {
         I.say("\nUpdating artilect tactics.");
         I.say("  Potential foes:      "+numFoes    );
@@ -136,7 +134,7 @@ public class ArtilectBase extends Base {
       }
       //
       //  Then perform other tasks as standard.
-      super.updateMissionAssessments();
+      super.updateForBase(numUpdates);
     }
     
     

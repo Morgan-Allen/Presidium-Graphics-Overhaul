@@ -84,7 +84,7 @@ public class Faction extends Constant {
   /**  Data fields, constructors and save/load methods-
     */
   private Faction parent;
-  private VerseLocation startSite;
+  private Sector startSite;
   private boolean primal;
   
   final String description, startInfo;
@@ -115,7 +115,7 @@ public class Faction extends Constant {
   }
   
   
-  protected void bindToStartSite(VerseLocation site) {
+  protected void bindToStartSite(Sector site) {
     //
     //  Must be called separately to avoid initialisation loop...
     if (startSite == null) return;
@@ -136,7 +136,7 @@ public class Faction extends Constant {
   
   /**  Political setup information-
     */
-  public VerseLocation startSite() {
+  public Sector startSite() {
     return startSite;
   }
   
@@ -209,18 +209,18 @@ public class Faction extends Constant {
       //
       //  In essence, we find the closest native-controlled province and assign
       //  that to be a vassal of House Suhail-
-      final VerseLocation landing = world.offworld.stageLocation();
-      final Pick <Demographic> pick = new Pick();
+      final Sector landing = world.offworld.stageLocation();
+      final Pick <SectorBase> pick = new Pick();
       
-      for (VerseLocation l : Verse.ALL_DIAPSOR_SECTORS) {
+      for (Sector l : Verse.ALL_DIAPSOR_SECTORS) {
         if (l.startingOwner == FACTION_NATIVES && l != landing) {
-          final Demographic d = Verse.demographicFor(l, world.offworld);
-          pick.compare(d, Verse.travelDistance(landing, l));
+          SectorBase b = world.offworld.baseForSector(l);
+          if (b != null) pick.compare(b, Verse.travelDistance(landing, l));
         }
       }
       if (pick.empty()) return;
       
-      final Demographic nativeVassal = pick.result();
+      final SectorBase nativeVassal = pick.result();
       final Expedition founding = new Expedition();
       founding.configFrom(
         landing, nativeVassal.location, this,

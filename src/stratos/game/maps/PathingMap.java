@@ -60,7 +60,7 @@ public class PathingMap {
   }
   
   private class Place {
-    StageRegion region;
+    StagePatch region;
     Boarding core;
     Tile under[];
     
@@ -97,7 +97,7 @@ public class PathingMap {
   
   final Stage world;
   final Place tilePlaces[][];
-  final Table <StageRegion, PlaceSet> allCached;
+  final Table <StagePatch, PlaceSet> allCached;
   
   
   public PathingMap(Stage world) {
@@ -131,17 +131,17 @@ public class PathingMap {
   /**  Methods for refreshing the Places and Routes associated with each
     *  Section of the map:
     */
-  private void refreshWithNeighbours(StageRegion region) {
-    final StageRegion near[] = new StageRegion[9];
+  private void refreshWithNeighbours(StagePatch region) {
+    final StagePatch near[] = new StagePatch[9];
     world.regions.neighbours(region, near);
     near[8] = region;
     
-    for (StageRegion n : near) if (n != null) refreshPlaces(n);
-    for (StageRegion n : near) if (n != null) refreshRoutesBetween(region, n);
+    for (StagePatch n : near) if (n != null) refreshPlaces(n);
+    for (StagePatch n : near) if (n != null) refreshRoutesBetween(region, n);
   }
   
   
-  private void refreshPlaces(StageRegion region) {
+  private void refreshPlaces(StagePatch region) {
     //
     //  Check to see if we're due for a refresh or not.  If so, delete any
     //  pre-existing Places.
@@ -264,7 +264,7 @@ public class PathingMap {
   }
   
   
-  private void refreshRoutesBetween(StageRegion a, StageRegion b) {
+  private void refreshRoutesBetween(StagePatch a, StagePatch b) {
     final PlaceSet setA = allCached.get(a), setB = allCached.get(b);
     
     for (Place from : setA.places) for (Place to : setB.places) {

@@ -383,8 +383,8 @@ public class Staff {
       final Actor b = a;
       if (VerseJourneys.activityFor(b) != null) continue;
       final Verse verse = base.world.offworld;
-      VerseLocation off = Verse.currentLocation(b, verse);
-      VerseLocation local = verse.stageLocation();
+      Sector off = Verse.currentLocation(b, verse);
+      Sector local = verse.stageLocation();
       
       if (off != local && off != base.commerce.homeworld()) {
         base.world.offworld.journeys.addLocalImmigrant(b, base);

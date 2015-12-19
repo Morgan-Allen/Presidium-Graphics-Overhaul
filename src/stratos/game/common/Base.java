@@ -16,15 +16,15 @@ import stratos.util.*;
 
 
 
+
 public class Base implements
   Session.Saveable, Schedule.Updates, Accountable
 {
-  
-  
   /**  Fields, constructors, and save/load methods-
     */
   final public static int
-    MAX_BASES = 8;
+    MAX_BASES      = 8,
+    ALL_BASE_IDS[] = {0, 1, 2, 3, 4, 5, 6, 7};
   
   final public Stage world;
   
@@ -43,7 +43,7 @@ public class Base implements
   private Venue commandPost;
   
   final public BaseRelations relations = initRelations();
-  final public BaseTactics   tactics   = initTactics  ();
+  final public FactionAI     tactics   = initTactics  ();
   final public BaseAdvice    advice    = initAdvice   ();
   final public BaseResearch  research  = initResearch ();
   
@@ -58,14 +58,12 @@ public class Base implements
     this.world   = world  ;
     this.faction = faction;
     
-    setup     = new BaseSetup(this);
-    demands   = new BaseDemands(this);
-    commerce  = new BaseCommerce(this);
-    transport = new BaseTransport(world);
-    
+    setup      = new BaseSetup(this);
+    demands    = new BaseDemands(this);
+    commerce   = new BaseCommerce(this);
+    transport  = new BaseTransport(world);
     finance    = new BaseFinance(this);
     profiles   = new BaseProfiles(this);
-    
     dangerMap  = new DangerMap(world, this);
     intelMap   = new IntelMap(this);
     intelMap.initFog(world);
@@ -131,7 +129,7 @@ public class Base implements
   }
   
   
-  protected BaseTactics   initTactics  () { return new BaseTactics  (this); }
+  protected FactionAI     initTactics  () { return new FactionAI    (this); }
   protected BaseRelations initRelations() { return new BaseRelations(this); }
   protected BaseAdvice    initAdvice   () { return new BaseAdvice   (this); }
   protected BaseResearch  initResearch () { return new BaseResearch (this); }
@@ -148,6 +146,14 @@ public class Base implements
   }
   
   
+  private static int nextBaseID(Stage world) {
+    final boolean maskIDs[] = new boolean[MAX_BASES];
+    for (Base b : world.bases()) maskIDs[b.baseID] = false;
+    for (int i = 0; i < MAX_BASES; i++) if (! maskIDs[i]) return i;
+    return -1;
+  }
+  
+  
   private static Base registerBase(
     Base base, Stage world, Blueprint... canBuild
   ) {
@@ -156,7 +162,8 @@ public class Base implements
       return null;
     }
     base.setup.setAvailableVenues(canBuild);
-    base.baseID = world.bases().size();
+    
+    base.baseID = nextBaseID(world);
     world.registerBase(base, true);
     
     if (base.title == null) base.title = base.faction.name;
@@ -313,7 +320,7 @@ public class Base implements
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after advice: "+timeAfter);
     
-    tactics.updateTactics(numUpdates);
+    tactics.updateForBase(numUpdates);
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after tactics: "+timeAfter);
 

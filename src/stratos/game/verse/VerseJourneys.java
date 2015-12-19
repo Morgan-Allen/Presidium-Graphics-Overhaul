@@ -11,14 +11,19 @@ import stratos.game.economic.*;
 import stratos.user.BaseUI;
 import stratos.util.*;
 import stratos.game.plans.Smuggling;
+
+import static stratos.content.civic.Dropship.*;
 import static stratos.game.base.BaseCommerce.*;
-import static stratos.game.economic.Dropship.*;
+
+import stratos.content.civic.Dropship;
 
 
 
 //
 //  TODO:  It's even possible this data should be written to a separate file
 //         from the world itself, and loaded distinctly?
+
+
 
 public class VerseJourneys {
   
@@ -47,10 +52,11 @@ public class VerseJourneys {
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
       final Journey j = new Journey();
+      j.purpose     = s.loadInt();
       j.transport   = (Vehicle) s.loadObject();
       j.migrants    = (Batch) s.loadObjects(j.migrants);
-      j.origin      = (VerseLocation) s.loadObject();
-      j.destination = (VerseLocation) s.loadObject();
+      j.origin      = (Sector) s.loadObject();
+      j.destination = (Sector) s.loadObject();
       j.arriveTime  = s.loadFloat();
       j.returns     = s.loadBool();
       journeys.add(j);
@@ -62,6 +68,7 @@ public class VerseJourneys {
   public void saveState(Session s) throws Exception {
     s.saveInt(journeys.size());
     for (Journey j : journeys) {
+      s.saveInt    (j.purpose    );
       s.saveObject (j.transport  );
       s.saveObjects(j.migrants   );
       s.saveObject (j.origin     );
@@ -81,7 +88,7 @@ public class VerseJourneys {
     void onWorldEntry();
     void whileOffworld();
     boolean doneOffworld();
-    VerseLocation origin();
+    Sector origin();
   }
   
   
@@ -97,13 +104,13 @@ public class VerseJourneys {
   }
   
   
-  public static VerseLocation originFor(Mobile mobile) {
+  public static Sector originFor(Mobile mobile) {
     final Journey j = mobile.base().world.offworld.journeys.journeyFor(mobile);
     return j == null ? null : j.origin;
   }
   
   
-  public static VerseLocation destinationFor(Mobile mobile) {
+  public static Sector destinationFor(Mobile mobile) {
     final Journey j = mobile.base().world.offworld.journeys.journeyFor(mobile);
     return j == null ? null : j.destination;
   }
@@ -113,9 +120,10 @@ public class VerseJourneys {
   /**  Exchange methods for interfacing with the world-
     */
   //
-  //  TODO:  Adapt this to both land and space transport routes.
+  //  TODO:  Adapt this to both land and space transport routes, and to
+  //  purposes beside shipping!
   public Dropship setupTransport(
-    VerseLocation origin, VerseLocation destination, Base base, boolean recurs
+    Sector origin, Sector destination, Base base, boolean recurs
   ) {
     final Dropship ship = new Dropship();
     final Journey journey = setupJourney(origin, destination, recurs);
@@ -127,7 +135,7 @@ public class VerseJourneys {
   
   
   protected Journey setupJourney(
-    VerseLocation origin, VerseLocation destination, boolean recurs
+    Sector origin, Sector destination, boolean recurs
   ) {
     final Journey journey     = new Journey();
     final Stage   world       = universe.world;
@@ -159,13 +167,13 @@ public class VerseJourneys {
   }
   
   
-  public VerseLocation originFor(Vehicle trans) {
+  public Sector originFor(Vehicle trans) {
     final Journey j = journeyFor(trans);
     return (j == null) ? null : j.origin;
   }
   
   
-  public VerseLocation destinationFor(Vehicle trans) {
+  public Sector destinationFor(Vehicle trans) {
     final Journey j = journeyFor(trans);
     return (j == null) ? null : j.destination;
   }
@@ -193,7 +201,7 @@ public class VerseJourneys {
   }
   
   
-  public boolean dueToArrive(Vehicle trans, VerseLocation destination) {
+  public boolean dueToArrive(Vehicle trans, Sector destination) {
     final Journey j = journeyFor(trans);
     if (j == null || j.destination != destination) return false;
     final float time = universe.world.currentTime();
@@ -213,7 +221,7 @@ public class VerseJourneys {
     final boolean
       visitWorld = journey.destination == universe.stageLocation(),
       arriving   = shipStage == STAGE_AWAY && time >= journey.arriveTime,
-      canEnter   = trans == null || ShipUtils.findLandingSite(trans, true);
+      canEnter   = trans == null || EntryPoints.findLandingSite(trans, true);
     
     final Base    playBase = BaseUI.currentPlayed();
     final boolean report   = verbose && hasTrans && playBase == trans.base();
@@ -246,7 +254,7 @@ public class VerseJourneys {
     //  If the ship has already landed in-world, see if it's time to depart-
     if (shipStage == STAGE_LANDED || shipStage == STAGE_BOARDING) {
       final float sinceDescent = time - journey.arriveTime;
-      final boolean allAboard = ShipUtils.allAboard(trans);
+      final boolean allAboard = PilotUtils.allAboard(trans);
       
       if (sinceDescent > SHIP_VISIT_DURATION) {
         if (shipStage == STAGE_LANDED) trans.beginBoarding();
@@ -267,7 +275,7 @@ public class VerseJourneys {
     //  If the ship is en-route to an offworld destination, see if it's arrived
     //  there yet.
     if (arriving && ! visitWorld) {
-      final VerseLocation oldOrigin = journey.origin;
+      final Sector oldOrigin = journey.origin;
       journey.arriveTime  = world.currentTime();
       journey.arriveTime  += SHIP_JOURNEY_TIME * (0.5f + Rand.num());
       journey.origin      = journey.destination;
@@ -283,7 +291,7 @@ public class VerseJourneys {
     //  begin landing-
     if (arriving && visitWorld && canEnter) {
       if (hasTrans) {
-        ShipUtils.findLandingSite(trans, false);
+        EntryPoints.findLandingSite(trans, false);
         trans.base().advice.sendArrivalMessage(trans, journey.origin);
       }
       
@@ -302,7 +310,7 @@ public class VerseJourneys {
   
   
   private void cycleOffworldPassengers(Journey journey) {
-    final Demographic base = Verse.demographicFor(journey.origin, universe);
+    final SectorBase base = universe.baseForSector(journey.origin);
     final Vehicle transport = journey.transport;
     
     if (transport != null) {
@@ -374,7 +382,7 @@ public class VerseJourneys {
   
   
   public boolean scheduleLocalDrop(Base base, float delay) {
-    final VerseLocation
+    final Sector
       orig = base.commerce.homeworld(),
       dest = universe.stageLocation();
     
@@ -411,7 +419,7 @@ public class VerseJourneys {
   
   
   public Series <Journey> journeysBetween(
-    VerseLocation orig, VerseLocation dest, Base matchBase, boolean eitherWay
+    Sector orig, Sector dest, Base matchBase, boolean eitherWay
   ) {
     //
     //  We sort the incoming matches in order of arrival.
@@ -434,14 +442,14 @@ public class VerseJourneys {
   
   
   public Journey nextJourneyBetween(
-    VerseLocation orig, VerseLocation dest, Base matchBase, boolean eitherWay
+    Sector orig, Sector dest, Base matchBase, boolean eitherWay
   ) {
     return journeysBetween(orig, dest, matchBase, eitherWay).first();
   }
   
   
   public Vehicle[] transportsBetween(
-    VerseLocation orig, VerseLocation dest, Base matchBase, boolean eitherWay
+    Sector orig, Sector dest, Base matchBase, boolean eitherWay
   ) {
     final Batch <Vehicle> trans = new Batch();
     final Series <Journey> matches = journeysBetween(
@@ -453,7 +461,7 @@ public class VerseJourneys {
   
 
   public Vehicle nextTransportBetween(
-    VerseLocation orig, VerseLocation dest, Base base, boolean eitherWay
+    Sector orig, Sector dest, Base base, boolean eitherWay
   ) {
     final Vehicle between[] = transportsBetween(orig, dest, base, eitherWay);
     if (between.length == 0) return null;
@@ -462,7 +470,7 @@ public class VerseJourneys {
   
   
   public boolean addLocalImmigrant(Actor actor, Base base) {
-    final VerseLocation
+    final Sector
       local = base.world.offworld.stageLocation(),
       home  = base.commerce.homeworld();
     
@@ -481,23 +489,24 @@ public class VerseJourneys {
     }
     
     actor.mind.assignBehaviour(new Smuggling(actor, trans, world, false));
-    Verse.demographicFor(home, universe).toggleExpat(actor, true);
+    SectorBase sectorBase = universe.baseForSector(home);
+    sectorBase.toggleExpat(actor, true);
     return true;
   }
   
   
-  public void handleEmmigrants(VerseLocation goes, Vehicle transport) {
+  public void handleEmmigrants(Sector goes, Vehicle transport) {
     handleEmmigrants(universe.stageLocation(), goes, transport);
   }
   
   
-  public void handleEmmigrants(VerseLocation goes, Mobile... migrants) {
+  public void handleEmmigrants(Sector goes, Mobile... migrants) {
     handleEmmigrants(universe.stageLocation(), goes, null, migrants);
   }
   
   
   protected void handleEmmigrants(
-    VerseLocation from, VerseLocation goes,
+    Sector from, Sector goes,
     Vehicle transport, Mobile... migrants
   ) {
     Journey j = journeyFor(transport);
@@ -526,8 +535,8 @@ public class VerseJourneys {
     if (mobile.inWorld()) return 0;
     final float time = universe.world.currentTime();
     final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
-    final VerseLocation locale  = universe.stageLocation();
-    final VerseLocation resides = Verse.currentLocation(mobile, universe);
+    final Sector locale  = universe.stageLocation();
+    final Sector resides = Verse.currentLocation(mobile, universe);
     //
     //  If the actor is currently aboard a dropship, return it's arrival date.
     Journey journey = journeyFor(mobile);
@@ -581,7 +590,7 @@ public class VerseJourneys {
     for (Journey j : journeys) {
       reportJourneyState(j, "\n"+j.transport+" is travelling between...");
     }
-    for (Demographic base : universe.bases) {
+    for (SectorBase base : universe.bases) {
       I.say("\n"+base.location+" has the following residents:");
       for (Mobile m : base.expats()) {
         I.say("    "+m);

@@ -13,6 +13,8 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
 
+import stratos.content.civic.Dropship;
+
 
 
 //  TODO:  Make this a part of the FindWork behaviour, and an offworld activity.
