@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.*;
@@ -85,8 +87,8 @@ public class JoinMission extends Plan {
       final Behaviour step = mission.nextStepFor(actor, true);
       final float
         priority    = step == null ? -1 : step.priorityFor(actor),
-        competence  = competence (actor, mission),
-        competition = competition(actor, mission),
+        competence  = MissionUtils.competence (actor, mission),
+        competition = MissionUtils.competition(actor, mission),
         urgency     = mission.assignedPriority();
 
       if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
@@ -104,7 +106,6 @@ public class JoinMission extends Plan {
       
       if (report) {
         I.say("\n  Mission is: "+mission);
-        I.say("  apply point:  "+applyPointFor(actor, mission));
         I.say("  next step:    "+mission.nextStepFor(actor, true));
         I.say("  competence:   "+competence);
         I.say("  competition:  "+competition);
@@ -123,35 +124,6 @@ public class JoinMission extends Plan {
       return null;
     }
     else return new JoinMission(actor, picked);
-  }
-  
-  
-  private static Target applyPointFor(Actor actor, Mission mission) {
-    final int type = mission.missionType();
-    if (type == Mission.TYPE_BASE_AI) return actor;
-    if (type == Mission.TYPE_PUBLIC ) return actor;
-    
-    //  TODO:  BE STRICTER ABOUT THIS
-    if (mission.base().HQ() == null) return actor;
-    return mission.base().HQ();
-  }
-  
-  
-  public static float competition(Actor actor, Mission mission) {
-    if (mission.isApproved(actor)) return 0;
-    final int
-      priority   = mission.assignedPriority(),
-      partyLimit = Mission.PARTY_LIMITS[priority];
-    return mission.applicants().size() * 1f / partyLimit;
-  }
-  
-  
-  public static float competence(Actor actor, Mission mission) {
-    final Behaviour step = mission.nextStepFor(actor, true);
-    if (step == null) return 0;
-    step.priorityFor(actor);
-    if (step instanceof Plan) return ((Plan) step).competence();
-    else return 1;
   }
   
   
@@ -199,7 +171,7 @@ public class JoinMission extends Plan {
       return joins;
     }
     
-    final Target applyPoint = applyPointFor(actor, mission);
+    final Target applyPoint = MissionUtils.applyPointFor(actor, mission);
     if (applyPoint == null) {
       I.complain("NO APPLY POINT FOR "+mission);
       return null;

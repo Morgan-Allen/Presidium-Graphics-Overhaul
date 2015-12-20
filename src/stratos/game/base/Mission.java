@@ -522,6 +522,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  //  TODO:  These need to be moved out to the JoinMission class!
+  //*
+  
   private Action nextWaitAction(Actor actor, Role role) {
     
     //  TODO:  Move this out to the JoinMission class!
@@ -551,6 +554,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public boolean actionWait(Actor actor, Actor other) {
     return true;
   }
+  //*/
   
   
   public Behaviour cachedStepFor(Actor actor) {
@@ -674,6 +678,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   /**  Rendering and interface methods-
     */
+  //
+  //  TODO:  Ideally, the individual mission-types should be storing each of
+  //         these image-assets!
+  
   final static String
     IMG_DIR = "media/GUI/Missions/";
   final public static ImageAsset

@@ -26,7 +26,7 @@ public class SectorBase implements Session.Saveable {
   private Expedition founding;
   final private Tally <Object> presences = new Tally();
   final private List  <Mobile> expats    = new List ();
-  private float popLevel;
+  private float popLevel, powerLevel;
   
   
   protected SectorBase(Verse universe, Sector location) {
@@ -48,7 +48,8 @@ public class SectorBase implements Session.Saveable {
       Mobile m = (Mobile) s.loadObject();
       m.setWorldEntry(expats.addLast(m));
     }
-    popLevel = s.loadFloat();
+    popLevel   = s.loadFloat();
+    powerLevel = s.loadFloat();
   }
   
   
@@ -60,7 +61,8 @@ public class SectorBase implements Session.Saveable {
     
     s.saveInt(expats.size());
     for (Mobile m : expats) s.saveObject(m);
-    s.saveFloat(popLevel);
+    s.saveFloat(popLevel  );
+    s.saveFloat(powerLevel);
   }
   
   
@@ -87,6 +89,18 @@ public class SectorBase implements Session.Saveable {
   public Faction faction() {
     return claimant;
   }
+  
+  
+  public float population() {
+    return popLevel;
+  }
+  
+  
+  public float powerLevel(Faction faction) {
+    if (faction != claimant) return 0;
+    return powerLevel;
+  }
+  
   
   
   /**  Update and modification methods-

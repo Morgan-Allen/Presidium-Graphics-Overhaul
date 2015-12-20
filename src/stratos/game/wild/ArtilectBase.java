@@ -161,7 +161,7 @@ public class ArtilectBase extends Base {
     }
     
     
-    protected boolean shouldAllow(
+    protected boolean allowsApplicant(
       Actor actor, Mission mission,
       float actorChance, float actorPower,
       float partyChance, float partyPower
@@ -175,7 +175,7 @@ public class ArtilectBase extends Base {
       Mission mission, float partyChance, float partyPower, boolean timeUp
     ) {
       float powerLimit = MAX_MISSION_POWER * onlineLevel;
-      return (partyPower > (powerLimit / 2)) || timeUp;
+      return (partyPower > (powerLimit / 2)) || (timeUp && partyPower > 0);
     }
   }; }
 }
