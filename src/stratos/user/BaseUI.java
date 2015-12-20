@@ -31,6 +31,7 @@ public class BaseUI extends HUD implements UIConstants {
   private UIGroup helpText;
   private MapsDisplay mapsPanel;
   private Readout readout;
+  private SectorsPane sectorsPane;
   
   private ReminderListing reminders;
   private Button optionsButton;
@@ -39,7 +40,6 @@ public class BaseUI extends HUD implements UIConstants {
   private UINode rosterButton ;
   private Button budgetButton ;
   private Button sectorsButton;
-  
   
   private UIGroup infoArea, optionsArea, messageArea;
   private BorderedLabel popup;
@@ -148,6 +148,10 @@ public class BaseUI extends HUD implements UIConstants {
     messageArea.alignHorizontal(0.5f, MESSAGE_PANE_WIDE, 0);
     messageArea.alignTop(READOUT_HIGH, MESSAGE_PANE_HIGH);
     messageArea.attachTo(this);
+    
+    this.sectorsPane = new SectorsPane(this);
+    sectorsPane.attachTo(this);
+    sectorsPane.hidden = true;
 
     //  TODO:  Constrain this better.
     this.optionsArea = new UIGroup(this);
@@ -389,6 +393,26 @@ public class BaseUI extends HUD implements UIConstants {
     final BaseUI UI = BaseUI.current();
     if (UI == null || UI.currentMessage() == null) return false;
     return UI.currentMessage().focus == subject;
+  }
+  
+  
+  public void showSectorsPane() {
+    sectorsPane.hidden = false;
+  }
+  
+  
+  public void hideSectorsPane() {
+    sectorsPane.hidden = true;
+  }
+  
+  
+  public boolean sectorsShown() {
+    return ! sectorsPane.hidden;
+  }
+  
+  
+  public SectorsPane sectorsPane() {
+    return sectorsPane;
   }
   
   

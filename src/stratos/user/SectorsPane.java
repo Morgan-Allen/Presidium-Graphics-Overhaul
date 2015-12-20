@@ -7,20 +7,27 @@ package stratos.user;
 import stratos.game.base.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
-import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
+import stratos.util.I;
 import stratos.graphics.charts.*;
-import stratos.start.Assets;
-import stratos.util.*;
-import static stratos.graphics.common.GL.*;
-
-import com.badlogic.gdx.graphics.*;
 
 
+
+//
+//  TODO:  Make SelectionOptions available for Sectors you select.
+//
+//  TODO:  Then you can start declaring offworld missions.  (The factory-
+//         methods for each class just have to recognise sectors as viable
+//         targets- and you'll need to script basic methods for evaluating the
+//         outcome of each.)
+
+//  TODO:  Finally, JoinMission will have to allow applicants to (A) exit off-
+//         map, or (B), board a ship in order to conduct remote missions.  And
+//         FactionAI will, conversely, need to implement generateApplicants
+//         before sending missions of their own from remote sectors.
 
 
 public class SectorsPane extends UIGroup implements UIConstants {
-  
   
   
   final static ImageAsset
@@ -47,13 +54,24 @@ public class SectorsPane extends UIGroup implements UIConstants {
   
   /**  Interface presented-
     */
-  public static Button createButton(
-    final BaseUI baseUI
-  ) {
+  public static Button createButton(final BaseUI baseUI) {
+    final SectorsPane sectorsPane = baseUI.sectorsPane();
+    
     return new SelectionPane.PaneButton(
-      new SectorsPane(baseUI), baseUI,
+      sectorsPane, baseUI,
       SECTORS_BUTTON_ID, PLANET_ICON, PLANET_ICON_LIT, "Sectors"
-    );
+    ) {
+      protected void whenClicked() {
+        if (! baseUI.sectorsShown()) {
+          baseUI.showSectorsPane();
+          sectorsPane.onShow();
+        }
+        else {
+          baseUI.hideSectorsPane();
+          sectorsPane.onHide();
+        }
+      }
+    };
   }
   
   
@@ -65,8 +83,8 @@ public class SectorsPane extends UIGroup implements UIConstants {
   final UIGroup displayArea;
   final Button left, right;
   
+  private Selectable before;
   private Sector focus;
-  final SectorPanel infoPanel;
   
   
   public SectorsPane(HUD UI) {
@@ -85,11 +103,6 @@ public class SectorsPane extends UIGroup implements UIConstants {
     leftSide.alignVertical(0.5f, CHARTS_WIDE, 0);
     leftSide.stretch = false;
     leftSide.attachTo(this);
-    
-    infoPanel = new SectorPanel(UI);
-    infoPanel.alignRight   (0, CHART_INFO_WIDE);
-    infoPanel.alignVertical(0, 0              );
-    infoPanel.attachTo(this);
     
     backdrop = new Image(UI, BACKING_TEX);
     backdrop.alignHorizontal(20, 20);
@@ -142,9 +155,34 @@ public class SectorsPane extends UIGroup implements UIConstants {
   
   /**  Navigation and feedback-
     */
-  //  TODO:  Control elevation as well.  (Include a zoom function?)
+  //  TODO:  Control elevation as well.  Include a zoom function!
   private void incRotation(float degrees, boolean inFrame) {
     display.spinAtRate(degrees * 2, 0);
+  }
+  
+  
+  protected void onShow() {
+    before = Selection.currentSelection();
+    
+    final Sector zooms;
+    if (BaseUI.current() == null) zooms = Verse.DEFAULT_START_LOCATION;
+    else zooms = BaseUI.currentPlayed().world.offworld.stageLocation();
+    
+    if (zooms != null) zooms.whenClicked(null);
+    else Selection.pushSelection(null, null);
+  }
+  
+  
+  protected void onHide() {
+    final BaseUI UI = BaseUI.current();
+    
+    if (before != null) {
+      Selection.pushSelection(before, null);
+    }
+    else if (UI != null) {
+      UI.clearInfoPane();
+      UI.clearOptionsList();
+    }
   }
   
   
@@ -159,11 +197,8 @@ public class SectorsPane extends UIGroup implements UIConstants {
     ;
     if (UI.mouseClicked()) {
       focus = hovered;
-      if (focus != null) {
-        display.setSelection(focus.name, true);
-        infoPanel.header.setText(focus.name);
-        infoPanel.detail.setText(focus.info);
-      }
+      if (focus != null) focus.whenClicked(null);
+      else Selection.pushSelection(null, null);
     }
     
     super.updateState();

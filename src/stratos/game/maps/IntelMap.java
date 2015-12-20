@@ -78,7 +78,7 @@ public class IntelMap {
   
   
   protected boolean noFog() {
-    if (noFog() || base.allUnits().empty()) return true;
+    if (GameSettings.fogFree || base.allUnits().empty()) return true;
     return false;
   }
   
