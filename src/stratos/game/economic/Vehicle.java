@@ -7,6 +7,7 @@ package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.verse.EntryPoints;
+import stratos.game.verse.Faction;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
@@ -552,7 +553,8 @@ public abstract class Vehicle extends Mobile implements
   public boolean allowsEntry(Accountable m) {
     if (! structure.intact()) return false;
     if (m.base() == this.base()) return true;
-    return base().relations.relationWith(m.base()) > 0;
+    if (Faction.isFactionEnemy(this, m)) return false;
+    return true;
   }
   
   

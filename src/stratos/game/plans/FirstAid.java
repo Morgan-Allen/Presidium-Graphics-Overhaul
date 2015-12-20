@@ -7,6 +7,7 @@ package stratos.game.plans;
 import stratos.content.civic.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.verse.Faction;
 import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
@@ -68,10 +69,9 @@ public class FirstAid extends Treatment {
     //
     //  We don't bring potential enemies back to our base even if we do stop
     //  them dying...
-    if (patient.base().relations.relationWith(actor.base()) < 0) {
-      return current;
-    }
-    
+    if (Faction.isFactionEnemy(patient, actor)) return current;
+    //
+    //  ...Otherwise, find a good spot to rest the patient during treatment.
     if (compare == null) compare = Retreat.nearestHaven(
       actor, PhysicianStation.class, false
     );

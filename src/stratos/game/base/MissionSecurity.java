@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.verse.Faction;
 import stratos.util.*;
 
 
@@ -66,7 +67,7 @@ public class MissionSecurity extends Mission {
       target instanceof Actor ||
       target instanceof Venue ||
       target instanceof Item.Dropped
-    ) && ((Target) target).base().relations.relationWith(base) >= 0) {
+    ) && ! Faction.isFactionEnemy(base, (Target) target)) {
       return new MissionSecurity(base, (Element) target);
     }
     return null;

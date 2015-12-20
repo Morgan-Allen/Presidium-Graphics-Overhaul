@@ -335,7 +335,7 @@ public class BaseCommerce {
       }
       else {
         avgDemand /= partners.size();
-        homeBonus *= base.relations.communitySpirit() / partners.size();
+        homeBonus *= base.ratings.communitySpirit() / partners.size();
         importMul += (avgDemand - homeBonus) / 2;
         exportDiv -= (avgDemand + homeBonus) / 2;
       }

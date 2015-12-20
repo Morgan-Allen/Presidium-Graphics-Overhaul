@@ -8,7 +8,7 @@ import stratos.util.*;
 
 
 
-public interface Target {
+public interface Target extends Accountable {
   
   
   final public static String

@@ -6,6 +6,7 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.maps.*;
+import stratos.game.verse.Faction;
 import stratos.graphics.common.*;
 import stratos.graphics.terrain.*;
 import stratos.util.*;
@@ -196,7 +197,7 @@ public class IntelMap {
     for (Base b : base.world.bases()) {
       float fog   = b.intelMap.fogAt(at);
       float power = b.dangerMap.sampleAround(at.x, at.y, -1);
-      danger *= fog * power * b.relations.relationWith(base) * -1;
+      danger *= fog * power * Faction.factionRelation(base, b);
     }
     return danger;
   }

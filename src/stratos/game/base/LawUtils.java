@@ -7,6 +7,7 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
+import stratos.game.verse.Faction;
 import stratos.util.*;
 
 
@@ -74,7 +75,7 @@ public class LawUtils {
     
     if (victim != null) {
       harmRating += Plan.harmIntended(actor, victim) * 2;
-      harmRating *= arrests.base().relations.relationWith(victim.base());
+      harmRating *= Faction.factionRelation(arrests, victim);
     }
     //
     //  Theft and assault are relatively easy to spot-

@@ -113,10 +113,9 @@ public class DebugCombat extends Scenario {
       base.setup.fillVacancies(barracks, true);
     }
     
-    
     //  And introduce ruins, with a complement of artilects.
     final ArtilectBase artilects = Base.artilects(world);
-    artilects.relations.setRelation(base, -0.5f, true);
+    Faction.setMutualFactionRelations(artilects, base, -0.5f);
     artilects.setOnlineLevel(0.25f);
     
     final Blueprint ruinsType = Ruins.VENUE_BLUEPRINTS[0];

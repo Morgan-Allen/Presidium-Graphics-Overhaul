@@ -391,14 +391,15 @@ public class Verse {
   
   final public VerseJourneys journeys = new VerseJourneys(this);
   final List <SectorBase> bases = new List <SectorBase> ();
-  
-  //  TODO:  THIS WILL HAVE TO BE SAVED AND LOADED TOO
-  final Table <Object, Table <Object, Float>> relations = new Table();
+  final Table <Relation, Relation> relations = new Table();
   
   
   public Verse(Stage stage) {
     this.world = stage;
+    
+    //  TODO:  ...Don't do this in the case of a freshly-initiated world?
     this.initPolitics();
+    for (Sector s : ALL_SECTORS) bases.add(new SectorBase(this, s));
   }
   
   
@@ -406,6 +407,12 @@ public class Verse {
     stageLocation = (Sector) s.loadObject();
     journeys.loadState(s);
     s.loadObjects(bases);
+    
+    relations.clear();
+    for (int n = s.loadInt(); n-- > 0;) {
+      final Relation r = Relation.loadFrom(s);
+      relations.put(r, r);
+    }
   }
   
   
@@ -413,6 +420,11 @@ public class Verse {
     s.saveObject(stageLocation);
     journeys.saveState(s);
     s.saveObjects(bases);
+    
+    s.saveInt(relations.size());
+    for (Relation r : relations.values()) {
+      Relation.saveTo(s, r);
+    }
   }
   
   
@@ -445,31 +457,24 @@ public class Verse {
   
   /**  Political setup and query methods-
     */
-  public float defaultRelations(Base base, Base other) {
-    final Table BR = relations.get(base.faction());
-    if (BR == null) return 0;
-    final Float val = (Float) BR.get(other.faction());
-    return val != null ? val : 0;
-  }
-  
-  
-  void setRelation(Object a, Object b, float value, boolean symmetric) {
-    Table <Object, Float> AR = relations.get(a);
-    if (AR == null) relations.put(a, AR = new Table());
-    AR.put(b, value);
+  void setRelation(Faction a, Faction b, float value, boolean symmetric) {
+    final Relation key = new Relation(a, b, value, 0);
+    Relation match = relations.get(key);
+    if (match == null) relations.put(key, match = key);
+    match.setValue(value, 0);
     if (symmetric) setRelation(b, a, value, false);
   }
   
   
-  void setRelations(Object a, boolean symmetric, Object... tableVals) {
+  void setRelations(Faction a, boolean symmetric, Object... tableVals) {
     final Table vals = Table.make(tableVals);
     for (Object k : vals.keySet()) {
       final Object v = vals.get(k);
       if (k instanceof Sector) {
         k = ((Sector) k).startingOwner;
       }
-      if (v instanceof Float) {
-        setRelation(a, k, (Float) v, symmetric);
+      if (k instanceof Faction && v instanceof Float) {
+        setRelation(a, (Faction) k, (Float) v, symmetric);
       }
       else I.complain("ILLEGAL RELATION TYPE: "+v+" FOR "+k);
     }
@@ -477,9 +482,9 @@ public class Verse {
   
   
   void setRelations(
-    Object a, float value, boolean symmetric, Faction... others
+    Faction a, float value, boolean symmetric, Faction... others
   ) {
-    for (Object k : others) {
+    for (Faction k : others) {
       setRelation(a, k, value, symmetric);
     }
   }
@@ -488,21 +493,6 @@ public class Verse {
   
   /**  Physical demographics and travel methods-
     */
-  /*
-  public static SectorBase sectorBaseFor(
-    Sector location, Verse universe
-  ) {
-    if (location == null) return null;
-    for (SectorBase base : universe.bases) {
-      if (base.location == location) return base;
-    }
-    final SectorBase base = new SectorBase(universe, location);
-    universe.bases.add(base);
-    return base;
-  }
-  //*/
-  
-  
   public Series <SectorBase> sectorBases() {
     return bases;
   }
@@ -516,12 +506,6 @@ public class Verse {
       if (b.location == s) return b;
     }
     return null;
-    /*
-    final SectorBase base = new SectorBase(this, s);
-    base.setClaimant(f, null);
-    bases.add(base);
-    return base;
-    //*/
   }
   
   

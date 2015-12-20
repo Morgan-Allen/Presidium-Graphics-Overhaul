@@ -47,6 +47,7 @@ public class Suspensor extends Mobile implements Mount {
     super();
     this.followed = followed;
     this.tracked  = tracked ;
+    assignBase(followed.base());
     attachSprite(SUSPENSOR_MODEL.makeSprite());
   }
   

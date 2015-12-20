@@ -105,7 +105,7 @@ public class DebugMissions extends Scenario {
   
   private void contactScenario(Stage world, Base base, BaseUI UI) {
     final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
-    natives.relations.setRelation(base, -0.25f, true);
+    Faction.setMutualFactionRelations(natives, base, -0.25f);
     
     final NativeHut hut = NativeHut.newHall(1, natives);
     SiteUtils.establishVenue(hut, 4, 4, true, world);
@@ -167,7 +167,7 @@ public class DebugMissions extends Scenario {
   
   private void strikeScenario(Stage world, Base base, BaseUI UI) {
     final Base artilects = Base.artilects(world);
-    base.relations.setRelation(artilects, -1, true);
+    Faction.setMutualFactionRelations(artilects, base, -1);
     
     final Ruins ruin = new Ruins(artilects);
     SiteUtils.establishVenue(ruin, 12, 12, true, world);

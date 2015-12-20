@@ -9,6 +9,13 @@ import stratos.util.*;
 
 
 
+
+//  TODO:  These should mediate trade & defence dynamics.
+//  Vassal.  Liege.  Alliance.
+//  Vendetta.  Rebel.  Uprising.
+//  Closed.  Neutral.  Trading.
+
+
 public class Relation {
   
   
@@ -63,8 +70,8 @@ public class Relation {
   public Relation(
     Accountable object, Accountable subject, float initValue, float initNovelty
   ) {
-    this.object  = object;
-    this.subject = subject;
+    this.object   = object;
+    this.subject  = subject;
     this.hash     = Table.hashFor(object, subject);
     this.attitude = initValue   * MAX_VALUE;
     this.novelty  = initNovelty * MAX_VALUE;

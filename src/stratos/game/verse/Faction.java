@@ -4,9 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.verse;
+import stratos.game.actors.Relation;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
-import stratos.graphics.widgets.Image;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -151,6 +152,7 @@ public class Faction extends Constant {
   }
   
   
+  
   public void configStartingExpedition(Expedition e) {
     //
     //  TODO:  Move these into method-overrides for the individual factions, or
@@ -241,6 +243,45 @@ public class Faction extends Constant {
   }
   
   
+  
+  /**  Utility methods for setting relation values:
+    */
+  public static float relationValue(Faction a, Faction b, Verse verse) {
+    final Relation key = new Relation(a, b, 0, 0);
+    Relation match = verse.relations.get(key);
+    return match == null ? 0 : match.value();
+  }
+  
+  
+  public static void setRelations(
+    Faction a, Faction b, float value, Stage world
+  ) {
+    world.offworld.setRelation(a, b, value, false);
+  }
+  
+  
+  public static void setMutualFactionRelations(
+    Accountable a, Accountable b, float value
+  ) {
+    if (a == null || a.base() == null) return;
+    if (b == null || b.base() == null) return;
+    final Verse verse = a.base().world.offworld;
+    verse.setRelation(a.base().faction(), b.base().faction(), value, false);
+    verse.setRelation(b.base().faction(), a.base().faction(), value, false);
+  }
+  
+  
+  public static float factionRelation(Accountable a, Accountable b) {
+    if (a == null || a.base() == null) return 0;
+    if (b == null || b.base() == null) return 0;
+    final Verse verse = a.base().world.offworld;
+    return Faction.relationValue(a.base().faction(), b.base().faction(), verse);
+  }
+  
+  
+  public static boolean isFactionEnemy(Accountable a, Accountable b) {
+    return Faction.factionRelation(a, b) < 0;
+  }
   
   
   

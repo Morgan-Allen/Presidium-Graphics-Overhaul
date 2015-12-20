@@ -43,10 +43,10 @@ public class Base implements
   private Venue commandPost;
   private List <Mobile> allUnits = new List();
   
-  final public BaseRelations relations = initRelations();
-  final public FactionAI     tactics   = initTactics  ();
-  final public BaseAdvice    advice    = initAdvice   ();
-  final public BaseResearch  research  = initResearch ();
+  final public BaseRatings  ratings   = initRatings ();
+  final public FactionAI    tactics   = initTactics ();
+  final public BaseAdvice   advice    = initAdvice  ();
+  final public BaseResearch research  = initResearch();
   
   private String title  = "Player Base";
   private Colour colour = new Colour();
@@ -92,7 +92,7 @@ public class Base implements
       toggleUnit((Mobile) s.loadObject(), true);
     }
     
-    relations.loadState(s);
+    ratings.loadState(s);
     tactics  .loadState(s);
     advice   .loadState(s);
     research .loadState(s);
@@ -124,7 +124,7 @@ public class Base implements
     s.saveInt(allUnits.size());
     for (Mobile m : allUnits) s.saveObject(m);
     
-    relations.saveState(s);
+    ratings.saveState(s);
     tactics  .saveState(s);
     advice   .saveState(s);
     research .saveState(s);
@@ -138,7 +138,7 @@ public class Base implements
   
   
   protected FactionAI     initTactics  () { return new FactionAI    (this); }
-  protected BaseRelations initRelations() { return new BaseRelations(this); }
+  protected BaseRatings initRatings() { return new BaseRatings(this); }
   protected BaseAdvice    initAdvice   () { return new BaseAdvice   (this); }
   protected BaseResearch  initResearch () { return new BaseResearch (this); }
   
@@ -256,7 +256,7 @@ public class Base implements
   
   
   
-  /**  Dealing with missions amd personnel-
+  /**  Dealing with missions and personnel-
     */
   public Actor ruler() {
     return ruler;
@@ -336,7 +336,7 @@ public class Base implements
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after finance: "+timeAfter);
     
-    relations.updateRelations(numUpdates);
+    ratings.updateRelations(numUpdates);
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after relations: "+timeAfter);
   }

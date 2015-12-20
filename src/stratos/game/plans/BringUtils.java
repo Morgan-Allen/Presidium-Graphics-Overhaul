@@ -6,6 +6,7 @@
 package stratos.game.plans;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.verse.Faction;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.economic.Owner.*;
@@ -400,7 +401,7 @@ public class BringUtils {
     if (report) {
       I.say("\nGetting trade rating for "+good+" ("+orig+" -> "+dest+")");
     }
-    final float baseFactor = orig.base().relations.relationWith(dest.base());
+    final float baseFactor = Faction.factionRelation(orig, dest);
     if (baseFactor <= 0) {
       if (report) I.say("  Base relations negative.");
       return -1;

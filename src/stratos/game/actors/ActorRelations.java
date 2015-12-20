@@ -6,6 +6,7 @@
 package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.game.verse.Faction;
 import stratos.util.*;
 
 
@@ -292,14 +293,14 @@ public class ActorRelations {
     Relation r = belongs == null ? null : relations.get(belongs.faction());
     float initVal = 0;
     if (r != null) initVal = r.value();
-    else initVal = actor.base().relations.relationWith(other.base());
+    else initVal = Faction.factionRelation(actor, other);
     
     if (other.base() == actor.base() || initVal > 0) {
       float relVal = 0;
       if (other == actor.mind.home) relVal += 1.0f;
       if (other == actor.mind.work) relVal += 0.5f;
       if (other.base() == actor.base()) {
-        relVal += actor.base().relations.communitySpirit() / 2;
+        relVal += actor.base().ratings.communitySpirit() / 2;
       }
       return (initVal + Nums.clamp(relVal, 0, 2)) / 2;
     }

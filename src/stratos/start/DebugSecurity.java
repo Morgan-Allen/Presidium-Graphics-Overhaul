@@ -230,7 +230,7 @@ public class DebugSecurity extends Scenario {
     
     //  And introduce ruins, with a complement of artilects.
     final Base artilects = Base.artilects(world);
-    artilects.relations.setRelation(base, -0.5f, true);
+    Faction.setMutualFactionRelations(artilects, base, -0.5f);
     
     final Ruins ruins = new Ruins(artilects);
     SiteUtils.establishVenue(ruins, 44, 44, true, world);

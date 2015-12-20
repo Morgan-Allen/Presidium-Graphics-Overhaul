@@ -108,7 +108,6 @@ public class ArtilectBase extends Base {
       int numFoes = 0;
       for (Base other : world.bases()) {
         if (other.isPrimal() || base == other) continue;
-        base.relations.setRelation(other, -1, false);
         if (world.presences.nearestMatch(other, null, -1) != null) {
           numFoes++;
         }

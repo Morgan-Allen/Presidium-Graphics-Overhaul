@@ -119,7 +119,7 @@ public class Profile {
       mult = 0;
     }
     else if (ruler != null && actor.mind.home() == ruler.mind.home()) {
-      mult = (1 - ruler.base().relations.communitySpirit());
+      mult = (1 - ruler.base().ratings.communitySpirit());
     }
     if (work instanceof Conscription) {
       mult *= ((Conscription) work).payMultiple(actor);
