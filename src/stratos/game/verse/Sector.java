@@ -202,6 +202,9 @@ public class Sector extends Background {
       d.append(startingOwner.startInfo);
     }
   }
+  
+  
+  
 }
 
 

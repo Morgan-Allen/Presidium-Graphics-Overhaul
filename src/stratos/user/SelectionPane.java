@@ -285,6 +285,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
       else {
         baseUI.setInfoPane(pane);
         baseUI.clearOptionsList();
+        baseUI.hideSectorsPane();
       }
     }
   }

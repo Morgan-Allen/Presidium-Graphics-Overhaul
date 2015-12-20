@@ -90,10 +90,10 @@ public class Selection implements UIConstants {
     //
     //  If a UI element is selected, don't pick anything else-
     if (UI.selected() != null) {
-      pickTile = null;
-      pickMobile = null;
+      pickTile    = null;
+      pickMobile  = null;
       pickElement = null;
-      hovered = null;
+      hovered     = null;
       return false;
     }
     //

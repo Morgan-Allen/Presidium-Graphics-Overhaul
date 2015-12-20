@@ -287,6 +287,11 @@ public class Stage {
   }
   
   
+  public Sector localSector() {
+    return offworld.stageLocation();
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */

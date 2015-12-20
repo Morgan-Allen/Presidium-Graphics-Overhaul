@@ -4,18 +4,17 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
+import com.badlogic.gdx.math.Vector2;
+
 import stratos.game.base.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.util.I;
+import stratos.util.*;
 import stratos.graphics.charts.*;
 
 
 
-//
-//  TODO:  Make SelectionOptions available for Sectors you select.
-//
 //  TODO:  Then you can start declaring offworld missions.  (The factory-
 //         methods for each class just have to recognise sectors as viable
 //         targets- and you'll need to script basic methods for evaluating the
@@ -91,8 +90,8 @@ public class SectorsPane extends UIGroup implements UIConstants {
     super(UI);
     setWidgetID(SECTORS_PANE_ID);
     
-    this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
-    this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
+    this.alignHorizontal(0.5f, CHARTS_WIDE, 0);
+    this.alignVertical  (0.5f, CHARTS_WIDE, 0);
     
     display = ChartUtils.createPlanetDisplay(
       ChartUtils.LOAD_PATH, ChartUtils.PLANET_LOAD_FILE
@@ -167,9 +166,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
     final Sector zooms;
     if (BaseUI.current() == null) zooms = Verse.DEFAULT_START_LOCATION;
     else zooms = BaseUI.currentPlayed().world.offworld.stageLocation();
-    
-    if (zooms != null) zooms.whenClicked(null);
-    else Selection.pushSelection(null, null);
+    selectSector(zooms);
   }
   
   
@@ -180,7 +177,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
       Selection.pushSelection(before, null);
     }
     else if (UI != null) {
-      UI.clearInfoPane();
+      UI.clearInfoPane   ();
       UI.clearOptionsList();
     }
   }
@@ -189,21 +186,32 @@ public class SectorsPane extends UIGroup implements UIConstants {
   
   /**  Main rendering methods-
     */
-  protected void updateState() {
-    
+  protected UINode selectionAt(Vector2 mousePos) {
     final DisplaySector DS = display.selectedAt(UI.mousePos());
-    final Sector hovered = DS == null ? null :
-      Sector.sectorNamed(DS.label)
-    ;
+    final Sector hovered = DS == null ? null : Sector.sectorNamed(DS.label);
     if (UI.mouseClicked()) {
       focus = hovered;
-      if (focus != null) focus.whenClicked(null);
-      else Selection.pushSelection(null, null);
+      selectSector(focus);
     }
-    
-    super.updateState();
+    return super.selectionAt(mousePos);
+  }
+  
+  
+  protected void selectSector(Sector zooms) {
+    final BaseUI UI = BaseUI.current();
+    //
+    //  TODO:  Consider having Sectors implement Selectable!
+    if (zooms != null && UI != null) {
+      zooms.whenClicked(null);
+      display.setSelection(zooms.name, true);
+      
+      UIGroup options = SelectionOptions.configOptions(zooms, null, UI);
+      UI.setOptionsList(options);
+    }
+    else Selection.pushSelection(null, null);
   }
 }
+
 
 
 

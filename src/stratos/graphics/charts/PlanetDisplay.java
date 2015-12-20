@@ -132,6 +132,8 @@ public class PlanetDisplay extends Assets.Loadable {
     sectors.add(sector);
     cacheFaceData();
     calcCoordinates(sector);
+    final int RGBA = colourOnSurface(sector.coordinates);
+    (sector.colourKey = new Colour()).setFromRGBA(RGBA);
   }
   
   
@@ -419,9 +421,7 @@ public class PlanetDisplay extends Assets.Loadable {
   
   public void setSelection(String sectorLabel, boolean asZoom) {
     final DisplaySector DS = sectorLabelled(sectorLabel);
-    final int key = DS == null ? 0 : colourOnSurface(DS.coordinates);
-    if (key == 0) selectKey = null;
-    else (selectKey = new Colour()).setFromRGBA(key);
+    selectKey = DS == null ? null : DS.colourKey;
     selectAlpha = 0;
     
     if (DS != null && asZoom) {
@@ -494,6 +494,7 @@ public class PlanetDisplay extends Assets.Loadable {
     final float alphaInc = 1f / Rendering.FRAMES_PER_SECOND;
     hoverAlpha  = Nums.clamp(hoverAlpha  + alphaInc, 0, 1);
     selectAlpha = Nums.clamp(selectAlpha + alphaInc, 0, 1);
+    
     final Colour h, s;
     if (hoverKey != null && hoverKey.difference(selectKey) > 0) {
       h = hoverKey;

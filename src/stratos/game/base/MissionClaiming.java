@@ -17,7 +17,6 @@ import stratos.util.*;
 //  covert, and they cannot be purely military.)
 
 
-
 public class MissionClaiming extends Mission {
   
   
@@ -27,7 +26,7 @@ public class MissionClaiming extends Mission {
   final Expedition expedition;
   
   
-  public MissionClaiming(Base base, Sector claimed) {
+  private MissionClaiming(Base base, Sector claimed) {
     super(base, claimed, null, "Claiming "+claimed);
     this.claimed = claimed;
     this.expedition = new Expedition();
@@ -50,6 +49,19 @@ public class MissionClaiming extends Mission {
   
   /**  Strategic evaluation-
     */
+  public static MissionClaiming claimFor(Object target, Base base) {
+    if (target instanceof Sector) {
+      final Sector sector = (Sector) target;
+      final SectorBase b = base.world.offworld.baseForSector(sector);
+      final Faction owns = b == null ? null : b.faction();
+      if (sector == base.world.localSector()) return null;
+      if (owns != null && ! owns.primal()   ) return null;
+      return new MissionClaiming(base, sector);
+    }
+    return null;
+  }
+  
+  
   public float targetValue(Base base) {
     return 0;
   }

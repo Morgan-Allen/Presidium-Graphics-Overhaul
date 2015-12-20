@@ -193,8 +193,8 @@ public class DebugMissions extends Scenario {
   private void reconScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = false;
     
-    final Mission recon = new MissionRecon(base, world.tileAt(20, 20));
-    recon.setMissionType(Mission.TYPE_SCREENED);
+    final Mission recon = MissionRecon.reconFor(world.tileAt(20, 20), base);
+    recon.setMissionType(Mission.TYPE_SCREENED  );
     recon.assignPriority(Mission.PRIORITY_URGENT);
     
     for (int i = 3; i-- > 0;) {

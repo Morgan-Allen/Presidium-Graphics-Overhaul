@@ -48,11 +48,11 @@ public class Base implements
   final public BaseAdvice   advice    = initAdvice  ();
   final public BaseResearch research  = initResearch();
   
+  private int baseID = 0;
+  
   private String title  = "Player Base";
   private Colour colour = new Colour();
   private Tally <Blueprint> venueIDTallies = new Tally();
-  
-  private int baseID = 0;
   
   
   protected Base(Stage world, Faction faction) {
@@ -137,10 +137,10 @@ public class Base implements
   }
   
   
-  protected FactionAI     initTactics  () { return new FactionAI    (this); }
-  protected BaseRatings initRatings() { return new BaseRatings(this); }
-  protected BaseAdvice    initAdvice   () { return new BaseAdvice   (this); }
-  protected BaseResearch  initResearch () { return new BaseResearch (this); }
+  protected FactionAI    initTactics () { return new FactionAI   (this); }
+  protected BaseRatings  initRatings () { return new BaseRatings (this); }
+  protected BaseAdvice   initAdvice  () { return new BaseAdvice  (this); }
+  protected BaseResearch initResearch() { return new BaseResearch(this); }
   
   
   

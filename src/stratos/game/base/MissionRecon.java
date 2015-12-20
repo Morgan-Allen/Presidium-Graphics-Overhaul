@@ -7,11 +7,16 @@ package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
-import stratos.game.plans.Exploring;
+import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.user.*;
 import stratos.util.*;
 
+
+
+//  TODO:  Give three/four more interesting options.
+//  Large Area.  Stake Claim.  Soil Sampling.  Stealth Recon?
 
 
 public class MissionRecon extends Mission {
@@ -26,25 +31,12 @@ public class MissionRecon extends Mission {
     Stage.ZONE_SIZE * (float) Nums.sqrt(0.75f),
   };
   
-  //  TODO:  Give three/four more interesting options.
-  //  Large Area.  Stake Claim.  Soil Sampling.  Stealth Recon.
   
-  
-  final static String SETTING_DESC[] = {
-    "Small range survey of ",
-    "Medium range survey of ",
-    "Large range survey of "
-  };
-  
-  private static boolean verbose = false;
-  
-  
-  //private Tile inRange[] = new Tile[0];
   private boolean doneRecon = false;
   
   
   
-  public MissionRecon(Base base, Tile subject) {
+  private MissionRecon(Base base, Tile subject) {
     super(
       base, subject, RECON_MODEL,
       "Exploring "+subject.habitat().name+" at "+subject.x+" "+subject.y
@@ -52,22 +44,20 @@ public class MissionRecon extends Mission {
   }
   
   
+  private MissionRecon(Base base, Sector subject) {
+    super(base, subject, RECON_MODEL, "Exploring "+subject);
+  }
+  
+  
   public MissionRecon(Session s) throws Exception {
     super(s);
-    //inRange = (Tile[]) s.loadTargetArray(Tile.class);
     doneRecon = s.loadBool();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    //s.saveTargetArray(inRange);
     s.saveBool(doneRecon);
-  }
-  
-  
-  public float exploreRadius() {
-    return SETTING_AREAS[objective()];
   }
   
   
@@ -75,9 +65,10 @@ public class MissionRecon extends Mission {
   /**  Importance/suitability assessment-
     */
   public static MissionRecon reconFor(Object target, Base base) {
-    if ((
-      target instanceof Tile
-    ) && Exploring.canExplore(base, (Tile) target)) {
+    if (target instanceof Sector && target != base.world.localSector()) {
+      return new MissionRecon(base, (Sector) target);
+    }
+    if (target instanceof Tile && Exploring.canExplore(base, (Tile) target)) {
       return new MissionRecon(base, (Tile) target);
     }
     return null;
@@ -95,6 +86,11 @@ public class MissionRecon extends Mission {
   }
   
   
+  public void resolveMissionOffworld() {
+    
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
@@ -102,6 +98,8 @@ public class MissionRecon extends Mission {
     if (finished()) return null;
     final Behaviour cached = nextStepFor(actor, false);
     if (cached != null) return cached;
+    
+    if (subject instanceof Sector) return null;
     
     final float range = exploreRadius();
     final Exploring explore = Exploring.nextSurvey(
@@ -121,19 +119,33 @@ public class MissionRecon extends Mission {
   }
   
   
+  public float exploreRadius() {
+    return SETTING_AREAS[objective()];
+  }
   
-  /**  Rendering and interface methods-
+  
+  
+  /**  Rendering, debug and interface methods-
     */
+  /*
+  private static boolean verbose = false;
+  final static String SETTING_DESC[] = {
+    "Small range survey of ",
+    "Medium range survey of ",
+    "Large range survey of "
+  };
+  
+  
   public String[] objectiveDescriptions() {
     return SETTING_DESC;
   }
+  //*/
   
   
   public void describeMission(Description d) {
     d.append("Recon Mission", this);
-    final Tile tile = (Tile) subject;
-    d.append(" around ");
-    d.append(tile);
+    if (subject instanceof Sector) d.appendAll(" to ", subject);
+    else d.appendAll(" around ", subject);
   }
   
   

@@ -32,7 +32,8 @@ public interface UIConstants {
     STRIKE_BUTTON_ID   = "strike_mission_button"  ,
     RECON_BUTTON_ID    = "recon_mission_button"   ,
     SECURITY_BUTTON_ID = "security_mission_button",
-    CONTACT_BUTTON_ID  = "contact_mission_button" ;
+    CONTACT_BUTTON_ID  = "contact_mission_button" ,
+    CLAIMING_BUTTON_ID = "claiming_mission_button";
   
   final public static Alphabet INFO_FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"

@@ -24,11 +24,11 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   //  need health bar, title, status fx,
   
   final BaseUI BUI;
-  final Target subject;
+  final Accountable subject;
   
   
   public static SelectionOptions configOptions(
-    Target subject, SelectionOptions info, HUD UI
+    Accountable subject, SelectionOptions info, HUD UI
   ) {
     if (info != null) return info;
     if (UI != BaseUI.current()) return null;
@@ -36,7 +36,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   }
   
   
-  private SelectionOptions(BaseUI UI, Target subject) {
+  private SelectionOptions(BaseUI UI, Accountable subject) {
     super(UI);
     this.BUI = UI;
     this.subject = subject;
@@ -82,6 +82,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     final Mission secure  = MissionSecurity.securityFor(subject, base);
     final Mission recon   = MissionRecon   .reconFor   (subject, base);
     final Mission contact = MissionContact .contactFor (subject, base);
+    final Mission claim   = MissionClaiming.claimFor   (subject, base);
     
     if (strike != null) options.add(new OptionButton(
       BUI, STRIKE_BUTTON_ID, Mission.STRIKE_ICON,
@@ -99,8 +100,14 @@ public class SelectionOptions extends UIGroup implements UIConstants {
       BUI, CONTACT_BUTTON_ID, Mission.CONTACT_ICON,
       "Contact or negotiate with subject", contact
     ));
+    if (claim != null) options.add(new OptionButton(
+      BUI, CLAIMING_BUTTON_ID, Mission.CLAIMING_ICON,
+      "Claim this sector for your own", claim
+    ));
     
-    if (ruler != null) for (Power power : ruler.skills.knownPowers()) {
+    final boolean canCast = subject instanceof Target && ruler != null;
+    if (canCast) for (Power power : ruler.skills.knownPowers()) {
+      final Target subject = (Target) this.subject;
       if (power.icon == null || ! power.appliesTo(ruler, subject)) continue;
       //
       //  Generate an option-button for the Power that can be used:

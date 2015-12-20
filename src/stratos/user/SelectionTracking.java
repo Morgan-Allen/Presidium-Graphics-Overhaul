@@ -135,16 +135,6 @@ public class SelectionTracking {
     }
     
     lockX = lockY = 0;
-    /*
-    if (UI.currentPane() instanceof SelectionInfoPane) {
-      final SelectionInfoPane pane = (SelectionInfoPane) UI.currentPane();
-      final Vec2D
-        trackPos = pane.screenTrackPosition(),
-        centre   = UI.trueBounds().centre();
-      lockX = trackPos.x - centre.x;
-      lockY = trackPos.y - centre.y;
-    }
-    //*/
     
     if (pressed(Keys.UP   ) || pressed(Keys.W)) pushCamera( 1, -1);
     if (pressed(Keys.DOWN ) || pressed(Keys.S)) pushCamera(-1,  1);
