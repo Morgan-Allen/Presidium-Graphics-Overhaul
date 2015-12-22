@@ -326,6 +326,14 @@ public class Verse {
     );
   
   
+  private void initSeparations() {
+    SECTOR_ELYSIUM.setSeparation(SECTOR_PAVONIS, Sector.SEP_BORDERS, 1, true);
+    SECTOR_ELYSIUM.setSeparation(SECTOR_TERRA  , Sector.SEP_BORDERS, 1, true);
+    SECTOR_PAVONIS.setSeparation(SECTOR_TERRA  , Sector.SEP_BORDERS, 1, true);
+    for (Sector s : ALL_SECTORS) s.calculateRemainingSeparations(ALL_SECTORS);
+  }
+  
+  
   private void initPolitics() {
     //  TODO:  LOAD ALL THIS FROM XML
     
@@ -398,6 +406,7 @@ public class Verse {
     this.world = stage;
     
     //  TODO:  ...Don't do this in the case of a freshly-initiated world?
+    this.initSeparations();
     this.initPolitics();
     for (Sector s : ALL_SECTORS) bases.add(new SectorBase(this, s));
   }
@@ -438,7 +447,7 @@ public class Verse {
   }
   
   
-  public Sector localWorld() {
+  public Sector localSector() {
     Sector l = stageLocation;
     while (l.belongs != null) l = l.belongs;
     return l;
@@ -517,11 +526,11 @@ public class Verse {
   }
   
   
-  public static Sector currentLocation(Mobile mobile, Verse universe) {
+  public Sector currentSector(Mobile mobile) {
     if (mobile.inWorld()) {
-      return universe.stageLocation();
+      return stageLocation();
     }
-    for (SectorBase base : universe.bases) {
+    for (SectorBase base : bases) {
       if (base.isResident(mobile)) return base.location;
     }
     if (mobile instanceof Human) {

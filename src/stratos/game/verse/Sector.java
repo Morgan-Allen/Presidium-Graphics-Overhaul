@@ -16,43 +16,27 @@ import stratos.util.*;
 
 
 
-//  TODO:  Replace with SectorState- so that you can trace the development of a
-//  given sector over time.  (This then becomes the Background, not the sector
-//  itself.)
-
-//  Sector contains constants such as name, gravity, orbital period,
-//  relative distance from other Sectors, and default levels of moisture,
-//  minerals and insolation (which might be modified by terraforming.)
-
-//  SectorState measures biomass/terraform progress, population, wealth,
-//  danger, squalor, economic output, political interests and culture.  You use
-//  that to track development and knock-on effects over time.
-
-//  Housing.     (population)
-//  Resources.   (climate)
-//  Philosophy.  (interests)
-//  Time & Space.
-//  Danger & Squalor.
-//  Equality & Autonomy.
-
-//  (Also, houses & factions will have to be made into separate entities, so
-//  that their degree of ownership/influence can change over time.)
-
-//  TODO:  Include information about distances here, loaded from XML.
-
-
-
 public class Sector extends Background {
 
   
+  //  TODO:  For the sake of clarity, consider including tags for all the data-
+  //         types recorded in the arguments-list (see below)
   final public static Object
     MAKES = new Object(),
     NEEDS = new Object();
+    
+  final static int
+    SEP_NONE    = 0,  //  Is the same or parent sector.
+    SEP_BORDERS = 1,  //  Has a shared surface border.
+    SEP_PLANET  = 2,  //  Is on the same planet...
+    SEP_STELLAR = 3;  //  ...or is on a different world entirely.
   
+  final static class Separation {
+    Sector other;
+    int sepType;
+    float tripTime;
+  }
   
-  final public Sector belongs;
-  final public Trait climate;
-  final public int gravity;
   
   final public Faction startingOwner;
   final public int population;
@@ -60,6 +44,14 @@ public class Sector extends Background {
   
   final Table <Background, Float> circles = new Table();
   final List <Upgrade> knowledge = new List();
+
+  
+  final public Sector belongs;
+  final public Trait climate;
+  final public int gravity;
+  
+  final Batch <Sector> borders = new Batch();
+  final Table <Sector, Separation> separations = new Table();
   
   final Habitat habitats      [];
   final Float   habitatWeights[];
@@ -99,6 +91,7 @@ public class Sector extends Background {
     final Batch <Species> specB = new Batch();
     Object tag = null;
     float rating = -1;
+    //
     //  TODO:  Consider requiring tags for attributes other than needs/makes
     for (Object arg : args) {
       if (arg == MAKES || arg == NEEDS) {
@@ -154,6 +147,53 @@ public class Sector extends Background {
   }
   
   
+  protected void setSeparation(
+    Sector other, int sepType, float tripTime, boolean symmetric
+  ) {
+    final Separation s = new Separation();
+    s.other    = other   ;
+    s.sepType  = sepType ;
+    s.tripTime = tripTime;
+    separations.put(other, s);
+    
+    if (sepType == SEP_BORDERS) borders.include(other);
+    if (symmetric) other.setSeparation(this, sepType, tripTime, false);
+  }
+  
+  
+  protected void calculateRemainingSeparations(Sector... sectors) {
+    setSeparation(this, SEP_NONE, 0, false);
+    if (belongs != null) setSeparation(belongs, SEP_NONE, 0, true);
+    //
+    //  We intentionally set no destination here to force the search to explore
+    //  all available sectors.  Paths can be constructed afterward.
+    JourneyPathSearch search = new JourneyPathSearch(this, null);
+    search.doSearch();
+    //
+    //  
+    for (Sector s : sectors) if (separations.get(s) == null) {
+      final Sector path[] = search.pathTo(s);
+      if (path == null) continue;
+      
+      int sepType = SEP_NONE;
+      float totalTripTime = 0;
+      Sector last = this;
+      
+      for (Sector p : path) {
+        Separation sep = last.separations.get(p);
+        totalTripTime += sep.tripTime;
+        if (sep.sepType > sepType) sepType = sep.sepType;
+        last = p;
+      }
+      
+      setSeparation(s, sepType, totalTripTime, true);
+    }
+  }
+  
+  
+  
+  /**  Social and political access-methods-
+    */
   public Background[] circles() {
     final Background[] result = new Background[circles.size()];
     return circles.values().toArray(result);
@@ -172,6 +212,9 @@ public class Sector extends Background {
   }
   
   
+  
+  /**  Location and adjacency access-methods-
+    */
   public static Sector sectorNamed(String name) {
     for (Sector s : Verse.ALL_SECTORS) if (s.name.equals(name)) {
       return s;
@@ -180,7 +223,22 @@ public class Sector extends Background {
   }
   
   
+  public boolean borders(Sector other) {
+    final Separation s = separations.get(other);
+    return s != null && s.sepType == SEP_BORDERS;
+  }
   
+  
+  public float standardTripTime(Sector other, int maxSepType) {
+    final Separation s = separations.get(other);
+    if (s == null || s.sepType > maxSepType) return -1;
+    else return s.tripTime;
+  }
+  
+  
+  
+  /**  Helper methods for terrain and scenario setup-
+    */
   public TerrainGen initialiseTerrain(int mapSize) {
     return new TerrainGen(mapSize, 0.2f, habitats, habitatWeights);
   }

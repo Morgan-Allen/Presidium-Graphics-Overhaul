@@ -3,7 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
 package stratos.util;
 import java.lang.reflect.Array;
 
@@ -198,11 +197,11 @@ public abstract class Search <T> {
   }
   
   
-  public T[] bestPath(Class pathClass, int limit) {
+  protected T[] bestPath(Entry from, Class pathClass, int limit) {
     if (bestEntry == null) return null;
     
     final Stack <T> pathStack = new Stack();
-    for (Entry next = bestEntry; next != null; next = next.prior) {
+    for (Entry next = from; next != null; next = next.prior) {
       pathStack.addFirst(next.refers);
     }
     
@@ -221,6 +220,11 @@ public abstract class Search <T> {
       if (verbosity > VERBOSE) for (T t : path) I.say("    "+t);
     }
     return path;
+  }
+  
+  
+  public T[] bestPath(Class pathClass, int limit) {
+    return bestPath(bestEntry, pathClass, limit);
   }
   
   
