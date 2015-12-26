@@ -21,6 +21,27 @@
 
 
 <model
+  name="Fighter"
+  format="MS3D"
+  type="JOINT"
+  path="media/Vehicles/"
+  file="fighter.ms3d"
+  scale="0.11"
+  bound="3.0"
+  stride="1.0"
+  height="2.0"
+>
+  <animations fps="1" rotate="270">
+    <animation name="stand"      start="1"  end="3"  duration="0.35" />
+    <animation name="descend"    start="4"  end="7"  duration="3" />
+  </animations>
+  
+  <attachPoints>
+  </attachPoints>
+</model>
+
+
+<model
   name="CargoBarge"
   format="MS3D"
   type="JOINT"

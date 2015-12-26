@@ -1,8 +1,8 @@
 
 
 <settings
-  defaultPath ="media/Actors/tests/"
-  defaultFile ="test.xml"
+  defaultPath ="media/Vehicles/"
+  defaultFile ="VehicleModels.xml"
   showAsHuman ="true"
 />
 
