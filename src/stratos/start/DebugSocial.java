@@ -247,7 +247,7 @@ public class DebugSocial extends Scenario {
     Actor watch = new Human(Backgrounds.ECOLOGIST, base);
     watch.enterWorldAt(13, 13, world);
     
-    Mission.quickSetup(
+    MissionUtils.quickSetup(
       new MissionStrike(base, nests),
       Mission.PRIORITY_ROUTINE, Mission.TYPE_SCREENED,
       meets

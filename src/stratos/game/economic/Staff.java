@@ -128,6 +128,9 @@ public class Staff {
     if (employs instanceof Venue) {
       return ((Venue) employs).numPositions(b);
     }
+    if (employs instanceof Vehicle) {
+      return ((Vehicle) employs).numPositions(b);
+    }
     return 0;
   }
   
@@ -381,9 +384,9 @@ public class Staff {
       //  TODO:  This is a temporary hack for a situation that was never
       //  supposed to arise.  Investigate!
       final Actor b = a;
-      if (VerseJourneys.activityFor(b) != null) continue;
+      if (Journey.activityFor(b) != null) continue;
       final Verse verse = base.world.offworld;
-      Sector off = Verse.currentLocation(b, verse);
+      Sector off = verse.currentSector(b);
       Sector local = verse.stageLocation();
       
       if (off != local && off != base.commerce.homeworld()) {

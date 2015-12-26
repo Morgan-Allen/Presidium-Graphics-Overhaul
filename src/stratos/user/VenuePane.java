@@ -180,7 +180,7 @@ public class VenuePane extends SelectionPane {
       consumption = v.stocks.consumption(type),
       production  = v.stocks.production (type),
       amount      = v.stocks.amountOf   (type),
-      stockMax    = v.spaceFor          (type);
+      stockMax    = Nums.min(25, v.spaceCapacity());
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
     d.append("  "+I.shorten(amount, 1)+" ");

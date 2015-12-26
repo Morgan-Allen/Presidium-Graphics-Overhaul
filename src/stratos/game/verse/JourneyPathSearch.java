@@ -8,10 +8,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Allow filtering of routes by transport type- (e.g, so you can't
-//  voyage offworld in a cargo barge...)
-
-
 public class JourneyPathSearch extends Search <Sector> {
   
   

@@ -151,7 +151,7 @@ public class BaseAdvice {
     
     final Verse universe = base.world.offworld;
     final Sector locale = universe.stageLocation();
-    for (Dropship ship : universe.journeys.allDropships()) {
+    for (Vehicle ship : universe.journeys.allTransports()) {
       if (! universe.journeys.dueToArrive(ship, locale)) continue;
       if (ship.dropPoint() == null) needLanding = true;
     }

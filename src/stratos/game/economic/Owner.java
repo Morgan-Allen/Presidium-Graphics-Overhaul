@@ -23,7 +23,7 @@ public interface Owner extends Target, Session.Saveable {
   Inventory inventory();
   int owningTier();
   
-  int   spaceFor(Traded good);
+  int spaceCapacity();
   float priceFor(Traded good, boolean sold);
   void afterTransaction(Item item, float amount);
   

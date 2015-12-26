@@ -526,6 +526,7 @@ public abstract class Venue extends Fixture implements
     }
   }
   
+  
   //  TODO:  Make these abstract?
   //
   //  By default, these do nothing.
@@ -561,7 +562,7 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  public int spaceFor(Traded good) {
+  public int spaceCapacity() {
     return structure.maxIntegrity();
   }
   

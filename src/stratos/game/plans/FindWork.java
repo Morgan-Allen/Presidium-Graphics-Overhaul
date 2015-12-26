@@ -389,7 +389,7 @@ public class FindWork extends Plan {
     if (guildFees == 0) return 0;
     
     final Stage world = employer.world();
-    final Sector at = Verse.currentLocation(actor, world.offworld);
+    final Sector at = world.offworld.currentSector(actor);
     if (actor.inWorld() || at == null) {
       guildFees = 0;
     }

@@ -217,7 +217,8 @@ public class Faction extends Constant {
       for (Sector l : Verse.ALL_DIAPSOR_SECTORS) {
         if (l.startingOwner == FACTION_NATIVES && l != landing) {
           SectorBase b = world.offworld.baseForSector(l);
-          if (b != null) pick.compare(b, Verse.travelDistance(landing, l));
+          float tripTime = l.standardTripTime(landing, Sector.SEP_PLANET);
+          if (b != null && tripTime >= 0) pick.compare(b, tripTime);
         }
       }
       if (pick.empty()) return;

@@ -121,7 +121,7 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public int spaceFor(Traded good) {
+  public int spaceCapacity() {
     return (int) health.maxHealth() / 2;
   }
   

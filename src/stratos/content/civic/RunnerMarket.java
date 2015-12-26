@@ -142,7 +142,7 @@ public class RunnerMarket extends Venue {
       ///choice.add(Arrest.nextOfficialArrest(this, actor));
       //
       //  Next, consider smuggling goods out of the settlement-
-      for (Dropship ship : world.offworld.journeys.allDropships()) {
+      for (Vehicle ship : world.offworld.journeys.allTransports()) {
         if (! ship.landed()) continue;
         final Smuggling s = Smuggling.bestSmugglingFor(this, ship, actor, 5);
         if (s != null && staff.assignedTo(s) == 0) choice.add(s);

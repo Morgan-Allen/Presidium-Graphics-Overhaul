@@ -6,7 +6,6 @@
 package stratos.game.verse;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.verse.VerseJourneys.Activity;
 import stratos.util.*;
 
 
@@ -107,7 +106,7 @@ public class SectorBase implements Session.Saveable {
     */
   protected void updateBase() {
     for (Mobile m : expats) {
-      final Activity a = VerseJourneys.activityFor(m);
+      final Journey.Purpose a = Journey.activityFor(m);
       if (a != null) a.whileOffworld();
     }
     //

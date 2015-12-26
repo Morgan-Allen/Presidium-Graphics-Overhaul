@@ -8,6 +8,7 @@ import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.util.*;
 import stratos.game.economic.Property;
+import stratos.game.plans.JoinMission;
 
 
 
@@ -136,7 +137,7 @@ public abstract class ActorMind {
     
     if (report) I.say("\nGetting next step for mission: "+mission);
     if (mission != null && mission.hasBegun() && mission.isApproved(actor)) {
-      onMission = mission.nextStepFor(actor, true);
+      onMission = JoinMission.resume(actor, mission);
     }
     if (
       Plan.canFollow(actor, onMission, true) &&

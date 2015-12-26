@@ -535,7 +535,6 @@ public interface Backgrounds {
       OVERALLS
     ),
     
-    DEFAULT_SHIP_CREW[] = { SHIP_CAPTAIN, DECK_HAND, DECK_HAND },
     RUNNER_CIRCLES[] = { SHIP_CAPTAIN, DECK_HAND, RUNNER, FIXER };
   
   

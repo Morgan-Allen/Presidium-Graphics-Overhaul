@@ -330,6 +330,9 @@ public class Verse {
     SECTOR_ELYSIUM.setSeparation(SECTOR_PAVONIS, Sector.SEP_BORDERS, 1, true);
     SECTOR_ELYSIUM.setSeparation(SECTOR_TERRA  , Sector.SEP_BORDERS, 1, true);
     SECTOR_PAVONIS.setSeparation(SECTOR_TERRA  , Sector.SEP_BORDERS, 1, true);
+    for (Sector s : ALL_PLANETS) for (Sector n : ALL_PLANETS) if (n != s) {
+      n.setSeparation(s, Sector.SEP_STELLAR, 2, false);
+    }
     for (Sector s : ALL_SECTORS) s.calculateRemainingSeparations(ALL_SECTORS);
   }
   
@@ -517,13 +520,14 @@ public class Verse {
     return null;
   }
   
-  
+  /*
   public static float travelDistance(Sector a, Sector b) {
     //
     //  TODO:  Clearly, this needs some customisation...
     if (a == b) return 0;
     return 1;
   }
+  //*/
   
   
   public Sector currentSector(Mobile mobile) {

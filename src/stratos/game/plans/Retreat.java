@@ -315,10 +315,16 @@ public class Retreat extends Plan {
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
+    
+    //  TODO:  If the actor has a mission, check that this was the boarding
+    //         point!
+    
     if (Verse.isWorldExit(safePoint, actor) && actor.senses.isEmergency()) {
+      final Stage world = actor.world();
       final EntryPoints.Portal exit = (EntryPoints.Portal) safePoint;
       final Sector goes = exit.leadsTo();
-      actor.world().offworld.journeys.handleEmmigrants(goes, actor);
+      final Journey j = Journey.configAsEscape(exit, goes, world);
+      world.offworld.journeys.beginJourney(j, actor);
     }
     else if (actor.senses.fearLevel() <= 0) {
       final Resting rest = new Resting(actor, safePoint);

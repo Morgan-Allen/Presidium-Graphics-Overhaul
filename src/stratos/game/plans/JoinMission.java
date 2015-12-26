@@ -4,14 +4,18 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
-import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.economic.Economy.*;
+
+import stratos.game.actors.Behaviour;
+import stratos.game.actors.Choice;
+import stratos.game.actors.Plan;
 
 
 
@@ -127,6 +131,11 @@ public class JoinMission extends Plan {
   }
   
   
+  public static JoinMission resume(Actor actor, Mission mission) {
+    return new JoinMission(actor, mission);
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
@@ -186,6 +195,38 @@ public class JoinMission extends Plan {
       );
       return applies;
     }
+    
+    //  TODO:  You need an extra step for boarding a ship to the destination if
+    //  the mission is offworld...
+    
+    //  TODO:  Okay.  In principle... I just have to add a few utility methods
+    //         to the Journey and Mission class- and add a check to the AI and
+    //         mission-factory methods to ensure that transport is available at
+    //         all...  Okay then.
+    
+    if (mission.isOffworld()) {
+      
+      
+      /*
+      final Verse verse = actor.world().offworld;
+      final Journey j = verse.journeys.nextJourneyBetween(
+        verse.localSector(), mission.subjectSector(),
+        mission.base(), false
+      );
+      if (j == null) return null;
+      final Vehicle trans = j.transport;
+      if (trans != null && ! trans.inWorld()) return null;
+      return new Smuggling(actor, trans, verse.world, true);
+      //*/
+    }
+    
+    final Behaviour step = mission.nextStepFor(actor, true);
+    final Action waiting = nextWaitAction(actor, step);
+    
+    if (waiting != null) return waiting;
+    return step;
+    
+    /*
     else {
       if (report) I.say("  Waiting for OK at "+applyPoint);
       final Action waitForOK = new Action(
@@ -195,6 +236,30 @@ public class JoinMission extends Plan {
       );
       return waitForOK;
     }
+    //*/
+  }
+  
+  
+  private Action nextWaitAction(Actor actor, Behaviour step) {
+    if (step == null) return null;
+    if (actor.senses.isEmergency()) return null;
+    
+    for (Actor a : mission.approved()) {
+      if (a == actor || a.planFocus(null, true) != subject) continue;
+      
+      final float dist = Spacing.distance(a, actor);
+      if (dist < Stage.ZONE_SIZE * 2.5f && dist > Stage.ZONE_SIZE / 2) {
+        final Action waits = new Action(
+          actor, a,
+          this, "actionWait",
+          Action.TALK, "Waiting for "+a
+        );
+        waits.setPriority  (Action.URGENT);
+        waits.setProperties(Action.RANGED | Action.QUICK);
+        return waits;
+      }
+    }
+    return null;
   }
   
   
@@ -222,6 +287,18 @@ public class JoinMission extends Plan {
     return true;
   }
   
+
+  
+  
+  //  TODO:  These need to be moved out to the JoinMission class!
+  //*
+  
+  
+  public boolean actionWait(Actor actor, Actor other) {
+    return true;
+  }
+  //*/
+  
   
   public boolean actionWait(Actor client, Target applyPoint) {
     return true;
@@ -233,6 +310,14 @@ public class JoinMission extends Plan {
     mission.describeMission(d);
   }
 }
+
+
+
+
+
+
+
+
 
 
 

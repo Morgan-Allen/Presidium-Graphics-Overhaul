@@ -6,6 +6,7 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -14,7 +15,37 @@ import stratos.util.*;
 
 
 
-//  TODO:  Get rid of the Base reference and just use FactionAI.
+//  There are a number of permutations to handle:
+//  World.  Adjacent Sector.  Remote Sector.
+//  Trading.  Mission/Raid.  To.  From.
+//
+//  So... 18 possible combinations.  I can't custom-code them all.
+
+//  Outward mission-
+//  Step 1.  You have a mission with an associated Journey.
+//  Step 2.  You go to the drop-point (which is either a ship or a border) and
+//           join the journey.
+//  Step 3.  Once all team-members have joined the journey, the journey starts.
+//  Step 4.  Once the journey ends, success/failure and any effects on the
+//           team are evaluated.
+//  Step 5.  Some time later (maybe soon), the return trip is started.
+//  Step 6.  The return trip ends, and the crew re-enter the world, job done.
+
+//  Inward mission-
+//  Step 1.  Faction-AI declares a mission in-world and an associated Journey.
+//           Crew and pilot are selected or generated.  The journey starts.
+//  Step 2.  The journey ends, and the crew are dumped at the drop-point (which
+//           is either a ship or a border.)
+//  Step 3.  The usual criteria for takeoff apply- either a time-limit is
+//           reached, or all conscious crew are aboard & hiding.  (They are
+//           considered crew until they get back.)
+//  Step 4.  After the return-trip is done, they're home.
+
+//  Well... first of all, I will need trips that actually go to arbitrary
+//  offworld destinations.  Or, to vanish off the edge of the map.
+
+
+
 
 
 public abstract class Mission implements Session.Saveable, Selectable {
@@ -179,17 +210,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public static void quickSetup(
-    Mission mission, int priority, int type, Actor... toAssign
-  ) {
-    mission.assignPriority(priority > 0 ? priority : PRIORITY_ROUTINE);
-    mission.setMissionType(type     > 0 ? type     : TYPE_PUBLIC     );
-    for (Actor meets : toAssign) {
-      meets.mind.assignMission(mission);
-      mission.setApprovalFor(meets, true);
-    }
-    mission.base.tactics.addMission(mission);
-    mission.beginMission();
+  public boolean isOffworld() {
+    if (subject instanceof Sector) return true;
+    if (subject instanceof Target) return ! ((Target) subject).inWorld();
+    return false;
   }
   
   
@@ -509,9 +533,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final Role role = roleFor(actor);
     if (done || (priority <= 0 && role == null)) return null;
     
-    final Action waiting = nextWaitAction(actor, role);
-    if (waiting != null) return waiting;
-    
     if (role == null || ! Plan.canFollow(actor, role.cached, true)) {
       if (! create) return null;
       final Behaviour step = createStepFor(actor);
@@ -520,41 +541,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     }
     return role.cached;
   }
-  
-  
-  //  TODO:  These need to be moved out to the JoinMission class!
-  //*
-  
-  private Action nextWaitAction(Actor actor, Role role) {
-    
-    //  TODO:  Move this out to the JoinMission class!
-    
-    if (role == null || ! role.approved) return null;
-    if (actor.senses.isEmergency()) return null;
-    
-    for (Actor a : approved()) {
-      if (a == actor || a.planFocus(null, true) != subject) continue;
-      
-      final float dist = Spacing.distance(a, actor);
-      if (dist < Stage.ZONE_SIZE * 2.5f && dist > Stage.ZONE_SIZE / 2) {
-        final Action waits = new Action(
-          actor, a,
-          this, "actionWait",
-          Action.TALK, "Waiting for "+a
-        );
-        waits.setPriority  (Action.URGENT);
-        waits.setProperties(Action.RANGED | Action.QUICK);
-        return waits;
-      }
-    }
-    return null;
-  }
-  
-  
-  public boolean actionWait(Actor actor, Actor other) {
-    return true;
-  }
-  //*/
   
   
   public Behaviour cachedStepFor(Actor actor) {

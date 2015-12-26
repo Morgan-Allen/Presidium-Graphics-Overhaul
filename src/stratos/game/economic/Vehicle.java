@@ -147,7 +147,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   
-  /**  Dealing with items, inventory and structural requirements-
+  /**  Dealing with items & inventory-
     */
   public Inventory inventory() {
     return cargo;
@@ -163,9 +163,9 @@ public abstract class Vehicle extends Mobile implements
     return service.defaultPrice();
   }
   
-  
-  public int spaceFor(Traded good) {
-    return structure.maxIntegrity();//- cargo.spaceUsed();
+
+  public int spaceCapacity() {
+    return structure.maxIntegrity();
   }
   
   
@@ -173,11 +173,9 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public TalkFX chat() {
-    return chat;
-  }
   
-
+  /**  Dealing with structural and placement requirements-
+    */
   public Index <Upgrade> allUpgrades() {
     return null;
   }
@@ -225,7 +223,14 @@ public abstract class Vehicle extends Mobile implements
   }
   
   
-  public Background[] careers() { return null; }
+  public int numPositions(Background b) {
+    return 0;
+  }
+  
+  
+  public Background[] careers() {
+    return null;
+  }
   
   
   public boolean isManned() {
@@ -601,6 +606,11 @@ public abstract class Vehicle extends Mobile implements
   
   public SelectionOptions configSelectOptions(SelectionOptions info, HUD UI) {
     return SelectionOptions.configOptions(this, info, UI);
+  }
+  
+  
+  public TalkFX chat() {
+    return chat;
   }
   
   

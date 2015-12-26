@@ -454,7 +454,6 @@ public class BaseCommerce {
   
   
   public void configCargo(Stocks forShipping, int fillLimit, boolean fillImp) {
-    
     if (fillImp) forShipping.removeAllItems();
     
     final Batch <Item>

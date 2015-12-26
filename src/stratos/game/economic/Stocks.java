@@ -33,6 +33,8 @@ public class Stocks extends Inventory {
   
   
   final Property basis;
+  
+  
   final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
   final List <Item> specialOrders = new List <Item> ();
   final List <Bringing> reservations = new List <Bringing> ();

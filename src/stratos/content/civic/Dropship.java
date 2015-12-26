@@ -16,6 +16,7 @@ import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.economic.Economy.*;
+import static stratos.game.actors.Backgrounds.*;
 
 
 
@@ -81,8 +82,9 @@ public class Dropship extends Vehicle implements Owner {
   
   
   
-  public Dropship() {
+  public Dropship(Base base) {
     super();
+    assignBase(base);
     attachSprite(FREIGHTER_MODEL.makeSprite());
     this.nameID = Rand.index(SHIP_NAMES.length);
   }
@@ -171,6 +173,18 @@ public class Dropship extends Vehicle implements Owner {
   }
   
   
+  public Background[] careers() {
+    return new Background[] { SHIP_CAPTAIN, DECK_HAND };
+  }
+  
+  
+  public int numPositions(Background b) {
+    if (b == SHIP_CAPTAIN) return 1;
+    if (b == DECK_HAND   ) return 2;
+    return 0;
+  }
+  
+  
   public Traded[] services() {
     return ALL_MATERIALS;
   }
@@ -180,8 +194,8 @@ public class Dropship extends Vehicle implements Owner {
     return TIER_SHIPPING;
   }
   
-  
-  public int spaceFor(Traded good) {
+
+  public int spaceCapacity() {
     return MAX_CAPACITY;
   }
   

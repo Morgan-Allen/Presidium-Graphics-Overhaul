@@ -24,7 +24,7 @@ public class PilotUtils {
     */
   static boolean isBoarding(Mobile m, Vehicle ship) {
     if (m.aboard() != ship) return false;
-    if (VerseJourneys.activityFor(m) != null) return true;
+    if (Journey.activityFor(m) != null) return true;
     return false;
   }
   
@@ -150,8 +150,13 @@ public class PilotUtils {
   
   
   public static void completeTakeoff(Stage world, Vehicle ship) {
-    final Sector goes = world.offworld.journeys.destinationFor(ship);
-    world.offworld.journeys.handleEmmigrants(goes, ship);
+    final Verse verse = world.offworld;
+    final Sector
+      from = world.localSector(),
+      goes = verse.journeys.destinationFor(ship);
+    
+    final Journey j = Journey.configForTrader(ship, from, goes, world);
+    verse.journeys.beginJourney(j);
     ship.assignLandPoint(null, null);
   }
   

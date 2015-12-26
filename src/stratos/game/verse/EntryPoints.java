@@ -45,20 +45,10 @@ public class EntryPoints {
     return;
   }
   
+
   
-  
-  /**  Interfaces for defining dock-points and stage-exits:
+  /**  Interface and utlity-methods for entry/exit directly from ground-level:
     */
-  public static interface Docking extends Property {
-    
-    boolean allowsDocking(Vehicle docks);
-    boolean isDocked(Vehicle docks);
-    Series <Vehicle> docked();
-    Vec3D dockLocation(Vehicle docks);
-    void setAsDocked(Vehicle docks, boolean is);
-  }
-  
-  
   //  TODO:  I'm not sure I can have every tile along the border of the world
   //         implement the Portal interface.  Maybe Retreat should be using a
   //         different mechanism for bolt-holes...?
@@ -76,6 +66,69 @@ public class EntryPoints {
   }
   
   
+  public static Tile findBorderPoint(
+    Boarding inWorld, Sector offWorld, Mobile client
+  ) {
+    final Stage  world = inWorld.world();
+    final Sector local = world.localSector();
+    if (! local.borders(offWorld)) return null;
+    
+    //
+    //  TODO:  You're going to need some idea of sector coordinates to do this
+    //  properly...
+    
+    final Box2D bordering = new Box2D().setTo(world.area()).expandBy(-1);
+    final Pick <Tile> pick = new Pick();
+    
+    for (Tile t : Spacing.perimeter(bordering, world)) {
+      if (! world.pathingMap.hasPathBetween(t, inWorld, client, false)) {
+        continue;
+      }
+      pick.compare(t, 0 - Spacing.distance(t, inWorld));
+    }
+    return pick.result();
+  }
+  
+  
+  
+  /**  Interfaces and utility methods for handling dock-points:
+    */
+  public static interface Docking extends Property {
+    
+    boolean allowsDocking(Vehicle docks);
+    boolean isDocked(Vehicle docks);
+    Series <Vehicle> docked();
+    Vec3D dockLocation(Vehicle docks);
+    void setAsDocked(Vehicle docks, boolean is);
+  }
+  
+  
+  private static float rateDocking(Docking dock, Vehicle ship) {
+    if ((! dock.inWorld()) || ! dock.structure().intact()) return -1;
+    if (! dock.allowsDocking(ship)) return -1;
+    //
+    //  TODO:  SEE IF YOU CAN USE THE BRING-UTILS CLASS FOR THIS (see below...)
+    
+    final Inventory stocks = dock.inventory();
+    float rating = 1;
+    for (Traded good : Economy.ALL_MATERIALS) {
+      rating += Nums.abs(stocks.relativeShortage(good, true));
+    }
+    rating *= 2f / ALL_MATERIALS.length;
+    return rating;
+  }
+  
+  
+  private static Docking findDocking(Vehicle ship, Stage world) {
+    final Pick <Docking> pick = new Pick(null, 0);
+    for (Object o : world.presences.matchesNear(SERVICE_DOCKING, ship, -1)) {
+      final Docking strip = (Docking) o;
+      pick.compare(strip, rateDocking(strip, ship));
+    }
+    return pick.result();
+  }
+  
+  
   
   /**  Finally, utility methods for finding a suitable landing point-
     */
@@ -86,7 +139,7 @@ public class EntryPoints {
     
     if (dropPoint instanceof Docking) {
       final Docking strip = (Docking) dropPoint;
-      if (rateAirfield(strip, ship) <= 0) return false;
+      if (rateDocking(strip, ship) <= 0) return false;
       return true;
     }
     
@@ -126,7 +179,7 @@ public class EntryPoints {
       return true;
     }
     
-    final Docking strip = findAirfield(trans, world);
+    final Docking strip = findDocking(trans, world);
     if (strip != null) {
       final Vec3D aimPos = strip.dockLocation(trans);
       trans.assignLandPoint(aimPos, strip);
@@ -137,34 +190,6 @@ public class EntryPoints {
     //  Otherwise, search for a suitable landing site on the bare ground near
     //  likely customers:
     return findLandingArea(trans, base);
-  }
-  
-  
-  private static float rateAirfield(Docking strip, Vehicle ship) {
-    if ((! strip.inWorld()) || ! strip.structure().intact()) return -1;
-    if (! strip.allowsDocking(ship)) return -1;
-
-    //  TODO:  SEE IF YOU CAN USE THE BRING-UTILS CLASS FOR THIS (see below.)
-    //  In principle, the findLandingArea class is already searching for
-    //  commerce-venues/trade-venues, so if one of those is an Airfield, that
-    //  should work fine...
-    final Inventory stocks = strip.inventory();
-    float rating = 1;
-    for (Traded good : Economy.ALL_MATERIALS) {
-      rating += Nums.abs(stocks.relativeShortage(good, true));
-    }
-    rating *= 2f / ALL_MATERIALS.length;
-    return rating;
-  }
-  
-  
-  private static Docking findAirfield(Vehicle ship, Stage world) {
-    final Pick <Docking> pick = new Pick(null, 0);
-    for (Object o : world.presences.matchesNear(SERVICE_DOCKING, ship, -1)) {
-      final Docking strip = (Docking) o;
-      pick.compare(strip, rateAirfield(strip, ship));
-    }
-    return pick.result();
   }
 
   

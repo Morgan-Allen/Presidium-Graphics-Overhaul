@@ -104,11 +104,12 @@ public class Migration extends Plan {
       return thinks;
     }
     if (ship == null || ! ship.inWorld()) {
-      final Pick <Dropship> pick = new Pick <Dropship> ();
-      for (Dropship ship : actor.world().offworld.journeys.allDropships()) {
+      final Pick <Vehicle> pick = new Pick();
+      for (Vehicle ship : actor.world().offworld.journeys.allTransports()) {
+        if (! (ship instanceof Dropship)) continue;
         pick.compare(ship, 0 - Spacing.distance(actor, ship));
       }
-      ship = pick.result();
+      ship = (Dropship) pick.result();
     }
     if (ship == null || ! ship.inWorld()) return null;
     final Action boards = new Action(

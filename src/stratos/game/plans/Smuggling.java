@@ -14,7 +14,7 @@ import stratos.util.*;
 
 
 
-public class Smuggling extends Plan implements VerseJourneys.Activity {
+public class Smuggling extends Plan implements Journey.Purpose {
   
   
   /**  Data fields, construction, and save/load methods:
@@ -82,7 +82,7 @@ public class Smuggling extends Plan implements VerseJourneys.Activity {
   
   
   public static Smuggling bestSmugglingFor(
-    Venue depot, Dropship ship, Actor actor, int maxAmount
+    Venue depot, Vehicle ship, Actor actor, int maxAmount
   ) {
     final Pick <Item> pick = new Pick <Item> ();
     for (Item i : depot.stocks.allItems()) {

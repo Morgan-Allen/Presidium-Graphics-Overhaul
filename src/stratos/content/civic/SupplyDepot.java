@@ -140,12 +140,6 @@ public class SupplyDepot extends Venue {
   }
   
   
-  public int spaceFor(Traded t) {
-    //  TODO:  Return a limit based on existing total good stocks!
-    return 20;
-  }
-  
-  
   private boolean bargeReady(CargoBarge b) {
     return b != null && b.inWorld() && b.structure.goodCondition();
   }
