@@ -67,7 +67,7 @@ public class EntryPoints {
   
   
   public static Tile findBorderPoint(
-    Boarding inWorld, Sector offWorld, Mobile client
+    Boarding inWorld, Sector offWorld, Base client
   ) {
     final Stage  world = inWorld.world();
     final Sector local = world.localSector();
@@ -124,6 +124,27 @@ public class EntryPoints {
     for (Object o : world.presences.matchesNear(SERVICE_DOCKING, ship, -1)) {
       final Docking strip = (Docking) o;
       pick.compare(strip, rateDocking(strip, ship));
+    }
+    return pick.result();
+  }
+  
+  
+  public static Vehicle findTransport(
+    Boarding inWorld, Sector offWorld, Base client
+  ) {
+    final Stage world = inWorld.world();
+    final Pick <Vehicle> pick = new Pick();
+    
+    for (Object o : world.presences.matchesNear(SERVICE_DOCKING, inWorld, -1)) {
+      final Docking strip = (Docking) o;
+      if (! world.pathingMap.hasPathBetween(strip, inWorld, client, false)) {
+        continue;
+      }
+      for (Vehicle v : strip.docked()) {
+        final float dist = Spacing.distance(inWorld, v);
+        final Journey j = v.journey();
+        if (j == null) pick.compare(v, 0 - dist);
+      }
     }
     return pick.result();
   }

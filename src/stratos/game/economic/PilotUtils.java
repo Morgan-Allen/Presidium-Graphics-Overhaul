@@ -193,7 +193,7 @@ public class PilotUtils {
     final float speed  = topSpeed * height * UPS;
     float       ascent = topSpeed * UPS / 4;
     ascent = Nums.min(ascent, Nums.abs(position.z - aimPos.z));
-    if (ship.flightStage() == Vehicle.STAGE_LANDING) ascent *= -1;
+    if (ship.flightState() == Vehicle.STATE_LANDING) ascent *= -1;
     //
     //  Then head toward the aim point (for non-zero displacement)-
     if (disp.length() > 0) {

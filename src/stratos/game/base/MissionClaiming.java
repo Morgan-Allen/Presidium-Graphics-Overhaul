@@ -72,6 +72,11 @@ public class MissionClaiming extends Mission {
   }
   
   
+  public void resolveMissionOffworld() {
+    return;
+  }
+  
+  
   
   /**  Assigning steps to actors-
     */

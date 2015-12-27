@@ -120,7 +120,7 @@ public class Dropship extends Vehicle implements Owner {
     if (report) I.say("\nGetting next dropship job for "+actor);
     if (actor.isDoing(Bringing.class, null)) return;
     
-    if (flightStage() >= STAGE_BOARDING) {
+    if (flightState() >= STATE_BOARDING) {
       final Smuggling boarding = new Smuggling(actor, this, world, true);
       if (staff.assignedTo(Bringing.class) == 0) {
         boarding.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
@@ -287,15 +287,6 @@ public class Dropship extends Vehicle implements Owner {
     return
       "Dropships ferry initial colonists and startup supplies to your "+
       "fledgling settlement, courtesy of your homeworld's generosity.";
-  }
-  
-  
-  public void describeStatus(Description d, Object client) {
-    final int stage = flightStage();
-    if      (stage == STAGE_LANDING) d.append("Descending to drop point");
-    else if (stage == STAGE_TAKEOFF ) d.append("Taking off");
-    else if (stage == STAGE_AWAY   ) d.append("Offworld");
-    else super.describeStatus(d, client);
   }
 }
 

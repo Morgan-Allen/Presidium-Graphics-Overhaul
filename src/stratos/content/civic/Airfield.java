@@ -169,7 +169,7 @@ public class Airfield extends Venue implements EntryPoints.Docking {
     final boolean shouldHaul =
       actor.mind.vocation() == DECK_HAND &&
       docking               != null      &&
-      docking.flightStage() == Dropship.STAGE_LANDED;
+      docking.flightState() == Dropship.STATE_LANDED;
     if (shouldHaul) {
       final Traded goods[] = docking.services();
       final Bringing d = BringUtils.bestBulkDeliveryFrom(

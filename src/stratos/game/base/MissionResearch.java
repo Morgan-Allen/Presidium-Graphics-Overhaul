@@ -76,6 +76,11 @@ public class MissionResearch extends Mission {
   }
   
   
+  public void resolveMissionOffworld() {
+    return;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */

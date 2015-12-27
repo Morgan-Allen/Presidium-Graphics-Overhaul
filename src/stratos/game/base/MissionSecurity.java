@@ -85,6 +85,11 @@ public class MissionSecurity extends Mission {
   }
   
   
+  public void resolveMissionOffworld() {
+    return;
+  }
+  
+  
   
   /**  Behaviour implementation-
     */

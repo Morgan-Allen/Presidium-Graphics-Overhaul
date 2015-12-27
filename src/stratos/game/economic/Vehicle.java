@@ -6,8 +6,7 @@
 package stratos.game.economic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.verse.EntryPoints;
-import stratos.game.verse.Faction;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
@@ -28,11 +27,11 @@ public abstract class Vehicle extends Mobile implements
     verbose = false;
   
   final public static int
-    STAGE_LANDING  = 0,
-    STAGE_LANDED   = 1,
-    STAGE_BOARDING = 2,
-    STAGE_TAKEOFF  = 3,
-    STAGE_AWAY     = 4;
+    STATE_LANDING  = 0,
+    STATE_LANDED   = 1,
+    STATE_BOARDING = 2,
+    STATE_TAKEOFF  = 3,
+    STATE_AWAY     = 4;
   final public static float
     INIT_DIST  = 10.0f,
     INIT_HIGH  = 10.0f,
@@ -43,14 +42,15 @@ public abstract class Vehicle extends Mobile implements
   final public Structure structure = new Structure(this);
   final public Staff staff = new Staff(this);
   
-  final protected List <Mobile> inside = new List <Mobile> ();
+  private Journey journey;
+  final List <Mobile> inside = new List <Mobile> ();
   private Actor pilot;
   private Venue hangar;
   private float pilotBonus;
   
   private Vec3D aimPos = new Vec3D(0, 0, NO_LANDING);
-  private float stageInceptTime = 0;
-  private int   stage = STAGE_AWAY;
+  private float stateInceptTime = 0;
+  private int   state = STATE_AWAY;
   
   protected float entranceFace = Venue.FACE_NONE;
   protected Boarding dropPoint;
@@ -60,9 +60,10 @@ public abstract class Vehicle extends Mobile implements
   
   public Vehicle() {
     super();
-    this.stage = STAGE_AWAY;
+    this.state = STATE_AWAY;
     structure.setState(Structure.STATE_INTACT, 1);
   }
+  
 
   public Vehicle(Session s) throws Exception {
     super(s);
@@ -71,14 +72,15 @@ public abstract class Vehicle extends Mobile implements
     staff    .loadState(s);
     s.loadObjects(inside);
     
+    journey      = (Journey) s.loadObject();
     pilot        = (Actor) s.loadObject();
     hangar       = (Venue) s.loadObject();
     dropPoint    = (Boarding) s.loadTarget();
     entranceFace = s.loadFloat();
     
     aimPos.loadFrom(s.input());
-    stageInceptTime = s.loadFloat();
-    stage           = s.loadInt();
+    stateInceptTime = s.loadFloat();
+    state           = s.loadInt();
   }
   
   
@@ -89,14 +91,15 @@ public abstract class Vehicle extends Mobile implements
     staff    .saveState(s);
     s.saveObjects(inside);
     
+    s.saveObject(journey     );
     s.saveObject(pilot       );
     s.saveObject(hangar      );
     s.saveTarget(dropPoint   );
     s.saveFloat (entranceFace);
     
     aimPos.saveTo(s.output());
-    s.saveFloat(stageInceptTime);
-    s.saveInt  (stage          );
+    s.saveFloat(stateInceptTime);
+    s.saveInt  (state          );
   }
   
   
@@ -143,6 +146,16 @@ public abstract class Vehicle extends Mobile implements
   
   public boolean abandoned() {
     return pilot == null && aboard() != hangar;
+  }
+  
+  
+  public Journey journey() {
+    return journey;
+  }
+  
+  
+  public void assignJourney(Journey j) {
+    this.journey = j;
   }
   
   
@@ -299,8 +312,8 @@ public abstract class Vehicle extends Mobile implements
     setHeading(nextPosition, nextRotation, true, world);
     entranceFace = Venue.FACE_EAST;
     
-    stageInceptTime = world.currentTime();
-    stage           = STAGE_LANDING;
+    stateInceptTime = world.currentTime();
+    state           = STATE_LANDING;
     canBoard        = null;
   }
   
@@ -316,16 +329,16 @@ public abstract class Vehicle extends Mobile implements
     nextPosition.setTo(position.setTo(aimPos));
     dropPoint = PilotUtils.performLanding(this, world, entranceFace);
     
-    stageInceptTime = world.currentTime();
-    stage           = STAGE_LANDED;
+    stateInceptTime = world.currentTime();
+    state           = STATE_LANDED;
     canBoard        = null;
     PilotUtils.offloadPassengers(this, true);
   }
   
   
   public void beginBoarding() {
-    if (stage != STAGE_LANDED) I.complain("Cannot board until landed!");
-    stage = STAGE_BOARDING;
+    if (state != STATE_LANDED) I.complain("Cannot board until landed!");
+    state = STATE_BOARDING;
   }
   
   
@@ -341,33 +354,33 @@ public abstract class Vehicle extends Mobile implements
   
   
   public void beginTakeoff() {
-    if (stage == STAGE_LANDED) PilotUtils.offloadPassengers(this, false);
+    if (state == STATE_LANDED) PilotUtils.offloadPassengers(this, false);
     
     final Tile exits = Spacing.pickRandomTile(origin(), INIT_DIST, world);
     final Vec3D exitPoint = new Vec3D(exits.x, exits.y, INIT_HIGH);
     PilotUtils.performTakeoff(world, this, exitPoint);
     
-    stageInceptTime = world.currentTime();
-    stage           = STAGE_TAKEOFF;
+    stateInceptTime = world.currentTime();
+    state           = STATE_TAKEOFF;
     canBoard        = null;
   }
   
   
   private void completeTakeoff() {
     exitWorld();
-    stageInceptTime = world.currentTime();
-    stage           = STAGE_AWAY;
+    stateInceptTime = world.currentTime();
+    state           = STATE_AWAY;
     canBoard        = null;
   }
   
   
   public boolean landed() {
-    return stage == STAGE_LANDED || stage == STAGE_BOARDING;
+    return state == STATE_LANDED || state == STATE_BOARDING;
   }
   
   
-  public int flightStage() {
-    return stage;
+  public int flightState() {
+    return state;
   }
   
   
@@ -434,10 +447,10 @@ public abstract class Vehicle extends Mobile implements
     //
     //  Check to see if ascent or descent are complete-
     final float height = position.z / INIT_HIGH;
-    if (stage == STAGE_TAKEOFF && height >= 1) {
+    if (state == STATE_TAKEOFF && height >= 1) {
       completeTakeoff();
     }
-    if (stage == STAGE_LANDING) {
+    if (state == STATE_LANDING) {
       //
       //  If obstructions appear during the descent, restart the flight-path.
       //  If you touchdown, register as such.
@@ -649,7 +662,13 @@ public abstract class Vehicle extends Mobile implements
   
   
   public void describeStatus(Description d, Object client) {
-    if (pilot != null && pilot.mind.rootBehaviour() != null) {
+    
+    final int state = flightState();
+    if      (state == STATE_LANDING) d.append("Descending to drop point");
+    else if (state == STATE_TAKEOFF) d.append("Taking off");
+    else if (state == STATE_AWAY   ) d.append("Offworld");
+    
+    else if (pilot != null && pilot.mind.rootBehaviour() != null) {
       pilot.mind.rootBehaviour().describeBehaviour(d);
     }
     else if (pathing.target() != null) {
@@ -662,6 +681,9 @@ public abstract class Vehicle extends Mobile implements
     }
   }
 }
+
+
+
 
 
 

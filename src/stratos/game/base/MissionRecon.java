@@ -66,7 +66,9 @@ public class MissionRecon extends Mission {
     */
   public static MissionRecon reconFor(Object target, Base base) {
     if (target instanceof Sector && target != base.world.localSector()) {
-      return new MissionRecon(base, (Sector) target);
+      final Mission m = new MissionRecon(base, (Sector) target);
+      m.setJourney(Journey.configForMission(m));
+      if (m.journey() == null) return null;
     }
     if (target instanceof Tile && Exploring.canExplore(base, (Tile) target)) {
       return new MissionRecon(base, (Tile) target);
@@ -87,7 +89,7 @@ public class MissionRecon extends Mission {
   
   
   public void resolveMissionOffworld() {
-    
+    return;
   }
   
   

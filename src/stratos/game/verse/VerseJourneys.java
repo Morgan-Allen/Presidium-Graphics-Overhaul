@@ -66,20 +66,6 @@ public class VerseJourneys {
     }
     return null;
   }
-
-
-  public Vehicle carries(Mobile mobile) {
-    final Journey j = journeyFor(mobile);
-    return j == null ? null : j.transport;
-  }
-  
-  
-  public boolean scheduleArrival(Vehicle trans, float delay) {
-    final Journey j = journeyFor(trans);
-    if (j == null) return false;
-    j.arriveTime = universe.world.currentTime() + delay;
-    return true;
-  }
   
   
   public Series <Journey> journeysBetween(
@@ -140,12 +126,12 @@ public class VerseJourneys {
     //
     //  TODO:  THIS NEEDS TO BE PUT ON A SCHEDULE
     for (Journey j : journeys) {
-      final int oldState = j.tripStatus;
+      final int oldState = j.tripStage;
       
       j.updateJourney();
       if (j.complete()) journeys.remove(j);
       
-      if (j.tripStatus != oldState && verbose) {
+      if (j.tripStage != oldState && verbose) {
         reportOffworldState("\n\nJourney has changed state...");
       }
     }
@@ -170,7 +156,7 @@ public class VerseJourneys {
     final Journey j = journeyFor(trans);
     if (j == null || j.destination != destination) return false;
     final float time = universe.world.currentTime();
-    return trans.flightStage() == STAGE_AWAY && time >= j.arriveTime;
+    return trans.flightState() == STATE_AWAY && time >= j.arriveTime;
   }
   
   
@@ -205,6 +191,12 @@ public class VerseJourneys {
     final Journey j = journeyFor(trans);
     return (j == null) ? null : j.destination;
   }
+
+
+  public Vehicle carries(Mobile mobile) {
+    final Journey j = journeyFor(mobile);
+    return j == null ? null : j.transport;
+  }
   
   
   
@@ -223,7 +215,7 @@ public class VerseJourneys {
   ) {
     final Dropship ship = new Dropship(base);
     Journey journey = Journey.configForTrader(ship, from, goes, base.world);
-    journey.cycleOffworldPassengers();
+    journey.onArrival(false);
     beginJourney(journey);
     return ship;
   }
@@ -270,6 +262,14 @@ public class VerseJourneys {
   }
   
   
+  public boolean scheduleArrival(Vehicle trans, float delay) {
+    final Journey j = journeyFor(trans);
+    if (j == null) return false;
+    j.arriveTime = universe.world.currentTime() + delay;
+    return true;
+  }
+  
+  
   public boolean scheduleLocalDrop(Base base, float delay) {
     final Sector
       orig = base.commerce.homeworld(),
@@ -280,8 +280,8 @@ public class VerseJourneys {
     
     final Journey j = journeyFor(trans);
     if (j == null || trans.inWorld()) return false;
+    j.onArrival(false);
     j.arriveTime  = universe.world.currentTime() + delay;
-    j.cycleOffworldPassengers();
     return true;
   }
   

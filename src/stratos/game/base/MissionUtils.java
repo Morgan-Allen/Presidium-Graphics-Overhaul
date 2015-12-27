@@ -6,8 +6,6 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.Vehicle;
-import stratos.game.verse.*;
 
 
 
@@ -20,38 +18,9 @@ public class MissionUtils {
     if (type == Mission.TYPE_PUBLIC ) return actor;
     
     //  TODO:  BE STRICTER ABOUT THIS!
-    if (mission.base().HQ() == null) return actor;
+    if (mission.base().HQ() == null ) return actor;
     return mission.base().HQ();
   }
-  
-
-  /*
-  public static boolean transportAvailable(Mission mission, boolean landed) {
-    final Verse verse = mission.base().world.offworld;
-    final Object subject = mission.subject;
-    
-    Sector orig = verse.localSector(), dest = null;
-    if (subject instanceof Sector) dest = (Sector) subject;
-    if (subject instanceof Mobile) dest = verse.currentSector((Mobile) subject);
-    if (dest == null || dest == orig) return true;
-    
-    
-    //  Rondezvous first, then head for either the border-tile or the vehicle.
-    //  Which will have to be reserved at the time the mission is declared...
-    //  and I think the Journey is the best place for that.  Done.
-    
-    //  Have the Airfields create the ships needed for this.
-    
-    final Journey j = verse.journeys.nextJourneyBetween(
-      orig, dest, mission.base, false
-    );
-    
-    if (j == null || j.transport() == null) return false;
-    final Vehicle trans = j.transport();
-    if (landed) return trans.inWorld();
-    else return true;
-  }
-  //*/
   
   
   public static float competition(Actor actor, Mission mission) {

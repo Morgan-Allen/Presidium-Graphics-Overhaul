@@ -145,17 +145,6 @@ public class JoinMission extends Plan {
   }
   
   
-  //  TODO:  Use this instead of the mission-specific method?
-  /*
-  private static Venue applyPointFor(Actor actor, Mission mission) {
-    if (mission.base().HQ() instanceof Venue) {
-      return (Venue) mission.base().HQ();
-    }
-    else return null;
-  }
-  //*/
-  
-  
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next step for joining "+mission);
@@ -196,47 +185,17 @@ public class JoinMission extends Plan {
       return applies;
     }
     
-    //  TODO:  You need an extra step for boarding a ship to the destination if
-    //  the mission is offworld...
-    
-    //  TODO:  Okay.  In principle... I just have to add a few utility methods
-    //         to the Journey and Mission class- and add a check to the AI and
-    //         mission-factory methods to ensure that transport is available at
-    //         all...  Okay then.
-    
-    if (mission.isOffworld()) {
-      
-      
-      /*
-      final Verse verse = actor.world().offworld;
-      final Journey j = verse.journeys.nextJourneyBetween(
-        verse.localSector(), mission.subjectSector(),
-        mission.base(), false
-      );
-      if (j == null) return null;
-      final Vehicle trans = j.transport;
-      if (trans != null && ! trans.inWorld()) return null;
-      return new Smuggling(actor, trans, verse.world, true);
-      //*/
-    }
-    
-    final Behaviour step = mission.nextStepFor(actor, true);
+    final Behaviour step;
+    if (mission.isOffworld()) step = new Action(
+      actor, mission.journey().transitPoint(),
+      this, "actionBoards",
+      Action.STAND, "Boarding "
+    );
+    else step = mission.nextStepFor(actor, true);
     final Action waiting = nextWaitAction(actor, step);
     
     if (waiting != null) return waiting;
     return step;
-    
-    /*
-    else {
-      if (report) I.say("  Waiting for OK at "+applyPoint);
-      final Action waitForOK = new Action(
-        actor, applyPoint,
-        this, "actionWait",
-        Action.STAND, "Waiting for party"
-      );
-      return waitForOK;
-    }
-    //*/
   }
   
   
@@ -287,8 +246,6 @@ public class JoinMission extends Plan {
     return true;
   }
   
-
-  
   
   //  TODO:  These need to be moved out to the JoinMission class!
   //*
@@ -305,11 +262,27 @@ public class JoinMission extends Plan {
   }
   
   
+  public boolean actionBoards(Actor actor, Boarding transitPoint) {
+    final Journey j = mission.journey();
+    if (j == null) I.complain("\nNO JOURNEY FOR MISSION: "+mission);
+    
+    if (j.transport() == null) actor.exitToOffworld();
+    j.addMigrant(actor);
+    return true;
+  }
+  
+  
   public void describeBehaviour(Description d) {
     d.append("Joining mission: ");
     mission.describeMission(d);
   }
 }
+
+
+
+
+
+
 
 
 

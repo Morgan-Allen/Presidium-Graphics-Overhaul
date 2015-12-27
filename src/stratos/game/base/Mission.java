@@ -103,6 +103,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   final Session.Saveable subject;
   
   final Stack <Role> roles = new Stack <Role> ();
+  private Journey journey = null;
   private List <Actor> applicants = null;
   
   private int
@@ -151,6 +152,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       role.specialReward = (Pledge   ) s.loadObject();
       roles.add(role);
     }
+    journey = (Journey) s.loadObject();
     
     flagSprite = (CutoutSprite) ModelAsset.loadSprite(s.input());
     description = s.loadString();
@@ -174,6 +176,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       s.saveObject(role.cached       );
       s.saveObject(role.specialReward);
     }
+    s.saveObject(journey);
     
     ModelAsset.saveSprite(flagSprite, s.output());
     s.saveString(description);
@@ -230,11 +233,23 @@ public abstract class Mission implements Session.Saveable, Selectable {
       beginMission();
     }
     else if (shouldEnd()) endMission(true);
+    boolean journeyCheck = journey != null;
     //
-    //  Remove any applicants that have abandoned the mission-
+    //  Remove any applicants that have abandoned the mission, and check if
+    //  everyone is ready to begin a specified journey...
     for (Role role : roles) if (role.approved && begun) {
       final Actor a = role.applicant;
       if (! a.health.conscious()) a.mind.assignMission(null);
+      if (journeyCheck && ! journey.hasMigrant(a)) journeyCheck = false;
+    }
+    if (journeyCheck && ! journey.hasBegun()) {
+      base.world.offworld.journeys.beginJourney(journey);
+    }
+    //
+    //  If an assigned journey has completed, evaluate the outcome.
+    if (journey != null && journey.hasArrived()) {
+      resolveMissionOffworld();
+      journey.beginReturnTrip();
     }
     //
     //  By default, we also terminate any missions that have been completely
@@ -280,6 +295,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public void setJourney(Journey journey) {
+    this.journey = journey;
+  }
+  
+  
+  public Journey journey() {
+    return journey;
+  }
+  
+  
   public int assignedPriority() {
     return priority;
   }
@@ -316,6 +341,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   protected abstract boolean shouldEnd();
   protected abstract Behaviour createStepFor(Actor actor);
+  
+  public abstract void resolveMissionOffworld();
   
   
   
@@ -459,7 +486,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public void beginMission() {
     if (hasBegun()) return;
     begun = true;
-
     final boolean report = (
       verbose && BaseUI.currentPlayed() == base
     ) || I.logEvents();
@@ -564,12 +590,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public boolean valid() {
     if (finished()) return false;
     if (subjectAsTarget() == null) return true;
+    if (isOffworld() && journey == null) return false;
     return ! subjectAsTarget().destroyed();
   }
   
   
   public float priorityFor(Actor actor) {
-    
     final Behaviour step = nextStepFor(actor, true);
     if (step == null) return -1;
     float priority = step.priorityFor(actor);

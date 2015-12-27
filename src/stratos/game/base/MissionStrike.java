@@ -88,6 +88,11 @@ public class MissionStrike extends Mission {
   }
   
   
+  public void resolveMissionOffworld() {
+    return;
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
