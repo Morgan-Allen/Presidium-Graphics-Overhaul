@@ -1,0 +1,66 @@
+
+
+
+   Priority:  Medium  Duration:  Short?
+*  Make sure the sprite-viewer can display the various permutations of human-
+   models correctly- costume, skin tone, hairstyles, weapons & armour, etc.
+   There are some noticeable glitches at the moment.
+   The main class is at- stratos.start.SkinsPreview
+   Starting settings can be adjusted at media/Tools/preview_settings.xml
+
+   Priority:  Medium-High  Duration:  Short?
+*  Users should be able to download/run the main game without needing a
+   pre-existing Java installation, on OSX, Windows and Linux (i.e, the
+   executable should include it's own JVM.)  And that build process should be
+   automated.
+
+   Priority:  Very High  Duration:  Long
+*  Automated testing needs to be implemented.  I have a lot of Debug<X> classes
+   in the src.start directory which set up conditions for testing, but we need
+   automatic checking of the results, and the ability to set up batches of
+   such scenarios to run in sequence.  This is a big project, so I'd suggest
+   starting with something simple (like DebugCombat) and then I can give
+   details for filling in the rest.
+
+
+   Priority:  High  Duration:  Short?
+*  Minimising the window shuts down the game on windows 7 or 8.  Find out why
+   and fix?
+
+   Priority:  High  Duration:  Long or Very Long
+*  Get rid of all the text-descriptions for the UI and use customised widgets
+   instead.  (This will likely require some extra graphics/images for buttons,
+   borders, et cetera.)
+
+   Priority:  Low  Duration:  Short-to-Medium
+*  On a similar note, the UI for the sprite-viewer could use some cleanup-
+   proper scrolling for lists of parts, nicer borders, et cetera.
+
+
+   Priority:  Medium  Duration:  Medium
+*  Implement cel-shading:
+   http://gamedev.stackexchange.com/questions/68401/
+   how-can-i-draw-outlines-around-3d-models
+
+   Priority:  Medium  Duration:  Short
+*  We might consider some kind of alternate-rendering arrangement for indoor
+   or obscured actors- like showing a semi-transparent outline.  (This should
+   be simple enough once cel-shading is done.)
+
+
+   Priority:  Low  Duration:  Short-to-Long?
+*  .ms3d model loading is extremely slow during startup for some reason.  Check
+   to see if switching to a different format would help, or do some profiling
+   to see if there are any simple optimisations to apply.  If it looks complex
+   to fix, leave for now.
+
+   Priority:  Low  Duration:  Short-to-Long?
+*  See if you can either fix the blender importer for .ms3d or get the original
+   authors to do so (smoothing groups are not preserved correctly on import.)
+   http://wiki.blender.org/index.php/Extensions:2.6/
+          Py/Scripts/Import-Export/MilkShape3D_MS3D
+   http://git.blender.org/gitweb/gitweb.cgi/blender-addons.git/
+          tree/HEAD:/io_scene_ms3d/
+
+.
+
