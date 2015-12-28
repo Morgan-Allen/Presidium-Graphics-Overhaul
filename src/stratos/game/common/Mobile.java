@@ -40,7 +40,7 @@ public abstract class Mobile extends Element
     position = new Vec3D(),
     nextPosition = new Vec3D();
   
-  private ListEntry <Mobile> worldEntry;
+  private ListEntry <Mobile> baseEntry;
   private Base base;
   protected Boarding aboard = null;
   final public Pathing pathing = initPathing();
@@ -171,13 +171,13 @@ public abstract class Mobile extends Element
   }
   
   
-  public void setWorldEntry(ListEntry <Mobile> e) {
-    worldEntry = e;
+  public void setBaseEntry(ListEntry <Mobile> e) {
+    baseEntry = e;
   }
   
   
-  public ListEntry <Mobile> worldEntry() {
-    return worldEntry;
+  public ListEntry <Mobile> baseEntry() {
+    return baseEntry;
   }
   
   

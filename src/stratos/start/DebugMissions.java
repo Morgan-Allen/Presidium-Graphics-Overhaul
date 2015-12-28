@@ -68,7 +68,7 @@ public class DebugMissions extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Stage world = new Stage(TG.generateTerrain());
+    final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
     Flora.populateFlora(world);
@@ -89,12 +89,31 @@ public class DebugMissions extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.fastTrips = true;
     
-    if (true ) offworldReconScenario(world, base, UI);
+    if (true ) offworldRaidingScenario(world, base, UI);
+    if (false) offworldReconScenario  (world, base, UI);
     
     if (false) strikeScenario  (world, base, UI);
     if (false) securityScenario(world, base, UI);
     if (false) contactScenario (world, base, UI);
     if (false) reconScenario   (world, base, UI);
+  }
+  
+  
+  private void offworldRaidingScenario(Stage world, Base base, BaseUI UI) {
+    
+    //
+    //  I think it's simplest if the homeworlds just stay out of it for now.
+    //  They can send migrants/reinforcements and trade, but won't attack you
+    //  directly.  It's like a cold war.
+    
+    //  TODO:  In the case of missions by offworld sectors, the journey-calls
+    //  are going to be checking for border-points etc. far too often.  I
+    //  think that steps needs to be delayed.
+    
+    final Venue HQ = new Bastion(base);
+    SiteUtils.establishVenue(HQ, 5, 5, true, world);
+    base.setup.fillVacancies(HQ, true);
+    base.assignRuler(HQ.staff.workers().first());
   }
   
   

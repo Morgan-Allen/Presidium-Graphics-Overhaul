@@ -8,7 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.user.*;
+import stratos.game.maps.*;
 import stratos.util.*;
 import static stratos.game.base.BaseCommerce.*;
 import static stratos.game.economic.Vehicle.*;
@@ -204,30 +204,32 @@ public class Journey implements Session.Saveable {
   }
   
   
-  public static Journey configForMission(Mission mission) {
-    
-    //  TODO:  You need proper handling for missions *between* or *from*
-    //  offworld sectors as well as missions *to* offworld sectors...
-    
-    final Base base = mission.base();
-    final Property HQ = base.HQ();
-    if (HQ == null || ! mission.isOffworld()) return null;
-    
-    final Verse verse = mission.base().world.offworld;
-    final Object subject = mission.subject();
-    
-    Sector from = verse.stageLocation(), goes = null;
-    if (subject instanceof Sector) goes = (Sector) subject;
-    if (subject instanceof Mobile) goes = verse.currentSector((Mobile) subject);
+  public static Journey configForMission(Mission mission, Sector from) {
+    final Base   base   = mission.base();
+    final Verse  verse  = base.world.offworld;
+    final Sector locale = base.world.localSector();
+    final Sector goes   = verse.currentSector(mission.subject());
     if (goes == null || goes == from) return null;
+    
+    final Target target = mission.subjectAsTarget();
+    Boarding pathT = null;
+    if (from == locale) pathT = base.HQ();
+    if (goes == locale) pathT = PathSearch.accessLocation(target, null);
     
     final int props = IS_MISSION | IS_RETURN;
     final Journey journey = new Journey(verse, props, base);
     journey.origin      = from;
     journey.destination = goes;
-    journey.worldTarget = HQ  ;
-    journey.transport   = EntryPoints.findTransport(HQ, goes, base);
+    journey.worldTarget = pathT;
     
+    if (pathT != null && from == locale) {
+      journey.transport = EntryPoints.findTransport(pathT, goes, base);
+    }
+    if (pathT != null && goes == locale) {
+      //
+      //  TODO:  You need to handle this case as well!
+      //journey.transport = EntryPoints.findTransport(from, pathT, base);
+    }
     if (! journey.checkTransitPoint()) return null;
     return journey;
   }
@@ -445,7 +447,7 @@ public class Journey implements Session.Saveable {
       refreshCrewAndCargo();
       for (Mobile m : migrants) {
         final Purpose a = activityFor(m);
-        if (a != null) base.toggleExpat(m, true);
+        if (a != null) base.toggleUnit(m, true);
       }
       migrants.clear();
     }
@@ -480,12 +482,12 @@ public class Journey implements Session.Saveable {
     final SectorBase base = verse.baseForSector(origin);
     final boolean offworld = origin != verse.stageLocation();
     
-    if (offworld && returns()) for (Mobile m : base.expats()) {
+    if (offworld && returns()) for (Mobile m : base.allUnits()) {
       final Purpose a = activityFor(m);
       if (a == null || ! a.doneOffworld()) continue;
       
       if (a.origin() == destination && a.acceptsTransport(transport, this)) {
-        base.toggleExpat(m, false);
+        base.toggleUnit(m, false);
         migrants.add(m);
       }
     }

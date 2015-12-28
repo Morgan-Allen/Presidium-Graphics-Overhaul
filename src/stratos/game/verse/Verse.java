@@ -81,11 +81,19 @@ public class Verse {
     MILD_GRAVITY      =  1,
     NOMINAL_GRAVITY   =  2,
     
-    NO_POPULATION     =  0,
+    SPARSE_POPULATION =  0,
     LIGHT_POPULATION  =  1,
     MEDIUM_POPULATION =  2,
     HIGH_POPULATION   =  3,
     VAST_POPULATION   =  4;
+  
+  final static String GRAVITY_DESC[] = {
+    "Intense", "Strong", "Normal", "Mild", "Nominal"
+  };
+  final static String POPULATION_DESC[] = {
+    "Sparse", "Light", "Medium", "High", "Vast"
+  };
+  
   
   final static String WORLDS_DIR = "media/Charts/worlds/";
   
@@ -99,7 +107,7 @@ public class Verse {
       "Asra Novi is a heavily-terraformed 'desert oasis' world noted for its "+
       "expertise in ecology and botanical science, together with polyamorous "+
       "traditions and luxury exports.",
-      DESERT_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
+      DESERT_BLOOD, MILD_GRAVITY, null, LIGHT_POPULATION,
       Sector.MAKES, REAGENTS, PLASTICS, DECOR, SPYCES,
       Sector.NEEDS, WATER, CIRCUITRY, POLYMER,
       
@@ -123,7 +131,7 @@ public class Verse {
       "Parem V was one of the first-settled systems in the known quadrant, "+
       "and though dour and repressive, remains host to numerous machine-"+
       "cults and revered arcane relics.",
-      WASTES_BLOOD, NORMAL_GRAVITY, null, MEDIUM_POPULATION,
+      WASTES_BLOOD, NORMAL_GRAVITY, null, HIGH_POPULATION,
       Sector.MAKES, PARTS, ANTIMASS, CIRCUITRY,
       Sector.NEEDS, FUEL_RODS, PROTEIN,
       
@@ -173,7 +181,7 @@ public class Verse {
       "Aided by it's low gravity and thin atmosphere, Axis Novena became the "+
       "centre of a large shipping industry and trade network- along with "+
       "rampant smuggling and black-market tech research.",
-      TUNDRA_BLOOD, MILD_GRAVITY, null, HIGH_POPULATION,
+      TUNDRA_BLOOD, MILD_GRAVITY, null, MEDIUM_POPULATION,
       Sector.MAKES, CIRCUITRY, MEDICINE, SERVICE_COMMERCE,
       Sector.NEEDS, GREENS, METALS, ANTIMASS,
       
@@ -246,7 +254,7 @@ public class Verse {
       "Rendered all but uninhabitable after the Machine Wars, Diapsor was "+
       "placed under Imperial Quarantine until recent population pressures, "+
       "political reforms and ecologic recovery permitted re-settlement.",
-      FOREST_BLOOD, NORMAL_GRAVITY, null, NO_POPULATION
+      FOREST_BLOOD, NORMAL_GRAVITY, null, SPARSE_POPULATION
     ),
     PLANET_TERMAGANT = null,
     PLANET_HIVE_IDO  = null,
@@ -280,7 +288,7 @@ public class Verse {
     SECTOR_ELYSIUM = new Sector(
       Verse.class, "Elysium Sector", null, FACTION_WILDLIFE,
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, SPARSE_POPULATION,
       0.15f, OCEAN,
       0.35f, SWAMPLANDS,
       0.25f, FOREST,
@@ -290,7 +298,7 @@ public class Verse {
     SECTOR_PAVONIS = new Sector(
       Verse.class, "Pavonis Sector", null, FACTION_WILDLIFE,
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, SPARSE_POPULATION,
       0.25f, FOREST,
       0.35f, MEADOW,
       0.15f, SAVANNAH,
@@ -300,7 +308,7 @@ public class Verse {
     SECTOR_TERRA = new Sector(
       Verse.class, "Terra Sector", null, FACTION_WILDLIFE,
       "",
-      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION,
+      WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, SPARSE_POPULATION,
       0.20f, SAVANNAH,
       0.25f, BARRENS,
       0.40f, DUNE,
@@ -315,7 +323,7 @@ public class Verse {
     SECTOR_UNDERGROUND = new Sector(
       Verse.class, "Underground Sector", null, FACTION_VERMIN,
       "",
-      MUTATION, NORMAL_GRAVITY, PLANET_DIAPSOR, NO_POPULATION
+      MUTATION, NORMAL_GRAVITY, PLANET_DIAPSOR, SPARSE_POPULATION
     ),
     DEFAULT_START_LOCATION = SECTOR_ELYSIUM;
   
@@ -407,11 +415,21 @@ public class Verse {
   
   public Verse(Stage stage) {
     this.world = stage;
-    
-    //  TODO:  ...Don't do this in the case of a freshly-initiated world?
+  }
+  
+  
+  public void initialVerse() {
     this.initSeparations();
     this.initPolitics();
-    for (Sector s : ALL_SECTORS) bases.add(new SectorBase(this, s));
+    for (Sector s : ALL_SECTORS) {
+      final SectorBase base = new SectorBase(this, s);
+      bases.add(base);
+      world.schedule.scheduleForUpdates(base);
+    }
+    for (Faction f : CIVIL_FACTIONS) if (f.startSite() != null) {
+      final SectorBase base = baseForSector(f.startSite());
+      base.assignFaction(f);
+    }
   }
   
   
@@ -462,7 +480,6 @@ public class Verse {
     */
   public void updateVerse(float time) {
     journeys.updateJourneys((int) time);
-    for (SectorBase base : bases) base.updateBase();
   }
   
   
@@ -520,25 +537,26 @@ public class Verse {
     return null;
   }
   
-  /*
-  public static float travelDistance(Sector a, Sector b) {
-    //
-    //  TODO:  Clearly, this needs some customisation...
-    if (a == b) return 0;
-    return 1;
-  }
-  //*/
   
-  
-  public Sector currentSector(Mobile mobile) {
-    if (mobile.inWorld()) {
-      return stageLocation();
+  public Sector currentSector(Object object) {
+    if (object instanceof Sector) {
+      return (Sector) object;
     }
-    for (SectorBase base : bases) {
-      if (base.isResident(mobile)) return base.location;
+    if (object instanceof Target) {
+      final Target target = (Target) object;
+      if (target.inWorld()) return stageLocation();
     }
-    if (mobile instanceof Human) {
-      return (Sector) ((Human) mobile).career().homeworld();
+    if (object instanceof Mobile) {
+      final Mobile mobile = (Mobile) object;
+      if (mobile.inWorld()) {
+        return stageLocation();
+      }
+      for (SectorBase base : bases) {
+        if (base.isResident(mobile)) return base.location;
+      }
+      if (mobile instanceof Human) {
+        return (Sector) ((Human) mobile).career().homeworld();
+      }
     }
     return null;
   }

@@ -17,7 +17,7 @@ import stratos.util.*;
 
 
 
-public class Base implements
+public class Base extends SectorBase implements
   Session.Saveable, Schedule.Updates, Accountable
 {
   /**  Fields, constructors, and save/load methods-
@@ -37,14 +37,9 @@ public class Base implements
   final public BaseProfiles profiles ;
   final public DangerMap    dangerMap;
   final public IntelMap     intelMap ;
-
-  private Faction faction;
-  private Actor ruler;
-  private Venue commandPost;
-  private List <Mobile> allUnits = new List();
   
+  private Venue commandPost;
   final public BaseRatings  ratings   = initRatings ();
-  final public FactionAI    tactics   = initTactics ();
   final public BaseAdvice   advice    = initAdvice  ();
   final public BaseResearch research  = initResearch();
   
@@ -56,8 +51,9 @@ public class Base implements
   
   
   protected Base(Stage world, Faction faction) {
+    super(world.offworld, world.localSector());
     this.world   = world  ;
-    this.faction = faction;
+    assignFaction(faction);
     
     setup      = new BaseSetup(this);
     demands    = new BaseDemands(this);
@@ -72,9 +68,18 @@ public class Base implements
   
   
   public Base(Session s) throws Exception {
-    this(s.world(), null);
-    s.cacheInstance(this);
-    this.faction = (Faction) s.loadObject();
+    super(s);
+    
+    this.world = s.world();
+    setup      = new BaseSetup(this);
+    demands    = new BaseDemands(this);
+    commerce   = new BaseCommerce(this);
+    transport  = new BaseTransport(world);
+    finance    = new BaseFinance(this);
+    profiles   = new BaseProfiles(this);
+    dangerMap  = new DangerMap(world, this);
+    intelMap   = new IntelMap(this);
+    intelMap.initFog(world);
     
     setup    .loadState(s);
     demands  .loadState(s);
@@ -85,12 +90,7 @@ public class Base implements
     dangerMap.loadState(s);
     intelMap .loadState(s);
 
-    ruler       = (Actor) s.loadObject();
     commandPost = (Venue) s.loadObject();
-    
-    for (int n = s.loadInt(); n-- > 0;) {
-      toggleUnit((Mobile) s.loadObject(), true);
-    }
     
     ratings.loadState(s);
     tactics  .loadState(s);
@@ -102,12 +102,10 @@ public class Base implements
     s.loadTally(venueIDTallies);
     
     baseID = s.loadInt();
-    I.say("\nLOADED BASE: "+faction.name+", ID: "+baseID);
   }
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(faction);
     
     setup    .saveState(s);
     demands  .saveState(s);
@@ -118,11 +116,7 @@ public class Base implements
     dangerMap.saveState(s);
     intelMap .saveState(s);
     
-    s.saveObject(ruler      );
     s.saveObject(commandPost);
-    
-    s.saveInt(allUnits.size());
-    for (Mobile m : allUnits) s.saveObject(m);
     
     ratings.saveState(s);
     tactics  .saveState(s);
@@ -137,7 +131,6 @@ public class Base implements
   }
   
   
-  protected FactionAI    initTactics () { return new FactionAI   (this); }
   protected BaseRatings  initRatings () { return new BaseRatings (this); }
   protected BaseAdvice   initAdvice  () { return new BaseAdvice  (this); }
   protected BaseResearch initResearch() { return new BaseResearch(this); }
@@ -146,7 +139,7 @@ public class Base implements
   
   private static Base findBase(Stage world, String title, Faction belongs) {
     for (Base base : world.bases()) {
-      if (belongs != null && base.faction != belongs ) continue;
+      if (belongs != null && base.faction() != belongs) continue;
       if (title != null && ! title.equals(base.title)) continue;
       return base;
     }
@@ -174,8 +167,8 @@ public class Base implements
     base.baseID = nextBaseID(world);
     world.registerBase(base, true);
     
-    if (base.title == null) base.title = base.faction.name;
-    base.colour.set(base.faction.bannerColour());
+    if (base.title == null) base.title = base.faction().name;
+    base.colour.set(base.faction().bannerColour());
     
     if (I.logEvents()) I.say("\nREGISTERING NEW BASE: "+base);
     return base;
@@ -241,7 +234,7 @@ public class Base implements
   
   
   public boolean isPrimal() {
-    return faction.primal();
+    return faction().primal();
   }
   
   
@@ -258,28 +251,8 @@ public class Base implements
   
   /**  Dealing with missions and personnel-
     */
-  public Actor ruler() {
-    return ruler;
-  }
-  
-  
-  public void assignRuler(Actor rules) {
-    this.ruler = rules;
-  }
-  
-  
   public Property HQ() {
-    return ruler == null ? null : ruler.mind.home();
-  }
-  
-  
-  public Faction faction() {
-    return faction;
-  }
-  
-  
-  public void assignFaction(Faction f) {
-    this.faction = f;
+    return ruler() == null ? null : ruler().mind.home();
   }
   
   
@@ -343,24 +316,7 @@ public class Base implements
   
   
   public void updateUnits() {
-    for (Mobile m : allUnits) m.updateAsMobile();
-  }
-  
-  
-  protected void toggleUnit(Mobile m, boolean is) {
-    if (is) {
-      m.setWorldEntry(allUnits.addLast(m));
-      world.presences.togglePresence(m, m.origin(), true );
-    }
-    else {
-      allUnits.removeEntry(m.worldEntry());
-      world.presences.togglePresence(m, m.origin(), false);
-    }
-  }
-  
-  
-  public Series <Mobile> allUnits() {
-    return allUnits;
+    for (Mobile m : allUnits()) m.updateAsMobile();
   }
   
   

@@ -59,7 +59,7 @@ public class DebugGathering extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Stage world = new Stage(TG.generateTerrain());
+    final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();

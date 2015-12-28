@@ -133,9 +133,11 @@ public class FactionAI {
   }
   
   
-  public void updateForSector() {
+  public void updateForSector(int numUpdates) {
     if (sector == null) return;
     for (Mission m : missions) m.updateMission();
+    
+    if (numUpdates % updateInterval() != 0) return;
     
     forceStrength = sector.powerLevel(sector.faction());
     if (base.isBaseAI()) updateDecisions();

@@ -229,7 +229,7 @@ public class Faction extends Constant {
         landing, nativeVassal.location, this,
         Expedition.TITLE_KNIGHTED, 0, 0, new Batch()
       );
-      nativeVassal.setClaimant(this, founding);
+      nativeVassal.assignFaction(this);
     }
   }
   

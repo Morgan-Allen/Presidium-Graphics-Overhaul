@@ -227,7 +227,7 @@ public class VerseJourneys {
     
     actor.mind.assignBehaviour(Smuggling.asImmigration(actor, base.world));
     SectorBase sectorBase = universe.baseForSector(home);
-    sectorBase.toggleExpat(actor, true);
+    sectorBase.toggleUnit(actor, true);
     return true;
   }
   
@@ -305,7 +305,7 @@ public class VerseJourneys {
     }
     for (SectorBase base : universe.bases) {
       I.say("\n"+base.location+" has the following residents:");
-      for (Mobile m : base.expats()) {
+      for (Mobile m : base.allUnits()) {
         I.say("    "+m);
       }
     }

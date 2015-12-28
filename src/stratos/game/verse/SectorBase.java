@@ -6,6 +6,8 @@
 package stratos.game.verse;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.plans.CombatUtils;
+import stratos.game.base.*;
 import stratos.util.*;
 
 
@@ -15,38 +17,42 @@ import stratos.util.*;
 
 
 
-public class SectorBase implements Session.Saveable {
+public class SectorBase implements Session.Saveable, Schedule.Updates {
   
 
   final public Verse universe;
   final public Sector location;
+  final public FactionAI tactics = initTactics();
+
+  private Faction faction;
+  private Actor ruler;
+  private List <Mobile> allUnits = new List();
   
-  private Faction claimant;
-  private Expedition founding;
-  final private Tally <Object> presences = new Tally();
-  final private List  <Mobile> expats    = new List ();
   private float popLevel, powerLevel;
   
   
-  protected SectorBase(Verse universe, Sector location) {
+  protected SectorBase(Verse universe, Sector init) {
     this.universe = universe;
-    this.location = location;
-    this.popLevel = location.population;
+    this.location = init;
+    this.popLevel = init.population;
   }
   
   
   public SectorBase(Session s) throws Exception {
     s.cacheInstance(this);
-    this.universe = s.world().offworld;
-    this.location = (Sector    ) s.loadObject();
-    this.claimant = (Faction   ) s.loadObject();
-    this.founding = (Expedition) s.loadObject();
-    s.loadTally(presences);
     
+    this.universe = s.world().offworld;
+    this.location = (Sector) s.loadObject();
+    this.tactics.loadState(s);
+    
+    this.faction = (Faction) s.loadObject();
+    this.ruler   = (Actor  ) s.loadObject();
+
     for (int n = s.loadInt(); n-- > 0;) {
       Mobile m = (Mobile) s.loadObject();
-      m.setWorldEntry(expats.addLast(m));
+      m.setBaseEntry(allUnits.addLast(m));
     }
+    
     popLevel   = s.loadFloat();
     powerLevel = s.loadFloat();
   }
@@ -54,39 +60,48 @@ public class SectorBase implements Session.Saveable {
   
   public void saveState(Session s) throws Exception {
     s.saveObject(location);
-    s.saveObject(claimant);
-    s.saveObject(founding);
-    s.saveTally(presences);
+    tactics.saveState(s);
     
-    s.saveInt(expats.size());
-    for (Mobile m : expats) s.saveObject(m);
+    s.saveObject(faction);
+    s.saveObject(ruler  );
+    
+    s.saveInt(allUnits.size());
+    for (Mobile m : allUnits) s.saveObject(m);
+    
     s.saveFloat(popLevel  );
     s.saveFloat(powerLevel);
   }
   
   
-  public void setClaimant(Faction claimant, Expedition founding) {
-    this.claimant = claimant;
-    this.founding = founding;
-  }
+  protected FactionAI initTactics () { return new FactionAI(this); }
 
   
   
   /**  Basic query/access methods-
     */
-  protected Series <Mobile> expats() {
-    return expats;
+  public Actor ruler() {
+    return ruler;
   }
   
   
-  protected boolean isResident(Mobile m) {
-    final ListEntry <Mobile> e = m.worldEntry();
-    return e != null && e.list() == expats;
+  public void assignRuler(Actor rules) {
+    this.ruler = rules;
   }
   
   
   public Faction faction() {
-    return claimant;
+    return faction;
+  }
+  
+  
+  public void assignFaction(Faction f) {
+    this.faction = f;
+  }
+  
+  
+  protected boolean isResident(Mobile m) {
+    final ListEntry <Mobile> e = m.baseEntry();
+    return e != null && e.list() == allUnits;
   }
   
   
@@ -96,7 +111,7 @@ public class SectorBase implements Session.Saveable {
   
   
   public float powerLevel(Faction faction) {
-    if (faction != claimant) return 0;
+    if (faction != this.faction) return 0;
     return powerLevel;
   }
   
@@ -104,33 +119,94 @@ public class SectorBase implements Session.Saveable {
   
   /**  Update and modification methods-
     */
-  protected void updateBase() {
-    for (Mobile m : expats) {
+  public float scheduledInterval() {
+    return 1;
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    if (instant) return;
+    
+    if (tactics != null) {
+      tactics.updateForSector(numUpdates);
+    }
+    
+    powerLevel = popLevel / 2f;
+    powerLevel *= CombatUtils.AVG_POWER * Mission.AVG_PARTY_LIMIT;
+    //  TODO:  Scale this further by the preponderance of military backgrounds.
+    
+    for (Mobile m : allUnits) {
       final Journey.Purpose a = Journey.activityFor(m);
       if (a != null) a.whileOffworld();
     }
     //
-    //  TODO:  Allow all residents a chance to apply for work elsewhere- use
-    //  that to replace candidate generation in BaseCommerce.
+    //  TODO:  Allow all residents a chance to apply for work elsewhere, or
+    //  the faction's own missions- use that to replace candidate generation in
+    //  BaseCommerce.
   }
   
   
-  protected void toggleExpat(Mobile m, boolean is) {
-    final ListEntry <Mobile> e = m.worldEntry();
-    final boolean belongs = e != null && e.list() == expats;
+  
+  /**  Modifying internal population and modelling their rough behaviours-
+    */
+  public void toggleUnit(Mobile m, boolean is) {
+    final Stage world = universe.world;
+    final boolean onStage = location == universe.stageLocation();
+
+    final ListEntry <Mobile> e = m.baseEntry();
+    final boolean belongs = e != null && e.list() == allUnits;
+    
+    if (e != null && e.list() != allUnits) {
+      I.complain("\nUNIT BELONGS DO A DIFFERENT BASE: "+m);
+      return;
+    }
     
     if (is) {
       if (belongs) return;
-      if (I.logEvents()) I.say("ADDING EXPAT: "+m+" TO: "+location);
-      m.setWorldEntry(expats.addLast(m));
+      if (I.logEvents()) I.say("ADDING UNIT: "+m+" TO: "+location);
+      m.setBaseEntry(allUnits.addLast(m));
+      if (onStage) world.presences.togglePresence(m, m.origin(), true );
     }
     else {
       if (! belongs) return;
-      if (I.logEvents()) I.say("REMOVING EXPAT: "+m+" FROM: "+location);
-      e.delete();
-      m.setWorldEntry(null);
+      if (I.logEvents()) I.say("REMOVING UNIT: "+m+" FROM: "+location);
+      allUnits.removeEntry(e);
+      if (onStage) world.presences.togglePresence(m, m.origin(), false);
     }
   }
+  
+  
+  public Series <Mobile> allUnits() {
+    return allUnits;
+  }
+  
+  
+  //  TODO:  Fill these in!
+  protected void refreshCrewAndCargo(Vehicle transport) {
+    
+  }
+  
+  
+  protected void updateActiveShipping() {
+    
+  }
+  
+  
+  protected void generateApplicants(Mission mission) {
+    
+  }
+  
+  
+  protected void updateEconomy() {
+    
+  }
+  
+  
+  
+  /**  Rendering, debug and interface methods-
+    */
+  
+  
 }
 
 

@@ -15,12 +15,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  Give three/four more interesting options.
-//  Large Area.  Stake Claim.  Soil Sampling.  Stealth Recon?
-
-
 public class MissionRecon extends Mission {
-  
   
   
   /**  Field definitions, constructors and save/load methods-
@@ -67,7 +62,7 @@ public class MissionRecon extends Mission {
   public static MissionRecon reconFor(Object target, Base base) {
     if (target instanceof Sector && target != base.world.localSector()) {
       final MissionRecon m = new MissionRecon(base, (Sector) target);
-      m.setJourney(Journey.configForMission(m));
+      m.setJourney(Journey.configForMission(m, base.location));
       return m.journey() == null ? null : m;
     }
     if (target instanceof Tile && Exploring.canExplore(base, (Tile) target)) {

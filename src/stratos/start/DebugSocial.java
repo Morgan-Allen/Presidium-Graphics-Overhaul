@@ -57,7 +57,7 @@ public class DebugSocial extends Scenario {
       Habitat.DUNE        , 1f,
       Habitat.SAVANNAH    , 1f
     );
-    final Stage world = new Stage(TG.generateTerrain());
+    final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     world.terrain().readyAllMeshes();
     

@@ -69,7 +69,7 @@ public class Stage {
   final public Ephemera   ephemera  ;
   
   
-  public Stage(int size) {
+  protected Stage(int size) {
     this.size = size;
     tiles = new Tile[size][size];
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
@@ -79,18 +79,20 @@ public class Stage {
     claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime());
     
-    ecology      = new Ecology     (this);
-    activities   = new Activities  (this);
+    ecology    = new Ecology   (this);
+    activities = new Activities(this);
     pathingMap = new PathingMap(this);
-    presences    = new Presences   (this);
-    ephemera     = new Ephemera    (this);
+    presences  = new Presences (this);
+    ephemera   = new Ephemera  (this);
   }
   
   
-  public Stage(StageTerrain terrain) {
-    this(terrain.mapSize);
-    this.terrain = terrain;
+  public static Stage createNewWorld(StageTerrain terrain) {
+    final Stage world = new Stage(terrain.mapSize);
+    world.terrain = terrain;
     terrain.initTerrainMesh();
+    world.offworld.initialVerse();
+    return world;
   }
   
   

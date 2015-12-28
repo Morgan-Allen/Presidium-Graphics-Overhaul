@@ -56,7 +56,7 @@ public class StartupScenario extends Scenario {
     final Sector locale = expedition.destination();
     final TerrainGen TG = locale.initialiseTerrain(mapSize);
     
-    final Stage world = new Stage(TG.generateTerrain());
+    final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
     world.terrain().readyAllMeshes();

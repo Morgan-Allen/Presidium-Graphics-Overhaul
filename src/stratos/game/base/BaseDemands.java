@@ -4,13 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.base;
-import static stratos.game.economic.Economy.PLASTICS;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.util.*;
 import stratos.user.BaseUI;
-
 import java.util.Map.Entry;
 
 
