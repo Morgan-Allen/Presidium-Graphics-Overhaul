@@ -383,7 +383,7 @@ public class Stage {
   public float timeMidRender() {
     //  Updates to currentTime occur 10 times per second or so, so adding the
     //  frame-time within that fraction gives the exact answer.
-    return (timeTick + PlayLoop.frameTime() / UPDATES_PER_SECOND);
+    return (timeTick + PlayLoop.frameTime()) / UPDATES_PER_SECOND;
   }
   
   

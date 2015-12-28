@@ -193,14 +193,15 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     if (is) {
       if (belongs) return;
       if (I.logEvents()) I.say("ADDING UNIT: "+m+" TO: "+location);
+      if (onStage) world.presences.togglePresence(m, m.origin(), true);
       m.setBaseEntry(allUnits.addLast(m));
-      if (onStage) world.presences.togglePresence(m, m.origin(), true );
     }
     else {
       if (! belongs) return;
       if (I.logEvents()) I.say("REMOVING UNIT: "+m+" FROM: "+location);
-      allUnits.removeEntry(e);
       if (onStage) world.presences.togglePresence(m, m.origin(), false);
+      allUnits.removeEntry(e);
+      m.setBaseEntry(null);
     }
   }
   
