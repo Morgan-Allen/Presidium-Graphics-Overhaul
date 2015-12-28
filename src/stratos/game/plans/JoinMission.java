@@ -181,7 +181,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     if (  mission.finished()       ) return null;
     
     final Behaviour step;
-    if (mission.isOffworld()) step = new Action(
+    if (mission.isOffworld() && ! mission.resolved()) step = new Action(
       actor, mission.journey().migrantTransitPoint(),
       this, "actionBoards",
       Action.STAND, "Boarding "
@@ -275,12 +275,18 @@ public class JoinMission extends Plan implements Journey.Purpose {
   
   
   public boolean doneOffworld() {
-    return mission.finished();
+    return mission.resolved();
   }
   
   
   public Sector origin() {
     return mission.base().world.localSector();
+  }
+  
+  
+  public boolean acceptsTransport(Vehicle t, Journey j) {
+    if (mission.journey() == j) return true;
+    return j.forMission() && j.destination() == origin();
   }
   
   

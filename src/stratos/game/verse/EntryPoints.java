@@ -332,8 +332,9 @@ public class EntryPoints {
         area.ypos() + (area.ydim() / 2f),
         0
       );
+      final Tile boards = base.world.tileAt(aimPos.x, aimPos.y);
       aimPos.z = base.world.terrain().trueHeight(aimPos.x, aimPos.y);
-      ship.assignLandPoint(aimPos, null);
+      ship.assignLandPoint(aimPos, boards);
       
       if (report) I.say("\n"+ship+" found landing at point: "+aimPos);
       return true;

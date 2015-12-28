@@ -6,7 +6,6 @@
 package stratos.game.plans;
 import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.content.civic.Dropship;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
 import stratos.game.verse.*;
@@ -234,6 +233,11 @@ public class Smuggling extends Plan implements Journey.Purpose {
   
   public Sector origin() {
     return origin;
+  }
+  
+  
+  public boolean acceptsTransport(Vehicle t, Journey j) {
+    return t == vessel;
   }
   
 

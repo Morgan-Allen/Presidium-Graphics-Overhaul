@@ -49,7 +49,13 @@ public abstract class Mission implements Session.Saveable, Selectable {
     PRIORITY_URGENT    = 3,
     PRIORITY_CRITICAL  = 4,
     PRIORITY_PARAMOUNT = 5,
-    LIMIT_PRIORITY     = 6;
+    LIMIT_PRIORITY     = 6,
+    
+    STAGE_INIT      = -1,
+    STAGE_BEGUN     =  0,
+    STAGE_RESOLVED  =  1,
+    STAGE_CANCELLED =  2,
+    STAGE_COMPLETE  =  3;
   
   final public static float REWARD_TYPE_MULTS[] = {
     0.75f, 0.5f, 0.25f, 0f
@@ -84,11 +90,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
     priority,
     missionType,
     objectIndex;
-  private float
-    inceptTime = -1;
-  private boolean
-    begun = false,
-    done  = false;
+  private float inceptTime = -1;
+  private int stage = STAGE_INIT;
   
   final CutoutSprite flagSprite;
   final String description;
@@ -115,8 +118,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     missionType = s.loadInt();
     objectIndex = s.loadInt();
     inceptTime  = s.loadFloat();
-    begun       = s.loadBool();
-    done        = s.loadBool();
+    stage       = s.loadInt();
     
     for (int i = s.loadInt(); i-- > 0;) {
       final Role role = new Role();
@@ -140,8 +142,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     s.saveInt   (missionType);
     s.saveInt   (objectIndex);
     s.saveFloat (inceptTime );
-    s.saveBool  (begun      );
-    s.saveBool  (done       );
+    s.saveInt   (stage      );
     
     s.saveInt(roles.size());
     for (Role role : roles) {
@@ -163,7 +164,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public void resetMission() {
     for (Role role : roles) role.applicant.mind.assignMission(null);
     roles.clear();
-    begun = false;
+    stage = STAGE_INIT;
   }
   
   
@@ -215,17 +216,22 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public boolean hasBegun() {
-    return begun;
+    return stage >= STAGE_BEGUN;
   }
   
- 
+  
+  public boolean resolved() {
+    return stage >= STAGE_RESOLVED;
+  }
+  
+  
   public boolean finished() {
-    return done;
+    return stage >= STAGE_CANCELLED;
   }
   
   
   public boolean isActive() {
-    return begun && ! finished();
+    return hasBegun() && ! finished();
   }
   
   
@@ -351,7 +357,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public boolean canApply(Actor actor) {
-    if (done) {
+    if (finished()) {
       return false;
     }
     if (roleFor(actor) != null) {
@@ -361,7 +367,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       return true;
     }
     if (missionType == TYPE_SCREENED) {
-      return ! begun;
+      return ! hasBegun();
     }
     if (missionType == TYPE_COVERT) {
       return false;
@@ -420,7 +426,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
     */
   public void beginMission() {
     if (hasBegun()) return;
-    begun = true;
+    stage = STAGE_BEGUN;
+    
     final boolean report = (
       verbose && BaseUI.currentPlayed() == base
     ) || I.logEvents();
@@ -451,7 +458,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  Remove any applicants that have abandoned the mission, and if a journey
     //  is required to reach the subject, check whether everyone's ready to
     //  begin.
-    for (Role role : roles) if (role.approved && begun) {
+    for (Role role : roles) if (role.approved && hasBegun()) {
       final Actor a = role.applicant;
       if (! a.health.conscious()) a.mind.assignMission(null);
       if (journeyCheck && ! journey.hasMigrant(a)) journeyCheck = false;
@@ -463,7 +470,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  Offworld missions have their outcomes evaluated separately...
     if (journey != null && journey.hasArrived()) {
       resolveMissionOffworld();
+      stage = STAGE_RESOLVED;
       journey.beginReturnTrip();
+    }
+    if (journey != null && journey.didReturn()) {
+      endMission(true);
     }
     //
     //  By default, we also terminate any missions that have been completely
@@ -475,12 +486,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public void endMission(boolean withReward) {
+  public void endMission(boolean completed) {
     //
     //  Unregister yourself from the base's list of ongoing operations-
     base.tactics.removeMission(this);
-    if (done) return;
-    done = true;
+    if (finished()) return;
+    stage = completed ? STAGE_COMPLETE : STAGE_CANCELLED;
     
     final boolean report = (
       verbose && BaseUI.currentPlayed() == base
@@ -491,11 +502,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //
     //  Determine the reward, and dispense among any agents engaged-
     final float reward;
-    if ((! withReward) || this.missionType == TYPE_BASE_AI) reward = 0;
+    if ((! completed) || this.missionType == TYPE_BASE_AI) reward = 0;
     else reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
     
     for (Role role : roles) {
-      if (begun) {
+      if (completed) {
         if (report) {
           I.say("  Dispensing "+reward+" credits to "+role.applicant);
           I.say("  Special reward: "+role.specialReward);
@@ -504,7 +515,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
           role.applicant.gear.incCredits(reward);
           base.finance.incCredits(0 - reward, BaseFinance.SOURCE_REWARDS);
         }
-        if (withReward && role.specialReward != null) {
+        if (completed && role.specialReward != null) {
           role.specialReward.performFullfillment();
         }
       }
@@ -528,10 +539,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
   /**  Behaviour implementation for the benefit of any applicants/agents:
     */
   public Behaviour nextStepFor(Actor actor, boolean create) {
-    if (begun) updateMission();
+    if (hasBegun()) updateMission();
     
     final Role role = roleFor(actor);
-    if (done || (priority <= 0 && role == null)) return null;
+    if (finished() || (priority <= 0 && role == null)) return null;
     
     if (role == null || ! Plan.canFollow(actor, role.cached, true)) {
       if (! create) return null;

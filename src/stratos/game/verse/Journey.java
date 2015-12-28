@@ -35,8 +35,7 @@ public class Journey implements Session.Saveable {
     STAGE_OUTWARD  =  0,
     STAGE_ARRIVED  =  1,
     STAGE_RETURN   =  2,
-    STAGE_RETURNED =  3,
-    STAGE_COMPLETE =  4;
+    STAGE_COMPLETE =  3;
   
   final Verse verse;
   final int properties;
@@ -104,6 +103,16 @@ public class Journey implements Session.Saveable {
   
   /**  Other general access and query methods-
     */
+  public Sector origin() {
+    return origin;
+  }
+  
+  
+  public Sector destination() {
+    return destination;
+  }
+  
+  
   public Vehicle transport() {
     return transport;
   }
@@ -163,6 +172,16 @@ public class Journey implements Session.Saveable {
   }
   
   
+  public boolean didReturn() {
+    return returns() && tripStage == STAGE_COMPLETE;
+  }
+  
+  
+  public boolean didArrive() {
+    return tripStage >= STAGE_ARRIVED;
+  }
+  
+  
   
   /**  Factory methods for exteral access-
     */
@@ -179,7 +198,7 @@ public class Journey implements Session.Saveable {
     journey.worldTarget  = null;
     journey.transport    = trader;
     journey.transitPoint = trader;
-
+    
     if (! journey.checkTransitPoint()) return null;
     return journey;
   }
@@ -270,10 +289,8 @@ public class Journey implements Session.Saveable {
     void onWorldEntry();
     void whileOffworld();
     boolean doneOffworld();
-    
-    //  TODO:  You'll need more fine-grained control over which expats will
-    //         sign up for a Journey- or which transports will accept them back.
     Sector origin();
+    boolean acceptsTransport(Vehicle t, Journey j);
   }
   
   
@@ -323,7 +340,7 @@ public class Journey implements Session.Saveable {
     final float tripTime = origin.standardTripTime(destination, maxSep);
     
     departTime = verse.world.currentTime();
-    arriveTime = departTime + (tripTime * (1 + Rand.num()) / 2f);
+    arriveTime = departTime + (tripTime * (0.5f + Rand.num()));
     
     if (transport != null) for (Mobile migrant : transport.inside()) {
       migrants.add(migrant);
@@ -392,8 +409,9 @@ public class Journey implements Session.Saveable {
   
   
   protected void onArrival(boolean visitWorld) {
-    if      (tripStage == STAGE_OUTWARD) tripStage = STAGE_ARRIVED ;
-    else if (tripStage == STAGE_RETURN ) tripStage = STAGE_RETURNED;
+    if      (hasProperty(IS_SINGLE)    ) tripStage = STAGE_COMPLETE;
+    else if (tripStage == STAGE_OUTWARD) tripStage = STAGE_ARRIVED ;
+    else if (tripStage == STAGE_RETURN ) tripStage = STAGE_COMPLETE;
     else {
       I.complain("\nCANNOT ARRIVE DURING TRIP STAGE: "+tripStage);
       return;
@@ -422,7 +440,7 @@ public class Journey implements Session.Saveable {
     //  point of origin (and the same purpose) can board your vessel and return
     //  home.
     else {
-      final SectorBase base = verse.baseForSector(origin);
+      final SectorBase base = verse.baseForSector(destination);
       if (transport != null) {
         refreshCrewAndCargo(true, transport.careers());
       }
@@ -436,38 +454,25 @@ public class Journey implements Session.Saveable {
   
   
   public void beginReturnTrip() {
-    if (tripStage != STAGE_ARRIVED) {
-      I.complain("\nCANNOT BEGIN RETURN TRIP UNLESS ARRIVED!");
-      return;
-    }
+    if (tripStage >= STAGE_RETURN || hasProperty(IS_SINGLE)) return;
+    if (hasProperty(IS_RETURN)) tripStage = STAGE_RETURN;
+    else tripStage = STAGE_OUTWARD;
     
     final Sector oldOrigin = origin;
-    arriveTime  = verse.world.currentTime();
-    arriveTime  += SHIP_JOURNEY_TIME * (0.5f + Rand.num());
-    origin      = destination;
-    destination = oldOrigin;
+    arriveTime  =  verse.world.currentTime();
+    arriveTime  += standardTripTime() * (0.5f + Rand.num());
+    origin      =  destination;
+    destination =  oldOrigin;
     
-    if (hasProperty(IS_SINGLE)) {
-      tripStage = STAGE_COMPLETE;
-    }
-    else if (hasProperty(IS_RETURN)) {
-      if (tripStage == STAGE_RETURNED) tripStage = STAGE_COMPLETE;
-      else tripStage = STAGE_RETURN;
-    }
-    else {
-      tripStage = STAGE_OUTWARD;
-    }
     
     final SectorBase base = verse.baseForSector(origin);
     final boolean offworld = origin != verse.stageLocation();
     
     if (offworld && returns()) for (Mobile m : base.expats()) {
       final Purpose a = activityFor(m);
+      if (a == null || ! a.doneOffworld()) continue;
       
-      //  TODO:  If the journey relies on transport, make sure it allows the
-      //  expat aboard (i.e, doesn't belong to a hostile base.)
-      
-      if (a != null && a.doneOffworld() && a.origin() == destination) {
+      if (a.origin() == destination && a.acceptsTransport(transport, this)) {
         base.toggleExpat(m, false);
         migrants.add(m);
       }

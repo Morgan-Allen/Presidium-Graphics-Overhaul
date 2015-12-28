@@ -87,6 +87,7 @@ public class DebugMissions extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
+    GameSettings.fastTrips = true;
     
     if (true ) offworldReconScenario(world, base, UI);
     

@@ -20,7 +20,6 @@ import static stratos.game.base.BaseCommerce.*;
 //  TODO:  It's even possible this data should be written to a separate file
 //         from the world itself, and loaded distinctly?
 //
-//  TODO:  Calculate destination-specific travel times and accidents.
 //  TODO:  Try to improve time-slicing, here and in Verse/VerseBase.
 
 
@@ -30,7 +29,7 @@ public class VerseJourneys {
   /**  Data fields, construction, and save/load methods-
     */
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   final Verse universe;
   final List <Journey> journeys = new List <Journey> ();
@@ -189,7 +188,8 @@ public class VerseJourneys {
   ) {
     final Dropship ship = new Dropship(base);
     Journey journey = Journey.configForTrader(ship, from, goes, base.world);
-    journey.onArrival(false);
+    if (journey == null) return null;
+    journey.refreshCrewAndCargo(true, ship.careers());
     journey.beginJourney();
     return ship;
   }
@@ -211,10 +211,8 @@ public class VerseJourneys {
   
   
   public boolean addLocalImmigrant(Actor actor, Base base) {
-    
     //  TODO:  You may have to reconsider this method once offworld base
     //         simulation is more developed...
-    
     final Sector
       local = base.world.offworld.stageLocation(),
       home  = base.commerce.homeworld();

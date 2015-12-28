@@ -93,6 +93,8 @@ public class GameSettings {
     noSpawn   = false,
     noAdvice  = false,
     
+    fastTrips = false,
+    
     hardCore  = false;
   public static int
     freeHousingLevel = 0;

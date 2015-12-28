@@ -231,8 +231,12 @@ public class Sector extends Background {
   
   public float standardTripTime(Sector other, int maxSepType) {
     final Separation s = separations.get(other);
+    final float timeUnit = GameSettings.fastTrips ?
+      Stage.STANDARD_HOUR_LENGTH / 2 :
+      Stage.STANDARD_DAY_LENGTH
+    ;
     if (s == null || s.sepType > maxSepType) return -1;
-    else return s.tripTime * Stage.STANDARD_DAY_LENGTH;
+    else return s.tripTime * timeUnit;
   }
   
   

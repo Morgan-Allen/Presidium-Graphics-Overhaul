@@ -129,21 +129,6 @@ public class MissionRecon extends Mission {
   
   /**  Rendering, debug and interface methods-
     */
-  /*
-  private static boolean verbose = false;
-  final static String SETTING_DESC[] = {
-    "Small range survey of ",
-    "Medium range survey of ",
-    "Large range survey of "
-  };
-  
-  
-  public String[] objectiveDescriptions() {
-    return SETTING_DESC;
-  }
-  //*/
-  
-  
   public void describeMission(Description d) {
     d.append("Recon Mission", this);
     if (subject instanceof Sector) d.appendAll(" to ", subject);
