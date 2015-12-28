@@ -138,7 +138,7 @@ public class Base extends SectorBase implements
   
   
   
-  private static Base findBase(Stage world, String title, Faction belongs) {
+  public static Base findBase(Stage world, String title, Faction belongs) {
     for (Base base : world.bases()) {
       if (belongs != null && base.faction() != belongs) continue;
       if (title != null && ! title.equals(base.title)) continue;
@@ -234,21 +234,6 @@ public class Base extends SectorBase implements
   }
   
   
-  public boolean isPrimal() {
-    return faction().primal();
-  }
-  
-  
-  public boolean isRealPlayer() {
-    return BaseUI.currentPlayed() == this;
-  }
-  
-  
-  public boolean isBaseAI() {
-    return ! isRealPlayer();
-  }
-  
-  
   
   /**  Dealing with missions and personnel-
     */
@@ -264,12 +249,8 @@ public class Base extends SectorBase implements
   
   /**  Regular updates-
     */
-  public float scheduledInterval() {
-    return 1;
-  }
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     final boolean report = false;
     
     if (report) I.say("\nUpdating "+this);

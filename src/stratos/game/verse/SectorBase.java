@@ -7,6 +7,7 @@ package stratos.game.verse;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.CombatUtils;
+import stratos.user.BaseUI;
 import stratos.game.base.*;
 import stratos.util.*;
 
@@ -74,7 +75,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   
   protected FactionAI initTactics () { return new FactionAI(this); }
-
+  
   
   
   /**  Basic query/access methods-
@@ -116,6 +117,32 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   }
   
   
+  public boolean isPrimal() {
+    return faction().primal();
+  }
+  
+  
+  public boolean isRealPlayer() {
+    return BaseUI.currentPlayed() == this;
+  }
+  
+  
+  public boolean isBaseAI() {
+    return ! isRealPlayer();
+  }
+  
+  
+  public boolean isWorldBase() {
+    return location == universe.stageLocation();
+  }
+  
+  
+  public Base baseInWorld() {
+    if (isWorldBase()) return (Base) this;
+    return Base.findBase(universe.world, null, faction);
+  }
+  
+  
   
   /**  Update and modification methods-
     */
@@ -125,7 +152,8 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    if (instant) return;
+    final boolean onStage = location == universe.stageLocation();
+    if (instant || onStage) return;
     
     if (tactics != null) {
       tactics.updateForSector(numUpdates);
@@ -152,12 +180,13 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   public void toggleUnit(Mobile m, boolean is) {
     final Stage world = universe.world;
     final boolean onStage = location == universe.stageLocation();
-
+    
     final ListEntry <Mobile> e = m.baseEntry();
     final boolean belongs = e != null && e.list() == allUnits;
     
     if (e != null && e.list() != allUnits) {
-      I.complain("\nUNIT BELONGS DO A DIFFERENT BASE: "+m);
+      final Sector oldLoc = universe.currentSector(m);
+      I.complain("\nUNIT BELONGS TO A DIFFERENT BASE: "+m+", IS AT: "+oldLoc);
       return;
     }
     

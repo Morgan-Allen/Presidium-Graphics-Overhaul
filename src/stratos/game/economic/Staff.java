@@ -380,18 +380,6 @@ public class Staff {
       }
       final Placeable home = a.mind.home();
       if (home == null && home != employs) needHome++;
-      
-      //  TODO:  This is a temporary hack for a situation that was never
-      //  supposed to arise.  Investigate!
-      final Actor b = a;
-      if (Journey.activityFor(b) != null) continue;
-      final Verse verse = base.world.offworld;
-      Sector off = verse.currentSector(b);
-      Sector local = verse.stageLocation();
-      
-      if (off != local && off != base.commerce.homeworld()) {
-        base.world.offworld.journeys.addLocalImmigrant(b, base);
-      }
     }
     for (Actor a : lodgers) {
       if (a.mind.home() != employs || ! a.health.alive()) {

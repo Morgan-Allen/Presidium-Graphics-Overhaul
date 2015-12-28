@@ -318,7 +318,6 @@ public class Retreat extends Plan {
     
     //  TODO:  If the actor has a mission, check that this was the boarding
     //         point!
-    
     if (Verse.isWorldExit(safePoint, actor) && actor.senses.isEmergency()) {
       final Stage world = actor.world();
       final EntryPoints.Portal exit = (EntryPoints.Portal) safePoint;

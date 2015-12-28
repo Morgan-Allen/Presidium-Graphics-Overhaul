@@ -50,22 +50,14 @@ public class FactionAI {
     MISSION_BEGUN_RATING_MULT  = 1.5f;
   
   
-  final protected Base base;
-  final protected SectorBase sector;
+  final protected SectorBase base;
   
   final List <Mission> missions = new List <Mission> ();
   private float forceStrength;
   
   
-  public FactionAI(Base base) {
-    this.base   = base;
-    this.sector = null;
-  }
-  
-  
-  public FactionAI(SectorBase demo) {
-    this.base   = null;
-    this.sector = demo;
+  public FactionAI(SectorBase base) {
+    this.base = base;
   }
   
   
@@ -134,12 +126,11 @@ public class FactionAI {
   
   
   public void updateForSector(int numUpdates) {
-    if (sector == null) return;
     for (Mission m : missions) m.updateMission();
     
     if (numUpdates % updateInterval() != 0) return;
     
-    forceStrength = sector.powerLevel(sector.faction());
+    forceStrength = base.powerLevel(base.faction());
     if (base.isBaseAI()) updateDecisions();
   }
   
@@ -192,13 +183,14 @@ public class FactionAI {
     *  missions...
     */
   protected Batch <Object> assembleSampleTargets() {
+    final Base BW = base.baseInWorld();
     final Batch <Object> sampled = new Batch();
-    final Verse verse = base == null ? sector.universe : base.world.offworld;
-    final Faction faction = base == null ? sector.faction() : base.faction();
+    final Verse   verse   = base.universe;
+    final Faction faction = base.faction();
     
-    if (base != null) {
-      addSamples(sampled, Venue .class, verse.world);
-      addSamples(sampled, Mobile.class, verse.world);
+    if (BW != null) {
+      addSamples(sampled, Venue .class, BW);
+      addSamples(sampled, Mobile.class, BW);
     }
     for (SectorBase b : verse.sectorBases()) {
       if (b.faction() == faction) continue;
@@ -208,22 +200,21 @@ public class FactionAI {
   }
   
   
-  protected Batch addSamples(Batch sampled, Object typeKey, Stage world) {
-    
-    final Boarding origin = base == null ? null : base.HQ();
-    if (origin == null && base != null) {
-      final Faction owns = base == null ? sector.faction() : base.faction();
+  protected Batch addSamples(Batch sampled, Object typeKey, Base BW) {
+    final Boarding origin = BW.HQ();
+    if (origin == null) {
+      final Faction owns = base == null ? base.faction() : base.faction();
       if (I.logEvents()) {
         I.say("\nWARNING: "+owns+" has no HQ, cannot get mission targets.");
       }
       return sampled;
     }
     
-    final PresenceMap sampFrom = base.world.presences.mapFor(typeKey);
+    final PresenceMap sampFrom = BW.world.presences.mapFor(typeKey);
     final int limit = Nums.max(10, sampFrom.population() / 100);
     
     for (Target t : sampFrom.visitNear(null, -1, null)) {
-      if (origin != null && ! checkReachability(t, origin)) continue;
+      if (origin != null && ! checkReachability(t, BW, origin)) continue;
       sampled.add(t);
       if (sampled.size() >= limit) break;
     }
@@ -231,11 +222,9 @@ public class FactionAI {
   }
   
   
-  protected boolean checkReachability(Target t, Boarding origin) {
+  protected boolean checkReachability(Target t, Base BW, Boarding origin) {
     final Tile reachPoint = Spacing.nearestOpenTile(t, origin);
-    return base.world.pathingMap.hasPathBetween(
-      origin, reachPoint, base, false
-    );
+    return BW.world.pathingMap.hasPathBetween(origin, reachPoint, BW, false);
   }
   
   
@@ -243,7 +232,7 @@ public class FactionAI {
   /**  Generating missions for the various targets assembled:
     */
   protected void assessMissionsForTarget(
-    Object subject, Base base, Pick <Mission> pick
+    Object subject, SectorBase base, Pick <Mission> pick
   ) {
     final Mission strike  = MissionStrike  .strikeFor  (subject, base);
     final Mission secure  = MissionSecurity.securityFor(subject, base);
@@ -323,10 +312,12 @@ public class FactionAI {
   
   protected float rateMission(Mission mission) {
     final Target target = mission.subjectAsTarget();
-    final Base other = target == null ? null : target.base();
+    final Base
+      same  = base.baseInWorld(),
+      other = target == null ? null : target.base();
     final float
-      relations  = Faction.factionRelation(base, other),
-      value      = mission.targetValue(base),
+      relations  = Faction.factionRelation(same, other),
+      value      = mission.targetValue(same),
       harmLevel  = mission.harmLevel(),
       baseForce  = 1 + base .tactics.forceStrength(),
       enemyForce = 1 + other.tactics.forceStrength(),
@@ -371,8 +362,7 @@ public class FactionAI {
   
   protected boolean shouldReport() {
     if (! updatesVerbose) return false;
-    if (base != null) return I.matchOrNull(base  .faction(), verboseBase);
-    else              return I.matchOrNull(sector.faction(), verboseBase);
+    return I.matchOrNull(base.faction(), verboseBase);
   }
 }
 

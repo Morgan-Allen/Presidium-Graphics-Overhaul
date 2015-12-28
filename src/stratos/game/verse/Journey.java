@@ -259,6 +259,9 @@ public class Journey implements Session.Saveable {
     //
     //  If you can't fly, you can't visit distant sectors:
     if ((! airborne) && (! origin.borders(destination))) {
+      if (transitPoint instanceof EntryPoints.Portal) {
+        return ((EntryPoints.Portal) transitPoint).leadsTo() == destination;
+      }
       return false;
     }
     //
@@ -507,12 +510,12 @@ public class Journey implements Session.Saveable {
     //
     //  This crew will need to be updated every now and then- in the sense of
     //  changing the roster due to losses or career changes.
-    
+    //
     //  TODO:  Ideally, offworld base-simulation should handle this?
     final Base home = transport.base();
     for (Background b : transport.careers()) {
       while (transport.staff().numOpenings(b) > 0) {
-        final Human staff = new Human(b, home);
+        final Actor staff = b.sampleFor(home);
         staff.mind.setWork(transport);
         staff.mind.setHome(transport);
       }

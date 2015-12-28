@@ -542,13 +542,9 @@ public class Verse {
     if (object instanceof Sector) {
       return (Sector) object;
     }
-    if (object instanceof Target) {
-      final Target target = (Target) object;
-      if (target.inWorld()) return stageLocation();
-    }
     if (object instanceof Mobile) {
       final Mobile mobile = (Mobile) object;
-      if (mobile.inWorld()) {
+      if (mobile.inWorld() && mobile.base().isResident(mobile)) {
         return stageLocation();
       }
       for (SectorBase base : bases) {
@@ -557,6 +553,10 @@ public class Verse {
       if (mobile instanceof Human) {
         return (Sector) ((Human) mobile).career().homeworld();
       }
+    }
+    if (object instanceof Target) {
+      final Target target = (Target) object;
+      if (target.inWorld()) return stageLocation();
     }
     return null;
   }

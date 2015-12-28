@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.game.maps.*;
+import stratos.game.verse.*;
 import stratos.util.*;
 
 
@@ -45,12 +46,13 @@ public class MissionStrike extends Mission {
   
   /**  Importance/suitability assessment-
     */
-  public static MissionStrike strikeFor(Object target, Base base) {
+  public static MissionStrike strikeFor(Object target, SectorBase base) {
+    final Base BW = base.baseInWorld();
     if ((
       target instanceof Actor ||
       target instanceof Venue
     ) && ((Target) target).base() != base) {
-      return new MissionStrike(base, (Element) target);
+      return new MissionStrike(BW, (Element) target);
     }
     return null;
   }

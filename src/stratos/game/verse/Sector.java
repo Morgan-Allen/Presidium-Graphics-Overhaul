@@ -294,7 +294,12 @@ public class Sector extends Background {
       //Scenario active = verse.scenarioFor(this);
       
       final SectorBase base = verse.baseForSector(this);
-      
+      if (! base.allUnits().empty()) {
+        d.append("\nResidents: ");
+        for (Mobile m : base.allUnits()) {
+          d.appendAll("\n  ", m);
+        }
+      }
       
     }
     else if (startingOwner != null) {

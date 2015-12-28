@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -113,11 +114,12 @@ public class MissionContact extends Mission {
   
   /**  Importance/suitability assessment-
     */
-  public static MissionContact contactFor(Object target, Base base) {
-    if (Summons.canSummon(target, base)) {
+  public static MissionContact contactFor(Object target, SectorBase base) {
+    final Base BW = base.baseInWorld();
+    if (Summons.canSummon(target, BW)) {
       final Actor summoned = (Actor) target;
-      final MissionContact mission = new MissionContact(base, summoned);
-      if (summoned.base() == base) mission.setupAsSummons();
+      final MissionContact mission = new MissionContact(BW, summoned);
+      if (summoned.base() == BW) mission.setupAsSummons();
       return mission;
     }
     return null;
