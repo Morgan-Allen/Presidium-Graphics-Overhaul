@@ -121,10 +121,12 @@ public class SectorBase implements Session.Saveable {
     
     if (is) {
       if (belongs) return;
+      if (I.logEvents()) I.say("ADDING EXPAT: "+m+" TO: "+location);
       m.setWorldEntry(expats.addLast(m));
     }
     else {
       if (! belongs) return;
+      if (I.logEvents()) I.say("REMOVING EXPAT: "+m+" FROM: "+location);
       e.delete();
       m.setWorldEntry(null);
     }

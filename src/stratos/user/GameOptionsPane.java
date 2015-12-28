@@ -65,7 +65,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       OPTIONS_ICON_TEX, OPTIONS_ICON_LIT, "Game Options"
     ) {
       
-      protected void whenClicked(Object context) {
+      protected void whenClicked() {
         if (baseUI.currentInfoPane() == pane) {
           baseUI.clearInfoPane();
           PlayLoop.setPaused(false);
@@ -79,7 +79,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       protected void updateState() {
         super.updateState();
         if (KeyInput.wasTyped(Keys.ESCAPE) && baseUI.currentTask() == null) {
-          whenClicked(null);
+          whenClicked();
         }
         if (KeyInput.wasTyped('f') || KeyInput.wasTyped('F')) {
           PlayLoop.setPaused(! PlayLoop.paused());

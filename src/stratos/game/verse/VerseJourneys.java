@@ -120,7 +120,7 @@ public class VerseJourneys {
   
   /**  Utility methods for handling shipping & transport-
     */
-  public Batch <Vehicle> allTransports() {
+  public Series <Vehicle> allTransports() {
     final Batch <Vehicle> allShips = new Batch();
     for (Journey j : journeys) if (j.transport != null) {
       allShips.add(j.transport);
@@ -137,7 +137,7 @@ public class VerseJourneys {
   }
   
   
-  public Vehicle[] transportsBetween(
+  public Series <Vehicle> transportsBetween(
     Sector orig, Sector dest, Base matchBase, boolean eitherWay
   ) {
     final Batch <Vehicle> trans = new Batch();
@@ -145,16 +145,15 @@ public class VerseJourneys {
       orig, dest, matchBase, eitherWay
     );
     for (Journey j : matches) if (j.transport != null) trans.add(j.transport);
-    return trans.toArray(Vehicle.class);
+    return trans;
   }
   
 
   public Vehicle nextTransportBetween(
     Sector orig, Sector dest, Base base, boolean eitherWay
   ) {
-    final Vehicle between[] = transportsBetween(orig, dest, base, eitherWay);
-    if (between.length == 0) return null;
-    else return between[0];
+    Series <Vehicle> between = transportsBetween(orig, dest, base, eitherWay);
+    return between.first();
   }
   
   
@@ -183,13 +182,17 @@ public class VerseJourneys {
   //  TODO:  Direct references to Dropships should not be used!  The base for
   //  the world of origin should be creating the vehicle as needed.
   
-  public Dropship setupTransport(
+  public Vehicle setupTransport(
     Sector from, Sector goes, Base base, boolean recurs
   ) {
+    final Vehicle match = nextTransportBetween(from, goes, base, recurs);
+    if (match != null) return match;
+    
     final Dropship ship = new Dropship(base);
     Journey journey = Journey.configForTrader(ship, from, goes, base.world);
     if (journey == null) return null;
-    journey.refreshCrewAndCargo(true, ship.careers());
+    
+    journey.refreshCrewAndCargo();
     journey.beginJourney();
     return ship;
   }
@@ -203,7 +206,7 @@ public class VerseJourneys {
   }
   
   
-  public Dropship setupDefaultShipping(Base base) {
+  public Vehicle setupDefaultShipping(Base base) {
     return setupTransport(
       base.commerce.homeworld(), universe.stageLocation(), base, true
     );
@@ -222,12 +225,7 @@ public class VerseJourneys {
       "\n  (Homeworld: "+home+"  Locale: "+local+")"
     ); return false; }
     
-    final Stage world = base.world;
-    Vehicle trans = null;
-    if (trans == null) trans = nextTransportBetween(home, local, base, true);
-    if (trans == null) return false;
-    
-    actor.mind.assignBehaviour(new Smuggling(actor, trans, world, false));
+    actor.mind.assignBehaviour(Smuggling.asImmigration(actor, base.world));
     SectorBase sectorBase = universe.baseForSector(home);
     sectorBase.toggleExpat(actor, true);
     return true;
@@ -245,14 +243,16 @@ public class VerseJourneys {
   public boolean scheduleLocalDrop(Base base, float delay) {
     final Sector
       orig = base.commerce.homeworld(),
-      dest = universe.stageLocation();
+      dest = universe.stageLocation ();
     
     Vehicle trans = nextTransportBetween(orig, dest, base, true);
     if (trans == null) trans = setupTransport(orig, dest, base, true);
     
     final Journey j = journeyFor(trans);
     if (j == null || trans.inWorld()) return false;
-    j.onArrival(false);
+    
+    j.refreshCrewAndCargo();
+    j.pickupOffworldMigrants();
     j.arriveTime  = universe.world.currentTime() + delay;
     return true;
   }

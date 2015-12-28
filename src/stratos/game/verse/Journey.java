@@ -348,12 +348,13 @@ public class Journey implements Session.Saveable {
     for (Mobile migrant : extraMigrants) if (migrant != null) {
       migrants.add(migrant);
     }
-    for (Mobile migrant : migrants) {
+    for (Mobile migrant : migrants) if (migrant.inWorld()) {
+      migrant.exitToOffworld();
       final Journey.Purpose a = Journey.activityFor(migrant);
-      if (migrant.inWorld()) migrant.exitToOffworld();
       if (a != null) a.onWorldExit();
     }
     
+    pickupOffworldMigrants();
     verse.journeys.journeys.include(this);
   }
   
@@ -410,7 +411,7 @@ public class Journey implements Session.Saveable {
   
   protected void onArrival(boolean visitWorld) {
     if      (hasProperty(IS_SINGLE)    ) tripStage = STAGE_COMPLETE;
-    else if (tripStage == STAGE_OUTWARD) tripStage = STAGE_ARRIVED ;
+    else if (tripStage <= STAGE_OUTWARD) tripStage = STAGE_ARRIVED ;
     else if (tripStage == STAGE_RETURN ) tripStage = STAGE_COMPLETE;
     else {
       I.complain("\nCANNOT ARRIVE DURING TRIP STAGE: "+tripStage);
@@ -439,11 +440,9 @@ public class Journey implements Session.Saveable {
     //  Then, once you're due to return, anybody with business back at your
     //  point of origin (and the same purpose) can board your vessel and return
     //  home.
-    else {
+    if (! visitWorld) {
       final SectorBase base = verse.baseForSector(destination);
-      if (transport != null) {
-        refreshCrewAndCargo(true, transport.careers());
-      }
+      refreshCrewAndCargo();
       for (Mobile m : migrants) {
         final Purpose a = activityFor(m);
         if (a != null) base.toggleExpat(m, true);
@@ -464,7 +463,20 @@ public class Journey implements Session.Saveable {
     origin      =  destination;
     destination =  oldOrigin;
     
-    
+    pickupOffworldMigrants();
+  }
+  
+  
+  public void endJourney() {
+    this.tripStage = STAGE_COMPLETE;
+    if (transport != null) transport.assignJourney(null);
+  }
+  
+  
+  
+  /**  Dealing with common conditions at the start and end of a journey:
+    */
+  protected void pickupOffworldMigrants() {
     final SectorBase base = verse.baseForSector(origin);
     final boolean offworld = origin != verse.stageLocation();
     
@@ -480,33 +492,24 @@ public class Journey implements Session.Saveable {
   }
   
   
-  public void endJourney() {
-    this.tripStage = STAGE_COMPLETE;
-    if (transport != null) transport.assignJourney(null);
-  }
-  
-  
-  protected void refreshCrewAndCargo(
-    boolean forLanding, Background... positions
-  ) {
+  protected void refreshCrewAndCargo() {
+    if (transport == null) return;
     //
     //  Configure the ship's cargo capacity-
     final BaseCommerce commerce = transport.base().commerce;
     commerce.configCargo(transport.cargo, transport.spaceCapacity(), true);
     //
     //  Update the ship's state of repairs while we're at this...
-    if (forLanding) {
-      final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
-      transport.structure.setState(Structure.STATE_INTACT, repair);
-    }
+    final float repair = Nums.clamp(1.25f - (Rand.num() / 2), 0, 1);
+    transport.structure.setState(Structure.STATE_INTACT, repair);
     //
     //  This crew will need to be updated every now and then- in the sense of
     //  changing the roster due to losses or career changes.
     
     //  TODO:  Ideally, offworld base-simulation should handle this?
     final Base home = transport.base();
-    for (Background b : positions) {
-      if (transport.staff().numOpenings(b) > 0) {
+    for (Background b : transport.careers()) {
+      while (transport.staff().numOpenings(b) > 0) {
         final Human staff = new Human(b, home);
         staff.mind.setWork(transport);
         staff.mind.setHome(transport);
@@ -562,7 +565,7 @@ public class Journey implements Session.Saveable {
   
   
   public String toString() {
-    return "Journey for "+labelObject();
+    return "Journey for "+labelObject()+" #"+hashCode();
   }
 }
 

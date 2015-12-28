@@ -121,7 +121,7 @@ public class Dropship extends Vehicle implements Owner {
     if (actor.isDoing(Bringing.class, null)) return;
     
     if (flightState() >= STATE_BOARDING) {
-      final Smuggling boarding = new Smuggling(actor, this, world, true);
+      final Smuggling boarding = Smuggling.asBoarding(actor, this);
       if (staff.assignedTo(Bringing.class) == 0) {
         boarding.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
       }

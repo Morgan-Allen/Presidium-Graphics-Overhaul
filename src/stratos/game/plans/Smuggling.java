@@ -31,25 +31,43 @@ public class Smuggling extends Plan implements Journey.Purpose {
   private Item[] moved;
   
   
-  //  TODO:  Replace public constructors with self-descriptive static factory
-  //         methods.
-  
-  public Smuggling(Actor actor, Vehicle vessel, Stage world, boolean going) {
-    super(actor, vessel, MOTIVE_JOB, NO_HARM);
-    this.warehouse = null;
-    this.vessel    = vessel;
-    this.moved     = new Item[0];
-    this.origin    = world.offworld.stageLocation();
-    this.tripDone  = ! going;
+  private Smuggling(Actor actor, Target subject) {
+    super(actor, subject, MOTIVE_JOB, NO_HARM);
   }
   
   
-  public Smuggling(Actor actor, Venue warehouse, Vehicle vessel, Item moved[]) {
-    super(actor, vessel, MOTIVE_JOB, NO_HARM);
-    this.warehouse = warehouse;
-    this.vessel    = vessel;
-    this.moved     = moved;
-    this.origin    = actor.world().offworld.stageLocation();
+  public static Smuggling asImmigration(Actor actor, Stage world) {
+    final Smuggling s = new Smuggling(actor, actor);
+    s.warehouse = null;
+    s.vessel    = null;
+    s.moved     = new Item[0];
+    s.origin    = world.localSector();
+    s.tripDone  = true;
+    return s;
+  }
+  
+  
+  public static Smuggling asBoarding(Actor actor, Vehicle vessel) {
+    final Smuggling s = new Smuggling(actor, vessel);
+    s.warehouse = null;
+    s.vessel    = vessel;
+    s.moved     = new Item[0];
+    s.origin    = actor.world().localSector();
+    s.tripDone  = false;
+    return s;
+  }
+  
+  
+  public static Smuggling asSmuggling(
+    Actor actor, Venue warehouse, Vehicle vessel, Item moved[]
+  ) {
+    final Smuggling s = new Smuggling(actor, vessel);
+    s.warehouse = warehouse;
+    s.vessel    = vessel;
+    s.moved     = moved;
+    s.origin    = actor.world().localSector();
+    s.tripDone  = false;
+    return s;
   }
   
   
@@ -91,7 +109,7 @@ public class Smuggling extends Plan implements Journey.Purpose {
     if (pick.empty()) return null;
     
     final Item toMove[] = new Item[] { pick.result() };
-    return new Smuggling(actor, depot, ship, toMove);
+    return Smuggling.asSmuggling(actor, depot, ship, toMove);
   }
   
   
@@ -114,13 +132,17 @@ public class Smuggling extends Plan implements Journey.Purpose {
   
   
   public boolean finished() {
+    if (vessel == null) return actor.inWorld();
     if (actor.aboard() != vessel && ! vessel.landed()) return false;
+    
     return super.finished();
   }
   
   
   protected Behaviour getNextStep() {
+    if (vessel == null) return null;
     if (actor.aboard() != vessel && ! vessel.landed()) return null;
+    
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next step in smuggling: "+actor);
     //
@@ -237,7 +259,8 @@ public class Smuggling extends Plan implements Journey.Purpose {
   
   
   public boolean acceptsTransport(Vehicle t, Journey j) {
-    return t == vessel;
+    if (t != null && t == vessel) return true;
+    return j.destination() == origin() && j.forTrading();
   }
   
 
@@ -245,7 +268,7 @@ public class Smuggling extends Plan implements Journey.Purpose {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    final boolean honest = moved == null || moved.length == 0;
+    final boolean honest = Visit.empty(moved);
     if (! tripDone) {
       if (actor.aboard() == vessel) {
         d.append("Waiting aboard ");

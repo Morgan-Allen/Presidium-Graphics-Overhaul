@@ -248,6 +248,7 @@ public class Faction extends Constant {
   /**  Utility methods for setting relation values:
     */
   public static float relationValue(Faction a, Faction b, Verse verse) {
+    if (a == b) return 1;
     final Relation key = new Relation(a, b, 0, 0);
     Relation match = verse.relations.get(key);
     return match == null ? 0 : match.value();

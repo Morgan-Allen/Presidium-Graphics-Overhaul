@@ -436,17 +436,19 @@ public class BaseCommerce {
     VerseJourneys travel = base.world.offworld.journeys;
     Sector locale = base.world.offworld.stageLocation();
     
-    Vehicle running[] = travel.transportsBetween(locale, homeworld, base, true);
-    Vehicle last = (Vehicle) Visit.last(running);
-    if (running.length < spaceLimit) {
+    final Series <Vehicle> running = travel.transportsBetween(
+      locale, homeworld, base, true
+    );
+    Vehicle last = running.last();
+    if (running.size() < spaceLimit) {
       travel.setupTransport(homeworld, locale, base, true);
     }
-    if (running.length > spaceLimit && ! last.inWorld()) {
+    if (running.size() > spaceLimit && ! last.inWorld()) {
       travel.retireTransport(last);
     }
     
     if (report) {
-      I.say("  Ships available: "+running.length);
+      I.say("  Ships available: "+running.size());
       I.say("  Ideal limit:     "+spaceLimit);
     }
     this.maxShipsPerDay = spaceLimit;
