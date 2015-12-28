@@ -106,6 +106,7 @@ public class Base extends SectorBase implements
   
   
   public void saveState(Session s) throws Exception {
+    super.saveState(s);
     
     setup    .saveState(s);
     demands  .saveState(s);

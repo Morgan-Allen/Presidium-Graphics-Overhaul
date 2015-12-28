@@ -463,8 +463,9 @@ public final class Session {
     if (saveID == null) {
       
       //I.say("Saving new object, class- "+s.getClass().getName());
-      saveIDs.put(s, nextObjectID);
-      out.writeInt(nextObjectID++);
+      final int nextID = nextObjectID++;
+      saveIDs.put(s, nextID);
+      out.writeInt(nextID);
       saveClass(s.getClass());
       
       final int initBytes = bytesOut;
@@ -475,7 +476,7 @@ public final class Session {
         " total bytes saved: "+(bytesOut - initBytes)
       );
       if (counts != null) {
-        counts.writeChars("\n  "+saveID+" ("+s.getClass());
+        counts.writeChars("\n  "+nextID+" ("+s.getClass());
         counts.writeChars("): "+(bytesOut - initBytes));
         
         Vars.Int count = classCounts.get(s.getClass());
