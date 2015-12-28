@@ -4,8 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.maps;
-import stratos.game.common.Session;
-import stratos.game.economic.Economy;
+import stratos.game.common.*;
 import stratos.util.*;
 
 

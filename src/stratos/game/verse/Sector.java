@@ -11,6 +11,8 @@ import stratos.game.wild.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
+import stratos.start.PlayLoop;
+import stratos.user.BaseUI;
 import stratos.user.Selectable;
 import stratos.util.*;
 
@@ -44,7 +46,6 @@ public class Sector extends Background {
   
   final Table <Background, Float> circles = new Table();
   final List <Upgrade> knowledge = new List();
-
   
   final public Sector belongs;
   final public Trait climate;
@@ -259,8 +260,46 @@ public class Sector extends Background {
   public void describeHelp(Description d, Selectable prior) {
     substituteReferences(info, d);
     
-    if (startingOwner != null) {
+    //  TODO:  You need to display information for whatever Scenario is
+    //  currently applied within a given sector.
+    
+    d.append("\n");
+    d.append("\nGravity: "   +Verse.GRAVITY_DESC   [gravity + 2]);
+    d.append("\nPopulation: "+Verse.POPULATION_DESC[population ]);
+    d.appendList("\nNative Species:", (Object[]) nativeSpecies);
+    d.appendList("\nHabitats: "     , (Object[]) habitats     );
+    
+    d.append("\n");
+    d.appendList("\nGoods made: "  , (Object[]) goodsMade  );
+    d.appendList("\nGoods needed: ", (Object[]) goodsNeeded);
+    
+    /*
+    d.append("\n\nCommon backgrounds: ");
+    for (Background b : circles.keySet()) {
+      d.appendAll("\n  ", b);
+    }
+    //*/
+    
+    /*
+    d.append("\n\nKnown Technologies:");
+    for (Upgrade u : knowledge) if (u.isBlueprintUpgrade()) {
+      d.appendAll("\n  ", u);
+    }
+    //*/
+    
+    final Base played = BaseUI.currentPlayed();
+    if (played != null) {
+      final Verse verse = played.world.offworld;
+      
+      //Scenario active = verse.scenarioFor(this);
+      
+      final SectorBase base = verse.baseForSector(this);
+      
+      
+    }
+    else if (startingOwner != null) {
       d.append("\n\n");
+      d.appendAll("Ruled by ", startingOwner, "\n");
       d.append(startingOwner.startInfo);
     }
   }

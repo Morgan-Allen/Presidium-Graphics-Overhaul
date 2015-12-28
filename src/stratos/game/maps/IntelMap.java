@@ -115,6 +115,7 @@ public class IntelMap {
   /**  Queries and modifications-
     */
   public void updateFogValues() {
+    if (noFog()) return;
     for (Coord c : Visit.grid(0,  0, world.size, world.size, 1)) {
       
       //  Fog values decay steadily over time, but those that have been
