@@ -82,22 +82,31 @@ public class MissionContact extends Mission {
   }
   
   
-  public void setupAsSummons() {
-    
+  
+  /**  Helper methods for personal summons-
+    */
+  private void setupAsSummons() {
     final Actor actor = (Actor) subject;
     setMissionType(TYPE_SCREENED);
     asSummons = Summons.officialSummons(actor, base.ruler());
-    actor.mind.assignMission(this);
-    setApprovalFor(actor, true);
-    beginMission();
-    
-    final Behaviour step = nextStepFor(actor, true);
-    if (! actor.mind.mustIgnore(step)) actor.mind.assignBehaviour(step);
   }
   
   
   public boolean isSummons() {
     return asSummons != null;
+  }
+  
+
+  public void updateMission() {
+    if (isSummons() && ! hasBegun()) {
+      final Actor actor = (Actor) subject;
+      actor.mind.assignMission(this);
+      setApprovalFor(actor, true);
+      beginMission();
+      final Behaviour step = nextStepFor(actor, true);
+      if (! actor.mind.mustIgnore(step)) actor.mind.assignBehaviour(step);
+    }
+    super.updateMission();
   }
   
   
@@ -177,7 +186,7 @@ public class MissionContact extends Mission {
   
   
   
-  /**  Rendering and interface methods-
+  /**  Rendering, debug and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new NegotiationPane(UI, this);
@@ -195,11 +204,6 @@ public class MissionContact extends Mission {
       return NP.configScreenedPanel();
     }
     else return panel;
-  }
-  
-  
-  public String[] objectiveDescriptions() {
-    return null;
   }
   
   

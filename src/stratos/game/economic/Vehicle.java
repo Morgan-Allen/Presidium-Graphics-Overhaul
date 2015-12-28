@@ -454,7 +454,7 @@ public abstract class Vehicle extends Mobile implements
       //
       //  If obstructions appear during the descent, restart the flight-path.
       //  If you touchdown, register as such.
-      if (! EntryPoints.checkLandingArea(this, world, landArea())) {
+      if (! EntryPoints.checkLandingArea(this, world, journey, landArea())) {
         beginTakeoff();
       }
       else if (height <= 0) {

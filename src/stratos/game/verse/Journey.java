@@ -21,7 +21,7 @@ public class Journey implements Session.Saveable {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    verbose = false;
+    verbose = true ;
   
   final public static int
     IS_TRADING   = 1 << 0,
@@ -40,11 +40,14 @@ public class Journey implements Session.Saveable {
   
   final Verse verse;
   final int properties;
+  final Base client;
   
-  Sector origin;
-  Sector destination;
-  float  arriveTime = -1;
-  int    tripStage = STAGE_INIT;
+  Sector   origin;
+  Sector   destination;
+  Boarding worldTarget;
+  float    departTime = -1;
+  float    arriveTime = -1;
+  int      tripStage  = STAGE_INIT;
   
   boolean begun = false;
   Vehicle transport;
@@ -53,9 +56,10 @@ public class Journey implements Session.Saveable {
   
   
   
-  protected Journey(Verse verse, int properties) {
-    this.verse = verse;
+  protected Journey(Verse verse, int properties, Base client) {
+    this.verse      = verse;
     this.properties = properties;
+    this.client     = client;
   }
   
   
@@ -63,24 +67,30 @@ public class Journey implements Session.Saveable {
     s.cacheInstance(this);
     verse        = s.world().offworld;
     properties   = s.loadInt();
+    client       = (Base) s.loadObject();
     
     origin       = (Sector) s.loadObject();
     destination  = (Sector) s.loadObject();
+    worldTarget  = (Boarding) s.loadObject();
+    departTime   = s.loadFloat();
     arriveTime   = s.loadFloat();
     tripStage    = s.loadInt();
     
     begun        = s.loadBool();
     transport    = (Vehicle ) s.loadObject();
     transitPoint = (Boarding) s.loadObject();
-    migrants     = (Batch   ) s.loadObjects(migrants);
+    s.loadObjects(migrants);
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveInt    (properties );
+    s.saveObject (client     );
     
     s.saveObject (origin     );
     s.saveObject (destination);
+    s.saveObject (worldTarget);
+    s.saveFloat  (departTime );
     s.saveFloat  (arriveTime );
     s.saveInt    (tripStage  );
     
@@ -104,8 +114,32 @@ public class Journey implements Session.Saveable {
   }
   
   
+  public Boarding migrantTransitPoint() {
+    if (transport != null) {
+      if (transport.landed()) return transport;
+      else return null;
+    }
+    else return transitPoint;
+  }
+  
+  
   public boolean hasProperty(int p) {
     return (properties & p) == p;
+  }
+  
+  
+  public boolean forTrading() {
+    return hasProperty(IS_TRADING);
+  }
+  
+  
+  public boolean forMission() {
+    return hasProperty(IS_MISSION);
+  }
+  
+  
+  public boolean forEscape() {
+    return hasProperty(IS_ESCAPE);
   }
   
   
@@ -138,22 +172,23 @@ public class Journey implements Session.Saveable {
     final Verse verse = world.offworld;
     Journey journey = verse.journeys.journeyFor(trader);
     final int props = IS_TRADING | IS_RECURRING;
-    if (journey == null) journey = new Journey(verse, props);
+    if (journey == null) journey = new Journey(verse, props, trader.base());
     
     journey.origin       = from;
     journey.destination  = goes;
-    journey.arriveTime   = -1;
+    journey.worldTarget  = null;
     journey.transport    = trader;
     journey.transitPoint = trader;
-    
+
+    if (! journey.checkTransitPoint()) return null;
     return journey;
   }
   
   
   public static Journey configForMission(Mission mission) {
     
-    //  TODO:  You need proper handling for missions *between* offworld sectors
-    //  as well as missions *from* offworld sectors...
+    //  TODO:  You need proper handling for missions *between* or *from*
+    //  offworld sectors as well as missions *to* offworld sectors...
     
     final Base base = mission.base();
     final Property HQ = base.HQ();
@@ -162,45 +197,67 @@ public class Journey implements Session.Saveable {
     final Verse verse = mission.base().world.offworld;
     final Object subject = mission.subject();
     
-    Sector from = verse.localSector(), goes = null;
+    Sector from = verse.stageLocation(), goes = null;
     if (subject instanceof Sector) goes = (Sector) subject;
     if (subject instanceof Mobile) goes = verse.currentSector((Mobile) subject);
     if (goes == null || goes == from) return null;
     
     final int props = IS_MISSION | IS_RETURN;
-    final Journey journey = new Journey(verse, props);
+    final Journey journey = new Journey(verse, props, base);
     journey.origin      = from;
     journey.destination = goes;
-    journey.arriveTime  = -1;
+    journey.worldTarget = HQ  ;
+    journey.transport   = EntryPoints.findTransport(HQ, goes, base);
     
-    if (from.borders(goes)) {
-      journey.transport = null;
-      journey.transitPoint = EntryPoints.findBorderPoint(HQ, goes, base);
-    }
-    else {
-      journey.transport = EntryPoints.findTransport(HQ, goes, base);
-      journey.transitPoint = journey.transport;
-    }
-    
-    if (journey.transitPoint == null) return null;
+    if (! journey.checkTransitPoint()) return null;
     return journey;
   }
   
   
   public static Journey configAsEscape(
-    Boarding from, Sector goes, Stage world
+    Boarding from, Sector goes, Stage world, Mobile flees
   ) {
     final Verse verse = world.offworld;
     final int props = IS_ESCAPE | IS_SINGLE;
-    final Journey journey = new Journey(verse, props);
-
+    final Journey journey = new Journey(verse, props, flees.base());
+    
     journey.origin       = world.localSector();
     journey.destination  = goes;
-    journey.arriveTime   = -1;
     journey.transport    = null;
     journey.transitPoint = from;
-    
+
+    if (! journey.checkTransitPoint()) return null;
     return journey;
+  }
+  
+  
+  private boolean checkTransitPoint() {
+    final boolean leaveWorld = origin      == verse.stageLocation();
+    final boolean visitWorld = destination == verse.stageLocation();
+    final boolean airborne = transport != null && transport.motionFlyer();
+    //
+    //  If you can't fly, you can't visit distant sectors:
+    if ((! airborne) && (! origin.borders(destination))) {
+      return false;
+    }
+    //
+    //  Any transport that visits the world needs to have a suitable landing
+    //  site:
+    if (visitWorld && transport != null) {
+      EntryPoints.findLandingSite(transport, this, true);
+      if (transport.dropPoint() == null) return false;
+    }
+    //
+    //  Finally, all ground journeys either visiting or leaving the world must
+    //  have an entry point along the border:
+    if ((leaveWorld || visitWorld) && (! airborne)) {
+      final Sector offworld = visitWorld ? origin : destination;
+      transitPoint = EntryPoints.findBorderPoint(
+        worldTarget, offworld, (Tile) transitPoint, client
+      );
+      if (transitPoint == null) return false;
+    }
+    return true;
   }
   
   
@@ -213,6 +270,9 @@ public class Journey implements Session.Saveable {
     void onWorldEntry();
     void whileOffworld();
     boolean doneOffworld();
+    
+    //  TODO:  You'll need more fine-grained control over which expats will
+    //         sign up for a Journey- or which transports will accept them back.
     Sector origin();
   }
   
@@ -242,126 +302,126 @@ public class Journey implements Session.Saveable {
   public Series <Mobile> migrants() {
     return migrants;
   }
+  
+  
+  public float standardTripTime() {
+    return origin.standardTripTime(destination, Sector.SEP_STELLAR);
+  }
 
   
   
   /**  Regular update and life-cycle methods:
     */
-  protected void updateJourney() {
-    //
-    //  Basic variable setup-
-    final Stage   world     = verse.world;
-    final float   time      = world.currentTime();
-    final Vehicle trans     = transport;
-    final boolean hasTrans  = trans != null;
-    final int     shipStage = hasTrans ? trans.flightState() : STATE_AWAY;
+  public void beginJourney(Mobile... extraMigrants) {
+    if (begun) return;
+    begun = true;
     
-    final boolean
-      visitWorld = destination == verse.stageLocation(),
-      arriving   = shipStage == STATE_AWAY && time >= arriveTime,
-      canEnter   = trans == null || EntryPoints.findLandingSite(trans, true);
+    boolean report = verbose;
+    if (report) I.say("Beginning journey: "+this);
     
-    final Base    playBase = BaseUI.currentPlayed();
-    final boolean report   = verbose && hasTrans && playBase == trans.base();
-    final String  label    = ""+transport;
-    if (report) {
-      reportJourneyState("\nUpdating journey for "+label);
+    final int maxSep = Sector.SEP_STELLAR;
+    final float tripTime = origin.standardTripTime(destination, maxSep);
+    
+    departTime = verse.world.currentTime();
+    arriveTime = departTime + (tripTime * (1 + Rand.num()) / 2f);
+    
+    if (transport != null) for (Mobile migrant : transport.inside()) {
+      migrants.add(migrant);
+    }
+    for (Mobile migrant : extraMigrants) if (migrant != null) {
+      migrants.add(migrant);
+    }
+    for (Mobile migrant : migrants) {
+      final Journey.Purpose a = Journey.activityFor(migrant);
+      if (migrant.inWorld()) migrant.exitToOffworld();
+      if (a != null) a.onWorldExit();
     }
     
-    
-    //
-    //  Sanity checks for can't-happen events-
-    if (hasTrans && shipStage != STATE_AWAY && ! trans.inWorld()) {
-      if (I.logEvents()) {
-        I.say("\nABNORMAL STATE FOR TRANSPORT- "+trans);
-        I.say("  Stage is: "+shipStage+", not in world");
-      }
-      verse.journeys.retireTransport(trans);
-      return;
-    }
-    final float timeGap = time - arriveTime;
-    if (timeGap > (SHIP_JOURNEY_TIME * 2) && ! visitWorld) {
-      if (I.logEvents()) {
-        I.say("\nJourney took too long for "+label);
-        I.say("  Arrive time:  "+arriveTime);
-        I.say("  Current time: "+time);
-        I.say("  Time gap:     "+timeGap+"/"+SHIP_JOURNEY_TIME);
-      }
-      arriveTime = time;
-      return;
-    }
-    
-
-    
-    //
-    //  If the ship is arriving from offworld, see if it's time to begin
-    //  landing-
-    if (arriving && visitWorld && canEnter) {
-      if (hasTrans) {
-        EntryPoints.findLandingSite(trans, false);
-        trans.base().advice.sendArrivalMessage(trans, origin);
-      }
-      
-      for (Mobile m : migrants) trans.setInside(m, true);
-      migrants.clear();
-      trans.beginLanding(world);
-      
-      if (I.logEvents() && hasTrans) {
-        I.say("\n"+trans+" IS LANDING");
-        I.say("  Area:  "+trans.landArea ());
-        I.say("  Point: "+trans.dropPoint());
-      }
-    }
-    
-    
-    //
-    //  If the ship has already landed in-world, see if it's time to depart-
-    if (tripStage == STAGE_INIT) tripStage = STAGE_OUTWARD;
-    boolean dueToLeave = false;
-    
-    if (shipStage == STATE_LANDED || shipStage == STATE_BOARDING) {
-      final float sinceDescent = time - arriveTime;
-      final boolean allAboard = PilotUtils.allAboard(trans);
-      onArrival(false);
-      
-      if (sinceDescent > SHIP_VISIT_DURATION) {
-        if (shipStage == STATE_LANDED) trans.beginBoarding();
-        
-        //  TODO:  IN THE CASE OF NON-RETURN TRIPS, YOU SHOULD NOT BE DOING
-        //  THIS.  FIX.
-        
-        if (allAboard && shipStage == STATE_BOARDING) {
-          trans.beginTakeoff();
-          dueToLeave = true;
-          
-          if (I.logEvents()) I.say("\n"+trans+" IS TAKING OFF!");
-        }
-      }
-    }
-    
-    //
-    //  If the ship is en-route to an offworld destination, see if it's arrived
-    //  there yet.
-    if (arriving && ! visitWorld) {
-      onArrival(true);
-      dueToLeave = true;
-      if (I.logEvents()) I.say("\n"+label+" REACHED "+origin);
-    }
-    
-    if (dueToLeave && hasProperty(IS_RECURRING)) beginReturnTrip();
+    verse.journeys.journeys.include(this);
   }
   
   
-  protected void onArrival(boolean offWorld) {
-    if (hasProperty(IS_RETURN) && tripStage == STAGE_RETURN) {
-      tripStage = STAGE_RETURNED;
+  protected void updateJourney() {
+    final boolean report = verbose;
+    final String  label  = report ? ""+labelObject() : "";
+    if (report) {
+      reportJourneyState("\nUpdating journey for "+label);
     }
-    else tripStage = STAGE_ARRIVED;
+    //
+    //  Basic variable setup-
+    final Stage   world      = verse.world;
+    final float   time       = world.currentTime();
+    final boolean hasTrans   = transport != null;
+    final int     shipStage  = hasTrans ? transport.flightState() : STATE_AWAY;
+    final boolean visitWorld = destination == verse.stageLocation();
+    final boolean arriving   = shipStage == STATE_AWAY && time >= arriveTime;
     
-    if (offWorld) {
-      
-      //  TODO:  Ideally, base-simulation should be handling this...
-      
+    if (tripStage == STAGE_INIT) tripStage = STAGE_OUTWARD;
+    if (arriving) onArrival(visitWorld);
+    if (checkForDeparture(visitWorld)) beginReturnTrip();
+  }
+  
+  
+  protected boolean checkForDeparture(boolean visitWorld) {
+    //
+    //  NOTE:  This method is only called for automatically-recurring trips by,
+    //  e.g, trade freighters.  Other trips will either be complete upon
+    //  arrival or will be prompted to recall by an external control block.
+    if (! hasProperty(IS_RECURRING)) return false;
+    
+    final float   time       = verse.world.currentTime();
+    final boolean stayTimeUp = time - arriveTime > SHIP_VISIT_DURATION;
+    
+    if (visitWorld) {
+      if (transport != null && transport.landed() && stayTimeUp) {
+        final boolean boarding = transport.flightState() == STATE_BOARDING;
+        if (! boarding) transport.beginBoarding();
+        final boolean allAboard = PilotUtils.allAboard(transport);
+        
+        if (allAboard && boarding) {
+          transport.beginTakeoff();
+          return true;
+        }
+      }
+    }
+    else {
+      if (tripStage == STAGE_ARRIVED) return true;
+    }
+    return false;
+  }
+  
+  
+  protected void onArrival(boolean visitWorld) {
+    if      (tripStage == STAGE_OUTWARD) tripStage = STAGE_ARRIVED ;
+    else if (tripStage == STAGE_RETURN ) tripStage = STAGE_RETURNED;
+    else {
+      I.complain("\nCANNOT ARRIVE DURING TRIP STAGE: "+tripStage);
+      return;
+    }
+    //
+    //  If you're arriving in-world, then you either tell the transport to
+    //  begin landing (and it'll handle the mushy details) or you eject all
+    //  your migrants at the transit-point:
+    if (visitWorld && checkTransitPoint()) {
+      if (transport != null) {
+        for (Mobile m : migrants) transport.setInside(m, true);
+        migrants.clear();
+        transport.beginLanding(verse.world);
+        transport.base().advice.sendArrivalMessage(transport, origin);
+      }
+      else {
+        for (Mobile m : migrants) {
+          m.enterWorldAt(transitPoint, verse.world);
+        }
+        migrants.clear();
+      }
+    }
+    //
+    //  In principle, all you do offworld is dump off your passengers.
+    //  Then, once you're due to return, anybody with business back at your
+    //  point of origin (and the same purpose) can board your vessel and return
+    //  home.
+    else {
       final SectorBase base = verse.baseForSector(origin);
       if (transport != null) {
         refreshCrewAndCargo(true, transport.careers());
@@ -371,25 +431,13 @@ public class Journey implements Session.Saveable {
         if (a != null) base.toggleExpat(m, true);
       }
       migrants.clear();
-      
-      if (returns()) for (Mobile m : base.expats()) {
-        final Purpose a = activityFor(m);
-        
-        //  TODO:  If the journey relies on transport, make sure it allows the
-        //  expat aboard (i.e, doesn't belong to a hostile base.)
-        
-        if (a != null && a.doneOffworld() && a.origin() == destination) {
-          base.toggleExpat(m, false);
-          migrants.add(m);
-        }
-      }
     }
   }
   
   
   public void beginReturnTrip() {
     if (tripStage != STAGE_ARRIVED) {
-      I.complain("\nCANNOT BEGIN RETURN TRIP BEFORE ARRIVAL!");
+      I.complain("\nCANNOT BEGIN RETURN TRIP UNLESS ARRIVED!");
       return;
     }
     
@@ -399,10 +447,30 @@ public class Journey implements Session.Saveable {
     origin      = destination;
     destination = oldOrigin;
     
-    if (hasProperty(IS_SINGLE)) tripStage = STAGE_COMPLETE;
-    if (hasProperty(IS_RETURN)) {
+    if (hasProperty(IS_SINGLE)) {
+      tripStage = STAGE_COMPLETE;
+    }
+    else if (hasProperty(IS_RETURN)) {
       if (tripStage == STAGE_RETURNED) tripStage = STAGE_COMPLETE;
       else tripStage = STAGE_RETURN;
+    }
+    else {
+      tripStage = STAGE_OUTWARD;
+    }
+    
+    final SectorBase base = verse.baseForSector(origin);
+    final boolean offworld = origin != verse.stageLocation();
+    
+    if (offworld && returns()) for (Mobile m : base.expats()) {
+      final Purpose a = activityFor(m);
+      
+      //  TODO:  If the journey relies on transport, make sure it allows the
+      //  expat aboard (i.e, doesn't belong to a hostile base.)
+      
+      if (a != null && a.doneOffworld() && a.origin() == destination) {
+        base.toggleExpat(m, false);
+        migrants.add(m);
+      }
     }
   }
   
@@ -430,9 +498,7 @@ public class Journey implements Session.Saveable {
     //  This crew will need to be updated every now and then- in the sense of
     //  changing the roster due to losses or career changes.
     
-    //
-    //  TODO:  Ideally, offworld base-simulation should handle this...
-    
+    //  TODO:  Ideally, offworld base-simulation should handle this?
     final Base home = transport.base();
     for (Background b : positions) {
       if (transport.staff().numOpenings(b) > 0) {
@@ -478,7 +544,24 @@ public class Journey implements Session.Saveable {
     }
   }
   
+  
+  private Object labelObject() {
+    for (Mobile m : migrants) if (m instanceof Actor) {
+      final Mission job = ((Actor) m).mind.mission();
+      if (job != null && job.journey() == this) return job;
+    }
+    if (transport != null) return transport;
+    if (migrants.size() >= 1) return migrants.first();
+    return null;
+  }
+  
+  
+  public String toString() {
+    return "Journey for "+labelObject();
+  }
 }
+
+
 
 
 

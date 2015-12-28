@@ -323,8 +323,8 @@ public class Retreat extends Plan {
       final Stage world = actor.world();
       final EntryPoints.Portal exit = (EntryPoints.Portal) safePoint;
       final Sector goes = exit.leadsTo();
-      final Journey j = Journey.configAsEscape(exit, goes, world);
-      world.offworld.journeys.beginJourney(j, actor);
+      final Journey j = Journey.configAsEscape(exit, goes, world, actor);
+      j.beginJourney(actor);
     }
     else if (actor.senses.fearLevel() <= 0) {
       final Resting rest = new Resting(actor, safePoint);

@@ -19,6 +19,10 @@ import static stratos.game.base.BaseCommerce.*;
 //
 //  TODO:  It's even possible this data should be written to a separate file
 //         from the world itself, and loaded distinctly?
+//
+//  TODO:  Calculate destination-specific travel times and accidents.
+//  TODO:  Try to improve time-slicing, here and in Verse/VerseBase.
+
 
 public class VerseJourneys {
   
@@ -26,13 +30,7 @@ public class VerseJourneys {
   /**  Data fields, construction, and save/load methods-
     */
   private static boolean
-    verbose        = false,
-    transitVerbose = false,
-    updatesVerbose = false,
-    extraVerbose   = false;
-  
-  //  TODO:  Calculate destination-specific travel times and accidents.
-  //  TODO:  Try to improve time-slicing, here and in Verse/VerseBase.
+    verbose = true ;
   
   final Verse universe;
   final List <Journey> journeys = new List <Journey> ();
@@ -98,42 +96,22 @@ public class VerseJourneys {
   }
   
   
-  public void beginJourney(Journey j, Mobile... migrants) {
-    final float
-      currTime = universe.world.currentTime(),
-      tripTime = j.origin.standardTripTime(j.destination, Sector.SEP_STELLAR);
-    
-    j.arriveTime = currTime + (tripTime * (1 + Rand.num()) / 2f);
-    j.migrants.clear();
-    
-    if (j.transport != null) for (Mobile migrant : j.transport.inside()) {
-      j.migrants.add(migrant);
-    }
-    for (Mobile migrant : migrants) if (migrant != null) {
-      j.migrants.add(migrant);
-    }
-    for (Mobile migrant : j.migrants) {
-      final Journey.Purpose a = Journey.activityFor(migrant);
-      if (migrant.inWorld()) migrant.exitToOffworld();
-      if (a != null) a.onWorldExit();
-    }
-    journeys.include(j);
-  }
-  
-  
   protected void updateJourneys(int numUpdates) {
+    
+    boolean report = verbose;
+    if (report) {
+      I.say("\nUpdating journeys for universe...");
+      I.say("  Updates/period: "+numUpdates+"/"+UPDATE_INTERVAL);
+      I.say("  Total journeys: "+journeys.size());
+    }
+    
     if ((numUpdates % UPDATE_INTERVAL) != 0 || GameSettings.noShips) return;
+    
     //
     //  TODO:  THIS NEEDS TO BE PUT ON A SCHEDULE
     for (Journey j : journeys) {
-      final int oldState = j.tripStage;
-      
       j.updateJourney();
       if (j.complete()) journeys.remove(j);
-      
-      if (j.tripStage != oldState && verbose) {
-        reportOffworldState("\n\nJourney has changed state...");
-      }
     }
     //
     ///if (numUpdates % 10 == 0) reportOffworldState("\n\nREGULAR CHECKUP");
@@ -202,13 +180,9 @@ public class VerseJourneys {
   
   /**  Other utility-setup methods-
     */
-  
+  //
   //  TODO:  Direct references to Dropships should not be used!  The base for
   //  the world of origin should be creating the vehicle as needed.
-  
-  //  ...I need to know what's creating the journey, or if you can add those
-  //  yourself.
-  
   
   public Dropship setupTransport(
     Sector from, Sector goes, Base base, boolean recurs
@@ -216,7 +190,7 @@ public class VerseJourneys {
     final Dropship ship = new Dropship(base);
     Journey journey = Journey.configForTrader(ship, from, goes, base.world);
     journey.onArrival(false);
-    beginJourney(journey);
+    journey.beginJourney();
     return ship;
   }
   
@@ -293,10 +267,9 @@ public class VerseJourneys {
     //
     //  Basic sanity checks first.
     if (mobile.inWorld()) return 0;
-    final float time = universe.world.currentTime();
-    final float tripTime = SHIP_VISIT_DURATION + SHIP_JOURNEY_TIME;
-    final Sector locale  = universe.stageLocation();
-    final Sector resides = universe.currentSector(mobile);
+    final float  time     = universe.world.currentTime();
+    final Sector locale   = universe.stageLocation();
+    final Sector resides  = universe.currentSector(mobile);
     //
     //  If the actor is currently aboard a dropship, return it's arrival date.
     Journey journey = journeyFor(mobile);
@@ -306,14 +279,14 @@ public class VerseJourneys {
       return ETA < 0 ? 0 : ETA;
     }
     if (journey != null && journey.origin == locale && journey.returns()) {
-      return journey.arriveTime + tripTime - time;
+      return journey.arriveTime + journey.standardTripTime() - time;
     }
     //
     //  Otherwise, try to find the next dropship likely to visit the actor's
     //  current location, and make a reasonable guess about trip times.
     journey = nextJourneyBetween(locale, resides, base, true);
     if (journey != null && journey.origin == locale && journey.returns()) {
-      return journey.arriveTime + tripTime - time;
+      return journey.arriveTime + journey.standardTripTime() - time;
     }
     //
     //  If it's currently heading here, it'll have to head back after picking
@@ -321,7 +294,7 @@ public class VerseJourneys {
     //  actor aboard, a full return trip will be needed (in and out, twice as
     //  long.)
     if (journey != null && journey.returns()) {
-      return journey.arriveTime + (tripTime * 2) - time;
+      return journey.arriveTime + (journey.standardTripTime() * 2) - time;
     }
     return -1;
   }

@@ -119,6 +119,8 @@ public class FactionAI {
   
   public void updateForBase(int numUpdates) {
     if (base == null) return;
+    for (Mission m : missions) m.updateMission();
+    
     if (numUpdates % updateInterval() != 0) return;
     
     forceStrength = 0;
@@ -133,6 +135,7 @@ public class FactionAI {
   
   public void updateForSector() {
     if (sector == null) return;
+    for (Mission m : missions) m.updateMission();
     
     forceStrength = sector.powerLevel(sector.faction());
     if (base.isBaseAI()) updateDecisions();
@@ -207,8 +210,9 @@ public class FactionAI {
     
     final Boarding origin = base == null ? null : base.HQ();
     if (origin == null && base != null) {
+      final Faction owns = base == null ? sector.faction() : base.faction();
       if (I.logEvents()) {
-        I.say("\nWARNING: "+this+" has no origin, cannot get mission targets.");
+        I.say("\nWARNING: "+owns+" has no HQ, cannot get mission targets.");
       }
       return sampled;
     }

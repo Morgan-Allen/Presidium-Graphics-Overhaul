@@ -67,26 +67,42 @@ public class EntryPoints {
   
   
   public static Tile findBorderPoint(
-    Boarding inWorld, Sector offWorld, Base client
+    Boarding inWorld, Sector offWorld, Tile cachedPoint, Base client
   ) {
     final Stage  world = inWorld.world();
     final Sector local = world.localSector();
     if (! local.borders(offWorld)) return null;
-    
     //
-    //  TODO:  You're going to need some idea of sector coordinates to do this
-    //  properly...
-    
+    //  If the currently-used border point is still viable, stick with that-
+    if (cachedPoint != null) {
+      float rating = rateBorderPoint(cachedPoint, inWorld, offWorld, client);
+      if (rating > 0) return cachedPoint;
+    }
+    //
+    //  Otherwise, scan along the edge of the map looking for a viable point of
+    //  entry:
     final Box2D bordering = new Box2D().setTo(world.area()).expandBy(-1);
-    final Pick <Tile> pick = new Pick();
-    
+    final Pick <Tile> pick = new Pick(0);
     for (Tile t : Spacing.perimeter(bordering, world)) {
-      if (! world.pathingMap.hasPathBetween(t, inWorld, client, false)) {
-        continue;
-      }
-      pick.compare(t, 0 - Spacing.distance(t, inWorld));
+      pick.compare(t, rateBorderPoint(t, inWorld, offWorld, client));
     }
     return pick.result();
+  }
+  
+  
+  private static float rateBorderPoint(
+    Tile t, Boarding inWorld, Sector offWorld, Base client
+  ) {
+    //
+    //  TODO:  You're going to need some idea of sector coordinates to do this
+    //  properly.
+    if (
+      t != null && (! t.blocked()) &&
+      client.world.pathingMap.hasPathBetween(t, inWorld, client, false)
+    ) {
+      return 1f / (1 + Spacing.zoneDistance(t, inWorld));
+    }
+    else return -1;
   }
   
   
@@ -103,27 +119,45 @@ public class EntryPoints {
   }
   
   
-  private static float rateDocking(Docking dock, Vehicle ship) {
+  private static float rateDocking(
+    Docking dock, Journey journey, Vehicle ship
+  ) {
     if ((! dock.inWorld()) || ! dock.structure().intact()) return -1;
     if (! dock.allowsDocking(ship)) return -1;
-    //
-    //  TODO:  SEE IF YOU CAN USE THE BRING-UTILS CLASS FOR THIS (see below...)
     
-    final Inventory stocks = dock.inventory();
-    float rating = 1;
-    for (Traded good : Economy.ALL_MATERIALS) {
-      rating += Nums.abs(stocks.relativeShortage(good, true));
+    final Base base = ship.base();
+    final float danger = Nums.max(0, base.dangerMap.sampleAround(dock, -1));
+    
+    final Target target = journey.worldTarget;
+    float nearRating = 1;
+    if (target != null) nearRating /= 1 + Spacing.zoneDistance(dock, target);
+    
+    if (journey.forTrading()) {
+      final Inventory stocks = dock.inventory();
+      float rating = 1;
+      for (Traded good : ALL_MATERIALS) {
+        rating += Nums.abs(stocks.relativeShortage(good, true));
+      }
+      rating *= 2f / ALL_MATERIALS.length;
+      return rating * nearRating / (1 + danger);
     }
-    rating *= 2f / ALL_MATERIALS.length;
-    return rating;
+    else if (journey.forMission()) {
+      return 2f * nearRating  / (1 + danger);
+    }
+    else if (journey.forEscape()) {
+      return 2f * nearRating  / (1 + danger);
+    }
+    return -1;
   }
   
   
-  private static Docking findDocking(Vehicle ship, Stage world) {
+  private static Docking findDocking(
+    Vehicle ship, Journey journey, Stage world
+  ) {
     final Pick <Docking> pick = new Pick(null, 0);
     for (Object o : world.presences.matchesNear(SERVICE_DOCKING, ship, -1)) {
-      final Docking strip = (Docking) o;
-      pick.compare(strip, rateDocking(strip, ship));
+      final Docking dock = (Docking) o;
+      pick.compare(dock, rateDocking(dock, journey, ship));
     }
     return pick.result();
   }
@@ -154,13 +188,13 @@ public class EntryPoints {
   /**  Finally, utility methods for finding a suitable landing point-
     */
   public static boolean checkLandingArea(
-    Vehicle ship, Stage world, Box2D area
+    Vehicle ship, Stage world, Journey journey, Box2D area
   ) {
     final Boarding dropPoint = ship.dropPoint();
     
     if (dropPoint instanceof Docking) {
       final Docking strip = (Docking) dropPoint;
-      if (rateDocking(strip, ship) <= 0) return false;
+      if (rateDocking(strip, journey, ship) <= 0) return false;
       return true;
     }
     
@@ -178,11 +212,9 @@ public class EntryPoints {
   }
   
   
-  public static boolean findLandingSite(Vehicle trans, boolean useCache) {
-    
-    //  TODO:  YOU'LL NEED TO FIND AN ALTERNATE ENTRY-POINT FOR GROUND-BASED
-    //  VEHICLES- along the borders of the map.
-    
+  public static boolean findLandingSite(
+    Vehicle trans, Journey journey, boolean useCache
+  ) {
     //
     //  Basic variable setup and sanity checks-
     final Base  base  = trans.base();
@@ -191,7 +223,7 @@ public class EntryPoints {
     if (trans.landed()) return true;
     //
     //  If your current landing site is still valid, then keep it.
-    if (useCache && checkLandingArea(trans, world, trans.landArea())) {
+    if (useCache && checkLandingArea(trans, world, journey, trans.landArea())) {
       if (report) {
         I.say("\nCurrent landing site valid for "+trans);
         I.say("  Point: "+trans.dropPoint());
@@ -200,7 +232,7 @@ public class EntryPoints {
       return true;
     }
     
-    final Docking strip = findDocking(trans, world);
+    final Docking strip = findDocking(trans, journey, world);
     if (strip != null) {
       final Vec3D aimPos = strip.dockLocation(trans);
       trans.assignLandPoint(aimPos, strip);
@@ -210,12 +242,12 @@ public class EntryPoints {
     //
     //  Otherwise, search for a suitable landing site on the bare ground near
     //  likely customers:
-    return findLandingArea(trans, base);
+    return findLandingArea(trans, journey, base);
   }
 
   
   private static boolean findLandingArea(
-    final Vehicle ship, final Base base
+    final Vehicle ship, final Journey journey, final Base base
   ) {
     final boolean report = siteVerbose && BaseUI.current().played() == base;
     
@@ -223,6 +255,7 @@ public class EntryPoints {
     final Presences p = world.presences;
     final int ZS = Stage.ZONE_SIZE;
     final Box2D area = ship.area(null);
+    final boolean trades = journey.forTrading();
     final Traded goods[] = ship.cargo.demanded();
     //
     //  If these ship doesn't have a position yet, we provisionally assign one,
@@ -234,40 +267,56 @@ public class EntryPoints {
     if (ship.landArea() == null || ship.dropPoint() == null) {
       ship.setPosition(randTile.x, randTile.y, world);
     }
-    final Bringing collects = BringUtils.bestBulkCollectionFor(
+    final Bringing collects = trades ? BringUtils.bestBulkCollectionFor(
       ship, goods, 2, 10, 5, true
-    );
-    final Bringing delivers = BringUtils.bestBulkDeliveryFrom(
+    ) : null;
+    final Bringing delivers = trades ? BringUtils.bestBulkDeliveryFrom(
       ship, goods, 2, 10, 5, true
-    );
+    ) : null;
     //
     //  We then perform a general siting-pass favouring points close to these
     //  preferred collection points (and commerce-venues in general.)
     final SitingPass spread = new SitingPass(base, null, null) {
       
       protected float ratePlacing(Target point, boolean exact) {
-        Target nearest = p.nearestMatch(SERVICE_COMMERCE, point, -1);
-        if (nearest == null) nearest = p.nearestMatch(base, point, -1);
-        if (nearest == null) nearest = randTile;
-        float rating = 1;
         
-        if (collects != null) {
-          rating *= ZS / (ZS + Spacing.distance(point, collects.origin));
+        //
+        //  TODO:  See if you can unify this with the rateDock method above?
+        float danger = Nums.max(0, base.dangerMap.sampleAround(point, -1));
+        final Target targ = journey.worldTarget;
+        float nearRating = 1;
+        if (targ != null) nearRating /= 1 + Spacing.zoneDistance(point, targ);
+        
+        if (trades) {
+          Target nearest = p.nearestMatch(SERVICE_COMMERCE, point, -1);
+          if (nearest == null) nearest = p.nearestMatch(base, point, -1);
+          if (nearest == null) nearest = randTile;
+          float rating = 1;
+          
+          if (collects != null) {
+            rating *= ZS / (ZS + Spacing.distance(point, collects.origin));
+          }
+          if (delivers != null) {
+            rating *= ZS / (ZS + Spacing.distance(point, delivers.destination));
+          }
+          if (nearest != null) {
+            rating *= ZS / (ZS + Spacing.distance(point, nearest));
+            return rating * 2f * nearRating / (1 + danger);
+          }
         }
-        if (delivers != null) {
-          rating *= ZS / (ZS + Spacing.distance(point, delivers.destination));
+        else if (journey.forMission()) {
+          return 2f * nearRating / (1 + danger);
         }
-        if (nearest != null) {
-          rating *= ZS / (ZS + Spacing.distance(point, nearest));
-          return rating;
+        else if (journey.forEscape()) {
+          return 2f * nearRating / (1 + danger);
         }
-        else return -1;
+        return -1;
       }
       
       protected boolean canPlaceAt(Tile t, Account reasons) {
         area.xpos(t.x - 0.5f);
         area.ypos(t.y - 0.5f);
-        if (checkLandingArea(ship, base.world, area)) {
+        if (checkLandingArea(ship, base.world, journey, area)) {
           return reasons.setSuccess();
         }
         else return reasons.setFailure("No landing possible.");

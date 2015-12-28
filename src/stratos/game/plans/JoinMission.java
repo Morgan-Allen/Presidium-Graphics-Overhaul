@@ -25,8 +25,7 @@ import stratos.game.actors.Plan;
 //  TODO:  Make this into a preliminary step for *all* missions- where you
 //         apply and wait for other applicants when possible.
 
-
-public class JoinMission extends Plan {
+public class JoinMission extends Plan implements Journey.Purpose {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -140,14 +139,15 @@ public class JoinMission extends Plan {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    if (actor.mind.mission() == mission) return 0;
     return mission.priorityFor(actor);
   }
   
   
   protected Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next step for joining "+mission);
+    final boolean report = I.talkAbout == actor;// && stepsVerbose;
+    if (report) {
+      I.say("\nGetting next step for joining "+mission);
+    }
     
     if (! mission.canApply(actor)) {
       if (report) {
@@ -159,17 +159,9 @@ public class JoinMission extends Plan {
       return null;
     }
     
-    if (mission.isApproved(actor)) {
-      if (report) I.say("  Joining now.");
-      final Action joins = new Action(
-        actor, actor,
-        this, "actionJoins",
-        Action.LOOK, "Joining mission"
-      );
-      return joins;
-    }
+    Target applyPoint = mission.base().HQ();
+    if (mission.missionType() == Mission.TYPE_PUBLIC) applyPoint = actor;
     
-    final Target applyPoint = MissionUtils.applyPointFor(actor, mission);
     if (applyPoint == null) {
       I.complain("NO APPLY POINT FOR "+mission);
       return null;
@@ -185,9 +177,12 @@ public class JoinMission extends Plan {
       return applies;
     }
     
+    if (! mission.isApproved(actor)) return null;
+    if (  mission.finished()       ) return null;
+    
     final Behaviour step;
     if (mission.isOffworld()) step = new Action(
-      actor, mission.journey().transitPoint(),
+      actor, mission.journey().migrantTransitPoint(),
       this, "actionBoards",
       Action.STAND, "Boarding "
     );
@@ -199,10 +194,31 @@ public class JoinMission extends Plan {
   }
   
   
+  public boolean finished() {
+    return mission.finished();
+  }
+  
+  
+  public void interrupt(String cause) {
+    actor.mind.assignMission(null);
+    super.interrupt(cause);
+  }
+  
+  
+  public boolean actionApplies(Actor client, Target applyPoint) {
+    if (! mission.canApply(client)) return false;
+    client.mind.assignMission(mission);
+    return true;
+  }
+  
+  
   private Action nextWaitAction(Actor actor, Behaviour step) {
     if (step == null) return null;
     if (actor.senses.isEmergency()) return null;
     
+    //  TODO:  Figure out the waiting-protocol here...
+    
+    /*
     for (Actor a : mission.approved()) {
       if (a == actor || a.planFocus(null, true) != subject) continue;
       
@@ -218,46 +234,12 @@ public class JoinMission extends Plan {
         return waits;
       }
     }
+    //*/
     return null;
   }
   
   
-  public boolean actionJoins(Actor client, Actor self) {
-    ///if (I.logEvents()) I.say("\n"+actor+" joining mission: "+mission);
-    
-    if (! mission.canApply(client)) return false;
-    final boolean report = stepsVerbose && I.talkAbout == client;
-    
-    if (report) {
-      I.say("");
-      I.say("Joining mission:  "+mission);
-      I.say("  Has begun?      "+mission.hasBegun());
-      I.say("  Applicants:     "+mission.totalApplied());
-    }
-    client.mind.assignMission  (mission);
-    client.mind.assignBehaviour(mission.nextStepFor(actor, true));
-    return true;
-  }
-  
-  
-  public boolean actionApplies(Actor client, Target applyPoint) {
-    if (! mission.canApply(client)) return false;
-    client.mind.assignMission(mission);
-    return true;
-  }
-  
-  
-  //  TODO:  These need to be moved out to the JoinMission class!
-  //*
-  
-  
-  public boolean actionWait(Actor actor, Actor other) {
-    return true;
-  }
-  //*/
-  
-  
-  public boolean actionWait(Actor client, Target applyPoint) {
+  public boolean actionWait(Actor actor, Target point) {
     return true;
   }
   
@@ -267,11 +249,44 @@ public class JoinMission extends Plan {
     if (j == null) I.complain("\nNO JOURNEY FOR MISSION: "+mission);
     
     if (j.transport() == null) actor.exitToOffworld();
+    else actor.goAboard(j.transport(), actor.world());
+    
     j.addMigrant(actor);
     return true;
   }
   
   
+  
+  /**  Handling offworld behaviours-
+    */
+  public void onWorldExit() {
+    return;
+  }
+  
+  
+  public void onWorldEntry() {
+    return;
+  }
+  
+  
+  public void whileOffworld() {
+    return;
+  }
+  
+  
+  public boolean doneOffworld() {
+    return mission.finished();
+  }
+  
+  
+  public Sector origin() {
+    return mission.base().world.localSector();
+  }
+  
+  
+  
+  /**  Rendering, debug and interface methods-
+    */
   public void describeBehaviour(Description d) {
     d.append("Joining mission: ");
     mission.describeMission(d);

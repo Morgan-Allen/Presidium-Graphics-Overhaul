@@ -12,17 +12,6 @@ import stratos.game.common.*;
 public class MissionUtils {
   
   
-  public static Target applyPointFor(Actor actor, Mission mission) {
-    final int type = mission.missionType();
-    if (type == Mission.TYPE_BASE_AI) return actor;
-    if (type == Mission.TYPE_PUBLIC ) return actor;
-    
-    //  TODO:  BE STRICTER ABOUT THIS!
-    if (mission.base().HQ() == null ) return actor;
-    return mission.base().HQ();
-  }
-  
-  
   public static float competition(Actor actor, Mission mission) {
     if (mission.isApproved(actor)) return 0;
     final int

@@ -6,6 +6,7 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.game.plans.JoinMission;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -15,41 +16,11 @@ import stratos.util.*;
 
 
 
-//  There are a number of permutations to handle:
-//  World.  Adjacent Sector.  Remote Sector.
-//  Trading.  Mission/Raid.  To.  From.
-//
-//  So... 18 possible combinations.  I can't custom-code them all.
-
-//  Outward mission-
-//  Step 1.  You have a mission with an associated Journey.
-//  Step 2.  You go to the drop-point (which is either a ship or a border) and
-//           join the journey.
-//  Step 3.  Once all team-members have joined the journey, the journey starts.
-//  Step 4.  Once the journey ends, success/failure and any effects on the
-//           team are evaluated.
-//  Step 5.  Some time later (maybe soon), the return trip is started.
-//  Step 6.  The return trip ends, and the crew re-enter the world, job done.
-
-//  Inward mission-
-//  Step 1.  Faction-AI declares a mission in-world and an associated Journey.
-//           Crew and pilot are selected or generated.  The journey starts.
-//  Step 2.  The journey ends, and the crew are dumped at the drop-point (which
-//           is either a ship or a border.)
-//  Step 3.  The usual criteria for takeoff apply- either a time-limit is
-//           reached, or all conscious crew are aboard & hiding.  (They are
-//           considered crew until they get back.)
-//  Step 4.  After the return-trip is done, they're home.
-
-//  Well... first of all, I will need trips that actually go to arbitrary
-//  offworld destinations.  Or, to vanish off the edge of the map.
-
-
-
-
-
 public abstract class Mission implements Session.Saveable, Selectable {
   
+  
+  /**  Debug flags-
+    */
   protected static boolean
     verbose     = false,
     evalVerbose = false,
@@ -61,6 +32,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
     );
   }
   
+  
+  /**  Data fields, constructors and save/load methods-
+    */
   final public static int
     TYPE_BASE_AI  = -1,
     TYPE_PUBLIC   =  0,
@@ -183,84 +157,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public boolean matchesPlan(Behaviour p) {
-    if (p.getClass() != this.getClass()) return false;
-    final Mission other = (Mission) p;
-    if (other.base    != this.base   ) return false;
-    if (other.subject != this.subject) return false;
-    return true;
-  }
   
-  
-  public int missionType() {
-    return missionType;
-  }
-  
-  
-  public Base base() {
-    return base;
-  }
-  
-  
-  public Session.Saveable subject() {
-    return subject;
-  }
-  
-  
-  public Target subjectAsTarget() {
-    if (subject instanceof Target) return (Target) subject;
-    else return null;
-  }
-  
-  
-  public boolean isOffworld() {
-    if (subject instanceof Sector) return true;
-    if (subject instanceof Target) return ! ((Target) subject).inWorld();
-    return false;
-  }
-  
-  
-  public static float rewardFor(int priority) {
-    return REWARD_AMOUNTS[Nums.clamp(priority, LIMIT_PRIORITY)];
-  }
-  
-  
-  
-  /**  General life-cycle, justification and setup methods-
+  /**  Supplementary configuration, query and setup methods-
     */
-  public void updateMission() {
-    if (missionType == TYPE_PUBLIC && priority > 0 && ! hasBegun()) {
-      beginMission();
-    }
-    else if (shouldEnd()) endMission(true);
-    boolean journeyCheck = journey != null;
-    //
-    //  Remove any applicants that have abandoned the mission, and check if
-    //  everyone is ready to begin a specified journey...
-    for (Role role : roles) if (role.approved && begun) {
-      final Actor a = role.applicant;
-      if (! a.health.conscious()) a.mind.assignMission(null);
-      if (journeyCheck && ! journey.hasMigrant(a)) journeyCheck = false;
-    }
-    if (journeyCheck && ! journey.hasBegun()) {
-      base.world.offworld.journeys.beginJourney(journey);
-    }
-    //
-    //  If an assigned journey has completed, evaluate the outcome.
-    if (journey != null && journey.hasArrived()) {
-      resolveMissionOffworld();
-      journey.beginReturnTrip();
-    }
-    //
-    //  By default, we also terminate any missions that have been completely
-    //  abandoned-
-    if (missionType != TYPE_PUBLIC && hasBegun() && rolesApproved() == 0) {
-      I.say("\nNOBODY INVOLVED IN MISSION: "+this);
-      endMission(false);
-    }
-  }
-  
-  
   public void resetMission() {
     for (Role role : roles) role.applicant.mind.assignMission(null);
     roles.clear();
@@ -336,6 +235,54 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public boolean visibleTo(Base player) {
+    if (player != base && ! allVisible) {
+      if (missionType == TYPE_COVERT ) return false;
+      if (missionType == TYPE_BASE_AI) return false;
+    }
+    if (subject instanceof Element) {
+      if (! ((Element) subject).visibleTo(player)) return false;
+    }
+    return true;
+  }
+  
+  
+  public int missionType() {
+    return missionType;
+  }
+  
+  
+  public Base base() {
+    return base;
+  }
+  
+  
+  public Session.Saveable subject() {
+    return subject;
+  }
+  
+  
+  public Target subjectAsTarget() {
+    if (subject instanceof Target) return (Target) subject;
+    else return null;
+  }
+  
+  
+  public boolean isOffworld() {
+    if (subject instanceof Sector) return true;
+    if (subject instanceof Target) return ! ((Target) subject).inWorld();
+    return false;
+  }
+  
+  
+  public static float rewardFor(int priority) {
+    return REWARD_AMOUNTS[Nums.clamp(priority, LIMIT_PRIORITY)];
+  }
+  
+  
+  
+  /**  Other abstract contract methods for subclasses-
+    */
   public abstract float targetValue(Base base);
   public abstract float harmLevel();
   
@@ -346,7 +293,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   
-  /**  Adding and screening applicants, plus confirmation and cancellation-
+  /**  Adding and screening applicants, plus settings special rewards-
     */
   class Role {
     Actor applicant;
@@ -428,22 +375,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     return false;
   }
   
-  
-  public boolean visibleTo(Base player) {
-    if (player != base && ! allVisible) {
-      if (missionType == TYPE_COVERT ) return false;
-      if (missionType == TYPE_BASE_AI) return false;
-    }
-    if (subject instanceof Element) {
-      if (! ((Element) subject).visibleTo(player)) return false;
-    }
-    return true;
-  }
-  
-  
-  
-  /**  Toggling applicant-permissions, plus commencement & cancellation-
-    */
+
   public void setApplicant(Actor actor, boolean is) {
     //
     //  NOTE:  This method should be called within the ActorMind.assignMission
@@ -483,6 +415,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  
+  /**  Life-cycle methods-
+    */
   public void beginMission() {
     if (hasBegun()) return;
     begun = true;
@@ -499,9 +434,43 @@ public abstract class Mission implements Session.Saveable, Selectable {
       }
       else {
         final Actor active = role.applicant;
-        active.mind.assignBehaviour(createStepFor(active));
+        active.mind.assignBehaviour(JoinMission.resume(active, this));
         if (report) I.say("  Active "+active);
       }
+    }
+  }
+  
+  
+  public void updateMission() {
+    if (missionType == TYPE_PUBLIC && priority > 0 && ! hasBegun()) {
+      beginMission();
+    }
+    else if (shouldEnd()) endMission(true);
+    boolean journeyCheck = journey != null;
+    //
+    //  Remove any applicants that have abandoned the mission, and if a journey
+    //  is required to reach the subject, check whether everyone's ready to
+    //  begin.
+    for (Role role : roles) if (role.approved && begun) {
+      final Actor a = role.applicant;
+      if (! a.health.conscious()) a.mind.assignMission(null);
+      if (journeyCheck && ! journey.hasMigrant(a)) journeyCheck = false;
+    }
+    if (journeyCheck && ! journey.hasBegun()) {
+      journey.beginJourney();
+    }
+    //
+    //  Offworld missions have their outcomes evaluated separately...
+    if (journey != null && journey.hasArrived()) {
+      resolveMissionOffworld();
+      journey.beginReturnTrip();
+    }
+    //
+    //  By default, we also terminate any missions that have been completely
+    //  abandoned-
+    if (missionType != TYPE_PUBLIC && hasBegun() && rolesApproved() == 0) {
+      I.say("\nNOBODY INVOLVED IN MISSION: "+this);
+      endMission(false);
     }
   }
   
@@ -543,6 +512,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
       //  Be sure to de-register this mission from the actor's agenda:
       role.applicant.mind.assignMission(null);
       if (role.cached != null) role.cached.interrupt(Plan.INTERRUPT_CANCEL);
+    }
+    //
+    //  If a journey was involved but not completed, recall the troops-
+    if (journey != null && ! journey.complete()) {
+      journey.beginReturnTrip();
     }
     //
     //  And perform some cleanup of graphical odds and ends-
@@ -596,10 +570,18 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public float priorityFor(Actor actor) {
-    final Behaviour step = nextStepFor(actor, true);
-    if (step == null) return -1;
-    float priority = step.priorityFor(actor);
-    return priority;
+    
+    //  TODO:  Move this out to the JoinMission class!
+    
+    if (isOffworld()) {
+      return basePriority(actor);
+    }
+    else {
+      final Behaviour step = nextStepFor(actor, true);
+      if (step == null) return -1;
+      float priority = step.priorityFor(actor);
+      return priority;
+    }
   }
   
   
@@ -674,16 +656,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
       I.say("  Priority value:    "+totalVal);
     }
     return totalVal;
-  }
-  
-  
-  public void interrupt(String cause) {
-    //final boolean report = verbose && BaseUI.current().played() == base;
-    //  TODO:  There needs to be a special-case handler for this.  You also
-    //  need to identify the cancelling actor, and *only* remove them.
-    
-    if (I.logEvents()) I.say("\nMISSION INTERRUPTED: "+cause+" ("+this+")");
-    endMission(true);
   }
   
   
@@ -883,7 +855,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
     }
     else {
       Selection.pushSelection(null, null);
-      UI.clearInfoPane();
     }
   }
   

@@ -7,10 +7,12 @@ package stratos.start;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
+import stratos.content.civic.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -54,7 +56,6 @@ public class DebugMissions extends Scenario {
   
   
   public void beginGameSetup() {
-    //super.beginGameSetup();
     super.initScenario("debug_missions");
   }
   
@@ -79,15 +80,6 @@ public class DebugMissions extends Scenario {
     return Base.settlement(world, "Player Base", Faction.FACTION_ALTAIR);
   }
   
-
-  //  TODO:  I want a situation where lictovores are usually hostile, vareen
-  //  sometimes are, and quud basically never are, based on power and
-  //  aggression.
-  
-  //  70%, 30%, and -10% chance to attack.  +30% if under attack.  -20% if
-  //  matched by enemy, -50% if heavily outmatched.  +30% if they can't
-  //  escape.
-  
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.setDefaults();
@@ -96,10 +88,36 @@ public class DebugMissions extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (true ) strikeScenario  (world, base, UI);
+    if (true ) offworldReconScenario(world, base, UI);
+    
+    if (false) strikeScenario  (world, base, UI);
     if (false) securityScenario(world, base, UI);
     if (false) contactScenario (world, base, UI);
     if (false) reconScenario   (world, base, UI);
+  }
+  
+  
+  private void offworldReconScenario(Stage world, Base base, BaseUI UI) {
+    
+    final Venue HQ = new Bastion(base);
+    SiteUtils.establishVenue(HQ, 5, 5, true, world);
+    base.setup.fillVacancies(HQ, true);
+    base.assignRuler(HQ.staff.workers().first());
+    
+    final Venue home = new TrooperLodge(base);
+    SiteUtils.establishVenue(home, 8, 5, true, world);
+    base.setup.fillVacancies(home, true);
+    
+    final Mission recon = MissionRecon.reconFor(Verse.SECTOR_PAVONIS, base);
+    recon.assignPriority(Mission.PRIORITY_ROUTINE);
+    recon.setMissionType(Mission.TYPE_SCREENED   );
+    base.tactics.addMission(recon);
+    
+    for (Actor a : home.staff.workers()) {
+      a.mind.assignMission(recon);
+      recon.setApprovalFor(a, true);
+    }
+    recon.beginMission();
   }
   
   

@@ -206,6 +206,7 @@ public abstract class Actor extends Mobile implements
   
   
   public void exitToOffworld() {
+    if (! indoors()) world.ephemera.addGhost(origin(), 1, sprite(), 0.5f, 1);
     exitWorld(false);
   }
   

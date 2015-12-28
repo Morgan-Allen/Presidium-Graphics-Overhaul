@@ -232,7 +232,7 @@ public class Sector extends Background {
   public float standardTripTime(Sector other, int maxSepType) {
     final Separation s = separations.get(other);
     if (s == null || s.sepType > maxSepType) return -1;
-    else return s.tripTime;
+    else return s.tripTime * Stage.STANDARD_DAY_LENGTH;
   }
   
   
