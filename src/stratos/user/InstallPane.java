@@ -77,8 +77,7 @@ public class InstallPane extends SelectionPane {
       ) {
         
         protected void whenClicked() {
-          final BaseUI UI = BaseUI.current();
-          UI.beginPanelFade();
+          BaseUI.beginPanelFade();
           final Category match = categories.get(catName);
           match.toggled = ! match.toggled;
         }

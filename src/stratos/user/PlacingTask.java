@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-import stratos.game.base.BaseResearch;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -12,13 +11,12 @@ import stratos.game.wild.Habitat;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.widgets.KeyInput;
-
 import com.badlogic.gdx.Input.Keys;
+
 
 
 //  TODO:  This needs to make direct use of, or merge with, the utility classes
 //         in PlaceUtils (and/or a Siting class.)
-
 
 public class PlacingTask implements UITask {
   
@@ -222,7 +220,7 @@ public class PlacingTask implements UITask {
     }
     UI.endCurrentTask();
     
-    if (placeType.isFixture()) {
+    if (placeType.isFixture() || placeType.isPublic()) {
       final PlacingTask next = new PlacingTask(UI, placeType);
       UI.beginTask(next);
     }
@@ -249,9 +247,9 @@ public class PlacingTask implements UITask {
       final Venue p = placingAt(c, area, placePoints);
       if (p != null && p.origin() != null) {
         p.previewPlacement(canPlace, UI.rendering);
-        
         under.add(p.footprint());
         if (p.mainEntrance() != null) under.add(p.mainEntrance());
+        if (canPlace) for (Tile t : p.reserved()) if (t != null) under.add(t);
       }
     }
     
@@ -261,6 +259,8 @@ public class PlacingTask implements UITask {
       Habitat.RESERVE_TEXTURE, true,
       "install_preview", false, under.toArray()
     );
+    //  TODO:  Render reserved tiles with a separate overlay and higher
+    //         transparency.
   }
   
   

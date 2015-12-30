@@ -149,7 +149,7 @@ public class ClaimDivision {
     float areaDesired = totalArea * fractionOfArea, areaMarked = 0;
     
     while (allowed.size() > 0 && areaMarked < areaDesired) {
-      final Box2D plot = allowed.atIndex(Rand.index(allowed.size()));
+      final Box2D plot = allowed.first();
       final boolean across = plot.xdim() >= plot.ydim();
       markPlot(plot, world, across, useMarking);
       areaMarked += plot.area();
@@ -226,7 +226,7 @@ public class ClaimDivision {
           dividePlot(plot, across, 0.5f, bigPlots);
         }
         else if (plot.maxSide() > minSide * maxSideRatio) {
-          final float split = (Rand.num() + 0.5f) / 2;
+          final float split = 0.5f;
           dividePlot(plot, plot.xdim() > plot.ydim(), split, bigPlots);
         }
         else {

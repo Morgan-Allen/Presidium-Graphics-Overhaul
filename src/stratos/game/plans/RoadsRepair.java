@@ -22,7 +22,6 @@ public class RoadsRepair extends Plan {
     evalVerbose  = false;
   
   final Base base;
-  final PavingMap map;
   private Tile around;
   private StagePatch section;
   
@@ -30,7 +29,6 @@ public class RoadsRepair extends Plan {
   public RoadsRepair(Actor actor, Tile t) {
     super(actor, t.worldSection(), MOTIVE_JOB, NO_HARM);
     this.base    = actor.base();
-    this.map     = base.transport.map;
     this.section = t.worldSection();
     this.around  = t;
   }
@@ -39,7 +37,6 @@ public class RoadsRepair extends Plan {
   public RoadsRepair(Session s) throws Exception {
     super(s);
     this.base    = (Base) s.loadObject();
-    this.map     = base.transport.map;
     this.around  = (Tile) s.loadObject();
     this.section = (StagePatch) s.loadObject();
   }
@@ -89,6 +86,7 @@ public class RoadsRepair extends Plan {
   protected Behaviour getNextStep() {
     final boolean report = stepsVerbose && I.talkAbout == actor;
     final StageTerrain t = actor.world().terrain();
+    final PavingMap map = base.transport.map;
     
     if (report) {
       I.say("\nCurrent tile: "+around);
@@ -126,6 +124,7 @@ public class RoadsRepair extends Plan {
   
   
   private Tile nextLocalTile() {
+    final PavingMap map = base.transport.map;
     final Tile o = actor.origin();
     final Box2D area = o.area(null).expandBy(2);
     final Pick <Tile> pick = new Pick <Tile> ();

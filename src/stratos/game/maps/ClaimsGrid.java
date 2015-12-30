@@ -271,30 +271,37 @@ public class ClaimsGrid {
     //  and then crop to avoid overlapping any neighbouring claims.
     final Box2D claim = new Box2D();
     claim.setTo(venue.footprint());
-    claim.expandBy(maxClaimSize);
+    claim.xdim(maxClaimSize);
+    claim.ydim(maxClaimSize);
+    
+    //  TODO:  The direction of the crop should be based on the facing of the
+    //  parent venue!
+    //claim.expandBy(maxClaimSize);
     cropNewClaim(venue, claim);
-    if (claim.xdim() <= 0 || claim.ydim() <= 0) {
-      return claim.setTo(venue.footprint());
-    }
+    claim.include(venue.footprint());
     //
     //  In the event that the claim is still too large, we crop incrementally
     //  toward the central venue.
     final Vec2D centre = venue.footprint().centre();
+    final Box2D crops = new Box2D();
     while (claim.maxSide() > maxClaimSize) {
-      if (claim.xdim() >= claim.ydim()) {
+      crops.setTo(claim);
+      if (crops.xdim() >= crops.ydim()) {
         if (
-          Nums.abs(centre.x - claim.xmax()) <
-          Nums.abs(centre.x - claim.xpos())
-        ) claim.incX(UNIT_GRID_SIZE);
-        claim.incWide(0 - UNIT_GRID_SIZE);
+          Nums.abs(centre.x - crops.xmax()) <
+          Nums.abs(centre.x - crops.xpos())
+        ) crops.incX(UNIT_GRID_SIZE);
+        crops.incWide(0 - UNIT_GRID_SIZE);
       }
       else {
         if (
-          Nums.abs(centre.y - claim.ymax()) <
-          Nums.abs(centre.y - claim.ypos())
-        ) claim.incY(UNIT_GRID_SIZE);
-        claim.incHigh(0 - UNIT_GRID_SIZE);
+          Nums.abs(centre.y - crops.ymax()) <
+          Nums.abs(centre.y - crops.ypos())
+        ) crops.incY(UNIT_GRID_SIZE);
+        crops.incHigh(0 - UNIT_GRID_SIZE);
       }
+      if (! venue.footprint().containedBy(crops)) break;
+      claim.setTo(crops);
     }
     return claim;
   }
