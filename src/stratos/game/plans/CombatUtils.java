@@ -18,7 +18,7 @@ public class CombatUtils {
   
   
   final public static float
-    MAX_POWER   = 20,
+    MAX_POWER   = 30,
     AVG_POWER   = 10,
     MIN_POWER   =  0,
     AVG_DAMAGE  = 10;
@@ -35,7 +35,7 @@ public class CombatUtils {
     float estimate = 1;
     estimate *= actor.gear.totalArmour() + actor.gear.totalDamage ();
     estimate *= actor.health.maxHealth() + actor.gear.shieldCharge();
-    estimate /= AVG_DAMAGE * AVG_DAMAGE;
+    estimate *= AVG_POWER / (4f * AVG_DAMAGE * AVG_DAMAGE);
     estimate *= (2 - actor.health.injuryLevel  ()) / 2f;
     estimate *= (2 - actor.health.stressPenalty()) / 2f;
     if (! actor.health.conscious()) estimate /= 2.5f;

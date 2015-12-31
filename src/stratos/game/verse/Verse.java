@@ -338,10 +338,15 @@ public class Verse {
     SECTOR_ELYSIUM.setSeparation(SECTOR_PAVONIS, Sector.SEP_BORDERS, 1, true);
     SECTOR_ELYSIUM.setSeparation(SECTOR_TERRA  , Sector.SEP_BORDERS, 1, true);
     SECTOR_PAVONIS.setSeparation(SECTOR_TERRA  , Sector.SEP_BORDERS, 1, true);
-    for (Sector s : ALL_PLANETS) for (Sector n : ALL_PLANETS) if (n != s) {
-      n.setSeparation(s, Sector.SEP_STELLAR, 2, false);
-    }
     for (Sector s : ALL_SECTORS) s.calculateRemainingSeparations(ALL_SECTORS);
+    for (Sector s : ALL_PLANETS) {
+      for (Sector n : ALL_PLANETS) if (n != s) {
+        n.setSeparation(s, Sector.SEP_STELLAR, 2, false);
+      }
+      for (Sector n : ALL_DIAPSOR_SECTORS) {
+        n.setSeparation(s, Sector.SEP_STELLAR, 2, true);
+      }
+    }
   }
   
   

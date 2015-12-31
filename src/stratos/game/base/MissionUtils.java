@@ -6,6 +6,7 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
+import stratos.util.I;
 
 
 
@@ -49,9 +50,6 @@ public class MissionUtils {
     }
     return power;
   }
-  
-  
-
   
   
   public static void quickSetup(

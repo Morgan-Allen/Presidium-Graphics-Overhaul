@@ -136,6 +136,12 @@ public class Presences {
   }
   
   
+  public int numMatches(Object service) {
+    final PresenceMap map = allMaps.get(service);
+    return map == null ? 0 : map.population();
+  }
+  
+  
   public Iterable <Target> allMatches(Object service) {
     return matchesNear(service, null, -1);
   }

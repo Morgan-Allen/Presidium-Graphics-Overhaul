@@ -23,7 +23,6 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
 
   final public Verse universe;
   final public Sector location;
-  final public FactionAI tactics = initTactics();
 
   private Faction faction;
   private Actor ruler;
@@ -44,10 +43,8 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     
     this.universe = s.world().offworld;
     this.location = (Sector) s.loadObject();
-    this.tactics.loadState(s);
-    
-    this.faction = (Faction) s.loadObject();
-    this.ruler   = (Actor  ) s.loadObject();
+    this.faction  = (Faction) s.loadObject();
+    this.ruler    = (Actor  ) s.loadObject();
 
     for (int n = s.loadInt(); n-- > 0;) {
       Mobile m = (Mobile) s.loadObject();
@@ -61,10 +58,8 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   public void saveState(Session s) throws Exception {
     s.saveObject(location);
-    tactics.saveState(s);
-    
-    s.saveObject(faction);
-    s.saveObject(ruler  );
+    s.saveObject(faction );
+    s.saveObject(ruler   );
     
     s.saveInt(allUnits.size());
     for (Mobile m : allUnits) s.saveObject(m);
@@ -72,9 +67,6 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     s.saveFloat(popLevel  );
     s.saveFloat(powerLevel);
   }
-  
-  
-  protected FactionAI initTactics () { return new FactionAI(this); }
   
   
   
@@ -154,10 +146,6 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     final boolean onStage = location == universe.stageLocation();
     if (instant || onStage) return;
-    
-    if (tactics != null) {
-      tactics.updateForSector(numUpdates);
-    }
     
     powerLevel = popLevel / 2f;
     powerLevel *= CombatUtils.AVG_POWER * Mission.AVG_PARTY_LIMIT;

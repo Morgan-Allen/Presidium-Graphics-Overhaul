@@ -142,6 +142,9 @@ public class PilotUtils {
   
   
   public static boolean allAboard(Vehicle ship) {
+    
+    //  TODO:  This may have to check against members of a mission instead...
+    
     for (Mobile m : ship.staff.workers()) {
       if (! isBoarding(m, ship)) return false;
     }

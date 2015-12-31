@@ -26,7 +26,6 @@ public class PlanUtils {
   
   
   private static boolean reportOn(Actor a, float priority) {
-    //if (true) return I.talkAbout == a;
     if (priority <= 0 && ! failVerbose) return false;
     return I.talkAbout == a && verbose;
   }
@@ -72,9 +71,7 @@ public class PlanUtils {
       priority = priority <= 0 ? -1 : Nums.max(Plan.ROUTINE, priority);
     }
     
-    boolean talk = I.talkAbout == actor && subject.base() != actor.base();
-    
-    if (reportOn(actor, priority) || talk) I.reportVars(
+    if (reportOn(actor, priority)) I.reportVars(
       "\nCombat priority for "+actor, "  ",
       "subject  " , subject    ,
       "reward   " , rewardBonus,

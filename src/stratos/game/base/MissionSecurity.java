@@ -62,14 +62,13 @@ public class MissionSecurity extends Mission {
   
   /**  Importance/suitability assessment-
     */
-  public static MissionSecurity securityFor(Object target, SectorBase base) {
-    final Base BW = base.baseInWorld();
+  public static MissionSecurity securityFor(Object target, Base base) {
     if ((
       target instanceof Actor ||
       target instanceof Venue ||
       target instanceof Item.Dropped
-    ) && ! Faction.isFactionEnemy(BW, (Target) target)) {
-      return new MissionSecurity(BW, (Element) target);
+    ) && ! Faction.isFactionEnemy(base, (Target) target)) {
+      return new MissionSecurity(base, (Element) target);
     }
     return null;
   }

@@ -119,7 +119,7 @@ public class Faction extends Constant {
   protected void bindToStartSite(Sector site) {
     //
     //  Must be called separately to avoid initialisation loop...
-    if (startSite == null) return;
+    if (startSite != null) return;
     this.startSite = site;
   }
   

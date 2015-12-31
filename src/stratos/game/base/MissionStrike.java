@@ -46,13 +46,12 @@ public class MissionStrike extends Mission {
   
   /**  Importance/suitability assessment-
     */
-  public static MissionStrike strikeFor(Object target, SectorBase base) {
-    final Base BW = base.baseInWorld();
+  public static MissionStrike strikeFor(Object target, Base base) {
     if ((
       target instanceof Actor ||
       target instanceof Venue
     ) && ((Target) target).base() != base) {
-      return new MissionStrike(BW, (Element) target);
+      return new MissionStrike(base, (Element) target);
     }
     return null;
   }
@@ -67,7 +66,9 @@ public class MissionStrike extends Mission {
     if (subject instanceof Venue) {
       final Venue v = (Venue) subject;
       final Siting s = v.blueprint.siting();
+      final int HP = v.structure.maxIntegrity();
       targetValue = s == null ? 1 : s.ratePointDemand(v.base(), v, false);
+      targetValue += HP * 1f / Structure.DEFAULT_INTEGRITY;
       targetValue = Nums.clamp(targetValue / BaseSetup.MAX_PLACE_RATING, 0, 1);
     }
     if (subject instanceof Actor) {

@@ -17,7 +17,7 @@ import stratos.util.*;
 
 
 
-public class Base extends SectorBase implements
+public abstract class Base extends SectorBase implements
   Session.Saveable, Schedule.Updates, Accountable
 {
   /**  Fields, constructors, and save/load methods-
@@ -39,9 +39,12 @@ public class Base extends SectorBase implements
   final public IntelMap     intelMap ;
   
   private Venue commandPost;
+  private float lastVisitTime = -1;
+  
   final public BaseRatings  ratings   = initRatings ();
   final public BaseAdvice   advice    = initAdvice  ();
   final public BaseResearch research  = initResearch();
+  final public FactionAI    tactics   = initTactics ();
   
   private int baseID = 0;
   
@@ -90,9 +93,10 @@ public class Base extends SectorBase implements
     dangerMap.loadState(s);
     intelMap .loadState(s);
 
-    commandPost = (Venue) s.loadObject();
+    commandPost  = (Venue) s.loadObject();
+    lastVisitTime = s.loadFloat();
     
-    ratings.loadState(s);
+    ratings  .loadState(s);
     tactics  .loadState(s);
     advice   .loadState(s);
     research .loadState(s);
@@ -117,9 +121,10 @@ public class Base extends SectorBase implements
     dangerMap.saveState(s);
     intelMap .saveState(s);
     
-    s.saveObject(commandPost);
+    s.saveObject(commandPost );
+    s.saveFloat (lastVisitTime);
     
-    ratings.saveState(s);
+    ratings  .saveState(s);
     tactics  .saveState(s);
     advice   .saveState(s);
     research .saveState(s);
@@ -135,6 +140,7 @@ public class Base extends SectorBase implements
   protected BaseRatings  initRatings () { return new BaseRatings (this); }
   protected BaseAdvice   initAdvice  () { return new BaseAdvice  (this); }
   protected BaseResearch initResearch() { return new BaseResearch(this); }
+  protected FactionAI    initTactics () { return new FactionAI   (this); }
   
   
   
@@ -176,26 +182,33 @@ public class Base extends SectorBase implements
   }
   
   
-  public static Base settlement(
+  public static CivicBase settlement(
     Stage world, String customTitle, Faction faction
   ) {
-    final Base base = findBase(world, null, faction);
-    if (base != null) return base;
+    Base base = findBase(world, null, faction);
+    if (base != null) return (CivicBase) base;
+    else base = new CivicBase(world, faction);
     
     final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
-    final Base made = registerBase(new Base(world, faction), world, canBuild);
-    if (customTitle != null) made.title = customTitle;
-    return made;
+    if (customTitle != null) base.title = customTitle ;
+    else                     base.title = faction.name;
+    
+    final Sector home = faction.startSite();
+    if (home != null) {
+      base.commerce.assignHomeworld  (home);
+      base.research.initKnowledgeFrom(home);
+    }
+    return (CivicBase) registerBase(base, world, canBuild);
   }
   
   
-  public static Base wildlife(Stage world) {
+  public static FaunaBase wildlife(Stage world) {
     Base base = findBase(world, null, Faction.FACTION_WILDLIFE);
-    if (base != null) return base;
-    else base = new Base(world, Faction.FACTION_WILDLIFE);
+    if (base != null) return (FaunaBase) base;
+    else base = new FaunaBase(world);
     
     final Blueprint canBuild[] = new Blueprint[0];
-    return registerBase(base, world, canBuild);
+    return (FaunaBase) registerBase(base, world, canBuild);
   }
   
   
@@ -221,29 +234,72 @@ public class Base extends SectorBase implements
   }
   
   
-  public static Base natives(Stage world, int tribeID) {
+  public static NativeBase natives(Stage world, int tribeID) {
     final String title = NativeHut.TRIBE_NAMES[tribeID];
     Base base = findBase(world, title, Faction.FACTION_NATIVES);
     
-    if (base != null) return base;
-    else base = new Base(world, Faction.FACTION_NATIVES);
+    if (base != null) return (NativeBase) base;
+    else base = new NativeBase(world, title);
     
     final Blueprint canBuild[] = NativeHut.VENUE_BLUEPRINTS[tribeID];
-    base.title = title;
-    return registerBase(base, world, canBuild);
+    return (NativeBase) registerBase(base, world, canBuild);
   }
   
   
   
-  /**  Dealing with missions and personnel-
+  /**  Dealing with missions, visits (spawning) and personnel-
     */
   public Property HQ() {
     return ruler() == null ? null : ruler().mind.home();
   }
   
   
-  public Base base() { return this; }
-  public int baseID() { return baseID; }
+  protected float lastVisitTime() {
+    return lastVisitTime;
+  }
+  
+  
+  protected void beginVisit(Mission visit, Journey journey) {
+    visit.setJourney(journey);
+    visit.beginMission();
+    lastVisitTime = world.currentTime();
+    
+    final Actor team[] = visit.approved().toArray(Actor.class);
+    if (journey.transport() != null) for (Actor a : team) {
+      a.mind.setHome(journey.transport());
+    }
+    journey.beginJourney(team);
+  }
+  
+  
+  //  TODO:  Move to the tactics/faction-AI class?
+  
+  public Mission matchingMission(Object subject, Class typeClass) {
+    for (Mission match : tactics.allMissions()) {
+      if (typeClass != null && match.getClass() != typeClass) continue;
+      if (match.subject() != subject) continue;
+      return match;
+    }
+    return null;
+  }
+  
+  
+  public Mission matchingMission(Mission m) {
+    return matchingMission(m.subject(), m.getClass());
+  }
+  
+  
+  public Base base() {
+    return this;
+  }
+  
+  
+  public int baseID() {
+    return baseID;
+  }
+  
+  
+  public abstract void updateVisits();
   
   
   
@@ -299,26 +355,6 @@ public class Base extends SectorBase implements
   
   public void updateUnits() {
     for (Mobile m : allUnits()) m.updateAsMobile();
-  }
-  
-  
-  
-  /**  Gets missions already assigned to a given target:
-    */
-  //  TODO:  Move to the tactics class?
-  
-  public Mission matchingMission(Object subject, Class typeClass) {
-    for (Mission match : tactics.allMissions()) {
-      if (typeClass != null && match.getClass() != typeClass) continue;
-      if (match.subject() != subject) continue;
-      return match;
-    }
-    return null;
-  }
-  
-  
-  public Mission matchingMission(Mission m) {
-    return matchingMission(m.subject(), m.getClass());
   }
   
   
@@ -435,8 +471,18 @@ public class Base extends SectorBase implements
   }
   
   
+  public void setColour(Colour c) {
+    this.colour = c;
+  }
+  
+  
   public String title() {
     return title;
+  }
+  
+  
+  public void setTitle(String title) {
+    this.title = title;
   }
   
   

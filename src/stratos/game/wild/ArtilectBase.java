@@ -82,6 +82,12 @@ public class ArtilectBase extends Base {
   }
   
   
+  
+  public void updateVisits() {
+    
+  }
+  
+  
   protected void updateSpawning(Ruins ruins, int period) {
     final float spawnChance = period * 1f / SPAWN_INTERVAL;
 

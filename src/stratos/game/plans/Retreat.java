@@ -272,7 +272,7 @@ public class Retreat extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
+    final boolean report = I.talkAbout == actor;// && stepsVerbose;
     final boolean urgent = actor.senses.isEmergency();
     if (report) {
       I.say("\nFleeing to "+safePoint+", urgent? "+urgent);
@@ -325,6 +325,7 @@ public class Retreat extends Plan {
       final Journey j = Journey.configAsEscape(exit, goes, world, actor);
       j.beginJourney(actor);
     }
+    /*
     else if (actor.senses.fearLevel() <= 0) {
       final Resting rest = new Resting(actor, safePoint);
       rest.addMotives(Plan.MOTIVE_LEISURE, priorityFor(actor));
@@ -333,6 +334,7 @@ public class Retreat extends Plan {
       actor.mind.assignBehaviour(rest);
       return true;
     }
+    //*/
     else {
       if (lastHidePoint != safePoint) SenseUtils.breaksPursuit(actor, action());
       lastHidePoint = safePoint;

@@ -57,6 +57,7 @@ public class Combat extends Plan {
   final int style, object;
   final boolean pursue;
   private int stepType = STEP_INIT;
+  private Target struck = null;
   
   
   public Combat(Actor actor, Element target) {
@@ -80,15 +81,17 @@ public class Combat extends Plan {
     this.object   = s.loadInt ();
     this.pursue   = s.loadBool();
     this.stepType = s.loadInt ();
+    this.struck   = s.loadTarget();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt (style   );
-    s.saveInt (object  );
-    s.saveBool(pursue  );
-    s.saveInt (stepType);
+    s.saveInt   (style   );
+    s.saveInt   (object  );
+    s.saveBool  (pursue  );
+    s.saveInt   (stepType);
+    s.saveTarget(struck  );
   }
   
   
@@ -160,16 +163,16 @@ public class Combat extends Plan {
       if (report) I.say("  COMBAT COMPLETE!");
       return null;
     }
-    Target struck = subject;
+    struck = subject;
     if (hasBegun()) {
       struck = CombatUtils.bestTarget(actor, subject, true);
-      if (struck == null) struck = subject;
+      if (PathSearch.accessLocation(struck, actor) == null) struck = subject;
     }
     //
     //  If your prey has ducked indoors, consider tearing up the structure...
-    if (struck == subject && subject instanceof Actor) {
+    if (struck == subject && subject instanceof Mobile) {
       final Boarding
-        aboard = ((Actor) struck).aboard(),
+        aboard = ((Mobile) struck).aboard(),
         access = PathSearch.accessLocation(struck, actor);
       final boolean
         hasRefuge  = access == null,
@@ -185,7 +188,6 @@ public class Combat extends Plan {
         }
       }
     }
-    
     if (report) {
       I.say("  Main target: "+this.subject);
       I.say("  Best target: "+struck);
@@ -222,6 +224,18 @@ public class Combat extends Plan {
     if (melee) configMeleeAction (strike, razes, danger, covers, report);
     else       configRangedAction(strike, razes, danger, covers, report);
     return strike;
+  }
+  
+  
+  public void interrupt(String cause) {
+    if (cause == INTERRUPT_LOSE_PATH) {
+      if (actor.actionFocus() == struck && struck != subject) {
+        struck = subject;
+        actor.assignAction(null);
+        return;
+      }
+    }
+    super.interrupt(cause);
   }
   
   
@@ -508,7 +522,6 @@ public class Combat extends Plan {
       I.say("  Target range:   "+range);
       I.say("  Sight range:    "+a.health.sightRange());
     }
-    
     return ((range / (a.health.sightRange() + 1f)) - 1) * 5;
   }
   

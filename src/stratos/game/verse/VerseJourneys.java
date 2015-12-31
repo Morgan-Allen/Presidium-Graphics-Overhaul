@@ -32,7 +32,7 @@ public class VerseJourneys {
     verbose = false;
   
   final Verse universe;
-  final List <Journey> journeys = new List <Journey> ();
+  final List <Journey> journeys = new List();
   private int updateCounter = 0;
   
   
@@ -137,22 +137,24 @@ public class VerseJourneys {
   }
   
   
-  public Series <Vehicle> transportsBetween(
+  public Series <Vehicle> tradersBetween(
     Sector orig, Sector dest, Base matchBase, boolean eitherWay
   ) {
     final Batch <Vehicle> trans = new Batch();
     final Series <Journey> matches = journeysBetween(
       orig, dest, matchBase, eitherWay
     );
-    for (Journey j : matches) if (j.transport != null) trans.add(j.transport);
+    for (Journey j : matches) if (j.transport != null && j.forTrading()) {
+      trans.add(j.transport);
+    }
     return trans;
   }
   
 
-  public Vehicle nextTransportBetween(
+  public Vehicle nextTraderBetween(
     Sector orig, Sector dest, Base base, boolean eitherWay
   ) {
-    Series <Vehicle> between = transportsBetween(orig, dest, base, eitherWay);
+    Series <Vehicle> between = tradersBetween(orig, dest, base, eitherWay);
     return between.first();
   }
   
@@ -182,10 +184,10 @@ public class VerseJourneys {
   //  TODO:  Direct references to Dropships should not be used!  The base for
   //  the world of origin should be creating the vehicle as needed.
   
-  public Vehicle setupTransport(
+  public Vehicle setupTrader(
     Sector from, Sector goes, Base base, boolean recurs
   ) {
-    final Vehicle match = nextTransportBetween(from, goes, base, recurs);
+    final Vehicle match = nextTraderBetween(from, goes, base, recurs);
     if (match != null) return match;
     
     final Dropship ship = new Dropship(base);
@@ -198,16 +200,16 @@ public class VerseJourneys {
   }
   
   
-  public boolean retireTransport(Vehicle trans) {
+  public boolean retireTrader(Vehicle trans) {
     final Journey j = journeyFor(trans);
-    if (j == null) return false;
+    if (j == null || ! j.forTrading()) return false;
     journeys.remove(j);
     return true;
   }
   
   
-  public Vehicle setupDefaultShipping(Base base) {
-    return setupTransport(
+  public Vehicle setupDefaultTrader(Base base) {
+    return setupTrader(
       base.commerce.homeworld(), universe.stageLocation(), base, true
     );
   }
@@ -245,8 +247,8 @@ public class VerseJourneys {
       orig = base.commerce.homeworld(),
       dest = universe.stageLocation ();
     
-    Vehicle trans = nextTransportBetween(orig, dest, base, true);
-    if (trans == null) trans = setupTransport(orig, dest, base, true);
+    Vehicle trans = nextTraderBetween(orig, dest, base, true);
+    if (trans == null) trans = setupTrader(orig, dest, base, true);
     
     final Journey j = journeyFor(trans);
     if (j == null || trans.inWorld()) return false;

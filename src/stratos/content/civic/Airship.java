@@ -4,11 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.civic;
-import stratos.game.actors.Background;
-import stratos.game.actors.Backgrounds;
-import stratos.game.actors.Choice;
+import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
@@ -99,6 +98,16 @@ public class Airship extends Vehicle {
     
     //  TODO:  Takeoff once everyone is KO'd or aboard, and either hiding or
     //  the normal visit duration is up.
+    
+    if (flightState() >= STATE_BOARDING) {
+      final Smuggling boarding = Smuggling.asBoarding(actor, this);
+      if (staff.assignedTo(Bringing.class) == 0) {
+        boarding.addMotives(Plan.MOTIVE_EMERGENCY, Plan.PARAMOUNT);
+      }
+      choice.add(boarding);
+      if (report) I.say("  Time to start boarding!");
+      return;
+    }
     
   }
   

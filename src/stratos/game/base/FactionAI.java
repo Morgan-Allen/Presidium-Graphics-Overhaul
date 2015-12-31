@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.maps.*;
 import stratos.game.verse.*;
 import stratos.util.*;
 
@@ -50,13 +51,12 @@ public class FactionAI {
     MISSION_BEGUN_RATING_MULT  = 1.5f;
   
   
-  final protected SectorBase base;
-  
+  final protected Base base;
   final List <Mission> missions = new List <Mission> ();
   private float forceStrength;
   
   
-  public FactionAI(SectorBase base) {
+  public FactionAI(Base base) {
     this.base = base;
   }
   
@@ -138,17 +138,16 @@ public class FactionAI {
   protected void updateDecisions() {
     
     final int maxMissions = (int) Nums.clamp(
-      forceStrength * 2f / CombatUtils.MAX_POWER,
+      forceStrength / CombatUtils.AVG_POWER,
       MIN_MISSIONS, MAX_MISSIONS
     );
     
     if (missions.size() < maxMissions) {
-      final Batch <Object > sampled = assembleSampleTargets();
+      final Boarding origin = base.HQ();
+      final Batch <Object > sampled = assembleSampleTargets(origin, true);
       final Pick <Mission> pick = new Pick(0);
       
-      for (Object target : sampled) {
-        assessMissionsForTarget(target, base, pick);
-      }
+      for (Object target : sampled) assessMissionsForTarget(target, pick);
       final Mission newMission = pick.result();
       final float rating = pick.bestRating();
       
@@ -158,9 +157,6 @@ public class FactionAI {
         newMission.assignPriority(priority);
         newMission.setMissionType(Mission.TYPE_BASE_AI);
         missions.add(newMission);
-        
-        //  TODO:  In the case of a sector-settlement, generate applicants and
-        //  launch immediately.
       }
     }
     for (Mission m : missions) {
@@ -182,17 +178,17 @@ public class FactionAI {
   /**  Obtaining samples of objects that could be suitable targets for fresh 
     *  missions...
     */
-  protected Batch <Object> assembleSampleTargets() {
-    final Base BW = base.baseInWorld();
+  protected Batch <Object> assembleSampleTargets(
+    Boarding origin, boolean withSectors
+  ) {
     final Batch <Object> sampled = new Batch();
     final Verse   verse   = base.universe;
     final Faction faction = base.faction();
     
-    if (BW != null) {
-      addSamples(sampled, Venue .class, BW);
-      addSamples(sampled, Mobile.class, BW);
-    }
-    for (SectorBase b : verse.sectorBases()) {
+    addSamples(sampled, Venue .class, origin);
+    addSamples(sampled, Mobile.class, origin);
+    
+    if (withSectors) for (SectorBase b : verse.sectorBases()) {
       if (b.faction() == faction) continue;
       sampled.add(b);
     }
@@ -200,8 +196,7 @@ public class FactionAI {
   }
   
   
-  protected Batch addSamples(Batch sampled, Object typeKey, Base BW) {
-    final Boarding origin = BW.HQ();
+  protected Batch addSamples(Batch sampled, Object typeKey, Boarding origin) {
     if (origin == null) {
       final Faction owns = base == null ? base.faction() : base.faction();
       if (I.logEvents()) {
@@ -210,11 +205,11 @@ public class FactionAI {
       return sampled;
     }
     
-    final PresenceMap sampFrom = BW.world.presences.mapFor(typeKey);
+    final PresenceMap sampFrom = base.world.presences.mapFor(typeKey);
     final int limit = Nums.max(10, sampFrom.population() / 100);
     
     for (Target t : sampFrom.visitNear(null, -1, null)) {
-      if (origin != null && ! checkReachability(t, BW, origin)) continue;
+      if (origin != null && ! checkReachability(t, origin)) continue;
       sampled.add(t);
       if (sampled.size() >= limit) break;
     }
@@ -222,9 +217,10 @@ public class FactionAI {
   }
   
   
-  protected boolean checkReachability(Target t, Base BW, Boarding origin) {
+  protected boolean checkReachability(Target t, Boarding origin) {
     final Tile reachPoint = Spacing.nearestOpenTile(t, origin);
-    return BW.world.pathingMap.hasPathBetween(origin, reachPoint, BW, false);
+    final PathingMap map = base.world.pathingMap;
+    return map.hasPathBetween(origin, reachPoint, base, false);
   }
   
   
@@ -232,7 +228,7 @@ public class FactionAI {
   /**  Generating missions for the various targets assembled:
     */
   protected void assessMissionsForTarget(
-    Object subject, SectorBase base, Pick <Mission> pick
+    Object subject, Pick <Mission> pick
   ) {
     final Mission strike  = MissionStrike  .strikeFor  (subject, base);
     final Mission secure  = MissionSecurity.securityFor(subject, base);
@@ -246,12 +242,17 @@ public class FactionAI {
   }
   
   
-  protected void generateOffworldApplicants(Mission mission) {
-    //
-    //  Finally, once missions have been declared, then if you happen to be
-    //  off-world, you generate applicants, generate a journey, generate an
-    //  entry-point, check for pathability to the target, assign the applicants
-    //  as passengers, and launch...
+  
+  /**  Combination sampling/evaluation methods for external use-
+    */
+  public MissionStrike bestStrikeMissionFromPoint(Boarding point) {
+    final Batch <Object> sampled = assembleSampleTargets(point, false);
+    final Pick <MissionStrike> pick = new Pick();
+    for (Object o : sampled) {
+      final MissionStrike strike = MissionStrike.strikeFor(o, base);
+      if (strike != null) pick.compare(strike, rateMission(strike));
+    }
+    return pick.result();
   }
   
   
@@ -312,12 +313,10 @@ public class FactionAI {
   
   protected float rateMission(Mission mission) {
     final Target target = mission.subjectAsTarget();
-    final Base
-      same  = base.baseInWorld(),
-      other = target == null ? null : target.base();
+    final Base other = target == null ? null : target.base();
     final float
-      relations  = Faction.factionRelation(same, other),
-      value      = mission.targetValue(same),
+      relations  = Faction.factionRelation(base, other),
+      value      = mission.targetValue(base),
       harmLevel  = mission.harmLevel(),
       baseForce  = 1 + base .tactics.forceStrength(),
       enemyForce = 1 + other.tactics.forceStrength(),

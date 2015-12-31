@@ -434,13 +434,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (report) I.say("\nMISSION BEGUN: "+this);
     
     for (Role role : roles) {
+      final Actor active = role.applicant;
       if (! role.approved) {
-        final Actor rejected = role.applicant;
-        rejected.mind.assignMission(null);
-        if (report) I.say("  Rejected "+rejected);
+        active.mind.assignMission(null);
+        if (report) I.say("  Rejected "+active);
       }
-      else {
-        final Actor active = role.applicant;
+      else if (active.inWorld()) {
         active.mind.assignBehaviour(JoinMission.resume(active, this));
         if (report) I.say("  Active "+active);
       }

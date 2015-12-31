@@ -51,6 +51,13 @@ public class VerminBase extends Base {
   }
   
   
+  
+  public void updateVisits() {
+    
+  }
+  
+
+  /*
   public void updateAsScheduled(int numUpdates, boolean instant) {
     final boolean report = verbose;
     super.updateAsScheduled(numUpdates, instant);
@@ -115,7 +122,6 @@ public class VerminBase extends Base {
   
   protected FactionAI initTactics() {
     return new FactionAI(this) {
-      /*
       protected float rateMission(Mission mission) {
         final float importance = mission.rateImportance(base);
         if (importance <= 0) return -1;
@@ -137,9 +143,10 @@ public class VerminBase extends Base {
         float powerLimit = MAX_MISSION_POWER * onlineLevel;
         return (partyPower > (powerLimit / 2)) || timeUp;
       }
-      //*/
     };
   }
+  
+  //*/
 }
 
 

@@ -415,38 +415,38 @@ public class BaseCommerce {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
     final boolean report = tradeVerbose && base == BaseUI.currentPlayed();
     if (report) I.say("\nUPDATING ACTIVE SHIPPING FOR "+base);
-    
+    //
     //  TODO:  At the moment, we're aggregating all supply and demand into a
     //  single channel from the homeworld.  Once the planet-map is sorted out,
     //  you should evaluate pricing for each world independently... and how
     //  many ships will come.
-    
-    int spaceLimit = 1;
-    for (Object t : base.world.presences.allMatches(Airfield.class)) {
+    final Stage world = base.world;
+    int spaceLimit = 0;
+    if (world.presences.numMatches(base) > 0) {
+      spaceLimit = 1;
+    }
+    for (Object t : world.presences.allMatches(Airfield.class)) {
       final Airfield field = (Airfield) t;
       if (field.base() != base) continue;
       spaceLimit++;
     }
     togglePartner(homeworld, true);
     spaceLimit = Nums.min(spaceLimit, homeworld.population + 1);
-    
     //
     //  At any rate, we simply adjust the number of current ships based on
     //  the space allowance-
-    VerseJourneys travel = base.world.offworld.journeys;
-    Sector locale = base.world.offworld.stageLocation();
-    
-    final Series <Vehicle> running = travel.transportsBetween(
+    final VerseJourneys travel = world.offworld.journeys;
+    final Sector locale = world.localSector();;
+    final Series <Vehicle> running = travel.tradersBetween(
       locale, homeworld, base, true
     );
     Vehicle last = running.last();
     if (running.size() < spaceLimit) {
-      travel.setupTransport(homeworld, locale, base, true);
+      travel.setupTrader(homeworld, locale, base, true);
     }
     if (running.size() > spaceLimit && ! last.inWorld()) {
-      travel.retireTransport(last);
+      travel.retireTrader(last);
     }
-    
     if (report) {
       I.say("  Ships available: "+running.size());
       I.say("  Ideal limit:     "+spaceLimit);

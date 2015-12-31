@@ -59,15 +59,14 @@ public class MissionRecon extends Mission {
   
   /**  Importance/suitability assessment-
     */
-  public static MissionRecon reconFor(Object target, SectorBase base) {
-    final Base BW = base.baseInWorld();
+  public static MissionRecon reconFor(Object target, Base base) {
     if (target instanceof Sector && target != base.location) {
-      final MissionRecon m = new MissionRecon(BW, (Sector) target);
-      m.setJourney(Journey.configForMission(m, base.location));
+      final MissionRecon m = new MissionRecon(base, (Sector) target);
+      m.setJourney(Journey.configForMission(m));
       return m.journey() == null ? null : m;
     }
-    if (target instanceof Tile && Exploring.canExplore(BW, (Tile) target)) {
-      return new MissionRecon(BW, (Tile) target);
+    if (target instanceof Tile && Exploring.canExplore(base, (Tile) target)) {
+      return new MissionRecon(base, (Tile) target);
     }
     return null;
   }

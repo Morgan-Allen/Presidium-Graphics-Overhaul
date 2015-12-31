@@ -204,32 +204,38 @@ public class Journey implements Session.Saveable {
   }
   
   
-  public static Journey configForMission(Mission mission, Sector from) {
+  public static Journey configForVisit(
+    Sector from, Stage world, Vehicle transportUsed, Base base
+  ) {
+    final Verse verse = world.offworld;
+    final int props = IS_MISSION | IS_RETURN;
+    final Journey journey = new Journey(verse, props, base);
+    
+    journey.origin       = from;
+    journey.destination  = world.localSector();
+    journey.transport    = transportUsed;
+    journey.transitPoint = transportUsed;
+    
+    if (! journey.checkTransitPoint()) return null;
+    return journey;
+  }
+  
+  
+  public static Journey configForMission(Mission mission) {
     final Base   base   = mission.base();
     final Verse  verse  = base.world.offworld;
     final Sector locale = base.world.localSector();
     final Sector goes   = verse.currentSector(mission.subject());
-    if (goes == null || goes == from) return null;
+    if (goes == null || goes == locale) return null;
     
-    final Target target = mission.subjectAsTarget();
-    Boarding pathT = null;
-    if (from == locale) pathT = base.HQ();
-    if (goes == locale) pathT = PathSearch.accessLocation(target, null);
-    
+    final Boarding pathTo = base.HQ();
     final int props = IS_MISSION | IS_RETURN;
     final Journey journey = new Journey(verse, props, base);
-    journey.origin      = from;
+    journey.origin      = locale;
     journey.destination = goes;
-    journey.worldTarget = pathT;
+    journey.worldTarget = pathTo;
+    journey.transport   = EntryPoints.findTransport(pathTo, goes, base);
     
-    if (pathT != null && from == locale) {
-      journey.transport = EntryPoints.findTransport(pathT, goes, base);
-    }
-    if (pathT != null && goes == locale) {
-      //
-      //  TODO:  You need to handle this case as well!
-      //journey.transport = EntryPoints.findTransport(from, pathT, base);
-    }
     if (! journey.checkTransitPoint()) return null;
     return journey;
   }

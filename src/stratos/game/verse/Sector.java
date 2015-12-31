@@ -11,9 +11,7 @@ import stratos.game.wild.*;
 import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.start.PlayLoop;
-import stratos.user.BaseUI;
-import stratos.user.Selectable;
+import stratos.user.*;
 import stratos.util.*;
 
 
@@ -26,8 +24,7 @@ public class Sector extends Background {
   final public static Object
     MAKES = new Object(),
     NEEDS = new Object();
-    
-  final static int
+  final public static int
     SEP_NONE    = 0,  //  Is the same or parent sector.
     SEP_BORDERS = 1,  //  Has a shared surface border.
     SEP_PLANET  = 2,  //  Is on the same planet...
@@ -189,6 +186,15 @@ public class Sector extends Background {
       
       setSeparation(s, sepType, totalTripTime, true);
     }
+    
+    if (false) {
+      I.say("SEPARATIONS FOR "+this+" ARE: ");
+      for (Sector s : separations.keySet()) {
+        final Separation sep = separations.get(s);
+        I.say("  "+s+": "+sep.tripTime);
+      }
+      I.say("\n...");
+    }
   }
   
   
@@ -197,12 +203,7 @@ public class Sector extends Background {
     */
   public Background[] circles() {
     final Background[] result = new Background[circles.size()];
-    return circles.values().toArray(result);
-  }
-  
-  
-  public Series <Upgrade> knowledge() {
-    return knowledge;
+    return circles.keySet().toArray(result);
   }
   
   
@@ -210,6 +211,11 @@ public class Sector extends Background {
     final Float weight = circles.get(circle);
     if (weight == null) return 0;
     return weight;
+  }
+  
+  
+  public Series <Upgrade> knowledge() {
+    return knowledge;
   }
   
   
@@ -227,6 +233,12 @@ public class Sector extends Background {
   public boolean borders(Sector other) {
     final Separation s = separations.get(other);
     return s != null && s.sepType == SEP_BORDERS;
+  }
+  
+  
+  public float tripTimeUnits(Sector other) {
+    final Separation s = separations.get(other);
+    return s == null ? -1 : s.tripTime;
   }
   
   

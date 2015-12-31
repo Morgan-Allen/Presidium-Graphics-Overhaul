@@ -105,7 +105,7 @@ public class DebugCommerce extends Scenario {
     world.offworld.journeys.addLocalImmigrant(brought, base);
     
     base.commerce.updateCommerce(0);
-    world.offworld.journeys.setupDefaultShipping(base);
+    world.offworld.journeys.setupDefaultTrader(base);
     world.offworld.journeys.scheduleLocalDrop(base, 5);
   }
   
