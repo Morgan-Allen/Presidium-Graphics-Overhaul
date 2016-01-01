@@ -132,6 +132,7 @@ public class DebugCombat extends Scenario {
     //GameSettings.fogFree = true;
     //Flora.populateFlora(world);
     
+    GameSettings.noBlood = true;
     world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
     
     /*

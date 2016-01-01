@@ -214,6 +214,11 @@ public class Blueprint extends Constant implements UIConstants {
   }
   
   
+  public boolean isPublic() {
+    return hasProperty(Structure.IS_PUBLIC);
+  }
+  
+  
   public boolean isZoned() {
     return hasProperty(Structure.IS_ZONED);
   }

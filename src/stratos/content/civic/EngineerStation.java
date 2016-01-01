@@ -98,7 +98,7 @@ public class EngineerStation extends Venue {
     ),
     ARMOUR_FOUNDRY = new Upgrade(
       "Armour Foundry",
-      "Allows the production quality of standard armours.",
+      "Raises the production quality of standard armours.",
       400,
       Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,

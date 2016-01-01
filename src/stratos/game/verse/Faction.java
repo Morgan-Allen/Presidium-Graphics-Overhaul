@@ -31,7 +31,7 @@ public class Faction extends Constant {
       false
     ),
     FACTION_PROCYON   = new Faction(
-      "House Procyon", HOUSES_DIR+"house_procyon.png", Colour.LITE_GREY,
+      "House Procyon", HOUSES_DIR+"house_procyon.png", Colour.GREY,
       "",
         "2 extra starting colonists"+
       "\n40% penalty to tech research",
