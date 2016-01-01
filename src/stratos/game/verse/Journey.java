@@ -370,6 +370,11 @@ public class Journey implements Session.Saveable {
   }
   
   
+  public void setArrivalTime(float time) {
+    this.arriveTime = time;
+  }
+  
+  
   protected void updateJourney() {
     final boolean report = verbose;
     final String  label  = report ? ""+labelObject() : "";

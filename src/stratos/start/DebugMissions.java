@@ -77,7 +77,6 @@ public class DebugMissions extends Scenario {
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
-    GameSettings.fastTrips = true;
     
     if (true ) offworldRaidingScenario(world, base, UI);
     if (false) offworldReconScenario  (world, base, UI);
@@ -102,18 +101,19 @@ public class DebugMissions extends Scenario {
     
     final Venue HQ = new Bastion(base);
     SiteUtils.establishVenue(HQ, 5, 5, true, world);
-    base.setup.fillVacancies(HQ, true);
-    base.assignRuler(HQ.staff.workers().first());
+    //base.setup.fillVacancies(HQ, true);
+    //base.assignRuler(HQ.staff.workers().first());
     
     final Verse verse = world.offworld;
     CivicBase procyon = Base.settlement(world, null, Faction.FACTION_PROCYON);
     verse.baseForSector(Verse.PLANET_PAREM_V).updateAsScheduled(0, false);
     procyon.updateVisits();
-    procyon.beginRaidingVisit(CivicBase.AVG_SECTOR_POWER);
+    procyon.beginRaidingVisit(CivicBase.AVG_SECTOR_POWER, 10);
   }
   
   
   private void offworldReconScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fastTrips = true;
     
     final Venue HQ = new Bastion(base);
     SiteUtils.establishVenue(HQ, 5, 5, true, world);

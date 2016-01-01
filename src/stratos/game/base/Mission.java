@@ -579,23 +579,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public float priorityFor(Actor actor) {
-    
-    //  TODO:  Move this out to the JoinMission class!
-    
-    if (isOffworld()) {
-      return basePriority(actor);
-    }
-    else {
-      final Behaviour step = nextStepFor(actor, true);
-      if (step == null) return -1;
-      float priority = step.priorityFor(actor);
-      return priority;
-    }
-  }
-  
-  
-  protected float basePriority(Actor actor) {
+  public float basePriority(Actor actor) {
     
     //  TODO:  Move this out to the JoinMission class!
     

@@ -60,12 +60,12 @@ public class CivicBase extends Base {
     
     float maxTeamPower = factionPower;
     if (world.currentTime() - lastVisitTime() > visitDelay) {
-      beginRaidingVisit(maxTeamPower);
+      beginRaidingVisit(maxTeamPower, -1);
     }
   }
   
   
-  public boolean beginRaidingVisit(float maxTeamPower) {
+  public boolean beginRaidingVisit(float maxTeamPower, float arriveDelay) {
     final SectorBase source = pickClaimedBase();
     if (source == null) return false;
     
@@ -107,6 +107,9 @@ public class CivicBase extends Base {
     );
     
     beginVisit(strike, journey);
+    if (arriveDelay > 0) {
+      journey.setArrivalTime(world.currentTime() + arriveDelay);
+    }
     return true;
   }
   

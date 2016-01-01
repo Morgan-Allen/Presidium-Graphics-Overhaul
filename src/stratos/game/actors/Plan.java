@@ -211,14 +211,17 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       I.say("  Priority:  "+priorityEval);
       I.say("  Next step: "+nextStep);
     }
-    
+    //
+    //  If the plan is no longer valid, we quit immediately.
     if (! valid()) {
       if (report) I.say("\nNEXT STEP IS NULL: NOT VALID");
       onceInvalid();
       this.interrupt(INTERRUPT_NOT_VALID);
       return false;
     }
-    
+    //
+    //  If the last step has completed (or has exhausted it's set of steps), we
+    //  need to generate another.
     final boolean oldDone = lastStep != null && (
       lastStep.finished() ||
       lastStep.nextStepFor(actor) == null
@@ -229,23 +232,21 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       lastStep = null;
       return true;
     }
-    
-    if (priorityEval == NULL_PRIORITY || nextStep == null) {
+    //
+    //  Only root (or unattached) behaviours need to evaluate their priority
+    //  explicitly in order to be valid- sub-step behaviours only to need to
+    //  refresh their own step-sequence.
+    final boolean root = actor.mind.rootBehaviour() == this || ! hasBegun();
+    if ((root && priorityEval == NULL_PRIORITY) || nextStep == null) {
       if (report) I.say("ALREADY FLAGGED FOR EVALUATION!");
       return true;
     }
-    
-    /*
-    if (actor.actionInProgress()) {
-      if (report) I.say("ACTOR IN MID-ACTION!");
-      return false;
-    }
-    //*/
-    
+    //
+    //  Finally, we always force a fresh evaluation after enough time has
+    //  elapsed...
     final float
       timeGone = actor.world().currentTime() - lastEvalTime,
       interval = evaluationInterval();
-    
     if (report) {
       I.say("\nChecking for fresh evaluation: "+this);
       I.say("  Time gone: "+timeGone+"/"+interval);
@@ -315,12 +316,13 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     if (checkRefreshDue(actor, report && extraVerbose)) {
       final float time = actor.world().currentTime();
       if (report) I.say("\nGetting fresh priority... "+I.tagHash(this));
-      priorityEval = 0;  //  Note: This avoids certain types of infinite loop.
+      priorityEval = 0;  //  Note:  This avoids certain types of infinite loop.
       priorityEval = getPriority();
       if (report) I.say("\nNew priority: "+priorityEval);
       properties |= HAS_PRIORITY;
       lastEvalTime = time;
     }
+    
     return priorityEval;
   }
   
@@ -340,9 +342,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       if (report) I.say("  Plan step for "+this+" was: "+I.tagHash(lastStep));
       final float time = actor.world().currentTime();
       
-      final Behaviour root = actor.mind.rootBehaviour();
-      final boolean subStep = root != this && actor.mind.agenda.includes(this);
-      
       nextStep = getNextStep();
       if (lastStep != null && lastStep.matchesPlan(nextStep)) {
         if (report) I.say("    NEXT STEP THE SAME AS OLD STEP: "+nextStep);
@@ -352,14 +351,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
         if (report) I.say("  New plan step: "+I.tagHash(nextStep));
         lastStep = nextStep;
       }
-      //
-      //  We may have to set priority manually here, because sub-steps never
-      //  have their priority queried outside- but this is needed to prevent
-      //  being flagged as 'due for refresh'.
-      if (subStep && priorityEval == NULL_PRIORITY) {
-        if (report) I.say("SETTING SUB-STEP AS IDLE! "+this);
-        priorityEval = IDLE;
-      }
+      
       properties |= HAS_STEPS;
       lastEvalTime = time;
     }

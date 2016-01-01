@@ -139,12 +139,26 @@ public class JoinMission extends Plan implements Journey.Purpose {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    return mission.priorityFor(actor);
+    if (mission.isOffworld()) {
+      return mission.basePriority(actor);
+    }
+    else {
+      final Behaviour step = mission.nextStepFor(actor, true);
+      if (step == null) return -1;
+      final float priority = step.priorityFor(actor);
+      return priority;
+    }
+  }
+  
+  
+  public boolean isEmergency() {
+    final Behaviour step = mission.nextStepFor(actor, true);
+    return step.isEmergency();
   }
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor;// && stepsVerbose;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     if (report) {
       I.say("\nGetting next step for joining "+mission);
     }

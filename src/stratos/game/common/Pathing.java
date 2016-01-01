@@ -103,7 +103,7 @@ public class Pathing {
     final boolean report = verbose && I.talkAbout == mobile;
     if (report && extraVerbose) I.say("\nUpdating path target: "+moveTarget);
     
-    final Target oldTarget = moveTarget;
+    final Target oldTarget = this.moveTarget;
     final boolean paths = moveTarget != null && moveTarget != mobile.aboard();
     
     if (paths && PathSearch.accessLocation(moveTarget, mobile) == null) {

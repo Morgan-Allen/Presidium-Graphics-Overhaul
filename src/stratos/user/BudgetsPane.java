@@ -158,7 +158,7 @@ public class BudgetsPane extends SelectionPane {
       if (partner == BC.homeworld()) d.append("  (Homeworld)");
       else d.append(" (Trading Partner)");
       
-      final Vehicle nextShip = universe.journeys.nextTransportBetween(
+      final Vehicle nextShip = universe.journeys.nextTraderBetween(
         partner, locale, base, true
       );
       if (nextShip != null) {

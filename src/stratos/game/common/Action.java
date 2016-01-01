@@ -313,10 +313,9 @@ public class Action implements Behaviour, AnimNames {
     //  Firstly, we establish current displacements between actor and target,
     //  motion target & action target, how far the actor can see, and whether
     //  sticking to the full tile path is required-
-    final boolean mustBoard = (
-      (! ranged()) && (moveTarget instanceof Boarding)
-    );
-    //final boolean blockage = ! actor.motion.checkEndPoint(moveTarget);
+    final boolean
+      ranged    = ranged(),
+      mustBoard = ((! ranged) && (moveTarget instanceof Boarding));
     final float
       sightRange = actor.health.sightRange(),
       motionDist = Spacing.distance(actor, moveTarget),
@@ -373,6 +372,7 @@ public class Action implements Behaviour, AnimNames {
       facing = actor.pathing.facingTarget(closeOn);
     }
     
+    if (ranged) pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
     actor.pathing.updateTarget(pathsTo);
     
     if (report) {

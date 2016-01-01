@@ -421,10 +421,11 @@ public class Summons extends Plan implements Messaging {
     final Actor ruler = UI.played().ruler();
     for (Pledge p : Pledge.TYPE_JOIN_MISSION.variantsFor(with, ruler)) {
       final Mission m = (Mission) p.refers();
+      final JoinMission joining = JoinMission.resume(with, m);
       
       responses.add(new Link(""+m.toString()) {
         public void whenClicked(Object context) {
-          final boolean wouldAccept = m.priorityFor(with) > 0;
+          final boolean wouldAccept = joining.priorityFor(with) > 0;
           
           if (wouldAccept) {
             pushMissionResponse(UI, with, m);
