@@ -72,9 +72,9 @@ public abstract class Vehicle extends Mobile implements
     staff    .loadState(s);
     s.loadObjects(inside);
     
-    journey      = (Journey) s.loadObject();
-    pilot        = (Actor) s.loadObject();
-    hangar       = (Venue) s.loadObject();
+    journey      = (Journey ) s.loadObject();
+    pilot        = (Actor   ) s.loadObject();
+    hangar       = (Venue   ) s.loadObject();
     dropPoint    = (Boarding) s.loadTarget();
     entranceFace = s.loadFloat();
     
@@ -376,6 +376,11 @@ public abstract class Vehicle extends Mobile implements
   
   public boolean landed() {
     return state == STATE_LANDED || state == STATE_BOARDING;
+  }
+  
+  
+  public boolean boarding() {
+    return state == STATE_BOARDING;
   }
   
   

@@ -226,7 +226,8 @@ public abstract class Mobile extends Element
     if (pos      != null) nextPosition.setTo(pos);
     if (rotation != -1  ) nextRotation = rotation;
     
-    if (aboard == null || ! aboard.area(null).contains(pos.x, pos.y)) {
+    final Box2D area = aboard == null ? null : aboard.area(null);
+    if (inWorld() && (area == null || ! area.contains(pos.x, pos.y))) {
       goAboard(newTile, world);
     }
     if (instant) {

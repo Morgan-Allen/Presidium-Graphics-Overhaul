@@ -372,7 +372,10 @@ public class Action implements Behaviour, AnimNames {
       facing = actor.pathing.facingTarget(closeOn);
     }
     
-    if (ranged) pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
+    //  Ranged actions don't actually need complete pathing, just proximity-
+    if (ranged && ! pathsTo.indoors()) {
+      pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
+    }
     actor.pathing.updateTarget(pathsTo);
     
     if (report) {

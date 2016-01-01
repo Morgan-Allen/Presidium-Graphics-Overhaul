@@ -141,10 +141,28 @@ public class PilotUtils {
   }
   
   
-  public static boolean allAboard(Vehicle ship) {
+  public static boolean performTakeoffCheck(
+    Vehicle ship, int maxStayDuration
+  ) {
+    if (! ship.structure.intact()) return false;
+    final Stage world = ship.world();
+    final Journey j = ship.journey();
+    if (j == null || j.complete() || ! ship.landed()) return false;
     
-    //  TODO:  This may have to check against members of a mission instead...
+    if (j.destination() != world.localSector()) {
+      if (allAboard(ship)) { ship.beginTakeoff(); return true; }
+      else if (! ship.boarding()) ship.beginBoarding();
+    }
+    return false;
+  }
+  
+  
+  static boolean allAboard(Vehicle ship) {
+    //  TODO:  Include a specific provision for associated missions here!
     
+    for (Mobile m : ship.staff.lodgers()) {
+      if (! isBoarding(m, ship)) return false;
+    }
     for (Mobile m : ship.staff.workers()) {
       if (! isBoarding(m, ship)) return false;
     }

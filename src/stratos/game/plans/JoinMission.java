@@ -144,16 +144,19 @@ public class JoinMission extends Plan implements Journey.Purpose {
     }
     else {
       final Behaviour step = mission.nextStepFor(actor, true);
-      if (step == null) return -1;
-      final float priority = step.priorityFor(actor);
-      return priority;
+      return step == null ? -1 : step.priorityFor(actor);
     }
   }
   
   
   public boolean isEmergency() {
-    final Behaviour step = mission.nextStepFor(actor, true);
-    return step.isEmergency();
+    if (mission.isOffworld()) {
+      return false;
+    }
+    else {
+      final Behaviour step = mission.nextStepFor(actor, true);
+      return step == null ? false : step.isEmergency();
+    }
   }
   
   

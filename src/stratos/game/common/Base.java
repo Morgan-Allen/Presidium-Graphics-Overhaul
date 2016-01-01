@@ -267,6 +267,7 @@ public abstract class Base extends SectorBase implements
     final Actor team[] = visit.approved().toArray(Actor.class);
     if (journey.transport() != null) for (Actor a : team) {
       a.mind.setHome(journey.transport());
+      a.mind.setWork(journey.transport());
     }
     journey.beginJourney(team);
   }

@@ -376,6 +376,9 @@ public final class Tile implements
   
   public void setInside(Mobile m, boolean is) {
     if (is) {
+      if (! m.inWorld()) {
+        I.complain(m+" is not in world! Cannot enter tile: "+this);
+      }
       if (inside == NONE_INSIDE) inside = new Stack <Mobile> ();
       inside.include(m);
     }

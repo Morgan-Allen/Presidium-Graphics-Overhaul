@@ -309,7 +309,7 @@ public class Retreat extends Plan {
   
   
   public int motionType(Actor actor) {
-    if (actor.senses.isEmergency()) return Action.MOTION_FAST;
+    if (priorityFor(actor) >= URGENT) return Action.MOTION_FAST;
     return super.motionType(actor);
   }
   

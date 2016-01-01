@@ -89,20 +89,11 @@ public class DebugMissions extends Scenario {
   
   
   private void offworldRaidingScenario(Stage world, Base base, BaseUI UI) {
-    //
-    //  I think it's simplest if the homeworlds just stay out of it for now.
-    //  They can send migrants/reinforcements and trade, but won't attack you
-    //  directly.  It's like a cold war.
-    //
-    //  I think... maybe I don't need to bother with missions or Journeys for
-    //  coming *into* the world.  Just model that as part of 'random spawning'
-    //  for different Factions (if and only if they're AI-controlled.)  You
-    //  can assign missions and journeys to them afterward.
     
     final Venue HQ = new Bastion(base);
     SiteUtils.establishVenue(HQ, 5, 5, true, world);
-    //base.setup.fillVacancies(HQ, true);
-    //base.assignRuler(HQ.staff.workers().first());
+    base.setup.fillVacancies(HQ, true);
+    base.assignRuler(HQ.staff.workers().first());
     
     final Verse verse = world.offworld;
     CivicBase procyon = Base.settlement(world, null, Faction.FACTION_PROCYON);

@@ -531,7 +531,7 @@ public class Combat extends Plan {
     */
   public void describeBehaviour(Description d) {
     if (stepType == STEP_INIT || stepType == STEP_FIGHT) {
-      d.append("In combat with ");
+      d.append("Fighting ");
     }
     if (stepType == STEP_RAZING) {
       d.append("Razing ");

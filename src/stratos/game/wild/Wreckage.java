@@ -1,6 +1,8 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
@@ -82,13 +84,12 @@ public class Wreckage extends Fixture {
   
   
   public static void reduceToSlag(Box2D area, Stage world) {
-    final int maxSize = (int) Nums.max(1, area.xdim() / 2);
+    final int maxSize = (int) Nums.clamp(area.xdim() / 2, 1, 2);
     
     for (Tile t : world.tilesIn(area, true)) {
       if (t.above() != null) continue;
-      int size = 2 + Rand.index(maxSize);
       
-      while (size-- > 1) {
+      for (int size = 1 + Rand.index(maxSize); size > 0; size--) {
         final Wreckage heap = new Wreckage(false, size, -1);
         heap.setPosition(t.x, t.y, world);
         if (! heap.footprint().containedBy(area)) continue;

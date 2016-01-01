@@ -8,10 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.*;
 import stratos.util.*;
-import static stratos.game.base.BaseCommerce.*;
-import static stratos.game.economic.Vehicle.*;
 
 
 
@@ -36,6 +33,10 @@ public class Journey implements Session.Saveable {
     STAGE_ARRIVED  =  1,
     STAGE_RETURN   =  2,
     STAGE_COMPLETE =  3;
+  final public static int
+    TRADE_STAY_DURATION = Stage.STANDARD_HOUR_LENGTH * 6,
+    RAID_STAY_DURATION  = Stage.STANDARD_HOUR_LENGTH * 4,
+    DIPLO_STAY_DURATION = Stage.STANDARD_DAY_LENGTH  * 2;
   
   final Verse verse;
   final int properties;
@@ -48,8 +49,9 @@ public class Journey implements Session.Saveable {
   float    arriveTime = -1;
   int      tripStage  = STAGE_INIT;
   
-  boolean begun = false;
-  Vehicle transport;
+  boolean  begun = false;
+  float    maxStayTime = -1;
+  Vehicle  transport;
   Boarding transitPoint;
   Batch <Mobile> migrants = new Batch();
   
@@ -76,6 +78,7 @@ public class Journey implements Session.Saveable {
     tripStage    = s.loadInt();
     
     begun        = s.loadBool();
+    maxStayTime  = s.loadFloat();
     transport    = (Vehicle ) s.loadObject();
     transitPoint = (Boarding) s.loadObject();
     s.loadObjects(migrants);
@@ -94,6 +97,7 @@ public class Journey implements Session.Saveable {
     s.saveInt    (tripStage  );
     
     s.saveBool   (begun       );
+    s.saveFloat  (maxStayTime );
     s.saveObject (transport   );
     s.saveObject (transitPoint);
     s.saveObjects(migrants    );
@@ -182,6 +186,16 @@ public class Journey implements Session.Saveable {
   }
   
   
+  public float departTime() {
+    return departTime;
+  }
+  
+  
+  public float arriveTime() {
+    return arriveTime;
+  }
+  
+  
   
   /**  Factory methods for exteral access-
     */
@@ -198,6 +212,7 @@ public class Journey implements Session.Saveable {
     journey.worldTarget  = null;
     journey.transport    = trader;
     journey.transitPoint = trader;
+    journey.maxStayTime  = TRADE_STAY_DURATION;
     
     if (! journey.checkTransitPoint()) return null;
     return journey;
@@ -205,7 +220,8 @@ public class Journey implements Session.Saveable {
   
   
   public static Journey configForVisit(
-    Sector from, Stage world, Vehicle transportUsed, Base base
+    Sector from, Stage world,
+    Vehicle transportUsed, Base base, float maxStayTime
   ) {
     final Verse verse = world.offworld;
     final int props = IS_MISSION | IS_RETURN;
@@ -215,6 +231,7 @@ public class Journey implements Session.Saveable {
     journey.destination  = world.localSector();
     journey.transport    = transportUsed;
     journey.transitPoint = transportUsed;
+    journey.maxStayTime  = maxStayTime;
     
     if (! journey.checkTransitPoint()) return null;
     return journey;
@@ -366,6 +383,7 @@ public class Journey implements Session.Saveable {
     }
     
     pickupOffworldMigrants();
+    if (transport != null) transport.assignJourney(this);
     verse.journeys.journeys.include(this);
   }
   
@@ -385,42 +403,21 @@ public class Journey implements Session.Saveable {
     //  Basic variable setup-
     final Stage   world      = verse.world;
     final float   time       = world.currentTime();
-    final boolean hasTrans   = transport != null;
-    final int     shipStage  = hasTrans ? transport.flightState() : STATE_AWAY;
     final boolean visitWorld = destination == verse.stageLocation();
-    final boolean arriving   = shipStage == STATE_AWAY && time >= arriveTime;
-    
     if (tripStage == STAGE_INIT) tripStage = STAGE_OUTWARD;
-    if (arriving) onArrival(visitWorld);
-    if (checkForDeparture(visitWorld)) beginReturnTrip();
+    if (time >= arriveTime) onArrival(visitWorld);
+    if (checkForDeparture()) beginReturnTrip();
   }
   
   
-  protected boolean checkForDeparture(boolean visitWorld) {
-    //
-    //  NOTE:  This method is only called for automatically-recurring trips by,
-    //  e.g, trade freighters.  Other trips will either be complete upon
-    //  arrival or will be prompted to recall by an external control block.
-    if (! hasProperty(IS_RECURRING)) return false;
+  protected boolean checkForDeparture() {
+    if (maxStayTime == -1 || complete()) return false;
     
-    final float   time       = verse.world.currentTime();
-    final boolean stayTimeUp = time - arriveTime > SHIP_VISIT_DURATION;
+    final float timeStayed = verse.world.currentTime() - arriveTime;
+    if (timeStayed > maxStayTime) return true;
     
-    if (visitWorld) {
-      if (transport != null && transport.landed() && stayTimeUp) {
-        final boolean boarding = transport.flightState() == STATE_BOARDING;
-        if (! boarding) transport.beginBoarding();
-        final boolean allAboard = PilotUtils.allAboard(transport);
-        
-        if (allAboard && boarding) {
-          transport.beginTakeoff();
-          return true;
-        }
-      }
-    }
-    else {
-      if (tripStage == STAGE_ARRIVED) return true;
-    }
+    //  TODO:  You'll need to perform a check here to ensure that everyone is
+    //  ready to depart first...
     return false;
   }
   
@@ -429,10 +426,7 @@ public class Journey implements Session.Saveable {
     if      (hasProperty(IS_SINGLE)    ) tripStage = STAGE_COMPLETE;
     else if (tripStage <= STAGE_OUTWARD) tripStage = STAGE_ARRIVED ;
     else if (tripStage == STAGE_RETURN ) tripStage = STAGE_COMPLETE;
-    else {
-      I.complain("\nCANNOT ARRIVE DURING TRIP STAGE: "+tripStage);
-      return;
-    }
+    else return;
     //
     //  If you're arriving in-world, then you either tell the transport to
     //  begin landing (and it'll handle the mushy details) or you eject all
@@ -492,6 +486,10 @@ public class Journey implements Session.Saveable {
   
   /**  Dealing with common conditions at the start and end of a journey:
     */
+  //
+  //  TODO:  Ideally, either offworld base-simulation or the transport in
+  //  question should handle this.
+  
   protected void pickupOffworldMigrants() {
     final SectorBase base = verse.baseForSector(origin);
     final boolean offworld = origin != verse.stageLocation();
@@ -521,8 +519,6 @@ public class Journey implements Session.Saveable {
     //
     //  This crew will need to be updated every now and then- in the sense of
     //  changing the roster due to losses or career changes.
-    //
-    //  TODO:  Ideally, offworld base-simulation should handle this?
     final Base home = transport.base();
     for (Background b : transport.careers()) {
       while (transport.staff().numOpenings(b) > 0) {

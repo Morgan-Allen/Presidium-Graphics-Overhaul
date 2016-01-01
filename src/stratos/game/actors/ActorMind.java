@@ -169,7 +169,7 @@ public abstract class ActorMind {
   public Action getNextAction() {
     final boolean report = I.talkAbout == actor && stepsVerbose;
     Behaviour root = null, next = null;
-    final int MAX_LOOP = 20;
+    final int MAX_LOOP = 6;
     final String cause = "Getting next action";
     Action returned = null;
     
@@ -251,6 +251,7 @@ public abstract class ActorMind {
       I.say("  Next step:      "+next);
       Plan.reportPlanDetails(next, actor);
       I.reportStackTrace();
+      if (root != null) root.interrupt("Could not decide on step!");
     }
     return null;
   }

@@ -6,19 +6,13 @@
 package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
 
 
-//  TODO:  You need to use separate actions for invites/gifting.  Get rid of
-//  urgency-based quits for now, and just allow for 3 exchanges at a time, say.
-
-
 //  TODO:  Allow for 'discussion' with the dead- labelled as 'paying respects'?
 //         (But only at grave markers.)
-
 
 
 public class Dialogue extends Plan {
@@ -52,7 +46,7 @@ public class Dialogue extends Plan {
   
   final static int
     STAGE_INIT   = -1,
-    STAGE_GREET  =  0,
+    STAGE_HAIL   =  0,
     STAGE_CHAT   =  1,
     STAGE_BYE    =  2,
     STAGE_DONE   =  3;
@@ -64,10 +58,59 @@ public class Dialogue extends Plan {
   private Dialogue starts = this;
   private int stage = STAGE_INIT;
   private Session.Saveable topic;
-  private float tryCounter;
   private int checkBonus;
   
   
+  protected Dialogue(Actor actor, Actor other, int type) {
+    super(actor, other, MOTIVE_LEISURE, MILD_HELP);
+    this.other  = other;
+    this.starts = this ;
+    this.type   = type ;
+    if (type == TYPE_PLEA) toggleMotives(MOTIVE_EMERGENCY, true);
+  }
+  
+  
+  public Dialogue(Session s) throws Exception {
+    super(s);
+    other      = (Actor) s.loadObject();
+    starts     = (Dialogue) s.loadObject();
+    type       = s.loadInt();
+    stage      = s.loadInt();
+    topic      = s.loadObject();
+    checkBonus = s.loadInt();
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    super.saveState(s);
+    s.saveObject(other     );
+    s.saveObject(starts    );
+    s.saveInt   (type      );
+    s.saveInt   (stage     );
+    s.saveObject(topic     );
+    s.saveInt   (checkBonus);
+  }
+  
+  
+  public Plan copyFor(Actor other) {
+    return new Dialogue(other, this.other, type);
+  }
+  
+  
+  public Session.Saveable topic() {
+    return topic;
+  }
+  
+  
+  public Dialogue setCheckBonus(float bonus) {
+    this.checkBonus = (int) bonus;
+    return this;
+  }
+  
+  
+  
+  /**  External factory methods and utility methods for assessing possibility-
+    */
   public static Dialogue dialogueFor(Actor actor, Actor other) {
     if (PlanUtils.harmIntendedBy(other, actor, false) > 0) {
       return new Dialogue(actor, other, TYPE_PLEA);
@@ -97,97 +140,20 @@ public class Dialogue extends Plan {
   }
   
   
-  protected Dialogue(Actor actor, Actor other, int type) {
-    super(actor, other, MOTIVE_LEISURE, MILD_HELP);
-    this.other  = other;
-    this.starts = this ;
-    this.type   = type ;
-    if (type == TYPE_PLEA) toggleMotives(MOTIVE_EMERGENCY, true);
-  }
-  
-  
-  public Dialogue(Session s) throws Exception {
-    super(s);
-    other      = (Actor) s.loadObject();
-    starts     = (Dialogue) s.loadObject();
-    type       = s.loadInt();
-    stage      = s.loadInt();
-    topic      = s.loadObject();
-    tryCounter = s.loadFloat();
-    checkBonus = s.loadInt();
-  }
-  
-  
-  public void saveState(Session s) throws Exception {
-    super.saveState(s);
-    s.saveObject(other     );
-    s.saveObject(starts    );
-    s.saveInt   (type      );
-    s.saveInt   (stage     );
-    s.saveObject(topic     );
-    s.saveFloat (tryCounter);
-    s.saveInt   (checkBonus);
-  }
-  
-  
-  public Plan copyFor(Actor other) {
-    return new Dialogue(other, this.other, type);
-  }
-  
-  
-  public Session.Saveable topic() {
-    return topic;
-  }
-  
-  
-  public Dialogue setCheckBonus(float bonus) {
-    this.checkBonus = (int) bonus;
-    return this;
-  }
-  
-  
-  
-  /**  Utility methods for assessing possibility-
-    */
-  private boolean canTalk(Actor other) {
-    final boolean report = I.talkAbout == other && shouldReportEval();
+  private boolean canTalkWith(Actor with) {
+    final boolean report = (
+      I.talkAbout == other || I.talkAbout == actor
+    ) && shouldReportEval();
     
-    if (starts == null || starts.actor() == null) {
-      I.complain("No conversation starter!");
-      return false;
-    }
-
-    final Target chatsWith = other.planFocus(Dialogue.class, true);
-    if (report) {
-      I.say("\nChecking if "+other+" will talk to "+actor);
-      I.say("  Starts:     "+I.tagHash(starts));
-      I.say("  This is:    "+I.tagHash(this  ));
-      I.say("  Stage is:   "+stage            );
-      I.say("  Chats with: "+chatsWith        );
-      I.say("  Agenda is:");
-      for (Behaviour b : other.mind.agenda()) {
-        I.say("    "+b);
-      }
-    }
+    if (! with.health.conscious()) return false;
+    if (actor.relations.noveltyFor(with) <= 0) return false;
     
-    if (! other.health.conscious()) {
-      if (report) I.say("  Other actor is unconscious.");
-      return false;
-    }
-    if (chatsWith == actor) {
-      if (report) I.say("  Conversation ongoing- okay.");
-      return true;
-    }
-    if (type == TYPE_CASUAL && chatsWith != null && chatsWith != actor) {
-      return false;
-    }
-    if (stage == STAGE_INIT && other == starts.actor()) {
-      if (report) I.say("  Other actor started conversation.");
-      return true;
-    }
+    if (stage == STAGE_INIT && other == starts.actor()) return true;
+    final Target chatsWith = with.planFocus(Dialogue.class, true);
+    if (chatsWith == actor) return true;
     
-    final Dialogue response = responseFor(other, actor, this, 0);
-    if (other.mind.mustIgnore(response)) {
+    final Dialogue response = responseFor(with, actor, this, 0);
+    if (isCasual() && other.mind.mustIgnore(response)) {
       if (report) {
         I.say("  Other actor is too busy!");
         I.say("    Chat priority: "+response.priorityFor(other));
@@ -196,6 +162,13 @@ public class Dialogue extends Plan {
     }
     if (report) I.say("  Talking okay!");
     return true;
+  }
+  
+  
+  protected boolean checkExpiry(float maxTries) {
+    actor.relations.incRelation(other, 0, 0, -1f / maxTries);
+    if (actor.relations.noveltyFor(other) == 0) return true;
+    return false;
   }
   
   
@@ -219,6 +192,16 @@ public class Dialogue extends Plan {
   }
   
   
+  public boolean isCasual() {
+    return type == TYPE_CASUAL;
+  }
+  
+  
+  public boolean isContact() {
+    return type == TYPE_CONTACT;
+  }
+  
+  
   
   /**  Target selection and priority evaluation-
     */
@@ -227,23 +210,19 @@ public class Dialogue extends Plan {
   
   
   protected float getPriority() {
-    final boolean report = shouldReportEval();
-    if (report) I.say("\nChecking for dialogue between "+actor+" and "+other);
     
-    final boolean casual = type == TYPE_CASUAL;
-    setCompetence(1); //  Will modify below
+    setCompetence(1);
+    final boolean report = shouldReportEval();
     
     if (GameSettings.noChat || stage == STAGE_DONE) {
       if (report) I.say("\n  Dialogue complete.");
       return -1;
     }
-    
     if (stage == STAGE_BYE) {
       if (report) I.say("\n  Saying goodbye.");
       return CASUAL;
     }
-    
-    if (casual && ! canTalk(other)) {
+    if (! canTalkWith(other)) {
       if (report) I.say("\n  "+other+" can't talk now.");
       return -1;
     }
@@ -255,11 +234,22 @@ public class Dialogue extends Plan {
     }
     
     final float priority = PlanUtils.dialoguePriority(
-      actor, other, casual, motiveBonus(), competence()
+      actor, other, isCasual(), motiveBonus(), competence()
     );
-    
     if (report) I.say("  Priority is: "+priority);
     return priority;
+  }
+  
+  
+  public boolean isEmergency() {
+    final Behaviour b = other.mind.rootBehaviour();
+    return isPlea() && b != null && b.isEmergency();
+  }
+  
+  
+  public int motionType(Actor actor) {
+    if (isEmergency()) return MOTION_FAST;
+    else return MOTION_NORMAL;
   }
   
   
@@ -279,26 +269,35 @@ public class Dialogue extends Plan {
       I.say("  Plan is:  "+I.tagHash(this));
       I.say("  Stage is: "+stage);
     }
-    
+
     if (stage >= STAGE_DONE) {
       if (report) I.say("  DIALOGUE COMPLETE");
       return null;
     }
-    if (stage == STAGE_INIT) {
-      tryCounter = 0;
-      stage = STAGE_GREET;
-    }
+    if (stage == STAGE_INIT) stage = STAGE_HAIL;
     
-    if (stage == STAGE_GREET) {
-      if (report) I.say("  Greeting "+other);
+    if (stage == STAGE_HAIL) {
       
-      final Action greeting = new Action(
-        actor, other,
-        this, "actionGreet",
-        Action.TALK, "Greeting "
-      );
-      if (! other.indoors()) greeting.setProperties(Action.RANGED);
-      return greeting;
+      if (isPlea()) {
+        if (report) I.say("  Pleading with "+other);
+        final Action plead = new Action(
+          actor, other,
+          this, "actionPlead",
+          Action.TALK, "Pleading with "
+        );
+        if (! other.indoors()) plead.setProperties(Action.RANGED);
+        return plead;
+      }
+      else {
+        if (report) I.say("  Hailing "+other);
+        final Action hailing = new Action(
+          actor, other,
+          this, "actionHail",
+          Action.TALK, "Hailing "
+        );
+        if (! other.indoors()) hailing.setProperties(Action.RANGED);
+        return hailing;
+      }
     }
     
     if (stage == STAGE_CHAT) {
@@ -343,29 +342,58 @@ public class Dialogue extends Plan {
   }
   
   
-  public boolean actionGreet(Actor actor, Actor other) {
+  public boolean actionHail(Actor actor, Actor other) {
     final boolean report = shouldReportSteps();
+    if (report) I.say("Attempting to hail "+other);
+    
+    boolean canTalk = canTalkWith(other);
+    final Dialogue child = responseFor(other, actor, this, 0);
     final Target otherChats = other.planFocus(Dialogue.class, true);
-    if (report) {
-      I.say("\nGeeting "+other+"!");
-      I.say("  Other is chatting with: "+otherChats);
-    }
     
-    if (otherChats != actor) {
-      if (canTalk(other)) {
-        if (report) I.say("  Assigning fresh dialogue to "+other);
-        final Dialogue child = responseFor(other, actor, this, 0);
-        other.mind.assignBehaviour(child);
-      }
-      else {
-        tryCounter++;
-        return false;
-      }
+    if ((! isCasual()) && checkExpiry(PLEA_DURATION)) {
+      canTalk = false;
     }
-    
-    if (report) I.say("  Okay to start chatting...");
-    this.stage = STAGE_CHAT;
+    if (canTalk) {
+      if (otherChats != actor) other.mind.assignBehaviour(child);
+      stage = STAGE_CHAT;
+      if (report) I.say("  Hail successful, will begin chat.");
+    }
+    else {
+      stage = STAGE_DONE;
+      if (report) I.say("  Hail failed, will abort...");
+    }
     return true;
+  }
+  
+  
+  public boolean actionPlead(Actor actor, Actor other) {
+    final boolean report = shouldReportSteps();
+    if (report) I.say("Attempting to plea with "+other);
+    
+    boolean canTalk = canTalkWith(other) && checkExpiry(PLEA_DURATION);
+    if (PlanUtils.harmIntendedBy(other, actor, false) <= 0 || ! canTalk) {
+      if (report) I.say("  Can no longer talk...");
+      stage = STAGE_DONE;
+      return false;
+    }
+    
+    final Behaviour b = other.mind.rootBehaviour();
+    final Target victim = b.subject();
+    float motive = b == null ? 0 : b.priorityFor(other) / Plan.PARAMOUNT;
+    final int DC = (int) (motive * DIFFICULT_DC);
+    
+    if (DialogueUtils.talkResult(COMMAND, DC, actor, other) > 0.5f) {
+      other.mind.cancelBehaviour(b, "Persuaded by plea");
+      float value = actor.relations.valueFor(b.subject());
+      other.relations.incRelation(victim, value, 0.33f, 0);
+      stage = STAGE_DONE;
+      if (report) I.say("  Persuaded to stop: "+b);
+      return true;
+    }
+    else {
+      if (report) I.say("  Plea failed to persuade...");
+      return false;
+    }
   }
   
   
@@ -375,24 +403,25 @@ public class Dialogue extends Plan {
   
   
   public boolean actionChats(Actor actor, Actor other) {
-    final boolean close =
-      shouldClose() && responseFor(other, actor, this, 0).shouldClose()
-    ;
-    topic = (this == starts) ? selectTopic(close) : starts.topic;
-    discussTopic(topic, close);
-    tryCounter++;
+    
+    final Dialogue response = Dialogue.responseFor(other, actor, this, 0);
+    boolean done = checkExpiry(BORED_DURATION) || ! canTalkWith(other);
+    if (response != null) done &= response.checkExpiry(BORED_DURATION);
+    
+    topic = (this == starts) ? selectTopic(done) : starts.topic;
+    discussTopic(topic, done);
     
     final boolean report = shouldReportSteps();
     if (report) {
       I.say("\nChatting with "+other);
-      I.say("  Should close? "+close);
+      I.say("  Should close? "+done );
       I.say("  Starts is:    "+starts.getClass().getSimpleName());
       I.say("  Starts ID:    "+starts.hashCode());
       I.say("  This is:      "+this.getClass().getSimpleName());
       I.say("  This ID:      "+this.hashCode());
     }
     
-    if (close || ! canTalk(other)) stage = STAGE_BYE;
+    if (done) stage = STAGE_BYE;
     return true;
   }
   
@@ -408,15 +437,8 @@ public class Dialogue extends Plan {
   
   /**  Helper methods for determining closure and topic-selection:
     */
-  protected boolean shouldClose() {
-    if (type == TYPE_PLEA && tryCounter > PLEA_DURATION) return true;
-    else return tryCounter >= BORED_DURATION;
-  }
-  
-  
   protected Session.Saveable selectTopic(boolean close) {
     if (isAnimal()) return DialogueUtils.LINE_ANIMAL;
-    
     //  TODO:  If this is a fresh acquaintance, consider general introductions?
     return DialogueUtils.pickChatTopic(this, other);
   }
@@ -455,16 +477,32 @@ public class Dialogue extends Plan {
       d.appendAll("Communicating with ", other);
     }
     else if (starts.topic != null) {
-      d.append("Discussing ");
-      d.append(starts.topic);
-      d.append(" with ");
-      d.append(other);
+      d.appendAll("Discussing ", starts.topic, " with ", other);
     }
-    else if (super.needsSuffix(d, "Talking to ")) {
-      d.append(other);
+    else if (isPlea()) {
+      d.appendAll("Pleading with ", other);
+      final Behaviour b = other.mind.rootBehaviour();
+      if (b instanceof Dialogue) {
+        d.appendAll(" against talking with ", b.subject());
+      }
+      else if (b != null) {
+        d.append(" against ");
+        b.describeBehaviour(d);
+      }
+    }
+    else if (stage <= STAGE_HAIL) {
+      d.appendAll("Greeting ", other);
+    }
+    else {
+      d.appendAll("Talking to ", other);
     }
   }
 }
+
+
+
+
+
 
 
 

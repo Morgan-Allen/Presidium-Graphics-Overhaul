@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
+import stratos.game.verse.Journey;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
@@ -112,7 +113,7 @@ public class Dropship extends Vehicle implements Owner {
   /**  Economic and behavioural functions-
     */
   public void addTasks(Choice choice, Actor actor, Background b) {
-    if (b == Backgrounds.AS_RESIDENT || b == Backgrounds.AS_VISITOR) return;
+    if (b == Backgrounds.AS_VISITOR) return;
     
     final boolean report = verbose && (
       I.talkAbout == actor || I.talkAbout == this
@@ -130,26 +131,35 @@ public class Dropship extends Vehicle implements Owner {
       return;
     }
     
-    final Choice jobs = new Choice(actor);
-    jobs.isVerbose = report;
-    if (report) I.say("  Getting best delivery...");
-    
-    final Batch <Venue> depots = BringUtils.nearbyDepots(
-      this, world, SERVICE_COMMERCE
-    );
-    final Traded goods[] = cargo.demanded();
-    
-    jobs.add(BringUtils.bestBulkDeliveryFrom (
-      this, goods, 2, 10, depots, true
-    ));
-    jobs.add(BringUtils.bestBulkCollectionFor(
-      this, goods, 2, 10, depots, true
-    ));
-    if (jobs.empty()) {
-      jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, 5, true));
-      jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, 5, true));
+    if (b != Backgrounds.AS_RESIDENT) {
+      final Choice jobs = new Choice(actor);
+      jobs.isVerbose = report;
+      if (report) I.say("  Getting best delivery...");
+      
+      final Batch <Venue> depots = BringUtils.nearbyDepots(
+        this, world, SERVICE_COMMERCE
+      );
+      final Traded goods[] = cargo.demanded();
+      
+      jobs.add(BringUtils.bestBulkDeliveryFrom (
+        this, goods, 2, 10, depots, true
+      ));
+      jobs.add(BringUtils.bestBulkCollectionFor(
+        this, goods, 2, 10, depots, true
+      ));
+      if (jobs.empty()) {
+        jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, 5, true));
+        jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, 5, true));
+      }
+      choice.add(jobs.pickMostUrgent());
     }
-    choice.add(jobs.pickMostUrgent());
+  }
+
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    PilotUtils.performTakeoffCheck(this, Journey.RAID_STAY_DURATION);
   }
   
   

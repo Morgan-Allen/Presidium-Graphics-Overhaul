@@ -64,13 +64,13 @@ public class Proposal extends Dialogue {
   }
   
   
-  protected boolean shouldClose() {
+  protected boolean checkExpiry(float maxTries) {
     return (sought.accepted() || sought.refused());
   }
   
   
   protected Session.Saveable selectTopic(boolean close) {
-    if (super.shouldClose()) return this;
+    if (super.checkExpiry(BORED_DURATION)) return this;
     else return super.selectTopic(false);
   }
   

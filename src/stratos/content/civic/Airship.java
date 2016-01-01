@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
@@ -89,15 +90,12 @@ public class Airship extends Vehicle {
   
 
   public void addTasks(Choice choice, Actor actor, Background b) {
-    if (b == Backgrounds.AS_RESIDENT || b == Backgrounds.AS_VISITOR) return;
+    if (b == Backgrounds.AS_VISITOR) return;
     
     final boolean report = verbose && (
       I.talkAbout == actor || I.talkAbout == this
     );
     if (report) I.say("\nGetting next dropship job for "+actor);
-    
-    //  TODO:  Takeoff once everyone is KO'd or aboard, and either hiding or
-    //  the normal visit duration is up.
     
     if (flightState() >= STATE_BOARDING) {
       final Smuggling boarding = Smuggling.asBoarding(actor, this);
@@ -108,7 +106,12 @@ public class Airship extends Vehicle {
       if (report) I.say("  Time to start boarding!");
       return;
     }
-    
+  }
+  
+  
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    PilotUtils.performTakeoffCheck(this, Journey.RAID_STAY_DURATION);
   }
   
   

@@ -70,8 +70,10 @@ public class CivicBase extends Base {
     if (source == null) return false;
     
     final Airship vessel = new Airship(this);
-    final Journey journey;
-    journey = Journey.configForVisit(source.location, world, vessel, this);
+    final Journey journey = Journey.configForVisit(
+      source.location, world,
+      vessel, this, Journey.RAID_STAY_DURATION
+    );
     EntryPoints.findLandingSite(vessel, journey, false);
     if (vessel.dropPoint() == null) return false;
     
@@ -97,7 +99,7 @@ public class CivicBase extends Base {
       Background b = (Background) Rand.pickFrom(soldierTypes, recruitChances);
       if (b == null) continue;
       Actor recruit = b.sampleFor(this);
-      float power = CombatUtils.powerLevel(recruit); 
+      float power = CombatUtils.powerLevel(recruit);
       teamPower += power;
       team.add(recruit);
     }

@@ -548,10 +548,12 @@ public class PlanUtils {
       
       float attackValue = witness.relations.valueFor(attackVictim);
       float otherValue  = witness.relations.valueFor(otherVictim );
+      float attackHarm  = Plan.harmIntended(other, attackVictim);
+      float otherHarm   = Plan.harmIntended(other, otherVictim );
       
-      float harmMeant = Nums.max(
-        Plan.harmIntended(other, attackVictim) * attackValue,
-        Plan.harmIntended(other, otherVictim ) * otherValue
+      final float harmMeant = Nums.max(
+         attackHarm * attackValue,
+         otherHarm * otherValue
       );
       return harmMeant;
     }
