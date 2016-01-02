@@ -93,7 +93,7 @@ public class FirstAid extends Treatment {
   
   
   protected float getPriority() {
-    final boolean report = I.talkAbout == actor;// && evalVerbose && hasBegun();
+    final boolean report = I.talkAbout == actor && evalVerbose && hasBegun();
     if (report) {
       I.say("\n"+actor+" getting first aid priority for: "+patient);
       I.say("  Conscious? "+patient.health.conscious());

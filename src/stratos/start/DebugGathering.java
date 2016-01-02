@@ -62,13 +62,13 @@ public class DebugGathering extends Scenario {
     final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
-    world.terrain().readyAllMeshes();
+    world.readyAfterPopulation();
     return world;
   }
   
   
   protected Base createBase(Stage world) {
-    return Base.settlement(world, "Player Base", Faction.FACTION_SUHAIL);
+    return Base.settlement(world, "Player Base", Faction.FACTION_PROCYON);
   }
   
   

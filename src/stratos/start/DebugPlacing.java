@@ -63,7 +63,7 @@ public class DebugPlacing extends Scenario {
       I.say("  Owning tier: "+over.owningTier());
     }
     
-    ///showZonePathing();
+    showZonePathing();
   }
 
 
@@ -80,7 +80,7 @@ public class DebugPlacing extends Scenario {
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
     //Flora.populateFlora(world);
-    world.terrain().readyAllMeshes();
+    world.readyAfterPopulation();
     return world;
   }
   

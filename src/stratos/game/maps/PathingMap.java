@@ -31,10 +31,7 @@ public class PathingMap {
   
   /**  Constituent class and constant definitions-
     */
-  private static boolean updatesVerbose = false;
-  
-  final static int UPDATE_INTERVAL = Stage.STANDARD_HOUR_LENGTH;
-  
+  private static boolean updatesVerbose = true ;
   
   private static int
     numRoutes = 0,
@@ -78,17 +75,17 @@ public class PathingMap {
   }
   
   private class PlaceSet {
-    int expiry = -1;
     Place places[];
+    boolean needsRefresh = false;
     
     PlaceSet() { numSets++; }
     public void finalize() throws Throwable { numSets--; super.finalize(); }
   }
   
   private class Zone {
-    int expiry;
     Base client;
     Place places[] = null;
+    boolean needsRefresh = false;
     
     Zone() { numZones++; }
     public void finalize() throws Throwable { numZones--; super.finalize(); }
@@ -97,13 +94,44 @@ public class PathingMap {
   
   final Stage world;
   final Place tilePlaces[][];
-  final Table <StagePatch, PlaceSet> allCached;
+  final PlaceSet placeSets[][];
+  final List <PlaceSet> needRefresh = new List();
   
   
   public PathingMap(Stage world) {
     this.world      = world;
     this.tilePlaces = new Place[world.size][world.size];
-    this.allCached  = new Table(world.regions.gridCount * 2);
+    final int gridSize = world.patches.gridSize;
+    this.placeSets  = new PlaceSet[gridSize][gridSize];
+  }
+  
+  
+  public void initMap() {
+    for (StagePatch p : world.patches.allGridPatches()) {
+      refreshWithNeighbours(p);
+    }
+  }
+  
+  
+  public void flagForUpdateAt(Tile at) {
+    final Place p = placeFor(at, false);
+    final PlaceSet set = p == null ? null : placeSets[p.region.x][p.region.y];
+    if (set != null && ! set.needsRefresh) {
+      if (updatesVerbose) {
+        I.say("\nWILL REFRESH PLACES AT "+set.places[0].region);
+        I.say("  First flagged by: "+at+" ("+at.above()+")");
+      }
+      set.needsRefresh = true;
+      needRefresh.add(set);
+    }
+  }
+  
+  
+  public void updateMap() {
+    while (needRefresh.size() > 0 && ! world.schedule.timeUp()) {
+      final PlaceSet set = needRefresh.removeFirst();
+      refreshWithNeighbours(set.places[0].region);
+    }
   }
   
   
@@ -133,7 +161,7 @@ public class PathingMap {
     */
   private void refreshWithNeighbours(StagePatch region) {
     final StagePatch near[] = new StagePatch[9];
-    world.regions.neighbours(region, near);
+    world.patches.neighbours(region, near);
     near[8] = region;
     
     for (StagePatch n : near) if (n != null) refreshPlaces(n);
@@ -145,10 +173,9 @@ public class PathingMap {
     //
     //  Check to see if we're due for a refresh or not.  If so, delete any
     //  pre-existing Places.
-    final int time = (int) world.currentTime();
-    final PlaceSet oldSet = allCached.get(region);
+    final PlaceSet oldSet = placeSets[region.x][region.y];
     if (oldSet != null) {
-      if (oldSet.expiry > time) return;
+      if (! oldSet.needsRefresh) return;
       else deletePlaceSet(oldSet);
     }
     //
@@ -182,19 +209,47 @@ public class PathingMap {
       if (updatesVerbose) I.say("\nCREATED NEW PLACE: "+p);
     }
     newSet.places = places.toArray(Place.class);
-    allCached.put(region, newSet);
+    placeSets[region.x][region.y] = newSet;
     //
-    //  Any Places that share the same core as before (which is a cheap
-    //  shorthand for 'probably didn't change much' will retain the same Zone.)
-    if (oldSet != null) for (Place p : places) {
-      for (Place old : oldSet.places) if (old.core == p.core) {
-        p.zones = old.zones;
-      }
+    //  Finally, we check each place generated to see how well it matches any
+    //  predecessor (in which case it might either retain the same Zone or
+    //  discard them.)
+    int placeIndex = Nums.max(
+      newSet == null ? 0 : newSet.places.length,
+      oldSet == null ? 0 : oldSet.places.length
+    );
+    while (placeIndex-- > 0) checkPlacesMatch(oldSet, newSet, placeIndex);
+  }
+  
+  
+  private void checkPlacesMatch(PlaceSet oldSet, PlaceSet newSet, int index) {
+    final Place n = (newSet == null || index >= newSet.places.length) ?
+      null : newSet.places[index]
+    ;
+    final Place o = (oldSet == null || index >= oldSet.places.length) ?
+      null : oldSet.places[index]
+    ;
+    //
+    //  Any Places that have a different pattern of connections to their
+    //  neighbours (compared to the previous set) will prompt a refresh for
+    //  any associated Zones.  Otherwise, they retain the old batch.
+    boolean routesMatch = true;
+    if ((n == null) || (o == null) || (n.routes.size() != o.routes.size())) {
+      routesMatch = false;
     }
-    //
-    //  As a final touch, we set an expiry for the new place-set (including a
-    //  small random offset to ensure that updates don't all happen at once.)
-    newSet.expiry = time + UPDATE_INTERVAL - Rand.index(UPDATE_INTERVAL / 2);
+    else for (int r = 0; r < o.routes.size(); r++) {
+      final Route rN = n.routes.atIndex(r);
+      final Route rO = o.routes.atIndex(r);
+      final Place oppN = rN.from == n ? rN.to : rN.from;
+      final Place oppO = rO.from == o ? rO.to : rO.from;
+      if (oppN != oppO) routesMatch = false;
+    }
+    if (routesMatch) {
+      n.zones = o.zones;
+    }
+    else if (o != null) for (Zone z : o.zones) if (z != null) {
+      z.needsRefresh = true;
+    }
   }
   
   
@@ -265,7 +320,7 @@ public class PathingMap {
   
   
   private void refreshRoutesBetween(StagePatch a, StagePatch b) {
-    final PlaceSet setA = allCached.get(a), setB = allCached.get(b);
+    final PlaceSet setA = placeSets[a.x][a.y], setB = placeSets[b.x][b.y];
     
     for (Place from : setA.places) for (Place to : setB.places) {
       if (to == from || matchingRoute(from, to) != null) continue;
@@ -355,7 +410,7 @@ public class PathingMap {
   
   private Place placeFor(Tile t, boolean refresh) {
     if (refresh) {
-      refreshWithNeighbours(world.regions.regionAt(t.x, t.y));
+      refreshWithNeighbours(world.patches.patchAt(t.x, t.y));
     }
     return tilePlaces[t.x][t.y];
   }
@@ -390,11 +445,6 @@ public class PathingMap {
     Accountable client, boolean reports
   ) {
     Boarding path[] = null;
-    ///reports = I.talkAbout == client && client != null;
-    //if (reports) {
-    //  I.say("....");
-    //}
-    
     final int verbosity = reports ? Search.VERBOSE : Search.NOT_VERBOSE;
     
     if (client == null || client.base() == null) {
@@ -410,7 +460,7 @@ public class PathingMap {
       for (Place p : placesPath) I.say("  "+p);
     }
     
-    if (destDist <= world.regions.resolution || placesPath == null) {
+    if (destDist <= world.patches.resolution || placesPath == null) {
       if (reports) I.say(
         "\nUsing simple agenda-bounded search between "+initB+" and "+destB
       );
@@ -446,7 +496,7 @@ public class PathingMap {
   
   
   public Tile[][] placeRoutes(Tile t) {
-    refreshWithNeighbours(world.regions.regionAt(t.x, t.y));
+    refreshWithNeighbours(world.patches.patchAt(t.x, t.y));
     final Place p = tilePlaces[t.x][t.y];
     if (p == null) return null;
     final Tile tiles[][] = new Tile[p.routes.size()][];
@@ -463,13 +513,12 @@ public class PathingMap {
     Place init, Base client, boolean refresh, boolean reports
   ) {
     final int  baseID  = client.baseID();
-    final int  time    = (int) world.currentTime();
     final Zone oldZone = init.zones[baseID];
     
-    if (oldZone != null && oldZone.expiry > time) return oldZone;
+    if (oldZone != null && ! oldZone.needsRefresh) return oldZone;
     if (! refresh) return null;
-
-    if (updatesVerbose) I.say("\nCREATING NEW ZONE!");
+    
+    if (updatesVerbose) I.say("\nCREATING NEW ZONE FOR "+client);
     final int evalBefore = numTilesScanned + numTilesRouted;
     
     final Place inZone[] = placesPath(init, null, true, client, reports);
@@ -480,18 +529,10 @@ public class PathingMap {
     final Zone zone = new Zone();
     zone.places = inZone;
     zone.client = client;
-    zone.expiry = time + UPDATE_INTERVAL;
     for (Place p : inZone) p.zones[baseID] = zone;
     
-    //  TODO:  A bug is appearing where fully pathable endpoints are not being
-    //  shown as connected because initial zones are not auto-refreshing their
-    //  adjacent places, thus creating 'islands' for the endpoints.
-    
-    //  So- ALL places must be initialised when the map is first populated.
-    //  And then just update on a gentle schedule.
-    
     if (updatesVerbose) {
-      I.say("\nDONE CREATING NEW ZONE!");
+      I.say("\nDONE CREATING NEW ZONE FOR "+client);
       for (Place p : inZone) I.say("  "+p);
       I.say("  Total places:    "+inZone.length);
       I.say("  Tiles evaluated: "+(evalAfter - evalBefore));
@@ -609,7 +650,7 @@ public class PathingMap {
       
       protected float estimate(Boarding spot) {
         float dist = Spacing.distance(spot, heading);
-        dist += (PPL - (PPI + 1)) * world.regions.resolution;
+        dist += (PPL - (PPI + 1)) * world.patches.resolution;
         dist += Spacing.distance(spot, destB);
         return dist / 2f;
       }

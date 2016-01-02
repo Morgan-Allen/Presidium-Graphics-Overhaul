@@ -1,10 +1,5 @@
 
 
-
-   Priority:  High  Duration:  Medium?
-*  Path-zone refreshment needs to be done more intelligently to avoid 'spikes'
-   in usage (see the PathingMap class.)
-
    Priority:  Medium-High  Duration:  Medium-Long
 *  Initial missions:
    Planitia Sector (robots + ruins, artifact.)
@@ -12,7 +7,8 @@
    Aeolis Sector (desert plus wildlife.)
    Marineris Sector (neutral + water/islands.  Some wildlife.)
    
-   Put together blurbs/ideas for the others.
+   Put together blurbs/ideas for the others.  And you'll need the ability to
+   assign custom scenario-classes.
 
    Priority:  Medium  Duration:  Short?
 *  Patch up visual bugs and media assets in the new-game UI sequence.
@@ -71,4 +67,6 @@
 
    Priority:  Low  Duration:  Short
 *  Restore the nursery at the ecologist station.
+
+
 

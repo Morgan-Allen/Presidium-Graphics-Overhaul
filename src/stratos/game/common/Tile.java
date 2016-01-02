@@ -82,8 +82,8 @@ public final class Tile implements
   }
   
   
-  public StagePatch worldSection() {
-    return world.regions.regionAt(x, y);
+  public StagePatch patch() {
+    return world.patches.patchAt(x, y);
   }
   
   
@@ -237,7 +237,7 @@ public final class Tile implements
     PavingMap.setPaveLevel(this, roadLevel, false);
     
     setReserves(reserves ? e : this.reserves, reserves);
-    world.regions.flagBoundsUpdate(x, y);
+    world.patches.flagBoundsUpdate(x, y);
     
     if (e != null && a != null) {
       I.complain("PREVIOUS OCCUPANT WAS NOT CLEARED: "+this.above);
@@ -269,6 +269,7 @@ public final class Tile implements
       final Tile t = world.tileAt(x + T_X[n], y + T_Y[n]);
       if (t != null) t.boardingCache = null;
     }
+    world.pathingMap.flagForUpdateAt(this);
   }
   
   

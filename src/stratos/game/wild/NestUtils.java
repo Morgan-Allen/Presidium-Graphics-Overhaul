@@ -133,7 +133,7 @@ public class NestUtils {
       final float   range     = forageRange(species) * 2;
       
       Pick <StagePatch> placing = new Pick(0);
-      for (StagePatch r : world.regions.allGridRegions()) {
+      for (StagePatch r : world.patches.allGridPatches()) {
         
         final Tile point = Spacing.pickRandomTile(r, 0, world);
         float rating = world.terrain().fertilitySample(point);

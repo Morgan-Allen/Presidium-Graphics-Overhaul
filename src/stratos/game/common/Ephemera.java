@@ -114,7 +114,7 @@ public class Ephemera {
       ghost.inceptTime -= duration * (1 - alpha);
     }
     
-    final StagePatch section = world.regions.regionAt((int) p.x, (int) p.y);
+    final StagePatch section = world.patches.patchAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     if (SG == null) ghosts.put(section, SG = new List());
     SG.add(ghost);
@@ -130,7 +130,7 @@ public class Ephemera {
   
   public Ghost matchGhost(Target e, ModelAsset m) {
     final Vec3D p = e.position(null);
-    final StagePatch section = world.regions.regionAt((int) p.x, (int) p.y);
+    final StagePatch section = world.patches.patchAt((int) p.x, (int) p.y);
     List <Ghost> SG = ghosts.get(section);
     
     Ghost match = null;
@@ -164,7 +164,7 @@ public class Ephemera {
     m.viewPosition(p);
     p.add(ghost.offset);
     
-    final StagePatch section = world.regions.regionAt((int) p.x, (int) p.y);
+    final StagePatch section = world.patches.patchAt((int) p.x, (int) p.y);
     if (section == oldSection) return true;
     SG.remove(ghost);
     SG = ghosts.get(section);

@@ -91,6 +91,12 @@ public abstract class Visit <T> implements Iterable <T>, Iterator <T> {
   }
   
   
+  public static Object atIndex(int index, Object a[]) {
+    if (a == null || index < 0 || index >= a.length) return null;
+    else return a[index];
+  }
+  
+  
   public static Object[] compose(Class arrayClass, Object[]... arrays) {
     int length = 0, i = 0;
     for (Object a[] : arrays) length += a.length;

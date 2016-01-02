@@ -23,22 +23,22 @@ public class RoadsRepair extends Plan {
   
   final Base base;
   private Tile around;
-  private StagePatch section;
+  private StagePatch patch;
   
   
   public RoadsRepair(Actor actor, Tile t) {
-    super(actor, t.worldSection(), MOTIVE_JOB, NO_HARM);
-    this.base    = actor.base();
-    this.section = t.worldSection();
-    this.around  = t;
+    super(actor, t.patch(), MOTIVE_JOB, NO_HARM);
+    this.base   = actor.base();
+    this.patch  = t.patch();
+    this.around = t;
   }
   
   
   public RoadsRepair(Session s) throws Exception {
     super(s);
-    this.base    = (Base) s.loadObject();
-    this.around  = (Tile) s.loadObject();
-    this.section = (StagePatch) s.loadObject();
+    this.base   = (Base) s.loadObject();
+    this.around = (Tile) s.loadObject();
+    this.patch  = (StagePatch) s.loadObject();
   }
   
   
@@ -46,7 +46,7 @@ public class RoadsRepair extends Plan {
     super.saveState(s);
     s.saveObject(base  );
     s.saveObject(around);
-    s.saveObject(section);
+    s.saveObject(patch );
   }
   
   
@@ -96,7 +96,7 @@ public class RoadsRepair extends Plan {
     if (around == null || ! map.needsPaving(around)) {
       Tile next = null;
       if (next == null && hasBegun()) next = nextLocalTile();
-      if (next == null) next = map.nextTileToPave(actor, section);
+      if (next == null) next = map.nextTileToPave(actor, patch);
       if (report) I.say("  Next tile to pave: "+next);
       if (next == null) return null;
       else around = next;
@@ -130,7 +130,7 @@ public class RoadsRepair extends Plan {
     final Pick <Tile> pick = new Pick <Tile> ();
     
     for (Tile t : o.world.tilesIn(area, true)) {
-      if (t.worldSection() != this.section || ! map.needsPaving(t)) continue;
+      if (t.patch() != this.patch || ! map.needsPaving(t)) continue;
       float rating = 0;
       for (Tile n : t.vicinity(null)) if (n != null) {
         if (map.needsPaving(n)) rating++;

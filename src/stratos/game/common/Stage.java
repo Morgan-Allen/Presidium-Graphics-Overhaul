@@ -50,7 +50,7 @@ public class Stage {
   
   final public int size;
   final Tile tiles[][];
-  final public StagePatches regions;
+  final public StagePatches patches;
   final public ClaimsGrid claims;
   
   final public Schedule schedule;
@@ -75,7 +75,7 @@ public class Stage {
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
     }
-    regions  = new StagePatches(this, PATCH_RESOLUTION);
+    patches  = new StagePatches(this, PATCH_RESOLUTION);
     claims   = new ClaimsGrid(this);
     schedule = new Schedule(currentTime());
     
@@ -93,6 +93,12 @@ public class Stage {
     terrain.initTerrainMesh();
     world.offworld.initialVerse();
     return world;
+  }
+  
+  
+  public void readyAfterPopulation() {
+    pathingMap.initMap();
+    terrain.readyAllMeshes();
   }
   
   
@@ -225,7 +231,7 @@ public class Stage {
   /**  Update and scheduling methods.
     */
   public void updateWorld() {
-    regions.updateBounds();
+    patches.updateBounds();
     final float oldTime = currentTime();
     timeTick++;
     final float currentTime = currentTime();
@@ -234,6 +240,7 @@ public class Stage {
     if (secChange && I.logEvents()) I.say("\nTime is "+currentTime);
     
     if (secChange) offworld.updateVerse(currentTime);
+    pathingMap.updateMap();
     ecology.updateEcology();
     schedule.advanceSchedule(currentTime);
     
@@ -306,7 +313,7 @@ public class Stage {
   
   public Batch <StagePatch> visibleSections(Rendering rendering) {
     final Batch <StagePatch> visibleSections = new Batch <StagePatch> ();
-    regions.compileVisible(rendering.view, null, visibleSections, null);
+    patches.compileVisible(rendering.view, null, visibleSections, null);
     return visibleSections;
   }
   
@@ -326,7 +333,7 @@ public class Stage {
         return e.sprite().depth;
       }
     };
-    regions.compileVisible(
+    patches.compileVisible(
       rendering.view, base,
       visibleSections, allVisible
     );

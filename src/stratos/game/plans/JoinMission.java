@@ -311,7 +311,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
   /**  Rendering, debug and interface methods-
     */
   public void describeBehaviour(Description d) {
-    d.append("Joining mission: ");
+    d.append("On ");
     mission.describeMission(d);
   }
 }

@@ -57,8 +57,8 @@ public class DebugEcology extends Scenario {
     );
     final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
-    world.terrain().readyAllMeshes();
     //Flora.populateFlora(world);
+    world.readyAfterPopulation();
     return world;
   }
   

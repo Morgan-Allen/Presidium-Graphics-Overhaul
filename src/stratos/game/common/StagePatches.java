@@ -71,7 +71,7 @@ public class StagePatches implements TileConstants {
   
   /**  Positional queries and iteration methods-
     */
-  public StagePatch regionAt(int x, int y) {
+  public StagePatch patchAt(int x, int y) {
     return hierarchy[0][x / resolution][y / resolution];
   }
   
@@ -90,7 +90,7 @@ public class StagePatches implements TileConstants {
   }
   
   
-  public Batch <StagePatch> regionsUnder(Box2D area, int tileMargin) {
+  public Batch <StagePatch> patchesUnder(Box2D area, int tileMargin) {
     final Batch <StagePatch> batch = new Batch <StagePatch> ();
     
     final float s = 1f / resolution, dim = world.size / resolution;
@@ -109,8 +109,8 @@ public class StagePatches implements TileConstants {
   }
   
   
-  public Batch <StagePatch> allGridRegions() {
-    return regionsUnder(world.area(), 0);
+  public Batch <StagePatch> allGridPatches() {
+    return patchesUnder(world.area(), 0);
   }
   
   

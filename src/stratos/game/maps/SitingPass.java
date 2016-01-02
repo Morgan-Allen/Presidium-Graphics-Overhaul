@@ -163,7 +163,7 @@ public class SitingPass {
   public void performPassFraction(float fraction) {
     final int
       numTiles = world.size * world.size,
-      grid     = world.regions.resolution,
+      grid     = world.patches.resolution,
       maxSteps = (numTiles * 2) + (numTiles / (grid * grid));
     performSteps(Nums.round(maxSteps * fraction, 1, true));
   }
@@ -232,9 +232,9 @@ public class SitingPass {
   boolean addRegionToSort() {
     final boolean report = (verbose || isVerbose) && regionsVerbose;
     
-    if (nextRegion == null) nextRegion = world.regions.regionAt(0, 0);
+    if (nextRegion == null) nextRegion = world.patches.patchAt(0, 0);
     else {
-      final int stepSize = world.regions.resolution;
+      final int stepSize = world.patches.resolution;
       int x = nextRegion.absX + stepSize, y = nextRegion.absY;
       if (x >= world.size) { x -= world.size; y += stepSize; }
       if (y >= world.size) {
@@ -243,7 +243,7 @@ public class SitingPass {
         stage      = (nextRegion != null) ? STAGE_TILES_SORT : STAGE_FAILED;
         return false;
       }
-      nextRegion = world.regions.regionAt(x, y);
+      nextRegion = world.patches.patchAt(x, y);
     }
     
     final float rating = ratePlacing(nextRegion, false);

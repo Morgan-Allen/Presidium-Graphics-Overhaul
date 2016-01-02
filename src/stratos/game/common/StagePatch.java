@@ -43,7 +43,7 @@ public class StagePatch implements Target, Session.Saveable {
   
   
   public static StagePatch loadConstant(Session s) throws Exception {
-    return s.world().regions.regionAt(s.loadInt(), s.loadInt());
+    return s.world().patches.patchAt(s.loadInt(), s.loadInt());
   }
   
   

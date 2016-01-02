@@ -59,8 +59,8 @@ public class StartupScenario extends Scenario {
     final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
-    world.terrain().readyAllMeshes();
     Flora.populateFlora(world);
+    world.readyAfterPopulation();
     
     world.offworld.assignStageLocation(locale);
     return world;
