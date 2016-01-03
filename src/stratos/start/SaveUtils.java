@@ -175,14 +175,9 @@ public class SaveUtils {
   }
   
   
-  
-  //  TODO:  This method should *definitely* only be called from a specific
-  //  point in the overall play-loop sequence.  Fix that.
-  
   public static void loadGame(
     final String saveFile, final boolean fromMenu
   ) {
-    PlayLoop.sessionStateWipe();
     deleteAllLaterSaves(saveFile);
     
     final String fullPath = SAVES_DIR+inSavesFolder(saveFile);

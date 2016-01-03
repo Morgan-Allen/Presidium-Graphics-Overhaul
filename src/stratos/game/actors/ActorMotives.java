@@ -27,6 +27,8 @@ import static stratos.game.economic.Outfits.*;
 public class ActorMotives {
   
   
+  /**  Data fields, constructors and save/load methods-
+    */
   private static boolean
     rateVerbose = false;
   
@@ -57,7 +59,14 @@ public class ActorMotives {
   }
   
   
+  public void onWorldExit() {
+    return;
+  }
   
+  
+  
+  /**  Regular updates-
+    */
   public void setSolitude(float s) {
     this.solitude = s;
   }

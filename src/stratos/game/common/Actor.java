@@ -102,6 +102,21 @@ public abstract class Actor extends Mobile implements
   protected Pathing        initPathing  () { return new Pathing       (this); }
   
   
+  public void removeWorldReferences(Stage world) {
+    super.removeWorldReferences(world);
+    assignAction(null);
+    bindToMount (null);
+    health   .onWorldExit();
+    traits   .onWorldExit();
+    skills   .onWorldExit();
+    gear     .onWorldExit();
+    mind     .onWorldExit();
+    senses   .onWorldExit();
+    motives  .onWorldExit();
+    relations.onWorldExit();
+  }
+  
+  
   
   /**  Dealing with items, inventory and mounting-
     */
@@ -223,10 +238,8 @@ public abstract class Actor extends Mobile implements
       I.say("  Going offworld? "+(! normal));
     }
     assignAction(null);
-    if (normal) {
-      mind.cancelBehaviour(mind.topBehaviour(), "Exiting world!");
-      mind.onWorldExit();
-    }
+    bindToMount (null);
+    if (normal) removeWorldReferences(world);
     super.exitWorld();
   }
   

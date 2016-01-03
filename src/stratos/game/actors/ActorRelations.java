@@ -41,7 +41,6 @@ public class ActorRelations {
   
   
   final protected Actor actor;
-  
   protected Actor master;
   final Table <Accountable, Relation> relations = new Table();
   
@@ -124,9 +123,13 @@ public class ActorRelations {
   }
   
   
-  public void clearAll() {
+  public void onWorldExit() {
     clearMaster();
-    relations.clear();
+    final Object with[] = relations.keySet().toArray();
+    for (Object o : with) if (o instanceof Target) {
+      final Target t = (Target) o;
+      if (t.world() != null) relations.remove(t);
+    }
   }
   
   

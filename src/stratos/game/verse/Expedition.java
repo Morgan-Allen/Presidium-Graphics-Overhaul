@@ -55,7 +55,7 @@ public class Expedition implements Session.Saveable {
     DEFAULT_MAX_COLONISTS = 8;
   
   
-  Faction backing           = Verse.DEFAULT_HOMEWORLD.startingOwner;
+  Faction backing    = Verse.DEFAULT_HOMEWORLD.startingOwner;
   Sector origin      = Verse.DEFAULT_HOMEWORLD;
   Sector destination = Verse.DEFAULT_START_LOCATION;
 

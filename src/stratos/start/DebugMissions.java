@@ -80,8 +80,8 @@ public class DebugMissions extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
-    if (true ) offworldRaidingScenario(world, base, UI);
-    if (false) offworldReconScenario  (world, base, UI);
+    if (false) offworldRaidingScenario(world, base, UI);
+    if (true ) offworldReconScenario  (world, base, UI);
     
     if (false) strikeScenario  (world, base, UI);
     if (false) securityScenario(world, base, UI);

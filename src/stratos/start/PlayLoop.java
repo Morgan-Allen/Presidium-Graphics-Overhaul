@@ -50,7 +50,8 @@ public final class PlayLoop {
   private static Class[] initClasses = DEFAULT_INIT_CLASSES;
   
   private static Rendering rendering;
-  private static Playable played;
+  private static Playable playing;
+  private static Playable prepared;
   private static Thread gdxThread;
   private static boolean loopChanged = false;
   
@@ -71,7 +72,7 @@ public final class PlayLoop {
   /**  Returns the components of the current game state-
     */
   public static HUD currentUI() {
-    return played.UI();
+    return playing.UI();
   }
   
   public static Rendering rendering() {
@@ -79,7 +80,7 @@ public final class PlayLoop {
   }
   
   public static Playable played() {
-    return played;
+    return playing;
   }
   
   public static boolean onMainThread() {
@@ -136,7 +137,7 @@ public final class PlayLoop {
     PlayLoop.initClasses = initClasses;
     
     PlayLoop.loopChanged     = true;
-    PlayLoop.played          = scenario;
+    PlayLoop.prepared        = scenario;
     PlayLoop.numStateUpdates = 0;
     PlayLoop.numFrameUpdates = 0;
     PlayLoop.gameSpeed       = 1.0f;
@@ -203,7 +204,7 @@ public final class PlayLoop {
   
   public static void sessionStateWipe() {
     I.talkAbout = null;
-    played = null;
+    playing     = null;
     Assets.disposeSessionAssets();
     
     if (rendering != null) rendering.clearAll();
@@ -252,6 +253,10 @@ public final class PlayLoop {
       frameTime = Nums.clamp(frameTime, 0, 1);
     }
     
+    if (playing != prepared) {
+      PlayLoop.sessionStateWipe();
+      playing = prepared;
+    }
     loopChanged = false;
     float worldTime = (numStateUpdates + frameTime) / UPDATES_PER_SECOND;
     rendering.updateViews(worldTime, frameTime);
@@ -281,18 +286,18 @@ public final class PlayLoop {
       if (verbose) I.say("  Loop changed!  Will return");
       return true;
     }
-    if (played != null && played.loadProgress() < 1) {
+    if (playing != null && playing.loadProgress() < 1) {
       if (verbose) {
-        I.say("  Loading simulation: "+played);
-        I.say("  Is loading?         "+played.isLoading());
-        I.say("  Loading progress:   "+played.loadProgress());
+        I.say("  Loading simulation: "+playing);
+        I.say("  Is loading?         "+playing.isLoading());
+        I.say("  Loading progress:   "+playing.loadProgress());
       }
       
-      if (! played.isLoading()) {
+      if (! playing.isLoading()) {
         if (verbose) I.say("  Beginning simulation setup...");
-        played.beginGameSetup();
+        playing.beginGameSetup();
       }
-      LoadingScreen.update("Loading Simulation", played.loadProgress());
+      LoadingScreen.update("Loading Simulation", playing.loadProgress());
       
       rendering.renderDisplay();
       rendering.renderUI(LoadingScreen.HUD(rendering));
@@ -310,10 +315,10 @@ public final class PlayLoop {
     if (frameGap >= FRAME_INTERVAL || true) {
       if (verbose) I.say("  Rendering graphics.");
       
-      if (played != null) {
-        played.renderVisuals(rendering);
+      if (playing != null) {
+        playing.renderVisuals(rendering);
       }
-      final HUD UI = played.UI();
+      final HUD UI = playing.UI();
       if (UI != null) {
         UI.updateInput();
         UI.renderWorldFX();
@@ -329,12 +334,12 @@ public final class PlayLoop {
     
     //  Now we essentially 'pretend' that updates were occurring once every
     //  UPDATE_INTERVAL milliseconds:
-    if (played != null) {
+    if (playing != null) {
       final int numUpdates = Nums.min(
         (int) (updateGap / UPDATE_INTERVAL),
         (1 + (FRAME_INTERVAL / UPDATE_INTERVAL))
       );
-      if (played.shouldExitLoop()) {
+      if (playing.shouldExitLoop()) {
         if (verbose) I.say("  Exiting loop!  Will return");
         return false;
       }
@@ -347,7 +352,7 @@ public final class PlayLoop {
           return true;
         }
         if (verbose) I.say("  Updating simulation.");
-        played.updateGameState();
+        playing.updateGameState();
         numStateUpdates++;
         lastUpdate += UPDATE_INTERVAL;
       }

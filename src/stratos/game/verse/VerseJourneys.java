@@ -33,7 +33,6 @@ public class VerseJourneys {
   
   final Verse universe;
   final List <Journey> journeys = new List();
-  private int updateCounter = 0;
   
   
   protected VerseJourneys(Verse universe) {
@@ -43,13 +42,11 @@ public class VerseJourneys {
   
   public void loadState(Session s) throws Exception {
     s.loadObjects(journeys);
-    updateCounter = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveObjects(journeys);
-    s.saveInt(updateCounter);
   }
   
   

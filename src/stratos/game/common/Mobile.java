@@ -5,8 +5,7 @@
   */
 package stratos.game.common;
 import stratos.game.economic.*;
-import stratos.game.maps.IntelMap;
-import stratos.game.maps.PathSearch;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.sfx.PlaneFX;
@@ -49,6 +48,7 @@ public abstract class Mobile extends Element
   /**  Basic constructors and save/load functionality-
     */
   public Mobile() {
+    return;
   }
   
   
@@ -77,8 +77,16 @@ public abstract class Mobile extends Element
     if (pathing != null) pathing.saveState(s);
   }
   
+  
   protected Pathing initPathing() { return null; }
   public abstract boolean isMoving();
+  
+  
+  public void removeWorldReferences(Stage world) {
+    base   = null;
+    aboard = null;
+    pathing.onWorldExit();
+  }
   
   
   

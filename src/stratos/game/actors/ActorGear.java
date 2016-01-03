@@ -90,6 +90,16 @@ public class ActorGear extends Inventory {
   }
   
   
+  public void onWorldExit() {
+    for (Item i : allItems()) if (
+      (i.refers != null && i.refers != actor) &&
+      (! (i.refers instanceof Constant))
+    ) {
+      removeItem(i);
+    }
+  }
+  
+  
   
   /**  Maintenance, updates and spring cleaning-
     */

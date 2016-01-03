@@ -56,6 +56,14 @@ public class Pathing {
   }
   
   
+  public void onWorldExit() {
+    moveTarget = null;
+    pathTarget = null;
+    path       = null;
+    stepIndex  = -1  ;
+  }
+  
+  
   
   /**  Updating current heading-
     */

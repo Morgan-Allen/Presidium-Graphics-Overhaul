@@ -86,6 +86,11 @@ public class ActorTraits {
     geneHash = -1;
   }
   
+
+  public void onWorldExit() {
+    return;
+  }
+  
   
   
   /**  Methods for dealing with DNA, used as a random seed for certain

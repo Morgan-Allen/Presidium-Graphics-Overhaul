@@ -107,6 +107,14 @@ public class Minimap extends Assets.Loadable {
   
   
   protected State loadAsset() {
+    
+    //  TODO:  Problem is that loading requires two separate Playables- one for
+    //         loading and one for the scenario itself.  Once the loading-loop
+    //         completes, and the sessionStateWipe() call is made, then the
+    //         Minimap loaded beforehand gets disposed, and can't be rendered.
+    
+    //  Okay.  I solve this tomorrow...
+    
     updateGeometry(null);
     return state = State.LOADED;
   }
@@ -115,8 +123,8 @@ public class Minimap extends Assets.Loadable {
   protected State disposeAsset() {
     if (! stateLoaded()) return State.ERROR;
     if (mapImage != null) mapImage.dispose();
-    mapMesh.dispose();
-    shading.dispose();
+    if (mapMesh  != null) mapMesh .dispose();
+    if (shading  != null) shading .dispose();
     return state = State.DISPOSED;
   }
   
@@ -156,7 +164,7 @@ public class Minimap extends Assets.Loadable {
   
   public void renderWith(FogOverlay fogApplied) {
     if (! stateLoaded()) {
-      I.say("RENDERING CALL WHEN DISPOSED");
+      ///I.say("RENDERING CALL WHEN DISPOSED");
       return;
     }
     

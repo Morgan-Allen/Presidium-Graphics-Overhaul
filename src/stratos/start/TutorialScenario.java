@@ -53,7 +53,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   public TutorialScenario(String prefix) {
-    super(expedition(), prefix);
+    super(expedition(), new Verse(), prefix);
     script = new MessageScript(this, SCRIPT_XML_PATH);
   }
   

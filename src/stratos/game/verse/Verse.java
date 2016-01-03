@@ -390,8 +390,9 @@ public class Verse implements Session.Saveable {
   
   /**  Setup, data fields and save/load methods-
     */
-  private Stage currentStage;
+  private Stage  currentStage;
   private Sector stageLocation = DEFAULT_START_LOCATION;
+  private int    startingDate  = Stage.DEFAULT_INIT_TIME;
   
   final public VerseJourneys journeys = new VerseJourneys(this);
   final List <SectorBase> bases = new List <SectorBase> ();
@@ -414,7 +415,10 @@ public class Verse implements Session.Saveable {
   
   public Verse(Session s) throws Exception {
     s.cacheInstance(this);
+    currentStage  = (Stage ) s.loadObject();
     stageLocation = (Sector) s.loadObject();
+    startingDate  = s.loadInt();
+    
     journeys.loadState(s);
     s.loadObjects(bases);
     
@@ -427,7 +431,10 @@ public class Verse implements Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject(currentStage );
     s.saveObject(stageLocation);
+    s.saveInt   (startingDate );
+    
     journeys.saveState(s);
     s.saveObjects(bases);
     
@@ -453,13 +460,32 @@ public class Verse implements Session.Saveable {
     return stageLocation;
   }
   
-  /*
-  public Sector localSector() {
-    Sector l = stageLocation;
-    while (l.belongs != null) l = l.belongs;
-    return l;
+  
+  public void setStartingDate(int date) {
+    startingDate = date;
   }
-  //*/
+  
+  
+  public int startingDate() {
+    return startingDate;
+  }
+  
+  
+  public void onStageDeletion(Stage world) {
+    for (Journey j : journeys.journeys) {
+      for (Mobile m : j.migrants()) {
+        m.removeWorldReferences(world);
+      }
+      if (j.transport != null) {
+        j.transport.removeWorldReferences(world);
+      }
+    }
+    for (SectorBase b : sectorBases()) {
+      for (Mobile m : b.allUnits()) {
+        m.removeWorldReferences(world);
+      }
+    }
+  }
   
   
   

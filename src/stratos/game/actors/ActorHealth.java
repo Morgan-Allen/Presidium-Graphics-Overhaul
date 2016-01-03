@@ -175,6 +175,11 @@ public class ActorHealth {
     s.saveInt(state);
   }
   
+
+  public void onWorldExit() {
+    return;
+  }
+  
   
   
   /**  Supplementary setup/calibration methods-

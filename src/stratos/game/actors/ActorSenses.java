@@ -36,7 +36,7 @@ public class ActorSenses {
   private boolean underAttack = false;
   private float   powerLevel  = -1   ;
   private float   fearLevel   =  0   ;
-  private Target  safePoint  = null  ;
+  private Target  safePoint   = null ;
   
   
   public ActorSenses(Actor actor) {
@@ -69,6 +69,13 @@ public class ActorSenses {
     s.saveFloat (powerLevel );
     s.saveFloat (fearLevel  );
     s.saveObject(safePoint  );
+  }
+  
+  
+  public void onWorldExit() {
+    awares.clear();
+    awareOf.clear();
+    safePoint = null;
   }
   
   
