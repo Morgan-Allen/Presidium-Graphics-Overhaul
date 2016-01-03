@@ -1,18 +1,42 @@
 
-
+ACTIVE ITEMS:
 
    Priority:  Medium  Duration:  Short?
 *  Make sure the sprite-viewer can display the various permutations of human-
    models correctly- costume, skin tone, hairstyles, weapons & armour, etc.
-   There are some noticeable glitches at the moment.
+   
    The main class is at- stratos.start.SkinsPreview
    Starting settings can be adjusted at media/Tools/preview_settings.xml
+   
+   The 'base' skins should only show up on top of the main body group (and any
+   groups that use the same texture.)  The 'costume' skins should show up on
+   top of any of the costume groups AND the main body texture.  (That way, if
+   bits of the body poke out from the costume, they should blend in.)
+   
+   If no base or costume texture is selected, the groups in question should
+   use their default texture- otherwise, the selected texture/s should *replace*
+   the default texture/s.
+   
+   (At the moment, the preview_settings.xml class specifies the 'body' texture
+   using 'MaterialGroup.x', which is brittle.  It should be able to usay 'Body'
+   or 'MainGroup', et cetera instead, and possibly use an .xml file provided by
+   the model instead.)
+   
+   Bits of the body poking out from the costume is okay for the moment (see
+   above)- I've spoken with Gorion/Pawel and that's very hard to avoid with low-
+   poly models.  You can also assume that the game-logic will prevent hats and
+   hair being toggled at the same time.
+   
 
    Priority:  Medium-High  Duration:  Short?
 *  Users should be able to download/run the main game without needing a
    pre-existing Java installation, on OSX, Windows and Linux (i.e, the
    executable should include it's own JVM.)  And that build process should be
    automated.
+   
+   If you look under the 'resource' folder, there are simple Ant build-scripts
+   for OSX and Windows which you could use as a starting point.
+   
 
    Priority:  Very High  Duration:  Long
 *  Automated testing needs to be implemented.  I have a lot of Debug<X> classes
@@ -21,16 +45,23 @@
    such scenarios to run in sequence.  This is a big project, so I'd suggest
    starting with something simple (like DebugCombat) and then I can give
    details for filling in the rest.
-
-
-   Priority:  High  Duration:  Short?
-*  Minimising the window shuts down the game on windows 7 or 8.  Find out why
-   and fix?
+   
 
    Priority:  High  Duration:  Long or Very Long
 *  Get rid of all the text-descriptions for the UI and use customised widgets
    instead.  (This will likely require some extra graphics/images for buttons,
    borders, et cetera.)
+   
+   This is likely to be an elaborate task, but if you take a look at the
+   stratos.user.mainscreen.SelectSitePane class and compare it with, the
+   stratos.user.VenuePane class, then, e.g, describeStaffing in the latter
+   should be using a ListingPane to show mini-widgets for each citizen, rather
+   than relying on a Text/Description for everything.
+   
+   You might have to do a little bit of basic UI design for this- show me a
+   rough mockup for a given UI component and I can suggest changes or supply
+   more detailed art later.
+   
 
    Priority:  Low  Duration:  Short-to-Medium
 *  On a similar note, the UI for the sprite-viewer could use some cleanup-
@@ -62,5 +93,11 @@
    http://git.blender.org/gitweb/gitweb.cgi/blender-addons.git/
           tree/HEAD:/io_scene_ms3d/
 
+
+DONE OR BLOCKED:
+
+   Priority:  Minor  Duration:  Short?
+*  There were reports of minimising the window shutting down the game on
+   windows 7 or 8, but can't seem to reproduce.  Will leave for now.
 .
 

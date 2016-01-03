@@ -7,8 +7,9 @@
    Aeolis Sector (desert plus wildlife.)
    Marineris Sector (neutral + water/islands.  Some wildlife.)
    
-   Put together blurbs/ideas for the others.  And you'll need the ability to
-   assign custom scenario-classes.
+   You'll need the ability to associate custom scenario-classes with various
+   sectors (and possibly the ability to apply event-scripts within an existing
+   scenario based on later outcomes.)
 
    Priority:  Medium  Duration:  Short?
 *  Patch up visual bugs and media assets in the new-game UI sequence.
@@ -25,6 +26,12 @@
    Physician Station
    Ecologist Station
 
+
+   Priority:  Medium  Duration:  Medium
+*  Finally, colonisation of distant sectors also needs to be possible.  (This
+   will require tearing down the old Stage/World and replacing it with a new
+   one, when/if the player wants to start a new settlement.  That's an
+   architectural change, and you may want to revamp Migration plans as well?)
 
    Priority:  High  Duration:  Long
 *  Raids by roachmen are far too frequent- I think they need to follow the
@@ -49,12 +56,6 @@
    Priority:  Medium  Duration:  Short?
 *  This includes setting up trade-relations with distant sectors.  (This should
    just require some tweaks to the Pledge system.)
-
-   Priority:  Medium  Duration:  Medium
-*  Finally, colonisation of distant sectors also needs to be possible.  (This
-   will require tearing down the old Stage/World and replacing it with a new
-   one, when/if the player wants to start a new settlement.  That's an
-   architectural change, and you may want to revamp Migration plans as well?)
 
    Priority:  Medium  Duration:  Short
 *  Offworld-missions will have to be screened, at minimum- and you should allow
