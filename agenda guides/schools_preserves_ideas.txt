@@ -12,9 +12,14 @@ Kommando Lodge.        Pseer School.
   Survey Redoubt         * prem:  Foresight   + Remote Viewing
   * Vendetta: Tribal     * meta:  Suspension  + Intensity
   * Vendetta: Vermin     * tran:  Telekinesis + Forcefield
-  * Vendetta: Robots     * sugg:  Command     + Concentration
+  * Vendetta: Robots     * sugg:  Volition    + Concentration
   * Maw Riding           >  Faster Building & Shield/Plasma Boost
   > Heim Krieg           Force Pylon & Seat of Power Uplink
+  
+  Based on:  Fremen
+  
+  Based on:  Jedi
+
 
 Logician School.       Jil Baru School (aka Shapers)
   Archives               Manna Tree
@@ -23,6 +28,12 @@ Logician School.       Jil Baru School (aka Shapers)
   * Truth Speaker        * Pheremone Haze
   * Psy Protection       * Warp Genes
   > Extra Foresight      > Summon Beasts
+  
+  Based on:  Asimov's Foundations, Trek Vulcans, Dune Mentats,
+             certain aspects of the Jedi and Firefly Alliance
+  
+  Based on:  Bene Tleilaxu from Dune, Last And First Men, Hyperion's Ousters,
+             aspects of the Na'vi from Avatar and WH40K Chaos
 
 Tek Priestess School.  LENS Knight School
   Atomic Pile            Archon Circle
@@ -31,6 +42,12 @@ Tek Priestess School.  LENS Knight School
   * Create Cybrid        * Devour Metals
   * Neural Backup        * Archon Phase
   > Banishment           > Zero Point
+  
+  Based on:  A Canticle for Leibowitz, Dune Ixians, WH40K AdMech,
+             HAL and the Monoliths from 2001, a dash of Bene Gesserit
+  
+  Based on:  Bleeding Edge Iron Man, Blood Music, possibly The Invincible
+             and various anime biomech armours, including NGE Evas/Angels
 
 Navigator School.      Collective School.
   Shipyard               Android Post
@@ -39,6 +56,12 @@ Navigator School.      Collective School.
   * Time Phase           * Psy Healing
   * Graviton Field       * Mind Meld
   > Wormhole Gate        > Nexus Avatar
+  
+  Based on:  Dune Spacing Guild, The Stars My Destination, 'Grey Aliens',
+             The Hainish Ekumen, Asimov's Spacer worlds
+  
+  Based on:  More Than Human, Gaia and Galaxia from the Foundation series,
+             aspects of Star Trek Borg and Stranger in a Strange Land
 
 
 Changeling Arbor       Jovian Habitat         Krech Ghetto
@@ -46,6 +69,13 @@ Changeling Arbor       Jovian Habitat         Krech Ghetto
   * Mimesis              Manifold Station       *  Clonal
   * Enhanced Senses      * Cyborg               *  Warrior Phase
   * Slow Metabolism      * Invulnerable         *  Queen Phase
-
-
+  
+  Based on:  Odo & Company from DS9, Octavia Butler's Oankali, The Thing(s),
+             Solaris, bits of Three Worlds Collide
+  
+  Based on:  Babylon 5 Vorlons, The Culture Cycle's Dra'Azon/sublimation,
+             Expedition's Eosapiens, Floaters from Cosmos, the Lovecraft Mythos
+  
+  Based on:  District 9, shades of Alien/Starship Troopers/Ender's Game,
+             The Humanx Commonwealth, The Mote In God's Eye
 

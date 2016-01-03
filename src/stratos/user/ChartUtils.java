@@ -25,7 +25,6 @@ public class ChartUtils {
     STARS_LOAD_FILE  = "coordinates.xml";
   
   
-  
   /**  Method for loading a carousel-display of homeworlds:
     */
   public static Carousel createWorldsCarousel(

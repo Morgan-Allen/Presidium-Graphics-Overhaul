@@ -1,0 +1,10 @@
+
+
+What are the tradeoffs involved in this game?
+  The packing problem of placement of services and infrastructure while
+  accomodating housing and estates.
+  The personnel you choose to recruit, their personalities, and which missions
+  you send them on at what times.
+  The schools you invest in and large-scale politics, which become an
+  increasingly binding commitment.
+

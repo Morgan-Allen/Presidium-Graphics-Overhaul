@@ -45,26 +45,6 @@ FULL LIST OF INTENDED SECTORS-
   
   Diapsor + The Gulf
 
-
-12 sectors:
-  
-  Elysium Sector
-  Pavonis Sector
-  Olympus Sector
-  
-  Terra Sector
-  Tharsis Sector
-  Acheron Sector
-  
-  Ascreus Sector
-  Planitia Sector
-  Thaumasia Sector
-  
-  The Dolmen Sea
-  The Ocean Verdi
-  The Archipelago
-  
-  +4 Away Missions/Mini-sites
 //*/
 
 

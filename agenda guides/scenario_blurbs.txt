@@ -1,0 +1,188 @@
+
+
+NOTES ON SCENARIOS/STORY STRUCTURE:
+  
+  Action takes place on the planet of Diaspor.  20 sectors.  6 initially
+  claimed.  2 as neutral ground (mostly deep oceans and rad zones.)  That
+  leaves 12 sectors up for grabs with unique associated quests and production
+  bonuses.
+  
+  (Place-names taken after Mars, modified dodecahedral projection.)
+  
+  
+  Desert planet.  I don't want any tundra for the moment, just desert, swamps
+  and deciduous forest.  That means oceans at the poles extending toward the
+  equator to maintain thermostasis, but otherwise a single large land-mass.
+  
+  A = Ocean Verdi, extending into sectors 1 and 6 as a long island chain.
+  B = Dolmen Sea, bordering on 7, 8 and 9.  (Large cliffs due to erosion,
+  leaving pillars of harder rock staggering out in waves.  'Dolmens'.)
+  
+  The two seas don't intermix, but there's a relatively narrow isthmus running
+  through sectors 2 and 7.  That's a fertile area, with grasslands sweeping
+  along the north of sectors 5 and 6.
+  
+  Sectors 3 and 4 form a basin ringed by mountains that cut off moisture, and
+  form an extremely arid environment- barrens and dunes.
+  
+  Sectors 0 and 9 were once settled, fertile, and dotted with the cities, but
+  were left as irradiated ruins by the wars.  Today they are either barren or
+  home to mutant tribes.
+  
+   *-------*
+  /         \
+  \    A    /
+   \       /
+    *-----*     *-----*     *-----*     *-----*     *-----*
+   /       \   /       \   /       \   /       \   /       \
+  /    0    \ /    1    \ /    2    \ /    3    \ /    4    \
+ *-----*-----*-----*-----*-----*-----*-----*-----*-----*-----*-----*
+        \    5    / \    6    / \    7    / \    8    / \    9    /
+         \       /   \       /   \       /   \       /   \       /
+          *-----*     *-----*     *-----*     *-----*     *-----*
+                                 /       \
+                                /    B    \
+                                \         /
+                                 *-------*
+
+A:  Noachis Sector.   (The Ocean Verdi.)
+    A 3-way skirmish is in progress between natives, smugglers and a renegade
+    house.  Pacify them.
+
+Aa: Pavonis Sector    (Altair start)
+    Attract some nobles with personal estates to secure their loyalty in 60
+    days.
+
+0:  Boreum Sector.    (Desert & plains, highlands.)
+    Mutant tribesmen survive from before the Mek Wars- secure access to their
+    land resources.
+
+0a: Vallis Sector.    (Suhail start)
+    Terraform the desert wastes and produce a large food surplus in 60 days to
+    prove your legitimacy.
+
+0b: Arcadia Sector.   (Illegal settlement)
+    A surface settlement is technically illegal- either incorporate, relocate
+    or drive out the current inhabitants.
+
+1:  Hellas Sector.    (The Archipelago.)
+    Rescue or ransom some noble captives being held hostage by smugglers.
+
+2:  Diacria Sector.   (Mountain isthmus with cloud forest.)
+    Shaper tribes have banded to form stiff resistance but also hide a great
+    relic.
+
+3:  Aeolis Sector.    (Dune sea.)
+    A company of symbionts is seeking a powerful Archon.
+
+4:  Oxia Sector.      (Barren plateau, dunes.)
+    A seemingly benign 'oracle' maintains an underground colony, but is also
+    kidnapping settlers.  Either destroy or interrogate.
+
+
+5:  Thaumasia Sector. (Savannah & grassland.)
+
+6:  Planitia Sector.  (Marsh and jungle.)
+    There are samples of a rare floral species to collect, but the area is
+    guarded by territorial animals.
+
+7:  Arabia Sector.    (Land isthmus with grassland.)
+    The same native tribe from up north is threatened by a strange 'amoebic
+    plague'.
+
+8:  Coprates Sector.  (Ruins and irradiated barrens.)
+    Ancient ruins are scattered on the surface with precious artifacts to be
+    recovered.
+
+8a: Elysium Sector.   (Procyon start)
+    Armoured champions defend an imperial monastery.  Destroy or convert them
+    within 60 days.
+
+9b: Terra Sector.     (Massive obelisks.)
+    Find a way to activate the old way-gate.  (Have to build up a large power
+    surplus, repair uplinks and destroy guardians.)
+
+9:  Marineris Sector. (Ocean cliffs, ruins, hills.)
+    A lonely citadel is warded off by holographic defences.
+
+9a: Olympus Sector    (Taygeta start)
+    Smuggle out cached goods without being observed, and turn a tidy profit in
+    60 days.
+
+
+B:  Syrtis Sector.    (The Dolmen Sea.)
+    Enormous sea creatures dominate the landscape, as a rich potential source
+    of spyce.
+
+
+Another 8 or so would be location-independent political objectives or events,
+driven by procedural logic.
+
+Another 8 or so would be knock-on effects of other events, with some
+modification depending what side triggered them.
+
+Another 4 would be end-game scenarios (or decisive events), each representing a
+kind of 'existential threat' from the player's perspective-
+  The AI Defence Matrix waking up (fatal to anyone beside House Procyon)
+  The Republic eliminating feudalism (fatal to anyone beside House Altair)
+  The Strains advancing human evolution (fatal to anyone beside House Ophiuchus)
+  Destruction in war/vendetta (or by atomic exchange)
+
+
+
+OTHER SETTING NOTES:
+
+  House Rana (artistry)     House Fomalhaut (health)
+    Norusei system            Solipsus Vier system
+  House Procyon (industry)  House Taygeta (trade)
+    Parem V system            Axis Novena system
+  House Altair (military)   House Suhail (ecology)
+    Haliban system            Asra Novi system
+  Calivor (capital/Senate)  Ceta Rho (krech)
+  Urym Hive (imperial)      Albedo C97 (changeling)
+  The Weirworld (strain)    The Homeworld (jovian)
+  Lightly-settled worlds:   Carceri, Xiridu, Inobe
+  
+  
+  Altair Household
+    The Prince Regnant Corhes-Tezumec Altair II and Lord Physical Aban Rana
+    War Master, Minister for Health, Minister for Accounts
+    No issue
+  
+  Suhail Household
+    The Duchess Solar Omuro Suhail, Colonel Amall Fadun and Mysha 401A
+    Planetologist, Minister for Propaganda, War Master
+    Five heirs
+  
+  Procyon Household
+    The Divine Empress Vledimiz Procyon XXIV and Gestator-Surrogate Inyz-Algol
+    Chief Artificer, Minister for Propaganda, Master of Assassins
+    Three heirs
+  
+  Taygeta Household
+    The Count Solar & CEO Yetsun Taygeta and Chief Operative Xe Nong Hti
+    Minister for Accounts, Master of Assassins, Chief Artificer
+    No heir, at least three unacknowledged seed-child
+  
+  Rana Household
+    The Count Solar Dabien Rana and Lady Choral Jivi Maia
+    Minister for Propaganda, Minister for Health, Planetologist
+    One heir
+  
+  Fomalhaut Household
+    The Baron Albarec Fomalhaut Beta and Contract-Betrothed Xe Nong Ken
+    Minister for Health, Planetologist, Chief Artificer
+    No heir, two acknowledged seed-child
+
+
+'Victory conditions'- the planet will be ceded to a particular house when all
+rival forces have been driven out, forced into vassalhood (for a short time),
+or allied with (for a longer period.)  You can continue to play on afterwards,
+of course, either as a vassal, victor, or ally, gaining further mild prestige
+or economic benefits.  Vassals and allies will, however, have more limited
+demesnes.
+
+
+
+
+
