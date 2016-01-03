@@ -7,10 +7,11 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
-import stratos.game.base.*;
 import stratos.game.actors.*;
 import stratos.content.civic.*;
 import stratos.util.*;
+import static stratos.game.actors.Backgrounds.*;
+
 
 
 public class CivicBase extends Base {
@@ -42,6 +43,11 @@ public class CivicBase extends Base {
       CombatUtils.AVG_POWER   *
       Mission.AVG_PARTY_LIMIT
     ) / 2;
+  
+  final public static Background RAID_CLASSES[] = {
+    VOLUNTEER, TROOPER, MECH_LEGION,
+    ENFORCER, SHIP_CAPTAIN, RUNNER
+  };
   
   
   
@@ -85,7 +91,7 @@ public class CivicBase extends Base {
     Sector hires = faction().startSite();
     if (hires == null) return false;
     
-    for (Background b : Backgrounds.MILITARY_CIRCLES) {
+    for (Background b : RAID_CLASSES) {
       final float w = (hires.weightFor(b) + 0.5f) / 2;
       if (w <= 0) continue;
       soldierTypes  .add(b);

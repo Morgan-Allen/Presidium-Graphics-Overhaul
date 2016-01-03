@@ -9,21 +9,8 @@ import stratos.util.*;
 
 
 
-//  TODO:  Zone and place-route queries should not be auto-refreshing places
-//  any more, because that leads to irregular spikes in usage.  Get rid of the
-//  expiry-timers.
-
-//  Instead, places in a given sector should be refreshed when (A) member tiles
-//  have had their occupancy changed, but (B) no more than once every 5 seconds
-//  and (C) without violating schedule limits.
-
-//  TODO:  Also, direct cache-queries for Routes would be useful!
-
-//  At the moment, average results are about 200-300 tiles scanned and 600-
-//  1000 tiles searched per second, which is roughly in line with a refresh
-//  for each sector every 10 seconds with a 2-3x search factor.  Could be
-//  improved on, but not exorbitant.
-
+//  TODO:  Ensure places aren't refreshed more than once every 5 seconds?
+//         Also, direct cache-queries for Routes would be useful.
 
 
 public class PathingMap {
@@ -62,7 +49,7 @@ public class PathingMap {
     Tile under[];
     
     Stack <Route> routes = new Stack <Route> ();
-    Zone zones[] = new Zone[Base.MAX_BASES];
+    ListEntry zoneEntries[] = new ListEntry[Base.MAX_BASES];
     
     Object flagged;
     
@@ -82,9 +69,8 @@ public class PathingMap {
     public void finalize() throws Throwable { numSets--; super.finalize(); }
   }
   
-  private class Zone {
+  private class Zone extends List <Place> {
     Base client;
-    Place places[] = null;
     boolean needsRefresh = false;
     
     Zone() { numZones++; }
@@ -223,6 +209,9 @@ public class PathingMap {
   
   
   private void checkPlacesMatch(PlaceSet oldSet, PlaceSet newSet, int index) {
+    //
+    //  TODO:  Consider doing an automatic refresh if the old and new number of
+    //  places is different?  Might be simpler/safer...
     final Place n = (newSet == null || index >= newSet.places.length) ?
       null : newSet.places[index]
     ;
@@ -238,17 +227,25 @@ public class PathingMap {
       routesMatch = false;
     }
     else for (int r = 0; r < o.routes.size(); r++) {
-      final Route rN = n.routes.atIndex(r);
-      final Route rO = o.routes.atIndex(r);
+      final Route rN   = n.routes.atIndex(r);
+      final Route rO   = o.routes.atIndex(r);
       final Place oppN = rN.from == n ? rN.to : rN.from;
       final Place oppO = rO.from == o ? rO.to : rO.from;
       if (oppN != oppO) routesMatch = false;
     }
-    if (routesMatch) {
-      n.zones = o.zones;
+    if (updatesVerbose) {
+      if (routesMatch) I.say("\nROUTES ARE IDENTICAL, WILL RETAIN ZONE/S");
+      else I.say("\nDIFFERENT ROUTES CREATED, WILL REFRESH ZONES/S");
     }
-    else if (o != null) for (Zone z : o.zones) if (z != null) {
-      z.needsRefresh = true;
+    //
+    //  We delete all zone-entries for the older place-set, but if the routes
+    //  matched, we immediately register the newer set instead:
+    if (o != null) for (int b = o.zoneEntries.length; b-- > 0;) {
+      final ListEntry e = o.zoneEntries[b];
+      if (e == null) continue;
+      final Zone z = (Zone) e.list();
+      z.removeEntry(e);
+      if (routesMatch) n.zoneEntries[b] = z.addLast(n);
     }
   }
   
@@ -512,8 +509,9 @@ public class PathingMap {
   private Zone zoneFor(
     Place init, Base client, boolean refresh, boolean reports
   ) {
-    final int  baseID  = client.baseID();
-    final Zone oldZone = init.zones[baseID];
+    final int       baseID  = client.baseID();
+    final ListEntry entry   = init.zoneEntries[baseID];
+    final Zone      oldZone = entry == null ? null : (Zone) entry.list();
     
     if (oldZone != null && ! oldZone.needsRefresh) return oldZone;
     if (! refresh) return null;
@@ -527,9 +525,8 @@ public class PathingMap {
     maxInQuery = Nums.max(maxInQuery, evalAfter - evalBefore);
     
     final Zone zone = new Zone();
-    zone.places = inZone;
     zone.client = client;
-    for (Place p : inZone) p.zones[baseID] = zone;
+    for (Place p : inZone) p.zoneEntries[baseID] = zone.addLast(p);
     
     if (updatesVerbose) {
       I.say("\nDONE CREATING NEW ZONE FOR "+client);
@@ -581,7 +578,7 @@ public class PathingMap {
     if (zone == null) return new Boarding[0];
     
     final Batch <Boarding> cores = new Batch();
-    for (Place p : zone.places) cores.add(p.core);
+    for (Place p : zone) cores.add(p.core);
     return cores.toArray(Boarding.class);
   }
   
@@ -742,20 +739,6 @@ public class PathingMap {
   
 }
 
-
-
-
-
-
-
-//
-//  TODO:  It might be best if this only updated when buildings in a section
-//  are placed/deleted, fog levels change, etc. etc.- and no more than once per
-//  10 seconds.
-//
-//  TODO:  Next, ideally, you'll want to build up a recursive tree-structure
-//  out of Regions so that the viability of pathing attempts can be determined
-//  as quickly as possible (when querying nearby venues, etc.)
 
 
 

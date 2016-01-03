@@ -390,28 +390,8 @@ public interface Backgrounds {
       BODY_ARMOUR, STUN_WAND
     ),
     
-    PSI_CORPS = new Background(
-      Backgrounds.class,
-      "Psy Corps",
-      "",
-      "enforcer_skin.gif", "enforcer_portrait.png",
-      CLASS_AGENT, GUILD_MILITANT
-      //  TODO:  Fill in skills and abilities...
-    ),
-    
-    ANALYST = new Background(
-      Backgrounds.class,
-      "Analyst",
-      "",
-      "enforcer_skin.gif", "enforcer_portrait.png",
-      CLASS_STRATOI, GUILD_MILITANT
-      //  TODO:  Fill in skills and abilities...
-    ),
-    
     MILITARY_CIRCLES[] = {
-      VOLUNTEER, TROOPER  , MECH_LEGION,
-      ENFORCER , PSI_CORPS, ANALYST    ,
-      ///DECK_HAND, WINGMAN  , ACE        ,
+      VOLUNTEER, TROOPER, MECH_LEGION, ENFORCER,
     }
  ;
   
