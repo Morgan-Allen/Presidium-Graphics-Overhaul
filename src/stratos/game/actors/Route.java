@@ -28,20 +28,20 @@ public class Route {
   
   
   public static void saveRoute(Route r, Session s) throws Exception {
-    s.saveTarget     (r.start   );
-    s.saveTarget     (r.end     );
+    s.saveObject     (r.start   );
+    s.saveObject     (r.end     );
     s.saveInt        (r.hash    );
-    s.saveTargetArray(r.path    );
+    s.saveObjectArray(r.path    );
     s.saveFloat      (r.cost    );
     s.saveInt        (r.refCount);
   }
 
   
   private Route(Session s) throws Exception {
-    start    = (Tile) s.loadTarget();
-    end      = (Tile) s.loadTarget();
+    start    = (Tile) s.loadObject();
+    end      = (Tile) s.loadObject();
     hash     = s.loadInt();
-    path     = (Tile[]) s.loadTargetArray(Tile.class);
+    path     = (Tile[]) s.loadObjectArray(Tile.class);
     cost     = s.loadFloat();
     refCount = s.loadInt();
   }

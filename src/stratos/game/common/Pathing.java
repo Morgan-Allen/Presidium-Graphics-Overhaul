@@ -41,17 +41,17 @@ public class Pathing {
   
   
   void loadState(Session s) throws Exception {
-    moveTarget = s.loadTarget();
-    path       = (Boarding[]) s.loadTargetArray(Boarding.class);
-    pathTarget = (Boarding) s.loadTarget();
+    moveTarget = (Target) s.loadObject();
+    path       = (Boarding[]) s.loadObjectArray(Boarding.class);
+    pathTarget = (Boarding) s.loadObject();
     stepIndex  = s.loadInt();
   }
   
   
   void saveState(Session s) throws Exception {
-    s.saveTarget     (moveTarget);
-    s.saveTargetArray(path      );
-    s.saveTarget     (pathTarget);
+    s.saveObject     (moveTarget);
+    s.saveObjectArray(path      );
+    s.saveObject     (pathTarget);
     s.saveInt        (stepIndex );
   }
   

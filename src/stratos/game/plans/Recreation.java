@@ -69,7 +69,7 @@ public class Recreation extends Plan {
 
   public Recreation(Session s) throws Exception {
     super(s);
-    venue      = (Venue) s.loadTarget();
+    venue      = (Venue) s.loadObject();
     type       = s.loadInt();
     cost       = s.loadFloat();
     enjoyBonus = s.loadFloat();
@@ -78,7 +78,7 @@ public class Recreation extends Plan {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveTarget(venue     );
+    s.saveObject(venue     );
     s.saveInt   (type      );
     s.saveFloat (cost      );
     s.saveFloat (enjoyBonus);

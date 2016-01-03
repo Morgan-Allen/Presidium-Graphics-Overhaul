@@ -54,7 +54,7 @@ public class Exploring extends Plan {
     super(s);
     base      = (Base) s.loadObject();
     type      = s.loadInt();
-    lookedAt  = (Tile) s.loadTarget();
+    lookedAt  = (Tile) s.loadObject();
     travelled = s.loadFloat();
   }
   
@@ -63,7 +63,7 @@ public class Exploring extends Plan {
     super.saveState(s);
     s.saveObject(base);
     s.saveInt   (type);
-    s.saveTarget(lookedAt );
+    s.saveObject(lookedAt );
     s.saveFloat (travelled);
   }
   

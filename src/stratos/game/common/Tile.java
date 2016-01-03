@@ -54,11 +54,13 @@ public final class Tile implements
   
   
   public static Tile loadConstant(Session s) throws Exception {
-    return s.world().tileAt(s.loadInt(), s.loadInt());
+    final Stage world = (Stage) s.loadObject();
+    return world.tileAt(s.loadInt(), s.loadInt());
   }
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject(world);
     s.saveInt(x);
     s.saveInt(y);
   }

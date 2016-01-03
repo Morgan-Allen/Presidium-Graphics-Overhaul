@@ -83,7 +83,7 @@ public abstract class Venue extends Fixture implements
     staff    .loadState(s);
     stocks   .loadState(s);
     
-    entrance = (Tile) s.loadTarget();
+    entrance = (Tile) s.loadObject();
     s.loadObjects(inside);
     this.facing = s.loadInt();
     
@@ -101,7 +101,7 @@ public abstract class Venue extends Fixture implements
     staff    .saveState(s);
     stocks   .saveState(s);
     
-    s.saveTarget(entrance);
+    s.saveObject(entrance);
     s.saveObjects(inside);
     s.saveInt(facing);
     

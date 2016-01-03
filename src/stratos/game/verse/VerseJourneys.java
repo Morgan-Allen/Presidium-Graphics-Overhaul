@@ -70,7 +70,7 @@ public class VerseJourneys {
   ) {
     //
     //  We sort the incoming matches in order of arrival.
-    final float time = universe.world.currentTime();
+    final float time = universe.stage().currentTime();
     final List <Journey> matches = new List <Journey> () {
       protected float queuePriority(Journey j) {
         return time - j.arriveTime;
@@ -132,7 +132,7 @@ public class VerseJourneys {
   public boolean dueToArrive(Vehicle trans, Sector destination) {
     final Journey j = journeyFor(trans);
     if (j == null || j.destination != destination) return false;
-    final float time = universe.world.currentTime();
+    final float time = universe.stage().currentTime();
     return trans.flightState() == STATE_AWAY && time >= j.arriveTime;
   }
   
@@ -237,7 +237,7 @@ public class VerseJourneys {
   public boolean scheduleArrival(Vehicle trans, float delay) {
     final Journey j = journeyFor(trans);
     if (j == null) return false;
-    j.arriveTime = universe.world.currentTime() + delay;
+    j.arriveTime = universe.stage().currentTime() + delay;
     return true;
   }
   
@@ -255,7 +255,7 @@ public class VerseJourneys {
     
     j.refreshCrewAndCargo();
     j.pickupOffworldMigrants();
-    j.arriveTime  = universe.world.currentTime() + delay;
+    j.arriveTime  = universe.stage().currentTime() + delay;
     return true;
   }
   
@@ -267,7 +267,7 @@ public class VerseJourneys {
     //
     //  Basic sanity checks first.
     if (mobile.inWorld()) return 0;
-    final float  time     = universe.world.currentTime();
+    final float  time     = universe.stage().currentTime();
     final Sector locale   = universe.stageLocation();
     final Sector resides  = universe.currentSector(mobile);
     //

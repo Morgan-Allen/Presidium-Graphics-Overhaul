@@ -75,7 +75,7 @@ public abstract class Vehicle extends Mobile implements
     journey      = (Journey ) s.loadObject();
     pilot        = (Actor   ) s.loadObject();
     hangar       = (Venue   ) s.loadObject();
-    dropPoint    = (Boarding) s.loadTarget();
+    dropPoint    = (Boarding) s.loadObject();
     entranceFace = s.loadFloat();
     
     aimPos.loadFrom(s.input());
@@ -94,7 +94,7 @@ public abstract class Vehicle extends Mobile implements
     s.saveObject(journey     );
     s.saveObject(pilot       );
     s.saveObject(hangar      );
-    s.saveTarget(dropPoint   );
+    s.saveObject(dropPoint   );
     s.saveFloat (entranceFace);
     
     aimPos.saveTo(s.output());

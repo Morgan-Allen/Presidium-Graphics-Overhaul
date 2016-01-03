@@ -79,12 +79,12 @@ public class SitingPass {
     s.saveObject(pass.nextTile  );
     s.saveInt(pass.regionSort.size());
     for (PassEntry e : pass.regionSort) {
-      s.saveTarget(e.forPass);
+      s.saveObject(e.forPass);
       s.saveFloat (e.rating );
     }
     s.saveInt(pass.tilesSort .size());
     for (PassEntry e : pass.tilesSort ) {
-      s.saveTarget(e.forPass);
+      s.saveObject(e.forPass);
       s.saveFloat (e.rating );
     }
     
@@ -104,10 +104,10 @@ public class SitingPass {
     pass.nextRegion = (StagePatch) s.loadObject();
     pass.nextTile   = (Tile       ) s.loadObject();
     for (int i = s.loadInt(); i-- > 0;) {
-      pass.regionSort.addFromPass(s.loadTarget(), s.loadFloat());
+      pass.regionSort.addFromPass((Target) s.loadObject(), s.loadFloat());
     }
     for (int i = s.loadInt(); i-- > 0;) {
-      pass.tilesSort.addFromPass (s.loadTarget(), s.loadFloat());
+      pass.tilesSort.addFromPass ((Target) s.loadObject(), s.loadFloat());
     }
     
     pass.stage      = s.loadInt  ();

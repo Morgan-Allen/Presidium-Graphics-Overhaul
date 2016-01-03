@@ -222,7 +222,7 @@ public class SaveUtils {
         if (done) return 1;
         if (! session.loadingDone()) return session.loadProgress();
         I.say("Loading complete...");
-        loaded = session.scenario();
+        loaded = (Scenario) session.loaded()[0];
         done = true;
         return 1;
       }

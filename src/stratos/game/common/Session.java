@@ -55,8 +55,7 @@ public final class Session {
     nextClassID  =  0,
     lastObjectID = -1;
   
-  private Scenario scenario;
-  private Stage world = null;
+  private Saveable items[] = new Saveable[0];
   
   private int operation = OP_NONE;
   private DataOutputStream out   ;
@@ -69,7 +68,7 @@ public final class Session {
   /**  Methods for saving and loading session data:
     */
   public static Session saveSession(
-    Stage world, Scenario scenario, String saveFile
+    String saveFile, Saveable... items
   ) throws Exception {
     final Session s = new Session();
     s.out = new DataOutputStream(new BufferedOutputStream(
@@ -81,12 +80,10 @@ public final class Session {
     
     Assets.clearReferenceIDs();
     s.operation = OP_SAVE;
-    s.world     = world  ;
-    s.scenario = scenario;
     
-    s.saveInt(world.size);
-    s.world.saveState(s);
-    s.saveObject(scenario);
+    s.items = items;
+    s.saveInt(items.length);
+    for (Saveable item : items) s.saveObject(item);
     GameSettings.saveSettings(s);
     s.finish();
     
@@ -125,9 +122,9 @@ public final class Session {
       public void run() {
         try {
           Assets.clearReferenceIDs();
-          s.world = new Stage(s.loadInt());
-          s.world.loadState(s);
-          s.scenario = (Scenario) s.loadObject();
+          final int numItems = s.loadInt();
+          s.items = new Saveable[numItems];
+          for (int n = 0; n < numItems; n++) s.items[n] = s.loadObject();
           GameSettings.loadSettings(s);
           s.finish();
           Thread.sleep(250);
@@ -147,7 +144,6 @@ public final class Session {
   
   
   public void finish() throws Exception {
-    world = null;
     saveIDs .clear();
     classIDs.clear();
     loadIDs .clear();
@@ -173,8 +169,7 @@ public final class Session {
   public boolean loadingDone() { return operation == OP_LOAD_DONE; }
   
   private Session() {}
-  public Stage world() { return world; }
-  public Scenario scenario() { return scenario; }
+  public Saveable[] loaded() { return items; }
   
   
   
@@ -349,67 +344,6 @@ public final class Session {
     if (o instanceof String) return true;
     if (o instanceof Saveable) return true;
     return false;
-  }
-  
-  
-  
-  /**  Saving and loading of targets-
-    */
-  public void saveTarget(Target target) throws Exception {
-    if (target == null) {
-      saveInt(-1);
-    }
-    else if (target instanceof Tile) {
-      saveInt(0);
-      final Tile t = (Tile) target;
-      saveInt(t.x); saveInt(t.y);
-    }
-    else {
-      saveInt(1);
-      saveObject((Session.Saveable) target);
-    }
-  }
-  
-  
-  public Target loadTarget() throws Exception {
-    final int type = loadInt();
-    if (type == -1) return null;
-    if (type == 0) return world.tileAt(loadInt(), loadInt());
-    return (Target) loadObject();
-  }
-  
-  
-  public void saveTargets(Series <Target> targets) throws Exception {
-    if (targets == null) {
-      saveInt(-1);
-      return;
-    }
-    saveInt(targets.size());
-    for (Target o : targets) saveTarget(o);
-  }
-  
-  
-  public Series <Target> loadTargets(Series <Target> targets) throws Exception {
-    final int count = loadInt();
-    if (count == -1) return null;
-    for (int n = count; n-- > 0;) targets.add(loadTarget());
-    return targets;
-  }
-  
-  
-  public void saveTargetArray(Target[] objects) throws Exception {
-    if (objects == null) { saveInt(-1); return; }
-    saveInt(objects.length);
-    for (Target o : objects) saveTarget(o);
-  }
-  
-  
-  public Target[] loadTargetArray(Class typeClass) throws Exception {
-    final int num = loadInt();
-    if (num == -1) return null;
-    final Target[] array = (Target[]) Array.newInstance(typeClass, num);
-    for (int n = 0; n < num; n++) array[n] = loadTarget();
-    return array;
   }
   
   

@@ -70,7 +70,7 @@ public class Looting extends Plan {
     taken   = Item.loadFrom(s);
     dropOff = (Property) s.loadObject();
     stage   = s.loadInt();
-    access  = (Tile) s.loadTarget();
+    access  = (Tile) s.loadObject();
   }
   
   
@@ -80,7 +80,7 @@ public class Looting extends Plan {
     Item.saveTo (s, taken);
     s.saveObject(dropOff );
     s.saveInt   (stage   );
-    s.saveTarget(access  );
+    s.saveObject(access  );
   }
   
   

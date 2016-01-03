@@ -81,7 +81,7 @@ public class Combat extends Plan {
     this.object   = s.loadInt ();
     this.pursue   = s.loadBool();
     this.stepType = s.loadInt ();
-    this.struck   = s.loadTarget();
+    this.struck   = (Target) s.loadObject();
   }
   
   
@@ -91,7 +91,7 @@ public class Combat extends Plan {
     s.saveInt   (object  );
     s.saveBool  (pursue  );
     s.saveInt   (stepType);
-    s.saveTarget(struck  );
+    s.saveObject(struck  );
   }
   
   

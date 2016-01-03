@@ -52,16 +52,16 @@ public class Retreat extends Plan {
   public Retreat(Session s) throws Exception {
     super(s);
     this.maxPriority   = s.loadFloat();
-    this.safePoint     = (Boarding) s.loadTarget();
-    this.lastHidePoint = (Boarding) s.loadTarget();
+    this.safePoint     = (Boarding) s.loadObject();
+    this.lastHidePoint = (Boarding) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveFloat (maxPriority  );
-    s.saveTarget(safePoint    );
-    s.saveTarget(lastHidePoint);
+    s.saveObject(safePoint    );
+    s.saveObject(lastHidePoint);
   }
   
   

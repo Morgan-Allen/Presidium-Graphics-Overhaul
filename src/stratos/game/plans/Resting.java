@@ -45,7 +45,7 @@ public class Resting extends Plan {
   
   public Resting(Session s) throws Exception {
     super(s);
-    this.restPoint = (Owner) s.loadTarget();
+    this.restPoint = (Owner) s.loadObject();
     this.cost = s.loadInt();
     this.currentMode = s.loadInt();
     this.relaxTime = s.loadFloat();
@@ -54,7 +54,7 @@ public class Resting extends Plan {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveTarget(restPoint);
+    s.saveObject(restPoint);
     s.saveInt(cost);
     s.saveInt(currentMode);
     s.saveFloat(relaxTime);

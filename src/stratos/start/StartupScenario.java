@@ -52,17 +52,17 @@ public class StartupScenario extends Scenario {
     */
   protected Stage createWorld() {
     
-    final int mapSize = MAP_SIZES[expedition.titleGranted()];
-    final Sector locale = expedition.destination();
-    final TerrainGen TG = locale.initialiseTerrain(mapSize);
+    final Verse        verse   = new Verse();
+    final int          mapSize = MAP_SIZES[expedition.titleGranted()];
+    final Sector       locale  = expedition.destination();
+    final TerrainGen   TG      = locale.initialiseTerrain(mapSize);
+    final StageTerrain terrain = TG.generateTerrain();
+    final Stage        world   = Stage.createNewWorld(verse, locale, terrain);
     
-    final Stage world = Stage.createNewWorld(TG.generateTerrain());
     TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
     Flora.populateFlora(world);
     world.readyAfterPopulation();
-    
-    world.offworld.assignStageLocation(locale);
     return world;
   }
   

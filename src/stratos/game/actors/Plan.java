@@ -113,8 +113,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public Plan(Session s) throws Exception {
     s.cacheInstance(this);
-    this.actor   = (Actor) s.loadObject();
-    this.subject = s.loadTarget();
+    this.actor   = (Actor ) s.loadObject();
+    this.subject = (Target) s.loadObject();
     
     this.lastEvalTime = s.loadFloat();
     this.priorityEval = s.loadFloat();
@@ -130,7 +130,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public void saveState(Session s) throws Exception {
     s.saveObject(actor  );
-    s.saveTarget(subject);
+    s.saveObject(subject);
     
     s.saveFloat (lastEvalTime);
     s.saveFloat (priorityEval);

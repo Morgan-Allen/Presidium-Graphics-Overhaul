@@ -51,8 +51,8 @@ public class PresenceMap implements Session.Saveable {
   
   public PresenceMap(Session s) throws Exception {
     s.cacheInstance(this);
-    world = s.world();
-    key = s.loadkey();
+    world = (Stage) s.loadObject();
+    key   = s.loadkey();
     //
     //  Load the root node from disk-
     root = new Node(world.patches.root);
@@ -62,6 +62,7 @@ public class PresenceMap implements Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject(world);
     s.saveKey(key);
     s.saveInt(root.population);
     saveNode(root, s);
@@ -70,7 +71,7 @@ public class PresenceMap implements Session.Saveable {
   
   private void loadMember(Session s) throws Exception {
     final int pX = s.loadInt(), pY = s.loadInt();
-    final Target t = s.loadTarget();
+    final Target t = (Target) s.loadObject();
     if (! t.inWorld()) I.say(t+" NOT IN WORLD! "+this.key);
     else toggleAt(root, pX, pY, t, true);
   }
@@ -83,7 +84,7 @@ public class PresenceMap implements Session.Saveable {
         final Box2D b = n.section.area;
         s.saveInt((int) b.xpos() + 1);
         s.saveInt((int) b.ypos() + 1);
-        s.saveTarget((Target) k);
+        s.saveObject((Target) k);
       }
       else saveNode((Node) k, s);
     }
@@ -227,7 +228,7 @@ public class PresenceMap implements Session.Saveable {
     public Iteration(Session s) throws Exception {
       s.cacheInstance(this);
       this.map    = (PresenceMap) s.loadObject();
-      this.origin = (Tile) s.loadTarget();
+      this.origin = (Tile) s.loadObject();
       this.range  = s.loadFloat();
       this.area   = new Box2D().loadFrom(s.input());
       
@@ -241,7 +242,7 @@ public class PresenceMap implements Session.Saveable {
     
     public void saveState(Session s) throws Exception {
       s.saveObject(map   );
-      s.saveTarget(origin);
+      s.saveObject(origin);
       s.saveFloat (range );
       area.saveTo(s.output());
       
@@ -254,7 +255,7 @@ public class PresenceMap implements Session.Saveable {
     private NodeMarker loadMarker(Session s) throws Exception {
       final boolean leaf = s.loadBool();
       final float dist = s.loadFloat();
-      Object node = leaf ? s.loadTarget() : s.loadObject();
+      Object node = leaf ? s.loadObject() : s.loadObject();
       if (! leaf) node = map.nodeForRegion((StagePatch) node, map.root);
       if (node == null) return null;
       return new NodeMarker(node, leaf, dist);
@@ -264,7 +265,7 @@ public class PresenceMap implements Session.Saveable {
     private void saveMarker(NodeMarker m, Session s) throws Exception {
       s.saveBool(m.leaf);
       s.saveFloat(m.distance);
-      if (m.leaf) s.saveTarget((Target) m.refers);
+      if (m.leaf) s.saveObject((Target) m.refers);
       else s.saveObject(((Node) m.refers).section);
     }
     

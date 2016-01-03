@@ -9,7 +9,7 @@ import stratos.util.*;
 
 
 
-public class StagePatch implements Target, Session.Saveable {
+public class StagePatch implements Target {
   
   
   /**  Data fields, construction, and save/load methods-
@@ -37,13 +37,15 @@ public class StagePatch implements Target, Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject(world);
     s.saveInt((int) (area.xpos() + 1));
     s.saveInt((int) (area.ypos() + 1));
   }
   
   
   public static StagePatch loadConstant(Session s) throws Exception {
-    return s.world().patches.patchAt(s.loadInt(), s.loadInt());
+    final Stage world = (Stage) s.loadObject();
+    return world.patches.patchAt(s.loadInt(), s.loadInt());
   }
   
   

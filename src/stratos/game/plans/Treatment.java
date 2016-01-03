@@ -46,7 +46,7 @@ public class Treatment extends Plan {
     super(s);
     patient  = (Actor    ) s.loadObject();
     sickness = (Condition) s.loadObject();
-    sickbay  = (Boarding ) s.loadTarget();
+    sickbay  = (Boarding ) s.loadObject();
   }
   
   
@@ -54,7 +54,7 @@ public class Treatment extends Plan {
     super.saveState(s);
     s.saveObject(patient );
     s.saveObject(sickness);
-    s.saveTarget(sickbay );
+    s.saveObject(sickbay );
   }
   
   

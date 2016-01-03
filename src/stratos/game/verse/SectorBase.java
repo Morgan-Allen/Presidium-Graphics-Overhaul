@@ -41,8 +41,8 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   public SectorBase(Session s) throws Exception {
     s.cacheInstance(this);
     
-    this.universe = s.world().offworld;
-    this.location = (Sector) s.loadObject();
+    this.universe = (Verse  ) s.loadObject();
+    this.location = (Sector ) s.loadObject();
     this.faction  = (Faction) s.loadObject();
     this.ruler    = (Actor  ) s.loadObject();
 
@@ -57,6 +57,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject(universe);
     s.saveObject(location);
     s.saveObject(faction );
     s.saveObject(ruler   );
@@ -131,7 +132,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   public Base baseInWorld() {
     if (isWorldBase()) return (Base) this;
-    return Base.findBase(universe.world, null, faction);
+    return Base.findBase(universe.stage(), null, faction);
   }
   
   
@@ -166,7 +167,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   /**  Modifying internal population and modelling their rough behaviours-
     */
   public void toggleUnit(Mobile m, boolean is) {
-    final Stage world = universe.world;
+    final Stage world = universe.stage();
     final boolean onStage = location == universe.stageLocation();
     
     final ListEntry <Mobile> e = m.baseEntry();

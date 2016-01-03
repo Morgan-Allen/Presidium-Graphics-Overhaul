@@ -95,8 +95,8 @@ public class Action implements Behaviour, AnimNames {
     
     properties   = s.loadInt();
     moveState    = (byte) s.loadInt();
-    actionTarget = s.loadTarget();
-    moveTarget   = s.loadTarget();
+    actionTarget = (Target) s.loadObject();
+    moveTarget   = (Target) s.loadObject();
     
     progress    = s.loadFloat ();
     oldProgress = s.loadFloat ();
@@ -114,8 +114,8 @@ public class Action implements Behaviour, AnimNames {
     
     s.saveInt   (properties  );
     s.saveInt   (moveState   );
-    s.saveTarget(actionTarget);
-    s.saveTarget(moveTarget  );
+    s.saveObject(actionTarget);
+    s.saveObject(moveTarget  );
     
     s.saveFloat (progress   );
     s.saveFloat (oldProgress);

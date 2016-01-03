@@ -74,8 +74,8 @@ public abstract class ResourceTending extends Plan {
     this.coop         = s.loadBool();
     this.useTools     = s.loadBool();
     
-    this.assessed        = s.loadTargetArray(Target.class);
-    this.tended          = s.loadTarget();
+    this.assessed        = (Target[]) s.loadObjectArray(Target.class);
+    this.tended          = (Target) s.loadObject();
     this.assessFromDepot = s.loadBool();
     
     this.tools = (Suspensor) s.loadObject();
@@ -91,8 +91,8 @@ public abstract class ResourceTending extends Plan {
     s.saveBool       (coop        );
     s.saveBool       (useTools    );
     
-    s.saveTargetArray(assessed       );
-    s.saveTarget     (tended         );
+    s.saveObjectArray(assessed       );
+    s.saveObject     (tended         );
     s.saveBool       (assessFromDepot);
     
     s.saveObject(tools);

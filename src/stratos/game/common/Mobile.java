@@ -60,7 +60,7 @@ public abstract class Mobile extends Element
     nextPosition.loadFrom(s.input());
     
     base   = (Base    ) s.loadObject();
-    aboard = (Boarding) s.loadTarget();
+    aboard = (Boarding) s.loadObject();
     if (pathing != null) pathing.loadState(s);
   }
   
@@ -73,7 +73,7 @@ public abstract class Mobile extends Element
     nextPosition.saveTo(s.output());
     
     s.saveObject(base  );
-    s.saveTarget(aboard);
+    s.saveObject(aboard);
     if (pathing != null) pathing.saveState(s);
   }
   

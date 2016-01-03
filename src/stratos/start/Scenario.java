@@ -47,8 +47,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   public Scenario(Session s) throws Exception {
     s.cacheInstance(this);
-    world = s.world();
-    base  = (Base) s.loadObject();
+    world        = (Stage) s.loadObject();
+    base         = (Base) s.loadObject();
     savesPrefix  = s.loadString();
     lastSaveTime = s.loadFloat();
     isDebug      = s.loadBool();
@@ -60,10 +60,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveObject(base             );
-    s.saveString(savesPrefix      );
-    s.saveFloat (lastSaveTime     );
-    s.saveBool  (isDebug          );
+    s.saveObject(world       );
+    s.saveObject(base        );
+    s.saveString(savesPrefix );
+    s.saveFloat (lastSaveTime);
+    s.saveBool  (isDebug     );
     UI.saveState(s);
   }
   
@@ -204,7 +205,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     try {
       loadProgress = 0;
       lastSaveTime = world.currentTime();
-      Session.saveSession(world, this, saveFile);
+      Session.saveSession(saveFile, this);
       afterSaving();
       loadProgress = 1;
       

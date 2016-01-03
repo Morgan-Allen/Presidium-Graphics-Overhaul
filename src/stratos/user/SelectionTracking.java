@@ -43,13 +43,13 @@ public class SelectionTracking {
   
   
   void saveState(Session s) throws Exception {
-    s.saveTarget(lockTarget);
+    s.saveObject(lockTarget);
     view.lookedAt.saveTo(s.output());
   }
   
   
   void loadState(Session s) throws Exception {
-    lockTarget = s.loadTarget();
+    lockTarget = (Target) s.loadObject();
     view.lookedAt.loadFrom(s.input());
   }
   

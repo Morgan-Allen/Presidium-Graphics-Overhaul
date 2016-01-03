@@ -66,7 +66,7 @@ public class Journey implements Session.Saveable {
   
   public Journey(Session s) throws Exception {
     s.cacheInstance(this);
-    verse        = s.world().offworld;
+    verse        = (Verse) s.loadObject();
     properties   = s.loadInt();
     client       = (Base) s.loadObject();
     
@@ -86,6 +86,7 @@ public class Journey implements Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject (verse      );
     s.saveInt    (properties );
     s.saveObject (client     );
     
@@ -367,7 +368,7 @@ public class Journey implements Session.Saveable {
     final int maxSep = Sector.SEP_STELLAR;
     final float tripTime = origin.standardTripTime(destination, maxSep);
     
-    departTime = verse.world.currentTime();
+    departTime = verse.stage().currentTime();
     arriveTime = departTime + (tripTime * (0.5f + Rand.num()));
     
     if (transport != null) for (Mobile migrant : transport.inside()) {
@@ -401,7 +402,7 @@ public class Journey implements Session.Saveable {
     }
     //
     //  Basic variable setup-
-    final Stage   world      = verse.world;
+    final Stage   world      = verse.stage();
     final float   time       = world.currentTime();
     final boolean visitWorld = destination == verse.stageLocation();
     if (tripStage == STAGE_INIT) tripStage = STAGE_OUTWARD;
@@ -413,7 +414,7 @@ public class Journey implements Session.Saveable {
   protected boolean checkForDeparture() {
     if (maxStayTime == -1 || complete()) return false;
     
-    final float timeStayed = verse.world.currentTime() - arriveTime;
+    final float timeStayed = verse.stage().currentTime() - arriveTime;
     if (timeStayed > maxStayTime) return true;
     
     //  TODO:  You'll need to perform a check here to ensure that everyone is
@@ -435,12 +436,12 @@ public class Journey implements Session.Saveable {
       if (transport != null) {
         for (Mobile m : migrants) transport.setInside(m, true);
         migrants.clear();
-        transport.beginLanding(verse.world);
+        transport.beginLanding(verse.stage());
         transport.base().advice.sendArrivalMessage(transport, origin);
       }
       else {
         for (Mobile m : migrants) {
-          m.enterWorldAt(transitPoint, verse.world);
+          m.enterWorldAt(transitPoint, verse.stage());
         }
         migrants.clear();
       }
@@ -468,7 +469,7 @@ public class Journey implements Session.Saveable {
     else tripStage = STAGE_OUTWARD;
     
     final Sector oldOrigin = origin;
-    arriveTime  =  verse.world.currentTime();
+    arriveTime  =  verse.stage().currentTime();
     arriveTime  += standardTripTime() * (0.5f + Rand.num());
     origin      =  destination;
     destination =  oldOrigin;
@@ -545,7 +546,7 @@ public class Journey implements Session.Saveable {
   /**  Rendering, debug and interface methods-
     */
   public void reportJourneyState(String prelude) {
-    final float time = verse.world.currentTime();
+    final float time = verse.stage().currentTime();
     I.say(prelude);
     I.say("  Current time:   "+time+" (arrives at "+arriveTime+")");
     I.say("  Origin:         "+origin);

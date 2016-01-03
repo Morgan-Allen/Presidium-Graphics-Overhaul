@@ -57,7 +57,9 @@ public class DebugCommerce extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Stage world = Stage.createNewWorld(TG.generateTerrain());
+    final Verse verse = new Verse();
+    final Sector at = Verse.SECTOR_ELYSIUM;
+    final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     Flora.populateFlora(world);
     world.readyAfterPopulation();
@@ -89,8 +91,8 @@ public class DebugCommerce extends Scenario {
   
   private void shippingScenario(Stage world, Base base, BaseUI UI) {
     
-    base .commerce.assignHomeworld    (Verse.PLANET_ASRA_NOVI);
-    world.offworld.assignStageLocation(Verse.SECTOR_PAVONIS  );
+    base .commerce.assignHomeworld(Verse.PLANET_ASRA_NOVI );
+    world.offworld.assignStage(world, Verse.SECTOR_PAVONIS);
     
     final Venue depot = new SupplyDepot(base);
     SiteUtils.establishVenue(depot, 5, 5, true, world);

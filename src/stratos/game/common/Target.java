@@ -8,7 +8,7 @@ import stratos.util.*;
 
 
 
-public interface Target extends Accountable {
+public interface Target extends Accountable, Session.Saveable {
   
   
   final public static String

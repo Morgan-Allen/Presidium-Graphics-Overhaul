@@ -37,9 +37,9 @@ public class Patrolling extends Plan implements TileConstants {
   final int type;
   final Element guarded;
   
-  private List <Target> patrolled;
   private Target onPoint;
   private float postTime = -1;
+  private List <Target> patrolled;
   
   
   
@@ -56,21 +56,21 @@ public class Patrolling extends Plan implements TileConstants {
   
   public Patrolling(Session s) throws Exception {
     super(s);
-    type = s.loadInt();
-    guarded = (Element) s.loadObject();
-    s.loadTargets(patrolled = new List <Target> ());
-    onPoint = (Target) s.loadTarget();
+    type     = s.loadInt();
+    guarded  = (Element) s.loadObject();
+    onPoint  = (Target) s.loadObject();
     postTime = s.loadFloat();
+    s.loadObjects(patrolled = new List());
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt(type);
-    s.saveObject(guarded);
-    s.saveTargets(patrolled);
-    s.saveTarget(onPoint);
-    s.saveFloat(postTime);
+    s.saveInt   (type    );
+    s.saveObject(guarded );
+    s.saveObject(onPoint );
+    s.saveFloat (postTime);
+    s.saveObjects(patrolled);
   }
   
   

@@ -76,7 +76,9 @@ public class DebugPlacing extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Stage world = Stage.createNewWorld(TG.generateTerrain());
+    final Verse verse = new Verse();
+    final Sector at = Verse.SECTOR_ELYSIUM;
+    final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
     //Flora.populateFlora(world);

@@ -51,7 +51,7 @@ FULL LIST OF INTENDED SECTORS-
 //
 //  HERE WE ARE BORN TO BE KINGS
 
-public class Verse {
+public class Verse implements Session.Saveable {
   
 
   final public static int
@@ -390,7 +390,7 @@ public class Verse {
   
   /**  Setup, data fields and save/load methods-
     */
-  final public Stage world;
+  private Stage currentStage;
   private Sector stageLocation = DEFAULT_START_LOCATION;
   
   final public VerseJourneys journeys = new VerseJourneys(this);
@@ -398,18 +398,12 @@ public class Verse {
   final Table <Relation, Relation> relations = new Table();
   
   
-  public Verse(Stage stage) {
-    this.world = stage;
-  }
-  
-  
-  public void initialVerse() {
+  public Verse() {
     this.initSeparations();
     this.initPolitics();
     for (Sector s : ALL_SECTORS) {
       final SectorBase base = new SectorBase(this, s);
       bases.add(base);
-      world.schedule.scheduleForUpdates(base);
     }
     for (Faction f : CIVIL_FACTIONS) if (f.startSite() != null) {
       final SectorBase base = baseForSector(f.startSite());
@@ -418,7 +412,8 @@ public class Verse {
   }
   
   
-  public void loadState(Session s) throws Exception {
+  public Verse(Session s) throws Exception {
+    s.cacheInstance(this);
     stageLocation = (Sector) s.loadObject();
     journeys.loadState(s);
     s.loadObjects(bases);
@@ -443,8 +438,14 @@ public class Verse {
   }
   
   
-  public void assignStageLocation(Sector location) {
+  public void assignStage(Stage stage, Sector location) {
+    this.currentStage  = stage   ;
     this.stageLocation = location;
+  }
+  
+  
+  public Stage stage() {
+    return currentStage;
   }
   
   
@@ -452,12 +453,13 @@ public class Verse {
     return stageLocation;
   }
   
-  
+  /*
   public Sector localSector() {
     Sector l = stageLocation;
     while (l.belongs != null) l = l.belongs;
     return l;
   }
+  //*/
   
   
   

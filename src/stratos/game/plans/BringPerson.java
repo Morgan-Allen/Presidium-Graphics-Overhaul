@@ -38,7 +38,7 @@ public class BringPerson extends Plan {
   public BringPerson(Session s) throws Exception {
     super(s);
     this.patient = (Actor) s.loadObject();
-    this.destination = (Boarding) s.loadTarget();
+    this.destination = (Boarding) s.loadObject();
     this.platform = (Suspensor) s.loadObject();
   }
   
@@ -46,7 +46,7 @@ public class BringPerson extends Plan {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(patient);
-    s.saveTarget(destination);
+    s.saveObject(destination);
     s.saveObject(platform);
   }
   

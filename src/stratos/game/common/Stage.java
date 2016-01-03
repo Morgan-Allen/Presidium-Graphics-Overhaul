@@ -17,7 +17,7 @@ import stratos.util.*;
 
 
 
-public class Stage {
+public class Stage implements Session.Saveable {
   
   
   /**  Common fields, default constructors, and save/load methods-
@@ -59,9 +59,9 @@ public class Stage {
   private StageTerrain terrain;
   private Ecology ecology;
   private List <Base> bases = new List <Base> ();
-  
-  final public Verse       offworld = new Verse      (this);
-  final public EntryPoints entry    = new EntryPoints(this);
+
+  final public Verse offworld;
+  final public EntryPoints entry = new EntryPoints(this);
   
   final public Activities activities;
   final public PathingMap pathingMap;
@@ -69,8 +69,31 @@ public class Stage {
   final public Ephemera   ephemera  ;
   
   
-  protected Stage(int size) {
+  protected Stage(Verse verse, int size) {
     this.size = size;
+    tiles = new Tile[size][size];
+    for (Coord c : Visit.grid(0, 0, size, size, 1)) {
+      tiles[c.x][c.y] = new Tile(this, c.x, c.y);
+    }
+    patches  = new StagePatches(this, PATCH_RESOLUTION);
+    claims   = new ClaimsGrid(this);
+    schedule = new Schedule(currentTime());
+
+    offworld   = verse;
+    ecology    = new Ecology   (this);
+    activities = new Activities(this);
+    pathingMap = new PathingMap(this);
+    presences  = new Presences (this);
+    ephemera   = new Ephemera  (this);
+  }
+  
+  
+  public Stage(Session s) throws Exception {
+    s.cacheInstance(this);
+    //
+    //  We initialise tile-states (and patches, et cetera) first, as other
+    //  objects rely on these being available immediately...
+    this.size = s.loadInt();
     tiles = new Tile[size][size];
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
       tiles[c.x][c.y] = new Tile(this, c.x, c.y);
@@ -84,25 +107,6 @@ public class Stage {
     pathingMap = new PathingMap(this);
     presences  = new Presences (this);
     ephemera   = new Ephemera  (this);
-  }
-  
-  
-  public static Stage createNewWorld(StageTerrain terrain) {
-    final Stage world = new Stage(terrain.mapSize);
-    world.terrain = terrain;
-    terrain.initTerrainMesh();
-    world.offworld.initialVerse();
-    return world;
-  }
-  
-  
-  public void readyAfterPopulation() {
-    pathingMap.initMap();
-    terrain.readyAllMeshes();
-  }
-  
-  
-  public void loadState(Session s) throws Exception {
     //
     //  We load the tile-states first, as other objects may depend on this.
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
@@ -115,9 +119,9 @@ public class Stage {
     terrain = (StageTerrain) s.loadObject();
     terrain.initTerrainMesh();
     ecology.loadState(s);
-    s.loadObjects(bases);
     
-    offworld.loadState(s);
+    s.loadObjects(bases);
+    offworld = (Verse) s.loadObject();
     entry.loadState(s);
     
     activities.loadState(s);
@@ -126,7 +130,29 @@ public class Stage {
   }
   
   
+  public static Stage createNewWorld(
+    Verse verse, Sector location, StageTerrain terrain
+  ) {
+    final Stage world = new Stage(verse, terrain.mapSize);
+    world.terrain = terrain;
+    terrain.initTerrainMesh();
+    verse.assignStage(world, location);
+    
+    for (SectorBase b : verse.sectorBases()) {
+      world.schedule.scheduleForUpdates(b);
+    }
+    return world;
+  }
+  
+  
+  public void readyAfterPopulation() {
+    pathingMap.initMap();
+    terrain.readyAllMeshes();
+  }
+  
+  
   public void saveState(Session s) throws Exception {
+    s.saveInt(size);
     //
     //  We save the tile-states first, as other objects may depend on this.
     for (Coord c : Visit.grid(0, 0, size, size, 1)) {
@@ -140,7 +166,7 @@ public class Stage {
     ecology.saveState(s);
     
     s.saveObjects(bases);
-    offworld.saveState(s);
+    s.saveObject(offworld);
     entry.saveState(s);
     
     activities.saveState(s);

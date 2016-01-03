@@ -35,14 +35,14 @@ public class Activities {
     //final boolean report = saveVerbose;
     
     for (int n = s.loadInt(); n-- > 0;) {
-      final Target t = s.loadTarget();
+      final Target t = (Target) s.loadObject();
       final List <Behaviour> l = new List <Behaviour> ();
       s.loadObjects(l);
       activeTable.put(t, l);
     }
     for (int n = s.loadInt(); n-- > 0;) {
       final Behaviour b = (Behaviour) s.loadObject();
-      final Target f = s.loadTarget();
+      final Target f = (Target) s.loadObject();
       activeFoci.put(b, f);
     }
   }
@@ -56,7 +56,7 @@ public class Activities {
     }
     s.saveInt(activeTable.size());
     for (Target t : activeTable.keySet()) {
-      s.saveTarget(t);
+      s.saveObject(t);
       s.saveObjects(activeTable.get(t));
     }
     s.saveInt(activeFoci.size());
@@ -67,7 +67,7 @@ public class Activities {
         I.say("  Focus: "+entry.getValue());
       }
       s.saveObject(entry.getKey  ());
-      s.saveTarget(entry.getValue());
+      s.saveObject(entry.getValue());
     }
   }
   

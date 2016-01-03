@@ -49,8 +49,8 @@ public abstract class Element implements
   
   public Element(Session s) throws Exception {
     s.cacheInstance(this);
-    world      = s.loadBool() ? s.world() : null;
-    location   = (Tile) s.loadTarget();
+    world      = (Stage) s.loadObject();
+    location   = (Tile ) s.loadObject();
     inceptTime = s.loadFloat();
     properties = s.loadInt();
     
@@ -59,8 +59,8 @@ public abstract class Element implements
   
   
   public void saveState(Session s) throws Exception {
-    s.saveBool  (world != null);
-    s.saveTarget(location     );
+    s.saveObject(world        );
+    s.saveObject(location     );
     s.saveFloat (inceptTime   );
     s.saveInt   (properties   );
     

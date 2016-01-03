@@ -73,7 +73,7 @@ public abstract class Base extends SectorBase implements
   public Base(Session s) throws Exception {
     super(s);
     
-    this.world = s.world();
+    world      = (Stage) s.loadObject();
     setup      = new BaseSetup(this);
     demands    = new BaseDemands(this);
     commerce   = new BaseCommerce(this);
@@ -112,6 +112,7 @@ public abstract class Base extends SectorBase implements
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     
+    s.saveObject(world);
     setup    .saveState(s);
     demands  .saveState(s);
     commerce .saveState(s);

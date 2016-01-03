@@ -46,29 +46,29 @@ public class ActorSenses {
   
   public void loadState(Session s) throws Exception {
     for (int n = s.loadInt(); n-- > 0;) {
-      final Target e = s.loadTarget();
+      final Target e = (Target) s.loadObject();
       awares.put(e, s.loadObject());
       awareOf.add(e);
     }
-    emergency   = s.loadBool  ();
-    underAttack = s.loadBool  ();
-    powerLevel  = s.loadFloat ();
-    fearLevel   = s.loadFloat ();
-    safePoint   = s.loadTarget();
+    emergency   = s.loadBool ();
+    underAttack = s.loadBool ();
+    powerLevel  = s.loadFloat();
+    fearLevel   = s.loadFloat();
+    safePoint   = (Target) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     s.saveInt(awares.size());
     for (Target e : awares.keySet()) {
-      s.saveTarget(e);
+      s.saveObject(e);
       s.saveObject(awares.get(e));
     }
     s.saveBool  (emergency  );
     s.saveBool  (underAttack);
     s.saveFloat (powerLevel );
     s.saveFloat (fearLevel  );
-    s.saveTarget(safePoint  );
+    s.saveObject(safePoint  );
   }
   
   
