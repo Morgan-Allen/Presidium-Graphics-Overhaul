@@ -4,3 +4,6 @@
 /build
 /save
 local.properties
+.idea
+/out
+/*.iml
