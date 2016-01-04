@@ -28,10 +28,14 @@
 
 
    Priority:  Medium  Duration:  Medium
-*  Finally, colonisation of distant sectors also needs to be possible.  (This
-   will require tearing down the old Stage/World and replacing it with a new
-   one, when/if the player wants to start a new settlement.  That's an
-   architectural change, and you may want to revamp Migration plans as well?)
+*  Colonisation of distant sectors is now working in a basic form.
+     Ensure that the same Base is retained.
+     Ensure that starting funds and tribute can be specified, and see if you
+     can specify who gets to be Leader/Advisors- use ExpeditionPane.
+
+   Priority:  Medium  Duration:  Short?
+*  This includes setting up trade-relations with distant sectors.  (This should
+   just require some tweaks to the Pledge system.)
 
    Priority:  High  Duration:  Long
 *  Raids by roachmen are far too frequent- I think they need to follow the
@@ -46,28 +50,31 @@
 
    Priority:  High  Duration:  Long
 *  You need to add resolution-effects for any available missions offworld- and
-   to ensure that offworld-bases can select targets in-world effectively.
+   try to include spawn-events for a variety of missions in-world?
    
    Strike
    Recon
    Security
    Contact
 
-   Priority:  Medium  Duration:  Short?
-*  This includes setting up trade-relations with distant sectors.  (This should
-   just require some tweaks to the Pledge system.)
-
    Priority:  Medium  Duration:  Short
 *  Offworld-missions will have to be screened, at minimum- and you should allow
    custom settings for mission-types available per mission.
 
 
+   Priority:  Medium-Low  Duration:  Short
+*  The 'savannah' terrain-type needs filling in!
+
+   Priority:  Medium-Low  Duration:  Short
+*  Wall-distribution around the Bastion needs patching.
 
    Priority:  Medium-Low  Duration:  Short?
 *  Patch up terrain-FX for the excavation site.
 
    Priority:  Low  Duration:  Short
 *  Restore the nursery at the ecologist station.
+
+
 
 
 

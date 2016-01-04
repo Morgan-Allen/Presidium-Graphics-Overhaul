@@ -80,13 +80,26 @@ public class DebugMissions extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.fogFree   = true;
     
+    if (true ) offworldClaimScenario  (world, base, UI);
     if (false) offworldRaidingScenario(world, base, UI);
-    if (true ) offworldReconScenario  (world, base, UI);
+    if (false) offworldReconScenario  (world, base, UI);
     
     if (false) strikeScenario  (world, base, UI);
     if (false) securityScenario(world, base, UI);
     if (false) contactScenario (world, base, UI);
     if (false) reconScenario   (world, base, UI);
+  }
+  
+  
+  private void offworldClaimScenario(Stage world, Base base, BaseUI UI) {
+    final Venue HQ = new Bastion(base);
+    SiteUtils.establishVenue(HQ, 5, 5, true, world);
+    base.setup.fillVacancies(HQ, true);
+    base.assignRuler(HQ.staff.workers().first());
+    
+    MissionClaiming m = MissionClaiming.claimFor(Verse.SECTOR_PAVONIS, base);
+    m.assignPriority(Mission.PRIORITY_ROUTINE);
+    base.tactics.addMission(m);
   }
   
   

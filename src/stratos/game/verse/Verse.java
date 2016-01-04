@@ -415,6 +415,8 @@ public class Verse implements Session.Saveable {
   
   public Verse(Session s) throws Exception {
     s.cacheInstance(this);
+    this.initSeparations();
+    
     currentStage  = (Stage ) s.loadObject();
     stageLocation = (Sector) s.loadObject();
     startingDate  = s.loadInt();

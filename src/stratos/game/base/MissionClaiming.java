@@ -14,9 +14,9 @@ import stratos.util.*;
 
 
 
+
 //  TODO:  Claims-missions, by default, are always screened.  (They cannot be
 //  covert, and they cannot be purely military.)
-
 
 public class MissionClaiming extends Mission {
   
@@ -59,7 +59,8 @@ public class MissionClaiming extends Mission {
       if (owns != null && ! owns.primal()   ) return null;
       
       final MissionClaiming m = new MissionClaiming(base, sector);
-      m.setJourney(Journey.configForMission(m));
+      m.setMissionType(Mission.TYPE_SCREENED);
+      m.setJourney(Journey.configForMission(m, false));
       return m.journey() == null ? null : m;
     }
     return null;
@@ -78,6 +79,16 @@ public class MissionClaiming extends Mission {
   
   public void resolveMissionOffworld() {
     return;
+  }
+  
+  
+  public void updateMission() {
+    final Actor leader = base.ruler();
+    if (leader != null && ! applicants().includes(leader)) {
+      leader.mind.assignMission(this);
+      setApprovalFor(leader, true);
+    }
+    super.updateMission();
   }
   
   
