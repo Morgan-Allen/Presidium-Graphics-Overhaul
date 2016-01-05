@@ -163,7 +163,7 @@ public class SkinsPreview extends VisualDebug {
       else if (isBase && base != null) {
         solid.setOverlaySkins(part, base);
       }
-      else if (costume != null && ! isBase) {
+      else if (!isBase && costume != null) {
         solid.setOverlaySkins(part, costume);
       }
       else {

@@ -16,6 +16,8 @@ import com.badlogic.gdx.math.*;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.util.Arrays;
+import java.util.Iterator;
 
 
 
@@ -248,10 +250,29 @@ public class SolidSprite extends Sprite {
     if (match == null) return;
     final Material base = match.material;
     final Material overlay = new Material(base);
-    overlay.set(new OverlayAttribute(skins));
+    
+    setTextureAndOverlays(overlay, skins);
+    
     this.materials[model.indexFor(base)] = overlay;
   }
   
+  
+  private <T> void removeAttributesOfType(Material mat, Class type) {
+	  for (Iterator<?> it = mat.iterator(); it.hasNext(); )
+	    if (it.next().getClass() == type)
+        it.remove();
+  }
+  
+  
+  private void setTextureAndOverlays(Material mat, Texture... textures) {
+    removeAttributesOfType(mat, TextureAttribute.class);
+    if (textures.length > 0) {
+      mat.set(TextureAttribute.createDiffuse(textures[0]));
+    }
+    Texture[] overlay = Arrays.copyOfRange(textures, 1, textures.length);
+    mat.set(new OverlayAttribute(overlay));
+  }
+  	
   
   private Material currentOverlay(String partName) {
     final String ID = model.materialID(partName);
