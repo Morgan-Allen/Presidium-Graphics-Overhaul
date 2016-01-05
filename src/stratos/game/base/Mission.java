@@ -538,7 +538,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   /**  Behaviour implementation for the benefit of any applicants/agents:
     */
   public Behaviour nextStepFor(Actor actor, boolean create) {
-    if (hasBegun()) updateMission();
+    if (create && hasBegun()) updateMission();
     
     final Role role = roleFor(actor);
     if (finished() || (priority <= 0 && role == null)) return null;

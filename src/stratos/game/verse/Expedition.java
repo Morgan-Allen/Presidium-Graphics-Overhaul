@@ -50,7 +50,11 @@ public class Expedition implements Session.Saveable {
     TITLE_COUNT           = 1,
     TITLE_BARON           = 2,
     DEFAULT_FUNDING       = 8000,
+    MIN_FUNDING           = 6000,
+    MAX_FUNDING           = 12000,
     DEFAULT_TRIBUTE       = 25,
+    MIN_TRIBUTE           = 10,
+    MAX_TRIBUTE           = 40,
     DEFAULT_MAX_ADVISORS  = 2,
     DEFAULT_MAX_COLONISTS = 8;
   
@@ -123,7 +127,7 @@ public class Expedition implements Session.Saveable {
   
   
   
-  /**  Configuration utilities for use by the new-game flow-
+  /**  Configuration utilities for external use-
     */
   public void setOrigin(Sector l, Faction b) {
     this.backing = b;
@@ -215,20 +219,9 @@ public class Expedition implements Session.Saveable {
     for (Actor a : colonists) if (a.mind.vocation() == b) num++;
     return num;
   }
-
   
   
-  /**  Configuration utilities for use by in-world Missions-
-    */
-  public Expedition configFrom(
-    Sector origin, Sector destination, Faction backing,
-    int titleGranted, int funding, int tributePercent,
-    Series <Actor> applicants
-  ) {
-    this.backing     = backing    ;
-    this.origin      = origin     ;
-    this.destination = destination;
-    
+  public void setApplicants(Series <Actor> applicants) {
     leader = null;
     advisors.clear();
     colonists.clear();
@@ -243,10 +236,23 @@ public class Expedition implements Session.Saveable {
       }
       else colonists.add(a);
     }
+  }
+  
+  
+  public Expedition configFrom(
+    Sector origin, Sector destination, Faction backing,
+    int titleGranted, int funding, int tributePercent,
+    Series <Actor> applicants
+  ) {
+    this.backing     = backing    ;
+    this.origin      = origin     ;
+    this.destination = destination;
     
     this.titleGranted = titleGranted  ;
     this.funding      = funding       ;
     this.tribute      = tributePercent;
+    
+    setApplicants(applicants);
     return this;
   }
   

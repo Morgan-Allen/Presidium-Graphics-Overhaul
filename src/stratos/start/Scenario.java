@@ -35,6 +35,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   private BaseUI UI;
   private String savesPrefix;
+  private boolean skipNextLoad = false;
   private float lastSaveTime = -1;
   
   
@@ -50,6 +51,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     world        = (Stage) s.loadObject();
     base         = (Base) s.loadObject();
     savesPrefix  = s.loadString();
+    skipNextLoad = s.loadBool();
     lastSaveTime = s.loadFloat();
     isDebug      = s.loadBool();
     
@@ -63,6 +65,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     s.saveObject(world       );
     s.saveObject(base        );
     s.saveString(savesPrefix );
+    s.saveBool  (skipNextLoad);
     s.saveFloat (lastSaveTime);
     s.saveBool  (isDebug     );
     UI.saveState(s);
@@ -79,6 +82,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
     if (p instanceof Scenario) return (Scenario) p;
     else I.complain("NO CURRENT SCENARIO BEING PLAYED.");
     return null;
+  }
+  
+  
+  public void skipLoading() {
+    this.skipNextLoad = true;
   }
   
   
@@ -104,7 +112,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     final String savePath = prefix == null ? null : latestSave(prefix);
     I.say("\nSave path is: "+savePath);
     
-    if (SaveUtils.saveExists(savePath)) {
+    if (SaveUtils.saveExists(savePath) && ! skipNextLoad) {
       I.say("\n\nLoading scenario from save file...");
       loadGame(savePath, false);
       return;

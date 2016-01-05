@@ -18,9 +18,9 @@ ACTIVE ITEMS:
    the default texture/s.
    
    (At the moment, the preview_settings.xml class specifies the 'body' texture
-   using 'MaterialGroup.x', which is brittle.  It should be able to usay 'Body'
+   using 'MaterialGroup.x', which is brittle.  It should be able to use 'Body'
    or 'MainGroup', et cetera instead, and possibly use an .xml file provided by
-   the model instead.)
+   the model.)
    
    Bits of the body poking out from the costume is okay for the moment (see
    above)- I've spoken with Gorion/Pawel and that's very hard to avoid with low-
@@ -53,7 +53,7 @@ ACTIVE ITEMS:
    borders, et cetera.)
    
    This is likely to be an elaborate task, but if you take a look at the
-   stratos.user.mainscreen.SelectSitePane class and compare it with, the
+   stratos.user.mainscreen.SelectSitePane class and compare it with the
    stratos.user.VenuePane class, then, e.g, describeStaffing in the latter
    should be using a ListingPane to show mini-widgets for each citizen, rather
    than relying on a Text/Description for everything.

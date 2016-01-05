@@ -195,6 +195,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     }
     
     if (! mission.isApproved(actor)) return null;
+    if (! mission.hasBegun()       ) return null;
     if (  mission.finished()       ) return null;
     
     final Behaviour step;

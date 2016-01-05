@@ -27,12 +27,6 @@
    Ecologist Station
 
 
-   Priority:  Medium  Duration:  Medium
-*  Colonisation of distant sectors is now working in a basic form.
-     Ensure that the same Base is retained.
-     Ensure that starting funds and tribute can be specified, and see if you
-     can specify who gets to be Leader/Advisors- use ExpeditionPane.
-
    Priority:  Medium  Duration:  Short?
 *  This includes setting up trade-relations with distant sectors.  (This should
    just require some tweaks to the Pledge system.)
@@ -73,6 +67,11 @@
 
    Priority:  Low  Duration:  Short
 *  Restore the nursery at the ecologist station.
+
+   Priority:  Low  Duration:  Short to Medium
+*  Expedition-config from a claims-mission could use some more polish (e.g,
+   separate headers for leader/colonist in applicants listing, specification of
+   personal rewards, initial supplies/buildings/landing-site, et cetera.)
 
 
 

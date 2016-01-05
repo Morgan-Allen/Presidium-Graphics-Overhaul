@@ -239,8 +239,8 @@ public abstract class Actor extends Mobile implements
     }
     assignAction(null);
     bindToMount (null);
-    if (normal) removeWorldReferences(world);
     super.exitWorld();
+    if (normal) removeWorldReferences(world);
   }
   
   
