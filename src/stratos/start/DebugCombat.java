@@ -25,8 +25,7 @@ import stratos.content.abilities.*;
 //  Then log the results and move on.
 
 
-public class DebugCombat extends Scenario {
-  
+public class DebugCombat extends AutomatedScenario {
   
   public static void main(String args[]) {
     PlayLoop.setupAndLoop(new DebugCombat());
@@ -88,6 +87,8 @@ public class DebugCombat extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
+    
+    
     ///if (PlayLoop.stateUpdates() % 10 == 0) PathingMap.reportObs();
   }
   
