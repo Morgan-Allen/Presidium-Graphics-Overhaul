@@ -4,26 +4,14 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-import com.badlogic.gdx.math.Vector2;
-
 import stratos.game.base.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 import stratos.graphics.charts.*;
+import com.badlogic.gdx.math.Vector2;
 
-
-
-//  TODO:  Then you can start declaring offworld missions.  (The factory-
-//         methods for each class just have to recognise sectors as viable
-//         targets- and you'll need to script basic methods for evaluating the
-//         outcome of each.)
-
-//  TODO:  Finally, JoinMission will have to allow applicants to (A) exit off-
-//         map, or (B), board a ship in order to conduct remote missions.  And
-//         FactionAI will, conversely, need to implement generateApplicants
-//         before sending missions of their own from remote sectors.
 
 
 public class SectorsPane extends UIGroup implements UIConstants {

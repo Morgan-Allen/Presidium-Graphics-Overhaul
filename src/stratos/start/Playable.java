@@ -17,4 +17,5 @@ public interface Playable {
   boolean isLoading();
   float loadProgress();
   boolean shouldExitLoop();
+  boolean wipeAssetsOnExit();
 }

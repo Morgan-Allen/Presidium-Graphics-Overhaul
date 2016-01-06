@@ -18,9 +18,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 
 
-//  TODO:  The disposal-checks are needed here due to possibility of render-
-//         loop interruption when a new game is loaded- fix that.
-
 public class Minimap extends Assets.Loadable {
   
   
@@ -107,14 +104,6 @@ public class Minimap extends Assets.Loadable {
   
   
   protected State loadAsset() {
-    
-    //  TODO:  Problem is that loading requires two separate Playables- one for
-    //         loading and one for the scenario itself.  Once the loading-loop
-    //         completes, and the sessionStateWipe() call is made, then the
-    //         Minimap loaded beforehand gets disposed, and can't be rendered.
-    
-    //  Okay.  I solve this tomorrow...
-    
     updateGeometry(null);
     return state = State.LOADED;
   }

@@ -5,7 +5,6 @@
   */
 package stratos.start;
 import stratos.util.*;
-
 import java.io.*;
 import java.util.zip.*;
 import java.net.*;
@@ -33,6 +32,10 @@ public class Assets {
     
     final String assetID;
     final Class sourceClass;
+    
+    //  TODO:  Get rid of this and refer directly to the parent Playable object
+    //  instead- that will give you a safer way to filter out the assets that
+    //  actually need disposal.
     final boolean disposeWithSession;
     
     protected State state = State.INIT;
