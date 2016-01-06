@@ -40,8 +40,18 @@ public class DebugCombat extends AutomatedScenario {
   public DebugCombat(Session s) throws Exception {
     super(s);
   }
-  
-  
+
+  @Override
+  protected AutomatedTestResult getCurrentResult() {
+    return AutomatedTestResult.UNKNOWN;
+  }
+
+  @Override
+  protected long getMaxTestDurationMs() {
+    return 10000;
+  }
+
+
   public void saveState(Session s) throws Exception {
     super.saveState(s);
   }

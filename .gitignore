@@ -3,6 +3,7 @@
 .project
 /build
 /save
+/saves
 local.properties
 .idea
 /out
