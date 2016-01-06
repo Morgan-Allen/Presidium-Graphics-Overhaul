@@ -152,14 +152,16 @@ public class BudgetsPane extends SelectionPane {
     
     Text.cancelBullet(d);
     
-    for (Sector partner : BC.partners()) {
+    //  TODO:  This could be moved out to panes for individual Sectors!
+    
+    for (SectorBase partner : BC.partners()) {
       d.append("\n\n");
       d.append(partner);
-      if (partner == BC.homeworld()) d.append("  (Homeworld)");
+      if (partner.location == BC.homeworld()) d.append("  (Homeworld)");
       else d.append(" (Trading Partner)");
       
       final Vehicle nextShip = universe.journeys.nextTraderBetween(
-        partner, locale, base, true
+        partner.location, locale, base, true
       );
       if (nextShip != null) {
         float ETA = universe.journeys.arrivalETA(nextShip, base);
@@ -169,13 +171,13 @@ public class BudgetsPane extends SelectionPane {
       
       d.append("\n ");
       d.append(" (Makes: ");
-      for (Traded t : partner.goodsMade) {
+      for (Traded t : partner.made()) {
         if (t.form != Economy.FORM_MATERIAL) continue;
         Text.insert(t.icon.asTexture(), 20, 20, false, d);
       }
       d.append(")");
       d.append(" (Needs: ");
-      for (Traded t : partner.goodsNeeded) {
+      for (Traded t : partner.needed()) {
         if (t.form != Economy.FORM_MATERIAL) continue;
         Text.insert(t.icon.asTexture(), 20, 20, false, d);
       }
