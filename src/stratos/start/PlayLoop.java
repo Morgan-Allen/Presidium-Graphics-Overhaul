@@ -254,7 +254,9 @@ public final class PlayLoop {
     }
     
     if (playing != prepared) {
-      PlayLoop.sessionStateWipe();
+      if (playing != null && playing.wipeAssetsOnExit()) {
+        PlayLoop.sessionStateWipe();
+      }
       playing = prepared;
     }
     loopChanged = false;

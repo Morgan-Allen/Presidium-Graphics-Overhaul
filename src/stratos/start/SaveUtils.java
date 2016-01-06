@@ -186,9 +186,9 @@ public class SaveUtils {
     final Playable loading = new Playable() {
       
       private boolean begun = false, done = false;
-      private Session session = null;
-      private Scenario loaded = null;
-
+      private Session  session = null;
+      private Scenario loaded  = null;
+      
       public stratos.graphics.widgets.HUD UI() { return null; }
       public void updateGameState() {}
       public void renderVisuals(stratos.graphics.common.Rendering rendering) {}
@@ -202,6 +202,11 @@ public class SaveUtils {
       
       public boolean shouldExitLoop() {
         if (done) PlayLoop.setupAndLoop(loaded);
+        return false;
+      }
+      
+      
+      public boolean wipeAssetsOnExit() {
         return false;
       }
       

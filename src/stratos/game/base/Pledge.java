@@ -7,6 +7,7 @@ package stratos.game.base;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.game.economic.*;
 import stratos.util.*;
 
@@ -448,6 +449,42 @@ public class Pledge implements Session.Saveable {
     return new Pledge(TYPE_AUDIENCE, to, from);
   }
   
+  
+  
+  final public static Type TYPE_OPEN_BORDERS = new Type("Open Borders") {
+    
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      return new Pledge[] { new Pledge(this, makesTo.base(), makes) };
+    }
+    
+    
+    String description(Pledge p) {
+      return "Open Borders with "+p.refers;
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      final Base       base  = (Base) p.refers;
+      final Verse      verse = base.world.offworld;
+      final Sector     with  = verse.currentSector(p.makes);
+      final SectorBase SB    = verse.baseForSector(with);
+      final float      mult  = Plan.PARAMOUNT;
+      return Faction.relationValue(SB.faction(), base.faction(), verse) * mult;
+    }
+    
+    
+    Behaviour fulfillment(Pledge p, Pledge reward) {
+      final Base   base = (Base) p.refers;
+      final Sector with = base.world.offworld.currentSector(p.makes);
+      base.commerce.togglePartner(with, true);
+      return null;
+    }
+  };
+  
+  public static Pledge openBordersPledge(Base base, SectorBase with) {
+    return new Pledge(TYPE_OPEN_BORDERS, base, with.ruler());
+  }
   
   
   //  TODO:  FIND A MORE EFFICIENT WAY TO HANDLE THIS!

@@ -47,6 +47,11 @@ public abstract class VisualDebug implements Playable {
   }
   
   
+  public boolean wipeAssetsOnExit() {
+    return true;
+  }
+  
+  
   public void updateGameState() {
   }
   

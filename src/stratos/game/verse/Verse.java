@@ -273,7 +273,9 @@ public class Verse implements Session.Saveable {
       0.35f, SWAMPLANDS,
       0.25f, FOREST,
       0.25f, MEADOW,
-      Qudu.SPECIES, Hareen.SPECIES
+      Qudu.SPECIES, Hareen.SPECIES,
+      
+      Sector.MAKES, CARBS, GREENS
     ),
     SECTOR_PAVONIS = new Sector(
       Verse.class, "Pavonis Sector", null, FACTION_WILDLIFE,
@@ -283,7 +285,9 @@ public class Verse implements Session.Saveable {
       0.35f, MEADOW,
       0.15f, SAVANNAH,
       0.10f, BARRENS,
-      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES
+      Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES,
+      
+      Sector.MAKES, SPYCES, PROTEIN
     ),
     SECTOR_TERRA = new Sector(
       Verse.class, "Terra Sector", null, FACTION_WILDLIFE,
@@ -293,7 +297,9 @@ public class Verse implements Session.Saveable {
       0.25f, BARRENS,
       0.40f, DUNE,
       0.15f, CURSED_EARTH,
-      Drone.SPECIES
+      Drone.SPECIES,
+      
+      Sector.MAKES, METALS, FUEL_RODS
     ),
     
     ALL_DIAPSOR_SECTORS[] = {

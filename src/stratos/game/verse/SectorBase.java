@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.CombatUtils;
 import stratos.user.BaseUI;
+import stratos.game.actors.Backgrounds;
 import stratos.game.base.*;
 import stratos.util.*;
 
@@ -20,15 +21,17 @@ import stratos.util.*;
 
 public class SectorBase implements Session.Saveable, Schedule.Updates {
   
-
+  
   final public Verse universe;
   final public Sector location;
 
   private Faction faction;
   private Actor ruler;
   private List <Mobile> allUnits = new List();
-  
   private float popLevel, powerLevel;
+  
+  private Tally <Traded> demandLevels = new Tally();
+  private Traded[] needed = Economy.NO_GOODS, made = Economy.NO_GOODS;
   
   
   protected SectorBase(Verse universe, Sector init) {
@@ -53,6 +56,9 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     
     popLevel   = s.loadFloat();
     powerLevel = s.loadFloat();
+    s.loadTally(demandLevels);
+    needed = (Traded[]) s.loadObjectArray(Traded.class);
+    made   = (Traded[]) s.loadObjectArray(Traded.class);
   }
   
   
@@ -67,6 +73,9 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     
     s.saveFloat(popLevel  );
     s.saveFloat(powerLevel);
+    s.saveTally(demandLevels);
+    s.saveObjectArray(needed);
+    s.saveObjectArray(made  );
   }
   
   
@@ -156,6 +165,9 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
       final Journey.Purpose a = Journey.activityFor(m);
       if (a != null) a.whileOffworld();
     }
+    
+    updatePopulation();
+    updateEconomy();
     //
     //  TODO:  Allow all residents a chance to apply for work elsewhere, or
     //  the faction's own missions- use that to replace candidate generation in
@@ -211,21 +223,98 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   }
   
   
+  /**  Population-specific update methods-
+    */
+  protected void updatePopulation() {
+    if (faction == null || faction.primal()) return;
+    final Sector home = faction.startSite();
+    if (home == null) return;
+    
+    if (ruler == null) {
+      ruler = Backgrounds.KNIGHTED.sampleFor(faction);
+      toggleUnit(ruler, true);
+    }
+  }
+  
+  
+  
   protected void generateApplicants(Mission mission) {
     
   }
   
   
+  
+  /**  Economy-specific update methods-
+    */
+  //  TODO:  Ideally, this could be moved out to the BaseCommerce class, and
+  //         then that could be queried for the demands of both SectorBases and
+  //         bases in the world.
+  
   protected void updateEconomy() {
-    
+    if (faction == null || faction.primal()) return;
+    final Sector home = faction.startSite();
+    if (home == null) return;
+    //
+    //  Base goods in demand or supplied on the average of homeworld with
+    //  local resources, but increase demand for finished goods based on
+    //  population levels.
+    demandLevels.clear();
+    for (Traded t : home.goodsMade) {
+      demandLevels.add(-0.5f * home.population, t);
+    }
+    for (Traded t : home.goodsNeeded) {
+      demandLevels.add( 0.5f * home.population, t);
+    }
+    //
+    //  (We skip local-averaging for the homeworlds themselves...)
+    if (home != location) {
+      for (Traded t : location.goodsMade) {
+        demandLevels.add(-0.5f * (this.popLevel + 1), t);
+      }
+      for (Traded t : Economy.ALL_FINISHED_GOODS) {
+        demandLevels.add(0.5f * this.popLevel / 2f, t);
+      }
+    }
+    //
+    //  ...Then compile and store the result.
+    final Batch <Traded> needB = new Batch(), makeB = new Batch();
+    for (Traded t : demandLevels.keys()) {
+      final float level = demandLevels.valueFor(t);
+      if (level <= -0.5f) makeB.add(t);
+      if (level >   0.5f) needB.add(t);
+    }
+    this.needed = needB.toArray(Traded.class);
+    this.made   = makeB.toArray(Traded.class);
+  }
+  
+  
+  public Traded[] needed() {
+    return needed;
+  }
+  
+  
+  public Traded[] made() {
+    return made;
+  }
+  
+  
+  public float demandLevel(Traded t) {
+    return demandLevels.valueFor(t);
+  }
+  
+  
+  public float supplyLevel(Traded t) {
+    return 0 - demandLevels.valueFor(t);
   }
   
   
   
   /**  Rendering, debug and interface methods-
     */
-  
-  
+  public String toString() {
+    //  TODO:  This needs to be more customised!
+    return location.name;
+  }
 }
 
 

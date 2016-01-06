@@ -173,6 +173,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
+  public boolean wipeAssetsOnExit() {
+    return true;
+  }
+  
+  
   protected BaseUI createUI(Base base, Rendering rendering) {
     BaseUI UI = new BaseUI(base.world, this, rendering);
     UI.assignBaseSetup(base, new Vec3D(8, 8, 0));
