@@ -8,6 +8,7 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.CombatUtils;
 import stratos.user.BaseUI;
+import stratos.game.actors.Backgrounds;
 import stratos.game.base.*;
 import stratos.util.*;
 
@@ -164,6 +165,9 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
       final Journey.Purpose a = Journey.activityFor(m);
       if (a != null) a.whileOffworld();
     }
+    
+    updatePopulation();
+    updateEconomy();
     //
     //  TODO:  Allow all residents a chance to apply for work elsewhere, or
     //  the faction's own missions- use that to replace candidate generation in
@@ -219,6 +223,21 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   }
   
   
+  /**  Population-specific update methods-
+    */
+  protected void updatePopulation() {
+    if (faction == null || faction.primal()) return;
+    final Sector home = faction.startSite();
+    if (home == null) return;
+    
+    if (ruler == null) {
+      ruler = Backgrounds.KNIGHTED.sampleFor(faction);
+      toggleUnit(ruler, true);
+    }
+  }
+  
+  
+  
   protected void generateApplicants(Mission mission) {
     
   }
@@ -232,7 +251,9 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   //         bases in the world.
   
   protected void updateEconomy() {
-    final Sector home = faction().startSite();
+    if (faction == null || faction.primal()) return;
+    final Sector home = faction.startSite();
+    if (home == null) return;
     //
     //  Base goods in demand or supplied on the average of homeworld with
     //  local resources, but increase demand for finished goods based on
@@ -251,7 +272,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
         demandLevels.add(-0.5f * (this.popLevel + 1), t);
       }
       for (Traded t : Economy.ALL_FINISHED_GOODS) {
-        demandLevels.add(0.5f * (this.popLevel - 1), t);
+        demandLevels.add(0.5f * this.popLevel / 2f, t);
       }
     }
     //
@@ -290,8 +311,10 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   /**  Rendering, debug and interface methods-
     */
-  
-  
+  public String toString() {
+    //  TODO:  This needs to be more customised!
+    return location.name;
+  }
 }
 
 

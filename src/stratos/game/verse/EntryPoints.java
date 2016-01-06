@@ -69,7 +69,7 @@ public class EntryPoints {
   public static Tile findBorderPoint(
     Boarding inWorld, Sector offWorld, Tile cachedPoint, Base client
   ) {
-    final Stage  world = inWorld.world();
+    final Stage  world = client.world;
     final Sector local = world.localSector();
     if (! local.borders(offWorld)) return null;
     //
@@ -166,6 +166,7 @@ public class EntryPoints {
   public static Vehicle findTransport(
     Boarding from, Sector goes, Base client
   ) {
+    if (from == null || ! from.inWorld()) return null;
     final Stage world = from.world();
     final Pick <Vehicle> pick = new Pick();
     

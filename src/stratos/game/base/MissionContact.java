@@ -115,6 +115,16 @@ public class MissionContact extends Mission {
   /**  Importance/suitability assessment-
     */
   public static MissionContact contactFor(Object target, Base base) {
+    if (target instanceof Sector) {
+      final Sector sector = (Sector) target;
+      final SectorBase SB = base.world.offworld.baseForSector(sector);
+      final Actor ruler = SB.ruler();
+      if (ruler == null) return null;
+      
+      final MissionContact mission = new MissionContact(base, ruler);
+      mission.setJourney(Journey.configForMission(mission, true));
+      return mission.journey() == null ? null : mission;
+    }
     if (Summons.canSummon(target, base)) {
       final Actor summoned = (Actor) target;
       final MissionContact mission = new MissionContact(base, summoned);

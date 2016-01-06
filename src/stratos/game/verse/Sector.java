@@ -281,10 +281,6 @@ public class Sector extends Background {
     d.appendList("\nNative Species:", (Object[]) nativeSpecies);
     d.appendList("\nHabitats: "     , (Object[]) habitats     );
     
-    d.append("\n");
-    d.appendList("\nGoods made: "  , (Object[]) goodsMade  );
-    d.appendList("\nGoods needed: ", (Object[]) goodsNeeded);
-    
     /*
     d.append("\n\nCommon backgrounds: ");
     for (Background b : circles.keySet()) {
@@ -302,19 +298,37 @@ public class Sector extends Background {
     final Base played = BaseUI.currentPlayed();
     if (played != null) {
       final Verse verse = played.world.offworld;
-      
-      //Scenario active = verse.scenarioFor(this);
-      
       final SectorBase base = verse.baseForSector(this);
+      
+      if (base.faction() == null) {
+        d.append("\n");
+        d.appendList("\nProduces: ", (Object[]) goodsMade  );
+        d.appendList("\nShort of: ", (Object[]) goodsNeeded);
+        
+        //Scenario active = verse.scenarioFor(this);
+      }
+      else {
+        d.append("\n");
+        d.appendAll("\nClaimed by: ", base.faction());
+        d.appendAll("\nGoverned by: ", base.ruler());
+        
+        d.append("\n");
+        d.appendList("\nGoods made: "  , (Object[]) base.made  ());
+        d.appendList("\nGoods needed: ", (Object[]) base.needed());
+      }
       if (! base.allUnits().empty()) {
         d.append("\nResidents: ");
         for (Mobile m : base.allUnits()) {
           d.appendAll("\n  ", m);
         }
       }
-      
     }
+    
     else if (startingOwner != null) {
+      d.append("\n");
+      d.appendList("\nGoods made: "  , (Object[]) goodsMade  );
+      d.appendList("\nGoods needed: ", (Object[]) goodsNeeded);
+      
       d.append("\n\n");
       d.appendAll("Ruled by ", startingOwner, "\n");
       d.append(startingOwner.startInfo);
