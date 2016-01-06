@@ -65,11 +65,11 @@ public abstract class ActorMind {
   
   
   public void onWorldExit() {
+    cancelBehaviour(topBehaviour(), "Exiting world!");
     setWork(null);
     setHome(null);
     assignMission(null);
     clearAgenda();
-    actor.relations.clearAll();
   }
   
   

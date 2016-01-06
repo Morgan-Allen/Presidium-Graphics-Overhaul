@@ -33,8 +33,8 @@ public class MissionPane extends SelectionPane {
     this.viewing = BaseUI.currentPlayed();
     this.mission = selected;
   }
-
-
+  
+  
   public SelectionPane configOwningPanel() {
     //
     //  Obtain some basic facts about the mission and shorthand variables
@@ -68,7 +68,6 @@ public class MissionPane extends SelectionPane {
   protected void describeStatus(
     final Mission mission, boolean canChange, Description d
   ) {
-    //final Colour FIXED = Colour.LITE_GREY;
     //
     //  Firstly, declare the mission's patron and current status:
     final Base declares = mission.base();
@@ -79,6 +78,7 @@ public class MissionPane extends SelectionPane {
     d.append("\n  Status:  "+mission.progressDescriptor());
     
     if (declares == viewing) describeOrders(canChange, d);
+    if (confirmAbort) return;
     d.append("\n");
     
     //

@@ -18,7 +18,7 @@ public class Journey implements Session.Saveable {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    verbose = true ;
+    verbose = false;
   
   final public static int
     IS_TRADING   = 1 << 0,
@@ -239,7 +239,7 @@ public class Journey implements Session.Saveable {
   }
   
   
-  public static Journey configForMission(Mission mission) {
+  public static Journey configForMission(Mission mission, boolean returns) {
     final Base   base   = mission.base();
     final Verse  verse  = base.world.offworld;
     final Sector locale = base.world.localSector();
@@ -247,7 +247,10 @@ public class Journey implements Session.Saveable {
     if (goes == null || goes == locale) return null;
     
     final Boarding pathTo = base.HQ();
-    final int props = IS_MISSION | IS_RETURN;
+    final int props;
+    if (returns) props = IS_MISSION | IS_RETURN;
+    else         props = IS_MISSION | IS_SINGLE;
+    
     final Journey journey = new Journey(verse, props, base);
     journey.origin      = locale;
     journey.destination = goes;
@@ -279,7 +282,7 @@ public class Journey implements Session.Saveable {
   private boolean checkTransitPoint() {
     final boolean leaveWorld = origin      == verse.stageLocation();
     final boolean visitWorld = destination == verse.stageLocation();
-    final boolean airborne = transport != null && transport.motionFlyer();
+    final boolean airborne   = transport != null && transport.motionFlyer();
     //
     //  If you can't fly, you can't visit distant sectors:
     if ((! airborne) && (! origin.borders(destination))) {
@@ -398,7 +401,7 @@ public class Journey implements Session.Saveable {
     final boolean report = verbose;
     final String  label  = report ? ""+labelObject() : "";
     if (report) {
-      reportJourneyState("\nUpdating journey for "+label);
+      reportJourneyState("\nUpdating journey for: "+label);
     }
     //
     //  Basic variable setup-

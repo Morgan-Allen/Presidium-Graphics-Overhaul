@@ -111,7 +111,14 @@ public final class Economy {
       BC, "Circuitry", "circuitry.gif", FORM_MATERIAL, 80,
       "Used to manufacture terminals and other advanced devices"
     ),
-    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, CIRCUITRY);
+    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, CIRCUITRY),
+    
+    ALL_RAW_MATERIALS[] = (Traded[]) Visit.compose(
+      Traded.class, ALL_FOOD_TYPES, ALL_MINERAL_TYPES
+    ),
+    ALL_FINISHED_GOODS[] = (Traded[]) Visit.compose(
+      Traded.class, ALL_DRUG_TYPES, ALL_WARES_TYPES
+    );
   
   
   final public static Traded

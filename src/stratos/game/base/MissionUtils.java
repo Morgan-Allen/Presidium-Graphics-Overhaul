@@ -23,6 +23,12 @@ public class MissionUtils {
   
   
   public static float competence(Actor actor, Mission mission) {
+    //
+    //  TODO:  This clearly needs a more nuanced evaluation:
+    if (mission.isOffworld()) {
+      return 0.5f;
+    }
+    
     final Behaviour step = mission.nextStepFor(actor, true);
     if (step == null) return 0;
     step.priorityFor(actor);

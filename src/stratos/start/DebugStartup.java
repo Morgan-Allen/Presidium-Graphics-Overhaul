@@ -40,7 +40,11 @@ public class DebugStartup {
       public boolean shouldExitLoop() {
         return false;
       }
-
+      
+      public boolean wipeAssetsOnExit() {
+        return true;
+      }
+      
       
       public void updateGameState() {}
       public void renderVisuals(Rendering rendering) {}

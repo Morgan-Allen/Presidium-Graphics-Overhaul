@@ -18,9 +18,6 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 
 
 
-//  TODO:  The disposal-checks are needed here due to possibility of render-
-//         loop interruption when a new game is loaded- fix that.
-
 public class Minimap extends Assets.Loadable {
   
   
@@ -115,8 +112,8 @@ public class Minimap extends Assets.Loadable {
   protected State disposeAsset() {
     if (! stateLoaded()) return State.ERROR;
     if (mapImage != null) mapImage.dispose();
-    mapMesh.dispose();
-    shading.dispose();
+    if (mapMesh  != null) mapMesh .dispose();
+    if (shading  != null) shading .dispose();
     return state = State.DISPOSED;
   }
   
@@ -156,7 +153,7 @@ public class Minimap extends Assets.Loadable {
   
   public void renderWith(FogOverlay fogApplied) {
     if (! stateLoaded()) {
-      I.say("RENDERING CALL WHEN DISPOSED");
+      ///I.say("RENDERING CALL WHEN DISPOSED");
       return;
     }
     

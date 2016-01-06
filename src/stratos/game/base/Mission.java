@@ -470,9 +470,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (journey != null && journey.hasArrived()) {
       resolveMissionOffworld();
       stage = STAGE_RESOLVED;
-      journey.beginReturnTrip();
+      if (journey.returns()) journey.beginReturnTrip();
     }
-    if (journey != null && journey.didReturn()) {
+    if (journey != null && journey.complete()) {
       endMission(true);
     }
     //
@@ -538,7 +538,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   /**  Behaviour implementation for the benefit of any applicants/agents:
     */
   public Behaviour nextStepFor(Actor actor, boolean create) {
-    if (hasBegun()) updateMission();
+    if (create && hasBegun()) updateMission();
     
     final Role role = roleFor(actor);
     if (finished() || (priority <= 0 && role == null)) return null;
@@ -841,14 +841,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   private void returnSelectionAfterward() {
-    if (! BaseUI.paneOpenFor(this)) return;
     final BaseUI UI = BaseUI.current();
-    
-    if (visibleTo(UI.played()) && (subject instanceof Selectable)) {
+    if (
+      UI != null && BaseUI.paneOpenFor(this) &&
+      visibleTo(UI.played()) && (subject instanceof Selectable)
+    ) {
       Selection.pushSelection((Selectable) subject, null);
     }
     else {
       Selection.pushSelection(null, null);
+      if (UI != null) UI.clearInfoPane();
     }
   }
   

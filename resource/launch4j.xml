@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>console</headerType>
   <jar>include\*.jar</jar>
-  <outfile>.\build\Stratos.exe</outfile>
+  <outfile>Stratos.exe</outfile>
   <errTitle>Rombo</errTitle>
   <cmdLine>-exe</cmdLine>
   <chdir>.</chdir>
@@ -12,8 +12,8 @@
   <supportUrl>http://keray.eu/java.html</supportUrl>
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
-  <manifest/>
-  <icon/>
+  <manifest></manifest>
+  <icon></icon>
   <classPath>
     <mainClass>StartPresidium</mainClass>
     <cp>include/*.jar</cp>
@@ -23,11 +23,11 @@
     <bundledJre64Bit>false</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
     <minVersion>1.6.0</minVersion>
-    <maxVersion/>
+    <maxVersion></maxVersion>
     <jdkPreference>preferJdk</jdkPreference>
     <runtimeBits>32/64</runtimeBits>
     <maxHeapSize>512</maxHeapSize>
-    <opt>-Dlaunch4j.exefile="%EXEFILE%"</opt>
+    <opt>-Dlaunch4j.exefile=&quot;%EXEFILE%&quot;</opt>
     <opt>-Xverify:none</opt>
     <opt>-Xmx512m</opt>
     <opt>-Dsun.java2d.noddraw=true</opt>

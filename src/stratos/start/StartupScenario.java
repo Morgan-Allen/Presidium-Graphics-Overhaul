@@ -6,7 +6,6 @@
 package stratos.start;
 import stratos.content.civic.*;
 import stratos.game.actors.*;
-import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -25,24 +24,28 @@ public class StartupScenario extends Scenario {
     MAP_SIZES [] = { 128, 128, 128 },
     WALL_SIZES[] = { 16, 20, 24 };
   
-  private Expedition expedition;
+  final Verse verse;
+  final Expedition expedition;
   
   
   
-  public StartupScenario(Expedition config, String prefix) {
+  public StartupScenario(Expedition config, Verse verse, String prefix) {
     super(prefix, false);
+    this.verse      = verse;
     this.expedition = config;
   }
   
   
   public StartupScenario(Session s) throws Exception {
     super(s);
+    this.verse      = (Verse     ) s.loadObject();
     this.expedition = (Expedition) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObject(verse     );
     s.saveObject(expedition);
   }
   
@@ -51,8 +54,8 @@ public class StartupScenario extends Scenario {
   /**  Required setup methods-
     */
   protected Stage createWorld() {
+    if (verse.stage() != null) verse.onStageDeletion(verse.stage());
     
-    final Verse        verse   = new Verse();
     final int          mapSize = MAP_SIZES[expedition.titleGranted()];
     final Sector       locale  = expedition.destination();
     final TerrainGen   TG      = locale.initialiseTerrain(mapSize);
@@ -62,6 +65,7 @@ public class StartupScenario extends Scenario {
     TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
     Flora.populateFlora(world);
+    world.advanceCurrentTime(verse.startingDate() - Stage.DEFAULT_INIT_TIME);
     world.readyAfterPopulation();
     return world;
   }

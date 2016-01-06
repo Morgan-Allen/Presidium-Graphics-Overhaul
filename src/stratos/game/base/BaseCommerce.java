@@ -43,7 +43,7 @@ public class BaseCommerce {
   final Base base;
   
   protected Sector homeworld = Verse.DEFAULT_HOMEWORLD;
-  final List <Sector> partners = new List <Sector> ();
+  final List <SectorBase> partners = new List();
   protected int maxShipsPerDay = 0;
   final List <Actor> candidates = new List <Actor> ();
   
@@ -116,12 +116,13 @@ public class BaseCommerce {
   
   
   public void togglePartner(Sector s, boolean is) {
-    if (is) partners.include(s);
-    else    partners.remove (s);
+    final SectorBase SB = base.world.offworld.baseForSector(s);
+    if (is) partners.include(SB);
+    else    partners.remove (SB);
   }
   
   
-  public Series <Sector> partners() {
+  public Series <SectorBase> partners() {
     return partners;
   }
   
@@ -311,14 +312,14 @@ public class BaseCommerce {
         basePrice = type.defaultPrice(),
         importMul = 2, exportDiv = 2,
         avgDemand = 0, homeBonus = 0;
-      for (Sector partner : partners) {
-        if (Visit.arrayIncludes(partner.goodsMade  , type)) {
-          avgDemand--;
+      for (SectorBase partner : partners) {
+        if (Visit.arrayIncludes(partner.made()  , type)) {
+          avgDemand -= partner.supplyLevel(type) * 2;
         }
-        if (Visit.arrayIncludes(partner.goodsNeeded, type)) {
-          avgDemand++;
+        if (Visit.arrayIncludes(partner.needed(), type)) {
+          avgDemand += partner.demandLevel(type) * 2;
         }
-        if (partner == homeworld) homeBonus++;
+        if (partner.location == homeworld) homeBonus++;
       }
       //
       //  Goods that are in demand offworld are more expensive to import but

@@ -188,8 +188,6 @@ public class SelectCrewPane extends MenuPane {
   
   
   
-  
-  
   /**  Other navigation tasks.
     */
   private boolean canProgress() {
@@ -201,7 +199,8 @@ public class SelectCrewPane extends MenuPane {
   
   private void pushNextPane() {
     String prefix = SaveUtils.uniqueVariant(expedition.leader().fullName());
-    final StartupScenario newGame = new StartupScenario(expedition, prefix);
+    final Verse verse = new Verse();
+    StartupScenario newGame = new StartupScenario(expedition, verse, prefix);
     PlayLoop.setupAndLoop(newGame);
   }
   

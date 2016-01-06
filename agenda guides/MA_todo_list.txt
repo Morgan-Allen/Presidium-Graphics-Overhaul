@@ -1,5 +1,9 @@
 
 
+   Priority:  Medium  Duration:  Short?
+*  This includes setting up trade-relations with distant sectors.  (This should
+   just require some tweaks to the Pledge system.)
+
    Priority:  Medium-High  Duration:  Medium-Long
 *  Initial missions:
    Planitia Sector (robots + ruins, artifact.)
@@ -7,8 +11,9 @@
    Aeolis Sector (desert plus wildlife.)
    Marineris Sector (neutral + water/islands.  Some wildlife.)
    
-   Put together blurbs/ideas for the others.  And you'll need the ability to
-   assign custom scenario-classes.
+   You'll need the ability to associate custom scenario-classes with various
+   sectors (and possibly the ability to apply event-scripts within an existing
+   scenario based on later outcomes.)
 
    Priority:  Medium  Duration:  Short?
 *  Patch up visual bugs and media assets in the new-game UI sequence.
@@ -25,7 +30,7 @@
    Physician Station
    Ecologist Station
 
-
+   
    Priority:  High  Duration:  Long
 *  Raids by roachmen are far too frequent- I think they need to follow the
    same pattern as either house-raids or wandering monsters.  Add some general
@@ -39,34 +44,41 @@
 
    Priority:  High  Duration:  Long
 *  You need to add resolution-effects for any available missions offworld- and
-   to ensure that offworld-bases can select targets in-world effectively.
+   try to include spawn-events for a variety of missions in-world?
    
    Strike
    Recon
    Security
    Contact
 
-   Priority:  Medium  Duration:  Short?
-*  This includes setting up trade-relations with distant sectors.  (This should
-   just require some tweaks to the Pledge system.)
-
-   Priority:  Medium  Duration:  Medium
-*  Finally, colonisation of distant sectors also needs to be possible.  (This
-   will require tearing down the old Stage/World and replacing it with a new
-   one, when/if the player wants to start a new settlement.  That's an
-   architectural change, and you may want to revamp Migration plans as well?)
-
    Priority:  Medium  Duration:  Short
 *  Offworld-missions will have to be screened, at minimum- and you should allow
    custom settings for mission-types available per mission.
 
 
+   Priority:  Low  Duration:  Short?
+*  You need more distinctive symbols for Claiming and Research missions.
+
+   Priority:  Medium-Low  Duration:  Short
+*  The 'savannah' terrain-type needs filling in!
+
+   Priority:  Medium-Low  Duration:  Short
+*  Wall-distribution around the Bastion needs patching.
 
    Priority:  Medium-Low  Duration:  Short?
 *  Patch up terrain-FX for the excavation site.
 
    Priority:  Low  Duration:  Short
 *  Restore the nursery at the ecologist station.
+
+   Priority:  Low  Duration:  Short to Medium
+*  Expedition-config from a claims-mission could use some more polish (e.g,
+   separate headers for leader/colonist in applicants listing, specification of
+   personal rewards, initial supplies/buildings/landing-site, et cetera.)
+   
+   In addition, trade-partners and tech-levels should be retained!
+
+
 
 
 

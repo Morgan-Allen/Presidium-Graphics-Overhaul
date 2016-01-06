@@ -175,14 +175,9 @@ public class SaveUtils {
   }
   
   
-  
-  //  TODO:  This method should *definitely* only be called from a specific
-  //  point in the overall play-loop sequence.  Fix that.
-  
   public static void loadGame(
     final String saveFile, final boolean fromMenu
   ) {
-    PlayLoop.sessionStateWipe();
     deleteAllLaterSaves(saveFile);
     
     final String fullPath = SAVES_DIR+inSavesFolder(saveFile);
@@ -191,9 +186,9 @@ public class SaveUtils {
     final Playable loading = new Playable() {
       
       private boolean begun = false, done = false;
-      private Session session = null;
-      private Scenario loaded = null;
-
+      private Session  session = null;
+      private Scenario loaded  = null;
+      
       public stratos.graphics.widgets.HUD UI() { return null; }
       public void updateGameState() {}
       public void renderVisuals(stratos.graphics.common.Rendering rendering) {}
@@ -207,6 +202,11 @@ public class SaveUtils {
       
       public boolean shouldExitLoop() {
         if (done) PlayLoop.setupAndLoop(loaded);
+        return false;
+      }
+      
+      
+      public boolean wipeAssetsOnExit() {
         return false;
       }
       

@@ -62,7 +62,7 @@ public class MissionRecon extends Mission {
   public static MissionRecon reconFor(Object target, Base base) {
     if (target instanceof Sector && target != base.location) {
       final MissionRecon m = new MissionRecon(base, (Sector) target);
-      m.setJourney(Journey.configForMission(m));
+      m.setJourney(Journey.configForMission(m, true));
       return m.journey() == null ? null : m;
     }
     if (target instanceof Tile && Exploring.canExplore(base, (Tile) target)) {
