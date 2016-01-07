@@ -27,58 +27,47 @@ import stratos.content.abilities.*;
 
 public class DebugCombat extends AutomatedScenario {
   
+  
+  /**  Data fields, constructors and save/load methods-
+    */
   Batch <Actor> ourSoldiers;
   Batch <Actor> enemySoldiers;
   
-  public static void main(String args[]) {
-    PlayLoop.setupAndLoop(new DebugCombat());
-  }
-  
   
   private DebugCombat() {
-    super("debug_combat", true);
+    super("debug_combat");
   }
   
   
   public DebugCombat(Session s) throws Exception {
     super(s);
+    s.loadObjects(ourSoldiers  );
+    s.loadObjects(enemySoldiers);
   }
-
-  @Override
-  protected AutomatedTestResult getCurrentResult() {
-    boolean ourSoldiersDead = everyoneIsDeadOrKnockedOut(ourSoldiers),
-            enemySoldiersDead = everyoneIsDeadOrKnockedOut(enemySoldiers);
-
-    if (ourSoldiersDead || enemySoldiersDead) {
-      return AutomatedTestResult.PASSED;
-    }
-
-    // still waiting
-    return AutomatedTestResult.UNKNOWN;
-  }
-
-  boolean everyoneIsDeadOrKnockedOut(Batch <Actor> actors) {
-    for (Actor actor : actors) {
-      if (actor.health.conscious() && !actor.health.isDead()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  @Override
-  protected long getMaxTestDurationMs() {
-    return 1000 * 60 * 3;
-  }
-
-
+  
+  
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObjects(ourSoldiers  );
+    s.saveObjects(enemySoldiers);
   }
-
   
+  
+  
+  /**  Initial setup methods for before/after construction-
+    */
+  public static void main(String args[]) {
+    PlayLoop.setupAndLoop(new DebugCombat());
+  }
+  
+   
   public void beginGameSetup() {
     super.initScenario("debug_combat");
+  }
+  
+  
+  protected void afterCreation() {
+    return;
   }
   
   
@@ -117,10 +106,40 @@ public class DebugCombat extends AutomatedScenario {
   
   public void updateGameState() {
     super.updateGameState();
-    
-    
     ///if (PlayLoop.stateUpdates() % 10 == 0) PathingMap.reportObs();
   }
+  
+
+  
+  /**  Test evaluation and duration, plus actual scenario definitions-
+    */
+  protected TestResult getCurrentResult() {
+    boolean
+      ourSoldiersDead   = everyoneIsDeadOrKnockedOut(ourSoldiers  ),
+      enemySoldiersDead = everyoneIsDeadOrKnockedOut(enemySoldiers);
+    
+    if (ourSoldiersDead || enemySoldiersDead) {
+      return TestResult.PASSED;
+    }
+    // still waiting
+    return TestResult.UNKNOWN;
+  }
+  
+
+  boolean everyoneIsDeadOrKnockedOut(Batch <Actor> actors) {
+    for (Actor actor : actors) {
+      if (actor.health.conscious() && actor.health.alive()) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  
+  protected long getMaxTestDurationMs() {
+    return 1000 * 60 * 3;
+  }
+  
   
   
   private void raidingScenario(Stage world, Base base, BaseUI UI) {
@@ -278,10 +297,6 @@ public class DebugCombat extends AutomatedScenario {
       }
     }
     this.enemySoldiers = enemySoldiers;
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 
