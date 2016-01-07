@@ -86,6 +86,7 @@ public class NegotiationPane extends MissionPane {
         }
       });
       if (showMenu) for (final Pledge.Type type : Pledge.TYPE_INDEX) {
+        if (! type.canMakePledge(ruler, subject)) continue;
         final Pledge pledges[] = type.variantsFor(ruler, subject);
         if (pledges == null || pledges.length == 0) continue;
         //

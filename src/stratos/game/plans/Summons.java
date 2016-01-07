@@ -413,12 +413,12 @@ public class Summons extends Plan implements Messaging {
     final BaseUI UI, final Actor with, String lead
   ) {
     final Stack <Link> responses = new Stack <Link> ();
+    final Actor ruler = UI.played().ruler();
+    if (! Pledge.TYPE_JOIN_MISSION.canMakePledge(with, ruler)) return;
     
     //  TODO:  If the offer is rejected, elaborate on why, and possibly suggest
     //  a counter-offer.  Also, consider an option to 'insist' on joining?
-    //
     
-    final Actor ruler = UI.played().ruler();
     for (Pledge p : Pledge.TYPE_JOIN_MISSION.variantsFor(with, ruler)) {
       final Mission m = (Mission) p.refers();
       final JoinMission joining = JoinMission.resume(with, m);

@@ -354,7 +354,7 @@ public class BaseTransport {
   ) {
     //
     //  First, tabulate total supply and demand within the area-
-    final boolean report = distroVerbose && BaseUI.currentPlayed() == base;
+    final boolean report = BaseUI.currentPlayed() == base && distroVerbose;
     Venue lastRep = null;
     if (report) I.say("\nDistributing provisions through paving network-");
     
@@ -370,13 +370,13 @@ public class BaseTransport {
           I.say("  Have reached: "+s);
           lastRep = s;
         }
-        if (in > 0) {
-          provSupply[i] += in;
-          if (report) I.say("    "+type+" supply: "+in);
-        }
         if (out > 0) {
-          provDemand[i] += out - in;
-          if (report) I.say("    "+type+" demand: "+out);
+          provSupply[i] += out - in;
+          if (report) I.say("    "+type+" supply: "+out);
+        }
+        if (in > 0) {
+          provDemand[i] += in;
+          if (report) I.say("    "+type+" demand: "+in);
         }
       }
     }
@@ -404,8 +404,7 @@ public class BaseTransport {
           c = venue.stocks.consumption(type),
           p = venue.stocks.production (type)
         ;
-        if      (p > 0) venue.stocks.setAmount(type, p - c          );
-        else if (c > 0) venue.stocks.setAmount(type, c * supplyRatio);
+        venue.stocks.setAmount(type, p + (c * supplyRatio));
       }
     }
   }

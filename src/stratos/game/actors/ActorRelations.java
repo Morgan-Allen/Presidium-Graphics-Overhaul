@@ -332,6 +332,7 @@ public class ActorRelations {
   public void incRelation(
     Accountable other, float toLevel, float weight, float novelty
   ) {
+    if (other == null || (weight == 0 && novelty == 0)) return;
     final boolean report = I.talkAbout == actor && verbose && extraVerbose;
     if (report) {
       I.say("\nIncrementing relation with "+other);

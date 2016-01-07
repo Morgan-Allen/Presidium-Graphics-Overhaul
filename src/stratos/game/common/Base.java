@@ -396,8 +396,8 @@ public abstract class Base extends SectorBase implements
     final Table <Target, List <Mission>> seenTable = new Table();
     
     for (Base base : world.bases()) {
-      for (Mission m : base.tactics.allMissions()) {
-        if (m.subjectAsTarget() == null || ! m.visibleTo(player)) continue;
+      for (Mission m : base.tactics.allMissions()) if (m.visibleTo(player)) {
+        if (m.subjectAsTarget() == null || m.isOffworld()) continue;
         final Target t = (Target) m.subject();
         if (! view.intersects(t.position(null), t.radius())) continue;
         

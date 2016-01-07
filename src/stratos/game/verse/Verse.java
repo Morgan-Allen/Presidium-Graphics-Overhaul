@@ -480,6 +480,9 @@ public class Verse implements Session.Saveable {
   
   
   public void onStageDeletion(Stage world) {
+    //
+    //  First, take anyone/thing on a journey and remove their references to
+    //  the world being deleted-
     for (Journey j : journeys.journeys) {
       for (Mobile m : j.migrants()) {
         m.removeWorldReferences(world);
@@ -488,9 +491,16 @@ public class Verse implements Session.Saveable {
         j.transport.removeWorldReferences(world);
       }
     }
+    //
+    //  Then scrub all references to the world for each off-world unit (in
+    //  order to do this safely, we need to de- and re-register them before and
+    //  after.)
     for (SectorBase b : sectorBases()) {
-      for (Mobile m : b.allUnits()) {
+      final Mobile units[] = b.allUnits().toArray(Mobile.class);
+      for (Mobile m : units) {
+        b.toggleUnit(m, false);
         m.removeWorldReferences(world);
+        b.toggleUnit(m, true);
       }
     }
   }

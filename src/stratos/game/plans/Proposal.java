@@ -110,11 +110,26 @@ public class Proposal extends Dialogue {
       I.say("  Sway chance:   "+chance+" (Suasion "+skill+")");
       I.say("  Talk result:   "+talkResult+" (DC "+opposeDC+")");
     }
-    
     //
-    //  TODO:  If the pledged action isn't possible at the moment, store the
-    //  Pledge and follow through later.
-    if (talkResult >= 0.5f) {
+    //  And if our time is up, check for acceptance of the offer-
+    if (close) setOfferAccepted(talkResult >= 0.5f);
+  }
+  
+  
+  public void setOfferAccepted(boolean isAccepted) {
+    final boolean report = (
+      I.talkAbout == actor || I.talkAbout == other
+    ) && stepsVerbose;
+    final float
+      offersVal = offers.valueFor(other),
+      soughtVal = sought.valueFor(other),
+      cares     = other.relations.valueFor(actor) * Plan.PARAMOUNT,
+      magnitude = Nums.abs(offersVal) + Nums.abs(soughtVal) + Nums.abs(cares);
+    
+    if (isAccepted) {
+      //
+      //  TODO:  If the pledged action isn't possible at the moment, store the
+      //  Pledge and follow through later.
       sought.setAcceptance(true, true);
       offers.setAcceptance(true, true);
       final Actor

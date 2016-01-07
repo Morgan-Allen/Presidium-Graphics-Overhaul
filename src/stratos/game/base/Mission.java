@@ -246,6 +246,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
       if (missionType == TYPE_COVERT ) return false;
       if (missionType == TYPE_BASE_AI) return false;
     }
+    if (isOffworld()) {
+      //  TODO:  Check with the intel-map for this.
+      return true;
+    }
     if (subject instanceof Element) {
       if (! ((Element) subject).visibleTo(player)) return false;
     }
@@ -451,28 +455,34 @@ public abstract class Mission implements Session.Saveable, Selectable {
     if (missionType == TYPE_PUBLIC && priority > 0 && ! hasBegun()) {
       beginMission();
     }
-    else if (shouldEnd()) endMission(true);
-    boolean journeyCheck = journey != null;
     //
-    //  Remove any applicants that have abandoned the mission, and if a journey
-    //  is required to reach the subject, check whether everyone's ready to
-    //  begin.
+    //  Remove any applicants that have abandoned the mission.
     for (Role role : roles) if (role.approved && hasBegun()) {
       final Actor a = role.applicant;
       if (! a.health.conscious()) a.mind.assignMission(null);
-      if (journeyCheck && ! journey.hasMigrant(a)) journeyCheck = false;
-    }
-    if (journeyCheck && ! journey.hasBegun()) {
-      journey.beginJourney();
     }
     //
-    //  Offworld missions have their outcomes evaluated separately...
-    if (journey != null && journey.hasArrived()) {
-      resolveMissionOffworld();
-      stage = STAGE_RESOLVED;
-      if (journey.returns()) journey.beginReturnTrip();
+    //  Offworld missions have their outcomes evaluated separately.  Otherwise,
+    //  check to see if local end-conditions have been met.
+    if (journey != null) {
+      boolean canStart = ! journey.hasBegun(), hasMigrants = false;
+      for (Actor a : approved()) {
+        if (! journey.hasMigrant(a)) canStart = false;
+        else hasMigrants = true;
+      }
+      if (canStart && hasMigrants) {
+        journey.beginJourney();
+      }
+      if (journey.hasArrived()) {
+        resolveMissionOffworld();
+        stage = STAGE_RESOLVED;
+        if (journey.returns()) journey.beginReturnTrip();
+      }
+      if (journey.complete()) {
+        endMission(true);
+      }
     }
-    if (journey != null && journey.complete()) {
+    else if (shouldEnd()) {
       endMission(true);
     }
     //

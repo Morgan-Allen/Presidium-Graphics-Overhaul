@@ -147,6 +147,29 @@ public class MissionContact extends Mission {
   
   
   public void resolveMissionOffworld() {
+    
+    final Series <Actor> approved = approved();
+    final Pick <Actor> pick = new Pick(0);
+    float chance = 0;
+    for (Actor a : approved) {
+      pick.compare(a, chance += MissionUtils.competence(a, this));
+    }
+    final Actor talks = pick.result();
+    chance /= approved.size();
+    if (talks == null) return;
+    
+    final Actor with = (Actor) subject;
+    final Proposal props = new Proposal(talks, with);
+    props.setTerms(offers, sought);
+    
+    //  TODO:  Add some experience to diplomatic skills for envoys!
+    
+    if (Rand.num() < chance) {
+      props.setOfferAccepted(true);
+    }
+    else {
+      props.setOfferAccepted(false);
+    }
     return;
   }
   

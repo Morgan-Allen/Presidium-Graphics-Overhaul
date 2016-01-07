@@ -65,12 +65,12 @@ public static enum Type {
 //*/
 
 
+//  TODO:  Consider giving types an optional 'preparation' behaviour as well-
+//  e.g, buying/collecting a gift prior to handing off.  Or a 'stage'
+//  variable?
 
 //  TODO:  Make this into a persistent plan, so that if the pledge cannot be
 //  fulfilled immediately, the actor will attempt it later when possible.
-
-
-//  TODO:  Have this extend Constant!  Then you can put it anywhere you need.
 
 
 public class Pledge implements Session.Saveable {
@@ -92,7 +92,6 @@ public class Pledge implements Session.Saveable {
   final float amount;
   final Session.Saveable refers;
   final Actor makes;
-  //private boolean deceive = false;//, accepted = false;
   private int acceptState = ACCEPT_INIT;
   
   
@@ -206,20 +205,25 @@ public class Pledge implements Session.Saveable {
   
   /**  Definitions for the various specific pledge types follow.
     */
-  //  TODO:  Consider giving types an optional 'preparation' behaviour as well-
-  //  e.g, buying/collecting a gift prior to handing off.  Or a 'stage'
-  //  variable?
-  
-  
   public abstract static class Type extends Index.Entry {
     
     final public String name;
-    public Type(String name) { super(TYPE_INDEX, name); this.name = name; }
+    
+    public Type(String name) {
+      super(TYPE_INDEX, name);
+      this.name = name;
+    }
+    
+    public boolean canMakePledge(Actor makes, Actor makesTo) {
+      return makes.inWorld() && makesTo.inWorld();
+    }
+    
     public abstract Pledge[] variantsFor(Actor makes, Actor makesTo);
     
-    abstract String description(Pledge p);
     abstract float valueOf(Pledge p, Actor a);
     abstract Behaviour fulfillment(Pledge p, Pledge reward);
+    
+    abstract String description(Pledge p);
   }
   
   
@@ -315,8 +319,9 @@ public class Pledge implements Session.Saveable {
       final Batch <Pledge> pledges = new Batch <Pledge> ();
       for (Item i : from.inventory().allItems()) {
         float amount = Nums.min(i.amount, 10);
+        
         //  TODO:  The Gifting behaviour probably has this covered already.
-        //         Try to use that.
+        //         Try to use that?
         Bringing d = new Bringing(Item.withAmount(i, amount), from, makesTo);
         pledges.add(new Pledge(this, d, makes));
       }
@@ -338,8 +343,6 @@ public class Pledge implements Session.Saveable {
     
     Behaviour fulfillment(Pledge p, Pledge reward) {
       //  TODO:  If the subjects are adjacent, just hand over the gift!
-      
-      
       return (Bringing) p.refers;
     }
   };
@@ -459,8 +462,8 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    String description(Pledge p) {
-      return "Open Borders with "+p.refers;
+    public boolean canMakePledge(Actor makes, Actor makesTo) {
+      return makesTo.inWorld();
     }
     
     
@@ -479,6 +482,11 @@ public class Pledge implements Session.Saveable {
       final Sector with = base.world.offworld.currentSector(p.makes);
       base.commerce.togglePartner(with, true);
       return null;
+    }
+    
+    
+    String description(Pledge p) {
+      return "Open Borders with "+p.refers;
     }
   };
   

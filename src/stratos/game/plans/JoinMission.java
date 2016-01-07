@@ -66,7 +66,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     if (actor.mind.mission() != null || ! actor.health.conscious()) {
       return null;
     }
-    final boolean report = I.talkAbout == actor && evalVerbose;
+    final boolean report = I.talkAbout == actor;// && evalVerbose;
     //
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
@@ -78,55 +78,19 @@ public class JoinMission extends Plan implements Journey.Purpose {
     final Choice choice = new Choice(actor);
     //
     //  TODO:  Allow application for missions set by other bases!
-    final Batch <Behaviour> steps    = new Batch <Behaviour> ();
-    final Batch <Mission  > missions = new Batch <Mission  > ();
-    
+
     for (Mission mission : actor.base().tactics.allMissions()) {
       if (! mission.canApply(actor)) {
         if (report) I.say("\n  Cannot apply for "+mission);
         continue;
       }
-      
-      final Behaviour step = mission.nextStepFor(actor, true);
-      final float
-        priority    = step == null ? -1 : step.priorityFor(actor),
-        competence  = MissionUtils.competence (actor, mission),
-        competition = MissionUtils.competition(actor, mission),
-        urgency     = mission.assignedPriority();
-
-      if (competence + (urgency / Mission.PRIORITY_PARAMOUNT) < 1) {
-        if (report) I.say("  Not competent for: "+mission+": "+competence);
-        continue;
-      }
-      if (competition >= 1) {
-        if (report) I.say("  Party at limit: "+mission);
-        continue;
-      }
-      
-      choice  .add(step   );
-      steps   .add(step   );
-      missions.add(mission);
-      
-      if (report) {
-        I.say("\n  Mission is: "+mission);
-        I.say("  next step:    "+mission.nextStepFor(actor, true));
-        I.say("  competence:   "+competence);
-        I.say("  competition:  "+competition);
-        I.say("  priority:     "+priority);
-      }
+      final JoinMission j = JoinMission.resume(actor, mission);
+      choice.add(j);
     }
-    final Behaviour pickStep = choice.weightedPick();
-    final int       index    = steps.indexOf(pickStep);
-    final Mission   picked   = missions.atIndex(index);
-    //
-    //  And try to apply for it-
+    
+    final JoinMission picked = (JoinMission) choice.weightedPick();
     if (report) I.say("Mission picked: "+picked);
-    if (picked == null) return null;
-    if (picked.missionType() == Mission.TYPE_PUBLIC) {
-      actor.mind.assignMission(picked);
-      return null;
-    }
-    else return new JoinMission(actor, picked);
+    return picked;
   }
   
   
@@ -139,6 +103,19 @@ public class JoinMission extends Plan implements Journey.Purpose {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
+    final boolean report = I.talkAbout == actor && evalVerbose;
+    if (report) I.say("\n"+actor+" is assessing priority for "+mission);
+    
+    if (! mission.hasBegun()) {
+      float competence  = MissionUtils.competence (actor, mission);
+      float competition = MissionUtils.competition(actor, mission);
+      competition /= (0.5f + competence);
+      if (mission.isApproved(actor)) competition /= 1.5f;
+      
+      if (report) I.say("  Competition is:  "+competition);
+      if (competition >= 1) return -1;
+    }
+    
     if (mission.isOffworld()) {
       return mission.basePriority(actor);
     }
@@ -225,6 +202,8 @@ public class JoinMission extends Plan implements Journey.Purpose {
   
   public boolean actionApplies(Actor client, Target applyPoint) {
     if (! mission.canApply(client)) return false;
+    if (getPriority() <= 0) return false;
+    
     client.mind.assignMission(mission);
     return true;
   }
