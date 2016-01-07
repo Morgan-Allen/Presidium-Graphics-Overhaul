@@ -42,7 +42,7 @@ public abstract class AutomatedScenario extends Scenario {
   }
 
   private void processTestFailure() {
-    I.complain(getClass().getName() + " test succeeded");
+    I.complain(getClass().getName() + " test failed");
 
     finishTest();
   }

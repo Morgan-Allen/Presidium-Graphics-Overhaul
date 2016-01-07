@@ -27,6 +27,9 @@ import stratos.content.abilities.*;
 
 public class DebugCombat extends AutomatedScenario {
   
+  Batch <Actor> ourSoldiers;
+  Batch <Actor> enemySoldiers;
+  
   public static void main(String args[]) {
     PlayLoop.setupAndLoop(new DebugCombat());
   }
@@ -43,12 +46,29 @@ public class DebugCombat extends AutomatedScenario {
 
   @Override
   protected AutomatedTestResult getCurrentResult() {
+    boolean ourSoldiersDead = everyoneIsDeadOrKnockedOut(ourSoldiers),
+            enemySoldiersDead = everyoneIsDeadOrKnockedOut(enemySoldiers);
+
+    if (ourSoldiersDead || enemySoldiersDead) {
+      return AutomatedTestResult.PASSED;
+    }
+
+    // still waiting
     return AutomatedTestResult.UNKNOWN;
+  }
+
+  boolean everyoneIsDeadOrKnockedOut(Batch <Actor> actors) {
+    for (Actor actor : actors) {
+      if (actor.health.conscious() && !actor.health.isDead()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
   protected long getMaxTestDurationMs() {
-    return 10000;
+    return 1000 * 60 * 3;
   }
 
 
@@ -148,7 +168,7 @@ public class DebugCombat extends AutomatedScenario {
     GameSettings.noBlood = true;
     world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
     
-    /*
+    //*
     setupCombatScenario(
       world, base, UI,
       new Background[] { TROOPER, TROOPER },
@@ -181,7 +201,7 @@ public class DebugCombat extends AutomatedScenario {
     );
     //*/
     
-    //*
+    /*
     setupCombatScenario(
       world, base, UI,
       new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
@@ -198,7 +218,7 @@ public class DebugCombat extends AutomatedScenario {
     Background selfTypes[], Technique techniques[],
     Background otherTypes[], Base otherBase, boolean otherFights
   ) {
-    Batch <Actor> soldiers = new Batch();
+    Batch <Actor> soldiers = new Batch<Actor>();
     Background mainType = selfTypes[0];
     Venue lair = null;
     
@@ -220,11 +240,14 @@ public class DebugCombat extends AutomatedScenario {
       base.intelMap.liftFogAround(soldier, 9);
       Selection.pushSelection(soldier, null);
     }
+    this.ourSoldiers = soldiers;
     
+    Batch<Actor> enemySoldiers = new Batch<Actor>();
     if (otherTypes != null) for (Background b : otherTypes) {
       Actor other = b.sampleFor(otherBase);
       other.enterWorldAt(9 + Rand.index(3), 9 + Rand.index(3), world);
       other.health.setMaturity(0.8f);
+      enemySoldiers.add(other);
       
       if (lair == null) {
         lair = NestUtils.createNestFor(other);
@@ -254,6 +277,7 @@ public class DebugCombat extends AutomatedScenario {
         Selection.pushSelection(other, null);
       }
     }
+    this.enemySoldiers = enemySoldiers;
   }
   
   
