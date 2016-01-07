@@ -8,24 +8,10 @@ ACTIVE ITEMS:
    The main class is at- stratos.start.SkinsPreview
    Starting settings can be adjusted at media/Tools/preview_settings.xml
    
-   The 'base' skins should only show up on top of the main body group (and any
-   groups that use the same texture.)  The 'costume' skins should show up on
-   top of any of the costume groups AND the main body texture.  (That way, if
-   bits of the body poke out from the costume, they should blend in.)
-   
-   If no base or costume texture is selected, the groups in question should
-   use their default texture- otherwise, the selected texture/s should *replace*
-   the default texture/s.
-   
    (At the moment, the preview_settings.xml class specifies the 'body' texture
    using 'MaterialGroup.x', which is brittle.  It should be able to use 'Body'
    or 'MainGroup', et cetera instead, and possibly use an .xml file provided by
    the model.)
-   
-   Bits of the body poking out from the costume is okay for the moment (see
-   above)- I've spoken with Gorion/Pawel and that's very hard to avoid with low-
-   poly models.  You can also assume that the game-logic will prevent hats and
-   hair being toggled at the same time.
    
 
    Priority:  Medium-High  Duration:  Short?
@@ -45,6 +31,10 @@ ACTIVE ITEMS:
    such scenarios to run in sequence.  This is a big project, so I'd suggest
    starting with something simple (like DebugCombat) and then I can give
    details for filling in the rest.
+   
+   I've added a couple of TODO items to AutomatedScenario and DebugCombat.  e.g,
+   you might have a TestCase for each call to setupCombatScenario (I've added
+   some basic infrastructure to get you started.)
    
 
    Priority:  High  Duration:  Long or Very Long

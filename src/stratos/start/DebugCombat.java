@@ -19,23 +19,19 @@ import stratos.content.abilities.*;
 
 
 
-//  TODO:  I need some automated testing here.  You have a setup method, and a
-//  checkResult method, that you then pass as string arguments.  Run the
-//  scenario for up to 5 minutes, say, or whenever pass/fail criteria are met.
-//  Then log the results and move on.
-
-
 public class DebugCombat extends AutomatedScenario {
   
   
   /**  Data fields, constructors and save/load methods-
     */
-  Batch <Actor> ourSoldiers;
-  Batch <Actor> enemySoldiers;
+  Batch <Actor> ourSoldiers   = new Batch();
+  Batch <Actor> enemySoldiers = new Batch();
+  Technique toUse[];
+  Batch <Batch <Technique>> techsUsed = new Batch();
   
   
   private DebugCombat() {
-    super("debug_combat");
+    super("debug_combat", "debug_combat_log.txt");
   }
   
   
@@ -43,6 +39,10 @@ public class DebugCombat extends AutomatedScenario {
     super(s);
     s.loadObjects(ourSoldiers  );
     s.loadObjects(enemySoldiers);
+    toUse = (Technique[]) s.loadObjectArray(Technique.class);
+    for (int n = ourSoldiers.size(); n-- > 0;) {
+      techsUsed.add((Batch <Technique>) s.loadObjects(new Batch()));
+    }
   }
   
   
@@ -50,6 +50,8 @@ public class DebugCombat extends AutomatedScenario {
     super.saveState(s);
     s.saveObjects(ourSoldiers  );
     s.saveObjects(enemySoldiers);
+    s.saveObjectArray(toUse);
+    for (Batch <Technique> used : techsUsed) s.saveObjects(used);
   }
   
   
@@ -136,6 +138,22 @@ public class DebugCombat extends AutomatedScenario {
   }
   
   
+  //  TODO:  Ideally, this should also be incorporated into the test-
+  //  verification calls too!
+  
+  boolean techniquesWereUsedBy(Actor using, Technique known[]) {
+    final int index = ourSoldiers.indexOf(using);
+    if (index < 0) return false;
+    
+    final Batch <Technique> used = techsUsed.atIndex(index);
+    for (Technique t : known) if (Technique.isDoingAction(using, t)) {
+      used.include(t);
+    }
+    for (Technique t : known) if (! used.includes(t)) return false;
+    return true;
+  }
+  
+  
   protected long getMaxTestDurationMs() {
     return 1000 * 60 * 3;
   }
@@ -200,6 +218,9 @@ public class DebugCombat extends AutomatedScenario {
     );
     //*/
     
+    //  TODO:  Ideally, each of the methods below should get it's own TestCase-
+    //         as well as RaidingScenario above.
+    
     /*
     setupCombatScenario(
       world, base, UI,
@@ -237,7 +258,9 @@ public class DebugCombat extends AutomatedScenario {
     Background selfTypes[], Technique techniques[],
     Background otherTypes[], Base otherBase, boolean otherFights
   ) {
-    Batch <Actor> soldiers = new Batch<Actor>();
+    //
+    //  First, create the set of soldiers on 'our' side-
+    Batch <Actor> soldiers = new Batch();
     Background mainType = selfTypes[0];
     Venue lair = null;
     
@@ -259,9 +282,15 @@ public class DebugCombat extends AutomatedScenario {
       base.intelMap.liftFogAround(soldier, 9);
       Selection.pushSelection(soldier, null);
     }
+    //
+    //  Save the list of soldiers generated (and create a blank record of the
+    //  Techniques used by each.
     this.ourSoldiers = soldiers;
+    this.techsUsed.clear();
+    for (Actor a : soldiers) techsUsed.add(new Batch());
     
-    Batch<Actor> enemySoldiers = new Batch<Actor>();
+    //  Next, generate the enemy soldiers-
+    Batch <Actor> enemySoldiers = new Batch();
     if (otherTypes != null) for (Background b : otherTypes) {
       Actor other = b.sampleFor(otherBase);
       other.enterWorldAt(9 + Rand.index(3), 9 + Rand.index(3), world);

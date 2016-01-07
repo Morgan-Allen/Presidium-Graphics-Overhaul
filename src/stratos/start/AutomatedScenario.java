@@ -19,13 +19,15 @@ public abstract class AutomatedScenario extends Scenario {
   
   /**  Data fields, constructors and save/load methods-
     */
+  String outputFile;
   Stack <TestCase> cases;
   Date startTime;
   
   
   
-  public AutomatedScenario(String saveFile) {
+  public AutomatedScenario(String saveFile, String outputFile) {
     super(saveFile, true);
+    this.outputFile = outputFile;
   }
   
   
@@ -55,11 +57,11 @@ public abstract class AutomatedScenario extends Scenario {
   //  TODO:  If you look at, e.g, DebugMissions, you can see there are multiple
   //         scenarios for testing within a single file (e.g, strikeScenario,
   //         reconScenario, etc.)  We could either split those across multiple
-  //         classes, but it might be simpler if AutomatedScenario could be
-  //         passed a bunch of TestCases, either at initialisaion or afterward.
+  //         classes, but it might be simpler if we could iterate across a
+  //         bunch of TestCases-
   
   public static abstract class TestCase {
-    
+    abstract AutomatedScenario initScenario();
     abstract void setupScenario(Stage world, Base base, BaseUI UI);
     abstract TestResult currentResult();
   };
@@ -95,6 +97,8 @@ public abstract class AutomatedScenario extends Scenario {
   
   
   private void processTestFailure() {
+    //  TODO:  I'd prefer logging results to an external file (and I.complain()
+    //         will actually cause the game to exit.)
     I.complain(getClass().getName() + " test failed");
     finishTest();
   }
