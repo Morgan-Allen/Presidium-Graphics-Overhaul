@@ -8,7 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.PathSearch;
+import stratos.game.maps.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
@@ -110,20 +110,15 @@ public class Combat extends Plan {
     float harmLevel = REAL_HARM;
     if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
     if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
+    
     final float priority = PlanUtils.combatPriority(
       actor, subject, motiveBonus(),
       teamSize, true, harmLevel
     );
     
     if (priority <= 0 || ! PlanUtils.isArmed(actor)) setCompetence(0);
-    else setCompetence(successChanceFor(actor));
+    else setCompetence(PlanUtils.combatWinChance(actor, subject, teamSize));
     return priority;
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
-    return PlanUtils.combatWinChance(actor, subject, teamSize);
   }
   
   
@@ -197,7 +192,7 @@ public class Combat extends Plan {
     final String strikeAnim = strikeAnimFor(actor.gear.deviceType());
     final boolean melee     = ! actor.gear.canFireWeapon();
     final boolean razes     = struck instanceof Placeable;
-    final float   danger    = 1f - successChanceFor(actor);
+    final float   danger    = 1f - competence();
     final Target  covers    = coverPoint(actor, struck, razes, melee, danger);
     
     if (razes) {

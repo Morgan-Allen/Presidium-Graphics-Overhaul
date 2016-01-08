@@ -226,8 +226,10 @@ public class Dialogue extends Plan {
       if (report) I.say("\n  "+other+" can't talk now.");
       return -1;
     }
+
+    if (isAnimal() && ! isStarter()) setCompetence(0.5f);
+    else setCompetence(DialogueUtils.communicationChance(actor, other));
     
-    setCompetence(successChanceFor(actor));
     if (starts == this && competence() <= 0) {
       if (report) I.say("\n  Cannot communicate with "+other+".");
       return -1;
@@ -250,12 +252,6 @@ public class Dialogue extends Plan {
   public int motionType(Actor actor) {
     if (isEmergency()) return MOTION_FAST;
     else return MOTION_NORMAL;
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    if (isAnimal() && ! isStarter()) return 0.5f;
-    return DialogueUtils.communicationChance(actor, other);
   }
   
   

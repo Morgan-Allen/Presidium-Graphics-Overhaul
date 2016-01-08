@@ -249,7 +249,8 @@ public class Manufacture extends Plan implements Behaviour {
     final float urgency = commission ?
       ((3 + amount  ) / 2) :
       ((1 + shortage) / 2) ;
-    setCompetence(successChanceFor(actor));
+    final float chance = conversion.testChance(actor, 0);
+    setCompetence(Nums.clamp(chance + (speedBonus / 2), 0, 1));
     
     final float priority = PlanUtils.jobPlanPriority(
       actor, this, urgency, competence(), 2, MILD_FAIL_RISK, BASE_TRAITS
@@ -271,16 +272,10 @@ public class Manufacture extends Plan implements Behaviour {
         I.say("    "+c.skills[i]+" "+c.skillDCs[i]+" (has "+knownLevel+")");
       }
       
-      I.say("  Success chance: "+successChanceFor(actor));
+      I.say("  Success chance: "+chance  );
       I.say("  Final priority: "+priority);
     }
     return priority;
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    final float chance = conversion.testChance(actor, 0);
-    return Nums.clamp(chance + (speedBonus / 2), 0, 1);
   }
   
   

@@ -43,11 +43,33 @@ public class MissionResearch extends Mission {
   }
   
   
-  protected boolean shouldEnd() {
-    return base.research.hasTheory(sought);
+  
+  /**  Strategic evaluation-
+    */
+  public float targetValue(Base base) {
+    return 1;
   }
   
   
+  public float harmLevel() {
+    return Plan.MILD_HELP;
+  }
+  
+  
+  public boolean allowsMissionType(int type) {
+    if (type == TYPE_MILITARY) return false;
+    else return super.allowsMissionType(type);
+  }
+  
+  
+  public float rateCompetence(Actor actor) {
+    return Studying.rateCompetence(actor, Studying.TYPE_RESEARCH, sought);
+  }
+  
+  
+  
+  /**  Behaviour implementation-
+    */
   protected Behaviour createStepFor(Actor actor) {
     if (finished()) return null;
     final Behaviour cached = nextStepFor(actor, false);
@@ -63,22 +85,8 @@ public class MissionResearch extends Mission {
   }
   
   
-  
-  /**  TODO:  Fill this in!
-    */
-  public float targetValue(Base base) {
-    return 1;
-  }
-  
-  
-  public float harmLevel() {
-    return Plan.MILD_HELP;
-  }
-  
-  
-  public boolean allowsMissionType(int type) {
-    if (type == TYPE_MILITARY) return false;
-    else return super.allowsMissionType(type);
+  protected boolean shouldEnd() {
+    return base.research.hasTheory(sought);
   }
   
   

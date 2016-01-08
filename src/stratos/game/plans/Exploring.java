@@ -20,7 +20,7 @@ import static stratos.game.actors.Qualities.*;
 public class Exploring extends Plan {
   
   
-  /**  Construction and save/load methods-
+  /**  Data fields, construction and save/load methods-
     */
   private static boolean
     evalVerbose = false,
@@ -35,8 +35,8 @@ public class Exploring extends Plan {
   final Base base;
   final int  type;
   
-  private Tile    lookedAt ;
-  private float   travelled;
+  private Tile  lookedAt ;
+  private float travelled;
   
   
   private Exploring(
@@ -73,6 +73,9 @@ public class Exploring extends Plan {
   }
   
   
+  
+  /**  External factory methods and supplementary evaluation-
+    */
   public static Exploring nextWandering(Actor actor) {
     final boolean report = evalVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next wandering for "+actor);
@@ -127,6 +130,16 @@ public class Exploring extends Plan {
   }
   
   
+  public static float rateCompetence(Actor actor) {
+    float chance = 1;
+    chance *= actor.skills.chance(SURVEILLANCE, ROUTINE_DC);
+    chance *= actor.skills.chance(ATHLETICS   , ROUTINE_DC);
+    if (PlanUtils.isArmed(actor)) chance += 0.5f;
+    else chance -= 0.25f;
+    return Nums.clamp(chance, 0, 1);
+  }
+  
+  
   
   /**  Evaluating targets and priority-
     */
@@ -135,20 +148,12 @@ public class Exploring extends Plan {
   
   
   protected float getPriority() {
-    this.setCompetence(successChanceFor(actor));
+    setCompetence(rateCompetence(actor));
+    
     return PlanUtils.explorePriority(
-      actor, lookedAt, motiveBonus(), type == TYPE_WANDER, competence()
+      actor, lookedAt, motiveBonus(),
+      type == TYPE_WANDER, competence()
     );
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    float chance = 1;
-    chance *= actor.skills.chance(SURVEILLANCE, ROUTINE_DC);
-    chance *= actor.skills.chance(ATHLETICS   , ROUTINE_DC);
-    if (PlanUtils.isArmed(actor)) chance += 0.5f;
-    else chance -= 0.25f;
-    return Nums.clamp(chance, 0, 1);
   }
   
   

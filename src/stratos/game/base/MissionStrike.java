@@ -112,6 +112,17 @@ public class MissionStrike extends Mission {
   }
   
   
+  public float rateCompetence(Actor actor) {
+    if (subject instanceof Target) {
+      return PlanUtils.combatWinChance(actor, (Target) subject, 1);
+    }
+    if (subject instanceof Sector) {
+      return CombatUtils.powerLevel(actor) * 0.5f / CombatUtils.AVG_POWER;
+    }
+    return -1;
+  }
+  
+  
   public float harmLevel() {
     if (objective() == Combat.OBJECT_SUBDUE ) return Plan.MILD_HARM;
     if (objective() == Combat.OBJECT_EITHER ) return Plan.REAL_HARM;
@@ -150,10 +161,11 @@ public class MissionStrike extends Mission {
   
   
   public boolean resolveMissionOffworld() {
-    final Sector s = (Sector) subject;
-    final SectorBase b = base.world.offworld.baseForSector(s);
+    final Verse verse = base.world.offworld;
+    final Sector s = verse.currentSector(subject);
+    final SectorBase b = verse.baseForSector(s);
     
-    float sumPower = MissionUtils.partyPower(this);
+    float sumPower    = MissionUtils.partyPower(this);
     float targetPower = b.powerLevel(b.faction());
     final Batch <Actor> defenders = new Batch();
     

@@ -273,11 +273,6 @@ public class Audit extends Plan {
   }
   
   
-  public float successChanceFor(Actor actor) {
-    return 1;
-  }
-  
-  
 
   /**  Behaviour implementation-
     */

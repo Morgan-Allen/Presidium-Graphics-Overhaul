@@ -117,6 +117,17 @@ public class MissionSecurity extends Mission {
   }
   
   
+  public float rateCompetence(Actor actor) {
+    if (isOffworld()) {
+      return CombatUtils.powerLevel(actor) * 0.5f / CombatUtils.AVG_POWER;
+    }
+    else if (subject instanceof Target) {
+      return Patrolling.rateCompetence(actor, (Target) subject, 1);
+    }
+    return -1;
+  }
+  
+  
   
   /**  Behaviour implementation-
     */

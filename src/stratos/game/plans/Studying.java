@@ -8,16 +8,13 @@ import stratos.game.base.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.Planet;
-import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
 
 
 
-//  TODO:  Allow for learning of specific techniques.
-//  TODO:  Allow upgrades at the archives to improve efficiency.
+//  TODO:  Allow upgrades at the archives to improve efficiency!
+
 
 public class Studying extends Plan {
   
@@ -31,7 +28,7 @@ public class Studying extends Plan {
   private static float
     fastMultiple = 50f;
   
-  final static int
+  final public static int
     TYPE_SKILL     = 0,
     TYPE_DRILL     = 1,
     TYPE_TECHNIQUE = 2,
@@ -174,6 +171,23 @@ public class Studying extends Plan {
   }
   
   
+  public static float rateCompetence(Actor actor, int type, Constant studied) {
+    if (type == TYPE_DRILL || type == TYPE_TECHNIQUE) {
+      return 1;
+    }
+    else if (type == TYPE_RESEARCH) {
+      final Conversion r = ((Upgrade) studied).researchProcess;
+      return r.testChance(actor, 0);
+    }
+    else {
+      float chance = 1;
+      chance += actor.skills.chance(INSCRIPTION, INSCRIBE_DC);
+      chance += actor.skills.chance(ACCOUNTING , ACCOUNTS_DC);
+      return chance / 3;
+    }
+  }
+  
+  
   
   /**  Evaluating targets and priority-
     */
@@ -219,7 +233,7 @@ public class Studying extends Plan {
       ratedVal = 1;
     }
     
-    setCompetence(successChanceFor(actor));
+    setCompetence(rateCompetence(actor, type, studied));
     
     float priority = PlanUtils.traitAverage(actor, baseTraits) * ROUTINE;
     modifier -= actor.motives.greedPriority(chargeCost);
@@ -236,23 +250,6 @@ public class Studying extends Plan {
     }
     
     return Nums.clamp(priority, 0, URGENT);
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    if (type == TYPE_DRILL || type == TYPE_TECHNIQUE) {
-      return 1;
-    }
-    else if (type == TYPE_RESEARCH) {
-      final Conversion r = ((Upgrade) studied).researchProcess;
-      return r.testChance(actor, 0);
-    }
-    else {
-      float chance = 1;
-      chance += actor.skills.chance(INSCRIPTION, INSCRIBE_DC);
-      chance += actor.skills.chance(ACCOUNTING , ACCOUNTS_DC);
-      return chance / 3;
-    }
   }
   
   

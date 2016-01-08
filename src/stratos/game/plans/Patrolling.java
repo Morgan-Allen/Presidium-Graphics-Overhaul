@@ -80,6 +80,173 @@ public class Patrolling extends Plan implements TileConstants {
   
   
   
+  /**  External factory methods and supplemental evaluation calls-
+    */
+  public static Patrolling protectionFor(
+    Actor actor, Element guarded, float priority
+  ) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) I.say("\nGetting next perimeter patrol for "+actor);
+    
+    final Stage world = actor.world();
+    final List <Target> patrolled = new List();
+    
+    if (guarded.isMobile()) {
+      patrolled.add(guarded);
+    }
+    else {
+      final float range = Nums.max(
+        guarded.radius() * 2,
+        actor.health.sightRange() / 2
+      );
+      final Vec3D centre = guarded.position(null);
+      if (report) I.say("  Range is: "+range+", centre: "+centre);
+      
+      for (int n : T_ADJACENT) {
+        Tile point = world.tileAt(
+          Nums.clamp(centre.x + (T_X[n] * range), 0, world.size - 1),
+          Nums.clamp(centre.y + (T_Y[n] * range), 0, world.size - 1)
+        );
+        if (point != null) {
+          if (report) I.say("  Patrol point: "+point);
+          patrolled.include(point);
+        }
+      }
+    }
+    
+    Patrolling p = new Patrolling(actor, guarded, patrolled, TYPE_PROTECTION);
+    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
+  }
+  
+  
+  public static Patrolling streetPatrol(
+    Actor actor, Element init, Element dest, float priority
+  ) {
+    final Stage world = actor.world();
+    final List <Target> patrolled = new List <Target> ();
+    final Tile
+      initT = Spacing.nearestOpenTile((Element) init, dest, world),
+      destT = Spacing.nearestOpenTile((Element) dest, init, world);
+    
+    final PathSearch search = new PathSearch(initT, destT, true);
+    search.doSearch();
+    if (! search.success()) return null;
+    final Boarding path[] = search.fullPath(Boarding.class);
+    float interval = Stage.PATCH_RESOLUTION;
+    
+    for (int i = 0; i < path.length; i += interval) {
+      patrolled.include(path[i]);
+    }
+    patrolled.add(dest);
+    
+    Patrolling p = new Patrolling(actor, init, patrolled, TYPE_STREET_PATROL);
+    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
+  }
+  
+  
+  public static Patrolling sentryDuty(
+    Actor actor, ShieldWall start, Venue barracks, float priority
+  ) {
+    if (start == null || start.base() != barracks.base()) {
+      return null;
+    }
+    
+    final Vec3D between = Spacing.between(barracks, start);
+    final Vec2D prefHeading = new Vec2D(between).perp();
+    final float maxDist = Stage.ZONE_SIZE;
+    
+    final List <Target> patrolled = new List();
+    final Batch <Target> flagged = new Batch();
+    ShieldWall doors = null;
+    ShieldWall next = start;
+    float sumDist = 0; Vec3D temp = new Vec3D();
+    
+    while (next != null) {
+      if (next.isTower()) patrolled.include(next);
+      if (next.isGate() && doors == null) doors = next;
+      sumDist += next.radius() * 2;
+      
+      if (sumDist > maxDist) break;
+      next.flagWith(flagged);
+      flagged.add(next);
+      
+      final Pick <Boarding> pick = new Pick();
+      for (Boarding b : next.canBoard()) {
+        if (! (b instanceof ShieldWall)) continue;
+        if (b.flaggedWith() != null) continue;
+        b.position(temp);
+        pick.compare(b, prefHeading.dot(temp.x, temp.y));
+      }
+      next = (ShieldWall) pick.result();
+    }
+    
+    for (Target t : flagged) t.flagWith(null);
+    if (doors == null) {
+      return null;
+    }
+    
+    Patrolling p = new Patrolling(actor, doors, patrolled, TYPE_SENTRY_DUTY);
+    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
+  }
+  
+  
+  public static Patrolling nextGuardPatrol(
+    Actor actor, Venue origin, float priority
+  ) {
+    final boolean report = evalVerbose && I.talkAbout == actor;
+    if (report) {
+      I.say("\nGetting next guard patrol for "+actor);
+      I.say("  Base: "+origin.base());
+      final PresenceMap map = actor.world().presences.mapFor(origin.base());
+      I.say("  Total targets: "+map.population());
+    }
+
+    //  Grab a random building nearby and patrol around it.
+    final Stage world = actor.world();
+    final Base base = origin.base();
+    final float range = Stage.ZONE_SIZE / 2f;
+    final Venue pick = (Venue) world.presences.randomMatchNear(
+      base, origin, range
+    );
+    if (report) I.say("  Venue picked: "+pick);
+    
+    if (pick == null) return null;
+    return Patrolling.streetPatrol(actor, pick, pick, priority);
+  }
+  
+  
+  public static void addFormalPatrols(
+    Actor actor, Venue origin, Choice choice
+  ) {
+    ShieldWall wall = (ShieldWall) origin.world().presences.randomMatchNear(
+      ShieldWall.class, origin, Stage.ZONE_SIZE
+    );
+    choice.add(Patrolling.sentryDuty(actor, wall, origin, Plan.ROUTINE));
+    choice.add(Patrolling.nextGuardPatrol(actor, origin, Plan.CASUAL));
+  }
+  
+  
+  public static ShieldWall turretIsAboard(Target t) {
+    if (! (t instanceof Mobile)) return null;
+    final Boarding aboard = ((Mobile) t).aboard();
+    if (aboard instanceof ShieldWall) return (ShieldWall) aboard;
+    else return null;
+  }
+  
+  
+  public static float rateCompetence(
+    Actor actor, Target guarded, int teamSize
+  ) {
+    //  TODO:  Include bonus from first aid or assembly skills, depending on the
+    //  target and damage done?
+    
+    if (! PlanUtils.isArmed(actor)) return 0;
+    final Tile under = actor.world().tileAt(guarded);
+    return PlanUtils.combatWinChance(actor, under, teamSize);
+  }
+  
+  
+  
   /**  Obtaining and evaluating patrols targets-
     */
   final static Trait BASE_TRAITS[] = { FEARLESS, PATIENT, SOLITARY };
@@ -95,31 +262,15 @@ public class Patrolling extends Plan implements TileConstants {
     urgency   = avgDanger;
     modifier  = 0 - actor.senses.fearLevel();
     
-    //
-    //  TODO:  Include bonus from first aid or assembly skills, depending on the
-    //  target and damage done?  (Or not.)
+    int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
+    setCompetence(rateCompetence(actor, guarded, teamSize));
     
-    if (! PlanUtils.isArmed(actor)) setCompetence(0);
-    else setCompetence(successChanceFor(actor));
     toggleMotives(MOTIVE_EMERGENCY, PlanUtils.underAttack(guarded));
-    
     final float priority = PlanUtils.jobPlanPriority(
       actor, this, urgency + modifier, competence(),
       -1, Plan.REAL_FAIL_RISK * avgDanger, BASE_TRAITS
     );
     return priority;
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    
-    //
-    //  TODO:  Include bonus from first aid or assembly skills, depending on the
-    //  target and damage done?  (Or not.)
-    
-    int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
-    final Tile under = actor.world().tileAt(guarded);
-    return PlanUtils.combatWinChance(actor, under, teamSize);
   }
   
   
@@ -274,161 +425,6 @@ public class Patrolling extends Plan implements TileConstants {
       map.liftFogAround(spot, actor.health.sightRange() * 1.414f);
     }
     return true;
-  }
-  
-  
-  
-  /**  External factory methods-
-    */
-  public static Patrolling protectionFor(
-    Actor actor, Element guarded, float priority
-  ) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (report) I.say("\nGetting next perimeter patrol for "+actor);
-    
-    final Stage world = actor.world();
-    final List <Target> patrolled = new List();
-    
-    if (guarded.isMobile()) {
-      patrolled.add(guarded);
-    }
-    else {
-      final float range = Nums.max(
-        guarded.radius() * 2,
-        actor.health.sightRange() / 2
-      );
-      final Vec3D centre = guarded.position(null);
-      if (report) I.say("  Range is: "+range+", centre: "+centre);
-      
-      for (int n : T_ADJACENT) {
-        Tile point = world.tileAt(
-          Nums.clamp(centre.x + (T_X[n] * range), 0, world.size - 1),
-          Nums.clamp(centre.y + (T_Y[n] * range), 0, world.size - 1)
-        );
-        if (point != null) {
-          if (report) I.say("  Patrol point: "+point);
-          patrolled.include(point);
-        }
-      }
-    }
-    
-    Patrolling p = new Patrolling(actor, guarded, patrolled, TYPE_PROTECTION);
-    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
-  }
-  
-  
-  public static Patrolling streetPatrol(
-    Actor actor, Element init, Element dest, float priority
-  ) {
-    final Stage world = actor.world();
-    final List <Target> patrolled = new List <Target> ();
-    final Tile
-      initT = Spacing.nearestOpenTile((Element) init, dest, world),
-      destT = Spacing.nearestOpenTile((Element) dest, init, world);
-    
-    final PathSearch search = new PathSearch(initT, destT, true);
-    search.doSearch();
-    if (! search.success()) return null;
-    final Boarding path[] = search.fullPath(Boarding.class);
-    float interval = Stage.PATCH_RESOLUTION;
-    
-    for (int i = 0; i < path.length; i += interval) {
-      patrolled.include(path[i]);
-    }
-    patrolled.add(dest);
-    
-    Patrolling p = new Patrolling(actor, init, patrolled, TYPE_STREET_PATROL);
-    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
-  }
-  
-  
-  public static Patrolling sentryDuty(
-    Actor actor, ShieldWall start, Venue barracks, float priority
-  ) {
-    if (start == null || start.base() != barracks.base()) {
-      return null;
-    }
-    
-    final Vec3D between = Spacing.between(barracks, start);
-    final Vec2D prefHeading = new Vec2D(between).perp();
-    final float maxDist = Stage.ZONE_SIZE;
-    
-    final List <Target> patrolled = new List();
-    final Batch <Target> flagged = new Batch();
-    ShieldWall doors = null;
-    ShieldWall next = start;
-    float sumDist = 0; Vec3D temp = new Vec3D();
-    
-    while (next != null) {
-      if (next.isTower()) patrolled.include(next);
-      if (next.isGate() && doors == null) doors = next;
-      sumDist += next.radius() * 2;
-      
-      if (sumDist > maxDist) break;
-      next.flagWith(flagged);
-      flagged.add(next);
-      
-      final Pick <Boarding> pick = new Pick();
-      for (Boarding b : next.canBoard()) {
-        if (! (b instanceof ShieldWall)) continue;
-        if (b.flaggedWith() != null) continue;
-        b.position(temp);
-        pick.compare(b, prefHeading.dot(temp.x, temp.y));
-      }
-      next = (ShieldWall) pick.result();
-    }
-    
-    for (Target t : flagged) t.flagWith(null);
-    if (doors == null) {
-      return null;
-    }
-    
-    Patrolling p = new Patrolling(actor, doors, patrolled, TYPE_SENTRY_DUTY);
-    return (Patrolling) p.addMotives(Plan.NO_PROPERTIES, priority);
-  }
-  
-  
-  public static Patrolling nextGuardPatrol(
-    Actor actor, Venue origin, float priority
-  ) {
-    final boolean report = evalVerbose && I.talkAbout == actor;
-    if (report) {
-      I.say("\nGetting next guard patrol for "+actor);
-      I.say("  Base: "+origin.base());
-      final PresenceMap map = actor.world().presences.mapFor(origin.base());
-      I.say("  Total targets: "+map.population());
-    }
-
-    //  Grab a random building nearby and patrol around it.
-    final Stage world = actor.world();
-    final Base base = origin.base();
-    final float range = Stage.ZONE_SIZE / 2f;
-    final Venue pick = (Venue) world.presences.randomMatchNear(
-      base, origin, range
-    );
-    if (report) I.say("  Venue picked: "+pick);
-    
-    if (pick == null) return null;
-    return Patrolling.streetPatrol(actor, pick, pick, priority);
-  }
-  
-  
-  public static void addFormalPatrols(
-    Actor actor, Venue origin, Choice choice
-  ) {
-    ShieldWall wall = (ShieldWall) origin.world().presences.randomMatchNear(
-      ShieldWall.class, origin, Stage.ZONE_SIZE
-    );
-    choice.add(Patrolling.sentryDuty(actor, wall, origin, Plan.ROUTINE));
-    choice.add(Patrolling.nextGuardPatrol(actor, origin, Plan.CASUAL));
-  }
-  
-  
-  public static ShieldWall turretIsAboard(Target t) {
-    if (! (t instanceof Mobile)) return null;
-    final Boarding aboard = ((Mobile) t).aboard();
-    if (aboard instanceof ShieldWall) return (ShieldWall) aboard;
-    else return null;
   }
   
   

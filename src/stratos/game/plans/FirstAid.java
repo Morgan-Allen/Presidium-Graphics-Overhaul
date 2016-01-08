@@ -120,7 +120,12 @@ public class FirstAid extends Treatment {
     toggleMotives(MOTIVE_EMERGENCY,
       (urgent || urgency > 0.5f) && patient.health.alive()
     );
-    float chance = successChanceFor(actor);
+    
+    final float chance = patient.health.alive() ? tryTreatment(
+      actor, patient,
+      INJURY, PhysicianStation.INTENSIVE_CARE,
+      ANATOMY, PHARMACY, false
+    ) : 1;
     setCompetence(Nums.max(chance, urgent ? 0.5f : 0));
     //
     //  And finally, overall priority is determined and returned...
@@ -151,16 +156,6 @@ public class FirstAid extends Treatment {
     //
     //  Otherwise, return as normal-
     return super.valid();
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    if (! patient.health.alive()) return 1;
-    return tryTreatment(
-      actor, patient,
-      INJURY, PhysicianStation.INTENSIVE_CARE,
-      ANATOMY, PHARMACY, false
-    );
   }
   
   

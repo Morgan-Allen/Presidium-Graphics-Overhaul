@@ -85,6 +85,11 @@ public class MissionRecon extends Mission {
   }
   
   
+  public float rateCompetence(Actor actor) {
+    return Exploring.rateCompetence(actor);
+  }
+  
+  
   public boolean allowsMissionType(int type) {
     if (isOffworld() && type == TYPE_PUBLIC) return false;
     else return super.allowsMissionType(type);
@@ -95,7 +100,7 @@ public class MissionRecon extends Mission {
     final Sector s = (Sector) subject;
     
     float liftChance = 0;
-    for (Actor a : approved()) liftChance += MissionUtils.competence(a, this);
+    for (Actor a : approved()) liftChance += rateCompetence(a);
     liftChance /= Mission.MAX_PARTY_LIMIT;
     
     float liftAmount = 0;

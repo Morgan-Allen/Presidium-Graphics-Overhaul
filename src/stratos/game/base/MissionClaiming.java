@@ -5,6 +5,7 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
+import stratos.game.plans.Exploring;
 import stratos.game.actors.*;
 import stratos.game.verse.*;
 import stratos.start.*;
@@ -72,6 +73,7 @@ public class MissionClaiming extends Mission {
   
   
   public float targetValue(Base base) {
+    //  TODO:  FILL THIS IN!
     return 0;
   }
   
@@ -91,6 +93,17 @@ public class MissionClaiming extends Mission {
   }
   
   
+  public float rateCompetence(Actor actor) {
+    //
+    //  TODO:  This could be varied a bit if you specified demand for different
+    //         colonist types (similar to what's used in the new-game screen.)
+    return 0.5f;
+  }
+  
+  
+  
+  /**  Behaviour implementation-
+    */
   public boolean resolveMissionOffworld() {
     final Sector s = (Sector) subject;
     final SectorBase b = base.world.offworld.baseForSector(s);
@@ -128,6 +141,17 @@ public class MissionClaiming extends Mission {
   }
   
   
+  protected Behaviour createStepFor(Actor actor) {
+    return null;
+  }
+  
+  
+  protected boolean shouldEnd() {
+    if (journey() == null) return false;
+    return journey().complete();
+  }
+  
+  
   
   /**  Regular life-cycle and updates:
     */
@@ -158,19 +182,6 @@ public class MissionClaiming extends Mission {
       beginNewMap(world, verse, approved);
     }
     else super.updateMission();
-  }
-  
-  
-  
-  /**  Assigning steps to actors-
-    */
-  protected boolean shouldEnd() {
-    return false;
-  }
-  
-  
-  protected Behaviour createStepFor(Actor actor) {
-    return null;
   }
   
   

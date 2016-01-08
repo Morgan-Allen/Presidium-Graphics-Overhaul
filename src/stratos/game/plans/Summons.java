@@ -430,7 +430,7 @@ public class Summons extends Plan implements Messaging {
           if (wouldAccept) {
             pushMissionResponse(UI, with, m);
           }
-          else if (MissionUtils.competence(with, m) < 1) {
+          else if (m.rateCompetence(with) < 1) {
             pushMissionDialogue(UI, with,
               "I fear I lack the skills required, my lord."
             );

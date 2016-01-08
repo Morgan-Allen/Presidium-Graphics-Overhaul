@@ -129,7 +129,8 @@ public class Looting extends Plan {
     if (mark.base() == actor.base()) {
       if (isPrivate) urge -= ROUTINE;
     }
-    setCompetence(successChanceFor(actor));
+    setCompetence(successChance());
+    
     float danger = 1 - PlanUtils.combatWinChance(actor, mark, 1);
     float enjoys = (PlanUtils.traitAverage(actor, BASE_TRAITS) - 0.5f) * 2;
     float likes  = actor.relations.valueFor(mark);
@@ -157,11 +158,11 @@ public class Looting extends Plan {
   }
   
   
-  public float successChanceFor(Actor actor) {
+  private float successChance() {
     //  TODO:  Modify this to reflect ambient dangers (such as visibility,
     //  skill-set, day/night values, etc.)
     
-    return super.successChanceFor(actor);
+    return 1;
   }
   
   

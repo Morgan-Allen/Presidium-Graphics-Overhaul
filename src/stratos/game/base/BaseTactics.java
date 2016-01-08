@@ -262,7 +262,7 @@ public class BaseTactics {
   public boolean allowsApplicant(Actor actor, Mission mission) {
     final boolean report = shouldReport();
     final float
-      actorChance = MissionUtils.competence(actor, mission),
+      actorChance = mission.rateCompetence(actor),
       actorPower  = actor.senses.powerLevel(),
       partyChance = MissionUtils.successChance(mission),
       partyPower  = MissionUtils.partyPower   (mission);

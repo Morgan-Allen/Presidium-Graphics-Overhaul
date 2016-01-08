@@ -107,7 +107,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     if (report) I.say("\n"+actor+" is assessing priority for "+mission);
     
     if (! mission.hasBegun()) {
-      float competence  = MissionUtils.competence (actor, mission);
+      float competence  = mission.rateCompetence(actor);
       float competition = MissionUtils.competition(actor, mission);
       competition /= (0.5f + competence);
       if (mission.isApproved(actor)) competition /= 1.5f;

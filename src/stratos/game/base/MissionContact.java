@@ -154,37 +154,8 @@ public class MissionContact extends Mission {
   }
   
   
-  public boolean resolveMissionOffworld() {
-    
-    final Series <Actor> approved = approved();
-    final Pick <Actor> pick = new Pick(0);
-    float chance = 0;
-    for (Actor a : approved) {
-      pick.compare(a, chance += MissionUtils.competence(a, this));
-    }
-    final Actor talks = pick.result();
-    chance /= approved.size();
-    
-    if (talks == null) {
-      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
-      return true;
-    }
-    
-    final Actor with = (Actor) subject;
-    final Proposal props = new Proposal(talks, with);
-    props.setTerms(offers, sought);
-    
-    //  TODO:  Add some experience to diplomatic skills for envoys!
-    
-    if (Rand.num() < chance) {
-      props.setOfferAccepted(true);
-      TOPIC_CONTACT_OKAY.dispatchMessage("Contact successful", subject, this);
-    }
-    else {
-      props.setOfferAccepted(false);
-      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
-    }
-    return true;
+  public float rateCompetence(Actor actor) {
+    return DialogueUtils.communicationChance(actor, (Actor) subject);
   }
   
   
@@ -230,6 +201,40 @@ public class MissionContact extends Mission {
       if (sought.accepted()) return true;
       return allTried.size() == rolesApproved();
     }
+  }
+  
+  
+  public boolean resolveMissionOffworld() {
+    
+    final Series <Actor> approved = approved();
+    final Pick <Actor> pick = new Pick(0);
+    float chance = 0;
+    for (Actor a : approved) {
+      pick.compare(a, chance += rateCompetence(a));
+    }
+    final Actor talks = pick.result();
+    chance /= approved.size();
+    
+    if (talks == null) {
+      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
+      return true;
+    }
+    
+    final Actor with = (Actor) subject;
+    final Proposal props = new Proposal(talks, with);
+    props.setTerms(offers, sought);
+    
+    //  TODO:  Add some experience to diplomatic skills for envoys!
+    
+    if (Rand.num() < chance) {
+      props.setOfferAccepted(true);
+      TOPIC_CONTACT_OKAY.dispatchMessage("Contact successful", subject, this);
+    }
+    else {
+      props.setOfferAccepted(false);
+      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
+    }
+    return true;
   }
   
   

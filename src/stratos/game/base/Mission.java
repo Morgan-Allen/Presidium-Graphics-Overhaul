@@ -308,18 +308,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   
-  /**  Other abstract contract methods for subclasses-
-    */
-  public abstract float targetValue(Base base);
-  public abstract float harmLevel();
-  
-  protected abstract boolean shouldEnd();
-  protected abstract Behaviour createStepFor(Actor actor);
-  
-  public abstract boolean resolveMissionOffworld();
-  
-  
-  
   /**  Adding and screening applicants, plus settings special rewards-
     */
   class Role {
@@ -678,6 +666,19 @@ public abstract class Mission implements Session.Saveable, Selectable {
     }
     return totalVal;
   }
+  
+  
+  
+  /**  Other abstract contract methods for subclasses-
+    */
+  public abstract float targetValue(Base base);
+  public abstract float harmLevel();
+  public abstract float rateCompetence(Actor actor);
+  
+  protected abstract Behaviour createStepFor(Actor actor);
+  protected abstract boolean shouldEnd();
+  
+  public abstract boolean resolveMissionOffworld();
   
   
   

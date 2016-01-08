@@ -208,7 +208,7 @@ public class Arrest extends Plan {
   }
   
   
-  public float successChanceFor(Actor actor) {
+  public float successChance() {
     final Actor suspect = (Actor) subject;
     float chance = CombatUtils.powerLevelRelative(actor, suspect) / 2f;
     chance = (chance + 1 - actor.senses.fearLevel()) / 2f;

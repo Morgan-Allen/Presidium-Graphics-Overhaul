@@ -197,19 +197,15 @@ public class Performance extends Recreation {
       I.say("\nPerforming at "+venue+", priority?");
     }
     if (expired()) return 0;
-    
-    setCompetence(successChanceFor(actor));
-    return PlanUtils.jobPlanPriority(
-      actor, this, 0.5f, competence(), -1, 0, BASE_TRAITS
-    );
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
+
     final Skill skills[] = PERFORM_SKILLS[type];
     float chance = 1;
     for (Skill s : skills) chance += actor.skills.chance(s, MODERATE_DC);
-    return chance / (1 + skills.length);
+    setCompetence(chance / (1 + skills.length));
+    
+    return PlanUtils.jobPlanPriority(
+      actor, this, 0.5f, competence(), -1, 0, BASE_TRAITS
+    );
   }
   
   

@@ -63,20 +63,15 @@ public class RoadsRepair extends Plan {
   
   protected float getPriority() {
     if (GameSettings.paveFree) return -1;
-    
-    setCompetence(successChanceFor(actor));
-    return PlanUtils.jobPlanPriority(
-      actor, this, 1, competence(), 0, MILD_FAIL_RISK, BASE_TRAITS
-    );
-  }
-  
-  
-  //  TODO:  Merge this with the Repair class for simplicity..?
-  public float successChanceFor(Actor actor) {
+
     float chance = 1;
     chance *= actor.skills.chance(HARD_LABOUR, 0);
     chance *= actor.skills.chance(ASSEMBLY   , 5);
-    return (chance + 1) / 2;
+    setCompetence((chance + 1) / 2);
+    
+    return PlanUtils.jobPlanPriority(
+      actor, this, 1, competence(), 0, MILD_FAIL_RISK, BASE_TRAITS
+    );
   }
   
   

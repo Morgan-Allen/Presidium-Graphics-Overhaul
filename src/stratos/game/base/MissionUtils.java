@@ -16,32 +16,14 @@ public class MissionUtils {
   public static float competition(Actor actor, Mission mission) {
     if (mission.isApproved(actor)) return 0;
     final int partyLimit = mission.partyLimit();
-    return mission.applicants().size() * 1f / partyLimit;
+    return mission.roles.size() * 1f / partyLimit;
   }
-  
-  
-  public static float competence(Actor actor, Mission mission) {
-    //
-    //  TODO:  This clearly needs a more nuanced evaluation:
-    if (mission.isOffworld()) {
-      return 0.5f;
-    }
-    
-    final Behaviour step = mission.nextStepFor(actor, true);
-    if (step == null) return 0;
-    step.priorityFor(actor);
-    if (step instanceof Plan) return ((Plan) step).competence();
-    else return 1;
-  }
-  
-  
-
   
   
   protected static float successChance(Mission mission) {
     float sumChances = 0;
     for (Actor a : mission.applicants()) {
-      sumChances += competence(a, mission);
+      sumChances += mission.rateCompetence(a);
     }
     return sumChances;
   }

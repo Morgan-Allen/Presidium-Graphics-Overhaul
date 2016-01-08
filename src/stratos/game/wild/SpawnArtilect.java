@@ -78,7 +78,26 @@ public class SpawnArtilect extends Plan {
   
   
   protected float getPriority() {
+    setCompetence(successChance());
     return ROUTINE;
+  }
+  
+  
+  private float repairDC() {
+    float DC = 100;
+    if (repairs instanceof Drone) DC = 5;
+    if (repairs instanceof Tripod) DC = 15;
+    if (repairs instanceof Cranial) DC = 25;
+    return DC;
+  }
+  
+  
+  private float successChance() {
+    final float DC = repairDC();
+    float chance = 0;
+    chance += actor.skills.chance(ASSEMBLY, DC) / 2;
+    chance += actor.skills.chance(INSCRIPTION, DC) / 2;
+    return chance;
   }
   
   
@@ -92,24 +111,6 @@ public class SpawnArtilect extends Plan {
       Action.BUILD, "Repairing"
     );
     return makes;
-  }
-  
-  
-  private float repairDC() {
-    float DC = 100;
-    if (repairs instanceof Drone) DC = 5;
-    if (repairs instanceof Tripod) DC = 15;
-    if (repairs instanceof Cranial) DC = 25;
-    return DC;
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    final float DC = repairDC();
-    float chance = 0;
-    chance += actor.skills.chance(ASSEMBLY, DC) / 2;
-    chance += actor.skills.chance(INSCRIPTION, DC) / 2;
-    return chance;
   }
   
   

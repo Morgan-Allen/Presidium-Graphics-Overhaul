@@ -451,11 +451,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  //  TODO:  Consider making this abstract?
-  public float successChanceFor(Actor actor) {
-    return 1;
-  }
-  
   //  TODO:  This also needs to be automated.
   protected void setCompetence(float c) {
     this.competence = c;

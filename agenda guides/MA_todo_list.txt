@@ -2,10 +2,6 @@
 
 CURRENT ITEMS:
 
-   Priority:  High  Duration:  Short
-*  Offworld missions (and possibly missions in general) need to have a custom
-   competence-evaluation function for applicants.
-
    Priority:  Medium-High  Duration:  Medium-Long
 *  Initial missions:
    Planitia Sector (robots + ruins, artifact.)

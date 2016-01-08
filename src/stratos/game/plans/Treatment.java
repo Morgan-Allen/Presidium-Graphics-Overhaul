@@ -147,7 +147,11 @@ public class Treatment extends Plan {
       return 0;
     }
     
-    setCompetence(successChanceFor(actor));
+    setCompetence(tryTreatment(
+      actor, patient,
+      sickness, PhysicianStation.MEDICAL_LAB,
+      PHARMACY, GENE_CULTURE, false
+    ));
     return PlanUtils.supportPriority(
       actor, patient, motiveBonus(), competence(), severity
     );
@@ -157,15 +161,6 @@ public class Treatment extends Plan {
   public float harmIntended(Target t) {
     if (t == sickbay) return 0;
     return super.harmIntended(t);
-  }
-  
-  
-  public float successChanceFor(Actor actor) {
-    return tryTreatment(
-      actor, patient,
-      sickness, PhysicianStation.MEDICAL_LAB,
-      PHARMACY, GENE_CULTURE, false
-    );
   }
   
   
