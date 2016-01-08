@@ -65,7 +65,6 @@ public class StartupScenario extends Scenario {
     TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
     Flora.populateFlora(world);
-    world.advanceCurrentTime(verse.startingDate() - Stage.DEFAULT_INIT_TIME);
     world.readyAfterPopulation();
     return world;
   }

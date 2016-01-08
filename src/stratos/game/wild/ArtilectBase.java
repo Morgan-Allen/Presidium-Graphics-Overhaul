@@ -63,13 +63,19 @@ public class ArtilectBase extends Base {
   
   /**  Regular update methods-
     */
-  
-  public void updateVisits() {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     //
     //  Visits come from *externally*.
     float maxTeamPower = onlineLevel * MAX_MISSION_POWER * 2;
+    float visitDelay = AVG_RAID_INTERVAL / (1 + onlineLevel);
+    visitDelay = Nums.max(visitDelay, MIN_RAID_INTERVAL);
     
-    //  TODO:  I'm going to need some common methods for this.
+    if (world.currentTime() - visits.lastVisitTime() > visitDelay) {
+      visits.attemptRaidingVisit(
+        maxTeamPower, -1, world.localSector(), null, Ruins.SPECIES
+      );
+    }
   }
   
   

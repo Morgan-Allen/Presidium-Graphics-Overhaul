@@ -13,6 +13,7 @@ import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
+import stratos.user.notify.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
@@ -166,9 +167,11 @@ public class MissionContact extends Mission {
     
     if (Rand.num() < chance) {
       props.setOfferAccepted(true);
+      TOPIC_CONTACT_OKAY.dispatchMessage("Contact successful", subject, this);
     }
     else {
       props.setOfferAccepted(false);
+      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
     }
     return;
   }
@@ -222,6 +225,29 @@ public class MissionContact extends Mission {
   
   /**  Rendering, debug and interface methods-
     */
+  final static MessageTopic TOPIC_CONTACT_OKAY = new MessageTopic(
+    "topic_contact_okay", true, Mobile.class, MissionContact.class
+  ) {
+    protected void configMessage(BaseUI UI, Text d, Object... args) {
+      d.appendAll("Negotiations with ", args[0], " were successful!");
+      final MissionContact m = (MissionContact) args[1];
+      d.appendAll(" They have agreed to ", m.sought);
+      d.appendAll(", in exchange for "   , m.offers, ".");
+    }
+  };
+
+  final static MessageTopic TOPIC_CONTACT_FAIL = new MessageTopic(
+    "topic_contact_fail", true, Mobile.class, MissionContact.class
+  ) {
+    protected void configMessage(BaseUI UI, Text d, Object... args) {
+      d.appendAll("Negotiations with ", args[0], " have failed.");
+      final MissionContact m = (MissionContact) args[1];
+      d.appendAll(" They have refused to provide ", m.sought);
+      d.appendAll(" in exchange for ", m.offers, ".");
+    }
+  };
+  
+  
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new NegotiationPane(UI, this);
     

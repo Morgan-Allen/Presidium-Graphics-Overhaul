@@ -137,6 +137,7 @@ public class Stage implements Session.Saveable {
     world.terrain = terrain;
     terrain.initTerrainMesh();
     verse.assignStage(world, location);
+    world.advanceCurrentTime(verse.startingDate() - DEFAULT_INIT_TIME);
     
     for (SectorBase b : verse.sectorBases()) {
       world.schedule.scheduleForUpdates(b);

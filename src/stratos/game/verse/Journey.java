@@ -222,7 +222,7 @@ public class Journey implements Session.Saveable {
   
   public static Journey configForVisit(
     Sector from, Stage world,
-    Vehicle transportUsed, Base base, float maxStayTime
+    Boarding entryOrTransport, Base base, float maxStayTime
   ) {
     final Verse verse = world.offworld;
     final int props = IS_MISSION | IS_RETURN;
@@ -230,10 +230,12 @@ public class Journey implements Session.Saveable {
     
     journey.origin       = from;
     journey.destination  = world.localSector();
-    journey.transport    = transportUsed;
-    journey.transitPoint = transportUsed;
+    journey.transitPoint = entryOrTransport;
     journey.maxStayTime  = maxStayTime;
     
+    if (entryOrTransport instanceof Vehicle) {
+      journey.transport = (Vehicle) entryOrTransport;
+    }
     if (! journey.checkTransitPoint()) return null;
     return journey;
   }

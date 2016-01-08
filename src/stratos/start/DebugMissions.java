@@ -113,8 +113,11 @@ public class DebugMissions extends Scenario {
     final Verse verse = world.offworld;
     CivicBase procyon = Base.settlement(world, null, Faction.FACTION_PROCYON);
     verse.baseForSector(Verse.PLANET_PAREM_V).updateAsScheduled(0, false);
-    procyon.updateVisits();
-    procyon.beginRaidingVisit(CivicBase.AVG_SECTOR_POWER, 10);
+    
+    procyon.visits.attemptRaidingVisit(
+      CivicBase.AVG_SECTOR_POWER, 10,
+      Verse.PLANET_PAREM_V, new Airship(procyon), CivicBase.RAID_CLASSES
+    );
   }
   
   

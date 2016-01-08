@@ -11,7 +11,7 @@ import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
-import stratos.content.civic.Airfield;
+import stratos.content.civic.*;
 import static stratos.game.economic.Economy.*;
 
 
@@ -42,6 +42,8 @@ public class BaseVisits {
   protected int maxShipsPerDay = 0;
   final List <Actor> candidates = new List <Actor> ();
   
+  private float lastVisitTime = -1;
+  
   
   
   
@@ -51,20 +53,20 @@ public class BaseVisits {
   
   
   public void loadState(Session s) throws Exception {
-    
     homeworld = (Sector) s.loadObject();
     s.loadObjects(partners);
     maxShipsPerDay = s.loadInt();
     s.loadObjects(candidates);
+    lastVisitTime = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
-    
     s.saveObject(homeworld);
     s.saveObjects(partners);
     s.saveInt(maxShipsPerDay);
     s.saveObjects(candidates);
+    s.saveFloat(lastVisitTime);
   }
   
   
@@ -296,6 +298,97 @@ public class BaseVisits {
       if (amount <= 0) continue;
       forShipping.forceDemand(e.type, amount, 0);
     }
+  }
+  
+  
+  
+  /**  Utility methods for handling raids and other special visits, typically
+    *  for a base that's not represented in-world:
+    */
+  public float lastVisitTime() {
+    return lastVisitTime;
+  }
+  
+  
+  protected void beginVisit(Mission visit, Journey journey) {
+    visit.setJourney(journey);
+    visit.beginMission();
+    lastVisitTime = base.world.currentTime();
+    
+    final Actor team[] = visit.approved().toArray(Actor.class);
+    if (journey.transport() != null) for (Actor a : team) {
+      a.mind.setHome(journey.transport());
+      a.mind.setWork(journey.transport());
+    }
+    journey.beginJourney(team);
+  }
+  
+  
+  public boolean attemptRaidingVisit(
+    float maxTeamPower, float arriveDelay,
+    Sector source, Boarding entryPoint, Background raidClasses[]
+  ) {
+    //  NOTE:  To avoid overly-frequent attempts after failure, we record the
+    //  last visit time regardless of success...
+    this.lastVisitTime = base.world.currentTime();
+    if (source == null) return false;
+    
+    //  Firstly, we need to set up the start and end points for a Journey, and
+    //  ensure that an accessible target for a strike-mission is available from
+    //  either the landing site or wherever the raiders might enter the world.
+    final Journey journey = Journey.configForVisit(
+      source, base.world,
+      entryPoint, base, Journey.RAID_STAY_DURATION
+    );
+    Mission strike = null;
+    
+    if (entryPoint instanceof Vehicle) {
+      final Vehicle vessel = (Vehicle) entryPoint;
+      if (vessel.dropPoint() == null) return false;
+      strike = base.tactics.bestStrikeMissionFromPoint(vessel.dropPoint());
+    }
+    else {
+      if (journey.transitPoint() == null) return false;
+      strike = base.tactics.bestStrikeMissionFromPoint(journey.transitPoint());
+    }
+    if (strike == null || strike.targetValue(base) < 0) return false;
+    
+    //  In the event that checks out, we then put together a suitable team from
+    //  the selection of Backgrounds available.
+    final Batch <Background> soldierTypes   = new Batch();
+    final Batch <Float     > recruitChances = new Batch();
+    final Sector hires = base.faction().startSite();
+    
+    for (Background b : raidClasses) {
+      final float w = hires == null ? 1 : ((hires.weightFor(b) + 0.5f) / 2);
+      if (w <= 0) continue;
+      soldierTypes  .add(b);
+      recruitChances.add(w);
+    }
+    if (soldierTypes.empty()) return false;
+    
+    final Batch <Actor> team = new Batch();
+    float teamPower = 0;
+    while (teamPower <= maxTeamPower) {
+      Background b = (Background) Rand.pickFrom(soldierTypes, recruitChances);
+      if (b == null) continue;
+      Actor recruit = b.sampleFor(base);
+      float power = CombatUtils.powerLevel(recruit);
+      teamPower += power;
+      team.add(recruit);
+    }
+    
+    //  Finally, if the crew is recruited and the journey is possible, finish
+    //  setting up the mission and schedule the visit.
+    MissionUtils.quickSetup(
+      strike, Mission.PRIORITY_PARAMOUNT, Mission.TYPE_BASE_AI,
+      team.toArray(Actor.class)
+    );
+    beginVisit(strike, journey);
+    if (arriveDelay > 0) {
+      journey.setArrivalTime(base.world.currentTime() + arriveDelay);
+    }
+    return true;
   }
 }
 

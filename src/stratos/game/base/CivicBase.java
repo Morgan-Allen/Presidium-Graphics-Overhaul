@@ -50,27 +50,60 @@ public class CivicBase extends Base {
   };
   
   
-  
-  public void updateVisits() {
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
     
+    //  TODO:...
     //  I think you either need multiple bases per sector, or you need a
-    //  different name for what they represent.
+    //  different name for what they represent?
+    
     float factionPower = 0;
     for (SectorBase sB : world.offworld.sectorBases()) {
       factionPower += sB.powerLevel(faction()) * distanceFactor(sB);
     }
     
     float visitDelay = AVG_RAID_INTERVAL * AVG_SECTOR_POWER / factionPower;
+    
+    //  TODO:  NO RANDOM FACTOR!
+    
     visitDelay *= 0.5f + Rand.num();
     visitDelay = Nums.clamp(visitDelay, MIN_RAID_INTERVAL, MAX_RAID_INTERVAL);
     
     float maxTeamPower = factionPower;
-    if (world.currentTime() - lastVisitTime() > visitDelay) {
-      beginRaidingVisit(maxTeamPower, -1);
+    if (world.currentTime() - visits.lastVisitTime() > visitDelay) {
+      final SectorBase source = pickClaimedBase();
+      if (source != null) visits.attemptRaidingVisit(
+        maxTeamPower, -1, source.location, new Airship(this), RAID_CLASSES
+      );
     }
   }
   
   
+  private SectorBase pickClaimedBase() {
+    Batch <Float     > chances = new Batch();
+    Batch <SectorBase> claimed = new Batch();
+    
+    for (SectorBase b : world.offworld.sectorBases()) {
+      if (b.faction() == faction()) {
+        final float distFactor = distanceFactor(b);
+        if (distFactor < 0) continue;
+        chances.add(distFactor);
+        claimed.add(b);
+      }
+    }
+    return (SectorBase) Rand.pickFrom(claimed, chances);
+  }
+  
+  
+  private float distanceFactor(SectorBase claimed) {
+    final Sector locale = world.localSector(), s = claimed.location;
+    final float timeUnits = s.tripTimeUnits(locale);
+    if (timeUnits < 0) return -1;
+    return 1f / (1 + timeUnits);
+  }
+  
+  
+  /*
   public boolean beginRaidingVisit(float maxTeamPower, float arriveDelay) {
     final SectorBase source = pickClaimedBase();
     if (source == null) return false;
@@ -144,6 +177,8 @@ public class CivicBase extends Base {
     if (timeUnits < 0) return -1;
     return 1f / (1 + timeUnits);
   }
+  //*/
+  
 }
 
 

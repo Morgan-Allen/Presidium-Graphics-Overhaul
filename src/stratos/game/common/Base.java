@@ -39,7 +39,6 @@ public abstract class Base extends SectorBase implements
   final public IntelMap     intelMap ;
   
   private Venue commandPost;
-  private float lastVisitTime = -1;
   
   final public BaseRatings  ratings   = initRatings ();
   final public BaseAdvice   advice    = initAdvice  ();
@@ -93,8 +92,7 @@ public abstract class Base extends SectorBase implements
     dangerMap.loadState(s);
     intelMap .loadState(s);
 
-    commandPost  = (Venue) s.loadObject();
-    lastVisitTime = s.loadFloat();
+    commandPost = (Venue) s.loadObject();
     
     ratings  .loadState(s);
     tactics  .loadState(s);
@@ -122,8 +120,7 @@ public abstract class Base extends SectorBase implements
     dangerMap.saveState(s);
     intelMap .saveState(s);
     
-    s.saveObject(commandPost );
-    s.saveFloat (lastVisitTime);
+    s.saveObject(commandPost);
     
     ratings  .saveState(s);
     tactics  .saveState(s);
@@ -250,34 +247,12 @@ public abstract class Base extends SectorBase implements
   
   /**  Dealing with missions, visits (spawning) and personnel-
     */
-  //  TODO:  Move this out to the BaseVisits class!
-  
   public Property HQ() {
     return ruler() == null ? null : ruler().mind.home();
   }
   
   
-  protected float lastVisitTime() {
-    return lastVisitTime;
-  }
-  
-  
-  protected void beginVisit(Mission visit, Journey journey) {
-    visit.setJourney(journey);
-    visit.beginMission();
-    lastVisitTime = world.currentTime();
-    
-    final Actor team[] = visit.approved().toArray(Actor.class);
-    if (journey.transport() != null) for (Actor a : team) {
-      a.mind.setHome(journey.transport());
-      a.mind.setWork(journey.transport());
-    }
-    journey.beginJourney(team);
-  }
-  
-  
-  //  TODO:  Move to the tactics/faction-AI class?
-  
+  //  TODO:  Move to the tactics class?
   public Mission matchingMission(Object subject, Class typeClass) {
     for (Mission match : tactics.allMissions()) {
       if (typeClass != null && match.getClass() != typeClass) continue;
@@ -301,9 +276,6 @@ public abstract class Base extends SectorBase implements
   public int baseID() {
     return baseID;
   }
-  
-  
-  public abstract void updateVisits();
   
   
   

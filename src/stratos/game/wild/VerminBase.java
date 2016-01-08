@@ -7,6 +7,7 @@ package stratos.game.wild;
 import stratos.content.civic.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.util.*;
 
@@ -17,23 +18,21 @@ import stratos.util.*;
 //  general hiding routines.)
 
 
-//  TODO:  Vermin should only pop up when there's a good opportunity for theft
-//  (i.e, looting priority is > 0) and the area isn't too dangerous for them (
-//  due to poor security) and corrosion lets them in (due to poor maintenance
-//  and squalor.)  They should then disappear into an 'off-map reservoir' as
-//  soon as looting is done and they retreat to their entry-point.
-//
-//  Simple.  Killing them is like playing whack-a-mole.
-
-
 public class VerminBase extends Base {
   
   
   private static boolean verbose = false;
   
-  final static int
-    SPAWN_PER_ENTRY_INTERVAL = Stage.STANDARD_DAY_LENGTH,
-    MAX_BIOMASS_PER_ENTRY    = 10;
+  final static float
+    AVG_RAID_INTERVAL = Stage.STANDARD_DAY_LENGTH * 2,
+    MIN_RAID_INTERVAL = Stage.STANDARD_DAY_LENGTH / 2,
+    MAX_RAID_POWER    = CombatUtils.AVG_POWER * Mission.MAX_PARTY_LIMIT,
+    POWER_PER_HATCH   = MAX_RAID_POWER / 20;
+  
+  final static Species ROACH_SPECIES[] = {
+    Roach.SPECIES, Roachman.SPECIES
+  };
+  
   
   
   public VerminBase(Stage world) {
@@ -50,103 +49,28 @@ public class VerminBase extends Base {
     super.saveState(s);
   }
   
-  
-  
-  public void updateVisits() {
-    
-  }
-  
 
-  /*
   public void updateAsScheduled(int numUpdates, boolean instant) {
-    final boolean report = verbose;
     super.updateAsScheduled(numUpdates, instant);
     
-    if (GameSettings.noSpawn) return;
-    //
-    //  We perform updates to check for vermin-entry more quickly as the number
-    //  of entry-points increases...
     final PresenceMap hatches = world.presences.mapFor(ServiceHatch.class);
     final int totalHatches = hatches.population();
     if (totalHatches == 0 || instant) return;
-    final int interval = SPAWN_PER_ENTRY_INTERVAL / totalHatches;
     
-    if (report) {
-      I.say("Updating vermin base, total updates: "+numUpdates);
-      I.say("  Total hatches:  "+totalHatches);
-      I.say("  Spawn interval: "+interval    );
-    }
-    //
-    //  If the time has arrived, assemble a 'raid' where creatures arrive
-    //  through another base's service hatches.
+    float maxTeamPower = totalHatches * POWER_PER_HATCH;
+    float factionPower = maxTeamPower / MAX_RAID_POWER;
+    float visitDelay = AVG_RAID_INTERVAL / (1 + factionPower);
+    visitDelay = Nums.max(visitDelay, MIN_RAID_INTERVAL);
     
-    //  TODO:  MAXIMUM VERMIN POPULATION SHOULD BE RELATIVE TO THE SETTLEMENT
-    //  AS A WHOLE!
-    
-    if (numUpdates % interval == 0) {
+    if (world.currentTime() - visits.lastVisitTime() > visitDelay) {
       Target entryPoint = hatches.pickRandomAround(null, -1, null);
-      if (entryPoint == null) return;
       final ServiceHatch hatch = (ServiceHatch) entryPoint;
-      //
-      //  Get the maximum and current vermin population in the area.
-      final float squalor = 5 - world.ecology().ambience.valueAt(hatch);
-      int maxPop = (int) (squalor * MAX_BIOMASS_PER_ENTRY / 10f);
-      maxPop = Nums.clamp(maxPop, MAX_BIOMASS_PER_ENTRY + 1);
-      float realPop = 0;
-      for (Actor a : hatch.staff.lodgers()) if (a.species().vermin()) {
-        realPop += a.species().metabolism();
-      }
-      final float crowding = realPop / maxPop;
-      final int numEntered = (int) ((Rand.index(3) + 1) * (1 - crowding));
-      //
-      //  Then, if crowding allows, assemble a group of vermin and add them to
-      //  the hatch as immigrants.
-      if (report) {
-        I.say("\nChecking for vermin entry at: "+hatch);
-        I.say("  Position:    "+hatch.origin());
-        I.say("  Squalor:     "+squalor   );
-        I.say("  Crowding:    "+crowding  );
-        I.say("  Num entered: "+numEntered);
-      }
-      for (int n = numEntered; n-- > 0;) {
-        Actor enters = Rand.index(10) < crowding ?
-          Roach   .SPECIES.sampleFor(this) :
-          Roachman.SPECIES.sampleFor(this) ;
-        enters.enterWorldAt(hatch, world);
-        enters.mind.setHome(hatch);
-        if (report) I.say("  Entering world: "+enters);
-      }
+      visits.attemptRaidingVisit(
+        maxTeamPower, -1, Verse.SECTOR_UNDERGROUND, hatch, ROACH_SPECIES
+      );
     }
   }
   
-  
-  protected FactionAI initTactics() {
-    return new FactionAI(this) {
-      protected float rateMission(Mission mission) {
-        final float importance = mission.rateImportance(base);
-        if (importance <= 0) return -1;
-        return importance + onlineLevel;
-      }
-      
-      protected boolean shouldAllow(
-        Actor actor, Mission mission,
-        float actorChance, float actorPower,
-        float partyChance, float partyPower
-      ) {
-        float powerLimit = MAX_MISSION_POWER * onlineLevel;
-        return actorPower + partyPower <= powerLimit;
-      }
-      
-      protected boolean shouldLaunch(
-        Mission mission, float partyChance, float partyPower, boolean timeUp
-      ) {
-        float powerLimit = MAX_MISSION_POWER * onlineLevel;
-        return (partyPower > (powerLimit / 2)) || timeUp;
-      }
-    };
-  }
-  
-  //*/
 }
 
 

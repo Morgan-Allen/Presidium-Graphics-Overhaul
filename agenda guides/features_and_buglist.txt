@@ -1,19 +1,12 @@
 
 
 
-TO DO NOW-
+*  I may need to implement a major change where each Base is responsible for
+   managing structures/settlements both within and outside the world (thereby
+   corresponding to a faction) and things like sectors/planets implement the
+   Boarding interface.  It's the only safe, consistent way to implement pathing
+   attempts and ensure base-membership.
 
-*  Offworld raids by enemy houses!  And general 'wandering monsters'.
-   Plus, adding missions to claim nearby sectors.
-
-*  Path-zone refreshment needs to be done more intelligently to avoid 'spikes'
-   in usage (see the PathingMap class.)
-
-*  Initial missions:
-   Planitia Sector (robots + ruins, artifact.)
-   Pavonis Sector (mild settlement, pacified.)
-   Aeolis Sector (desert plus wildlife.)
-   Marineris Sector (neutral + water/islands.  Some wildlife.)
 
 *  The Airfield should be responsible for imposing offworld supply/demand at a
    local level.
@@ -34,6 +27,8 @@ TO DO NOW-
 *  Ensure that political-relations fx for house suhail and full trait/skill fx
    for gender are working when you begin a new game.  (Also, consider allowing
    'upstart' or 'diplomatic' as backgrounds.)
+
+*  Actor-generation should respect the climate of the source world!
 
 *  Add random tips during the loading-screens.
 
@@ -132,7 +127,6 @@ BUILDINGS AND ECONOMY-
 
 *  Wood is valued for aesthetic properties (decor at the fabricator), along
    with fossils/curios for outfits.
-
 
 *  Implement long-distance auto-paving, but only for autonomous base-AI.  The
    player can handle most connections themselves.
@@ -265,6 +259,20 @@ INTERFACE AND DEBUGGING
 
 
 ART, GRAPHICS AND MEDIA PRODUCTION
+
+
+*  On my (Morgan's) older Mac there's noticeable slowdown on large maps every 2
+   seconds or so, with much of this due to inefficient handling of buffer calls
+   on OSX.  Investigate.
+
+*  We might consider some kind of alternate-rendering arrangement for indoor
+   or occluded actors- like a semi-transparent overlay if selected.  (Also,
+   shield walls/perimeter fence need to have some kind of alternative graphics
+   arrangement- consider making them into Mounts, and providing fresh art to
+   show windows with sentries inside.)
+
+*  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
+   that.
 
 *  Try to migrate ephemera/stage.visible (list lower down!)
 
