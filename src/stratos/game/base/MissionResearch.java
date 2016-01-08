@@ -76,6 +76,12 @@ public class MissionResearch extends Mission {
   }
   
   
+  public boolean allowsMissionType(int type) {
+    if (type == TYPE_MILITARY) return false;
+    else return super.allowsMissionType(type);
+  }
+  
+  
   public boolean resolveMissionOffworld() {
     return false;
   }

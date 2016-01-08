@@ -42,6 +42,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     TYPE_COVERT   =  2,
     TYPE_MILITARY =  3,
     LIMIT_TYPE    =  4,
+    ALL_MISSION_TYPES[] = { 0, 1, 2, 3, },
     
     PRIORITY_NONE      = 0,
     PRIORITY_NOMINAL   = 1,
@@ -67,10 +68,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     PRIORITY_DESC[] = {
       "None", "Nominal", "Routine", "Urgent", "Critical", "Paramount"
     };
-  final public static Integer REWARD_AMOUNTS[] = {
+  final public static Integer DEFAULT_REWARD_AMOUNTS[] = {
     0, 100, 250, 500, 1000, 2500
   };
-  final public static Integer PARTY_LIMITS[] = {
+  final public static Integer DEFAULT_PARTY_LIMITS[] = {
     1, 3, 3, 4, 4, 5
   };
   final public static int
@@ -178,7 +179,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public void setMissionType(int type) {
-    if (this.missionType == type) return;
+    if (this.missionType == type || ! allowsMissionType(type)) return;
+    
     this.missionType = type;
     resetMission();
     if (I.logEvents()) {
@@ -262,6 +264,11 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
+  public boolean allowsMissionType(int type) {
+    return true;
+  }
+  
+  
   public Base base() {
     return base;
   }
@@ -285,8 +292,18 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public static float rewardFor(int priority) {
-    return REWARD_AMOUNTS[Nums.clamp(priority, LIMIT_PRIORITY)];
+  public int rewardAmount() {
+    return rewardForPriority(priority);
+  }
+  
+  
+  public int rewardForPriority(int priority) {
+    return DEFAULT_REWARD_AMOUNTS[Nums.clamp(priority, LIMIT_PRIORITY)];
+  }
+  
+  
+  public int partyLimit() {
+    return DEFAULT_PARTY_LIMITS[Nums.clamp(priority, LIMIT_PRIORITY)];
   }
   
   
@@ -511,7 +528,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  Determine the reward, and dispense among any agents engaged-
     final float reward;
     if ((! completed) || this.missionType == TYPE_BASE_AI) reward = 0;
-    else reward = REWARD_AMOUNTS[priority] * 1f / roles.size();
+    else reward = rewardAmount() * 1f / roles.size();
     
     for (Role role : roles) {
       if (completed) {
@@ -605,8 +622,9 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  command prior to actual execution.
     final boolean baseAI = missionType == TYPE_BASE_AI;
     final int
-      partySize = rolesApproved(),
-      limit     = PARTY_LIMITS[priority];
+      partySize    = rolesApproved(),
+      rewardAmount = rewardAmount (),
+      limit        = partyLimit   ();
     final Role role = roleFor(actor);
     float rewardEval;
     if (baseAI) {
@@ -619,7 +637,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //  offer for completing the task, together with a multiplier based on
     //  mission type- the more control you have, the more you must pay your
     //  candidates.
-    rewardEval =  REWARD_AMOUNTS   [priority   ];
+    rewardEval =  rewardAmount;
     rewardEval *= REWARD_TYPE_MULTS[missionType];
     //
     //  We assume a worst-case scenario for division of the reward, just to
@@ -645,7 +663,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       totalVal += offerVal = role.specialReward.valueFor(actor);
     }
     if (report) {
-      I.say("  True reward total: "+REWARD_AMOUNTS[priority]);
+      I.say("  True reward total: "+rewardAmount);
       I.say("  Type multiplier:   "+REWARD_TYPE_MULTS[missionType]);
       I.say("  Party capacity:    "+partySize+"/"+limit);
       I.say("  Evaluated reward:  "+rewardEval);

@@ -147,6 +147,13 @@ public class MissionContact extends Mission {
   }
   
   
+  public boolean allowsMissionType(int type) {
+    if      (type == TYPE_PUBLIC  ) return false;
+    else if (type == TYPE_MILITARY) return false;
+    else return super.allowsMissionType(type);
+  }
+  
+  
   public boolean resolveMissionOffworld() {
     
     final Series <Actor> approved = approved();

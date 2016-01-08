@@ -68,7 +68,7 @@ public class MissionPane extends SelectionPane {
   protected void describeStatus(
     final Mission mission, boolean canChange, Description d
   ) {
-    //
+    
     //  Firstly, declare the mission's patron and current status:
     final Base declares = mission.base();
     d.append("Declared by "+declares);
@@ -81,16 +81,15 @@ public class MissionPane extends SelectionPane {
     if (confirmAbort) return;
     d.append("\n");
     
-    //
     //  Secondly, describe the mission type:
     final int type     = mission.missionType();
     final int priority = mission.assignedPriority();
     if (type == TYPE_BASE_AI) return;
-    int payAmount = REWARD_AMOUNTS[priority];
+    int payAmount = mission.rewardAmount();
     
     d.append("\nType and Reward: ");
-    for (int i = 0; i < LIMIT_TYPE; i++) {
-      final int newType = i;
+    for (final int newType : Mission.ALL_MISSION_TYPES) {
+      if (! mission.allowsMissionType(newType)) continue;
       final boolean active = type == newType;
       d.append("\n  ");
       
@@ -107,7 +106,7 @@ public class MissionPane extends SelectionPane {
       if (active) {
         d.append(" ("+payAmount+" credits) ");
         
-        final float nextAmount = Mission.rewardFor(priority + 1);
+        final float nextAmount = mission.rewardForPriority(priority + 1);
         final boolean canPay = mission.base().finance.credits() > nextAmount;
         final boolean canAdjust = canPay && (canChange || (
           type == TYPE_PUBLIC && priority < PRIORITY_PARAMOUNT

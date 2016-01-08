@@ -81,6 +81,16 @@ public class MissionClaiming extends Mission {
   }
   
   
+  public boolean allowsMissionType(int type) {
+    return type == TYPE_SCREENED;
+  }
+  
+  
+  public int partyLimit() {
+    return Expedition.DEFAULT_MAX_COLONISTS + Expedition.DEFAULT_MAX_ADVISORS;
+  }
+  
+  
   public boolean resolveMissionOffworld() {
     final Sector s = (Sector) subject;
     final SectorBase b = base.world.offworld.baseForSector(s);

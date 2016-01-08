@@ -85,6 +85,12 @@ public class MissionRecon extends Mission {
   }
   
   
+  public boolean allowsMissionType(int type) {
+    if (isOffworld() && type == TYPE_PUBLIC) return false;
+    else return super.allowsMissionType(type);
+  }
+  
+  
   public boolean resolveMissionOffworld() {
     final Sector s = (Sector) subject;
     

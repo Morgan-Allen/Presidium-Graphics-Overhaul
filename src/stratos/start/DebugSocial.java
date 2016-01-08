@@ -248,7 +248,7 @@ public class DebugSocial extends Scenario {
     watch.enterWorldAt(13, 13, world);
     
     MissionUtils.quickSetup(
-      new MissionStrike(base, nests),
+      MissionStrike.strikeFor(nests, base),
       Mission.PRIORITY_ROUTINE, Mission.TYPE_SCREENED,
       meets
     );

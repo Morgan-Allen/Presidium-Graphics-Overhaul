@@ -2,9 +2,9 @@
 
 CURRENT ITEMS:
 
-   Priority:  Medium  Duration:  Short
-*  Offworld-missions will have to be screened, at minimum- and you should allow
-   custom settings for mission-types (and max. applicants) available per class.
+   Priority:  High  Duration:  Short
+*  Offworld missions (and possibly missions in general) need to have a custom
+   competence-evaluation function for applicants.
 
    Priority:  Medium-High  Duration:  Medium-Long
 *  Initial missions:

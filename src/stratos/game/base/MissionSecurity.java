@@ -111,6 +111,12 @@ public class MissionSecurity extends Mission {
   }
   
   
+  public boolean allowsMissionType(int type) {
+    if (isOffworld() && type == TYPE_PUBLIC) return false;
+    else return super.allowsMissionType(type);
+  }
+  
+  
   
   /**  Behaviour implementation-
     */

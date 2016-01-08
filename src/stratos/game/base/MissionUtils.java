@@ -6,7 +6,7 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.util.I;
+import stratos.util.*;
 
 
 
@@ -15,9 +15,7 @@ public class MissionUtils {
   
   public static float competition(Actor actor, Mission mission) {
     if (mission.isApproved(actor)) return 0;
-    final int
-      priority   = mission.assignedPriority(),
-      partyLimit = Mission.PARTY_LIMITS[priority];
+    final int partyLimit = mission.partyLimit();
     return mission.applicants().size() * 1f / partyLimit;
   }
   

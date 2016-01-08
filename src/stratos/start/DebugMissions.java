@@ -190,7 +190,7 @@ public class DebugMissions extends Scenario {
     combat.addMotives(Plan.MOTIVE_EMERGENCY, 100);
     robot.mind.assignBehaviour(combat);
     
-    final Mission security = new MissionSecurity(base, vet);
+    final Mission security = MissionSecurity.securityFor(vet, base);
     security.setMissionType(Mission.TYPE_SCREENED  );
     security.assignPriority(Mission.PRIORITY_URGENT);
     
@@ -215,7 +215,7 @@ public class DebugMissions extends Scenario {
     final Ruins ruin = new Ruins(artilects);
     SiteUtils.establishVenue(ruin, 12, 12, true, world);
     
-    final Mission strike = new MissionStrike(base, ruin);
+    final Mission strike = MissionStrike.strikeFor(ruin, base);
     strike.setMissionType(Mission.TYPE_SCREENED  );
     strike.assignPriority(Mission.PRIORITY_URGENT);
     
