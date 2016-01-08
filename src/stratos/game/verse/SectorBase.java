@@ -113,9 +113,19 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   }
   
   
+  public void setPopulation(float popLevel) {
+    this.popLevel = Nums.max(0, popLevel);
+  }
+  
+  
   public float powerLevel(Faction faction) {
     if (faction != this.faction) return 0;
     return powerLevel;
+  }
+  
+  
+  public void setPowerLevel(float level) {
+    this.powerLevel = Nums.max(0, level);
   }
   
   
@@ -212,16 +222,6 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   }
   
   
-  //  TODO:  Fill these in!
-  protected void refreshCrewAndCargo(Vehicle transport) {
-    
-  }
-  
-  
-  protected void updateActiveShipping() {
-    
-  }
-  
   
   /**  Population-specific update methods-
     */
@@ -232,6 +232,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     
     if (ruler == null) {
       ruler = Backgrounds.KNIGHTED.sampleFor(faction);
+      ruler.assignBase(baseInWorld());
       toggleUnit(ruler, true);
     }
   }
@@ -246,7 +247,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   /**  Economy-specific update methods-
     */
-  //  TODO:  Ideally, this could be moved out to the BaseCommerce class, and
+  //  TODO:  Ideally, this could be moved out to the BaseDemands class, and
   //         then that could be queried for the demands of both SectorBases and
   //         bases in the world.
   

@@ -2,19 +2,9 @@
 
 CURRENT ITEMS:
 
-   Priority:  High  Duration:  Long
-*  You need to add resolution-effects for any available missions offworld- and
-   try to include spawn-events for a variety of missions in-world?
-   
-   Strike
-   Recon
-   Security
-   Contact
-
    Priority:  Medium  Duration:  Short
 *  Offworld-missions will have to be screened, at minimum- and you should allow
    custom settings for mission-types (and max. applicants) available per class.
-
 
    Priority:  Medium-High  Duration:  Medium-Long
 *  Initial missions:
@@ -72,18 +62,18 @@ BACK BURNER:
 *  Try to add 'spawning' for Fauna as well (i.e, in the sense of wandering in
    from the map edges.)
 
-   Priority:  Medium-High  Duration:  Medium
-*  Natives should be re-introduced on the right maps, along with mechanics for
-   Raiding/diplomacy.  (The base is there, and the buildings are there- you
-   just need to introduce them and tie it into BaseVisits.)
-
-   Priority:  Medium  Duration:  Short.
-*  Random-variation for offworld visit-intervals need to be reworked.
-
    Priority:  Medium-High  Duration:  Medium-High
 *  There needs to be more than just physical raiding coming from offworld- they
    should be sending explorers, diplomats and reinforcements too (for the
    various mission-types.)
+
+   Priority:  Medium-High  Duration:  Medium
+*  Natives should be re-introduced on the right maps, along with mechanics for
+   raiding/diplomacy.  (The base is there, and the buildings are there- you
+   just need to introduce them and tie it into BaseVisits.)
+
+   Priority:  Medium  Duration:  Short.
+*  Random-variation for offworld visit-intervals need to be reworked.
 
 
 

@@ -10,7 +10,9 @@ import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;
+import stratos.graphics.widgets.*;
 import stratos.user.*;
+import stratos.user.notify.MessageTopic;
 import stratos.util.*;
 
 
@@ -83,8 +85,28 @@ public class MissionRecon extends Mission {
   }
   
   
-  public void resolveMissionOffworld() {
-    return;
+  public boolean resolveMissionOffworld() {
+    final Sector s = (Sector) subject;
+    
+    float liftChance = 0;
+    for (Actor a : approved()) liftChance += MissionUtils.competence(a, this);
+    liftChance /= Mission.MAX_PARTY_LIMIT;
+    
+    float liftAmount = 0;
+    if (Rand.num() < liftChance) liftAmount += 0.5f;
+    if (Rand.num() < liftChance) liftAmount += 1.0f;
+    
+    //  TODO:  You also have to incorporate the risk of injury, retreat or
+    //  casualties if the sector in question is dangerous!
+    
+    if (liftAmount > 0) {
+      base.intelMap.liftFogAt(s, liftAmount);
+      TOPIC_RECON_OKAY.dispatchMessage("Recon successful: "+s.name, s);
+    }
+    else {
+      TOPIC_RECON_FAIL.dispatchMessage("Recon failed: "+s.name, s);
+    }
+    return true;
   }
   
   
@@ -124,6 +146,25 @@ public class MissionRecon extends Mission {
   
   /**  Rendering, debug and interface methods-
     */
+  final static MessageTopic TOPIC_RECON_OKAY = new MessageTopic(
+    "topic_recon_okay", true, Sector.class
+  ) {
+    protected void configMessage(BaseUI UI, Text d, Object... args) {
+      d.appendAll("Reconaissance of ", args[0], " was successful. ");
+      d.append("We should now have up-to-date information on this sector.");
+    }
+  };
+  
+  final static MessageTopic TOPIC_RECON_FAIL = new MessageTopic(
+    "topic_recon_fail", true, Sector.class
+  ) {
+    protected void configMessage(BaseUI UI, Text d, Object... args) {
+      d.appendAll("Exploring ", args[0], " proved to be problematic- ");
+      d.append("our surveyors had to retreat to avoid harsh weather.");
+    }
+  };
+  
+  
   public void describeMission(Description d) {
     d.append("Recon Mission", this);
     if (subject instanceof Sector) d.appendAll(" to ", subject);

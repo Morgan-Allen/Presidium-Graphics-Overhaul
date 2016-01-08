@@ -22,10 +22,11 @@ public class IntelMap {
     pickVerbose = false;
   
   final public static float
-    MIN_FOG        = 0,
-    MAX_FOG        = 1.5f,
-    FOG_DECAY_TIME = Stage.STANDARD_HOUR_LENGTH,
-    FOG_SEEN_MIN   = 0.2f;
+    MIN_FOG               = 0,
+    MAX_FOG               = 1.5f,
+    TILE_FOG_DECAY_TIME   = Stage.STANDARD_HOUR_LENGTH,
+    FOG_SEEN_MIN          = 0.2f,
+    SECTOR_FOG_DECAY_TIME = Stage.STANDARD_WEEK_LENGTH;
   
   final Base base;
   
@@ -33,6 +34,7 @@ public class IntelMap {
   private float      fogVals[][];
   private MipMap     fogMap;
   private FogOverlay fogOver;
+  private Tally <Sector> sectorFog = new Tally();
   
   
   
@@ -56,6 +58,7 @@ public class IntelMap {
     }
     fogMap.loadFrom(s.input());
     fogOver.updateVals(-1, fogVals);
+    s.loadTally(sectorFog);
   }
   
   
@@ -64,6 +67,7 @@ public class IntelMap {
       s.saveFloat(fogVals[c.x][c.y]);
     }
     fogMap.saveTo(s.output());
+    s.saveTally(sectorFog);
   }
   
   
@@ -120,7 +124,7 @@ public class IntelMap {
       
       //  Fog values decay steadily over time, but those that have been
       //  thoroughly explored never decay below a minimum value.
-      float val = fogVals[c.x][c.y], decay = 1f / FOG_DECAY_TIME;
+      float val = fogVals[c.x][c.y], decay = 1f / TILE_FOG_DECAY_TIME;
       final boolean seen = val >= FOG_SEEN_MIN;
       if (world.claims.baseClaiming(c.x, c.y) == base) decay /= 2;
       val -= decay;
@@ -136,6 +140,14 @@ public class IntelMap {
         continue;
       }
       else if (val < FOG_SEEN_MIN) fogMap.set(0, c.x, c.y);
+    }
+    
+    //  Sector fog also decays at a constant, but substantially reduced rate.
+    for (Sector s : sectorFog.keysToArray(Sector.class)) {
+      final SectorBase b = world.offworld.baseForSector(s);
+      float val = sectorFog.valueFor(s), decay = 1f / SECTOR_FOG_DECAY_TIME;
+      if (b.faction() == base.faction()) decay = 0;
+      sectorFog.set(s, val - decay);
     }
   }
   
@@ -207,6 +219,21 @@ public class IntelMap {
       danger *= fog * power * Faction.factionRelation(base, b);
     }
     return danger;
+  }
+  
+  
+  
+  /**  Supplemental methods for dealing with offworld intelligence-
+    */
+  public void liftFogAt(Sector s, float lift) {
+    final float oldVal = sectorFog.valueFor(s);
+    sectorFog.set(s, Nums.clamp(oldVal + lift, MIN_FOG, MAX_FOG));
+  }
+  
+  
+  public float fogAt(Sector s) {
+    if (noFog()) return 1;
+    return sectorFog.valueFor(s);
   }
   
   

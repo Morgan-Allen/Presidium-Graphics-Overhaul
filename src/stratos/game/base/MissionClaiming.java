@@ -81,8 +81,18 @@ public class MissionClaiming extends Mission {
   }
   
   
-  public void resolveMissionOffworld() {
-    return;
+  public boolean resolveMissionOffworld() {
+    final Sector s = (Sector) subject;
+    final SectorBase b = base.world.offworld.baseForSector(s);
+    
+    //  TODO:  Allow for the possibility of failure here, and ensure that
+    //  proper tribute arrangements are set up!
+    
+    b.assignFaction(base.faction());
+    b.assignRuler(expedition.leader());
+    
+    b.setPopulation(b.population() + 0.5f);
+    return true;
   }
   
   

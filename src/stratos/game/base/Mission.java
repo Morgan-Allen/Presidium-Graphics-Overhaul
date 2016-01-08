@@ -299,7 +299,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   protected abstract boolean shouldEnd();
   protected abstract Behaviour createStepFor(Actor actor);
   
-  public abstract void resolveMissionOffworld();
+  public abstract boolean resolveMissionOffworld();
   
   
   
@@ -473,8 +473,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
       if (canStart && hasMigrants) {
         journey.beginJourney();
       }
-      if (journey.hasArrived()) {
-        resolveMissionOffworld();
+      if (journey.hasArrived() && resolveMissionOffworld()) {
         stage = STAGE_RESOLVED;
         if (journey.returns()) journey.beginReturnTrip();
       }

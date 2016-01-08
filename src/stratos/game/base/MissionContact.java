@@ -147,7 +147,7 @@ public class MissionContact extends Mission {
   }
   
   
-  public void resolveMissionOffworld() {
+  public boolean resolveMissionOffworld() {
     
     final Series <Actor> approved = approved();
     final Pick <Actor> pick = new Pick(0);
@@ -157,7 +157,11 @@ public class MissionContact extends Mission {
     }
     final Actor talks = pick.result();
     chance /= approved.size();
-    if (talks == null) return;
+    
+    if (talks == null) {
+      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
+      return true;
+    }
     
     final Actor with = (Actor) subject;
     final Proposal props = new Proposal(talks, with);
@@ -173,7 +177,7 @@ public class MissionContact extends Mission {
       props.setOfferAccepted(false);
       TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
     }
-    return;
+    return true;
   }
   
   

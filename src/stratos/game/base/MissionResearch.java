@@ -76,8 +76,8 @@ public class MissionResearch extends Mission {
   }
   
   
-  public void resolveMissionOffworld() {
-    return;
+  public boolean resolveMissionOffworld() {
+    return false;
   }
   
   
