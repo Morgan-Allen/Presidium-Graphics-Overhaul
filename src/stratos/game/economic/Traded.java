@@ -229,7 +229,7 @@ public class Traded extends Constant implements Session.Saveable {
     
     if (common()) {
       d.append("\n");
-      final float localShort = base.commerce.primaryShortage(this);
+      final float localShort = base.demands.primaryShortage(this);
       if (localShort >= 0) {
         final int percent = (int) (localShort * 100);
         d.append("\nLocal demand: "+percent+"% shortage");
@@ -238,7 +238,7 @@ public class Traded extends Constant implements Session.Saveable {
         final int percent = (int) (localShort * -100);
         d.append("\nLocal demand: "+percent+"% surplus");
       }
-      final float tradeShort = base.commerce.tradingShortage(this);
+      final float tradeShort = base.demands.tradingShortage(this);
       if (tradeShort >= 0) {
         final int percent = (int) (tradeShort * 100);
         d.append("\nTrade demand: "+percent+"% shortage");

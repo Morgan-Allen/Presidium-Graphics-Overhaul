@@ -480,7 +480,7 @@ public class Pledge implements Session.Saveable {
     Behaviour fulfillment(Pledge p, Pledge reward) {
       final Base   base = (Base) p.refers;
       final Sector with = base.world.offworld.currentSector(p.makes);
-      base.commerce.togglePartner(with, true);
+      base.visits.togglePartner(with, true);
       return null;
     }
     

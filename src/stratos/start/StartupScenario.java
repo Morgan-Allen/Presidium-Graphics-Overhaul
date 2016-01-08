@@ -78,7 +78,7 @@ public class StartupScenario extends Scenario {
     );
     base.finance.setInitialFunding(expedition.funding(), expedition.tribute());
     base.research.initKnowledgeFrom(origin);
-    base.commerce.assignHomeworld  (origin);
+    base.visits  .assignHomeworld  (origin);
     return base;
   }
   

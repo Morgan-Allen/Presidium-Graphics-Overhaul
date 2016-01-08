@@ -1,8 +1,29 @@
 
+   
+   Priority:  High  Duration:  Long
+*  Raids by roachmen are far too frequent- I think they need to follow the
+   same pattern as either house-raids or wandering monsters.  Add some general
+   'wandering monsters'.  And see if there are any common methods to factor
+   out?
+   
+   Artilects.
+   Vermin.
+   Fauna.
+   Natives.
 
-   Priority:  Medium  Duration:  Short?
-*  This includes setting up trade-relations with distant sectors.  (This should
-   just require some tweaks to the Pledge system.)
+   Priority:  High  Duration:  Long
+*  You need to add resolution-effects for any available missions offworld- and
+   try to include spawn-events for a variety of missions in-world?
+   
+   Strike
+   Recon
+   Security
+   Contact
+
+   Priority:  Medium  Duration:  Short
+*  Offworld-missions will have to be screened, at minimum- and you should allow
+   custom settings for mission-types available per mission.
+
 
    Priority:  Medium-High  Duration:  Medium-Long
 *  Initial missions:
@@ -29,31 +50,6 @@
    Engineer Station
    Physician Station
    Ecologist Station
-
-   
-   Priority:  High  Duration:  Long
-*  Raids by roachmen are far too frequent- I think they need to follow the
-   same pattern as either house-raids or wandering monsters.  Add some general
-   'wandering monsters'.  And see if there are any common methods to factor
-   out?
-   
-   Artilects.
-   Vermin.
-   Fauna.
-   Natives.
-
-   Priority:  High  Duration:  Long
-*  You need to add resolution-effects for any available missions offworld- and
-   try to include spawn-events for a variety of missions in-world?
-   
-   Strike
-   Recon
-   Security
-   Contact
-
-   Priority:  Medium  Duration:  Short
-*  Offworld-missions will have to be screened, at minimum- and you should allow
-   custom settings for mission-types available per mission.
 
 
    Priority:  Low  Duration:  Short?

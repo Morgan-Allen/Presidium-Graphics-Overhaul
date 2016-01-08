@@ -125,7 +125,8 @@ public class BudgetsPane extends SelectionPane {
     final Base base = BaseUI.currentPlayed();
     final Verse universe = base.world.offworld;
     final Sector locale = universe.stageLocation();
-    final BaseCommerce BC = base.commerce;
+    final BaseDemands BD = base.demands;
+    final BaseVisits BV = base.visits;
     
     d.append("DEMAND REPORT FOR "+base);
     
@@ -133,8 +134,8 @@ public class BudgetsPane extends SelectionPane {
     d.append("\n\nOffworld Prices (Buy | Sell | Base)");
     for (Traded t : Economy.ALL_MATERIALS) {
       final String
-        priceImp = I.shorten(BC.importPrice(t), 1),
-        priceExp = I.shorten(BC.exportPrice(t), 1),
+        priceImp = I.shorten(BD.importPrice(t), 1),
+        priceExp = I.shorten(BD.exportPrice(t), 1),
         baseCost = I.shorten(t.defaultPrice()    , 1);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
@@ -154,10 +155,10 @@ public class BudgetsPane extends SelectionPane {
     
     //  TODO:  This could be moved out to panes for individual Sectors!
     
-    for (SectorBase partner : BC.partners()) {
+    for (SectorBase partner : BV.partners()) {
       d.append("\n\n");
       d.append(partner);
-      if (partner.location == BC.homeworld()) d.append("  (Homeworld)");
+      if (partner.location == BV.homeworld()) d.append("  (Homeworld)");
       else d.append(" (Trading Partner)");
       
       final Vehicle nextShip = universe.journeys.nextTraderBetween(
@@ -183,7 +184,7 @@ public class BudgetsPane extends SelectionPane {
       }
       d.append(")");
     }
-    if (BC.partners().size() == 0) d.append("\n\nNo Trade Partners.");
+    if (BV.partners().size() == 0) d.append("\n\nNo Trade Partners.");
 
     boolean noLocal = true, noTrade = true;
 
@@ -191,8 +192,8 @@ public class BudgetsPane extends SelectionPane {
     d.append("\n\nLocal Goods: (supply/demand)");
     for (Traded t : Economy.ALL_MATERIALS) {
       final int
-        demand = (int) BC.primaryDemand(t),
-        supply = (int) BC.primarySupply(t);
+        demand = (int) BD.primaryDemand(t),
+        supply = (int) BD.primarySupply(t);
       if (demand == 0 && supply == 0) continue;
       else noLocal = false;
       
@@ -207,8 +208,8 @@ public class BudgetsPane extends SelectionPane {
     d.append("\n\nReserved For Trade: (import/export)");
     for (Traded t : Economy.ALL_MATERIALS) {
       final int
-        demand = (int) BC.importDemand(t),
-        supply = (int) BC.exportSupply(t);
+        demand = (int) BD.importDemand(t),
+        supply = (int) BD.exportSupply(t);
       if (demand == 0 && supply == 0) continue;
       else noTrade = false;
       

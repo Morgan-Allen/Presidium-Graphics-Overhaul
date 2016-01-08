@@ -182,7 +182,7 @@ public class FindWork extends Plan {
   public void cancelApplication() {
     if (employer == null || position == null) return;
     employer.staff().setApplicant(this, false);
-    if (! actor.inWorld()) employer.base().commerce.removeCandidate(actor);
+    if (! actor.inWorld()) employer.base().visits.removeCandidate(actor);
   }
   
   
@@ -323,7 +323,7 @@ public class FindWork extends Plan {
     //         hiring costs?)
     final int numApps = at.staff().numApplied(position);
     if (! at.staff().hasApplication(app)) {
-      final int MA = (int) BaseCommerce.MAX_APPLICANTS;
+      final int MA = (int) BaseVisits.MAX_APPLICANTS;
       rating -= numApps / MA;
       if (report) I.say("  Total/max applicants: "+numApps+"/"+MA);
     }
@@ -401,7 +401,7 @@ public class FindWork extends Plan {
       guildFees *= (2 - weight) / 2;
       //
       //  TODO:  Base this off travel times.
-      if (at == employer.base().commerce.homeworld()) transport += 50;
+      if (at == employer.base().visits.homeworld()) transport += 50;
       else transport += 100;
     }
     //

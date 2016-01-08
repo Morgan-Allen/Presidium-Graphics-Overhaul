@@ -13,7 +13,7 @@ import stratos.util.*;
 import stratos.game.plans.Smuggling;
 import stratos.content.civic.Dropship;
 import static stratos.content.civic.Dropship.*;
-import static stratos.game.base.BaseCommerce.*;
+import static stratos.game.base.BaseVisits.*;
 
 
 //
@@ -207,7 +207,7 @@ public class VerseJourneys {
   
   public Vehicle setupDefaultTrader(Base base) {
     return setupTrader(
-      base.commerce.homeworld(), universe.stageLocation(), base, true
+      base.visits.homeworld(), universe.stageLocation(), base, true
     );
   }
   
@@ -217,7 +217,7 @@ public class VerseJourneys {
     //         simulation is more developed...
     final Sector
       local = base.world.offworld.stageLocation(),
-      home  = base.commerce.homeworld();
+      home  = base.visits.homeworld();
     
     if (local == null || home == null) { I.complain(
       "\nBOTH LOCAL AND HOMEWORLD LOCATIONS MUST BE SET FOR IMMIGRATION!"+
@@ -241,7 +241,7 @@ public class VerseJourneys {
   
   public boolean scheduleLocalDrop(Base base, float delay) {
     final Sector
-      orig = base.commerce.homeworld(),
+      orig = base.visits.homeworld(),
       dest = universe.stageLocation ();
     
     Vehicle trans = nextTraderBetween(orig, dest, base, true);

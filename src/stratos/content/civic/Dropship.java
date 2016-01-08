@@ -211,13 +211,13 @@ public class Dropship extends Vehicle implements Owner {
   
   
   public float priceFor(Traded service, boolean sold) {
-    final BaseCommerce c = base().commerce;
+    final BaseDemands d = base().demands;
     final float dockMult = Airfield.isGoodDockSite(dropPoint) ?
-      1 : BaseCommerce.NO_DOCK_MARGIN
+      1 : BaseDemands.NO_DOCK_MARGIN
     ;
     if (cargo.canDemand(service)) {
-      if (sold) return c.importPrice(service) * dockMult;
-      else      return c.exportPrice(service) / dockMult;
+      if (sold) return d.importPrice(service) * dockMult;
+      else      return d.exportPrice(service) / dockMult;
     }
     return service.defaultPrice() / dockMult;
   }
@@ -286,7 +286,7 @@ public class Dropship extends Vehicle implements Owner {
     }
     
     d.append("\n\nPort Of Origin: ");
-    d.append(base().commerce.homeworld());
+    d.append(base().visits.homeworld());
     
     return pane;
   }

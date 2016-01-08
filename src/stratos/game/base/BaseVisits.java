@@ -16,7 +16,7 @@ import static stratos.game.economic.Economy.*;
 
 
 
-public class BaseCommerce {
+public class BaseVisits {
   
   
   /**  Field definitions, constructor, save/load methods-
@@ -31,40 +31,22 @@ public class BaseCommerce {
     APPLY_INTERVAL  = Stage.STANDARD_DAY_LENGTH / 2f,
     UPDATE_INTERVAL = 10,
     TIME_SLICE      = UPDATE_INTERVAL / APPLY_INTERVAL,
-    MAX_APPLICANTS  = 3,
-    
-    BASE_SALE_MARGIN = 1.25f,
-    NO_DOCK_MARGIN   = 1.25f,
-    BASE_EXPORT_DIV  = 1.50f,
-    BASE_IMPORT_MUL  = 1.75f,
-    SMUGGLE_MARGIN   = 2.00f;
+    MAX_APPLICANTS  = 3;
   
   
   final Base base;
   
   protected Sector homeworld = Verse.DEFAULT_HOMEWORLD;
   final List <SectorBase> partners = new List();
+  
   protected int maxShipsPerDay = 0;
   final List <Actor> candidates = new List <Actor> ();
   
-  final Tally <Traded>
-    primaryDemand = new Tally <Traded> (),
-    primarySupply = new Tally <Traded> (),
-    importDemand  = new Tally <Traded> (),
-    exportSupply  = new Tally <Traded> ();
-  final Table <Traded, Float>
-    importPrices = new Table <Traded, Float> (),
-    exportPrices = new Table <Traded, Float> ();
   
   
   
-  
-  public BaseCommerce(Base base) {
+  public BaseVisits(Base base) {
     this.base = base;
-    for (Traded type : ALL_MATERIALS) {
-      importPrices.put(type, (float) type.defaultPrice());
-      exportPrices.put(type, (float) type.defaultPrice());
-    }
   }
   
   
@@ -74,15 +56,6 @@ public class BaseCommerce {
     s.loadObjects(partners);
     maxShipsPerDay = s.loadInt();
     s.loadObjects(candidates);
-    
-    for (Traded type : ALL_MATERIALS) {
-      primaryDemand.set(type, s.loadFloat());
-      primarySupply.set(type, s.loadFloat());
-      importDemand.set (type, s.loadFloat());
-      exportSupply.set (type, s.loadFloat());
-      importPrices.put (type, s.loadFloat());
-      exportPrices.put (type, s.loadFloat());
-    }
   }
   
   
@@ -92,15 +65,6 @@ public class BaseCommerce {
     s.saveObjects(partners);
     s.saveInt(maxShipsPerDay);
     s.saveObjects(candidates);
-    
-    for (Traded type : ALL_MATERIALS) {
-      s.saveFloat(primaryDemand.valueFor(type));
-      s.saveFloat(primarySupply.valueFor(type));
-      s.saveFloat(importDemand .valueFor(type));
-      s.saveFloat(exportSupply .valueFor(type));
-      s.saveFloat(importPrices.get(type)      );
-      s.saveFloat(exportPrices.get(type)      );
-    }
   }
   
   
@@ -135,22 +99,12 @@ public class BaseCommerce {
   
   /**  Perform updates to trigger new events or assess local needs-
     */
-  public void updateCommerce(int numUpdates) {
+  public void updateVisits(int numUpdates) {
     final boolean report = verbose && BaseUI.current().played() == base;
     if (report && extraVerbose) I.say("\nUpdating commerce for base: "+base);
     if (base.isPrimal()) return;
     
-    //  TODO:  I really want the ability to switch between homeworlds or gain
-    //  extra trading partners.
-    /*
-    if (homeworld == Verse.PLANET_HALIBAN) {
-      this.togglePartner(homeworld, false);
-      this.assignHomeworld(Verse.PLANET_AXIS_NOVENA);
-    }
-    //*/
-    
     updateCandidates(numUpdates);
-    summariseDemandAndPrices(numUpdates);
     updateActiveShipping(numUpdates);
   }
   
@@ -259,152 +213,6 @@ public class BaseCommerce {
   
   
   
-  /**  Assessing supply and demand associated with goods-
-    */
-  //  TODO:  Consider moving this to the BaseAdvice class.
-  
-  private void summariseDemandAndPrices(int numUpdates) {
-    if ((numUpdates % UPDATE_INTERVAL) != 0) return;
-    final boolean report = tradeVerbose && base == BaseUI.currentPlayed();
-    if (report) I.say("\nSUMMARISING DEMAND FOR "+base);
-    //
-    //  Firstly, we summarise domestic supply and demand for all the major
-    //  commodities-
-    primarySupply.clear();
-    primaryDemand.clear();
-    importDemand .clear();
-    exportSupply .clear();
-    
-    for (Object o : base.world.presences.matchesNear(base, null, -1)) {
-      final Venue venue = (Venue) o;
-      if (venue.blueprint.isFixture()) continue;
-      final int tier = venue.owningTier();
-      if (tier <= Owner.TIER_PRIVATE) continue;
-      
-      final boolean trader = Visit.arrayIncludes(
-        venue.services(), SERVICE_COMMERCE
-      );
-      for (Traded type : venue.stocks.demanded()) {
-        final float
-          amount      = venue.stocks.amountOf   (type),
-          consumption = venue.stocks.consumption(type),
-          production  = venue.stocks.production (type)
-        ;
-        if (report && extraVerbose) {
-          I.say("  "+venue+" "+type+" (tier: "+tier+")");
-          I.say("    Amount:          "+amount+", trader: "+trader);
-          I.say("    Produce/Consume: "+production+"/"+consumption);
-        }
-        if (trader) {
-          exportSupply.add(Nums.max(0, amount - consumption), type);
-          importDemand.add(Nums.max(0, consumption - amount), type);
-        }
-        else {
-          primarySupply.add(Nums.max(0, amount - consumption), type);
-          primaryDemand.add(Nums.max(0, consumption - amount), type);
-        }
-      }
-    }
-    //
-    //  Then, we tally up average supply and demand for goods offworld.
-    for (Traded type : ALL_MATERIALS) {
-      float
-        basePrice = type.defaultPrice(),
-        importMul = 2, exportDiv = 2,
-        avgDemand = 0, homeBonus = 0;
-      for (SectorBase partner : partners) {
-        if (Visit.arrayIncludes(partner.made()  , type)) {
-          avgDemand -= partner.supplyLevel(type) * 2;
-        }
-        if (Visit.arrayIncludes(partner.needed(), type)) {
-          avgDemand += partner.demandLevel(type) * 2;
-        }
-        if (partner.location == homeworld) homeBonus++;
-      }
-      //
-      //  Goods that are in demand offworld are more expensive to import but
-      //  more profitable to export, and vice versa for goods in abundance.
-      //  Small settlements dependent on their homeworld also get price
-      //  subsidies.
-      if (partners.empty()) {
-        importMul += 1;
-        exportDiv += 1;
-      }
-      else {
-        avgDemand /= partners.size();
-        homeBonus *= base.ratings.communitySpirit() / partners.size();
-        importMul += (avgDemand - homeBonus) / 2;
-        exportDiv -= (avgDemand + homeBonus) / 2;
-      }
-      importMul *= BASE_IMPORT_MUL / 2;
-      exportDiv *= BASE_EXPORT_DIV / 2;
-      importPrices.put(type, basePrice * importMul);
-      exportPrices.put(type, basePrice / exportDiv);
-    }
-    //
-    //  Report as necessary and return...
-    if (report) {
-      I.say("\nTotal export-supply: ");
-      for (Traded t : exportSupply.keys()) {
-        I.say("  "+t+" "+exportSupply.valueFor(t));
-      }
-      I.say("\nTotal import-demand: ");
-      for (Traded t : importDemand.keys()) {
-        I.say("  "+t+" "+importDemand.valueFor(t));
-      }
-    }
-  }
-  
-  
-  public float primarySupply(Traded type) {
-    return primarySupply.valueFor(type);
-  }
-  
-  
-  public float primaryDemand(Traded type) {
-    return primaryDemand.valueFor(type);
-  }
-  
-  
-  public float primaryShortage(Traded type) {
-    float demand = primaryDemand(type), supply = primarySupply(type);
-    if (demand == 0) return 0;
-    return (demand - supply) / demand;
-  }
-  
-  
-  public float importDemand(Traded type) {
-    return importDemand.valueFor(type);
-  }
-  
-  
-  public float exportSupply(Traded type) {
-    return exportSupply.valueFor(type);
-  }
-  
-  
-  public float tradingShortage(Traded type) {
-    float demand = importDemand(type), supply = exportSupply(type);
-    if (demand == 0) return 0;
-    return (demand - supply) / demand;
-  }
-  
-  
-  public float importPrice(Traded type) {
-    final Float price = importPrices.get(type);
-    if (price == null) return type.defaultPrice() * 10f;
-    return price;
-  }
-  
-  
-  public float exportPrice(Traded type) {
-    final Float price = exportPrices.get(type);
-    if (price == null) return type.defaultPrice() / 10f;
-    return price;
-  }
-  
-  
-  
   /**  And finally, utility methods for calibrating the volume of shipping to
     *  or from this particular base:
     */
@@ -461,7 +269,9 @@ public class BaseCommerce {
     float sumImp = 0, sumExp = 0, scaleImp = 1, scaleExp = 1;
     
     for (Traded type : ALL_MATERIALS) {
-      final float shortage = importDemand(type) - exportSupply(type);
+      float shortage = base.demands.importDemand(type);
+      shortage -= base.demands.exportSupply(type);
+      
       if (shortage > 0) {
         imports.add(Item.withAmount(type, shortage));
         sumImp += shortage;

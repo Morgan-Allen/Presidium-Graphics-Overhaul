@@ -167,7 +167,7 @@ public class DebugCombat extends AutomatedScenario {
     
     final Sector homeworld = Verse.PLANET_PAREM_V;
     base.research.initKnowledgeFrom(homeworld);
-    base.commerce.assignHomeworld  (homeworld);
+    base.visits.assignHomeworld  (homeworld);
     base.finance.setInitialFunding(10000, 0);
     
     final Bastion bastion = new Bastion(base);
@@ -284,7 +284,7 @@ public class DebugCombat extends AutomatedScenario {
     }
     //
     //  Save the list of soldiers generated (and create a blank record of the
-    //  Techniques used by each.
+    //  Techniques used by each.)
     this.ourSoldiers = soldiers;
     this.techsUsed.clear();
     for (Actor a : soldiers) techsUsed.add(new Batch());

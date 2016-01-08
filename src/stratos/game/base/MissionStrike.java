@@ -21,7 +21,7 @@ public class MissionStrike extends Mission {
   /**  Field definitions, constants and save/load methods-
     */
   private static boolean
-    rateVerbose = FactionAI.updatesVerbose,
+    rateVerbose = BaseTactics.updatesVerbose,
     verbose     = false;
   
   
@@ -59,7 +59,7 @@ public class MissionStrike extends Mission {
   
   public float targetValue(Base base) {
     final boolean report = I.matchOrNull(
-      base.title(), FactionAI.verboseBase
+      base.title(), BaseTactics.verboseBase
     ) && rateVerbose && verbose;
     
     float targetValue = 0;

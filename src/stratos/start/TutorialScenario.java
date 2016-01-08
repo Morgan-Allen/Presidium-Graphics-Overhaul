@@ -369,7 +369,7 @@ public class TutorialScenario extends StartupScenario {
     marketBuilt.stocks.bumpItem(Economy.PARTS, 10);
     GameSettings.noShips = false;
     world().offworld.journeys.scheduleLocalDrop(base(), 5);
-    base().commerce.updateCommerce(0);
+    base().visits.updateVisits(0);
   }
   
   
@@ -441,13 +441,13 @@ public class TutorialScenario extends StartupScenario {
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.FIRING_RANGE, 2);
     
     final Base base = base();
-    while (base.commerce.numCandidates(Backgrounds.TROOPER) < 2) {
+    while (base.visits.numCandidates(Backgrounds.TROOPER) < 2) {
       final Actor applies = Backgrounds.TROOPER.sampleFor(base);
-      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
+      base.visits.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
     }
-    while (base.commerce.numCandidates(Backgrounds.ENGINEER) < 1) {
+    while (base.visits.numCandidates(Backgrounds.ENGINEER) < 1) {
       final Actor applies = Backgrounds.ENGINEER.sampleFor(base);
-      base.commerce.addCandidate(applies, barracksBuilt, Backgrounds.ENGINEER);
+      base.visits.addCandidate(applies, barracksBuilt, Backgrounds.ENGINEER);
     }
     
     ScreenPing.addPingFor(UIConstants.ROSTER_BUTTON_ID);
@@ -569,7 +569,7 @@ public class TutorialScenario extends StartupScenario {
       base().setup.fillVacancies(v, false);
     }
     world().offworld.journeys.scheduleLocalDrop(base(), 5);
-    base().commerce.updateCommerce(0);
+    base().visits.updateVisits(0);
     base().finance.setInitialFunding(3000, 0);
   }
   

@@ -30,7 +30,7 @@ import stratos.util.*;
 
 
 
-public class FactionAI {
+public class BaseTactics {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -56,7 +56,7 @@ public class FactionAI {
   private float forceStrength;
   
   
-  public FactionAI(Base base) {
+  public BaseTactics(Base base) {
     this.base = base;
   }
   

@@ -191,8 +191,8 @@ public class EcologistStation extends HarvestVenue {
     //  farming, 24/7.
     final boolean fieldHand = actor.mind.vocation() == CULTIVATOR;
     final float shortages = (
-      base.commerce.primaryShortage(CARBS ) +
-      base.commerce.primaryShortage(GREENS)
+      base.demands.primaryShortage(CARBS ) +
+      base.demands.primaryShortage(GREENS)
     ) / 2f;
     if (shortages >= 0.5f || fieldHand) {
       choice.add(nextHarvestFor(actor));

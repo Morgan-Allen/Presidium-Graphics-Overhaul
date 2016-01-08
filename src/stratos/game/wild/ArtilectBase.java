@@ -26,12 +26,14 @@ public class ArtilectBase extends Base {
   
   /**  Data fields, constants, constructors and save/load methods-
     */
-  private static boolean verbose = FactionAI.updatesVerbose;
+  private static boolean verbose = BaseTactics.updatesVerbose;
   
   final static float
     MAX_MISSION_POWER = CombatUtils.MAX_POWER * Mission.MAX_PARTY_LIMIT,
     ONLINE_WAKE_TIME  = Stage.STANDARD_YEAR_LENGTH / 2,
-    SPAWN_INTERVAL    = Stage.STANDARD_DAY_LENGTH;
+    SPAWN_INTERVAL    = Stage.STANDARD_DAY_LENGTH,
+    MIN_RAID_INTERVAL = 2 * Stage.STANDARD_DAY_LENGTH,
+    AVG_RAID_INTERVAL = MIN_RAID_INTERVAL * 10;
   
   
   private float onlineLevel = 0;
@@ -61,6 +63,32 @@ public class ArtilectBase extends Base {
   
   /**  Regular update methods-
     */
+  
+  public void updateVisits() {
+    //
+    //  Visits come from *externally*.
+    float maxTeamPower = onlineLevel * MAX_MISSION_POWER * 2;
+    
+    //  TODO:  I'm going to need some common methods for this.
+  }
+  
+  
+  protected void updateSpawning(Ruins ruins, int period) {
+    //
+    //  Spawning occurs *internally*.
+    final float spawnChance = period * 1f / SPAWN_INTERVAL;
+
+    for (Species s : Ruins.SPECIES) {
+      final Actor adds = s.sampleFor(this);
+      if (ruins.crowdRating(adds, s) < 1 && Rand.num() < spawnChance) {
+        adds.enterWorldAt(ruins, world);
+        adds.mind.setHome(ruins);
+        break;
+      }
+    }
+  }
+  
+  
   public void setOnlineLevel(float toLevel) {
     this.onlineLevel = toLevel;
   }
@@ -82,28 +110,7 @@ public class ArtilectBase extends Base {
   }
   
   
-  
-  public void updateVisits() {
-    
-  }
-  
-  
-  protected void updateSpawning(Ruins ruins, int period) {
-    final float spawnChance = period * 1f / SPAWN_INTERVAL;
-
-    for (Species s : Ruins.SPECIES) {
-      final Actor adds = s.sampleFor(this);
-      if (ruins.crowdRating(adds, s) < 1 && Rand.num() < spawnChance) {
-        adds.enterWorldAt(ruins, world);
-        adds.mind.setHome(ruins);
-        break;
-      }
-    }
-  }
-  
-  
-  
-  protected FactionAI initTactics() { return new FactionAI(this) {
+  protected BaseTactics initTactics() { return new BaseTactics(this) {
     
     public void updateForBase(int numUpdates) {
       final int interval = updateInterval();

@@ -16,7 +16,7 @@ import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.actors.Backgrounds.*;
-import static stratos.game.base.BaseCommerce.*;
+import static stratos.game.base.BaseDemands.*;
 import static stratos.game.economic.Economy.*;
 
 

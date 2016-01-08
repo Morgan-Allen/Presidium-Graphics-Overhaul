@@ -181,7 +181,7 @@ public class DebugPlacing extends Scenario {
     SiteUtils.establishVenue(works, 5 , 10, true, world);
     works.updateAsScheduled(0, false);
     
-    base.commerce.updateCommerce(0);
+    base.visits.updateVisits(0);
     world.offworld.journeys.scheduleLocalDrop(base, 5);
   }
   

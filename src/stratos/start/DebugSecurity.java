@@ -91,7 +91,7 @@ public class DebugSecurity extends Scenario {
   
   private void verminScenario(Stage world, Base base, BaseUI UI) {
     
-    base.commerce.assignHomeworld(Verse.PLANET_AXIS_NOVENA);
+    base.visits.assignHomeworld(Verse.PLANET_AXIS_NOVENA);
     final Venue hatch = new ServiceHatch(base);
     SiteUtils.establishVenue(hatch, world.tileAt(4, 4), true, world);
     

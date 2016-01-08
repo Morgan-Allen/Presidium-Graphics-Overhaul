@@ -156,18 +156,18 @@ public class BaseAdvice {
       if (ship.dropPoint() == null) needLanding = true;
     }
     
-    if (base.commerce.exportSupply.size() == 0) {
+    if (base.demands.exportSupply.size() == 0) {
       needExports = true;
     }
     for (Traded t : Economy.ALL_MATERIALS) {
       if (Visit.arrayIncludes(Economy.ALL_FOOD_TYPES, t)) continue;
-      if (base.commerce.primaryShortage(t) < 0.5f) continue;
-      if (base.commerce.primaryDemand  (t) < 5   ) continue;
+      if (base.demands.primaryShortage(t) < 0.5f) continue;
+      if (base.demands.primaryDemand  (t) < 5   ) continue;
       shortages.add(t);
     }
     for (Traded t : Economy.ALL_PROVISIONS) {
-      if (base.commerce.primaryShortage(t) < 0.5f) continue;
-      if (base.commerce.primaryDemand  (t) < 5   ) continue;
+      if (base.demands.primaryShortage(t) < 0.5f) continue;
+      if (base.demands.primaryDemand  (t) < 5   ) continue;
       shortages.add(t);
     }
   }
@@ -340,7 +340,7 @@ public class BaseAdvice {
     else d.append(help, Colour.LITE_GREY);
     d.append("\n");
     
-    final float need = base.commerce.primaryShortage(t);
+    final float need = base.demands.primaryShortage(t);
     final int percent = (int) (need * 100);
     d.append("Shortage: "+percent+"%\n");
     

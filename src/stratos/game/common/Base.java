@@ -30,7 +30,7 @@ public abstract class Base extends SectorBase implements
   
   final public BaseSetup     setup    ;
   final public BaseDemands   demands  ;
-  final public BaseCommerce  commerce ;
+  final public BaseVisits    visits   ;
   final public BaseTransport transport;
   
   final public BaseFinance  finance  ;
@@ -44,7 +44,7 @@ public abstract class Base extends SectorBase implements
   final public BaseRatings  ratings   = initRatings ();
   final public BaseAdvice   advice    = initAdvice  ();
   final public BaseResearch research  = initResearch();
-  final public FactionAI    tactics   = initTactics ();
+  final public BaseTactics  tactics   = initTactics ();
   
   private int baseID = 0;
   
@@ -60,7 +60,7 @@ public abstract class Base extends SectorBase implements
     
     setup      = new BaseSetup(this);
     demands    = new BaseDemands(this);
-    commerce   = new BaseCommerce(this);
+    visits     = new BaseVisits(this);
     transport  = new BaseTransport(world);
     finance    = new BaseFinance(this);
     profiles   = new BaseProfiles(this);
@@ -76,7 +76,7 @@ public abstract class Base extends SectorBase implements
     world      = (Stage) s.loadObject();
     setup      = new BaseSetup(this);
     demands    = new BaseDemands(this);
-    commerce   = new BaseCommerce(this);
+    visits     = new BaseVisits(this);
     transport  = new BaseTransport(world);
     finance    = new BaseFinance(this);
     profiles   = new BaseProfiles(this);
@@ -86,7 +86,7 @@ public abstract class Base extends SectorBase implements
     
     setup    .loadState(s);
     demands  .loadState(s);
-    commerce .loadState(s);
+    visits   .loadState(s);
     transport.loadState(s);
     finance  .loadState(s);
     profiles .loadState(s);
@@ -115,7 +115,7 @@ public abstract class Base extends SectorBase implements
     s.saveObject(world);
     setup    .saveState(s);
     demands  .saveState(s);
-    commerce .saveState(s);
+    visits   .saveState(s);
     transport.saveState(s);
     finance  .saveState(s);
     profiles .saveState(s);
@@ -141,7 +141,7 @@ public abstract class Base extends SectorBase implements
   protected BaseRatings  initRatings () { return new BaseRatings (this); }
   protected BaseAdvice   initAdvice  () { return new BaseAdvice  (this); }
   protected BaseResearch initResearch() { return new BaseResearch(this); }
-  protected FactionAI    initTactics () { return new FactionAI   (this); }
+  protected BaseTactics  initTactics () { return new BaseTactics (this); }
   
   
   
@@ -196,7 +196,7 @@ public abstract class Base extends SectorBase implements
     
     final Sector home = faction.startSite();
     if (home != null) {
-      base.commerce.assignHomeworld  (home);
+      base.visits.assignHomeworld  (home);
       base.research.initKnowledgeFrom(home);
     }
     return (CivicBase) registerBase(base, world, canBuild);
@@ -250,6 +250,8 @@ public abstract class Base extends SectorBase implements
   
   /**  Dealing with missions, visits (spawning) and personnel-
     */
+  //  TODO:  Move this out to the BaseVisits class!
+  
   public Property HQ() {
     return ruler() == null ? null : ruler().mind.home();
   }
@@ -318,12 +320,12 @@ public abstract class Base extends SectorBase implements
     setup.updatePlacements();
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after placements: "+timeAfter);
-
-    demands.updateAllMaps(1);
+    
+    demands.updateAllMaps(1, numUpdates);
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after demands: "+timeAfter);
     
-    commerce.updateCommerce(numUpdates);
+    visits.updateVisits(numUpdates);
     timeAfter = System.currentTimeMillis() - initTime;
     if (report) I.say("  Time after commerce: "+timeAfter);
     
@@ -357,6 +359,39 @@ public abstract class Base extends SectorBase implements
   
   public void updateUnits() {
     for (Mobile m : allUnits()) m.updateAsMobile();
+  }
+  
+  
+  
+  /**  Venue enumeration methods-
+    */
+  //  TODO:  Move these to the Blueprint class?
+  
+  public Batch <Venue> listInstalled(
+    Blueprint type, boolean intact
+  ) {
+    final Batch <Venue> installed = new Batch <Venue> ();
+    for (Object o : world.presences.matchesNear(type.baseClass, null, -1)) {
+      final Venue v = (Venue) o;
+      if (intact && ! v.structure.intact()) continue;
+      if (v.base() == this) installed.add(v);
+    }
+    return installed;
+  }
+  
+  
+  public boolean checkPrerequisites(
+    Blueprint print, Account reasons
+  ) {
+    if (print.isUnique()) {
+      if (listInstalled(print, false).size() > 0) {
+        return reasons.setFailure("You cannot have more than one "+print.name);
+      }
+    }
+    if (! research.hasTheory(print.baseUpgrade())) {
+      return reasons.setFailure("Not yet researched.");
+    }
+    return reasons.setSuccess();
   }
   
   
@@ -427,42 +462,6 @@ public abstract class Base extends SectorBase implements
   }
   
   
-  
-  /**  Venue enumeration methods-
-    */
-  //  TODO:  Move these to the Blueprint class...
-  
-  public Batch <Venue> listInstalled(
-    Blueprint type, boolean intact
-  ) {
-    final Batch <Venue> installed = new Batch <Venue> ();
-    for (Object o : world.presences.matchesNear(type.baseClass, null, -1)) {
-      final Venue v = (Venue) o;
-      if (intact && ! v.structure.intact()) continue;
-      if (v.base() == this) installed.add(v);
-    }
-    return installed;
-  }
-  
-  
-  public boolean checkPrerequisites(
-    Blueprint print, Account reasons
-  ) {
-    if (print.isUnique()) {
-      if (listInstalled(print, false).size() > 0) {
-        return reasons.setFailure("You cannot have more than one "+print.name);
-      }
-    }
-    if (! research.hasTheory(print.baseUpgrade())) {
-      return reasons.setFailure("Not yet researched.");
-    }
-    return reasons.setSuccess();
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
   public String toString() {
     return title;
   }

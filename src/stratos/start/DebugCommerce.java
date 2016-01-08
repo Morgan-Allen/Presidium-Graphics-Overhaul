@@ -78,7 +78,7 @@ public class DebugCommerce extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.cashFree  = true;
-    base.research.initKnowledgeFrom(base.commerce.homeworld());
+    base.research.initKnowledgeFrom(base.visits.homeworld());
     
     if (true ) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
@@ -90,7 +90,7 @@ public class DebugCommerce extends Scenario {
   
   
   private void shippingScenario(Stage world, Base base, BaseUI UI) {
-    base.commerce.assignHomeworld(Verse.PLANET_ASRA_NOVI);
+    base.visits.assignHomeworld(Verse.PLANET_ASRA_NOVI);
     
     final SectorBase other = world.offworld.baseForSector(Verse.SECTOR_TERRA);
     other.assignFaction(Faction.FACTION_PROCYON);
@@ -106,13 +106,13 @@ public class DebugCommerce extends Scenario {
     depot.stocks.forceDemand(METALS, 5, 0);
     depot.stocks.bumpItem(CARBS, 10);
     depot.updateAsScheduled(0, false);
-    base.commerce.addCandidate(SUPPLY_CORPS, depot);
+    base.visits.addCandidate(SUPPLY_CORPS, depot);
     Selection.pushSelection(depot, null);
     
     final Actor brought = new Human(SURVEYOR, base);
     world.offworld.journeys.addLocalImmigrant(brought, base);
     
-    base.commerce.updateCommerce(0);
+    base.visits.updateVisits(0);
     world.offworld.journeys.setupDefaultTrader(base);
     world.offworld.journeys.scheduleLocalDrop(base, 5);
   }

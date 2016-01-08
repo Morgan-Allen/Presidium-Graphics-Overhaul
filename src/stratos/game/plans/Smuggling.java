@@ -103,7 +103,7 @@ public class Smuggling extends Plan implements Journey.Purpose {
   ) {
     final Pick <Item> pick = new Pick <Item> ();
     for (Item i : depot.stocks.allItems()) {
-      float rating = depot.base().commerce.exportPrice(i.type);
+      float rating = depot.base().demands.exportPrice(i.type);
       pick.compare(Item.withAmount(i, Nums.min(maxAmount, i.amount)), rating);
     }
     if (pick.empty()) return null;
@@ -236,7 +236,7 @@ public class Smuggling extends Plan implements Journey.Purpose {
     
     if (report) I.say("\nSelling goods offworld:");
     for (Item i : moved) {
-      final float price = i.defaultPrice() * BaseCommerce.SMUGGLE_MARGIN;
+      final float price = i.defaultPrice() * BaseDemands.SMUGGLE_MARGIN;
       if (report) I.say("  "+price+" credits for "+i);
       profits += price;
       actor.gear.removeItem(i);

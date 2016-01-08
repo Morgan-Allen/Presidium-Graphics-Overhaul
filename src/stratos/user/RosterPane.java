@@ -79,7 +79,7 @@ public class RosterPane extends SelectionPane {
     if (report) I.say("\nListing applicants...");
     
     final Batch <Actor> applied = new Batch <Actor> ();
-    for (Actor a : base.commerce.allCandidates()) {
+    for (Actor a : base.visits.allCandidates()) {
       final FindWork finds = (FindWork) a.matchFor(FindWork.class, false);
       
       if (report) {

@@ -18,7 +18,7 @@ public class Journey implements Session.Saveable {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    verbose = false;
+    verbose = true;
   
   final public static int
     IS_TRADING   = 1 << 0,
@@ -514,7 +514,7 @@ public class Journey implements Session.Saveable {
     if (transport == null) return;
     //
     //  Configure the ship's cargo capacity-
-    final BaseCommerce commerce = transport.base().commerce;
+    final BaseVisits commerce = transport.base().visits;
     commerce.configCargo(transport.cargo, transport.spaceCapacity(), true);
     //
     //  Update the ship's state of repairs while we're at this...

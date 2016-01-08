@@ -18,7 +18,7 @@ public class PathingMap {
   
   /**  Constituent class and constant definitions-
     */
-  private static boolean updatesVerbose = true ;
+  private static boolean updatesVerbose = false;
   
   private static int
     numRoutes = 0,
