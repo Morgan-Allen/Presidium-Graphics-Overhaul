@@ -8,6 +8,7 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.common.*;
 import stratos.game.verse.*;
 import stratos.util.*;
+import stratos.content.hooks.*;
 
 
 
@@ -28,7 +29,7 @@ public class SelectSitePane extends MenuPane {
     //  Pick a homeworld first.
     listing.add(createTextItem("Homeworld:", 1.2f, null, 1));
     
-    final Sector homeworlds[] = Verse.ALL_CAPITALS;
+    final Sector homeworlds[] = StratosSetting.ALL_CAPITALS;
     for (final Sector homeworld : homeworlds) {
       listing.add(new TextButton(UI, "  "+homeworld.name, 1) {
         protected void whenClicked() { selectHomeworld(homeworld); }
@@ -43,8 +44,8 @@ public class SelectSitePane extends MenuPane {
     //
     //  Then pick a sector.
     listing.add(createTextItem("Landing Site:", 1.2f, null, 1));
-
-    final Sector landings[] = Verse.ALL_DIAPSOR_SECTORS;
+    
+    final Sector landings[] = StratosSetting.ALL_DIAPSOR_SECTORS;
     for (final Sector landing : landings) {
       listing.add(new TextButton(UI, "  "+landing.name, 1) {
         public void whenClicked() { selectLanding(landing); }

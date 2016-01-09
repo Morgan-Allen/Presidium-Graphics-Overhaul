@@ -4,7 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import static stratos.content.hooks.StratosSetting.SECTOR_ELYSIUM;
+
 import stratos.content.civic.*;
+import stratos.content.hooks.StratosSetting;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
@@ -57,8 +60,8 @@ public class DebugSecurity extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Verse verse = new Verse();
-    final Sector at = Verse.SECTOR_ELYSIUM;
+    final Verse verse = new StratosSetting();
+    final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     ///Flora.populateFlora(world);
@@ -91,7 +94,7 @@ public class DebugSecurity extends Scenario {
   
   private void verminScenario(Stage world, Base base, BaseUI UI) {
     
-    base.visits.assignHomeworld(Verse.PLANET_AXIS_NOVENA);
+    base.visits.assignHomeworld(StratosSetting.PLANET_AXIS_NOVENA);
     final Venue hatch = new ServiceHatch(base);
     SiteUtils.establishVenue(hatch, world.tileAt(4, 4), true, world);
     

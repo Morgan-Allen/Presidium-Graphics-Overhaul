@@ -12,6 +12,7 @@ import stratos.user.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+import stratos.content.hooks.*;
 
 
 
@@ -199,7 +200,11 @@ public class SelectCrewPane extends MenuPane {
   
   private void pushNextPane() {
     String prefix = SaveUtils.uniqueVariant(expedition.leader().fullName());
-    final Verse verse = new Verse();
+    final Verse verse = new StratosSetting();
+    
+    //  TODO:  Derive the scenario to begin from the starting location and the
+    //  list of all possible scenarios.
+    
     StartupScenario newGame = new StartupScenario(expedition, verse, prefix);
     PlayLoop.setupAndLoop(newGame);
   }

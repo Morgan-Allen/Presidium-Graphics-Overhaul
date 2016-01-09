@@ -24,7 +24,8 @@ public class Career {
   
   final static int
     MIN_PERSONALITY           = 3,
-    NUM_RANDOM_CAREER_SAMPLES = 3;
+    NUM_RANDOM_CAREER_SAMPLES = 3,
+    HOMEWORLD_RATING_BONUS    = 3;
   
   
   private Actor subject;
@@ -228,21 +229,24 @@ public class Career {
   
   
   private void pickHomeworld(Human actor, Faction faction) {
+    final Sector home = faction.startSite();
     if (homeworld != null) {
       return;
     }
     else if (faction == FACTION_NATIVES) {
-      homeworld = faction.startSite();
+      homeworld = home;
     }
-    else {
-      //  TODO:  Include some weighting based off house relations!
-      final Batch <Float> weights = new Batch <Float> ();
-      for (Background v : Verse.ALL_PLANETS) {
-        weights.add(ratePromotion(v, actor, verbose));
+    else if (home != null) {
+      //  TODO:  Include some weighting based off house relations?
+      final Series <Sector> places  = home.siblings();
+      final Batch  <Float > weights = new Batch();
+      
+      for (Background v : places) {
+        float rating = ratePromotion(v, actor, verbose);
+        if (v == home) rating *= HOMEWORLD_RATING_BONUS;
+        weights.add(rating);
       }
-      homeworld = (Background) Rand.pickFrom(
-        Verse.ALL_PLANETS, weights.toArray()
-      );
+      homeworld = (Background) Rand.pickFrom(places, weights);
     }
   }
   

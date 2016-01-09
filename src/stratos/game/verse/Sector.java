@@ -48,7 +48,8 @@ public class Sector extends Background {
   final public Trait climate;
   final public int gravity;
   
-  final Batch <Sector> borders = new Batch();
+  final Batch <Sector> siblings = new Batch();
+  final Batch <Sector> borders  = new Batch();
   final Table <Sector, Separation> separations = new Table();
   
   final Habitat habitats      [];
@@ -145,6 +146,10 @@ public class Sector extends Background {
   }
   
   
+  
+  /**  Supplementary setup methods for recording inter-relations between
+    *  Sectors-
+    */
   protected void setSeparation(
     Sector other, int sepType, float tripTime, boolean symmetric
   ) {
@@ -187,6 +192,7 @@ public class Sector extends Background {
       setSeparation(s, sepType, totalTripTime, true);
     }
     
+    /*
     if (false) {
       I.say("SEPARATIONS FOR "+this+" ARE: ");
       for (Sector s : separations.keySet()) {
@@ -195,6 +201,13 @@ public class Sector extends Background {
       }
       I.say("\n...");
     }
+    //*/
+  }
+  
+  
+  protected void assignSiblings(Sector... siblings) {
+    this.siblings.clear();
+    Visit.appendTo(this.siblings, siblings);
   }
   
   
@@ -222,14 +235,6 @@ public class Sector extends Background {
   
   /**  Location and adjacency access-methods-
     */
-  public static Sector sectorNamed(String name) {
-    for (Sector s : Verse.ALL_SECTORS) if (s.name.equals(name)) {
-      return s;
-    }
-    return null;
-  }
-  
-  
   public boolean borders(Sector other) {
     final Separation s = separations.get(other);
     return s != null && s.sepType == SEP_BORDERS;
@@ -250,6 +255,11 @@ public class Sector extends Background {
     ;
     if (s == null || s.sepType > maxSepType) return -1;
     else return s.tripTime * timeUnit;
+  }
+  
+  
+  public Series <Sector> siblings() {
+    return siblings;
   }
   
   
@@ -335,8 +345,13 @@ public class Sector extends Background {
     }
   }
   
-  
-  
+
+  public static Sector sectorNamed(String name, Sector sectors[]) {
+    for (Sector s : sectors) if (s.name.equals(name)) {
+      return s;
+    }
+    return null;
+  }
 }
 
 

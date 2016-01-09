@@ -93,7 +93,7 @@ public class Faction extends Constant {
   final Colour bannerColour;
   
   
-  protected Faction(
+  public Faction(
     String name, String crestPath, Colour banner,
     String description, String startInfo,
     boolean primal
@@ -110,7 +110,7 @@ public class Faction extends Constant {
   }
   
   
-  protected Faction(String name, String crestPath, Faction parent) {
+  public Faction(String name, String crestPath, Faction parent) {
     this(name, crestPath, parent.bannerColour, "", "", parent.primal);
     this.parent = parent;
   }
@@ -214,7 +214,7 @@ public class Faction extends Constant {
       final Sector landing = world.offworld.stageLocation();
       final Pick <SectorBase> pick = new Pick();
       
-      for (Sector l : Verse.ALL_DIAPSOR_SECTORS) {
+      for (Sector l : world.offworld.locations) {
         if (l.startingOwner == FACTION_NATIVES && l != landing) {
           SectorBase b = world.offworld.baseForSector(l);
           float tripTime = l.standardTripTime(landing, Sector.SEP_PLANET);
