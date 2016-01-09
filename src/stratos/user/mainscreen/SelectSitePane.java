@@ -123,7 +123,6 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
-    //MainScreen.current().clearInfoPane();
     expedition.backing().configStartingExpedition(expedition);
     navigateForward(new SelectTraitsPane(UI, expedition), true);
   }

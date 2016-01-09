@@ -22,7 +22,7 @@ import static stratos.user.UIConstants.*;
 
 
 
-public class TutorialScenario extends StartupScenario {
+public class TutorialScenario extends SectorScenario {
   
   private static boolean
     verbose          = false,

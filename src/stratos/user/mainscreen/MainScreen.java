@@ -36,6 +36,7 @@ public class MainScreen extends HUD {
   
   MenuPane menuView;
   int menuState = MENU_INIT;
+  Verse verse = null;
   
   UIGroup displayArea;
   PlanetDisplay display;
@@ -90,12 +91,19 @@ public class MainScreen extends HUD {
   
   
   
-  /**  Regular queries and updates methods-
+  /**  Regular queries and update methods-
     */
   public static MainScreen current() {
     final HUD current = PlayLoop.currentUI();
     if (current instanceof MainScreen) return (MainScreen) current;
     return null;
+  }
+  
+  
+  public static Verse currentVerse() {
+    final MainScreen screen = current();
+    if (screen == null) return null;
+    return screen.verse;
   }
   
   
@@ -113,6 +121,10 @@ public class MainScreen extends HUD {
       display.showLabels   = false;
       worldsDisplay.hidden = true ;
       crewDisplay.hidden   = true ;
+      verse                = null ;
+    }
+    else if (verse == null) {
+      verse = new StratosSetting();
     }
     
     super.updateState();

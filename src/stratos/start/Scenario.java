@@ -46,6 +46,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
+  protected Scenario(boolean isDebug) {
+    this("<no_prefix>", isDebug);
+  }
+  
+  
   public Scenario(Session s) throws Exception {
     s.cacheInstance(this);
     world        = (Stage) s.loadObject();
@@ -77,14 +82,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   public BaseUI UI   () { return UI   ; }
   
   
-  public static Scenario current() {
-    final Playable p = PlayLoop.played();
-    if (p instanceof Scenario) return (Scenario) p;
-    else I.complain("NO CURRENT SCENARIO BEING PLAYED.");
-    return null;
-  }
-  
-  
   public void skipLoading() {
     this.skipNextLoad = true;
   }
@@ -97,6 +94,14 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   protected void setSavesPrefix(String prefix) {
     this.savesPrefix = prefix;
+  }
+  
+  
+  public static Scenario current() {
+    final Playable p = PlayLoop.played();
+    if (p instanceof Scenario) return (Scenario) p;
+    else I.complain("NO CURRENT SCENARIO BEING PLAYED.");
+    return null;
   }
   
   

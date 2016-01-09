@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.verse;
+import stratos.start.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -12,12 +13,14 @@ import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
+import stratos.user.mainscreen.MainScreen;
 import stratos.util.*;
 
 
 
-public class Sector extends Background {
-
+public class Sector extends Constant {
+  
+  final public static Index <Sector> INDEX = new Index <Sector> ();
   
   //  TODO:  For the sake of clarity, consider including tags for all the data-
   //         types recorded in the arguments-list (see below)
@@ -36,8 +39,8 @@ public class Sector extends Background {
     float tripTime;
   }
   
-  
   final public Faction startingOwner;
+  final public Background asBackground;
   final public int population;
   final public Traded goodsMade[], goodsNeeded[];
   
@@ -56,6 +59,7 @@ public class Sector extends Background {
   final Float   habitatWeights[];
   final Species nativeSpecies [];
   
+  final public String description;
   final public ImageAsset planetImage;
   
   
@@ -65,10 +69,8 @@ public class Sector extends Background {
     Trait climate, int gravity, Sector belongs,
     int population, Object... args
   ) {
-    super(
-      baseClass, name, description, null, null,
-      -1, Backgrounds.NOT_A_GUILD, args
-    );
+    super(INDEX, name, name);
+    this.description = description;
     this.planetImage = imagePath == null ?
       Image.SOLID_WHITE : ImageAsset.fromImage(baseClass, imagePath)
     ;
@@ -76,6 +78,9 @@ public class Sector extends Background {
     //  Populate basic fields first-
     this.startingOwner = owner;
     if (owner != null) owner.bindToStartSite(this);
+    this.asBackground = new Background(
+      baseClass, name, description, null, null, -1, -1, args
+    );
     this.belongs    = belongs   ;
     this.climate    = climate   ;
     this.gravity    = gravity   ;
@@ -143,6 +148,16 @@ public class Sector extends Background {
     habitats       = habB .toArray(Habitat.class);
     habitatWeights = habWB.toArray(Float  .class);
     nativeSpecies  = specB.toArray(Species.class);
+  }
+  
+  
+  public static Sector loadConstant(Session s) throws Exception {
+    return INDEX.loadEntry(s.input());
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    INDEX.saveEntry(this, s.output());
   }
   
   
@@ -276,11 +291,16 @@ public class Sector extends Background {
   }
   
   
+  public SectorScenario customScenario(Verse verse) {
+    return null;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
   public void describeHelp(Description d, Selectable prior) {
-    substituteReferences(info, d);
+    substituteReferences(description, d);
     
     //  TODO:  You need to display information for whatever Scenario is
     //  currently applied within a given sector.
@@ -307,15 +327,15 @@ public class Sector extends Background {
     
     final Base played = BaseUI.currentPlayed();
     if (played != null) {
-      final Verse verse = played.world.offworld;
-      final SectorBase base = verse.baseForSector(this);
+      final boolean    known = played.intelMap.fogAt(this) > 0;
+      final Verse      verse = played.world.offworld;
+      final SectorBase base  = verse.baseForSector(this);
+      final SectorScenario   hook  = verse.scenarioFor(this);
       
       if (base.faction() == null) {
         d.append("\n");
         d.appendList("\nProduces: ", (Object[]) goodsMade  );
         d.appendList("\nShort of: ", (Object[]) goodsNeeded);
-        
-        //Scenario active = verse.scenarioFor(this);
       }
       else {
         d.append("\n");
@@ -323,25 +343,30 @@ public class Sector extends Background {
         d.appendAll("\nGoverned by: ", base.ruler());
         
         d.append("\n");
-        d.appendList("\nGoods made: "  , (Object[]) base.made  ());
-        d.appendList("\nGoods needed: ", (Object[]) base.needed());
+        d.appendList("\nProduces: ", (Object[]) base.made  ());
+        d.appendList("\nShort of: ", (Object[]) base.needed());
       }
-      if (! base.allUnits().empty()) {
-        d.append("\nResidents: ");
-        for (Mobile m : base.allUnits()) {
-          d.appendAll("\n  ", m);
-        }
+      if (hook != null) {
+        d.append("\n");
+        hook.describeHook(d);
       }
     }
     
-    else if (startingOwner != null) {
+    final Verse verse = MainScreen.currentVerse();
+    if (verse != null) {
       d.append("\n");
-      d.appendList("\nGoods made: "  , (Object[]) goodsMade  );
-      d.appendList("\nGoods needed: ", (Object[]) goodsNeeded);
+      d.appendList("\nProduces: ", (Object[]) goodsMade  );
+      d.appendList("\nShort of: ", (Object[]) goodsNeeded);
       
       d.append("\n\n");
-      d.appendAll("Ruled by ", startingOwner, "\n");
+      d.appendAll("Claimed by ", startingOwner, "\n");
       d.append(startingOwner.startInfo);
+      
+      final SectorScenario hook = verse.scenarioFor(this);
+      if (hook != null) {
+        d.append("\n");
+        hook.describeHook(d);
+      }
     }
   }
   

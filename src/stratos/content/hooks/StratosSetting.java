@@ -237,6 +237,9 @@ public class StratosSetting extends Verse {
     DEFAULT_HOMEWORLD = PLANET_ASRA_NOVI;
   
   
+  //  TODO:  You might consider moving these out into their individual class-
+  //         files for the sake of completeness.
+  
   final public static Sector
     SECTOR_ELYSIUM = new Sector(
       Verse.class, "Elysium Sector", null, FACTION_WILDLIFE,
@@ -249,7 +252,12 @@ public class StratosSetting extends Verse {
       Qudu.SPECIES, Hareen.SPECIES,
       
       Sector.MAKES, CARBS, GREENS
-    ),
+    ) {
+      public SectorScenario customScenario(Verse verse) {
+        return new ScenarioElysium(verse);
+      }
+    },
+    
     SECTOR_PAVONIS = new Sector(
       Verse.class, "Pavonis Sector", null, FACTION_WILDLIFE,
       "",
@@ -261,7 +269,12 @@ public class StratosSetting extends Verse {
       Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES,
       
       Sector.MAKES, SPYCES, PROTEIN
-    ),
+    ) {
+      public SectorScenario customScenario(Verse verse) {
+        return new ScenarioPavonis(verse);
+      }
+    },
+    
     SECTOR_TERRA = new Sector(
       Verse.class, "Terra Sector", null, FACTION_WILDLIFE,
       "",
@@ -273,7 +286,11 @@ public class StratosSetting extends Verse {
       Drone.SPECIES,
       
       Sector.MAKES, METALS, FUEL_RODS
-    ),
+    ) {
+      public SectorScenario customScenario(Verse verse) {
+        return new ScenarioTerra(verse);
+      }
+    },
     
     ALL_DIAPSOR_SECTORS[] = {
       SECTOR_ELYSIUM, SECTOR_PAVONIS, SECTOR_TERRA

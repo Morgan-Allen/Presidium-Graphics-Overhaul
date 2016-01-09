@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.verse;
+import stratos.start.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.util.*;
@@ -43,7 +44,7 @@ public abstract class Verse implements Session.Saveable {
   private Stage  currentStage;
   private Sector stageLocation = null;
   private int    startingDate  = Stage.DEFAULT_INIT_TIME;
-  final List <Hook> allHooks = new List();
+  final List <SectorScenario> scenarios = new List();
   
   final public VerseJourneys journeys = new VerseJourneys(this);
   final List <SectorBase> bases = new List <SectorBase> ();
@@ -59,6 +60,8 @@ public abstract class Verse implements Session.Saveable {
     for (Sector s : locations) {
       final SectorBase base = new SectorBase(this, s);
       bases.add(base);
+      final SectorScenario scenario = s.customScenario(this);
+      if (scenario != null) scenarios.add(scenario);
     }
     for (Faction f : CIVIL_FACTIONS) if (f.startSite() != null) {
       final SectorBase base = baseForSector(f.startSite());
@@ -75,7 +78,7 @@ public abstract class Verse implements Session.Saveable {
     currentStage  = (Stage ) s.loadObject();
     stageLocation = (Sector) s.loadObject();
     startingDate  = s.loadInt();
-    s.loadObjects(allHooks);
+    s.loadObjects(scenarios);
     
     journeys.loadState(s);
     s.loadObjects(bases);
@@ -93,7 +96,7 @@ public abstract class Verse implements Session.Saveable {
     s.saveObject(currentStage );
     s.saveObject(stageLocation);
     s.saveInt   (startingDate );
-    s.saveObjects(allHooks);
+    s.saveObjects(scenarios);
     
     journeys.saveState(s);
     s.saveObjects(bases);
@@ -220,6 +223,12 @@ public abstract class Verse implements Session.Saveable {
   }
   
   
+  public SectorScenario scenarioFor(Sector match) {
+    for (SectorScenario s : scenarios) if (s.location == match) return s;
+    return null;
+  }
+  
+  
   
   /**  Physical demographics and travel methods-
     */
@@ -288,7 +297,7 @@ public abstract class Verse implements Session.Saveable {
     */
   public void updateVerse(float time) {
     journeys.updateJourneys((int) time);
-    for (Hook hook : allHooks) hook.updateHook();
+    for (SectorScenario hook : scenarios) hook.updateOffstage();
   }
 }
 

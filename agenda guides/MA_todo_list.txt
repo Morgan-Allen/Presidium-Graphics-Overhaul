@@ -2,16 +2,14 @@
 
 CURRENT ITEMS:
 
+*  The stock-exchange is giving screwy numbers for supply/demand levels- fix.
+
    Priority:  Medium-High  Duration:  Medium-Long
 *  Initial missions:
-   Planitia Sector (robots + ruins, artifact.)
-   Pavonis Sector (mild settlement, pacified.)
-   Aeolis Sector (desert plus wildlife.)
+   Planitia Sector  (robots + ruins, artifact.)
+   Pavonis Sector   (mild settlement, pacified.)
+   Aeolis Sector    (desert plus wildlife.)
    Marineris Sector (neutral + water/islands.  Some wildlife.)
-   
-   You'll need the ability to associate custom scenario-classes with various
-   sectors (and possibly the ability to apply event-scripts within an existing
-   scenario based on later outcomes.)
 
    Priority:  Medium  Duration:  Short?
 *  Patch up visual bugs and media assets in the new-game UI sequence.

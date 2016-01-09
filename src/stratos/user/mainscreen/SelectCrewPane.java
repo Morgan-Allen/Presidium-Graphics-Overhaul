@@ -200,13 +200,11 @@ public class SelectCrewPane extends MenuPane {
   
   private void pushNextPane() {
     String prefix = SaveUtils.uniqueVariant(expedition.leader().fullName());
-    final Verse verse = new StratosSetting();
+    final Verse verse = MainScreen.currentVerse();
     
-    //  TODO:  Derive the scenario to begin from the starting location and the
-    //  list of all possible scenarios.
-    
-    StartupScenario newGame = new StartupScenario(expedition, verse, prefix);
-    PlayLoop.setupAndLoop(newGame);
+    SectorScenario hook = verse.scenarioFor(expedition.destination());
+    if (hook == null) hook = new SectorScenario(expedition, verse, prefix);
+    hook.beginScenario(expedition, prefix);
   }
   
   

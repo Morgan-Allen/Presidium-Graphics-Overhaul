@@ -38,7 +38,7 @@ public class ChartUtils {
       final UIGroup worldInfo = new UIGroup(UI);
       worldInfo.stretch = false;
       final Button b = new Button(
-        UI, world.name, world.planetImage, Button.CIRCLE_LIT, world.info
+        UI, world.name, world.planetImage, Button.CIRCLE_LIT, world.description
       ) {
         protected void whenClicked() {
           carousel.setSelection(world);
