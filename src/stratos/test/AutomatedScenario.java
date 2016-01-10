@@ -3,8 +3,9 @@
   *  
   *  Feel free to poke around for non-commercial purposes.
   */
-package stratos.start;
+package stratos.test;
 import stratos.game.common.*;
+import stratos.start.Scenario;
 import stratos.user.*;
 import stratos.util.*;
 

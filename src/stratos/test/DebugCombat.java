@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.start;
+package stratos.test;
 import stratos.content.civic.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -12,6 +12,7 @@ import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
+import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
