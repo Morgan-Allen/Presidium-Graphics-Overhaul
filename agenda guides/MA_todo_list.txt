@@ -2,21 +2,16 @@
 
 CURRENT ITEMS:
 
-*  The stock-exchange is giving screwy numbers for supply/demand levels- fix.
-
-   Priority:  Medium-High  Duration:  Medium-Long
-*  Initial missions:
-   Planitia Sector  (robots + ruins, artifact.)
-   Pavonis Sector   (mild settlement, pacified.)
-   Aeolis Sector    (desert plus wildlife.)
-   Marineris Sector (neutral + water/islands.  Some wildlife.)
-
    Priority:  Medium  Duration:  Short?
 *  Patch up visual bugs and media assets in the new-game UI sequence.
 
    Priority:  Medium  Duration:  Medium
 *  Create a proper skin for the Airship model!
 
+   Priority:  Medium-High  Duration:  Medium-Long
+*  You need to come up with basic blurbs and story-outline for the starting
+   sectors, together with some objectives and short message-scripts.
+   
    Priority:  High  Duration:  Long to Very Long
 *  Create and import Level-2 art-assets for the major guilds.
    Bastion
@@ -66,8 +61,11 @@ BACK BURNER:
    raiding/diplomacy.  (The base is there, and the buildings are there- you
    just need to introduce them and tie it into BaseVisits.)
 
-   Priority:  Medium  Duration:  Short.
+   Priority:  Medium  Duration:  Short
 *  Random-variation for offworld visit-intervals need to be reworked.
+
+   Priority:  Minor  Duration:  Moment
+*  Rename 'SectorBase' to 'Colony'?
 
 
 

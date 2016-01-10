@@ -204,6 +204,8 @@ CITIZEN BEHAVIOUR-
 
 CONTROL AND DIRECTION-
 
+*  Restore fast-forward and slow-motion options (possibly as psy fx.)
+
   >>>>>>> DO THIS <<<<<<<
 *  Make Pledges more persistent and nuanced (see Proposal class.)
    Also, try to allow negotiation with buildings, in some sense.
@@ -260,6 +262,7 @@ INTERFACE AND DEBUGGING
 
 ART, GRAPHICS AND MEDIA PRODUCTION
 
+*  Add options to show/hide speech-bubbles and other bits of citizen info.
 
 *  On my (Morgan's) older Mac there's noticeable slowdown on large maps every 2
    seconds or so, with much of this due to inefficient handling of buffer calls

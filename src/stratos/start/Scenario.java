@@ -33,7 +33,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   final boolean isDebug;
   private float loadProgress = -1;
   
-  private BaseUI UI;
+  private BaseUI UI = null;
   private String savesPrefix;
   private boolean skipNextLoad = false;
   private float lastSaveTime = -1;
@@ -61,8 +61,10 @@ public abstract class Scenario implements Session.Saveable, Playable {
     isDebug      = s.loadBool();
     
     loadProgress = 1;
-    UI = createUI(base, PlayLoop.rendering());
-    UI.loadState(s);
+    if (s.loadBool()) {
+      UI = createUI(base, PlayLoop.rendering());
+      UI.loadState(s);
+    }
   }
   
   
@@ -73,7 +75,9 @@ public abstract class Scenario implements Session.Saveable, Playable {
     s.saveBool  (skipNextLoad);
     s.saveFloat (lastSaveTime);
     s.saveBool  (isDebug     );
-    UI.saveState(s);
+    
+    if (UI == null) s.saveBool(false);
+    else { s.saveBool(true); UI.saveState(s); }
   }
   
   

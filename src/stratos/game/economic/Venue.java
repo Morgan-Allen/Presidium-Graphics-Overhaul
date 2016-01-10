@@ -585,8 +585,7 @@ public abstract class Venue extends Fixture implements
   /**  Interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    final Traded sets[] = blueprint.tradeServices();
-    return VenuePane.configStandardPanel(this, panel, UI, sets);
+    return VenuePane.configStandardPanel(this, panel, UI, null);
   }
   
   
