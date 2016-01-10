@@ -9,7 +9,7 @@
 
 <humanCostume
   path    ="media/Actors/tests/textures/"
-  basePart="MaterialGroup.6"
+  basePart="Body"
 >
   
   <basicSkins>

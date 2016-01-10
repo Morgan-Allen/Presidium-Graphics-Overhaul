@@ -64,14 +64,23 @@ public class SkinsPreview extends VisualDebug {
   private String     costumeSkin ;
   
   private boolean showAsHuman;
-  private String humanSkinPath, basePartName;
+  private String humanSkinPath, baseSkinName;
   private Batch <String> humanSkins, humanCostumes;
   
   private boolean showOrigin = true;
   private PlaneFX centerMark = null;
   
-  
-  
+
+  private String basePartName() {
+    for (final String partName : currentModel.partNames()) {
+      final String skinName = currentModel.materialID(partName);
+       if (skinName.equals(baseSkinName)) {
+         return partName;
+       }
+    }
+    return null;
+  }
+
   protected void loadVisuals() {
     UI = new HUD(PlayLoop.rendering());
     //
@@ -87,7 +96,7 @@ public class SkinsPreview extends VisualDebug {
     //  Load in some defaults for human skins-
     this.showAsHuman   = settings.getBool("showAsHuman");
     this.humanSkinPath = costumes.value("path"    );
-    this.basePartName  = costumes.value("basePart");
+    this.baseSkinName  = costumes.value("basePart");
     this.humanSkins = new Batch <String> ();
     
     for (XML kid : costumes.child("basicSkins").allChildrenMatching("skin")) {
@@ -155,7 +164,7 @@ public class SkinsPreview extends VisualDebug {
         humanSkinPath+costumeSkin
       );
     for (String part : parts) {
-      final boolean isBase = part.equals(basePartName);
+      final boolean isBase = part.equals(basePartName());
       
       if (isBase && base != null && costume != null) {
         solid.setOverlaySkins(part, base, costume);
@@ -279,10 +288,10 @@ public class SkinsPreview extends VisualDebug {
       //  If parts-hiding hasn't been set up already, then by default we hide
       //  anything except the base-group.
       final String parts[] = currentModel.partNames();
-      if (partsHide == null && basePartName != null) {
+      if (partsHide == null) {
         partsHide = new boolean[parts.length];
         if (showAsHuman) for (int i = parts.length; i-- > 0;) {
-          partsHide[i] = ! parts[i].equals(basePartName);
+          partsHide[i] = ! parts[i].equals(basePartName());
         }
       }
       t.append("\n\nModel parts:");
@@ -296,8 +305,9 @@ public class SkinsPreview extends VisualDebug {
         t.append(new Description.Link(part) {
           public void whenClicked(Object context) { partsHide[index] = ! hide; }
         }, (! partsHide[index]) ? Colour.GREEN : Text.LINK_COLOUR);
-        
-        final boolean isBase = part.equals(basePartName);
+
+        String s = basePartName();
+        final boolean isBase = part.equals(basePartName());
         final String skinName = currentModel.materialID(part);
         t.append("  ("+skinName+": "+(isBase ? "Base" : "Costume")+")");
       }
