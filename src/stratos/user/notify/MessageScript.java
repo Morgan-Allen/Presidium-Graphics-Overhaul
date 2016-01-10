@@ -128,8 +128,9 @@ public class MessageScript implements
   public void saveMessage(MessagePane message, Session s) throws Exception {
     s.saveString(message.title);
   }
-
-
+  
+  
+  
   public void clearScript() {
     for (Topic topic : allTopics.values()) {
       topic.asMessage = null ;
@@ -154,6 +155,12 @@ public class MessageScript implements
   public boolean topicCompleted(String titleKey) {
     final Topic match = allTopics.get(titleKey);
     return match != null && match.completed;
+  }
+  
+  
+  public String contentForTopic(String titleKey) {
+    final Topic match = allTopics.get(titleKey);
+    return match == null ? "" : match.sourceNode.child("content").content();
   }
   
 

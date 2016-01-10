@@ -300,16 +300,45 @@ public class Sector extends Constant {
   /**  Rendering and interface methods-
     */
   public void describeHelp(Description d, Selectable prior) {
-    substituteReferences(description, d);
     
-    //  TODO:  You need to display information for whatever Scenario is
-    //  currently applied within a given sector.
+    final Verse verse = currentVerse();
+    if (verse == null) return;
+    
+    final Base           p    = BaseUI.currentPlayed();
+    final boolean        seen = p == null || p.intelMap.fogAt(this) > 0;
+    final SectorBase     base = verse.baseForSector(this);
+    final SectorScenario hook = verse.scenarioFor  (this);
+    
+    if (! seen) {
+      d.append(
+        "\nIntel on this Sector is not available.  Send a Recon Mission to "+
+        "scout this territory."
+      );
+      return;
+    }
+    if (hook != null) hook.describeHook(d);
+    else substituteReferences(description, d);
     
     d.append("\n");
     d.append("\nGravity: "   +Verse.GRAVITY_DESC   [gravity + 2]);
     d.append("\nPopulation: "+Verse.POPULATION_DESC[population ]);
-    d.appendList("\nNative Species:", (Object[]) nativeSpecies);
     d.appendList("\nHabitats: "     , (Object[]) habitats     );
+    d.appendList("\nNative Species:", (Object[]) nativeSpecies);
+
+    if (base.faction() == null) {
+      d.append("\n");
+      d.appendList("\nProduces: ", (Object[]) goodsMade  );
+      d.appendList("\nShort of: ", (Object[]) goodsNeeded);
+    }
+    else {
+      d.append("\n");
+      d.appendAll("\nClaimed by: ", base.faction());
+      d.appendAll("\nGoverned by: ", base.ruler());
+      
+      d.append("\n");
+      d.appendList("\nProduces: ", (Object[]) base.made  ());
+      d.appendList("\nShort of: ", (Object[]) base.needed());
+    }
     
     /*
     d.append("\n\nCommon backgrounds: ");
@@ -324,50 +353,13 @@ public class Sector extends Constant {
       d.appendAll("\n  ", u);
     }
     //*/
-    
+  }
+  
+  
+  private static Verse currentVerse() {
     final Base played = BaseUI.currentPlayed();
-    if (played != null) {
-      final boolean    known = played.intelMap.fogAt(this) > 0;
-      final Verse      verse = played.world.offworld;
-      final SectorBase base  = verse.baseForSector(this);
-      final SectorScenario   hook  = verse.scenarioFor(this);
-      
-      if (base.faction() == null) {
-        d.append("\n");
-        d.appendList("\nProduces: ", (Object[]) goodsMade  );
-        d.appendList("\nShort of: ", (Object[]) goodsNeeded);
-      }
-      else {
-        d.append("\n");
-        d.appendAll("\nClaimed by: ", base.faction());
-        d.appendAll("\nGoverned by: ", base.ruler());
-        
-        d.append("\n");
-        d.appendList("\nProduces: ", (Object[]) base.made  ());
-        d.appendList("\nShort of: ", (Object[]) base.needed());
-      }
-      if (hook != null) {
-        d.append("\n");
-        hook.describeHook(d);
-      }
-    }
-    
-    final Verse verse = MainScreen.currentVerse();
-    if (verse != null) {
-      d.append("\n");
-      d.appendList("\nProduces: ", (Object[]) goodsMade  );
-      d.appendList("\nShort of: ", (Object[]) goodsNeeded);
-      
-      d.append("\n\n");
-      d.appendAll("Claimed by ", startingOwner, "\n");
-      d.append(startingOwner.startInfo);
-      
-      final SectorScenario hook = verse.scenarioFor(this);
-      if (hook != null) {
-        d.append("\n");
-        hook.describeHook(d);
-      }
-    }
+    if (played != null) return played.world.offworld;
+    else return MainScreen.currentVerse();
   }
   
 

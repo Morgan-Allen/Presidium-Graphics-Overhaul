@@ -6,6 +6,7 @@
 package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
+import stratos.user.notify.MessageScript;
 import stratos.util.*;
 
 
@@ -15,20 +16,26 @@ public class ScenarioPavonis extends SectorScenario {
   
   /**  Data fields, constructors and save/load methods-
     */
+  final MessageScript script;
   
   
   public ScenarioPavonis(Verse verse) {
-    super(StratosSetting.SECTOR_ELYSIUM, verse);
+    super(StratosSetting.SECTOR_PAVONIS, verse);
+    this.script = new MessageScript(
+      this, "src/stratos/content/hooks/ScriptPavonis.xml"
+    );
   }
   
   
   public ScenarioPavonis(Session s) throws Exception {
     super(s);
+    script = (MessageScript) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObject(script);
   }
   
   
@@ -43,6 +50,13 @@ public class ScenarioPavonis extends SectorScenario {
   /**  Rendering, debug and interface methods-
     */
   public void describeHook(Description d) {
+    final String summary = script.contentForTopic("Summary");
+    d.append(summary);
   }
   
 }
+
+
+
+
+

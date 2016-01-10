@@ -7,6 +7,7 @@ package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
 import stratos.util.*;
+import stratos.user.notify.*;
 
 
 
@@ -15,20 +16,26 @@ public class ScenarioElysium extends SectorScenario {
   
   /**  Data fields, constructors and save/load methods-
     */
+  final MessageScript script;
   
   
   public ScenarioElysium(Verse verse) {
     super(StratosSetting.SECTOR_ELYSIUM, verse);
+    this.script = new MessageScript(
+      this, "src/stratos/content/hooks/ScriptElysium.xml"
+    );
   }
   
   
   public ScenarioElysium(Session s) throws Exception {
     super(s);
+    script = (MessageScript) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObject(script);
   }
   
   
@@ -43,6 +50,16 @@ public class ScenarioElysium extends SectorScenario {
   /**  Rendering, debug and interface methods-
     */
   public void describeHook(Description d) {
+    final String summary = script.contentForTopic("Summary");
+    d.append(summary);
   }
   
 }
+
+
+
+
+
+
+
+
