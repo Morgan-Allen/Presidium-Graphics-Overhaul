@@ -319,13 +319,13 @@ public class Sector extends Constant {
     if (hook != null) hook.describeHook(d);
     else substituteReferences(description, d);
     
-    d.append("\n");
-    d.append("\nGravity: "   +Verse.GRAVITY_DESC   [gravity + 2]);
-    d.append("\nPopulation: "+Verse.POPULATION_DESC[population ]);
+    //d.append("\n");
+    //d.append("\nGravity: "   +Verse.GRAVITY_DESC   [gravity + 2]);
+    //d.append("\nPopulation: "+Verse.POPULATION_DESC[population ]);
     d.appendList("\nHabitats: "     , (Object[]) habitats     );
     d.appendList("\nNative Species:", (Object[]) nativeSpecies);
-
-    if (base.faction() == null) {
+    
+    if (base.faction() == null || base.ruler() == null) {
       d.append("\n");
       d.appendList("\nProduces: ", (Object[]) goodsMade  );
       d.appendList("\nShort of: ", (Object[]) goodsNeeded);
@@ -338,6 +338,16 @@ public class Sector extends Constant {
       d.append("\n");
       d.appendList("\nProduces: ", (Object[]) base.made  ());
       d.appendList("\nShort of: ", (Object[]) base.needed());
+    }
+    if (startingOwner != null && startingOwner.startSite() == this) {
+      d.append("\n\n");
+      d.append(startingOwner.startInfo);
+      
+      for (Skill s : asBackground.skills()) {
+        final float bonus = asBackground.skillLevel(s);
+        if (bonus < 0) continue;
+        d.append("\n  +5 to "+s);
+      }
     }
     
     /*

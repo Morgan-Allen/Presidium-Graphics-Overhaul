@@ -64,8 +64,8 @@ public class MainScreen extends HUD {
     
     final int
       dispInX = MENU_PANEL_WIDE + (MARGIN * 2),
-      dispTop = CAROUSEL_HIGH   + (MARGIN * 2),
-      dispBot = HELP_FIELD_HIGH + (MARGIN * 2);
+      dispTop = CAROUSEL_HIGH   + (MARGIN * 3),
+      dispBot = HELP_FIELD_HIGH + (MARGIN * 1);
     display = createPlanetDisplay(LOAD_PATH, PLANET_LOAD_FILE);
     display.showLabels = false;
     

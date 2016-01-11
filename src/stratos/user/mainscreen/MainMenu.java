@@ -90,7 +90,7 @@ public class MainMenu extends MenuPane implements UIConstants {
       
       protected void fillListing(List <UINode> listing) {
         listing.add(createTextItem(
-          "Are you sure you want to quit?", 1.2f, null, 1
+          "Are you sure you want to quit?", 1.0f, null, 1
         ));
         listing.add(createTextButton("  Just quit already", 1, new Link() {
           public void whenClicked(Object context) {

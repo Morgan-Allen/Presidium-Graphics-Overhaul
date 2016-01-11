@@ -119,7 +119,7 @@ public class SelectCrewPane extends MenuPane {
       t.append("  "+b.name+" ("+numM+")", tint);
     }
     
-    screen.crewDisplay.setupFrom(expedition);
+    screen.crewDisplay.setupFrom(expedition, true);
     
     super.updateState();
   }
@@ -209,7 +209,6 @@ public class SelectCrewPane extends MenuPane {
   
   
   protected void navigateBack() {
-    MainScreen.current().clearInfoPane();
     super.navigateBack();
   }
   

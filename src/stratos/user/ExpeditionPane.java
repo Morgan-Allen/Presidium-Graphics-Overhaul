@@ -21,7 +21,7 @@ public class ExpeditionPane extends MissionPane {
   final static String
     CAT_COLONISTS = "Colonists",
     CAT_SUPPLIES  = "Supplies",
-    CATEGORIES[] = {};
+    CATEGORIES[]  = {};
   
   
   final Expedition expedition;

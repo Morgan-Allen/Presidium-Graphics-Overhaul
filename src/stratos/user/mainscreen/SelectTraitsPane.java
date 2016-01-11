@@ -108,7 +108,7 @@ public class SelectTraitsPane extends MenuPane {
     int numP = numPowers(), maxP = maxPowers();
     updateTextItem(powerHeader, "Powers ("+numP+"/"+maxP+")", null);
     
-    screen.crewDisplay.setupFrom(expedition);
+    screen.crewDisplay.setupFrom(expedition, false);
     
     super.updateState();
   }
@@ -136,6 +136,9 @@ public class SelectTraitsPane extends MenuPane {
     Background gender = Rand.yes() ? BORN_MALE : BORN_FEMALE;
     final Career c     = new Career(KNIGHTED, BORN_HIGH, home, gender);
     final Human leader = new Human(c, faction);
+    
+    leader.traits.setLevel(HANDSOME, HANDSOME.maxVal / 2);
+    leader.health.setMaturity(0.5f);
     
     for (Trait t : SELECT_TRAITS) leader.traits.setLevel(t, 0);
     leader.skills.wipeTechniques();
@@ -287,20 +290,19 @@ public class SelectTraitsPane extends MenuPane {
   /**  Other navigation tasks.
     */
   private boolean canProgress() {
-    if (numPowers   () != maxPowers   ()) return false;
-    if (numTraits   () != maxTraits   ()) return false;
+    if (numPowers() != maxPowers()) return false;
+    if (numTraits() != maxTraits()) return false;
     return true;
   }
   
   
   private void pushNextPane() {
-    //MainScreen.current().clearInfoPane();
+    expedition.destination().whenClicked(null);
     navigateForward(new SelectCrewPane(UI, expedition), true);
   }
   
   
   protected void navigateBack() {
-    MainScreen.current().clearInfoPane();
     super.navigateBack();
   }
 }

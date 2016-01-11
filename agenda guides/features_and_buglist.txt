@@ -141,25 +141,15 @@ SPECIFIC TO RESOURCE-HARVESTING-
   Implement mining of surface rocks.
   Extra tailings for polymer.
   Output-estimation could be a little more averaged.
-  
-* Chemical pans appear more frequently in desert/caustic terrain.  They produce
-    reagents & spyce from the atmosphere or local deposits.
 
 *  Moisture farms:
   Could be called that.
   Could use art & code for aquaculture & desalinators.
-  
-* Solar banks appear more frequently in dryer/sunnier terrain.  They produce
-    water & power, with more of the former when extended over water.
-
-*  Step-by-step demolition of large rocks (or other fixtures) as a prelude to
-   site-construction, paving, mining, et cetera.  Similar work-flow.
 
 
 THE TUTORIAL
 
-*  And I think I still need to explain security missions.  (And make sure the
-   artilects are more proactive as raiders.)
+*  I think I still need to explain security missions.
 
 *  Show missions on the minimap, along with proper tool-tips.
 

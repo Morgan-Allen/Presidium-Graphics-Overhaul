@@ -39,7 +39,7 @@ public class SelectSitePane extends MenuPane {
     listing.add(createTextItem(
       "Your homeworld will determine the initial colonists and finance "+
       "available to your settlement, along with technical expertise and "+
-      "trade revenue.", 0.75f, Colour.LITE_GREY, 3
+      "trade revenue.", 0.75f, Colour.LITE_GREY, 4
     ));
     //
     //  Then pick a sector.
@@ -55,7 +55,7 @@ public class SelectSitePane extends MenuPane {
     listing.add(createTextItem(
       "Your landing site will determine the type of resources initially "+
       "available to your settlement, along with local species and other "+
-      "threats.", 0.75f, Colour.LITE_GREY, 3
+      "threats.", 0.75f, Colour.LITE_GREY, 4
     ));
     
     //
@@ -123,6 +123,7 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
+    expedition.destination().whenClicked(null);
     expedition.backing().configStartingExpedition(expedition);
     navigateForward(new SelectTraitsPane(UI, expedition), true);
   }
