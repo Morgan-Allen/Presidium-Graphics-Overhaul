@@ -44,7 +44,8 @@ public class ChartUtils {
           carousel.setSelection(world);
         }
       };
-      b.alignToFill();
+      b.alignAcross(-0.5f, 1.5f);
+      b.alignVertical(0, 0);
       b.attachTo(worldInfo);
       carousel.addEntryFor(world, worldInfo);
     }
