@@ -183,7 +183,11 @@ public abstract class Species extends Background {
   public boolean animal  () { return browser() || predator() || vermin(); }
   public boolean living  () { return sapient() || animal(); }
   
-  public Item[] nutrients(int stage) { return stageNutrients[stage]; }
+  
+  public Item[] nutrients(int stage) {
+    return stageNutrients[Nums.clamp(stage, 4)];
+  }
+  
   public float metabolism() { return baseBulk * speedMult; }
 }
 

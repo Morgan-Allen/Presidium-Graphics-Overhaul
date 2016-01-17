@@ -435,6 +435,11 @@ public class Structure {
       if (state != STATE_SALVAGE) state = STATE_INTACT;
       integrity = max;
     }
+    if (integrity <= 0) {
+      if (state == STATE_SALVAGE) ((Element) basis).setAsDestroyed();
+      if (state == STATE_INTACT ) state = STATE_RAZED;
+      integrity = 0;
+    }
     checkMaintenance();
   }
   
