@@ -31,8 +31,8 @@ public class DebugCombat extends AutomatedScenario {
   Batch <Batch <Technique>> techsUsed = new Batch();
   
   
-  private DebugCombat() {
-    super("debug_combat", "debug_combat_log.txt");
+  private DebugCombat(TestCase testCase) {
+    super("debug_combat", testCase);
   }
   
   
@@ -60,7 +60,7 @@ public class DebugCombat extends AutomatedScenario {
   /**  Initial setup methods for before/after construction-
     */
   public static void main(String args[]) {
-    PlayLoop.setupAndLoop(new DebugCombat());
+    AutomatedTestRunner.setupAutomatedTest(getTestCases(), "debug_combat_log.txt");
   }
   
    
@@ -101,9 +101,11 @@ public class DebugCombat extends AutomatedScenario {
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
-    
-    if (false) raidingScenario (world, base, UI);
-    if (true ) combatScenario  (world, base, UI);
+
+    setupTestCase(world, base, UI);
+
+    //if (false) raidingScenario (world, base, UI);
+    //if (true ) combatScenario  (world, base, UI);
   }
   
   
@@ -155,8 +157,8 @@ public class DebugCombat extends AutomatedScenario {
   }
   
   
-  protected long getMaxTestDurationMs() {
-    return 1000 * 60 * 3;
+  protected long getMaxTestDuration() {
+    return 60 * 3;
   }
   
   
@@ -197,62 +199,90 @@ public class DebugCombat extends AutomatedScenario {
     Selection.pushSelection(ruins.staff.workers().first(), null);
   }
   
-  
-  private void combatScenario(Stage world, Base base, BaseUI UI) {
-    
-    //GameSettings.fogFree = true;
-    //Flora.populateFlora(world);
-    
-    GameSettings.noBlood = true;
-    world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
-    
-    //*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { TROOPER, TROOPER },
-      new Technique[] {
-        TrooperTechniques.SUPPRESSION,
-        TrooperTechniques.FENDING_BLOW
-      },
-      new Species[] { Yamagur.SPECIES },
-      Base.wildlife(world), true
-    );
-    //*/
-    
-    //  TODO:  Ideally, each of the methods below should get it's own TestCase-
-    //         as well as RaidingScenario above.
-    
-    /*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { ECOLOGIST },
-      EcologistTechniques.ECOLOGIST_TECHNIQUES,
-      new Species[] { Yamagur.SPECIES },
-      Base.wildlife(world), true
-    );
-    //*/
-    
-    /*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { RUNNER, RUNNER },
-      RunnerTechniques.RUNNER_TECHNIQUES,
-      new Species[] { Tripod.SPECIES },
-      Base.artilects(world), true
-    );
-    //*/
-    
-    /*
-    setupCombatScenario(
-      world, base, UI,
-      new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
-      PhysicianTechniques.PHYSICIAN_TECHNIQUES,
-      new Background[] { RUNNER, RUNNER },
-      Base.artilects(world), true
-    );
-    //*/
+
+  abstract static class DebugCombatTestCase extends TestCase {
+    DebugCombat scenario;
+
+    AutomatedScenario initScenario() {
+      scenario = new DebugCombat(this);
+      return scenario;
+    }
+
+    TestResult currentResult() {
+      return scenario.getCurrentResult();
+    }
   }
-  
+
+
+  public static Stack<TestCase> getTestCases() {
+    Stack<TestCase> result = new Stack<TestCase>();
+
+    result.add(new DebugCombatTestCase() {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        GameSettings.noBlood = true;
+        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
+
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { TROOPER, TROOPER },
+                new Technique[] {
+                        TrooperTechniques.SUPPRESSION,
+                        TrooperTechniques.FENDING_BLOW
+                },
+                new Species[] { Yamagur.SPECIES },
+                Base.wildlife(world), true
+        );
+      }
+    });
+
+    result.add(new DebugCombatTestCase() {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        GameSettings.noBlood = true;
+        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
+
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { ECOLOGIST },
+                EcologistTechniques.ECOLOGIST_TECHNIQUES,
+                new Species[] { Yamagur.SPECIES },
+                Base.wildlife(world), true
+        );
+      }
+    });
+
+    result.add(new DebugCombatTestCase() {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        GameSettings.noBlood = true;
+        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
+
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { RUNNER, RUNNER },
+                RunnerTechniques.RUNNER_TECHNIQUES,
+                new Species[] { Tripod.SPECIES },
+                Base.artilects(world), true
+        );
+      }
+    });
+
+    result.add(new DebugCombatTestCase() {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        GameSettings.noBlood = true;
+        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
+
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
+                PhysicianTechniques.PHYSICIAN_TECHNIQUES,
+                new Background[] { RUNNER, RUNNER },
+                Base.artilects(world), true
+        );
+      }
+    });
+
+    return result;
+  }
+
   
   private void setupCombatScenario(
     Stage world, Base base, BaseUI UI,
