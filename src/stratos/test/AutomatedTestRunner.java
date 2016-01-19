@@ -1,3 +1,8 @@
+/**  
+  *  Written by Jaroslaw Jedynak
+  *  
+  *  Feel free to poke around for non-commercial purposes.
+  */
 package stratos.test;
 
 import stratos.start.PlayLoop;
@@ -9,6 +14,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+
 
 public class AutomatedTestRunner {
   static Stack<TestCase> testCases;

@@ -1,7 +1,7 @@
 /**  
-  *  Written by Morgan Allen.
-  *  I intend to slap on some kind of open-source license here in a while, but
-  *  for now, feel free to poke around for non-commercial purposes.
+  *  Written by Morgan Allen and Jaroslaw Jedynak.
+  *  
+  *  Feel free to poke around for non-commercial purposes.
   */
 package stratos.test;
 import stratos.content.civic.*;
@@ -168,6 +168,7 @@ public class DebugCombat extends AutomatedScenario {
     //
     //  Introduce a bastion, with standard personnel.
     Flora.populateFlora(world);
+    GameSettings.fastRaids = true;
     
     final Sector homeworld = StratosSetting.PLANET_PAREM_V;
     base.research.initKnowledgeFrom(homeworld);
@@ -220,9 +221,6 @@ public class DebugCombat extends AutomatedScenario {
 
     result.add(new DebugCombatTestCase() {
       void setupScenario(Stage world, Base base, BaseUI UI) {
-        GameSettings.noBlood = true;
-        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
-
         scenario.setupCombatScenario(
                 world, base, UI,
                 new Background[] { TROOPER, TROOPER },
@@ -238,9 +236,6 @@ public class DebugCombat extends AutomatedScenario {
 
     result.add(new DebugCombatTestCase() {
       void setupScenario(Stage world, Base base, BaseUI UI) {
-        GameSettings.noBlood = true;
-        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
-
         scenario.setupCombatScenario(
                 world, base, UI,
                 new Background[] { ECOLOGIST },
@@ -253,9 +248,6 @@ public class DebugCombat extends AutomatedScenario {
 
     result.add(new DebugCombatTestCase() {
       void setupScenario(Stage world, Base base, BaseUI UI) {
-        GameSettings.noBlood = true;
-        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
-
         scenario.setupCombatScenario(
                 world, base, UI,
                 new Background[] { RUNNER, RUNNER },
@@ -268,9 +260,6 @@ public class DebugCombat extends AutomatedScenario {
 
     result.add(new DebugCombatTestCase() {
       void setupScenario(Stage world, Base base, BaseUI UI) {
-        GameSettings.noBlood = true;
-        world.advanceCurrentTime(Stage.STANDARD_SHIFT_LENGTH * 2);
-
         scenario.setupCombatScenario(
                 world, base, UI,
                 new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },

@@ -1,6 +1,32 @@
 
 
 
+  >>>>>>> DO THIS <<<<<<<
+*  Rework the migration system to that it's more gradual- colonists arrive from
+   the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
+   ashore' every day or two, but those can't respond to job-demand as such.
+
+*  Notifications for raids!
+
+*  Citizens need to migrate offworld if unhappy/unemployed enough.
+
+  >>>>>>> DO THIS <<<<<<<
+*  Proper evaluation of mood and memory-events.
+   
+   Allow both hiring and queueing of upgrades before a structure is complete,
+   and allow relocating once it is.
+
+*  You need to report output for *all* items produced at the engineer station,
+   fabricator, physician station, etc..
+
+*  Features to add:
+   Auto-Turret behaviour.  Forcefield generation.
+   Building-stealth.       Platform gunner.
+
+
+
+
+
 *  I may need to implement a major change where each Base is responsible for
    managing structures/settlements both within and outside the world (thereby
    corresponding to a faction) and things like sectors/planets implement the
@@ -28,24 +54,16 @@
    for gender are working when you begin a new game.  (Also, consider allowing
    'upstart' or 'diplomatic' as backgrounds.)
 
-*  Actor-generation should respect the climate of the source world!
-
 *  Add random tips during the loading-screens.
 
 
 
 *  General tweaks-
    
-   Supply Depot:  Handles anything used as raw materials (including second
-   -stage items like plastics, parts or foodstuffs.)  Allows direct control.
-   
    Stock Exchange:  Handles anything considered a finished good (including
    second-stage items like plastics, parts or foodstuffs.)  Allows upgrades.
    
    Make sure housing has adequate aesthetics.
-   
-   Allow both hiring and queueing of upgrades before a structure is complete,
-   and allow relocating once it is.
 
 *  SFX might not belong with attacks called by a technique.
    Create a Volley class for combat, that techniques can then modify in an
@@ -83,10 +101,6 @@
    Make sure upgrades and abilities are functioning for each of these.
    (And double-check correct knowledge-setup for the various houses.)
 
-*  Features to add:
-   Auto-Turret behaviour.  Forcefield generation.
-   Building-stealth.       Platform gunner.
-
 *  Make sure that the NestUtils calls for fauna-population get translated back
    into a SitingPass- and ensure that fauna can build their own nests again.
 
@@ -99,8 +113,7 @@ ENEMIES AND ENVIRONMENT-
      Rem Leech, Mistaken, Desert Maw, Hirex Body.
 
 *  Try to adapt standard behaviours (such as FindHome, Repairs, Foraging, etc.
-   for use by animals.)  Then get rid of the custom-coding.  And polish up
-   vermin behaviours.
+   for use by animals.)  Then get rid of the custom-coding.
 
 
 
@@ -108,8 +121,6 @@ BUILDINGS AND ECONOMY-
 
 *  Limit service-hatches to along road-routes between structures (and required
    to activate power-transmission in an area.)
-
-*  Try to restore dust-crawlers at chem panner and/or excavation site.
 
 *  Allow rations-production to satisfy need to eat.
 
@@ -170,16 +181,6 @@ CITIZEN BEHAVIOUR-
 *  Citizens are too eager to embark on tasks in distant areas.  (BringUtils
    needs to ignore sources that are too far away- that's for bulk transport.)
 
-  >>>>>>> DO THIS <<<<<<<
-*  Rework the migration system to that it's more gradual- colonists arrive from
-   the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
-   ashore' every day or two, but those can't respond to job-demand as such.
-
-*  Citizens need to migrate offworld if unhappy/unemployed enough.
-
-  >>>>>>> DO THIS <<<<<<<
-*  Proper evaluation of mood and memory-events.
-
 *  Consider having the actor's agenda contain *only* plans:   Actions and
    Missions can be handled separately.  (And unify the priority/step evals.)
 
@@ -210,24 +211,10 @@ CONTROL AND DIRECTION-
 
 INTERFACE AND DEBUGGING
 
-*  You need to report output for *all* items produced at the engineer station,
-   fabricator, physician station, etc..
-
-*  Notifications for base attacks.
-
-*  List total earnings for specific buildings.  Breakdown expenses more finely.
-   Restore shortage listing for homelessness.
-
 *  You might need extra tips for no-archives, walls, low funding, homelessness
    and other situations.  Add those in later.
 
-
 *  Merge BaseCommerce with either the Verse class and/or the BaseAdvice class.
-
-*  Re-introduce the Planets/Sectors pane, and build the markets-report into
-   that for each world.  Then finance can stay on it's own.  (Add little
-   portraits for each world in the partners-listing too.  Use current art!)
-
 
 *  Try to implement some global debugging-levels.
 
@@ -248,9 +235,15 @@ INTERFACE AND DEBUGGING
 
 *  Try to use right-click for something?  Add an option for it at least.
 
+   Priority:  Minor  Duration:  Moment
+*  Rename 'SectorBase' to 'Colony'?
+
 
 
 ART, GRAPHICS AND MEDIA PRODUCTION
+
+*  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
+   that.
 
 *  Add options to show/hide speech-bubbles and other bits of citizen info.
 
@@ -263,9 +256,6 @@ ART, GRAPHICS AND MEDIA PRODUCTION
    shield walls/perimeter fence need to have some kind of alternative graphics
    arrangement- consider making them into Mounts, and providing fresh art to
    show windows with sentries inside.)
-
-*  Actors who die off-screen can wind up stuck in their last-seen poses.  Fix
-   that.
 
 *  Try to migrate ephemera/stage.visible (list lower down!)
 

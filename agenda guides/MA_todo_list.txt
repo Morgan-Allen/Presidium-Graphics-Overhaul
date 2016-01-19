@@ -14,6 +14,10 @@ CURRENT ITEMS:
    Physician Station
    Ecologist Station
 
+   Priority:  High  Duration:  Short
+*  Cull anything unused or under-used from the lists of Backgrounds, Skills and
+   Traits.  Bare minimum for now.
+
    Priority:  Medium  Duration:  Medium
 *  Patch up the texture/s used for the planet-display.
 
@@ -24,6 +28,8 @@ CURRENT ITEMS:
    Priority:  High  Duration:  Long
 *  You need to flesh out the scripts for each of the available landing sites (
    and maybe add a smidgeon of custom art as well.)
+
+
 
 
    Priority:  Low  Duration:  Short?
@@ -41,12 +47,18 @@ CURRENT ITEMS:
    Priority:  Low  Duration:  Short
 *  Restore the nursery at the ecologist station.
 
+   Priority:  Low  Duration:  Short
+*  Try to restore dust-crawlers at chem panner and/or excavation site.
+
    Priority:  Low  Duration:  Short to Medium
 *  Expedition-config from a claims-mission could use some more polish (e.g,
    separate headers for leader/colonist in applicants listing, specification of
    personal rewards, initial supplies/buildings/landing-site, et cetera.)
    
    In addition, trade-partners and tech-levels should be retained!
+
+   Priority:  Low  Duration:  Short to Medium
+*  Build a markets-report into the information for each sector.
 
 
 BACK BURNER:
@@ -67,9 +79,6 @@ BACK BURNER:
 
    Priority:  Medium  Duration:  Short
 *  Random-variation for offworld visit-intervals need to be reworked.
-
-   Priority:  Minor  Duration:  Moment
-*  Rename 'SectorBase' to 'Colony'?
 
 
 

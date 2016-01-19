@@ -94,6 +94,7 @@ public class GameSettings {
     noAdvice  = false,
     
     fastTrips = false,
+    fastRaids = false,
     
     hardCore  = false;
   public static int

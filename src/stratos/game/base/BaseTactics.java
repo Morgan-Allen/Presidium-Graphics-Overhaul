@@ -100,12 +100,12 @@ public class BaseTactics {
   /**  Calling regular updates-
     */
   protected int updateInterval() {
-    return shortWaiting ? SHORT_EVAL_INTERVAL : DEFAULT_EVAL_INTERVAL;
+    return GameSettings.fastRaids ? SHORT_EVAL_INTERVAL : DEFAULT_EVAL_INTERVAL;
   }
   
   
   protected int missionWaitInterval() {
-    return shortWaiting ? SHORT_WAIT_DURATION : MISSION_WAIT_DURATION;
+    return GameSettings.fastRaids ? SHORT_WAIT_DURATION : MISSION_WAIT_DURATION;
   }
   
   
@@ -353,7 +353,6 @@ public class BaseTactics {
     */
   public static boolean
     updatesVerbose = false,
-    shortWaiting   = true ,
     extraVerbose   = false;
   protected static Faction
     verboseBase    = Faction.FACTION_ARTILECTS;

@@ -1,19 +1,6 @@
 
 ACTIVE ITEMS:
 
-   Priority:  Medium  Duration:  Short?
-*  Make sure the sprite-viewer can display the various permutations of human-
-   models correctly- costume, skin tone, hairstyles, weapons & armour, etc.
-   
-   The main class is at- stratos.start.SkinsPreview
-   Starting settings can be adjusted at media/Tools/preview_settings.xml
-   
-   (At the moment, the preview_settings.xml class specifies the 'body' texture
-   using 'MaterialGroup.x', which is brittle.  It should be able to use 'Body'
-   or 'MainGroup', et cetera instead, and possibly use an .xml file provided by
-   the model.)
-   
-
    Priority:  Medium-High  Duration:  Short?
 *  Users should be able to download/run the main game without needing a
    pre-existing Java installation, on OSX, Windows and Linux (i.e, the
@@ -32,9 +19,10 @@ ACTIVE ITEMS:
    starting with something simple (like DebugCombat) and then I can give
    details for filling in the rest.
    
-   I've added a couple of TODO items to AutomatedScenario and DebugCombat.  e.g,
-   you might have a TestCase for each call to setupCombatScenario (I've added
-   some basic infrastructure to get you started.)
+   Ideally, techniquesWereUsedBy should be called during the getCurrentResult
+   method for DebugCombat.  (There should also be a separate test-case for
+   raidingScenario, with the units in the barracks and the ruins being assigned
+   as soldiers for each side.)
    
 
    Priority:  High  Duration:  Long or Very Long
@@ -89,5 +77,10 @@ DONE OR BLOCKED:
    Priority:  Minor  Duration:  Short?
 *  There were reports of minimising the window shutting down the game on
    windows 7 or 8, but can't seem to reproduce.  Will leave for now.
+
+   Priority:  Minor  Duration:  Short?
+*  Hats & weapons can be hidden if the costume-texture lacks the right 'fill'
+   for their UV.  Not certain how to approach at the moment, will leave for now.
+
 .
 
