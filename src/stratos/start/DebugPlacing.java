@@ -4,7 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import static stratos.content.hooks.StratosSetting.SECTOR_ELYSIUM;
+
 import stratos.content.civic.*;
+import stratos.content.hooks.StratosSetting;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
@@ -76,8 +79,8 @@ public class DebugPlacing extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Verse verse = new Verse();
-    final Sector at = Verse.SECTOR_ELYSIUM;
+    final Verse verse = new StratosSetting();
+    final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
@@ -97,7 +100,7 @@ public class DebugPlacing extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
     GameSettings.buildFree = true;
-    base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
+    base.research.initKnowledgeFrom(StratosSetting.PLANET_HALIBAN);
 
     if (true ) configEcology  (world, base, UI);
     if (false) configSalvaging(world, base, UI);

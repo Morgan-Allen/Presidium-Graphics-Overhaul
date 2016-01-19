@@ -135,9 +135,10 @@ public class MissionClaiming extends Mission {
     //  retaining the old universe and expedition data.
     final String prefix = ((Scenario) PlayLoop.played()).savesPrefix();
     verse.setStartingDate((int) (journey().arriveTime() + 1));
-    StartupScenario newGame = new StartupScenario(expedition, verse, prefix);
-    newGame.skipLoading();
-    PlayLoop.setupAndLoop(newGame);
+    
+    SectorScenario hook = verse.scenarioFor(expedition.destination());
+    if (hook == null) hook = new SectorScenario(expedition, verse, prefix);
+    hook.beginScenario(expedition, prefix);
   }
   
   

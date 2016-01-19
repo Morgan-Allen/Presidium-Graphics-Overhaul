@@ -16,8 +16,10 @@ import stratos.util.*;
 public class CrewDisplay extends UIGroup {
   
   final static int
-    BOX_HEIGHT = MainScreen.CAROUSEL_HIGH;
+    HEADER_HEIGHT = MainScreen.MARGIN,
+    BOX_HEIGHT    = MainScreen.CAROUSEL_HIGH;
   
+  final Text header;
   final UIGroup leaderBox, crewBox;
   final List <Image> crewPics = new List();
   
@@ -26,14 +28,19 @@ public class CrewDisplay extends UIGroup {
   public CrewDisplay(HUD UI) {
     super(UI);
     
+    header = new Text(UI, UIConstants.INFO_FONT);
+    header.alignAcross(0, 1);
+    header.alignTop(0, HEADER_HEIGHT);
+    header.attachTo(this);
+    
     leaderBox = new UIGroup(UI);
     leaderBox.alignLeft(0, BOX_HEIGHT);
-    leaderBox.alignTop (0, BOX_HEIGHT);
+    leaderBox.alignTop(HEADER_HEIGHT, BOX_HEIGHT);
     leaderBox.attachTo(this);
     
     crewBox = new UIGroup(UI);
     crewBox.alignHorizontal(BOX_HEIGHT, 0);
-    crewBox.alignTop(0, BOX_HEIGHT);
+    crewBox.alignTop(HEADER_HEIGHT, BOX_HEIGHT);
     crewBox.attachTo(this);
   }
   
@@ -47,7 +54,7 @@ public class CrewDisplay extends UIGroup {
   }
   
   
-  protected void setupFrom(Expedition e) {
+  protected void setupFrom(Expedition e, boolean showCrew) {
     
     final int HALF_B = BOX_HEIGHT / 2;
     int count;
@@ -59,7 +66,10 @@ public class CrewDisplay extends UIGroup {
       pic.alignToFill();
       pic.attachTo(leaderBox);
       crewPics.add(pic);
+      header.setText("Expedition lead by: "+e.leader().fullName());
     }
+    
+    if (! showCrew) return;
     
     count = 0;
     for (Actor a : e.advisors()) {

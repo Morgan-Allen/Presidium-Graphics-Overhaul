@@ -37,14 +37,10 @@ public class ChartUtils {
       
       final UIGroup worldInfo = new UIGroup(UI);
       worldInfo.stretch = false;
-      final Button b = new Button(
-        UI, world.name, world.planetImage, Button.CIRCLE_LIT, world.info
-      ) {
-        protected void whenClicked() {
-          carousel.setSelection(world);
-        }
-      };
-      b.alignToFill();
+      
+      final Image b = new Image(UI, world.planetImage);
+      b.alignAcross(-0.5f, 1.5f);
+      b.alignVertical(0, 0);
       b.attachTo(worldInfo);
       carousel.addEntryFor(world, worldInfo);
     }

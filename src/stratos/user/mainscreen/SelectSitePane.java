@@ -8,6 +8,7 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.common.*;
 import stratos.game.verse.*;
 import stratos.util.*;
+import stratos.content.hooks.*;
 
 
 
@@ -28,7 +29,7 @@ public class SelectSitePane extends MenuPane {
     //  Pick a homeworld first.
     listing.add(createTextItem("Homeworld:", 1.2f, null, 1));
     
-    final Sector homeworlds[] = Verse.ALL_CAPITALS;
+    final Sector homeworlds[] = StratosSetting.ALL_CAPITALS;
     for (final Sector homeworld : homeworlds) {
       listing.add(new TextButton(UI, "  "+homeworld.name, 1) {
         protected void whenClicked() { selectHomeworld(homeworld); }
@@ -38,13 +39,13 @@ public class SelectSitePane extends MenuPane {
     listing.add(createTextItem(
       "Your homeworld will determine the initial colonists and finance "+
       "available to your settlement, along with technical expertise and "+
-      "trade revenue.", 0.75f, Colour.LITE_GREY, 3
+      "trade revenue.", 0.75f, Colour.LITE_GREY, 4
     ));
     //
     //  Then pick a sector.
     listing.add(createTextItem("Landing Site:", 1.2f, null, 1));
-
-    final Sector landings[] = Verse.ALL_DIAPSOR_SECTORS;
+    
+    final Sector landings[] = StratosSetting.ALL_DIAPSOR_SECTORS;
     for (final Sector landing : landings) {
       listing.add(new TextButton(UI, "  "+landing.name, 1) {
         public void whenClicked() { selectLanding(landing); }
@@ -54,7 +55,7 @@ public class SelectSitePane extends MenuPane {
     listing.add(createTextItem(
       "Your landing site will determine the type of resources initially "+
       "available to your settlement, along with local species and other "+
-      "threats.", 0.75f, Colour.LITE_GREY, 3
+      "threats.", 0.75f, Colour.LITE_GREY, 4
     ));
     
     //
@@ -122,7 +123,7 @@ public class SelectSitePane extends MenuPane {
   
   
   private void pushNextPane() {
-    //MainScreen.current().clearInfoPane();
+    expedition.destination().whenClicked(null);
     expedition.backing().configStartingExpedition(expedition);
     navigateForward(new SelectTraitsPane(UI, expedition), true);
   }

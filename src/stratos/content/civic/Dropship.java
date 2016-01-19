@@ -159,7 +159,7 @@ public class Dropship extends Vehicle implements Owner {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
-    PilotUtils.performTakeoffCheck(this, Journey.RAID_STAY_DURATION);
+    PilotUtils.performTakeoffCheck(this, Journey.TRADE_STAY_DURATION);
   }
   
   

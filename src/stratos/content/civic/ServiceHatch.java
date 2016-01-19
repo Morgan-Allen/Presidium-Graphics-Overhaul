@@ -14,6 +14,7 @@ import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import stratos.content.hooks.*;
 import static stratos.game.economic.Economy.*;
 import static stratos.game.actors.Qualities.*;
 
@@ -235,7 +236,7 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
   
   
   public Sector leadsTo() {
-    return Verse.SECTOR_UNDERGROUND;
+    return StratosSetting.SECTOR_UNDERGROUND;
   }
 
 

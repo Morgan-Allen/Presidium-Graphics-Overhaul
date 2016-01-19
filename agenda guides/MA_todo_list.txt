@@ -2,23 +2,9 @@
 
 CURRENT ITEMS:
 
-   Priority:  Medium-High  Duration:  Medium-Long
-*  Initial missions:
-   Planitia Sector (robots + ruins, artifact.)
-   Pavonis Sector (mild settlement, pacified.)
-   Aeolis Sector (desert plus wildlife.)
-   Marineris Sector (neutral + water/islands.  Some wildlife.)
-   
-   You'll need the ability to associate custom scenario-classes with various
-   sectors (and possibly the ability to apply event-scripts within an existing
-   scenario based on later outcomes.)
-
-   Priority:  Medium  Duration:  Short?
-*  Patch up visual bugs and media assets in the new-game UI sequence.
-
    Priority:  Medium  Duration:  Medium
 *  Create a proper skin for the Airship model!
-
+   
    Priority:  High  Duration:  Long to Very Long
 *  Create and import Level-2 art-assets for the major guilds.
    Bastion
@@ -27,6 +13,17 @@ CURRENT ITEMS:
    Engineer Station
    Physician Station
    Ecologist Station
+
+   Priority:  Medium  Duration:  Medium
+*  Patch up the texture/s used for the planet-display.
+
+   Priority:  Minor  Duration:  Short
+*  Make sure that the skill-bonuses for a given homeworld are actually applied
+   to colonists in full, along with ethnicity-chance.
+
+   Priority:  High  Duration:  Long
+*  You need to flesh out the scripts for each of the available landing sites (
+   and maybe add a smidgeon of custom art as well.)
 
 
    Priority:  Low  Duration:  Short?
@@ -56,7 +53,7 @@ BACK BURNER:
 
    Priority:  Low-to-Minor  Duration:  Short/Very Short
 *  Try to add 'spawning' for Fauna as well (i.e, in the sense of wandering in
-   from the map edges.)
+   from the map edges- or perhaps out as well.)
 
    Priority:  Medium-High  Duration:  Medium-High
 *  There needs to be more than just physical raiding coming from offworld- they
@@ -68,8 +65,11 @@ BACK BURNER:
    raiding/diplomacy.  (The base is there, and the buildings are there- you
    just need to introduce them and tie it into BaseVisits.)
 
-   Priority:  Medium  Duration:  Short.
+   Priority:  Medium  Duration:  Short
 *  Random-variation for offworld visit-intervals need to be reworked.
+
+   Priority:  Minor  Duration:  Moment
+*  Rename 'SectorBase' to 'Colony'?
 
 
 

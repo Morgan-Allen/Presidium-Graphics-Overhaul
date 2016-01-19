@@ -24,18 +24,20 @@ public class Career {
   
   final static int
     MIN_PERSONALITY           = 3,
-    NUM_RANDOM_CAREER_SAMPLES = 3;
+    NUM_RANDOM_CAREER_SAMPLES = 3,
+    HOMEWORLD_RATING_BONUS    = 3;
   
   
   private Actor subject;
   private Background gender;
-  private Background vocation, birth, homeworld;
+  private Background vocation, birth;
+  private Sector homeworld;
   private String fullName = null;
   
   
   public Career(
     Background vocation, Background birth,
-    Background homeworld, Background gender
+    Sector homeworld, Background gender
   ) {
     this.gender    = gender   ;
     this.vocation  = vocation ;
@@ -58,7 +60,7 @@ public class Career {
     subject   = (Actor) s.loadObject();
     gender    = (Background) s.loadObject();
     birth     = (Background) s.loadObject();
-    homeworld = (Background) s.loadObject();
+    homeworld = (Sector    ) s.loadObject();
     vocation  = (Background) s.loadObject();
     fullName  = s.loadString();
   }
@@ -84,16 +86,16 @@ public class Career {
   }
   
   
-  public Background homeworld() {
+  public Sector homeworld() {
     return homeworld;
   }
   
   
   public Background topBackground() {
-    if (vocation  != null) return vocation ;
-    if (homeworld != null) return homeworld;
-    if (birth     != null) return birth    ;
-    if (gender    != null) return gender   ;
+    if (vocation  != null) return vocation;
+    if (birth     != null) return birth   ;
+    if (gender    != null) return gender  ;
+    if (homeworld != null) return homeworld.asBackground;
     return null;
   }
   
@@ -185,7 +187,7 @@ public class Career {
       applyBackground(birth, actor);
       
       pickHomeworld(actor, faction);
-      applyBackground(homeworld, actor);
+      applyBackground(homeworld.asBackground, actor);
       applySystem((Sector) homeworld, actor);
       
       pickVocation(actor, faction);
@@ -198,7 +200,7 @@ public class Career {
       applyBackground(vocation, actor);
       
       pickHomeworld(actor, faction);
-      applyBackground(homeworld, actor);
+      applyBackground(homeworld.asBackground, actor);
       applySystem((Sector) homeworld, actor);
       
       pickBirthClass(actor, faction);
@@ -228,21 +230,24 @@ public class Career {
   
   
   private void pickHomeworld(Human actor, Faction faction) {
+    final Sector home = faction.startSite();
     if (homeworld != null) {
       return;
     }
     else if (faction == FACTION_NATIVES) {
-      homeworld = faction.startSite();
+      homeworld = home;
     }
-    else {
-      //  TODO:  Include some weighting based off house relations!
-      final Batch <Float> weights = new Batch <Float> ();
-      for (Background v : Verse.ALL_PLANETS) {
-        weights.add(ratePromotion(v, actor, verbose));
+    else if (home != null) {
+      //  TODO:  Include some weighting based off house relations?
+      final Series <Sector> places  = home.siblings();
+      final Batch  <Float > weights = new Batch();
+      
+      for (Sector p : places) {
+        float rating = ratePromotion(p.asBackground, actor, verbose);
+        if (p == home) rating *= HOMEWORLD_RATING_BONUS;
+        weights.add(rating);
       }
-      homeworld = (Background) Rand.pickFrom(
-        Verse.ALL_PLANETS, weights.toArray()
-      );
+      homeworld = (Sector) Rand.pickFrom(places, weights);
     }
   }
   

@@ -5,6 +5,7 @@
   */
 package stratos.game.wild;
 import stratos.content.civic.*;
+import stratos.content.hooks.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
@@ -66,7 +67,8 @@ public class VerminBase extends Base {
       Target entryPoint = hatches.pickRandomAround(null, -1, null);
       final ServiceHatch hatch = (ServiceHatch) entryPoint;
       visits.attemptRaidingVisit(
-        maxTeamPower, -1, Verse.SECTOR_UNDERGROUND, hatch, ROACH_SPECIES
+        maxTeamPower, -1,
+        StratosSetting.SECTOR_UNDERGROUND, hatch, ROACH_SPECIES
       );
     }
   }

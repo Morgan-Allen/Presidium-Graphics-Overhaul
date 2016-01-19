@@ -26,30 +26,30 @@ public class Faction extends Constant {
     FACTION_SUHAIL    = new Faction(
       "House Suhail" , HOUSES_DIR+"house_suhail.png" , Colour.DARK_MAGENTA,
       "",
-        "Begin game with native vassals"+
-      "\n2 fewer starting colonists",
+        "  Begin game with native vassals"+
+      "\n  2 fewer starting colonists",
       false
     ),
     FACTION_PROCYON   = new Faction(
       "House Procyon", HOUSES_DIR+"house_procyon.png", Colour.GREY,
       "",
-        "2 extra starting colonists"+
-      "\n40% penalty to tech research",
+        "  2 extra starting colonists"+
+      "\n  40% penalty to tech research",
       false
     ),
     FACTION_ALTAIR    = new Faction(
       "House Altair" , HOUSES_DIR+"house_altair.png" , Colour.LITE_BLUE,
       "",
         "Extra starting advisor"+
-      "\nAdvisor loyalty increased"+
-      "\nStarting funds -20%",
+      "\n  Advisor loyalty increased"+
+      "\n  Starting funds -20%",
       false
     ),
     FACTION_TAYGETA   = new Faction(
       "House Taygeta", HOUSES_DIR+"house_taygeta.png", Colour.CYAN,
       "",
-        "Starting funds +30%"+
-      "\nTribute +40%",
+        "  Starting funds +30%"+
+      "\n  Tribute +40%",
       false
     ),
     FACTION_CIVILISED = new Faction(
@@ -93,7 +93,7 @@ public class Faction extends Constant {
   final Colour bannerColour;
   
   
-  protected Faction(
+  public Faction(
     String name, String crestPath, Colour banner,
     String description, String startInfo,
     boolean primal
@@ -110,7 +110,7 @@ public class Faction extends Constant {
   }
   
   
-  protected Faction(String name, String crestPath, Faction parent) {
+  public Faction(String name, String crestPath, Faction parent) {
     this(name, crestPath, parent.bannerColour, "", "", parent.primal);
     this.parent = parent;
   }
@@ -214,7 +214,7 @@ public class Faction extends Constant {
       final Sector landing = world.offworld.stageLocation();
       final Pick <SectorBase> pick = new Pick();
       
-      for (Sector l : Verse.ALL_DIAPSOR_SECTORS) {
+      for (Sector l : world.offworld.locations) {
         if (l.startingOwner == FACTION_NATIVES && l != landing) {
           SectorBase b = world.offworld.baseForSector(l);
           float tripTime = l.standardTripTime(landing, Sector.SEP_PLANET);

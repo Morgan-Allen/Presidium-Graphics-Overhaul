@@ -90,7 +90,7 @@ Click here, and a small green icon should appear in the lower-centre of the scre
   urgent   = "true"
   triggers = "checkExploreBegun"
 >
-  <content>Good work.  Your troopers should begin exploring the assigned area shortly.  In the meanwhile, let's take a look at getting a basic economy up and running.</content>
+  <content>Good work.  Your troopers should begin exploring the assigned area shortly.  In the meantime, let's take a look at getting a basic economy up and running.</content>
   <link name="Economy Basics">Continue</link>
 </topic>
 
@@ -234,7 +234,7 @@ While we're waiting, let's take a fresh look at our cash flow.</content>
   whenOpen  = "whenBudgetsTopicOpen"
   completes = "checkBudgetsPaneOpened"
 >
-  <content>At the moment, your funds are likely to be running low.  We'll explore some methods of fixing that, but first you should open the Finance pane (first button in the top-right), and click on the Budgets tab.  Then you can take a look at your profits and losses for each day.</content>
+  <content>At the moment, your funds are likely to be running low.  We'll explore some methods of fixing that, but first you should open the Finance pane (second button in the top-right), and click on the Budgets tab.  Then you can take a look at your profits and losses for each day.</content>
 </topic>
 
 <topic
@@ -336,7 +336,7 @@ This may be a tough fight.  Consider building an extra Trooper Lodge or installi
   triggers  = "checkFarRuinsDestroyed"
   completes = "checkTutorialComplete"
 >
-  <content>From this point on, you're on your own.  The only thing left to do is ensure your settlement has turned a profit, and you can be confident it's future is secure.</content>
+  <content>From this point on, you're on your own.  The only thing left to do is ensure your settlement has turned a profit, and you can be confident its future is secure.</content>
   <link name="Finishing Up">Continue</link>
 </topic>
 

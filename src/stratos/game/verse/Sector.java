@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.verse;
+import stratos.start.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -12,12 +13,14 @@ import stratos.game.economic.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
+import stratos.user.mainscreen.MainScreen;
 import stratos.util.*;
 
 
 
-public class Sector extends Background {
-
+public class Sector extends Constant {
+  
+  final public static Index <Sector> INDEX = new Index <Sector> ();
   
   //  TODO:  For the sake of clarity, consider including tags for all the data-
   //         types recorded in the arguments-list (see below)
@@ -36,8 +39,8 @@ public class Sector extends Background {
     float tripTime;
   }
   
-  
   final public Faction startingOwner;
+  final public Background asBackground;
   final public int population;
   final public Traded goodsMade[], goodsNeeded[];
   
@@ -48,13 +51,15 @@ public class Sector extends Background {
   final public Trait climate;
   final public int gravity;
   
-  final Batch <Sector> borders = new Batch();
+  final Batch <Sector> siblings = new Batch();
+  final Batch <Sector> borders  = new Batch();
   final Table <Sector, Separation> separations = new Table();
   
   final Habitat habitats      [];
   final Float   habitatWeights[];
   final Species nativeSpecies [];
   
+  final public String description;
   final public ImageAsset planetImage;
   
   
@@ -64,10 +69,8 @@ public class Sector extends Background {
     Trait climate, int gravity, Sector belongs,
     int population, Object... args
   ) {
-    super(
-      baseClass, name, description, null, null,
-      -1, Backgrounds.NOT_A_GUILD, args
-    );
+    super(INDEX, name, name);
+    this.description = description;
     this.planetImage = imagePath == null ?
       Image.SOLID_WHITE : ImageAsset.fromImage(baseClass, imagePath)
     ;
@@ -75,6 +78,9 @@ public class Sector extends Background {
     //  Populate basic fields first-
     this.startingOwner = owner;
     if (owner != null) owner.bindToStartSite(this);
+    this.asBackground = new Background(
+      baseClass, name, description, null, null, -1, -1, args
+    );
     this.belongs    = belongs   ;
     this.climate    = climate   ;
     this.gravity    = gravity   ;
@@ -145,6 +151,20 @@ public class Sector extends Background {
   }
   
   
+  public static Sector loadConstant(Session s) throws Exception {
+    return INDEX.loadEntry(s.input());
+  }
+  
+  
+  public void saveState(Session s) throws Exception {
+    INDEX.saveEntry(this, s.output());
+  }
+  
+  
+  
+  /**  Supplementary setup methods for recording inter-relations between
+    *  Sectors-
+    */
   protected void setSeparation(
     Sector other, int sepType, float tripTime, boolean symmetric
   ) {
@@ -187,6 +207,7 @@ public class Sector extends Background {
       setSeparation(s, sepType, totalTripTime, true);
     }
     
+    /*
     if (false) {
       I.say("SEPARATIONS FOR "+this+" ARE: ");
       for (Sector s : separations.keySet()) {
@@ -195,6 +216,13 @@ public class Sector extends Background {
       }
       I.say("\n...");
     }
+    //*/
+  }
+  
+  
+  protected void assignSiblings(Sector... siblings) {
+    this.siblings.clear();
+    Visit.appendTo(this.siblings, siblings);
   }
   
   
@@ -222,14 +250,6 @@ public class Sector extends Background {
   
   /**  Location and adjacency access-methods-
     */
-  public static Sector sectorNamed(String name) {
-    for (Sector s : Verse.ALL_SECTORS) if (s.name.equals(name)) {
-      return s;
-    }
-    return null;
-  }
-  
-  
   public boolean borders(Sector other) {
     final Separation s = separations.get(other);
     return s != null && s.sepType == SEP_BORDERS;
@@ -253,6 +273,11 @@ public class Sector extends Background {
   }
   
   
+  public Series <Sector> siblings() {
+    return siblings;
+  }
+  
+  
   
   /**  Helper methods for terrain and scenario setup-
     */
@@ -266,20 +291,64 @@ public class Sector extends Background {
   }
   
   
+  public SectorScenario customScenario(Verse verse) {
+    return null;
+  }
+  
+  
   
   /**  Rendering and interface methods-
     */
   public void describeHelp(Description d, Selectable prior) {
-    substituteReferences(info, d);
     
-    //  TODO:  You need to display information for whatever Scenario is
-    //  currently applied within a given sector.
+    final Verse verse = currentVerse();
+    if (verse == null) return;
     
-    d.append("\n");
-    d.append("\nGravity: "   +Verse.GRAVITY_DESC   [gravity + 2]);
-    d.append("\nPopulation: "+Verse.POPULATION_DESC[population ]);
-    d.appendList("\nNative Species:", (Object[]) nativeSpecies);
+    final Base           p    = BaseUI.currentPlayed();
+    final boolean        seen = p == null || p.intelMap.fogAt(this) > 0;
+    final SectorBase     base = verse.baseForSector(this);
+    final SectorScenario hook = verse.scenarioFor  (this);
+    
+    if (! seen) {
+      d.append(
+        "\nIntel on this Sector is not available.  Send a Recon Mission to "+
+        "scout this territory."
+      );
+      return;
+    }
+    if (hook != null) hook.describeHook(d);
+    else substituteReferences(description, d);
+    
+    //d.append("\n");
+    //d.append("\nGravity: "   +Verse.GRAVITY_DESC   [gravity + 2]);
+    //d.append("\nPopulation: "+Verse.POPULATION_DESC[population ]);
     d.appendList("\nHabitats: "     , (Object[]) habitats     );
+    d.appendList("\nNative Species:", (Object[]) nativeSpecies);
+    
+    if (base.faction() == null || base.ruler() == null) {
+      d.append("\n");
+      d.appendList("\nProduces: ", (Object[]) goodsMade  );
+      d.appendList("\nShort of: ", (Object[]) goodsNeeded);
+    }
+    else {
+      d.append("\n");
+      d.appendAll("\nClaimed by: ", base.faction());
+      d.appendAll("\nGoverned by: ", base.ruler());
+      
+      d.append("\n");
+      d.appendList("\nProduces: ", (Object[]) base.made  ());
+      d.appendList("\nShort of: ", (Object[]) base.needed());
+    }
+    if (startingOwner != null && startingOwner.startSite() == this) {
+      d.append("\n\n");
+      d.append(startingOwner.startInfo);
+      
+      for (Skill s : asBackground.skills()) {
+        final float bonus = asBackground.skillLevel(s);
+        if (bonus < 0) continue;
+        d.append("\n  +5 to "+s);
+      }
+    }
     
     /*
     d.append("\n\nCommon backgrounds: ");
@@ -294,49 +363,22 @@ public class Sector extends Background {
       d.appendAll("\n  ", u);
     }
     //*/
-    
-    final Base played = BaseUI.currentPlayed();
-    if (played != null) {
-      final Verse verse = played.world.offworld;
-      final SectorBase base = verse.baseForSector(this);
-      
-      if (base.faction() == null) {
-        d.append("\n");
-        d.appendList("\nProduces: ", (Object[]) goodsMade  );
-        d.appendList("\nShort of: ", (Object[]) goodsNeeded);
-        
-        //Scenario active = verse.scenarioFor(this);
-      }
-      else {
-        d.append("\n");
-        d.appendAll("\nClaimed by: ", base.faction());
-        d.appendAll("\nGoverned by: ", base.ruler());
-        
-        d.append("\n");
-        d.appendList("\nGoods made: "  , (Object[]) base.made  ());
-        d.appendList("\nGoods needed: ", (Object[]) base.needed());
-      }
-      if (! base.allUnits().empty()) {
-        d.append("\nResidents: ");
-        for (Mobile m : base.allUnits()) {
-          d.appendAll("\n  ", m);
-        }
-      }
-    }
-    
-    else if (startingOwner != null) {
-      d.append("\n");
-      d.appendList("\nGoods made: "  , (Object[]) goodsMade  );
-      d.appendList("\nGoods needed: ", (Object[]) goodsNeeded);
-      
-      d.append("\n\n");
-      d.appendAll("Ruled by ", startingOwner, "\n");
-      d.append(startingOwner.startInfo);
-    }
   }
   
   
+  private static Verse currentVerse() {
+    final Base played = BaseUI.currentPlayed();
+    if (played != null) return played.world.offworld;
+    else return MainScreen.currentVerse();
+  }
   
+
+  public static Sector sectorNamed(String name, Sector sectors[]) {
+    for (Sector s : sectors) if (s.name.equals(name)) {
+      return s;
+    }
+    return null;
+  }
 }
 
 

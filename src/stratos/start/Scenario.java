@@ -33,7 +33,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   final boolean isDebug;
   private float loadProgress = -1;
   
-  private BaseUI UI;
+  private BaseUI UI = null;
   private String savesPrefix;
   private boolean skipNextLoad = false;
   private float lastSaveTime = -1;
@@ -43,6 +43,11 @@ public abstract class Scenario implements Session.Saveable, Playable {
   protected Scenario(String saveFile, boolean isDebug) {
     this.savesPrefix = saveFile;
     this.isDebug     = isDebug ;
+  }
+  
+  
+  protected Scenario(boolean isDebug) {
+    this("<no_prefix>", isDebug);
   }
   
   
@@ -56,8 +61,10 @@ public abstract class Scenario implements Session.Saveable, Playable {
     isDebug      = s.loadBool();
     
     loadProgress = 1;
-    UI = createUI(base, PlayLoop.rendering());
-    UI.loadState(s);
+    if (s.loadBool()) {
+      UI = createUI(base, PlayLoop.rendering());
+      UI.loadState(s);
+    }
   }
   
   
@@ -68,21 +75,15 @@ public abstract class Scenario implements Session.Saveable, Playable {
     s.saveBool  (skipNextLoad);
     s.saveFloat (lastSaveTime);
     s.saveBool  (isDebug     );
-    UI.saveState(s);
+    
+    if (UI == null) s.saveBool(false);
+    else { s.saveBool(true); UI.saveState(s); }
   }
   
   
   public Stage  world() { return world; }
   public Base   base () { return base ; }
   public BaseUI UI   () { return UI   ; }
-  
-  
-  public static Scenario current() {
-    final Playable p = PlayLoop.played();
-    if (p instanceof Scenario) return (Scenario) p;
-    else I.complain("NO CURRENT SCENARIO BEING PLAYED.");
-    return null;
-  }
   
   
   public void skipLoading() {
@@ -97,6 +98,14 @@ public abstract class Scenario implements Session.Saveable, Playable {
   
   protected void setSavesPrefix(String prefix) {
     this.savesPrefix = prefix;
+  }
+  
+  
+  public static Scenario current() {
+    final Playable p = PlayLoop.played();
+    if (p instanceof Scenario) return (Scenario) p;
+    else I.complain("NO CURRENT SCENARIO BEING PLAYED.");
+    return null;
   }
   
   

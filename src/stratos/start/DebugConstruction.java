@@ -5,6 +5,7 @@
   */
 package stratos.start;
 import stratos.content.civic.*;
+import stratos.content.hooks.StratosSetting;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -53,8 +54,8 @@ public class DebugConstruction extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Verse verse = new Verse();
-    final Sector at = Verse.SECTOR_ELYSIUM;
+    final Verse verse = new StratosSetting();
+    final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     Flora.populateFlora(world);

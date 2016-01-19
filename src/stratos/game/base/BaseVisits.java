@@ -36,7 +36,7 @@ public class BaseVisits {
   
   final Base base;
   
-  protected Sector homeworld = Verse.DEFAULT_HOMEWORLD;
+  protected Sector homeworld = null;
   final List <SectorBase> partners = new List();
   
   protected int maxShipsPerDay = 0;
@@ -49,6 +49,7 @@ public class BaseVisits {
   
   public BaseVisits(Base base) {
     this.base = base;
+    this.homeworld = base.faction().startSite();
   }
   
   

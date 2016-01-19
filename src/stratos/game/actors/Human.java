@@ -343,7 +343,7 @@ public class Human extends Actor {
   
   
   public String fullName() {
-    return I.shorten(career.fullName(), 27);
+    return career.fullName();
   }
   
   

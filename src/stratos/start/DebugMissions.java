@@ -13,6 +13,8 @@ import stratos.game.wild.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.content.civic.*;
+import stratos.content.hooks.*;
+import static stratos.content.hooks.StratosSetting.*;
 import stratos.user.*;
 import stratos.util.*;
 
@@ -55,8 +57,8 @@ public class DebugMissions extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Verse verse = new Verse();
-    final Sector at = Verse.SECTOR_ELYSIUM;
+    final Verse verse = new StratosSetting();
+    final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     Flora.populateFlora(world);
@@ -67,7 +69,7 @@ public class DebugMissions extends Scenario {
   
   protected Base createBase(Stage world) {
     Base base = Base.settlement(world, "Player Base", Faction.FACTION_ALTAIR);
-    base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
+    base.research.initKnowledgeFrom(PLANET_HALIBAN);
     base.finance.setInitialFunding(11000, 0);
     return base;
   }
@@ -97,7 +99,7 @@ public class DebugMissions extends Scenario {
     base.setup.fillVacancies(HQ, true);
     base.assignRuler(HQ.staff.workers().first());
     
-    MissionClaiming m = MissionClaiming.claimFor(Verse.SECTOR_PAVONIS, base);
+    MissionClaiming m = MissionClaiming.claimFor(SECTOR_PAVONIS, base);
     m.assignPriority(Mission.PRIORITY_ROUTINE);
     base.tactics.addMission(m);
   }
@@ -112,11 +114,11 @@ public class DebugMissions extends Scenario {
     
     final Verse verse = world.offworld;
     CivicBase procyon = Base.settlement(world, null, Faction.FACTION_PROCYON);
-    verse.baseForSector(Verse.PLANET_PAREM_V).updateAsScheduled(0, false);
+    verse.baseForSector(PLANET_PAREM_V).updateAsScheduled(0, false);
     
     procyon.visits.attemptRaidingVisit(
       CivicBase.AVG_SECTOR_POWER, 10,
-      Verse.PLANET_PAREM_V, new Airship(procyon), CivicBase.RAID_CLASSES
+      PLANET_PAREM_V, new Airship(procyon), CivicBase.RAID_CLASSES
     );
   }
   
@@ -133,7 +135,7 @@ public class DebugMissions extends Scenario {
     SiteUtils.establishVenue(home, 8, 5, true, world);
     base.setup.fillVacancies(home, true);
     
-    final Mission recon = MissionRecon.reconFor(Verse.SECTOR_PAVONIS, base);
+    final Mission recon = MissionRecon.reconFor(SECTOR_PAVONIS, base);
     recon.assignPriority(Mission.PRIORITY_ROUTINE);
     recon.setMissionType(Mission.TYPE_SCREENED   );
     base.tactics.addMission(recon);

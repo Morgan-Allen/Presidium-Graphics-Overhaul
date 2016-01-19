@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
-import stratos.content.civic.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
@@ -16,12 +15,14 @@ import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
+import stratos.content.civic.*;
+import stratos.content.hooks.*;
 import static stratos.user.UIConstants.*;
 
 
 
 
-public class TutorialScenario extends StartupScenario {
+public class TutorialScenario extends SectorScenario {
   
   private static boolean
     verbose          = false,
@@ -53,7 +54,7 @@ public class TutorialScenario extends StartupScenario {
   
   
   public TutorialScenario(String prefix) {
-    super(expedition(), new Verse(), prefix);
+    super(expedition(), new StratosSetting(), prefix);
     script = new MessageScript(this, SCRIPT_XML_PATH);
   }
   
@@ -138,9 +139,9 @@ public class TutorialScenario extends StartupScenario {
   /**  Initial setup-
     */
   private static Expedition expedition() {
-    final Faction backing = Verse.PLANET_PAREM_V.startingOwner;
+    final Faction backing = StratosSetting.PLANET_PAREM_V.startingOwner;
     final Expedition e = new Expedition().configFrom(
-      Verse.PLANET_PAREM_V, Verse.SECTOR_TERRA, backing,
+      StratosSetting.PLANET_PAREM_V, StratosSetting.SECTOR_TERRA, backing,
       Expedition.TITLE_COUNT, 2000, 0, new Batch()
     );
     e.assignLeader(Backgrounds.KNIGHTED.sampleFor(backing));

@@ -127,19 +127,20 @@ public class VenuePane extends SelectionPane {
   );
   
   protected void describeStocks(Description d, HUD UI, Traded setStock[]) {
-    if (v.stocks.empty() && Visit.empty(setStock)) return;
     
-    d.append("Stocks and Provisions:");
     
     final Traded[] demands = setStock == null ? v.stocks.demanded() : setStock;
     final Batch <Traded> special = new Batch();
+    if (v.stocks.empty() && Visit.empty(demands)) return;
+    
+    d.append("Stocks and Provisions:");
     
     for (Traded t : ITEM_LIST_ORDER) {
       final float needed = v.stocks.totalDemand(t);
       final float amount = v.stocks.amountOf   (t);
       
       if (Visit.arrayIncludes(demands, t) && t.common()) {
-        describeStocks(t, d, setStock == demands);
+        describeStocks(t, d, setStock != null);
       }
       else if (needed > 0 || amount > 0) special.add(t);
     }
@@ -188,7 +189,7 @@ public class VenuePane extends SelectionPane {
     
     if (set) {
       d.append(" Buy: ");
-      d.append(new Description.Link(""+consumption) {
+      d.append(new Description.Link(I.shorten(consumption, 1)) {
         public void whenClicked(Object context) {
           float bump = consumption + 5;
           if (bump > stockMax - production) bump = 0;
@@ -196,7 +197,7 @@ public class VenuePane extends SelectionPane {
         }
       });
       d.append(" Sell: ");
-      d.append(new Description.Link(""+production) {
+      d.append(new Description.Link(I.shorten(production, 1)) {
         public void whenClicked(Object context) {
           float bump = production + 5;
           if (bump > stockMax - consumption) bump = 0;
@@ -205,7 +206,7 @@ public class VenuePane extends SelectionPane {
       });
     }
     else {
-      d.append("/"+(production + consumption));
+      d.append("/"+I.shorten(production + consumption, 1));
     }
     return true;
   }

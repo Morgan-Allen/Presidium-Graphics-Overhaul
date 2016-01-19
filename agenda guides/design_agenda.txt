@@ -1,5 +1,6 @@
 
 
+
 What are the tradeoffs involved in this game?
   The packing problem of placement of services and infrastructure while
   accomodating housing and estates.

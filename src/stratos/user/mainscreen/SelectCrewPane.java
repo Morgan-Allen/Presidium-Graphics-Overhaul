@@ -12,6 +12,7 @@ import stratos.user.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+import stratos.content.hooks.*;
 
 
 
@@ -118,7 +119,7 @@ public class SelectCrewPane extends MenuPane {
       t.append("  "+b.name+" ("+numM+")", tint);
     }
     
-    screen.crewDisplay.setupFrom(expedition);
+    screen.crewDisplay.setupFrom(expedition, true);
     
     super.updateState();
   }
@@ -199,14 +200,15 @@ public class SelectCrewPane extends MenuPane {
   
   private void pushNextPane() {
     String prefix = SaveUtils.uniqueVariant(expedition.leader().fullName());
-    final Verse verse = new Verse();
-    StartupScenario newGame = new StartupScenario(expedition, verse, prefix);
-    PlayLoop.setupAndLoop(newGame);
+    final Verse verse = MainScreen.currentVerse();
+    
+    SectorScenario hook = verse.scenarioFor(expedition.destination());
+    if (hook == null) hook = new SectorScenario(expedition, verse, prefix);
+    hook.beginScenario(expedition, prefix);
   }
   
   
   protected void navigateBack() {
-    MainScreen.current().clearInfoPane();
     super.navigateBack();
   }
   

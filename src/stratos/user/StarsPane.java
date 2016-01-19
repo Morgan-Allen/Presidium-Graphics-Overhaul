@@ -42,12 +42,14 @@ public class StarsPane extends UIGroup implements UIConstants {
   final UIGroup displayArea;
   final Button left, right;
   
+  final Sector sectors[];
   private Sector focus;
   final SectorPanel infoPanel;
   
   
-  public StarsPane(HUD UI) {
+  public StarsPane(HUD UI, Sector sectors[]) {
     super(UI);
+    this.sectors = sectors;
     
     this.alignHorizontal(0.5f, CHARTS_WIDE + CHART_INFO_WIDE, 0);
     this.alignVertical  (0.5f, CHARTS_WIDE                  , 0);
@@ -136,7 +138,8 @@ public class StarsPane extends UIGroup implements UIConstants {
     
     if (UI.selected() == backdrop) {
       final FieldObject DS = display.selectedAt(UI.mousePos());
-      final Sector hovered = DS == null ? null : Sector.sectorNamed(DS.label);
+      final Sector hovered = DS == null ?
+        null : Sector.sectorNamed(DS.label, sectors);
       
       if (UI.mouseClicked()) {
         focus = hovered;
@@ -144,7 +147,7 @@ public class StarsPane extends UIGroup implements UIConstants {
           display.setSelection(focus == null ? null : focus.name);
           
           infoPanel.header.setText(focus.name);
-          infoPanel.detail.setText(focus.info);
+          infoPanel.detail.setText(focus.description);
         }
       }
     }

@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.start;
+package stratos.game.verse;
 import stratos.content.civic.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
@@ -14,30 +14,42 @@ import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.common.*;
+import stratos.start.PlayLoop;
+import stratos.start.Scenario;
 
 
 
-public class StartupScenario extends Scenario {
+public class SectorScenario extends Scenario {
   
 
   final public static int
     MAP_SIZES [] = { 128, 128, 128 },
     WALL_SIZES[] = { 16, 20, 24 };
   
-  final Verse verse;
-  final Expedition expedition;
+  final public Sector location;
+  private Verse verse;
+  private Expedition expedition;
   
   
   
-  public StartupScenario(Expedition config, Verse verse, String prefix) {
+  public SectorScenario(Expedition config, Verse verse, String prefix) {
     super(prefix, false);
-    this.verse      = verse;
+    this.location   = config.destination();
+    this.verse      = verse ;
     this.expedition = config;
   }
   
   
-  public StartupScenario(Session s) throws Exception {
+  protected SectorScenario(Sector location, Verse verse) {
+    super(false);
+    this.location = location;
+    this.verse = verse;
+  }
+  
+  
+  public SectorScenario(Session s) throws Exception {
     super(s);
+    this.location   = (Sector    ) s.loadObject();
     this.verse      = (Verse     ) s.loadObject();
     this.expedition = (Expedition) s.loadObject();
   }
@@ -45,8 +57,17 @@ public class StartupScenario extends Scenario {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
+    s.saveObject(location  );
     s.saveObject(verse     );
     s.saveObject(expedition);
+  }
+  
+  
+  public void beginScenario(Expedition config, String savesPrefix) {
+    this.expedition = config;
+    setSavesPrefix(savesPrefix);
+    skipLoading();
+    PlayLoop.setupAndLoop(this);
   }
   
   
@@ -113,12 +134,6 @@ public class StartupScenario extends Scenario {
     //saveProgress(false);
   }
   
-  
-  public void renderVisuals(Rendering rendering) {
-    super.renderVisuals(rendering);
-    //  TODO:  MAKE THIS A GLOBAL SETTING
-    ///DebugPlacing.showZonePathing();
-  }
 
 
   /**  Private helper methods-
@@ -206,7 +221,7 @@ public class StartupScenario extends Scenario {
   
   protected void establishLocals(Stage world) {
     
-    //  TODO:  Allow for natives as well.
+    //  TODO:  Allow for natives as well?
     
     final Species nesting[] = expedition.origin().nativeSpecies();
 
@@ -220,7 +235,25 @@ public class StartupScenario extends Scenario {
     
     NestUtils.populateFauna(world, nesting);
   }
+  
+  
+  
+  /**  Update methods for when off-stage:
+    */
+  public void updateOffstage() {
+  }
+  
+  
+  
+  /**  Rendering, debug and interface methods-
+    */
+  public void describeHook(Description d) {
+  }
 }
+
+
+
+
 
 
 

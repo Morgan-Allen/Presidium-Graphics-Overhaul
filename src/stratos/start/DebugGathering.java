@@ -5,6 +5,7 @@
   */
 package stratos.start;
 import stratos.content.civic.*;
+import stratos.content.hooks.StratosSetting;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
@@ -59,8 +60,8 @@ public class DebugGathering extends Scenario {
       Habitat.BARRENS     , 2f,
       Habitat.DUNE        , 1f
     );
-    final Verse verse = new Verse();
-    final Sector at = Verse.SECTOR_ELYSIUM;
+    final Verse verse = new StratosSetting();
+    final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
@@ -81,7 +82,7 @@ public class DebugGathering extends Scenario {
     GameSettings.hireFree  = true;
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
-    base.research.initKnowledgeFrom(Verse.PLANET_HALIBAN);
+    base.research.initKnowledgeFrom(StratosSetting.PLANET_HALIBAN);
     
     if (false) configFarmsTest   (world, base, UI);
     if (false) configForestryTest(world, base, UI);

@@ -71,11 +71,13 @@ public class SectorsPane extends UIGroup implements UIConstants {
   final Button left, right;
   
   private Selectable before;
+  final Sector sectors[];
   private Sector focus;
   
   
-  public SectorsPane(HUD UI) {
+  public SectorsPane(HUD UI, Sector sectors[]) {
     super(UI);
+    this.sectors = sectors;
     setWidgetID(SECTORS_PANE_ID);
     
     this.alignHorizontal(0.5f, CHARTS_WIDE, 0);
@@ -152,7 +154,7 @@ public class SectorsPane extends UIGroup implements UIConstants {
     before = Selection.currentSelection();
     
     final Sector zooms;
-    if (BaseUI.current() == null) zooms = Verse.DEFAULT_START_LOCATION;
+    if (BaseUI.current() == null) zooms = sectors[0];
     else zooms = BaseUI.currentPlayed().world.offworld.stageLocation();
     selectSector(zooms);
   }
@@ -176,7 +178,9 @@ public class SectorsPane extends UIGroup implements UIConstants {
     */
   protected UINode selectionAt(Vector2 mousePos) {
     final DisplaySector DS = display.selectedAt(UI.mousePos());
-    final Sector hovered = DS == null ? null : Sector.sectorNamed(DS.label);
+    final Sector hovered = DS == null ?
+      null : Sector.sectorNamed(DS.label, sectors);
+    
     if (UI.mouseClicked()) {
       focus = hovered;
       selectSector(focus);

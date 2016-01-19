@@ -58,7 +58,7 @@ public class Background extends Constant {
   final List <Traded> gear = new List <Traded> ();
   
   
-  protected Background(
+  public Background(
     Class baseClass,
     String name, String info, String costumeTex, String portraitTex,
     int standing, int guild, Object... args

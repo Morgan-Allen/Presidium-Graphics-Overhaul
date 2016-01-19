@@ -318,9 +318,12 @@ public class Stocks extends Inventory {
     int period, Traded services[], Conversion... cons
   ) {
     final BaseDemands BD = basis.base().demands;
-    final Presences BP = basis.world().presences;
-    final Tile      at = basis.world().tileAt(basis);
-    final boolean isTrader = Visit.arrayIncludes(services, SERVICE_COMMERCE);
+    final Presences   BP = basis.world().presences;
+    final Tile        at = basis.world().tileAt(basis);
+    final boolean isTrader = basis.owningTier() == Owner.TIER_TRADER;
+    
+    //  TODO:  Scrub demand for anything not listed in services (or as a raw
+    //  material.)
     
     for (Item i : specialOrders) if (hasItem(i)) {
       deleteSpecialOrder(i);
@@ -362,7 +365,7 @@ public class Stocks extends Inventory {
       }
       for (Demand d : demands.values()) {
         boolean sells = amountOf(d.type) > 0 && d.production > 0;
-        boolean buys = d.consumption > 0 && ! sells;
+        boolean buys  = d.consumption > 0 && ! sells;
         BP.togglePresence(basis, at, sells, d.type.supplyKey);
         BP.togglePresence(basis, at, buys , d.type.demandKey);
         

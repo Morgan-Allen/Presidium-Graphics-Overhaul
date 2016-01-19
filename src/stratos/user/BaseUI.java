@@ -5,6 +5,7 @@
   */
 package stratos.user;
 import stratos.game.common.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
@@ -149,7 +150,8 @@ public class BaseUI extends HUD implements UIConstants {
     messageArea.alignTop(READOUT_HIGH, MESSAGE_PANE_HIGH);
     messageArea.attachTo(this);
     
-    this.sectorsPane = new SectorsPane(this);
+    Series <Sector> onPlanet = world.offworld.stageLocation().siblings();
+    this.sectorsPane = new SectorsPane(this, onPlanet.toArray(Sector.class));
     sectorsPane.attachTo(this);
     sectorsPane.hidden = true;
 

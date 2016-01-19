@@ -10,6 +10,7 @@ import stratos.graphics.charts.*;
 import stratos.game.verse.*;
 import stratos.start.*;
 import stratos.user.*;
+import stratos.content.hooks.*;
 import static stratos.user.ChartUtils.*;
 
 
@@ -35,6 +36,7 @@ public class MainScreen extends HUD {
   
   MenuPane menuView;
   int menuState = MENU_INIT;
+  Verse verse = null;
   
   UIGroup displayArea;
   PlanetDisplay display;
@@ -62,8 +64,8 @@ public class MainScreen extends HUD {
     
     final int
       dispInX = MENU_PANEL_WIDE + (MARGIN * 2),
-      dispTop = CAROUSEL_HIGH   + (MARGIN * 2),
-      dispBot = HELP_FIELD_HIGH + (MARGIN * 2);
+      dispTop = CAROUSEL_HIGH   + (MARGIN * 3),
+      dispBot = HELP_FIELD_HIGH + (MARGIN * 1);
     display = createPlanetDisplay(LOAD_PATH, PLANET_LOAD_FILE);
     display.showLabels = false;
     
@@ -77,7 +79,7 @@ public class MainScreen extends HUD {
     displayArea.alignHorizontal(dispInX, dispInX);
     displayArea.attachTo(this);
     
-    worldsDisplay = createWorldsCarousel(this, Verse.ALL_CAPITALS);
+    worldsDisplay = createWorldsCarousel(this, StratosSetting.ALL_CAPITALS);
     worldsDisplay.alignTop(MARGIN, CAROUSEL_HIGH);
     worldsDisplay.alignHorizontal(dispInX, dispInX);
     worldsDisplay.attachTo(this);
@@ -89,12 +91,19 @@ public class MainScreen extends HUD {
   
   
   
-  /**  Regular queries and updates methods-
+  /**  Regular queries and update methods-
     */
   public static MainScreen current() {
     final HUD current = PlayLoop.currentUI();
     if (current instanceof MainScreen) return (MainScreen) current;
     return null;
+  }
+  
+  
+  public static Verse currentVerse() {
+    final MainScreen screen = current();
+    if (screen == null) return null;
+    return screen.verse;
   }
   
   
@@ -112,6 +121,10 @@ public class MainScreen extends HUD {
       display.showLabels   = false;
       worldsDisplay.hidden = true ;
       crewDisplay.hidden   = true ;
+      verse                = null ;
+    }
+    else if (verse == null) {
+      verse = new StratosSetting();
     }
     
     super.updateState();

@@ -53,7 +53,7 @@ public class SupplyDepot extends Venue {
     SupplyDepot.class, "supply_depot",
     "Supply Depot", Target.TYPE_COMMERCE, ICON,
     "The Supply Depot allows for bulk storage and transport of raw materials "+
-    "used in manufacturing.",
+    "used in manufacturing and construction.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_TRADER, 100, 2,
     Visit.compose(Object.class, ALL_STOCKED, new Object[] {
@@ -104,13 +104,14 @@ public class SupplyDepot extends Venue {
       new Object[] { 5, ACCOUNTING, 5, HARD_LABOUR },
       400
     );
-  
+  /*
   final public static Conversion
     NIL_TO_POLYMER = new Conversion(
       BLUEPRINT, "nil_to_polymer",
       TO, 1, POLYMER,
       SIMPLE_DC, CHEMISTRY
     );
+  //*/
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {

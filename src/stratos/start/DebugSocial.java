@@ -5,6 +5,7 @@
   */
 package stratos.start;
 import stratos.content.civic.*;
+import stratos.content.hooks.StratosSetting;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
@@ -16,6 +17,8 @@ import stratos.game.verse.*;
 import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.util.*;
+
+import static stratos.content.hooks.StratosSetting.SECTOR_ELYSIUM;
 import static stratos.game.actors.Backgrounds.*;
 import stratos.graphics.common.Colour;
 
@@ -57,8 +60,8 @@ public class DebugSocial extends Scenario {
       Habitat.DUNE        , 1f,
       Habitat.SAVANNAH    , 1f
     );
-    final Verse verse = new Verse();
-    final Sector at = Verse.SECTOR_PAVONIS;
+    final Verse verse = new StratosSetting();
+    final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
@@ -141,7 +144,7 @@ public class DebugSocial extends Scenario {
     final Career career = new Career(
       Backgrounds.COMPANION,
       Backgrounds.BORN_GELDER,
-      Verse.PLANET_AXIS_NOVENA,
+      StratosSetting.PLANET_AXIS_NOVENA,
       null
     );
     final Human subject = new Human(career, base.faction());

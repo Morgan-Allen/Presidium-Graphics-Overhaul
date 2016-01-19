@@ -270,8 +270,8 @@ public class StockExchange extends Venue {
     //
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
-    stocks.updateStockDemands(1, ALL_MATERIALS);
-    for (Traded type : ALL_MATERIALS) {
+    stocks.updateStockDemands(1, ALL_STOCKED);
+    for (Traded type : ALL_STOCKED) {
       final float stockBonus = 1 + upgradeLevelFor(type);
       stocks.setConsumption(type, stocks.consumption(type) + stockBonus);
     }

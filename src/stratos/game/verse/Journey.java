@@ -364,7 +364,7 @@ public class Journey implements Session.Saveable {
   /**  Regular update and life-cycle methods:
     */
   public void beginJourney(Mobile... extraMigrants) {
-    if (begun) return;
+    if (complete()) return;
     begun = true;
     
     boolean report = verbose;
@@ -376,18 +376,7 @@ public class Journey implements Session.Saveable {
     departTime = verse.stage().currentTime();
     arriveTime = departTime + (tripTime * (0.5f + Rand.num()));
     
-    if (transport != null) for (Mobile migrant : transport.inside()) {
-      migrants.add(migrant);
-    }
-    for (Mobile migrant : extraMigrants) if (migrant != null) {
-      migrants.add(migrant);
-    }
-    for (Mobile migrant : migrants) if (migrant.inWorld()) {
-      migrant.exitToOffworld();
-      final Journey.Purpose a = Journey.activityFor(migrant);
-      if (a != null) a.onWorldExit();
-    }
-    
+    pickupOnstageMigrants(extraMigrants);
     pickupOffworldMigrants();
     if (transport != null) transport.assignJourney(this);
     verse.journeys.journeys.include(this);
@@ -411,8 +400,10 @@ public class Journey implements Session.Saveable {
     final float   time       = world.currentTime();
     final boolean visitWorld = destination == verse.stageLocation();
     if (tripStage == STAGE_INIT) tripStage = STAGE_OUTWARD;
-    if (time >= arriveTime) onArrival(visitWorld);
-    if (checkForDeparture()) beginReturnTrip();
+    if (time >= arriveTime) {
+      onArrival(visitWorld);
+      if (checkForDeparture()) beginReturnTrip();
+    }
   }
   
   
@@ -492,6 +483,21 @@ public class Journey implements Session.Saveable {
   
   /**  Dealing with common conditions at the start and end of a journey:
     */
+  protected void pickupOnstageMigrants(Mobile... extraMigrants) {
+    if (transport != null) for (Mobile migrant : transport.inside()) {
+      migrants.add(migrant);
+    }
+    for (Mobile migrant : extraMigrants) if (migrant != null) {
+      migrants.add(migrant);
+    }
+    for (Mobile migrant : migrants) if (migrant.inWorld()) {
+      migrant.exitToOffworld();
+      final Journey.Purpose a = Journey.activityFor(migrant);
+      if (a != null) a.onWorldExit();
+    }
+  }
+  
+  
   //
   //  TODO:  Ideally, either offworld base-simulation or the transport in
   //  question should handle this.
