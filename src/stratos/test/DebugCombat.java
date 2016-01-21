@@ -235,6 +235,12 @@ public class DebugCombat extends AutomatedScenario {
 
     result.add(new DebugCombatTestCase() {
       void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.raidingScenario (world, base, UI);
+      }
+    });
+
+    result.add(new DebugCombatTestCase() {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
         scenario.setupCombatScenario(
                 world, base, UI,
                 new Background[] { TROOPER, TROOPER },
@@ -293,12 +299,6 @@ public class DebugCombat extends AutomatedScenario {
                 new Background[] { RUNNER, RUNNER },
                 Base.artilects(world), true
         );
-      }
-    });
-
-    result.add(new DebugCombatTestCase() {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.raidingScenario (world, base, UI);
       }
     });
 

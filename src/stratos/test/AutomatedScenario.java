@@ -45,8 +45,6 @@ public abstract class AutomatedScenario extends Scenario {
   
   /**  Abstract interface to allow testing-
     */
-  protected abstract TestResult getCurrentResult();
-
   protected abstract long getMaxTestDuration();
 
 
@@ -68,7 +66,7 @@ public abstract class AutomatedScenario extends Scenario {
       AutomatedTestRunner.testFailed("timeout");
     }
     else {
-      TestResult result = getCurrentResult();
+      TestResult result = testCase.currentResult();
       if (result == TestResult.PASSED) {
         AutomatedTestRunner.testSucceeded();
       }
