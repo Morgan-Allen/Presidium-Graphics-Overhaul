@@ -27,9 +27,10 @@ public class DebugCombat extends AutomatedScenario {
     */
   Batch <Actor> ourSoldiers   = new Batch();
   Batch <Actor> enemySoldiers = new Batch();
+
+  Background usesTechniques;
   Technique toUse[];
   Batch <Batch <Technique>> techsUsed = new Batch();
-  Technique[] knownTechniques;
   
   
   private DebugCombat(TestCase testCase) {
@@ -102,11 +103,7 @@ public class DebugCombat extends AutomatedScenario {
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
-
-    setupTestCase(world, base, UI);
-
-    //if (false) raidingScenario (world, base, UI);
-    //if (true ) combatScenario  (world, base, UI);
+    super.configureScenario(world, base, UI);
   }
   
   
@@ -138,17 +135,6 @@ public class DebugCombat extends AutomatedScenario {
   }
 
 
-  boolean everyoneUsedAllKnownTechniques(Batch <Actor> actors) {
-    boolean allKnownTechniquesUsed = true;
-    for (Actor actor : actors) {
-      if (!techniquesWereUsedBy(actor, knownTechniques)) {
-        allKnownTechniquesUsed = false;
-      }
-    }
-    return allKnownTechniquesUsed;
-  }
-
-
   boolean everyoneIsDeadOrKnockedOut(Batch <Actor> actors) {
     for (Actor actor : actors) {
       if (actor.health.conscious()) {
@@ -157,11 +143,22 @@ public class DebugCombat extends AutomatedScenario {
     }
     return true;
   }
+
+
+  boolean everyoneUsedAllKnownTechniques(Batch <Actor> actors) {
+    boolean allKnownTechniquesUsed = true;
+    for (Actor actor : actors) if (actor.mind.vocation() == usesTechniques) {
+      if (! techniquesWereUsedBy(actor, toUse)) {
+        allKnownTechniquesUsed = false;
+      }
+    }
+    return allKnownTechniquesUsed;
+  }
   
   
   boolean techniquesWereUsedBy(Actor using, Technique known[]) {
     final int index = ourSoldiers.indexOf(using);
-    if (index < 0) return false;
+    if (index < 0 || known == null) return false;
     
     final Batch <Technique> used = techsUsed.atIndex(index);
     for (Technique t : known) if (Technique.isDoingAction(using, t)) {
@@ -171,13 +168,93 @@ public class DebugCombat extends AutomatedScenario {
     return true;
   }
   
-  
-  protected long getMaxTestDuration() {
-    return 60 * 3;
+
+  abstract static class CombatTestCase extends TestCase {
+    DebugCombat scenario;
+    
+    CombatTestCase(String name) {
+      super(name);
+    }
+
+    AutomatedScenario initScenario() {
+      scenario = new DebugCombat(this);
+      return scenario;
+    }
+
+    TestResult currentResult() {
+      return scenario.getCurrentResult();
+    }
+    
+    protected long getMaxTestDuration() {
+      return 60 * 3;
+    }
+  }
+
+
+  public static Stack <TestCase> getTestCases() {
+    Stack<TestCase> result = new Stack<TestCase>();
+
+    result.add(new CombatTestCase("Artilect raid vs. Troopers") {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.raidingScenario(world, base, UI);
+      }
+    });
+
+    result.add(new CombatTestCase("Trooper vs. Yamagur") {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { TROOPER, TROOPER },
+                TrooperTechniques.TROOPER_TECHNIQUES,
+                new Species[] { Yamagur.SPECIES },
+                Base.wildlife(world), true
+        );
+      }
+    });
+
+    result.add(new CombatTestCase("Ecologist vs. Yamagur") {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { ECOLOGIST },
+                EcologistTechniques.ECOLOGIST_TECHNIQUES,
+                new Species[] { Yamagur.SPECIES },
+                Base.wildlife(world), true
+        );
+      }
+    });
+
+    result.add(new CombatTestCase("Runner vs. Tripod") {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { RUNNER, RUNNER },
+                RunnerTechniques.RUNNER_TECHNIQUES,
+                new Species[] { Tripod.SPECIES },
+                Base.artilects(world), true
+        );
+      }
+    });
+
+    result.add(new CombatTestCase("Physician + Trooper vs. Runner") {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
+                PhysicianTechniques.PHYSICIAN_TECHNIQUES,
+                new Background[] { RUNNER, RUNNER },
+                Base.artilects(world), true
+        );
+      }
+    });
+
+    return result;
   }
   
   
   
+  /**  Helper methods for scenario setup-
+    */
   private void raidingScenario(Stage world, Base base, BaseUI UI) {
     //
     //  Introduce a bastion, with standard personnel.
@@ -200,7 +277,9 @@ public class DebugCombat extends AutomatedScenario {
       final TrooperLodge barracks = new TrooperLodge(base);
       SiteUtils.establishVenue(barracks, barracks, true, world);
       base.setup.fillVacancies(barracks, true);
+      Visit.appendTo(ourSoldiers, barracks.staff.workers());
     }
+    
     
     //  And introduce ruins, with a complement of artilects.
     final ArtilectBase artilects = Base.artilects(world);
@@ -211,98 +290,9 @@ public class DebugCombat extends AutomatedScenario {
     final Ruins ruins = (Ruins) ruinsType.createVenue(artilects);
     SiteUtils.establishVenue(ruins, 44, 44, true, world);
     artilects.setup.fillVacancies(ruins, true);
+    Visit.appendTo(enemySoldiers, ruins.staff.lodgers());
     
     Selection.pushSelection(ruins.staff.workers().first(), null);
-  }
-  
-
-  abstract static class DebugCombatTestCase extends TestCase {
-    DebugCombat scenario;
-
-    AutomatedScenario initScenario() {
-      scenario = new DebugCombat(this);
-      return scenario;
-    }
-
-    TestResult currentResult() {
-      return scenario.getCurrentResult();
-    }
-  }
-
-
-  public static Stack<TestCase> getTestCases() {
-    Stack<TestCase> result = new Stack<TestCase>();
-
-    result.add(new DebugCombatTestCase() {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.raidingScenario (world, base, UI);
-      }
-    });
-
-    result.add(new DebugCombatTestCase() {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.setupCombatScenario(
-                world, base, UI,
-                new Background[] { TROOPER, TROOPER },
-                new Technique[] {
-                        TrooperTechniques.SUPPRESSION,
-                        TrooperTechniques.FENDING_BLOW
-                },
-                new Species[] { Yamagur.SPECIES },
-                Base.wildlife(world), true
-        );
-      }
-    });
-
-    result.add(new DebugCombatTestCase() {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.setupCombatScenario(
-                world, base, UI,
-                new Background[] { ECOLOGIST },
-                EcologistTechniques.ECOLOGIST_TECHNIQUES,
-                new Species[] { Yamagur.SPECIES },
-                Base.wildlife(world), true
-        );
-      }
-    });
-
-    result.add(new DebugCombatTestCase() {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.setupCombatScenario(
-                world, base, UI,
-                new Background[] { RUNNER, RUNNER },
-                RunnerTechniques.RUNNER_TECHNIQUES,
-                new Species[] { Tripod.SPECIES },
-                Base.artilects(world), true
-        );
-      }
-    });
-
-    result.add(new DebugCombatTestCase() {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.setupCombatScenario(
-                world, base, UI,
-                new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
-                PhysicianTechniques.PHYSICIAN_TECHNIQUES,
-                new Background[] { RUNNER, RUNNER },
-                Base.artilects(world), true
-        );
-      }
-    });
-
-    result.add(new DebugCombatTestCase() {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.setupCombatScenario(
-                world, base, UI,
-                new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
-                PhysicianTechniques.PHYSICIAN_TECHNIQUES,
-                new Background[] { RUNNER, RUNNER },
-                Base.artilects(world), true
-        );
-      }
-    });
-
-    return result;
   }
 
   
@@ -316,8 +306,7 @@ public class DebugCombat extends AutomatedScenario {
     Batch <Actor> soldiers = new Batch();
     Background mainType = selfTypes[0];
     Venue lair = null;
-
-    this.knownTechniques = techniques;
+    
     for (Background b : selfTypes) {
       Actor soldier = b.sampleFor(base);
       soldier.enterWorldAt(4 + Rand.index(2), 4 + Rand.index(2), world);
@@ -340,6 +329,8 @@ public class DebugCombat extends AutomatedScenario {
     //  Save the list of soldiers generated (and create a blank record of the
     //  Techniques used by each.)
     this.ourSoldiers = soldiers;
+    this.toUse = techniques;
+    this.usesTechniques = mainType;
     this.techsUsed.clear();
     for (Actor a : soldiers) techsUsed.add(new Batch());
     

@@ -22,8 +22,8 @@ import java.util.Date;
 public abstract class AutomatedScenario extends Scenario {
   /**  Data fields, constructors and save/load methods-
    */
-  float startTime;
-
+  float startTime = -1;
+  
   TestCase testCase;
 
   public AutomatedScenario(String saveFile, TestCase testCase) {
@@ -45,10 +45,7 @@ public abstract class AutomatedScenario extends Scenario {
   
   /**  Abstract interface to allow testing-
     */
-  protected abstract long getMaxTestDuration();
-
-
-  protected void setupTestCase(Stage world, Base base, BaseUI UI) {
+  protected void configureScenario(Stage world, Base base, BaseUI UI) {
     testCase.setupScenario(world, base, UI);
   }
 
@@ -57,21 +54,20 @@ public abstract class AutomatedScenario extends Scenario {
     */
   public void updateGameState() {
     super.updateGameState();
-
-    if (startTime == 0) {
-      startTime = world().currentTime();
-    }
     
-    if (world().currentTime() - startTime > getMaxTestDuration()) {
-      AutomatedTestRunner.testFailed("timeout");
+    final float time = world().currentTime();
+    if (startTime == -1) startTime = time;
+    
+    if (time - startTime > testCase.getMaxTestDuration()) {
+      AutomatedTestRunner.testFailed(testCase, "timeout");
     }
     else {
       TestResult result = testCase.currentResult();
       if (result == TestResult.PASSED) {
-        AutomatedTestRunner.testSucceeded();
+        AutomatedTestRunner.testSucceeded(testCase);
       }
       if (result == TestResult.FAILED) {
-        AutomatedTestRunner.testFailed("check failed");
+        AutomatedTestRunner.testFailed(testCase, "check failed");
       }
     }
   }
