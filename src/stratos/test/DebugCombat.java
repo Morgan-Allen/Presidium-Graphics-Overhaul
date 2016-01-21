@@ -13,7 +13,6 @@ import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
-import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
@@ -30,6 +29,7 @@ public class DebugCombat extends AutomatedScenario {
   Batch <Actor> enemySoldiers = new Batch();
   Technique toUse[];
   Batch <Batch <Technique>> techsUsed = new Batch();
+  Technique[] knownTechniques;
   
   
   private DebugCombat(TestCase testCase) {
@@ -123,27 +123,41 @@ public class DebugCombat extends AutomatedScenario {
     boolean
       ourSoldiersDead   = everyoneIsDeadOrKnockedOut(ourSoldiers  ),
       enemySoldiersDead = everyoneIsDeadOrKnockedOut(enemySoldiers);
-    
+
+    boolean allTechniquesUsed = everyoneUsedAllKnownTechniques(ourSoldiers);
+
     if (ourSoldiersDead || enemySoldiersDead) {
-      return TestResult.PASSED;
+      if (allTechniquesUsed) {
+        return TestResult.PASSED;
+      } else {
+        return TestResult.FAILED;
+      }
     }
     // still waiting
     return TestResult.UNKNOWN;
   }
-  
+
+
+  boolean everyoneUsedAllKnownTechniques(Batch <Actor> actors) {
+    boolean allKnownTechniquesUsed = true;
+    for (Actor actor : actors) {
+      if (!techniquesWereUsedBy(actor, knownTechniques)) {
+        allKnownTechniquesUsed = false;
+      }
+    }
+    return allKnownTechniquesUsed;
+  }
+
 
   boolean everyoneIsDeadOrKnockedOut(Batch <Actor> actors) {
     for (Actor actor : actors) {
-      if (actor.health.conscious() && actor.health.alive()) {
+      if (actor.health.conscious()) {
         return false;
       }
     }
     return true;
   }
   
-  
-  //  TODO:  Ideally, this should also be incorporated into the test-
-  //  verification calls too!
   
   boolean techniquesWereUsedBy(Actor using, Technique known[]) {
     final int index = ourSoldiers.indexOf(using);
@@ -270,6 +284,24 @@ public class DebugCombat extends AutomatedScenario {
       }
     });
 
+    result.add(new DebugCombatTestCase() {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.setupCombatScenario(
+                world, base, UI,
+                new Background[] { PHYSICIAN, TROOPER, TROOPER, EXCAVATOR },
+                PhysicianTechniques.PHYSICIAN_TECHNIQUES,
+                new Background[] { RUNNER, RUNNER },
+                Base.artilects(world), true
+        );
+      }
+    });
+
+    result.add(new DebugCombatTestCase() {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.raidingScenario (world, base, UI);
+      }
+    });
+
     return result;
   }
 
@@ -284,7 +316,8 @@ public class DebugCombat extends AutomatedScenario {
     Batch <Actor> soldiers = new Batch();
     Background mainType = selfTypes[0];
     Venue lair = null;
-    
+
+    this.knownTechniques = techniques;
     for (Background b : selfTypes) {
       Actor soldier = b.sampleFor(base);
       soldier.enterWorldAt(4 + Rand.index(2), 4 + Rand.index(2), world);
