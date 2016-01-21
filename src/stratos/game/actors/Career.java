@@ -187,21 +187,25 @@ public class Career {
       applyBackground(birth, actor);
       
       pickHomeworld(actor, faction);
-      applyBackground(homeworld.asBackground, actor);
-      applySystem((Sector) homeworld, actor);
+      if (homeworld != null) {
+        applyBackground(homeworld.asBackground, actor);
+        applySystem((Sector) homeworld, actor);
+      }
       
       pickVocation(actor, faction);
       applyBackground(vocation, actor);
     }
     //
     //  Alternatively, we work backwards from the target vocation to determine
-    //  a probably system and social class of origin:
+    //  a probable system and social class of origin:
     else {
       applyBackground(vocation, actor);
       
       pickHomeworld(actor, faction);
-      applyBackground(homeworld.asBackground, actor);
-      applySystem((Sector) homeworld, actor);
+      if (homeworld != null) {
+        applyBackground(homeworld.asBackground, actor);
+        applySystem((Sector) homeworld, actor);
+      }
       
       pickBirthClass(actor, faction);
       applyBackground(birth, actor);

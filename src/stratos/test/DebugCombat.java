@@ -118,34 +118,35 @@ public class DebugCombat extends AutomatedScenario {
     */
   protected TestResult getCurrentResult() {
     boolean
-      ourSoldiersDead   = everyoneIsDeadOrKnockedOut(ourSoldiers  ),
-      enemySoldiersDead = everyoneIsDeadOrKnockedOut(enemySoldiers);
-
-    boolean allTechniquesUsed = everyoneUsedAllKnownTechniques(ourSoldiers);
-
-    if (ourSoldiersDead || enemySoldiersDead) {
+      ourSoldiersBeat   = everyoneIsBeaten(ourSoldiers),
+      enemySoldiersBeat = everyoneIsBeaten(enemySoldiers),
+      allTechniquesUsed = everyoneUsedTechniques(ourSoldiers);
+    
+    if (ourSoldiersBeat || enemySoldiersBeat) {
       if (allTechniquesUsed) {
         return TestResult.PASSED;
-      } else {
+      }
+      else {
         return TestResult.FAILED;
       }
     }
     // still waiting
     return TestResult.UNKNOWN;
   }
-
-
-  boolean everyoneIsDeadOrKnockedOut(Batch <Actor> actors) {
+  
+  
+  boolean everyoneIsBeaten(Batch <Actor> actors) {
+    if (actors.empty()) return false;
     for (Actor actor : actors) {
-      if (actor.health.conscious()) {
-        return false;
-      }
+      if (actor.isDoing(Retreat.class, null)) continue;
+      if (! actor.health.conscious()) continue;
+      return false;
     }
     return true;
   }
-
-
-  boolean everyoneUsedAllKnownTechniques(Batch <Actor> actors) {
+  
+  
+  boolean everyoneUsedTechniques(Batch <Actor> actors) {
     boolean allKnownTechniquesUsed = true;
     for (Actor actor : actors) if (actor.mind.vocation() == usesTechniques) {
       if (! techniquesWereUsedBy(actor, toUse)) {
@@ -193,12 +194,6 @@ public class DebugCombat extends AutomatedScenario {
 
   public static Stack <TestCase> getTestCases() {
     Stack<TestCase> result = new Stack<TestCase>();
-
-    result.add(new CombatTestCase("Artilect raid vs. Troopers") {
-      void setupScenario(Stage world, Base base, BaseUI UI) {
-        scenario.raidingScenario(world, base, UI);
-      }
-    });
 
     result.add(new CombatTestCase("Trooper vs. Yamagur") {
       void setupScenario(Stage world, Base base, BaseUI UI) {
@@ -248,6 +243,12 @@ public class DebugCombat extends AutomatedScenario {
       }
     });
 
+    result.add(new CombatTestCase("Artilect raid vs. Troopers") {
+      void setupScenario(Stage world, Base base, BaseUI UI) {
+        scenario.raidingScenario(world, base, UI);
+      }
+    });
+
     return result;
   }
   
@@ -289,8 +290,14 @@ public class DebugCombat extends AutomatedScenario {
     final Blueprint ruinsType = Ruins.VENUE_BLUEPRINTS[0];
     final Ruins ruins = (Ruins) ruinsType.createVenue(artilects);
     SiteUtils.establishVenue(ruins, 44, 44, true, world);
-    artilects.setup.fillVacancies(ruins, true);
-    Visit.appendTo(enemySoldiers, ruins.staff.lodgers());
+    
+    final Batch <Actor> lurking = new Batch();
+    for (Species s : Species.ARTILECT_SPECIES) for (int n = 2; n-- > 0;) {
+      Actor a = s.sampleFor(artilects);
+      lurking.add(a);
+    }
+    artilects.setup.fillVacancies(ruins, true, lurking.toArray(Actor.class));
+    Visit.appendTo(enemySoldiers, lurking);
     
     Selection.pushSelection(ruins.staff.workers().first(), null);
   }

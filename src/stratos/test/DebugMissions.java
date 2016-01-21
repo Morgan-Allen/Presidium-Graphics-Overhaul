@@ -3,13 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.start;
+package stratos.test;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
+import stratos.start.PlayLoop;
+import stratos.start.Scenario;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.content.civic.*;
@@ -102,6 +104,11 @@ public class DebugMissions extends Scenario {
     MissionClaiming m = MissionClaiming.claimFor(SECTOR_PAVONIS, base);
     m.assignPriority(Mission.PRIORITY_ROUTINE);
     base.tactics.addMission(m);
+    
+    //  TODO:
+    //  This case should be satisfied when the applicants for the mission are
+    //  offworld, the journey completes, and SECTOR_PAVONIS now belongs to the
+    //  same faction.
   }
   
   
@@ -120,6 +127,10 @@ public class DebugMissions extends Scenario {
       CivicBase.AVG_SECTOR_POWER, 10,
       PLANET_PAREM_V, new Airship(procyon), CivicBase.RAID_CLASSES
     );
+    
+    //  TODO:
+    //  This case should be satisfied when raiders arrive from offworld and
+    //  successfully destroy at least one base structure.
   }
   
   
@@ -145,6 +156,10 @@ public class DebugMissions extends Scenario {
       recon.setApprovalFor(a, true);
     }
     recon.beginMission();
+    
+    //  TODO:
+    //  This case should be satisfied when the recon-mission completes, the
+    //  foreign sector is explored and the applicants return home from off-map.
   }
   
   
@@ -176,6 +191,11 @@ public class DebugMissions extends Scenario {
     
     base.tactics.addMission(contact);
     contact.beginMission();
+    
+    //  TODO:
+    //  This case should be satisfied when the mission completes, and the
+    //  native in question agrees to come visit the applicant.  (If the mission
+    //  completes without that agreement, log as a failure.)
   }
   
   
@@ -207,6 +227,9 @@ public class DebugMissions extends Scenario {
     
     base.tactics.addMission(security);
     security.beginMission();
+    
+    //  TODO:
+    //  This case should be satisfied when the robot is destroyed.
   }
   
   
@@ -232,6 +255,10 @@ public class DebugMissions extends Scenario {
     
     base.tactics.addMission(strike);
     strike.beginMission();
+    
+    //  TODO:
+    //  This case should be satisfied when the ruins and all it's inhabitants
+    //  are destroyed.
   }
   
   
@@ -254,7 +281,9 @@ public class DebugMissions extends Scenario {
     base.tactics.addMission(recon);
     recon.beginMission();
     
-    //  TODO:  Let's introduce a nest of Yamagur.  See how they get along.
+    //  TODO:
+    //  This case should be satisfied when the terrain around the target tile
+    //  is fully revealed.
   }
   
   

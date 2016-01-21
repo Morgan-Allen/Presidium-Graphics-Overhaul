@@ -23,8 +23,9 @@ public class AutomatedTestRunner {
   
   public static void setupAutomatedTest(Stack<TestCase> testCases, String logFileName) {
     try {
-      log = new FileWriter(logFileName, true);
-    } catch (IOException e) {
+      log = new FileWriter("saves/"+logFileName, true);
+    }
+    catch (IOException e) {
       I.complain(e.getMessage());
     }
 
@@ -35,36 +36,18 @@ public class AutomatedTestRunner {
   
   private static void moveToNextTestCase() {
     currentTest = testCases.removeFirst();
-
+    
     if (currentTest == null) {
       logToFile("Testing finished");
       PlayLoop.exitLoop();
       return;
-    } else {
+    }
+    else {
       logToFile("Moving to next test");
     }
-
+    
     currentScenario = currentTest.initScenario();
     PlayLoop.setupAndLoop(currentScenario);
-  }
-  
-  
-  private static String getCurrentTimeStamp() {
-    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-    Date now = new Date();
-    String strDate = sdfDate.format(now);
-    return strDate;
-  }
-  
-  
-  private static void logToFile(String message) {
-    try {
-      I.say(message);
-      log.write(getCurrentTimeStamp() + " " + message + "\n");
-      log.flush();
-    } catch (IOException e) {
-      I.complain(e.getMessage());
-    }
   }
   
   
@@ -77,5 +60,25 @@ public class AutomatedTestRunner {
   public static void testFailed(TestCase caseRun, String reason) {
     logToFile("Test failed: "+caseRun.caseName+" Reason: "+reason);
     moveToNextTestCase();
+  }
+  
+  
+  private static String getCurrentTimeStamp() {
+    SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    Date now = new Date();
+    String strDate = sdfDate.format(now);
+    return strDate;
+  }
+  
+  
+  private static void logToFile(String message) {
+    try {
+      I.say(message);
+      log.write(getCurrentTimeStamp() + " " + message + "\n");
+      log.flush();
+    }
+    catch (IOException e) {
+      I.complain(e.getMessage());
+    }
   }
 }

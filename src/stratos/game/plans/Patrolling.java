@@ -437,7 +437,7 @@ public class Patrolling extends Plan implements TileConstants {
       d.append(guarded);
     }
     if (type == TYPE_STREET_PATROL || type == TYPE_SENTRY_DUTY) {
-      if (patrolled.size() == 1) {
+      if (patrolled.size() == 1 || guarded == patrolled.last()) {
         d.appendAll("Patrolling around ", guarded);
       }
       else {
