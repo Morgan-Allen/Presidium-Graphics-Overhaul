@@ -3,6 +3,9 @@
 CURRENT ITEMS:
 
    Priority:  Medium  Duration:  Medium
+*  Patch up the texture/s used for the planet-display.
+
+   Priority:  Medium  Duration:  Medium
 *  Create a proper skin for the Airship model!
    
    Priority:  High  Duration:  Long to Very Long
@@ -17,9 +20,6 @@ CURRENT ITEMS:
    Priority:  High  Duration:  Short
 *  Cull anything unused or under-used from the lists of Backgrounds, Skills and
    Traits.  Bare minimum for now.
-
-   Priority:  Medium  Duration:  Medium
-*  Patch up the texture/s used for the planet-display.
 
    Priority:  Minor  Duration:  Short
 *  Make sure that the skill-bonuses for a given homeworld are actually applied

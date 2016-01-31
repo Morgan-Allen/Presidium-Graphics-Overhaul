@@ -21,6 +21,11 @@ public class Tally <K> {
   }
   
   
+  public boolean hasEntry(K key) {
+    return store.get(key) != null;
+  }
+  
+  
   public void set(K key, float value) {
     if (value == 0) store.remove(key);
     else store.put(key, value);
