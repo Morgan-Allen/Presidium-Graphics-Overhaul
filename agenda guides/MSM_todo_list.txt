@@ -45,6 +45,10 @@ ACTIVE ITEMS:
 *  On a similar note, the UI for the sprite-viewer could use some cleanup-
    proper scrolling for lists of parts, nicer borders, et cetera.
 
+*  Priority:  Low  Duration:  Short
+   Left/right keys should adjust light direction in the sprite-viewer- don't
+   seem to at the moment?
+
 
    Priority:  Medium  Duration:  Medium
 *  Implement cel-shading:

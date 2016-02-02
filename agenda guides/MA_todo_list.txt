@@ -2,11 +2,16 @@
 
 CURRENT ITEMS:
 
-   Priority:  Medium  Duration:  Medium
-*  Patch up the texture/s used for the planet-display.
+*  Reactors have been exploding too often.
+
+*  Have an encyclopaedia listing of some kind.
+
+*  Building-upgrades must be researchable!
+
+
 
    Priority:  Medium  Duration:  Medium
-*  Create a proper skin for the Airship model!
+*  Patch up the texture/s used for the planet-display.
    
    Priority:  High  Duration:  Long to Very Long
 *  Create and import Level-2 art-assets for the major guilds.

@@ -212,7 +212,7 @@ public class SkinsPreview extends VisualDebug {
     //
     //  First of all, see if a valid file has been specified with this path-
     final File match = new File(currentPath);
-    if (report) I.say("\nCurrent file path: "+currentPath);
+    ///if (report) I.say("\nCurrent file path: "+currentPath);
     if (currentPath.equals(lastValidPath) || ! match.exists()) return;
     
     if (currentPath.endsWith(".ms3d")) {

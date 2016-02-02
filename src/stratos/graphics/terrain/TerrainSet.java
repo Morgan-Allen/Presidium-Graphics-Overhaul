@@ -86,9 +86,11 @@ public class TerrainSet {
       }
     }
     
+    /*
     for (LayerType layer : layers) for (ImageAsset image : layer.layerFrames) {
       Assets.checkForRefresh(image, 500);
     }
+    //*/
   }
   
   

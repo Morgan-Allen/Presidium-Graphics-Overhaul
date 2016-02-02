@@ -71,6 +71,7 @@ public class ChartUtils {
     String path, String file, PlanetDisplay display
   ) {
     final XML xml = XML.load(path+file);
+    final Class baseClass = ChartUtils.class;
     
     final XML
       modelNode   = xml.child("globeModel"),
@@ -79,20 +80,22 @@ public class ChartUtils {
       keysNode    = xml.child("sectorKeys");
     
     final MS3DModel globeModel = MS3DModel.loadFrom(
-      path, modelNode.value("name"), SectorsPane.class, null, null
+      path, modelNode.value("name"), baseClass, null, null
     );
-    final ImageAsset sectorKeys = ImageAsset.fromImage(
-      SectorsPane.class, path + keysNode.value("name")
-    );
+    final ImageAsset
+      sectorKeys = ImageAsset.fromImage(
+        baseClass, path + keysNode.value("name")
+      ),
+      surfaceTex = ImageAsset.fromImage(
+        baseClass, path + surfaceNode.value("name")
+      ),
+      sectorsTex = ImageAsset.fromImage(
+        baseClass, path + sectorsNode.value("name")
+      );
     Assets.loadNow(globeModel);
     Assets.loadNow(sectorKeys);
-    final String
-      surfaceFile = path + surfaceNode.value("name"),
-      sectorsFile = path + sectorsNode.value("name");
-    final Texture
-      surfaceTex = ImageAsset.getTexture(surfaceFile),
-      sectorsTex = ImageAsset.getTexture(sectorsFile);
-    
+    Assets.loadNow(surfaceTex);
+    Assets.loadNow(sectorsTex);
     display.attachModel(globeModel, surfaceTex, sectorsTex, sectorKeys);
     
     final XML sectors = xml.child("sectors");
@@ -221,6 +224,7 @@ public class ChartUtils {
     display.renderWith(
       pass.rendering, displayArea.trueBounds(), UIConstants.INFO_FONT
     );
+    display.checkForAssetRefresh();
     
     glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(false);

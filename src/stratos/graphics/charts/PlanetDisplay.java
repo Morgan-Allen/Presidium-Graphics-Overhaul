@@ -49,7 +49,7 @@ public class PlanetDisplay extends Assets.Loadable {
   
   private SolidModel globeModel;
   private NodePart surfacePart, sectorsPart;
-  private Texture surfaceTex, sectorsTex;
+  private ImageAsset surfaceTex, sectorsTex;
   
   private ImageAsset sectorsKeyTex;
   private List <DisplaySector> sectors = new List <DisplaySector> ();
@@ -104,21 +104,18 @@ public class PlanetDisplay extends Assets.Loadable {
   /**  Additional setup methods-
     */
   public void attachModel(
-    SolidModel model, Texture surfaceTex,
-    Texture sectorsTex, ImageAsset sectorsKeyTex
+    SolidModel model, ImageAsset surfaceTex,
+    ImageAsset sectorsTex, ImageAsset sectorsKeyTex
   ) {
     this.polarCoords.set(0, 0);
     this.targetCoords.setTo(polarCoords);
     this.globeModel = model;
     
     final String partNames[] = globeModel.partNames();
-    this.surfacePart = globeModel.partWithName(partNames[0]);
-    this.sectorsPart = globeModel.partWithName(partNames[1]);
-    this.surfaceTex = surfaceTex;
-    this.sectorsTex = sectorsTex;
-    surfaceTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-    sectorsTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-    
+    this.surfacePart   = globeModel.partWithName(partNames[0]);
+    this.sectorsPart   = globeModel.partWithName(partNames[1]);
+    this.surfaceTex    = surfaceTex;
+    this.sectorsTex    = sectorsTex;
     this.sectorsKeyTex = sectorsKeyTex;
     cacheFaceData();
   }
@@ -134,6 +131,12 @@ public class PlanetDisplay extends Assets.Loadable {
     calcCoordinates(sector);
     final int RGBA = colourOnSurface(sector.coordinates);
     (sector.colourKey = new Colour()).setFromRGBA(RGBA);
+  }
+  
+  
+  public void checkForAssetRefresh() {
+    Assets.checkForRefresh(surfaceTex, 500);
+    Assets.checkForRefresh(sectorsTex, 500);
   }
   
   
@@ -516,7 +519,7 @@ public class PlanetDisplay extends Assets.Loadable {
     shading.setUniform3fv("u_lightDirection", lightVals, 0, 3);
     
     p = surfacePart.meshPart;
-    surfaceTex.bind(0);
+    surfaceTex.asTexture().bind(0);
     sectorsKeyTex.asTexture().bind(2);
     shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
     p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
