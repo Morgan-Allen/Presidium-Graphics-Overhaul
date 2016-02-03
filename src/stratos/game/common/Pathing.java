@@ -126,6 +126,7 @@ public class Pathing {
     if (paths && ! PathSearch.canApproach(moveTarget, mobile)) {
       I.say("\nWARNING:  "+mobile+" CANNOT ACCESS: "+moveTarget);
       moveTarget = null;
+      mobile.pathingAbort();
     }
     this.trueTarget = moveTarget;
     if (trueTarget != oldTarget) {

@@ -163,6 +163,11 @@ public class Schedule {
   }
   
   
+  public boolean registered(Updates updates) {
+    return allUpdates.get(updates) != null;
+  }
+  
+  
   
   /**  Returns whether event-updates within the current schedule-call have
     *  taken up more time than allowed.

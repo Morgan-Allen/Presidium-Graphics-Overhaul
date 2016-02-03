@@ -366,8 +366,8 @@ public class Repairs extends Plan {
       built, Repairs.class
     ).toArray(Plan.class);
     final Pick <Tile> pick = new Pick <Tile> ();
-    Tile atBack  = world.tileAt(corner.x + size, corner.y);
-    Tile atFront = world.tileAt(corner.x, corner.y + size);
+    Tile atBack  = world.tileAt(corner.x + size - 1, corner.y);
+    Tile atFront = world.tileAt(corner.x, corner.y + size - 1);
     
     for (Tile t : Spacing.perimeter(venue.footprint(), venue.world())) {
       if (t == null || t.blocked()) continue;

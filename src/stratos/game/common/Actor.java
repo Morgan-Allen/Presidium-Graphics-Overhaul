@@ -297,10 +297,14 @@ public abstract class Actor extends Mobile implements
       aboard.position(nextPosition);
     }
     
-    
     if (needsBigUpdate) {
       if (report) I.say("  SCHEDULING BIG UPDATE");
-      world.schedule.scheduleNow(this);
+      
+      if (! world.schedule.registered(this)) {
+        if (inWorld()) exitWorld();
+        else world.toggleActive(this, false);
+      }
+      else world.schedule.scheduleNow(this);
     }
   }
   
