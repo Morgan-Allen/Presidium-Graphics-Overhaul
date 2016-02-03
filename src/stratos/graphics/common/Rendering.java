@@ -128,7 +128,6 @@ public class Rendering {
   
   
   public void renderUI(HUD UI) {
-    //glDepthMask(false);
     widgetsPass.begin();
     if (UI != null) UI.renderHUD(this);
     fading.applyTo(widgetsPass);

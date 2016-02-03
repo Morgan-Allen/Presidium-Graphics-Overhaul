@@ -115,7 +115,7 @@ public class HUD extends UIGroup {
     widgetsByID.clear();
     recordActiveWidgetsFrom(this);
     
-    super.render(rendering.widgetsPass);
+    render(rendering.widgetsPass);
   }
   
   

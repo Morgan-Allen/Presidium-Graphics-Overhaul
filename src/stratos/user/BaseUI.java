@@ -420,7 +420,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   //  TODO:  get rid of this once render-to-texture is working...
   public static void beginPanelFade() {
-    if (current() != null) current().capturePanel = true;
+    //if (current() != null) current().capturePanel = true;
   }
 }
 

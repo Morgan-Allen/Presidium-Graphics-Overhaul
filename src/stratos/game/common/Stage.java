@@ -346,7 +346,8 @@ public class Stage implements Session.Saveable {
   
   
   public void renderFor(Rendering rendering, Base base) {
-    if (verbose) I.say("Rendering world...");
+    final boolean report = I.used60Frames && verbose;
+    if (report) I.say("Rendering world...");
     //
     //  Set a couple of basic parameters before beginning-
     final Colour c = Planet.lightValue(this);
@@ -393,7 +394,7 @@ public class Stage implements Session.Saveable {
     for (Visible visible : allVisible) {
       visible.renderFor(rendering, base);
     }
-    if (verbose) {
+    if (report) {
       I.say("  Total sections visible: "+visibleSections.size());
       I.say("  Total elements visible: "+allVisible     .size());
     }
@@ -408,7 +409,7 @@ public class Stage implements Session.Saveable {
       visible.renderFor(rendering, base);
     }
     ephemera.applyScreenFade(rendering);
-    if (verbose) {
+    if (report) {
       I.say("  Total ephemera visible: "+allVisible     .size());
     }
   }

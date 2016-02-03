@@ -134,12 +134,12 @@ public class Schedule {
   }
   
   
-  public void scheduleNow(Updates updates) {
+  public boolean scheduleNow(Updates updates) {
     final Object ref = allUpdates.get(updates);
     if (ref == null) {
       I.say("\nWARNING: "+updates+" NEVER REGISTERED FOR UPDATES!");
       I.reportStackTrace();
-      return;
+      return false;
     }
     
     final Event event = events.refValue(ref);
@@ -157,9 +157,14 @@ public class Schedule {
       I.say("  Call time:    "+event.callTime  );
       I.say("  Current time: "+currentTime     );
       I.say("  Update time:  "+event.updateTime);
-      
       I.reportStackTrace();
     }
+    return true;
+  }
+  
+  
+  public boolean registered(Updates updates) {
+    return allUpdates.get(updates) != null;
   }
   
   

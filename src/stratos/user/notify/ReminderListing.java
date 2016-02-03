@@ -175,6 +175,10 @@ public class ReminderListing extends UIGroup {
     //
     //  Now, in essence, insert entries for anything not currently listed, and
     //  delete entries for anything listed that shouldn't be.
+    
+    boolean report = I.used60Frames && false;
+    if (report) I.say("\nTotal entries: "+entries.size());
+    
     int index = 0; for (Object s : needShow) {
       if (! hasEntryRefers(s)) addEntry(s, index);
       index++;
@@ -187,6 +191,12 @@ public class ReminderListing extends UIGroup {
       if (e.fadeVal <= 0 && ! e.active) {
         e.detach();
         entries.remove(e);
+      }
+      if (! UI.trueBounds().intersects(e.trueBounds())) {
+        e.hidden = true;
+      }
+      else {
+        e.hidden = false;
       }
     }
     //

@@ -274,7 +274,6 @@ public abstract class Actor extends Mobile implements
       needsBigUpdate = true;
     }
     
-    
     if (mount != null) {
       final Plan activity = action == null ? null : action.parentPlan();
       mount.position(nextPosition);
@@ -297,9 +296,18 @@ public abstract class Actor extends Mobile implements
       aboard.position(nextPosition);
     }
     
-    if (needsBigUpdate && inWorld()) {
+    if (needsBigUpdate) {
       if (report) I.say("  SCHEDULING BIG UPDATE");
-      world.schedule.scheduleNow(this);
+      if (! world.schedule.scheduleNow(this)) {
+        if (inWorld()) {
+          I.say("  Out of schedule- still in world.");
+          exitWorld();
+        }
+        else {
+          I.say("  Out of schedule- not in world.");
+          base().toggleUnit(this, false);
+        }
+      }
     }
   }
   

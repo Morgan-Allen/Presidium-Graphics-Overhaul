@@ -118,6 +118,7 @@ public class Pathing {
       I.say("\nWARNING:  "+mobile+" CANNOT ACCESS: "+moveTarget);
       mobile.pathingAbort();
       moveTarget = null;
+      mobile.pathingAbort();
     }
     this.moveTarget = moveTarget;
     if (moveTarget != oldTarget || moveTarget == null) {

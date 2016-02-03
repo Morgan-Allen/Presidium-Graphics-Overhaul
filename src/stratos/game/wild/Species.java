@@ -179,16 +179,23 @@ public abstract class Species extends Background {
   public boolean preyedOn() { return browser(); }
   
   
-  
   /**  Metabolism and trophic levels-
     */
-  public Item[] nutrients(int stage) { return stageNutrients[stage]; }
-  public float metabolism() { return baseBulk * speedMult; }
+  public Item[] nutrients(int stage) {
+    return stageNutrients[Nums.clamp(stage, 4)];
+  }
+  
+  
+  public float metabolism() {
+    return baseBulk * speedMult;
+  }
+  
   
   final static Traded[]
     MEAT_ONLY  = new Traded[] { PROTEIN },
     VEGETABLES = new Traded[] { CARBS, GREENS },
     NONE_EATEN = new Traded[0];
+  
   
   public Traded[] canEat() {
     if (predator()) return MEAT_ONLY;
