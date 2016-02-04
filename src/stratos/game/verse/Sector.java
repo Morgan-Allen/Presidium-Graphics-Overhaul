@@ -120,7 +120,7 @@ public class Sector extends Constant {
         final Upgrade upgrade = (Upgrade) arg;
         knowledge.include(upgrade);
         for (Upgrade u : upgrade.leadsTo()) {
-          if (u.isBlueprintUpgrade()) continue;
+          if (u.isLevelUpgrade()) continue;
           knowledge.include(u);
         }
       }

@@ -177,6 +177,11 @@ public class Upgrade extends Constant {
   }
   
   
+  public boolean isLevelUpgrade() {
+    return Visit.arrayIncludes(origin.venueLevels(), this);
+  }
+  
+  
   public Mission researchDone(Base base) {
     return base.matchingMission(this, MissionResearch.class);
   }

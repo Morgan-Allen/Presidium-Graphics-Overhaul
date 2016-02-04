@@ -281,9 +281,14 @@ public class VenuePane extends SelectionPane {
       numU      = v.structure.numOptionalUpgrades(),
       maxU      = v.structure.maxOptionalUpgrades();
     
+    final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
+    final Upgrade inProg = v.structure.upgradeInProgress();
+    final float   upProg = v.structure.upgradeProgress(inProg);
+    final boolean canUp = maxU > 0 && UA.size() > 0;
+    
     if (maxLevel > 1) {
       d.append(v.blueprint.name+" Level: "+mainLevel+"/"+maxLevel);
-
+      
       if (v.structure.intact() && mainLevel < maxLevel) {
         final Upgrade VL[] = v.blueprint.venueLevels();
         final int level = v.structure.mainUpgradeLevel();
@@ -291,14 +296,13 @@ public class VenuePane extends SelectionPane {
         
         d.append("\n");
         next.appendVenueOrders(d, v, base);
+        if (inProg == next && upProg > 0) {
+          d.append("\n    Progress: ");
+          d.append(((int) (upProg * 100))+"%");
+        }
       }
       d.append("\n");
     }
-    
-    final Series <Upgrade> UA = Upgrade.upgradesAvailableFor(v);
-    final Upgrade inProg = v.structure.upgradeInProgress();
-    final float   upProg = v.structure.upgradeProgress(inProg);
-    final boolean canUp = maxU > 0 && UA.size() > 0;
     
     if (canUp && ! v.structure().intact()) {
       d.append("\nUpgrades unavailable while under construction.");

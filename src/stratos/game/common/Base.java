@@ -193,7 +193,7 @@ public abstract class Base extends SectorBase implements
     
     final Sector home = faction.startSite();
     if (home != null) {
-      base.visits.assignHomeworld  (home);
+      base.visits  .assignHomeworld  (home);
       base.research.initKnowledgeFrom(home);
     }
     return (CivicBase) registerBase(base, world, canBuild);

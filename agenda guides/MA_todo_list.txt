@@ -2,17 +2,22 @@
 
 CURRENT ITEMS:
 
+
+*  Implement a fast-forward/slow-down option.
+
 *  Reactors have been exploding too often.
 
 *  Have an encyclopaedia listing of some kind.
 
-*  Building-upgrades must be researchable!
+*  Shorten the arrival-time for candidates from the homeworld (assume the
+   mothership does the trick.)
 
 
 
-   Priority:  Medium  Duration:  Medium
-*  Patch up the texture/s used for the planet-display.
-   
+   Priority:  High  Duration:  Long
+*  You need to flesh out the scripts for each of the available landing sites (
+   and maybe add a smidgeon of custom art as well.)
+
    Priority:  High  Duration:  Long to Very Long
 *  Create and import Level-2 art-assets for the major guilds.
    Bastion
@@ -30,9 +35,10 @@ CURRENT ITEMS:
 *  Make sure that the skill-bonuses for a given homeworld are actually applied
    to colonists in full, along with ethnicity-chance.
 
-   Priority:  High  Duration:  Long
-*  You need to flesh out the scripts for each of the available landing sites (
-   and maybe add a smidgeon of custom art as well.)
+   Priority:  Medium  Duration:  Medium
+*  Consider adding ruins and an atmosphere-overlay to the planet-display.  Also,
+   more sectors!
+   
 
 
 
