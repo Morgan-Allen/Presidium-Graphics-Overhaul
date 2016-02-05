@@ -166,7 +166,7 @@ public class MissionSecurity extends Mission {
     final float initTime = journey().arriveTime();
     
     if (base.world.currentTime() - initTime > duration()) {
-      TOPIC_SECURITY_DONE.dispatchMessage("Security detail finished: "+s, s);
+      TOPIC_SECURITY_DONE.dispatchMessage("Security detail done: "+s, base, s);
       return true;
     }
     else return false;

@@ -9,7 +9,9 @@ import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
+import stratos.graphics.widgets.Text;
 import stratos.user.*;
+import stratos.user.notify.MessageTopic;
 import stratos.util.*;
 import stratos.content.civic.*;
 import static stratos.game.economic.Economy.*;
@@ -190,14 +192,14 @@ public class BaseVisits {
   }
   
   
-  public void addCandidate(Actor applies, Venue at, Background position) {
+  public void addCandidate(Actor applies, Property at, Background position) {
     candidates.add(applies);
     FindWork finding = FindWork.assignAmbition(applies, position, at, 2.0f);
     finding.enterApplication();
   }
   
   
-  public void addCandidate(Background position, Venue at) {
+  public void addCandidate(Background position, Property at) {
     final Actor applies = new Human(position, base);
     addCandidate(applies, at, position);
   }
@@ -389,9 +391,17 @@ public class BaseVisits {
     if (arriveDelay > 0) {
       journey.setArrivalTime(base.world.currentTime() + arriveDelay);
     }
+    
     return true;
   }
+  
+  
 }
+
+
+
+
+
 
 
 

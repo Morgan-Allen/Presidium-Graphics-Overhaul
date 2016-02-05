@@ -682,14 +682,28 @@ public abstract class Actor extends Mobile implements
       //
       //  TODO:  Move this to the BaseCommerce or VerseJourneys class, I would
       //  suggest- either that or ActorDescription...
-      final VerseJourneys journeys = base().world.offworld.journeys;
+      final Stage world = base().world;
+      final VerseJourneys journeys = world.offworld.journeys;
       final Vehicle ship = journeys.carries(this);
+      final Journey journey = journeys.journeyFor(this);
+      final Sector location = world.offworld.currentSector(this);
+      
       if (ship != null && ship.inWorld()) {
         d.append("Aboard ");
         d.append(ship);
       }
       else {
-        d.append("Offworld");
+        if (location != null) {
+          d.appendAll("On ", location);
+        }
+        else if (journey != null) {
+          d.appendAll("On journey from ", journey.origin());
+          d.appendAll(" to ", journey.destination());
+        }
+        else {
+          d.append("Offworld");
+        }
+        
         float ETA = journeys.arrivalETA(this, BaseUI.currentPlayed());
         if (ETA >= 0) {
           ETA /= Stage.STANDARD_HOUR_LENGTH;
@@ -706,14 +720,20 @@ public abstract class Actor extends Mobile implements
     }
     
     final Behaviour rootB = mind.rootBehaviour();
+    if (rootB != null) rootB.describeBehaviour(d);
+    else if (mount != null) mount.describeActor(this, d);
+    else d.append("Thinking");
+    /*
+    final Behaviour rootB = mind.rootBehaviour();
     final Mission mission = mind.mission();
     final boolean offMissionView = mission != null && mission != client;
-    if (offMissionView && rootB == mission.cachedStepFor(this)) {
+    if (offMissionView && JoinMission.) {
       mission.describeMission(d);
     }
     else if (rootB != null) rootB.describeBehaviour(d);
     else if (mount != null) mount.describeActor(this, d);
     else d.append("Thinking");
+    //*/
   }
 }
 

@@ -222,7 +222,21 @@ public class RunnerMarket extends Venue {
     if (b == RUNNER) return level * 2;
     return 0;
   }
+  
+  
+  
+  /**  Rendering, debug and interface methods-
+    */
+  protected void renderClaim(
+    Rendering rendering, boolean hovered, Colour tinge
+  ) {
+    return;
+  }
 }
+
+
+
+
 
 
 

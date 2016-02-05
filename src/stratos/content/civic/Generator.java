@@ -13,7 +13,9 @@ import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
+import stratos.graphics.widgets.Text;
 import stratos.user.*;
+import stratos.user.notify.MessageTopic;
 import stratos.util.*;
 import static stratos.game.actors.Condition.*;
 import static stratos.game.actors.Qualities.*;
@@ -37,6 +39,10 @@ public class Generator extends Venue {
   final static ImageAsset ICON = ImageAsset.fromImage(
     Generator.class, "media/GUI/Buttons/reactor_button.gif"
   );
+  
+  final static float
+    MELTDOWN_RISK_PER_DAY = 0.2f;
+  
   final static String RISK_DESC[] = {
     "Negligible",
     "Minimal",
@@ -118,21 +124,21 @@ public class Generator extends Venue {
       Upgrade.Type.TECH_MODULE, null,
       10, FIELD_THEORY, 5, ASSEMBLY
     ),
-    FIELD_INTEGRATION = new Upgrade(
-      "Field Integration",
-      "Reduces the likelihood of meltdown or sabotage and permits "+
-      "forcefield generation at the "+ShieldWall.BLUEPRINT+".",
+    AUTOMATED_SENSORS = new Upgrade(
+      "Automated Sensors",
+      "Reduces the likelihood of meltdown or sabotage, even when staff are "+
+      "not present.",
       500, Upgrade.SINGLE_LEVEL,
       LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       15, FIELD_THEORY, 10, ASSEMBLY
     ),
-    FUSION_CHAMBER = new Upgrade(
-      "Fusion Chamber",
+    FUSION_CONTAINMENT = new Upgrade(
+      "Fusion Containment",
       "Increases "+POWER+" output while limiting pollution and decreasing the "+
       "severity of any meltdowns.",
       500, Upgrade.TWO_LEVELS,
-      new Upgrade[] { FIELD_INTEGRATION, LEVELS[1] }, BLUEPRINT,
+      new Upgrade[] { AUTOMATED_SENSORS, LEVELS[1] }, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       15, FIELD_THEORY, 15, ASSEMBLY
     ),
@@ -141,7 +147,7 @@ public class Generator extends Venue {
       "Increases your stockpile of "+ANTIMASS+", a volatile energy source "+
       "essential to space travel and military offensives.",
       450, Upgrade.THREE_LEVELS,
-      new Upgrade[] { WASTE_PROCESSING, FIELD_INTEGRATION }, BLUEPRINT,
+      new Upgrade[] { WASTE_PROCESSING, AUTOMATED_SENSORS }, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       20, FIELD_THEORY, 15, ASSEMBLY
     )
@@ -185,7 +191,7 @@ public class Generator extends Venue {
   
   public boolean actionCheckMeltdown(Actor actor, Generator reactor) {
     float diagnoseDC = 5 + ((1 - meltdown) * 20);
-    final int FB = structure.upgradeLevel(FIELD_INTEGRATION);
+    final int FB = structure.upgradeLevel(AUTOMATED_SENSORS);
     diagnoseDC -= FB * 5;
 
     final Action a = actor.currentAction();
@@ -222,7 +228,7 @@ public class Generator extends Venue {
     //  Calculate output of power and consumption of fuel-
     float fuelConsumed = 1f / Stage.STANDARD_DAY_LENGTH, powerOutput = 25;
     fuelConsumed *= 2 / (2f + structure.upgradeLevel(WASTE_PROCESSING));
-    powerOutput *= (2f + structure.upgradeLevel(FUSION_CHAMBER)) / 2;
+    powerOutput *= (2f + structure.upgradeLevel(FUSION_CONTAINMENT)) / 2;
     //
     //  TODO:  Load fuel into the core gradually- (make a supervision task.)
     final Item fuel = Item.withAmount(FUEL_RODS, fuelConsumed);
@@ -236,7 +242,7 @@ public class Generator extends Venue {
     //  Output pollution-
     int pollution = 10;
     pollution -= structure.upgradeLevel(WASTE_PROCESSING) * 2;
-    pollution -= structure.upgradeLevel(FUSION_CHAMBER);
+    pollution -= structure.upgradeLevel(FUSION_CONTAINMENT);
     structure.setAmbienceVal(0 - pollution);
   }
   
@@ -245,24 +251,35 @@ public class Generator extends Venue {
     float chance = 1.5f - structure.repairLevel();
     chance *= 1 + (stocks.production(POWER) / 20f);
     if (stocks.amountOf(ANTIMASS) == 0) chance /= 5;
-    chance /= (1f + structure.upgradeLevel(FIELD_INTEGRATION));
+    chance /= (1f + structure.upgradeLevel(FUSION_CONTAINMENT));
     return chance;
   }
   
   
   private void checkMeltdownAdvance() {
     if ((! structure.intact()) && meltdown == 0) return;
-    float chance = meltdownChance() / Stage.STANDARD_DAY_LENGTH;
-    chance += meltdown / 10f;
-    if (staff.manning() > 0) chance /= 2;
-    if (Rand.num() < chance) {
-      final float melt = 0.1f * Rand.num();
-      meltdown += melt;
-      if (verbose) I.say("  MELTDOWN LEVEL: "+meltdown);
-      if (meltdown >= 1) performMeltdown();
-      final float damage = melt * meltdown * 2 * Rand.num();
+    final float oldMelt = meltdown;
+    
+    float chance = meltdownChance();
+    chance -= structure.upgradeLevel(AUTOMATED_SENSORS) / 3f;
+    if (staff.manning() == 0           ) chance *= 2;
+    if (stocks.amountOf(FUEL_RODS) == 0) chance /= 5;
+    chance *= MELTDOWN_RISK_PER_DAY / Stage.STANDARD_DAY_LENGTH;
+
+    meltdown += chance;
+    
+    float breakdownRisk = meltdown / Stage.STANDARD_DAY_LENGTH;
+    if (Rand.num() < breakdownRisk) {
+      final float damage = chance * structure.maxIntegrity() * Rand.num();
       structure.takeDamage(damage);
       structure.setBurning(true);
+    }
+    if (oldMelt < 0.5f && meltdown >= 0.5f) {
+      TOPIC_MELTDOWN_RISK.dispatchMessage("Meltdown Risk", base, this);
+    }
+    if (meltdown >= 1) {
+      performMeltdown();
+      TOPIC_MELTDOWN.dispatchMessage("MELTDOWN!", base, this);
     }
   }
   
@@ -274,7 +291,7 @@ public class Generator extends Venue {
   
   
   protected void performMeltdown() {
-    final int safety = 1 + structure.upgradeLevel(FUSION_CHAMBER);
+    final int safety = 1 + structure.upgradeLevel(FUSION_CONTAINMENT);
     //
     //  Pollute the surroundings but cut back the meltdown somewhat-
     float radiationVal = (125 / safety) - 25;
@@ -368,6 +385,32 @@ public class Generator extends Venue {
   
   /**  Rendering and interface-
     */
+  final public static MessageTopic
+    TOPIC_MELTDOWN_RISK = new MessageTopic(
+      "topic_meltdown_risk", true, Generator.class
+    ) {
+      protected void configMessage(final BaseUI UI, Text d, Object... args) {
+        final Generator at = (Generator) args[0];
+        d.appendAll(
+          "There is a significant risk of a core meltdown at ", at, ".  ",
+          "Perhaps you should assign more staff to the plant, install safety "+
+          "upgrades, or consider a decomissioning?"
+        );
+      }
+    },
+    TOPIC_MELTDOWN = new MessageTopic(
+      "topic_meltdown", true, Generator.class
+    ) {
+      protected void configMessage(final BaseUI UI, Text d, Object... args) {
+        final Generator at = (Generator) args[0];
+        d.appendAll(
+          "A core meltdown has occured at ", at, "!  There may be casualties ",
+          "and lingering radiation effects- zoom to the site to find out."
+        );
+      }
+    };
+  
+  
   protected Traded[] goodsToShow() {
     return new Traded[] { FUEL_RODS };
   }

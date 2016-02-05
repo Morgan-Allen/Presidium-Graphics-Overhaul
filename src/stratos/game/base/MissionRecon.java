@@ -112,10 +112,10 @@ public class MissionRecon extends Mission {
     
     if (liftAmount > 0) {
       base.intelMap.liftFogAt(s, liftAmount);
-      TOPIC_RECON_OKAY.dispatchMessage("Recon successful: "+s.name, s);
+      TOPIC_RECON_OKAY.dispatchMessage("Recon successful: "+s.name, base, s);
     }
     else {
-      TOPIC_RECON_FAIL.dispatchMessage("Recon failed: "+s.name, s);
+      TOPIC_RECON_FAIL.dispatchMessage("Recon failed: "+s.name, base, s);
     }
     return true;
   }

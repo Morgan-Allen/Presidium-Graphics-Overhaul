@@ -276,14 +276,14 @@ public class VerseJourneys {
       return ETA < 0 ? 0 : ETA;
     }
     if (journey != null && journey.origin == locale && journey.returns()) {
-      return journey.arriveTime + journey.standardTripTime() - time;
+      return journey.arriveTime + journey.calcTripTime() - time;
     }
     //
     //  Otherwise, try to find the next dropship likely to visit the actor's
     //  current location, and make a reasonable guess about trip times.
     journey = nextJourneyBetween(locale, resides, base, true);
     if (journey != null && journey.origin == locale && journey.returns()) {
-      return journey.arriveTime + journey.standardTripTime() - time;
+      return journey.arriveTime + journey.calcTripTime() - time;
     }
     //
     //  If it's currently heading here, it'll have to head back after picking
@@ -291,7 +291,7 @@ public class VerseJourneys {
     //  actor aboard, a full return trip will be needed (in and out, twice as
     //  long.)
     if (journey != null && journey.returns()) {
-      return journey.arriveTime + (journey.standardTripTime() * 2) - time;
+      return journey.arriveTime + (journey.calcTripTime() * 2) - time;
     }
     return -1;
   }

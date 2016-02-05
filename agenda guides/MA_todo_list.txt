@@ -3,14 +3,15 @@
 CURRENT ITEMS:
 
 
-*  Implement a fast-forward/slow-down option.
-
-*  Reactors have been exploding too often.
+*  Implement a fast-forward/slow-down option.  (Plus save/load?)
 
 *  Have an encyclopaedia listing of some kind.
 
-*  Shorten the arrival-time for candidates from the homeworld (assume the
-   mothership does the trick.)
+*  Initial wall-space should be a little more generous and/or resource-sites
+   should be smaller.  And patch up pave-patterns around those, and increase
+   the harvest-quotient.
+
+*  The runner-market and carbon plant need to have their areas revised.
 
 
 
@@ -38,7 +39,6 @@ CURRENT ITEMS:
    Priority:  Medium  Duration:  Medium
 *  Consider adding ruins and an atmosphere-overlay to the planet-display.  Also,
    more sectors!
-   
 
 
 

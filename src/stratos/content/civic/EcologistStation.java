@@ -54,8 +54,8 @@ public class EcologistStation extends HarvestVenue {
   );
   
   final static int
-    MIN_CLAIM_SIDE = BLUEPRINT.size + 2,
-    MAX_CLAIM_SIDE = BLUEPRINT.size + 8;
+    MIN_CLAIM_SIDE = BLUEPRINT.size + 0,
+    MAX_CLAIM_SIDE = BLUEPRINT.size + 4;
   
   final public static Conversion
     LAND_TO_CARBS = new Conversion(

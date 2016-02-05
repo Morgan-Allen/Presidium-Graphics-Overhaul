@@ -336,6 +336,10 @@ public class Gathering extends ResourceTending {
     if (toTend == null) return;
     final Species s = toTend.species();
     
+    if (depot != null) {
+      RoadsRepair.updatePavingAround(actor.origin(), depot.base());
+    }
+    
     //
     //  TODO:  Use a better method of tracking progress here!
     if (Rand.index(10) != 0 && ! GameSettings.buildFree) return;

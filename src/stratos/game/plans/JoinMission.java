@@ -138,7 +138,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
+    final boolean report = I.talkAbout == actor;// && stepsVerbose;
     if (report) {
       I.say("\nGetting next step for joining "+mission);
     }
@@ -183,6 +183,8 @@ public class JoinMission extends Plan implements Journey.Purpose {
     );
     else step = mission.nextStepFor(actor, true);
     final Action waiting = nextWaitAction(actor, step);
+    
+    if (report) I.say("  Next step is: "+step);
     
     if (waiting != null) return waiting;
     return step;
@@ -291,8 +293,14 @@ public class JoinMission extends Plan implements Journey.Purpose {
   /**  Rendering, debug and interface methods-
     */
   public void describeBehaviour(Description d) {
-    d.append("On ");
-    mission.describeMission(d);
+    final Behaviour step = this.nextStep;
+    if (step != null) {
+      step.describeBehaviour(d);
+    }
+    else {
+      d.append("On ");
+      mission.describeMission(d);
+    }
   }
 }
 

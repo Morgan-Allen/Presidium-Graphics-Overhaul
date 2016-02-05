@@ -33,9 +33,10 @@ public class RosterPane extends SelectionPane {
     ROSTER_ICON_LIT = Button.CROSSHAIRS_LIT;
   
   final static String
-    CAT_APPLIES = "APPLICANTS",
-    CAT_CURRENT = "CURRENT"   ,
-    ALL_CATS[] = { CAT_APPLIES, CAT_CURRENT };
+    CAT_APPLIES  = "APPLICANTS",
+    CAT_STAFF    = "STAFF"     ,
+    CAT_VISITORS = "VISITORS"  ,
+    ALL_CATS[] = { CAT_APPLIES, CAT_STAFF, CAT_VISITORS };
   
   
   public RosterPane(BaseUI UI) {
@@ -115,7 +116,7 @@ public class RosterPane extends SelectionPane {
         d.append("\n  ");
       }
     }
-    if (category() == CAT_CURRENT) {
+    if (category() == CAT_STAFF) {
       detailText.append("Current roster:");
       float allSalaries = 0;
       
@@ -141,8 +142,21 @@ public class RosterPane extends SelectionPane {
       final String salaryLabel = I.shorten(allSalaries, 1);
       detailText.append("\n\nTotal Salaries per day: "+salaryLabel);
     }
+    if (category() == CAT_VISITORS) {
+      detailText.append("Visitors: ");
+      for (Mobile m : base.allUnits()) if (m instanceof Actor) {
+        final Actor a = (Actor) m;
+        if (a.mind.work() instanceof Venue) continue;
+        detailText.append("\n  ");
+        detailText.append(a);
+        detailText.append(" ("+a.mind.vocation()+")");
+      }
+    }
   }
 }
+
+
+
 
 
 

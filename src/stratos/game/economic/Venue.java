@@ -886,7 +886,16 @@ public abstract class Venue extends Fixture implements
       key, true, this
     );
     
+    renderClaim(rendering, hovered, tinge);
+  }
+  
+  
+  protected void renderClaim(
+    Rendering rendering, boolean hovered, Colour tinge
+  ) {
     final String keyRes = origin()+"_reserve_print_"+this;
+    final Colour temp = new Colour();
+    
     temp.set(Colour.transparency(hovered ? 0.25f : 0.375f)).multiply(tinge);
     BaseUI.current().selection.renderTileOverlay(
       rendering, origin().world, temp,

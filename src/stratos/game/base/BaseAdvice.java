@@ -393,50 +393,100 @@ public class BaseAdvice {
       d.appendAll(killed, " has died from "+cause+".");
     }
   };
-  
-  
-  public void sendCasualtyMessageFromInjury(Actor a) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "injuries");
-  }
-  
-  
-  public void sendCasualtyMessageFromDisease(Actor a) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "disease");
-  }
-  
-  
-  public void sendCasualtyMessageFromStarvation(Actor a) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "starvation");
-  }
-  
-  
-  public void sendCasualtyMessageFromOldAge(Actor a) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, a, "old age");
-  }
-  
-  
+
   final static MessageTopic TOPIC_ARRIVALS = new MessageTopic(
     "topic_arrivals", false, Mobile.class, Sector.class
   ) {
     protected void configMessage(BaseUI UI, Text d, Object... args) {
-      final Mobile        arrived = (Mobile       ) args[0];
+      final Mobile arrived = (Mobile) args[0];
       final Sector origin  = (Sector) args[1];
       d.appendAll(arrived, " has arrived from ");
       if (origin == null) d.append("offworld.");
       else d.appendAll(origin, ".");
     }
   };
+
+  final static MessageTopic TOPIC_RAID_DEPART = new MessageTopic(
+    "topic_arrivals", true, Sector.class
+  ) {
+    protected void configMessage(BaseUI UI, Text d, Object... args) {
+      final Sector origin = (Sector) args[0];
+      d.appendAll(
+        "Our spies report that a raiding party has departed from ", origin,
+        "with the intent of pillaging our base!  You may wish to bolster our ",
+        "defences"
+      );
+    }
+  };
+
+  final static MessageTopic TOPIC_RAID_ARRIVE = new MessageTopic(
+    "topic_arrivals", true, Sector.class, Selectable.class
+  ) {
+    protected void configMessage(BaseUI UI, Text d, Object... args) {
+      final Sector    origin = (Sector    ) args[0];
+      final Selectable entry = (Selectable) args[1];
+      d.appendAll(
+        "A raiding party has arrived from ", origin, " with the intent of "+
+        "razing our settlement!"
+      );
+      d.append("\n  Zoom to location", entry);
+    }
+  };
+  
+  
+  public void sendCasualtyMessageFromInjury(Actor a) {
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, base, a, "injuries");
+  }
+  
+  
+  public void sendCasualtyMessageFromDisease(Actor a) {
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, base, a, "disease");
+  }
+  
+  
+  public void sendCasualtyMessageFromStarvation(Actor a) {
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, base, a, "starvation");
+  }
+  
+  
+  public void sendCasualtyMessageFromOldAge(Actor a) {
+    TOPIC_CASUALTY.dispatchMessage("Casualty: "+a, base, a, "old age");
+  }
   
   
   public void sendArrivalMessage(Mobile arrived, Sector from) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_ARRIVALS.dispatchMessage("Arrival: "+arrived, arrived, from);
+    TOPIC_ARRIVALS.dispatchMessage("Arrival: "+arrived, base, arrived, from);
+  }
+  
+  
+  public void sendMissionVisitMessage(Journey journey, boolean atEnd) {
+    final Mission  purpose = journey.mission();
+    final Sector   from    = journey.origin();
+    final Boarding entry   = journey.transitPoint();
+    
+    if (atEnd) {
+      if (purpose instanceof MissionStrike) {
+        TOPIC_RAID_ARRIVE.dispatchMessage("Raid!", base, from, entry);
+      }
+    }
+    else {
+      if (purpose instanceof MissionStrike) {
+        TOPIC_RAID_DEPART.dispatchMessage("Raid!", base, from);
+      }
+    }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -216,7 +216,7 @@ public class MissionContact extends Mission {
     chance /= approved.size();
     
     if (talks == null) {
-      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
+      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", base, subject, this);
       return true;
     }
     
@@ -226,13 +226,18 @@ public class MissionContact extends Mission {
     
     //  TODO:  Add some experience to diplomatic skills for envoys!
     
+    final Object s = subject;
     if (Rand.num() < chance) {
       props.setOfferAccepted(true);
-      TOPIC_CONTACT_OKAY.dispatchMessage("Contact successful", subject, this);
+      TOPIC_CONTACT_OKAY.dispatchMessage(
+        "Contact okay: "+s, base, subject, this
+      );
     }
     else {
       props.setOfferAccepted(false);
-      TOPIC_CONTACT_FAIL.dispatchMessage("Contact failed", subject, this);
+      TOPIC_CONTACT_FAIL.dispatchMessage(
+        "Contact failed: "+s, base, subject, this
+      );
     }
     return true;
   }

@@ -63,9 +63,7 @@ public class CivicBase extends Base {
     }
     
     float visitDelay = AVG_RAID_INTERVAL * AVG_SECTOR_POWER / factionPower;
-    
     //  TODO:  NO RANDOM FACTOR!
-    
     visitDelay *= 0.5f + Rand.num();
     visitDelay = Nums.clamp(visitDelay, MIN_RAID_INTERVAL, MAX_RAID_INTERVAL);
     
@@ -101,84 +99,6 @@ public class CivicBase extends Base {
     if (timeUnits < 0) return -1;
     return 1f / (1 + timeUnits);
   }
-  
-  
-  /*
-  public boolean beginRaidingVisit(float maxTeamPower, float arriveDelay) {
-    final SectorBase source = pickClaimedBase();
-    if (source == null) return false;
-    
-    final Airship vessel = new Airship(this);
-    final Journey journey = Journey.configForVisit(
-      source.location, world,
-      vessel, this, Journey.RAID_STAY_DURATION
-    );
-    EntryPoints.findLandingSite(vessel, journey, false);
-    if (vessel.dropPoint() == null) return false;
-    
-    Mission strike = tactics.bestStrikeMissionFromPoint(vessel.dropPoint());
-    if (strike == null || strike.targetValue(this) < 0) return false;
-    
-    final Batch <Background> soldierTypes   = new Batch();
-    final Batch <Float     > recruitChances = new Batch();
-    Sector hires = faction().startSite();
-    if (hires == null) return false;
-    
-    for (Background b : RAID_CLASSES) {
-      final float w = (hires.weightFor(b) + 0.5f) / 2;
-      if (w <= 0) continue;
-      soldierTypes  .add(b);
-      recruitChances.add(w);
-    }
-    if (soldierTypes.empty()) return false;
-    
-    final Batch <Actor> team = new Batch();
-    float teamPower = 0;
-    while (teamPower <= maxTeamPower) {
-      Background b = (Background) Rand.pickFrom(soldierTypes, recruitChances);
-      if (b == null) continue;
-      Actor recruit = b.sampleFor(this);
-      float power = CombatUtils.powerLevel(recruit);
-      teamPower += power;
-      team.add(recruit);
-    }
-    MissionUtils.quickSetup(
-      strike, Mission.PRIORITY_PARAMOUNT, Mission.TYPE_BASE_AI,
-      team.toArray(Actor.class)
-    );
-    
-    beginVisit(strike, journey);
-    if (arriveDelay > 0) {
-      journey.setArrivalTime(world.currentTime() + arriveDelay);
-    }
-    return true;
-  }
-  
-  
-  private SectorBase pickClaimedBase() {
-    Batch <Float     > chances = new Batch();
-    Batch <SectorBase> claimed = new Batch();
-    
-    for (SectorBase b : world.offworld.sectorBases()) {
-      if (b.faction() == this.faction()) {
-        final float distFactor = distanceFactor(b);
-        if (distFactor < 0) continue;
-        chances.add(distFactor);
-        claimed.add(b);
-      }
-    }
-    return (SectorBase) Rand.pickFrom(claimed, chances);
-  }
-  
-  
-  private float distanceFactor(SectorBase claimed) {
-    final Sector locale = world.localSector(), s = claimed.location;
-    final float timeUnits = s.tripTimeUnits(locale);
-    if (timeUnits < 0) return -1;
-    return 1f / (1 + timeUnits);
-  }
-  //*/
-  
 }
 
 

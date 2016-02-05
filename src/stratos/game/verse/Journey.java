@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.economic.*;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
@@ -355,8 +356,14 @@ public class Journey implements Session.Saveable {
   }
   
   
-  public float standardTripTime() {
-    return origin.standardTripTime(destination, Sector.SEP_STELLAR);
+  public float calcTripTime() {
+    final int maxSep = Sector.SEP_STELLAR;
+    float multiple = 1;
+    
+    final Sector home = client.visits.homeworld();
+    if (origin == home || destination == home) multiple = 0.25f;
+    
+    return origin.standardTripTime(destination, maxSep) * multiple;
   }
 
   
@@ -370,8 +377,7 @@ public class Journey implements Session.Saveable {
     boolean report = verbose;
     if (report) I.say("Beginning journey: "+this);
     
-    final int maxSep = Sector.SEP_STELLAR;
-    final float tripTime = origin.standardTripTime(destination, maxSep);
+    final float tripTime = calcTripTime();
     
     departTime = verse.stage().currentTime();
     arriveTime = departTime + (tripTime * (0.5f + Rand.num()));
@@ -380,6 +386,13 @@ public class Journey implements Session.Saveable {
     pickupOffworldMigrants();
     if (transport != null) transport.assignJourney(this);
     verse.journeys.journeys.include(this);
+    
+    //
+    //  Finally, send a message to the targeted base.
+    final Base host = worldTarget == null ? null : worldTarget.base();
+    if (host != null && hasProperty(IS_MISSION)) {
+      host.advice.sendMissionVisitMessage(this, false);
+    }
   }
   
   
@@ -441,6 +454,11 @@ public class Journey implements Session.Saveable {
         }
         migrants.clear();
       }
+      
+      final Base host = worldTarget == null ? null : worldTarget.base();
+      if (host != null && hasProperty(IS_MISSION)) {
+        host.advice.sendMissionVisitMessage(this, true);
+      }
     }
     //
     //  In principle, all you do offworld is dump off your passengers.
@@ -466,7 +484,7 @@ public class Journey implements Session.Saveable {
     
     final Sector oldOrigin = origin;
     arriveTime  =  verse.stage().currentTime();
-    arriveTime  += standardTripTime() * (0.5f + Rand.num());
+    arriveTime  += calcTripTime() * (0.5f + Rand.num());
     origin      =  destination;
     destination =  oldOrigin;
     
@@ -577,11 +595,18 @@ public class Journey implements Session.Saveable {
   }
   
   
-  private Object labelObject() {
+  public Mission mission() {
     for (Mobile m : migrants) if (m instanceof Actor) {
       final Mission job = ((Actor) m).mind.mission();
       if (job != null && job.journey() == this) return job;
     }
+    return null;
+  }
+  
+  
+  private Object labelObject() {
+    Mission job = mission();
+    if (job != null) return job;
     if (transport != null) return transport;
     if (migrants.size() >= 1) return migrants.first();
     return null;

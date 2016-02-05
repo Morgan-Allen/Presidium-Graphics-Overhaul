@@ -187,12 +187,12 @@ public class MissionStrike extends Mission {
     
     float winChance = sumPower / (sumPower + targetPower);
     if (Rand.num() < winChance) {
-      TOPIC_STRIKE_OKAY.dispatchMessage("Strike successful: "+s, s);
+      TOPIC_STRIKE_OKAY.dispatchMessage("Strike successful: "+s, base, s);
       b.setPowerLevel(b.powerLevel(b.faction()) - (2 * winChance * Rand.num()));
       b.setPopulation(b.population() - (winChance * Rand.num()));
     }
     else {
-      TOPIC_STRIKE_FAIL.dispatchMessage("Strike failed: "+s, s);
+      TOPIC_STRIKE_FAIL.dispatchMessage("Strike failed: "+s, base, s);
       b.setPowerLevel(b.powerLevel(b.faction()) - (winChance * Rand.num()));
     }
     inflictDamage(applicants(), 1f - winChance);

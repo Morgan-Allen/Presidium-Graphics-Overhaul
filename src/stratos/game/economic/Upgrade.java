@@ -404,7 +404,7 @@ public class Upgrade extends Constant {
     */
   final public static MessageTopic
     TOPIC_RESEARCH_DONE = new MessageTopic(
-      "topic_research_done", true, Upgrade.class
+      "topic_research_done", false, Upgrade.class
     ) {
       protected void configMessage(final BaseUI UI, Text d, Object... args) {
         final Upgrade upgrade = (Upgrade) args[0];
@@ -465,20 +465,19 @@ public class Upgrade extends Constant {
   
   
   public void sendCompletionMessage(Base base) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_RESEARCH_DONE.dispatchMessage("Research Complete: "+baseName, this);
+    TOPIC_RESEARCH_DONE.dispatchMessage(
+      "Research Complete: "+baseName, base, this
+    );
   }
   
   
   public void sendBreakthroughMessage(Base base) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_BREAKTHROUGH.dispatchMessage("Breakthrough: "+baseName, this);
+    TOPIC_BREAKTHROUGH.dispatchMessage("Breakthrough: "+baseName, base, this);
   }
   
   
   public void sendSetbackMessage(Base base) {
-    if (base != BaseUI.currentPlayed()) return;
-    TOPIC_SETBACK.dispatchMessage("Setback: "+baseName, this);
+    TOPIC_SETBACK.dispatchMessage("Setback: "+baseName, base, this);
   }
   
   

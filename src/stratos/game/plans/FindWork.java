@@ -146,7 +146,7 @@ public class FindWork extends Plan {
   
   
   public boolean actionApplyTo(Actor client, Property best) {
-    enterApplication();
+    employer.base().visits.addCandidate(actor, employer, position);
     return true;
   }
   

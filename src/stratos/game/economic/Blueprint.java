@@ -152,8 +152,8 @@ public class Blueprint extends Constant implements UIConstants {
     this.upgradeLevels = new Upgrade[numLevels];
     
     for (int i = 0; i < numLevels; i++) upgradeLevels[i] = new Upgrade(
-      (i == 0) ? this.name : this.name+" L"+(i + 1),
-      "Upgrade to level "+(i + 1),
+      (i == 0) ? this.name : this.name+" Level "+(i + 1),
+      "Upgrades "+this+" to level "+(i + 1),
       buildCosts[i], 1,
       (i == 0 ? required : upgradeLevels[i - 1]), this,
       Upgrade.Type.VENUE_LEVEL, null, researchConversionArgs

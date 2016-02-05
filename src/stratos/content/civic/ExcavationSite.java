@@ -19,28 +19,6 @@ import stratos.user.*;
 import stratos.util.*;
 
 
-/*
-  Mines should reveal the ore-types being mined as you scrape back the topsoil.
-  
-  I think, at minimum, it should be possible to pare the soil back more than
-  one layer, and to see your workers down in the cut (even if unaccessible on
-  the outside.  Similar to cliff-topography.)
-  
-  I need this because, at present, mining-areas are stripped far too soon.
-  They should be productive for a couple of weeks at least, and hopefully a
-  full game-year (similar to a decade in their lives.)
-  
-  The side-shafts then become access-points for pathing into the cuts, and
-  upgrade into mantle-drills.
-  
-  There's a tailing-pond for each active plot, which either soaks away
-  gradually or overfills as it nears maximum capacity (depending on how careful
-  you are.)  It's main purpose, beside realism, is to give the player an at-a
-  glance visual indication of recent production.
-  
-  PONDS:  BLACK LINING WITH WHITE RIMS
-//*/
-
 
 
 public class ExcavationSite extends HarvestVenue {
@@ -70,8 +48,8 @@ public class ExcavationSite extends HarvestVenue {
   );
   
   final static int
-    MIN_CLAIM_SIZE = BLUEPRINT.size + 2,
-    MAX_CLAIM_SIZE = BLUEPRINT.size + 8;
+    MIN_CLAIM_SIZE = BLUEPRINT.size + 0,
+    MAX_CLAIM_SIZE = BLUEPRINT.size + 4;
   
   final public static Conversion
     LAND_TO_METALS = new Conversion(

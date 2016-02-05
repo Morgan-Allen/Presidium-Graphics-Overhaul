@@ -53,11 +53,13 @@ public abstract class MessageTopic extends Index.Entry implements Messaging {
   }
   
   
-  public void dispatchMessage(String title, Object... args) {
-    final Scenario    context = Scenario.current();
-    final BaseUI      UI      = context.UI();
-    final Stage       world   = context.world();
-    final MessagePane pane    = initMessage(UI, title, args);
+  public void dispatchMessage(String title, Base base, Object... args) {
+    final Scenario context = Scenario.current();
+    final BaseUI   UI      = context.UI();
+    final Stage    world   = context.world();
+    if (base != null && UI.played() != base) return;
+    
+    final MessagePane pane  = initMessage(UI, title, args);
     UI.reminders().addMessageEntry(pane, true, world.currentTime(), isKept);
   }
   
