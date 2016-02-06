@@ -407,7 +407,7 @@ public class BaseAdvice {
   };
 
   final static MessageTopic TOPIC_RAID_DEPART = new MessageTopic(
-    "topic_arrivals", true, Sector.class
+    "topic_raid_depart", true, Sector.class
   ) {
     protected void configMessage(BaseUI UI, Text d, Object... args) {
       final Sector origin = (Sector) args[0];
@@ -420,7 +420,7 @@ public class BaseAdvice {
   };
 
   final static MessageTopic TOPIC_RAID_ARRIVE = new MessageTopic(
-    "topic_arrivals", true, Sector.class, Selectable.class
+    "topic_raid_arrive", true, Sector.class, Selectable.class
   ) {
     protected void configMessage(BaseUI UI, Text d, Object... args) {
       final Sector    origin = (Sector    ) args[0];

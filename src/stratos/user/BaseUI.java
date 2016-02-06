@@ -43,6 +43,7 @@ public class BaseUI extends HUD implements UIConstants {
   private Button sectorsButton;
   
   private UIGroup infoArea, optionsArea, messageArea;
+  private UIGroup progressOptions;
   private BorderedLabel popup;
   private Quickbar quickbar;
   
@@ -166,6 +167,12 @@ public class BaseUI extends HUD implements UIConstants {
     infoArea.alignVertical  (0, 0);
     infoArea.alignHorizontal(0, 0);
     infoArea.attachTo(this);
+    
+    //  TODO:  Constrain this better.
+    this.progressOptions = new ProgressOptions(this);
+    progressOptions.alignVertical  (0, 0);
+    progressOptions.alignHorizontal(0, 0);
+    progressOptions.attachTo(this);
     
     this.popup = new BorderedLabel(this);
     popup.alignHorizontal(0.5f, 0, 0);

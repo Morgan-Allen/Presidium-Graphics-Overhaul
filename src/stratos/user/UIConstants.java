@@ -76,23 +76,25 @@ public interface UIConstants {
   
   final public static int
     
-    MINIMAP_WIDE    = 200,
-    MINIMAP_HIGH    = 200,
-    CHARTS_WIDE     = 500,
-    CHART_INFO_WIDE = 240,
+    MINIMAP_WIDE      = 200,
+    MINIMAP_HIGH      = 200,
+    CHARTS_WIDE       = 500,
+    CHART_INFO_WIDE   = 240,
     
-    READOUT_HIGH    =  20,
-    QUICKBAR_HIGH   =  65,
-    PANEL_TAB_SIZE  =  65,
-    PANEL_TABS_HIGH =  65,
+    READOUT_HIGH      =  20,
+    QUICKBAR_HIGH     =  65,
+    PANEL_TAB_SIZE    =  65,
+    PANEL_TABS_HIGH   =  65,
     
     MESSAGE_PANE_WIDE = 500,
     MESSAGE_PANE_HIGH = 200,
+    OPT_BUTTON_SIZE   = 40 ,
+    OPT_MARGIN        = 2  ,
     
-    INFO_PANEL_WIDE = 280,
-    SCROLLBAR_WIDE  =  15,
-    DEFAULT_MARGIN  =  10,
-    MIN_WIDGET_SIZE =  20;
+    INFO_PANEL_WIDE   = 280,
+    SCROLLBAR_WIDE    =  15,
+    DEFAULT_MARGIN    =  10,
+    MIN_WIDGET_SIZE   =  20;
 }
 
 

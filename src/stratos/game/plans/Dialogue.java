@@ -151,6 +151,7 @@ public class Dialogue extends Plan {
     if (stage == STAGE_INIT && other == starts.actor()) return true;
     final Target chatsWith = with.planFocus(Dialogue.class, true);
     if (chatsWith == actor) return true;
+    if (with.origin().inside().size() > 1 && ! with.indoors()) return false;
     
     final Dialogue response = responseFor(with, actor, this, 0);
     if (isCasual() && other.mind.mustIgnore(response)) {

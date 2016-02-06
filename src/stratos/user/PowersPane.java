@@ -53,6 +53,34 @@ public class PowersPane extends SelectionPane {
   }
   
   
+  protected static UIGroup createButtonGroup(
+    BaseUI BUI, Power power, Actor ruler, Target subject
+  ) {
+    //
+    //  Generate an option-button for the Power that can be used:
+    final UIGroup option = new UIGroup(BUI);
+    final Button button;
+    button = new PowersPane.PowerButton(BUI, power, subject, option);
+    button.alignAcross(0, 1);
+    button.alignDown  (0, 1);
+    button.attachTo(option);
+    //
+    //  We also attach a label listing the psy cost of the power:
+    
+    if (ruler == null) return option;
+    
+    final int cost = power.costFor(ruler, subject);
+    final BorderedLabel costLabel = new BorderedLabel(BUI);
+    costLabel.attachTo(option);
+    costLabel.alignHorizontal(0.5f, 0, 0);
+    costLabel.alignTop(0, 0);
+    costLabel.text.scale = SMALL_FONT_SIZE;
+    costLabel.setMessage("Psy "+cost, false, 0.5f);
+    
+    return option;
+  }
+  
+  
   
   /**
     */
@@ -75,7 +103,7 @@ public class PowersPane extends SelectionPane {
       this.parent = parent;
       this.setDisabledOverlay(BUTTON_GREYED);
       
-      if (focus == null) I.complain("NO SUBJECT!");
+      ///if (focus == null) I.complain("NO SUBJECT!");
     }
     
     
@@ -203,7 +231,7 @@ public class PowersPane extends SelectionPane {
       this.caster = casts;
       this.focus  = focus;
       
-      if (focus == null) I.complain("NO SUBJECT!");
+      ///if (focus == null) I.complain("NO SUBJECT!");
       
       //  TODO:  CREATE A DEDICATED CURSOR CLASS.
       preview = new Image(UI, power.icon);

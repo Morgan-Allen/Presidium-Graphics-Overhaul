@@ -17,12 +17,6 @@ import com.badlogic.gdx.math.Vector2;
 
 public class SelectionOptions extends UIGroup implements UIConstants {
   
-  
-  final static int
-    OB_SIZE   = 40,
-    OB_MARGIN = 2;
-  //  need health bar, title, status fx,
-  
   final BaseUI BUI;
   final Accountable subject;
   
@@ -109,31 +103,16 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     if (canCast) for (Power power : ruler.skills.knownPowers()) {
       final Target subject = (Target) this.subject;
       if (power.icon == null || ! power.appliesTo(ruler, subject)) continue;
-      //
-      //  Generate an option-button for the Power that can be used:
-      final UIGroup option = new UIGroup(BUI);
+      UIGroup option = PowersPane.createButtonGroup(BUI, power, ruler, subject);
       options.add(option);
-      final Button button;
-      button = new PowersPane.PowerButton(BUI, power, subject, option);
-      button.alignAcross(0, 1);
-      button.alignDown  (0, 1);
-      button.attachTo(option);
-      //
-      //  We also attach a label listing the psy cost of the power:
-      final int cost = power.costFor(ruler, subject);
-      final BorderedLabel costLabel = new BorderedLabel(BUI);
-      costLabel.attachTo(option);
-      costLabel.alignHorizontal(0.5f, 0, 0);
-      costLabel.alignTop(0, 0);
-      costLabel.text.scale = SMALL_FONT_SIZE;
-      costLabel.setMessage("Psy "+cost, false, 0.5f);
     }
     
-    int sumWide = options.size() * (OB_SIZE + OB_MARGIN), across = 0;
+    final int sizeB = OPT_BUTTON_SIZE, spaceB = sizeB + OPT_MARGIN;
+    int sumWide = options.size() * spaceB, across = 0;
     for (UINode option : options) {
-      option.alignToArea(across - (sumWide / 2), 0, OB_SIZE, OB_SIZE);
+      option.alignToArea(across - (sumWide / 2), 0, sizeB, sizeB);
       option.attachTo(this);
-      across += OB_SIZE + OB_MARGIN;
+      across += spaceB;
     }
   }
   
