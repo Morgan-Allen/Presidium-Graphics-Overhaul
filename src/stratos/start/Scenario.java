@@ -109,6 +109,12 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
+  public static boolean isCurrentScenarioDebug() {
+    Scenario current = current();
+    return current != null && current.isDebug;
+  }
+  
+  
   
   /**  Default methods for creating a new world, base, and user interface.
     */

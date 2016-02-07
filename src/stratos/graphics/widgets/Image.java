@@ -79,6 +79,16 @@ public class Image extends UINode {
   }
   
   
+  public int texWide() {
+    return texture.getWidth();
+  }
+  
+  
+  public int texHigh() {
+    return texture.getHeight();
+  }
+  
+  
   public void expandToTexSize(float scale, boolean centre) {
     absBound.xdim(texture.getWidth()  * scale);
     absBound.ydim(texture.getHeight() * scale);

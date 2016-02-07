@@ -1,20 +1,43 @@
 
 
 package stratos.user;
-import stratos.game.common.*;
-import stratos.game.actors.*;
+import stratos.start.*;
+import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+
 
 
 //
 //  An options pane for pause, fast-forward, slow-motion, save and load options.
 
-
 public class ProgressOptions extends UIGroup implements UIConstants {
   
   
+  
+  final static String IMG_DIR = "media/GUI/Powers/";
+  final static ImageAsset
+    PROG_IMAGES[] = ImageAsset.fromImages(
+      ProgressOptions.class, IMG_DIR,
+      "progress_save.png"  ,
+      "progress_load.png"  ,
+      "progress_pause.png" ,
+      "progress_slow.png"  ,
+      "progress_normal.png",
+      "progress_fast.png"
+    ),
+    IMG_SAVE   = PROG_IMAGES[0],
+    IMG_LOAD   = PROG_IMAGES[1],
+    IMG_PAUSE  = PROG_IMAGES[2],
+    IMG_SLOW   = PROG_IMAGES[3],
+    IMG_NORMAL = PROG_IMAGES[4],
+    IMG_FAST   = PROG_IMAGES[5];
+  
+  
   final BaseUI BUI;
+  Button saves, loads, pauses, slows, norms, fasts;
+  Button lastSpeed = null;
+  Batch <Button> speedOptions = new Batch();
   
   
   ProgressOptions(BaseUI UI) {
@@ -23,34 +46,108 @@ public class ProgressOptions extends UIGroup implements UIConstants {
     setup();
   }
   
-  
 
   private void setup() {
-    //  TODO:  Just get some dedicated buttons in for this instead- these
-    //  should be available regardless of the ruler being present!
+    final Batch <UINode> options = new Batch();
     
-    //  ...That should arguably be true for Powers in general, though- at least
-    //  for debug purposes.
-    
-    final Power PROGRESS_POWERS[] = {
-      Power.FORESIGHT    ,
-      Power.REMEMBRANCE  ,
-      Power.TIME_DILATION,
+    this.saves = new Button(
+      UI, "button_save", IMG_SAVE, "Save Progress"
+    ) {
+      protected void whenClicked() {
+        Scenario.current().scheduleSave();
+      }
     };
-    Batch <UIGroup> options = new Batch();
-    final Actor ruler = null;// BUI.played().ruler();
+    options.add(saves);
     
-    for (Power power : PROGRESS_POWERS) {
-      UIGroup option = PowersPane.createButtonGroup(BUI, power, ruler, ruler);
-      options.add(option);
-    }
+    this.loads = new Button(
+      UI, "button_load", IMG_LOAD, "Load Progress"
+    ) {
+      protected void whenClicked() {
+        Scenario.current().scheduleReload();
+      }
+    };
+    options.add(loads);
     
-    final int sizeB = OPT_BUTTON_SIZE, spaceB = sizeB + OPT_MARGIN;
-    int across = 100;
+    this.pauses = new Button(
+      UI, "button_pause", IMG_PAUSE, "Pause Game (F)"
+    ) {
+      protected void whenClicked() {
+        PlayLoop.setPaused(true);
+        toggleSpeedOption(this);
+      }
+    };
+    options.add(pauses);
+    speedOptions.add(pauses);
+
+    this.slows = new Button(UI, "button_slow", IMG_SLOW, "Slow Time") {
+      protected void whenClicked() {
+        PlayLoop.setGameSpeed(0.5f);
+        PlayLoop.setPaused(false);
+        toggleSpeedOption(this);
+      }
+    };
+    options.add(slows);
+    speedOptions.add(slows);
+    
+    this.norms = new Button(UI, "button_norm", IMG_NORMAL, "Normal Time") {
+      protected void whenClicked() {
+        PlayLoop.setGameSpeed(1);
+        PlayLoop.setPaused(false);
+        toggleSpeedOption(this);
+      }
+    };
+    options.add(norms);
+    speedOptions.add(norms);
+    
+    this.fasts = new Button(UI, "button_fast", IMG_FAST, "Fast Time") {
+      protected void whenClicked() {
+        PlayLoop.setGameSpeed(2.0f);
+        PlayLoop.setPaused(false);
+        toggleSpeedOption(this);
+      }
+    };
+    options.add(fasts);
+    speedOptions.add(fasts);
+    
+    final int sizeB = OPT_BUTTON_SIZE - OPT_MARGIN;
+    int across = PANEL_TAB_SIZE;
     for (UINode option : options) {
-      option.alignToArea(across, 0, sizeB, sizeB);
+      option.setToPreferredSize();
+      int imgH = (int) option.absBound().ydim();
+      int imgW = (int) option.absBound().xdim();
+      int optW = (int) (imgW * (sizeB * 1f / imgH));
+      
+      option.alignLeft(across, optW);
+      option.alignBottom(OPT_MARGIN, sizeB);
       option.attachTo(this);
-      across += spaceB;
+      across += optW;
+    }
+  }
+
+  
+  protected void updateState() {
+    super.updateState();
+    if (KeyInput.wasTyped('f') || KeyInput.wasTyped('F')) {
+      if (! PlayLoop.paused()) pauses.performAction();
+      else if (lastSpeed != null) lastSpeed.performAction();
+      else {
+        PlayLoop.setPaused(false);
+        toggleSpeedOption(null);
+      }
+    }
+    if (BUI.currentTask() == null && PlayLoop.paused()) {
+      BaseUI.setPopupMessage("Game Paused- Hit F to unpause");
+    }
+  }
+  
+  
+  private void toggleSpeedOption(Button picked) {
+    if (picked != pauses) {
+      lastSpeed = picked;
+    }
+    for (Button b : speedOptions) {
+      if (b == picked) b.toggled = true;
+      else b.toggled = false;
     }
   }
   

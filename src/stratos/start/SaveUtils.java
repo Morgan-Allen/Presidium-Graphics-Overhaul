@@ -223,7 +223,9 @@ public class SaveUtils {
         if (! session.loadingDone()) return session.loadProgress();
         I.say("Loading complete...");
         loaded = (Scenario) session.loaded()[0];
-        done = true;
+        done   = true;
+        PlayLoop.setPaused(false);
+        PlayLoop.setGameSpeed(1);
         return 1;
       }
     };

@@ -78,18 +78,11 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       
       protected void updateState() {
         super.updateState();
+        this.hidden = ! Scenario.isCurrentScenarioDebug();
+        if (hidden) return;
+        
         if (KeyInput.wasTyped(Keys.ESCAPE) && baseUI.currentTask() == null) {
           whenClicked();
-        }
-        if (KeyInput.wasTyped('f') || KeyInput.wasTyped('F')) {
-          PlayLoop.setPaused(! PlayLoop.paused());
-        }
-        if (
-          baseUI.currentInfoPane() != pane &&
-          baseUI.currentTask() == null &&
-          PlayLoop.paused()
-        ) {
-          BaseUI.setPopupMessage("Game Paused- Hit F to unpause");
         }
       }
     };

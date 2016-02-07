@@ -198,8 +198,8 @@ public class BaseUI extends HUD implements UIConstants {
     
     this.optionsButton = GameOptionsPane.createButton(this, scenario);
     optionsButton.stretch = false;
-    optionsButton.alignTop (0, PTH);
-    optionsButton.alignLeft(0, PTS);
+    optionsButton.alignBottom(0, PTH);
+    optionsButton.alignLeft  (0, PTS);
     optionsButton.attachTo(this);
     
     this.reminders = new ReminderListing(this);
