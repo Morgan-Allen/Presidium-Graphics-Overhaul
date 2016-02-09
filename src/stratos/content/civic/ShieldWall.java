@@ -105,7 +105,7 @@ public class ShieldWall extends Venue {
   }
   
   
-  protected boolean canBuildOn(Tile t) {
+  public boolean canBuildOn(Tile t) {
     //
     //  In order to ensure a good 'seal' against unpathable terrain areas (such
     //  as oceans) we allow overlap on these areas as long as we have at least

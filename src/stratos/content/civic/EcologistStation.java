@@ -114,8 +114,6 @@ public class EcologistStation extends HarvestVenue {
   
   
   public boolean preventsClaimBy(Venue other) {
-    if (other instanceof Holding) return false;
-    if (other.objectCategory() == this.objectCategory()) return false;
     return super.preventsClaimBy(other);
   }
   

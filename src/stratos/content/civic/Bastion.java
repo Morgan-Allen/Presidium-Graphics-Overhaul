@@ -90,7 +90,9 @@ public class Bastion extends Venue {
       if (! exact) {
         final Box2D claims = new Box2D(at.x - 0.5f, at.y - 0.5f, 0, 0);
         claims.expandBy(CLAIM_RADIUS);
-        if (SiteUtils.checkAreaClear(claims, world)) rating *= 2;
+        if (SiteUtils.checkAreaClear(claims, world)) {
+          rating *= 2;
+        }
         
         final Venue nearest;
         nearest = (Venue) world.presences.nearestMatch(Venue.class, at, -1);

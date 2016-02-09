@@ -179,6 +179,10 @@ public abstract class Venue extends Fixture implements
     if (! entranceOkay()) {
       return reasons.setFailure("No room for entrance");
     }
+    if (! SiteUtils.checkAreaClear(footprint(), world, this, reasons, null)) {
+      return false;
+    }
+    /*
     for (Tile t : world.tilesIn(footprint(), false)) {
       if (t == null) return reasons.setFailure("Over the edge!");
       if (t.reserved()) {
@@ -194,6 +198,7 @@ public abstract class Venue extends Fixture implements
         return reasons.setFailure("Is entrance for "+t.entranceFor());
       }
     }
+    //*/
     //
     //  We also check against any claims make by other structures, and try to
     //  avoid creating un-reachable areas with a closed-off perimeter.
@@ -228,7 +233,7 @@ public abstract class Venue extends Fixture implements
   }
   
   
-  protected boolean canBuildOn(Tile t) {
+  public boolean canBuildOn(Tile t) {
     return t.habitat().pathClear;
   }
   
@@ -862,7 +867,7 @@ public abstract class Venue extends Fixture implements
       sprite.passType = Sprite.PASS_PREVIEW;
       sprite.readyFor(rendering);
     }
-    renderSelection(rendering, true, canPlace ? Colour.LITE_GREEN : Colour.RED);
+    //renderSelection(rendering, true, canPlace ? Colour.LITE_GREEN : Colour.RED);
   }
   
   

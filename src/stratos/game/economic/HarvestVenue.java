@@ -68,11 +68,20 @@ public abstract class HarvestVenue extends Venue {
   
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
-    final Box2D claim = position.world.claims.findBestClaim(
-      this, minClaimSize, maxClaimSize
-    );
-    if (claim == null) return false;
-    this.areaClaimed.setTo(claim);
+    
+    if (area != null) {
+      this.areaClaimed.setTo(area);
+    }
+    else {
+      return false;
+      /*
+      final Box2D claim = position.world.claims.findBestClaim(
+        this, minClaimSize, maxClaimSize
+      );
+      if (claim == null) return false;
+      this.areaClaimed.setTo(claim);
+      //*/
+    }
     return true;
   }
   
@@ -81,8 +90,15 @@ public abstract class HarvestVenue extends Venue {
     if (! super.canPlace(reasons)) {
       return false;
     }
+    final Stage world = origin().world;
+    if (! SiteUtils.checkAreaClear(areaClaimed, world, this, reasons, null)) {
+      return false;
+    }
     if (areaClaimed.maxSide() > maxClaimSize) {
       return reasons.setFailure("Area is too large!");
+    }
+    if (! footprint().containedBy(areaClaimed)) {
+      return reasons.setFailure("Area is too small!");
     }
     if (areaClaimed.maxSide() < minClaimSize) {
       return reasons.setFailure("Area is too small!");

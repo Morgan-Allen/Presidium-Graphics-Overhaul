@@ -274,9 +274,17 @@ public class ClaimsGrid {
     claim.xdim(maxClaimSize);
     claim.ydim(maxClaimSize);
     
-    //  TODO:  The direction of the crop should be based on the facing of the
-    //  parent venue!
-    //claim.expandBy(maxClaimSize);
+    //  TODO:  Consider allowing facing-rotations.  Later?
+    /*
+    final int facing = venue.facing();
+    if (facing == Venue.FACE_WEST  || facing == Venue.FACE_SOUTH) {
+      claim.ypos(0 - maxClaimSize);
+    }
+    if (facing == Venue.FACE_NORTH || facing == Venue.FACE_WEST ) {
+      claim.xpos(0 - maxClaimSize);
+    }
+    //*/
+    
     cropNewClaim(venue, claim);
     claim.include(venue.footprint());
     //
@@ -284,7 +292,14 @@ public class ClaimsGrid {
     //  toward the central venue.
     final Vec2D centre = venue.footprint().centre();
     final Box2D crops = new Box2D();
-    while (claim.maxSide() > maxClaimSize) {
+    
+    while (true) {
+      final int maxSide = (int) claim.maxSide();
+      final boolean perimOkay = SiteUtils.pathingOkayAround(
+        venue, claim, venue.owningTier(), world
+      );
+      if (perimOkay && maxSide <= maxClaimSize) break;
+      
       crops.setTo(claim);
       if (crops.xdim() >= crops.ydim()) {
         if (
@@ -310,7 +325,9 @@ public class ClaimsGrid {
   private Box2D cropNewClaim(final Venue centre, Box2D original) {
     final Box2D cropped = new Box2D(original);
     cropped.cropBy(world.area());
-    
+    final Vec2D vecC = centre.footprint().centre();
+    //
+    //  First, resolve any conflicts with other venues.
     final List <Claim> conflicts = new List <Claim> () {
       protected float queuePriority(Claim r) {
         if (r.flag < 0) r.flag = Spacing.distance(centre, r.owner);
@@ -319,14 +336,27 @@ public class ClaimsGrid {
     };
     Visit.appendTo(conflicts, claimsConflicting(original, centre));
     conflicts.queueSort();
-    final Vec2D vecC = centre.footprint().centre();
-    
     for (Claim c : conflicts) {
       final int margin = SiteUtils.minSpacing(centre, c.owner);
       cropToExclude(cropped, c.area, vecC, margin);
     }
-    
     for (Claim c : conflicts) c.flag = -1;
+    //
+    //  Then, resolve any conflicts with individual tiles-
+    final List <Tile> tileClash = new List <Tile> () {
+      protected float queuePriority(Tile t) {
+        return Spacing.distance(t, centre);
+      }
+    };
+    SiteUtils.checkAreaClear( original, world, centre, Account.NONE, tileClash);
+    tileClash.queueSort();
+    final Box2D tempB = new Box2D();
+    for (Tile t : tileClash) {
+      t.area(tempB);
+      tempB.expandToUnit(2);
+      cropToExclude(cropped, tempB, vecC, 0);
+    }
+    
     return original.setTo(cropped);
   }
   

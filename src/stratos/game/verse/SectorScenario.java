@@ -179,14 +179,15 @@ public class SectorScenario extends Scenario {
     
     //  TODO:  INTRODUCE ESTABLISHMENT FOR OTHER STRUCTURES.  ...But walls
     //  should probably still go first.
+    
     final int estateSize = expedition.titleGranted();
     if (estateSize >= 0) {
       final int wallSize = WALL_SIZES[estateSize] - bastion.blueprint.size;
       final Box2D enclosed = new Box2D(bastion.footprint());
       enclosed.incWide(wallSize);
       enclosed.incHigh(wallSize);
-      enclosed.incX(0 - wallSize / 2);
-      enclosed.incY(0 - 2           );
+      //enclosed.incX(0 - wallSize / 2);
+      //enclosed.incY(0 - 2           );
       final Venue wall[] = SiteUtils.placeAroundPerimeter(
         ShieldWall.BLUEPRINT, enclosed, base, true
       );

@@ -23,6 +23,7 @@ public class SiteUtils implements TileConstants {
     verbose      = false,
     cacheVerbose = false;
   
+  /*
   final private static Coord footprintCache[][][] = new Coord[100][100][];
   //
   //  NOTE:  This method is intended to generate a sequence of coordinates to
@@ -78,30 +79,48 @@ public class SiteUtils implements TileConstants {
     if (cacheVerbose) I.say("OFFSETS GENERATED: "+i);
     return offsets;
   }
+  //*/
+  
   
   
   public static boolean checkAreaClear(
-    Tile origin, int sizeX, int sizeY
+    Box2D area, Stage world, Venue client,
+    Account reasons, Series <Tile> record
   ) {
-    //  TODO:  Use owningTier()?
-    if (origin == null || sizeX <= 0 || sizeY <= 0) return false;
-    for (Coord c : footprintFor(sizeX, sizeY)) {
-      final Tile t = origin.world.tileAt(origin.x + c.x, origin.y + c.y);
-      if (t == null || ! t.buildable()) return false;
+    final boolean solid = client == null ?
+      true : (client.pathType() >= Tile.PATH_HINDERS)
+    ;
+    
+    for (Tile t : world.tilesIn(area, false)) {
+      if (t == null) return reasons.setFailure("Over the edge!");
+      if (t.reserved()) {
+        if (record != null) record.add(t);
+        else if (reasons == Account.NONE) return false;
+        else return reasons.setFailure("Area reserved by "+t.reserves());
+      }
+      if (client != null && ! client.canBuildOn(t)) {
+        if (record != null) record.add(t);
+        else if (reasons == Account.NONE) return false;
+        else return reasons.setFailure(t.habitat()+" is not buildable");
+      }
+      if (t.isEntrance() && solid) {
+        if (record != null) record.add(t);
+        else if (reasons == Account.NONE) return false;
+        else return reasons.setFailure("Is entrance for "+t.entranceFor());
+      }
     }
-    return true;
+    return reasons.setSuccess();
   }
   
   
   public static boolean checkAreaClear(Box2D area, Stage world) {
-    final Tile origin = world.tileAt(area.xpos(), area.ypos());
-    return checkAreaClear(origin, (int) area.xdim(), (int) area.ydim());
+    return checkAreaClear(area, world, null, Account.NONE, null);
   }
   
   
   public static int minSpacing(Venue a, Venue b) {
     if (a.blueprint.isZoned() || b.blueprint.isZoned()) {
-      return Stage.UNIT_GRID_SIZE;
+      return 0;// Stage.UNIT_GRID_SIZE;
     }
     else return 0;
   }

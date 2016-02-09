@@ -201,6 +201,7 @@ public class SelectCrewPane extends MenuPane {
   private void pushNextPane() {
     String prefix = SaveUtils.uniqueVariant(expedition.leader().fullName());
     final Verse verse = MainScreen.currentVerse();
+    expedition.setTitleGranted(Expedition.TITLE_KNIGHTED);
     
     SectorScenario hook = verse.scenarioFor(expedition.destination());
     if (hook == null) hook = new SectorScenario(expedition, verse, prefix);

@@ -35,6 +35,7 @@ public class PlacingTask implements UITask {
   private Tile begins;
   private Tile endsAt;
   private boolean dragDone = false;
+  private boolean placeOK  = false;
   private Table <Integer, Venue> placeItems = new Table <Integer, Venue> ();
   
   
@@ -49,18 +50,22 @@ public class PlacingTask implements UITask {
   
   
   public void doTask() {
+    final boolean report = I.used60Frames && verbose;
+    
     Tile picked = UI.selection.pickedTile();
+    if (report) I.say("\nTile picked: "+picked);
     
     if (picked != null) {
-      final int
-        unit = Stage.UNIT_GRID_SIZE,
-        sub  = Nums.round(placeType.size / 2, unit, false);
+      final int unit = Stage.UNIT_GRID_SIZE;
+      int sub = Nums.round(placeType.size / 2, unit, false);
+      if (mode != MODE_POINT) sub = 0;
       picked = picked.world.tileAt(
         Nums.round(picked.x - sub, unit, false),
         Nums.round(picked.y - sub, unit, false)
       );
     }
-
+    if (report) I.say("  After clamp: "+picked);
+    
     boolean tryPlacement = false;
     if (picked != null) {
       if (mode == MODE_POINT) {
@@ -80,8 +85,14 @@ public class PlacingTask implements UITask {
     if (KeyInput.wasTyped(Keys.ENTER)) {
       tryPlacement = true;
     }
+    if (report) {
+      I.say("  Start tile: "+begins  );
+      I.say("  End tile:   "+endsAt  );
+      I.say("  Drag done?  "+dragDone);
+    }
     
     if (begins != null && endsAt != null) setupAreaClaim(tryPlacement);
+    if (tryPlacement && ! placeOK) cancelTask();
   }
   
   
@@ -100,7 +111,7 @@ public class PlacingTask implements UITask {
     }
     //
     //  If there's only one point to consider, just add that.
-    if (mode == MODE_POINT || begins == endsAt) {
+    if (mode == MODE_POINT) {
       placePoints.add(new Coord(begins.x, begins.y));
     }
     //
@@ -121,15 +132,16 @@ public class PlacingTask implements UITask {
     }
     //
     //  In the case of an area-placement, just grab a rectangle from one corner
-    //  to another (but no smaller than the venue size), and place the venue
-    //  itself at the centre.
+    //  to another, and place the venue at the origin.
     else if (mode == MODE_AREA) {
-      area = new Box2D(begins.x - 0.5f, begins.y - 0.5f, 0, 0);
-      area.include(endsAt.x, endsAt.y, 0.5f);
-      if (area.xdim() < baseSize) area.xdim(baseSize);
-      if (area.ydim() < baseSize) area.ydim(baseSize);
-      final Vec2D c = area.centre();
-      placePoints.add(new Coord((int) c.x, (int) c.y));
+      final int US = Stage.UNIT_GRID_SIZE;
+      area = new Box2D(begins.x - 0.5f, begins.y - 0.5f, US, US);
+      area.include(endsAt.x      - 0.5f, endsAt.y      - 0.5f, 0);
+      area.include(endsAt.x + US - 0.5f, endsAt.y + US - 0.5f, 0);
+      placePoints.add(new Coord(
+        (int) (area.xpos() + 0.6f),
+        (int) (area.ypos() + 0.6f)
+      ));
     }
     //
     //  If an area hasn't been specified already, construct one to envelope
@@ -148,7 +160,10 @@ public class PlacingTask implements UITask {
     //  confirmed, initiate construction.
     boolean canPlace = checkPlacingOkay(area, placePoints);
     renderPlacement(area, placePoints, canPlace);
-    if (tryPlacement && canPlace) performPlacement(area, placePoints);
+    if (tryPlacement && canPlace) {
+      performPlacement(area, placePoints);
+      placeOK = true;
+    }
   }
   
   
@@ -242,14 +257,22 @@ public class PlacingTask implements UITask {
     //
     //  Base venue sprites off their current and projected neighbours!
     final Batch <Object> under = new Batch <Object> ();
+    final Stage world = UI.played().world;
     
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
       if (p != null && p.origin() != null) {
         p.previewPlacement(canPlace, UI.rendering);
+        
+        for (Tile t : world.tilesIn(p.areaClaimed(), true)) {
+          under.add(t);
+        }
+        if (canPlace && p.mainEntrance() != null) under.add(p.mainEntrance());
+        /*
         under.add(p.footprint());
         if (p.mainEntrance() != null) under.add(p.mainEntrance());
         if (canPlace) for (Tile t : p.reserved()) if (t != null) under.add(t);
+        //*/
       }
     }
     

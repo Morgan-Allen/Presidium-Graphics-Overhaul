@@ -200,7 +200,7 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
   }
   
   
-  protected boolean canBuildOn(Tile t) {
+  public boolean canBuildOn(Tile t) {
     //
     //  Heighways can be used to span deserts and bodies of water, so they can
     //  be placed over anything.

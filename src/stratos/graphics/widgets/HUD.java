@@ -39,7 +39,8 @@ public class HUD extends UIGroup {
     nextMB;
   
   private UINode
-    selected;
+    selected,
+    dragsFrom;
   private boolean
     mouseB;
   private byte
@@ -84,7 +85,6 @@ public class HUD extends UIGroup {
   //  hierarchy.
   public void renderHUD(Rendering rendering) {
     final boolean report = verbose;
-    
     relBound.set(0, 0, 1, 1);
     absBound.set(0, 0, 0, 0);
     final Box2D size = new Box2D();
@@ -93,9 +93,7 @@ public class HUD extends UIGroup {
     updateAsBase(size);
     
     final UINode oldSelect = selected;
-    if ((selected == null) || (mouseState != DRAGGED)) {
-      selected = selectionAt(mousePos);
-    }
+    selected = selectionAt(mousePos);
     
     if (mouseState == HOVERED && ! selectionMatch(selected, oldSelect)) {
       hoverStart = System.currentTimeMillis();
@@ -109,8 +107,14 @@ public class HUD extends UIGroup {
       case (HOVERED) : selected.whenHovered(); break;
       case (CLICKED) : selected.whenClicked(); break;
       case (PRESSED) : selected.whenPressed(); break;
-      case (DRAGGED) : selected.whenDragged(); break;
     }
+    if (mouseState == CLICKED && dragsFrom == null) {
+      dragsFrom = selected;
+    }
+    else if (dragsFrom != null && mouseState == DRAGGED) {
+      dragsFrom.whenDragged();
+    }
+    else dragsFrom = null;
     
     widgetsByID.clear();
     recordActiveWidgetsFrom(this);
@@ -186,6 +190,11 @@ public class HUD extends UIGroup {
   
   public UINode selected() {
     return selected;
+  }
+  
+  
+  public UINode dragsFrom() {
+    return dragsFrom;
   }
   
   

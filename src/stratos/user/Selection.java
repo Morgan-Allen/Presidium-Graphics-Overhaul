@@ -106,7 +106,7 @@ public class Selection implements UIConstants {
     pickMobile  = world.pickedMobile (UI, port, base);
     pickMission = Base.pickedMission(world, UI, port, base);
     
-    if (verbose && I.used60Frames) {
+    if (I.used60Frames && verbose) {
       I.say("\nPicked tile is: "+pickTile);
       I.say("  Owner is:       "+pickTile.reserves());
       I.say("  Path type is:   "+pickTile.pathType());
@@ -294,6 +294,7 @@ public class Selection implements UIConstants {
           limit.include(t.x, t.y, 0.5f);
         }
       }
+      if (limit == null) return;
       //
       //  Then we create a terrain-layer to present this visually-
       final LayerType layer = new LayerType(tex, innerFringe, -1, "overlay") {
