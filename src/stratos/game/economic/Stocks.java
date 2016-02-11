@@ -33,9 +33,8 @@ public class Stocks extends Inventory {
   
   
   final Property basis;
-  
-  
   final Table <Traded, Demand> demands = new Table <Traded, Demand> ();
+  
   final List <Item> specialOrders = new List <Item> ();
   final List <Bringing> reservations = new List <Bringing> ();
   
@@ -91,6 +90,7 @@ public class Stocks extends Inventory {
     final int oldAmount = (int) amountOf(item);
     if (super.addItem(item)) {
       final int inc = ((int) amountOf(item)) - oldAmount;
+      
       if (basis.inWorld() && inc != 0 && item.type.form != FORM_PROVISION) {
         String phrase = inc >= 0 ? "+" : "-";
         phrase+=" "+inc+" "+item.type.name;

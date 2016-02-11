@@ -369,6 +369,7 @@ public class BringUtils {
   
   private static boolean reportRating(Owner orig, Owner dest, Traded good) {
     if (! rateVerbose) return false;
+    //verboseGoodType = METALS;
     //
     //  Supply and demand can quickly get very hairy, so to help in tracking it
     //  we have some moderately elaborate reporting criteria.
@@ -411,7 +412,9 @@ public class BringUtils {
     //  OS/DS == origin/destination stocks
     //  OA/DA == origin/destination amount
     //  OT/DT == origin/destination tier
-    //  OF/DF == origin/destination shortage
+    //  ON/DN == origin/destination shortage (need)
+    //  OP/DP == origin/destination production
+    //  OC/DC == origin/destination consumption
     final Inventory
       OS = orig.inventory(),
       DS = dest.inventory();
@@ -426,15 +429,23 @@ public class BringUtils {
       OT = OS.owner.owningTier(),
       DT = DS.owner.owningTier();
     final float
-      OF = OS.relativeShortage(good, false),
-      DF = DS.relativeShortage(good, false);
+      OP = OS.production (good),
+      OC = OS.consumption(good),
+      DP = DS.production (good),
+      DC = DS.consumption(good),
+      ON = OS.relativeShortage(good),
+      DN = DS.relativeShortage(good);
     
     if (report) {
       I.say("  Checking tiers...");
-      I.say("  Origin tier:      "+nameForTier(OT)+", Shortage: "+OF);
-      I.say("  Destination tier: "+nameForTier(DT)+", Shortage: "+DF);
+      I.say("  Origin tier:       "+nameForTier(OT));
+      I.say("  Consumes/Produces:   "+OC+"/"+OP);
+      I.say("  Amount/Shortage:     "+OA+"/"+ON);
+      I.say("  Destination tier:  "+nameForTier(DT));
+      I.say("  Consumes/Produces:   "+DC+"/"+DP);
+      I.say("  Amount/Shortage:     "+DA+"/"+DN);
     }
-    if (! canTradeBetween(OT, OF, DT, DF)) return -1;
+    if (ON >= 1 || DN <= -1) return -1;
     //
     //  Secondly, obtain an estimate of stocks before and after the exchange.
     final float
@@ -448,40 +459,43 @@ public class BringUtils {
       I.say("  Trade unit is "+amount);
       I.say("  Origin      reserved: "+OFB);
       I.say("  Destination reserved: "+DFB);
-      I.say("  Origin      shortage: "+OF+" ("+nameForTier(OT)+")");
-      I.say("  Destination shortage: "+DF+" ("+nameForTier(DT)+")");
       I.say("  Origin      after   : "+origAfter);
       I.say("  Destination after   : "+destAfter);
     }
-    //
-    //  We set the min/max amount thresholds to either 0, consumption, or total
-    //  demand, depending on circumstances...
-    final boolean downTier = DT < OT;
-    float minAtOrig = downTier ? 0 : OS.consumption(good);
-    float maxAtDest = DS.consumption(good) + DS.production(good);
-    if (origAfter < minAtOrig || destAfter >= (maxAtDest + unit)) return -1;
-    //
-    //  In the case of an equal trade, rate based on those relative shortages.
-    //  Otherwise favour deliveries to local consumers or, finally, deliver for
-    //  export.
-    final boolean
-      isTrade    = OT == DT,
-      isConsumer = DF > OF && DT < Owner.TIER_SHIPPING;
     
-    float rating;
-    if (isTrade) {
-      rating = (DF - OF) * 2;
+    //  Selling (exporting) depots are marked as producers.  Buying (importing)
+    //  depots are marked as consumers.  They have tier-trader, which is lower
+    //  than tier-shipping.
+    
+    //  Selling (importing) ships are marked as producers.  Buying (exporting)
+    //  ships are marked as consumers.  They have tier-shipping, which is lower
+    //  than tier-trader.
+    float rating = 1;
+    
+    //  This is going from ship to depot, or depot to business.
+    if (OT > DT) {
+      if (origAfter < 0 ) return -1;
+      if (destAfter > DC) return -1;
+      rating = 1 + DN;
     }
-    else if (isConsumer) {
-      rating = 1 + DF;
+    
+    //  This is going from depot to ship, or business to depot.
+    if (DT > OT) {
+      if (origAfter < OC     ) return -1;
+      if (destAfter > DC + DP) return -1;
+      rating = 1 + DN;
     }
-    else {
-      rating = DF / 2;
+    
+    //  This is going between equal partners.
+    if (DT == OT) {
+      if (DT == TIER_SHIPPING) return -1;
+      if (origAfter < OC) return -1;
+      if (destAfter > DC) return -1;
+      rating = 0;
+      rating += 1 - (destAfter / DC);
+      rating -= 1 - (origAfter / OC);
     }
-    if (report) {
-      I.say("  Rating so far       : "+rating   );
-    }
-    if (rating <= 0) return -1;
+    
     //
     //  Then return an estimate of how much an exchange would equalise things,
     //  along with penalties for distance, tier-gap and base relations:
@@ -497,33 +511,6 @@ public class BringUtils {
       I.say("  price/tier factors:    "+priceFactor+"/"+tierFactor);
     }
     return rating * distFactor * baseFactor * priceFactor / tierFactor;
-  }
-  
-  
-  public static boolean canTradeBetween(
-    int origTier, float origShortage,
-    int destTier, float destShortage
-  ) {
-    //
-    //  As a rule, both shortages and surpluses at lower-tier venues will trump
-    //  those at higher-tier venues.
-    final boolean
-      origNeed = origShortage > 0,
-      destNeed = destShortage > 0,
-      sameTier = origTier == destTier;
-    
-    if ((sameTier && origTier == TIER_SHIPPING) || (destShortage <= -1)) {
-      return false;
-    }
-    if (origNeed) {
-      if (destTier < origTier && destNeed) return true;
-      else return false;
-    }
-    if (destNeed) {
-      if (destTier > origTier && origNeed) return false;
-      else return true;
-    }
-    return true;
   }
   
   

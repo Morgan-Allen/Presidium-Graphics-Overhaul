@@ -17,7 +17,7 @@ public abstract class HarvestVenue extends Venue {
   /**  Data fields, constructors, and save/load methods.
     */
   private static boolean
-    verbose = true;
+    verbose = false;
   
   final int minClaimSize, maxClaimSize;
   private ClaimDivision division = ClaimDivision.NONE;

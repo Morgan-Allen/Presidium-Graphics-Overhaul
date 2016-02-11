@@ -297,7 +297,12 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   /**  Methods for handling road-masking of tiles-
     */
   public boolean isRoad(Tile t) {
-    return paveVals[t.x][t.y] > 0;
+    return paveVals[t.x][t.y] >= ROAD_LIGHT;
+  }
+  
+  
+  public boolean isStripped(Tile t) {
+    return paveVals[t.x][t.y] == ROAD_STRIP;
   }
   
   

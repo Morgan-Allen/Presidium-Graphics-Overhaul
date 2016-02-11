@@ -28,7 +28,7 @@ public final class Session {
   
   private static boolean
     verbose    = false,
-    saveCounts = true ;
+    saveCounts = false;
   
   final static int
     CLASS_CAPACITY  = 200,

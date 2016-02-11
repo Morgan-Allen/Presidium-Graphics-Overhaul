@@ -35,7 +35,7 @@ public class Mining extends ResourceTending {
   
   final public static float
     MAX_SAMPLE_STORE      = 50,
-    MAXIMUM_DIG_DEPTH     = 4 ,
+    MAXIMUM_DIG_DEPTH     = Outcrop.MAX_DIG_DEEP,
     EXAMPLE_DAILY_OUTPUT  = 10,
     EXAMPLE_NUM_WORKERS   = 4 ,
     DEFAULT_MINE_LIFESPAN = Stage.DAYS_PER_YEAR,
@@ -161,6 +161,7 @@ public class Mining extends ResourceTending {
       final int  height = terrain.flatHeight(at);
       float rating = MAXIMUM_DIG_DEPTH + height;
       rating += ore == null ? 0 : ore.amount / Outcrop.MAX_MINERALS;
+      if (! terrain.isStripped(at)) rating += MAXIMUM_DIG_DEPTH;
       return rating;
     }
     if (type == TYPE_DUMPING) {
@@ -205,10 +206,13 @@ public class Mining extends ResourceTending {
     final boolean report = verbose && I.talkAbout == actor;
     final ExcavationSite site = (ExcavationSite) depot;
     final Tile at = (Tile) t;
-    final StageTerrain terrain = at.world.terrain();
+    
+    //  TODO:  Adapt this to arbitrary outcrops too.
+    
+    final StageTerrain terrain = depot.world().terrain();
     
     if (type == TYPE_MINING) {
-      final Item  ore         = Outcrop.mineralsAt(at);
+      final Item  ore         = Outcrop.mineralsAt(t);
       final float breakChance = 1f / TILE_DIG_TIME;
       final int   height      = terrain.flatHeight(at);
       if (ore == null) return null;
@@ -229,6 +233,7 @@ public class Mining extends ResourceTending {
       };
     }
     if (type == TYPE_DUMPING) {
+      //final Tile at = (Tile) t;
       
       Tailing dumps = Tailing.foundAt(at);
       float space = 10;

@@ -133,10 +133,11 @@ public class BudgetsPane extends SelectionPane {
     Text.cancelBullet(d);
     d.append("\n\nOffworld Prices (Buy | Sell | Base)");
     for (Traded t : Economy.ALL_MATERIALS) {
+      
       final String
         priceImp = I.shorten(BD.importPrice(t), 1),
         priceExp = I.shorten(BD.exportPrice(t), 1),
-        baseCost = I.shorten(t.defaultPrice()    , 1);
+        baseCost = I.shorten(t.defaultPrice() , 1);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append(" ");

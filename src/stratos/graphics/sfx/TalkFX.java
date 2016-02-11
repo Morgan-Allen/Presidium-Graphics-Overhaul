@@ -103,7 +103,6 @@ public class TalkFX extends SFX {
     float width;
     float xoff, yoff;
     float addTime;
-    //float alpha;
     
     float alpha() {
       float alpha = FADE_TIME + addTime - Rendering.activeTime();
@@ -123,7 +122,6 @@ public class TalkFX extends SFX {
     if (phrase == null) I.complain("\nCANNOT ADD NULL STRING AS PHRASE!");
     b.phrase  = phrase;
     b.type    = bubbleType;
-    b.addTime = Rendering.activeTime();
     toShow.add(b);
   }
   
@@ -132,7 +130,7 @@ public class TalkFX extends SFX {
     //
     //  If there are bubbles awaiting display, see if you can move the existing
     //  bubbles up to make room.
-    final Bubble first = showing.first();
+    final Bubble first = showing.first(); 
     
     final boolean
       shouldMove = toShow.size() > 0,
@@ -165,7 +163,7 @@ public class TalkFX extends SFX {
     if (b.type == NOT_SPOKEN) b.xoff = width / -2;
     if (b.type == FROM_LEFT ) b.xoff = width / -2;
     if (b.type == FROM_RIGHT) b.xoff = width / -2;
-    //b.alpha = 1.5f;
+    b.addTime = Rendering.activeTime();
     showing.addFirst(b);
   }
   

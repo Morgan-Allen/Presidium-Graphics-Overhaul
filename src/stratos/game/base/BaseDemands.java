@@ -210,10 +210,10 @@ public class BaseDemands {
         avgDemand = 0, homeBonus = 0;
       for (SectorBase partner : partners) {
         if (Visit.arrayIncludes(partner.made()  , type)) {
-          avgDemand -= partner.supplyLevel(type) * 2;
+          avgDemand -= partner.supplyLevel(type);
         }
         if (Visit.arrayIncludes(partner.needed(), type)) {
-          avgDemand += partner.demandLevel(type) * 2;
+          avgDemand += partner.demandLevel(type);
         }
         if (partner.location == homeworld) homeBonus++;
       }
@@ -234,6 +234,7 @@ public class BaseDemands {
       }
       importMul *= BASE_IMPORT_MUL / 2;
       exportDiv *= BASE_EXPORT_DIV / 2;
+      
       importPrices.put(type, basePrice * importMul);
       exportPrices.put(type, basePrice / exportDiv);
     }
