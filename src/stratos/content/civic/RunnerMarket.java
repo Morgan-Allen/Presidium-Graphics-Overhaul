@@ -230,7 +230,7 @@ public class RunnerMarket extends Venue {
   protected void renderClaim(
     Rendering rendering, boolean hovered, Colour tinge
   ) {
-    return;
+    super.renderClaim(rendering, hovered, tinge);
   }
 }
 

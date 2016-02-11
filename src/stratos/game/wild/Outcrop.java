@@ -23,10 +23,15 @@ public class Outcrop extends Fixture {
   final public static int
     TYPE_MESA    =  0,
     TYPE_DUNE    =  1,
-    TYPE_DEPOSIT =  2;
+    TYPE_DEPOSIT =  2,
+    MAX_MINERALS = 10,
+    MAX_DIG_DEEP =  4;
+  
+  final public static Traded
+    ORE_TYPES[] = { METALS, FOSSILS, FUEL_RODS };
   
   final int type;
-  int mineral = -1;
+  Object resource;
   float condition = 1.0f;
   
   
@@ -38,8 +43,8 @@ public class Outcrop extends Fixture {
   
   public Outcrop(Session s) throws Exception {
     super(s);
-    type      = s.loadInt  ();
-    mineral   = s.loadInt  ();
+    type      = s.loadInt();
+    resource  = s.loadObject();
     condition = s.loadFloat();
     if (size > 1 || type == TYPE_DUNE) sprite().scale = size / 2f;
   }
@@ -47,9 +52,9 @@ public class Outcrop extends Fixture {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt  (type     );
-    s.saveInt  (mineral  );
-    s.saveFloat(condition);
+    s.saveInt   (type);
+    s.saveObject((Session.Saveable) resource);
+    s.saveFloat (condition);
   }
   
 
@@ -57,9 +62,17 @@ public class Outcrop extends Fixture {
   /**  These are utility methods intended to determine the type and appearance
     *  of an outcrop based on underlying terrain type and mineral content.
     */
-  static float rubbleFor(Outcrop outcrop, Stage world) {
+  private void assignResource() {
+    final Stage world = origin().world();
+    
+    //  TODO:  DERIVE THIS FROM THE UNDERLYING TERRAIN SOMEHOW!
+    resource = Rand.pickFrom(ORE_TYPES);
+  }
+  
+  
+  private float rubbleForOutcrop() {
     float rubble = 0, sum = 0;;
-    for (Tile t : outcrop.surrounds()) if (t != null) {
+    for (Tile t : surrounds()) if (t != null) {
       rubble += t.habitat().minerals();
       sum++;
     }
@@ -67,44 +80,11 @@ public class Outcrop extends Fixture {
   }
   
   
-  static int mineralTypeFor(Outcrop outcrop, Stage world) {
-    //
-    //  First, we sum up the total for each mineral type in the surrounding
-    //  area (including the rockiness of the terrain.)
-    float amounts[] = new float[4];
-    int numTiles = 0;
-    for (Tile t : outcrop.surrounds()) if (t != null) {
-      final byte type = world.terrain().mineralType(t);
-      final float amount = world.terrain().mineralsAt(t, type);
-      amounts[type] += amount;
-      amounts[0] += t.habitat().minerals();
-      numTiles++;
-    }
-    amounts[0] *= Rand.num() / 2f;
-    //
-    //  Then perform a weighted pick from the range of types (having tweaked
-    //  the odds a little...)
-    float sumAmounts = 0;
-    for (int i = 4; i-- > 0;) {
-      final float a = amounts[i];
-      sumAmounts += (amounts[i] = (a + (a * a)) / 2);
-    }
-    float pickRoll = Rand.num() * sumAmounts;
-    int pickType = 0;
-    int type = 0; for (float f : amounts) {
-      if (pickRoll < f) { pickType = type; break; }
-      pickRoll -= f;
-      type++;
-    }
-    return pickType;
-  }
-  
-  
   public static ModelAsset modelFor(Outcrop outcrop, Stage world) {
     
-    final int   mineral = mineralTypeFor(outcrop, world);
-    final float rubble  = rubbleFor(outcrop, world);
-    outcrop.mineral = mineral;
+    final Object ore = outcrop.resource;
+    int oreID = Visit.indexOf(ore, ORE_TYPES);
+    final float rubble  = outcrop.rubbleForOutcrop();
     final int size = outcrop.size, type = outcrop.type;
     
     if (size == 1 && type != TYPE_DUNE) {
@@ -113,14 +93,14 @@ public class Outcrop extends Fixture {
     if (type == TYPE_DUNE) {
       return Habitat.DUNE_MODELS[Rand.index(3)];
     }
-    if (mineral == 0 || size != 3) {
+    if (ore == FOSSILS || size != 3 || oreID == -1) {
       int highID = Rand.yes() ? 1 : (3 - size);
       return Habitat.SPIRE_MODELS[Rand.index(3)][highID];
     }
     else {
       return Rand.num() < rubble ?
-        Habitat.ROCK_LODE_MODELS[mineral - 1] :
-        Habitat.MINERAL_MODELS  [mineral - 1] ;
+        Habitat.ROCK_LODE_MODELS[oreID]:
+        Habitat.MINERAL_MODELS  [oreID];
     }
   }
   
@@ -143,6 +123,9 @@ public class Outcrop extends Fixture {
   
   public boolean setPosition(float x, float y, Stage world) {
     if (! super.setPosition(x, y, world)) return false;
+    
+    this.assignResource();
+    
     final ModelAsset model = modelFor(this, world);
     final Sprite s = model.makeSprite();
     if (size > 1 || type == TYPE_DUNE) s.scale = size / 2f;
@@ -169,12 +152,8 @@ public class Outcrop extends Fixture {
   /**  Physical attributes and queries-
     */
   public int owningTier() {
-    return Owner.TIER_OBJECT;
-  }
-  
-  
-  public Traded mineralType() {
-    return mineralFor((byte) mineral);
+    if (this.type == TYPE_DUNE) return Owner.TIER_TERRAIN;
+    return Owner.TIER_PRIVATE;
   }
   
   
@@ -194,33 +173,57 @@ public class Outcrop extends Fixture {
   }
   
   
-  public float mineralAmount() {
-    return condition * bulk() * StageTerrain.MAX_MINERAL_AMOUNT / 2f;
+  public Traded oreType() {
+    if (resource instanceof Traded) return (Traded) resource;
+    return null;
   }
   
   
-  public static Traded mineralFor(byte type) {
-    if (type == -1) return null;
-    Traded minType = SLAG;
-    if (type == StageTerrain.TYPE_ISOTOPES) minType = FUEL_RODS;
-    if (type == StageTerrain.TYPE_METALS  ) minType = METALS   ;
-    if (type == StageTerrain.TYPE_RUINS   ) minType = FOSSILS  ;
-    return minType;
+  public float oreAmount() {
+    return condition * bulk() * MAX_MINERALS / 2f;
   }
   
   
-  public static Item mineralsAt(Tile face) {
-    final StageTerrain terrain = face.world().terrain();
-    final Habitat h = face.habitat();
+  public static Item mineralsAt(Target face) {
+    Traded type = null;
+    float amount = 0;
     
-    if (face.above() instanceof Flora) return face.above().materials()[0];
-    if (h.biomass() > 0) return Item.withAmount(POLYMER, h.biomass());
+    if (face instanceof Tile) {
+      final Tile at = (Tile) face;
+      final Habitat h = at.habitat();
+      if (at.above() instanceof Flora) return at.above().materials()[0];
+      if (h.biomass() > 0) return Item.withAmount(POLYMER, h.biomass());
+      
+      type   = oreType  (at);
+      amount = oreAmount(at);
+    }
     
-    if (terrain.mineralsAt(face) == 0) return null;
+    if (face instanceof Outcrop) {
+      final Outcrop at = (Outcrop) face;
+      type   = at.oreType  ();
+      amount = at.oreAmount();
+    }
     
-    final byte  type   = terrain.mineralType(face);
-    final float amount = terrain.mineralsAt(face, type);
-    return Item.withAmount(mineralFor(type), amount);
+    if (type == null || amount == 0) return null;
+    return Item.withAmount(type, amount);
+  }
+  
+  
+  public static Traded oreType(Tile at) {
+    final StageTerrain terrain = at.world.terrain();
+    if (terrain.flatHeight(at) <= 0 - MAX_DIG_DEEP) return null;
+    final int var = terrain.varAt(at);
+    return ORE_TYPES[var % ORE_TYPES.length];
+  }
+  
+  
+  public static float oreAmount(Tile at) {
+    final Traded type = oreType(at);
+    if (type == null) return 0;
+    float amount = at.habitat().minerals() * MAX_MINERALS / 10f;
+    if (type == METALS ) amount *= 2;
+    if (type == FOSSILS) amount /= 2;
+    return amount;
   }
   
   
@@ -229,10 +232,9 @@ public class Outcrop extends Fixture {
     */
   public String fullName() {
     if (this.type == TYPE_DUNE) return "Dunes";
-    
-    final Traded minType = mineralType();
-    if (minType != null && minType != SLAG && size >= 3) {
-      return "Deposit ("+minType+")";
+    final Item ore = mineralsAt(this);
+    if (ore != null && ore.type != SLAG && size >= 3) {
+      return "Deposit ("+ore.type+")";
     }
     else return "Outcrop";
   }

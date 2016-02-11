@@ -298,6 +298,7 @@ public class EcologistStation extends HarvestVenue {
     for (Item sample : stocks.matches(SAMPLES)) {
       stocks.removeItem(Item.withAmount(sample, decay));
     }
+    stocks.updateStockDemands(1, services());
     //
     //  An update ambience-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
@@ -332,11 +333,19 @@ public class EcologistStation extends HarvestVenue {
     */
   protected ClaimDivision updateDivision() {
     final ClaimDivision d = super.updateDivision();
-    return d.withUsageMarked(
-      0.5f, true, false, this,
-      ClaimDivision.USE_SECONDARY,
-      ClaimDivision.USE_NORMAL
+    d.withUsageMarked(
+      1.0f, false, true, this,
+      ClaimDivision.USE_NORMAL,
+      ClaimDivision.USE_NORMAL,
+      ClaimDivision.USE_SECONDARY
     );
+    d.withUsageMarked(
+      1.0f, true, false, this,
+      ClaimDivision.USE_NORMAL,
+      ClaimDivision.USE_NORMAL,
+      ClaimDivision.USE_TERTIARY
+    );
+    return d;
   }
   
   
@@ -346,7 +355,7 @@ public class EcologistStation extends HarvestVenue {
   
   
   public boolean shouldCover(Tile t) {
-    return claimDivision().useType(t) == 2;
+    return claimDivision().useType(t) != ClaimDivision.USE_NORMAL;
   }
   
   

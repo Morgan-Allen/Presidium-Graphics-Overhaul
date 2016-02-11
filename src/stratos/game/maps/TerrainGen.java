@@ -5,22 +5,9 @@
   */
 package stratos.game.maps;
 import stratos.game.common.*;
-import stratos.game.wild.Habitat;
-import stratos.game.wild.Outcrop;
+import stratos.game.wild.*;
 import stratos.util.*;
 
-
-//  TODO:
-
-//  I cannot have a finite static terrain-gradient AND allow assertion of
-//  arbitrary habitats at the same time.  If you rely on the former, the
-//  latter must be constrained.  If the latter is not constrained, the
-//  former must be re-calculated.
-
-//  Water.  Strata.  Minerals.  Temperature.  Biomass.  Toxicity.
-
-//  This is beyond the scope of what I can handle at the moment.  Work out some
-//  proper terraform mechanics later.
 
 
 public class TerrainGen implements TileConstants {
@@ -44,6 +31,7 @@ public class TerrainGen implements TileConstants {
   static class Sector {
     int coreX, coreY;
     int gradientID;
+    Object resource;
   }
 
   private Sector sectors[][];
@@ -431,89 +419,6 @@ public class TerrainGen implements TileConstants {
   /**  Generating mineral deposits-
     */
   //
-  //  TODO:  Surface deposits are now much fairer indicators of sub-surface
-  //  minerals, but at the cost of much less influence over actual sub-surface
-  //  abundance (since the abundance maps now affect larger discrete areas.)
-  //  While it's not critical, it would be nice to have some method of fine-
-  //  tuning this.  Perhaps the dither-map?
-  public void setupMinerals(
-    final Stage world,
-    float chanceMetals, float chanceArtifacts, float chanceIsotopes
-  ) {
-    final StageTerrain terrain = world.terrain();
-    if (terrain == null) I.complain("No terrain assigned to world!");
-    final byte
-      artifactsMap[][] = genSectorMap(10),
-      metalsMap   [][] = genSectorMap(10),
-      isotopesMap [][] = genSectorMap(10),
-      allMaps[][][] = { null, metalsMap, artifactsMap, isotopesMap };
-    final float
-      abundances[] = { 0, chanceMetals, chanceArtifacts, chanceIsotopes },
-      totals[] = new float[4],
-      chances[] = new float[4];
-    //
-    //  
-    for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
-      //
-      //  Obtain the relative strength of each of the mineral maps at this tile-
-      final boolean pickHighest = Rand.num() < 0.33f;
-      float sumChances = chances[0] = 0.5f;
-      for (int i = 4; i-- > 1;) {
-        float sample = Nums.sampleMap(mapSize, allMaps[i], c.x, c.y) / 10f;
-        sample *= (1 * sample) + ((1 - sample) * abundances[i]);
-        chances[i] = sample;
-        sumChances += sample;
-      }
-      //
-      //  Pick one of the mineral types on this basis-
-      float chance = 0;
-      int var = 0;
-      if (pickHighest) {
-        for (int i = 4; i-- > 1;) {
-          if (chances[i] > chance) { chance = chances[i]; var = i; }
-        }
-      }
-      else {
-        float pick = Rand.num() * sumChances;
-        for (int i = 4; i-- > 1;) {
-          if (pick < chances[i]) { chance = chances[i]; var = i; break; }
-          pick -= chances[i];
-        }
-        if (var == 0) continue;
-      }
-      //
-      //  Adjust abundance based on local terrain and global variables, and
-      //  find the degree for the local deposit-
-      if (pickHighest) chance *= abundances[var];
-      
-      final Habitat h = terrain.habitatAt(c.x, c.y);
-      final float minChance = h.minerals() / 10f;
-      chance *= minChance;
-      
-      float minAmount = minChance * (1.5f - Rand.num());
-      if (Rand.num() < minChance) minAmount += 0.5f;
-      minAmount *= StageTerrain.MAX_MINERAL_AMOUNT / 2f;
-      if (minAmount <= 0) var = StageTerrain.TYPE_RUBBLE;
-      minAmount = Nums.max(1, minAmount);
-      //
-      //  Store and summarise-
-      final Tile location = world.tileAt(c.x, c.y);
-      terrain.setMinerals(location, (byte) var, (int) minAmount);
-      totals[var] += terrain.mineralsAt(location, (byte) var);
-    }
-    
-    final boolean report = false;
-    if (report) {
-      I.say(
-        "Total metals/carbons/isotopes: "+
-        totals[1]+"/"+totals[2]+"/"+totals[3]
-      );
-      presentMineralMap(world, terrain);
-    }
-  }
-  
-  
-  //
   //  Put the various tiles for processing in different batches and treat 'em
   //  that way?
   public void setupOutcrops(final Stage world) {
@@ -574,42 +479,14 @@ public class TerrainGen implements TileConstants {
     for (int size = maxSize; size >= minSize; size--) {
       final Outcrop o = new Outcrop(size, 1, type);
       o.setPosition(t.x, t.y, t.world);
-      if (o.mineralType() == null) return null;
+      if (o.oreType() == null) return null;
+      
       if (SiteUtils.pathingOkayAround(o, t.world) && o.canPlace()) {
         o.enterWorld();
         return o;
       }
     }
     return null;
-  }
-  
-
-  
-  /**  Utility methods for debugging-
-    */
-  public void presentMineralMap(Stage world, StageTerrain worldTerrain) {
-    final int colourKey[][] = new int[mapSize][mapSize];
-    final int typeColours[] = {
-      0xff000000,
-      0xffff0000,
-      0xff0000ff,
-      0xff00ff00
-    };
-    final int degreeMasks[] = {
-      0xff000000,
-      0xff3f3f3f,
-      0xff7f7f7f,
-      0xffbfbfbf,
-      0xffffffff
-    };
-    for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
-      final Tile t = world.tileAt(c.x, c.y);
-      final byte type = worldTerrain.mineralType(t);
-      final float amount = worldTerrain.mineralsAt(t, type);
-      int degree = (int) (amount * 3.99f / StageTerrain.MAX_MINERAL_AMOUNT);
-      colourKey[c.x][c.y] = typeColours[type] & degreeMasks[degree];
-    }
-    I.present(colourKey, "minerals map", 256, 256);
   }
 }
 

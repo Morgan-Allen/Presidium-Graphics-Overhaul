@@ -221,7 +221,7 @@ public abstract class ResourceTending extends Plan {
   
   
   protected Target nextToTend() {
-    final boolean report = verbose && I.talkAbout == subject;
+    final boolean report = I.talkAbout == subject && verbose;
     //
     //  Target-lists from depots tend to be long, so we don't do a fresh search
     //  unless you're in a squeezing-blood-from-stone scenario...

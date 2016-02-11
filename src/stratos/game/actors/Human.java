@@ -323,7 +323,7 @@ public class Human extends Actor {
   
   
   protected float moveAnimStride() {
-    return 1.75f;
+    return 1.5f;
   }
   
   

@@ -112,6 +112,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     if (! structure.intact()) return;
     structure.setAmbienceVal(Ambience.MILD_SQUALOR);
     stocks.setConsumption(POLYMER, 1);
+    stocks.updateStockDemands(1, services());
   }
   
   

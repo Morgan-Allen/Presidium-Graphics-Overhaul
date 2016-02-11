@@ -6,11 +6,10 @@
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
 import stratos.util.*;
-import stratos.start.Assets;
 
 
 
-public class TerrainSet {
+public class TerrainSet implements TileConstants {
   
   
   final static int
@@ -95,7 +94,10 @@ public class TerrainSet {
   
   
   public void flagUpdateAt(int x, int y) {
-    for (LayerType layer : layers) flagUpdateAt(x, y, layer);
+    for (int n : T_ON_CENTRE) {
+      final int nX = x + T_X[n], nY = y + T_Y[n];
+      for (LayerType layer : layers) flagUpdateAt(nX, nY, layer);
+    }
   }
   
   

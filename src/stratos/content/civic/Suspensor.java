@@ -178,7 +178,8 @@ public class Suspensor extends Mobile implements Mount {
     disp.add(followed.position(null));
     
     nextPosition.setTo(disp);
-    nextPosition.z = aboveGroundHeight();
+    nextPosition.z = world.terrain().trueHeight(nextPosition.x, nextPosition.y);
+    nextPosition.z += aboveGroundHeight();
     nextRotation = nextRot;
     //
     //  And if you have a passenger, update their position.

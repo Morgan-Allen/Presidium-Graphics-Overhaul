@@ -21,19 +21,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     MAX_RADIATION   = 10,
     SAMPLE_RESOLUTION = Stage.ZONE_SIZE;
   
-  final public static String MINERAL_NAMES[] = {
-    "Rubble", "Metal Ore", "Artifacts", "Fuel Isotopes"
-  };
-  
   final public static byte
-    TYPE_METALS   = 1,
-    TYPE_RUINS    = 2,
-    TYPE_ISOTOPES = 3,
-    TYPE_RUBBLE   = 0,
-    
-    NUM_MINERAL_TYPES  = 4 ,
-    MAX_MINERAL_AMOUNT = 10,
-    
     ROAD_NONE     =  0,
     ROAD_LIGHT    =  1,
     ROAD_STRIP    = -1;
@@ -57,7 +45,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   private Habitat
     habitats[][];
   private byte
-    minerals[][],
     paveVals[][],
     reserved[][];
   
@@ -94,7 +81,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       habitats[c.x][c.y] = gradient[typeIndex[c.x][c.y]];
     }
-    minerals = new byte[mapSize][mapSize];
     paveVals = new byte[mapSize][mapSize];
     reserved = new byte[mapSize][mapSize];
   }
@@ -114,7 +100,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     
     initHabitatFields();
     
-    s.loadByteArray(minerals);
     s.loadByteArray(paveVals);
     s.loadByteArray(reserved);
     initSamples();
@@ -128,7 +113,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     s.saveByteArray(typeIndex);
     s.saveByteArray(varsIndex);
     
-    s.saveByteArray(minerals);
     s.saveByteArray(paveVals);
     s.saveByteArray(reserved);
   }
@@ -254,35 +238,6 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   public Habitat habitatAt(int x, int y) {
     try { return habitats[x][y]; }
     catch (ArrayIndexOutOfBoundsException e) { return null; }
-  }
-  
-  
-  public float mineralsAt(Tile t, byte type) {
-    final byte m = minerals[t.x][t.y];
-    return m == -1 ? 0 : (1 + (m % MAX_MINERAL_AMOUNT));
-  }
-  
-  
-  public byte mineralType(Tile t) {
-    final byte value = minerals[t.x][t.y];
-    if (value == -1) return TYPE_RUBBLE;
-    return (byte) (value / MAX_MINERAL_AMOUNT);
-  }
-  
-  
-  public void setMinerals(Tile t, byte type, int amount) {
-    byte value = 0;
-    if (amount > 0) {
-      value += (type * MAX_MINERAL_AMOUNT);
-      value += Nums.clamp(amount - 1, MAX_MINERAL_AMOUNT);
-    }
-    else value = -1;
-    minerals[t.x][t.y] = value;
-  }
-  
-  
-  public float mineralsAt(Tile t) {
-    return mineralsAt(t, mineralType(t));
   }
   
   

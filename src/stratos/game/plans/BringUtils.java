@@ -456,9 +456,9 @@ public class BringUtils {
     //
     //  We set the min/max amount thresholds to either 0, consumption, or total
     //  demand, depending on circumstances...
-    float minAtOrig = OF > 0 ? 0 : OS.consumption(good);
-    float maxAtDest = DS.consumption(good);
-    if (DF <= -1) maxAtDest += DS.production(good);
+    final boolean downTier = DT < OT;
+    float minAtOrig = downTier ? 0 : OS.consumption(good);
+    float maxAtDest = DS.consumption(good) + DS.production(good);
     if (origAfter < minAtOrig || destAfter >= (maxAtDest + unit)) return -1;
     //
     //  In the case of an equal trade, rate based on those relative shortages.

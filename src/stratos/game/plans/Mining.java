@@ -16,6 +16,9 @@ import static stratos.game.economic.Economy.*;
 
 
 
+
+
+
 public class Mining extends ResourceTending {
   
   
@@ -36,18 +39,18 @@ public class Mining extends ResourceTending {
     EXAMPLE_DAILY_OUTPUT  = 10,
     EXAMPLE_NUM_WORKERS   = 4 ,
     DEFAULT_MINE_LIFESPAN = Stage.DAYS_PER_YEAR,
-    EXAMPLE_MINED_AREA    = (12 * 12) / 2,
-    EXAMPLE_TAILING_SPACE = EXAMPLE_MINED_AREA / 3,
-    AVG_RAW_DIG_YIELD     = StageTerrain.MAX_MINERAL_AMOUNT / 5,
+    EXAMPLE_MINED_AREA    = (12 * 12) / 2f,
+    EXAMPLE_TAILING_SPACE = EXAMPLE_MINED_AREA / 3f,
+    AVG_RAW_DIG_YIELD     = Outcrop.MAX_MINERALS / 5f,
     SLAG_RATIO            = 2.5f,
     
-    EXAMPLE_DAY_WORKTIME  = EXAMPLE_NUM_WORKERS * Stage.STANDARD_SHIFT_LENGTH,
-    DEFAULT_LIFE_WORKTIME = EXAMPLE_DAY_WORKTIME * DEFAULT_MINE_LIFESPAN,
-    DEFAULT_DIG_VOLUME    = EXAMPLE_MINED_AREA * MAXIMUM_DIG_DEPTH,
+    EXAMPLE_DAY_WORKTIME  = EXAMPLE_NUM_WORKERS   * Stage.STANDARD_SHIFT_LENGTH,
+    DEFAULT_LIFE_WORKTIME = EXAMPLE_DAY_WORKTIME  * DEFAULT_MINE_LIFESPAN,
+    DEFAULT_DIG_VOLUME    = EXAMPLE_MINED_AREA    * MAXIMUM_DIG_DEPTH,
     TILE_DIG_TIME         = DEFAULT_LIFE_WORKTIME / DEFAULT_DIG_VOLUME,
-    DAILY_DIG_FREQUENCY   = EXAMPLE_DAY_WORKTIME / TILE_DIG_TIME,
-    AVG_RAW_DAILY_YIELD   = DAILY_DIG_FREQUENCY * AVG_RAW_DIG_YIELD,
-    HARVEST_MULT          = EXAMPLE_DAILY_OUTPUT / AVG_RAW_DAILY_YIELD,
+    DAILY_DIG_FREQUENCY   = EXAMPLE_DAY_WORKTIME  / TILE_DIG_TIME,
+    AVG_RAW_DAILY_YIELD   = DAILY_DIG_FREQUENCY   * AVG_RAW_DIG_YIELD,
+    HARVEST_MULT          = EXAMPLE_DAILY_OUTPUT  / AVG_RAW_DAILY_YIELD,
     
     TOTAL_RAW_LIFE_YIELD  = AVG_RAW_DIG_YIELD * DEFAULT_DIG_VOLUME,
     TOTAL_LIFE_SLAG       = SLAG_RATIO * HARVEST_MULT * TOTAL_RAW_LIFE_YIELD,
@@ -94,7 +97,7 @@ public class Mining extends ResourceTending {
     final Mining mining = new Mining(
       actor, site, TYPE_MINING, MINED_TYPES
     );
-    mining.coop = true;
+    mining.coop = false;
     return mining;
   }
   
@@ -103,6 +106,7 @@ public class Mining extends ResourceTending {
     final Mining mining = new Mining(
       actor, site, TYPE_DUMPING, new Traded[0]
     );
+    mining.coop = false;
     return mining;
   }
   
@@ -153,13 +157,10 @@ public class Mining extends ResourceTending {
     
     if (type == TYPE_MINING) {
       if (! site.canDig(at)) return -1;
-      final byte   typeID      = terrain.mineralType(at);
-      final int    oreAmount   = (int) terrain.mineralsAt(at);
-      final Traded oreType     = MINED_TYPES[typeID];
-      
-      float rating = MAXIMUM_DIG_DEPTH + terrain.flatHeight(at);
-      rating *= oreAmount;
-      if (oreType == null) rating /= 4;
+      final Item ore    = Outcrop.mineralsAt(at);
+      final int  height = terrain.flatHeight(at);
+      float rating = MAXIMUM_DIG_DEPTH + height;
+      rating += ore == null ? 0 : ore.amount / Outcrop.MAX_MINERALS;
       return rating;
     }
     if (type == TYPE_DUMPING) {
@@ -207,28 +208,24 @@ public class Mining extends ResourceTending {
     final StageTerrain terrain = at.world.terrain();
     
     if (type == TYPE_MINING) {
-      final float  breakChance = 1f / TILE_DIG_TIME;
-      final int    height      = terrain.flatHeight (at);
-      final byte   typeID      = terrain.mineralType(at);
-      final Traded oreType     = MINED_TYPES[typeID];
-      final int    oreAmount   = (int) terrain.mineralsAt(at);
+      final Item  ore         = Outcrop.mineralsAt(at);
+      final float breakChance = 1f / TILE_DIG_TIME;
+      final int   height      = terrain.flatHeight(at);
+      if (ore == null) return null;
       
-      terrain.setHabitat(at, Habitat.STRIP_MINING);
+      terrain.setRoadType(at, StageTerrain.ROAD_STRIP);
       at.clearUnlessOwned();
-      
       float yield = breakChance / 2f;
+      
       if (Rand.num() < breakChance) {
-        final int remains = Nums.max(1, oreAmount - 1);
-        terrain.setMinerals(at, typeID, remains);
         yield += 0.5f;
         terrain.hardTerrainLevel(height - 1, at);
       }
       
-      if (oreType == null) return null;
-      yield *= oreAmount * HARVEST_MULT * site.extractMultiple(oreType);
+      yield *= ore.amount * HARVEST_MULT * site.extractMultiple(ore.type);
       return new Item[] {
-        Item.with(oreType, null   , yield               , Item.AVG_QUALITY),
-        Item.with(SLAG   , oreType, yield * SLAG_RATIO  , Item.AVG_QUALITY)
+        Item.with(ore.type, null    , yield             , Item.AVG_QUALITY),
+        Item.with(SLAG    , ore.type, yield * SLAG_RATIO, Item.AVG_QUALITY)
       };
     }
     if (type == TYPE_DUMPING) {

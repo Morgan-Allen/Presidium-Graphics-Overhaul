@@ -19,7 +19,7 @@ public class Journey implements Session.Saveable {
   /**  Data fields, constructors and save/load methods-
     */
   private static boolean
-    verbose = true;
+    verbose = false;
   
   final public static int
     IS_TRADING   = 1 << 0,

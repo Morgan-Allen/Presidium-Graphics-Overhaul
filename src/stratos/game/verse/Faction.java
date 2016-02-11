@@ -24,7 +24,8 @@ public class Faction extends Constant {
   final public static Faction
     
     FACTION_SUHAIL    = new Faction(
-      "House Suhail" , HOUSES_DIR+"house_suhail.png" , Colour.DARK_MAGENTA,
+      "House Suhail" , HOUSES_DIR+"house_suhail.png",
+      new Colour(0.7f, 0.2f, 0.7f, 1),
       "",
         "  Begin game with native vassals"+
       "\n  2 fewer starting colonists",

@@ -66,7 +66,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     if (actor.mind.mission() != null || ! actor.health.conscious()) {
       return null;
     }
-    final boolean report = I.talkAbout == actor;// && evalVerbose;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     //
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until

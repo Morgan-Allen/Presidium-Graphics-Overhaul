@@ -57,7 +57,6 @@ public class DebugConstruction extends Scenario {
     final Verse verse = new StratosSetting();
     final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
-    TG.setupMinerals(world, 0.6f, 0, 0.2f);
     Flora.populateFlora(world);
     world.readyAfterPopulation();
     return world;

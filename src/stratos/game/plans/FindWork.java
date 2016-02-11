@@ -211,11 +211,18 @@ public class FindWork extends Plan {
       Rand.index(world.size),
       Rand.index(world.size)
     );
+    
     Property pick = (Property) world.presences.randomMatchNear(b, around, -1);
-    if (pick == null || pick.base() != at) {
-      return null;
+    if (pick != null && pick.base() == at) {
+      return attemptFor(actor, pick);
     }
-    return attemptFor(actor, pick);
+    
+    pick = (Property) world.presences.randomMatchNear(at, around, -1);
+    if (pick != null) {
+      return attemptFor(actor, pick);
+    }
+    
+    return null;
   }
   
   

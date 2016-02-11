@@ -191,17 +191,17 @@ public class VenuePane extends SelectionPane {
       d.append(" Buy: ");
       d.append(new Description.Link(I.shorten(consumption, 1)) {
         public void whenClicked(Object context) {
-          float bump = consumption + 5;
-          if (bump > stockMax - production) bump = 0;
-          v.stocks.forceDemand(type, bump, production);
+          float nextCons = consumption + 5;
+          if (nextCons > stockMax - production) nextCons = 0;
+          v.stocks.forceDemand(type, nextCons, production);
         }
       });
       d.append(" Sell: ");
       d.append(new Description.Link(I.shorten(production, 1)) {
         public void whenClicked(Object context) {
-          float bump = production + 5;
-          if (bump > stockMax - consumption) bump = 0;
-          v.stocks.forceDemand(type, consumption, bump);
+          float nextProd = production + 5;
+          if (nextProd > stockMax - consumption) nextProd = 0;
+          v.stocks.forceDemand(type, consumption, nextProd);
         }
       });
     }

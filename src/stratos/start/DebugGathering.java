@@ -63,7 +63,6 @@ public class DebugGathering extends Scenario {
     final Verse verse = new StratosSetting();
     final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
-    TG.setupMinerals(world, 0.6f, 0, 0.2f);
     TG.setupOutcrops(world);
     world.readyAfterPopulation();
     return world;
@@ -174,8 +173,12 @@ public class DebugGathering extends Scenario {
   private void configMiningTest(Stage world, Base base, BaseUI UI) {
     Flora.populateFlora(world);
     
+    //  TODO:  Venues need to auto-claim an area, and mined tiles should be
+    //  passable!
+    
     final ExcavationSite site = new ExcavationSite(base);
     SiteUtils.establishVenue(site, 8, 8, true, world);
+    
     base.setup.fillVacancies(site, true);
     site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));
     
@@ -201,6 +204,7 @@ public class DebugGathering extends Scenario {
     first.mind.assignBehaviour(dumps);
     
     Selection.pushSelection(first, null);
+    //*/
   }
   
   

@@ -8,6 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
+import stratos.game.wild.Habitat;
 import stratos.game.wild.Wreckage;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -862,12 +863,13 @@ public abstract class Venue extends Fixture implements
     if (sprite == null) return;
     this.viewPosition(sprite.position);
     
+    renderClaim(rendering, false, canPlace ? Colour.WHITE : Colour.SOFT_RED);
+    
     if (canPlace) {
       sprite.colour = new Colour(0, 1, 0, 0.5f);
       sprite.passType = Sprite.PASS_PREVIEW;
       sprite.readyFor(rendering);
     }
-    //renderSelection(rendering, true, canPlace ? Colour.LITE_GREEN : Colour.RED);
   }
   
   
@@ -900,13 +902,30 @@ public abstract class Venue extends Fixture implements
   ) {
     final String keyRes = origin()+"_reserve_print_"+this;
     final Colour temp = new Colour();
+    float opacity = (hovered ? 0.25f : 0.375f) * (inWorld() ? 1 : 2);
+    temp.set(Colour.transparency(opacity)).multiply(tinge);
     
-    temp.set(Colour.transparency(hovered ? 0.25f : 0.375f)).multiply(tinge);
-    BaseUI.current().selection.renderTileOverlay(
-      rendering, origin().world, temp,
-      Selection.SELECT_OVERLAY, false,
-      keyRes, true, areaClaimed()
-    );
+    if (inWorld()) {
+      BaseUI.current().selection.renderTileOverlay(
+        rendering, origin().world, temp,
+        Selection.SELECT_OVERLAY, false,
+        keyRes, true, areaClaimed()
+      );
+    }
+    else {
+      final Batch <Object> under = new Batch <Object> ();
+      for (Tile t : reserved()) {
+        if (t != null) under.add(t);
+      }
+      under.add(footprint());
+      if (mainEntrance() != null) under.add(mainEntrance());
+      
+      BaseUI.current().selection.renderTileOverlay(
+        rendering, origin().world, temp,
+        Habitat.RESERVE_TEXTURE, true,
+        "install_preview", false, under.toArray()
+      );
+    }
   }
 }
 

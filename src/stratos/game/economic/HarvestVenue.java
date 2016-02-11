@@ -69,18 +69,15 @@ public abstract class HarvestVenue extends Venue {
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     
-    if (area != null) {
-      this.areaClaimed.setTo(area);
-    }
-    else {
-      return false;
-      /*
+    if (area == null || area.maxSide() <= Stage.UNIT_GRID_SIZE) {
       final Box2D claim = position.world.claims.findBestClaim(
         this, minClaimSize, maxClaimSize
       );
       if (claim == null) return false;
       this.areaClaimed.setTo(claim);
-      //*/
+    }
+    else {
+      this.areaClaimed.setTo(area);
     }
     return true;
   }
@@ -108,7 +105,7 @@ public abstract class HarvestVenue extends Venue {
   
   
   protected ClaimDivision updateDivision() {
-    return ClaimDivision.forArea(this, areaClaimed, facing(), 2, 4, this);
+    return ClaimDivision.forArea(this, areaClaimed, facing(), 3, 4, this);
   }
   
   
@@ -150,8 +147,8 @@ public abstract class HarvestVenue extends Venue {
   
   
   protected void updatePaving(boolean inWorld) {
-    base.transport.updatePerimeter(this, inWorld);
-    /*
+    //base.transport.updatePerimeter(this, inWorld);
+    //*
     final Tile toPave[] = division.toPaveAround(this, null);
     if (toPave == null || toPave.length == 0) {
       base.transport.updatePerimeter(this, inWorld);

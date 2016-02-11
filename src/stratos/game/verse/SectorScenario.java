@@ -83,7 +83,6 @@ public class SectorScenario extends Scenario {
     final StageTerrain terrain = TG.generateTerrain();
     final Stage        world   = Stage.createNewWorld(verse, locale, terrain);
     
-    TG.setupMinerals(world, 1, 0, 0.5f);
     TG.setupOutcrops(world);
     Flora.populateFlora(world);
     world.readyAfterPopulation();

@@ -277,14 +277,13 @@ public class MapsDisplay extends UIGroup {
   
   
   private Colour mineralsTone(Tile t) {
-    int type = world.terrain().mineralType(t);
-    float amount = world.terrain().mineralsAt(t);
-    amount /= StageTerrain.MAX_MINERAL_AMOUNT;
+    Traded type = Outcrop.oreType(t);
+    float amount = Outcrop.oreAmount(t) / Outcrop.MAX_MINERALS;
     
     Colour hue = Colour.SOFT_GREY;
-    if (type == StageTerrain.TYPE_METALS  ) hue = Colour.LITE_RED  ;
-    if (type == StageTerrain.TYPE_ISOTOPES) hue = Colour.LITE_GREEN;
-    if (type == StageTerrain.TYPE_RUBBLE  ) hue = Colour.LITE_BLUE ;
+    if (type == Economy.METALS   ) hue = Colour.LITE_RED  ;
+    if (type == Economy.FUEL_RODS) hue = Colour.LITE_GREEN;
+    if (type == Economy.FOSSILS  ) hue = Colour.LITE_BLUE ;
     return modeTone.set(hue).blend(Colour.SOFT_GREY, 1 - amount);
   }
   

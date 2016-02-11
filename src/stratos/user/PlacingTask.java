@@ -70,7 +70,7 @@ public class PlacingTask implements UITask {
     if (picked != null) {
       if (mode == MODE_POINT) {
         begins = endsAt = picked;
-        if (UI.mouseDown()) tryPlacement = true;
+        if (UI.mouseClicked()) tryPlacement = true;
       }
       else if (UI.mouseDown()) {
         if (begins == null) begins = picked;
@@ -243,7 +243,7 @@ public class PlacingTask implements UITask {
   
   
   public void cancelTask() {
-    UI.endCurrentTask();
+    if (UI.currentTask() == this) UI.endCurrentTask();
   }
   
   
@@ -254,36 +254,12 @@ public class PlacingTask implements UITask {
     Box2D area, Batch <Coord> placePoints, boolean canPlace
   ) {
     if (SiteUtils.showPockets) return;
-    //
-    //  Base venue sprites off their current and projected neighbours!
-    final Batch <Object> under = new Batch <Object> ();
-    final Stage world = UI.played().world;
-    
     for (Coord c : placePoints) {
       final Venue p = placingAt(c, area, placePoints);
       if (p != null && p.origin() != null) {
         p.previewPlacement(canPlace, UI.rendering);
-        
-        for (Tile t : world.tilesIn(p.areaClaimed(), true)) {
-          under.add(t);
-        }
-        if (canPlace && p.mainEntrance() != null) under.add(p.mainEntrance());
-        /*
-        under.add(p.footprint());
-        if (p.mainEntrance() != null) under.add(p.mainEntrance());
-        if (canPlace) for (Tile t : p.reserved()) if (t != null) under.add(t);
-        //*/
       }
     }
-    
-    UI.selection.renderTileOverlay(
-      UI.rendering, UI.played().world,
-      canPlace ? Colour.WHITE : Colour.SOFT_RED,
-      Habitat.RESERVE_TEXTURE, true,
-      "install_preview", false, under.toArray()
-    );
-    //  TODO:  Render reserved tiles with a separate overlay and higher
-    //         transparency.
   }
   
   

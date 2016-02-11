@@ -99,8 +99,8 @@ public class ExcavationSite extends HarvestVenue {
     for (Tile t : openFaces) {
       final Item i = Outcrop.mineralsAt(t);
       if (i == null || ! canDig(t)) continue;
-      if (i.type == METALS   ) sumM++;
-      if (i.type == FUEL_RODS) sumF++;
+      if (i.type == METALS   ) sumM += i.amount;
+      if (i.type == FUEL_RODS) sumF += i.amount;
     }
     sumM /= openFaces.length;
     sumF /= openFaces.length;
@@ -108,7 +108,7 @@ public class ExcavationSite extends HarvestVenue {
     outM = sumM;
     outF = sumF;
     
-    float mineMult = Mining.HARVEST_MULT * staff.workforce() / 2f;
+    float mineMult = Mining.HARVEST_MULT * staff.workforce();
     mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.TILE_DIG_TIME;
     outM *= mineMult * extractMultiple(METALS   );
     outF *= mineMult * extractMultiple(FUEL_RODS);
@@ -192,6 +192,7 @@ public class ExcavationSite extends HarvestVenue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     structure.setAmbienceVal(structure.upgradeLevel(SAFETY_PROTOCOL) - 3);
+    stocks.updateStockDemands(1, services());
   }
   
   
@@ -201,19 +202,21 @@ public class ExcavationSite extends HarvestVenue {
   protected ClaimDivision updateDivision() {
     final ClaimDivision d = super.updateDivision();
     return d.withUsageMarked(
-      0.25f, true, true, this,
+      1.0f, true, true, this,
+      ClaimDivision.USE_NORMAL,
+      ClaimDivision.USE_NORMAL,
       ClaimDivision.USE_SECONDARY
     );
   }
   
   
   public boolean canDig(Tile at) {
-    return claimDivision().useType(at) == 1;
+    return claimDivision().useType(at) == ClaimDivision.USE_NORMAL;
   }
   
   
   public boolean canDump(Tile at) {
-    return claimDivision().useType(at) == 2;
+    return claimDivision().useType(at) == ClaimDivision.USE_SECONDARY;
   }
   
   
@@ -232,7 +235,7 @@ public class ExcavationSite extends HarvestVenue {
   
   
   protected boolean needsTending(Tile t) {
-    return world.terrain().mineralsAt(t) > 0;
+    return Outcrop.mineralsAt(t) != null;
   }
   
   
