@@ -192,16 +192,16 @@ public class Text extends UIGroup implements Description {
   }
   
   
-  public String getText() {
+  public String getText(int limit) {
+    final StringBuffer s = new StringBuffer();
     int n = 0;
-    char charS[] = new char[allEntries.size()];
+    
     for (Box2D entry : allEntries) {
-      if (entry instanceof TextEntry)
-        charS[n++] = ((TextEntry) entry).key;
-      else
-        charS[n++] = '*';
+      if (entry instanceof TextEntry) s.append(((TextEntry) entry).key);
+      else s.append('*');
+      if (limit > 0 && n++ >= limit) break;
     }
-    return new String(charS);
+    return s.toString();
   }
   
   
@@ -345,7 +345,7 @@ public class Text extends UIGroup implements Description {
   
   
   public String toString() {
-    return "Text: "+getText();
+    return "Text: "+getText(20);
   }
   
   

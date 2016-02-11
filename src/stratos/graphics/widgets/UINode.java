@@ -69,6 +69,8 @@ public abstract class UINode {
   
   public String widgetID() { return widgetID; }
   public void setWidgetID(String ID) { this.widgetID = ID; }
+  protected String info() { return widgetID; }
+  public String toString() { return widgetID; }
   
   
   public int xpos() { return (int) bounds.xpos(); }
@@ -79,18 +81,17 @@ public abstract class UINode {
   public Box2D trueBounds() { return bounds; }
   public Box2D absBound() { return absBound; }
   public Box2D relBound() { return relBound; }
-
-  
-  public void setToPreferredSize() {
-    return;
-  }
   
   
   
   /**  Methods intended for implementation by subclasses-
     */
   protected abstract void render(WidgetsPass pass);
-  protected String info() { return null; }
+
+  
+  public void setToPreferredSize() {
+    return;
+  }
   
   
   

@@ -23,10 +23,6 @@ public class HUD extends UIGroup {
   private static boolean
     verbose = false;
   
-  final private static float
-    DRAG_DIST   = 3.0f,
-    HOVER_DELAY = 0.5f;
-  
   
   final public Rendering rendering;
   
@@ -65,15 +61,14 @@ public class HUD extends UIGroup {
     nextMP.x = Gdx.input.getX();
     nextMP.y = Gdx.graphics.getHeight() - Gdx.input.getY();
     
-    if (mouseB && (! nextMB)) {
-      mouseState = HOVERED;
-    }
+    mouseState = HOVERED;
+    
     if ((! mouseB) && nextMB) {
       mouseState = CLICKED;
       dragMP.set(nextMP);
     }
-    if (mouseB && nextMB && (mouseState != DRAGGED)) {
-      mouseState = (dragMP.dst(nextMP) > DRAG_DIST) ? DRAGGED : PRESSED;
+    if (mouseB && nextMB) {
+      mouseState = DRAGGED;
     }
     mousePos.set(nextMP);
     mouseB = nextMB;
@@ -110,6 +105,9 @@ public class HUD extends UIGroup {
     }
     if (mouseState == CLICKED && dragsFrom == null) {
       dragsFrom = selected;
+      if (report) {
+        I.say("Drag begun: "+selected);
+      }
     }
     else if (dragsFrom != null && mouseState == DRAGGED) {
       dragsFrom.whenDragged();
