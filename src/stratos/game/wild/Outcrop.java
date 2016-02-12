@@ -180,7 +180,25 @@ public class Outcrop extends Fixture {
   
   
   public float oreAmount() {
-    return condition * bulk() * MAX_MINERALS / 2f;
+    return bulk() * MAX_MINERALS / 2f;
+  }
+  
+  
+  public static Traded oreType(Tile at) {
+    final StageTerrain terrain = at.world.terrain();
+    if (terrain.flatHeight(at) <= 0 - MAX_DIG_DEEP) return null;
+    final int var = terrain.varAt(at);
+    return ORE_TYPES[var % ORE_TYPES.length];
+  }
+  
+  
+  public static float oreAmount(Tile at) {
+    final Traded type = oreType(at);
+    if (type == null) return 0;
+    float amount = at.habitat().minerals() * MAX_MINERALS / 10f;
+    if (type == METALS ) amount *= 2;
+    if (type == FOSSILS) amount /= 2;
+    return amount;
   }
   
   
@@ -201,29 +219,11 @@ public class Outcrop extends Fixture {
     if (face instanceof Outcrop) {
       final Outcrop at = (Outcrop) face;
       type   = at.oreType  ();
-      amount = at.oreAmount();
+      amount = at.oreAmount() * at.condition();
     }
     
     if (type == null || amount == 0) return null;
     return Item.withAmount(type, amount);
-  }
-  
-  
-  public static Traded oreType(Tile at) {
-    final StageTerrain terrain = at.world.terrain();
-    if (terrain.flatHeight(at) <= 0 - MAX_DIG_DEEP) return null;
-    final int var = terrain.varAt(at);
-    return ORE_TYPES[var % ORE_TYPES.length];
-  }
-  
-  
-  public static float oreAmount(Tile at) {
-    final Traded type = oreType(at);
-    if (type == null) return 0;
-    float amount = at.habitat().minerals() * MAX_MINERALS / 10f;
-    if (type == METALS ) amount *= 2;
-    if (type == FOSSILS) amount /= 2;
-    return amount;
   }
   
   
@@ -247,8 +247,12 @@ public class Outcrop extends Fixture {
   
   
   public String helpInfo() {
-    return
+    final Item ore = mineralsAt(this);
+    String s =
       "Rock outcrops are a frequent indication of underlying mineral wealth.";
+    if (ore != null) s += "\n  Ore: "+ore;
+    s += "\n  Condition: "+((int) (condition * 100))+"%";
+    return s;
   }
 }
 

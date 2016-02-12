@@ -28,10 +28,10 @@ public class Mining extends ResourceTending {
     verbose = false;
   
   final public static int
-    TYPE_MINING  = 0,
-    TYPE_DUMPING = 1,
-    TYPE_FORMING = 2,
-    TYPE_BORING  = 3;
+    TYPE_MINING    = 0,
+    TYPE_DUMPING   = 1,
+    TYPE_FORMING   = 2,
+    TYPE_STRIPPING = 3;
   
   final public static float
     MAX_SAMPLE_STORE      = 50,
@@ -59,7 +59,7 @@ public class Mining extends ResourceTending {
   final static Trait
     MINE_TRAITS[] = { PATIENT, METICULOUS };
   final public static Traded
-    MINED_TYPES[] = { null, METALS, FOSSILS, FUEL_RODS, SLAG };
+    MINED_TYPES[] = { METALS, FUEL_RODS, SLAG };
   
   
   final public int type;
@@ -67,9 +67,10 @@ public class Mining extends ResourceTending {
   
   
   private Mining(
-    Actor actor, HarvestVenue depot, int type, Traded extracts[]
+    Actor actor, HarvestVenue depot, int type, Traded extracts[],
+    Target toAssess[]
   ) {
-    super(actor, depot, extracts);
+    super(actor, depot, true, toAssess, extracts);
     this.type = type;
   }
   
@@ -89,13 +90,30 @@ public class Mining extends ResourceTending {
   
   
   public Plan copyFor(Actor other) {
-    return new Mining(actor, (HarvestVenue) depot, type, harvestTypes);
+    return new Mining(
+      actor, (HarvestVenue) depot, type, harvestTypes, assessed
+    );
   }
   
   
   public static Mining asMining(Actor actor, ExcavationSite site) {
     final Mining mining = new Mining(
-      actor, site, TYPE_MINING, MINED_TYPES
+      actor, site, TYPE_MINING, MINED_TYPES, null
+    );
+    mining.coop = false;
+    return mining;
+  }
+  
+  
+  public static Mining asStripping(Actor actor, ExcavationSite site) {
+    final Batch <Outcrop> outcrops = new Batch();
+    site.world().presences.sampleFromMap(
+      site, site.world(), 5, outcrops, Outcrop.class
+    );
+    if (outcrops.empty()) return null;
+    
+    final Mining mining = new Mining(
+      actor, site, TYPE_STRIPPING, MINED_TYPES, outcrops.toArray(Outcrop.class)
     );
     mining.coop = false;
     return mining;
@@ -104,7 +122,7 @@ public class Mining extends ResourceTending {
   
   public static Mining asDumping(Actor actor, ExcavationSite site) {
     final Mining mining = new Mining(
-      actor, site, TYPE_DUMPING, new Traded[0]
+      actor, site, TYPE_DUMPING, new Traded[0], null
     );
     mining.coop = false;
     return mining;
@@ -125,6 +143,12 @@ public class Mining extends ResourceTending {
   
   protected Conversion tendProcess() {
     return ExcavationSite.LAND_TO_METALS;
+  }
+  
+  
+  protected Target[] targetsToAssess(boolean fromDepot) {
+    if (assessed != null) return assessed;
+    else return super.targetsToAssess(fromDepot);
   }
   
 
@@ -152,29 +176,37 @@ public class Mining extends ResourceTending {
   protected float rateTarget(Target t) {
     
     final ExcavationSite site = (ExcavationSite) depot;
-    final Tile at = (Tile) t;
-    final StageTerrain terrain = at.world.terrain();
+    final StageTerrain terrain = depot.world().terrain();
     
     if (type == TYPE_MINING) {
-      if (! site.canDig(at)) return -1;
-      final Item ore    = Outcrop.mineralsAt(at);
-      final int  height = terrain.flatHeight(at);
+      final Tile face = (Tile) t;
+      if (! site.canDig(face)) return -1;
+      final float amount = Outcrop.oreAmount(face);
+      final Traded type = Outcrop.oreType(face);
+      if (! Visit.arrayIncludes(MINED_TYPES, type)) return -1;
+      
+      final int height = terrain.flatHeight(face);
       float rating = MAXIMUM_DIG_DEPTH + height;
-      rating += ore == null ? 0 : ore.amount / Outcrop.MAX_MINERALS;
-      if (! terrain.isStripped(at)) rating += MAXIMUM_DIG_DEPTH;
+      rating += amount / Outcrop.MAX_MINERALS;
+      if (! terrain.isStripped(face)) rating += MAXIMUM_DIG_DEPTH;
+      
       return rating;
     }
+    if (type == TYPE_STRIPPING) {
+      final Outcrop face = (Outcrop) t;
+      if (! Visit.arrayIncludes(MINED_TYPES, face.oreType())) return -1;
+      if (Spacing.distance(face, site) > Stage.ZONE_SIZE) return -1;
+      return face.oreAmount() / Outcrop.MAX_MINERALS;
+    }
     if (type == TYPE_DUMPING) {
-      if (! site.canDump(at)) return -1;
-      final Tailing dump = Tailing.foundAt(at);
+      final Tile face = (Tile) t;
+      if (! site.canDump(face)) return -1;
+      final Tailing dump = Tailing.foundAt(face);
       if (dump == null) return 1;
       if (dump.fillLevel() >= 1 || dump.wasteType() != oreDumped) return 0;
       return dump.fillLevel() + 1;
     }
     if (type == TYPE_FORMING) {
-      
-    }
-    if (type == TYPE_BORING) {
       
     }
     return 0;
@@ -187,12 +219,12 @@ public class Mining extends ResourceTending {
     if (type == TYPE_MINING) {
       
     }
+    if (type == TYPE_STRIPPING) {
+      
+    }
     if (type == TYPE_DUMPING) {
       final Item slag = depot.stocks.bestSample(SLAG, oreDumped, 10);
       if (slag != null) depot.stocks.transfer(slag, actor);
-    }
-    if (type == TYPE_BORING) {
-      
     }
     if (type == TYPE_FORMING) {
       
@@ -202,28 +234,25 @@ public class Mining extends ResourceTending {
   
   
   protected Item[] afterHarvest(Target t) {
-    
     final boolean report = verbose && I.talkAbout == actor;
     final ExcavationSite site = (ExcavationSite) depot;
-    final Tile at = (Tile) t;
-    
-    //  TODO:  Adapt this to arbitrary outcrops too.
     
     final StageTerrain terrain = depot.world().terrain();
     
     if (type == TYPE_MINING) {
+      final Tile  face        = (Tile) t;
       final Item  ore         = Outcrop.mineralsAt(t);
       final float breakChance = 1f / TILE_DIG_TIME;
-      final int   height      = terrain.flatHeight(at);
+      final int   height      = terrain.flatHeight(face);
       if (ore == null) return null;
       
-      terrain.setRoadType(at, StageTerrain.ROAD_STRIP);
-      at.clearUnlessOwned();
+      terrain.setRoadType(face, StageTerrain.ROAD_STRIP);
+      face.clearUnlessOwned();
       float yield = breakChance / 2f;
       
       if (Rand.num() < breakChance) {
         yield += 0.5f;
-        terrain.hardTerrainLevel(height - 1, at);
+        terrain.hardTerrainLevel(height - 1, face);
       }
       
       yield *= ore.amount * HARVEST_MULT * site.extractMultiple(ore.type);
@@ -232,14 +261,23 @@ public class Mining extends ResourceTending {
         Item.with(SLAG    , ore.type, yield * SLAG_RATIO, Item.AVG_QUALITY)
       };
     }
-    if (type == TYPE_DUMPING) {
-      //final Tile at = (Tile) t;
+    if (type == TYPE_STRIPPING) {
+      final Outcrop face = (Outcrop) t;
+      float inc = -1f / (TILE_DIG_TIME * face.bulk());
+      face.incCondition(inc);
       
-      Tailing dumps = Tailing.foundAt(at);
+      final Traded type = face.oreType();
+      final float amount = face.oreAmount() * 0 - inc;
+      return new Item[] { Item.withAmount(type, amount) };
+    }
+    if (type == TYPE_DUMPING) {
+      final Tile face = (Tile) t;
+      Tailing dumps = Tailing.foundAt(face);
       float space = 10;
+      
       if (dumps == null) {
         dumps = new Tailing(oreDumped);
-        dumps.enterWorldAt(at.x, at.y, at.world, true);
+        dumps.enterWorldAt(face.x, face.y, face.world, true);
       }
       else space = (1 - dumps.fillLevel()) * TAILING_LIMIT;
       
@@ -250,9 +288,6 @@ public class Mining extends ResourceTending {
       }
       
       return null;
-    }
-    if (type == TYPE_BORING) {
-      
     }
     if (type == TYPE_FORMING) {
       
@@ -265,13 +300,13 @@ public class Mining extends ResourceTending {
     if (type == TYPE_MINING) {
       actor.gear.transfer(SLAG, depot);
     }
+    if (type == TYPE_STRIPPING) {
+      actor.gear.transfer(SLAG, depot);
+    }
     if (type == TYPE_FORMING) {
       
     }
     if (type == TYPE_DUMPING) {
-      
-    }
-    if (type == TYPE_BORING) {
       
     }
   }
@@ -281,17 +316,17 @@ public class Mining extends ResourceTending {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    final Tile at = (Tile) tended;
-    final Tailing t = Tailing.foundAt(at);
-    
     if (stage() != STAGE_TEND) {
       super.describeBehaviour(d);
       return;
     }
-    
     if (type == TYPE_MINING) {
       d.append("Mining ");
-      d.append(at.habitat());
+      d.append(tended);
+    }
+    if (type == TYPE_STRIPPING) {
+      d.append("Stripping ");
+      d.append(tended);
     }
     if (type == TYPE_DUMPING) {
       d.append("Dumping slag");

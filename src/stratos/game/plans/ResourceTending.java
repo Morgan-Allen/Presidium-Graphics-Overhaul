@@ -148,6 +148,7 @@ public abstract class ResourceTending extends Plan {
     final Conversion process = tendProcess();
     if (process != null) setCompetence(process.testChance(actor, 0));
     else setCompetence(1);
+    
     final float priority = PlanUtils.jobPlanPriority(
       actor, this,
       baseMotive, competence(),
@@ -324,6 +325,11 @@ public abstract class ResourceTending extends Plan {
   protected abstract Conversion tendProcess();
   protected abstract Item[] afterHarvest(Target t);
   protected abstract void afterDepotDisposal();
+  
+  
+  public Target tended() {
+    return tended;
+  }
   
   
 

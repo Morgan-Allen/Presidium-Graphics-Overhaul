@@ -182,8 +182,9 @@ public class ExcavationSite extends HarvestVenue {
     if (d != null) return d;
     
     final Choice choice = new Choice(actor);
-    choice.add(Mining.asMining (actor, this));
-    choice.add(Mining.asDumping(actor, this));
+    choice.add(Mining.asMining   (actor, this));
+    choice.add(Mining.asStripping(actor, this));
+    choice.add(Mining.asDumping  (actor, this));
     return choice.weightedPick();
   }
   
@@ -243,6 +244,9 @@ public class ExcavationSite extends HarvestVenue {
     final Mining m = (Mining) tending;
     if (m.type == Mining.TYPE_MINING) {
       return super.needForTending(tending);
+    }
+    if (m.type == Mining.TYPE_STRIPPING) {
+      return 0.5f;
     }
     if (m.type == Mining.TYPE_DUMPING) {
       return stocks.amountOf(SLAG) / Mining.TAILING_LIMIT;
