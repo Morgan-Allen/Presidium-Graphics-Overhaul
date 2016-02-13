@@ -180,6 +180,13 @@ public class DebugGathering extends Scenario {
     base.setup.fillVacancies(site, true);
     site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));
     
+    final Tile res[] = site.reserved();
+    for (int n = res.length; n-- > 0;) {
+      Tile t = res[n];
+      if (! site.canDig(t)) continue;
+      world.terrain().setDigLevel(t, -1 - Rand.index(5));
+    }
+    
     final Actor first = site.staff.workers().first();
     final Mining dumps = Mining.asDumping(first, site);
     dumps.addMotives(Plan.MOTIVE_JOB, 10);

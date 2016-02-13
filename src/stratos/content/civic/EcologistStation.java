@@ -195,9 +195,6 @@ public class EcologistStation extends HarvestVenue {
     if (shortages >= 0.5f || fieldHand) {
       choice.add(nextHarvestFor(actor));
     }
-    if (shortages > 0.5f && fieldHand) {
-      choice.add(Gathering.asForaging(actor, this));
-    }
     //
     //  Then add jobs specific to each vocation-
     if (fieldHand) {

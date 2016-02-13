@@ -287,16 +287,20 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   private void calcCornerHeight(Tile at, int offX, int offY) {
     float maxVal = Float.NEGATIVE_INFINITY;
+    final int
+      tx = (at.x * 2) + (offX > 0 ? 1 : 0),
+      ty = (at.y * 2) + (offY > 0 ? 1 : 0);
     
     for (int x = 2; x-- > 0;) for (int y = 2; y-- > 0;) {
       final Tile n = at.world.tileAt(at.x + (x * offX), at.y + (y * offY));
       if (n != null) maxVal = Nums.max(maxVal, digLevel(n));
     }
-
+    
     for (int x = 2; x-- > 0;) for (int y = 2; y-- > 0;) try {
-      int cx = (at.x * 2) + (x * offX), cy = (at.y * 2) + (y * offY);
+      final int cx = tx + (x * offX), cy = ty + (y * offY);
       heightVals[cx][cy] = (byte) maxVal;
     }
+    
     catch (ArrayIndexOutOfBoundsException e) {}
   }
   

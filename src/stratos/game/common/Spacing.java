@@ -176,7 +176,7 @@ public final class Spacing implements TileConstants {
     //
     //  We want to avoid any tiles that are obstructed, including by other
     //  actors, and probably to stay in the same spot if possible.
-    final Tile l = Rand.num() < 0.2f ? null : client.origin();
+    final Tile l = Rand.num() < 0.1f ? null : client.origin();
     final float weights[] = new float[perim.length];
     float sumWeights = 0;
     int index = -1;
@@ -184,10 +184,10 @@ public final class Spacing implements TileConstants {
     for (Tile p : perim) {
       index++;
       if (p == null || p.blocked()) continue;
-      if (p.inside().size() > 0   ) continue;
-      if (l != null && Spacing.adjacent(p, l)) return p;
+      if (l != null && p == l) return p;
+      if (p.inside().size() > 0) continue;
       
-      final float weight = 1f;
+      float weight = 1f;
       weights[index] = weight;
       sumWeights += weight;
     }

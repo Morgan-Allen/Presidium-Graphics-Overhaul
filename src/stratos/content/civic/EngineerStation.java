@@ -165,13 +165,13 @@ public class EngineerStation extends Venue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    stocks.setConsumption(PLASTICS, 2);
-    stocks.setConsumption(PARTS   , 2);
     stocks.updateStockDemands(1, services(),
       PARTS_TO_CIRCUITRY,
       METALS_TO_PARTS,
       POLYMER_TO_PLASTICS
     );
+    stocks.setConsumption(PLASTICS, 2);
+    stocks.setConsumption(PARTS   , 2);
     
     float pollution = 5, powerNeed = 5;
     powerNeed *= (3 + structure.numOptionalUpgrades()) / 6;

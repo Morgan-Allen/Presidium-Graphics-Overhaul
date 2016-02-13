@@ -206,8 +206,9 @@ public abstract class ResourceTending extends Plan {
         Action.BUILD, "Tending to "+toTend
       );
       if (willBeBlocked(toTend)) {
-        final Tile open = Spacing.nearestOpenTile(toTend, actor);
-        tending.setMoveTarget(open);
+        final Tile open = Spacing.pickFreeTileAround(toTend, actor);
+        if (open == null) return null;
+        else tending.setMoveTarget(open);
       }
       if (report) I.say("  WILL TEND "+toTend);
       return tending;
