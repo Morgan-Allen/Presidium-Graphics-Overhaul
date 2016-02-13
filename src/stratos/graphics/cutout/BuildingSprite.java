@@ -63,6 +63,8 @@ public class BuildingSprite extends Sprite implements TileConstants {
   
   private Sprite baseSprite;
   private CutoutSprite buildSteps[] = null;
+  private GroupSprite allStacks = null;
+  private List <PlaneFX> statusFX;
   
   private float condition;
   private int size, high;
@@ -155,6 +157,11 @@ public class BuildingSprite extends Sprite implements TileConstants {
       baseSprite.matchTo(this);
       baseSprite.passType = this.passType;
       baseSprite.readyFor(rendering);
+      
+      if (allStacks != null) {
+        allStacks.matchTo(this);
+        allStacks.readyFor(rendering);
+      }
     }
     else if (buildSteps != null) {
       for (int index = 0; index < buildSteps.length; index++) {
@@ -164,6 +171,24 @@ public class BuildingSprite extends Sprite implements TileConstants {
         step.readyFor(rendering);
       }
     }
+    
+    final PlaneFX displayed = statusFX == null ? null : statusFX.first();
+    if (displayed != null) {
+      displayed.matchTo(this);
+      displayed.position.z += high + 0.5f;
+      displayed.readyFor(rendering);
+      
+      final float progress = displayed.animProgress(false) % 1;
+      final float alpha = Nums.clamp(progress * 4 * (1 - progress), 0, 1);
+      displayed.colour = Colour.transparency(alpha);
+      
+      if (displayed.animProgress(false) >= 1) {
+        displayed.reset();
+        statusFX.remove(displayed);
+        statusFX.addLast(displayed);
+      }
+    }
+    
     flagChange = false;
   }
   
@@ -351,127 +376,23 @@ public class BuildingSprite extends Sprite implements TileConstants {
     *  (Might be useful for actors/agents, though?)
     */
   public void toggleFX(ModelAsset model, boolean on) {
-  }
-  
-
-  public void clearFX() {
-    //statusFX.clear();
-    //allStacks.clearAllAttachments();
-  }
-  
-  
-  public void updateItemDisplay(
-    CutoutModel itemModel, float amount, float xoff, float yoff, float zoff
-  ) {
-    
-  }
-}
-
-
-
-
-
-/*
-final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex);
-if (displayed != null) {
-  
-  displayed.matchTo(this);
-  displayed.position.z += high + 0.5f;
-  displayed.readyFor(rendering);
-  
-  final float progress = displayed.animProgress(false) % 1;
-  final float alpha = Nums.clamp(progress * 4 * (1 - progress), 0, 1);
-  displayed.colour = Colour.transparency(alpha);
-}
-else statusDisplayIndex = statusFX.size() - 1;
-//*/
-
-
-/*
-  
-  private GroupSprite allStacks;
-  private List <PlaneFX> statusFX = new List <PlaneFX> ();
-  private int statusDisplayIndex = -1;
-
-  public void loadFrom(DataInputStream in) throws Exception {
-    super.loadFrom(in);
-    size      = in.readInt    ();
-    high      = in.readInt    ();
-    intact    = in.readBoolean();
-    condition = in.readFloat  ();
-    baseSprite   =                ModelAsset.loadSprite(in);
-    scaffoldBase = (CutoutSprite) ModelAsset.loadSprite(in);
-    scaffolding  = (GroupSprite ) ModelAsset.loadSprite(in);
-    allStacks    = (GroupSprite ) ModelAsset.loadSprite(in);
-    
-    allStacks.clearAllAttachments();
-  }
-  
-  
-  public void saveTo(DataOutputStream out) throws Exception {
-    super.saveTo(out);
-    out.writeInt    (size     );
-    out.writeInt    (high     );
-    out.writeBoolean(intact   );
-    out.writeFloat  (condition);
-    ModelAsset.saveSprite(baseSprite  , out);
-    ModelAsset.saveSprite(scaffoldBase, out);
-    ModelAsset.saveSprite(scaffolding , out);
-    ModelAsset.saveSprite(allStacks   , out);
-  }
-  
-  
-  public void readyFor(Rendering rendering) {
-    allStacks.matchTo(this);
-    allStacks.readyFor(rendering);
-    
-    final PlaneFX displayed = statusFX.atIndex(statusDisplayIndex);
-    if (displayed != null) {
-      
-      displayed.matchTo(this);
-      displayed.position.z += high + 0.5f;
-      displayed.readyFor(rendering);
-      
-      final float progress = displayed.animProgress(false) % 1;
-      final float alpha = Nums.clamp(progress * 4 * (1 - progress), 0, 1);
-      displayed.colour = Colour.transparency(alpha);
-    }
-    else statusDisplayIndex = statusFX.size() - 1;
-  }
-  
-  
-  public Sprite baseSprite()  { return baseSprite ; }
-  public Sprite scaffolding() { return scaffolding; }
-  
-  
-  
-  /**  The following are 'dummy' methods that need to be re-implemented once
-    *  the simulation logic is back in action.
-    */
-  /*
-  public void toggleFX(ModelAsset model, boolean on) {
+    if (statusFX == null) statusFX = new List();
     if (on) {
       for (PlaneFX FX : statusFX) if (FX.model() == model) return;
       final PlaneFX FX = (PlaneFX) model.makeSprite();
       statusFX.add(FX);
-      if (statusDisplayIndex < 0) statusDisplayIndex = 0;
     }
     else {
-      int index = 0;
-      for (PlaneFX FX : statusFX)
-        if (FX.model() == model) {
-          statusFX.remove(FX);
-          if (statusDisplayIndex >= index) statusDisplayIndex--;
-          return;
-        }
-        else index++;
+      for (PlaneFX FX : statusFX) if (FX.model() == model) {
+        statusFX.remove(FX);
+        return;
+      }
     }
   }
   
-  
+
   public void clearFX() {
-    statusFX.clear();
-    allStacks.clearAllAttachments();
+    statusFX = null;
   }
   
   
@@ -479,6 +400,7 @@ else statusDisplayIndex = statusFX.size() - 1;
     CutoutModel itemModel, float amount, float xoff, float yoff, float zoff
   ) {
     ItemStack match = null;
+    if (allStacks == null) allStacks = new GroupSprite();
     
     for (Sprite s : allStacks.modules) {
       if (s instanceof ItemStack) {
@@ -498,32 +420,7 @@ else statusDisplayIndex = statusFX.size() - 1;
     }
     match.updateAmount((int) amount);
   }
-  
-  
-  public void updateCondition(
-    float newCondition, boolean normalState, boolean burning
-  ) {
-    intact = normalState;
-    
-    final float oldCondition = this.condition;
-    condition = newCondition;
-    
-    if (! intact) {
-      final int
-        maxStage = maxStages(),
-        oldStage = scaffoldStage(size, high, oldCondition, maxStage),
-        newStage = scaffoldStage(size, high, newCondition, maxStage);
-      if (scaffolding != null && oldStage == newStage) return;
-      scaffolding = scaffoldFor(size, high, newCondition);
-    }
-    else {
-      scaffolding = null;
-    }
-  }
-  //*/
-
-
-
+}
 
 
 

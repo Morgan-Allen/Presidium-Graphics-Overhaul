@@ -8,8 +8,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.game.wild.Habitat;
-import stratos.game.wild.Wreckage;
+import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
@@ -700,10 +699,15 @@ public abstract class Venue extends Fixture implements
   }
   
   
+  protected boolean showHoverStockIcons() {
+    return false;
+  }
+  
+  
   protected void updateItemSprites() {
     final Traded services[] = goodsToShow();
-    final float offsets[] = goodDisplayOffsets();
-    if (services == null) return;
+    final float  offsets [] = goodDisplayOffsets();
+    if (services == null || offsets == null) return;
     
     final boolean hide = ! structure.intact();
     final float
@@ -721,6 +725,7 @@ public abstract class Venue extends Fixture implements
       if (index < 0) break;
       final float y = offsets[index--], x = offsets[index--];
       if (y >= size || size <= -x) continue;
+      
       buildSprite.updateItemDisplay(
         s.model, hide ? 0 : goodDisplayAmount(s),
         initX + x, initY - y, 0
@@ -820,11 +825,28 @@ public abstract class Venue extends Fixture implements
     //
     //  We also show a visual indication of all the goods present at this
     //  venue...
+    if (renderStockHoverIcons(healthbar, rendering)) {
+      //zoff += 0.4f;
+    }
+    //
+    //  And then the name-label:
+    final Label label = new Label();
+    label.matchTo(buildSprite);
+    label.position.z += (zoff += 0.1f);
+    label.phrase = this.fullName();
+    label.readyFor(rendering);
+    label.fontScale = 1.0f;
+  }
+  
+  
+  protected boolean renderStockHoverIcons(
+    Healthbar healthbar, Rendering rendering
+  ) {
+    if (! showHoverStockIcons()) return false;
     
     //  TODO:  MOVE THIS OUT TO A DEDICATED WIDGET-CLASS!
-    
     final Batch <CutoutModel> itemModels = new Batch();
-    final Batch <CutoutModel> tickModels  = new Batch();
+    final Batch <CutoutModel> tickModels = new Batch();
     for (Traded t : VenuePane.ITEM_LIST_ORDER) {
       final float
         amount      = stocks.amountOf   (t),
@@ -841,23 +863,16 @@ public abstract class Venue extends Fixture implements
     }
     if (itemModels.size() > 0) {
       CutoutSprite.renderAbove(
-        healthbar.position, 0, 0.1f, -1, rendering,
-        0.375f, 1, itemModels
+        healthbar.position, 0, 0.1f - 0.5f, -1, rendering,
+        0.25f, 0.67f, itemModels
       );
       CutoutSprite.renderAbove(
-        healthbar.position, 0.1f, 0.2f, -1.1f, rendering,
-        0.375f, 0.50f, tickModels
+        healthbar.position, 0.1f, 0.2f - 0.5f, -1.1f, rendering,
+        0.25f, 0.33f, tickModels
       );
-      zoff += 0.4f;
+      return true;
     }
-    //
-    //  And then the name-label:
-    final Label label = new Label();
-    label.matchTo(buildSprite);
-    label.position.z += (zoff += 0.1f);
-    label.phrase = this.fullName();
-    label.readyFor(rendering);
-    label.fontScale = 1.0f;
+    return false;
   }
   
   

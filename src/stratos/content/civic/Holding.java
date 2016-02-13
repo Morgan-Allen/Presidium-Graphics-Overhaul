@@ -542,6 +542,11 @@ public class Holding extends Venue {
   }
   
   
+  protected boolean showHoverStockIcons() {
+    return true;
+  }
+  
+  
   public Composite portrait(HUD UI) {
     return Composite.withImage(ICONS[upgradeLevel], "holding"+upgradeLevel);
   }

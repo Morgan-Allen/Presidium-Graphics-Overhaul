@@ -48,6 +48,12 @@ public class SupplyDepot extends Venue {
     HOME_PURCHASE_TYPES[] = {
       PLASTICS, PARTS, CARBS, PROTEIN
     };
+  final static float
+    VIEW_OFFSETS[] = {
+      0, 0,  0.5f, 0,  1.0f, 0,  1.5f, 0,  2.0f, 0,
+      0, 1,  0.5f, 1,  1.0f, 1,  1.5f, 1,  2.0f, 1,
+    };
+  
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
@@ -228,14 +234,8 @@ public class SupplyDepot extends Venue {
   }
   
   
-  final static float OFFSETS[] = {
-    0, 2,  0, 3,  1, 2,  1, 3,
-    0, 2.5f,  0, 3.5f,  1, 2.5f,  1, 3.5f,
-  };
-  
-  
   protected float[] goodDisplayOffsets() {
-    return OFFSETS;
+    return VIEW_OFFSETS;
   }
   
 
