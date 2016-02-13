@@ -143,9 +143,9 @@ public class Proposal extends Dialogue {
       if (report) {
         I.say("  OFFER ACCEPTED");
         I.say("    Offered action:   "+OB);
-        I.say("    Fulfills offered: "+OA+" (Doing "+OA.mind.agenda()+")");
+        //I.say("    Fulfills offered: "+OA+" (Doing "+OA.mind.agenda()+")");
         I.say("    Sought action:    "+SB);
-        I.say("    Fulfills sought:  "+SA+" (Doing "+SA.mind.agenda()+")");
+        //I.say("    Fulfills sought:  "+SA+" (Doing "+SA.mind.agenda()+")");
       }
       //
       //  If the offer is accepted, the recipient modifies their relation based

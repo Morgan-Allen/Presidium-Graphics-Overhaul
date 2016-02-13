@@ -266,10 +266,11 @@ public class Action implements Behaviour, AnimNames {
     if (quick  ()) motionType = MOTION_FAST ;
     if (careful()) motionType = MOTION_SNEAK;
     
-    if (motionType == MOTION_NORMAL) for (Behaviour b : actor.mind.agenda()) {
-      if (b == this) continue;
-      final int MT = b.motionType(actor);
+    Behaviour step = parentPlan();
+    if (motionType == MOTION_NORMAL) while (step != null) {
+      final int MT = step.motionType(actor);
       if (MT != MOTION_ANY) { motionType = MT; break; }
+      step = step.parentPlan();
     }
     
     if (motionType == MOTION_FAST) {

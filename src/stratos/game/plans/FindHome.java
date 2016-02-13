@@ -173,8 +173,6 @@ public class FindHome extends Plan {
       I.say("\nEVALUATING HOME");
     }
     
-    
-    
     final Property oldHome = client.mind.home();
     final float
       oldRating = rateHolding(client, oldHome),

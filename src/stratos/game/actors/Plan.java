@@ -15,6 +15,7 @@ import stratos.util.*;
 //  have a single 'update' method, then read off everything else passively.
 
 
+
 public abstract class Plan implements Session.Saveable, Behaviour {
   
   
@@ -88,9 +89,9 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   protected float
     lastEvalTime = -1,
     priorityEval = NULL_PRIORITY;
-  protected Behaviour
-    nextStep = null,
-    lastStep = null;
+  
+  protected Plan parent;
+  protected Behaviour nextStep = null;
   private int
     properties  = 0;
   private float
@@ -118,8 +119,9 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     this.lastEvalTime = s.loadFloat();
     this.priorityEval = s.loadFloat();
-    this.nextStep     = (Behaviour) s.loadObject();
-    this.lastStep     = (Behaviour) s.loadObject();
+    
+    this.parent   = (Plan) s.loadObject();
+    this.nextStep = (Behaviour) s.loadObject();
     
     this.properties  = s.loadInt  ();
     this.motiveBonus = s.loadFloat();
@@ -134,8 +136,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     s.saveFloat (lastEvalTime);
     s.saveFloat (priorityEval);
-    s.saveObject(nextStep    );
-    s.saveObject(lastStep    );
+    s.saveObject(parent  );
+    s.saveObject(nextStep);
     
     s.saveInt  (properties );
     s.saveFloat(motiveBonus);
@@ -198,7 +200,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       I.say("  Cause: "+cause);
       I.reportStackTrace();
     }
-    nextStep = lastStep = null;
+    nextStep = null;
     priorityEval = NULL_PRIORITY;
     actor.mind.cancelBehaviour(this, cause);
     addMotives(IS_CANCELLED, 0);
@@ -222,14 +224,14 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     //
     //  If the last step has completed (or has exhausted it's set of steps), we
     //  need to generate another.
-    final boolean oldDone = lastStep != null && (
-      lastStep.finished() ||
-      lastStep.nextStepFor(actor) == null
+    boolean oldDone = nextStep != null && (
+      nextStep.finished() ||
+      nextStep.nextStepFor(actor) == null
     );
     if (oldDone) {
-      if (report) I.say("OLD STEP FINISHED: "+lastStep);
+      if (report) I.say("OLD STEP FINISHED: "+nextStep);
       clearEval(actor);
-      lastStep = null;
+      nextStep = null;
       return true;
     }
     //
@@ -291,13 +293,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public Plan parentPlan() {
-    if (actor == null) return null;
-    Behaviour prior = null;
-    for (Behaviour p : actor.mind.agenda) {
-      if (p == this) break;
-      else prior = p;
-    }
-    return (prior instanceof Plan) ? (Plan) prior : null;
+    return parent;
   }
   
   
@@ -339,17 +335,21 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     
     if (checkRefreshDue(actor, report && extraVerbose)) {
+      final Behaviour lastStep = nextStep;
       if (report) I.say("  Plan step for "+this+" was: "+I.tagHash(lastStep));
       final float time = actor.world().currentTime();
       
-      nextStep = getNextStep();
-      if (lastStep != null && lastStep.matchesPlan(nextStep)) {
+      Behaviour step = getNextStep();
+      if (lastStep != null && lastStep.matchesPlan(step)) {
         if (report) I.say("    NEXT STEP THE SAME AS OLD STEP: "+nextStep);
         nextStep = lastStep;
       }
-      else if (nextStep != null) {
+      else if (step != null) {
         if (report) I.say("  New plan step: "+I.tagHash(nextStep));
-        lastStep = nextStep;
+        nextStep = step;
+      }
+      if (nextStep instanceof Plan) {
+        ((Plan) nextStep).parent = this;
       }
       
       properties |= HAS_STEPS;
@@ -363,15 +363,13 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     final boolean report =
       (stepsVerbose || priorityVerbose) &&
       hasBegun() && I.talkAbout == actor;
-    if (hasMotives(IS_CANCELLED)) return true;
     
+    if (hasMotives(IS_CANCELLED)) return true;
     if (actor == null) return false;
     
-    if (this == actor.mind.rootBehaviour()) {
-      if (priorityFor(actor) <= 0) {
-        if (report) I.say("\nNO PRIORITY: "+I.tagHash(this));
-        return true;
-      }
+    if (parentPlan() == null && priorityFor(actor) <= 0) {
+      if (report) I.say("\nNO PRIORITY: "+I.tagHash(this));
+      return true;
     }
     if (nextStepFor(actor) == null) {
       if (report) I.say("\nNO NEXT STEP: "+I.tagHash(this));
@@ -387,7 +385,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean isActive() {
-    return actor != null && actor.mind.agenda.includes(this);
+    return actor != null && actor.isDoing(this, true);
   }
   
   
@@ -531,15 +529,15 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   protected boolean lastStepIs(String methodName) {
-    if (! (lastStep instanceof Action)) return false;
-    return ((Action) lastStep).methodName().equals(methodName);
+    if (! (nextStep instanceof Action)) return false;
+    return ((Action) nextStep).methodName().equals(methodName);
   }
   
   
   protected Target lastStepTarget() {
-    if (lastStep == null) return null;
-    if (lastStep instanceof Action) return ((Action) lastStep).subject();
-    if (lastStep instanceof Plan  ) return ((Plan  ) lastStep).lastStepTarget();
+    if (nextStep == null) return null;
+    if (nextStep instanceof Action) return ((Action) nextStep).subject();
+    if (nextStep instanceof Plan  ) return ((Plan  ) nextStep).lastStepTarget();
     return null;
   }
   
@@ -555,16 +553,16 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   protected boolean needsSuffix(Description d, String defaultPrefix) {
-    if (lastStep == null) {
+    if (nextStep == null) {
       d.append(defaultPrefix);
       return true;
     }
-    if (lastStep instanceof Action) {
-      lastStep.describeBehaviour(d);
+    if (nextStep instanceof Action) {
+      nextStep.describeBehaviour(d);
       return true;
     }
     else {
-      lastStep.describeBehaviour(d);
+      nextStep.describeBehaviour(d);
       return false;
     }
   }

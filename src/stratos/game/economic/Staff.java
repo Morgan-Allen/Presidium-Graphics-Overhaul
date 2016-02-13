@@ -4,8 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.economic;
-import static stratos.game.economic.Economy.SERVICE_HOUSING;
-
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
@@ -13,6 +11,7 @@ import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.game.maps.*;
 import stratos.util.*;
+import static stratos.game.economic.Economy.SERVICE_HOUSING;
 
 
 
@@ -57,6 +56,7 @@ public class Staff {
     s.saveObjects(workers);
     s.saveObjects(lodgers);
   }
+  
   
   
   /**  Queries on workers and lodgers-
@@ -255,11 +255,7 @@ public class Staff {
     if (matchPlan == null) return 0;
     int count = 0;
     for (Actor actor : workers) {
-      for (Behaviour b : actor.mind.agenda()) if (b instanceof Plan) {
-        if (((Plan) b).matchesPlan(matchPlan)) {
-          count++;
-        }
-      }
+      if (actor.matchFor(matchPlan) != null) count++;
     }
     return count;
   }

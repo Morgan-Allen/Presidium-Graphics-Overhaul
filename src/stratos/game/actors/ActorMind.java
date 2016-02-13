@@ -28,8 +28,9 @@ public abstract class ActorMind {
   
   final protected Actor actor;
   
-  final List <Behaviour> agenda   = new List <Behaviour> ();
-  final List <Behaviour> todoList = new List <Behaviour> ();
+  protected Plan current = null;
+  final Batch <Behaviour> agenda   = new Batch();
+  final List  <Behaviour> todoList = new List ();
   
   protected Mission mission;
   protected Property home, work;
@@ -43,6 +44,7 @@ public abstract class ActorMind {
   
   
   public void loadState(Session s) throws Exception {
+    current = (Plan) s.loadObject();
     s.loadObjects(agenda  );
     s.loadObjects(todoList);
     
@@ -54,6 +56,7 @@ public abstract class ActorMind {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject (current );
     s.saveObjects(agenda  );
     s.saveObjects(todoList);
     
@@ -101,7 +104,9 @@ public abstract class ActorMind {
     //
     //  Cull any expired items on the to-do list, and see if it's worth
     //  switching to a different behaviour-
-    for (Behaviour b : todoList) if (b.finished()) todoList.remove(b);
+    for (Behaviour b : todoList) {
+      if (b.finished()) todoList.remove(b);
+    }
     final Behaviour last = rootBehaviour();
     final Behaviour next = nextBehaviour();
     if (next != last) {
@@ -168,64 +173,62 @@ public abstract class ActorMind {
   
   public Action getNextAction() {
     final boolean report = I.talkAbout == actor && stepsVerbose;
-    Behaviour root = null, next = null;
+    
     final int MAX_LOOP = 6;
     final String cause = "Getting next action";
+    Behaviour root = null, next = null;
     Action returned = null;
-    
-    decision: for (int loop = MAX_LOOP; loop-- > 0;) {
-      //
-      //  Firstly, check to ensure that our root behaviour is still valid- if
-      //  not, you'll need to pick out a new one:
-      root = rootBehaviour();
-      next = null;
-      if (report) {
-        I.say("\nGETTING NEXT ACTION FOR "+actor);
-        I.say("  Current root behaviour: "+I.tagHash(root));
-      }
-      if (! Plan.canFollow(actor, root, true)) {
-        if (report && root != null) {
-          I.say("  Could not follow root plan!");
-          Plan.reportPlanDetails(root, actor);
-        }
-        if (Plan.canPersist(root)) todoList.add(root);
-        root = nextBehaviour();
-        if (report) {
-          I.say("  Current agenda was empty!");
-          I.say("  New root behaviour: "+I.tagHash(root));
-        }
-      }
-      //
-      //  Then, delete all existing entries from the agenda.
-      for (Behaviour b : agenda) popBehaviour(b, cause);
-      if (! Plan.canFollow(actor, root, true)) {
-        if (warnVerbose) {
-          I.say(actor+"  CANNOT FOLLOW NEW PLAN: "+root);
-          Plan.reportPlanDetails(root, actor);
-        }
-        break decision;
-      }
-      //
-      //  Then descend from the root node, adding each sub-step to the agenda,
-      //  and return once you hit a valid action-step.  If that never happens,
-      //  cancel from the root and start over.
-      next = root;
-      while (loop-- > 0) {
-        pushBehaviour(next, cause);
-        next = next.nextStepFor(actor);
-        final boolean valid = Plan.canFollow(actor, next, false);
-        if (report) {
-          I.say("  Next step: "+next+", valid? "+valid);
-          if (! valid) Plan.reportPlanDetails(next, actor);
-        }
-        if (! valid) break;
-        else if (next instanceof Action) {
-          returned = (Action) next;
-          break decision;
-        }
-      }
-      cancelBehaviour(root, cause);
+
+    //
+    //  Firstly, check to ensure that our root behaviour is still valid- if
+    //  not, you'll need to pick out a new one:
+    root = rootBehaviour();
+    next = null;
+    agenda.clear();
+    if (report) {
+      I.say("\nGETTING NEXT ACTION FOR "+actor);
+      I.say("  Current root behaviour: "+I.tagHash(root));
     }
+    if (! Plan.canFollow(actor, root, true)) {
+      if (report && root != null) {
+        I.say("  Could not follow root plan!");
+        Plan.reportPlanDetails(root, actor);
+      }
+      if (Plan.canPersist(root)) todoList.add(root);
+      root = nextBehaviour();
+      if (report) {
+        I.say("  Current agenda was empty!");
+        I.say("  New root behaviour: "+I.tagHash(root));
+      }
+    }
+
+    //
+    //  Then descend from the root node, adding each sub-step to the agenda,
+    //  and return once you hit a valid action-step.  If that never happens,
+    //  cancel from the root and start over.
+    next = root;
+    int loop = MAX_LOOP;
+    while (loop-- > 0) {
+      if (next instanceof Action) {
+        returned = (Action) next;
+        break;
+      }
+      final boolean valid = Plan.canFollow(actor, next, false);
+      if (report) {
+        I.say("  Next step: "+next+", valid? "+valid);
+        if (! valid) Plan.reportPlanDetails(next, actor);
+      }
+      if (! valid) break;
+      agenda.add(next);
+      next = next.nextStepFor(actor);
+    }
+    if (returned == null) next = root = null;
+    
+    if (root != current) {
+      if (current != null) cancelBehaviour(current, cause);
+      if (root    != null) assignBehaviour(root);
+    }
+    
     //
     //  If we're not performing a Technique already, consider finding one
     //  that's appropriate to the underlying activity-
@@ -335,37 +338,6 @@ public abstract class ActorMind {
   
   /**  Methods related to maintaining the agenda stack-
     */
-  private void pushBehaviour(Behaviour b, String cause) {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
-    
-    if (todoList.includes(b)) todoList.remove(b);
-    agenda.addFirst(b);
-    if (report) {
-      I.say("\nPUSHING BEHAVIOUR: "+b);
-      I.say("  Cause:          "+cause);
-    }
-    b.toggleActive(true);
-  }
-  
-  
-  private Behaviour popBehaviour(Behaviour toPop, String cause) {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
-    
-    if (toPop == null || agenda.first() == toPop) {
-      toPop = agenda.removeFirst();
-    }
-    if (toPop == null) return toPop;
-    if (report) {
-      I.say("\nPOPPING BEHAVIOUR: "+toPop);
-      I.say("  Cause:          "+cause);
-      I.say("  Finished/valid: "+toPop.finished()+"/"+toPop.valid());
-      I.say("  Priority        "+toPop.priorityFor(actor));
-    }
-    toPop.toggleActive(false);
-    return toPop;
-  }
-  
-  
   public void assignToDo(Behaviour toDo) {
     if (wouldSwitchTo(toDo)) assignBehaviour(toDo);
     else todoList.include(toDo);
@@ -374,8 +346,8 @@ public abstract class ActorMind {
   
   public void assignBehaviour(Behaviour behaviour) {
     final boolean report = I.talkAbout == actor && decisionVerbose;
-    if (behaviour == null) {
-      if (report) I.say("\nCANNOT ASSIGN NULL BEHAVIOUR TO "+actor);
+    if (! (behaviour instanceof Plan)) {
+      if (report) I.say("\nMUST ASSIGN PLAN TO "+actor);
       return;
     }
     if (report) {
@@ -398,35 +370,27 @@ public abstract class ActorMind {
     
     behaviour.priorityFor(actor);
     behaviour.nextStepFor(actor);
-    pushBehaviour(behaviour, "Assigned new behaviour");
-  }
-  
-  
-  public void pushFromParent(Behaviour b, Behaviour parent) {
-    if (! agenda.includes(parent)) {
-      //I.complain("Behaviour not active.");
-      return;
-    }
-    
-    final String cause = "Pushing behaviour from parent";
-    cancelBehaviour(parent, cause);
-    pushBehaviour(parent, cause);
-    pushBehaviour(b, cause);
-    actor.assignAction(null);
+    behaviour.toggleActive(true);
+    this.current = (Plan) behaviour;
   }
   
   
   public void cancelBehaviour(Behaviour b, String cause) {
     final boolean report = I.talkAbout == actor && stepsVerbose;
-    if (! agenda.includes(b)) return;
+    if (! (b instanceof Plan)) return;
+    if (((Plan) b).actor != actor) return;
+    
     if (report) {
       I.say("\nCANCELLING "+b+", CAUSE: "+cause);
       if (warnVerbose) I.reportStackTrace();
     }
-    while (agenda.size() > 0) {
-      final Behaviour popped = popBehaviour(null, cause);
-      if (popped == b) break;
+    
+    Behaviour step = current;
+    while (step instanceof Plan) {
+      step.toggleActive(false);
+      step = ((Plan) step).nextStep;
     }
+    
     todoList.remove(b);
     actor.assignAction(null);
   }
@@ -454,18 +418,19 @@ public abstract class ActorMind {
   }
   
   
-  public Series <Behaviour> agenda() {
-    return agenda;
-  }
-  
-  
   public Series <Behaviour> todoList() {
     return todoList;
   }
   
   
   public Behaviour topBehaviour() {
-    return agenda.first();
+    if (current == null) return null;
+    Plan step = current;
+    while (true) {
+      if (step == null) return null;
+      if (! (step.nextStep instanceof Plan)) return step;
+      step = (Plan) step.nextStep;
+    }
   }
   
   
@@ -476,7 +441,7 @@ public abstract class ActorMind {
   
   
   public Behaviour rootBehaviour() {
-    return agenda.last();
+    return current;
   }
   
   
@@ -493,17 +458,17 @@ public abstract class ActorMind {
   }
   
   
-  public boolean hasToDo(Class planClass) {
-    for (Behaviour b : agenda  ) if (b.getClass() == planClass) return true;
-    for (Behaviour b : todoList) if (b.getClass() == planClass) return true;
-    return false;
-  }
-  
-  
-  public boolean hasToDo(Behaviour b) {
-    if (agenda  .includes(b)) return true;
-    if (todoList.includes(b)) return true;
-    return false;
+  public Series <Behaviour> agenda() {
+    return agenda;
   }
 }
+
+
+
+
+
+
+
+
+
 

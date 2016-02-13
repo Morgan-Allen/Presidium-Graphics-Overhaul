@@ -149,9 +149,9 @@ public class Suspensor extends Mobile implements Mount {
     //
     //  Firstly, check whether you even need to exist any more-
     boolean valid = true;
-    if (tracked.finished()              ) valid = false;
-    if (! followed.inWorld()            ) valid = false;
-    if (! followed.mind.hasToDo(tracked)) valid = false;
+    if (tracked.finished()                ) valid = false;
+    if (! followed.inWorld()              ) valid = false;
+    if (! followed.isDoing(tracked, false)) valid = false;
     if (! valid) {
       if (report) {
         I.say("\nSuspensor exiting world!");
@@ -159,7 +159,7 @@ public class Suspensor extends Mobile implements Mount {
         I.say("  In world?         "+followed.inWorld());
         I.say("  Activity tracked: "+tracked);
         I.say("  Finished?         "+(tracked.finished()));
-        I.say("  On agenda?        "+followed.mind.hasToDo(tracked));
+        I.say("  On agenda?        "+followed.isDoing(tracked, false));
       }
       if (passenger != null) {
         final Vec3D ground = this.position(null);

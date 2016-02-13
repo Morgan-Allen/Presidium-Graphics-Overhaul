@@ -258,7 +258,7 @@ public class Summons extends Plan implements Messaging {
     if (ruler == t || ! (t instanceof Actor)) return false;
     
     final Actor a = (Actor) t;
-    if (a.mind.hasToDo(Summons.class)) return false;
+    if (a.isDoing(Summons.class, null)) return false;
     return true;
   }
   

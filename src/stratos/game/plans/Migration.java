@@ -81,7 +81,7 @@ public class Migration extends Plan {
   
   
   public static Migration migrationFor(Actor actor) {
-    if (actor.mind.hasToDo(Migration.class)) return null;
+    if (actor.isDoing(Migration.class, null)) return null;
     return new Migration(actor);
   }
   

@@ -168,7 +168,7 @@ public class Gifting extends Plan {
     final boolean report = rateVerbose && I.talkAbout == buys;
     if (report) I.say("\nGetting next gift from "+buys+" for "+receives);
     
-    if (buys.mind.hasToDo(Gifting.class)) return null;
+    if (buys.matchFor(Gifting.class, false) != null) return null;
     final Dialogue d = Dialogue.dialogueFor(buys, receives);
     if (parent != null) d.setMotivesFrom(parent, 0);
     if (d.priorityFor(buys) <= 0) return null;

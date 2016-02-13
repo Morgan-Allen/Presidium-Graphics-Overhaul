@@ -292,7 +292,7 @@ public class Patrolling extends Plan implements TileConstants {
     //  First, check to see if there are any supplemental behaviours you could
     //  or should be performing (first aid, repairs, or defence.)
     
-    final Plan old = (lastStep instanceof Plan) ? (Plan) lastStep : null;
+    final Plan old = (nextStep instanceof Plan) ? (Plan) nextStep : null;
     final Choice choice = new Choice(actor);
     final float range = actor.health.sightRange() + 1;
     choice.isVerbose = report;

@@ -438,12 +438,6 @@ public abstract class Actor extends Mobile implements
   }
   
   
-  public boolean isDoing(Class <? extends Plan> planClass, Target target) {
-    final Target focus = planFocus(planClass, true);
-    return (target == null) ? (focus != null) : (focus == target);
-  }
-  
-  
   public Target actionFocus() {
     if (actionTaken == null || ! actionTaken.hasBegun()) return null;
     return actionTaken.subject();
@@ -455,8 +449,21 @@ public abstract class Actor extends Mobile implements
     return match == null ? null : match.subject();
   }
   
+
+  public boolean isDoing(Class <? extends Plan> planClass, Target target) {
+    final Target focus = planFocus(planClass, true);
+    return (target == null) ? (focus != null) : (focus == target);
+  }
   
-  public Plan matchFor(Class <? extends Plan> planClass, boolean active) {
+  
+  public boolean isDoing(Behaviour b, boolean activeOnly) {
+    if ((! activeOnly) && mind.todoList().includes(b)) return true;
+    if (mind.agenda().includes(b)) return true;
+    return false;
+  }
+  
+  
+  public Plan matchFor(Class <? extends Plan> planClass, boolean activeOnly) {
     if (planClass != null && ! Plan.class.isAssignableFrom(planClass)) {
       I.complain("NOT A PLAN CLASS!");
     }
@@ -467,7 +474,7 @@ public abstract class Actor extends Mobile implements
         return (Plan) b;
       }
     }
-    if (! active) for (Behaviour b : mind.todoList()) {
+    if (! activeOnly) for (Behaviour b : mind.todoList()) {
       if (planClass.isAssignableFrom(b.getClass())) {
         return (Plan) b;
       }
