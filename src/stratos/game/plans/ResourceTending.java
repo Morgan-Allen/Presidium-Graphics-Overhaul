@@ -244,7 +244,10 @@ public abstract class ResourceTending extends Plan {
     //
     //  Target-lists from depots tend to be long, so we don't do a fresh search
     //  unless you're in a squeezing-blood-from-stone scenario...
-    if (tended != null && rateTarget(tended) > 0 && assessFromDepot) {
+    if (
+      tended != null && tended.inWorld() &&
+      rateTarget(tended) > 0 && assessFromDepot
+    ) {
       return tended;
     }
     //
@@ -264,7 +267,8 @@ public abstract class ResourceTending extends Plan {
     if (report) I.say("Getting next to tend: "+this);
     //
     //  Then, assess each target available and pick the highest-rated close-by.
-    if (toAssess != null) for (Target t : toAssess) if (t != null) {
+    if (toAssess != null) for (Target t : toAssess) {
+      if (t == null || ! t.inWorld()) continue;
       float rating = rateTarget(t);
       rating *= 2 / (1 + Spacing.zoneDistance(actor, t));
       

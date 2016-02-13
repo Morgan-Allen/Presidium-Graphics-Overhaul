@@ -206,7 +206,7 @@ public class BudgetsPane extends SelectionPane {
     if (noLocal) d.append("\n  (No local goods)");
     
     Text.cancelBullet(d);
-    d.append("\n\nReserved For Trade: (import/export)");
+    d.append("\n\nReserved For Trade: (export/import)");
     for (Traded t : Economy.ALL_MATERIALS) {
       final int
         demand = (int) BD.importDemand(t),

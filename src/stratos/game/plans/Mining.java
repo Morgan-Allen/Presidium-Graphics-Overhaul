@@ -289,7 +289,13 @@ public class Mining extends ResourceTending {
       final Traded type = face.oreType();
       float amount = face.oreAmount() * (0 - inc);
       amount *= HARVEST_MULT * site.extractMultiple(type);
-      return new Item[] { Item.withAmount(type, amount) };
+      float slagged = amount * SLAG_RATIO / 2f;
+      
+      return new Item[] {
+        Item.with(type, null, amount , Item.AVG_QUALITY),
+        Item.with(SLAG, type, slagged, Item.AVG_QUALITY)
+      };
+      
     }
     if (type == TYPE_DUMPING) {
       final Tile face = (Tile) t;

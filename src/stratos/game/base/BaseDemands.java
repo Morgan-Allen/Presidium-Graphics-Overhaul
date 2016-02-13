@@ -186,18 +186,18 @@ public class BaseDemands {
           consumption = venue.stocks.consumption(type),
           production  = venue.stocks.production (type)
         ;
-        if (report && extraVerbose) {
+        if (report) {
           I.say("  "+venue+" "+type+" (tier: "+tier+")");
           I.say("    Amount:          "+amount+", trader: "+trader);
           I.say("    Produce/Consume: "+production+"/"+consumption);
         }
         if (trader) {
-          exportSupply.add(Nums.max(0, amount - consumption), type);
-          importDemand.add(Nums.max(0, consumption - amount), type);
+          exportSupply.add(Nums.min(production, amount), type);
+          importDemand.add(Nums.max(0, consumption), type);
         }
         else {
-          primarySupply.add(Nums.max(0, amount - consumption), type);
-          primaryDemand.add(Nums.max(0, consumption - amount), type);
+          primarySupply.add(Nums.max(0, amount), type);
+          primaryDemand.add(Nums.max(0, consumption), type);
         }
       }
     }

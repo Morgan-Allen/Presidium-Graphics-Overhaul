@@ -355,7 +355,7 @@ public class Gathering extends ResourceTending {
     
     //
     //  TODO:  Use a better method of tracking progress here!
-    if (Rand.index(10) != 0 && ! GameSettings.buildFree) return;
+    ///if (Rand.index(10) != 0 && ! GameSettings.buildFree) return;
     
     //
     //  TODO:  Just base seed quality off upgrades at the source depot?
