@@ -107,12 +107,14 @@ public class Fabricator extends Venue {
     PLASTICS_TO_DECOR = new Conversion(
       BLUEPRINT, "plastics_to_decor",
       2, PLASTICS, TO, 1, DECOR,
-      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS
+      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS,
+      DECOR_STUDIO
     ),
     PLASTICS_TO_PRESSFEED = new Conversion(
       BLUEPRINT, "plastics_to_pressfeed",
       1, PLASTICS, TO, 2, PRESSFEED,
-      SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN
+      SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN,
+      FILM_BASE
     );
   
   
@@ -194,7 +196,7 @@ public class Fabricator extends Venue {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      super.helpInfo(), this, PLASTICS_TO_DECOR, POLYMER_LOOM
+      super.helpInfo(), this, PLASTICS_TO_DECOR, PLASTICS_TO_PRESSFEED
     );
   }
 }

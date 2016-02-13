@@ -186,7 +186,6 @@ public class Outcrop extends Fixture {
   
   public static Traded oreType(Tile at) {
     final StageTerrain terrain = at.world.terrain();
-    if (terrain.flatHeight(at) <= 0 - MAX_DIG_DEEP) return null;
     final int var = terrain.varAt(at);
     return ORE_TYPES[var % ORE_TYPES.length];
   }

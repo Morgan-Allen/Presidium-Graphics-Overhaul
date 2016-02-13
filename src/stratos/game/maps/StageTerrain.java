@@ -46,7 +46,8 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     habitats[][];
   private byte
     paveVals[][],
-    reserved[][];
+    reserved[][],
+    digLevel[][];
   
   private TerrainSet meshSet;
   private LayerType roadLayer;
@@ -83,6 +84,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     }
     paveVals = new byte[mapSize][mapSize];
     reserved = new byte[mapSize][mapSize];
+    digLevel = new byte[mapSize][mapSize];
   }
   
   
@@ -102,6 +104,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     
     s.loadByteArray(paveVals);
     s.loadByteArray(reserved);
+    s.loadByteArray(digLevel);
     initSamples();
   }
   
@@ -115,6 +118,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     
     s.saveByteArray(paveVals);
     s.saveByteArray(reserved);
+    s.saveByteArray(digLevel);
   }
   
   
@@ -259,37 +263,39 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   }
   
   
-  public int flatHeight(Tile at) {
-    float minVal = Float.POSITIVE_INFINITY;
-    final int x = at.x * 2, y = at.y * 2;
-    minVal = Nums.min(minVal, heightVals[x + 0][y + 0]);
-    minVal = Nums.min(minVal, heightVals[x + 1][y + 0]);
-    minVal = Nums.min(minVal, heightVals[x + 0][y + 1]);
-    minVal = Nums.min(minVal, heightVals[x + 1][y + 1]);
-    return (int) minVal;
+  public int digLevel(Tile at) {
+    return digLevel[at.x][at.y];
   }
   
   
-  public void hardTerrainLevel(int level, Tile at) {
-    final byte val = (byte) level;
-    final int x = at.x * 2, y = at.y * 2;
-    heightVals[x + 0][y + 0] = val;
-    heightVals[x + 1][y + 0] = val;
-    heightVals[x + 0][y + 1] = val;
-    heightVals[x + 1][y + 1] = val;
+  public void setDigLevel(Tile at, int level) {
+    final int oldLevel = digLevel(at);
+    if (level == oldLevel) return;
+    
+    digLevel[at.x][at.y] = (byte) level;
     meshSet.flagUpdateAt(at.x, at.y);
     at.refreshAdjacent();
+    
+    calcCornerHeight(at,  1,  1);
+    calcCornerHeight(at, -1,  1);
+    calcCornerHeight(at,  1, -1);
+    calcCornerHeight(at, -1, -1);
   }
   
   
-  public void softTerrainLevel(int level, Tile at) {
-    final byte val = (byte) level;
-    for (Coord p : Visit.grid(-1, -1, 4, 4, 1)) try {
-      heightVals[at.x * 2 + p.x][at.y * 2 + p.y] = val;
+  private void calcCornerHeight(Tile at, int offX, int offY) {
+    float maxVal = Float.NEGATIVE_INFINITY;
+    
+    for (int x = 2; x-- > 0;) for (int y = 2; y-- > 0;) {
+      final Tile n = at.world.tileAt(at.x + (x * offX), at.y + (y * offY));
+      if (n != null) maxVal = Nums.max(maxVal, digLevel(n));
+    }
+
+    for (int x = 2; x-- > 0;) for (int y = 2; y-- > 0;) try {
+      int cx = (at.x * 2) + (x * offX), cy = (at.y * 2) + (y * offY);
+      heightVals[cx][cy] = (byte) maxVal;
     }
     catch (ArrayIndexOutOfBoundsException e) {}
-    meshSet.flagUpdateAt(at.x, at.y);
-    at.refreshAdjacent();
   }
   
   
@@ -373,6 +379,9 @@ public class StageTerrain implements TileConstants, Session.Saveable {
       }
       protected int variantAt(int tx, int ty, TerrainSet terrain) {
         return 0;
+      }
+      protected int levelAt(int tx, int ty, TerrainSet terrain) {
+        return 0 * heightVals[tx * 2][ty * 2];
       }
     });
     

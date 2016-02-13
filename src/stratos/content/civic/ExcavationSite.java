@@ -182,8 +182,10 @@ public class ExcavationSite extends HarvestVenue {
     if (d != null) return d;
     
     final Choice choice = new Choice(actor);
-    choice.add(Mining.asMining   (actor, this));
-    choice.add(Mining.asStripping(actor, this));
+    choice.add(Mining.asMining   (actor, this, METALS   ));
+    choice.add(Mining.asStripping(actor, this, METALS   ));
+    choice.add(Mining.asMining   (actor, this, FUEL_RODS));
+    choice.add(Mining.asStripping(actor, this, FUEL_RODS));
     choice.add(Mining.asDumping  (actor, this));
     return choice.weightedPick();
   }
@@ -203,9 +205,7 @@ public class ExcavationSite extends HarvestVenue {
   protected ClaimDivision updateDivision() {
     final ClaimDivision d = super.updateDivision();
     return d.withUsageMarked(
-      1.0f, true, true, this,
-      ClaimDivision.USE_NORMAL,
-      ClaimDivision.USE_NORMAL,
+      false, this,
       ClaimDivision.USE_SECONDARY
     );
   }
@@ -242,14 +242,18 @@ public class ExcavationSite extends HarvestVenue {
   
   public float needForTending(ResourceTending tending) {
     final Mining m = (Mining) tending;
+    final Traded type = m.oreType();
+    final float need = stocks.relativeShortage(type, true);
+    
     if (m.type == Mining.TYPE_MINING) {
-      return super.needForTending(tending);
+      if (super.needForTending(tending) <= 0) return 0;
+      return (need + super.needForTending(tending)) / 2;
     }
     if (m.type == Mining.TYPE_STRIPPING) {
-      return 0.5f;
+      return (1 + need) / 2;
     }
     if (m.type == Mining.TYPE_DUMPING) {
-      return stocks.amountOf(SLAG) / Mining.TAILING_LIMIT;
+      return stocks.amountOf(SLAG) * 2f / Mining.TAILING_LIMIT;
     }
     return 0;
   }

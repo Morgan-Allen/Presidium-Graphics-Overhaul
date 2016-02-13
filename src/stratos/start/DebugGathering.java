@@ -16,6 +16,7 @@ import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
+import stratos.graphics.cutout.CutoutModel;
 import stratos.graphics.widgets.*;
 import stratos.graphics.terrain.*;
 import stratos.user.*;
@@ -173,30 +174,18 @@ public class DebugGathering extends Scenario {
   private void configMiningTest(Stage world, Base base, BaseUI UI) {
     Flora.populateFlora(world);
     
-    //  TODO:  Venues need to auto-claim an area, and mined tiles should be
-    //  passable!
-    
     final ExcavationSite site = new ExcavationSite(base);
     SiteUtils.establishVenue(site, 8, 8, true, world);
     
     base.setup.fillVacancies(site, true);
     site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));
     
-    /*
     for (Tile t : site.reserved()) {
-      if (! site.canDump(t)) {
-        t.clearUnlessOwned();
-        world.terrain().setHabitat(t, Habitat.STRIP_MINING);
-        continue;
-      }
-      
-      Traded ore = (Traded) Rand.pickFrom(Mining.MINED_TYPES);
-      if (ore == null) ore = POLYMER;
-      final Tailing dumped = new Tailing(ore);
-      dumped.enterWorldAt(t.x, t.y, world, true);
-      dumped.takeFill(Mining.TAILING_LIMIT * Rand.num());
+      if (! site.canDig(t)) continue;
+      t.clearUnlessOwned();
+      world.terrain().setRoadType(t, StageTerrain.ROAD_STRIP);
+      world.terrain().setDigLevel(t, -2);
     }
-    //*/
     
     final Actor first = site.staff.workers().first();
     final Mining dumps = Mining.asDumping(first, site);
@@ -204,7 +193,6 @@ public class DebugGathering extends Scenario {
     first.mind.assignBehaviour(dumps);
     
     Selection.pushSelection(first, null);
-    //*/
   }
   
   

@@ -41,7 +41,7 @@ public class Mining extends ResourceTending {
     DEFAULT_MINE_LIFESPAN = Stage.DAYS_PER_YEAR,
     EXAMPLE_MINED_AREA    = (12 * 12) / 2f,
     EXAMPLE_TAILING_SPACE = EXAMPLE_MINED_AREA / 3f,
-    AVG_RAW_DIG_YIELD     = Outcrop.MAX_MINERALS / 5f,
+    AVG_RAW_DIG_YIELD     = Outcrop.MAX_MINERALS / 2f,
     SLAG_RATIO            = 2.5f,
     
     EXAMPLE_DAY_WORKTIME  = EXAMPLE_NUM_WORKERS   * Stage.STANDARD_SHIFT_LENGTH,
@@ -58,54 +58,58 @@ public class Mining extends ResourceTending {
   
   final static Trait
     MINE_TRAITS[] = { PATIENT, METICULOUS };
-  final public static Traded
-    MINED_TYPES[] = { METALS, FUEL_RODS, SLAG };
   
   
   final public int type;
-  private Traded oreDumped = null;
+  private Traded oreType;
   
   
   private Mining(
-    Actor actor, HarvestVenue depot, int type, Traded extracts[],
+    Actor actor, HarvestVenue depot, int type, Traded oreType,
     Target toAssess[]
   ) {
-    super(actor, depot, true, toAssess, extracts);
-    this.type = type;
+    super(
+      actor, depot, true, toAssess,
+      oreType != null ? new Traded[] { oreType, SLAG } : new Traded[0]
+    );
+    this.type    = type;
+    this.oreType = oreType;
   }
   
   
   public Mining(Session s) throws Exception {
     super(s);
-    this.type      = s.loadInt();
-    this.oreDumped = (Traded) s.loadObject();
+    this.type    = s.loadInt();
+    this.oreType = (Traded) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt   (type     );
-    s.saveObject(oreDumped);
+    s.saveInt   (type   );
+    s.saveObject(oreType);
   }
   
   
   public Plan copyFor(Actor other) {
     return new Mining(
-      actor, (HarvestVenue) depot, type, harvestTypes, assessed
+      actor, (HarvestVenue) depot, type, oreType, assessed
     );
   }
   
   
-  public static Mining asMining(Actor actor, ExcavationSite site) {
+  public static Mining asMining(Actor actor, ExcavationSite site, Traded ore) {
     final Mining mining = new Mining(
-      actor, site, TYPE_MINING, MINED_TYPES, null
+      actor, site, TYPE_MINING, ore, null
     );
     mining.coop = false;
     return mining;
   }
   
   
-  public static Mining asStripping(Actor actor, ExcavationSite site) {
+  public static Mining asStripping(
+    Actor actor, ExcavationSite site, Traded ore
+  ) {
     final Batch <Outcrop> outcrops = new Batch();
     site.world().presences.sampleFromMap(
       site, site.world(), 5, outcrops, Outcrop.class
@@ -113,7 +117,7 @@ public class Mining extends ResourceTending {
     if (outcrops.empty()) return null;
     
     final Mining mining = new Mining(
-      actor, site, TYPE_STRIPPING, MINED_TYPES, outcrops.toArray(Outcrop.class)
+      actor, site, TYPE_STRIPPING, ore, outcrops.toArray(Outcrop.class)
     );
     mining.coop = false;
     return mining;
@@ -122,9 +126,9 @@ public class Mining extends ResourceTending {
   
   public static Mining asDumping(Actor actor, ExcavationSite site) {
     final Mining mining = new Mining(
-      actor, site, TYPE_DUMPING, new Traded[0], null
+      actor, site, TYPE_DUMPING, null, null
     );
-    mining.coop = false;
+    mining.coop = true;
     return mining;
   }
   
@@ -135,7 +139,14 @@ public class Mining extends ResourceTending {
   }
   
   
+  public Traded oreType() {
+    return oreType;
+  }
   
+  
+  
+  /**  Methods overrides to customise for mining behaviour-
+    */
   protected Trait[] enjoyTraits() {
     return MINE_TRAITS;
   }
@@ -154,9 +165,9 @@ public class Mining extends ResourceTending {
 
   protected Target nextToTend() {
     if (type == TYPE_DUMPING) {
-      if (oreDumped == null) oreDumped = nextSlagFor(depot);
-      if (oreDumped == null) return null;
-      final Item slag = actor.gear.bestSample(SLAG, oreDumped, -1);
+      if (oreType == null) oreType = nextSlagFor(depot);
+      if (oreType == null) return null;
+      final Item slag = actor.gear.bestSample(SLAG, oreType, -1);
       if (slag == null && stage() > STAGE_PICKUP) return null;
     }
     return super.nextToTend();
@@ -179,13 +190,16 @@ public class Mining extends ResourceTending {
     final StageTerrain terrain = depot.world().terrain();
     
     if (type == TYPE_MINING) {
-      final Tile face = (Tile) t;
-      if (! site.canDig(face)) return -1;
-      final float amount = Outcrop.oreAmount(face);
+      final Tile   face = (Tile) t;
       final Traded type = Outcrop.oreType(face);
-      if (! Visit.arrayIncludes(MINED_TYPES, type)) return -1;
       
-      final int height = terrain.flatHeight(face);
+      if (type != oreType) return -1;
+      if (! site.canDig(face)) return -1;
+      
+      final float amount = Outcrop.oreAmount(face);
+      final int   height = terrain.digLevel (face);
+      if (height <= 0 - MAXIMUM_DIG_DEPTH) return -1;
+      
       float rating = MAXIMUM_DIG_DEPTH + height;
       rating += amount / Outcrop.MAX_MINERALS;
       if (! terrain.isStripped(face)) rating += MAXIMUM_DIG_DEPTH;
@@ -194,7 +208,7 @@ public class Mining extends ResourceTending {
     }
     if (type == TYPE_STRIPPING) {
       final Outcrop face = (Outcrop) t;
-      if (! Visit.arrayIncludes(MINED_TYPES, face.oreType())) return -1;
+      if (face.oreType() != oreType) return -1;
       if (Spacing.distance(face, site) > Stage.ZONE_SIZE) return -1;
       return face.oreAmount() / Outcrop.MAX_MINERALS;
     }
@@ -203,7 +217,7 @@ public class Mining extends ResourceTending {
       if (! site.canDump(face)) return -1;
       final Tailing dump = Tailing.foundAt(face);
       if (dump == null) return 1;
-      if (dump.fillLevel() >= 1 || dump.wasteType() != oreDumped) return 0;
+      if (dump.fillLevel() >= 1 || dump.wasteType() != oreType) return 0;
       return dump.fillLevel() + 1;
     }
     if (type == TYPE_FORMING) {
@@ -223,7 +237,7 @@ public class Mining extends ResourceTending {
       
     }
     if (type == TYPE_DUMPING) {
-      final Item slag = depot.stocks.bestSample(SLAG, oreDumped, 10);
+      final Item slag = depot.stocks.bestSample(SLAG, oreType, 10);
       if (slag != null) depot.stocks.transfer(slag, actor);
     }
     if (type == TYPE_FORMING) {
@@ -243,7 +257,7 @@ public class Mining extends ResourceTending {
       final Tile  face        = (Tile) t;
       final Item  ore         = Outcrop.mineralsAt(t);
       final float breakChance = 1f / TILE_DIG_TIME;
-      final int   height      = terrain.flatHeight(face);
+      final int   height      = terrain.digLevel(face);
       if (ore == null) return null;
       
       terrain.setRoadType(face, StageTerrain.ROAD_STRIP);
@@ -252,7 +266,7 @@ public class Mining extends ResourceTending {
       
       if (Rand.num() < breakChance) {
         yield += 0.5f;
-        terrain.hardTerrainLevel(height - 1, face);
+        terrain.setDigLevel(face, height - 1);
       }
       
       yield *= ore.amount * HARVEST_MULT * site.extractMultiple(ore.type);
@@ -263,11 +277,12 @@ public class Mining extends ResourceTending {
     }
     if (type == TYPE_STRIPPING) {
       final Outcrop face = (Outcrop) t;
-      float inc = -1f / (TILE_DIG_TIME * face.bulk());
+      float inc = -2f / (TILE_DIG_TIME * face.bulk());
       face.incCondition(inc);
       
       final Traded type = face.oreType();
-      final float amount = face.oreAmount() * 0 - inc;
+      float amount = face.oreAmount() * (0 - inc);
+      amount *= HARVEST_MULT * site.extractMultiple(type);
       return new Item[] { Item.withAmount(type, amount) };
     }
     if (type == TYPE_DUMPING) {
@@ -276,12 +291,12 @@ public class Mining extends ResourceTending {
       float space = 10;
       
       if (dumps == null) {
-        dumps = new Tailing(oreDumped);
+        dumps = new Tailing(oreType);
         dumps.enterWorldAt(face.x, face.y, face.world, true);
       }
       else space = (1 - dumps.fillLevel()) * TAILING_LIMIT;
       
-      final Item slag = actor.gear.bestSample(SLAG, oreDumped, space);
+      final Item slag = actor.gear.bestSample(SLAG, oreType, space);
       if (slag != null) {
         actor.gear.removeItem(slag);
         dumps.takeFill(slag.amount);

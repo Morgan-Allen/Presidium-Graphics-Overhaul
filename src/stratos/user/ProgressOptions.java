@@ -60,7 +60,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
     options.add(saves);
     
     this.loads = new Button(
-      UI, "button_load", IMG_LOAD, "Load Progress"
+      UI, "button_load", IMG_LOAD, "Revert Progress"
     ) {
       protected void whenClicked() {
         Scenario.current().scheduleReload();

@@ -334,16 +334,10 @@ public class EcologistStation extends HarvestVenue {
   protected ClaimDivision updateDivision() {
     final ClaimDivision d = super.updateDivision();
     d.withUsageMarked(
-      1.0f, false, true, this,
+      true, this,
       ClaimDivision.USE_NORMAL,
       ClaimDivision.USE_NORMAL,
       ClaimDivision.USE_SECONDARY
-    );
-    d.withUsageMarked(
-      1.0f, true, false, this,
-      ClaimDivision.USE_NORMAL,
-      ClaimDivision.USE_NORMAL,
-      ClaimDivision.USE_TERTIARY
     );
     return d;
   }

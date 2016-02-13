@@ -139,12 +139,14 @@ public class PhysicianStation extends Venue implements Burial.Services {
     REAGENTS_TO_MEDICINE = new Conversion(
       BLUEPRINT, "reagents_to_medicine",
       1, REAGENTS, 1, GREENS, TO, 2, MEDICINE,
-      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY,
+      MEDICAL_LAB
     ),
     REAGENTS_TO_SOMA = new Conversion(
       BLUEPRINT, "waste_to_soma",
       1, REAGENTS, TO, 3, SOMA,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY,
+      MEDICAL_LAB
     );
   
   
@@ -281,7 +283,7 @@ public class PhysicianStation extends Venue implements Burial.Services {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      super.helpInfo(), this, REAGENTS_TO_MEDICINE, MEDICAL_LAB
+      super.helpInfo(), this, REAGENTS_TO_MEDICINE, REAGENTS_TO_SOMA
     );
   }
 }

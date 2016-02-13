@@ -60,7 +60,7 @@ public class Tailing extends Element implements Selectable {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
     
     final Tile o = origin();
-    PavingMap.setPaveLevel(o, StageTerrain.ROAD_STRIP, true);
+    world.terrain().setHabitat(o, Habitat.TOXIC_RUNOFF);
     
     for (Tile t : o.allAdjacent(null)) {
       if (t != null) t.clearUnlessOwned(intact);
@@ -75,7 +75,7 @@ public class Tailing extends Element implements Selectable {
   
   
   public int pathType() {
-    return Tile.PATH_BLOCKS;
+    return Tile.PATH_HINDERS;
   }
   
   

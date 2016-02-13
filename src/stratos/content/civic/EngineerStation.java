@@ -144,17 +144,20 @@ public class EngineerStation extends Venue {
     POLYMER_TO_PLASTICS = new Conversion(
       BLUEPRINT, "polymer_to_plastics",
       1, POLYMER, TO, 2, PLASTICS,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY,
+      MOLDING_PRESS
     ),
     METALS_TO_PARTS = new Conversion(
       BLUEPRINT, "metals_to_parts",
       1, METALS, TO, 2, PARTS,
-      MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY
+      MODERATE_DC, ASSEMBLY, SIMPLE_DC, CHEMISTRY,
+      ASSEMBLY_LINE
     ),
     PARTS_TO_CIRCUITRY = new Conversion(
       BLUEPRINT, "parts_to_circuitry",
       1, PARTS, TO, 2, CIRCUITRY,
-      MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY
+      MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY,
+      MICRO_ASSEMBLY
     );
   
   
@@ -289,7 +292,7 @@ public class EngineerStation extends Venue {
   
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      super.helpInfo(), this, METALS_TO_PARTS, ASSEMBLY_LINE
+      super.helpInfo(), this, POLYMER_TO_PLASTICS, METALS_TO_PARTS
     );
   }
 }

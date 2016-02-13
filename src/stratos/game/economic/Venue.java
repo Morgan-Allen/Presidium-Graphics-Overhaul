@@ -820,6 +820,9 @@ public abstract class Venue extends Fixture implements
     //
     //  We also show a visual indication of all the goods present at this
     //  venue...
+    
+    //  TODO:  MOVE THIS OUT TO A DEDICATED WIDGET-CLASS!
+    
     final Batch <CutoutModel> itemModels = new Batch();
     final Batch <CutoutModel> tickModels  = new Batch();
     for (Traded t : VenuePane.ITEM_LIST_ORDER) {
@@ -842,8 +845,8 @@ public abstract class Venue extends Fixture implements
         0.375f, 1, itemModels
       );
       CutoutSprite.renderAbove(
-        healthbar.position, 0, 0.1f, -1.1f, rendering,
-        0.375f, 0.75f, tickModels
+        healthbar.position, 0.1f, 0.2f, -1.1f, rendering,
+        0.375f, 0.50f, tickModels
       );
       zoff += 0.4f;
     }

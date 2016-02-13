@@ -160,21 +160,20 @@ public class Manufacture extends Plan implements Behaviour {
   
   
   public static String statusMessageFor(
-    String normal, Venue v, Conversion c, Upgrade... upgrades
+    String normal, Venue v, Conversion... cons
   ) {
     if ((! v.structure.intact()) || (! v.inWorld())) {
       return normal;
     }
     final StringBuffer s = new StringBuffer();
-    
-    float output = Manufacture.estimatedOutput(v, c, upgrades) / 2f;
-    output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce() / 2f;
-    
+
     int numWorking = 0;
     for (Actor a : v.staff.workers()) {
       final Manufacture m = (Manufacture) a.matchFor(Manufacture.class, true);
       if (m == null || a.aboard() != v) continue;
-      if (m.made().type == c.out.type) numWorking++;
+      for (Conversion c : cons) {
+        if (m.made().type == c.out.type) numWorking++;
+      }
     }
     
     boolean needsOkay = true;
@@ -183,13 +182,6 @@ public class Manufacture extends Plan implements Behaviour {
       s.append(
         "Production will be slowed without enough "+POWER+"."
       );
-    }
-    else for (Item r : c.raw) if (v.stocks.relativeShortage(r.type) >= 1) {
-      needsOkay = false;
-      s.append(
-        "Production would be faster with a supply of "+r.type+"."
-      );
-      break;
     }
     if (needsOkay && v.stocks.specialOrders().size() > 0) {
       needsOkay = false;
@@ -200,8 +192,22 @@ public class Manufacture extends Plan implements Behaviour {
       s.append("\n  "+numWorking+" active workers");
       return s.toString();
     }
-    if (needsOkay) s.append(normal);
-    s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));
+    
+    for (Conversion c : cons) {
+      float output = Manufacture.estimatedOutput(v, c, c.upgrades()) / 2f;
+      output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce() / 2f;
+      
+      for (Item r : c.raw) if (v.stocks.relativeShortage(r.type) >= 1) {
+        needsOkay = false;
+        s.append(
+          "Production would be faster with a supply of "+r.type+"."
+        );
+        break;
+      }
+      if (needsOkay) s.append(normal);
+      s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));
+    }
+    
     s.append("\n  "+numWorking+" active workers");
     return s.toString();
   }

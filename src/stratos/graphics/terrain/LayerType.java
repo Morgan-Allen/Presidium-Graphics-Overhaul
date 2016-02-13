@@ -45,6 +45,10 @@ public abstract class LayerType implements TileConstants {
   protected abstract boolean maskedAt(int tx, int ty, TerrainSet terrain);
   protected abstract int variantAt(int tx, int ty, TerrainSet terrain);
   
+  protected int levelAt(int tx, int ty, TerrainSet terrain) {
+    return 0;
+  }
+  
   //
   //  TODO:  Consider returning arbitrary geometry within a Fragment class, so
   //  that position/normal/UV data is neatly wrapped and identified in transit.
@@ -56,6 +60,7 @@ public abstract class LayerType implements TileConstants {
     Batch <float[]> textBatch
   ) {
     final boolean masked = maskedAt(tx, ty, terrain);
+    final int level = levelAt(tx, ty, terrain);
     if (innerFringe && ! masked) return;
     
     final int tileID = terrain.layerIndices[tx][ty];
@@ -119,7 +124,10 @@ public abstract class LayerType implements TileConstants {
     //  if I ever get time.
     for (int n : T_INDEX) {
       final int x = tx + T_Y[n], y = ty + T_X[n];
-      try { near[n] = maskedAt(x, y, terrain); }
+      try {
+        final int l = levelAt(x, y, terrain);
+        near[n] = l == level && maskedAt(x, y, terrain);
+      }
       catch (ArrayIndexOutOfBoundsException e) { near[n] = false; }
     }
     final float fringes[][] = innerFringe ?

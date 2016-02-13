@@ -131,29 +131,13 @@ public class ClaimDivision {
   
   
   public ClaimDivision withUsageMarked(
-    float fractionOfArea, boolean acrossAllowed, boolean downAllowed,
-    Venue around, int... useMarking
+    boolean alongAxis, Venue around, int... useMarking
   ) {
     final Stage world = around.origin().world;
-    final Stack <Box2D> allowed = new Stack();
-    float totalArea = 0;
-    
     for (Box2D plot : plots) {
-      totalArea += plot.area();
-      final boolean across = plot.xdim() >= plot.ydim();
-      if (   across  && ! acrossAllowed) continue;
-      if ((! across) && ! downAllowed  ) continue;
-      allowed.add(plot);
-    }
-    
-    float areaDesired = totalArea * fractionOfArea, areaMarked = 0;
-    
-    while (allowed.size() > 0 && areaMarked < areaDesired) {
-      final Box2D plot = allowed.first();
-      final boolean across = plot.xdim() >= plot.ydim();
+      boolean across = plot.xdim() >= plot.ydim();
+      if (! alongAxis) across = ! across;
       markPlot(plot, world, across, useMarking);
-      areaMarked += plot.area();
-      allowed.remove(plot);
     }
     return this;
   }
@@ -171,7 +155,8 @@ public class ClaimDivision {
         aX = t.x - aO.x, aY = t.y - aO.y,
         pX = t.x - pO.x, pY = t.y - pO.y;
       if (useMap[aX][aY] <= 0) continue;
-      final int m = Nums.clamp(across ? pY : pX, useMarking.length);
+      int m = across ? pY : pX;
+      if (m < 0 || m >= useMarking.length) continue;
       useMap[aX][aY] = (byte) useMarking[m];
     }
   }
@@ -179,9 +164,6 @@ public class ClaimDivision {
   
   public Tile[] toPaveAround(Venue venue, Tile usageMask[]) {
     Batch <Tile> toPave = new Batch();
-    
-    //
-    //  TODO:  You'll need to find a way to check for usage efficiently!
     
     if (usageMask != null) for (Tile t : usageMask) t.flagWith(toPave);
     

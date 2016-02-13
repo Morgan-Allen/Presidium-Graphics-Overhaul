@@ -104,13 +104,16 @@ public abstract class ResourceTending extends Plan {
   /**  Priority and step evaluation-
     */
   protected float getPriority() {
-    final boolean report = verbose && I.talkAbout == subject;
-    if (report) I.say("\nGetting priority for "+this);
+    final boolean report = I.talkAbout == actor && verbose;
+    if (report) {
+      I.say("\n"+actor+" getting priority for "+this+" ("+hashCode()+")");
+    }
     //
     //  Priority cannot be properly assessed until the next/first step is
     //  determined.
     if (stage == STAGE_INIT) {
       getNextStep();
+      if (report) I.say("  STEP PICKED: "+stage);
     }
     if (stage == STAGE_DONE) {
       if (report) I.say("  ALREADY DONE");
@@ -155,12 +158,24 @@ public abstract class ResourceTending extends Plan {
       coop ? 2 : 1, NO_FAIL_RISK, enjoyTraits()
     );
     
-    if (report) I.say(" FINAL PRIORITY: "+priority);
+    if (report) {
+      I.say("  Competence:   "+competence());
+      I.say("  Base motive:  "+baseMotive);
+      I.say("  Coop?         "+coop);
+      I.say("  Depot-assess? "+assessFromDepot);
+      I.say("  FINAL PRIORITY: "+priority);
+    }
     return priority;
   }
   
   
   protected Behaviour getNextStep() {
+    final boolean report = I.talkAbout == actor && verbose;
+    if (report) {
+      I.say("\n"+actor+" getting step for "+this+" ("+hashCode()+")");
+      I.say("  Stage: "+stage);
+    }
+    
     if (stage == STAGE_DONE) return null;
     //
     //  If you need to process a target and haven't picked up your tools, do
@@ -176,6 +191,7 @@ public abstract class ResourceTending extends Plan {
         this, "actionCollectTools",
         Action.REACH_DOWN, "Collecting tools"
       );
+      if (report) I.say("  WILL PICKUP");
       return pickup;
     }
     //
@@ -200,29 +216,32 @@ public abstract class ResourceTending extends Plan {
         final Tile open = actor.origin();
         tending.setMoveTarget(open);
       }
+      if (report) I.say("  WILL TEND "+toTend);
       return tending;
     }
     //
     //  If there's nothing left to tend to, but you have some resources
     //  gathered OR have taken out tools, return those to the depot.
-    if (carried > 0 || (tools != null && useTools)) {
+    if (stage != STAGE_INIT && (carried > 0 || (tools != null && useTools))) {
       stage = STAGE_DROPOFF;
       final Action dropoff = new Action(
         actor, depot,
         this, "actionDropoff",
         Action.REACH_DOWN, "Returning"
       );
+      if (report) I.say("  WILL DROPOFF");
       return dropoff;
     }
     //
     //  And if there's nothing left to do, end the activity.
     stage = STAGE_DONE;
+    if (report) I.say("  AM DONE");
     return null;
   }
   
   
   protected Target nextToTend() {
-    final boolean report = I.talkAbout == subject && verbose;
+    final boolean report = I.talkAbout == actor && verbose;
     //
     //  Target-lists from depots tend to be long, so we don't do a fresh search
     //  unless you're in a squeezing-blood-from-stone scenario...

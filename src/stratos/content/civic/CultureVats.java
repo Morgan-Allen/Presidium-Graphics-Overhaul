@@ -40,28 +40,6 @@ public class CultureVats extends Venue {
     CARBS, PROTEIN, REAGENTS, VATS_BREEDER
   );
   
-  final public static Conversion
-    WASTE_TO_CARBS = new Conversion(
-      BLUEPRINT, "waste_to_carbs",
-      TO, 1, CARBS,
-      SIMPLE_DC, CHEMISTRY
-    ),
-    WASTE_TO_REAGENTS = new Conversion(
-      BLUEPRINT, "waste_to_reagents",
-      TO, 1, REAGENTS,
-      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY
-    ),
-    CARBS_TO_PROTEIN = new Conversion(
-      BLUEPRINT, "carbs_to_protein",
-      2, CARBS, TO, 1, PROTEIN,
-      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE
-    ),
-    PROTEIN_TO_REPLICANTS = new Conversion(
-      BLUEPRINT, "protein_to_replicants",
-      5, PROTEIN, TO, 1, REPLICANTS,
-      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY
-    );
-  
   
   public CultureVats(Base base) {
     super(BLUEPRINT, base);
@@ -126,6 +104,32 @@ public class CultureVats extends Venue {
     //*/
   ;
   
+  final public static Conversion
+    WASTE_TO_CARBS = new Conversion(
+      BLUEPRINT, "waste_to_carbs",
+      TO, 1, CARBS,
+      SIMPLE_DC, CHEMISTRY,
+      CARBS_CULTURE
+    ),
+    WASTE_TO_REAGENTS = new Conversion(
+      BLUEPRINT, "waste_to_reagents",
+      TO, 1, REAGENTS,
+      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY,
+      DRUG_SYNTHESIS
+    ),
+    CARBS_TO_PROTEIN = new Conversion(
+      BLUEPRINT, "carbs_to_protein",
+      2, CARBS, TO, 1, PROTEIN,
+      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE,
+      TISSUE_CULTURE
+    ),
+    PROTEIN_TO_REPLICANTS = new Conversion(
+      BLUEPRINT, "protein_to_replicants",
+      5, PROTEIN, TO, 1, REPLICANTS,
+      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY,
+      TISSUE_CULTURE
+    );
+  
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
@@ -139,9 +143,11 @@ public class CultureVats extends Venue {
     final float needPower = 5 * (1 + (structure.numOptionalUpgrades() / 3f));
     final int cycleBonus = structure.upgradeLevel(CARBS_CULTURE);
     final float pollution = 5 - cycleBonus;
+    
     stocks.forceDemand(POWER, needPower, 0);
-    structure.setAmbienceVal(0 - pollution);
     stocks.forceDemand(ATMO, 0, cycleBonus * 2);
+    
+    structure.setAmbienceVal(0 - pollution);
   }
   
   
@@ -189,9 +195,8 @@ public class CultureVats extends Venue {
   }
   
   
-  public void addServices(Choice choice, Actor forActor) {
-    //  TODO:  Add functions here?
-    //super.addServices(choice, forActor);
+  public void addServices(Choice choice, Actor client) {
+    choice.add(BringUtils.nextPersonalPurchase(client, this));
   }
   
   
@@ -207,10 +212,16 @@ public class CultureVats extends Venue {
     */
   public String helpInfo() {
     return Manufacture.statusMessageFor(
-      super.helpInfo(), this, WASTE_TO_CARBS, CARBS_CULTURE
+      super.helpInfo(), this, WASTE_TO_CARBS, CARBS_TO_PROTEIN
     );
   }
 }
+
+
+
+
+
+
 
 
 

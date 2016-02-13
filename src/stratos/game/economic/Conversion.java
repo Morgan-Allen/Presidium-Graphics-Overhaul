@@ -28,6 +28,7 @@ public class Conversion extends Index.Entry implements Session.Saveable {
   private Blueprint facility;
   private String specialName;
   private static Table <Object, Batch <Conversion>> byFacility = new Table();
+  private Upgrade upgrades[];
   
   
   public Conversion(
@@ -67,6 +68,7 @@ public class Conversion extends Index.Entry implements Session.Saveable {
     Item out = null;
     Batch rawB = new Batch(), skillB = new Batch();
     Batch rawN = new Batch(), skillN = new Batch();
+    Batch <Upgrade> upgB = new Batch();
     //
     //  Iterate over all arguments-
     for (Object o : args) {
@@ -80,6 +82,9 @@ public class Conversion extends Index.Entry implements Session.Saveable {
       else if (o instanceof Traded ) {
         if (recRaw) { rawB.add(o); rawN.add(num); }
         else { out = Item.withAmount((Traded) o, num); }
+      }
+      else if (o instanceof Upgrade) {
+        upgB.add((Upgrade) o);
       }
     }
     //
@@ -100,6 +105,7 @@ public class Conversion extends Index.Entry implements Session.Saveable {
     if (facility != null) facilityClass = facility.baseClass;
     this.facility      = facility;
     this.facilityClass = facilityClass;
+    this.upgrades      = upgB.toArray(Upgrade.class);
     Batch <Conversion> list = null;
     if (facility != null) {
       list = byFacility.get(facility);
@@ -127,6 +133,11 @@ public class Conversion extends Index.Entry implements Session.Saveable {
     if (facility      == venue.blueprint ) return true;
     if (facilityClass == venue.getClass()) return true;
     return false;
+  }
+  
+  
+  public Upgrade[] upgrades() {
+    return upgrades;
   }
   
   

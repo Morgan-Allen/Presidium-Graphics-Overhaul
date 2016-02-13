@@ -369,7 +369,7 @@ public class BringUtils {
   
   private static boolean reportRating(Owner orig, Owner dest, Traded good) {
     if (! rateVerbose) return false;
-    //verboseGoodType = METALS;
+    //verboseGoodType = CARBS;
     //
     //  Supply and demand can quickly get very hairy, so to help in tracking it
     //  we have some moderately elaborate reporting criteria.
