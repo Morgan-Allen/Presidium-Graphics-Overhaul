@@ -6,7 +6,7 @@
 package stratos.graphics.sfx;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.start.Assets;
+import stratos.start.*;
 import stratos.util.*;
 import java.io.*;
 
@@ -119,6 +119,8 @@ public class TalkFX extends SFX {
   
   public void addPhrase(String phrase, int bubbleType) {
     final Bubble b = new Bubble();
+    if (! PlayLoop.rendering().view.intersects(position, 1)) return;
+    
     if (phrase == null) I.complain("\nCANNOT ADD NULL STRING AS PHRASE!");
     b.phrase  = phrase;
     b.type    = bubbleType;

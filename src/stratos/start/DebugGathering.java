@@ -180,13 +180,6 @@ public class DebugGathering extends Scenario {
     base.setup.fillVacancies(site, true);
     site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));
     
-    for (Tile t : site.reserved()) {
-      if (! site.canDig(t)) continue;
-      t.clearUnlessOwned();
-      world.terrain().setRoadType(t, StageTerrain.ROAD_STRIP);
-      world.terrain().setDigLevel(t, -1 * (Rand.index(4) + 1));
-    }
-    
     final Actor first = site.staff.workers().first();
     final Mining dumps = Mining.asDumping(first, site);
     dumps.addMotives(Plan.MOTIVE_JOB, 10);

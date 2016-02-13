@@ -321,9 +321,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   public void setRoadType(Tile t, byte level) {
     final byte oldLevel = paveVals[t.x][t.y];
-    paveVals[t.x][t.y] = level;
+    if (level == oldLevel) return;
     
-    if (level != oldLevel) for (Tile n : t.vicinity(tempV)) if (n != null) {
+    paveVals[t.x][t.y] = level;
+    for (Tile n : t.vicinity(tempV)) if (n != null) {
       meshSet.flagUpdateAt(n.x, n.y, roadLayer );
       meshSet.flagUpdateAt(n.x, n.y, stripLayer);
     }

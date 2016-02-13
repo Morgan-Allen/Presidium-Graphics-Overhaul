@@ -857,9 +857,9 @@ public abstract class Venue extends Fixture implements
       if (t.form == Economy.FORM_PROVISION && totalDemand <= amount) continue;
       
       itemModels.add(t.model);
-      if      (amount < consumption) tickModels.add(Traded.SHORTAGE_MODEL);
-      else if (amount < totalDemand) tickModels.add(Traded.QUESTION_MODEL);
-      else                           tickModels.add(Traded.OKAY_MODEL    );
+      if      (amount < consumption / 2) tickModels.add(Traded.SHORTAGE_MODEL);
+      else if (amount < totalDemand / 2) tickModels.add(Traded.QUESTION_MODEL);
+      else                               tickModels.add(Traded.OKAY_MODEL    );
     }
     if (itemModels.size() > 0) {
       CutoutSprite.renderAbove(

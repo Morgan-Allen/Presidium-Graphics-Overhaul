@@ -159,7 +159,9 @@ public final class Tile implements
   
   public int pathType() {
     if (above != null) return above.pathType();
-    if (world.terrain().isRoad(this)) return PATH_ROAD;
+    final StageTerrain t = world.terrain();
+    if (t.isStripped(this)) return PATH_HINDERS;
+    if (t.isRoad    (this)) return PATH_ROAD   ;
     return habitat().pathClear ? PATH_CLEAR : PATH_BLOCKS;
   }
   
@@ -184,6 +186,7 @@ public final class Tile implements
   
   public boolean canPave() {
     if (! habitat().pathClear) return false;
+    if (reserves != null) return false;
     return
       above == null ||
       above.owningTier() <  Owner.TIER_PRIVATE ||

@@ -34,7 +34,9 @@ public class ClaimDivision {
     USE_PAVE      =  0,
     USE_NORMAL    =  1,
     USE_SECONDARY =  2,
-    USE_TERTIARY  =  3;
+    USE_TERTIARY  =  3,
+    ALIGN_NS      =  0,
+    ALIGN_WE      =  1;
   
   
   private Box2D area = new Box2D();
@@ -130,6 +132,43 @@ public class ClaimDivision {
   }
   
   
+  public Tile[] toPaveAround(Venue venue, Tile usageMask[]) {
+    Batch <Tile> toPave = new Batch();
+    
+    if (usageMask != null) for (Tile t : usageMask) t.flagWith(toPave);
+    
+    for (Box2D plot : plots) {
+      for (Tile t : Spacing.perimeter(plot, venue.world())) {
+        if (t != null && t.buildable()) toPave.add(t);
+      }
+    }
+    for (Tile t : Spacing.perimeter(venue.footprint(), venue.world())) {
+      if (t != null && t.buildable()) toPave.add(t);
+    }
+    
+    if (usageMask != null) for (Tile t : usageMask) t.flagWith(null);
+    return toPave.toArray(Tile.class);
+  }
+  
+  
+  public Tile[] reserved() {
+    return reserved;
+  }
+  
+  
+  public int useAlignment(Tile at) {
+    for (Box2D plot : plots) {
+      if (! plot.contains(at.x, at.y)) continue;
+      if (plot.xdim() >= plot.ydim()) return ALIGN_NS;
+      else return ALIGN_WE;
+    }
+    return USE_NONE;
+  }
+  
+  
+  
+  /**  Carving up space.
+    */
   public ClaimDivision withUsageMarked(
     boolean alongAxis, Venue around, int... useMarking
   ) {
@@ -162,33 +201,6 @@ public class ClaimDivision {
   }
   
   
-  public Tile[] toPaveAround(Venue venue, Tile usageMask[]) {
-    Batch <Tile> toPave = new Batch();
-    
-    if (usageMask != null) for (Tile t : usageMask) t.flagWith(toPave);
-    
-    for (Box2D plot : plots) {
-      for (Tile t : Spacing.perimeter(plot, venue.world())) {
-        if (t != null && t.buildable()) toPave.add(t);
-      }
-    }
-    for (Tile t : Spacing.perimeter(venue.footprint(), venue.world())) {
-      if (t != null && t.buildable()) toPave.add(t);
-    }
-    
-    if (usageMask != null) for (Tile t : usageMask) t.flagWith(null);
-    return toPave.toArray(Tile.class);
-  }
-  
-  
-  public Tile[] reserved() {
-    return reserved;
-  }
-  
-  
-  
-  /**  Carving up space.
-    */
   private Stack <Box2D> divideIntoPlots(
     Box2D area, int prefSpacing, int maxSideRatio
   ) {

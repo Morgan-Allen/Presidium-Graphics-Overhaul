@@ -302,7 +302,7 @@ public class Flora extends Element implements TileConstants {
     growth = Nums.clamp(growth + inc, MIN_GROWTH, maxGrowth);
     final int newStage = Nums.clamp((int) growth, MAX_GROWTH);
     
-    if (natural && oldStage >= MIN_GROWTH) {
+    if (natural && oldStage >= MIN_GROWTH && ! species.domesticated) {
       float dieChance = UPDATE_DIE_CHANCE * growth / maxGrowth;
       if (Rand.num() < dieChance) { setAsDestroyed(false); return; }
     }

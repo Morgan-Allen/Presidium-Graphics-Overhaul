@@ -274,7 +274,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
       resetScenario();
     }
     if (nextOp == DO_LOAD) {
-      loadGame(latestSave(savesPrefix), true);
+      final String lastSave = latestSave(savesPrefix);
+      if (lastSave != null) loadGame(lastSave, true);
     }
     nextOp = DO_PLAY;
     return false;

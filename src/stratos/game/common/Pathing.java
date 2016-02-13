@@ -196,7 +196,6 @@ public class Pathing {
       I.say("  Current position: "+mobile.aboard());
       I.say("  Path was: "+I.list(path));
     }
-
     //
     //  Firstly, we perform some basic sanity checks on the start and end
     //  points of the prospective route.  Assuming those check out, we attempt

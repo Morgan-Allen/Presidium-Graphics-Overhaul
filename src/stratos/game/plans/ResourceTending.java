@@ -8,6 +8,7 @@ import stratos.content.civic.*;
 import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.game.economic.*;
+import stratos.game.maps.PathSearch;
 import stratos.util.*;
 
 
@@ -204,16 +205,8 @@ public abstract class ResourceTending extends Plan {
         this, "actionTendTarget",
         Action.BUILD, "Tending to "+toTend
       );
-      if (
-        Rand.index(10) == 0 ||
-        actor.aboard() == toTend ||
-        ! Spacing.adjacent(toTend, actor)
-      ) {
+      if (willBeBlocked(toTend)) {
         final Tile open = Spacing.nearestOpenTile(toTend, actor);
-        tending.setMoveTarget(open);
-      }
-      else {
-        final Tile open = actor.origin();
         tending.setMoveTarget(open);
       }
       if (report) I.say("  WILL TEND "+toTend);
@@ -237,6 +230,11 @@ public abstract class ResourceTending extends Plan {
     stage = STAGE_DONE;
     if (report) I.say("  AM DONE");
     return null;
+  }
+  
+  
+  protected boolean willBeBlocked(Target toTend) {
+    return PathSearch.blockedBy(toTend, actor);
   }
   
   

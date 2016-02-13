@@ -344,11 +344,12 @@ public class Bringing extends Plan {
   /**  Behaviour implementation-
     */
   public Behaviour getNextStep() {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     if (report) {
       I.say("\nGetting next delivery step: "+actor);
       I.say("  Origin:      "+origin     );
       I.say("  Destination: "+destination);
+      I.say("  Items:       "+I.list(this.items));
       I.say("  Plan ID:     "+hashCode() );
     }
     //

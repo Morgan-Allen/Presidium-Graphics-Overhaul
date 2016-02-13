@@ -82,8 +82,13 @@ public class PathSearch extends Search <Boarding> {
   
   public static boolean blockedBy(Target t, Accountable m) {
     if (t == null || ! t.inWorld()) return true;
-    if (! (t instanceof Boarding)) return false;
-    return blockedBy((Boarding) t, m);
+    if (t instanceof Boarding) {
+      return blockedBy((Boarding) t, m);
+    }
+    if (t instanceof Element) {
+      return ((Element) t).pathType() == Tile.PATH_BLOCKS;
+    }
+    return false;
   }
   
   

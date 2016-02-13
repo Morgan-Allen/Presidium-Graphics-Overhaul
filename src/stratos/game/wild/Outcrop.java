@@ -28,7 +28,7 @@ public class Outcrop extends Fixture {
     MAX_DIG_DEEP =  4;
   
   final public static Traded
-    ORE_TYPES[] = { METALS, FOSSILS, FUEL_RODS };
+    ORE_TYPES[] = { METALS, METALS, FUEL_RODS };
   
   final int type;
   Object resource;
@@ -64,9 +64,10 @@ public class Outcrop extends Fixture {
     */
   private void assignResource() {
     final Stage world = origin().world();
+    if (type == TYPE_DUNE) resource = null;
     
     //  TODO:  DERIVE THIS FROM THE UNDERLYING TERRAIN SOMEHOW!
-    resource = Rand.pickFrom(ORE_TYPES);
+    else resource = Rand.pickFrom(ORE_TYPES);
   }
   
   
@@ -194,10 +195,8 @@ public class Outcrop extends Fixture {
   public static float oreAmount(Tile at) {
     final Traded type = oreType(at);
     if (type == null) return 0;
-    float amount = at.habitat().minerals() * MAX_MINERALS / 10f;
-    if (type == METALS ) amount *= 2;
-    if (type == FOSSILS) amount /= 2;
-    return amount;
+    final float amount = at.habitat().minerals() * MAX_MINERALS / 10f;
+    return Nums.clamp(amount, 1, MAX_MINERALS);
   }
   
   

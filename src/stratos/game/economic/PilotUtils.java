@@ -59,7 +59,7 @@ public class PilotUtils {
     if (dropPoint instanceof Docking) {
       //
       //  Rely on the docking functions of the landing site...
-      ((Docking) dropPoint).setAsDocked(ship, false);
+      ((Docking) dropPoint).setAsDocked(ship, true);
       return dropPoint;
     }
     else {

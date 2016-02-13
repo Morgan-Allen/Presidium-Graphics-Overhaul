@@ -274,9 +274,6 @@ public class Stocks extends Inventory {
   /**  Utility methods for setting and propagating various types of demand-
     */
   private Demand demandRecord(Traded t) {
-    if (t == null) {
-      I.say("!?!?");
-    }
     final Demand d = demands.get(t);
     if (d != null) return d;
     Demand made = new Demand();

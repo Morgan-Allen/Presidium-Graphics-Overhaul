@@ -111,6 +111,13 @@ public class Tailing extends Element implements Selectable {
   }
   
   
+  public void exitWorld() {
+    I.say("TAILING SHOULD NOT BE REMOVED!");
+    I.reportStackTrace();
+    super.exitWorld();
+  }
+  
+  
   public static Tailing foundAt(Tile at) {
     if (at == null || ! (at.above() instanceof Tailing)) return null;
     return (Tailing) at.above();
@@ -175,80 +182,6 @@ public class Tailing extends Element implements Selectable {
       "pollution hazard.";
   }
 }
-
-
-
-//  TODO:  Try to find a place for these activities:
-
-/*
-public boolean actionReassemble(Actor actor, Venue site) {
-  //  TODO:  Test and restore
-  /*
-  final Item sample = Item.withReference(SAMPLES, ARTIFACTS);
-  final Structure s = site.structure();
-  final float
-    AAU = s.upgradeLevel(ExcavationSite.ARTIFACT_ASSEMBLY),
-    SPU = s.upgradeLevel(ExcavationSite.SAFETY_PROTOCOL);
-  
-  float success = 1;
-  if (actor.skills.test(ASSEMBLY, 10, 1)) success++;
-  else success--;
-  if (actor.skills.test(ANCIENT_LORE, 5, 1)) success++;
-  else success--;
-
-  site.stocks.removeItem(Item.withAmount(sample, 1.0f));
-  if (success >= 0) {
-    success *= 1 + (AAU / 2f);
-    final Item result = Item.with(ARTIFACTS, null, 0.1f, success * 2);
-    site.stocks.addItem(result);
-  }
-  if (site.stocks.amountOf(ARTIFACTS) >= 10) {
-    site.stocks.removeItem(Item.withAmount(ARTIFACTS, 10));
-    final Item match = site.stocks.matchFor(Item.withAmount(ARTIFACTS, 1));
-    final float quality = (match.quality + AAU + 2) / 2f;
-    if (Rand.num() < 0.1f * match.quality / (1 + SPU)) {
-      final boolean hostile = Rand.num() < 0.9f / (1 + SPU);
-      releaseArtilect(actor, hostile, quality);
-    }
-    else createArtifact(site, quality);
-  }
-  //*/
-/*
-  return true;
-}
-
-
-private void releaseArtilect(Actor actor, boolean hostile, float quality) {
-  //  TODO:  TEST AND RESTORE THIS
-  /*
-  final int roll = (int) (Rand.index(5) + quality);
-  final Artilect released = roll >= 5 ? new Tripod() : new Drone();
-  
-  final World world = actor.world();
-  if (hostile) {
-    released.assignBase(world.baseWithName(Base.KEY_ARTILECTS, true, true));
-  }
-  else {
-    released.assignBase(actor.base());
-    released.mind.assignMaster(actor);
-  }
-  released.enterWorldAt(actor.aboard(), world);
-  released.goAboard(actor.aboard(), world);
-  //*/
-/*
-}
-
-
-private void createArtifact(Venue site, float quality) {
-  final TradeType basis = Rand.yes() ?
-    (TradeType) Rand.pickFrom(ALL_DEVICES) :
-    (TradeType) Rand.pickFrom(ALL_OUTFITS);
-  //
-  //  TODO:  Deliver to artificer for sale or recycling!
-  final Item found = Item.with(ARTIFACTS, basis, 1, quality);
-  site.stocks.addItem(found);
-}
-//*/
 
 
 

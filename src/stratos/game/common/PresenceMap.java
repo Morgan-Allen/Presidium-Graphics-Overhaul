@@ -72,7 +72,9 @@ public class PresenceMap implements Session.Saveable {
   private void loadMember(Session s) throws Exception {
     final int pX = s.loadInt(), pY = s.loadInt();
     final Target t = (Target) s.loadObject();
-    if (! t.inWorld()) I.say(t+" NOT IN WORLD! "+this.key);
+    if (! t.inWorld()) {
+      I.say(t+" NOT IN WORLD! "+this.key+" at "+pX+" "+pY);
+    }
     else toggleAt(root, pX, pY, t, true);
   }
   

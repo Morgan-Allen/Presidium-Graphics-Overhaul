@@ -260,6 +260,15 @@ public class Gathering extends ResourceTending {
   }
   
   
+  protected boolean willBeBlocked(Target toTend) {
+    if (toTend instanceof Tile && depot instanceof EcologistStation) {
+      EcologistStation station = (EcologistStation) depot;
+      if (station.shouldCover((Tile) toTend)) return true;
+    }
+    return super.willBeBlocked(toTend);
+  }
+  
+  
   protected float rateTarget(Target t) {
     final Flora c = Flora.foundAt(t);
     
@@ -299,7 +308,11 @@ public class Gathering extends ResourceTending {
       if (c == null   ) { seedTile((Tile) t, a)  ; return null         ; }
       if (c != toTend ) { c.setAsDestroyed(false); return null         ; }
       if (c.blighted()) { c.disinfest()          ; return null         ; }
-      if (c.ripe()    ) { c.setAsDestroyed(false); return c.materials(); }
+      if (c.ripe()) {
+        c.setAsDestroyed(false);
+        seedTile(c.origin(), a);
+        return c.materials();
+      }
     }
     if (type == TYPE_FORESTING) {
       if (c == null   ) { seedTile((Tile) t, a)  ; return null;          }

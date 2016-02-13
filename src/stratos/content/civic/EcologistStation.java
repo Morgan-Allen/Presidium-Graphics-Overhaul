@@ -307,8 +307,8 @@ public class EcologistStation extends HarvestVenue {
   
   public int numPositions(Background v) {
     final int level = structure.mainUpgradeLevel();
-    if (v == CULTIVATOR) return level;
-    if (v == ECOLOGIST ) return level;
+    if (v == CULTIVATOR) return  level + 1;
+    if (v == ECOLOGIST ) return (level + 1) / 2;
     return 0;
   }
   

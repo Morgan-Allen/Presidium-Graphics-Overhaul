@@ -349,6 +349,7 @@ public abstract class Vehicle extends Mobile implements
       beginTakeoff();
     }
     PilotUtils.completeTakeoff(world, this);
+    cargo.onWorldExit();
     super.exitWorld();
   }
   
@@ -359,6 +360,7 @@ public abstract class Vehicle extends Mobile implements
     final Tile exits = Spacing.pickRandomTile(origin(), INIT_DIST, world);
     final Vec3D exitPoint = new Vec3D(exits.x, exits.y, INIT_HIGH);
     PilotUtils.performTakeoff(world, this, exitPoint);
+    cargo.clearDemands();
     
     stateInceptTime = world.currentTime();
     state           = STATE_TAKEOFF;
@@ -502,7 +504,7 @@ public abstract class Vehicle extends Mobile implements
     
     structure.updateStructure(numUpdates);
     if (! structure.intact()) return;
-    if (! instant) {
+    if (landed() && ! instant) {
       cargo.updateStockDemands(1, services());
       staff.updateStaff(numUpdates);
     }

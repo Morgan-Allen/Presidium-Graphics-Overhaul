@@ -397,7 +397,9 @@ public class BringUtils {
   static float rateTrading(
     Owner orig, Owner dest, Traded good, int amount, int unit
   ) {
-    if (orig == dest) return -1;
+    if (orig == dest    ) return -1;
+    if (! orig.inWorld()) return -1;
+    if (! dest.inWorld()) return -1;
     final boolean report = reportRating(orig, dest, good);
     if (report) {
       I.say("\nGetting trade rating for "+good+" ("+orig+" -> "+dest+")");

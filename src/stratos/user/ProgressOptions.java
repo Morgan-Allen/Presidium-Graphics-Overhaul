@@ -81,7 +81,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
 
     this.slows = new Button(UI, "button_slow", IMG_SLOW, "Slow Time") {
       protected void whenClicked() {
-        PlayLoop.setGameSpeed(0.5f);
+        PlayLoop.setGameSpeed(0.33f);
         PlayLoop.setPaused(false);
         toggleSpeedOption(this);
       }
@@ -101,7 +101,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
     
     this.fasts = new Button(UI, "button_fast", IMG_FAST, "Fast Time") {
       protected void whenClicked() {
-        PlayLoop.setGameSpeed(2.0f);
+        PlayLoop.setGameSpeed(3.0f);
         PlayLoop.setPaused(false);
         toggleSpeedOption(this);
       }

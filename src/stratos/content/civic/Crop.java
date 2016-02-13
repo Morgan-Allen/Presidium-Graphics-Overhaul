@@ -145,6 +145,12 @@ public class Crop extends Flora {
   }
   
   
+  public void exitWorld() {
+    ///I.say("CROP EXITING WORLD!");
+    super.exitWorld();
+  }
+  
+  
   public Item[] materials() {
     return species().nutrients(growStage());
   }
@@ -158,8 +164,8 @@ public class Crop extends Flora {
     //  TODO:  You need to sort out facing!  Hah!
     
     if (covered) {
-      final byte f = parent.claimDivision().useType(origin());
-      final boolean across = f == ClaimDivision.USE_SECONDARY;
+      int facing = parent.claimDivision().useAlignment(origin());
+      boolean across = facing == ClaimDivision.ALIGN_WE;
       if (across) attachModel(COVERING_RIGHT);
       else        attachModel(COVERING_LEFT );
       return;
