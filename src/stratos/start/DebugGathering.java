@@ -184,7 +184,7 @@ public class DebugGathering extends Scenario {
       if (! site.canDig(t)) continue;
       t.clearUnlessOwned();
       world.terrain().setRoadType(t, StageTerrain.ROAD_STRIP);
-      world.terrain().setDigLevel(t, -2);
+      world.terrain().setDigLevel(t, -1 * (Rand.index(4) + 1));
     }
     
     final Actor first = site.staff.workers().first();

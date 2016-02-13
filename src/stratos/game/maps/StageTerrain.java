@@ -273,8 +273,10 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     if (level == oldLevel) return;
     
     digLevel[at.x][at.y] = (byte) level;
-    meshSet.flagUpdateAt(at.x, at.y);
     at.refreshAdjacent();
+    for (Tile n : at.vicinity(tempV)) if (n != null) {
+      meshSet.flagUpdateAt(n.x, n.y);
+    }
     
     calcCornerHeight(at,  1,  1);
     calcCornerHeight(at, -1,  1);

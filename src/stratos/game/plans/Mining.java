@@ -170,6 +170,9 @@ public class Mining extends ResourceTending {
       final Item slag = actor.gear.bestSample(SLAG, oreType, -1);
       if (slag == null && stage() > STAGE_PICKUP) return null;
     }
+    else {
+      if (oreType == null) return null;
+    }
     return super.nextToTend();
   }
   
@@ -185,7 +188,6 @@ public class Mining extends ResourceTending {
   
   
   protected float rateTarget(Target t) {
-    
     final ExcavationSite site = (ExcavationSite) depot;
     final StageTerrain terrain = depot.world().terrain();
     
@@ -210,7 +212,7 @@ public class Mining extends ResourceTending {
       final Outcrop face = (Outcrop) t;
       if (face.oreType() != oreType) return -1;
       if (Spacing.distance(face, site) > Stage.ZONE_SIZE) return -1;
-      return face.oreAmount() / Outcrop.MAX_MINERALS;
+      return face.oreAmount() / (face.bulk() * Outcrop.MAX_MINERALS);
     }
     if (type == TYPE_DUMPING) {
       final Tile face = (Tile) t;
@@ -256,14 +258,14 @@ public class Mining extends ResourceTending {
     if (type == TYPE_MINING) {
       final Tile  face        = (Tile) t;
       final Item  ore         = Outcrop.mineralsAt(t);
-      final float breakChance = 1f / TILE_DIG_TIME;
       final int   height      = terrain.digLevel(face);
       if (ore == null) return null;
       
+      float breakChance = 1f / TILE_DIG_TIME;
       terrain.setRoadType(face, StageTerrain.ROAD_STRIP);
       face.clearUnlessOwned();
-      float yield = breakChance / 2f;
       
+      float yield = breakChance / 2f;
       if (Rand.num() < breakChance) {
         yield += 0.5f;
         terrain.setDigLevel(face, height - 1);

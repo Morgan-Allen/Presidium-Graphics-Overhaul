@@ -243,6 +243,7 @@ public class ExcavationSite extends HarvestVenue {
   public float needForTending(ResourceTending tending) {
     final Mining m = (Mining) tending;
     final Traded type = m.oreType();
+    if (type == null) return -1;
     final float need = stocks.relativeShortage(type, true);
     
     if (m.type == Mining.TYPE_MINING) {

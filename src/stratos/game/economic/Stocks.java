@@ -177,7 +177,8 @@ public class Stocks extends Inventory {
     *  (positive) or higher (negative, scaled against production-level.)
     */
   public float relativeShortage(Traded type, boolean production) {
-    final Demand d = demandRecord(type);
+    final Demand d = demands.get(type);
+    if (d == null) return -1;
     final float amount = amountOf(type), base = d.consumption;
     
     if (production) {
@@ -194,7 +195,8 @@ public class Stocks extends Inventory {
   
   
   public float absoluteShortage(Traded type, boolean production) {
-    final Demand d = demandRecord(type);
+    final Demand d = demands.get(type);
+    if (d == null) return 0;
     final float amount = amountOf(type), base = d.consumption;
     
     if (production) return base + d.production - amount;
@@ -272,6 +274,9 @@ public class Stocks extends Inventory {
   /**  Utility methods for setting and propagating various types of demand-
     */
   private Demand demandRecord(Traded t) {
+    if (t == null) {
+      I.say("!?!?");
+    }
     final Demand d = demands.get(t);
     if (d != null) return d;
     Demand made = new Demand();
@@ -366,6 +371,7 @@ public class Stocks extends Inventory {
       for (Demand d : demands.values()) {
         boolean sells = amountOf(d.type) > 0 && d.production > 0;
         boolean buys  = d.consumption > 0 && ! sells;
+        
         BP.togglePresence(basis, at, sells, d.type.supplyKey);
         BP.togglePresence(basis, at, buys , d.type.demandKey);
         
