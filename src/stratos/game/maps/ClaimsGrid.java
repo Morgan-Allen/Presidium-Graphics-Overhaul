@@ -138,6 +138,7 @@ public class ClaimsGrid {
   
   private Series <Claim> claimsConflicting(Box2D area, Venue owner) {
     final boolean report = verbose && owner.owningTier() > Owner.TIER_PRIVATE;
+    //boolean report = I.used60Frames && PlacingTask.isBeingPlaced(owner);
     
     final Batch <Claim> conflict = new Batch <Claim> ();
     if (report) {
@@ -326,6 +327,12 @@ public class ClaimsGrid {
     final Box2D cropped = new Box2D(original);
     cropped.cropBy(world.area());
     final Vec2D vecC = centre.footprint().centre();
+    
+    final boolean report =
+      I.used60Frames && PlacingTask.isBeingPlaced(centre) && verbose
+    ;
+    if (report) I.say("\nCropping claim for "+centre);
+    
     //
     //  First, resolve any conflicts with other venues.
     final List <Claim> conflicts = new List <Claim> () {
@@ -338,9 +345,12 @@ public class ClaimsGrid {
     conflicts.queueSort();
     for (Claim c : conflicts) {
       final int margin = SiteUtils.minSpacing(centre, c.owner);
+      if (report) I.say("  Margin for "+c.owner+" is "+margin);
       cropToExclude(cropped, c.area, vecC, margin);
     }
     for (Claim c : conflicts) c.flag = -1;
+    
+    //*
     //
     //  Then, resolve any conflicts with individual tiles-
     final List <Tile> tileClash = new List <Tile> () {
@@ -348,15 +358,18 @@ public class ClaimsGrid {
         return Spacing.distance(t, centre);
       }
     };
-    SiteUtils.checkAreaClear( original, world, centre, Account.NONE, tileClash);
+    SiteUtils.checkAreaClear(cropped, world, centre, Account.NONE, tileClash);
     tileClash.queueSort();
     final Box2D tempB = new Box2D();
     for (Tile t : tileClash) {
+      if (report) I.say("  Clash with tile at: "+t.x+"|"+t.y);
       t.area(tempB);
       tempB.expandToUnit(2);
       cropToExclude(cropped, tempB, vecC, 0);
     }
+    //*/
     
+    if (report) I.say("Final area is: "+cropped);
     return original.setTo(cropped);
   }
   

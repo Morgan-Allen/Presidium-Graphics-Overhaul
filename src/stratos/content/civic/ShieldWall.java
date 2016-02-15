@@ -57,10 +57,9 @@ public class ShieldWall extends Venue {
   );
   
   
-  
+  private int type = -1;
   private Boarding entrances[] = null;
   private boolean hasFoundation = false;
-  private int type = -1;
   
   
   public ShieldWall(Base base) {
@@ -89,19 +88,73 @@ public class ShieldWall extends Venue {
   };
   
   
-  
   public boolean setupWith(Tile position, Box2D area, Coord... others) {
     if (! super.setupWith(position, area, others)) return false;
     
-    final Object model = faceModel(position, area, others);
-    this.type = typeIndexFrom(model);
-    attachModel((ModelAsset) model);
+    final Object config[] = configFrom(position, area, others);
+    attachModel((ModelAsset) config[0]);
+    this.type = (Integer) config[1];
     
     hasFoundation = false;
     for (Tile u : position.world.tilesIn(footprint(), true)) {
       if (super.canBuildOn(u)) hasFoundation = true;
     }
     return true;
+  }
+  
+  
+  private Object[] configFrom(Tile position, Box2D area, Coord... others) {
+    Object model = SiteUtils.setupMergingSegment(
+      this, position, area, others,
+      CAPS_X_AXIS, CAPS_Y_AXIS, MODEL_HUB, ShieldWall.class
+    );
+    
+    final boolean hasParent = parent() != null;
+    final Box2D fromParent = hasParent ? parent().footprint() : null;
+    int index = -1, type = -1;
+    
+    if (model == CAPS_X_AXIS[1]) {
+      
+      index = (position.y / 2) % 4;
+      if (hasParent) {
+        if      (position.y == fromParent.ypos() - 1.5f) {
+          index = 3;
+        }
+        else if (position.y == fromParent.ymax() + 0.5f) {
+          index = 3;
+        }
+        else if (index == 3) {
+          index = 2;
+        }
+      }
+      model = SEGMENTS_X[index];
+    }
+    if (model == CAPS_Y_AXIS[1]) {
+      
+      index = (position.x / 2) % 4;
+      if (hasParent) {
+        if      (position.x == fromParent.xpos() - 1.5f) {
+          index = 3;
+        }
+        else if (position.x == fromParent.xmax() + 0.5f) {
+          index = 3;
+        }
+        else if (index == 3) {
+          index = 2;
+        }
+      }
+      model = SEGMENTS_Y[index];
+    }
+    if (model == MODEL_HUB) {
+      type = TYPE_HUB;
+    }
+    else {
+      if      (index == 0) type = TYPE_TOWER  ;
+      else if (index == 3) type = TYPE_GATE   ;
+      else                 type = TYPE_SEGMENT;
+    }
+    
+    return new Object[] { model, type };
   }
   
   
@@ -148,36 +201,6 @@ public class ShieldWall extends Venue {
   }
   
   
-  private Object faceModel(Tile position, Box2D area, Coord... others) {
-    Object model = SiteUtils.setupMergingSegment(
-      this, position, area, others,
-      CAPS_X_AXIS, CAPS_Y_AXIS, MODEL_HUB, ShieldWall.class
-    );
-    if (model == CAPS_X_AXIS[1]) {
-      int index = (position.y / 2) % 8;
-      if (index == 3) index = 2;
-      model = SEGMENTS_X[index % 4];
-    }
-    if (model == CAPS_Y_AXIS[1]) {
-      int index = (position.x / 2) % 8;
-      if (index == 3) index = 2;
-      model = SEGMENTS_Y[index % 4];
-    }
-    return model;
-  }
-  
-  
-  private int typeIndexFrom(Object model) {
-    if (model == MODEL_HUB) return TYPE_HUB;
-    int index = -1;
-    if (index == -1) index = Visit.indexOf(model, SEGMENTS_X);
-    if (index == -1) index = Visit.indexOf(model, SEGMENTS_Y);
-    if      (index == 0) return TYPE_TOWER  ;
-    else if (index == 3) return TYPE_GATE   ;
-    else                 return TYPE_SEGMENT;
-  }
-  
-  
   
   /**  Registration, life cycle and economic functions-
     */
@@ -198,9 +221,11 @@ public class ShieldWall extends Venue {
   
   
   public boolean updateFacing(boolean instant) {
-    final Object  model   = faceModel(origin(), null);
-    final int     newType = typeIndexFrom(model);
-    final Upgrade FC      = Structure.FACING_CHANGE;
+    final Object     config[] = configFrom(origin(), null);
+    final ModelAsset model    = (ModelAsset) config[0];
+    final int        newType  = (Integer   ) config[1];
+    
+    final Upgrade FC = Structure.FACING_CHANGE;
     boolean canChange = false;
     
     if (type != newType) {

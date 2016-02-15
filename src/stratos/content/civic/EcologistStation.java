@@ -41,6 +41,9 @@ public class EcologistStation extends HarvestVenue {
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
       EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 2
+    ),
+    NURSERY_MODEL = CutoutModel.fromImage(
+      EcologistStation.class, IMG_DIR+"nursery.png", 2, 1
     );
   
   final public static Blueprint BLUEPRINT = new Blueprint(
@@ -281,11 +284,6 @@ public class EcologistStation extends HarvestVenue {
     if (! structure.intact()) return;
     //
     //  Increment demands, and decay current stocks-
-    final float needSeed = SeedTailoring.DESIRED_SAMPLES;
-    stocks.setConsumption(GENE_SEED, needSeed);
-    stocks.setConsumption(CARBS  , 2);
-    stocks.setConsumption(GREENS , 1);
-    stocks.setConsumption(PROTEIN, 1);
     final float decay = 1f / (
       Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
     );
@@ -295,7 +293,17 @@ public class EcologistStation extends HarvestVenue {
     for (Item sample : stocks.matches(SAMPLES)) {
       stocks.removeItem(Item.withAmount(sample, decay));
     }
+    
+    final float needSeed = SeedTailoring.DESIRED_SAMPLES;
+    float powerOut = (this.reserved().length / 3);
+    powerOut *= 1 - this.needsTending;
+    
     stocks.updateStockDemands(1, services());
+    stocks.setConsumption(GENE_SEED, needSeed);
+    stocks.setConsumption(CARBS  , 2);
+    stocks.setConsumption(GREENS , 1);
+    stocks.setConsumption(PROTEIN, 1);
+    stocks.forceDemand(POWER, 0, powerOut - 2);
     //
     //  An update ambience-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);

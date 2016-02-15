@@ -23,64 +23,6 @@ public class SiteUtils implements TileConstants {
     verbose      = false,
     cacheVerbose = false;
   
-  /*
-  final private static Coord footprintCache[][][] = new Coord[100][100][];
-  //
-  //  NOTE:  This method is intended to generate a sequence of coordinates to
-  //  check that should eliminate unfit placement-sites for buildings faster
-  //  than a naive sequential iteration.  It splits the x and y axes into
-  //  successively finer quadrants, closing a 'net' on any potential obstacles
-  //  within the area:
-  //
-  //  PASS 1:           PASS 2:           PASS 3:          ETC.
-  //    *-----------*     *-----*-----*     *--*--*--*--*
-  //    |           |     |     |     |     *--*--*--*--*
-  //    |           |     *-----*-----*     *--*--*--*--*
-  //    |           |     |     |     |     *--*--*--*--*
-  //    *-----------*     *-----*-----*     *--*--*--*--*
-  //
-  //
-  private static Coord[] footprintFor(int sizeX, int sizeY) {
-    //
-    //  Return the cached version if available, initialise otherwise-
-    Coord offsets[] = footprintCache[sizeX][sizeY];
-    if (offsets != null) return offsets;
-    else offsets = footprintCache[sizeX][sizeY] = new Coord[sizeX * sizeY];
-    //
-    //  Find the initial 'step' size for the grid.
-    int stepX = 1, stepY = 1, i = 0;
-    while (stepX <= sizeX * 2) stepX *= 2;
-    while (stepY <= sizeY * 2) stepY *= 2;
-    final int maxX = sizeX - 1, maxY = sizeY - 1;
-    final boolean mask[][] = new boolean[sizeX][sizeY];
-    //
-    //  Shrink the grid with every step, skipping over any previously-used
-    //  coordinates, and return the sequence of coordinates compiled-
-    while (stepX > 1 || stepY > 1) {
-      if (stepX > 1) stepX /= 2;
-      if (stepY > 1) stepY /= 2;
-      for (int x = 0;;) {
-        for (int y = 0;;) {
-          if (! mask[x][y]) {
-            if (cacheVerbose) I.say("X/Y: "+x+"/"+y);
-            mask[x][y] = true;
-            offsets[i++] = new Coord(x, y);
-          }
-          if (y == maxY) break;
-          y += stepY;
-          if (y >= sizeY) y = maxY;
-        }
-        if (x == maxX) break;
-        x += stepX;
-        if (x >= sizeX) x = maxX;
-      }
-    }
-    if (cacheVerbose) I.say("SIZE X/Y: "+sizeX+"/"+sizeY);
-    if (cacheVerbose) I.say("OFFSETS GENERATED: "+i);
-    return offsets;
-  }
-  //*/
-  
   
   
   public static boolean checkAreaClear(
@@ -119,8 +61,11 @@ public class SiteUtils implements TileConstants {
   
   
   public static int minSpacing(Venue a, Venue b) {
-    if (a.blueprint.isZoned() || b.blueprint.isZoned()) {
-      return 0;// Stage.UNIT_GRID_SIZE;
+    if (a.blueprint.isLinear() || b.blueprint.isLinear()) {
+      return 0;
+    }
+    else if (a.blueprint.isZoned() || b.blueprint.isZoned()) {
+      return Stage.UNIT_GRID_SIZE;
     }
     else return 0;
   }
@@ -300,7 +245,7 @@ public class SiteUtils implements TileConstants {
   
   
   public static Venue[] placeAroundPerimeter(
-    Blueprint type, Box2D around, Base base, boolean intact
+    Blueprint type, Venue parent, Box2D around, Base base, boolean intact
   ) {
     final Stage world = base.world;
     final int grid = type.size;
@@ -331,6 +276,7 @@ public class SiteUtils implements TileConstants {
       final Coord pointsA[] = points.toArray(Coord.class);
       for (Coord c : points) {
         final Venue segment = type.createVenue(base);
+        segment.assignParent(parent);
         segment.setupWith(world.tileAt(c.x, c.y), area, pointsA);
         if (segment.canPlace()) {
           placed.add(segment);

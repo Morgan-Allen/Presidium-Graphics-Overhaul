@@ -184,7 +184,7 @@ public class DebugGathering extends Scenario {
     for (int n = res.length; n-- > 0;) {
       Tile t = res[n];
       if (! site.canDig(t)) continue;
-      world.terrain().setDigLevel(t, -1 - Rand.index(5));
+      world.terrain().setDigLevel(t, -3);
     }
     
     final Actor first = site.staff.workers().first();

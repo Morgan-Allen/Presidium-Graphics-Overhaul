@@ -82,8 +82,8 @@ public class DebugSecurity extends Scenario {
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
 
-    if (true ) verminScenario  (world, base, UI);
-    if (false) wallsScenario   (world, base, UI);
+    if (false) verminScenario  (world, base, UI);
+    if (true ) wallsScenario   (world, base, UI);
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
     if (false) raidingScenario (world, base, UI);
@@ -137,9 +137,9 @@ public class DebugSecurity extends Scenario {
     //  Now, find a good location for the Bastion, and establish some walls
     //  around it...
     base.setup.doPlacementsFor(bastion);
-    
+    final Box2D area = bastion.area(null).expandBy(6);
     final Venue walls[] = SiteUtils.placeAroundPerimeter(
-      ShieldWall.BLUEPRINT, bastion.areaClaimed(), base, true
+      ShieldWall.BLUEPRINT, bastion, area, base, true
     );
     for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
     

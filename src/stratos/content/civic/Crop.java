@@ -164,6 +164,17 @@ public class Crop extends Flora {
     //  TODO:  You need to sort out facing!  Hah!
     
     if (covered) {
+      if (origin().x == parent.origin().x) {
+        final GroupSprite GS = new GroupSprite();
+        GS.attach(EcologistStation.NURSERY_MODEL, 0.5f, -0.5f, 0);
+        attachSprite(GS);
+        return;
+      }
+      if (origin().x == parent.origin().x + 1) {
+        return;
+      }
+    }
+    if (covered) {
       int facing = parent.claimDivision().useAlignment(origin());
       boolean across = facing == ClaimDivision.ALIGN_WE;
       if (across) attachModel(COVERING_RIGHT);

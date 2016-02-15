@@ -110,14 +110,6 @@ public class SupplyDepot extends Venue {
       new Object[] { 5, ACCOUNTING, 5, HARD_LABOUR },
       400
     );
-  /*
-  final public static Conversion
-    NIL_TO_POLYMER = new Conversion(
-      BLUEPRINT, "nil_to_polymer",
-      TO, 1, POLYMER,
-      SIMPLE_DC, CHEMISTRY
-    );
-  //*/
   
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
@@ -138,6 +130,12 @@ public class SupplyDepot extends Venue {
       b.structure.setState(Structure.STATE_INSTALL, 0);
       barges.add(b);
     }
+  }
+  
+  
+  public void exitWorld() {
+    super.exitWorld();
+    for (CargoBarge b : barges) b.exitWorld();
   }
   
   

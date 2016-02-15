@@ -22,7 +22,7 @@ public abstract class HarvestVenue extends Venue {
   final int minClaimSize, maxClaimSize;
   private ClaimDivision division = ClaimDivision.NONE;
   private Box2D areaClaimed = new Box2D();
-  private float needsTending = 0;
+  protected float needsTending = 0;
   
   
   

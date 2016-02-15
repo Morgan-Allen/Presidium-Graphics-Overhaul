@@ -188,7 +188,7 @@ public class SectorScenario extends Scenario {
       //enclosed.incX(0 - wallSize / 2);
       //enclosed.incY(0 - 2           );
       final Venue wall[] = SiteUtils.placeAroundPerimeter(
-        ShieldWall.BLUEPRINT, enclosed, base, true
+        ShieldWall.BLUEPRINT, bastion, enclosed, base, true
       );
       for (Venue v : wall) ((ShieldWall) v).updateFacing(true);
       final float fogBound = bastion.areaClaimed().maxSide() * Nums.ROOT2 / 2;

@@ -40,7 +40,7 @@ public class SolarBank extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     SolarBank.class, "solar_bank",
-    "Solar Bank", Target.TYPE_ECOLOGIST, ICON,
+    "Solar Bank", Target.TYPE_WIP, ICON,
     "Solar Banks provide clean "+POWER+" and a small amount of "+WATER+" to "+
     "your settlement.",
     2, 1, Structure.IS_LINEAR | Structure.IS_FIXTURE,

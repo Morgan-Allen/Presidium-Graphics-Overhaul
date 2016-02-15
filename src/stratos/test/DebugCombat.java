@@ -271,7 +271,9 @@ public class DebugCombat extends AutomatedScenario {
     base.setup.fillVacancies(bastion, true);
     
     final Box2D perim = bastion.area(new Box2D()).expandBy(8);
-    SiteUtils.placeAroundPerimeter(ShieldWall.BLUEPRINT, perim, base, true);
+    SiteUtils.placeAroundPerimeter(
+      ShieldWall.BLUEPRINT, bastion, perim, base, true
+    );
     
     for (int n = 2; n-- > 0;) {
       final TrooperLodge barracks = new TrooperLodge(base);

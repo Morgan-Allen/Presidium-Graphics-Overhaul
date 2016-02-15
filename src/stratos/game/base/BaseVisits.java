@@ -343,6 +343,7 @@ public class BaseVisits {
       source, base.world,
       entryPoint, base, Journey.RAID_STAY_DURATION
     );
+    if (journey == null) return false;
     Mission strike = null;
     
     if (entryPoint instanceof Vehicle) {

@@ -153,8 +153,9 @@ public class Outcrop extends Fixture {
   /**  Physical attributes and queries-
     */
   public int owningTier() {
-    if (this.type == TYPE_DUNE) return Owner.TIER_TERRAIN;
-    return Owner.TIER_PRIVATE;
+    return Owner.TIER_OBJECT;
+    //if (this.type == TYPE_DUNE) return Owner.TIER_TERRAIN;
+    //return Owner.TIER_PRIVATE;
   }
   
   

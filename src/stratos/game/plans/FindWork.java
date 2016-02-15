@@ -182,7 +182,7 @@ public class FindWork extends Plan {
   public void cancelApplication() {
     if (employer == null || position == null) return;
     employer.staff().setApplicant(this, false);
-    if (! actor.inWorld()) employer.base().visits.removeCandidate(actor);
+    employer.base().visits.removeCandidate(actor);
   }
   
   

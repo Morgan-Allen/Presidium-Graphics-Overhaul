@@ -97,7 +97,8 @@ public class Summons extends Plan implements Messaging {
     //  TODO:  Have this expire once charges are cleared!
     if (type == TYPE_CAPTIVE && actor.aboard() == stays) return 100;
     
-    final float priority = motiveBonus();
+    float priority = motiveBonus();
+    if (type == TYPE_GUEST) priority += 20;
     if (report) I.say("  Priority: "+priority);
     return priority;
   }

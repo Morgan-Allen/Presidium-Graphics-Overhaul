@@ -50,6 +50,7 @@ public abstract class Venue extends Fixture implements
   final public static Blueprint NO_REQUIREMENTS[] = new Blueprint[0];
   
   protected Base base;
+  private Venue parent;
   
   final public Blueprint blueprint;
   final public Structure structure = new Structure(this);
@@ -76,7 +77,8 @@ public abstract class Venue extends Fixture implements
   
   public Venue(Session s) throws Exception {
     super(s);
-    this.base = (Base) s.loadObject();
+    base   = (Base ) s.loadObject();
+    parent = (Venue) s.loadObject();
     
     blueprint = (Blueprint) s.loadObject();
     structure.loadState(s);
@@ -94,16 +96,17 @@ public abstract class Venue extends Fixture implements
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(base);
+    s.saveObject(base  );
+    s.saveObject(parent);
     
     s.saveObject(blueprint);
     structure.saveState(s);
     staff    .saveState(s);
     stocks   .saveState(s);
     
-    s.saveObject(entrance);
-    s.saveObjects(inside);
-    s.saveInt(facing);
+    s.saveObject (entrance);
+    s.saveObjects(inside  );
+    s.saveInt    (facing  );
     
     s.saveInt(nameID);
   }
@@ -112,6 +115,7 @@ public abstract class Venue extends Fixture implements
   public Structure structure() { return structure; }
   public Staff staff() { return staff; }
   public Base base() { return base; }
+  public Venue parent() { return parent; }
   
   
   public void assignBase(Base base) {
@@ -119,6 +123,11 @@ public abstract class Venue extends Fixture implements
     world.presences.togglePresence(this, false);
     this.base = base;
     world.presences.togglePresence(this, true);
+  }
+  
+  
+  public void assignParent(Venue parent) {
+    this.parent = parent;
   }
   
   

@@ -174,7 +174,7 @@ public class EngineerStation extends Venue {
     stocks.setConsumption(PARTS   , 2);
     
     float pollution = 5, powerNeed = 5;
-    powerNeed *= (3 + structure.numOptionalUpgrades()) / 6;
+    powerNeed *= (3f + structure.numOptionalUpgrades()) / 6;
     pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
     pollution *= (5f + structure.upgradeLevel(ASSEMBLY_LINE)) / 5;
     stocks.forceDemand(POWER, powerNeed, 0);

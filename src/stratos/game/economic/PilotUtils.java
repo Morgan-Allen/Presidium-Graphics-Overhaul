@@ -177,7 +177,7 @@ public class PilotUtils {
       goes = verse.journeys.destinationFor(ship);
     
     final Journey j = Journey.configForTrader(ship, from, goes, world);
-    j.beginJourney();
+    if (j != null) j.beginJourney();
     ship.assignLandPoint(null, null);
   }
   
