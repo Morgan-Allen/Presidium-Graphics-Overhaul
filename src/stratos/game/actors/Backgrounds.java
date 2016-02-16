@@ -248,6 +248,7 @@ public interface Backgrounds {
       OVERALLS
     ),
     
+    /*
     FORMER_ENGINEER = new Background(
       Backgrounds.class,
       "Former Engineer",
@@ -273,6 +274,7 @@ public interface Backgrounds {
       ALWAYS, NATURALIST, SOMETIMES, EMPATHIC, CURIOUS,
       STUN_WAND, SEALSUIT
     ),
+    //*/
     
     ECOLOGIST = new Background(
       Backgrounds.class,
@@ -289,7 +291,7 @@ public interface Backgrounds {
     ),
     
     ECOLOGIST_CIRCLES[] = {
-      CULTIVATOR, FORMER_ENGINEER, SURVEYOR, ECOLOGIST
+      CULTIVATOR, ECOLOGIST
     }
  ;
   

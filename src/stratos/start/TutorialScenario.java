@@ -39,7 +39,7 @@ public class TutorialScenario extends SectorScenario {
   private TrooperLodge     barracksBuilt = null;
   private EngineerStation  foundryBuilt  = null;
   private StockExchange    marketBuilt   = null;
-  private EcologistStation botanistBuilt = null;
+  private BotanicalStation botanistBuilt = null;
   private boolean          topUpFunds    = true;
   private boolean          auditorSeen   = false;
   
@@ -69,7 +69,7 @@ public class TutorialScenario extends SectorScenario {
     barracksBuilt = (TrooperLodge    ) s.loadObject();
     foundryBuilt  = (EngineerStation ) s.loadObject();
     marketBuilt   = (StockExchange   ) s.loadObject();
-    botanistBuilt = (EcologistStation) s.loadObject();
+    botanistBuilt = (BotanicalStation) s.loadObject();
     topUpFunds    = s.loadBool();
     auditorSeen   = s.loadBool();
     

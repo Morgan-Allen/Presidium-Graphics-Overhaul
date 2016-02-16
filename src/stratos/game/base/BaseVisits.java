@@ -267,40 +267,51 @@ public class BaseVisits {
   
   public void configCargo(Stocks forShipping, int fillLimit, boolean fillImp) {
     if (fillImp) forShipping.removeAllItems();
+    final boolean report = base == BaseUI.currentPlayed() && verbose;
+    if (report) {
+      I.say("\nConfiguring cargo for "+forShipping.owner);
+    }
     
     final Batch <Item>
       imports = new Batch <Item> (),
       exports = new Batch <Item> ();
-    float sumImp = 0, sumExp = 0, scaleImp = 1, scaleExp = 1;
+    float sumImp = 0, sumExp = 0, scale = 1;
     
     for (Traded type : ALL_MATERIALS) {
-      float shortage = base.demands.importDemand(type);
-      shortage -= base.demands.exportSupply(type);
+      float demand = base.demands.importDemand(type);
+      float supply = base.demands.exportSupply(type);
       
-      if (shortage > 0) {
-        imports.add(Item.withAmount(type, shortage));
-        sumImp += shortage;
+      if (report) I.say("  Supply/demand for "+type+": "+supply+"/"+demand);
+      if (supply > 0) {
+        exports.add(Item.withAmount(type, supply));
+        sumExp += supply;
       }
-      if (shortage < 0) {
-        exports.add(Item.withAmount(type, 0 - shortage));
-        sumExp += 0 - shortage;
+      if (demand > 0) {
+        imports.add(Item.withAmount(type, demand));
+        sumImp += demand;
       }
     }
     
-    if (sumImp > fillLimit) scaleImp = fillLimit / sumImp;
+    if (report) I.say("\nTotal imports/exports: "+sumImp+"/"+sumExp);
+    if (sumImp + sumExp > 0) scale = fillLimit / (sumImp + sumExp);
+    scale = Nums.clamp(scale, 0, 2);
+    
     for (Item i : imports) {
-      final int amount = Nums.round(i.amount * scaleImp, 2, false);
+      final int amount = Nums.round(i.amount * scale, 2, false);
       if (amount <= 0) continue;
       forShipping.forceDemand(i.type, 0, amount);
       if (fillImp) forShipping.bumpItem(i.type, amount);
+      if (report) I.say("  Setting "+i.type+" as import: "+amount);
     }
     
-    if (sumExp > fillLimit) scaleExp = fillLimit / sumExp;
     for (Item e : exports) {
-      final int amount = Nums.round(e.amount * scaleExp, 2, false);
+      final int amount = Nums.round(e.amount * scale, 2, false);
       if (amount <= 0) continue;
       forShipping.forceDemand(e.type, amount, 0);
+      if (report) I.say("  Setting "+e.type+" as export: "+amount);
     }
+    
+    if (report) I.say(".");
   }
   
   

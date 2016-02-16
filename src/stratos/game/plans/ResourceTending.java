@@ -140,7 +140,7 @@ public abstract class ResourceTending extends Plan {
           baseMotive += motive / PARAMOUNT;
         }
         else if (depot != null) {
-          baseMotive += depot.stocks.relativeShortage(t);
+          baseMotive += depot.stocks.relativeShortage(t, true);
         }
       }
       baseMotive /= harvestTypes.length;

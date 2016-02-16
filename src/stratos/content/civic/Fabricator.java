@@ -36,7 +36,7 @@ public class Fabricator extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Fabricator.class, "fabricator",
-    "Fabricator", Target.TYPE_AESTHETIC, ICON,
+    "Fabricator", Target.TYPE_WIP, ICON,
     "Fabricators manufacture "+DECOR+", "+PRESSFEED+" and finery for "+
     "the upper-crust.",
     4, 1, Structure.IS_NORMAL,

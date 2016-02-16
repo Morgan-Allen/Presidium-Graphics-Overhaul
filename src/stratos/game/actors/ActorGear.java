@@ -231,6 +231,11 @@ public class ActorGear extends Inventory {
   }
   
   
+  public float totalDemand(Traded type) {
+    return consumption(type);
+  }
+  
+  
   public boolean canDemand(Traded type) {
     final Relation r = actor.relations.relationWith(type);
     if (r == null || r.type() != Relation.TYPE_GEAR) return false;
@@ -354,7 +359,7 @@ public class ActorGear extends Inventory {
     */
   public float totalArmour() {
     final Item armour = outfitEquipped();
-    float reflexBonus = actor.traits.traitLevel(MOTOR) / 4;
+    float reflexBonus = 0;
     if (armour == null) return reflexBonus + baseArmour;
     
     final OutfitType type = (OutfitType) armour.type;

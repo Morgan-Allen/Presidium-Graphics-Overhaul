@@ -133,6 +133,8 @@ public class ShieldWall extends Venue {
       
       index = (position.x / 2) % 4;
       if (hasParent) {
+        if (index == 3) index = 2;
+        /*
         if      (position.x == fromParent.xpos() - 1.5f) {
           index = 3;
         }
@@ -142,6 +144,7 @@ public class ShieldWall extends Venue {
         else if (index == 3) {
           index = 2;
         }
+        //*/
       }
       model = SEGMENTS_Y[index];
     }

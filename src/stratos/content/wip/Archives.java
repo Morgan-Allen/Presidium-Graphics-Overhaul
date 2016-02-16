@@ -86,7 +86,7 @@ public class Archives extends Venue {
   protected Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     
-    final float needCirc = stocks.relativeShortage(CIRCUITRY);
+    final float needCirc = stocks.relativeShortage(CIRCUITRY, true);
     final Bringing d = BringUtils.bestBulkCollectionFor(
       this, new Traded[] { CIRCUITRY }, 1, 5, 5, true
     );

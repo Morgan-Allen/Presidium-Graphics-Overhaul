@@ -285,7 +285,9 @@ public class Stocks extends Inventory {
 
   protected void onWorldEntry() {
     final Traded services[] = basis.services();
-    if (services != null) for (Traded t : services) setConsumption(t, 0);
+    if (services != null) for (Traded t : services) {
+      if (demands.get(t) == null) setConsumption(t, 0);
+    }
   }
   
   
@@ -326,6 +328,10 @@ public class Stocks extends Inventory {
     
     //  TODO:  Scrub demand for anything not listed in services (or as a raw
     //  material.)
+    final boolean report = I.talkAbout == basis && verbose;
+    if (report) {
+      I.say("\nUpdating stock demands for "+basis);
+    }
     
     for (Item i : specialOrders) if (hasItem(i)) {
       deleteSpecialOrder(i);
@@ -372,7 +378,7 @@ public class Stocks extends Inventory {
         BP.togglePresence(basis, at, sells, d.type.supplyKey);
         BP.togglePresence(basis, at, buys , d.type.demandKey);
         
-        if (d.fixed || d.production > 0) continue;
+        if (d.consumption == 0) continue;
         BD.impingeDemand(d.type, d.consumption, period, basis);
       }
     }

@@ -13,6 +13,7 @@ import stratos.util.*;
 import static stratos.game.wild.Fauna.*;
 
 
+
 public class NestUtils {
   
   
@@ -71,59 +72,32 @@ public class NestUtils {
   //  In principle, all you have to do is take global demand for a species and
   //  divide it by local crowding.
   
+  
+  public static float localCrowding(Species s, Target around) {
+    final Stage world = around.world();
+    if (world == null) return 100;
+    
+    float crowding = 1;
+    
+    //  TODO:  Add some extra context here...
+    crowding = world.ecology().globalCrowding(s);
+    
+    return crowding;
+  }
+  
 
   public static void populateFauna(Stage world, Species... speciesOrder) {
-    final boolean report = true;
-    
     final Base base = Base.wildlife(world);
-    final Tally <Species> idealNumbers  = new Tally <Species> ();
     final Tally <Species> actualNumbers = new Tally <Species> ();
     
-    float numBrowseS = 0, numOtherS = 0;
-    for (Species s : speciesOrder) {
-      if (! s.predator()) {
-        if (s.preyedOn()) numBrowseS++;
-        else numBrowseS += 0.5f;
-      }
-      else numOtherS++;
-    }
-    
-    float sumFlora = world.terrain().globalFertility();
-    float sumPreyedOn = 0, sumPredators = 0;
-    
-    for (Species s : speciesOrder) if (! s.predator()) {
-      float supports = sumFlora;
-      supports /= s.metabolism() * numBrowseS * BROWSER_TO_FLORA_RATIO;
-      if (! s.preyedOn()) supports /= 2;
-      supports = Nums.round(supports, 1, false);
-      idealNumbers.add(supports, s);
-      if (s.preyedOn()) sumPreyedOn += supports * s.metabolism();
-    }
-    
-    for (Species s : speciesOrder) if (! s.browser()) {
-      float supports = sumPreyedOn;
-      supports /= s.metabolism() * numOtherS * PREDATOR_TO_PREY_RATIO;
-      supports = Nums.round(supports, 1, false);
-      idealNumbers.add(supports, s);
-      if (s.predator()) sumPredators += supports * s.metabolism();
-    }
-    
-    if (report) {
-      I.say("\nPopulating fauna within world...");
-      I.say("  Sum preyed on: "+sumPreyedOn );
-      I.say("  Sum predators: "+sumPredators);
-      
-      for (Species s : speciesOrder) {
-        I.say("  Ideal population of "+s+": "+idealNumbers.valueFor(s));
-      }
-    }
+    world.ecology().updateAnimalCrowdEstimates(speciesOrder);
     
     while (true) {
       
       final Pick <Species> pick = new Pick(0);
       for (Species s : speciesOrder) {
-        float gap = idealNumbers.valueFor(s) - actualNumbers.valueFor(s);
-        pick.compare(s, gap);
+        final float total = world.ecology().idealPopulation(s);
+        pick.compare(s, total - actualNumbers.valueFor(s));
       }
       if (pick.empty()) break;
       

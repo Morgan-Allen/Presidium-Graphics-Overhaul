@@ -420,7 +420,7 @@ public class Generator extends Venue {
     String help = BLUEPRINT.description;
     
     if (inWorld() && structure.intact()) {
-      if (stocks.relativeShortage(FUEL_RODS) > 0) {
+      if (stocks.relativeShortage(FUEL_RODS, false) > 0) {
         help = "Power output will be limited without additional "+FUEL_RODS+".";
       }
       final int nC = CORE_DESC.length;
@@ -430,5 +430,8 @@ public class Generator extends Venue {
     return help;
   }
 }
+
+
+
 
 

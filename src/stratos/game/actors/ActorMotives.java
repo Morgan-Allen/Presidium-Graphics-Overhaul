@@ -171,7 +171,7 @@ public class ActorMotives {
     if (home != null && home.inventory() instanceof Stocks) {
       final Stocks s = (Stocks) home.inventory();
       for (Traded t : s.shortageTypes(false)) {
-        final float rating = Nums.clamp(s.relativeShortage(t) / 2, 0, 1);
+        final float rating = Nums.clamp(s.relativeShortage(t, false) / 2, 0, 1);
         r.setRelation(t, rating, Relation.TYPE_TRADED);
       }
     }

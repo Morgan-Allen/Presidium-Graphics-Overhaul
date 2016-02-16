@@ -1,6 +1,7 @@
 
 
 package stratos.content.wip;
+import static stratos.game.actors.Qualities.ASSEMBLY;
 import stratos.game.actors.Background;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -32,12 +33,20 @@ public class LogicianSchool extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     LogicianSchool.class, "logician_school",
-    "Logician School", Target.TYPE_WIP, ICON,
+    "Logician School", Target.TYPE_SCHOOL, ICON,
     "<Logician School Description>",
     6, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 200,
     4
   );
+  
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, null,
+      new Object[] { 10, ASSEMBLY },
+      1000,
+      1300
+    );
   
   
   public LogicianSchool(Base base) {

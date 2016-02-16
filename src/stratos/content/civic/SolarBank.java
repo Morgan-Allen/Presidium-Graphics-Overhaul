@@ -50,16 +50,16 @@ public class SolarBank extends Venue {
   
   final static Conversion
     LAND_TO_POWER = new Conversion(
-      BLUEPRINT, "land_to_power",
+      BLUEPRINT, "land_to_power_at_banks",
       TO, 2, POWER
     ),
     LAND_TO_WATER = new Conversion(
-      BLUEPRINT, "land_to_water",
+      BLUEPRINT, "land_to_water_at_banks",
       TO, 1, WATER
     );
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
-    Upgrade.SINGLE_LEVEL, EcologistStation.LEVELS[0],
+    Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
     new Object[] { 10, ASSEMBLY, 0, GEOPHYSICS },
     25
   );

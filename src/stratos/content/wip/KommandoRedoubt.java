@@ -53,6 +53,13 @@ public class KommandoRedoubt extends Venue {
     4
   );
   
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.SINGLE_LEVEL, null,
+      new Object[] { 5, XENOZOOLOGY, 5, ASSEMBLY },
+      400
+    );
+  
   
   private Venue fleshStill = null;
   private GroupSprite camouflaged;
@@ -202,7 +209,7 @@ public class KommandoRedoubt extends Venue {
       choice.add(e);
     }
     
-    final float meatNeed = stocks.relativeShortage(PROTEIN);
+    final float meatNeed = stocks.relativeShortage(PROTEIN, true);
     final Batch <Target> prey = new Batch <Target> ();
     world.presences.sampleFromMap(actor, world, 5, prey, Mobile.class);
     for (Target t : actor.senses.awareOf()) prey.add(t);

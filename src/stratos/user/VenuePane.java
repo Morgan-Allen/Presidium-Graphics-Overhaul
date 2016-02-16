@@ -188,6 +188,7 @@ public class VenuePane extends SelectionPane {
     d.append(type);
     
     if (set) {
+      d.append("\n    ");
       d.append(" Buy: ");
       d.append(new Description.Link(I.shorten(consumption, 1)) {
         public void whenClicked(Object context) {

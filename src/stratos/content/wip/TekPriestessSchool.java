@@ -1,6 +1,10 @@
 
 
 package stratos.content.wip;
+import static stratos.game.actors.Qualities.ASSEMBLY;
+import static stratos.game.actors.Qualities.CHEMISTRY;
+import static stratos.game.actors.Qualities.FIELD_THEORY;
+
 import stratos.game.actors.Background;
 import stratos.game.common.*;
 import stratos.game.economic.*;
@@ -32,12 +36,22 @@ public class TekPriestessSchool extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     TekPriestessSchool.class, "tek_priestess_school",
-    "Tek Priestess School", Target.TYPE_WIP, ICON,
+    "Tek Priestess School", Target.TYPE_SCHOOL, ICON,
     "<Tek Priestess School Description>",
     6, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 200,
     4
   );
+
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, null,
+      new Object[] { 10, ASSEMBLY },
+      1000,
+      1300
+    );
+  
+  
   
   
   public TekPriestessSchool(Base base) {

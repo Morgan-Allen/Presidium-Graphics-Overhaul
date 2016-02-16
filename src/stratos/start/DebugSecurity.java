@@ -149,7 +149,7 @@ public class DebugSecurity extends Scenario {
   
   private void breedingScenario(Stage world, Base base, BaseUI UI) {
     final Actor ecologist = new Human(Backgrounds.ECOLOGIST, base);
-    final Venue station = new EcologistStation(base);
+    final Venue station = new BotanicalStation(base);
     SiteUtils.establishVenue(station, 10, 10, true, world, ecologist);
     
     station.stocks.bumpItem(Economy.CARBS  , 5);

@@ -115,7 +115,7 @@ public class InstallPane extends SelectionPane {
     boolean toggled = false;
   }
   
-  static Table <String, Category> categories = new Table <String, Category> ();
+  static Table <String, Category> categories = new Table();
   static List <Blueprint> allBlueprints = new List();
   static boolean setupDone = false;
   static Blueprint lastSelected = null;
@@ -164,18 +164,12 @@ public class InstallPane extends SelectionPane {
       possible = new List(),
       listed   = new List();
     
-    final boolean report = I.used60Frames && false;
-    if (report) I.say("Updating install pane.");
-    
     for (Blueprint b : allBlueprints) {
       if (b.icon == null || b.baseUpgrade() == null) continue;
       if (! b.baseUpgrade().hasRequirements(base)) continue;
       
       Category c = categories.get(b.category);
       if (c != null && ! c.toggled) continue;
-      
-      if (report) I.say("  "+b);
-      
       if (base.research.hasTheory(b.baseUpgrade())) {
         
         //  TODO:  This only comes up in the case where a unique building (e.g,

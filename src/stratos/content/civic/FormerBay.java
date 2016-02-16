@@ -44,7 +44,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     "while speeding terraforming programs.",
     4, 1, Structure.IS_NORMAL | Structure.IS_ZONED,
     Owner.TIER_FACILITY, 25, 5,
-    POLYMER, FORMER_ENGINEER
+    POLYMER//, FORMER_ENGINEER
   );
   
   
@@ -76,7 +76,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.SINGLE_LEVEL,
-      new Upgrade[] { EcologistStation.LEVELS[0], EngineerStation.LEVELS[0] },
+      new Upgrade[] { BotanicalStation.LEVELS[0], EngineerStation.LEVELS[0] },
       new Object[] { 10, GEOPHYSICS, 5, ASSEMBLY, 5, CHEMISTRY },
       450//, 650
     );
@@ -125,8 +125,8 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     if (d != null) return d;
     final Choice choice = new Choice(actor);
 
-    Venue source = (EcologistStation) world.presences.nearestMatch(
-      EcologistStation.class, this, Stage.ZONE_SIZE
+    Venue source = (BotanicalStation) world.presences.nearestMatch(
+      BotanicalStation.class, this, Stage.ZONE_SIZE
     );
     if (source == null) source = this;
     
@@ -139,7 +139,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   
   protected int numPositions(Background b) {
     final int level = structure.mainUpgradeLevel();
-    if (b == FORMER_ENGINEER) return level + 1;
+    //if (b == FORMER_ENGINEER) return level + 1;
     return 0;
   }
   
@@ -154,7 +154,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   
   public float needForTending(ResourceTending tending) {
     float abundance = world.ecology().forestRating(world.tileAt(this));
-    final float shortage = stocks.relativeShortage(POLYMER);
+    final float shortage = stocks.relativeShortage(POLYMER, true);
     
     final Gathering g = (Gathering) tending;
     if (g.type == Gathering.TYPE_FORESTING) {

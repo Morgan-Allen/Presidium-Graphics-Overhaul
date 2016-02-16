@@ -83,7 +83,12 @@ public final class Economy {
       BC, "Medicine" , "medicine.gif" , FORM_MATERIAL, 120,
       "Drugs and supplements tailored to treat common diseases"
     ),
-    ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, REAGENTS, MEDICINE),
+    SPYCES = new Traded(
+      BC, "Spyces", "spices.gif"  , FORM_MATERIAL, 200,
+      "Spyces are exotic baryonic compounds known to heighten psyonic "+
+      "abilities."
+    ),
+    ALL_DRUG_TYPES[] = label(CATEGORY_DRUG, SOMA, REAGENTS, MEDICINE, SPYCES),
     
     POLYMER = new Traded(
       BC, "Polymer"  , "polymer.gif"   , FORM_MATERIAL, 8,
@@ -144,13 +149,6 @@ public final class Economy {
       "The preserved remains of animals, plants, ancient artifacts or rare "+
       "geological strata, coveted for their rarity, beauty and insight."
     ),
-    
-    SPYCES = new Traded(
-      BC, "Spyces", "spyce.gif"  , FORM_SPECIAL, 200,
-      "Spyces are exotic baryonic compounds known to heighten psyonic "+
-      "abilities."
-    ),
-    
     GENE_SEED = new Traded(
       BC, "Gene Seed"  , null, FORM_SPECIAL, 0
     ),

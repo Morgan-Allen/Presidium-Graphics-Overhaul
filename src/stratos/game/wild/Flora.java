@@ -406,7 +406,8 @@ public class Flora extends Element implements TileConstants {
   
   
   public String fullName() {
-    return TREE_STAGE_NAMES[growStage()]+"Flora";
+    final String name = species.domesticated ? species.name : "Flora";
+    return TREE_STAGE_NAMES[growStage()]+name;
   }
   
   

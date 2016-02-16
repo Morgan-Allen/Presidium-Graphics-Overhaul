@@ -70,11 +70,7 @@ public class BringUtils {
       if (freeTrade) goods = home.stocks.demanded();
       d = fillBulkOrder(from, home, goods, 1, 5, false);
     }
-    //
-    //  We require that the actor pay for deliveries to self or their own home,
-    //  but not from their workplace.
-    if (d == null || actor.mind.work() == from) return d;
-    else return d.setWithPayment(actor);
+    return d == null ? null : d.setWithPayment(actor);
   }
   
   
@@ -369,7 +365,7 @@ public class BringUtils {
   
   private static boolean reportRating(Owner orig, Owner dest, Traded good) {
     if (! rateVerbose) return false;
-    //verboseGoodType = CARBS;
+    //verboseGoodType = PARTS;
     //
     //  Supply and demand can quickly get very hairy, so to help in tracking it
     //  we have some moderately elaborate reporting criteria.
@@ -435,8 +431,8 @@ public class BringUtils {
       OC = OS.consumption(good),
       DP = DS.production (good),
       DC = DS.consumption(good),
-      ON = OS.relativeShortage(good),
-      DN = DS.relativeShortage(good);
+      ON = OS.relativeShortage(good, false),
+      DN = DS.relativeShortage(good, false);
     
     if (report) {
       I.say("  Checking tiers...");
@@ -451,12 +447,10 @@ public class BringUtils {
     //
     //  Secondly, obtain an estimate of stocks before and after the exchange.
     final float
-      OFB = futureBalance(orig, good, report),
-      DFB = futureBalance(dest, good, report)
-    ;
-    float origAfter = 0, destAfter = 0;
-    origAfter = OA + (OFB - amount);
-    destAfter = DA + (DFB + amount);
+      OFB       = futureBalance(orig, good, false, report),
+      DFB       = futureBalance(dest, good, true , report),
+      origAfter = OA + OFB - amount,
+      destAfter = DA + DFB + amount;
     if (report) {
       I.say("  Trade unit is "+amount);
       I.say("  Origin      reserved: "+OFB);
@@ -464,6 +458,7 @@ public class BringUtils {
       I.say("  Origin      after   : "+origAfter);
       I.say("  Destination after   : "+destAfter);
     }
+    if (origAfter < 0 || destAfter > DC + DP) return -1;
     
     //  Selling (exporting) depots are marked as producers.  Buying (importing)
     //  depots are marked as consumers.  They have tier-trader, which is lower
@@ -517,7 +512,7 @@ public class BringUtils {
   
   
   static float futureBalance(
-    Owner e, Traded good, boolean report
+    Owner e, Traded good, boolean asDest, boolean report
   ) {
     final Series <Bringing> reserved = e.inventory().reservations();
     if (reserved == null || reserved.size() == 0) return 0;
@@ -536,10 +531,10 @@ public class BringUtils {
       }
       
       if (d.origin == e && d.stage() <= Bringing.STAGE_PICKUP) {
-        balance += itemMatch.amount;
+        balance -= itemMatch.amount;
       }
       
-      if (d.destination == e && d.stage() < Bringing.STAGE_RETURN) {
+      if (d.destination == e && d.stage() < Bringing.STAGE_RETURN && asDest) {
         balance += itemMatch.amount;
       }
     }

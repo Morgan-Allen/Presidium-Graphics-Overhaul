@@ -651,7 +651,7 @@ public abstract class Venue extends Fixture implements
   
   protected void toggleStatusFor(Traded need, ModelAsset model) {
     if (! structure.intact()) buildSprite.toggleFX(need.model, false);
-    final boolean needs = stocks.relativeShortage(need) > 0.5f;
+    final boolean needs = stocks.relativeShortage(need, false) > 0.5f;
     buildSprite.toggleFX(model, needs);
   }
   

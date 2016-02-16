@@ -160,6 +160,7 @@ public class BuildingSprite extends Sprite implements TileConstants {
       
       if (allStacks != null) {
         allStacks.matchTo(this);
+        allStacks.passType = this.passType;
         allStacks.readyFor(rendering);
       }
     }

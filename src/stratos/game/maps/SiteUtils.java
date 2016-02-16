@@ -65,7 +65,7 @@ public class SiteUtils implements TileConstants {
       return 0;
     }
     else if (a.blueprint.isZoned() || b.blueprint.isZoned()) {
-      return Stage.UNIT_GRID_SIZE;
+      return 0;// Stage.UNIT_GRID_SIZE;
     }
     else return 0;
   }

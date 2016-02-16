@@ -5,6 +5,7 @@
   */
 package stratos.content.civic;
 import stratos.game.actors.*;
+import stratos.game.base.BaseDemands;
 import stratos.game.common.*;
 import stratos.game.economic.*;
 import stratos.game.maps.*;
@@ -58,14 +59,40 @@ public class SupplyDepot extends Venue {
   final public static Blueprint BLUEPRINT = new Blueprint(
     SupplyDepot.class, "supply_depot",
     "Supply Depot", Target.TYPE_COMMERCE, ICON,
-    "The Supply Depot allows for bulk storage and transport of raw materials "+
-    "used in manufacturing and construction.",
+    "The Supply Depot provides storage for raw materials, along with a "+
+    "steady supply of "+POLYMER+" and "+PLASTICS+".",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_TRADER, 100, 2,
     Visit.compose(Object.class, ALL_STOCKED, new Object[] {
       SERVICE_COMMERCE, Backgrounds.SUPPLY_CORPS
     })
   );
+  
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.SINGLE_LEVEL, null,
+      new Object[] { 5, CHEMISTRY, 5, HARD_LABOUR },
+      400
+    );
+
+  final public static Conversion
+    FLORA_TO_POLYMER = new Conversion(
+      BLUEPRINT, "flora_to_polymer_at_depot",
+      10, HARD_LABOUR, TO, 1, POLYMER
+    ),
+    NIL_TO_POLYMER = new Conversion(
+      BLUEPRINT, "nil_to_polymer_at_depot",
+      5, HARD_LABOUR, 5, CHEMISTRY, TO, 1, POLYMER
+    ),
+    POLYMER_TO_PLASTICS = new Conversion(
+      BLUEPRINT, "polymer_to_plastics_at_depot",
+      1, POLYMER, TO, 2, PLASTICS,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY
+    );
+  
+  final static float
+    BASE_POLYMER_PER_DAY = 5;
+  
   
   private List <CargoBarge> barges = new List <CargoBarge> ();
   
@@ -104,14 +131,6 @@ public class SupplyDepot extends Venue {
   
   /**  Upgrades, economic functions and behaviour implementation-
     */
-  final public static Upgrade
-    LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.SINGLE_LEVEL, null,
-      new Object[] { 5, ACCOUNTING, 5, HARD_LABOUR },
-      400
-    );
-  
-  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
@@ -119,6 +138,13 @@ public class SupplyDepot extends Venue {
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_SQUALOR);
     stocks.updateStockDemands(1, ALL_STOCKED);
+    
+    if (stocks.relativeShortage(POLYMER, true) > 0) {
+      float recyc = Nums.clamp(1f - base.demands.primaryShortage(ATMO), 0, 1);
+      recyc = BASE_POLYMER_PER_DAY * (recyc + 1) / 2;
+      stocks.bumpItem(POLYMER, recyc / Stage.STANDARD_DAY_LENGTH);
+    }
+    
     //
     //  TODO:  You need to send those barges off to different settlements!
     for (CargoBarge b : barges) if (b.destroyed()) barges.remove(b);
@@ -139,14 +165,14 @@ public class SupplyDepot extends Venue {
   }
   
   
-  private float upgradeLevelFor(Traded type) {
-    //  TODO:  Fill this in?
-    return 0;
+  private boolean bargeReady(CargoBarge b) {
+    return b != null && b.inWorld() && b.structure.goodCondition();
   }
   
   
-  private boolean bargeReady(CargoBarge b) {
-    return b != null && b.inWorld() && b.structure.goodCondition();
+  public float priceFor(Traded good, boolean sold) {
+    if (sold) return super.priceFor(good, sold) * BaseDemands.BASE_SALE_MARGIN;
+    else      return super.priceFor(good, sold);
   }
   
   
@@ -154,12 +180,35 @@ public class SupplyDepot extends Venue {
     choice.add(BringUtils.nextPersonalPurchase(
       client, this, HOME_PURCHASE_TYPES
     ));
+    
+    if (client.gear.outfitType() == Outfits.OVERALLS) {
+      final Item gets = GearPurchase.nextGearToPurchase(client, this);
+      if (gets != null) {
+        choice.add(GearPurchase.nextCommission(client, this, gets));
+      }
+    }
   }
-
-
+  
+  
   protected Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
+    //
+    //  Consider basic manufacturing tasks-
+    if (staff.onShift(actor)) {
+      final Manufacture m = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
+      if (m != null) {
+        choice.add(m.setSpeedBonus(2.0f));
+      }
+      for (Item ordered : stocks.specialOrders()) {
+        final Manufacture mO = new Manufacture(actor, this, ordered);
+        choice.add(mO.setSpeedBonus(2.0f));
+      }
+      choice.add(Gathering.asForestCutting(actor, this));
+      if (choice.empty()) {
+        choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
+      }
+    }
     //
     //  See if there's a bulk delivery to be made, or if the cargo barge is in
     //  need of repair.
@@ -197,9 +246,6 @@ public class SupplyDepot extends Venue {
     if (! choice.empty()) return choice.weightedPick();
     //
     //  If none of that needs doing, consider local repairs or supervision.
-    if (staff.onShift(actor)) {
-      choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
-    }
     choice.add(Supervision.oversight(this, actor));
     return choice.weightedPick();
   }

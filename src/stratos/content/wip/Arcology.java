@@ -59,7 +59,7 @@ public class Arcology extends Venue {
   );
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
-    Upgrade.SINGLE_LEVEL, EcologistStation.LEVELS[0],
+    Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
     new Object[] { 5, CULTIVATION },
     30
   );

@@ -4,12 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.wild;
-import stratos.game.actors.*;
-import stratos.game.base.BaseDemands;
 import stratos.game.common.*;
 import stratos.game.economic.*;
-import stratos.game.maps.SiteUtils;
-import stratos.game.maps.Siting;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;

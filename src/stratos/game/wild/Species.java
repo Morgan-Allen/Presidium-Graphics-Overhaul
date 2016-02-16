@@ -107,8 +107,12 @@ public abstract class Species extends Background {
     
     this.growRate  = 1.0f;
     this.waterNeed = 0.5f;
-    stageNutrients = new Item[4][0];
     
+    this.stageNutrients = new Item[4][1];
+    for (int i = 4; i-- > 0;) {
+      float meat = i * bulk / 4f;
+      stageNutrients[i] = new Item[] { Item.withAmount(PROTEIN, meat) };
+    }
     this.domesticated = false;  //  TODO:  FIX THIS
   }
   

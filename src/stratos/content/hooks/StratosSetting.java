@@ -68,7 +68,7 @@ public class StratosSetting extends Verse {
       NOVICE, CULTIVATION, CHEMISTRY,
       OFTEN, ECOLOGIST_CIRCLES, SOMETIMES, COURT_CIRCLES, AESTHETE_CIRCLES,
       
-      EcologistStation.BLUEPRINT,
+      EcologistRedoubt.BLUEPRINT,
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
@@ -76,7 +76,7 @@ public class StratosSetting extends Verse {
       SupplyDepot     .BLUEPRINT,
       Bastion.BLUEPRINT, Holding.BLUEPRINT, ServiceHatch.BLUEPRINT,
       
-      EcologistRedoubt.BLUEPRINT,
+      BotanicalStation.BLUEPRINT,
       FormerBay.BLUEPRINT
     ),
     PLANET_PAREM_V = new Sector(
@@ -92,7 +92,7 @@ public class StratosSetting extends Verse {
       NOVICE, ASSEMBLY, ANCIENT_LORE,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,
       RARELY, ECOLOGIST_CIRCLES, AESTHETE_CIRCLES,
-
+      
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
@@ -118,7 +118,7 @@ public class StratosSetting extends Verse {
       OFTEN, MILITARY_CIRCLES, SOMETIMES, PHYSICIAN_CIRCLES,
       RARELY, VENDOR_CIRCLES,
       
-      EcologistStation.BLUEPRINT,
+      BotanicalStation.BLUEPRINT,
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
@@ -142,7 +142,7 @@ public class StratosSetting extends Verse {
       NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
       OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES,
       
-      EcologistStation.BLUEPRINT,
+      BotanicalStation.BLUEPRINT,
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,

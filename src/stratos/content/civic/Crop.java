@@ -70,11 +70,11 @@ public class Crop extends Flora {
     ) {};
   
   
-  final public EcologistStation parent;
+  final public BotanicalStation parent;
   private boolean covered;
   
   
-  public Crop(EcologistStation parent, Species species) {
+  public Crop(BotanicalStation parent, Species species) {
     super(species);
     this.parent = parent;
   }
@@ -82,7 +82,7 @@ public class Crop extends Flora {
   
   public Crop(Session s) throws Exception {
     super(s);
-    parent  = (EcologistStation) s.loadObject();
+    parent  = (BotanicalStation) s.loadObject();
     covered = s.loadBool();
   }
   
@@ -166,7 +166,7 @@ public class Crop extends Flora {
     if (covered) {
       if (origin().x == parent.origin().x) {
         final GroupSprite GS = new GroupSprite();
-        GS.attach(EcologistStation.NURSERY_MODEL, 0.5f, -0.5f, 0);
+        GS.attach(BotanicalStation.NURSERY_MODEL, 0.5f, -0.5f, 0);
         attachSprite(GS);
         return;
       }
@@ -183,7 +183,7 @@ public class Crop extends Flora {
     }
     
     final GroupSprite old = (GroupSprite) sprite();
-    final int stage = (int) (growStage() * MAX_GROWTH * 1f / MIN_HARVEST);
+    final int stage = Nums.ceil(growStage() * MAX_GROWTH * 1f / MIN_HARVEST);
     final ModelAsset model = modelForStage(stage);
     if (old != null && old.atIndex(0).model() == model) return;
     

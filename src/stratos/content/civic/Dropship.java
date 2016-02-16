@@ -147,7 +147,7 @@ public class Dropship extends Vehicle implements Owner {
       jobs.add(BringUtils.bestBulkCollectionFor(
         this, goods, 2, 10, depots, true
       ));
-      if (jobs.empty()) {
+      if (depots.empty()) {
         jobs.add(BringUtils.bestBulkDeliveryFrom (this, goods, 2, 10, 5, true));
         jobs.add(BringUtils.bestBulkCollectionFor(this, goods, 2, 10, 5, true));
       }
@@ -280,9 +280,10 @@ public class Dropship extends Vehicle implements Owner {
     for (Traded t : ALL_MATERIALS) {
       final int
         sought = (int) cargo.consumption(t),
+        brings = (int) cargo.production (t),
         has    = (int) cargo.amountOf   (t);
       if (sought <= 0) continue;
-      d.append("\n  "+t+" ("+has+"/"+sought+")");
+      d.append("\n  "+t+" ("+has+"/"+(sought + brings)+")");
     }
     
     d.append("\n\nPort Of Origin: ");

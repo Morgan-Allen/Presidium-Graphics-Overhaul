@@ -83,7 +83,7 @@ public class EngineerStation extends Venue {
       "Molding Press",
       "Speeds the production of common "+PLASTICS+" and lighter outfits "+
       "by 100%.",
-      500,
+      250,
       Upgrade.SINGLE_LEVEL, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PLASTICS,
       10, ASSEMBLY, 0, CHEMISTRY

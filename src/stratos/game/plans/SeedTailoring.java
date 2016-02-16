@@ -27,7 +27,8 @@ public class SeedTailoring extends Plan {
   
   final public static float
     DESIRED_SAMPLES = 5,
-    SEED_DAYS_DECAY = 5;
+    SEED_DAYS_DECAY = 5,
+    TAILOR_TIME     = Stage.STANDARD_HOUR_LENGTH;
   final static int
     STAGE_INIT    = -1,
     STAGE_CULTURE =  0,
@@ -128,11 +129,17 @@ public class SeedTailoring extends Plan {
     final boolean report = evalVerbose && (
       I.talkAbout == actor || I.talkAbout == lab
     );
-    //  TODO:  USE THE PLAN-UTILS METHOD HERE
-    final float priority = Nums.clamp(
-      ROUTINE + (lab.structure.upgradeLevel(species) / 2f),
+    
+    float lack = 1f - lab.stocks.amountOf(seedType);
+    if (lack <= 0) return -1;
+    
+    //  TODO:  USE THE PLAN-UTILS METHOD HERE?
+    final Object yield = species.nutrients(0)[0].type;
+    final float priority = (Nums.clamp(
+      ROUTINE + (lab.structure.upgradeLevel(yield) * CASUAL / 2f),
       0, URGENT
-    );
+    ) + motiveBonus()) * lack;
+    
     if (report) I.say("\nSeed-tailoring priority for "+actor+" is "+priority);
     return priority;
   }
@@ -161,33 +168,33 @@ public class SeedTailoring extends Plan {
   
   
   public boolean actionTailorGenes(Actor actor, Venue lab) {
-    final boolean report = stepsVerbose && (
+    final boolean report = (
       I.talkAbout == actor || I.talkAbout == lab
-    );
+    ) && stepsVerbose;
     //
     //  Okay.  We boost the max/min quality based on the upgrades available at
     //  the lab.
-    final Item yield[] = species.nutrients(0);
-    final int upgrade = Nums.clamp(lab.structure.upgradeLevel(yield), 3);
-    final int minLevel = upgrade - 1, maxLevel = upgrade + 1;
+    final Object yield    = species.nutrients(0)[0].type;
+    final int    upgrade  = Nums.clamp(lab.structure.upgradeLevel(yield), 3);
+    final int    minLevel = upgrade - 1, maxLevel = upgrade + 1;
     //
     //  There's also a partial bonus based on the quality of samples collected,
     //  and a larger bonus based on the skill of the gene-tailor.  If neither
     //  of those work out, then the tailoring-attempt fails.
     final Action a = action();
     float sampleBonus = numSamples(lab) / DESIRED_SAMPLES, skillCheck = -0.5f;
+    sampleBonus += minLevel / 2f;
     skillCheck += actor.skills.test(GENE_CULTURE, MODERATE_DC , 1, a) ? 1 : 0;
     skillCheck += actor.skills.test(CULTIVATION , DIFFICULT_DC, 1, a) ? 1 : 0;
-    if (skillCheck + sampleBonus <= 0) return false;
     //
     //  The final quality of the result depends on the sum of the sample-bonus
     //  and skill-bonus, contrained by the upgrades available at the lab-
-    int quality = Nums.round((skillCheck + sampleBonus) * 2, 1, false);
+    int quality = Nums.ceil((skillCheck + sampleBonus) * 2);
     quality = (int) Nums.clamp(quality, minLevel, maxLevel);
     
     Item seed = seedType;
-    seed = Item.withQuality(seed, (int) Nums.clamp(quality, 0, 5));
-    seed = Item.withAmount(seed, 0.1f);
+    seed = Item.withQuality(seed, quality);
+    seed = Item.withAmount(seed, 1f / TAILOR_TIME);
     lab.stocks.addItem(seed);
     
     //
@@ -197,13 +204,15 @@ public class SeedTailoring extends Plan {
       lab.stocks.removeMatch(seed);
       Fauna reared = (Fauna) species.sampleFor(actor.base());
       reared.health.setupHealth(0, seed.quality / Item.MAX_QUALITY, 0);
-      reared.setAsDomesticated(actor);
+      reared.relations.setRelation(actor, 0.5f, 0);
+      actor.relations.incRelation(reared, 0.5f, 0.5f, 0);
+      reared.enterWorldAt(lab, lab.world());
       stage = STAGE_DONE;
     }
     
     if (report) I.reportVars(
       "\nAttempted seed-tailoring", "  ",
-      "Food yield "     , I.list(yield),
+      "Food yield: "    , yield,
       "Upgrade level "  , upgrade,
       "Min/max quality ", minLevel+"/"+maxLevel,
       "Sample bonus"    , sampleBonus,
@@ -219,11 +228,18 @@ public class SeedTailoring extends Plan {
   /**  Rendering and interface-
     */
   public void describeBehaviour(Description d) {
-    if (super.needsSuffix(d, "Tailoring seed")) {
-      d.append(" at ");
-      d.append(super.lastStepTarget());
+    if (species.animal()) {
+      d.appendAll("Rearing ", species, " at ", lab);
+    }
+    else {
+      d.appendAll("Preparing ", species, " at ", lab);
     }
   }
 }
+
+
+
+
+
 
 

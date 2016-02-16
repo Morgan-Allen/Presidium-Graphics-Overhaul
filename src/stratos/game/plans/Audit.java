@@ -359,9 +359,8 @@ public class Audit extends Plan {
     final boolean report = stepsVerbose && (
       I.talkAbout == actor || I.talkAbout == audited
     );
+    if (audited == null) return 0;
     final Base base = audited.base();
-    final Stage world = base.world;
-    if (base == null) return 0;
     if (report) I.say("\n"+actor+" auditing "+audited);
     //
     //  Our first step is to get the total sum of wages to pay to each worker

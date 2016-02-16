@@ -96,7 +96,7 @@ public class Gathering extends ResourceTending {
   
   /**  Assorted external factory methods for convenience-
     */
-  public static Gathering asFarming(Actor actor, EcologistStation depot) {
+  public static Gathering asFarming(Actor actor, BotanicalStation depot) {
     return new Gathering(actor, depot, true, TYPE_FARMING, FARM_EXTRACTS);
   }
   
@@ -128,12 +128,12 @@ public class Gathering extends ResourceTending {
   
   
   public static Gathering asForestCutting(Actor actor, Venue depot) {
-    return new Gathering(actor, depot, true, TYPE_LOGGING, LOGS_EXTRACTS);
+    return new Gathering(actor, depot, false, TYPE_LOGGING, LOGS_EXTRACTS);
   }
   
   
   public static Gathering asForestPlanting(Actor actor, Venue depot) {
-    return new Gathering(actor, depot, true, TYPE_FORESTING);
+    return new Gathering(actor, depot, false, TYPE_FORESTING);
   }
   
   
@@ -165,7 +165,9 @@ public class Gathering extends ResourceTending {
     final Batch <Tile> points = new Batch <Tile> ();
     for (Target o : sampled) {
       if (range > 0 && Spacing.distance(from, o) > range) continue;
-      points.add(((Flora) o).origin());
+      final Flora f = (Flora) o;
+      if (f.species().domesticated) continue;
+      points.add(f.origin());
     }
     return points.toArray(Tile.class);
   }
@@ -186,13 +188,13 @@ public class Gathering extends ResourceTending {
   
   protected Conversion tendProcess() {
     if (type == TYPE_FORESTING || type == TYPE_LOGGING) {
-      return EcologistStation.LAND_TO_GREENS;
+      return BotanicalStation.LAND_TO_GREENS;
     }
     else if (type == TYPE_FORAGING || type == TYPE_FARMING) {
-      return EcologistStation.LAND_TO_CARBS;
+      return BotanicalStation.LAND_TO_CARBS;
     }
     else if (type == TYPE_SAMPLE) {
-      return EcologistStation.SAMPLE_EXTRACT;
+      return BotanicalStation.SAMPLE_EXTRACT;
     }
     else return null;
   }
@@ -227,7 +229,7 @@ public class Gathering extends ResourceTending {
       }
       if (pick.empty()) return null;
       
-      final Crop plants = new Crop((EcologistStation) depot, pick.result());
+      final Crop plants = new Crop((BotanicalStation) depot, pick.result());
       plants.setPosition(t.x, t.y, t.world);
       return plants;
     }
@@ -261,8 +263,8 @@ public class Gathering extends ResourceTending {
   
   
   protected boolean willBeBlocked(Target toTend) {
-    if (toTend instanceof Tile && depot instanceof EcologistStation) {
-      EcologistStation station = (EcologistStation) depot;
+    if (toTend instanceof Tile && depot instanceof BotanicalStation) {
+      BotanicalStation station = (BotanicalStation) depot;
       if (station.shouldCover((Tile) toTend)) return true;
     }
     return super.willBeBlocked(toTend);
@@ -414,14 +416,15 @@ public class Gathering extends ResourceTending {
     if (type == TYPE_FARMING) {
       Object s = toTend.species();
       if      (c == null   )   d.append("Planting "  );
-      else if (c != toTend) { d.append("Clearing "  ); s = c; }
-      else if (c.blighted())   d.append("Weeding "   );
+      else if (c != toTend ) { d.append("Clearing "  ); s = c; }
+      else if (c.blighted())   d.append("Tending "   );
       else if (c.ripe    ())   d.append("Harvesting ");
+      else                     d.append("Tending "   );
       d.append(s);
     }
     if (type == TYPE_FORESTING) {
       Object s = toTend.species();
-      if      (c == null   )   d.append("Planting "  );
+      if      (c == null  )   d.append("Planting "  );
       else if (c != toTend) { d.append("Clearing "  ); s = c; }
       d.append(s);
     }

@@ -27,33 +27,35 @@ import stratos.content.abilities.EcologistTechniques;
 //
 //  Cereal Culture.  Flora Culture.    Canopy Culture.
 //  Symbiote Lab.    Hydroponics.      Field Hand Station.
-//  Zeno Pharma.     Animal Breeding.  Survival Training.
 
-public class EcologistStation extends HarvestVenue {
+//  TODO:  Have power-output vary with insolation!
+
+
+public class BotanicalStation extends HarvestVenue {
   
   
   /**  Fields, constructors, and save/load methods-
     */
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    EcologistStation.class, "media/GUI/Buttons/ecologist_station_button.gif"
+    BotanicalStation.class, "media/GUI/Buttons/ecologist_station_button.gif"
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
-      EcologistStation.class, IMG_DIR+"botanical_station.png", 4, 2
+      BotanicalStation.class, IMG_DIR+"botanical_station.png", 4, 2
     ),
     NURSERY_MODEL = CutoutModel.fromImage(
-      EcologistStation.class, IMG_DIR+"nursery.png", 2, 1
+      BotanicalStation.class, IMG_DIR+"nursery.png", 2, 1
     );
   
   final public static Blueprint BLUEPRINT = new Blueprint(
-    EcologistStation.class, "ecologist_station",
-    "Ecologist Station", Target.TYPE_ECOLOGIST, ICON,
-    "Ecologists are responsible for overseeing agriculture and forestry, "+
-    "helping to secure food supplies and advance terraforming efforts.",
+    BotanicalStation.class, "ecologist_station",
+    "Botanical Station", Target.TYPE_ECOLOGIST, ICON,
+    "Botanical stations are centres for agriculture and forestry programs, "+
+    "helping to secure food supplies and advance terraforming.",
     4, 2, Structure.IS_NORMAL | Structure.IS_ZONED,
-    Owner.TIER_FACILITY, 150,
-    3
+    Owner.TIER_FACILITY, 150, 3,
+    CARBS, GREENS, POWER, CULTIVATOR
   );
   
   final static int
@@ -64,6 +66,10 @@ public class EcologistStation extends HarvestVenue {
     LAND_TO_CARBS = new Conversion(
       BLUEPRINT, "land_to_carbs",
       10, HARD_LABOUR, 5, CULTIVATION, TO, 1, CARBS
+    ),
+    LAND_TO_POWER = new Conversion(
+      BLUEPRINT, "land_to_power",
+      TO, 2, POWER
     ),
     LAND_TO_GREENS = new Conversion(
       BLUEPRINT, "land_to_greens",
@@ -76,14 +82,14 @@ public class EcologistStation extends HarvestVenue {
   
   
   
-  public EcologistStation(Base belongs) {
+  public BotanicalStation(Base belongs) {
     super(BLUEPRINT, belongs, MIN_CLAIM_SIDE, MAX_CLAIM_SIDE);
     staff.setShiftType(SHIFTS_BY_DAY);
     attachSprite(STATION_MODEL.makeSprite());
   }
   
   
-  public EcologistStation(Session s) throws Exception {
+  public BotanicalStation(Session s) throws Exception {
     super(s);
   }
   
@@ -103,7 +109,7 @@ public class EcologistStation extends HarvestVenue {
       final Tile under = world.tileAt(point);
       
       final Venue station = (Venue) world.presences.nearestMatch(
-        EcologistStation.class, point, -1
+        BotanicalStation.class, point, -1
       );
       if (station == null || station.base() != base) return -1;
       final float distance = Spacing.distance(point, station);
@@ -134,24 +140,24 @@ public class EcologistStation extends HarvestVenue {
     ),
     MONOCULTURE = new Upgrade(
       "Monoculture",
-      "Improves cereal yields, which provide "+CARBS+".  Cereals yield more "+
-      "calories than other crops, but lack the nutrients for a complete diet.",
+      "Improves cereal yields, which provide "+CARBS+".  Cereals provide "+
+      "cheap, abundant calories, but cannot provide a complete diet.",
       100, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, CARBS,
-      10, CULTIVATION
+      Upgrade.Type.TECH_MODULE, CARBS, 10, CULTIVATION
     ),
     FLORAL_CULTURE = new Upgrade(
       "Floral Culture",
-      "Improves broadleaf yields, which provide "+GREENS+".  These are "+
-      "valued as luxury exports, but their yield in calories is limited.",
+      "Improves broadleaf yields, which provide "+GREENS+", a luxury export. "+
+      "Also helps to advances forestry programs.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, GREENS,
-      10, CULTIVATION
+      Upgrade.Type.TECH_MODULE, GREENS, 10, CULTIVATION
     ),
+    
+    /*
     TREE_FARMING = new Upgrade(
       "Tree Farming",
       "Forestry programs assist in terraforming efforts and climate "+
-      "moderation, as well as permitting "+POLYMER+" production.",
+      "moderation, and can be digested for "+POLYMER+".",
       100, Upgrade.THREE_LEVELS, FLORAL_CULTURE, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, Flora.class,
       15, CULTIVATION
@@ -164,24 +170,12 @@ public class EcologistStation extends HarvestVenue {
       Upgrade.Type.TECH_MODULE, PROTEIN,
       5, XENOZOOLOGY
     ),
-    NATIVE_MISSION = new Upgrade(
-      "Native Mission",
-      "Improves recruitment from local tribal communities and raises the odds "+
-      "of peaceful contact.",
-      300,
-      Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null,
-      10, NATIVE_TABOO
-    ),
-    MOUNT_TRAINING_UPGRADE = new Upgrade(
-      "Mount Training",
-      "Allows captive animals to be trained as mounts for use in patrols and "+
-      "exploration.",
-      400,
-      Upgrade.SINGLE_LEVEL, SYMBIOTICS, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, null,
-      15, XENOZOOLOGY, 5, BATTLE_TACTICS
-    );
+    //*/
+    //  TODO:  Just include upgrades for solar power and moisture farming!
+    
+    SOLAR_BANKS      = null,
+    MOISTURE_FARMING = null
+  ;
   
   
   public Behaviour jobFor(Actor actor) {
@@ -216,34 +210,6 @@ public class EcologistStation extends HarvestVenue {
     final Batch <Target> sampled = new Batch();
     world.presences.sampleFromMap(actor, world, 5, sampled, Mobile.class);
     Visit.appendTo(sampled, inside());
-    
-    float faunaBonus  = structure.upgradeLevel(SYMBIOTICS    );
-    float nativeBonus = structure.upgradeLevel(NATIVE_MISSION);
-    
-    for (Target t : sampled) {
-      if (t instanceof Fauna) {
-        final Fauna fauna = (Fauna) t;
-        final boolean domestic = fauna.base() == base;
-        
-        if (! domestic) {
-          choice.add(Hunting.asHarvest(actor, fauna, this));
-          final Item sample = Item.withReference(GENE_SEED, fauna.species());
-          if (stocks.hasItem(sample)) continue;
-          else choice.add(Hunting.asSample(actor, fauna, this));
-        }
-        
-        final Dialogue d = Dialogue.dialogueFor(actor, fauna);
-        d.addMotives(Plan.MOTIVE_JOB, faunaBonus * Plan.CASUAL);
-        d.setCheckBonus(faunaBonus * 2.5f);
-        choice.add(d);
-      }
-      if (t instanceof Human && t.base().faction() == Faction.FACTION_NATIVES) {
-        final Dialogue d = Dialogue.dialogueFor(actor, (Human) t);
-        d.addMotives(Plan.MOTIVE_JOB, nativeBonus * Plan.CASUAL);
-        d.setCheckBonus(nativeBonus * 2.5f);
-        choice.add(d);
-      }
-    }
     //
     //  Consider learning special techniques, tailoring seed varieties and
     //  breeding animals-
@@ -312,8 +278,7 @@ public class EcologistStation extends HarvestVenue {
   
   public int numPositions(Background v) {
     final int level = structure.mainUpgradeLevel();
-    if (v == CULTIVATOR) return  level + 1;
-    if (v == ECOLOGIST ) return (level + 1) / 2;
+    if (v == CULTIVATOR) return level + 1;
     return 0;
   }
   
@@ -324,7 +289,7 @@ public class EcologistStation extends HarvestVenue {
   
   
   public Background[] careers() {
-    return new Background[] { ECOLOGIST, CULTIVATOR };
+    return new Background[] { CULTIVATOR };
   }
   
   
@@ -417,7 +382,7 @@ public class EcologistStation extends HarvestVenue {
       ""+Backgrounds.CULTIVATOR+"s.",
     POOR_HEALTH_INFO =
       "The crops around this Station are sickly.  Try to improve seed stock "+
-      "at the "+EcologistStation.BLUEPRINT+".",
+      "at the "+BotanicalStation.BLUEPRINT+".",
     AWAITING_GROWTH_INFO =
       "The crops around this Station have yet to mature.  Allow them a few "+
       "days to bear fruit.";

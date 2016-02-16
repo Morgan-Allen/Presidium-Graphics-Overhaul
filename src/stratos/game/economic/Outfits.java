@@ -48,11 +48,13 @@ public final class Outfits {
     ),
     OVERALLS       = new OutfitType(
       BC, "Overalls"      , 1, 0, 50,
-      EngineerStation.class, 1, PLASTICS, 5, ASSEMBLY
+      SupplyDepot.class, 1, PLASTICS, 5, ASSEMBLY
     ),
+    
+    //  TODO:  You need a separate venue for this!
     FINERY         = new OutfitType(
       BC, "Finery"        , 1, 0 , 400,
-      Fabricator.class, 2, PLASTICS, 15, GRAPHIC_DESIGN
+      SupplyDepot.class, 2, PLASTICS, 15, GRAPHIC_DESIGN
     ),
     
     SEALSUIT       = new OutfitType(

@@ -7,6 +7,7 @@ package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.maps.*;
+import stratos.game.economic.*;
 import stratos.game.verse.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
@@ -462,8 +463,10 @@ public class Stage implements Session.Saveable {
     final Tile t = pickedTile(UI, port, base);
     if (t == null) return null;
     
-    if (t.reserves() != null && ! t.reserves().inWorld()) {
-      return t.reserves();
+    final Element r = t.reserves();
+    if (r instanceof Venue && ! ((Venue) r).structure.intact()
+    ) {
+      return r;
     }
     else if (t.above() != null && t.above().visibleTo(base)) {
       return t.above();

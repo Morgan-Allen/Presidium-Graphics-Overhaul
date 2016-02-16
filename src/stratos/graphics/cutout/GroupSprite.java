@@ -154,13 +154,13 @@ public class GroupSprite extends Sprite {
   
   private void renderKids(Rendering rendering) {
     for (Sprite module : modules) {
+      module.colour = colour;
+      module.fog = fog;
       if (module.model() == GROUP_MODEL) {
         final GroupSprite GS = (GroupSprite) module;
         GS.renderKids(rendering);
         continue;
       }
-      module.colour = colour;
-      module.fog = fog;
       //module.passType = passType;
       module.readyFor(rendering);
     }

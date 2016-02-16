@@ -126,6 +126,12 @@ public class Manufacture extends Plan implements Behaviour {
   }
   
   
+  public Manufacture setSpeedBonus(float speedMult) {
+    speedBonus = speedMult * 1;
+    return this;
+  }
+  
+  
   public static int topQuality(
     Venue v, Conversion c, Upgrade... upgrades
   ) {
@@ -138,7 +144,7 @@ public class Manufacture extends Plan implements Behaviour {
     Venue v, Conversion c, Upgrade... upgrades
   ) {
     float output = 1;
-    for (Item r : c.raw) if (v.stocks.relativeShortage(r.type) >= 1) {
+    for (Item r : c.raw) if (v.stocks.relativeShortage(r.type, false) >= 1) {
       output /= 2;
     }
     
@@ -152,7 +158,7 @@ public class Manufacture extends Plan implements Behaviour {
     }
     output *= 1 + upgradeBonus;
     
-    final float powerCut = v.stocks.relativeShortage(Economy.POWER);
+    final float powerCut = v.stocks.relativeShortage(Economy.POWER, false);
     output *= (2 - powerCut) / 2;
     
     return output;
@@ -177,7 +183,7 @@ public class Manufacture extends Plan implements Behaviour {
     }
     
     boolean needsOkay = true;
-    if (v.stocks.relativeShortage(POWER) >= 0.5f) {
+    if (v.stocks.relativeShortage(POWER, false) >= 0.5f) {
       needsOkay = false;
       s.append(
         "Production will be slowed without enough "+POWER+"."
@@ -192,19 +198,19 @@ public class Manufacture extends Plan implements Behaviour {
       s.append("\n  "+numWorking+" active workers");
       return s.toString();
     }
+    if (needsOkay) s.append(normal);
     
     for (Conversion c : cons) {
       float output = Manufacture.estimatedOutput(v, c, c.upgrades()) / 2f;
       output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce() / 2f;
       
-      for (Item r : c.raw) if (v.stocks.relativeShortage(r.type) >= 1) {
+      for (Item r : c.raw) if (v.stocks.relativeShortage(r.type, false) >= 1) {
         needsOkay = false;
         s.append(
           "Production would be faster with a supply of "+r.type+"."
         );
         break;
       }
-      if (needsOkay) s.append(normal);
       s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));
     }
     
@@ -299,7 +305,7 @@ public class Manufacture extends Plan implements Behaviour {
   public Behaviour getNextStep() {
     
     if (made.type.form == Economy.FORM_MATERIAL) {
-      final float demand = venue.inventory().absoluteShortage(made.type, true);
+      final float demand = venue.inventory().totalDemand(made.type);
       made = Item.withAmount(made, demand + 1);
     }
     
@@ -315,7 +321,7 @@ public class Manufacture extends Plan implements Behaviour {
     return new Action(
       actor, venue,
       this, "actionMake",
-      Action.REACH_DOWN, "Manufacturing "
+      Action.BUILD, "Manufacturing "
     );
   }
   

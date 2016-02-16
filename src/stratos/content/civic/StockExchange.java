@@ -51,8 +51,8 @@ public class StockExchange extends Venue {
   final public static Blueprint BLUEPRINT = new Blueprint(
     StockExchange.class, "stock_exchange",
     "Stock Exchange", Target.TYPE_COMMERCE, ICON,
-    "The Stock Exchange generates profits from the sale of finished goods to "+
-    "local homes and businesses.",
+    "The Stock Exchange generates high  profits from the sale of finished and "+
+    "luxury goods.",
     4, 1, Structure.IS_NORMAL,
     Owner.TIER_TRADER, 150, 3,
     Visit.compose(Object.class, ALL_STOCKED, new Object[] {

@@ -53,6 +53,7 @@ public class Traded extends Constant implements Session.Saveable {
   
   final public String supplyKey, demandKey;
   
+  //  TODO:  You may need multiple materials!
   private Conversion materials;
   private float priceMargin, defaultPrice;
   final Batch <Blueprint> sources = new Batch();
@@ -201,8 +202,8 @@ public class Traded extends Constant implements Session.Saveable {
       canUse  = new Batch <Blueprint> ();
     for (Blueprint b : base.setup.available()) {
       if (b.category == Target.TYPE_WIP) continue;
-      else if (b.producing(this) != null) canMake.include(b);
-      else if (b.consuming(this) != null) canUse .include(b);
+      if (b.producing(this) != null) canMake.include(b);
+      if (b.consuming(this) != null) canUse .include(b);
     }
     
     d.append("\n");
@@ -213,6 +214,8 @@ public class Traded extends Constant implements Session.Saveable {
       if (c.out != null) { d.append(" to make "); d.append(c.out.type); }
     }
     
+    if (canMake.size() > 0) d.append("\n");
+    
     for (Blueprint b : canMake) {
       final Conversion c = b.producing(this);
       if (c.raw.length == 0) {
@@ -220,7 +223,7 @@ public class Traded extends Constant implements Session.Saveable {
         d.append(b);
       }
       else {
-        d.append("\nMade from ");
+        d.append("\n"+c.out+" made from ");
         for (Item i : c.raw) { i.describeTo(d); d.append(" "); }
         d.append("at ");
         d.append(b);

@@ -78,7 +78,6 @@ public class DebugCommerce extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.cashFree  = true;
-    base.research.initKnowledgeFrom(base.visits.homeworld());
     
     if (true ) shippingScenario(world, base, UI);
     if (false) shoppingScenario(world, base, UI);
@@ -91,6 +90,7 @@ public class DebugCommerce extends Scenario {
   
   private void shippingScenario(Stage world, Base base, BaseUI UI) {
     base.visits.assignHomeworld(StratosSetting.PLANET_ASRA_NOVI);
+    base.research.initKnowledgeFrom(base.visits.homeworld());
     
     final Sector nearby = StratosSetting.SECTOR_TERRA;
     final SectorBase other = world.offworld.baseForSector(nearby);
@@ -110,7 +110,7 @@ public class DebugCommerce extends Scenario {
     base.visits.addCandidate(SUPPLY_CORPS, depot);
     Selection.pushSelection(depot, null);
     
-    final Actor brought = new Human(SURVEYOR, base);
+    final Actor brought = new Human(ECOLOGIST, base);
     world.offworld.journeys.addLocalImmigrant(brought, base);
     
     base.visits.updateVisits(0);

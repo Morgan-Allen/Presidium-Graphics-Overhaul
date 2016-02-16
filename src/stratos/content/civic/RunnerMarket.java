@@ -27,7 +27,7 @@ public class RunnerMarket extends Venue {
     */
   final static String IMG_DIR = "media/Buildings/merchant/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    EcologistStation.class, "media/GUI/Buttons/runner_market_button.gif"
+    BotanicalStation.class, "media/GUI/Buttons/runner_market_button.gif"
   );
   final static ModelAsset MODEL = CutoutModel.fromImage(
     RunnerMarket.class, IMG_DIR+"runner_market.png", 4, 1
