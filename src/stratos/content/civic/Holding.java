@@ -6,7 +6,7 @@
 package stratos.content.civic;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.Siting;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
@@ -16,7 +16,7 @@ import stratos.user.*;
 import stratos.util.*;
 import static stratos.content.civic.HoldingUpgrades.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.craft.Economy.*;
 
 
 

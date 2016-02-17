@@ -5,13 +5,15 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
+
+import static stratos.game.craft.Economy.*;
+
 import stratos.game.actors.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
 
 
 

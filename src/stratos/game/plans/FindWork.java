@@ -7,12 +7,12 @@ package stratos.game.plans;
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.craft.Economy.*;
 
 
 

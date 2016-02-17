@@ -7,7 +7,7 @@ import static stratos.game.actors.Qualities.FIELD_THEORY;
 
 import stratos.game.actors.Background;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.wild.Habitat;
 import stratos.graphics.common.ImageAsset;
 import stratos.graphics.common.ModelAsset;

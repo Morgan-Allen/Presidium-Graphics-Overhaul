@@ -8,7 +8,7 @@ import stratos.content.civic.*;
 import stratos.content.hooks.*;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.wild.*;
 import stratos.game.plans.*;

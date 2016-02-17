@@ -6,7 +6,7 @@
 package stratos.game.common;
 import stratos.game.actors.*;
 import stratos.game.base.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.graphics.common.*;

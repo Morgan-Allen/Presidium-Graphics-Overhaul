@@ -4,11 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.civic;
+import static stratos.game.craft.Economy.*;
+
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.ClaimDivision;
 import stratos.game.wild.*;
-import static stratos.game.economic.Economy.*;
 import stratos.game.wild.Species.Type;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;

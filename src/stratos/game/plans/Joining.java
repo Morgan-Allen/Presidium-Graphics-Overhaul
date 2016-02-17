@@ -5,7 +5,7 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.craft.Economy.*;
 
 
 

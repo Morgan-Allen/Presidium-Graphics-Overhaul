@@ -5,12 +5,14 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.verse.*;
 import stratos.util.*;
 import stratos.user.*;
-import static stratos.game.economic.Economy.*;
+
+import static stratos.game.craft.Economy.*;
+
 import java.util.Map.*;
 
 

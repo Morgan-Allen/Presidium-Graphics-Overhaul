@@ -4,14 +4,15 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.verse;
+import static stratos.game.craft.Economy.*;
+
 //import stratos.content.civic.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.user.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
 
 
 

@@ -5,7 +5,7 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.verse.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;

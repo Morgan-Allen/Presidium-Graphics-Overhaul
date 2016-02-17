@@ -8,9 +8,9 @@ import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
-import static stratos.game.economic.Devices.*;
-import static stratos.game.economic.Outfits.*;
+import static stratos.game.craft.Devices.*;
+import static stratos.game.craft.Economy.*;
+import static stratos.game.craft.Outfits.*;
 
 
 //  TODO:  Allow backgrounds to 'extend' or 'develop' eachother.

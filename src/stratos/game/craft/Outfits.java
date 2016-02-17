@@ -3,14 +3,14 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.economic;
+package stratos.game.craft;
 import stratos.content.civic.*;
 import stratos.content.wip.*;
 import stratos.game.actors.ActorGear;
 import stratos.game.common.Actor;
 import stratos.graphics.common.AnimNames;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.craft.Economy.*;
 
 
 

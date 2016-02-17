@@ -5,7 +5,7 @@
   */
 package stratos.content.wip;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
@@ -15,7 +15,7 @@ import stratos.user.*;
 import stratos.util.*;
 import stratos.content.civic.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.craft.Economy.*;
 
 
 

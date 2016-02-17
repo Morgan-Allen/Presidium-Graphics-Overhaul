@@ -3,7 +3,7 @@
 package stratos.start;
 import stratos.content.civic.Suspensor;
 import stratos.game.actors.Human;
-import stratos.game.economic.Economy;
+import stratos.game.craft.Economy;
 import stratos.game.wild.Species;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;

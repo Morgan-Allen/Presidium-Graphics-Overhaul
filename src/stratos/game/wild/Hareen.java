@@ -10,7 +10,7 @@ import static stratos.game.actors.Qualities.HAND_TO_HAND;
 import static stratos.game.actors.Qualities.STEALTH_AND_COVER;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.plans.Hunting;
 import stratos.game.wild.Species.Type;

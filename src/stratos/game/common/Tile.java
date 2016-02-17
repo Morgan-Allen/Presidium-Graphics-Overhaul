@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
@@ -12,6 +11,8 @@ import stratos.user.*;
 import stratos.util.*;
 import stratos.game.wild.Habitat;
 import static stratos.game.maps.StageTerrain.*;
+
+import stratos.game.craft.*;
 
 
 

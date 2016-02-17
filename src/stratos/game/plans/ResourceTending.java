@@ -6,8 +6,8 @@
 package stratos.game.plans;
 import stratos.content.civic.*;
 import stratos.game.common.*;
+import stratos.game.craft.*;
 import stratos.game.actors.*;
-import stratos.game.economic.*;
 import stratos.game.maps.PathSearch;
 import stratos.util.*;
 

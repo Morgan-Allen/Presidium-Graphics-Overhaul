@@ -3,8 +3,8 @@
 
 package stratos.game.plans;
 import stratos.game.common.*;
+import stratos.game.craft.*;
 import stratos.game.actors.*;
-import stratos.game.economic.*;
 import stratos.util.*;
 
 

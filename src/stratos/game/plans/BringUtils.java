@@ -4,12 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
+import static stratos.game.craft.Economy.*;
+import static stratos.game.craft.Owner.*;
+
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.verse.Faction;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
-import static stratos.game.economic.Owner.*;
 
 
 

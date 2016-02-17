@@ -4,16 +4,17 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
+import static stratos.game.craft.Economy.*;
+
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.base.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.*;
 
 
 

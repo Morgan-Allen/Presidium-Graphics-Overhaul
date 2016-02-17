@@ -9,7 +9,7 @@ import static stratos.game.actors.Technique.*;
 import stratos.content.civic.TrooperLodge;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.Devices;
+import stratos.game.craft.Devices;
 import stratos.game.plans.Combat;
 import stratos.graphics.sfx.PlaneFX;
 import stratos.util.Rand;

@@ -1,7 +1,7 @@
 
 
 package stratos.game.common;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.wild.Flora;
 import stratos.game.wild.Outcrop;

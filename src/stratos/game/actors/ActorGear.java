@@ -5,11 +5,11 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Devices.*;
+import static stratos.game.craft.Devices.*;
 
 
 

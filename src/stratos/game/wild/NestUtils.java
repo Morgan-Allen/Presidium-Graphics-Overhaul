@@ -6,12 +6,16 @@
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import static stratos.game.wild.Fauna.*;
 
+
+
+
+//  TODO:  Translate this back into a SitingPass?
 
 
 public class NestUtils {
@@ -66,15 +70,6 @@ public class NestUtils {
     if (s == null || s.nestBlueprint() == null) return null;
     return (Nest) s.nestBlueprint().createVenue(a.base());
   }
-  
-  
-  //
-  //  TODO:  This is working well for purposes of initial setup.  But I need
-  //  to translate it back into a SitingPass, and I need to handle migratory
-  //  species.
-  
-  //  In principle, all you have to do is take global demand for a species and
-  //  divide it by local crowding.
   
   
   public static float localCrowding(Species s, Target around) {

@@ -4,13 +4,14 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
+import static stratos.game.craft.Devices.*;
+
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.util.*;
-import static stratos.game.economic.Devices.*;
 
 
 

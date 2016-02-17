@@ -7,8 +7,9 @@ package stratos.game.actors;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
-import stratos.game.economic.*;
 import stratos.game.common.Session.Saveable;
+import stratos.game.craft.*;
+
 import static stratos.game.actors.Qualities.*;
 
 

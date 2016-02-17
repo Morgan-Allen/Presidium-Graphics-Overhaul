@@ -2,8 +2,8 @@
 
 package stratos.game.base;
 import stratos.game.common.*;
+import stratos.game.craft.Venue;
 import stratos.game.actors.*;
-import stratos.game.economic.Venue;
 import stratos.game.plans.Audit;
 import stratos.util.*;
 

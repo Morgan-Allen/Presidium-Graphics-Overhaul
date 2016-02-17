@@ -6,7 +6,7 @@
 package stratos.content.wip;
 import stratos.game.actors.Choice;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.util.*;
 
 

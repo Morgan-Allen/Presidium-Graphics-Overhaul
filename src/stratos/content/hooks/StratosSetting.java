@@ -11,7 +11,7 @@ import stratos.util.*;
 import stratos.content.civic.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.economic.Economy.*;
+import static stratos.game.craft.Economy.*;
 import static stratos.game.verse.Faction.*;
 import static stratos.game.wild.Habitat.*;
 

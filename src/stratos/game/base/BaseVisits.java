@@ -6,15 +6,17 @@
 package stratos.game.base;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.graphics.widgets.Text;
 import stratos.user.*;
 import stratos.user.notify.MessageTopic;
 import stratos.util.*;
+
+import static stratos.game.craft.Economy.*;
+
 import stratos.content.civic.*;
-import static stratos.game.economic.Economy.*;
 
 
 

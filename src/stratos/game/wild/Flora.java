@@ -4,15 +4,16 @@
  *  for now, feel free to poke around for non-commercial purposes.
  */
 package stratos.game.wild;
+import static stratos.game.craft.Economy.*;
+
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.maps.TerrainGen;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.game.wild.Species.Type;
-import static stratos.game.economic.Economy.*;
 
 
 

@@ -6,7 +6,7 @@
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.ModelAsset;
 import stratos.graphics.cutout.CutoutModel;

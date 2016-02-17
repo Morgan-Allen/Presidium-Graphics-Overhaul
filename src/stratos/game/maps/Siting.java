@@ -5,7 +5,7 @@
   */
 package stratos.game.maps;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.base.*;
 import stratos.user.*;
 import stratos.util.*;

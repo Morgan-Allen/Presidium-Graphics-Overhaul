@@ -6,7 +6,7 @@
 package stratos.game.maps;
 import stratos.game.base.BaseTransport;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.user.BaseUI;
 import stratos.util.*;
 import static stratos.game.maps.StageTerrain.*;

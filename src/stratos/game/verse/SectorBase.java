@@ -5,7 +5,7 @@
   */
 package stratos.game.verse;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.plans.CombatUtils;
 import stratos.user.BaseUI;
 import stratos.game.actors.Backgrounds;

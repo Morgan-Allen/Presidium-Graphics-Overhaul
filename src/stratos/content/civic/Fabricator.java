@@ -7,8 +7,8 @@ package stratos.content.civic;
 import stratos.content.wip.Edifice;
 import stratos.content.wip.EnforcerBloc;
 import stratos.game.common.*;
+import stratos.game.craft.*;
 import stratos.game.actors.*;
-import stratos.game.economic.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.graphics.common.*;
@@ -16,9 +16,9 @@ import stratos.graphics.cutout.*;
 import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
+import static stratos.game.craft.Economy.*;
+import static stratos.game.craft.Outfits.*;
 import static stratos.game.actors.Backgrounds.*;
-import static stratos.game.economic.Economy.*;
-import static stratos.game.economic.Outfits.*;
 
 
 

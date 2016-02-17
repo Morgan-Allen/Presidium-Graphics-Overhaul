@@ -4,9 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.wild;
+import static stratos.game.craft.Economy.*;
+
 import stratos.game.common.*;
-import stratos.game.economic.*;
-import static stratos.game.economic.Economy.*;
+import stratos.game.craft.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;

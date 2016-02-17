@@ -5,7 +5,7 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
-import stratos.game.economic.*;
+import stratos.game.craft.*;
 import stratos.game.verse.*;
 import stratos.user.*;
 import stratos.user.notify.*;

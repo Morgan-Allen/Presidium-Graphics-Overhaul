@@ -3,7 +3,9 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.game.economic;
+package stratos.game.craft;
+import static stratos.game.craft.Economy.SERVICE_HOUSING;
+
 import stratos.game.actors.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
@@ -11,7 +13,6 @@ import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.game.maps.*;
 import stratos.util.*;
-import static stratos.game.economic.Economy.SERVICE_HOUSING;
 
 
 

@@ -6,8 +6,8 @@
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.craft.*;
 import stratos.game.actors.*;
-import stratos.game.economic.*;
 import stratos.user.*;
 import stratos.util.*;
 import stratos.graphics.widgets.*;

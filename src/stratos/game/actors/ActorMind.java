@@ -6,8 +6,8 @@
 package stratos.game.actors;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.craft.Property;
 import stratos.util.*;
-import stratos.game.economic.Property;
 import stratos.game.plans.JoinMission;
 
 
