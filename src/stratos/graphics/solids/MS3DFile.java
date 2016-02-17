@@ -189,24 +189,23 @@ public class MS3DFile {
       mat.texture = in.readUTF(128);
       mat.alphamap = in.readUTF(128);
     }
-
   }
-
+  
+  
   public float fAnimationFPS;
   public float fCurrentTime;
   public int iTotalFrames;
-
+  
+  
   public static class Keyframe {
     public float time;
     public float[] data;
   }
-
+  
+  
   public static class MS3DJoint {
     public String name;
     public String parentName;
-
-    // public Quaternion rotation = new Quaternion();
-    // public Vector3 position = new Vector3();
 
     public Matrix4 lmatrix = new Matrix4();
     public Matrix4 cmatrix = new Matrix4();
@@ -259,8 +258,6 @@ public class MS3DFile {
         kf.time = in.readFloat();
         kf.data = in.readFloats(new float[3]);
       }
-
-
     }
     
     if (nNumJoints == 0) {

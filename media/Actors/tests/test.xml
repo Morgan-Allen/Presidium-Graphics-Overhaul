@@ -1,10 +1,28 @@
 
 
+
+
+<model
+  name="LifterFrame"
+  format="MS3D"
+  type="JOINT"
+  path="media/Actors/tests/"
+  file="LifterFrame.ms3d"
+  scale="0.1"
+  bound="1.5"
+  stride="0.6"
+  height="1.0"
+>
+  <animations rotate="90">
+  </animations>
+</model>
+
+
 <model
   name="Male"
   format="MS3D"
   type="JOINT"
-  path="media/Actors/human/"
+  path="media/Actors/tests/"
   file="maletest.ms3d"
   scale="0.025"
   bound="1.5"
@@ -29,7 +47,7 @@
     <animation name="move_sneak" start="85" end="93" duration="0.7" />
 	<animation name="carry_on" 		 start="94" end="114" duration="1" />
 	<animation name="sneaking" 		 start="115" end="135" duration="1.5" />
-	<animation name="talking_warning" 		 start="136" end="161" duration="2.5" />
+	<animation name="talking_warning"  start="136" end="161" duration="2.5" />
 	<animation name="firen_new" 		 start="162" end="185" duration="2.5" />
 	<animation name="fire_heavy" 		 start="186" end="212" duration="1.2" />
 	<animation name="attack_2H" 		 start="213" end="235" duration="1.1" />
@@ -37,7 +55,7 @@
 	<animation name="defence_1H" 		 start="267" end="292" duration="1.2" />
 	<animation name="defence_2H" 		 start="293" end="316" duration="1" />
 	<animation name="asleep" 		 start="317" end="367" duration="4" />
-	<animation name="talk_complain" 		 start="368" end="454" duration="4" />
+	<animation name="talk_complain"  start="368" end="454" duration="4" />
 	<animation name="flinch" 		 start="455" end="479" duration="0.9" />
 	<animation name="flinch2" 		 start="480" end="509" duration="1.1" />
 	<animation name="flinch3" 		 start="510" end="535" duration="0.8" />
@@ -54,7 +72,7 @@
   name="Avrodil"
   format="MS3D"
   type="JOINT"
-  path="media/Actors/human/"
+  path="media/Actors/tests/"
   file="Avrodil.ms3d"
   scale="1"
   bound="1.5"
@@ -73,4 +91,12 @@
 
 </model>
 
-<!-- test -->
+
+
+
+
+
+
+
+
+

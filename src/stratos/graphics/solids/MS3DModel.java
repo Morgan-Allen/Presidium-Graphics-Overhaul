@@ -24,7 +24,7 @@ import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
 public class MS3DModel extends SolidModel {
   
   
-  final static boolean FORCE_DEFAULT_MATERIAL = false;
+  final static boolean FORCE_DEFAULT_MATERIAL = true;
   private static boolean verbose = false;
   
   private String filePath, xmlPath, xmlName;
@@ -98,9 +98,9 @@ public class MS3DModel extends SolidModel {
   private void processMaterials() {
     if (! FORCE_DEFAULT_MATERIAL) for (MS3DMaterial mat : ms3d.materials) {
       ModelMaterial m = new ModelMaterial();
-      m.id = mat.name;
-      m.ambient   = color(mat.ambient);
-      m.diffuse   = color(mat.diffuse);
+      m.id        = mat.name;
+      m.ambient   = color(mat.ambient );
+      m.diffuse   = color(mat.diffuse );
       m.emissive  = color(mat.emissive);
       m.specular  = color(mat.specular);
       m.shininess = mat.shininess;
@@ -110,7 +110,7 @@ public class MS3DModel extends SolidModel {
       if (m.opacity == 0) {
         m.opacity = 1;
       }
-      if (!mat.texture.isEmpty()) {
+      if (! mat.texture.isEmpty()) {
         ModelTexture tex = new ModelTexture();
         if (mat.texture.startsWith(".\\") || mat.texture.startsWith("//")) {
           mat.texture = mat.texture.substring(2);
@@ -127,9 +127,14 @@ public class MS3DModel extends SolidModel {
     }
     
     ModelMaterial mat = new ModelMaterial();
-    mat.ambient = new Color(0.8f, 0.8f, 0.8f, 1f);
-    mat.diffuse = new Color(0.8f, 0.8f, 0.8f, 1f);
-    mat.id = "default";
+    mat.id        = "default";
+    mat.ambient   = new Color(0.8f, 0.8f, 0.8f, 1f);
+    mat.diffuse   = new Color(0.8f, 0.8f, 0.8f, 1f);
+    mat.emissive  = new Color(0, 0, 0, 0);
+    mat.specular  = new Color(0, 0, 0, 0);
+    mat.shininess = 0;
+    mat.opacity   = 1;
+    mat.type      = MaterialType.Phong;
     data.materials.add(mat);
   }
   
@@ -229,7 +234,8 @@ public class MS3DModel extends SolidModel {
       }
 
       final ModelNodePart npart = new ModelNodePart();
-      final int matID = group.materialIndex;
+      int matID = group.materialIndex;
+      if (FORCE_DEFAULT_MATERIAL) matID = -1;
       npart.meshPartId = group.name;
       npart.materialId = (matID == -1) ? "default" : ms3d.materials[matID].name;
       npart.bones = new ArrayMap();

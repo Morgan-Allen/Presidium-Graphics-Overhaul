@@ -7,8 +7,10 @@ package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.util.*;
 import stratos.graphics.solids.SolidSprite.Part;
+import stratos.graphics.widgets.Image;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -89,9 +91,11 @@ public class SolidsPass {
     //  texture atlas for efficiency?
     
     for (SolidSprite.Part part : allParts) {
-      if (part.texture == null) continue;
-      part.texture.bind(0);
-      part.texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);  //TODO:  Make more general
+      Texture tex = part.texture;
+      if (tex == null) tex = Image.SOLID_WHITE.asTexture();
+      if (tex == null) continue;
+      tex.bind(0);
+      tex.setFilter(TextureFilter.Linear, TextureFilter.Linear);  //TODO:  Make more general?
       bindOverlays(part);
       final Colour c = part.colour;
       shading.setUniformf("u_texColor", c.r, c.g, c.b, c.a);

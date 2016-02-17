@@ -86,13 +86,17 @@ public abstract class SolidModel extends ModelAsset {
     Batch <Node> nodeB, Batch <NodePart> partB, Batch <Material> matsB
   ) {
     nodeB.add(node);
-    if (verbose) I.say("Node is: "+node.id);
-    if (verbose && node.parent != null) I.say("  Parent is: "+node.parent.id);
+    if (verbose) {
+      I.say("Node is: "+node.id);
+      if (node.parent != null) I.say("  Parent is: "+node.parent.id);
+    }
     for (NodePart p : node.parts) {
       partB.add(p);
       matsB.include(p.material);
-      if (verbose) I.say("  Part is:     "+p.meshPart.id);
-      if (verbose) I.say("  Material is: "+p.material.id);
+      if (verbose) {
+        I.say("  Part is:     "+p.meshPart.id);
+        I.say("  Material is: "+p.material.id);
+      }
     }
     for (Node n : node.children) compileFrom(n, nodeB, partB, matsB);
   }
