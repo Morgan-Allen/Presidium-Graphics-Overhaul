@@ -70,6 +70,9 @@ public class EcologistRedoubt extends Venue implements Captivity {
       TO, 1, PROTEIN
     );
   
+  final static Species
+    REARED_SPECIES[] = { Qudu.SPECIES, Hareen.SPECIES };
+  
   
   private Venue fleshStill = null;
   private GroupSprite camouflaged;
@@ -153,6 +156,8 @@ public class EcologistRedoubt extends Venue implements Captivity {
       final Fauna fauna = (Fauna) t;
       final boolean domestic = fauna.base() == base;
       
+      //  TODO:  Add egg-collection here...
+      
       if (! domestic) {
         final Item sample = Item.withReference(GENE_SEED, fauna.species());
         if (stocks.hasItem(sample)) continue;
@@ -160,9 +165,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
         choice.add(Hunting.asHarvest(actor, fauna, this));
       }
     }
-    
-    for (Species s : Species.ANIMAL_SPECIES) {
-      if (s.predator()) continue;
+    for (Species s : REARED_SPECIES) {
       float crowding = NestUtils.localCrowding(s, this);
       if (crowding < 0.5f) {
         choice.add(new SeedTailoring(actor, this, s));
@@ -189,6 +192,8 @@ public class EcologistRedoubt extends Venue implements Captivity {
     
     stocks.setConsumption(CARBS, 5);
     stocks.updateStockDemands(1, services(), LAND_TO_PROTEIN);
+    
+    world.ecology().includeSpecies(REARED_SPECIES);
   }
   
   

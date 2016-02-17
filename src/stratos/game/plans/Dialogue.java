@@ -157,7 +157,7 @@ public class Dialogue extends Plan {
     if (isCasual() && other.mind.mustIgnore(response)) {
       if (report) {
         I.say("  Other actor is too busy!");
-        I.say("    Chat priority: "+response.priorityFor(other));
+        I.say("    Chat priority: "+response.priority());
       }
       return false;
     }
@@ -376,7 +376,7 @@ public class Dialogue extends Plan {
     
     final Behaviour b = other.mind.rootBehaviour();
     final Target victim = b.subject();
-    float motive = b == null ? 0 : b.priorityFor(other) / Plan.PARAMOUNT;
+    float motive = b == null ? 0 : b.priority() / Plan.PARAMOUNT;
     final int DC = (int) (motive * DIFFICULT_DC);
     
     if (DialogueUtils.talkResult(COMMAND, DC, actor, other) > 0.5f) {

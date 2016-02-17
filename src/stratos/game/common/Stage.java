@@ -267,9 +267,11 @@ public class Stage implements Session.Saveable {
     boolean secChange = ((int) (oldTime / 2)) != ((int) (currentTime / 2));
     if (secChange && I.logEvents()) I.say("\nTime is "+currentTime);
     
-    if (secChange) offworld.updateVerse(currentTime);
-    pathingMap.updateMap();
-    ecology.updateEcology();
+    if (secChange) {
+      offworld.updateVerse(currentTime);
+      ecology.updateEcology();
+      pathingMap.updateMap();
+    }
     schedule.advanceSchedule(currentTime);
     
     for (Base base : bases) {

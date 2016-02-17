@@ -79,9 +79,9 @@ public class DebugTreating extends Scenario {
     GameSettings.paveFree  = true;
     
     if (false) configTreatmentScenario(world, base, UI);
-    if (false) configFirstAidScenario (world, base, UI);
+    if (true ) configFirstAidScenario (world, base, UI);
     if (false) configRecoveryScenario (world, base, UI);
-    if (true ) configBurialScenario   (world, base, UI);
+    if (false) configBurialScenario   (world, base, UI);
   }
   
   

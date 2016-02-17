@@ -172,7 +172,7 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  public float priorityFor(Actor actor) {
+  public float priority() {
     return priority;
   }
   
@@ -188,9 +188,14 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  public Behaviour nextStepFor(Actor actor) {
+  public Behaviour nextStep() {
     if (finished()) return null;
     return this;
+  }
+  
+  
+  public void updatePlanFor(Actor actor) {
+    return;
   }
   
   
@@ -314,9 +319,10 @@ public class Action implements Behaviour, AnimNames {
     //  Firstly, we establish current displacements between actor and target,
     //  motion target & action target, how far the actor can see, and whether
     //  sticking to the full tile path is required-
+    final Target lastStep = actor.pathing.lastStep();
     final boolean
       ranged    = ranged(),
-      mustBoard = ((! ranged) && (moveTarget instanceof Boarding));
+      mustBoard = ((! ranged) && (lastStep instanceof Boarding));
     final float
       sightRange = actor.health.sightRange(),
       motionDist = Spacing.distance(actor, moveTarget),
@@ -352,7 +358,7 @@ public class Action implements Behaviour, AnimNames {
     }
     else if (mustBoard) {
       if (report) I.say("  Must board target.");
-      approaching = actor.aboard() == moveTarget;
+      approaching = actor.aboard() == lastStep;
       closed = approaching && (motionDist - maxDist < separation);
       closeOn = closed ? actionTarget : step;
       facing = actor.pathing.facingTarget(closeOn);
@@ -383,9 +389,11 @@ public class Action implements Behaviour, AnimNames {
       I.say("");
       I.say("  Updating motion for: "+this);
       I.say("  Action target is: "+actionTarget);
-      I.say("  Distance        : "+actionDist  );
+      I.say("    Distance      : "+actionDist  );
+      I.say("    Position      : "+actionTarget.position(null));
       I.say("  Move target is  : "+moveTarget  );
-      I.say("  Distance        : "+motionDist  );
+      I.say("    Distance      : "+motionDist  );
+      I.say("    Position      : "+moveTarget  .position(null));
       I.say("  Closing on      : "+closeOn     );
       I.say("  Is ranged?      : "+ranged()    );
       I.say("  Must board?     : "+mustBoard   );
@@ -403,6 +411,7 @@ public class Action implements Behaviour, AnimNames {
       I.say("");
       I.say("  Path target is  : "+PT  );
       I.say("  Next step       : "+step);
+      I.say("  Last step       : "+lastStep);
       if (PT != null) {
         final float distance = Spacing.distance(actor, PT);
         I.say("  Distance: "+distance+", maximum: "+maxDist+"\n");
@@ -430,7 +439,7 @@ public class Action implements Behaviour, AnimNames {
     //  If active updates to pathing & motion are called for, make them.
     if (active) {
       float moveRate = speedMultiple(actor, false) * actor.health.baseSpeed();
-      if (report) I.say("Move rate: "+moveRate);
+      if (report) I.say("  Move rate: "+moveRate);
       
       actor.pathing.headTowards(closeOn, moveRate, 1, ! closed);
       

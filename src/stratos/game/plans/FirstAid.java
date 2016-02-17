@@ -192,7 +192,7 @@ public class FirstAid extends Treatment {
       final BringPerson d = new BringPerson(
         actor, patient, sickbay
       );
-      if (d.nextStepFor(actor) != null) {
+      if (d.getNextStep() != null) {
         if (report) I.say("  Returning new stretcher delivery...");
         return d;
       }

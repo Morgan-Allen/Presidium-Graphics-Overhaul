@@ -157,10 +157,10 @@ public abstract class ActorMind {
       I.say("\nNext plans acquired...");
       I.say("  Last plan: "+rootBehaviour());
       final float
-        notP = notDone   == null ? -1 : notDone  .priorityFor(actor),
-        newP = newChoice == null ? -1 : newChoice.priorityFor(actor),
-        curP = current   == null ? -1 : current  .priorityFor(actor),
-        onMP = onMission == null ? -1 : onMission.priorityFor(actor);
+        notP = notDone   == null ? -1 : notDone  .priority(),
+        newP = newChoice == null ? -1 : newChoice.priority(),
+        curP = current   == null ? -1 : current  .priority(),
+        onMP = onMission == null ? -1 : onMission.priority();
       I.say("  New choice: "+newChoice+"  (priority "+newP+")");
       I.say("  From Todo:  "+notDone  +"  (priority "+notP+")");
       I.say("  Current:    "+current  +"  (priority "+curP+")");
@@ -220,7 +220,7 @@ public abstract class ActorMind {
       }
       if (! valid) break;
       agenda.add(next);
-      next = next.nextStepFor(actor);
+      next = next.nextStep();
     }
     if (returned == null) next = root = null;
     
@@ -368,8 +368,7 @@ public abstract class ActorMind {
       Plan.reportPlanDetails(replaced, actor);
     }
     
-    behaviour.priorityFor(actor);
-    behaviour.nextStepFor(actor);
+    behaviour.updatePlanFor(actor);
     behaviour.toggleActive(true);
     this.current = (Plan) behaviour;
   }
@@ -454,7 +453,8 @@ public abstract class ActorMind {
   public float urgency() {
     Behaviour b = rootBehaviour();
     if (b == null) return 0;
-    return b.priorityFor(actor) / Plan.PARAMOUNT;
+    b.updatePlanFor(actor);
+    return b.priority() / Plan.PARAMOUNT;
   }
   
   

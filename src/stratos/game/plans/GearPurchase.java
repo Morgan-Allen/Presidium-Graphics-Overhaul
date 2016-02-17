@@ -154,7 +154,8 @@ public class GearPurchase extends Plan {
       else if (quality < baseQuality) continue;
       
       added = new GearPurchase(actor, upgrade, makes);
-      if (added.priorityFor(actor) > 0) break;
+      added.updatePlanFor(actor);
+      if (added.priority() > 0) break;
     }
     
     if (report) {

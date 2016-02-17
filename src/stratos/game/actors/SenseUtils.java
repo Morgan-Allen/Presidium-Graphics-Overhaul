@@ -24,7 +24,7 @@ public class SenseUtils {
       final Actor follows = p.actor();
       final float
         sightRange   = follows.health.sightRange(),
-        chaseUrgency = p.priorityFor(follows) / Plan.PARAMOUNT,
+        chaseUrgency = p.priority() / Plan.PARAMOUNT,
         chasePenalty = -10 * Nums.clamp(chaseUrgency, 0, 1);
       
       final float hideBonus = (actor.skills.test(

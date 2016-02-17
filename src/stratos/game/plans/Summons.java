@@ -422,11 +422,12 @@ public class Summons extends Plan implements Messaging {
     
     for (Pledge p : Pledge.TYPE_JOIN_MISSION.variantsFor(with, ruler)) {
       final Mission m = (Mission) p.refers();
-      final JoinMission joining = JoinMission.resume(with, m);
       
       responses.add(new Link(""+m.toString()) {
         public void whenClicked(Object context) {
-          final boolean wouldAccept = joining.priorityFor(with) > 0;
+          final JoinMission joining = JoinMission.resume(with, m);
+          joining.updatePlanFor(with);
+          final boolean wouldAccept = joining.priority() > 0;
           
           if (wouldAccept) {
             pushMissionResponse(UI, with, m);

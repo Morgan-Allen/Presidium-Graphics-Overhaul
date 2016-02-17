@@ -102,8 +102,7 @@ public abstract class Fauna extends Actor implements Mount {
         breedInc = period * -1f / DEFAULT_BREED_INTERVAL;
       }
       breedMetre = Nums.clamp(breedMetre + breedInc, 0, 1);
-      
-      updateTrophicPresence(period);
+      world.ecology().updateTrophicPresence(this, period);
     }
   }
   
@@ -111,16 +110,8 @@ public abstract class Fauna extends Actor implements Mount {
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
     
-    updateTrophicPresence(-1);
+    world.ecology().updateTrophicPresence(this, -1);
     return true;
-  }
-  
-  
-  protected void updateTrophicPresence(int period) {
-    final BaseDemands BD = base().demands;
-    final Tile at = origin();
-    BD.impingeSupply(species.trophicKey(), species.metabolism(), period, at);
-    BD.impingeSupply(Fauna.class         , species.metabolism(), period, at);
   }
   
   

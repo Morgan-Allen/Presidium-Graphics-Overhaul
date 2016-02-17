@@ -180,9 +180,9 @@ public class PhysicianStation extends Venue implements Burial.Services {
       choice.add(aid);
       
       final Treatment t = Treatment.nextTreatment(actor, patient, this);
-      if (t != null && (t.priorityFor(actor) >= Plan.URGENT || onShift)) {
-        choice.add(t);
-      }
+      if (t == null) continue;
+      t.updatePlanFor(actor);
+      if (t.priority() >= Plan.URGENT || onShift) choice.add(t);
     }
     final Plan treats = (Plan) choice.pickMostUrgent(Plan.ROUTINE);
     if (treats != null) return treats;

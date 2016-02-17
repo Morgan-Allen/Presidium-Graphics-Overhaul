@@ -661,12 +661,13 @@ public abstract class Power extends Technique {
           command = Dialogue.dialogueFor(affects, (Actor) selected);
         }
         if (command == null) return true;
+        command.updatePlanFor(affects);
         
         final boolean cast = caster != null && ! GameSettings.psyFree;
-        final float truePriority = command.priorityFor(affects);
+        final float truePriority = command.priority();
         final Behaviour root = affects.mind.rootBehaviour();
         final float
-          oldPriority = root == null ? 0 : root.priorityFor(affects),
+          oldPriority = root == null ? 0 : root.priority(),
           affinity = (truePriority - oldPriority) / Plan.PARAMOUNT;
         
         float priorityMod = 0;
@@ -684,7 +685,7 @@ public abstract class Power extends Technique {
         priorityMod *= (0.5f + Rand.avgNums(2));
         command.clearMotives();
         command.addMotives(Plan.MOTIVE_EMERGENCY, priorityMod + oldPriority);
-        final float activePriority = command.priorityFor(affects);
+        final float activePriority = command.priority();
         
         if (report) {
           I.say("\nApplying suggestion to "+affects);

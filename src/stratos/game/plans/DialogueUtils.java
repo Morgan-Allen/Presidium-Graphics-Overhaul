@@ -142,7 +142,7 @@ public class DialogueUtils {
     
     for (Behaviour b : actor.mind.todoList()) if (b instanceof Plan) {
       final Plan about = (Plan) b;
-      final float rating = about.priorityFor(actor) * Rand.num() / 5;
+      final float rating = about.priority() * Rand.num() / 5;
       pick.compare(about, rating);
     }
     //  ...There has to be other stuff that an actor could suggest, such as at

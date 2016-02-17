@@ -576,10 +576,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   protected Behaviour cacheStepFor(Actor actor, Behaviour step) {
     final Role role = roleFor(actor);
-    if (step != null) {
-      step.priorityFor(actor);
-      step.nextStepFor(actor);
-    }
+    if (step != null) step.updatePlanFor(actor);
     if (role == null) return step;
     return role.cached = step;
   }

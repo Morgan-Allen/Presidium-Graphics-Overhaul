@@ -74,14 +74,24 @@ public class NestUtils {
   
   
   public static float localCrowding(Species s, Target around) {
-    final Stage world = around.world();
-    if (world == null) return 100;
+    if (s == null || around == null || around.world() == null) return 100;
     
-    float crowding = 1;
+    final Stage   world   = around.world();
+    final Base    fauna   = Base.wildlife(world);
+    final Ecology ecology = world.ecology();
     
-    //  TODO:  Add some extra context here...
-    crowding = world.ecology().globalCrowding(s);
+    final float
+      globalPop  = ecology.idealPopulation(s),
+      localPop   = fauna.demands.supplyAround(around, s, Stage.ZONE_SIZE),
+      localFert  = ecology.biomassRating(around),
+      globalFert = ecology.globalBiomass();
     
+    int numPatches = world.size * world.size;
+    numPatches /= Stage.ZONE_SIZE * Stage.ZONE_SIZE;
+
+    float crowding = 1.0f;
+    crowding *= localPop * numPatches / globalPop;
+    crowding *= localFert / globalFert;
     return crowding;
   }
   
@@ -90,7 +100,8 @@ public class NestUtils {
     final Base base = Base.wildlife(world);
     final Tally <Species> actualNumbers = new Tally <Species> ();
     
-    world.ecology().updateAnimalCrowdEstimates(speciesOrder);
+    world.ecology().includeSpecies(speciesOrder);
+    world.ecology().updateAnimalCrowdEstimates();
     
     while (true) {
       

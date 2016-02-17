@@ -83,7 +83,11 @@ public class Gifting extends Plan {
   
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;
-    if ((! getting.finished()) && getting.priorityFor(actor) < 0) return 0;
+
+    getting.updatePlanFor(actor);
+    giving .updatePlanFor(actor);
+    
+    if ((! getting.finished()) && getting.priority() < 0) return 0;
     
     float modifier = NO_MODIFIER;
     final float
@@ -121,16 +125,19 @@ public class Gifting extends Plan {
       return null;
     }
     
+    getting.updatePlanFor(actor);
+    giving .updatePlanFor(actor);
+    
     //  If you've acquired the item, present it to the recipient, and await
     //  their response.
     if (actor.gear.hasItem(gift)) {
       if (giving.finished()) return null;
       this.stage = STAGE_GIVES;
       giving.setMotivesFrom(this, 0);
-      if (giving.priorityFor(actor) <= 0) return null;
+      if (giving.priority() <= 0) return null;
       if (report) {
         I.say("  Entering dialogue mode for gift-giving.");
-        I.say("  Priority: "+giving.priorityFor(actor));
+        I.say("  Priority: "+giving.priority());
       }
       return giving;
     }
@@ -138,7 +145,7 @@ public class Gifting extends Plan {
     //  If the 'get' action hasn't completed, carry it out.
     if (! getting.finished()) {
       this.stage = STAGE_GETS;
-      final Behaviour nextS = getting.nextStepFor(actor);
+      final Behaviour nextS = getting.nextStep();
       if (report) I.say("  Still getting, next step: "+nextS);
       if (nextS == null) return null;
       return getting;
@@ -171,7 +178,8 @@ public class Gifting extends Plan {
     if (buys.matchFor(Gifting.class, false) != null) return null;
     final Dialogue d = Dialogue.dialogueFor(buys, receives);
     if (parent != null) d.setMotivesFrom(parent, 0);
-    if (d.priorityFor(buys) <= 0) return null;
+    d.updatePlanFor(buys);
+    if (d.priority() <= 0) return null;
     
     final Pick <Item> pickGift = new Pick(0);
     

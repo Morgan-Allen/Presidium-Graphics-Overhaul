@@ -76,7 +76,9 @@ public class Migration extends Plan {
   
   
   public boolean finished() {
-    return actor != null && priorityFor(actor) <= 0;
+    if (actor == null) return true;
+    updatePlanFor(actor);
+    return priority() <= 0;
   }
   
   

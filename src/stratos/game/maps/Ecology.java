@@ -27,9 +27,9 @@ public class Ecology {
   final RandomScan growthMap;
   final public Ambience ambience;
   
-  private Species speciesOrder[] = new Species[0];
-  final Tally <Species> idealNumbers  = new Tally <Species> ();
-  final Tally <Species> actualNumbers = new Tally <Species> ();
+  private List <Species> allSpecies = new List();
+  final Tally <Species> idealNumbers  = new Tally();
+  final Tally <Species> actualNumbers = new Tally();
   
   
   
@@ -48,7 +48,7 @@ public class Ecology {
     growthMap.loadState(s);
     ambience .loadState(s);
     
-    speciesOrder = (Species[]) s.loadObjectArray(Species.class);
+    s.loadObjects(allSpecies);
     s.loadTally(idealNumbers );
     s.loadTally(actualNumbers);
   }
@@ -58,7 +58,7 @@ public class Ecology {
     growthMap.saveState(s);
     ambience .saveState(s);
     
-    s.saveObjectArray(speciesOrder);
+    s.saveObjects(allSpecies);
     s.saveTally(idealNumbers );
     s.saveTally(actualNumbers);
   }
@@ -76,18 +76,31 @@ public class Ecology {
     growIndex *= size * size * 1f / Stage.GROWTH_INTERVAL;
     growthMap.scanThroughTo((int) growIndex);
     
-    updateAnimalCrowdEstimates(speciesOrder);
+    updateAnimalCrowdEstimates();
   }
   
   
-  public void updateAnimalCrowdEstimates(Species... species) {
-    final Base base = Base.findBase(world, null, Faction.FACTION_WILDLIFE);
-    final boolean report = BaseUI.currentPlayed() == base;
-    
-    this.speciesOrder = species;
+  public void includeSpecies(Species... species) {
+    for (Species s : species) allSpecies.include(s);
+  }
+  
+  
+  public void updateTrophicPresence(Fauna fauna, int period) {
+    checkMapsInit();
+    final Tile    at = fauna.origin();
+    final Species s  = fauna.species;
+    abundances.impingeSupply(s             , s.metabolism(), period, at);
+    abundances.impingeSupply(s.trophicKey(), s.metabolism(), period, at);
+    abundances.impingeSupply(Fauna.class   , s.metabolism(), period, at);
+  }
+  
+  
+  public void updateAnimalCrowdEstimates() {
+    final boolean report = false;//BaseUI.currentPlayed() == base;
+    checkMapsInit();
     
     float numBrowseS = 0, numOtherS = 0;
-    for (Species s : speciesOrder) {
+    for (Species s : allSpecies) {
       if (! s.predator()) {
         if (s.preyedOn()) numBrowseS++;
         else numBrowseS += 0.5f;
@@ -100,7 +113,7 @@ public class Ecology {
     idealNumbers .clear();
     actualNumbers.clear();
     
-    for (Species s : speciesOrder) if (! s.predator()) {
+    for (Species s : allSpecies) if (! s.predator()) {
       float supports = sumFlora;
       supports /= s.metabolism() * numBrowseS * BROWSER_TO_FLORA_RATIO;
       if (! s.preyedOn()) supports /= 2;
@@ -109,7 +122,7 @@ public class Ecology {
       if (s.preyedOn()) sumPreyedOn += supports * s.metabolism();
     }
     
-    for (Species s : speciesOrder) if (! s.browser()) {
+    for (Species s : allSpecies) if (! s.browser()) {
       float supports = sumPreyedOn;
       supports /= s.metabolism() * numOtherS * PREDATOR_TO_PREY_RATIO;
       supports = Nums.round(supports, 1, false);
@@ -117,18 +130,18 @@ public class Ecology {
       if (s.predator()) sumPredators += supports * s.metabolism();
     }
     
-    for (Species s : speciesOrder) {
-      final PresenceMap map = world.presences.mapFor(s);
-      actualNumbers.add(map.population(), s);
+    for (Species s : allSpecies) {
+      actualNumbers.add(abundances.globalSupply(s), s);
     }
     
     if (report) {
-      I.say("\nPopulating fauna within world...");
+      I.say("\nUpdating animal crowding-estimates:");
       I.say("  Sum preyed on: "+sumPreyedOn );
       I.say("  Sum predators: "+sumPredators);
       
-      for (Species s : speciesOrder) {
+      for (Species s : allSpecies) {
         I.say("  Ideal population of "+s+": "+idealNumbers.valueFor(s));
+        I.say("  Real  population of "+s+": "+actualNumbers.valueFor(s));
       }
     }
   }
@@ -148,6 +161,7 @@ public class Ecology {
   
   
   public float globalCrowding(Species s) {
+    if (! idealNumbers.hasEntry(s)) return 1;
     final float idealNum  = idealNumbers .valueFor(s);
     final float actualNum = actualNumbers.valueFor(s);
     if (actualNum <= 0) return 0;
@@ -176,7 +190,7 @@ public class Ecology {
   }
   
   
-  public float biomassRating(Tile t) {
+  public float biomassRating(Target t) {
     checkMapsInit();
     float sample = abundances.supplyAround(t, biomass, Stage.ZONE_SIZE) * 4;
     return sample / (Stage.ZONE_AREA * 4);

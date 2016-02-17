@@ -120,7 +120,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     this.lastEvalTime = s.loadFloat();
     this.priorityEval = s.loadFloat();
     
-    this.parent   = (Plan) s.loadObject();
+    this.parent   = (Plan     ) s.loadObject();
     this.nextStep = (Behaviour) s.loadObject();
     
     this.properties  = s.loadInt  ();
@@ -195,7 +195,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public void interrupt(String cause) {
     if (! hasBegun()) return;
-    if (I.talkAbout == actor && (stepsVerbose || priorityVerbose)) {
+    final boolean report =
+      I.talkAbout == actor && (stepsVerbose || priorityVerbose)
+    ;
+    if (report) {
       I.say("\n"+actor+" Aborting plan! "+I.tagHash(this));
       I.say("  Cause: "+cause);
       I.reportStackTrace();
@@ -204,6 +207,52 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     priorityEval = NULL_PRIORITY;
     actor.mind.cancelBehaviour(this, cause);
     addMotives(IS_CANCELLED, 0);
+  }
+  
+  
+  public void updatePlanFor(Actor actor) {
+    final boolean report = I.talkAbout == actor && (
+      verboseClass == null || verboseClass == this.getClass()
+    ) && (beginsVerbose || hasBegun()) && (priorityVerbose || stepsVerbose);
+    
+    attemptToBind(actor);
+
+    if (hasMotives(IS_CANCELLED)) {
+      priorityEval = NULL_PRIORITY;
+      nextStep     = null;
+      return;
+    }
+
+    if (! Plan.canFollow(actor, nextStep, false)) nextStep = null;
+    if (! checkRefreshDue(actor, report && extraVerbose)) return;
+    final boolean asRoot = parentPlan() == null;
+    final float time = actor.world().currentTime();
+    
+    if (asRoot) {
+      if (report) I.say("\nGetting fresh priority... "+I.tagHash(this));
+      priorityEval = 0;  //  Note:  This avoids certain types of infinite loop.
+      priorityEval = getPriority();
+      if (report) I.say("\nNew priority: "+priorityEval);
+      properties |= HAS_PRIORITY;
+    }
+    
+    Behaviour lastStep = nextStep;
+    Behaviour step = getNextStep();
+    
+    if (lastStep != null && lastStep.matchesPlan(step)) {
+      if (report) I.say("    NEXT STEP THE SAME AS OLD STEP: "+step);
+      nextStep = lastStep;
+    }
+    else if (step != null) {
+      if (report) I.say("  New plan step: "+I.tagHash(nextStep));
+      nextStep = step;
+    }
+    if (nextStep instanceof Plan) {
+      ((Plan) nextStep).parent = this;
+    }
+    
+    properties |= HAS_STEPS;
+    lastEvalTime = time;
   }
   
   
@@ -226,12 +275,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     //  need to generate another.
     boolean oldDone = nextStep != null && (
       nextStep.finished() ||
-      nextStep.nextStepFor(actor) == null
+      nextStep.nextStep() == null
     );
     if (oldDone) {
       if (report) I.say("OLD STEP FINISHED: "+nextStep);
-      clearEval(actor);
-      nextStep = null;
       return true;
     }
     //
@@ -255,7 +302,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     if (timeGone >= interval) {
       if (report) I.say("WILL REFRESH!");
-      clearEval(actor);
       return true;
     }
     else {
@@ -271,13 +317,6 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       "WRONG ACTOR INVOKING PLAN: "+this+", IS "+actor+", SHOULD BE "+oldActor
     );
     else this.actor = actor;
-  }
-  
-  
-  protected void clearEval(Actor actor) {
-    attemptToBind(actor);
-    priorityEval = NULL_PRIORITY;
-    nextStep     = null;
   }
   
   
@@ -297,81 +336,30 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public float priorityFor(Actor actor) {
-    final boolean report = priorityVerbose && I.talkAbout == actor && (
-      verboseClass == null || verboseClass == this.getClass()
-    ) && (beginsVerbose || hasBegun());
-
-    attemptToBind(actor);
-    
-    if (hasMotives(IS_CANCELLED)) return -1;
-    if (report && extraVerbose) {
-      I.say("\nCurrent priority for "+this+" is: "+priorityEval);
-    }
-    
-    if (checkRefreshDue(actor, report && extraVerbose)) {
-      final float time = actor.world().currentTime();
-      if (report) I.say("\nGetting fresh priority... "+I.tagHash(this));
-      priorityEval = 0;  //  Note:  This avoids certain types of infinite loop.
-      priorityEval = getPriority();
-      if (report) I.say("\nNew priority: "+priorityEval);
-      properties |= HAS_PRIORITY;
-      lastEvalTime = time;
-    }
-    
+  public float priority() {
     return priorityEval;
   }
   
   
-  public Behaviour nextStepFor(Actor actor) {
-    attemptToBind(actor);
-    final boolean report = stepsVerbose && I.talkAbout == actor && (
-      verboseClass == null || verboseClass == this.getClass()
-    ) && (beginsVerbose || hasBegun());
-    if (hasMotives(IS_CANCELLED)) return null;
-    
-    if (report && extraVerbose) {
-      I.say("\nCurrent plan step for "+this+" is: "+I.tagHash(nextStep));
-    }
-    
-    if (checkRefreshDue(actor, report && extraVerbose)) {
-      final Behaviour lastStep = nextStep;
-      if (report) I.say("  Plan step for "+this+" was: "+I.tagHash(lastStep));
-      final float time = actor.world().currentTime();
-      
-      Behaviour step = getNextStep();
-      if (lastStep != null && lastStep.matchesPlan(step)) {
-        if (report) I.say("    NEXT STEP THE SAME AS OLD STEP: "+nextStep);
-        nextStep = lastStep;
-      }
-      else if (step != null) {
-        if (report) I.say("  New plan step: "+I.tagHash(nextStep));
-        nextStep = step;
-      }
-      if (nextStep instanceof Plan) {
-        ((Plan) nextStep).parent = this;
-      }
-      
-      properties |= HAS_STEPS;
-      lastEvalTime = time;
-    }
+  public Behaviour nextStep() {
     return nextStep;
   }
   
   
   public boolean finished() {
-    final boolean report =
-      (stepsVerbose || priorityVerbose) &&
-      hasBegun() && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor &&
+      (stepsVerbose || priorityVerbose) && hasBegun();
     
     if (hasMotives(IS_CANCELLED)) return true;
     if (actor == null) return false;
     
-    if (parentPlan() == null && priorityFor(actor) <= 0) {
+    updatePlanFor(actor);
+    
+    if (parentPlan() == null && priority() <= 0) {
       if (report) I.say("\nNO PRIORITY: "+I.tagHash(this));
       return true;
     }
-    if (nextStepFor(actor) == null) {
+    if (nextStep() == null) {
       if (report) I.say("\nNO NEXT STEP: "+I.tagHash(this));
       return true;
     }
@@ -491,10 +479,12 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   public static boolean canFollow(Actor a, Behaviour b, boolean checkPriority) {
     if (b == null || ! b.valid()) return false;
-    if (b.finished() || b.nextStepFor(a) == null) {
+    b.updatePlanFor(a);
+    
+    if (b.finished() || b.nextStep() == null) {
       return false;
     }
-    if (checkPriority && b.priorityFor(a) <= 0) {
+    if (checkPriority && b.priority() <= 0) {
       return false;
     }
     return true;
@@ -586,10 +576,10 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     if (b == null) { I.say("  IS NULL"); return; }
     
     I.say("    Plan class:    "+b.getClass().getSimpleName());
-    I.say("    Priority:      "+b.priorityFor(a));
+    I.say("    Priority:      "+b.priority());
     I.say("    Valid:         "+b.valid());
     I.say("    Finished:      "+b.finished());
-    I.say("    Next step:     "+b.nextStepFor(a));
+    I.say("    Next step:     "+b.nextStep());
     I.say("    Persists?      "+b.persistent());
     I.say("    Target is:     "+b.subject());
     I.say("    Target exists? "+b.subject().inWorld());

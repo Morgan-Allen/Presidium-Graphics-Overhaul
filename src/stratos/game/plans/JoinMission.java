@@ -121,7 +121,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     }
     else {
       final Behaviour step = mission.nextStepFor(actor, true);
-      return step == null ? -1 : step.priorityFor(actor);
+      return step == null ? -1 : step.priority();
     }
   }
   

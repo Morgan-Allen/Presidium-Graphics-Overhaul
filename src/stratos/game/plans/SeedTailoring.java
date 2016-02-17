@@ -26,9 +26,10 @@ public class SeedTailoring extends Plan {
     stepsVerbose = false;
   
   final public static float
-    DESIRED_SAMPLES = 5,
-    SEED_DAYS_DECAY = 5,
-    TAILOR_TIME     = Stage.STANDARD_HOUR_LENGTH;
+    DESIRED_SAMPLES  = 5,
+    SEED_DAYS_DECAY  = 5,
+    SEED_TAILOR_TIME = Stage.STANDARD_HOUR_LENGTH,
+    EGGS_TAILOR_TIME = Stage.STANDARD_DAY_LENGTH ;
   final static int
     STAGE_INIT    = -1,
     STAGE_CULTURE =  0,
@@ -131,6 +132,7 @@ public class SeedTailoring extends Plan {
     );
     
     float lack = 1f - lab.stocks.amountOf(seedType);
+    if (hasBegun()) lack = Nums.max(lack, 0.5f);
     if (lack <= 0) return -1;
     
     //  TODO:  USE THE PLAN-UTILS METHOD HERE?
@@ -174,6 +176,7 @@ public class SeedTailoring extends Plan {
     //
     //  Okay.  We boost the max/min quality based on the upgrades available at
     //  the lab.
+    final Stage  world    = actor.world();
     final Object yield    = species.nutrients(0)[0].type;
     final int    upgrade  = Nums.clamp(lab.structure.upgradeLevel(yield), 3);
     final int    minLevel = upgrade - 1, maxLevel = upgrade + 1;
@@ -192,21 +195,25 @@ public class SeedTailoring extends Plan {
     int quality = Nums.ceil((skillCheck + sampleBonus) * 2);
     quality = (int) Nums.clamp(quality, minLevel, maxLevel);
     
+    float duration = species.animal() ? EGGS_TAILOR_TIME : SEED_TAILOR_TIME;
+    if (species.animal()) duration *= species.metabolism() / 2;
     Item seed = seedType;
     seed = Item.withQuality(seed, quality);
-    seed = Item.withAmount(seed, 1f / TAILOR_TIME);
+    seed = Item.withAmount(seed, 1f / duration);
     lab.stocks.addItem(seed);
-    
     //
     //  If we actually complete the task, there's special handling for animal
     //  species-
     if (species.animal() && lab.stocks.amountOf(seed) >= 1) {
       lab.stocks.removeMatch(seed);
-      Fauna reared = (Fauna) species.sampleFor(actor.base());
+      Fauna reared = (Fauna) species.sampleFor(Base.wildlife(world));
       reared.health.setupHealth(0, seed.quality / Item.MAX_QUALITY, 0);
+      
       reared.relations.setRelation(actor, 0.5f, 0);
+      reared.relations.setRelation(actor.base().faction(), 0.25f, 0);
       actor.relations.incRelation(reared, 0.5f, 0.5f, 0);
-      reared.enterWorldAt(lab, lab.world());
+      
+      reared.enterWorldAt(lab, world);
       stage = STAGE_DONE;
     }
     
@@ -216,6 +223,7 @@ public class SeedTailoring extends Plan {
       "Upgrade level "  , upgrade,
       "Min/max quality ", minLevel+"/"+maxLevel,
       "Sample bonus"    , sampleBonus,
+      "Prep duration"   , duration,
       "Skill check"     , skillCheck,
       "Final quality"   , quality,
       "Current stocks"  , lab.stocks.matchFor(seedType)

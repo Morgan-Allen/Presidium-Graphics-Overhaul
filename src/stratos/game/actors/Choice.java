@@ -48,6 +48,7 @@ public class Choice {
   protected static boolean checkPlanValid(
     Behaviour plan, Actor actor, boolean report
   ) {
+    plan.updatePlanFor(actor);
     final Mount mount = actor.currentMount();
     if (
       (mount != null && plan instanceof Plan) &&
@@ -61,12 +62,12 @@ public class Choice {
       if (report) I.say("\n  "+plan+" rejected- no longer valid.");
       return false;
     }
-    final float priority = plan.priorityFor(actor);
+    final float priority = plan.priority();
     if (priority <= 0) {
       if (report) I.say("\n  "+plan+" rejected- priority "+priority);
       return false;
     }
-    final Behaviour nextStep = plan.nextStepFor(actor);
+    final Behaviour nextStep = plan.nextStep();
     if (nextStep == null) {
       if (report) I.say("\n  "+plan+" rejected- no next step.");
       return false;
@@ -100,7 +101,7 @@ public class Choice {
     */
   public Behaviour pickMostUrgent(float minPriority) {
     final Behaviour b = weightedPick(false);
-    if (b == null || b.priorityFor(actor) < minPriority) return null;
+    if (b == null || b.priority() < minPriority) return null;
     else return b;
   }
   
@@ -165,7 +166,7 @@ public class Choice {
         weights[i++] = 0; continue;
       }
       
-      final float priority = plan.priorityFor(actor);
+      final float priority = plan.priority();
       if (priority > bestPriority) { bestPriority = priority; picked = plan; }
       weights[i++] = priority;
       if (report) {
@@ -233,8 +234,8 @@ public class Choice {
     if (last == null || ! checkPlanValid(last, actor, report)) return true ;
     
     final float
-      lastPriority = last.priorityFor(actor),
-      nextPriority = next.priorityFor(actor);
+      lastPriority = last.priority(),
+      nextPriority = next.priority();
     if (report) {
       I.say("  Last priority: "+lastPriority);
       I.say("  Next priority: "+nextPriority);

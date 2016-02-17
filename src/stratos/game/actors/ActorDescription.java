@@ -84,10 +84,10 @@ public class ActorDescription {
       final Behaviour b = h.mind.rootBehaviour();
       float priority = Plan.ROUTINE;
       if (b instanceof Plan) {
-        priority = ((Plan) b).priorityEval;
+        priority = b.priority();
       }
       else if (h.currentAction() != null) {
-        priority = h.currentAction().priorityFor(h);
+        priority = h.currentAction().priority();
       }
       else if (h.health.asleep()) {
         priority = Resting.sleepPriority(h);

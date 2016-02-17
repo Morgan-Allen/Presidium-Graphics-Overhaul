@@ -90,7 +90,6 @@ public class Exploring extends Plan {
     );
     if (report) {
       I.say("  Point picked: "+picked);
-      I.say("  Priority: "+wander.priorityFor(actor));
     }
     return wander;
   }

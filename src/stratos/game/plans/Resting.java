@@ -77,7 +77,7 @@ public class Resting extends Plan {
     
     final float fatigue = Nums.clamp(actor.health.fatigueLevel() + 0.25f, 0, 1);
     final Behaviour root = actor.mind.rootBehaviour();
-    float wakePriority = root == null ? 0 : root.priorityFor(actor);
+    float wakePriority = root == null ? 0 : root.priority();
     wakePriority += CASUAL * actor.traits.relativeLevel(ENERGETIC);
     
     if (wakePriority <= 0) return;

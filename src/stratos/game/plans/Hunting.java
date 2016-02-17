@@ -137,6 +137,9 @@ public class Hunting extends Plan {
   
   protected float getPriority() {
     final boolean report = I.talkAbout == actor && evalVerbose;
+    if (report) {
+      I.say("\nGetting priority for "+actor+" of hunting "+prey);
+    }
     
     if (prey.destroyed() || ! prey.inWorld()) return -1;
 
@@ -162,10 +165,10 @@ public class Hunting extends Plan {
       urgency += hunger;
       urgency += motiveBonus() / Plan.PARAMOUNT;
       
-      crowdRating = NestUtils.nestCrowding(prey);
+      crowdRating = NestUtils.localCrowding(prey.species(), prey);
       crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, 0, 1);
       
-      if (alive) urgency *= crowdRating;
+      if (alive        ) urgency *= crowdRating;
       if (hunger > 0.5f) urgency += (hunger - 0.5f) * 2;
     }
     //

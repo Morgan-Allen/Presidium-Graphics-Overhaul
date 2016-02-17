@@ -44,16 +44,18 @@ public interface Behaviour extends Session.Saveable {
     INTERRUPT_LOSE_SIGHT = "Target Is Hidden",
     INTERRUPT_LOSE_PATH  = "No Valid Path";
   
-  boolean matchesPlan(Behaviour b);
   
   Plan parentPlan();
-  Behaviour nextStepFor(Actor actor);
+  Target subject();
+  boolean matchesPlan(Behaviour b);
+  void updatePlanFor(Actor actor);
+  
+  Behaviour nextStep();
   int motionType(Actor actor);
   void toggleActive(boolean is);
   void interrupt(String cause);
-  Target subject();
   
-  float priorityFor(Actor actor);
+  float priority();
   boolean finished();
   boolean valid();
   boolean hasBegun();
@@ -62,6 +64,11 @@ public interface Behaviour extends Session.Saveable {
   
   void describeBehaviour(Description d);
 }
+
+
+
+
+
 
 
 

@@ -143,7 +143,6 @@ public class Recreation extends Plan {
   /**  Behaviour implementation-
     */
   protected Behaviour getNextStep() {
-    if (priorityFor(actor) <= 0) return null;
     final Action relax = new Action(
       actor, venue,
       this, "actionRelax",

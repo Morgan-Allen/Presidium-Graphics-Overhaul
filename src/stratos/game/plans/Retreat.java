@@ -309,7 +309,7 @@ public class Retreat extends Plan {
   
   
   public int motionType(Actor actor) {
-    if (priorityFor(actor) >= ROUTINE) return Action.MOTION_FAST;
+    if (priority() >= ROUTINE) return Action.MOTION_FAST;
     return super.motionType(actor);
   }
   

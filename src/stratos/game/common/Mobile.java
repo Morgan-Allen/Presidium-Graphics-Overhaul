@@ -401,7 +401,6 @@ public abstract class Mobile extends Element
   
   public void renderFor(Rendering rendering, Base base) {
     if (indoors()) return;
-    
     final Sprite s = this.sprite();
     viewPosition(s.position);
     final float alpha = Rendering.frameAlpha();

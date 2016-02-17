@@ -204,14 +204,11 @@ public class Manufacture extends Plan implements Behaviour {
       float output = Manufacture.estimatedOutput(v, c, c.upgrades()) / 2f;
       output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce() / 2f;
       
+      s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));
       for (Item r : c.raw) if (v.stocks.relativeShortage(r.type, false) >= 1) {
         needsOkay = false;
-        s.append(
-          "Production would be faster with a supply of "+r.type+"."
-        );
-        break;
+        s.append(" (Need "+r.type+")");
       }
-      s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));
     }
     
     s.append("\n  "+numWorking+" active workers");
@@ -321,7 +318,7 @@ public class Manufacture extends Plan implements Behaviour {
     return new Action(
       actor, venue,
       this, "actionMake",
-      Action.BUILD, "Manufacturing "
+      Action.BUILD, "Making "
     );
   }
   
@@ -372,7 +369,7 @@ public class Manufacture extends Plan implements Behaviour {
   /**  Rendering and interface behaviour-
     */
   public void describeBehaviour(Description d) {
-    if (super.needsSuffix(d, "Manufacturing ")) {
+    if (super.needsSuffix(d, "Making ")) {
       d.append(made.type);
       if (made.refers != null) {
         d.append(" for ");

@@ -330,7 +330,7 @@ public abstract class Technique extends Constant {
       animName, "Using "+name
     );
     action.setProperties(actionProperties);
-    action.setPriority(parent.priorityFor(actor));
+    action.setPriority(parent.priority());
     return action;
   }
   

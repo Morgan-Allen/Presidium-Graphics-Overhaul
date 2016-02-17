@@ -406,7 +406,7 @@ public class Pledge implements Session.Saveable {
     float valueOf(Pledge p, Actor a) {
       final Mission m = (Mission) p.refers;
       final Behaviour step = m.nextStepFor(a, true);
-      return step == null ? 0 : step.priorityFor(a);
+      return step == null ? 0 : step.priority();
     }
     
     

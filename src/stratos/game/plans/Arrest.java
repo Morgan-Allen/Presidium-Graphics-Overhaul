@@ -89,7 +89,8 @@ public class Arrest extends Plan {
       final Summons sentence = venue.base().profiles.sentenceFor(suspect);
       if (sentence != null) {
         final Arrest a = new Arrest(actor, suspect, sentence);
-        pick.compare(a, a.priorityFor(actor));
+        if (! Plan.canFollow(actor, a, true)) continue;
+        pick.compare(a, a.priority());
       }
     }
     return pick.result();
@@ -315,14 +316,15 @@ public class Arrest extends Plan {
     ) * ROUTINE;
     sentence.clearMotives();
     sentence.addMotives(Plan.MOTIVE_EMERGENCY, commandBonus);
+    sentence.updatePlanFor(other);
     //
     //  Adjust the novelty of the other actor's relationship with you (to
     //  prevent repeats ad-infinitum.)
     other.relations.incRelation(actor, 0, 0, -2f * Rand.num() / WARN_LIMIT);
     if (report) {
       final Behaviour current = other.mind.rootBehaviour();
-      I.say("  Sentence priority is:  "+sentence.priorityFor(other));
-      I.say("  Current plan priority: "+current .priorityFor(other));
+      I.say("  Sentence priority is:  "+sentence.priority());
+      I.say("  Current plan priority: "+current .priority());
       I.say("  Destination:           "+holding);
       I.say("  Discussion novelty:    "+other.relations.noveltyFor(actor));
     }

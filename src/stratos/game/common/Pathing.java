@@ -108,7 +108,7 @@ public class Pathing {
   
   
   public void updateTarget(Target moveTarget) {
-    final boolean report = verbose && I.talkAbout == mobile;
+    final boolean report = I.talkAbout == mobile && verbose;
     if (report && extraVerbose) I.say("\nUpdating path target: "+moveTarget);
     
     final Target oldTarget = this.moveTarget;
@@ -315,7 +315,7 @@ public class Pathing {
     //
     //  To ensure non-collision with other objects, we subtract both our and
     //  their radius from the distance moved.
-    if (target != mobile.aboard() && ! (target instanceof Tile)) {
+    if (target != mobile.aboard() && target != nextStep()) {
       dist -= target.radius();
       dist -= mobile.radius();
       if (dist < 0) dist = 0;
