@@ -201,19 +201,21 @@ public class SeedTailoring extends Plan {
     seed = Item.withQuality(seed, quality);
     seed = Item.withAmount(seed, 1f / duration);
     lab.stocks.addItem(seed);
+    
     //
     //  If we actually complete the task, there's special handling for animal
     //  species-
     if (species.animal() && lab.stocks.amountOf(seed) >= 1) {
       lab.stocks.removeMatch(seed);
-      Fauna reared = (Fauna) species.sampleFor(Base.wildlife(world));
+      Fauna reared = (Fauna) species.sampleFor(actor.base());
       reared.health.setupHealth(0, seed.quality / Item.MAX_QUALITY, 0);
       
-      reared.relations.setRelation(actor, 0.5f, 0);
+      reared.relations.setRelation(actor                 , 0.50f, 0);
       reared.relations.setRelation(actor.base().faction(), 0.25f, 0);
       actor.relations.incRelation(reared, 0.5f, 0.5f, 0);
       
       reared.enterWorldAt(lab, world);
+      lab.stocks.addItem(Item.with(SAMPLES, species, 1, seed.quality));
       stage = STAGE_DONE;
     }
     

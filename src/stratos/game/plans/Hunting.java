@@ -362,7 +362,7 @@ public class Hunting extends Plan {
   
   public Item sample() {
     if (type != TYPE_SAMPLE) I.complain("Not a sampling hunt!");
-    return Item.withReference(GENE_SEED, prey.species());
+    return Item.withReference(SAMPLES, prey.species());
   }
   
   

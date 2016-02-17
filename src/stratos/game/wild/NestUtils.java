@@ -23,24 +23,28 @@ public class NestUtils {
   
   
   public static float nestCrowding(Actor fauna) {
-    if (! (fauna.mind.home() instanceof Nest)) return 1.0f;
+    if (! (fauna.mind.home() instanceof Nest)) return 1.5f;
     final Nest nest = (Nest) fauna.mind.home();
     return nest.crowdRating(fauna.species());
   }
   
   
   public static float crowding(Actor fauna) {
-    
-    //  TODO:  This raises the problem of whether and how non-nesting species
-    //  know when to reproduce.
-    
-    return nestCrowding(fauna);
+    if (fauna.species().fixedNesting()) {
+      return nestCrowding(fauna);
+    }
+    else {
+      return localCrowding(fauna.species(), fauna);
+    }
   }
   
   
-  public static float crowding(Species s, Nest nest, Stage world) {
+  public static float crowding(Species s, Target nest, Stage world) {
+    if (! (nest instanceof Nest)) return 100;
+    final Nest home = (Nest) nest;
+    if (home.species != s) return 100;
     int limit = nestLimit(s);
-    return nest.staff.lodgers().size() / limit;
+    return home.staff.lodgers().size() / limit;
   }
   
   

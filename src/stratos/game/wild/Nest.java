@@ -63,6 +63,9 @@ public class Nest extends Venue {
     if (other instanceof Nest) {
       return distance <= Fauna.DEFAULT_FORAGE_DIST / 2;
     }
+    else if (other.base() == this.base()) {
+      return distance <= Fauna.DEFAULT_FORAGE_DIST / 2;
+    }
     else return distance <= Fauna.PREDATOR_SEPARATION;
   }
   

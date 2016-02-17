@@ -45,9 +45,10 @@ public class EcologistTechniques {
     );
   
   final static int
-    TRANQ_HIT_INIT = 2,
-    TRANQ_HIT_FULL = 5,
-    TRANQ_HIT_TIME = 5,
+    TRANQ_HIT_INIT       = 2,
+    TRANQ_HIT_FULL       = 5,
+    TRANQ_HIT_TIME       = 5,
+    TRANQ_ANIMAL_PERCENT = 150,
     
     CALL_AFFECTION_MAX         = 50,
     CALL_AFFECTION_NUDGE       = 10,
@@ -60,7 +61,8 @@ public class EcologistTechniques {
   
   final public static Technique TRANQUILLISE = new Technique(
     "Tranquillise", UI_DIR+"tranquillise.png",
-    "Deals bonus nonlethal damage to living targets over a short time.",
+    "Deals "+TRANQ_HIT_FULL+"bonus nonlethal damage to organic targets over "+
+    TRANQ_HIT_TIME+" seconds- "+TRANQ_ANIMAL_PERCENT+"% vs. animals.",
     BASE_CLASS, "tranquillise",
     MINOR_POWER         ,
     MILD_HARM           ,
@@ -97,7 +99,7 @@ public class EcologistTechniques {
       super.applyEffect(using, subject, success, passive);
       if (success) {
         final Actor shot = (Actor) subject;
-        shot.health.takeFatigue(TRANQ_HIT_INIT);
+        shot.health.takeFatigue(TRANQ_HIT_INIT * effectMultiple(shot));
         shot.traits.incLevel(asCondition, 1);
         ActionFX.applyBurstFX(TRANQ_BURST_FX, shot, 0.5f, 1);
       }
@@ -109,7 +111,13 @@ public class EcologistTechniques {
       
       float fatigue = TRANQ_HIT_FULL - TRANQ_HIT_INIT;
       fatigue /= conditionDuration();
-      affected.health.takeFatigue(fatigue);
+      affected.health.takeFatigue(fatigue * effectMultiple(affected));
+    }
+    
+    
+    private float effectMultiple(Actor shot) {
+      if (shot.species().animal()) return TRANQ_ANIMAL_PERCENT / 100f;
+      else return 1;
     }
     
     

@@ -191,23 +191,6 @@ public abstract class Venue extends Fixture implements
     if (! SiteUtils.checkAreaClear(footprint(), world, this, reasons, null)) {
       return false;
     }
-    /*
-    for (Tile t : world.tilesIn(footprint(), false)) {
-      if (t == null) return reasons.setFailure("Over the edge!");
-      if (t.reserved()) {
-        if (reasons == Account.NONE) return false;
-        return reasons.setFailure("Area reserved by "+t.reserves());
-      }
-      if (! canBuildOn(t)) {
-        if (reasons == Account.NONE) return false;
-        return reasons.setFailure(t.habitat()+" is not buildable");
-      }
-      if (t.isEntrance() && solid) {
-        if (reasons == Account.NONE) return false;
-        return reasons.setFailure("Is entrance for "+t.entranceFor());
-      }
-    }
-    //*/
     //
     //  We also check against any claims make by other structures, and try to
     //  avoid creating un-reachable areas with a closed-off perimeter.

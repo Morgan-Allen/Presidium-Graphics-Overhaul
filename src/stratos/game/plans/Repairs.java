@@ -116,16 +116,17 @@ public class Repairs extends Plan {
     //
     //  First, sample any nearby venues that require repair, and add them to
     //  the list.
-    final Batch <Placeable> toRepair = new Batch <Placeable> ();
+    final Batch <Placeable> toRepair = new Batch();
     world.presences.sampleFromMaps(
       client, world, 3, toRepair, Structure.DAMAGE_KEY
     );
     for (Placeable near : toRepair) {
-      final float need = needForRepair(near);
+      if (! near.structure().isMechanical()) continue;
       if (near.base() != client.base()) continue;
+      final float need = needForRepair(near);
       if (need <= minDamage) continue;
-      choice.add(new Repairs(client, near, asDuty));
       
+      choice.add(new Repairs(client, near, asDuty));
       if (report) {
         I.say("\n  "+near+" needs repair?");
         I.say("  Need is:       "+need);

@@ -313,10 +313,7 @@ public class Structure {
   
   
   public int buildCost() {
-    if (blueprint == null) return buildCost;
-    //
-    //  TODO:  Try summing together the build cost for all extant
-    //         level-upgrades?
+    if (blueprint == null || blueprint.baseUpgrade() == null) return buildCost;
     return blueprint.baseUpgrade().buildCost(basis.base());
   }
   

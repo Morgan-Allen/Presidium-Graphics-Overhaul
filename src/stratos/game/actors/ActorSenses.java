@@ -307,8 +307,9 @@ public class ActorSenses {
       if (stealthy && ! near.senses.awareOf(actor)) continue;
       
       float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
+      attackRisk /= Plan.PARAMOUNT;
       if (attackRisk > 0) {
-        attackRisk = Nums.clamp((attackRisk + 5) / 10, 0, 2);
+        attackRisk = Nums.clamp(attackRisk, 0, 2);
         final float power = CombatUtils.powerLevelRelative(near, actor);
         sumFoes += power * attackRisk;
         if (report) {
@@ -318,7 +319,7 @@ public class ActorSenses {
       }
       else {
         final float power = near.senses.powerLevel() / (1 + powerLevel);
-        final float helpChance = Nums.clamp(attackRisk / -10, 0, 1);
+        final float helpChance = Nums.clamp(0 - attackRisk, 0, 1);
         sumAllies += power * helpChance;
         if (report) {
           I.say("  Ally nearby: "+near);

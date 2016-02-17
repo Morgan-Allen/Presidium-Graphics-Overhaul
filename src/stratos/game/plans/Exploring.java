@@ -39,7 +39,7 @@ public class Exploring extends Plan {
   private float travelled;
   
   
-  private Exploring(
+  protected Exploring(
     Actor actor, Base base, int type, Tile lookedAt, float maxTravel
   ) {
     super(actor, lookedAt, MOTIVE_LEISURE, NO_HARM);

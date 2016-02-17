@@ -159,7 +159,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
       //  TODO:  Add egg-collection here...
       
       if (! domestic) {
-        final Item sample = Item.withReference(GENE_SEED, fauna.species());
+        final Item sample = Item.withReference(SAMPLES, fauna.species());
         if (stocks.hasItem(sample)) continue;
         else choice.add(Hunting.asSample(actor, fauna, this));
         choice.add(Hunting.asHarvest(actor, fauna, this));

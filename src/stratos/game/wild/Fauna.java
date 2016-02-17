@@ -241,96 +241,16 @@ public abstract class Fauna extends Actor implements Mount {
   
   
   protected Behaviour nextBuildingNest() {
-    final Nest nest = (Nest) this.mind.home();
-    if (nest == null) return null;
+    final Nesting nesting = new Nesting(this);
+    if (Plan.canFollow(this, nesting, true)) return nesting;
+    
+    if (! (mind.home() instanceof Nest)) return null;
+    final Nest nest = (Nest) mind.home();
+    
     final float repair = nest.structure.repairLevel();
     if (repair >= 0.9f) return null;
     return new Repairs(this, nest, HANDICRAFTS, false);
   }
-  
-  
-  /*
-  //  TODO:  USE NESTING/FINDHOME FOR THIS
-  
-  protected Behaviour nextMigration() {
-    final boolean report = verbose && I.talkAbout == this;
-    Target wandersTo = null;
-    String description = null;
-    float priority = 0;
-    
-    final Target home = mind.home();
-    Nest newNest = null;
-    if (lastMigrateCheck == -1) lastMigrateCheck = world.currentTime();
-    
-    final float timeSinceCheck = world.currentTime() - lastMigrateCheck;
-    final boolean homeless = ! (home instanceof Nest);
-    if (report) {
-      I.say("\nChecking migration for "+this);
-      I.say("  Last check:  "+timeSinceCheck+"/"+NEST_INTERVAL);
-      I.say("  Crowding is: "+NestUtils.crowding(this)+", homeless? "+homeless);
-    }
-    
-    if (timeSinceCheck > NEST_INTERVAL || homeless) {
-      final boolean crowded = homeless || NestUtils.crowding(this) > 0.5f;
-      newNest = crowded ? NestUtils.findNestFor(this) : null;
-      lastMigrateCheck = world.currentTime();
-    }
-    if (newNest != null && newNest != home) {
-      wandersTo = newNest;
-      description = "Migrating";
-      priority = Action.ROUTINE;
-    }
-    else {
-      final Target centre = mind.home() == null ? this : mind.home();
-      wandersTo = Spacing.pickRandomTile(
-        centre, NestUtils.forageRange(species) / 2, world
-      );
-      description = "Wandering";
-      priority = Action.IDLE * (Planet.dayValue(world) + 1) / 2;
-    }
-    if (wandersTo == null) return null;
-    
-    final Action migrates = new Action(
-      this, wandersTo,
-      this, "actionMigrate",
-      Action.LOOK, description
-    );
-    migrates.setPriority(priority);
-    
-    if (report) {
-      I.say("  Wander point:    "+wandersTo);
-      I.say("  Action priority: "+migrates.priorityFor(this));
-      I.say("  Description:     "+description);
-    }
-    
-    final Tile around = Spacing.pickFreeTileAround(wandersTo, this);
-    if (around == null) return null;
-    migrates.setMoveTarget(around);
-    return migrates;
-  }
-  
-  
-  public boolean actionMigrate(Fauna actor, Target point) {
-    if (point instanceof Nest) {
-      final Nest nest = (Nest) point;
-      
-      if (NestUtils.crowding(species, nest, world) >= 1) {
-        return false;
-      }
-      if (! nest.inWorld()) {
-        if (! nest.canPlace()) {
-          return false;
-        }
-        nest.assignBase(actor.base());
-        nest.enterWorld();
-        nest.structure.setState(Structure.STATE_INTACT, 0.01f);
-      }
-      actor.mind.setHome(nest);
-    }
-    return true;
-  }
-  //*/
-  
   
   
   //  TODO:  CREATE SPECIAL PLAN FOR THIS AND SHARE WITH HUMANOIDS, ETC?

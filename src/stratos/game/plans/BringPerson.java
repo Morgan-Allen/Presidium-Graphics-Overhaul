@@ -8,7 +8,6 @@ import stratos.game.common.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import stratos.content.civic.Suspensor;
-import static stratos.game.actors.Qualities.*;
 
 
 

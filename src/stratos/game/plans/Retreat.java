@@ -272,20 +272,22 @@ public class Retreat extends Plan {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor;// && stepsVerbose;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     final boolean urgent = actor.senses.isEmergency();
     if (report) {
       I.say("\nFleeing to "+safePoint+", urgent? "+urgent);
     }
     
     if (
-      safePoint == null || actor.aboard() == safePoint ||
+      safePoint == null           ||
+      safePoint == actor.aboard() ||
       ! safePoint.allowsEntry(actor)
     ) {
       safePoint = actor.senses.haven();
       if (report) I.say("  Current haven: "+safePoint);
     }
     if (safePoint == null) {
+      if (report) I.say("  No safe point found.");
       interrupt(INTERRUPT_NO_PREREQ);
       return null;
     }
@@ -298,11 +300,12 @@ public class Retreat extends Plan {
     }
     
     final Action flees = new Action(
-      actor, goHome ? home : safePoint,
+      actor, safePoint,
       this, "actionFlee",
       urgent ? Action.MOVE_SNEAK : Action.FALL, "Fleeing to "
     );
     flees.setProperties(Action.NO_LOOP);
+    if (report) I.say("  Will flee to "+safePoint);
     
     return flees;
   }

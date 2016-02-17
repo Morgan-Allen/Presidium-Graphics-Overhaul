@@ -9,9 +9,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  Get rid of most of this, or restrict to Actions and Plans.  Just
-//  have a single 'update' method and read priority, step, success chance etc.
-//  passively afterward.
+//  TODO:  Get rid of most of this, or restrict to Actions and Plans?
 
 
 public interface Behaviour extends Session.Saveable {

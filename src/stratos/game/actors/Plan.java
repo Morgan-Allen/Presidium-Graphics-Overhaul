@@ -41,8 +41,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     
     IS_CANCELLED = 32 ,
     HAS_PRIORITY = 64 ,
-    HAS_STEPS    = 128,
-    HAS_BEGUN    = HAS_PRIORITY | HAS_STEPS;
+    HAS_STEPS    = 128;
   final static String MOTIVE_NAMES[] = {
     "Leisure", "Job", "Personal", "Emergency", "Mission", "Cancelled"
   };
@@ -228,8 +227,13 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     final boolean asRoot = parentPlan() == null;
     final float time = actor.world().currentTime();
     
+    if (report) {
+      I.say("\nRefreshing plan: "+I.tagHash(this));
+      I.say("  Old priority: "+priorityEval);
+      I.say("  Last step:    "+nextStep    );
+    }
+    
     if (asRoot) {
-      if (report) I.say("\nGetting fresh priority... "+I.tagHash(this));
       priorityEval = 0;  //  Note:  This avoids certain types of infinite loop.
       priorityEval = getPriority();
       if (report) I.say("\nNew priority: "+priorityEval);
@@ -368,7 +372,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean hasBegun() {
-    return actor != null && ((properties & HAS_BEGUN) == HAS_BEGUN);
+    return actor != null && ((properties & HAS_STEPS) == HAS_STEPS);
   }
   
   
