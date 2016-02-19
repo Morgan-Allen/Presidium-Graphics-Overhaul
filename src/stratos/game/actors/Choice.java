@@ -61,7 +61,6 @@ public class Choice {
     
     //  TODO:  Move this out to the valid() method, so that plan-types can
     //  customise as required...
-    
     final boolean canPath = actor.world().pathingMap.hasPathBetween(
       actor, plan.subject(), actor, report
     );

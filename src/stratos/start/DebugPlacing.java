@@ -84,7 +84,6 @@ public class DebugPlacing extends Scenario {
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupOutcrops(world);
     //Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -106,6 +105,11 @@ public class DebugPlacing extends Scenario {
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
     if (false) configRoadsTest(world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -205,10 +209,6 @@ public class DebugPlacing extends Scenario {
       tech.mind.assignBehaviour(roadBuild);
       Selection.pushSelection(tech, null);
     }
-  }
-  
-  
-  protected void afterCreation() {
   }
   
   

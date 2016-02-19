@@ -63,7 +63,6 @@ public class DebugCommerce extends Scenario {
     final Sector at = StratosSetting.SECTOR_PAVONIS;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -86,6 +85,11 @@ public class DebugCommerce extends Scenario {
     if (false) purchaseScenario(world, base, UI);
     if (false) deliveryScenario(world, base, UI);
     if (false) haulingScenario (world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -335,10 +339,6 @@ public class DebugCommerce extends Scenario {
     }
     
     world.offworld.journeys.scheduleLocalDrop(base, 20);
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 

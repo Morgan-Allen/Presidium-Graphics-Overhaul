@@ -318,7 +318,7 @@ public class BaseSetup {
       }
       float initNovelty = 1.0f;
       initNovelty -= (Rand.num() - 0.5f) / 2;
-      f.relations.setRelation(t, initRelation, initNovelty);
+      f.relations.setupRelation(t, initRelation, initNovelty);
     }
   }
   

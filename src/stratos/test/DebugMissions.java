@@ -63,7 +63,6 @@ public class DebugMissions extends Scenario {
     final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -91,6 +90,11 @@ public class DebugMissions extends Scenario {
     if (false) securityScenario(world, base, UI);
     if (false) contactScenario (world, base, UI);
     if (false) reconScenario   (world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -283,10 +287,6 @@ public class DebugMissions extends Scenario {
     //  TODO:
     //  This case should be satisfied when the terrain around the target tile
     //  is fully revealed.
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 

@@ -60,7 +60,6 @@ public class DebugEcology extends Scenario {
     final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     //Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -86,6 +85,11 @@ public class DebugEcology extends Scenario {
   }
   
   
+  protected void afterCreation() {
+    world().readyAfterPopulation();
+  }
+  
+  
   private void animalMountTest(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree = false;
     
@@ -97,8 +101,8 @@ public class DebugEcology extends Scenario {
     meets.skills.addTechniques(EcologistTechniques.ECOLOGIST_TECHNIQUES);
     meets.enterWorldAt(7, 7, world, true);
     
-    fauna.relations.setRelation(meets, 0.5f, 0);
-    meets.relations.setRelation(fauna, 0.5f, 0);
+    fauna.relations.setupRelation(meets, 0.5f, 0);
+    meets.relations.setupRelation(fauna, 0.5f, 0);
     fauna.relations.assignMaster(meets);
     
     meets.mind.assignBehaviour(Exploring.nextExploration(meets));
@@ -183,11 +187,17 @@ public class DebugEcology extends Scenario {
     SiteUtils.establishVenue(redoubt, 5, 5, true, world);
     base.setup.fillVacancies(redoubt, true);
     
+    for (Actor a : redoubt.staff.workers()) {
+      final Fauna mount = (Fauna) Lictovore.SPECIES.sampleFor(base);
+      mount.setAsDomesticated(a);
+      mount.enterWorldAt(redoubt, world);
+      Selection.pushSelection(mount, null);
+    }
+    
     //final Base wildlife = Base.wildlife(world);
     Flora.populateFlora(world);
     NestUtils.populateFauna(world, Qudu.SPECIES);
     
-    Selection.pushSelection(redoubt, null);
     /*
     Actor prey = Qudu.SPECIES.sampleFor(wildlife);
     prey.enterWorldAt(lodge, world);
@@ -220,10 +230,6 @@ public class DebugEcology extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 

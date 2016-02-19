@@ -66,7 +66,6 @@ public class DebugGathering extends Scenario {
     final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupOutcrops(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -93,6 +92,11 @@ public class DebugGathering extends Scenario {
     if (false) configSampleTest  (world, base, UI);
     if (true ) configMiningTest  (world, base, UI);
     if (false) configFormingTest (world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -194,10 +198,6 @@ public class DebugGathering extends Scenario {
     first.mind.assignBehaviour(dumps);
     
     Selection.pushSelection(first, null);
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 

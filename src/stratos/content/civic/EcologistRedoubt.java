@@ -145,6 +145,12 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   
   public Behaviour jobFor(Actor actor) {
+    
+    if (actor.species().animal()) {
+      return null;
+    }
+    
+    
     if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     

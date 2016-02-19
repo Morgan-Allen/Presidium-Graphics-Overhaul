@@ -27,6 +27,7 @@ public abstract class Base extends SectorBase implements
     ALL_BASE_IDS[] = {0, 1, 2, 3, 4, 5, 6, 7};
   
   final public Stage world;
+  private int baseID = 0;
   
   final public BaseSetup     setup    ;
   final public BaseDemands   demands  ;
@@ -45,7 +46,6 @@ public abstract class Base extends SectorBase implements
   final public BaseResearch research  = initResearch();
   final public BaseTactics  tactics   = initTactics ();
   
-  private int baseID = 0;
   
   private String title  = "Player Base";
   private Colour colour = new Colour();
@@ -154,8 +154,9 @@ public abstract class Base extends SectorBase implements
   
   private static int nextBaseID(Stage world) {
     final boolean maskIDs[] = new boolean[MAX_BASES];
-    for (Base b : world.bases()) maskIDs[b.baseID] = false;
+    for (Base b : world.bases()) maskIDs[b.baseID] = true;
     for (int i = 0; i < MAX_BASES; i++) if (! maskIDs[i]) return i;
+    I.complain("\nCOULD NOT ASSIGN ID TO BASE...");
     return -1;
   }
   
@@ -172,7 +173,7 @@ public abstract class Base extends SectorBase implements
     base.baseID = nextBaseID(world);
     world.registerBase(base, true);
     
-    if (base.title == null) base.title = base.faction().name;
+    base.title    = base.faction().name;
     base.colour.set(base.faction().bannerColour());
     
     if (I.logEvents()) I.say("\nREGISTERING NEW BASE: "+base);
@@ -189,7 +190,6 @@ public abstract class Base extends SectorBase implements
     
     final Blueprint canBuild[] = Blueprint.allCivicBlueprints();
     if (customTitle != null) base.title = customTitle ;
-    else                     base.title = faction.name;
     
     final Sector home = faction.startSite();
     if (home != null) {

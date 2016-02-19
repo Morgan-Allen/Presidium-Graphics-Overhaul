@@ -249,7 +249,7 @@ public abstract class ActorMind {
       //
       //  If you exhaust the maximum number of iterations (which I assume
       //  *would* be enough for any reasonable use-case,) report the problem.
-      I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP.");
+      I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP!");
       I.say("  Root behaviour: "+root);
       I.say("  Next step:      "+next);
       Plan.reportPlanDetails(next, actor);

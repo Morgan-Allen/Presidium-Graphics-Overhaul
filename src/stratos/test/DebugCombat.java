@@ -71,11 +71,6 @@ public class DebugCombat extends AutomatedScenario {
   }
   
   
-  protected void afterCreation() {
-    return;
-  }
-  
-  
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,
@@ -87,7 +82,6 @@ public class DebugCombat extends AutomatedScenario {
     final Verse verse = new StratosSetting();
     final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -109,6 +103,11 @@ public class DebugCombat extends AutomatedScenario {
   public void updateGameState() {
     super.updateGameState();
     ///if (PlayLoop.stateUpdates() % 10 == 0) PathingMap.reportObs();
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
 

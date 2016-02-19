@@ -219,11 +219,11 @@ public class SeedTailoring extends Plan {
       lab.stocks.removeMatch(seed);
       Fauna reared = (Fauna) species.sampleFor(belongs);
       reared.health.setupHealth(0, seed.quality / Item.MAX_QUALITY, 0);
-      
-      reared.relations.setRelation(actor                 , 0.50f, 0);
-      reared.relations.setRelation(actor.base().faction(), 0.25f, 0);
-      actor.relations.incRelation(reared, 0.5f, 0.5f, 0);
+
       if (species.predator()) reared.setAsDomesticated(actor);
+      reared.relations.setupRelation(actor                 , 0.50f, 0);
+      reared.relations.setupRelation(actor.base().faction(), 0.25f, 0);
+      actor.relations.incRelation(reared, 0.5f, 0.5f, 0);
       
       lab.stocks.addItem(Item.with(SAMPLES, species, 1, seed.quality));
       reared.enterWorldAt(lab.mainEntrance(), world);

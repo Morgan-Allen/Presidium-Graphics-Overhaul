@@ -172,27 +172,27 @@ public class ActorMotives {
       final Stocks s = (Stocks) home.inventory();
       for (Traded t : s.shortageTypes(false)) {
         final float rating = Nums.clamp(s.relativeShortage(t, false) / 2, 0, 1);
-        r.setRelation(t, rating, Relation.TYPE_TRADED);
+        r.setupRelation(t, rating, Relation.TYPE_TRADED);
       }
     }
     for (Traded f : actor.species().canEat()) {
-      r.setRelation(f, hunger, Relation.TYPE_TRADED);
+      r.setupRelation(f, hunger, Relation.TYPE_TRADED);
     }
     //
     //  Then we increment desire for personal gear, and any items needed for
     //  techniques or attack/shields to function-
     for (Traded t : actor.skills.getProficiencies()) {
-      r.setRelation(t, 0.5f, Relation.TYPE_GEAR);
+      r.setupRelation(t, 0.5f, Relation.TYPE_GEAR);
     }
     for (Technique t : actor.skills.knownTechniques()) {
       final Traded c = t.itemNeeded();
-      if (c != null) r.setRelation(c, 0.5f, Relation.TYPE_GEAR);
+      if (c != null) r.setupRelation(c, 0.5f, Relation.TYPE_GEAR);
     }
     if (actor.gear.maxPowerCells() > 0) {
-      r.setRelation(POWER_CELLS, 0.5f, Relation.TYPE_GEAR);
+      r.setupRelation(POWER_CELLS, 0.5f, Relation.TYPE_GEAR);
     }
     if (actor.gear.maxAmmoUnits() > 0) {
-      r.setRelation(AMMO_CLIPS, 0.5f, Relation.TYPE_GEAR);
+      r.setupRelation(AMMO_CLIPS, 0.5f, Relation.TYPE_GEAR);
     }
   }
   

@@ -64,7 +64,6 @@ public class DebugSecurity extends Scenario {
     final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     ///Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -88,6 +87,11 @@ public class DebugSecurity extends Scenario {
     if (false) arrestScenario  (world, base, UI);
     if (false) raidingScenario (world, base, UI);
     if (false) combatScenario  (world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -249,10 +253,6 @@ public class DebugSecurity extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 

@@ -65,7 +65,6 @@ public class DebugSocial extends Scenario {
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupOutcrops(world);
     Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -85,6 +84,11 @@ public class DebugSocial extends Scenario {
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
     if (false) multiJobsScenario     (world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -307,9 +311,6 @@ public class DebugSocial extends Scenario {
     }
   }
   
-  
-  protected void afterCreation() {
-  }
 }
 
 

@@ -194,11 +194,15 @@ public abstract class Fauna extends Actor implements Mount {
     if (breedMetre >= 0.99f) choice.add(nextBreeding());
     if (senses.haven() != null) choice.add(new Resting(this, senses.haven()));
     
-    if (domesticated()) {
+    if (domesticated() && mind.home() != null) {
+      //mind.work().addTasks(choice, this, Backgrounds.AS_RESIDENT);
+      
+      //  TODO:  USE A BETTER NAME FOR THIS!  IT'S ACTUALLY ABOUT EXPLORING!
+      choice.add(nextMigration());
       addDomesticBehaviours(choice);
     }
     else {
-      choice.add(nextMigration   ());
+      choice.add(nextMigration());
       choice.add(nextBuildingNest());
     }
     choice.add(new Retreat(this));
@@ -853,6 +857,7 @@ public abstract class Fauna extends Actor implements Mount {
     
     final float loyalty = relations.valueFor(follows);
     if (loyalty <= 0) {
+      if (I.logEvents()) I.say(this+" HAS GONE FERAL...");
       setAsFeral();
       return;
     }

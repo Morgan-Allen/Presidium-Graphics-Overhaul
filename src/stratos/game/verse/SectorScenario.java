@@ -85,7 +85,6 @@ public class SectorScenario extends Scenario {
     
     TG.setupOutcrops(world);
     Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -131,6 +130,7 @@ public class SectorScenario extends Scenario {
   
   protected void afterCreation() {
     //saveProgress(false);
+    world().readyAfterPopulation();
   }
   
 

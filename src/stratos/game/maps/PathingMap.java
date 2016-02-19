@@ -96,6 +96,7 @@ public class PathingMap {
     for (StagePatch p : world.patches.allGridPatches()) {
       refreshWithNeighbours(p);
     }
+    updateMap();
   }
   
   
@@ -248,7 +249,7 @@ public class PathingMap {
       final Zone z = (Zone) e.list();
       z.removeEntry(e);
       if (routesMatch) n.zoneEntries[b] = z.addLast(n);
-      else z.needsRefresh = true;
+      else             z.needsRefresh = true;
     }
   }
   
@@ -519,7 +520,9 @@ public class PathingMap {
     if (oldZone != null && ! oldZone.needsRefresh) return oldZone;
     if (! refresh) return null;
     
-    if (updatesVerbose) I.say("\nCREATING NEW ZONE FOR "+client);
+    if (updatesVerbose) {
+      I.say("\nCREATING NEW ZONE FOR "+client+" (ID "+client.baseID()+")");
+    }
     final int evalBefore = numTilesScanned + numTilesRouted;
 
     if (oldZone != null) {

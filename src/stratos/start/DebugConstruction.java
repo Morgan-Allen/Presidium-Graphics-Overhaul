@@ -59,7 +59,6 @@ public class DebugConstruction extends Scenario {
     final Sector at = StratosSetting.SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -76,6 +75,11 @@ public class DebugConstruction extends Scenario {
     
     if (true ) buildingScenario(world, base, UI);
     if (false) pavingScenario  (world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -108,10 +112,6 @@ public class DebugConstruction extends Scenario {
   
   private void pavingScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.buildFree = true;
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 

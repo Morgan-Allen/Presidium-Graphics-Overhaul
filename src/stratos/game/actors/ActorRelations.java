@@ -83,7 +83,7 @@ public class ActorRelations {
     
     if (master != null) {
       final Relation r = relations.get(master);
-      if (r == null) setRelation(master, 0, Relation.TYPE_MASTER);
+      if (r == null) setupRelation(master, 0, 0, Relation.TYPE_MASTER, false);
       else r.setType(Relation.TYPE_MASTER);
       master.relations.toggleAsServant(actor, true);
     }
@@ -94,7 +94,7 @@ public class ActorRelations {
     final Relation r = relations.get(servant);
     
     if (is) {
-      if (r == null) setRelation(servant, 0, Relation.TYPE_SERVANT);
+      if (r == null) setupRelation(servant, 0, 0, Relation.TYPE_SERVANT, false);
       else r.setType(Relation.TYPE_SERVANT);
     }
     else if (r != null) {
@@ -342,11 +342,7 @@ public class ActorRelations {
     }
     
     Relation r = relations.get(other);
-    if (r == null) {
-      final float baseVal = initRelationValue  (other);
-      final float baseNov = initRelationNovelty(other);
-      r = setRelation(other, baseVal, baseNov);
-    }
+    if (r == null) r = setupRelation(other, 0, 0, Relation.TYPE_GENERIC, false);
     r.incValue(toLevel, weight);
     r.incNovelty(novelty);
   }
@@ -383,26 +379,31 @@ public class ActorRelations {
   }
   
   
-  public Relation setRelation(Accountable other, float value, float novelty) {
+  public Relation setupRelation(
+    Accountable other, float baseValue, float baseNovelty,
+    int type, boolean exact
+  ) {
     Relation r = relations.get(other);
     if (r == null) {
-      r = new Relation(actor, other, value, novelty);
-      relations.put(other, r);
+      relations.put(other, r = new Relation(actor, other, 0, 0));
     }
-    else r.setValue(value, novelty);
+    if (! exact) {
+      baseValue   += initRelationValue  (other);
+      baseNovelty += initRelationNovelty(other);
+    }
+    r.setValue(baseValue, baseNovelty);
+    r.setType(type);
     return r;
   }
   
   
-  public Relation setRelation(Accountable other, float value, int type) {
-    Relation r = relations.get(other);
-    if (r == null) {
-      r = new Relation(actor, other, value, value);
-      relations.put(other, r);
-    }
-    else r.setValue(value, value);
-    r.setType(type);
-    return r;
+  public Relation setupRelation(Accountable other, float value, float novelty) {
+    return setupRelation(other, value, novelty, Relation.TYPE_GENERIC, true);
+  }
+  
+  
+  public Relation setupRelation(Accountable other, float value) {
+    return setupRelation(other, value, 0, Relation.TYPE_GENERIC, false);
   }
   
   

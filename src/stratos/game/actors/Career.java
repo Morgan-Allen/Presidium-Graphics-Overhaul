@@ -138,11 +138,10 @@ public class Career {
       likeRobot = Nums.clamp(AT.traitLevel(ANCIENT_LORE) / 10, 0, 1);
 
     final ActorRelations AR = actor.relations;
-    AR.setRelation(FACTION_WILDLIFE , likeFauna / 2, 1 - likeFauna);
-    AR.setRelation(FACTION_NATIVES  , likeNativ / 2, 1 - likeNativ);
-    AR.setRelation(FACTION_ARTILECTS, likeRobot / 2, 1 - likeRobot);
-    AR.setRelation(faction, 0.5f, 0);
-    
+    AR.setupRelation(FACTION_WILDLIFE , likeFauna / 2, 1 - likeFauna);
+    AR.setupRelation(FACTION_NATIVES  , likeNativ / 2, 1 - likeNativ);
+    AR.setupRelation(FACTION_ARTILECTS, likeRobot / 2, 1 - likeRobot);
+    AR.setupRelation(faction, 0.5f, 0);
     
     //  We top up basic attributes to match.
     actor.traits.initDNA(0);

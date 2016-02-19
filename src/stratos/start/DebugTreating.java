@@ -61,7 +61,6 @@ public class DebugTreating extends Scenario {
     final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     ///Flora.populateFlora(world);
-    world.readyAfterPopulation();
     return world;
   }
   
@@ -82,6 +81,11 @@ public class DebugTreating extends Scenario {
     if (true ) configFirstAidScenario (world, base, UI);
     if (false) configRecoveryScenario (world, base, UI);
     if (false) configBurialScenario   (world, base, UI);
+  }
+  
+  
+  protected void afterCreation() {
+    world().readyAfterPopulation();
   }
   
   
@@ -171,10 +175,6 @@ public class DebugTreating extends Scenario {
     Burial b = Burial.burialFor(medic, corpse);
     medic.mind.assignBehaviour(b);
     Selection.pushSelection(medic, null);
-  }
-  
-  
-  protected void afterCreation() {
   }
 }
 

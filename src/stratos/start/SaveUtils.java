@@ -90,6 +90,7 @@ public class SaveUtils {
   
   
   public static String latestSave(String prefix) {
+    if (prefix == null) return null;
     final String saves[] = savedFiles(prefix);
     if (saves.length == 0) return null;
     return saves[saves.length - 1];
