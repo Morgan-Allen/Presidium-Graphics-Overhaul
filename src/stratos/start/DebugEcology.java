@@ -76,12 +76,12 @@ public class DebugEcology extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     
-    if (true ) animalMountTest      (world, base, UI);
+    if (false) animalMountTest      (world, base, UI);
     if (false) tendingFaunaTest     (world, base, UI);
     if (false) speciesPlaceTest     (world, base, UI);
     if (false) nestPlaceTest        (world, base, UI);
     if (false) configHuntingScenario(world, base, UI);
-    if (false) configHarvestScenario(world, base, UI);
+    if (true ) configHarvestScenario(world, base, UI);
     if (false) configReactionsTest  (world, base, UI);
   }
   
@@ -170,16 +170,25 @@ public class DebugEcology extends Scenario {
   
   
   private void configHarvestScenario(Stage world, Base base, BaseUI UI) {
-    
+    /*
     final KommandoRedoubt lodge = new KommandoRedoubt(base);
     SiteUtils.establishVenue(lodge, world.tileAt(20, 2), true, world);
     base.setup.fillVacancies(lodge, true);
     
     Actor tracks = lodge.staff.workers().last();
     Selection.pushSelection(tracks, null);
+    //*/
     
-    final Base wildlife = Base.wildlife(world);
+    EcologistRedoubt redoubt = new EcologistRedoubt(base);
+    SiteUtils.establishVenue(redoubt, 5, 5, true, world);
+    base.setup.fillVacancies(redoubt, true);
+    
+    //final Base wildlife = Base.wildlife(world);
+    Flora.populateFlora(world);
     NestUtils.populateFauna(world, Qudu.SPECIES);
+    
+    Selection.pushSelection(redoubt, null);
+    /*
     Actor prey = Qudu.SPECIES.sampleFor(wildlife);
     prey.enterWorldAt(lodge, world);
     prey.health.setupHealth(0.5f, 1, 0);
@@ -188,6 +197,7 @@ public class DebugEcology extends Scenario {
     Hunting harvest = Hunting.asHarvest(tracks, prey, lodge);
     harvest.addMotives(Plan.MOTIVE_JOB, 100);
     tracks.mind.assignBehaviour(harvest);
+    //*/
   }
   
   

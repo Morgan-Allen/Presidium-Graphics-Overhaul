@@ -129,9 +129,9 @@ public class SeedTailoring extends Plan {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
-    final boolean report = evalVerbose && (
+    final boolean report = (
       I.talkAbout == actor || I.talkAbout == lab
-    );
+    ) && evalVerbose;
     
     float lack = 1f - lab.stocks.amountOf(seedType);
     if (lack <= 0) return -1;

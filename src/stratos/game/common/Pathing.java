@@ -204,14 +204,16 @@ public class Pathing {
     pathTarget            = PathSearch.accessLocation(moveTarget, mobile);
     
     if (origin == null || pathTarget == null) {
-      if (report) I.say("  Start/end points blocked: "+mobile+"/"+moveTarget);
+      if (report) I.say("  Start/end points null: "+mobile+"/"+moveTarget);
       path = null;
     }
     else {
       path = pathBetween(origin, pathTarget);
     }
     if (path == null) {
-      if (report) I.say("  COULDN'T PATH TO: "+pathTarget);
+      if (report) {
+        I.say("  COULDN'T PATH TO: "+pathTarget);
+      }
       mobile.pathingAbort();
       stepIndex = -1;
       return false;

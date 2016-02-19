@@ -43,7 +43,6 @@ public class PlanUtils {
     final boolean downed = CombatUtils.isDowned(subject, Combat.OBJECT_EITHER);
     if (downed) return 0;
     
-    final boolean emergency = actor.senses.isEmergency();
     wierdness = 0;//baseCuriosity(actor, subject, false) * 5;
     dislike   = actor.relations.valueFor(subject) * -10 * lethality;
     harmDone  = harmIntendedBy(subject, actor, false) * 10;
@@ -63,9 +62,8 @@ public class PlanUtils {
     conscience = 5 * baseConscience(actor, subject) * lethality;
     if (incentive <= conscience) winChance = priority = -1;
     else winChance = combatWinChance(actor, subject, teamSize);
-    
     if (! isArmed(actor)) incentive -= 5;
-    if (emergency       ) incentive += 5;
+    
     if (priority != -1) {
       priority = incentive - ((1 - winChance) * 10);
       priority = priority <= 0 ? -1 : Nums.max(Plan.ROUTINE, priority);
@@ -75,7 +73,6 @@ public class PlanUtils {
       "\nCombat priority for "+actor, "  ",
       "subject  " , subject    ,
       "reward   " , rewardBonus,
-      "emergency" , emergency  ,
       "lethality" , lethality  ,
       "harm done ", harmDone   ,
       "dislike"   , dislike    ,
@@ -139,7 +136,7 @@ public class PlanUtils {
   
   
   
-  /**  Dialogue priority.  Should range from 0 to 30.
+  /**  Dialogue priority.  Should range from 0 to 10.
     */
   public static float dialoguePriority(
     Actor actor, Actor subject, boolean casual,
@@ -148,21 +145,21 @@ public class PlanUtils {
     float liking = 0, novelty = 0, solitude = 0;
     float harmIntended = 0, baseNovelty = 0;
     float chatIncentive = 0, pleaIncentive = 0, priority = 0;
-
+    
     novelty = actor.relations.noveltyFor(subject);
     if (casual && novelty <= 0) return 0;
     
-    liking       = actor.relations.valueFor  (subject);
+    liking       = actor.relations.valueFor(subject);
     solitude     = actor.motives.solitude();
     harmIntended = Nums.clamp(harmIntendedBy(subject, actor, true), 0, 1);
-    baseNovelty  = actor.relations.noveltyFor(subject.base());
     
     chatIncentive += (liking * 1) + ((novelty * 4) * (1 + liking) / 2);
     if (! casual) {
       chatIncentive *= solitude * 2;
-      pleaIncentive = (harmIntended * 10) + (baseNovelty * 5) + (novelty * 5);
+      pleaIncentive = (harmIntended * 10);
     }
-    priority = (chatIncentive + pleaIncentive + rewardBonus) * commChance;
+    priority = Nums.max(chatIncentive, pleaIncentive);
+    priority = (priority + rewardBonus) * commChance;
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nDialogue priority for "+actor, "  ",

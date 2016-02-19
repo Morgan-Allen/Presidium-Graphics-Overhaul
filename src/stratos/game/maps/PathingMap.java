@@ -99,16 +99,18 @@ public class PathingMap {
   }
   
   
-  public void flagForUpdateAt(Tile at) {
-    final Place p = placeFor(at, false);
-    final PlaceSet set = p == null ? null : placeSets[p.region.x][p.region.y];
-    if (set != null && ! set.needsRefresh) {
-      if (updatesVerbose) {
-        I.say("\nWILL REFRESH PLACES AT "+set.places[0].region);
-        I.say("  First flagged by: "+at+" ("+at.above()+")");
+  public void flagForUpdateAt(Tile tile) {
+    for (Tile at : tile.vicinity(null)) if (at != null) {
+      final Place p = placeFor(at, false);
+      final PlaceSet set = p == null ? null : placeSets[p.region.x][p.region.y];
+      if (set != null && ! set.needsRefresh) {
+        if (updatesVerbose) {
+          I.say("\nWILL REFRESH PLACES AT "+set.places[0].region);
+          I.say("  First flagged by: "+at+" ("+at.above()+")");
+        }
+        set.needsRefresh = true;
+        needRefresh.add(set);
       }
-      set.needsRefresh = true;
-      needRefresh.add(set);
     }
   }
   
@@ -246,6 +248,7 @@ public class PathingMap {
       final Zone z = (Zone) e.list();
       z.removeEntry(e);
       if (routesMatch) n.zoneEntries[b] = z.addLast(n);
+      else z.needsRefresh = true;
     }
   }
   
@@ -518,7 +521,11 @@ public class PathingMap {
     
     if (updatesVerbose) I.say("\nCREATING NEW ZONE FOR "+client);
     final int evalBefore = numTilesScanned + numTilesRouted;
-    
+
+    if (oldZone != null) {
+      for (Place p : oldZone) p.zoneEntries[baseID] = null;
+      oldZone.clear();
+    }
     final Place inZone[] = placesPath(init, null, true, client, reports);
     
     final int evalAfter = numTilesScanned + numTilesRouted;
@@ -551,6 +558,7 @@ public class PathingMap {
   public boolean hasPathBetween(
     Boarding a, Boarding b, Base client, boolean reports
   ) {
+    if (GameSettings.pathFree) return true;
     final Place
       initP = a == null ? null : placeFor(a, true),
       destP = b == null ? null : placeFor(b, true);
@@ -562,6 +570,7 @@ public class PathingMap {
   public boolean hasPathBetween(
     Target a, Target b, Mobile client, boolean reports
   ) {
+    if (GameSettings.pathFree) return true;
     return hasPathBetween(
       PathSearch.accessLocation(a, client),
       PathSearch.accessLocation(b, client),

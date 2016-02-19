@@ -194,7 +194,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   public int numPositions(Background v) {
     final int nO = super.numPositions(v);
-    if (v == Backgrounds.ECOLOGIST) return nO + 2;
+    if (v == Backgrounds.ECOLOGIST) return nO + 3;
     return 0;
   }
   

@@ -72,7 +72,7 @@ public class Hunting extends Plan {
   
   
   private Hunting(Actor actor, Actor prey, int type, Owner depot) {
-    super(actor, prey, MOTIVE_EMERGENCY, REAL_HARM);
+    super(actor, prey, MOTIVE_JOB, REAL_HARM);
     this.prey  = prey ;
     this.type  = type ;
     this.depot = depot;
@@ -206,8 +206,15 @@ public class Hunting extends Plan {
   }
   
   
+  public boolean isEmergency() {
+    if (isActive() && nextStep instanceof Combat) return true;
+    return false;
+  }
+  
+  
   public float harmIntended(Target t) {
     if (t == depot) return 0;
+    if (type == TYPE_SAMPLE) return NO_HARM;
     return super.harmIntended(t);
   }
   

@@ -83,7 +83,7 @@ public class Nesting extends Plan {
       I.say("\nChecking migration for "+actor+" ("+hashCode()+")");
       I.say("  Home crowding is: "+homeCrowding);
     }
-    if (homeCrowding < 0.5f) return null;
+    if (homeCrowding < 0.75f) return null;
     
     final Nest nearby = (Nest) world.presences.randomMatchNear(
       Nest.class, actor, maxDist

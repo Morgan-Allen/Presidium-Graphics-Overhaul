@@ -5,6 +5,7 @@
   */
 package stratos.game.actors;
 import stratos.game.common.Actor;
+import stratos.game.maps.PathingMap;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
@@ -57,21 +58,36 @@ public class Choice {
       if (report) I.say("\n  "+plan+" rejected- "+mount+" will not allow!");
       return false;
     }
+    
+    //  TODO:  Move this out to the valid() method, so that plan-types can
+    //  customise as required...
+    
+    final boolean canPath = actor.world().pathingMap.hasPathBetween(
+      actor, plan.subject(), actor, report
+    );
+    if (! canPath) {
+      if (report) I.say("\n  "+plan+" rejected- no extant path!");
+      return false;
+    }
+    
     final boolean valid = plan.valid();
     if (! valid) {
       if (report) I.say("\n  "+plan+" rejected- no longer valid.");
       return false;
     }
+    
     final float priority = plan.priority();
     if (priority <= 0) {
       if (report) I.say("\n  "+plan+" rejected- priority "+priority);
       return false;
     }
+    
     final Behaviour nextStep = plan.nextStep();
     if (nextStep == null) {
       if (report) I.say("\n  "+plan+" rejected- no next step.");
       return false;
     }
+    
     final boolean finished = plan.finished();
     if (finished) {
       if (report) {

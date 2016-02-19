@@ -85,6 +85,7 @@ public class NestUtils {
       localFert  = ecology.biomassRating(around),
       globalFert = ecology.globalBiomass();
     
+    if (globalPop <= 0 || globalFert <= 0 || localFert <= 0) return 1;
     int numPatches = world.size * world.size;
     numPatches /= Stage.ZONE_SIZE * Stage.ZONE_SIZE;
 
