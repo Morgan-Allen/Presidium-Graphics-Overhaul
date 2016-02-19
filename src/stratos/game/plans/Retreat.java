@@ -80,6 +80,14 @@ public class Retreat extends Plan {
       I.say("\nPicking haven for "+actor+"...");
     }
     
+    if (actor.mind.home() != null) return actor.mind.home();
+    if (actor.mind.work() != null) return actor.mind.work();
+    
+    Tile hides = pickHidePoint(actor, actor.health.sightRange(), actor, -2);
+    if (hides != null) return hides;
+    return actor.aboard();
+    
+    /*
     final Target oldHaven = actor.senses.haven();
     final Stage world = actor.world();
     final float
@@ -135,6 +143,7 @@ public class Retreat extends Plan {
       pick.compare((Boarding) cover , 1);
       pick.compare((Boarding) built , 1);
     }
+    
     if (pick.empty()) {
       pick.compare(pickHidePoint(actor, runRange, actor, -2), 1);
     }
@@ -148,6 +157,7 @@ public class Retreat extends Plan {
     
     if (pick.result() != null) return pick.result();
     else return actor.aboard();
+    //*/
   }
   
   
@@ -266,6 +276,7 @@ public class Retreat extends Plan {
       actor, actor.origin(), haven, true, urgent, hasExit
     );
     toggleMotives(MOTIVE_EMERGENCY, urgent);
+    if (actor.senses.underAttack()) priority = Nums.max(priority, ROUTINE);
     maxPriority = Nums.max(maxPriority, priority);
     return maxPriority;
   }
@@ -357,9 +368,8 @@ public class Retreat extends Plan {
       d.append(safePoint);
       return;
     }
-    if (actor.aboard() == safePoint) d.append("Seeking refuge at ");
-    else d.append("Retreating to ");
-    d.append(safePoint);
+    if (actor.aboard() == safePoint) d.append("Hiding");
+    else d.appendAll("Retreating to ", safePoint);
   }
 }
 

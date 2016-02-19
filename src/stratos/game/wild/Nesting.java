@@ -58,6 +58,8 @@ public class Nesting extends Plan {
   
   protected Behaviour getNextStep() {
     if (site == null) site = pickNestSite();
+    if (site == null) return null;
+    
     final Tile around = Spacing.pickFreeTileAround(site, actor);
     if (around == null) return null;
     
@@ -81,11 +83,12 @@ public class Nesting extends Plan {
       I.say("\nChecking migration for "+actor+" ("+hashCode()+")");
       I.say("  Home crowding is: "+homeCrowding);
     }
-
+    if (homeCrowding < 0.5f) return null;
+    
     final Nest nearby = (Nest) world.presences.randomMatchNear(
       Nest.class, actor, maxDist
     );
-    if (NestUtils.crowding(actor.species(), nearby, world) < homeCrowding) {
+    if (nearby != null && nearby.crowdRating(actor.species()) < homeCrowding) {
       return nearby;
     }
     else {
@@ -96,10 +99,10 @@ public class Nesting extends Plan {
   
   public boolean actionMigrate(Fauna actor, Target point) {
     final Stage world = actor.world();
+    this.site = null;
     
     if (point instanceof Nest) {
-      final Nest  nest  = (Nest) point;
-      
+      final Nest nest = (Nest) point;
       if (NestUtils.crowding(actor.species, nest, world) >= 1) {
         return false;
       }
@@ -120,12 +123,12 @@ public class Nesting extends Plan {
       
       nest.assignBase(actor.base());
       nest.enterWorld();
+      actor.mind.setHome(nest);
       nest.structure.setState(Structure.STATE_INTACT, 0.1f);
       actor.goAboard(nest, world);
       return true;
     }
   }
-  
   
   
   

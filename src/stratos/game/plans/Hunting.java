@@ -142,10 +142,8 @@ public class Hunting extends Plan {
     }
     
     if (prey.destroyed() || ! prey.inWorld()) return -1;
-
-    final boolean start = ! hasBegun(), alive = preyIsLive(prey);
-    if (start && ! validPrey(prey, actor)  ) return -1;
-    if (alive && ! PlanUtils.isArmed(actor)) return -1;
+    final boolean begun = hasBegun(), alive = preyIsLive(prey);
+    if ((! begun) && (! validPrey(prey, actor))) return -1;
     
     float hunger = 0, urgency = 0, crowdRating = 0, priority = 0;
     float harmLevel = Plan.REAL_HARM;
@@ -157,30 +155,26 @@ public class Hunting extends Plan {
     //  If the creature is alive, we also try to favour common (i.e, crowded)
     //  species over rare ones.
     if (type == TYPE_FEEDS || type == TYPE_HARVEST) {
-      
-      hunger = actor.health.hungerLevel();
-      if      (! alive) hunger += ActorHealth.MAX_CALORIES - 1;
-      else if (start  ) hunger += 0.25f;
-      
-      urgency += hunger;
-      urgency += motiveBonus() / Plan.PARAMOUNT;
-      
       crowdRating = NestUtils.localCrowding(prey.species(), prey);
       crowdRating = Nums.clamp((crowdRating - 0.5f) * 2, 0, 1);
       
-      if (alive        ) urgency *= crowdRating;
+      urgency += hunger = actor.health.hungerLevel();
+      if (alive) urgency *= crowdRating;
+      else       urgency += ActorHealth.MAX_CALORIES - 1;
       if (hunger > 0.5f) urgency += (hunger - 0.5f) * 2;
     }
     //
     //  In the case of a sampling run, things are simpler.
     else {
-      urgency += motiveBonus() / Plan.PARAMOUNT;
       urgency += PlanUtils.traitAverage(actor, SAMPLE_TRAITS);
       harmLevel = Plan.NO_HARM;
     }
     //
     //  In any case, live prey can fight back, so we adjust our willingness to
     //  undertake the task accordingly.  (Or not.)
+    urgency += motiveBonus() / Plan.PARAMOUNT;
+    if (begun) urgency = Nums.max(urgency, 0.5f);
+    
     if (alive && urgency > 0) {
       priority = PlanUtils.combatPriority(
         actor, prey, urgency * Plan.PARAMOUNT, 1, true, harmLevel
@@ -193,7 +187,7 @@ public class Hunting extends Plan {
 
     if (report) {
       I.say("\nHunting type is: "+TYPE_DESC[type]);
-      I.say("  Just started:    "+start   +" ("+hashCode()+")");
+      I.say("  Has begun:       "+begun+" ("+hashCode()+")");
       I.say("  Base urgency is: "+urgency );
       I.say("  Final priority:  "+priority);
       I.say("  Hunger is:       "+hunger  +" ("+actor.health.hungerLevel()+")");
@@ -294,12 +288,15 @@ public class Hunting extends Plan {
   
   
   private Combat downingStep(int object) {
+    return new Combat(actor, prey, Combat.STYLE_EITHER, object);
+    /*
     if (downing == null) {
       downing = new Combat(actor, prey, Combat.STYLE_EITHER, object);
     }
     downing.setMotivesFrom(this, PARAMOUNT);
     if (! Plan.canFollow(actor, downing, true)) return null;
     return downing;
+    //*/
   }
   
   
@@ -335,7 +332,8 @@ public class Hunting extends Plan {
     final float
       before = prey.health.injury(),
       damage = success * 2,
-      DF     = ActorHealth.DECOMP_FRACTION;
+      DF     = ActorHealth.DECOMP_FRACTION
+    ;
     if (prey.health.alive()) prey.health.setState(ActorHealth.STATE_DEAD);
     prey.health.takeInjury(damage, true);
     //
@@ -354,8 +352,8 @@ public class Hunting extends Plan {
       I.say("  Meat amount:  "+meat );
       I.say("  Spyce amount: "+spyce);
     }
-    if (meat  > 0) depot.inventory().bumpItem(PROTEIN  , meat );
-    if (spyce > 0) depot.inventory().bumpItem(SPYCES, spyce);
+    if (meat  > 0) depot.inventory().bumpItem(PROTEIN, meat );
+    if (spyce > 0) depot.inventory().bumpItem(SPYCES , spyce);
     return true;
   }
   

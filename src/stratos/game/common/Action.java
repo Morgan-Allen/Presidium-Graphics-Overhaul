@@ -319,16 +319,17 @@ public class Action implements Behaviour, AnimNames {
     //  Firstly, we establish current displacements between actor and target,
     //  motion target & action target, how far the actor can see, and whether
     //  sticking to the full tile path is required-
-    final Target lastStep = actor.pathing.lastStep();
+    final Target lastStep = PathSearch.accessLocation(moveTarget, actor);
     final boolean
       ranged    = ranged(),
-      mustBoard = ((! ranged) && (lastStep instanceof Boarding));
+      mustBoard = ((! ranged) && (lastStep instanceof Boarding))
+    ;
     final float
       sightRange = actor.health.sightRange(),
-      motionDist = Spacing.distance(actor, moveTarget),
-      actionDist = Spacing.distance(actor, actionTarget),
-      separation = Spacing.distance(moveTarget, actionTarget);
-    
+      motionDist = Spacing.distance(actor     , moveTarget  ),
+      actionDist = Spacing.distance(actor     , actionTarget),
+      separation = Spacing.distance(moveTarget, actionTarget)
+    ;
     //  We also need to calculate an appropriate maximum distance in order for
     //  the action to progress-
     float maxDist = 0.01f;

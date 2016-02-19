@@ -214,7 +214,12 @@ public class FirstAid extends Treatment {
   
   
   public boolean actionFirstAid(Actor actor, Actor patient) {
-    return tryTreatment(
+    final Item current = existingTreatment(sickness, patient);
+    if (current != null && current.amount >= 1) {
+      patient.health.setBleeding(false);
+      return true;
+    }
+    else return tryTreatment(
       actor, patient,
       INJURY, PhysicianStation.INTENSIVE_CARE,
       ANATOMY, PHARMACY, true

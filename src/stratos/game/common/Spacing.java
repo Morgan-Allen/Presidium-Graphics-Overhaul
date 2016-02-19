@@ -176,7 +176,7 @@ public final class Spacing implements TileConstants {
     //
     //  We want to avoid any tiles that are obstructed, including by other
     //  actors, and probably to stay in the same spot if possible.
-    final Tile l = Rand.num() < 0.1f ? null : client.origin();
+    final Tile l = Rand.num() < 0.2f ? null : client.origin();
     final float weights[] = new float[perim.length];
     float sumWeights = 0;
     int index = -1;

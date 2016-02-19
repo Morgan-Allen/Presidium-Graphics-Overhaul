@@ -75,8 +75,9 @@ public class BringUtils {
   }
   
   
-  public static Bringing nextDisposalFor(Actor actor, Owner... allFrom) {
-    
+  public static Bringing nextDisposalFor(
+    Actor actor, Owner... allFrom
+  ) {
     final Pick <Bringing> pick = new Pick();
     final Batch <Owner> dests = new Batch();
     for (Owner d : allFrom) if (d != null) dests.add(d);

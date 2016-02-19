@@ -99,9 +99,9 @@ public abstract class Mobile extends Element
     */
   public void assignBase(Base base) {
     if (! inWorld()) { this.base = base; return; }
-    base.toggleUnit(this, false);
+    this.base.toggleUnit(this, false);
     this.base = base;
-    base.toggleUnit(this, true );
+    this.base.toggleUnit(this, true );
   }
   
   

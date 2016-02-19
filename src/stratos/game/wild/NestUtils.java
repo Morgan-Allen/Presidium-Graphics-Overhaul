@@ -26,13 +26,6 @@ public class NestUtils {
     updateVerbose = false;
   
   
-  public static float nestCrowding(Actor fauna) {
-    if (! (fauna.mind.home() instanceof Nest)) return 1.5f;
-    final Nest nest = (Nest) fauna.mind.home();
-    return nest.crowdRating(fauna.species());
-  }
-  
-  
   public static float crowding(Actor fauna) {
     if (fauna.species().fixedNesting()) {
       return nestCrowding(fauna);
@@ -40,6 +33,13 @@ public class NestUtils {
     else {
       return localCrowding(fauna.species(), fauna);
     }
+  }
+  
+  
+  public static float nestCrowding(Actor fauna) {
+    if (! (fauna.mind.home() instanceof Nest)) return 1.5f;
+    final Nest nest = (Nest) fauna.mind.home();
+    return nest.crowdRating(fauna.species());
   }
   
   

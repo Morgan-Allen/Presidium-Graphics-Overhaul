@@ -17,17 +17,7 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.craft.Economy.*;
 import static stratos.game.actors.Backgrounds.*;
-
 import stratos.content.abilities.EcologistTechniques;
-
-
-
-
-
-
-//  TODO:  Implement egg-collection as a source of protein & spyce (culling is
-//         used only for emergencies.)  Okay.
-//  Zeno Pharma.     Animal Breeding.  Survival Training.
 
 
 
@@ -72,43 +62,55 @@ public class EcologistRedoubt extends Venue implements Captivity {
     );
   
   final static Species
-    REARED_SPECIES[] = { Qudu.SPECIES, Hareen.SPECIES };
+    REARED_SPECIES[] = { Qudu.SPECIES, Hareen.SPECIES },
+    MOUNT_SPECIES [] = { Lictovore.SPECIES };
   
   
   private Venue fleshStill = null;
-  private GroupSprite camouflaged;
+  private Outcrop disguise = null;
   
   
   
   public EcologistRedoubt(Base base) {
     super(BLUEPRINT, base);
     staff.setShiftType(SHIFTS_BY_HOURS);
+    structure.updateStats(blueprint.integrity, blueprint.armour, 10);
     attachSprite(MODEL.makeSprite());
-    
-    camouflaged = new GroupSprite();
-    camouflaged.attach(
-      Habitat.SPIRE_MODELS[Rand.index(3)][0], 0, 0, 0
-    );
   }
   
   
   public EcologistRedoubt(Session s) throws Exception {
     super(s);
-    this.fleshStill = (Venue) s.loadObject();
-    this.camouflaged = (GroupSprite) ModelAsset.loadSprite(s.input());
+    this.fleshStill = (Venue  ) s.loadObject();
+    this.disguise   = (Outcrop) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
     s.saveObject(fleshStill);
-    ModelAsset.saveSprite(camouflaged, s.output());
+    s.saveObject(disguise  );
   }
   
   
   
   /**  Placement and area-claims:
     */
+  public boolean setPosition(float x, float y, Stage world) {
+    if (! super.setPosition(x, y, world)) return false;
+    if (disguise == null) disguise = new Outcrop(4, 2, Outcrop.TYPE_MESA);
+    disguise.setPosition(x, y, world);
+    return true;
+  }
+  
+  
+  public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
+    if (! super.enterWorldAt(x, y, world, intact)) return false;
+    disguise.refreshIncept(world, intact);
+    return true;
+  }
+  
+  
   public Box2D areaClaimed() {
     final Box2D area = new Box2D(footprint());
     area.expandBy(CLAIM_RADIUS);
@@ -144,38 +146,48 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
-    
     final Choice choice = new Choice(actor);
-    final Exploring e = Exploring.nextExploration(actor);
-    if (e != null) choice.add(e.addMotives(Plan.MOTIVE_JOB, 0));
     
     final Batch <Target> sampled = new Batch();
     world.presences.sampleFromMap(actor, world, 5, sampled, Mobile.class);
     Visit.appendTo(sampled, inside());
-    
+    //
+    //  Consider hunting and sampling from non-domesticated species-
     for (Target t : sampled) if (t instanceof Fauna) {
       final Fauna fauna = (Fauna) t;
-      final boolean domestic = fauna.base() == base;
-      
-      //  TODO:  Add egg-collection here...
-      
-      if (! domestic) {
-        final Item sample = Item.withReference(SAMPLES, fauna.species());
-        if (stocks.hasItem(sample)) continue;
-        else choice.add(Hunting.asSample(actor, fauna, this));
-        choice.add(Hunting.asHarvest(actor, fauna, this));
-      }
+      if (fauna.base() == base) continue;
+      final Item sample = Item.withReference(SAMPLES, fauna.species());
+      if (stocks.hasItem(sample)) continue;
+      else choice.add(Hunting.asSample(actor, fauna, this));
+      choice.add(Hunting.asHarvest(actor, fauna, this));
     }
+    //
+    //  Consider rearing both prey species and predators as mounts & companions-
     for (Species s : REARED_SPECIES) {
+      final float crowding = NestUtils.localCrowding(s, this);
+      if (crowding >= 0.5f) continue;
+      final SeedTailoring t = new SeedTailoring(actor, this, s);
+      choice.add(t.addMotives(Plan.NO_PROPERTIES, Plan.CASUAL * 1 - crowding));
+    }
+    final Pick <Actor> mountPick = new Pick();
+    for (Actor a : staff.workers()) {
+      mountPick.compare(a, 0 - a.relations.servants().size());
+    }
+    if (actor == mountPick.result()) for (Species s : MOUNT_SPECIES) {
       float crowding = NestUtils.localCrowding(s, this);
       if (crowding < 0.5f) {
         choice.add(new SeedTailoring(actor, this, s));
       }
     }
-    
+    //
+    //  Consider learning new skills-
     choice.add(Studying.asTechniqueTraining(
       actor, this, 0, EcologistTechniques.ECOLOGIST_TECHNIQUES
     ));
+    //
+    //  And last but not least, consider general exploration-
+    final Exploring e = Exploring.nextExploration(actor);
+    if (e != null) choice.add(e.addMotives(Plan.MOTIVE_JOB, 0));
     return choice.weightedPick();
   }
   
@@ -191,10 +203,12 @@ public class EcologistRedoubt extends Venue implements Captivity {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     
-    stocks.setConsumption(CARBS, 5);
+    stocks.setConsumption(CARBS  , 5);
+    stocks.setConsumption(PROTEIN, 2);
     stocks.updateStockDemands(1, services(), LAND_TO_PROTEIN);
     
     world.ecology().includeSpecies(REARED_SPECIES);
+    world.ecology().includeSpecies(MOUNT_SPECIES );
   }
   
   
@@ -234,13 +248,25 @@ public class EcologistRedoubt extends Venue implements Captivity {
   /**  Rendering and interface-
     */
   public void renderFor(Rendering rendering, Base base) {
-    if (base == this.base()) super.renderFor(rendering, base);
+    if (base == this.base()) {
+      super.renderFor(rendering, base);
+    }
     else {
       //
       //  Render a bunch of rocks instead.  Also, make this non-selectable.
-      this.position(camouflaged.position);
-      camouflaged.fog = this.fogFor(base);
-      camouflaged.readyFor(rendering);
+      disguise.renderFor(rendering, base);
+    }
+  }
+  
+
+  public void renderSelection(
+    Rendering rendering, boolean hovered
+  ) {
+    if (base == this.base()) {
+      super.renderSelection(rendering, hovered);
+    }
+    else {
+      disguise.renderSelection(rendering, hovered);
     }
   }
   

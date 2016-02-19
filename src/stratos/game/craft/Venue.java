@@ -339,7 +339,7 @@ public abstract class Venue extends Fixture implements
     //
     //  TODO:  RESTORE THIS!
     //world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f);
-    refreshIncept(false);
+    refreshIncept(world, false);
   }
   
   
@@ -917,11 +917,13 @@ public abstract class Venue extends Fixture implements
     temp.set(Colour.transparency(opacity)).multiply(tinge);
     
     if (inWorld()) {
+      /*
       BaseUI.current().selection.renderTileOverlay(
         rendering, origin().world, temp,
         Selection.SELECT_OVERLAY, false,
         keyRes, true, areaClaimed()
       );
+      //*/
     }
     else {
       final Batch <Object> under = new Batch <Object> ();

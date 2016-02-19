@@ -180,6 +180,7 @@ public class Structure {
   
   public void setupStats(Blueprint blueprint) {
     this.blueprint = blueprint;
+    
     adjustStats(
       blueprint.integrity,
       blueprint.armour,
@@ -188,7 +189,6 @@ public class Structure {
       blueprint.numLevels(),
       blueprint.properties
     );
-    
     addUpgrade(blueprint.baseUpgrade());
   }
   

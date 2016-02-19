@@ -8,6 +8,7 @@ import stratos.game.base.Pledge;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.maps.*;
+import stratos.game.wild.Fauna;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.craft.Economy.*;
@@ -168,9 +169,9 @@ public class Resting extends Plan {
   protected Behaviour getNextStep() {
     if (restPoint == null) return null;
     
-    //  TODO:  Split dining off into a separate behaviour.
+    //  TODO:  Split dining off into a separate behaviour?
     if (hasMenu(restPoint) || hasMenu(actor)) {
-      if (actor.health.hungerLevel() > 0.1f) {
+      if (actor.health.hungerLevel() > 1.1f - ActorHealth.MAX_CALORIES) {
         final Action eats = new Action(
           actor, restPoint,
           this, "actionEats",
@@ -204,9 +205,6 @@ public class Resting extends Plan {
     //  If you're resting at home, deposit any taxes due and transfer any
     //  incidental groceries-
     if (place == actor.mind.home() && place instanceof Venue) {
-      for (Traded need : ((Venue) place).stocks.demanded()) {
-        actor.gear.transfer(need, place);
-      }
       Audit.payIncomeTax(actor, (Venue) place);
     }
     //
@@ -253,11 +251,12 @@ public class Resting extends Plan {
   
   public static boolean dineFrom(Actor actor, Owner stores) {
     final Batch <Traded> menu = menuFor(actor, stores);
-    final int numFoods = menu.size();
-    if (numFoods == 0 || actor.health.hungerLevel() < 0.1f) return false;
+    final float minHunger = 1.1f - ActorHealth.MAX_CALORIES;
+    if (menu.empty() || actor.health.hungerLevel() <= minHunger) return false;
     
-    final int   FTC  = ActorHealth.FOOD_TO_CALORIES;
-    final float bite = ActorHealth.DEFAULT_BULK * 1f / (DINE_TIME * FTC);
+    final int FTC = ActorHealth.FOOD_TO_CALORIES;
+    float bite = ActorHealth.DEFAULT_BULK * 1f / (DINE_TIME * FTC);
+    bite /= menu.size();
     float sumFood = 0, sumTypes = 0;
     
     for (Traded type : menu) {
@@ -270,7 +269,9 @@ public class Resting extends Plan {
       sumTypes++;
     }
     
-    sumTypes /= Economy.ALL_FOOD_TYPES.length;
+    if (actor.species().animal()) sumTypes = 1;
+    else sumTypes /= Economy.ALL_FOOD_TYPES.length;
+    
     actor.health.takeCalories(sumFood * FTC, sumTypes);
     return true;
   }

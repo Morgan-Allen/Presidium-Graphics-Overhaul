@@ -165,8 +165,7 @@ public class Inventory {
     }
     else {
       final Item found = itemTable.get(item);
-      if (found == null || found.quality < item.quality) return 0;
-      return found.amount;
+      return found == null ? 0 : found.amount;
     }
   }
   

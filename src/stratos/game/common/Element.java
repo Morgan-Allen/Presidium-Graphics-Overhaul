@@ -210,7 +210,7 @@ public abstract class Element implements
   }
   
   
-  public void refreshIncept(boolean isGrown) {
+  public void refreshIncept(Stage world, boolean isGrown) {
     if (isGrown) inceptTime = -10;
     else inceptTime = world.currentTime();
   }
@@ -295,9 +295,9 @@ public abstract class Element implements
   
   public void renderFor(Rendering rendering, Base base) {
     final Sprite s = sprite();
-    final float timeGone = world.timeMidRender() - inceptTime;
+    final float timeGone = base.world.timeMidRender() - inceptTime;
     if (timeGone < 1) s.colour = Colour.transparency(timeGone);
-    else s.colour = null;
+    else s.colour = Colour.WHITE;
     viewPosition(s.position);
     s.readyFor(rendering);
   }

@@ -220,10 +220,17 @@ public abstract class Fauna extends Actor implements Mount {
     */
   protected Behaviour nextHunting() {
     final Choice c = new Choice(this);
+    final boolean canHarvest = domesticated() && mind.home() instanceof Venue;
+    
     for (Target e : senses.awareOf()) {
       if (Hunting.validPrey(e, this)) {
         final Actor prey = (Actor) e;
-        c.add(Hunting.asFeeding(this, prey));
+        if (canHarvest) {
+          c.add(Hunting.asHarvest(this, prey, mind.home()));
+        }
+        else {
+          c.add(Hunting.asFeeding(this, prey));
+        }
       }
     }
     return c.pickMostUrgent();
@@ -735,6 +742,7 @@ public abstract class Fauna extends Actor implements Mount {
     ) {
       if (! (subject instanceof Actor )) return false;
       if (! (current instanceof Combat)) return false;
+      if (current instanceof Hunting   ) return false;
       if (actor.gear.amountOf(ITEM_DIGESTING) > 0) return false;
       
       final Actor victim = (Actor) subject;
@@ -788,8 +796,17 @@ public abstract class Fauna extends Actor implements Mount {
       final Actor victim = (Actor) digestion.refers;
       final float burn = victim.health.maxHealth() / DIGEST_DURATION;
       victim.health.takeInjury(burn, true);
-      using.health.takeCalories(burn, 1);
-      using.health.liftInjury(burn * DIGEST_REGEN_PERCENT / 100f);
+      
+      float minHunger = 1f - ActorHealth.MAX_CALORIES;
+      if (using.health.hungerLevel() > minHunger) {
+        using.health.takeCalories(burn * Fauna.MEAT_CONVERSION, 1);
+        using.health.liftInjury(burn * DIGEST_REGEN_PERCENT / 100f);
+      }
+      else {
+        float meat = burn * Fauna.MEAT_CONVERSION;
+        meat /= ActorHealth.FOOD_TO_CALORIES;
+        using.gear.bumpItem(Economy.PROTEIN, meat);
+      }
       
       final float amountGone = 1f / DIGEST_DURATION;
       using.gear.removeItem(Item.withAmount(digestion, amountGone));
@@ -828,9 +845,8 @@ public abstract class Fauna extends Actor implements Mount {
   
   
   //
-  //  TODO:  Move this (and related behaviours) to MountUtils.
+  //  TODO:  Move this (and related behaviours) to MountUtils?
   
-  //*
   protected void addDomesticBehaviours(Choice choice) {
     final Actor follows = relations.master();
     if (follows == null) return;
@@ -860,7 +876,8 @@ public abstract class Fauna extends Actor implements Mount {
       (current instanceof Combat    )
     ) {
       if (riding == follows) {
-        Boarding dest = PathSearch.accessLocation(riding.pathing.target(), this);
+        final Target pathTo = riding.pathing.target();
+        final Boarding dest = PathSearch.accessLocation(pathTo, this);
         if (dest != null) {
           final BringPerson b = new BringPerson(this, riding, dest);
           b.addMotives(Plan.NO_PROPERTIES, priority * 1.5f);
@@ -869,8 +886,15 @@ public abstract class Fauna extends Actor implements Mount {
       }
       else choice.add(Patrolling.protectionFor(this, follows, priority));
     }
+    
+    final Traded goods[] = gear.allItemTypes();
+    final Batch <Owner> dests = new Batch();
+    if (mind.home() != null) dests.include(mind.home());
+    if (mind.work() != null) dests.include(mind.work());
+    choice.add(
+      BringUtils.bestBulkDeliveryFrom(this, goods, 1, 5, dests, -1, false)
+    );
   }
-  //*/
   
   
   public boolean setMounted(Actor mounted, boolean is) {

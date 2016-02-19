@@ -44,7 +44,7 @@ public class PlanUtils {
     if (downed) return 0;
     
     final boolean emergency = actor.senses.isEmergency();
-    wierdness = baseCuriosity(actor, subject, false) * 5;
+    wierdness = 0;//baseCuriosity(actor, subject, false) * 5;
     dislike   = actor.relations.valueFor(subject) * -10 * lethality;
     harmDone  = harmIntendedBy(subject, actor, false) * 10;
     
@@ -104,12 +104,11 @@ public class PlanUtils {
     homeDistance  = distanceFactor(actor, point, haven);
     incentive    += Nums.max(loseChance * 15, homeDistance * 5);
     incentive    += (injury = actor.health.injuryLevel()) * 10;
-    
     if (hasWorldExit) homeDistance = Nums.max(0.5f, homeDistance);
     
     if (asRealTask) {
       escapeChance  = Nums.clamp(1.5f - actor.health.fatigueLevel(), 0, 1);
-      escapeChance *= Nums.min(1, homeDistance + (attacked ? 0 : 0.5f));
+      escapeChance *= Nums.min(2, 1 + homeDistance);
       
       if (emergency ) incentive += 2.5f;
       if (! attacked) incentive -= 5.0f;
@@ -117,7 +116,7 @@ public class PlanUtils {
       if (Action.isStealthy(actor) && ! attacked) incentive -= 5.0f;
     }
     else {
-      escapeChance = Nums.min(1, homeDistance);
+      escapeChance = Nums.min(2, 1 + homeDistance);
     }
     
     priority = Nums.clamp(incentive * escapeChance, -10, 20);

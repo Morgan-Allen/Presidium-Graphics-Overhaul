@@ -10,8 +10,7 @@ import stratos.graphics.common.*;
 import stratos.util.*;
 
 
-//  TODO:  Have this extend Boarding for consistency?  Merge with Captivity if
-//  you can.
+//  TODO:  Have this extend Boarding for consistency, and merge with Captivity.
 
 
 public interface Mount extends Session.Saveable, Target {

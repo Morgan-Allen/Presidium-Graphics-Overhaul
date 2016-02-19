@@ -23,13 +23,15 @@ public class SeedTailoring extends Plan {
     */
   private static boolean
     evalVerbose  = false,
-    stepsVerbose = false;
+    stepsVerbose = false,
+    fastTailor   = false;
   
   final public static float
     DESIRED_SAMPLES  = 5,
     SEED_DAYS_DECAY  = 5,
     SEED_TAILOR_TIME = Stage.STANDARD_HOUR_LENGTH,
-    EGGS_TAILOR_TIME = Stage.STANDARD_DAY_LENGTH ;
+    EGGS_TAILOR_TIME = Stage.STANDARD_DAY_LENGTH ,
+    FAST_TAILOR_MULT = 20;
   final static int
     STAGE_INIT    = -1,
     STAGE_CULTURE =  0,
@@ -132,15 +134,15 @@ public class SeedTailoring extends Plan {
     );
     
     float lack = 1f - lab.stocks.amountOf(seedType);
-    if (hasBegun()) lack = Nums.max(lack, 0.5f);
     if (lack <= 0) return -1;
+    if (hasBegun()) lack = 1;
     
     //  TODO:  USE THE PLAN-UTILS METHOD HERE?
     final Object yield = species.nutrients(0)[0].type;
     final float priority = (Nums.clamp(
       ROUTINE + (lab.structure.upgradeLevel(yield) * CASUAL / 2f),
       0, URGENT
-    ) + motiveBonus()) * lack;
+    ) * lack) + motiveBonus();
     
     if (report) I.say("\nSeed-tailoring priority for "+actor+" is "+priority);
     return priority;
@@ -197,25 +199,34 @@ public class SeedTailoring extends Plan {
     
     float duration = species.animal() ? EGGS_TAILOR_TIME : SEED_TAILOR_TIME;
     if (species.animal()) duration *= species.metabolism() / 2;
+    if (fastTailor) duration = Nums.max(1, duration / FAST_TAILOR_MULT);
+    
     Item seed = seedType;
     seed = Item.withQuality(seed, quality);
     seed = Item.withAmount(seed, 1f / duration);
     lab.stocks.addItem(seed);
     
+    
+    //  TODO:  You need an additional step for release, somewhere away from the
+    //  lab...
+    
     //
     //  If we actually complete the task, there's special handling for animal
-    //  species-
-    if (species.animal() && lab.stocks.amountOf(seed) >= 1) {
+    //  species (and predators in particular.)
+    if (species.animal() && lab.stocks.amountOf(seedType) >= 1) {
+      
+      Base belongs = species.predator() ? actor.base() : Base.wildlife(world);
       lab.stocks.removeMatch(seed);
-      Fauna reared = (Fauna) species.sampleFor(actor.base());
+      Fauna reared = (Fauna) species.sampleFor(belongs);
       reared.health.setupHealth(0, seed.quality / Item.MAX_QUALITY, 0);
       
       reared.relations.setRelation(actor                 , 0.50f, 0);
       reared.relations.setRelation(actor.base().faction(), 0.25f, 0);
       actor.relations.incRelation(reared, 0.5f, 0.5f, 0);
+      if (species.predator()) reared.setAsDomesticated(actor);
       
-      reared.enterWorldAt(lab, world);
       lab.stocks.addItem(Item.with(SAMPLES, species, 1, seed.quality));
+      reared.enterWorldAt(lab.mainEntrance(), world);
       stage = STAGE_DONE;
     }
     

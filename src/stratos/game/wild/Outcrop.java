@@ -96,7 +96,7 @@ public class Outcrop extends Fixture {
       return Habitat.DUNE_MODELS[Rand.index(3)];
     }
     if (ore == FOSSILS || size != 3 || oreID == -1) {
-      int highID = Rand.yes() ? 1 : (3 - size);
+      int highID = Rand.yes() ? 1 : Nums.clamp(3 - size, 3);
       return Habitat.SPIRE_MODELS[Rand.index(3)][highID];
     }
     else {
@@ -138,7 +138,7 @@ public class Outcrop extends Fixture {
   
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
     if (! super.enterWorldAt(x, y, world, intact)) return false;
-    if (intact) refreshIncept(true);
+    if (intact) refreshIncept(world, true);
     world.presences.togglePresence(this, origin(), true , Outcrop.class);
     return true;
   }

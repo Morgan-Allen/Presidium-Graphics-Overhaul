@@ -24,7 +24,7 @@ import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
 public class MS3DModel extends SolidModel {
   
   
-  final static boolean FORCE_DEFAULT_MATERIAL = true;
+  final static boolean FORCE_DEFAULT_MATERIAL = false;
   private static boolean verbose = false;
   
   private String filePath, xmlPath, xmlName;

@@ -263,7 +263,7 @@ public class ActorHealth {
   }
   
   
-  public void loseSustenance(float fraction) {
+  public void loseCalories(float fraction) {
     calories -= fraction * maxHealth;
   }
   

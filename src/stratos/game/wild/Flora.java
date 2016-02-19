@@ -152,7 +152,7 @@ public class Flora extends Element implements TileConstants {
       if (grows == null) continue;
       
       final int stage = grows.growStage();
-      grows.refreshIncept(true);
+      grows.refreshIncept(world, true);
       world.ecology().impingeBiomass(t, stage, Stage.STANDARD_DAY_LENGTH);
     }
   }

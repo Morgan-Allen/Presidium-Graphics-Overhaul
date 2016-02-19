@@ -278,7 +278,7 @@ public class Holding extends Venue {
       structure.updateStats(INTEGRITIES[targetLevel], 5, 0);
       world.ephemera.addGhost(this, MAX_SIZE, sprite(), 2.0f, 1);
       attachModel(modelFor(this));
-      refreshIncept(false);
+      refreshIncept(world, false);
     }
   }
   

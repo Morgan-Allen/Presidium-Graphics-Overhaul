@@ -63,7 +63,7 @@ public class Nest extends Venue {
     if (other instanceof Nest) {
       return distance <= Fauna.DEFAULT_FORAGE_DIST / 2;
     }
-    else if (other.base() == this.base()) {
+    else if (other.structure.cloaking() > 0) {
       return distance <= Fauna.DEFAULT_FORAGE_DIST / 2;
     }
     else return distance <= Fauna.PREDATOR_SEPARATION;
@@ -79,6 +79,11 @@ public class Nest extends Venue {
       crowdRatingCache *= (1 - inc);
       final float crowding = NestUtils.crowding(species, this, world);
       crowdRatingCache += inc * crowding;
+    }
+    
+    for (Traded t : species.canEat()) {
+      final float need = staff.lodgers().size() * species.metabolism() / 2f;
+      stocks.setConsumption(t, need);
     }
   }
   
