@@ -73,7 +73,7 @@ public class PhysicianStation extends Venue implements Burial.Services {
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.THREE_LEVELS, null,
-      new Object[] { 10, ANATOMY, 10, PHARMACY, 5, GENE_CULTURE },
+      new Object[] { 10, ANATOMY, 10, BIOLOGY, 5, CHEMISTRY },
       600,
       800,
       1000
@@ -139,13 +139,13 @@ public class PhysicianStation extends Venue implements Burial.Services {
     REAGENTS_TO_MEDICINE = new Conversion(
       BLUEPRINT, "reagents_to_medicine",
       1, REAGENTS, 1, GREENS, TO, 2, MEDICINE,
-      MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY,
+      MODERATE_DC, CHEMISTRY, ROUTINE_DC, BIOLOGY,
       MEDICAL_LAB
     ),
     REAGENTS_TO_SOMA = new Conversion(
       BLUEPRINT, "waste_to_soma",
       1, REAGENTS, TO, 3, SOMA,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY,
+      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, BIOLOGY,
       MEDICAL_LAB
     );
   

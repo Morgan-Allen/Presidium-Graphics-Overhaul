@@ -156,7 +156,7 @@ public class EngineerStation extends Venue {
     PARTS_TO_CIRCUITRY = new Conversion(
       BLUEPRINT, "parts_to_circuitry",
       1, PARTS, TO, 2, CIRCUITRY,
-      MODERATE_DC, INSCRIPTION, STRENUOUS_DC, ASSEMBLY,
+      ROUTINE_DC, FIELD_THEORY, STRENUOUS_DC, ASSEMBLY,
       MICRO_ASSEMBLY
     );
   

@@ -135,7 +135,7 @@ public class Career {
     final float
       likeFauna = Nums.clamp(AT.traitLevel(XENOZOOLOGY ) / 10, 0, 1),
       likeNativ = Nums.clamp(AT.traitLevel(NATIVE_TABOO) / 10, 0, 1),
-      likeRobot = Nums.clamp(AT.traitLevel(ANCIENT_LORE) / 10, 0, 1);
+      likeRobot = Nums.clamp(AT.traitLevel(LOGIC       ) / 10, 0, 1);
 
     final ActorRelations AR = actor.relations;
     AR.setupRelation(FACTION_WILDLIFE , likeFauna / 2, 1 - likeFauna);

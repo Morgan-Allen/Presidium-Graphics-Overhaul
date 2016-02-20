@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.content.civic;
+package stratos.content.wip;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.maps.*;
@@ -19,6 +19,9 @@ import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.craft.Economy.*;
+
+import stratos.content.civic.BotanicalStation;
+import stratos.content.civic.EngineerStation;
 
 
 
@@ -78,7 +81,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.SINGLE_LEVEL,
       new Upgrade[] { BotanicalStation.LEVELS[0], EngineerStation.LEVELS[0] },
-      new Object[] { 10, GEOPHYSICS, 5, ASSEMBLY, 5, CHEMISTRY },
+      new Object[] { 15, ASSEMBLY, 15, CHEMISTRY },
       450//, 650
     );
   

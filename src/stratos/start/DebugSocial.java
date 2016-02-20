@@ -272,7 +272,7 @@ public class DebugSocial extends Scenario {
     Bastion bastion = new Bastion(base);
     SiteUtils.establishVenue(bastion, start, true, world);
     
-    Background jobs[] = { TROOPER, FABRICATOR, SUPPLY_CORPS };
+    Background jobs[] = { TROOPER, TECHNICIAN, SUPPLY_CORPS };
     Actor tracked = null;
     for (Background b : jobs) {
       Actor a = b.sampleFor(base);
@@ -280,9 +280,9 @@ public class DebugSocial extends Scenario {
       if (tracked == null) tracked = a;
     }
     
-    SiteUtils.establishVenue(new TrooperLodge(base), start, true, world);
-    SiteUtils.establishVenue(new Fabricator  (base), start, true, world);
-    SiteUtils.establishVenue(new SupplyDepot (base), start, true, world);
+    SiteUtils.establishVenue(new TrooperLodge   (base), start, true, world);
+    SiteUtils.establishVenue(new EngineerStation(base), start, true, world);
+    SiteUtils.establishVenue(new SupplyDepot    (base), start, true, world);
     Selection.pushSelection(tracked, null);
   }
   

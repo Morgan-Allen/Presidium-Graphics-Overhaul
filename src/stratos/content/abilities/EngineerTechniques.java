@@ -213,7 +213,7 @@ public class EngineerTechniques {
         affected.traits.remove(asCondition);
         return;
       }
-      affected.traits.incBonus(STEALTH_AND_COVER, SHIELD_MOD_BONUS);
+      affected.traits.incBonus(EVASION, SHIELD_MOD_BONUS);
       affected.gear.boostShields(SHIELD_MOD_REGEN, false);
     }
   };
@@ -231,7 +231,7 @@ public class EngineerTechniques {
     
     public float useRating(Actor uses) {
       if (! PlanUtils.isArmed(uses)) return -1;
-      return 0.5f + uses.traits.traitLevel(STEALTH_AND_COVER);
+      return 0.5f + uses.traits.traitLevel(EVASION);
     }
   };
 }

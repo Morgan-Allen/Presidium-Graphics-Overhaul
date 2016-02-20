@@ -77,7 +77,7 @@ public class RunnerMarket extends Venue {
   final static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.TWO_LEVELS, StockExchange.LEVELS[0],
-      new Object[] { 5, STEALTH_AND_COVER, 5, ACCOUNTING },
+      new Object[] { 5, EVASION, 5, ACCOUNTING },
       350,
       650
     ),
@@ -86,7 +86,7 @@ public class RunnerMarket extends Venue {
       "Increases income from smuggling and sales of contraband.",
       300, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
-      10, PHARMACY, 5, CHEMISTRY
+      10, ACCOUNTING
     ),
     CYBERNETICS  = new Upgrade(
       "Cybernetics",
@@ -94,7 +94,7 @@ public class RunnerMarket extends Venue {
       "them to bypass security and disable robotic opponents.",
       300, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
-      10, INSCRIPTION, 5, ASSEMBLY
+      10, LOGIC, 10, ASSEMBLY
     ),
     CHEM_KITCHEN = new Upgrade(
       "Chem Kitchen",
@@ -102,7 +102,7 @@ public class RunnerMarket extends Venue {
       FAST_TOXIN_ITEM+".",
       250, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
-      10, PHARMACY, 5, CHEMISTRY
+      10, BIOLOGY, 10, CHEMISTRY
     ),
     SNIPER_TECH  = new Upgrade(
       "Sniper Tech",

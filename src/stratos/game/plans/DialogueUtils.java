@@ -18,10 +18,10 @@ public class DialogueUtils {
     */
   private static Skill languageFor(Actor other) {
     if (other.health.animal  ()) return XENOZOOLOGY;
-    if (other.health.artilect()) return INSCRIPTION;
+    if (other.health.artilect()) return LOGIC;
     if (other.health.human   ()) {
       final int standing = other.mind.vocation().standing;
-      if (standing == Backgrounds.CLASS_STRATOI) return NOBLE_ETIQUETTE;
+      if (standing == Backgrounds.CLASS_STRATOI) return ETIQUETTE;
       if (standing == Backgrounds.CLASS_NATIVE ) return NATIVE_TABOO   ;
       return COMMON_CUSTOM;
     }

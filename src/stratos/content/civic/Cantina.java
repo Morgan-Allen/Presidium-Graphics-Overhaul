@@ -94,7 +94,7 @@ public class Cantina extends Venue implements Performance.Theatre {
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
     Upgrade.SINGLE_LEVEL, StockExchange.LEVELS[0],
-    new Object[] { 5, MUSIC_AND_SONG, 5, DOMESTICS },
+    new Object[] { 5, MUSIC_AND_SONG, 5, CHEMISTRY },
     350
   );
   
@@ -292,7 +292,7 @@ public class Cantina extends Venue implements Performance.Theatre {
     float success = (Rand.num() * 2) - 1;
     if (actor.skills.test(ACCOUNTING, MODERATE_DC, 1, a)) success++;
     else success--;
-    if (actor.skills.test(MASQUERADE, MODERATE_DC, 1, a)) success++;
+    if (actor.skills.test(SUASION   , MODERATE_DC, 1, a)) success++;
     else success--;
     
     if (success > 0) {

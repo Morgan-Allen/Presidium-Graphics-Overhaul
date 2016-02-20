@@ -198,8 +198,8 @@ public class SeedTailoring extends Plan {
     final Action a = action();
     float sampleBonus = numSamples(lab) / DESIRED_SAMPLES, skillCheck = -0.5f;
     sampleBonus += minLevel / 2f;
-    skillCheck += actor.skills.test(GENE_CULTURE, MODERATE_DC , 1, a) ? 1 : 0;
-    skillCheck += actor.skills.test(CULTIVATION , DIFFICULT_DC, 1, a) ? 1 : 0;
+    skillCheck += actor.skills.test(BIOLOGY    , MODERATE_DC , 1, a) ? 1 : 0;
+    skillCheck += actor.skills.test(CULTIVATION, DIFFICULT_DC, 1, a) ? 1 : 0;
     //
     //  The final quality of the result depends on the sum of the sample-bonus
     //  and skill-bonus, contrained by the upgrades available at the lab-

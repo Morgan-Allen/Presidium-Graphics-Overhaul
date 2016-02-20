@@ -118,7 +118,7 @@ public class BotanicalStation extends HarvestVenue {
     ),
     SAMPLE_EXTRACT = new Conversion(
       BLUEPRINT, "sample_extract",
-      10, CULTIVATION, 5, GENE_CULTURE, TO, 1, GENE_SEED
+      10, CULTIVATION, 5, BIOLOGY, TO, 1, GENE_SEED
     );
   
   
@@ -258,7 +258,7 @@ public class BotanicalStation extends HarvestVenue {
     final Vec2D middle = areaClaimed().centre();
     final Tile underMid = world.tileAt(middle.x, middle.y);
     float evapLevel = world().terrain().insolationSample(underMid) / 10;
-
+    
     float powerOut = (reserved().length / 3f), waterIn = 0;
     powerOut *= 1 - this.needsTending;
     powerOut *= 1 + evapLevel;

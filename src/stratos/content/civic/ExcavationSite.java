@@ -55,11 +55,11 @@ public class ExcavationSite extends HarvestVenue {
   final public static Conversion
     LAND_TO_METALS = new Conversion(
       BLUEPRINT, "land_to_metals",
-      15, HARD_LABOUR, 5, GEOPHYSICS, TO, 1, METALS
+      15, HARD_LABOUR, 0, CHEMISTRY, TO, 1, METALS
     ),
     LAND_TO_ISOTOPES = new Conversion(
       BLUEPRINT, "land_to_isotopes",
-      15, HARD_LABOUR, 5, GEOPHYSICS, TO, 1, FUEL_RODS
+      15, HARD_LABOUR, 0, CHEMISTRY, TO, 1, FUEL_RODS
     ),
     FLORA_TO_POLYMER = new Conversion(
       BLUEPRINT, "flora_to_polymer",
@@ -127,7 +127,7 @@ public class ExcavationSite extends HarvestVenue {
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.TWO_LEVELS, EngineerStation.LEVELS[0],
-      new Object[] { 15, ASSEMBLY, 0, ANCIENT_LORE },
+      new Object[] { 15, ASSEMBLY, 5, CHEMISTRY },
       400, 550
     ),
     SAFETY_PROTOCOL = new Upgrade(

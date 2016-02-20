@@ -46,7 +46,7 @@ public class PsychEvaluation extends Treatment {
   /**  Target and priority evaluation-
     */
   final static Trait BASE_TRAITS[] = { EMPATHIC, CURIOUS };
-  final static Skill BASE_SKILLS[] = { SUASION, COUNSEL, PSYCHOANALYSIS };
+  final static Skill BASE_SKILLS[] = { SUASION, COUNSEL, LOGIC };
   
   
   protected float getPriority() {

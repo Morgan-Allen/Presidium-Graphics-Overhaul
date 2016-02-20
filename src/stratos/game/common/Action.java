@@ -293,7 +293,7 @@ public class Action implements Behaviour, AnimNames {
     float rate = 1;
     if (a.moveState == STATE_SNEAK) {
       rate /= 2;
-      if (! basic) rate *= (1 + actor.skills.chance(STEALTH_AND_COVER, 15));
+      if (! basic) rate *= (1 + actor.skills.chance(EVASION, 15));
     }
     else if (a.moveState == STATE_RUN) {
       rate *= 2;

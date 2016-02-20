@@ -441,7 +441,7 @@ public abstract class Artilect extends Actor {
     NO_FATIGUE      ,
     NO_CONCENTRATION,
     IS_PASSIVE_SKILL_FX | IS_NATURAL_ONLY, null, 0,
-    STEALTH_AND_COVER
+    EVASION
   ) {
     
     public boolean triggersPassive(

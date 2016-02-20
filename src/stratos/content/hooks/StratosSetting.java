@@ -9,6 +9,8 @@ import stratos.game.verse.*;
 import stratos.game.wild.*;
 import stratos.util.*;
 import stratos.content.civic.*;
+import stratos.content.wip.FormerBay;
+
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.craft.Economy.*;
@@ -89,7 +91,7 @@ public class StratosSetting extends Verse {
       Sector.NEEDS, FUEL_RODS, PROTEIN,
       
       BORN_DREGS, BORN_PYON,
-      NOVICE, ASSEMBLY, ANCIENT_LORE,
+      NOVICE, ASSEMBLY, LOGIC,
       OFTEN, ARTIFICER_CIRCLES, SOMETIMES, COURT_CIRCLES,
       RARELY, ECOLOGIST_CIRCLES, AESTHETE_CIRCLES,
       
@@ -139,7 +141,7 @@ public class StratosSetting extends Verse {
       Sector.NEEDS, GREENS, METALS, ANTIMASS,
       
       BORN_DREGS, BORN_GELDER,
-      NOVICE, FIELD_THEORY, STEALTH_AND_COVER,
+      NOVICE, FIELD_THEORY, EVASION,
       OFTEN, VENDOR_CIRCLES, RUNNER_CIRCLES, SOMETIMES, ARTIFICER_CIRCLES,
       
       BotanicalStation.BLUEPRINT,

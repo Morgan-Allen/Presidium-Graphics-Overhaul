@@ -54,7 +54,7 @@ public final class Outfits {
     //  TODO:  You need a separate venue for this!
     FINERY         = new OutfitType(
       BC, "Finery"        , 1, 0 , 400,
-      SupplyDepot.class, 2, PLASTICS, 15, GRAPHIC_DESIGN
+      SupplyDepot.class, 2, PLASTICS, 15, HANDICRAFTS
     ),
     
     SEALSUIT       = new OutfitType(

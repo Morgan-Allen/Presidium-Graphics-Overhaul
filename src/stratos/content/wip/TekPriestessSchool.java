@@ -36,7 +36,7 @@ public class TekPriestessSchool extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     TekPriestessSchool.class, "tek_priestess_school",
-    "Tek Priestess School", Target.TYPE_SCHOOL, ICON,
+    "Tek Priestess School", Target.TYPE_WIP, ICON,
     "<Tek Priestess School Description>",
     6, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 200,

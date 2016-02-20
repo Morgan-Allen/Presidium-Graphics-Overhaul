@@ -213,7 +213,7 @@ public class Avrodil extends Fauna {
       else {
         final Tile location = affected.origin();
         final float cover = location.world.ecology().forestRating(location);
-        affected.traits.incBonus(STEALTH_AND_COVER, 20 * cover);
+        affected.traits.incBonus(EVASION, 20 * cover);
         affected.traits.setLevel(asCondition, 0.99f);
         
         float feed = 1f / Stage.STANDARD_DAY_LENGTH;
@@ -280,7 +280,7 @@ public class Avrodil extends Fauna {
     protected boolean checkActionSuccess(Actor actor, Target subject) {
       return Combat.performStrike(
         actor, (Actor) subject,
-        MARKSMANSHIP, STEALTH_AND_COVER,
+        MARKSMANSHIP, EVASION,
         Combat.OBJECT_DESTROY, actor.currentAction()
       );
     }

@@ -60,7 +60,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
       "outsiders to detect.  Makes "+PATTERN_CAMO+" available to staff.",
       200, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
-      10, STEALTH_AND_COVER, 5, XENOZOOLOGY
+      10, EVASION, 5, XENOZOOLOGY
     ),
     CAPTIVE_BREEDING = new Upgrade(
       "Captive Breeding",

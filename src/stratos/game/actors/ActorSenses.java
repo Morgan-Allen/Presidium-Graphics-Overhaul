@@ -213,7 +213,7 @@ public class ActorSenses {
         final Actor o = (Actor) e;
         I.say("    Current motion: "+Action.speedMultiple(o, true));
         I.say("    Base speed:     "+o.health.baseSpeed());
-        I.say("    Stealth skill:  "+o.traits.usedLevel(STEALTH_AND_COVER));
+        I.say("    Stealth skill:  "+o.traits.usedLevel(EVASION));
       }
       I.say("    Distance/fog:   "+distance+"/"+fog);
       I.say("    Sense vs. hide: "+senseChance+" vs. "+hideChance);
@@ -254,7 +254,7 @@ public class ActorSenses {
       final Actor other = (Actor) e;
       final Action action = other.currentAction();
       
-      float stealth = other.traits.usedLevel(STEALTH_AND_COVER) / 20f;
+      float stealth = other.traits.usedLevel(EVASION) / 20f;
       if (action != null && action.quick  ()) stealth /= 2;
       if (action != null && action.careful()) stealth *= 2;
       return Nums.clamp(stealth, 0, 2);

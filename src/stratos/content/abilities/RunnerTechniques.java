@@ -161,7 +161,7 @@ public class RunnerTechniques {
     NO_HARM             ,
     NO_FATIGUE          ,
     NO_CONCENTRATION    ,
-    IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, STEALTH_AND_COVER, 5, null
+    IS_PASSIVE_ALWAYS | IS_TRAINED_ONLY, EVASION, 5, null
   ) {
     
     private boolean shouldApplyTo(Actor using) {
@@ -178,7 +178,7 @@ public class RunnerTechniques {
       super.applyEffect(using, subject, success, passive);
       if (shouldApplyTo(using)) {
         using.traits.setLevel(asCondition, 1);
-        using.traits.incBonus(STEALTH_AND_COVER, SOLO_SKILL_BONUS);
+        using.traits.incBonus(EVASION, SOLO_SKILL_BONUS);
         using.traits.incBonus(ATHLETICS        , SOLO_SKILL_BONUS);
       }
       else using.traits.remove(asCondition);
@@ -194,7 +194,7 @@ public class RunnerTechniques {
     EXTREME_HARM        ,
     NO_FATIGUE          ,
     MAJOR_CONCENTRATION ,
-    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, INSCRIPTION, 10,
+    IS_FOCUS_TARGETING | IS_TRAINED_ONLY, ASSEMBLY, 10,
     Action.LOOK, Action.RANGED
   ) {
     
@@ -365,7 +365,7 @@ public class RunnerTechniques {
     BASE_CLASS, "Fast Toxin", null,
     40, FAST_TOXIN.description,
     FAST_TOXIN, RunnerMarket.class,
-    1, REAGENTS, MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+    1, REAGENTS, MODERATE_DC, CHEMISTRY, ROUTINE_DC, BIOLOGY
   ) {
     
     public float useRating(Actor actor) {
@@ -432,7 +432,7 @@ public class RunnerTechniques {
     BASE_CLASS, "Slow Burn", null,
     40, SLOW_BURN.description,
     SLOW_BURN, RunnerMarket.class,
-    1, REAGENTS, MODERATE_DC, CHEMISTRY, ROUTINE_DC, PHARMACY
+    1, REAGENTS, MODERATE_DC, CHEMISTRY, ROUTINE_DC, BIOLOGY
   ) {
     
     public float useRating(Actor actor) {

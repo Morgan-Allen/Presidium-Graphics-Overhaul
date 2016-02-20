@@ -15,6 +15,8 @@ import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
+import stratos.content.wip.Fabricator;
+
 
 
 public class Fractal extends Venue {
@@ -47,7 +49,7 @@ public class Fractal extends Venue {
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
     Upgrade.SINGLE_LEVEL, Fabricator.LEVELS[0],
-    new Object[] { 5, GRAPHIC_DESIGN },
+    new Object[] { 10, HANDICRAFTS, 10, ASSEMBLY },
     30
   );
   

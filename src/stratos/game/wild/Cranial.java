@@ -72,7 +72,7 @@ public class Cranial extends Artilect {
     traits.setLevel(HAND_TO_HAND, 15 + Rand.index(5) - 2);
     traits.setLevel(ANATOMY     , 10 + Rand.index(5) - 2);
     traits.setLevel(ASSEMBLY    , 20 + Rand.index(5) - 2);
-    traits.setLevel(INSCRIPTION , 10 + Rand.index(5) - 2);
+    traits.setLevel(LOGIC       , 10 + Rand.index(5) - 2);
     
     traits.setLevel(IMPASSIVE, 1);
     traits.setLevel(CRUEL    , 1);

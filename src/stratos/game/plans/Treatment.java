@@ -68,7 +68,7 @@ public class Treatment extends Plan {
   /**  Target and priority evaluation-
     */
   final static Trait BASE_TRAITS[] = { EMPATHIC, CURIOUS, DUTIFUL };
-  final static Skill BASE_SKILLS[] = { PHARMACY, GENE_CULTURE };
+  final static Skill BASE_SKILLS[] = { BIOLOGY, CHEMISTRY };
   
   
   public static Treatment nextTreatment(
@@ -151,7 +151,7 @@ public class Treatment extends Plan {
     setCompetence(tryTreatment(
       actor, patient,
       sickness, PhysicianStation.MEDICAL_LAB,
-      PHARMACY, GENE_CULTURE, false
+      BIOLOGY, CHEMISTRY, false
     ));
     return PlanUtils.supportPriority(
       actor, patient, motiveBonus(), competence(), severity
@@ -207,7 +207,7 @@ public class Treatment extends Plan {
     return tryTreatment(
       actor, patient,
       sickness, PhysicianStation.MEDICAL_LAB,
-      PHARMACY, GENE_CULTURE, true
+      BIOLOGY, CHEMISTRY, true
     ) > 0;
   }
   

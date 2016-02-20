@@ -152,7 +152,7 @@ public class StockExchange extends Venue {
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.THREE_LEVELS, null,
-      new Object[] { 10, ACCOUNTING, 0, DOMESTICS },
+      new Object[] { 10, ACCOUNTING, 0, HARD_LABOUR },
       450,
       650,
       850

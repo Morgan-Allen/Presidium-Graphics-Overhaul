@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.content.wip;
+package stratos.content.civic;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.maps.*;

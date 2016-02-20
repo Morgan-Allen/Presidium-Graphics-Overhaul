@@ -34,7 +34,7 @@ public class NavigatorSchool extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     NavigatorSchool.class, "navigator_school",
-    "Navigator School", Target.TYPE_SCHOOL, ICON,
+    "Navigator School", Target.TYPE_WIP, ICON,
     "<Navigator School Description>",
     6, 2, Structure.IS_NORMAL,
     Owner.TIER_FACILITY, 200,

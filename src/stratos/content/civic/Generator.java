@@ -202,7 +202,7 @@ public class Generator extends Venue {
     }
     else {
       success &= actor.skills.test(ASSEMBLY, diagnoseDC, 0.5f, a);
-      success &= actor.skills.test(SHIELD_AND_ARMOUR, 5, 0.5f, a);
+      success &= actor.skills.test(FIELD_THEORY, 5, 0.5f, a);
     }
     if (success) {
       meltdown -= (1f + FB) / Stage.STANDARD_DAY_LENGTH;

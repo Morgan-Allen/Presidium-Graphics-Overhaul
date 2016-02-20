@@ -3,9 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.content.civic;
-import stratos.content.wip.Edifice;
-import stratos.content.wip.EnforcerBloc;
+package stratos.content.wip;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.actors.*;
@@ -18,6 +16,9 @@ import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.craft.Economy.*;
 import static stratos.game.craft.Outfits.*;
+
+import stratos.content.civic.Fractal;
+
 import static stratos.game.actors.Backgrounds.*;
 
 
@@ -70,7 +71,7 @@ public class Fabricator extends Venue {
   final public static Upgrade
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.SINGLE_LEVEL, null,
-      new Object[] { 10, CHEMISTRY, 5, HANDICRAFTS, 5, GRAPHIC_DESIGN },
+      new Object[] { 5, CHEMISTRY, 10, ASSEMBLY, 10, HANDICRAFTS },
       400//,
       //450
     ),
@@ -96,10 +97,9 @@ public class Fabricator extends Venue {
       Upgrade.Type.TECH_MODULE, null
     ),
     FABRICATOR_STATION = new Upgrade(
-      "Fabricator Station",
-      FABRICATOR.info,
+      "Fabricator Station", "",
       200, Upgrade.THREE_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, FABRICATOR
+      Upgrade.Type.TECH_MODULE, null
     );
     //  TODO:  Level 2 Upgrade?
   
@@ -107,13 +107,13 @@ public class Fabricator extends Venue {
     PLASTICS_TO_DECOR = new Conversion(
       BLUEPRINT, "plastics_to_decor",
       2, PLASTICS, TO, 1, DECOR,
-      STRENUOUS_DC, GRAPHIC_DESIGN, MODERATE_DC, HANDICRAFTS,
+      STRENUOUS_DC, HANDICRAFTS, MODERATE_DC, ASSEMBLY,
       DECOR_STUDIO
     ),
     PLASTICS_TO_PRESSFEED = new Conversion(
       BLUEPRINT, "plastics_to_pressfeed",
       1, PLASTICS, TO, 2, PRESSFEED,
-      SIMPLE_DC, ACCOUNTING, DIFFICULT_DC, GRAPHIC_DESIGN,
+      SIMPLE_DC, CHEMISTRY, DIFFICULT_DC, HANDICRAFTS,
       FILM_BASE
     );
   
@@ -162,18 +162,8 @@ public class Fabricator extends Venue {
   
   public int numPositions(Background v) {
     int nO = super.numPositions(v);
-    if (v == FABRICATOR) return nO + 2;
+    //if (v == FABRICATOR) return nO + 2;
     return 0;
-  }
-  
-  
-  public Traded[] services() {
-    return new Traded[] { PLASTICS, PRESSFEED, DECOR };
-  }
-  
-  
-  public Background[] careers() {
-    return new Background[] { FABRICATOR };
   }
   
   

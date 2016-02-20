@@ -40,7 +40,7 @@ public class Condensor extends Venue {
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
     Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
-    new Object[] { 10, ASSEMBLY, 5, GEOPHYSICS },
+    new Object[] { 10, ASSEMBLY, 0, CHEMISTRY },
     250
   );
   

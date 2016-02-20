@@ -28,7 +28,7 @@ public class SenseUtils {
         chasePenalty = -10 * Nums.clamp(chaseUrgency, 0, 1);
       
       final float hideBonus = (actor.skills.test(
-        Qualities.STEALTH_AND_COVER, follows,
+        Qualities.EVASION, follows,
         Qualities.SURVEILLANCE, chasePenalty, 1, 2, taken
       ) * ActorHealth.DEFAULT_SIGHT);
       

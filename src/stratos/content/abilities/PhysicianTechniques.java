@@ -64,7 +64,7 @@ public class PhysicianTechniques {
     REAL_HELP           ,
     NO_FATIGUE          ,
     MEDIUM_CONCENTRATION,
-    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, PHARMACY, 5,
+    IS_PASSIVE_SKILL_FX | IS_TRAINED_ONLY, ANATOMY, 5,
     ANATOMY
   ) {
     
@@ -127,7 +127,7 @@ public class PhysicianTechniques {
     REAL_HELP          ,
     MINOR_FATIGUE      ,
     MAJOR_CONCENTRATION,
-    IS_ANY_TARGETING | IS_TRAINED_ONLY, PHARMACY, 10,
+    IS_ANY_TARGETING | IS_TRAINED_ONLY, BIOLOGY, 5,
     Action.FIRE, Action.QUICK
   ) {
     
@@ -197,7 +197,7 @@ public class PhysicianTechniques {
     MILD_HARM          ,
     MINOR_FATIGUE      ,
     MAJOR_CONCENTRATION,
-    IS_ANY_TARGETING | IS_TRAINED_ONLY, PHARMACY, 15,
+    IS_ANY_TARGETING | IS_TRAINED_ONLY, BIOLOGY, 15,
     Action.FIRE, Action.QUICK | Action.RANGED
   ) {
     
@@ -222,7 +222,7 @@ public class PhysicianTechniques {
     protected boolean checkActionSuccess(Actor actor, Target subject) {
       final Actor affects = (Actor) subject;
       final Action action = Technique.currentTechniqueBy(actor);
-      return actor.skills.test(PHARMACY, affects, NERVE, 0, 10, action);
+      return actor.skills.test(BIOLOGY, affects, NERVE, 0, 10, action);
     }
 
 

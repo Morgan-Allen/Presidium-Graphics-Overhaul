@@ -79,7 +79,7 @@ public class MiscTechniques {
     public boolean triggersPassive(
       Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
-      if (used != STEALTH_AND_COVER && used != HAND_TO_HAND) return false;
+      if (used != EVASION && used != HAND_TO_HAND) return false;
       if (! (subject instanceof Actor )) return false;
       if (! (current instanceof Combat)) return false;
       final Actor struck = (Actor) subject;

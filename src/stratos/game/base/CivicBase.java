@@ -45,8 +45,7 @@ public class CivicBase extends Base {
     ) / 2;
   
   final public static Background RAID_CLASSES[] = {
-    VOLUNTEER, TROOPER, MECH_LEGION,
-    ENFORCER, SHIP_CAPTAIN, RUNNER
+    VOLUNTEER, TROOPER, ENFORCER, RUNNER
   };
   
   

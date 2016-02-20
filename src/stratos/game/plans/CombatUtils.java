@@ -75,7 +75,7 @@ public class CombatUtils {
     }
     else {
       attack = MARKSMANSHIP;
-      defend = STEALTH_AND_COVER;
+      defend = EVASION;
     }
     final float
       actorChance = actor.skills.chance(attack, other, defend, 0),

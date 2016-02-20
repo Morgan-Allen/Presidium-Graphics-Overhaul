@@ -77,35 +77,23 @@ final public class Qualities {
     //  Artifice-related skills:
     ASSEMBLY       = new Skill(BC, "Assembly"      , FORM_COGNITIVE, COGNITION),
     CHEMISTRY      = new Skill(BC, "Chemistry"     , FORM_COGNITIVE, COGNITION),
-    INSCRIPTION    = new Skill(BC, "Inscription"   , FORM_COGNITIVE, COGNITION),
     FIELD_THEORY   = new Skill(BC, "Field Theory"  , FORM_COGNITIVE, COGNITION),
-    ASTROGATION    = new Skill(BC, "Astrogation"   , FORM_COGNITIVE, COGNITION),
-    SIMULACRA      = new Skill(BC, "Simulacra"     , FORM_COGNITIVE, COGNITION),
+    LOGIC          = new Skill(BC, "Logic"         , FORM_COGNITIVE, COGNITION),
     ARTIFICER_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Ecology-related skills:
     XENOZOOLOGY    = new Skill(BC, "Xenozoology"   , FORM_COGNITIVE, COGNITION),
     CULTIVATION    = new Skill(BC, "Cultivation"   , FORM_COGNITIVE, COGNITION),
-    GEOPHYSICS     = new Skill(BC, "Geophysics"    , FORM_COGNITIVE, COGNITION),
-    CETANI_ECOLOGY = new Skill(BC, "Cetani Ecology", FORM_COGNITIVE, COGNITION),
-    ALBEDO_ECOLOGY = new Skill(BC, "Albedo Ecology", FORM_COGNITIVE, COGNITION),
-    SILICO_ECOLOGY = new Skill(BC, "Silico Ecology", FORM_COGNITIVE, COGNITION),
     ECOLOGIST_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Physician-related skills:
-    PHARMACY       = new Skill(BC, "Pharmacy"      , FORM_COGNITIVE, COGNITION),
-    GENE_CULTURE   = new Skill(BC, "Gene Culture"  , FORM_COGNITIVE, COGNITION),
+    BIOLOGY        = new Skill(BC, "Biology"       , FORM_COGNITIVE, COGNITION),
     ANATOMY        = new Skill(BC, "Anatomy"       , FORM_COGNITIVE, COGNITION),
-    PSYCHOANALYSIS = new Skill(BC, "Psychoanalysis", FORM_COGNITIVE, COGNITION),
-    FORENSICS      = new Skill(BC, "Forensics"     , FORM_COGNITIVE, COGNITION),
-    SOCIAL_HISTORY = new Skill(BC, "Social History", FORM_COGNITIVE, COGNITION),
     PHYSICIAN_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     //
     //  Research and governance:
     BATTLE_TACTICS = new Skill(BC, "Battle Tactics", FORM_COGNITIVE, COGNITION),
     ACCOUNTING     = new Skill(BC, "Accounting"    , FORM_COGNITIVE, COGNITION),
-    ANCIENT_LORE   = new Skill(BC, "Ancient Lore"  , FORM_COGNITIVE, COGNITION),
-    LEGISLATION    = new Skill(BC, "Legislation"   , FORM_COGNITIVE, COGNITION),
     ADMIN_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class),
     
     COGNITIVE_SKILLS[] = (Skill[]) Visit.compose(
@@ -116,74 +104,51 @@ final public class Qualities {
   final public static Skill
     //
     //  Methods of persuasion:
-    COMMAND           = new Skill(BC, "Command"        , FORM_SENSITIVE, PERCEPT),
-    SUASION           = new Skill(BC, "Suasion"        , FORM_SENSITIVE, PERCEPT),
-    COUNSEL           = new Skill(BC, "Counsel"        , FORM_SENSITIVE, PERCEPT),
-    TRUTH_SENSE       = new Skill(BC, "Truth Sense"    , FORM_SENSITIVE, PERCEPT),
+    COMMAND        = new Skill(BC, "Command"       , FORM_SENSITIVE, PERCEPT),
+    SUASION        = new Skill(BC, "Suasion"       , FORM_SENSITIVE, PERCEPT),
+    COUNSEL        = new Skill(BC, "Counsel"       , FORM_SENSITIVE, PERCEPT),
+    TRUTH_SENSE    = new Skill(BC, "Truth Sense"   , FORM_SENSITIVE, PERCEPT),
     //
     //  Knowing the language and culture:
-    NATIVE_TABOO      = new Skill(BC, "Native Taboo"   , FORM_SENSITIVE, PERCEPT),
-    COMMON_CUSTOM     = new Skill(BC, "Common Custom"  , FORM_SENSITIVE, PERCEPT),
-    NOBLE_ETIQUETTE   = new Skill(BC, "Noble Etiquette", FORM_SENSITIVE, PERCEPT),
-    OUTER_DIALECTS    = new Skill(BC, "Outer Dialects" , FORM_SENSITIVE, PERCEPT),
-    REPUBLIC_LAWS     = new Skill(BC, "Republic Laws"  , FORM_SENSITIVE, PERCEPT),
-    IMPERIAL_DOGMA    = new Skill(BC, "Imperial Dogma" , FORM_SENSITIVE, PERCEPT),
+    NATIVE_TABOO   = new Skill(BC, "Native Taboo"  , FORM_SENSITIVE, PERCEPT),
+    COMMON_CUSTOM  = new Skill(BC, "Common Custom" , FORM_SENSITIVE, PERCEPT),
+    ETIQUETTE      = new Skill(BC, "Etiquette"     , FORM_SENSITIVE, PERCEPT),
     //
     //  Forms of artistic expression/entertainment:
-    EROTICS           = new Skill(BC, "Erotics"        , FORM_SENSITIVE, MOTOR  ),
-    MASQUERADE        = new Skill(BC, "Masquerade"     , FORM_SENSITIVE, PERCEPT),
-    MUSIC_AND_SONG    = new Skill(BC, "Music and Song" , FORM_SENSITIVE, MOTOR  ),
-    GRAPHIC_DESIGN    = new Skill(BC, "Graphic Design" , FORM_SENSITIVE, PERCEPT),
+    EROTICS        = new Skill(BC, "Erotics"       , FORM_SENSITIVE, MOTOR  ),
+    MUSIC_AND_SONG = new Skill(BC, "Music"         , FORM_SENSITIVE, NERVE  ),
+    HANDICRAFTS    = new Skill(BC, "Handicrafts"   , FORM_SENSITIVE, NERVE  ),
     
     SENSITIVE_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
     //
     //  Direct combat skills:
-    FORMATION_COMBAT  = new Skill(BC, "Formation Combat" , FORM_PHYSICAL, NERVE),
-    MARKSMANSHIP      = new Skill(BC, "Marksmanship"     , FORM_PHYSICAL, MOTOR),
-    HAND_TO_HAND      = new Skill(BC, "Hand to Hand"     , FORM_PHYSICAL, MOTOR),
-    SHIELD_AND_ARMOUR = new Skill(BC, "Shield and Armour", FORM_PHYSICAL, MOTOR),
-    HEAVY_WEAPONS     = new Skill(BC, "Heavy Weapons"    , FORM_PHYSICAL, MOTOR),
-    FIREARMS          = new Skill(BC, "Firearms"         , FORM_PHYSICAL, MOTOR),
+    MARKSMANSHIP   = new Skill(BC, "Marksmanship"  , FORM_PHYSICAL, MOTOR),
+    HAND_TO_HAND   = new Skill(BC, "Hand to Hand"  , FORM_PHYSICAL, MOTOR),
     //
     //  Exploration and mobility:
-    ATHLETICS         = new Skill(BC, "Athletics"        , FORM_PHYSICAL, NERVE),
-    PILOTING          = new Skill(BC, "Piloting"         , FORM_PHYSICAL, MOTOR),
-    SURVEILLANCE      = new Skill(BC, "Surveillance"     , FORM_PHYSICAL, MOTOR),
-    STEALTH_AND_COVER = new Skill(BC, "Stealth and Cover", FORM_PHYSICAL, MOTOR),
+    ATHLETICS      = new Skill(BC, "Athletics"     , FORM_PHYSICAL, NERVE),
+    PILOTING       = new Skill(BC, "Piloting"      , FORM_PHYSICAL, MOTOR),
+    SURVEILLANCE   = new Skill(BC, "Surveillance"  , FORM_PHYSICAL, MOTOR),
+    EVASION        = new Skill(BC, "Evasion"       , FORM_PHYSICAL, MOTOR),
     //
     //  General patience and elbow grease:
-    HANDICRAFTS       = new Skill(BC, "Handicrafts"      , FORM_PHYSICAL, MOTOR),
-    HARD_LABOUR       = new Skill(BC, "Hard Labour"      , FORM_PHYSICAL, NERVE),
-    DOMESTICS         = new Skill(BC, "Domestics"        , FORM_PHYSICAL, MOTOR),
-    BODY_MEDITATION   = new Skill(BC, "Body Meditation"  , FORM_PHYSICAL, NERVE),
+    HARD_LABOUR    = new Skill(BC, "Hard Labour"   , FORM_PHYSICAL, NERVE),
     
     PHYSICAL_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill
     SUGGESTION   = new Skill(BC, "Suggestion"  , FORM_PSYONIC, NERVE),
-    SYNESTHESIA  = new Skill(BC, "Synesthesia" , FORM_PSYONIC, NERVE),
     METABOLISM   = new Skill(BC, "Metabolism"  , FORM_PSYONIC, NERVE),
     TRANSDUCTION = new Skill(BC, "Transduction", FORM_PSYONIC, NERVE),
-    PROJECTION   = new Skill(BC, "Projection"  , FORM_PSYONIC, NERVE),
     PREMONITION  = new Skill(BC, "Premonition" , FORM_PSYONIC, NERVE),
-    
     PSYONIC_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
-  final public static Skill
-    //
-    //  For the benefit of animals and non-human species-
-    MIMESIS        = new Skill(BC, "Mimesis"       , FORM_INSTINCT, MOTOR    ),
-    PHEREMONIST    = new Skill(BC, "Pheremonist"   , FORM_INSTINCT, NERVE    ),
-    IMMANENCE      = new Skill(BC, "Immanence"     , FORM_INSTINCT, COGNITION),
-    
-    INSTINCT_SKILLS[] = (Skill[]) Trait.TRAIT_INDEX.soFar(Skill.class);
   
   final public static Skill ALL_SKILLS[] = (Skill[]) Visit.compose(Skill.class,
     ATTRIBUTES,
-    COGNITIVE_SKILLS, SENSITIVE_SKILLS, PHYSICAL_SKILLS,
-    PSYONIC_SKILLS, INSTINCT_SKILLS
+    COGNITIVE_SKILLS, SENSITIVE_SKILLS, PHYSICAL_SKILLS, PSYONIC_SKILLS
   );
   
   

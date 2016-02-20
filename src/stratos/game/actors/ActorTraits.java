@@ -399,7 +399,6 @@ public class ActorTraits {
   
   public Batch <Skill> skillSet() {
     final Batch <Trait> matches = new Batch <Trait> ();
-    getMatches(matches, Qualities.INSTINCT_SKILLS );
     getMatches(matches, Qualities.PHYSICAL_SKILLS );
     getMatches(matches, Qualities.SENSITIVE_SKILLS);
     getMatches(matches, Qualities.COGNITIVE_SKILLS);

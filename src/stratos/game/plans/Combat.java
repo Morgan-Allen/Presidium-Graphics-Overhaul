@@ -354,7 +354,7 @@ public class Combat extends Plan {
         actor, (Actor) target, HAND_TO_HAND, HAND_TO_HAND, object, a
       );
       else return performStrike(
-        actor, (Actor) target, MARKSMANSHIP, STEALTH_AND_COVER, object, a
+        actor, (Actor) target, MARKSMANSHIP, EVASION, object, a
       );
     }
     else if (target instanceof Placeable) {

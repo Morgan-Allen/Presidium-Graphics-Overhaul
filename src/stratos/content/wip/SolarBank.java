@@ -3,7 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.content.civic;
+package stratos.content.wip;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.actors.*;
@@ -15,6 +15,8 @@ import stratos.util.*;
 
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.craft.Economy.*;
+
+import stratos.content.civic.BotanicalStation;
 
 
 
@@ -61,7 +63,7 @@ public class SolarBank extends Venue {
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
     Upgrade.SINGLE_LEVEL, BotanicalStation.LEVELS[0],
-    new Object[] { 10, ASSEMBLY, 0, GEOPHYSICS },
+    new Object[] { 10, ASSEMBLY, 5, FIELD_THEORY },
     25
   );
   

@@ -291,7 +291,7 @@ public class Looting extends Plan {
     else {
       final Action a = action();
       actor.skills.test(ASSEMBLY, ROUTINE_DC, 1, a);
-      success &= actor.skills.test(INSCRIPTION, SIMPLE_DC, 1, a);
+      success &= actor.skills.test(LOGIC, SIMPLE_DC, 1, a);
     }
     if (success) {
       this.access = actor.origin();

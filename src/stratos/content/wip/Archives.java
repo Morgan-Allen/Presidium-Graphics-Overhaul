@@ -52,7 +52,7 @@ public class Archives extends Venue {
     CIRCUITRY_TO_DATALINKS = new Conversion(
       BLUEPRINT, "circuitry_to_datalinks",
       1, CIRCUITRY, TO, 2, DATALINKS,
-      MODERATE_DC, INSCRIPTION, SIMPLE_DC, ASSEMBLY, ACCOUNTING
+      MODERATE_DC, LOGIC, SIMPLE_DC, ASSEMBLY, ACCOUNTING
     );
   
   

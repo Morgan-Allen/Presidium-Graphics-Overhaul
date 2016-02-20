@@ -27,7 +27,7 @@ public class PlanUtils {
   
   private static boolean reportOn(Actor a, float priority) {
     if (priority <= 0 && ! failVerbose) return false;
-    return I.talkAbout == a;// && verbose;
+    return I.talkAbout == a && verbose;
   }
   
   
@@ -564,11 +564,6 @@ public class PlanUtils {
         if (harmMeant > 0) harmMeant -= sub;
         else               harmMeant += sub;
       }
-      
-      if (I.talkAbout == witness && harmMeant > 0) {
-        I.say("??");
-      }
-      
       return harmMeant;
     }
     if (acts instanceof Venue) {

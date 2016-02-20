@@ -181,7 +181,7 @@ public class SelectTraitsPane extends MenuPane {
     "+5 to "+MARKSMANSHIP+", "+COMMAND+" and "+HAND_TO_HAND+".",
     
     "Grants the "+WORD_OF_HONOUR+" technique.  Improves relations with other "+
-    "Noble Houses.  +5 to "+ANCIENT_LORE+" and "+NOBLE_ETIQUETTE+".",
+    "Noble Houses.  +5 to "+TRUTH_SENSE+" and "+ETIQUETTE+".",
     
     "Grants an additional starting Psi Power.  Improves concentration (which "+
     "reduces Powers' cooldown.)"
@@ -208,8 +208,8 @@ public class SelectTraitsPane extends MenuPane {
     }
     if (trait == TRADITIONAL) {
       togglePower(WORD_OF_HONOUR);
-      leader().traits.incLevel(ANCIENT_LORE   , has ? -5 : 5);
-      leader().traits.incLevel(NOBLE_ETIQUETTE, has ? -5 : 5);
+      leader().traits.incLevel(TRUTH_SENSE    , has ? -5 : 5);
+      leader().traits.incLevel(ETIQUETTE, has ? -5 : 5);
       //  TODO:  Including effects on political alliance.
     }
     

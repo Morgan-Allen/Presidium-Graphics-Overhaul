@@ -22,12 +22,12 @@ public class Expedition implements Session.Saveable {
     WAR_MASTER,  //  TODO:  Include Herald!
   };
   final public static Background COLONIST_BACKGROUNDS[] = {
-    VOLUNTEER,
+    VOLUNTEER   ,
+    RUNNER      ,
+    CULTIVATOR  ,
+    MINDER      ,
+    TECHNICIAN  ,
     SUPPLY_CORPS,
-    FABRICATOR,
-    TECHNICIAN,
-    CULTIVATOR,
-    MINDER
   };
   final public static String
     FUNDING_DESC[] = {

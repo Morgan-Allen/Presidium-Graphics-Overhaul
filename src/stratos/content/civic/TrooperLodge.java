@@ -139,7 +139,7 @@ public class TrooperLodge extends Venue implements Conscription {
       "Increases barracks space by 1 for "+TROOPER+"s.",
       400, Upgrade.SINGLE_LEVEL, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, SPARRING_GYM,
-      5, BATTLE_TACTICS, 5, DOMESTICS
+      5, BATTLE_TACTICS, 5, HARD_LABOUR
     ),
     CALL_OF_DUTY = new Upgrade(
       "Call of Duty",
@@ -147,7 +147,7 @@ public class TrooperLodge extends Venue implements Conscription {
       "to military operations and reduces downtime.",
       400, Upgrade.TWO_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, SPARRING_GYM,
-      5, BATTLE_TACTICS, 5, DOMESTICS
+      5, BATTLE_TACTICS, 5, HARD_LABOUR
     ),
     POWER_ARMOUR_UPGRADE = new Upgrade(
       "Power Armour",
@@ -190,12 +190,12 @@ public class TrooperLodge extends Venue implements Conscription {
     SUPPORT_TRAINING
   };
   final static Skill TRAIN_SKILLS[][] = {
-    { HAND_TO_HAND, FORMATION_COMBAT },
-    { MARKSMANSHIP, SURVEILLANCE     },
-    { ANATOMY     , ASSEMBLY         }
+    { HAND_TO_HAND, COMMAND        },
+    { MARKSMANSHIP, SURVEILLANCE   },
+    { ANATOMY     , ASSEMBLY       }
   };
   final static float TRAIN_BONUSES[] = {
-    10, 10, 0
+    10, 5, 0
   };
   
   

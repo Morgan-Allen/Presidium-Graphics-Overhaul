@@ -173,7 +173,7 @@ public class EcologistTechniques {
         affected.traits.remove(asCondition);
       }
       else {
-        affected.traits.incBonus(STEALTH_AND_COVER, 10);
+        affected.traits.incBonus(EVASION, 10);
         affected.traits.setLevel(asCondition, 0.99f);
       }
     }

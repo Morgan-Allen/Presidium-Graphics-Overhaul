@@ -52,7 +52,7 @@ public class FirstAid extends Treatment {
   
   /**  Targeting and priority evaluation.
     */
-  final static Skill BASE_SKILLS[] = { ANATOMY, PHARMACY };
+  final static Skill BASE_SKILLS[] = { ANATOMY, BIOLOGY  };
   final static Trait BASE_TRAITS[] = { EMPATHIC, DUTIFUL };
   
   
@@ -124,7 +124,7 @@ public class FirstAid extends Treatment {
     final float chance = patient.health.alive() ? tryTreatment(
       actor, patient,
       INJURY, PhysicianStation.INTENSIVE_CARE,
-      ANATOMY, PHARMACY, false
+      ANATOMY, BIOLOGY, false
     ) : 1;
     setCompetence(Nums.max(chance, urgent ? 0.5f : 0));
     //
@@ -222,7 +222,7 @@ public class FirstAid extends Treatment {
     else return tryTreatment(
       actor, patient,
       INJURY, PhysicianStation.INTENSIVE_CARE,
-      ANATOMY, PHARMACY, true
+      ANATOMY, BIOLOGY, true
     ) > 0;
   }
   

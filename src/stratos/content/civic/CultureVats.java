@@ -65,7 +65,7 @@ public class CultureVats extends Venue {
     LEVELS[] = BLUEPRINT.createVenueLevels(
       Upgrade.SINGLE_LEVEL,
       new Upgrade[] { PhysicianStation.LEVELS[0], EngineerStation.LEVELS[0] },
-      new Object[] { 15, CHEMISTRY, 5, GENE_CULTURE },
+      new Object[] { 15, CHEMISTRY, 5, BIOLOGY },
       400//, 550
     ),
     CARBS_CULTURE = new Upgrade(
@@ -114,19 +114,19 @@ public class CultureVats extends Venue {
     WASTE_TO_REAGENTS = new Conversion(
       BLUEPRINT, "waste_to_reagents",
       TO, 1, REAGENTS,
-      ROUTINE_DC, PHARMACY, ROUTINE_DC, CHEMISTRY,
+      ROUTINE_DC, BIOLOGY, ROUTINE_DC, CHEMISTRY,
       DRUG_SYNTHESIS
     ),
     CARBS_TO_PROTEIN = new Conversion(
       BLUEPRINT, "carbs_to_protein",
       2, CARBS, TO, 1, PROTEIN,
-      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, GENE_CULTURE,
+      ROUTINE_DC, CHEMISTRY, ROUTINE_DC, BIOLOGY,
       TISSUE_CULTURE
     ),
     PROTEIN_TO_REPLICANTS = new Conversion(
       BLUEPRINT, "protein_to_replicants",
       5, PROTEIN, TO, 1, REPLICANTS,
-      MODERATE_DC, GENE_CULTURE, ROUTINE_DC, CHEMISTRY, SIMPLE_DC, PHARMACY,
+      MODERATE_DC, BIOLOGY, ROUTINE_DC, CHEMISTRY, SIMPLE_DC,
       TISSUE_CULTURE
     );
   

@@ -181,8 +181,8 @@ public class Studying extends Plan {
     }
     else {
       float chance = 1;
-      chance += actor.skills.chance(INSCRIPTION, INSCRIBE_DC);
-      chance += actor.skills.chance(ACCOUNTING , ACCOUNTS_DC);
+      chance += actor.skills.chance(LOGIC     , INSCRIBE_DC);
+      chance += actor.skills.chance(ACCOUNTING, ACCOUNTS_DC);
       return chance / 3;
     }
   }
@@ -480,8 +480,8 @@ public class Studying extends Plan {
       float practice = 1.0f;
       
       if (type == TYPE_SKILL) {
-        if (actor.skills.test(ACCOUNTING , ACCOUNTS_DC, 1, a)) practice++;
-        if (actor.skills.test(INSCRIPTION, INSCRIBE_DC, 1, a)) practice++;
+        if (actor.skills.test(ACCOUNTING, ACCOUNTS_DC, 1, a)) practice++;
+        if (actor.skills.test(LOGIC     , INSCRIBE_DC, 1, a)) practice++;
       }
       else {
         practice += 0.5f;

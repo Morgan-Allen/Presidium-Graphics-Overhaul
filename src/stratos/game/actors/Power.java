@@ -316,7 +316,7 @@ public abstract class Power extends Technique {
     TIME_DILATION = new Power(
       "Time Dilation", "power_time_dilation", "power_time_dilation.gif",
       "Insulates your experience from temporal passage.\n(Reduces game speed.)",
-      PROJECTION, 10
+      PREMONITION, 10
     ) {
       final String SPEED_SETTINGS[] = {
         "66% speed",
@@ -364,7 +364,7 @@ public abstract class Power extends Technique {
     REMOTE_VIEWING = new Power(
       "Remote Viewing", "power_remote_viewing", "power_remote_viewing.png",
       "Reveals an area of distant terrain.",
-      PROJECTION, 10
+      PREMONITION, 10
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
         return selected instanceof Tile;
@@ -383,10 +383,10 @@ public abstract class Power extends Technique {
         final Tile tile = (Tile) selected;
         float bonus = 0, cost = 0;
         if (caster != null && ! GameSettings.psyFree) {
-          bonus += caster.traits.usedLevel(PROJECTION) / 5;
+          bonus += caster.traits.usedLevel(PREMONITION) / 5;
           cost = costFor(caster, selected);
           caster.health.takeFatigue(cost);
-          caster.skills.practiceAgainst(10, cost, PROJECTION);
+          caster.skills.practiceAgainst(10, cost, PREMONITION);
         }
         
         final float radius = (9 + (bonus * bonus)) / 2f;
@@ -577,7 +577,7 @@ public abstract class Power extends Technique {
     KINESTHESIA = new Power(
       "Kinesthesia", "power_kinesthesia", "power_kinesthesia.png",
       "Boosts most combat-related and athletic skills.",
-      SYNESTHESIA, 5
+      METABOLISM, 5
     ) {
       public boolean appliesTo(Actor caster, Target selected) {
         return selected instanceof Actor;
@@ -595,10 +595,10 @@ public abstract class Power extends Technique {
         float bonus = 5f;
         
         if (caster != null && ! GameSettings.psyFree) {
-          bonus += caster.traits.usedLevel(SYNESTHESIA) / 2;
+          bonus += caster.traits.usedLevel(METABOLISM) / 2;
           final float cost = costFor(caster, selected);
           caster.health.takeFatigue(cost);
-          caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
+          caster.skills.practiceAgainst(10, cost, METABOLISM);
         }
         
         subject.traits.incLevel(KINESTHESIA_EFFECT, bonus * 2 / 10f);
@@ -678,7 +678,7 @@ public abstract class Power extends Technique {
           priorityMod += caster.traits.usedLevel(SUGGESTION) / 2f;
           priorityMod += (Rand.num() - 0.5f) * Plan.PARAMOUNT * 2;
           caster.health.takeFatigue(cost);
-          caster.skills.practiceAgainst(10, cost, SYNESTHESIA);
+          caster.skills.practiceAgainst(10, cost, SUGGESTION);
           affects.relations.incRelation(caster, affinity, magnitude, -0.1f);
         }
         else priorityMod = Plan.ROUTINE;

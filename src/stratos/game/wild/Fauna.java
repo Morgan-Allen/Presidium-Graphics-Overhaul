@@ -395,7 +395,7 @@ public abstract class Fauna extends Actor implements Mount {
     ) {
       //
       //  This is supposed to be used only in a defensive capacity-
-      if (used != HAND_TO_HAND && used != STEALTH_AND_COVER) return false;
+      if (used != HAND_TO_HAND && used != EVASION) return false;
       if (current instanceof Combat) return false;
       return actor.traits.hasTrait(asCondition);
     }
@@ -403,7 +403,7 @@ public abstract class Fauna extends Actor implements Mount {
     
     public float passiveBonus(Actor using, Skill skill, Target subject) {
       if (skill == HAND_TO_HAND     ) return WITHDRAW_MELEE_BONUS ;
-      if (skill == STEALTH_AND_COVER) return WITHDRAW_RANGED_BONUS;
+      if (skill == EVASION) return WITHDRAW_RANGED_BONUS;
       return 0;
     }
     
@@ -479,8 +479,8 @@ public abstract class Fauna extends Actor implements Mount {
       Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
       if (! actor.isMoving()) return false;
-      if (! (current instanceof Retreat)) return used == STEALTH_AND_COVER;
-      return used == HAND_TO_HAND || used == STEALTH_AND_COVER;
+      if (! (current instanceof Retreat)) return used == EVASION;
+      return used == HAND_TO_HAND || used == EVASION;
     }
     
     

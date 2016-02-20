@@ -36,15 +36,12 @@ public class Performance extends Recreation {
     "Rapturous",
   };
   final static String DEFAULT_NAMES[] = {
-    "Song", "Erotics", "Media Display", "LARP", "Sport", "Meditation"
+    "Song", "Erotics", "Sport"
   };
   final static Skill PERFORM_SKILLS[][] = {
     { MUSIC_AND_SONG, EROTICS    },
     { EROTICS       , ATHLETICS  },
-    { MASQUERADE, GRAPHIC_DESIGN },
-    { MASQUERADE, HANDICRAFTS    },
     { ATHLETICS      , MUSCULAR, IMMUNE   , MOTOR },
-    { BODY_MEDITATION, PERCEPT , COGNITION, NERVE }
   };
   
   

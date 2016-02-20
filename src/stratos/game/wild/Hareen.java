@@ -7,7 +7,7 @@
 
 package stratos.game.wild;
 import static stratos.game.actors.Qualities.HAND_TO_HAND;
-import static stratos.game.actors.Qualities.STEALTH_AND_COVER;
+import static stratos.game.actors.Qualities.EVASION;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.craft.*;
@@ -99,7 +99,7 @@ public class Hareen extends Fauna {
     gear.setBaseArmour(2);
     
     traits.setLevel(HAND_TO_HAND     , 5 );
-    traits.setLevel(STEALTH_AND_COVER, 15);
+    traits.setLevel(EVASION, 15);
     
     skills.addTechnique(BASK  );
     skills.addTechnique(FLIGHT);
