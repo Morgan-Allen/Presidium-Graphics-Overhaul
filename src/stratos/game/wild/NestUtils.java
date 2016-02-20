@@ -115,7 +115,7 @@ public class NestUtils {
       
       final Species species   = pick.result();
       final int     popGap    = Nums.round(pick.bestRating(), 1, false);
-      final int     nestLimit = nestLimit(species);
+      final int     nestLimit = (int) (nestLimit(species) * 0.75f);
       final float   range     = forageRange(species) * 2;
       
       Pick <StagePatch> placing = new Pick(0);

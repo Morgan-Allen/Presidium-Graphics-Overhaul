@@ -156,11 +156,8 @@ public class EcologistRedoubt extends Venue implements Captivity {
   
   
   public boolean preventsClaimBy(Venue other) {
-    if (other instanceof Nest) return false;
-    //  TODO:  Use this!
-    //if (other instanceof FleshStill) return false;
+    if (other instanceof Nest && other.base() == base) return false;
     return true;
-    //return super.preventsClaimBy(other);
   }
 
 

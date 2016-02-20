@@ -166,11 +166,11 @@ final public class Qualities {
     EMPATHIC    = new Trait(BC, "Empathic"   , PERSONALITY, "Empathic"),
     P3[] = Trait.correlate(SELFISH, EMPATHIC, -1),
     
-    LOYAL       = new Trait(BC, "Dutiful"    , PERSONALITY, "Dutiful"),
-    FICKLE      = new Trait(BC, "Impulsive"  , PERSONALITY, "Impulsive"),
+    LOYAL       = new Trait(BC, "Loyal"      , PERSONALITY, "Loyal"),
+    FICKLE      = new Trait(BC, "Fickle"     , PERSONALITY, "Fickle"),
     P4[] = Trait.correlate(LOYAL, FICKLE, -1),
     
-    PERSISTENT  = new Trait(BC, "Dutiful"    , PERSONALITY, "Dutiful"),
+    PERSISTENT  = new Trait(BC, "Persistent" , PERSONALITY, "Persistent"),
     IMPULSIVE   = new Trait(BC, "Impulsive"  , PERSONALITY, "Impulsive"),
     P5[] = Trait.correlate(PERSISTENT, IMPULSIVE, -1),
     
@@ -190,9 +190,9 @@ final public class Qualities {
     ABSTINENT   = new Trait(BC, "Abstinent"  , PERSONALITY, "Abstinent"),
     P9[] = Trait.correlate(RELAXED, ABSTINENT, -1),
     
-    NATURALIST  = new Trait(BC, "Naturalist" , PERSONALITY, "Naturalist"),
+    RUGGED      = new Trait(BC, "Rugged"     , PERSONALITY, "Rugged"    ),
     METICULOUS  = new Trait(BC, "Meticulous" , PERSONALITY, "Meticulous"),
-    PX[] = Trait.correlate(NATURALIST, METICULOUS, -1),
+    PX[] = Trait.correlate(RUGGED, METICULOUS, -1),
     
     PERSONALITY_TRAITS[] = Trait.TRAIT_INDEX.soFar(Trait.class),
     

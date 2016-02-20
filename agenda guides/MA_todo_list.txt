@@ -2,13 +2,6 @@
 
 CURRENT ITEMS:
 
-   Priority:  High  Duration:  Short
-*  Cull anything unused or under-used from the lists of Backgrounds, Skills and
-   Traits.  Bare minimum for now.
-
-   Priority:  Medium-Low  Duration:  Short
-*  The 'savannah' terrain-type needs filling in!
-
    Priority:  High  Duration:  Medium-Short
 *  Make sure there's a collective estimate for overall production/consumption
    of all goods in the settlement- and the number/type of contributing

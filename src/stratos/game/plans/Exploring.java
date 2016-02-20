@@ -143,7 +143,7 @@ public class Exploring extends Plan {
   /**  Evaluating targets and priority-
     */
   final static Skill BASE_SKILLS[] = { SURVEILLANCE, ATHLETICS };
-  final static Trait BASE_TRAITS[] = { CURIOUS, OUTGOING, NATURALIST };
+  final static Trait BASE_TRAITS[] = { CURIOUS, OUTGOING, RUGGED };
   
   
   protected float getPriority() {
