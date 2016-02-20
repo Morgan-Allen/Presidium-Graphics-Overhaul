@@ -122,7 +122,7 @@ public class ActorMotives {
     if (other.traits.hasTrait(GENDER_FEMALE)) otherG =  1;
     float attraction = other.traits.traitLevel(HANDSOME) * 3.33f;
     attraction += otherG * other.traits.traitLevel(FEMININE) * 3.33f;
-    attraction *= (actor.traits.relativeLevel(INDULGENT) + 1f) / 2;
+    attraction *= (actor.traits.relativeLevel(RELAXED) + 1f) / 2;
     //
     //  Then compute attraction based on orientation-
     final String descO = actor.traits.description(ORIENTATION);
@@ -222,8 +222,8 @@ public class ActorMotives {
     final boolean report = I.talkAbout == actor && rateVerbose;
     final Background b = actor.mind.vocation();
     if (creditsPerDay <= 0 || (b != null && b.defaultSalary <= 0)) return 0;
-
-    final float greed = 1 + actor.traits.relativeLevel(Qualities.ACQUISITIVE);
+    
+    final float greed = 1 + actor.traits.relativeLevel(Qualities.SELFISH);
     float baseUnit = 0;
     baseUnit += b.defaultSalary / Backgrounds.NUM_DAYS_PAY;
     baseUnit += ((actor.gear.allCredits() - 25) * 2);

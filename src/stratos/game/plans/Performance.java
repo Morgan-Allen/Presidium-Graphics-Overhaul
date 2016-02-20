@@ -186,7 +186,8 @@ public class Performance extends Recreation {
   
   /**  Behaviour implementation-
     */
-  final static Trait BASE_TRAITS[] = { OUTGOING, CREATIVE };
+  final static Trait BASE_TRAITS[] = { OUTGOING, IMPULSIVE, RELAXED };
+  
   
   public float getPriority() {
     final boolean report = I.talkAbout == actor && hasBegun() && evalVerbose;

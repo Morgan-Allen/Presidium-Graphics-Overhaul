@@ -47,10 +47,10 @@ public class Gathering extends ResourceTending {
     SAMP_EXTRACTS[] = SeedTailoring.SAMPLE_TYPES;
   
   final static Trait
-    FARM_TRAITS  [] = { ENERGETIC, NATURALIST, PATIENT     },
-    FOREST_TRAITS[] = { ENERGETIC, NATURALIST, PATIENT     },
-    FORAGE_TRAITS[] = { ENERGETIC, NATURALIST, ACQUISITIVE },
-    SAMPLE_TRAITS[] = { NATURALIST, ACQUISITIVE, CURIOUS   };
+    FARM_TRAITS  [] = { PERSISTENT, NATURALIST },
+    FOREST_TRAITS[] = { PERSISTENT, NATURALIST },
+    FORAGE_TRAITS[] = { PERSISTENT, NATURALIST },
+    SAMPLE_TRAITS[] = { NATURALIST, CURIOUS    };
   
   
   final public int type;

@@ -74,8 +74,8 @@ public class Cranial extends Artilect {
     traits.setLevel(ASSEMBLY    , 20 + Rand.index(5) - 2);
     traits.setLevel(LOGIC       , 10 + Rand.index(5) - 2);
     
-    traits.setLevel(IMPASSIVE, 1);
-    traits.setLevel(CRUEL    , 1);
+    traits.setLevel(CALM   , 1);
+    traits.setLevel(SELFISH, 1);
     
     skills.addTechnique(IMPALE           );
     skills.addTechnique(IMPLANTATION     );

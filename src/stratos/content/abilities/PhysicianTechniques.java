@@ -295,7 +295,7 @@ public class PhysicianTechniques {
     
     protected void applyAsCondition(Actor affected) {
       affected.traits.incBonus(EMPATHIC , EMPATHIC .maxVal / 2f);
-      affected.traits.incBonus(ETHICAL  , ETHICAL  .maxVal / 2f);
+      affected.traits.incBonus(LOYAL    , LOYAL    .maxVal / 2f);
       affected.traits.incBonus(DEFENSIVE, DEFENSIVE.minVal / 2f);
       super.applyAsCondition(affected);
     }

@@ -57,7 +57,7 @@ public class Mining extends ResourceTending {
     TAILING_LIMIT         = (int) (TOTAL_LIFE_SLAG / EXAMPLE_TAILING_SPACE);
   
   final static Trait
-    MINE_TRAITS[] = { PATIENT, METICULOUS };
+    MINE_TRAITS[] = { PERSISTENT, METICULOUS };
   
   
   final public int type;

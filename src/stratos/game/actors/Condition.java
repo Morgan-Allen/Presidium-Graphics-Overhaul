@@ -385,7 +385,7 @@ public class Condition extends Trait {
     ALBEDAN_STRAIN = new Condition(
       BC, "Albedan Strain", null, null,
       MEDIUM_LATENCY, EXTREME_VIRULENCE, SLOW_SPREAD, Table.make(
-        INDULGENT, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
+        RELAXED, 2, IMMUNE, 5, PERCEPT, 5, MOTOR, -5
       ),
       "Albedan Strain",
       "Albedan Strain",
@@ -396,7 +396,7 @@ public class Condition extends Trait {
     SILVERQUICK = new Condition(
       BC, "Silverquick", null, null,
       SHORT_LATENCY, EXTREME_VIRULENCE, RAPID_SPREAD, Table.make(
-        IMPASSIVE, 5, IMMUNE, -20, MUSCULAR, -20
+        CALM, 5, IMMUNE, -20, MUSCULAR, -20
       ),
       "Silverquick Rictus",
       "Silverquick Scale",

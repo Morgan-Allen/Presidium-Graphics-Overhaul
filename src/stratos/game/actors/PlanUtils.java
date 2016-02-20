@@ -48,7 +48,7 @@ public class PlanUtils {
     harmDone  = harmIntendedBy(subject, actor, false) * 10;
     
     if (dislike > 0) {
-      dislike *= PlanUtils.traitAverage(actor, DEFENSIVE, CRUEL) * 2;
+      dislike *= PlanUtils.traitAverage(actor, DEFENSIVE, SELFISH) * 2;
     }
     if (harmDone > 0) {
       harmDone *= PlanUtils.traitAverage(actor, DEFENSIVE, IMPULSIVE) * 2;
@@ -233,7 +233,7 @@ public class PlanUtils {
     sightChance *= (daylight + 1) / 2;
     
     incentive = novelty * 5 * Nums.clamp(sightChance, 0, 1);
-    incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, ENERGETIC);
+    incentive *= enjoys = PlanUtils.traitAverage(actor, CURIOUS, OUTGOING);
     incentive += rewardBonus;
     
     retreatUrge = PlanUtils.retreatPriority(
@@ -355,7 +355,7 @@ public class PlanUtils {
 
     if (plan.isJob() && work != null) {
       shift     = Nums.max(shift, work.staff().shiftFor(actor));
-      dutyBonus = (actor.traits.relativeLevel(DUTIFUL) + 1) * 2.5f;
+      dutyBonus = (actor.traits.relativeLevel(PERSISTENT) + 1) * 2.5f;
       if (shift == Venue.OFF_DUTY     ) dutyBonus -= 2.5f;
       if (shift == Venue.PRIMARY_SHIFT) dutyBonus += 2.5f;
       priority += dutyBonus * urgency;
@@ -559,7 +559,7 @@ public class PlanUtils {
         doing.isJob() && other.base() == acts.base() && otherVictim != witness
       ) {
         float sub = Plan.ROUTINE * 1f / Plan.PARAMOUNT;
-        sub *= witness.traits.relativeLevel(DUTIFUL) + 1;
+        sub *= witness.traits.relativeLevel(LOYAL) + 1;
         sub = Nums.min(sub, Nums.abs(harmMeant));
         if (harmMeant > 0) harmMeant -= sub;
         else               harmMeant += sub;

@@ -129,6 +129,13 @@ public class Trait extends Constant {
   }
   
   
+  public static Trait[] correlate(Trait t, Trait other, float weight) {
+    t    .assignCorrelates(new Trait[] { other }, new float[] { weight });
+    other.assignCorrelates(new Trait[] { t     }, new float[] { weight });
+    return new Trait[] { t, other };
+  }
+  
+  
   protected float correlation(Trait other) {
     final int index = Visit.indexOf(other, correlates);
     return (index == -1) ? 0 : weightings[index];
@@ -138,6 +145,24 @@ public class Trait extends Constant {
   public Trait opposite() { return opposite; }
   public Trait[] correlates() { return correlates; }
   public float[] correlateWeights() { return weightings; }
+  
+  
+  public static float traitChance(Trait t, Actor a) {
+    final Trait cA[] = t.correlates();
+    if (cA == null) return 0;
+    
+    float plus = 0, minus = 0;
+    final float wA[] = t.correlateWeights();
+    
+    for (int n = cA.length; n-- > 0;) {
+      final Trait c = cA[n];
+      final float w = wA[n];
+      final float level = a.traits.traitLevel(c) * w;
+      if (level > 0) plus  += (1 - plus ) * level;
+      if (level < 0) minus -= (1 - minus) * level;
+    }
+    return plus - minus;
+  }
   
   
   

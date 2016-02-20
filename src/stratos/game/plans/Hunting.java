@@ -148,7 +148,7 @@ public class Hunting extends Plan {
   }
   
   
-  final Trait SAMPLE_TRAITS[]  = { CURIOUS, ENERGETIC, NATURALIST };
+  final Trait SAMPLE_TRAITS[]  = { CURIOUS, NATURALIST };
   
   
   protected float getPriority() {

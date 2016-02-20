@@ -241,7 +241,7 @@ public class Cantina extends Venue implements Performance.Theatre {
       Action.FALL, "Dropping Soma"
     );
     float priority = Action.ROUTINE;
-    priority += actor.traits.traitLevel(INDULGENT) / 2f;
+    priority += actor.traits.traitLevel(RELAXED) / 2f;
     priority += actor.traits.traitLevel(OUTGOING)  / 2f;
     priority -= actor.motives.greedPriority(price);
     drops.setPriority(priority);
@@ -273,9 +273,9 @@ public class Cantina extends Venue implements Performance.Theatre {
       Action.TALK_LONG, "Gambling"
     );
     float priority = Rand.index(5);
-    priority += actor.traits.traitLevel(POSITIVE) * Rand.num();
-    priority -= actor.traits.traitLevel(NERVOUS)    * Rand.num();
-    priority -= actor.traits.traitLevel(STUBBORN)   * Rand.num();
+    priority += actor.traits.traitLevel(IMPULSIVE) * Rand.num();
+    priority -= actor.traits.traitLevel(NERVOUS  ) * Rand.num();
+    priority -= actor.traits.traitLevel(ABSTINENT) * Rand.num();
     priority -= actor.motives.greedPriority(price) * Action.ROUTINE;
     gamble.setPriority(priority);
     return gamble;

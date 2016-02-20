@@ -371,7 +371,7 @@ public class RunnerTechniques {
     public float useRating(Actor actor) {
       if (! PlanUtils.isArmed(actor)) return -1;
       if (! actor.gear.hasDeviceProperty(Devices.KINETIC)) return -1;
-      return 1.5f - actor.traits.relativeLevel(ETHICAL);
+      return 1.5f - actor.traits.relativeLevel(EMPATHIC);
     }
     
     public int normalCarry(Actor actor) {
@@ -437,7 +437,7 @@ public class RunnerTechniques {
     
     public float useRating(Actor actor) {
       if (! PlanUtils.isArmed(actor)) return -1;
-      return 1.5f - actor.traits.relativeLevel(ETHICAL);
+      return 1.5f - actor.traits.relativeLevel(ABSTINENT);
     }
     
     public int normalCarry(Actor actor) {

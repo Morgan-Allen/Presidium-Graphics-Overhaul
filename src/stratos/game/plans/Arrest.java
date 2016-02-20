@@ -167,7 +167,7 @@ public class Arrest extends Plan {
   /**  Behaviour implementation-
     */
   final static Skill BASE_SKILLS[] = { ATHLETICS, LOGIC, COMMAND  };
-  final static Trait BASE_TRAITS[] = { DUTIFUL, ETHICAL, FEARLESS };
+  final static Trait BASE_TRAITS[] = { PERSISTENT, LOYAL, FEARLESS };
   
   
   protected float getPriority() {

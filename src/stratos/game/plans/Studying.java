@@ -192,7 +192,7 @@ public class Studying extends Plan {
   /**  Evaluating targets and priority-
     */
   final static Trait
-    DRILL_TRAITS   [] = { ENERGETIC, DUTIFUL, PATIENT },
+    DRILL_TRAITS   [] = { DEFENSIVE, LOYAL, OUTGOING   },
     RESEARCH_TRAITS[] = { CURIOUS, AMBITIOUS, SOLITARY };
   
   

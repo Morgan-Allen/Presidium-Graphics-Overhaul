@@ -152,54 +152,49 @@ final public class Qualities {
   );
   
   
-  //  TODO:  I think only about half of these are needed.
   final public static Trait
-    DEFENSIVE  = new Trait(BC, "Defensive", PERSONALITY, "Defensive"),
-    CRITICAL   = new Trait(BC, "Critical", PERSONALITY, "Critical"),
-    NERVOUS    = new Trait(BC, "Nervous", PERSONALITY, "Nervous"),
     
-    CALM       = new Trait(BC, "Calm", PERSONALITY, "Calm"),
-    POSITIVE   = new Trait(BC, "Positive", PERSONALITY, "Positive"),
-    FEARLESS   = new Trait(BC, "Fearless", PERSONALITY, "Fearless"),
+    DEFENSIVE  = new Trait(BC, "Defensive"   , PERSONALITY, "Defensive"),
+    CALM       = new Trait(BC, "Calm"        , PERSONALITY, "Calm"),
+    P1[] = Trait.correlate(DEFENSIVE, CALM, -1),
     
-    CRUEL       = new Trait(BC, "Cruel", PERSONALITY, "Cruel"),
-    DISHONEST   = new Trait(BC, "Dishonest", PERSONALITY, "Dishonest"),
-    ACQUISITIVE = new Trait(BC, "Acquisitive", PERSONALITY, "Acquisitive"),
+    NERVOUS    = new Trait(BC, "Nervous"     , PERSONALITY, "Nervous"),
+    FEARLESS   = new Trait(BC, "Fearless"    , PERSONALITY, "Fearless"),
+    P2[] = Trait.correlate(NERVOUS, FEARLESS, -1),
     
-    EMPATHIC    = new Trait(BC, "Empathic", PERSONALITY, "Empathic"),
-    ETHICAL     = new Trait(BC, "Ethical", PERSONALITY, "Ethical"),
-    GENEROUS    = new Trait(BC, "Generous", PERSONALITY, "Generous"),
+    SELFISH     = new Trait(BC, "Selfish"    , PERSONALITY, "Selfish"),
+    EMPATHIC    = new Trait(BC, "Empathic"   , PERSONALITY, "Empathic"),
+    P3[] = Trait.correlate(SELFISH, EMPATHIC, -1),
     
-    SUBVERSIVE  = new Trait(BC, "Subversive", PERSONALITY, "Subversive"),
-    NATURALIST  = new Trait(BC, "Naturalist", PERSONALITY, "Naturalist"),
-    INDULGENT   = new Trait(BC, "Indulgent", PERSONALITY, "Indulgent"),
+    LOYAL       = new Trait(BC, "Dutiful"    , PERSONALITY, "Dutiful"),
+    FICKLE      = new Trait(BC, "Impulsive"  , PERSONALITY, "Impulsive"),
+    P4[] = Trait.correlate(LOYAL, FICKLE, -1),
     
-    DUTIFUL     = new Trait(BC, "Dutiful", PERSONALITY, "Dutiful"),
-    METICULOUS  = new Trait(BC, "Meticulous", PERSONALITY, "Urbane"),
-    ABSTINENT   = new Trait(BC, "Abstinent", PERSONALITY, "Abstinent"),
+    PERSISTENT  = new Trait(BC, "Dutiful"    , PERSONALITY, "Dutiful"),
+    IMPULSIVE   = new Trait(BC, "Impulsive"  , PERSONALITY, "Impulsive"),
+    P5[] = Trait.correlate(PERSISTENT, IMPULSIVE, -1),
     
-    CREATIVE    = new Trait(BC, "Creative", PERSONALITY, "Creative"),
-    CURIOUS     = new Trait(BC, "Curious", PERSONALITY, "Curious"),
-    IMPULSIVE   = new Trait(BC, "Impulsive", PERSONALITY, "Impulsive"),
+    OUTGOING    = new Trait(BC, "Outgoing"   , PERSONALITY, "Outgoing"),
+    SOLITARY    = new Trait(BC, "Solitary"   , PERSONALITY, "Solitary"),
+    P6[] = Trait.correlate(OUTGOING, SOLITARY, -1),
     
+    CURIOUS     = new Trait(BC, "Curious"    , PERSONALITY, "Curious"),
     TRADITIONAL = new Trait(BC, "Traditional", PERSONALITY, "Traditional"),
-    PATIENT     = new Trait(BC, "Patient", PERSONALITY, "Patient"),
-    STUBBORN    = new Trait(BC, "Stubborn", PERSONALITY, "Stubborn"),
+    P7[] = Trait.correlate(CURIOUS, TRADITIONAL, -1),
     
-    AMBITIOUS   = new Trait(BC, "Ambitious", PERSONALITY, "Ambitious"),
-    ENERGETIC   = new Trait(BC, "Energetic", PERSONALITY, "Energetic"),
-    OUTGOING    = new Trait(BC, "Outgoing", PERSONALITY, "Outgoing"),
+    AMBITIOUS   = new Trait(BC, "Ambitious"  , PERSONALITY, "Ambitious"),
+    HUMBLE      = new Trait(BC, "Humble"     , PERSONALITY, "Humble"),
+    P8[] = Trait.correlate(AMBITIOUS, HUMBLE, -1),
     
-    HUMBLE      = new Trait(BC, "Humble", PERSONALITY, "Humble"),
-    RELAXED     = new Trait(BC, "Relaxed", PERSONALITY, "Relaxed"),
-    SOLITARY    = new Trait(BC, "Solitary", PERSONALITY, "Solitary"),
+    RELAXED     = new Trait(BC, "Indulgent"  , PERSONALITY, "Indulgent"),
+    ABSTINENT   = new Trait(BC, "Abstinent"  , PERSONALITY, "Abstinent"),
+    P9[] = Trait.correlate(RELAXED, ABSTINENT, -1),
     
-    EXCITABLE   = new Trait(BC, "Excitable", PERSONALITY, "Excitable"),
-    IMPASSIVE   = new Trait(BC, "Impassive", PERSONALITY, "Impassive"),
+    NATURALIST  = new Trait(BC, "Naturalist" , PERSONALITY, "Naturalist"),
+    METICULOUS  = new Trait(BC, "Meticulous" , PERSONALITY, "Meticulous"),
+    PX[] = Trait.correlate(NATURALIST, METICULOUS, -1),
     
-    PERSONALITY_TRAITS[] = Personality.setupRelations(
-      Trait.TRAIT_INDEX.soFar(Trait.class)
-    ),
+    PERSONALITY_TRAITS[] = Trait.TRAIT_INDEX.soFar(Trait.class),
     
     //
     //  These are the listings for physical traits.  Physical traits are
@@ -235,9 +230,9 @@ final public class Qualities {
       "Diminutive"
     ),
     STOUT = new Trait(BC, "Stoutness", PHYSICAL,
-      "Rotund",
+      "Obese",
+      "Flabby",
       "Stout",
-      "Sturdy",
       null,
       "Lithe",
       "Lean",
@@ -356,192 +351,4 @@ MUTANT_TRAITS[] = Trait.traitsSoFar();
     ALL_TRAITS[] = Trait.allTraits()
  ;
 //*/
-
-
-
-/*
-  //
-  //  These are the listings of personality traits.  These can be modified
-  //  over time based on experience, peer pressure or conditioning.  Genetic
-  //  factors also influence their expression.  (TODO:  Implement that.)
-  //
-  //  I've divided these into 3 main categories-
-  //    Basic Impulses (emotional drives or physical needs)
-  //    Meta-Decisional (modify the general process of plan-selection)
-  //    Cultural/Ethical (overall social values)
-  
-  //
-  //  BASIC IMPULSES-
-  NERVOUS = new Trait(BC, PERSONALITY,
-    "Cowardly",
-    "Nervous",
-    "Cautious",
-    null,
-    "Assertive",
-    "Fearless",
-    "Reckless"
-  ),
-  AGGRESSIVE = new Trait(BC, PERSONALITY,
-    "Vengeful",
-    "Aggressive",
-    "Defensive",
-    null,
-    "Calm",
-    "Gentle",
-    "Pacifist"
-  ),
-  FRIENDLY = new Trait(BC, PERSONALITY,
-    "Fawning",
-    "Complimentary",
-    "Friendly",
-    null,
-    "Reserved",
-    "Critical",
-    "Caustic"
-  ),
-  OPTIMISTIC = new Trait(BC, PERSONALITY,
-    "Blithe",
-    "Optimistic",
-    "Cheerful",
-    null,
-    "Skeptical",
-    "Pessimistic",
-    "Morose"
-  ),
-  DEBAUCHED = new Trait(BC, PERSONALITY,
-    "Debauched",
-    "Lusty",
-    "Fun",
-    null,
-    "Temperate",
-    "Abstinent",
-    "Ascetic"
-  ),
-  APPETITE = new Trait(BC, PERSONALITY,
-    "Gluttonous",
-    "Big Appetite",
-    "Gourmand",
-    null,
-    "Frugal",
-    "Small Appetite",
-    "No Appetite"
-  ),
-  
-  //
-  //  META-DECISIONAL-
-  STUBBORN = new Trait(BC, PERSONALITY,
-    "Obstinate",
-    "Stubborn",
-    "Persistent",
-    null,
-    "Spontaneous",
-    "Impulsive",
-    "Fickle"
-  ),
-  INQUISITIVE = new Trait(BC, PERSONALITY,
-    "Insatiably Curious",
-    "Inquisitive",
-    "Curious",
-    null,
-    "Stolid",
-    "Disinterested",
-    "Dull"
-  ),
-  SOCIABLE = new Trait(BC, PERSONALITY,
-    "Gregarious",
-    "Sociable",
-    "Open",
-    null,
-    "Private",
-    "Solitary",
-    "Withdrawn"
-  ),
-  DUTIFUL = new Trait(BC, PERSONALITY,
-    "Obedient",
-    "Dutiful",
-    "Respectful of Betters",
-    null,
-    "Independant",
-    "Rebellious",
-    "Anarchic"
-  ),
-  IMPASSIVE = new Trait(BC, PERSONALITY,
-    "Emotionless",
-    "Impassive",
-    "Rational",
-    null,
-    "Passionate",
-    "Excitable",
-    "Manic"
-  ),
-  INDOLENT = new Trait(BC, PERSONALITY,
-    "Lethargic",
-    "Indolent",
-    "Relaxed",
-    null,
-    "Busy",
-    "Restless",
-    "Workaholic"
-  ),
-  
-  //
-  //  CULTURAL/ETHICAL-
-  TRADITIONAL = new Trait(BC, PERSONALITY,
-    "Hidebound",
-    "Traditional",
-    "Old-fashioned",
-    null,
-    "Reformist",
-    "Radical",
-    "Subversive"
-  ),
-  NATURALIST = new Trait(BC, PERSONALITY,
-    "Gone Feral",
-    "Ecophile",
-    "Naturalist",
-    null,
-    "Urbanist",
-    "Industrialist",
-    "Antiseptic"
-  ),
-  ACQUISITIVE = new Trait(BC, PERSONALITY,
-    "Avaricious",
-    "Acquisitive",
-    "Thrifty",
-    null,
-    "Generous",
-    "Extravagant",
-    "Profligate"
-  ),
-  AMBITIOUS = new Trait(BC, PERSONALITY,
-    "Narcissist",
-    "Ambitious",
-    "Proud",
-    null,
-    "Modest",
-    "Humble",
-    "Complacent"
-  ),
-  HONOURABLE = new Trait(BC, PERSONALITY,
-    "Unimpeachable",
-    "Honourable",
-    "Trustworthy",
-    null,
-    "Sly",
-    "Dishonest",
-    "Manipulative"
-  ),
-  EMPATHIC = new Trait(BC, PERSONALITY,
-    "Martyr Complex",
-    "Compassionate",
-    "Sympathetic",
-    null,
-    "Hard",
-    "Cruel",
-    "Sadistic"
-  ),
-  PERSONALITY_TRAITS[] = Trait.traitsSoFar(),
-//*/
-  
-
 

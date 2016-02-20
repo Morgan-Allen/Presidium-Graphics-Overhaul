@@ -206,7 +206,7 @@ public class Dialogue extends Plan {
   
   /**  Target selection and priority evaluation-
     */
-  final static Trait BASE_TRAITS[] = { OUTGOING, POSITIVE, EMPATHIC };
+  final static Trait BASE_TRAITS[] = { OUTGOING, EMPATHIC };
   final static Skill BASE_SKILLS[] = { SUASION, TRUTH_SENSE };
   
   

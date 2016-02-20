@@ -53,7 +53,7 @@ public class FirstAid extends Treatment {
   /**  Targeting and priority evaluation.
     */
   final static Skill BASE_SKILLS[] = { ANATOMY, BIOLOGY  };
-  final static Trait BASE_TRAITS[] = { EMPATHIC, DUTIFUL };
+  final static Trait BASE_TRAITS[] = { EMPATHIC, LOYAL };
   
   
   protected float severity() {

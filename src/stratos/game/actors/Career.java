@@ -297,7 +297,7 @@ public class Career {
     
     for (Trait t : v.traitChances.keySet()) {
       float chance = v.traitChances.get(t);
-      chance += Personality.traitChance(t, actor) / 2;
+      chance += Trait.traitChance(t, actor) / 2;
       actor.traits.incLevel(t, chance * Rand.avgNums(2) * 2);
       
       if (verbose) {
@@ -365,7 +365,7 @@ public class Career {
         //  NOTE: Personality traits are handled a little differently, since
         //  those can have opposites:
         final float ownChance = (t.type == PERSONALITY) ?
-          Personality.traitChance(t, actor) :
+          Trait.traitChance(t, actor) :
           actor.traits.traitLevel(t)        ;
         
         if (report) I.say("  Chance due to "+t+" is "+ownChance+"/"+posChance);
@@ -401,7 +401,7 @@ public class Career {
       final int numP = actor.traits.personality().size();
       if (numP >= MIN_PERSONALITY) break;
       final Trait t = (Trait) Rand.pickFrom(PERSONALITY_TRAITS);
-      float chance = (Personality.traitChance(t, actor) / 2) + Rand.num();
+      float chance = (Trait.traitChance(t, actor) / 2) + Rand.num();
       if (chance < 0 && chance > -0.5f) chance = -0.5f;
       if (chance > 0 && chance <  0.5f) chance =  0.5f;
       actor.traits.incLevel(t, chance);

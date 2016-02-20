@@ -413,7 +413,7 @@ public class Audit extends Plan {
     //  expense' (or extra wages in the case of housing- e.g, for servants.)
     if (balance >= 0) {
       //  TODO:  Insert the embezzle check earlier?
-      if (Rand.num() > (actor.traits.traitLevel(ETHICAL) + 1) / 2f) {
+      if (Rand.num() > (actor.traits.traitLevel(LOYAL) + 1) / 2f) {
         float taken = balance * Backgrounds.DEFAULT_EMBEZZLE_PERCENT / 100f;
         this.embezzled += taken;
         balance -= taken;

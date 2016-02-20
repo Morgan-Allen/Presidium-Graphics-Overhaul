@@ -97,7 +97,7 @@ public class Supervision extends Plan {
   
   /**  Evaluating targets and priority-
     */
-  final static Trait BASE_TRAITS[] = { RELAXED, PATIENT, DUTIFUL };
+  final static Trait BASE_TRAITS[] = { RELAXED, LOYAL };
 
   protected float getPriority() {
     final boolean report = evalVerbose && I.talkAbout == actor;

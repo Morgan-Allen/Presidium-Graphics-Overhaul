@@ -78,7 +78,7 @@ public class Gifting extends Plan {
   
   /**  Priority evaluation-
     */
-  final static Trait BASE_TRAITS[] = { EMPATHIC, GENEROUS, EXCITABLE };
+  final static Trait BASE_TRAITS[] = { EMPATHIC, LOYAL };
   
   
   protected float getPriority() {

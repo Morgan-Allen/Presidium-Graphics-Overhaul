@@ -171,7 +171,7 @@ public class GearPurchase extends Plan {
   }
   
   
-  final static Trait BASE_TRAITS[] = { ACQUISITIVE };
+  final static Trait BASE_TRAITS[] = { AMBITIOUS };
   
   
   protected float getPriority() {

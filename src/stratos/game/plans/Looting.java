@@ -87,7 +87,7 @@ public class Looting extends Plan {
   
   /**  Behaviour implementation-
     */
-  final static Trait BASE_TRAITS[] = { DISHONEST, ACQUISITIVE };
+  final static Trait BASE_TRAITS[] = { SELFISH, IMPULSIVE };
   
   
   public static Item pickItemFrom(Owner owner, Actor steals, Traded... types) {

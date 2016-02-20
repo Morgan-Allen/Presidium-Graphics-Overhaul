@@ -249,7 +249,7 @@ public class Patrolling extends Plan implements TileConstants {
   
   /**  Obtaining and evaluating patrols targets-
     */
-  final static Trait BASE_TRAITS[] = { FEARLESS, PATIENT, SOLITARY };
+  final static Trait BASE_TRAITS[] = { FEARLESS, PERSISTENT, SOLITARY };
   
   protected float getPriority() {
     if (onPoint == null || patrolled.size() == 0) return 0;

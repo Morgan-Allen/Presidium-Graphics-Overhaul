@@ -238,7 +238,7 @@ public class Manufacture extends Plan implements Behaviour {
   
   /**  Vary this based on delay since inception and demand at the venue-
     */
-  final Trait BASE_TRAITS[] = { ENERGETIC, METICULOUS, ACQUISITIVE };
+  final Trait BASE_TRAITS[] = { PERSISTENT, METICULOUS };
   
 
   protected float getPriority() {

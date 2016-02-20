@@ -141,7 +141,7 @@ public class Choice {
       thresh *= 1 + extra;
     }
     
-    final float stubborn = actor.traits.relativeLevel(STUBBORN) / 2f;
+    final float stubborn = actor.traits.relativeLevel(PERSISTENT) / 2f;
     thresh *= 1 + stubborn;
     if (fromCurrent) thresh += 1;
     
@@ -275,7 +275,7 @@ public class Choice {
     if (report) {
       I.say("  Min. priority for last is: "+minPriority);
       I.say("  Threshold: "+(nextPriority - minPriority));
-      I.say("  Stubbornness: "+actor.traits.relativeLevel(STUBBORN));
+      I.say("  Stubbornness: "+actor.traits.relativeLevel(PERSISTENT));
       I.say("  Would switch from last to next? "+(lastPriority < minPriority));
     }
     return lastPriority < minPriority;

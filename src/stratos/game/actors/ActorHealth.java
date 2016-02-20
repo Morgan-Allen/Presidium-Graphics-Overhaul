@@ -695,9 +695,11 @@ public class ActorHealth {
       //
       //  Have morale converge to a default based on the cheerful trait and
       //  current stress levels.
-      final float
-        defaultMorale = actor.traits.relativeLevel(POSITIVE) / 10f,
-        moraleInc     = MORALE_DECAY_PER_DAY * MM / DL;
+      float defaultMorale = 0;
+      defaultMorale += actor.traits.relativeLevel(CALM     );
+      defaultMorale -= actor.traits.relativeLevel(DEFENSIVE);
+      defaultMorale /= 4;
+      final float moraleInc = MORALE_DECAY_PER_DAY * MM / DL;
       stress = stressPenalty();
       morale = (morale * (1 - moraleInc)) + (defaultMorale * moraleInc);
       morale -= stress / DL;

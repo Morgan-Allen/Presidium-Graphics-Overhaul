@@ -67,7 +67,7 @@ public class Treatment extends Plan {
   
   /**  Target and priority evaluation-
     */
-  final static Trait BASE_TRAITS[] = { EMPATHIC, CURIOUS, DUTIFUL };
+  final static Trait BASE_TRAITS[] = { EMPATHIC, CURIOUS, LOYAL };
   final static Skill BASE_SKILLS[] = { BIOLOGY, CHEMISTRY };
   
   

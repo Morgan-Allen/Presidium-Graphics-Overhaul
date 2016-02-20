@@ -33,25 +33,16 @@ public class Recreation extends Plan {
     TYPE_ANY      = -1,
     TYPE_SONG     =  0,
     TYPE_EROTICS  =  1,
-    TYPE_MEDIA    =  2,
-    TYPE_LARP     =  3,
-    TYPE_SPORT    =  4,
-    TYPE_MEDITATE =  5;
+    TYPE_SPORT    =  4;
   final static Trait ENJOYMENT_TRAITS[][] = {
     { },
-    { INDULGENT },
-    { },
-    { CURIOUS, OUTGOING },
-    { POSITIVE, DEFENSIVE },
-    { IMPASSIVE, STUBBORN },
+    { RELAXED },
+    { FEARLESS, DEFENSIVE },
   };
   final static String RELAX_DESC[] = {
     "Listening to Music",
     "Enjoying a Private Dance",
-    "Watching Media",
-    "LARPing",
     "Enjoying Sport",
-    "Meditating"
   };
   
   final Venue venue;
@@ -114,7 +105,7 @@ public class Recreation extends Plan {
       needFun = 1f - actor.health.moraleLevel(),
       comfort = rateComfort(venue, actor, this),
       cashPen = actor.motives.greedPriority(cost),
-      indulge = actor.traits.relativeLevel(INDULGENT) * CASUAL / 2;
+      indulge = actor.traits.relativeLevel(RELAXED) * CASUAL / 2;
     
     float priority = CASUAL + (needFun * (comfort + 1)) + indulge - cashPen;
     if (report) I.reportVars(
