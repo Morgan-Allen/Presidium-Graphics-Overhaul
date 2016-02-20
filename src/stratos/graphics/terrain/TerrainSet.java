@@ -5,6 +5,7 @@
   */
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 

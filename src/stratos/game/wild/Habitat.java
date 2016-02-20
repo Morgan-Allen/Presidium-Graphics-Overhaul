@@ -126,7 +126,7 @@ public class Habitat extends Index.Entry {
     SAVANNAH = new Habitat(
       Habitat.class, 6, "Savannah",
       "",
-      "savannah_ground.gif", DESERT_FLORA_MODELS,
+      "savannah_ground.png", DESERT_FLORA_MODELS,
       1, true, FERTILITY, 5, INSOLATION, 7, MINERALS, 3
     ),
     BARRENS = new Habitat(
