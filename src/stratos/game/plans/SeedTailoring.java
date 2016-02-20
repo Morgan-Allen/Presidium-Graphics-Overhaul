@@ -41,6 +41,8 @@ public class SeedTailoring extends Plan {
   final Venue lab;
   final Species species;
   final Item seedType;
+  
+  private float speedMult = 1.0f;
   private int stage = STAGE_INIT;
   
   
@@ -54,18 +56,20 @@ public class SeedTailoring extends Plan {
   
   public SeedTailoring(Session s) throws Exception {
     super(s);
-    lab      = (Venue  ) s.loadObject();
-    species  = (Species) s.loadObject();
-    stage    = s.loadInt();
-    seedType = Item.asMatch(GENE_SEED, species);
+    lab       = (Venue  ) s.loadObject();
+    species   = (Species) s.loadObject();
+    stage     = s.loadInt  ();
+    speedMult = s.loadFloat();
+    seedType  = Item.asMatch(GENE_SEED, species);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(lab    );
-    s.saveObject(species);
-    s.saveInt   (stage  );
+    s.saveObject(lab      );
+    s.saveObject(species  );
+    s.saveInt   (stage    );
+    s.saveFloat (speedMult);
   }
   
   
@@ -78,6 +82,11 @@ public class SeedTailoring extends Plan {
     if (! super.matchesPlan(p)) return false;
     final SeedTailoring t = (SeedTailoring) p;
     return t.species == this.species;
+  }
+  
+  
+  public void setSpeedMult(float mult) {
+    this.speedMult = mult;
   }
   
   
@@ -198,6 +207,7 @@ public class SeedTailoring extends Plan {
     quality = (int) Nums.clamp(quality, minLevel, maxLevel);
     
     float duration = species.animal() ? EGGS_TAILOR_TIME : SEED_TAILOR_TIME;
+    duration /= speedMult;
     if (species.animal()) duration *= species.metabolism() / 2;
     if (fastTailor) duration = Nums.max(1, duration / FAST_TAILOR_MULT);
     

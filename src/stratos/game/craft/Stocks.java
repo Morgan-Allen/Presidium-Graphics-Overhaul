@@ -150,7 +150,7 @@ public class Stocks extends Inventory {
     
     final Manufacture m = new Manufacture(
       actor, basis, c,
-      Item.withAmount(c.out, shortage + 5), false
+      Item.withAmount(c.out, shortage + 5), c.raw, false
     );
     return m;
   }

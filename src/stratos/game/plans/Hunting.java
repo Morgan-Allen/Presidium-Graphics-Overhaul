@@ -29,6 +29,10 @@ public class Hunting extends Plan {
     TYPE_FEEDS   = 0,
     TYPE_HARVEST = 1,
     TYPE_SAMPLE  = 2;
+  final public static int
+    HARVEST_TIME        = Stage.STANDARD_HOUR_LENGTH,
+    SPYCE_DIVISOR       = 5,
+    PREDATOR_SPYCE_MULT = Fauna.PREDATOR_TO_PREY_RATIO;
   final static String TYPE_DESC[] = {
     "Feeding", "Harvest", "Sampling"
   };
@@ -47,9 +51,11 @@ public class Hunting extends Plan {
   final Actor prey;
   final Owner depot;
   
-  private int stage = STAGE_INIT;
-  private float beginTime = -1;
-  private Combat downing = null;
+  private int stage         = STAGE_INIT;
+  private float beginTime   = -1;
+  private Combat downing    = null;
+  private float proteinMult = 1;
+  private float spyceMult   = 1;
   
   
   
@@ -81,28 +87,38 @@ public class Hunting extends Plan {
   
   public Hunting(Session s) throws Exception {
     super(s);
-    prey      = (Actor) s.loadObject();
-    type      = s.loadInt();
-    depot     = (Owner) s.loadObject();
-    stage     = s.loadInt();
-    beginTime = s.loadFloat();
-    downing   = (Combat) s.loadObject();
+    prey        = (Actor) s.loadObject();
+    type        = s.loadInt();
+    depot       = (Owner) s.loadObject();
+    stage       = s.loadInt();
+    beginTime   = s.loadFloat();
+    downing     = (Combat) s.loadObject();
+    proteinMult = s.loadFloat();
+    spyceMult   = s.loadFloat();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(prey     );
-    s.saveInt   (type     );
-    s.saveObject(depot    );
-    s.saveInt   (stage    );
-    s.saveFloat (beginTime);
-    s.saveObject(downing  );
+    s.saveObject(prey       );
+    s.saveInt   (type       );
+    s.saveObject(depot      );
+    s.saveInt   (stage      );
+    s.saveFloat (beginTime  );
+    s.saveObject(downing    );
+    s.saveFloat (proteinMult);
+    s.saveFloat (spyceMult  );
   }
   
   
   public Plan copyFor(Actor other) {
     return new Hunting(other, prey, type, depot);
+  }
+  
+  
+  public void setProductionLevels(float proteinMult, float spyceMult) {
+    this.proteinMult = proteinMult;
+    this.spyceMult   = spyceMult  ;
   }
   
   
@@ -140,7 +156,7 @@ public class Hunting extends Plan {
     if (report) {
       I.say("\nGetting priority for "+actor+" of hunting "+prey);
     }
-    
+
     if (prey.destroyed() || ! prey.inWorld()) return -1;
     final boolean begun = hasBegun(), alive = preyIsLive(prey);
     if ((! begun) && (! validPrey(prey, actor))) return -1;
@@ -166,6 +182,7 @@ public class Hunting extends Plan {
     //
     //  In the case of a sampling run, things are simpler.
     else {
+      if (alive) return -1;
       urgency += PlanUtils.traitAverage(actor, SAMPLE_TRAITS);
       harmLevel = Plan.NO_HARM;
     }
@@ -219,6 +236,12 @@ public class Hunting extends Plan {
   }
   
   
+  public Item sample() {
+    if (type != TYPE_SAMPLE) I.complain("Not a sampling hunt!");
+    return Item.withReference(SAMPLES, prey.species());
+  }
+  
+  
   
   /**  Actual implementation-
     */
@@ -227,11 +250,14 @@ public class Hunting extends Plan {
     if (report) {
       I.say("Getting next hunting step ("+type+") "+actor+" vs. "+prey);
     }
-    //  TODO:  See if this can be tidied up a bit...
+    if (prey.destroyed() || ! prey.inWorld()) return null;
     
     if (type == TYPE_FEEDS) {
       if (preyIsLive(prey)) {
         return downingStep(Combat.OBJECT_EITHER);
+      }
+      else if (prey.destroyed() || ! prey.inWorld()) {
+        return null;
       }
       else {
         if (report) I.say("  Feeding.");
@@ -268,13 +294,7 @@ public class Hunting extends Plan {
         return null;
       }
       else if (actor.gear.hasItem(sample)) {
-        if (report) I.say("  Returning sample.");
-        final Action returns = new Action(
-          actor, depot,
-          this, "actionReturnSample",
-          Action.REACH_DOWN, "Returning sample"
-        );
-        return returns;
+        return new Bringing(sample, actor, depot);
       }
       else if (! CombatUtils.isDowned(prey, Combat.OBJECT_SUBDUE)) {
         return downingStep(Combat.OBJECT_SUBDUE);
@@ -296,14 +316,6 @@ public class Hunting extends Plan {
   
   private Combat downingStep(int object) {
     return new Combat(actor, prey, Combat.STYLE_EITHER, object);
-    /*
-    if (downing == null) {
-      downing = new Combat(actor, prey, Combat.STYLE_EITHER, object);
-    }
-    downing.setMotivesFrom(this, PARAMOUNT);
-    if (! Plan.canFollow(actor, downing, true)) return null;
-    return downing;
-    //*/
   }
   
   
@@ -325,61 +337,32 @@ public class Hunting extends Plan {
   
   
   public boolean actionHarvest(Actor actor, Actor prey) {
-    //
-    //  Firstly, use a series of basic skill checks to see how effectively the
-    //  carcass can be butchered:
+    float process = 1f / HARVEST_TIME;
     final Action a = action();
-    float success = 1, mult = 0.5f;
-    if (actor.skills.test(XENOZOOLOGY, 10, 2, a)) success++;
-    if (actor.skills.test(DOMESTICS  , 5 , 1, a)) success++;
-    if (actor.skills.test(HARD_LABOUR, 5 , 1, a)) success++;
-    success /= 5;
-    //
-    //  Then we measure the physical damage done, and decrement prey health.
-    final float
-      before = prey.health.injury(),
-      damage = success * 2,
-      DF     = ActorHealth.DECOMP_FRACTION
-    ;
-    if (prey.health.alive()) prey.health.setState(ActorHealth.STATE_DEAD);
+    if (! actor.skills.test(XENOZOOLOGY, 5 , 1, a)) process /= 2;
+    if (! actor.skills.test(HARD_LABOUR, 10, 1, a)) process /= 2;
+    
+    float damage = prey.health.maxHealth() * process;
+    damage /= ActorHealth.DECOMP_FRACTION;
+    
+    float totalMeat = prey.health.maxHealth() * Fauna.MEAT_CONVERSION;
+    totalMeat /= ActorHealth.FOOD_TO_CALORIES;
+    totalMeat *= proteinMult;
+    
+    float totalSpyce = totalMeat / SPYCE_DIVISOR;
+    if (prey.species().predator()) totalSpyce *= PREDATOR_SPYCE_MULT;
+    totalSpyce *= spyceMult;
+    
     prey.health.takeInjury(damage, true);
-    //
-    //  Based on the damage, we extract meat and spyce from the carcass-
-    final float
-      taken = Nums.max(0, prey.health.injury() - before) / DF,
-      meat  = taken *  mult      / 1,
-      spyce = taken * (mult - 1) / 5;
-    //
-    //  Store those in the depot, and return-
-    if (stepsVerbose && I.talkAbout == actor) {
-      I.say("\nHarvesting meat from "+prey);
-      I.say("  Maximum health: "+prey.health.maxHealth()+", "+DF);
-      I.say("  Injury before/after: "+before+"/"+prey.health.injury());
-      I.say("  Harvest mult: "+mult );
-      I.say("  Meat amount:  "+meat );
-      I.say("  Spyce amount: "+spyce);
-    }
-    if (meat  > 0) depot.inventory().bumpItem(PROTEIN, meat );
-    if (spyce > 0) depot.inventory().bumpItem(SPYCES , spyce);
+    depot.inventory().bumpItem(PROTEIN, totalMeat  * process);
+    depot.inventory().bumpItem(SPYCES , totalSpyce * process);
     return true;
-  }
-  
-  
-  public Item sample() {
-    if (type != TYPE_SAMPLE) I.complain("Not a sampling hunt!");
-    return Item.withReference(SAMPLES, prey.species());
   }
   
   
   public boolean actionSample(Actor actor, Actor prey) {
     if (! actor.skills.test(XENOZOOLOGY, 10, 10, action())) return false;
     actor.gear.addItem(sample());
-    return true;
-  }
-  
-  
-  public boolean actionReturnSample(Actor actor, Owner depot) {
-    actor.gear.transfer(sample(), depot);
     return true;
   }
   

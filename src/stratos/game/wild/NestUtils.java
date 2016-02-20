@@ -79,6 +79,7 @@ public class NestUtils {
     final Base    fauna   = Base.wildlife(world);
     final Ecology ecology = world.ecology();
     
+    if (ecology.globalCrowding(s) > 1) return 1;
     final float
       globalPop  = ecology.idealPopulation(s),
       localPop   = fauna.demands.supplyAround(around, s, Stage.ZONE_SIZE),

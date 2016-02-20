@@ -224,17 +224,11 @@ public abstract class Fauna extends Actor implements Mount {
     */
   protected Behaviour nextHunting() {
     final Choice c = new Choice(this);
-    final boolean canHarvest = domesticated() && mind.home() instanceof Venue;
     
     for (Target e : senses.awareOf()) {
       if (Hunting.validPrey(e, this)) {
         final Actor prey = (Actor) e;
-        if (canHarvest) {
-          c.add(Hunting.asHarvest(this, prey, mind.home()));
-        }
-        else {
-          c.add(Hunting.asFeeding(this, prey));
-        }
+        c.add(Hunting.asFeeding(this, prey));
       }
     }
     return c.pickMostUrgent();
@@ -356,8 +350,8 @@ public abstract class Fauna extends Actor implements Mount {
   
   
   final static int
-    WITHDRAW_MELEE_BONUS     = 15,
-    WITHDRAW_RANGED_BONUS    = 10,
+    WITHDRAW_MELEE_BONUS     = 10,
+    WITHDRAW_RANGED_BONUS    =  5,
     WITHDRAW_BONUS_DURATION  = Stage.STANDARD_HOUR_LENGTH / 5,
     BASK_CALORIE_PERCENT     = 50,
     BASK_HEALTH_PERCENT      = 20,

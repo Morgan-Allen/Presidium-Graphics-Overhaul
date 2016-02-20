@@ -283,9 +283,9 @@ public interface Backgrounds {
       "modification capable of adapting species to local climate conditions.",
       "ecologist_skin.gif", "ecologist_portrait.png",
       CLASS_AGENT, GUILD_ECOLOGIST,
-      EXPERT, CULTIVATION, XENOZOOLOGY,
-      PRACTICED, GENE_CULTURE, CHEMISTRY, MARKSMANSHIP, STEALTH_AND_COVER,
-      LEARNING, GEOPHYSICS, ATHLETICS,
+      EXPERT, MARKSMANSHIP, XENOZOOLOGY,
+      PRACTICED, GENE_CULTURE, STEALTH_AND_COVER, CULTIVATION, ATHLETICS,
+      LEARNING, CHEMISTRY, GEOPHYSICS,
       ALWAYS, NATURALIST, SOMETIMES, EMPATHIC, CURIOUS,
       STUN_WAND, SEALSUIT
     ),

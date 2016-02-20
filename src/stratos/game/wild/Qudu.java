@@ -76,8 +76,8 @@ public class Qudu extends Fauna {
       species.speedMult, //speed rate
       ActorHealth.ANIMAL_METABOLISM
     );
-    gear.setBaseDamage(8);
-    gear.setBaseArmour(15);
+    gear.setBaseDamage(5);
+    gear.setBaseArmour(9);
     
     traits.setLevel(HAND_TO_HAND     , 10);
     traits.setLevel(STEALTH_AND_COVER, 5 );

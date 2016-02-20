@@ -467,16 +467,7 @@ public class Dialogue extends Plan {
   /**  Rendering and interface methods-
     */
   public void describeBehaviour(Description d) {
-    if (isAnimal()) {
-      d.appendAll("Playing with ", other);
-    }
-    else if (! other.species().sapient()) {
-      d.appendAll("Communicating with ", other);
-    }
-    else if (starts.topic != null) {
-      d.appendAll("Discussing ", starts.topic, " with ", other);
-    }
-    else if (isPlea()) {
+    if (isPlea()) {
       d.appendAll("Pleading with ", other);
       final Behaviour b = other.mind.rootBehaviour();
       if (b instanceof Dialogue) {
@@ -486,6 +477,15 @@ public class Dialogue extends Plan {
         d.append(" against ");
         b.describeBehaviour(d);
       }
+    }
+    else if (isAnimal()) {
+      d.appendAll("Playing with ", other);
+    }
+    else if (! other.species().sapient()) {
+      d.appendAll("Communicating with ", other);
+    }
+    else if (starts.topic != null) {
+      d.appendAll("Discussing ", starts.topic, " with ", other);
     }
     else if (stage <= STAGE_HAIL) {
       d.appendAll("Greeting ", other);

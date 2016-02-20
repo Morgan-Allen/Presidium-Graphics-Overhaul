@@ -27,7 +27,7 @@ public class PlanUtils {
   
   private static boolean reportOn(Actor a, float priority) {
     if (priority <= 0 && ! failVerbose) return false;
-    return I.talkAbout == a && verbose;
+    return I.talkAbout == a;// && verbose;
   }
   
   
@@ -538,6 +538,8 @@ public class PlanUtils {
   ) {
     if (acts instanceof Actor) {
       final Actor other = (Actor) acts;
+      final Plan  doing = other.mind.rootPlan();
+      if (doing == null) return 0;
       
       Target attackVictim = other.planFocus(Combat.class, true);
       Target otherVictim  = combatOnly ? null : other.actionFocus();
@@ -547,10 +549,26 @@ public class PlanUtils {
       float attackHarm  = Plan.harmIntended(other, attackVictim);
       float otherHarm   = Plan.harmIntended(other, otherVictim );
       
-      final float harmMeant = Nums.max(
+      float harmMeant = Nums.max(
          attackHarm * attackValue,
-         otherHarm * otherValue
+         otherHarm  * otherValue
       );
+      //
+      //  We add a dispensation for actors 'just doing their job'.
+      if (
+        doing.isJob() && other.base() == acts.base() && otherVictim != witness
+      ) {
+        float sub = Plan.ROUTINE * 1f / Plan.PARAMOUNT;
+        sub *= witness.traits.relativeLevel(DUTIFUL) + 1;
+        sub = Nums.min(sub, Nums.abs(harmMeant));
+        if (harmMeant > 0) harmMeant -= sub;
+        else               harmMeant += sub;
+      }
+      
+      if (I.talkAbout == witness && harmMeant > 0) {
+        I.say("??");
+      }
+      
       return harmMeant;
     }
     if (acts instanceof Venue) {

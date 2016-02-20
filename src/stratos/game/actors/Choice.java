@@ -21,7 +21,7 @@ public class Choice {
     verboseReject = false,
     verboseSwitch = false;
   
-  final Actor actor;
+  final public Actor actor;
   final Batch <Behaviour> plans = new Batch <Behaviour> ();
   public boolean isVerbose = false;
   

@@ -47,7 +47,7 @@ public class Manufacture extends Plan implements Behaviour {
   
   public Manufacture(
     Actor actor, Property venue,
-    Conversion conversion, Item made, boolean commission
+    Conversion conversion, Item made, Item needed[], boolean commission
   ) {
     super(actor, venue, MOTIVE_JOB, NO_HARM);
     this.venue = venue;
@@ -59,35 +59,39 @@ public class Manufacture extends Plan implements Behaviour {
   
   
   public Manufacture(Actor actor, Property venue, Item made) {
-    this(actor, venue, made.type.materials(), made, true);
+    this(
+      actor, venue,
+      made.type.materials(), made, made.type.materials().raw, true
+    );
   }
   
   
   public Manufacture(Session s) throws Exception {
     super(s);
-    venue = (Venue) s.loadObject();
+    made       = Item.loadFrom(s);
+    needed     = Item.loadItemsFrom(s);
+    venue      = (Venue) s.loadObject();
     conversion = (Conversion) s.loadObject();
-    made = Item.loadFrom(s);
-    this.needed = conversion.raw;
     speedBonus = s.loadFloat();
     amountMade = s.loadFloat();
-    commission = s.loadBool();
+    commission = s.loadBool ();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(venue);
+    Item.saveTo     (s, made  );
+    Item.saveItemsTo(s, needed);
+    s.saveObject(venue     );
     s.saveObject(conversion);
-    Item.saveTo(s, made);
-    s.saveFloat(speedBonus);
-    s.saveFloat(amountMade);
-    s.saveBool(commission);
+    s.saveFloat(speedBonus );
+    s.saveFloat(amountMade );
+    s.saveBool (commission );
   }
   
   
   public Plan copyFor(Actor other) {
-    return new Manufacture(other, venue, conversion, made, commission);
+    return new Manufacture(other, venue, conversion, made, needed, commission);
   }
   
   
