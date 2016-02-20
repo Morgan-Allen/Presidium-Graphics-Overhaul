@@ -59,6 +59,46 @@ public class BotanicalStation extends HarvestVenue {
     CARBS, GREENS, POWER, CULTIVATOR
   );
   
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.TWO_LEVELS, null,
+      new Object[] { 10, CULTIVATION, 0, XENOZOOLOGY },
+      450,
+      600//,
+      //750
+    ),
+    MONOCULTURE = new Upgrade(
+      "Monoculture",
+      "Improves cereal yields, which provide "+CARBS+".  Cereals provide "+
+      "cheap, abundant calories, but cannot provide a complete diet.",
+      100, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, CARBS, 10, CULTIVATION
+    ),
+    FLORAL_CULTURE = new Upgrade(
+      "Floral Culture",
+      "Improves broadleaf yields, which provide "+GREENS+", a luxury export. "+
+      "Also helps to advances forestry programs.",
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, GREENS, 10, CULTIVATION
+    ),
+    SOLAR_BANKS = new Upgrade(
+      "Solar Banks",
+      "Increases "+POWER+" output from covered tiles, especially in desert "+
+      "environments.",
+      100, Upgrade.THREE_LEVELS, FLORAL_CULTURE, BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, Flora.class,
+      10, ASSEMBLY, 5, FIELD_THEORY
+    ),
+    MOISTURE_FARMING = new Upgrade(
+      "Moisture",
+      "Increases growth of all crops at the cost of "+WATER+" consumption, "+
+      "especially in desert environments.",
+      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      Upgrade.Type.TECH_MODULE, PROTEIN,
+      10, CULTIVATION, 5, ASSEMBLY
+    )
+  ;
+  
   final static int
     MIN_CLAIM_SIDE = BLUEPRINT.size + 0,
     MAX_CLAIM_SIDE = BLUEPRINT.size + 4;
@@ -131,54 +171,6 @@ public class BotanicalStation extends HarvestVenue {
   
   /**  Handling upgrades and economic functions-
     */
-  final public static Upgrade
-    LEVELS[] = BLUEPRINT.createVenueLevels(
-      Upgrade.THREE_LEVELS, null,
-      new Object[] { 10, CULTIVATION, 0, XENOZOOLOGY },
-      450,
-      600,
-      750
-    ),
-    MONOCULTURE = new Upgrade(
-      "Monoculture",
-      "Improves cereal yields, which provide "+CARBS+".  Cereals provide "+
-      "cheap, abundant calories, but cannot provide a complete diet.",
-      100, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, CARBS, 10, CULTIVATION
-    ),
-    FLORAL_CULTURE = new Upgrade(
-      "Floral Culture",
-      "Improves broadleaf yields, which provide "+GREENS+", a luxury export. "+
-      "Also helps to advances forestry programs.",
-      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, GREENS, 10, CULTIVATION
-    ),
-    
-    /*
-    TREE_FARMING = new Upgrade(
-      "Tree Farming",
-      "Forestry programs assist in terraforming efforts and climate "+
-      "moderation, and can be digested for "+POLYMER+".",
-      100, Upgrade.THREE_LEVELS, FLORAL_CULTURE, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, Flora.class,
-      15, CULTIVATION
-    ),
-    SYMBIOTICS = new Upgrade(
-      "Symbiotics",
-      "Cultivates colonies of social insects as a source of "+PROTEIN+", and "+
-      "assists in animal breeding programs.",
-      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, PROTEIN,
-      5, XENOZOOLOGY
-    ),
-    //*/
-    //  TODO:  Just include upgrades for solar power and moisture farming!
-    
-    SOLAR_BANKS      = null,
-    MOISTURE_FARMING = null
-  ;
-  
-  
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
@@ -250,7 +242,8 @@ public class BotanicalStation extends HarvestVenue {
     super.updateAsScheduled(numUpdates, instant);
     if (! structure.intact()) return;
     //
-    //  Increment demands, and decay current stocks-
+    //  Decay any current seed stocks-
+    final float needSeed = SeedTailoring.DESIRED_SAMPLES;
     final float decay = 1f / (
       Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
     );
@@ -260,20 +253,39 @@ public class BotanicalStation extends HarvestVenue {
     for (Item sample : stocks.matches(SAMPLES)) {
       stocks.removeItem(Item.withAmount(sample, decay));
     }
-    
-    final float needSeed = SeedTailoring.DESIRED_SAMPLES;
-    float powerOut = (this.reserved().length / 3);
+    //
+    //  Calculate need for power and water-
+    final Vec2D middle = areaClaimed().centre();
+    final Tile underMid = world.tileAt(middle.x, middle.y);
+    float evapLevel = world().terrain().insolationSample(underMid) / 10;
+
+    float powerOut = (reserved().length / 3f), waterIn = 0;
     powerOut *= 1 - this.needsTending;
+    powerOut *= 1 + evapLevel;
+    powerOut *= (structure.upgradeLevel(SOLAR_BANKS) + 1) / 2f;
     
+    if (structure.hasUpgrade(MOISTURE_FARMING)) {
+      waterIn = (reserved().length / 5f);
+      waterIn *= 1 - this.needsTending;
+      waterIn *= 0.5f + evapLevel;
+    }
+    //
+    //  Update stocks-
     stocks.updateStockDemands(1, services());
     stocks.setConsumption(GENE_SEED, needSeed);
-    stocks.setConsumption(CARBS  , 2);
-    stocks.setConsumption(GREENS , 1);
-    stocks.setConsumption(PROTEIN, 1);
     stocks.forceDemand(POWER, 0, powerOut - 2);
+    stocks.forceDemand(WATER, waterIn, 0     );
     //
-    //  An update ambience-
+    //  And update ambience-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
+  }
+  
+  
+  protected float growthMultiple(Crop crop) {
+    float bonus = structure.upgradeLevel(MOISTURE_FARMING) / 2f;
+    bonus *= 1 - stocks.relativeShortage(WATER, false);
+    bonus *= crop.origin().habitat().insolation() / 10f;
+    return bonus + 1;
   }
   
   

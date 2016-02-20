@@ -134,6 +134,13 @@ public class Crop extends Flora {
     super.seedWith(s, quality);
   }
   
+
+  protected float dailyGrowthEstimate(Tile tile, boolean report) {
+    float estimate = super.dailyGrowthEstimate(tile, report);
+    if (parent != null) estimate *= parent.growthMultiple(this);
+    return estimate;
+  }
+  
   
   public void onGrowth(Tile tile) {
     //

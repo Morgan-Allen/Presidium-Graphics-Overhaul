@@ -221,7 +221,7 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  private float dailyGrowthEstimate(Tile tile, boolean report) {
+  protected float dailyGrowthEstimate(Tile tile, boolean report) {
     final Stage world = tile.world;
     float
       increment = 1f / NUM_DAYS_MATURE,

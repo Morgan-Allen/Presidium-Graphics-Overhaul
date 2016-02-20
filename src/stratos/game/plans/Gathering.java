@@ -37,7 +37,6 @@ public class Gathering extends ResourceTending {
     TYPE_LOGGING   = 3,
     TYPE_FORESTING = 4,
     TYPE_SAMPLE    = 5;
-  
   final public static float
     FLORA_PROCESS_TIME = Stage.STANDARD_HOUR_LENGTH,
     GROW_STAGE_POLYMER = 2.5f;
@@ -307,9 +306,9 @@ public class Gathering extends ResourceTending {
     final Action a = action();
     
     if (type == TYPE_FARMING) {
-      if (c == null   ) { seedTile((Tile) t, a)  ; return null         ; }
-      if (c != toTend ) { c.setAsDestroyed(false); return null         ; }
-      if (c.blighted()) { c.disinfest()          ; return null         ; }
+      if (c == null   ) { seedTile((Tile) t, a)  ; return null; }
+      if (c != toTend ) { c.setAsDestroyed(false); return null; }
+      if (c.blighted()) { c.disinfest()          ; return null; }
       if (c.ripe()) {
         c.setAsDestroyed(false);
         seedTile(c.origin(), a);
@@ -317,8 +316,8 @@ public class Gathering extends ResourceTending {
       }
     }
     if (type == TYPE_FORESTING) {
-      if (c == null   ) { seedTile((Tile) t, a)  ; return null;          }
-      if (c != toTend ) { c.setAsDestroyed(false); return null;          }
+      if (c == null   ) { seedTile((Tile) t, a)  ; return null; }
+      if (c != toTend ) { c.setAsDestroyed(false); return null; }
     }
     if (type == TYPE_LOGGING) {
       if (c != null   ) { c.setAsDestroyed(false); return c.materials(); }
