@@ -2,22 +2,73 @@
 
 CURRENT ITEMS:
 
+   Priority:  High  Duration:  Short
+*  Cull anything unused or under-used from the lists of Backgrounds, Skills and
+   Traits.  Bare minimum for now.
 
-*  Implement a fast-forward/slow-down option.  (Plus save/load?)
+   Priority:  Medium-Low  Duration:  Short
+*  The 'savannah' terrain-type needs filling in!
 
-*  Have an encyclopaedia listing of some kind.
+   Priority:  High  Duration:  Medium-Short
+*  Make sure there's a collective estimate for overall production/consumption
+   of all goods in the settlement- and the number/type of contributing
+   facilities.
 
-*  Initial wall-space should be a little more generous and/or resource-sites
-   should be smaller.  And patch up pave-patterns around those, and increase
-   the harvest-quotient.
-
-*  The runner-market and carbon plant need to have their areas revised.
-
-
+   Priority:  Medium  Duration:  Short
+*  Various items in tutorial should be clarified-
+   'Base roster' should be 'Personnel tab'.
+   Import/export options needs to be explained better at supply depot.
+   Auditor?  Not explained enough.
+   Explain date/time at the top.  And saving?
+   Psy points?  Not used in tutorial.
 
    Priority:  High  Duration:  Long
 *  You need to flesh out the scripts for each of the available landing sites (
-   and maybe add a smidgeon of custom art as well.)
+   and maybe add a smidgeon of custom art as well.)  Also, more sectors.
+
+   Priority:  Medium-High  Duration:  Short to Medium
+*  Build a markets-report into the information for each sector.  And an ability
+   to toggle specific imports/exports.
+
+
+MECHANICS:
+
+   Priority:  Medium  Duration:  Medium
+*  Allow specific training for a given citizen under 'duties'.  Set preferred
+   weapons, skills, shift & hours/pay.  They can train themselves at either the
+   Archives or the Trooper Lodge.  (Set through interview, maybe?)
+
+   Priority:  Minor  Duration:  Short
+*  Make sure that the skill-bonuses for a given homeworld are actually applied
+   to colonists in full, along with ethnicity-chance.
+
+   Priority:  Medium  Duration:  Short
+*  There seems to be a moment of noticeable lag when selecting citizens,
+   apparently due to the SelectionOptions being configured.  Try and isolate
+   the slowdown.
+
+   Priority:  Medium  Duration:  Short
+*  Because action-conditions for pathing are more tolerant now, you can
+   occasionally get bugs where supply-corps are sucked into a ship that's
+   already taken off- fix.
+
+   Priority:  Medium  Duration:  Medium
+*  The former plant should be restored, as a longer-term source of minerals or
+   polymer.  And maybe spice?
+
+   Priority:  Medium-High  Duration:  Long
+*  Add terraforming effects from vegetation (it should appear in nearby tiles,
+   not just auto-seed.)  Add terraforming in general.
+
+   Priority:  Low  Duration:  Medium-Long
+*  Implement egg-collection or standing hives as a nonlethal source of protein?
+*  Add spice-extraction from vegetation-sampling and mineral-flats.
+
+
+VISUAL AND MEDIA-
+
+   Priority:  High  Duration:  High
+*  Have an encyclopaedia listing of some kind.
 
    Priority:  High  Duration:  Long to Very Long
 *  Create and import Level-2 art-assets for the major guilds.
@@ -28,35 +79,14 @@ CURRENT ITEMS:
    Physician Station
    Ecologist Station
 
-   Priority:  High  Duration:  Short
-*  Cull anything unused or under-used from the lists of Backgrounds, Skills and
-   Traits.  Bare minimum for now.
+   Priority:  Very Low  Duration:  Short
+*  Get rid of the fade-in effect for time slowing down/speeding up!
 
-   Priority:  Minor  Duration:  Short
-*  Make sure that the skill-bonuses for a given homeworld are actually applied
-   to colonists in full, along with ethnicity-chance.
-
-   Priority:  Medium  Duration:  Medium
-*  Consider adding ruins and an atmosphere-overlay to the planet-display.  Also,
-   more sectors!
-
-
-
+   Priority:  Low  Duration:  Medium
+*  Consider adding ruins and an atmosphere-overlay to the planet-display.
 
    Priority:  Low  Duration:  Short?
 *  You need more distinctive symbols for Claiming and Research missions.
-
-   Priority:  Medium-Low  Duration:  Short
-*  The 'savannah' terrain-type needs filling in!
-
-   Priority:  Medium-Low  Duration:  Short
-*  Wall-distribution around the Bastion needs patching.
-
-   Priority:  Medium-Low  Duration:  Short?
-*  Patch up terrain-FX for the excavation site.
-
-   Priority:  Low  Duration:  Short
-*  Restore the nursery at the ecologist station.
 
    Priority:  Low  Duration:  Short
 *  Try to restore dust-crawlers at chem panner and/or excavation site.
@@ -67,9 +97,6 @@ CURRENT ITEMS:
    personal rewards, initial supplies/buildings/landing-site, et cetera.)
    
    In addition, trade-partners and tech-levels should be retained!
-
-   Priority:  Low  Duration:  Short to Medium
-*  Build a markets-report into the information for each sector.
 
 
 BACK BURNER:
