@@ -26,9 +26,14 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   private TalkFX chat = new TalkFX();
   
   
+  protected SupplyCache(int size, int high, ModelAsset model) {
+    super(size, high);
+    attachModel(model);
+  }
+  
+  
   public SupplyCache() {
-    super(1, 1);
-    attachModel(MODEL);
+    this(1, 1, MODEL);
   }
   
   

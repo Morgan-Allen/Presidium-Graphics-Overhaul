@@ -6,7 +6,12 @@
 package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
-import stratos.user.notify.MessageScript;
+import stratos.game.craft.*;
+import stratos.game.wild.*;
+import stratos.user.*;
+import stratos.user.notify.*;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 
@@ -16,7 +21,14 @@ public class ScenarioTerra extends SectorScenario {
   
   /**  Data fields, constructors and save/load methods-
     */
+  final static CutoutModel
+    MODEL_WRECK = CutoutModel.fromImage(
+      ScenarioTerra.class, "media/Scenario/terra_wreckage.png", 2, 2
+    );
+  
   final MessageScript script;
+  
+  Batch <Item> artifacts = new Batch();
   
   
   public ScenarioTerra(Verse verse) {
@@ -40,6 +52,68 @@ public class ScenarioTerra extends SectorScenario {
   
   
   
+  /**  Script and setup methods-
+    */
+  public static class ArtifactSite extends SupplyCache {
+    
+    protected ArtifactSite() {
+      super(2, 2, MODEL_WRECK);
+    }
+    
+    
+    public ArtifactSite(Session s) throws Exception {
+      super(s);
+    }
+    
+    
+    public void saveState(Session s) throws Exception {
+      super.saveState(s);
+    }
+    
+    
+    public String fullName() {
+      return "Ancient Wreckage";
+    }
+    
+    
+    public Composite portrait(HUD UI) {
+      return null;
+    }
+    
+    
+    public String helpInfo() {
+      return "A piece of wreckage from the crash of the Tsedar.";
+    }
+  }
+  
+  
+  protected void configureScenario(Stage world, Base base, BaseUI UI) {
+    super.configureScenario(world, base, UI);
+    
+    //  TODO:  Scatter the artifacts within the landscape, along with the
+    //  wreckage, and a few within some ruins, including a central wreck.
+    //  (Later.  Just the basics for now.)
+    
+    
+  }
+  
+  
+  protected boolean checkShowIntro() {
+    return true;
+  }
+  
+  
+  protected boolean checkScenarioSuccess() {
+    final Venue HQ = (Venue) base().HQ();
+    if (HQ == null || HQ.destroyed()) return false;
+    for (Item i : artifacts) {
+      if (! HQ.stocks.hasItem(i)) return false;
+    }
+    return true;
+  }
+  
+  
+  
   /**  Update methods for when off-stage:
     */
   public void updateOffstage() {
@@ -53,8 +127,10 @@ public class ScenarioTerra extends SectorScenario {
     final String summary = script.contentForTopic("Summary");
     d.append(summary);
   }
-  
 }
+
+
+
 
 
 
