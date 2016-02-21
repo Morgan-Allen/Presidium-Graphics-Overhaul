@@ -31,7 +31,8 @@ public class ActorSenses {
   
   final Actor actor;
   final Table <Target, Saveable> awares = new Table <Target, Saveable> ();
-  final Batch <Target> awareOf = new Batch <Target> ();
+  private Target awareOf     [] = new Target[0];
+  private float  awareThreats[] = new float [0];
   
   private boolean emergency   = false;
   private boolean underAttack = false;
@@ -46,11 +47,17 @@ public class ActorSenses {
   
   
   public void loadState(Session s) throws Exception {
-    for (int n = s.loadInt(); n-- > 0;) {
+    final int numA = s.loadInt();
+    awareOf      = new Target[numA];
+    awareThreats = new float [numA];
+    
+    for (int n = numA; n-- > 0;) {
       final Target e = (Target) s.loadObject();
       awares.put(e, s.loadObject());
-      awareOf.add(e);
+      awareOf     [n] = e;
+      awareThreats[n] = s.loadFloat();
     }
+    
     emergency   = s.loadBool ();
     underAttack = s.loadBool ();
     powerLevel  = s.loadFloat();
@@ -60,10 +67,12 @@ public class ActorSenses {
   
   
   public void saveState(Session s) throws Exception {
-    s.saveInt(awares.size());
-    for (Target e : awares.keySet()) {
+    s.saveInt(awareOf.length);
+    for (int n = awareOf.length; n-- > 0;) {
+      final Target e = awareOf[n];
       s.saveObject(e);
       s.saveObject(awares.get(e));
+      s.saveFloat(awareThreats[n]);
     }
     s.saveBool  (emergency  );
     s.saveBool  (underAttack);
@@ -75,8 +84,14 @@ public class ActorSenses {
   
   public void onWorldExit() {
     awares.clear();
-    awareOf.clear();
+    updateAwareLists();
     safePoint = null;
+  }
+  
+  
+  public void clearAwareness(Target t) {
+    awares.remove(t);
+    updateAwareLists();
   }
   
   
@@ -116,10 +131,9 @@ public class ActorSenses {
     
     //  Remove the latter from the list, and having added the former, update
     //  our sense of personal endangerment-
-    awareOf.clear();
     for (Target e : lostSight) awares.remove(e);
-    for (Target e : awares.keySet()) awareOf.add(e);
-    updateDangerEval(awareOf);
+    updateAwareLists();
+    updateDangerEval(awareOf, awareThreats);
     
     if (report) {
       for (Target e : awares.keySet()) I.say("  Aware of:      "+e);
@@ -150,6 +164,14 @@ public class ActorSenses {
       actor.mind.assignBehaviour(reaction);
     }
     else if (report) I.say("  Sticking with current plan.");
+  }
+  
+  
+  protected void updateAwareLists() {
+    awareOf      = new Target[awares.size()];
+    awareThreats = new float [awares.size()];
+    int indexA = 0;
+    for (Target e : awares.keySet()) awareOf[indexA++] = e;
   }
   
   
@@ -198,17 +220,17 @@ public class ActorSenses {
     
     float senseChance = sightRange * fog;
     if (awareOf(e)) senseChance *= 2;
-    senseChance += focusBonus(e    , null, sightRange    );
-    senseChance += focusBonus(actor, e   , sightRange * 2);
+    senseChance += SenseUtils.focusBonus(e    , actor, sightRange);
+    senseChance += SenseUtils.focusBonus(actor, e    , sightRange);
     
-    float hideChance = distance * (1 + stealthFactor(e, actor));
+    float hideChance = distance * (1 + SenseUtils.stealthFactor(e, actor));
     if (SenseUtils.indoorsTo(actor, e, false)) hideChance += sightRange;
     hideChance += hideBonus;
     final boolean noticed = senseChance > hideChance;
     
-    if (report && ! noticed) {
+    if (report) {
       I.say("\n  Have noticed      "+e+"? "+noticed);
-      I.say("    Stealth value:  "+stealthFactor(e, actor));
+      I.say("    Stealth value:  "+SenseUtils.stealthFactor(e, actor));
       if (e instanceof Actor) {
         final Actor o = (Actor) e;
         I.say("    Current motion: "+Action.speedMultiple(o, true));
@@ -236,36 +258,6 @@ public class ActorSenses {
   }
   
   
-  //  In essence, this gives to spot an actor- or be spotted yourself- in cases
-  //  where you're actively targetting something at range (e.g, gunshots or
-  //  dialogue.)
-  private float focusBonus(Target e, Target with, float maxRange) {
-    if (! (e instanceof Actor)) return 0;
-    final Actor other = (Actor) e;
-    final Target focus = other.actionFocus();
-    if (with != null && with != focus) return 0;
-    if (focus == null || Spacing.distance(actor, focus) > maxRange) return 0;
-    return Spacing.distance(other, focus);
-  }
-  
-  
-  private float stealthFactor(Target e, Actor looks) {
-    if (e instanceof Actor) {
-      final Actor other = (Actor) e;
-      final Action action = other.currentAction();
-      
-      float stealth = other.traits.usedLevel(EVASION) / 20f;
-      if (action != null && action.quick  ()) stealth /= 2;
-      if (action != null && action.careful()) stealth *= 2;
-      return Nums.clamp(stealth, 0, 2);
-    }
-    if (e instanceof Placeable) {
-      return ((Placeable) e).structure().cloaking() / 10f;
-    }
-    return 0;
-  }
-  
-  
   public boolean awareOf(Target e) {
     return awares.get(e) != null;
   }
@@ -276,22 +268,24 @@ public class ActorSenses {
   }
   
   
-  public Batch <Target> awareOf() {
+  public Target[] awareOf() {
     return awareOf;
+  }
+  
+  
+  public float[] awareThreats() {
+    return awareThreats;
   }
   
   
   
   /**  Threat Evaluation methods-
     */
-  //  TODO:  This needs to be merged with the combatWinChance and homeDistance
-  //  methods in PlanUtils.
-  
-  protected void updateDangerEval(Batch <Target> awareOf) {
+  protected void updateDangerEval(Target awareOf[], float putThreats[]) {
     final boolean report = I.talkAbout == actor && dangerVerbose;
     if (report) {
       I.say("\nUpdating danger assessment for "+actor);
-      I.say("  Total aware of: "+awareOf.size());
+      I.say("  Total aware of: "+awareOf.length);
       for (Target t : awareOf) I.say("    "+t);
     }
     
@@ -302,13 +296,18 @@ public class ActorSenses {
     powerLevel  = CombatUtils.powerLevel(actor);
     bravery     = (2 + actor.traits.relativeLevel(FEARLESS)) / 2;
     
-    for (Target t : awareOf) if (t instanceof Actor) {
+    for (int i = 0; i < awareOf.length; i++) {
+      final Target t = awareOf[i];
+      if (! (t instanceof Actor)) { awareThreats[i] = 0; continue; }
+      
       final Actor near = (Actor) t;
       if (near == actor || ! near.health.alive()) continue;
       if (stealthy && ! near.senses.awareOf(actor)) continue;
       
       float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
       attackRisk /= Plan.PARAMOUNT;
+      awareThreats[i] = attackRisk;
+      
       if (attackRisk > 0) {
         attackRisk = Nums.clamp(attackRisk, 0, 2);
         final float power = CombatUtils.powerLevelRelative(near, actor);

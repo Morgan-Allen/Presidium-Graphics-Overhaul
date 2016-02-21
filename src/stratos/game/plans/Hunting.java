@@ -176,7 +176,7 @@ public class Hunting extends Plan {
       
       urgency += hunger = actor.health.hungerLevel();
       if (alive) urgency *= crowdRating;
-      else       urgency += ActorHealth.MAX_CALORIES - 1;
+      else       urgency += 0.5f;
       if (hunger > 0.5f) urgency += (hunger - 0.5f) * 2;
     }
     //
@@ -192,7 +192,10 @@ public class Hunting extends Plan {
     urgency += motiveBonus() / Plan.PARAMOUNT;
     if (begun) urgency = Nums.max(urgency, 0.5f);
     
-    if (alive && urgency > 0) {
+    if (type == TYPE_FEEDS && hunger <= 1 - ActorHealth.MAX_CALORIES) {
+      priority = -1;
+    }
+    else if (alive && urgency > 0) {
       priority = PlanUtils.combatPriority(
         actor, prey, urgency * Plan.PARAMOUNT, 1, true, harmLevel
       );

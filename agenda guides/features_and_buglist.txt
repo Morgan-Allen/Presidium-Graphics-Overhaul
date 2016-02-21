@@ -6,8 +6,6 @@
    the homeworld on a scale of 1-2 months (10-20 days.)  Landing parties 'come
    ashore' every day or two, but those can't respond to job-demand as such.
 
-*  Notifications for raids!
-
 *  Citizens need to migrate offworld if unhappy/unemployed enough.
 
   >>>>>>> DO THIS <<<<<<<
@@ -15,9 +13,6 @@
    
    Allow both hiring and queueing of upgrades before a structure is complete,
    and allow relocating once it is.
-
-*  You need to report output for *all* items produced at the engineer station,
-   fabricator, physician station, etc..
 
 *  Features to add:
    Auto-Turret behaviour.  Forcefield generation.
@@ -46,9 +41,6 @@
    sure that mounts are prompter about responding.  (A MountUtils class may
    be in order for cleanup.)
 
-
-*  During the new-game screen, consider inserting the portrait for the leader
-   in the current pane, directly.  And certainly give it a label!
 
 *  Ensure that political-relations fx for house suhail and full trait/skill fx
    for gender are working when you begin a new game.  (Also, consider allowing
@@ -136,9 +128,6 @@ BUILDINGS AND ECONOMY-
 *  Integrate spyce-sources and use it to boost Psy abilities (such as sovereign
    spells.)
 
-*  Wood is valued for aesthetic properties (decor at the fabricator), along
-   with fossils/curios for outfits.
-
 *  Implement long-distance auto-paving, but only for autonomous base-AI.  The
    player can handle most connections themselves.
 
@@ -149,13 +138,7 @@ SPECIFIC TO RESOURCE-HARVESTING-
 *  Excavation sites:
   Could use a new terrain-type for strip mining, and/or art to show shafts
   being sunk for mantle drills.
-  Implement mining of surface rocks.
-  Extra tailings for polymer.
   Output-estimation could be a little more averaged.
-
-*  Moisture farms:
-  Could be called that.
-  Could use art & code for aquaculture & desalinators.
 
 
 THE TUTORIAL

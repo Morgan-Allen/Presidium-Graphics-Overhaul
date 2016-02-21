@@ -322,7 +322,7 @@ public class Action implements Behaviour, AnimNames {
     final Target lastStep = PathSearch.accessLocation(moveTarget, actor);
     final boolean
       ranged    = ranged(),
-      mustBoard = ((! ranged) && (lastStep instanceof Boarding))
+      mustBoard = ((! ranged) && lastStep.indoors())
     ;
     final float
       sightRange = actor.health.sightRange(),
@@ -332,9 +332,9 @@ public class Action implements Behaviour, AnimNames {
     ;
     //  We also need to calculate an appropriate maximum distance in order for
     //  the action to progress-
-    float maxDist = 0.01f;
+    float maxDist = 0.25f;
     if (ranged()) {
-      maxDist += sightRange * (moveState == STATE_CLOSED ? 1.25f : 1);
+      maxDist += sightRange + 0.5f;
     }
     else if (moveState == STATE_CLOSED) {
       maxDist += progress + 0.25f;
@@ -427,10 +427,10 @@ public class Action implements Behaviour, AnimNames {
     //  allows action delivery to proceed.  (If delivery was already underway,
     //  cancel the action.)
     final byte oldState = moveState;
-    if (closed && facing) moveState = STATE_CLOSED;
-    else if (motionType == MOTION_SNEAK) moveState = STATE_SNEAK;
-    else if (motionType == MOTION_FAST ) moveState = STATE_RUN  ;
-    else moveState = STATE_MOVE;
+    if      (closed && facing          ) moveState = STATE_CLOSED;
+    else if (motionType == MOTION_SNEAK) moveState = STATE_SNEAK ;
+    else if (motionType == MOTION_FAST ) moveState = STATE_RUN   ;
+    else                                 moveState = STATE_MOVE  ;
     
     if (moveState != oldState) {
       if (oldState == STATE_CLOSED) { interrupt(INTERRUPT_CANCEL); return 0; }
@@ -471,8 +471,8 @@ public class Action implements Behaviour, AnimNames {
   
   private float contactTime() {
     final float duration = actionDuration();
-    final float contact = (duration - 0.25f) / duration;
-    return contact;
+    if (ranged()) return (duration - 0.25f) / duration;
+    else          return 0.25f / duration;
   }
   
   
@@ -483,6 +483,7 @@ public class Action implements Behaviour, AnimNames {
   
   protected void updateAction(boolean active, Actor calls) {
     final boolean report = I.talkAbout == actor && verbose;
+    
     if (report) {
       I.say("\nUpdating action for: "+actor+"  Target: "+actionTarget);
       I.say("  Method is: "+methodName()+", basis "+basis.getClass());
@@ -499,9 +500,14 @@ public class Action implements Behaviour, AnimNames {
       return;
     }
     
+    final int oldState = moveState;
     final int motionType = motionType(actor);
     oldProgress = progress;
     final float moveRate = updateMotion(active, motionType);
+    
+    if (moveState != oldState) {
+      I.say("\nChanged to move state: "+moveState);
+    }
     
     if (moveState == STATE_CLOSED) {
       final float contact = contactTime();
@@ -509,6 +515,7 @@ public class Action implements Behaviour, AnimNames {
       progress = Nums.clamp(progress, 0, 1);
       if (report) {
         I.say("  Have closed on target, contact at "+contact);
+        I.say("  Distance:         "+Spacing.distance(actor, moveTarget));
         I.say("  Old/new progress: "+oldProgress+"/"+progress);
       }
       if (oldProgress <= contact && progress > contact) {

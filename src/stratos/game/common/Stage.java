@@ -150,6 +150,7 @@ public class Stage implements Session.Saveable {
   public void readyAfterPopulation() {
     terrain.readyAllMeshes();
     pathingMap.initMap();
+    patches.updateBounds();
   }
   
   

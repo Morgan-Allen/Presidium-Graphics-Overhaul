@@ -21,6 +21,11 @@ public class Nesting extends Plan {
   
   /**  Data fields, construction and save/load methods-
     */
+  private static boolean
+    evalVerbose  = false,
+    stepsVerbose = false;
+  
+  
   private Target site;
   
   
@@ -78,7 +83,7 @@ public class Nesting extends Plan {
     final float maxDist      = Fauna.PREDATOR_SEPARATION;
     final Stage world        = actor.world();
     
-    final boolean report = I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     if (report) {
       I.say("\nChecking migration for "+actor+" ("+hashCode()+")");
       I.say("  Home crowding is: "+homeCrowding);

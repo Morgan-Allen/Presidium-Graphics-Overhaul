@@ -1,7 +1,10 @@
 
 
 package stratos.game.actors;
+import static stratos.game.actors.Qualities.EVASION;
+
 import stratos.game.common.*;
+import stratos.game.craft.Placeable;
 import stratos.game.plans.*;
 import stratos.util.*;
 
@@ -46,8 +49,7 @@ public class SenseUtils {
       if (! follows.senses.notices(actor, sightRange, hideBonus)) {
         if (report) I.say("  Breakoff successful!");
         //  TODO:  This might need a dedicated method.
-        follows.senses.awares.remove(actor);
-        follows.senses.awareOf.clear();
+        follows.senses.clearAwareness(actor);
         p.interrupt(Plan.INTERRUPT_LOSE_SIGHT);
       }
       else {
@@ -74,6 +76,38 @@ public class SenseUtils {
     final Vec2D disp = origin.pathing.displacement(flanks);
     final float angle = disp.normalise().toAngle();
     return Nums.abs(angle - origin.rotation());
+  }
+  
+  
+  //  In essence, this gives a bonus to spot an actor- or be spotted yourself-
+  //  in cases where you're actively targeting something at range (e.g,
+  //  gunshots or dialogue.)
+  public static float focusBonus(Target e, Target with, float maxRange) {
+    if (! (e instanceof Actor)) return 0;
+    final Actor actor = (Actor) e;
+    final Action action = actor.currentAction();
+    if (action == null || action.subject() != with) return 0;
+    
+    final float distance = Spacing.distance(actor, action.subject());
+    if (distance >= maxRange) return 0;
+    else return maxRange - distance;
+  }
+  
+  
+  public static float stealthFactor(Target e, Actor looks) {
+    if (e instanceof Actor) {
+      final Actor other = (Actor) e;
+      final Action action = other.currentAction();
+      
+      float stealth = other.traits.usedLevel(EVASION) / 20f;
+      if (action != null && action.quick  ()) stealth /= 2;
+      if (action != null && action.careful()) stealth *= 2;
+      return Nums.clamp(stealth, 0, 2);
+    }
+    if (e instanceof Placeable) {
+      return ((Placeable) e).structure().cloaking() / 10f;
+    }
+    return 0;
   }
   
   

@@ -2,6 +2,17 @@
 
 CURRENT ITEMS:
 
+   Priority:  High  Duration:  Long
+*  You need to flesh out the scripts for each of the available landing sites (
+   and maybe add a smidgeon of custom art as well.)  Also, more sectors.
+   
+   You will need a dedicated sampling/salvage mission for objects on the
+   landscape.
+
+   Priority:  Medium-High  Duration:  Short to Medium
+*  Build a markets-report into the information for each sector.  And an ability
+   to toggle specific imports/exports.
+
    Priority:  High  Duration:  Medium-Short
 *  Make sure there's a collective estimate for overall production/consumption
    of all goods in the settlement- and the number/type of contributing
@@ -14,14 +25,6 @@ CURRENT ITEMS:
    Auditor?  Not explained enough.
    Explain date/time at the top.  And saving?
    Psy points?  Not used in tutorial.
-
-   Priority:  High  Duration:  Long
-*  You need to flesh out the scripts for each of the available landing sites (
-   and maybe add a smidgeon of custom art as well.)  Also, more sectors.
-
-   Priority:  Medium-High  Duration:  Short to Medium
-*  Build a markets-report into the information for each sector.  And an ability
-   to toggle specific imports/exports.
 
 
 MECHANICS:
@@ -59,6 +62,9 @@ MECHANICS:
 
 
 VISUAL AND MEDIA-
+
+   Priority:  Medium-High  Duration:  Medium-Short
+*  Integrate the various model-costumes with the assorted vocations.
 
    Priority:  High  Duration:  High
 *  Have an encyclopaedia listing of some kind.

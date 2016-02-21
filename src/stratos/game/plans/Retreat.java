@@ -76,14 +76,19 @@ public class Retreat extends Plan {
   public static Boarding nearestHaven(
     final Actor actor, final Class prefClass, final boolean emergency
   ) {
-    if (actor == I.talkAbout && havenVerbose) {
+    final boolean report = I.talkAbout == actor && havenVerbose;
+    if (report) {
       I.say("\nPicking haven for "+actor+"...");
+      I.say("  Currently aboard: "+actor.aboard());
+      I.say("  Sight range:      "+actor.health.sightRange());
     }
     
     if (actor.mind.home() != null) return actor.mind.home();
     if (actor.mind.work() != null) return actor.mind.work();
     
     Tile hides = pickHidePoint(actor, actor.health.sightRange(), actor, -2);
+    if (report) I.say("  hide point is: "+hides);
+    
     if (hides != null) return hides;
     return actor.aboard();
     
@@ -166,36 +171,50 @@ public class Retreat extends Plan {
     *  to a full-blown long-distance retreat.)  Used to perform hit-and-run
     *  tactics, stealth while travelling, or an emergency hide.
     */
-  //  TODO:  Don't bother with fancy directional-evaluation here.  Just use
-  //  the relative strength of fog-of-war WRT hostile bases instead.
-  
-  //  In the event that you're hiding from your own base... use it's own fog
-  //  of war, and stop adding your own fog-FX.  Simple.
-  
-  
   public static Tile pickHidePoint(
     final Actor actor, final float range, final Target from,
     final int advanceFactor
   ) {
-    final boolean report = havenVerbose && I.talkAbout == actor;
-    if (report) I.say("\nPICKING POINT OF WITHDRAWAL FROM "+actor.origin());
-    
+    final boolean report = I.talkAbout == actor && havenVerbose;
+    //
     //  The idea here is to pick tiles at random at first, then as the actor
     //  gets closer to a given area, allow systematic scanning of nearby tiles
     //  to zero in on any strong cover available.
-    final Stage world = actor.world ();
-    final Tile  at    = actor.origin();
-    //
-    //  TODO:  You need to include the 'advance factor' for consideration here.
+    final Stage  world     = actor.world ();
+    final Tile   at        = actor.origin();
+    final Target seen   [] = actor.senses.awareOf();
+    final float  threats[] = actor.senses.awareThreats();
+    if (report) {
+      I.say("\nPICKING POINT OF WITHDRAWAL FROM "+actor.origin());
+      I.say("  Has seen: ");
+      for (int i = seen.length; i-- > 0;) {
+       I.say("    "+seen[i]+", threat: "+threats[i]);
+      }
+      I.say("  Tile ratings: ");
+    }
+    
+    //  TODO:  You need to include the 'advance factor' for consideration here,
+    //  and possibly restore tile-cover considerations.  Also, try to include
+    //  fog-of-war/danger-map ratings here.
+    
     final Pick <Tile> pick = new Pick <Tile> () {
       public void compare(Tile next, float rating) {
-        if (advanceFactor == 0) rating *= 1;
-        else rating *= rateTileCover(actor, next);
+        //if (advanceFactor == 0) rating *= 1;
+        //else rating *= rateTileCover(actor, next);
+        
+        float threatSum = 0;
+        for (int i = seen.length; i-- > 0;) {
+          final float dist = Spacing.zoneDistance(next, seen[i]);
+          threatSum += threats[i] / (0.5f + dist);
+        }
+        if (threatSum > 0) rating /= 1 + threatSum;
+        else               rating *= 1 - threatSum;
+        
         if (report) I.say("  Rating for "+next+" was: "+rating);
         super.compare(next, rating);
       }
     };
-    
+    //
     //  We provide a slight rating bonus for the actor's current location, then
     //  compare random tiles in each direction, and then compare any tiles
     //  within 2 units of the actor's origin.  Then return the most promising
@@ -212,8 +231,8 @@ public class Retreat extends Plan {
       pick.compare(t, 1);
     }
     
-    final Box2D around = actor.area(null).expandBy(2);
-    for (Tile t : world.tilesIn(around, true)) pick.compare(t, 1);
+    //final Box2D around = actor.area(null).expandBy(2);
+    //for (Tile t : world.tilesIn(around, true)) pick.compare(t, 1);
     
     final Tile hides = pick.result();
     if (report) I.say("HIDING AT: "+hides);

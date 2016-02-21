@@ -79,8 +79,8 @@ public class DebugEcology extends Scenario {
     if (false) tendingFaunaTest     (world, base, UI);
     if (false) speciesPlaceTest     (world, base, UI);
     if (false) nestPlaceTest        (world, base, UI);
-    if (false) configHuntingScenario(world, base, UI);
-    if (true ) configHarvestScenario(world, base, UI);
+    if (true ) configHuntingScenario(world, base, UI);
+    if (false) configHarvestScenario(world, base, UI);
     if (false) configReactionsTest  (world, base, UI);
   }
   
@@ -221,10 +221,9 @@ public class DebugEcology extends Scenario {
     final Actor prey = Qudu.SPECIES.sampleFor(wildlife);
     prey.health.setupHealth(1, 1, 0);
     prey.enterWorldAt(world.tileAt(6, 6), world);
-    prey.health.takeFatigue(prey.health.maxHealth());
     
     hunts.mind.assignBehaviour(Hunting.asFeeding(hunts, prey));
-    Selection.pushSelection(hunts, null);
+    Selection.pushSelection(prey, null);
   }
   
   

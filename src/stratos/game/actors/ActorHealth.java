@@ -71,7 +71,7 @@ public class ActorHealth {
     MAX_MORALE       =  1.5f,
     MIN_MORALE       = -0.5f,
     REVIVE_THRESHOLD =  0.5f,
-    DECOMP_FRACTION  = (MAX_DECOMP - MAX_INJURY) / 1.0f,
+    DECOMP_FRACTION  = (MAX_DECOMP - MAX_INJURY) / MAX_DECOMP,
     RUN_FATIGUE_MULT =  4.0f,
     BLEED_OUT_TIME   = Stage.STANDARD_HOUR_LENGTH * 2,
     DECOMPOSE_TIME   = Stage.STANDARD_DAY_LENGTH  * 2,
@@ -319,11 +319,12 @@ public class ActorHealth {
   /**  State modifications-
     */
   public void takeInjury(float taken, boolean terminal) {
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     
     final boolean awake = conscious();
     final float
-      limitKO  = maxHealth * MAX_INJURY,
+      limitKO  = maxHealth * 1.0f,
+      limitDie = maxHealth * MAX_INJURY,
       absLimit = maxHealth * MAX_DECOMP;
     
     if (report) {
@@ -334,12 +335,13 @@ public class ActorHealth {
     }
     
     final float limit, oldInjury = injury;
-    if (injury < limitKO) limit = limitKO;
-    else if (terminal || ! awake) limit = absLimit;
-    else limit = injury;
+    if      (terminal || ! awake) limit = absLimit    ;
+    else if (injury < limitKO   ) limit = limitKO  + 1;
+    else if (injury < limitDie  ) limit = limitDie + 1;
+    else limit = injury + 1;
     
     if (organic() && (Rand.num() * maxHealth / 2f) < taken) bleeds = true;
-    injury = Nums.clamp(injury + taken, 0, limit + 1);
+    injury = Nums.clamp(injury + taken, 0, limit);
     final float difference = injury - oldInjury;
     
     if (awake && difference > 0) {

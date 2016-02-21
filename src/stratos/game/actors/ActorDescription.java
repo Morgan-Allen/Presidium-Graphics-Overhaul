@@ -120,11 +120,14 @@ public class ActorDescription {
     final String moraleDesc = Trait.descriptionFor(
       Condition.POOR_MORALE, 0 - h.health.moraleLevel()
     );
-    if (moraleDesc != null   ) status.add(moraleDesc);
-    if (FL > 0               ) status.add("Tired ("+FL+")");
-    if (hunger > 0           ) status.add("Hungry ("+hunger+"%)");
-    if (h.mind.work() == null) status.add("Unemployed");
-    if (h.mind.home() == null) status.add("Homeless"  );
+    if (moraleDesc != null) status.add(moraleDesc);
+    if (FL > 0            ) status.add("Tired ("+FL+")");
+    if (hunger > 0        ) status.add("Hungry ("+hunger+"%)");
+    if (hunger < 0        ) status.add("Full ("+(hunger * -2)+"%)");
+    if (h.species().sapient()) {
+      if (h.mind.work() == null) status.add("Unemployed");
+      if (h.mind.home() == null) status.add("Homeless"  );
+    }
     Visit.appendTo(status, h.traits.conditions());
     d.appendList("\n ", status);
   }
