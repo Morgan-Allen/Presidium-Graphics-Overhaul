@@ -231,11 +231,6 @@ public class PathSearch extends Search <Boarding> {
   
   protected float estimate(Boarding spot) {
     return Spacing.innerDistance(spot, aimPoint) / 2f;
-    /*
-    float dist = Spacing.innerDistance(spot, aimPoint);
-    dist += Spacing.innerDistance(closest, spot) / 3.0f;
-    return dist * 1.1f;
-    //*/
   }
   
   

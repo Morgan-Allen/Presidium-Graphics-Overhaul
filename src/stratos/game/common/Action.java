@@ -322,7 +322,7 @@ public class Action implements Behaviour, AnimNames {
     final Target lastStep = PathSearch.accessLocation(moveTarget, actor);
     final boolean
       ranged    = ranged(),
-      mustBoard = ((! ranged) && lastStep.indoors())
+      mustBoard = ((! ranged) && lastStep != null && lastStep.indoors())
     ;
     final float
       sightRange = actor.health.sightRange(),
@@ -500,14 +500,9 @@ public class Action implements Behaviour, AnimNames {
       return;
     }
     
-    final int oldState = moveState;
     final int motionType = motionType(actor);
     oldProgress = progress;
     final float moveRate = updateMotion(active, motionType);
-    
-    if (moveState != oldState) {
-      I.say("\nChanged to move state: "+moveState);
-    }
     
     if (moveState == STATE_CLOSED) {
       final float contact = contactTime();

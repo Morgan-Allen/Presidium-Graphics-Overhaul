@@ -128,6 +128,8 @@ public class Stage implements Session.Saveable {
     activities.loadState(s);
     presences.loadState(s);
     ephemera.loadState(s);
+    
+    this.readyAfterPopulation();
   }
   
   
@@ -268,12 +270,13 @@ public class Stage implements Session.Saveable {
     boolean secChange = ((int) (oldTime / 2)) != ((int) (currentTime / 2));
     if (secChange && I.logEvents()) I.say("\nTime is "+currentTime);
     
-    if (secChange) {
-      offworld.updateVerse(currentTime);
-      ecology.updateEcology();
-      pathingMap.updateMap();
-    }
     schedule.advanceSchedule(currentTime);
+    pathingMap.updateMap();
+    
+    if (secChange) {
+      ecology.updateEcology();
+      offworld.updateVerse(currentTime);
+    }
     
     for (Base base : bases) {
       if (secChange) base.intelMap.updateFogValues();

@@ -253,19 +253,31 @@ public class Pathing {
   
   protected Boarding[] pathBetween(Boarding initB, Boarding destB) {
     final boolean report = I.talkAbout == mobile && pathVerbose && extraVerbose;
+
+    final long initTime = report ? System.nanoTime() : -1;
+    Boarding pathFound[] = null;
     
     if (GameSettings.pathFree) {
       final PathSearch search = new PathSearch(initB, destB, false);
       if (report) search.verbosity = Search.VERBOSE;
       search.assignClient(mobile);
       search.doSearch();
-      return search.fullPath(Boarding.class);
+      pathFound = search.fullPath(Boarding.class);
     }
     else {
-      return mobile.world().pathingMap.getLocalPath(
+      pathFound = mobile.world().pathingMap.getLocalPath(
         initB, destB, MAX_PATH_SCAN * 2, mobile, report
       );
     }
+    
+    final long timeSpent = report ? (System.nanoTime() - initTime) : 0;
+    if (timeSpent >= 1000000) {
+      I.say("\n"+mobile+" path-search took "+timeSpent+" NS");
+      I.say("  Start/end points: "+initB+"/"+destB);
+      I.say("  Distance:         "+Spacing.distance(initB, destB));
+    }
+    
+    return pathFound;
   }
   
   

@@ -51,11 +51,12 @@ public class Choice {
   ) {
     plan.updatePlanFor(actor);
     final Mount mount = actor.currentMount();
-    if (
-      (mount != null && plan instanceof Plan) &&
-      (! mount.allowsActivity((Plan) plan))
-    ) {
-      if (report) I.say("\n  "+plan+" rejected- "+mount+" will not allow!");
+    final boolean mountAllows =
+      mount == null || (! (plan instanceof Plan)) ||
+      mount.allowsActivity((Plan) plan)
+    ;
+    if (! mountAllows) {
+      if (report) I.say("\n  "+plan+" rejected- "+mount+" will not permit.");
       return false;
     }
     
@@ -65,7 +66,7 @@ public class Choice {
       actor, plan.subject(), actor, report
     );
     if (! canPath) {
-      if (report) I.say("\n  "+plan+" rejected- no extant path!");
+      if (report) I.say("\n  "+plan+" rejected- no extant path.");
       return false;
     }
     

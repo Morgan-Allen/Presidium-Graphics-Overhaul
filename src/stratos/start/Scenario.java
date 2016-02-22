@@ -104,7 +104,6 @@ public abstract class Scenario implements Session.Saveable, Playable {
   public static Scenario current() {
     final Playable p = PlayLoop.played();
     if (p instanceof Scenario) return (Scenario) p;
-    else I.complain("NO CURRENT SCENARIO BEING PLAYED.");
     return null;
   }
   

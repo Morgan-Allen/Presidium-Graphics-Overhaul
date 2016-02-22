@@ -412,7 +412,7 @@ public final class Tile implements
   
   public String toString() {
     final Habitat h = habitat();
-    if (h == null || Scenario.isCurrentScenarioDebug()) {
+    if (true || h == null || Scenario.isCurrentScenarioDebug()) {
       if (h == null) return "Tile at X"+x+" Y"+y;
       else return h.name+" at X"+x+" Y"+y;
     }

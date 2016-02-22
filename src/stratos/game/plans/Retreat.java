@@ -199,6 +199,7 @@ public class Retreat extends Plan {
     
     final Pick <Tile> pick = new Pick <Tile> () {
       public void compare(Tile next, float rating) {
+        if (next == null || rating <= 0) return;
         //if (advanceFactor == 0) rating *= 1;
         //else rating *= rateTileCover(actor, next);
         

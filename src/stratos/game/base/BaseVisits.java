@@ -225,6 +225,9 @@ public class BaseVisits {
     */
   private void updateActiveShipping(int numUpdates) {
     if ((numUpdates % UPDATE_INTERVAL) != 0) return;
+    
+    if (homeworld == null) return;
+    
     final boolean report = tradeVerbose && base == BaseUI.currentPlayed();
     if (report) I.say("\nUPDATING ACTIVE SHIPPING FOR "+base);
     //

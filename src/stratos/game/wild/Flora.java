@@ -299,18 +299,21 @@ public class Flora extends Element implements TileConstants {
   public void incGrowth(float inc, Stage world, boolean natural) {
     final float maxGrowth = maxGrowth(origin(), species);
     
+    final boolean oldBlock = pathType() == Tile.PATH_BLOCKS;
     final int oldStage = Nums.clamp((int) growth, MAX_GROWTH);
+    
     growth = Nums.clamp(growth + inc, MIN_GROWTH, maxGrowth);
+    
     final int newStage = Nums.clamp((int) growth, MAX_GROWTH);
+    final boolean newBlock = pathType() == Tile.PATH_BLOCKS;
     
     if (natural && oldStage >= MIN_GROWTH && ! species.domesticated) {
       float dieChance = UPDATE_DIE_CHANCE * growth / maxGrowth;
       if (Rand.num() < dieChance) { setAsDestroyed(false); return; }
     }
-    if (oldStage != newStage) {
-      origin().refreshAdjacent();
-      updateSprite();
-    }
+    
+    if (oldStage != newStage) updateSprite();
+    if (oldBlock != newBlock) origin().refreshAdjacent();
   }
   
 

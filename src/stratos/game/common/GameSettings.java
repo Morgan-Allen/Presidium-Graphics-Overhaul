@@ -87,6 +87,7 @@ public class GameSettings {
     needsFree = false,
     techsFree = false,
     
+    noPsy     = false,
     noBlood   = false,
     noChat    = false,
     noShips   = false,

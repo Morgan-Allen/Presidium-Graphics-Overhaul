@@ -172,10 +172,13 @@ public class Schedule {
   /**  Returns whether event-updates within the current schedule-call have
     *  taken up more time than allowed.
     */
+  public long timeTakenOnUpdate() {
+    return System.currentTimeMillis() - initTime;
+  }
+  
   public boolean timeUp() {
     if (maxInterval == -1) return false;
-    final long taken = System.currentTimeMillis() - initTime;
-    return taken > maxInterval;
+    return timeTakenOnUpdate() > maxInterval;
   }
   
   
@@ -186,13 +189,15 @@ public class Schedule {
   protected void advanceSchedule(final float currentTime) {
     
     final boolean report = updateVerbose;
-    if (report) {
-      I.say("\nUpdating schedule- time: "+currentTime);
-    }
     
     this.currentTime = currentTime;
     final int NU = PlayLoop.UPDATES_PER_SECOND * 2;
-    maxInterval = (int) (1000 / (PlayLoop.gameSpeed() * NU)) - 1;
+    maxInterval = (int) (1000 / (PlayLoop.gameSpeed() * NU)) / 2;
+    
+    if (report) {
+      I.say("\nUpdating schedule- time: "+currentTime);
+      I.say("  Maximum interval: "+maxInterval);
+    }
     
     final long oldInit = initTime;
     initTime = System.currentTimeMillis();
