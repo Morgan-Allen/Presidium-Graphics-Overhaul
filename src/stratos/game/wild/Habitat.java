@@ -104,13 +104,13 @@ public class Habitat extends Index.Entry {
     SWAMPLANDS = new Habitat(
       Habitat.class, 3, "Swamplands",
       "",
-      "swamplands_ground.gif", FOREST_FLORA_MODELS,
+      "swampland_ground.png", FOREST_FLORA_MODELS,
       3, true, FERTILITY, 9, INSOLATION, 6, MINERALS, 0
     ),
     FOREST = new Habitat(
       Habitat.class, 4, "Rain Forest",
       "",
-      "estuary_ground.png", FOREST_FLORA_MODELS,
+      "forest_ground.png", FOREST_FLORA_MODELS,
       2, true, FERTILITY, 7, INSOLATION, 7, MINERALS, 2
     ),
     MEADOW = new Habitat(

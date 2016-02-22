@@ -86,6 +86,35 @@ public class Retreat extends Plan {
     if (actor.mind.home() != null) return actor.mind.home();
     if (actor.mind.work() != null) return actor.mind.work();
     
+    if (actor.species().sapient()) {
+      final Pick <Boarding> pick = new Pick <Boarding> (0) {
+        public void compare(Boarding next, float rating) {
+          if (PathSearch.accessLocation(next, actor) == null) return;
+          
+          final float absDist = Spacing.zoneDistance(actor, next);
+          float danger = actor.base().dangerMap.sampleAround(next, -1);
+          rating /= 1 + Nums.max(danger, 0);
+          rating /= 1 + absDist;
+          super.compare(next, rating);
+        }
+      };
+      
+      final Presences presences = actor.world().presences;
+      final Target refuge = presences.nearestMatch(
+        Economy.SERVICE_REFUGE, actor, -1
+      );
+      final Target pref   = presences.nearestMatch(
+        prefClass             , actor, -1
+      );
+      final Target cover  = presences.nearestMatch(
+        Venue.class           , actor, -1
+      );
+      pick.compare((Boarding) refuge, 1.5f);
+      pick.compare((Boarding) pref  , 1);
+      pick.compare((Boarding) cover , 1);
+      if (! pick.empty()) return pick.result();
+    }
+    
     Tile hides = pickHidePoint(actor, actor.health.sightRange(), actor, -2);
     if (report) I.say("  hide point is: "+hides);
     

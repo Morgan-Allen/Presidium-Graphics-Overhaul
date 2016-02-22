@@ -233,6 +233,7 @@ public class IntelMap {
   
   public float fogAt(Sector s) {
     if (noFog()) return 1;
+    if (s == base.location) return 1;
     return sectorFog.valueFor(s);
   }
   

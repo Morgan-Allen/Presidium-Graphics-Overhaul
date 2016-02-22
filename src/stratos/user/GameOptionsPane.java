@@ -78,7 +78,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       
       protected void updateState() {
         super.updateState();
-        this.hidden = ! Scenario.isCurrentScenarioDebug();
+        this.hidden = false;// ! Scenario.isCurrentScenarioDebug();
         if (hidden) return;
         
         if (KeyInput.wasTyped(Keys.ESCAPE) && baseUI.currentTask() == null) {
