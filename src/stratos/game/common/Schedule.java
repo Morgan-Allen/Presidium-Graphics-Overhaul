@@ -173,6 +173,7 @@ public class Schedule {
     *  taken up more time than allowed.
     */
   public long timeTakenOnUpdate() {
+    if (maxInterval == -1) return 0;
     return System.currentTimeMillis() - initTime;
   }
   

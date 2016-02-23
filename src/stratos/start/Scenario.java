@@ -292,6 +292,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
     final Base player = UI.played();
     world.renderFor(rendering, player);
     Base.renderMissions(world, rendering, player);
+    
+    if (GameSettings.showPaths) DebugPlacing.showZonePathing();
   }
   
   

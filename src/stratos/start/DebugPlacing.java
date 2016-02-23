@@ -55,18 +55,6 @@ public class DebugPlacing extends Scenario {
   
   public void renderVisuals(Rendering rendering) {
     super.renderVisuals(rendering);
-    
-    final Tile over = UI().selection.pickedTile();
-    if (KeyInput.wasTyped('p')) {
-      I.say("TILE IS: "+over);
-      I.say("  SHOULD PAVE? "+base().transport.map.needsPaving(over));
-      I.say("  Owned:       "+over.reserved());
-      I.say("  Owned by:    "+over.reserves());
-      I.say("  Above is:    "+over.above());
-      I.say("  Owning tier: "+over.owningTier());
-    }
-    
-    showZonePathing();
   }
 
 
@@ -228,9 +216,17 @@ public class DebugPlacing extends Scenario {
     final Tile   picked   = BaseUI.current().selection.pickedTile();
     final Base   other    = Base.wildlife(world);
     
-    if (KeyInput.isPressed('z') && hovered instanceof Tile) {
-      final Boarding cores[] = cache.compileZoneCoresFor(other, (Tile) hovered);
-      if (talks) I.say("\nPlaces in zone: "+cores.length);
+    if (KeyInput.isPressed('z') && picked != null) {
+      final Boarding cores[] = cache.compileZoneCoresFor(other, picked);
+      if (talks) {
+        I.say("\nPlaces in zone: "+cores.length);
+        I.say("  Tile: "+picked);
+        I.say("  Should pave? "+base.transport.map.needsPaving(picked));
+        I.say("  Owned?       "+picked.reserved  ());
+        I.say("  Owned by:    "+picked.reserves  ());
+        I.say("  Above is:    "+picked.above     ());
+        I.say("  Owning tier: "+picked.owningTier());
+      }
       
       final Batch <Tile> within = new Batch();
       for (Boarding b : cores) if (b instanceof Tile) {

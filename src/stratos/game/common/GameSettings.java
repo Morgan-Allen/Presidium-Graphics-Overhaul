@@ -103,7 +103,8 @@ public class GameSettings {
   
   //  Graphical effects-
   public static boolean
-    bigHumans = true;
+    bigHumans = true ,
+    showPaths = false;
   
   
   public static float peopleScale() {
