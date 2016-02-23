@@ -223,9 +223,12 @@ public class DebugPlacing extends Scenario {
         I.say("  Tile: "+picked);
         I.say("  Should pave? "+base.transport.map.needsPaving(picked));
         I.say("  Owned?       "+picked.reserved  ());
-        I.say("  Owned by:    "+picked.reserves  ());
         I.say("  Above is:    "+picked.above     ());
-        I.say("  Owning tier: "+picked.owningTier());
+        final Element res = picked.reserves();
+        if (res != null) {
+          I.say("  Owned by:    "+res);
+          I.say("  Owning tier: "+res.owningTier());
+        }
       }
       
       final Batch <Tile> within = new Batch();

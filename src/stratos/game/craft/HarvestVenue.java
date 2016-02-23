@@ -147,8 +147,6 @@ public abstract class HarvestVenue extends Venue {
   
   
   protected void updatePaving(boolean inWorld) {
-    //base.transport.updatePerimeter(this, inWorld);
-    //*
     final Tile toPave[] = division.toPaveAround(this, null);
     if (toPave == null || toPave.length == 0) {
       base.transport.updatePerimeter(this, inWorld);
@@ -157,7 +155,6 @@ public abstract class HarvestVenue extends Venue {
     else {
       base.transport.updatePerimeter(this, inWorld, toPave);
     }
-    //*/
   }
   
   

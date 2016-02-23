@@ -67,12 +67,6 @@ public class Pathing {
   
   /**  Updating current heading-
     */
-  public boolean inLocus(Boarding b) {
-    if (b == null) return false;
-    return Spacing.innerDistance(mobile, b) < 0.5f;
-  }
-  
-  
   public Target target() {
     return moveTarget;
   }
@@ -86,10 +80,6 @@ public class Pathing {
   public Boarding nextStep() {
     if (stepIndex == -1 || path == null) return null;
     if (! path[stepIndex].inWorld()) return null;
-    
-    if (inLocus(path[stepIndex])) {
-      stepIndex = Nums.clamp(stepIndex + 1, path.length);
-    }
     return path[stepIndex];
   }
   
@@ -126,14 +116,28 @@ public class Pathing {
         I.say("\nTARGET HAS CHANGED TO: "+moveTarget);
         I.say("  FROM: "+oldTarget);
       }
-      path = null;
       stepIndex = -1;
-      return;
     }
-    else nextStep();
-    if (path != null && extraVerbose && ! inLocus(path[stepIndex])) {
-      I.say("\nNot in locus of: "+path[stepIndex]);
+    else if (path != null) {
+      if (report && extraVerbose) {
+        I.say("\nMaintaining old path to "+moveTarget);
+        I.say("  Path length: "+path.length);
+        I.say("  Will update step index (was "+stepIndex+")");
+      }
+      int scanIndex = Nums.clamp(stepIndex - 2, path.length);
+      stepIndex = -1;
+      
+      for (int i = 0; i < MAX_PATH_SCAN; i++) {
+        if (scanIndex + i >= path.length) break;
+        final Boarding step = path[scanIndex + i];
+        
+        if (step == mobile.aboard()) {
+          stepIndex = Nums.clamp(scanIndex + i + 1, path.length);
+          break;
+        }
+      }
     }
+    if (stepIndex == -1) path = null;
   }
   
   
@@ -152,7 +156,10 @@ public class Pathing {
     boolean blocked = false, nearTarget = false, validPath = true;
     if (report) {
       I.say("\nChecking path okay for "+mobile);
-      I.say("  True target: "+moveTarget+", dest: "+dest);
+      I.say("  True target:  "+moveTarget+", dest: "+dest);
+      I.say("  Currently at: "+mobile.origin());
+      I.say("  Step index:   "+stepIndex);
+      I.say("  Full path: "+I.list(path));
     }
     //
     //  Check to ensure that subsequent steps along this path are not blocked,

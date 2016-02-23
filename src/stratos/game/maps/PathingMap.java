@@ -146,7 +146,7 @@ public class PathingMap {
       numZoned++;
     }
     
-    if (numRefreshed > 0 || numZoned > 0) {
+    if (updatesVerbose && (numRefreshed > 0 || numZoned > 0)) {
       long timeSpent = System.currentTimeMillis() - initTime;
       long timeTotal = world.schedule.timeTakenOnUpdate();
       

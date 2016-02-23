@@ -432,7 +432,11 @@ public class SiteUtils implements TileConstants {
     if (t == null || ! t.habitat().pathClear) return false;
     if (footprint.contains(t.x, t.y)) return false;
     final int minTier = Nums.min(tier, Owner.TIER_PRIVATE);
-    return t.owningTier() < minTier || t.pathType() < Tile.PATH_HINDERS;
+    
+    final Element res = t.reserves();
+    if (res == null || res.pathType() < Tile.PATH_HINDERS) return true;
+    if (res.owningTier() < minTier) return true;
+    return false;
   }
   
   
@@ -474,6 +478,8 @@ public class SiteUtils implements TileConstants {
     final Tile o = v == null ? null : v.origin();
     int bestFace = Venue.FACE_INIT;
     if (o == null) return bestFace;
+    
+    if (v.facing() != Venue.FACE_INIT) return v.facing();
     
     final Tile batch[] = new Tile[8];
     float bestRating = -1;

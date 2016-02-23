@@ -308,12 +308,10 @@ public abstract class Mobile extends Element
     if (oldTile != newTile || outOfBounds) {
       if (oldTile != newTile) onTileChange(oldTile, newTile);
       
-      final boolean awry = step != null && Spacing.distance(step, this) > 1;
       if (step != null && step.area(null).contains(p.x, p.y)) {
         goAboard(step, world);
       }
       else if (outOfBounds) {
-        if (awry) onMotionBlock(newTile);
         if (report) I.say("Entering tile: "+newTile);
         goAboard(newTile, world);
       }
@@ -338,12 +336,6 @@ public abstract class Mobile extends Element
       return world.terrain().trueHeight(position.x, position.y);
     }
     else return aboard.position(null).z;
-  }
-  
-  
-  protected void onMotionBlock(Tile t) {
-    final boolean canRoute = pathing != null && pathing.refreshFullPath();
-    if (! canRoute) pathingAbort();
   }
   
   

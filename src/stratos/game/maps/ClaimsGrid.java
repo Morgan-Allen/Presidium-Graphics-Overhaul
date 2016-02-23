@@ -274,17 +274,16 @@ public class ClaimsGrid {
     claim.setTo(venue.footprint());
     claim.xdim(maxClaimSize);
     claim.ydim(maxClaimSize);
-    
-    //  TODO:  Consider allowing facing-rotations.  Later?
-    /*
+    //
+    //  We also need to ensure the venue's entrance faces *outside* of the
+    //  claimed area.
     final int facing = venue.facing();
-    if (facing == Venue.FACE_WEST  || facing == Venue.FACE_SOUTH) {
-      claim.ypos(0 - maxClaimSize);
-    }
-    if (facing == Venue.FACE_NORTH || facing == Venue.FACE_WEST ) {
+    if (facing == Venue.FACE_NORTH || facing == Venue.FACE_WEST) {
       claim.xpos(0 - maxClaimSize);
     }
-    //*/
+    if (facing == Venue.FACE_EAST || facing == Venue.FACE_NORTH) {
+      claim.ypos(0 - maxClaimSize);
+    }
     
     cropNewClaim(venue, claim);
     claim.include(venue.footprint());
