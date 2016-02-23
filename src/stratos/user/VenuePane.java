@@ -23,17 +23,11 @@ import stratos.util.*;
 public class VenuePane extends SelectionPane {
   
   
-  final public static String
-    CAT_ORDERS   = "ORDERS",
-    CAT_STOCK    = "STOCK" ,
-    CAT_STAFFING = "STAFF" ,
-    DEFAULT_CATS[] = { CAT_ORDERS, CAT_STOCK, CAT_STAFFING };
-  
   final public Venue v;  //  TODO:  Apply to Properties, like, e.g, vehicles?
  
   
   protected VenuePane(HUD UI, Venue v, String... categories) {
-    super(UI, v, v.portrait(UI), true, categories);
+    super(UI, v, v.portrait(UI), false, categories);
     this.v = v;
   }
   
@@ -42,43 +36,21 @@ public class VenuePane extends SelectionPane {
     Venue venue, SelectionPane panel, HUD UI,
     Traded setStock[], String... cats
   ) {
-    if (cats == null || cats.length == 0) cats = DEFAULT_CATS;
     if (panel == null) panel = new VenuePane(UI, venue, cats);
     final VenuePane VD = (VenuePane) panel;
-    
-    final String category = panel.category();
-    final Description d = panel.detail(), l = panel.listing();
+    final Description d = panel.detail();
     
     VD.describeCondition(d, UI);
-    if (category == CAT_ORDERS  ) VD.describeOrders(l, UI);
-    if (category == CAT_STOCK   ) VD.describeStocks(l, UI, setStock);
-    if (category == CAT_STAFFING) VD.describeStaffing(l, UI);
-    return panel;
-  }
-  
-  
-  public static SelectionPane configSimplePanel(
-    Venue venue, SelectionPane panel,
-    HUD UI, Traded setStock[], String statusMessage
-  ) {
-    if (panel == null) panel = new VenuePane(
-      UI, venue
-    );
-    final VenuePane VD = (VenuePane) panel;
-    final Description d = panel.detail(), l = panel.listing();
-    VD.describeCondition(d, UI);
+    Text.cancelBullet(d);
+    d.append("\n");
+    VD.describeOrders(d, UI);
+    Text.cancelBullet(d);
+    d.append("\n");
+    VD.describeStocks(d, UI, setStock);
+    Text.cancelBullet(d);
+    d.append("\n");
+    VD.describeStaffing(d, UI);
     
-    if (statusMessage != null) {
-      d.append("\n\n");
-      d.append(statusMessage);
-    }
-    
-    l.append("\n");
-    VD.describeOrders(l, UI);
-    l.append("\n");
-    VD.describeStocks(l, UI, setStock);
-    l.append("\n");
-    VD.describeStaffing(l, UI);
     return panel;
   }
   
@@ -134,7 +106,7 @@ public class VenuePane extends SelectionPane {
     final Batch <Traded> special = new Batch();
     if (v.stocks.empty() && Visit.empty(demands)) return;
     
-    d.append("Stocks and Provisions:");
+    d.append("Stocks and Production:");
     
     for (Traded t : ITEM_LIST_ORDER) {
       final float needed = v.stocks.totalDemand(t);
@@ -224,6 +196,8 @@ public class VenuePane extends SelectionPane {
       return;
     }
     
+    d.append("Staff and Visitors:");
+    
     final Batch <Actor> mentioned = new Batch <Actor> ();
     if (c != null && c.length > 0) {
       
@@ -235,8 +209,8 @@ public class VenuePane extends SelectionPane {
         if (total == 0 && hired == 0) continue;
         
         Text.cancelBullet(d);
-        d.append(b.name+": ("+hired+"/"+total+")");
-        if (apps > 0) d.append("\n  Total applied: "+apps);
+        d.append("  "+b.name+": ("+hired+"/"+total+")");
+        if (apps > 0) d.append(" ("+apps+" applied)");
         
         for (FindWork a : v.staff.applications()) if (a.position() == b) {
           mentioned.include(a.actor());
@@ -246,7 +220,6 @@ public class VenuePane extends SelectionPane {
           descActor(a, d, UI, v);
           mentioned.include(a);
         }
-        d.append("\n");
       }
     }
     
@@ -257,21 +230,20 @@ public class VenuePane extends SelectionPane {
       lodging.add(a);
     }
     if (lodging.size() > 0) {
-      d.append("Residents: ");
+      d.append("  Residents: ");
       for (Actor a : lodging) descActor(a, d, UI, v);
-      d.append("\n");
     }
     
     Text.cancelBullet(d);
-    d.append("Visitors: ");
-    boolean anyVisit = false;
+    final Batch <Mobile> visits = new Batch();
     for (Mobile m : v.inside()) {
-      if (Staff.doesBelong(m, v)) continue;
-      descActor(m, d, UI, v);
-      anyVisit = true;
+      if (! Staff.doesBelong(m, v)) visits.add(m);
     }
-    if (! anyVisit) d.append("None.");
-    d.append("\n");
+    if (! visits.empty()) {
+      d.append("  Visitors: ");
+      for (Mobile m : visits) descActor(m, d, UI, v);
+      d.append("\n");
+    }
   }
   
   
@@ -288,44 +260,38 @@ public class VenuePane extends SelectionPane {
     final float   upProg = v.structure.upgradeProgress(inProg);
     final boolean canUp = maxU > 0 && UA.size() > 0;
     
-    if (maxLevel > 1) {
-      d.append(v.blueprint.name+" Level: "+mainLevel+"/"+maxLevel);
-      
-      if (v.structure.intact() && mainLevel < maxLevel) {
-        final Upgrade VL[] = v.blueprint.venueLevels();
-        final int level = v.structure.mainUpgradeLevel();
-        final Upgrade next = VL[Nums.clamp(level, VL.length)];
-        
-        d.append("\n");
-        next.appendVenueOrders(d, v, base);
-        if (inProg == next && upProg > 0) {
-          d.append("\n    Progress: ");
-          d.append(((int) (upProg * 100))+"%");
-        }
+    d.append("Orders and Upgrades:");
+    if (canUp) {
+      d.append("\n  Upgrades Installed: "+numU+"/"+maxU);
+      if (maxLevel > 1) {
+        d.append("\n  Structure Level: "+mainLevel+"/"+maxLevel);
       }
-      d.append("\n");
-    }
-    
-    if (canUp && ! v.structure().intact()) {
-      d.append("\nUpgrades unavailable while under construction.");
-    }
-    else if (canUp) {
-      d.append("\nUpgrades Installed: "+numU+"/"+maxU);
+      
       for (final Upgrade upgrade : UA) {
         if (upgrade.type != Upgrade.Type.TECH_MODULE) continue;
         upgrade.appendVenueOrders(d, v, base);
+        
         if (inProg == upgrade && upProg > 0) {
           d.append("\n    Progress: ");
           d.append(((int) (upProg * 100))+"%");
         }
       }
-      Text.cancelBullet(d);
+      if (v.structure.intact() && mainLevel < maxLevel) {
+        final Upgrade VL[] = v.blueprint.venueLevels();
+        final int level = v.structure.mainUpgradeLevel();
+        final Upgrade next = VL[Nums.clamp(level, VL.length)];
+        next.appendVenueOrders(d, v, base);
+        
+        if (inProg == next && upProg > 0) {
+          d.append("\n    Progress: ");
+          d.append(((int) (upProg * 100))+"%");
+        }
+      }
     }
 
     final Batch <Description.Link> orders = new Batch();
     addOrdersTo(orders);
     if (orders.size() > 0) {
-      d.append("\nOther Orders:");
       for (Description.Link link : orders) {
         d.append("\n  ");
         d.append(link);
@@ -376,7 +342,7 @@ public class VenuePane extends SelectionPane {
     
     d.append(m);
     
-    d.append("\n  ");
+    d.append("\n");
     m.describeStatus(d, v);
     
     if (m instanceof Actor) {

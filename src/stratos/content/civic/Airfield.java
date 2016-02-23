@@ -52,7 +52,7 @@ public class Airfield extends Venue implements EntryPoints.Docking {
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
     Upgrade.SINGLE_LEVEL,
-    new Upgrade[] { StockExchange.LEVELS[0], Bastion.LEVELS[0] },
+    new Upgrade[] { SupplyDepot.LEVELS[0], Bastion.LEVELS[0] },
     new Object[] { 5, PILOTING, 5, HARD_LABOUR },
     400
   );

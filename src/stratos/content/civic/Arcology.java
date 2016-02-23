@@ -142,11 +142,20 @@ public class Arcology extends Venue {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
+    return VenuePane.configStandardPanel(this, panel, UI, null);
+  }
+  
+
+  public String helpInfo() {
+    final String info = super.helpInfo();
     final int gP = (int) (plantsHealth * 100);
     final String status = "Plant growth: "+gP+"%";
-    return VenuePane.configSimplePanel(this, panel, UI, null, status);
+    return info+" "+status;
   }
 }
+
+
+
 
 
 

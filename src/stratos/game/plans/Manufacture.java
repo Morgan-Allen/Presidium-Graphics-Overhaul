@@ -209,10 +209,10 @@ public class Manufacture extends Plan implements Behaviour {
       float output = Manufacture.estimatedOutput(v, c, c.upgrades()) / 2f;
       output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce() / 2f;
       
-      s.append("\n  Estimated "+c.out.type+" per day: "+I.shorten(output, 1));
+      s.append("\n  Est. "+c.out.type+" per day: "+I.shorten(output, 1));
       for (Item r : c.raw) if (v.stocks.relativeShortage(r.type, false) >= 1) {
         needsOkay = false;
-        s.append(" (Need "+r.type+")");
+        s.append(" (No "+r.type+")");
       }
     }
     

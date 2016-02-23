@@ -24,7 +24,7 @@ public class Scrollbar extends UINode {
     MINIMUM_GRAB_HEIGHT  = 50   ,  //minimum height of grab area.
     DEFAULT_TAB_HEIGHT   = 25   ,  //default size of 'rounded edge' for grabber.
     DEFAULT_TAB_UV       = 0.25f,  //default UV portion for that rounded edge.
-    MAX_GRAB_PORTION     = 0.5f ,  //max area the grab-widget will occupy.
+    MAX_GRAB_PORTION     = 1.0f ,  //max area the grab-widget will occupy.
     MIN_SCROLL_DIST      = 5    ;
   
   

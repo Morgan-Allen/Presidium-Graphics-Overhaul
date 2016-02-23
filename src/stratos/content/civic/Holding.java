@@ -511,7 +511,8 @@ public class Holding extends Venue {
   
   
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null, null);
+    //return VenuePane.configSimplePanel(this, panel, UI, null, null);
+    return VenuePane.configStandardPanel(this, panel, UI, null);
   }
   
   

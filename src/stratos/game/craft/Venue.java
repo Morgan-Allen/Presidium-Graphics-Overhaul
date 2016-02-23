@@ -643,7 +643,7 @@ public abstract class Venue extends Fixture implements
   protected void toggleStatusDisplay() {
     final boolean showBurn = structure.burning();
     buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
-    toggleStatusFor(ATMO , BuildingSprite.ATMO_MODEL);
+    toggleStatusFor(ATMO , BuildingSprite.ATMO_MODEL );
     toggleStatusFor(POWER, BuildingSprite.POWER_MODEL);
     toggleStatusFor(WATER, BuildingSprite.WATER_MODEL);
   }

@@ -219,7 +219,7 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    return VenuePane.configSimplePanel(this, panel, UI, null, null);
+    return VenuePane.configStandardPanel(this, panel, UI, null);
   }
   
   

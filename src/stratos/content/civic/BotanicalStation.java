@@ -85,7 +85,7 @@ public class BotanicalStation extends HarvestVenue {
       "Solar Banks",
       "Increases "+POWER+" output from covered tiles, especially in desert "+
       "environments.",
-      100, Upgrade.THREE_LEVELS, FLORAL_CULTURE, BLUEPRINT,
+      100, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, Flora.class,
       10, ASSEMBLY, 5, FIELD_THEORY
     ),
@@ -93,7 +93,7 @@ public class BotanicalStation extends HarvestVenue {
       "Moisture Farming",
       "Increases growth of all crops at the cost of "+WATER+" consumption, "+
       "especially in desert environments.",
-      150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
+      150, Upgrade.THREE_LEVELS, LEVELS[1], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, PROTEIN,
       10, CULTIVATION, 5, ASSEMBLY
     )
@@ -437,16 +437,6 @@ public class BotanicalStation extends HarvestVenue {
     }
     return s.toString();
   }
-  
-  
-  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    return super.configSelectPane(panel, UI);
-    //return VenuePane.configSimplePanel(this, panel, UI, null);
-  }
-  
-  
-  public String helpInfo() {
-    if (inWorld() && structure.intact()) return compileOutputReport();
-    else return super.helpInfo();
-  }
 }
+
+

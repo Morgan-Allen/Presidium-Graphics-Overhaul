@@ -284,13 +284,16 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    return VenuePane.configStandardPanel(
-      this, panel, UI,
-      ALL_STOCKED,
-      VenuePane.CAT_ORDERS, VenuePane.CAT_STOCK, VenuePane.CAT_STAFFING
-    );
+    return VenuePane.configStandardPanel(this, panel, UI, ALL_STOCKED);
   }
 }
+
+
+
+
+
+
+
 
 
 

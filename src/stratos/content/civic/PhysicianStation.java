@@ -282,9 +282,7 @@ public class PhysicianStation extends Venue implements Burial.Services {
   
   
   public String helpInfo() {
-    return Manufacture.statusMessageFor(
-      super.helpInfo(), this, REAGENTS_TO_MEDICINE, REAGENTS_TO_SOMA
-    );
+    return super.helpInfo();
   }
 }
 

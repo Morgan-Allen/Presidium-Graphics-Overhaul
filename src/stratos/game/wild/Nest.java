@@ -110,10 +110,10 @@ public class Nest extends Venue {
   /**  Rendering and interface methods-
     */
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    panel = VenuePane.configSimplePanel(this, panel, UI, null, null);
+    panel = VenuePane.configStandardPanel(this, panel, UI, null);
     //*
-    final Description d = panel.detail(), l = panel.listing();
-    l.append("\n  Crowding: "+I.shorten(crowdRatingCache, 2));
+    final Description d = panel.detail();
+    d.append("\n  Crowding: "+I.shorten(crowdRatingCache, 2));
     //*/
     return panel;
   }

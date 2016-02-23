@@ -291,9 +291,12 @@ public class EngineerStation extends Venue {
   
   
   public String helpInfo() {
+    return super.helpInfo();
+    /*
     return Manufacture.statusMessageFor(
       super.helpInfo(), this, POLYMER_TO_PLASTICS, METALS_TO_PARTS
     );
+    //*/
   }
 }
 
