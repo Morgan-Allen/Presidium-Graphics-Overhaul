@@ -36,6 +36,7 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   final Scenario played;
   final Text text;
   final Bordering bordering;
+  final Scrollbar scrolling;
   
   
   private GameOptionsPane(BaseUI UI, Scenario played) {
@@ -54,6 +55,11 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
     text.alignDown  (0, 1);
     text.attachTo   (this);
     bordering.surround(text);
+    
+    this.scrolling = text.makeScrollBar(SelectionPane.SCROLL_TEX);
+    scrolling.alignToMatch(text);
+    scrolling.alignRight(0 - SCROLLBAR_WIDE, SCROLLBAR_WIDE);
+    scrolling.attachTo(bordering.inside);
   }
   
   
@@ -68,11 +74,9 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
       protected void whenClicked() {
         if (baseUI.currentInfoPane() == pane) {
           baseUI.clearInfoPane();
-          PlayLoop.setPaused(false);
         }
         else {
           baseUI.setInfoPane(pane);
-          PlayLoop.setPaused(true);
         }
       }
       

@@ -362,7 +362,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
         }
         protected int variantAt(int tx, int ty, TerrainSet terrain) {
           final int var = varsIndex[tx][ty];
-          return var <= 4 ? 0 : var;
+          return var <= 4 ? (var / 3) : var;
         }
       });
     }

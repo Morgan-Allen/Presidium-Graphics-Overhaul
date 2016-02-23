@@ -166,8 +166,9 @@ public class Flora extends Element implements TileConstants {
       mark = var / TerrainGen.MARK_VARS;
     if (mark == 0) return 0;
     if (mark == 1) {
-      if (var % TerrainGen.MARK_VARS == 0) return 0.5f;
-      return 0;
+      float max = t.habitat().moisture() / 10f;
+      max *= var * 1f / TerrainGen.MARK_VARS;
+      return max;
     }
     float boost = var * 0.5f / TerrainGen.MARK_VARS;
     return t.habitat().moisture() * (MAX_GROWTH + boost) / 10f;
@@ -411,7 +412,8 @@ public class Flora extends Element implements TileConstants {
   
   public String fullName() {
     final String name = species.domesticated ? species.name : "Flora";
-    return TREE_STAGE_NAMES[growStage()]+name;
+    final int stage = Nums.clamp(growStage(), MAX_GROWTH);
+    return TREE_STAGE_NAMES[stage]+name;
   }
   
   
@@ -422,7 +424,6 @@ public class Flora extends Element implements TileConstants {
   
   
   public String helpInfo() {
-    //return "Habitat "+origin().habitat();
     return DEFAULT_INFO;
   }
 }

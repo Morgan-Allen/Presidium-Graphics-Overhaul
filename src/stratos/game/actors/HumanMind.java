@@ -180,7 +180,9 @@ public class HumanMind extends ActorMind {
   
   private void addConstantResponses(Choice choice) {
     final boolean report = I.talkAbout == actor && verbose;
-    if (report) I.say("\nGetting constant responses.");
+    if (report) {
+      I.say("\nGetting constant responses.");
+    }
     choice.isVerbose = report;
     
     //

@@ -163,7 +163,6 @@ public class SectorScenario extends Scenario {
     if (ruler != null) advisors.add(ruler);
     base.assignRuler(ruler);
     base.setup.doPlacementsFor(bastion);
-    base.setup.fillVacancies(bastion, true);
     if (! bastion.inWorld()) I.complain("BASTION COULD NOT ENTER WORLD!");
     //
     //  We clear away any structures that might have conflicted with the

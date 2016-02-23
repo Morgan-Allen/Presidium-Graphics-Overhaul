@@ -111,8 +111,8 @@ public class RosterPane extends SelectionPane {
       for (Actor a : listApplied(base)) {
         final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
         VenuePane.descApplicant(a, findWork, detailText, UI);
-        d.append("\n  Applying at: ");
-        d.append(findWork.employer());
+        d.appendAll("\n  Applied as: ", findWork.position());
+        d.appendAll("\n  Applied at: ", findWork.employer());
         d.append("\n  ");
       }
     }

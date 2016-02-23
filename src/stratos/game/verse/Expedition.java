@@ -84,8 +84,9 @@ public class Expedition implements Session.Saveable {
   
   public Expedition(Session s) throws Exception {
     s.cacheInstance(this);
-    origin      = (Sector) s.loadObject();
-    destination = (Sector) s.loadObject();
+    backing     = (Faction) s.loadObject();
+    origin      = (Sector ) s.loadObject();
+    destination = (Sector ) s.loadObject();
     funding    = s.loadInt();
     titleGranted = s.loadInt();
     tribute   = s.loadInt();
@@ -96,10 +97,11 @@ public class Expedition implements Session.Saveable {
   
   
   public void saveState(Session s) throws Exception {
+    s.saveObject (backing    );
     s.saveObject (origin     );
     s.saveObject (destination);
     s.saveInt    (funding    );
-    s.saveInt    (titleGranted );
+    s.saveInt    (titleGranted);
     s.saveInt    (tribute    );
     s.saveObject (leader     );
     s.saveObjects(advisors   );

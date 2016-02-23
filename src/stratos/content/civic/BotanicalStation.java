@@ -90,7 +90,7 @@ public class BotanicalStation extends HarvestVenue {
       10, ASSEMBLY, 5, FIELD_THEORY
     ),
     MOISTURE_FARMING = new Upgrade(
-      "Moisture",
+      "Moisture Farming",
       "Increases growth of all crops at the cost of "+WATER+" consumption, "+
       "especially in desert environments.",
       150, Upgrade.THREE_LEVELS, LEVELS[0], BLUEPRINT,
