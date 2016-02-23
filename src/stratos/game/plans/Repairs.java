@@ -126,7 +126,8 @@ public class Repairs extends Plan {
       final float need = needForRepair(near);
       if (need <= minDamage) continue;
       
-      choice.add(new Repairs(client, near, asDuty));
+      final Repairs r = new Repairs(client, near, asDuty);
+      choice.add(r);
       if (report) {
         I.say("\n  "+near+" needs repair?");
         I.say("  Need is:       "+need);

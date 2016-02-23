@@ -146,7 +146,7 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  public Target movesTo() {
+  public Target moveTarget() {
     return moveTarget;
   }
   
@@ -320,10 +320,10 @@ public class Action implements Behaviour, AnimNames {
     //  motion target & action target, how far the actor can see, and whether
     //  sticking to the full tile path is required-
     final Target lastStep = PathSearch.accessLocation(moveTarget, actor);
-    final boolean
-      ranged    = ranged(),
-      mustBoard = ((! ranged) && lastStep != null && lastStep.indoors())
-    ;
+    final boolean ranged = ranged(), mustBoard = (
+      (lastStep != null && lastStep.indoors()) ||
+      (moveTarget instanceof Boarding)
+    ) && (! ranged);
     final float
       sightRange = actor.health.sightRange(),
       motionDist = Spacing.distance(actor     , moveTarget  ),
@@ -349,7 +349,9 @@ public class Action implements Behaviour, AnimNames {
     boolean closed = false, approaching = false, facing = false;
     final Target step = actor.pathing.nextStep(), closeOn;
     
-    if (report) I.say("\nAction is: "+methodName()+" "+hashCode());
+    if (report) {
+      I.say("\nAction is: "+methodName()+" "+hashCode());
+    }
     
     if (contactMade() && ! tracks()) {
       if (report) I.say("  Have closed on target.");

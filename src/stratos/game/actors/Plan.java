@@ -536,6 +536,11 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
+  public Target moveTarget() {
+    return nextStep == null ? null : nextStep.moveTarget();
+  }
+  
+  
   
   /**  Rendering, interface and debug methods-
     */

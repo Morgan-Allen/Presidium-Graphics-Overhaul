@@ -359,7 +359,7 @@ public class EcologistTechniques {
     if (companion.health.baseBulk() < using.health.baseBulk()) return false;
     
     final Target focus = action.subject();
-    if (focus == companion || action.movesTo() == companion) return true;
+    if (focus == companion || action.moveTarget() == companion) return true;
 
     final float seeRange = using.health.sightRange();
     final float distance = Spacing.distance(using, action.subject());

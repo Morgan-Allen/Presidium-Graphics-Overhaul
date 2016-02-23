@@ -99,7 +99,7 @@ public class DebugPlacing extends Scenario {
     GameSettings.cashFree  = true;
     GameSettings.buildFree = true;
     base.research.initKnowledgeFrom(StratosSetting.PLANET_HALIBAN);
-
+    
     if (true ) configEcology  (world, base, UI);
     if (false) configSalvaging(world, base, UI);
     if (false) configPerimTest(world, base, UI);
@@ -295,7 +295,7 @@ public class DebugPlacing extends Scenario {
       }
     }
     
-    if (talks && showObs) PathingMap.reportObs();
+    //if (talks && showObs) PathingMap.reportObs();
   }
   
 }

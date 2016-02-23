@@ -4,8 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.actors;
-import stratos.game.common.Actor;
-import stratos.game.maps.PathingMap;
+import stratos.game.common.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
@@ -50,6 +49,18 @@ public class Choice {
     Behaviour plan, Actor actor, boolean report
   ) {
     plan.updatePlanFor(actor);
+    
+    //  TODO:  Move this out to the valid() method, so that plan-types can
+    //  customise as required...
+    final Target  goes    = plan.moveTarget();
+    final boolean canPath = actor.world().pathingMap.hasPathBetween(
+      actor, goes, actor, report
+    ) || goes == null;
+    if (! canPath) {
+      if (report) I.say("\n  "+plan+" rejected- no extant path to "+goes);
+      return false;
+    }
+    
     final Mount mount = actor.currentMount();
     final boolean mountAllows =
       mount == null || (! (plan instanceof Plan)) ||
@@ -57,16 +68,6 @@ public class Choice {
     ;
     if (! mountAllows) {
       if (report) I.say("\n  "+plan+" rejected- "+mount+" will not permit.");
-      return false;
-    }
-    
-    //  TODO:  Move this out to the valid() method, so that plan-types can
-    //  customise as required...
-    final boolean canPath = actor.world().pathingMap.hasPathBetween(
-      actor, plan.subject(), actor, report
-    );
-    if (! canPath) {
-      if (report) I.say("\n  "+plan+" rejected- no extant path.");
       return false;
     }
     

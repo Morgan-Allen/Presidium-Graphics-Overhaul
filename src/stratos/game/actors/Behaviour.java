@@ -45,6 +45,7 @@ public interface Behaviour extends Session.Saveable {
   
   Plan parentPlan();
   Target subject();
+  Target moveTarget();
   boolean matchesPlan(Behaviour b);
   void updatePlanFor(Actor actor);
   

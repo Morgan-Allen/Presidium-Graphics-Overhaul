@@ -180,6 +180,7 @@ public class PathingMap {
     near[8] = region;
     
     for (StagePatch n : near) if (n != null) refreshPlaces(region, n);
+    for (StagePatch n : near) if (n != null) refreshRoutesBetween(region, n);
   }
   
   
@@ -230,7 +231,6 @@ public class PathingMap {
     //  Finally, we check each place generated to see how well it matches any
     //  predecessor (in which case it might either retain the same Zone or
     //  discard them.)
-    refreshRoutesBetween(from, region);
     int placeIndex = Nums.max(
       newSet == null ? 0 : newSet.places.length,
       oldSet == null ? 0 : oldSet.places.length
@@ -545,9 +545,8 @@ public class PathingMap {
     refreshWithNeighbours(world.patches.patchAt(t.x, t.y));
     final Place p = tilePlaces[t.x][t.y];
     if (p == null) return null;
-    refreshRouteCache(p);
-    final Tile tiles[][] = new Tile[p.routeCache.length][];
-    int i = 0; for (Route route : p.routeCache) tiles[i++] = route.path;
+    final Tile tiles[][] = new Tile[p.routeList.size()][];
+    int i = 0; for (Route route : p.routeList) tiles[i++] = route.path;
     return tiles;
   }
   

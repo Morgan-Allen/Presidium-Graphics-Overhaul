@@ -324,7 +324,7 @@ public class Combat extends Plan {
   
   
   private void configPathPoint(Action strike) {
-    final Target point = strike.movesTo();
+    final Target point = strike.moveTarget();
     if (PathSearch.accessLocation(point, actor) == null) {
       final Tile free = Spacing.pickFreeTileAround(point, actor);
       if (free != null) strike.setMoveTarget(free);
