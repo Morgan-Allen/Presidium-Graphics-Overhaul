@@ -43,8 +43,8 @@ public class SupplyDepot extends Venue {
 
   final public static Traded
     ALL_STOCKED[] = {
-      POLYMER, METALS, FUEL_RODS, PLASTICS, PARTS,
-      CARBS, PROTEIN, GREENS, REAGENTS, SPYCES
+      POLYMER, PLASTICS,
+      METALS, FUEL_RODS, PARTS, CARBS, PROTEIN, GREENS, REAGENTS, SPYCES
     },
     HOME_PURCHASE_TYPES[] = {
       PLASTICS, PARTS, CARBS, PROTEIN
@@ -139,11 +139,13 @@ public class SupplyDepot extends Venue {
     structure.setAmbienceVal(Ambience.MILD_SQUALOR);
     stocks.updateStockDemands(1, ALL_STOCKED);
     
+    float recyc = Nums.clamp(1f - base.demands.primaryShortage(ATMO), 0, 1);
+    recyc = BASE_POLYMER_PER_DAY * (recyc + 1) / 2;
     if (stocks.relativeShortage(POLYMER, true) > 0) {
-      float recyc = Nums.clamp(1f - base.demands.primaryShortage(ATMO), 0, 1);
-      recyc = BASE_POLYMER_PER_DAY * (recyc + 1) / 2;
       stocks.bumpItem(POLYMER, recyc / Stage.STANDARD_DAY_LENGTH);
     }
+    Manufacture.updateProductionEstimates(this, POLYMER_TO_PLASTICS);
+    stocks.incDailyDemand(POLYMER, 0, recyc);
     
     //
     //  TODO:  You need to send those barges off to different settlements!

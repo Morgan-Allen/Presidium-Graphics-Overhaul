@@ -4,12 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.craft;
-import static stratos.game.craft.Economy.*;
-
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
 import stratos.util.*;
+import static stratos.game.craft.Economy.*;
 
 
 
@@ -29,6 +28,8 @@ public class Stocks extends Inventory {
     Traded type;
     float consumption;
     float production;
+    float consPerDay;
+    float prodPerDay;
     boolean fixed;
   }
   
@@ -58,6 +59,8 @@ public class Stocks extends Inventory {
       d.type         = (Traded) s.loadObject();
       d.consumption  = s.loadFloat();
       d.production   = s.loadFloat();
+      d.consPerDay   = s.loadFloat();
+      d.prodPerDay   = s.loadFloat();
       d.fixed        = s.loadBool ();
       demands.put(d.type, d);
     }
@@ -73,10 +76,12 @@ public class Stocks extends Inventory {
     
     s.saveInt(demands.size());
     for (Demand d : demands.values()) {
-      s.saveObject(d.type        );
-      s.saveFloat (d.consumption );
-      s.saveFloat (d.production  );
-      s.saveBool  (d.fixed       );
+      s.saveObject(d.type       );
+      s.saveFloat (d.consumption);
+      s.saveFloat (d.production );
+      s.saveFloat (d.consPerDay );
+      s.saveFloat (d.prodPerDay );
+      s.saveBool  (d.fixed      );
     }
   }
   
@@ -226,6 +231,18 @@ public class Stocks extends Inventory {
   }
   
   
+  public float dailyConsumption(Traded type) {
+    final Demand d = demands.get(type);
+    return d == null ? 0 : d.consPerDay;
+  }
+  
+  
+  public float dailyProduction(Traded type) {
+    final Demand d = demands.get(type);
+    return d == null ? 0 : d.prodPerDay;
+  }
+  
+  
   public float absoluteSurplus(Traded type, boolean production) {
     return 0 - absoluteShortage(type, production);
   }
@@ -304,6 +321,24 @@ public class Stocks extends Inventory {
     d.consumption = Nums.max(0, consumption);
     d.production  = Nums.max(0, production );
     d.fixed       = true;
+  }
+  
+  
+  public void setDailyDemand(
+    Traded type, float dailyConsumption, float dailyProduction
+  ) {
+    final Demand d = demandRecord(type);
+    d.consPerDay = dailyConsumption;
+    d.prodPerDay = dailyProduction ;
+  }
+  
+  
+  public void incDailyDemand(
+    Traded type, float dailyConsumption, float dailyProduction
+  ) {
+    final Demand d = demandRecord(type);
+    d.consPerDay += dailyConsumption;
+    d.prodPerDay += dailyProduction ;
   }
   
   

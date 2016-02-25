@@ -8,6 +8,7 @@ import stratos.game.common.*;
 
 import static stratos.game.craft.Economy.*;
 
+import stratos.content.civic.Holding;
 import stratos.game.actors.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
@@ -214,6 +215,10 @@ public class Traded extends Constant implements Session.Saveable {
       d.append(b);
       if (c.out != null) { d.append(" to make "); d.append(c.out.type); }
     }
+    if (Visit.arrayIncludes(ALL_FOOD_TYPES, this)) {
+      d.append("\nUsed as foodstuff at ");
+      d.append(Holding.BLUEPRINT);
+    }
     
     if (canMake.size() > 0) d.append("\n");
     
@@ -230,6 +235,8 @@ public class Traded extends Constant implements Session.Saveable {
         d.append(b);
       }
     }
+    
+    //  TODO:  Tally together the various goods!
     
     if (common()) {
       d.append("\n");

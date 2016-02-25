@@ -166,12 +166,17 @@ public class EngineerStation extends Venue {
     if (! structure.intact()) return;
     
     stocks.updateStockDemands(1, services(),
-      PARTS_TO_CIRCUITRY,
-      METALS_TO_PARTS,
+      PARTS_TO_CIRCUITRY ,
+      METALS_TO_PARTS    ,
       POLYMER_TO_PLASTICS
     );
     stocks.setConsumption(PLASTICS, 2);
     stocks.setConsumption(PARTS   , 2);
+    Manufacture.updateProductionEstimates(this,
+      PARTS_TO_CIRCUITRY ,
+      METALS_TO_PARTS    ,
+      POLYMER_TO_PLASTICS
+    );
     
     float pollution = 5, powerNeed = 5;
     powerNeed *= (3f + structure.numOptionalUpgrades()) / 6;
@@ -246,6 +251,11 @@ public class EngineerStation extends Venue {
   }
   
   
+  
+  //  TODO:  This won't do.  The association with particular upgrades must be
+  //  internalised by the Conversion, so the AI can assign an importance to
+  //  them.
+  //*
   final static Upgrade[]
     BASIC_OUTFIT_UPS = { MOLDING_PRESS },
     BASIC_DEVICE_UPS = { ASSEMBLY_LINE, MICRO_ASSEMBLY },
@@ -272,6 +282,7 @@ public class EngineerStation extends Venue {
     }
     return BASIC_DEVICE_UPS;
   }
+  //*/
   
   
   public int numPositions(Background v) {
@@ -287,16 +298,6 @@ public class EngineerStation extends Venue {
     */
   protected Traded[] goodsToShow() {
     return new Traded[] { METALS, PARTS, CIRCUITRY };
-  }
-  
-  
-  public String helpInfo() {
-    return super.helpInfo();
-    /*
-    return Manufacture.statusMessageFor(
-      super.helpInfo(), this, POLYMER_TO_PLASTICS, METALS_TO_PARTS
-    );
-    //*/
   }
 }
 

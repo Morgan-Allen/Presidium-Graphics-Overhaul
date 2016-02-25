@@ -223,11 +223,14 @@ public class PhysicianStation extends Venue implements Burial.Services {
     //
     //  The station consumes medicine and power based on current upgrade level,
     //  and has a mild positive effect on ambience-
-    stocks.setConsumption(MEDICINE, (2 + numU) / 2f);
-    stocks.forceDemand(POWER, 2 + numU, 0);
     structure.setAmbienceVal(2 + numU);
     stocks.updateStockDemands(
       1, services(), REAGENTS_TO_MEDICINE, REAGENTS_TO_SOMA
+    );
+    stocks.setConsumption(MEDICINE, (2 + numU) / 2f);
+    stocks.forceDemand(POWER, 2 + numU, 0);
+    Manufacture.updateProductionEstimates(
+      this, REAGENTS_TO_MEDICINE, REAGENTS_TO_SOMA
     );
   }
   

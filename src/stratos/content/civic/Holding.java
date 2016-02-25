@@ -386,11 +386,17 @@ public class Holding extends Venue {
     targetLevel = Nums.clamp(targetLevel, NUM_LEVELS);
     stocks.clearDemands();
     
+    float materialNeed = 1f / GameSettings.ITEM_WEAR_DAYS;
+    float rationNeed   = ActorHealth.FOOD_PER_DAY;
+    
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
       stocks.forceDemand(i.type, i.amount + 0.5f, 0);
+      stocks.setDailyDemand(i.type, i.amount * materialNeed, 0);
     }
+    
     for (Item i : rationNeeds(this, targetLevel)) {
       stocks.forceDemand(i.type, i.amount, 0);
+      stocks.setDailyDemand(i.type, (i.amount - 0.5f) * rationNeed, 0);
     }
     
     final float supportNeed = supportNeed(this, targetLevel);
@@ -507,12 +513,6 @@ public class Holding extends Venue {
   
   public Composite portrait(HUD UI) {
     return Composite.withImage(ICONS[upgradeLevel], "holding"+upgradeLevel);
-  }
-  
-  
-  public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    //return VenuePane.configSimplePanel(this, panel, UI, null, null);
-    return VenuePane.configStandardPanel(this, panel, UI, null);
   }
   
   

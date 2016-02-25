@@ -103,12 +103,12 @@ public class VenuePane extends SelectionPane {
     
     
     final Traded[] demands = setStock == null ? v.stocks.demanded() : setStock;
+    final Traded listOrder[] = setStock == null ? ITEM_LIST_ORDER : setStock;
     final Batch <Traded> special = new Batch();
     if (v.stocks.empty() && Visit.empty(demands)) return;
     
     d.append("Stocks and Production:");
-    
-    for (Traded t : ITEM_LIST_ORDER) {
+    for (Traded t : listOrder) {
       final float needed = v.stocks.totalDemand(t);
       final float amount = v.stocks.amountOf   (t);
       
@@ -118,7 +118,7 @@ public class VenuePane extends SelectionPane {
       else if (needed > 0 || amount > 0) special.add(t);
     }
     for (Item i : v.stocks.allItems()) {
-      if (Visit.arrayIncludes(ITEM_LIST_ORDER, i.type)) continue;
+      if (Visit.arrayIncludes(listOrder, i.type)) continue;
       if (v.stocks.hasOrderFor(i)) continue;
       special.include(i.type);
     }
@@ -151,16 +151,21 @@ public class VenuePane extends SelectionPane {
     final Traded type, Description d, boolean set
   ) {
     final float
-      consumption = v.stocks.consumption(type),
-      production  = v.stocks.production (type),
-      amount      = v.stocks.amountOf   (type),
+      consumption = v.stocks.consumption     (type),
+      production  = v.stocks.production      (type),
+      dailyCons   = v.stocks.dailyConsumption(type),
+      dailyProd   = v.stocks.dailyProduction (type),
+      amount      = v.stocks.amountOf        (type),
+      dailySum    = dailyProd - dailyCons,
       stockMax    = Nums.min(25, v.spaceCapacity());
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
     d.append("  "+I.shorten(amount, 1)+" ");
     d.append(type);
     
-    if (set) {
+    if (set && v.stocks.isDemandFixed(type)) {
+      if (dailySum > 0) d.append(" (+"+I.shorten( dailySum, 1)+"/day)");
+      if (dailySum < 0) d.append(" (-"+I.shorten(-dailySum, 1)+"/day)");
       d.append("\n    ");
       d.append(" Buy: ");
       d.append(new Description.Link(I.shorten(consumption, 1)) {
@@ -181,6 +186,8 @@ public class VenuePane extends SelectionPane {
     }
     else {
       d.append("/"+I.shorten(production + consumption, 1));
+      if (dailySum > 0) d.append(" (+"+I.shorten( dailySum, 1)+"/day)");
+      if (dailySum < 0) d.append(" (-"+I.shorten(-dailySum, 1)+"/day)");
     }
     return true;
   }
@@ -263,10 +270,6 @@ public class VenuePane extends SelectionPane {
     d.append("Orders and Upgrades:");
     if (canUp) {
       d.append("\n  Upgrades Installed: "+numU+"/"+maxU);
-      if (maxLevel > 1) {
-        d.append("\n  Structure Level: "+mainLevel+"/"+maxLevel);
-      }
-      
       for (final Upgrade upgrade : UA) {
         if (upgrade.type != Upgrade.Type.TECH_MODULE) continue;
         upgrade.appendVenueOrders(d, v, base);
@@ -275,6 +278,10 @@ public class VenuePane extends SelectionPane {
           d.append("\n    Progress: ");
           d.append(((int) (upProg * 100))+"%");
         }
+      }
+      
+      if (maxLevel > 1) {
+        d.append("\n  Structure Level: "+mainLevel+"/"+maxLevel);
       }
       if (v.structure.intact() && mainLevel < maxLevel) {
         final Upgrade VL[] = v.blueprint.venueLevels();

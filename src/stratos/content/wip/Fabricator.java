@@ -182,13 +182,6 @@ public class Fabricator extends Venue {
   protected Traded[] goodsToShow() {
     return new Traded[] { POLYMER, DECOR, PLASTICS };
   }
-  
-  
-  public String helpInfo() {
-    return Manufacture.statusMessageFor(
-      super.helpInfo(), this, PLASTICS_TO_DECOR, PLASTICS_TO_PRESSFEED
-    );
-  }
 }
 
 

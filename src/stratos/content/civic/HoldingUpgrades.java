@@ -178,15 +178,15 @@ public class HoldingUpgrades {
     //
     //  We scale total demand in proportion to current stocks, so that actors
     //  make the most of currently available food types.  However, we increment
-    //  demand by 1 for all food types so that new samples can be obtained.
+    //  demand by 0.5f for all food types so that new samples can be obtained.
     float currentSum = 0, stocked, demand;
     for (Traded type : ALL_FOOD_TYPES) {
-      currentSum += holding.stocks.amountOf(type);
+      currentSum += 0.5f + holding.stocks.amountOf(type);
     }
     for (Traded type : ALL_FOOD_TYPES) {
-      stocked = holding.stocks.amountOf(type);
+      stocked = 0.5f + holding.stocks.amountOf(type);
       demand = currentSum == 0 ? 0 : (foodNeed * stocked / currentSum);
-      needed.add(Item.withAmount(type, demand + 1));
+      needed.add(Item.withAmount(type, demand + 0.5f));
     }
     return needed;
   }

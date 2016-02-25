@@ -146,6 +146,11 @@ public class CultureVats extends Venue {
     
     stocks.forceDemand(POWER, needPower, 0);
     stocks.forceDemand(ATMO, 0, cycleBonus * 2);
+    Manufacture.updateProductionEstimates(this,
+      CARBS_TO_PROTEIN ,
+      WASTE_TO_CARBS   ,
+      WASTE_TO_REAGENTS
+    );
     
     structure.setAmbienceVal(0 - pollution);
   }
@@ -210,11 +215,6 @@ public class CultureVats extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String helpInfo() {
-    return Manufacture.statusMessageFor(
-      super.helpInfo(), this, WASTE_TO_CARBS, CARBS_TO_PROTEIN
-    );
-  }
 }
 
 

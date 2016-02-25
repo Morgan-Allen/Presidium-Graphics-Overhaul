@@ -92,35 +92,6 @@ public class ExcavationSite extends HarvestVenue {
   };
   
   
-  private Item[] estimateDailyOutput() {
-    final Tile openFaces[] = claimDivision().reserved();
-    if (openFaces == null) return new Item[0];
-    float sumM = 0, sumF = 0, outM, outF;
-    
-    for (Tile t : openFaces) {
-      final Item i = Outcrop.mineralsAt(t);
-      if (i == null || ! canDig(t)) continue;
-      if (i.type == METALS   ) sumM += i.amount;
-      if (i.type == FUEL_RODS) sumF += i.amount;
-    }
-    sumM /= openFaces.length;
-    sumF /= openFaces.length;
-    
-    outM = sumM;
-    outF = sumF;
-    
-    float mineMult = Mining.HARVEST_MULT * staff.workforce();
-    mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.TILE_DIG_TIME;
-    outM *= mineMult * extractMultiple(METALS   );
-    outF *= mineMult * extractMultiple(FUEL_RODS);
-    
-    return new Item[] {
-      Item.withAmount(METALS   , outM),
-      Item.withAmount(FUEL_RODS, outF)
-    };
-  }
-  
-  
   
   /**  Economic functions-
     */
@@ -200,6 +171,35 @@ public class ExcavationSite extends HarvestVenue {
   }
   
   
+  protected void checkTendStates() {
+    super.checkTendStates();
+
+    final Tile openFaces[] = claimDivision().reserved();
+    if (openFaces == null) return;
+    float sumM = 0, sumF = 0, outM, outF;
+    
+    for (Tile t : openFaces) {
+      final Item i = Outcrop.mineralsAt(t);
+      if (i == null || ! canDig(t)) continue;
+      if (i.type == METALS   ) sumM += i.amount;
+      if (i.type == FUEL_RODS) sumF += i.amount;
+    }
+    sumM /= openFaces.length;
+    sumF /= openFaces.length;
+    
+    outM = sumM;
+    outF = sumF;
+    
+    float mineMult = Mining.HARVEST_MULT * staff.workforce();
+    mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.TILE_DIG_TIME;
+    outM *= mineMult * extractMultiple(METALS   );
+    outF *= mineMult * extractMultiple(FUEL_RODS);
+    
+    stocks.setDailyDemand(METALS   , 0, outM);
+    stocks.setDailyDemand(FUEL_RODS, 0, outF);
+  }
+  
+  
   
   /**  Utility methods for handling dig-output and tile-assignment:
     */
@@ -258,28 +258,6 @@ public class ExcavationSite extends HarvestVenue {
       return stocks.amountOf(SLAG) * 2f / Mining.TAILING_LIMIT;
     }
     return 0;
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  private String compileOutputReport() {
-    final StringBuffer report = new StringBuffer();
-    report.append(super.helpInfo());
-    
-    final Item out[] = estimateDailyOutput();
-    for (Item i : out) {
-      final String amount = I.shorten(i.amount, 1);
-      report.append("\n  Estimated "+i.type+" per day: "+amount);
-    }
-    return report.toString();
-  }
-  
-  
-  public String helpInfo() {
-    if (inWorld() && structure.intact()) return compileOutputReport();
-    else return super.helpInfo();
   }
 }
 

@@ -53,6 +53,8 @@ public class BaseDemands {
   final Tally <Traded>
     primaryDemand = new Tally <Traded> (),
     primarySupply = new Tally <Traded> (),
+    consPerDay    = new Tally <Traded> (),
+    prodPerDay    = new Tally <Traded> (),
     importDemand  = new Tally <Traded> (),
     exportSupply  = new Tally <Traded> ();
   final Table <Traded, Float>
@@ -84,10 +86,12 @@ public class BaseDemands {
     for (Traded type : ALL_MATERIALS) {
       primaryDemand.set(type, s.loadFloat());
       primarySupply.set(type, s.loadFloat());
-      importDemand.set (type, s.loadFloat());
-      exportSupply.set (type, s.loadFloat());
-      importPrices.put (type, s.loadFloat());
-      exportPrices.put (type, s.loadFloat());
+      consPerDay   .set(type, s.loadFloat());
+      prodPerDay   .set(type, s.loadFloat());
+      importDemand .set(type, s.loadFloat());
+      exportSupply .set(type, s.loadFloat());
+      importPrices .put(type, s.loadFloat());
+      exportPrices .put(type, s.loadFloat());
     }
   }
   
@@ -105,6 +109,8 @@ public class BaseDemands {
     for (Traded type : ALL_MATERIALS) {
       s.saveFloat(primaryDemand.valueFor(type));
       s.saveFloat(primarySupply.valueFor(type));
+      s.saveFloat(consPerDay   .valueFor(type));
+      s.saveFloat(prodPerDay   .valueFor(type));
       s.saveFloat(importDemand .valueFor(type));
       s.saveFloat(exportSupply .valueFor(type));
       s.saveFloat(importPrices.get(type)      );
@@ -170,6 +176,8 @@ public class BaseDemands {
     final Sector homeworld = base.visits.homeworld();
     primarySupply.clear();
     primaryDemand.clear();
+    consPerDay   .clear();
+    prodPerDay   .clear();
     importDemand .clear();
     exportSupply .clear();
     
@@ -177,29 +185,33 @@ public class BaseDemands {
       final Venue venue = (Venue) o;
       if (venue.blueprint.isFixture()) continue;
       final int tier = venue.owningTier();
-      if (tier <= Owner.TIER_PRIVATE) continue;
       
       final boolean trader = Visit.arrayIncludes(
         venue.services(), SERVICE_COMMERCE
       );
       for (Traded type : venue.stocks.demanded()) {
         final float
-          amount      = venue.stocks.amountOf   (type),
-          consumption = venue.stocks.consumption(type),
-          production  = venue.stocks.production (type)
+          amount      = venue.stocks.amountOf        (type),
+          consumption = venue.stocks.consumption     (type),
+          production  = venue.stocks.production      (type),
+          consPD      = venue.stocks.dailyConsumption(type),
+          prodPD      = venue.stocks.dailyProduction (type)
         ;
         if (report) {
           I.say("  "+venue+" "+type+" (tier: "+tier+")");
           I.say("    Amount:          "+amount+", trader: "+trader);
           I.say("    Produce/Consume: "+production+"/"+consumption);
+          I.say("    Per day:         "+prodPD    +"/"+consPD     );
         }
         if (trader) {
           exportSupply.add(Nums.min(production, amount), type);
-          importDemand.add(Nums.max(0, consumption), type);
+          importDemand.add(Nums.max(0, consumption    ), type);
         }
         else {
-          primarySupply.add(Nums.max(0, amount), type);
+          primarySupply.add(Nums.max(0, amount     ), type);
           primaryDemand.add(Nums.max(0, consumption), type);
+          consPerDay   .add(consPD, type);
+          prodPerDay   .add(prodPD, type);
         }
       }
     }
@@ -269,6 +281,16 @@ public class BaseDemands {
     float demand = primaryDemand(type), supply = primarySupply(type);
     if (demand == 0) return 0;
     return (demand - supply) / demand;
+  }
+  
+  
+  public float dailyConsumption(Traded type) {
+    return consPerDay.valueFor(type);
+  }
+  
+  
+  public float dailyProduction(Traded type) {
+    return prodPerDay.valueFor(type);
   }
   
   

@@ -64,6 +64,7 @@ public class ActorHealth {
     DEFAULT_HEALTH   = 10,
     MAX_CALORIES     = 1.5f,
     STARVE_INTERVAL  = Stage.STANDARD_DAY_LENGTH * 5,
+    FOOD_PER_DAY     = FOOD_TO_CALORIES * 0.2f / DEFAULT_HEALTH,
     
     MAX_INJURY       =  1.5f,
     MAX_DECOMP       =  2.5f,

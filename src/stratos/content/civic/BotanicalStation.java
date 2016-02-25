@@ -280,6 +280,27 @@ public class BotanicalStation extends HarvestVenue {
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
   }
   
+
+  protected void checkTendStates() {
+    super.checkTendStates();
+
+    float numCarbs = 0, numGreens = 0;
+    for (Tile t : reserved()) {
+      final Crop c = plantedAt(t);
+      if (c == null) continue;
+      
+      final float perDay = c.dailyYieldEstimate(t);
+      final Item yield[] = c.materials();
+      for (Item i : yield ) {
+        if (i.type == CARBS ) numCarbs  += perDay * i.amount;
+        if (i.type == GREENS) numGreens += perDay * i.amount;
+      }
+    }
+    
+    stocks.setDailyDemand(CARBS , 0, numCarbs );
+    stocks.setDailyDemand(GREENS, 0, numGreens);
+  }
+  
   
   protected float growthMultiple(Crop crop) {
     float bonus = structure.upgradeLevel(MOISTURE_FARMING) / 2f;
@@ -380,62 +401,6 @@ public class BotanicalStation extends HarvestVenue {
       return 0;
     }
     return 0;
-  }
-  
-  
-  
-  /**  Rendering and interface methods-
-    */
-  final static String
-    POOR_SOILS_INFO =
-      "The poor soils around this Station will hamper growth and yield a "+
-      "stingy harvest.",
-    WAITING_ON_SEED_INFO =
-      "The land around this Station will have to be seeded by your "+
-      ""+Backgrounds.CULTIVATOR+"s.",
-    POOR_HEALTH_INFO =
-      "The crops around this Station are sickly.  Try to improve seed stock "+
-      "at the "+BotanicalStation.BLUEPRINT+".",
-    AWAITING_GROWTH_INFO =
-      "The crops around this Station have yet to mature.  Allow them a few "+
-      "days to bear fruit.";
-  
-  private String compileOutputReport() {
-    final StringBuffer s = new StringBuffer();
-    final int numTiles = reserved().length;
-    float
-      health = 0, growth = 0, fertility = 0,
-      numPlant = 0, numCarbs = 0, numGreens = 0;
-    
-    for (Tile t : reserved()) {
-      final Crop c = plantedAt(t);
-      fertility += t.habitat().moisture();
-      if (c == null) continue;
-      
-      final float perDay = c.dailyYieldEstimate(t);
-      final Item yield[] = c.materials();
-      numPlant++;
-      health += c.health   ();
-      growth += c.growStage();
-      for (Item i : yield ) {
-        if (i.type == CARBS ) numCarbs  += perDay;
-        if (i.type == GREENS) numGreens += perDay;
-      }
-    }
-    
-    if      (fertility < (numTiles * 0.5f)) s.append(POOR_SOILS_INFO     );
-    else if (numPlant == 0                ) s.append(WAITING_ON_SEED_INFO);
-    else if (health    < (numPlant * 0.5f)) s.append(POOR_HEALTH_INFO    );
-    else if (growth    < (numPlant * 0.5f)) s.append(AWAITING_GROWTH_INFO);
-    else s.append(BLUEPRINT.description);
-    
-    if (numCarbs  > 0) {
-      s.append("\n  Estimated "+CARBS +" per day: "+I.shorten(numCarbs , 1));
-    }
-    if (numGreens > 0) {
-      s.append("\n  Estimated "+GREENS+" per day: "+I.shorten(numGreens, 1));
-    }
-    return s.toString();
   }
 }
 

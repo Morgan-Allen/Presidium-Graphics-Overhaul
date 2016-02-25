@@ -369,36 +369,6 @@ public class Blueprint extends Constant implements UIConstants {
       baseUpgrade().describeTechChain(d);
     }
     
-    if (consuming.size() > 0) d.append("\n\nConsumption:");
-    for (Conversion c : consuming) {
-      d.append("\n  ");
-      final String name = c.specialName();
-      if (name != null) d.append(name+" ");
-      d.append("Needs ");
-      for (Item i : c.raw) { d.append(i.type); d.append(" "); }
-    }
-    
-    if (producing.size() > 0) d.append("\n\nProduction:");
-    for (Conversion c : producing) {
-      d.append("\n  ");
-      final String name = c.specialName();
-      if (name != null) d.append(name);
-      
-      if (c.raw.length > 0) {
-        for (Item i : c.raw) {
-          d.append((int) i.amount+" ");
-          d.append(i.type);
-          d.append(" ");
-        }
-        d.append("to "+(int) c.out.amount+" ");
-        d.append(c.out.type);
-      }
-      else {
-        d.append(c.out.type);
-      }
-      d.append("\n  Base 2.5x per worker/day");
-    }
-    
     if (! isLinear()) {
       final Batch <Venue> built = base.listInstalled(this, false);
       d.append("\n\nCurrently Built:");
@@ -407,9 +377,45 @@ public class Blueprint extends Constant implements UIConstants {
         d.append(v);
       }
       else d.append(" None");
+      
+      if (producing.size() > 0) d.append("\n\nProduction:");
+      for (Conversion c : producing) {
+        if (! c.out.type.common()) continue;
+        d.append("\n  ");
+        final String name = c.specialName();
+        if (name != null) d.append(name);
+        
+        if (c.raw.length > 0) {
+          for (Item i : c.raw) {
+            d.append((int) i.amount+" ");
+            d.append(i.type);
+            d.append(" ");
+          }
+          d.append("to "+(int) c.out.amount+" ");
+          d.append(c.out.type);
+        }
+        else {
+          d.append(c.out.type);
+        }
+        
+        float sumOut = 0;
+        for (Venue v : built) {
+          sumOut += v.stocks.dailyProduction(c.out.type);
+        }
+        d.append("\n  "+I.shorten(sumOut, 1)+" per day");
+        
+        //d.append("\n  Base 2.5x per worker/day");
+      }
     }
   }
 }
+
+
+
+
+
+
+
 
 
 

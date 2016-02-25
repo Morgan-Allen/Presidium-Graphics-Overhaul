@@ -131,26 +131,44 @@ public class BudgetsPane extends SelectionPane {
     d.append("DEMAND REPORT FOR "+base);
     
     Text.cancelBullet(d);
-    d.append("\n\nOffworld Prices (Buy | Sell | Base)");
+    
     for (Traded t : Economy.ALL_MATERIALS) {
       
       final String
         priceImp = I.shorten(BD.importPrice(t), 1),
         priceExp = I.shorten(BD.exportPrice(t), 1),
-        baseCost = I.shorten(t.defaultPrice() , 1);
+        baseCost = I.shorten(t.defaultPrice() , 1),
+        demand   = I.shorten(BD.primaryDemand   (t), 1),
+        supply   = I.shorten(BD.primarySupply   (t), 1),
+        consPD   = I.shorten(BD.dailyConsumption(t), 1),
+        prodPD   = I.shorten(BD.dailyProduction (t), 1);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append(" ");
       d.append(t);
-      d.append("\n");
+      
+      d.append(" ("+supply+"/"+demand+")");
+      d.append(" ("+prodPD+"/"+consPD+" per day)");
+
+      d.append("\n Prices: ");
       d.append(" (");
       d.append(priceImp+"", Colour.LITE_RED  );
       d.append(" | ");
       d.append(priceExp+"", Colour.LITE_GREEN);
       d.append(" | ");
       d.append(baseCost+"", Colour.LITE_BLUE );
-      d.append(")");
+      d.append(")\n");
     }
+    
+    Text.cancelBullet(d);
+    d.append("\n  Goods: (supply/demand) (daily)");
+    d.append("\n  Prices: (");
+    d.append("Buy", Colour.LITE_RED);
+    d.append(" | ");
+    d.append("Sell", Colour.LITE_GREEN);
+    d.append(" | ");
+    d.append("Base", Colour.LITE_BLUE);
+    d.append(")\n");
     
     Text.cancelBullet(d);
     
@@ -186,40 +204,7 @@ public class BudgetsPane extends SelectionPane {
       d.append(")");
     }
     if (BV.partners().size() == 0) d.append("\n\nNo Trade Partners.");
-
-    boolean noLocal = true, noTrade = true;
-
-    Text.cancelBullet(d);
-    d.append("\n\nLocal Goods: (supply/demand)");
-    for (Traded t : Economy.ALL_MATERIALS) {
-      final int
-        demand = (int) BD.primaryDemand(t),
-        supply = (int) BD.primarySupply(t);
-      if (demand == 0 && supply == 0) continue;
-      else noLocal = false;
-      
-      Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" ");
-      d.append(t);
-      d.append(" ("+supply+"/"+demand+")");
-    }
-    if (noLocal) d.append("\n  (No local goods)");
     
-    Text.cancelBullet(d);
-    d.append("\n\nReserved For Trade: (export/import)");
-    for (Traded t : Economy.ALL_MATERIALS) {
-      final int
-        demand = (int) BD.importDemand(t),
-        supply = (int) BD.exportSupply(t);
-      if (demand == 0 && supply == 0) continue;
-      else noTrade = false;
-      
-      Text.insert(t.icon.asTexture(), 20, 20, true, d);
-      d.append(" ");
-      d.append(t);
-      d.append(" ("+supply+"/"+demand+")");
-    }
-    if (noTrade) d.append("\n  (No trade goods)");
   }
 }
 

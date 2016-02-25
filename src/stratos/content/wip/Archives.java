@@ -41,7 +41,7 @@ public class Archives extends Venue {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     Archives.class, "archives",
-    "Archives", Target.TYPE_WIP, ICON,
+    "Archives", Target.TYPE_PHYSICIAN, ICON,
     "The Archives provide "+DATALINKS+" and facilitate research and "+
     "administration by base personnel.",
     4, 2, Structure.IS_NORMAL, Owner.TIER_FACILITY, 250, 3,
@@ -115,6 +115,7 @@ public class Archives extends Venue {
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     stocks.updateStockDemands(1, services(), CIRCUITRY_TO_DATALINKS);
+    Manufacture.updateProductionEstimates(this, CIRCUITRY_TO_DATALINKS);
     
     structure.setAmbienceVal(6);
     stocks.forceDemand(POWER, 3, 0);
@@ -124,13 +125,6 @@ public class Archives extends Venue {
   
   /**  Rendering and interface methods-
     */
-  public String helpInfo() {
-    return Manufacture.statusMessageFor(
-      super.helpInfo(), this, CIRCUITRY_TO_DATALINKS
-    );
-  }
-  
-  
   protected Traded[] goodsToShow() {
     return null;
   }

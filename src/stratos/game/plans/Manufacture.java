@@ -121,7 +121,7 @@ public class Manufacture extends Plan implements Behaviour {
   public Manufacture setBonusFrom(
     Venue works, boolean required, Upgrade... upgrades
   ) {
-    speedBonus = estimatedOutput(works, conversion, upgrades);
+    speedBonus = estimatedOutput(works, conversion);
     if (commission && required) {
       final int topQuality = (int) (speedBonus * Item.MAX_QUALITY / 2f);
       speedBonus *= (Item.AVG_QUALITY + 0.5f) / (1 + made.quality);
@@ -140,7 +140,7 @@ public class Manufacture extends Plan implements Behaviour {
   public static int topQuality(
     Venue v, Conversion c, Upgrade... upgrades
   ) {
-    float speedBonus = estimatedOutput(v, c, upgrades);
+    float speedBonus = estimatedOutput(v, c);
     return (int) (speedBonus * Item.MAX_QUALITY / 2f);
   }
   
@@ -152,6 +152,8 @@ public class Manufacture extends Plan implements Behaviour {
     for (Item r : c.raw) if (v.stocks.relativeShortage(r.type, false) >= 1) {
       output /= 2;
     }
+    
+    if (Visit.empty(upgrades)) upgrades = c.upgrades();
     
     float upgradeBonus = 0;
     if (Visit.empty(upgrades)) {
@@ -170,54 +172,19 @@ public class Manufacture extends Plan implements Behaviour {
   }
   
   
-  public static String statusMessageFor(
-    String normal, Venue v, Conversion... cons
-  ) {
-    if ((! v.structure.intact()) || (! v.inWorld())) {
-      return normal;
+  public static void updateProductionEstimates(Venue v, Conversion... cons) {
+    for (Conversion c : cons) {
+      v.stocks.setDailyDemand(c.out.type, 0, 0);
+      for (Item r : c.raw) v.stocks.setDailyDemand(r.type, 0, 0);
     }
-    final StringBuffer s = new StringBuffer();
-
-    int numWorking = 0;
-    for (Actor a : v.staff.workers()) {
-      final Manufacture m = (Manufacture) a.matchFor(Manufacture.class, true);
-      if (m == null || a.aboard() != v) continue;
-      for (Conversion c : cons) {
-        if (m.made().type == c.out.type) numWorking++;
-      }
-    }
-    
-    boolean needsOkay = true;
-    if (v.stocks.relativeShortage(POWER, false) >= 0.5f) {
-      needsOkay = false;
-      s.append(
-        "Production will be slowed without enough "+POWER+"."
-      );
-    }
-    if (needsOkay && v.stocks.specialOrders().size() > 0) {
-      needsOkay = false;
-      s.append(
-        "\nYour workers are busy with special orders."+
-        "\n  Next order: "+v.stocks.specialOrders().first()
-      );
-      s.append("\n  "+numWorking+" active workers");
-      return s.toString();
-    }
-    if (needsOkay) s.append(normal);
-    
     for (Conversion c : cons) {
       float output = Manufacture.estimatedOutput(v, c, c.upgrades()) / 2f;
-      output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce() / 2f;
-      
-      s.append("\n  Est. "+c.out.type+" per day: "+I.shorten(output, 1));
-      for (Item r : c.raw) if (v.stocks.relativeShortage(r.type, false) >= 1) {
-        needsOkay = false;
-        s.append(" (No "+r.type+")");
+      output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce()  / 2f;
+      v.stocks.incDailyDemand(c.out.type, 0, output);
+      for (Item r : c.raw) {
+        v.stocks.incDailyDemand(r.type, output * r.amount / c.out.amount, 0);
       }
     }
-    
-    s.append("\n  "+numWorking+" active workers");
-    return s.toString();
   }
   
   
