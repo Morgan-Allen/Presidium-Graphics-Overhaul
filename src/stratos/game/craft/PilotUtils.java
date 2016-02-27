@@ -56,6 +56,8 @@ public class PilotUtils {
       I.say("  Drop point:    "+dropPoint);
     }
     
+    ship.base().visits.configCargo(ship.cargo, ship.spaceCapacity(), false);
+    
     if (dropPoint instanceof Docking) {
       //
       //  Rely on the docking functions of the landing site...

@@ -70,15 +70,14 @@ public class Condensor extends Venue {
     if (structure.intact()) {
       final Tile at = world.tileAt(this);
       
-      //  TODO:  Move this to the Solar Bank?
       float waterOut = 0;
-      waterOut += world.terrain().fertilitySample(at);
+      waterOut += world.terrain().fertilitySample(at) / 1f;
       waterOut += world.terrain().habitatSample(at, Habitat.SHALLOWS);
       waterOut += world.terrain().habitatSample(at, Habitat.OCEAN   );
-      waterOut *= 2.5f;
+      waterOut *= 10;
       
       stocks.forceDemand(POWER, 4, 0       );
-      stocks.forceDemand(ATMO , 0, 10      );
+      stocks.forceDemand(ATMO , 0, 5       );
       stocks.forceDemand(WATER, 0, waterOut);
       structure.setAmbienceVal(5);
     }

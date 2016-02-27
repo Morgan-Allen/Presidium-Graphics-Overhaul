@@ -141,11 +141,10 @@ public class EngineerStation extends Venue {
     if (! structure.intact()) return;
     
     stocks.updateStockDemands(1, services(),
-      PARTS_TO_CIRCUITRY ,
+      PARTS_TO_CIRCUITRY,
       METALS_TO_PARTS    
     );
-    stocks.setConsumption(PLASTICS, 2);
-    stocks.setConsumption(PARTS   , 2);
+    stocks.setConsumption(PARTS, 2);
     Manufacture.updateProductionEstimates(this, METALS_TO_PARTS);
     
     float pollution = 5, powerNeed = 5;

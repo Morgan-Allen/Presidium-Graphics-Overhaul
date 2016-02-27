@@ -214,7 +214,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   
   
   public float habitatSample(Tile t, Habitat h) {
-    return sampleAt(t, h.layerID);
+    return habitatSample(t, h.layerID);
   }
   
   

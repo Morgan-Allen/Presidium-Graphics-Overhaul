@@ -43,31 +43,31 @@ public class Crop extends Flora {
       Flora.class, "Oni Rice",
       "Oni Rice grows with unrivalled speed if kept well-watered.",
       null, CROP_MODELS[0],
-      Type.FLORA, 0.8f, 0.75f, true, 2, CARBS
+      Type.FLORA, 0.8f, 0.75f, true, 4, CARBS
     ) {},
     DURWHEAT = new Species(
       Flora.class, "Durwheat",
       "Durwheat is an excellent calory source suited to dryer soils.",
       null, CROP_MODELS[1],
-      Type.FLORA, 0.65f, 0.35f, true, 2, CARBS
+      Type.FLORA, 0.65f, 0.35f, true, 4, CARBS
     ) {},
     TUBER_LILY = new Species(
       Flora.class, "Tuber Lily",
       "Tuber Lilies are a sweet, savory crop vulnerable to drought.",
       null, CROP_MODELS[2],
-      Type.FLORA, 0.5f, 0.85f, true, 2, GREENS
+      Type.FLORA, 0.5f, 0.85f, true, 4, GREENS
     ) {},
     BROADFRUITS = new Species(
       Flora.class, "Broadfruits",
       "Broadfruits survive hard times by fattening their fleshy leaves.",
       null, CROP_MODELS[3],
-      Type.FLORA, 0.35f, 0.2f, true, 2, GREENS
+      Type.FLORA, 0.35f, 0.2f, true, 4, GREENS
     ) {},
     HIVE_GRUBS = new Species(
       Flora.class, "Hive Grubs",
       "Hive Grubs help to aerate soil and provide valuable protein.",
       null, new ModelAsset[] { GRUB_BOX_MODEL },
-      Type.FLORA, 0.2f, 0.5f, true, 2, PROTEIN
+      Type.FLORA, 0.2f, 0.5f, true, 4, PROTEIN
     ) {};
   
   
