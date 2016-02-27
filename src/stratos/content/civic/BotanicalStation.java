@@ -144,20 +144,14 @@ public class BotanicalStation extends HarvestVenue {
   /**  Claims and siting-
     */
   final static Siting SITING = new Siting(BLUEPRINT) {
-    
-    public float ratePointDemand(Base base, Target point, boolean exact) {
+    public float ratePointDemand(
+      Base base, Target point, boolean exact, int claimRadius
+    ) {
       final Stage world = point.world();
-      final Tile under = world.tileAt(point);
+      final Tile  under = world.tileAt(point);
       
-      final Venue station = (Venue) world.presences.nearestMatch(
-        BotanicalStation.class, point, -1
-      );
-      if (station == null || station.base() != base) return -1;
-      final float distance = Spacing.distance(point, station);
-      
-      float rating = super.ratePointDemand(base, point, exact);
+      float rating = super.ratePointDemand(base, point, exact, MAX_CLAIM_SIDE);
       rating *= world.terrain().fertilitySample(under) * 2;
-      rating /= 1 + (distance / Stage.ZONE_SIZE);
       return rating;
     }
   };

@@ -6,7 +6,11 @@
 package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
+import stratos.start.DebugPlacing;
+import stratos.start.PlayLoop;
 import stratos.game.craft.*;
+import stratos.game.maps.SiteUtils;
+import stratos.game.maps.SitingPass;
 import stratos.util.*;
 import stratos.content.civic.*;
 import static stratos.game.craft.Economy.*;
@@ -57,30 +61,56 @@ public class ScenarioElysium extends SectorScenario {
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
     
-    settlerBase = Base.settlement(
+    Venue bastion = base.listInstalled(Bastion.BLUEPRINT, true).first();
+    final Pick <StagePatch> pick = new Pick();
+    for (StagePatch patch : world.patches.allGridPatches()) {
+      Tile under = world.tileAt(patch);
+      float rating = world.terrain().fertilitySample(under);
+      rating *= 1 + (Spacing.zoneDistance(under, bastion) / 2);
+      pick.compare(patch, rating);
+    }
+    Target settlePoint = pick.result();
+
+    GameSettings.paveFree = true;
+    
+    Base settlerBase = Base.settlement(
       world, "Seilig's Landing", Faction.FACTION_CIVILISED
     );
-    //
-    //  Include some housing, a runner market, an ecologist redoubt, an
-    //  engineer station, a botanical station and a supply depot with basic
-    //  import/export options.  Some basic supplies and enough holdings to
-    //  accomodate the population.
-    
-    //  TODO:  You'll want to select a good location for this... consider
-    //  placing a Bastion first?
-    
     final Venue toPlace[] = {
+      new BotanicalStation(settlerBase),
+      new EcologistRedoubt(settlerBase),
+      new Bastion         (settlerBase),
+    };
+    Batch <Venue> holdings = new Batch();
+    float residents = 0;
+    for (Venue v : toPlace) {
+      SiteUtils.establishVenue(v, settlePoint, true, world);
+      if (! v.inWorld()) continue;
+      settlerBase.setup.fillVacancies(v, true);
+      residents += v.staff.workforce();
+    }
+    settlePoint = toPlace[2];
+    final Venue morePlaced[] = {
       new EngineerStation (settlerBase),
       new RunnerMarket    (settlerBase),
-      new EcologistRedoubt(settlerBase),
-      new BotanicalStation(settlerBase),
       new SupplyDepot     (settlerBase),
-      new Condensor       (settlerBase)
     };
-    settlerBase.setup.doPlacementsFor(toPlace);
+    for (Venue v : morePlaced) {
+      SiteUtils.establishVenue(v, settlePoint, true, world);
+      if (! v.inWorld()) continue;
+      settlerBase.setup.fillVacancies(v, true);
+      residents += v.staff.workforce();
+    }
     
-    Batch <Venue> holdings;
-    holdings = settlerBase.setup.doFullPlacements(Holding.BLUEPRINT);
+    settlerBase.demands.impingeDemand(
+      Economy.SERVICE_HOUSING, residents, -1, settlePoint
+    );
+    for (float n = residents / HoldingUpgrades.OCCUPANCIES[0]; n-- > 0;) {
+      Holding h = new Holding(settlerBase);
+      SiteUtils.establishVenue(h, settlePoint, true, world);
+      if (! h.inWorld()) continue;
+      holdings.add(h);
+    }
     for (Venue v : holdings) {
       v.stocks.bumpItem(PARTS   , 5);
       v.stocks.bumpItem(PLASTICS, 5);
@@ -88,9 +118,12 @@ public class ScenarioElysium extends SectorScenario {
       v.stocks.bumpItem(PROTEIN , 5);
       v.structure.addUpgrade(Holding.FREEBORN_LEVEL);
     }
-
-    Visit.appendTo(settlerBuilt, toPlace );
-    Visit.appendTo(settlerBuilt, holdings);
+    
+    GameSettings.paveFree = false;
+    
+    Visit.appendTo(settlerBuilt, toPlace   );
+    Visit.appendTo(settlerBuilt, morePlaced);
+    Visit.appendTo(settlerBuilt, holdings  );
   }
   
   

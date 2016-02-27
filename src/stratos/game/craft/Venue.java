@@ -149,8 +149,11 @@ public abstract class Venue extends Fixture implements
     //
     //  If position has been changed (or has been initially assigned) then
     //  we can take the liberty of choosing our ideal entrance-
-    if (moved) setFacing(SiteUtils.pickBestEntranceFace(this));
-    if (facing == FACE_INIT) setFacing(FACE_NONE);
+    if (moved) {
+      if (blueprint.isZoned()) setFacing(facing);
+      else setFacing(SiteUtils.pickBestEntranceFace(this));
+    }
+    if (facing == FACE_INIT) setFacing(FACE_EAST);
     return true;
   }
   
@@ -336,9 +339,8 @@ public abstract class Venue extends Fixture implements
       RoadsRepair.updatePavingAround(t, base);
     }
     
-    //
     //  TODO:  RESTORE THIS!
-    //world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f);
+    //  world.ephemera.addGhost(this, size, buildSprite.scaffolding(), 2.0f);
     refreshIncept(world, false);
   }
   
@@ -367,27 +369,8 @@ public abstract class Venue extends Fixture implements
     if (! structure.needsSalvage()) {
       if (rare) updatePaving(true);
       staff.updateStaff(numUpdates);
-      
-      //  TODO:  This should also be handled by the Stocks, maybe...?
       impingeSupply(false);
     }
-    /*
-    if (structure.intact()) {
-      stocks.updateOrders();
-      if (rare) {
-        stocks.updateDemands(10);
-        int needHome = 0; for (Actor a : staff.workers()) {
-          final Placeable home = a.mind.home();
-          if (home == null && home != this) needHome++;
-        }
-        
-        //  TODO:  This needs to be handled by the BaseCommerce class, or
-        //  something similar.
-        
-        base.demands.impingeDemand(SERVICE_HOUSING, needHome, 10, this);
-      }
-    }
-    //*/
   }
   
   
@@ -917,13 +900,11 @@ public abstract class Venue extends Fixture implements
     temp.set(Colour.transparency(opacity)).multiply(tinge);
     
     if (inWorld()) {
-      /*
       BaseUI.current().selection.renderTileOverlay(
         rendering, origin().world, temp,
         Selection.SELECT_OVERLAY, false,
         keyRes, true, areaClaimed()
       );
-      //*/
     }
     else {
       final Batch <Object> under = new Batch <Object> ();

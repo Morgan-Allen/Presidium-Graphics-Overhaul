@@ -36,7 +36,7 @@ public class EngineerStation extends Venue {
     "The Engineer Station manufactures "+PARTS+", "+CIRCUITRY+", devices and "+
     "armour for your citizens.",
     4, 1, Structure.IS_NORMAL, Owner.TIER_FACILITY, 200, 5,
-    PLASTICS, PARTS, CIRCUITRY,
+    PARTS, CIRCUITRY,
     Devices.AMMO_CLIPS, Outfits.POWER_CELLS,
     SERVICE_ARMAMENT, TECHNICIAN, ENGINEER
   );
@@ -79,15 +79,6 @@ public class EngineerStation extends Venue {
       Upgrade.Type.TECH_MODULE, PARTS,
       15, ASSEMBLY
     ),
-    MOLDING_PRESS = new Upgrade(
-      "Molding Press",
-      "Speeds the production of common "+PLASTICS+" and lighter outfits "+
-      "by 100%.",
-      250,
-      Upgrade.SINGLE_LEVEL, LEVELS[0], BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, PLASTICS,
-      10, ASSEMBLY, 0, CHEMISTRY
-    ),
     WEAPONS_WORKSHOP = new Upgrade(
       "Weapons Workshop",
       "Raises the production quality of standard weaponry.",
@@ -121,32 +112,17 @@ public class EngineerStation extends Venue {
       Upgrade.Type.TECH_MODULE, null,
       10, ASSEMBLY, 15, FIELD_THEORY
     ),
-    MICRO_ASSEMBLY = new Upgrade(
-      "Micro Assembly",
-      "Allows customised "+CIRCUITRY+" to be produced 50% faster, and "+
-      "assists production of non-combat devices.",
-      200,
-      Upgrade.TWO_LEVELS, new Upgrade[] { ASSEMBLY_LINE, LEVELS[1] }, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, CIRCUITRY,
-      20, ASSEMBLY, 10, FIELD_THEORY
-    ),
     ROBOTIC_ARMATURE = new Upgrade(
       "Robotic Armature",
       "Allows your engineers to equip formidable "+Outfits.POWER_LIFTER+"s,"+
       "and provides a bonus to manufacture of heavier armours.",
       550,
-      Upgrade.SINGLE_LEVEL, MICRO_ASSEMBLY, BLUEPRINT,
+      Upgrade.SINGLE_LEVEL, ASSEMBLY_LINE, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null,
       20, ASSEMBLY, 5, HAND_TO_HAND
     );
   
   final public static Conversion
-    POLYMER_TO_PLASTICS = new Conversion(
-      BLUEPRINT, "polymer_to_plastics",
-      1, POLYMER, TO, 2, PLASTICS,
-      ROUTINE_DC, CHEMISTRY, SIMPLE_DC, ASSEMBLY,
-      MOLDING_PRESS
-    ),
     METALS_TO_PARTS = new Conversion(
       BLUEPRINT, "metals_to_parts",
       1, METALS, TO, 2, PARTS,
@@ -156,8 +132,7 @@ public class EngineerStation extends Venue {
     PARTS_TO_CIRCUITRY = new Conversion(
       BLUEPRINT, "parts_to_circuitry",
       1, PARTS, TO, 2, CIRCUITRY,
-      ROUTINE_DC, FIELD_THEORY, STRENUOUS_DC, ASSEMBLY,
-      MICRO_ASSEMBLY
+      ROUTINE_DC, FIELD_THEORY, STRENUOUS_DC, ASSEMBLY
     );
   
   
@@ -167,20 +142,14 @@ public class EngineerStation extends Venue {
     
     stocks.updateStockDemands(1, services(),
       PARTS_TO_CIRCUITRY ,
-      METALS_TO_PARTS    ,
-      POLYMER_TO_PLASTICS
+      METALS_TO_PARTS    
     );
     stocks.setConsumption(PLASTICS, 2);
     stocks.setConsumption(PARTS   , 2);
-    Manufacture.updateProductionEstimates(this,
-      PARTS_TO_CIRCUITRY ,
-      METALS_TO_PARTS    ,
-      POLYMER_TO_PLASTICS
-    );
+    Manufacture.updateProductionEstimates(this, METALS_TO_PARTS);
     
     float pollution = 5, powerNeed = 5;
     powerNeed *= (3f + structure.numOptionalUpgrades()) / 6;
-    pollution *= 2f / (2 + structure.upgradeLevel(MOLDING_PRESS));
     pollution *= (5f + structure.upgradeLevel(ASSEMBLY_LINE)) / 5;
     stocks.forceDemand(POWER, powerNeed, 0);
     structure.setAmbienceVal(0 - pollution);
@@ -210,17 +179,13 @@ public class EngineerStation extends Venue {
     }
     //
     //  Consider the production of general bulk commodities-
-    final Manufacture mL = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
-    if (mL != null) {
-      choice.add(mL.setBonusFrom(this, false, MOLDING_PRESS));
-    }
     final Manufacture mP = stocks.nextManufacture(actor, METALS_TO_PARTS);
     if (mP != null) {
       choice.add(mP.setBonusFrom(this, false, ASSEMBLY_LINE));
     }
     final Manufacture mI = stocks.nextManufacture(actor, PARTS_TO_CIRCUITRY);
     if (mI != null) {
-      choice.add(mI.setBonusFrom(this, false, MICRO_ASSEMBLY));
+      choice.add(mI.setBonusFrom(this, false));
     }
     //
     //  Consider research for new upgrades and structures-
@@ -257,8 +222,7 @@ public class EngineerStation extends Venue {
   //  them.
   //*
   final static Upgrade[]
-    BASIC_OUTFIT_UPS = { MOLDING_PRESS },
-    BASIC_DEVICE_UPS = { ASSEMBLY_LINE, MICRO_ASSEMBLY },
+    BASIC_DEVICE_UPS = { ASSEMBLY_LINE },
     BASIC_WEAPON_UPS = { WEAPONS_WORKSHOP },
     BEAM_WEAPON_UPS  = { WEAPONS_WORKSHOP, BEAM_WEAPONS },
     BASIC_ARMOUR_UPS = { ARMOUR_FOUNDRY },
@@ -266,10 +230,7 @@ public class EngineerStation extends Venue {
   
   
   private Upgrade[] upgradeFor(Traded made) {
-    if (made == Outfits.OVERALLS) {
-      return BASIC_OUTFIT_UPS;
-    }
-    else if (made instanceof DeviceType) {
+    if (made instanceof DeviceType) {
       final DeviceType DT = (DeviceType) made;
       if (DT.hasProperty(Devices.ENERGY )) return BEAM_WEAPON_UPS ;
       if (DT.hasProperty(Devices.KINETIC)) return BASIC_WEAPON_UPS;

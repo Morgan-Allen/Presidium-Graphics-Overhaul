@@ -113,6 +113,8 @@ public class SupplyDepot extends Venue {
     for (Traded t : HOME_PURCHASE_TYPES) {
       stocks.forceDemand(t, 5, 0);
     }
+    stocks.forceDemand(PLASTICS, 0, 10);
+    stocks.forceDemand(POLYMER , 0, 10);
   }
   
   

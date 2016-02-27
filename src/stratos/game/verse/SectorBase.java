@@ -165,7 +165,7 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
   
   public void updateAsScheduled(int numUpdates, boolean instant) {
     final boolean onStage = location == universe.stageLocation();
-    if (instant || onStage) return;
+    if (instant || onStage || faction == null) return;
     
     powerLevel = popLevel / 2f;
     powerLevel *= CombatUtils.AVG_POWER * Mission.AVG_PARTY_LIMIT;
@@ -178,6 +178,13 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     
     updatePopulation();
     updateEconomy();
+    
+    //  NOTE:  This has to be done to ensure that all factions have a base-
+    //  presence within the world (even if it goes entirely unused), because
+    //  the world-bases are what trigger raids & visits.
+    Stage played = universe.stage();
+    if (played != null) Base.settlement(played, null, faction);
+    
     //
     //  TODO:  Allow all residents a chance to apply for work elsewhere, or
     //  the faction's own missions- use that to replace candidate generation in

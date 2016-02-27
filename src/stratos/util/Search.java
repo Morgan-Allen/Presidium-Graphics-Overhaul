@@ -47,7 +47,9 @@ public abstract class Search <T> {
   
 
   public Search(T init, int maxPathLength) {
-    if (init == null) I.complain("INITIAL AGENDA ENTRY CANNOT BE NULL!");
+    if (init == null) {
+      I.complain("INITIAL AGENDA ENTRY CANNOT BE NULL!");
+    }
     this.init = init;
     this.maxSearched = (maxPathLength < 0) ? -1 : (maxPathLength * 1);
   }

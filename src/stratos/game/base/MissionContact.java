@@ -89,7 +89,6 @@ public class MissionContact extends Mission {
     */
   private void setupAsSummons() {
     final Actor actor = (Actor) subject;
-    setMissionType(TYPE_SCREENED);
     asSummons = Summons.officialSummons(actor, base.ruler());
   }
   

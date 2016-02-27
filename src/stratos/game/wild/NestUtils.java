@@ -86,13 +86,12 @@ public class NestUtils {
       localFert  = ecology.biomassRating(around),
       globalFert = ecology.globalBiomass();
     
-    if (globalPop <= 0 || globalFert <= 0 || localFert <= 0) return 1;
     int numPatches = world.size * world.size;
     numPatches /= Stage.ZONE_SIZE * Stage.ZONE_SIZE;
-
+    
     float crowding = 1.0f;
     crowding *= localPop * numPatches / globalPop;
-    crowding *= localFert / globalFert;
+    if (globalFert > 0) crowding *= localFert / globalFert;
     return crowding;
   }
   

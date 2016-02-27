@@ -86,7 +86,6 @@ public class VenuePane extends SelectionPane {
       final String SN = " ("+I.shorten(0 - danger, 1)+")";
       d.append("\n  "+Ambience.dangerDesc(danger)+" Safety"+SN);
     }
-    
     d.append("\n\n");
     d.append(v.helpInfo(), Colour.LITE_GREY);
   }
@@ -100,7 +99,6 @@ public class VenuePane extends SelectionPane {
   );
   
   protected void describeStocks(Description d, HUD UI, Traded setStock[]) {
-    
     
     final Traded[] demands = setStock == null ? v.stocks.demanded() : setStock;
     final Traded listOrder[] = setStock == null ? ITEM_LIST_ORDER : setStock;
@@ -156,7 +154,7 @@ public class VenuePane extends SelectionPane {
       dailyCons   = v.stocks.dailyConsumption(type),
       dailyProd   = v.stocks.dailyProduction (type),
       amount      = v.stocks.amountOf        (type),
-      dailySum    = dailyProd - dailyCons,
+      dailySum    = dailyProd > 0 ? dailyProd : dailyCons,
       stockMax    = Nums.min(25, v.spaceCapacity());
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);
@@ -295,7 +293,7 @@ public class VenuePane extends SelectionPane {
         }
       }
     }
-
+    
     final Batch <Description.Link> orders = new Batch();
     addOrdersTo(orders);
     if (orders.size() > 0) {

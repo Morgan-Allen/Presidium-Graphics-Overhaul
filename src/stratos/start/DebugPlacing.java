@@ -4,10 +4,8 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
-import static stratos.content.hooks.StratosSetting.SECTOR_ELYSIUM;
 
 import stratos.content.civic.*;
-import stratos.content.hooks.StratosSetting;
 import stratos.content.wip.*;
 import stratos.game.actors.*;
 import stratos.game.base.*;
@@ -22,6 +20,10 @@ import stratos.graphics.widgets.*;
 import stratos.graphics.terrain.*;
 import stratos.user.*;
 import stratos.util.*;
+
+import stratos.content.hooks.*;
+import static stratos.content.hooks.StratosSetting.*;
+import static stratos.game.craft.Economy.*;
 
 
 
@@ -71,7 +73,7 @@ public class DebugPlacing extends Scenario {
     final Sector at = SECTOR_ELYSIUM;
     final Stage world = Stage.createNewWorld(verse, at, TG.generateTerrain());
     TG.setupOutcrops(world);
-    //Flora.populateFlora(world);
+    Flora.populateFlora(world);
     return world;
   }
   
@@ -86,9 +88,10 @@ public class DebugPlacing extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.cashFree  = true;
     GameSettings.buildFree = true;
-    base.research.initKnowledgeFrom(StratosSetting.PLANET_HALIBAN);
+    base.research.initKnowledgeFrom(PLANET_HALIBAN);
     
-    if (true ) configEcology  (world, base, UI);
+    if (true ) configSettlers (world, base, UI);
+    if (false) configEcology  (world, base, UI);
     if (false) configSalvaging(world, base, UI);
     if (false) configPerimTest(world, base, UI);
     if (false) configTradeTest(world, base, UI);
@@ -98,6 +101,69 @@ public class DebugPlacing extends Scenario {
   
   protected void afterCreation() {
     world().readyAfterPopulation();
+  }
+  
+  
+  private void configSettlers(Stage world, Base base, BaseUI UI) {
+    
+    GameSettings.paveFree = true;
+    
+    final Pick <StagePatch> pick = new Pick();
+    for (StagePatch patch : world.patches.allGridPatches()) {
+      Tile under = world.tileAt(patch);
+      float rating = world.terrain().fertilitySample(under);
+      pick.compare(patch, rating);
+    }
+    Target settlePoint = pick.result();
+    
+    Base settlerBase = Base.settlement(
+      world, "Seilig's Landing", Faction.FACTION_CIVILISED
+    );
+    final Venue toPlace[] = {
+      new BotanicalStation(settlerBase),
+      new EcologistRedoubt(settlerBase),
+      new Bastion         (settlerBase),
+    };
+    
+    Batch <Venue> holdings = new Batch();
+    float residents = 0;
+    for (Venue v : toPlace) {
+      SiteUtils.establishVenue(v, settlePoint, true, world);
+      if (! v.inWorld()) continue;
+      settlerBase.setup.fillVacancies(v, true);
+      residents += v.staff.workforce();
+    }
+    settlePoint = toPlace[2];
+    final Venue morePlaced[] = {
+      new EngineerStation (settlerBase),
+      new RunnerMarket    (settlerBase),
+      new SupplyDepot     (settlerBase),
+    };
+    for (Venue v : morePlaced) {
+      SiteUtils.establishVenue(v, settlePoint, true, world);
+      if (! v.inWorld()) continue;
+      settlerBase.setup.fillVacancies(v, true);
+      residents += v.staff.workforce();
+    }
+    
+    settlerBase.demands.impingeDemand(
+      Economy.SERVICE_HOUSING, residents, -1, settlePoint
+    );
+    for (float n = residents / HoldingUpgrades.OCCUPANCIES[0]; n-- > 0;) {
+      Holding h = new Holding(settlerBase);
+      SiteUtils.establishVenue(h, settlePoint, true, world);
+      if (! h.inWorld()) continue;
+      holdings.add(h);
+    }
+    for (Venue v : holdings) {
+      v.stocks.bumpItem(PARTS   , 5);
+      v.stocks.bumpItem(PLASTICS, 5);
+      v.stocks.bumpItem(CARBS   , 5);
+      v.stocks.bumpItem(PROTEIN , 5);
+      v.structure.addUpgrade(Holding.FREEBORN_LEVEL);
+    }
+    
+    GameSettings.paveFree = false;
   }
   
   

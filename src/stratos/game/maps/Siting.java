@@ -74,9 +74,10 @@ public class Siting extends Constant {
   }
   
   
-  public float ratePointDemand(Base base, Target point, boolean exact) {
-    float sumRating = 1;
-    
+  public float ratePointDemand(
+    Base base, Target point, boolean exact, int claimRadius
+  ) {
+     float sumRating = 1;
     //  TODO:  Also include the effects of ambience & danger!  (And try to
     //  make sure that venues cluster together a bit, for neatness' sake.)
     
@@ -97,6 +98,16 @@ public class Siting extends Constant {
       
       sumRating += supply * demand / 10f;
     }
+    
+    if (claimRadius > 0) {
+      Tile under = base.world.tileAt(point);
+      Box2D area = new Box2D(under.x, under.y, 0, 0);
+      area.expandBy(claimRadius);
+      float fullArea = area.area();
+      area.cropBy(point.world().area());
+      sumRating *= area.area() / fullArea;
+    }
+    
     return Nums.clamp(sumRating, 0, BaseSetup.MAX_PLACE_RATING);
   }
   

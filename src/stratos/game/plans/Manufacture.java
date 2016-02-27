@@ -180,6 +180,17 @@ public class Manufacture extends Plan implements Behaviour {
     for (Conversion c : cons) {
       float output = Manufacture.estimatedOutput(v, c, c.upgrades()) / 2f;
       output *= Manufacture.MAX_UNITS_PER_DAY * v.staff.workforce()  / 2f;
+      
+      float skill = 0, numW = 0;
+      for (Actor a : v.staff.workers()) {
+        skill += c.testChance(a, 0);
+        numW++;
+      }
+      if (numW == 0) output = 0;
+      else output *= skill / numW;
+      
+      output = Nums.min(output, v.stocks.totalDemand(c.out.type));
+      
       v.stocks.incDailyDemand(c.out.type, 0, output);
       for (Item r : c.raw) {
         v.stocks.incDailyDemand(r.type, output * r.amount / c.out.amount, 0);

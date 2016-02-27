@@ -242,7 +242,7 @@ public class Blueprint extends Constant implements UIConstants {
     this.processes = Conversion.processedAt(this);
     
     for (Conversion p : processes) {
-      if (p.out != null) producing.include(p);
+      if      (p.out != null   ) producing.include(p);
       else if (p.raw.length > 0) consuming.include(p);
     }
   }
@@ -270,6 +270,7 @@ public class Blueprint extends Constant implements UIConstants {
   
   
   public Series <Conversion> production() {
+    getProcesses();
     return producing;
   }
   

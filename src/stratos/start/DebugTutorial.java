@@ -4,6 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.start;
+import stratos.content.hooks.TutorialScenario;
 import stratos.game.common.*;
 import stratos.graphics.common.*;
 import stratos.user.*;

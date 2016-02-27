@@ -87,6 +87,7 @@ public class BaseSetup {
     while (total-- > 0) {
       final SitingPass pass = new SitingPass(base, type.siting());
       pass.placeState = SitingPass.PLACE_INTACT;
+      pass.isVerbose  = verbose;
       pass.performFullPass();
       if (pass.success()) record.add(pass.placed);
     }
@@ -100,6 +101,7 @@ public class BaseSetup {
       if (v.blueprint.siting() == null) continue;
       final SitingPass pass = new SitingPass(base, v.blueprint.siting(), v);
       pass.placeState = SitingPass.PLACE_INTACT;
+      pass.isVerbose  = verbose;
       pass.performFullPass();
       if (pass.success()) record.add(pass.placed);
     }

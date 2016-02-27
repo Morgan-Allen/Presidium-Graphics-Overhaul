@@ -92,7 +92,9 @@ public class Ruins extends Venue {
         return 0;
       }
       
-      public float ratePointDemand(Base base, Target point, boolean exact) {
+      public float ratePointDemand(
+        Base base, Target point, boolean exact, int claimRadius
+      ) {
         final boolean report = placeVerbose && (point instanceof StagePatch);
         
         final Stage world = point.world();

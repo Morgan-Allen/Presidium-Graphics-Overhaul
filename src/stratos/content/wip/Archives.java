@@ -48,6 +48,13 @@ public class Archives extends Venue {
     SAVANT, DATALINKS, SERVICE_RESEARCH
   );
   
+  final public static Upgrade
+    LEVELS[] = BLUEPRINT.createVenueLevels(
+      Upgrade.SINGLE_LEVEL, null,
+      new Object[] { 15, ACCOUNTING, 10, ASSEMBLY },
+      600
+    );
+  
   final public static Conversion
     CIRCUITRY_TO_DATALINKS = new Conversion(
       BLUEPRINT, "circuitry_to_datalinks",

@@ -170,6 +170,7 @@ public class SaveUtils {
   
   public static void deleteAllSavesWithPrefix(String prefix) {
     if (prefix == null) return;
+    I.say("DELETING ALL SAVES WITH PREFIX "+prefix);
     for (String fileName : savedFiles(prefix)) {
       new File(SAVES_DIR+fileName).delete();
     }

@@ -112,11 +112,7 @@ public final class Economy {
       BC, "Parts"    , "parts.gif"    , FORM_MATERIAL, 40,
       "Durable and heat-resistant, needed for heavy engineering"
     ),
-    CIRCUITRY = new Traded(
-      BC, "Circuitry", "circuitry.gif", FORM_MATERIAL, 80,
-      "Used to manufacture terminals and other advanced devices"
-    ),
-    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS, CIRCUITRY),
+    ALL_WARES_TYPES[] = label(CATEGORY_WARES, PLASTICS, PARTS),
     
     ALL_RAW_MATERIALS[] = (Traded[]) Visit.compose(
       Traded.class, ALL_FOOD_TYPES, ALL_MINERAL_TYPES
@@ -160,7 +156,10 @@ public final class Economy {
       "Natrizoral, a refined form of 'spyce wine' that can be doctored to "+
       "enhance particular forms of psyonic powers."
     ),
-    
+    CIRCUITRY = new Traded(
+      BC, "Circuitry", "circuitry.gif", FORM_SPECIAL, 80,
+      "Used to manufacture terminals and other advanced devices"
+    ),
     //  TODO:  Replace directly with Atomics.  Ships have their own on-board
     //  reactors.
     ANTIMASS = new Traded(

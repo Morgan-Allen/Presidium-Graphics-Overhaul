@@ -80,9 +80,9 @@ public class DebugSecurity extends Scenario {
     GameSettings.fogFree   = true;
     GameSettings.paveFree  = true;
     GameSettings.noChat    = true;
-
-    if (false) verminScenario  (world, base, UI);
+    
     if (true ) wallsScenario   (world, base, UI);
+    if (false) verminScenario  (world, base, UI);
     if (false) breedingScenario(world, base, UI);
     if (false) arrestScenario  (world, base, UI);
     if (false) raidingScenario (world, base, UI);
@@ -92,6 +92,26 @@ public class DebugSecurity extends Scenario {
   
   protected void afterCreation() {
     world().readyAfterPopulation();
+  }
+  
+  
+  private void wallsScenario(Stage world, Base base, BaseUI UI) {
+    final Bastion bastion = new Bastion(base);
+    Flora.populateFlora(world);
+    //
+    //  Now, find a good location for the Bastion, and establish some walls
+    //  around it...
+    base.setup.doPlacementsFor(bastion);
+    final Box2D area = bastion.area(null).expandBy(4);
+    area.incX(4);
+    area.incY(4);
+    
+    final Venue walls[] = SiteUtils.placeAroundPerimeter(
+      ShieldWall.BLUEPRINT, bastion, area, base, true
+    );
+    for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
+    
+    base.finance.setInitialFunding(100000, 0);
   }
   
   
@@ -131,23 +151,6 @@ public class DebugSecurity extends Scenario {
     //*/
     
     Selection.pushSelection(enemy, null);
-  }
-  
-  
-  private void wallsScenario(Stage world, Base base, BaseUI UI) {
-    final Bastion bastion = new Bastion(base);
-    Flora.populateFlora(world);
-    //
-    //  Now, find a good location for the Bastion, and establish some walls
-    //  around it...
-    base.setup.doPlacementsFor(bastion);
-    final Box2D area = bastion.area(null).expandBy(6);
-    final Venue walls[] = SiteUtils.placeAroundPerimeter(
-      ShieldWall.BLUEPRINT, bastion, area, base, true
-    );
-    for (Venue v : walls) ((ShieldWall) v).updateFacing(true);
-    
-    base.finance.setInitialFunding(100000, 0);
   }
   
   

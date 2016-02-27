@@ -340,12 +340,24 @@ public class Box2D {
   
   
   public String toString() {
-    return
-      "(Position: "+xpos+"/"+ypos+
-      ", Size: "+xdim+"/"+ydim+
-      ", Limits: "+xmax+"/"+ymax+")";
+    String pX = (xpos == (int) xpos) ? (""+(int) xpos) : ""+xpos;
+    String pY = (ypos == (int) ypos) ? (""+(int) ypos) : ""+ypos;
+    String sX = (xdim == (int) xdim) ? (""+(int) xdim) : ""+xdim;
+    String sY = (ydim == (int) ydim) ? (""+(int) ydim) : ""+ydim;
+    return "(Position: "+pX+"|"+pY+" Size: "+sX+"|"+sY+")";
   }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 

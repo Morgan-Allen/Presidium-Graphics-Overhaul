@@ -37,8 +37,8 @@ public class PathSearch extends Search <Boarding> {
     super(init, -1);
     if (init == null) I.complain("NO ORIGIN!"     );
     if (dest == null) I.complain("NO DESTINATION!");
-    this.destination = dest;
-    this.closest     = init;
+    this.destination = dest ;
+    this.closest     = init ;
     this.limit       = limit;
   }
   

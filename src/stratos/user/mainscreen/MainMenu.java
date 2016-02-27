@@ -5,6 +5,7 @@
   */
 package stratos.user.mainscreen;
 import stratos.user.*;
+import stratos.content.hooks.TutorialScenario;
 import stratos.graphics.common.Colour;
 import stratos.graphics.widgets.*;
 import stratos.util.Description.*;

@@ -144,14 +144,20 @@ public class SeedTailoring extends Plan {
     
     float lack = 1f - lab.stocks.amountOf(seedType);
     if (lack <= 0) return -1;
-    if (hasBegun()) lack = 1;
-    
-    //  TODO:  USE THE PLAN-UTILS METHOD HERE?
     final Object yield = species.nutrients(0)[0].type;
-    final float priority = (Nums.clamp(
-      ROUTINE + (lab.structure.upgradeLevel(yield) * CASUAL / 2f),
-      0, URGENT
-    ) * lack) + motiveBonus();
+    lack *= (1 + lab.structure.upgradeLevel(yield)) / 4f;
+    if (hasBegun()) lack = Nums.max(lack, 0.5f);
+
+    Skill otherTest = actor.species().animal() ? XENOZOOLOGY : CULTIVATION;
+    float testChance = 0;
+    testChance += actor.skills.chance(BIOLOGY  , MODERATE_DC );
+    testChance += actor.skills.chance(otherTest, DIFFICULT_DC);
+    setCompetence(testChance / 2);
+    
+    float priority = PlanUtils.jobPlanPriority(
+      actor, this, lack, competence(), -1, 0,
+      new Trait[] { EMPATHIC, RUGGED }
+    );
     
     if (report) I.say("\nSeed-tailoring priority for "+actor+" is "+priority);
     return priority;
@@ -191,6 +197,7 @@ public class SeedTailoring extends Plan {
     final Object yield    = species.nutrients(0)[0].type;
     final int    upgrade  = Nums.clamp(lab.structure.upgradeLevel(yield), 3);
     final int    minLevel = upgrade - 1, maxLevel = upgrade + 1;
+    Skill otherTest = actor.species().animal() ? XENOZOOLOGY : CULTIVATION;
     //
     //  There's also a partial bonus based on the quality of samples collected,
     //  and a larger bonus based on the skill of the gene-tailor.  If neither
@@ -198,8 +205,8 @@ public class SeedTailoring extends Plan {
     final Action a = action();
     float sampleBonus = numSamples(lab) / DESIRED_SAMPLES, skillCheck = -0.5f;
     sampleBonus += minLevel / 2f;
-    skillCheck += actor.skills.test(BIOLOGY    , MODERATE_DC , 1, a) ? 1 : 0;
-    skillCheck += actor.skills.test(CULTIVATION, DIFFICULT_DC, 1, a) ? 1 : 0;
+    skillCheck += actor.skills.test(BIOLOGY  , MODERATE_DC , 1, a) ? 1 : 0;
+    skillCheck += actor.skills.test(otherTest, DIFFICULT_DC, 1, a) ? 1 : 0;
     //
     //  The final quality of the result depends on the sum of the sample-bonus
     //  and skill-bonus, contrained by the upgrades available at the lab-

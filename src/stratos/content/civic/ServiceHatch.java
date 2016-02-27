@@ -98,7 +98,9 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
     }
     
     
-    public float ratePointDemand(Base base, Target point, boolean exact) {
+    public float ratePointDemand(
+      Base base, Target point, boolean exact, int claimRadius
+    ) {
       final Stage world = point.world();
       
       final Object nearHatch = world.presences.nearestMatch(

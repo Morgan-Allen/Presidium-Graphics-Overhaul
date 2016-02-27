@@ -93,7 +93,7 @@ public class MissionStrike extends Mission {
       final Venue v = (Venue) subject;
       final Siting s = v.blueprint.siting();
       final int HP = v.structure.maxIntegrity();
-      targetValue = s == null ? 1 : s.ratePointDemand(v.base(), v, false);
+      targetValue = s == null ? 1 : s.ratePointDemand(v.base(), v, false, -1);
       targetValue += HP * 1f / Structure.DEFAULT_INTEGRITY;
       targetValue = Nums.clamp(targetValue / BaseSetup.MAX_PLACE_RATING, 0, 1);
     }

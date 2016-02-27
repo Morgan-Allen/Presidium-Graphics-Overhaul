@@ -43,7 +43,7 @@ public class SectorScenario extends Scenario {
   protected SectorScenario(Sector location, Verse verse) {
     super(false);
     this.location = location;
-    this.verse = verse;
+    this.verse    = verse   ;
   }
   
   
@@ -66,7 +66,7 @@ public class SectorScenario extends Scenario {
   public void beginScenario(Expedition config, String savesPrefix) {
     this.expedition = config;
     setSavesPrefix(savesPrefix);
-    skipLoading();
+    setSkipLoading(true);
     PlayLoop.setupAndLoop(this);
   }
   

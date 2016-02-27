@@ -86,8 +86,8 @@ public abstract class Scenario implements Session.Saveable, Playable {
   public BaseUI UI   () { return UI   ; }
   
   
-  public void skipLoading() {
-    this.skipNextLoad = true;
+  public void setSkipLoading(boolean skipLoading) {
+    this.skipNextLoad = skipLoading;
   }
   
   

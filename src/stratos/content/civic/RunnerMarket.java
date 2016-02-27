@@ -169,7 +169,8 @@ public class RunnerMarket extends Venue {
   
   
   public Box2D areaClaimed() {
-    return new Box2D(footprint()).expandBy(CLAIM_SIZE);
+    return super.areaClaimed();
+    //return new Box2D(footprint()).expandBy(CLAIM_SIZE);
   }
   
   

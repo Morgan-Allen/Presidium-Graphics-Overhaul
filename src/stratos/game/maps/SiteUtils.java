@@ -35,6 +35,7 @@ public class SiteUtils implements TileConstants {
     
     for (Tile t : world.tilesIn(area, false)) {
       if (t == null) return reasons.setFailure("Over the edge!");
+      
       if (t.reserved()) {
         if (record != null) record.add(t);
         else if (reasons == Account.NONE) return false;
@@ -89,6 +90,9 @@ public class SiteUtils implements TileConstants {
     final SitingPass pass = new SitingPass(v.base(), null, v) {
       protected float ratePlacing(Target point, boolean exact) {
         float rating = 1 / (1 + Spacing.zoneDistance(point, near));
+        final Siting siting = v.blueprint.siting();
+        if (siting == null) return rating;
+        rating *= siting.ratePointDemand(v.base(), point, exact, -1);
         return rating;
       }
     };
@@ -307,18 +311,24 @@ public class SiteUtils implements TileConstants {
   public static boolean pathingOkayAround(
     Target subject, Box2D footprint, int tier, Stage world
   ) {
-    final boolean shows = tier >= Owner.TIER_PRIVATE && showPockets;
-    final Tile perimeter[] = Spacing.perimeter(footprint, world);
+    //
+    //  In the case of AI placement, we use a much simpler, less CPU-intensive
+    //  method:
+    final Base client = subject.base();
+    if (client == null || ! client.isRealPlayer()) {
+      return simplePathingCheck(subject, footprint, tier, world);
+    }
     //
     //  To try and ensure that pathing-routes aren't interrupted, we find all
     //  adjacent 'pockets' of pathable terrain that can be traced from the
     //  perimeter.  (The trace-length is limited to reduce computation-burden,
     //  and also because very long detours are bad for pathing.)
+    final boolean shows = tier >= Owner.TIER_PRIVATE && showPockets;
+    final Tile perimeter[] = Spacing.perimeter(footprint, world);
     final int maxTrace = perimeter.length + (Stage.ZONE_SIZE / 2);
     final Batch <Batch <Tile>> pocketsFound = new Batch();
+    
     for (Tile t : perimeter) {
-      //  TODO:  DO NOT BORDER ON ANY CLAIMED AREAS EITHER!
-      
       final Batch <Tile> pocket = findPocket(t, footprint, maxTrace, tier);
       if (pocket != null) pocketsFound.add(pocket);
     }
@@ -348,6 +358,29 @@ public class SiteUtils implements TileConstants {
     }
     if (numRealPockets != 1) return false;
     else return true;
+  }
+  
+  
+  public static boolean simplePathingCheck(
+    Target subject, Box2D footprint, int tier, Stage world
+  ) {
+    final Tile perimeter[] = Spacing.perimeter(footprint, world);
+    final int DIV = Stage.PATCH_RESOLUTION;
+    int groupX = (int) ((footprint.xpos() + 1) / DIV);
+    int groupY = (int) ((footprint.ypos() + 1) / DIV);
+    
+    for (Tile t : perimeter) {
+      if (singleTileClear(t, footprint, tier)) continue;
+      final Element above = t == null ? null : t.reserves();
+      if (above == null) return false;
+      if (Nums.max(above.xdim(), above.ydim()) > DIV / 2) return false;
+      
+      int otherX = (int) ((above.origin().x + 1) / DIV);
+      int otherY = (int) ((above.origin().y + 1) / DIV);
+      
+      if (otherX != groupX || otherY != groupY) return false;
+    }
+    return true;
   }
   
   
@@ -478,8 +511,6 @@ public class SiteUtils implements TileConstants {
     final Tile o = v == null ? null : v.origin();
     int bestFace = Venue.FACE_INIT;
     if (o == null) return bestFace;
-    
-    if (v.facing() != Venue.FACE_INIT) return v.facing();
     
     final Tile batch[] = new Tile[8];
     float bestRating = -1;

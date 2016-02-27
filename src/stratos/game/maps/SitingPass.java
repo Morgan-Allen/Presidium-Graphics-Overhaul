@@ -170,7 +170,7 @@ public class SitingPass {
   
   
   protected float ratePlacing(Target point, boolean exact) {
-    return siting.ratePointDemand(base, point, exact);
+    return siting.ratePointDemand(base, point, exact, -1);
   }
   
   

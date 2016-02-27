@@ -271,6 +271,11 @@ public class PlacingTask implements UITask {
   
   /**  Various public utility methods-
     */
+  public String toString() {
+    return "Placing "+placeType.name;
+  }
+  
+  
   public static boolean isBeingPlaced(Target e) {
     final PlacingTask task = currentPlacement();
     if (task != null) for (Venue v : task.placeItems.values()) {

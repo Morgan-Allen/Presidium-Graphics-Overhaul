@@ -197,7 +197,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
     }
     //
     //  Consider rearing both prey species and predators as mounts & companions-
-    if (structure.hasUpgrade(CAPTIVE_BREEDING)) {
+    if (trainMult > 0) {
       addBreedingPlans(REARED_SPECIES, choice, trainMult);
     }
     if (
@@ -298,7 +298,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
   /**  Rendering and interface-
     */
   public void renderFor(Rendering rendering, Base base) {
-    if (base == this.base()) {
+    if (base == this.base() || true) {
       super.renderFor(rendering, base);
     }
     else {
@@ -312,7 +312,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
   public void renderSelection(
     Rendering rendering, boolean hovered
   ) {
-    if (base == this.base()) {
+    if (base == this.base() || true) {
       super.renderSelection(rendering, hovered);
     }
     else {

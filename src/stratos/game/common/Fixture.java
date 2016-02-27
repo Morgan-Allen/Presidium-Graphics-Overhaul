@@ -128,6 +128,8 @@ public abstract class Fixture extends Element {
       final float fog = base.intelMap.displayFog(t, t == o ? this : null);
       if (fog > maxFog) maxFog = fog;
     }
+    
+    if (base == this.base()) maxFog = Nums.max(maxFog, 0.25f);
     return maxFog;
   }
 }

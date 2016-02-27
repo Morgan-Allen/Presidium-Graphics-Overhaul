@@ -39,7 +39,7 @@ public class Fractal extends Venue {
     */
   final public static Blueprint BLUEPRINT = new Blueprint(
     Fractal.class, "fractal",
-    "Fractal", Target.TYPE_WIP, ICON,
+    "Fractal", Target.TYPE_AESTHETIC, ICON,
     "Fractals are decorative paving structures composed of interlocking "+
     "geometric forms.",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR,
@@ -48,7 +48,7 @@ public class Fractal extends Venue {
   );
   
   final public static Upgrade LEVELS[] = BLUEPRINT.createVenueLevels(
-    Upgrade.SINGLE_LEVEL, Fabricator.LEVELS[0],
+    Upgrade.SINGLE_LEVEL, null,
     new Object[] { 10, HANDICRAFTS, 10, ASSEMBLY },
     30
   );

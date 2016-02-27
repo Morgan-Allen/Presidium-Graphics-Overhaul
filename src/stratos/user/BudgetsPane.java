@@ -135,11 +135,11 @@ public class BudgetsPane extends SelectionPane {
     for (Traded t : Economy.ALL_MATERIALS) {
       
       final String
-        priceImp = I.shorten(BD.importPrice(t), 1),
-        priceExp = I.shorten(BD.exportPrice(t), 1),
-        baseCost = I.shorten(t.defaultPrice() , 1),
-        demand   = I.shorten(BD.primaryDemand   (t), 1),
-        supply   = I.shorten(BD.primarySupply   (t), 1),
+        priceImp = I.shorten(BD.importPrice(t), 0),
+        priceExp = I.shorten(BD.exportPrice(t), 0),
+        baseCost = I.shorten(t.defaultPrice() , 0),
+        demand   = I.shorten(BD.primaryDemand   (t), 0),
+        supply   = I.shorten(BD.primarySupply   (t), 0),
         consPD   = I.shorten(BD.dailyConsumption(t), 1),
         prodPD   = I.shorten(BD.dailyProduction (t), 1);
       

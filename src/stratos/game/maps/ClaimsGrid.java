@@ -6,6 +6,7 @@
 package stratos.game.maps;
 import stratos.game.common.*;
 import stratos.game.craft.*;
+import stratos.start.PlayLoop;
 import stratos.util.*;
 import stratos.user.*;
 import static stratos.game.common.Stage.*;
@@ -137,10 +138,10 @@ public class ClaimsGrid {
   
   
   private Series <Claim> claimsConflicting(Box2D area, Venue owner) {
-    final boolean report = verbose && owner.owningTier() > Owner.TIER_PRIVATE;
-    //boolean report = I.used60Frames && PlacingTask.isBeingPlaced(owner);
+    final boolean report = owner.owningTier() > Owner.TIER_PRIVATE && verbose;
     
-    final Batch <Claim> conflict = new Batch <Claim> ();
+    final Batch <Claim> conflict  = new Batch <Claim> ();
+    final Batch <Claim> processed = new Batch <Claim> ();
     if (report) {
       I.say("\nChecking for conflicts with claim by "+owner+"...");
       I.say("  Area checked: "+area);
@@ -154,14 +155,16 @@ public class ClaimsGrid {
       if (claims != null) for (Claim claim : claims) {
         //
         //  Anything previously processed (or one's self) can be skipped...
-        if (report) I.say("  Potential conflict: "+claim.owner);
+        if (claim.flag > 0 || claim.owner == owner) continue;
         final Venue other = claim.owner;
-        if (claim.flag > 0 || other == owner) continue;
+        processed.add(claim);
+        claim.flag = 1;
         //
         //  Zoned structures need a minimum spacing around their perimeter,
         //  while others can be placed adjacent.
         final int margin = SiteUtils.minSpacing(owner, other);
         if (claim.area.axisDistance(area) >= margin) continue;
+        if (report) I.say("  Potential conflict: "+claim.owner+": "+claim.area);
         //
         //  However, venues might or might not clash with eachother, even if
         //  within another's claim.
@@ -169,7 +172,10 @@ public class ClaimsGrid {
           ownerClash = owner.preventsClaimBy(other),
           otherClash = other.preventsClaimBy(owner),
           clash      = ownerClash || otherClash;
-        if (! clash) continue;
+        if (! clash) {
+          if (report) I.say("  Does not prevent claim.");
+          continue;
+        }
         //
         //  Failing that, flag the conflict and continue.
         if (report) {
@@ -179,12 +185,11 @@ public class ClaimsGrid {
           I.say("    Footprint:   "+other.footprint());
         }
         conflict.add(claim);
-        claim.flag = 1;
       }
     }
     //
     //  Clean up and return the results.
-    for (Claim c : conflict) c.flag = -1;
+    for (Claim c : processed) c.flag = -1;
     return conflict;
   }
   
@@ -272,6 +277,7 @@ public class ClaimsGrid {
     //  and then crop to avoid overlapping any neighbouring claims.
     final Box2D claim = new Box2D();
     claim.setTo(venue.footprint());
+    final float origW = claim.xdim(), origH = claim.ydim();
     claim.xdim(maxClaimSize);
     claim.ydim(maxClaimSize);
     //
@@ -279,10 +285,10 @@ public class ClaimsGrid {
     //  claimed area.
     final int facing = venue.facing();
     if (facing == Venue.FACE_NORTH || facing == Venue.FACE_WEST) {
-      claim.xpos(0 - maxClaimSize);
+      claim.incX(origW - maxClaimSize);
     }
     if (facing == Venue.FACE_EAST || facing == Venue.FACE_NORTH) {
-      claim.ypos(0 - maxClaimSize);
+      claim.incY(origH - maxClaimSize);
     }
     
     cropNewClaim(venue, claim);
@@ -330,7 +336,10 @@ public class ClaimsGrid {
     final boolean report =
       I.used60Frames && PlacingTask.isBeingPlaced(centre) && verbose
     ;
-    if (report) I.say("\nCropping claim for "+centre);
+    if (report) {
+      I.say("\nCropping claim for "+centre);
+      I.say("  Initial area: "+original);
+    }
     
     //
     //  First, resolve any conflicts with other venues.
@@ -344,12 +353,15 @@ public class ClaimsGrid {
     conflicts.queueSort();
     for (Claim c : conflicts) {
       final int margin = SiteUtils.minSpacing(centre, c.owner);
-      if (report) I.say("  Margin for "+c.owner+" is "+margin);
       cropToExclude(cropped, c.area, vecC, margin);
+      if (report) {
+        I.say("  Margin for "+c.owner+" is "+margin);
+        I.say("    Area:       "+c.area );
+        I.say("    After crop: "+cropped);
+      }
     }
     for (Claim c : conflicts) c.flag = -1;
     
-    //*
     //
     //  Then, resolve any conflicts with individual tiles-
     final List <Tile> tileClash = new List <Tile> () {
@@ -361,12 +373,15 @@ public class ClaimsGrid {
     tileClash.queueSort();
     final Box2D tempB = new Box2D();
     for (Tile t : tileClash) {
-      if (report) I.say("  Clash with tile at: "+t.x+"|"+t.y);
+      if (report) {
+        I.say("  Clash with tile at: "+t.x+"|"+t.y);
+      }
       t.area(tempB);
       tempB.expandToUnit(2);
+      tempB.incX(-0.5f);
+      tempB.incY(-0.5f);
       cropToExclude(cropped, tempB, vecC, 0);
     }
-    //*/
     
     if (report) I.say("Final area is: "+cropped);
     return original.setTo(cropped);
