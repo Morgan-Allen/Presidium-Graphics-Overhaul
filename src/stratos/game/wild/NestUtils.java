@@ -14,10 +14,6 @@ import static stratos.game.wild.Fauna.*;
 
 
 
-
-//  TODO:  Translate this back into a SitingPass?
-
-
 public class NestUtils {
   
   
@@ -104,7 +100,6 @@ public class NestUtils {
     world.ecology().updateAnimalCrowdEstimates();
     
     while (true) {
-      
       final Pick <Species> pick = new Pick(0);
       for (Species s : speciesOrder) {
         final float total = world.ecology().idealPopulation(s);
@@ -114,34 +109,25 @@ public class NestUtils {
       
       final Species species   = pick.result();
       final int     popGap    = Nums.round(pick.bestRating(), 1, false);
-      final int     nestLimit = (int) (nestLimit(species) * 0.75f);
-      final float   range     = forageRange(species) * 2;
       
-      Pick <StagePatch> placing = new Pick(0);
-      for (StagePatch r : world.patches.allGridPatches()) {
-        
-        final Tile point = Spacing.pickRandomTile(r, 0, world);
-        float rating = world.terrain().fertilitySample(point);
-        float crowding = base.demands.supplyAround(point, Fauna.class, range);
-        rating *= nestLimit / (nestLimit + crowding);
-        placing.compare(r, rating);
-      }
-      if (placing.empty()) break;
+      int pop = Nums.min(nestLimit(species), popGap);
+      if (pop <= 0) break;
       
-      
-      final Target  point = placing.result();
+      Nest nest = (Nest) species.nestBlueprint().createVenue(base);
       final boolean nests = species.fixedNesting();
-      int           pop   = Nums.min(nestLimit(species), popGap);
-      if (pop <= 0) continue;
+      SiteUtils.establishVenue(nest, null, -1, true, world);
       
-      final Nest nest = (Nest) species.nestBlueprint().createVenue(base);
-      if (nests) {
-        SiteUtils.establishVenue(nest, placing.result(), true, world);
-        if (! nest.inWorld()) continue;
+      if (! nest.inWorld()) {
+        I.say("COULD NOT FIND SPACE FOR NEST: "+species);
+        actualNumbers.add(pop, species);
+        continue;
+      }
+      if (! nests) {
+        nest.exitWorld();
       }
       while (pop-- > 0) {
-        Tile entry = Spacing.pickRandomTile(point, 0, world);
-        entry      = Spacing.nearestOpenTile(entry, point);
+        Tile entry = Spacing.pickRandomTile (nest, 0, world);
+        entry      = Spacing.nearestOpenTile(entry, nest   );
         
         final Actor f = species.sampleFor(base);
         actualNumbers.add(1, species);
@@ -174,9 +160,33 @@ public class NestUtils {
       }
     };
     
+    final float range = forageRange(s) * 2;
+    final int nestLimit = (int) (nestLimit(s) * 0.75f);
+    
+    new Siting(blueprint) {
+      public float ratePointDemand(
+        Base base, Target point, boolean exact, int claimRadius
+      ) {
+        final Stage world = point.world();
+        final Tile  under = world.tileAt(point);
+        float rating = world.terrain().fertilitySample(under);
+        float crowding = base.demands.supplyAround(point, Fauna.class, range);
+        rating *= nestLimit / (nestLimit + crowding);
+        return rating;
+      }
+    };
+    
     return blueprint;
   }
 }
+
+
+
+
+
+
+
+
 
 
 

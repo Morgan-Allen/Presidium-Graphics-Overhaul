@@ -118,12 +118,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   /**  Default methods for creating a new world, base, and user interface.
     */
   public void beginGameSetup() {
-    initScenario(savesPrefix);
-  }
-  
-  
-  protected void initScenario(String prefix) {
-    final String savePath = prefix == null ? null : latestSave(prefix);
+    String savePath = savesPrefix == null ? null : latestSave(savesPrefix);
     I.say("\nSave path is: "+savePath);
     
     if (SaveUtils.saveExists(savePath) && ! skipNextLoad) {
@@ -131,6 +126,12 @@ public abstract class Scenario implements Session.Saveable, Playable {
       loadGame(savePath, false);
       return;
     }
+    
+    initScenario(savesPrefix);
+  }
+  
+  
+  protected void initScenario(String prefix) {
     
     I.say("\n\nBeginning scenario setup from scratch...");
     SaveUtils.deleteAllSavesWithPrefix(savesPrefix);
@@ -228,7 +229,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  private void saveGame(final String saveFile) {
+  protected void saveGame(final String saveFile) {
     try {
       loadProgress = 0;
       lastSaveTime = world.currentTime();
@@ -243,7 +244,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   }
   
   
-  private void resetScenario() {
+  protected void resetScenario() {
     loadProgress = -1;
     this.world = null;
     this.base  = null;

@@ -6,11 +6,10 @@
 package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
-import stratos.graphics.cutout.CutoutModel;
-import stratos.graphics.widgets.Composite;
-import stratos.graphics.widgets.HUD;
 import stratos.game.craft.*;
-import stratos.user.BaseUI;
+import stratos.graphics.cutout.*;
+import stratos.graphics.widgets.*;
+import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
 
@@ -39,8 +38,8 @@ public class ScenarioPavonis extends SectorScenario {
   
   
   
-  public ScenarioPavonis(Verse verse) {
-    super(StratosSetting.SECTOR_PAVONIS, verse);
+  public ScenarioPavonis() {
+    super();
     this.script = new MessageScript(
       this, "src/stratos/content/hooks/ScriptPavonis.xml"
     );

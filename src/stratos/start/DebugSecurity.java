@@ -119,7 +119,7 @@ public class DebugSecurity extends Scenario {
     
     base.visits.assignHomeworld(StratosSetting.PLANET_AXIS_NOVENA);
     final Venue hatch = new ServiceHatch(base);
-    SiteUtils.establishVenue(hatch, world.tileAt(4, 4), true, world);
+    SiteUtils.establishVenue(hatch, world.tileAt(4, 4), -1, true, world);
     
     final Base vermin = Base.vermin(world);
     /*
@@ -134,7 +134,7 @@ public class DebugSecurity extends Scenario {
     //*
     Venue raids = new StockExchange(base);
     raids.stocks.bumpItem(Economy.CARBS, 20);
-    SiteUtils.establishVenue(raids, world.tileAt(20, 20), true, world);
+    SiteUtils.establishVenue(raids, world.tileAt(20, 20), -1, true, world);
     
     enemy.mind.assignBehaviour(new Looting(
       enemy, raids, Item.withAmount(Economy.CARBS, 5), hatch

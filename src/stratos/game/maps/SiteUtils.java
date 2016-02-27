@@ -84,12 +84,17 @@ public class SiteUtils implements TileConstants {
   
 
   public static Venue establishVenue(
-    final Venue v, final Target near, boolean intact, Stage world,
-    Actor... employed
+    final Venue v, final Target near, final int maxRange, boolean intact,
+    Stage world, Actor... employed
   ) {
     final SitingPass pass = new SitingPass(v.base(), null, v) {
       protected float ratePlacing(Target point, boolean exact) {
-        float rating = 1 / (1 + Spacing.zoneDistance(point, near));
+        float rating = 1;
+        if (near != null) {
+          final float dist = Spacing.distance(point, near);
+          if (maxRange > 0 && dist > maxRange) return -1;
+          rating *= 1f / (1 + (dist / Stage.ZONE_SIZE));
+        }
         final Siting siting = v.blueprint.siting();
         if (siting == null) return rating;
         rating *= siting.ratePointDemand(v.base(), point, exact, -1);
@@ -110,7 +115,7 @@ public class SiteUtils implements TileConstants {
     Actor... employed
   ) {
     final Tile at = world.tileAt(atX, atY);
-    return establishVenue(v, at, intact, world, employed);
+    return establishVenue(v, at, -1, intact, world, employed);
   }
   
   

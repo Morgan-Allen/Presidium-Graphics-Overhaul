@@ -181,7 +181,7 @@ public class DebugSocial extends Scenario {
       for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
     }
     final TrooperLodge garrison = new TrooperLodge(base);
-    SiteUtils.establishVenue(garrison, world.tileAt(3, 15), true, world);
+    SiteUtils.establishVenue(garrison, world.tileAt(3, 15), -1, true, world);
     
     //
     //  Introduce some natives to contact, some distance away-
@@ -270,7 +270,7 @@ public class DebugSocial extends Scenario {
     Tile start = world.tileAt(20, 20);
     
     Bastion bastion = new Bastion(base);
-    SiteUtils.establishVenue(bastion, start, true, world);
+    SiteUtils.establishVenue(bastion, start, -1, true, world);
     
     Background jobs[] = { TROOPER, TECHNICIAN, SUPPLY_CORPS };
     Actor tracked = null;
@@ -280,9 +280,9 @@ public class DebugSocial extends Scenario {
       if (tracked == null) tracked = a;
     }
     
-    SiteUtils.establishVenue(new TrooperLodge   (base), start, true, world);
-    SiteUtils.establishVenue(new EngineerStation(base), start, true, world);
-    SiteUtils.establishVenue(new SupplyDepot    (base), start, true, world);
+    SiteUtils.establishVenue(new TrooperLodge   (base), start, -1, true, world);
+    SiteUtils.establishVenue(new EngineerStation(base), start, -1, true, world);
+    SiteUtils.establishVenue(new SupplyDepot    (base), start, -1, true, world);
     Selection.pushSelection(tracked, null);
   }
   

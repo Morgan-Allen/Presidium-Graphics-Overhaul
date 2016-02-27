@@ -6,6 +6,7 @@
 package stratos.game.wild;
 import stratos.game.common.*;
 import stratos.game.craft.*;
+import stratos.game.maps.Siting;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
@@ -111,10 +112,8 @@ public class Nest extends Venue {
     */
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     panel = VenuePane.configStandardPanel(this, panel, UI, null);
-    //*
     final Description d = panel.detail();
     d.append("\n  Crowding: "+I.shorten(crowdRatingCache, 2));
-    //*/
     return panel;
   }
   

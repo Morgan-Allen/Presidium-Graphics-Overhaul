@@ -112,9 +112,9 @@ public class Expedition implements Session.Saveable {
   
   /**  Basic no-brainer access methods-
     */
-  public Sector origin     () { return origin     ; }
-  public Sector destination() { return destination; }
-  public Faction       backing    () { return backing    ; }
+  public Sector  origin     () { return origin     ; }
+  public Sector  destination() { return destination; }
+  public Faction backing    () { return backing    ; }
   
 
   public int titleGranted() { return titleGranted; }
@@ -126,6 +126,14 @@ public class Expedition implements Session.Saveable {
   public Actor leader() { return leader; }
   public Series <Actor> advisors () { return advisors ; }
   public Series <Actor> colonists() { return colonists; }
+  
+  public Series <Actor> allMembers() {
+    final Batch <Actor> all = new Batch();
+    if (leader != null) all.add(leader);
+    Visit.appendTo(all, advisors );
+    Visit.appendTo(all, colonists);
+    return all;
+  }
   
   
   

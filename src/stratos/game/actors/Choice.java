@@ -5,6 +5,7 @@
   */
 package stratos.game.actors;
 import stratos.game.common.*;
+import stratos.game.maps.PathSearch;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 
@@ -55,7 +56,7 @@ public class Choice {
     final Target  goes    = plan.moveTarget();
     final boolean canPath = actor.world().pathingMap.hasPathBetween(
       actor, goes, actor, report
-    ) || goes == null;
+    );
     if (! canPath) {
       if (report) I.say("\n  "+plan+" rejected- no extant path to "+goes);
       return false;

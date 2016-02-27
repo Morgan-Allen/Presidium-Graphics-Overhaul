@@ -32,8 +32,8 @@ public class ScenarioTerra extends SectorScenario {
   Batch <Item> artifacts = new Batch();
   
   
-  public ScenarioTerra(Verse verse) {
-    super(StratosSetting.SECTOR_TERRA, verse);
+  public ScenarioTerra() {
+    super();
     this.script = new MessageScript(
       this, "src/stratos/content/hooks/ScriptTerra.xml"
     );

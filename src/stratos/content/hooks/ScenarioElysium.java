@@ -31,8 +31,8 @@ public class ScenarioElysium extends SectorScenario {
   
   
   
-  public ScenarioElysium(Verse verse) {
-    super(StratosSetting.SECTOR_ELYSIUM, verse);
+  public ScenarioElysium() {
+    super();
     this.script = new MessageScript(
       this, "src/stratos/content/hooks/ScriptElysium.xml"
     );
@@ -84,7 +84,7 @@ public class ScenarioElysium extends SectorScenario {
     Batch <Venue> holdings = new Batch();
     float residents = 0;
     for (Venue v : toPlace) {
-      SiteUtils.establishVenue(v, settlePoint, true, world);
+      SiteUtils.establishVenue(v, settlePoint, -1, true, world);
       if (! v.inWorld()) continue;
       settlerBase.setup.fillVacancies(v, true);
       residents += v.staff.workforce();
@@ -96,7 +96,7 @@ public class ScenarioElysium extends SectorScenario {
       new SupplyDepot     (settlerBase),
     };
     for (Venue v : morePlaced) {
-      SiteUtils.establishVenue(v, settlePoint, true, world);
+      SiteUtils.establishVenue(v, settlePoint, -1, true, world);
       if (! v.inWorld()) continue;
       settlerBase.setup.fillVacancies(v, true);
       residents += v.staff.workforce();
@@ -107,7 +107,7 @@ public class ScenarioElysium extends SectorScenario {
     );
     for (float n = residents / HoldingUpgrades.OCCUPANCIES[0]; n-- > 0;) {
       Holding h = new Holding(settlerBase);
-      SiteUtils.establishVenue(h, settlePoint, true, world);
+      SiteUtils.establishVenue(h, settlePoint, -1, true, world);
       if (! h.inWorld()) continue;
       holdings.add(h);
     }

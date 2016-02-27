@@ -252,8 +252,9 @@ public abstract class ActorMind {
       I.say("\n"+actor+" COULD NOT DECIDE ON NEXT STEP!");
       I.say("  Root behaviour: "+root);
       I.say("  Next step:      "+next);
+      I.say("  Aboard:         "+actor.aboard());
+      I.say("  Origin:         "+actor.origin());
       Plan.reportPlanDetails(next, actor);
-      I.reportStackTrace();
       if (root != null) root.interrupt("Could not decide on step!");
     }
     return null;

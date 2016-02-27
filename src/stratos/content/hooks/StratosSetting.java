@@ -256,7 +256,7 @@ public class StratosSetting extends Verse {
       Sector.MAKES, CARBS, GREENS
     ) {
       public SectorScenario customScenario(Verse verse) {
-        return new ScenarioElysium(verse);
+        return new ScenarioElysium();
       }
     },
     
@@ -273,7 +273,7 @@ public class StratosSetting extends Verse {
       Sector.MAKES, SPYCES, PROTEIN
     ) {
       public SectorScenario customScenario(Verse verse) {
-        return new ScenarioPavonis(verse);
+        return new ScenarioPavonis();
       }
     },
     
@@ -290,7 +290,7 @@ public class StratosSetting extends Verse {
       Sector.MAKES, METALS, FUEL_RODS
     ) {
       public SectorScenario customScenario(Verse verse) {
-        return new ScenarioTerra(verse);
+        return new ScenarioTerra();
       }
     },
     

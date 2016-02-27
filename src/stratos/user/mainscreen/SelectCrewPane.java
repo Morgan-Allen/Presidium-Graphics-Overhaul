@@ -204,8 +204,8 @@ public class SelectCrewPane extends MenuPane {
     expedition.setTitleGranted(Expedition.TITLE_KNIGHTED);
     
     SectorScenario hook = verse.scenarioFor(expedition.destination());
-    if (hook == null) hook = new SectorScenario(expedition, verse, prefix);
-    hook.beginScenario(expedition, prefix);
+    if (hook == null) hook = new SectorScenario();
+    hook.beginScenario(expedition, verse, prefix);
   }
   
   

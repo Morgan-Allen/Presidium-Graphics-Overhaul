@@ -54,7 +54,8 @@ public class TutorialScenario extends SectorScenario {
   
   
   public TutorialScenario(String prefix) {
-    super(expedition(), new StratosSetting(), prefix);
+    super();
+    setupScenario(createExpedition(), new StratosSetting(), prefix);
     script = new MessageScript(this, SCRIPT_XML_PATH);
   }
   
@@ -138,7 +139,7 @@ public class TutorialScenario extends SectorScenario {
   
   /**  Initial setup-
     */
-  private static Expedition expedition() {
+  private static Expedition createExpedition() {
     final Faction backing = StratosSetting.PLANET_PAREM_V.startingOwner;
     final Expedition e = new Expedition().configFrom(
       StratosSetting.PLANET_PAREM_V, StratosSetting.SECTOR_TERRA, backing,

@@ -122,7 +122,7 @@ public class MissionClaiming extends Mission {
   private void beginNewMap(
     Stage oldWorld, Verse verse, Series <Actor> approved
   ) {
-    
+    //
     //  Remove all references to the old world by the expedition members (so
     //  that it's not retained in memory.)
     for (Actor a : approved) {
@@ -130,15 +130,15 @@ public class MissionClaiming extends Mission {
       a.removeWorldReferences(oldWorld);
     }
     endMission(true);
-    
+    //
     //  Then, we essentially 'reboot the world' in a different sector while
     //  retaining the old universe and expedition data.
     final String prefix = ((Scenario) PlayLoop.played()).savesPrefix();
     verse.setStartingDate((int) (journey().arriveTime() + 1));
     
     SectorScenario hook = verse.scenarioFor(expedition.destination());
-    if (hook == null) hook = new SectorScenario(expedition, verse, prefix);
-    hook.beginScenario(expedition, prefix);
+    if (hook == null) hook = new SectorScenario();
+    hook.beginScenario(expedition, verse, prefix);
   }
   
   

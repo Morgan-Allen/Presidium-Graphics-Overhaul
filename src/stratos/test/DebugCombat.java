@@ -276,7 +276,7 @@ public class DebugCombat extends AutomatedScenario {
     
     for (int n = 2; n-- > 0;) {
       final TrooperLodge barracks = new TrooperLodge(base);
-      SiteUtils.establishVenue(barracks, barracks, true, world);
+      SiteUtils.establishVenue(barracks, barracks, -1, true, world);
       base.setup.fillVacancies(barracks, true);
       Visit.appendTo(ourSoldiers, barracks.staff.workers());
     }

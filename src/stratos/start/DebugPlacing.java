@@ -128,7 +128,7 @@ public class DebugPlacing extends Scenario {
     Batch <Venue> holdings = new Batch();
     float residents = 0;
     for (Venue v : toPlace) {
-      SiteUtils.establishVenue(v, settlePoint, true, world);
+      SiteUtils.establishVenue(v, settlePoint, -1, true, world);
       if (! v.inWorld()) continue;
       settlerBase.setup.fillVacancies(v, true);
       residents += v.staff.workforce();
@@ -140,7 +140,7 @@ public class DebugPlacing extends Scenario {
       new SupplyDepot     (settlerBase),
     };
     for (Venue v : morePlaced) {
-      SiteUtils.establishVenue(v, settlePoint, true, world);
+      SiteUtils.establishVenue(v, settlePoint, -1, true, world);
       if (! v.inWorld()) continue;
       settlerBase.setup.fillVacancies(v, true);
       residents += v.staff.workforce();
@@ -151,7 +151,7 @@ public class DebugPlacing extends Scenario {
     );
     for (float n = residents / HoldingUpgrades.OCCUPANCIES[0]; n-- > 0;) {
       Holding h = new Holding(settlerBase);
-      SiteUtils.establishVenue(h, settlePoint, true, world);
+      SiteUtils.establishVenue(h, settlePoint, -1, true, world);
       if (! h.inWorld()) continue;
       holdings.add(h);
     }

@@ -26,24 +26,20 @@ public class SectorScenario extends Scenario {
     MAP_SIZES [] = { 128, 128, 128 },
     WALL_SIZES[] = { 16, 20, 24 };
   
-  final public Sector location;
+  private Sector location;
   private Verse verse;
   private Expedition expedition;
   
   
   
-  public SectorScenario(Expedition config, Verse verse, String prefix) {
-    super(prefix, false);
-    this.location   = config.destination();
-    this.verse      = verse ;
-    this.expedition = config;
+  
+  public SectorScenario() {
+    super(false);
   }
   
   
-  protected SectorScenario(Sector location, Verse verse) {
-    super(false);
-    this.location = location;
-    this.verse    = verse   ;
+  protected SectorScenario(String prefix) {
+    super(prefix, false);
   }
   
   
@@ -63,11 +59,47 @@ public class SectorScenario extends Scenario {
   }
   
   
-  public void beginScenario(Expedition config, String savesPrefix) {
-    this.expedition = config;
-    setSavesPrefix(savesPrefix);
+  public void beginScenario(Expedition config, Verse verse, String savesPrefix) {
+    setupScenario(config, verse, savesPrefix);
     setSkipLoading(true);
     PlayLoop.setupAndLoop(this);
+  }
+  
+  
+  public void setupScenario(Expedition config, Verse verse, String savesPrefix) {
+    this.location   = config.destination();
+    this.verse      = verse ;
+    this.expedition = config;
+    setSavesPrefix(savesPrefix);
+  }
+  
+  
+  public Sector location() {
+    return location;
+  }
+  
+  
+  public Verse verse() {
+    return verse;
+  }
+  
+  
+  public Expedition expedition() {
+    return expedition;
+  }
+  
+
+  protected void resetScenario() {
+    //
+    //  TODO:  I will eventually need a more sophisticated solution here-
+    //         at the moment we simply 'yank' the expedition members out of
+    //         the world before re-inserting them, when properly speaking they
+    //         should be restored to their state from before the scenario...
+    for (Actor a : expedition.allMembers()) {
+      if (a.inWorld()) a.exitWorld();
+      a.removeWorldReferences(world());
+    }
+    super.resetScenario();
   }
   
   
@@ -221,9 +253,8 @@ public class SectorScenario extends Scenario {
   protected void establishLocals(Stage world) {
     
     //  TODO:  Allow for natives as well?
+    final Species nesting[] = location.nativeSpecies();
     
-    final Species nesting[] = expedition.origin().nativeSpecies();
-
     int maxRuins = expedition.titleGranted() - 2;
     for (Species s : nesting) if (s.type == Species.Type.ARTILECT) maxRuins++;
     
