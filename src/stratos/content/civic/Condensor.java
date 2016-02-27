@@ -23,10 +23,12 @@ public class Condensor extends Venue {
   
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Condensor.class, "media/Buildings/aesthete/condensor.png", 2, 1
+    Condensor.class, "condensor_model",
+    "media/Buildings/aesthete/condensor.png", 2, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    Condensor.class, "media/GUI/Buttons/condensor_button.gif"
+    Condensor.class, "condensor_button",
+    "media/GUI/Buttons/condensor_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

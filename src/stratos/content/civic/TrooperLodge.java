@@ -26,10 +26,12 @@ public class TrooperLodge extends Venue implements Conscription {
   /**  Fields, constants, and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    TrooperLodge.class, "media/Buildings/military/trooper_lodge.png", 4, 2
+    TrooperLodge.class, "trooper_lodge_model",
+    "media/Buildings/military/trooper_lodge.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    TrooperLodge.class, "media/GUI/Buttons/trooper_lodge_button.gif"
+    TrooperLodge.class, "trooper_lodge_icon",
+    "media/GUI/Buttons/trooper_lodge_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

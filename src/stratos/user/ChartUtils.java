@@ -71,7 +71,6 @@ public class ChartUtils {
     String path, String file, PlanetDisplay display
   ) {
     final XML xml = XML.load(path+file);
-    final Class baseClass = ChartUtils.class;
     
     final XML
       modelNode   = xml.child("globeModel"),
@@ -79,18 +78,21 @@ public class ChartUtils {
       sectorsNode = xml.child("sectorsTex"),
       keysNode    = xml.child("sectorKeys");
     
+    final Class baseClass = ChartUtils.class;
+    final String baseName = modelNode.value("name");
+    
     final MS3DModel globeModel = MS3DModel.loadFrom(
-      path, modelNode.value("name"), baseClass, null, null
+      path, baseName, baseClass, null, null
     );
     final ImageAsset
       sectorKeys = ImageAsset.fromImage(
-        baseClass, path + keysNode.value("name")
+        baseClass, baseName+"_sectors_key", path + keysNode.value("name")
       ),
       surfaceTex = ImageAsset.fromImage(
-        baseClass, path + surfaceNode.value("name")
+        baseClass, baseName+"_surface", path + surfaceNode.value("name")
       ),
       sectorsTex = ImageAsset.fromImage(
-        baseClass, path + sectorsNode.value("name")
+        baseClass, baseName+"_sectors_tex", path + sectorsNode.value("name")
       );
     Assets.loadNow(globeModel);
     Assets.loadNow(sectorKeys);

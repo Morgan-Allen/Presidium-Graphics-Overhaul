@@ -27,7 +27,8 @@ public class SolarBank extends Venue {
     IMG_DIR = "media/Buildings/ecologist/";
   final public static ModelAsset
     BANK_MODELS[][] = CutoutModel.fromImageGrid(
-      SolarBank.class, IMG_DIR+"all_solar_banks.png", 2, 3, 2, 1, false
+      SolarBank.class, "solar_bank_models",
+      IMG_DIR+"all_solar_banks.png", 2, 3, 2, 1, false
     ),
     
     MODEL_X_SEGMENT = BANK_MODELS[1][1],
@@ -38,7 +39,8 @@ public class SolarBank extends Venue {
     MODEL_Y_TRAP    = BANK_MODELS[0][2];
   
   final static ImageAsset ICON = ImageAsset.fromImage(
-    SolarBank.class, "media/GUI/Buttons/solar_array_button.gif"
+    SolarBank.class, "solar_bank_icon",
+    "media/GUI/Buttons/solar_array_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

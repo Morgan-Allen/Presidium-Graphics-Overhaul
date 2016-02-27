@@ -27,7 +27,8 @@ public class Arcology extends Venue {
   final static String IMG_DIR = "media/Buildings/aesthete/";
   final static ModelAsset
     BEDS_MODELS[][] = CutoutModel.fromImageGrid(
-      Arcology.class, IMG_DIR+"all_arcology.png",
+      Arcology.class, "arcology_models",
+      IMG_DIR+"all_arcology.png",
       4, 4, 2, 2, false
     ),
     
@@ -42,7 +43,7 @@ public class Arcology extends Venue {
     MODELS_Y_AXIS[] = { MBS, MBY, MBN };  //top goes south to north...
   
   final static ImageAsset ICON = ImageAsset.fromImage(
-    Arcology.class, "media/GUI/Buttons/arcology_button.gif"
+    Arcology.class, "arcology_icon", "media/GUI/Buttons/arcology_button.gif"
   );
   
   final static int

@@ -24,38 +24,38 @@ public class ImageAsset extends Assets.Loadable {
   private Colour  average ;
   
   
-  private ImageAsset(String keyPath, String filePath, Class sourceClass) {
-    super(keyPath+"_"+filePath, sourceClass, false);
+  private ImageAsset(Class sourceClass, String ID, String filePath) {
+    super(ID, sourceClass, false);
     this.filePath = filePath;
   }
   
   
-  public static ImageAsset fromImage(Class sourceClass, String filePath) {
-    final String keyPath = "image_asset_"+filePath;
-    
-    final Object match = Assets.getResource(keyPath);
+  public static ImageAsset fromImage(
+    Class sourceClass, String ID, String filePath
+  ) {
+    final Object match = Assets.getResource(ID);
     if (match == NO_FILE) return null;
     if (match instanceof ImageAsset) return (ImageAsset) match;
     
     if (! Assets.exists(filePath)) {
       I.say("WARNING- NO SUCH IMAGE FILE: "+filePath);
-      Assets.cacheResource(NO_FILE, keyPath);
+      Assets.cacheResource(NO_FILE, ID);
       return null;
     }
     
-    final ImageAsset asset = new ImageAsset(keyPath, filePath, sourceClass);
+    final ImageAsset asset = new ImageAsset(sourceClass, ID, filePath);
     asset.setKeyFile(filePath);
-    Assets.cacheResource(asset, keyPath);
+    Assets.cacheResource(asset, ID);
     return asset;
   }
   
   
   public static ImageAsset[] fromImages(
-    Class sourceClass, String path, String... files
+    Class sourceClass, String ID, String path, String... files
   ) {
     final ImageAsset assets[] = new ImageAsset[files.length];
     for (int i = 0; i < files.length; i++) {
-      assets[i] = fromImage(sourceClass, path+files[i]);
+      assets[i] = fromImage(sourceClass, ID+"_"+i, path+files[i]);
     }
     return assets;
   }
@@ -185,7 +185,7 @@ public class ImageAsset extends Assets.Loadable {
     */
   public static ImageAsset withColor(final int size, Colour c, Class source) {
     final Color gdxColor = new Color(c.r, c.g, c.b, c.a);
-    final ImageAsset asset = new ImageAsset("IMAGE_ASSET_", c+"", source) {
+    final ImageAsset asset = new ImageAsset(source, c+"_img", "IMAGE_ASSET_") {
       protected State loadAsset() {
         final Texture tex = new Texture(size, size, Pixmap.Format.RGBA8888);
         final Pixmap draw = new Pixmap (size, size, Pixmap.Format.RGBA8888);

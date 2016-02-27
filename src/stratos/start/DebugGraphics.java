@@ -20,15 +20,16 @@ public class DebugGraphics {
   
   final static CutoutModel
     CM = CutoutModel.fromImage(
-      DebugGraphics.class,
+      DebugGraphics.class, "dgm_1",
       "media/Buildings/military/bastion.png", 7, 5
     ),
     VM = CutoutModel.fromImage(
-      DebugGraphics.class,
+      DebugGraphics.class, "dgm_2",
       "media/Buildings/merchant/stock_exchange.png", 4, 2
     ),
     GM[][] = CutoutModel.fromImageGrid(
-      DebugGraphics.class, "media/Buildings/artificer/all_molds.png",
+      DebugGraphics.class, "dgm_3",
+      "media/Buildings/artificer/all_molds.png",
       4, 5, 1, 1, true
     );
   final static MS3DModel

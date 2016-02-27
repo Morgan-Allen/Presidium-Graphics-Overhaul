@@ -28,28 +28,36 @@ public class SelectionPane extends UIGroup implements UIConstants {
     */
   final public static ImageAsset
     BORDER_TEX = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Front/Panel.png"
+      SelectionPane.class, "selection_pane_border",
+      "media/GUI/Front/Panel.png"
     ),
     SCROLL_TEX = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/scroll_grab.gif"
+      SelectionPane.class, "selection_pane_scroll_handle",
+      "media/GUI/scroll_grab.gif"
     ),
     WIDGET_BACK = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Front/widget_back.png"
+      SelectionPane.class, "selection_pane_widget_back_img",
+      "media/GUI/Front/widget_back.png"
     ),
     WIDGET_BACK_LIT = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Front/widget_back_lit.png"
+      SelectionPane.class, "selection_pane_widget_back_lit",
+      "media/GUI/Front/widget_back_lit.png"
     ),
     WIDGET_CLOSE = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Front/widget_close.png"
+      SelectionPane.class, "selection_pane_widget_close_img",
+      "media/GUI/Front/widget_close.png"
     ),
     WIDGET_CLOSE_LIT = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Front/widget_close_lit.png"
+      SelectionPane.class, "selection_pane_widget_close_lit",
+      "media/GUI/Front/widget_close_lit.png"
     ),
     WIDGET_INFO = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Front/widget_info.png"
+      SelectionPane.class, "selection_pane_widget_info_img",
+      "media/GUI/Front/widget_info.png"
     ),
     WIDGET_INFO_LIT = ImageAsset.fromImage(
-      SelectionPane.class, "media/GUI/Front/widget_info_lit.png"
+      SelectionPane.class, "selection_pane_widget_info_lit",
+      "media/GUI/Front/widget_info_lit.png"
     );
   final public static int
     CORE_INFO_HIGH = 160,

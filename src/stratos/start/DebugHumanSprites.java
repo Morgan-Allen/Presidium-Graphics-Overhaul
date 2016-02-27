@@ -19,8 +19,8 @@ public class DebugHumanSprites {
       DIR, "female_final.ms3d", C, "HumanModels.xml", "FemalePrime"
     );
   final static ImageAsset
-    SKIN_A = ImageAsset.fromImage(C  , DIR+"wastes_blood.gif"),
-    SKIN_B = ImageAsset.fromImage(C, DIR+"militant_skin.gif");
+    SKIN_A = ImageAsset.fromImage(C, "dhs_1", DIR+"wastes_blood.gif"),
+    SKIN_B = ImageAsset.fromImage(C, "dhs_2", DIR+"militant_skin.gif");
   
   
   

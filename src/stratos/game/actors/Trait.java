@@ -53,8 +53,10 @@ public class Trait extends Constant {
       description = "NO DESCRIPTION YET";
     }
     if (Assets.exists(iconPath)) {
-      icon      = ImageAsset.fromImage(baseClass, iconPath);
-      iconModel = CutoutModel.fromImage(baseClass, iconPath, 1, 1);
+      final String keyI = "trait_"+name+"_icon" ;
+      final String keyM = "trait_"+name+"_model";
+      icon      = ImageAsset .fromImage(baseClass, keyI, iconPath      );
+      iconModel = CutoutModel.fromImage(baseClass, keyM, iconPath, 1, 1);
     }
     else {
       icon      = null;

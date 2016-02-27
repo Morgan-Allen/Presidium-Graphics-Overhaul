@@ -25,10 +25,12 @@ public class EnforcerBloc extends Venue {
   
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    EnforcerBloc.class, "media/Buildings/military/enforcer_bloc.png", 4, 2
+    EnforcerBloc.class, "enforcer_bloc_model",
+    "media/Buildings/military/enforcer_bloc.png", 4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    EnforcerBloc.class, "media/GUI/Buttons/enforcer_bloc_button.gif"
+    EnforcerBloc.class, "enforcer_bloc_icon",
+    "media/GUI/Buttons/enforcer_bloc_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

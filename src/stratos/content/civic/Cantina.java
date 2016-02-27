@@ -25,10 +25,12 @@ public class Cantina extends Venue implements Performance.Theatre {
   /**  Constants, field definitions, constructors and save/load methods-
     */
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    Cantina.class, "media/Buildings/merchant/cantina.png", 3, 1
+    Cantina.class, "cantina_model",
+    "media/Buildings/merchant/cantina.png", 3, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    Cantina.class, "media/GUI/Buttons/cantina_button.gif"
+    Cantina.class, "cantina_icon",
+    "media/GUI/Buttons/cantina_button.gif"
   );
   
   final static String VENUE_NAMES[] = {

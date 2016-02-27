@@ -16,7 +16,7 @@ public class BorderedLabel extends UIGroup implements UIConstants {
   
   final static ImageAsset
     BLACK_BAR = ImageAsset.fromImage(
-      BorderedLabel.class, "media/GUI/black_bar.png"
+      BorderedLabel.class, "black_bar_img", "media/GUI/black_bar.png"
     );
   
   

@@ -24,7 +24,7 @@ public class TalkFX extends SFX {
     public Sprite makeSprite() { return new TalkFX(); }
   };
   final static ImageAsset BUBBLE_TEX = ImageAsset.fromImage(
-    TalkFX.class, "media/GUI/textBubble.png"
+    TalkFX.class, "talk_fx_bubble_tex", "media/GUI/textBubble.png"
   );
   final static Alphabet FONT = Alphabet.loadAlphabet(
     "media/GUI/", "FontVerdana.xml"

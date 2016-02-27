@@ -19,7 +19,8 @@ public class BudgetsPane extends SelectionPane {
   
   final static ImageAsset
     BUDGETS_ICON = ImageAsset.fromImage(
-      BudgetsPane.class, "media/GUI/Panels/edicts_tab.png"  //  TODO:  CHANGE
+      BudgetsPane.class, "budgets_pane_icon", "media/GUI/Panels/edicts_tab.png"
+      //  TODO:  Get a more specific icon!
     ),
     BUDGETS_ICON_LIT = Button.CROSSHAIRS_LIT;
   

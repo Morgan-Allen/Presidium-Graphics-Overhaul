@@ -29,7 +29,8 @@ public class Hareen extends Fauna {
     */
   final public static ModelAsset
     MODEL_NEST_VAREEN = CutoutModel.fromImage(
-      Hareen.class, LAIR_DIR+"nest_vareen.png", 2.5f, 3
+      Hareen.class, "vareen_nest_model",
+      LAIR_DIR+"nest_vareen.png", 2.5f, 3
     );
   
   final public static Species SPECIES = new Species(

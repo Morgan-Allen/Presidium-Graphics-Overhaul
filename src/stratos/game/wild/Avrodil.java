@@ -39,7 +39,7 @@ public class Avrodil extends Fauna {
   ) {
     
     final ModelAsset NEST_MODEL = CutoutModel.fromImage(
-      Avrodil.class, LAIR_DIR+"sporing_body.png", 2.5f, 2
+      Avrodil.class, "avrodil_nest_model", LAIR_DIR+"sporing_body.png", 2.5f, 2
     );
     final Blueprint BLUEPRINT = NestUtils.constructBlueprint(
       3, 2, this, NEST_MODEL

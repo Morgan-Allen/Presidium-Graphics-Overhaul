@@ -19,13 +19,16 @@ public class Button extends Image {
     */
   final public static ImageAsset
     DEFAULT_LIT = ImageAsset.fromImage(
-      Button.class, "media/GUI/iconLit.gif"
+      Button.class, "button_default_lit_tex",
+      "media/GUI/iconLit.gif"
     ),
     CIRCLE_LIT = ImageAsset.fromImage(
-      Button.class, "media/GUI/icon_lit_circle.png"
+      Button.class, "button_circle_lit_tex",
+      "media/GUI/icon_lit_circle.png"
     ),
     CROSSHAIRS_LIT = ImageAsset.fromImage(
-      Button.class, "media/GUI/icon_lit_crosshairs.png"
+      Button.class, "button_crosshairs_lit_tex",
+      "media/GUI/icon_lit_crosshairs.png"
     );
   
   

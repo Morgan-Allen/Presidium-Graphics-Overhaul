@@ -133,14 +133,14 @@ public class Human extends Actor {
   
   final static ImageAsset
     PORTRAIT_BASE = ImageAsset.fromImage(
-      Human.class, FILE_DIR+"portrait_base.png"
+      Human.class, "human_portrait_base", FILE_DIR+"portrait_base.png"
     ),
     BASE_FACES = ImageAsset.fromImage(
-      Human.class, FILE_DIR+"face_portraits.png"
+      Human.class, "human_faces_array", FILE_DIR+"face_portraits.png"
     );
   
   final static ImageAsset BLOOD_SKINS[] = ImageAsset.fromImages(
-    Human.class, FILE_DIR,
+    Human.class, "human_blood_skins", FILE_DIR,
     "desert_blood.gif",
     "wastes_blood.gif",
     "tundra_blood.gif",

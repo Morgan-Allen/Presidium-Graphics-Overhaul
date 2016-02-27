@@ -26,11 +26,13 @@ public class DebugVenueSprites extends VisualDebug {
     final int trim = 1, high = 2, size = 4;
     
     final CutoutModel basis = CutoutModel.fromImage(
-      this.getClass(), "media/Buildings/military/trooper_lodge.png", size, high
+      this.getClass(), "dvs_1",
+      "media/Buildings/military/trooper_lodge.png", size, high
     );
     Assets.loadNow(basis);
     final CutoutModel frame = CutoutModel.fromImage(
-      this.getClass(), "media/Buildings/civilian/scaffold.png", 1, 1
+      this.getClass(), "dvs_2",
+      "media/Buildings/civilian/scaffold.png", 1, 1
     );
     Assets.loadNow(frame);
     

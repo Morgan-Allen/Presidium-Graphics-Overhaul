@@ -27,11 +27,12 @@ public class TekPriestessSchool extends Venue {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    TekPriestessSchool.class,
+    TekPriestessSchool.class, "tek_priestess_school_model",
     "media/Buildings/schools and preserves/initiate_school.png", 6, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    TekPriestessSchool.class, "media/GUI/Buttons/hospice_button.gif"
+    TekPriestessSchool.class, "tek_priestess_school_icon",
+    "media/GUI/Buttons/hospice_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

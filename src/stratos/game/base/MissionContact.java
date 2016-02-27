@@ -37,7 +37,8 @@ public class MissionContact extends Mission {
   private Pledge sought;
   
   private Summons asSummons;
-  private Batch <Actor> allTried = new Batch <Actor> ();
+  private Batch <Actor> allContacts = new Batch();
+  private Batch <Actor> allTried    = new Batch();
   
   
   public MissionContact(Base base, Element subject) {
@@ -55,7 +56,8 @@ public class MissionContact extends Mission {
     offers    = (Pledge ) s.loadObject();
     sought    = (Pledge ) s.loadObject();
     asSummons = (Summons) s.loadObject();
-    s.loadObjects(allTried);
+    s.loadObjects(allContacts);
+    s.loadObjects(allTried   );
   }
   
   
@@ -64,7 +66,8 @@ public class MissionContact extends Mission {
     s.saveObject(offers     );
     s.saveObject(sought     );
     s.saveObject(asSummons  );
-    s.saveObjects(allTried);
+    s.saveObjects(allContacts);
+    s.saveObjects(allTried   );
   }
   
   
@@ -125,6 +128,9 @@ public class MissionContact extends Mission {
       mission.setJourney(Journey.configForMission(mission, true));
       return mission.journey() == null ? null : mission;
     }
+    if (target instanceof Property) {
+      
+    }
     if (Summons.canSummon(target, base)) {
       final Actor summoned = (Actor) target;
       final MissionContact mission = new MissionContact(base, summoned);
@@ -170,7 +176,10 @@ public class MissionContact extends Mission {
     //
     //  In the case of direct contact with base-citizens, we can skip directly
     //  to the summons-
-    if (asSummons != null) return cacheStepFor(actor, asSummons);
+    if (asSummons != null) return asSummons;
+    
+    
+    
     //
     //  Otherwise, we begin talks with the subject:
     final Actor with = (Actor) subject;

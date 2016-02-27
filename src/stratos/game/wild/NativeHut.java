@@ -34,7 +34,8 @@ public class NativeHut extends Venue {
   final static String IMG_DIR = "media/Buildings/lairs and ruins/";
   final static ModelAsset
     HUT_MODELS[][] = CutoutModel.fromImageGrid(
-      NativeHut.class, IMG_DIR+"all_native_huts.png",
+      NativeHut.class, "native_huts_models",
+      IMG_DIR+"all_native_huts.png",
       3, 3, 1, 1, false
     );
   

@@ -28,7 +28,8 @@ public class Ruins extends Venue {
     updateVerbose = false;
   
   final static ModelAsset MODEL_RUINS[] = CutoutModel.fromImages(
-    Ruins.class, "media/Buildings/lairs and ruins/", 4, 2, false,
+    Ruins.class, "ruins_models",
+    "media/Buildings/lairs and ruins/", 4, 2, false,
     "ruins_a.png",
     "ruins_b.png",
     "ruins_c.png"

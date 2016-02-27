@@ -31,10 +31,12 @@ public class Lictovore extends Fauna {
     */
   final public static ModelAsset
     MODEL_NEST_MICOVORE = CutoutModel.fromImage(
-      Lictovore.class, LAIR_DIR+"nest_micovore.png", 3.5f, 3
+      Lictovore.class, "lictovore_nest_model",
+      LAIR_DIR+"nest_micovore.png", 3.5f, 3
     ),
     MODEL_MIDDENS[] = CutoutModel.fromImages(
-      Lictovore.class, LAIR_DIR, 1.0f, 1, false,
+      Lictovore.class, "lictovore_midden_models",
+      LAIR_DIR, 1.0f, 1, false,
       "midden_a.png",
       "midden_b.png",
       "midden_c.png"

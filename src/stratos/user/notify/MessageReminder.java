@@ -16,7 +16,8 @@ public class MessageReminder extends LabelledReminder {
   
   final static ImageAsset
     COMM_IMAGE = ImageAsset.fromImage(
-      MessageReminder.class, "media/GUI/Front/comms_alert.png"
+      MessageReminder.class,
+      "message_reminder_img", "media/GUI/Front/comms_alert.png"
     ),
     COMM_IMAGE_LIT = Button.DEFAULT_LIT;
   

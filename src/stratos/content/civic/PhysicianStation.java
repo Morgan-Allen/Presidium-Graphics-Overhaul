@@ -24,11 +24,12 @@ public class PhysicianStation extends Venue implements Burial.Services {
   private static boolean verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    PhysicianStation.class,
+    PhysicianStation.class, "physician_station_model",
     "media/Buildings/physician/physician_clinic.png", 3, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    PhysicianStation.class, "media/GUI/Buttons/hospice_button.gif"
+    PhysicianStation.class, "physician_station_icon",
+    "media/GUI/Buttons/hospice_button.gif"
   );
   
   final static float

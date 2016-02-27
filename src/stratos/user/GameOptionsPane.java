@@ -24,12 +24,14 @@ public class GameOptionsPane extends UIGroup implements UIConstants {
   
   final static ImageAsset
     OPTIONS_ICON_TEX = ImageAsset.fromImage(
-      GameOptionsPane.class, "media/GUI/Panels/game_options_tab.png"
+      GameOptionsPane.class, "options_pane_icon",
+      "media/GUI/Panels/game_options_tab.png"
     ),
     OPTIONS_ICON_LIT = Button.CIRCLE_LIT,
     
     BORDER_TEX = ImageAsset.fromImage(
-      GameOptionsPane.class, "media/GUI/Front/Panel.png"
+      GameOptionsPane.class, "options_pane_icon_border",
+      "media/GUI/Front/Panel.png"
     );
   
 

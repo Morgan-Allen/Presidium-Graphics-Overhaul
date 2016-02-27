@@ -49,7 +49,7 @@ public class OutfitType extends Traded {
     
     final String imagePath = ITEM_PATH+name+"_skin.gif";
     if (new File(imagePath).exists()) {
-      this.skin = ImageAsset.fromImage(baseClass, imagePath);
+      this.skin = ImageAsset.fromImage(baseClass, name+"_skin", imagePath);
     }
     else this.skin = null;
   }

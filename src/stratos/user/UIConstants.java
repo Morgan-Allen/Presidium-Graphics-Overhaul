@@ -49,7 +49,7 @@ public interface UIConstants {
     Target.TYPE_AESTHETIC
   };
   final static ImageAsset GUILD_IMAGE_ASSETS[] = ImageAsset.fromImages(
-    UIConstants.class, BUTTONS_PATH,
+    UIConstants.class, "guild_category_buttons", BUTTONS_PATH,
     "militant_category_button.png" ,
     "merchant_category_button.png" ,
     "physician_category_button.png",

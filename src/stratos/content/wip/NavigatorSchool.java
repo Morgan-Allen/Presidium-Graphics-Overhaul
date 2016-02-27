@@ -25,11 +25,12 @@ public class NavigatorSchool extends Venue {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    NavigatorSchool.class,
+    NavigatorSchool.class, "navigator_school_model",
     "media/Buildings/schools and preserves/spacer_school.png", 6, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    NavigatorSchool.class, "media/GUI/Buttons/hospice_button.gif"
+    NavigatorSchool.class, "navigator_school_icon",
+    "media/GUI/Buttons/hospice_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

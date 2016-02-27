@@ -16,23 +16,24 @@ public class StarsPane extends UIGroup implements UIConstants {
   
   final static ImageAsset
     STARS_ICON = ImageAsset.fromImage(
-      StarsPane.class, "media/GUI/Panels/charts_tab.png"
+      StarsPane.class, "stars_pane_icon",
+      "media/GUI/Panels/charts_tab.png"
     ),
     STARS_ICON_LIT = Button.CIRCLE_LIT;
   
   final static String IMG_DIR = ChartUtils.LOAD_PATH;
   final static ImageAsset
     LEFT_BUTTON_IMG  = ImageAsset.fromImage(
-      StarsPane.class  , IMG_DIR+"button_left.png"
+      StarsPane.class, "stars_pane_view_left", IMG_DIR+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      StarsPane.class , IMG_DIR+"button_right.png"
+      StarsPane.class, "stars_pane_view_right", IMG_DIR+"button_right.png"
     ),
     BACKING_TEX = ImageAsset.fromImage(
-      StarsPane.class, IMG_DIR+"stars_backing.png"
+      StarsPane.class, "stars_pane_view_backing", IMG_DIR+"stars_backing.png"
     ),
     BORDER_TEX = ImageAsset.fromImage(
-      StarsPane.class , IMG_DIR+"planet_frame.png"
+      StarsPane.class, "stars_pane_view_border", IMG_DIR+"planet_frame.png"
     );
   
   

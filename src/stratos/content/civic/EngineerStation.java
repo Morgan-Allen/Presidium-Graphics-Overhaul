@@ -24,10 +24,12 @@ public class EngineerStation extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final static ImageAsset ICON = ImageAsset.fromImage(
-    EngineerStation.class, "media/GUI/Buttons/artificer_button.gif"
+    EngineerStation.class, "engineer_station_icon",
+    "media/GUI/Buttons/artificer_button.gif"
   );
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    EngineerStation.class, "media/Buildings/artificer/artificer.png", 4, 1
+    EngineerStation.class, "engineer_station_model",
+    "media/Buildings/artificer/artificer.png", 4, 1
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

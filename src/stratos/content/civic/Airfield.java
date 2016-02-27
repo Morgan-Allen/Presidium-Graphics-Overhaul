@@ -31,13 +31,13 @@ public class Airfield extends Venue implements EntryPoints.Docking {
   
   final static ModelAsset
     MODEL_BASE = CutoutModel.fromSplatImage(
-      Airfield.class, IMG_DIR+"airfield_base.png", 6
+      Airfield.class, "airfield_base_model", IMG_DIR+"airfield_base.png", 6
     ),
     MODEL_ROOF = CutoutModel.fromImage(
-      Airfield.class, IMG_DIR+"airfield_roof.png", 6, 3
+      Airfield.class, "airfield_roof_model", IMG_DIR+"airfield_roof.png", 6, 3
     );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    Airfield.class, "media/GUI/Buttons/airfield_button.gif"
+    Airfield.class, "airfield_icon", "media/GUI/Buttons/airfield_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

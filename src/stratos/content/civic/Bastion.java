@@ -27,10 +27,10 @@ public class Bastion extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Bastion.class, "media/Buildings/military/bastion.png", 8, 3
+    Bastion.class, "bastion_model", "media/Buildings/military/bastion.png", 8, 3
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    Bastion.class, "media/GUI/Buttons/bastion_button.gif"
+    Bastion.class, "bastion_icon", "media/GUI/Buttons/bastion_button.gif"
   );
   
   final static int CLAIM_RADIUS = Stage.ZONE_SIZE / 2;

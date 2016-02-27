@@ -32,10 +32,12 @@ public class ExcavationSite extends HarvestVenue {
   
   final static String IMG_DIR = "media/Buildings/artificer/";
   final static CutoutModel SHAFT_MODEL = CutoutModel.fromImage(
-    ExcavationSite.class, IMG_DIR+"excavation_shaft.gif", 4, 1
+    ExcavationSite.class, "excavation_site_model",
+    IMG_DIR+"excavation_shaft.gif", 4, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    ExcavationSite.class, "media/GUI/Buttons/excavation_button.gif"
+    ExcavationSite.class, "excavation_site_icon",
+    "media/GUI/Buttons/excavation_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

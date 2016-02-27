@@ -21,7 +21,8 @@ public class PowersPane extends SelectionPane {
   
   final static ImageAsset
     BUTTON_GREYED = ImageAsset.fromImage(
-      PowersPane.class, "media/GUI/Powers/power_greyed_out.png"
+      PowersPane.class, "power_icon_greyed_img",
+      "media/GUI/Powers/power_greyed_out.png"
     );
   
   

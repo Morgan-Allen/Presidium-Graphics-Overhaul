@@ -19,23 +19,24 @@ public class SectorsPane extends UIGroup implements UIConstants {
   
   final static ImageAsset
     PLANET_ICON     = ImageAsset.fromImage(
-      SectorsPane.class, "media/GUI/Panels/planet_tab.png"
+      SectorsPane.class, "planet_pane_icon",
+      "media/GUI/Panels/planet_tab.png"
     ),
     PLANET_ICON_LIT = Button.CROSSHAIRS_LIT;
   
   final static String IMG_DIR = ChartUtils.LOAD_PATH;
   final static ImageAsset
     LEFT_BUTTON_IMG = ImageAsset.fromImage(
-      SectorsPane.class , IMG_DIR+"button_left.png"
+      SectorsPane.class, "sector_view_left_img", IMG_DIR+"button_left.png"
     ),
     RIGHT_BUTTON_IMG = ImageAsset.fromImage(
-      SectorsPane.class, IMG_DIR+"button_right.png"
+      SectorsPane.class, "sector_view_right_img", IMG_DIR+"button_right.png"
     ),
     BACKING_TEX = ImageAsset.fromImage(
-      StarsPane.class, IMG_DIR+"stars_backing.png"
+      StarsPane.class, "sector_view_backing_img", IMG_DIR+"stars_backing.png"
     ),
     BORDER_TEX = ImageAsset.fromImage(
-      SectorsPane.class, IMG_DIR+"planet_frame.png"
+      SectorsPane.class, "sector_view_border_img", IMG_DIR+"planet_frame.png"
     );
   
   

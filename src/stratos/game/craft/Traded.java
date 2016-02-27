@@ -28,18 +28,26 @@ public class Traded extends Constant implements Session.Saveable {
   /**  Data fields, constructors, setup and save/load methods-
     */
   final static String ITEM_PATH = "media/Items/";
+  final static ImageAsset
+    DEFAULT_ICON = ImageAsset.fromImage(
+      Traded.class, "default_item_icon", ITEM_PATH+"crate.gif"
+    );
   final public static CutoutModel
     DEFAULT_MODEL  = CutoutModel.fromImage(
-      Traded.class, ITEM_PATH+"crate.gif", 0.4f, 0.5f
+      Traded.class, "default_item_model",
+      ITEM_PATH+"crate.gif", 0.4f, 0.5f
     ),
     SHORTAGE_MODEL = CutoutModel.fromImage(
-      Traded.class, ITEM_PATH+"short_icon.png", 0.4f, 0.5f
+      Traded.class, "item_shortage_model",
+      ITEM_PATH+"short_icon.png", 0.4f, 0.5f
     ),
     OKAY_MODEL     = CutoutModel.fromImage(
-      Traded.class, ITEM_PATH+"okay_icon.png", 0.4f, 0.5f
+      Traded.class, "item_okay_model",
+      ITEM_PATH+"okay_icon.png", 0.4f, 0.5f
     ),
     QUESTION_MODEL = CutoutModel.fromImage(
-      Traded.class, ITEM_PATH+"what_icon.png", 0.4f, 0.5f
+      Traded.class, "item_question_model",
+      ITEM_PATH+"what_icon.png", 0.4f, 0.5f
     );
   
   final static Conversion
@@ -90,17 +98,17 @@ public class Traded extends Constant implements Session.Saveable {
     this.form         = form;
     this.priceMargin  = basePrice * GameSettings.SPENDING_MULT;
     this.defaultPrice = priceMargin;
+    this.description  = description;
     
-    this.description = description;
-    final String imagePath = ITEM_PATH+imgName;
     final float IS = BuildingSprite.ITEM_SIZE;
-    
-    if (Assets.exists(imagePath)) {
-      this.icon  = ImageAsset .fromImage(typeClass, imagePath        );
-      this.model = CutoutModel.fromImage(typeClass, imagePath, IS, IS);
+    final String img = ITEM_PATH+imgName;
+    final String key = "item_"+name;
+    if (Assets.exists(img)) {
+      this.icon  = ImageAsset .fromImage(typeClass, key+"_icon" , img        );
+      this.model = CutoutModel.fromImage(typeClass, key+"_model", img, IS, IS);
     }
     else {
-      this.icon  = ImageAsset.fromImage(typeClass, DEFAULT_MODEL.fileName());
+      this.icon  = DEFAULT_ICON ;
       this.model = DEFAULT_MODEL;
     }
     

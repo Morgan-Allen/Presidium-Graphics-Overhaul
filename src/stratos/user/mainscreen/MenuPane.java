@@ -18,16 +18,20 @@ public abstract class MenuPane extends ListingPane {
   
   final public static ImageAsset
     BORDER_TEX = ImageAsset.fromImage(
-      MenuPane.class, "media/GUI/Front/Panel.png"
+      MenuPane.class, "menu_pane_border_tex",
+      "media/GUI/Front/Panel.png"
     ),
     BUTTON_FRAME_TEX = ImageAsset.fromImage(
-      MenuPane.class, "media/GUI/tips_frame.png"
+      MenuPane.class, "menu_pane_button_frame_tex",
+      "media/GUI/tips_frame.png"
     ),
     WIDGET_BACK = ImageAsset.fromImage(
-      MenuPane.class, "media/GUI/Front/widget_back.png"
+      MenuPane.class, "menu_pane_widget_back_tex",
+      "media/GUI/Front/widget_back.png"
     ),
     WIDGET_BACK_LIT = ImageAsset.fromImage(
-      MenuPane.class, "media/GUI/Front/widget_back_lit.png"
+      MenuPane.class, "menu_pane_widget_back_lit_tex",
+      "media/GUI/Front/widget_back_lit.png"
     );
   
   

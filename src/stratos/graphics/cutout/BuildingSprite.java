@@ -27,15 +27,15 @@ public class BuildingSprite extends Sprite implements TileConstants {
   
   final static CutoutModel
     SCAFFOLD_MODEL = CutoutModel.fromImage(
-      BuildingSprite.class,
+      BuildingSprite.class, "scaffold_model",
       "media/Buildings/civilian/scaffold.png", 1, 1
     ),
     FOUNDATION_FRINGE_MODEL = CutoutModel.fromImage(
-      BuildingSprite.class,
+      BuildingSprite.class, "foundation_fringe_model",
       "media/Buildings/civilian/foundation_fringe.png", 1, 0
     ),
     CRATE_MODEL = CutoutModel.fromImage(
-      BuildingSprite.class,
+      BuildingSprite.class, "crate_model",
       "media/Items/crate.gif", ITEM_SIZE, ITEM_SIZE * 0.4f
     );
   
@@ -213,7 +213,7 @@ public class BuildingSprite extends Sprite implements TileConstants {
         I.complain("\nNO SPLAT MODEL FOR SIZE "+size+"!");
       }
       else FOUNDATION_MODELS[size] = CutoutModel.fromSplatImage(
-        BuildingSprite.class, modelName, size
+        BuildingSprite.class, "foundation_"+size+"_model", modelName, size
       );
       
       final List <Vector3> coords = new List <Vector3> () {

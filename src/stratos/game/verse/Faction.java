@@ -105,8 +105,8 @@ public class Faction extends Constant {
     this.description = description;
     this.startInfo   = startInfo  ;
     this.bannerColour = new Colour(banner == null ? Colour.WHITE : banner);
-    this.crestImage = crestPath == null ?
-      Image.SOLID_WHITE : ImageAsset.fromImage(Verse.class, crestPath)
+    this.crestImage = crestPath == null ? Image.SOLID_WHITE :
+      ImageAsset.fromImage(Verse.class, name+"_crest_img", crestPath)
     ;
   }
   

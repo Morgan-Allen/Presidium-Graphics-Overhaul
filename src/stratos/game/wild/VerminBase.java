@@ -8,6 +8,7 @@ import stratos.content.civic.*;
 import stratos.content.hooks.*;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.maps.Planet;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.util.*;
@@ -50,7 +51,7 @@ public class VerminBase extends Base {
     super.saveState(s);
   }
   
-
+  
   public void updateAsScheduled(int numUpdates, boolean instant) {
     super.updateAsScheduled(numUpdates, instant);
     
@@ -63,9 +64,14 @@ public class VerminBase extends Base {
     float visitDelay = AVG_RAID_INTERVAL / (1 + factionPower);
     visitDelay = Nums.max(visitDelay, MIN_RAID_INTERVAL);
     
-    if (world.currentTime() - visits.lastVisitTime() > visitDelay) {
+    boolean night = Planet.isNight(world);
+    
+    if (night && world.currentTime() - visits.lastVisitTime() > visitDelay) {
       Target entryPoint = hatches.pickRandomAround(null, -1, null);
       final ServiceHatch hatch = (ServiceHatch) entryPoint;
+      
+      //  TODO:  Engage in theft, not assault!
+      
       visits.attemptRaidingVisit(
         maxTeamPower, -1,
         StratosSetting.SECTOR_UNDERGROUND, hatch, ROACH_SPECIES

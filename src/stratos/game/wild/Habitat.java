@@ -25,15 +25,18 @@ public class Habitat extends Index.Entry {
     TERRAIN_PATH = "media/Terrain/";
   final public static CutoutModel
     DESERT_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"desert_flora_as_copy.png",
+      Habitat.class, "desert_flora_models",
+      TERRAIN_PATH+"desert_flora_as_copy.png",
       4, 4, 1.2f, 2, false
     ),
     FOREST_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"old_flora_resize.png",
+      Habitat.class, "forest_flora_models",
+      TERRAIN_PATH+"old_flora_resize.png",
       4, 4, 1.2f, 2, false
     ),
     WASTES_FLORA_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"wastes_flora.png",
+      Habitat.class, "wastes_flora_models",
+      TERRAIN_PATH+"wastes_flora.png",
       4, 4, 1.2f, 2, false
     ),
     TUNDRA_FLORA_MODELS[][] = null,
@@ -43,14 +46,16 @@ public class Habitat extends Index.Entry {
     //
     //  Finally, mineral outcrop models-
     OUTCROP_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"all_deposits.png",
+      Habitat.class, "outcrop_models",
+      TERRAIN_PATH+"all_deposits.png",
       3, 3, 1.9f, 2, false
     ),
     DUNE_MODELS     [] = OUTCROP_MODELS[2],
     MINERAL_MODELS  [] = OUTCROP_MODELS[1],
     ROCK_LODE_MODELS[] = OUTCROP_MODELS[0],
     SPIRE_MODELS[][] = CutoutModel.fromImageGrid(
-      Habitat.class, TERRAIN_PATH+"all_outcrops_old.png",
+      Habitat.class, "spire_models",
+      TERRAIN_PATH+"all_outcrops_old.png",
       3, 3, 1.6f, 1.5f, false
     );
   
@@ -188,13 +193,13 @@ public class Habitat extends Index.Entry {
   
   final public static ImageAsset
     ROAD_TEXTURE = ImageAsset.fromImage(
-      Habitat.class, TERRAIN_PATH+"road_map_new.png"
+      Habitat.class, "road_texture_img", TERRAIN_PATH+"road_map_new.png"
     ),
     STRIP_TEXTURE = ImageAsset.fromImage(
-      Habitat.class, TERRAIN_PATH+"strip_mining_alt.png"
+      Habitat.class, "strip_texture_img", TERRAIN_PATH+"strip_mining_alt.png"
     ),
     RESERVE_TEXTURE = ImageAsset.fromImage(
-      Habitat.class, TERRAIN_PATH+"reserve_tiles.png"
+      Habitat.class, "reserve_texture_img", TERRAIN_PATH+"reserve_tiles.png"
     );
   
   
@@ -241,8 +246,9 @@ public class Habitat extends Index.Entry {
     
     this.animTex = new ImageAsset[groundTex.length];
     for (int i = animTex.length; i-- > 0;) {
-      final String path = TERRAIN_PATH+groundTex[i];
-      this.animTex[i] = ImageAsset.fromImage(Habitat.class, path);
+      this.animTex[i] = ImageAsset.fromImage(
+        Habitat.class, "habitat_"+name+"_"+i, TERRAIN_PATH+groundTex[i]
+      );
     }
     this.baseTex = animTex[0];
     

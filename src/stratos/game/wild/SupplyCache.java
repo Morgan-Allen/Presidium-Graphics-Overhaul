@@ -19,7 +19,8 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   
   
   final static CutoutModel MODEL = CutoutModel.fromImage(
-    SupplyCache.class, "media/Items/supply_cache.png", 1.2f, 0.5f
+    SupplyCache.class, "model_supply_cache",
+    "media/Items/supply_cache.png", 1.2f, 0.5f
   );
   
   final Inventory stored = new Inventory(this);

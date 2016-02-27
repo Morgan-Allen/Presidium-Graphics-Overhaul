@@ -23,7 +23,8 @@ public class ScenarioTerra extends SectorScenario {
     */
   final static CutoutModel
     MODEL_WRECK = CutoutModel.fromImage(
-      ScenarioTerra.class, "media/Scenario/terra_wreckage.png", 2, 2
+      ScenarioTerra.class, "terra_wreckage_model",
+      "media/Scenario/terra_wreckage.png", 2, 2
     );
   
   final MessageScript script;

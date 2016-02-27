@@ -45,7 +45,7 @@ public class Holding extends Venue {
     IMG_DIR = "media/Buildings/civilian/";
   
   final static ImageAsset ICONS[] = ImageAsset.fromImages(
-    Holding.class, "media/GUI/Buttons/",
+    Holding.class, "holding_icons", "media/GUI/Buttons/",
     "housing0_button.gif",
     "housing1_button.gif",
     "housing2_button.gif",
@@ -54,14 +54,17 @@ public class Holding extends Venue {
   );
   final public static ModelAsset
     SEAL_TENT_MODEL = CutoutModel.fromImage(
-      Holding.class, IMG_DIR+"field_tent.png", 2, 2
+      Holding.class, "seal_tent_model",
+      IMG_DIR+"field_tent.png", 2, 2
     ),
     LOWER_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      Holding.class, IMG_DIR+"lower_class_housing.png",
+      Holding.class, "lower_housing_models",
+      IMG_DIR+"lower_class_housing.png",
       3, 3, 2, 1, false
     ),
     MIDDLE_CLASS_MODELS[][] = CutoutModel.fromImageGrid(
-      Holding.class, IMG_DIR+"middle_class_housing.png",
+      Holding.class, "middle_housing_models",
+      IMG_DIR+"middle_class_housing.png",
       3, 3, 2, 1, false
     ),
     UPPER_CLASS_MODELS[][] = null;

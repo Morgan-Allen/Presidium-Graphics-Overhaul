@@ -28,11 +28,13 @@ public class Fabricator extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    Fabricator.class, "media/Buildings/aesthete/fabricator_new.png", 4, 1
+    Fabricator.class, "fabricator_model",
+    "media/Buildings/aesthete/fabricator_new.png", 4, 1
   );
   
   final static ImageAsset ICON = ImageAsset.fromImage(
-    Fabricator.class, "media/GUI/Buttons/fabricator_button.gif"
+    Fabricator.class, "fabricator_icon",
+    "media/GUI/Buttons/fabricator_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

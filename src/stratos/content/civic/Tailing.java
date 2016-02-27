@@ -131,7 +131,8 @@ public class Tailing extends Element implements Selectable {
   final static String IMG_DIR = "media/Buildings/artificer/";
   final public static ModelAsset
     ALL_TAILING_MODELS[][] = CutoutModel.fromImageGrid(
-      Tailing.class, IMG_DIR+"mine_tailings.png",
+      Tailing.class, "mine_tailings_models",
+      IMG_DIR+"mine_tailings.png",
       5, 5, 1, 1, false
     ),
     MAGMA_TAILINGS [] = ALL_TAILING_MODELS[0];

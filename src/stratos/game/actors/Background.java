@@ -179,12 +179,16 @@ public class Background extends Constant {
   
   
   protected ImageAsset costumeFor(String texName) {
-    return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
+    return ImageAsset.fromImage(
+      Backgrounds.class, name+"costume_img", COSTUME_DIR+texName
+    );
   }
   
   
   protected ImageAsset portraitFor(String texName) {
-    return ImageAsset.fromImage(Backgrounds.class, COSTUME_DIR+texName);
+    return ImageAsset.fromImage(
+      Backgrounds.class, name+"_portrait_img", COSTUME_DIR+texName
+    );
   }
   
   

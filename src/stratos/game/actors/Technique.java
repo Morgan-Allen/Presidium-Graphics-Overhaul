@@ -132,7 +132,7 @@ public abstract class Technique extends Constant {
     this.sourceClass = sourceClass;
     
     if (Assets.exists(iconFile)) {
-      this.icon = ImageAsset.fromImage(sourceClass, iconFile);
+      this.icon = ImageAsset.fromImage(sourceClass, name+"_icon_img", iconFile);
     }
     else this.icon = null;
     this.description = description;

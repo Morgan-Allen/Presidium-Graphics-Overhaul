@@ -93,9 +93,10 @@ public abstract class Species extends Background {
       name, info, null, null,
       NOT_A_CLASS, NOT_A_GUILD
     );
-    
     if (portraitTex == null) this.portrait = null;
-    else this.portrait = ImageAsset.fromImage(baseClass, portraitTex);
+    else this.portrait = ImageAsset.fromImage(
+      baseClass, name+"_portrait_img", portraitTex
+    );
     this.name  = name ;
     this.info  = info ;
     this.modelSequence = new ModelAsset[] { model };
@@ -130,7 +131,9 @@ public abstract class Species extends Background {
     );
     
     if (portraitTex == null) this.portrait = null;
-    else this.portrait = ImageAsset.fromImage(baseClass, portraitTex);
+    else this.portrait = ImageAsset.fromImage(
+      baseClass, name+"_portrait_img", portraitTex
+    );
     this.name  = name;
     this.info  = name;
     this.modelSequence = sequence;

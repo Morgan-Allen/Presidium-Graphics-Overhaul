@@ -34,11 +34,13 @@ public class KommandoRedoubt extends Venue {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    KommandoRedoubt.class, "media/Buildings/ecologist/kommando_redoubt.png",
+    KommandoRedoubt.class, "kommando_redoubt_model",
+    "media/Buildings/ecologist/kommando_redoubt.png",
     4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    KommandoRedoubt.class, "media/GUI/Buttons/kommando_lodge_button.gif"
+    KommandoRedoubt.class, "kommando_redoubt_icon",
+    "media/GUI/Buttons/kommando_lodge_button.gif"
   );
   
   final static int CLAIM_RADIUS = Stage.ZONE_SIZE / 2;

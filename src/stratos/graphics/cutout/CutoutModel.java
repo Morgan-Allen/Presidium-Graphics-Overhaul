@@ -82,10 +82,10 @@ public class CutoutModel extends ModelAsset {
   
   
   private CutoutModel(
-    String fileName, Class modelClass, Box2D window,
+    Class modelClass, String ID, String fileName, Box2D window,
     float size, float high, boolean splat
   ) {
-    super(fileName+"_"+window.xpos()+"_"+window.ypos()+"_"+size, modelClass);
+    super(ID, modelClass);
     this.fileName = fileName;
     this.window   = window  ;
     this.size     = size    ;
@@ -123,23 +123,28 @@ public class CutoutModel extends ModelAsset {
   
   
   public static CutoutModel fromImage(
-    Class sourceClass, String fileName, float size, float height
+    Class sourceClass, String ID, String fileName, float size, float height
   ) {
     final Box2D window = new Box2D().set(0, 0, 1, 1);
-    return new CutoutModel(fileName, sourceClass, window, size, height, false);
+    return new CutoutModel(
+      sourceClass, ID, fileName, window, size, height, false
+    );
   }
   
   
   public static CutoutModel fromSplatImage(
-    Class sourceClass, String fileName, float size
+    Class sourceClass, String ID, String fileName, float size
   ) {
     final Box2D window = new Box2D().set(0, 0, 1, 1);
-    return new CutoutModel(fileName, sourceClass, window, size, 0, true);
+    return new CutoutModel(
+      sourceClass, ID, fileName, window, size, 0, true
+    );
   }
   
   
   public static CutoutModel[] fromImages(
-    Class sourceClass, String path, float size, float height, boolean splat,
+    Class sourceClass, String ID,
+    String path, float size, float height, boolean splat,
     String... files
   ) {
     final CutoutModel models[] = new CutoutModel[files.length];
@@ -147,7 +152,7 @@ public class CutoutModel extends ModelAsset {
       final String fileName = path+files[i];
       final Box2D window = new Box2D().set(0, 0, 1, 1);
       models[i] = new CutoutModel(
-        fileName, sourceClass, window, size, height, splat
+        sourceClass, ID+"_"+i, fileName, window, size, height, splat
       );
     }
     return models;
@@ -155,7 +160,7 @@ public class CutoutModel extends ModelAsset {
   
   
   public static CutoutModel[][] fromImageGrid(
-    Class sourceClass, String fileName,
+    Class sourceClass, String ID, String fileName,
     int gridX, int gridY, float size, float height, boolean splat
   ) {
     final CutoutModel grid[][] = new CutoutModel[gridX][gridY];
@@ -164,7 +169,7 @@ public class CutoutModel extends ModelAsset {
       final float gx = c.x * stepX, gy = c.y * stepY;
       final Box2D window = new Box2D().set(gx, gy, stepX, stepY);
       grid[c.x][gridY - (c.y + 1)] = new CutoutModel(
-        fileName, sourceClass, window, size, height, splat
+        sourceClass, ID+"_"+c.x+"_"+c.y, fileName, window, size, height, splat
       );
     }
     return grid;

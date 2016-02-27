@@ -26,14 +26,17 @@ public class BotanicalStation extends HarvestVenue {
     */
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    BotanicalStation.class, "media/GUI/Buttons/ecologist_station_button.gif"
+    BotanicalStation.class, "botanical_station_icon",
+    "media/GUI/Buttons/ecologist_station_button.gif"
   );
   final static ModelAsset
     STATION_MODEL = CutoutModel.fromImage(
-      BotanicalStation.class, IMG_DIR+"botanical_station.png", 4, 2
+      BotanicalStation.class, "botanical_station_model",
+      IMG_DIR+"botanical_station.png", 4, 2
     ),
     NURSERY_MODEL = CutoutModel.fromImage(
-      BotanicalStation.class, IMG_DIR+"nursery.png", 2, 1
+      BotanicalStation.class, "nursery_model",
+      IMG_DIR+"nursery.png", 2, 1
     );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

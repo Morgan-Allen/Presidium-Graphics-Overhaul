@@ -32,13 +32,16 @@ public class SupplyDepot extends Venue {
   /**  Other data fields, constructors and save/load methods-
     */
   final public static ModelAsset MODEL_UNDER = CutoutModel.fromSplatImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_under.gif", 4
+    SupplyDepot.class, "model_supply_depot_under",
+    "media/Buildings/merchant/depot_under.gif", 4
   );
   final public static ModelAsset MODEL_CORE = CutoutModel.fromImage(
-    SupplyDepot.class, "media/Buildings/merchant/depot_core.png", 4, 1
+    SupplyDepot.class, "model_supply_depot_core",
+    "media/Buildings/merchant/depot_core.png", 4, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    SupplyDepot.class, "media/GUI/Buttons/supply_depot_button.gif"
+    SupplyDepot.class, "model_supply_depot_icon",
+    "media/GUI/Buttons/supply_depot_button.gif"
   );
 
   final public static Traded

@@ -24,7 +24,8 @@ public class ScenarioPavonis extends SectorScenario {
     */
   final static CutoutModel
     MODEL_SF = CutoutModel.fromImage(
-      ScenarioPavonis.class, "media/Scenario/pavonis_flora.png", 2, 2
+      ScenarioPavonis.class, "pavonis_flora",
+      "media/Scenario/pavonis_flora.png", 1, 1
     );
   
   
@@ -104,6 +105,10 @@ public class ScenarioPavonis extends SectorScenario {
   
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
+    
+    
+    //  TODO:  Make sure none of these appear within a certain range of the
+    //  bastion.
     
     for (int n = TOTAL_FLORA; n-- > 0;) {
       Tile at = world.tileAt(Rand.index(world.size), Rand.index(world.size));

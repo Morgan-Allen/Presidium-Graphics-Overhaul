@@ -27,7 +27,7 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
     IMG_DIR = "media/Buildings/civilian/";
   final static CutoutModel
     ALL_MODELS[][] = CutoutModel.fromImageGrid(
-      ServiceHatch.class,
+      ServiceHatch.class, "service_hatch_models",
       IMG_DIR+"all_big_roads.png", 2, 2,
       2, 0, true
     ),
@@ -37,10 +37,12 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
   
   final public static ImageAsset
     LINE_ICON = ImageAsset.fromImage(
-      ServiceHatch.class, "media/GUI/Buttons/mag_line_button.gif"
+      ServiceHatch.class, "service_hatch_line_icon",
+      "media/GUI/Buttons/mag_line_button.gif"
     ),
     HATCH_ICON = ImageAsset.fromImage(
-      ServiceHatch.class, "media/GUI/Buttons/access_hatch_button.gif"
+      ServiceHatch.class, "service_hatch_hatch_icon",
+      "media/GUI/Buttons/access_hatch_button.gif"
     );
   
   final static int

@@ -25,7 +25,8 @@ public class Qudu extends Fauna {
     */
   final public static ModelAsset
     MODEL_NEST_QUUD = CutoutModel.fromImage(
-      Qudu.class, LAIR_DIR+"nest_quud.png", 2.5f, 2
+      Qudu.class, "qudu_nest_model",
+      LAIR_DIR+"nest_quud.png", 2.5f, 2
     );
   
   final public static Species SPECIES = new Species(

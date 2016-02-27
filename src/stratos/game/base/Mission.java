@@ -689,7 +689,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     IMG_DIR = "media/GUI/Missions/";
   final public static ImageAsset
     ALL_ICONS[] = ImageAsset.fromImages(
-      Mission.class, IMG_DIR,
+      Mission.class, "mission_icons", IMG_DIR,
       "button_strike.png"     ,
       "button_recon.png"      ,
       "button_contact.png"    ,
@@ -710,14 +710,14 @@ public abstract class Mission implements Session.Saveable, Selectable {
   //  These icons need to be worked on a little more...
   final public static CutoutModel
     ALL_MODELS[] = CutoutModel.fromImages(
-      Mission.class, IMG_DIR, 1, 2, false,
+      Mission.class, "mission_models", IMG_DIR, 1, 2, false,
       "flag_strike.gif"  ,
       "flag_recon.gif"   ,
       "flag_contact.gif" ,
       "flag_security.gif"
     ),
     ALL_NEGATIVES[] = CutoutModel.fromImages(
-      Mission.class, IMG_DIR, 1, 2, false,
+      Mission.class, "mission_negative_models", IMG_DIR, 1, 2, false,
       "flag_strike_negative.gif"  ,
       "flag_recon_negative.gif"   ,
       "flag_contact_negative.gif" ,
@@ -729,7 +729,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
     SECURITY_MODEL = ALL_MODELS[3],
     
     FLAG_HIGHLIGHT = CutoutModel.fromImage(
-      Mission.class, IMG_DIR+"flag_highlight.png", 1, 2
+      Mission.class, "mission_highlight_model",
+      IMG_DIR+"flag_highlight.png", 1, 2
     );
   final public static float
     FLAG_SCALE = 0.25f;

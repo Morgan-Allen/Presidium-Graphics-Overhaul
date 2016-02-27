@@ -18,7 +18,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
   final static String IMG_DIR = "media/GUI/Powers/";
   final static ImageAsset
     PROG_IMAGES[] = ImageAsset.fromImages(
-      ProgressOptions.class, IMG_DIR,
+      ProgressOptions.class, "game_progress_buttons", IMG_DIR,
       "progress_save.png"  ,
       "progress_load.png"  ,
       "progress_pause.png" ,

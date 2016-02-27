@@ -20,7 +20,7 @@ public class Headstone extends Element {
     */
   final public static CutoutModel
     HEADSTONE_MODELS[][] = CutoutModel.fromImageGrid(
-      Headstone.class,
+      Headstone.class, "headstone_models",
       "media/Buildings/lairs and ruins/all_headstones.png",
       2, 2, 0.66f, 0.5f, false
     );

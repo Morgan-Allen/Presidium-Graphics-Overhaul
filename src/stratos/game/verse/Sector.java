@@ -71,8 +71,8 @@ public class Sector extends Constant {
   ) {
     super(INDEX, name, name);
     this.description = description;
-    this.planetImage = imagePath == null ?
-      Image.SOLID_WHITE : ImageAsset.fromImage(baseClass, imagePath)
+    this.planetImage = imagePath == null ? Image.SOLID_WHITE :
+      ImageAsset.fromImage(baseClass, "image_sector_"+name, imagePath)
     ;
     //
     //  Populate basic fields first-
@@ -319,7 +319,7 @@ public class Sector extends Constant {
     if (hook != null) hook.describeHook(d);
     else substituteReferences(description, d);
     
-    //d.append("\n");
+    d.append("\n");
     //d.append("\nGravity: "   +Verse.GRAVITY_DESC   [gravity + 2]);
     //d.append("\nPopulation: "+Verse.POPULATION_DESC[population ]);
     d.appendList("\nHabitats: "     , (Object[]) habitats     );

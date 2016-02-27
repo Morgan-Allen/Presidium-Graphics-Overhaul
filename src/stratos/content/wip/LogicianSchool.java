@@ -24,11 +24,12 @@ public class LogicianSchool extends Venue {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    LogicianSchool.class,
+    LogicianSchool.class, "logician_school_model",
     "media/Buildings/schools and preserves/logician_school.png", 6, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    LogicianSchool.class, "media/GUI/Buttons/hospice_button.gif"
+    LogicianSchool.class, "logician_school_icon",
+    "media/GUI/Buttons/hospice_button.gif"
   );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

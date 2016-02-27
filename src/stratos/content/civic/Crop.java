@@ -25,17 +25,17 @@ public class Crop extends Flora {
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static CutoutModel
     COVERING_LEFT = CutoutModel.fromImage(
-      Crop.class, IMG_DIR+"covering_left.png", 1, 1
+      Crop.class, "crop_cover_left_model", IMG_DIR+"covering_left.png", 1, 1
     ),
     COVERING_RIGHT = CutoutModel.fromImage(
-      Crop.class, IMG_DIR+"covering_right.png", 1, 1
+      Crop.class, "crop_cover_right_model", IMG_DIR+"covering_right.png", 1, 1
     ),
     CROP_MODELS[][] = CutoutModel.fromImageGrid(
-      Crop.class, IMG_DIR+"all_crops.png",
+      Crop.class, "crop_models_all", IMG_DIR+"all_crops.png",
       4, 4, 0.5f, 0.5f, false
     ),
     GRUB_BOX_MODEL = CutoutModel.fromImage(
-      Crop.class, IMG_DIR+"grub_box.png", 0.5f, 0.5f
+      Crop.class, "crop_grub_box_model", IMG_DIR+"grub_box.png", 0.5f, 0.5f
     );
   
   final public static Species

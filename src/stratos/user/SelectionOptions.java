@@ -67,8 +67,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   
   
   private void setup() {
-    
-    if (true) return;
+    ///if (true) return;
     
     final BaseUI BUI   = (BaseUI) UI;
     final Base   base  = BUI.played();

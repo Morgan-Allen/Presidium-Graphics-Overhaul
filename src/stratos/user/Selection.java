@@ -27,16 +27,16 @@ public class Selection implements UIConstants {
     );
   final public static ImageAsset
     SELECT_CIRCLE = ImageAsset.fromImage(
-      Selection.class, "media/GUI/selectCircle.png"
+      Selection.class, "selection_tex_circle", "media/GUI/selectCircle.png"
     ),
     SELECT_SQUARE = ImageAsset.fromImage(
-      Selection.class, "media/GUI/selectSquare.png"
+      Selection.class, "selection_tex_square", "media/GUI/selectSquare.png"
     ),
     SELECT_OVERLAY = ImageAsset.fromImage(
-      Selection.class, "media/GUI/selectOverlay.png"
+      Selection.class, "selection_tex_overlay", "media/GUI/selectOverlay.png"
     ),
     PLACE_OVERLAY = ImageAsset.fromImage(
-      Selection.class, "media/GUI/placeOverlay.png"
+      Selection.class, "place_tex_overlay", "media/GUI/placeOverlay.png"
     );
   
   

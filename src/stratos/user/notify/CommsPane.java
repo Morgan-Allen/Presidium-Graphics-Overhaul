@@ -18,7 +18,7 @@ public class CommsPane extends SelectionPane {
   
   final static ImageAsset
     COMMS_ICON = ImageAsset.fromImage(
-      CommsPane.class, "media/GUI/Panels/comms_tab.png"
+      CommsPane.class, "comms_pane_icon", "media/GUI/Panels/comms_tab.png"
     ),
     COMMS_ICON_LIT = Button.CIRCLE_LIT;
   

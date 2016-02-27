@@ -24,7 +24,7 @@ public class MapsDisplay extends UIGroup {
     MODE_MINERALS_MAP  = 3,
     NUM_MODES          = 4;
   final static ImageAsset MODE_ICONS[] = ImageAsset.fromImages(
-    MapsDisplay.class, "media/GUI/Panels/",
+    MapsDisplay.class, "map_mode_icons", "media/GUI/Panels/",
     "minimap_normal.png"   ,
     "minimap_ambience.png" ,
     "minimap_fertility.png",

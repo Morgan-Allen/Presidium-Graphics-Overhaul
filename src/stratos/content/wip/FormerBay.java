@@ -34,11 +34,13 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   
   final static String IMG_DIR = "media/Buildings/ecologist/";
   final static ImageAsset ICON = ImageAsset.fromImage(
-    FormerBay.class, "media/GUI/Buttons/former_plant_button.gif"
+    FormerBay.class, "former_bay_icon",
+    "media/GUI/Buttons/former_plant_button.gif"
   );
   final static ModelAsset
     MODEL = CutoutModel.fromImage(
-      FormerBay.class, IMG_DIR+"former_plant.png", 3, 1
+      FormerBay.class, "former_bay_model",
+      IMG_DIR+"former_plant.png", 3, 1
     );
   
   final public static Blueprint BLUEPRINT = new Blueprint(

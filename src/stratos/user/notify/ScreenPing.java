@@ -16,10 +16,12 @@ public class ScreenPing extends UIGroup {
   
   final static ImageAsset
     CENTRE_IMG = ImageAsset.fromImage(
-      ScreenPing.class, "media/GUI/Front/ping_centre.png"
+      ScreenPing.class, "screen_ping_centre_img",
+      "media/GUI/Front/ping_centre.png"
     ),
     RINGS_IMG = ImageAsset.fromImage(
-      ScreenPing.class, "media/GUI/Front/ping_rings.png"
+      ScreenPing.class, "screen_ping_rings_img",
+      "media/GUI/Front/ping_rings.png"
     );
   final static String
     PING_ID_PREFIX = "ping_for_";

@@ -26,12 +26,14 @@ public class InstallPane extends SelectionPane {
     */
   final public static ImageAsset
     BUILD_ICON = ImageAsset.fromImage(
-      InstallPane.class, "media/GUI/Panels/installations_tab.png"
+      InstallPane.class, "install_pane_icon",
+      "media/GUI/Panels/installations_tab.png"
     ),
     BUILD_ICON_LIT = Button.CROSSHAIRS_LIT,
     
     STATE_FRAMES[] = ImageAsset.fromImages(
-      InstallPane.class, "media/GUI/Buttons/",
+      InstallPane.class, "install_pane_research_state_frames",
+      "media/GUI/Buttons/",
       "selected_icon_frame.png"   ,
       "prototype_icon_frame.png"  ,
       "research_icon_frame.png"   ,

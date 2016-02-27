@@ -30,11 +30,13 @@ public class EcologistRedoubt extends Venue implements Captivity {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    EcologistRedoubt.class, "media/Buildings/ecologist/xeno_lodge.png",
+    EcologistRedoubt.class, "ecologist_redoubt_model",
+    "media/Buildings/ecologist/xeno_lodge.png",
     4, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    EcologistRedoubt.class, "media/GUI/Buttons/xeno_lodge_button.gif"
+    EcologistRedoubt.class, "ecologist_redoubt_icon",
+    "media/GUI/Buttons/xeno_lodge_button.gif"
   );
   
   final static int CLAIM_RADIUS = (Stage.ZONE_SIZE / 2) - 2;

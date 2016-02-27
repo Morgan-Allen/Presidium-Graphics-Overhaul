@@ -23,7 +23,8 @@ public class Yamagur extends Fauna {
     */
   final public static ModelAsset
     NEST_MODEL = CutoutModel.fromImage(
-      Yamagur.class, LAIR_DIR+"nest_yamagur.png", 3.5f, 2
+      Yamagur.class, "nest_yamagur_model",
+      LAIR_DIR+"nest_yamagur.png", 3.5f, 2
     );
   
   final public static Species SPECIES = new Species(

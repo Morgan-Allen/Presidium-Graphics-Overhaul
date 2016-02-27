@@ -28,7 +28,8 @@ public class RosterPane extends SelectionPane {
   
   final static ImageAsset
     ROSTER_ICON = ImageAsset.fromImage(
-      RosterPane.class, "media/GUI/Panels/roster_tab.png"
+      RosterPane.class, "roster_pane_icon",
+      "media/GUI/Panels/roster_tab.png"
     ),
     ROSTER_ICON_LIT = Button.CROSSHAIRS_LIT;
   

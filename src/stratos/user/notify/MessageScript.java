@@ -71,8 +71,10 @@ public class MessageScript implements
       //  Finally, any embedded images will need to loaded on the render
       //  thread, so we cache these for later reference:
       for (XML imgNode : topicNode.allChildrenMatching("image")) {
+        final String imgPath = imgNode.content();
+        if (! Assets.exists(imgPath)) continue;
         final ImageAsset asset = ImageAsset.fromImage(
-          basis.getClass(), imgNode.content()
+          basis.getClass(), imgPath, imgPath
         );
         Assets.loadNow(asset);
       }
@@ -273,7 +275,7 @@ public class MessageScript implements
       
       if (node.tag().equals("image")) {
         final String path = node.content();
-        ImageAsset asset = ImageAsset.fromImage(basis.getClass(), path);
+        ImageAsset asset = ImageAsset.fromImage(basis.getClass(), path, path);
         if (asset == null) continue;
         Text.insert(asset.asTexture(), maxWide, false, d);
       }

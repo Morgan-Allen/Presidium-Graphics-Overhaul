@@ -27,7 +27,8 @@ public class ShieldWall extends Venue {
   
   final static ModelAsset
     WALL_MODELS[][] = CutoutModel.fromImageGrid(
-      ShieldWall.class, IMG_DIR+"all_shield_walls.png", 4, 3, 2, 3, false
+      ShieldWall.class, "shield_wall_models",
+      IMG_DIR+"all_shield_walls.png", 4, 3, 2, 3, false
     ),
     WM[][] = WALL_MODELS, MODEL_HUB = WM[0][0], MH = MODEL_HUB,
     CAPS_X_AXIS[] = { MH, WM[1][1], MH },
@@ -37,7 +38,8 @@ public class ShieldWall extends Venue {
   
   final static ImageAsset
     ICON = ImageAsset.fromImage(
-      ShieldWall.class, "media/GUI/Buttons/shield_wall_button.gif"
+      ShieldWall.class, "shield_wall_icon",
+      "media/GUI/Buttons/shield_wall_button.gif"
     );
   
   final static int

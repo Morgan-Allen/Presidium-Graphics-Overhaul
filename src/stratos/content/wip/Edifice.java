@@ -30,10 +30,12 @@ public class Edifice extends Venue {
   
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
-    EngineerStation.class, "media/Buildings/aesthete/edifice.png", 3, 2
+    EngineerStation.class, "edifice_model",
+    "media/Buildings/aesthete/edifice.png", 3, 2
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
-    Edifice.class, "media/GUI/Buttons/edifice_button.gif"
+    Edifice.class, "edifice_icon",
+    "media/GUI/Buttons/edifice_button.gif"
   );
   
   

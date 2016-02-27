@@ -24,10 +24,12 @@ public class CultureVats extends Venue {
   /**  Fields, constructors, and save/load methods-
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    CultureVats.class, "media/Buildings/physician/culture_vats.png", 3, 2
+    CultureVats.class, "culture_vats_model",
+    "media/Buildings/physician/culture_vats.png", 3, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    CultureVats.class, "media/GUI/Buttons/culture_vats_button.gif"
+    CultureVats.class, "culture_vats_icon",
+    "media/GUI/Buttons/culture_vats_button.gif"
   );
   
   

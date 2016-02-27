@@ -35,10 +35,12 @@ public class StockExchange extends Venue {
     verbose = false;
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
-    StockExchange.class, "media/Buildings/merchant/stock_exchange.png", 4, 1
+    StockExchange.class, "stock_exchange_model",
+    "media/Buildings/merchant/stock_exchange.png", 4, 1
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
-    StockExchange.class, "media/GUI/Buttons/stock_exchange_button.gif"
+    StockExchange.class, "stock_exchange_icon",
+    "media/GUI/Buttons/stock_exchange_button.gif"
   );
   
   
