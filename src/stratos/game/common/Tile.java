@@ -188,11 +188,10 @@ public final class Tile implements
   
   public boolean canPave() {
     if (! habitat().pathClear) return false;
-    if (reserves != null) return false;
     return
-      above == null ||
-      above.owningTier() <  Owner.TIER_PRIVATE ||
-      above.pathType  () <= Tile .PATH_CLEAR;
+      reserves == null ||
+      reserves.owningTier() <  Owner.TIER_PRIVATE ||
+      reserves.pathType  () <= Tile .PATH_CLEAR;
   }
   
   

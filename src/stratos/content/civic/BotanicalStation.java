@@ -8,28 +8,15 @@ import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.plans.*;
-import stratos.game.verse.*;
 import stratos.game.actors.*;
 import stratos.game.wild.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
-import stratos.graphics.widgets.*;
-import stratos.user.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
 import static stratos.game.craft.Economy.*;
 import static stratos.game.actors.Backgrounds.*;
 
-import stratos.content.abilities.EcologistTechniques;
-
-
-
-//  TODO:  Demand reagents to perform gene tailoring?
-//
-//  Cereal Culture.  Flora Culture.    Canopy Culture.
-//  Symbiote Lab.    Hydroponics.      Field Hand Station.
-
-//  TODO:  Have power-output vary with insolation!
 
 
 public class BotanicalStation extends HarvestVenue {
@@ -168,67 +155,28 @@ public class BotanicalStation extends HarvestVenue {
   public Behaviour jobFor(Actor actor) {
     if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
+    
+    /*
     //
     //  If you're really short on food, consider foraging in the surrounds or
     //  farming, 24/7.
-    final boolean fieldHand = actor.mind.vocation() == CULTIVATOR;
     final float shortages = (
       base.demands.primaryShortage(CARBS ) +
       base.demands.primaryShortage(GREENS)
     ) / 2f;
-    if (shortages >= 0.5f || fieldHand) {
-      choice.add(nextHarvestFor(actor));
-    }
-    //
-    //  Then add jobs specific to each vocation-
-    if (fieldHand) {
-      addCultivatorJobs(actor, choice);
-    }
-    else {
-      addEcologistJobs(actor, choice);
-    }
-    return choice.weightedPick();
-  }
-  
-  
-  protected void addEcologistJobs(Actor actor, Choice choice) {
-    //
-    //  Consider tending to animals-
-    final Batch <Target> sampled = new Batch();
-    world.presences.sampleFromMap(actor, world, 5, sampled, Mobile.class);
-    Visit.appendTo(sampled, inside());
-    //
-    //  Consider learning special techniques, tailoring seed varieties and
-    //  breeding animals-
-    for (Species s : Crop.ALL_VARIETIES) {
-      final Item seed = Item.withReference(GENE_SEED, s);
-      if (stocks.amountOf(seed) >= 1) continue;
-      choice.add(new SeedTailoring(actor, this, s));
-    }
-    choice.add(Studying.asTechniqueTraining(
-      actor, this, 0, EcologistTechniques.ECOLOGIST_TECHNIQUES
-    ));
-    //
-    //  Otherwise, consider exploring the surrounds and collecting samples-
-    choice.add(Gathering.asFloraSample(actor, this));
-    final Exploring x = Exploring.nextExploration(actor);
-    if (x != null) choice.add(x.addMotives(Plan.MOTIVE_JOB, Plan.ROUTINE));
-    //
-    //  Or, finally, fall back on supervising the venue...
-    if (choice.empty()) choice.add(Supervision.oversight(this, actor));
-  }
-  
-  
-  protected void addCultivatorJobs(Actor actor, Choice choice) {
+    if (shortages > 0.5f) choice.add(Gathering.asForaging(actor, this));
+    //*/
+    
+    choice.add(nextHarvestFor(actor));
     final Bringing d = BringUtils.bestBulkDeliveryFrom(
       this, services(), 1, 5, 5, true
     );
     choice.add(d);
-    if (! choice.empty()) return;
     choice.add(Gathering.asForestPlanting(actor, this));
     //
     //  Or, finally, fall back on supervising the venue...
     if (choice.empty()) choice.add(Supervision.oversight(this, actor));
+    return choice.weightedPick();
   }
   
   
@@ -296,10 +244,19 @@ public class BotanicalStation extends HarvestVenue {
   }
   
   
-  protected float growthMultiple(Crop crop) {
+  public float harvestMultiple(Target tended, Object type) {
+    final Crop crop = (Crop) tended;
     float bonus = structure.upgradeLevel(MOISTURE_FARMING) / 2f;
     bonus *= 1 - stocks.relativeShortage(WATER, false);
     bonus *= crop.origin().habitat().insolation() / 10f;
+    
+    final Traded yield = crop.species().nutrients(0)[0].type;
+    if (yield == CARBS) {
+      bonus *= (structure.upgradeLevel(MONOCULTURE) + 1) / 2f;
+    }
+    if (yield == GREENS) {
+      bonus *= (structure.upgradeLevel(GREENS     ) + 1) / 2f;
+    }
     return bonus + 1;
   }
   
@@ -363,7 +320,7 @@ public class BotanicalStation extends HarvestVenue {
   }
   
   
-  protected boolean needsTending(Tile t) {
+  public boolean needsTending(Tile t) {
     final Element e = ((Tile) t).above();
     if (! (e instanceof Crop)) return true;
     return ((Crop) e).needsTending();

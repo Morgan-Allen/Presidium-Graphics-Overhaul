@@ -71,11 +71,11 @@ public class Crop extends Flora {
     ) {};
   
   
-  final public BotanicalStation parent;
+  final public HarvestVenue parent;
   private boolean covered;
   
   
-  public Crop(BotanicalStation parent, Species species) {
+  public Crop(HarvestVenue parent, Species species) {
     super(species);
     this.parent = parent;
   }
@@ -83,7 +83,7 @@ public class Crop extends Flora {
   
   public Crop(Session s) throws Exception {
     super(s);
-    parent  = (BotanicalStation) s.loadObject();
+    parent  = (HarvestVenue) s.loadObject();
     covered = s.loadBool();
   }
   
@@ -128,16 +128,16 @@ public class Crop extends Flora {
     return false;
   }
   
-
+  
   public void seedWith(Species s, float quality) {
-    this.covered = parent.shouldCover(origin());
+    this.covered = parent.claimUse(origin()) != ClaimDivision.USE_NORMAL;
     super.seedWith(s, quality);
   }
   
-
-  protected float dailyGrowthEstimate(Tile tile, boolean report) {
-    float estimate = super.dailyGrowthEstimate(tile, report);
-    if (parent != null) estimate *= parent.growthMultiple(this);
+  
+  public float dailyGrowthEstimate(Tile tile) {
+    float estimate = super.dailyGrowthEstimate(tile);
+    if (parent != null) estimate *= parent.harvestMultiple(this, species());
     return estimate;
   }
   
@@ -146,7 +146,10 @@ public class Crop extends Flora {
     //
     //  Crops disappear once their parent nursery is salvaged or destroyed, and
     //  can't grow if they're not seeded.
-    if (parent == null || ! (parent.inWorld() && parent.couldPlant(tile))) {
+    if (
+      parent == null || (! parent.inWorld()) ||
+      parent.claimUse(tile) == ClaimDivision.USE_NONE
+    ) {
       setAsDestroyed(false);
     }
     else super.onGrowth(tile);

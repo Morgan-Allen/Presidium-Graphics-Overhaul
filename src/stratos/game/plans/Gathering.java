@@ -50,11 +50,10 @@ public class Gathering extends ResourceTending {
     FARM_TRAITS  [] = { PERSISTENT, RUGGED },
     FOREST_TRAITS[] = { PERSISTENT, RUGGED },
     FORAGE_TRAITS[] = { PERSISTENT, RUGGED },
-    SAMPLE_TRAITS[] = { RUGGED, CURIOUS    };
+    SAMPLE_TRAITS[] = { CURIOUS   , RUGGED };
   
   
   final public int type;
-  private Flora toTend = null;
   
   
   private Gathering(
@@ -68,15 +67,13 @@ public class Gathering extends ResourceTending {
   
   public Gathering(Session s) throws Exception {
     super(s);
-    this.type   = s.loadInt();
-    this.toTend = (Flora) s.loadObject();
+    this.type = s.loadInt();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveInt   (type   );
-    s.saveObject(toTend);
+    s.saveInt(type);
   }
   
   
@@ -202,47 +199,6 @@ public class Gathering extends ResourceTending {
   
   /**  Priority and step evaluation-
     */
-  protected Behaviour getNextStep() {
-    final Behaviour step = super.getNextStep();
-    //
-    //  In the event that we're at the 'tending' stage, determine exactly what
-    //  specimen we're looking at.
-    if (stage() == STAGE_TEND) {
-      toTend = pickPlantedSpecimen((Tile) tended, forPlanting());
-    }
-    return step;
-  }
-  
-  
-  private Flora pickPlantedSpecimen(Tile t, Species planted[]) {
-    final Flora found = Flora.foundAt(t);
-
-    if (type == TYPE_FARMING) {
-      if (found != null && found.species().domesticated) return found;
-
-      final Pick <Species> pick = new Pick <Species> ();
-      for (Species s : planted) {
-        final Item seed = actor.gear.bestSample(GENE_SEED, s, 1);
-        float chance = Flora.growthBonus(t, s, seed) * s.growRate;
-        pick.compare(s, chance + Rand.num());
-      }
-      if (pick.empty()) return null;
-      
-      final Crop plants = new Crop((BotanicalStation) depot, pick.result());
-      plants.setPosition(t.x, t.y, t.world);
-      return plants;
-    }
-    else if (type == TYPE_FORESTING) {
-      if (found != null && ! found.species().domesticated) return found;
-      
-      final Flora plants = new Flora(Flora.BASE_SPECIES);
-      plants.setPosition(t.x, t.y, t.world);
-      return plants;
-    }
-    else return found;
-  }
-  
-  
   protected Target[] targetsToAssess(boolean fromDepot) {
     if (fromDepot) return super.targetsToAssess(true);
     if (assessed != null) return assessed;
@@ -250,9 +206,6 @@ public class Gathering extends ResourceTending {
     //  In the event that you're planting, make sure you have adequate seed
     //  stocks-
     if (forPlanting() != null) {
-      if (stage() == STAGE_TEND) for (Species s : forPlanting()) {
-        if (actor.gear.bestSample(GENE_SEED, s, 1) == null) return null;
-      }
       return sampleSeedingPoints(subject, Stage.ZONE_SIZE);
     }
     else {
@@ -302,12 +255,13 @@ public class Gathering extends ResourceTending {
     */
   protected Item[] afterHarvest(Target t) {
     final Flora c = Flora.foundAt(t);
+    final boolean isCrop = c != null && c.species().domesticated;
     this.assessed = null;
     final Action a = action();
     
     if (type == TYPE_FARMING) {
       if (c == null   ) { seedTile((Tile) t, a)  ; return null; }
-      if (c != toTend ) { c.setAsDestroyed(false); return null; }
+      if (! isCrop    ) { c.setAsDestroyed(false); return null; }
       if (c.blighted()) { c.disinfest()          ; return null; }
       if (c.ripe()) {
         c.setAsDestroyed(false);
@@ -317,7 +271,7 @@ public class Gathering extends ResourceTending {
     }
     if (type == TYPE_FORESTING) {
       if (c == null   ) { seedTile((Tile) t, a)  ; return null; }
-      if (c != toTend ) { c.setAsDestroyed(false); return null; }
+      if (isCrop      ) { c.setAsDestroyed(false); return null; }
     }
     if (type == TYPE_LOGGING) {
       if (c != null   ) { c.setAsDestroyed(false); return c.materials(); }
@@ -346,59 +300,45 @@ public class Gathering extends ResourceTending {
   }
   
   
-  private void seedTile(Tile t, Action action) {
-    if (toTend == null) return;
-    final Species s = toTend.species();
+  private boolean seedTile(Tile t, Action action) {
+    //
+    //  TODO:  Use a better method of tracking progress here.
+    //if (Rand.index(10) != 0 && ! GameSettings.buildFree) return;
+    Flora plants = null;
     
-    if (depot != null) {
-      RoadsRepair.updatePavingAround(actor.origin(), depot.base());
+    if (type == TYPE_FARMING) {
+      final HarvestVenue HV = (HarvestVenue) depot;
+      final Pick <Crop> pick = new Pick();
+      
+      for (Species s : Crop.ALL_VARIETIES) {
+        Crop c = new Crop(HV, s);
+        c.setPosition(t.x, t.y, t.world);
+        float chance = c.dailyGrowthEstimate(t);
+        pick.compare(c, chance * Rand.num());
+      }
+      plants = pick.result();
     }
+    else if (type == TYPE_FORESTING) {
+      plants = new Flora(Flora.BASE_SPECIES);
+    }
+    if (plants == null) return false;
     
-    //
-    //  TODO:  Use a better method of tracking progress here!
-    ///if (Rand.index(10) != 0 && ! GameSettings.buildFree) return;
+    plants.setPosition(t.x, t.y, t.world);
+    if (depot != null) RoadsRepair.updatePavingAround(t, depot.base());
     
-    //
-    //  TODO:  Just base seed quality off upgrades at the source depot?
-    //
-    //  Assuming that's possible, we then determine the health of the seedling
-    //  based on stock quality and planting skill-
-    final Item seed = actor.gear.bestSample(Item.asMatch(GENE_SEED, s), 0.1f);
     float health = 0;
-    if (seed != null) {
-      health += seed.quality * 1f / Item.MAX_QUALITY;
-      actor.gear.removeItem(seed);
-    }
     health += tendProcess().performTest(actor, 0, 1, action);
     //
     //  Then put the thing in the dirt-
     if (t.above() != null) t.above().setAsDestroyed(false);
-    toTend.enterWorldAt(t.x, t.y, t.world, true);
-    toTend.seedWith(s, health);
-  }
-  
-  
-  public boolean actionCollectTools(Actor actor, Venue depot) {
-    if (! super.actionCollectTools(actor, depot)) return false;
-    
-    final Species planted[] = forPlanting();
-    if (planted != null) for (Species s : planted) {
-      final Item seed = depot.stocks.bestSample(GENE_SEED, s, 1);
-      if (seed != null) {
-        final float hasAmount  = actor.gear.amountOf(seed);
-        final float takeAmount = Nums.min(seed.amount, 1 - hasAmount);
-        actor.gear.addItem(Item.withAmount(seed, takeAmount));
-      }
-      else {
-        actor.gear.addItem(Item.with(GENE_SEED, s, 1, Item.BAD_QUALITY));
-      }
-    }
+    plants.enterWorldAt(t.x, t.y, t.world, true);
+    plants.seedWith(plants.species(), health);
     return true;
   }
   
   
   protected void afterDepotDisposal() {
-    actor.gear.removeAllMatches(GENE_SEED);
+    return;
   }
   
   
@@ -407,24 +347,27 @@ public class Gathering extends ResourceTending {
     */
   public void describeBehaviour(Description d) {
     final Flora c = Flora.foundAt(tended);
+    final boolean isCrop = c != null && c.species().domesticated;
     
-    if (stage() != STAGE_TEND || toTend == null) {
+    if (stage() != STAGE_TEND) {
       super.describeBehaviour(d);
       return;
     }
     if (type == TYPE_FARMING) {
-      Object s = toTend.species();
-      if      (c == null   )   d.append("Planting "  );
-      else if (c != toTend ) { d.append("Clearing "  ); s = c; }
-      else if (c.blighted())   d.append("Tending "   );
-      else if (c.ripe    ())   d.append("Harvesting ");
-      else                     d.append("Tending "   );
+      if      (c == null   ) d.append("Planting "  );
+      else if (! isCrop    ) d.append("Clearing "  );
+      else if (c.blighted()) d.append("Tending "   );
+      else if (c.ripe    ()) d.append("Harvesting ");
+      else                   d.append("Tending "   );
+      Object s = tended();
+      if (s instanceof Tile) s = ((Tile) s).habitat();
       d.append(s);
     }
     if (type == TYPE_FORESTING) {
-      Object s = toTend.species();
-      if      (c == null  )   d.append("Planting "  );
-      else if (c != toTend) { d.append("Clearing "  ); s = c; }
+      if      (c == null  ) d.append("Planting "  );
+      else if (isCrop     ) d.append("Clearing "  );
+      Object s = tended();
+      if (s instanceof Tile) s = ((Tile) s).habitat();
       d.append(s);
     }
     if (type == TYPE_LOGGING) {

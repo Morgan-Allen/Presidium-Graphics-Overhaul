@@ -188,9 +188,14 @@ public class FormerBay extends HarvestVenue implements TileConstants {
   }
   
   
-  protected boolean needsTending(Tile t) {
+  public boolean needsTending(Tile t) {
     //  And again, individual tiles aren't evaluated for this purpose.
     return true;
+  }
+  
+  
+  public float harvestMultiple(Target tended, Object type) {
+    return 1;
   }
   
   

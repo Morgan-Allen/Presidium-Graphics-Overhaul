@@ -49,7 +49,7 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
   
   final public static Blueprint BLUEPRINT = new Blueprint(
     ServiceHatch.class, "service_hatch",
-    "Causeway", Target.TYPE_WIP, HATCH_ICON,
+    "Causeway", Target.TYPE_ENGINEER, HATCH_ICON,
     "Causeways allow for efficient long-distance power and road connections. ",
     2, 0, Structure.IS_FIXTURE | Structure.IS_LINEAR | Structure.IS_PUBLIC,
     Owner.TIER_PRIVATE, 10, 25

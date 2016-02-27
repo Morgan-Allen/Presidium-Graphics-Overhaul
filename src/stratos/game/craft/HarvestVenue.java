@@ -189,7 +189,13 @@ public abstract class HarvestVenue extends Venue {
   }
   
   
-  protected abstract boolean needsTending(Tile t);
+  public int claimUse(Tile at) {
+    return division.useType(at);
+  }
+  
+  
+  public abstract boolean needsTending(Tile t);
+  public abstract float harvestMultiple(Target tended, Object type);
   
 }
 

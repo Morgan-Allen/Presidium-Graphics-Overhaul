@@ -99,7 +99,7 @@ public class SupplyDepot extends Venue {
   
   public SupplyDepot(Base base) {
     super(BLUEPRINT, base);
-    staff.setShiftType(SHIFTS_BY_HOURS);
+    staff.setShiftType(SHIFTS_BY_DAY);
     
     final GroupSprite sprite = new GroupSprite();
     sprite.attach(MODEL_UNDER, 0, 0, 0);

@@ -275,7 +275,7 @@ public class Mining extends ResourceTending {
         terrain.setDigLevel(face, height - 1);
       }
       
-      yield *= ore.amount * HARVEST_MULT * site.extractMultiple(ore.type);
+      yield *= ore.amount * HARVEST_MULT * site.harvestMultiple(t, ore.type);
       return new Item[] {
         Item.with(ore.type, null    , yield             , Item.AVG_QUALITY),
         Item.with(SLAG    , ore.type, yield * SLAG_RATIO, Item.AVG_QUALITY)
@@ -288,7 +288,7 @@ public class Mining extends ResourceTending {
       
       final Traded type = face.oreType();
       float amount = face.oreAmount() * (0 - inc);
-      amount *= HARVEST_MULT * site.extractMultiple(type);
+      amount *= HARVEST_MULT * site.harvestMultiple(t, type);
       float slagged = amount * SLAG_RATIO / 2f;
       
       return new Item[] {

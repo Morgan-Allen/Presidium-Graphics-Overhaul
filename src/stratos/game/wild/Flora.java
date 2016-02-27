@@ -159,7 +159,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public static float maxGrowth(Tile t, Species s) {
-    if (growthBonus(t, s, null) == -1) return 0;
+    if (growthBonus(t, s) == -1) return 0;
     if (s.domesticated) return MAX_GROWTH;
     final int
       var  = t.world.terrain().varAt(t),
@@ -201,7 +201,7 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  public static float growthBonus(Tile t, Species s, Item seed) {
+  public static float growthBonus(Tile t, Species s) {
     final Habitat soil = t.habitat();
     if (soil.floraSpecies == null && ! s.domesticated) return -1;
     
@@ -209,8 +209,6 @@ public class Flora extends Element implements TileConstants {
     float bonus = 0.5f;
     bonus += (s.waterNeed * moisture);
     bonus += (1 - s.waterNeed) * (1 - moisture) / 2;
-    
-    if (seed != null) bonus *= 1 + (seed.quality * 1f / Item.MAX_QUALITY);
     return Nums.clamp(bonus, 0, MAX_HEALTH);
   }
   
@@ -222,15 +220,16 @@ public class Flora extends Element implements TileConstants {
   }
   
   
-  protected float dailyGrowthEstimate(Tile tile, boolean report) {
+  public float dailyGrowthEstimate(Tile tile) {
     final Stage world = tile.world;
     float
       increment = 1f / NUM_DAYS_MATURE,
       health    = health(),
-      growBonus = growthBonus(tile, species, null),
+      growBonus = growthBonus(tile, species),
       yieldMult = species.growRate,
       pollution = 0 - world.ecology().ambience.valueAt(tile);
     
+    boolean report = updatesVerbose;
     if (report) I.reportVars("\nEstimating crop growth", "  ",
       "Increment" , increment,
       "Health"    , health   ,
@@ -249,7 +248,7 @@ public class Flora extends Element implements TileConstants {
   
   public float dailyYieldEstimate(Tile tile) {
     final float fullAmount = 1;
-    return dailyGrowthEstimate(tile, false) * fullAmount;
+    return dailyGrowthEstimate(tile) * fullAmount;
   }
   
   
@@ -276,9 +275,8 @@ public class Flora extends Element implements TileConstants {
   
   
   public void onGrowth(Tile tile) {
-    final boolean report = updatesVerbose && I.talkAbout == this;
     final float
-      dailyGrowth = dailyGrowthEstimate(tile, report),
+      dailyGrowth = dailyGrowthEstimate(tile),
       health      = health(),
       increment   = dailyGrowth * MAX_GROWTH / GROW_TIMES_PER_DAY;
     
@@ -288,11 +286,9 @@ public class Flora extends Element implements TileConstants {
     else if (Rand.num() < increment * health) {
       blighted = false;
     }
-    
     world.ecology().impingeBiomass(
       origin(), growStage() / 2f, Stage.GROWTH_INTERVAL
     );
-    
     incGrowth(increment, tile.world, true);
   }
   

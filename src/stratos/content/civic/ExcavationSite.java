@@ -192,8 +192,8 @@ public class ExcavationSite extends HarvestVenue {
     
     float mineMult = Mining.HARVEST_MULT * staff.workforce();
     mineMult *= Stage.STANDARD_SHIFT_LENGTH / Mining.TILE_DIG_TIME;
-    outM *= mineMult * extractMultiple(METALS   );
-    outF *= mineMult * extractMultiple(FUEL_RODS);
+    outM *= mineMult * harvestMultiple(null, METALS   );
+    outF *= mineMult * harvestMultiple(null, FUEL_RODS);
     
     stocks.setDailyDemand(METALS   , 0, outM);
     stocks.setDailyDemand(FUEL_RODS, 0, outF);
@@ -222,7 +222,8 @@ public class ExcavationSite extends HarvestVenue {
   }
   
   
-  public float extractMultiple(Traded mineral) {
+  public float harvestMultiple(Target tended, Object type) {
+    final Traded mineral = (Traded) type;
     if (mineral == METALS   ) {
       return 1 + (structure.upgradeLevel(METALS_SMELTING   ) / 3f);
     }
@@ -236,7 +237,7 @@ public class ExcavationSite extends HarvestVenue {
   }
   
   
-  protected boolean needsTending(Tile t) {
+  public boolean needsTending(Tile t) {
     return Outcrop.mineralsAt(t) != null;
   }
   
