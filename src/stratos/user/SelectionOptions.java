@@ -67,22 +67,25 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   
   
   private void setup() {
-    ///if (true) return;
-    
     final BaseUI BUI   = (BaseUI) UI;
     final Base   base  = BUI.played();
     final Actor  ruler = base.ruler();
-    final List <UINode> options = new List <UINode> ();
+    final List <UINode> options = new List();
     
     final Mission strike  = MissionStrike  .strikeFor  (subject, base);
+    final Mission recover = MissionRecover .recoveryFor(subject, base);
     final Mission secure  = MissionSecurity.securityFor(subject, base);
     final Mission recon   = MissionRecon   .reconFor   (subject, base);
     final Mission contact = MissionContact .contactFor (subject, base);
-    final Mission claim   = MissionClaiming.claimFor   (subject, base);
+    final Mission claim   = MissionClaim   .claimFor   (subject, base);
     
     if (strike != null) options.add(new OptionButton(
       BUI, STRIKE_BUTTON_ID, Mission.STRIKE_ICON,
-      "Destroy or capture subject", strike
+      "Destroy or raze subject", strike
+    ));
+    if (recover != null) options.add(new OptionButton(
+      BUI, CLAIMING_BUTTON_ID, Mission.CLAIMING_ICON,
+      "Recover or capture subject", recover
     ));
     if (secure != null) options.add(new OptionButton(
       BUI, SECURITY_BUTTON_ID, Mission.SECURITY_ICON,

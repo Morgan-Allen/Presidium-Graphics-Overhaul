@@ -5,7 +5,6 @@
   */
 package stratos.game.base;
 import stratos.game.common.*;
-import stratos.game.plans.Exploring;
 import stratos.game.actors.*;
 import stratos.game.verse.*;
 import stratos.start.*;
@@ -16,7 +15,7 @@ import stratos.util.*;
 
 
 
-public class MissionClaiming extends Mission {
+public class MissionClaim extends Mission {
   
   
   /**  Data fields, constructors, and save/load methods-
@@ -25,7 +24,7 @@ public class MissionClaiming extends Mission {
   final Expedition expedition;
   
   
-  private MissionClaiming(Base base, Sector claimed) {
+  private MissionClaim(Base base, Sector claimed) {
     super(base, claimed, null, "Claiming "+claimed);
     this.claimed    = claimed;
     this.expedition = new Expedition();
@@ -36,7 +35,7 @@ public class MissionClaiming extends Mission {
   }
   
   
-  public MissionClaiming(Session s) throws Exception {
+  public MissionClaim(Session s) throws Exception {
     super(s);
     this.claimed    = (Sector) subject;
     this.expedition = (Expedition) s.loadObject();
@@ -52,7 +51,7 @@ public class MissionClaiming extends Mission {
   
   /**  Strategic evaluation-
     */
-  public static MissionClaiming claimFor(Object target, Base base) {
+  public static MissionClaim claimFor(Object target, Base base) {
     if (target instanceof Sector) {
       
       //  We only permit claiming of currently uncolonised sectors:
@@ -64,9 +63,12 @@ public class MissionClaiming extends Mission {
       
       //  If the sector is 'virgin territory', we set the recruitment type and
       //  arrange a one-way trip:
-      final MissionClaiming m = new MissionClaiming(base, sector);
+      final MissionClaim m = new MissionClaim(base, sector);
       m.setJourney(Journey.configForMission(m, false));
       return m.journey() == null ? null : m;
+    }
+    if (target instanceof Element) {
+      
     }
     return null;
   }

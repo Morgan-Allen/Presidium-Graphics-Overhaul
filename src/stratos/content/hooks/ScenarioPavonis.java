@@ -4,8 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.hooks;
+import stratos.content.civic.Bastion;
 import stratos.game.common.*;
 import stratos.game.verse.*;
+import stratos.game.wild.Flora;
 import stratos.game.craft.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -105,14 +107,14 @@ public class ScenarioPavonis extends SectorScenario {
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
     
-    
-    //  TODO:  Make sure none of these appear within a certain range of the
-    //  bastion.
-    
     for (int n = TOTAL_FLORA; n-- > 0;) {
+      
       Tile at = world.tileAt(Rand.index(world.size), Rand.index(world.size));
-      at = Spacing.nearestOpenTile(at, at);
-      if (at == null) continue;
+      Flora replace = (Flora) world.presences.nearestMatch(Flora.class, at, -1);
+      if (replace == null) continue;
+      
+      at = replace.origin();
+      replace.exitWorld();
       
       Element flora = new SpecialFlora();
       flora.attachModel(MODEL_SF);

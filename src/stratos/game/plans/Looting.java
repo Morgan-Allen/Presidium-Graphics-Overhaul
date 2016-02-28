@@ -10,7 +10,6 @@ import stratos.game.maps.*;
 import stratos.game.actors.*;
 import stratos.util.*;
 import static stratos.game.actors.Qualities.*;
-import static stratos.game.craft.Economy.*;
 
 
 
@@ -18,7 +17,7 @@ import static stratos.game.craft.Economy.*;
 //  then you run for it.
 
 
-//  TODO:  Consider just using the Disposal methods in BringUtils for this.
+//  TODO:  Consider just using the Disposal methods in BringUtils for this?
 
 
 public class Looting extends Plan {
@@ -36,26 +35,18 @@ public class Looting extends Plan {
     STAGE_DROP     =  1,
     STAGE_DONE     =  2;
   
-  final Owner mark;
+  final Element mark;
   final Item taken;
-  final Property dropOff;
+  final Owner dropOff;
   private int stage = STAGE_INIT;
   private Tile access = null;
   
   
-  public Looting(Actor actor, Owner subject, Item taken, Property dropOff) {
+  public Looting(Actor actor, Element subject, Item taken, Owner dropOff) {
     super(actor, subject, MOTIVE_JOB, MILD_HARM);
     this.mark    = subject;
     this.taken   = taken == null ? pickItemFrom(subject, actor) : taken;
     this.dropOff = dropOff;
-  }
-  
-  
-  public Looting(Actor actor, Item.Dropped dropped) {
-    super(actor, dropped, MOTIVE_EMERGENCY, NO_HARM);
-    this.mark    = dropped;
-    this.taken   = pickItemFrom(mark, actor);
-    this.dropOff = null;
   }
   
   
@@ -66,7 +57,7 @@ public class Looting extends Plan {
   
   public Looting(Session s) throws Exception {
     super(s);
-    mark    = (Owner) s.loadObject();
+    mark    = (Element) s.loadObject();
     taken   = Item.loadFrom(s);
     dropOff = (Property) s.loadObject();
     stage   = s.loadInt();
@@ -90,8 +81,11 @@ public class Looting extends Plan {
   final static Trait BASE_TRAITS[] = { SELFISH, IMPULSIVE };
   
   
-  public static Item pickItemFrom(Owner owner, Actor steals, Traded... types) {
+  public static Item pickItemFrom(Element mark, Actor steals, Traded... types) {
     final boolean report = I.talkAbout == steals && evalVerbose;
+    
+    if (! (mark instanceof Owner)) return null;
+    final Owner owner = (Owner) mark;
     
     if (types == null || types.length == 0) {
       types = owner.inventory().allItemTypes();
@@ -227,7 +221,12 @@ public class Looting extends Plan {
     if (report) I.say("  Looting it is.");
     
     stage = STAGE_APPROACH;
-    if (mark instanceof Boarding && actor.aboard() != mark) {
+    /*
+    if (
+      mark instanceof Boarding &&
+      actor.aboard() != mark &&
+      mark.allowsEntry(actor)
+    ) {
       final Action breakIn = new Action(
         actor, mark,
         this, "actionBreakIn",
@@ -236,6 +235,7 @@ public class Looting extends Plan {
       breakIn.setMoveTarget(Spacing.nearestOpenTile(mark, actor));
       return breakIn;
     }
+    //*/
     
     final Action loot = new Action(
       actor, mark,
@@ -281,6 +281,7 @@ public class Looting extends Plan {
   }
   
   
+  /*
   public boolean actionBreakIn(Actor actor, Boarding mark) {
     final boolean instinct = actor.species().animal();
     boolean success = true;
@@ -302,14 +303,20 @@ public class Looting extends Plan {
     }
     return false;
   }
+  //*/
   
   
-  public boolean actionLoot(Actor actor, Owner mark) {
-    mark.inventory().transfer(taken, actor);
-    if (
-      actor.gear.amountOf(taken) >= 5 ||
-      mark.inventory().amountOf(taken) == 0
-    ) {
+  public boolean actionLoot(Actor actor, Element mark) {
+    actor.gear.addItem(taken);
+    float amountLeft = 0;
+    
+    if (mark instanceof Owner) {
+      final Owner robbed = (Owner) mark;
+      robbed.inventory().removeItem(taken);
+      amountLeft = robbed.inventory().amountOf(taken);
+    }
+    
+    if (actor.gear.amountOf(taken) >= 5 || amountLeft == 0) {
       if (dropOff != null) stage = STAGE_DROP;
       else stage = STAGE_DONE;
       if (access != null) {

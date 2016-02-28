@@ -168,7 +168,7 @@ public class HumanMind extends ActorMind {
     }
     if (seen instanceof Item.Dropped) {
       //  TODO:  Include foraging under this heading too.
-      choice.add(new Looting(actor, (Item.Dropped) seen));
+      choice.add(new Looting(actor, (Element) seen, null, home()));
     }
   }
   

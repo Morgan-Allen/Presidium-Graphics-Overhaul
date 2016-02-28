@@ -712,6 +712,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     ALL_MODELS[] = CutoutModel.fromImages(
       Mission.class, "mission_models", IMG_DIR, 1, 2, false,
       "flag_strike.gif"  ,
+      "flag_recovery.gif",
       "flag_recon.gif"   ,
       "flag_contact.gif" ,
       "flag_security.gif"
@@ -719,14 +720,16 @@ public abstract class Mission implements Session.Saveable, Selectable {
     ALL_NEGATIVES[] = CutoutModel.fromImages(
       Mission.class, "mission_negative_models", IMG_DIR, 1, 2, false,
       "flag_strike_negative.gif"  ,
+      "flag_recovery_negative.gif",
       "flag_recon_negative.gif"   ,
       "flag_contact_negative.gif" ,
       "flag_security_negative.gif"
     ),
     STRIKE_MODEL   = ALL_MODELS[0],
-    RECON_MODEL    = ALL_MODELS[1],
-    CONTACT_MODEL  = ALL_MODELS[2],
-    SECURITY_MODEL = ALL_MODELS[3],
+    CLAIM_MODEL    = ALL_MODELS[1],
+    RECON_MODEL    = ALL_MODELS[2],
+    CONTACT_MODEL  = ALL_MODELS[3],
+    SECURITY_MODEL = ALL_MODELS[4],
     
     FLAG_HIGHLIGHT = CutoutModel.fromImage(
       Mission.class, "mission_highlight_model",

@@ -21,8 +21,12 @@ import static stratos.game.actors.Qualities.*;
 
 //  TODO:  Allow spontaneous turn-coat/spying behaviours for actors, if their
 //         affection/fear of you grows high enough.
+
 //  TODO:  Allow defection of structures if enough of their inhabitants feel
-//         inclined to join you (base off influence-levels on the map.)
+//         inclined to join you (base off influence-levels on the map.)  This
+//         should happen spontaneously.
+
+
 
 
 public class MissionContact extends Mission {

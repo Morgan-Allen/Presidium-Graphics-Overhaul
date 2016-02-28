@@ -104,7 +104,7 @@ public class DebugMissions extends Scenario {
     base.setup.fillVacancies(HQ, true);
     base.assignRuler(HQ.staff.workers().first());
     
-    MissionClaiming m = MissionClaiming.claimFor(SECTOR_PAVONIS, base);
+    MissionClaim m = MissionClaim.claimFor(SECTOR_PAVONIS, base);
     m.assignPriority(Mission.PRIORITY_ROUTINE);
     base.tactics.addMission(m);
     
