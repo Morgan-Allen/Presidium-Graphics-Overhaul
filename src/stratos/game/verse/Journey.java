@@ -380,7 +380,7 @@ public class Journey implements Session.Saveable {
     final float tripTime = calcTripTime();
     
     departTime = verse.stage().currentTime();
-    arriveTime = departTime + (tripTime * (0.5f + Rand.num()));
+    arriveTime = departTime + (tripTime * (1 + Rand.num()) / 2);
     
     pickupOnstageMigrants(extraMigrants);
     pickupOffworldMigrants();
@@ -484,7 +484,7 @@ public class Journey implements Session.Saveable {
     
     final Sector oldOrigin = origin;
     arriveTime  =  verse.stage().currentTime();
-    arriveTime  += calcTripTime() * (0.5f + Rand.num());
+    arriveTime  += calcTripTime() * (1 + Rand.num() / 2);
     origin      =  destination;
     destination =  oldOrigin;
     

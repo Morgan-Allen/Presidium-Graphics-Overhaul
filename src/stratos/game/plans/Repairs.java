@@ -457,9 +457,9 @@ public class Repairs extends Plan {
     success *= actor.skills.test(skillUsed, 10, 0.5f, a) ? 2 : 1;
     success *= actor.skills.test(skillUsed, 20, 0.5f, a) ? 2 : 1;
     final float amount = structure.advanceUpgrade(success * 1f / 100);
-    final float cost = amount * upgrade.buildCost(actor.base());
+    final float cost   = amount * upgrade.buildCost(actor.base());
     built.base().finance.incCredits((0 - cost), SOURCE_UPGRADE);
-    advancePrototypeResearch(upgrade, amount);
+    advancePrototypeResearch(upgrade, Nums.abs(amount));
     return true;
   }
   

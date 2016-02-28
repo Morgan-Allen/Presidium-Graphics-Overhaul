@@ -119,9 +119,11 @@ public class Pathing {
       stepIndex = -1;
     }
     else if (path != null) {
-      if (report && extraVerbose) {
+      if (report) {
         I.say("\nMaintaining old path to "+moveTarget);
+        I.say("  Now aboard:  "+mobile.aboard());
         I.say("  Path length: "+path.length);
+        if (path.length < 20) I.say("  Path is: "+I.list(path));
         I.say("  Will update step index (was "+stepIndex+")");
       }
       int scanIndex = Nums.clamp(stepIndex - 2, path.length);
@@ -130,14 +132,24 @@ public class Pathing {
       for (int i = 0; i < MAX_PATH_SCAN; i++) {
         if (scanIndex + i >= path.length) break;
         final Boarding step = path[scanIndex + i];
-        
+        //
+        //  If the actor is aboard a given tile, then retain the corresponding
+        //  step index.  (There are also situations where traversing diagonal
+        //  tiles can leave the actor outside the path, so we allow for
+        //  tile-adjacency there.)
         if (step == mobile.aboard()) {
           stepIndex = Nums.clamp(scanIndex + i + 1, path.length);
           break;
         }
+        if (step.boardableType() == Boarding.BOARDABLE_TILE) {
+          if (Spacing.edgeAdjacent((Tile) step, mobile.origin())) {
+            stepIndex = scanIndex + i;
+          }
+        }
       }
     }
     if (stepIndex == -1) path = null;
+    if (report) I.say("  Step index is now: "+stepIndex);
   }
   
   

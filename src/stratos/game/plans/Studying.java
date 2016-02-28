@@ -24,7 +24,7 @@ public class Studying extends Plan {
   private static boolean
     evalVerbose  = false,
     stepVerbose  = false,
-    fastResearch = true ;
+    fastResearch = false;
   private static float
     fastMultiple = 50f;
   

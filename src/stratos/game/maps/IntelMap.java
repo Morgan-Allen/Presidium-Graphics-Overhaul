@@ -25,7 +25,7 @@ public class IntelMap {
     MIN_FOG               = 0,
     MAX_FOG               = 1.5f,
     TILE_FOG_DECAY_TIME   = Stage.STANDARD_HOUR_LENGTH,
-    FOG_SEEN_MIN          = 0.2f,
+    FOG_SEEN_MIN          = 0.5f,
     SECTOR_FOG_DECAY_TIME = Stage.STANDARD_WEEK_LENGTH;
   
   final Base base;

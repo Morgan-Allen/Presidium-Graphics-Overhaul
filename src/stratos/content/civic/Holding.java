@@ -405,12 +405,12 @@ public class Holding extends Venue {
     float rationNeed   = ActorHealth.FOOD_PER_DAY;
     
     for (Item i : HoldingUpgrades.materials(targetLevel).raw) {
-      stocks.forceDemand(i.type, i.amount + 0.5f, 0);
+      stocks.forceDemand(i.type, i.amount + 1, 0);
       stocks.setDailyDemand(i.type, i.amount * materialNeed, 0);
     }
     
     for (Item i : rationNeeds(this, targetLevel)) {
-      stocks.forceDemand(i.type, i.amount, 0);
+      stocks.forceDemand(i.type, Nums.ceil(i.amount), 0);
       stocks.setDailyDemand(i.type, (i.amount - 0.5f) * rationNeed, 0);
     }
     

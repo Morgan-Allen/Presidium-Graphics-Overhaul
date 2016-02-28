@@ -3,8 +3,6 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.common;
 import stratos.start.*;
 import stratos.util.*;
@@ -128,7 +126,9 @@ public class Schedule {
       I.reportStackTrace();
       return;
     }
-    if (verbose) I.say("...Unscheduling: "+updates);
+    if (verbose) {
+      I.say("...Unscheduling: "+I.tagHash(updates));
+    }
     events.deleteRef(node);
     allUpdates.remove(updates);
   }
@@ -254,7 +254,7 @@ public class Schedule {
       }
       event.callTime = event.updateTime;
       allUpdates.put(event.updates, events.insert(event));
-
+      
       long startTime = System.nanoTime();
       final int updates = instant ? -1 : event.updatesCount;
       event.updates.updateAsScheduled(updates, instant);

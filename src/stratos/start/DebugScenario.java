@@ -12,6 +12,9 @@ import stratos.util.*;
 public class DebugScenario extends ScenarioPavonis {
   
   
+  final static String PREFIX = "debug_scenario";
+  
+  
   public static void main(String args[]) {
     PlayLoop.setupAndLoop(new DebugScenario());
   }
@@ -19,6 +22,7 @@ public class DebugScenario extends ScenarioPavonis {
   
   public DebugScenario() {
     super();
+    setSavesPrefix(PREFIX);
   }
   
   
@@ -44,7 +48,7 @@ public class DebugScenario extends ScenarioPavonis {
       );
       e.assignLeader(Backgrounds.KNIGHTED.sampleFor(backing));
       
-      setupScenario(e, verse, "debug_scenario");
+      setupScenario(e, verse, PREFIX);
     }
     super.initScenario(savesPrefix());
   }

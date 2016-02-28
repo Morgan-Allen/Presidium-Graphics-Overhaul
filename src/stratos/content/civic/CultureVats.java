@@ -121,7 +121,7 @@ public class CultureVats extends Venue {
     ),
     CARBS_TO_PROTEIN = new Conversion(
       BLUEPRINT, "carbs_to_protein",
-      2, CARBS, TO, 1, PROTEIN,
+      1, CARBS, TO, 1, PROTEIN,
       ROUTINE_DC, CHEMISTRY, ROUTINE_DC, BIOLOGY,
       TISSUE_CULTURE
     ),

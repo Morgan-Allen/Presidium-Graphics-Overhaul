@@ -154,7 +154,7 @@ public class VenuePane extends SelectionPane {
       dailyCons   = v.stocks.dailyConsumption(type),
       dailyProd   = v.stocks.dailyProduction (type),
       amount      = v.stocks.amountOf        (type),
-      dailySum    = dailyProd > 0 ? dailyProd : dailyCons,
+      dailySum    = dailyProd - dailyCons,
       stockMax    = Nums.min(25, v.spaceCapacity());
     
     Text.insert(type.icon.asTexture(), 20, 20, true, d);

@@ -277,6 +277,7 @@ public class Gathering extends ResourceTending {
       if (c != null   ) { c.setAsDestroyed(false); return c.materials(); }
     }
     if (type == TYPE_BROWSING) {
+      if (c == null) return null;
       float bite = 0.1f * actor.health.maxHealth() / 10;
       c.incGrowth(0 - bite, t.world(), false);
       actor.health.takeCalories(bite * Fauna.PLANT_CONVERSION, 1);
