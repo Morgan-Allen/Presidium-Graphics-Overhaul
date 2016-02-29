@@ -162,37 +162,51 @@ public class ActorMotives {
   /**  Material motives-
     */
   private void updateItemValues() {
+    final boolean report = I.talkAbout == actor && rateVerbose;
     final ActorRelations r = actor.relations;
     final Property home = actor.mind.home();
+    final Traded canEat[] = actor.species().canEat();
     final float hunger = Nums.clamp(actor.health.hungerLevel(), 0, 1);
     //
     //  We flag desire for any items needed at home, and anything needed to
-    //  prevent starvation...
+    //  prevent starvation.
+    for (Traded f : canEat) {
+      r.setupRelation(f, hunger, 0, Relation.TYPE_TRADED, true);
+    }
     if (home != null && home.inventory() instanceof Stocks) {
       final Stocks s = (Stocks) home.inventory();
       for (Traded t : s.shortageTypes(false)) {
-        final float rating = Nums.clamp(s.relativeShortage(t, false) / 2, 0, 1);
-        r.setupRelation(t, rating, Relation.TYPE_TRADED);
+        float rating = Nums.clamp(s.relativeShortage(t, false) / 2, 0, 1);
+        if (Visit.arrayIncludes(canEat, t)) rating += hunger;
+        r.setupRelation(t, rating, 0, Relation.TYPE_TRADED, true);
       }
-    }
-    for (Traded f : actor.species().canEat()) {
-      r.setupRelation(f, hunger, Relation.TYPE_TRADED);
     }
     //
     //  Then we increment desire for personal gear, and any items needed for
     //  techniques or attack/shields to function-
     for (Traded t : actor.skills.getProficiencies()) {
-      r.setupRelation(t, 0.5f, Relation.TYPE_GEAR);
+      r.setupRelation(t, 0.5f, 0, Relation.TYPE_GEAR, true);
     }
     for (Technique t : actor.skills.knownTechniques()) {
       final Traded c = t.itemNeeded();
-      if (c != null) r.setupRelation(c, 0.5f, Relation.TYPE_GEAR);
+      if (c != null) r.setupRelation(c, 0.5f, 0, Relation.TYPE_GEAR, true);
     }
     if (actor.gear.maxPowerCells() > 0) {
-      r.setupRelation(POWER_CELLS, 0.5f, Relation.TYPE_GEAR);
+      r.setupRelation(POWER_CELLS, 0.5f, 0, Relation.TYPE_GEAR, true);
     }
     if (actor.gear.maxAmmoUnits() > 0) {
-      r.setupRelation(AMMO_CLIPS, 0.5f, Relation.TYPE_GEAR);
+      r.setupRelation(AMMO_CLIPS, 0.5f, 0, Relation.TYPE_GEAR, true);
+    }
+    
+    if (report) {
+      I.say("\nUpdating motives for "+actor);
+      for (Relation g : r.allRelations()) if (
+        g.type() == Relation.TYPE_GEAR   ||
+        g.type() == Relation.TYPE_TRADED
+      ) {
+        I.say("  Value of "+g.value()+" for "+g.subject);
+      }
+      I.say("?");
     }
   }
   

@@ -367,7 +367,7 @@ public class BringUtils {
   
   private static boolean reportRating(Owner orig, Owner dest, Traded good) {
     if (! rateVerbose) return false;
-    //verboseGoodType = PARTS;
+    //verboseGoodType = PLASTICS;
     //
     //  Supply and demand can quickly get very hairy, so to help in tracking it
     //  we have some moderately elaborate reporting criteria.
@@ -504,12 +504,14 @@ public class BringUtils {
       tierFactor  = Nums.max(1, Nums.abs(OT - DT)),
       priceDiff   = dest.priceFor(good, false) - orig.priceFor(good, true),
       priceFactor = Nums.clamp(1 + (priceDiff / good.defaultPrice()), 0.5f, 2);
+    rating *= distFactor * baseFactor * priceFactor / tierFactor;
     if (report) {
       I.say("  Final rating "+rating);
       I.say("  base/distance factors: "+baseFactor +"/"+distFactor);
       I.say("  price/tier factors:    "+priceFactor+"/"+tierFactor);
+      I.say("  Final rating: "+rating);
     }
-    return rating * distFactor * baseFactor * priceFactor / tierFactor;
+    return rating;
   }
   
   

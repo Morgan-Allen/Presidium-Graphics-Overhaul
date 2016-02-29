@@ -271,7 +271,7 @@ public class Bringing extends Plan {
   /**  Assessing targets and priorities-
     */
   protected float getPriority() {
-    final boolean report = I.talkAbout == origin && evalVerbose;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     if (report) {
       I.say("\nEvaluating special factors for delivery priority:");
     }

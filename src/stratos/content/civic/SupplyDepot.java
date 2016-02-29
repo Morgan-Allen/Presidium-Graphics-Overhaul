@@ -102,7 +102,7 @@ public class SupplyDepot extends Venue {
   
   public SupplyDepot(Base base) {
     super(BLUEPRINT, base);
-    staff.setShiftType(SHIFTS_BY_DAY);
+    staff.setShiftType(SHIFTS_BY_HOURS);
     
     final GroupSprite sprite = new GroupSprite();
     sprite.attach(MODEL_UNDER, 0, 0, 0);
@@ -212,9 +212,6 @@ public class SupplyDepot extends Venue {
         choice.add(mO.setSpeedBonus(2.0f));
       }
       choice.add(Gathering.asForestCutting(actor, this));
-      if (choice.empty()) {
-        choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
-      }
     }
     //
     //  See if there's a bulk delivery to be made, or if the cargo barge is in
@@ -254,6 +251,7 @@ public class SupplyDepot extends Venue {
     //
     //  If none of that needs doing, consider local repairs or supervision.
     choice.add(Supervision.oversight(this, actor));
+    choice.add(Repairs.getNextRepairFor(actor, true, 0.1f));
     return choice.weightedPick();
   }
   
