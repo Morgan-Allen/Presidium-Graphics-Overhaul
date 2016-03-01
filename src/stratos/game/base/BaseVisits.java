@@ -274,7 +274,7 @@ public class BaseVisits {
     if (fillImp) forShipping.removeAllItems();
     final boolean report = base == BaseUI.currentPlayed() && verbose;
     if (report) {
-      I.say("\nConfiguring cargo for "+forShipping.owner);
+      I.say("\nConfiguring cargo for: "+forShipping.owner);
     }
     
     final Batch <Item>
@@ -304,7 +304,7 @@ public class BaseVisits {
     for (Item i : imports) {
       final int amount = Nums.round(i.amount * scale, 2, false);
       if (amount <= 0) continue;
-      forShipping.forceDemand(i.type, 0, amount);
+      forShipping.setProduction(i.type, amount);
       if (fillImp) forShipping.bumpItem(i.type, amount);
       if (report) I.say("  Setting "+i.type+" as import: "+amount);
     }
@@ -312,7 +312,7 @@ public class BaseVisits {
     for (Item e : exports) {
       final int amount = Nums.round(e.amount * scale, 2, false);
       if (amount <= 0) continue;
-      forShipping.forceDemand(e.type, amount, 0);
+      forShipping.setConsumption(e.type, amount);
       if (report) I.say("  Setting "+e.type+" as export: "+amount);
     }
     

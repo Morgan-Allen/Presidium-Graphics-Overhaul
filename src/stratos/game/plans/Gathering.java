@@ -42,7 +42,7 @@ public class Gathering extends ResourceTending {
     GROW_STAGE_POLYMER = 2.5f;
   
   final static Traded
-    FARM_EXTRACTS[] = { CARBS, GREENS, PROTEIN },
+    FARM_EXTRACTS[] = { CARBS, GREENS },
     LOGS_EXTRACTS[] = { POLYMER },
     SAMP_EXTRACTS[] = SeedTailoring.SAMPLE_TYPES;
   
@@ -147,7 +147,7 @@ public class Gathering extends ResourceTending {
     final Stage world = from.world();
     for (int n = 5; n-- > 0;) {
       final Tile p = Spacing.pickRandomTile(from, range, world);
-      if (Flora.hasSpace(p)) points.include(p);
+      if (Flora.hasSpace(p, true)) points.include(p);
     }
     return points.toArray(Tile.class);
   }
@@ -225,23 +225,25 @@ public class Gathering extends ResourceTending {
   
   protected float rateTarget(Target t) {
     final Flora c = Flora.foundAt(t);
+    final float hunger = actor.health.hungerLevel();
     
     if (type == TYPE_FARMING) {
       if (c == null || ! c.species().domesticated) return 1;
       if (c.blighted() || c.ripe()) return 1 + c.growStage();
     }
     if (type == TYPE_FORESTING) {
-      if (c == null && Flora.hasSpace((Tile) t)) return 1;
-      if (c != null && c.species().domesticated) return 1;
+      if (c == null && Flora.hasSpace((Tile) t, true)) return 1;
+      if (c != null && c.species().domesticated      ) return 1;
     }
     if (type == TYPE_LOGGING) {
       if (c != null) return 1 + c.growStage();
     }
     if (type == TYPE_BROWSING) {
-      if (c != null) return c.growStage();
+      if (hunger <= 1f - ActorHealth.MAX_CALORIES) return -1;
+      if (c != null) return 0.5f + c.growStage();
     }
     if (type == TYPE_FORAGING) {
-      if (c != null) return c.growStage();
+      if (c != null) return 0.5f + c.growStage();
     }
     if (type == TYPE_SAMPLE) {
       if (c != null) return SeedTailoring.sampleValue(c, actor, depot);

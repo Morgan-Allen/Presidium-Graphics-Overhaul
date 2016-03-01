@@ -120,78 +120,6 @@ public class Retreat extends Plan {
     
     if (hides != null) return hides;
     return actor.aboard();
-    
-    /*
-    final Target oldHaven = actor.senses.haven();
-    final Stage world = actor.world();
-    final float
-      runRange   = actor.health.sightRange() + Stage.ZONE_SIZE,
-      sightHaven = Stage.ZONE_SIZE / 2;
-    
-    final boolean atHaven, mustMove;
-    if (oldHaven == null) atHaven = false;
-    else if (actor.indoors()) atHaven = actor.aboard() == oldHaven;
-    else atHaven = Spacing.distance(actor, oldHaven) < sightHaven;
-    mustMove = atHaven && emergency && (! actor.indoors());
-    
-    final Pick <Boarding> pick = new Pick <Boarding> () {
-      
-      public void compare(Boarding next, float rating) {
-        if (PathSearch.accessLocation(next, actor) == null) return;
-        
-        final float absDist = Spacing.distance(actor, next);
-        if (mustMove && absDist <= sightHaven) return;
-        
-        float danger = actor.base().dangerMap.sampleAround(next, -1);
-        rating /= 1 + Nums.max(danger, 0);
-        
-        if (next == actor.mind.home()   ) rating *= 2.0f;
-        if (next == actor.mind.work()   ) rating *= 1.5f;
-        if (next.getClass() == prefClass) rating *= 2.0f;
-        if (next.boardableType() == Boarding.BOARDABLE_TILE) rating /= 10;
-        
-        super.compare(next, rating / (1 + (absDist / runRange)));
-      }
-    };
-    
-    pick.compare(actor.mind.home(), 1);
-    pick.compare(actor.mind.work(), 1);
-    
-    //  TODO:  Just use 'senses.awareOf' here?
-    if (actor.species().sapient()) {
-      final Presences presences = actor.world().presences;
-      final Target refuge = presences.nearestMatch(
-        Economy.SERVICE_REFUGE, actor, -1
-      );
-      final Target pref   = presences.nearestMatch(
-        prefClass             , actor, -1
-      );
-      final Target cover  = presences.nearestMatch(
-        Venue.class           , actor, -1
-      );
-      final Target built  = presences.randomMatchNear(
-        Venue.class           , actor, -1
-      );
-      pick.compare((Boarding) refuge, 1.5f);
-      pick.compare((Boarding) pref  , 1);
-      pick.compare((Boarding) cover , 1);
-      pick.compare((Boarding) built , 1);
-    }
-    
-    if (pick.empty()) {
-      pick.compare(pickHidePoint(actor, runRange, actor, -2), 1);
-    }
-    if (pick.empty()) {
-      pick.compare(pickHidePoint(actor, runRange, actor,  0), 1);
-    }
-    if (pick.empty()) {
-      pick.compare(Spacing.pickRandomTile(actor, runRange, world), 1);
-    }
-    pick.compare(actor.senses.haven(), 1.5f);
-    
-    if (pick.result() != null) return pick.result();
-    else return actor.aboard();
-    //*/
   }
   
   
@@ -317,6 +245,11 @@ public class Retreat extends Plan {
   /**  Behaviour implementation-
     */
   protected float getPriority() {
+    final boolean report = I.talkAbout == actor && hasBegun() && stepsVerbose;
+    if (report) {
+      I.say("\nGetting retreat priority for: "+actor);
+    }
+    
     final boolean urgent = actor.senses.isEmergency();
     final Target haven = actor.senses.haven();
     final boolean hasExit = Verse.isWorldExit(haven, actor);
@@ -324,8 +257,13 @@ public class Retreat extends Plan {
     float priority = PlanUtils.retreatPriority(
       actor, actor.origin(), haven, true, urgent, hasExit
     );
-    toggleMotives(MOTIVE_EMERGENCY, urgent);
-    if (actor.senses.underAttack()) priority = Nums.max(priority, ROUTINE);
+    if (actor.senses.underAttack()) {
+      toggleMotives(MOTIVE_EMERGENCY, true);
+      priority = Nums.max(priority, ROUTINE);
+    }
+    else {
+      toggleMotives(MOTIVE_EMERGENCY, false);
+    }
     maxPriority = Nums.max(maxPriority, priority);
     return maxPriority;
   }

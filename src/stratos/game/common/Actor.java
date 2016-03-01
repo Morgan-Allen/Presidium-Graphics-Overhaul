@@ -509,6 +509,9 @@ public abstract class Actor extends Mobile implements
     else if (actionTaken != null) {
       actionTaken.configSprite(s, rendering);
     }
+    else if (! health.conscious()) {
+      s.setAnimation(AnimNames.FALL, 1, false);
+    }
     position.setTo(s.position);
     rotation = s.rotation;
     super.renderAt(position, rotation, rendering);

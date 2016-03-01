@@ -632,6 +632,9 @@ public class PathingMap {
     final Zone
       initZ = zoneFor(initP, client),
       destZ = zoneFor(destP, client);
+    //
+    //  TODO:  For now, we're just going to be a little more forgiving...
+    if (initZ == null || destZ == null) return true;
     return initZ != null && destZ != null && initZ == destZ;
   }
   

@@ -372,10 +372,6 @@ public class Action implements Behaviour, AnimNames {
       final boolean seen = SenseUtils.hasLineOfSight(
         actor, actionTarget, Nums.max(maxDist, sightRange)
       );
-      if (Nums.min(motionDist, actionDist) < maxDist && ! seen) {
-        pathsTo = actionTarget;
-      }
-      
       closed = seen && (actionDist <= maxDist);
       approaching = closed || (seen && (actionDist <= (maxDist + 1)));
       closeOn = approaching ? actionTarget : step;

@@ -176,7 +176,7 @@ public class Flora extends Element implements TileConstants {
   
   
   public static Flora tryGrowthAt(Tile t, boolean init) {
-    if (! hasSpace(t)) return null;
+    if (! hasSpace(t, true)) return null;
     
     final Habitat soil = t.habitat();
     final Species s = (Species) Rand.pickFrom(soil.floraSpecies);
@@ -194,9 +194,17 @@ public class Flora extends Element implements TileConstants {
   }
   
 
-  public static boolean hasSpace(Tile t) {
-    if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
-    if (t.isEntrance() || t.inside().size() > 0) return false;
+  public static boolean hasSpace(Tile t, boolean checkCentre) {
+    if (checkCentre) {
+      if (t.reserved() || t.pathType() != Tile.PATH_CLEAR) return false;
+      if (t.isEntrance() || t.inside().size() > 0) return false;
+    }
+    
+    for (int i : T_INDEX) {
+      final Tile n = t.world.tileAt(t.x + T_X[i], t.y + T_Y[i]);
+      if (n == null || ! n.reserved()) continue;
+      return false;
+    }
     return maxGrowth(t, BASE_SPECIES) > 0;
   }
   
@@ -257,7 +265,8 @@ public class Flora extends Element implements TileConstants {
     */
   public boolean canPlace() {
     if (inWorld()) return true;
-    return origin() != null && maxGrowth(origin(), species) > 0;
+    if (origin() == null) return false;
+    return maxGrowth(origin(), species) > 0 && hasSpace(origin(), true);
   }
   
   
@@ -275,6 +284,12 @@ public class Flora extends Element implements TileConstants {
   
   
   public void onGrowth(Tile tile) {
+    
+    if ((! species.domesticated) && (! hasSpace(origin(), false))) {
+      setAsDestroyed(true);
+      return;
+    }
+    
     final float
       dailyGrowth = dailyGrowthEstimate(tile),
       health      = health(),
@@ -299,7 +314,8 @@ public class Flora extends Element implements TileConstants {
     final boolean oldBlock = pathType() == Tile.PATH_BLOCKS;
     final int oldStage = Nums.clamp((int) growth, MAX_GROWTH);
     
-    growth = Nums.clamp(growth + inc, MIN_GROWTH, maxGrowth);
+    growth = Nums.clamp(growth + inc, NOT_PLANTED, maxGrowth);
+    if (growth < 0 && ! natural) { setAsDestroyed(true); return; }
     
     final int newStage = Nums.clamp((int) growth, MAX_GROWTH);
     final boolean newBlock = pathType() == Tile.PATH_BLOCKS;

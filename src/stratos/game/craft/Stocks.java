@@ -348,6 +348,12 @@ public class Stocks extends Inventory {
   }
   
   
+  public void setProduction(Traded type, float production) {
+    final Demand d = demandRecord(type);
+    d.production = Nums.max(0, production);
+  }
+  
+  
   public void setConsumption(Traded type, float consumption) {
     final Demand d = demandRecord(type);
     d.consumption = Nums.max(0, consumption);

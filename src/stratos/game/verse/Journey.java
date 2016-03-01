@@ -484,7 +484,7 @@ public class Journey implements Session.Saveable {
     
     final Sector oldOrigin = origin;
     arriveTime  =  verse.stage().currentTime();
-    arriveTime  += calcTripTime() * (1 + Rand.num() / 2);
+    arriveTime  += calcTripTime() * (1 + Rand.num()) / 2;
     origin      =  destination;
     destination =  oldOrigin;
     

@@ -202,17 +202,15 @@ public class SupplyDepot extends Venue {
     final Choice choice = new Choice(actor);
     //
     //  Consider basic manufacturing tasks-
-    if (staff.onShift(actor)) {
-      final Manufacture m = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
-      if (m != null) {
-        choice.add(m.setSpeedBonus(2.0f));
-      }
-      for (Item ordered : stocks.specialOrders()) {
-        final Manufacture mO = new Manufacture(actor, this, ordered);
-        choice.add(mO.setSpeedBonus(2.0f));
-      }
-      choice.add(Gathering.asForestCutting(actor, this));
+    final Manufacture m = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
+    if (m != null) {
+      choice.add(m.setSpeedBonus(2.0f));
     }
+    for (Item ordered : stocks.specialOrders()) {
+      final Manufacture mO = new Manufacture(actor, this, ordered);
+      choice.add(mO.setSpeedBonus(2.0f));
+    }
+    choice.add(Gathering.asForestCutting(actor, this));
     //
     //  See if there's a bulk delivery to be made, or if the cargo barge is in
     //  need of repair.

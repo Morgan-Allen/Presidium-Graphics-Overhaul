@@ -5,6 +5,7 @@
   */
 package stratos.game.craft;
 import stratos.game.common.*;
+import stratos.game.base.*;
 import stratos.game.maps.*;
 import stratos.game.verse.*;
 import stratos.util.*;
@@ -48,6 +49,7 @@ public class PilotUtils {
     final boolean report = landVerbose && I.talkAbout == ship;
     final Boarding dropPoint = ship.dropPoint();
     final Box2D site = new Box2D(ship.landArea());
+    final BaseVisits BV = ship.base().visits;
     
     if (report) {
       I.say("\n"+ship+" performing landing!");
@@ -56,7 +58,7 @@ public class PilotUtils {
       I.say("  Drop point:    "+dropPoint);
     }
     
-    ship.base().visits.configCargo(ship.cargo, ship.spaceCapacity(), false);
+    BV.configCargo(ship.cargo, ship.spaceCapacity(), false);
     
     if (dropPoint instanceof Docking) {
       //

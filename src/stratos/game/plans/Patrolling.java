@@ -280,7 +280,7 @@ public class Patrolling extends Plan implements TileConstants {
   public Behaviour getNextStep() {
     if (onPoint == null) return null;
     
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     if (report) {
       I.say("\nGetting next patrol step for "+actor);
       I.say("  Going to: "+onPoint+", post time: "+postTime);
