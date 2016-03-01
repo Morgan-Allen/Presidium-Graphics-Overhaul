@@ -83,6 +83,11 @@ public class MissionStrike extends Mission {
   }
   
   
+  public boolean isOffworld() {
+    return subject instanceof Sector;
+  }
+  
+  
   public float targetValue(Base base) {
     final boolean report = I.matchOrNull(
       base.title(), BaseTactics.verboseBase

@@ -9,11 +9,12 @@ import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.maps.*;
-import stratos.game.verse.*;
 import stratos.game.wild.*;
 import stratos.user.*;
+import stratos.user.notify.*;
 import stratos.util.*;
 import stratos.graphics.common.*;
+import stratos.start.Assets;
 import stratos.start.PlayLoop;
 import stratos.start.Scenario;
 
@@ -30,16 +31,22 @@ public class SectorScenario extends Scenario {
   private Verse verse;
   private Expedition expedition;
   
+  private MessageScript script;
   
   
   
-  public SectorScenario() {
+  
+  public SectorScenario(String scriptPath) {
     super(false);
+    if (! Assets.exists(scriptPath)) script = null;
+    else script = new MessageScript(this, scriptPath);
   }
   
   
-  protected SectorScenario(String prefix) {
+  protected SectorScenario(String scriptPath, String prefix) {
     super(prefix, false);
+    if (! Assets.exists(scriptPath)) script = null;
+    else script = new MessageScript(this, scriptPath);
   }
   
   
@@ -48,6 +55,7 @@ public class SectorScenario extends Scenario {
     this.location   = (Sector    ) s.loadObject();
     this.verse      = (Verse     ) s.loadObject();
     this.expedition = (Expedition) s.loadObject();
+    this.script  = (MessageScript) s.loadObject();
   }
   
   
@@ -56,6 +64,7 @@ public class SectorScenario extends Scenario {
     s.saveObject(location  );
     s.saveObject(verse     );
     s.saveObject(expedition);
+    s.saveObject(script    );
   }
   
   
@@ -88,6 +97,11 @@ public class SectorScenario extends Scenario {
     return expedition;
   }
   
+  
+  public MessageScript script() {
+    return script;
+  }
+  
 
   protected void resetScenario() {
     //
@@ -99,7 +113,14 @@ public class SectorScenario extends Scenario {
       if (a.inWorld()) a.exitWorld();
       a.removeWorldReferences(world());
     }
+    if (script != null) script.clearScript();
     super.resetScenario();
+  }
+  
+  
+  public void updateGameState() {
+    super.updateGameState();
+    script.checkForEvents();
   }
   
   

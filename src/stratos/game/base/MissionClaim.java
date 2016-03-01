@@ -121,6 +121,11 @@ public class MissionClaim extends Mission {
   }
   
   
+  public boolean isOffworld() {
+    return true;
+  }
+  
+  
   private void beginNewMap(
     Stage oldWorld, Verse verse, Series <Actor> approved
   ) {
@@ -192,7 +197,7 @@ public class MissionClaim extends Mission {
   /**  Rendering and interface methods-
     */
   protected ImageAsset iconForMission(HUD UI) {
-    return Mission.CLAIMING_ICON;
+    return Mission.CLAIM_ICON;
   }
   
   

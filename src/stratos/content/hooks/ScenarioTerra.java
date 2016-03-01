@@ -27,28 +27,21 @@ public class ScenarioTerra extends SectorScenario {
       "media/Scenario/terra_wreckage.png", 2, 2
     );
   
-  final MessageScript script;
-  
   Batch <Item> artifacts = new Batch();
   
   
   public ScenarioTerra() {
-    super();
-    this.script = new MessageScript(
-      this, "src/stratos/content/hooks/ScriptTerra.xml"
-    );
+    super("src/stratos/content/hooks/ScriptTerra.xml");
   }
   
   
   public ScenarioTerra(Session s) throws Exception {
     super(s);
-    script = (MessageScript) s.loadObject();
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(script);
   }
   
   
@@ -125,7 +118,7 @@ public class ScenarioTerra extends SectorScenario {
   /**  Rendering, debug and interface methods-
     */
   public void describeHook(Description d) {
-    final String summary = script.contentForTopic("Summary");
+    final String summary = script().contentForTopic("Summary");
     d.append(summary);
   }
 }

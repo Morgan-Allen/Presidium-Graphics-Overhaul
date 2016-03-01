@@ -25,7 +25,6 @@ public class MissionRecover extends Mission {
   
   /**  Data fields, constructors and save/load methods-
     */
-  
   public MissionRecover(Base base, Element subject) {
     super(base, subject, CLAIM_MODEL, "Recovering "+subject);
   }
@@ -68,6 +67,11 @@ public class MissionRecover extends Mission {
   }
   
   
+  public boolean isOffworld() {
+    return subject instanceof Sector;
+  }
+  
+  
   public float targetValue(Base base) {
     return 0;
   }
@@ -85,7 +89,9 @@ public class MissionRecover extends Mission {
   
   
   public float rateCompetence(Actor actor) {
-    return 0;
+    final Behaviour cached = nextStepFor(actor, true);
+    if (cached instanceof Plan) return ((Plan) cached).competence();
+    return 0.5f;
   }
   
   
@@ -94,24 +100,36 @@ public class MissionRecover extends Mission {
   /**  Behaviour implemetation-
     */
   protected Behaviour createStepFor(Actor actor) {
+    if (finished()) return null;
+    final Behaviour cached = nextStepFor(actor, false);
+    if (cached != null) return cached;
+    
     final Property store = base().HQ();
+    Plan nextStep = null;
     
     if (subject instanceof Actor) {
       final Actor captive = (Actor) subject;
       if (CombatUtils.isDowned(captive, Combat.OBJECT_SUBDUE)) {
-        return new BringPerson(actor, captive, store);
+        nextStep = new BringPerson(actor, captive, store);
       }
       else {
         final Combat capture = new Combat(
           actor, captive, Combat.STYLE_EITHER, Combat.OBJECT_SUBDUE
         );
-        return capture;
+        nextStep = capture;
       }
     }
     else {
       final Item sample = Item.withReference(Economy.SAMPLES, subject);
-      return new Looting(actor, (Element) subject, sample, store);
+      if (store.inventory().hasItem(sample)) return null;
+      nextStep = new Looting(actor, (Element) subject, sample, store);
     }
+    
+    if (nextStep != null) {
+      nextStep.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
+      return cacheStepFor(actor, nextStep);
+    }
+    else return null;
   }
   
   
@@ -123,6 +141,7 @@ public class MissionRecover extends Mission {
     }
     else {
       final Item sample = Item.withReference(Economy.SAMPLES, subject);
+      for (Actor a : approved()) if (a.gear.hasItem(sample)) return false;
       return store.inventory().hasItem(sample);
     }
   }

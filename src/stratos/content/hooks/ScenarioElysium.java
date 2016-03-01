@@ -6,11 +6,8 @@
 package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
-import stratos.start.DebugPlacing;
-import stratos.start.PlayLoop;
 import stratos.game.craft.*;
-import stratos.game.maps.SiteUtils;
-import stratos.game.maps.SitingPass;
+import stratos.game.maps.*;
 import stratos.util.*;
 import stratos.content.civic.*;
 import static stratos.game.craft.Economy.*;
@@ -24,24 +21,18 @@ public class ScenarioElysium extends SectorScenario {
   
   /**  Data fields, constructors and save/load methods-
     */
-  final MessageScript script;
-  
   private Base settlerBase;
   private Batch <Venue> settlerBuilt = new Batch();
   
   
   
   public ScenarioElysium() {
-    super();
-    this.script = new MessageScript(
-      this, "src/stratos/content/hooks/ScriptElysium.xml"
-    );
+    super("src/stratos/content/hooks/ScriptElysium.xml");
   }
   
   
   public ScenarioElysium(Session s) throws Exception {
     super(s);
-    script = (MessageScript) s.loadObject();
     settlerBase = (Base) s.loadObject();
     s.loadObjects(settlerBuilt);
   }
@@ -49,7 +40,6 @@ public class ScenarioElysium extends SectorScenario {
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(script);
     s.saveObject(settlerBase);
     s.saveObjects(settlerBuilt);
   }
@@ -153,7 +143,7 @@ public class ScenarioElysium extends SectorScenario {
   /**  Rendering, debug and interface methods-
     */
   public void describeHook(Description d) {
-    final String summary = script.contentForTopic("Summary");
+    final String summary = script().contentForTopic("Summary");
     d.append(summary);
   }
   

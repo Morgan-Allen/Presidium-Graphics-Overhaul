@@ -67,6 +67,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   
   
   private void setup() {
+    
     final BaseUI BUI   = (BaseUI) UI;
     final Base   base  = BUI.played();
     final Actor  ruler = base.ruler();
@@ -84,7 +85,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
       "Destroy or raze subject", strike
     ));
     if (recover != null) options.add(new OptionButton(
-      BUI, CLAIMING_BUTTON_ID, Mission.CLAIMING_ICON,
+      BUI, CLAIMING_BUTTON_ID, Mission.CLAIM_ICON,
       "Recover or capture subject", recover
     ));
     if (secure != null) options.add(new OptionButton(
@@ -100,7 +101,7 @@ public class SelectionOptions extends UIGroup implements UIConstants {
       "Contact or negotiate with subject", contact
     ));
     if (claim != null) options.add(new OptionButton(
-      BUI, CLAIMING_BUTTON_ID, Mission.CLAIMING_ICON,
+      BUI, CLAIMING_BUTTON_ID, Mission.CLAIM_ICON,
       "Claim this sector for your own", claim
     ));
     

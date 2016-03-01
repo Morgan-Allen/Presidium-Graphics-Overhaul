@@ -4,6 +4,75 @@
   <content>Although this Sector escaped the worst of the fallout during the cataclysm that befell the settled hemisphere, some residual radiation has lingered in what is now a lush wilderness speckled by occasional ruins.  Whether by chance or design, a number of endemic floral species appear to showcase unique medicinal properties.
   
   Obtain and analyse samples of 3 floral species.
-  Harvest 50 units of Spyce.
+  Harvest 20 units of Spyce.
   Our scouts report the presence of territorial predators- be prepared to give these a wide berth.</content>
 </topic>
+
+
+<topic
+  name      = "Obtain 3 Floral Samples"
+  triggers  = "checkShowIntro"
+  urgent    = "true"
+  completes = "checkFloraFound"
+>
+  <content>You are charged to find 3 specimens of rare Flora and take a sample of each- in order to do this, you will need to use Recon missions to explore the surrounds and find them.</content>
+</topic>
+
+
+<topic
+  name      = "Flora Spotted!"
+  triggers  = "checkFloraFound"
+  urgent    = "true"
+  whenOpen  = "zoomToFloraFound"
+  completes = "checkFloraSampled"
+>
+  <content>One of the specimens of rare Flora has been uncovered.  You should use a Recovery mission to extract a sample and return it to your Bastion.</content>
+</topic>
+
+
+<topic
+  name      = "Sample Acquired"
+  triggers  = "checkFloraSampled"
+  urgent    = "true"
+  completes = "checkScenarioSuccess"
+>
+  <content>A sample of rare Flora has been obtained- well done.  Now you need to find the rest...</content>
+</topic>
+
+
+<topic
+  name      = "Spyce Harvesting"
+  triggers  = "checkShowIntro__WIP"
+  urgent    = "true"
+  completes = "checkSpyceObtained"
+>
+  <content>To cement your claim on this sector, you will need to meet a minimum Spyce quota of at least 20 units.  Your Ecologists can extract this precious medical resource in tiny amounts from wild vegetation, and in larger quantities from animals they cull- particularly predators.  You will need to site an Ecologist Redoubt for the purpose.</content>
+</topic>
+
+
+<topic
+  name      = "Spyce Quota Reached"
+  triggers  = "checkSpyceObtained"
+  completes = "checkScenarioSuccess"
+>
+  <content>Your Spyce quota has been reached- well done.  Now you just need to sample a full complement of flora...</content>
+</topic>
+
+
+<topic
+  name     = "Trial Complete"
+  triggers = "checkScenarioSuccess"
+  urgent   = "true"
+>
+  <content>Pavonis Sector has now been claimed in your honour.</content>
+</topic>
+
+
+
+
+
+
+
+
+
+

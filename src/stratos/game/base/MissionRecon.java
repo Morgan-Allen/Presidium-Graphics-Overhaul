@@ -74,6 +74,11 @@ public class MissionRecon extends Mission {
   }
   
   
+  public boolean isOffworld() {
+    return subject instanceof Sector;
+  }
+  
+  
   public float targetValue(Base base) {
     //  TODO:  FILL THIS IN LATER
     return -1;

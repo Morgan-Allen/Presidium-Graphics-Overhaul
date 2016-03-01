@@ -4,15 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.content.hooks;
-import stratos.content.civic.Bastion;
 import stratos.game.common.*;
 import stratos.game.verse.*;
-import stratos.game.wild.Flora;
+import stratos.game.wild.*;
 import stratos.game.craft.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
-import stratos.user.notify.*;
 import stratos.util.*;
 
 
@@ -34,30 +32,23 @@ public class ScenarioPavonis extends SectorScenario {
     TOTAL_FLORA    = 5,
     SAMPLES_NEEDED = 3;
   
-  final MessageScript script;
-  
   Batch <Element> specialFlora = new Batch();
   
   
   
   public ScenarioPavonis() {
-    super();
-    this.script = new MessageScript(
-      this, "src/stratos/content/hooks/ScriptPavonis.xml"
-    );
+    super("src/stratos/content/hooks/ScriptPavonis.xml");
   }
   
   
   public ScenarioPavonis(Session s) throws Exception {
     super(s);
-    script = (MessageScript) s.loadObject();
     s.loadObjects(specialFlora);
   }
   
   
   public void saveState(Session s) throws Exception {
     super.saveState(s);
-    s.saveObject(script);
     s.saveObjects(specialFlora);
   }
   
@@ -137,15 +128,34 @@ public class ScenarioPavonis extends SectorScenario {
   }
   
   
-  protected boolean checkScenarioSuccess() {
+  protected void zoomToFloraFound() {
+    for (Element e : specialFlora) {
+      if (e.visibleTo(base())) {
+        Selection.pushSelection(e, null);
+        break;
+      }
+    }
+  }
+  
+  
+  private int numSamplesTaken() {
     final Venue HQ = (Venue) base().HQ();
-    if (HQ == null || HQ.destroyed()) return false;
-    
+    if (HQ == null || HQ.destroyed()) return 0;
     int numSampled = 0;
     for (Item match : HQ.stocks.matches(Economy.SAMPLES)) {
       if (((Batch) specialFlora).includes(match.refers)) numSampled++;
     }
-    return numSampled >= SAMPLES_NEEDED;
+    return numSampled;
+  }
+  
+  
+  protected boolean checkFloraSampled() {
+    return numSamplesTaken() > 0;
+  }
+  
+  
+  protected boolean checkScenarioSuccess() {
+    return numSamplesTaken() >= SAMPLES_NEEDED;
   }
   
   
@@ -160,7 +170,7 @@ public class ScenarioPavonis extends SectorScenario {
   /**  Rendering, debug and interface methods-
     */
   public void describeHook(Description d) {
-    final String summary = script.contentForTopic("Summary");
+    final String summary = script().contentForTopic("Summary");
     d.append(summary);
   }
   

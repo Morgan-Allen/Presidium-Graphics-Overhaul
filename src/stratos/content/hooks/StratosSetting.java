@@ -98,6 +98,7 @@ public class StratosSetting extends Verse {
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
+      RunnerMarket    .BLUEPRINT,
       StockExchange   .BLUEPRINT,
       SupplyDepot     .BLUEPRINT,
       Bastion.BLUEPRINT, Holding.BLUEPRINT, ServiceHatch.BLUEPRINT,
@@ -124,6 +125,7 @@ public class StratosSetting extends Verse {
       EngineerStation .BLUEPRINT,
       PhysicianStation.BLUEPRINT,
       TrooperLodge    .BLUEPRINT,
+      EcologistRedoubt.BLUEPRINT,
       SupplyDepot     .BLUEPRINT,
       Bastion.BLUEPRINT, Holding.BLUEPRINT, ServiceHatch.BLUEPRINT,
       

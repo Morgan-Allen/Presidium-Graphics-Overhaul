@@ -9,6 +9,7 @@ import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.maps.Planet;
 import stratos.game.plans.*;
+import stratos.game.verse.Sector;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -91,6 +92,11 @@ public class MissionResearch extends Mission {
   
   
   public boolean resolveMissionOffworld() {
+    return false;
+  }
+  
+  
+  public boolean isOffworld() {
     return false;
   }
   

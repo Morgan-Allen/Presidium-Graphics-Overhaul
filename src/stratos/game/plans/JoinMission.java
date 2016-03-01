@@ -66,7 +66,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     if (actor.mind.mission() != null || ! actor.health.conscious()) {
       return null;
     }
-    final boolean report = I.talkAbout == actor && evalVerbose;
+    final boolean report = I.talkAbout == actor;// && evalVerbose;
     //
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
@@ -76,6 +76,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
       I.say("  Total missions: "+actor.base().tactics.allMissions().size());
     }
     final Choice choice = new Choice(actor);
+    choice.isVerbose = report;
     //
     //  TODO:  Allow application for missions set by other bases!
 
@@ -104,7 +105,9 @@ public class JoinMission extends Plan implements Journey.Purpose {
     */
   protected float getPriority() {
     final boolean report = I.talkAbout == actor && evalVerbose;
-    if (report) I.say("\n"+actor+" is assessing priority for "+mission);
+    if (report) {
+      I.say("\n"+actor+" is assessing priority for "+mission);
+    }
     
     if (! mission.hasBegun()) {
       float competence  = mission.rateCompetence(actor);
@@ -138,7 +141,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor;// && stepsVerbose;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     if (report) {
       I.say("\nGetting next step for joining "+mission);
     }

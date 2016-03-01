@@ -28,10 +28,6 @@ public class TutorialScenario extends SectorScenario {
     verbose          = false,
     objectiveVerbose = false;
   
-  final static String SCRIPT_XML_PATH = "media/Help/TutorialScript.xml";
-  
-  
-  final MessageScript script;
   
   private Bastion bastion = null;
   private Ruins ruinsNear = null, ruinsFar = null;
@@ -40,7 +36,6 @@ public class TutorialScenario extends SectorScenario {
   private EngineerStation  foundryBuilt  = null;
   private StockExchange    marketBuilt   = null;
   private BotanicalStation botanistBuilt = null;
-  private boolean          topUpFunds    = true;
   private boolean          auditorSeen   = false;
   
   private Tile            startAt      = null;
@@ -54,9 +49,9 @@ public class TutorialScenario extends SectorScenario {
   
   
   public TutorialScenario(String prefix) {
-    super();
+    super("src/stratos/content/hooks/TutorialScript.xml");
     setupScenario(createExpedition(), new StratosSetting(), prefix);
-    script = new MessageScript(this, SCRIPT_XML_PATH);
+    
   }
   
   
@@ -71,7 +66,6 @@ public class TutorialScenario extends SectorScenario {
     foundryBuilt  = (EngineerStation ) s.loadObject();
     marketBuilt   = (StockExchange   ) s.loadObject();
     botanistBuilt = (BotanicalStation) s.loadObject();
-    topUpFunds    = s.loadBool();
     auditorSeen   = s.loadBool();
     
     startAt      = (Tile           ) s.loadObject();
@@ -80,8 +74,6 @@ public class TutorialScenario extends SectorScenario {
     secureSent   = (MissionSecurity) s.loadObject();
     ruinsTarget  = (Venue          ) s.loadObject();
     s.loadObjects(dronesAttack);
-    
-    this.script = (MessageScript) s.loadObject();
   }
   
   
@@ -96,7 +88,6 @@ public class TutorialScenario extends SectorScenario {
     s.saveObject(foundryBuilt );
     s.saveObject(marketBuilt  );
     s.saveObject(botanistBuilt);
-    s.saveBool  (topUpFunds   );
     s.saveBool  (auditorSeen  );
     
     s.saveObject (startAt     );
@@ -105,17 +96,12 @@ public class TutorialScenario extends SectorScenario {
     s.saveObject (secureSent  );
     s.saveObject (ruinsTarget );
     s.saveObjects(dronesAttack);
-    
-    s.saveObject(script);
   }
   
   
   protected void clearAllFlags() {
     //
     //  TODO:  Should a script have some generalised methods for handling this?
-    
-    script.clearScript();
-    
     bastion       = null;
     ruinsNear     = null;
     ruinsFar      = null;
@@ -124,7 +110,6 @@ public class TutorialScenario extends SectorScenario {
     foundryBuilt  = null;
     marketBuilt   = null;
     botanistBuilt = null;
-    topUpFunds    = true;
     auditorSeen   = false;
     
     startAt      = null;
@@ -161,6 +146,7 @@ public class TutorialScenario extends SectorScenario {
     GameSettings.noAdvice = true;
     GameSettings.noShips  = true;
     GameSettings.noSpawn  = true;
+    GameSettings.cashFree = true;
     base.advice.setAutonomy(BaseAdvice.LEVEL_AUTO_NO_ADVICE);
     base.finance.setInitialFunding(2500, 0);
   }
@@ -202,17 +188,6 @@ public class TutorialScenario extends SectorScenario {
     farPass.placeState = nearPass.placeState = SitingPass.PLACE_INTACT;
     nearPass.performFullPass();
     farPass .performFullPass();
-  }
-  
-  
-  public void updateGameState() {
-    super.updateGameState();
-    script.checkForEvents();
-    
-    final float balance = base().finance.credits();
-    if (topUpFunds && balance < 1000) {
-      base().finance.incCredits(1000 - balance, null);
-    }
   }
   
   
@@ -471,7 +446,7 @@ public class TutorialScenario extends SectorScenario {
   
   
   protected boolean checkBudgetsPaneOpened() {
-    if (! script.topicTriggered("Profits and Loss")) return false;
+    if (! script().topicTriggered("Profits and Loss")) return false;
     if (! (UI().currentInfoPane() instanceof BudgetsPane)) return false;
     final BudgetsPane pane = (BudgetsPane) UI().currentInfoPane();
     if (pane.category() != BudgetsPane.CAT_BUDGET) return false;
@@ -523,7 +498,7 @@ public class TutorialScenario extends SectorScenario {
   
   
   protected boolean checkAuditorSeen() {
-    if (! script.topicTriggered("Watch and Learn")) return false;
+    if (! script().topicTriggered("Watch and Learn")) return false;
     if (this.auditorSeen) return true;
     Selectable subject = UI().selection.selected();
     if (subject instanceof Actor) {
@@ -565,7 +540,7 @@ public class TutorialScenario extends SectorScenario {
   
   
   protected void onExtraBuildingFinished() {
-    this.topUpFunds = false;
+    GameSettings.cashFree = false;
     for (Object o : world().presences.allMatches(base())) {
       final Venue v = (Venue) o;
       base().setup.fillVacancies(v, false);

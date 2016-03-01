@@ -120,8 +120,8 @@ public class Looting extends Plan {
       return urge + ROUTINE;
     }
     
-    if (mark.base() == actor.base()) {
-      if (isPrivate) urge -= ROUTINE;
+    if (mark.base() == actor.base() && isPrivate) {
+      urge -= ROUTINE;
     }
     setCompetence(successChance());
     

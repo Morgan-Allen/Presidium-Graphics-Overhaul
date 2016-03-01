@@ -285,13 +285,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   }
   
   
-  public boolean isOffworld() {
-    if (subject instanceof Sector) return true;
-    if (subject instanceof Target) return ! ((Target) subject).inWorld();
-    return false;
-  }
-  
-  
   public int rewardAmount() {
     return rewardForPriority(priority);
   }
@@ -675,6 +668,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
   protected abstract Behaviour createStepFor(Actor actor);
   protected abstract boolean shouldEnd();
   
+  public abstract boolean isOffworld();
   public abstract boolean resolveMissionOffworld();
   
   
@@ -691,19 +685,19 @@ public abstract class Mission implements Session.Saveable, Selectable {
     ALL_ICONS[] = ImageAsset.fromImages(
       Mission.class, "mission_icons", IMG_DIR,
       "button_strike.png"     ,
+      "button_claiming.png"   ,
       "button_recon.png"      ,
       "button_contact.png"    ,
       "button_security.png"   ,
       "button_research.png"   ,
-      "button_claiming.png"   ,
       "mission_button_lit.png"
     ),
     STRIKE_ICON   = ALL_ICONS[0],
-    RECON_ICON    = ALL_ICONS[1],
-    CONTACT_ICON  = ALL_ICONS[2],
-    SECURITY_ICON = ALL_ICONS[3],
-    RESEARCH_ICON = ALL_ICONS[4],
-    CLAIMING_ICON = ALL_ICONS[5],
+    CLAIM_ICON    = ALL_ICONS[1],
+    RECON_ICON    = ALL_ICONS[2],
+    CONTACT_ICON  = ALL_ICONS[3],
+    SECURITY_ICON = ALL_ICONS[4],
+    RESEARCH_ICON = ALL_ICONS[5],
     
     MISSION_ICON_LIT = ALL_ICONS[6];
   //

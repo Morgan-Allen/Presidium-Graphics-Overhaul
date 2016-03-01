@@ -182,8 +182,6 @@ public class MissionContact extends Mission {
     //  to the summons-
     if (asSummons != null) return asSummons;
     
-    
-    
     //
     //  Otherwise, we begin talks with the subject:
     final Actor with = (Actor) subject;
@@ -213,6 +211,13 @@ public class MissionContact extends Mission {
       if (sought.accepted()) return true;
       return allTried.size() == rolesApproved();
     }
+  }
+  
+  
+  public boolean isOffworld() {
+    final Stage world = base.world;
+    final Actor actor = (Actor) subject;
+    return world.offworld.currentSector(actor) != world.localSector();
   }
   
   
