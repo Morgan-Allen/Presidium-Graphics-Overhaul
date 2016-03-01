@@ -13,10 +13,7 @@ import stratos.game.wild.*;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
-import stratos.graphics.common.*;
-import stratos.start.Assets;
-import stratos.start.PlayLoop;
-import stratos.start.Scenario;
+import stratos.start.*;
 
 
 
@@ -32,7 +29,6 @@ public class SectorScenario extends Scenario {
   private Expedition expedition;
   
   private MessageScript script;
-  
   
   
   
