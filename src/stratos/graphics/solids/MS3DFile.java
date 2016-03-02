@@ -305,6 +305,9 @@ public class MS3DFile {
     int extraw = 0;
     
     for(int i=0; i<vertices.length; i++) {
+      //  TODO:  ...This seems to work, but I don't know why bone-information
+      //         wouldn't be included...
+      if (in.available() < 14) break;
       in.read(vertices[i].boneIds = new byte[3]);
       in.read(vertices[i].weights = new byte[3]);
       if(verbose && vertices[i].weights[1] > 0) extraw++;
