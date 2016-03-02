@@ -156,37 +156,29 @@ public class Selection implements UIConstants {
   
   
   public static void pushSelection(Selectable s, Object context) {
-    
     final HUD UI = PlayLoop.currentUI();
     final BaseUI BUI = BaseUI.current();
-    if (UI == null) {
-      return;
+    if (UI == null) return;
+    
+    SelectionPane    pane    = s == null ? null : s.configSelectPane(null, UI);
+    SelectionOptions options = s == null ? null : s.configSelectOptions(null, UI);
+    
+    if (pane != null) pane.setPrevious(paneFromContext(context));
+    if (pane != null || paneSelection() != null) UI.setInfoPane(pane);
+    UI.setOptionsList(options);
+    
+    if (BUI != null && s == null) {
+      BUI.selection.selected = null;
+      BUI.tracking.lockOn(null);
     }
-    if (s == null) {
-      UI.setInfoPane   (null);
-      UI.setOptionsList(null);
+    if (BUI != null && s != null) {
+      BUI.selection.selected = s;
+      I.talkAbout = BUI.selection.selected;
+      if (! PlayLoop.onMainThread()) return;
       
-      if (BUI != null) {
-        BUI.selection.selected = null;
-        BUI.tracking.lockOn(null);
-      }
-    }
-    else {
-      final SelectionPane    pane    = s.configSelectPane   (null, UI);
-      final SelectionOptions options = s.configSelectOptions(null, UI);
-      if (pane != null) pane.setPrevious(paneFromContext(context));
-      UI.setInfoPane   (pane   );
-      UI.setOptionsList(options);
-      
-      if (BUI != null) {
-        BUI.selection.selected = s;
-        I.talkAbout = BUI.selection.selected;
-        if (! PlayLoop.onMainThread()) return;
-        
-        final Target locks = s.selectionLocksOn();
-        if (locks != null && locks.inWorld()) BUI.tracking.lockOn(locks);
-        else BUI.tracking.lockOn(null);
-      }
+      final Target locks = s.selectionLocksOn();
+      if (locks != null && locks.inWorld()) BUI.tracking.lockOn(locks);
+      else BUI.tracking.lockOn(null);
     }
   }
   
@@ -211,6 +203,14 @@ public class Selection implements UIConstants {
     final UIGroup pane = UI == null ? null : UI.currentInfoPane();
     if (! (pane instanceof SelectionPane)) return null;
     return (SelectionPane) pane;
+  }
+  
+  
+  public static Selectable paneSelection() {
+    final BaseUI UI = BaseUI.current();
+    final Object pane = UI == null ? null : UI.currentInfoPane();
+    if (! (pane instanceof SelectionPane)) return null;
+    return ((SelectionPane) pane).selected;
   }
   
   

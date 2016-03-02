@@ -96,14 +96,8 @@ public class SelectionTracking {
     nextPos.x = Nums.clamp(nextPos.x + x, 0, world.size - 1);
     nextPos.y = Nums.clamp(nextPos.y + y, 0, world.size - 1);
     Selection.pushSelection(null, null);
-    lockTarget = world.tileAt(nextPos.x, nextPos.y);
+    lockTarget = null;
     view.lookedAt.setTo(nextPos);
-  }
-  
-  
-  protected Selectable paneSelection() {
-    if (! (UI.currentInfoPane() instanceof SelectionPane)) return null;
-    return ((SelectionPane) UI.currentInfoPane()).selected;
   }
   
   
@@ -127,10 +121,18 @@ public class SelectionTracking {
     //  We can't continue tracking our lock-target once our field-of-view has
     //  changed.  So if the current pane is dedicated to that target, we need
     //  to dismiss it and focus on whatever comes in view instead.
-    if (lockTarget instanceof Tile && UI.currentOptions() == null) {
-      final Tile under = (Tile) lockTarget;
-      UI.setInfoPane   (under.configSelectPane   (null, UI));
-      UI.setOptionsList(under.configSelectOptions(null, UI));
+    final Stage   world     = UI.world();
+    final Target  tracked   = lockTarget;
+    final boolean noOptions = UI.currentOptions() == null;
+    
+    if (tracked == null && noOptions) {
+      final Tile under = world.tileAt(view.lookedAt.x, view.lookedAt.y);
+      Selection.pushSelection(under, null);
+      lockTarget = null;
+    }
+    if (tracked instanceof Tile && noOptions) {
+      Selection.pushSelection((Tile) tracked, null);
+      lockTarget = tracked;
     }
   }
   
