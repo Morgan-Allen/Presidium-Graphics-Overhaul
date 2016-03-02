@@ -108,6 +108,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     this.subject     = subject;
     this.flagSprite  = flagModel == null ? null : flagModel.makeSprite();
     this.description = description;
+    
+    for (int t : ALL_MISSION_TYPES) if (allowsMissionType(t)) {
+      missionType = t; break;
+    }
   }
   
   
@@ -253,7 +257,8 @@ public abstract class Mission implements Session.Saveable, Selectable {
       return true;
     }
     if (subject instanceof Element) {
-      if (! ((Element) subject).visibleTo(player)) return false;
+      return true;
+      //if (! ((Element) subject).visibleTo(player)) return false;
     }
     return true;
   }
@@ -454,12 +459,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
       beginMission();
     }
     //
-    //  Remove any applicants that have abandoned the mission.
-    for (Role role : roles) if (role.approved && hasBegun()) {
-      final Actor a = role.applicant;
-      if (! a.health.conscious()) a.mind.assignMission(null);
-    }
-    //
     //  Offworld missions have their outcomes evaluated separately.  Otherwise,
     //  check to see if local end-conditions have been met.
     if (journey != null) {
@@ -485,7 +484,10 @@ public abstract class Mission implements Session.Saveable, Selectable {
     //
     //  By default, we also terminate any missions that have been completely
     //  abandoned-
-    if (missionType != TYPE_PUBLIC && hasBegun() && rolesApproved() == 0) {
+    if (
+      (missionType != TYPE_PUBLIC && hasBegun()) &&
+      (rolesApproved() == 0 && finished())
+    ) {
       I.say("\nNOBODY INVOLVED IN MISSION: "+this);
       endMission(false);
     }
@@ -586,7 +588,6 @@ public abstract class Mission implements Session.Saveable, Selectable {
   public float basePriority(Actor actor) {
     
     //  TODO:  Move this out to the JoinMission class!
-    
     final boolean report = I.talkAbout == actor && evalVerbose;
     if (! visibleTo(actor.base())) return -1;
     

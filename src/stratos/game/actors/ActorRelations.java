@@ -11,10 +11,6 @@ import stratos.util.*;
 
 
 
-//  TODO:  Allow this to store relations with arbitrary saveables?  And then
-//  average relations with their properties.
-
-
 public class ActorRelations {
   
   
@@ -143,48 +139,16 @@ public class ActorRelations {
     final boolean report = extraVerbose && I.talkAbout == actor;
     if (report) I.say("\n"+actor+" updating relations based on observation.");
     
-    for (Target t : actor.senses.awareOf()) if (t instanceof Actor) {
-      final Actor  other   = (Actor) t;
-      final Target affects = other.actionFocus();
-      //
-      //  TODO:  Have 'spite' factor into this- e.g, so that helping an enemy
-      //  counts as harm?
-      final float
-        harm   = Plan.harmIntended(other, affects),
-        cares  = Nums.clamp(valueFor(affects), 0, 1),
-        impact = Nums.abs(harm * cares);
-      if (report) {
-        I.say("\n  Observed "+other+" doing "+other.currentAction());
-        I.say("    Affected:   "+affects);
-        I.say("    Harm done:  "+harm   );
-        I.say("    Cares?      "+cares  );
-        I.say("    Impact:     "+impact );
-      }
-      //
-      //  We gradually decrease the weirdness of inoffensive subjects.
-      if (impact == 0 || (impact <= 0.5f && ! hasRelation(other))) {
-        incRelation(other.base(), 0, 0, -0.5f / OBSERVE_PERIOD);
-        incRelation(other, 0, 0, 0);
-        if (report) I.say("  Meh.  Big deal.");
-        continue;
-      }
-      final float
-        weight    = 1f / OBSERVE_PERIOD,
-        increment = 0 - harm * cares,
-        beforeVal = valueFor(other),
-        surprise  = Nums.clamp(Nums.abs(increment - beforeVal), 0, 1);
-      //
-      //  Otherwise, we modify our relationship with an individual based on
-      //  observation of their recent behaviour:
-      incRelation(other, increment, weight, surprise * weight);
-      if (report) {
-        I.say("\n  Actions speak louder...");
-        I.say("    Relation before: "+beforeVal);
-        I.say("    Weight assigned: "+weight   );
-        I.say("    Surprise level:  "+surprise );
-        I.say("    Increment:       "+increment);
-        I.say("    Relation after:  "+valueFor(other));
-      }
+    final Target awareOf[] = actor.senses.awareOf     ();
+    final float threats [] = actor.senses.awareThreats();
+    for (int i = awareOf.length; i-- > 0;) {
+      final Target t = awareOf[i];
+      if (! (t instanceof Actor)) continue;
+      float
+        dislike = 0 - valueFor(t),
+        threat  = threats[i],
+        diff    = threat - dislike;
+      incRelation(t, diff, 0.5f / OBSERVE_PERIOD, 0);
     }
   }
   
@@ -193,10 +157,9 @@ public class ActorRelations {
     //
     //  For the moment, I'm disabling these for animals, artilects, etc.
     ///if (! actor.species().sapient()) return;
-    final boolean report = I.talkAbout == actor && verbose;
+    final boolean report = I.talkAbout == actor;// && verbose;
     updateFromObservations();
     if (numUpdates % UPDATE_PERIOD != 0) return;
-    if (report) I.say("\nDecaying and culling relations for "+actor);
     //
     //  Firstly, sort relations in order of importance (based on the strength
     //  of the relationship, good or bad, and freshness in memory)-
@@ -211,32 +174,48 @@ public class ActorRelations {
     //  Then incrementally update each relation, and determine which are no
     //  longer important enough to remember (only personal relations are
     //  considered 'disposable' for this purpose:
-    int personCount = 0; for (Relation r : sorting) {
+    if (report) I.say("\nAssessing personal relations for "+actor);
+    int personCount = 0;
+    float   factionVals  [] = new float  [Base.MAX_BASES];
+    int     factionCounts[] = new int    [Base.MAX_BASES];
+    Faction factions     [] = new Faction[Base.MAX_BASES];
+    
+    for (Relation r : sorting) {
+      if (report) I.say("  Updating relation for "+r.subject);
       final boolean
         okay     = updateRelation(r, UPDATE_PERIOD),
-        excess   = personCount > MAX_RELATIONS,
-        personal = r.subject instanceof Actor;
-      
+        person   = r.subject instanceof Actor,
+        excess   = person && personCount++ > MAX_RELATIONS;
       if (report) {
-        I.say("  Have updated relation with "+r.subject);
-        I.say("    ("+personCount+"/"+MAX_RELATIONS+", okay: "+okay+")");
-        I.say("    Value/novelty: "+r.value()+"/"+r.novelty());
+        I.say("    Value/Novelty: "+r.value()+"/"+r.novelty());
       }
-      if (personal) {
-        personCount++;
-        //
-        //  We generalise about the subject's base of origin based on relations
-        //  with known members.  And regardless of like or dislike, we
-        //  decrement the 'strangeness' of the other's base.
-        final float valueWeight = 1f / GENERALISE_RATIO;
-        final float novelWeight = UPDATE_PERIOD * -1f / NOVELTY_INTERVAL;
-        incRelation(r.subject.base(), r.value(), valueWeight, novelWeight);
-        //
-        //  And finally, discard if surplus to requirements.
-        if (excess || ! okay) {
-          relations.remove(r.subject);
-          if (report) I.say("    EXPIRED");
-        }
+      //
+      //  And finally, discard if surplus to requirements.
+      if (excess || ! okay) {
+        relations.remove(r.subject);
+        if (report) I.say("    EXPIRED");
+      }
+      else {
+        final Base b = r.subject.base();
+        if (b == null) continue;
+        final Faction f = b.faction();
+        factionVals  [b.baseID()] += r.value();
+        factionCounts[b.baseID()] ++;
+        factions     [b.baseID()] = f;
+      }
+    }
+
+    if (report) I.say("\nUpdating faction relations for "+actor);
+    for (int i = Base.MAX_BASES; i-- > 0;) {
+      final Faction f = factions[i];
+      if (f == null) continue;
+      float avgValue  = factionVals[i] / factionCounts[i];
+      float weighting = UPDATE_PERIOD * 1f / NOVELTY_INTERVAL;
+      float novelty   = noveltyFor(f);
+      setupRelation(f, avgValue, novelty - weighting);
+      if (report) {
+        I.say("  Updating relation for "+f);
+        I.say("    Avg value: "+avgValue);
       }
     }
   }
@@ -333,18 +312,24 @@ public class ActorRelations {
     Accountable other, float toLevel, float weight, float novelty
   ) {
     if (other == null || (weight == 0 && novelty == 0)) return;
-    final boolean report = I.talkAbout == actor && verbose && extraVerbose;
-    if (report) {
-      I.say("\nIncrementing relation with "+other);
-      I.say("  To level: "+toLevel);
-      I.say("  Weight:   "+weight );
-      I.say("  Novelty:  "+novelty);
-    }
+    final boolean report =
+      I.talkAbout == actor && weight > 0 && verbose && extraVerbose
+    ;
     
     Relation r = relations.get(other);
     if (r == null) r = setupRelation(other, 0, 0, Relation.TYPE_GENERIC, false);
     r.incValue(toLevel, weight);
     r.incNovelty(novelty);
+    
+    if (report) {
+      I.say("\nIncrementing relation with "+other);
+      I.say("  To level: "+toLevel);
+      I.say("  Weight:   "+weight );
+      I.say("  Novelty:  "+novelty);
+      I.say("  Value after:   "+r.value  ());
+      I.say("  Novelty after: "+r.novelty());
+      I.add("");
+    }
   }
 
   
@@ -356,10 +341,10 @@ public class ActorRelations {
   }
   
   
-  public Batch <Relation> baseRelations() {
+  public Batch <Relation> factionRelations() {
     final Batch <Relation> all = new Batch <Relation> ();
     for (Relation r : relations.values()) {
-      if (r.subject instanceof Base) all.add(r);
+      if (r.subject instanceof Faction) all.add(r);
     }
     return all;
   }

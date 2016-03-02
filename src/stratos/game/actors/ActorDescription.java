@@ -258,16 +258,17 @@ public class ActorDescription {
     
     final List <Relation> sorting = new List <Relation> () {
       protected float queuePriority(Relation r) {
-        return 0 - r.value();
+        final boolean faction = ! (r.subject instanceof Actor);
+        return (faction ? 10 : 0) - r.value();
       }
     };
     Visit.appendTo(sorting, h.relations.personRelations());
+    Visit.appendTo(sorting, h.relations.factionRelations());
     sorting.queueSort();
-    Visit.appendTo(sorting, h.relations.baseRelations());
     
     d.append("Relationships: ");
     for (Relation r : sorting) {
-      if (r.subject == h.base() || r.value() == 0) continue;
+      if (r.value() == 0 || r.subject == h) continue;
       d.append("\n  ");
       d.append(r.subject);
       

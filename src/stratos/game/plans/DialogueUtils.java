@@ -42,12 +42,11 @@ public class DialogueUtils {
   
   
   public static void reinforceRelations(
-    Actor actor  , Actor other,
-    float toLevel, float noveltyInc,
-    boolean symmetric
+    Actor actor, Actor other,
+    float toLevel, float noveltyInc, boolean symmetric
   ) {
     if (noveltyInc < 0) noveltyInc = -1f / Dialogue.BORED_DURATION;
-    final float w = 0.1f;  //  Weight- use a constant?
+    final float w = 1f / Dialogue.BORED_DURATION;
     other.relations.incRelation(actor, toLevel, w, noveltyInc);
     if (symmetric) {
       actor.relations.incRelation(other, toLevel, w, noveltyInc);
@@ -64,6 +63,12 @@ public class DialogueUtils {
     final Action a = actor.currentAction();
     result += actor.skills.test(language, ROUTINE_DC - attBonus, 1, a) ? 1 : 0;
     result += actor.skills.test(plea    , opposeDC   - attBonus, 1, a) ? 1 : 0;
+    
+    if (I.talkAbout == other && Dialogue.stepsVerbose) {
+      I.say("\nGetting talk result between "+actor+" and "+other);
+      I.say("  Language is: "+language);
+      I.say("  Result is:   "+result  );
+    }
     return result / 2f;
   }
   
@@ -157,7 +162,7 @@ public class DialogueUtils {
   //  pretty far north or south, depending on how well traits and interests
   //  match up.
   public static float tryChat(Actor actor, Actor other, int bonus) {
-    float boost = talkResult(SUASION, TRIVIAL_DC - bonus, actor, other) / 10f;
+    float boost = talkResult(SUASION, TRIVIAL_DC - bonus, actor, other);
     boost *= CHAT_RELATION_BOOST;
     reinforceRelations(other, actor, boost, -1, false);
     return boost;

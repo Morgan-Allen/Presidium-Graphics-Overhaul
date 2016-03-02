@@ -66,7 +66,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
     if (actor.mind.mission() != null || ! actor.health.conscious()) {
       return null;
     }
-    final boolean report = I.talkAbout == actor;// && evalVerbose;
+    final boolean report = I.talkAbout == actor && evalVerbose;
     //
     //  Find a mission that seems appealing at the moment (we disable culling
     //  of invalid plans, since missions might not have steps available until
@@ -107,6 +107,10 @@ public class JoinMission extends Plan implements Journey.Purpose {
     final boolean report = I.talkAbout == actor && evalVerbose;
     if (report) {
       I.say("\n"+actor+" is assessing priority for "+mission);
+    }
+    if (! mission.canApply(actor)) {
+      if (report) I.say("  Cannot apply!");
+      return -1;
     }
     
     if (! mission.hasBegun()) {

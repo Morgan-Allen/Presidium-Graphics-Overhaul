@@ -73,7 +73,13 @@ public class MissionPane extends SelectionPane {
     final Base declares = mission.base();
     d.append("Declared by "+declares);
     d.append("\n  Subject: ");
-    if (mission.visibleTo(mission.base())) d.append(mission.subject());
+    
+    final Object subject = mission.subject();
+    final boolean canSee = true ||
+      subject instanceof Element &&
+      ((Element) subject).visibleTo(declares)
+    ;
+    if (canSee) d.append(mission.subject());
     else d.append(""+mission.subject(), Colour.GREY);
     d.append("\n  Status:  "+mission.progressDescriptor());
     
@@ -259,13 +265,29 @@ public class MissionPane extends SelectionPane {
         
         if (canConfirm) {
           d.append(" ");
-          final String option = approved ? "(DISMISS)" : "(APPROVE)";
+          d.append(new Description.Link(" (YES)") {
+            public void whenClicked(Object context) {
+              mission.setApprovalFor(a, true);
+              //if (approved) a.mind.assignMission(null);
+            }
+          }, approved ? Colour.YELLOW : Text.LINK_COLOUR);
+          
+          d.append(new Description.Link(" (NO)") {
+            public void whenClicked(Object context) {
+              mission.setApprovalFor(a, false);
+              a.mind.assignMission(null);
+            }
+          }, approved ? Text.LINK_COLOUR : Colour.YELLOW);
+          
+          /*
+          final String option = approved ? "(NO)" : "(YES)";
           d.append(new Description.Link(option) {
             public void whenClicked(Object context) {
               mission.setApprovalFor(a, ! approved);
               if (approved) a.mind.assignMission(null);
             }
           });
+          //*/
         }
         else {
           d.append("\n ");
@@ -275,4 +297,12 @@ public class MissionPane extends SelectionPane {
     }
   }
 }
+
+
+
+
+
+
+
+
 

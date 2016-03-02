@@ -49,7 +49,6 @@ public class NegotiationPane extends MissionPane {
     
     final boolean canChange = ! mission.hasBegun();
     super.describeStatus(contact, canChange, d);
-    super.describeOrders(canChange, d);
     
     offers.made = contact.pledgeOffers();
     sought.made = contact.pledgeSought();

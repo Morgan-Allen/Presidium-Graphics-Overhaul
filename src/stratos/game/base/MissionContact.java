@@ -22,20 +22,13 @@ import static stratos.game.actors.Qualities.*;
 //  TODO:  Allow spontaneous turn-coat/spying behaviours for actors, if their
 //         affection/fear of you grows high enough.
 
-//  TODO:  Allow defection of structures if enough of their inhabitants feel
-//         inclined to join you (base off influence-levels on the map.)  This
-//         should happen spontaneously.
-
-
-
-
 public class MissionContact extends Mission {
   
   
   /**  Field definitions, constructors and save/load methods-
     */
   private static boolean 
-    stepsVerbose = true;
+    stepsVerbose = false;
   
   private Pledge offers;
   private Pledge sought;
@@ -172,7 +165,10 @@ public class MissionContact extends Mission {
   /**  Behaviour implementation-
     */
   protected Behaviour createStepFor(Actor actor) {
-    final boolean report = I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
+    if (report) {
+      I.say("\nGetting contact step for: "+actor);
+    }
     
     if (finished()) return null;
     final Behaviour cached = nextStepFor(actor, false);
@@ -194,10 +190,72 @@ public class MissionContact extends Mission {
       I.say("Motive bonus is:    "+talks.motiveBonus());
       I.say("Discussion novelty: "+novelty);
     }
-    
     //  TODO:  Check that this correlates correctly with quitting!
     if (novelty <= 0) allTried.include(actor);
     return cacheStepFor(actor, talks);
+  }
+  
+  
+  public void endMission(boolean completed) {
+    final boolean finished = finished();
+    super.endMission(completed);
+    if (finished || isOffworld() || allTried.size() < rolesApproved()) return;
+    
+    final Actor talksTo = (Actor) subject;
+    checkForDefection(talksTo.mind.work());
+    checkForDefection(talksTo.mind.home());
+  }
+  
+  
+  //  TODO:  This should be generalised to allow for spontaneous defections...
+  
+  private void checkForDefection(Property belongs) {
+    if (! (belongs instanceof Venue)) return;
+    if (belongs.base() == base) return;
+    
+    final boolean report = true;
+    if (report) {
+      I.say("\nChecking for defection of: "+belongs);
+      I.say("  Belongs to: "+belongs.base());
+    }
+    
+    final Base local = belongs.base();
+    final Faction liege = base().faction();
+    
+    float overallSuccess = 0, numBelong = 0;
+    for (Actor a : belongs.staff().workers()) {
+      overallSuccess += a.relations.valueFor(liege);
+      numBelong++;
+    }
+    for (Actor a : belongs.staff().lodgers()) {
+      overallSuccess += a.relations.valueFor(liege);
+      numBelong++;
+    }
+    if (numBelong > 0) overallSuccess /= numBelong;
+
+    float localPower = 0, liegePower = 0;
+    liegePower = 0 - base().dangerMap.sampleAround(belongs, -1);
+    localPower = 0 - local .dangerMap.sampleAround(belongs, -1);
+    
+    float powerSum = Nums.abs(liegePower) + Nums.abs(localPower);
+    float overallPower = liegePower - localPower;
+    overallPower /= Nums.max(1, powerSum);
+    
+    final boolean willDefect = overallSuccess + overallPower > 1;
+    if (report) {
+      I.say("  Overall relations: "+overallSuccess);
+      I.say("  Relative power:    "+overallPower  );
+      I.say("  Will defect?       "+willDefect    );
+    }
+    if (willDefect) {
+      ((Venue) belongs).assignBase(base);
+      for (Actor a : belongs.staff().workers()) {
+        if (a.base() != base) a.assignBase(base);
+      }
+      for (Actor a : belongs.staff().lodgers()) {
+        if (a.base() != base) a.assignBase(base);
+      }
+    }
   }
   
   

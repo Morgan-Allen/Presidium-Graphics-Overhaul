@@ -20,7 +20,7 @@ public class Dialogue extends Plan {
   
   /**  Constants, data fields, constructors and save/load methods-
     */
-  private static boolean
+  public static boolean
     evalVerbose  = false,
     stepsVerbose = false,
     onlyBegun    = false;
@@ -484,7 +484,7 @@ public class Dialogue extends Plan {
     else if (! other.species().sapient()) {
       d.appendAll("Communicating with ", other);
     }
-    else if (starts.topic != null) {
+    else if (starts.topic != null && ! (starts.topic instanceof Plan)) {
       d.appendAll("Discussing ", starts.topic, " with ", other);
     }
     else if (stage <= STAGE_HAIL) {

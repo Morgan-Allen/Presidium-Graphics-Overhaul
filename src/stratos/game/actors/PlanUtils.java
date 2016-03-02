@@ -152,6 +152,7 @@ public class PlanUtils {
     liking       = actor.relations.valueFor(subject);
     solitude     = actor.motives.solitude();
     harmIntended = Nums.clamp(harmIntendedBy(subject, actor, true), 0, 1);
+    harmIntended += PlanUtils.baseCuriosity(actor, subject, true) / 2f;
     
     chatIncentive += (liking * 1) + ((novelty * 4) * (1 + liking) / 2);
     if (! casual) {
@@ -159,7 +160,7 @@ public class PlanUtils {
       pleaIncentive = (harmIntended * 10);
     }
     priority = Nums.max(chatIncentive, pleaIncentive);
-    priority = (priority + rewardBonus) * commChance;
+    priority = (priority + rewardBonus) * (commChance + (casual ? 0 : 0.5f));
     
     if (reportOn(actor, priority)) I.reportVars(
       "\nDialogue priority for "+actor, "  ",
