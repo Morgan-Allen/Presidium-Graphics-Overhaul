@@ -1,11 +1,10 @@
 
-
-
 package stratos.game.wild;
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.plans.*;
+import stratos.game.maps.*;
 import stratos.graphics.common.*;
 import stratos.graphics.cutout.*;
 import stratos.graphics.widgets.*;
@@ -14,13 +13,6 @@ import stratos.util.*;
 import static stratos.game.actors.Backgrounds.*;
 import static stratos.game.craft.Economy.*;
 
-
-
-//  You need openings for Hunters, Gatherers, and Chieftains.
-//  Plus the Medicine Man, Marked One and Cargo Cultist.
-
-//  Do I need a wider selection of structures?  ...For the moment.  For the
-//  sake of safety.  Might expand on functions later.
 
 
 public class NativeHut extends Venue {
@@ -128,47 +120,43 @@ public class NativeHut extends Venue {
     */
   final public static Blueprint VENUE_BLUEPRINTS[][];
   static {
-    final Batch <Blueprint> allProfiles = new Batch <Blueprint> ();
     VENUE_BLUEPRINTS = new Blueprint[NUM_TRIBES][];
-    
     for (int n = NUM_TRIBES; n-- > 0;) {
       final int tribeID = n;
-      final String tribeName = TRIBE_NAMES[tribeID];
-      
-      allProfiles.add(new Blueprint(
+      final Blueprint forHut = new Blueprint(
         NativeHut.class, "hut_"+tribeID,
-        "Native Hut ("+tribeName+")", Target.TYPE_NATIVE, null,
+        "Native Hut", Target.TYPE_NATIVE, null,
         "Native Hutments are simple but robust shelters constructed by "+
         "indigenous primitives.",
         2, 2, Structure.IS_CRAFTED,
-        Owner.TIER_FACILITY, 75,
-        3
+        Owner.TIER_FACILITY, 75, 3
       ) {
         public Venue createVenue(Base base) {
           return newHall(tribeID, base);
         }
-      });
-      allProfiles.add(new Blueprint(
+      };
+      final Blueprint forHall = new Blueprint(
         NativeHut.class, "all_"+tribeID,
-        "Chief's Hall ("+tribeName+")", Target.TYPE_NATIVE, null,
+        "Chief's Hall", Target.TYPE_NATIVE, null,
         "Native settlements will often have a central meeting place where "+
         "the tribe's leadership and elders will gather to make decisions.",
         3, 2, Structure.IS_CRAFTED,
-        Owner.TIER_FACILITY, 150,
-        5
+        Owner.TIER_FACILITY, 150, 5
       ) {
         public Venue createVenue(Base base) {
           return newHut(tribeID, base);
         }
-      });
-      VENUE_BLUEPRINTS[tribeID] = allProfiles.toArray(Blueprint.class);
-      allProfiles.clear();
+      };
+      createSiting(tribeID, forHut , false);
+      createSiting(tribeID, forHall, true );
+      VENUE_BLUEPRINTS[tribeID] = new Blueprint[] { forHut, forHall };
     }
   }
   final public static Blueprint
     TRIBE_WASTES_BLUEPRINTS[] = VENUE_BLUEPRINTS[TRIBE_WASTES],
     TRIBE_DESERT_BLUEPRINTS[] = VENUE_BLUEPRINTS[TRIBE_DESERT],
     TRIBE_FOREST_BLUEPRINTS[] = VENUE_BLUEPRINTS[TRIBE_FOREST];
+
   
   
   public static NativeHut newHut(int tribeID, Base base) {
@@ -180,6 +168,61 @@ public class NativeHut extends Venue {
   
   public static NativeHall newHall(int tribeID, Base base) {
     return new NativeHall(tribeID, base);
+  }
+  
+  
+  
+  static Siting createSiting(
+    int tribeID, Blueprint print, final boolean isHall
+  ) {
+    return new Siting(print) {
+      public float ratePointDemand(
+        Base base, Target point, boolean exact, int claimRadius
+      ) {
+        //
+        //  Allocate some basic reference variables-
+        final boolean report = placeVerbose && ! exact;
+        final Stage world = point.world();
+        if (report) I.say("\nRating site for native hut at: "+point);
+        //
+        //  Native halls should not be too close together, and native huts
+        //  should be close to a hall.
+        float rating = 2;
+        final int HE = HALL_EXCLUSION;
+        final NativeHall hall = (NativeHall) world.presences.nearestMatch(
+          NativeHall.class, point, -1
+        );
+        final float distance = hall == null ? 0 : Spacing.distance(point, hall);
+        if (isHall) {
+          if (report) I.say("  Nearest hall to hall: "+hall);
+          if (hall != null && distance < HE) return -1;
+          else rating *= 1 + (distance / Stage.ZONE_SIZE);
+        }
+        else {
+          if (report) I.say("  Nearest hall to hut: "+hall);
+          if (hall == null || (exact && distance > HE)) return -1;
+        }
+        //
+        //  Favour non-radioactive areas with fertile land:
+        final Tile under = world.tileAt(point);
+        if (isHall || ! exact) {
+          rating += world.terrain().fertilitySample(under);
+          rating -= world.terrain().habitatSample(under, Habitat.CURSED_EARTH);
+        }
+        //
+        //  And finally, favour clustering closer to the central hall, and
+        //  sites with lower crowding:
+        if (! isHall) {
+          rating /= 1 + (Spacing.distance(point, hall) / HE);
+          if (! exact) {
+            final PresenceMap map = world.presences.mapFor(NativeHut.class);
+            rating /= 1 + (map.samplePopulation(point, HE) / 2f);
+          }
+        }
+        if (report) I.say("  Rating is: "+rating);
+        return rating;
+      }
+    };
   }
   
   
@@ -198,52 +241,6 @@ public class NativeHut extends Venue {
   
   
   protected void updatePaving(boolean inWorld) {}
-  
-  
-  public float ratePlacing(Target point, boolean exact) {
-    //
-    //  Allocate some basic reference variables-
-    final boolean report = placeVerbose && ! exact;
-    final Stage world = point.world();
-    final boolean isHall = this instanceof NativeHall;
-    if (report) I.say("\nRating site for native hut at: "+point);
-    //
-    //  Native halls should not be too close together, and native huts should
-    //  be close to a hall.
-    final int HE = HALL_EXCLUSION;
-    final NativeHall hall = (NativeHall) world.presences.nearestMatch(
-      NativeHall.class, point, RADIUS_CLAIMED * 2
-    );
-    final float distance = hall == null ? 0 : Spacing.distance(point, hall);
-    if (isHall) {
-      if (report) I.say("  Nearest hall to hall: "+hall);
-      if (hall != null && distance < HE) return -1;
-    }
-    else {
-      if (report) I.say("  Nearest hall to hut: "+hall);
-      if (hall == null || (exact && distance > HE)) return -1;
-    }
-    //
-    //  Favour non-radioactive areas with fertile land:
-    final Tile under = world.tileAt(point);
-    float rating = 2;
-    if (isHall || ! exact) {
-      rating += world.terrain().fertilitySample(under);
-      rating -= world.terrain().habitatSample(under, Habitat.CURSED_EARTH);
-    }
-    //
-    //  And finally, favour clustering closer to the central hall, and sites
-    //  with lower crowding:
-    if (! isHall) {
-      rating /= 1 + (Spacing.distance(point, hall) / HE);
-      if (! exact) {
-        final PresenceMap map = world.presences.mapFor(NativeHut.class);
-        rating /= 1 + (map.samplePopulation(point, HE) / 2f);
-      }
-    }
-    if (report) I.say("  Rating is: "+rating);
-    return rating;
-  }
   
   
   

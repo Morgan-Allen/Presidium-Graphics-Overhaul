@@ -731,17 +731,6 @@ public abstract class Actor extends Mobile implements
     if (rootB != null) rootB.describeBehaviour(d);
     else if (mount != null) mount.describeActor(this, d);
     else d.append("Thinking");
-    /*
-    final Behaviour rootB = mind.rootBehaviour();
-    final Mission mission = mind.mission();
-    final boolean offMissionView = mission != null && mission != client;
-    if (offMissionView && JoinMission.) {
-      mission.describeMission(d);
-    }
-    else if (rootB != null) rootB.describeBehaviour(d);
-    else if (mount != null) mount.describeActor(this, d);
-    else d.append("Thinking");
-    //*/
   }
 }
 

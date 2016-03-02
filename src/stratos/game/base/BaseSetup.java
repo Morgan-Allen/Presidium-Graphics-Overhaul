@@ -245,6 +245,7 @@ public class BaseSetup {
     //  We automatically fill any positions available when the venue is
     //  established.  This is done for free, but candidates cannot be screened.
     if (venue.careers() == null) return;
+    if (enterWorld && ! venue.inWorld()) return;
     
     final boolean report = verbose && base == BaseUI.currentPlayed();
     final int MAX_TRIES = 100;  //Safety measure...

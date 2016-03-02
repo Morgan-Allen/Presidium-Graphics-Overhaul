@@ -250,7 +250,7 @@ public abstract class Venue extends Fixture implements
   
   
   public boolean preventsClaimBy(Venue other) {
-    return blueprint.isZoned();
+    return blueprint.isZoned() || other.base() != base;
   }
   
   
@@ -577,6 +577,7 @@ public abstract class Venue extends Fixture implements
   
   public String fullName() {
     if (blueprint.isFixture()) return blueprint.name;
+    if (base.isPrimal()      ) return blueprint.name;
     if (blueprint.isUnique ()) return "The "+blueprint.name;
     
     if (nameID == -2 && inWorld()) {
@@ -900,11 +901,13 @@ public abstract class Venue extends Fixture implements
     temp.set(Colour.transparency(opacity)).multiply(tinge);
     
     if (inWorld()) {
+      /*
       BaseUI.current().selection.renderTileOverlay(
         rendering, origin().world, temp,
         Selection.SELECT_OVERLAY, false,
         keyRes, true, areaClaimed()
       );
+      //*/
     }
     else {
       final Batch <Object> under = new Batch <Object> ();

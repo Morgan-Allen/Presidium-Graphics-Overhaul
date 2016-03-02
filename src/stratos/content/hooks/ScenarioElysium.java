@@ -6,6 +6,7 @@
 package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
+import stratos.game.wild.NativeHut;
 import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.util.*;
@@ -50,79 +51,47 @@ public class ScenarioElysium extends SectorScenario {
     */
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
-    
-    Venue bastion = base.listInstalled(Bastion.BLUEPRINT, true).first();
-    final Pick <StagePatch> pick = new Pick();
-    for (StagePatch patch : world.patches.allGridPatches()) {
-      Tile under = world.tileAt(patch);
-      float rating = world.terrain().fertilitySample(under);
-      rating *= 1 + (Spacing.zoneDistance(under, bastion) / 2);
-      pick.compare(patch, rating);
-    }
-    Target settlePoint = pick.result();
-
-    GameSettings.paveFree = true;
-    
-    Base settlerBase = Base.settlement(
-      world, "Seilig's Landing", Faction.FACTION_CIVILISED
-    );
-    final Venue toPlace[] = {
-      new BotanicalStation(settlerBase),
-      new EcologistRedoubt(settlerBase),
-      new Bastion         (settlerBase),
-    };
-    Batch <Venue> holdings = new Batch();
-    float residents = 0;
-    for (Venue v : toPlace) {
-      SiteUtils.establishVenue(v, settlePoint, -1, true, world);
-      if (! v.inWorld()) continue;
-      settlerBase.setup.fillVacancies(v, true);
-      residents += v.staff.workforce();
-    }
-    settlePoint = toPlace[2];
-    final Venue morePlaced[] = {
-      new EngineerStation (settlerBase),
-      new RunnerMarket    (settlerBase),
-      new SupplyDepot     (settlerBase),
-    };
-    for (Venue v : morePlaced) {
-      SiteUtils.establishVenue(v, settlePoint, -1, true, world);
-      if (! v.inWorld()) continue;
-      settlerBase.setup.fillVacancies(v, true);
-      residents += v.staff.workforce();
-    }
-    
-    settlerBase.demands.impingeDemand(
-      Economy.SERVICE_HOUSING, residents, -1, settlePoint
-    );
-    for (float n = residents / HoldingUpgrades.OCCUPANCIES[0]; n-- > 0;) {
-      Holding h = new Holding(settlerBase);
-      SiteUtils.establishVenue(h, settlePoint, -1, true, world);
-      if (! h.inWorld()) continue;
-      holdings.add(h);
-    }
-    for (Venue v : holdings) {
-      v.stocks.bumpItem(PARTS   , 5);
-      v.stocks.bumpItem(PLASTICS, 5);
-      v.stocks.bumpItem(CARBS   , 5);
-      v.stocks.bumpItem(PROTEIN , 5);
-      v.structure.addUpgrade(Holding.FREEBORN_LEVEL);
-    }
-    
-    GameSettings.paveFree = false;
-    
-    Visit.appendTo(settlerBuilt, toPlace   );
-    Visit.appendTo(settlerBuilt, morePlaced);
-    Visit.appendTo(settlerBuilt, holdings  );
   }
   
+  
+  protected void establishLocals(Stage world) {
+    
+    final int tribeID = NativeHut.TRIBE_FOREST;
+    final Base natives = Base.natives(world, tribeID);
+    final Batch <Venue> nativeHuts = new Batch();
+    
+    for (int n = 3; n-- > 0;) {
+      nativeHuts.add(NativeHut.newHall(tribeID, natives));
+    }
+    for (int n = 9; n-- > 0;) {
+      nativeHuts.add(NativeHut.newHut (tribeID, natives));
+    }
+    natives.setup.doPlacementsFor(nativeHuts.toArray(Venue.class));
+    natives.setup.fillVacancies(nativeHuts, true);
+  }
   
   
   protected boolean checkShowIntro() {
     return true;
   }
-
-
+  
+  
+  protected boolean checkSettlersDestroyed() {
+    return false;
+  }
+  
+  
+  protected boolean checkSettlersConverted() {
+    return false;
+  }
+  
+  
+  protected boolean checkProsperity() {
+    
+    return true;
+  }
+  
+  
   protected boolean checkScenarioSuccess() {
     if (settlerBase == null              ) return false;
     if (settlerBase.allUnits().size() > 0) return false;

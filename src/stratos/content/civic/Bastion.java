@@ -72,9 +72,10 @@ public class Bastion extends Venue {
     */
   final public static Siting SITING = new Siting(BLUEPRINT) {
     
-    public float ratePointDemand(Base base, Target point, boolean exact) {
+    public float ratePointDemand(
+      Base base, Target point, boolean exact, int claimRadius
+    ) {
       float rating = 5;
-      
       //
       //  Okay- you want a spot as close to the centre of the map as possible,
       //  but reasonably close to rich resources, and with enough space to
@@ -83,27 +84,39 @@ public class Bastion extends Venue {
       final Stage world = point.world();
       final Tile at = world.tileAt(point);
       
-      float relX = at.x * 1f / world.size, relY = at.y * 1f / world.size;
-      float midRating = relX * (1 - relX) * 4 * relY * (1 - relY) * 4;
-      rating *= midRating;
+      if (base.isRealPlayer()) {
+        float relX = at.x * 1f / world.size, relY = at.y * 1f / world.size;
+        float midRating = relX * (1 - relX) * 4 * relY * (1 - relY) * 4;
+        rating *= midRating;
+      }
+
+      final Box2D claims = new Box2D(at.x - 0.5f, at.y - 0.5f, 0, 0);
+      claims.expandBy(10);
+      claims.incX(4);
+      claims.incY(4);
       
-      if (! exact) {
-        final Box2D claims = new Box2D(at.x - 0.5f, at.y - 0.5f, 0, 0);
-        claims.expandBy(CLAIM_RADIUS);
+      if (exact) {
+        float fullArea = claims.area();
+        claims.cropBy(world.area());
+        if (claims.area() < fullArea) rating *= 0;
+      }
+      else {
         if (SiteUtils.checkAreaClear(claims, world)) {
           rating *= 2;
         }
         
+        /*
         final Venue nearest;
         nearest = (Venue) world.presences.nearestMatch(Venue.class, at, -1);
         if (nearest != null && nearest.base() != base) {
           final float dist = Spacing.distance(point, nearest);
           rating *= 4 / (2f + (dist / Stage.ZONE_SIZE));
         }
+        //*/
       }
       //
       //  TODO:  Also minerals & insolation, etc?
-      //rating *= 1 + world.terrain().fertilitySample(world.tileAt(point));
+      rating *= 1 + world.terrain().fertilitySample(at);
       
       return rating;
     }

@@ -376,11 +376,7 @@ public abstract class Mobile extends Element
   
   
   protected float fogFor(Base base) {
-    float baseFog = base.intelMap.displayFog(position.x, position.y, this);
-    final float offset = IntelMap.FOG_SEEN_MIN + 0.01f;
-    baseFog -= offset;
-    baseFog *= 1f / (1 - offset);
-    return baseFog;
+    return super.fogFor(base);
   }
   
   

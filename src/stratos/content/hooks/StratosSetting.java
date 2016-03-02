@@ -250,9 +250,9 @@ public class StratosSetting extends Verse {
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, SPARSE_POPULATION,
       0.15f, OCEAN,
-      0.35f, SWAMPLANDS,
-      0.25f, FOREST,
-      0.25f, MEADOW,
+      0.15f, SWAMPLANDS,
+      0.35f, FOREST,
+      0.35f, MEADOW,
       Qudu.SPECIES, Hareen.SPECIES,
       
       Sector.MAKES, CARBS, GREENS
@@ -266,10 +266,10 @@ public class StratosSetting extends Verse {
       Verse.class, "Pavonis Sector", null, FACTION_WILDLIFE,
       "",
       WASTES_BLOOD, NORMAL_GRAVITY, PLANET_DIAPSOR, SPARSE_POPULATION,
-      0.25f, FOREST,
-      0.35f, MEADOW,
+      0.25f, FOREST  ,
+      0.35f, MEADOW  ,
       0.15f, SAVANNAH,
-      0.10f, BARRENS,
+      0.10f, BARRENS ,
       Qudu.SPECIES, Hareen.SPECIES, Lictovore.SPECIES,
       
       Sector.MAKES, SPYCES, PROTEIN

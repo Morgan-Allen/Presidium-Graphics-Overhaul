@@ -301,7 +301,7 @@ public class Arrest extends Plan {
   
   
   public boolean actionOrderSurrender(Actor actor, Actor other) {
-    final boolean report = stepsVerbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && stepsVerbose;
     if (report) I.say("\nOrdering surrender of "+other);
     //
     //  Firstly, we determine just how 'persuasive' the actor in question is,

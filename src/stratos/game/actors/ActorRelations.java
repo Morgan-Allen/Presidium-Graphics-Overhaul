@@ -157,7 +157,7 @@ public class ActorRelations {
     //
     //  For the moment, I'm disabling these for animals, artilects, etc.
     ///if (! actor.species().sapient()) return;
-    final boolean report = I.talkAbout == actor;// && verbose;
+    final boolean report = I.talkAbout == actor && verbose;
     updateFromObservations();
     if (numUpdates % UPDATE_PERIOD != 0) return;
     //

@@ -104,8 +104,7 @@ public class IntelMap {
   
   
   public float displayFog(Tile t, Object client) {
-    if (noFog()) return 1;
-    return Nums.clamp(fogOver.sampleAt(t.x, t.y, client), 0, 1);
+    return displayFog(t.x, t.y, client);
   }
   
   
