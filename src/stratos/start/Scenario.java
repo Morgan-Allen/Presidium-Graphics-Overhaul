@@ -321,6 +321,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
   public void afterLoading(boolean fromMenu) {
     //world.ephemera.applyFadeColour(Colour.BLACK);
     //if ((! isDebug) && (! fromMenu)) Power.applyDenyVision(this);
+    world().readyAfterPopulation();
   }
   
   

@@ -157,32 +157,36 @@ public class Selection implements UIConstants {
   
   public static void pushSelection(Selectable s, Object context) {
     
-    if (BaseUI.current() != null) {
-      final BaseUI UI = BaseUI.current();
-      final Selection selection = UI.selection;
-      
-      if (s == null) {
-        selection.selected = null;
-        UI.tracking.lockOn(null);
-        return;
-      }
-      selection.selected = s;
-      I.talkAbout = selection.selected;
-      if (! PlayLoop.onMainThread()) return;
-      
-      final Target locks = s.selectionLocksOn();
-      if (locks != null && locks.inWorld()) UI.tracking.lockOn(locks);
-      else UI.tracking.lockOn(null);
-    }
-    
     final HUD UI = PlayLoop.currentUI();
-    final SelectionPane    pane    = s.configSelectPane   (null, UI);
-    final SelectionOptions options = s.configSelectOptions(null, UI);
-    
-    if (pane != null || options != null) {
+    final BaseUI BUI = BaseUI.current();
+    if (UI == null) {
+      return;
+    }
+    if (s == null) {
+      UI.setInfoPane   (null);
+      UI.setOptionsList(null);
+      
+      if (BUI != null) {
+        BUI.selection.selected = null;
+        BUI.tracking.lockOn(null);
+      }
+    }
+    else {
+      final SelectionPane    pane    = s.configSelectPane   (null, UI);
+      final SelectionOptions options = s.configSelectOptions(null, UI);
       if (pane != null) pane.setPrevious(paneFromContext(context));
       UI.setInfoPane   (pane   );
       UI.setOptionsList(options);
+      
+      if (BUI != null) {
+        BUI.selection.selected = s;
+        I.talkAbout = BUI.selection.selected;
+        if (! PlayLoop.onMainThread()) return;
+        
+        final Target locks = s.selectionLocksOn();
+        if (locks != null && locks.inWorld()) BUI.tracking.lockOn(locks);
+        else BUI.tracking.lockOn(null);
+      }
     }
   }
   

@@ -56,8 +56,6 @@ public class MapsDisplay extends UIGroup {
   final Minimap minimap;
   final int RGBA[][];
   
-  //private Image cameraBox;
-  
   
   public MapsDisplay(BaseUI UI, Stage world, Base base) {
     super(UI);
@@ -111,6 +109,7 @@ public class MapsDisplay extends UIGroup {
   protected void whenClicked() {
     final Coord c = minimap.getMapPosition(UI.mousePos(), bounds, world.size);
     if (c == null) return;
+    Selection.pushSelection(null, null);
     UI.tracking.lockOn(world.tileAt(c.x, c.y));
   }
   

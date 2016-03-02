@@ -9,7 +9,7 @@ import stratos.util.*;
 
 
 
-public class DebugScenario extends ScenarioPavonis {
+public class DebugScenario extends ScenarioElysium {
   
   
   final static String PREFIX = "debug_scenario";
@@ -40,20 +40,20 @@ public class DebugScenario extends ScenarioPavonis {
     if (prefix == null || expedition() == null || verse() == null) {
       Verse verse = new StratosSetting();
       
-      final Faction backing = StratosSetting.PLANET_PAREM_V.startingOwner;
+      final Faction backing = StratosSetting.PLANET_HALIBAN.startingOwner;
       final Expedition e = new Expedition().configFrom(
-        StratosSetting.PLANET_PAREM_V,
-        StratosSetting.SECTOR_PAVONIS,
-        backing, Expedition.TITLE_COUNT, 2000, 0, new Batch()
+        StratosSetting.PLANET_HALIBAN,
+        StratosSetting.SECTOR_ELYSIUM,
+        backing, Expedition.TITLE_COUNT, 5000, 0, new Batch()
       );
       e.assignLeader(Backgrounds.KNIGHTED.sampleFor(backing));
-      
       setupScenario(e, verse, PREFIX);
     }
     super.initScenario(savesPrefix());
   }
-  
 }
+
+
 
 
 

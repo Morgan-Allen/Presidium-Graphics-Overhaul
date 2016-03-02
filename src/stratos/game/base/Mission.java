@@ -805,12 +805,13 @@ public abstract class Mission implements Session.Saveable, Selectable {
   
   
   public Target selectionLocksOn() {
-    if (visibleTo(BaseUI.currentPlayed())) return subjectAsTarget();
+    //if (visibleTo(BaseUI.currentPlayed())) return subjectAsTarget();
     return null;
   }
   
   
   public void whenClicked(Object context) {
+    //return;
     Selection.pushSelection(this, context);
   }
   

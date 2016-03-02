@@ -39,6 +39,11 @@ public class SelectionOptions extends UIGroup implements UIConstants {
   }
   
   
+  protected String info() {
+    return "Options for "+subject;
+  }
+  
+  
   private class OptionButton extends Button {
     final Mission mission;
     

@@ -77,10 +77,6 @@ public class SelectionTracking {
       lockTarget = null;
     }
     else {
-      if (
-        (target instanceof Element) &&
-        ((Element) target).sprite() == null
-      ) { lockOn(null); return; }
       lockTarget = target;
     }
   }
@@ -99,21 +95,8 @@ public class SelectionTracking {
     final Vec3D nextPos = new Vec3D(view.lookedAt);
     nextPos.x = Nums.clamp(nextPos.x + x, 0, world.size - 1);
     nextPos.y = Nums.clamp(nextPos.y + y, 0, world.size - 1);
-    //
-    //  We can't continue tracking our lock-target once our field-of-view has
-    //  changed.  So if the current pane is dedicated to that target, we need
-    //  to dismiss it and focus on whatever comes in view instead.
-    if (lockTarget != null && lockTarget == paneSelection()) {
-      final Tile          under   = world.tileAt(nextPos.x, nextPos.y);
-      final SelectionPane pane    = under.configSelectPane(null, UI);
-      final SelectionOptions options = under.configSelectOptions (null, UI);
-      UI.setInfoPane  (pane   );
-      UI.setOptionsList(options);
-    }
-    //
-    //  Then clean up after.
     Selection.pushSelection(null, null);
-    lockTarget = null;
+    lockTarget = world.tileAt(nextPos.x, nextPos.y);
     view.lookedAt.setTo(nextPos);
   }
   
@@ -135,12 +118,20 @@ public class SelectionTracking {
     }
     
     lockX = lockY = 0;
-    
     if (pressed(Keys.UP   ) || pressed(Keys.W)) pushCamera( 1, -1);
     if (pressed(Keys.DOWN ) || pressed(Keys.S)) pushCamera(-1,  1);
     if (pressed(Keys.RIGHT) || pressed(Keys.D)) pushCamera( 1,  1);
     if (pressed(Keys.LEFT ) || pressed(Keys.A)) pushCamera(-1, -1);
     if (lockTarget != null) followLock();
+    //
+    //  We can't continue tracking our lock-target once our field-of-view has
+    //  changed.  So if the current pane is dedicated to that target, we need
+    //  to dismiss it and focus on whatever comes in view instead.
+    if (lockTarget instanceof Tile && UI.currentOptions() == null) {
+      final Tile under = (Tile) lockTarget;
+      UI.setInfoPane   (under.configSelectPane   (null, UI));
+      UI.setOptionsList(under.configSelectOptions(null, UI));
+    }
   }
   
   

@@ -128,8 +128,6 @@ public class Stage implements Session.Saveable {
     activities.loadState(s);
     presences.loadState(s);
     ephemera.loadState(s);
-    
-    this.readyAfterPopulation();
   }
   
   

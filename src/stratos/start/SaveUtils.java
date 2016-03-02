@@ -226,6 +226,7 @@ public class SaveUtils {
         I.say("Loading complete...");
         loaded = (Scenario) session.loaded()[0];
         done   = true;
+        loaded.afterLoading(false);
         PlayLoop.setPaused(false);
         PlayLoop.setGameSpeed(1);
         return 1;
