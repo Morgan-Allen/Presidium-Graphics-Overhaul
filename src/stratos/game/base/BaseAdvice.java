@@ -156,7 +156,7 @@ public class BaseAdvice {
       if (ship.dropPoint() == null) needLanding = true;
     }
     
-    if (base.demands.exportSupply.size() == 0) {
+    if (base.demands.exportsAvailable().empty()) {
       needExports = true;
     }
     for (Traded t : Economy.ALL_MATERIALS) {

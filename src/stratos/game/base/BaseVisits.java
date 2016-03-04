@@ -282,9 +282,12 @@ public class BaseVisits {
       exports = new Batch <Item> ();
     float sumImp = 0, sumExp = 0, scale = 1;
     
+    //  TODO:  You also need to check for availability of these goods at the
+    //  offworld sector being visited!
+    
     for (Traded type : ALL_MATERIALS) {
-      float demand = base.demands.importDemand(type);
-      float supply = base.demands.exportSupply(type);
+      float demand = base.demands.importDemand(type, true);
+      float supply = base.demands.exportSupply(type, true);
       
       if (report) I.say("  Supply/demand for "+type+": "+supply+"/"+demand);
       if (supply > 0) {

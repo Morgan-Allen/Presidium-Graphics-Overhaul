@@ -363,67 +363,108 @@ public class Stocks extends Inventory {
   public void updateStockDemands(
     int period, Traded services[], Conversion... cons
   ) {
-    final BaseDemands BD = basis.base().demands;
-    final Presences   BP = basis.world().presences;
-    final Tile        at = basis.world().tileAt(basis);
-    final boolean isTrader = basis.owningTier() == Owner.TIER_TRADER;
-    
-    //  TODO:  Scrub demand for anything not listed in services (or as a raw
-    //  material.)
     final boolean report = I.talkAbout == basis && verbose;
     if (report) {
       I.say("\nUpdating stock demands for "+basis);
     }
-    
+    final BaseDemands BD = basis.base().demands;
+    final Presences   BP = basis.world().presences;
+    final Tile        at = basis.world().tileAt(basis);
+    //
+    //  First clean up old orders, and translate demands for raw materials from
+    //  conversions-
+    cleanupOrders(period, cons);
+    //
+    //  Then update production-demand based on sampling of ambient consumption-
+    //  levels:
+    for (Traded t : services) {
+      final Demand d = demandRecord(t);
+      if (d.fixed || ! t.common()) continue;
+      d.production = BD.demandSampleFor(basis, t, period) + 1;
+    }
+    for (Demand d : demands.values()) {
+      boolean sells = amountOf(d.type) > 0 && d.production > 0;
+      boolean buys  = d.consumption > 0 && ! sells;
+      
+      BP.togglePresence(basis, at, sells, d.type.supplyKey);
+      BP.togglePresence(basis, at, buys , d.type.demandKey);
+      
+      if (d.consumption == 0) continue;
+      BD.impingeDemand(d.type, d.consumption, period, basis);
+    }
+  }
+  
+  
+  public void updateStocksAsTrader(
+    int period, Traded services[], Conversion... cons
+  ) {
+    final boolean report = I.talkAbout == basis && verbose;
+    if (report) {
+      I.say("\nUpdating stock demands as trader: "+basis);
+    }
+    final BaseDemands BD = basis.base().demands;
+    final Presences   BP = basis.world().presences;
+    final Tile        at = basis.world().tileAt(basis);
+    //
+    //  Firstly, compute overall production/consumption levels to reflect local
+    //  needs...
+    for (Traded t : services) if (t.common()) {
+      final Demand d = demandRecord(t);
+      d.consumption = BD.demandSampleFor(basis, t, period);
+      d.production  = BD.supplySampleFor(basis, t, period);
+    }
+    //
+    //  Then clean up old orders, and translate demands for raw materials from
+    //  conversions-
+    cleanupOrders(period, cons);
+    //
+    //  Then tally total consumption/production levels-
+    final int totalSpace = basis.spaceCapacity();
+    float totalCons = 0, totalProd = 0;
+    for (Traded t : services) if (t.common()) {
+      final Demand d = demandRecord(t);
+      totalCons += d.consumption;
+      totalProd += d.production ;
+      
+      if (report) {
+        I.say("  Base prod/cons for "+t+": "+d.production+"/"+d.consumption);
+      }
+    }
+    final float scale = totalSpace / Nums.max(1, totalCons + totalProd);
+    if (report) I.say("Scaling for space: "+scale);
+    //
+    //  And finally, scale these down to fit within total space capacity.  If
+    //  there's any left, flag supply/demand at the venue accordingly.
+    for (Traded t : services) if (t.common()) {
+      final Demand d = demandRecord(t);
+      float total = d.consumption + d.production;
+      //if (scale < 1)
+      total *= scale;
+      d.consumption = Nums.min(total, d.consumption        );
+      d.production  = Nums.max(0    , total - d.consumption);
+      
+      if (report) {
+        I.say("  Scaled prod/cons for "+t+": "+d.production+"/"+d.consumption);
+      }
+      boolean buys  = d.consumption > 0;
+      boolean sells = amountOf(d.type) > 0 && d.production > 0;
+      BP.togglePresence(basis, at, sells, d.type.supplyKey);
+      BP.togglePresence(basis, at, buys , d.type.demandKey);
+    }
+  }
+  
+  
+  private void cleanupOrders(int period, Conversion cons[]) {
+    //  TODO:  Scrub demand for anything not listed in services (or as a raw
+    //  material.)
     for (Item i : specialOrders) if (hasItem(i)) {
       deleteSpecialOrder(i);
     }
     for (Bringing d : reservations) {
       if (! d.isActive()) setReservation(d, false);
     }
-    //
-    //  Translate any demand for conversion-processes:
     for (Conversion c : cons) for (Item r : c.raw) setConsumption(r.type, 0);
     for (Conversion c : cons) translateRawDemands(c, period);
-    //
-    //  Update production-demand based on sampling of ambient consumption-
-    //  levels:
-    if (isTrader) {
-      for (Traded t : services) if (t.common()) {
-        final Demand d = demandRecord(t);
-        
-        boolean buys  = amountOf(d.type) > 0 && d.production > 0;
-        boolean sells = d.consumption > 0 && ! buys;
-        BP.togglePresence(basis, at, sells, d.type.supplyKey);
-        BP.togglePresence(basis, at, buys , d.type.demandKey);
-        
-        if (d.fixed) {
-          final float need = (d.consumption + d.production) / 2;
-          BD.impingeDemand(d.type, need, period, basis);
-        }
-        else {
-          d.consumption = BD.demandSampleFor(basis, t, period);
-          d.production  = BD.supplySampleFor(basis, t, period);
-        }
-      }
-    }
-    else {
-      for (Traded t : services) {
-        final Demand d = demandRecord(t);
-        if (d.fixed || ! t.common()) continue;
-        d.production = BD.demandSampleFor(basis, t, period) + 1;
-      }
-      for (Demand d : demands.values()) {
-        boolean sells = amountOf(d.type) > 0 && d.production > 0;
-        boolean buys  = d.consumption > 0 && ! sells;
-        
-        BP.togglePresence(basis, at, sells, d.type.supplyKey);
-        BP.togglePresence(basis, at, buys , d.type.demandKey);
-        
-        if (d.consumption == 0) continue;
-        BD.impingeDemand(d.type, d.consumption, period, basis);
-      }
-    }
   }
   
   

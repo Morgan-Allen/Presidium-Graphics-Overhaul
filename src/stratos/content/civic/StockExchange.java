@@ -272,7 +272,7 @@ public class StockExchange extends Venue {
     //
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_AMBIENCE);
-    stocks.updateStockDemands(1, ALL_STOCKED);
+    stocks.updateStocksAsTrader(1, ALL_STOCKED);
     for (Traded type : ALL_STOCKED) {
       final float stockBonus = 1 + upgradeLevelFor(type);
       stocks.setConsumption(type, stocks.consumption(type) + stockBonus);
@@ -316,7 +316,7 @@ public class StockExchange extends Venue {
   
   
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, DISPLAYED_GOODS);
+    return VenuePane.configStandardPanel(this, panel, UI, null);
   }
   
   

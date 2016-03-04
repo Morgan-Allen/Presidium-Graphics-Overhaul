@@ -50,25 +50,20 @@ public class BaseDemands {
   private Table allTables[] = { supply, demand };
   private Vec3D temp = new Vec3D();
   
-  final Tally <Traded>
-    primaryDemand = new Tally <Traded> (),
-    primarySupply = new Tally <Traded> (),
-    consPerDay    = new Tally <Traded> (),
-    prodPerDay    = new Tally <Traded> (),
-    importDemand  = new Tally <Traded> (),
-    exportSupply  = new Tally <Traded> ();
-  final Table <Traded, Float>
-    importPrices = new Table <Traded, Float> (),
-    exportPrices = new Table <Traded, Float> ();
+  private static class Demands {
+    Traded type;
+    float supply, demand;
+    float dailyCons, dailyProd;
+    float importDemand, exportSupply;
+    boolean allowImport = false, allowExport = true;
+  }
+  private Table <Traded, Demands> allDemands = new Table();
   
   
   
   public BaseDemands(Base base) {
     this.base = base;
-    for (Traded type : ALL_MATERIALS) {
-      importPrices.put(type, (float) type.defaultPrice());
-      exportPrices.put(type, (float) type.defaultPrice());
-    }
+    clearDemands();
   }
   
   
@@ -84,14 +79,17 @@ public class BaseDemands {
     }
     
     for (Traded type : ALL_MATERIALS) {
-      primaryDemand.set(type, s.loadFloat());
-      primarySupply.set(type, s.loadFloat());
-      consPerDay   .set(type, s.loadFloat());
-      prodPerDay   .set(type, s.loadFloat());
-      importDemand .set(type, s.loadFloat());
-      exportSupply .set(type, s.loadFloat());
-      importPrices .put(type, s.loadFloat());
-      exportPrices .put(type, s.loadFloat());
+      Demands        d = new Demands();
+      d.type         = type;
+      d.demand       = s.loadFloat();
+      d.supply       = s.loadFloat();
+      d.dailyCons    = s.loadFloat();
+      d.dailyProd    = s.loadFloat();
+      d.importDemand = s.loadFloat();
+      d.exportSupply = s.loadFloat();
+      d.allowImport  = s.loadBool ();
+      d.allowExport  = s.loadBool ();
+      allDemands.put(type, d);
     }
   }
   
@@ -107,14 +105,28 @@ public class BaseDemands {
     }
     
     for (Traded type : ALL_MATERIALS) {
-      s.saveFloat(primaryDemand.valueFor(type));
-      s.saveFloat(primarySupply.valueFor(type));
-      s.saveFloat(consPerDay   .valueFor(type));
-      s.saveFloat(prodPerDay   .valueFor(type));
-      s.saveFloat(importDemand .valueFor(type));
-      s.saveFloat(exportSupply .valueFor(type));
-      s.saveFloat(importPrices.get(type)      );
-      s.saveFloat(exportPrices.get(type)      );
+      Demands d = allDemands.get(type);
+      s.saveFloat(d.demand      );
+      s.saveFloat(d.supply      );
+      s.saveFloat(d.dailyCons   );
+      s.saveFloat(d.dailyProd   );
+      s.saveFloat(d.importDemand);
+      s.saveFloat(d.exportSupply);
+      s.saveBool (d.allowImport );
+      s.saveBool (d.allowExport );
+    }
+  }
+  
+  
+  private void clearDemands() {
+    for (Traded type : ALL_MATERIALS) {
+      Demands d = allDemands.get(type);
+      if (d == null) d = new Demands();
+      d.type = type;
+      d.supply       = d.demand       = 0;
+      d.exportSupply = d.importDemand = 0;
+      d.dailyCons    = d.dailyProd    = 0;
+      allDemands.put(type, d);
     }
   }
   
@@ -172,14 +184,7 @@ public class BaseDemands {
     //
     //  Firstly, we summarise domestic supply and demand for all the major
     //  commodities-
-    final Series <SectorBase> partners = base.visits.partners();
-    final Sector homeworld = base.visits.homeworld();
-    primarySupply.clear();
-    primaryDemand.clear();
-    consPerDay   .clear();
-    prodPerDay   .clear();
-    importDemand .clear();
-    exportSupply .clear();
+    clearDemands();
     
     for (Object o : base.world.presences.matchesNear(base, null, -1)) {
       final Venue venue = (Venue) o;
@@ -190,6 +195,8 @@ public class BaseDemands {
         venue.services(), SERVICE_COMMERCE
       );
       for (Traded type : venue.stocks.demanded()) {
+        final Demands d = allDemands.get(type);
+        if (d == null) continue;
         final float
           amount      = venue.stocks.amountOf        (type),
           consumption = venue.stocks.consumption     (type),
@@ -204,17 +211,21 @@ public class BaseDemands {
           I.say("    Per day:         "+prodPD    +"/"+consPD     );
         }
         if (trader) {
-          exportSupply.add(Nums.min(production, amount), type);
-          importDemand.add(Nums.max(0, consumption    ), type);
+          d.exportSupply += Nums.min(production, amount);
+          d.importDemand += Nums.max(0, consumption    );
         }
         else {
-          primarySupply.add(Nums.max(0, amount     ), type);
-          primaryDemand.add(Nums.max(0, consumption), type);
-          consPerDay   .add(consPD, type);
-          prodPerDay   .add(prodPD, type);
+          d.supply += Nums.max(0, amount     );
+          d.demand += Nums.max(0, consumption);
+          d.dailyCons += consPD;
+          d.dailyProd += prodPD;
         }
       }
     }
+    
+    /*
+    final Series <SectorBase> partners = base.visits.partners();
+    final Sector homeworld = base.visits.homeworld();
     //
     //  Then, we tally up average supply and demand for goods offworld.
     for (Traded type : ALL_MATERIALS) {
@@ -249,6 +260,7 @@ public class BaseDemands {
       importMul *= BASE_IMPORT_MUL / 2;
       exportDiv *= BASE_EXPORT_DIV / 2;
       
+      final Demands d = allDemands.get(type);
       importPrices.put(type, basePrice * importMul);
       exportPrices.put(type, basePrice / exportDiv);
     }
@@ -264,16 +276,19 @@ public class BaseDemands {
         I.say("  "+t+" "+importDemand.valueFor(t));
       }
     }
+    //*/
   }
   
   
   public float primarySupply(Traded type) {
-    return primarySupply.valueFor(type);
+    final Demands d = allDemands.get(type);
+    return d == null ? 0 : d.supply;
   }
   
   
   public float primaryDemand(Traded type) {
-    return primaryDemand.valueFor(type);
+    final Demands d = allDemands.get(type);
+    return d == null ? 0 : d.demand;
   }
   
   
@@ -285,43 +300,85 @@ public class BaseDemands {
   
   
   public float dailyConsumption(Traded type) {
-    return consPerDay.valueFor(type);
+    final Demands d = allDemands.get(type);
+    return d == null ? 0 : d.dailyCons;
   }
   
   
   public float dailyProduction(Traded type) {
-    return prodPerDay.valueFor(type);
+    final Demands d = allDemands.get(type);
+    return d == null ? 0 : d.dailyProd;
   }
   
   
-  public float importDemand(Traded type) {
-    return importDemand.valueFor(type);
+  public float importDemand(Traded type, boolean allowed) {
+    final Demands d = allDemands.get(type);
+    if (d == null || (allowed && ! d.allowImport)) return 0;
+    return d.importDemand;
   }
   
   
-  public float exportSupply(Traded type) {
-    return exportSupply.valueFor(type);
+  public float exportSupply(Traded type, boolean allowed) {
+    final Demands d = allDemands.get(type);
+    if (d == null || (allowed && ! d.allowExport)) return 0;
+    return d.exportSupply;
   }
   
   
-  public float tradingShortage(Traded type) {
-    float demand = importDemand(type), supply = exportSupply(type);
+  public float tradingShortage(Traded type, boolean allowed) {
+    final Demands d = allDemands.get(type);
+    if (d == null) return 0;
+    float demand = d.importDemand, supply = d.exportSupply;
+    if (allowed && ! d.allowImport) demand = 0;
+    if (allowed && ! d.allowExport) supply = 0;
     if (demand == 0) return 0;
     return (demand - supply) / demand;
   }
   
   
   public float importPrice(Traded type) {
-    final Float price = importPrices.get(type);
-    if (price == null) return type.defaultPrice() * 10f;
+    final Float price = null;// importPrices.get(type);
+    if (price == null) return type.defaultPrice() * SMUGGLE_MARGIN;
     return price;
   }
   
   
   public float exportPrice(Traded type) {
-    final Float price = exportPrices.get(type);
-    if (price == null) return type.defaultPrice() / 10f;
+    final Float price = null;// exportPrices.get(type);
+    if (price == null) return type.defaultPrice() / SMUGGLE_MARGIN;
     return price;
+  }
+  
+  
+  public Series <Traded> exportsAvailable() {
+    final Batch <Traded> all = new Batch();
+    for (Traded t : ALL_MATERIALS) {
+      final Demands d = allDemands.get(t);
+      if (d.exportSupply > 0 && d.allowExport) all.add(t);
+    }
+    return all;
+  }
+  
+  
+  public Series <Traded> importsAvailable() {
+    final Batch <Traded> all = new Batch();
+    for (Traded t : ALL_MATERIALS) {
+      final Demands d = allDemands.get(t);
+      if (d.importDemand > 0 && d.allowImport) all.add(t);
+    }
+    return all;
+  }
+  
+  
+  public boolean allowsImport(Traded type) {
+    final Demands d = allDemands.get(type);
+    return d != null && d.allowImport;
+  }
+  
+  
+  public boolean allowsExport(Traded type) {
+    final Demands d = allDemands.get(type);
+    return d != null && d.allowExport;
   }
   
   
@@ -353,6 +410,18 @@ public class BaseDemands {
     }
 
     summariseDemandAndPrices(numUpdates);
+  }
+  
+  
+  public void setImportsAllowed(Traded type, boolean allow) {
+    final Demands d = allDemands.get(type);
+    d.allowImport = allow;
+  }
+  
+  
+  public void setExportsAllowed(Traded type, boolean allow) {
+    final Demands d = allDemands.get(type);
+    d.allowExport = allow;
   }
   
   

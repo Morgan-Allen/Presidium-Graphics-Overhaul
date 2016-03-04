@@ -133,7 +133,7 @@ public class BudgetsPane extends SelectionPane {
     
     Text.cancelBullet(d);
     
-    for (Traded t : Economy.ALL_MATERIALS) {
+    for (final Traded t : Economy.ALL_MATERIALS) {
       
       final String
         priceImp = I.shorten(BD.importPrice(t), 0),
@@ -143,6 +143,9 @@ public class BudgetsPane extends SelectionPane {
         supply   = I.shorten(BD.primarySupply   (t), 0),
         consPD   = I.shorten(BD.dailyConsumption(t), 1),
         prodPD   = I.shorten(BD.dailyProduction (t), 1);
+      final boolean
+        allowImp = BD.allowsImport(t),
+        allowExp = BD.allowsExport(t);
       
       Text.insert(t.icon.asTexture(), 20, 20, true, d);
       d.append(" ");
@@ -159,6 +162,21 @@ public class BudgetsPane extends SelectionPane {
       d.append(" | ");
       d.append(baseCost+"", Colour.LITE_BLUE );
       d.append(")\n");
+      
+      //  TODO:  Toggle imports/exports for each of these.
+      d.append(" Imports: ");
+      d.append(new Description.Link(allowImp ? "Yes" : "No ") {
+        public void whenClicked(Object context) {
+          BD.setImportsAllowed(t, ! allowImp);
+        }
+      });
+      d.append(" Exports: ");
+      d.append(new Description.Link(allowExp ? "Yes" : "No ") {
+        public void whenClicked(Object context) {
+          BD.setExportsAllowed(t, ! allowExp);
+        }
+      });
+      d.append("\n");
     }
     
     Text.cancelBullet(d);
@@ -208,6 +226,8 @@ public class BudgetsPane extends SelectionPane {
     
   }
 }
+
+
 
 
 

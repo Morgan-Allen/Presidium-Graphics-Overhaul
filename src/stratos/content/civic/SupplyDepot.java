@@ -142,7 +142,7 @@ public class SupplyDepot extends Venue {
     //
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_SQUALOR);
-    stocks.updateStockDemands(1, ALL_STOCKED);
+    stocks.updateStocksAsTrader(1, ALL_STOCKED, POLYMER_TO_PLASTICS);
     
     float recyc = Nums.clamp(1f - base.demands.primaryShortage(ATMO), 0, 1);
     recyc = BASE_POLYMER_PER_DAY * (recyc + 1) / 2;
@@ -287,7 +287,7 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, ALL_STOCKED);
+    return VenuePane.configStandardPanel(this, panel, UI, null);
   }
 }
 
