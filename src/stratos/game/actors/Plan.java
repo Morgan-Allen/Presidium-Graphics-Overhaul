@@ -192,8 +192,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public void interrupt(String cause) {
-    if (! hasBegun()) return;
+  public boolean interrupt(String cause) {
+    if (! hasBegun()) return false;
     final boolean report =
       I.talkAbout == actor && (stepsVerbose || priorityVerbose)
     ;
@@ -206,6 +206,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     priorityEval = NULL_PRIORITY;
     actor.mind.cancelBehaviour(this, cause);
     addMotives(IS_CANCELLED, 0);
+    return true;
   }
   
   
@@ -221,8 +222,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
       nextStep     = null;
       return;
     }
-
-    if (! Plan.canFollow(actor, nextStep, false)) nextStep = null;
+    
+    if (! Plan.canFollow(actor, nextStep, true, false)) nextStep = null;
     if (! checkRefreshDue(actor, report && extraVerbose)) return;
     final boolean asRoot = parentPlan() == null;
     final float time = actor.world().currentTime();
@@ -351,6 +352,8 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   
   
   public boolean finished() {
+    //  TODO:  Merge this with canFollow() below?
+    
     final boolean report = I.talkAbout == actor &&
       (stepsVerbose || priorityVerbose) && hasBegun();
     
@@ -481,11 +484,13 @@ public abstract class Plan implements Session.Saveable, Behaviour {
   }
   
   
-  public static boolean canFollow(Actor a, Behaviour b, boolean checkPriority) {
+  public static boolean canFollow(
+    Actor a, Behaviour b, boolean checkSteps, boolean checkPriority
+  ) {
     if (b == null || ! b.valid()) return false;
     b.updatePlanFor(a);
     
-    if (b.finished() || b.nextStep() == null) {
+    if (b.finished() || b.moveTarget() == null) {
       return false;
     }
     if (checkPriority && b.priority() <= 0) {

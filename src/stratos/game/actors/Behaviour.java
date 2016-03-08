@@ -52,7 +52,7 @@ public interface Behaviour extends Session.Saveable {
   Behaviour nextStep();
   int motionType(Actor actor);
   void toggleActive(boolean is);
-  void interrupt(String cause);
+  boolean interrupt(String cause);
   
   float priority();
   boolean finished();

@@ -203,9 +203,12 @@ public class JoinMission extends Plan implements Journey.Purpose {
   }
   
   
-  public void interrupt(String cause) {
-    actor.mind.assignMission(null);
-    super.interrupt(cause);
+  public boolean interrupt(String cause) {
+    if (nextStep == null || nextStep.interrupt(cause)) {
+      super.interrupt(cause);
+      return true;
+    }
+    else return false;
   }
   
   

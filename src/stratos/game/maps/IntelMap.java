@@ -337,7 +337,7 @@ public class IntelMap {
     
     if (maxDist <= 0 && client instanceof Mobile) {
       if (world.pathingMap.hasPathBetween(
-        ((Mobile) client).aboard(), picked, client.base(), report
+        ((Mobile) client).aboard(), picked, (Mobile) client, report
       )) {
         return picked;
       }

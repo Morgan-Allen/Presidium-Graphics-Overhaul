@@ -284,7 +284,7 @@ public abstract class Actor extends Mobile implements
         needsBigUpdate = true;
       }
     }
-    if (! Plan.canFollow(this, action, false)) {
+    if (! Plan.canFollow(this, action, true, false)) {
       if (report) {
         I.say("  Could not follow action: "+action);
         Plan.reportPlanDetails(action, this);

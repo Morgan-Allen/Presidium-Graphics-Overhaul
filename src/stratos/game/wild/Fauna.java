@@ -247,7 +247,7 @@ public abstract class Fauna extends Actor implements Mount {
   
   protected Behaviour nextBuildingNest() {
     final Nesting nesting = new Nesting(this);
-    if (Plan.canFollow(this, nesting, true)) return nesting;
+    if (Plan.canFollow(this, nesting, true, true)) return nesting;
     
     if (! (mind.home() instanceof Nest)) return null;
     final Nest nest = (Nest) mind.home();

@@ -5,6 +5,7 @@
   */
 package stratos.game.maps;
 import stratos.game.common.*;
+import stratos.game.craft.*;
 import stratos.util.*;
 
 
@@ -21,6 +22,10 @@ public class PathingMap {
   final static boolean
     updatesVerbose = false,
     extraVerbose   = false;
+  
+  final static int
+    ROUTE_CACHE_EXPIRY = 1,
+    MAX_ROUTES_CACHED  = 5000;
   
   private static int
     numRoutes     = 0,
@@ -81,12 +86,20 @@ public class PathingMap {
     public void finalize() throws Throwable { numZones--; super.finalize(); }
   }
   
+  private class PlaceRoute {
+    Place path[];
+    String hash;
+    float expireTime;
+  }
+  
   
   final Stage world;
   final Place    tilePlaces[][];
   final PlaceSet placeSets [][];
   final List <PlaceSet> needRefresh = new List();
   final List <Place   > needZoning  = new List();
+  final Table <String, PlaceRoute> placeRouteCache;
+  final List <PlaceRoute> allPlaceRoutes = new List();
   private boolean setupDone;
   
   
@@ -95,7 +108,7 @@ public class PathingMap {
     this.tilePlaces = new Place[world.size][world.size];
     final int gridSize = world.patches.gridSize;
     this.placeSets  = new PlaceSet[gridSize][gridSize];
-    
+    this.placeRouteCache = new Table(MAX_ROUTES_CACHED * 2);
     //  TODO:  Consider saving & loading this information?
   }
   
@@ -497,7 +510,7 @@ public class PathingMap {
       return null;
     }
     
-    if (! hasPathBetween(initP, destP, client.base(), reports)) {
+    if (! hasPathBetween(initP, destP, client, reports)) {
       if (reports) I.say("NO PATH BETWEEN: "+initP+"/"+destP);
       return null;
     }
@@ -627,20 +640,24 @@ public class PathingMap {
   
   
   private boolean hasPathBetween(
-    Place initP, Place destP, Base client, boolean reports
+    Place initP, Place destP, Accountable client, boolean reports
   ) {
     final Zone
-      initZ = zoneFor(initP, client),
-      destZ = zoneFor(destP, client);
+      initZ = zoneFor(initP, client.base()),
+      destZ = zoneFor(destP, client.base());
     //
     //  TODO:  For now, we're just going to be a little more forgiving...
     if (initZ == null || destZ == null) return true;
-    return initZ != null && destZ != null && initZ == destZ;
+    if (initZ == destZ) return true;
+    
+    //  TODO:  This will have to be cached!  Urgently!  Somehow!
+    final Place placeRoute[] = placesPath(initP, destP, false, client, reports);
+    return placeRoute != null;
   }
   
   
   public boolean hasPathBetween(
-    Boarding a, Boarding b, Base client, boolean reports
+    Boarding a, Boarding b, Accountable client, boolean reports
   ) {
     if (GameSettings.pathFree) return true;
     final Place
@@ -652,14 +669,15 @@ public class PathingMap {
   
   
   public boolean hasPathBetween(
-    Target a, Target b, Mobile client, boolean reports
+    Target a, Target b, Accountable client, boolean reports
   ) {
     if (GameSettings.pathFree) return true;
-    return hasPathBetween(
+    if (hasPathBetween(
       PathSearch.accessLocation(a, client),
       PathSearch.accessLocation(b, client),
-      client.base(), reports
-    );
+      client, reports
+    )) return true;
+    return false;
   }
   
   
@@ -770,6 +788,15 @@ public class PathingMap {
     final boolean zoneFill, final Accountable client,
     boolean reports
   ) {
+    String hash = null;
+    if (! zoneFill) {
+      hash = init.hashCode()+"_"+dest.hashCode()+"_"+client.hashCode();
+      final PlaceRoute oldRoute = placeRouteCache.get(hash);
+      if (oldRoute != null && oldRoute.expireTime < world.currentTime()) {
+        return oldRoute.path;
+      }
+    }
+    
     if (reports && dest != null) {
       I.say("\nSearching for place path between "+init+" and "+dest);
     }
@@ -830,15 +857,32 @@ public class PathingMap {
     if (zoneFill) {
       return search.allSearched(Place.class);
     }
-    else if (! search.success()) {
-      return null;
-    }
     else {
-      return search.fullPath(Place.class);
+      Place path[] = search.success() ? search.fullPath(Place.class) : null;
+      if (! zoneFill) {
+        final PlaceRoute route = new PlaceRoute();
+        route.expireTime = world.currentTime() + ROUTE_CACHE_EXPIRY;
+        route.hash = hash;
+        route.path = path;
+        placeRouteCache.put(hash, route);
+        allPlaceRoutes.addFirst(route);
+        
+        while (allPlaceRoutes.size() > MAX_ROUTES_CACHED) {
+          PlaceRoute dead = allPlaceRoutes.removeLast();
+          placeRouteCache.remove(dead.hash);
+        }
+      }
+      return path;
     }
   }
   
 }
+
+
+
+
+
+
 
 
 

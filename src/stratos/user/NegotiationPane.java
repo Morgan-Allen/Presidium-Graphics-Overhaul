@@ -34,7 +34,7 @@ public class NegotiationPane extends MissionPane {
   
   
   public SelectionPane configOwningPanel() {
-    final Description d = detail(), l = listing();
+    final Description d = detail();
     final Actor ruler = mission.base().ruler();
     final Actor subject = (Actor) mission.subject();
     if (ruler == null || subject == null) return null;
@@ -53,11 +53,11 @@ public class NegotiationPane extends MissionPane {
     offers.made = contact.pledgeOffers();
     sought.made = contact.pledgeSought();
     
-    offers.listTermsFor(ruler  , subject, "Terms Offered: "   , l);
-    sought.listTermsFor(subject, ruler  , "\n\nTerms Sought: ", l);
+    offers.listTermsFor(ruler  , subject, "\n\nTerms Offered: ", d);
+    sought.listTermsFor(subject, ruler  , "\n\nTerms Sought: " , d);
     
-    l.append("\n\n");
-    super.listApplicants(contact, contact.applicants(), canChange, l);
+    d.append("\n\n");
+    super.listApplicants(contact, contact.applicants(), canChange, d);
     return this;
   }
   
@@ -65,7 +65,7 @@ public class NegotiationPane extends MissionPane {
   private abstract class PledgeMenu {
     
     Pledge made = null;
-    Pledge.Type madeType = null;
+    Pledge.Type shownType = null;
     boolean showMenu = false;
     
     private void listTermsFor(
@@ -81,24 +81,25 @@ public class NegotiationPane extends MissionPane {
           final boolean willShow = ! showMenu;
           offers.showMenu = sought.showMenu = false;
           showMenu = willShow;
-          madeType = made == null ? null : made.type;
+          shownType = made == null ? null : made.type;
         }
       });
       if (showMenu) for (final Pledge.Type type : Pledge.TYPE_INDEX) {
         if (! type.canMakePledge(ruler, subject)) continue;
-        final Pledge pledges[] = type.variantsFor(ruler, subject);
-        if (pledges == null || pledges.length == 0) continue;
+        final Pledge variants[] = type.variantsFor(ruler, subject);
+        if (variants == null || variants.length == 0) continue;
+        if (made != null && type == made.type) continue;
         //
         //  having skipped over any non-applicable pledge types, we allow
         //  selection from any variants on the current pledge-type...
-        if (madeType == type) {
-          if (pledges.length == 1) continue;
+        if (shownType == type) {
+          if (variants.length == 1) continue;
           d.append("\n  "+type.name);
-          for (final Pledge pledge : pledges) {
+          for (final Pledge variant : variants) {
             d.append("\n    ");
-            d.append(new Description.Link(pledge.description()) {
+            d.append(new Description.Link(variant.description()) {
               public void whenClicked(Object context) {
-                setMade(pledge);
+                setMade(variant);
                 showMenu = false;
               }
             });
@@ -110,17 +111,17 @@ public class NegotiationPane extends MissionPane {
         //  directly.)
         else {
           d.append("\n  ");
-          final String typeDesc = pledges.length == 1 ?
-            pledges[0].description() : type.name
+          final String typeDesc = variants.length == 1 ?
+            variants[0].description() : type.name
           ;
           d.append(new Description.Link(typeDesc) {
             public void whenClicked(Object context) {
-              if (pledges.length == 1) {
-                setMade(pledges[0]);
+              if (variants.length == 1) {
+                setMade(variants[0]);
                 showMenu = false;
               }
               else {
-                madeType = type;
+                shownType = type;
               }
             }
           });

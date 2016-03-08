@@ -222,15 +222,16 @@ public class Combat extends Plan {
   }
   
   
-  public void interrupt(String cause) {
+  public boolean interrupt(String cause) {
     if (cause == INTERRUPT_LOSE_PATH) {
       if (actor.actionFocus() == struck && struck != subject) {
         struck = subject;
+        nextStep = null;
         actor.assignAction(null);
-        return;
+        return false;
       }
     }
-    super.interrupt(cause);
+    return super.interrupt(cause);
   }
   
   

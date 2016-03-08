@@ -80,7 +80,6 @@ public abstract class ActorMind {
   /**  Calling regular, periodic updates and triggering AI refreshments-
     */
   public void updateAI(int numUpdates) {
-    
     if (numUpdates % 10 != 0) return;
     final boolean report = I.talkAbout == actor && decisionVerbose;
     
@@ -119,7 +118,7 @@ public abstract class ActorMind {
   public Behaviour nextBehaviour() {
     final boolean report = I.talkAbout == actor && decisionVerbose;
     if (report) {
-      I.say("\n\nACTOR IS GETTING NEXT BEHAVIOUR...");
+      I.say("\n\nACTOR IS GETTING NEXT BEHAVIOUR.");
     }
     Behaviour taken = null, onMission = null;
     
@@ -145,7 +144,7 @@ public abstract class ActorMind {
       onMission = JoinMission.resume(actor, mission);
     }
     if (
-      Plan.canFollow(actor, onMission, true) &&
+      Plan.canFollow(actor, onMission, true, true) &&
       (taken == null || ! taken.isEmergency())
     ) {
       taken = onMission;
@@ -189,7 +188,7 @@ public abstract class ActorMind {
       I.say("\nGETTING NEXT ACTION FOR "+actor);
       I.say("  Current root behaviour: "+I.tagHash(root));
     }
-    if (! Plan.canFollow(actor, root, true)) {
+    if (! Plan.canFollow(actor, root, true, true)) {
       if (report && root != null) {
         I.say("  Could not follow root plan!");
         Plan.reportPlanDetails(root, actor);
@@ -213,7 +212,7 @@ public abstract class ActorMind {
         returned = (Action) next;
         break;
       }
-      final boolean valid = Plan.canFollow(actor, next, false);
+      final boolean valid = Plan.canFollow(actor, next, true, false);
       if (report) {
         I.say("  Next step: "+next+", valid? "+valid);
         if (! valid) Plan.reportPlanDetails(next, actor);

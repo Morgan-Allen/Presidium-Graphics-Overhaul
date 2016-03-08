@@ -199,6 +199,10 @@ public final class Economy {
   final public static Traded
     //  TODO:  Also, Transport.
     
+    ITEM_PASSCODE = new Traded(
+      BC, "Pass Code", null, FORM_SPECIAL, 0
+    ),
+    
     SERVICE_ENTERTAIN  = new Traded(
       BC, "Entertainment", null, FORM_SERVICE, 0
     ),

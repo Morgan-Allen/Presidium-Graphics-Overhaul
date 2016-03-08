@@ -367,7 +367,7 @@ public class Dialogue extends Plan {
     final boolean report = shouldReportSteps();
     if (report) I.say("Attempting to plea with "+other);
     
-    boolean canTalk = canTalkWith(other) && checkExpiry(PLEA_DURATION);
+    boolean canTalk = canTalkWith(other) && ! checkExpiry(PLEA_DURATION);
     if (PlanUtils.harmIntendedBy(other, actor, false) <= 0 || ! canTalk) {
       if (report) I.say("  Can no longer talk...");
       stage = STAGE_DONE;

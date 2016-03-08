@@ -552,7 +552,7 @@ public abstract class Mission implements Session.Saveable, Selectable {
     final Role role = roleFor(actor);
     if (finished() || (priority <= 0 && role == null)) return null;
     
-    if (role == null || ! Plan.canFollow(actor, role.cached, true)) {
+    if (role == null || ! Plan.canFollow(actor, role.cached, true, true)) {
       if (! create) return null;
       final Behaviour step = createStepFor(actor);
       if (role == null) return step;

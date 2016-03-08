@@ -52,7 +52,7 @@ public class PathSearch extends Search <Boarding> {
   }
   
   
-  public static Boarding accessLocation(Target t, Mobile client) {
+  public static Boarding accessLocation(Target t, Accountable client) {
     Boarding aboard = null;
     if (t instanceof Boarding && t != client) {
       aboard = (Boarding) t;
@@ -62,8 +62,8 @@ public class PathSearch extends Search <Boarding> {
       if (a.aboard() != null) aboard = a.aboard();
       else aboard = a.origin();
     }
-    else if (t instanceof Element) {
-      aboard = client.world().tileAt(t);
+    else if (t instanceof Element && client instanceof Target) {
+      aboard = ((Target) client).world().tileAt(t);
     }
     if (aboard == null || PathSearch.blockedBy(aboard, client)) return null;
     return aboard;

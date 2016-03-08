@@ -181,7 +181,7 @@ public class MissionContact extends Mission {
     //
     //  Otherwise, we begin talks with the subject:
     final Actor with = (Actor) subject;
-    final Proposal talks = new Proposal(actor, with);
+    final Diplomacy talks = new Diplomacy(actor, with);
     final float novelty = with.relations.noveltyFor(actor);
     talks.setTerms(offers, sought);
     talks.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
@@ -196,77 +196,26 @@ public class MissionContact extends Mission {
   }
   
   
-  public void endMission(boolean completed) {
-    final boolean finished = finished();
-    super.endMission(completed);
-    if (finished || isOffworld() || allTried.size() < rolesApproved()) return;
-    
-    final Actor talksTo = (Actor) subject;
-    checkForDefection(talksTo.mind.work());
-    checkForDefection(talksTo.mind.home());
-  }
-  
-  
-  //  TODO:  This should be generalised to allow for spontaneous defections...
-  
-  private void checkForDefection(Property belongs) {
-    if (! (belongs instanceof Venue)) return;
-    if (belongs.base() == base) return;
-    
-    final boolean report = true;
-    if (report) {
-      I.say("\nChecking for defection of: "+belongs);
-      I.say("  Belongs to: "+belongs.base());
-    }
-    
-    final Base local = belongs.base();
-    final Faction liege = base().faction();
-    
-    float overallSuccess = 0, numBelong = 0;
-    for (Actor a : belongs.staff().workers()) {
-      overallSuccess += a.relations.valueFor(liege);
-      numBelong++;
-    }
-    for (Actor a : belongs.staff().lodgers()) {
-      overallSuccess += a.relations.valueFor(liege);
-      numBelong++;
-    }
-    if (numBelong > 0) overallSuccess /= numBelong;
-
-    float localPower = 0, liegePower = 0;
-    liegePower = 0 - base().dangerMap.sampleAround(belongs, -1);
-    localPower = 0 - local .dangerMap.sampleAround(belongs, -1);
-    
-    float powerSum = Nums.abs(liegePower) + Nums.abs(localPower);
-    float overallPower = liegePower - localPower;
-    overallPower /= Nums.max(1, powerSum);
-    
-    final boolean willDefect = overallSuccess + overallPower > 1;
-    if (report) {
-      I.say("  Overall relations: "+overallSuccess);
-      I.say("  Relative power:    "+overallPower  );
-      I.say("  Will defect?       "+willDefect    );
-    }
-    if (willDefect) {
-      ((Venue) belongs).assignBase(base);
-      for (Actor a : belongs.staff().workers()) {
-        if (a.base() != base) a.assignBase(base);
-      }
-      for (Actor a : belongs.staff().lodgers()) {
-        if (a.base() != base) a.assignBase(base);
-      }
-    }
-  }
-  
-  
   protected boolean shouldEnd() {
     if (! hasBegun()) return false;
+    if (finished()) return true;
     
     if (asSummons != null) {
       return asSummons.finished();
     }
     else {
-      if (sought.accepted()) return true;
+      if (sought.accepted()) {
+        TOPIC_CONTACT_OKAY.dispatchMessage(
+            "Contact okay: "+subject, base, subject, this
+          );
+        return true;
+      }
+      if (sought.refused ()) {
+        TOPIC_CONTACT_FAIL.dispatchMessage(
+            "Contact failed: "+subject, base, subject, this
+          );
+        return true;
+      }
       return allTried.size() == rolesApproved();
     }
   }
@@ -296,7 +245,7 @@ public class MissionContact extends Mission {
     }
     
     final Actor with = (Actor) subject;
-    final Proposal props = new Proposal(talks, with);
+    final Diplomacy props = new Diplomacy(talks, with);
     props.setTerms(offers, sought);
     
     //  TODO:  Add some experience to diplomatic skills for envoys!
@@ -338,7 +287,7 @@ public class MissionContact extends Mission {
     protected void configMessage(BaseUI UI, Text d, Object... args) {
       d.appendAll("Negotiations with ", args[0], " have failed.");
       final MissionContact m = (MissionContact) args[1];
-      d.appendAll(" They have refused to provide ", m.sought);
+      d.appendAll(" They did not agree to ", m.sought);
       d.appendAll(" in exchange for ", m.offers, ".");
     }
   };

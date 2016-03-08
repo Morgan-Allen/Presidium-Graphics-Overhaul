@@ -46,9 +46,9 @@ public class MiscTechniques {
     public boolean triggersPassive(
       Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
-      if (! (current instanceof Proposal)) return false;
+      if (! (current instanceof Diplomacy)) return false;
       if (current.subject() != subject) return false;
-      final Proposal prop = (Proposal) current;
+      final Diplomacy prop = (Diplomacy) current;
       final Pledge made = prop.termsOffered();
       if (made == null || made.isDeceit()) return false;
       return used == COMMAND || used == SUASION;

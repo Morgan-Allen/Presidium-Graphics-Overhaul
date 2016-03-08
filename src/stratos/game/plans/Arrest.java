@@ -89,7 +89,7 @@ public class Arrest extends Plan {
       final Summons sentence = venue.base().profiles.sentenceFor(suspect);
       if (sentence != null) {
         final Arrest a = new Arrest(actor, suspect, sentence);
-        if (! Plan.canFollow(actor, a, true)) continue;
+        if (! Plan.canFollow(actor, a, true, true)) continue;
         pick.compare(a, a.priority());
       }
     }

@@ -199,7 +199,7 @@ public class Action implements Behaviour, AnimNames {
   }
   
   
-  public void interrupt(String cause) {
+  public boolean interrupt(String cause) {
     final boolean report = verbose && I.talkAbout == actor;
     progress = -1;
     moveState = STATE_INIT;
@@ -208,6 +208,7 @@ public class Action implements Behaviour, AnimNames {
       I.say("\nCancelling action: "+this);
       I.say("  Cause: "+cause);
     }
+    return true;
   }
   
   
@@ -362,9 +363,9 @@ public class Action implements Behaviour, AnimNames {
     else if (mustBoard) {
       if (report) I.say("  Must board target.");
       approaching = actor.aboard() == lastStep;
-      closed = approaching && (motionDist - maxDist < separation);
-      closeOn = closed ? actionTarget : step;
-      facing = actor.pathing.facingTarget(closeOn);
+      closed      = approaching && (motionDist - maxDist < separation);
+      closeOn     = closed ? actionTarget : step;
+      facing      = actor.pathing.facingTarget(closeOn);
     }
     else {
       if (report) I.say("  Must have facing and line of sight.");
@@ -372,17 +373,22 @@ public class Action implements Behaviour, AnimNames {
       final boolean seen = SenseUtils.hasLineOfSight(
         actor, actionTarget, Nums.max(maxDist, sightRange)
       );
-      closed = seen && (actionDist <= maxDist);
-      approaching = closed || (seen && (actionDist <= (maxDist + 1)));
-      closeOn = approaching ? actionTarget : step;
-      facing = actor.pathing.facingTarget(closeOn);
+      closed      = motionDist <= maxDist;
+      approaching = seen && (actionDist <= maxDist);
+      closeOn     = approaching ? actionTarget : (closed ? moveTarget : step);
+      facing      = actor.pathing.facingTarget(closeOn);
     }
     
     //  Ranged actions don't actually need complete pathing, just proximity-
-    if (ranged && ! pathsTo.indoors()) {
+    if (ranged && lastStep == null && ! pathsTo.indoors()) {
       pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
     }
-    actor.pathing.updateTarget(pathsTo);
+    if (closed) {
+      actor.pathing.updateTarget(actor.aboard());
+    }
+    else {
+      actor.pathing.updateTarget(pathsTo);
+    }
     
     if (report) {
       I.say("");
@@ -441,16 +447,7 @@ public class Action implements Behaviour, AnimNames {
       if (report) I.say("  Move rate: "+moveRate);
       
       actor.pathing.headTowards(closeOn, moveRate, 1, ! closed);
-      
-      if (report && Spacing.distance(actor, actionTarget) < 0) {
-        I.say("BUMP AFTER HEADING!");
-      }
-      
       actor.pathing.applyMotionCollision(moveRate, actionTarget);
-      
-      if (report && Spacing.distance(actor, actionTarget) < 0) {
-        I.say("BUMP AFTER COLLISION!");
-      }
       
       return moveRate;
     }
@@ -512,7 +509,9 @@ public class Action implements Behaviour, AnimNames {
         I.say("  Old/new progress: "+oldProgress+"/"+progress);
       }
       if (oldProgress <= contact && progress > contact) {
-        if (report) I.say("  Applying effect...");
+        if (report) {
+          I.say("  Applying effect...");
+        }
         applyEffect();
       }
     }

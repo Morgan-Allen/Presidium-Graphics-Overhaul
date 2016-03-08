@@ -4,8 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.craft;
-import static stratos.game.craft.Economy.*;
-
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.maps.*;
@@ -17,6 +15,8 @@ import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
 import stratos.user.*;
 import stratos.util.*;
+import static stratos.game.craft.Economy.*;
+
 
 
 
@@ -440,10 +440,12 @@ public abstract class Venue extends Fixture implements
   
   public boolean allowsEntry(Accountable m) {
     if (! structure.intact()) return false;
-    if (m.base() == this.base) return true;
-    //  TODO:  WORK THIS OUT
+    if (m.base() == base) return true;
+    if (m instanceof Owner) {
+      final Item pass = Item.withReference(ITEM_PASSCODE, base.faction());
+      if (((Owner) m).inventory().hasItem(pass)) return true;
+    }
     return false;
-    //return base.relations.relationWith(m.base()) >= 0;
   }
   
   

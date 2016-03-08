@@ -84,6 +84,13 @@ public class Pledge implements Session.Saveable {
     ACCEPT_FALSE =  0,
     ACCEPT_TRUE  =  1,
     ACCEPT_LIES  =  2;
+  final static Pledge
+    NO_PLEDGE[] = new Pledge[0];
+  
+  static boolean isRuler(Actor actor) {
+    if (actor.base() == null) return false;
+    return actor == actor.base().ruler();
+  }
   
   
   final public static Index <Type> TYPE_INDEX = new Index <Type> ();
@@ -161,7 +168,8 @@ public class Pledge implements Session.Saveable {
   
   
   public void performFullfillment() {
-    type.fulfillment(this, null);
+    final Behaviour b = type.fulfillment(this, null);
+    if (b != null) makes.mind.assignBehaviour(b);
   }
   
   
@@ -231,13 +239,15 @@ public class Pledge implements Session.Saveable {
   final public static Type TYPE_PAYMENT = new Type("Payment") {
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {
-      return new Pledge[] {
-          new Pledge(this, 50  , makesTo, makes),
-          new Pledge(this, 100 , makesTo, makes),
-          new Pledge(this, 250 , makesTo, makes),
-          new Pledge(this, 500 , makesTo, makes),
-          new Pledge(this, 1000, makesTo, makes),
-      };
+      final Batch <Pledge> vars = new Batch();
+      final int amounts[] = { 50, 100, 250, 500, 1000 };
+      final boolean ruler = isRuler(makes);
+      for (int amount : amounts) {
+        if (ruler && amount > makes.base().finance.credits()) break;
+        if ((! ruler) && amount > makes.gear.allCredits()   ) break;
+        vars.add(new Pledge(this, amount, makesTo, makes));
+      }
+      return vars.toArray(Pledge.class);
     }
     
     
@@ -253,7 +263,7 @@ public class Pledge implements Session.Saveable {
     
     
     Behaviour fulfillment(Pledge p, Pledge reward) {
-      if (p.makes == p.makes.base().ruler()) {
+      if (isRuler(p.makes)) {
         final BaseFinance.Source source = BaseFinance.SOURCE_REWARDS;
         p.makes.base().finance.incCredits(0 - p.amount, source);
       }
@@ -277,7 +287,7 @@ public class Pledge implements Session.Saveable {
     
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {
-      return new Pledge[] { new Pledge(this, makes) };
+      return NO_PLEDGE;
     }
     
     
@@ -314,11 +324,13 @@ public class Pledge implements Session.Saveable {
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {
       final Property from = makes.mind.home();
-      if (from == null) return new Pledge[0];
+      if (! (from instanceof Venue)) return NO_PLEDGE;
       
       final Batch <Pledge> pledges = new Batch <Pledge> ();
       for (Item i : from.inventory().allItems()) {
-        float amount = Nums.min(i.amount, 10);
+        if (i.type.form == Economy.FORM_PROVISION) continue;
+        int amount = Nums.min(Nums.floor(i.amount), 10);
+        if (amount <= 0) continue;
         
         //  TODO:  The Gifting behaviour probably has this covered already.
         //         Try to use that?
@@ -342,8 +354,13 @@ public class Pledge implements Session.Saveable {
     
     
     Behaviour fulfillment(Pledge p, Pledge reward) {
-      //  TODO:  If the subjects are adjacent, just hand over the gift!
-      return (Bringing) p.refers;
+      final Bringing b = (Bringing) p.refers;
+      if (isRuler(p.makes)) {
+        final Actor receives = (Actor) b.destination;
+        receives.mind.assignToDo(b);
+        return null;
+      }
+      else return b;
     }
   };
   
@@ -387,6 +404,7 @@ public class Pledge implements Session.Saveable {
   final public static Type TYPE_JOIN_MISSION = new Type("Join Mission") {
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      if (isRuler(makes) || ! isRuler(makesTo)) return NO_PLEDGE;
       final Series <Mission> all = makesTo.base().tactics.allMissions();
       final Batch <Pledge> p = new Batch <Pledge> ();
       for (Mission m : all) {
@@ -428,12 +446,13 @@ public class Pledge implements Session.Saveable {
   final public static Type TYPE_AUDIENCE = new Type("Audience") {
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      if (isRuler(makes)) return NO_PLEDGE;
       return new Pledge[] { new Pledge(this, makesTo, makes) };
     }
     
     
     String description(Pledge p) {
-      return "Audience with "+p.refers;
+      return "Personal Audience";
     }
     
     
@@ -444,7 +463,11 @@ public class Pledge implements Session.Saveable {
     
     
     Behaviour fulfillment(Pledge p, Pledge reward) {
-      return Summons.officialSummons(p.makes, (Actor) p.refers);
+      final Actor host = (Actor) p.refers;
+      final Faction f = host.base().faction();
+      final Item pass = Item.withReference(Economy.ITEM_PASSCODE, f);
+      p.makes.gear.addItem(pass);
+      return Summons.officialSummons(p.makes, host);
     }
   };
   
@@ -453,11 +476,82 @@ public class Pledge implements Session.Saveable {
   }
   
   
+  final public static Type TYPE_JOIN_BASE = new Type("Join Base") {
+    
+    public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      if (isRuler(makes)) return NO_PLEDGE;
+      final Object home = makes.mind.home();
+      if (! (home instanceof Venue)) return NO_PLEDGE;
+      final Venue belongs = (Venue) home;
+      if (belongs.base() == makesTo.base()) return NO_PLEDGE;
+      return new Pledge[] { new Pledge(this, makesTo, makes) };
+    }
+    
+    
+    float valueOf(Pledge p, Actor a) {
+      if (a == p.refers) {
+        return Plan.ROUTINE;
+      }
+      
+      final Base  joins   = ((Actor) p.refers).base();
+      final Venue belongs = (Venue) p.makes.mind.home();
+      final Base  local   = belongs.base();
+      
+      float overallSuccess = 0, numBelong = 0;
+      for (Actor b : belongs.staff().workers()) {
+        overallSuccess += b.relations.valueFor(joins.faction());
+        numBelong++;
+      }
+      for (Actor b : belongs.staff().lodgers()) {
+        overallSuccess += b.relations.valueFor(joins.faction());
+        numBelong++;
+      }
+      if (numBelong > 0) overallSuccess /= numBelong;
+      
+      float localPower = 0, liegePower = 0;
+      liegePower = 0 - joins.dangerMap.sampleAround(belongs, -1);
+      localPower = 0 - local.dangerMap.sampleAround(belongs, -1);
+      
+      float powerSum = Nums.abs(liegePower) + Nums.abs(localPower);
+      float overallPower = liegePower - localPower;
+      overallPower /= Nums.max(1, powerSum);
+      
+      return (overallSuccess + overallPower - 1) * Plan.ROUTINE;
+    }
+    
+    
+    Behaviour fulfillment(Pledge p, Pledge reward) {
+      final Venue belongs = (Venue) p.makes.mind.home();
+      final Base  joins   = ((Actor) p.refers).base();
+      
+      ((Venue) belongs).assignBase(joins);
+      for (Actor a : belongs.staff().workers()) {
+        a.assignBase(joins);
+      }
+      for (Actor a : belongs.staff().lodgers()) {
+        a.assignBase(joins);
+      }
+      return null;
+    }
+    
+    
+    String description(Pledge p) {
+      final Base joins = ((Actor) p.refers).base();
+      return "Join "+joins;
+    }
+  };
+  
+  public static Pledge joinBasePledge(Actor joining, Base joins) {
+    return new Pledge(TYPE_JOIN_BASE, joins.ruler(), joining);
+  }
+  
+  
   
   final public static Type TYPE_OPEN_BORDERS = new Type("Open Borders") {
     
     
     public Pledge[] variantsFor(Actor makes, Actor makesTo) {
+      if (! (isRuler(makes) && isRuler(makesTo))) return NO_PLEDGE;
       return new Pledge[] { new Pledge(this, makesTo.base(), makes) };
     }
     
@@ -486,7 +580,7 @@ public class Pledge implements Session.Saveable {
     
     
     String description(Pledge p) {
-      return "Open Borders with "+p.refers;
+      return "Peace Treaty with "+p.refers;
     }
   };
   
