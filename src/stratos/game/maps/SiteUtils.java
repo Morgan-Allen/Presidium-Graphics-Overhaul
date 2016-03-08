@@ -111,11 +111,11 @@ public class SiteUtils implements TileConstants {
   
 
   public static Venue establishVenue(
-    final Venue v, int atX, int atY, boolean intact, final Stage world,
-    Actor... employed
+    Venue v, int atX, int atY, int maxRange,
+    boolean intact, Stage world, Actor... employed
   ) {
     final Tile at = world.tileAt(atX, atY);
-    return establishVenue(v, at, -1, intact, world, employed);
+    return establishVenue(v, at, maxRange, intact, world, employed);
   }
   
   

@@ -195,17 +195,20 @@ public class Relation {
   public static String describe(Relation r) {
     if (r == null) return "None";
     
-    final String affectDesc;
-    final float level = (MAX_VALUE - r.attitude) / (MAX_VALUE * 2);
-    final int DL = AFFECT_DESCRIPTORS.length;
-    affectDesc = AFFECT_DESCRIPTORS[Nums.clamp((int) (level * DL), DL)];
-    
+    final String affectDesc = describeRelation(r.attitude / MAX_VALUE);
     if (r.type != TYPE_GENERIC) {
       return TYPE_DESCRIPTORS[r.type]+", "+affectDesc;
     }
     else {
       return affectDesc;
     }
+  }
+  
+  
+  public static String describeRelation(float level) {
+    final int DL = AFFECT_DESCRIPTORS.length;
+    final float absLevel = 1 - ((level + 1) / 2);
+    return AFFECT_DESCRIPTORS[Nums.clamp((int) (absLevel * DL), DL)];
   }
   
   

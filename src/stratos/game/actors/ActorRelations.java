@@ -148,7 +148,7 @@ public class ActorRelations {
         dislike = 0 - valueFor(t),
         threat  = threats[i],
         diff    = threat - dislike;
-      incRelation(t, diff, 0.5f / OBSERVE_PERIOD, 0);
+      incRelation(t, 0 - diff, 0.5f / OBSERVE_PERIOD, 0);
     }
   }
   
@@ -281,9 +281,6 @@ public class ActorRelations {
       float relVal = 0;
       if (other == actor.mind.home) relVal += 1.0f;
       if (other == actor.mind.work) relVal += 0.5f;
-      if (other.base() == actor.base()) {
-        relVal += actor.base().ratings.communitySpirit() / 2;
-      }
       return (initVal + Nums.clamp(relVal, 0, 2)) / 2;
     }
     else return initVal;

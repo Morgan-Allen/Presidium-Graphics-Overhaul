@@ -57,7 +57,8 @@ public class NestUtils {
   
   
   public static int nestLimit(Species s) {
-    return Nums.round(Nums.clamp(5f / s.metabolism(), 2, 6), 1 , true);
+    if (s.preyedOn()) return 4;
+    else return 2;
   }
   
   
@@ -91,8 +92,10 @@ public class NestUtils {
     return crowding;
   }
   
-
-  public static void populateFauna(Stage world, Species... speciesOrder) {
+  
+  public static void populateFauna(
+    Stage world, float popScale, Species... speciesOrder
+  ) {
     final Base base = Base.wildlife(world);
     final Tally <Species> actualNumbers = new Tally <Species> ();
     
@@ -102,7 +105,7 @@ public class NestUtils {
     while (true) {
       final Pick <Species> pick = new Pick(0);
       for (Species s : speciesOrder) {
-        final float total = world.ecology().idealPopulation(s);
+        final float total = world.ecology().idealPopulation(s) * popScale;
         pick.compare(s, total - actualNumbers.valueFor(s));
       }
       if (pick.empty()) break;

@@ -235,7 +235,7 @@ public class ActorMotives {
     //  then, we're fudging things a little- see below.)
     final boolean report = I.talkAbout == actor && rateVerbose;
     final Background b = actor.mind.vocation();
-    if (creditsPerDay <= 0 || (b != null && b.defaultSalary <= 0)) return 0;
+    if (creditsPerDay <= 0 || actor.base().isPrimal()) return 0;
     
     final float greed = 1 + actor.traits.relativeLevel(Qualities.SELFISH);
     float baseUnit = 0;

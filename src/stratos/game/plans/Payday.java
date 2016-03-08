@@ -3,12 +3,9 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.game.plans;
 import stratos.game.actors.*;
-import stratos.game.base.BaseFinance;
-import stratos.game.base.Profile;
+import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.user.*;
@@ -18,33 +15,10 @@ import static stratos.game.craft.Economy.*;
 
 
 
+//  TODO:  Adapt this to collecting any promised special rewards from missions,
+//  or from negotiations after contact.
 
 
-//  Visit the dwelling in question.  Audit it (extend the class,) and lay some
-//  smack down if the target doesn't behave.
-
-//  But... how do you define 'not behaving'?  I think you need to have a notion
-//  of 'tax evasion' before you can have a notion of correcting offences.
-
-//  Assault.  Theft.  Desertion.  Corruption.
-
-//  So, how do you evade tax?  ...By electing not to go and pay.  It is a sin
-//  of ommission.  So it is the citizen's responsibility to pay their tax (or
-//  obtain relief) at the nearest admin point (the bastion, enforcer bloc or
-//  runner lodge.)
-
-
-//  The auditor (analyst or runner) simply drops in to... remind the subject of
-//  their obligations.  The muscle (enforcer or runner) will bring them in for
-//  sentencing (or just dish out a beating.)
-
-//  So... I don't actually need to create this class.  I need to refactor the
-//  Payday and Auditing classes to more accurately reflect the duties of both
-//  citizens and government.
-
-
-
-//  TODO:  Consider collecting pay at the nearest Admin facility, day or night?
 
 public class Payday extends Plan {
   

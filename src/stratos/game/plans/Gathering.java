@@ -286,6 +286,7 @@ public class Gathering extends ResourceTending {
       return null;
     }
     if (type == TYPE_FORAGING) {
+      if (c == null) return null;
       //
       //  TODO:  Base this off fruiting-materials for the species in question!
       final Item gathered[] = {

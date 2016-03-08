@@ -160,11 +160,11 @@ public class Selection implements UIConstants {
     final BaseUI BUI = BaseUI.current();
     if (UI == null) return;
     
-    SelectionPane    pane    = s == null ? null : s.configSelectPane(null, UI);
+    SelectionPane    pane    = s == null ? null : s.configSelectPane   (null, UI);
     SelectionOptions options = s == null ? null : s.configSelectOptions(null, UI);
     
     if (pane != null) pane.setPrevious(paneFromContext(context));
-    if (pane != null || paneSelection() != null) UI.setInfoPane(pane);
+    if (pane != null || paneSelection() instanceof Target) UI.setInfoPane(pane);
     UI.setOptionsList(options);
     
     if (BUI != null && s == null) {

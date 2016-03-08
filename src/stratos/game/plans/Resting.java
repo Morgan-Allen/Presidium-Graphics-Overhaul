@@ -255,7 +255,7 @@ public class Resting extends Plan {
     if (menu.empty() || actor.health.hungerLevel() <= minHunger) return false;
     
     final int FTC = ActorHealth.FOOD_TO_CALORIES;
-    float bite = ActorHealth.DEFAULT_BULK * 1f / (DINE_TIME * FTC);
+    float bite = ActorHealth.DEFAULT_HEALTH * 1f / (DINE_TIME * FTC);
     bite /= menu.size();
     float sumFood = 0, sumTypes = 0;
     

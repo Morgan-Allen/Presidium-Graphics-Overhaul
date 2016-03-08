@@ -182,7 +182,7 @@ public class DebugPlacing extends Scenario {
       if (! open) I.say("  TILE SURROUNDED: "+t);
     }
     
-    NestUtils.populateFauna(world, Species.ANIMAL_SPECIES);
+    NestUtils.populateFauna(world, 1, Species.ANIMAL_SPECIES);
     /*
     if (true) return;
     
@@ -205,7 +205,7 @@ public class DebugPlacing extends Scenario {
     GameSettings.buildFree = false;
     
     final Venue b = new Bastion(base);
-    SiteUtils.establishVenue(b, 8, 8, true, world);
+    SiteUtils.establishVenue(b, 8, 8, -1, true, world);
     base.setup.fillVacancies(b, true);
     
     final Venue array[] = SiteUtils.placeAlongLine(
@@ -221,24 +221,24 @@ public class DebugPlacing extends Scenario {
     Venue v = null;
     
     v = new EngineerStation(base);
-    SiteUtils.establishVenue(v, 4, 3, true, world);
+    SiteUtils.establishVenue(v, 4, 3, -1, true, world);
     
     v = new EngineerStation(base);
-    SiteUtils.establishVenue(v, 4, 9, true, world);
+    SiteUtils.establishVenue(v, 4, 9, -1, true, world);
     
     v = new EngineerStation(base);
-    SiteUtils.establishVenue(v, 4, 6, true, world);
+    SiteUtils.establishVenue(v, 4, 6, -1, true, world);
   }
   
   
   private void configTradeTest(Stage world, Base base, BaseUI UI) {
     
     final Venue depot = new SupplyDepot(base);
-    SiteUtils.establishVenue(depot, 5 , 5 , true, world);
+    SiteUtils.establishVenue(depot, 5 , 5 , -1, true, world);
     depot.updateAsScheduled(0, false);
     
     final Venue works = new Fabricator(base);
-    SiteUtils.establishVenue(works, 5 , 10, true, world);
+    SiteUtils.establishVenue(works, 5 , 10, -1, true, world);
     works.updateAsScheduled(0, false);
     
     base.visits.updateVisits(0);
@@ -250,8 +250,8 @@ public class DebugPlacing extends Scenario {
     
     final Venue pointA = new TrooperLodge(base);
     final Venue pointB = new TrooperLodge(base);
-    SiteUtils.establishVenue(pointA, 5, 5 , true, world);
-    SiteUtils.establishVenue(pointB, 5, 15, true, world);
+    SiteUtils.establishVenue(pointA, 5, 5 , -1, true, world);
+    SiteUtils.establishVenue(pointB, 5, 15, -1, true, world);
     pointA.updateAsScheduled(0, false);
     pointB.updateAsScheduled(0, false);
     

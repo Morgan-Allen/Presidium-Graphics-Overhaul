@@ -25,9 +25,7 @@ public final class Devices {
     ENERGY   = 1 << 2,
     KINETIC  = 1 << 3,
     STUN     = 1 << 4,
-    POISON   = 1 << 5,
-    HOMING   = 1 << 6,
-    BURNER   = 1 << 7,
+    NO_AMMO  = 1 << 5,
     //
     //  These are properties of natural weapons or armour-
     GRAPPLE      = 1 << 8,
@@ -62,7 +60,7 @@ public final class Devices {
     BLASTER = new DeviceType(
       BC, "Blaster",
       "pistol", AnimNames.FIRE,
-      10, RANGED | ENERGY | BURNER, 25,
+      10, RANGED | ENERGY, 25,
       EngineerStation.class, 1, PARTS, 10, ASSEMBLY
     ),
     HALBERD_GUN = new DeviceType(
@@ -75,7 +73,7 @@ public final class Devices {
     HUNTING_LANCE = new DeviceType(
       BC, "Hunting Lance",
       "spear", AnimNames.STRIKE,
-      10, RANGED | KINETIC, 5,
+      10, RANGED | KINETIC | NO_AMMO, 5,
       null, 5, HANDICRAFTS
     ),
     SIDE_SABRE = new DeviceType(

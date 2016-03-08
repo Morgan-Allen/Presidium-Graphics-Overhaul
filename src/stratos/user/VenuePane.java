@@ -4,17 +4,17 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.user;
-import static stratos.game.craft.Economy.*;
-
 import stratos.game.actors.*;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.game.base.*;
 import stratos.game.plans.*;
+import stratos.game.verse.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
+import static stratos.game.craft.Economy.*;
 
 
 
@@ -86,6 +86,23 @@ public class VenuePane extends SelectionPane {
       final String SN = " ("+I.shorten(0 - danger, 1)+")";
       d.append("\n  "+Ambience.dangerDesc(danger)+" Safety"+SN);
     }
+    
+    Base played = BaseUI.currentPlayed();
+    Faction f = played == null ? null : played.faction();
+    float relations = 0, numB = 0;
+    for (Actor a : v.staff.workers()) {
+      relations += a.relations.valueFor(f);
+      numB++;
+    }
+    for (Actor a : v.staff.lodgers()) {
+      relations += a.relations.valueFor(f);
+      numB++;
+    }
+    if (numB > 0) relations /= numB;
+    final String relDesc = Relation.describeRelation(relations);
+    final int relPC = (int) (relations * 100);
+    d.append("\n  Relations: "+relPC+"% ("+relDesc+")");
+    
     d.append("\n\n");
     d.append(v.helpInfo(), Colour.LITE_GREY);
   }

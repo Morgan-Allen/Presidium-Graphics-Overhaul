@@ -266,7 +266,7 @@ public class DebugCombat extends AutomatedScenario {
     base.finance.setInitialFunding(10000, 0);
     
     final Bastion bastion = new Bastion(base);
-    SiteUtils.establishVenue(bastion, 11, 11, true, world);
+    SiteUtils.establishVenue(bastion, 11, 11, -1, true, world);
     base.setup.fillVacancies(bastion, true);
     
     final Box2D perim = bastion.area(new Box2D()).expandBy(8);
@@ -289,7 +289,7 @@ public class DebugCombat extends AutomatedScenario {
     
     final Blueprint ruinsType = Ruins.VENUE_BLUEPRINTS[0];
     final Ruins ruins = (Ruins) ruinsType.createVenue(artilects);
-    SiteUtils.establishVenue(ruins, 44, 44, true, world);
+    SiteUtils.establishVenue(ruins, 44, 44, -1, true, world);
     
     final Batch <Actor> lurking = new Batch();
     for (Species s : Species.ARTILECT_SPECIES) for (int n = 2; n-- > 0;) {
@@ -353,7 +353,7 @@ public class DebugCombat extends AutomatedScenario {
         lair = NestUtils.createNestFor(other);
         if (lair != null) {
           lair.structure.setState(Structure.STATE_INTACT, 0.5f);
-          SiteUtils.establishVenue(lair, 50, 50, true, world);
+          SiteUtils.establishVenue(lair, 50, 50, -1, true, world);
         }
       }
       if (lair != null) {

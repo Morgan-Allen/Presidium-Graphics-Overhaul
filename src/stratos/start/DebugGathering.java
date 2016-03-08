@@ -104,7 +104,7 @@ public class DebugGathering extends Scenario {
     Flora.populateFlora(world);
     
     final BotanicalStation station = new BotanicalStation(base);
-    SiteUtils.establishVenue(station, 8, 8, true, world);
+    SiteUtils.establishVenue(station, 8, 8, -1, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);
       station.stocks.addItem(seed);
@@ -115,7 +115,7 @@ public class DebugGathering extends Scenario {
   
   private void configForestryTest(Stage world, Base base, BaseUI UI) {
     final FormerBay former = new FormerBay(base);
-    SiteUtils.establishVenue(former, 8, 8, true, world);
+    SiteUtils.establishVenue(former, 8, 8, -1, true, world);
     base.setup.fillVacancies(former, true);
   }
   
@@ -123,7 +123,7 @@ public class DebugGathering extends Scenario {
   private void configLoggingTest(Stage world, Base base, BaseUI UI) {
     Flora.populateFlora(world);
     final FormerBay former = new FormerBay(base);
-    SiteUtils.establishVenue(former, 8, 8, true, world);
+    SiteUtils.establishVenue(former, 8, 8, -1, true, world);
     base.setup.fillVacancies(former, true);
   }
   
@@ -133,7 +133,7 @@ public class DebugGathering extends Scenario {
     
     final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
     final Venue hut = NativeHut.newHut(NativeHut.TRIBE_FOREST, base);
-    SiteUtils.establishVenue(hut, 8, 8, true, world);
+    SiteUtils.establishVenue(hut, 8, 8, -1, true, world);
     natives.setup.fillVacancies(hut, true);
     
     for (Actor a : hut.staff.lodgers()) {
@@ -147,7 +147,7 @@ public class DebugGathering extends Scenario {
     
     final Base wildlife = Base.wildlife(world);
     final Nest n = (Nest) Qudu.SPECIES.nestBlueprint().createVenue(wildlife);
-    SiteUtils.establishVenue(n, 8, 8, true, world);
+    SiteUtils.establishVenue(n, 8, 8, -1, true, world);
     wildlife.setup.fillVacancies(n, true);
     
     final Fauna first = (Fauna) n.staff.lodgers().first();
@@ -162,7 +162,7 @@ public class DebugGathering extends Scenario {
     Flora.populateFlora(world);
     
     final BotanicalStation station = new BotanicalStation(base);
-    SiteUtils.establishVenue(station, 8, 8, true, world);
+    SiteUtils.establishVenue(station, 8, 8, -1, true, world);
     for (Species s : Crop.ALL_VARIETIES) {
       final Item seed = Item.with(Economy.GENE_SEED, s, 1, 4);
       station.stocks.addItem(seed);
@@ -180,7 +180,7 @@ public class DebugGathering extends Scenario {
     Flora.populateFlora(world);
     
     final ExcavationSite site = new ExcavationSite(base);
-    SiteUtils.establishVenue(site, 8, 8, true, world);
+    SiteUtils.establishVenue(site, 8, 8, -1, true, world);
     
     base.setup.fillVacancies(site, true);
     site.stocks.addItem(Item.with(SLAG, METALS, 25, 0));

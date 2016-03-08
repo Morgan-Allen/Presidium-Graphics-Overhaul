@@ -128,17 +128,14 @@ public class BudgetsPane extends SelectionPane {
     final Sector locale = universe.stageLocation();
     final BaseDemands BD = base.demands;
     final BaseVisits BV = base.visits;
-    
+
+    Text.cancelBullet(d);
     d.append("DEMAND REPORT FOR "+base);
     
-    Text.cancelBullet(d);
-    
     for (final Traded t : Economy.ALL_MATERIALS) {
-      
       final String
         priceImp = I.shorten(BD.importPrice(t), 0),
         priceExp = I.shorten(BD.exportPrice(t), 0),
-        baseCost = I.shorten(t.defaultPrice() , 0),
         demand   = I.shorten(BD.primaryDemand   (t), 0),
         supply   = I.shorten(BD.primarySupply   (t), 0),
         consPD   = I.shorten(BD.dailyConsumption(t), 1),
@@ -153,24 +150,16 @@ public class BudgetsPane extends SelectionPane {
       
       d.append(" ("+supply+"/"+demand+")");
       d.append(" ("+prodPD+"/"+consPD+" per day)");
-
-      d.append("\n Prices: ");
-      d.append(" (");
-      d.append(priceImp+"", Colour.LITE_RED  );
-      d.append(" | ");
-      d.append(priceExp+"", Colour.LITE_GREEN);
-      d.append(" | ");
-      d.append(baseCost+"", Colour.LITE_BLUE );
-      d.append(")\n");
       
-      //  TODO:  Toggle imports/exports for each of these.
-      d.append(" Imports: ");
+      d.append("\n");
+      d.append(" Import for "+priceImp+": ");
       d.append(new Description.Link(allowImp ? "Yes" : "No ") {
         public void whenClicked(Object context) {
           BD.setImportsAllowed(t, ! allowImp);
         }
       });
-      d.append(" Exports: ");
+      d.append("\n");
+      d.append(" Export for "+priceExp+": ");
       d.append(new Description.Link(allowExp ? "Yes" : "No ") {
         public void whenClicked(Object context) {
           BD.setExportsAllowed(t, ! allowExp);
@@ -180,21 +169,10 @@ public class BudgetsPane extends SelectionPane {
     }
     
     Text.cancelBullet(d);
-    d.append("\n  Goods: (supply/demand) (daily)");
-    d.append("\n  Prices: (");
-    d.append("Buy", Colour.LITE_RED);
-    d.append(" | ");
-    d.append("Sell", Colour.LITE_GREEN);
-    d.append(" | ");
-    d.append("Base", Colour.LITE_BLUE);
-    d.append(")\n");
-    
     Text.cancelBullet(d);
     
-    //  TODO:  This could be moved out to panes for individual Sectors!
-    
     for (SectorBase partner : BV.partners()) {
-      d.append("\n\n");
+      //d.append("\n\n");
       d.append(partner);
       if (partner.location == BV.homeworld()) d.append("  (Homeworld)");
       else d.append(" (Trading Partner)");

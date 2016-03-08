@@ -127,14 +127,14 @@ public class DebugEcology extends Scenario {
     Selection.pushSelection(meets, null);
     
     Venue station = new EcologistRedoubt(base);
-    SiteUtils.establishVenue(station, 4, 4, true, world, meets);
+    SiteUtils.establishVenue(station, 4, 4, -1, true, world, meets);
     base.setup.fillVacancies(station, true);
   }
   
   
   private void speciesPlaceTest(Stage world, Base base, BaseUI UI) {
     
-    NestUtils.populateFauna(world, Species.VERMIN_SPECIES);
+    NestUtils.populateFauna(world, 1, Species.VERMIN_SPECIES);
   }
   
   
@@ -184,7 +184,7 @@ public class DebugEcology extends Scenario {
     //*/
     
     EcologistRedoubt redoubt = new EcologistRedoubt(base);
-    SiteUtils.establishVenue(redoubt, 5, 5, true, world);
+    SiteUtils.establishVenue(redoubt, 5, 5, -1, true, world);
     base.setup.fillVacancies(redoubt, true);
     
     for (Actor a : redoubt.staff.workers()) {
@@ -196,7 +196,7 @@ public class DebugEcology extends Scenario {
     
     //final Base wildlife = Base.wildlife(world);
     Flora.populateFlora(world);
-    NestUtils.populateFauna(world, Qudu.SPECIES);
+    NestUtils.populateFauna(world, 1, Qudu.SPECIES);
     
     /*
     Actor prey = Qudu.SPECIES.sampleFor(wildlife);

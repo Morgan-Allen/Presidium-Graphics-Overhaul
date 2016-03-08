@@ -157,7 +157,7 @@ public class DebugSecurity extends Scenario {
   private void breedingScenario(Stage world, Base base, BaseUI UI) {
     final Actor ecologist = new Human(Backgrounds.ECOLOGIST, base);
     final Venue station = new BotanicalStation(base);
-    SiteUtils.establishVenue(station, 10, 10, true, world, ecologist);
+    SiteUtils.establishVenue(station, 10, 10, -1, true, world, ecologist);
     
     station.stocks.bumpItem(Economy.CARBS  , 5);
     station.stocks.bumpItem(Economy.PROTEIN, 5);
@@ -178,14 +178,14 @@ public class DebugSecurity extends Scenario {
   private void arrestScenario(Stage world, Base base, BaseUI UI) {
     final Actor runner = new Human(Backgrounds.RUNNER, base);
     final Venue runnerMarket = new RunnerMarket(base);
-    SiteUtils.establishVenue(runnerMarket, 10,  5, true, world, runner);
+    SiteUtils.establishVenue(runnerMarket, 10,  5, -1, true, world, runner);
     
     final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);
     final Venue looted = new StockExchange(base);
     for (Traded t : Economy.ALL_FOOD_TYPES) {
       looted.stocks.bumpItem(t, 10);
     }
-    SiteUtils.establishVenue(looted, 5, 10, true, world, vendor);
+    SiteUtils.establishVenue(looted, 5, 10, -1, true, world, vendor);
 
     final Looting loots = new Looting(
       runner, looted, Item.withAmount(Economy.GREENS, 1), runnerMarket
@@ -196,7 +196,7 @@ public class DebugSecurity extends Scenario {
     
     final Actor enforcer = new Human(Backgrounds.ENFORCER, base);
     final Venue enforcerBloc = new EnforcerBloc(base);
-    SiteUtils.establishVenue(enforcerBloc, 5, 20, true, world, enforcer);
+    SiteUtils.establishVenue(enforcerBloc, 5, 20, -1, true, world, enforcer);
     
     final Arrest arrests = new Arrest(enforcer, runner);
     enforcer.mind.assignBehaviour(arrests);
@@ -236,7 +236,7 @@ public class DebugSecurity extends Scenario {
     
     //  Introduce a bastion, with standard personnel.
     final Bastion bastion = new Bastion(base);
-    SiteUtils.establishVenue(bastion, 11, 11, true, world);
+    SiteUtils.establishVenue(bastion, 11, 11, -1, true, world);
     base.setup.fillVacancies(bastion, true);
     
     //  And introduce ruins, with a complement of artilects.
@@ -244,7 +244,7 @@ public class DebugSecurity extends Scenario {
     Faction.setMutualFactionRelations(artilects, base, -0.5f);
     
     final Ruins ruins = new Ruins(artilects);
-    SiteUtils.establishVenue(ruins, 44, 44, true, world);
+    SiteUtils.establishVenue(ruins, 44, 44, -1, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
     artilects.setup.doPlacementsFor(ruins);

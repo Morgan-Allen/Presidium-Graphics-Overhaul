@@ -93,10 +93,10 @@ public class DebugTreating extends Scenario {
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     final Venue station = new PhysicianStation(base);
-    SiteUtils.establishVenue(station, 4, 4, true, world, treats);
+    SiteUtils.establishVenue(station, 4, 4, -1, true, world, treats);
     
     final Venue vats = new CultureVats(base);
-    SiteUtils.establishVenue(vats, 10, 4, true, world);
+    SiteUtils.establishVenue(vats, 10, 4, -1, true, world);
     
     final Actor treated = new Human(Backgrounds.EXCAVATOR, base);
     treated.enterWorldAt(4, 10, world);
@@ -113,10 +113,10 @@ public class DebugTreating extends Scenario {
     
     final Actor treats = new Human(Backgrounds.PHYSICIAN, base);
     SiteUtils.establishVenue(
-      new PhysicianStation(base), 8, 8, true, world,
+      new PhysicianStation(base), 8, 8, -1, true,
+      world,
       treats,
-      new Human(Backgrounds.MINDER, base),
-      new Human(Backgrounds.MINDER, base)
+      new Human(Backgrounds.MINDER, base), new Human(Backgrounds.MINDER, base)
     );
     
     final Batch <ShieldWall> walls = new Batch();
@@ -140,7 +140,7 @@ public class DebugTreating extends Scenario {
   private void configRecoveryScenario(Stage world, Base base, BaseUI UI) {
     
     final Venue staysAt = new Cantina(base);
-    SiteUtils.establishVenue(staysAt, 4, 4, true, world);
+    SiteUtils.establishVenue(staysAt, 4, 4, -1, true, world);
     base.setup.fillVacancies(staysAt, true);
     
     final Actor treated = new Human(Backgrounds.EXCAVATOR, base);
@@ -164,7 +164,7 @@ public class DebugTreating extends Scenario {
     
     Actor medic = Backgrounds.MINDER.sampleFor(base);
     Venue station = new PhysicianStation(base);
-    SiteUtils.establishVenue(station, 4, 4, true, world, medic);
+    SiteUtils.establishVenue(station, 4, 4, -1, true, world, medic);
     //medic.enterWorldAt(4, 4, world);
     
     Actor corpse = Backgrounds.EXCAVATOR.sampleFor(base);

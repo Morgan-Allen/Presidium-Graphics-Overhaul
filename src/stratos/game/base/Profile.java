@@ -18,8 +18,15 @@ public class Profile {
   
   /**  Data fields, constructors and save/load methods-
     */
+  final static int
+    STATUS_CITIZEN =  2,
+    STATUS_GUEST   =  1,
+    STATUS_NONE    =  0,
+    STATUS_WANTED  = -1;
+  
   final BaseProfiles profiles;
   final public Actor actor;
+  int status = STATUS_NONE;
   
   float paymentDue    =  0;
   float lastWageEval  = -1;
@@ -41,6 +48,8 @@ public class Profile {
     Session s, BaseProfiles bP
   ) throws Exception {
     final Profile p = new Profile((Actor) s.loadObject(), bP);
+    p.status = s.loadInt();
+    
     p.paymentDue    = s.loadFloat();
     p.lastWageEval  = s.loadFloat();
     p.lastTaxEval   = s.loadFloat();
@@ -55,6 +64,7 @@ public class Profile {
   
   public static void saveProfile(Profile p, Session s) throws Exception {
     s.saveObject(p.actor        );
+    s.saveInt   (p.status       );
     s.saveFloat (p.paymentDue   );
     s.saveFloat (p.lastWageEval );
     s.saveFloat (p.lastTaxEval  );

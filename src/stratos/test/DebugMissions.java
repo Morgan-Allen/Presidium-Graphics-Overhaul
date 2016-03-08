@@ -100,7 +100,7 @@ public class DebugMissions extends Scenario {
   
   private void offworldClaimScenario(Stage world, Base base, BaseUI UI) {
     final Venue HQ = new Bastion(base);
-    SiteUtils.establishVenue(HQ, 5, 5, true, world);
+    SiteUtils.establishVenue(HQ, 5, 5, -1, true, world);
     base.setup.fillVacancies(HQ, true);
     base.assignRuler(HQ.staff.workers().first());
     
@@ -118,7 +118,7 @@ public class DebugMissions extends Scenario {
   private void offworldRaidingScenario(Stage world, Base base, BaseUI UI) {
     
     final Venue HQ = new Bastion(base);
-    SiteUtils.establishVenue(HQ, 5, 5, true, world);
+    SiteUtils.establishVenue(HQ, 5, 5, -1, true, world);
     base.setup.fillVacancies(HQ, true);
     base.assignRuler(HQ.staff.workers().first());
     
@@ -141,12 +141,12 @@ public class DebugMissions extends Scenario {
     GameSettings.fastTrips = true;
     
     final Venue HQ = new Bastion(base);
-    SiteUtils.establishVenue(HQ, 5, 5, true, world);
+    SiteUtils.establishVenue(HQ, 5, 5, -1, true, world);
     base.setup.fillVacancies(HQ, true);
     base.assignRuler(HQ.staff.workers().first());
     
     final Venue home = new TrooperLodge(base);
-    SiteUtils.establishVenue(home, 8, 5, true, world);
+    SiteUtils.establishVenue(home, 8, 5, -1, true, world);
     base.setup.fillVacancies(home, true);
     
     final Mission recon = MissionRecon.reconFor(SECTOR_PAVONIS, base);
@@ -171,7 +171,7 @@ public class DebugMissions extends Scenario {
     Faction.setMutualFactionRelations(natives, base, -0.25f);
     
     final NativeHut hut = NativeHut.newHall(1, natives);
-    SiteUtils.establishVenue(hut, 4, 4, true, world);
+    SiteUtils.establishVenue(hut, 4, 4, -1, true, world);
     
     for (int i = 3; i-- > 0;) {
       final Actor actor = new Human(Backgrounds.GATHERER, natives);
@@ -241,7 +241,7 @@ public class DebugMissions extends Scenario {
     Faction.setMutualFactionRelations(artilects, base, -1);
     
     final Ruins ruin = new Ruins(artilects);
-    SiteUtils.establishVenue(ruin, 12, 12, true, world);
+    SiteUtils.establishVenue(ruin, 12, 12, -1, true, world);
     
     final Mission strike = MissionStrike.strikeFor(ruin, base);
     strike.setMissionType(Mission.TYPE_SCREENED  );

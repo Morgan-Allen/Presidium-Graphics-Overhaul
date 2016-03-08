@@ -440,7 +440,8 @@ public class ActorGear extends Inventory {
   
   
   public int maxAmmoUnits() {
-    if (! hasDeviceProperty(Devices.RANGED)) return 0;
+    if (! hasDeviceProperty(Devices.RANGED )) return 0;
+    if (  hasDeviceProperty(Devices.NO_AMMO)) return 0;
     final DeviceType type = deviceType();
     if (type.natural() || type.baseDamage == 0) return 0;
     return (MAX_AMMO_COUNT / AMMO_PER_UNIT);

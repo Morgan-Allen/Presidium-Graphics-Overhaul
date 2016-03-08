@@ -281,6 +281,15 @@ public class NativeHut extends Venue {
   }
   
   
+  public void updateAsScheduled(int numUpdates, boolean instant) {
+    super.updateAsScheduled(numUpdates, instant);
+    
+    stocks.setConsumption(CARBS  , 2);
+    stocks.setConsumption(GREENS , 1);
+    stocks.setConsumption(PROTEIN, 1);
+  }
+  
+  
   public Background[] careers() {
     return new Background[] { HUNTER, GATHERER };
   }

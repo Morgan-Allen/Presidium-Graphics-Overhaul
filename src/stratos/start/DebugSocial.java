@@ -48,7 +48,7 @@ public class DebugSocial extends Scenario {
   
   
   public void beginGameSetup() {
-    super.initScenario("debug_social");
+    super.beginGameSetup();
   }
   
   
@@ -78,9 +78,9 @@ public class DebugSocial extends Scenario {
     GameSettings.cashFree = true;
     
     if (false) testCareers(base);
-    if (true ) configDialogueScenario(world, base, UI);
+    if (true ) configContactScenario (world, base, UI);
+    if (false) configDialogueScenario(world, base, UI);
     if (false) configArtilectScenario(world, base, UI);
-    if (false) configContactScenario (world, base, UI);
     if (false) configWildScenario    (world, base, UI);
     if (false) applyJobScenario      (world, base, UI);
     if (false) multiJobsScenario     (world, base, UI);
@@ -89,6 +89,66 @@ public class DebugSocial extends Scenario {
   
   protected void afterCreation() {
     world().readyAfterPopulation();
+  }
+  
+  
+  private void configContactScenario(Stage world, Base base, BaseUI UI) {
+    GameSettings.fogFree  = true;
+    GameSettings.hireFree = true;
+    GameSettings.noBlood  = true;
+    //
+    //  Introduce a bastion, with standard personnel.
+    final Bastion bastion = new Bastion(base);
+    final Actor
+      ruler   = new Human(Backgrounds.KNIGHTED     , base),
+      consort = new Human(Backgrounds.FIRST_CONSORT, base);
+    
+    bastion.setupWith(world.tileAt(11, 11), null);
+    bastion.doPlacement(true);
+    base.setup.fillVacancies(bastion, true, ruler, consort);
+    if (bastion.inWorld()) {
+      base.assignRuler(ruler);
+      bastion.updateAsScheduled(0, false);
+      for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
+    }
+    final TrooperLodge garrison = new TrooperLodge(base);
+    SiteUtils.establishVenue(garrison, world.tileAt(3, 15), -1, true, world);
+    
+    final int tribeID = NativeHut.TRIBE_FOREST;
+    final Base natives = Base.natives(world, tribeID);
+    NativeHut hut = NativeHut.newHut(tribeID, natives);
+    hut.setupWith(world.tileAt(28, 28), null);
+    hut.doPlacement(true);
+    natives.setup.fillVacancies(hut, true);
+    
+    Actor talks = hut.staff.lodgers().first();
+    
+    //  Negotiators will have to be willing to wait outside a venue until a
+    //  subject emerges.
+    
+    /*
+    //
+    //  Introduce some natives to contact, some distance away-
+    final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
+    final Actor talks = new Human(Backgrounds.GATHERER, natives);
+    talks.enterWorldAt(18, 18, world);
+    //
+    //  Then configure a contact mission asking to secure audience with the
+    //  natives.
+    final MissionContact peaceMission = new MissionContact(base, talks);
+    peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
+    peaceMission.setMissionType(Mission.TYPE_SCREENED);
+    final Item gift = Item.withAmount(Economy.PROTEIN, 5);
+    peaceMission.setTerms(
+      Pledge.giftPledge(gift, bastion, ruler, talks),
+      Pledge.joinBasePledge(talks, base)
+    );
+    base.tactics.addMission(peaceMission);
+    consort.mind.assignMission(peaceMission);
+    peaceMission.setApprovalFor(consort, true);
+    peaceMission.beginMission();
+    Selection.pushSelection(peaceMission, null);
+    //*/
   }
   
   
@@ -119,7 +179,7 @@ public class DebugSocial extends Scenario {
     final Item gift = Item.withAmount(Economy.GREENS, 4);
     a3.gear.addItem(gift);
     
-    final Proposal d2 = new Proposal(a3, a4);
+    final Diplomacy d2 = new Diplomacy(a3, a4);
     d2.addMotives(Plan.MOTIVE_LEISURE, Plan.ROUTINE);
     d2.setTerms(Pledge.giftPledge(gift, a3, a3, a4), null);
     a3.mind.assignBehaviour(d2);
@@ -137,7 +197,7 @@ public class DebugSocial extends Scenario {
     
     final Base artilects = Base.artilects(world);
     final Ruins ruins = new Ruins(artilects);
-    SiteUtils.establishVenue(ruins, 20, 20, true, world);
+    SiteUtils.establishVenue(ruins, 20, 20, -1, true, world);
     final float healthLevel = (1 + Rand.avgNums(2)) / 2;
     ruins.structure.setState(Structure.STATE_INTACT, healthLevel);
     
@@ -161,72 +221,25 @@ public class DebugSocial extends Scenario {
   }
   
   
-  private void configContactScenario(Stage world, Base base, BaseUI UI) {
-    GameSettings.fogFree  = true;
-    GameSettings.hireFree = true;
-    GameSettings.noBlood  = true;
-    //
-    //  Introduce a bastion, with standard personnel.
-    final Bastion bastion = new Bastion(base);
-    final Actor
-      ruler   = new Human(Backgrounds.KNIGHTED     , base),
-      consort = new Human(Backgrounds.FIRST_CONSORT, base);
-    SiteUtils.establishVenue(
-      bastion, 11, 11, true, world,
-      ruler, consort
-    );
-    if (bastion.inWorld()) {
-      base.assignRuler(ruler);
-      bastion.updateAsScheduled(0, false);
-      for (Item i : bastion.stocks.shortages()) bastion.stocks.addItem(i);
-    }
-    final TrooperLodge garrison = new TrooperLodge(base);
-    SiteUtils.establishVenue(garrison, world.tileAt(3, 15), -1, true, world);
-    
-    //
-    //  Introduce some natives to contact, some distance away-
-    final Base natives = Base.natives(world, NativeHut.TRIBE_FOREST);
-    final Actor talks = new Human(Backgrounds.GATHERER, natives);
-    talks.enterWorldAt(18, 18, world);
-    
-    //
-    //  Then configure a contact mission asking to secure audience with the
-    //  natives.
-    final MissionContact peaceMission = new MissionContact(base, talks);
-    peaceMission.assignPriority(Mission.PRIORITY_ROUTINE);
-    peaceMission.setMissionType(Mission.TYPE_SCREENED);
-    final Item gift = Item.withAmount(Economy.PROTEIN, 5);
-    peaceMission.setTerms(
-      Pledge.giftPledge(gift, bastion, ruler, talks),
-      Pledge.audiencePledge(talks, ruler)
-    );
-    base.tactics.addMission(peaceMission);
-    consort.mind.assignMission(peaceMission);
-    peaceMission.setApprovalFor(consort, true);
-    peaceMission.beginMission();
-    Selection.pushSelection(peaceMission, null);
-  }
-  
-  
   private void applyJobScenario(Stage world, Base base, BaseUI UI) {
     GameSettings.fogFree   = true;
     GameSettings.buildFree = true;
     GameSettings.paveFree  = true;
     
     final Venue applyAt = new EngineerStation(base);
-    SiteUtils.establishVenue(applyAt, 4, 4, true, world);
+    SiteUtils.establishVenue(applyAt, 4, 4, -1, true, world);
     
     final Venue secondary = new Cantina(base);
-    SiteUtils.establishVenue(secondary, 4, 9, true, world);
+    SiteUtils.establishVenue(secondary, 4, 9, -1, true, world);
     base.setup.fillVacancies(secondary, true);
     
     final Venue applyFrom = new EngineerStation(base);
-    SiteUtils.establishVenue(applyFrom, 9, 9, true, world,
-      new Human(Backgrounds.TECHNICIAN, base)
+    SiteUtils.establishVenue(applyFrom, 9, 9, -1, true,
+      world, new Human(Backgrounds.TECHNICIAN, base)
     );
     
     final Venue powers = new SolarBank(base);
-    SiteUtils.establishVenue(powers, 9, 4, true, world);
+    SiteUtils.establishVenue(powers, 9, 4, -1, true, world);
     
     final Actor applies = applyFrom.staff.workers().first();
     FindWork.assignAmbition(applies, Backgrounds.ENGINEER, applyAt, 2);
@@ -241,7 +254,7 @@ public class DebugSocial extends Scenario {
     final Species species = Yamagur.SPECIES;
     
     Venue nests = species.nestBlueprint().createVenue(wild);
-    SiteUtils.establishVenue(nests, 9, 9, true, world);
+    SiteUtils.establishVenue(nests, 9, 9, -1, true, world);
     
     Actor fauna = species.sampleFor(wild);
     fauna.enterWorldAt(7, 7, world);

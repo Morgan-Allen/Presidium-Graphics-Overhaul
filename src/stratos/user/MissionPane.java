@@ -29,7 +29,7 @@ public class MissionPane extends SelectionPane {
   
   
   public MissionPane(HUD UI, Mission selected) {
-    super(UI, selected, selected.portrait(UI), true);
+    super(UI, selected, selected.portrait(UI), false);
     this.viewing = BaseUI.currentPlayed();
     this.mission = selected;
   }
@@ -39,14 +39,14 @@ public class MissionPane extends SelectionPane {
     //
     //  Obtain some basic facts about the mission and shorthand variables
     //  first-
-    final Description d = detail(), l = listing();
+    final Description d = detail();
     final List <Actor> applied = mission.applicants();
     boolean canChange = viewing == mission.base() && ! mission.hasBegun();
     //
     //  Then, we fill up the left-hand pane with broad mission parameters and
     //  commands:
     describeStatus(mission, canChange, d);
-    listApplicants(mission, applied, canChange, l);
+    listApplicants(mission, applied, canChange, d);
     return this;
   }
   
@@ -277,7 +277,7 @@ public class MissionPane extends SelectionPane {
               mission.setApprovalFor(a, false);
               a.mind.assignMission(null);
             }
-          }, approved ? Text.LINK_COLOUR : Colour.YELLOW);
+          });
           
           /*
           final String option = approved ? "(NO)" : "(YES)";

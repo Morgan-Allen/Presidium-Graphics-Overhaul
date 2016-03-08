@@ -280,7 +280,7 @@ public class SectorScenario extends Scenario {
     );
     Base.artilects(world).setup.fillVacancies(ruins, true);
     
-    NestUtils.populateFauna(world, nesting);
+    NestUtils.populateFauna(world, 1, nesting);
   }
   
   

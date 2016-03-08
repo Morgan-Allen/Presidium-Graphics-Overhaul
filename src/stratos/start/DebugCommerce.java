@@ -102,12 +102,12 @@ public class DebugCommerce extends Scenario {
     other.assignFaction(Faction.FACTION_PROCYON);
 
     final Venue HQ = new Bastion(base);
-    SiteUtils.establishVenue(HQ, 15, 5, true, world);
+    SiteUtils.establishVenue(HQ, 15, 5, -1, true, world);
     base.setup.fillVacancies(HQ, true);
     base.assignRuler(HQ.staff.hiredAs(Backgrounds.TROOPER).first());
     
     final Venue depot = new SupplyDepot(base);
-    SiteUtils.establishVenue(depot, 5, 5, true, world);
+    SiteUtils.establishVenue(depot, 5, 5, -1, true, world);
     depot.stocks.forceDemand(CARBS , 0, 5);
     depot.stocks.forceDemand(METALS, 5, 0);
     depot.stocks.bumpItem(CARBS, 10);
@@ -128,15 +128,15 @@ public class DebugCommerce extends Scenario {
     GameSettings.hireFree = true;
     
     Venue runnerMarket = new RunnerMarket(base);
-    SiteUtils.establishVenue(runnerMarket, 5, 5, true, world);
+    SiteUtils.establishVenue(runnerMarket, 5, 5, -1, true, world);
     base.setup.fillVacancies(runnerMarket, true);
     
     Venue trooperLodge = new TrooperLodge(base);
-    SiteUtils.establishVenue(trooperLodge, 10, 5, true, world);
+    SiteUtils.establishVenue(trooperLodge, 10, 5, -1, true, world);
     base.setup.fillVacancies(trooperLodge, true);
     
     Venue medicalBay = new PhysicianStation(base);
-    SiteUtils.establishVenue(medicalBay, 5, 10, true, world);
+    SiteUtils.establishVenue(medicalBay, 5, 10, -1, true, world);
     base.setup.fillVacancies(medicalBay, true);
 
     runnerMarket.stocks.bumpItem(REAGENTS, 5);
@@ -202,14 +202,14 @@ public class DebugCommerce extends Scenario {
     
     final Actor runner = new Human(Backgrounds.RUNNER, base);
     final Venue runnerMarket = new RunnerMarket(base);
-    SiteUtils.establishVenue(runnerMarket, 10,  5, true, world, runner);
+    SiteUtils.establishVenue(runnerMarket, 10,  5, -1, true, world, runner);
     
     final Actor vendor = new Human(Backgrounds.STOCK_VENDOR, base);
     final Venue looted = new StockExchange(base);
     for (Traded t : Economy.ALL_FOOD_TYPES) {
       looted.stocks.bumpItem(t, 10);
     }
-    SiteUtils.establishVenue(looted, 5, 10, true, world, vendor);
+    SiteUtils.establishVenue(looted, 5, 10, -1, true, world, vendor);
     
     final SupplyCache cache = new SupplyCache();
     cache.enterWorldAt(15, 15, world, true);
@@ -262,7 +262,7 @@ public class DebugCommerce extends Scenario {
     
     
     final Venue foundry = new EngineerStation(base);
-    SiteUtils.establishVenue(foundry, 6, 6, true, world);
+    SiteUtils.establishVenue(foundry, 6, 6, -1, true, world);
     base.setup.fillVacancies(foundry, true);
     
     foundry.stocks.bumpItem(Economy.METALS  , 10);
@@ -273,7 +273,7 @@ public class DebugCommerce extends Scenario {
     foundry.structure.setUpgradeLevel(EngineerStation.ARMOUR_FOUNDRY  , 2);
     
     final Venue reactor = new Generator(base);
-    SiteUtils.establishVenue(reactor, 3, 6, true, world);
+    SiteUtils.establishVenue(reactor, 3, 6, -1, true, world);
     base.setup.fillVacancies(reactor, true);
     reactor.stocks.bumpItem(FUEL_RODS, 10);
     
@@ -298,14 +298,14 @@ public class DebugCommerce extends Scenario {
     GameSettings.hireFree = true;
     
     final Venue depot    = new SupplyDepot  (base);
-    SiteUtils.establishVenue(depot   , 50, 50, true, world);
+    SiteUtils.establishVenue(depot   , 50, 50, -1, true, world);
     base.setup.fillVacancies(depot, true);
     depot.stocks.bumpItem(PARTS   , 80);
     depot.stocks.bumpItem(PLASTICS, 35);
     depot.stocks.bumpItem(CARBS   , 45);
     
     final Venue exchange = new StockExchange(base);
-    SiteUtils.establishVenue(exchange, 5 , 5 , true, world);
+    SiteUtils.establishVenue(exchange, 5 , 5 , -1, true, world);
     base.setup.fillVacancies(exchange, true);
     exchange.stocks.forceDemand(PARTS   , 40, 0);
     exchange.stocks.forceDemand(PLASTICS, 25, 0);
@@ -321,8 +321,8 @@ public class DebugCommerce extends Scenario {
       guyA = new Human(Backgrounds.TECHNICIAN, base),
       guyB = new Human(Backgrounds.TECHNICIAN, base);
     
-    SiteUtils.establishVenue(depot, 11, 1, true, world);
-    SiteUtils.establishVenue(foundry, 6, 6, true, world, guyA, guyB);
+    SiteUtils.establishVenue(depot, 11, 1, -1, true, world);
+    SiteUtils.establishVenue(foundry, 6, 6, -1, true, world, guyA, guyB);
     
     depot.stocks.bumpItem(METALS, 10);
     foundry.stocks.forceDemand(METALS, 3, 0);

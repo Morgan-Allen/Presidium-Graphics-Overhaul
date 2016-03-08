@@ -86,7 +86,7 @@ public class DebugConstruction extends Scenario {
   private void buildingScenario(Stage world, Base base, BaseUI UI) {
     
     final Venue depot = new EngineerStation(base);
-    SiteUtils.establishVenue(depot, 5, 5, true, world);
+    SiteUtils.establishVenue(depot, 5, 5, -1, true, world);
     depot.stocks.bumpItem(PARTS, 20);
     depot.updateAsScheduled(0, false);
     base.setup.fillVacancies(depot, true);

@@ -6,7 +6,10 @@
 package stratos.content.hooks;
 import stratos.game.common.*;
 import stratos.game.verse.*;
+import stratos.game.wild.Hareen;
 import stratos.game.wild.NativeHut;
+import stratos.game.wild.NestUtils;
+import stratos.game.wild.Qudu;
 import stratos.game.craft.*;
 import stratos.game.maps.*;
 import stratos.util.*;
@@ -68,6 +71,8 @@ public class ScenarioElysium extends SectorScenario {
     }
     natives.setup.doPlacementsFor(nativeHuts.toArray(Venue.class));
     natives.setup.fillVacancies(nativeHuts, true);
+    
+    NestUtils.populateFauna(world, 0.5f, Qudu.SPECIES, Hareen.SPECIES);
   }
   
   
