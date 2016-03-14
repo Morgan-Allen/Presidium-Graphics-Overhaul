@@ -10,13 +10,11 @@ import stratos.game.craft.*;
 import stratos.game.actors.*;
 import stratos.game.base.LawUtils.*;
 import stratos.user.*;
-import stratos.user.notify.*;
 import stratos.util.*;
-import stratos.util.Description.Link;
 
 
 
-public class Summons extends Plan implements Messaging {
+public class Summons extends Plan {
   
   
   private static boolean
@@ -199,10 +197,6 @@ public class Summons extends Plan implements Messaging {
   
   /**  Helper methods for the player's UI-
     */
-  //  TODO:  MOVE THESE OUT OF HERE
-  
-  //  TODO:  Replace this with a variety of contact mission?
-  
   public static Summons officialSummons(Actor subject, Actor host) {
     if (host == null) I.complain("NO RULER TO VISIT");
     
@@ -226,14 +220,13 @@ public class Summons extends Plan implements Messaging {
     final Base base = stays.base();
     final Mission match = base.matchingMission(actor, MissionContact.class);
     if (
-      (BaseUI.isSelected(actor) || BaseUI.isSelected(match)) &&
-      stays == base.HQ() && ! BaseUI.hasMessageFocus(actor)
+      match != null && stays == base.HQ() &&
+      Selection.paneSelection() != match
     ) {
-      final BaseUI UI = BaseUI.current();
-      configDialogueFor(UI, actor, true);
+      Selection.pushSelection(match, null);
       return true;
     }
-    return false;
+    else return false;
   }
   
   
@@ -267,213 +260,17 @@ public class Summons extends Plan implements Messaging {
   }
   
   
-  public static Property summonedTo(Accountable m) {
-    if (! (m instanceof Actor)) return null;
-    final Summons s = (Summons) ((Actor) m).matchFor(Summons.class, false);
+  public static Property summonedTo(Actor m) {
+    final Summons s = (Summons) m.matchFor(Summons.class, false);
     return s == null ? null : s.stays;
   }
   
   
-  
-  /**  Helper methods for dialogue-construction
-    */
-  public MessagePane loadMessage(Session s, BaseUI UI) throws Exception {
-    return configDialogueFor(UI, invites, false);
+  public static boolean isSummoned(Actor m) {
+    final Summons s = (Summons) ((Actor) m).matchFor(Summons.class, false);
+    return m.aboard() == s.stays;
   }
   
-  
-  public void saveMessage(MessagePane message, Session s) throws Exception {
-    //  No action required...
-  }
-  
-  
-  public void messageWasOpened(MessagePane message, BaseUI UI) {
-    //  No action required...
-  }
-  
-  
-  private MessagePane messageFor(
-    BaseUI UI, Actor with, String lead, Series <Link> responses
-  ) {
-    final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with, with, this
-    );
-    panel.assignContent(lead, responses);
-    panel.assignParent(Selection.currentSelectionPane());
-    return panel;
-  }
-  
-  
-  private MessagePane configDialogueFor(
-    final BaseUI UI, final Actor with, boolean pushNow
-  ) {
-    final Stack <Link> responses = new Stack();
-    
-    //  Ask to join a declared mission.
-    if (UI.played().tactics.allMissions().size() > 0) {
-      responses.add(new Link("I want you to join a mission.") {
-        public void whenClicked(Object context) {
-          pushMissionDialogue(UI, with, "What would you ask of me?");
-        }
-      });
-    }
-    
-    //  Ask for instruction on a given subject.
-    
-    //  Ask for advice or opinion of self or others.
-    
-    //  Make a philosophical declaration.
-    
-    //  Offer a gift.
-    
-    responses.add(new Link("I'd like to offer you a gift.") {
-      public void whenClicked(Object context) {
-        pushGiftDialogue(UI, with, "What do you have in mind?");
-      }
-    });
-    
-    responses.add(new Link("I no longer require your services.") {
-      public void whenClicked(Object context) {
-        pushDismissalDialogue(UI, with, "But sir!  I have always been loyal!");
-      }
-    });
-    
-    //  Order banishment, execution, or arrest.
-    
-    //  TODO:  Say farewell or dismiss from summons.
-    
-    //  TODO:  IN OTHER WORDS, THESE ARE ALL STANDARDS ASPECTS OF DIALOGUE
-    //  FUNCTIONS.  IMPLEMENT AS SUCH.
-    
-    responses.add(new Link("You are dismissed.") {
-      public void whenClicked(Object context) {
-        cancelSummons(with);
-      }
-    });
-    
-    final MessagePane pane = messageFor(UI, with, "Yes my liege?", responses);
-    if (pushNow) UI.setMessagePane(pane);
-    return pane;
-  }
-  
-  
-  private void pushGiftDialogue(
-    final BaseUI UI, final Actor with, String lead
-  ) {
-    final Stack <Link> responses = new Stack <Link> ();
-    //  TODO:  Include possibility of rejection here, along with relation
-    //  effects!
-    
-    responses.add(new Link("How about 50 credits?") {
-        public void whenClicked(Object context) {
-          UI.played().finance.incCredits(-50, BaseFinance.SOURCE_REWARDS);
-          with.gear.incCredits(50);
-          pushGiftResponse(UI, with, "Thank you, your grace!");
-        }
-    });
-    
-    final MessagePane pane = messageFor(UI, with, lead, responses);
-    UI.setMessagePane(pane);
-  }
-  
-  
-  private void pushDismissalDialogue(
-    final BaseUI UI, final Actor with, String lead
-  ) {
-    final Stack <Link> responses = new Stack <Link> ();
-    
-    responses.add(new Link("Nonetheless.  Clear out your station.") {
-      public void whenClicked(Object context) {
-        with.mind.setWork(null);
-        cancelSummons(with);
-      }
-    });
-    responses.add(new Link("Hmm.  Perhaps I shall reconsider.") {
-      public void whenClicked(Object context) {
-        configDialogueFor(UI, with, true);
-      }
-    });
-    
-    final MessagePane pane = messageFor(UI, with, lead, responses);
-    UI.setMessagePane(pane);
-  }
-  
-  
-  private void pushGiftResponse(
-    final BaseUI UI, final Actor with, String lead
-  ) {
-    final MessagePane panel = new MessagePane(
-      UI, with.portrait(UI), "Audience with "+with, with, this
-    ).assignContent(lead, new Link("Very well, then...") {
-      public void whenClicked(Object context) {
-        configDialogueFor(UI, with, true);
-      }
-    });
-    UI.setMessagePane(panel);
-  }
-  
-  
-  private void pushMissionDialogue(
-    final BaseUI UI, final Actor with, String lead
-  ) {
-    final Stack <Link> responses = new Stack <Link> ();
-    final Actor ruler = UI.played().ruler();
-    if (! Pledge.TYPE_JOIN_MISSION.canMakePledge(with, ruler)) return;
-    
-    //  TODO:  If the offer is rejected, elaborate on why, and possibly suggest
-    //  a counter-offer.  Also, consider an option to 'insist' on joining?
-    
-    for (Pledge p : Pledge.TYPE_JOIN_MISSION.variantsFor(with, ruler)) {
-      final Mission m = (Mission) p.refers();
-      
-      responses.add(new Link(""+m.toString()) {
-        public void whenClicked(Object context) {
-          final JoinMission joining = JoinMission.resume(with, m);
-          joining.updatePlanFor(with);
-          final boolean wouldAccept = joining.priority() > 0;
-          
-          if (wouldAccept) {
-            pushMissionResponse(UI, with, m);
-          }
-          else if (m.rateCompetence(with) < 1) {
-            pushMissionDialogue(UI, with,
-              "I fear I lack the skills required, my lord."
-            );
-          }
-          else {
-            pushMissionDialogue(UI, with, "I... must decline, my lord.");
-          }
-        }
-      });
-    }
-    
-    responses.add(new Link("Speaking of other business...") {
-      public void whenClicked(Object context) {
-        configDialogueFor(UI, with, true);
-      }
-    });
-
-    final MessagePane pane = messageFor(UI, with, lead, responses);
-    UI.setMessagePane(pane);
-  }
-  
-  
-  private void pushMissionResponse(
-    final BaseUI UI, final Actor with, final Mission taken
-  ) {
-    final Batch <Link> responses = new Batch();
-    responses.add(new Link("Very well, then...") {
-      public void whenClicked(Object context) {
-        Selection.pushSelection(taken, null);
-        with.mind.assignMission(taken);
-        taken.setApprovalFor(with, true);
-      }
-    });
-    final MessagePane pane = messageFor(
-      UI, with, "My pleasure, your grace.", responses
-    );
-    UI.setMessagePane(pane);
-  }
 }
 
 

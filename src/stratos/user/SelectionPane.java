@@ -18,8 +18,6 @@ import stratos.util.*;
 //  TODO:  Create proper, separately-instanced sub-panes for the different
 //         categories...
 
-//  TODO:  Try to adapt this so that it works with any HUD, not just a Base-UI.
-
 
 public class SelectionPane extends UIGroup implements UIConstants {
   
@@ -148,7 +146,7 @@ public class SelectionPane extends UIGroup implements UIConstants {
     if (hasPortrait) {
       portraitFrame = new UINode(UI) {
         protected void render(WidgetsPass batch2d) {
-          if (selected != null) portrait = selected.portrait(UI);
+          if (selected != null) portrait = updatePortrait(UI);
           if (portrait == null) return;
           portrait.drawTo(batch2d, bounds, absAlpha);
         }
@@ -392,6 +390,12 @@ public class SelectionPane extends UIGroup implements UIConstants {
     
     detailText.setText("");
     if (listingText != null) listingText.setText("");
+  }
+  
+  
+  protected Composite updatePortrait(HUD UI) {
+    if (selected != null) return selected.portrait(UI);
+    else return null;
   }
 }
 

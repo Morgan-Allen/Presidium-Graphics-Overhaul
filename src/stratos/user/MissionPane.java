@@ -68,7 +68,6 @@ public class MissionPane extends SelectionPane {
   protected void describeStatus(
     final Mission mission, boolean canChange, Description d
   ) {
-    
     //  Firstly, declare the mission's patron and current status:
     final Base declares = mission.base();
     d.append("Declared by "+declares);

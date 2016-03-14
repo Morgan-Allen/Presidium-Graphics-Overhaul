@@ -6,6 +6,7 @@
 package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
+import stratos.game.plans.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 
@@ -13,126 +14,276 @@ import stratos.util.*;
 
 public class NegotiationPane extends MissionPane {
   
+  final static int
+    OPTION_INIT     = -1,
+    OPTION_RETURN   =  0,
+    OPTION_REQUEST  =  1,
+    OPTION_OFFER    =  2,
+    OPTION_ADVISE   =  3,
+    OPTION_BAD_NEWS =  4,
+    OPTION_END_TALK =  5,
+    BASIC_OPTIONS[] = { 1, 2, 3, 4, 5 },
+    
+    REQUEST_ANSWER  =  6,
+    OFFER_ANSWER    =  7,
+    DISMISS_ANSWER  =  8;
+  
+  final static String OPTION_STRINGS[] = {
+    "I have a request.",
+    "I'd like to make an offer.",
+    "I need some advice.",
+    "I have some bad news.",
+    "You may go."
+  };
+  
   
   final MissionContact contact;
-  final PledgeMenu offers, sought;
+  
+  int optionID = OPTION_INIT;
+  Pledge.Type openedType;
+  Pledge offers, sought;
+  boolean accepted;
   
   
   public NegotiationPane(HUD UI, MissionContact selected) {
     super(UI, selected);
     this.contact = selected;
-    
-    this.offers = new PledgeMenu() { void setMade(Pledge p) {
-      made = p;
-      contact.setTerms(made, contact.pledgeSought());
-    }};
-    this.sought = new PledgeMenu() { void setMade(Pledge p) {
-      made = p;
-      contact.setTerms(contact.pledgeOffers(), made);
-    }};
   }
   
   
-  public SelectionPane configOwningPanel() {
+  protected void describeStatus(
+    Mission mission, boolean canChange, Description d
+  ) {
+    if (contact.subjectSummoned()) {
+      setupLines();
+    }
+    else if (contact.isSummons()) {
+      Object stays = Summons.summonedTo((Actor) contact.subject());
+      d.appendAll("\nSummoning ", contact.subject(), " to ", stays);
+    }
+    else super.describeStatus(mission, canChange, d);
+  }
+  
+  
+  protected void describeOrders(boolean canChange, Description d) {
+    if (contact.subjectSummoned()) {
+      
+    }
+    else if (contact.isSummons()) {
+      
+    }
+    else super.describeOrders(canChange, d);
+  }
+  
+  
+  protected void listApplicants(
+    Mission mission, List <Actor> applied, boolean canConfirm, Description d
+  ) {
+    if (contact.subjectSummoned()) {
+      
+    }
+    else if (contact.isSummons()) {
+      
+    }
+    else super.listApplicants(mission, applied, canConfirm, d);
+  }
+  
+  
+  protected Composite updatePortrait(HUD UI) {
+    if (contact.subjectSummoned()) {
+      return ((Actor) contact.subject()).portrait(UI);
+    }
+    else return super.updatePortrait(UI);
+  }
+  
+  
+  void setupLines() {
+    //
+    //  TODO:  Pledges will work strictly off materials and options available
+    //         from within the Bastion.
+    
     final Description d = detail();
     final Actor ruler = mission.base().ruler();
     final Actor subject = (Actor) mission.subject();
-    if (ruler == null || subject == null) return null;
+    if (ruler == null || subject == null);
     
-    if (contact.isSummons()) {
-      d.append(subject);
-      d.append(" is being summoned to ");
-      d.append(ruler.aboard());
-      d.append(".");
-      return this;
+    if (optionID == OPTION_INIT || optionID == OPTION_RETURN) {
+      if (optionID == OPTION_INIT) d.append("\"Yes my liege?\""             );
+      else                         d.append("\"Anything else, your grace?\"");
+      
+      for (final int o : BASIC_OPTIONS) {
+        d.appendAll("\n  ", new Description.Link(OPTION_STRINGS[o - 1]) {
+          public void whenClicked(Object context) {
+            if (o == OPTION_END_TALK) {
+              contact.endMission(true);
+            }
+            else optionID = o;
+          }
+        });
+      }
     }
-    
-    final boolean canChange = ! mission.hasBegun();
-    super.describeStatus(contact, canChange, d);
-    
-    offers.made = contact.pledgeOffers();
-    sought.made = contact.pledgeSought();
-    
-    offers.listTermsFor(ruler  , subject, "\n\nTerms Offered: ", d);
-    sought.listTermsFor(subject, ruler  , "\n\nTerms Sought: " , d);
-    
-    d.append("\n\n");
-    super.listApplicants(contact, contact.applicants(), canChange, d);
-    return this;
+    else if (optionID == OPTION_REQUEST) {
+      d.append("\"I am here to serve, your grace.\"");
+      appendPledgeOptions(subject, ruler, d, true);
+      appendReturnOption(d);
+    }
+    else if (optionID == OPTION_OFFER) {
+      d.append("\"What do you have in mind?\"");
+      appendPledgeOptions(ruler, subject, d, false);
+      appendReturnOption(d);
+    }
+    else if (optionID == OFFER_ANSWER) {
+      d.append("\"That is agreeable.  What would you ask in return?\"");
+      appendPledgeOptions(subject, ruler, d, true);
+      appendReturnOption(d);
+    }
+    else if (optionID == OPTION_ADVISE) {
+      d.append("\"What troubles you, your grace?\"");
+      //  TODO:  Implement this later!
+      appendReturnOption(d);
+    }
+    else if (optionID == OPTION_BAD_NEWS) {
+      d.append("\"Could you explain?\"");
+      d.appendAll("\n  ", new Description.Link(
+        "I no longer require your services."
+      ) {
+        public void whenClicked(Object context) {
+          optionID = DISMISS_ANSWER;
+        }
+      });
+      appendReturnOption(d);
+    }
+    else if (optionID == REQUEST_ANSWER) {
+      if (accepted) {
+        if (sought != null && sought.type == Pledge.TYPE_GOOD_WILL) {
+          d.append("\"Why... thank you your grace!\"");
+        }
+        else {
+          d.append("\"Very well, your grace.\"");
+        }
+        d.appendAll("\n  ", new Description.Link("Then it is settled.") {
+          public void whenClicked(Object context) {
+            confirmDeal(ruler, subject);
+          }
+        });
+      }
+      else {
+        d.append("\"I... regret I must decline, your grace.\"");
+        d.appendAll("\n  ", new Description.Link("A pity.") {
+          public void whenClicked(Object context) {
+            cancelOption();
+          }
+        });
+      }
+    }
+    else if (optionID == DISMISS_ANSWER) {
+      appendDismissOptions(ruler, subject, d);
+    }
   }
   
   
-  private abstract class PledgeMenu {
-    
-    Pledge made = null;
-    Pledge.Type shownType = null;
-    boolean showMenu = false;
-    
-    private void listTermsFor(
-      Actor ruler, Actor subject, String header, Description d
-    ) {
-      d.append(header);
-      final String desc = made == null ? "None" : made.description();
-      //
-      //  Clicking on the main terms-descriptor opens a menu to allow you to
-      //  select other terms (and closes any other menu open.)
-      d.append(new Description.Link(desc) {
+  private void appendReturnOption(Description d) {
+    d.appendAll("\n  ", new Description.Link("Nothing.  Pay it no mind.") {
+      public void whenClicked(Object context) {
+        cancelOption();
+      }
+    });
+  }
+  
+  
+  private void appendPledgeOptions(
+    final Actor making, final Actor with, Description d, final boolean asReq
+  ) {
+    for (final Pledge.Type type : Pledge.TYPE_INDEX) {
+      if (! type.canMakePledge(making, with)) continue;
+      final Pledge variants[] = type.variantsFor(making, with);
+      if (variants == null || variants.length == 0) continue;
+      
+      boolean showVars = openedType == type || variants.length == 1;
+      boolean showType = variants.length > 1;
+      
+      if (showType) d.appendAll("\n  ", new Description.Link(type.name) {
         public void whenClicked(Object context) {
-          final boolean willShow = ! showMenu;
-          offers.showMenu = sought.showMenu = false;
-          showMenu = willShow;
-          shownType = made == null ? null : made.type;
+          if (variants.length == 1) {
+            if (asReq) proposeRequest(variants[0], making, with);
+            else proposeOffer(variants[0], making, with);
+          }
+          else if (openedType == type) openedType = null;
+          else openedType = type;
         }
       });
-      if (showMenu) for (final Pledge.Type type : Pledge.TYPE_INDEX) {
-        if (! type.canMakePledge(ruler, subject)) continue;
-        final Pledge variants[] = type.variantsFor(ruler, subject);
-        if (variants == null || variants.length == 0) continue;
-        if (made != null && type == made.type) continue;
-        //
-        //  having skipped over any non-applicable pledge types, we allow
-        //  selection from any variants on the current pledge-type...
-        if (shownType == type) {
-          if (variants.length == 1) continue;
-          d.append("\n  "+type.name);
-          for (final Pledge variant : variants) {
-            d.append("\n    ");
-            d.append(new Description.Link(variant.description()) {
-              public void whenClicked(Object context) {
-                setMade(variant);
-                showMenu = false;
-              }
-            });
-          }
-        }
-        //
-        //  ...in addition to different types of pledge.  (In the case where
-        //  only a single variant of that pledge if available, we select this
-        //  directly.)
-        else {
-          d.append("\n  ");
-          final String typeDesc = variants.length == 1 ?
-            variants[0].description() : type.name
-          ;
-          d.append(new Description.Link(typeDesc) {
+      if (showVars) {
+        final String indent = showType ? "\n    " : "\n  ";
+        for (final Pledge variant : variants) {
+          d.appendAll(indent, new Description.Link(variant.description()) {
             public void whenClicked(Object context) {
-              if (variants.length == 1) {
-                setMade(variants[0]);
-                showMenu = false;
-              }
-              else {
-                shownType = type;
-              }
+              if (asReq) proposeRequest(variant, making, with);
+              else proposeOffer(variant, making, with);
             }
           });
         }
       }
     }
-    
-    abstract void setMade(Pledge made);
   }
   
   
+  private void proposeRequest(Pledge sought, Actor ruler, Actor subject) {
+    this.sought = sought;
+    if (offers == null) offers = Pledge.goodWillPledge(ruler, subject);
+    
+    accepted = Negotiation.tryAcceptance(
+      offers, sought, ruler, subject
+    );
+    openedType = null;
+    optionID = REQUEST_ANSWER;
+  }
+  
+  
+  private void proposeOffer(Pledge offers, Actor ruler, Actor subject) {
+    this.offers = offers;
+    openedType = null;
+    optionID = OFFER_ANSWER;
+  }
+  
+  
+  private void confirmDeal(Actor ruler, Actor subject) {
+    Negotiation.setAcceptance(offers, sought, ruler, subject, accepted);
+    if (! contact.subjectSummoned()) {
+      contact.endMission(true);
+      Selection.pushSelection(subject, null);
+    }
+    else {
+      offers = sought = null;
+      optionID = OPTION_RETURN;
+    }
+  }
+  
+  
+  private void appendDismissOptions(
+    final Actor ruler, final Actor subject, Description d
+  ) {
+    //
+    //  TODO:  Include this as a negative-value pledge...
+    
+    d.append("\"Your grace!  I have always been faithful!\"");
+    d.appendAll("\n  ", new Description.Link("Nonetheless.  My mind is set.") {
+      public void whenClicked(Object context) {
+        subject.mind.setWork(null);
+      }
+    });
+    d.appendAll("\n  ", new Description.Link("Perhaps I could reconsider...") {
+      public void whenClicked(Object context) {
+        subject.relations.incRelation(ruler, -0.5f, 0.2f, 0);
+        cancelOption();
+      }
+    });
+  }
+  
+  
+  private void cancelOption() {
+    offers = sought = null;
+    optionID = OPTION_RETURN;
+  }
 }
 
 

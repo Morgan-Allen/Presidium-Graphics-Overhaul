@@ -54,22 +54,47 @@ public class DialogueUtils {
   }
   
   
+  public static float talkChance(
+    Skill plea, float opposeDC, Actor actor, Actor other
+  ) {
+    return talkTest(plea, opposeDC, actor, other, true);
+  }
+  
+  
   public static float talkResult(
     Skill plea, float opposeDC, Actor actor, Actor other
   ) {
+    return talkTest(plea, opposeDC, actor, other, false);
+  }
+  
+  
+  private static float talkTest(
+    Skill plea, float opposeDC, Actor actor, Actor other, boolean chanceOnly
+  ) {
     final Skill language = languageFor(other);
     final float attBonus = other.relations.valueFor(actor) * ROUTINE_DC;
-    int result = 0;
-    final Action a = actor.currentAction();
-    result += actor.skills.test(language, ROUTINE_DC - attBonus, 1, a) ? 1 : 0;
-    result += actor.skills.test(plea    , opposeDC   - attBonus, 1, a) ? 1 : 0;
     
-    if (I.talkAbout == other && Dialogue.stepsVerbose) {
-      I.say("\nGetting talk result between "+actor+" and "+other);
-      I.say("  Language is: "+language);
-      I.say("  Result is:   "+result  );
+    if (chanceOnly) {
+      float chanceL = actor.skills.chance(language, ROUTINE_DC - attBonus);
+      float chanceP = actor.skills.chance(plea    , opposeDC   - attBonus);
+      return chanceL * chanceP;
     }
-    return result / 2f;
+    else {
+      final Action a = actor.currentAction();
+      int result = 1;
+      if (! actor.skills.test(language, ROUTINE_DC - attBonus, 1, a)) {
+        result = 0;
+      }
+      if (! actor.skills.test(plea    , opposeDC   - attBonus, 1, a)) {
+        result = 0;
+      }
+      if (I.talkAbout == other && Dialogue.stepsVerbose) {
+        I.say("\nGetting talk result between "+actor+" and "+other);
+        I.say("  Language is: "+language+", plea with: "+plea);
+        I.say("  Oppose DC: "+opposeDC+", result is:   "+result  );
+      }
+      return result;
+    }
   }
   
   

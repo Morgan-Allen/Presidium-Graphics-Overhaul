@@ -220,13 +220,6 @@ public class Bastion extends Venue {
   };
   
   
-  public boolean allowsEntry(Accountable m) {
-    if (super.allowsEntry(m)) return true;
-    if (Summons.summonedTo(m) == this) return true;
-    return false;
-  }
-  
-  
   public int numPositions(Background b) {
     final int nO = super.numPositions(b);
     if (b == TROOPER) {

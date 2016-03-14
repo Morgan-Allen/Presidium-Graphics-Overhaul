@@ -165,7 +165,7 @@ public class MissionClaim extends Mission {
     */
   public void beginMission() {
     super.beginMission();
-    base.finance.incCredits(expedition.funding(), BaseFinance.SOURCE_LENDING);
+    base.finance.incCredits(expedition.funding(), BaseFinance.SOURCE_DONATION);
   }
   
   

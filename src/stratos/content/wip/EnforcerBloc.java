@@ -126,13 +126,6 @@ public class EnforcerBloc extends Venue {
   public Traded[] services() {
     return new Traded[] { SERVICE_SECURITY };
   }
-  
-  
-  public boolean allowsEntry(Accountable m) {
-    if (super.allowsEntry(m)) return true;
-    if (Summons.summonedTo(m) == this) return true;
-    return false;
-  }
 }
 
 

@@ -43,34 +43,8 @@ import stratos.util.*;
 //    Swear fealty- alliance, spying, or capitulation.
 //    Release captive- anyone imprisoned they care for.
 
-//  You'll need a new UI for this.
-/*
-public static enum Type {
-  
-  PAYMENT,
-  PROMOTION,
-  GIFT_ITEM,
-  SENSE_OF_DUTY,
-  
-  GOOD_WILL,
-  JOIN_MISSION,
-  SWEAR_FEALTY,
-  RELEASE_CAPTIVE,
-  
-  GRANT_AUDIENCE,
-  SUPPORT_RESEARCH
-  HAND_IN_MARRIAGE
-  BECOME_SPY
-}
-//*/
+//  TODO:  Move the various types out to a separate class or classes.
 
-
-//  TODO:  Consider giving types an optional 'preparation' behaviour as well-
-//  e.g, buying/collecting a gift prior to handing off.  Or a 'stage'
-//  variable?
-
-//  TODO:  Make this into a persistent plan, so that if the pledge cannot be
-//  fulfilled immediately, the actor will attempt it later when possible.
 
 
 public class Pledge implements Session.Saveable {
@@ -168,13 +142,12 @@ public class Pledge implements Session.Saveable {
   
   
   public void performFullfillment() {
-    final Behaviour b = type.fulfillment(this, null);
-    if (b != null) makes.mind.assignBehaviour(b);
+    type.performFulfillment(this, null);
   }
   
   
-  public Behaviour fulfillment(Pledge reward) {
-    return type.fulfillment(this, reward);
+  public void performFulfillment(Pledge reward) {
+    type.performFulfillment(this, reward);
   }
   
   
@@ -229,7 +202,7 @@ public class Pledge implements Session.Saveable {
     public abstract Pledge[] variantsFor(Actor makes, Actor makesTo);
     
     abstract float valueOf(Pledge p, Actor a);
-    abstract Behaviour fulfillment(Pledge p, Pledge reward);
+    abstract void performFulfillment(Pledge p, Pledge reward);
     
     abstract String description(Pledge p);
   }
@@ -262,7 +235,7 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
+    void performFulfillment(Pledge p, Pledge reward) {
       if (isRuler(p.makes)) {
         final BaseFinance.Source source = BaseFinance.SOURCE_REWARDS;
         p.makes.base().finance.incCredits(0 - p.amount, source);
@@ -272,8 +245,13 @@ public class Pledge implements Session.Saveable {
       }
       
       final Actor paid = (Actor) p.refers;
-      paid.gear.incCredits(p.amount);
-      return null;
+      if (isRuler(paid)) {
+        final BaseFinance.Source source = BaseFinance.SOURCE_DONATION;
+        p.makes.base().finance.incCredits(p.amount, source);
+      }
+      else {
+        paid.gear.incCredits(p.amount);
+      }
     }
   };
   
@@ -305,12 +283,11 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
+    void performFulfillment(Pledge p, Pledge reward) {
       final Object work = p.makes.mind.work();
       if (work instanceof Conscription) {
         ((Conscription) work).beginDowntime(p.makes);
       }
-      return null;
     }
   };
   
@@ -329,11 +306,9 @@ public class Pledge implements Session.Saveable {
       final Batch <Pledge> pledges = new Batch <Pledge> ();
       for (Item i : from.inventory().allItems()) {
         if (i.type.form == Economy.FORM_PROVISION) continue;
-        int amount = Nums.min(Nums.floor(i.amount), 10);
+        int amount = Nums.min(Nums.floor(i.amount / 2), 10);
         if (amount <= 0) continue;
         
-        //  TODO:  The Gifting behaviour probably has this covered already.
-        //         Try to use that?
         Bringing d = new Bringing(Item.withAmount(i, amount), from, makesTo);
         pledges.add(new Pledge(this, d, makes));
       }
@@ -353,14 +328,11 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
+    void performFulfillment(Pledge p, Pledge reward) {
       final Bringing b = (Bringing) p.refers;
-      if (isRuler(p.makes)) {
-        final Actor receives = (Actor) b.destination;
-        receives.mind.assignToDo(b);
-        return null;
-      }
-      else return b;
+      final Item gift = b.allDelivered()[0];
+      b.origin.inventory().removeItem(gift);
+      b.destination.inventory().addItem(gift);
     }
   };
   
@@ -390,8 +362,8 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
-      return null;
+    void performFulfillment(Pledge p, Pledge reward) {
+      return;
     }
   };
   
@@ -428,12 +400,11 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
+    void performFulfillment(Pledge p, Pledge reward) {
       final Mission m = (Mission) p.refers;
       p.makes.mind.assignMission(m);
       m.setApprovalFor(p.makes, true);
       m.setSpecialRewardFor(p.makes, reward);
-      return null;
     }
   };
   
@@ -462,12 +433,13 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
+    void performFulfillment(Pledge p, Pledge reward) {
       final Actor host = (Actor) p.refers;
       final Faction f = host.base().faction();
       final Item pass = Item.withReference(Economy.ITEM_PASSCODE, f);
       p.makes.gear.addItem(pass);
-      return Summons.officialSummons(p.makes, host);
+      final Summons summons = Summons.officialSummons(p.makes, host);
+      p.makes.mind.assignBehaviour(summons);
     }
   };
   
@@ -520,7 +492,7 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
+    void performFulfillment(Pledge p, Pledge reward) {
       final Venue belongs = (Venue) p.makes.mind.home();
       final Base  joins   = ((Actor) p.refers).base();
       
@@ -531,7 +503,6 @@ public class Pledge implements Session.Saveable {
       for (Actor a : belongs.staff().lodgers()) {
         a.assignBase(joins);
       }
-      return null;
     }
     
     
@@ -571,11 +542,10 @@ public class Pledge implements Session.Saveable {
     }
     
     
-    Behaviour fulfillment(Pledge p, Pledge reward) {
+    void performFulfillment(Pledge p, Pledge reward) {
       final Base   base = (Base) p.refers;
       final Sector with = base.world.offworld.currentSector(p.makes);
       base.visits.togglePartner(with, true);
-      return null;
     }
     
     

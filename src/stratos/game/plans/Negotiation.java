@@ -14,10 +14,10 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-//  TODO:  Include Gift-giving as an automatic sub-step.  (Pick up something
+//  TODO:  Include Gift-giving as an automatic sub-step?  (Pick up something
 //  that the subject would value at the point of origin.)
 
-public class Diplomacy extends Dialogue {
+public class Negotiation extends Dialogue {
   
   
   /**  Data fields, constructors and save/load methods-
@@ -31,13 +31,13 @@ public class Diplomacy extends Dialogue {
   private int numHails = 0;
   
   
-  public Diplomacy(Actor actor, Actor other) {
+  public Negotiation(Actor actor, Actor other) {
     super(actor, other, Dialogue.TYPE_CONTACT);
     addMotives(Plan.MOTIVE_JOB, 0);
   }
   
   
-  public Diplomacy(Session s) throws Exception {
+  public Negotiation(Session s) throws Exception {
     super(s);
     offers = (Pledge) s.loadObject();
     sought = (Pledge) s.loadObject();
@@ -124,6 +124,29 @@ public class Diplomacy extends Dialogue {
     if (! close) { super.discussTopic(topic, close); return; }
     if (offers == null || sought == null) I.complain("MUST SET TERMS FIRST!");
     if (offers.accepted()) return;
+    
+    final boolean accepted = tryAcceptance(offers, sought, other, other);
+    setAcceptance(offers, sought, actor, other, accepted);
+  }
+  
+  
+  public static float acceptChance(
+    Pledge offers, Pledge sought, Actor talks, Actor with
+  ) {
+    return acceptTest(offers, sought, talks, with, true);
+  }
+  
+  
+  public static boolean tryAcceptance(
+    Pledge offers, Pledge sought, Actor talks, Actor with
+  ) {
+    return acceptTest(offers, sought, talks, with, false) >= 0.5f;
+  }
+  
+  
+  private static float acceptTest(
+    Pledge offers, Pledge sought, Actor actor, Actor other, boolean chanceOnly
+  ) {
     //
     //  The likelihood of an offer being accepted depends on the degree of
     //  net benefit that the recipient expects to gain from the exchange, plus
@@ -133,31 +156,25 @@ public class Diplomacy extends Dialogue {
       soughtVal = sought.valueFor(other),
       cares     = other.relations.valueFor(actor) * Plan.PARAMOUNT,
       magnitude = Nums.abs(offersVal) + Nums.abs(soughtVal) + Nums.abs(cares),
-      chance    = (offersVal + soughtVal + cares) / magnitude;
+      chance    = (offersVal + soughtVal + cares) / magnitude,
+      opposeDC  = (1 - chance) * Qualities.STRENUOUS_DC;
     //
     //  If the outcome is in any way uncertain, we use a skill-check to try and
     //  persuade the recipient of the deal.
-    float talkResult = -1, opposeDC = (1 - chance) * Qualities.STRENUOUS_DC;
-    if      (chance >= 1) talkResult = 1;
-    else if (chance <= 0) talkResult = 0;
+    if (chance >= 1) return 1;
+    if (chance <= 0) return 0;
+    if (chanceOnly) {
+      return DialogueUtils.talkChance(SUASION, opposeDC, actor, other);
+    }
     else {
-      talkResult = DialogueUtils.talkResult(SUASION, opposeDC, actor, other);
+      return DialogueUtils.talkResult(SUASION, opposeDC, actor, other);
     }
-    if (report) {
-      I.say("\nDiscussing proposal with "+other);
-      final float skill = actor.traits.usedLevel(SUASION);
-      I.say("  Offers value:  "+offersVal+" ("+offers+")");
-      I.say("  Sought value:  "+soughtVal+" ("+sought+")");
-      I.say("  Sway chance:   "+chance+" (Suasion "+skill+")");
-      I.say("  Talk result:   "+talkResult+" (DC "+opposeDC+")");
-    }
-    //
-    //  And if our time is up, check for acceptance of the offer-
-    if (close) setOfferAccepted(talkResult >= 0.5f);
   }
   
   
-  public void setOfferAccepted(boolean isAccepted) {
+  public static void setAcceptance(
+    Pledge offers, Pledge sought, Actor actor, Actor other, boolean accepted
+  ) {
     final boolean report = (
       I.talkAbout == actor || I.talkAbout == other
     ) && stepsVerbose;
@@ -167,27 +184,12 @@ public class Diplomacy extends Dialogue {
       cares     = other.relations.valueFor(actor) * Plan.PARAMOUNT,
       magnitude = Nums.abs(offersVal) + Nums.abs(soughtVal) + Nums.abs(cares);
     
-    if (isAccepted) {
-      //
-      //  TODO:  If the pledged action isn't possible at the moment, store the
-      //  Pledge and follow through later.
+    if (accepted) {
+      if (report) I.say("  OFFER ACCEPTED");
       sought.setAcceptance(true, true);
       offers.setAcceptance(true, true);
-      final Actor
-        OA = offers.makesPledge(),
-        SA = sought.makesPledge();
-      final Behaviour
-        OB = offers.fulfillment(sought),
-        SB = sought.fulfillment(offers);
-      if (OB != null) OA.mind.assignBehaviour(OB);
-      if (SB != null) SA.mind.assignBehaviour(SB);
-      if (report) {
-        I.say("  OFFER ACCEPTED");
-        I.say("    Offered action:   "+OB);
-        I.say("    Fulfills offered: "+OA+" (Doing "+OA.mind.agenda()+")");
-        I.say("    Sought action:    "+SB);
-        I.say("    Fulfills sought:  "+SA+" (Doing "+SA.mind.agenda()+")");
-      }
+      sought.performFulfillment(offers);
+      offers.performFulfillment(sought);
       //
       //  If the offer is accepted, the recipient modifies their relation based
       //  on how much they benefit from the offer.  (A portion of this is

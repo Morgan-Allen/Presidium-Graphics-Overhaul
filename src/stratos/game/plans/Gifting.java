@@ -34,7 +34,7 @@ public class Gifting extends Plan {
   final Item gift;
   final Actor receives;
   final Plan getting;
-  final Diplomacy giving;
+  final Negotiation giving;
   private int stage = STAGE_INIT;
   
   
@@ -44,7 +44,7 @@ public class Gifting extends Plan {
     this.gift = gift;
     this.receives = receives;
     this.getting = getting;
-    this.giving = new Diplomacy(actor, receives);
+    this.giving = new Negotiation(actor, receives);
     giving.setTerms(Pledge.giftPledge(gift, actor, actor, receives), null);
   }
   
@@ -55,7 +55,7 @@ public class Gifting extends Plan {
     receives = (Actor) s.loadObject();
     getting  = (Plan) s.loadObject();
     stage    = s.loadInt();
-    giving   = (Diplomacy) s.loadObject();
+    giving   = (Negotiation) s.loadObject();
   }
   
   

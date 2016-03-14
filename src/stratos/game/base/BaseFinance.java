@@ -57,7 +57,7 @@ public class BaseFinance {
     SOURCE_UPGRADE  = new Source(11, "Upgrades"         ),
     SOURCE_SALVAGE  = new Source(12, "Salvage"          ),
     
-    SOURCE_LENDING  = new Source(13, "Lending"          ),
+    SOURCE_DONATION = new Source(13, "Donation"         ),
     SOURCE_INTEREST = new Source(14, "Interest"         ),
     
     ALL_SOURCES[] = SOURCES.allEntries(Source.class);

@@ -19,8 +19,8 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-//  TODO:  Allow spontaneous turn-coat/spying behaviours for actors, if their
-//         affection/fear of you grows high enough.
+//  TODO:  Allow multiple terms sought/offered.
+
 
 public class MissionContact extends Mission {
   
@@ -44,7 +44,7 @@ public class MissionContact extends Mission {
       "Making Contact with "+subject
     );
     offers = Pledge.goodWillPledge(base.ruler(), (Actor) subject);
-    sought = Pledge.goodWillPledge((Actor) subject, base.ruler());
+    sought = Pledge.audiencePledge((Actor) subject, base.ruler());
   }
   
   
@@ -95,6 +95,11 @@ public class MissionContact extends Mission {
   
   public boolean isSummons() {
     return asSummons != null;
+  }
+  
+  
+  public boolean subjectSummoned() {
+    return isSummons() && Summons.isSummoned((Actor) subject);
   }
   
 
@@ -181,7 +186,7 @@ public class MissionContact extends Mission {
     //
     //  Otherwise, we begin talks with the subject:
     final Actor with = (Actor) subject;
-    final Diplomacy talks = new Diplomacy(actor, with);
+    final Negotiation talks = new Negotiation(actor, with);
     final float novelty = with.relations.noveltyFor(actor);
     talks.setTerms(offers, sought);
     talks.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
@@ -198,7 +203,7 @@ public class MissionContact extends Mission {
   
   protected boolean shouldEnd() {
     if (! hasBegun()) return false;
-    if (finished()) return true;
+    if (  finished()) return true ;
     
     if (asSummons != null) {
       return asSummons.finished();
@@ -245,20 +250,20 @@ public class MissionContact extends Mission {
     }
     
     final Actor with = (Actor) subject;
-    final Diplomacy props = new Diplomacy(talks, with);
+    final Negotiation props = new Negotiation(talks, with);
     props.setTerms(offers, sought);
     
-    //  TODO:  Add some experience to diplomatic skills for envoys!
+    //  TODO:  Use the Negotiation class' utility-methods for this!
     
     final Object s = subject;
     if (Rand.num() < chance) {
-      props.setOfferAccepted(true);
+      Negotiation.setAcceptance(offers, sought, talks, with, true);
       TOPIC_CONTACT_OKAY.dispatchMessage(
         "Contact okay: "+s, base, subject, this
       );
     }
     else {
-      props.setOfferAccepted(false);
+      Negotiation.setAcceptance(offers, sought, talks, with, false);
       TOPIC_CONTACT_FAIL.dispatchMessage(
         "Contact failed: "+s, base, subject, this
       );
@@ -280,7 +285,7 @@ public class MissionContact extends Mission {
       d.appendAll(", in exchange for "   , m.offers, ".");
     }
   };
-
+  
   final static MessageTopic TOPIC_CONTACT_FAIL = new MessageTopic(
     "topic_contact_fail", true, Mobile.class, MissionContact.class
   ) {
@@ -295,20 +300,7 @@ public class MissionContact extends Mission {
   
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
     if (panel == null) panel = new NegotiationPane(UI, this);
-    
-    final int type = missionType();
-    final NegotiationPane NP = (NegotiationPane) panel;
-    
-    if (BaseUI.currentPlayed() == base) {
-      return NP.configOwningPanel();
-    }
-    else if (allVisible || type == TYPE_PUBLIC) {
-      return NP.configPublicPanel();
-    }
-    else if (type == TYPE_SCREENED) {
-      return NP.configScreenedPanel();
-    }
-    else return panel;
+    return super.configSelectPane(panel, UI);
   }
   
   

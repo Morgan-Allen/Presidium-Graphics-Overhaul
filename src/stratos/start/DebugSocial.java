@@ -179,7 +179,7 @@ public class DebugSocial extends Scenario {
     final Item gift = Item.withAmount(Economy.GREENS, 4);
     a3.gear.addItem(gift);
     
-    final Diplomacy d2 = new Diplomacy(a3, a4);
+    final Negotiation d2 = new Negotiation(a3, a4);
     d2.addMotives(Plan.MOTIVE_LEISURE, Plan.ROUTINE);
     d2.setTerms(Pledge.giftPledge(gift, a3, a3, a4), null);
     a3.mind.assignBehaviour(d2);
