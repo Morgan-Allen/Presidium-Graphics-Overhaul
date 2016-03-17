@@ -26,7 +26,7 @@ public class Studying extends Plan {
     stepVerbose  = false,
     fastResearch = false;
   private static float
-    fastMultiple = 50f;
+    fastMultiple = 25f;
   
   final public static int
     TYPE_SKILL     = 0,

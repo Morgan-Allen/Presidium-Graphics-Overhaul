@@ -47,11 +47,6 @@ public class DebugSocial extends Scenario {
   }
   
   
-  public void beginGameSetup() {
-    super.beginGameSetup();
-  }
-  
-  
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.5f,

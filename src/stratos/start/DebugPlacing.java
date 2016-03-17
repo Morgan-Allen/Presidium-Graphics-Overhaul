@@ -50,11 +50,6 @@ public class DebugPlacing extends Scenario {
   }
   
   
-  public void beginGameSetup() {
-    super.initScenario("debug_placing");
-  }
-  
-  
   public void renderVisuals(Rendering rendering) {
     super.renderVisuals(rendering);
   }

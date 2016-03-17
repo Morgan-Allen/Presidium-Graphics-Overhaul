@@ -35,11 +35,6 @@ public class DebugTutorial extends TutorialScenario {
   }
   
   
-  public void beginGameSetup() {
-    super.initScenario("tutorial_quick");
-  }
-  
-  
   protected void configureScenario(Stage world, Base base, BaseUI UI) {
     super.configureScenario(world, base, UI);
   }

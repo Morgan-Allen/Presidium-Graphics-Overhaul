@@ -25,7 +25,7 @@ public class BaseResearch {
     LEVEL_PRAXIS =  2;
   
   final public static float
-    DEFAULT_RESEARCH_TIME = Stage.STANDARD_DAY_LENGTH * 10,
+    DEFAULT_RESEARCH_TIME = Stage.STANDARD_DAY_LENGTH * 5,
     PROTOTYPE_COST_MULT   = 3.0f;
   
   

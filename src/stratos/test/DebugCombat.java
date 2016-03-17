@@ -65,11 +65,6 @@ public class DebugCombat extends AutomatedScenario {
     AutomatedTestRunner.setupAutomatedTest(getTestCases(), "debug_combat_log.txt");
   }
   
-   
-  public void beginGameSetup() {
-    super.initScenario("debug_combat");
-  }
-  
   
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(

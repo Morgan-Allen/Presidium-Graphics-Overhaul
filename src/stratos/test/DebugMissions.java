@@ -46,11 +46,6 @@ public class DebugMissions extends Scenario {
   }
   
   
-  public void beginGameSetup() {
-    super.initScenario("debug_missions");
-  }
-  
-  
   protected Stage createWorld() {
     final TerrainGen TG = new TerrainGen(
       64, 0.2f,

@@ -40,11 +40,6 @@ public class DebugConstruction extends Scenario {
   public void saveState(Session s) throws Exception {
     super.saveState(s);
   }
-
-  
-  public void beginGameSetup() {
-    super.initScenario("debug_building");
-  }
   
   
   protected Stage createWorld() {
