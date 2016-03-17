@@ -176,12 +176,21 @@ public class PilotUtils {
   
   public static void completeTakeoff(Stage world, Vehicle ship) {
     final Verse verse = world.offworld;
+    Journey j = ship.journey();
     final Sector
-      from = world.localSector(),
-      goes = verse.journeys.destinationFor(ship);
-    
-    final Journey j = Journey.configForTrader(ship, from, goes, world);
-    if (j != null) j.beginJourney();
+      locale = world.localSector(),
+      goes   = verse.journeys.destinationFor(ship);
+    //
+    //  If the destination hasn't changed, try landing at a different spot.
+    if (j != null && goes == locale) {
+      j.reattemptLanding();
+    }
+    //
+    //  Otherwise, set up a fresh journey offworld.
+    else {
+      j = Journey.configForTrader(ship, locale, goes, world);
+      if (j != null) j.beginJourney();
+    }
     ship.assignLandPoint(null, null);
   }
   

@@ -450,7 +450,6 @@ public abstract class Vehicle extends Mobile implements
   
   
   protected void updateVehicleMotion(Boarding step) {
-    
     //
     //  Check to see if ascent or descent are complete-
     final float height = position.z / INIT_HIGH;
@@ -468,7 +467,6 @@ public abstract class Vehicle extends Mobile implements
         completeLanding();
       }
     }
-    
     //
     //  Different forms of motion may be in order.
     final boolean canMove = structure.intact() && step != null;

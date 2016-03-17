@@ -221,7 +221,7 @@ public class EntryPoints {
     //  Basic variable setup and sanity checks-
     final Base  base  = trans.base();
     final Stage world = base.world ;
-    final boolean report = siteVerbose && BaseUI.currentPlayed() == base;
+    final boolean report = BaseUI.currentPlayed() == base && siteVerbose;
     if (trans.landed()) return true;
     //
     //  If your current landing site is still valid, then keep it.
@@ -251,7 +251,7 @@ public class EntryPoints {
   private static boolean findLandingArea(
     final Vehicle ship, final Journey journey, final Base base
   ) {
-    final boolean report = siteVerbose && BaseUI.current().played() == base;
+    final boolean report = BaseUI.currentPlayed() == base && siteVerbose;
     
     final Stage world = base.world;
     final Presences p = world.presences;

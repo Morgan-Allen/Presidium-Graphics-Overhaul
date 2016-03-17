@@ -477,6 +477,12 @@ public class Journey implements Session.Saveable {
   }
   
   
+  public void reattemptLanding() {
+    if (tripStage < STAGE_ARRIVED) return;
+    tripStage = STAGE_OUTWARD;
+  }
+  
+  
   public void beginReturnTrip() {
     if (tripStage >= STAGE_RETURN || hasProperty(IS_SINGLE)) return;
     if (hasProperty(IS_RETURN)) tripStage = STAGE_RETURN;
