@@ -290,8 +290,9 @@ public class ActorSkills {
         (b.traits.usedLevel(opposed) - Nums.min(0, bonus)) :
         (0 - Nums.min(0, bonus));
     
-    final float chance = (bonusA + 10 - bonusB) / 20;
-    return Nums.clamp(chance, MIN_FAIL_CHANCE, MAX_SUCCEED_CHANCE);
+    if (bonusA <= 0         ) return 0;
+    if (bonusB + bonusA <= 0) return 1;
+    return bonusA / (bonusA + bonusB);
   }
   
   

@@ -245,7 +245,7 @@ public class ActorMotives {
     if (baseUnit <= 0) return Plan.PARAMOUNT;
     
     float mag = 1f + (creditsPerDay / baseUnit);
-    mag = Nums.log(2, mag) * greed;
+    mag = mag * greed;
     
     //  Value is taken as directly proportional when below average, and
     //  logarithmic/additive beyond that:
@@ -263,4 +263,10 @@ public class ActorMotives {
     return level;
   }
 }
+
+
+
+
+
+
 

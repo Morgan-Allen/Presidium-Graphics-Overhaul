@@ -7,6 +7,7 @@ package stratos.user;
 import stratos.game.base.*;
 import stratos.game.common.*;
 import stratos.game.plans.*;
+import stratos.graphics.common.Colour;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 
@@ -205,7 +206,7 @@ public class NegotiationPane extends MissionPane {
       if (showType) d.appendAll("\n  ", new Description.Link(type.name) {
         public void whenClicked(Object context) {
           if (variants.length == 1) {
-            if (asReq) proposeRequest(variants[0], making, with);
+            if (asReq) proposeRequest(variants[0], with, making);
             else proposeOffer(variants[0], making, with);
           }
           else if (openedType == type) openedType = null;
@@ -217,10 +218,16 @@ public class NegotiationPane extends MissionPane {
         for (final Pledge variant : variants) {
           d.appendAll(indent, new Description.Link(variant.description()) {
             public void whenClicked(Object context) {
-              if (asReq) proposeRequest(variant, making, with);
+              if (asReq) proposeRequest(variant, with, making);
               else proposeOffer(variant, making, with);
             }
           });
+          if (asReq) {
+            float chance = 0;
+            chance = Negotiation.acceptChance(offers, variant, with, making);
+            int percent = (int) (chance * 100);
+            d.append(" ("+percent+"%)", Colour.LITE_GREY);
+          }
         }
       }
     }
@@ -269,6 +276,8 @@ public class NegotiationPane extends MissionPane {
     d.appendAll("\n  ", new Description.Link("Nonetheless.  My mind is set.") {
       public void whenClicked(Object context) {
         subject.mind.setWork(null);
+        contact.endMission(true);
+        Selection.pushSelection(subject, null);
       }
     });
     d.appendAll("\n  ", new Description.Link("Perhaps I could reconsider...") {

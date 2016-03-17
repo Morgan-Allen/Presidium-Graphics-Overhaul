@@ -230,8 +230,7 @@ public class Pledge implements Session.Saveable {
     
     
     float valueOf(Pledge p, Actor a) {
-      if (a != p.refers) return 0;
-      return a.motives.greedPriority(p.amount);
+      return a.motives.greedPriority(p.amount) * (a == p.makes ? -1 : 1);
     }
     
     

@@ -152,8 +152,8 @@ public class Negotiation extends Dialogue {
     //  net benefit that the recipient expects to gain from the exchange, plus
     //  the current value of their relationship with the proposer.
     final float
-      offersVal = offers.valueFor(other),
-      soughtVal = sought.valueFor(other),
+      offersVal = offers == null ? 0 : offers.valueFor(other),
+      soughtVal = sought == null ? 0 : sought.valueFor(other),
       cares     = other.relations.valueFor(actor) * Plan.PARAMOUNT,
       magnitude = Nums.abs(offersVal) + Nums.abs(soughtVal) + Nums.abs(cares),
       chance    = (offersVal + soughtVal + cares) / magnitude,
