@@ -871,11 +871,12 @@ public abstract class Mission implements Session.Saveable, Selectable {
       UI != null && BaseUI.paneOpenFor(this) &&
       visibleTo(UI.played()) && (subject instanceof Selectable)
     ) {
+      UI.clearInfoPane();
       Selection.pushSelection((Selectable) subject, null);
     }
     else {
-      Selection.pushSelection(null, null);
       if (UI != null) UI.clearInfoPane();
+      Selection.pushSelection(null, null);
     }
   }
   

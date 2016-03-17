@@ -111,16 +111,12 @@ public class ActorHealth {
     morale        = MAX_MORALE / 2f,
     concentration = BASE_CONCENTRATION,
     stressPenalty = 0;
-  //  TODO:  Need for sleep.
+  //  TODO:  Need for sleep?
   
   private int
     state = STATE_ACTIVE;
   private float
     ageMultiple = 1.0f;
-  
-  //
-  //  I don't save/load these, since they refresh frequently anyway...
-  ///private float stressCache = -1;
   
   
   
@@ -401,9 +397,18 @@ public class ActorHealth {
   
   
   public void setState(int state) {
+    final boolean report = I.talkAbout == actor && verbose;
     final int oldState = this.state;
     this.state = state;
-    if (state != oldState && state != STATE_ACTIVE) {
+    
+    if (report && oldState != state) {
+      I.say("  NEW/OLD STATE: "+state+"/"+oldState);
+    }
+    if (oldState != state && state != STATE_ACTIVE) {
+      if (state >= STATE_DEAD && ! organic()) state = STATE_DECOMP;
+      if ((verbose || I.logEvents()) && state != STATE_RESTING) {
+        I.say("\n"+actor+" ENTERED ABNORMAL HEALTH-STATE: "+stateDesc());
+      }
       actor.forceReflex(Action.FALL, true);
     }
   }
@@ -587,13 +592,14 @@ public class ActorHealth {
   
   private void checkStateChange() {
     final BaseAdvice advice = actor.base().advice;
-    final boolean report = verbose && I.talkAbout == actor;
+    final boolean report = I.talkAbout == actor && verbose;
     if (report) {
       I.say("\nUpdating health state for "+actor);
       I.say("  Injury/fatigue: "+injury+"/"+fatigue+", max: "+maxHealth);
       I.say("  State is: "+STATE_DESC[state]);
     }
     final int oldState = state;
+    int newState = oldState;
     //
     //  Check for state effects-
     if (state == STATE_SUSPEND) {
@@ -602,40 +608,33 @@ public class ActorHealth {
     else if (state == STATE_DEAD || state == STATE_DECOMP) {
       if (injury >= maxHealth * MAX_DECOMP) {
         if (report) I.say("  "+actor+" is decomposing...");
-        state = STATE_DECOMP;
+        newState = STATE_DECOMP;
         return;
       }
     }
     else if (injury >= maxHealth * MAX_INJURY) {
       advice.sendCasualtyMessageFromInjury(actor);
       if (I.logEvents()) I.say("  "+actor+" has died of injury.");
-      state = STATE_DEAD;
+      newState = STATE_DEAD;
     }
     else if (organic() && calories <= 0) {
       advice.sendCasualtyMessageFromStarvation(actor);
       if (I.logEvents()) I.say("  "+actor+" has died from starvation.");
-      state = STATE_DEAD;
+      newState = STATE_DEAD;
     }
     else if (actor.traits.usedLevel(IMMUNE) < -5) {
       advice.sendCasualtyMessageFromDisease(actor);
       if (I.logEvents()) I.say("  "+actor+" has died of disease.");
-      state = STATE_DEAD;
+      newState = STATE_DEAD;
     }
     else if (fatigue + injury >= maxHealth) {
-      state = STATE_RESTING;
+      newState = STATE_RESTING;
     }
     else if (fatigue <= 0 && asleep()) {
       if (verbose) I.say("  "+actor+" has revived!");
-      state = STATE_ACTIVE;
+      newState = STATE_ACTIVE;
     }
-    
-    if (oldState != state && state != STATE_ACTIVE) {
-      if (state < STATE_DEAD && ! organic()) state = STATE_DEAD;
-      if ((verbose || I.logEvents()) && state != STATE_RESTING) {
-        I.say("\n"+actor+" ENTERED ABNORMAL HEALTH-STATE: "+stateDesc());
-      }
-      actor.forceReflex(Action.FALL, true);
-    }
+    setState(newState);
   }
   
   

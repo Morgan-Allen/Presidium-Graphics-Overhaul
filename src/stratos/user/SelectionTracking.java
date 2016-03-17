@@ -120,7 +120,7 @@ public class SelectionTracking {
     //
     //  We can't continue tracking our lock-target once our field-of-view has
     //  changed.  So if the current pane is dedicated to that target, we need
-    //  to dismiss it and focus on whatever comes in view instead.
+    //  to dismiss it and focus on whatever tile comes in view instead.
     final Stage   world     = UI.world();
     final Target  tracked   = lockTarget;
     final boolean noOptions = UI.currentOptions() == null;

@@ -12,11 +12,12 @@ import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.game.wild.*;
+import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
 import stratos.content.civic.*;
-import stratos.content.hooks.*;
+import static stratos.game.actors.Backgrounds.*;
 import static stratos.user.UIConstants.*;
 
 
@@ -50,8 +51,7 @@ public class TutorialScenario extends SectorScenario {
   
   public TutorialScenario(String prefix) {
     super("src/stratos/content/hooks/TutorialScript.xml");
-    setupScenario(createExpedition(), new StratosSetting(), prefix);
-    
+    setSavesPrefix(prefix);
   }
   
   
@@ -137,6 +137,7 @@ public class TutorialScenario extends SectorScenario {
   
   protected void initScenario(String prefix) {
     clearAllFlags();
+    setupScenario(createExpedition(), new StratosSetting(), prefix);
     super.initScenario(prefix);
   }
   
@@ -188,6 +189,10 @@ public class TutorialScenario extends SectorScenario {
     farPass.placeState = nearPass.placeState = SitingPass.PLACE_INTACT;
     nearPass.performFullPass();
     farPass .performFullPass();
+    
+    final Actor boss = Tripod.SPECIES.sampleFor(artilects);
+    boss.mind.setHome(ruinsFar);
+    boss.enterWorldAt(ruinsFar, world);
   }
   
   
@@ -350,6 +355,18 @@ public class TutorialScenario extends SectorScenario {
   }
   
   
+  protected void whenImportsSetupOpen() {
+    ScreenPing.addPingFor(UIConstants.BUDGETS_BUTTON_ID);
+  }
+  
+  
+  protected boolean checkImportsSetup() {
+    return
+      base().demands.allowsImport(Economy.CARBS  ) &&
+      base().demands.allowsImport(Economy.PROTEIN);
+  }
+  
+  
   
   
   /**  Second round of security topics-
@@ -418,13 +435,19 @@ public class TutorialScenario extends SectorScenario {
     barracksBuilt.structure.setUpgradeLevel(TrooperLodge.FIRING_RANGE, 2);
     
     final Base base = base();
-    while (base.visits.numCandidates(Backgrounds.TROOPER) < 2) {
-      final Actor applies = Backgrounds.TROOPER.sampleFor(base);
-      base.visits.addCandidate(applies, barracksBuilt, Backgrounds.TROOPER);
+    while (
+      barracksBuilt.staff.numOpenings(TROOPER) > 0 &&
+      base.visits.numApplicants(TROOPER) < 2
+    ) {
+      final Actor applies = TROOPER.sampleFor(base);
+      base.visits.addCandidate(applies, barracksBuilt, TROOPER);
     }
-    while (base.visits.numCandidates(Backgrounds.ENGINEER) < 1) {
-      final Actor applies = Backgrounds.ENGINEER.sampleFor(base);
-      base.visits.addCandidate(applies, barracksBuilt, Backgrounds.ENGINEER);
+    while (
+      foundryBuilt.staff.numOpenings(ENGINEER) > 0 &&
+      base.visits.numApplicants(ENGINEER) < 1
+    ) {
+      final Actor applies = ENGINEER.sampleFor(base);
+      base.visits.addCandidate(applies, foundryBuilt, ENGINEER);
     }
     
     ScreenPing.addPingFor(UIConstants.ROSTER_BUTTON_ID);
@@ -433,9 +456,10 @@ public class TutorialScenario extends SectorScenario {
   
   protected boolean checkHiringDone() {
     if (barracksBuilt == null || foundryBuilt == null) return false;
+    if (! script().topicTriggered("Hiring Basics")) return false;
     return
-      barracksBuilt.staff.numHired(Backgrounds.TROOPER  ) >= 3 &&
-      foundryBuilt .staff.numHired(Backgrounds.ENGINEER) >= 2;
+      barracksBuilt.staff.numOpenings(TROOPER ) == 0 &&
+      foundryBuilt .staff.numOpenings(ENGINEER) == 0;
   }
   
   
@@ -503,7 +527,7 @@ public class TutorialScenario extends SectorScenario {
     Selectable subject = UI().selection.selected();
     if (subject instanceof Actor) {
       final Actor actor = (Actor) subject;
-      if (actor.mind.vocation() == Backgrounds.AUDITOR) {
+      if (actor.mind.vocation() == AUDITOR) {
         this.auditorSeen = true;
         onAuditorSeen(actor);
       }
@@ -655,6 +679,7 @@ public class TutorialScenario extends SectorScenario {
   private void followIfNew(Target t, String key) {
     if (allTargets.get(key) != null) return;
     allTargets.put(key, t);
+    Selection.pushSelection(null, null);
     UI().tracking.lockOn(t);
   }
   
@@ -700,54 +725,5 @@ public class TutorialScenario extends SectorScenario {
     return all;
   }
 }
-
-
-
-
-
-
-//  TODO:  Save security and contact missions, plus handling natives, for an
-//  intermediate/advanced tutorial where you move on to another map.
-
-//  TODO:  Include psychic powers and one of the Schools (Shapers?) as well.
-/*
-ruler.skills.addTechnique(Power.REMOTE_VIEWING);
-ruler.skills.addTechnique(Power.SUSPENSION    );
-ruler.skills.addTechnique(Power.FORCEFIELD    );
-ruler.skills.addTechnique(Power.TELEKINESIS   );
-//*/
-
-/*
-final int tribeID = NativeHut.TRIBE_FOREST;
-final BaseSetup NS = Base.natives(world, tribeID).setup;
-huts = new Batch <NativeHut> ();
-final VenueProfile NP[] = NativeHut.VENUE_BLUEPRINTS[tribeID];
-Visit.appendTo(huts, NS.doPlacementsFor(NP[0], 2));
-Visit.appendTo(huts, NS.doPlacementsFor(NP[1], 3));
-NS.fillVacancies(huts, true);
-for (NativeHut hut : huts) NS.establishRelationsAt(hut);
-//*/
-
-
-/*
-private boolean checkContactObjective() {
-  final boolean report = objectiveVerbose;
-  int numHuts = 0, numRazed = 0, numConverts = 0;
-  
-  for (NativeHut hut : huts) {
-    numHuts++;
-    if (hut.destroyed()) numRazed++;
-    else if (hut.base() == base()) numConverts++;
-  }
-  
-  if (report) {
-    I.say("\nChecking contact objective:");
-    I.say("  "+numHuts+" huts in total.");
-    I.say("  "+numRazed+" razed, "+numConverts+" converted.");
-  }
-  return (numRazed + numConverts) == numHuts;
-}
-//*/
-
 
 

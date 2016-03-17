@@ -398,7 +398,7 @@ public class VenuePane extends SelectionPane {
     d.append(a);
     d.append(a.inWorld() ? " (" : " (Offworld ");
     d.append(a.mind.vocation().name+")");
-    if (sought.wasHired()) return;
+    if (sought == null || sought.wasHired()) return;
     
     final Series <Trait>
       TD = ActorDescription.sortTraits(a.traits.personality(), a),

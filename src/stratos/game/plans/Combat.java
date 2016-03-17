@@ -107,18 +107,25 @@ public class Combat extends Plan {
   protected float getPriority() {
     int teamSize = hasMotives(MOTIVE_MISSION) ? Mission.AVG_PARTY_LIMIT : 1;
     
-    float harmLevel = REAL_HARM;
-    if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
-    if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
-    
     final float priority = PlanUtils.combatPriority(
       actor, subject, motiveBonus(),
-      teamSize, true, harmLevel
+      teamSize, true, object, harmIntended(subject)
     );
     
     if (priority <= 0 || ! PlanUtils.isArmed(actor)) setCompetence(0);
     else setCompetence(PlanUtils.combatWinChance(actor, subject, teamSize));
     return priority;
+  }
+  
+  
+  public float harmIntended(Target t) {
+    if (t == subject) {
+      float harmLevel = REAL_HARM;
+      if (object == OBJECT_SUBDUE ) harmLevel = MILD_HARM;
+      if (object == OBJECT_DESTROY) harmLevel = EXTREME_HARM;
+      return harmLevel;
+    }
+    return super.harmIntended(t);
   }
   
   

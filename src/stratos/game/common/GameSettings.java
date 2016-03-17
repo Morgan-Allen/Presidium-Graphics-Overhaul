@@ -83,7 +83,7 @@ public class GameSettings {
     cashFree  = false,
     psyFree   = false,
     fogFree   = false,
-    pathFree  = false,
+    pathFree  = true ,
     needsFree = false,
     techsFree = false,
     

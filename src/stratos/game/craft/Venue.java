@@ -546,7 +546,7 @@ public abstract class Venue extends Fixture implements
   
   
   public int spaceCapacity() {
-    return structure.maxIntegrity();
+    return structure.maxIntegrity() / 2;
   }
   
   

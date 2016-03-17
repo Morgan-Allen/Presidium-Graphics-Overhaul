@@ -304,7 +304,9 @@ public class ActorSenses {
       if (near == actor || ! near.health.alive()) continue;
       if (stealthy && ! near.senses.awareOf(actor)) continue;
       
-      float attackRisk = PlanUtils.combatPriority(actor, near, 0, 0, false, 1);
+      float attackRisk = PlanUtils.combatPriority(
+        actor, near, 0, 0, false, Combat.OBJECT_EITHER, 1
+      );
       attackRisk /= Plan.PARAMOUNT;
       awareThreats[i] = attackRisk;
       

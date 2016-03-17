@@ -248,6 +248,7 @@ public class Retreat extends Plan {
     final boolean report = I.talkAbout == actor && hasBegun() && stepsVerbose;
     if (report) {
       I.say("\nGetting retreat priority for: "+actor);
+      I.say("  Max priority is: "+maxPriority);
     }
     
     final boolean urgent = actor.senses.isEmergency();
@@ -257,14 +258,13 @@ public class Retreat extends Plan {
     float priority = PlanUtils.retreatPriority(
       actor, actor.origin(), haven, true, urgent, hasExit
     );
-    if (actor.senses.underAttack()) {
-      toggleMotives(MOTIVE_EMERGENCY, true);
-      priority = Nums.max(priority, ROUTINE);
-    }
-    else {
-      toggleMotives(MOTIVE_EMERGENCY, false);
-    }
+    toggleMotives(MOTIVE_EMERGENCY, actor.senses.underAttack());
     maxPriority = Nums.max(maxPriority, priority);
+    
+    if (report) {
+      I.say("  Max priority final: "+maxPriority);
+    }
+    
     return maxPriority;
   }
   
@@ -316,7 +316,6 @@ public class Retreat extends Plan {
   
   
   public boolean actionFlee(Actor actor, Target safePoint) {
-    
     //  TODO:  If the actor has a mission, check that this was the boarding
     //         point!
     if (Verse.isWorldExit(safePoint, actor) && actor.senses.isEmergency()) {
@@ -326,16 +325,6 @@ public class Retreat extends Plan {
       final Journey j = Journey.configAsEscape(exit, goes, world, actor);
       j.beginJourney(actor);
     }
-    /*
-    else if (actor.senses.fearLevel() <= 0) {
-      final Resting rest = new Resting(actor, safePoint);
-      rest.addMotives(Plan.MOTIVE_LEISURE, priorityFor(actor));
-      maxPriority = 0;
-      interrupt(INTERRUPT_CANCEL);
-      actor.mind.assignBehaviour(rest);
-      return true;
-    }
-    //*/
     else {
       if (lastHidePoint != safePoint) SenseUtils.breaksPursuit(actor, action());
       lastHidePoint = safePoint;
@@ -351,7 +340,8 @@ public class Retreat extends Plan {
     */
   public void describeBehaviour(Description d) {
     if (! actor.senses.isEmergency()) {
-      d.append("Retiring to ");
+      if (actor.aboard() == safePoint) d.append("Recuperating at ");
+      else d.append("Retiring to ");
       d.append(safePoint);
       return;
     }
@@ -359,6 +349,13 @@ public class Retreat extends Plan {
     else d.appendAll("Retreating to ", safePoint);
   }
 }
+
+
+
+
+
+
+
 
 
 

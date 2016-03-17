@@ -23,8 +23,11 @@ public class SenseUtils {
     
     boolean allBroken = true;
     
+    //  TODO:  This is more trouble than it's worth.  Removing for now.
+    /*
     for (Plan p : actor.world().activities.activePlanMatches(actor, null)) {
       final Actor follows = p.actor();
+      if (p.harmFactor() <= 0 && actor.base() == follows.base()) continue;
       final float
         sightRange   = follows.health.sightRange(),
         chaseUrgency = p.priority() / Plan.PARAMOUNT,
@@ -58,6 +61,7 @@ public class SenseUtils {
       }
     }
     
+    //*/
     return allBroken;
   }
   

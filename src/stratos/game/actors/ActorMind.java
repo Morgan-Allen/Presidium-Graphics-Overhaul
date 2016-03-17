@@ -174,7 +174,7 @@ public abstract class ActorMind {
     final boolean report = I.talkAbout == actor && stepsVerbose;
     
     final int MAX_LOOP = 6;
-    final String cause = "Getting next action";
+    final String cause = "Getting next action.";
     Behaviour root = null, next = null;
     Action returned = null;
 

@@ -77,7 +77,9 @@ public class MissionStrike extends Mission {
       target instanceof Actor ||
       target instanceof Venue
     ) && ((Target) target).base() != base) {
-      return new MissionStrike(base, (Element) target);
+      MissionStrike m = new MissionStrike(base, (Element) target);
+      m.setObjective(Combat.OBJECT_DESTROY);
+      return m;
     }
     return null;
   }
@@ -142,6 +144,12 @@ public class MissionStrike extends Mission {
   }
   
   
+  public boolean canApply(Actor actor) {
+    if (! PlanUtils.isArmed(actor)) return false;
+    return super.canApply(actor);
+  }
+  
+  
   
   /**  Behaviour implementation-
     */
@@ -154,7 +162,6 @@ public class MissionStrike extends Mission {
       actor, (Element) subject, Combat.STYLE_EITHER, objective()
     );
     combat.addMotives(Plan.MOTIVE_MISSION, basePriority(actor));
-    
     return cacheStepFor(actor, combat);
   }
   

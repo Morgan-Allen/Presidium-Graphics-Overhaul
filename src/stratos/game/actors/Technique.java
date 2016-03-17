@@ -306,7 +306,7 @@ public abstract class Technique extends Constant {
     
     if (harmFactor != HARM_UNRATED) {
       final float hostility = Nums.clamp(PlanUtils.combatPriority(
-        actor, subject, 0, 1, false, Plan.REAL_HARM
+        actor, subject, 0, 1, false, Combat.OBJECT_EITHER, Plan.REAL_HARM
       ) / Plan.PARAMOUNT, EXTREME_HELP, EXTREME_HARM);
       if (harmFactor >  0 && hostility <= 0) return -5;
       if (harmFactor <= 0 && hostility >  0) return -5;

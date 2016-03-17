@@ -165,7 +165,9 @@ public class CombatUtils {
         if (PlanUtils.harmIntendedBy(t, actor, true) <= 0) return;
         
         final float distance = Spacing.distance(t, actor);
-        float value = PlanUtils.combatPriority(actor, t, 0, 1, false, harm);
+        float value = PlanUtils.combatPriority(
+          actor, t, 0, 1, false, Combat.OBJECT_EITHER, harm
+        );
         if (value <= 0) return;
         if (melee) value /= 1 + distance;
         else       value /= 1 + (distance / (Stage.ZONE_SIZE / 2));

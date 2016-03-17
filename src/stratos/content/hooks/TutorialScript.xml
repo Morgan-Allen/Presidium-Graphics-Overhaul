@@ -115,7 +115,9 @@ Click here, and a small green icon should appear in the lower-centre of the scre
   completes = "checkFacilitiesReady"
   onFinish  = "onFacilitiesReady"
 >
-  <content>Excellent.  The technicians at your Bastion should now begin constructing these facilities.  Once that's complete, we'll provide some initial staff and move on to getting some cash flow going.</content>
+  <content>Excellent.  The technicians at your Bastion should now begin constructing these facilities.  Once that's complete, we'll provide some initial staff and move on to getting some cash flow going.
+  
+  NOTE:  If you want, you can increase the game speed using the fast-forward button near the bottom-left of the screen.</content>
 </topic>
 
 
@@ -129,7 +131,7 @@ Click here, and a small green icon should appear in the lower-centre of the scre
 
 To improve their production of goods and range of services, many buildings can have upgrades installed.
 
-Select the Engineer Station, open the Upgrade pane, and queue Assembly Line twice.  Your construction staff will attend to it shortly, speeding up Parts manufacture.  These can then be sold for a profit.</content>
+Select the Engineer Station and queue Assembly Line twice.  Your construction staff will attend to it shortly, speeding up Parts manufacture.  These can then be sold for a profit.</content>
 </topic>
 
 
@@ -145,9 +147,20 @@ Select the Engineer Station, open the Upgrade pane, and queue Assembly Line twic
 
 
 <topic
+  name      = "Setup Imports!"
+  urgent    = "true"
+  triggers  = "checkMarketUpgradesReady"
+  whenOpen  = "whenImportsSetupOpen"
+  completes = "checkImportsSetup"
+>
+  <content>One other thing- since we don't have any local sources of food at the moment, it might be a good idea to import some, so your people won't starve.  Go to the Budgets pane, choose 'Markets', and set imports to 'yes' for Carbs and Protein.</content>
+</topic>
+
+
+<topic
   name     = "Trade Setup Done"
   urgent   = "true"
-  triggers = "checkMarketUpgradesReady"
+  triggers = "checkImportsSetup"
 >
   <content>That should do it.  It takes a little time for dropships to arrive and perform their transactions- typically once per day.
 
@@ -282,7 +295,7 @@ Finally, you may want to supplement your trade income by exporting surplus miner
 >
   <content>Good.  We'll wait for any current construction to finish.  All your expenses up to now have been covered for free, but from here on, you'll need to balance your own books.
 
-This might be a good time to see what your Auditors are up to.  Select the Bastion, go the Staff tab, and select one to see if any profits or losses are being filed.</content>
+This might be a good time to see what your Auditors are up to.  Select the Bastion, scroll down, and select one to see if any profits or losses are being filed.</content>
 </topic>
 
 <topic

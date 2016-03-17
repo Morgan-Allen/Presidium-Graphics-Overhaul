@@ -206,7 +206,6 @@ public class ActorMotives {
       ) {
         I.say("  Value of "+g.value()+" for "+g.subject);
       }
-      I.say("?");
     }
   }
   
@@ -245,7 +244,7 @@ public class ActorMotives {
     if (baseUnit <= 0) return Plan.PARAMOUNT;
     
     float mag = 1f + (creditsPerDay / baseUnit);
-    mag = mag * greed;
+    mag = Nums.log(2, mag) * greed;
     
     //  Value is taken as directly proportional when below average, and
     //  logarithmic/additive beyond that:

@@ -113,15 +113,12 @@ public class JoinMission extends Plan implements Journey.Purpose {
       return -1;
     }
     
-    if (! mission.hasBegun()) {
-      float competence  = mission.rateCompetence(actor);
-      float competition = MissionUtils.competition(actor, mission);
-      competition /= (0.5f + competence);
-      if (mission.isApproved(actor)) competition /= 1.5f;
-      
-      if (report) I.say("  Competition is:  "+competition);
-      if (competition >= 1) return -1;
-    }
+    float competence  = mission.rateCompetence(actor);
+    float competition = MissionUtils.competition(actor, mission);
+    competition /= (0.5f + competence);
+    if (mission.isApproved(actor)) competition /= 1.5f;
+    if (report) I.say("  Competition is:  "+competition);
+    if (competition >= 1) return -1;
     
     if (mission.isOffworld()) {
       return mission.basePriority(actor);
@@ -145,7 +142,7 @@ public class JoinMission extends Plan implements Journey.Purpose {
   
   
   protected Behaviour getNextStep() {
-    final boolean report = I.talkAbout == actor && stepsVerbose;
+    final boolean report = I.talkAbout == actor;// && stepsVerbose;
     if (report) {
       I.say("\nGetting next step for joining "+mission);
     }
@@ -163,8 +160,8 @@ public class JoinMission extends Plan implements Journey.Purpose {
     Target applyPoint = mission.base().HQ();
     if (mission.missionType() == Mission.TYPE_PUBLIC) applyPoint = actor;
     
-    if (applyPoint == null) {
-      I.complain("NO APPLY POINT FOR "+mission);
+    if (applyPoint == null || ! applyPoint.inWorld()) {
+      if (report) I.say("NO VALID APPLY POINT FOR "+mission+": "+applyPoint);
       return null;
     }
     

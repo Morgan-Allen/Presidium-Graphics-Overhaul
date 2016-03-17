@@ -14,7 +14,10 @@ public class MissionUtils {
   
   
   public static float competition(Actor actor, Mission mission) {
-    if (mission.isApproved(actor)) return 0;
+    if (
+      mission.isApproved(actor) &&
+      mission.missionType() != Mission.TYPE_PUBLIC
+    ) return 0;
     final int partyLimit = mission.partyLimit();
     return mission.roles.size() * 1f / partyLimit;
   }

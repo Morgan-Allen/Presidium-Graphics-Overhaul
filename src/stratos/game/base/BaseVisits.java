@@ -194,13 +194,6 @@ public class BaseVisits {
   }
   
   
-  public void addCandidate(Actor applies, Property at, Background position) {
-    candidates.add(applies);
-    FindWork finding = FindWork.assignAmbition(applies, position, at, 2.0f);
-    finding.enterApplication();
-  }
-  
-  
   public void addCandidate(Background position, Property at) {
     final Actor applies = new Human(position, base);
     addCandidate(applies, at, position);
@@ -212,10 +205,45 @@ public class BaseVisits {
   }
   
   
-  public int numCandidates(Background position) {
-    int count = 0;
-    for (Actor a : candidates) if (a.mind.vocation() == position) count++;
-    return count;
+  public void addCandidate(Actor applies, Property at, Background position) {
+    candidates.add(applies);
+    FindWork finding = FindWork.assignAmbition(applies, position, at, 2.0f);
+    finding.enterApplication();
+  }
+  
+  
+  public Series <Actor> activeApplicants() {
+    return activeApplicants(null);
+  }
+  
+  
+  public Series <Actor> activeApplicants(Background position) {
+    final boolean report = I.used60Frames && false;
+    if (report) I.say("\nListing applicants...");
+    
+    final Batch <Actor> applied = new Batch <Actor> ();
+    for (Actor a : candidates) {
+      final FindWork finds = (FindWork) a.matchFor(FindWork.class, false);
+      if (position != null && finds.position() != position) continue;
+      
+      if (report) {
+        I.say("\n  "+a+" ("+a.mind.vocation()+")");
+        I.say("  Application:   "+finds);
+        I.say("  Was hired?     "+(finds != null && finds.wasHired()));
+        I.say("  Can/did apply? "+(finds != null && finds.canOrDidApply()));
+      }
+      
+      if (finds == null || finds.wasHired() || ! finds.canOrDidApply()) {
+        continue;
+      }
+      applied.add(a);
+    }
+    return applied;
+  }
+  
+  
+  public int numApplicants(Background position) {
+    return activeApplicants(position).size();
   }
   
   

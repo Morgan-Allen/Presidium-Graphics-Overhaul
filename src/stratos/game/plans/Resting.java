@@ -118,6 +118,7 @@ public class Resting extends Plan {
     );
     if (report) {
       I.say("  Stress level: "+stress);
+      I.say("  Rest point:   "+restPoint);
     }
     
     if (stress < 0.5f) {
@@ -167,6 +168,7 @@ public class Resting extends Plan {
   
   
   protected Behaviour getNextStep() {
+    final boolean report = I.talkAbout == actor;
     if (restPoint == null) return null;
     
     //  TODO:  Split dining off into a separate behaviour?

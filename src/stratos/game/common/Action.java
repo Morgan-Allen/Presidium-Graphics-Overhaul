@@ -383,12 +383,15 @@ public class Action implements Behaviour, AnimNames {
     if (ranged && lastStep == null && ! pathsTo.indoors()) {
       pathsTo = Spacing.nearestOpenTile(pathsTo, actor);
     }
+    actor.pathing.updateTarget(pathsTo);
+    /*
     if (closed) {
-      actor.pathing.updateTarget(actor.aboard());
+      actor.pathing.updateTarget(actor.indoors() ? actor.aboard() : actor);
     }
     else {
       actor.pathing.updateTarget(pathsTo);
     }
+    //*/
     
     if (report) {
       I.say("");

@@ -307,7 +307,7 @@ public abstract class Artilect extends Actor {
       boolean triggered = false;
       for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
         final float value = PlanUtils.combatPriority(
-          using, a, 0, 1, false, Plan.REAL_HARM
+          using, a, 0, 1, false, Combat.OBJECT_EITHER, Plan.REAL_HARM
         );
         if (passive && a != using && value < 0) return;
         if (value > 0) triggered = true;
@@ -327,7 +327,7 @@ public abstract class Artilect extends Actor {
       for (Actor a : PlanUtils.subjectsInRange(using, radius)) {
         if (a != using) a.health.takeInjury(damage, false);
       }
-      using.health.takeInjury(100, false);
+      using.setAsDestroyed(true);
     }
   };
   
@@ -532,13 +532,10 @@ public abstract class Artilect extends Actor {
       
       final float
         injury    = using.health.injuryLevel(),
-        minInjury = 1f - (ASSEMBLY_MAX_PERCENT / 100f),
-        minRevive = (1 + minInjury) / 2;
+        fatigue   = using.health.fatigueLevel(),
+        minInjury = 1f - (ASSEMBLY_MAX_PERCENT / 100f);
       
-      if (I.talkAbout == using) {
-        I.say("\nCurrent injury: "+using.health.injuryLevel());
-      }
-      if (injury <= minRevive && ! using.health.conscious()) {
+      if (injury <= minInjury && fatigue == 0 && ! using.health.conscious()) {
         using.health.setState(ActorHealth.STATE_ACTIVE);
       }
       if (injury <= minInjury) {

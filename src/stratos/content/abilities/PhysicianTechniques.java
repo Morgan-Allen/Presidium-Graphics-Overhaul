@@ -155,7 +155,7 @@ public class PhysicianTechniques {
         if (a.traits.hasTrait(asCondition) ) return -1;
         if (a.senses.underAttack()         ) return -1;
         final float rating = 0 - PlanUtils.combatPriority(
-          actor, subject, 0, 1, false, Plan.REAL_HARM
+          actor, subject, 0, 1, false, Combat.OBJECT_EITHER, Plan.REAL_HARM
         );
         return rating;
       }

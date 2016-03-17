@@ -383,14 +383,18 @@ public class Stocks extends Inventory {
       d.production = BD.demandSampleFor(basis, t, period) + 1;
     }
     for (Demand d : demands.values()) {
-      boolean sells = amountOf(d.type) > 0 && d.production > 0;
-      boolean buys  = d.consumption > 0 && ! sells;
+      float sells = Nums.min(amountOf(d.type), d.production);
+      boolean buys  = d.consumption > 0 && sells <= 0;
       
-      BP.togglePresence(basis, at, sells, d.type.supplyKey);
-      BP.togglePresence(basis, at, buys , d.type.demandKey);
+      BP.togglePresence(basis, at, sells > 0, d.type.supplyKey);
+      BP.togglePresence(basis, at, buys     , d.type.demandKey);
       
-      if (d.consumption == 0) continue;
-      BD.impingeDemand(d.type, d.consumption, period, basis);
+      if (sells > 0) {
+        BD.impingeSupply(d.type, sells, period, at);
+      }
+      if (d.consumption > 0) {
+        BD.impingeDemand(d.type, d.consumption, period, basis);
+      }
     }
   }
   
@@ -431,14 +435,13 @@ public class Stocks extends Inventory {
       }
     }
     final float scale = totalSpace / Nums.max(1, totalCons + totalProd);
-    if (report) I.say("Scaling for space: "+scale);
+    if (report) I.say("Scaling for space: "+scale+" (total "+totalSpace+")");
     //
     //  And finally, scale these down to fit within total space capacity.  If
     //  there's any left, flag supply/demand at the venue accordingly.
     for (Traded t : services) if (t.common()) {
       final Demand d = demandRecord(t);
       float total = d.consumption + d.production;
-      //if (scale < 1)
       total *= scale;
       d.consumption = Nums.min(total, d.consumption        );
       d.production  = Nums.max(0    , total - d.consumption);

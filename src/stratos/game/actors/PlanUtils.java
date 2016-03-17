@@ -35,12 +35,13 @@ public class PlanUtils {
     */
   public static float combatPriority(
     Actor actor, Target subject,
-    float rewardBonus, int teamSize, boolean asRealTask, float lethality
+    float rewardBonus, int teamSize, boolean asRealTask,
+    int combatObject, float lethality
   ) {
     float incentive = 0, winChance, priority = 0;
     float harmDone, dislike, wierdness, conscience;
     
-    final boolean downed = CombatUtils.isDowned(subject, Combat.OBJECT_EITHER);
+    final boolean downed = CombatUtils.isDowned(subject, combatObject);
     if (downed) return 0;
     
     wierdness = 0;//baseCuriosity(actor, subject, false) * 5;
@@ -108,6 +109,7 @@ public class PlanUtils {
       escapeChance *= Nums.min(2, 1 + homeDistance);
       
       if (emergency ) incentive += 2.5f;
+      else            incentive /= 2.0f;
       if (! attacked) incentive -= 5.0f;
       if (loseChance > 0 && ! isArmed(actor)    ) incentive += 2.5f;
       if (Action.isStealthy(actor) && ! attacked) incentive -= 5.0f;
@@ -117,6 +119,7 @@ public class PlanUtils {
     }
     
     priority = Nums.clamp(incentive * escapeChance, -10, 20);
+    if (attacked) priority = Nums.max(priority, 5);
     
     if (asRealTask && reportOn(actor, priority)) I.reportVars(
       "\nRetreat priority for "+actor, "  ",

@@ -197,7 +197,8 @@ public class Hunting extends Plan {
     }
     else if (alive && urgency > 0) {
       priority = PlanUtils.combatPriority(
-        actor, prey, urgency * Plan.PARAMOUNT, 1, true, harmLevel
+        actor, prey, urgency * Plan.PARAMOUNT, 1, true,
+        Combat.OBJECT_SUBDUE, harmLevel
       );
       setCompetence(PlanUtils.combatWinChance(actor, prey, 1));
     }

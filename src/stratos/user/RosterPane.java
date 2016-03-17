@@ -57,7 +57,8 @@ public class RosterPane extends SelectionPane {
       ROSTER_BUTTON_ID, ROSTER_ICON, ROSTER_ICON_LIT, "Base Roster"
     ) {
       protected void updateState() {
-        int numApps = rosterPane.listApplied(baseUI.played()).size();
+        Series <Actor> active = baseUI.played().visits.activeApplicants();
+        int numApps = active.size();
         String message = ""+numApps;
         appsLabel.setMessage(message, false, 0);
         appsLabel.hidden = numApps == 0;
@@ -76,30 +77,6 @@ public class RosterPane extends SelectionPane {
   }
   
   
-  private Batch <Actor> listApplied(Base base) {
-    final boolean report = I.used60Frames && false;
-    if (report) I.say("\nListing applicants...");
-    
-    final Batch <Actor> applied = new Batch <Actor> ();
-    for (Actor a : base.visits.allCandidates()) {
-      final FindWork finds = (FindWork) a.matchFor(FindWork.class, false);
-      
-      if (report) {
-        I.say("\n  "+a+" ("+a.mind.vocation()+")");
-        I.say("  Application:   "+finds);
-        I.say("  Was hired?     "+(finds != null && finds.wasHired()));
-        I.say("  Can/did apply? "+(finds != null && finds.canOrDidApply()));
-      }
-      
-      if (finds == null || finds.wasHired() || ! finds.canOrDidApply()) {
-        continue;
-      }
-      applied.add(a);
-    }
-    return applied;
-  }
-  
-  
   protected void updateText(
     Text headerText, Text detailText, Text listingText
   ) {
@@ -109,7 +86,7 @@ public class RosterPane extends SelectionPane {
     
     if (category() == CAT_APPLIES) {
       detailText.append("Offworld Applicants:");
-      for (Actor a : listApplied(base)) {
+      for (Actor a : base.visits.activeApplicants()) {
         final FindWork findWork = (FindWork) a.matchFor(FindWork.class, false);
         VenuePane.descApplicant(a, findWork, detailText, UI);
         d.appendAll("\n  Applied as: ", findWork.position());

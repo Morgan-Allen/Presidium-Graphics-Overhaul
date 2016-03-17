@@ -367,7 +367,7 @@ public class BringUtils {
   
   private static boolean reportRating(Owner orig, Owner dest, Traded good) {
     if (! rateVerbose) return false;
-    //verboseGoodType = DATALINKS;
+    //verboseGoodType = METALS;
     //
     //  Supply and demand can quickly get very hairy, so to help in tracking it
     //  we have some moderately elaborate reporting criteria.
@@ -460,7 +460,7 @@ public class BringUtils {
       I.say("  Origin      after   : "+origAfter);
       I.say("  Destination after   : "+destAfter);
     }
-    if (origAfter < 0 || destAfter > DC + DP) return -1;
+    if (origAfter < 0 || destAfter > DC + DP + unit) return -1;
     
     //  Selling (exporting) depots are marked as producers.  Buying (importing)
     //  depots are marked as consumers.  They have tier-trader, which is lower
@@ -473,23 +473,23 @@ public class BringUtils {
     
     //  This is going from ship to depot, or depot to business.
     if (OT > DT) {
-      if (origAfter < 0 ) return -1;
-      if (destAfter > DC) return -1;
+      if (origAfter < 0        ) return -1;
+      if (destAfter > DC + unit) return -1;
       rating = 1 + DN;
     }
     
     //  This is going from depot to ship, or business to depot.
     if (DT > OT) {
-      if (origAfter < OC     ) return -1;
-      if (destAfter > DC + DP) return -1;
+      if (origAfter < OC            ) return -1;
+      if (destAfter > DC + DP + unit) return -1;
       rating = 1 + DN;
     }
     
     //  This is going between equal partners.
     if (DT == OT) {
-      if (DT == TIER_SHIPPING) return -1;
-      if (origAfter < OC) return -1;
-      if (destAfter > DC) return -1;
+      if (DT == TIER_SHIPPING  ) return -1;
+      if (origAfter < OC       ) return -1;
+      if (destAfter > DC + unit) return -1;
       rating = 0;
       rating += 1 - (destAfter / DC);
       rating -= 1 - (origAfter / OC);
