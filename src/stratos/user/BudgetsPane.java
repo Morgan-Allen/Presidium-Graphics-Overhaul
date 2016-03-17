@@ -172,19 +172,18 @@ public class BudgetsPane extends SelectionPane {
     Text.cancelBullet(d);
     
     for (SectorBase partner : BV.partners()) {
-      //d.append("\n\n");
-      d.append(partner);
-      if (partner.location == BV.homeworld()) d.append("  (Homeworld)");
-      else d.append(" (Trading Partner)");
-      
       final Vehicle nextShip = universe.journeys.nextTraderBetween(
         partner.location, locale, base, true
       );
-      if (nextShip != null) {
-        float ETA = universe.journeys.arrivalETA(nextShip, base);
-        ETA /= Stage.STANDARD_HOUR_LENGTH;
-        d.append("\n  Dropship ETA: "+Nums.round(ETA, 1, true)+" hours");
-      }
+      if (nextShip == null) continue;
+      
+      d.append(partner);
+      if (partner.location == BV.homeworld()) d.append("  (Homeworld)");
+      else d.append(" (Trading Partner)");
+
+      float ETA = universe.journeys.arrivalETA(nextShip, base);
+      ETA /= Stage.STANDARD_HOUR_LENGTH;
+      d.append("\n  Dropship ETA: "+Nums.round(ETA, 1, true)+" hours");
       
       d.append("\n ");
       d.append(" (Makes: ");
@@ -199,6 +198,7 @@ public class BudgetsPane extends SelectionPane {
         Text.insert(t.icon.asTexture(), 20, 20, false, d);
       }
       d.append(")");
+      d.append("\n\n");
     }
     if (BV.partners().size() == 0) d.append("\n\nNo Trade Partners.");
     

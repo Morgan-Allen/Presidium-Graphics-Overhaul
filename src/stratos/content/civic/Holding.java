@@ -271,7 +271,7 @@ public class Holding extends Venue {
     updateDemands(currentLevel + 1);
     stocks.updateStockDemands(1, NO_GOODS);
     impingeSqualor(currentLevel);
-
+    
     final int CHECK_TIME = 10;
     if (numUpdates % CHECK_TIME == 0) {
       int targetLevel = checkTargetLevel(CHECK_TIME, currentLevel);
@@ -281,7 +281,7 @@ public class Holding extends Venue {
           final Upgrade target = (Upgrade) HU[targetLevel ];
           structure.beginUpgrade(target, true);
         }
-        else {
+        if (targetLevel < currentLevel) {
           final Upgrade target = (Upgrade) HU[currentLevel];
           structure.resignUpgrade(target, false);
         }

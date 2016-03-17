@@ -338,14 +338,14 @@ public class BaseDemands {
   
   public float importPrice(Traded type) {
     final Float price = null;// importPrices.get(type);
-    if (price == null) return type.defaultPrice() * SMUGGLE_MARGIN;
+    if (price == null) return type.defaultPrice() * BASE_SALE_MARGIN;
     return price;
   }
   
   
   public float exportPrice(Traded type) {
     final Float price = null;// exportPrices.get(type);
-    if (price == null) return type.defaultPrice() / SMUGGLE_MARGIN;
+    if (price == null) return type.defaultPrice() / BASE_SALE_MARGIN;
     return price;
   }
   

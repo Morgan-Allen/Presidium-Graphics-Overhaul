@@ -240,7 +240,7 @@ public class BringUtils {
     int baseUnit, int amountLimit, boolean destPays
   ) {
     final boolean report = reportRating(origin, destination, null);
-    if (report) I.say("\nFilling bulk order");
+    if (report) I.say("\nFilling bulk order...");
     //
     //  In essence, we take the single most demanded good at each step, and
     //  increment the size of the order for that by the base unit, until we
@@ -367,7 +367,7 @@ public class BringUtils {
   
   private static boolean reportRating(Owner orig, Owner dest, Traded good) {
     if (! rateVerbose) return false;
-    //verboseGoodType = PLASTICS;
+    //verboseGoodType = DATALINKS;
     //
     //  Supply and demand can quickly get very hairy, so to help in tracking it
     //  we have some moderately elaborate reporting criteria.

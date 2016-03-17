@@ -35,7 +35,7 @@ public class Generator extends Venue {
   
   final static ModelAsset MODEL = CutoutModel.fromImage(
     Generator.class, "generator_model",
-    "media/Buildings/artificer/reactor.png", 3.5f, 1
+    "media/Buildings/artificer/reactor.png", 3.75f, 1
   );
   final static ImageAsset ICON = ImageAsset.fromImage(
     Generator.class, "generator_icon",

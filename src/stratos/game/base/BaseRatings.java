@@ -5,6 +5,7 @@ import stratos.game.common.*;
 import stratos.game.craft.Venue;
 import stratos.game.actors.*;
 import stratos.game.plans.Audit;
+import stratos.user.BaseUI;
 import stratos.util.*;
 
 
@@ -102,17 +103,18 @@ public class BaseRatings {
     
     if (numUpdates % UPDATE_INTERVAL != 0) return;
     
-    //I.say("\nUPDATING BASE RELATIONS");
+    if (BaseUI.currentPlayed() == base) {
+      ///I.say("\nUPDATING BASE RATINGS!");
+    }
+    
     int numResidents  = 0;
     averageMood       = 0.5f;
     propertyValues    = 0;
     creditCirculation = base.finance.credits();
     
-    //  TODO:  BaseCommerce should handle this?
-    
     //  Compute overall credits in circulation, so that adjustments to money
     //  supply can be made by your auditors.
-    for (Object o : base.world.presences.allMatches(this)) {
+    for (Object o : base.world.presences.allMatches(base)) {
       final Venue v = (Venue) o;
       propertyValues += Audit.propertyValue(v);
       creditCirculation += v.stocks.allCredits();

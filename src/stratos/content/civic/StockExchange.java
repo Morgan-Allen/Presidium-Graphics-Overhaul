@@ -195,8 +195,8 @@ public class StockExchange extends Venue {
     
     CREDITS_EXCHANGE = new Upgrade(
       "Credits Exchange",
-      "Makes small periodic adjustments to revenue and outlays in response "+
-      "to large-scale investment patterns, magnifying both profit and loss.",
+      "Grants additional income based on total credit reserves within the "+
+      "settlement relative to population.",
       400, Upgrade.TWO_LEVELS, LEVELS[1], BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
     ),
@@ -278,11 +278,16 @@ public class StockExchange extends Venue {
       stocks.setConsumption(type, stocks.consumption(type) + stockBonus);
     }
     //
-    //  In essence, we accumulate interest on any debts or losses accrued
-    //  before taxation kicks in!
-    float interest = structure.upgradeLevel(CREDITS_EXCHANGE) * 50 / 3f;
-    interest /= 100 * Stage.STANDARD_DAY_LENGTH;
-    stocks.incCredits(stocks.allCredits() * interest);
+    //  In essence, we accumulate interest on savings per capita within the
+    //  settlement.
+    final int INTEREST_PERIOD = Stage.STANDARD_HOUR_LENGTH;
+    if (numUpdates % INTEREST_PERIOD == 0) {
+      float interest = structure.upgradeLevel(CREDITS_EXCHANGE) * 50 / 3f;
+      interest *= INTEREST_PERIOD / (100f * Stage.STANDARD_DAY_LENGTH);
+      float principle = base.finance.credits();
+      principle /= 1 + base.ratings.population();
+      stocks.incCredits(principle * interest);
+    }
   }
   
   

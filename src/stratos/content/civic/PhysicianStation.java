@@ -25,7 +25,7 @@ public class PhysicianStation extends Venue implements Burial.Services {
   
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     PhysicianStation.class, "physician_station_model",
-    "media/Buildings/physician/physician_clinic.png", 3, 1
+    "media/Buildings/physician/physician_clinic.png", 3.75f, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     PhysicianStation.class, "physician_station_icon",

@@ -59,7 +59,7 @@ public class Archives extends Venue {
   final public static Conversion
     CIRCUITRY_TO_DATALINKS = new Conversion(
       BLUEPRINT, "circuitry_to_datalinks",
-      1, CIRCUITRY, TO, 2, DATALINKS,
+      TO, 1, DATALINKS,
       MODERATE_DC, LOGIC, SIMPLE_DC, ASSEMBLY, ACCOUNTING
     );
   
@@ -116,7 +116,10 @@ public class Archives extends Venue {
     //
     //  TODO:  Allow upgrades for different skill areas!
     choice.add(Studying.asSkillStudy(client, this, STUDY_FEE));
+    
+    choice.isVerbose = true;
     choice.add(BringUtils.nextPersonalPurchase(client, this, DATALINKS));
+    choice.isVerbose = false;
   }
   
   

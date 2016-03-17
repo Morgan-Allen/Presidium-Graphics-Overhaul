@@ -156,6 +156,8 @@ public final class Economy {
       "Natrizoral, a refined form of 'spyce wine' that can be doctored to "+
       "enhance particular forms of psyonic powers."
     ),
+    
+    //  TODO:  Get rid of this- (merge with Datalinks.)
     CIRCUITRY = new Traded(
       BC, "Circuitry", "circuitry.gif", FORM_SPECIAL, 80,
       "Used to manufacture terminals and other advanced devices"
@@ -171,7 +173,7 @@ public final class Economy {
       "Disposable propaganda used to raise morale and sway the masses"
     ),
     DATALINKS = new Traded(
-      BC, "Datalinks", "datalinks.gif", FORM_SPECIAL, 125,
+      BC, "Datalinks", "datalinks.gif", FORM_MATERIAL, 5,
       "Encrypted terminals used to store and carry sensitive information"
     ),
     DECOR = new Traded(

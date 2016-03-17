@@ -100,6 +100,7 @@ public class EngineerTechniques {
     public boolean triggersPassive(
       Actor actor, Plan current, Skill used, Target subject, boolean reactive
     ) {
+      if (used != ASSEMBLY) return false;
       if (actor.gear.deviceType() != Devices.MANIPULATOR) return false;
       if (! (current instanceof Repairs)) return false;
       final Structure s = ((Placeable) current.subject()).structure();

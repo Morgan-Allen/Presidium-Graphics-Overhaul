@@ -25,7 +25,7 @@ public class CultureVats extends Venue {
     */
   final public static ModelAsset MODEL = CutoutModel.fromImage(
     CultureVats.class, "culture_vats_model",
-    "media/Buildings/physician/culture_vats.png", 3, 2
+    "media/Buildings/physician/culture_vats.png", 3.75f, 2
   );
   final public static ImageAsset ICON = ImageAsset.fromImage(
     CultureVats.class, "culture_vats_icon",
@@ -90,20 +90,7 @@ public class CultureVats extends Venue {
       "for use in medical emergencies.",
       400, Upgrade.TWO_LEVELS, CARBS_CULTURE, BLUEPRINT,
       Upgrade.Type.TECH_MODULE, null
-    ),
-    
-    CHEMICAL_VATS = null,
-    
-    CORPSE_CYCLING = null
-    /*
-    //  TODO:  Just have a general structure-upgrade here-
-    VATS_BREEDER_POST = new Upgrade(
-      "Vats Breeder Post",
-      VATS_BREEDER.info,
-      100, Upgrade.TWO_LEVELS, null, BLUEPRINT,
-      Upgrade.Type.TECH_MODULE, VATS_BREEDER
     )
-    //*/
   ;
   
   final public static Conversion
@@ -149,9 +136,9 @@ public class CultureVats extends Venue {
     stocks.forceDemand(POWER, needPower, 0);
     stocks.forceDemand(ATMO, 0, cycleBonus * 2);
     Manufacture.updateProductionEstimates(this,
-      CARBS_TO_PROTEIN ,
       WASTE_TO_CARBS   ,
-      WASTE_TO_REAGENTS
+      WASTE_TO_REAGENTS,
+      CARBS_TO_PROTEIN 
     );
     
     structure.setAmbienceVal(0 - pollution);

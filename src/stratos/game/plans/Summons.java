@@ -268,7 +268,7 @@ public class Summons extends Plan {
   
   public static boolean isSummoned(Actor m) {
     final Summons s = (Summons) ((Actor) m).matchFor(Summons.class, false);
-    return m.aboard() == s.stays;
+    return s != null && m.aboard() == s.stays;
   }
   
 }
