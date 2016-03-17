@@ -44,7 +44,7 @@ public class Gathering extends ResourceTending {
   final static Traded
     FARM_EXTRACTS[] = { CARBS, GREENS },
     LOGS_EXTRACTS[] = { POLYMER },
-    SAMP_EXTRACTS[] = SeedTailoring.SAMPLE_TYPES;
+    SAMP_EXTRACTS[] = Culturing.SAMPLE_TYPES;
   
   final static Trait
     FARM_TRAITS  [] = { PERSISTENT, RUGGED },
@@ -246,7 +246,7 @@ public class Gathering extends ResourceTending {
       if (c != null) return 0.5f + c.growStage();
     }
     if (type == TYPE_SAMPLE) {
-      if (c != null) return SeedTailoring.sampleValue(c, actor, depot);
+      if (c != null) return Culturing.sampleValue(c, actor, depot);
     }
     return -1;
   }
@@ -298,7 +298,7 @@ public class Gathering extends ResourceTending {
       return gathered;
     }
     if (type == TYPE_SAMPLE) {
-      actor.gear.addItem(SeedTailoring.sampleFrom(c));
+      actor.gear.addItem(Culturing.sampleFrom(c));
     }
     return null;
   }

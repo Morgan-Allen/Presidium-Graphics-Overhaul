@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.plans;
-import stratos.content.civic.*;
 import stratos.game.common.*;
 import stratos.game.craft.*;
 import stratos.game.actors.*;
@@ -15,9 +14,7 @@ import static stratos.game.craft.Economy.*;
 
 
 
-//  TODO:  Adapt this to arbitrary species (including humans.)
-
-public class SeedTailoring extends Plan {
+public class Culturing extends Plan {
   
   /**  Data, fields, constructors, setup and save/load functions-
     */
@@ -46,7 +43,7 @@ public class SeedTailoring extends Plan {
   private int stage = STAGE_INIT;
   
   
-  public SeedTailoring(Actor actor, Venue lab, Species s) {
+  public Culturing(Actor actor, Venue lab, Species s) {
     super(actor, lab, MOTIVE_JOB, NO_HARM);
     this.lab = lab;
     this.species = s;
@@ -54,7 +51,7 @@ public class SeedTailoring extends Plan {
   }
   
   
-  public SeedTailoring(Session s) throws Exception {
+  public Culturing(Session s) throws Exception {
     super(s);
     lab       = (Venue  ) s.loadObject();
     species   = (Species) s.loadObject();
@@ -74,13 +71,13 @@ public class SeedTailoring extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new SeedTailoring(other, lab, species);
+    return new Culturing(other, lab, species);
   }
   
   
   public boolean matchesPlan(Behaviour p) {
     if (! super.matchesPlan(p)) return false;
-    final SeedTailoring t = (SeedTailoring) p;
+    final Culturing t = (Culturing) p;
     return t.species == this.species;
   }
   

@@ -223,7 +223,7 @@ public class EcologistRedoubt extends Venue implements Captivity {
     for (Species s : b) {
       float crowding = NestUtils.localCrowding(s, this);
       if (crowding >= 0.5f) continue;
-      final SeedTailoring t = new SeedTailoring(choice.actor, this, s);
+      final Culturing t = new Culturing(choice.actor, this, s);
       t.setSpeedMult(trainMult);
       t.addMotives(Plan.NO_PROPERTIES, Plan.CASUAL * 1 - crowding);
       choice.add(t);

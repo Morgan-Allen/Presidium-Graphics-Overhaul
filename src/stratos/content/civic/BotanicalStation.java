@@ -188,9 +188,9 @@ public class BotanicalStation extends HarvestVenue {
     if (! structure.intact()) return;
     //
     //  Decay any current seed stocks-
-    final float needSeed = SeedTailoring.DESIRED_SAMPLES;
+    final float needSeed = Culturing.DESIRED_SAMPLES;
     final float decay = 1f / (
-      Stage.STANDARD_DAY_LENGTH * SeedTailoring.SEED_DAYS_DECAY
+      Stage.STANDARD_DAY_LENGTH * Culturing.SEED_DAYS_DECAY
     );
     for (Item seed : stocks.matches(GENE_SEED)) {
       stocks.removeItem(Item.withAmount(seed, decay));
@@ -348,8 +348,8 @@ public class BotanicalStation extends HarvestVenue {
       return super.needForTending(tending);
     }
     if (g.type == Gathering.TYPE_SAMPLE) {
-      final float samples = SeedTailoring.numSamples(this);
-      return 1 - (samples / SeedTailoring.DESIRED_SAMPLES);
+      final float samples = Culturing.numSamples(this);
+      return 1 - (samples / Culturing.DESIRED_SAMPLES);
     }
     if (g.type == Gathering.TYPE_FORAGING) {
       return 0;
