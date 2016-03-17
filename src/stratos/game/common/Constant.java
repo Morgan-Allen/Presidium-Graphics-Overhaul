@@ -32,6 +32,49 @@ public abstract class Constant extends Index.Entry implements
   protected void setAsUniqueTo(Class belongs) {
     allConstants.put(OPEN_CHAR+belongs.getName()+SHUT_CHAR, this);
   }
+  
+  
+  
+  /**  Quick and dirty methods for creating cheap static constants-
+    */
+  final static Index <Storage> STORE_INDEX = new Index();
+  
+  public static class Storage extends Index.Entry implements Session.Saveable {
+    
+    final Object constant;
+    
+    Storage(String ID, Object constant) {
+      super(STORE_INDEX, ID);
+      this.constant = constant;
+    }
+    
+    public static Storage loadConstant(Session s) throws Exception {
+      return STORE_INDEX.loadEntry(s.input());
+    }
+    
+    public void saveState(Session s) throws Exception {
+      STORE_INDEX.saveEntry(this, s.output());
+    }
+    
+    public Object stored() {
+      return constant;
+    }
+    
+    public String toString() {
+      return constant.toString();
+    }
+  }
+  
+  
+  public static Storage[] storeConstants(
+    Class baseClass, String prefixID, Object... constants
+  ) {
+    final Storage stored[] = new Storage[constants.length];
+    for (int i = 0; i < constants.length; i++) {
+      constants[i] = new Storage(prefixID+"_"+i, constants[i]);
+    }
+    return stored;
+  }
 
   
   
@@ -49,7 +92,9 @@ public abstract class Constant extends Index.Entry implements
   final static char   OPEN_CHAR = '{', SHUT_CHAR = '}';
   
   
-  public abstract void describeHelp(Description d, Selectable prior);
+  public void describeHelp(Description d, Selectable prior) {
+    d.append(name);
+  }
   
   
   private boolean validAsString(String asString) {

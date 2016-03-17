@@ -102,48 +102,47 @@ public class DialogueUtils {
   
   /**  Common topics-
     */
-  final public static Index <ChatLine> CHAT_TOPICS = new Index();
-  
-  public static class ChatLine extends Index.Entry implements Session.Saveable {
-    
-    final String line;
-    
-    ChatLine(String ID, String line) {
-      super(CHAT_TOPICS, ID);
-      this.line = line;
-    }
-    
-    public static ChatLine loadConstant(Session s) throws Exception {
-      return CHAT_TOPICS.loadEntry(s.input());
-    }
-    
-    public void saveState(Session s) throws Exception {
-      CHAT_TOPICS.saveEntry(this, s.output());
-    }
-    
-    public String toString() {
-      return line;
-    }
-  }
-  
-  final static ChatLine
-    LINE_WEATHER = new ChatLine("line_weather", "the weather"),
-    LINE_ANIMAL  = new ChatLine("line_animal", "'Who's a good boy then?'");
-  
-  
   final static float
     CHAT_RELATION_BOOST = 0.5f;
   
+  final static Constant.Storage
+    CHAT_LINES[] = Constant.storeConstants(
+      DialogueUtils.class, "chat_lines",
+      "the weather",
+      "who's a good boy"
+    ),
+    LINE_WEATHER = CHAT_LINES[0],
+    LINE_ANIMAL  = CHAT_LINES[1];
   
-  protected static Session.Saveable pickChatTopic(
-    Dialogue starts, Actor other
+  
+  public static float tryChat(Actor actor, Actor other, int bonus) {
+    float boost = talkResult(SUASION, TRIVIAL_DC - bonus, actor, other);
+    boost *= CHAT_RELATION_BOOST;
+    reinforceRelations(other, actor, boost, -1, false);
+    return boost;
+  }
+  
+  
+  //  TODO:  Show speech bubbles!  If one of the participants is selected.
+  
+  //  TODO:  Discuss memories using information from the Career class.
+  
+  
+  public static Session.Saveable pickChatTopic(
+    Actor actor, Actor other, final Batch <Session.Saveable> record
   ) {
-    final Actor actor = starts.actor();
-    final Pick <Session.Saveable> pick = new Pick <Session.Saveable> ();
     
     if (! (actor.species().sapient() && other.species().sapient())) {
+      if (record != null) record.add(LINE_ANIMAL);
       return LINE_ANIMAL;
     }
+    
+    final Pick <Session.Saveable> pick = new Pick() {
+      public void compare(Object next, float rating) {
+        if (record != null) record.add((Session.Saveable) next);
+        super.compare(next, rating);
+      }
+    };
     
     if (actor instanceof Human) {
       //  TODO:  Make these especially compelling during introductions?
@@ -178,19 +177,28 @@ public class DialogueUtils {
     //  ...There has to be other stuff that an actor could suggest, such as at
     //  the close of conversation?  Try for that.
     
-    
     return pick.result();
   }
   
   
-  //  TODO:  Okay.  I want to make sure that relationships can actually go
-  //  pretty far north or south, depending on how well traits and interests
-  //  match up.
-  public static float tryChat(Actor actor, Actor other, int bonus) {
-    float boost = talkResult(SUASION, TRIVIAL_DC - bonus, actor, other);
-    boost *= CHAT_RELATION_BOOST;
-    reinforceRelations(other, actor, boost, -1, false);
-    return boost;
+  public static void discussTopic(
+    Session.Saveable topic, boolean close, int checkBonus,
+    Actor actor, Actor other
+  ) {
+    DialogueUtils.tryChat(actor, other, checkBonus);
+    
+    if (topic instanceof Actor ) {
+      DialogueUtils.discussPerson(actor, other, (Actor ) topic);
+      return;
+    }
+    if (topic instanceof Skill ) {
+      DialogueUtils.discussSkills(actor, other, (Skill ) topic);
+      return;
+    }
+    if (topic instanceof Plan  ) {
+      DialogueUtils.discussPlan  (actor, other, (Plan  ) topic);
+      return;
+    }
   }
   
   
@@ -240,40 +248,6 @@ public class DialogueUtils {
     other.mind.assignBehaviour(new Joining(other, copy , actor));
   }
   
-  
-  protected static void discussEvent(Actor actor, Actor other, Memory about) {
-    
-  }
-  
-  
-  //  TODO:  Present these options as an array for dialogue by the sovereign-
-  //         then they can pick and choose which to use.
-  
-  
-  //  Memory- "<X> happened.  it was great/terrible!"
-  
-  //  TODO:  I'll need to have the memory system in place first, in order to
-  //  present a more logical system.  (And you might consider reserving this
-  //  *just* for conversations with the sovereign.)
-  
-  
-  
-  //  Skill- "are you interested in <X>?"
-  
-  //  Base this off the activity (if it was good.)
-  
-  
-  
-  //  Person- "do you know <X>?  what are they like?"
-  
-  //  Base this off the person responsible for the memory.
-  
-  
-  
-  //  Plan- "would you like to do <X>?"
-  
-  //  ...Reserve this for the end of the conversation, and only if relations
-  //  are pretty good and novelty is high.
 }
 
 

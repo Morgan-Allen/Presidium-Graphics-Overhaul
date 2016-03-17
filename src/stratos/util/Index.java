@@ -14,7 +14,8 @@ import java.util.Iterator;
   *  be catalogued, loaded and saved in a consistent, compact, and reliable
   *  way.
   */
-//  TODO:  Sort additions by class of origin, instead of just by key?
+//  TODO:  Sort additions by class of origin, instead of just by key?  Either
+//  that, or use different Indexes.  Easier to mod that way.
 
 public class Index <T extends Index.Entry> implements Iterable <T> {
   
@@ -48,6 +49,11 @@ public class Index <T extends Index.Entry> implements Iterable <T> {
     
     public String entryKey() {
       return key;
+    }
+    
+    
+    public Index index() {
+      return index;
     }
   }
   

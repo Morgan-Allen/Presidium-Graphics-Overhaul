@@ -26,13 +26,11 @@ public class Dialogue extends Plan {
     onlyBegun    = false;
   
   private boolean shouldReportEval() {
-    //return I.talkAbout == actor;
-    return evalVerbose  && I.talkAbout == actor && (hasBegun() || ! onlyBegun);
+    return I.talkAbout == actor && evalVerbose && (hasBegun() || ! onlyBegun);
   }
   
   private boolean shouldReportSteps() {
-    //return I.talkAbout == actor;
-    return stepsVerbose && I.talkAbout == actor && (hasBegun() || ! onlyBegun);
+    return I.talkAbout == actor && stepsVerbose && (hasBegun() || ! onlyBegun);
   }
   
   final public static int
@@ -405,7 +403,8 @@ public class Dialogue extends Plan {
     boolean done = checkExpiry(BORED_DURATION) || ! canTalkWith(other);
     if (response != null) done &= response.checkExpiry(BORED_DURATION);
     
-    topic = (this == starts) ? selectTopic(done) : starts.topic;
+    if (topic == null && this == starts) topic = selectTopic(done);
+    if (topic == null && this != starts) topic = starts.topic;
     discussTopic(topic, done);
     
     final boolean report = shouldReportSteps();
@@ -435,31 +434,14 @@ public class Dialogue extends Plan {
   /**  Helper methods for determining closure and topic-selection:
     */
   protected Session.Saveable selectTopic(boolean close) {
-    if (isAnimal()) return DialogueUtils.LINE_ANIMAL;
+    if (isAnimal()) return this;
     //  TODO:  If this is a fresh acquaintance, consider general introductions?
-    return DialogueUtils.pickChatTopic(this, other);
+    return DialogueUtils.pickChatTopic(actor, other, null);
   }
   
   
   protected void discussTopic(Session.Saveable topic, boolean close) {
-    DialogueUtils.tryChat(actor, other, checkBonus);
-    
-    if (topic instanceof Actor ) {
-      DialogueUtils.discussPerson(actor, other, (Actor ) topic);
-      return;
-    }
-    if (topic instanceof Skill ) {
-      DialogueUtils.discussSkills(actor, other, (Skill ) topic);
-      return;
-    }
-    if (topic instanceof Plan  ) {
-      DialogueUtils.discussPlan  (actor, other, (Plan  ) topic);
-      return;
-    }
-    if (topic instanceof Memory) {
-      DialogueUtils.discussEvent (actor, other, (Memory) topic);
-      return;
-    }
+    DialogueUtils.discussTopic(topic, close, checkBonus, actor, other);
   }
   
   
