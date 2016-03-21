@@ -12,7 +12,6 @@ import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.game.wild.*;
-import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;

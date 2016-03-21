@@ -12,25 +12,17 @@
 			<fileset dir="media"/>
 		</copy>
 		
-		<echo>${launch4j.path}/launch4j.jar</echo>
-			
-
-		<mkdir dir="${output}/include"/>
 		<mkdir dir="${output}/saves"/>
 		
-    	<copy todir="${output}/include">
+		<copy file="resource/${exename}" tofile="${output}/${exename}" overwrite="true"/>
+        <copy file="resource/${config}"  tofile="${output}/${config}"  overwrite="true"/>
+    	
+    	<copy todir="${output}">
     		<fileset dir="libs"/>
    		</copy>
-    	<jar destfile="${output}/include/stratos.jar" basedir="bin">
+    	<jar destfile="${output}/stratos.jar" basedir="bin">
     	</jar>
 		
-		<taskdef name="launch4j"
-		    classname="net.sf.launch4j.ant.Launch4jTask"
-		    classpath="${launch4j.path}/launch4j.jar;${launch4j.path}/lib/xstream.jar" />
-
-		<launch4j configFile="resource/launch4j.xml" outfile="${output}/Stratos.exe"/>
-		
-		<delete file="${outZip}" quiet="true" /> <!-- because zip tasks opens it for some reason, and fails if damaged -->
-		<zip destfile="${outZip}" basedir="${output}" update="false" />
+		<zip destfile="${outZip}" basedir="${output}" />
 	</target>
 </project>
