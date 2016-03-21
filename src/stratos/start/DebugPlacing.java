@@ -277,36 +277,7 @@ public class DebugPlacing extends Scenario {
     final Tile   picked   = BaseUI.current().selection.pickedTile();
     final Base   other    = Base.wildlife(world);
     
-    if (KeyInput.isPressed('z') && picked != null) {
-      final Boarding cores[] = cache.compileZoneCoresFor(other, picked);
-      if (talks) {
-        I.say("\nPlaces in zone: "+cores.length);
-        I.say("  Tile: "+picked);
-        I.say("  Should pave? "+base.transport.map.needsPaving(picked));
-        I.say("  Owned?       "+picked.reserved  ());
-        I.say("  Above is:    "+picked.above     ());
-        final Element res = picked.reserves();
-        if (res != null) {
-          I.say("  Owned by:    "+res);
-          I.say("  Owning tier: "+res.owningTier());
-        }
-      }
-      
-      final Batch <Tile> within = new Batch();
-      for (Boarding b : cores) if (b instanceof Tile) {
-        within.add((Tile) b);
-      }
-      
-      if (showVisual && ! within.empty()) {
-        final TerrainChunk forRoutes = world.terrain().createOverlay(
-          world, within.toArray(Tile.class),
-          true, Image.TRANSLUCENT_WHITE, true
-        );
-        forRoutes.colour = Colour.GREEN;
-        forRoutes.readyFor(PlayLoop.rendering());
-      }
-    }
-    else if (hovered instanceof Boarding && selected instanceof Boarding) {
+    if (hovered instanceof Boarding && selected instanceof Boarding) {
       
       final Boarding path[] = cache.getLocalPath(
         (Boarding) selected, (Boarding) hovered, -1, base, talks

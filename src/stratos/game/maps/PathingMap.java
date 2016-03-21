@@ -57,9 +57,6 @@ public class PathingMap {
     
     Route routeCache[] = null;
     Stack <Route> routeList = new Stack();
-    ListEntry zoneEntries[] = new ListEntry[Base.MAX_BASES];
-    
-    boolean needsZoning = false;
     Object flagged;
     
     public String toString() {
@@ -78,14 +75,6 @@ public class PathingMap {
     public void finalize() throws Throwable { numSets--; super.finalize(); }
   }
   
-  private class Zone extends List <Place> {
-    Base client;
-    boolean needsRefresh = false;
-    
-    Zone() { numZones++; }
-    public void finalize() throws Throwable { numZones--; super.finalize(); }
-  }
-  
   private class PlaceRoute {
     Place path[];
     String hash;
@@ -97,7 +86,6 @@ public class PathingMap {
   final Place    tilePlaces[][];
   final PlaceSet placeSets [][];
   final List <PlaceSet> needRefresh = new List();
-  final List <Place   > needZoning  = new List();
   final Table <String, PlaceRoute> placeRouteCache;
   final List <PlaceRoute> allPlaceRoutes = new List();
   private boolean setupDone;
@@ -151,21 +139,12 @@ public class PathingMap {
       numRefreshed++;
     }
     
-    int numZoned = 0, neededZone = needZoning.size();
-    while (needZoning.size() > 0 && ! world.schedule.timeUp()) {
-      final Place place = needZoning.removeFirst();
-      for (Base b : world.bases()) updateZoneFor(place, b);
-      place.needsZoning = false;
-      numZoned++;
-    }
-    
-    if (updatesVerbose && (numRefreshed > 0 || numZoned > 0)) {
+    if (updatesVerbose && numRefreshed > 0) {
       long timeSpent = System.currentTimeMillis() - initTime;
       long timeTotal = world.schedule.timeTakenOnUpdate();
       
       I.say("\nPERFORMED MAP UPDATE!  TIME SPENT: "+timeSpent);
       I.say("  Refreshed "+numRefreshed+"/"+neededRefresh);
-      I.say("  Zoned     "+numZoned    +"/"+neededZone   );
       I.say("  Current schedule time: "+timeTotal);
     }
   }
@@ -215,15 +194,34 @@ public class PathingMap {
       final PlaceSet oldSet = oldSets[i];
       final PlaceSet newSet = placeSets[n.x][n.y];
       //
-      //  Finally, we check each place generated to see how well it matches any
-      //  predecessor (in which case it might either retain the same Zone or
-      //  discard them.)
+      //  Finally, we update the route cache for any associated places-
       int placeIndex = Nums.max(
         newSet == null ? 0 : newSet.places.length,
         oldSet == null ? 0 : oldSet.places.length
       );
-      while (placeIndex-- > 0) checkPlacesMatch(oldSet, newSet, placeIndex);
+      while (placeIndex-- > 0) refreshRouteCache(oldSet, newSet, placeIndex);
     }
+  }
+  
+  
+  private void refreshRouteCache(PlaceSet oldSet, PlaceSet newSet, int index) {
+    //
+    //  TODO:  Consider doing an automatic refresh if the old and new number of
+    //  places is different?  Might be simpler/safer...
+    final Place n = (newSet == null || index >= newSet.places.length) ?
+      null : newSet.places[index]
+    ;
+    final Place o = (oldSet == null || index >= oldSet.places.length) ?
+      null : oldSet.places[index]
+    ;
+    refreshRouteCache(n);
+    refreshRouteCache(o);
+  }
+  
+  
+  private void refreshRouteCache(Place p) {
+    if (p == null || p.routeCache != null) return;
+    p.routeCache = p.routeList.toArray(Route.class);
   }
   
   
@@ -270,66 +268,6 @@ public class PathingMap {
     }
     newSet.places = places.toArray(Place.class);
     placeSets[region.x][region.y] = newSet;
-  }
-  
-  
-  private void checkPlacesMatch(PlaceSet oldSet, PlaceSet newSet, int index) {
-    //
-    //  TODO:  Consider doing an automatic refresh if the old and new number of
-    //  places is different?  Might be simpler/safer...
-    final Place n = (newSet == null || index >= newSet.places.length) ?
-      null : newSet.places[index]
-    ;
-    final Place o = (oldSet == null || index >= oldSet.places.length) ?
-      null : oldSet.places[index]
-    ;
-    refreshRouteCache(n);
-    refreshRouteCache(o);
-    //
-    //  Any Places that have a different pattern of connections to their
-    //  neighbours (compared to the previous set) will prompt a refresh for
-    //  any associated Zones.  Otherwise, they retain the old batch.
-    boolean routesMatch = true;
-    if (
-      (n == null) || (o == null) ||
-      (n.routeCache.length != o.routeCache.length)
-    ) {
-      routesMatch = false;
-    }
-    else for (int r = 0; r < o.routeCache.length; r++) {
-      final Route rN   = n.routeCache[r];
-      final Route rO   = o.routeCache[r];
-      final Place oppN = rN.from == n ? rN.to : rN.from;
-      final Place oppO = rO.from == o ? rO.to : rO.from;
-      if (oppN != oppO) routesMatch = false;
-    }
-    if (updatesVerbose && setupDone) {
-      if (routesMatch) I.say("\nROUTES ARE IDENTICAL, WILL RETAIN ZONE/S");
-      else I.say("\nDIFFERENT ROUTES CREATED, WILL REFRESH ZONES/S");
-      I.say("  Old place: "+o);
-      I.say("  New place: "+n);
-    }
-    //
-    //  We delete all zone-entries for the older place-set, but if the routes
-    //  matched, we immediately register the newer set instead:
-    if (o != null) for (int b = o.zoneEntries.length; b-- > 0;) {
-      final ListEntry e = o.zoneEntries[b];
-      if (e == null) continue;
-      final Zone z = (Zone) e.list();
-      z.removeEntry(e);
-      if (routesMatch) n.zoneEntries[b] = z.addLast(n);
-      else z.needsRefresh = true;
-    }
-    if (n != null && (! routesMatch) && (! n.needsZoning)) {
-      needZoning.add(n);
-      n.needsZoning = true;
-    }
-  }
-  
-  
-  private void refreshRouteCache(Place p) {
-    if (p == null || p.routeCache != null) return;
-    p.routeCache = p.routeList.toArray(Route.class);
   }
   
   
@@ -590,66 +528,9 @@ public class PathingMap {
   /**  Then some utility methods for rapid checking of pathability between
     *  two points for a particular Base.
     */
-  private Zone zoneFor(Place init, Base client) {
-    final int       baseID  = client.baseID();
-    final ListEntry entry   = init.zoneEntries[baseID];
-    final Zone      oldZone = entry == null ? null : (Zone) entry.list();
-    return oldZone;
-  }
-  
-  
-  private void updateZoneFor(Place init, Base client) {
-    final Zone oldZone = zoneFor(init, client);
-    if (oldZone != null && ! oldZone.needsRefresh) return;
-    
-    final int baseID = client.baseID();
-    
-    if (updatesVerbose && extraVerbose) {
-      I.say("\nCREATING NEW ZONE FOR "+client);
-    }
-    final int evalBefore = numTilesScanned + numTilesRouted;
-
-    if (oldZone != null) {
-      for (Place p : oldZone) p.zoneEntries[baseID] = null;
-      oldZone.clear();
-    }
-    final Place inZone[] = placesPath(
-      init, null, true, client, updatesVerbose && extraVerbose
-    );
-    
-    final int evalAfter = numTilesScanned + numTilesRouted;
-    maxInQuery = Nums.max(maxInQuery, evalAfter - evalBefore);
-    
-    final Zone zone = new Zone();
-    zone.client = client;
-    for (Place p : inZone) p.zoneEntries[baseID] = zone.addLast(p);
-    
-    boolean report = updatesVerbose;
-    if (inZone.length == 1 && ! (inZone[0].core instanceof Tile)) {
-      report &= extraVerbose;
-    }
-    if (report) {
-      I.say("\nDONE CREATING NEW ZONE FOR "+client);
-      if (extraVerbose) for (Place p : inZone) I.say("  "+p);
-      I.say("  First place:     "+zone.first());
-      I.say("  Total places:    "+inZone.length);
-      I.say("  Tiles evaluated: "+(evalAfter - evalBefore));
-      if (extraVerbose) reportObs();
-    }
-  }
-  
-  
   private boolean hasPathBetween(
     Place initP, Place destP, Accountable client, boolean reports
   ) {
-    final Zone
-      initZ = zoneFor(initP, client.base()),
-      destZ = zoneFor(destP, client.base());
-    //
-    //  TODO:  For now, we're just going to be a little more forgiving...
-    if (initZ == null || destZ == null) return true;
-    if (initZ == destZ) return true;
-    
     //  TODO:  This will have to be cached!  Urgently!  Somehow!
     final Place placeRoute[] = placesPath(initP, destP, false, client, reports);
     return placeRoute != null;
@@ -678,26 +559,6 @@ public class PathingMap {
       client, reports
     )) return true;
     return false;
-  }
-  
-  
-  public Boarding[] compileZoneCoresFor(Base client, Tile at) {
-    
-    final Place place = placeFor(at);
-    if (place == null) return new Boarding[0];
-    final Zone zone = zoneFor(place, client);
-    if (zone == null) return new Boarding[0];
-    
-    final Batch <Boarding> cores = new Batch();
-    for (Place p : zone) cores.add(p.core);
-    return cores.toArray(Boarding.class);
-  }
-  
-  
-  public int zoneHash(Base client, Tile at) {
-    final Place place = placeFor(at);
-    final Zone zone = place == null ? null : zoneFor(place, client);
-    return zone == null ? -1 : zone.hashCode();
   }
   
   
