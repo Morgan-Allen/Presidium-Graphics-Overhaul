@@ -224,7 +224,9 @@ public abstract class Verse implements Session.Saveable {
   
   
   public SectorScenario scenarioFor(Sector match) {
-    for (SectorScenario s : scenarios) if (s.location() == match) return s;
+    for (SectorScenario s : scenarios) {
+      if (s.location() == match) return s;
+    }
     return null;
   }
   

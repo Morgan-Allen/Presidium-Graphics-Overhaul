@@ -32,8 +32,14 @@ public class SectorScenario extends Scenario {
   
   
   
-  public SectorScenario(String scriptPath) {
+  public SectorScenario() {
+    this((Sector) null, null);
+  }
+  
+  
+  public SectorScenario(Sector location, String scriptPath) {
     super(false);
+    this.location = location;
     if (! Assets.exists(scriptPath)) script = null;
     else script = new MessageScript(this, scriptPath);
   }

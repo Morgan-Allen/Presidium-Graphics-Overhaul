@@ -144,7 +144,7 @@ public class MissionClaim extends Mission {
     verse.setStartingDate((int) (journey().arriveTime() + 1));
     
     SectorScenario hook = verse.scenarioFor(expedition.destination());
-    if (hook == null) hook = new SectorScenario((String) null);
+    if (hook == null) hook = new SectorScenario();
     hook.beginScenario(expedition, verse, prefix);
   }
   

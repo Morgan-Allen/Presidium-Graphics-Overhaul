@@ -37,7 +37,10 @@ public class ScenarioPavonis extends SectorScenario {
   
   
   public ScenarioPavonis() {
-    super("src/stratos/content/hooks/ScriptPavonis.xml");
+    super(
+      StratosSetting.SECTOR_PAVONIS,
+      "src/stratos/content/hooks/ScriptPavonis.xml"
+    );
   }
   
   
