@@ -116,7 +116,7 @@ public class SectorScenario extends Scenario {
   
   public void updateGameState() {
     super.updateGameState();
-    script.checkForEvents();
+    if (script != null) script.checkForEvents();
   }
   
   
