@@ -39,7 +39,7 @@ public class ScenarioPavonis extends SectorScenario {
   public ScenarioPavonis() {
     super(
       StratosSetting.SECTOR_PAVONIS,
-      "src/stratos/content/hooks/ScriptPavonis.xml"
+      ""//"src/stratos/content/hooks/ScriptPavonis.xml"
     );
   }
   
@@ -166,15 +166,6 @@ public class ScenarioPavonis extends SectorScenario {
   /**  Update methods for when off-stage:
     */
   public void updateOffstage() {
-  }
-  
-  
-  
-  /**  Rendering, debug and interface methods-
-    */
-  public void describeHook(Description d) {
-    final String summary = script().contentForTopic("Summary");
-    d.append(summary);
   }
   
 }

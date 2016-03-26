@@ -6,9 +6,11 @@
 package stratos.graphics.solids;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.MS3DFile.*;
+import stratos.start.Assets;
 import stratos.util.*;
 
 import java.util.Arrays;
+import java.io.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
@@ -27,10 +29,8 @@ public class MS3DModel extends SolidModel {
   final static boolean FORCE_DEFAULT_MATERIAL = false;
   private static boolean verbose = false;
   
-  private String filePath, xmlPath, xmlName;
-  private FileHandle baseDir;
+  private String basePath, filePath, xmlPath, xmlName;
   private XML config;
-  private boolean loaded = false;
   
   private ModelData data;
   private ModelMesh mesh;
@@ -43,8 +43,9 @@ public class MS3DModel extends SolidModel {
     String xmlFile, String xmlName
   ) {
     super(path+fileName, sourceClass);
+    basePath = path;
     filePath = path+fileName;
-    xmlPath = path+xmlFile;
+    xmlPath  = path+xmlFile;
     this.xmlName = xmlName;
     this.setKeyFile(filePath);
     this.setKeyFile(xmlPath );
@@ -60,10 +61,13 @@ public class MS3DModel extends SolidModel {
   
   
   protected State loadAsset() {
+    long initTime = System.currentTimeMillis();
+    
     try {
-      final FileHandle fileHandle = Gdx.files.internal(filePath);
-      final DataInput0 input = new DataInput0(fileHandle.read(), true);
-      baseDir = fileHandle.parent();
+      
+      final FileInputStream FIS = new FileInputStream(new File(filePath));
+      final BufferedInputStream BIS = new BufferedInputStream(FIS);
+      final DataInput0 input = new DataInput0(BIS, true);
       ms3d = new MS3DFile(input);
       
       if (xmlName != null) {
@@ -85,6 +89,10 @@ public class MS3DModel extends SolidModel {
     
     super.compileModel(new Model(data));
     if (config != null) loadAttachPoints(config.child("attachPoints"));
+    
+    long timeTaken = System.currentTimeMillis() - initTime;
+    I.say(filePath+" TOOK "+timeTaken+" MS TO LOAD");
+    
     return super.loadAsset();
   }
   
@@ -116,7 +124,7 @@ public class MS3DModel extends SolidModel {
           mat.texture = mat.texture.substring(2);
         }
         if (verbose) I.say(""+mat.texture);
-        tex.fileName = baseDir.child(mat.texture).path();
+        tex.fileName = Assets.safePath(basePath+mat.texture);
         this.setKeyFile(tex.fileName);
         tex.id = mat.texture;
         tex.usage = ModelTexture.USAGE_DIFFUSE;

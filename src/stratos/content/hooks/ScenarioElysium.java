@@ -33,7 +33,7 @@ public class ScenarioElysium extends SectorScenario {
   public ScenarioElysium() {
     super(
       StratosSetting.SECTOR_ELYSIUM,
-      "src/stratos/content/hooks/ScriptElysium.xml"
+      ""//"src/stratos/content/hooks/ScriptElysium.xml"
     );
   }
   
@@ -113,15 +113,6 @@ public class ScenarioElysium extends SectorScenario {
   /**  Update methods for when off-stage:
     */
   public void updateOffstage() {
-  }
-  
-  
-  
-  /**  Rendering, debug and interface methods-
-    */
-  public void describeHook(Description d) {
-    final String summary = script().contentForTopic("Summary");
-    d.append(summary);
   }
   
 }

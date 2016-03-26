@@ -301,6 +301,9 @@ public class SectorScenario extends Scenario {
   /**  Rendering, debug and interface methods-
     */
   public void describeHook(Description d) {
+    if (script == null) return;
+    final String summary = script.contentForTopic("Summary");
+    d.append(summary);
   }
 }
 
