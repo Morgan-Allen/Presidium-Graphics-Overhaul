@@ -33,7 +33,7 @@ public class ScenarioElysium extends SectorScenario {
   public ScenarioElysium() {
     super(
       StratosSetting.SECTOR_ELYSIUM,
-      ""//"src/stratos/content/hooks/ScriptElysium.xml"
+      ""//"media/Scenario/ScriptElysium.xml"
     );
   }
   

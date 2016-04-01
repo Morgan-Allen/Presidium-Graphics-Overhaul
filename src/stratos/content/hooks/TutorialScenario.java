@@ -50,7 +50,7 @@ public class TutorialScenario extends SectorScenario {
   
   
   public TutorialScenario(String prefix) {
-    super((Sector) null, "src/stratos/content/hooks/TutorialScript.xml");
+    super((Sector) null, "media/Scenario/TutorialScript.xml");
     setSavesPrefix(prefix);
   }
   

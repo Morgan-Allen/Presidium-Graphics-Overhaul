@@ -33,7 +33,7 @@ public class ScenarioTerra extends SectorScenario {
   public ScenarioTerra() {
     super(
       StratosSetting.SECTOR_TERRA,
-      ""//"src/stratos/content/hooks/ScriptTerra.xml"
+      ""//"media/Scenario/ScriptTerra.xml"
     );
   }
   
