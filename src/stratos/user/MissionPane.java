@@ -52,10 +52,10 @@ public class MissionPane extends SelectionPane {
   
   
   public SelectionPane configPublicPanel() {
-    final Description d = detail(), l = listing();
+    final Description d = detail();
     
     describeStatus(mission, false, d);
-    listApplicants(mission, mission.applicants(), false, l);
+    listApplicants(mission, mission.applicants(), false, d);
     return this;
   }
   

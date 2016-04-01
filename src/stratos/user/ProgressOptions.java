@@ -37,7 +37,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
   final BaseUI BUI;
   Button saves, loads, pauses, slows, norms, fasts;
   Button lastSpeed = null;
-  Batch <Button> speedOptions = new Batch();
+  Table <Button, Float> speedOptions = new Table();
   
   
   ProgressOptions(BaseUI UI) {
@@ -84,7 +84,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
       }
     };
     options.add(pauses);
-    speedOptions.add(pauses);
+    speedOptions.put(pauses, 0f);
 
     this.slows = new Button(UI, "button_slow", IMG_SLOW, "Slow Time") {
       protected void whenClicked() {
@@ -94,7 +94,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
       }
     };
     options.add(slows);
-    speedOptions.add(slows);
+    speedOptions.put(slows, 0.33f);
     
     this.norms = new Button(UI, "button_norm", IMG_NORMAL, "Normal Time") {
       protected void whenClicked() {
@@ -104,7 +104,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
       }
     };
     options.add(norms);
-    speedOptions.add(norms);
+    speedOptions.put(norms, 1.0f);
     
     this.fasts = new Button(UI, "button_fast", IMG_FAST, "Fast Time") {
       protected void whenClicked() {
@@ -114,7 +114,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
       }
     };
     options.add(fasts);
-    speedOptions.add(fasts);
+    speedOptions.put(fasts, 3.0f);
     
     final int sizeB = OPT_BUTTON_SIZE - OPT_MARGIN;
     int across = PANEL_TAB_SIZE;
@@ -134,17 +134,31 @@ public class ProgressOptions extends UIGroup implements UIConstants {
   
   protected void updateState() {
     super.updateState();
-    if (KeyInput.wasTyped('f') || KeyInput.wasTyped('F')) {
+    
+    if (KeyInput.wasTyped('p') || KeyInput.wasTyped('P')) {
       if (! PlayLoop.paused()) pauses.performAction();
       else if (lastSpeed != null) lastSpeed.performAction();
-      else {
-        PlayLoop.setPaused(false);
-        toggleSpeedOption(null);
-      }
+      else PlayLoop.setPaused(false);
     }
+    
+    final Button speed = closestSpeed();
+    toggleSpeedOption(speed);
+    if (speed != pauses) lastSpeed = speed;
+    
     if (BUI.currentTask() == null && PlayLoop.paused()) {
-      BaseUI.setPopupMessage("Game Paused- Hit F to unpause");
+      BaseUI.setPopupMessage("Game Paused- Hit P to unpause");
     }
+  }
+  
+  
+  private Button closestSpeed() {
+    float speed = PlayLoop.paused() ? 0 : PlayLoop.gameSpeed();
+    final Pick <Button> pick = new Pick();
+    for (Button b : speedOptions.keySet()) {
+      float val = speedOptions.get(b);
+      pick.compare(b, 0 - Nums.abs(val - speed));
+    }
+    return pick.result();
   }
   
   
@@ -152,7 +166,7 @@ public class ProgressOptions extends UIGroup implements UIConstants {
     if (picked != pauses) {
       lastSpeed = picked;
     }
-    for (Button b : speedOptions) {
+    for (Button b : speedOptions.keySet()) {
       if (b == picked) b.toggled = true;
       else b.toggled = false;
     }

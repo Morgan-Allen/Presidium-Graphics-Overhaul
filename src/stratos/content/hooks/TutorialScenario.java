@@ -12,6 +12,7 @@ import stratos.game.maps.*;
 import stratos.game.plans.*;
 import stratos.game.verse.*;
 import stratos.game.wild.*;
+import stratos.start.PlayLoop;
 import stratos.user.*;
 import stratos.user.notify.*;
 import stratos.util.*;
@@ -326,6 +327,7 @@ public class TutorialScenario extends SectorScenario {
   protected void onFacilitiesReady() {
     base().setup.fillVacancies(marketBuilt , true);
     base().setup.fillVacancies(foundryBuilt, true);
+    PlayLoop.setGameSpeed(1);
   }
   
   
@@ -455,7 +457,8 @@ public class TutorialScenario extends SectorScenario {
   
   protected boolean checkHiringDone() {
     if (barracksBuilt == null || foundryBuilt == null) return false;
-    if (! script().topicTriggered("Hiring Basics")) return false;
+    if (barracksBuilt.structure.mainUpgradeLevel() < 2) return false;
+    if (foundryBuilt .structure.mainUpgradeLevel() < 2) return false;
     return
       barracksBuilt.staff.numOpenings(TROOPER ) == 0 &&
       foundryBuilt .staff.numOpenings(ENGINEER) == 0;

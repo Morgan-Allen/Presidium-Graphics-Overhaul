@@ -254,6 +254,7 @@ public abstract class Plan implements Session.Saveable, Behaviour {
     }
     if (nextStep instanceof Plan) {
       ((Plan) nextStep).parent = this;
+      nextStep.updatePlanFor(actor);
     }
     
     properties |= HAS_STEPS;

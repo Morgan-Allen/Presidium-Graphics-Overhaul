@@ -250,7 +250,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
     this.base  = null;
     this.UI    = null;
     PlayLoop.sessionStateWipe();
-    initScenario(null);
+    initScenario(savesPrefix);
     PlayLoop.setupAndLoop(this);
   }
   
@@ -271,6 +271,7 @@ public abstract class Scenario implements Session.Saveable, Playable {
       saveGame(fullSavePath(savesPrefix, timeSuffix(world)));
     }
     if (nextOp == DO_RESTART) {
+      SaveUtils.deleteAllSavesWithPrefix(savesPrefix);
       resetScenario();
     }
     if (nextOp == DO_LOAD) {

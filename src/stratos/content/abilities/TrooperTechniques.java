@@ -273,8 +273,8 @@ public class TrooperTechniques {
       ActionFX.applyBurstFX(FRAG_FRINGE_FX, point, 1, world);
       Wreckage.plantCraterAround(world.tileAt(focus), 0.5f);
     }
-
-
+    
+    
     public void applyEffect(
       Actor using, Target subject, boolean success, boolean passive
     ) {
