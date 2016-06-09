@@ -15,6 +15,7 @@ import static stratos.game.actors.Qualities.*;
 
 
 
+
 //  TODO:  Hiding evaluation needs to be much more reliable!  You'll have to
 //  check all visible tiles, I think.  Or maybe reserve strictly for agents?
 //  Yeah.  They get some special treatment.

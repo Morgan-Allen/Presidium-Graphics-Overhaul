@@ -36,7 +36,7 @@ public interface UIConstants {
     CLAIMING_BUTTON_ID = "claiming_mission_button";
   
   final public static Alphabet INFO_FONT = Alphabet.loadAlphabet(
-    "media/GUI/", "FontVerdana.xml"
+    UIConstants.class, "alphabet_info_font", "media/GUI/", "FontVerdana.xml"
   );
   
   

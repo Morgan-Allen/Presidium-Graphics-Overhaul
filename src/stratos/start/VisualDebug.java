@@ -130,13 +130,13 @@ public abstract class VisualDebug implements Playable {
     
     for (Sprite sprite : sprites) {
       sprite.readyFor(rendering);
-      onRendering(sprite);
+      onRendering(sprite, rendering);
     }
   }
   
   
   protected abstract void loadVisuals();
-  protected abstract void onRendering(Sprite sprite);
+  protected abstract void onRendering(Sprite sprite, Rendering rendering);
 }
 
 

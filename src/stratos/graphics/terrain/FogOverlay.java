@@ -4,30 +4,26 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.terrain;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Pixmap.*;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-
-import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
-
-import java.nio.*;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
 
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Pixmap.*;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
+import java.nio.*;
 
 
-//
+
+
 //  TODO:  FOG OVERLAYS AND TERRAIN SETS MUST BE DISPOSED OF MANUALLY
-//  TODO:  ...THAT!!!
-
 
 public class FogOverlay {
   
   
   private static boolean verbose = false;
   
-  final int size;
+  final int sizeX, sizeY;
   
   private float oldVals[][], newVals[][];
   private Pixmap drawnTo;
@@ -37,15 +33,16 @@ public class FogOverlay {
   private float oldTime = 0;
   
   
-  public FogOverlay(int size) {
-    this.size = size;
+  public FogOverlay(int sizeX, int sizeY) {
+    this.sizeX = sizeX;
+    this.sizeY = sizeY;
     
-    drawnTo = new Pixmap(size, size, Format.RGBA8888);
+    drawnTo = new Pixmap(sizeX, sizeY, Format.RGBA8888);
     Pixmap.setBlending(Blending.None);
     drawnTo.setColor(Color.BLACK);
     drawnTo.fill();
-    oldVals = new float[size][size];
-    newVals = new float[size][size];
+    oldVals = new float[sizeX][sizeY];
+    newVals = new float[sizeX][sizeY];
   }
   
   
@@ -80,7 +77,7 @@ public class FogOverlay {
     newTex.bind(2);
     shader.setUniformi("u_fog_old", 1);
     shader.setUniformi("u_fog_new", 2);
-    shader.setUniformf("u_fogSize", size, size);
+    shader.setUniformf("u_fogSize", sizeX, sizeY);
     shader.setUniformf("u_fogTime", oldTime % 1);
   }
   
@@ -154,8 +151,8 @@ public class FogOverlay {
   
   public float sampleAt(float x, float y, Object client) {
     final float
-      oldVal = Nums.sampleMap(size, oldVals, x, y),
-      newVal = Nums.sampleMap(size, newVals, x, y);
+      oldVal = Nums.sampleMap(sizeX, sizeY, oldVals, x, y),
+      newVal = Nums.sampleMap(sizeX, sizeY, newVals, x, y);
     final float time = oldTime % 1;
     final float sample = (oldVal * (1 - time)) + (time * newVal);
     if (verbose && client != null && I.talkAbout == client) {

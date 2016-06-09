@@ -12,24 +12,26 @@ import stratos.util.*;
   */
 public class ItemStack extends GroupSprite {
   
-  
 
-  final static float
-    H = 0 - BuildingSprite.ITEM_SIZE / 2,
-    L = BuildingSprite.ITEM_SIZE / 2,
+  final public static float
+    ITEM_SIZE = 0.33f,
+    H         = 0 - ITEM_SIZE / 2,
+    L         =     ITEM_SIZE / 2,
     ATTACH_COORDS[][] = {
       {L, H}, {L, L}, {H, H}, {H, L}
     },
-    UP = BuildingSprite.ITEM_SIZE * 0.8f;
+    UP = ITEM_SIZE * 0.8f
+  ;
   final static int ITEM_UNIT = 5;
   
   
-  final CutoutModel itemModel;
+  final CutoutModel itemModel, batchModel;
   private int amount = 0;
   
   
-  protected ItemStack(CutoutModel model) {
-    this.itemModel = model;
+  protected ItemStack(CutoutModel itemModel, CutoutModel batchModel) {
+    this.itemModel  = itemModel ;
+    this.batchModel = batchModel;
   }
   
   
@@ -55,7 +57,7 @@ public class ItemStack extends GroupSprite {
       final float coord[] = ATTACH_COORDS[coordIndex];
       
       final CutoutSprite box = (CutoutSprite) ((i < numCrates) ?
-        BuildingSprite.CRATE_MODEL : itemModel
+        batchModel : itemModel
       ).makeSprite();
       attach(box, coord[0], coord[1], level * UP);
     }

@@ -66,7 +66,7 @@ public class DebugUI extends VisualDebug {
 
 
   public HUD UI() { return UI; }
-  protected void onRendering(Sprite sprite) {}
+  protected void onRendering(Sprite sprite, Rendering rendering) {}
 }
 
 

@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.widgets;
-import stratos.graphics.common.*;
 import stratos.util.*;
 
 
@@ -13,7 +12,6 @@ public class Carousel extends UIGroup {
   
   
   final static float
-    SPIN_RATE  = 180f / Rendering.FRAMES_PER_SECOND,
     SHRINK_MIN = 0.75f,
     GROW_MAX   = 1.50f;
   
@@ -30,14 +28,7 @@ public class Carousel extends UIGroup {
   
   protected void updateState() {
     //
-    //  Firstly, update our current spin position (interpolating toward the
-    //  target angle as needed.)
-    final float spinDiff = Vec2D.degreeDif(targetAngle, spinAngle);
-    if (Nums.abs(spinDiff) <= SPIN_RATE) spinAngle = targetAngle;
-    else spinAngle += SPIN_RATE * (spinDiff > 0 ? 1 : -1);
-    //
-    //  Then update the displacement, size, depth and opacity of each of our
-    //  children.
+    //  Update the displacement, size, depth and opacity of each entry-
     int index = 0; for (UINode b : entries) {
       float angle = index * 360f / entries.size();
       angle = Nums.toRadians(angle - spinAngle);
@@ -62,6 +53,19 @@ public class Carousel extends UIGroup {
   }
   
   
+  protected void render(WidgetsPass pass) {
+    //
+    //  Firstly, update our current spin position (interpolating toward the
+    //  target angle as needed.)
+    final float
+      spinDiff = Vec2D.degreeDif(targetAngle, spinAngle),
+      spinRate = 180f / pass.rendering.frameRate();
+    if (Nums.abs(spinDiff) <= spinRate) spinAngle = targetAngle;
+    else spinAngle += spinRate * (spinDiff > 0 ? 1 : -1);
+    super.render(pass);
+  }
+
+
   public void addEntryFor(Object ref, UINode entry) {
     refers .add(ref  );
     entries.add(entry);

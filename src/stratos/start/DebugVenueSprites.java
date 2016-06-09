@@ -52,7 +52,7 @@ public class DebugVenueSprites extends VisualDebug {
   }
   
   
-  protected void onRendering(Sprite sprite) {
+  protected void onRendering(Sprite sprite, Rendering rendering) {
   }
 }
 

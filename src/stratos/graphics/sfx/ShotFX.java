@@ -4,10 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.sfx;
-import stratos.graphics.common.*;
 import stratos.util.*;
 import java.io.*;
 import com.badlogic.gdx.graphics.*;
+
+import stratos.graphics.common.*;
 
 
 
@@ -39,7 +40,7 @@ public class ShotFX extends SFX {
       boolean repeats,  //  single shot or segmented beam (by period)?
       boolean vivid     //  glows uniformly or obeys lighting FX?
     ) {
-      super(modelName, modelClass);
+      super(modelClass, modelName);
       this.texName = texName;
       this.period  = period ;
       this.arc     = arc    ;

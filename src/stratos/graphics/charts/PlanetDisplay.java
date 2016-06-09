@@ -4,20 +4,20 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.charts;
-import stratos.graphics.common.*;
-import stratos.graphics.sfx.*;
-import stratos.graphics.solids.*;
-import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
+import stratos.graphics.common.*;
+import stratos.graphics.sfx.*;
+import stratos.graphics.solids.*;
+import stratos.graphics.widgets.*;
 
 
 
@@ -39,8 +39,8 @@ public class PlanetDisplay extends Assets.Loadable {
   public boolean showLabels  = true ;
   public boolean showWeather = false;
   
-  
   private float radius = DEFAULT_RADIUS;
+  private float spinRate = 0;
   private Vec2D polarCoords = new Vec2D(), targetCoords = new Vec2D();
   private Mat3D rotMatrix = new Mat3D().setIdentity();
   
@@ -68,11 +68,11 @@ public class PlanetDisplay extends Assets.Loadable {
   
   
   protected State loadAsset() {
-    if (state == State.LOADED) return State.ERROR;
+    if (state == State.LOADED) return state = State.ERROR;
     
     this.shading = new ShaderProgram(
-      Gdx.files.internal("shaders/planet.vert"),
-      Gdx.files.internal("shaders/planet.frag")
+      Gdx.files.internal("stratos/graphics/shaders/planet.vert"),
+      Gdx.files.internal("stratos/graphics/shaders/planet.frag")
     );
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog());
@@ -93,7 +93,7 @@ public class PlanetDisplay extends Assets.Loadable {
   
   
   protected State disposeAsset() {
-    if (state == State.DISPOSED) return State.ERROR;
+    if (state == State.DISPOSED) return state = State.ERROR;
     shading.dispose();
     labelling.dispose();
     return state = State.DISPOSED;
@@ -166,10 +166,10 @@ public class PlanetDisplay extends Assets.Loadable {
     final MeshPart part = surfacePart.meshPart;
     final Pixmap keyTex = sectorsKeyTex.asPixels();
     final int
-      partFaces = part.numVertices / 3,
+      partFaces = part.size / 3,
       meshFaces = part.mesh.getNumIndices() / 3,
       vertSize  = 3 + 3 + 2 + 6,  //  vert, normal, tex coord and bone weights.
-      offset    = part.indexOffset / vertSize;
+      offset    = part.offset / vertSize;
     
     //  TODO:  THESE MAGIC CONSTANTS NEED TO BE IN A SINGLE CENTRAL INTERFACE.
     
@@ -436,16 +436,15 @@ public class PlanetDisplay extends Assets.Loadable {
         rotation  = 90 - latCoords.toAngle(),
         elevation = longCoords.toAngle();
       
+      this.spinRate = 0;
       setCoords(rotation, elevation, false);
     }
   }
   
   
   public void spinAtRate(float degreesPerSecond, float elevation) {
-    setCoords(
-      rotation() + (degreesPerSecond / Rendering.FRAMES_PER_SECOND),
-      elevation, true
-    );
+    this.spinRate = degreesPerSecond;
+    setCoords(rotation(), elevation, true);
   }
   
   
@@ -463,11 +462,13 @@ public class PlanetDisplay extends Assets.Loadable {
     displacement.y = targetCoords.y - polarCoords.y;
     
     final float
-      ZPF        = ZOOM_SECOND_DEGREES / Rendering.FRAMES_PER_SECOND,
+      ZPF        = ZOOM_SECOND_DEGREES / rendering.frameRate(),
       coordsDiff = displacement.length();
     
     if (coordsDiff < ZPF) polarCoords.setTo(targetCoords);
     else polarCoords.add(displacement.normalise().scale(ZPF));
+    
+    setCoords(rotation() + spinRate / rendering.frameRate(), elevation(), true);
     
     //
     //  Secondly, we configure viewing perspective, aperture size, rotation
@@ -494,7 +495,7 @@ public class PlanetDisplay extends Assets.Loadable {
     
     //
     //  Then, we configure parameters for selection/hover/highlight FX.
-    final float alphaInc = 1f / Rendering.FRAMES_PER_SECOND;
+    final float alphaInc = 1f / rendering.frameRate();
     hoverAlpha  = Nums.clamp(hoverAlpha  + alphaInc, 0, 1);
     selectAlpha = Nums.clamp(selectAlpha + alphaInc, 0, 1);
     
@@ -521,8 +522,8 @@ public class PlanetDisplay extends Assets.Loadable {
     p = surfacePart.meshPart;
     surfaceTex.asTexture().bind(0);
     sectorsKeyTex.asTexture().bind(2);
-    shading.setUniformi("u_surfacePass", GL11.GL_TRUE );
-    p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
+    shading.setUniformi("u_surfacePass", GL20.GL_TRUE);
+    p.mesh.render(shading, p.primitiveType, p.offset, p.size);
     //  TODO:  Render sector outlines here too...
     /*
     p = sectorsPart.meshPart;
@@ -531,12 +532,12 @@ public class PlanetDisplay extends Assets.Loadable {
     
     //
     //  And on top of all these, the labels for each sector.
-    Gdx.gl.glDisable(GL11.GL_DEPTH_TEST);
+    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
     Gdx.gl.glDepthMask(false);
     
     if (showLabels && font != null) {
       font.texture().bind(1);
-      shading.setUniformi("u_surfacePass", GL11.GL_FALSE);
+      shading.setUniformi("u_surfacePass", GL20.GL_FALSE);
       renderLabels(font);
     }
     

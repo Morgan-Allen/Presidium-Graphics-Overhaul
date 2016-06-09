@@ -54,7 +54,7 @@ public class DebugHumanSprites {
       }
       
       
-      protected void onRendering(Sprite sprite) {
+      protected void onRendering(Sprite sprite, Rendering rendering) {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
           if (press) return;
           press = true;
@@ -81,7 +81,7 @@ public class DebugHumanSprites {
         final float time = Rendering.activeTime();
         if (sprite == first) {
           sprite.setAnimation(animName, time % 1, true);
-          sprite.rotation += 90f / Rendering.FRAMES_PER_SECOND;
+          sprite.rotation += 90f / rendering.frameRate();
         }
         else {
           sprite.setAnimation(AnimNames.MOVE, (time + 0.5f) % 1, true);

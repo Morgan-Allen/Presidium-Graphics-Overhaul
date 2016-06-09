@@ -1,12 +1,13 @@
 
 
 package stratos.graphics.common;
-import stratos.graphics.widgets.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
+
+import stratos.graphics.widgets.*;
 
 
 

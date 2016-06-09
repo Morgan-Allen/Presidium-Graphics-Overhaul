@@ -212,7 +212,7 @@ public class SelectionTracking {
       displace = targPos.sub(viewPos, new Vec3D());
     final float
       distance = displace.length(),
-      drift = ((distance + 2) * 2) / (Rendering.FRAMES_PER_SECOND * distance);
+      drift = ((distance + 2) * 2) / (UI.rendering.frameRate() * distance);
     //
     //  If distance is too large, or drift would cause overshoot, just go
     //  straight to the point.  Otherwise, displace gradually-

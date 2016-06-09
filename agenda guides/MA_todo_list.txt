@@ -4,20 +4,12 @@ CURRENT ITEMS:
 
    Priority:  High  Duration:  Long
 *  You need to flesh out the scripts for each of the available landing sites (
-   and maybe add a smidgeon of custom art as well.)  Also, more sectors.
+   and maybe add a smidgeon of custom art as well.)
    
-   You will need a dedicated sampling/salvage mission for objects on the
-   landscape.
-
-   Priority:  Medium-High  Duration:  Short to Medium
-*  Build a markets-report into the information for each sector.  And an ability
-   to toggle specific imports/exports.
-
-   Priority:  High  Duration:  Medium-Short
-*  Make sure there's a collective estimate for overall production/consumption
-   of all goods in the settlement- and the number/type of contributing
-   facilities.
-
+   Priority:  Low-to-Minor  Duration:  Short/Very Short
+*  Try to add 'spawning' for Fauna as well (i.e, in the sense of wandering in
+   from the map edges- or perhaps out as well.)
+   
    Priority:  Medium  Duration:  Short
 *  Various items in tutorial should be clarified-
    'Base roster' should be 'Personnel tab'.
@@ -26,8 +18,22 @@ CURRENT ITEMS:
    Explain date/time at the top.  And saving?
    Psy points?  Not used in tutorial.
 
+   Priority:  Medium  Duration:  Short?
+*  I'm occasionally seeing actors with contradictory traits (e.g, both nervous
+   and fearless.)  Fix that.
+
+   Priority:  Medium  Duration:  ?
+*  Something is causing noticeable visual lag, and I'm not sure why.  Profile
+   and find out.
+
+
 
 MECHANICS:
+
+   Priority:  Low  Duration:  Short
+*  There seems to be a moment of noticeable lag when selecting citizens,
+   apparently due to the SelectionOptions being configured.  Try and isolate
+   the slowdown.
 
    Priority:  Medium  Duration:  Medium
 *  Allow specific training for a given citizen under 'duties'.  Set preferred
@@ -37,11 +43,6 @@ MECHANICS:
    Priority:  Minor  Duration:  Short
 *  Make sure that the skill-bonuses for a given homeworld are actually applied
    to colonists in full, along with ethnicity-chance.
-
-   Priority:  Medium  Duration:  Short
-*  There seems to be a moment of noticeable lag when selecting citizens,
-   apparently due to the SelectionOptions being configured.  Try and isolate
-   the slowdown.
 
    Priority:  Medium  Duration:  Short
 *  Because action-conditions for pathing are more tolerant now, you can
@@ -59,6 +60,11 @@ MECHANICS:
    Priority:  Low  Duration:  Medium-Long
 *  Implement egg-collection or standing hives as a nonlethal source of protein?
 *  Add spice-extraction from vegetation-sampling and mineral-flats.
+
+   Priority:  Medium-High  Duration:  Medium-High
+*  There needs to be more than just physical raiding coming from offworld- they
+   should be sending explorers, diplomats and reinforcements too (for the
+   various mission-types.)
 
 
 VISUAL AND MEDIA-
@@ -99,20 +105,11 @@ VISUAL AND MEDIA-
 
 
 BACK BURNER:
-
-   Priority:  Low-to-Minor  Duration:  Short/Very Short
-*  Try to add 'spawning' for Fauna as well (i.e, in the sense of wandering in
-   from the map edges- or perhaps out as well.)
-
-   Priority:  Medium-High  Duration:  Medium-High
-*  There needs to be more than just physical raiding coming from offworld- they
-   should be sending explorers, diplomats and reinforcements too (for the
-   various mission-types.)
-
-   Priority:  Medium-High  Duration:  Medium
-*  Natives should be re-introduced on the right maps, along with mechanics for
-   raiding/diplomacy.  (The base is there, and the buildings are there- you
-   just need to introduce them and tie it into BaseVisits.)
+   
+   Priority:  Low  Duration:  Medium
+*  At the moment, restarting missions that began with an expedition simply
+   re-inserts the same actors in the world, rather then reverting to their
+   pre-existing data.  You will need to isolate that properly.
 
    Priority:  Medium  Duration:  Short
 *  Random-variation for offworld visit-intervals need to be reworked.

@@ -56,7 +56,6 @@ public abstract class LayerType implements TileConstants {
   protected void addFringes(
     int tx, int ty, TerrainSet terrain,
     Batch <Vec3D  > offsBatch,
-    Batch <Integer> faceBatch,
     Batch <float[]> textBatch
   ) {
     final boolean masked = maskedAt(tx, ty, terrain);
@@ -73,7 +72,6 @@ public abstract class LayerType implements TileConstants {
       //  square:
       if (layerID < 0) {
         offsBatch.add(new Vec3D(tx, ty, 0));
-        faceBatch.add(-1);
         textBatch.add(innerFringe ?
           LayerPattern.INNER_FRINGE_CENTRE :
           LayerPattern.OUTER_FRINGE_CENTRE
@@ -81,36 +79,7 @@ public abstract class LayerType implements TileConstants {
       }
       else if (tileID == layerID) {
         offsBatch.add(new Vec3D(tx, ty, 0));
-        faceBatch.add(-1);
         textBatch.add(LayerPattern.extraFringeUV(varID)[0]);
-      }
-      //
-      //  We also include geometry for any cliffs along the facing edges-
-      if (layerID == tileID && ! innerFringe) for (int n : T_ADJACENT) {
-        final int faceID = n / 2;
-        final float cornerCoords[] = LayerPattern.FACING_CORNER_PATTERN[faceID];
-        final int
-          nX = T_X[n],
-          nY = T_Y[n],
-          xA = (int) cornerCoords[0],
-          yA = (int) cornerCoords[1],
-          xB = (int) cornerCoords[2],
-          yB = (int) cornerCoords[3],
-          hX = tx * 2,
-          hY = ty * 2,
-          sideA = TerrainSet.heightDiff(
-            terrain, hX + xA, hY + yA, nX, nY
-          ),
-          sideB = TerrainSet.heightDiff(
-            terrain, hX + xB, hY + yB, nX, nY
-          ),
-          cliff = Nums.max(sideA, sideB);
-        
-        for (int h = cliff; h-- > 0;) {
-          offsBatch.add(new Vec3D(tx, ty, 0 - h));
-          faceBatch.add(faceID);
-          textBatch.add(LayerPattern.CLIFF_EXTRAS_UV[faceID]);
-        }
       }
       return;
     }
@@ -135,7 +104,6 @@ public abstract class LayerType implements TileConstants {
       LayerPattern.outerFringeUV(near);
     if (fringes != null) for (float UV[] : fringes) if (UV != null) {
       offsBatch.add(new Vec3D(tx, ty, 0));
-      faceBatch.add(-1);
       textBatch.add(UV);
     }
   }

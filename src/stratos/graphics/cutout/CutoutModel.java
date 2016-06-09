@@ -6,6 +6,7 @@
 package stratos.graphics.cutout;
 import stratos.graphics.common.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -85,7 +86,7 @@ public class CutoutModel extends ModelAsset {
     Class modelClass, String ID, String fileName, Box2D window,
     float size, float high, boolean splat
   ) {
-    super(ID, modelClass);
+    super(modelClass, ID);
     this.fileName = fileName;
     this.window   = window  ;
     this.size     = size    ;
@@ -288,8 +289,9 @@ public class CutoutModel extends ModelAsset {
       
       tU = 0 + ((temp.x / maxScreenWide) + 0.5f   );
       tV = 1 - ((temp.y - minScreenHigh) / maxHigh);
-      tU = region.u + (tU * (region.u2 - region.u));
-      tV = region.v + (tV * (region.v2 - region.v));
+      
+      tU = region.getU() + (tU * (region.getU2() - region.getU()));
+      tV = region.getV() + (tV * (region.getV2() - region.getV()));
       vertices[U0 + i] = tU;
       vertices[V0 + i] = tV;
       i += VERTEX_SIZE;

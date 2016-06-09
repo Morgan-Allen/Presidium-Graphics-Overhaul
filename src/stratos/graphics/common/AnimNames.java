@@ -2,6 +2,7 @@
 
 package stratos.graphics.common;
 
+
 public interface AnimNames {
   static String
     

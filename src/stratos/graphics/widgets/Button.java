@@ -6,7 +6,8 @@
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
 import stratos.util.*;
-import stratos.util.Description.*;
+import stratos.util.Description.Clickable;
+
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 
@@ -158,49 +159,6 @@ public class Button extends Image {
     }
   }
 }
-
-
-
-
-
-/*
-//  selection modes.
-final public static byte
-  MODE_RADIUS = 0,
-  MODE_BOUNDS = 1,
-  MODE_ALPHA = 2;
-//*/
-
-/*
-if (selectMode == MODE_BOUNDS) {
-  return this;
-}
-if (selectMode == MODE_RADIUS) {
-  final float radius = Nums.max(bounds.xdim(), bounds.ydim()) / 2;
-  return (bounds.centre().dst(mousePos) < radius) ? this : null;
-}
-if (selectMode == MODE_ALPHA) {
-  final float
-    tU = ((mousePos.x - bounds.xpos()) / bounds.xdim()),
-    tV = ((mousePos.y - bounds.ypos()) / bounds.ydim());
-  
-  texture.getTextureData().consumePixmap().getPixel(tU, tV);
-  final Colour texSample = texture.getColour(tU, tV);
-  return (texSample.a > 0.5f) ? this : null;
-}
-return null;
-
-
-  public Button(HUD myHUD, String path, String norm, String lit, String infoS) {
-    this(
-      myHUD,
-      ImageAsset.getTexture(path+norm),
-      ImageAsset.getTexture(path+lit),
-      infoS
-    );
-  }
-  //*/
-//*/
 
 
 

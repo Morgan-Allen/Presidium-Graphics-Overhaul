@@ -4,20 +4,18 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.solids;
+import stratos.start.*;
 import stratos.graphics.common.*;
 import stratos.graphics.solids.MS3DFile.*;
-import stratos.start.Assets;
 import stratos.util.*;
 
-import java.util.Arrays;
 import java.io.*;
-import com.badlogic.gdx.Gdx;
+import java.util.Arrays;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.model.data.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.model.data.ModelMaterial.MaterialType;
 
 
@@ -27,7 +25,7 @@ public class MS3DModel extends SolidModel {
   
   
   final static boolean FORCE_DEFAULT_MATERIAL = false;
-  private static boolean verbose = false;
+  private static boolean verbose = false, timeVerbose = false;
   
   private String basePath, filePath, xmlPath, xmlName;
   private XML config;
@@ -60,11 +58,14 @@ public class MS3DModel extends SolidModel {
   }
   
   
+  
   protected State loadAsset() {
-    long initTime = System.currentTimeMillis();
+    
+    long initTime = I.getTime();
+    if (timeVerbose) I.say("Loading "+filePath);
     
     try {
-      
+
       final FileInputStream FIS = new FileInputStream(new File(filePath));
       final BufferedInputStream BIS = new BufferedInputStream(FIS);
       final DataInput0 input = new DataInput0(BIS, true);
@@ -81,19 +82,23 @@ public class MS3DModel extends SolidModel {
       I.report(e);
       return state = State.ERROR;
     }
+    if (timeVerbose) I.say("  MS3D: "+(I.getTime() - initTime)+" MS");
     
     data = new ModelData();
     processMaterials();
+    if (timeVerbose) I.say("  Materials: "+(I.getTime() - initTime)+" MS");
+    
     processMesh();
+    if (timeVerbose) I.say("  Mesh: "+(I.getTime() - initTime)+" MS");
+    
     processJoints();
+    if (timeVerbose) I.say("  Joints: "+(I.getTime() - initTime)+" MS");
     
     super.compileModel(new Model(data));
     if (config != null) loadAttachPoints(config.child("attachPoints"));
     
-    long timeTaken = System.currentTimeMillis() - initTime;
-    I.say(filePath+" TOOK "+timeTaken+" MS TO LOAD");
-    
-    return super.loadAsset();
+    if (timeVerbose) I.say("  Model: "+(I.getTime() - initTime)+" MS");
+    return state = super.loadAsset();
   }
   
   
@@ -218,7 +223,6 @@ public class MS3DModel extends SolidModel {
     root = new ModelNode();
     root.id = "node";
     root.meshId = "mesh";
-    root.boneId = 0;
     final float scale = config == null ? 1 : config.getFloat("scale");
     //I.say("Scale for "+this.filePath+" is "+scale);
     root.scale = new Vector3(scale, scale, scale);
@@ -267,7 +271,7 @@ public class MS3DModel extends SolidModel {
 
     ArrayMap<String, ModelNode> lookup = new ArrayMap<String, ModelNode>(32);
     if (verbose) I.say("FPS: " + ms3d.fAnimationFPS); // whatever that is...
-
+    
     for (int i = 0; i < ms3d.joints.length; i++) {
       MS3DJoint jo = ms3d.joints[i];
       for (ModelNodePart part : root.parts) {
@@ -278,7 +282,6 @@ public class MS3DModel extends SolidModel {
       
       mn.id = jo.name;
       mn.meshId = "mesh";
-      mn.boneId = i;
       mn.rotation = jo.lmatrix.getRotation(new Quaternion());
       mn.translation = jo.lmatrix.getTranslation(new Vector3());
       mn.scale = new Vector3(1, 1, 1);
@@ -291,20 +294,39 @@ public class MS3DModel extends SolidModel {
 
       ModelNodeAnimation ani = new ModelNodeAnimation();
       ani.nodeId = mn.id;
+      ani.translation = new Array();
+      ani.rotation    = new Array();
+      
 
       for (int j = 0; j < jo.positions.length; j++) {
-        ModelNodeKeyframe kf = new ModelNodeKeyframe();
+        ModelNodeKeyframe pos = new ModelNodeKeyframe();
+        ModelNodeKeyframe rot = new ModelNodeKeyframe();
         
-        kf.keytime = jo.rotations[j].time;
+        pos.keytime = rot.keytime = jo.rotations[j].time;
         
-        kf.translation = new Vector3(jo.positions[j].data);
-        kf.translation.mul(jo.lmatrix);
+        final Vector3 posO = new Vector3(jo.positions[j].data);
+        posO.mul(jo.lmatrix);
+        pos.value = posO;
+        ani.translation.add(pos);
         
-        kf.rotation = MS3DFile.fromEuler(jo.rotations[j].data);
-        kf.rotation.mulLeft(jo.lmatrix.getRotation(new Quaternion()));
-        
-        ani.keyframes.add(kf);
+        final Quaternion rotO = MS3DFile.fromEuler(jo.rotations[j].data);
+        rotO.mulLeft(jo.lmatrix.getRotation(new Quaternion()));
+        rot.value = rotO;
+        ani.rotation.add(rot);
       }
+      
+      float lastTime = Float.NEGATIVE_INFINITY;
+      for (ModelNodeKeyframe frame : ani.translation) {
+        if (lastTime > frame.keytime) I.say("PROBLEM!");
+        lastTime = frame.keytime;
+      }
+      
+      lastTime = Float.NEGATIVE_INFINITY;
+      for (ModelNodeKeyframe frame : ani.rotation) {
+        if (lastTime > frame.keytime) I.say("PROBLEM!");
+        lastTime = frame.keytime;
+      }
+      
       animation.nodeAnimations.add(ani);
     }
     
@@ -321,13 +343,12 @@ public class MS3DModel extends SolidModel {
   private void loadKeyframes(ModelAnimation animation) {
     if (animation == null || config == null) return;
     
-    if (verbose) I.say("\nLoading animations for model: "+filePath);
-    
     final XML animConfig = config.child("animations");
     float FPS = animConfig.getFloat("fps");
     if (FPS == 0 || FPS == 1) FPS = 1.0f;
     this.rotateOffset = animConfig.getFloat("rotate");
     
+    /*
     if (verbose) for (ModelNodeAnimation node : animation.nodeAnimations) {
       I.add("\n  Total animations in "+node.nodeId+": "+node.keyframes.size);
       I.add(" (");
@@ -336,6 +357,7 @@ public class MS3DModel extends SolidModel {
       }
       I.add(")");
     }
+    //*/
     
     addLoop: for (XML animXML : animConfig.children()) {
       //
@@ -360,34 +382,61 @@ public class MS3DModel extends SolidModel {
 
       // scaling for exact duration
       float scale = animLength / (animEnd - animStart);
-      int maxFrames = 0;
       
       for (ModelNodeAnimation node : animation.nodeAnimations) {
         final ModelNodeAnimation nd = new ModelNodeAnimation();
         nd.nodeId = node.nodeId;
-        int numFrames = 0;
         
-        for (ModelNodeKeyframe frame : node.keyframes) {
-          if (frame.keytime >= animStart && frame.keytime <= animEnd) {
-            final ModelNodeKeyframe kf = copy(frame);
-            
-            // trimming the beggining and scaling
-            kf.keytime -= animStart;
-            kf.keytime *= scale;
-            nd.keyframes.add(kf);
-            numFrames++;
-          }
-        }
+        I.say("  "+node.nodeId+" ("+name+")");
+        nd.rotation    = new Array();
+        nd.translation = new Array();
+        nd.scaling     = new Array();
+        putFrames(nd.rotation   , node.rotation   , animStart, animEnd, scale);
+        putFrames(nd.translation, node.translation, animStart, animEnd, scale);
+        putFrames(nd.scaling    , node.scaling    , animStart, animEnd, scale);
         anim.nodeAnimations.add(nd);
-        maxFrames = Nums.max(maxFrames, numFrames);
+        
+        /*
+        if (nd.rotation.size == 0) continue;
+        I.say("  Scaled frames are: ");
+        for (ModelNodeKeyframe frame : nd.rotation) {
+          I.say("    : "+frame.keytime);
+        }
+        I.say("  Done");
+        //*/
       }
       
       if (verbose) {
         I.say("  Adding animation with name: "+name);
         I.say("  Start/end:                  "+animStart+"/"+animEnd);
-        I.say("  Total frames:               "+maxFrames);
       }
       data.animations.add(anim);
+    }
+  }
+  
+  
+  private void putFrames(
+    Array <?> newFrames, Array <?> oldFrames,
+    float animStart, float animEnd, float scale
+  ) {
+    if (oldFrames == null) return;
+    float lastTime = Float.NEGATIVE_INFINITY;
+    
+    for (ModelNodeKeyframe frame : (Array <ModelNodeKeyframe>) oldFrames) {
+      
+      if (frame.keytime >= animStart && frame.keytime <= animEnd) {
+        // trimming the beginning and scaling
+        ModelNodeKeyframe copy = new ModelNodeKeyframe();
+        copy.keytime = frame.keytime - animStart;
+        copy.keytime *= scale;
+        copy.value   = frame.value;
+        ((Array) newFrames).add(copy);
+        
+        if (frame.keytime < lastTime) {
+          I.say("PROBLEM!");
+        }
+        lastTime = frame.keytime;
+      }
     }
   }
   
@@ -401,16 +450,13 @@ public class MS3DModel extends SolidModel {
       parent.children[parent.children.length - 1] = child;
     }
   }
-  
-  
-  private static ModelNodeKeyframe copy(ModelNodeKeyframe frame) {
-    ModelNodeKeyframe kf = new ModelNodeKeyframe();
-    kf.keytime = frame.keytime;
-    kf.rotation = frame.rotation.cpy();
-    // kf.scale = frame.scale.cpy();
-    kf.translation = frame.translation.cpy();
-    return kf;
-  }
 }
+
+
+
+
+
+
+
 
 

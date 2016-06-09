@@ -6,12 +6,12 @@
 
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
-//import stratos.start.PlayLoop;
 import stratos.util.*;
+import static stratos.graphics.common.Colour.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.Vector2;
-import static stratos.graphics.common.Colour.*;
+
 
 
 

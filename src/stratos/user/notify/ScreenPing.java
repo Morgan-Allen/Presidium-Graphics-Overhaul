@@ -83,11 +83,12 @@ public class ScreenPing extends UIGroup {
   
   
   protected void updateState() {
+    float slowFadeInc = 1f / (1 * UI.rendering.frameRate());
     
-    timeActive += SLOW_FADE_INC;
+    timeActive += slowFadeInc;
     final float time = timeActive % 1;
     final float alpha = 4 * time * (1 - time);
-    if (timeActive > lifespan && time < SLOW_FADE_INC) { detach(); return; }
+    if (timeActive > lifespan && time < slowFadeInc) { detach(); return; }
     
     final float centreSize = (1 + time) * baseSize / 2;
     centre.alignHorizontal(0, centreSize, 0);

@@ -141,7 +141,7 @@ public class SkinsPreview extends VisualDebug {
   }
   
   
-  protected void onRendering(Sprite sprite) {
+  protected void onRendering(Sprite sprite, Rendering rendering) {
     final float duration = currentAnim == null || currentModel == null ? 0 :
       currentModel.defaultAnimDuration(currentAnim)
     ;

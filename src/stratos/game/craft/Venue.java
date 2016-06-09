@@ -63,7 +63,7 @@ public abstract class Venue extends Fixture implements
   private int facing = FACE_INIT;
   
   protected BuildingSprite buildSprite;
-  final public TalkFX chat = new TalkFX();
+  final public TalkFX chat = ActorAssets.TALK_MODEL.makeSprite();
   private int nameID = -2;
   
   
@@ -628,10 +628,10 @@ public abstract class Venue extends Fixture implements
   
   protected void toggleStatusDisplay() {
     final boolean showBurn = structure.burning();
-    buildSprite.toggleFX(BuildingSprite.BLAST_MODEL, showBurn);
-    toggleStatusFor(ATMO , BuildingSprite.ATMO_MODEL );
-    toggleStatusFor(POWER, BuildingSprite.POWER_MODEL);
-    toggleStatusFor(WATER, BuildingSprite.WATER_MODEL);
+    buildSprite.toggleFX(VenueAssets.BLAST_MODEL, showBurn);
+    toggleStatusFor(ATMO , VenueAssets.ATMO_MODEL );
+    toggleStatusFor(POWER, VenueAssets.POWER_MODEL);
+    toggleStatusFor(WATER, VenueAssets.WATER_MODEL);
   }
   
   
@@ -727,11 +727,16 @@ public abstract class Venue extends Fixture implements
     //
     //  (Note- see flagSpriteForChange in the Repairs class.)
     position(buildSprite.position);
+    
+    //String animState = BuildingSprite.STATE_FOUNDING;
+    //buildSprite.setAnimation(animState, structure.repairLevel(), false);
+    //*
     buildSprite.updateCondition(
       structure.repairLevel(),
       structure.intact     (),
       structure.burning    ()
     );
+    
     if (buildSprite.flagChange) {
       final Tile o = origin();
       final boolean map[][] = new boolean[size][size];
@@ -740,6 +745,7 @@ public abstract class Venue extends Fixture implements
       }
       buildSprite.toggleFoundation(map);
     }
+    //*/
     
     buildSprite.passType = Sprite.PASS_NORMAL;
     super.renderFor(rendering, base);
@@ -757,6 +763,9 @@ public abstract class Venue extends Fixture implements
       super.attachSprite(null);
     }
     else {
+      //  TODO:  Problem.  BuildingSprites need a dedicated model now- and not
+      //  all the art will accomodate that.  Shoot.
+      
       buildSprite = BuildingSprite.fromBase(sprite, size, high);
       super.attachSprite(buildSprite);
     }
@@ -809,7 +818,7 @@ public abstract class Venue extends Fixture implements
     }
     //
     //  And then the name-label:
-    final Label label = new Label();
+    final Label label = ActorAssets.LABEL_MODEL.makeSprite();
     label.matchTo(buildSprite);
     label.position.z += (zoff += 0.1f);
     label.phrase = this.fullName();

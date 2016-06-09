@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.solids;
-
 import stratos.graphics.common.*;
 import stratos.util.*;
 
@@ -13,11 +12,7 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.math.*;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.io.*;
 
 
 
@@ -25,8 +20,8 @@ public class SolidSprite extends Sprite {
   
   
   final static float
-    ANIM_INTRO_TIME    = 0.2f,
-    ANIM_TIME_ENDPOINT = 0.9f;
+    ANIM_INTRO_TIME    = 0.20f,
+    ANIM_TIME_ENDPOINT = 0.99f;
   
   private static boolean verbose = false;
   
@@ -90,7 +85,7 @@ public class SolidSprite extends Sprite {
     final float AT = Rendering.activeTime();
     for (int n = in.read(); n-- > 0;) {
       final AnimState state = new AnimState();
-      state.anim = model.gdxModel.animations.get(in.readInt());
+      state.anim    = model.gdxModel.animations.get(in.readInt());
       state.time    = in.readFloat();
       state.incept  = AT - in.readFloat();
       animStates.add(state);
@@ -106,7 +101,7 @@ public class SolidSprite extends Sprite {
     transform.scl(tempV.set(scale, scale, scale));
     
     final float radians = Nums.toRadians(model.rotateOffset - rotation);
-    transform.rot(Vector3.Y, radians);
+    transform.rotate(Vector3.Y, radians);
     
     model.animControl.begin(this);
     if (animStates.size() > 0) {
@@ -128,17 +123,40 @@ public class SolidSprite extends Sprite {
     //  visited before children, allowing a single pass-
     for (int i = 0; i < model.allNodes.length; i++) {
       final Node node = model.allNodes[i];
-      if (node.parent == null) {
+      if (! node.hasParent()) {
         boneTransforms[i].setToTranslation(node.translation);
         boneTransforms[i].scl(node.scale);
         continue;
       }
-      final Matrix4 parentTransform = boneFor(node.parent);
+      final Matrix4 parentTransform = boneFor(node.getParent());
       tempM.set(parentTransform).mul(boneTransforms[i]);
       boneTransforms[i].set(tempM);
     }
     
     rendering.solidsPass.register(this);
+  }
+  
+  
+  public void setAnimation(String id, float progress, boolean loop) {
+    Animation match = model.gdxModel.getAnimation(id);
+    if (match == null) return;
+    
+    AnimState topState = animStates.last();
+    if (topState == null || match != topState.anim) {
+      topState        = new AnimState();
+      topState.anim   = match;
+      topState.incept = Rendering.activeTime();
+      animStates.addLast(topState);
+    }
+    
+    if (loop) {
+      progress = Nums.clamp(progress, 0, ANIM_TIME_ENDPOINT);
+      topState.time = progress * match.duration;
+    }
+    else {
+      final float minTime = progress * match.duration;
+      if (minTime > topState.time) topState.time = minTime;
+    }
   }
   
   
@@ -196,8 +214,8 @@ public class SolidSprite extends Sprite {
       p.mesh = part.meshPart.mesh;
       p.meshBones = boneSet;
       p.meshType  = part.meshPart.primitiveType;
-      p.meshIndex = part.meshPart.indexOffset;
-      p.meshVerts = part.meshPart.numVertices;
+      p.meshIndex = part.meshPart.offset;// .indexOffset;
+      p.meshVerts = part.meshPart.size;// .numVertices;
       allParts.add(p);
     }
   }
@@ -209,39 +227,6 @@ public class SolidSprite extends Sprite {
   }
   
   
-  public void setAnimation(String id, float progress, boolean loop) {
-    Animation match = model.gdxModel.getAnimation(id);
-    if (match == null) return;
-    //
-    //  We add a new animation state if either (A) the current stack of states
-    //  is empty, (B) the animation has been changed, or (C) if the current
-    //  animation state is approaching it's expiration date.
-    AnimState topState = animStates.last();
-    boolean newState = topState == null || topState.anim != match;
-    if (loop && ! newState) {
-      final float timeLive = Rendering.activeTime() - topState.incept;
-      final float timeLimit = match.duration * ANIM_TIME_ENDPOINT;
-      if (timeLive > timeLimit) newState = true;
-    }
-    //
-    //  If a new state is required, manufacture it.  Either way, update the
-    //  current state based on the progress argument given-
-    if (newState) {
-      topState        = new AnimState();
-      topState.anim   = match;
-      topState.incept = Rendering.activeTime();
-      animStates.addLast(topState);
-    }
-    if (loop) {
-      topState.time = progress * match.duration;
-    }
-    else {
-      final float minTime = progress * match.duration;
-      if (minTime > topState.time) topState.time = minTime;
-    }
-  }
-  
-  
   
   /**  Customising appearance (toggling parts, adding skins)-
     */
@@ -250,29 +235,10 @@ public class SolidSprite extends Sprite {
     if (match == null) return;
     final Material base = match.material;
     final Material overlay = new Material(base);
-    
-    setTextureAndOverlays(overlay, skins);
-    
+    overlay.set(new OverlayAttribute(skins));
     this.materials[model.indexFor(base)] = overlay;
   }
   
-  
-  private <T> void removeAttributesOfType(Material mat, Class type) {
-	  for (Iterator<?> it = mat.iterator(); it.hasNext(); )
-	    if (it.next().getClass() == type)
-        it.remove();
-  }
-  
-  
-  private void setTextureAndOverlays(Material mat, Texture... textures) {
-    removeAttributesOfType(mat, TextureAttribute.class);
-    if (textures.length > 0) {
-      mat.set(TextureAttribute.createDiffuse(textures[0]));
-    }
-    Texture[] overlay = Arrays.copyOfRange(textures, 1, textures.length);
-    mat.set(new OverlayAttribute(overlay));
-  }
-  	
   
   private Material currentOverlay(String partName) {
     final String ID = model.materialID(partName);

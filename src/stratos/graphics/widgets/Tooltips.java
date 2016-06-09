@@ -1,12 +1,15 @@
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
-import stratos.user.UIConstants;
 import stratos.util.*;
 
 import com.badlogic.gdx.math.*;
+
 
 
 
@@ -14,7 +17,7 @@ public class Tooltips extends UIGroup {
 
   
   final public static ImageAsset TIPS_TEX = ImageAsset.fromImage(
-    UIConstants.class, "tooltips_tips_frame", "media/GUI/tips_frame.png"
+    Tooltips.class, "tooltips_tips_frame", "media/GUI/tips_frame.png"
   );
   //  TODO:  Pass in the texture as a parameter.
   
@@ -22,7 +25,7 @@ public class Tooltips extends UIGroup {
   Text infoText;
   
   
-  public Tooltips(HUD UI) {
+  public Tooltips(HUD UI, Alphabet font) {
     super(UI);
     bordering = new Bordering(UI, TIPS_TEX);
     bordering.relBound.set(0, 0, 1, 1);
@@ -30,7 +33,7 @@ public class Tooltips extends UIGroup {
     bordering.left   = bordering.right = 10;
     bordering.bottom = bordering.top   = 10;
     bordering.attachTo(this);
-    infoText = new Text(UI, UIConstants.INFO_FONT);
+    infoText = new Text(UI, font);
     infoText.scale = 0.75f;
     infoText.attachTo(this);
   }

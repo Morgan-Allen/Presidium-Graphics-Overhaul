@@ -122,7 +122,7 @@ public class DebugGraphics {
         BS.toggleFX(BuildingSprite.BLAST_MODEL, true);
         sprites.add(BS);
         //*/
-        
+        /*
         final TalkFX FX1 = new TalkFX() {
           int count = 0;
           public void readyFor(Rendering r) {
@@ -150,6 +150,7 @@ public class DebugGraphics {
         FX2.scale = 1.5f;
         FX2.position.set(-2, 2, 0);
         //sprites.add(FX2);
+        //*/
         
         final ShotFX FX3 = new ShotFX(FM) {
           float lastTime = 0;
@@ -171,7 +172,7 @@ public class DebugGraphics {
       }
 
 
-      protected void onRendering(Sprite sprite) {
+      protected void onRendering(Sprite sprite, Rendering rendering) {
         if (sprite.model() == CM) {
           final float f = sprite.fog, a = f * (1 - f) * 4;
           sprite.colour = Colour.transparency(a);
@@ -184,7 +185,7 @@ public class DebugGraphics {
           //sprite.rotation += 120 / Rendering.FRAMES_PER_SECOND;
         }
         if (sprite.model() == HUMAN_MODEL) {
-          sprite.rotation += 120 / Rendering.FRAMES_PER_SECOND;
+          sprite.rotation += 120 / rendering.frameRate();
         }
       }
     };

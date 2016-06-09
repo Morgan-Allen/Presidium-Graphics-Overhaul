@@ -4,14 +4,12 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.widgets;
+import stratos.start.*;
 import stratos.graphics.common.*;
-import stratos.start.Assets;
-import stratos.user.Selectable;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Pixmap.*;
-
 import static com.badlogic.gdx.graphics.Texture.TextureFilter.*;
 
 
@@ -35,7 +33,7 @@ public class Composite {
   final static Assets.Loadable DISPOSAL = new Assets.Loadable(
     "COMPOSITE_DISPOSAL", Composite.class, true
   ) {
-    protected State loadAsset() { return State.LOADED; }
+    protected State loadAsset() { return state = State.LOADED; }
     public boolean stateLoaded() { return true; }
     
     protected State disposeAsset() {

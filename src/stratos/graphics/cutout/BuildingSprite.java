@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.*;
 
 
 
+
 public class BuildingSprite extends Sprite implements TileConstants {
   
   
@@ -96,6 +97,11 @@ public class BuildingSprite extends Sprite implements TileConstants {
   
   public ModelAsset model() {
     return BUILDING_MODEL;
+  }
+  
+  
+  public ModelAsset defaultModel() {
+    return baseSprite.model();
   }
   
 
@@ -416,7 +422,7 @@ public class BuildingSprite extends Sprite implements TileConstants {
       return;
     }
     if (match == null) {
-      match = new ItemStack(itemModel);
+      match = new ItemStack(itemModel, CRATE_MODEL);
       allStacks.attach(match, xoff, yoff, zoff);
     }
     match.updateAmount((int) amount);

@@ -233,14 +233,16 @@ public class TerrainGen implements TileConstants {
       final float
         sampleX = Nums.clamp(c.x + blendsX[XBI][c.y], 0, mapSize - 1),
         sampleY = Nums.clamp(c.y + blendsY[YBI][c.x], 0, mapSize - 1);
-      float sum = Nums.sampleMap(mapSize, sectorVal, sampleX, sampleY);
+      float sum = Nums.sampleMap(mapSize, mapSize, sectorVal, sampleX, sampleY);
       
       Habitat under = habitats[Nums.clamp((int) sum, habitats.length)];
       if (! under.pathClear) {
         typeIndex[c.x][c.y] = (byte) under.layerID;
       }
       else {
-        float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
+        float detail = Nums.sampleMap(
+          mapSize, mapSize, detailGrid, c.x, c.y
+        ) / 10f;
         sum += detail * detail * 2;
         under = habitats[Nums.clamp((int) sum, habitats.length)];
         typeIndex[c.x][c.y] = (byte) under.layerID;
@@ -262,7 +264,9 @@ public class TerrainGen implements TileConstants {
     for (Coord c : Visit.grid(0, 0, mapSize, mapSize, 1)) {
       final byte type = typeIndex[c.x][c.y];
       if (type >= shallID) continue;
-      float detail = Nums.sampleMap(mapSize, detailGrid, c.x, c.y) / 10f;
+      float detail = Nums.sampleMap(
+        mapSize, mapSize, detailGrid, c.x, c.y
+      ) / 10f;
       detail *= detail * 1.5f;
       typeIndex[c.x][c.y] = (byte) (((detail * detail) > 0.25f) ?
         shallID : oceanID

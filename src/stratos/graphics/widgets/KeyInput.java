@@ -3,12 +3,11 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-package stratos.graphics.widgets;
 
+package stratos.graphics.widgets;
 import stratos.util.*;
+
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.input.*;
 
 
 

@@ -10,12 +10,7 @@ import stratos.util.*;
 
 
 
-//  TODO:  You'll want to be able to display a fatigue component as well, and
-//  maybe tint the bar green/yellow to indicate poison?
-
-
 public class Healthbar extends SFX {
-  
   
   
   /**  Constants, field definitions, constructors and save/load methods-
@@ -68,13 +63,14 @@ public class Healthbar extends SFX {
   private void doRendering(SFXPass passS, WidgetsPass passW, UINode basis) {
     
     //  First, establish screen coordinates for the bottom-left corner.
-    final int x, y; final float z;
+    final int x, y; final float z; int frameRate;
     final boolean widget = passW != null && basis != null;
     if (widget) {
       x    = (int)  basis.xpos();
       y    = (int) (basis.ypos() + (basis.ydim() / 2));
       size = (int)  basis.xdim();
       z    =        basis.absDepth;
+      frameRate = passW.rendering.frameRate();
     }
     else {
       final Vec3D base = new Vec3D().setTo(position);
@@ -82,6 +78,7 @@ public class Healthbar extends SFX {
       x = (int) (base.x - (size / 2));
       y = (int) (base.y + yoff - (BAR_HEIGHT / 2));
       z = base.z;
+      frameRate = passS.rendering.frameRate();
     }
     
     //  Then, establish correct colours for the fill, back, and warning-
@@ -94,7 +91,7 @@ public class Healthbar extends SFX {
     //  When in alarm mode, you need to flash-
     if (alarm) {
       final float urgency = hurtLevel * 2;
-      flashTime += ((urgency / Rendering.FRAMES_PER_SECOND) * Nums.PI / 2f);
+      flashTime += ((urgency / frameRate) * Nums.PI / 2f);
       flashTime %= (Nums.PI * 2);
       
       Colour flash = new Colour(this.flash);
@@ -112,7 +109,6 @@ public class Healthbar extends SFX {
     if (fillLevel > 0) {
       float across = size * fillLevel;
       Colour mix = new Colour(colour);
-      mix.blend(flash, (1 - fillLevel));
       mix.calcFloatBits();
       renderPortion(mix, blank, x, y, across, z, passS, passW, basis, widget);
     }

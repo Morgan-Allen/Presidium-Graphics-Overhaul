@@ -5,9 +5,10 @@
   */
 
 package stratos.graphics.widgets;
-import stratos.graphics.common.*;
 import stratos.util.*;
 import com.badlogic.gdx.graphics.*;
+
+import stratos.graphics.common.*;
 
 
 

@@ -45,8 +45,8 @@ public abstract class Actor extends Mobile implements
   
   private Sprite disguise;
   final public Healthbar healthbar = new Healthbar();
-  final public Label     label     = new Label    ();
-  final public TalkFX    chat      = new TalkFX   ();
+  final public Label     label     = ActorAssets.LABEL_MODEL.makeSprite();
+  final public TalkFX    chat      = ActorAssets.TALK_MODEL .makeSprite();
   private Stack <Sprite> statusFX = null;
   
   

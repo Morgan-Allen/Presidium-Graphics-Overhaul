@@ -172,7 +172,7 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
     if (numUpdates % 10 != 0) return;
     //
     //  Check to see if facing needs to be changed-
-    final Object  oldModel = buildSprite.baseSprite().model();
+    final Object  oldModel = buildSprite.defaultModel();
     final Object  model    = faceModel(origin(), null);
     final Upgrade FC       = Structure.FACING_CHANGE;
     boolean canChange = false;
@@ -249,7 +249,7 @@ public class ServiceHatch extends Venue implements EntryPoints.Portal {
     */
   public String fullName() {
     if (inWorld()) {
-      final Object model = buildSprite.baseSprite().model();
+      final Object model = buildSprite.defaultModel();
       if (model == HUB_MODEL) return "Service Hatch";
     }
     return super.fullName();

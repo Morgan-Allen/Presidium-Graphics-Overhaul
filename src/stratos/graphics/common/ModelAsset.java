@@ -4,10 +4,10 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.common;
-import java.io.*;
-
-import stratos.start.Assets;
+import stratos.start.*;
 import stratos.util.*;
+
+import java.io.*;
 
 
 //
@@ -23,7 +23,7 @@ import stratos.util.*;
 public abstract class ModelAsset extends Assets.Loadable {
   
   
-  protected ModelAsset(String modelName, Class sourceClass) {
+  protected ModelAsset(Class sourceClass, String modelName) {
     super(modelName, sourceClass, false);
   }
   

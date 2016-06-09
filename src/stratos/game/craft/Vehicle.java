@@ -55,7 +55,7 @@ public abstract class Vehicle extends Mobile implements
   protected float entranceFace = Venue.FACE_NONE;
   protected Boarding dropPoint;
   
-  final TalkFX chat = new TalkFX();
+  final TalkFX chat = ActorAssets.TALK_MODEL.makeSprite();
   
   
   public Vehicle() {

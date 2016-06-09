@@ -4,10 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.terrain;
+import stratos.start.*;
 import stratos.graphics.common.*;
-import stratos.start.Assets;
 import stratos.util.*;
-import static stratos.graphics.common.GL.*;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -67,13 +66,13 @@ public class Minimap extends Assets.Loadable {
         Mesh.VertexDataType.VertexArray,
         false, 4, 6,
         VertexAttribute.Position(),
-        VertexAttribute.Color(),
+        VertexAttribute.ColorPacked(),
         VertexAttribute.TexCoords(0)
       );
       mapMesh.setIndices(new short[] {0, 1, 2, 2, 3, 0 });
       shading = new ShaderProgram(
-        Gdx.files.internal("shaders/minimap.vert"),
-        Gdx.files.internal("shaders/minimap.frag")
+        Gdx.files.internal("stratos/graphics/shaders/minimap.vert"),
+        Gdx.files.internal("stratos/graphics/shaders/minimap.frag")
       );
       if (! shading.isCompiled()) {
         throw new GdxRuntimeException("\n"+shading.getLog());
@@ -110,7 +109,7 @@ public class Minimap extends Assets.Loadable {
   
   
   protected State disposeAsset() {
-    if (! stateLoaded()) return State.ERROR;
+    if (! stateLoaded()) return state = State.ERROR;
     if (mapImage != null) mapImage.dispose();
     if (mapMesh  != null) mapMesh .dispose();
     if (shading  != null) shading .dispose();
@@ -172,10 +171,10 @@ public class Minimap extends Assets.Loadable {
     
     if (fogApplied != null) {
       fogApplied.applyToMinimap(shading);
-      shading.setUniformi("u_fogFlag", GL_TRUE);
+      shading.setUniformi("u_fogFlag", GL20.GL_TRUE);
     }
     else {
-      shading.setUniformi("u_fogFlag", GL_FALSE);
+      shading.setUniformi("u_fogFlag", GL20.GL_FALSE);
     }
     
     mapImage.bind(0);

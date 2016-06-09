@@ -58,11 +58,10 @@ public class TerrainChunk implements TileConstants {
     //  associated UV fringing, based on the position of any adjacent tiles
     //  with the same layer assignment.
     final Batch <Vec3D  > offsBatch = new Batch();
-    final Batch <Integer> faceBatch = new Batch();
     final Batch <float[]> textBatch = new Batch();
     
     for (Coord c : Visit.grid(gridX, gridY, width, height, 1)) try {
-      layer.addFringes(c.x, c.y, belongs, offsBatch, faceBatch, textBatch);
+      layer.addFringes(c.x, c.y, belongs, offsBatch, textBatch);
     } catch (Exception e) {}
     //
     //  We then create a new Stitching (with the default sequence of position/
@@ -73,14 +72,12 @@ public class TerrainChunk implements TileConstants {
     
     final Iterator
       iterO = offsBatch.iterator(),
-      iterF = faceBatch.iterator(),
       iterG = textBatch.iterator();
     Vec3D pos = new Vec3D(), norm = new Vec3D();
     float texU, texV;
     
     for (int n = 0; n < numTiles; n++) {
       final Vec3D coord  = (Vec3D  ) iterO.next();
-      final int   facing = (Integer) iterF.next();
       final float geom[] = (float[]) iterG.next();
       final float VP[]   = LayerPattern.VERT_PATTERN;
       
@@ -88,34 +85,15 @@ public class TerrainChunk implements TileConstants {
         final int
           xoff = (int) VP[p + 0],
           yoff = (int) VP[p + 1],
-          hX   = (int) (coord.x * 2),
-          hY   = (int) (coord.y * 2),
+          hX   = (int) (coord.x + xoff),
+          hY   = (int) (coord.y + yoff),
           high;
-        //
-        //  In the case of cliff-segments, we flip the section on it's side,
-        //  rotate to face an adjacent tile as required, and sample height from
-        //  the edges of said tile.
-        if (facing != -1) {
-          pos.set(xoff - 0.5f, yoff - 0.5f, - 0.5f);
-          norm.set(0, 0, 1);
-          ROTATE_Y.trans(pos );
-          ROTATE_Y.trans(norm);
-          Z_ROTATIONS[facing].trans(pos );
-          Z_ROTATIONS[facing].trans(norm);
-          final int
-            faceX = (pos.x > 0 ? 1 : 0) + T_X[facing * 2],
-            faceY = (pos.y > 0 ? 1 : 0) + T_Y[facing * 2];
-          high = belongs.heightVals[hX + faceX][hY + faceY];
-          pos.z -= 0.5f;
-        }
         //
         //  In the case of normal tiles, we compose normals based on slope
         //  between adjoining tiles and sample within the same tile.
-        else {
-          pos.set(xoff - 0.5f, yoff - 0.5f, 0);
-          putCornerNormal(hX + xoff, hY + yoff, norm);
-          high = belongs.heightVals[hX + xoff][hY + yoff];
-        }
+        pos.set(xoff, yoff, 0);
+        putCornerNormal(hX, hY, norm);
+        high = belongs.heightVals[hX][hY];
         //
         //  Then stitch the results together for later rendering...
         pos.add(coord);
@@ -132,35 +110,17 @@ public class TerrainChunk implements TileConstants {
   
   private Vec3D putCornerNormal(int x, int y, Vec3D norm) {
     //
-    //  We determine the grid-coordinates of the tile and the relative offset
-    //  of this corner first (the height-map has a 2x2:1x1 resolution)
-    final boolean
-      xUp = x % 2 == 1,
-      yUp = y % 2 == 1;
-    final int
-      tX = (x / 2) * 2,
-      tY = (y / 2) * 2;
-    //
-    //  We measure the slope across the x and y axis, and determine if the
-    //  edges are flush with adjacent tiles.
-    float sX = diff(tX, y, 1, 0);
-    float sY = diff(x, tY, 0, 1);
-    final boolean
-      joinX = diff(x, y, xUp ? 1 : -1, 0) == 0,
-      joinY = diff(x, y, 0, yUp ? 1 : -1) == 0;
-    //
     //  If the corner is perfectly adjoined across the border, we average the
     //  measured slope over the adjacent tile (with greater weight given to
     //  the origin.)
+    float sX = 0, sY = 0;
     final float mixWeight = 0.4f;
-    if (joinX) {
-      sX += diff(tX + (xUp ? 2 : -2), y, 1, 0) * mixWeight;
-      sX /= 1 + mixWeight;
-    }
-    if (joinY) {
-      sY += diff(x, tY + (yUp ? 2 : -2), 0, 1) * mixWeight;
-      sY /= 1 + mixWeight;
-    }
+    sX += diff(x, y,  1,  0) * mixWeight;
+    sX += diff(x, y, -1,  0) * mixWeight;
+    sY += diff(x, y,  0,  1) * mixWeight;
+    sY += diff(x, y,  0, -1) * mixWeight;
+    sX /= 1 + (mixWeight * 2);
+    sY /= 1 + (mixWeight * 2);
     //
     //  Then set the normal at 90 degrees to the slope, normalise and return.
     return norm.set(0 - sX, 0 - sY, 1).normalise();
@@ -168,7 +128,9 @@ public class TerrainChunk implements TileConstants {
   
   
   private int diff(int x, int y, int offX, int offY) {
-    return TerrainSet.heightDiff(belongs, x, y, offX, offY);
+    byte high = belongs.heightVals[x][y];
+    try { return high - belongs.heightVals[x + offX][y + offY]; }
+    catch (ArrayIndexOutOfBoundsException e) { return 0; }
   }
   
   

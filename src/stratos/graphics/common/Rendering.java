@@ -4,15 +4,17 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.common;
-import static stratos.graphics.common.GL.*;
+//import stratos.start.*;
+import stratos.util.*;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.*;
+
 import stratos.graphics.cutout.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.solids.*;
 import stratos.graphics.terrain.*;
 import stratos.graphics.widgets.*;
-import stratos.start.*;
-import stratos.util.*;
-import com.badlogic.gdx.graphics.*;
 
 
 
@@ -23,12 +25,11 @@ import com.badlogic.gdx.graphics.*;
 public class Rendering {
   
   
-  final public static int FRAMES_PER_SECOND = PlayLoop.FRAMES_PER_SECOND;
-  
   final public Viewport view;
   final public Lighting lighting;
   public Colour backColour = null, foreColour = null;
   
+  private int frameRate;
   private static float activeTime, frameAlpha;
   
   //  first terrain, then cutouts, then solids, then sfx, then the UI.
@@ -36,9 +37,7 @@ public class Rendering {
   final public SolidsPass  solidsPass ;
   final public CutoutsPass cutoutsPass;
   final public SFXPass     sfxPass    ;
-  
   final public WidgetsPass widgetsPass;
-  final public Fading fading;
   
   
   public Rendering() {
@@ -50,8 +49,6 @@ public class Rendering {
     cutoutsPass = new CutoutsPass(this);
     sfxPass     = new SFXPass    (this);
     widgetsPass = new WidgetsPass(this);
-    
-    fading = new Fading(this);
   }
   
   
@@ -68,6 +65,7 @@ public class Rendering {
   
   
   public Camera camera() { return view.camera; }
+  public int frameRate() { return frameRate; }
   public static float activeTime() { return activeTime; }
   public static float frameAlpha() { return frameAlpha; }
   
@@ -87,42 +85,43 @@ public class Rendering {
   }
   
   
-  public void renderDisplay() {
+  public void renderDisplay(int frameRate) {
+    this.frameRate = frameRate;
     ///I.say("World and frame time are:"+worldTime+"/"+frameTime);
     
-    glEnable(GL10.GL_DEPTH_TEST);
-    glDepthFunc(GL20.GL_LEQUAL);
-    glEnable(GL10.GL_BLEND);
-    glDepthMask(true);
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL10.GL_TEXTURE);
+    Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+    Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    Gdx.gl.glDepthMask(true);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    Gdx.gl.glEnable(GL20.GL_TEXTURE);
     final Colour BC = backColour == null ? Colour.DARK_GREY : backColour;
-    glClearColor(BC.r, BC.g, BC.b, BC.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Gdx.gl.glClearColor(BC.r, BC.g, BC.b, BC.a);
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
     
-    glEnable(GL10.GL_DEPTH_TEST);
-    glDepthMask(true);
+    Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+    Gdx.gl.glDepthMask(true);
     terrainPass.performPass();
     
-    glDisable(GL10.GL_DEPTH_TEST);
-    glDepthMask(false);
+    Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+    Gdx.gl.glDepthMask(false);
     cutoutsPass.performSplatPass();
-    glEnable(GL10.GL_DEPTH_TEST);
-    glDepthMask(true);
+    Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+    Gdx.gl.glDepthMask(true);
     terrainPass.performOverlayPass();
-    glClear(GL_DEPTH_BUFFER_BIT);
+    Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
     
     //  TODO:  Render transparent groups later.
-    glEnable(GL_CULL_FACE);
+    Gdx.gl.glEnable(GL20.GL_CULL_FACE);
     solidsPass.performPass();
-    glDisable(GL_CULL_FACE);
+    Gdx.gl.glDisable(GL20.GL_CULL_FACE);
     cutoutsPass.performNormalPass();
     
-    glDepthMask(false);
+    Gdx.gl.glDepthMask(false);
     sfxPass.performPass();
     
-    glDepthMask(true);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    Gdx.gl.glDepthMask(true);
+    Gdx.gl.glClear(GL20.GL_DEPTH_BUFFER_BIT);
     cutoutsPass.performPreviewPass();
   }
   
@@ -130,7 +129,6 @@ public class Rendering {
   public void renderUI(HUD UI) {
     widgetsPass.begin();
     if (UI != null) UI.renderHUD(this);
-    fading.applyTo(widgetsPass);
     widgetsPass.end();
   }
 }

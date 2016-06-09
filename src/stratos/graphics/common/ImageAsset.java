@@ -4,7 +4,7 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.common;
-import stratos.start.Assets;
+import stratos.start.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;

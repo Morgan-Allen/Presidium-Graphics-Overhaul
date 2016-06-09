@@ -7,7 +7,7 @@ package stratos.graphics.common;
 public abstract class ClassModel extends ModelAsset {
   
   public ClassModel(String modelName, Class sourceClass) {
-    super(modelName, sourceClass);
+    super(sourceClass, modelName);
   }
 
   public Object sortingKey() { return this; }
@@ -15,6 +15,6 @@ public abstract class ClassModel extends ModelAsset {
   public boolean stateLoaded  () { return true; }
   public boolean stateDisposed() { return true; }
   
-  protected State loadAsset   () { return State.LOADED  ; }
-  protected State disposeAsset() { return State.DISPOSED; }
+  protected State loadAsset   () { return state = State.LOADED  ; }
+  protected State disposeAsset() { return state = State.DISPOSED; }
 }

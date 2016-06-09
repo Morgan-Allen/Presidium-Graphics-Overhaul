@@ -24,7 +24,7 @@ public class SupplyCache extends Fixture implements Item.Dropped {
   );
   
   final Inventory stored = new Inventory(this);
-  private TalkFX chat = new TalkFX();
+  private TalkFX chat = ActorAssets.TALK_MODEL.makeSprite();
   
   
   protected SupplyCache(int size, int high, ModelAsset model) {

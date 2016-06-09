@@ -4,10 +4,11 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.sfx;
-import stratos.graphics.common.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
+
+import stratos.graphics.common.*;
 
 
 
@@ -51,7 +52,7 @@ public class PlaneFX extends SFX {
     
     
     private Model(String modelName, Class sourceClass) {
-      super(modelName, sourceClass);
+      super(sourceClass, modelName);
     }
     
     
@@ -81,7 +82,7 @@ public class PlaneFX extends SFX {
     }
     
     
-    public Sprite makeSprite() { return new PlaneFX(this); }
+    public PlaneFX makeSprite() { return new PlaneFX(this); }
     public Object sortingKey() { return texture; }
   }
   

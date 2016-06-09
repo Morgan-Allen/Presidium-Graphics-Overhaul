@@ -11,7 +11,8 @@ import stratos.graphics.solids.*;
 import stratos.graphics.widgets.*;
 import stratos.start.*;
 import stratos.util.*;
-import static stratos.graphics.common.GL.*;
+
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 
 
@@ -220,16 +221,16 @@ public class ChartUtils {
     //  rendering.)
     pass.end();
     
-    glEnable(GL10.GL_BLEND);
-    glDepthMask(true);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    Gdx.gl.glDepthMask(true);
     
     display.renderWith(
       pass.rendering, displayArea.trueBounds(), UIConstants.INFO_FONT
     );
     display.checkForAssetRefresh();
     
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(false);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    Gdx.gl.glDepthMask(false);
     
     pass.begin();
   }
@@ -243,14 +244,14 @@ public class ChartUtils {
     //  rendering.)
     pass.end();
     
-    glEnable(GL10.GL_BLEND);
-    glDepthMask(true);
+    Gdx.gl.glEnable(GL20.GL_BLEND);
+    Gdx.gl.glDepthMask(true);
     
     final Box2D fieldBounds = displayArea.trueBounds();
     field.renderWith(pass.rendering, fieldBounds, UIConstants.INFO_FONT);
     
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(false);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    Gdx.gl.glDepthMask(false);
     
     pass.begin();
   }

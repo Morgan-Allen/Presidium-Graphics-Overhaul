@@ -3,11 +3,13 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
+
 package stratos.graphics.sfx;
+import stratos.start.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-import stratos.start.*;
 import stratos.util.*;
+
 import java.io.*;
 
 
@@ -15,45 +17,85 @@ import java.io.*;
 public class TalkFX extends SFX {
   
   
-  
   /**  Field definitions, constants and constructors-
     */
-  final public static ModelAsset TALK_MODEL = new ClassModel(
-    "talk_fx_model", TalkFX.class
-  ) {
-    public Sprite makeSprite() { return new TalkFX(); }
-  };
-  final static ImageAsset BUBBLE_TEX = ImageAsset.fromImage(
-    TalkFX.class, "talk_fx_bubble_tex", "media/GUI/textBubble.png"
-  );
-  final static Alphabet FONT = Alphabet.loadAlphabet(
-    "media/GUI/", "FontVerdana.xml"
-  );
+  public static class TalkModel extends ModelAsset {
+    
+    final ImageAsset bubbleTex;
+    final Alphabet font;
+    
+    
+    public TalkModel(
+      String modelName, Class sourceClass,
+      String assetsDir, String fontFile, String bubbleFile
+    ) {
+      super(sourceClass, modelName);
+      this.bubbleTex = ImageAsset.fromImage(
+        sourceClass, modelName+"_bubble_tex", assetsDir+bubbleFile
+      );
+      this.font = Alphabet.loadAlphabet(
+        sourceClass, modelName+"_font_asset", assetsDir, fontFile
+      );
+    }
+
+
+    public Object sortingKey() {
+      return this;
+    }
+    
+    
+    public TalkFX makeSprite() {
+      return new TalkFX(this);
+    }
+    
+    
+    protected State loadAsset() {
+      Assets.loadNow(bubbleTex);
+      Assets.loadNow(font     );
+      if (bubbleTex.stateLoaded() && font.stateLoaded()) {
+        return state = State.LOADED;
+      }
+      else return state = State.ERROR;
+    }
+    
+    
+    protected State disposeAsset() {
+      Assets.disposeOf(bubbleTex);
+      Assets.disposeOf(font     );
+      if (bubbleTex.stateDisposed() && font.stateDisposed()) {
+        return state = State.DISPOSED;
+      }
+      else return state = State.ERROR;
+    }
+  }
+  
+  
   
   final public static int
-    MAX_LINES = 3,
+    MAX_LINES  = 3,
     NOT_SPOKEN = 0,
     FROM_LEFT  = 1,
     FROM_RIGHT = 2;
   final static float
-    FADE_TIME  = 0.5f,
-    FADE_RATE  = 1f / (Rendering.FRAMES_PER_SECOND * FADE_TIME);
+    FADE_TIME  = 0.5f;
   
+  final TalkModel model;
   public float fadeRate = 1.0f;
   final float LINE_HIGH, LINE_SPACE;
   final Stack <Bubble> toShow  = new Stack <Bubble> ();
   final Stack <Bubble> showing = new Stack <Bubble> ();
   
   
-  public TalkFX() {
+  TalkFX(TalkModel model) {
     super(PRIORITY_FIRST);
-    LINE_HIGH = FONT.letterFor(' ').height;
+    this.model = model;
+    LINE_HIGH  = model.font.letterFor(' ').height;
     LINE_SPACE = LINE_HIGH + 10;
   }
   
   
   public ModelAsset model() {
-    return TALK_MODEL;
+    return model;
   }
   
   
@@ -119,44 +161,50 @@ public class TalkFX extends SFX {
   
   public void addPhrase(String phrase, int bubbleType) {
     final Bubble b = new Bubble();
-    if (! PlayLoop.rendering().view.intersects(position, 1)) return;
     
     if (phrase == null) I.complain("\nCANNOT ADD NULL STRING AS PHRASE!");
     b.phrase  = phrase;
     b.type    = bubbleType;
     toShow.add(b);
+    updateShowList();
   }
   
   
   public void readyFor(Rendering rendering) {
-    //
-    //  If there are bubbles awaiting display, see if you can move the existing
-    //  bubbles up to make room.
-    final Bubble first = showing.first(); 
-    
-    final boolean
-      shouldMove = toShow.size() > 0,
-      canMove    = showing.size() == 0 || first.alpha() <= 1,
-      isSpace    = showing.size() == 0 || first.yoff >= LINE_SPACE;
-    
-    if (shouldMove && canMove) {
-      if (isSpace) {
+    updateShowList();
+    super.readyFor(rendering);
+  }
+  
+  
+  private void updateShowList() {
+    while (true) {
+      //
+      //  Gradually fade out existing bubbles-
+      for (Bubble b : showing) {
+        final float alpha = b.alpha();
+        if (b.alpha() <= 0) showing.remove(b);
+        else b.yoff = 5 + ((1 - alpha) * LINE_SPACE);
+      }
+      //
+      //  If there are bubbles awaiting display, see if you can move the
+      //  existing bubbles up to make room.
+      final Bubble first = showing.first();
+      final boolean
+        shouldMove = toShow.size() > 0,
+        canMove    = showing.size() == 0 || first.alpha() <= 1,
+        isSpace    = showing.size() == 0 || first.yoff >= LINE_SPACE;
+      
+      if (shouldMove && canMove && isSpace) {
         showBubble(toShow.removeFirst());
       }
-      else for (Bubble b : showing) {
-        b.yoff += FADE_RATE * fadeRate * LINE_SPACE;
-      }
+      else break;
     }
-    //
-    //  In either case, gradually fate out existing bubbles-
-    for (Bubble b : showing) if (b.alpha() <= 0) showing.remove(b);
-    super.readyFor(rendering);
   }
   
   
   private void showBubble(Bubble b) {
     final float fontScale = 1;
-    float width = Label.phraseWidth(b.phrase, FONT, fontScale);
+    float width = Label.phraseWidth(b.phrase, model.font, fontScale);
     //
     //  You also need to either left or right justify, depending on the bubble
     //  type.
@@ -183,7 +231,7 @@ public class TalkFX extends SFX {
     
     final Vec3D flatPoint = new Vec3D(position);
     pass.rendering.view.translateToScreen(flatPoint);
-    final float fontScale = LINE_HIGH / FONT.letterFor(' ').height;
+    final float fontScale = LINE_HIGH / model.font.letterFor(' ').height;
     
     for (Bubble bubble : showing) if (bubble.type != NOT_SPOKEN) {
       renderBubble(pass, bubble, flatPoint, bubble.type == FROM_RIGHT);
@@ -200,7 +248,7 @@ public class TalkFX extends SFX {
       c.a = alpha;
       
       Label.renderPhrase(
-        bubble.phrase, FONT, fontScale, c,
+        bubble.phrase, model.font, fontScale, c,
         flatPoint.x + bubble.xoff,
         flatPoint.y + bubble.yoff,
         flatPoint.z + 0.05f,
@@ -243,19 +291,19 @@ public class TalkFX extends SFX {
     //  Render the three segments of the bubble-
     final Colour colour = Colour.transparency(bubble.alpha());
     pass.compileQuad(
-      BUBBLE_TEX.asTexture(), colour,
+      model.bubbleTex.asTexture(), colour,
       false, minX, minY, capXL - minX,
       maxY - minY, MIN_U, BOT_V, CAP_LU,
       TOP_V, flatPoint.z, true
     );
     pass.compileQuad(
-      BUBBLE_TEX.asTexture(), colour,
+      model.bubbleTex.asTexture(), colour,
       false, capXL, minY, capXR - capXL,
       maxY - minY, CAP_LU, BOT_V, CAP_RU,
       TOP_V, flatPoint.z, true
     );
     pass.compileQuad(
-      BUBBLE_TEX.asTexture(), colour,
+      model.bubbleTex.asTexture(), colour,
       false, capXR, minY, maxX - capXR,
       maxY - minY, CAP_RU, BOT_V, MAX_U,
       TOP_V, flatPoint.z, true

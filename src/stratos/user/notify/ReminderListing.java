@@ -204,20 +204,24 @@ public class ReminderListing extends UIGroup {
     //  is in order-
     final int padding = 20;
     int down = 0;
+    
+    float slowFadeInc = 1f / (1 * UI.rendering.frameRate());
+    float defDriftRate = 60 * 1f / UI.rendering.frameRate();
+    
     for (Entry e : entries) {
       //
       //  Adjust the entry's transparency-
       if (e.active) {
-        e.fadeVal = Nums.clamp(e.fadeVal + SLOW_FADE_INC, 0, 1);
+        e.fadeVal = Nums.clamp(e.fadeVal + slowFadeInc, 0, 1);
       }
       else {
-        e.fadeVal = Nums.clamp(e.fadeVal - SLOW_FADE_INC, 0, 1);
+        e.fadeVal = Nums.clamp(e.fadeVal - slowFadeInc, 0, 1);
       }
       e.relAlpha = e.fadeVal;
       //
       //  Have it drift into the correct position-
       final float gap = down - e.down;
-      float drift = Nums.min(DEFAULT_DRIFT_RATE, Nums.abs(gap));
+      float drift = Nums.min(defDriftRate, Nums.abs(gap));
       if (gap == 0 || e.down == -1) e.down = down;
       else e.down += (gap > 0 ? 1 : -1) * drift;
       e.alignLeft(0           , e.wide);

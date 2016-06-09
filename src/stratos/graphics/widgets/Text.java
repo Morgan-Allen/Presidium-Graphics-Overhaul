@@ -6,7 +6,6 @@
   */
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
-import stratos.start.PlayLoop;
 import stratos.util.*;
 import stratos.graphics.widgets.Alphabet.Letter;
 
@@ -278,6 +277,22 @@ public class Text extends UIGroup implements Description {
   }
   
   
+  public static boolean appendColour(String s, Colour c, Description d) {
+    if (! (d instanceof Text)) return false;
+    final Text text = (Text) d;
+    text.append(s, c);
+    return true;
+  }
+  
+  
+  public static boolean appendColour(Clickable link, Colour c, Description d) {
+    if (! (d instanceof Text)) return false;
+    final Text text = (Text) d;
+    text.append(link, c);
+    return true;
+  }
+  
+  
   
   /**  Various overrides of UINode functionality-
     */
@@ -331,7 +346,7 @@ public class Text extends UIGroup implements Description {
     //  culling, we flush the pipeline of existing elements before and after,
     //  and set the bounds to fit.
     pass.flush();
-    Gdx.gl.glEnable(GL11.GL_SCISSOR_TEST);
+    Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
     Gdx.gl.glScissor((int) xpos(), (int) ypos(), (int) xdim(), (int) ydim());
     
     for (Box2D entry : allEntries) if (entry instanceof TextEntry) {
@@ -340,7 +355,7 @@ public class Text extends UIGroup implements Description {
     super.render(pass);
     
     pass.flush();
-    Gdx.gl.glDisable(GL11.GL_SCISSOR_TEST);
+    Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
   }
   
   

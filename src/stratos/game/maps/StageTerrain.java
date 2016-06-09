@@ -259,7 +259,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
   /**  Methods for handling elevation:
     */
   public float trueHeight(float x, float y) {
-    return Nums.sampleMap(mapSize, heightVals, x + 0.5f, y + 0.5f) / 4;
+    return Nums.sampleMap(mapSize, mapSize, heightVals, x + 0.5f, y + 0.5f) / 4;
   }
   
   
@@ -404,7 +404,7 @@ public class StageTerrain implements TileConstants, Session.Saveable {
     });
     
     meshSet = new TerrainSet(
-      mapSize, -1,
+      mapSize, mapSize, -1,
       typeIndex, varsIndex, heightVals,
       layers.toArray(LayerType.class)
     );

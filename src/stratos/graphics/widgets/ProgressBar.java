@@ -1,11 +1,14 @@
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 package stratos.graphics.widgets;
-import stratos.start.*;
 import stratos.graphics.common.*;
-import stratos.util.*;
 
 import com.badlogic.gdx.graphics.*;
+
 
 
 
@@ -24,7 +27,6 @@ public class ProgressBar extends UINode {
   
   public ProgressBar(HUD UI, String fillImage, String backImage) {
     super(UI);
-    if (! PlayLoop.onMainThread()) I.complain("ONLY DURING RENDER THREAD!");
     fillTex = ImageAsset.getTexture(fillImage);
     backTex = ImageAsset.getTexture(backImage);
     repeatWidth = fillTex.getWidth();

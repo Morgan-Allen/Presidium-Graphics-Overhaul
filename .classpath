@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-lwjgl-natives.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-backend-lwjgl.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-natives.jar"/>
-	<classpathentry kind="lib" path="libs/gdx-source.jar"/>
-	<classpathentry kind="lib" path="libs/gdx.jar" sourcepath="libs/gdx-source.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math3-3.2.jar"/>
+	<classpathentry kind="lib" path="lib/gdx-1.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/gdx-backend-lwjgl-1.9.3.jar"/>
+	<classpathentry kind="lib" path="lib/gdx-platform-1.9.3-natives-desktop.jar"/>
+	<classpathentry kind="lib" path="lib/jinput-2.0.5.jar"/>
+	<classpathentry kind="lib" path="lib/jinput-platform-2.0.5-natives-linux.jar"/>
+	<classpathentry kind="lib" path="lib/jinput-platform-2.0.5-natives-osx.jar"/>
+	<classpathentry kind="lib" path="lib/jinput-platform-2.0.5-natives-windows.jar"/>
+	<classpathentry kind="lib" path="lib/jlayer-1.0.1-gdx.jar"/>
+	<classpathentry kind="lib" path="lib/jorbis-0.0.17.jar"/>
+	<classpathentry kind="lib" path="lib/jutils-1.0.0.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl_util-2.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-2.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-platform-2.9.2-natives-linux.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-platform-2.9.2-natives-osx.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl-platform-2.9.2-natives-windows.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="libs/commons-math3-3.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

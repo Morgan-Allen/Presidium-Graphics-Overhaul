@@ -4,7 +4,6 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.solids;
-import stratos.graphics.common.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.*;
@@ -13,6 +12,8 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.*;
 import com.badlogic.gdx.utils.ObjectMap;
+
+import stratos.graphics.common.*;
 
 
 
@@ -36,7 +37,7 @@ public abstract class SolidModel extends ModelAsset {
   
   
   protected SolidModel(String modelName, Class sourceClass) {
-    super(modelName, sourceClass);
+    super(sourceClass, modelName);
   }
   
   
@@ -87,8 +88,9 @@ public abstract class SolidModel extends ModelAsset {
   ) {
     nodeB.add(node);
     if (verbose) {
+      final Node parent = node.getParent();
       I.say("Node is: "+node.id);
-      if (node.parent != null) I.say("  Parent is: "+node.parent.id);
+      if (parent != null) I.say("  Parent is: "+parent.id);
     }
     for (NodePart p : node.parts) {
       partB.add(p);
@@ -98,7 +100,7 @@ public abstract class SolidModel extends ModelAsset {
         I.say("  Material is: "+p.material.id);
       }
     }
-    for (Node n : node.children) compileFrom(n, nodeB, partB, matsB);
+    for (Node n : node.getChildren()) compileFrom(n, nodeB, partB, matsB);
   }
   
   

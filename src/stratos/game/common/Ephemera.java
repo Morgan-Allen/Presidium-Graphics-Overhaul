@@ -54,7 +54,7 @@ public class Ephemera {
     rendering.foreColour = null;
     if (fadeColour != null) {
       final Colour c = new Colour().set(fadeColour);
-      c.a -= 1f / Rendering.FRAMES_PER_SECOND;
+      c.a -= 1f / rendering.frameRate();
       if (c.a <= 0) fadeColour = null;
       else rendering.foreColour = fadeColour = c;
     }

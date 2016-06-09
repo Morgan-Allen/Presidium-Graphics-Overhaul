@@ -9,7 +9,6 @@ import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
 import stratos.util.*;
 
-import static stratos.graphics.common.GL.*;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.*;
@@ -68,6 +67,15 @@ public final class PlayLoop {
     noInput    = false;
   
   
+  final static String
+    TITLE_IMG_PATH     = "media/GUI/title_image.png",
+    BLANK_IMG_PATH     = "media/GUI/blank_back.png",
+    PROG_FILL_IMG_PATH = "media/GUI/prog_fill.png",
+    PROG_BACK_IMG_PATH = "media/GUI/prog_back.png";
+  
+  private static LoadingScreen loadScreen;
+  
+  
   
   /**  Returns the components of the current game state-
     */
@@ -104,8 +112,6 @@ public final class PlayLoop {
       config = new LwjglApplicationConfiguration()
     ;
     config.title = "Stratos";
-    config.useGL20      = true;
-    config.vSyncEnabled = true;
     config.width  = Nums.min(DEFAULT_WIDTH , SS.width  - 100);
     config.height = Nums.min(DEFAULT_HEIGHT, SS.height - 100);
     config.foregroundFPS = DEFAULT_HERTZ;
@@ -155,6 +161,7 @@ public final class PlayLoop {
           //
           //  NOTE:  We perform some extra diagnostic printouts here, since the
           //  GL context wasn't obtainable earlier:
+          /*
           I.say(
             "Please send me this info"+
             "\n--- GL INFO -----------"+
@@ -164,6 +171,7 @@ public final class PlayLoop {
             "\nGLSL_VERSION: "+glGetString(GL_SHADING_LANGUAGE_VERSION)+
             "\n-----------------------\n"
           );
+          //*/
           shouldLoop = true;
           initLoop();
         }
@@ -219,13 +227,22 @@ public final class PlayLoop {
   
   
   private static void initLoop() {
+    rendering = new Rendering();
+    
+    loadScreen = new LoadingScreen(
+      rendering,
+      TITLE_IMG_PATH,
+      BLANK_IMG_PATH,
+      PROG_FILL_IMG_PATH,
+      PROG_BACK_IMG_PATH
+    );
+    
     Assets.compileAssetList(
       initPackage, initClasses
     );
     for (String name : Assets.classesToLoad()) {
       Session.checkSaveable(name);
     }
-    rendering = new Rendering();
   }
   
   
@@ -276,11 +293,11 @@ public final class PlayLoop {
         I.say("  Loading progress: "+Assets.loadProgress());
       }
       
-      LoadingScreen.update("Loading Assets", Assets.loadProgress());
+      loadScreen.update("Loading Assets", Assets.loadProgress());
       Assets.advanceAssetLoading(FRAME_INTERVAL - (SLEEP_MARGIN * 2));
       
-      rendering.renderDisplay();
-      rendering.renderUI(LoadingScreen.HUD(rendering));
+      rendering.renderDisplay(FRAMES_PER_SECOND);
+      rendering.renderUI(loadScreen);
       return true;
     }
     
@@ -299,10 +316,10 @@ public final class PlayLoop {
         if (verbose) I.say("  Beginning simulation setup...");
         playing.beginGameSetup();
       }
-      LoadingScreen.update("Loading Simulation", playing.loadProgress());
+      loadScreen.update("Loading Simulation", playing.loadProgress());
       
-      rendering.renderDisplay();
-      rendering.renderUI(LoadingScreen.HUD(rendering));
+      rendering.renderDisplay(FRAMES_PER_SECOND);
+      rendering.renderUI(loadScreen);
       lastUpdate = lastFrame = time;
       return true;
     }
@@ -315,7 +332,7 @@ public final class PlayLoop {
       return true;
     }
     if (frameGap >= FRAME_INTERVAL || true) {
-      if (verbose) I.say("  Rendering graphics.");
+      if (verbose) I.say("  Rendering stratos.graphics.");
       
       if (playing != null) {
         playing.renderVisuals(rendering);
@@ -325,7 +342,7 @@ public final class PlayLoop {
         UI.updateInput();
         UI.renderWorldFX();
       }
-      rendering.renderDisplay();
+      rendering.renderDisplay(FRAMES_PER_SECOND);
       rendering.renderUI(UI);
       KeyInput.updateInputs();
       lastFrame = time;

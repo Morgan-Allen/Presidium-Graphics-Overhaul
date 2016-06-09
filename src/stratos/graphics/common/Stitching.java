@@ -159,7 +159,7 @@ public class Stitching {
     compiled.setIndices(indices);
     
     final int numIndices = (marker / pieceSize) * (useQuads ? 6 : 3);
-    compiled.render(shading, GL11.GL_TRIANGLES, 0, numIndices);
+    compiled.render(shading, GL20.GL_TRIANGLES, 0, numIndices);
     
     if (reset) reset();
   }

@@ -3,12 +3,15 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
+
 package stratos.graphics.widgets;
 import stratos.util.*;
 
 
 
-//  TODO:  Implement header and footer views, plus scrolling...
+//  TODO:  Implement header and footer views, plus scrolling.
+//  And maybe a horizontal layout?  With centering?
+
 
 
 public abstract class ListingPane extends UIGroup {

@@ -4,12 +4,13 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.charts;
+import stratos.start.*;
 import stratos.graphics.common.*;
 import stratos.graphics.sfx.*;
 import stratos.graphics.widgets.*;
-import stratos.start.Assets;
 import stratos.util.*;
-import static stratos.graphics.common.GL.*;
+
+import java.util.Random;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -19,7 +20,6 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.Texture.*;
 
-import java.util.Random;
 
 
 
@@ -68,8 +68,8 @@ public class StarField extends Assets.Loadable {
     );
     
     shading = new ShaderProgram(
-      Gdx.files.internal("shaders/stars.vert"),
-      Gdx.files.internal("shaders/stars.frag")
+      Gdx.files.internal("stratos/graphics/shaders/stars.vert"),
+      Gdx.files.internal("stratos/graphics/shaders/stars.frag")
     );
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog());
@@ -80,7 +80,7 @@ public class StarField extends Assets.Loadable {
   
   
   protected State disposeAsset() {
-    if (stateDisposed()) return State.ERROR;
+    if (stateDisposed()) return state = State.ERROR;
     shading.dispose();
     compiled.dispose();
     return state = State.DISPOSED;
@@ -255,8 +255,8 @@ public class StarField extends Assets.Loadable {
   ) {
     view.updateForWidget(bounds, fieldSize, rotation, elevation);
     
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
-    glDepthMask(false);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+    Gdx.gl.glDepthMask(false);
     
     shading.begin();
     shading.setUniformi("u_texture", 0);
@@ -301,7 +301,7 @@ public class StarField extends Assets.Loadable {
     //  Finally, we render selection on top of this-
     selectObject.texRegion.getTexture().bind(0);
     final Colour fade = new Colour();
-    final float alphaInc = 1f / Rendering.FRAMES_PER_SECOND;
+    final float alphaInc = 1f / rendering.frameRate();
     hoverAlpha  = Nums.clamp(hoverAlpha  + alphaInc, 0, 1);
     selectAlpha = Nums.clamp(selectAlpha + alphaInc, 0, 1);
     
@@ -335,10 +335,10 @@ public class StarField extends Assets.Loadable {
       h = object.fieldHigh * objectScale / SH;
     
     final TextureRegion r = object.texRegion;
-    appendVertex(piece, c, x - w, y - h, hue, r.u , r.v2);
-    appendVertex(piece, c, x - w, y + h, hue, r.u , r.v );
-    appendVertex(piece, c, x + w, y - h, hue, r.u2, r.v2);
-    appendVertex(piece, c, x + w, y + h, hue, r.u2, r.v );
+    appendVertex(piece, c, x - w, y - h, hue, r.getU() , r.getV2());
+    appendVertex(piece, c, x - w, y + h, hue, r.getU() , r.getV() );
+    appendVertex(piece, c, x + w, y - h, hue, r.getU2(), r.getV2());
+    appendVertex(piece, c, x + w, y + h, hue, r.getU2(), r.getV() );
   }
   
 

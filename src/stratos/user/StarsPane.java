@@ -125,7 +125,7 @@ public class StarsPane extends UIGroup implements UIConstants {
   //  TODO:  Include a zoom/grab function?
   private void incRotation(float amount, boolean inFrame) {
     float oldElev = display.rotation();
-    if (inFrame) amount *= 2f / Rendering.FRAMES_PER_SECOND;
+    if (inFrame) amount *= 2f / UI.rendering.frameRate();
     display.setRotation(oldElev + amount);
     //amount = Visit.clamp(oldElev + amount, -89.99f, 89.99f);
     //display.setElevation(amount);

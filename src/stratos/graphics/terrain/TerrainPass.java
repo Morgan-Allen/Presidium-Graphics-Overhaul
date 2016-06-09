@@ -4,12 +4,14 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.terrain;
-import static stratos.graphics.common.GL.*;
 import stratos.graphics.common.*;
 import stratos.util.*;
+
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
 
 
 
@@ -27,8 +29,8 @@ public class TerrainPass {
   public TerrainPass(Rendering rendering) {
     this.rendering = rendering;
     this.shader = new ShaderProgram(
-      Gdx.files.internal("shaders/terrain.vert"),
-      Gdx.files.internal("shaders/terrain.frag")
+      Gdx.files.internal("stratos/graphics/shaders/terrain.vert"),
+      Gdx.files.internal("stratos/graphics/shaders/terrain.frag")
     );
     if (! shader.isCompiled()) {
       throw new GdxRuntimeException("\n"+shader.getLog());
@@ -106,9 +108,9 @@ public class TerrainPass {
     
     if (fogApplied != null) {
       fogApplied.applyToTerrain(shader);
-      shader.setUniformi("u_fogFlag", GL_TRUE);
+      shader.setUniformi("u_fogFlag", GL20.GL_TRUE);
     }
-    else shader.setUniformi("u_fogFlag", GL_FALSE);
+    else shader.setUniformi("u_fogFlag", GL20.GL_FALSE);
   }
   
   

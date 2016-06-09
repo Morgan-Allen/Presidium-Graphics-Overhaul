@@ -30,5 +30,16 @@ public class OverlayAttribute extends Attribute {
   protected boolean equals(Attribute that) {
     return this == that;
   }
+  
+  
+  public int compareTo(Attribute that) {
+    final int hA = this.hashCode(), hB = that.hashCode();
+    return (hA > hB) ? 1 : (hA == hB ? 0 : -1);
+  }
 
 }
+
+
+
+
+

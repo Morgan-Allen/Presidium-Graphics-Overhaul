@@ -3,11 +3,8 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
-
-
 package stratos.graphics.widgets;
-import stratos.graphics.common.*;
-import stratos.start.Assets;
+import stratos.start.*;
 import stratos.util.*;
 
 import com.badlogic.gdx.Gdx;
@@ -18,9 +15,10 @@ import java.io.*;
 
 
 
-public class Alphabet {
+public class Alphabet extends Assets.Loadable {
   
   
+  private String path, mmlFile;
   private Texture fontTex;
   private Letter letters[], map[];
   
@@ -36,23 +34,23 @@ public class Alphabet {
   }
   
   
-  public Letter letterFor(char c) {
-    if (c < 0 || c >= map.length) return null;
-    return map[c];
+  private Alphabet(
+    Class sourceClass, String fontID, String path, String mmlFile
+  ) {
+    super(fontID, sourceClass, false);
+    this.path    = path   ;
+    this.mmlFile = mmlFile;
   }
   
   
-  public float lineHeight() {
-    return letterFor(' ').height;
+  public static Alphabet loadAlphabet(
+    Class sourceClass, String fontID, String path, String mmlFile
+  ) {
+    return new Alphabet(sourceClass, fontID, path, mmlFile);
   }
   
-  
-  public Texture texture() {
-    return fontTex;
-  }
-  
-  
-  public static Alphabet loadAlphabet(String path, String mmlFile) {
+
+  protected State loadAsset() {
     path = Assets.safePath(path);
     XML info = (XML.load(path + mmlFile)).child(0);
     String
@@ -62,20 +60,11 @@ public class Alphabet {
     final int
       numLines = Integer.parseInt(info.value("lines")),
       lineHigh = Integer.parseInt(info.value("lhigh"));
-    return new Alphabet(path, texFile, alphaFile, mapFile, numLines, lineHigh);
-  }
-  
-  
-  Alphabet(
-    String path,
-    String valueFile, String alphaFile,
-    String mapFile, int numLines, int lineHigh
-  ) {
     //
     //  Our first task is to load the colour and alpha values for the alphabet
     //  texture, and merge them together.
     final Pixmap
-      valueMap = new Pixmap(Gdx.files.internal(path+valueFile)),
+      valueMap = new Pixmap(Gdx.files.internal(path+texFile  )),
       alphaMap = new Pixmap(Gdx.files.internal(path+alphaFile));
     final int
       wide = valueMap.getWidth(),
@@ -102,7 +91,7 @@ public class Alphabet {
       charMap = new int[mapInput.available()];
       for(int n = 0; n < charMap.length; n++) charMap[n] = mapInput.read();
     }
-    catch (IOException e) { I.report(e); return;}
+    catch (IOException e) { I.report(e); return state = State.ERROR; }
     
     //
     //  Finally, we scan the alpha values of the alphabet texture to establish
@@ -136,7 +125,6 @@ public class Alphabet {
             letter.height = lineHigh;
             letter.width = (int) ((letter.umax - letter.umin) * wide);
             scanned.addLast(letter);
-            ///I.say("UV for: "+letter.map+", "+letter.umin+"|"+letter.vmin);
           }
         }
       }
@@ -148,6 +136,39 @@ public class Alphabet {
     for (Letter sLetter : scanned) {
       map[(int) (sLetter.map)] = letters[ind++] = sLetter;
     }
+    return state = State.LOADED;
+  }
+  
+  
+  protected State disposeAsset() {
+    if (fontTex != null) fontTex.dispose();
+    map     = new Letter[0];
+    letters = new Letter[0];
+    return state = State.DISPOSED;
+  }
+  
+  
+
+
+  public Letter letterFor(char c) {
+    if (c < 0 || c >= map.length) return null;
+    return map[c];
+  }
+  
+  
+  public float lineHeight() {
+    return letterFor(' ').height;
+  }
+  
+  
+  public Texture texture() {
+    return fontTex;
   }
 }
+
+
+
+
+
+
 

@@ -132,13 +132,14 @@ public class SelectionOptions extends UIGroup implements UIConstants {
     
     this.alignBottom(0, 0);
     this.alignHorizontal(0.5f, 0, 0);
+    float defFadeInc = 1f / (0.25f * UI.rendering.frameRate());
 
     if (fadeout) {
-      this.relAlpha -= DEFAULT_FADE_INC;
+      this.relAlpha -= defFadeInc;
       if (relAlpha <= 0) detach();
     }
     else {
-      this.relAlpha += DEFAULT_FADE_INC;
+      this.relAlpha += defFadeInc;
       if (relAlpha > 1) relAlpha = 1;
     }
     

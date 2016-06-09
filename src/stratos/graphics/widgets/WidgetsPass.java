@@ -1,25 +1,26 @@
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 
 package stratos.graphics.widgets;
 import stratos.graphics.common.*;
+
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Mesh.VertexDataType;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.utils.NumberUtils;
+
 
 
 //  NOTE:  I recently adapted this directly from the LibGDX Spritebatch code,
 //  and will probably trim it down some more later.
 //  TODO:  You can most likely just use a MeshCompile here.
-
-
-
 
 public class WidgetsPass {
   
@@ -40,11 +41,8 @@ public class WidgetsPass {
   private boolean blendingDisabled = false;
   private int blendSrcFunc = GL20.GL_SRC_ALPHA;
   private int blendDstFunc = GL20.GL_ONE_MINUS_SRC_ALPHA;
-
-  private final ShaderProgram shader;
   
-  //float color = Color.WHITE.toFloatBits();
-  //private Color tempColor = new Color(1, 1, 1, 1);
+  private final ShaderProgram shader;
   
   
   

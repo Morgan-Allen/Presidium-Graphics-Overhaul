@@ -99,7 +99,7 @@ public class BlurMap {
   
   public float sampleAsFraction(float x, float y, int period) {
     final float sample = gridSize > 1 ?
-      Nums.sampleMap(trueSize, patchValues, x, y) :
+      Nums.sampleMap(trueSize, trueSize, patchValues, x, y) :
       patchValues[0][0];
     if (period <= 0 || sample <= 0) return sample;
     samplerSums += period * sample / timePeriod;

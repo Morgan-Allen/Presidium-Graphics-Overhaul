@@ -335,7 +335,7 @@ public class Generator extends Venue {
     //
     //  Add explosion FX-
     int multFX = 3; while (multFX -- > 0) {
-      final PlaneFX blastFX = (PlaneFX) BuildingSprite.BLAST_MODEL.makeSprite();
+      final PlaneFX blastFX = VenueAssets.BLAST_MODEL.makeSprite();
       blastFX.scale = this.size * (multFX + 1) / 3f;
       blastFX.timeScale = 2.0f;
       this.viewPosition(blastFX.position);

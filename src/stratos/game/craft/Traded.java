@@ -103,6 +103,7 @@ public class Traded extends Constant implements Session.Saveable {
     final float IS = BuildingSprite.ITEM_SIZE;
     final String img = ITEM_PATH+imgName;
     final String key = "item_"+name;
+    
     if (Assets.exists(img)) {
       this.icon  = ImageAsset .fromImage(typeClass, key+"_icon" , img        );
       this.model = CutoutModel.fromImage(typeClass, key+"_model", img, IS, IS);

@@ -1,35 +1,71 @@
-
-
-
+/**  
+  *  Written by Morgan Allen.
+  *  I intend to slap on some kind of open-source license here in a while, but
+  *  for now, feel free to poke around for non-commercial purposes.
+  */
 package stratos.graphics.sfx;
+import stratos.start.*;
 import stratos.graphics.common.*;
 import stratos.graphics.widgets.*;
-
-import stratos.user.UIConstants;  //   TODO:  GET RID OF THIS REFERENCE
 import stratos.util.*;
+
 
 
 public class Label extends SFX {
   
   
-  final public static ModelAsset LABEL_MODEL = new ClassModel(
-    "label_fx_model", Label.class
-  ) {
-    public Sprite makeSprite() { return new Label(); }
-  };
+  public static class LabelModel extends ModelAsset {
+    
+    final Alphabet font;
+    
+    public LabelModel(
+      String modelName, Class sourceClass,
+      String assetsDir, String fontFile
+    ) {
+      super(sourceClass, modelName);
+      this.font = Alphabet.loadAlphabet(
+        sourceClass, modelName+"_font_asset", assetsDir, fontFile
+      );
+    }
+
+
+    public Object sortingKey() {
+      return this;
+    }
+    
+    
+    public Label makeSprite() {
+      return new Label(this);
+    }
+    
+    
+    protected State loadAsset() {
+      Assets.loadNow(font);
+      if (font.stateLoaded()) return state = State.LOADED;
+      else return state = State.ERROR;
+    }
+    
+    
+    protected State disposeAsset() {
+      Assets.disposeOf(font);
+      if (font.stateDisposed()) return state = State.DISPOSED;
+      else return state = State.ERROR;
+    }
+  }
   
-  final static Alphabet FONT = UIConstants.INFO_FONT;
   
+  final LabelModel model;
   public String phrase = "";
   public float fontScale = 0.8f;
   
   
-  public Label() {
+  private Label(LabelModel model) {
     super(PRIORITY_FIRST);
+    this.model = model;
   }
   
   
-  public ModelAsset model() { return LABEL_MODEL; }
+  public ModelAsset model() { return model; }
   
   
   protected void renderInPass(SFXPass pass) {
@@ -37,9 +73,9 @@ public class Label extends SFX {
     
     final Vec3D flatPoint = new Vec3D(position);
     pass.rendering.view.translateToScreen(flatPoint);
-    final float width = phraseWidth(phrase, FONT, fontScale);
+    final float width = phraseWidth(phrase, model.font, fontScale);
     renderPhrase(
-      phrase, FONT, fontScale, this.colour,
+      phrase, model.font, fontScale, this.colour,
       flatPoint.x - (width / 2), flatPoint.y, flatPoint.z,
       pass, true
     );
@@ -51,8 +87,8 @@ public class Label extends SFX {
   ) {
     float width = 0;
     for (char c : phrase.toCharArray()) {
-      Alphabet.Letter l = FONT.letterFor(c);
-      if (l == null) l = FONT.letterFor(' ');
+      Alphabet.Letter l = font.letterFor(c);
+      if (l == null) l = font.letterFor(' ');
       width += l.width * fontScale;
     }
     return width;
@@ -66,11 +102,11 @@ public class Label extends SFX {
   ) {
     float scanW = 0;
     for (char c : phrase.toCharArray()) {
-      Alphabet.Letter l = FONT.letterFor(c);
-      if (l == null) l = FONT.letterFor(' ');
+      Alphabet.Letter l = font.letterFor(c);
+      if (l == null) l = font.letterFor(' ');
       
       pass.compileQuad(
-        FONT.texture(), colour,
+        font.texture(), colour,
         vivid, screenX + scanW,
         screenY, l.width * fontScale,
         l.height * fontScale, l.umin, l.vmin, l.umax,

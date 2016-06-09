@@ -234,7 +234,7 @@ public class BaseUI extends HUD implements UIConstants {
   
   
   private void configHovers() {
-    this.helpText = new Tooltips(this);
+    this.helpText = new Tooltips(this, UIConstants.INFO_FONT);
     helpText.attachTo(this);
   }
   
@@ -299,8 +299,8 @@ public class BaseUI extends HUD implements UIConstants {
     //  TODO:  This doesn't look terribly smooth if you inspect it closely-
     //  either use simple alpha-fadeouts or start rendering-to-texture instead.
     if (capturePanel && currentInfo != null) {
-      final Box2D b = new Box2D().setTo(currentInfo.trueBounds());
-      rendering.fading.applyFadeWithin(b, "panel_fade");
+      //final Box2D b = new Box2D().setTo(currentInfo.trueBounds());
+      //rendering.fading.applyFadeWithin(b, "panel_fade");
       capturePanel = false;
     }
     if (currentInfo != newInfo) {

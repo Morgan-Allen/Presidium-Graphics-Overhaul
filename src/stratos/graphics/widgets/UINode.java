@@ -5,12 +5,21 @@
   */
 
 package stratos.graphics.widgets;
-import stratos.graphics.common.*;
 import stratos.util.*;
-
 import com.badlogic.gdx.math.*;
 
 
+
+//  TODO:  Turn these into methods!
+/*
+    DEFAULT_FADE_TIME = 0.25f,
+DEFAULT_FADE_INC  = 1f / (DEFAULT_FADE_TIME * Rendering.FRAMES_PER_SECOND),
+SLOW_FADE_TIME    = 1.0f,
+SLOW_FADE_INC     = 1f / (SLOW_FADE_TIME    * Rendering.FRAMES_PER_SECOND),
+
+DEFAULT_DRIFT_RATE = 60 * 1f / Rendering.FRAMES_PER_SECOND,
+
+//*/
 
 public abstract class UINode {
   
@@ -23,13 +32,8 @@ public abstract class UINode {
     PRESSED = 2,
     DRAGGED = 3;
   final public static float
-    DEFAULT_FADE_TIME = 0.25f,
-    DEFAULT_FADE_INC  = 1f / (DEFAULT_FADE_TIME * Rendering.FRAMES_PER_SECOND),
-    SLOW_FADE_TIME    = 1.0f,
-    SLOW_FADE_INC     = 1f / (SLOW_FADE_TIME    * Rendering.FRAMES_PER_SECOND),
-    
-    DEFAULT_DRIFT_RATE = 60 * 1f / Rendering.FRAMES_PER_SECOND,
-    
+    DEFAULT_FADE_TIME   = 0.25f,
+    SLOW_FADE_TIME      = 1.0f,
     DEFAULT_HOVER_ALPHA = 0.5f,
     DEFAULT_PRESS_ALPHA = 0.75f;
   
@@ -57,8 +61,8 @@ public abstract class UINode {
   private String widgetID;
   
   
-  public UINode(HUD myHUD) {
-    this.UI = myHUD;
+  public UINode(HUD UI) {
+    this.UI = UI;
   }
   
   

@@ -1,15 +1,18 @@
 
 
 package stratos.graphics.sfx;
-import stratos.graphics.common.*;
 import stratos.util.*;
-import static stratos.graphics.common.GL.*;
+
+//import static stratos.graphics.common.GL.*;
 import static stratos.graphics.cutout.CutoutModel.VERT_INDICES;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
+
+import stratos.graphics.common.*;
+
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.glutils.*;
 
@@ -70,7 +73,7 @@ public class SFXPass {
       MAX_QUADS * 4, MAX_QUADS * 6,
       
       VertexAttribute.Position(),
-      VertexAttribute.Color(),
+      VertexAttribute.ColorPacked(),
       VertexAttribute.TexCoords(0)
     );
     vertComp  = new float[COMPILE_LIMIT];
@@ -82,8 +85,8 @@ public class SFXPass {
     compiled.setIndices(compIndex);
     
     shading = new ShaderProgram(
-        Gdx.files.internal("shaders/sfx.vert"),
-        Gdx.files.internal("shaders/sfx.frag")
+        Gdx.files.internal("stratos/graphics/shaders/sfx.vert"),
+        Gdx.files.internal("stratos/graphics/shaders/sfx.frag")
     );
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog());
@@ -123,7 +126,7 @@ public class SFXPass {
         compileAndRender(rendering.camera());
       }
     }
-    glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     clearAll();
   }
   
@@ -152,10 +155,10 @@ public class SFXPass {
     }
     if (vivid != vividMode) {
       if (vivid) {
-        glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
       }
       else {
-        glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
       }
       vividMode = vivid;
     }
@@ -209,7 +212,7 @@ public class SFXPass {
     shading.setUniformi("u_texture", 0);
     lastTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
     lastTex.bind(0);
-    compiled.render(shading, GL10.GL_TRIANGLES, 0, total / 4);
+    compiled.render(shading, GL20.GL_TRIANGLES, 0, total / 4);
     shading.end();
 
     total = 0;

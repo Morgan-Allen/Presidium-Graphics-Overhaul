@@ -77,9 +77,10 @@ public class BorderedLabel extends UIGroup implements UIConstants {
     text     .relAlpha = Nums.min(fadeOut, fadeIn);
     bordering.relAlpha = Nums.min(fadeOut, fadeIn);
     
+    float defFadeInc = 1f / (0.25f * UI.rendering.frameRate());
     if (doFade) {
-      fadeOut = Nums.clamp(fadeOut - DEFAULT_FADE_INC, 0, 1);
-      fadeIn  = Nums.clamp(fadeIn  + DEFAULT_FADE_INC, 0, 1);
+      fadeOut = Nums.clamp(fadeOut - defFadeInc, 0, 1);
+      fadeIn  = Nums.clamp(fadeIn  + defFadeInc, 0, 1);
       if (fadeOut == 0) text.setText("");
     }
     super.updateState();

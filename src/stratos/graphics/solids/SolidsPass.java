@@ -4,16 +4,18 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.solids;
-import stratos.graphics.common.*;
 import stratos.util.*;
-import stratos.graphics.solids.SolidSprite.Part;
-import stratos.graphics.widgets.Image;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+
+import stratos.graphics.common.*;
+import stratos.graphics.solids.SolidSprite.Part;
+import stratos.graphics.widgets.Image;
+
 import com.badlogic.gdx.math.*;
 
 
@@ -35,8 +37,8 @@ public class SolidsPass {
     this.rendering = rendering;
     
     shading = new ShaderProgram(
-      Gdx.files.internal("shaders/solids.vert"),
-      Gdx.files.internal("shaders/solids.frag")
+      Gdx.files.internal("stratos/graphics/shaders/solids.vert"),
+      Gdx.files.internal("stratos/graphics/shaders/solids.frag")
     );
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog());

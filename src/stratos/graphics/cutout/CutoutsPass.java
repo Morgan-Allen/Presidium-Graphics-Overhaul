@@ -4,15 +4,18 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.graphics.cutout;
-import static stratos.graphics.common.GL.*;
-import static stratos.graphics.cutout.CutoutModel.*;
-import stratos.graphics.common.*;
 import stratos.util.*;
+
+//import static stratos.graphics.common.GL.*;
+import static stratos.graphics.cutout.CutoutModel.*;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
+
+import stratos.graphics.common.*;
+
 import com.badlogic.gdx.graphics.glutils.*;
 
 
@@ -58,7 +61,7 @@ public class CutoutsPass {
       false,
       MAX_SPRITES * 4, MAX_SPRITES * 6,
       VertexAttribute.Position(),
-      VertexAttribute.Color(),
+      VertexAttribute.ColorPacked(),//VertexAttribute.Color(),
       VertexAttribute.TexCoords(0)
     );
     vertComp = new float[COMPILE_LIMIT];
@@ -70,8 +73,8 @@ public class CutoutsPass {
     compiled.setIndices(compIndex);
     
     shading = new ShaderProgram(
-      Gdx.files.internal("shaders/cutouts.vert"),
-      Gdx.files.internal("shaders/cutouts.frag")
+      Gdx.files.internal("stratos/graphics/shaders/cutouts.vert"),
+      Gdx.files.internal("stratos/graphics/shaders/cutouts.frag")
     );
     if (! shading.isCompiled()) {
       throw new GdxRuntimeException("\n"+shading.getLog());
@@ -235,16 +238,16 @@ public class CutoutsPass {
     
     if (wasLit) {
       shading.setUniform4fv("u_lighting", GLOW_LIGHTS, 0, 4);
-      shading.setUniformi("u_glowFlag", GL_TRUE);
+      shading.setUniformi("u_glowFlag", GL20.GL_TRUE);
     }
     else {
       final float lightSum[] = rendering.lighting.lightSum;
       shading.setUniform4fv("u_lighting", lightSum, 0, 4);
-      shading.setUniformi("u_glowFlag", GL_FALSE);
+      shading.setUniformi("u_glowFlag", GL20.GL_FALSE);
     }
     
     lastTex.bind(0);
-    compiled.render(shading, GL10.GL_TRIANGLES, 0, (total * 6) / SIZE);
+    compiled.render(shading, GL20.GL_TRIANGLES, 0, (total * 6) / SIZE);
     shading.end();
     total = 0;
   }

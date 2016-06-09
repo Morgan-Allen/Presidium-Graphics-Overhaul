@@ -5,7 +5,6 @@
   */
 package stratos.graphics.terrain;
 import stratos.graphics.common.*;
-import stratos.start.Assets;
 import stratos.util.*;
 
 
@@ -18,7 +17,7 @@ public class TerrainSet implements TileConstants {
     MAX_CHUNK_SIZE     = 128;
   
   
-  final public int size, numLayers;
+  final public int sizeX, sizeY, numLayers;
   final int chunkSize, chunkGrid;
   final byte layerIndices[][], varsIndices[][], heightVals[][];
   
@@ -28,7 +27,7 @@ public class TerrainSet implements TileConstants {
   
   
   public TerrainSet(
-      int size, int chunkSize,
+      int sizeX, int sizeY, int chunkSize,
       byte layerIndices[][],
       byte varsIndices [][],
       byte heightVals  [][],
@@ -42,9 +41,10 @@ public class TerrainSet implements TileConstants {
     //
     // Appropriate dimensions calculated-
     this.numLayers = layers.length;
-    this.size      = size;
+    this.sizeX     = sizeX;
+    this.sizeY     = sizeY;
     this.chunkSize = chunkSize;
-    this.chunkGrid = (int) Nums.ceil(size / chunkSize);
+    this.chunkGrid = (int) Nums.ceil(Nums.max(sizeX, sizeY) * 1f / chunkSize);
     this.layers    = layers;
     this.layerIndices = layerIndices;
     this.varsIndices  = varsIndices;
@@ -122,22 +122,6 @@ public class TerrainSet implements TileConstants {
         patch.readyFor(rendering);
       }
     }
-  }
-  
-  
-  
-  /**  Utility methods for geometry-generation-
-    */
-  protected static int heightDiff(
-    TerrainSet terrain, int x, int y, int offX, int offY
-  ) {
-    //
-    //  Return the difference between two points on the height grid.  NOTE:
-    //  Height-maps have double the resolution of the basic tile grid, so be
-    //  sure to multiply x2 before use...
-    final byte HV[][] = terrain.heightVals;
-    try { return HV[x + offX][y + offY] - HV[x][y]; }
-    catch (ArrayIndexOutOfBoundsException e) { return 0; }
   }
 }
 

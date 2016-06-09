@@ -241,6 +241,12 @@ public class I {
   
   
   
+  /**  Timing-
+    */
+  public static long getTime() { return System.currentTimeMillis(); }
+  
+  
+  
   /**  Reflection shortcuts-
     */
   public static Method findMethod(

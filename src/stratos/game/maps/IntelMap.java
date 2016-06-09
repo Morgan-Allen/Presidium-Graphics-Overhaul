@@ -48,7 +48,7 @@ public class IntelMap {
     final int size = world.size;
     fogVals = new float[size][size];
     fogMap  = new MipMap(size);
-    fogOver = new FogOverlay(size);
+    fogOver = new FogOverlay(size, size);
   }
   
   

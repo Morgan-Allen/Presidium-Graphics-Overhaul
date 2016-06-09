@@ -3,6 +3,7 @@
   *  I intend to slap on some kind of open-source license here in a while, but
   *  for now, feel free to poke around for non-commercial purposes.
   */
+
 package stratos.graphics.widgets;
 import stratos.util.*;
 import com.badlogic.gdx.math.*;
@@ -21,9 +22,9 @@ public class UIGroup extends UINode {
   };
   
   
-  public UIGroup(HUD myHUD) {
-    super(myHUD);
-    if (myHUD == null && ! (this instanceof HUD)) I.complain("No HUD!");
+  public UIGroup(HUD UI) {
+    super(UI);
+    if (UI == null && ! (this instanceof HUD)) I.complain("No HUD!");
   }
   
   
