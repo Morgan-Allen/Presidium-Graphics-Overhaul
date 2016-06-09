@@ -100,8 +100,8 @@ public class SolidSprite extends Sprite {
     transform.setToTranslation(tempV);
     transform.scl(tempV.set(scale, scale, scale));
     
-    final float radians = Nums.toRadians(model.rotateOffset - rotation);
-    transform.rotate(Vector3.Y, radians);
+    final float degrees = model.rotateOffset - rotation;
+    transform.rotate(Vector3.Y, degrees);
     
     model.animControl.begin(this);
     if (animStates.size() > 0) {
@@ -175,6 +175,12 @@ public class SolidSprite extends Sprite {
   }
   
   
+  protected Matrix4 boneFor(Node node) {
+    final int index = model.indexFor(node);
+    return boneTransforms[index];
+  }
+  
+  
   protected void addPartsTo(Series <Part> allParts) {
     
     final Colour c = new Colour();
@@ -218,12 +224,6 @@ public class SolidSprite extends Sprite {
       p.meshVerts = part.meshPart.size;// .numVertices;
       allParts.add(p);
     }
-  }
-  
-  
-  protected Matrix4 boneFor(Node node) {
-    final int index = model.indexFor(node);
-    return boneTransforms[index];
   }
   
   
