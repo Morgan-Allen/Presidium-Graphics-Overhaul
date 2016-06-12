@@ -14,6 +14,7 @@
     <property name="JRE_dir"  value="../Windows_JRE" />
     <property name="Launch4j_dir"  value="../Launch4j" />
     <property name="outZip"  value="../Stratos_Build_Windows.zip" />
+    <property file="local.properties" />
 	
 	<taskdef name="launch4j"
 	    classname="net.sf.launch4j.ant.Launch4jTask"
@@ -22,14 +23,13 @@
 		${Launch4j_dir}/lib/xstream.jar
 		"
 	/>
-
+	
     <target name="build">
 
         <!-- First step- package everything into a single jar. -->
-
+    	
         <jar destfile="${output}/stratos_base.jar" basedir="bin">
         </jar>
-
         <jar destfile="${output}/stratos.jar">
             <zipgroupfileset dir="${output}" includes="stratos_base.jar" />
             <zipgroupfileset dir="lib" includes="*.jar" />
@@ -37,27 +37,25 @@
                 <attribute name="Main-Class" value="stratos.start.DebugStartup" />
             </manifest>
         </jar>
-
         <delete file="${output}/stratos_base.jar"/>
+    	
 
         <!-- Second step- run Launch4J to produce a clickable EXE. -->
     	
     	<launch4j configFile="./resource/stratos_launch4j_windows_config.xml" />
-
         <copy todir="${output}/Windows_JRE">
             <fileset dir="${JRE_dir}"/>
         </copy>
+    	
 
         <!-- Third step- copy over the media and saves folders, then zip. -->
 
         <copy todir="${output}/media">
             <fileset dir="media"/>
         </copy>
-
         <mkdir dir="${output}/saves"/>
-
         <zip destfile="${outZip}" basedir="${output}" />
         <delete dir="${output}"/>
-
+    	
     </target>
 </project>

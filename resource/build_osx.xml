@@ -1,29 +1,56 @@
+<!-- PLEASE NOTE-
+    This script expects the OSX JRE folder to be present in the parent
+    workspace.  e.g, if this file is sitting in-
+      C:\Users\user_dir\Desktop\workspace\Stratos\resource\build_osx.xml
+    Then whatever JRE you're bundling should be under-
+      C:\Users\user_dir\Desktop\workspace\OSX_JRE
+    Thank you
+-->
+
 <project name="Stratos Build OSX" basedir=".." default="build">
 	
     <property name="command" value="RUN_GAME_OSX.command" />
+    <property name="JRE_dir"  value="../OSX_JRE" />
     <property name="output"  value="../Stratos_Build_OSX" />
     <property name="outZip"  value="../Stratos_Build_OSX.zip" />
     <property file="local.properties" />
     
     <target name="build">
+    	
+        <!-- First step- package everything into a single jar. -->
         
-        <copy todir="${output}/media">
-            <fileset dir="media"/>
-        </copy>
-        
-        <mkdir dir="${output}/saves"/>
+        <jar destfile="${output}/stratos_base.jar" basedir="bin">
+        </jar>
+        <jar destfile="${output}/stratos.jar">
+            <zipgroupfileset dir="${output}" includes="stratos_base.jar" />
+            <zipgroupfileset dir="lib" includes="*.jar" />
+            <manifest>
+                <attribute name="Main-Class" value="stratos.start.DebugStartup" />
+            </manifest>
+        </jar>
+        <delete file="${output}/stratos_base.jar"/>
+    	
+    	
+        <!-- Second step- copy over the command file. -->
         
         <copy file="resource/${command}" tofile="${output}/${command}" overwrite="true"/>
     	<chmod file="${output}/${command}" perm="u+x"/>
-        
-        <copy todir="${output}">
-            <fileset dir="libs"/>
+
+        <copy todir="${output}/OSX_JRE">
+            <fileset dir="${JRE_dir}"/>
         </copy>
-        <jar destfile="${output}/stratos.jar" basedir="bin">
-        </jar>
-        
+    	
+
+        <!-- Third step- copy over the media and saves folders, then zip. -->
+
+        <copy todir="${output}/media">
+            <fileset dir="media"/>
+        </copy>
+        <mkdir dir="${output}/saves"/>
+    	
         <zip destfile="${outZip}">
             <zipfileset dir="${output}" filemode="755"/>
         </zip>
+        <delete dir="${output}"/>
     </target>
 </project>
