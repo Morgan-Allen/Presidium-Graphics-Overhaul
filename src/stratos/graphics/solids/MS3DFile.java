@@ -301,9 +301,10 @@ public class MS3DFile {
     }
     
     int subv2 = in.readInt();
-    
     int extraw = 0;
     
+    
+    if (verbose) I.say("\nProcessing after sub-version...");
     for(int i=0; i<vertices.length; i++) {
       //  TODO:  ...This seems to work, but I don't know why bone-information
       //         wouldn't be included...
@@ -319,6 +320,7 @@ public class MS3DFile {
     if(verbose) I.say("Loaded " + extraw + " extra weights");
     // f... the rest
   }
+  
 
   /**
    * Post-processing of joints data (lifted from earlier codebase.)
