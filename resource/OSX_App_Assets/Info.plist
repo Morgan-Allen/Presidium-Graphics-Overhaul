@@ -5,9 +5,9 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>English</string>
     <key>CFBundleExecutable</key>
-    <string>JavaAppLauncher</string>
+    <string>stratos_launcher.command</string>
     <key>CFBundleIconFile</key>
-    <string>GenericApp.icns</string>
+    <string>game_icon.icns</string>
     <key>CFBundleIdentifier</key>
     <string>components.Stratos</string>
     <key>CFBundleDisplayName</key>
@@ -28,15 +28,5 @@
     <string>1</string>
     <key>NSHumanReadableCopyright</key>
     <string></string>
-    <key>JVMRuntime</key>
-    <string>OSX_JRE</string>
-    <key>JVMMainClassName</key>
-    <string>stratos.start.DebugStartup</string>
-    <key>JVMOptions</key>
-        <array>
-        </array>
-    <key>JVMArguments</key>
-        <array>
-        </array>
-    </dict>
+</dict>
 </plist>

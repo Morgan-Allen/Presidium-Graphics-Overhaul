@@ -11,6 +11,7 @@
 <project name="Stratos Build OSX" basedir=".." default="build">
 	
     <property name="JRE_dir"   value="../OSX_JRE" />
+    <property name="java_bin"  value="Contents/Home/jre/bin/java" />
     <property name="output"    value="../Stratos_Build_OSX" />
     <property name="outZip"    value="../Stratos_Build_OSX.zip" />
     <property name="insideApp" value="${output}/Stratos.app/Contents" />
@@ -27,10 +28,15 @@
         <copy todir="${insideApp}/Plugins/OSX_JRE">
             <fileset dir="${JRE_dir}"/>
         </copy>
-    	
+
         <exec executable="/bin/sh" os="Mac OS X">
             <arg value="-c"/>
-            <arg value="chmod +x ${insideApp}/MacOS/JavaAppLauncher"/>
+            <arg value="chmod +x ${insideApp}/Plugins/OSX_JRE/${java_bin}"/>
+        </exec>
+        
+        <exec executable="/bin/sh" os="Mac OS X">
+            <arg value="-c"/>
+            <arg value="chmod +x ${insideApp}/MacOS/stratos_launcher.command"/>
         </exec>
         
         <!-- Second step- package all the code into a single jar. -->
@@ -45,17 +51,15 @@
     	
         <!-- Third step- copy over the media and saves folder, then zip. -->
         
-        <copy todir="${insideApp}/Resources/media">
+        <copy todir="${output}/media">
             <fileset dir="media"/>
         </copy>
-        <mkdir dir="${insideApp}/Resources/saves"/>
+        <mkdir dir="${output}/saves"/>
     	
-    	<!--
         <zip destfile="${outZip}">
             <zipfileset dir="${output}" filemode="755"/>
         </zip>
         <delete dir="${output}"/>
-    	-->
     	
     </target>
 </project>

@@ -387,7 +387,7 @@ public class MS3DModel extends SolidModel {
         final ModelNodeAnimation nd = new ModelNodeAnimation();
         nd.nodeId = node.nodeId;
         
-        I.say("  "+node.nodeId+" ("+name+")");
+        if (verbose) I.say("  "+node.nodeId+" ("+name+")");
         nd.rotation    = new Array();
         nd.translation = new Array();
         nd.scaling     = new Array();
@@ -395,15 +395,6 @@ public class MS3DModel extends SolidModel {
         putFrames(nd.translation, node.translation, animStart, animEnd, scale);
         putFrames(nd.scaling    , node.scaling    , animStart, animEnd, scale);
         anim.nodeAnimations.add(nd);
-        
-        /*
-        if (nd.rotation.size == 0) continue;
-        I.say("  Scaled frames are: ");
-        for (ModelNodeKeyframe frame : nd.rotation) {
-          I.say("    : "+frame.keytime);
-        }
-        I.say("  Done");
-        //*/
       }
       
       if (verbose) {

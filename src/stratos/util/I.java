@@ -7,12 +7,13 @@ package stratos.util;
 
 import java.awt.*;
 import java.awt.image.*;
-
 import javax.swing.*;
-
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.*;
 import java.lang.reflect.Method;
+
+//import com.apple.eio.FileManager;
 
 
 
@@ -32,18 +33,26 @@ public class I {
   
   final public static boolean
     AM_INSIDE_JAR ,
+    AM_INSIDE_APP ,
     WRITE_TO_LOG  ,
     LOG_BIG_EVENTS = true;
   
   static {
     
+    final Path relativeWorkDir = Paths.get("");
+    final String rootPath = relativeWorkDir.toAbsolutePath().toString();
+    System.out.println("\n\nCURRENT ROOT DIRECTORY IS: "+rootPath);
+    
     final java.net.URL toThis = I.class.getResource("I.class");
     final boolean isJar = toThis.toString().startsWith("jar:");
+    final boolean isApp = toThis.toString().contains(".app");
     AM_INSIDE_JAR = isJar;
+    AM_INSIDE_APP = isApp;
     WRITE_TO_LOG  = isJar;
     
     System.out.println("\nPATH TO SELF IS: "+toThis);
     System.out.println("  IS JAR FILE?     "+isJar );
+    System.out.println("  INSIDE APP?      "+isApp );
     
     if (WRITE_TO_LOG) try {
       String
