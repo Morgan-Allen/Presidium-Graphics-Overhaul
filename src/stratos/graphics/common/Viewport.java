@@ -86,7 +86,7 @@ public class Viewport {
       (spanX / maxField) * area.xdim() / wide,
       (spanY / maxField) * area.ydim() / high
     );
-    rotation = rotDegrees;
+    rotation  = rotDegrees;
     elevation = elevDegrees;
     
     final Vector3 trans = new Vector3(
@@ -122,7 +122,7 @@ public class Viewport {
     camera.rotateAround(temp, Vector3.Y, 180 + rotation);
     
     camera.near = 0.1f;
-    camera.far = 200.1f;
+    camera.far  = 200.1f;
     camera.update();
     
     translateToScreen  (originWtS.set(0, 0, 0));

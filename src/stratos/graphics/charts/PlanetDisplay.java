@@ -129,6 +129,7 @@ public class PlanetDisplay extends Assets.Loadable {
     sectors.add(sector);
     cacheFaceData();
     calcCoordinates(sector);
+    
     final int RGBA = colourOnSurface(sector.coordinates);
     (sector.colourKey = new Colour()).setFromRGBA(RGBA);
   }
@@ -436,6 +437,7 @@ public class PlanetDisplay extends Assets.Loadable {
         rotation  = 90 - latCoords.toAngle(),
         elevation = longCoords.toAngle();
       
+      //I.say("\nRotation/elevation should be: "+rotation+"/"+elevation);
       this.spinRate = 0;
       setCoords(rotation, elevation, false);
     }
@@ -463,12 +465,12 @@ public class PlanetDisplay extends Assets.Loadable {
     
     final float
       ZPF        = ZOOM_SECOND_DEGREES / rendering.frameRate(),
+      spinPF     = spinRate / rendering.frameRate(),
       coordsDiff = displacement.length();
     
     if (coordsDiff < ZPF) polarCoords.setTo(targetCoords);
     else polarCoords.add(displacement.normalise().scale(ZPF));
-    
-    setCoords(rotation() + spinRate / rendering.frameRate(), elevation(), true);
+    if (spinPF > 0) setCoords(rotation() + spinPF, elevation(), true);
     
     //
     //  Secondly, we configure viewing perspective, aperture size, rotation
@@ -479,7 +481,7 @@ public class PlanetDisplay extends Assets.Loadable {
     
     final Matrix4 trans = new Matrix4().idt();
     trans.rotate(Vector3.Y, 0 - rotation());
-
+    
     final float SW = Gdx.graphics.getWidth(), SH = Gdx.graphics.getHeight();
     final float portalSize = Nums.min(bounds.xdim(), bounds.ydim());
     final Vec2D centre = bounds.centre();
@@ -524,11 +526,6 @@ public class PlanetDisplay extends Assets.Loadable {
     sectorsKeyTex.asTexture().bind(2);
     shading.setUniformi("u_surfacePass", GL20.GL_TRUE);
     p.mesh.render(shading, p.primitiveType, p.offset, p.size);
-    //  TODO:  Render sector outlines here too...
-    /*
-    p = sectorsPart.meshPart;
-    p.mesh.render(shading, p.primitiveType, p.indexOffset, p.numVertices);
-    //*/
     
     //
     //  And on top of all these, the labels for each sector.
