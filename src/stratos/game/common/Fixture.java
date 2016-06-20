@@ -4,8 +4,9 @@
   *  for now, feel free to poke around for non-commercial purposes.
   */
 package stratos.game.common;
-import stratos.game.craft.*;
+import stratos.game.craft.Owner;
 import stratos.util.*;
+
 
 
 public abstract class Fixture extends Element {
@@ -98,8 +99,8 @@ public abstract class Fixture extends Element {
     if (o == null) return null;
     if (v == null) v = new Vec3D();
     v.set(
-      o.x + (size / 2f),
-      o.y + (size / 2f),
+      o.x + (size / 2f) - 0.5f,
+      o.y + (size / 2f) - 0.5f,
       o.elevation()
     );
     return v;

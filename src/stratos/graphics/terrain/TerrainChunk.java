@@ -91,7 +91,7 @@ public class TerrainChunk implements TileConstants {
         //
         //  In the case of normal tiles, we compose normals based on slope
         //  between adjoining tiles and sample within the same tile.
-        pos.set(xoff, yoff, 0);
+        pos.set(xoff - 0.5f, yoff - 0.5f, 0);
         putCornerNormal(hX, hY, norm);
         high = belongs.heightVals[hX][hY];
         //

@@ -389,7 +389,6 @@ public class Selection implements UIConstants {
         protected void addFringes(
           int tx, int ty, TerrainSet terrain,
           Batch <Vec3D  > offsBatch,
-          Batch <Integer> faceBatch,
           Batch <float[]> textBatch
         ) {
           final int len = LayerPattern.UV_PATTERN.length;
@@ -404,7 +403,6 @@ public class Selection implements UIConstants {
               (((ty - 0.5f - yp) + 1 - f) / yd) ;
           }
           offsBatch.add(new Vec3D(tx, ty, 0));
-          faceBatch.add(-1);
           textBatch.add(UV);
         }
       };
