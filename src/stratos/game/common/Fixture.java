@@ -98,8 +98,8 @@ public abstract class Fixture extends Element {
     if (o == null) return null;
     if (v == null) v = new Vec3D();
     v.set(
-      o.x + (size / 2f) - 0.5f,
-      o.y + (size / 2f) - 0.5f,
+      o.x + (size / 2f),
+      o.y + (size / 2f),
       o.elevation()
     );
     return v;
