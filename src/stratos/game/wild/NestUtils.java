@@ -104,15 +104,14 @@ public class NestUtils {
     
     while (true) {
       final Pick <Species> pick = new Pick(0);
-      for (Species s : speciesOrder) {
+      for (Species s : speciesOrder) if (s.nestBlueprint() != null) {
         final float total = world.ecology().idealPopulation(s) * popScale;
         pick.compare(s, total - actualNumbers.valueFor(s));
       }
       if (pick.empty()) break;
       
-      final Species species   = pick.result();
-      final int     popGap    = Nums.round(pick.bestRating(), 1, false);
-      
+      final Species species = pick.result();
+      final int     popGap  = Nums.round(pick.bestRating(), 1, false);
       int pop = Nums.min(nestLimit(species), popGap);
       if (pop <= 0) break;
       

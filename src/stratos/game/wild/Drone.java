@@ -63,10 +63,10 @@ public class Drone extends Artilect {
     
     traits.initAtts(15, 10, 5);
     health.initStats(
-      10,  //lifespan
-      0.85f,//bulk bonus
-      1.00f,//sight range
-      1.25f,//move speed,
+      10   , //lifespan
+      0.85f, //bulk bonus
+      1.00f, //sight range
+      1.25f, //move speed,
       ActorHealth.ARTILECT_METABOLISM
     );
     health.setupHealth(0, Rand.avgNums(2), Rand.avgNums(2));
