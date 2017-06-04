@@ -1,7 +1,7 @@
 Stratos
 ===========================
 
-[![Click to see video.](https://github.com/Morgan-Allen/Presidium-Graphics-Overhaul/readme_screen.png)](https://www.youtube.com/watch?v=auEi5uigmvI)
+[![Click to see video.](https://github.com/Morgan-Allen/Presidium-Graphics-Overhaul/blob/master/readme_screen.png)](https://www.youtube.com/watch?v=auEi5uigmvI)
 
 Stratos (aka Presidium) is a science-fiction themed citybuilder game that borrows equally from Majesty, the Fantasy Kingdom Sim and the Impressions Citybuilder series.
 
