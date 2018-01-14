@@ -142,7 +142,7 @@ public class SupplyDepot extends Venue {
     //
     //  Update all stock demands-
     structure.setAmbienceVal(Ambience.MILD_SQUALOR);
-    stocks.updateStocksAsTrader(1, ALL_STOCKED, POLYMER_TO_PLASTICS);
+    ///stocks.updateStocksAsTrader(1, ALL_STOCKED, POLYMER_TO_PLASTICS);
     
     float recyc = Nums.clamp(1f - base.demands.primaryShortage(ATMO), 0, 1);
     recyc = BASE_POLYMER_PER_DAY * (recyc + 1) / 2;
@@ -201,17 +201,6 @@ public class SupplyDepot extends Venue {
     if (staff.offDuty(actor)) return null;
     final Choice choice = new Choice(actor);
     //
-    //  Consider basic manufacturing tasks-
-    final Manufacture m = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
-    if (m != null) {
-      choice.add(m.setSpeedBonus(2.0f));
-    }
-    for (Item ordered : stocks.specialOrders()) {
-      final Manufacture mO = new Manufacture(actor, this, ordered);
-      choice.add(mO.setSpeedBonus(2.0f));
-    }
-    choice.add(Gathering.asForestCutting(actor, this));
-    //
     //  See if there's a bulk delivery to be made, or if the cargo barge is in
     //  need of repair.
     final Traded services[] = ALL_MATERIALS;
@@ -246,6 +235,17 @@ public class SupplyDepot extends Venue {
     if (c != null && staff.assignedTo(c) < 1) choice.add(c);
     
     if (! choice.empty()) return choice.weightedPick();
+    //
+    //  Consider basic manufacturing tasks-
+    final Manufacture m = stocks.nextManufacture(actor, POLYMER_TO_PLASTICS);
+    if (m != null) {
+      choice.add(m.setSpeedBonus(2.0f));
+    }
+    for (Item ordered : stocks.specialOrders()) {
+      final Manufacture mO = new Manufacture(actor, this, ordered);
+      choice.add(mO.setSpeedBonus(2.0f));
+    }
+    choice.add(Gathering.asForestCutting(actor, this));
     //
     //  If none of that needs doing, consider local repairs or supervision.
     choice.add(Supervision.oversight(this, actor));
@@ -287,7 +287,7 @@ public class SupplyDepot extends Venue {
   
 
   public SelectionPane configSelectPane(SelectionPane panel, HUD UI) {
-    return VenuePane.configStandardPanel(this, panel, UI, null);
+    return VenuePane.configStandardPanel(this, panel, UI, Economy.ALL_MATERIALS);
   }
 }
 

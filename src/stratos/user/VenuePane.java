@@ -179,23 +179,23 @@ public class VenuePane extends SelectionPane {
     d.append(type);
     
     if (set && v.stocks.isDemandFixed(type)) {
+      d.append("/"+I.shorten(production + consumption, 1));
       if (dailySum > 0) d.append(" (+"+I.shorten( dailySum, 1)+"/day)");
       if (dailySum < 0) d.append(" (-"+I.shorten(-dailySum, 1)+"/day)");
       d.append("\n    ");
-      d.append(" Buy: ");
-      d.append(new Description.Link(I.shorten(consumption, 1)) {
+      final float
+        nextCons = Nums.round((consumption + 5) % stockMax, 5, false),
+        nextProd = Nums.round((production  + 5) % stockMax, 5, false)
+      ;
+      d.append(new Description.Link("Buys "+consumption) {
         public void whenClicked(Object context) {
-          float nextCons = consumption + 5;
-          if (nextCons > stockMax - production) nextCons = 0;
-          v.stocks.forceDemand(type, nextCons, production);
+          v.stocks.forceDemand(type, nextCons, 0);
         }
       });
-      d.append(" Sell: ");
-      d.append(new Description.Link(I.shorten(production, 1)) {
+      d.append(" ");
+      d.append(new Description.Link("Sell "+production) {
         public void whenClicked(Object context) {
-          float nextProd = production + 5;
-          if (nextProd > stockMax - consumption) nextProd = 0;
-          v.stocks.forceDemand(type, consumption, nextProd);
+          v.stocks.forceDemand(type, 0, nextProd);
         }
       });
     }

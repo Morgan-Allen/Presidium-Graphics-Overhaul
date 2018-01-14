@@ -333,6 +333,13 @@ public class Hunting extends Plan {
     prey.health.takeInjury(damage, true);
     float taken = prey.health.injury() - before;
     taken /= ActorHealth.DECOMP_FRACTION;
+    
+    //  Bit of a hack here...
+    if (taken <= 0) {
+      prey.exitWorld();
+      return false;
+    }
+    
     //
     //  Then dispose of it appropriately-
     actor.health.takeCalories(taken * Fauna.MEAT_CONVERSION, 1);
