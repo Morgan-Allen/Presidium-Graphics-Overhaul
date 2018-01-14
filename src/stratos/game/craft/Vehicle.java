@@ -242,7 +242,7 @@ public abstract class Vehicle extends Mobile implements
   
   
   public Background[] careers() {
-    return null;
+    return new Background[0];
   }
   
   

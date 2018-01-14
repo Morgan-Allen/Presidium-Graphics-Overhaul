@@ -84,7 +84,8 @@ public abstract class Mobile extends Element
   
   public void removeWorldReferences(Stage world) {
     if (inWorld()) {
-      I.complain(this+" STILL IN WORLD, CANNOT STRIP REFERENCES YET!");
+      this.exitWorld();
+      I.say(this+" STILL IN WORLD, SHOULD NOT STRIP REFERENCES YET!");
       return;
     }
     base   = null;

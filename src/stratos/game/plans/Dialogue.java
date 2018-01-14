@@ -11,10 +11,6 @@ import static stratos.game.actors.Qualities.*;
 
 
 
-//  TODO:  Allow for 'discussion' with the dead- labelled as 'paying respects'?
-//         (But only at grave markers.)
-
-
 public class Dialogue extends Plan {
   
   
@@ -57,6 +53,7 @@ public class Dialogue extends Plan {
   private int stage = STAGE_INIT;
   private Session.Saveable topic;
   private int checkBonus;
+  private int recursionDepth = 0;
   
   
   protected Dialogue(Actor actor, Actor other, int type) {
@@ -119,6 +116,7 @@ public class Dialogue extends Plan {
   }
   
   
+  //*
   public static Dialogue responseFor(
     Actor other, Actor starts, Dialogue intro, float motiveBonus
   ) {
@@ -136,6 +134,7 @@ public class Dialogue extends Plan {
     response.addMotives(intro.motiveProperties(), motiveBonus);
     return response;
   }
+  //*/
   
   
   private boolean canTalkWith(Actor with) {
@@ -151,7 +150,15 @@ public class Dialogue extends Plan {
     if (chatsWith == actor) return true;
     if (with.origin().inside().size() > 1 && ! with.indoors()) return false;
     
+    
     final Dialogue response = responseFor(with, actor, this, 0);
+    
+    //  UGLY HACK, TODO: FIX IN NEXT VERSION
+    if (response != null) {
+      response.recursionDepth = this.recursionDepth + 1;
+      if (response.recursionDepth > 3) return false;
+    }
+    
     if (isCasual() && other.mind.mustIgnore(response)) {
       if (report) {
         I.say("  Other actor is too busy!");
