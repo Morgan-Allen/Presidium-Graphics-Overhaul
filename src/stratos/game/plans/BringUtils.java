@@ -473,6 +473,7 @@ public class BringUtils {
     
     //  This is going from ship to depot, or depot to business.
     if (OT > DT) {
+      if ((OC - OP) > (DC - DP)) return -1;
       if (origAfter < 0        ) return -1;
       if (destAfter > DC + unit) return -1;
       rating = 1 + DN;

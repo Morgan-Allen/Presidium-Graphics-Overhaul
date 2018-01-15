@@ -280,7 +280,7 @@ public class Bringing extends Plan {
     final boolean shops = shouldPay == actor;
     float base = ROUTINE, modifier = NO_MODIFIER, greedMinus = 0;
     if (setWithPayment(shouldPay) == null) {
-      if (report) I.say("  Delivery not longer possible!");
+      if (report) I.say("  Delivery no longer possible!");
       return -1;
     }
     //

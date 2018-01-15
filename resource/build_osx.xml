@@ -1,3 +1,4 @@
+
 <!-- PLEASE NOTE-
     This script expects the OSX JRE folder to be present in the parent
     workspace.  e.g, if this file is sitting in-
@@ -21,7 +22,7 @@
         
         <!-- First step- copy over the app structure and the JRE. -->
         
-    	<copy todir="${insideApp}">
+    	    <copy todir="${insideApp}">
             <fileset dir="./resource/OSX_App_Assets"/>
         </copy>
     	
