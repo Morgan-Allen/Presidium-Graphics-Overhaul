@@ -143,6 +143,8 @@ public class Smuggling extends Plan implements Journey.Purpose {
     if (vessel == null) return null;
     if (actor.aboard() != vessel && ! vessel.landed()) return null;
     
+    int FS = vessel.flightState();
+    
     final boolean report = stepsVerbose && I.talkAbout == actor;
     if (report) I.say("\nGetting next step in smuggling: "+actor);
     //
@@ -158,6 +160,9 @@ public class Smuggling extends Plan implements Journey.Purpose {
         );
         return collect;
       }
+      
+      if (FS < Vehicle.STATE_BOARDING) return null;
+      
       if (report) I.say("  Boarding vessel: "+vessel);
       final Action board = new Action(
         actor, vessel,

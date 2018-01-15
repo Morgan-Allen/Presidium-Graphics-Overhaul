@@ -319,7 +319,7 @@ public class Bringing extends Plan {
     //  TODO:  Move this out to PlanUtils, I think?
     
     float priority = base + modifier - (extraRangePenalty + greedMinus);
-    if (priority < ROUTINE) priority = ROUTINE;
+    if (priority > 0 && priority < ROUTINE) priority = ROUTINE;
     
     if (report) I.reportVars("", "  ",
       "Shopping?"     , shops,
