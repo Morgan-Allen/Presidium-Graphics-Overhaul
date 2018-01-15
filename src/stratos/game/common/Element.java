@@ -78,7 +78,11 @@ public abstract class Element implements
   
   
   public boolean enterWorldAt(int x, int y, Stage world, boolean intact) {
-    if (inWorld()) I.complain("Already in world...");
+    //  Temporary hack.  Fix later.
+    if (inWorld()) {
+      I.say("Already in world...");
+      return false;
+    }
     if (! setPosition(x, y, world)) return false;
     
     this.toggleProperty(PROP_IN_WORLD, true);

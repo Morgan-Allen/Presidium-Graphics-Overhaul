@@ -251,6 +251,12 @@ public class Dialogue extends Plan {
   
   public boolean isEmergency() {
     final Behaviour b = other.mind.rootBehaviour();
+    //  UGLY HACK,  TODO: FIX IN LATER VERSION
+    if (b instanceof Dialogue) {
+      Dialogue o = (Dialogue) b;
+      o.recursionDepth = this.recursionDepth + 1;
+      if (o.recursionDepth >= 3) return false;
+    }
     return isPlea() && b != null && b.isEmergency();
   }
   
