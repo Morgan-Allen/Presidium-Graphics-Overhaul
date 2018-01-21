@@ -529,6 +529,7 @@ public class Journey implements Session.Saveable {
   protected void pickupOffworldMigrants() {
     final SectorBase base = verse.baseForSector(origin);
     final boolean offworld = origin != verse.stageLocation();
+    if (base == null) return;
     
     if (offworld && returns()) for (Mobile m : base.allUnits()) {
       final Purpose a = activityFor(m);

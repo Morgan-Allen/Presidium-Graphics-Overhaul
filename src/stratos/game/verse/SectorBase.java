@@ -204,7 +204,13 @@ public class SectorBase implements Session.Saveable, Schedule.Updates {
     
     if (e != null && e.list() != allUnits) {
       final Sector oldLoc = universe.currentSector(m);
-      I.complain("\nUNIT BELONGS TO A DIFFERENT BASE: "+m+", IS AT: "+oldLoc);
+      if (I.logEvents()) {
+        I.say("\nUNIT BELONGS TO A DIFFERENT BASE: "+m+", IS AT: "+oldLoc);
+      }
+      if (oldLoc != null && oldLoc.base() != null) {
+        oldLoc.base().toggleUnit(m, false);
+      }
+      toggleUnit(m, is);
       return;
     }
     

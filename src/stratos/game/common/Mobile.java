@@ -336,6 +336,9 @@ public abstract class Mobile extends Element
     if (aboard == origin()) {
       return world.terrain().trueHeight(position.x, position.y);
     }
+    else if (aboard == null) {
+      return 0;
+    }
     else return aboard.position(null).z;
   }
   

@@ -88,7 +88,9 @@ public class Dialogue extends Plan {
   
   
   public Plan copyFor(Actor other) {
-    return new Dialogue(other, this.other, type);
+    Dialogue d = new Dialogue(other, this.other, type);
+    d.recursionDepth = this.recursionDepth + 1;
+    return d;
   }
   
   
@@ -121,7 +123,11 @@ public class Dialogue extends Plan {
     Actor other, Actor starts, Dialogue intro, float motiveBonus
   ) {
     final Dialogue current = (Dialogue) other.matchFor(Dialogue.class, true);
-    if (current != null && current.subject == starts) return current;
+    if (current != null && current.subject == starts) {
+      //  UGLY HACK, TODO: FIX IN NEXT VERSION
+      current.recursionDepth = intro.recursionDepth + 1;
+      return current;
+    }
     
     if (intro == null) intro = (Dialogue) starts.matchFor(Dialogue.class, true);
     if (intro != null && intro.other != other) intro = null;
@@ -129,6 +135,8 @@ public class Dialogue extends Plan {
     
     final Dialogue response = new Dialogue(other, starts, intro.type);
     response.starts = intro;
+    //  UGLY HACK, TODO: FIX IN NEXT VERSION
+    response.recursionDepth = intro.recursionDepth + 1;
     
     motiveBonus += intro.motiveBonus() / 2;
     response.addMotives(intro.motiveProperties(), motiveBonus);
@@ -150,14 +158,7 @@ public class Dialogue extends Plan {
     if (chatsWith == actor) return true;
     if (with.origin().inside().size() > 1 && ! with.indoors()) return false;
     
-    
     final Dialogue response = responseFor(with, actor, this, 0);
-    
-    //  UGLY HACK, TODO: FIX IN NEXT VERSION
-    if (response != null) {
-      response.recursionDepth = this.recursionDepth + 1;
-      if (response.recursionDepth > 3) return false;
-    }
     
     if (isCasual() && other.mind.mustIgnore(response)) {
       if (report) {
